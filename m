@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267703AbUIDL1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269893AbUIDLe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267703AbUIDL1a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 07:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269909AbUIDL1Y
+	id S269893AbUIDLe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 07:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267686AbUIDLcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 07:27:24 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:13765 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267703AbUIDLYh (ORCPT
+	Sat, 4 Sep 2004 07:32:08 -0400
+Received: from cantor.suse.de ([195.135.220.2]:57795 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269896AbUIDLQR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 07:24:37 -0400
-Date: Sat, 4 Sep 2004 12:24:32 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Keith Whitwell <keith@tungstengraphics.com>,
-       Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: New proposed DRM interface design
-In-Reply-To: <20040904121355.E14123@infradead.org>
-Message-ID: <Pine.LNX.4.58.0409041221580.25475@skynet>
-References: <20040904004424.93643.qmail@web14921.mail.yahoo.com>
- <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org>
- <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org>
- <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org>
- <4139995E.5030505@tungstengraphics.com> <20040904120352.B14037@infradead.org>
- <Pine.LNX.4.58.0409041207060.25475@skynet> <20040904121355.E14123@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 4 Sep 2004 07:16:17 -0400
+Date: Sat, 4 Sep 2004 13:16:05 +0200
+From: Andi Kleen <ak@suse.de>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       William Lee Irwin III <wli@holomorphy.com>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH][8/8] Arch agnostic completely out of line locks / x86_64
+Message-ID: <20040904111605.GA12165@wotan.suse.de>
+References: <Pine.LNX.4.58.0409021241291.4481@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409021241291.4481@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> A user without a clue should better be using a supported distribution.
-> If he used Fedora Core2 instead of the totally outdated and unsupported
-> RH9 he'd already have a kernel with i915 support on his disk.
+On Thu, Sep 02, 2004 at 08:03:02PM -0400, Zwane Mwaikambo wrote:
+>  arch/x86_64/kernel/time.c        |   13 +++++++++++++
+>  arch/x86_64/kernel/vmlinux.lds.S |    1 +
+>  include/asm-x86_64/ptrace.h      |    4 ++++
+>  3 files changed, 18 insertions(+)
+> 
+> Andi, i'm not so sure about that return address in profile_pc, i think i
+> need to read a bit more.
 
-What about Debian? they would have a 2.4 kernel.. is Debian not supported,
-no-one told me...
+When frame pointers are enabled the code is correct. But you don't 
+even need frame pointers, because the spinlock code should not
+spill any registers and in such a function the return address
+is always *rsp. Same is true on i386 too. 
 
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
+-Andi

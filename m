@@ -1,176 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264651AbSKDLw6>; Mon, 4 Nov 2002 06:52:58 -0500
+	id <S264653AbSKDL7B>; Mon, 4 Nov 2002 06:59:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264652AbSKDLw6>; Mon, 4 Nov 2002 06:52:58 -0500
-Received: from ns.sysgo.de ([213.68.67.98]:8188 "EHLO dagobert.svc.sysgo.de")
-	by vger.kernel.org with ESMTP id <S264651AbSKDLw4>;
-	Mon, 4 Nov 2002 06:52:56 -0500
-Date: Mon, 4 Nov 2002 12:55:15 +0100
-From: Soewono Effendi <SEffendi@sysgo.de>
-To: linux-kernel mlist <linux-kernel@vger.kernel.org>
-Subject: error compiling v2.5.45 using xtreme minimal .config
-Message-Id: <20021104125515.6578f429.SEffendi@sysgo.de>
-Organization: SYSGO Real-Time Solutions GmbH
-X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Mon__4_Nov_2002_12:55:15_+0100_081f0e30"
+	id <S264655AbSKDL7B>; Mon, 4 Nov 2002 06:59:01 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62983 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S264653AbSKDL66>; Mon, 4 Nov 2002 06:58:58 -0500
+Message-Id: <200211041159.gA4Bxop32366@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: linux-kernel@vger.kernel.org
+Subject: Re: Improving string.h memcp()y implementation
+Date: Mon, 4 Nov 2002 14:51:24 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <200211041137.gA4Bbip32222@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200211041137.gA4Bbip32222@Port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On 4 November 2002 14:29, Denis Vlasenko wrote:
+> static inline void *
+> vda_memcpy3(void * to, const void * from, size_t n)
+> {
+>         int d0, d1, d2;
+>         __asm__ __volatile__(
+>         "       rep; movsl\n"
+>         "       movl    %4, %%ecx\n"
+>         "       rep; movsb\n"
+>
+>                 : "=&c" (d0), "=&D" (d1), "=&S" (d2)
+>                 : "0" (n/4), "g" (n&3), "1" ((long) to), "2" ((long)
+>                 : from) "memory"
+>
+>         );
+>         return (to);
+> }
+......
+> void f5() { vda_memcpy3(to,from,sz); }
+......
+> Disassembly of section ff5:
+>
+> 00000000 <f5>:
+>    0:   8b 0d 00 00 00 00       mov    0x0,%ecx
+>    6:   57                      push   %edi
+>    7:   89 c8                   mov    %ecx,%eax
+>    9:   56                      push   %esi
+>    a:   8b 3d 00 00 00 00       mov    0x0,%edi
+>   10:   8b 35 00 00 00 00       mov    0x0,%esi
+>   16:   83 e0 03                and    $0x3,%eax
+>   19:   c1 e9 02                shr    $0x2,%ecx
+>   1c:   f3 a5                   repz movsl %ds:(%esi),%es:(%edi)
+>   1e:   89 c1                   mov    %eax,%ecx
+>   20:   f3 a4                   repz movsb %ds:(%esi),%es:(%edi)
+>   22:   5e                      pop    %esi
+>   23:   5f                      pop    %edi
+>   24:   c3                      ret
+>
+> I think I shall not look there for a while ;)
+> Please somebody stop me... ;) ;)
 
---Multipart_Mon__4_Nov_2002_12:55:15_+0100_081f0e30
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+...before it will be too late:
 
-Hi all,
+static inline void *
+vda_memcpy3(void * to, const void * from, size_t n)
+{
+        int d0, d1, d2;
+        __asm__ __volatile__(
+        "       andb    $3, %b4\n"	// we can save here a byte if %4 == eax
+        "       rep; movsl\n"
+        "       movb    %b4, %%cl\n"
+        "       rep; movsb\n"
+                : "=&c" (d0), "=&D" (d1), "=&S" (d2)
+                : "0" (n/4), "g" (n), "1" ((long) to), "2" ((long) from)
+		: "memory"
+        );
+        return (to);
+}
 
-I just tested to compile linux-2.5.45 with this xtreme minimal .config (also attached)
-Basically I turned off everything that was "off-able" (not sure it this word exists ;))
- using "make menuconfig".
------8<-------
-CONFIG_X86=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_M586=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_PPRO_FENCE=y
-CONFIG_X86_F00F_BUG=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_USE_STRING_486=y
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_NOHIGHMEM=y
-CONFIG_BINFMT_ELF=y
-CONFIG_INPUT=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_RAMFS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_X86_BIOS_REBOOT=y
------8<-------
-Note: This configuration might produce "not so useful" kernel, 
-but that's how I tested the kernel configuration.
+Disassembly of section ff5:
 
-I got the following error:
+00000000 <f5>:
+   0:   a1 00 00 00 00          mov    0x0,%eax
+   5:   57                      push   %edi
+   6:   89 c1                   mov    %eax,%ecx
+   8:   56                      push   %esi
+   9:   8b 3d 00 00 00 00       mov    0x0,%edi
+   f:   8b 35 00 00 00 00       mov    0x0,%esi
+  15:   c1 e9 02                shr    $0x2,%ecx
+  18:   24 03                   and    $0x3,%al
+  1a:   f3 a5                   repz movsl %ds:(%esi),%es:(%edi)
+  1c:   88 c1                   mov    %al,%cl
+  1e:   f3 a4                   repz movsb %ds:(%esi),%es:(%edi)
+  20:   5e                      pop    %esi
+  21:   5f                      pop    %edi
+  22:   c3                      ret
 
-  Generating build number
-  Generating include/linux/compile.h (updated)
-  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version   -c -o init/version.o init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o
-        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  net/built-in.o --end-group  -o vmlinux
-net/built-in.o: In function `sock_ioctl':
-net/built-in.o(.text+0x956): undefined reference to `dev_ioctl'
-net/built-in.o: In function `__kfree_skb':
-net/built-in.o(.text+0x32ae): undefined reference to `__secpath_destroy'
+;)))
 
-Best regards,
->> S. Effendi
-
---Multipart_Mon__4_Nov_2002_12:55:15_+0100_081f0e30
-Content-Type: application/octet-stream;
- name=".config"
-Content-Disposition: attachment;
- filename=".config"
-Content-Transfer-Encoding: base64
-
-IwojIEF1dG9tYXRpY2FsbHkgZ2VuZXJhdGVkIG1ha2UgY29uZmlnOiBkb24ndCBlZGl0CiMKQ09O
-RklHX1g4Nj15CkNPTkZJR19VSUQxNj15CkNPTkZJR19HRU5FUklDX0lTQV9ETUE9eQoKIwojIENv
-ZGUgbWF0dXJpdHkgbGV2ZWwgb3B0aW9ucwojCiMgQ09ORklHX0VYUEVSSU1FTlRBTCBpcyBub3Qg
-c2V0CgojCiMgR2VuZXJhbCBzZXR1cAojCiMgQ09ORklHX05FVCBpcyBub3Qgc2V0CiMgQ09ORklH
-X1NZU1ZJUEMgaXMgbm90IHNldAojIENPTkZJR19CU0RfUFJPQ0VTU19BQ0NUIGlzIG5vdCBzZXQK
-IyBDT05GSUdfU1lTQ1RMIGlzIG5vdCBzZXQKCiMKIyBMb2FkYWJsZSBtb2R1bGUgc3VwcG9ydAoj
-CiMgQ09ORklHX01PRFVMRVMgaXMgbm90IHNldAoKIwojIFByb2Nlc3NvciB0eXBlIGFuZCBmZWF0
-dXJlcwojCiMgQ09ORklHX00zODYgaXMgbm90IHNldAojIENPTkZJR19NNDg2IGlzIG5vdCBzZXQK
-Q09ORklHX001ODY9eQojIENPTkZJR19NNTg2VFNDIGlzIG5vdCBzZXQKIyBDT05GSUdfTTU4Nk1N
-WCBpcyBub3Qgc2V0CiMgQ09ORklHX002ODYgaXMgbm90IHNldAojIENPTkZJR19NUEVOVElVTUlJ
-SSBpcyBub3Qgc2V0CiMgQ09ORklHX01QRU5USVVNNCBpcyBub3Qgc2V0CiMgQ09ORklHX01LNiBp
-cyBub3Qgc2V0CiMgQ09ORklHX01LNyBpcyBub3Qgc2V0CiMgQ09ORklHX01FTEFOIGlzIG5vdCBz
-ZXQKIyBDT05GSUdfTUNSVVNPRSBpcyBub3Qgc2V0CiMgQ09ORklHX01XSU5DSElQQzYgaXMgbm90
-IHNldAojIENPTkZJR19NV0lOQ0hJUDIgaXMgbm90IHNldAojIENPTkZJR19NV0lOQ0hJUDNEIGlz
-IG5vdCBzZXQKIyBDT05GSUdfTUNZUklYSUlJIGlzIG5vdCBzZXQKQ09ORklHX1g4Nl9DTVBYQ0hH
-PXkKQ09ORklHX1g4Nl9YQUREPXkKQ09ORklHX1g4Nl9MMV9DQUNIRV9TSElGVD01CkNPTkZJR19S
-V1NFTV9YQ0hHQUREX0FMR09SSVRITT15CkNPTkZJR19YODZfUFBST19GRU5DRT15CkNPTkZJR19Y
-ODZfRjAwRl9CVUc9eQpDT05GSUdfWDg2X1dQX1dPUktTX09LPXkKQ09ORklHX1g4Nl9JTlZMUEc9
-eQpDT05GSUdfWDg2X0JTV0FQPXkKQ09ORklHX1g4Nl9QT1BBRF9PSz15CkNPTkZJR19YODZfVVNF
-X1NUUklOR180ODY9eQpDT05GSUdfWDg2X0FMSUdOTUVOVF8xNj15CiMgQ09ORklHX0hVR0VUTEJf
-UEFHRSBpcyBub3Qgc2V0CiMgQ09ORklHX1NNUCBpcyBub3Qgc2V0CiMgQ09ORklHX1BSRUVNUFQg
-aXMgbm90IHNldAojIENPTkZJR19YODZfVVBfQVBJQyBpcyBub3Qgc2V0CiMgQ09ORklHX1g4Nl9N
-Q0UgaXMgbm90IHNldAojIENPTkZJR19DUFVfRlJFUSBpcyBub3Qgc2V0CiMgQ09ORklHX1RPU0hJ
-QkEgaXMgbm90IHNldAojIENPTkZJR19JOEsgaXMgbm90IHNldAojIENPTkZJR19NSUNST0NPREUg
-aXMgbm90IHNldAojIENPTkZJR19YODZfTVNSIGlzIG5vdCBzZXQKIyBDT05GSUdfWDg2X0NQVUlE
-IGlzIG5vdCBzZXQKQ09ORklHX05PSElHSE1FTT15CiMgQ09ORklHX0hJR0hNRU00RyBpcyBub3Qg
-c2V0CiMgQ09ORklHX0hJR0hNRU02NEcgaXMgbm90IHNldAojIENPTkZJR19NQVRIX0VNVUxBVElP
-TiBpcyBub3Qgc2V0CiMgQ09ORklHX01UUlIgaXMgbm90IHNldAoKIwojIFBvd2VyIG1hbmFnZW1l
-bnQgb3B0aW9ucyAoQUNQSSwgQVBNKQojCgojCiMgQUNQSSBTdXBwb3J0CiMKIyBDT05GSUdfQUNQ
-SSBpcyBub3Qgc2V0CiMgQ09ORklHX1BNIGlzIG5vdCBzZXQKCiMKIyBCdXMgb3B0aW9ucyAoUENJ
-LCBQQ01DSUEsIEVJU0EsIE1DQSwgSVNBKQojCiMgQ09ORklHX1BDSSBpcyBub3Qgc2V0CiMgQ09O
-RklHX1BDSV9HT0JJT1MgaXMgbm90IHNldAojIENPTkZJR19QQ0lfR09ESVJFQ1QgaXMgbm90IHNl
-dAojIENPTkZJR19QQ0lfR09BTlkgaXMgbm90IHNldAojIENPTkZJR19TQ3gyMDAgaXMgbm90IHNl
-dAojIENPTkZJR19JU0EgaXMgbm90IHNldAojIENPTkZJR19NQ0EgaXMgbm90IHNldAojIENPTkZJ
-R19IT1RQTFVHIGlzIG5vdCBzZXQKCiMKIyBFeGVjdXRhYmxlIGZpbGUgZm9ybWF0cwojCiMgQ09O
-RklHX0tDT1JFX0VMRiBpcyBub3Qgc2V0CiMgQ09ORklHX0tDT1JFX0FPVVQgaXMgbm90IHNldAoj
-IENPTkZJR19CSU5GTVRfQU9VVCBpcyBub3Qgc2V0CkNPTkZJR19CSU5GTVRfRUxGPXkKIyBDT05G
-SUdfQklORk1UX01JU0MgaXMgbm90IHNldAoKIwojIE1lbW9yeSBUZWNobm9sb2d5IERldmljZXMg
-KE1URCkKIwojIENPTkZJR19NVEQgaXMgbm90IHNldAoKIwojIFBhcmFsbGVsIHBvcnQgc3VwcG9y
-dAojCiMgQ09ORklHX1BBUlBPUlQgaXMgbm90IHNldAoKIwojIFBsdWcgYW5kIFBsYXkgY29uZmln
-dXJhdGlvbgojCiMgQ09ORklHX1BOUCBpcyBub3Qgc2V0CgojCiMgQmxvY2sgZGV2aWNlcwojCiMg
-Q09ORklHX0JMS19ERVZfRkQgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0xPT1AgaXMgbm90
-IHNldAojIENPTkZJR19CTEtfREVWX1JBTSBpcyBub3Qgc2V0CiMgQ09ORklHX0xCRCBpcyBub3Qg
-c2V0CgojCiMgQVRBL0FUQVBJL01GTS9STEwgZGV2aWNlIHN1cHBvcnQKIwojIENPTkZJR19JREUg
-aXMgbm90IHNldAoKIwojIFNDU0kgZGV2aWNlIHN1cHBvcnQKIwojIENPTkZJR19TQ1NJIGlzIG5v
-dCBzZXQKCiMKIyBNdWx0aS1kZXZpY2Ugc3VwcG9ydCAoUkFJRCBhbmQgTFZNKQojCiMgQ09ORklH
-X01EIGlzIG5vdCBzZXQKCiMKIyBGdXNpb24gTVBUIGRldmljZSBzdXBwb3J0CiMKCiMKIyBJMk8g
-ZGV2aWNlIHN1cHBvcnQKIwojIENPTkZJR19JMk8gaXMgbm90IHNldAoKIwojIEFtYXRldXIgUmFk
-aW8gc3VwcG9ydAojCiMgQ09ORklHX0hBTVJBRElPIGlzIG5vdCBzZXQKCiMKIyBJU0ROIHN1YnN5
-c3RlbQojCgojCiMgVGVsZXBob255IFN1cHBvcnQKIwojIENPTkZJR19QSE9ORSBpcyBub3Qgc2V0
-CgojCiMgSW5wdXQgZGV2aWNlIHN1cHBvcnQKIwpDT05GSUdfSU5QVVQ9eQoKIwojIFVzZXJsYW5k
-IGludGVyZmFjZXMKIwojIENPTkZJR19JTlBVVF9NT1VTRURFViBpcyBub3Qgc2V0CiMgQ09ORklH
-X0lOUFVUX0pPWURFViBpcyBub3Qgc2V0CiMgQ09ORklHX0lOUFVUX1RTREVWIGlzIG5vdCBzZXQK
-IyBDT05GSUdfSU5QVVRfRVZERVYgaXMgbm90IHNldAojIENPTkZJR19JTlBVVF9FVkJVRyBpcyBu
-b3Qgc2V0CgojCiMgSW5wdXQgSS9PIGRyaXZlcnMKIwojIENPTkZJR19HQU1FUE9SVCBpcyBub3Qg
-c2V0CkNPTkZJR19TT1VORF9HQU1FUE9SVD15CiMgQ09ORklHX1NFUklPIGlzIG5vdCBzZXQKCiMK
-IyBJbnB1dCBEZXZpY2UgRHJpdmVycwojCiMgQ09ORklHX0lOUFVUX0tFWUJPQVJEIGlzIG5vdCBz
-ZXQKIyBDT05GSUdfSU5QVVRfTU9VU0UgaXMgbm90IHNldAojIENPTkZJR19JTlBVVF9KT1lTVElD
-SyBpcyBub3Qgc2V0CiMgQ09ORklHX0lOUFVUX1RPVUNIU0NSRUVOIGlzIG5vdCBzZXQKIyBDT05G
-SUdfSU5QVVRfTUlTQyBpcyBub3Qgc2V0CgojCiMgQ2hhcmFjdGVyIGRldmljZXMKIwojIENPTkZJ
-R19WVCBpcyBub3Qgc2V0CiMgQ09ORklHX1NFUklBTF9OT05TVEFOREFSRCBpcyBub3Qgc2V0Cgoj
-CiMgU2VyaWFsIGRyaXZlcnMKIwoKIwojIE5vbi04MjUwIHNlcmlhbCBwb3J0IHN1cHBvcnQKIwoj
-IENPTkZJR19VTklYOThfUFRZUyBpcyBub3Qgc2V0CgojCiMgSTJDIHN1cHBvcnQKIwojIENPTkZJ
-R19JMkMgaXMgbm90IHNldAoKIwojIE1pY2UKIwojIENPTkZJR19CVVNNT1VTRSBpcyBub3Qgc2V0
-CiMgQ09ORklHX1FJQzAyX1RBUEUgaXMgbm90IHNldAoKIwojIFdhdGNoZG9nIENhcmRzCiMKIyBD
-T05GSUdfV0FUQ0hET0cgaXMgbm90IHNldAojIENPTkZJR19OVlJBTSBpcyBub3Qgc2V0CiMgQ09O
-RklHX1JUQyBpcyBub3Qgc2V0CiMgQ09ORklHX0dFTl9SVEMgaXMgbm90IHNldAojIENPTkZJR19E
-VExLIGlzIG5vdCBzZXQKIyBDT05GSUdfUjM5NjQgaXMgbm90IHNldAojIENPTkZJR19BUFBMSUNP
-TSBpcyBub3Qgc2V0CgojCiMgRnRhcGUsIHRoZSBmbG9wcHkgdGFwZSBkZXZpY2UgZHJpdmVyCiMK
-IyBDT05GSUdfRlRBUEUgaXMgbm90IHNldAojIENPTkZJR19BR1AgaXMgbm90IHNldAojIENPTkZJ
-R19EUk0gaXMgbm90IHNldAojIENPTkZJR19NV0FWRSBpcyBub3Qgc2V0CiMgQ09ORklHX1JBV19E
-UklWRVIgaXMgbm90IHNldAoKIwojIE11bHRpbWVkaWEgZGV2aWNlcwojCiMgQ09ORklHX1ZJREVP
-X0RFViBpcyBub3Qgc2V0CgojCiMgRmlsZSBzeXN0ZW1zCiMKIyBDT05GSUdfUVVPVEEgaXMgbm90
-IHNldAojIENPTkZJR19BVVRPRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19BVVRPRlM0X0ZTIGlz
-IG5vdCBzZXQKIyBDT05GSUdfUkVJU0VSRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19FWFQzX0ZT
-IGlzIG5vdCBzZXQKIyBDT05GSUdfSkJEIGlzIG5vdCBzZXQKIyBDT05GSUdfRkFUX0ZTIGlzIG5v
-dCBzZXQKIyBDT05GSUdfQ1JBTUZTIGlzIG5vdCBzZXQKIyBDT05GSUdfVE1QRlMgaXMgbm90IHNl
-dApDT05GSUdfUkFNRlM9eQojIENPTkZJR19JU085NjYwX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdf
-SkZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfTUlOSVhfRlMgaXMgbm90IHNldAojIENPTkZJR19W
-WEZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfTlRGU19GUyBpcyBub3Qgc2V0CiMgQ09ORklHX0hQ
-RlNfRlMgaXMgbm90IHNldAojIENPTkZJR19QUk9DX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfUU5Y
-NEZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfUk9NRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19F
-WFQyX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfU1lTVl9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1VE
-Rl9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1VGU19GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1hGU19G
-UyBpcyBub3Qgc2V0CgojCiMgUGFydGl0aW9uIFR5cGVzCiMKIyBDT05GSUdfUEFSVElUSU9OX0FE
-VkFOQ0VEIGlzIG5vdCBzZXQKQ09ORklHX01TRE9TX1BBUlRJVElPTj15CgojCiMgU291bmQKIwoj
-IENPTkZJR19TT1VORCBpcyBub3Qgc2V0CgojCiMgVVNCIHN1cHBvcnQKIwoKIwojIEtlcm5lbCBo
-YWNraW5nCiMKIyBDT05GSUdfREVCVUdfS0VSTkVMIGlzIG5vdCBzZXQKCiMKIyBTZWN1cml0eSBv
-cHRpb25zCiMKQ09ORklHX1NFQ1VSSVRZX0NBUEFCSUxJVElFUz15CgojCiMgQ3J5cHRvZ3JhcGhp
-YyBvcHRpb25zCiMKIyBDT05GSUdfQ1JZUFRPIGlzIG5vdCBzZXQKCiMKIyBMaWJyYXJ5IHJvdXRp
-bmVzCiMKIyBDT05GSUdfQ1JDMzIgaXMgbm90IHNldApDT05GSUdfWDg2X0JJT1NfUkVCT09UPXkK
-
---Multipart_Mon__4_Nov_2002_12:55:15_+0100_081f0e30--
+--
+vda

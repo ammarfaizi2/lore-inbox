@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289379AbSBJJLu>; Sun, 10 Feb 2002 04:11:50 -0500
+	id <S289376AbSBJJTC>; Sun, 10 Feb 2002 04:19:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289376AbSBJJKX>; Sun, 10 Feb 2002 04:10:23 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:7437 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S289375AbSBJJKF>; Sun, 10 Feb 2002 04:10:05 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: [V4L] [PATCH/RFC] videodev.[ch] redesign
-Date: 10 Feb 2002 08:59:45 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrna6cdk1.ret.kraxel@bytesex.org>
-In-Reply-To: <20020209194602.A23061@bytesex.org> <200202100203.g1A23To32387@devserv.devel.redhat.com>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1013331585 28164 127.0.0.1 (10 Feb 2002 08:59:45 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S289385AbSBJJSw>; Sun, 10 Feb 2002 04:18:52 -0500
+Received: from [62.14.192.20] ([62.14.192.20]:16903 "EHLO pau.intranet.ct")
+	by vger.kernel.org with ESMTP id <S289376AbSBJJSk>;
+	Sun, 10 Feb 2002 04:18:40 -0500
+Date: Sat, 9 Feb 2002 22:13:15 +0100 (CET)
+From: Pau Aliagas <linuxnow@wanadoo.es>
+X-X-Sender: pau@pau.intranet.ct
+To: David Lang <david.lang@digitalinsight.com>
+cc: Larry McVoy <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: pull vs push (was Re: [bk patch] Make cardbus compile in -pre4)
+In-Reply-To: <Pine.LNX.4.44.0202091305510.25220-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.44.0202092211330.17916-100000@pau.intranet.ct>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > It also provides a ioctl wrapper function which handles copying the
-> > ioctl args from/to userspace, so we have this at one place can drop all
-> > the copy_from/to_user calls within the v4l device driver ioctl handlers.
-> > 
-> > Comments?
->  
->  I'm not sure 2.4 should change but for 2.5 this is absolutely bang on
->  perfect
+On Sat, 9 Feb 2002, David Lang wrote:
 
-For 2.5 I want switch over to using file_operations completely and drop
-the old stuff.  Thus 2.4 should provide both old+new way to handle
-stuff:  The old one for backward compatibility and the new one to allow
-backporting 2.5.x drivers to 2.4 ...
+> I just set this up between a couple machines at work and one thing we
+> ended up doing to get it to work was to generate a key without a
+> passphrase on it to use for syncing, otherwise the ssh on the machine
+> inititing the connection wanted a password to start the connection. you
+> also need to do the stuff mentioned for the receiving end so that it
+> doesn't ask for a password.
 
-Yesterday I've booted a 2.5.x kernel the first time and managed to make
-bttv work there.  2.5.x version of the will follow ...
+That's ok if you can't type the password as in batch jobs.
 
-  Gerd
+Pau
 
--- 
-#define	ENOCLUE 125 /* userland programmer induced race condition */

@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317409AbSFMCZf>; Wed, 12 Jun 2002 22:25:35 -0400
+	id <S317418AbSFMCm7>; Wed, 12 Jun 2002 22:42:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317414AbSFMCZe>; Wed, 12 Jun 2002 22:25:34 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:13319 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S317409AbSFMCZd>; Wed, 12 Jun 2002 22:25:33 -0400
-Date: Wed, 12 Jun 2002 19:25:26 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 no timestamp update on modified mmapped files
-Message-ID: <20020612192526.B6679@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3D06FEA9.AB40CC79@zip.com.au> <Pine.LNX.4.21.0206121455560.1032-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317421AbSFMCm6>; Wed, 12 Jun 2002 22:42:58 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:55688 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S317418AbSFMCm5>;
+	Wed, 12 Jun 2002 22:42:57 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: Kurt Wall <kwall@kurtwerks.com>
+Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
+Date: Wed, 12 Jun 2002 19:42:53 -0700
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020612215014.6c2aeaf6.kwall@kurtwerks.com> <Pine.GSO.4.21.0206122152300.16357-100000@weyl.math.psu.edu> <20020612222540.23e38e0a.kwall@kurtwerks.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+Message-Id: <200206121942.56046.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 12, 2002 at 03:52:34PM +0100, Hugh Dickins wrote:
-> On Wed, 12 Jun 2002, Andrew Morton wrote:
-> > 
-> > A more serious form of data loss occurs when an application has a shared
-> > mapping over a sparse file.  If the filesystem is out of space when
-> > the VM decides to write back some pages, your data simply gets dropped
-> > on the floor.  Even a subsequent msync() won't tell you that you have
-> > a shiny new bunch of zeroes in your file.
-> > 
-> > It's not simple to fix.  Approaches might be:
-> > 
-> > 1: Map the page to disk at fault time, generate SIGBUS on
-> >    ENOSPC  (the standards don't seem to address this issue, and
-> >    this is a non-standard overload of SIGBUS).
-> 
-> I believe your option 1 is closest to the right direction; and SIGBUS
-> is entirely appropriate, I don't see it as a non-standard overload.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I concur that #1 is closest.  I'd prefer it to happen on a
-write fault rather read but the frequency with which
-this should occur is low enough i wouldn't sweat it.
+On June 12, 2002 19:25, Kurt Wall wrote:
+> That's *precisely* the point I tried to make. .desktop files are just
+> plain text files, as far as Unix is concerned. They do not map neatly
+> to Windows .lnk files because the kernel's file system layer does
+> not handle them specially, as it does symlinks. God and Bill Gates
+> alone know how Windows handles .lnk files, but it does seem that Windows
+> imputes to them special semantics, rather like a shell script.
 
-It is a non-standard overload of SIGBUS.  SIGBUS is to
-indicate an unaligned memory access or otherwise malformed
-address. Many confuse SIGBUS with SIGSEGV because they are
-usually symptoms of the same problems but a SIGSEGV is to
-indicate memory protection violation (unresolvable page
-fault) which is not the same as a malformed address.  I
-believe Linux, at least on x86 maps both errors to SIGSEGV.
-I would think SIGXFSZ might be a better fit.
+No, some people actually know how Windows works. The kernel has very little to 
+do with .lnk files, and in fact it sees them as regular files. If you run 
+"notepad foo.lnk", you will see the link's binary contents. If you use the 
+CreateFile or OpenFile kernel calls, you will get a file handle pointing to 
+the link's contents. If you attempt to execute a .lnk file from the command 
+line or using CreateProcess, it will horribly fail.
 
-> 
-> But you didn't spell out the worst news on that option: read faults
-> into a read-only shared mapping of a file which the application had
-> open for read-write when it mmapped: the page must be mapped to disk
-> at read fault time (because the mapping just might be mprotected for
-> read-write later on, and the page then dirtied).
-> 
-> 
+In fact, to dereference a link in userspace, you must open the .lnk file, 
+examine its contents with a library call, and then open the destination file.  
+This is extremely similar to how Gnome or KDE handle .desktop files: mainly 
+in the shell.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+- -Ryan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-		Remember Cernan and Schmitt
+iD8DBQE9CAawLGMzRzbJfbQRAm05AJ4gUYliitP5APHO/IM5jPB7wukGCgCgoPFg
+qGH7VCkKap7mSFAET9T3n88=
+=5Oer
+-----END PGP SIGNATURE-----

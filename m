@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272276AbTGYTot (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 15:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272277AbTGYTot
+	id S272277AbTGYTtg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 15:49:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272278AbTGYTtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 15:44:49 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:26300 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S272276AbTGYTor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 15:44:47 -0400
-Date: Fri, 25 Jul 2003 21:59:22 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] sched-2.6.0-test1-G3, interactivity changes, audio latency
-Message-ID: <Pine.LNX.4.44.0307252146550.16235-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Jul 2003 15:49:36 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:16912
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S272277AbTGYTtf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 15:49:35 -0400
+Date: Fri, 25 Jul 2003 13:04:40 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cutting down on boot messages
+Message-ID: <20030725200440.GA1686@matchmail.com>
+Mail-Followup-To: Jurriaan <thunder7@xs4all.nl>,
+	linux-kernel@vger.kernel.org
+References: <20030725195752.GA8107@middle.of.nowhere>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030725195752.GA8107@middle.of.nowhere>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 25, 2003 at 09:57:52PM +0200, Jurriaan wrote:
+> of messages? I'm now at 22k of dmesg, including raid, usb, apic etc, for
+> a single CPU system.
 
-my current "interactivity changes" scheduler patchset can be found at:
+And you want more static buffers to store that in than now?  Many people
+won't like that.
 
-	redhat.com/~mingo/O(1)-scheduler/sched-2.6.0-test1-G3
+You'd do better to have a boot time command line option to limit printk
+messages to err, or above.  Most of the printk messages have been given a
+severity already, so this shouldn't be a problem, and it will probably
+uncover some errors in the severity of certain messages.
 
-(this patch is mostly orthogonal to Con's patchset, but obviously collides
-patch-wise. The patch should also cleanly apply to 2.6.0-test1-bk2.)
-
-Changes:
-
- - cycle accuracy (nanosec resolution) timekeeping within the scheduler. 
-   This fixes a number of audio artifacts (skipping) i've reproduced. I
-   dont think we can get away without going cycle accuracy - reading the
-   cycle counter adds some overhead, but it's acceptable. The first
-   nanosec-accuracy patch was done by Mike Galbraith - this patch is
-   different but similar in nature. I went further in also changing the
-   sleep_avg to be of nanosec resolution.
-
- - more finegrained timeslices: there's now a timeslice 'sub unit' of 50 
-   usecs (TIMESLICE_GRANULARITY) - CPU hogs on the same priority level 
-   will roundrobin with this unit. This change is intended to make gaming
-   latencies shorter.
-
- - include scheduling latency in sleep bonus calculation. This change 
-   extends the sleep-average calculation to the period of time a task
-   spends on the runqueue but doesnt get scheduled yet, right after
-   wakeup. Note that tasks that were preempted (ie. not woken up) and are 
-   still on the runqueue do not get this benefit. This change closes one 
-   of the last hole in the dynamic priority estimation, it should result 
-   in interactive tasks getting more priority under heavy load. This
-   change also fixes the test-starve.c testcase from David Mosberger.
-
- - (some other, smaller changes.)
-
-if you've experienced audio skipping in 2.6.0-test1 (and later) kernels
-then please give this patch a go. Reports, testing feedback and comments
-are welcome,
-
-	Ingo
-
+Anyway, there are other ways to peel this union, including having the
+messages to to tty2 instead of console (I've seen patches for this posted
+before).

@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129652AbQLOR6o>; Fri, 15 Dec 2000 12:58:44 -0500
+	id <S129228AbQLOVNO>; Fri, 15 Dec 2000 16:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129614AbQLOR6f>; Fri, 15 Dec 2000 12:58:35 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:10633 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129289AbQLOR6W>;
-	Fri, 15 Dec 2000 12:58:22 -0500
-Date: Fri, 15 Dec 2000 09:11:31 -0800
-Message-Id: <200012151711.JAA20826@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: andrea@suse.de
-CC: ink@jurassic.park.msu.ru, ezolt@perf.zko.dec.com, axp-list@redhat.com,
-        rth@twiddle.net, Jay.Estabrook@compaq.com,
-        linux-kernel@vger.kernel.org, clinux@zk3.dec.com,
-        wcarr@perf.zko.dec.com, linux-alpha@vger.kernel.org
-In-Reply-To: <20001215164626.C16586@inspiron.random> (message from Andrea
-	Arcangeli on Fri, 15 Dec 2000 16:46:26 +0100)
-Subject: Re: mm->context[NR_CPUS] and pci fix check [was Re: Alpha SCSI error on 2.4.0-test11]
-In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru> <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com> <20001130233742.A21823@athlon.random> <20001201145619.A553@jurassic.park.msu.ru> <20001201151842.C30653@athlon.random> <200012011819.KAA02951@pizda.ninka.net> <20001201201444.A2098@inspiron.random> <20001215164626.C16586@inspiron.random>
+	id <S129340AbQLOVNE>; Fri, 15 Dec 2000 16:13:04 -0500
+Received: from merlin.prod.itd.earthlink.net ([207.217.120.156]:57838 "EHLO
+	merlin.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S129228AbQLOVMu>; Fri, 15 Dec 2000 16:12:50 -0500
+To: Rob Landley <telomerase@yahoo.com>
+Cc: maddog@valinux.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Is there a Linux trademark issue with sun?
+In-Reply-To: <20001215022730.11497.qmail@web5203.mail.yahoo.com>
+From: burton@relativity.yi.org (Kevin A. Burton)
+Date: 14 Dec 2000 20:44:59 -0800
+In-Reply-To: Rob Landley's message of "Thu, 14 Dec 2000 18:27:30 -0800 (PST)"
+Message-ID: <m3snnqwawk.fsf@relativity.yi.org>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Fri, 15 Dec 2000 16:46:26 +0100
-   From: Andrea Arcangeli <andrea@suse.de>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-   This one breaks all archs but i386 and alpha. If some arch maintainer likes me
-   to update its arch blindly implementing mm_arch structure as an `unsigned long
-   context' and fixing up the miscompilation I will do.
+Rob Landley <telomerase@yahoo.com> writes:
 
-Can you name the mm_struct member "context" still instead of
-"mm_arch"?  Because many ports will simply:
+> Heads up everybody.  Scott McNealy has apparently been
+> calling Solaris Sun's implementation of Linux. 
+> Trademark violation time.
+<snip>
 
-typedef unsigned long mm_arch_t;
+Yeah... isn't he a moron :)
 
-Then all the code changes will make the accesses look less
-meaningful.  Consider:
+> Assuming the quote is accurate (which, being ZD, is
+> iffy), this strikes me as a mondo trademark violation,
+> and exactly the sort of thing the Linux trademark was
+> designed to prevent.  Solaris is NOT Linux.
+<snip>
 
-	if (CTX_VALID(mm->mm_arch))
+I am not sure it is a big deal.  If you read the comment it was more of an
+off-the-cuff remark.
 
-whereas before the code said:
+I doubt anyone would testify in court that McNealy said this.  The only way it
+is something to worry about is if they used it in a printed format (IANAL)
 
-	if (CTX_VALID(mm->context))
+Kevin
 
-which tells the reader lot more.  In fact, retaining the "context" member
-name allows most ports to operate with only one change, creating
-the asm/mm_arch.h header.  You can in fact do this for all ports
-which care about MMU tlb contexts (a simple grep such as
-egrep -e "m->context" `find . -type f -name "*.[ch]"`
-will show you which ports care).
+- -- 
+Kevin A. Burton ( burton@apache.org, burton@openprivacy.org, burtonator@acm.org )
+        Cell: 408-910-6145 URL: http://relativity.yi.org ICQ: 73488596 
 
-Later,
-David S. Miller
-davem@redhat.com
+Fist in the air in the land of hypocrisy!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Get my public key at: http://relativity.yi.org/pgpkey.txt
+
+iD8DBQE6OaHLAwM6xb2dfE0RAhjrAJ455OifteP/TUPNYPHSXS5rHlIpRQCfftmR
+1vhBmtZke0649VZCouwOgJk=
+=uO3l
+-----END PGP SIGNATURE-----
+
+
+
+radar domestic disruption SEAL Team 6 Cocaine Ortega arrangements Panama
+Ft. Bragg Waco, Texas PLO ammunition genetic supercomputer FBI Uzi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318145AbSHQTU1>; Sat, 17 Aug 2002 15:20:27 -0400
+	id <S318138AbSHQT1N>; Sat, 17 Aug 2002 15:27:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318706AbSHQTU1>; Sat, 17 Aug 2002 15:20:27 -0400
-Received: from sycorax.lbl.gov ([128.3.5.196]:13470 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id <S318145AbSHQTU0>;
-	Sat, 17 Aug 2002 15:20:26 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre3 hangs on boot on Duron/VIA
-References: <1a5f.3d5e4a78.902bc@trespassersw.daria.co.uk>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: 17 Aug 2002 12:24:24 -0700
-In-Reply-To: <1a5f.3d5e4a78.902bc@trespassersw.daria.co.uk> (message from Jonathan Hudson on Sat, 17 Aug 2002 13:07:04 GMT)
-Message-ID: <87adnl2srb.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318706AbSHQT1N>; Sat, 17 Aug 2002 15:27:13 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:19954 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318138AbSHQT1N>; Sat, 17 Aug 2002 15:27:13 -0400
+Subject: Re: Linux 2.4.20-pre3 (Athlon prefetch dibbles)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alastair Stevens <alastair@altruxsolutions.co.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1029575099.4601.7.camel@dolphin.entropy.net>
+References: <1029575099.4601.7.camel@dolphin.entropy.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 17 Aug 2002 20:30:07 +0100
+Message-Id: <1029612607.4647.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Hudson <jonathan@daria.co.uk> writes:
+On Sat, 2002-08-17 at 10:04, Alastair Stevens wrote:
+> Since the "hacky" Athlon/AGP fix has now been removed again, what's the
+> status of the "clean" fix? And while I'm at it, did the hacky one cause
+> any specific problems?
 
-> 2.4.20-pre3 hangs on boot on a Duron/VIA system, immediately after
-> displaying the line:
-> 
->  Initializing RT netlink socket 
-> 
+-ac has it removed. I didn't know Marcelo had it removed. Andi Kleen has
+a patch for doing most of the right things without trashing performance.
+That may be what Marcelo merged. It fixed AGP but not O_SYNC mmap I
+believe
 
-same thing on an athlon/via system. kernel was compiled with gcc 2.95
-2.4.20-pre2 boots fine.
 
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |

@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262664AbSJEUsl>; Sat, 5 Oct 2002 16:48:41 -0400
+	id <S262665AbSJEUu4>; Sat, 5 Oct 2002 16:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262665AbSJEUsl>; Sat, 5 Oct 2002 16:48:41 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:37049 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S262664AbSJEUsk>;
-	Sat, 5 Oct 2002 16:48:40 -0400
-Date: Sat, 5 Oct 2002 22:54:10 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [patch] 2.4.20-pre9 - drivers/atm/iphase.c : GFP_KERNEL with spinlock held
-Message-ID: <20021005225410.A22417@fafner.intra.cogenit.fr>
+	id <S262679AbSJEUu4>; Sat, 5 Oct 2002 16:50:56 -0400
+Received: from pina.terra.com.br ([200.176.3.17]:55248 "EHLO pina.terra.com.br")
+	by vger.kernel.org with ESMTP id <S262665AbSJEUuz>;
+	Sat, 5 Oct 2002 16:50:55 -0400
+Date: Sat, 5 Oct 2002 17:56:27 -0300
+From: Rodrigo Souza de Castro <rcastro@ime.usp.br>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>, conman@kolivas.net,
+       linux-kernel@vger.kernel.org, rmaureira@alumno.inacap.cl
+Subject: Re: [BENCHMARK] contest 0.50 results to date
+Message-ID: <20021005205627.GA1386@vinci>
+References: <20021005182850.31930.qmail@linuxmail.org> <3D9F3A52.4FB46701@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Organisation: Marie's fan club - III
+In-Reply-To: <3D9F3A52.4FB46701@digeo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/atm/iphase.c:tx_intr()
-[...]
-   1684            spin_lock_irqsave(&iadev->tx_lock, flags);
-   1685            ia_tx_poll(iadev);
+On Sat, Oct 05, 2002 at 12:15:30PM -0700, Andrew Morton wrote:
+> Paolo Ciarrocchi wrote:
+> > 
+[snip]
+> > mem_load:
+> > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> > 2.4.19 [3]              161.1   80      38      2       1.26
+> > 2.4.19-0.24pre4 [3]     181.2   76      253     19      1.41
+> > 2.5.40 [3]              163.0   80      34      2       1.27
+> > 2.5.40-nopree [3]       161.7   80      34      2       1.26
+> > 
+> 
+> I think I'm going to have to be reminded what "Loads" and "LCPU"
+> mean, please.
+> 
+> For these sorts of tests, I think system-wide CPU% is an interesting
+> thing to track - both user and system.  If it is high then we're doing
+> well - doing real work.
+> 
+> The same isn't necessarily true of the compressed-cache kernel, because
+> it's doing extra work in-kernel, so CPU load comparisons there need
+> to be made with some caution.
 
-ia_tx_poll ->
- ia_hack_tcq ->
-  ia_enque_rtn_q ->
-   IARTN_Q *entry = kmalloc(sizeof(*entry), GFP_KERNEL);
+Agreed. 
 
-Driver does not seem maintained. Please apply.
+I guess the scheduling is another important point here. Firstly, this
+extra work, usually not substantial, may change a little the
+scheduling in the system.
 
---- linux-2.4.20-pre9.orig/drivers/atm/iphase.c	Sat Oct  5 15:51:28 2002
-+++ linux-2.4.20-pre9/drivers/atm/iphase.c	Sat Oct  5 22:44:18 2002
-@@ -124,7 +124,7 @@ static void ia_enque_head_rtn_q (IARTN_Q
- }
- 
- static int ia_enque_rtn_q (IARTN_Q *que, struct desc_tbl_t data) {
--   IARTN_Q *entry = kmalloc(sizeof(*entry), GFP_KERNEL);
-+   IARTN_Q *entry = kmalloc(sizeof(*entry), GFP_ATOMIC);
-    if (!entry) return -1;
-    entry->data = data;
-    entry->next = NULL;
+Secondly, given that compressed cache usually reduces the IO performed
+by the system, it may change the scheduling depending on how much IO
+it saves and on what the applications do. For example, mem_load
+doesn't swap any page when compressed cache is enabled (those data are
+highly compressible), turning out to use most of its CPU time
+slice. In vanilla, mem_load is scheduled all the time to service page
+faults.
+
+-- 
+Rodrigo
+
 

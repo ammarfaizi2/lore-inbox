@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264391AbUFCPhL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUFCPnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264391AbUFCPhL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 11:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264355AbUFCPeC
+	id S264382AbUFCPnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 11:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbUFCPnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 11:34:02 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21744 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264382AbUFCP2k
+	Thu, 3 Jun 2004 11:43:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48109 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264836AbUFCPmA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 11:28:40 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       "Frediano Ziglio" <freddyz77@tin.it>
-Subject: Re: 2.6.x partition breakage and dual booting
-Date: Thu, 3 Jun 2004 17:32:10 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <40BA2213.1090209@pobox.com> <20040603103907.GV23408@apps.cwi.nl> <s5gaczkwvg8.fsf@patl=users.sf.net>
-In-Reply-To: <s5gaczkwvg8.fsf@patl=users.sf.net>
+	Thu, 3 Jun 2004 11:42:00 -0400
+Message-ID: <40BF46BB.1080909@pobox.com>
+Date: Thu, 03 Jun 2004 11:41:47 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] CRIS architecture update
+References: <200406031419.i53EJgVI027812@hera.kernel.org>
+In-Reply-To: <200406031419.i53EJgVI027812@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406031732.10919.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 of June 2004 16:46, Patrick J. LoPresti wrote:
-> Frediano Ziglio <freddyz77@tin.it> writes:
-> > Yes and not... HDIO_GETGEO still exists and report inconsistent
-> > informations. IMHO should be removed. I know this breaks some
-> > existing programs however these programs do not actually works
-> > correctly.
->
-> Existing programs work fine if you do something like this first:
->
->     echo bios_head:255 > /proc/ide/hda/settings
->
-> I know this works because it is how I convince Parted to prep a blank
-> drive for installing Windows.  In fact, it is the only way for me to
-> communicate the geometry to Parted, as far as I know.  (Other tools
-> usually have command-line switches or "expert" settings to control the
-> geometry; Parted does not.)
->
-> SCSI and RAID devices already return a suitable geometry in
-> HDIO_GETGEO on all of the systems that I or my users have tried.
->
-> So one approach is to leave HDIO_GETGEO alone, and to have a userspace
-> gadget run early to "fix" the kernel's notion of the geometry.  This
-> would avoid the need to rewrite every partitioning tool.
+Linux Kernel Mailing List wrote:
+> ChangeSet 1.1726.1.144, 2004/06/01 08:52:29-07:00, akpm@osdl.org
+> 
+> 	[PATCH] CRIS architecture update
+> 	
+> 	From: "Mikael Starvik" <mikael.starvik@axis.com>
+> 	
+> 	- Lots of fixes from 2.4.
+> 	
+> 	- Updated for 2.6.6.
+> 	
+> 	- Added IDE driver
+> 	
+> 	Signed-off-by: Andrew Morton <akpm@osdl.org>
+> 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-This is a bandaid not a solution and it is just silly (you push
-some values into kernel just to read them back by user-space).
+Who reviewed the ethernet driver?
+Who reviewed the IDE driver?
+Has Bart seen this new driver?
+Why was this committed without first being run by the subsystem maintainers?
 
-Also what if kernel is compiled with CONFIG_PROC_FS=n
-or if I decide to pull out /proc/ide/hdx/settings one day?
+In ethernet, the MII phy probe is wrong (don't need at id 0 first), it 
+should be using linux/mii.h bits rather than inventing its own, 
+del_timer versus del_timer_sync is questionable, the newly-added full 
+duplex handling seems to be incorrect (ref drivers/net/mii.c and drivers 
+that use mii_if->full_duplex), and cosmetic issues I won't bother to 
+mention.
 
-[ I'm counting days. 8) ]
+In IDE, it uses virt_to_page() when building the scatter/gather list -- 
+something that IMO should not have been allowed in -mm much less 
+mainline -- and other yuckiness.  In the same function, it's 
+questionable whether or not it breaks with lba48.  etrax_dma_intr 
+doesn't appear to check for some DMA engine conditions that code 
+comments elsewhere in the driver indicate _do_ occur.  The 
+ATAPI-specific e100_start_dma code doesn't look like it will work with 
+all current ATAPI drivers (ide-{cdrom,floppy,tape,scsi,...}.c).
 
-Cheers,
-Bartlomiej
+I'm happy that the CRIS people resurfaced, too, but that's no reason to 
+just shove an unreviewed patch into mainline.
+
+	Jeff
+
 

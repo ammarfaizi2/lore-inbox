@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264174AbUEHIDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264184AbUEHIMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264174AbUEHIDo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 04:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264175AbUEHIDo
+	id S264184AbUEHIMq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 04:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264191AbUEHIMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 04:03:44 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18668 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264174AbUEHIDl (ORCPT
+	Sat, 8 May 2004 04:12:46 -0400
+Received: from zamok.crans.org ([138.231.136.6]:15832 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S264184AbUEHIMo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 04:03:41 -0400
-Subject: Re: module-licences / tainting the kernel
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Axel Weiss <aweiss@informatik.hu-berlin.de>
+	Sat, 8 May 2004 04:12:44 -0400
+Message-ID: <409C967E.4010303@minas-morgul.org>
+Date: Sat, 08 May 2004 10:12:46 +0200
+From: Mathieu Segaud <matt@minas-morgul.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040502
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: fabiano.ramos@acm.org
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200405080957.57286.aweiss@informatik.hu-berlin.de>
-References: <200405080957.57286.aweiss@informatik.hu-berlin.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-n9XCYozkJRb6ozVXMZs7"
-Organization: Red Hat UK
-Message-Id: <1084003417.3843.9.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 08 May 2004 10:03:37 +0200
+Subject: Re: Love's book
+References: <1083952163.1384.38.camel@slack.domain.invalid>
+In-Reply-To: <1083952163.1384.38.camel@slack.domain.invalid>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fabiano Ramos wrote:
 
---=-n9XCYozkJRb6ozVXMZs7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>Hi all.
+>
+>	I am about to buy Robert Love's  "Linux Kernel Development" book, but a
+>I am quite unsure about whether this title is based on
+>2.4 with some 2.6 info or is it a full-blown 2.6 book.
+>	Can anyone help me (this include Mr. Love himself!)?
+>  
+>
+It is a full-blown 2.6 book :)
 
-
-> Would it be possible to let e.g. LPGL-licenced kernel-modules be loaded=20
-> legally?
-
-there are 2 angles here:
-1) there already is "GPL with additional rights" which LGPL is just one
-form of
-and
-2) if you mix LGPL with GPL (eg kernel), the LGPL license itself says it
-autoconverts to GPL, so you can't even have a LGPL module *loaded*.
-(Not saying that your source can't be LGPL but when you link it into the
-kernel at runtime it turns GPL)
-
---=-n9XCYozkJRb6ozVXMZs7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAnJRYxULwo51rQBIRAt7cAJ0YZrhfFXJR4mfyoyXklnLiTZVwmwCdHxJe
-ivZ7nEvzNCDIHdpJE5TBZbA=
-=92dz
------END PGP SIGNATURE-----
-
---=-n9XCYozkJRb6ozVXMZs7--
-
+--
+Mathieu Segaud

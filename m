@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbTJGNeo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 09:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbTJGNeo
+	id S262196AbTJGNeI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 09:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTJGNeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 09:34:44 -0400
-Received: from tri-e2k.ethz.ch ([129.132.112.23]:13376 "EHLO tri-e2k.d.ethz.ch")
-	by vger.kernel.org with ESMTP id S262127AbTJGNel (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 09:34:41 -0400
-Message-ID: <3F82C0EF.1040002@debian.org>
-Date: Tue, 07 Oct 2003 15:34:39 +0200
-From: "Giacomo A. Catenazzi" <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en
+	Tue, 7 Oct 2003 09:34:04 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:384 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262152AbTJGNeA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 09:34:00 -0400
+Date: Tue, 7 Oct 2003 09:33:58 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Second patch to turn off floppy motor(s)
+Message-ID: <Pine.LNX.4.53.0310070932040.501@chaos>
 MIME-Version: 1.0
-To: Tigran Aivazian <tigran@veritas.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RFC: changes to microcode update driver.
-References: <Pine.GSO.4.44.0310070352590.16056-100000@south.veritas.com>
-In-Reply-To: <Pine.GSO.4.44.0310070352590.16056-100000@south.veritas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Oct 2003 13:34:39.0909 (UTC) FILETIME=[C21DB550:01C38CD7]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
 
-> Hi guys,
-> 
-> It's been a long time that I was going to send to Linux the patch with the
-> following changes, but the birth of my first child intervened and caused
-> delays (though can't call them "unexpected" :). Now, if I hear from people
-> "no, no! we are using this feature!"  then I will reconsider:
+For anyone interested.. This has already been discussed-to-death.
 
-> Please let me know your thoughts.
+--- linux-2.4.22/arch/i386/boot/bootsect.S.orig	Tue Oct  7 08:47:06 2003
++++ linux-2.4.22/arch/i386/boot/bootsect.S	Tue Oct  7 09:23:35 2003
+@@ -396,15 +396,10 @@
+ # NOTE: Doesn't save %ax or %dx; do it yourself if you need to.
 
-Hello.
+ kill_motor:
+-#if 1
+-	xorw	%ax, %ax		# reset FDC
+-	xorb	%dl, %dl
+-	int	$0x13
+-#else
+ 	movw	$0x3f2, %dx
+-	xorb	%al, %al
+-	outb	%al, %dx
+-#endif
++	inb	%dx, %al	# Get R/W bits
++	andb	$0x0f, %al	# Save all but motor-on bits
++	outb	%al, %dx	# Shut off motor
+ 	ret
 
-I would like to have a common model to load microcodes (and in the new boot 
-procedure), but I've lost the status of such project, I think things for 2.7.
-Any news?
+ sectors:	.word 0
 
-Is microcode_ctl still maintained? I've made some correction/extentions but now 
-new from the maintainer.
 
-Intel give us the new microcode? I had contact with the new contact/maintainer/? 
-person in Intel, but still no new microcode since summer 2001. So maybe before 
-changing the driver, could you check the Intel vision about Linux and microcode?
 
-ciao
-	giacomo
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

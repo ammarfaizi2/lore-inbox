@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbUBTMOF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 07:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbUBTMOF
+	id S261182AbUBTMrV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 07:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbUBTMrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 07:14:05 -0500
-Received: from tuxhome.net ([217.160.179.19]:18842 "EHLO tuxhome.net")
-	by vger.kernel.org with ESMTP id S261175AbUBTMNi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 07:13:38 -0500
-From: Markus Hofmann <markus@gofurther.de>
-Organization: gofurther.de
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.2 - System clock runs too fast
-Date: Fri, 20 Feb 2004 13:13:37 +0100
-User-Agent: KMail/1.6.1
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <200402101332.26552.markus@gofurther.de> <200402111007.50549.markus@gofurther.de> <1076524588.795.28.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1076524588.795.28.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402201313.38063.markus@gofurther.de>
+	Fri, 20 Feb 2004 07:47:21 -0500
+Received: from amsfep18-int.chello.nl ([213.46.243.13]:60214 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261182AbUBTMqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 07:46:53 -0500
+Date: Fri, 20 Feb 2004 13:46:38 +0100
+Message-Id: <200402201246.i1KCkcPe004193@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 394] Sun-3 LANCE Ethernet
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello John
+sun3lance updates from Sam Creasey:
+  - Pass the correct flags to request_irq()
+  - Add debug code for transmitting packets
 
-Thank you for your patch. Yesterday I had the time to use it. And now my time 
-runs normal!!
+--- linux-2.6.3/drivers/net/sun3lance.c	2003-05-27 19:03:01.000000000 +0200
++++ linux-m68k-2.6.3/drivers/net/sun3lance.c	2004-01-15 13:58:42.000000000 +0100
+@@ -321,7 +321,7 @@
+ 
+ 	REGA(CSR0) = CSR0_STOP; 
+ 
+-	request_irq(LANCE_IRQ, lance_interrupt, 0, "SUN3 Lance", dev);
++	request_irq(LANCE_IRQ, lance_interrupt, SA_INTERRUPT, "SUN3 Lance", dev);
+ 	dev->irq = (unsigned short)LANCE_IRQ;
+ 
+ 
+@@ -484,6 +484,9 @@
+ 	struct lance_tx_head *head;
+ 	unsigned long flags;
+ 
++	DPRINTK( 1, ( "%s: transmit start.\n",
++		      dev->name));
++
+ 	/* Transmitter timeout, serious problems. */
+ 	if (netif_queue_stopped(dev)) {
+ 		int tickssofar = jiffies - dev->trans_start;
 
-Thanks
-regards Markus
+Gr{oetje,eeting}s,
 
-Am Mittwoch, 11. Februar 2004 19:36 schrieb john stultz:
-> On Wed, 2004-02-11 at 01:07, Markus Hofmann wrote:
-> > Thank you for answering.
-> > In the meantime I heard that apm could cause this problem. I tested this
-> > by compiling acpi. The result was that the clock runs normal with acpi.
-> > But I want to use apm. So I removed the acpi and now the system clock is
-> > too slow with only apm.
-> >
-> > I think this is a very curious thing! :-(
->
-> Indeed, normally its ACPI that causes more problems. That's a new one.
->
-> I'd be curious how this drift changes using the attached patch.
->
-> thanks
-> -john
->
-> ===== arch/i386/kernel/timers/timer_tsc.c 1.35 vs edited =====
-> --- 1.35/arch/i386/kernel/timers/timer_tsc.c	Wed Jan  7 00:31:11 2004
-> +++ edited/arch/i386/kernel/timers/timer_tsc.c	Tue Jan 20 13:22:54 2004
-> @@ -226,7 +226,7 @@
->  	delta += delay_at_last_interrupt;
->  	lost = delta/(1000000/HZ);
->  	delay = delta%(1000000/HZ);
-> -	if (lost >= 2) {
-> +	if (0 && (lost >= 2)) {
->  		jiffies_64 += lost-1;
->
->  		/* sanity check to ensure we're not always losing ticks */
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

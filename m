@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280991AbRKLUpt>; Mon, 12 Nov 2001 15:45:49 -0500
+	id <S280994AbRKLUr7>; Mon, 12 Nov 2001 15:47:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280992AbRKLUpg>; Mon, 12 Nov 2001 15:45:36 -0500
-Received: from zero.tech9.net ([209.61.188.187]:46866 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S280991AbRKLUpD>;
-	Mon, 12 Nov 2001 15:45:03 -0500
-Subject: Re: 2.4.15-pre4 compile problem
-From: Robert Love <rml@tech9.net>
-To: slomosnail@gmx.net
+	id <S280995AbRKLUro>; Mon, 12 Nov 2001 15:47:44 -0500
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:19631 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S280994AbRKLUrK>; Mon, 12 Nov 2001 15:47:10 -0500
+Subject: [PATCHLET] 2.4.15-pre4: advansys.c: gcc warning fix
+To: torvalds@transmeta.com
+Date: Mon, 12 Nov 2001 20:47:09 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011112203335Z280980-17408+13686@vger.kernel.org>
-In-Reply-To: <200111121939.fACJdX309798@danapple.com> 
-	<20011112203335Z280980-17408+13686@vger.kernel.org>
-Content-Type: text/plain
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.11.08.57 (Preview Release)
-Date: 12 Nov 2001 15:45:05 -0500
-Message-Id: <1005597905.814.0.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E163Nz3-0005L1-00@libra.cus.cam.ac.uk>
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-11-12 at 15:34, Slo Mo Snail wrote:
-> I have exactly the same problem...
-> Strange, that nobody else has reported it, yet ;)
-> I use gcc-2.95.3 and binutils 2.11.92.0.7 on a LFS
-> I'll send you my .config but I don't think it's a config-specific problem
+Linus,
 
-The patch below will solve the problem ...
+Please consider this one liner getting rid of a gcc "possible unitialized
+variable" warning in the advansys.c scsi driver. A quick look showed gcc
+to be wrong on this occasion but having the warning not nice...
 
-diff -u linux-2.4.15-pre4/include/asm-i386/processor.h linux/include/asm-i386/processor.h 
---- linux-2.4.15-pre4/include/asm-i386/processor.h	Mon Nov 12 15:17:47 2001+++ linux/include/asm-i386/processor.h	Mon Nov 12 15:40:32 2001
-@@ -76,7 +76,7 @@
- extern struct cpuinfo_x86 cpu_data[];
- #define current_cpu_data cpu_data[smp_processor_id()]
- #else
--#define cpu_data &boot_cpu_data
-+#define cpu_data (&boot_cpu_data)
- #define current_cpu_data boot_cpu_data
- #endif
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
+--- advansys_patchlet.diff ---
+
+diff -urN linux-2.4.15-pre4-vanilla/drivers/scsi/advansys.c linux-2.4.15-pre4-up/drivers/scsi/advansys.c
+--- linux-2.4.15-pre4-vanilla/drivers/scsi/advansys.c	Mon Nov 12 20:21:07 2001
++++ linux-2.4.15-pre4-up/drivers/scsi/advansys.c	Mon Nov 12 20:01:26 2001
+@@ -5552,7 +5552,7 @@
+                 }
+             } else {
+                 ADV_CARR_T      *carrp;
+-                int             req_cnt;
++                int             req_cnt = 0;
+                 adv_req_t       *reqp = NULL;
+                 int             sg_cnt = 0;
  
-	Robert Love
 

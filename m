@@ -1,156 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292571AbSBPWHm>; Sat, 16 Feb 2002 17:07:42 -0500
+	id <S292550AbSBPVmO>; Sat, 16 Feb 2002 16:42:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292570AbSBPWHd>; Sat, 16 Feb 2002 17:07:33 -0500
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:28681 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S292569AbSBPWHT>; Sat, 16 Feb 2002 17:07:19 -0500
-Message-ID: <3C6ED744.9010504@megapathdsl.net>
-Date: Sat, 16 Feb 2002 14:03:48 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
+	id <S292551AbSBPVmF>; Sat, 16 Feb 2002 16:42:05 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49161 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292550AbSBPVlw>;
+	Sat, 16 Feb 2002 16:41:52 -0500
+Date: Sat, 16 Feb 2002 19:41:31 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: future of rmap VM
+In-Reply-To: <1013894969.1283.8.camel@tiger>
+Message-ID: <Pine.LNX.4.33L.0202161938270.1930-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org,
-        Abramo Bagnara <abramo@alsa-project.org>
-Subject: How do I get the ALSA code in 2.5.5-pre1 working?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 16 Feb 2002, Louis Garcia wrote:
 
-I have the linux hotplug scripts installed.  When I built
-the drivers as modules, they did not autoload, as they should
-have.  Are you working to make the drivers register themselves
-during the boot process so that they are autoloaded without
-having to hack the modules.conf file?
+> When do you plan to have a complete rmap VM ready for general use?
+> Whats left to do?
 
-I have applied the patch the gets /proc/asound working.
-In my most recent attempt, I have compiled the ALSA drivers
-into the kernel.  I would like to use the native ALSA drivers,
-but am not sure how to configure my devices to make this
-happen.  I use esound on GNOME and play CDs.
+Rmap version 11c is considered ready for use.
 
-One question I have is how to go about getting the ALSA
-utilities and tools to build.  They require alsa-lib, which
-appears to require alsa-drivers.  This is a problem, because
-I don't want to install the out-of-kernel ALSA drivers in
-addition to the in-kernel ones.
+For rmap 12, which is also ready for use, I have added the
+feature of RSS limit enforcement.
 
-It seems to me that there is a need for several things to happen,
-now that ALSA is in the development kernel:
+Rmap version 13 will get new page launder features.
 
-1)  You need to update your web documentation to guide users
-in configuring ALSA who are testing the ALSA support in
-the development kernel.
+It seems from now on -rmap will get new features, but no
+more changes to the -rmap architecture are needed right
+now.
 
-2)  You need to include updated ALSA configuration and usage
-information into the linux/Documentation tree in the 2.5 kernel
-tree.
+> Also, have you discussed merging this VM into the mainline kernel,
+> either 2.4 or 2.5?
 
-3)  You need to update documentation in the utils and tools
-packages to include information about how to build and use
-there utilies when using the 2.5 kernel drivers.
+I've started pushing some trivial stuff for inclusion into
+2.5, but unfortunately current 2.5 just won't boot on my
+test box so I cannot test it (either with or without the
+patch).
 
-4)  You may need to overhaul your tools and utilities build
-processes so that alsa-drivers is not required.
+Once 2.5 is working on my test box, I'll be ready to merge
+some of the larger stuff ...
 
-Here are my options:
+... I'll try to push things to Linus in small parts, so
+nothing will break in the process.
 
-CONFIG_SND=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_DEBUG=y
-CONFIG_SND_DEBUG_MEMORY=y
-CONFIG_SND_DEBUG_FULL=y
-CONFIG_SND_DEBUG_DETECT=y
-CONFIG_SND_EMU10K1=y
+> To me, this VM is far better than the current VM.
 
-In my kernel log, I see no sign that my EMU10K1 card is detected.
+Good to hear I've got happy users.
 
-Here is what an OSS driver in an earlier kernel logged when it
-detected my card:
+cheers,
 
-Feb 11 10:48:44 turbulence kernel: Creative EMU10K1 PCI Audio Driver, 
-version 0.7, 17:00:23 Sep  6 2001
-Feb 11 10:48:44 turbulence kernel: emu10k1: EMU10K1 rev 7 model 0x8031 
-found, IO at 0xff80-0xff9f, IRQ 5
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
------------------------------
-
-cat /proc/asound/devices:
-
-  1:       : sequencer
-  0: [0- 0]: ctl
-  4: [0- 0]: hardware dependent
-  8: [0- 0]: raw midi
- 19: [0- 3]: digital audio playback
- 26: [0- 2]: digital audio capture
- 25: [0- 1]: digital audio capture
- 16: [0- 0]: digital audio playback
- 24: [0- 0]: digital audio capture
-  9: [0- 1]: raw midi
- 10: [0- 2]: raw midi
- 33:       : timer
-
------------------------------
-
- cat oss-devices:
-  1:       : sequencer
-  8:       : sequencer
-  2: [0- 2]: raw midi
- 12: [0-12]: digital audio
-  3: [0- 3]: digital audio
-  0: [0- 0]: mixer
- 13: [0-13]: raw midi
-
------------------------------
-
-cat pcm:    
-00-00: emu10k1 : EMU10K1 : playback 32 : capture 1
-00-01: emu10k1 mic : EMU10K1 MIC : capture 1
-00-02: emu10k1 efx : EMU10K1 EFX : capture 1
-00-03: emu10k1 : EMU10K1 FX8010 : playback 8
-
-cat cards:
-0 [card0          ]: EMU10K1 - Sound Blaster Live!
-                     Sound Blaster Live! at 0xff80, irq 5
-
------------------------------
-
-cat sndstat:
-Sound Driver:3.8.1a-980706 (ALSA v0.9.0beta10 emulation code)
-Kernel: Linux turbulence.megapathdsl.net 2.5.5-pre1 #5 Sat Feb 16 
-01:22:40 PST 2
-002 i686
-Config options: 0
-
-Installed drivers:
-Type 10: ALSA emulation
-
-Card config:
-Sound Blaster Live! at 0xff80, irq 5
-
-Audio devices:
-0: EMU10K1 (DUPLEX)
-
-Synth devices: NOT ENABLED IN CONFIG
-
-Midi devices:
-0: EMU10K1 MPU-401 (UART)
-
-Timers:
-7: system timer
-
-Mixers:
-0: mixer00
-
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbTJAOyi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 10:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbTJAOyi
+	id S262298AbTJAOuP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 10:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTJAOuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 10:54:38 -0400
-Received: from main.gmane.org ([80.91.224.249]:40614 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262259AbTJAOyg (ORCPT
+	Wed, 1 Oct 2003 10:50:14 -0400
+Received: from mailtest.ifxnw.cl ([216.241.0.135]:47037 "EHLO mail.ifxnw.cl")
+	by vger.kernel.org with ESMTP id S262298AbTJAOuI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 10:54:36 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Wed, 1 Oct 2003 10:50:08 -0400
+Date: Wed, 1 Oct 2003 10:46:47 -0400
+From: Oscar Peredo <oscar.peredo@bunkerchile.net>
 To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Subject: Re: [ACPI] p2b-ds blacklisted?
-Date: Wed, 01 Oct 2003 16:53:40 +0200
-Message-ID: <blepra$g94$1@sea.gmane.org>
-References: <blen4v$a42$1@sea.gmane.org> <200310011516.45878.adq@lidskialf.net>
+Subject: Re: How to use module in 2.6
+Message-Id: <20031001104647.33477f6f.oscar.peredo@bunkerchile.net>
+In-Reply-To: <1065009486.1144.50.camel@ocsy>
+References: <1065006634.1144.39.camel@ocsy>
+	<200310011136.24176.johann.lombardi@bull.net>
+	<1065009486.1144.50.camel@ocsy>
+Organization: Bunkerchile 
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[Ve)k4kR)7 DN3VM-LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3 Oyv%0J(}_6</ D.eu"&w8%ArL0I8AD'UKOxF0JODr/<g]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: de, en
-In-Reply-To: <200310011516.45878.adq@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm sure I saw a comment somewhere saying the P2B-S was blacklisted because of 
-> "bogus IRQ routing". It was in the blacklisting code, but I can't remember 
-> where, or if it was 2.4 or 2.6.
+On 01 Oct 2003 15:58:06 +0400
+ocsy <ocsy@rusbiz.com> wrote:
 
-Well, the P2B-S is in blacklist.c in 2.4.22.
+> >Did you upgrade your module-init-tools (insmod, lsmod, ....) ?
+> >(http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+> 
+> Ok!I do that now))
+> I think it's possible that you can help me to understand what different
+> between old module for kernell 2.4 and new module fo 2.6?
+> And where can I look for the modutils ver 2.6?
+> ocsy
+> 
+the lwn webpage have a article on modules of kernel 2.6 (http://lwn.net/Articles/driver-porting/ ,exactly ) and talk about on some differences with 2.6 kernel
 
-What does the entry in blacklist.c mean? Does this entry mean acpi=ht is 
-forced like the entry for the P2B-DS in dmi_scan.c?
+the new version of kernel changed much things, the load module for example, and scheduling were the most commented.
 
-Is this a hardwired problem on the Motherboard? Or might this be fixed 
-with the latest BIOS?
+the module-init-tools that you need, you can download from  http://www.kernel.org/pub/linux/kernel/people/rusty/modules/module-init-tools-0.9.15-pre2.tar.gz it is last version 
 
-I'd like to try ACPI on my P2B-DS anyway. I think there was an append 
-line to disable ACPI IRQ Routing - was it acpi=pci?
-
-
+Oscar Peredo

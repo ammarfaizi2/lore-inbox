@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264584AbUGIJpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUGIJoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264584AbUGIJpG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 05:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbUGIJpF
+	id S264702AbUGIJoa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 05:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbUGIJoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 05:45:05 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:57005 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S264584AbUGIJoy convert rfc822-to-8bit
+	Fri, 9 Jul 2004 05:44:30 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:58510 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S264685AbUGIJoW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 05:44:54 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: GCC 3.4 and broken inlining.
-Date: Fri, 9 Jul 2004 11:43:30 +0200
-User-Agent: KMail/1.6.2
-References: <2fFzK-3Zz-23@gated-at.bofh.it> <1089349003.4861.17.camel@nigel-laptop.wpcb.org.au> <20040709054657.GA52213@muc.de>
-In-Reply-To: <20040709054657.GA52213@muc.de>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200407091143.41955.mbuesch@freenet.de>
+	Fri, 9 Jul 2004 05:44:22 -0400
+Subject: Re: Removal of MCI Bluetooth USB dongle causes hci_hcd Ooop and
+	unusability of part of USB bus...
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Marian Stepka <mstepka@orangemail.sk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1089359901.3568.23.camel@imro.intranet.orange.sk>
+References: <1089359901.3568.23.camel@imro.intranet.orange.sk>
+Content-Type: text/plain
+Message-Id: <1089366245.4857.73.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 09 Jul 2004 11:44:06 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Marian,
 
-Quoting Andi Kleen <ak@muc.de>:
-> It's too bad that i386 doesn't enable -funit-at-a-time, that improves
-> the inlining heuristics greatly.
+> Removal of MCI Bluetooth USB dongle causes hci_hcd Ooop and unusability
+> of part of USB bus...
 
-- From the gcc manpage:
+update your kernel to 2.6.7 and this problem should be gone.
 
-- -O2 turns on all optimization flags specified by -O. It 
-also turns on the following optimization flags: -fforce-mem 
-- -foptimize-sibling-calls -fstrength-reduce -fcse-follow-jumps 
-- -fcse-skip-blocks -frerun-cse-after-loop -frerun-loop-opt 
-- -fgcse -fgcse-lm -fgcse-sm -fgcse-las -fdelete-null-pointer-checks 
-- -fexpensive-optimizations -fregmove -fschedule-insns 
-- -fschedule-insns2 -fsched-interblock -fsched-spec -fcaller-saves 
-- -fpeephole2 -freorder-blocks -freorder-functions -fstrict-aliasing 
-- -funit-at-a-time -falign-functions -falign-jumps -falign-loops 
-^^^^^^^^^^^^^^^^
-- -falign-labels -fcrossjumping 
+Regards
 
-Do I miss something?
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+Marcel
 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA7mjJFGK1OIvVOP4RAuXyAJ0fM5x1jqCZGkzO2jfl42CaNLgJJwCdGZQW
-3rUgM3svqyWb8JaCavWAkhg=
-=3LeQ
------END PGP SIGNATURE-----

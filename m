@@ -1,96 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVCVSGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVCVSLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbVCVSGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 13:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVCVSE7
+	id S261573AbVCVSLS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 13:11:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVCVSJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 13:04:59 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:35497 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261553AbVCVR4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 12:56:50 -0500
-Subject: [patch 11/12] uml: real fix for __gcov_init symbols
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
-       aia21@cam.ac.uk
-From: blaisorblade@yahoo.it
-Date: Tue, 22 Mar 2005 17:21:45 +0100
-Message-Id: <20050322162145.98B97D5EA8@zion>
+	Tue, 22 Mar 2005 13:09:41 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:52126 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261593AbVCVSHL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 13:07:11 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH 1/5] freepgt: free_pgtables use vma list
+Date: Tue, 22 Mar 2005 10:06:15 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0321137B@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 1/5] freepgt: free_pgtables use vma list
+Thread-Index: AcUvCI2rIMuLHUb8TRyRIkBTlvVRoAAAIDig
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "David S. Miller" <davem@davemloft.net>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>
+Cc: <hugh@veritas.com>, <akpm@osdl.org>, <benh@kernel.crashing.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Mar 2005 18:06:20.0510 (UTC) FILETIME=[D9CB07E0:01C52F09]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> For example, you may have a single page (start,end) address range
+>> to free, but if this is enclosed by a large enough (floor,ceiling)
+>> then it may free an entire pgd entry.
+>> 
+>> I assume the intention of the API would be to provide the full
+>> pgd width in that case?
+>
+>Yes, that is what should happen if the full PGD entry is liberated.
+>
+>Any time page table chunks are liberated, they have to be included
+>in the range passed to the flush_tlb_pgtables() call.
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-CC: Anton Altaparmakov <aia21@cam.ac.uk>
+So should this part of Hugh's code:
 
-Correctly export __gcov_init for cases where it's needed, by adding a weak
-definition for the case when GCC does not define this symbol and letting it
-being overriden by the real definition when GCC defines it (recent ones).
-
-Can't be implemented as a test on GCC version because SuSE has a crippled GCC,
-declared as 3.3.4 but having a lot of backported features.
-
-Also, since gcc 3.4.3 requires profiling options even during linking, add
-profiling options to final link stage.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.11-paolo/arch/um/Makefile-skas      |   10 ++++++----
- linux-2.6.11-paolo/arch/um/kernel/gmon_syms.c |   20 ++++++++++++++------
- 2 files changed, 20 insertions(+), 10 deletions(-)
-
-diff -puN arch/um/kernel/gmon_syms.c~uml-real-fix-gcov-symbols arch/um/kernel/gmon_syms.c
---- linux-2.6.11/arch/um/kernel/gmon_syms.c~uml-real-fix-gcov-symbols	2005-03-22 11:06:13.000000000 +0100
-+++ linux-2.6.11-paolo/arch/um/kernel/gmon_syms.c	2005-03-22 11:06:13.000000000 +0100
-@@ -5,14 +5,22 @@
+                        /*
+                         * Optimization: gather nearby vmas into one call down
+                         */
+                        while (next && next->vm_start <= vma->vm_end + PMD_SIZE
+                        && !is_hugepage_only_range(next->vm_start, HPAGE_SIZE)){
+                                vma = next;
+                                next = vma->vm_next;
+                        }
+                        free_pgd_range(tlb, addr, vma->vm_end,
+                                floor, next? next->vm_start: ceiling);
  
- #include "linux/module.h"
- 
--#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3) || \
--	(__GNUC__ == 3 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ >= 4)
--extern void __gcov_init(void *);
--EXPORT_SYMBOL(__gcov_init);
--#else
- extern void __bb_init_func(void *);
- EXPORT_SYMBOL(__bb_init_func);
--#endif
-+
-+/* This is defined (and referred to in profiling stub code) only by some GCC
-+ * versions in libgcov.
-+ *
-+ * Since SuSE backported the fix, we cannot handle it depending on GCC version.
-+ * So, unconditinally export it. But also give it a weak declaration, which will
-+ * be overriden by any other one.
-+ */
-+
-+extern void __gcov_init(void *) __attribute__((weak));
-+EXPORT_SYMBOL(__gcov_init);
-+
-+extern void __gcov_merge_add(void *) __attribute__((weak));
-+EXPORT_SYMBOL(__gcov_merge_add);
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -puN arch/um/Makefile-skas~uml-real-fix-gcov-symbols arch/um/Makefile-skas
---- linux-2.6.11/arch/um/Makefile-skas~uml-real-fix-gcov-symbols	2005-03-22 11:06:13.000000000 +0100
-+++ linux-2.6.11-paolo/arch/um/Makefile-skas	2005-03-22 11:06:13.000000000 +0100
-@@ -3,10 +3,12 @@
- # Licensed under the GPL
- #
- 
--PROFILE += -pg
-+GPROF_OPT += -pg
-+GCOV_OPT += -fprofile-arcs -ftest-coverage
- 
--CFLAGS-$(CONFIG_GCOV) += -fprofile-arcs -ftest-coverage
--CFLAGS-$(CONFIG_GPROF) += $(PROFILE)
--LINK-$(CONFIG_GPROF) += $(PROFILE)
-+CFLAGS-$(CONFIG_GCOV) += $(GCOV_OPT)
-+CFLAGS-$(CONFIG_GPROF) += $(GPROF_OPT)
-+LINK-$(CONFIG_GCOV) += $(GCOV_OPT)
-+LINK-$(CONFIG_GPROF) += $(GPROF_OPT)
- 
- GEN_HEADERS += $(ARCH_DIR)/include/skas_ptregs.h
-_
+be changed to use pgd_addr_end() to gather up all the vma that
+are mapped by a single pgd instead of just spanning out the next
+PMD_SIZE?
+
+On ia64 we can have a vma big enough to require more than one pgd, but
+in the case that we span, we won't cross the problematic pgd boundaries
+where the holes in the address space are lurking.
+
+-Tony

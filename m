@@ -1,63 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263012AbVBCNzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263396AbVBCN4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263012AbVBCNzi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 08:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263615AbVBCNzi
+	id S263396AbVBCN4c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 08:56:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbVBCN4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 08:55:38 -0500
-Received: from moutng.kundenserver.de ([212.227.126.176]:33274 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S263035AbVBCNzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 08:55:22 -0500
-From: Peter Busser <busser@m-privacy.de>
-Organization: m-privacy
-To: pageexec@freemail.hu
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Date: Thu, 3 Feb 2005 14:55:21 +0100
-User-Agent: KMail/1.7.1
-References: <4201DBE7.30569.2F5D446@localhost>
-In-Reply-To: <4201DBE7.30569.2F5D446@localhost>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 3 Feb 2005 08:56:31 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:47234 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263123AbVBCN4E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 08:56:04 -0500
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based
+	crashdumps.
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Hariprasad Nellitheertha <hari@in.ibm.com>,
+       suparna bhattacharya <suparna@in.ibm.com>
+In-Reply-To: <m17jlr9der.fsf@ebiederm.dsl.xmission.com>
+References: <overview-11061198973484@ebiederm.dsl.xmission.com>
+	 <1106294155.26219.26.camel@2fwv946.in.ibm.com>
+	 <m1sm4v2p5t.fsf@ebiederm.dsl.xmission.com>
+	 <1106305073.26219.46.camel@2fwv946.in.ibm.com>
+	 <m17jm72fy1.fsf@ebiederm.dsl.xmission.com>
+	 <1106475280.26219.125.camel@2fwv946.in.ibm.com>
+	 <m18y6gf6mj.fsf@ebiederm.dsl.xmission.com>
+	 <1106833527.15652.146.camel@2fwv946.in.ibm.com>
+	 <m1zmyueh4c.fsf@ebiederm.dsl.xmission.com>
+	 <1106917583.15652.234.camel@2fwv946.in.ibm.com>
+	 <m1r7k5e1ql.fsf@ebiederm.dsl.xmission.com>
+	 <1107271039.15652.839.camel@2fwv946.in.ibm.com>
+	 <m13bwgb8tb.fsf@ebiederm.dsl.xmission.com>
+	 <1107338864.11609.35.camel@2fwv946.in.ibm.com>
+	 <m17jlr9der.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1107442055.11609.191.camel@2fwv946.in.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 Feb 2005 20:17:36 +0530
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502031455.22100.busser@m-privacy.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 February 2005 23:08, pageexec@freemail.hu wrote:
-> > and how do you force a program to call that function and then to execute
-> > your shellcode? In other words: i challenge you to show a working
-> > (simulated) exploit on Fedora (on the latest fc4 devel version, etc.)
-> > that does that.
+On Wed, 2005-02-02 at 21:12, Eric W. Biederman wrote:
+> Vivek Goyal <vgoyal@in.ibm.com> writes:
+> 
+> > On Tue, 2005-02-01 at 20:56, Eric W. Biederman wrote:
+> > > Vivek Goyal <vgoyal@in.ibm.com> writes:
+> > 
+> > "elfcorehdr=" also looks good.
+> 
+> Then let's go with that for now.  It is not perfect but it seems
+> a little more self explanatory at first glance.
+> > > A clarification on terminology we are talking about struct Elf64_Phdr
+> > > here.  There is only one Elf header.  That seems to be clear farther
+> > > down.
+> > > 
+> > 
+> > 
+> > Exactly. There shall be one Elf header for whole of the image. In
+> > addition there will be one struct Elf64_Phdr, per contiguous physical
+> > memory area. One Elf64_Phdr of PT_NOTE type for notes section and one
+> > Elf64_Phdr for backup region.
+> 
+> Actually if we are just pointing a kernel data structures we will
+> need multiple Elf64_Phdr of PT_NOTE.  Each cpu has it's own
+> notes section and until the smoke clears we can't be confident
+> about what is going to wind up there or how densely those will
+> be packed.  So collapsing everything into a single notes segment
+> needs to happen after we have switched to the crash capture kernel.
 
-Ingo is assuming a best-case scenario here. Assumptions are the mother of all 
-fuckups. This discussion does not address issues which arise when:
 
-- You compile code with different compilers (say, OCaml, tcc, Intel Compiler, 
-or whatever)
-- What happens when you run existing commercial applications which have not 
-been compiled using GCC.
-- What happens when you mix GCC compiled code with other code (e.g. a 
-commercial Motif library).
-- What happens when you link libraries compiled with older GCC versions?
-- And so on and so forth.
+Sounds good. So there shall be a PT_NOTE type program header per cpu.
+And these headers can be collapsed into one PT_NOTE type header later.
 
-It can be fun to dive into a low-level details discussion. But unless you 
-solved the higher level issues, the whole discussion is just a waste of time. 
-And these higher level issues won't be fixed unless people start to properly 
-address worst-case behaviour, like any sensible engineer would do.
 
-> i don't have any Fedora but i think i know roughly what you're doing,
-> if some of the stuff below wouldn't work, let me know.
+> 
+> > > I have serious concerns about the kernel generating the ELF headers
+> > > and only delivering them after the kernel has crashed.  Because
+> > > then we run into questions of what information can be trusted.  If we
+> > > avoid that issue I am not too concerned.
+> > 
+> > 
+> > I hope, all elf headers once prepared by kexec-tools need not to change
+> > later (Cannot think of any piece of information which shall change
+> > later). These shall be put in separate segment. And SHA-256 shall take
+> > care of authenticity of information after crash.
+> 
+> That should work fine.  We need to consider through throwing in an
+> extra note section with information like kernel version that
+> we can capture while the system is running.
+> 
+> > For notes section program header, virtual = physical = 0 and "offset"
+> > shall point to crash_notes[], so that notes can directly be read by the
+> > capture kernel (or user space).
+> 
+> I agree.  But see my caveat.  I think we should have one PT_NOTE
+> segment point at each element of the crash_notes[] array.  I know
+> it is technically a violation of the ELF spec.  But in this case
+> it makes sense.   Since we can't guarantee that crash_notes will
+> be packed properly I don't know that we could reliably see more
+> than one cpu if we pointed a PT_NOTE header at the whole thing.
+> 
+> If it turns out that we can reliably point a single PT_NOTE header
+> at crash_notes so much the better but things are likely to be
+> more robust if we don't start with that assumption.  That
+> at least allows us the freedom to capture some notes (like NT_UTSNAME)
+> before the kernel crashes.
+> 
+> Eric
+> 
 
-You've tried to educate these people before. You're wasting your time and 
-talent. I think you should ask for a handsome payment when these people want 
-to enjoy the privilege of being properly educated by someone who knows what 
-he's talking about.
-
-Groetjes,
-Peter.

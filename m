@@ -1,49 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314634AbSFEEJ0>; Wed, 5 Jun 2002 00:09:26 -0400
+	id <S317545AbSFEEKt>; Wed, 5 Jun 2002 00:10:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317544AbSFEEJZ>; Wed, 5 Jun 2002 00:09:25 -0400
-Received: from dsl-213-023-043-246.arcor-ip.net ([213.23.43.246]:37047 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314634AbSFEEJY>;
-	Wed, 5 Jun 2002 00:09:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: J Sloan <joe@tmsusa.com>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-Date: Wed, 5 Jun 2002 06:08:57 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206041418460.2614-100000@waste.org> <E17FQPj-0001Rr-00@starship> <3CFD8C07.6030607@tmsusa.com>
+	id <S317546AbSFEEKs>; Wed, 5 Jun 2002 00:10:48 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:15595 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S317545AbSFEEKq>; Wed, 5 Jun 2002 00:10:46 -0400
+Message-ID: <3CFD8E42.7000703@didntduck.org>
+Date: Wed, 05 Jun 2002 00:06:26 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17FS6T-0001UR-00@starship>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fs/inode.c list_del_init
+Content-Type: multipart/mixed;
+ boundary="------------020805000108010003010602"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 05 June 2002 05:56, J Sloan wrote:
-> Daniel Phillips wrote:
-> 
-> >If I recall correctly, XFS makes an attempt to provide such realtime 
-> >guarantees, or at least the Solaris version does. 
-> >
-> When did Solaris ever support xfs?
-> 
-> > However, the operating 
-> >system must be able to provide true realtime guarantees in order for the 
-> >filesystem to provide them, and I doubt that the combination of XFS and 
-> >Solaris can do that.
-> >
-> no, but the combination of xfs and irix has
-                                     ^^^^			
-Heh, I can only protest that Oxymoron also missed that thinko..
+This is a multi-part message in MIME format.
+--------------020805000108010003010602
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> made a lot of folks happy -  and xfs/linux is coming along nicely as
-> well...
+A few cases of list_del(x) + INIT_LIST_HEAD(x) crept in recently which 
+can be replaced with list_del_init(x).
 
-Improving the average latency of systems is a worthy goal, and there's
-no denying that 'sorta realtime' has its place, however it's no substitute
-for the real thing.  A soft realtime system screws up only on occasion,
-but - bugs excepted - a hard realtime system *never* does.
+--------------020805000108010003010602
+Content-Type: text/plain;
+ name="inode-list-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="inode-list-1"
 
--- 
-Daniel
+diff -urN linux-bk/fs/inode.c linux/fs/inode.c
+--- linux-bk/fs/inode.c	Tue Jun  4 23:54:33 2002
++++ linux/fs/inode.c	Tue Jun  4 23:57:37 2002
+@@ -390,8 +390,7 @@
+ 		if (atomic_read(&inode->i_count))
+ 			continue;
+ 		list_del(tmp);
+-		list_del(&inode->i_hash);
+-		INIT_LIST_HEAD(&inode->i_hash);
++		list_del_init(&inode->i_hash);
+ 		list_add(tmp, freeable);
+ 		inode->i_state |= I_FREEING;
+ 		count++;
+@@ -777,8 +776,7 @@
+ void remove_inode_hash(struct inode *inode)
+ {
+ 	spin_lock(&inode_lock);
+-	list_del(&inode->i_hash);
+-	INIT_LIST_HEAD(&inode->i_hash);
++	list_del_init(&inode->i_hash);
+ 	spin_unlock(&inode_lock);
+ }
+ 
+@@ -786,10 +784,8 @@
+ {
+ 	struct super_operations *op = inode->i_sb->s_op;
+ 
+-	list_del(&inode->i_hash);
+-	INIT_LIST_HEAD(&inode->i_hash);
+-	list_del(&inode->i_list);
+-	INIT_LIST_HEAD(&inode->i_list);
++	list_del_init(&inode->i_hash);
++	list_del_init(&inode->i_list);
+ 	inode->i_state|=I_FREEING;
+ 	inodes_stat.nr_inodes--;
+ 	spin_unlock(&inode_lock);
+
+--------------020805000108010003010602--
+

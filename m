@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129875AbQKBWY4>; Thu, 2 Nov 2000 17:24:56 -0500
+	id <S129780AbQKBW20>; Thu, 2 Nov 2000 17:28:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129839AbQKBWYq>; Thu, 2 Nov 2000 17:24:46 -0500
-Received: from pD9040D34.dip.t-dialin.net ([217.4.13.52]:62217 "HELO
-	grumbeer.hjb.de") by vger.kernel.org with SMTP id <S129819AbQKBWYj>;
-	Thu, 2 Nov 2000 17:24:39 -0500
-Subject: Re: test10 won't boot
-To: adve@oce.nl (Arjan van de Ven)
-Date: Thu, 2 Nov 2000 23:23:26 +0100 (CET)
-Cc: hjb@pro-linux.de (Hans-Joachim Baader), linux-kernel@vger.kernel.org
-In-Reply-To: <m13rFOP-000qDEC@pc1-adve.oce.nl> from "Arjan van de Ven" at Nov 02, 2000 09:06:37 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129787AbQKBW2Q>; Thu, 2 Nov 2000 17:28:16 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24656 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129780AbQKBW2J>; Thu, 2 Nov 2000 17:28:09 -0500
+Subject: Re: select() bug
+To: pmarquis@iname.com (Paul Marquis)
+Date: Thu, 2 Nov 2000 22:27:30 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3A01E68C.EDA27165@iname.com> from "Paul Marquis" at Nov 02, 2000 05:11:24 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20001102222327.467EF355279@grumbeer.hjb.de>
-From: hjb@pro-linux.de (Hans-Joachim Baader)
+Message-Id: <E13rSpZ-0001z2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+> that are log file handlers are dead.  If select() reports it can't
+> write immediately, Apache terminates and restarts the child process,
+> creating unnecessary load on the system.
 
-> [snip]
-> 
-> > CONFIG_M686=y
-> 
-> Ah ha!
-> 
-> You have selected the Pentium II/III CPU type, which does NOT work on a K6. 
-> The compiler (and the kernel) will use the "new" Pentium II instructions
-> (such as "cmov") which are not supported by the K6, leading to "illegal
-> instruction" usage very early.
+Is there anything saying that select has to report ready the instant a byte
+would fit. Certainly its better for performance to reduce the context switch
+rate by encouraging blocking
 
-Ouch. This was it. I simply overlooked this option and used the one
-that worked with 2.2...
 
-But it would be nice if the kernel could detect the wrong CPU type
-and print a message before it stops. Perhaps compile the init
-section without CPU specific optimization?
-
-Thanks for your help,
-hjb
--- 
-http://www.pro-linux.de/ - Germany's largest volunteer Linux support site
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

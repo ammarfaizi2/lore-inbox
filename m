@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129041AbQJaUhG>; Tue, 31 Oct 2000 15:37:06 -0500
+	id <S129029AbQJaUhG>; Tue, 31 Oct 2000 15:37:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129054AbQJaUg4>; Tue, 31 Oct 2000 15:36:56 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:58362 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129041AbQJaUgw>; Tue, 31 Oct 2000 15:36:52 -0500
-Date: Tue, 31 Oct 2000 18:36:16 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Reto Baettig <baettig@scs.ch>
-cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
+	id <S129041AbQJaUg4>; Tue, 31 Oct 2000 15:36:56 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34672 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129029AbQJaUgt>; Tue, 31 Oct 2000 15:36:49 -0500
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <39FEE2C8.1CC82DF2@scs.ch>
-Message-ID: <Pine.LNX.4.21.0010311835420.1190-100000@duckman.distro.conectiva>
+To: baettig@scs.ch (Reto Baettig)
+Date: Tue, 31 Oct 2000 20:37:23 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        jmerkey@timpanogas.org (Jeff V. Merkey), linux-kernel@vger.kernel.org
+In-Reply-To: <39FEE580.6A45141C@scs.ch> from "Reto Baettig" at Oct 31, 2000 07:30:08 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13qi9t-0008E9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2000, Reto Baettig wrote:
+> And what if I'd like to use the network for something different than
+> html?
 
-> When I'm following this thread, you guys seem to forget the
-> _basics_: The Linux networking stack sucks!
+Read the tux source. Then come back and ask sensible questions
 
-Ummm, last I looked Linux held the Specweb99 record;
-by a wide margin...
-
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291170AbSBLUr5>; Tue, 12 Feb 2002 15:47:57 -0500
+	id <S291173AbSBLU6I>; Tue, 12 Feb 2002 15:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291171AbSBLUrs>; Tue, 12 Feb 2002 15:47:48 -0500
-Received: from nwhn-sh19-port93.snet.net ([204.60.209.93]:55168 "EHLO
-	karaya.com") by vger.kernel.org with ESMTP id <S291170AbSBLUrg>;
-	Tue, 12 Feb 2002 15:47:36 -0500
-Message-Id: <200202121549.g1CFnb004555@karaya.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Marek Zawadzki <mzawadzk@cs.stevens-tech.edu>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: TUN/TAP driver doesn't work. 
-In-Reply-To: Your message of "Sun, 10 Feb 2002 22:17:19 EST."
-             <Pine.NEB.4.33.0202102204200.21611-100000@courage.cs.stevens-tech.edu> 
+	id <S291177AbSBLU57>; Tue, 12 Feb 2002 15:57:59 -0500
+Received: from holomorphy.com ([216.36.33.161]:60323 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S291173AbSBLU5q>;
+	Tue, 12 Feb 2002 15:57:46 -0500
+Date: Tue, 12 Feb 2002 12:57:22 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, riel@surriel.com
+Subject: Re: File BlockSize
+Message-ID: <20020212205722.GH767@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	riel@surriel.com
+In-Reply-To: <002e01c1b397$1a26d270$3c00a8c0@baazee.com> <E16ae3z-0001xO-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 12 Feb 2002 10:49:37 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <E16ae3z-0001xO-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mzawadzk@cs.stevens-tech.edu said:
-> Did they change values of #defines for TUN/TAP ioctls' numbers, or
-> what? 
+On Tue, Feb 12, 2002 at 02:37:43PM +0000, Alan Cox wrote:
+> Going to a block size bigger than page size causes all sorts of fun with 
+> allocation failures if there are not two pages free adjacent to one another
+> when allocating, and isn't really worth the cost.
 
-Yup, they sure did.
+This sounds like fairly severe memory fragmentation, which seems more
+worrisome to me than blocksize constraints. Should I look into that?
 
-> If so, that's quite bad in my opinion (what if somebody had
-> binary-only version of his client?).
 
-Yup, it sure is.  It screwed UML over too.
-
-BTW, if you (or anyone else) still needs to look at working TUN/TAP code,
-UML has had a TUN/TAP network backend for a while.  See 
-arch/um/drivers/tuntap*.
-
-I've also got persistent TUN/TAP support mostly working in my private pool,
-it will appear in a patch shortly.
-
-				Jeff
-
+Cheers,
+Bill

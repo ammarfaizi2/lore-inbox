@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280191AbRLKP0j>; Tue, 11 Dec 2001 10:26:39 -0500
+	id <S278701AbRLKPZ7>; Tue, 11 Dec 2001 10:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280426AbRLKP03>; Tue, 11 Dec 2001 10:26:29 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:18335 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S280191AbRLKP0R>; Tue, 11 Dec 2001 10:26:17 -0500
-From: "Chris Shutters" <cshutters@ebiz-tech.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Solved? Repeatable File Corruption (ECS K7S5A w/SIS735)
-Date: Tue, 11 Dec 2001 08:20:20 -0700
-Message-ID: <DHEDJKBNKONPLLCLBOAICEIJCHAA.cshutters@ebiz-tech.com>
+	id <S280426AbRLKPZi>; Tue, 11 Dec 2001 10:25:38 -0500
+Received: from dsl-213-023-043-244.arcor-ip.net ([213.23.43.244]:1803 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S280191AbRLKPZ1>;
+	Tue, 11 Dec 2001 10:25:27 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+Date: Tue, 11 Dec 2001 16:27:23 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@zip.com.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011211144223.E4801@athlon.random> <Pine.LNX.4.33L.0112111157410.4079-100000@imladris.surriel.com> <20011211152356.I4801@athlon.random>
+In-Reply-To: <20011211152356.I4801@athlon.random>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16DooZ-0001J4-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been considering buying some computers systems based on the SiS735
-chipset (specifically the ECS K7S5A motherboard), but was disturbed by
-reports in late October
-(http://www.uwsg.indiana.edu/hypermail/linux/kernel/0110.3/0465.html) of
-repeatable file corruption when running linux on these systems.  This would
-be about the time of the 2.4.13 kernel.
+On December 11, 2001 03:23 pm, Andrea Arcangeli wrote:
+> As said I wrote some documentation on the VM for my last speech at the
+> one of the most important italian linux events, it explains the basic
+> design. It should be published on their webside as soon as I find the
+> time to send them the slides. I can post a link once it will be online.
 
-There was no report (that I can find, at least) of this problem ever being
-fixed.  Has it been fixed?  The person who originally reported the problem
-has also not heard anything about the problem being fixed, and is preparing
-to spend a significant amount of money on swapping out the ECS motherboards
-for other boards.
+Why not also post the whole thing as an email, right here?
 
-This chipset and motherboard appear to make a very good, low cost system,
-but I can't use it if I don't know for sure that the Linux kernel supports
-the IDE subsystem properly.
+> It shoud allow non VM-developers to understand the logic behind the VM
+> algorithm, but understanding those slides it's far from allowing anyone
+> to hack the VM.
 
+It's a start.
 
+> I _totally_ agree with Linus when he said "real world is totally
+> dominated by the implementation details".
 
+Linus didn't say anything about not documenting the implementation details, 
+nor did he say anything about not documenting in general.
 
-Thanks in advance for your assistance,
+> For developers the real freedom is the code, not the documentation and
+> the code is there. And I think it's much easier to understand the
+> current code (ok I'm biased, but still I believe for outsiders it's
+> simpler).
 
-Chris Shutters
-cshutters@ebiz-tech.com
+Judging by the number of complaints, it's not easy enough.  I know that, 
+personally, decoding your vm is something that's always on my 'things I could 
+do if I didn't have a lot of other things to do' list.  So far, only Linus, 
+Marcelo, Andrew and maybe Rik seem to have made the investment.  You'd have a 
+lot more helpers by now if you gave just a little higher priority to 
+documentation
 
+--
+Daniel

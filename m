@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUHPACp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267293AbUHPADz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267285AbUHPACp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 20:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUHPACp
+	id S267293AbUHPADz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 20:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUHPADy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 20:02:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60577 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267285AbUHPACo (ORCPT
+	Sun, 15 Aug 2004 20:03:54 -0400
+Received: from zero.aec.at ([193.170.194.10]:43525 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S267293AbUHPADm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 20:02:44 -0400
-Date: Sun, 15 Aug 2004 17:00:22 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: hch@infradead.org, zwane@linuxpower.ca, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH][2.6] Move Sungem to gige menu
-Message-Id: <20040815170022.2c3ec056.davem@redhat.com>
-In-Reply-To: <1092608813.9536.21.camel@gaston>
-References: <Pine.LNX.4.58.0408141412550.22077@montezuma.fsmlabs.com>
-	<20040815104900.A805@infradead.org>
-	<Pine.LNX.4.58.0408151103490.22078@montezuma.fsmlabs.com>
-	<Pine.LNX.4.58.0408151116520.22078@montezuma.fsmlabs.com>
-	<20040815162129.A2700@infradead.org>
-	<1092608813.9536.21.camel@gaston>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Aug 2004 20:03:42 -0400
+To: Roland McGrath <roland@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] waitid system call
+References: <2tCiy-8pK-13@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 16 Aug 2004 02:03:37 +0200
+In-Reply-To: <2tCiy-8pK-13@gated-at.bofh.it> (Roland McGrath's message of
+ "Mon, 16 Aug 2004 01:10:06 +0200")
+Message-ID: <m3smaoc5k6.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004 08:26:53 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Roland McGrath <roland@redhat.com> writes:
 
-> I suppose the ones used by Sun are all gigabit tho.
+Are you sure you converted the new _rusage member properly 
+in the 64->32bit siginfo converter? struct rusage uses long.
 
-Actually no, the ones onboard in the SunBlade100 are
-10/100 only.
+> +asmlinkage long sys32_waitid(int which, compat_pid_t pid,
+> +			     siginfo_t32 __user *uinfo, int options)
+> +{
+> +	siginfo_t info;
+> +	long ret;
+> +	mm_segment_t old_fs = get_fs();
+> +
+> +	info.si_signo = 0;
+> +	set_fs (KERNEL_DS);
+> +	ret = sys_waitid(which, pid, (siginfo_t __user *) &info, options);
+> +	set_fs (old_fs);
+
+Better use compat_alloc_user_space() for this. Otherwise it won't
+work for UML/x86-64. Also that will make it easier to port to other
+architectures. 
+
++	/* 1 if group stopped since last SIGCONT, -1 if SIGCONT since report */
++  	int			stop_state;
+
+Can't this be merged into some other field? No need to waste memory
+unnecessarily.
+
+-Andi
+

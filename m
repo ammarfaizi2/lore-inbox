@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261337AbSLHPz4>; Sun, 8 Dec 2002 10:55:56 -0500
+	id <S261338AbSLHP4W>; Sun, 8 Dec 2002 10:56:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261338AbSLHPz4>; Sun, 8 Dec 2002 10:55:56 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:28170 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S261337AbSLHPzz>;
-	Sun, 8 Dec 2002 10:55:55 -0500
-Date: Sun, 8 Dec 2002 17:03:36 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: willy@w.ods.org, linux-kernel@vger.kernel.org
-Subject: Re: hidden interface (ARP) 2.4.20
-Message-Id: <20021208170336.5f4deaf1.skraw@ithnet.com>
-In-Reply-To: <3DF2848F.2010900@drugphish.ch>
-References: <A6B0BFA3B496A24488661CC25B9A0EFA333DEF@himl07.hickam.pacaf.ds.af.mil>
-	<1039124530.18881.0.camel@rth.ninka.net>
-	<20021205140349.A5998@ns1.theoesters.com>
-	<3DEFD845.1000600@drugphish.ch>
-	<20021205154822.A6762@ns1.theoesters.com>
-	<3DF2848F.2010900@drugphish.ch>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S261346AbSLHP4W>; Sun, 8 Dec 2002 10:56:22 -0500
+Received: from texas.pobox.com ([64.49.223.111]:18653 "EHLO texas.pobox.com")
+	by vger.kernel.org with ESMTP id <S261338AbSLHP4U>;
+	Sun, 8 Dec 2002 10:56:20 -0500
+Date: Sun, 8 Dec 2002 21:33:49 +0530
+From: Joshua N Pritikin <vishnu@pobox.com>
+To: quinlan@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: longrun not working
+Message-ID: <20021208160349.GA712@always.joy.eth.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 08 Dec 2002 00:30:23 +0100
-Roberto Nibali <ratz@drugphish.ch> wrote:
+i have a Fujitsu P-Series laptop (TM5800 CPU @ 800MHz) running Linux
+2.4.20 (debian) with devfs, CONFIG_MCRUSOE, CONFIG_X86_MSR, and
+CONFIG_X86_CPUID.
 
-> Hello,
-> 
-> [Maybe we should discuss this in private, it doesn't have a lot to do 
-> with kernel development anymore.]
+emit:/usr/src/pseries/longrun# ls -l /dev/cpu/0/
+total 0
+crw-rw----    1 root     root     203,   0 Dec  8  2002 cpuid
+crw-rw----    1 root     root     202,   0 Dec  8  2002 msr
 
-To be honest: I think this _is_ indeed a kernel development issue. We are
-somehow talking of a performance lack that can be overcome by a simple patch
-(call it hack) and some brain.
+When i try longrun 0.9, i get a failure at the first call to
+read_cpuid() in check_cpu(), line 186.
 
-> > Because when you have to deal with thousands of session per second, NAT is
-> > really a pain in the ass. When you have to consider security, NAT is a pain
-> 
-> Not with a HW LB, and with a SW LB (LVS-NAT) you can very well sustain 
-> 20000 NAT'd load balanced connections with 5 minutes of stickyness 
-> (persistency) with 1GB RAM and a PIII Tualatin with 512 kb L2 cache. I'm 
-> not sure if you meant this when mentioning pain.
+(Actually longrun was working on my laptop about a month ago
+then it mysterious started failing, as described.  i don't
+know what changed.)
 
-I guess he probably meant a _bit_ more. I may add some zeros to your 20000 to
-give you a glimpse of a _standard_ load we are talking about. And you can
-easily do this with the hardware you mentioned _not_ using NAT (of course ;-).
+Who is maintaining longrun?  What more information can i provide
+to help in debugging?
 
-I guess it would really be a great help if someone did tests like Cons'
-"overall performance" ones for network performance explicitly. Like e.g.
-performance for various packet-sizes of all available protocol types, possibly
-including NAT connections. We have no comparable figures at hand right now, I
-guess.
+(If you are replying to a mailing list, please CC my email also.)
 
 -- 
-Regards,
-Stephan
-
+Victory to the Divine Mother!!         after all,
+  http://sahajayoga.org                  http://why-compete.org

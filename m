@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265803AbRGFDQw>; Thu, 5 Jul 2001 23:16:52 -0400
+	id <S265844AbRGFDRw>; Thu, 5 Jul 2001 23:17:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265844AbRGFDQm>; Thu, 5 Jul 2001 23:16:42 -0400
-Received: from water.CC.McGill.CA ([132.206.27.29]:31718 "EHLO
-	water.cc.mcgill.ca") by vger.kernel.org with ESMTP
-	id <S265803AbRGFDQX>; Thu, 5 Jul 2001 23:16:23 -0400
-Date: Thu, 5 Jul 2001 16:47:37 -0400 (EDT)
-From: Felix Braun <Felix.Braun@McGill.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Random lockups with kernels 2.4.6-pre8+
-In-Reply-To: <Pine.LNX.4.33L2.0107042038190.1073-100000@eressea.in-berlin.de>
-Message-ID: <Pine.LNX.4.33L2.0107051621170.888-100000@eressea.in-berlin.de>
+	id <S265865AbRGFDRm>; Thu, 5 Jul 2001 23:17:42 -0400
+Received: from gecko.roadtoad.net ([209.209.8.2]:1021 "EHLO gecko.roadtoad.net")
+	by vger.kernel.org with ESMTP id <S265844AbRGFDRe>;
+	Thu, 5 Jul 2001 23:17:34 -0400
+Date: Thu, 5 Jul 2001 20:17:28 -0700 (PDT)
+From: Derek Vadala <derek@cynicism.com>
+To: linux-kernel@vger.kernel.org
+Subject: max sizes for files and file systems
+Message-ID: <Pine.GSO.4.21.0107052009500.28636-100000@gecko.roadtoad.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
+I've been trying to do some research on the file size and filesystem size
+limitations under Linux for stable releases since 2.0. 
 
-I have been able to reproduce the locking-up behaviour! It occurs every
-time I start Mozilla (0.9.2) or gtkEmbed. Other memory intensive programs
-(GIMP) don't have that behaviour.
+It's clear that under 2.4, the kernel imposes a limit of 2TB as the
+maximum file size and that some portion of the kernels before 2.4 had a
+limit of 2GB.
 
-Strangely enough, the system remains mostly functional: I can switch
-consoles, X and Enlightenment remain responsive, I can even execute some
-programs. But programs that deal with mozillas /proc entries just hang. top
-and ps hang; also if I cd into /proc/<mozilla's pid> and do an ls *block*;
-you can't even kill it with CTRL-C. Listing other subdirs works fine though.
-Other things that hang are w and xdm-greeter.
+However, it's not clear to me when the file size limit was increased, or
+what the maximum file system sizes under 2.0, 2.2 and 2.4 are. I realize
+that both of these values are also contingent on the filesystem used, but
+I'm wondering about what limits the kernel itself imposes. 
 
-Considering these symptoms, it seems to be more of an issue with mozilla
-than with the kernel. Still, I don't know why the ls /proc/mozilla should
-block. Also things work perfectly with kernel 2.4.6-pre5.
+I'm also a bit unclear as to where the 2GB limit in kernels < 2.4 comes
+from. It appears to be a kernel imposed limit, but there also seems to be
+a lot conflicting information out there, blaming the problem on
+EXT2. However, from what I can tell, 2.0.39, 2.2.19 and 2.4.5 all use the
+same version (0.5b-95/08/09) of ext2-- either that or EXT2FS_VERSION and
+EXT2FS_DATE in .../include/linux/ext2_fs.h simply haven't been updated.
 
-Can anybody reproduce the symptoms, tell me whether this is a problem with
-the kernel, mozilla or both, or provide me with other insight? I'd
-appreciate it very much!
+Any clarification would be appreciated.
 
-Bye
-Felix
+---
+Derek Vadala, derek@cynicism.com, http://www.cynicism.com/~derek
 

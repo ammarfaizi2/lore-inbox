@@ -1,88 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbULUXvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbULUXyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261902AbULUXvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 18:51:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbULUXvZ
+	id S261884AbULUXyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 18:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbULUXyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 18:51:25 -0500
-Received: from siaag1ag.compuserve.com ([149.174.40.13]:7080 "EHLO
-	siaag1ag.compuserve.com") by vger.kernel.org with ESMTP
-	id S261902AbULUXvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 18:51:21 -0500
-Date: Tue, 21 Dec 2004 18:49:13 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Linux 2.6.9-ac16
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Chris Ross <chris@tebibyte.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-ID: <200412211850_MC3-1-916E-59A6@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Tue, 21 Dec 2004 18:54:09 -0500
+Received: from coderock.org ([193.77.147.115]:5833 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261884AbULUXyA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 18:54:00 -0500
+Date: Wed, 22 Dec 2004 00:54:24 +0100
+From: Domen Puncer <domen@coderock.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Steve French <sfrench@samba.org>, Steve French <sfrench@us.ibm.com>,
+       samba-technical@lists.samba.org, linux-kernel@vger.kernel.org
+Subject: Re: in cifssmb.c add copy_from_user return value check and do minor formatting/whitespace cleanups.
+Message-ID: <20041221235424.GA19274@nd47.coderock.org>
+References: <Pine.LNX.4.61.0412220021580.3518@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0412220021580.3518@dragon.hygekrogen.localhost>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
+On 22/12/04 00:33 +0100, Jesper Juhl wrote:
+> 
+> Hi, 
+> 
+> Seeing this warning :
+> 
+> fs/cifs/cifssmb.c:902: warning: ignoring return value of `copy_from_user', declared with attribute warn_unused_result
+> 
+> lead to the following patch.
+> 
+> The patch adds a check of the copy_from_user return value and returns 
+> -EFAULT if the call fails. In addition to that I did some 
+> formatting/whitespace changes - the code uses primarily tabs for 
+> indentation, but this little bit used spaces, so I changed that to tabs; I 
+> also added a few curly braces {} for a few if statements, in the same 
+> area, that seemed to be becomming quite hard to read without.
+> 
+> Patch has been compile tested, but I have no real way to test it properly 
+> beyond that. 
+> I hope the patch is acceptable and mergable :)
+> 
+> Btw, I'm only subscribed to LKML, so please keep me on CC.
+> 
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> 
+> diff -up linux-2.6.10-rc3-bk13-orig/fs/cifs/cifssmb.c linux-2.6.10-rc3-bk13/fs/cifs/cifssmb.c
+> --- linux-2.6.10-rc3-bk13-orig/fs/cifs/cifssmb.c	2004-12-20 22:19:42.000000000 +0100
+> +++ linux-2.6.10-rc3-bk13/fs/cifs/cifssmb.c	2004-12-22 00:21:38.000000000 +0100
+> @@ -895,14 +895,19 @@ CIFSSMBWrite(const int xid, struct cifsT
+>  		bytes_sent = count;
+>  	pSMB->DataLengthHigh = 0;
+>  	pSMB->DataOffset =
+> -	    cpu_to_le16(offsetof(struct smb_com_write_req,Data) - 4);
+> -    if(buf)
+> -	    memcpy(pSMB->Data,buf,bytes_sent);
+> -	else if(ubuf)
+> -		copy_from_user(pSMB->Data,ubuf,bytes_sent);
+> -    else {
+> +		cpu_to_le16(offsetof(struct smb_com_write_req,Data) - 4);
+> +
+> +	if (buf) {
+> +		memcpy(pSMB->Data,buf,bytes_sent);
+> +	} else if (ubuf) {
+> +		if (copy_from_user(pSMB->Data,ubuf,bytes_sent)) {
+> +			if (pSMB)
 
->  I backported this patch to 2.6.9 but haven't tested it yet.  It requires the
-> 'spurious oomkill' patch I posted earlier in this thread.  Early reports
-> are that it stops the freezes during heavy paging.
+How can this be NULL, and code not Oopsing?
 
- OK here's one that actually compiles.  (3AM was not a good time to be
-making patches.)
+> +				cifs_buf_release(pSMB);
+> +			return -EFAULT;
+> +		}
+> +	} else {
+>  		/* No buffer */
+> -		if(pSMB)
+> +		if (pSMB)
 
-# mm_swap_token_disable.patch
-#       include/linux/swap.h -0 +1
-#       mm/rmap.c -0 +3
-#       mm/thrash.c -1 +4
-#
-#       NOTE: On 2.6.9 there is no sysctl to change
-#             swap_token_default_timeout.
-#
-#       Based on a patch by Con Kolivas for 2.6.10
-#       Backported to 2.6.9 by Chuck Ebbert <76306.1226@compuserve.com>
-#
---- 2.6.9.1/include/linux/swap.h
-+++ 2.6.9.2/include/linux/swap.h
-@@ -230,6 +230,7 @@
- 
- /* linux/mm/thrash.c */
- extern struct mm_struct * swap_token_mm;
-+extern unsigned long swap_token_default_timeout;
- extern void grab_swap_token(void);
- extern void __put_swap_token(struct mm_struct *);
- 
---- 2.6.9.1/mm/rmap.c
-+++ 2.6.9.2/mm/rmap.c
-@@ -394,6 +394,9 @@ int page_referenced(struct page *page, i
- {
-        int referenced = 0;
- 
-+       if (!swap_token_default_timeout)
-+               ignore_token = 1;
-+
-        if (page_test_and_clear_young(page))
-                referenced++;
- 
---- 2.6.9.1/mm/thrash.c
-+++ 2.6.9.2/mm/thrash.c
-@@ -19,7 +19,11 @@ unsigned long swap_token_check;
- struct mm_struct * swap_token_mm = &init_mm;
- 
- #define SWAP_TOKEN_CHECK_INTERVAL (HZ * 2)
--#define SWAP_TOKEN_TIMEOUT (HZ * 300)
-+#define SWAP_TOKEN_TIMEOUT     0
-+/*
-+ * Currently disabled; Needs further code to work at HZ * 300.
-+ */
-+unsigned long swap_token_default_timeout = SWAP_TOKEN_TIMEOUT;
- 
- /*
-  * Take the token away if the process had no page faults
-_
---
-Please take it as a sign of my infinite respect for you,
-that I insist on you doing all the work.
-                                        -- Rusty Russell
+Same here.
+
+>  			cifs_buf_release(pSMB);
+>  		return -EINVAL;
+>  	}
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262234AbTIMWHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 18:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbTIMWHQ
+	id S262225AbTIMWEz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 18:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbTIMWEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 18:07:16 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24061 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262234AbTIMWHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 18:07:14 -0400
-Date: Sun, 14 Sep 2003 00:07:06 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-Message-ID: <20030913220706.GM27368@fs.tum.de>
-References: <20030913125103.GE27368@fs.tum.de> <20030913161149.GA1750@redhat.com> <20030913182159.GA10047@gtf.org> <20030913183758.GQ1191@redhat.com> <20030913185319.GC10047@gtf.org>
+	Sat, 13 Sep 2003 18:04:55 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51204 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262225AbTIMWEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 18:04:54 -0400
+Date: Sat, 13 Sep 2003 23:04:50 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+       Thomas Molina <tmolina@cablespeed.com>
+Subject: Re: presario laptop pcmcia loading problems
+Message-ID: <20030913230450.B23169@flint.arm.linux.org.uk>
+Mail-Followup-To: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+	Thomas Molina <tmolina@cablespeed.com>
+References: <Pine.LNX.4.44.0309121603280.1579-800000@localhost.localdomain> <20030913212719.A23169@flint.arm.linux.org.uk> <20030913205615.GK27104@triplehelix.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030913185319.GC10047@gtf.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030913205615.GK27104@triplehelix.org>; from joshk@triplehelix.org on Sat, Sep 13, 2003 at 01:56:15PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 02:53:19PM -0400, Jeff Garzik wrote:
+On Sat, Sep 13, 2003 at 01:56:15PM -0700, Joshua Kwan wrote:
+> On Sat, Sep 13, 2003 at 09:27:19PM +0100, Russell King wrote:
+> > > # CONFIG_ISA is not set
 > > 
-> > Echo 2 lines above. People do use 386 kernels for install kernels
-> > on distros. Removing errata workarounds means distros start randomly
-> > exploding during installs.
+> > Turn this on.
 > 
-> You're not understanding the model.  I understand your comment about
-> using 386 kernels for install kernels.  If Adrian's patch is done
-> right, _absolutely nothing should change_ in your described scenario.
-> 
-> Distros would continue doing what they've always done, and would
-> continue to get the behavior they have always gotten.
->...
+> How about requiring CONFIG_ISA for CONFIG_PCMCIA_HERMES?
 
-I'm not sure whether you understand my intention.
+It's unrelated to Hermes.
 
-Nothing will change, except that if you want to support all CPUs, you 
-have to select all CPUs instead of 386.
+Turning off CONFIG_ISA drops out a chunk of code to do with ISA support,
+including support for ISA-style interrupts from PCMCIA.  However, PCMCIA
+cards are still useful if your cardbus socket routes PCMCIA card
+interrupts to the PCI interrupt.
 
-My main intention is to get a clear user interface (user = person 
-compiling the kernel) that suits everyone's needs and to put all the 
-logic what to do when you plan to support several different CPUs into 
-the kernel.
+What I basically need to do (when I get around to it) is to work out
+a decent way to handle routing the cardbus/pcmcia interrupts according
+to what resources are available.  But alas, time is a commodity which
+I'm sorely lacking at the moment.
 
-I don't like the current user interface that says "if you want to 
-support both an Athlon and a Pentium 4 in your kernel use the Pentium III
-option. And for better optimization, also check the "generic" option".
-
-> 	Jeff
-
-cu
-Adrian
+So for the moment, if you want to use PCMCIA cards, always ensure you
+have CONFIG_ISA turned on.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

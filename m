@@ -1,39 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129193AbQKMKpZ>; Mon, 13 Nov 2000 05:45:25 -0500
+	id <S129481AbQKMK5k>; Mon, 13 Nov 2000 05:57:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129481AbQKMKpQ>; Mon, 13 Nov 2000 05:45:16 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:62736 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129193AbQKMKpK>;
-	Mon, 13 Nov 2000 05:45:10 -0500
+	id <S129436AbQKMK5U>; Mon, 13 Nov 2000 05:57:20 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:65040 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129385AbQKMK5P>;
+	Mon, 13 Nov 2000 05:57:15 -0500
 X-Mailer: exmh version 2.1.1 10/15/1999
 From: Keith Owens <kaos@ocs.com.au>
-To: Jasper Spaans <jasper@spaans.ds9a.nl>
-cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11pre2-ac1 and previous problem 
-In-Reply-To: Your message of "Mon, 13 Nov 2000 09:58:17 BST."
-             <20001113095816.A29077@spaans.ds9a.nl> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 13 Nov 2000 21:44:59 +1100
-Message-ID: <2002.974112299@ocs3.ocs-net>
+To: linux-kernel@vger.kernel.org
+Subject: Local root exploit with kmod and modutils > 2.1.121
+Date: Mon, 13 Nov 2000 21:57:08 +1100
+Message-ID: <2329.974113028@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2000 09:58:17 +0100, 
-Jasper Spaans <jasper@spaans.ds9a.nl> wrote:
->All right, here's another one, this time using the oops directly from the
->console -- this seems to give better symbols.. The 'console shuts up ...'
->works, the oops from the other CPU didn't get put out.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Ohhhh, damn!  For NMI lockups we want the console to stay live so NMI
-detection on the other cpus can be printed.  NMI is normally caused by
-spinlock problems and it is useful to know what the other cpus are
-doing.  Andrew, do you want to have a go at fixing this?
+Content-Type: text/plain; charset=us-ascii
 
->Will try test11-pre3 + kdb this afternoon, if it compiles.
+A local root exploit has been found using kernels compiled with kmod
+and modutils > 2.1.121.  Kernels without kmod and systems using
+modutils 2.1.121 are not affected.
 
-Patch kdb-v1.5-2.4.0-test11-pre3.gz should be OK.
+Patch against modutils 2.3.19, it should fit any 2.3 modutils.
+
+Index: 19.7/util/meta_expand.c
+- --- 19.7/util/meta_expand.c Sun, 10 Sep 2000 12:56:40 +1100 kaos (modutils-2.3/10_meta_expan 1.4 644)
++++ 19.7(w)/util/meta_expand.c Mon, 13 Nov 2000 21:19:41 +1100 kaos (modutils-2.3/10_meta_expan 1.4 644)
+@@ -156,12 +156,8 @@ static int glob_it(char *pt, GLOB_LIST *
+  */
+ int meta_expand(char *pt, GLOB_LIST *g, char *base_dir, char *version)
+ {
+- -	FILE *fin;
+- -	int len = 0;
+- -	char *line = NULL;
+ 	char *p;
+ 	char tmpline[PATH_MAX + 1];
+- -	char tmpcmd[PATH_MAX + 11];
+ 
+ 	g->pathc = 0;
+ 	g->pathv = NULL;
+@@ -277,38 +273,6 @@ int meta_expand(char *pt, GLOB_LIST *g, 
+ 		/* Only "=" remaining, should be module options */
+ 		split_line(g, pt, 0);
+ 		return 0;
+- -	}
+- -
+- -	/*
+- -	 * Last resort: Use "echo"
+- -	 */
+- -	sprintf(tmpline, "%s%s", (base_dir ? base_dir : ""), pt);
+- -	sprintf(tmpcmd, "/bin/echo %s", tmpline);
+- -	if ((fin = popen(tmpcmd, "r")) == NULL) {
+- -		error("Can't execute: %s", tmpcmd);
+- -		return -1;
+- -	}
+- -	/* else */
+- -
+- -	/*
+- -	 * Collect the result
+- -	 */
+- -	while (fgets(tmpcmd, PATH_MAX, fin) != NULL) {
+- -		int l = strlen(tmpcmd);
+- -
+- -		line = (char *)xrealloc(line, len + l + 1);
+- -		line[len] = '\0';
+- -		strcat(line + len, tmpcmd);
+- -		len += l;
+- -	}
+- -	pclose(fin);
+- -
+- -	if (line) {
+- -		/* Ignore result if no expansion occurred */
+- -		strcat(tmpline, "\n");
+- -		if (strcmp(tmpline, line))
+- -			split_line(g, line, 0);
+- -		free(line);
+ 	}
+ 
+ 	return 0;
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.3 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE6D8kEi4UHNye0ZOoRAmVTAKCktbi9DI5t0sj8wd1/vjLtgwVW6QCgnO0L
+mVbPskoIGSSyTE8I9K7FcAg=
+=Z1/L
+-----END PGP SIGNATURE-----
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

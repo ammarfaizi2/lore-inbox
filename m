@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281051AbRKOUt2>; Thu, 15 Nov 2001 15:49:28 -0500
+	id <S281054AbRKOUw6>; Thu, 15 Nov 2001 15:52:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281057AbRKOUtT>; Thu, 15 Nov 2001 15:49:19 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:53254 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S281051AbRKOUtB>; Thu, 15 Nov 2001 15:49:01 -0500
-Message-ID: <3BF42A1A.5AE96A78@zip.com.au>
-Date: Thu, 15 Nov 2001 12:48:26 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S281055AbRKOUws>; Thu, 15 Nov 2001 15:52:48 -0500
+Received: from postfix1-2.free.fr ([213.228.0.130]:57316 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S281054AbRKOUwc> convert rfc822-to-8bit; Thu, 15 Nov 2001 15:52:32 -0500
+Date: Thu, 15 Nov 2001 19:07:14 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <anton@samba.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] small sym-2 fix
+In-Reply-To: <20011115.112606.62677098.davem@redhat.com>
+Message-ID: <20011115183811.F1902-100000@gerard>
 MIME-Version: 1.0
-To: Ben Collins <bcollins@debian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bug in ext3
-In-Reply-To: <20011115092452.Z329@visi.net> <3BF3F9ED.17D55B35@zip.com.au>,
-		<3BF3F9ED.17D55B35@zip.com.au> <20011115153442.A329@visi.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
-> 
-> > Please send the output of dumpe2fs, and of `fsck -fy'.
-> 
-> No, it has always been an ext2 filesystem, and never was ext3. Fsck
-> shows no errors. The point being that I do _not_ want my root filesystem
-> to be ext3, but I do want ext3 built into the kernel. That case should
-> not cause a problem like I have seen.
-> 
 
-ext3 thinks that the filesystem's superblock has the
-EXT3_FEATURE_COMPAT_HAS_JOURNAL bit set in the s_feature_compat
-field of the on-disk superblock.
 
-It's probable that that bit _is_ set.  ext2 will never notice it.
+On Thu, 15 Nov 2001, David S. Miller wrote:
 
-Please: the dumpe2fs output?
+>    From: Gérard Roudier <groudier@free.fr>
+>    Date: Thu, 15 Nov 2001 17:27:38 +0100 (CET)
+>
+>    The driver should not need more than 4096 bytes for a single allocation.
+>
+> If platform is 64-bit and PAGE_SIZE < 8K, yes it will.
+> And ppc64 fits this criteria.
 
--
+Btw, I didn't see any ppc64 stuff in linux kernel. As a result this
+platform is still in the unsupported status. :-)
+
+Indeed a 4K page on a 64 bit machine looks very suboptimal. Note that it
+is also way too small for 32 bits machines with hundreds of megabytes of
+memory. I am wondering about the reasons that made us keep with so small a
+page size. As you know earlier BSDs used 2K on Vaxen that as you also know
+had (have?) a physical PAGE_SIZE of 512 bytes.
+
+About the sym-2 driver, it may well be some pointers that make it need
+more than 4K allocation on 64 bit machines.
+
+I will try to make it fit a page size max allocation even on such weird
+configuration, since I do consider as high^H^H^H^Hslightly broken any
+piece of software that requires more that 1 PAGE of physically contiguous
+allocation. :-) :-) :-)
+
+To be serious, the right fix is to have some logical page be some power of
+two of the physical page when the physical page is too small. Can we hope
+Linux-2.5 to allow this?
+
+  Gérard.
+

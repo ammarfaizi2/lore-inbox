@@ -1,60 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbTDHWpA (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 18:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTDHWpA (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 18:45:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49835 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262198AbTDHWo6 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 18:44:58 -0400
-Message-ID: <3E93538C.9010306@pobox.com>
-Date: Tue, 08 Apr 2003 18:56:12 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	id S262194AbTDHWlK (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 18:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTDHWlK (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 18:41:10 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:38840 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S262194AbTDHWlJ (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 18:41:09 -0400
+From: Balram Adlakha <b_adlakha@softhome.net>
+To: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: * 2.5.67 sleep function from illegal context
+Date: Wed, 9 Apr 2003 04:25:32 +0000
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-To: jt@hpl.hp.com
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@brodo.de>
-Subject: Re: [PATCHES 2.5.67] PCMCIA hotplugging, in-kernel-matching and depmod
- support
-References: <20030408223111.GA25785@bougret.hpl.hp.com>
-In-Reply-To: <20030408223111.GA25785@bougret.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304090425.32770.b_adlakha@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes wrote:
-> Jeff Garzik wrote :
->>That was a big stumbling block when I last looked at the "big picture"
->>for pcmcia -- in-kernel drivers still required probe assistance from
->>userspace via the /etc/pcmcia/* bindings.
-> 
-> 
-> 	No ! Please don't do that, it will only bring madness.
+>Known bug in fbcon, fixed in latest version from James Simmons
+>that should get in soon.
+>
+>Ben.
 
-Nope.  It's already a solved problem :)  More below...
-
-
-> 	Example :
-> 	Lucent/Agere Orinoco wireless card :
-> 		manfid 0x0156,0x0002
-> 		possible drivers : wlan_cs ; orinoco_cs
-> 	Intersil PrismII and clones (Linksys, ...) :
-> 		manfid 0x0156,0x0002
-> 		possible drivers : prism2_cs ; hostap_cs
-> 
-> 	Please explain me in details how your stuff will cope with the
-> above, and how to make sure the right driver is loaded in every case
-> and how user can control this.
-> 	If your scheme can't cope with the simple real life example
-> above (I've got those cards on my desk, and those drivers on my disk),
-> then it's no good to me.
-
-These cases already exist for PCI, so pcmcia behavior should follow what 
-the kernel does when the PCI core sees such.
-
-	Jeff
-
-
-
+Still hasn't reached BK though.

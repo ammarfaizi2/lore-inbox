@@ -1,29 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132606AbRDKPeY>; Wed, 11 Apr 2001 11:34:24 -0400
+	id <S132611AbRDKPlE>; Wed, 11 Apr 2001 11:41:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132609AbRDKPeP>; Wed, 11 Apr 2001 11:34:15 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23565 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132606AbRDKPeB>; Wed, 11 Apr 2001 11:34:01 -0400
-Subject: Re: Bug in Kernel 2.4
-To: landes@informatik.tu-muenchen.de (Tobias Landes)
-Date: Wed, 11 Apr 2001 16:36:11 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01041116233700.04302@r093165> from "Tobias Landes" at Apr 11, 2001 04:23:37 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14nMfG-0006uF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S132612AbRDKPkz>; Wed, 11 Apr 2001 11:40:55 -0400
+Received: from draal.physics.wisc.edu ([128.104.137.82]:1664 "EHLO
+	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
+	id <S132611AbRDKPkr>; Wed, 11 Apr 2001 11:40:47 -0400
+Date: Wed, 11 Apr 2001 10:40:40 -0500
+From: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Alpha "process table hang"
+Message-ID: <20010411104040.A8773@draal.physics.wisc.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I believe there is a bug in Linux Kernel 4.2. I tried Kernels 2.4.2 and 2.4.0 
-> with my german SuSE-Distribution (7.1).
-> The problem occurs with my SCSI MO drive. while it works fine with Kernel 
-> 2.2.18 on the same machine and distribution, the behaviour with the newer 
 
-SCSI M/O drives with 2K media are currently broken on 2.4 kernels. Bug
-reports to linux-scsi@vger.kernel.org
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+I've been experiencing a particular kind of hang for many versions
+(since 2.3.99 days, recently seen with 2.4.1, 2.4.2, and 2.4.2-ac4) on
+the alpha architecture.  The symptom is that any program that tries to
+access the process table will hang. (ps, w, top) The hang will go away
+by itself after ~10minutes - 1 hour or so.  When it hangs I run ps and
+see that it gets halfway through the process list and hangs.  The
+process that comes next in the list (after hang goes away) almost always
+has nonsensical memory numbers, like multi-gigabyte SIZE.
+
+Linux draal.physics.wisc.edu 2.3.99-pre5 #8 Sun Apr 23 16:21:48 CDT 2000
+alpha unknown
+
+Gnu C                  2.96
+Gnu make               3.78.1
+binutils               2.10.0.18
+util-linux             2.11a
+modutils               2.4.5
+e2fsprogs              1.18
+PPP                    2.3.11
+Linux C Library        2.2.1
+Dynamic linker (ldd)   2.2.1
+Procps                 2.0.7
+Net-tools              1.54
+Kbd                    0.94
+Sh-utils               2.0
+Modules Loaded         nfsd lockd sunrpc af_packet msdos fat pas2 sound
+soundcore
+
+Has anyone else seen this?  Is there a fix?
+
+-- Bob
+
+Bob McElrath (rsmcelrath@students.wisc.edu)=20
+Univ. of Wisconsin at Madison, Department of Physics
+
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjrUevgACgkQjwioWRGe9K10TgCglv95V7KZlSzTQuLQJy7NgmuY
+hjUAoN0YGFYUjCS163dgtghN6egcKsUS
+=HtoO
+-----END PGP SIGNATURE-----
+
+--sm4nu43k4a2Rpi4c--

@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267818AbUJDPAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267810AbUJDO74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267818AbUJDPAM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 11:00:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268157AbUJDPAM
+	id S267810AbUJDO74 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 10:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUJDO74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 11:00:12 -0400
-Received: from jade.aracnet.com ([216.99.193.136]:7397 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S267818AbUJDPAE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 11:00:04 -0400
-Date: Mon, 04 Oct 2004 07:57:40 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@hpce.nec.com>, Andrew Morton <akpm@osdl.org>
-cc: pj@sgi.com, nagar@watson.ibm.com, ckrm-tech@lists.sourceforge.net,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-ID: <842970000.1096901859@[10.10.2.4]>
-In-Reply-To: <200410041605.30395.efocht@hpce.nec.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <200410032221.26683.efocht@hpce.nec.com> <20041003134842.79270083.akpm@osdl.org> <200410041605.30395.efocht@hpce.nec.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 4 Oct 2004 10:59:56 -0400
+Received: from relay.pair.com ([209.68.1.20]:1799 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S267810AbUJDO7z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 10:59:55 -0400
+X-pair-Authenticated: 64.230.143.188
+Date: Mon, 4 Oct 2004 10:59:54 -0400
+From: Geoff Oakham <oakhamg@users.sourceforge.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] iRiver ifp filesystem driver
+Message-ID: <20041004145954.GA7225@mbl.ca>
+Reply-To: Geoff Oakham <oakhamg@users.sourceforge.net>
+References: <20041002034624.GA14619@mbl.ca> <20041004144335.GA6770@mbl.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20041002034624.GA14619@mbl.ca>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My optimistic assumption that it is easy to build cpusets into CKRM is
-> only valid for adding a cpuset controller into the CKRM framework and
-> forgetting about the other controllers. The problems start with the
-> other controllers... As Hubertus said: CKRM and cpusets are
-> orthogonal.
-> 
-> Now CKRM consists of a set of more or less independent (orthogonal)
-> controllers. There is a cpu cycles and memory controller. Their aims
-> are different from that of cpuset and they cannot fulfil the
-> requirements of cpusets. But they make sense for themselves.
- ...
+> Ps. the patch is against 2.6.8.1, but it's reported to work on 2.6.3.
 
-> If CKRM wants to be a universal resource controller in the kernel then
-> a resource dependency tree and hierarchy might need to get somehow
-> into the CKRM infrastructure. The cpu cycles controller should notice
-> that there is another controller above it (cpusets) and might ask
-> that controller which processes it should take into account for its
-> job. The memory controller might get a different answer... Uhmmm, this
-> looks like a difficult problem.
+In other words, it was supposed to work with 2.6.9-pre3.  It doesn't.
+My bad.  This does:
 
-I see that the two mechanisms could have conflicting requirements. But
-surely this is the case whether we merge the two into one integrated
-system, or try to run CKRM and cpusets independantly at the same time? 
-I'd think the problems would be easier to tackle if the systems knew
-about each other, and talked to each other.
+http://prdownloads.sourceforge.net/ifp-driver/iriverfs-r0.1.0.0pre7.patch.gz?download
 
-I don't think anyone is suggesting that either system as is could replace
-the other ... more that a combined system could be made for both types
-of resource control that would be a better overall solution.
+(Thanks to lip for pointing this out.)
 
-M.
+Geoff
+
+-- 
+  PGP fingerprint: 8ADC 92E1 6782 D034 E0E3  8EF4 EA4D 25E3 C17C 48D2
+  "If you want to learn more about guns, get a job at [an American]
+  convenience store or visit our website at ... " --Michael Moore
 

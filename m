@@ -1,91 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265630AbUAKBDT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 20:03:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265634AbUAKBDT
+	id S265628AbUAKBBz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 20:01:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265630AbUAKBBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 20:03:19 -0500
-Received: from pat.uio.no ([129.240.130.16]:48601 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S265630AbUAKBDK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 20:03:10 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Increase recursive symlink limit from 5 to 8
-References: <E1AeMqJ-00022k-00@minerva.hungry.com>
-From: Petter Reinholdtsen <pere@hungry.com>
-Date: 11 Jan 2004 02:03:01 +0100
-In-Reply-To: <E1AeMqJ-00022k-00@minerva.hungry.com>
-Message-ID: <2flllofnvp6.fsf@saruman.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.9, required 12,
-	BAYES_00 -4.90)
+	Sat, 10 Jan 2004 20:01:55 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:10162 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S265628AbUAKBBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 20:01:53 -0500
+Date: Sat, 10 Jan 2004 17:01:43 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       USB Developers <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: USB hangs
+Message-ID: <20040111010143.GF16484@one-eyed-alien.net>
+Mail-Followup-To: Oliver Neukum <oliver@neukum.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	USB Developers <linux-usb-devel@lists.sourceforge.net>,
+	Greg KH <greg@kroah.com>
+References: <1073779636.17720.3.camel@dhcp23.swansea.linux.org.uk> <20040111002304.GE16484@one-eyed-alien.net> <200401110149.34654.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="w3uUfsyyY1Pqa/ej"
+Content-Disposition: inline
+In-Reply-To: <200401110149.34654.oliver@neukum.org>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Petter Reinholdtsen]
-> The comment in do_follow_link() do not match the code.  The comment
-> explain that the limit for recursive symlinks are 8, but the code
-> limit it to 5.  This is the current comment:
+--w3uUfsyyY1Pqa/ej
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hm, I wrote the following test script to test the current limit on
-different unixes, and was surprised by the differences.  And, my
-previous claim that RedHat must have increased this limit was wrong.
-The test on RedHat showed that it had the same limit as Debian.  Not
-sure why the symlinks in question seemed to be working on RedHat.
+On Sun, Jan 11, 2004 at 01:49:34AM +0100, Oliver Neukum wrote:
+> Am Sonntag, 11. Januar 2004 01:23 schrieb Matthew Dharm:
+> > Where is USB kmalloc'ing with GFP_KERNEL?  I thought we tracked all tho=
+se
+> > down and eliminated them.
+> >=20
+>=20
+> static int ohci_mem_init (struct ohci *ohci)
+> {
+> 	ohci->td_cache =3D pci_pool_create ("ohci_td", ohci->ohci_dev,
+> 		sizeof (struct td),
+> 		32 /* byte alignment */,
+> 		0 /* no page-crossing issues */,
+> 		GFP_KERNEL | OHCI_MEM_FLAGS);
+> 	if (!ohci->td_cache)
+> 		return -ENOMEM;
+> 	ohci->dev_cache =3D pci_pool_create ("ohci_dev", ohci->ohci_dev,
+> 		sizeof (struct ohci_device),
+> 		16 /* byte alignment */,
+> 		0 /* no page-crossing issues */,
+> 		GFP_KERNEL | OHCI_MEM_FLAGS);
+> 	if (!ohci->dev_cache)
+> 		return -ENOMEM;
+> 	return 0;
+> }
+>=20
+> This one here looks dangerous.
 
-  Linux:         Symlink limit seem to be 6 path entities.
-  AIX:           Symlink limit seem to be 21 path entities.
-  HP-UX:         Symlink limit seem to be 21 path entities.
-  Solaris:       Symlink limit seem to be 21 path entities.
-  Irix:          Symlink limit seem to be 31 path entities.
-  Mac OS X:      Symlink limit seem to be 33 path entities.
-  Tru64 Unix:    Symlink limit seem to be 65 path entities.
+I'll agree that it looks dangerous, tho pci_pool_create() is something I
+know little about.
 
-I really think this limit should be increased in Linux.  Not sure how
-high it should go, but from 5 to somewhere between 20 and 64 seem like
-a good idea to me.
+Is this 2.4 or 2.6 code here?
 
-Petri Koistinen suggested that I sent my patch to
-<URL:http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/>.
-I'll do that, replacing 5 with 64 instead of 8.  No need to have any
-lower limit than Tru64 Unix, I figure.
+Matt
 
-This is the test program I used:
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-#!/bin/sh
-#
-# Author: Petter Reinholdtsen
-# Date:   2004-01-11
-#
-# Script to detect the kernels "recursive" symlink limit.  This seem
-# to differ from Unix to Unix, and from version to version.
+Okay, this isn't funny anymore! Let me down!  I'll tell Bill on you!!
+					-- Microsoft Salesman
+User Friendly, 4/1/1998
 
-TMPDIR=test
+--w3uUfsyyY1Pqa/ej
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-error() {
-    echo $1
-    exit 1
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-mkdir $TMPDIR || error "Unable to create $TMPDIR/"
-(
-    cd $TMPDIR
-    for limit in `seq 1 10`; do
-	last=foo
-	echo "Limit $limit" > foo
-	for n in `seq  $limit` ; do
-	    ln -s $last $n
-	    last="$n"
-	done
-	cat $last > /dev/null 2>&1 || error "Symlink limit seem to be $limit path entities."
-	for n in `seq  $limit` ; do
-	    rm $n
-	done
-    done
-)
-rm -rf $TMPDIR
+iD8DBQFAAKB3IjReC7bSPZARAkUNAKDNWuSE2LCwMlC32JmM1bLgRihI1gCeNvMR
+tTPGV+0tgsH3cyiY6AHu9Co=
+=LDS6
+-----END PGP SIGNATURE-----
+
+--w3uUfsyyY1Pqa/ej--

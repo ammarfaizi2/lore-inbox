@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268350AbRGWWRA>; Mon, 23 Jul 2001 18:17:00 -0400
+	id <S268354AbRGWWUu>; Mon, 23 Jul 2001 18:20:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268351AbRGWWQu>; Mon, 23 Jul 2001 18:16:50 -0400
-Received: from smtp-rt-13.wanadoo.fr ([193.252.19.223]:38031 "EHLO
-	oxera.wanadoo.fr") by vger.kernel.org with ESMTP id <S268350AbRGWWQe>;
-	Mon, 23 Jul 2001 18:16:34 -0400
-Message-ID: <3B5CA2EC.2498775@wanadoo.fr>
-Date: Tue, 24 Jul 2001 00:19:24 +0200
-From: Jerome de Vivie <jerome.de-vivie@wanadoo.fr>
-Organization: CoolSite
-X-Mailer: Mozilla 4.74 [fr] (X11; U; Linux 2.4.4-sb i686)
-X-Accept-Language: French, fr, en
+	id <S268351AbRGWWUl>; Mon, 23 Jul 2001 18:20:41 -0400
+Received: from [217.28.130.35] ([217.28.130.35]:29446 "EHLO
+	mailth4.byworkwise.com") by vger.kernel.org with ESMTP
+	id <S268360AbRGWWUW>; Mon, 23 Jul 2001 18:20:22 -0400
+Message-ID: <3B5CA338.890F9586@freenet.co.uk>
+Date: Mon, 23 Jul 2001 23:20:40 +0100
+From: Gordon Lack <gmlack@freenet.co.uk>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-        linux-fsdev@vger.kernel.org, martizab@libertsurf.fr,
-        rusty@rustcorp.com.au
-Subject: Re: Yet another linux filesytem: with version control
-In-Reply-To: <Pine.LNX.4.33L.0107231850200.20326-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NFSv3 pathname problems in 2.4 kernels
+In-Reply-To: <3B5B32B2.B96E6BD3@freenet.co.uk> <15195.35313.83387.515099@notabene.cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Rik van Riel a écrit :
+Neil Brown wrote:
 > 
-> On Mon, 23 Jul 2001, Larry McVoy wrote:
+> This shouldn't be a problem for Solaris 2.6, but definately is for
+> Irix.
+
+   Well, there are many 2.6 systems and they all fail in the same aay
+as Irix.  So does Solaris 2.7.  (2.8 seems to be Ok).
+
+> > b) if so, do they have a solution?
 > 
-> > b) Filesystem support for SCM is really a flawed approach.
-> 
-> Agreed.  I mean, how can you cleanly group changesets and
-> versions with a filesystem level "transparent" SCM ?
+> 1/ Don't use irix.
 
-With label !
+   Not an option!
 
-In my initial post, i have explain that labels are used to 
-identify individual files AND are also uses to select for 
-each files of a set, one version (= select a configuration). 
-It works !
+> 2/ Don't use NFSv3
+
+   Not an option - some of the files are multi-GB ones.
+
+> 3/ Get a patch from Irix... I believe an upcoming release of Irix
+> fixed the problem, but I don't recall the details.
+
+   Fixed in 6.5.13 (I believe) but that requires fixing it in *many* clients, and doesn't help the
+Solaris2.6/2.7 systems.
+
+> Look in fs/nfsd/nfsfh.c, in fh_compose.
+> If you change:
+>         if (ref_fh &&
+>             ref_fh->fh_handle.fh_version == 0xca &&
+>             parent->d_inode->i_sb->s_op->dentry_to_fh == NULL) {
+> to
+>         if (parent->d_inode->i_sb->s_op->dentry_to_fh == NULL) {
+> you will probably get what you want, for ext2 at least.
+
+   Thanks, but this is for xfs (I didn't fancy fsck'ing a 470GB file
+system!).  I suppose it's suck it and see....
+
+> "Best" option is to complain to SGI and get a patch.
+
+   Not necessarily.  That is certainly a long(ish)-term path, but there
+are *far* more clients than servers, so a server-side fix, even if just
+a temporary fudge, is must better in practical terms. Change Control procedures
+for systems is more accurately described as Change Prevention!
 
 
-> 
-> The goal of an SCM is to _manage_ versions and changesets,
-> if it doesn't do that we're back at CVS's "every file its
-> own versioning and to hell with manageability" ...
-
-versioning is yet a first step.
-
-j.
-
--- 
-Jerome de Vivie 	jerome . de - vivie @ wanadoo . fr
+   Many thanks...

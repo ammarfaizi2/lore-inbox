@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbUKYIpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263021AbUKYIuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbUKYIpy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Nov 2004 03:45:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbUKYIpy
+	id S263021AbUKYIuk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Nov 2004 03:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbUKYIuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Nov 2004 03:45:54 -0500
-Received: from mail.gmx.net ([213.165.64.20]:47811 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263020AbUKYIpp (ORCPT
+	Thu, 25 Nov 2004 03:50:39 -0500
+Received: from pop.gmx.net ([213.165.64.20]:2747 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263021AbUKYIud (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Nov 2004 03:45:45 -0500
-Date: Thu, 25 Nov 2004 09:45:44 +0100 (MET)
+	Thu, 25 Nov 2004 03:50:33 -0500
+Date: Thu, 25 Nov 2004 09:50:32 +0100 (MET)
 From: "Michael Kerrisk" <mtk-lkml@gmx.net>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: riel@redhat.com, chrisw@osdl.org, manfred@colorfullife.com,
+To: Rik van Riel <riel@redhat.com>
+Cc: hugh@veritas.com, chrisw@osdl.org, manfred@colorfullife.com,
        torvalds@osdl.org, akpm@osdl.org, michael.kerrisk@gmx.net,
        linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-References: <Pine.LNX.4.44.0411242124400.2769-100000@localhost.localdomain>
+References: <Pine.LNX.4.61.0411242216210.10497@chimarrao.boston.redhat.com>
 Subject: Re: Further shmctl() SHM_LOCK strangeness
 X-Priority: 3 (Normal)
 X-Authenticated: #23581172
-Message-ID: <5639.1101372344@www65.gmx.net>
+Message-ID: <24718.1101372632@www65.gmx.net>
 X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
 X-Flags: 0001
 Content-Type: text/plain; charset="us-ascii"
@@ -28,63 +28,38 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh,
+Rik,
 
-> On Wed, 24 Nov 2004, Michael Kerrisk wrote:
-> > 
-> > While studying the RLIMIT_MEMLOCK stuff further, I came 
-> > up with another observation: a process can perform a
-> > shmctl(SHM_LOCK) on *any* System V shared memory segment, 
-> > regardles of the segment's ownership or permissions,
-> > providing the size of the segment falls within the 
-> > process's RLIMIT_MEMLOCK limit.
+> On Wed, 24 Nov 2004, Hugh Dickins wrote:
 > 
-> That's a very good observation.
-
-Thanks.
-
-> I think it's unintended, but I'm not sure.
-> I've forgotten what can_do_mlock on shm was about.
-
-can_do_mlock() returns true if we have CAP_IPC_LOCK 
-or RLIMIT_MEMLOCK != 0.
-
-> Offhand I find it hard to grasp whether it's harmless or bad,
-> but inclined to think bad - if there happen to be lots of small
-> enough shared memory segments on the system, a series of processes
-> run by one unprivileged user can lock down lots of memory?
+> >> regardles of the segment's ownership or permissions,
+> >> providing the size of the segment falls within the
+> >> process's RLIMIT_MEMLOCK limit.
 > 
-> Isn't it further the case that any process can now SHM_UNLOCK
-> any segment?  
+> > Offhand I find it hard to grasp whether it's harmless or bad,
+> > but inclined to think bad - if there happen to be lots of small
+> > enough shared memory segments on the system, a series of processes
+> > run by one unprivileged user can lock down lots of memory?
+> 
+> Mlocking and munlocking of shm segments is accounted
+> against the user_struct, not against the process.
+> 
+> This should stop any malicious exploits.
 
-I hadn't got as far as thinking about that, but you are 
-correct. Anyone can SHM_UNLOCK a System V shared memory 
-segment on 2.6.9, regardless of ownership and permissions.
+As noted by Hugh, the problem also applies for
+SHM_UNLOCK: anyone can unlock any System V shared 
+memory segment.  If our reason for locking memory 
+was security (no swapping), then this does allow
+for exploits.
 
-> That would surely be wrong.
-
-Agreed.  
+(Also, I just want to reemphasise that these semantics
+are inconsistent with the types of ownership and 
+permission checking performed for just about 
+every other kind of System V "ctl" operation.)
 
 Cheers,
 
 Michael
-
-> I've added Rik and Chris to the CC list, they seem to be the
-> main can_do_mlock guys, hope they can answer.
-> 
-> Hugh
-> 
-> > Is this intended behaviour?  For most other System V IPC 
-> > "ctl" operations the process must either:
-> > 
-> > 1. be the owner of the object or have an appropriate 
-> >    capability, or
-> > 
-> > 2. have suitable permissions on the object.
-> > 
-> > Which of these two conditions applies depends on the
-> > "ctl" operation.
-> 
 
 -- 
 Geschenkt: 3 Monate GMX ProMail + 3 Top-Spielfilme auf DVD

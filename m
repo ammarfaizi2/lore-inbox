@@ -1,101 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266939AbTADOlb>; Sat, 4 Jan 2003 09:41:31 -0500
+	id <S266941AbTADOrk>; Sat, 4 Jan 2003 09:47:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266941AbTADOlb>; Sat, 4 Jan 2003 09:41:31 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:56789 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S266939AbTADOl3>; Sat, 4 Jan 2003 09:41:29 -0500
-Date: Sun, 05 Jan 2003 03:49:27 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-Message-ID: <194300000.1041691767@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.10.10301040547120.421-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10301040547120.421-100000@master.linux-ide.org>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+	id <S266944AbTADOrk>; Sat, 4 Jan 2003 09:47:40 -0500
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:53477 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S266941AbTADOrj>; Sat, 4 Jan 2003 09:47:39 -0500
+Date: Sat, 4 Jan 2003 15:56:04 +0100 (CET)
+From: Thomas Speck <Thomas.Speck@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel panic in 2.4.20-rc2
+Message-ID: <Pine.LNX.4.21.0301041544310.1106-100000@ThS-home.dyns.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi,
+from time to time (frequency a couple of weeks) I get the following: 
 
---On Saturday, January 04, 2003 06:12:29 -0800 Andre Hedrick 
-<andre@linux-ide.org> wrote:
+Jan  4 15:32:19 ThS-home kernel: CPU 0: Machine Check 
+Exception: 0000000000000004
+Jan  4 15:32:19 ThS-home kernel: Bank 1: f200000000000115
+Jan  4 15:32:19 ThS-home kernel: Kernel panic: CPU context corrupt
 
->
-> Well, all this goes to show you is that if you try to do the right thing
-> and you have something of value, you are attacked.
->
-> I have enjoyed begin called everything from a turncoat, backstabber,
-> cheater, liar, theif, weasle.
->
-> I guess I should not have said anything, and behaved like the rest.
->
-> You know the embedded, the appliance, etc ... resellers who we all know
-> close up the code and ship for commerial reasons.  Funny how they can do
-> it and nobody cares or they hide with a grin screaming NIMBY NIMBY.
-> Everyone is doing it and everyone looks away.
+Is that a hardware problem ? 
 
-You know, people often only look at things in front of their noses.  So 
-people notice ATA and video drivers because they have the hardware. 
-Whereas, do you really know what is going on inside some appliance?  And on 
-this list is definitely in front of the nose.
+ThS-home:[~]# cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 3
+model name      : Pentium II (Klamath)
+stepping        : 4
+cpu MHz         : 300.686
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
+mmx
+bogomips        : 599.65
 
-> Best of all some of the worst name callers are the ones who use the code I
-> wrote to enable them to make money.  Yet if you have something which does
-> not exist in the kernel and you adopt an API to use kernel calls, you get
-> branded and hated.
 
-Guys, you know who you are.  Apologise.  Please?
+ThS-home:[~]# lspci
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge
+(rev 02)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge
+(rev 02)
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00:09.0 Ethernet controller: Digital Equipment Corporation DECchip 21041
+[Tulip Pass 3] (rev 11)
+00:0a.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI]
+00:0b.0 Multimedia video controller: Brooktree Corporation Bt848 Video
+Capture (rev 12)
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo Banshee
+(rev 03)
 
-You know that this kind of thing just makes the community and its goals 
-weaker.  All its varied goals.  Freedom, zealatrous, pragmatic, 
-intellectual, business in the presence of freedom, even just business that 
-isn't a huge corporate.  Whatever.
+ThS-home:[~]# cat /proc/iomem 
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-13feffff : System RAM
+  00100000-0020f743 : Kernel code
+  0020f744-00282a63 : Kernel data
+13ff0000-13ff2fff : ACPI Non-volatile Storage
+13ff3000-13ffffff : ACPI Tables
+d8000000-dbffffff : Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge
+dc000000-dfffffff : PCI Bus #01
+  dc000000-ddffffff : 3Dfx Interactive, Inc. Voodoo Banshee
+e0000000-e1ffffff : PCI Bus #01
+  e0000000-e1ffffff : 3Dfx Interactive, Inc. Voodoo Banshee
+e3000000-e300007f : Digital Equipment Corporation DECchip 21041 [Tulip
+Pass 3]
+  e3000000-e300007f : tulip
+e3001000-e3001fff : Brooktree Corporation Bt848 Video Capture
+ffff0000-ffffffff : reserved
 
-No-one is served by alienating people, except perhaps the corporate 
-hegemony, and that indirectly.
 
-> It could not have happened to a nicer loser, "fill in the blank" ...
->
-> Well you all have gotten all kinds of goodie for free, and I just want to
-> keep one of my pieces of hard work that was created during the time I was
-> booted out.
->
-> Well I was thinking of giving part of it to the community after I
-> recovered my costs of development, now I think not.
->
-> At least I have the integrity to state clearly my intentions, while the
-> rest hide and cower in corners.  This reminds me of a bucket of crabs.
-
-Andre was not trolling.  Really.
-
-Andre, I hope you change your mind.
-
-> Well I really wanted to use every dirty word in the book, but it is not
-> worth it.
->
-> I will plan to put "linux-ide.org" and "linuxdiskcert.org" up for sale.
-> Additionally I will try to arrange for a legal transfer of the NDA's
-> attached to "Linux ATA Development" to the individual or group who wish to
-> purchase the access, pays all legal fees/work to to complete the
-> transaction. I wisely attached any and all NDA's to the fore mentioned
-> organization.
->
-> If you are interested, please contact me offline.
-> Please also have the means to purchase the information to be transferred
-> which is not covered by any of the NDA's.  This will include various
-> pieces of IP which was scheduled to be transfered to the kernel, but now
-> will only be for sale as an entire package.
->
-> The transaction for purchase will be executed via a wire transfer of funds
-> to a specified account, once cleared it you will receive a manifest.
->
-> regards,
->
-> -ah
+Thank you 
+--
+Thomas
 

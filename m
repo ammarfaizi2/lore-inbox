@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbUK2WIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbUK2WLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbUK2WIo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 17:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbUK2WIo
+	id S261827AbUK2WLh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 17:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbUK2WLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 17:08:44 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:65233 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261826AbUK2WHw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 17:07:52 -0500
-Date: Mon, 29 Nov 2004 16:07:25 -0600
-From: mike.miller@hp.com
-To: akpm@osdl.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       andrew.patterson@hp.com
-Subject: [PATCH 2.6] cciss: CCISS_GETLUNINFO fix 
-Message-ID: <20041129220725.GA32035@beardog.cca.cpqcorp.net>
-Reply-To: mikem@beardog.cca.cpqcorp.net, mike.miller@hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Mon, 29 Nov 2004 17:11:37 -0500
+Received: from postfix3-1.free.fr ([213.228.0.44]:17547 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261827AbUK2WLH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 17:11:07 -0500
+Message-ID: <41ACB846.40400@free.fr>
+Date: Tue, 30 Nov 2004 19:13:26 +0100
+From: Remi Colinet <remi.colinet@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
+References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <20041129111634.GB10123@elte.hu>
+In-Reply-To: <20041129111634.GB10123@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch addresses a problem with reading the partition table struct.
-The last time this was submitted it was rejected on the grounds that the driver
-has no business reading the partition table. I don't disagree with that, but
-we have legacy apps to consider. Changing the ioctl would break those apps
-already in customers hands.
+Hi Ingo,
 
-Please consider this for inclusion.
+I'm getting this error with V0.7.31-13
 
-Signed-off-by: Mike Miller <mike.miller@hp.com>
-Signed-off-by: Andrew Patterson <andrew.patterson@hp.com>
+CC kernel/wait.o
+CC kernel/kfifo.o
+CC kernel/sys_ni.o
+CC kernel/rt.o
+CC kernel/latency.o
+kernel/latency.c: In function `check_critical_timing':
+kernel/latency.c:730: too few arguments to function `___trace'
+kernel/latency.c:730: warning: too few arguments passed to inline 
+function, suppressing inlining
+kernel/latency.c: In function `__start_critical_timing':
+kernel/latency.c:810: incompatible type for argument 1 of `____trace'
+kernel/latency.c:810: warning: passing arg 2 of `____trace' makes 
+pointer from integer without a cast
+kernel/latency.c:810: too few arguments to function `____trace'
+kernel/latency.c: In function `trace_irqs_off':
+kernel/latency.c:810: warning: too few arguments passed to inline 
+function, suppressing inlining
+kernel/latency.c: In function `add_preempt_count':
+kernel/latency.c:810: warning: too few arguments passed to inline 
+function, suppressing inlining
+kernel/latency.c: At top level:
+kernel/latency.c:810: warning: too few arguments passed to inline 
+function, suppressing inlining
+make[1]: *** [kernel/latency.o] Error 1
+make: *** [kernel] Error 2
+[root@tigre01 im]#
 
- cciss.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
---------------------------------------------------------------------------------
-diff -urNp lx2610-rc1.orig/drivers/block/cciss.c lx2610-rc1-adrianb/drivers/block/cciss.c
---- lx2610-rc1.orig/drivers/block/cciss.c	2004-11-12 11:17:56.000000000 -0600
-+++ lx2610-rc1-adrianb/drivers/block/cciss.c	2004-11-29 15:54:21.668060552 -0600
-@@ -809,7 +809,7 @@ static int cciss_ioctl(struct inode *ino
-  		luninfo.num_opens = drv->usage_count;
-  		luninfo.num_parts = 0;
-  		/* count partitions 1 to 15 with sizes > 0 */
-- 		for(i=1; i <MAX_PART; i++) {
-+ 		for(i=0; i < MAX_PART-1; i++) {
- 			if (!disk->part[i])
- 				continue;
- 			if (disk->part[i]->nr_sects != 0)
+Regards
+Remi
+
+

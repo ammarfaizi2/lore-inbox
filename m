@@ -1,76 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUI0XAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267403AbUI0XAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266137AbUI0XAm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 19:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUI0XAm
+	id S267403AbUI0XAH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 19:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUI0XAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 19:00:42 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:51159 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S266137AbUI0XA3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 19:00:29 -0400
-Date: Mon, 27 Sep 2004 23:00:28 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.9-rc2-mm4 e100 enable_irq unbalanced from
-To: linux-kernel@vger.kernel.org
-References: <1096313095.2601.20.camel@deimos.microgate.com>
-In-Reply-To: <1096313095.2601.20.camel@deimos.microgate.com> (from
-	paulkf@microgate.com on Mon Sep 27 21:24:55 2004)
-X-Mailer: Balsa 2.2.4
-Message-Id: <1096326028l.5222l.0l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
+	Mon, 27 Sep 2004 19:00:07 -0400
+Received: from scanner2.mail.elte.hu ([157.181.151.9]:163 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267403AbUI0W7m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 18:59:42 -0400
+Date: Tue, 28 Sep 2004 01:01:19 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Gene Heskett <gene.heskett@verizon.net>,
+       Matt Heler <lkml@lpbproductions.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc2-mm4
+Message-ID: <20040927230119.GA31278@elte.hu>
+References: <20040926181021.2e1b3fe4.akpm@osdl.org> <200409270053.22911.gene.heskett@verizon.net> <20040927201928.GB19257@elte.hu> <1096317273.2523.5.camel@deimos.microgate.com> <20040927204557.GA22542@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040927204557.GA22542@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2004.09.27, Paul Fulghum wrote:
-> The e100 module is generating a warning:
-> 
-> Sep 27 13:30:29 deimos kernel: e100: Intel(R) PRO/100 Network Driver, 3.1.4-NAPI
-> Sep 27 13:30:29 deimos kernel: e100: Copyright(c) 1999-2004 Intel Corporation
-> Sep 27 13:30:29 deimos kernel: e100: eth0: e100_probe: addr 0xfecfc000, irq 16, MAC addr 00:90:27:3A:C5:E3
-> Sep 27 13:30:29 deimos kernel: enable_irq(16) unbalanced from ec83ff33
-> Sep 27 13:30:29 deimos kernel:  [<c010923f>] enable_irq+0xcf/0xe0
-> Sep 27 13:30:29 deimos kernel:  [<ec83ff33>] e100_up+0xf3/0x1f0 [e100]
-> Sep 27 13:30:29 deimos kernel:  [<ec83ff33>] e100_up+0xf3/0x1f0 [e100]
-> Sep 27 13:30:29 deimos kernel:  [<ec83f410>] e100_intr+0x0/0x140 [e100]
-> Sep 27 13:30:29 deimos kernel:  [<ec841131>] e100_open+0x31/0x80 [e100]
-> Sep 27 13:30:29 deimos kernel:  [<c0318d4c>] dev_open+0x8c/0xa0
-> Sep 27 13:30:29 deimos kernel:  [<c031cc74>] dev_mc_upload+0x24/0x40
-> Sep 27 13:30:29 deimos kernel:  [<c031a4ea>] dev_change_flags+0x12a/0x150
-> Sep 27 13:30:29 deimos kernel:  [<c0318c0d>] dev_load+0x2d/0x80
-> Sep 27 13:30:29 deimos kernel:  [<c0355b37>] devinet_ioctl+0x277/0x730
-> 
+could you try the patch below ontop of -mm4 and try again the .config
+that failed before? Does the bootup still hang?
 
-Just a 'me-too', with a slightly different oops:
+The early bootup stage is pretty fragile because the idle thread is not
+yet functioning as such and so we need preemption disabled. Whether the
+bootup fails or not seems to depend on timing details so e.g. the
+presence of SCHED_SMT makes it go away.
 
-e100: Intel(R) PRO/100 Network Driver, 3.1.4-NAPI
-e100: Copyright(c) 1999-2004 Intel Corporation
-ACPI: PCI interrupt 0000:00:0d.0[A] -> GSI 19 (level, low) -> IRQ 185
-e100: eth0: e100_probe: addr 0xf7161000, irq 185, MAC addr 00:30:48:41:22:9F
-enable_irq(185) unbalanced from f89b3e25
- [<c0108973>] enable_irq+0xa3/0xf0
- [<f89b3e25>] e100_up+0xd5/0x1e0 [e100]
- [<f89b3e25>] e100_up+0xd5/0x1e0 [e100]
- [<f89b4e9a>] e100_open+0x2a/0x90 [e100]
- [<c0368a24>] dev_open+0x74/0x90
- [<c0369f66>] dev_change_flags+0x56/0x130
- [<c03a2f42>] devinet_ioctl+0x5f2/0x6a0
- [<c03a4e5f>] inet_ioctl+0xdf/0x100
- [<c0360563>] sock_ioctl+0x1b3/0x270
- [<c015a709>] fget+0x49/0x60
- [<c016b905>] sys_ioctl+0x205/0x270
- [<c0105b0d>] sysenter_past_esp+0x52/0x71
-e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
+disabling preemption explicitly has another advantage: the atomicity
+check in schedule() will catch early-bootup schedule() calls from now
+on.
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-rc2-mm4 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #2
+the patch also fixes another preempt-bkl buglet: interrupt-driven
+forced-preemption didnt go through preempt_schedule() so it resulted in
+auto-dropping of the BKL. Now we go through preempt_schedule() which
+properly deals with the BKL.
 
+	Ingo
 
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/init/main.c.orig	
++++ linux/init/main.c	
+@@ -435,6 +435,12 @@ static void noinline rest_init(void)
+ {
+ 	kernel_thread(init, NULL, CLONE_FS | CLONE_SIGHAND);
+ 	numa_default_policy();
++	/*
++	 * Re-enable preemption but disable interrupts to make sure
++	 * we dont get preempted until we schedule() in cpu_idle().
++	 */
++	local_irq_disable();
++	preempt_enable_no_resched();
+ 	unlock_kernel();
+  	cpu_idle();
+ } 
+@@ -501,6 +507,7 @@ asmlinkage void __init start_kernel(void
+ 	 * time - but meanwhile we still have a functioning scheduler.
+ 	 */
+ 	sched_init();
++	preempt_disable();
+ 	build_all_zonelists();
+ 	page_alloc_init();
+ 	trap_init();
+--- linux/arch/i386/kernel/entry.S.orig	
++++ linux/arch/i386/kernel/entry.S	
+@@ -197,10 +197,8 @@ need_resched:
+ 	jz restore_all
+ 	testl $IF_MASK,EFLAGS(%esp)     # interrupts off (exception path) ?
+ 	jz restore_all
+-	movl $PREEMPT_ACTIVE,TI_preempt_count(%ebp)
+ 	sti
+-	call schedule
+-	movl $0,TI_preempt_count(%ebp)
++	call preempt_schedule
+ 	cli
+ 	jmp need_resched
+ #endif

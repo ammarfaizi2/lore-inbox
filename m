@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbTD0XWv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 19:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTD0XWv
+	id S262001AbTD0Xa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 19:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbTD0Xa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 19:22:51 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:52233 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262000AbTD0XWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 19:22:50 -0400
-Date: Mon, 28 Apr 2003 01:35:00 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
+	Sun, 27 Apr 2003 19:30:57 -0400
+Received: from 81-1-65-35.homechoice.co.uk ([81.1.65.35]:24081 "HELO
+	sc-outsmtp1.homechoice.co.uk") by vger.kernel.org with SMTP
+	id S262001AbTD0Xa4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 19:30:56 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030427233500.GB1780@merlin.emma.line.org>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030424083730.5F79A2127F@dungeon.inka.de> <20030424085913.GH28253@mail.jlokier.co.uk> <3EA804A8.8070608@techsource.com> <1051209350.4004.6.camel@dhcp22.swansea.linux.org.uk> <20030424192941.E1425@almesberger.net> <20030427142106.GA24244@merlin.emma.line.org> <20030427165959.GC6820@work.bitmover.com> <1051479168.15485.12.camel@dhcp22.swansea.linux.org.uk> <20030427223612.GI23068@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030427223612.GI23068@work.bitmover.com>
-User-Agent: Mutt/1.5.4i
+Subject: Filesystem: vmufs
+Date: Mon, 28 Apr 2003 00:43:00 +0100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200304280043.00778.adrian@mcmen.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Apr 2003, Larry McVoy wrote:
+I am writing a filesystem driver for the Sega Dreamcast Virtual Memory Unit 
+(vmu) for 2.4 and have:
 
-> But you are still missing the point.  As long as the feeling is that it is
-> OK to reverse engineer by staring at the file formats, the corporations
-> will respond by encrypting the data you want to stare at.
-> 
-> In other words, it's pretty much hopeless to try and catch up that way,
-> you might as well go try and build something better from the start.
+* Got read (in every way afaics) to work fine
+* Added ability to delete files
+* Added ability to copy a file on top of an existing file
+(see the cvs for the project if you need to know more - follow the link off 
+http://linuxdc.net)
 
-Wouldn't you still want to import "old" data into the new BetterApp?
 
-Changes of the format or interface are painful, we've seen this with the
-network filtering in Linux several times, 2.0 had ipfwadm, 2.2 had
-ipchains, 2.4 has compatibility interfaces for either and its native
-netfilter... There must have been a better reason to add compatibility
-than just "because we could do it."
+But, I cannot work out how to add the ability to, say, mv a file:
+
+mv /somedirectory/ext2file /mnt/vmu/ext2file
+
+or
+
+cp /somedirectory/ext2file /mnt/vmu/ext2file
+
+
+What calls do I need to implement to ensure that these two command actually 
+work (at present they fail reporting that /mnt/vmu/ext2file does not exist).
+
+
+Sorry to add to the traffic on this list but googling and various newsgroup 
+searches have failed to tuen up the answers I need and the souce is very 
+complicated.
+
+Adrian McMenamin
+adrian@mcmen.demon.co.uk

@@ -1,46 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290713AbSCOLDx>; Fri, 15 Mar 2002 06:03:53 -0500
+	id <S290797AbSCOLDn>; Fri, 15 Mar 2002 06:03:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290120AbSCOLDr>; Fri, 15 Mar 2002 06:03:47 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:11650 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S290593AbSCOLDH>;
-	Fri, 15 Mar 2002 06:03:07 -0500
-Date: Thu, 14 Mar 2002 15:12:00 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, andersen@codepoet.org,
-        Bill Davidsen <davidsen@tmr.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-Message-ID: <20020314151200.C37@toy.ucw.cz>
-In-Reply-To: <3C8D5ECD.6090108@mandrakesoft.com> <Pine.LNX.4.33.0203111810220.8121-100000@home.transmeta.com> <20020312073204.B4863@ucw.cz>
+	id <S290818AbSCOLC5>; Fri, 15 Mar 2002 06:02:57 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:46049 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S290713AbSCOLCN>; Fri, 15 Mar 2002 06:02:13 -0500
+Date: Fri, 15 Mar 2002 12:01:52 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] BK ignore list
+Message-ID: <20020315110152.GF13625@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020312073204.B4863@ucw.cz>; from vojtech@suse.cz on Tue, Mar 12, 2002 at 07:32:04AM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Marcelo,
 
-> Well, there are uses for the 'dynamic' filter, and it doesn't add too
-> much complexity. One could be allowing certain commands to be performed
-> on certain devices by normal users - eg. CD-burning or whatever without
+This patch (send as a regular not a bk patch since for some
+reason bitkeeper doesn't like changesets which modify files 
+under BitKeeper/...) backports the exclusion patterns from
+Linus' 2.5 BK repository.
 
-That should be better done userspace: setuid on cdrecord + its security audit
-seems like nice solution.
+With this patch, bk citool can really be used :-)
 
-> root privileges (I know we're using ide-scsi for the command access
-> right now ...), and also protecting the oneself from ACPI and the like.
-> Because ACPI can do IDE commands and does that in a way interfaceable to
-> a 'taskfile' kernel ioctl. It'd be nice to know a broken ACPI
-> implementation can't screw up your drive easily through a kernel driver.
+Stelian.
 
-This is entirely different can of worms, and should be easy to do at ACPI
-level.
-									Pavel
+===== BitKeeper/etc/ignore 1.1 vs edited =====
+--- 1.1/BitKeeper/etc/ignore	Tue Feb  5 18:30:56 2002
++++ edited/BitKeeper/etc/ignore	Fri Mar 15 11:42:52 2002
+@@ -1,3 +1,47 @@
++*.[oas]
++.*.flags
++.config
++.config.old
++.depend
++.hdepend
++.version
+ BitKeeper/*/*
+-PENDING/*
+ Desktop.ini
++PENDING/*
++System.map
++arch/alpha/boot/tools/objstrip
++arch/alpha/boot/vmlinux.gz
++arch/alpha/vmlinux.lds
++arch/i386/boot/bbootsect
++arch/i386/boot/bsetup
++arch/i386/boot/bzImage
++arch/i386/boot/compressed/bvmlinux
++arch/i386/boot/compressed/bvmlinux.out
++arch/i386/boot/tools/build
++drivers/char/conmakehash
++drivers/char/consolemap_deftbl.c
++drivers/net/hamradio/soundmodem/gentbl
++drivers/net/hamradio/soundmodem/sm_tbl_afsk1200.h
++drivers/net/hamradio/soundmodem/sm_tbl_afsk2400_7.h
++drivers/net/hamradio/soundmodem/sm_tbl_afsk2400_8.h
++drivers/net/hamradio/soundmodem/sm_tbl_afsk2666.h
++drivers/net/hamradio/soundmodem/sm_tbl_fsk9600.h
++drivers/net/hamradio/soundmodem/sm_tbl_hapn4800.h
++drivers/net/hamradio/soundmodem/sm_tbl_psk4800.h
++drivers/pci/classlist.h
++drivers/pci/devlist.h
++drivers/pci/gen-devlist
++include/asm
++include/asm-alpha/asm_offsets.h
++include/config/*
++include/linux/autoconf.h
++include/linux/compile.h
++include/linux/modversions.h
++include/linux/version.h
++include/linux/modules/*
++scripts/kconfig.tk
++scripts/lxdialog/lxdialog
++scripts/mkdep
++scripts/split-include
++scripts/tkparse
++vmlinux
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

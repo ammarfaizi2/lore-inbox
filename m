@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRBNRtp>; Wed, 14 Feb 2001 12:49:45 -0500
+	id <S130255AbRBNRwp>; Wed, 14 Feb 2001 12:52:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129075AbRBNRtg>; Wed, 14 Feb 2001 12:49:36 -0500
-Received: from sportingbet.gw.dircon.net ([195.157.147.30]:11793 "HELO
-	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
-	id <S129066AbRBNRt0>; Wed, 14 Feb 2001 12:49:26 -0500
-Date: Wed, 14 Feb 2001 17:46:56 +0000
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Carlos Carvalho <carlos@fisica.ufpr.br>
-Cc: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org,
-        axp-hardware@talisman.alphalinux.org
-Subject: Re: Alpha: bad unaligned access handling
-Message-ID: <20010214174656.H11048@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Carlos Carvalho <carlos@fisica.ufpr.br>, jbglaw@lug-owl.de,
-	linux-kernel@vger.kernel.org, axp-hardware@talisman.alphalinux.org
-In-Reply-To: <20010214154808.A15974@lug-owl.de> <14986.48181.55212.358637@hoggar.fisica.ufpr.br> <20010214172607.E11048@dev.sportingbet.com> <14986.49817.44381.454285@hoggar.fisica.ufpr.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14986.49817.44381.454285@hoggar.fisica.ufpr.br>; from carlos@fisica.ufpr.br on Wed, Feb 14, 2001 at 03:38:33PM -0200
+	id <S130235AbRBNRwZ>; Wed, 14 Feb 2001 12:52:25 -0500
+Received: from jdewell.coloc.xmission.com ([204.228.135.205]:37249 "HELO
+	a.smtp.woods.net") by vger.kernel.org with SMTP id <S129075AbRBNRwO>;
+	Wed, 14 Feb 2001 12:52:14 -0500
+Date: Wed, 14 Feb 2001 10:54:18 -0700 (MST)
+From: Aaron Dewell <acd@woods.net>
+To: Anton Blanchard <anton@linuxcare.com.au>
+Cc: "ASN Stevens, Computing Service" <Alastair.Stevens@bristol.ac.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-ac12 compile failure on sparc64
+In-Reply-To: <20010214224148.C2132@linuxcare.com>
+Message-ID: <Pine.GSO.4.10.10102141051540.4058-100000@spruce.woods.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 14, 2001 at 03:38:33PM -0200, Carlos Carvalho wrote:
-> Sean Hunter (sean@dev.sportingbet.com) wrote on 14 February 2001 17:26:
->  >This is an application problem, not a kernel one.  You need to upgrade your
->  >netkit.
+
+It's a quick change at arch/sparc64/kernel/sys_sparc32.c:907 from:
+
+        struct dqblk d;
+
+to:
+        struct disk_dqblk d;
+
+Compiles and works great on my ultra.
+
+On Wed, 14 Feb 2001, Anton Blanchard wrote:
+> > Hi - I am having compilation troubles on my sparc64 workstation (standard 
+> > Ultra 5 machine), which is currently running stock 2.4.1 on Red Hat 6.2 quite 
+> > happily.
 > 
-> Yes, I was quite confident of this. However, unaligned traps are a
-> frequent problem with alphas. For a looong time we had zsh produce
-> lots of it, to the point of making it unusable. Strangely, the problem
-> disappeared without changing anything in zsh. It was either a library
-> or kernel problem.
-
-Definitely library, I'd think.
-
+> We arent tracking the -ac patches at the moment and alan can't be expected
+> to ensure it compiles on all architectures. Best bet is to stick with
+> Linus releases.
 > 
->  >P.S. I wrote a small wrapper to aid in the debugging of unaligned
->  >traps, which I'll send to anyone who's interested.
-> 
-> I'd like it!
-> 
-
-OK, my alpha is a sick bunny at the moment, so I'll have to wait until I get
-home (so I can see why I can't ssh to it).  What the wrapper does is set some
-settings so your program gets sigbus when it generates an unaligned trap, and
-then runs your program in gdb so gdb helpfully stops at the line which
-generated the trap.  It goes without saying you need to build the program in
-question with debugging symbols so that you see the code.
-
-You then need to fix the unaligned access.  This sometimes requires real alpha
-guruhood (Which I do not possess, but Richard Henderson or Michal Jagerman do,
-if you need advice), but sometimes simply requires adding __attribute__
-((__unaligned__)) to a struct member in a c file.
-
-Sean
+> Anton
 

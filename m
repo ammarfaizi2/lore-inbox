@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbTLHSVt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 13:21:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTLHSVs
+	id S261606AbTLHS1V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 13:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTLHS1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 13:21:48 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:156 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261311AbTLHSVq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 13:21:46 -0500
-Date: Mon, 8 Dec 2003 19:21:14 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: [patch] sched-HT-2.6.0-test11-A5
-In-Reply-To: <20031208175622.GY19856@holomorphy.com>
-Message-ID: <Pine.LNX.4.58.0312081859100.8707@earth>
-References: <20031117021511.GA5682@averell> <Pine.LNX.4.56.0311231300290.16152@earth>
- <1027750000.1069604762@[10.10.2.4]> <Pine.LNX.4.58.0312011102540.3323@earth>
- <20031208175622.GY19856@holomorphy.com>
+	Mon, 8 Dec 2003 13:27:21 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:55784 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261606AbTLHS1P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 13:27:15 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16340.49791.585097.389128@laputa.namesys.com>
+Date: Mon, 8 Dec 2003 21:27:11 +0300
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
+Subject: Re: const versus __attribute__((const))
+In-Reply-To: <3FD4B9E6.9090902@zytor.com>
+References: <200312081646.42191.arnd@arndb.de>
+	<3FD4B9E6.9090902@zytor.com>
+X-Mailer: VM 7.17 under 21.5 (patch 16) "celeriac" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin writes:
+ > Arnd Bergmann wrote:
+ > > H. Peter Anvin writes:
+ > > 
+ > >>I have made a patch against the current tree defining
+ > >>__attribute_const__ in <linux/compiler.h> and using it in the above
+ > >>cases; does anyone know any reason why I should *NOT* submit this to
+ > >>Linus?
+ > > 
+ > > 
+ > > I noticed before that gcc appearantly ignores __attribute__((const))
+ > > for inline functions, so both the original and your proposed code
+ > > is rather pointless as an optimization, except for extern declarations.
+ > > 
+ > > I'd rather remove the 'const' completely where it causes warnings for
+ > > inline functions.
+ > > 
+ > 
+ > These functions are available to userspace, though, and can be compiled 
+ > with -O0; thus not inlined.
 
-On Mon, 8 Dec 2003, William Lee Irwin III wrote:
+And future versions of gcc can be smarter.
 
-> This appears to either leak migration threads or not set
-> rq->cpu[x].migration_thread basically ever for x > 0. Or if they are
-> shut down, how? Also, what makes sure cpu_idx is initialized before they
-> wake? They'll all spin on cpu_rq(0)->lock, no?
+ > 
+ > 	-hpa
 
-yep, it just leaks migration threads. Not a big problem right now, but for
-hotplug CPU support this needs to be fixed.
+Nikita.
 
-> Furthermore, sched_map_runqueue() is performed after all the idle
-> threads are running and all the notifiers have kicked the migration
-> threads, but does no locking whatsoever.
-
-yep - at this point nothing else is really supposed to run but you are
-right it must be locked properly.
-
-> Also, does init_idle() need to move into rest_init()? It should be
-> equivalent to its current placement.
-
-this is a leftover of a change that went into 2.6 already. I've removed
-this change.
-
-> Why not per_cpu for __rq_idx[] and __cpu_idx[]? This would have the
-> advantage of residing on node-local memory for sane architectures (and
-> perhaps in the future, some insane ones).
-
-agreed, i've changed them to be per-cpu.
-
-new patch with all your suggestions included is at:
-
-  redhat.com/~mingo/O(1)-scheduler/sched-SMT-2.6.0-test11-C1
-
-it also includes the bounce-to-cpu1 fix from/for Anton.
-
-	Ingo

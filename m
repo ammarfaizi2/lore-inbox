@@ -1,74 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266706AbUFYKHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266700AbUFYKIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266706AbUFYKHj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 06:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266700AbUFYKGC
+	id S266700AbUFYKIK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 06:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266695AbUFYKIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 06:06:02 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15755 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266695AbUFYKFc (ORCPT
+	Fri, 25 Jun 2004 06:08:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:21952 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266696AbUFYKF6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 06:05:32 -0400
-Date: Fri, 25 Jun 2004 12:05:03 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Norbert Preining <preining@logic.at>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-mm2, mmaps rework, buggy apps, setarch
-Message-ID: <20040625100503.GA20954@devserv.devel.redhat.com>
-References: <20040625082243.GA11515@gamma.logic.tuwien.ac.at> <1088152275.2704.8.camel@laptop.fenrus.com> <20040625100051.GA19905@gamma.logic.tuwien.ac.at>
+	Fri, 25 Jun 2004 06:05:58 -0400
+Date: Fri, 25 Jun 2004 03:05:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com, sparclinux@vger.kernel.org
+Subject: Re: [SPARC64] kernel 2.6.7+cset-20040625_0611 = ERROR
+Message-Id: <20040625030502.40e25d42.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58L.0406251320310.6037@alpha.zarz.agh.edu.pl>
+References: <Pine.LNX.4.58L.0406251320310.6037@alpha.zarz.agh.edu.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-Content-Disposition: inline
-In-Reply-To: <20040625100051.GA19905@gamma.logic.tuwien.ac.at>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl> wrote:
+>
+> make[1]: *** [arch/sparc64/kernel/process.o] Error 1
+>  make: *** [arch/sparc64/kernel] Error 2
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Fri, Jun 25, 2004 at 12:00:52PM +0200, Norbert Preining wrote:
-> Hi Arjan!
-> 
-> On Fre, 25 Jun 2004, Arjan van de Ven wrote:
-> > > Can someone please explain me *what* the effects of a `buggy app' would
-> > > be: Segfault I suppose. But what to do with a commerical app where I
-> > > cannot check a stack trace or whatever?
-> > 
-> > basically the applications that break do:
-> > 
-> > int ptr;
-> > ptr = malloc(some_size);
-> > if (ptr <= 0) 
-> >     handle_no_memory();
-> 
-> Mmm, this looks very common. What is the `intended' way to handle this?
-
-it's actually not common:
-1) it stores a pointer in an int which isn't allowed
-2) it uses < operator on a pointer
-
-the correct way is 
-
-void * ptr;
-ptr = malloc(some_size);
-if (ptr == NULL)
-	handle_no_memory();
+here's t'other:
 
 
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+include/linux/byteorder/swab.h: In function `__swab16p':
+include/linux/byteorder/swab.h:139: warning: passing arg 1 of `___arch__swab16p' discards qualifiers from pointer target type
+include/linux/byteorder/swab.h: In function `__swab32p':
+include/linux/byteorder/swab.h:152: warning: passing arg 1 of `___arch__swab32p' discards qualifiers from pointer target type
+include/linux/byteorder/swab.h: In function `__swab64p':
+include/linux/byteorder/swab.h:172: warning: passing arg 1 of `___arch__swab64p' discards qualifiers from pointer target type
 
-iD8DBQFA2/jPxULwo51rQBIRAtKoAJ4kQfKAYOxCsJ3nXOn9TYnrzo3heQCfVWuV
-PJjjUkFmc09xyQB6/hcRMGw=
-=Jvz6
------END PGP SIGNATURE-----
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
---ikeVEW9yuYc//A+q--
+ 25-sparc64-akpm/include/asm-sparc64/byteorder.h |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -puN include/asm-sparc64/byteorder.h~sparc64-swab-fix include/asm-sparc64/byteorder.h
+--- 25-sparc64/include/asm-sparc64/byteorder.h~sparc64-swab-fix	2004-06-25 03:00:05.667497712 -0700
++++ 25-sparc64-akpm/include/asm-sparc64/byteorder.h	2004-06-25 03:00:05.670497256 -0700
+@@ -7,7 +7,7 @@
+ 
+ #ifdef __GNUC__
+ 
+-static __inline__ __u16 ___arch__swab16p(__u16 *addr)
++static __inline__ __u16 ___arch__swab16p(const __u16 *addr)
+ {
+ 	__u16 ret;
+ 
+@@ -17,7 +17,7 @@ static __inline__ __u16 ___arch__swab16p
+ 	return ret;
+ }
+ 
+-static __inline__ __u32 ___arch__swab32p(__u32 *addr)
++static __inline__ __u32 ___arch__swab32p(const __u32 *addr)
+ {
+ 	__u32 ret;
+ 
+@@ -27,7 +27,7 @@ static __inline__ __u32 ___arch__swab32p
+ 	return ret;
+ }
+ 
+-static __inline__ __u64 ___arch__swab64p(__u64 *addr)
++static __inline__ __u64 ___arch__swab64p(const __u64 *addr)
+ {
+ 	__u64 ret;
+ 
+_
+

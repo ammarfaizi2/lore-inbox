@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281317AbRKLIbS>; Mon, 12 Nov 2001 03:31:18 -0500
+	id <S281347AbRKLIks>; Mon, 12 Nov 2001 03:40:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281340AbRKLIbI>; Mon, 12 Nov 2001 03:31:08 -0500
-Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:36879 "EHLO
+	id <S281351AbRKLIki>; Mon, 12 Nov 2001 03:40:38 -0500
+Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:41743 "EHLO
 	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
-	id <S281317AbRKLIaw>; Mon, 12 Nov 2001 03:30:52 -0500
-Date: Mon, 12 Nov 2001 09:30:47 +0100 (CET)
+	id <S281347AbRKLIk0>; Mon, 12 Nov 2001 03:40:26 -0500
+Date: Mon, 12 Nov 2001 09:40:16 +0100 (CET)
 From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Thomas Hood <jdthood@home.dhs.org>, <linux-kernel@vger.kernel.org>,
-        <jdthood@mail.com>
-Subject: Re: [PATCH] parport_pc to use pnpbios_register_driver() 
-In-Reply-To: <32053.1005530189@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.33.0111120921110.16450-100000@chaos.tp1.ruhr-uni-bochum.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Pete Zaitcev <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] save sound mixer state over suspend
+In-Reply-To: <3BEF6614.921EBED9@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0111120934330.16450-100000@chaos.tp1.ruhr-uni-bochum.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Nov 2001, Keith Owens wrote:
+On Mon, 12 Nov 2001, Jeff Garzik wrote:
 
-> >The reasoning behind this is the following: When you have a driver 
-> >built-in, but pnpbios modular, the driver cannot use pnpbios 
-> >functionality. The above definition reflects exactly this.
-> 
-> Does this combination make sense?  If you are building a pnpbios driver
-> into the kernel then the configuration should force pnpbios support to
-> be built in as well.  We don't allow this combination for things like
-> scsi or ide, they require the common support to be built in if any
-> drivers are built in.  IMHO this problem should be fixed in .config,
-> not in driver source.
+> As we mentioned on IRC, ymfpci uses ac97_codec, which does not contain
+> the ac97_reset function.
 
-The affected drivers usually support different interfaces to the hardware, 
-like ISA, ISAPnP, PCI, so it makes sense to build them w/o ISAPnP support. 
-For instance, people may want to have built-in serial support (w/o ISAPnP 
-support is fine, because they've only got a standard SuperI/O chip), but 
-also modular isapnp and sound driver support, so they can demand load 
-sound support if necessary.
+Being curious: Which IRC channel? - I checked the #kernelnewbies log, but 
+that's apparently not it.
 
-Making ISAPnP mandatory only because you build a driver which supports
-ISAPnP hardware is not an option IMO. This would force people to build
-ISAPnP support who don't even have an ISA bus (only because the driver for
-their PCI card also supports an ISAPnP variant).
+> > I cannot test the patch because my suspend/resume cycle
+> > retains mixer levels without it (2.2.14 stock, PCG-Z505JE),
+> > so I would not see any difference.
+
+Interesting. My notebook is pretty much the European variant (PCG-Z600NE), 
+but it doesn't retain the mixer levels.
+
+> The patch looks ok, but I wonder about the order in ymfpci_resume.  You
+> load the mixer values -then- call ymfpci_download_image and
+> ymfpci_memload.  It seems for the purposes of general sanity and
+> stability you would want to load the mixer values after doing those two
+> operations.
+
+Okay. I figured the ac97 codec and programming the chip itself wouldn't
+interfere, but I agree that it looks saner to have the ac97_restore_state
+at a later point. I'll change the patch accordingly.
 
 --Kai
-
 

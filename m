@@ -1,126 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269761AbUICT7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269803AbUICUCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269761AbUICT7b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 15:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269764AbUICT7F
+	id S269803AbUICUCk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 16:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUICTfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 15:59:05 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:65108 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S269761AbUICTy3
+	Fri, 3 Sep 2004 15:35:36 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:55514 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S269771AbUICTa6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 15:54:29 -0400
-Message-ID: <4138CBEF.9000909@cs.aau.dk>
-Date: Fri, 03 Sep 2004 21:54:23 +0200
-From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040814)
-X-Accept-Language: en-us, en
+	Fri, 3 Sep 2004 15:30:58 -0400
+Date: Fri, 3 Sep 2004 21:30:38 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <518050016.20040903213038@tnonline.net>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Helge Hafting <helge.hafting@hist.no>, Oliver Hunt <oliverhunt@gmail.com>,
+       Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Adrian Bunk <bunk@fs.tum.de>, <viro@parcelfarce.linux.theplanet.co.uk>,
+       Christoph Hellwig <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+In-Reply-To: <200409031741.i83HfASY017164@laptop11.inf.utfsm.cl>
+References: Message from Helge Hafting <helge.hafting@hist.no>    of "Fri, 03
+ Sep 2004 10:22:55 +0200." <413829DF.8010305@hist.no>
+ <200409031741.i83HfASY017164@laptop11.inf.utfsm.cl>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: umbrella-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
-References: <41385FA5.806@cs.aau.dk> <20040903133238.A4145@infradead.org> <413865B4.7080208@cs.aau.dk> <20040903140449.A4253@infradead.org> <41386FB7.2060804@cs.aau.dk> <20040903150111.A4884@infradead.org>
-In-Reply-To: <20040903150111.A4884@infradead.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Fri, Sep 03, 2004 at 03:20:55PM +0200, Kristian Sørensen wrote:
-> 
->>But we do not have a struct file - just an inode or a dentry :((
-> 
-> 
-> Then you can't generate a full path.
-> 
-> 
->>We are working on a project called Umbrella, (umbrella.sf.net) which 
->>implements processbased mandatory accesscontrol in the Linux kernel. 
->>This access control is controlled by "restriction", e.g. by restricting 
->>  some process from accessing any given file or directory.
->>
->>E.g. if a root owned process is restricted from accessing /var/www, and 
->>the process is compromised by an attacker, no mater what he does, he 
->>would not be able to access this directory.
-> 
-> 
-> mount --bind /var/www /home/joe/p0rn/, and then?
-Actually this "attack" is avoided, because restrictions are enherited, 
-from parent proces to its children.
 
-Okay, this is how it works in basic:
+  
 
-------------------
-ks@qbox:~/umbrella-devel/userspace
-$ touch /tmp/a
+> Helge Hafting <helge.hafting@hist.no> said:
 
-ks@qbox:~/umbrella-devel/userspace
-$ ./umbrella_restricted_sh
+> [...]
 
-sh-2.05b$ touch /tmp/a
-touch: setting times of `/tmp/a': Operation not permitted
+>> The only new thing needed is the ability for something to be both
+>> file and directory at the same time.
 
-sh-2.05b$ exit
-Restricted child died
-Thank you for testing!
-Concider joining the development at http://umbrella.sourceforge.net
-------------------
+> Then why have files and directories in the first place?
 
-- the "umbrella_restricted_sh" just forks a new shell, which is 
-restricted from /tmp
+  Good point, we don't need them :) Directories are just a visible
+  grouping of files to make it easier for the user to manage. But some
+  things aren't really that intuitive with todays layout - especially
+  for non-unix users.
 
-Now let's try your suggestion:
+  Just an example where the user needs to edit config file for some
+  program. Where should he look?
+  /etc/app.conf ?
+  /etc/app/app.conf ?
+  /etc/conf.d/app.conf ?
+  /var/lib/app/app.conf ?
+  and so on....
 
+  Using file-as-dir isn't really that much of a change. It isn't those
+  that will confuse people anyway.
 
-------------------------
-root@qbox:~/umbrella-devel/userspace
-$ id
-uid=0(root) gid=0(root) 
-groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel),11(floppy),20(dialout),26(tape),27(video)
+>>                                       Some tools will need
+>> a update - usually only because they blindly assume that a directory
+>> isn't a file too, or that a file can't be a directory too.  Remove the
+>> mistaken assumption and things will work because the underlying system
+>> calls (chdir or open) _will_ work.
 
-root@qbox:~/umbrella-devel/userspace
-$ mkdir new-tmp
+> But with some weird restrictions: No moving stuff around between files, no
+> linking, some "files" can't be deleted (how would you handle removing the
+> principal stream of a file?).
 
-root@qbox:~/umbrella-devel/userspace
-$ mount --bind /tmp new-tmp
+  Well. there are read-only files. And if you remove the main stream
+  (which is the file, really) then it will all be gone =)
 
-root@qbox:~/umbrella-devel/userspace
-$ mount
-/dev/discs/disc1/part2 on / type ext3 (rw)
-none on /dev type devfs (rw)
-none on /proc type proc (rw)
-none on /sys type sysfs (rw)
-none on /dev/pts type devpts (rw)
-/dev/discs/disc0/part1 on /home type ext3 (rw)
-/dev/discs/disc0/part2 on /media type ext3 (rw)
-none on /dev/shm type tmpfs (rw)
-none on /proc/bus/usb type usbfs (rw)
-/tmp on /home/ks/umbrella-devel/userspace/new-tmp type none (rw,bind)
+>  Some stuff you'd love to do (is, in fact, the
+> reason for this all) just can't be allowed (i.e., J. Random Luser setting
+> his own icon for system-wide emacs).
 
-root@qbox:~/umbrella-devel/userspace
-$ ./umbrella_restricted_sh
+  Users do not normally have write permissions to system-wide
+  applications. Why would it be any different now?
 
-sh-2.05b# touch /tmp/a
-touch: setting times of `/tmp/a': Operation not permitted
+>  So the tools/scripts/users/sysadmins
+> will have to be painfully aware that some of the files aren't, and some of
+> the directories aren't either. Major pain in the neck to use, if you look
+> closer.  Add extra kernel complexity. For little (if any) gain.
 
-sh-2.05b# touch new-tmp/a
-touch: setting times of `new-tmp/a': Operation not permitted
+  Not sure what you mean "aren't". Things shouldn't be that much
+  different to administer. Normal permissions should still apply. Sure
+  extra complexity comes _if_ you want to use extended features that
+  are using meta-info. But there is where we need some patches to tar
+  and other backup tools.
 
-sh-2.05b# ls new-tmp/
-ls: new-tmp/: Operation not permitted
+  One other way would be to enter a specific mode (chroot, a bash
+  flag --show-metas, etc) that would allow all streams and metas to be
+  seen as files in directories. Then tar and other tools would back it
+  all up. Restoring will be a little trickier as we don't know if
+  stuff was files or folders before. But I am sure that would be
+  solvable. Perhaps a tool to convert them back to normal files with
+  meta-data and streams.
 
-sh-2.05b# exit
-Restricted child died
-Thank you for testing!
-Concider joining the development at http://umbrella.sourceforge.net
-------------------------
+  ~S
 
-As you can see, the bind-mount fails to succeed in accessing the files 
-in /tmp.
-
-
-
-Best regards, Kristian.

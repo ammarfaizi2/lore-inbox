@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVBTV01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVBTVap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVBTV01 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 16:26:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVBTV01
+	id S261189AbVBTVap (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 16:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVBTVap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 16:26:27 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:42897 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S261156AbVBTV0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 16:26:24 -0500
-Date: Sun, 20 Feb 2005 22:26:23 +0100
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... no PCI
-Message-ID: <20050220212622.GA18447@hardeman.nu>
+	Sun, 20 Feb 2005 16:30:45 -0500
+Received: from cantor.suse.de ([195.135.220.2]:52139 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261189AbVBTVak (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 16:30:40 -0500
+Date: Sun, 20 Feb 2005 22:30:38 +0100
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] typo in include/linux/compiler.h
+Message-ID: <20050220213038.GA21877@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0502200954350.2378@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Feb 2005, Linus Torvalds wrote:
->Russell, what do your eagle-eyes think of a patch like this?
->
->Steven, does this fix it without the need for any kernel command line (or
->any other patches, for that matter - ie revert all the transparency-
->changing ones)?
->
->		Linus
 
-I tried the patch on my G40 with 1Gb RAM (previous thread about it is at 
-http://marc.theaimsgroup.com/?t=110889153400001&r=1&w=2), and it works 
-great, PCI resources are now located at 0x40000000 and no further 
-tricks/patches are necessary.
+small nitpick, __KERNEL__ is the inner ifdef.
 
-Re,
-David
 
+Signed-off-by: Olaf Hering <olh@suse.de>
+
+diff -purN linux-2.6.11-rc4.orig/include/linux/compiler.h linux-2.6.11-rc4-klibc/include/linux/compiler.h
+--- linux-2.6.11-rc4.orig/include/linux/compiler.h	2005-02-13 04:06:55.000000000 +0100
++++ linux-2.6.11-rc4-klibc/include/linux/compiler.h	2005-02-20 17:16:47.340324407 +0100
+@@ -72,10 +72,10 @@ extern void __chk_io_ptr(void __iomem *)
+     (typeof(ptr)) (__ptr + (off)); })
+ #endif
+ 
+-#endif /* __ASSEMBLY__ */
+-
+ #endif /* __KERNEL__ */
+ 
++#endif /* __ASSEMBLY__ */
++
+ /*
+  * Allow us to mark functions as 'deprecated' and have gcc emit a nice
+  * warning for each use, in hopes of speeding the functions removal.

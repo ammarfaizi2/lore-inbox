@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbTENOri (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 10:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbTENOri
+	id S262382AbTENOvK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 10:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbTENOvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 10:47:38 -0400
-Received: from port-212-202-185-200.reverse.qdsl-home.de ([212.202.185.200]:49796
-	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S262361AbTENOrg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 10:47:36 -0400
-Message-ID: <3EC259FD.1010706@trash.net>
-Date: Wed, 14 May 2003 17:00:13 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030430 Debian/1.3-5
-X-Accept-Language: en
+	Wed, 14 May 2003 10:51:10 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:54641 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S262382AbTENOvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 10:51:03 -0400
+Date: Wed, 14 May 2003 10:02:56 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: wli@holomorphy.com, mika.penttila@kolumbus.fi, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Race between vmtruncate and mapped areas?
+Message-ID: <18730000.1052924576@baldur.austin.ibm.com>
+In-Reply-To: <20030513181022.6dbc5418.akpm@digeo.com>
+References: <154080000.1052858685@baldur.austin.ibm.com>
+ <3EC15C6D.1040403@kolumbus.fi><199610000.1052864784@baldur.austin.ibm.com>
+ <20030513224929.GX8978@holomorphy.com>
+ <220550000.1052866808@baldur.austin.ibm.com>
+ <20030513181022.6dbc5418.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH]: set state to XFRM_STATE_DEAD before calling xfrm_state_put
- in pfkey_msg2xfrm_state
-Content-Type: multipart/mixed;
- boundary="------------020707040309080103090309"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020707040309080103090309
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-This patch sets x->state to XFRM_STATE_DEAD before calling
-xfrm_state_put in pfkey_msg2xfrm_state to avoid triggering
-the BUG_TRAP in __xfrm_state_destroy. The patch applies to both
-2.5 and the 2.4 backport.
+--On Tuesday, May 13, 2003 18:10:22 -0700 Andrew Morton <akpm@digeo.com>
+wrote:
 
-Best regards,
-Patrick
+>>  Can anyone think of any gotchas to this solution?
+> 
+> mmap_sem nests outside i_shared_sem.
 
+Rats.  You're right.  Time to consider alternatives.
 
+Dave
 
-
---------------020707040309080103090309
-Content-Type: text/plain;
- name="af_key-set-xfrm-dead.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="af_key-set-xfrm-dead.diff"
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1113  -> 1.1114 
-#	    net/key/af_key.c	1.35    -> 1.36   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/14	kaber@trash.net	1.1114
-# [IPSEC]: set state to XFRM_STATE_DEAD before calling xfrm_state_put in pfkey_msg2xfrm_state
-# --------------------------------------------
-#
-diff -Nru a/net/key/af_key.c b/net/key/af_key.c
---- a/net/key/af_key.c	Wed May 14 16:56:52 2003
-+++ b/net/key/af_key.c	Wed May 14 16:56:52 2003
-@@ -1090,6 +1090,7 @@
- 	return x;
- 
- out:
-+	x->type = XFRM_STATE_DEAD;
- 	xfrm_state_put(x);
- 	return ERR_PTR(-ENOBUFS);
- }
-
---------------020707040309080103090309--
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

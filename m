@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbTJXP5k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 11:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbTJXP5k
+	id S262315AbTJXPxx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 11:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTJXPxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 11:57:40 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:46799 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262324AbTJXP5h
+	Fri, 24 Oct 2003 11:53:53 -0400
+Received: from smtp2.actcom.co.il ([192.114.47.15]:32405 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S262315AbTJXPxw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 11:57:37 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: Martin Waitz <tali@admingilde.org>, linux-kernel@vger.kernel.org,
-       evms-devel@lists.sourceforge.net, dm-devel@sistina.com
-Subject: Re: [Evms-devel] device-mapper & bd_claim
-Date: Fri, 24 Oct 2003 10:56:27 -0500
-User-Agent: KMail/1.5
-References: <20031024115632.GX9850@admingilde.org>
-In-Reply-To: <20031024115632.GX9850@admingilde.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Oct 2003 11:53:52 -0400
+Date: Fri, 24 Oct 2003 17:53:44 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Pavel Roskin <proski@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Copying .config to /lib/modules/`uname -r`/kernel
+Message-ID: <20031024155343.GP5017@actcom.co.il>
+References: <Pine.LNX.4.58.0310240406230.17536@portland.hansa.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nzRVTedY3Q7hsbEF"
 Content-Disposition: inline
-Message-Id: <200310241056.27456.kevcorry@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.58.0310240406230.17536@portland.hansa.lan>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 October 2003 06:56, Martin Waitz wrote:
-> hi :)
->
-> i use evms to mount some filesystems.
-> the root filesystem is located on /dev/hda1, all other partitions
-> are managed by evms.
->
-> this works without problems in 2.4.
-> however, evms refuses to create the logical volumes in 2.6.
->
-> the problem seems to be the addition of bd_claim in 2.6:
-> upon mounting the root filesystem, hda1 is claimed by the filesystem.
-> thus, hda is claimed by the bd_claim code, too.
-> evms tries to setup dm-tables using hda and fails to claim the device
->
-> so, how should this be solved?
-> i think it should be allowed to mix evms and 'normal' partitions on
-> the same device.
->
-> do we need to introduce claimed_region of the toplevel device instead
-> of claiming individual devices?
 
-Please see the notes at the top of:
-http://evms.sourceforge.net/patches/2.1.1/kernel/2.6.0-test8/bd_claim.patch
+--nzRVTedY3Q7hsbEF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In general, if you want to "mix" users of a device, you'll just need to revert 
-that patch. But this isn't the preferred solution. If you're using EVMS, 
-ideally you should switch to using EVMS for all your volumes and partitions. 
-Getting your root filesystem mounted through EVMS isn't terribly difficult, 
-and you can find more details about it at:
-http://evms.sourceforge.net/install/root.html
+On Fri, Oct 24, 2003 at 04:26:12AM -0400, Pavel Roskin wrote:
 
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+> Cannot we just install .config to the same directory as modules?  If
 
+What's wrong with /lib/modules/version/build/.config?=20
+
+> kernel doesn't support modules, then there is no point to compile any new
+> modules against it.  But if it does, then we can be sure that the modules
+> correspond to that configuration file, because the modules and .config
+> would be installed by the same command.
+
+you need the build symlink to compile a module against this kernel
+anyway, because you need its includes, not to mention its build
+system.=20
+
+Cheers,=20
+Muli=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://www.livejournal.com/~mulix
+
+"the nucleus of linux oscillates my world" - gccbot@#offtopic
+
+
+--nzRVTedY3Q7hsbEF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/mUsHKRs727/VN8sRAgwOAJ9ZNNUwA52choXT6yzGrSNM2g1n9wCfT4UM
+TM2dBS4sera9zwPnNjxzBg8=
+=5cY2
+-----END PGP SIGNATURE-----
+
+--nzRVTedY3Q7hsbEF--

@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbULBQFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbULBQJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbULBQFa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 11:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbULBQFU
+	id S261676AbULBQJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 11:09:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbULBQJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 11:05:20 -0500
-Received: from sarvega.com ([161.58.151.164]:27917 "EHLO sarvega.com")
-	by vger.kernel.org with ESMTP id S261663AbULBQDJ (ORCPT
+	Thu, 2 Dec 2004 11:09:58 -0500
+Received: from NS1.idleaire.net ([65.220.16.2]:23939 "EHLO iasrv1.idleaire.net")
+	by vger.kernel.org with ESMTP id S261676AbULBQHf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 11:03:09 -0500
-Date: Thu, 2 Dec 2004 10:03:04 -0600
-From: John Lash <jkl@sarvega.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] sata_sil.c: blacklist seagate ST380013AS
-Message-ID: <20041202100304.4e8a9145@homer.sarvega.com>
-X-Mailer: Sylpheed-Claws 0.9.12cvs102 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 2 Dec 2004 11:07:35 -0500
+Subject: Re: keyboard timeout
+From: Dave Dillow <dave@thedillows.org>
+To: linux-os@analogic.com
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0412020812330.11342@chaos.analogic.com>
+References: <Pine.LNX.4.61.0412011721090.8835@chaos.analogic.com>
+	 <1101942309.6166.16.camel@dillow.idleaire.com>
+	 <Pine.LNX.4.61.0412020812330.11342@chaos.analogic.com>
+Content-Type: text/plain
+Message-Id: <1102003654.9134.10.camel@dillow.idleaire.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 02 Dec 2004 11:07:34 -0500
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Dec 2004 16:07:35.0115 (UTC) FILETIME=[094989B0:01C4D889]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
+On Thu, 2004-12-02 at 08:13, linux-os wrote:
+> On Wed, 1 Dec 2004, Dave Dillow wrote:
+> 
+> > On Wed, 2004-12-01 at 17:29, linux-os wrote:
+> >> If Linux 2.6.9 is booted on a 40 MHz `486 with the standard
+> >> ISA clock of 14.3 MHz (yes that's the standard), the kernel
+> >> will complain about a keyboard timeout for every key touched!
+> >
+> > Umm, no.
+> >
+> Bullshit. Read my post to Alan. Learn something.
 
-here's a patch to add seagate ST380013AS to the sata_sil.c blacklist. and a
-pointer to the relevant thread on lkml.
+And you should've read the rest of mine. Just because the clock
+generator is 14.3MHz doesn't mean that's what the bus runs at -- all
+signals a relative to BCLK, which is 4.77MHz, 8Mhz, or 8.33Mhz (or 6, or
+10, by Alan's last post).
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0412.0/0120.html
+By your logic, the PCI bus in my PIII machine runs at 100MHz because
+it's divided down from the 100MHz Front Side Bus.
+-- 
+Dave Dillow <dave@thedillows.org>
 
---john
-
---- linux-2.6.10-rc2-bk13.orig/drivers/scsi/sata_sil.c  2004-12-01
-22:39:34.000000000 -0600+++ linux-2.6.10-rc2-bk13/drivers/scsi/sata_sil.c      
-2004-12-01 10:22:59.000000000 -0600@@ -84,6 +84,7 @@ struct sil_drivelist {
-        { "ST330013AS",         SIL_QUIRK_MOD15WRITE },
-        { "ST340017AS",         SIL_QUIRK_MOD15WRITE },
-        { "ST360015AS",         SIL_QUIRK_MOD15WRITE },
-+       { "ST380013AS",         SIL_QUIRK_MOD15WRITE },
-        { "ST380023AS",         SIL_QUIRK_MOD15WRITE },
-        { "ST3120023AS",        SIL_QUIRK_MOD15WRITE },
-        { "ST3160023AS",        SIL_QUIRK_MOD15WRITE },

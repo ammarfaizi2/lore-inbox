@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131260AbRCUKFx>; Wed, 21 Mar 2001 05:05:53 -0500
+	id <S131254AbRCUKFN>; Wed, 21 Mar 2001 05:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131262AbRCUKFo>; Wed, 21 Mar 2001 05:05:44 -0500
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:32707 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131260AbRCUKFh>; Wed, 21 Mar 2001 05:05:37 -0500
-Date: Wed, 21 Mar 2001 10:04:23 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org,
-        Will Newton <will@misconception.org.uk>
-Subject: Re: VIA audio and parport in 2.4.2
-Message-ID: <20010321100423.P12081@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0103171951340.440-100000@mikeg.weiden.de> <Pine.LNX.4.33.0103190015080.8534-100000@dogfox.localdomain> <20010318192221.A27150@redhat.com> <3AB82C36.C807B787@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="UJhykcm+BCcdfd3/"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AB82C36.C807B787@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, Mar 20, 2001 at 11:21:10PM -0500
+	id <S131260AbRCUKFD>; Wed, 21 Mar 2001 05:05:03 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:38605 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131254AbRCUKEq>; Wed, 21 Mar 2001 05:04:46 -0500
+Message-ID: <3AB87CE3.2DB0DA14@uow.edu.au>
+Date: Wed, 21 Mar 2001 21:05:23 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3-pre3 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: Keith Owens <kaos@ocs.com.au>, nigel@nrg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <22991.985166394@ocs3.ocs-net>,
+		<Pine.LNX.4.05.10103201920410.26853-100000@cosmic.nrg.org>
+		<22991.985166394@ocs3.ocs-net> <15032.30533.638717.696704@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David S. Miller" wrote:
+> 
+> Keith Owens writes:
+>  > Or have I missed something?
+> 
+> Nope, it is a fundamental problem with such kernel pre-emption
+> schemes.  As a result, it would also break our big-reader locks
+> (see include/linux/brlock.h).
+> 
+> Basically, anything which uses smp_processor_id() would need to
+> be holding some lock so as to not get pre-empted.
+> 
 
---UJhykcm+BCcdfd3/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It's a problem for uniprocessors as well.
 
-On Tue, Mar 20, 2001 at 11:21:10PM -0500, Jeff Garzik wrote:
+Example:
 
-> The current Via-specific parport_pc.c code forces on the best possible
-> parallel port modes the chip can handle.  In retrospect, what it should
-> be doing is reading the configuration BIOS has set up, and not touching
-> it.
+#define current_cpu_data boot_cpu_data
+#define pgd_quicklist (current_cpu_data.pgd_quick)
 
-Yes, I think you are right.
+extern __inline__ void free_pgd_fast(pgd_t *pgd)
+{
+        *(unsigned long *)pgd = (unsigned long) pgd_quicklist;
+        pgd_quicklist = (unsigned long *) pgd;
+        pgtable_cache_size++;
+}
 
-> I am not sure that I agree, however, that an "irq=none" on the kernel
-> cmd line should affect the operation of the Via code.  I would much
-> rather fix the Via code as I suggest above.
+Preemption could corrupt this list.
 
-irq=none should definitely be honoured, or else the user has to reboot
-in order to debug problems with printing.  The user's io=, irq= and
-dma= settings should always be honoured. IMHO.
-
-When irq=auto, the BIOS settings should be used.
-
-Case in point: until very recently there was a bad problem in the
-irq-driven printing path.  But only people with Via chipsets were
-reporting it, and it didn't go away with 'irq=none' (which parport.txt
-says to do in order to trouble-shoot).  It makes Via chipsets the
-exception, and it's confusing IMHO (it confused me, anyhow).
-
-Tim.
-*/
-
---UJhykcm+BCcdfd3/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6uHymONXnILZ4yVIRApohAJ4ka7ZnTSjHMZkaG6Hs+rHCtMviSQCdE1NP
-WWfbgAXhem32s9SaGMQfIjk=
-=ojRc
------END PGP SIGNATURE-----
-
---UJhykcm+BCcdfd3/--
+-

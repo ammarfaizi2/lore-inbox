@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUHRI3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265087AbUHRIc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbUHRI3s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 04:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUHRI3s
+	id S265087AbUHRIc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 04:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265091AbUHRIc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 04:29:48 -0400
-Received: from amalthea.dnx.de ([193.108.181.146]:36812 "EHLO amalthea.dnx.de")
-	by vger.kernel.org with ESMTP id S265029AbUHRI3o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 04:29:44 -0400
-Date: Wed, 18 Aug 2004 10:29:37 +0200
-From: Robert Schwebel <robert@schwebel.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.8 - Oops on NFSv3
-Message-ID: <20040818082937.GZ29410@pengutronix.de>
-References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org> <20040814115548.A19527@infradead.org> <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org>
+	Wed, 18 Aug 2004 04:32:58 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:2314 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S265087AbUHRIcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 04:32:39 -0400
+Date: Wed, 18 Aug 2004 10:28:51 +0200
+From: DervishD <disposable1@telefonica.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: setproctitle
+Message-ID: <20040818082851.GA32519@DervishD>
+Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
-X-Scan-Signature: c870fec17057476f9780afc870d320a1
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 14, 2004 at 04:05:56AM -0700, Linus Torvalds wrote:
-> Well, we've been discussing the 2.6.x.y format for a while, so I see this 
-> as an opportunity to actually do it... Will it break automated scripts? 
-> Maybe. But on the other hand, we'll never even find out unless we try it 
-> some time.
+    Hi all :)
 
-PTXdist(*) works fine with the new scheme, at least as long as the .1
-is in EXTRAVERSION and the .1 patch is released as a normal patch on top
-of 2.6.8. 
+    Is there any special reason not to implement setproctitle in the
+kernel? In user space is a bit difficult to implement since 'argv[0]'
+cannot grow beyond the initially allocated space, better said, it can
+grow but only changing the pointer to another place or eating the
+space occupied by the other arguments.
 
-Robert 
+    proftpd has a not-very-polite set_proc_title that misses the
+final NULL, and a couple of other programs out there uses it, too.
+Applications should be free to change theirs proc titles to some
+pretty if they want, shouldn't they?
 
-(*) http://www.pengutronix.de/software/ptxdist_en.html, used by 
-    embedded people to build kernel+userlands 
+    In proc/base.c you can read about 'setproctitle(3)', that is, in
+library space (user space), not kernel space, but AFAIK only FreeBSD
+has setproctitle :?
+
+    Thanks in advance :)
+
+    Raúl Núñez de Arenas Coronado
+
 -- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hornemannstraße 12,  31137 Hildesheim, Germany
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

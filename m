@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268235AbUIQRB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268954AbUIQRDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268235AbUIQRB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 13:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268916AbUIQRBJ
+	id S268954AbUIQRDn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 13:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268922AbUIQRCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 13:01:09 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:1711 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268235AbUIQQ7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 12:59:12 -0400
-Subject: Re: nproc: So?
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: rl@hellgate.ch
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095440131.3874.4626.camel@cube>
+	Fri, 17 Sep 2004 13:02:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43140 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268911AbUIQRAz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 13:00:55 -0400
+Date: Fri, 17 Sep 2004 18:00:51 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] make make install install modules too
+Message-ID: <20040917170051.GU642@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Sep 2004 12:55:32 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Luethi writes:
-> I have received some constructive criticism and suggestions,
-> but I didn't see any comments on the desirability of nproc in
-> mainline. Initially meant to be a proof-of-concept, nproc has
-> become an interface that is much cleaner and faster than procfs
-> can ever hope to be (it takes some reading of procps or libgtop
-> code to appreciate the complexity that is /proc file parsing today),
 
-You spotted the perfect hash lookup? :-)
+I keep forgetting to run 'make modules_install' after make install.  Since
+make now compiles modules too and there's no separate make modules step,
+it seems to make sense that make install should also install modules.
 
-> and every change in /proc files widens the gap. I presented
-> source code, benchmarks, and design documentation to substantiate
-> my claims; I can post the user-space code somewhere if there's
-> interest.
->
-> So I'm wondering if everybody's waiting for me to answer some
-> important question I overlooked, or if there is a general
-> sentiment that this project is not worth pursuing.
+Index: linux-2.6/arch/i386/Makefile
+===================================================================
+RCS file: /var/cvs/linux-2.6/arch/i386/Makefile,v
+retrieving revision 1.11
+diff -u -p -r1.11 Makefile
+--- linux-2.6/arch/i386/Makefile	13 Sep 2004 15:22:09 -0000	1.11
++++ linux-2.6/arch/i386/Makefile	17 Sep 2004 16:57:03 -0000
+@@ -117,7 +117,7 @@ AFLAGS += $(mflags-y)
+ boot := arch/i386/boot
+ 
+ .PHONY: zImage bzImage compressed zlilo bzlilo \
+-	zdisk bzdisk fdimage fdimage144 fdimage288 install
++	zdisk bzdisk fdimage fdimage144 fdimage288 install kernel_install
+ 
+ all: bzImage
+ 
+@@ -136,8 +136,10 @@ zlilo bzlilo: vmlinux
+ zdisk bzdisk: vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(KBUILD_IMAGE) zdisk
+ 
+-install fdimage fdimage144 fdimage288: vmlinux
++kernel_install fdimage fdimage144 fdimage288: vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(KBUILD_IMAGE) $@
++
++install: kernel_install modules_install
+ 
+ prepare: include/asm-$(ARCH)/asm_offsets.h
+ CLEAN_FILES += include/asm-$(ARCH)/asm_offsets.h
+Index: linux-2.6/arch/i386/boot/Makefile
+===================================================================
+RCS file: /var/cvs/linux-2.6/arch/i386/boot/Makefile,v
+retrieving revision 1.5
+diff -u -p -r1.5 Makefile
+--- linux-2.6/arch/i386/boot/Makefile	13 Sep 2004 15:22:09 -0000	1.5
++++ linux-2.6/arch/i386/boot/Makefile	17 Sep 2004 16:57:03 -0000
+@@ -100,5 +100,5 @@ zlilo: $(BOOTIMAGE)
+ 	cp System.map $(INSTALL_PATH)/
+ 	if [ -x /sbin/lilo ]; then /sbin/lilo; else /etc/lilo/install; fi
+ 
+-install: $(BOOTIMAGE)
++kernel_install: $(BOOTIMAGE)
+ 	sh $(srctree)/$(src)/install.sh $(KERNELRELEASE) $< System.map "$(INSTALL_PATH)"
 
-I'm very glad to see numerical proof that /proc is crap.
-If nproc does nothing else, it's still been useful.
-
-The funny varargs/vsprintf/whatever encoding is useless to me,
-as are the labels.
-
-The nicest think about netlink is, i think, that it might make
-a practical interface for incremental update. As processes run
-or get modified, monitoring apps might get notified. I did not
-see mention of this being implemented, and I would take quite 
-some time to support it, so it's a long-term goal. (of course,
-people can always submit procps patches to support this)
-
-I doubt that it is good to break down the data into so many
-different items. It seems sensible to break down the data by 
-locking requirements. 
-
-I could use an opaque per-process cookie for process identification.
-This would protect from PID reuse, and might allow for faster
-lookup. Perhaps it contains: PID, address of task_struct, and the
-system-wide or per-cpu fork count from process creation.
-
-Something like the stat() syscall would be pretty decent.
-
-Well, whatever... In any case, I'd need to see some working code
-for the libproc library. My net connection dies for hours at a
-time, so don't expect speedy anything right now.
-
-BTW, I have a 32-bit big-endian system with char being unsigned
-by default. The varargs stuff is odd too.
-
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,79 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261938AbTILXPo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 19:15:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbTILXPo
+	id S261951AbTILXc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 19:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbTILXc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 19:15:44 -0400
-Received: from [65.248.4.67] ([65.248.4.67]:26550 "EHLO verdesmares.com")
-	by vger.kernel.org with ESMTP id S261938AbTILXPk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 19:15:40 -0400
-Message-ID: <00ed01c37962$141237c0$f8e4a7c8@bsb.virtua.com.br>
-From: "Breno" <brenosp@brasilsec.com.br>
-To: "Andreas Dilger" <adilger@clusterfs.com>
-Cc: "Kernel List" <linux-kernel@vger.kernel.org>
-References: <002b01c37956$d88d67c0$f8e4a7c8@bsb.virtua.com.br> <20030912165047.Z18851@schatzie.adilger.int>
-Subject: Re: stack overflow
-Date: Fri, 12 Sep 2003 20:14:18 +0100
+	Fri, 12 Sep 2003 19:32:56 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:3755 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261951AbTILXcl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 19:32:41 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andries.Brouwer@cwi.nl
+Subject: Re: [PATCH] Re: [PATCH][IDE] update qd65xx driver
+Date: Sat, 13 Sep 2003 01:34:41 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <UTC200309122309.h8CN9wn08090.aeb@smtp.cwi.nl>
+In-Reply-To: <UTC200309122309.h8CN9wn08090.aeb@smtp.cwi.nl>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-XTmail: http://www.verdesmares.com
+Content-Disposition: inline
+Message-Id: <200309130134.41702.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that size limit of user stack is 8mb
+On Saturday 13 of September 2003 01:09, Andries.Brouwer@cwi.nl wrote:
+> From B.Zolnierkiewicz@elka.pw.edu.pl  Fri Sep 12 00:44:48 2003
+>
+> 	> That reminds me, did I ever send you this?
+> 	>
+> 	> Andries
+>
+> 	No, only similar patch for hpt366.c.
+>
+> 	I think the (almost) correct scheme is following ...
+>
+> Yes, larger changes are possible - and in fact I have a directory
+> full of IDE stuff, polishing, cleanup, non-urgent.
 
-Breno
------ Original Message -----
-From: "Andreas Dilger" <adilger@clusterfs.com>
-To: "Breno" <brenosp@brasilsec.com.br>
-Cc: "Kernel List" <linux-kernel@vger.kernel.org>
-Sent: Friday, September 12, 2003 11:50 PM
-Subject: Re: stack overflow
+Great!  Please push'em.
 
+> I sent this mainly because the hpt366.c analog was needed to
+> prevent filesystem corruption (on my own system). Similarly,
+> I imagine this patch is needed to prevent filesystem corruption -
+> no need to wait until someone actually reports a corrupted filesystem.
+>
+> Patches that allow people to set lower PIO modes than the max
+> may be nice, but are less urgent than preventing modes higher
+> than the max.
 
-> On Sep 12, 2003  18:53 +0100, Breno wrote:
-> > Hi ... this is my idea to check a stack overflow. What do you think ?
-> >
-> > #define STACK_LIMIT (1024*8192)/PAGE_SIZE
-> >
-> > int check_stack_overflow(struct task_struct *tsk)
-> > {
-> >
-> >     unsigned long stack_size,stack_addr,stack_ptr;
-> >     int i;
-> >
-> >          if(tsk->mm != NULL)
-> >          {
-> >                   stack_addr = tsk->mm->start_stack;
-> >
-> >                   stack_ptr = tsk->thread.esp;
-> >
-> >                   for(i=0; i < stack_ptr; i++)
-> >                   stack_addr++;
-> >
-> >                   stack_size = (stack_addr - stack_ptr)/PAGE_SIZE;
-> >
-> >                   if(stack_size > ( STACK_LIMIT - 1))
+Eeeh... please re-read my mail.
+
+As stated before you got corruption with hpt366.c because it was calling
+hpt3xx_tune_drive() *internally* with pio argument equal to 5 instead of 255.
+
+qd65xx.c is not calling qd*_tune_drive() internally et all -> no possibility
+of corruption unless user *manually* sets mode higher than supported.
+
+--bartlomiej
+
+> Andries
 >
-> Well, with the exception of the fact that STACK_LIMIT is 8MB, and kernel
-> stacks are only 8kB (on i386)...
->
-> Also, see "do_IRQ()" (i386) for CONFIG_DEBUG_STACKOVERFLOW to see this
-already.
->
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> http://sourceforge.net/projects/ext2resize/
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 	> -		pio = ide_get_best_pio_mode(drive, pio, 255, &d);
+> 	> +		pio = ide_get_best_pio_mode(drive, 255, pio, &d);
 

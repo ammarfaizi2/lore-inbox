@@ -1,67 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281268AbRLAA4t>; Fri, 30 Nov 2001 19:56:49 -0500
+	id <S281283AbRLABD3>; Fri, 30 Nov 2001 20:03:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283870AbRLAA4j>; Fri, 30 Nov 2001 19:56:39 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11275 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281268AbRLAA42>; Fri, 30 Nov 2001 19:56:28 -0500
-Date: Fri, 30 Nov 2001 16:50:34 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
+	id <S281289AbRLABDT>; Fri, 30 Nov 2001 20:03:19 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:51974 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S281283AbRLABDK>; Fri, 30 Nov 2001 20:03:10 -0500
+Date: Fri, 30 Nov 2001 17:13:38 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Andrew Morton <akpm@zip.com.au>, Daniel Phillips <phillips@bonn-fries.net>,
         Henning Schmiedehausen <hps@intermeta.de>,
         Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <Pine.LNX.4.33L.0111302234420.4079-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0111301643170.1224-100000@penguin.transmeta.com>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+In-Reply-To: <20011130155740.I14710@work.bitmover.com>
+Message-ID: <Pine.LNX.4.40.0111301636010.1600-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 30 Nov 2001, Larry McVoy wrote:
 
-On Fri, 30 Nov 2001, Rik van Riel wrote:
->
-> I'm very interested too, though I'll have to agree with Larry
-> that Linux really isn't going anywhere in particular and seems
-> to be making progress through sheer luck.
+[ A lot of stuff Pro-Sun ]
 
-Hey, that's not a bug, that's a FEATURE!
+Wait a minute.
+Wasn't it you that were screaming against Sun, leaving their team because
+their SMP decisions about scaling sucked, because their OS was bloated
+like hell with sync spinlocks, saying that they tried to make it scale but
+they failed miserably ?
+What is changed now to make Solaris, a fairly vanishing OS, to be the
+reference OS/devmodel for every kernel developer ?
+Wasn't it you that were saying that Linux will never scale with more than
+2 CPUs ?
+Isn't Linux SMP improved from the very first implementation ?
+Isn't Linux SMP improved from the very first implementation w/out losing
+reliability ?
+Why you don't try to compare 2.0.36 with 2.4.x let's say on a 8 way SMP ?
+Why should it stop improving ?
+Because you know that adding fine grained spinlocks will make the OS
+complex to maintain and bloated ... like it was Solaris before you
+suddendly changed your mind.
 
-You know what the most complex piece of engineering known to man in the
-whole solar system is?
 
-Guess what - it's not Linux, it's not Solaris, and it's not your car.
+<YOUR QUOTE>
+>     Then people want more performance.  So they thread some more and now
+>     the locks aren't 1:1 to the objects.  What a lock covers starts to
+>     become fuzzy.  Thinks break down quickly after this because what
+>     happens is that it becomes unclear if you are covered or not and
+>     it's too much work to figure it out, so each time a thing is added
+>     to the kernel, it comes with a lock.  Before long, your 10 or 20
+>     locks are 3000 or more like what Solaris has.  This is really bad,
+>     it hurts performance in far reaching ways and it is impossible to
+>     undo.
+</YOUR QUOTE>
 
-It's you. And me.
+I kindly agree with this, just curious to understand which kind of amazing
+architectural solution Solaris took to be a reference for SMP
+development/scaling.
 
-And think about how you and me actually came about - not through any
-complex design.
 
-Right. "sheer luck".
 
-Well, sheer luck, AND:
- - free availability and _crosspollination_ through sharing of "source
-   code", although biologists call it DNA.
- - a rather unforgiving user environment, that happily replaces bad
-   versions of us with better working versions and thus culls the herd
-   (biologists often call this "survival of the fittest")
- - massive undirected parallel development ("trial and error")
 
-I'm deadly serious: we humans have _never_ been able to replicate
-something more complicated than what we ourselves are, yet natural
-selection did it without even thinking.
+- Davide
 
-Don't underestimate the power of survival of the fittest.
 
-And don't EVER make the mistake that you can design something better than
-what you get from ruthless massively parallel trial-and-error with a
-feedback cycle. That's giving your intelligence _much_ too much credit.
 
-Quite frankly, Sun is doomed. And it has nothing to do with their
-engineering practices or their coding style.
 
-		Linus
+
 

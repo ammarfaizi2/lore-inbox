@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbUKRQtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbUKRQvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbUKRQtM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 11:49:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbUKRQs4
+	id S262535AbUKRQvT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 11:51:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262699AbUKRQvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 11:48:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55755 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262767AbUKRQoy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 11:44:54 -0500
-Date: Thu, 18 Nov 2004 08:44:49 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: James Morris <jmorris@redhat.com>
-Cc: Ross Kendall Axe <ross.axe@blueyonder.co.uk>, netdev@oss.sgi.com,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when using SELinux and SOCK_SEQPACKET
-Message-ID: <20041118084449.Z14339@build.pdx.osdl.net>
-References: <Xine.LNX.4.44.0411180257300.3144-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0411180305060.3192-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Xine.LNX.4.44.0411180305060.3192-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Thu, Nov 18, 2004 at 03:27:42AM -0500
+	Thu, 18 Nov 2004 11:51:19 -0500
+Received: from curlew.cs.man.ac.uk ([130.88.13.7]:45577 "EHLO
+	curlew.cs.man.ac.uk") by vger.kernel.org with ESMTP id S262535AbUKRQtc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 11:49:32 -0500
+Message-ID: <419CEC65.4020603@gentoo.org>
+Date: Thu, 18 Nov 2004 18:39:33 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: Missing SCSI command in the allowed list?
+References: <cmikie$vif$1@sea.gmane.org> <200411061624.57918.dsd@gentoo.org> <cmkkd8$dm8$1@sea.gmane.org>
+In-Reply-To: <cmkkd8$dm8$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -5.9 (-----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CUpTI-0003y9-Cl*ZD5b5mxGoHk*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Morris (jmorris@redhat.com) wrote:
-> What's happening is that mixing stream and dgram ops for SEQPACKET is
-> having some unfortunate side effects.
+Hi,
 
-Agreed.
+Alexander E. Patrakov wrote:
+> But the question remains: what should the users of not 100% MMC-compatible
+> CR-RW drives (i.e. those which have a separate cdrado or cdrecord driver,
+> not generic-mmc/generic-mmc-raw) do? Is the support for writing as non-root
+> on such drives just dropped without any plans to "fix" it?
 
-> One of these is that there is a race between client sendmsg() and server
-> accept().  The server child socket is attached via sock_graft() after the 
-> client has entered unix_dgram_sendmsg() and called 
-> 
-> 	security_unix_may_send(sk->sk_socket, other->sk_socket);
-> 
-> other->sk_socket will thus be null, causing the oops in SELinux and any 
-> other LSM which tries to dereference the pointer.
+I'd also be interested to know the answer here. Jens?
 
-Yup.  And it's not much of a race, the window is wide open.  One
-malicious app simply has to do:
+Some Gentoo users have reported that commands such as ED/EB/E9/F5 are being 
+rejected. When inspecting the cdrecord source code, it seems that these are 
+specific to plextor drives. These drives are MMC but have a few 
+vendor-specific extensions. How should we go about permitting cases like this 
+in the command filter?
 
-bind()
-listen()
-connect()
-send() <-- Oops
-
-> The fix is a combination of some of Ross's ideas:
-> 
-> 1) SOCK_SEQPACKET is connection oriented, and there no need to call 
-> security_unix_may_send() for each packet.  security_unix_stream_connect() 
-> is sufficient.
-
-Why not make a unix_seq_sendmsg, which is a very small wrapper?
-e.g.
-static int unix_seq_sendmsg(struct kiocb *kiocb, struct socket *sock,
-			    struct msghdr *msg, size_t len)
-{
-	struct sock *sk = sock->sk;
-
-	if (sk->sk_type == SOCK_SEQPACKET && sk->sk_state != TCP_ESTABLISHED)
-		return -ENOTCONN;
-	if (msg->msg_name || msg->msg_namelen)
-		return -EINVAL;
-	return unix_dgram_sendmsg(kiocb, sock, msg, len);
-}
-
-
-Also, I missed how MSG_EOR is honored.
-
-> 2) Ensure that unix_dgram_sendmsg() fails for SOCK_SEQPACKET sockets which
-> are not connected, otherwise someone could bypass LSM by sending on an
-> unconnected socket.
-
-Agreed, not connected, it should fail IMHO.
-
-> Note that this only solves the problem for the LSM hook.
-
-Does the above stop the other issue?  My laptop died, so I'm not able to
-test ATM.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Thanks,
+Daniel

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283461AbRLDUbL>; Tue, 4 Dec 2001 15:31:11 -0500
+	id <S283468AbRLDUeN>; Tue, 4 Dec 2001 15:34:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283393AbRLDU3w>; Tue, 4 Dec 2001 15:29:52 -0500
-Received: from [204.42.16.60] ([204.42.16.60]:6156 "EHLO gerf.org")
-	by vger.kernel.org with ESMTP id <S283467AbRLDU2l>;
-	Tue, 4 Dec 2001 15:28:41 -0500
-Date: Tue, 4 Dec 2001 14:28:40 -0600
-From: The Doctor What <docwhat@gerf.org>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
-Subject: Re: Linux 2.4.16-pre1
-Message-ID: <20011204142840.C26365@gerf.org>
-Mail-Followup-To: The Doctor What <docwhat@gerf.org>,
-	linux-kernel@vger.kernel.org,
-	Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
-In-Reply-To: <20011125151543.57a1159c.skraw@ithnet.com> <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com> <20011125170701.H238@localhost> <20011125192056.A10729@pimlott.ne.mediaone.net> <20011125195637.O238@localhost>
-Mime-Version: 1.0
+	id <S283388AbRLDUdE>; Tue, 4 Dec 2001 15:33:04 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:58328 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S283424AbRLDUck>;
+	Tue, 4 Dec 2001 15:32:40 -0500
+From: David Mosberger <davidm@hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20011125195637.O238@localhost>; from unknown@panax.com on Sun, Nov 25, 2001 at 07:56:38PM -0500
+Content-Transfer-Encoding: 7bit
+Message-ID: <15373.13022.573204.805366@napali.hpl.hp.com>
+Date: Tue, 4 Dec 2001 12:32:30 -0800
+To: "David S. Miller" <davem@redhat.com>
+Cc: davidm@hpl.hp.com, alan@lxorguk.ukuu.org.uk, arjanv@redhat.com,
+        linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org,
+        marcelo@conectiva.com.br
+Subject: Re: [Linux-ia64] patch to no longer use ia64's software mmu
+In-Reply-To: <20011204.122254.110116318.davem@redhat.com>
+In-Reply-To: <15371.62205.231945.798891@napali.hpl.hp.com>
+	<E16BC09-0001Ql-00@the-village.bc.nu>
+	<15372.63827.716885.948119@napali.hpl.hp.com>
+	<20011204.122254.110116318.davem@redhat.com>
+X-Mailer: VM 6.76 under Emacs 20.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Patrick McFarland (unknown@panax.com) [011125 19:00]:
-> And I like the kernel qa group idea, but where would we get the
-> people to be on it?
+>>>>> On Tue, 04 Dec 2001 12:22:54 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
 
-Start with yourself.
+  DaveM> If what you are asking is should we tweak the APIs again so
+  DaveM> that situations like current IA64 can be done more sanely in
+  DaveM> the PCI DMA layer, I say definitely no.
 
-Build some basic QA functionality.
-Propose plans for how a kernel version will be marked QA-OK.
-Build a web site describing what people and resources you need.
+I certainly agree that the PCI DMA interface shouldn't be tweaked just
+because of IA64.  What I'm wondering is whether we'll have to tweak it
+anyhow to more gracefully handle the case where a hardware I/O TLB
+runs out of space.  If so, I think the software I/O TLB makes sense.
 
-If you build it, they will come.
+  DaveM> There really is no excuse for the current IA64 hardware
+  DaveM> situation, there were probably well over 3 or 4 major 64-bit
+  DaveM> platforms from competitors, whose PCI controllers were pretty
+  DaveM> well documented publicly, from which Intel could have derived
+  DaveM> a working 64-bit platform PCI controller design.
 
-Ciao!
+Well, I won't comment on *this* one! ;-))
 
--- 
-"As a former philosophy major, it disturbs me to think that things disappear
-when no one is looking at them, but that's exactly what happens in Python."
-		-- Mark Pilgrim (www.diveintopython.com, section 3.4)
-
-The Doctor What: A Holtje Production             http://docwhat.gerf.org/
-docwhat@gerf.org                                                   KF6VNC
+	--david

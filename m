@@ -1,123 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262469AbTA2AKc>; Tue, 28 Jan 2003 19:10:32 -0500
+	id <S262500AbTA2AQV>; Tue, 28 Jan 2003 19:16:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262500AbTA2AKc>; Tue, 28 Jan 2003 19:10:32 -0500
-Received: from dp.samba.org ([66.70.73.150]:11913 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262469AbTA2AK1>;
-	Tue, 28 Jan 2003 19:10:27 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Richard Henderson <rth@twiddle.net>
-Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] new modversions implementation 
-In-reply-to: Your message of "Tue, 28 Jan 2003 08:31:17 -0800."
-             <20030128083117.A15637@twiddle.net> 
-Date: Wed, 29 Jan 2003 11:15:58 +1100
-Message-Id: <20030129001948.4C3192C070@lists.samba.org>
+	id <S262602AbTA2AQV>; Tue, 28 Jan 2003 19:16:21 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:14328 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262500AbTA2AQT>;
+	Tue, 28 Jan 2003 19:16:19 -0500
+Message-ID: <3E371F52.370D1F77@mvista.com>
+Date: Tue, 28 Jan 2003 16:24:50 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-14smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (2/4) 2.5.59 fast reader/writer lock for gettimeofday
+References: <1043797351.10150.302.camel@dell_ss3.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030128083117.A15637@twiddle.net> you write:
-> On Tue, Jan 28, 2003 at 09:38:31PM +1100, Rusty Russell wrote:
-> > 	But once again you are relying on link order to keep the crcs
-> > section in the same order as the ksymtab section (although the ld
-> > documentation says that's correct, I know RTH doesn't like it).
+One wonders if it wouldn't be better to put the div in
+gettimeofday() outside of the lock region, see below...  It
+makes the while condition even more unlikely.
+
+-g
+
+~snip~
+
+> diff -urN -X dontdiff linux-2.5.59/arch/i386/kernel/time.c linux-2.5-frlock/arch/i386/kernel/time.c
+> --- linux-2.5.59/arch/i386/kernel/time.c        2003-01-17 09:42:14.000000000 -0800
+> +++ linux-2.5-frlock/arch/i386/kernel/time.c    2003-01-24 15:06:37.000000000 -0800
+> @@ -70,7 +70,7 @@
 > 
-> What gave you that idea?  Link order is a fine thing to rely on.
+>  unsigned long cpu_khz; /* Detected as we calibrate the TSC */
+> 
+> -extern rwlock_t xtime_lock;
+> +extern frlock_t xtime_lock;
+>  extern unsigned long wall_jiffies;
+> 
+>  spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
+> @@ -87,19 +87,21 @@
+>   */
+>  void do_gettimeofday(struct timeval *tv)
+>  {
+> -       unsigned long flags;
+> +       unsigned long seq;
+++++>     unsigned long xtimensec;
+>         unsigned long usec, sec;
+> 
+> -       read_lock_irqsave(&xtime_lock, flags);
+> -       usec = timer->get_offset();
+> -       {
+> -               unsigned long lost = jiffies - wall_jiffies;
+> -               if (lost)
+> -                       usec += lost * (1000000 / HZ);
+> -       }
+> -       sec = xtime.tv_sec;
+> -       usec += (xtime.tv_nsec / 1000);
+> -       read_unlock_irqrestore(&xtime_lock, flags);
+> +       do {
+> +               seq = fr_read_begin(&xtime_lock);
+> +
+> +               usec = timer->get_offset();
+> +               {
+> +                       unsigned long lost = jiffies - wall_jiffies;
+> +                       if (lost)
+> +                               usec += lost * (1000000 / HZ);
+> +               }
+> +               sec = xtime.tv_sec;
+----> +               usec += (xtime.tv_nsec / 1000);
+++++> +               xtimensec = xtime.tv_nsec;
+> +       } while (unlikely(seq != fr_read_end(&xtime_lock)));
+> 
+++++>     usec += xtimensec / 1000;
+>         while (usec >= 1000000) {
+>                 usec -= 1000000;
+> @@ -112,7 +114,7 @@
+> 
+>  void do_settimeofday(struct timeval *tv)
+>  {
+> -       write_lock_irq(&xtime_lock);
+> +       fr_write_lock_irq(&xtime_lock);
+>         /*
+>          * This is revolting. We need to set "xtime" correctly. However, the
+>          * value in this location is the value at the most recent update of
+> @@ -133,7 +135,7 @@
+>         time_status |= STA_UNSYNC;
+>         time_maxerror = NTP_PHASE_LIMIT;
+>         time_esterror = NTP_PHASE_LIMIT;
+> -       write_unlock_irq(&xtime_lock);
+> +       fr_write_unlock_irq(&xtime_lock);
+>  }
+> 
+>  /*
+> @@ -279,12 +281,12 @@
+>          * the irq version of write_lock because as just said we have irq
+>          * locally disabled. -arca
+>          */
+> -       write_lock(&xtime_lock);
+> +       fr_write_lock(&xtime_lock);
+> 
+>         timer->mark_offset();
+> 
+>         do_timer_interrupt(irq, NULL, regs);
+> 
+> -       write_unlock(&xtime_lock);
+> +       fr_write_unlock(&xtime_lock);
+> 
+>  }
 
-OK, I stand corrected.  Sorry Kai, I guess this means that struct
-kernel_symbol can drop the pointer, too.  I'll dig out the old patch
-and resend it.
-
-I also dropped the "ignore vermagic if modversions set": you were
-right that that's a bad idea, too.
-
-So, here is my much reduced patch on top of yours.  Please read
-carefully since I'm obviously not having a great week 8)
-
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-
-Name: Tweaks to Module Versions
-Author: Rusty Russell
-Depends: Module/modversions.patch.gz
-Status: Experimental
-
-D: Fix the case where no CRCs are supplied (OK, but taints kernel), and
-D: only print one tainted message (otherwise --force gives hundreds of them).
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1440-linux-2.5.59/init/Kconfig .1440-linux-2.5.59.updated/init/Kconfig
---- .1440-linux-2.5.59/init/Kconfig	2003-01-29 11:13:07.000000000 +1100
-+++ .1440-linux-2.5.59.updated/init/Kconfig	2003-01-29 11:14:00.000000000 +1100
-@@ -147,7 +147,6 @@ config OBSOLETE_MODPARM
- config MODVERSIONING
- 	bool "Module versioning support (EXPERIMENTAL)"
- 	depends on MODULES && EXPERIMENTAL
--	help
- 	---help---
- 	  Usually, you have to use modules compiled with your kernel.
- 	  Saying Y here makes it sometimes possible to use modules
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1440-linux-2.5.59/kernel/module.c .1440-linux-2.5.59.updated/kernel/module.c
---- .1440-linux-2.5.59/kernel/module.c	2003-01-29 11:13:07.000000000 +1100
-+++ .1440-linux-2.5.59.updated/kernel/module.c	2003-01-29 11:13:43.000000000 +1100
-@@ -737,12 +737,9 @@ static int check_version(Elf_Shdr *sechd
- 	unsigned int i, num_versions;
- 	struct modversion_info *versions;
- 
--	if (!ksg->crcs) { 
--		printk("%s: no CRC for \"%s\" [%s] found: kernel tainted.\n",
--		       mod->name, symname, 
--		       ksg->owner ? ksg->owner->name : "kernel");
--		goto taint;
--	}
-+	/* Exporting module didn't supply crcs?  OK, we're already tainted. */
-+	if (!ksg->crcs)
-+		return 1;
- 
- 	crc = ksg->crcs[symidx];
- 
-@@ -763,10 +760,11 @@ static int check_version(Elf_Shdr *sechd
- 		return 0;
- 	}
- 	/* Not in module's version table.  OK, but that taints the kernel. */
--	printk("%s: no version for \"%s\" found: kernel tainted.\n",
--	       mod->name, symname);
-- taint:
--	tainted |= TAINT_FORCED_MODULE;
-+	if (!(tainted & TAINT_FORCED_MODULE)) {
-+		printk("%s: no version for \"%s\" found: kernel tainted.\n",
-+		       mod->name, symname);
-+		tainted |= TAINT_FORCED_MODULE;
-+	}
- 	return 1;
- }
- #else
-@@ -1273,11 +1271,23 @@ static struct module *load_module(void *
- 	mod->symbols.num_syms = (sechdrs[exportindex].sh_size
- 				 / sizeof(*mod->symbols.syms));
- 	mod->symbols.syms = (void *)sechdrs[exportindex].sh_addr;
--	mod->symbols.crcs = (void *)sechdrs[crcindex].sh_addr;
-+	if (crcindex)
-+		mod->symbols.crcs = (void *)sechdrs[crcindex].sh_addr;
-+
- 	mod->gpl_symbols.num_syms = (sechdrs[gplindex].sh_size
- 				 / sizeof(*mod->symbols.syms));
- 	mod->gpl_symbols.syms = (void *)sechdrs[gplindex].sh_addr;
--	mod->gpl_symbols.crcs = (void *)sechdrs[gplcrcindex].sh_addr;
-+	if (gplcrcindex)
-+		mod->gpl_symbols.crcs = (void *)sechdrs[gplcrcindex].sh_addr;
-+
-+#ifdef CONFIG_MODVERSIONING
-+	if ((mod->symbols.num_syms && !crcindex)
-+	    || (mod->gpl_symbols.num_syms && !gplcrcindex))
-+		printk(KERN_WARNING "%s: No versions for exported symbols."
-+		       " Tainting kernel.\n", mod->name);
-+		tainted |= TAINT_FORCED_MODULE;
-+	}
-+#endif /* CONFIG_MODVERSIONING */
- 
- 	/* Set up exception table */
- 	if (exindex) {
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

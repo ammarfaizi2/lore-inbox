@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292776AbSBUVZ3>; Thu, 21 Feb 2002 16:25:29 -0500
+	id <S292777AbSBUVeU>; Thu, 21 Feb 2002 16:34:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292778AbSBUVZT>; Thu, 21 Feb 2002 16:25:19 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1920 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S292776AbSBUVZJ>; Thu, 21 Feb 2002 16:25:09 -0500
-Date: Thu, 21 Feb 2002 16:25:11 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Adam <ambx1@netscape.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: driverfs question
-In-Reply-To: <3C755A8A.90000@netscape.net>
-Message-ID: <Pine.LNX.3.95.1020221161906.254A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292774AbSBUVeK>; Thu, 21 Feb 2002 16:34:10 -0500
+Received: from codepoet.org ([166.70.14.212]:3800 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S292773AbSBUVd6>;
+	Thu, 21 Feb 2002 16:33:58 -0500
+Date: Thu, 21 Feb 2002 14:33:59 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-rc2-ac2
+Message-ID: <20020221213358.GA10259@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200202212020.g1LKK2209402@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200202212020.g1LKK2209402@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002, Adam wrote:
+On Thu Feb 21, 2002 at 03:20:02PM -0500, Alan Cox wrote:
+> [+ indicates stuff that went to Marcelo, o stuff that has not,
+>  * indicates stuff that is merged in mainstream now, X stuff that proved
+>    bad and was dropped out]
 > 
-> All devices will be arranged according to type.  There will be a folder 
-                                                                   ^^^^^
-> Method 2:
-> Folders are created for each bus then devices are placed within them.
-  ^^^^^^^
+> Linux 2.4.18rc2-ac2
 
-> member of a pci bus, it's folder will be within the pci folder.  The 
-                            ^^^^^^                        ^^^^^^
+Tried it.  Doesn't apply at all to linux-2.4.17.tar.bz2
+plus patch-2.4.18-rc2.bz2 -- perhaps you diffed against
+something else?
 
-What is this? Do you mean "directory" or "file", or even "inode"?
+ -Erik
 
-Or is this a troll from Microsoft?  We don't have such things in
-real operating systems. Next thing you know, we'll need a "cabinet"
-to keep the "folders" in.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-        111,111,111 * 111,111,111 = 12,345,678,987,654,321
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

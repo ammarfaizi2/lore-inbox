@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318922AbSH1TXz>; Wed, 28 Aug 2002 15:23:55 -0400
+	id <S318924AbSH1TY4>; Wed, 28 Aug 2002 15:24:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318924AbSH1TXz>; Wed, 28 Aug 2002 15:23:55 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:29352 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318922AbSH1TXx>;
-	Wed, 28 Aug 2002 15:23:53 -0400
-Date: Wed, 28 Aug 2002 21:28:11 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "Fr?d?ric L. W. Meunier" <0@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ECS K7S5A: IDE performance
-Message-ID: <20020828212811.A20840@ucw.cz>
-References: <20020828190650.GC16018@louise.pinerecords.com> <Pine.LNX.4.44.0208281611210.213-100000@pervalidus.dyndns.org>
+	id <S318925AbSH1TY4>; Wed, 28 Aug 2002 15:24:56 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:40710 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S318924AbSH1TYy>; Wed, 28 Aug 2002 15:24:54 -0400
+Date: Wed, 28 Aug 2002 21:29:17 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Cc: Matthew Dobson <colpatch@us.ibm.com>, Andrew Morton <akpm@zip.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Martin Bligh <mjbligh@us.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [patch] SImple Topology API v0.3 (1/2)
+Message-ID: <20020828192917.GC10487@atrey.karlin.mff.cuni.cz>
+References: <20020827143115.B39@toy.ucw.cz> <Pine.LNX.4.44.0208280711390.3234-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0208281611210.213-100000@pervalidus.dyndns.org>; from 0@pervalidus.net on Wed, Aug 28, 2002 at 04:19:13PM -0300
+In-Reply-To: <Pine.LNX.4.44.0208280711390.3234-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 04:19:13PM -0300, Fr?d?ric L. W. Meunier wrote:
-> On Wed, 28 Aug 2002, Tomas Szepe wrote:
-> 
-> > > I have an ECS K7S5A 3.1A. It works fine with 2.4.19. No
-> > > corruption. Now I tested it with hdparm and:
-> > >
-> > > hdparm -tT /dev/hda
-> > >
-> > > /dev/hda:
-> > >  Timing buffer-cache reads:   128 MB in  0.79 seconds =162.03 MB/sec
-> > >  Timing buffered disk reads:  64 MB in  1.68 seconds = 38.10 MB/sec
-> > >
-> > > Only 38.10 ?
-> >
-> > How do you mean, only 38.10?
-> 
-> I just thought it'd be much more with an ATA100. I got more or
-> less the same with my earlier motherboard, an ASUS A7APro, and
-> without ATA66 - which would print a lot of CRC errors at boot
-> time if enabled in the BIOS. The K7S5A doesn't print any and is
-> rock solid.
-> 
-> Maybe running it at 100/133 (and not 100/100) decreases
-> performance ? I read is somewhere. I have an Athlon 1000 (200)
-> with 2x256Mb DDR PC2100.
+Hi!
 
-No. The limit is the drive platter read speed.
+> > > -   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
+> > > +   bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
+> > 
+> > Why not simply CONFIG_NUMA?
+> 
+> Because NUMA is subordinate to X86, and another technology named NUMA 
+> might appear? Nano-uplinked micro-array... No Ugliness Munched Archive? 
+> Whatever...
+
+NUMA means non-uniform memory access. At least IBM, AMD and SGI do
+NUMA; and I guess anyone with 100+ nodes *has* numa machine. (BUt as
+andrea already explained, CONFIG_NUMA is already taken for generic
+NUMA support.)
+
+							Pavel
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

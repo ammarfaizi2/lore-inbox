@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314811AbSGMPgA>; Sat, 13 Jul 2002 11:36:00 -0400
+	id <S315120AbSGMPrH>; Sat, 13 Jul 2002 11:47:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314835AbSGMPf7>; Sat, 13 Jul 2002 11:35:59 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5844 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S314811AbSGMPf5>; Sat, 13 Jul 2002 11:35:57 -0400
-Date: Sat, 13 Jul 2002 17:38:32 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <200207131446.HAA24611@adam.yggdrasil.com>
-Message-ID: <Pine.SOL.4.30.0207131736480.75-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315162AbSGMPrG>; Sat, 13 Jul 2002 11:47:06 -0400
+Received: from dingo.clsp.jhu.edu ([128.220.34.67]:31181 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315120AbSGMPrF>;
+	Sat, 13 Jul 2002 11:47:05 -0400
+Date: Sat, 13 Jul 2002 16:00:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kirk Reiser <kirk@braille.uwo.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Advice saught on math functions
+Message-ID: <20020713140024.GB163@elf.ucw.cz>
+References: <E17T15g-0007mP-00@speech.braille.uwo.ca> <E17T1a9-00037I-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17T1a9-00037I-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Sat, 13 Jul 2002, Adam J. Richter wrote:
+> > Are these functions which are supplied by the FPU?  I've looked
+> > through the fpu emulation headers and exp() is the only one I can find
+> 
+> You can't use FPU operations in the x86 kernel.
 
-> Alan Cox writes:
-> |o       Not all ide cdrom devices are ATAPI capable
-> [...]
->
-> 	Are there some non-ATAPI IDE CDROM's that
-> linux-2.5.25/drivers/ide/ide-cdrom.c supports?   I was under
-> the impression that ide-cdrom.c operated only through ATAPI.
-
-Wrong impression. ;)
-Hint: look for STANDARD_ATAPI macro usage.
-
---
-Bartlomiej
-
-> Adam J. Richter     __     ______________   575 Oroville Road
-> adam@yggdrasil.com     \ /                  Milpitas, California 95035
-> +1 408 309-6081         | g g d r a s i l   United States of America
->                          "Free Software For The Rest Of Us."
-
+Actually, you can do kernel_fpu_begin(); any FPU you want;
+kernel_fpu_end(); but it is rarely good idea to do that.
+									Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268959AbRHBPCU>; Thu, 2 Aug 2001 11:02:20 -0400
+	id <S268997AbRHBPOk>; Thu, 2 Aug 2001 11:14:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268986AbRHBPCK>; Thu, 2 Aug 2001 11:02:10 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18962 "EHLO
+	id <S269001AbRHBPOa>; Thu, 2 Aug 2001 11:14:30 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28434 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268959AbRHBPCA>; Thu, 2 Aug 2001 11:02:00 -0400
-Subject: Re: [PATCH] make psaux reconnect adjustable
-To: Andries.Brouwer@cwi.nl
-Date: Thu, 2 Aug 2001 16:03:02 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, garloff@suse.de, torvalds@transmeta.com,
-        brent@linux1.org, linux-kernel@vger.kernel.org, mantel@suse.de,
-        rubini@vision.unipv.it
-In-Reply-To: <no.id> from "Andries.Brouwer@cwi.nl" at Aug 02, 2001 11:55:51 AM
+	id <S268997AbRHBPOS>; Thu, 2 Aug 2001 11:14:18 -0400
+Subject: Re: Re[2]: cannot copy files larger than 40 MB from CD
+To: chrisv@b0rked.dhs.org (Chris Vandomelen)
+Date: Thu, 2 Aug 2001 16:14:39 +0100 (BST)
+Cc: nerijus@users.sourceforge.net (Nerijus Baliunas),
+        dwguest@win.tue.nl (Guest section DW), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31.0107311656420.10245-100000@linux.local> from "Chris Vandomelen" at Jul 31, 2001 04:58:06 PM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15SK06-0000p2-00@the-village.bc.nu>
+Message-Id: <E15SKBL-0000qt-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> who asked for this code): if what I say is correct you should
-> always see 00 following the AA. So, there may exist a more cautious
-> patch that will bite fewer people and does not react to AA but to
-> the sequence AA 00.
+> > Tried vfat, ext2 and reiserfs.
+> >
+> > BTW, kernel is compiled with gcc-2.96-85, glibc-2.2.2-10 (RH 7.1) if
+>                                ^^^^^^^^^^^
+> > that matters.
+> 
+> Have you tried compiling your kernel using kgcc?
+> 
+> gcc-2.96.* is known to compile code incorrectly AFAIK, and shouldn't be
+> used for compiling kernels. (kgcc is egcs-1.1.2, I think.)
 
-2.2 has had the sysctl for ages, and it defaults to off
+[x86 hat on]
+
+egcs-1.1.2 aka kgcc wont build 2.4.7 it seems. gcc 2.96 >= 2.96.75 or so is
+just fine, gcc 2.95-2/3 is fine, gcc 3.0 seems to be doing the right thing

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263881AbSITWgz>; Fri, 20 Sep 2002 18:36:55 -0400
+	id <S263878AbSITWgQ>; Fri, 20 Sep 2002 18:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263883AbSITWgz>; Fri, 20 Sep 2002 18:36:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42509 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263881AbSITWgx>;
-	Fri, 20 Sep 2002 18:36:53 -0400
-Message-ID: <3D8BA416.4030404@mandrakesoft.com>
-Date: Fri, 20 Sep 2002 18:41:26 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S263881AbSITWgP>; Fri, 20 Sep 2002 18:36:15 -0400
+Received: from packet.digeo.com ([12.110.80.53]:41159 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263878AbSITWgP>;
+	Fri, 20 Sep 2002 18:36:15 -0400
+Message-ID: <3D8BA407.E2BFF7E8@digeo.com>
+Date: Fri, 20 Sep 2002 15:41:11 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Grover, Andrew" <andrew.grover@intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ACPI: Call for testers
-References: <EDC461A30AC4D511ADE10002A5072CAD0236DE9E@orsmsx119.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Nikita Danilov <Nikita@Namesys.COM>
+CC: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: locking rules for ->dirty_inode()
+References: <15755.14336.739277.700462@laputa.namesys.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Sep 2002 22:41:14.0875 (UTC) FILETIME=[D3A3E4B0:01C260F6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grover, Andrew wrote:
-> If you're willing, please download the ACPI patch from here:
-> http://sourceforge.net/project/showfiles.php?group_id=36832&release_id=11156
-> 2
+Nikita Danilov wrote:
+> 
+> Hello,
+> 
+> Documentation/filesystems/Locking states that all super operations may
+> block, but __set_page_dirty_buffers() calls
+> 
+>    __mark_inode_dirty()->s_op->dirty_inode()
+> 
+> under mapping->private_lock spin lock.
 
+Actually it doesn't.  We do not call down into the filesystem
+for I_DIRTY_PAGES.
 
-This patch get a number of rejects against 2.4.20-BK-current :(
+set_page_dirty() is already called under locks, via __free_pte (pagetable
+teardown).  2.4 does this as well.
 
-Also, posting the patch's real URL would be useful :)  I can't stand 
-SourceForge's multiple levels of indirection, just to get to a file. 
-For other's, here's the 2.4.20-pre7 patch, without indirection:
-http://unc.dl.sourceforge.net/sourceforge/acpi/acpi-20020918-2.4.20-pre7.diff.gz
-
-Is there a BK repo I can pull from to get these changes?
-
-	Jeff
-
-
-
+But I'll make the change anyway.  I think it removes any
+ranking requirements between mapping->page_lock and 
+mapping->private_lock, which is always a nice thing.

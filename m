@@ -1,95 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261828AbTJABT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 21:19:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTJABT5
+	id S261841AbTJABww (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 21:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTJABww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 21:19:57 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:51849 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261828AbTJABTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 21:19:55 -0400
-Subject: Re: Kernel includefile bug not fixed after a year :-(
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       schilling@fokus.fraunhofer.de
-Content-Type: text/plain
-Organization: 
-Message-Id: <1064970349.736.14.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 30 Sep 2003 21:05:50 -0400
+	Tue, 30 Sep 2003 21:52:52 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:58762 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261841AbTJABwu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 21:52:50 -0400
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM LTC
+To: Chris Rankin <rankincj@yahoo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: APIC error on SMP machine
+Date: Tue, 30 Sep 2003 18:52:47 -0700
+User-Agent: KMail/1.5
+References: <3F79F8BB.2080905@yahoo.com>
+In-Reply-To: <3F79F8BB.2080905@yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309301852.47835.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling writes:
-
->> Also Joerg, now that I have your attention: There is a bug
->> somewhere so that if I set the kernel HZ to 400, recompile
->> everything including `cdrecord`, I can no longer record a CD.
->> I think that somewhere, somebody is using a raw jiffie-count
->> instead of multiplying by HZ in the time-out code. I've check
->> through all the SCSI stuff, and I use SCSI disks exclusively.
->> I think something in your code needs fixing. This is for kernel
->> version 2.4.22
+On Tuesday 30 September 2003 2:42 pm, Chris Rankin wrote:
+> Linux-2.4.22-SMP, 1 GB RAM, devfs, gcc-3.2.3.
 >
-> Cdrecord and pther programs too includes <sys/param.h>
-
-If that's a kernel header, you have a bug.
-
-> If you change HZ in the kernel include files and recompile
-> your problems suffer from the same sort of inconsistencies
-> that have been the reason for my initial mail.
+> Hi,
 >
-> If Linux likes to support changes to HZ, then it needs to
-> support POSIX interfaces. On Solaris, sys/param.h looks this way:
+> Today, my dual PIII (Coppermine) refused to boot, and wrote a large number
+> of these messages to the serial console instead:
 >
-> #define        HZ              ((clock_t)_sysconf(_SC_CLK_TCK))
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+>
+> Can anyone tell me what these might mean, please? The kernel source implies
+> that it's a "Send accept error", but this doesn't help me in an "Ah, I can
+> fix that!" sense.
+>
+> Does this APIC error just mean that the CPU is unhappy in this slot, and is
+> refusing to listen to the motherboard? Or is the motherboard refusing to
+> listen to the CPU?
 
-On a Linux 2.4.xx system and above, you do this:
+Neither.  An APIC send accept error means that when trying to send an 
+interrupt, it was not accepted by the target.  In this case, the target is a  
+CPU, either your other CPU or the same one (a CPU can send itself an 
+interrupt).
 
-/////////////////////////////////////////////////////
-#ifndef AT_CLKTCK
-#define AT_CLKTCK       17    // frequency of times()
-#endif
+While there are several reasons why this can happen, the most common ones are:
 
-#define NOTE_NOT_FOUND 42
+1) The target CPU is "full".  The local APIC on P54Cs through P3s only has two 
+interrupt latches per interrupt "level", which is the high nibble of the IRQ 
+vector number.  So, if a CPU had already latched interrupt vectors 0x30 and 
+0x3A, it would have to reject any other 0x3X vector that was sent until it 
+could service one of the two latched vectors.
 
-//extern char** environ;  // if _GNU_SOURCE not defined
+You can force this to happen by manually binding too many IRQs that happen to 
+be on the same "level" to one CPU, then causing a lot of interrupt traffic on 
+those devices.
 
-// for ELF executables, notes are pushed before environment and args
-// (Portable too! This even works on PA_RISC for some reason.)
-static unsigned long find_elf_note(unsigned long findme){
-  unsigned long *ep = (unsigned long *)environ;
-  while(*ep++);
-  while(*ep){
-    if(ep[0]==findme) return ep[1];
-    ep+=2;
-  }
-  return NOTE_NOT_FOUND;
-}
+In order to avoid this problem, Linux spreads the IRQs among as many vector 
+levels as possible.  Still, the vector assignment is done before any devices 
+have requested interrupts.  You may get unlucky and have 3 devices on one 
+level.
 
-// ...
+2) The interrupt cannot be delivered because something is wrong with it.  This 
+can happen if the kernel screws up and picks "clustered" APIC mode on a 
+"flat" system or vice versa.  A dual P3 system should be flat.  Check your 
+dmesg log to make sure it was properly detected.  (This seldom happens unless 
+you're doing interrupt development work in Linux.)
 
-Hertz = find_elf_note(AT_CLKTCK);
+3) Maybe the other CPU is broken and physically cannot accept the interrupt.  
+Do any previous kernels boot?
 
-/////////////////////////////////////////////////////
-
-Don't trust any _sysconf() junk. It's broken.
-
-> You may even change HZ on a running Solaris system.... the
-> only programs that are affected may be the ones that have
-> timeouts while the change has been done.
-
-Cute. It's bloat though, because it turns constant
-expressions into variable ones.
-
-> The problem is that the timeouts in the SCSI interface are
-> based on HZ rather than being abstract from kernel internals.
-
-That's a bug. They should be in terms of USER_HZ,
-milliseconds, centiseconds, microseconds, or nanoseconds.
-Pick something good and make a patch.
+> Background:
+> This machine has been misbehaving for a while. I thought I had worked
+> around the problem by underclocking the FSB from 133 MHz to 100 MHz, but
+> that now looks like it was just a "reprieve". I have tried running "nosmp",
+> "pci=noacpi" and "noapic pci=noacpi" without success, and have resorted to
+> yanking the CPU out of this slot entirely. (I suspect that the CPU is fine,
+> however.) I have also restored the FSB to 133 MHz, so I am currently
+> running the SMP kernel on a single 933 MHz PIII.
+>
+> Cheers,
+> Chris
+>
+> -
 
 
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm

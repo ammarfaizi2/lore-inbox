@@ -1,127 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbTEUTrx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 15:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbTEUTrx
+	id S262256AbTEUTxS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 15:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbTEUTxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 15:47:53 -0400
-Received: from hoemail2.lucent.com ([192.11.226.163]:17148 "EHLO
-	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S262251AbTEUTrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 15:47:51 -0400
-MIME-Version: 1.0
+	Wed, 21 May 2003 15:53:18 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:15810 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262256AbTEUTxQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 15:53:16 -0400
+Date: Wed, 21 May 2003 13:07:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Manuel Estrada Sainz <ranty@debian.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, jt@hpl.hp.com,
+       Pavel Roskin <proski@gnu.org>, Oliver Neukum <oliver@neukum.org>,
+       David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [PATCH] Re: request_firmware() hotplug interface, third round and a halve
+Message-ID: <20030521200736.GA2606@kroah.com>
+References: <20030517221921.GA28077@ranty.ddts.net> <20030521072318.GA12973@kroah.com> <20030521185212.GC12677@ranty.ddts.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16075.56045.77079.993521@gargle.gargle.HOWL>
-Date: Wed, 21 May 2003 16:00:45 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: linux-kernel@vger.kernel.org
-Subject: Cyclades Cyclom-Y ISA on 2.5.69
-In-Reply-To: <16075.50697.683216.347529@napali.hpl.hp.com>
-References: <16075.8557.309002.866895@napali.hpl.hp.com>
-	<16075.50697.683216.347529@napali.hpl.hp.com>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Disposition: inline
+In-Reply-To: <20030521185212.GC12677@ranty.ddts.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 21, 2003 at 08:52:12PM +0200, Manuel Estrada Sainz wrote:
+> On Wed, May 21, 2003 at 12:23:18AM -0700, Greg KH wrote:
+> > Oops, forgot to respond to this, sorry...
+> > 
+> > On Sun, May 18, 2003 at 12:19:22AM +0200, Manuel Estrada Sainz wrote:
+> [snip]
+> > >  - There is a timeout, changeable from userspace. Feedback on a
+> > >    reasonable default value appreciated.
+> > 
+> > Is this really needed?  Especially as you now have:
+> 
+>  There is currently no way to know if hotplug couldn't be called at all
+>  or if it failed because it didn't have firmware load support.
+> 
+>  If that happens, we would be waiting for ever. And I'd rather make that
+>  a countable number of seconds :)
+> 
+>  I'll make '0' mean no timeout at all.
 
-Hi all,
+Ok, that's fine with me.  A bit of documentation for all of this might
+be nice.  Just add some kerneldoc comments to your public functions, and
+you should be fine.
 
-Has anyone else run into a problem compiling the Cyclades serial board
-driver under 2.5.x when you have ISA defined as well?  I've done a
-quick hack patch to make it compile.  I've been running 2.4.21-rc*
-lately, so it's time I started to actually test this patch below and
-see how it works.  
+>  I am not sure on how to implement "if a driver that uses it is
+>  selected" and not sure on where to add the Kconfig entries to make it
+>  available to out-of-kernel modules.
 
-I read the file Documentation cli-sti-removal.txt and I think I've
-done the right things here.
+You could do something like what has been done for the mii module.  Look
+at lib/Makefile and drivers/usb/net/Makefile.mii for an example.
 
-John
-   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-	 stoffel@lucent.com - http://www.lucent.com - 978-399-0479
+I'm not saying that this is the best way, but it could be one solution.
+Ideally, the user would never have to select the firmware core option,
+it would just get automatically built if a driver that needs it is also
+selected.
 
+>  Patches:
 
+The patches look great.  Add a bit of documentation, and some build
+integration, and I'd think you are finished.  Unless anyone else has any
+objections?
 
-*** drivers/char/cyclades.c.org Wed May 21 11:45:48 2003
---- drivers/char/cyclades.c     Wed May 21 12:07:53 2003
-***************
-*** 872,877 ****
---- 872,878 ----
-  static int cyz_issue_cmd(struct cyclades_card *, uclong, ucchar,
-uclong);
-  #ifdef CONFIG_ISA
-  static unsigned detect_isa_irq (volatile ucchar *);
-+ spinlock_t isa_card_lock;
-  #endif /* CONFIG_ISA */
-  
-  static int cyclades_get_proc_info(char *, char **, off_t , int , int
-  *, void *);
-***************
-*** 1056,1069 ****
-      udelay(5000L);
-  
-      /* Enable the Tx interrupts on the CD1400 */
-!     save_flags(flags); cli();
-        cy_writeb((u_long)address + (CyCAR<<index), 0);
-        cyy_issue_cmd(address, CyCHAN_CTL|CyENB_XMTR, index);
-  
-        cy_writeb((u_long)address + (CyCAR<<index), 0);
-        cy_writeb((u_long)address + (CySRER<<index), 
-                cy_readb(address + (CySRER<<index)) | CyTxRdy);
-!     restore_flags(flags);
-  
-      /* Wait ... */
-      udelay(5000L);
---- 1057,1070 ----
-      udelay(5000L);
-  
-      /* Enable the Tx interrupts on the CD1400 */
-!     spin_lock_irqsave(&isa_card_lock,flags);
-        cy_writeb((u_long)address + (CyCAR<<index), 0);
-        cyy_issue_cmd(address, CyCHAN_CTL|CyENB_XMTR, index);
-  
-        cy_writeb((u_long)address + (CyCAR<<index), 0);
-        cy_writeb((u_long)address + (CySRER<<index), 
-                cy_readb(address + (CySRER<<index)) | CyTxRdy);
-!     spin_unlock_irqrestore(&isa_card_lock, flags);
-  
-      /* Wait ... */
-      udelay(5000L);
-***************
-*** 5762,5768 ****
-      }
-  #endif /* CONFIG_CYZ_INTR */
-  
-!     save_flags(flags); cli();
-  
-      if ((e1 = tty_unregister_driver(&cy_serial_driver)))
-              printk("cyc: failed to unregister Cyclades serial
-              driver(%d)\n",
---- 5763,5769 ----
-      }
-  #endif /* CONFIG_CYZ_INTR */
-  
-!     spin_lock_irqsave(&isa_card_lock, flags);
-  
-      if ((e1 = tty_unregister_driver(&cy_serial_driver)))
-              printk("cyc: failed to unregister Cyclades serial
-              driver(%d)\n",
-***************
-*** 5771,5777 ****
-              printk("cyc: failed to unregister Cyclades callout
-              driver (%d)\n", 
-                e2);
-  
-!     restore_flags(flags);
-  
-      for (i = 0; i < NR_CARDS; i++) {
-          if (cy_card[i].base_addr != 0) {
---- 5772,5778 ----
-              printk("cyc: failed to unregister Cyclades callout
-          driver (%d)\n", 
-                e2);
-  
-!     spin_unlock_irqrestore(&isa_card_lock, flags);
-  
-      for (i = 0; i < NR_CARDS; i++) {
-          if (cy_card[i].base_addr != 0) {
+Very nice job, thanks again for doing this.
+
+greg k-h

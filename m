@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263394AbTFXXjw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 19:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTFXXjv
+	id S263418AbTFXXhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 19:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTFXXhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 19:39:51 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:28621 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263295AbTFXXjp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 19:39:45 -0400
-Subject: Re: 2.5.73 compile results
-From: John Cherry <cherry@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030624183156.GA11266@mars.ravnborg.org>
-References: <1056475577.9839.110.camel@cherrypit.pdx.osdl.net>
-	 <20030624173900.GV3710@fs.tum.de>
-	 <1056478596.9839.118.camel@cherrypit.pdx.osdl.net>
-	 <20030624183156.GA11266@mars.ravnborg.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056498976.9839.201.camel@cherrypit.pdx.osdl.net>
+	Tue, 24 Jun 2003 19:37:09 -0400
+Received: from uni01du.unity.ncsu.edu ([152.1.13.101]:41609 "EHLO
+	uni01du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S263418AbTFXXhC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 19:37:02 -0400
+From: jlnance@unity.ncsu.edu
+Date: Tue, 24 Jun 2003 19:50:49 -0400
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.72: follow_mount / follow_link
+Message-ID: <20030624235049.GA9292@ncsu.edu>
+References: <3EF86337.1020103@sun.com> <20030624145418.GP6754@parcelfarce.linux.theplanet.co.uk> <bd9ri0$fn2$1@cesium.transmeta.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 24 Jun 2003 16:56:16 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bd9ri0$fn2$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The sparse output is a bit noisy right now.  I'll go ahead and post the
-sparse output with the rest of the stats, but it is not for the faint of
-heart.
+On Tue, Jun 24, 2003 at 08:42:56AM -0700, H. Peter Anvin wrote:
 
-On Tue, 2003-06-24 at 11:31, Sam Ravnborg wrote:
-> On Tue, Jun 24, 2003 at 11:16:37AM -0700, John Cherry wrote:
-> > Unfortunately, the build continues even when it runs into compile or
-> > link errors.
-> I just wnat to add here that the build continue because 'make -k' is
-> used because the script counts all errors that occur - not just the first
-> one is see.
-> 
-> John - any progress in sparse support - or too noisy?
-> 
-> 	Sam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Unfortunately, this is probably the only realistic way to ever get
+> working direct mounts, so please don't dismiss it out of hand.
+> follow_link on a directory has turned out to be a really useful way of
+> doing automounting.
 
+Hi Peter,
+    I have always wondered why direct mounts, as well as things like
+/net/host are difficult with Linux.  If you have a couple of minutes,
+would you explain the problem?  Also, do you have any idea how Solaris
+does this and is it easier there?
+
+Thanks,
+
+Jim

@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUFNR6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263743AbUFNSGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbUFNR6g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 13:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUFNR6g
+	id S263743AbUFNSGc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 14:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUFNSG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 13:58:36 -0400
-Received: from mail.kroah.org ([65.200.24.183]:13778 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263713AbUFNR6c (ORCPT
+	Mon, 14 Jun 2004 14:06:28 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:63471 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263640AbUFNSGZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 13:58:32 -0400
-Date: Mon, 14 Jun 2004 10:57:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Fix PME bits in pci.txt
-Message-ID: <20040614175705.GA27216@kroah.com>
-References: <20040614172137.GA22012@k3.hellgate.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Jun 2004 14:06:25 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] DM 0/5: Device-mapper cleanups
+Date: Mon, 14 Jun 2004 13:09:31 +0000
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040614172137.GA22012@k3.hellgate.ch>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406141309.31127.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 07:21:37PM +0200, Roger Luethi wrote:
-> Signed-off-by: Roger Luethi <rl@hellgate.ch>
-> 
-> --- linux-2.6.7-rc3-bk6/Documentation/power/pci.txt.orig	2004-06-14 18:54:24.793573267 +0200
-> +++ linux-2.6.7-rc3-bk6/Documentation/power/pci.txt	2004-06-14 18:54:40.962133902 +0200
-> @@ -286,11 +286,11 @@
->  +------------------+
->  |  Bit  |  State   |
->  +------------------+
-> -|  15   |   D0     |
-> -|  14   |   D1     |
-> +|  11   |   D0     |
-> +|  12   |   D1     |
->  |  13   |   D2     |
-> -|  12   |   D3hot  |
-> -|  11   |   D3cold |
-> +|  14   |   D3hot  |
-> +|  15   |   D3cold |
->  +------------------+
+Cleanups for Device-Mapper based on feedback from kcopyd, dm-io, and 
+dm-mirror. These are based on 2.6.7-rc3-mm2.
 
-Good catch, applied, thanks.
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/
 
-greg k-h
+
+Revision 1:
+  Create/destroy kcopyd on demand.
+
+Revision 2:
+  Use structure assignments instead of memcpy's.
+
+Revision 3:
+  dm-io: Proper error handling when trying to read from multiple regions.
+
+Revision 4:
+  dm-raid1.c: Make struct region::delayed_bios a bio_list instead of a bio*.
+
+Revision 5:
+  dm-raid1.c: In rh_exit(), use list_for_each_entry_safe

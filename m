@@ -1,68 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVCLASu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVCLA0i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbVCLASu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 19:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVCLARG
+	id S261542AbVCLA0i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 19:26:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVCLA0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 19:17:06 -0500
-Received: from gate.crashing.org ([63.228.1.57]:19172 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261387AbVCLAOY (ORCPT
+	Fri, 11 Mar 2005 19:26:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:53481 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261542AbVCLA0e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 19:14:24 -0500
-Subject: Re: AGP bogosities
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Paul Mackerras <paulus@samba.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       werner@sgi.com, Linus Torvalds <torvalds@osdl.org>, davej@redhat.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110583375.4822.88.camel@eeyore>
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
-	 <200503102002.47645.jbarnes@engr.sgi.com>
-	 <1110515459.32556.346.camel@gaston>
-	 <200503110839.15995.jbarnes@engr.sgi.com> <1110563965.4822.22.camel@eeyore>
-	 <16946.7941.404582.764637@cargo.ozlabs.ibm.com>
-	 <1110583375.4822.88.camel@eeyore>
-Content-Type: text/plain
-Date: Sat, 12 Mar 2005 11:12:38 +1100
-Message-Id: <1110586359.5810.139.camel@gaston>
+	Fri, 11 Mar 2005 19:26:34 -0500
+Date: Fri, 11 Mar 2005 16:23:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adam Belay <abelay@novell.com>
+Cc: bunk@stusta.de, perex@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/pnp/: possible cleanups
+Message-Id: <20050311162320.15007aa3.akpm@osdl.org>
+In-Reply-To: <1110585763.12485.223.camel@localhost.localdomain>
+References: <20050311181606.GC3723@stusta.de>
+	<1110585763.12485.223.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adam Belay <abelay@novell.com> wrote:
+>
+> This patch essential makes it impossible for PnP protocols to be
+> modules.  Currently, they are all in-kernel.  If that is acceptable...,
+> then this patch looks fine to me.  Any comments?
 
-> I still don't quite understand this.  If the host bridge is not a
-> PCI device, what PCI device contains the AGP capability that controls
-> the host bridge?  I assume you're saying that you are required to
-> have TWO PCI devices that have the AGP capability, one for the AGP
-> device and one for the bridge.
-> 
-> HP boxes certainly don't have that (zx6000 sample below).  I guess
-> it wouldn't be the first time we deviated from a spec ;-)
+You're the maintainer...
 
-We are basically hitting a "hole" in the PCI spec itself :) It doesn't
-really defines how a host bridge can expose itself as a device. That
-means that in most cases, the host bridge either isn't visible at all,
-or is as a random device at the first level (which makes it a sibling of
-other devices, quite broken ....). Also, there is no standard "devfn"
-for it, so it can be anywhere and there is no "simple" way of knowing
-which devie is actually the host in a generic way. Most of the time,
-looking for a devie with the class "host bridge" will work, but it's not
-guaranteed. Some hosts also expose the AGP stuff differently.
+If someone converts a protocol to be moduar, presumably they will re-add
+the needed exports to support that.
 
-In some cases, like Apple U3 HT host, it also has a set of registers
-that mimmic a PCI config space, but aren't implemented in the PCI config
-space proper, and thus, unless you add special case to your pci_ops, you
-won't see it on the bus. (Apple's AGP host appears as a device on it's
-own bus though).
-
-So while AGP requires a set of PCI config space registers with the AGP
-capabilities for the host, it's very possible that you have those in a
-space that don't appear on the PCI (just as MMIO registers on your
-bridge somewhere), or whatever other fancy setup. In fact, that part of
-the spec hits the above hole, so I wouldn't be surprised if vendors
-decided to ignore it and do fancy things.
-
-Ben.
+Are there likely to be any out-of-tree modular protocols in existence?
 

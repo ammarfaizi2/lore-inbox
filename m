@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267750AbRGUROO>; Sat, 21 Jul 2001 13:14:14 -0400
+	id <S267754AbRGURPo>; Sat, 21 Jul 2001 13:15:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267754AbRGURNy>; Sat, 21 Jul 2001 13:13:54 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:8205 "EHLO mail3.aracnet.com")
-	by vger.kernel.org with ESMTP id <S267750AbRGURNs>;
-	Sat, 21 Jul 2001 13:13:48 -0400
-Date: Sat, 21 Jul 2001 10:13:52 -0700 (PDT)
-From: Paul Buder <paulb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Large ramdisk crashes system with 2.4.7
-Message-ID: <Pine.LNX.4.33.0107211011540.15892-100000@shell1.aracnet.com>
+	id <S267756AbRGURPe>; Sat, 21 Jul 2001 13:15:34 -0400
+Received: from ns.suse.de ([213.95.15.193]:18701 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S267754AbRGURPW>;
+	Sat, 21 Jul 2001 13:15:22 -0400
+Date: Sat, 21 Jul 2001 19:15:26 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: "peter k." <spam-goes-to-dev-null@gmx.net>
+Cc: David Schwartz <davids@webmaster.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.7: wtf is "ksoftirqd_CPU0"
+In-Reply-To: <002f01c11202$60f22100$c20e9c3e@host1>
+Message-ID: <Pine.LNX.4.30.0107211913550.10044-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-A large ramdisk will crash the system with kernel 2.4.7.  This is a
-128 meg system with a lilo parameter of 'ramdisk=100000', an ext2 fs
-on /dev/ram0 created with 80 megs and an attempted dd from /dev/zero
-of 60 megs.  I reported this for 2.4.5 and 2.4.6 also.  I notice that
-bdflush is looping through the same eight functions about forty times at
-the time of the crash which can't be a good thing.  Here is the ksymoops
-output for bdflush.
+On Sat, 21 Jul 2001, peter k. wrote:
 
+> why wasnt it run in previous kernels?
 
-Trace; c012a3fd <__alloc_pages+109/278>
-Trace; c012a2f2 <_alloc_pages+16/18>
-Trace; c01333c2 <grow_buffers+3e/18c>
-Trace; c01315c4 <refill_freelist+1c/50>
-Trace; c01315d0 <refill_freelist+28/50>
+Because it was only added to mainline in 2.4.7
 
-# Starts looping here
+> im just wondering why it suddenly
+> appeared without anyone saying a word about it ;)
 
-Trace; c0131ab4 <getblk+158/16c>
-Trace; c017d5e2 <rd_make_request+72/f4>
-Trace; c0175f4c <generic_make_request+110/11c>
-Trace; c0175fb2 <submit_bh+5a/74>
-Trace; c01761bb <ll_rw_block+1ef/260>
-Trace; c01338fa <flush_dirty_buffers+9e/e4>
-Trace; c013396e <wakeup_bdflush+2e/34>
-Trace; c01315de <refill_freelist+36/50>
+>From the changelog...
 
-# Round two
+-pre8:
+- Paul Mackerras: PPC updates (softirq)
 
-Trace; c0131ab4 <getblk+158/16c>
-Trace; c017d5e2 <rd_make_request+72/f4>
-Trace; c0175f4c <generic_make_request+110/11c>
-Trace; c0175fb2 <submit_bh+5a/74>
-Trace; c01761bb <ll_rw_block+1ef/260>
-Trace; c01338fa <flush_dirty_buffers+9e/e4>
-Trace; c013396e <wakeup_bdflush+2e/34>
-Trace; c01315de <refill_freelist+36/50>
+-pre5:
+- Andrea Arkangeli: softirq cleanups and fixes, and everybody is happy
+  again (ie I changed some details to make me happy ;)
 
+There were also several discussions about Andreas ksoftirq patches
+a few weeks back.
+
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

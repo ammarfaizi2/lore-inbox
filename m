@@ -1,183 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317096AbSHJRsY>; Sat, 10 Aug 2002 13:48:24 -0400
+	id <S317102AbSHJRxD>; Sat, 10 Aug 2002 13:53:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317101AbSHJRsY>; Sat, 10 Aug 2002 13:48:24 -0400
-Received: from verein.lst.de ([212.34.181.86]:35337 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S317096AbSHJRsX>;
-	Sat, 10 Aug 2002 13:48:23 -0400
-Date: Sat, 10 Aug 2002 19:51:54 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] misc pagecache cleanups / tweaks
-Message-ID: <20020810195154.A5531@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S317107AbSHJRxD>; Sat, 10 Aug 2002 13:53:03 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:5906 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S317102AbSHJRxA>;
+	Sat, 10 Aug 2002 13:53:00 -0400
+Message-ID: <3D55539F.6000309@namesys.com>
+Date: Sat, 10 Aug 2002 21:55:43 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: Hans Reiser <reiser@bitshadow.namesys.com>, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK] [PATCH] reiserfs changeset 7 of 7 to include into 2.4 tree
+References: <200208091636.g79GadA9007889@bitshadow.namesys.com> <3D542B88.6F7007E4@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- inline grab_cache_page() in pagemap.h, it's just a simple wrapper
-  around find_or_create_page()
-- rename (__)remove_inode_page to (__)remove_from_page_cache and
-  move them from mm.h and swap.h to pagemap.h because they reverse
-  add_to_page_cache and that's where they belong.
+Andrew Morton wrote:
+
+>Hans Reiser wrote:
+>  
+>
+>>Hello!
+>>
+>>   This changeset implements new block allocator for reiserfs and adds one
+>>   more tail policy. This is a product of continuous NAMESYS research in this
+>>   area. This piece of code incorporates work by Alexander Zarochencev,
+>>   Jeff Mahoney and Oleg Drokin.
+>>    
+>>
+>
+>What Christoph said ;)
+>
+>Block allocation algorithms are really, really important.  I'd be very interested
+>in a description of what this change does, what problems it is solving, how it
+>solves them, observed results, testing methodology, etc.   Is such a thing
+>available?
+>
+>Thanks.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+The block allocator code is one of the key remaining pieces we would 
+have fixed before 2.4 shipped if we had had time.  The block allocator 
+code that shipped is simply ugly.  
+
+The block allocation algorithms in ReiserFS were once extremely simple. 
+ They would attempt to allocate a block near to its left neighbor in the 
+tree ordering, searching for a free block starting from the block number 
+of that neighbor, and doing the search in increasing block number order. 
+ (Increasing not decreasing block number order was significant to 
+performance we found.)
+
+The problem with this algorithm occurred when there were no free blocks 
+anywhere near that neighbor.  It would perform a linear scan of the 
+bitmaps, and this scan might consume quite a lot of CPU as it checked 
+each bit.  Additionally, if you cannot get a free block near the 
+neighbor, then proximity to the neighbor is actually a bad thing to 
+achieve, because it means proximity to a full part of the disk.
+
+So long ago I suggested that we try attaching a count to the bitmap, and 
+not bother to scan its bits if that count was not zero.  This new code 
+does that.
+
+Additionally, Jeff Mahoney wrote code to pick a random bitmap to go to 
+if the current bitmap was full, and to try to make it a bitmap that is 
+less than 90% full.  This new code does that by default.  (Oleg rewrote 
+Jeff's code, and I have lost track of what aspects of it are Jeff's vs. 
+Oleg's.)
+
+However, we also tried a whole bunch of other things, and it looks like 
+Jeff's/Oleg's code makes those other things not so valuable because 
+those other things were achieving value by doing what Jeff's/Oleg's code 
+does but less thoroughly or even as an unintended side effect.
+
+In 2.4 we have code that takes all of the formatted nodes, and tries to 
+put them into the first 10% of the disk.  This makes me uncomfortable, 
+because the 10% number is inflexible.  Maybe I am wrong to dislike this. 
+ More experiments are needed, though I may wait for V4.1 to do them.  It 
+also does things with displacing things according to a hash function, 
+which was a broken hash function at one time (you could tell that it 
+didn't work the way that the programmer intended, and that it put things 
+near to the start of the disk by accident due to directory ids tending 
+to be numerically smaller than the device size in block numbers).  I 
+can't remember if that hash function has been fixed in the 2.4.19 code 
+tree or if it is only fixed in our new patch.
+
+We experimented with dispersing directories randomly across this disk.  
+
+We experimented with randomly displacing files large enough to have 
+unformatted nodes (option in new allocator allows you to displace files 
+larger than some arbitrary size).
+
+In the end I decided that the improved bitmap scanning code plus the 
+avoidance of 90% full bitmaps when nothing near is free plus starting 
+from the left neighbor was close to as good as any other combination, 
+and had the advantage of being simpler, so I made it the default, 
+because I trust more in the robustness of simpler algorithms that I 
+understand more fully.
+
+The default code path is either far simpler than the current code, or 
+clearly superior, depending on what part of it one considers.  I do not 
+claim that I have found the right answer, but I have probably found the 
+best that I will invent for V3.
+
+Almost everything that we at Namesys are going to change in V3 is 
+written and going into the next several 2.4.20-pre* releases.  The only 
+thing that I know of that remains and is unwritten is to perhaps revert 
+to the tail conversion policy used in Linux 2.2.* (the current code is 
+very inefficient in its tail handling, and one of us thinks it might 
+speed up if we go back to the old way, and I'd be interested to see a 
+benchmark of it.)  We would probably like to also junk the 4k at a time 
+read code, but most likely that will be done in V4 (Linux 2.5/2.6) not V3.
+
+V3 will probably change very little after 2.4.20, and that is what our 
+users need in the period while V4 stabilizes   ---  they need something 
+that always just works albeit not as fast as V4.
+
+-- 
+Hans
 
 
---- linux/include/linux/mm.h	2002/08/02 19:57:07	1.93
-+++ linux/include/linux/mm.h	2002/08/10 17:41:25
-@@ -453,7 +453,6 @@ static inline int can_vma_merge(struct v
- 
- struct zone_t;
- /* filemap.c */
--extern void remove_inode_page(struct page *);
- extern unsigned long page_unuse(struct page *);
- extern void truncate_inode_pages(struct address_space *, loff_t);
- 
---- linux/include/linux/pagemap.h	2002/07/30 21:04:55	1.43
-+++ linux/include/linux/pagemap.h	2002/08/10 17:41:25
-@@ -42,8 +42,14 @@ extern struct page * find_trylock_page(s
- extern struct page * find_or_create_page(struct address_space *mapping,
- 				unsigned long index, unsigned int gfp_mask);
- 
--extern struct page * grab_cache_page(struct address_space *mapping,
--				unsigned long index);
-+/*
-+ * Returns locked page at given index in given cache, creating it if needed.
-+ */
-+static inline struct page *grab_cache_page(struct address_space *mapping, unsigned long index)
-+{
-+	return find_or_create_page(mapping, index, mapping->gfp_mask);
-+}
-+
- extern struct page * grab_cache_page_nowait(struct address_space *mapping,
- 				unsigned long index);
- extern struct page * read_cache_page(struct address_space *mapping,
-@@ -52,6 +58,8 @@ extern struct page * read_cache_page(str
- 
- extern int add_to_page_cache(struct page *page,
- 		struct address_space *mapping, unsigned long index);
-+extern void remove_from_page_cache(struct page *page);
-+extern void __remove_from_page_cache(struct page *page);
- 
- static inline void ___add_to_page_cache(struct page *page,
- 		struct address_space *mapping, unsigned long index)
---- linux/include/linux/swap.h	2002/08/02 19:57:07	1.61
-+++ linux/include/linux/swap.h	2002/08/10 17:41:25
-@@ -133,7 +133,6 @@ extern unsigned long totalhigh_pages;
- extern unsigned int nr_free_pages(void);
- extern unsigned int nr_free_buffer_pages(void);
- extern unsigned int nr_free_pagecache_pages(void);
--extern void __remove_inode_page(struct page *);
- 
- /* Incomplete types for prototype declarations: */
- struct task_struct;
---- linux/kernel/ksyms.c	2002/08/02 19:57:07	1.154
-+++ linux/kernel/ksyms.c	2002/08/10 17:41:26
-@@ -285,7 +285,7 @@ EXPORT_SYMBOL(poll_freewait);
- EXPORT_SYMBOL(ROOT_DEV);
- EXPORT_SYMBOL(find_get_page);
- EXPORT_SYMBOL(find_lock_page);
--EXPORT_SYMBOL(grab_cache_page);
-+EXPORT_SYMBOL(find_or_create_page);
- EXPORT_SYMBOL(grab_cache_page_nowait);
- EXPORT_SYMBOL(read_cache_page);
- EXPORT_SYMBOL(vfs_readlink);
---- linux/mm/filemap.c	2002/08/02 19:57:07	1.128
-+++ linux/mm/filemap.c	2002/08/10 17:41:28
-@@ -68,7 +68,7 @@ spinlock_t pagemap_lru_lock __cacheline_
-  * sure the page is locked and that nobody else uses it - or that usage
-  * is safe.  The caller must hold a write_lock on the mapping's page_lock.
-  */
--void __remove_inode_page(struct page *page)
-+void __remove_from_page_cache(struct page *page)
- {
- 	struct address_space *mapping = page->mapping;
- 
-@@ -83,7 +83,7 @@ void __remove_inode_page(struct page *pa
- 	dec_page_state(nr_pagecache);
- }
- 
--void remove_inode_page(struct page *page)
-+void remove_from_page_cache(struct page *page)
- {
- 	struct address_space *mapping = page->mapping;
- 
-@@ -91,7 +91,7 @@ void remove_inode_page(struct page *page
- 		PAGE_BUG(page);
- 
- 	write_lock(&mapping->page_lock);
--	__remove_inode_page(page);
-+	__remove_from_page_cache(page);
- 	write_unlock(&mapping->page_lock);
- }
- 
-@@ -143,7 +143,7 @@ void invalidate_inode_pages(struct inode
- 			goto unlock;
- 
- 		__lru_cache_del(page);
--		__remove_inode_page(page);
-+		__remove_from_page_cache(page);
- 		unlock_page(page);
- 		page_cache_release(page);
- 		continue;
-@@ -186,7 +186,7 @@ static void truncate_complete_page(struc
- 
- 	ClearPageDirty(page);
- 	ClearPageUptodate(page);
--	remove_inode_page(page);
-+	remove_from_page_cache(page);
- 	page_cache_release(page);
- }
- 
-@@ -809,15 +809,6 @@ repeat:
- }
- 
- /*
-- * Returns locked page at given index in given cache, creating it if needed.
-- */
--struct page *grab_cache_page(struct address_space *mapping, unsigned long index)
--{
--	return find_or_create_page(mapping, index, mapping->gfp_mask);
--}
--
--
--/*
-  * Same as grab_cache_page, but do not wait if the page is unavailable.
-  * This is intended for speculative data generators, where the data can
-  * be regenerated if the page couldn't be grabbed.  This routine should
---- linux/mm/swap_state.c	2002/08/02 19:57:07	1.44
-+++ linux/mm/swap_state.c	2002/08/10 17:41:29
-@@ -95,7 +95,7 @@ void __delete_from_swap_cache(struct pag
- 	BUG_ON(!PageSwapCache(page));
- 	BUG_ON(PageWriteback(page));
- 	ClearPageDirty(page);
--	__remove_inode_page(page);
-+	__remove_from_page_cache(page);
- 	INC_CACHE_INFO(del_total);
- }
- 
-@@ -206,7 +206,7 @@ int move_to_swap_cache(struct page *page
- 	err = radix_tree_reserve(&swapper_space.page_tree, entry.val, &pslot);
- 	if (!err) {
- 		/* Remove it from the page cache */
--		__remove_inode_page (page);
-+		__remove_from_page_cache(page);
- 
- 		/* Add it to the swap cache */
- 		*pslot = page;
---- linux/mm/vmscan.c	2002/08/02 19:57:07	1.106
-+++ linux/mm/vmscan.c	2002/08/10 17:41:29
-@@ -288,7 +288,7 @@ page_freeable:
- 
- 		/* point of no return */
- 		if (likely(!PageSwapCache(page))) {
--			__remove_inode_page(page);
-+			__remove_from_page_cache(page);
- 			write_unlock(&mapping->page_lock);
- 		} else {
- 			swp_entry_t swap;
+

@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264683AbSLaSn6>; Tue, 31 Dec 2002 13:43:58 -0500
+	id <S264688AbSLaSzT>; Tue, 31 Dec 2002 13:55:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264688AbSLaSn6>; Tue, 31 Dec 2002 13:43:58 -0500
-Received: from fc2.capaccess.org ([151.200.199.52]:11279 "EHLO
-	fc2.capaccess.org") by vger.kernel.org with ESMTP
-	id <S264683AbSLaSn6>; Tue, 31 Dec 2002 13:43:58 -0500
-Message-id: <fc.0010c7b2006d75640010c7b2006d6791.6d756c@capaccess.org>
-Date: Tue, 31 Dec 2002 13:52:19 -0500
-Subject: Re: The only way around Microsoft
-To: gilbertd@treblig.org
-Cc: linux-kernel@vger.kernel.org
-From: "Rick A. Hohensee" <rickh@capaccess.org>
-References: <fc.0010c7b2006d67910010c7b2006d6791.6d6795@Capaccess.org>
- <20021231122253.GA26356@gallifrey>
-In-Reply-To: <20021231122253.GA26356@gallifrey>
+	id <S264699AbSLaSzT>; Tue, 31 Dec 2002 13:55:19 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26888 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264688AbSLaSzT>; Tue, 31 Dec 2002 13:55:19 -0500
+Date: Tue, 31 Dec 2002 10:58:28 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix up UP in 2.5-bkcurrent
+In-Reply-To: <20021231083825.GS21097@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0212311058050.2697-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh by the way, I need hackers for my cabinet. I have the US Code on my FTP
-site,
-        ftp://ftp.gwdg.de/pub/linux/install/clienux/packages
 
-It took a week to pull it out of the retarded privatized interface the GPO
-has it behind. Talk about bloat. It makes Common Lisp look like Chuck
-Moore's latest Forth chip. I also need somebody to liberate the CFR, the
-Code of Federal Regulations.
+On Tue, 31 Dec 2002, Tomas Szepe wrote:
+> 
+> The following bit is needed to build (and boot) current 2.5 bk on
+> UP.  The fix just favors a "we may have to do this" comment. <g>
 
-I need some people that haven't forgotten how to use a computer to do
-basic cleanups like convert "intelligence" in the CIA sense to "strinfo",
-shut down the war on herbs, eliminate using the tax laws as a form of
-subsidy, et cetera. The better hackers will get cabinet positions.
-Otherwise I'll promote from the existing staff.
+Damn, I even tested that on UP, but I tested it on UP-without-APIC, so I 
+didn't see any problems. Thanks,
 
-Rick Hohensee
-
+		Linus
 

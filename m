@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130439AbRCPNwW>; Fri, 16 Mar 2001 08:52:22 -0500
+	id <S129568AbRCPN6w>; Fri, 16 Mar 2001 08:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130457AbRCPNwM>; Fri, 16 Mar 2001 08:52:12 -0500
-Received: from mailserver-ng.cs.umbc.edu ([130.85.100.230]:45225 "EHLO
-	mailserver-ng.cs.umbc.edu") by vger.kernel.org with ESMTP
-	id <S130439AbRCPNvw>; Fri, 16 Mar 2001 08:51:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: devfs vs. devpts
-From: Ian Soboroff <ian@cs.umbc.edu>
-Emacs: if SIGINT doesn't work, try a tranquilizer.
-Date: 16 Mar 2001 08:45:35 -0500
-Message-ID: <87vgp9zv28.fsf@danube.cs.umbc.edu>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S129733AbRCPN6n>; Fri, 16 Mar 2001 08:58:43 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:35210 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129568AbRCPN63>;
+	Fri, 16 Mar 2001 08:58:29 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15026.7115.212614.6228@harpo.it.uu.se>
+Date: Fri, 16 Mar 2001 14:57:31 +0100
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: Andries.Brouwer@cwi.nl, lars@larsshack.org, mikpe@csd.uu.se,
+        amnet@amnet-comp.com, hch@caldera.de, jjasen1@umbc.edu,
+        linux-kernel@vger.kernel.org, util-linux@math.uio.no
+Subject: Re: [util-linux] Re: magic device renumbering was -- Re: Linux 2.4.2ac20
+In-Reply-To: <200103160051.f2G0pgH00998@webber.adilger.int>
+In-Reply-To: <UTC200103152331.AAA2159588.aeb@vlet.cwi.nl>
+	<200103160051.f2G0pgH00998@webber.adilger.int>
+X-Mailer: VM 6.76 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andreas Dilger writes:
+ > Andries writes:
+ > > > I've implemented a patch for util-linux-2.11a
+ > > > which adds LABEL support to mkswap(8) and swapon/swapoff(8).
+ > > 
+ > > But I would prefer a somewhat more ambitious approach.
+ > > 
+ > > My first thought was: why label individual swap partitions?
+ > > I almost never want to distinguish swap partitions, and just do
+ > > "swapon -a". In case one wants to guard against changing device names,
+ > > why not add an option -A so that "swapon -A" does swapon on each
+ > > partition with a swap signature?
+ > > 
+ > > However, that would greatly increase the risk that exists already
+ > > today: someone has a swap partition, and does mkfs.foo, and
+ > > it so happens that foofs does not use the sector with the swapsignature.
+ > > Now this foofs partition has a swap signature, but we would be very
+ > > unhappy if it were used as swap space.
+ > 
+ > I think the LABEL is a good intermediate step for people not using LVM.
+ > It basically allows your /etc/fstab to not have _any_ device names in it.
 
-I'm running 2.4.2ac7, and am having problems with Unix98 ptys.
-Occasionally rxvt and Eterm fail to run because they can't get
-permission to create their entry in /dev/pts.  So i wondered if i have
-a devfs problem, which led me to the following...
+Exactly. IMO, it doesn't really help having LABEL= on your ext2 partitions
+in /etc/fstab if you cannot also do the same on swap partitions.
+My LABEL= patch for mkswap/swapon may not be as sexy as a brand new partition
+table format [which arguably is the better solution in the long run], but it
+does provide a useful improvement NOW with minimal implementation cost and full
+compatibility with existing 2.2/2.4 kernels.
 
-In Documentation/filesystems/devfs/README, it is thus written:
+ > I'm not sure I would be happy with auto-mounting swap partitions,
+ > especially because this would overwrite any data in the partition.  Bad.
 
-        Disable devpts 
-        I've had a report of devpts mounted on /dev/pts
-        not working correctly. Since devfs will also manage /dev/pts,
-        there is no need to mount devpts as well. You should either
-        edit your /etc/fstab so devpts is not mounted, or disable
-        devfs from your kernel configuration.
+Me too. I can easily add Andries' "swapon -A" to my patch, but I really
+don't think that semantics should be the default.
 
-i don't have devpts mounted under 2.4.2 (debian checks whether you
-have devfs before mounting devpts), so i tried building my kernel with
-Unix 98 pty support but without the devpts filesystem.  i get the
-following error at the very end of 'make bzImage':
+Cheers,
 
-drivers/char/char.o: In function `pty_close':
-drivers/char/char.o(.text+0x6646): undefined reference to `devpts_pty_kill'
-make: *** [vmlinux] Error 1
-
-so the devfs documentation is wrong; pty_close depends on
-functionality from devpts.  and secondly, has anyone else had problems
-under 2.4.x creating entries in /dev/pts?
-
-ian
-
--- 
-----
-Ian Soboroff                                       ian@cs.umbc.edu
-University of MD Baltimore County      http://www.cs.umbc.edu/~ian
+/Mikael

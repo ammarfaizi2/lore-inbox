@@ -1,73 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbVDBAUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262812AbVDBAUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262963AbVDBAUc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 19:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVDBASu
+	id S262812AbVDBAUe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 19:20:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbVDBASf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 19:18:50 -0500
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:35725 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S262955AbVDBAMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 19:12:55 -0500
-Subject: Re: [Pcihpd-discuss] RE: [RFC/Patch 0/12] ACPI based root bridge
-	hot-add
-From: Tom Duffy <tduffy@sun.com>
-To: Rajesh Shah <rajesh.shah@intel.com>
-Cc: Prasad Singamsetty <Prasad.Singamsetty@sun.com>, tony.luck@intel.com,
-       pcihpd-discuss@lists.sourceforge.net,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, dely.l.sy@intel.com, akpm@osdl.org, gregkh@suse.de,
-       Dely Sy <dlsy@snoqualmie.dp.intel.com>
-In-Reply-To: <20050331140304.C21596@unix-os.sc.intel.com>
-References: <200503230313.j2N3DYpE010786@snoqualmie.dp.intel.com>
-	 <1111618996.12700.44.camel@duffman>
-	 <20050331140304.C21596@unix-os.sc.intel.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YRzS5cHaYPtwx5+WaR2F"
-Date: Fri, 01 Apr 2005 16:10:59 -0800
-Message-Id: <1112400659.8432.15.camel@duffman>
+	Fri, 1 Apr 2005 19:18:35 -0500
+Received: from ns1.s2io.com ([142.46.200.198]:28107 "EHLO ns1.s2io.com")
+	by vger.kernel.org with ESMTP id S262941AbVDBAGR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 19:06:17 -0500
+Subject: Re: oom-killer disable for iscsi/lvm2/multipath userland critical
+	sections
+From: Dmitry Yusupov <dima@neterion.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050401221400.GQ29492@g5.random>
+References: <20050401221400.GQ29492@g5.random>
+Content-Type: text/plain
+Organization: Neterion, Inc
+Date: Fri, 01 Apr 2005 16:06:13 -0800
+Message-Id: <1112400373.9559.100.camel@beastie>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 (2.2.1.1-2) 
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -102.5
+X-Spam-Outlook-Score: ()
+X-Spam-Features: EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea,
 
---=-YRzS5cHaYPtwx5+WaR2F
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I just successfully tested the patch on my environment. It actually
+resolved OOM-killer problem for my iscsid.
 
-On Thu, 2005-03-31 at 14:03 -0800, Rajesh Shah wrote:
-> Does this patch help?
+Important note: daemon's parent must be init.
 
-YES!  I can now power down the slot, see it gone from pci list, reenable
-it, etc.  Awesome.  Thank you.
+In my test, OOM-killer killed everything around but iscsid, and iscsid
+successfully finished registration of new SCSI host in the middle of
+crazy OOM-killer :)
 
-[root@intlhotp-1 ~]# lspci -s 08:00
-08:00.0 Ethernet controller: Intel Corp.: Unknown device 105f (rev 03)
-08:00.1 Ethernet controller: Intel Corp.: Unknown device 105f (rev 03)
-[root@intlhotp-1 ~]# cd /sys/bus/pci/slots/4/
-[root@intlhotp-1 4]# cat power
-1
-[root@intlhotp-1 4]# echo 0 > power
-[root@intlhotp-1 4]# lspci -s 08:00
-[root@intlhotp-1 4]# cat power
-0
-[root@intlhotp-1 4]# echo 1 > power
-[root@intlhotp-1 4]# lspci -s 08:00
-08:00.0 Ethernet controller: Intel Corp.: Unknown device 105f (rev 03)
-08:00.1 Ethernet controller: Intel Corp.: Unknown device 105f (rev 03)
+Thanks!
+Dima
 
+On Sat, 2005-04-02 at 00:14 +0200, Andrea Arcangeli wrote:
+> Hello,
+> 
+> some private discussion (that was continuing some kernel-summit-discuss
+> thread) ended in the below patch. I also liked a textual "disable"
+> instead of value "-17" (internally to the kernel it could be represented
+> the same way, but the /proc parsing would be more complicated). If you
+> prefer textual "disable" we can change this of course.
+> 
+> Comments welcome.
+> 
+> From: Andrea Arcangeli <andrea@suse.de>
+> Subject: oom killer protection
+> 
+> iscsi/lvm2/multipath needs guaranteed protection from the oom-killer.
+> 
+> Signed-off-by: Andrea Arcangeli <andrea@suse.de>
+> 
+> --- 2.6.12-seccomp/fs/proc/base.c.~1~	2005-03-25 05:13:28.000000000 +0100
+> +++ 2.6.12-seccomp/fs/proc/base.c	2005-04-01 23:47:22.000000000 +0200
+> @@ -751,7 +751,7 @@ static ssize_t oom_adjust_write(struct f
+>  	if (copy_from_user(buffer, buf, count))
+>  		return -EFAULT;
+>  	oom_adjust = simple_strtol(buffer, &end, 0);
+> -	if (oom_adjust < -16 || oom_adjust > 15)
+> +	if ((oom_adjust < -16 || oom_adjust > 15) && oom_adjust != OOM_DISABLE)
+>  		return -EINVAL;
+>  	if (*end == '\n')
+>  		end++;
+> --- 2.6.12-seccomp/include/linux/mm.h.~1~	2005-03-25 05:13:28.000000000 +0100
+> +++ 2.6.12-seccomp/include/linux/mm.h	2005-04-01 23:53:11.000000000 +0200
+> @@ -856,5 +856,8 @@ int in_gate_area_no_task(unsigned long a
+>  #define in_gate_area(task, addr) ({(void)task; in_gate_area_no_task(addr);})
+>  #endif	/* __HAVE_ARCH_GATE_AREA */
+>  
+> +/* /proc/<pid>/oom_adj set to -17 protects from the oom-killer */
+> +#define OOM_DISABLE -17
+> +
+>  #endif /* __KERNEL__ */
+>  #endif /* _LINUX_MM_H */
+> --- 2.6.12-seccomp/mm/oom_kill.c.~1~	2005-03-08 01:02:30.000000000 +0100
+> +++ 2.6.12-seccomp/mm/oom_kill.c	2005-04-01 23:46:18.000000000 +0200
+> @@ -145,7 +145,7 @@ static struct task_struct * select_bad_p
+>  	do_posix_clock_monotonic_gettime(&uptime);
+>  	do_each_thread(g, p)
+>  		/* skip the init task with pid == 1 */
+> -		if (p->pid > 1) {
+> +		if (p->pid > 1 && p->oomkilladj != OOM_DISABLE) {
+>  			unsigned long points;
+>  
+>  			/*
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---=-YRzS5cHaYPtwx5+WaR2F
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCTeMTdY502zjzwbwRArapAKCdezcFJEdFzV929zIR4ovUNZTWTACcCeP0
-DHCAyFHjtBfPxTM6Xix8Ahk=
-=3Iu1
------END PGP SIGNATURE-----
-
---=-YRzS5cHaYPtwx5+WaR2F--

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264415AbUAJAbS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 19:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbUAJAbS
+	id S264540AbUAJA2h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 19:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUAJA2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 19:31:18 -0500
-Received: from mail6.speakeasy.net ([216.254.0.206]:24265 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP id S264415AbUAJAbO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 19:31:14 -0500
-X-AmikaGuardian-Id: mail6.speakeasy.net10736946732617742
-X-AmikaGuardian-Category: AN:Override Structure : 1.6
-X-AmikaGuardian-Category: AN:Vectored : 1.6
-X-AmikaGuardian-Category: AN:Forwarded Mail : 1.6
-X-AmikaGuardian-Category: AN:Override : 1.6
-X-AmikaGuardian-Category: AN:Exception : 1.6
-X-AmikaGuardian-Action: Do Nothing()
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Aaron Burt <aaron@speakeasy.org>
-Newsgroups: local.linux-kernel
-Subject: Re: ALSA: bad sound with low CPU load
-Date: Sat, 10 Jan 2004 00:31:13 +0000 (UTC)
-Organization: The Aluminum Bavariati
-Message-ID: <slrnbvuhuh.8lo.aaron@aluminum.bavariati.org>
-References: <slrnbvudvn.5ic.aaron@aluminum.bavariati.org> <3FFF39F7.1060205@gmx.de>
-NNTP-Posting-Host: aluminum.bavariati.org
-X-Trace: aluminum.bavariati.org 1073694673 11207 127.0.0.1 (10 Jan 2004 00:31:13 GMT)
-X-Complaints-To: news
-NNTP-Posting-Date: Sat, 10 Jan 2004 00:31:13 +0000 (UTC)
-User-Agent: slrn/0.9.8.0 (Linux)
+	Fri, 9 Jan 2004 19:28:37 -0500
+Received: from AGrenoble-101-1-5-161.w80-11.abo.wanadoo.fr ([80.11.136.161]:52172
+	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
+	id S264540AbUAJA2b convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 19:28:31 -0500
+Subject: Re: [PATCH][RFC] invalid ELF binaries can execute - better sanity
+	checking
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Maciej Zenczykowski <maze@cela.pl>, Jesper Juhl <juhl-lkml@dif.dk>,
+       Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040109204150.A28436@infradead.org>
+References: <Pine.LNX.4.56.0401090437060.11276@jju_lnx.backbone.dif.dk>
+	 <Pine.LNX.4.44.0401092105070.1739-100000@gaia.cela.pl>
+	 <20040109204150.A28436@infradead.org>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1073694475.6189.176.camel@nomade>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 10 Jan 2004 01:27:56 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Prakash K. Cheemplavam" <PrakashKC@gmx.de> wrote:
-> Aaron Burt wrote:
->> Basically, sound comes out as a hissing, garbled mess *unless* I load
->> down the CPU.  A kernel compile seems to do nicely for this purpose.
->
-> Is CPU Disconnect on? Turn if off and maybe it is OK then. (It was like 
-> this in Windows with Via KT133 Chipset.)
->
-> Try using athcool.
+Le ven 09/01/2004 à 21:41, Christoph Hellwig a écrit :
+> On Fri, Jan 09, 2004 at 09:20:53PM +0100, Maciej Zenczykowski wrote:
+> > I think this points to an 'issue', if we're going to increase the checks
+> > in the ELF-loader (and thus increase the size of the minimal valid ELF
+> > file we can load, thus effectively 'bloating' (lol) some programs) we
+> > should probably allow some sort of direct binary executable files [i.e.
+> > header 'XBIN386\0' followed by Read/Execute binary code to execute by
+> 
+> Like binfmt_flat? :)
 
-You got it in one!  "athcool off" fixes the sound, "athcool on" breaks
-it again.  
+.. or even zflat. Not that I'm proud of it, but it can effectively
+manage to produce rather compact executables :)
 
-Updating my rcfiles,
-  Aaron
+	Xav
+

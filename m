@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUHPF45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267446AbUHPGAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267445AbUHPF45 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 01:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUHPF45
+	id S267446AbUHPGAX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 02:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267451AbUHPGAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 01:56:57 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:36255 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267445AbUHPF44 (ORCPT
+	Mon, 16 Aug 2004 02:00:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54715 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267446AbUHPGAW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 01:56:56 -0400
-Date: Mon, 16 Aug 2004 06:56:29 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: dri-devel@lists.sf.net
-Cc: linux-kernel@vger.kernel.org
-Subject: DRM and 2.4 ...
-Message-ID: <Pine.LNX.4.58.0408160652350.9944@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Aug 2004 02:00:22 -0400
+Date: Sun, 15 Aug 2004 22:58:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: anton@samba.org, linux-kernel@vger.kernel.org, jrsantos@austin.ibm.com
+Subject: Re: [PATCH] remove cacheline alignment from inode slabs
+Message-Id: <20040815225840.3ba8cdce.akpm@osdl.org>
+In-Reply-To: <200408160825.42889.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <20040815233732.GL5637@krispykreme>
+	<200408160825.42889.vda@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+>
+> +ifneq ($(CONFIG_CC_ALIGN_FUNCTIONS),0)
+>  +CFLAGS		+= -falign-functions=$(CONFIG_CC_ALIGN_FUNCTIONS)
+>  +endif
+>  +ifneq ($(CONFIG_CC_ALIGN_LABELS),0)
+>  +CFLAGS		+= -falign-labels=$(CONFIG_CC_ALIGN_LABELS)
+>  +endif
+>  +ifneq ($(CONFIG_CC_ALIGN_LOOPS),0)
+>  +CFLAGS		+= -falign-loops=$(CONFIG_CC_ALIGN_LOOPS)
+>  +endif
+>  +ifneq ($(CONFIG_CC_ALIGN_JUMPS),0)
+>  +CFLAGS		+= -falign-jumps=$(CONFIG_CC_ALIGN_JUMPS)
+>  +endif
 
-At the moment we are adding a lot of 2.6 stuff to the DRM under
-development in the DRM CVS tree and what will be merged into the -mm and
-Linus trees eventually, this has meant ifdefing stuff out so 2.4 will
-still work,
+When sending optimisation patches, please include information on how
+effective the optimisation is.  Before and after code sizes would be
+appropriate here.
 
-At some point we are going to make a change that will break 2.4, and I
-won't be able to patch it up nicely...
-
-So the question is do we want to a final stable DRM for 2.4 in the next
-2.4 release? and after that point I can tag the 2.4 release in the DRM CVS
-tree (and maybe branch it ...),
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+gcc-2.95.x barfs over all four of the above options.  Some testing of
+$(GCC_VERSION) is needed.  That's only set up by arch/i386/Makefile at
+present.
 

@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288716AbSADSgt>; Fri, 4 Jan 2002 13:36:49 -0500
+	id <S288721AbSADSlH>; Fri, 4 Jan 2002 13:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288719AbSADSgH>; Fri, 4 Jan 2002 13:36:07 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:36596 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S288716AbSADSgB>; Fri, 4 Jan 2002 13:36:01 -0500
-Date: Fri, 4 Jan 2002 19:28:58 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
-        David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
-        Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <20020103133454.A17280@suse.cz>
-Message-ID: <Pine.GSO.3.96.1020104191141.829B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S288675AbSADSk5>; Fri, 4 Jan 2002 13:40:57 -0500
+Received: from ns.suse.de ([213.95.15.193]:42503 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287447AbSADSks>;
+	Fri, 4 Jan 2002 13:40:48 -0500
+Date: Fri, 4 Jan 2002 19:40:45 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.5.2.7: io.h cleanup and userspace nudge
+In-Reply-To: <200201041831.g04IVAD23320@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.33.0201041940150.20620-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Vojtech Pavlik wrote:
+On Fri, 4 Jan 2002, Richard Gooch wrote:
 
-> > Thats why I also suggested using lspci and looking for an ISA bridge.
-> > If you have no PCI its probably ISA. If you have no PCI/ISA bridge its
-> > very very unlikely to be ISA
-> 
-> Uh, no. Almost all 486 PCI boards and early Pentium/K5/K6 boards have
-> the PCI bus hanging of the VLB or other local bus, and on those ISA
-> isn't behind an ISA bridge. These chipsets do have ISA but no ISA
-> bridge.
+> Please test this change on a libc5 system before unleashing a
+> potential horror. All the world *is not* glibc!
 
- These can be checked for explicitly as the list isn't likely to grow.  I
-can dig a few Intel docs for IDs of 486-class PCI chipsets that have no
-PCI-ISA bridge if they'd be useful.
-
- Also note that there are PCI-ISA bridges that are reported as "non-VGA
-unclassified" devices as they predate PCI 2.0.  The SIO (82378IB/ZB) comes
-to mind here.  The bridge is used in certain models of Alpha systems as
-well.  The bridges would need to be listed by IDs, too. 
+Am I alone in finding the idea of running 2.5/2.6 on a libc5
+system a little strange ?
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

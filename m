@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265395AbSJaWEy>; Thu, 31 Oct 2002 17:04:54 -0500
+	id <S265387AbSJaWCb>; Thu, 31 Oct 2002 17:02:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265388AbSJaWE1>; Thu, 31 Oct 2002 17:04:27 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:29382 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265395AbSJaWC5>;
-	Thu, 31 Oct 2002 17:02:57 -0500
-Subject: Re: [PATCH] (3/3) stack overflow checking for x86
-From: "David C. Hansen" <haveblue@us.ibm.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.COM>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021031213032.GA25685@suse.de>
-References: <1036091906.4272.87.camel@nighthawk>
-	<1036092052.4272.96.camel@nighthawk>  <20021031213032.GA25685@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 31 Oct 2002 14:08:34 -0800
-Message-Id: <1036102114.4155.272.camel@nighthawk>
+	id <S265388AbSJaWCa>; Thu, 31 Oct 2002 17:02:30 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:13316 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265387AbSJaWC2>;
+	Thu, 31 Oct 2002 17:02:28 -0500
+Date: Thu, 31 Oct 2002 23:53:13 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Dax Kelson <dax@gurulabs.com>, Chris Wedgwood <cw@f00f.org>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: What's left over.
+Message-ID: <20021031225313.GC4331@elf.ucw.cz>
+References: <1036046904.1521.74.camel@mentor> <Pine.GSO.4.21.0210310203570.13031-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0210310203570.13031-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 13:30, Dave Jones wrote:
-> On Thu, Oct 31, 2002 at 11:20:52AM -0800, David C. Hansen wrote:
->  > * stack checking (3/3)
->  >    - use gcc's profiling features to check for stack overflows upon
->  >      entry to functions.
->  >    - Warn if the task goes over 4k.
->  >    - Panic if the stack gets within 512 bytes of overflowing.
->  >    - use kksymoops information, if available
->  > 
->  > This won't apply cleanly without the irqstack patch, but the conflict is
->  > easy to resolve.  It requires the thread_info cleanup.
+Hi!
+
+> > Without ACLs, if Sally, Joe and Bill need rw access to a file/dir, just
+> > create another group with just those three people in.  Over time, of
 > 
-> I'm wondering about interaction between this patch and the
-> already merged CONFIG_DEBUG_STACKOVERFLOW ?
+> If Sally, Joe and Bill need rw access to a directory, and Joe and Bill
+> are using existing userland (any OS I'd seen), then Sally can easily
+> fuck them into the next month and not in a good way.
 
-The currently merged one is very, very simple, but relatively worthless.
-There are no guarantees about catching an overflow, especially if it
-happens in a long call chain _after_ do_IRQ with interrupts disabled.  
-Ben's version checks on entrance to every function, making it _much_
-more likely to be caught, even during an interrupt.  But, the currently
-merged one doesn't have any strange compiler requirements, like adding
-the -p option.
+Do you mean symlink attack?
 
-The irq stack patch would make the current check pretty worthless
-because the check happens just after the switch to a fresh irqstack
-would have happened.
+> _That_ is the real problem.  Until that is solved (i.e. until all
+> userland is written up to the standards allegedly followed in writing
+> suid-root programs wrt hostile filesystem modifications) NO mechanism
+> will help you.  ACLs, huge groups, whatever - setups with that sort
+> of access allowed are NOT SUSTAINABLE with the current userland(s).
 
-But, if they both get in, it can be cleaned up later because even if
-both are turned on, nothing will blow up.  
+So userland needs to be improved. It already needs that modifications
+because of /tmp. Is there any new issue there?
+								Pavel
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+When do you have heart between your knees?

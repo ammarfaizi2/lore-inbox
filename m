@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUHCDHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbUHCDiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264984AbUHCDHb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 23:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUHCDHa
+	id S262547AbUHCDiH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 23:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUHCDiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 23:07:30 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:64718 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S264984AbUHCDH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 23:07:29 -0400
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: sam@ravnborg.org
-Date: Tue, 03 Aug 2004 13:07:26 +1000
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Can't cross compile IA32 kernels using separate build directory
-Message-Id: <E1BrpeA-0002QH-00@berry.gelato.unsw.EDU.AU>
+	Mon, 2 Aug 2004 23:38:07 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:22506 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S262547AbUHCDiF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 23:38:05 -0400
+Date: Tue, 3 Aug 2004 04:37:44 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: linux-kernel@vger.kernel.org
+Subject: DRM patches...
+Message-ID: <Pine.LNX.4.58.0408030435190.27728@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Sam,
-   Trying to cross compile a kernel for IA32, on a system without an asm/boot.h
-fails (e.g., IA64)
+In future can anyone submitting patches against the DRM cc me on them?
 
-Here's a patch to add in -Iinclude2 when building tools/build.o so that 
-asm/boot.h is picked up from the right place.
+A number of changes from Al Viro just went into Linus's tree that were
+already fixed in the drm tree (and in -mm)...
 
-Index: linux-2.6-wip/arch/i386/boot/Makefile
-===================================================================
---- linux-2.6-wip.orig/arch/i386/boot/Makefile	2004-08-03 12:58:02.287223257 +1000
-+++ linux-2.6-wip/arch/i386/boot/Makefile	2004-08-03 12:59:34.661245563 +1000
-@@ -31,7 +31,7 @@
- 
- host-progs	:= tools/build
- 
--HOSTCFLAGS_build.o := -Iinclude
-+HOSTCFLAGS_build.o := -Iinclude -Iinclude2
- 
- # ---------------------------------------------------------------------------
- 
+Thanks,
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

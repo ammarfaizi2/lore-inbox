@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289312AbSA1SlB>; Mon, 28 Jan 2002 13:41:01 -0500
+	id <S289317AbSA1SrL>; Mon, 28 Jan 2002 13:47:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289313AbSA1Sko>; Mon, 28 Jan 2002 13:40:44 -0500
-Received: from dsl-213-023-039-090.arcor-ip.net ([213.23.39.90]:42116 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289312AbSA1Skb>;
-	Mon, 28 Jan 2002 13:40:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Don't use dbench for benchmarks
-Date: Mon, 28 Jan 2002 19:45:29 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020128144319.67654.qmail@web9203.mail.yahoo.com>
-In-Reply-To: <20020128144319.67654.qmail@web9203.mail.yahoo.com>
+	id <S289319AbSA1SrC>; Mon, 28 Jan 2002 13:47:02 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26893 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289317AbSA1Sqv>; Mon, 28 Jan 2002 13:46:51 -0500
+Message-ID: <3C559C8A.6010108@zytor.com>
+Date: Mon, 28 Jan 2002 10:46:34 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16VGmX-0000BQ-00@starship.berlin>
+To: frank.van.maarseveen@altium.nl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: restoring hard linked files from zisofs/iso9660 w. RR
+In-Reply-To: <20020125135545.A28897@espoo.tasking.nl> <a2s67d$8s0$1@cesium.transmeta.com> <20020128170704.A2632@espoo.tasking.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 28, 2002 03:43 pm, Alex Davis wrote:
-> > Continuing that theme: please don't use dbench for benchmarks.  At all.
-> > It's an unreliable indicator of anything in particular except perhaps
-> > stability.  Please, use something else for your benchmarks.
->
-> What do you suggest as an acceptable benchmark??? 
+Frank van Maarseveen wrote:
 
-A benchmark that tests disk/file system create/read/write/delete throughput, 
-as dbench is supposed to?  Though I haven't used it personally, others 
-(Arjan) have suggested tiobench:
+> On Fri, Jan 25, 2002 at 09:55:57AM -0800, H. Peter Anvin wrote:
+> 
+>>WHAT doesn't work?
+>>There is, I belive, an inode number RR attribute.  Last I checked I
+>>was happily using hard links with RockRidge...
+> 
+> Try restoring a few hard linked files from such a CD. The links will
+> break because the inodes of hard linked objects on CD do not have
+> an identical inode number anymore.
+> 
 
-  http://tiobench.sourceforge.net/
 
-Apparently it does not suffer from the kind of scheduling and caching 
-variability that dbench does.  This needs to be verified.  Some multiple run 
-benchmarks would do the trick, with results for the individual runs reported 
-along the lines of what we have seen often with dbench.
+What do you mean with "restore" in this context... (dump/restore clearly
+don't apply.)
 
-Bonnie++ is another benchmark that is often suggested.  Again, I don't 
-personally have much experience with it.
+Please give a "I used the following mkisofs options to make the CD and
+then I see the following when I execute this command after mounting the CD
+image with the following mount options..."
 
-After that, I'm afraid we tend to enter the realm of commercial benchmarks, 
-where the name of the game is to establish your own benchmark program as the 
-standard so that you can charge big bucks for licensing your code (since your 
-customers have two choices: either buy your code or don't publish their 
-numbers, sweet deal).
+	-hpa
 
-Personally, I normally create my own benchmark tests, tailor-made to exercise 
-the particular thing I'm working on at the moment.  Such quick hacks would 
-not normally possess all the properties we'd like to see in benchmarks 
-designed for widespread use and publication of results.
 
-Anybody looking for a kernel-related project but not being quite ready to 
-hack the kernel itself might well have a good think about what might 
-constitute good benchmarks for various kernel subsystems, and code something 
-up, or join up with others who are already interested in that subject, such 
-as osdl or the tiobench project mentioned above.  This would be a valuable 
-contribution.
+ 
 
--- 
-Daniel
+

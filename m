@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbTEGRYG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 13:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264130AbTEGRYG
+	id S264168AbTEGRah (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 13:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264169AbTEGRah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 13:24:06 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:62688 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264124AbTEGRYF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 13:24:05 -0400
-Date: Wed, 7 May 2003 19:36:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: markw@osdl.org
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, wli@holomorphy.com,
-       Mark Haverkamp <markh@osdl.org>
-Subject: Re: OSDL DBT-2 AS vs. Deadline 2.5.68-mm2
-Message-ID: <20030507173637.GQ823@suse.de>
-References: <20030507164728.GO823@suse.de> <200305071659.h47GxmW22250@mail.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305071659.h47GxmW22250@mail.osdl.org>
+	Wed, 7 May 2003 13:30:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53516 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264168AbTEGRad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 13:30:33 -0400
+Date: Wed, 7 May 2003 10:42:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jens Axboe <axboe@suse.de>
+cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5 ide 48-bit usage
+In-Reply-To: <20030507173341.GP823@suse.de>
+Message-ID: <Pine.LNX.4.44.0305071039490.2997-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07 2003, markw@osdl.org wrote:
-> On  7 May, Jens Axboe wrote:
-> > On Wed, May 07 2003, markw@osdl.org wrote:
-> >> I've collected some data from STP to see if it's useful or if there's
-> >> anything else that would be useful to collect. I've got some tests
-> >> queued up for the newer patches, but I wanted to put out what I had so
-> >> far.
-> >> 
-> >> 
-> >> METRICS OVER LAST 20 MINUTES:
-> >> --------------- -------- ----- ---- -------- -----------------------------------
-> >> Kernel          Elevator NOTPM CPU% Blocks/s URL                                
-> >> --------------- -------- ----- ---- -------- -----------------------------------
-> >> 2.5.68-mm2      as        1155 94.3   8940.2 http://khack.osdl.org/stp/271356/  
-> >> 2.5.68-mm2      deadline  1255 94.9   9598.7 http://khack.osdl.org/stp/271359/  
-> >> 
-> >> FUNCTIONS SORTED BY TICKS:
-> >> -- ------------------------- ------- ------------------------- -------
-> >>  # as 2.5.68-mm2             ticks   deadline 2.5.68-mm2       ticks  
-> >> -- ------------------------- ------- ------------------------- -------
-> >>  1 default_idle              6103428 default_idle              5359025
-> >>  2 bounce_copy_vec             86272 bounce_copy_vec             97696
-> >>  3 schedule                    63819 schedule                    70114
-> >>  4 __make_request              30397 __blk_queue_bounce          31167
-> >>  5 __blk_queue_bounce          26962 scsi_request_fn             26623
-> >>  6 scsi_request_fn             24845 __make_request              25012
+
+On Wed, 7 May 2003, Jens Axboe wrote:
 > > 
-> > uhh nasty, you are spending a lot of time bouncing. How much RAM is in
-> > the machine, and what is the scsi hba?
+> > And testing. In particular, you might want to test whether a device 
+> > properly supports 48-bit addressing, either from the kernel or from user 
+> > programs.
 > 
-> The system has 4GB of memory and has a DECchip 21554 (aacraid) that the
-> external drives are connected to.  Mark Haverkamp is currently trying to
-> address those bounce buffers.
+> For that, a forced 48-bit hwif->addressing inherited by drives will
+> suffice. And I agree, we should have that.
 
-aacraid actually looks sane enough. so you should just be able to set
-host->highmem_io and it should work.
+No no no.
 
--- 
-Jens Axboe
+You definitely do NOT want to set "hwif->addressing" to 1 before you've 
+tested whether it even _works_.
+
+Imagine something like "hdparm" - other things are already in progress,
+the system is up, and IDE commands are potentially executing concurrently.  
+What something like that wants to do is to send one request out to check
+whether 48-bit addressing works, but it absolutely does NOT want to set 
+some interface-global flag that affects other commands.
+
+Only after it has verified that 48-bit addressing does work should it set 
+the global flag.
+
+> If you are doing that from userspace by sending in taskfiles with the
+> appropriate commands, then you just create the commands like you want
+> them. rq_lba48() just checks whether file system requests should be
+> executed with 28 or 48-bit commands. If you send in taskfiles (your
+> SG_IO example), you have complete control over this already.
+
+That may well be sufficient. 
+
+		Linus
 

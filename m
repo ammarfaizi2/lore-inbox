@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275693AbRJ3RXX>; Tue, 30 Oct 2001 12:23:23 -0500
+	id <S276956AbRJ3R1d>; Tue, 30 Oct 2001 12:27:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276489AbRJ3RXN>; Tue, 30 Oct 2001 12:23:13 -0500
-Received: from denise.shiny.it ([194.20.232.1]:50611 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S275693AbRJ3RXJ>;
-	Tue, 30 Oct 2001 12:23:09 -0500
-Message-ID: <XFMail.20011030182326.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S275752AbRJ3R1X>; Tue, 30 Oct 2001 12:27:23 -0500
+Received: from [207.8.4.6] ([207.8.4.6]:7288 "EHLO one.interactivesi.com")
+	by vger.kernel.org with ESMTP id <S276956AbRJ3R1C>;
+	Tue, 30 Oct 2001 12:27:02 -0500
+Message-ID: <3BDEE301.3000008@interactivesi.com>
+Date: Tue, 30 Oct 2001 11:27:29 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-In-Reply-To: <20011030175417.K1340@athlon.random>
-Date: Tue, 30 Oct 2001 18:23:26 +0100 (CET)
-From: Giuliano Pochini <pochini@shiny.it>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: please revert bogus patch to vmscan.c
-Cc: Benjamin LaHaise <bcrl@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        Rik van Riel <riel@conectiva.com.br>
+To: TimO <hairballmt@mcn.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Module Licensing?
+In-Reply-To: <01102920463500.03524@newton.cevio.com> <3BDE27BE.3569FE22@candelatech.com> <3BDE3360.80731876@mcn.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+TimO wrote:
 
->> #ifdef ?
->
-> yes, but not for ppc, for alpha and all other archs without accessed bit
-> provided in hardware (and cached in the tlb).
-
-PPCs have that bits. I'm not sure if they are cached in the tbl.
+> Ugghh!  Don't confuse/equate MODULE_LICENSE with EXPORT_SYMBOL_GPL_ONLY;
+> two different animals, two differnet goals.  See archives for more info.
 
 
-Bye.
+What happens is a module is distributed as a combination of open-source .c 
+files and closed-source .o files.  That is, it's "mixed source" - part of the 
+driver is open-source and part is closed-source.  What happens if the 
+open-source version of the driver is the only code that uses GPL-only symbols. 
+  How is that handled?
 

@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261365AbSKMNjx>; Wed, 13 Nov 2002 08:39:53 -0500
+	id <S261449AbSKMNvC>; Wed, 13 Nov 2002 08:51:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbSKMNjx>; Wed, 13 Nov 2002 08:39:53 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261365AbSKMNjw>; Wed, 13 Nov 2002 08:39:52 -0500
-Date: Wed, 13 Nov 2002 14:46:42 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alan@redhat.com
-Subject: Re: Kill obsolete and  unused suspend/resume code from IDE
-Message-ID: <20021113134642.GE10168@atrey.karlin.mff.cuni.cz>
-References: <20021112175154.GA6881@elf.ucw.cz> <1037126927.9383.5.camel@irongate.swansea.linux.org.uk>
+	id <S261450AbSKMNvB>; Wed, 13 Nov 2002 08:51:01 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:36009 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261449AbSKMNvA> convert rfc822-to-8bit; Wed, 13 Nov 2002 08:51:00 -0500
+Subject: Re: repeatable IDE errors when using SMART
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1037180301.8013.5.camel@localhost>
+References: <Pine.LNX.4.44.0211121800320.20949-100000@twinlark.arctic.org> 
+	<1037180301.8013.5.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Nov 2002 14:23:15 +0000
+Message-Id: <1037197395.11996.59.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037126927.9383.5.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> With the shutdown/cleanup split so the locking works out you might
-> actually be able to do what you want (although I dont think you can get
-> all the locking logic right yet because some of it is still hosed in the
-> ide core). Also take a glance at the SC1200 driver with regards to the
-> sysfs based power management handling.
-
-I'll take a look.
-
-> [Linus you can apply this if you want - it fixes
-> 	Serverworks /proc
-> 	Adds SC1200
-> 	Short term fix for simplex DMA devices
-> 	Fixes PCMCIA ide eject
-> 	Splits IDE I/O from the registration code
-> 	Makes the argument names saner
-> ]
+On Wed, 2002-11-13 at 09:38, Xavier Bestel wrote:
+> Le mer 13/11/2002 Ã  03:19, dean gaudet a écrit:
+> > i'm 99.99% certain that the use of smartctl and/or hddtemp is causing my
+> > system to lose contact with the drives.  there's just been far too many
+> > concidental errors of this sort:
 > 
->  	int		(*standby)(ide_drive_t *);
->  	int		(*suspend)(ide_drive_t *);
->  	int		(*resume)(ide_drive_t *);
+> Maybe I've seen something like this too, but I'm not sure.
 
-Can you show me who calls these 3 callbacks?
+Its certainly part of the code thats quite convoluted and would be the
+ideal spot for a race. Really for the new IDE it wants testing versus
+2.5.47-ac but getting 2.5.47 (ac or otherwise) to stay up for 8 hours is
+challenging
 
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.

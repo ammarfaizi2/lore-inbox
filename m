@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317462AbSHHLgT>; Thu, 8 Aug 2002 07:36:19 -0400
+	id <S317469AbSHHLjR>; Thu, 8 Aug 2002 07:39:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317468AbSHHLgT>; Thu, 8 Aug 2002 07:36:19 -0400
-Received: from h-213.61.18.181.host.de.colt.net ([213.61.18.181]:18107 "HELO
-	bachrain.de") by vger.kernel.org with SMTP id <S317462AbSHHLgS>;
-	Thu, 8 Aug 2002 07:36:18 -0400
-Message-ID: <3D52588F.95B26106@asc.de>
-Date: Thu, 08 Aug 2002 13:39:59 +0200
-From: Reinhold Jordan <r.jordan@asc.de>
-Organization: ASC
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Wrong /proc/ide/hda/capacity with DVD-RAM ?!
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S317471AbSHHLjR>; Thu, 8 Aug 2002 07:39:17 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:7617 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S317469AbSHHLjQ>;
+	Thu, 8 Aug 2002 07:39:16 -0400
+Date: Thu, 8 Aug 2002 13:42:44 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Greg Ungerer <gerg@snapgear.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Amol Lad <dal_loma@yahoo.com>
+Subject: Re: uclinux on MMU platforms - query
+Message-ID: <20020808114244.GX259@khan.acc.umu.se>
+References: <3D50B42B.8000200@snapgear.com> <1028719830.18156.238.camel@irongate.swansea.linux.org.uk> <3D51BC64.4030704@snapgear.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D51BC64.4030704@snapgear.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Aug 08, 2002 at 10:33:40AM +1000, Greg Ungerer wrote:
+> Hi Alan,
+> 
+> Alan Cox wrote:
+> >On Wed, 2002-08-07 at 06:46, Greg Ungerer wrote:
+> >
+> >>>  Can I run uClinux on platforms that has MMU
+> >>
+> >>You could, but why would you want to?
+> >
+> >
+> >Being able to run true ucLinux on i386 makes debugging and verification
+> >of software so much less painful sometimes. 
+> 
+> For some things yes. But it is a real pain trying to track
+> down memory corruption and stack overflow problems in
+> applications. They have a tendency to take your the whole system...
 
-I'm wondering about the size of DVD-RAMs. My /proc/ide/hda/capacity
-shows 8946816 blocks or 4.3GB with a 4.7GB medium. I found older
-messages in this list with the same problem, but no solution and
-no explanation.
+Wouldn't an ucLinux-version of uml be a good idea? :-)
 
-Regards, Reinhold
 
+Regards: David Weinehall
 -- 
-ASC telecom AG                   T: +49-6021-5001-303
-Seibelstr. 2                     F: +49-6021-5001-309
-D-63768 Hösbach                  E: r.jordan@asc.de
-          Visit us on http://www.asc.de
+ /> David Weinehall <tao@acc.umu.se> /> Northern lights wander      <\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

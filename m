@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271235AbRHTQEm>; Mon, 20 Aug 2001 12:04:42 -0400
+	id <S271329AbRHTQOD>; Mon, 20 Aug 2001 12:14:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271329AbRHTQEe>; Mon, 20 Aug 2001 12:04:34 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:3343 "EHLO paip.net")
-	by vger.kernel.org with ESMTP id <S271235AbRHTQEY>;
-	Mon, 20 Aug 2001 12:04:24 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: /dev/random in 2.4.6
-Date: 20 Aug 2001 16:01:12 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <9lrc88$6pv$2@abraham.cs.berkeley.edu>
-In-Reply-To: <Pine.LNX.4.30.0108200903580.4612-100000@waste.org> <2251207905.998322034@[10.132.112.53]> <3B8124C4.7A4275B9@nortelnetworks.com>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 998323272 6975 128.32.45.153 (20 Aug 2001 16:01:12 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 20 Aug 2001 16:01:12 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S271321AbRHTQNx>; Mon, 20 Aug 2001 12:13:53 -0400
+Received: from panther.noc.ucla.edu ([169.232.10.21]:8179 "EHLO
+	panther.noc.ucla.edu") by vger.kernel.org with ESMTP
+	id <S271320AbRHTQNr>; Mon, 20 Aug 2001 12:13:47 -0400
+Message-ID: <3B813743.5080400@ucla.edu>
+Date: Mon, 20 Aug 2001 09:13:55 -0700
+From: Benjamin Redelings I <bredelin@ucla.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010813
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.4.8/2.4.9 VM problems
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen  wrote:
->Why don't we also switch to a cryptographically secure algorithm for
->/dev/urandom?
+Daniel Phillips wrote:
+> Could you please try this patch against 2.4.9 (patch -p0):
+> 
+> --- ../2.4.9.clean/mm/memory.c	Mon Aug 13 19:16:41 2001
+> +++ ./mm/memory.c	Sun Aug 19 21:35:26 2001
+> @@ -1119,6 +1119,7 @@
+>  			 */
+>  			return pte_same(*page_table, orig_pte) ? -1 : 1;
+>  		}
+> +		SetPageReferenced(page);
+>  	}
+>  
+>  	/*
+> 
 
-/dev/urandom already is using a cryptographically secure algorithm.
-Everything you want is already in place.
+
+Well, I tried this, and.... WOW!  Much better  [:)]
+Was it really true, that swapped in pages didn't get marked as 
+referenced before?  It almost felt that bad, but that seems kind of 
+crazy - I don't completely understand what this fix is doing...
+
+-BenRI
+P.S. I tried this on my 64Mb PPro and a 128Mb PIII, and both felt like 
+they had a lot more memory - e.g. less swapping and stuff.
+-- 
+"I will begin again" - U2, 'New Year's Day'
+Benjamin Redelings I      <><     http://www.bol.ucla.edu/~bredelin/
+

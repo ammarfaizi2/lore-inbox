@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263160AbSJBOes>; Wed, 2 Oct 2002 10:34:48 -0400
+	id <S263133AbSJBO2c>; Wed, 2 Oct 2002 10:28:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263161AbSJBOes>; Wed, 2 Oct 2002 10:34:48 -0400
-Received: from [213.226.134.105] ([213.226.134.105]:19230 "EHLO mx.ktv.lt")
-	by vger.kernel.org with ESMTP id <S263160AbSJBOer>;
-	Wed, 2 Oct 2002 10:34:47 -0400
-Date: Wed, 2 Oct 2002 16:39:58 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: Recompiling kernel 2.4.7-10
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Vivek Srivastava <vivs@vt.edu>
-Message-ID: <Mahogany-0.64.2-10543-20021002-163958.00@nerijus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-References: <006901c26a1f$db35c5e0$76c211d0@ferrari>
-In-Reply-To: <006901c26a1f$db35c5e0$76c211d0@ferrari>
-X-Mailer: Mahogany 0.64.2 'Sparc', compiled for Linux 2.4.18-rc4 i686
+	id <S263134AbSJBO2c>; Wed, 2 Oct 2002 10:28:32 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:59663
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263133AbSJBO2b>; Wed, 2 Oct 2002 10:28:31 -0400
+Subject: Re: [PATCH] Re: Capabilities-related change in 2.5.40
+From: Robert Love <rml@tech9.net>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021002132331.GA17376@nevyn.them.org>
+References: <20021001164907.GA25307@nevyn.them.org>
+	 <20021001134552.A26557@figure1.int.wirex.com>
+	 <20021001211210.GA8784@nevyn.them.org>
+	 <20021002003817.B26557@figure1.int.wirex.com>
+	 <20021002132331.GA17376@nevyn.them.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033569212.24108.20.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 02 Oct 2002 10:33:32 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Oct 2002 10:27:37 -0400 Vivek Srivastava <vivs@vt.edu> wrote:
+On Wed, 2002-10-02 at 09:23, Daniel Jacobowitz wrote:
 
-> Hello Group,
-> I am a newbie to Linux. I have Linux Rh 7.2 installed on my Dell Latitude
-> C640 Laptop. It is partitioned with Win 2K professional as the other OS. I
-> included some Xircom and Cisco WLAN card modules in the kernel configuration
-> and recompiled the kernel. A problem then came up when I rebooted my machine
-> with the new kernel. It failed to mount my root file system.
+> How very odd.  I have been running 2.5 on that machine for a while, and
+> the bug only showed up somewhere between 2.5.36 and 2.5.40.  Maybe a
+> coincidence triggered by the PID hashing... your tabbing is a little
+> odd but the patch looks right to me.  Thanks!
 
-Most likely you forgot mkinitrd.
+I too wonder if the bug is due to the pid changes and not me :)
 
-Regards,
-Nerijus
+find_task_by_pid(0) should just return current, which was my intention
+to avoid conditional code-paths.  Maybe I should of used
+find_process_by_pid()... it seems in the latest 2.5 that still returns
+current if !pid, at least.
+
+	Robert Love
 

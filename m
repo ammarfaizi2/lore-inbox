@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318009AbSIBJ6B>; Mon, 2 Sep 2002 05:58:01 -0400
+	id <S318253AbSIBKAx>; Mon, 2 Sep 2002 06:00:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318252AbSIBJ6B>; Mon, 2 Sep 2002 05:58:01 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:8461 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S318009AbSIBJ6A>;
-	Mon, 2 Sep 2002 05:58:00 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S318255AbSIBKAx>; Mon, 2 Sep 2002 06:00:53 -0400
+Received: from dsl-213-023-021-067.arcor-ip.net ([213.23.21.67]:10376 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318253AbSIBKAv>;
+	Mon, 2 Sep 2002 06:00:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [TRIVIAL PATCH] Remove list_t infection.
+Date: Mon, 2 Sep 2002 12:07:04 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Robert Love <rml@tech9.net>, Rusty Russell <rusty@rustcorp.com.au>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org, akpm@zip.com.au
+References: <20020902003318.7CB682C092@lists.samba.org> <20020902060257.GO888@holomorphy.com> <15731.1019.581339.120099@notabene.cse.unsw.edu.au>
+In-Reply-To: <15731.1019.581339.120099@notabene.cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15731.14133.128922.87570@laputa.namesys.com>
-Date: Mon, 2 Sep 2002 14:02:29 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: Anton Altaparmakov <aia21@cantab.net>,
-       David Woodhouse <dwmw2@infradead.org>,
-       viro@math.psu.edu (Alexander Viro),
-       linux-kernel@vger.kernel.org (Linux Kernel)
-Subject: Re: [BK-PATCH-2.5] Introduce new VFS inode cache lookup function 
-In-Reply-To: <26631.1030893461@redhat.com>
-References: <E17lCXU-0002zH-00@storm.christs.cam.ac.uk>
-	<26631.1030893461@redhat.com>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Drdoom-Fodder: satan CERT crypt crash security
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17lo6q-0004gE-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse writes:
- > 
- > aia21@cantab.net said:
- > > The below ChangeSet against Linus' current BK tree adds a new function
- > > to the VFS, fs/inode.c::ilookup().
- > 
- > > This is needed in NTFS when writing out inode metadata pages via the
- > > VM dirty page code paths as we need to know whether there is an active
- > > inode in icache but we don't want to do an iget() because if the inode
- > > is not active then there is no need to write it... - I can just skip
- > > onto the next one instead... - If there is an active inode then I need
- > > to get the struct inode in order to perform appropriate locking for
- > > the write out to happen. 
- > 
- > Yum. I need similar functionality for JFFS2 garbage collection. When moving
- > a data node, we currently iget() the inode to which it belongs and update
- > its in-core extent lists accordingly. If the inode in question wasn't
- > already present, there's no real need to do that.
- > 
+On Monday 02 September 2002 08:23, Neil Brown wrote:
+> On Sunday September 1, wli@holomorphy.com wrote:
+> > On Mon, 2002-09-02 at 01:23, Rusty Russell wrote:
+> > >> This week, it spread to SCTP.
+> > >> "struct list_head" isn't a great name, but having two names for
+> > >> everything is yet another bar to reading kernel source.
+> > 
+> > On Mon, Sep 02, 2002 at 01:51:54AM -0400, Robert Love wrote:
+> > > I am all for your cleanup here, but two nits:
+> > > Why not rename list_head while at it?  I would vote for just "struct
+> > > list" ... the name is long, and I like my lines to fit 80 columns.
+> > 
+> > Seconded. Throw the whole frog in the blender, please, not just
+> > half.
+> 
+> The struct in question is a handle on an element of a list, or the
+> head of a list, but it is not a list itself.  A list is a number of
+> stuctures each of which contain (inherit from?)  the particular
+> structure.  So calling it "struct list" would be wrong, because it
+> isn't a list, only part of one.
 
-Reiser4 also needs this.
+Pffft.  A struct page isn't a page either.
 
- > --
- > dwmw2
- > 
-
-Nikita.
-
- > 
+-- 
+Daniel

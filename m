@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318083AbSGWIsJ>; Tue, 23 Jul 2002 04:48:09 -0400
+	id <S318082AbSGWIrH>; Tue, 23 Jul 2002 04:47:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318084AbSGWIsJ>; Tue, 23 Jul 2002 04:48:09 -0400
-Received: from lech.pse.pl ([194.92.3.7]:11136 "EHLO lech.pse.pl")
-	by vger.kernel.org with ESMTP id <S318083AbSGWIsI>;
-	Tue, 23 Jul 2002 04:48:08 -0400
-Date: Tue, 23 Jul 2002 10:51:13 +0200
-From: Lech Szychowski <lech.szychowski@pse.pl>
-To: James Cleverdon <jamesclv@us.ibm.com>
+	id <S318083AbSGWIrH>; Tue, 23 Jul 2002 04:47:07 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:53448 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S318082AbSGWIrG>;
+	Tue, 23 Jul 2002 04:47:06 -0400
+Date: Tue, 23 Jul 2002 10:49:11 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: anton wilson <anton.wilson@camotion.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Summit patch for 2.4.19-rc3-ac2
-Message-ID: <20020723085113.GA839@lech.pse.pl>
-Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
-Mail-Followup-To: James Cleverdon <jamesclv@us.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <200207222121.04788.jamesclv@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207222121.04788.jamesclv@us.ibm.com>
-Organization: Polskie Sieci Elektroenergetyczne S.A.
-User-Agent: Mutt/1.5.1i
+Subject: Re: [PATCH] RML pre-emptive 2.4.19-ac2 with O(1)
+In-Reply-To: <200207222337.TAA19236@test-area.com>
+Message-ID: <Pine.LNX.4.44.0207231048180.2980-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This fixes the APIC receive accept errors on the two machines we have that 
-> were subject to it.  Let me know if it doesn't work for you.
 
-This patch works for my Asus P2B-DS with 2xPII(Deschutes)-400.
+On Mon, 22 Jul 2002, anton wilson wrote:
 
--- 
-	Leszek.
+> I tried to change the current RML preemptive patch for 2.4.19-rc2 to
+> work with the O(1) scheduler patch applied. The only changes I made were
+> in sched.c - Not sure if this is a correct change:
 
--- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
--- speaking just for myself...
+looks good at first sight.
+
+this one:
+
+> +
+> +       /* Set the preempt count _outside_ the spinlocks! */
+> +       idle->preempt_count = (idle->lock_depth >= 0);
+
+needs to be #if CONFIG_PREEMPT.
+
+	Ingo
+

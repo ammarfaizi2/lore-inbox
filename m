@@ -1,82 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285338AbSALJcV>; Sat, 12 Jan 2002 04:32:21 -0500
+	id <S284300AbSALJoB>; Sat, 12 Jan 2002 04:44:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285352AbSALJcN>; Sat, 12 Jan 2002 04:32:13 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:16312 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S285338AbSALJcA>;
-	Sat, 12 Jan 2002 04:32:00 -0500
-Date: Sat, 12 Jan 2002 01:14:20 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-cc: Benjamin S Carrell <ben@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bigggg Maxtor drives (fwd)
-In-Reply-To: <200201112113.g0BLDKo05903@abraracourcix.bitwizard.nl>
-Message-ID: <Pine.LNX.4.10.10201120111440.12811-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S285369AbSALJnw>; Sat, 12 Jan 2002 04:43:52 -0500
+Received: from david.siemens.de ([192.35.17.14]:32979 "EHLO david.siemens.de")
+	by vger.kernel.org with ESMTP id <S284300AbSALJnp> convert rfc822-to-8bit;
+	Sat, 12 Jan 2002 04:43:45 -0500
+From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Thomas Hood <jdthood@mail.com>, Russell King <rmk@arm.linux.org.uk>,
+        Andreas Steinmetz <ast@domdv.de>, linux-laptop@vger.kernel.org,
+        laslo@wodip.opole.pl, linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Combined APM patch
+In-Reply-To: <20020107155226.5c6409b6.sfr@canb.auug.org.au>
+In-Reply-To: <20020107155226.5c6409b6.sfr@canb.auug.org.au>
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 12 Jan 2002 12:43:30 +0300
+Message-Id: <1010828612.2501.0.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Rogier,
-
-Please look at the pdc202xx.c code and see that it is addessed by using
-the formerly unpublished DMA-ATAPI locations for the backwards support.
-
-Please note this will require the very latest BIOS updates for the acards.
-
-Regards,
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
-
-On Fri, 11 Jan 2002, Rogier Wolff wrote:
-
-> Andre Hedrick wrote:
-> > 
-> > 
-> > Sorry but the amount of capacity we are talking about is vastly different.
-> > 
-> > hdg: Maxtor 4G160J8, ATA DISK drive
-> > hdg: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=317632/255/63, UDMA(133)
+On ðÎÄ, 2002-01-07 at 07:52, Stephen Rothwell wrote:
+> Hi All,
 > 
-> Hi Andre, 
+> This is my version of the combined APM patches;
 > 
-> I have one of these drives. Should I be able to run it off the promise 
-> controller? (Which didn't boast 48-bit compatibilty when I bought it?)
+> 	Change notification order so that user mode is notified
+> 		before drivers of impending suspends.
+> 	Move the idling back into the idle loop.
+> 	A couple of small tidy ups.
 > 
->   Bus  0, device  10, function  0:
->     Unknown mass storage controller: Promise Technology, Inc. 20262 (rev 1).
->       IRQ 11.
->       Master Capable.  Latency=32.  
->       I/O at 0x9400 [0x9407].
->       I/O at 0x9800 [0x9803].
->       I/O at 0x9c00 [0x9c07].
->       I/O at 0xa000 [0xa003].
->       I/O at 0xa400 [0xa43f].
->       Non-prefetchable 32 bit memory at 0xf74c0000 [0xf74dffff].
+> See header comments for attributions.
 > 
-> I tried it before on a "test-machine" where it ran off the onboard
-> controller just fine. But in my fileserver on the fast promise 
-> controller it just hangs while scanning the partition table. 
+> This works for me (including as a module).
 > 
-> We're running 2.4.16 with your patch off linux-ide.org. 
+> Please test and let me know - it seems to lower my power requirements
+> by about 10% on my Thinkpad (over stock 2.4.17).
 > 
-> 	Roger. 
-> 
-> -----
-> I appreciate an Email copy on replies: I sometimes forget about the 
-> list for quite a while.... 
-> -- 
-> ** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-> *-- BitWizard writes Linux device drivers for any device you may have! --*
-> * There are old pilots, and there are bold pilots. 
-> * There are also old, bald pilots. 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> http://www.canb.auug.org.au/~sfr/2.4.17-APM.1.diff
 > 
 
+Sorry for delay.
+
+The patch works just fine here. The only comment is not related to your
+patch - before I did not use this interrupt counting and I have feeling
+that CPU temp went down faster when system became idle. I still do not
+understand what is achieved by it.
+
+regards
+
+-andrej

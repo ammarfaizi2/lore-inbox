@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131228AbRABP1e>; Tue, 2 Jan 2001 10:27:34 -0500
+	id <S129183AbRABPiI>; Tue, 2 Jan 2001 10:38:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131148AbRABP1Z>; Tue, 2 Jan 2001 10:27:25 -0500
-Received: from smtp1.mail.yahoo.com ([128.11.69.60]:13584 "HELO
-	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S131104AbRABP1M>; Tue, 2 Jan 2001 10:27:12 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A51EAC8.24523718@yahoo.com>
-Date: Tue, 02 Jan 2001 09:50:48 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.18 i486)
+	id <S129267AbRABPh6>; Tue, 2 Jan 2001 10:37:58 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:55428 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129183AbRABPhq>; Tue, 2 Jan 2001 10:37:46 -0500
+Date: Tue, 2 Jan 2001 10:07:03 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Matthew Galgoci <mgalgoci@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: iopener reboot
+In-Reply-To: <20010102095134.A32445@redhat.com>
+Message-ID: <Pine.LNX.3.95.1010102100037.11768B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Memory detection wrong on old 386 (2.4.x)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I booted up 2.4.0-prerel on an old 386sx (just to see what would
-break) and  memory detection comes up almost 1MB short.
+On Tue, 2 Jan 2001, Matthew Galgoci wrote:
 
-It is an old sx16 Olivetti (M300-05) with 5MB & a MDA card, and
-it remaps some of the 640kB->1MB region to top of RAM.
+> Hi,
+> 
+> I've gone and tried the ultimate acid test of crappy x86 hardware on the 
+> vanilla prerelease kernel, and installed it on my iopener. The kernel 
+> loads, uncompresses, initializes hardware, and then immediately reboots.
+> 
+> It all happens so fast that I do not really get a chance to see the last thing
+> printed before it fails.
+> 
+> The last kernel that I had running on this was a test12 pre something.
+> 
+> Any ideas?
+> 
+> --Matt Galgoci
+> 
 
-2.2.18 reports:
+Recompile as 'generic' as you can get. Pretend you have a '486. Use
+a known good 'C' compiler even though it may not be 'optimum'. Once
+this boots okay, try compiling for a Pentium '586' etc. You may
+have found some problem with CPU identification.
 
-Memory: 3988k/5408k available (760k kernel code, 
-                 416k reserved, 216k data, 28k init)
+A quick hack at the possibility of a BIOS reporting the wrong amount
+of memory is to put append="mem=16m" in your LILO config just to
+pretend that you only have 16 megabytes of RAM. Assuming you have
+more than 16 megabytes, if the machine boots, you have isolated the
+problem to bad BIOS reporting.
 
-which would indicate to me that it remaps 5408-5120=288kB.
+Step-by-step, using these kinds of tricks, you should be able to
+find the problem.
 
-But 2.4.0-prerel gives:
+Cheers,
+Dick Johnson
 
-BIOS-provided physical RAM map:
- BIOS-88: 000000000009f000 @ 0000000000000000 (usable)
- BIOS-88: 0000000000350000 @ 0000000000100000 (usable)
-On node 0 totalpages: 1104
-zone(0): 1104 pages.
-zone(1): 0 pages.
-zone(2): 0 pages.
-[...]
-Memory: 2804k/4416k available (892k kernel code, 
-        1224k reserved, 42k data, 36k init, 0k highmem)
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
 
-Booting same kernel with mem=5408k and everything is fine:
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
-BIOS-provided physical RAM map:
- BIOS-88: 000000000009f000 @ 0000000000000000 (usable)
- BIOS-88: 0000000000350000 @ 0000000000100000 (usable)
-On node 0 totalpages: 1352
-zone(0): 1352 pages.
-zone(1): 0 pages.
-zone(2): 0 pages.
-[...]
-Memory: 3780k/5408k available (892k kernel code, 
-        1240k reserved, 42k data, 36k init, 0k highmem)
-
-Output from /proc/driver/nvram (i.e. CMOS 0x15->0x18)
-   DOS base memory: 640 kB
-   Extended memory: 4416 kB (configured), 4416 kB (tested)
-
-Not a big panic, as the machine is useless anyway, but I thought
-I'd mention it regardless. 
-
-<insert your favourite quote from Alan about BIOS writers here...>
-
-Paul.
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,90 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266884AbUBEW2B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 17:28:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266894AbUBEW2B
+	id S267072AbUBEWUV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 17:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267074AbUBEWUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 17:28:01 -0500
-Received: from fmr09.intel.com ([192.52.57.35]:41638 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S266884AbUBEW1z convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 17:27:55 -0500
-content-class: urn:content-classes:message
+	Thu, 5 Feb 2004 17:20:21 -0500
+Received: from q.bofh.de ([212.126.220.202]:23812 "EHLO q.bofh.de")
+	by vger.kernel.org with ESMTP id S267072AbUBEWUI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 17:20:08 -0500
+To: marcelo.tosatti@cyclades.com
+Cc: linux-kernel@vger.kernel.org, keil@isdn4linux.de, kai.germaschewski@gmx.de,
+       isdn4linux@listserv.isdn4linux.de, perex@suse.cz
+Subject: [patch] 2.4 HiSax I-Talk/I-Surf doesn't work together with kernel
+ isapnp
+Mail-Copies-To: nobody
+From: Hilko Bengen <bengen@hilluzination.de>
+Date: Thu, 05 Feb 2004 23:16:39 +0100
+Message-ID: <87isiluq7s.fsf@hilluzination.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Reasonable Discussion,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Date: Thu, 5 Feb 2004 14:26:46 -0800
-Message-ID: <C1B7430B33A4B14F80D29B5126C5E94703262589@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Thread-Index: AcPsMxphEQMKMmftR6GsZzH4qeaXoQAABmWwAACUPAA=
-From: "Hefty, Sean" <sean.hefty@intel.com>
-To: "Tillier, Fabian" <ftillier@infiniconsys.com>,
-       "Chris Friesen" <cfriesen@nortelnetworks.com>,
-       "Greg KH" <greg@kroah.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <hozer@hozed.org>, "Woodruff, Robert J" <woody@co.intel.com>,
-       "Magro, Bill" <bill.magro@intel.com>, <woody@jf.intel.com>,
-       <infiniband-general@lists.sourceforge.net>
-X-OriginalArrivalTime: 05 Feb 2004 22:26:46.0739 (UTC) FILETIME=[23F91A30:01C3EC37]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Personally, I'm amazed that professional developers have to discuss or
-defend modular, portable code.
+In 2.4, the HiSax I-Talk/I-Surf driver can only be initialized
+successfully if the card has been activated using the isapnp userspace
+tools. Automatic configuration using the isa-pnp module in the kernel
+fails with messages such as:
 
-Once the code has been submitted, then specific implementation problems
-can be dealt with.
+Feb  4 00:28:19 paranoia kernel: ISurfPnP:some resources are missing 5/100/0
+Feb  4 00:28:19 paranoia kernel: HiSax: Card Siemens I-Surf not installed !
 
-- Sean
+There are two reasons for this failure:
+(1) The isapnp code correctly builds the data structures, but the code
+    in isurf.c looks in the wrong place for the mem parameter.
+(2) The IO memory upper limit address is not set by isapnp code. I'm
+    unsure whether this is a bug in isapnp.c or a hardware bug. I
+    assumed the latter and did the fix in the I-Surf initialization
+    routine.
 
+The attached patch fixes the two issues. Please apply it to the 2.4
+tree. I have successfully tested it on the two of my systems that have
+an I-Surf.
 
------Original Message-----
-From: Tillier, Fabian [mailto:ftillier@infiniconsys.com] 
-Sent: Thursday, February 05, 2004 2:03 PM
-To: Chris Friesen; Greg KH
-Cc: Randy.Dunlap; Hefty, Sean; linux-kernel@vger.kernel.org;
-hozer@hozed.org; Woodruff, Robert J; Magro, Bill; woody@jf.intel.com;
-infiniband-general@lists.sourceforge.net
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in
-theLinux kernel
+Greetings,
+-Hilko
 
-That is absolutely correct.  In addition to portability between kernel
-versions and operating systems, there is also portability between
-user-mode and kernel-mode within a single release.
-
-- Fab
-
------Original Message-----
-From: Chris Friesen [mailto:cfriesen@nortelnetworks.com] 
-Sent: Thursday, February 05, 2004 1:57 PM
-To: Greg KH
-Cc: Tillier, Fabian; Randy.Dunlap; sean.hefty@intel.com;
-linux-kernel@vger.kernel.org; hozer@hozed.org; woody@co.intel.com;
-bill.magro@intel.com; woody@jf.intel.com;
-infiniband-general@lists.sourceforge.net
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
-theLinux kernel
-
-Greg KH wrote:
-
-> Basically, what is lacking in the current kernel locks that the
-> infiniband project has to have in order to work properly.  We can work
-> from there.
-
-I think their point is that they want the core device driver code to be 
-portable across kernel versions, and across different OS's other than 
-linux--which basically requires some kind of abstraction layer.
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+diff -uir orig/linux-2.4.24/drivers/isdn/hisax/isurf.c linux-2.4.24/drivers/isdn/hisax/isurf.c
+--- orig/linux-2.4.24/drivers/isdn/hisax/isurf.c	2002-11-29 00:53:13.000000000 +0100
++++ linux-2.4.24/drivers/isdn/hisax/isurf.c	2004-02-05 15:44:20.000000000 +0100
+@@ -235,8 +235,18 @@
+ 				pd->prepare(pd);
+ 				pd->deactivate(pd);
+ 				pd->activate(pd);
++				/* The ISA-PnP logic apparently
++				 * expects upper limit address to be
++				 * set. Since the isa-pnp module
++				 * doesn't do this, so we have to make
++				 * up for it.
++				 */
++				isapnp_cfg_begin(pd->bus->number, pd->devfn);
++				isapnp_write_word(ISAPNP_CFG_MEM+3, 
++					pd->resource[8].end >> 8);
++				isapnp_cfg_end();
+ 				cs->hw.isurf.reset = pd->resource[0].start;
+-				cs->hw.isurf.phymem = pd->resource[1].start;
++				cs->hw.isurf.phymem = pd->resource[8].start;
+ 				cs->irq = pd->irq_resource[0].start;
+ 				if (!cs->irq || !cs->hw.isurf.reset || !cs->hw.isurf.phymem) {
+ 					printk(KERN_ERR "ISurfPnP:some resources are missing %d/%x/%lx\n",
 

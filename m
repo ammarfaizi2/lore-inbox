@@ -1,117 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285151AbRLMURn>; Thu, 13 Dec 2001 15:17:43 -0500
+	id <S285155AbRLMUTX>; Thu, 13 Dec 2001 15:19:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285154AbRLMURe>; Thu, 13 Dec 2001 15:17:34 -0500
-Received: from fw.pdx.polyserve.com ([65.209.250.242]:11527 "HELO
-	mail.pdx.polyserve.com") by vger.kernel.org with SMTP
-	id <S285151AbRLMURV>; Thu, 13 Dec 2001 15:17:21 -0500
-Message-ID: <3C190C34.50008@polyserve.com>
-Date: Thu, 13 Dec 2001 12:14:44 -0800
-From: Michael Gaughen <mgaughen@polyserve.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S285154AbRLMUTN>; Thu, 13 Dec 2001 15:19:13 -0500
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:24567 "EHLO
+	hawk.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S285159AbRLMUS7>; Thu, 13 Dec 2001 15:18:59 -0500
+Message-ID: <3C1880F4.8CE5AC8F@earthlink.net>
+Date: Thu, 13 Dec 2001 05:20:36 -0500
+From: Jeff <piercejhsd009@earthlink.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: mgaughen@polyserve.com
-Subject: SMP race in VFS.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: cdrecord reports size vs. capabilities error....
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This I believed may have been asked before, but I am new to this list
+and I hope I can get it resolved.
+I have a IDE CDR as hdb and a IDE CDRW as hdc, no problem. I know in
+order to use cdrecord I must use ide-scsi, no problem as I had this
+exact same setup working with cdrecord when this was a 2.2.x system. Ok,
+I upgrade the hard drive, hda, and install 2.4.5 kernel from Slackware
+8.0. I always install just what I need,and install things as I need
+them, usually from source. That's how you learn.
+Ok, I need cdrecord working. No problem, I've done this before. Get the
+cdrtools-1.10.tar.gz and have at. builds no problem. Build kernel with
+scsi emulation, put the append command in lilo.conf, do the modules.conf
+thing and link /dev/cdrom to /dev/scd0 and /dev/cdrw to /dev/scd1.
+Reboot and I can mount both /dev/cdrom and /dev/cdrw as ro filesystems.
+lsmod shows:
+Module                  Size  Used by
+isofs                  18032   1  (autoclean)
+sr_mod                 13024   1  (autoclean)
+sg                     21408   0  (autoclean)
+ide-scsi                7904   1 
+ide-cd                 26432   0 
+cdrom                  27520   0  [sr_mod ide-cd]
+scsi_mod               81904   3  (autoclean) [sr_mod sg ide-scsi]
+3c59x                  24224   1 
 
-  I have a question about a potential race, on SMP machines,
-between the creat(2) and rename(2) operations.  Rename has the
-semantic that if the "newpath" exists, then it will be atomically
-replaced.  Now I have two processes: one is renaming a directory
-"a" to directory "b" (which _is_ empty), while the second is
-trying to create a file "c" within directory "b."  In that test, the
-directory "b" should _always_ exist, therefore, the create should
-always succeed.  However, there exists a window of opportunity
-in which the create can return ENOENT.
+Ok, I try cdrecord -scanbus, and get he following warning:
+Cdrecord 1.10 (i686-pc-linux-gnu) Copyright (C) 1995-2001 Jörg Schilling
+Linux sg driver version: 3.1.17
+Using libscg version 'schily-0.5'
+scsibus0:
+cdrecord: Warning: controller returns wrong size for CD capabilities
+page.
+        0,0,0     0) 'E-IDE   ' 'CD-ROM 50X      ' '50  ' Removable
+CD-ROM
+        0,1,0     1) 'HP      ' 'CD-Writer+ 9100 ' '1.0c' Removable
+CD-ROM
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
+Where did the Warning: come from? Trying to burn from xcdroast causes an
+error box stating the same and refuses to write.
+I did everything like the cd writer how-to specifies, just like I did
+before, I think? Did I miss something?
 
-  Upon further investigation of the VFS code, I found:
+I google searched and found plenty of postings with the same problem,
+but couldn't find any with the answer. One thing I did notice that they
+all involved 2.4.x kernel. Is that  the problem?
 
-     do_rename():
-        ...
-        lock_kernel();
-        error = vfs_rename(old_dir->d_inode, old_dentry,
-                                   new_dir->d_inode, new_dentry);
-        unlock_kernel();
-        ...
-
-  that eventually calls down to:
-
-      vfs_rename_dir():
-        if (target) { /* Hastur! Hastur! Hastur! */
-                triple_down(&old_dir->i_zombie,
-                            &new_dir->i_zombie,
-                            &target->i_zombie);
-                d_unhash(new_dentry);
-        } else
-                double_down(&old_dir->i_zombie,
-                            &new_dir->i_zombie);
-        ...
-        if (target) {
-                if (!error)
-                        target->i_flags |= S_DEAD;
-                triple_up(&old_dir->i_zombie,
-                          &new_dir->i_zombie,
-                          &target->i_zombie);
-                if (d_unhashed(new_dentry))
-                        d_rehash(new_dentry);
-                dput(new_dentry);
-        } else
-                double_up(&old_dir->i_zombie,
-                          &new_dir->i_zombie);
-
-        if (!error)
-                d_move(old_dentry,new_dentry);
-         ...
-
-     vfs_create():
-         ...
-        down(&dir->i_zombie);
-        error = may_create(dir, dentry);
-        if (error)
-                goto exit_locks;
-        ...
-        lock_kernel();
-        error = dir->i_op->create(dir, dentry, mode);
-        unlock_kernel();
-        ...
-
-Now, in this case, both processes have performed their
-path walks, and are now referencing the same dentry/inode
-corresponding to the directory "b."  The rename process is
-able to acquire the BKL, and the necessary i_zombies first.
-The create process must then block, within vfs_create,
-waiting for directory "b's" i_zombie.  The rename operation
-completes, sets S_DEAD within the target inode (in this case
-the target inode is the directory "b"), and releases all of its
-i_zombies.  At this point, before vfs_rename_dir is able to
-call d_move, the process blocked in vfs_create is able to
-acquire the i_zombie, and call may_create - which finds that
-the directory "b's" inode is now dead and returns ENOENT.
-
-The problem boils down to the fact that the d_move was not
-called before the may_create.  I am not sure of the appropriate
-fix for this race, but I see at least two options.  One is to move
-the call to may_create within the lock_kernel() - however, that
-may not be a good long term solution if the BKL is going away.  
-Another possibility is to move the call to d_move within the
-protection of the i_zombie (within vfs_rename_dir).
-
-The test was run on an SMP machine running Linux kernel2.4.7.  
-Upon inspection, I found that the race still exists in the latest stable
-release: 2.4.16.  And this race _only_ exists_ on SMP machines.
-
-Comments?  Ideas?  Flames?
-
-Thanks,
--Mike Gaughen
-
-ps.  Please CC me on any replies, as I am not subscribed to the list.
-
+Jeff
+piercejhsd009@earthlink.net

@@ -1,39 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263013AbSJBJZ7>; Wed, 2 Oct 2002 05:25:59 -0400
+	id <S263030AbSJBJaJ>; Wed, 2 Oct 2002 05:30:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263014AbSJBJZ7>; Wed, 2 Oct 2002 05:25:59 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:19475 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S263013AbSJBJZ6>; Wed, 2 Oct 2002 05:25:58 -0400
-Date: Wed, 02 Oct 2002 18:31:13 +0900 (JST)
-Message-Id: <20021002.183113.16291158.yoshfuji@wide.ad.jp>
-To: pekkas@netcore.fi
-Cc: ajtuomin@morphine.tml.hut.fi, davem@redhat.com, kuznet@ms2.inr.ac.ru,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] Mobile IPv6 for 2.5.40 (request for kernel inclusion)
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@wide.ad.jp>
-In-Reply-To: <Pine.LNX.4.44.0210021224350.27873-100000@netcore.fi>
-References: <20021002092111.GB17010@morphine.tml.hut.fi>
-	<Pine.LNX.4.44.0210021224350.27873-100000@netcore.fi>
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263031AbSJBJaJ>; Wed, 2 Oct 2002 05:30:09 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:53397 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S263030AbSJBJaG>; Wed, 2 Oct 2002 05:30:06 -0400
+Date: Wed, 2 Oct 2002 15:22:31 +0530 (IST)
+From: "Hanumanthu. H" <hanumanthu.hanok@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <torvalds@transmeta.com>
+Subject: [PATCH, 2.5.40] Add wait_event_timeout & change wait_event_interruptible_timeout
+ ret val
+Message-ID: <Pine.LNX.4.33.0210021517170.31822-100000@ccvsbarc.wipro.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0210021224350.27873-100000@netcore.fi> (at Wed, 2 Oct 2002 12:25:37 +0300 (EEST)), Pekka Savola <pekkas@netcore.fi> says:
+Hi,
 
-> I believe MIPL implements an old version of MIPv6 (draft -15 or so).
-> 
-> Or do you support -18 ?
+Nice to have wait_event_interruptible_timeout, but it would be
+necessary to return -ETIME upon timeout expiration (we need this
+behaviour please !!). The following patch makes trivial changes
+to __wait_even_interruptible_timeout macro to behave as below:
 
-We believe we should do -18, not -15 at all.
+	if timeout occurs return -ETIME
+	if interrupted, return -ERESTARTSYS
+	if condition becomes true within specified timeout
+	then return the remaining timeout
 
---yoshfuji
+It also adds wait_event_timeout macro (again, we require it)
+
+Please apply
+
+~Hanu
+
+
+--- linux-2.5.40/include/linux/sched.h	Wed Oct  2 13:59:47 2002
++++ linux/include/linux/sched.h	Wed Oct  2 14:37:52 2002
+@@ -697,6 +697,33 @@
+ 	__wait_event(wq, condition);					\
+ } while (0)
+
++#define __wait_event_timeout(wq, condition, ret) 			\
++do {									\
++	wait_queue_t __wait;						\
++	init_waitqueue_entry(&__wait, current);				\
++									\
++	add_wait_queue(&wq, &__wait);					\
++	for (;;) {							\
++		set_current_state(TASK_UNINTERRUPTIBLE);		\
++		if (condition)						\
++			break;						\
++		if(ret = schedule_timeout(ret))				\
++			continue;					\
++		ret = -ETIME;						\
++		break;							\
++	}								\
++	current->state = TASK_RUNNING;					\
++	remove_wait_queue(&wq, &__wait);				\
++} while (0)
++
++#define wait_event_timeout(wq, condition, timeout)			\
++({									\
++ 	long __ret = timeout;						\
++	if (!(condition))						\
++		__wait_event_timeout(wq, condition, __ret);		\
++	__ret;								\
++})
++
+ #define __wait_event_interruptible(wq, condition, ret)			\
+ do {									\
+ 	wait_queue_t __wait;						\
+@@ -726,7 +753,7 @@
+ 	__ret;								\
+ })
+
+-#define __wait_event_interruptible_timeout(wq, condition, ret)		\
++#define __wait_event_interruptible_timeout(wq, condition, tout, ret)	\
+ do {									\
+ 	wait_queue_t __wait;						\
+ 	init_waitqueue_entry(&__wait, current);				\
+@@ -737,10 +764,10 @@
+ 		if (condition)						\
+ 			break;						\
+ 		if (!signal_pending(current)) {				\
+-			ret = schedule_timeout(ret);			\
+-			if (!ret)					\
+-				break;					\
+-			continue;					\
++			if(tout = schedule_timeout(tout))		\
++				continue;				\
++			ret = -ETIME;					\
++			break;						\
+ 		}							\
+ 		ret = -ERESTARTSYS;					\
+ 		break;							\
+@@ -751,10 +778,10 @@
+
+ #define wait_event_interruptible_timeout(wq, condition, timeout)	\
+ ({									\
+-	long __ret = timeout;						\
++	long __tout = timeout, __ret = 0;				\
+ 	if (!(condition))						\
+-		__wait_event_interruptible_timeout(wq, condition, __ret); \
+-	__ret;								\
++		__wait_event_interruptible_timeout(wq, condition, __tout, __ret); \
++	(__ret == 0) ? __tout : __ret;					\
+ })
+
+ /*
+

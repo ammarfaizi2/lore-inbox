@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132042AbRDTVlD>; Fri, 20 Apr 2001 17:41:03 -0400
+	id <S132045AbRDTVpy>; Fri, 20 Apr 2001 17:45:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132046AbRDTVky>; Fri, 20 Apr 2001 17:40:54 -0400
-Received: from t2.redhat.com ([199.183.24.243]:61680 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S132039AbRDTVkr>; Fri, 20 Apr 2001 17:40:47 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010420173514.A21392@thyrsus.com> 
-In-Reply-To: <20010420173514.A21392@thyrsus.com>  <20010420172435.A21252@thyrsus.com> <Pine.LNX.4.33.0104201440580.12186-100000@xanadu.home> <6817.987801548@redhat.com> <20010420172435.A21252@thyrsus.com> <7043.987802140@redhat.com> 
-To: esr@thyrsus.com
-Cc: Nicolas Pitre <nico@cam.org>, Tom Rini <trini@kernel.crashing.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Matthew Wilcox <willy@ldl.fc.hp.com>,
-        james rich <james.rich@m.cc.utah.edu>,
-        lkml <linux-kernel@vger.kernel.org>, parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention? 
-Mime-Version: 1.0
+	id <S132044AbRDTVpe>; Fri, 20 Apr 2001 17:45:34 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:35507 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S132039AbRDTVpc>;
+	Fri, 20 Apr 2001 17:45:32 -0400
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: Global FPU corruption in 2.2
+In-Reply-To: <Pine.LNX.3.95.1010420153006.12968A-100000@chaos.analogic.com>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 20 Apr 2001 14:44:41 -0700
+In-Reply-To: "Richard B. Johnson"'s message of "Fri, 20 Apr 2001 15:37:07 -0400 (EDT)"
+Message-ID: <m33db3s0ty.fsf@otr.mynet.cygnus.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 20 Apr 2001 22:39:24 +0100
-Message-ID: <7261.987802764@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
+> The kernel doesn't know if a process is going to use the FPU when
+> a new process is created. Only the user's code, i.e., the 'C' runtime
+> library knows.
 
-esr@thyrsus.com said:
->  Even supposing that's so, a 36% rate of broken symbols is way too
-> high.  It argues that we need to do a thorough housecleaning at least
-> once in order to get back to an acceptably low stable rate.
+Maybe you should try to understand the kernel code and the features of
+the processor first.  The kernel can detect when the FPU is used for
+the first time.
 
-Accepted. Can we let the 2.4 "angry penguin"-enforced stabilising period
-finish, and give the arch and subsystem maintainers a chance to finally
-brave the wrath of Linus and submit their patches, before we attempt do to
-it though?
-
---
-dwmw2
-
-
+-- 
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------

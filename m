@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136114AbRAZQew>; Fri, 26 Jan 2001 11:34:52 -0500
+	id <S129868AbRAZQfw>; Fri, 26 Jan 2001 11:35:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136302AbRAZQem>; Fri, 26 Jan 2001 11:34:42 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:33540 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S136114AbRAZQe0>; Fri, 26 Jan 2001 11:34:26 -0500
-Message-ID: <3A71A6DB.B7921B62@didntduck.org>
-Date: Fri, 26 Jan 2001 11:33:31 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Manfred Spraul <manfred@colorfullife.com>, rjohnson@analogic.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux Post codes during runtime, possibly OT
-In-Reply-To: <Pine.LNX.3.95.1010126110426.1321B-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130127AbRAZQfm>; Fri, 26 Jan 2001 11:35:42 -0500
+Received: from palrel3.hp.com ([156.153.255.226]:59910 "HELO palrel3.hp.com")
+	by vger.kernel.org with SMTP id <S129868AbRAZQfW>;
+	Fri, 26 Jan 2001 11:35:22 -0500
+From: Scott Rhine <rhine@rsn.hp.com>
+Message-Id: <200101261635.KAA23305@hueco-e.rsn.hp.com>
+Subject: plug-in schedulers for linux 2_4_0
+To: linux-kernel@vger.kernel.org, linux-announce@sws1.ctd.ornl.gov
+Date: Fri, 26 Jan 2001 10:35:13 CST
+Cc: romero@hueco-e.rsn.hp.com, mcarl@hueco-e.rsn.hp.com
+X-Mailer: Elm [revision: 111.1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Fri, 26 Jan 2001, Manfred Spraul wrote:
-> 
-> > > + *
-> > > + * Changed the slow-down I/O port from 0x80 to 0x19. 0x19 is a
-> > > + * DMA controller scratch register. rjohnson@analogic.com
-> > >    */
-> > >
-> > What about making that a config option?
-> >
-> > default: delay with 'outb 0x80', other options could be
-> >       udelay(n); (n=1,2,3)
-> >       outb 0x19
-> >
-> > 0x80 is a safe port, and IMHO changing the port on all i386 systems
-> > because it's needed for some embedded system debuggers is too dangerous.
-> >
-> Dangerous? udelay(1) on a 33 MHz system is like udelay(100). Don't
-> get too used to 800+ MHz CPUs. There are systems, probably most in
-> the world, that need 300 +/- nanosecond delays. This is what the
-> port I/O does.
+In the last month, there have been a few more minor changes to Loadable
+Schedulers for Linux.  Both a new patch to the base kernels and deltas to
+previous downloads are provided.  If you download new utilities be sure to
+download the new kernel, or libpset calls may not behave properly!
 
-In most of the cases where this delay is needed, it is a _minimum_
-delay.  It is usually time enough for the hardware to react to an index
-register being written to, etc.  In most cases, a longer delay on slower
-machines should not hurt.
+Changes included:
+ * support for the official release of Linux 2_4_0
+ + a misleading print line in the sched_rr benchmark has been removed.
+ + the psetps utility further bullet-proofed against buffer overflow.
+ + our pset idtype_t has been replaced universally with the portable
+   type from the standardized include file <sys/wait.h>. In all utilities and
+   the kernel, PS_PID has been replaced with P_PID.
 
---
+One note for those using processor sets with animation.  Make certain that
+the X server or other display daemons are in the same pset as the application
+attempting to use the display.  Otherwise, performance may suffer.
 
-				Brian Gerst
+Watch for our demonstration at the HP booth at Linux World and our
+presentation at Interworks!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

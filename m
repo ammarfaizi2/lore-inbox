@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbRKSSYT>; Mon, 19 Nov 2001 13:24:19 -0500
+	id <S280554AbRKSSbr>; Mon, 19 Nov 2001 13:31:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276751AbRKSSYF>; Mon, 19 Nov 2001 13:24:05 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:41117 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S276424AbRKSSXj>; Mon, 19 Nov 2001 13:23:39 -0500
-Date: Mon, 19 Nov 2001 11:23:23 -0700
-Message-Id: <200111191823.fAJINNb30280@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andi Kleen <ak@suse.de>
-Cc: Mike Kravetz <kravetz@us.ibm.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        lse-tech@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: Real Time Runqueue
-In-Reply-To: <20011119173022.A19740@wotan.suse.de>
-In-Reply-To: <20011116154701.G1152@w-mikek2.des.beaverton.ibm.com>
-	<Pine.LNX.4.40.0111161620050.998-100000@blue1.dev.mcafeelabs.com>
-	<20011116163224.H1152@w-mikek2.des.beaverton.ibm.com>
-	<20011119173022.A19740@wotan.suse.de>
+	id <S280547AbRKSSbh>; Mon, 19 Nov 2001 13:31:37 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:25618 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S280538AbRKSSb0>; Mon, 19 Nov 2001 13:31:26 -0500
+Date: Mon, 19 Nov 2001 12:31:25 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
+Message-ID: <20011119123125.B1439@asooo.flowerfire.com>
+In-Reply-To: <200111191801.fAJI1l922388@neosilicon.transmeta.com> <Pine.LNX.4.33.0111191003470.8205-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.33.0111191003470.8205-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Nov 19, 2001 at 10:07:58AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
-> On Fri, Nov 16, 2001 at 04:32:24PM -0800, Mike Kravetz wrote:
-> > The reason I ask is that we went through the pains of a separate
-> > realtime RQ in our MQ scheduler.  And yes, it does hurt the common
-> > case, not to mention the extra/complex code paths.  I was hoping
-> > that someone in the know could enlighten us as to how RT semantics
-> > apply to SMP systems.  If the semantics I suggest above are required,
-> > then it implies support must be added to any possible future
-> > scheduler implementations.
-> 
-> It seems a lot of applications/APIs do not care about global RT
-> semantics, but about RT semantics for groups of threads or processes
-> (e.g. java or ada applications). Linux currently simulates this only
-> for root and with a global runqueue. I don't think it makes too much
-> sense to have an global rt queue on a multi processor system, but
-> there should be some way to define "scheduling groups" where rt
-> semantics are followed inside.  Such a scheduling group could be a
-> clone flag or default to CLONE_VM for example for compatibility.  A
-> scheduling group would also make it possible to support simple rt
-> semantics for thread groups as non root.  Then one could run a rt
-> queue per scheduling group, and simulate global rt run queue or per
-> cpu rt run queue as needed by appropiate setup.
+Linus, so far 2.4.15-pre4 with your patch does not reproduce the kswapd
+issue with Oracle, but I do need to perform more deterministic tests
+before I can fully sign off on that.
 
-We have to continue providing global RT semantics. However, a
-non-privileged scheduling class which gives RT-like behaviour within a
-scheduling group would be *great*! I've wished for such a facility
-myself.
+BTW, didn't your patch go into -pre5?  Or is there an additional mod in
+-pre6 that we should try?
+-- 
+Ken.
+brownfld@irridia.com
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+On Mon, Nov 19, 2001 at 10:07:58AM -0800, Linus Torvalds wrote:
+| 
+| On Mon, 19 Nov 2001, Sebastian Dröge wrote:
+| > Hi,
+| > I couldn't answer ealier because I had some problems with my ISP
+| > the heavy swapping problem while burning a cd is solved in pre6aa1
+| > but if you want i can do some statistics tommorow
+| 
+| Well, pre6aa1 performs really badly exactly because it by default doesn't
+| swap enough even on _normal_ loads because Andrea is playing with some
+| tuning (and see the bad results of that tuning in the VM testing by
+| rwhron@earthlink.net).
+| 
+| So the pre6aa1 numbers are kind of suspect - lack of swapping may not be
+| due to fixing the problem, but due to bad tuning.
+| 
+| Does plain pre6 solve it? Plain pre6 has a fix where a locked shared
+| memory area would previously cause unnecessary swapping, and maybe the CD
+| burning buffer is using shmlock..
+| 
+| 		Linus
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

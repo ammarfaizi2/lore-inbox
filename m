@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUHWLPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUHWLmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUHWLPm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 07:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUHWLPm
+	id S263024AbUHWLmF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 07:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUHWLmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 07:15:42 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:50142 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S262085AbUHWLPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 07:15:14 -0400
-Date: Mon, 23 Aug 2004 12:13:15 +0100
-From: Dave Jones <davej@redhat.com>
-To: matthias brill <matthias.brill@akamail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       cpufreq list <cpufreq@www.linux.org.uk>
-Subject: Re: banias with different (unusual?) model_name
-Message-ID: <20040823111315.GA1589@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	matthias brill <matthias.brill@akamail.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	cpufreq list <cpufreq@www.linux.org.uk>
-References: <20040820093344.GA2923@akamail.com> <1093008335.30968.32.camel@localhost.localdomain> <20040821115316.GA2582@akamail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040821115316.GA2582@akamail.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 23 Aug 2004 07:42:05 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:13749 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S263024AbUHWLmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 07:42:01 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 23 Aug 2004 13:40:52 +0200
+To: schilling@fokus.fraunhofer.de, lkml-7994@mc.frodoid.org
+Cc: linux-kernel@vger.kernel.org, der.eremit@email.de, christer@weinigel.se,
+       axboe@suse.de
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <4129D7C4.nailA9B114PTI@burner>
+References: <2ptdY-42Y-55@gated-at.bofh.it>
+ <2uPdM-380-11@gated-at.bofh.it> <2uUwL-6VP-11@gated-at.bofh.it>
+ <2uWfh-8jo-29@gated-at.bofh.it> <2uXl0-Gt-27@gated-at.bofh.it>
+ <2vge2-63k-15@gated-at.bofh.it> <2vgQF-6Ai-39@gated-at.bofh.it>
+ <2vipq-7O8-15@gated-at.bofh.it> <2vj2b-8md-9@gated-at.bofh.it>
+ <2vDtS-bq-19@gated-at.bofh.it> <E1ByXMd-00007M-4A@localhost>
+ <412770EA.nail9DO11D18Y@burner> <412889FC.nail9MX1X3XW5@burner>
+ <Pine.LNX.4.58.0408221450540.297@neptune.local>
+ <m37jrr40zi.fsf@zoo.weinigel.se> <4128CAA2.nail9RG21R1OG@burner>
+ <87wtzq275g.fsf@killer.ninja.frodoid.org>
+In-Reply-To: <87wtzq275g.fsf@killer.ninja.frodoid.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 21, 2004 at 01:53:16PM +0200, matthias brill wrote:
+Julien Oster <lkml-7994@mc.frodoid.org> wrote:
 
- > if i understand correctly, the type of the cpu can be determined by
- > looking at the family, model and stepping -- assuming that these values
- > are reported directly  by the CPUID (0FA2) instruction. 
+> Joerg Schilling <schilling@fokus.fraunhofer.de> writes:
+>
+> > But in order to rip an audio CD, you need to use e.g. MODE SELECT.
+> > If you start to distinct safe SCSI commands from possibly unsafe ones, then 
+> > MODE SELECT could not be in the list of safe ones.
+>
+> That is why I'm proposing an empty filter at boot time, which allows
+> no SG_IO except when having CAP_SYS_RAWIO (which enables everything)
+> and the possibility to open up certain commands from userspace later.
 
-download the source for x86info sometime, and look at the hoops
-it jumps through to determine what cpu its running on. It isn't
-just as simple as a few cpuid calls any more. These days there are
-typically up to a half dozen factors that you need to look at to
-discriminate between possibilities. One of these, is cpu speed.
-Unfortunatly, as we could have booted off mains, and hence a lower
-clock speed, we can't do any runtime calculation like we do with
-bogomips/jiffies, so we have to resort to looking at the model name
-supplied by the BIOS.
+If the related /dev/* nodes are owned by root and set up rw-r-r or worse 
+for others and requiring write access to send SCSI commands, then you get
+the same kind of authentification, but cdrecord would continue to work.
 
- > the BIOS supplied model_name string in speedstep-centrino.c is parsed to
- > get the clock cycle time of the cpu.  is this actually supposed to be
- > the "right" way (or worse: the only way) to get this information?
+Only if someone would chown the related /dev/* nodes to a user differen from 
+root there would be a difference.
 
-It's pretty much all we have that we can trust.  If we could
-do something else, I'd love to, as I distrust the abilities of
-BIOS programmers as much as anyone else.
+P.S.: UNIX philosohy is to allow the administrator to set up bad/wrong permissions.
 
-		Dave
+Jörg
 
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

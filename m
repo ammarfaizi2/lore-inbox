@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263338AbUEKS4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263340AbUEKS74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbUEKS4K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 14:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUEKSzy
+	id S263340AbUEKS74 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 14:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbUEKS74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 14:55:54 -0400
-Received: from 10.69-93-172.reverse.theplanet.com ([69.93.172.10]:57059 "EHLO
-	gsf.ironcreek.net") by vger.kernel.org with ESMTP id S263338AbUEKSzr convert rfc822-to-8bit
+	Tue, 11 May 2004 14:59:56 -0400
+Received: from inachos.supaero.fr ([134.212.190.5]:24804 "EHLO
+	inachos.supaero.fr") by vger.kernel.org with ESMTP id S263340AbUEKS7h
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 14:55:47 -0400
-From: Andre Eisenbach <andre@eisenbach.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon Mobile XP CPU speed problem
-Date: Tue, 11 May 2004 11:54:27 -0700
-User-Agent: KMail/1.6.2
-References: <200404091723.55628.andre@ironcreek.net>
-In-Reply-To: <200404091723.55628.andre@ironcreek.net>
+	Tue, 11 May 2004 14:59:37 -0400
+Message-ID: <40A12409.40808@dotnetitalia.it>
+Date: Tue, 11 May 2004 21:05:45 +0200
+From: Marco Adurno <marco.adurno@dotnetitalia.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200405111154.27631.andre@eisenbach.com>
+To: garski@poczta.onet.pl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SiI3112 Serial ATA - no response on boot
+References: <200405112052.44979.garski@poczta.onet.pl>
+In-Reply-To: <200405112052.44979.garski@poczta.onet.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here some additional information I picked up on the HP support forums:
+I've got the same problem some time ago.
+You have just to appen the string
+hdg=none
+in your boot loader config file
 
-> However HP seems to be adding a further amount of throttling when under
-> battery power using 'Stop Clock' techniques. When minimal levels of power 
-> management are applied the processor is only running 1/3 of the time 
-> reducing to 1/6 of the time when using more stringent power settings (eg Max 
-> Battery)    
 
-Does that help in any way fixing this problem?
-Short of a BIOS update, is there a way to work around this?
+Marcin Garski wrote:
+> [Please CC me on replies, I am not subscribed to the list, thanks]
+> Hi,
+> 
+> I have a Abit NF7-S V2.0 mainboard (nForce2 chipset + SiI3112 SATA), 
+> with Seagate S-ATA connected to Sil3112.
+> 
+> During boot i get following messages:
+> SiI3112 Serial ATA: IDE controller at PCI slot 0000:01:0b.0
+> SiI3112 Serial ATA: chipset revision 2
+> SiI3112 Serial ATA: 100% native mode on irq 11
+>     ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
+>     ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
+> hde: ST380013AS, ATA DISK drive
+> ide2 at 0xe083c080-0xe083c087,0xe083c08a on irq 11
+> hdg: no response (status = 0xfe)
+> hdg: no response (status = 0xfe), resetting drive
+> hdg: no response (status = 0xfe)
+> 
+> Each "no response" message delays booting about 20 seconds.
+> I don't have any device connected to hdg.
+> I was wondering how to speed up booting, because this "hdg: no response 
+> (status = 0xfe), resetting drive" info is little irritating?
+> I'm running on 2.6.6 kernel (on 2.6.4 this "no response" messages also 
+> appear).
 
-Please also see this recent LKLM email for reference:
-http://lkml.org/lkml/2004/5/9/100
 
-Thanks,
-   André

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266135AbSLIUNV>; Mon, 9 Dec 2002 15:13:21 -0500
+	id <S266095AbSLIU1q>; Mon, 9 Dec 2002 15:27:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266157AbSLIUNV>; Mon, 9 Dec 2002 15:13:21 -0500
-Received: from smtp10.wxs.nl ([195.121.6.35]:41434 "EHLO smtp10.wxs.nl")
-	by vger.kernel.org with ESMTP id <S266135AbSLIUNU>;
-	Mon, 9 Dec 2002 15:13:20 -0500
-Date: Mon, 09 Dec 2002 21:21:52 +0100
-From: Thomas Hood <jdthood@yahoo.co.uk>
-Subject: Re: 486 laptop apm problems
-To: linux-kernel@vger.kernel.org
-Message-id: <1039465312.13684.39.camel@localhost>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.0
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	id <S266101AbSLIU1q>; Mon, 9 Dec 2002 15:27:46 -0500
+Received: from spacecake.plus.com ([195.166.148.239]:2432 "EHLO
+	unicorn.encapsulated.net") by vger.kernel.org with ESMTP
+	id <S266095AbSLIU1p>; Mon, 9 Dec 2002 15:27:45 -0500
+Date: Mon, 9 Dec 2002 20:33:38 +0000
+From: Spacecake <lkml@spacecake.plus.com>
+To: Samuel Flory <sflory@rackable.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HPT372 RAID controller
+Message-Id: <20021209203338.32e8665f.lkml@spacecake.plus.com>
+In-Reply-To: <3DF4E433.5010207@rackable.com>
+References: <20021208123134.4be342c7.lkml@spacecake.plus.com>
+	<3DF4E433.5010207@rackable.com>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix Triebel wrote:
-> apm: BIOS version 0.1 Flags 0x03 (Driver version 1.16)
-> [...]
-> how should I use such an old apm bios?
+Hi,
 
-At least one other old Compaq laptop reports APM BIOS
-version 0.1 when it is actually 1.0.  The apm driver
-works around this by interpreting a 0.1 BIOS as 1.0.
+Thanks for the reply.
+So, i tried the ac patch and now it all works!
+Now all my harddisks are on this controller (CD-ROM and stuff are on the
+original one), i just want to make sure... this is a stable kernel,
+right? And the driver, it's... stable? :)
+<frets over prospect of data loss>
 
-> apm: an event queue overflowed
+In future i'll always try the ac kernel before asking people.
+Will this appear in 2.4.21?
+I'm off to go and post in several forums with a solution to the problem
+now...
 
-This suggests that your BIOS is generating events
-faster than they can be read, which is troubling.
-
-> why does apmd frequently crash?
-
-Does apmd generate any messages when it crashes?
-
--- 
-Thomas Hood <jdthood@yahoo.co.uk>
+Thanks a lot,
+ - Daniel
 

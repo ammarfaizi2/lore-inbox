@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbTK1ETc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 23:19:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTK1ETc
+	id S261974AbTK1E7L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 23:59:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbTK1E7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 23:19:32 -0500
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:31247 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S261957AbTK1ETb (ORCPT
+	Thu, 27 Nov 2003 23:59:11 -0500
+Received: from mail.gmx.de ([213.165.64.20]:39914 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261974AbTK1E7I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 23:19:31 -0500
-To: linux-kernel@vger.kernel.org
-From: Tim Connors <tconnors+linuxkernel1069985926@astro.swin.edu.au>
-Subject: Re: 2.6 not cat proof
-References: <20031126201052.GA16106@outpost.ds9a.nl>
-X-Face: "$j_Mi4]y1OBC/&z_^bNEN.b2?Nq4#6U/FiE}PPag?w3'vo79[]J_w+gQ7}d4emsX+`'Uh*.GPj}6jr\XLj|R^AI,5On^QZm2xlEnt4Xj]Ia">r37r<@S.qQKK;Y,oKBl<1.sP8r,umBRH';vjULF^fydLBbHJ"tP?/1@iDFsKkXRq`]Jl51PWN0D0%rty(`3Jx3nYg!
-Message-ID: <slrn-0.9.7.4-255-30138-200311281318-tc@hexane.ssi.swin.edu.au>
-Date: Fri, 28 Nov 2003 15:19:27 +1100
+	Thu, 27 Nov 2003 23:59:08 -0500
+X-Authenticated: #11556596
+Date: Fri, 28 Nov 2003 10:28:54 +0530
+From: Apurva Mehta <apurva@gmx.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Disk Geometries reported incorrectly on 2.6.0-testX
+Message-ID: <20031128045854.GA1353@home.woodlands>
+Mail-Followup-To: Apurva Mehta <apurva@gmx.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert <ahu@ds9a.nl> said on Wed, 26 Nov 2003 21:10:52 +0100:
-> This bug has been seen here over eight years ago and it is back.. linux
-> 2.6.0-test4 is still not cat proof :-)
-> 
-> I found my cat asleep on the warm laptop, it is winter here, and the
-> keyboard was dead. Mouse still works, but I had to reboot before I could use
-> the keyboard again. Restarting X, which I could do with the mouse, did not
-> help.
+Hi,
 
-Are you sure he didn't press alt-sysreq-r or something? Mine has at
-various times, pressed ctrl-alt-backspace, ctrl-alt-delete,
-alt-sysrq-b (without s and u first, bastard), and the power button
-directly. This is all on a laptop, so sysrq requires you pressing fn
-first.
+On 2.6.0-testx kernels, I have noticed that there are problems with
+GNU Parted. Parted says that the disk geometries reported by the
+kernel are incorrect. Here is a sample error message :
 
-One of the cats have also turned my heater on by the touch sensetive
-buttons, in the middle of summer while I was out for the day. The
-heater, and the power button now have molly gaurds, but the key
-combinations are hard to gaurd against.
+---
+Error: The partition table on /dev/hdb is inconsistent.  There are
+many reasons why this might be the case.  However, the most likely
+reason is that Linux detected the BIOS geometry for /dev/hdb
+incorrectly.  GNU Parted suspects the real geometry should be
+782/128/63 (not 6256/16/63).  You should check with your BIOS first,
+as this may not be correct.  You can inform Linux by adding the
+parameter hdb=782,128,63 to the command line.  See the LILO or GRUB
+documentation for more information.  If you think Parted's suggested
+geometry is correct, you may select Ignore to continue (and fix Linux
+later).  Otherwise, select Cancel (and fix Linux and/or the BIOS now).
+---
 
-Read the fvwm webpage - most of the developers of fvwm have cats, and
-have, IIRC, documented various ways around their key typing
-habits. IIRC, there is a package that at least detects when a cat is
-walking across a keyboard, and forces you to click the mouse in a
-window under X. Won't stop the kernel crashing, but will do something.
+Please let me know if you'll need any additional information.
 
-In all seriousness, on my laptop, (do to this and other reasons, I
-have stopped using 2.6 for the time being), when I pressed h and j (or
-something like that) at the same time, when I realeased one of the
-keys, I got some kernel warning like "invalid keyscan" or
-something. Never wrote it down, sorry.
+I am not subscribed to this list so please cc me any replies.
 
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl.
+Regards,
+
+	- Apurva

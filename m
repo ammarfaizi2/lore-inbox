@@ -1,307 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268123AbUHKRPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268127AbUHKRTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268123AbUHKRPS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 13:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUHKRPS
+	id S268127AbUHKRTb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 13:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268128AbUHKRTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:15:18 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:20132 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S268123AbUHKROs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:14:48 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Albert Cahalan <albert@users.sf.net>
-Subject: [RFC, PATCH] sys_revoke(), just a try. (was: Re: dynamic /dev security hole?)
-Date: Wed, 11 Aug 2004 19:12:19 +0200
-User-Agent: KMail/1.6.2
-References: <20040808162115.GA7597@kroah.com> <200408091530.55244.mbuesch@freenet.de> <1092057570.5761.215.camel@cube>
-In-Reply-To: <1092057570.5761.215.camel@cube>
-Cc: Eric Lammerts <eric@lammerts.org>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       Greg KH <greg@kroah.com>, albert@users.sourceforge.net,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+	Wed, 11 Aug 2004 13:19:31 -0400
+Received: from mailer.nec-labs.com ([138.15.108.3]:62779 "EHLO
+	mailer.nec-labs.com") by vger.kernel.org with ESMTP id S268127AbUHKRT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:19:26 -0400
+Message-ID: <411A5520.9000805@nec-labs.com>
+Date: Wed, 11 Aug 2004 10:19:28 -0700
+From: Lei Yang <leiyang@nec-labs.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200408111912.21469.mbuesch@freenet.de>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_zNlGBF9DKmlbB0+"
+To: Luca Barbato <lu_zero@gentoo.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Compression algorithm in cloop
+References: <411A348D.9070808@nec-labs.com> <411A50CD.3070908@gentoo.org>
+In-Reply-To: <411A50CD.3070908@gentoo.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Aug 2004 17:19:25.0736 (UTC) FILETIME=[59F05A80:01C47FC7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Great! That certainly should help!
 
---Boundary-00=_zNlGBF9DKmlbB0+
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+The problem is, how can I put the algorithm in the kernel? Is there a 
+forum or mailing list for this kind of work?
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Thanks!
+Lei
 
-Quoting Albert Cahalan <albert@users.sf.net>:
-> Now all we need is revoke() and we're all set.
-> Ordering: chown, chmod, revoke, unlink
-
-So, I searched the archives and found two previous attempts to create
-a revoke syscall. They were long long ago.
-I picked up some of its code and did a patch for latest 2.6 bk.
-I'm currently running a kernel with the patch applied and did some
-basic tests on it. Testing source is attached, too.
-
-I am a beginner in Kernel programming. I read some books and online
-tutorials, but did not write much code.
-So I'm sure, the code is full of bugs. I think there are nasty
-race conditions.
-Would be cool if someone could review it for races and report
-them, please. I've not yet the experience to find them.
-
-Thank you. Have fun.
-
-- --
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBGlNzFGK1OIvVOP4RAm0DAJ9CN1Q8tUpfNhLT9JlUSLL42pMkPwCeM5WC
-UpTTZceoGL97cJkaPR9v9tU=
-=fbpi
------END PGP SIGNATURE-----
-
---Boundary-00=_zNlGBF9DKmlbB0+
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="revoke_1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="revoke_1.patch"
-
-===== arch/i386/kernel/entry.S 1.77 vs edited =====
---- 1.77/arch/i386/kernel/entry.S	2004-05-22 23:56:24 +02:00
-+++ edited/arch/i386/kernel/entry.S	2004-08-10 20:11:29 +02:00
-@@ -886,5 +886,6 @@
- 	.long sys_mq_notify
- 	.long sys_mq_getsetattr
- 	.long sys_ni_syscall		/* reserved for kexec */
-+	.long sys_revoke
- 
- syscall_table_size=(.-sys_call_table)
-===== fs/open.c 1.68 vs edited =====
---- 1.68/fs/open.c	2004-08-08 03:54:13 +02:00
-+++ edited/fs/open.c	2004-08-11 18:58:26 +02:00
-@@ -1043,6 +1043,134 @@
- 
- EXPORT_SYMBOL(sys_close);
- 
-+static int revoke_ret_ebadf(void)
-+{
-+	return -EBADF;
-+}
-+
-+static ssize_t revoke_read(struct file *filp,
-+			   char *buf,
-+			   size_t count,
-+			   loff_t *ppos)
-+{
-+	return 0;
-+}
-+
-+static int revoke_release(struct inode *inode, struct file *filp)
-+{
-+	fops_put(filp->f_op);
-+	filp->f_op = NULL;
-+	return 0;
-+}
-+
-+static ssize_t revoke_readv(struct file *filp,
-+			    const struct iovec *iov,
-+			    unsigned long count,
-+			    loff_t *ppos)
-+{
-+	return 0;
-+}
-+
-+static struct file_operations revoke_fops = {
-+	.owner		= THIS_MODULE,
-+	.llseek		= (void *)revoke_ret_ebadf,
-+	.read		= revoke_read,
-+	.write		= (void *)revoke_ret_ebadf,
-+	.readdir	= (void *)revoke_ret_ebadf,
-+	.poll		= (void *)revoke_ret_ebadf,
-+	.ioctl		= (void *)revoke_ret_ebadf,
-+	.mmap		= (void *)revoke_ret_ebadf,
-+	.open		= (void *)revoke_ret_ebadf,
-+	.flush		= (void *)revoke_ret_ebadf,
-+	.release	= revoke_release,
-+	.fsync		= (void *)revoke_ret_ebadf,
-+	.fasync		= (void *)revoke_ret_ebadf,
-+	.lock		= (void *)revoke_ret_ebadf,
-+	.readv		= revoke_readv,
-+	.writev		= (void *)revoke_ret_ebadf,
-+};
-+
-+static int filp_revoke(struct file *filp, struct inode *inode)
-+{
-+	struct file_operations *fops = filp->f_op;
-+	int ret = 0;
-+
-+	down(&inode->i_sem);
-+	if (!fops || !file_count(filp))
-+		goto out_truncate;
-+
-+	filp->f_op = &revoke_fops;
-+
-+	if (fops->flush)
-+		fops->flush(filp);
-+	if (fops->release)
-+		ret = fops->release(inode, filp);
-+	fops_put(fops);
-+
-+out_truncate:
-+	vmtruncate(inode, (loff_t)0);
-+	up(&inode->i_sem);
-+	return ret;
-+}
-+
-+asmlinkage int sys_revoke(const char *path)
-+{
-+	struct nameidata nd;
-+	struct super_block *sb;
-+	struct list_head *p;
-+	struct file *filp;
-+	int ret = 0;
-+printk("called sys_revoke()\n");
-+
-+	if (user_path_walk(path, &nd)) {
-+printk("user_path_walk() failed\n");
-+		ret = -ENOENT;
-+		goto out;
-+	}
-+	if (!nd.dentry->d_inode) {
-+printk("no inode\n");
-+		ret = -ENOENT;
-+		goto out_release;
-+	}
-+	/* Allow only on Character or Block Devices. */
-+	if (!S_ISCHR(nd.dentry->d_inode->i_mode) &&
-+	    !S_ISBLK(nd.dentry->d_inode->i_mode)) {
-+printk("no CHK/BLK\n");
-+		ret = -EINVAL;
-+		goto out_release;
-+	}
-+	if ((current->fsuid != nd.dentry->d_inode->i_uid) ||
-+	    !capable(CAP_FOWNER)) {
-+printk("perm\n");
-+		ret = -EPERM;
-+		goto out_release;
-+	}
-+
-+	sb = nd.dentry->d_inode->i_sb;
-+	file_list_lock();
-+	for (p = sb->s_files.next; p != &sb->s_files; p = p->next) {
-+		filp = list_entry(p, struct file, f_list);
-+
-+		if (!filp || !filp->f_dentry)
-+			continue;
-+		if (nd.dentry != filp->f_dentry)
-+			continue;
-+		if (filp->f_op == &revoke_fops)
-+			continue;
-+		if (!filp->f_dentry->d_inode)
-+			continue;
-+
-+		ret = filp_revoke(filp, filp->f_dentry->d_inode);
-+	}
-+	file_list_unlock();
-+printk("done");
-+
-+out_release:
-+	path_release(&nd);
-+out:
-+	return ret;
-+}
-+
- /*
-  * This routine simulates a hangup on the tty, to arrange that users
-  * are given clean terminals at login time.
-===== include/asm-i386/unistd.h 1.39 vs edited =====
---- 1.39/include/asm-i386/unistd.h	2004-08-02 10:00:44 +02:00
-+++ edited/include/asm-i386/unistd.h	2004-08-10 20:14:44 +02:00
-@@ -289,8 +289,9 @@
- #define __NR_mq_notify		(__NR_mq_open+4)
- #define __NR_mq_getsetattr	(__NR_mq_open+5)
- #define __NR_sys_kexec_load	283
-+#define __NR_revoke		284
- 
--#define NR_syscalls 284
-+#define NR_syscalls 285
- 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
- 
-
---Boundary-00=_zNlGBF9DKmlbB0+
-Content-Type: text/x-csrc;
-  charset="iso-8859-1";
-  name="revoke_test.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="revoke_test.c"
-
-#include <stdio.h>
-#include <syscall.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
-
-#define __NR_revoke	284
-
-_syscall1(int, revoke, const char *, path)
-
-
-int parent()
-{
-	int fd, ret;
-
-	fd = open("/dev/null", O_RDWR);
-	if (fd < 0) {
-		printf("open() in parent failed!\n");
-		return 1;
-	}
-	const char foo[] = "hsdfuknf23uhzfneiou1208jiomiiu";
-	while (1) {
-		printf("write...\n");
-		ret = write(fd, foo, sizeof(foo));
-		if (ret <= 0) {
-			printf("write() in parent failed with %d (%s)!\n",
-			       errno, strerror(errno));
-			return 1;
-		}
-	}
-}
-
-int child()
-{
-	sleep(3);
-	revoke("/dev/null");
-	printf("revoke() returned %d (%s)\n",
-	       errno, strerror(errno));
-
-	return 0;
-}
-
-int main(int argc, char *argv[])
-{
-	int ret;
-
-	ret = fork();
-	if (ret == 0) {
-		return child();
-	} else if (ret == -1) {
-		printf("fork() failed!\n");
-		return 1;
-	} else {
-		return parent();
-	}
-
-	return 2;
-}
-
---Boundary-00=_zNlGBF9DKmlbB0+--
+Luca Barbato wrote:
+> Lei Yang wrote:
+> 
+>> Hello,
+>>
+>> I am trying to do some experiment on compression ratios with cloop. I 
+>> know that currently cloop uses zlib. How can I change it to other 
+>> algorithms? Where should I start from? Really a newbie to this, 
+>> appreciate any comments!!
+>>
+>> TIA.
+>> Lei
+>>
+> I made a variation from cloop called gcloop it could use any algorithm 
+> you can put in the kernel (I use an hack to use ucl right now)
+> 
+> You can find it at dev.gentoo.org/~lu_zero/gcloop
+> 
+> I hope it helps.
+> 
+> lu
+> 

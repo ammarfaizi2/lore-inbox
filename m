@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289077AbSA1BCt>; Sun, 27 Jan 2002 20:02:49 -0500
+	id <S289080AbSA1BSQ>; Sun, 27 Jan 2002 20:18:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289080AbSA1BCj>; Sun, 27 Jan 2002 20:02:39 -0500
-Received: from zero.tech9.net ([209.61.188.187]:55300 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S289077AbSA1BC0>;
-	Sun, 27 Jan 2002 20:02:26 -0500
-Subject: Re: [PATCH] Fix NR_IRQS when no IO apic
-From: Robert Love <rml@tech9.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Brian Gerst <bgerst@didntduck.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C549E5E.4ACA093D@mandrakesoft.com>
-In-Reply-To: <3C549AEC.D79A95FC@didntduck.org> 
-	<3C549E5E.4ACA093D@mandrakesoft.com>
-Content-Type: text/plain
+	id <S289081AbSA1BSE>; Sun, 27 Jan 2002 20:18:04 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13580 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289080AbSA1BR5>; Sun, 27 Jan 2002 20:17:57 -0500
+Subject: Re: 2.4.18-pre7 slow ... apm problem
+To: jdthood@mail.com (Thomas Hood)
+Date: Mon, 28 Jan 2002 00:32:19 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, sfr@canb.auug.org.au (Stephen Rothwell)
+In-Reply-To: <1012176940.2576.102.camel@thanatos> from "Thomas Hood" at Jan 27, 2002 07:15:38 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 27 Jan 2002 20:07:42 -0500
-Message-Id: <1012180063.808.23.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E16Uzie-0003Ba-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-01-27 at 19:42, Jeff Garzik wrote:
+> > 1) keyboard rate is a bit slow on 2.4.18-pre7 compared to
+> >    2.4.18-pre6.
+> > 2) On vmware 3.0, ping localhost is very slow. 2.4.18-pre6
+> >    has not such problem.
+> >
+> > After disabling CONFIG_APM_CPU_IDLE, the system works fast again.
+> > With pre6 or earlier versions, system works fine though even with
+> > CONFIG_APM_CPU_IDLE enabled.
+> 
+> Idle handling in the apm driver was modified in 2.4.18-pre7 .
+> Back to the drawing board ...
 
-> What about when ioapic is configured but not present?
+The keyboard rate one is curious. The vmware one I can easily believe is
+caused by Vmware switching in/out of OS's without managing the APM
+state of the processor (and leaving it in powersave)
 
-Then we are back where we started?  Which, unless I am missing
-something, is just a waste of memory?
+Not sure its drawing board time, just a little investigation.
 
-I see this as a no-change if CONFIG_X86_IO_APIC is set, but a proper
-setting of NR_IRQS (which doesn't hurt anything but make our
-arrays/loops/etc off if not set) for the case of non-IOAPIC.
-
-	Robert Love
-
+Alan

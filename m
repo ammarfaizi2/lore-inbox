@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316605AbSE0KyX>; Mon, 27 May 2002 06:54:23 -0400
+	id <S316603AbSE0KyG>; Mon, 27 May 2002 06:54:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316607AbSE0KyW>; Mon, 27 May 2002 06:54:22 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:61947 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316605AbSE0KyV>; Mon, 27 May 2002 06:54:21 -0400
-Subject: Re: [patch] Add i8253 spinlocks where needed.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Manik Raina <manik@cisco.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020527121001.B26811@ucw.cz>
-Content-Type: text/plain
+	id <S316605AbSE0KyF>; Mon, 27 May 2002 06:54:05 -0400
+Received: from thoth.sbs.de ([192.35.17.2]:42674 "EHLO thoth.sbs.de")
+	by vger.kernel.org with ESMTP id <S316603AbSE0KyF>;
+	Mon, 27 May 2002 06:54:05 -0400
+From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+To: "'David Brownell'" <david-b@pacbell.net>, linux-kernel@vger.kernel.org
+Subject: RE: ehci-hcd on CARDBUS hangs when stopping card service
+Date: Mon, 27 May 2002 14:54:00 +0400
+Message-ID: <6134254DE87BD411908B00A0C99B044F02E89AFF@mowd019a.mow.siemens.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 27 May 2002 12:56:20 +0100
-Message-Id: <1022500580.11859.252.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+In-Reply-To: <3CED6E0B.8020501@pacbell.net>
+x-mimeole: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-05-27 at 11:10, Vojtech Pavlik wrote:
-> Well, probably yes, but still hd.c is a glacial relict, a driver nobody
-> (almost - it's for non-IDE "two ribbon" AT harddrives) uses. So this
-> driver is probably not enough justification for a global (as in all
-> archs) spinlock being added. 
+> 
+> I'll hope that problem appears only in 2.4.18-6mdk, and isn't found in
+> other kernels.  In particular, if it's in 2.5.17 then there's a big
+> hole in the "new driver model" work (struct device etc)!
+> 
 
-It only uses the timer in the case that HD_DELAY > 0. This code is
-ultimately used for timing functions. A better approach would be to
-remove the use of the timer chip from the file entirely and use the
-perfectly adequate udelay() function instead.
+Absolutely the same code is in 2.4.18 and 2.4.19-pre8 so it is not
+something Mandrake has introduced. The reason it has not been noticed
+before is probably that not every driver hangs here (in reported case
+ohci went through even though it could not access controller properly).
 
-That would also conveniently make it do cpu_relax properly improving the
-performance of your ancient IDE controller when plugged into
-hyperthreading pentium IV 8)
-
-Alan
+-andrej

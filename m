@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282347AbRKXCdv>; Fri, 23 Nov 2001 21:33:51 -0500
+	id <S282348AbRKXCgb>; Fri, 23 Nov 2001 21:36:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282348AbRKXCdl>; Fri, 23 Nov 2001 21:33:41 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:56335 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S282347AbRKXCdY>; Fri, 23 Nov 2001 21:33:24 -0500
-Message-ID: <3BFF06CA.71B99D3C@zip.com.au>
-Date: Fri, 23 Nov 2001 18:32:42 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S282350AbRKXCgV>; Fri, 23 Nov 2001 21:36:21 -0500
+Received: from windsormachine.com ([206.48.122.28]:17412 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S282348AbRKXCgL>; Fri, 23 Nov 2001 21:36:11 -0500
+Date: Fri, 23 Nov 2001 21:36:02 -0500 (EST)
+From: Mike Dresser <mdresser@windsormachine.com>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: <linux-kernel@vger.kernel.org>, <jmerkey@timpanogas.org>
+Subject: Re: ftp.kernel.org down?
+In-Reply-To: <20011123202735.A1481@vger.timpanogas.org>
+Message-ID: <Pine.LNX.4.33.0111232134330.18272-100000@router.windsormachine.com>
 MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3: kjournald and spun-down disks
-In-Reply-To: <3BFEF71A.F32176FE@zip.com.au> <Pine.LNX.4.40.0111231939000.4162-100000@waste.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
-> 
-> > Tell me if this is joyful:
-> 
-> Haven't tried it yet, but I'm afraid I don't see what makes it actually
-> sync with the dirty buffer flush. Wouldn't it be better to export a chain
-> of flush funcs hung off a timer?
 
-It doesn't sync with kupdate.
 
-If you want to do that, just defeat the journal timer altogether. So:
+On Fri, 23 Nov 2001, Jeff V. Merkey wrote:
 
-        transaction->t_expires = jiffies + 1000000000;
+>
+>
+> Is ftp.kernel.org down at present or do we just have some
+> messed up routers?  Neither ftp.kernel.org or www.kernel.org seem to
+> be up at present.
+>
+> Jeff
 
-in get_transaction().   That way, kupdate's write_super() will
-run a commit every bdf_prm.b_un.interval jiffies.
+I think zeus is ftp.kernel.org   Multiple disk failures on the raid
+array, according to a previous post by hpa.  See his previous post about
+possible donations of hard drives, and an explanation.
 
--
+Mike
+

@@ -1,71 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318274AbSHKKOw>; Sun, 11 Aug 2002 06:14:52 -0400
+	id <S318266AbSHKKR2>; Sun, 11 Aug 2002 06:17:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318312AbSHKKOw>; Sun, 11 Aug 2002 06:14:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31757 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318274AbSHKKOs>;
-	Sun, 11 Aug 2002 06:14:48 -0400
-Message-ID: <3D563C4C.2DE0CA82@zip.com.au>
-Date: Sun, 11 Aug 2002 03:28:28 -0700
+	id <S318283AbSHKKR2>; Sun, 11 Aug 2002 06:17:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36109 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318266AbSHKKRW>;
+	Sun, 11 Aug 2002 06:17:22 -0400
+Message-ID: <3D563CE3.12BCBA99@zip.com.au>
+Date: Sun, 11 Aug 2002 03:30:59 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Simon Kirby <sim@netnation.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
-References: <20020810201027.E306@kushida.apsleyroad.org> <Pine.LNX.4.44.0208101529490.2401-100000@home.transmeta.com> <20020811031705.GA13878@netnation.com> <3D55FF30.6164040D@zip.com.au> <20020811084652.GB22497@netnation.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Vincent Bernat <bernat@free.fr>
+CC: lkml <linux-kernel@vger.kernel.org>, noflushd-devel@lists.sourceforge.net,
+       sct@redhat.com
+Subject: Re: [patch 4/12] tunable ext3 commit interval
+References: <3D5464CF.DCD510D6@zip.com.au> <m3u1m1itv9.fsf@neo.loria>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Kirby wrote:
+Vincent Bernat wrote:
 > 
-> ...
-> What's happening with my MP3 streaming is:
+> OoO En cette nuit striée d'éclairs du samedi 10 août 2002, vers 02:56,
+> Andrew Morton <akpm@zip.com.au> disait:
 > 
-> 1. read(4k) gets data after a delay.  xmms starts playing.
-> 2. read(4k) gets some more data, right way, because readahead worked.
->    xmms continues.
->    ...
-> 3. read(4k) blocks for a long time while readahead starts up again and
->    reads a huge block of data.  read() then returns the 4k.  meanwhile,
->    xmms has underrun.  xmms starts again.
-> 4. goto 2.
+> > The patch from Stephen Tweedie allows users to modify the journal
+> > commit interval for the ext3 filesystem.
 > 
-> It's really easy to see this behavior with the xmms-crossfade plugin and
-> a large buffer with "buffer debugging" display on.
+> Could this patch be officially backported to 2.4 to allow the use of
+> the flexible commit interval in noflushd ?
 
-I happen to have a little test app for this stuff:
-http://www.zip.com.au/~akpm/linux/stream.tar.gz
+It's in the 2.4 devel tree, so it will appear in 2.4.20-pre sometime.
 
-You can use it to slowly read or write a file.
 
-	./stream -i /dev/fd0h1440 23 1000
 
-will read 1000k from floppy at 23k per second.  It's a bit
-useless at those rates on 2.4 because of the coarse timer
-resolution.  But in 1000Hz 2.5 it works a treat.
+-------- Original Message --------
+Subject: [gkernel-commit] CVS: ext3/fs/ext3 super.c,1.34.2.21,1.34.2.22
+Date: Mon, 29 Jul 2002 14:31:41 -0700
+From: "Stephen C. Tweedie" <sct@users.sourceforge.net>
+To: gkernel-commit@lists.sourceforge.net
 
-./stream -i /dev/fd0h1440 20 1000  0.00s user 0.01s system 0% cpu 51.896 total
-./stream -i /dev/fd0h1440 21 1000  0.00s user 0.02s system 0% cpu 49.825 total
-./stream -i /dev/fd0h1440 22 1000  0.00s user 0.02s system 0% cpu 47.843 total
-./stream -i /dev/fd0h1440 23 1000  0.00s user 0.01s system 0% cpu 45.853 total
-./stream -i /dev/fd0h1440 24 1000  0.01s user 0.02s system 0% cpu 44.077 total
-./stream -i /dev/fd0h1440 25 1000  0.00s user 0.02s system 0% cpu 42.307 total
-./stream -i /dev/fd0h1440 26 1000  0.00s user 0.01s system 0% cpu 41.305 total
-./stream -i /dev/fd0h1440 27 1000  0.00s user 0.02s system 0% cpu 40.493 total
-./stream -i /dev/fd0h1440 28 1000  0.01s user 0.02s system 0% cpu 39.122 total
-./stream -i /dev/fd0h1440 29 1000  0.00s user 0.01s system 0% cpu 39.118 total
+Update of /cvsroot/gkernel/ext3/fs/ext3
+In directory usw-pr-cvs1:/tmp/cvs-serv7665
 
-What we see here is perfect readahead behaviour.  The kernel is keeping the
-read streaming ahead of the application's read cursor all the way out to the
-point where the device is saturated. (The numbers are all off by three
-seconds because of the initial spinup delay).
+Modified Files:
+      Tag: ext3-1_0-branch
+	super.c 
+Log Message:
+Allow an arbitrary commit interval to be set when mounting or remounting
+a filesystem.
 
-If you strace it, the reads are smooth on 2.4 and 2.5.
+Note that if this is greater than the system bdflush interval, then the
+regular sync()s will beat the commit timer and you won't get longer
+commit timeouts.
 
-So it may be an NFS peculiarity.  That's a bit hard for me to test over
-100bT.
+
+Index: super.c
+===================================================================
+RCS file: /cvsroot/gkernel/ext3/fs/ext3/super.c,v
+retrieving revision 1.34.2.21
+retrieving revision 1.34.2.22
+diff -u -r1.34.2.21 -r1.34.2.22
+--- super.c	15 Apr 2002 20:34:54 -0000	1.34.2.21
++++ super.c	29 Jul 2002 21:31:38 -0000	1.34.2.22
+@@ -646,6 +646,11 @@
+ 				*mount_options &= ~EXT3_MOUNT_DATA_FLAGS;
+ 				*mount_options |= data_opt;
+ 			}
++		} else if (!strcmp (this_char, "commit")) {
++			unsigned long v;
++			if (want_numeric(value, "commit", &v))
++				return 0;
++			sbi->s_commit_interval = (HZ * v);
+ 		} else {
+ 			printk (KERN_ERR 
+ 				"EXT3-fs: Unrecognized mount option %s\n",
+@@ -1229,6 +1234,22 @@
+ 	return NULL;
+ }
+ 
++/*
++ * Setup any per-fs journal parameters now.  We'll do this both on
++ * initial mount, once the journal has been initialised but before we've
++ * done any recovery; and again on any subsequent remount. 
++ */
++static void ext3_init_journal_params(struct ext3_sb_info *sbi, 
++				     journal_t *journal)
++{
++	if (sbi->s_commit_interval)
++		journal->j_commit_interval = sbi->s_commit_interval;
++	/* We could also set up an ext3-specific default for the commit
++	 * interval here, but for now we'll just fall back to the jbd
++	 * default. */
++}
++
++
+ static journal_t *ext3_get_journal(struct super_block *sb, int journal_inum)
+ {
+ 	struct inode *journal_inode;
+@@ -1263,7 +1284,7 @@
+ 		printk(KERN_ERR "EXT3-fs: Could not load journal inode\n");
+ 		iput(journal_inode);
+ 	}
+-	
++	ext3_init_journal_params(EXT3_SB(sb), journal);
+ 	return journal;
+ }
+ 
+@@ -1341,6 +1362,7 @@
+ 		goto out_journal;
+ 	}
+ 	EXT3_SB(sb)->journal_bdev = bdev;
++	ext3_init_journal_params(EXT3_SB(sb), journal);
+ 	return journal;
+ out_journal:
+ 	journal_destroy(journal);
+@@ -1638,6 +1660,8 @@
+ 
+ 	es = sbi->s_es;
+ 
++	ext3_init_journal_params(sbi, sbi->s_journal);
++	
+ 	if ((*flags & MS_RDONLY) != (sb->s_flags & MS_RDONLY)) {
+ 		if (sbi->s_mount_opt & EXT3_MOUNT_ABORT)
+ 			return -EROFS;
+
+
+
+-------------------------------------------------------
+This sf.net email is sponsored by: Dice - The leading online job board
+for high-tech professionals. Search and apply for tech jobs today!
+http://seeker.dice.com/seeker.epl?rel_code=31
+_______________________________________________
+Gkernel-commit mailing list
+Gkernel-commit@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/gkernel-commit

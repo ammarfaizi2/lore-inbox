@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268218AbTBYUtC>; Tue, 25 Feb 2003 15:49:02 -0500
+	id <S268405AbTBYVHX>; Tue, 25 Feb 2003 16:07:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268290AbTBYUtC>; Tue, 25 Feb 2003 15:49:02 -0500
-Received: from numenor.qualcomm.com ([129.46.51.58]:16346 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S268218AbTBYUtA>; Tue, 25 Feb 2003 15:49:00 -0500
-Message-Id: <5.1.0.14.2.20030225125619.02015ce8@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 25 Feb 2003 12:58:57 -0800
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: [BK] Bluetooth updates for 2.4.21-pre4
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53L.0302251738170.16726@freak.distro.conectiva>
-References: <20030224143729.GG27646@louise.pinerecords.com>
- <20030224143729.GG27646@louise.pinerecords.com>
+	id <S268407AbTBYVHX>; Tue, 25 Feb 2003 16:07:23 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:63366 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S268405AbTBYVHW>;
+	Tue, 25 Feb 2003 16:07:22 -0500
+Date: Tue, 25 Feb 2003 22:17:18 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030225211718.GY29467@dualathlon.random>
+References: <96700000.1045871294@w-hlinder> <20030222192424.6ba7e859.akpm@digeo.com> <20030225171727.GN29467@dualathlon.random> <20030225174359.GA10411@holomorphy.com> <20030225175928.GP29467@dualathlon.random> <20030225185008.GF10396@holomorphy.com> <20030225191817.GT29467@dualathlon.random> <372680000.1046201260@flay> <20030225203001.GV29467@dualathlon.random> <417110000.1046206424@flay>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417110000.1046206424@flay>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:38 PM 2/25/2003, Marcelo Tosatti wrote:
+On Tue, Feb 25, 2003 at 12:53:44PM -0800, Martin J. Bligh wrote:
+> >> > the only solution is to do rmap lazily, i.e. to start building the rmap
+> >> > during swapping by walking the pagetables, basically exactly like I
+> >> > refill the lru with anonymous pages only after I start to need this
+> >> > information recently in my 2.4 tree, so if you never need to pageout
+> >> > heavily several giga of ram (like most of very high end numa servers),
+> >> > you'll never waste a single cycle in locking or whatever other
+> >> > worthless accounting overhead that hurts performance of all common
+> >> > workloads
+> >> 
+> >> Did you see the partially object-based rmap stuff? I think that does
+> >> very close to what you want already.
+> > 
+> > I don't see how it can optimize away the overhead but I didn't look at
+> > it for long.
+> 
+> Because you don't set up and tear down the rmap pte-chains for every 
+> fault in / delete of any page ... it just works off the vmas.
 
->On Mon, 24 Feb 2003, Tomas Szepe wrote:
->
->> It's been 4 weeks since 2.4.21-pre4 went out and the pre4->current
->> diff is over 3 megabytes.  Anything special holding off -pre5?
->>
->> I wouldn't be surprised if Alan had 100+ patches queued up
->> to be merged after a new tag release.
->
->I'm very late yes. I will release it today or tomorrow.
+so basically it uses the rmap that we always had since at least 2.2 for
+everything but anon mappings, right?  this is what DaveM did a few years
+back too. This makes lots of sense to me, so at least we avoid the
+duplication of rmap information, even if it won't fix the anonymous page
+overhead, but clearly it's much lower cost for everything but anonymous
+pages.
 
-Before you do that could you please pull a couple of Bluetooth fixes from
-        bk pull bk://linux-bt.bkbits.net/bt-2.4
-
-This will update the following files:
-
- include/net/bluetooth/hci.h      |  104 +++++++++++++-------------
- include/net/bluetooth/hci_core.h |   12 +--
- net/bluetooth/hci_core.c         |  118 ++++++++++-------------------
- net/bluetooth/hci_sock.c         |  156 +++++++++++++++++++++------------------
- net/bluetooth/syms.c             |    6 -
- 5 files changed, 191 insertions(+), 205 deletions(-)
-
-through these ChangeSets:
-
-<maxk@qualcomm.com> (03/01/27 1.884.1.113)
-   [Bluetooth] Add support for vendor specific commands.
-   All vendor commands are treated as raw data and 
-   applications are responsible for flow control.
-
-
-Thanks
-Max
-
+Andrea

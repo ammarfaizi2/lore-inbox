@@ -1,84 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbUCPUZl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 15:25:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUCPUZl
+	id S261640AbUCPU2D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 15:28:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUCPU2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 15:25:41 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:39177 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261635AbUCPUZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 15:25:39 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-mm1
-Date: Tue, 16 Mar 2004 21:24:19 +0100
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>
-References: <20040316015338.39e2c48e.akpm@osdl.org>
-In-Reply-To: <20040316015338.39e2c48e.akpm@osdl.org>
-X-Operating-System: Linux 2.6.4-wolk2.1 i686 GNU/Linux
-MIME-Version: 1.0
+	Tue, 16 Mar 2004 15:28:03 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62148 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261640AbUCPU17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 15:27:59 -0500
+Date: Tue, 16 Mar 2004 21:27:46 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Ian Campbell <icampbell@arcom.com>, netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Do not include linux/irq.h from linux/netpoll.h
+Message-ID: <20040316202746.GO27056@fs.tum.de>
+References: <1079369568.19012.100.camel@icampbell-debian> <20040316001141.C29594@flint.arm.linux.org.uk> <20040316192247.A7886@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403161133430.17272@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403162124.19075@WOLK>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_zJ2VAUkxC7JaNKA"
+In-Reply-To: <Pine.LNX.4.58.0403161133430.17272@ppc970.osdl.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 16, 2004 at 11:34:56AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Tue, 16 Mar 2004, Russell King wrote:
+> > > 
+> > > What are your thoughts on this?
+> > 
+> > So how do we solve this problem.  Should I just merge this change and
+> > ask you to pull it?  I think that's rather impolite though.
+> 
+> I didn't apply the patch because you said it was untested ;)
+> 
+> I'll happily remove that irq.h include if it really doesn't do anything 
+> but break things. I'd feel happier about it if somebody said it has been 
+> tested, though ;)
 
---Boundary-00=_zJ2VAUkxC7JaNKA
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I removed the irq.h from netpoll.h in a 2.6.5-rc1-mm1 that was compiled
+with a i386 .config that compiles as much as possible statically into
+the kernel.
 
-On Tuesday 16 March 2004 10:53, Andrew Morton wrote:
+There were no compilation problems.
 
-Hi Andrew,
+> 		Linus
 
+cu
+Adrian
 
-> move-job-control-stuff-tosignal_struct.patch
->   moef job control fields from task_struct to signal_struct
->
-> move-job-control-stuff-tosignal_struct-s390-fix.patch
->   s390 fix for move-job-control-stuff-tosignal_struct.patch
->
-> move-job-control-stuff-tosignal_struct-sx-fix.patch
->
-> move-job-control-stuff-tosignal_struct-sn-fix.patch
->   From: John Hawkes <hawkes@babylon.engr.sgi.com>
->   Subject: [PATCH] 2.6.4-mm1 for ia64
+-- 
 
-Please add attached patch to next -mm.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-
-move-job-control-stuff-tosignal_struct-sparc64-fix.patch
-  From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-
-;-)
-
-ciao, Marc
-
---Boundary-00=_zJ2VAUkxC7JaNKA
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="move-job-control-stuff-tosignal_struct-sparc64-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="move-job-control-stuff-tosignal_struct-sparc64-fix.patch"
-
---- old/arch/sparc64/solaris/misc.c	2003-12-18 03:59:42.000000000 +0100
-+++ new/arch/sparc64/solaris/misc.c	2004-03-16 21:20:56.000000000 +0100
-@@ -402,7 +402,7 @@ asmlinkage int solaris_procids(int cmd, 
- 			   Solaris setpgrp and setsid? */
- 			ret = sys_setpgid(0, 0);
- 			if (ret) return ret;
--			current->tty = NULL;
-+			current->signal->tty = NULL;
- 			return process_group(current);
- 		}
- 	case 2: /* getsid */
-
---Boundary-00=_zJ2VAUkxC7JaNKA--

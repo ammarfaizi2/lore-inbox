@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266595AbUG0UQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUG0U0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266595AbUG0UQg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 16:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266579AbUG0UQf
+	id S266611AbUG0U0V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 16:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266607AbUG0U0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 16:16:35 -0400
-Received: from mail.hardcore-gaming.net ([69.93.101.157]:5015 "EHLO
-	mail.hardcore-gaming.net") by vger.kernel.org with ESMTP
-	id S266613AbUG0UOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 16:14:35 -0400
-Message-ID: <4106C5B7.9040606@clanhk.org>
-Date: Tue, 27 Jul 2004 15:14:31 -0600
-From: "J. Ryan Earl" <heretic@clanhk.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en
+	Tue, 27 Jul 2004 16:26:21 -0400
+Received: from mail1.slu.se ([130.238.96.11]:7354 "EHLO mail1.slu.se")
+	by vger.kernel.org with ESMTP id S266605AbUG0UYS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 16:24:18 -0400
+From: Robert Olsson <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Doug Maxey <dwm@austin.ibm.com>,
-       Linux IDE Mailing List <linux-ide@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] IDE/ATA/SATA controller hotplug
-References: <200407191947.i6JJldK1024910@falcon10.austin.ibm.com> <41067543.3090003@pobox.com>
-In-Reply-To: <41067543.3090003@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16646.47585.814327.628319@robur.slu.se>
+Date: Tue, 27 Jul 2004 22:24:01 +0200
+To: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
+Cc: Robert Olsson <Robert.Olsson@data.slu.se>,
+       Francois Romieu <romieu@fr.zoreil.com>,
+       H?ctor Mart?n <hector@marcansoft.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
+       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
+Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
+ RLT-8139 related)
+In-Reply-To: <Pine.LNX.4.44.0407271710070.3787-100000@silmu.st.jyu.fi>
+References: <16646.14381.740376.204381@robur.slu.se>
+	<Pine.LNX.4.44.0407271710070.3787-100000@silmu.st.jyu.fi>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
 
-> Why do you think libata is not already hotplug capable, WRT controllers?
+Pasi Sjoholm writes:
 
-I'm not sure what WRT means, but your last Linux SATA Update did contain:
+ > Yeah, when the ksoftirqd is taking all the cpu it will be like that, but 
+ > when the kernel is behaving normally the starving diff is between 0->1sec.
 
-"Hotplug support
----------------
-All SATA is hotplug.
+ Well ksoftirqd makes your kernel load just visible which is good and 
+ ksofirqd gets accounted for this when softirq's get deferred to it.
+ It may look like goes from 0 to 100% but thats probably not the case.
+ The problem is we can starve userland at high loads. As said we were
+ trying some way to cure this I may have some old patch if you like to try.
 
-libata does not support hotplug... yet.
-
-The following SATA controllers will never support hotplug:
-Intel ICH5, Intel ICH5-R, Intel ICH6 (non-AHCI), Pacific Digital Talon,
-Promise SATA SX4."
-
--ryan
-
-
-
+ Cheers.
+						--ro
+ 

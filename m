@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272327AbTHILRg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 07:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272328AbTHILRf
+	id S272335AbTHILnK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 07:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272336AbTHILnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 07:17:35 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:53509 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S272327AbTHILRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 07:17:35 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Jeff Garzik <jgarzik@pobox.com>, Mikael Pettersson <mikpe@csd.uu.se>
-Subject: Re: [patch 2.4 1/2] backport 2.6 x86 cpu capabilities
-Date: Sat, 9 Aug 2003 11:51:23 +0200
-User-Agent: KMail/1.5.3
+	Sat, 9 Aug 2003 07:43:10 -0400
+Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:12557 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S272335AbTHILnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 07:43:09 -0400
+To: Daniel Blueman <daniel.blueman@gmx.net>
 Cc: linux-kernel@vger.kernel.org
-References: <200308081119.h78BJWQ5015656@harpo.it.uu.se> <3F33A257.7050101@pobox.com>
-In-Reply-To: <3F33A257.7050101@pobox.com>
+Subject: Re: [BUG] 2.6.0-t1 sis900 timeout
+Mail-Copies-To: nobody
+References: <8723.1059984634@www20.gmx.net>
+From: kilobug@freesurf.fr (=?iso-8859-1?q?Ga=EBl_Le_Mignot?=)
+Organization: HurdFr - http://hurdfr.org
+X-PGP-Fingerprint: 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+Date: Sat, 09 Aug 2003 13:47:45 +0200
+In-Reply-To: <8723.1059984634@www20.gmx.net> (Daniel Blueman's message of
+ "Mon, 4 Aug 2003 10:10:34 +0200 (MEST)")
+Message-ID: <plopm3he4r3vdq.fsf@drizzt.kilobug.org>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200308091150.59006.m.c.p@wolk-project.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 August 2003 15:15, Jeff Garzik wrote:
 
-Hi Jeff,
+ > Can you check if the IRQ allocated to the SiS900 is the same on kernels
+ > where it does work, and try without ACPI support, and/or any IO-APIC support
+ > disabled?
 
-> >>-#define NCAPINTS	4	/* Currently we have 4 32-bit words worth of info */
-> >>+#define NCAPINTS	6	/* Currently we have 6 32-bit words worth of info */
-> > If you change NCAPINTS you also have to change the hardcoded
-> > struct offset X86_VENDOR_ID in arch/i386/kernel/head.S. Otherwise
-> > nasty stuff happen at boot since boot_cpu_data gets broken.
-> hmmm, reality doesn't seem to bear that out...  I made the same change
-> to 2.6, without touching head.S, and life continues without "nasty
-> stuff" AFAICS.
-> Do both 2.4 and 2.6 need this change?  And, why didn't 2.6 break?
+This IRQ is the same (10) with 2.4.20 (which works fine). 
 
-Mikael is right. At least 2.4 need this change, otherwise APIC may break.
-2.6 might break also in some cases.
+-- 
+Gael Le Mignot "Kilobug" - kilobug@nerim.net - http://kilobug.free.fr
+GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
 
-ciao, Marc
-
+Member of HurdFr: http://hurdfr.org - The GNU Hurd: http://hurd.gnu.org

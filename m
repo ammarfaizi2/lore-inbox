@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268270AbUIPSKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268186AbUIPSJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268270AbUIPSKF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 14:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUIPSKF
+	id S268186AbUIPSJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 14:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUIPSJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 14:10:05 -0400
-Received: from zmamail04.zma.compaq.com ([161.114.64.104]:6667 "EHLO
-	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S268535AbUIPSI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 14:08:58 -0400
-Message-ID: <4149D8C6.1060407@hp.com>
-Date: Thu, 16 Sep 2004 14:17:42 -0400
-From: Robert Picco <Robert.Picco@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Christoph Lameter <clameter@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       venkatesh.pallipadi@intel.com
-Subject: Re: device driver for the SGI system clock, mmtimer
-References: <200409161003.39258.bjorn.helgaas@hp.com> <200409160909.12840.jbarnes@engr.sgi.com> <1095349940.22739.34.camel@localhost.localdomain> <200409161007.37015.jbarnes@engr.sgi.com>
-In-Reply-To: <200409161007.37015.jbarnes@engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Sep 2004 14:09:58 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:26033 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S268504AbUIPSI2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 14:08:28 -0400
+Date: Thu, 16 Sep 2004 20:09:09 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+Message-ID: <20040916180908.GB9886@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040913135253.GA3118@crusoe.alcove-fr> <20040915153013.32e797c8.akpm@osdl.org> <20040916064320.GA9886@deep-space-9.dsnet> <20040916000438.46d91e94.akpm@osdl.org> <20040916104535.GA3146@crusoe.alcove-fr> <20040916100050.17a9b341.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040916100050.17a9b341.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
+On Thu, Sep 16, 2004 at 10:00:50AM -0700, Andrew Morton wrote:
 
->On Thursday, September 16, 2004 8:52 am, Alan Cox wrote:
->  
->
->>On Iau, 2004-09-16 at 17:09, Jesse Barnes wrote:
->>    
->>
->>>I think Christoph already looked at that.  And HPET doesn't provide mmap
->>>functionality, does it?  I.e. allow a userspace program to dereference
->>>the counter register directly?
->>>      
->>>
->>It can do but that assumes nothing else is mapped into the same page
->>that would be harmful or reveal information that should not be revealed
->>etc..
->>    
->>
->
->And what about the register layout?  mmtimer makes sure that the register is 
->on a page by itself before it allows the mmap, and only exports the counter 
->register itself.  Can hpet do that?
->
->Jesse
->
->  
->
-The hpet driver checks that the mapping is page aligned.  It's up to the 
-platform to provide this alignment.  It's also dependent on the platform 
-for what resides in the page.  Also the configured page size could 
-impact what is within the page.
+> Stelian Pop <stelian@popies.net> wrote:
+> >
+> > Here is the updated patch.
+> 
+> Looks good to me.
+> 
+> You're using `head' as "the place from which `get' gets characters" and
+> you're using `tail' as "the place where `put' puts characters".  So the
+> FIFO is, logically:
+> 
+> 
+>           tail            head
+>     * ->  ********************   -> *
+>      put                         get
+> 
+
+That was the intent, yes.
+
+> I've always done it the other way: you put stuff onto the head and take
+> stuff off the tail.  Now I have a horid feeling that I've always been
+> arse-about.  hrm.  
+
+Maybe I should use 'start' and 'end' as indices after all, they
+are less subject to confusion.
+
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

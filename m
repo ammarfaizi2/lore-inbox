@@ -1,108 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264818AbUEEWMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264817AbUEEWUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264818AbUEEWMK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 18:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264820AbUEEWMK
+	id S264817AbUEEWUs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 18:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264821AbUEEWUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 18:12:10 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:62945 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S264818AbUEEWMC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 18:12:02 -0400
-Message-Id: <200405052212.i45MC0F28121@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Cache queue_congestion_on/off_threshold
-Date: Wed, 5 May 2004 15:12:01 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQy7f0s9cHEyc3mTCqEhrnn1TTnoA==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Wed, 5 May 2004 18:20:48 -0400
+Received: from mail.kroah.org ([65.200.24.183]:5297 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264817AbUEEWUr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 18:20:47 -0400
+Date: Wed, 5 May 2004 15:18:04 -0700
+From: Greg KH <greg@kroah.com>
+To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Cc: vsu@altlinux.ru, "Mark M. Hoffman" <mhoffman@lightlink.com>
+Subject: Re: [PATCH 2.6] Fix memory leaks in w83781d and asb100
+Message-ID: <20040505221804.GE29885@kroah.com>
+References: <20040403191023.08f60ff1.khali@linux-fr.org> <20040403202042.GA3898@sirius.home> <20040409173158.GC15820@kroah.com> <20040410165832.08e0c80d.khali@linux-fr.org> <20040417145309.4831f2b6.khali@linux-fr.org> <20040502220632.06cefb60.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040502220632.06cefb60.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's kind of redundant that queue_congestion_on/off_threshold gets
-calculated on every I/O and they produce the same number over and
-over again unless q->nr_requests gets changed (which is probably a
-very rare event).  Can we cache those values in the request_queue
-structure?
+On Sun, May 02, 2004 at 10:06:32PM +0200, Jean Delvare wrote:
+> 
+> Greg, please apply if it looks good to you. Sorry for introducing the
+> leak in the first place...
 
-- Ken
+Looks a bit odd, but ok.
 
+Applied, thanks.
 
-diff -Nurp linux-2.6.6-rc3/drivers/block/ll_rw_blk.c linux-2.6.6-rc3.blk/drivers/block/ll_rw_blk.c
---- linux-2.6.6-rc3/drivers/block/ll_rw_blk.c	2004-05-05 14:32:31.000000000 -0700
-+++ linux-2.6.6-rc3.blk/drivers/block/ll_rw_blk.c	2004-05-05 15:04:59.000000000 -0700
-@@ -70,14 +70,7 @@ EXPORT_SYMBOL(blk_max_pfn);
-  */
- static inline int queue_congestion_on_threshold(struct request_queue *q)
- {
--	int ret;
--
--	ret = q->nr_requests - (q->nr_requests / 8) + 1;
--
--	if (ret > q->nr_requests)
--		ret = q->nr_requests;
--
--	return ret;
-+	return q->nr_congestion_on;
- }
-
- /*
-@@ -85,14 +78,22 @@ static inline int queue_congestion_on_th
-  */
- static inline int queue_congestion_off_threshold(struct request_queue *q)
- {
--	int ret;
-+	return q->nr_congestion_off;
-+}
-
--	ret = q->nr_requests - (q->nr_requests / 8) - 1;
-+static inline void blk_queue_congestion_threshold(struct request_queue *q)
-+{
-+	int nr;
-
--	if (ret < 1)
--		ret = 1;
-+	nr = q->nr_requests - (q->nr_requests / 8) + 1;
-+	if (nr > q->nr_requests)
-+		nr = q->nr_requests;
-+	q->nr_congestion_on = nr;
-
--	return ret;
-+	nr = q->nr_requests - (q->nr_requests / 8) - 1;
-+	if (nr < 1)
-+		nr = 1;
-+	q->nr_congestion_off = nr;
- }
-
- void clear_backing_dev_congested(struct backing_dev_info *bdi, int rw)
-@@ -235,6 +236,7 @@ void blk_queue_make_request(request_queu
- 	blk_queue_max_sectors(q, MAX_SECTORS);
- 	blk_queue_hardsect_size(q, 512);
- 	blk_queue_dma_alignment(q, 511);
-+	blk_queue_congestion_threshold(q);
-
- 	q->unplug_thresh = 4;		/* hmm */
- 	q->unplug_delay = (3 * HZ) / 1000;	/* 3 milliseconds */
-@@ -2953,6 +2955,7 @@ queue_requests_store(struct request_queu
- 	int ret = queue_var_store(&q->nr_requests, page, count);
- 	if (q->nr_requests < BLKDEV_MIN_RQ)
- 		q->nr_requests = BLKDEV_MIN_RQ;
-+	blk_queue_congestion_threshold(q);
-
- 	if (rl->count[READ] >= queue_congestion_on_threshold(q))
- 		set_queue_congested(q, READ);
-diff -Nurp linux-2.6.6-rc3/include/linux/blkdev.h linux-2.6.6-rc3.blk/include/linux/blkdev.h
---- linux-2.6.6-rc3/include/linux/blkdev.h	2004-04-27 18:35:21.000000000 -0700
-+++ linux-2.6.6-rc3.blk/include/linux/blkdev.h	2004-05-05 15:04:59.000000000 -0700
-@@ -334,6 +334,8 @@ struct request_queue
- 	 * queue settings
- 	 */
- 	unsigned long		nr_requests;	/* Max # of requests */
-+	unsigned int		nr_congestion_on;
-+	unsigned int		nr_congestion_off;
-
- 	unsigned short		max_sectors;
- 	unsigned short		max_phys_segments;
-
-
+greg k-h

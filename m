@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268263AbUIKSWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268275AbUIKSaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268263AbUIKSWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 14:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268275AbUIKSWr
+	id S268275AbUIKSaP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 14:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268278AbUIKSaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 14:22:47 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:12561 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S268263AbUIKSWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 14:22:42 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Subject: Re: [PATCH] udev: udevd shall inform us abot trouble
-Date: Sat, 11 Sep 2004 21:22:36 +0300
-User-Agent: KMail/1.5.4
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <200409081018.43626.vda@port.imtp.ilyichevsk.odessa.ua> <200409111943.21225.vda@port.imtp.ilyichevsk.odessa.ua> <41433A68.7090403@backtobasicsmgmt.com>
-In-Reply-To: <41433A68.7090403@backtobasicsmgmt.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409112122.36068.vda@port.imtp.ilyichevsk.odessa.ua>
+	Sat, 11 Sep 2004 14:30:15 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:40845 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S268275AbUIKSaE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 14:30:04 -0400
+Subject: [PPC32] 2.6.9-rc1-bk18 5 warnings, 1 error
+From: =?ISO-8859-1?Q?Beno=EEt?= Dejean <benoit.dejean@placenet.org>
+Reply-To: TazForEver@dlfp.org
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Sat, 11 Sep 2004 20:29:51 +0200
+Message-Id: <1094927391.28584.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.93 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 September 2004 20:48, Kevin P. Fleming wrote:
-> Denis Vlasenko wrote:
-> > Well, I lied a bit. These lines are from my home box, which is not
-> > udev'ified yet. At the job, I sit on i815 box, and there amixer
-> > fails to set volume. It happens 100% of the time. Adding "sleep 1"
-> > after modprobing helps. With devfs it worked without sleep.
->
-> This is correct; with devfs, creation of device nodes during module
-> loading was synchronous, so it was always (or nearly always) complete
-> before modprobe returned. With udev, creation of device nodes is
-> completely asynchronous, and may happen at _any_ time after the module
-> has been loaded.
+hi,
 
-Yes. I know why it works differently.
+gcc (GCC) 3.3.4 (Debian 1:3.3.4-11)
 
-> The real solution here is for people to re-think their system startup
-> processes; if you need mixer settings applied at startup, then build a
-> small script somewhere in /etc/hotplug.d or /etc/dev.d that applies them
-> to the mixer _when it appears_.
+make defconfig && make
 
-As a user, I prefer to be able to use device right away after
-modprobe. Imagine ethN appearing "sometime after" modprobe.
-Would you like such behavior?
---
-vda
+  CC      drivers/char/random.o
+drivers/char/random.c: In function `add_timer_randomness':
+drivers/char/random.c:822: warning: right shift count >= width of type
+
+  CC      drivers/cpufreq/proc_intf.o
+drivers/cpufreq/proc_intf.c:15:2: warning: #warning This module will be
+removed from the 2.6. kernel series soon after 2005-01-01
+ 
+  CC      drivers/ide/ide-iops.o
+drivers/ide/ide-iops.c: In function `ide_mm_insw':
+drivers/ide/ide-iops.c:125: warning: passing arg 1 of `__ide_mm_insw'
+makes integer from pointer without a cast
+drivers/ide/ide-iops.c: In function `ide_mm_insl':
+drivers/ide/ide-iops.c:135: warning: passing arg 1 of `__ide_mm_insl'
+makes integer from pointer without a cast
+drivers/ide/ide-iops.c: In function `ide_mm_outsw':
+drivers/ide/ide-iops.c:155: warning: passing arg 1 of `__ide_mm_outsw'
+makes integer from pointer without a cast
+drivers/ide/ide-iops.c: In function `ide_mm_outsl':
+drivers/ide/ide-iops.c:165: warning: passing arg 1 of `__ide_mm_outsl'
+makes integer from pointer without a cast
+
+  CC [M]  sound/oss/dmasound/tas3001c.o
+sound/oss/dmasound/tas3001c.c:162: warning: `tas3001c_read_register'
+defined but not used
+
+  CC [M]  sound/oss/dmasound/tas3004.o
+sound/oss/dmasound/tas3004.c:330: warning: `tas3004_read_register'
+defined but not used
+
+  AR      arch/ppc/boot/lib/lib.a
+ar: arch/ppc/boot/lib/infblock.o: No such file or directory
+make[2]: *** [arch/ppc/boot/lib/lib.a] Error 1
+make[1]: *** [arch/ppc/boot/lib] Error 2
+make: *** [zImage] Error 2
+
+-- 
+Benoît Dejean
+JID: TazForEver@jabber.org
+gDesklets http://gdesklets.gnomedesktop.org
+LibGTop http://directory.fsf.org/libgtop.html
+http://www.paulla.asso.fr
 

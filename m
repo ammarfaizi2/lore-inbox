@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262565AbSJGS5D>; Mon, 7 Oct 2002 14:57:03 -0400
+	id <S262598AbSJGTI4>; Mon, 7 Oct 2002 15:08:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262567AbSJGS5D>; Mon, 7 Oct 2002 14:57:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:924 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262565AbSJGS5B>;
-	Mon, 7 Oct 2002 14:57:01 -0400
-Date: Mon, 07 Oct 2002 11:55:30 -0700 (PDT)
-Message-Id: <20021007.115530.00078126.davem@redhat.com>
-To: yoshfuji@linux-ipv6.org
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021008.000559.17528416.yoshfuji@linux-ipv6.org>
-References: <20021008.000559.17528416.yoshfuji@linux-ipv6.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262603AbSJGTI4>; Mon, 7 Oct 2002 15:08:56 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:28289 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262598AbSJGTIz>;
+	Mon, 7 Oct 2002 15:08:55 -0400
+Date: Mon, 7 Oct 2002 21:14:27 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Steve Dover <swdlinunx@earthlink.net>, linux-kernel@vger.kernel.org
+Subject: Re: PC speaker dead in 2.5.40?
+Message-ID: <20021007211427.A833@ucw.cz>
+References: <3DA1BD31.4040707@earthlink.net> <20021007070857.GA1927@rivenstone.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021007070857.GA1927@rivenstone.net>; from jhf@rivenstone.net on Mon, Oct 07, 2002 at 03:08:57AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
-   Date: Tue, 08 Oct 2002 00:05:59 +0900 (JST)
+On Mon, Oct 07, 2002 at 03:08:57AM -0400, Joseph Fannin wrote:
 
-   Prefix length for link-local address should be 64, not 10.
-   This patch fixes prefix length of link-local address.
-   
-   Following patch is against 2.4.19.
+> > Configuring a kernel with Sound support with either
+> > OSS or ALSA, I still get nothing from my PC speaker.
+> > Works fine under 2.4.18.
+> 
+>     Look under all the submenus in the Input section of
+>     "menuconfig" for the speaker entry and enable it.
+> 
+>     There's a good technical reason why the speaker is an input
+>     device, but hiding it in the menus is *bad*.
 
-Patch is applied, thank you.
+Send me a patch that fixes this - if you know how.
 
-BTW, we start to run into conflicts now and most of USAGI patches now
-I need to apply some parts by hand.  Here is one example, with this
-patch:
-   
-   @@ -783,7 +783,7 @@
-    	struct in6_addr addr;
-    
-    	ipv6_addr_set(&addr,  __constant_htonl(0xFE800000), 0, 0, 0);
-   -	addrconf_prefix_route(&addr, 10, dev, 0, RTF_ADDRCONF);
-   +	addrconf_prefix_route(&addr, 64, dev, 0, RTF_ADDRCONF);
-    }
-    
-    static struct inet6_dev *addrconf_add_dev(struct net_device *dev)
-
-Note in this hunk the __constant_htonl() which was transformed
-to plain htonl() by already accepted USAGI patch.
-
-It is not such a big deal now, but it may soon become larger as
-bigger USAGI patches are applied.  We will need to synchronize
-at some point.
+-- 
+Vojtech Pavlik
+SuSE Labs

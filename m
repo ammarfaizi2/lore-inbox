@@ -1,79 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbUK0VuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbUK0V4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbUK0VuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 16:50:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbUK0VuI
+	id S261343AbUK0V4T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 16:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbUK0V4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 16:50:08 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:23052 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261334AbUK0VuA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 16:50:00 -0500
-Message-ID: <41A8F67E.1060908@domdv.de>
-Date: Sat, 27 Nov 2004 22:49:50 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
-X-Accept-Language: en-us, en, de
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: David Howells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
-       matthew@wil.cx, dwmw2@infradead.org, aoliva@redhat.com,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-References: <19865.1101395592@redhat.com> <20041127210331.GB7857@mars.ravnborg.org> <41A8ED8F.5010402@domdv.de> <20041127211923.GA21765@mars.ravnborg.org>
-In-Reply-To: <20041127211923.GA21765@mars.ravnborg.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 27 Nov 2004 16:56:19 -0500
+Received: from ctb-mesg1.saix.net ([196.25.240.73]:12780 "EHLO
+	ctb-mesg1.saix.net") by vger.kernel.org with ESMTP id S261343AbUK0V4N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 16:56:13 -0500
+Subject: Re: *** Announcement: dmraid 1.0.0-rc5f *** [u]
+From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: mauelshagen@redhat.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041124142633.GA16708@redhat.com>
+References: <20041124142633.GA16708@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zUq0wMHWVBGJEizDpMgC"
+Date: Sat, 27 Nov 2004 23:56:21 +0200
+Message-Id: <1101592581.11949.50.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Sat, Nov 27, 2004 at 10:11:43PM +0100, Andreas Steinmetz wrote:
-> 
->>>If we go for some resturcturing of include/ then we should get rid of
->>>the annoying asm symlink. Following layout deals with that:
->>>
->>>include/<arch>/asm		<= Files from include/asm-<arch>
->>>include/<arch>/mach*		<= Files from include/mach-*
->>>
->>>This layout solve the symlink issue in an elegant way.
->>>We need to do trivial changes to compiler options to make it work. Changing
->>>compiler options is much more relaible than using symlinks.
->>>
->>>Then the userspace part would then be located in:
->>>include/<arch>/user-asm
->>>
->>
->>This complicates things for bi-arch architectures like x86_64 where one 
->>can use a dispatcher directory instead of a symlink to suit include/asm 
->>for 32bit as well as 64bit.
-> 
-> X86_64 does not create any special symlinks todays so I do not see the point?
-> And still a symlink is just the wrong way to solve the problem.
-> Adjusting options to the compiler is the way to do it.
 
-Ok, this is not in the kernel, but think of the following: an 
-application needs and include/asm header. The application may be 
-compiled as 32 bit and as 64 bit. Then you could use a real asm 
-directory instead of a symlink and use, e.g. for asm/byteorder.h:
+--=-zUq0wMHWVBGJEizDpMgC
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-#ifdef __x86_64__
-#include <asm-x86_64/byteorder.h>
-#else
-#include <asm-i386/byteorder.h>
-#endif
+On Wed, 2004-11-24 at 15:26 +0100, Heinz Mauelshagen wrote:
+>                *** Announcement: dmraid 1.0.0-rc5f ***
+>=20
 
-This way both archs are satisfied from a userspace point of view without 
-  having to take care if the source is compiled on 32bit or 64bit. If 
-you kill the symlink this neat dispatcher can't really be done anymore 
-that easy.
-It is not necessary to do anything in the kernel tree here except to 
-keep the symlink to allow for this kind of userspace tweaks for certain 
-architectures.
-This is especially important when there's need to use a include/linux 
-header which itself needs an include/asm header as in this case with the 
-  the little tweak always the right asm header is included.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Hi,
+
+Firstly, it seems my 'make loops forever' issue have been solved
+somewhere along the line (sorry, have not checked much after rc3 I
+think, so not sure when).
+
+Then, I tried to build it against klibc, but eventually ended up
+hacking configure.in, some Makefiles, some more source files, and
+generally butchered it to submission, followed by manual linking
+to actually get a working binary.  Is this a known issue, or does
+it currently only work against some special (RH?) version of klibc?
+Also, what about including klibc/libdevmapper trees like udev, etc
+to make this a bit more painless?
+
+Lastly, is it planned to enable the user to specify his own dm
+volume names ?
+
+
+Thanks,
+
+--=20
+Martin Schlemmer
+
+
+--=-zUq0wMHWVBGJEizDpMgC
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBqPgFqburzKaJYLYRAl0uAJwPSPWsn82+6tC4+oOjiN2cTYj1HgCeIx6c
+P2R3sws1by0jmnVo9AksWm4=
+=ULJH
+-----END PGP SIGNATURE-----
+
+--=-zUq0wMHWVBGJEizDpMgC--
+

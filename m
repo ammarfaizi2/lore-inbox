@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262207AbUBXHcS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 02:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbUBXHcR
+	id S262204AbUBXHsb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 02:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUBXHsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 02:32:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8861 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262193AbUBXHcO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 02:32:14 -0500
-Date: Mon, 23 Feb 2004 23:32:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Kerin <eric@bootseg.com>
-Cc: alexn@telia.com, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: 2.6.3 oops at kobject_unregister, alsa & aic7xxx
-Message-Id: <20040223233218.73e61a9e.akpm@osdl.org>
-In-Reply-To: <1077606462.3172.38.camel@opiate>
-References: <1077546633.362.28.camel@boxen>
-	<20040223160716.799195d0.akpm@osdl.org>
-	<1077602725.3172.19.camel@opiate>
-	<20040223221740.5786b0b3.akpm@osdl.org>
-	<1077606462.3172.38.camel@opiate>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Feb 2004 02:48:30 -0500
+Received: from fmx1.freemail.hu ([195.228.242.221]:5170 "HELO fmx1.freemail.hu")
+	by vger.kernel.org with SMTP id S262204AbUBXHsa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 02:48:30 -0500
+Date: Tue, 24 Feb 2004 08:48:28 +0100 (CET)
+From: Max Payne <"max..payne"@freemail.hu>
+Subject: Re: 2.6.3 vs. ibm xseries 445 (4 way)
+To: linux-kernel@vger.kernel.org
+cc: johnstul@us.ibm.com, rddunlap@osdl.org, mbligh@aracnet.com
+Message-ID: <freemail.20040124084828.90804@fm4.freemail.hu>
+X-Originating-IP: [195.56.253.245]
+X-HTTP-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Kerin <eric@bootseg.com> wrote:
->
-> The AIC drivers are currently coded to unload (by returning -ENODEV from
->  the init function) if no devices are found, so the exit function never
->  gets called, leaving the stale entries.
+2004-02-24, k keltezéssel 00:42-kor john stultz ezt írta:
+>Under "Processor type and features" make sure
+"Subarchitecture Type" is set to "Summit/EXA" or "Generic"
 
-Oh, OK, leaving the PCI driver registered.
+Hi!
 
->  There's a 2nd patch in the above thread that changes those modules to
->  stay loaded even if no devices are found, which Arjan V pointed out was
->  the preferred way for drivers to work.
+"Summit/EXA" is the right option. problem solved.  thanks
+for the help.
 
-Sounds good.  Do you have that patch handy?
+--
+Max
+
+
+
+

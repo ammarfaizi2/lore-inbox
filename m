@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316988AbSEWTNG>; Thu, 23 May 2002 15:13:06 -0400
+	id <S316989AbSEWTP0>; Thu, 23 May 2002 15:15:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316990AbSEWTNF>; Thu, 23 May 2002 15:13:05 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:22283
+	id <S316938AbSEWTPZ>; Thu, 23 May 2002 15:15:25 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:24075
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S316988AbSEWTNE>; Thu, 23 May 2002 15:13:04 -0400
-Date: Thu, 23 May 2002 12:11:25 -0700 (PDT)
+	id <S316989AbSEWTPX>; Thu, 23 May 2002 15:15:23 -0400
+Date: Thu, 23 May 2002 12:13:50 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
 To: Martin Dalecki <dalecki@evision-ventures.com>
 cc: Tomas Szepe <szepe@pinerecords.com>,
         "Gryaznova E." <grev@namesys.botik.ru>, linux-kernel@vger.kernel.org
 Subject: Re: IDE problem: linux-2.5.17
 In-Reply-To: <3CED2B9D.4080402@evision-ventures.com>
-Message-ID: <Pine.LNX.4.10.10205231204500.22581-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10205231212140.22581-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Well if people are doing embedded in close quarters and they can use the
-knowledge, they need to have it.  The drive is/was designed to deal with
-this issue in several ways.
-
-Testing the for the decay from POST for DEVICE side detection of any
-capable cable.  Next if the HOST also supports detection and it senses its
-own cable capacitance is acceptable, then it will work.
-
-You need to be able to support conclusions of how and why, because people
-will see this in the real world and wonder why.
+Also the standard is clear only in what minimal expected requirements are
+needed to support the protocol.  In time you will learn where the tricks
+of the trade are and when someone is attempted to go there and/or push
+beyond.
 
 Cheers,
-
 
 On Thu, 23 May 2002, Martin Dalecki wrote:
 
@@ -50,6 +43,12 @@ On Thu, 23 May 2002, Martin Dalecki wrote:
 > contacts as before and half signal shilding. So indeed
 > 40 wire cables can turn out to work, but thats subjec to
 > "quality" assurance on behalf of the OEM's.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
 Andre Hedrick

@@ -1,34 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292870AbSCOQVM>; Fri, 15 Mar 2002 11:21:12 -0500
+	id <S292866AbSCOQYW>; Fri, 15 Mar 2002 11:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292881AbSCOQVC>; Fri, 15 Mar 2002 11:21:02 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:64785 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S292870AbSCOQUw>; Fri, 15 Mar 2002 11:20:52 -0500
-Message-Id: <200203151720.g2FHKTgg014925@pincoya.inf.utfsm.cl>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: 2.4.19pre2aa1 
-In-Reply-To: Message from Andrea Arcangeli <andrea@suse.de> 
-   of "Tue, 12 Mar 2002 15:25:34 +0100." <20020312152534.U25226@dualathlon.random> 
-Date: Fri, 15 Mar 2002 13:20:29 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S292878AbSCOQYM>; Fri, 15 Mar 2002 11:24:12 -0500
+Received: from mail.loewe-komp.de ([62.156.155.230]:35085 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S292866AbSCOQYB>; Fri, 15 Mar 2002 11:24:01 -0500
+Message-ID: <3C922005.50608@loewe-komp.de>
+Date: Fri, 15 Mar 2002 17:23:33 +0100
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Martin Wirth <martin.wirth@dlr.de>
+CC: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+In-Reply-To: <E16lmBj-0003v4-00@wagner.rustcorp.com.au> <3C91B3A1.7030709@dlr.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> said:
+Martin Wirth wrote:
 
-[...]
+> 
+> Rusty Russell wrote:
+> 
+>>
+>> Discussions with Ulrich have reaffirmed my opinion that pthreads are
+>> crap.  Hence I'm not all that tempted to warp the (nice, clean,
+>> usable) futex code too far to meet pthreads' wierd needs.
+>>
+> Crap or not, there are tons of software based on pthreads and at least 
+> the NGPT team says that Linus
+> agreed to implement for necessary kernel-infrastructure for a full, fast 
+> pthread implementation.
+> 
+> Now, if you want to implement mutexes and condition variables with the 
+> attribute
+> PTHREAD_PROCESS_SHARED then you need some functionality like the futexes.
+> Or NGPT will add his own syscalls to handle these things, which is simply
+> unnecessary double functionality.
+> 
 
-> AFIK my current hashfn is never been tested in precendence on this kind
-> of random input of the wait_table pages.
 
-If the input is really random, anything will do. I.e., just chopping off a
-few not guaranteed-zero bits (probably better low-end) and using that would
-be enough.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+I think the "crap" refers to current missing meatures of linuxthreads
+(most notable: PTHREAD_PROCESS_SHARED on cond and mutex, don't know about sema)
+
+BTW, NGPT introduces two new syscalls: gettid and tkill
+
+>>
+>> However, it's not too hard to implement condition variables using an
+>> unavailable mutex, if we go for "full" semaphores: ie. not just
+>> mutexes.  It requires a bit more of a stretch for kernel atomic ops...
+>>
+> A full semaphore is nice, but not a full replacement for a waitqueue (or 
+> a pthread condition variable brr..).
+> For the semaphore you always have to assure that the ups and downs are 
+> balanced, what is not the case
+> for the condition variable.
+> 
+
+also remember pthread_cond_broadcast - waking up _all_ waiting threads.
+If the woken up threads check their condition and go to sleep again, is
+up to them ( read: the standard mandates that _all_ get woken up)
+
+pthread_cond_signal notifies _one_ thread - which one depends on implementation
+( I would like to see a priority based decision )
+

@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133099AbRDZFEo>; Thu, 26 Apr 2001 01:04:44 -0400
+	id <S133109AbRDZFRr>; Thu, 26 Apr 2001 01:17:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133108AbRDZFEe>; Thu, 26 Apr 2001 01:04:34 -0400
-Received: from albatross-ext.wise.edt.ericsson.se ([194.237.142.116]:27017
-	"EHLO albatross-ext.wise.edt.ericsson.se") by vger.kernel.org
-	with ESMTP id <S133099AbRDZFE2>; Thu, 26 Apr 2001 01:04:28 -0400
-Message-Id: <200104260504.OAA16871@toa006>
-Date: Thu, 26 Apr 2001 14:04:23 +0900 (JST)
-From: Tore Johansson <nrjtore@toa006.nrj.ericsson.se>
-Reply-To: Tore Johansson <nrjtore@toa006.nrj.ericsson.se>
-Subject: Tiny little problem
-To: linux-kernel@vger.kernel.org
+	id <S133110AbRDZFRh>; Thu, 26 Apr 2001 01:17:37 -0400
+Received: from www.wen-online.de ([212.223.88.39]:64266 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S133109AbRDZFRZ>;
+	Thu, 26 Apr 2001 01:17:25 -0400
+Date: Thu, 26 Apr 2001 07:16:31 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
+In-Reply-To: <Pine.LNX.4.21.0104252352430.1101-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0104260644430.672-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: eRR9jIqWbSWkSCMWHICetw==
-X-Mailer: dtmail 1.2.1 CDE Version 1.2.1 SunOS 5.6 sun4u sparc 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 26 Apr 2001, Marcelo Tosatti wrote:
 
-I have a problem with accessing a magneto opto drive in Linux.
-Since I upgraded the kernel from 2.3 to 2.4 I can mount the MO
-drive but if I try to access a file on the drive the kernel oopses...
+> On Thu, 26 Apr 2001, Mike Galbraith wrote:
+>
+> > > Comments?
+> >
+> > More of a question.  Neither Ingo's nor your patch makes any difference
+> > on my UP box (128mb PIII/500) doing make -j30.
+>
+> Well, my patch incorporates Ingo's patch.
+>
+> It is now integrated into pre7, btw.
+>
+> >  It is taking me 11 1/2
+> >  minutes to do this test (that's horrible).  Any idea why?~
+>
+> Not really.
 
-After the kernel oops the MO can't be unmounted.
+(darn)
 
-The MO is has a SCSI-2 interface and the SCSI interface is a Symbios
-NCR8xx type.
+> If you have concurrent swapping activity, pre7 should improve the
+> performance since all swap IO is asynchronous now. Only paths which really
+> need to stop and wait for the swap data are doing it. (eg do_swap_page)
 
-Any ideas??
+I'll grab virgin pre7 in a few.
 
-Cheers,
-/Tore
+> > (I can get it to under 9 with MUCH extremely ugly tinkering.  I've done
+> > this enough to know that I _should_ be able to do 8 1/2 minutes ~easily)
+>
+> Which kind of changes you're doing to get better performance on this test?
+
+Prevent cache collapse at all cost is #one.  Matching deactivation rate
+to launder/reclaim.. et al.  Trying HARD to give PG_referenced a chance
+to happen between aging scans [1].
+
+	-Mike
+
+1. pagecache is becoming swapcache and must be aged before anything is
+done.  Meanwhile we're calling refill_inactive_scan() so fast that noone
+has a chance to touch a page.   Age becomes a simple counter.. I think.
+When you hit a big surge, swap pages are at the back of all lists, so all
+of your valuable cache gets reclaimed before we write even one swap page.
 

@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282215AbRKWULV>; Fri, 23 Nov 2001 15:11:21 -0500
+	id <S282221AbRKWUQB>; Fri, 23 Nov 2001 15:16:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282219AbRKWULL>; Fri, 23 Nov 2001 15:11:11 -0500
-Received: from willow.seitz.com ([207.106.55.140]:7943 "EHLO willow.seitz.com")
-	by vger.kernel.org with ESMTP id <S282215AbRKWUK4>;
-	Fri, 23 Nov 2001 15:10:56 -0500
-From: Ross Vandegrift <ross@willow.seitz.com>
-Date: Fri, 23 Nov 2001 15:10:53 -0500
-To: rpjday <rpjday@mindspring.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is 2.4.15 really available at www.kernel.org?
-Message-ID: <20011123151053.B13009@willow.seitz.com>
-In-Reply-To: <7xpu69sttm.fsf@colargol.tihlde.org> <Pine.LNX.4.33.0111230523340.8063-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S282220AbRKWUPv>; Fri, 23 Nov 2001 15:15:51 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:2833 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282322AbRKWUPs>; Fri, 23 Nov 2001 15:15:48 -0500
+Message-ID: <3BFEAE22.1CE8DE5B@zip.com.au>
+Date: Fri, 23 Nov 2001 12:14:26 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Anton Altaparmakov <aia21@cam.ac.uk>, war <war@starband.net>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: Which gcc version?
+In-Reply-To: <5.1.0.14.2.20011123135801.00aad970@pop.cus.cam.ac.uk> <5.1.0.14.2.20011123185333.00afd920@pop.cus.cam.ac.uk>,
+		<5.1.0.14.2.20011123185333.00afd920@pop.cus.cam.ac.uk> <E167M0I-0002PD-00@starship.berlin>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0111230523340.8063-100000@localhost.localdomain>; from rpjday@mindspring.com on Fri, Nov 23, 2001 at 05:27:08AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> then i'm just plain baffled.  using mozilla, i've tried downloading both 
-> 2.4.15 and 2.5.0, from the main www.kernel.org page, and from the kernel
-> subpage.  in *every* case, the download window starts off fine with
-> "0K of 28716K", so it knows the right size at the beginning.
+Daniel Phillips wrote:
+> 
+> If there is a performance hit, it's not enough to worry about.
 
-Turn your MTU down to 1490, maybe smaller.  There is a broken TCP/IP stack 
-or switch between you and kernel.org.
+except egcs-1.1.2 (2.91.6) compiles stuff at almost twice the speed
+of gcc3.  The person who breaks egcs-1.1.2 for kernel builds owes
+me a quad Xeon, thanks very much.
 
-Ross Vandegrift
-ross@willow.seitz.com
+-

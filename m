@@ -1,87 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSKTW0y>; Wed, 20 Nov 2002 17:26:54 -0500
+	id <S262806AbSKTW3V>; Wed, 20 Nov 2002 17:29:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261950AbSKTW0y>; Wed, 20 Nov 2002 17:26:54 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:17796 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S261934AbSKTW0w>; Wed, 20 Nov 2002 17:26:52 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 20 Nov 2002 14:34:34 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@digeo.com>
-Subject: [rfc] new poll callback'd wake up hell ...
-Message-ID: <Pine.LNX.4.44.0211201354210.1989-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262826AbSKTW3U>; Wed, 20 Nov 2002 17:29:20 -0500
+Received: from bitmover.com ([192.132.92.2]:470 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S262806AbSKTW3T>;
+	Wed, 20 Nov 2002 17:29:19 -0500
+Date: Wed, 20 Nov 2002 14:36:21 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andre Hedrick <andre@linux-ide.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Cort Dougan <cort@fsmlabs.com>, Xavier Bestel <xavier.bestel@free.fr>,
+       Mark Mielke <mark@mark.mielke.cc>, Rik van Riel <riel@conectiva.com.br>,
+       David McIlwraith <quack@bigpond.net.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: spinlocks, the GPL, and binary-only modules
+Message-ID: <20021120143621.D30979@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Andre Hedrick <andre@linux-ide.org>,
+	Jeff Garzik <jgarzik@pobox.com>, Cort Dougan <cort@fsmlabs.com>,
+	Xavier Bestel <xavier.bestel@free.fr>,
+	Mark Mielke <mark@mark.mielke.cc>,
+	Rik van Riel <riel@conectiva.com.br>,
+	David McIlwraith <quack@bigpond.net.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.10.10211201400570.3892-100000@master.linux-ide.org> <1037832180.3241.104.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1037832180.3241.104.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Nov 20, 2002 at 10:43:00PM +0000
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 20, 2002 at 10:43:00PM +0000, Alan Cox wrote:
+> A pointless war has two losers.
+> 
+> Alan
 
-With the new wake_up() mechanism and wait queue that supports callbacks, a
-wake_up() function call might end up calling another function. This
-function might be the poll callback that someone else installed on the
-first device. The callback invocation will make the one that installed the
-callback on the first device to think that events are avalable, and it'll
-very likely go ahead and wake_up() its own poll wait queue. See the
-problem ? We can cycle through and we can either have a deadlock or a
-stack blow up. An easy like ineffective solution would be to avoid the
-insertion inside an epoll fd on other epoll fds. But this won't prevent
-that another device that will use a similar technique will born tomorrow.
-This is waht I was thinking to solve those problems :
+I like:
 
-1) Move the wake_up() call done inside the poll callback outside the lock
+"When you're arguing with an idiot, two idiots are arguing"
 
-void poll_cb(xxx *data)
-{
-	int pwake = 0;
-
-	lock(data);
-	...
-	if (wait_queue_active(&data->poll_wait))
-		pwake++;
-	unlock(data)
-	if (pwake)
-		ep_poll_safe_wakeup(&data->psw, &data->poll_wait)
-}
-
-
-
-2) Use this infrastructure to perform safe poll wakeups
-
-/*
- * This is used to implement the safe poll wake up avoiding to reenter
- * the poll callback from inside wake_up().
- */
-struct poll_safewake {
-        int wakedoor;	/* Init = 1, can do wake up */
-        atomic_t count;	/* Init = 0, wake up count */
-};
-
-/* Perform a safe wake up of the poll wait list */
-static void ep_poll_safe_wakeup(struct poll_safewake *psw, wait_queue_head_t *wq)
-{
-        atomic_inc(&psw->count);
-        do {
-                if (!xchg(&psw->wakedoor, 0))
-                        break;
-                wake_up(wq);
-                xchg(&psw->wakedoor, 1);
-        } while (!atomic_dec_and_test(&psw->count));
-}
-
-
-
-Does anyone foresee problem in this implementation ?
-Another ( crappy ) solution might be to avoid the epoll fd to drop inside
-its poll wait queue head, wait queues that has the function pointer != NULL
-
-
-
-
-- Davide
-
-
-
+Told to me by Victor Yodaiken (who suggested I tattoo it on the tops
+of my hands and look down a lot while I'm flaming. Good idea, that.)
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318815AbSHWOZZ>; Fri, 23 Aug 2002 10:25:25 -0400
+	id <S318833AbSHWO0v>; Fri, 23 Aug 2002 10:26:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318816AbSHWOZZ>; Fri, 23 Aug 2002 10:25:25 -0400
-Received: from pD9E2385F.dip.t-dialin.net ([217.226.56.95]:54168 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318815AbSHWOZY>; Fri, 23 Aug 2002 10:25:24 -0400
-Date: Fri, 23 Aug 2002 08:29:20 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre4-ac1 (this time regarding 2.5.31)
-In-Reply-To: <3D664167.44A188CC@eyal.emu.id.au>
-Message-ID: <Pine.LNX.4.44.0208230826180.3234-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam-Babelsberg; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318835AbSHWO0v>; Fri, 23 Aug 2002 10:26:51 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:8467 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318833AbSHWO0t>; Fri, 23 Aug 2002 10:26:49 -0400
+Date: Fri, 23 Aug 2002 15:30:57 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Federico Di Gregorio <fog@initd.org>
+Cc: faith@valinux.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Intel 830m backport (2.5 -> 2.4)
+Message-ID: <20020823153057.A18848@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Federico Di Gregorio <fog@initd.org>, faith@valinux.com,
+	linux-kernel@vger.kernel.org
+References: <1030109549.1120.86.camel@momo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1030109549.1120.86.camel@momo>; from fog@initd.org on Fri, Aug 23, 2002 at 03:32:28PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, 24 Aug 2002, Eyal Lebedinsky wrote:
-> linux/drivers/usb/brlvger.c compile error
+On Fri, Aug 23, 2002 at 03:32:28PM +0200, Federico Di Gregorio wrote:
+> hi,
 > 
-> You would think that gcc, having had the same problem for a while,
-> would have smarted up by now. And they say computers are our
-> future...
+> this is my first try at a kernel patch, i hope i am doing everything
+> right; if not, please just tell me. (i sent this patch to both the drm
+> maintainer and the linux-kernel ML. should i send 2.4 patches directly
+> to marcelo? mm..) 
+> 
+> anyway, this is just a backport of the 2.5 DRM driver for Intel 830M to
+> the 2.4 series. It is against 2.4.19 but, consisting only of added files
+> it should work clean on later kernels (tested on 2.4.20pre). The patch
+> is quite big (67252 bytes) and can be downloaded from:
 
-Can't believe! In 2.5 we still use concatenation w/__FUNCTION__.
+Please don't do this.  The 2.5 drm code is a piece of shit and even crappier
+than the one in 2.4.
 
-#define dbgprint(args...) \
-    ({ printk(KERN_DEBUG "Voyager: " __FUNCTION__ ": " args); \
-       printk("\n"); })
-
-Shall we fix it?
-
-#define dbgprint(args...) \
-	printk(KERN_DEBUG "Voyager: %s: " args "\n", __FUNCTION__ );
-
-should cut it, but
-
-#define dbgprint(fmt, args...) \
-	printk(KERN_DEBUG "Voyager: %s: " fmt "\n", __FUNCTION__ , args);
-
-might be better.
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+Alan, is there any chance you could send marcelo the -ac drm code?
 

@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbTIQUfF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 16:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbTIQUfF
+	id S262765AbTIQUmc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 16:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262779AbTIQUmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 16:35:05 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:19861 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262640AbTIQUfD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 16:35:03 -0400
-Date: Wed, 17 Sep 2003 21:34:16 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "Raf D'Halleweyn" <raf@noduck.net>,
-       Vishwas Raman <vishwas@eternal-systems.com>, Valdis.Kletnieks@vt.edu,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Incremental update of TCP Checksum
-Message-ID: <20030917203416.GA3252@mail.jlokier.co.uk>
-References: <3F3C07E2.3000305@eternal-systems.com> <20030821134924.GJ7611@naboo> <3F675B68.8000109@eternal-systems.com> <200309161900.h8GJ0kYe019776@turing-police.cc.vt.edu> <3F67734A.8060804@eternal-systems.com> <1063769305.2801.1.camel@bigboy> <Pine.LNX.4.53.0309170911170.1161@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0309170911170.1161@chaos>
-User-Agent: Mutt/1.4.1i
+	Wed, 17 Sep 2003 16:42:32 -0400
+Received: from deadlock.et.tudelft.nl ([130.161.36.93]:4531 "EHLO
+	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id S262765AbTIQUmX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 16:42:23 -0400
+Date: Wed, 17 Sep 2003 22:42:19 +0200 (CEST)
+From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Subject: Re: Patch: Make iBook1 work again
+In-Reply-To: <1063829278.600.184.camel@gaston>
+Message-ID: <Pine.LNX.4.44.0309172218210.25790-100000@deadlock.et.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> This is all wonderful. This assumes that the stuff being modified
-> in the packet is on well-defined boundaries, seldom the case when
-> you are re-writing packet data, but certainly the case if you
-> are re-writing an IP address.
 
-The only important boundary consideration is whether you're modifying
-at an odd or even byte offset into the packet.
 
--- Jamie
+On Wed, 17 Sep 2003, Benjamin Herrenschmidt wrote:
+
+> Unfortunately, the wallstreet doesn't work neither. I get something strange on the
+> screen. It's somewhat sync'ed but divided in 4 vertical stripes, each one displaying
+> the left side of the display (+/- offseted), along with some fuzziness (clock wrong).
+>
+> XFree86 "ati" driver works fine (and manages somewhat to probe the panel type
+> and clocks properly ...)
+>
+> It's an LT-G (0x4c47 rev 0x80), 14.31818 XTAL, 230Mhz PLL, 63Mhz MCLK & XCLK
+> (so far it sounds good), mode properly detected (1024x768-60 from the mac
+> sense values read in nvram) but the display isn't correct.
+>
+> I can do register dumps to compare, though I may not have time until next week.
+
+Ok, this is the first serious problem, this was not were I expected the
+problems. The Rage LT should not be treated differently than before, no
+changes made here.
+
+The first thing to do is to check is if the clock programming code is the
+problem. Try to modprobe with "default_mclk=-1 default_xclk=-1" or use
+equivalent kernel command line options.
+
+If clock programming code should be blamed, the next step is to enable the
+debug define and check which clock registers are modified. You can
+try to revert my changes at mach64_ct.c line 375 and 433 to see if that
+changes something.
+
+If X corrects the display after starting, the problem might be due to the
+mode setting code. In that case the display should corrupt again when
+switching back to the console.
+
+Greetings,
+
+Daniël Mantione
+

@@ -1,26 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266936AbTBCRpR>; Mon, 3 Feb 2003 12:45:17 -0500
+	id <S266941AbTBCRuo>; Mon, 3 Feb 2003 12:50:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266938AbTBCRpR>; Mon, 3 Feb 2003 12:45:17 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58208 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S266936AbTBCRpR>; Mon, 3 Feb 2003 12:45:17 -0500
-Date: Mon, 3 Feb 2003 12:54:48 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200302031754.h13Hsmh08524@devserv.devel.redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390 fixes (10/12).
-In-Reply-To: <mailman.1044288181.5619.linux-kernel2news@redhat.com>
-References: <200302031550.23872.schwidefsky@de.ibm.com> <mailman.1044288181.5619.linux-kernel2news@redhat.com>
+	id <S266938AbTBCRuo>; Mon, 3 Feb 2003 12:50:44 -0500
+Received: from esperi.demon.co.uk ([194.222.138.8]:8208 "EHLO
+	esperi.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S266286AbTBCRun>; Mon, 3 Feb 2003 12:50:43 -0500
+To: trond.myklebust@fys.uio.no
+Cc: ultralinux@vger.kernel.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: strange sparc64 -> i586 intermittent but reproducible NFS write errors to one and only one fs
+References: <87bs2q3paq.fsf@amaterasu.srvr.nix>
+	<200301100658.h0A6vxs14580@Port.imtp.ilyichevsk.odessa.ua>
+	<87iswkx53u.fsf@amaterasu.srvr.nix>
+	<15915.4574.380686.123067@charged.uio.no>
+X-Emacs: well, why *shouldn't* you pay property taxes on your editor?
+From: Nix <nix@esperi.demon.co.uk>
+Date: 03 Feb 2003 17:35:03 +0000
+In-Reply-To: <15915.4574.380686.123067@charged.uio.no>
+Message-ID: <87adhd6zeg.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Military Intelligence)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> updates for s390 scsi support
-> 
-> Hmm, I can't find a single s390 scsi driver in the tree..
+On Sun, 19 Jan 2003, Trond Myklebust said:
+> It sounds rather strange that this particular patch should introduce
+> an EIO, but here it is (fresh from BitKeeper)
 
-Some people use Cisco's iscsi patch to drive NetApps.
+... and indeed it doesn't.
 
--- Pete
+The problem still exists in -pre9, but is very much rarer and harder to
+replicate; I've sene it only half a dozen times in two weeks, in each
+case during an ftp retrieval; I'm assuming there's something about the
+write patterns used by ncftp (lots of few-KB appends, far apart in time)
+that triggers it.
+
+So it really is merely a timing change that has brought a pre-existing
+problem into the light.
+
+I'm going to try to come up with something that consistently reproduces
+this as well, so I can track down the origins of this bug more
+correctly.
+
+-- 
+2003-02-01: the day the STS died.

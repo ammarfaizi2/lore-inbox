@@ -1,79 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263372AbTHXLeG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 07:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263417AbTHXLeG
+	id S263443AbTHXLjw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 07:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbTHXLjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 07:34:06 -0400
-Received: from coderock.org ([193.77.147.115]:63492 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S263372AbTHXLeD (ORCPT
+	Sun, 24 Aug 2003 07:39:51 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:62349 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263443AbTHXLjt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 07:34:03 -0400
-From: Domen Puncer <domen@coderock.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.0-test4][Bug 976] modprobe pcnet32 (no card) then ns83820 (card present) causes oops
-Date: Sun, 24 Aug 2003 13:33:58 +0200
-User-Agent: KMail/1.5
+	Sun, 24 Aug 2003 07:39:49 -0400
+Date: Sun, 24 Aug 2003 13:39:39 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Javier Achirica <achirica@telefonica.net>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] airo (was: Re: Linux 2.6.0-test4)
+In-Reply-To: <Pine.LNX.4.44.0308221732170.4677-100000@home.osdl.org>
+Message-ID: <Pine.GSO.4.21.0308241249210.14076-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308241333.58457.domen@coderock.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, 22 Aug 2003, Linus Torvalds wrote:
+> Javier Achirica:
+>   o [wireless airo] Fix PCI unregister code
 
-The problem in pcnet32 is, that it doesn't unregister pci, if there's no
-hardware.
+This patch causes a regression: if CONFIG_PCI is not set, it doesn't compile
+anymore. Here's a fix. I also killed a dead variable and its corresponding
+warning:
 
-This patch solves the problem.
-As Barry K. Nathan reported, it also works if you have the card.
-
-Feedback welcome.
-
-
-        Domen
-
-
---- linux-2.6.0-test4-clean/drivers/net/pcnet32.c	2003-08-24 11:42:49.000000000 +0200
-+++ linux-2.6.0-test4/drivers/net/pcnet32.c	2003-08-24 11:42:38.000000000 +0200
-@@ -1726,6 +1726,7 @@
- /* An additional parameter that may be passed in... */
- static int debug = -1;
- static int tx_start_pt = -1;
-+static int pcnet32_have_pci;
+--- linux-2.6.0-test4/drivers/net/wireless/airo.c	Sun Aug 24 09:49:30 2003
++++ linux-m68k-2.6.0-test4/drivers/net/wireless/airo.c	Sun Aug 24 13:03:56 2003
+@@ -4156,7 +4156,7 @@
  
- static int __init pcnet32_init_module(void)
+ static int __init airo_init_module( void )
  {
-@@ -1738,7 +1739,8 @@
- 	tx_start = tx_start_pt;
+-	int i, rc = 0, have_isa_dev = 0;
++	int i, have_isa_dev = 0;
  
-     /* find the PCI devices */
--    pci_module_init(&pcnet32_driver);
-+    if (!pci_module_init(&pcnet32_driver))
-+	pcnet32_have_pci = 1;
+ 	airo_entry = create_proc_entry("aironet",
+ 				       S_IFDIR | airo_perm,
+@@ -4174,7 +4174,7 @@
  
-     /* should we find any remaining VLbus devices ? */
-     if (pcnet32vlb)
-@@ -1747,7 +1749,7 @@
-     if (cards_found)
- 	printk(KERN_INFO PFX "%d cards_found.\n", cards_found);
-     
--    return cards_found ? 0 : -ENODEV;
-+    return (pcnet32_have_pci + cards_found) ? 0 : -ENODEV;
+ #ifdef CONFIG_PCI
+ 	printk( KERN_INFO "airo:  Probing for PCI adapters\n" );
+-	rc = pci_module_init(&airo_driver);
++	pci_module_init(&airo_driver);
+ 	printk( KERN_INFO "airo:  Finished probing for PCI adapters\n" );
+ #endif
+ 
+@@ -4197,8 +4197,11 @@
+ 	}
+ 	remove_proc_entry("aironet", proc_root_driver);
+ 
+-	if (is_pci)
++	if (is_pci) {
++#ifdef CONFIG_PCI
+ 		pci_unregister_driver(&airo_driver);
++#endif
++	}
  }
  
- static void __exit pcnet32_cleanup_module(void)
-@@ -1765,6 +1767,9 @@
- 	free_netdev(pcnet32_dev);
- 	pcnet32_dev = next_dev;
-     }
-+
-+    if (pcnet32_have_pci)
-+	pci_unregister_driver(&pcnet32_driver);
- }
- 
- module_init(pcnet32_init_module);
+ #ifdef WIRELESS_EXT
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+
 

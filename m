@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263017AbTDFPZk (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbTDFPZk (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:25:40 -0400
-Received: from [80.88.129.57] ([80.88.129.57]:10250 "HELO coolre41954.com")
-	by vger.kernel.org with SMTP id S263017AbTDFPZj convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 11:25:39 -0400
-From: "Dr.Williams Okun." <drwilliamokun@breathe.com>
-Reply-To: drokunwill@hknetmail.com
-To: linux-kernel@vger.kernel.org
-Date: Sun, 6 Apr 2003 07:43:26 +0200
-Subject: Waiting to hear from you.
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+	id S263010AbTDFPeU (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbTDFPeU (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:34:20 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:18560 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263010AbTDFPeU (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 11:34:20 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304061547.h36FlvbL000563@81-2-122-30.bradfords.org.uk>
+Subject: Re: [PATCH] take 48-bit lba a bit further
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Sun, 6 Apr 2003 16:47:57 +0100 (BST)
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <1049639724.962.7.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 06, 2003 03:35:25 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S263017AbTDFPZj/20030406152539Z+1000@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir,
- 
-REQUEST ASSISTANCE/PARTNERSHIP .
+> > Then, don't we want to be using 48-bit lba all the time on compatible devices
+> > instead of falling back to 28-bit when possible to save a small amount of
+> > instruction overhead?  (Or is that what we're doing already?  I haven't really
+> > had the time to follow this thread).
+> 
+> The overhead of the double load of the command registers is microseconds so it
+> is actually quite a lot, especially since IDE lacks TCQ so neither end of the
+> link is doing *anything* useful. SCSI has similar problems on older SCSI with 
+> command sending being slow, but the drive is at least doing other commands during
+> this.
 
-I am  a member of a contract award and review committee .A contract already executed by a foreign firm in Africa in 1999 was over invoiced by us to the tune of $8,600,000.00 (Eight million six hundred thousand United states dollars).
+So, say you have a choice of either a 256Kb request to a low block number,
+which can use the faster 28-bit mode, or a 512Kb request to the same low block
+number, which can only be made using 48-bit LBA, which is the best to use?
 
- In the light of the above, I ask for your assistance in the transfer of this excess floating fund in a suspence account  into a foreign account you may wish to provide, for it was a category "A" contract, (strictly reserved for foreign contractors) this informed my request, and also that I am forbidden by my government to run any foreign account.
+I originally thought that we might only be honouring 512Kb requests for blocks
+over the 28-bit limit, which Jens corrected me on, but maybe we *should* only
+do 512Kb requests on high block number, where we have to use 48-bit anyway.
 
-After the sucessful transfer, 20% of the total sum will go to you for your assistance. 5% of the total  sum will be set aside  to compensate for any incidental expenses incured by both parties. 
-
-More details will be given in the course of correspondence. 
-
-Your confidentiality is highly required since I am still in active service .
-
-Thank you for your anticipated co-operation.
-
-Regards,
-
-Dr.Williams Okun.
-
-TELEPHONE:234-1-776-3350. 
-FAX:234-1-759-7912.
-
-You can contact me on my home email on.
-
-drokunwill@hknetmail.com
-
-
-
-
+John.

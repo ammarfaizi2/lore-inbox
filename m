@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262769AbTI1V5w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 17:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTI1V5w
+	id S262768AbTI1Vve (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 17:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbTI1Vvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 17:57:52 -0400
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:42773 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262769AbTI1V5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 17:57:50 -0400
-Date: Sun, 28 Sep 2003 14:55:21 +0200
-Message-Id: <200309281255.h8SCtLvH005504@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 305] M68k bitops
+	Sun, 28 Sep 2003 17:51:33 -0400
+Received: from fed1mtao08.cox.net ([68.6.19.123]:48014 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S262768AbTI1Vvc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 17:51:32 -0400
+Message-ID: <3F7757E0.7030906@backtobasicsmgmt.com>
+Date: Sun, 28 Sep 2003 14:51:28 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] make O=foo does not fail if foo does not exist
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k bitops: Make input parameters of *find*bit() routines const:
-  - find_first_zero_bit()
-  - find_next_zero_bit()
-  - sched_find_first_bit()
+Simple enough... I mistyped the path to the object directory, and the 
+build continued in the source directory anyway. This patch causes the 
+build to stop, although with a non-obvious error message. A better fix 
+would actually check KBUILD_OUTPUT after the cd && pwd test, but I'll 
+leave that to you if you're so inclined.
 
---- linux-2.6.0-test6/include/asm-m68k/bitops.h	Sun Apr 20 12:28:58 2003
-+++ linux-m68k-2.6.0-test6/include/asm-m68k/bitops.h	Wed Sep 10 21:27:51 2003
-@@ -164,9 +164,10 @@
- 	return ((1UL << (nr & 31)) & (((const volatile unsigned long *) vaddr)[nr >> 5])) != 0;
- }
- 
--extern __inline__ int find_first_zero_bit(unsigned long * vaddr, unsigned size)
-+extern __inline__ int find_first_zero_bit(const unsigned long *vaddr,
-+					  unsigned size)
- {
--	unsigned long *p = vaddr, *addr = vaddr;
-+	const unsigned long *p = vaddr, *addr = vaddr;
- 	unsigned long allones = ~0UL;
- 	int res;
- 	unsigned long num;
-@@ -187,11 +188,11 @@
- 	return ((p - addr) << 5) + (res ^ 31);
- }
- 
--extern __inline__ int find_next_zero_bit (unsigned long *vaddr, int size,
-+extern __inline__ int find_next_zero_bit (const unsigned long *vaddr, int size,
- 				      int offset)
- {
--	unsigned long *addr = vaddr;
--	unsigned long *p = addr + (offset >> 5);
-+	const unsigned long *addr = vaddr;
-+	const unsigned long *p = addr + (offset >> 5);
- 	int set = 0, bit = offset & 31UL, res;
- 
- 	if (offset >= size)
-@@ -263,7 +264,7 @@
-  * unlikely to be set. It's guaranteed that at least one of the 140
-  * bits is cleared.
-  */
--static inline int sched_find_first_bit(unsigned long *b)
-+static inline int sched_find_first_bit(const unsigned long *b)
- {
- 	if (unlikely(b[0]))
- 		return __ffs(b[0]);
+--- linux-2.6/Makefile~	Sat Sep 27 19:26:01 2003
++++ linux-2.6/Makefile	Sun Sep 28 14:46:05 2003
+@@ -81,7 +81,7 @@
 
-Gr{oetje,eeting}s,
+  ifneq ($(KBUILD_OUTPUT),)
+  # Invoke a second make in the output directory, passing relevant 
+variables
+-	KBUILD_OUTPUT := $(shell cd $(KBUILD_OUTPUT); /bin/pwd)
++	KBUILD_OUTPUT := $(shell cd $(KBUILD_OUTPUT) && /bin/pwd)
 
-						Geert
+  .PHONY: $(MAKECMDGOALS) all
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

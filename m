@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268571AbUHLN7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268573AbUHLOCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268571AbUHLN7E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 09:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268572AbUHLN7E
+	id S268573AbUHLOCx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 10:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268572AbUHLOCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 09:59:04 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:7637 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268571AbUHLN6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 09:58:55 -0400
-Subject: Re: Linux SATA RAID FAQ
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Thu, 12 Aug 2004 10:02:53 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:28880 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S268573AbUHLOCv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 10:02:51 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Reply-To: s0348365@sms.ed.ac.uk
+Organization: University of Edinburgh
 To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
+Subject: Re: Linux SATA RAID FAQ
+Date: Thu, 12 Aug 2004 15:01:44 +0100
+User-Agent: KMail/1.6.82
 References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
-Content-Type: text/plain
+In-Reply-To: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092315392.21994.52.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 12 Aug 2004 13:56:33 +0100
+Content-Disposition: inline
+Message-Id: <200408121501.44870.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-12 at 14:38, Bernd Eckenfels wrote:
+On Thursday 12 August 2004 14:38, you wrote:
+> In article <20040812113413.GA19252@alpha.home.local> you wrote:
+> > I like it. It's fairly simple. I'm always amazed how many people do
+> > really believe that these cards provide hardware RAID !!! The problem is
+> > when you ask a reseller to add a real hardware RAID card in a system you
+> > purchase and you end up with a cheap silicon image... It happened to us
+> > once and it's not funny at all.
+>
 > Speaing of that, does that mean that other OSes (i.e. Windows) are using
 > BIOS provided code to do raid, or do they also have raid software drivers
 > and the bios is only used on bootup for signature detection and formatting?
+>
+> Greetings
+> Bernd
 
-Normally BIOS and windows drivers doing their raid. It isn't entirely
-that simple. The 3ware is hardware raid as are some of the other high
-end devices (eg aacraid sata boards). There are also some low end
-devices with part of the raid logic in hardware (some promise) although
-I don't believe we use that to the full yet.
+Windows also has "software drivers". Since vendors provide drivers 
+independently of Microsoft, they can put precisely what they like in them.
 
-I'm currently trying to fix up the IT8212 which is an older PATA board
-which does have real h/w raid 0/1
+-- 
+Cheers,
+Alistair.
 
-Alan
-
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/AI Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

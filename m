@@ -1,84 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288993AbSAQPEr>; Thu, 17 Jan 2002 10:04:47 -0500
+	id <S289029AbSAQPFr>; Thu, 17 Jan 2002 10:05:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289029AbSAQPEh>; Thu, 17 Jan 2002 10:04:37 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:51470 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288993AbSAQPEW>;
-	Thu, 17 Jan 2002 10:04:22 -0500
-Date: Thu, 17 Jan 2002 13:04:07 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Diego Calleja <grundig@teleline.es>, <linux-kernel@vger.kernel.org>
-Subject: Re: bugfix backed out
-In-Reply-To: <20020117153504.J4847@athlon.random>
-Message-ID: <Pine.LNX.4.33L.0201171300271.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289113AbSAQPFi>; Thu, 17 Jan 2002 10:05:38 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:37000
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289029AbSAQPFX>; Thu, 17 Jan 2002 10:05:23 -0500
+Date: Thu, 17 Jan 2002 09:49:20 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: CML2-2.1.6
+Message-ID: <20020117094920.A9419@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, Andrea Arcangeli wrote:
+The latest version is always available at <http://www.tuxedo.org/~esr/cml2/>.
 
-> hmm, is this the bugfix you mean? that shouldn't really matter to me as
-> far I can tell, I did it in an alternate way since the first place.
+Release 2.1.6: Thu Jan 17 09:42:47 EST 2002
+	* Oops.  Allow rulebases without a prefix declaration.
+	* Autoconfigurator now has MCA-bus test.
 
-It matters a lot since without this change max_mapped
-will always be larger than max_scan and swap_out() will
-NEVER be called.
-
-If this is fixed in another way in -aa I must have missed
-that piece of code, I only stared at the patch for about
-10 minutes before writing this email.
-
-> diff -urN 2.4.17pre8/mm/vmscan.c 2.4.17/mm/vmscan.c
-> --- 2.4.17pre8/mm/vmscan.c      Fri Nov 23 08:21:05 2001
-> +++ 2.4.17/mm/vmscan.c  Fri Dec 21 20:06:55 2001
-> @@ -338,7 +338,7 @@
->  {
->         struct list_head * entry;
->         int max_scan = nr_inactive_pages / priority;
-> -       int max_mapped = nr_pages << (9 - priority);
-> +       int max_mapped = min((nr_pages << (10 - priority)), max_scan / 10);
->
->         spin_lock(&pagemap_lru_lock);
->         while (--max_scan >= 0 && (entry = inactive_list.prev) != &inactive_list) {
->
-> furthmore I hate those "10" hardwirded magic numbers that you keep
-> adding. The less of them the better. At least I put those magics in
-> sysctl.
-
-Absolutely agreed ... if it helps you, it was marcelo who
-changed the 9 to 10 ;)
-
-Ideally we'd have a VM which runs ok without magic numbers,
-or at least one where changing the magic numbers has extremely
-little influence, the defaults work and the sysctl switches
-don't require you to learn how all the VM internals work.
-
-> see what my max_mapped is:
->
-> 	int orig_max_mapped = SWAP_CLUSTER_MAX * vm_mapped_ratio,
->
-> It is controlled by the vm_mapped_ratio and by the swap-cluster. So we
-> unmap one swap cluster at every vm_mapped_ratio of pages scanned that
-> were mapped. This ensure we unmap when there's some relevant work to do.
-> The lower the vm_mapped_ratio, the earlier the kernel will start
-> swapping/paging. (ah, and of course also the SWAP_CLUSTER_MAX would
-> better be a sysctl but it isn't yet)
-
-Yes, but what happens when orig_max_mapped gets larger than
-max_scan ?  How does the -aa VM protect against that ?
-
-regards,
-
-Rik
+Checkpoint release before I go to an SF convention for four days, without
+net access grrrr....ConFusion here I come!
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+As the Founding Fathers knew well, a government that does not trust its honest,
+law-abiding, taxpaying citizens with the means of self-defense is not itself
+worthy of trust. Laws disarming honest citizens proclaim that the government
+is the master, not the servant, of the people.
+        -- Jeff Snyder

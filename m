@@ -1,107 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268053AbUIBJNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268026AbUIBJOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268053AbUIBJNj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 05:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268026AbUIBJNi
+	id S268026AbUIBJOk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 05:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUIBJOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 05:13:38 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:40153 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268042AbUIBJM5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 05:12:57 -0400
-Message-ID: <4699bb7b04090202121119a57b@mail.gmail.com>
-Date: Thu, 2 Sep 2004 21:12:56 +1200
-From: Oliver Hunt <oliverhunt@gmail.com>
-Reply-To: Oliver Hunt <oliverhunt@gmail.com>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-Cc: Linus Torvalds <torvalds@osdl.org>, David Masover <ninja@slaphack.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <4136E0B6.4000705@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <4136E0B6.4000705@namesys.com>
+	Thu, 2 Sep 2004 05:14:39 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:19336 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S268026AbUIBJOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 05:14:16 -0400
+Date: Thu, 2 Sep 2004 11:14:05 +0200 (DFT)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@isabelle.frec.bull.fr
+To: Andrew Morton <akpm@osdl.org>
+cc: Simon Derr <Simon.Derr@bull.net>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Possible race in sysfs_read_file() and sysfs_write_file()
+In-Reply-To: <20040901163436.263802bc.akpm@osdl.org>
+Message-ID: <Pine.A41.4.53.0409020917350.122970@isabelle.frec.bull.fr>
+References: <Pine.A41.4.53.0409010924250.122970@isabelle.frec.bull.fr>
+ <20040901163436.263802bc.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How would we go about finding out how many data forks were in a file? 
-Because in order to be able to retrieve data from a fork we would need
-to know that the fork were there.  Currently this would imply that we
-go looking through mtab or some such to find out what fs we're running
-on, which seems ugly.
+On Wed, 1 Sep 2004, Andrew Morton wrote:
 
-Alternatively we go through the _exciting_ task of making every other
-fs (with the exceptions of ntfs, and whatever it is that macs use,
-which would need there own custom code) and add code that effectively
-goes
-
-getNumForks(fileref){ return 1;} 
-
-or add a new open call that can take a fork number...
-
-either way we have to add a new syscall, that doesn't conform to any
-real standard(though i suppose it would be possible to use
-macOS/windows style fork iopening interface)
-
-I personally like the concept of having multiple forks in a file, but
-in this case I'm inclined towards usermode first, then if it takes off
-add kernel level support.
-
---Oliver Hunt
-
-On Thu, 02 Sep 2004 01:58:30 -0700, Hans Reiser <reiser@namesys.com> wrote:
-> Linus Torvalds wrote:
-> 
-> > But _my_ point is, no user program is going to take _advantage_ of
+> Simon Derr <Simon.Derr@bull.net> wrote:
 > >
-> >anything that only one filesystem on one system offers.
-> >
-> >
-> Apple does not have this problem....
-> 
-> and yes, the apps will take advantage of it, which is different from
-> depending on it.  If you use the wrong fs you will lose some of the
-> features of the app.
-> 
-> For 30 years nothing much has happened in Unix filesystem semantics
-> because of sheer cowardice (excepting Clearcase, which priced itself
-> into a niche market).   It is 25 years past time for someone to change
-> things.  That someone will have first mover advantage, and the more
-> little semantic features possessed the more lure there will be to use it
-> which will increase market share which will lure more apps into
-> depending on it and in a few years the other filesystems will
-> (deservedly) have only a small market share because the apps won't all
-> work on them.
-> 
-> Besides, there are enhancements which are simply compelling.  You can
-> write a dramatically better performance version control system with a
-> much simpler design if the FS is atomic.    Our transaction manager
-> first draft was written by a version control guy, and he would probably
-> be happy to tell you how  lack of atomicity other than rename makes
-> version control software design hideous.
-> 
-> We have the performance lead.  By next year we will be stable enough for
-> mission critical servers, and then we start the serious semantic
-> enhancements.
-> 
-> If you don't embrace progress, then you doom Linux to following behind,
-> because the guys at Apple are pretty aggressive now that Jobs is back,
-> and they WILL change the semantics, and they will do so in compelling
-> ways, and Linux will be reduced to aping them when it should be leading
-> them.
-> 
-> Hans
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > I think there is a possibility for two threads from a single process to
+> > race in sysfs_read_file() if they call read() on the same file at the same
+> > time.
 >
+> I think there is, too.
+>
+> I also wonder what happens if the first read of a sysfs file is not at
+> offset zero (eg: pread()):
+>
+> static ssize_t
+> sysfs_read_file(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+> {
+> 	struct sysfs_buffer * buffer = file->private_data;
+> 	ssize_t retval = 0;
+>
+> 	if (!*ppos) {
+> 		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
+>
+>
+> we seem to not allocate the buffer at all?
+
+Indeed.
+
+And one would expect flush_read_buffer() to handle this by returning zero
+since the buffer has not been allocated, and its length is zero. But it
+seems there is also something wrong in flush_read_buffer().
+
+fs/sysfs/file.c, flush_read_buffer():
+
+	if (count > (buffer->count - *ppos))
+        	        count = buffer->count - *ppos;
+
+	error = copy_to_user(buf,buffer->page + *ppos,count);
+
+Several issues:
+
+* case 1: the buffer has been previously allocated by a call to read(),
+but now we call pread() (or have called lseek()) with a "large" offset:
+
+Let's say buffer->count is 20 and *ppos is 1000:
+
+buffer->count - *ppos is negative, but buffer->count is unsigned, so there
+is an overflow and the comparison (count > (buffer->count - *ppos)) is
+false, even though `count' is bigger than `buffer->count'
+
+The user here can call copy_to_user() with about any length he wants.
+
+* case 2: the buffer has not yet been allocated, and we call pread() with
+a non-null offset. Due to the overflow, we can again call copy_to_user
+with about any length we want (`count'), from about any location we want
+(`*ppos')
+
+
+
+
+Here's an updated patch:
+
+1/fixes the race between threads by adding a semaphore in sysfs_buffer
+2/allocates the buffer upon call to pread(). We still call again
+fill_read_buffer() if the file is "rewinded" to offset zero.
+3/fixes the comparison in flush_read_buffer().
+
+Still against 2.6.9-rc1-mm2.
+
+Signed-off-by: Simon Derr <simon.derr@null.net>
+
+Index: 269mm2kdb/fs/sysfs/file.c
+===================================================================
+--- 269mm2kdb.orig/fs/sysfs/file.c	2004-08-31 11:29:16.000000000 +0200
++++ 269mm2kdb/fs/sysfs/file.c	2004-09-02 10:58:52.344480007 +0200
+@@ -6,6 +6,7 @@
+ #include <linux/dnotify.h>
+ #include <linux/kobject.h>
+ #include <asm/uaccess.h>
++#include <asm/semaphore.h>
+
+ #include "sysfs.h"
+
+@@ -53,6 +54,7 @@
+ 	loff_t			pos;
+ 	char			* page;
+ 	struct sysfs_ops	* ops;
++	struct semaphore	sem;
+ };
+
+
+@@ -106,6 +108,9 @@
+ {
+ 	int error;
+
++	if (*ppos > buffer->count)
++		return 0;
++
+ 	if (count > (buffer->count - *ppos))
+ 		count = buffer->count - *ppos;
+
+@@ -140,13 +145,17 @@
+ 	struct sysfs_buffer * buffer = file->private_data;
+ 	ssize_t retval = 0;
+
+-	if (!*ppos) {
++	down(&buffer->sem);
++	if ((!*ppos) || (!buffer->page)) {
+ 		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
+-			return retval;
++			goto out;
+ 	}
+ 	pr_debug("%s: count = %d, ppos = %lld, buf = %s\n",
+ 		 __FUNCTION__,count,*ppos,buffer->page);
+-	return flush_read_buffer(buffer,buf,count,ppos);
++	retval = flush_read_buffer(buffer,buf,count,ppos);
++out:
++	up(&buffer->sem);
++	return retval;
+ }
+
+
+@@ -220,11 +229,13 @@
+ {
+ 	struct sysfs_buffer * buffer = file->private_data;
+
++	down(&buffer->sem);
+ 	count = fill_write_buffer(buffer,buf,count);
+ 	if (count > 0)
+ 		count = flush_write_buffer(file->f_dentry,buffer,count);
+ 	if (count > 0)
+ 		*ppos += count;
++	up(&buffer->sem);
+ 	return count;
+ }
+
+@@ -287,6 +298,7 @@
+ 	buffer = kmalloc(sizeof(struct sysfs_buffer),GFP_KERNEL);
+ 	if (buffer) {
+ 		memset(buffer,0,sizeof(struct sysfs_buffer));
++		init_MUTEX(&buffer->sem);
+ 		buffer->ops = ops;
+ 		file->private_data = buffer;
+ 	} else

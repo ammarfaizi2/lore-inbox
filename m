@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbUCJGLS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 01:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbUCJGLS
+	id S262271AbUCJGOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 01:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUCJGOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 01:11:18 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:17326 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262251AbUCJGLP (ORCPT
+	Wed, 10 Mar 2004 01:14:09 -0500
+Received: from mail.zmailer.org ([62.78.96.67]:57352 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S262271AbUCJGOF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 01:11:15 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 10 Mar 2004 01:14:05 -0500
+Date: Wed, 10 Mar 2004 08:13:59 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Jett Tayer <jett@chikka.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Darren's ipfilter ported to linux
+Message-ID: <20040310061359.GL1653@mea-ext.zmailer.org>
+References: <1078895385.2559.29.camel@amnesiac> <404EA4C5.2050509@matchmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16462.45439.232398.947647@napali.hpl.hp.com>
-Date: Tue, 9 Mar 2004 22:11:11 -0800
-To: David Brownell <david-b@pacbell.net>
-Cc: davidm@hpl.hp.com, Grant Grundler <iod00d@hp.com>,
-       Greg KH <greg@kroah.com>, vojtech@suse.cz,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, pochini@shiny.it
-Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
-In-Reply-To: <404E8346.4070405@pacbell.net>
-References: <20031028013013.GA3991@kroah.com>
-	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>
-	<3FA12A2E.4090308@pacbell.net>
-	<16289.29015.81760.774530@napali.hpl.hp.com>
-	<16289.55171.278494.17172@napali.hpl.hp.com>
-	<3FA28C9A.5010608@pacbell.net>
-	<16457.12968.365287.561596@napali.hpl.hp.com>
-	<404959A5.6040809@pacbell.net>
-	<16457.26208.980359.82768@napali.hpl.hp.com>
-	<4049FE57.2060809@pacbell.net>
-	<20040308061802.GA25960@cup.hp.com>
-	<16460.49761.482020.911821@napali.hpl.hp.com>
-	<404CEA36.2000903@pacbell.net>
-	<16461.35657.188807.501072@napali.hpl.hp.com>
-	<404E00B5.5060603@pacbell.net>
-	<16462.1463.686711.622754@napali.hpl.hp.com>
-	<404E2B98.6080901@pacbell.net>
-	<16462.21505.526926.903904@napali.hpl.hp.com>
-	<404E8346.4070405@pacbell.net>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <404EA4C5.2050509@matchmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 09 Mar 2004 18:53:58 -0800, David Brownell <david-b@pacbell.net> said:
+On Tue, Mar 09, 2004 at 09:16:53PM -0800, Mike Fedyk wrote:
+> Jett Tayer wrote:
+> >Hi,
+> >
+> >When will this be integrated to the kernel???
+> 
+> Why should it be?
+> What does it gain us?
+> Is it GPL?
 
-  David.B> Whose OHCI silicon David.B> are you testing with, by the way?
+  It is (probably) "Darren Reed's ipfilter", aka BSD ipf(ilter).
 
-lspci claims it's a NEC chip:
+  Having used ipf, ipchains, iptables, etc. in different system,
+  I take iptables any day.   YMMV, etc.
 
-a0:01.0 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
-        Subsystem: NEC Corporation USB
-        Flags: bus master, medium devsel, latency 128, IRQ 62
-        Memory at 00000000d0062000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: <available only to root>
-
-  --david
+/Matti Aarnio

@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276247AbRJGVZJ>; Sun, 7 Oct 2001 17:25:09 -0400
+	id <S276050AbRJHERT>; Mon, 8 Oct 2001 00:17:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276297AbRJGVY6>; Sun, 7 Oct 2001 17:24:58 -0400
-Received: from apollos.ttu.ee ([193.40.254.143]:7951 "EHLO apollos.ttu.ee")
-	by vger.kernel.org with ESMTP id <S276247AbRJGVYu>;
-	Sun, 7 Oct 2001 17:24:50 -0400
-Date: Sun, 7 Oct 2001 23:25:19 +0200 (EET)
-From: david <david@apollos.ttu.ee>
-To: <linux-kernel@vger.kernel.org>
-Subject: PCI problem with 2.4.10 on 82434LX chipset
-Message-ID: <Pine.LNX.4.33.0110072319040.2878-100000@apollos.ttu.ee>
+	id <S276312AbRJHERI>; Mon, 8 Oct 2001 00:17:08 -0400
+Received: from femail10.sdc1.sfba.home.com ([24.0.95.106]:49392 "EHLO
+	femail10.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S276050AbRJHERF>; Mon, 8 Oct 2001 00:17:05 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+Organization: Boundaries Unlimited
+To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: sis630/celeron perf sucks?
+Date: Sat, 6 Oct 2001 18:24:18 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20011006130647.B26223@work.bitmover.com>
+In-Reply-To: <20011006130647.B26223@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01100618241801.05593@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Saturday 06 October 2001 16:06, Larry McVoy wrote:
+> Has anyone out there seen similar problems with SIS630 motherboards?
+> I know that we discussed this recently and people said that the graphics
+> chip is eating memory bandwidth but I am not using it, it isn't even in
+> SVGA mode, it's in text mode and screen blanked.  I also tried setting
+> the AGP mem down to 2MB and that made no difference.
+>
+> The reason I care is that I like these little cheap boxes called "book pcs"
+> and the older model was BK810 and used the i810 chipset but the newer ones
+> are BK630 and use the SIS630 chipset.
+>
+> The new ones suck on all the stuff I care about, compiles, BitKeeper
+> regressions, just general software dev stuff.
+>
+> Any insight appreciated.
 
- PCI stopped working after upgrading kernel from redhat 2.4.3 to 2.4.10,
-ISA devices are fine. Here are dmesg output fragments:
+Run memtest86 to see what your memory bandwidth is.
 
-redhat 2.4.3-12:
+You can also compare a tight loop ala bogomips with dirtying about as many 
+pages as you have cache (memtest86 can find this), with dirtying more pages 
+than you have cache in a big evil loop.
 
-PCI: PCI BIOS revision 2.10 entry at 0xfd6f2, last bus=0
-PCI: Using configuration type 2
-PCI: Probing PCI hardware
+If this shows that your problem ISN'T memory bandwidth, then you'll have 
+learned something.
 
-also lspci output of pci hardware:
+> The bummer is that the memory subsystem sucks doggy doo doo on the former.
+> Is this a motherboard problem or do the newer celerons suck that bad on
+> purpose?
 
-00:00.0 Host bridge: Intel Corporation 82434LX [Mercury/Neptune] (rev 11)
-        Flags: bus master, slow devsel, latency 32
+All the celerons I know about have a 66 mhz front side bus speed.  (Actually 
+there was a notebook version with a 100mhz fsb, but no desktop ones I know 
+of.)  It's a totally artificial limitation to get you to buy a real Pentium 
+III.  Intel crippling its low-end to avoid hurting the high end.  (They let 
+AMD do that for them. :)
 
-But using 2.4.10:
+I've got links bookmarked about this somewhere.  You can probably find it on 
+Tom's Hardware, or check google...
 
-PCI: PCI BIOS revision 2.10 entry at 0xfd6f2, last bus=0
-PCI: System does not support PCI
+> Check out the bandwidth stuff, the second row should be faster but isn't:
 
-Any hope getting PCI bus working on this box? Maybe some hints? Thanx :)
+Yup.  Blame Intel's marketing department.  This isn't a SIS problem, that's 
+pure Intel's crippling of the DeCeleron...
 
-
-
-
-Taavi Tuisk
-
+Rob

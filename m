@@ -1,107 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268812AbUHUBkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268816AbUHUCDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268812AbUHUBkz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 21:40:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268814AbUHUBkz
+	id S268816AbUHUCDp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 22:03:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268818AbUHUCDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 21:40:55 -0400
-Received: from out014pub.verizon.net ([206.46.170.46]:49126 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S268812AbUHUBkv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 21:40:51 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Possible dcache BUG
-Date: Fri, 20 Aug 2004 21:40:48 -0400
-User-Agent: KMail/1.6.82
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408050948.47535.gene.heskett@verizon.net> <200408210118.02011.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200408210118.02011.vda@port.imtp.ilyichevsk.odessa.ua>
+	Fri, 20 Aug 2004 22:03:45 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:42126 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268816AbUHUCDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 22:03:43 -0400
+Message-ID: <4126AD76.5060006@yahoo.com.au>
+Date: Sat, 21 Aug 2004 12:03:34 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Alan Cox <alan@redhat.com>
+CC: Oliver Neukum <oliver@neukum.org>, Pete Zaitcev <zaitcev@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>, arjanv@redhat.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org, riel@redhat.com, sct@redhat.com
+Subject: Re: PF_MEMALLOC in 2.6
+References: <Pine.LNX.4.44.0408191320320.17508-100000@localhost.localdomain> <4125B111.2040308@yahoo.com.au> <20040820014005.73383a43@lembas.zaitcev.lan> <200408201650.07513.oliver@neukum.org> <20040820150257.GC6812@devserv.devel.redhat.com>
+In-Reply-To: <20040820150257.GC6812@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408202140.49125.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.62.54] at Fri, 20 Aug 2004 20:40:50 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 20 August 2004 18:18, Denis Vlasenko wrote:
->> mmm, I wonder who the zombie is.  Ahh, it's ~/bin/its-daylight.
->> It's a script that cron triggered, and which changes the mode of
->> the heyu/xtend stuff for daytime operations.  Its (a bash script)
->> apparently hung looking for a response it didn't get.  I have 3
->> of those at various times of the day and I've never gotten email
->> from that one.  The mode change does occur though...  FWIW heyu
->> has been fixed, the distro version has a severe scope problem
->> from a missing '}' which was not caught by the compiler, but by
->> a tool I wrote years ago for os9 that I've ported to linux!   The
->> heyu author ): didn't seem to be interested in fixing it either.
+Alan Cox wrote:
+> On Fri, Aug 20, 2004 at 04:50:07PM +0200, Oliver Neukum wrote:
+> 
+>>>This is what made me suspect that it's the diry memory writeout problem.
+>>>It's just like how it was on 2.4 before Alan added PF_MEMALLOC.
 >>
->> I'll go take a look at it after I've sent this, but it does bring
->> up a sore point.  linux doesn't get this right, os9 did.  zombies
->> are killable by os9, it simply takes it out of the execution
->> queue, and reclaims all resources used back into the free pool, no
->> questions asked or expected.  We shouldn't have to reboot just to
->> kill a fscking zombie...
->
->zombie is not much more than an exit code to be collected by
->wait() syscall. All other resources are already freed.
->
->Zombies result when parent does not wait() for dead children.
->Trivial example:
->
->#!/bin/sh
->sleep 10 &
->exec env - sleep 100
->
->26752 pts/0    S      0:00           sleep 100
->26753 pts/0    Z      0:00             [sleep <defunct>]
->
->Such zombies got reparented to init *as soon as parent dies itself*.
->Properly functioning init constanly wait()s for any unexpected
-> chindren, so it takes care of zombies.
->--
->vda
+>>If we add PF_MEMALLOC, do we solve the issue or make it only less
+>>likely? Isn't there a need to limit users of the reserves in number?
+> 
+> 
+> PF_MEMALLOC won't recurse. You might run out of memory however. The old
+> world scsi drivers run in the thread of the I/O so are protected already
+> by PF_MEMALLOC in those cases, its the thread nature of the USB driver which
+> makes it more fun. Unless 2.6 vm is radically different I think PF_MEMALLOC
+> is the right thing to set although it would always eventually be better to
+> find out who is guilty of the blocking allocation that recurses.
+> 
+> Are any of the VM guys considering PF_LOGALLOC so you can trace it down 8)
+> 
+> 
 
-Oh oh, looks like I need a lesson in bash then.  The whole basic idea 
-of what I was doing there was for the parent shell to go away, 
-leaving the child process sitting there until its done some 10 
-seconds later.  If I didn't do that, then cron seemed to hang on the 
-first execution as if was dutifully waiting for bash to exit...
+The problem isn't necessarily a recursing allocation - although that
+wouldn't be helping. The main thing is an inversion in the PF_MEMALLOC
+reserve logic.
 
-The bash manual I have is both too concise, and too verbose because 
-bash is as close to emac's as I can think of when looking for a 
-universal executer.
+Memory goes below pages_min, thread A is in the allocator, sets
+PF_MEMALLOC and tries to clean some pages. The USB thread then can't
+allocate memory to service these requests because it is not PF_MEMALLOC.
 
-In the crontab its this:
-00 05 * * *     /root/bin/its-daylight
-
-Then /root/bin/its-daylight calls 2 other scripts using the "&" 
-syntax.
-
-So I guess its time to RTFM on bash again.
-
-Thanks.
-
-Now, to get this back on-thread..
-
-I switched the memory sticks to each others sockets this afternoon.  
-And "memburn 512" megabytes, which puts me into the swap about 70 
-megs, is still running with no detected errors in 1162 loops.  About 
-4:30 elapsed time so far.  I've got all my fingers and toes crossed, 
-and everything but tied a knot in it, hoping this may be the end of 
-the problem.  If not, then the nightmare continues.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+If you make the USB thread PF_MEMALLOC, you solve this problem at the
+cost of making the PF_MEMALLOC reserve more fragile. If you're pretty
+sure that it only allocates a small, bounded amount of memory then that
+may be a good enough fix for now.

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316251AbSEVQcx>; Wed, 22 May 2002 12:32:53 -0400
+	id <S316248AbSEVQc3>; Wed, 22 May 2002 12:32:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316252AbSEVQcw>; Wed, 22 May 2002 12:32:52 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:26632 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316251AbSEVQcu>; Wed, 22 May 2002 12:32:50 -0400
-Date: Wed, 22 May 2002 09:31:51 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Alexander Viro <viro@math.psu.edu>, Vojtech Pavlik <vojtech@suse.cz>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Padraig Brady <padraig@antefacto.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-In-Reply-To: <3CEB9A3C.6000102@evision-ventures.com>
-Message-ID: <Pine.LNX.4.10.10205220931260.4611-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316251AbSEVQc2>; Wed, 22 May 2002 12:32:28 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:24300
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S316248AbSEVQc0>; Wed, 22 May 2002 12:32:26 -0400
+Date: Wed, 22 May 2002 12:41:36 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Oliver Pitzeier <o.pitzeier@uptime.at>
+Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+        axp-kernel-list@redhat.com
+Subject: Re: Mylex DAC 960 Patch
+Message-ID: <20020522124136.A2313@animx.eu.org>
+In-Reply-To: <001601c201a7$b69eecb0$010b10ac@sbp.uptime.at> <001a01c201ac$626e6580$010b10ac@sbp.uptime.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Hi volks/Linus/Alan!
+> > 
+> > I would suggest to add this patch to the kernel tree.
+> > It works with 2.4.18 and 2.4.18-grsec-1.9.4.
 
-> > For kbdrate???  sysctl I might see - after all, we are talking about
-> > setting two numbers.  ioctl() to pass a couple of integers to the kernel?
-> > No, thanks.
-> 
-> Ahhh and just another note - we are talking about a property of a
-> *device* not a property of the kernel - so ioctl (read io as device)
-> and certainly not sysctl (read sys as kernel).
-> 
-> What could be sonsidered as an *serious* alternative would
-> be to abstract it out even further and implement it on
-> the tset (terminal settings) levels. But *certainly* not sysctl.
+Be nice if it would get in.
 
-Hm. That is a interesting idea. I like it.
+> > Without this I was not able to boot from my Mylex DAC960PD 
+> > and maybe someone else has this problem as well!? I guess so, 
+> > because I read about many people having problems installing 
+> > Linux on an Alpha AS1000, which normally comes with the 
+> > controller mentioned above...
 
+I also have an as1000a and an as800 with a dac960 card.  However, I'm
+booting with root=3001
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

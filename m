@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287196AbSAHJ0x>; Tue, 8 Jan 2002 04:26:53 -0500
+	id <S281772AbSAHJrG>; Tue, 8 Jan 2002 04:47:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287208AbSAHJ0o>; Tue, 8 Jan 2002 04:26:44 -0500
-Received: from jalon.able.es ([212.97.163.2]:32721 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S287196AbSAHJ0h>;
-	Tue, 8 Jan 2002 04:26:37 -0500
-Date: Tue, 8 Jan 2002 10:30:46 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@redhat.com>, "J.A. Magallon" <jamagallon@able.es>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christoph Hellwig <hch@ns.caldera.de>, Jaroslav Kysela <perex@suse.cz>,
-        sound-hackers@zabbo.net, linux-sound@vger.rutgers.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
-Message-ID: <20020108103046.A3545@werewolf.able.es>
-In-Reply-To: <20020108102833.A2927@werewolf.able.es>
+	id <S282482AbSAHJq4>; Tue, 8 Jan 2002 04:46:56 -0500
+Received: from mta01ps.bigpond.com ([144.135.25.133]:35066 "EHLO
+	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S281772AbSAHJqr>; Tue, 8 Jan 2002 04:46:47 -0500
+Message-Id: <5.1.0.14.0.20020108203421.00af4940@pop-server.bigpond.net.au>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 08 Jan 2002 20:46:38 +1100
+To: linux-kernel@vger.kernel.org
+From: Glenn Geers <dgeers@bigpond.net.au>
+Subject: PCI SCSI interrupt clash
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020108102833.A2927@werewolf.able.es>; from jamagallon@able.es on Tue, Jan 08, 2002 at 10:28:33 +0100
-X-Mailer: Balsa 1.3.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+	I check the kernel archive and found reference to the PCI interrupt clash 
+between the 2940 (aic7xxx) and other cards. I also have the problem and it 
+can lock up my entire machine.
+The problem really rears its head when I  overclock my box (BX400 dual PIII 
+450 MHZ) by as little as 10% (504 MHz, 112 MHZ bus). Both my soundblaster 
+live and my onboard AIC7891 are assigned IRQ 19. My PCI slots are full 
+(ethernet, 1394 card, soundblaster live, tv card, and Matrox G400). I 
+enclose the win2k interrupt allocation for your perusal and comment (it's 
+weird!)
 
-On 20020108 Linus Torvalds wrote:
->
->On Mon, 7 Jan 2002, Alan Cox wrote:
->> > Would't it be better to split drivers:
->> >
->> > sound/core.c
->> > sound/alsa/alsa-core.c
->> > sound/alsa/drivers/alsa-emu10k.c
->> > sound/oss/oss-core.c
->> > sound/oss/drivers/oss-emu10k.c
->>
->> Thats much harder to do randomg greps on and to find stuff,than drivers
->> first
->
->I agree. Put drivers separately, let's not split it up more than that.
->
+Current kernel version is 2.4.17 but the problem has been evident since 
+2.4.5 (at least). The 2.2 series does not exhibit the problem.
 
-What would you do with drivers with the same name (source code file)
-in alsa and oss ?
-Sound is special because you have two implementations of the same subsystem
-living together. And eventually in a (near?) future, the oss subtree
-will be killed and the alsa one would go up one level, just as is. Much
-cleaner. And you will end with
+System Information report written at: 08/01/2002 08:44:11 PM
+[IRQs]
 
-sound/alsa-core.c
-sound/drivers/alsa-driver.c
+IRQ Number	Device
+5	Sound Blaster 16 or AWE32 or compatible (WDM)
+128	Matrox Millennium G400 DualHead MAX
+14	Primary IDE Channel
+15	Secondary IDE Channel
+11	Intel 82371AB/EB PCI to USB Universal Host Controller
+36	Adaptec AHA-2940U2/U2W PCI SCSI Controller
+52	Realtek RTL8139/810X Family PCI Fast Ethernet NIC
+56	Hauppauge Win/TV 878/9 VFW Video Driver
+56	Hauppauge Win/TV 878/9 VFW Audio Driver
+60	Creative SB Live! Value (WDM)
+64	Texas Instruments OHCI Compliant IEEE 1394 Host Controller
+1	PC/AT Enhanced PS/2 Keyboard (101/102-Key)
+4	Communications Port (COM1)
+3	Communications Port (COM2)
+6	Standard floppy disk controller
+8	System CMOS/real time clock
+13	Numeric data processor
+12	Other Logitech Mouse PS/2
 
-By
+I hope someone can shed some light on the very high (>20) interrupt 
+numbers. I'd really like and will help to get to the bottom of the problem.
 
-/juan
+Regards,
+	Glenn
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre2-beo #1 SMP Tue Jan 8 03:18:18 CET 2002 i686

@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbVCJSPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVCJSze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262752AbVCJSPo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 13:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVCJSLB
+	id S262970AbVCJSze (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 13:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbVCJSqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 13:11:01 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:57299 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262791AbVCJRv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 12:51:58 -0500
-Subject: Re: [RFC] -stable, how it's going to work.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Greg KH <greg@kroah.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050310174359.GP5389@shell0.pdx.osdl.net>
-References: <20050309072833.GA18878@kroah.com>
-	 <16944.6867.858907.990990@cse.unsw.edu.au>
-	 <20050310164312.GC16126@kroah.com> <1110475644.12805.43.camel@mindpipe>
-	 <20050310174359.GP5389@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Thu, 10 Mar 2005 12:51:48 -0500
-Message-Id: <1110477109.12805.64.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Mar 2005 13:46:20 -0500
+Received: from fire.osdl.org ([65.172.181.4]:45966 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262863AbVCJSid (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 13:38:33 -0500
+Date: Thu, 10 Mar 2005 10:40:25 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] AB-BA deadlock between uidhash_lock and tasklist_lock.
+In-Reply-To: <20050310123714.GA22068@attica.americas.sgi.com>
+Message-ID: <Pine.LNX.4.58.0503101034400.2530@ppc970.osdl.org>
+References: <20050310123714.GA22068@attica.americas.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-10 at 09:43 -0800, Chris Wright wrote:
-> * Lee Revell (rlrevell@joe-job.com) wrote:
-> > On Thu, 2005-03-10 at 08:43 -0800, Greg KH wrote:
-> > > That, and a zillion other specific wordings that people suggested fall
-> > > under the:
-> > > 	or some "oh, that's not good" issue
-> > > rule.
-> > 
-> > So just to be 100% clear, no sound with 2.6.N where the sound worked
-> > with 2.6.N-1 absolutely does qualify.  Right?
+
+
+On Thu, 10 Mar 2005, Robin Holt wrote:
 > 
-> Depends, is listening to music while you work critical...? j/k ;-)
-> Yeah, that's a driver regression...used to work, now it's broken.
-> If fix is back out all changes, that's not so nice, if it's a
-> 'one-liner' then definitely.  Have a concrete example and patch?
+> reparent_to_init() does write_lock_irq(&tasklist_lock) then calls
+> switch_uid() which calls free_uid() which grabs the uidhash_lock.
+> 
+> Independent of that, we have seen a different cpu call free_uid as a
+> result of sys_wait4 and, immediately after acquiring the uidhash_lock,
+> receive a timer interrupt which eventually leads to an attempt to grab
+> the tasklist_lock.
 
-Not yet.  We are still trying to figure out whether 2.6.11 introduced an
-ALSA regression or not.  See the "intel 8x0 went silent" thread.
+Hmm..  We fixed this already, and the current tree doesn't have this 
+problem (and the fix was much simpler: just move "switch_uid()" to outside 
+the tasklist_lock.
 
-Lee
+That fix was done late december last year (current BK revision: 
+1.1938.446.38), and I really think your patch is stale. Please 
+double-check,
 
+		Linus

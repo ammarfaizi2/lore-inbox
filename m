@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284787AbRLHUij>; Sat, 8 Dec 2001 15:38:39 -0500
+	id <S284813AbRLHUnk>; Sat, 8 Dec 2001 15:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284805AbRLHUia>; Sat, 8 Dec 2001 15:38:30 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39945 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284787AbRLHUiU>; Sat, 8 Dec 2001 15:38:20 -0500
-Subject: Re: 2.4.14/16 load reboots
-To: belg4mit@dirty-bastard.pthbb.org (Jerrad Pierce)
-Date: Sat, 8 Dec 2001 20:47:30 +0000 (GMT)
+	id <S285174AbRLHUnb>; Sat, 8 Dec 2001 15:43:31 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:35566 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S284813AbRLHUnU>;
+	Sat, 8 Dec 2001 15:43:20 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 8 Dec 2001 20:43:17 GMT
+Message-Id: <UTC200112082043.UAA254046.aeb@cwi.nl>
+To: alan@lxorguk.ukuu.org.uk
+Subject: Re: Would the father of init_mem_lth please stand up
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200112081644.fB8GiSJ27360@dirty-bastard.pthbb.org> from "Jerrad Pierce" at Dec 08, 2001 11:44:28 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16CoNe-0002bu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a DEC Venutris 5120 (Pentium 120) with a Phoenix BIOS.
-> After LILO loads and uncompresses these kernels the machine
-> reboots. I have ecountered sombody else with the same problem.
+    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
-There are a set of old machines that do this sort of stuff with all 2.4.x
-kernels. Right now I don't know why. The Digital celebris has the same
-bug.
+    > Really someone needs slapping across. What kind of code is that
+    > (in 2.5.1-pre6):
 
-> CONFIG_PCI_BIOS=y
-> CONFIG_PM=y
+    Whoever merged that crap also wants a good kicking. First we have the joke
+    ps/2 merge, now this. Is Linus trying to force someone to take over or is
+    small children combined with a pending christmas really the doom that some
+    folks claim 8)
 
-Turn both of these off
+Alan, Alan,
 
-> CONFIG_PNP=y
-> CONFIG_ISAPNP=y
+Please calm down. Linus is doing a good job, and whenever things
+go slightly wrong someone comes along to point out the flaw.
+Moreover, I can assure you that pending christmas and small children
+really is a very nice time.
+And then, my beautiful code is not at all crap that should not
+have been applied. It fixes a real bug. But there was another bug
+there that it left, namely that the freed pointers should have been
+zeroed, so that nobody can come and use them with random results.
+If nobody else does it, I'll send also that small fix, but maybe
+not today.
 
-And these
-
-Let me know if that helps at all. Whats the last kernel that did work on it
-?
+Andries

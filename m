@@ -1,102 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271399AbRIGG3A>; Fri, 7 Sep 2001 02:29:00 -0400
+	id <S271514AbRIGHJa>; Fri, 7 Sep 2001 03:09:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271520AbRIGG2v>; Fri, 7 Sep 2001 02:28:51 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:21002 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271399AbRIGG2f>; Fri, 7 Sep 2001 02:28:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        riel@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Defragmentation proposal: preventative maintenance and cleanup [LONG]
-Date: Fri, 7 Sep 2001 08:35:55 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-In-Reply-To: <20010906174422Z16127-26184+6@humbolt.nl.linux.org> <1383771457.999813677@[169.254.198.40]>
-In-Reply-To: <1383771457.999813677@[169.254.198.40]>
+	id <S271550AbRIGHJV>; Fri, 7 Sep 2001 03:09:21 -0400
+Received: from ja.mac.ssi.bg ([212.95.166.194]:47364 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S271514AbRIGHJM>;
+	Fri, 7 Sep 2001 03:09:12 -0400
+Date: Fri, 7 Sep 2001 10:10:01 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: <ja@u.domain.uli>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+cc: Wietse Venema <wietse@porcupine.org>,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip
+ aliasbug 2.4.9 and 2.2.19]
+Message-ID: <Pine.LNX.4.33.0109070944510.1449-100000@u.domain.uli>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010907062851Z16136-26184+30@humbolt.nl.linux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 6, 2001 11:01 pm, Alex Bligh - linux-kernel wrote:
-> I thought I'd try coding this, then I thought better of it and so am asking
-> people's opinions first. The following describes a mechanism to change the
-> zone/buddy allocation system to minimize fragmentation before it happens,
-> and then defragment post-facto.
 
-Nice exposition and analysis, but see my wet-blanket comments below...
+	Hello,
 
-> [...]
+Andrey Savochkin wrote:
+
+> > > connect a datagram socket (which won't produce any actual traffic) to
+> > > the remote host with INADDR_ANY as the local address, and then query
+> > > the local address.  If the local address is the same as the remote
+> > > address, the address is local.
+> >
+> > That will always work, even when you have multiple ethernet
+> > interfaces??
 >
-> Causes of fragmentation
-> =======================
-> 
-> Linux adopts a largely requestor-anonymous form of page allocation. Memory
-> is divided into 3 zones, and page requesters can specify a list of suitable
-> zones from which pages may be allocated, but beyond that, pages are
-> allocated in a manner which does not distinguish between users of given
-> pages.
+> It will work almost always, except cases where administrator set different
+> preffered sources in local routes.
 
-It's a conscious goal to try to unify all sources of memory.  The three
-zones that are there now are only there because they absolutely have to be.
+	It seems if connect() is called without bind() and the target
+is local address the selected source is the same (the preferred address
+is not used). The postfix guys simply can try this proposal (I don't
+know whether they tried it already). I don't expect netfilter to make
+loops by connecting the both ends on same host, so such solution can
+return the best actual result that is possible at the time of the request.
+Any assumptions on daemon start what are the local IP addresses can be
+wrong for some strange setups.
 
-> Thus pages allocated for packets in flight are likely to be intermingled
-> with buffer pages, cache pages, code pages and data pages. Each of these
-> different types of allocation has a different persistence over time. Some
-> (for instance pages on the InactiveDirty list in an idle system) will
-> persist indefinitely.
-> 
-> The buddy allocator will attempt (by looking at lowest order lists first)
-> to allocate pages from fragmented areas first. Assuming pages are freed at
-> random, this would act as a defragmentation process. However, if a system
-> is taken to high utilization and back again to idle, the dispersion of
-> persistent pages (for instance InactiveDirty pages) becomes great, and the
-> buddy allocator performs poorly at coalescing blocks.
+	May be someone can check whether this is a portable way to
+check whether one IP is local. [We know that bind() to IP is not such
+solution, at least in Linux]. If this is true, I think, it is better than
+using ioctls or talking rtnetlink.
 
-It becomes effectively useless.  The probability of all 8 pages of a given
-8 page unit being free when only 1% of memory is free is (1/100)**8 =
-1/(10**16).
+	As for the "local networks" there is no such thing. There are
+trusted and non-trusted networks, gatewayed and non-gatewayed, etc. So, it
+should be a user-defined setting, if used somehow at all.
 
-> The situation is worsened by the understandable desire for simplicity in
-> the VM system, which measures solely the number of pages free in different
-> zones, as opposed their respective locations. It is possible (and has been
-> observed) to have a system in a state with hardly any high order buddies on
-> free area lists (thus where it would be impossible to make many atomic high
-> order allocations), but copious easilly freeable RAM. This is in essence
-> because no attempt is made to balance for different order free-lists, and
-> shortage of entries on high-order free lists does not in itself cause
-> memory pressure.
-> 
-> It is probably undesirable for the normal VM system to react to
-> fragmentation in the same way it does to normal memory pressure. This would
-> result in an unselective paging out / discarding of data, whereas an
-> approach which selected pages to free which would be most likely to cause
-> coalescence would be more useful. Further, it would be possible, by moving
-> the data in physical pages, to move many types of page, without loss of
-> in-memory data at all.
+> I.e. it is indeed a very good approximation, but autofs shouldn't still hang
+> or do nasty things if the check with the datagram socket shows that address
+> isn't local, but in reality it happens to be local.
+> A subtle misbehavior or loss of efficiency are acceptable, in my opinion.
 
-Moving pages sounds scary.  We already know how to evict pages, but moving
-pages is a whole new mechanism.  We probably would not care about the "good"
-data lost through eviction as opposed to moving fraction of pages we'd have
-to evict to do the required defragmentation is tiny.
-
-> Approaches to solution
-> ======================
-
-I'm going to confess that I don't understand your solution in detail yet,
-however, I can see this complaint coming: the changes are too intrusive on
-the existing kernel, and if that's what we had to do it would probably be
-easier to just eliminate all high order allocations from the kernel.  I
-already have heard some sentiment that the 0 order allocation failure
-problems do not have to be solved, that they are really the fault of those
-coders that used the feature in the first place.  I don't know about that,
-I'd like to hear from the maintainers.  But I'm pretty sure that whatever
-solution we come up with, it has to be very simple in implementation, and
-have roughly zero impact on the rest of the kernel.
+Regards
 
 --
-Daniel
+Julian Anastasov <ja@ssi.bg>
+

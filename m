@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135895AbRDZTVF>; Thu, 26 Apr 2001 15:21:05 -0400
+	id <S135896AbRDZTW0>; Thu, 26 Apr 2001 15:22:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135896AbRDZTU5>; Thu, 26 Apr 2001 15:20:57 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:7429 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S135895AbRDZTUw>; Thu, 26 Apr 2001 15:20:52 -0400
-Date: Thu, 26 Apr 2001 15:20:20 -0400
-From: Chris Mason <mason@suse.com>
-To: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
-cc: reiser@idiom.com
-Subject: Re: ReiserFS question
-Message-ID: <242950000.988312820@tiny>
-In-Reply-To: <E14sr4v-000EC4-00@f3.mail.ru>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
+	id <S135897AbRDZTWQ>; Thu, 26 Apr 2001 15:22:16 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:55610 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135896AbRDZTV7>; Thu, 26 Apr 2001 15:21:59 -0400
+Date: Thu, 26 Apr 2001 21:15:57 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+Message-ID: <20010426211557.Z819@athlon.random>
+In-Reply-To: <20010426201236.W819@athlon.random> <Pine.LNX.4.21.0104261141280.4480-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0104261141280.4480-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Apr 26, 2001 at 11:49:14AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thursday, April 26, 2001 11:05:25 PM +0400 Samium Gromoff
-<_deepfire@mail.ru> wrote:
-
->       Hi People...
->    got a following "dead of alive" question:
->    how to find a root block on a ReiserFS partition
->    with a corrupted superblock?
+On Thu, Apr 26, 2001 at 11:49:14AM -0700, Linus Torvalds wrote:
 > 
->    reiserfsprogs-3.x.0.9j simply writes -2^32
->    there at start (reset_super_block) and then simply
->    crashes when attempting to access to such mad place
->           ... got nearly lost my main partition ...
+> On Thu, Apr 26, 2001 at 11:45:47AM -0400, Alexander Viro wrote:
+> >
+> >	Ext2 does getblk+wait_on_buffer for new metadata blocks before
+> > filling them with zeroes. While that is enough for single-processor,
+> > on SMP we have the following race:
+> > 
+> > getblk gives us unlocked, non-uptodate bh
+> > wait_on_buffer() does nothing
+> > 					read from device locks it and starts IO
 > 
+> I see the race, but I don't see how you can actually trigger it.
 > 
+> Exactly _who_ does the "read from device" part? Somebody doing a
 
-The reiserfsck ---rebuild-tree will find the root block for you.  Now that
-you've rebuilt the super, run with --rebuild-tree and it should find
-everything.
+/sbin/dump
 
--chris
+> the wait-on-buffer is not strictly necessary: it's probably there to make
 
+maybe not but I need to check some more bit to be sure.
+
+Andrea

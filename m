@@ -1,61 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262894AbVCQAQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbVCQAQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262894AbVCQAQr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 19:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbVCQAOK
+	id S262896AbVCQAQq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 19:16:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbVCQAOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 19:14:10 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:12209 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262896AbVCQANi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 19:13:38 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: CPU hotplug on i386
-Date: Thu, 17 Mar 2005 01:16:33 +0100
-User-Agent: KMail/1.7.1
-Cc: Nathan Lynch <ntl@pobox.com>, kernel list <linux-kernel@vger.kernel.org>,
-       rusty@rustcorp.com.au
-References: <20050316132151.GA2227@elf.ucw.cz> <200503170051.58579.rjw@sisk.pl> <20050317000410.GA3210@elf.ucw.cz>
-In-Reply-To: <20050317000410.GA3210@elf.ucw.cz>
+	Wed, 16 Mar 2005 19:14:46 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:9360 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262893AbVCQANf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 19:13:35 -0500
+Message-ID: <4238CBA8.1050807@trash.net>
+Date: Thu, 17 Mar 2005 01:13:28 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050106 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503170116.33600.rjw@sisk.pl>
+To: Chris Wright <chrisw@osdl.org>
+CC: linux-kernel@vger.kernel.org, stable@kernel.org, shemminger@osdl.org,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       jmforbes@linuxtx.org, zwane@arm.linux.org.uk, cliffw@osdl.org,
+       tytso@mit.edu, rddunlap@osdl.org
+Subject: Re: [5/9] [TUN] Fix check for underflow
+References: <20050316235502.GD5389@shell0.pdx.osdl.net>
+In-Reply-To: <20050316235502.GD5389@shell0.pdx.osdl.net>
+Content-Type: multipart/mixed;
+ boundary="------------090302080202040206020001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------090302080202040206020001
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thursday, 17 of March 2005 01:04, Pavel Machek wrote:
-> Hi!
+Chris Wright wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
 > 
-> > > > I tried to solve long-standing uglyness in swsusp cmp code by calling
-> > > > cpu hotplug... only to find out that CONFIG_CPU_HOTPLUG is not
-> > > > available on i386. Is there way to enable CPU_HOTPLUG on i386?
-> > > 
-> > > i386 cpu hotplug has been in -mm for a while.  Don't know when (if
-> > > ever) it will get merged.
-> > 
-> > Thanks a lot for this hint! ;-)
-> > 
-> > Pavel, I've ported the basic i386 CPU hotplug stuff, without the sysfs
-> > interface, to x86-64 (a cut'n'paste kind of work, mostly).  For now, I've
-> > made HOTPLUG_CPU on x86-64 depend on SMP and SOFTWARE_SUSPEND and be set
-> > automatically.
-> > 
-> > I'm going to test it together with your patch tomorrow.
-> 
-> Hey, don't count on my patch. It is first shot, never tested.
 
-It'll be the first time, then.  I'm not afraid. ;-)
+I agree to both patches and additionally propose this one.
+It fixes a crash when reading /proc/net/route (netstat -rn)
+while routes are changed. I've seen two bugreports of users
+beeing hit by this bug, one for 2.6.10, one for 2.6.11.
 
-Rafael
+Regards
+Patrick
 
+--------------090302080202040206020001
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/03/10 18:20:44-08:00 kaber@trash.net 
+#   [IPV4]: Fix crash while reading /proc/net/route caused by stale pointers
+#   
+#   Signed-off-by: Patrick McHardy <kaber@trash.net>
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+# net/ipv4/fib_hash.c
+#   2005/03/10 18:20:30-08:00 kaber@trash.net +11 -1
+#   [IPV4]: Fix crash while reading /proc/net/route caused by stale pointers
+#   
+#   Signed-off-by: Patrick McHardy <kaber@trash.net>
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+diff -Nru a/net/ipv4/fib_hash.c b/net/ipv4/fib_hash.c
+--- a/net/ipv4/fib_hash.c	2005-03-17 00:58:42 +01:00
++++ b/net/ipv4/fib_hash.c	2005-03-17 00:58:42 +01:00
+@@ -919,13 +919,23 @@
+ 	return fa;
+ }
+ 
++static struct fib_alias *fib_get_idx(struct seq_file *seq, loff_t pos)
++{
++	struct fib_alias *fa = fib_get_first(seq);
++
++	if (fa)
++		while (pos && (fa = fib_get_next(seq)))
++			--pos;
++	return pos ? NULL : fa;
++}
++
+ static void *fib_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	void *v = NULL;
+ 
+ 	read_lock(&fib_hash_lock);
+ 	if (ip_fib_main_table)
+-		v = *pos ? fib_get_next(seq) : SEQ_START_TOKEN;
++		v = *pos ? fib_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ 	return v;
+ }
+ 
+
+--------------090302080202040206020001--

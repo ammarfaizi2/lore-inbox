@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbUJ0Rhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbUJ0SSJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262572AbUJ0Rhw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 13:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbUJ0Rfj
+	id S262620AbUJ0SSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 14:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUJ0SSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 13:35:39 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:42655 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262520AbUJ0R0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 13:26:07 -0400
-Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Andi Kleen <ak@suse.de>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <417FC96B.8030402@grupopie.com>
-References: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com>
-	 <417FB7BA.9050005@grupopie.com> <1098892587.8313.5.camel@krustophenia.net>
-	 <417FC96B.8030402@grupopie.com>
-Content-Type: text/plain
+	Wed, 27 Oct 2004 14:18:04 -0400
+Received: from out014pub.verizon.net ([206.46.170.46]:36555 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S262615AbUJ0SRK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 14:17:10 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] ide-2.6 update
+Date: Wed, 27 Oct 2004 14:17:02 -0400
+User-Agent: KMail/1.7
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, torvalds@osdl.org,
+       linux-ide@vger.kernel.org
+References: <58cb370e04102706074c20d6d7@mail.gmail.com> <200410271305.06265.gene.heskett@verizon.net> <417FD4C0.20107@osdl.org>
+In-Reply-To: <417FD4C0.20107@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1098894142.4304.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 27 Oct 2004 17:22:23 +0100
+Content-Disposition: inline
+Message-Id: <200410271417.02462.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [141.153.91.102] at Wed, 27 Oct 2004 13:17:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-10-27 at 17:14, Paulo Marques wrote:
-> > Why don't you try the VIA EPIA mini-ITX boards?  These are designed for
-> > low power applications like yours.  I am running the M-6000 which has a
-> > fanless 600Mhz C3 processor, the newer fanless models run at 1Ghz.  And,
-> > on top of that they support speed scaling so you can slow it down even
-> > more.
-> 
-> Yes, we tried those, but floating point calculations completely kill the 
-> performance on those boards.
+On Wednesday 27 October 2004 13:02, Randy.Dunlap wrote:
 
-You want Geode/NX or Pentium-M ITX boards for that (or the low power
-'Shelton' board although you may need to import that since its only sold
-in "poor countries")
+>Gene,
+>
+>BK isn't required.  Just get the daily snapshot from
+>http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/
+>and apply it to 2.6.10-rc1 (or whatever is latest).
 
-Agree with you on pricing though.
+Ahh, thanks, done.
 
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

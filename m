@@ -1,80 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbTE0UhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 16:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTE0Ugv
+	id S264126AbTE0UeC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 16:34:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264157AbTE0Uce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 16:36:51 -0400
-Received: from host81-136-131-132.in-addr.btopenworld.com ([81.136.131.132]:51863
-	"EHLO mx.homelinux.com") by vger.kernel.org with ESMTP
-	id S264190AbTE0Uey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 16:34:54 -0400
-Date: Tue, 27 May 2003 21:48:07 +0100 (BST)
-From: Mitch@0Bits.COM
-X-X-Sender: mitch@mx.homelinux.com
-To: linux-kernel@vger.kernel.org
-cc: marcelo@conectiva.com.br
-Subject: Re: Linux 2.4.21-rc5
-Message-ID: <Pine.LNX.4.53.0305272142200.565@mx.homelinux.com>
+	Tue, 27 May 2003 16:32:34 -0400
+Received: from static213-229-38-018.adsl.inode.at ([213.229.38.18]:40321 "HELO
+	home.winischhofer.net") by vger.kernel.org with SMTP
+	id S264126AbTE0Uap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 16:30:45 -0400
+Message-ID: <3ED3CE5E.90709@winischhofer.net>
+Date: Tue, 27 May 2003 22:45:18 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Diehl <lists@mdiehl.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sis650 irq router fix for 2.4.x
+References: <3ED21CE3.9060400@winischhofer.net>  <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com>  <3ED32BA4.4040707@winischhofer.net>  <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com> <1054053901.18814.0.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.55.0305271050150.2340@bigblue.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Davide Libenzi wrote:
+> On Tue, 27 May 2003, Alan Cox wrote:
+> 
+> 
+>>I'm keeping an eye on it. The correct answer appears to be
+>>"use ACPI" once it works on SiS
+> 
+> 
+> ACPI does fix it. Sadly it rock crashes my machine.
 
-It's be nice if we could also have the definition of
-PCI_DEVICE_ID_VIA_8237 ?
+Did you try the newest patches from sf? Works like a charm in my M650 
+(once I had patched my DSDT)...
 
-make[4]: Entering directory
-`/usr/src/linux-2.4/testing/linux-2.4.20/drivers/ide/pci'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4/testing/linux-2.4.20/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -I../ -nostdinc -iwithprefix include -DKBUILD_BASENAME=via82cxxx  -c -o via82cxxx.o via82cxxx.c
-via82cxxx.c:77: `PCI_DEVICE_ID_VIA_8237' undeclared here (not in a function)
-via82cxxx.c:77: initializer element is not constant
-via82cxxx.c:77: (near initialization for `via_isa_bridges[0].id')
-make[4]: *** [via82cxxx.o] Error 1
-make[4]: Leaving directory `/usr/src/linux-2.4/testing/linux-2.4.20/drivers/ide/pci'
-make[3]: *** [first_rule] Error 2
-make[3]: Leaving directory `/usr/src/linux-2.4/testing/linux-2.4.20/drivers/ide/pci'
-make[2]: *** [_subdir_pci] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4/testing/linux-2.4.20/drivers/ide'
-make[1]: *** [_subdir_ide] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4/testing/linux-2.4.20/drivers'
-make: *** [_dir_drivers] Error 2
+>>I'll probably try some of those changes in a later -ac and see what
+>>happens
+> 
+> 
+> Are you going to take care of this for 2.4 and 2.5 Alan ?
+> If yes I'd rather bail out, otherwise I'll continue to follow the 2.4 and
+> 2.5 patch ..
 
----------- Forwarded message ----------
-Date: 2003-05-27 19:41:16
-From: Marcelo Tosatti <marcelo () conectiva ! com ! br>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.21-rc5
+Since this is quite important stuff I wouldn't wait for anything... we 
+have the hardware, we can test it - and I don't think Alan has a 650 or 
+alike for testing, right?
 
-
-Hi,
-
-Mainly due to a IDE DMA problem which would happen on boxes with lots of
-RAM, here is -rc5.
-
-As I always ask, please test.
+Thomas
 
 
-Summary of changes from v2.4.21-rc4 to v2.4.21-rc5
-============================================
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-  o 1: (trivial) Fix the formatting of your ide hack
-  o 2: =scsi option fails in some cases
-  o 3: IDE DMA
-  o add the via ide ident
-  o fix the siimage mmio stuff
-
-Andi Kleen <ak@muc.de>:
-  o Fix 32bit ioctl holes
-  o Fix context switch bug on x86-64
-  o Prefetch workaround for csum-copy
-
-Benjamin Herrenschmidt <benh@kernel.crashing.org>:
-  o PPC Documentation/Configure.help fix
-
-Marcelo Tosatti <marcelo@freak.distro.conectiva>:
-  o Changed EXTRAVERSION to -rc5
-
+-- 
+Thomas Winischhofer
+Vienna/Austria
+mailto:thomas@winischhofer.net          *** http://www.winischhofer.net
+mailto:twini@xfree86.org
 

@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268447AbTBSNIk>; Wed, 19 Feb 2003 08:08:40 -0500
+	id <S268407AbTBSNMA>; Wed, 19 Feb 2003 08:12:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268452AbTBSNIk>; Wed, 19 Feb 2003 08:08:40 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:8453 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S268447AbTBSNIj>; Wed, 19 Feb 2003 08:08:39 -0500
-Message-ID: <3E538479.1040305@aitel.hist.no>
-Date: Wed, 19 Feb 2003 14:19:53 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
+	id <S268457AbTBSNMA>; Wed, 19 Feb 2003 08:12:00 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:45831 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S268407AbTBSNL7>; Wed, 19 Feb 2003 08:11:59 -0500
+Date: Wed, 19 Feb 2003 14:21:59 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.62]: 1/3: Make Ethernet 1000Mbit also a seperate,
+ complete selectable submenu
+In-Reply-To: <200302181350.49492.m.c.p@wolk-project.de>
+Message-ID: <Pine.LNX.4.44.0302191419460.32518-100000@serv>
+References: <200302181350.49492.m.c.p@wolk-project.de>
 MIME-Version: 1.0
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: a really annoying feature of the config menu structure
-References: <Pine.LNX.4.44.0302181604310.23007-100000@dell>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert P. J. Day wrote:
->   i finally decided to get serious and start looking at the
-> overall config menu structure, to re-arrange the menus and
-> submenus so that it made more sense and flowed more logically,
-[...]
->   other areas where this would have made sense would be for
-> something like a "Networking" main menu, with submenus for
-> things like ISDN, Wireless and so on, those all being 
-> subsets of networking.  
+Hi,
 
-It isn't that simple.  ISDN is more than networking, and even
-useable without it.  Non-network uses of isdn:
+On Tue, 18 Feb 2003, Marc-Christian Petersen wrote:
 
-* Making an answering machine or voicemail from a pc
-and one or more isdn cards.
-* Use isdn for dialing into non-IP services like a BBS.
+> so you can disable all 1000Mbit NICs at once.
 
-So you have a choice between sticking all networking
-things in a network menu (and have stuff like ISDN
-spread out in different places (network and other ISDN at least)
+For a larger group of config options you can also put them between 'if 
+NET_ETHERNETGBIT' and 'endif'. It has the same effect.
 
-or put all ISDN in one plave and have network etc. spread over
-various networking technologies like today.
-
-There is no config layout that is "clean" for everybody,
-because it is fundamentally trying to stuff a generic graph
-into a hierarchical tree.
-
-Helge Hafting
+bye, Roman
 

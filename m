@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbUBVTWG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 14:22:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbUBVTWG
+	id S261733AbUBVTrr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 14:47:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbUBVTrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 14:22:06 -0500
-Received: from h24-82-88-106.vf.shawcable.net ([24.82.88.106]:25475 "HELO
-	tinyvaio.nome.ca") by vger.kernel.org with SMTP id S261730AbUBVTWE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 14:22:04 -0500
-Date: Sun, 22 Feb 2004 11:22:39 -0800
-From: kernel@mikebell.org
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: JFS default behavior / UTF-8 filenames
-Message-ID: <20040222192237.GC540@tinyvaio.nome.ca>
-References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr> <20040219105913.GE432@tinyvaio.nome.ca> <1077199506.2275.12.camel@shaggy.austin.ibm.com> <20040219234746.GG432@tinyvaio.nome.ca> <1077289257.2533.23.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1077289257.2533.23.camel@shaggy.austin.ibm.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 22 Feb 2004 14:47:47 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:5778 "EHLO terminus.zytor.com")
+	by vger.kernel.org with ESMTP id S261733AbUBVTrp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 14:47:45 -0500
+Message-ID: <40390759.2020201@zytor.com>
+Date: Sun, 22 Feb 2004 11:47:37 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
+X-Accept-Language: en, sv, es, fr
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BOOT_CS
+References: <c16rdh$gtk$1@terminus.zytor.com> <m1znbbjgfz.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1znbbjgfz.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 20, 2004 at 09:00:58AM -0600, Dave Kleikamp wrote:
-> With no iocharset specified, a filename with such a character will be
-> inaccessible.  Probably the best thing for readdir to do is to
-> substitute a '?' and print a message to the syslog to mount the volume
-> with iocharset=utf8 to be able to access the file.  Of course I would
-> limit the number of printk's to something small.  I'll submit a patch to
-> do this.
+Eric W. Biederman wrote:
+> hpa@zytor.com (H. Peter Anvin) writes:
+> 
+>>Anyone happen to know of any legitimate reason not to reload %cs in
+>>head.S?  
+> 
+> Other than the fact it is strongly rude and error prone to depend on
+> the contents of a global descriptor table you did not setup?
+> 
 
-And that's why I was saying I think UTF-8 mode is the "least broken" for
-any filesystem that stores filenames in a specific encoding rather than
-"as the client submitted it". And most especially for UCS-2/UTF-16
-filesystems.
+We already do that, as you might have noticed (we set all the data 
+registers to __BOOT_DS; CS is the only that is changed.)
 
-I think the default for a filesystem should be something that absolutely
-will not disappear your files. So for NTFS/JFS, it should be UTF-8. And
-if a traditional UNIX filesystem wants to do a UTF-8 only mode, I think
-ideally it should be done at mkfs time rather than mount time.
+> 
+> That is almost nice.  Care to export where the bottom of the page
+> tables or even better where the bottom of the kernel is for those
+> folks who want to place their ramdisk as low in memory as possible?
+> 
+
+The problem is that you don't know until it's too late, since it can 
+depend on dynamic factors.  This is part of why your insistence of 
+putting the ramdisk in the "most incorrect" position is simply wrong.
+
+	-hpa

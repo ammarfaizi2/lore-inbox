@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315399AbSEGLA3>; Tue, 7 May 2002 07:00:29 -0400
+	id <S315408AbSEGLPB>; Tue, 7 May 2002 07:15:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315405AbSEGLA2>; Tue, 7 May 2002 07:00:28 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:12552 "EHLO
+	id <S315409AbSEGLPA>; Tue, 7 May 2002 07:15:00 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:28168 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315399AbSEGLA1>; Tue, 7 May 2002 07:00:27 -0400
-Message-ID: <3CD7A500.8030509@evision-ventures.com>
-Date: Tue, 07 May 2002 11:57:20 +0200
+	id <S315408AbSEGLO7>; Tue, 7 May 2002 07:14:59 -0400
+Message-ID: <3CD7A877.4050305@evision-ventures.com>
+Date: Tue, 07 May 2002 12:12:07 +0200
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
 X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Osamu Tomita <tomita@cinet.co.jp>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.14 IDE CD-ROM PIO mode
-In-Reply-To: <3CD79586.63E17164@cinet.co.jp>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 55
+In-Reply-To: <Pine.LNX.4.21.0205070156580.32715-100000@serv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Osamu Tomita napisa?:
-> I could not use CD-ROM drive [PIO mode] on 2.5.14.
-> Error messeges are follows.
+Uz.ytkownik Roman Zippel napisa?:
+> Hi,
 > 
-> May  7 11:05:03 sarah kernel: hdc: cdrom_read_intr: data underrun (4294967292 blocks)
-> May  7 11:05:03 sarah kernel: end_request: I/O error, dev 16:00, sector 92
-> May  7 11:05:03 sarah kernel: Buffer I/O error on device ide1(22,0), logical block 22
+> On Mon, 6 May 2002, Martin Dalecki wrote:
 > 
-> This patch works fine for me. Please check it.
+> 
+>>- Consolidate the handling of device ID byte order in one place.
+>>   This was spotted and patched by Bartomiej onierkiewicz.
+> 
+> 
+> Another thing: where is the equivalilent part of this removed code?
 
-Indeed this makes very much of sense. I will take it.
-How did you see it "hawkeye"?
+Look closer it's there in ide-probe.c.
 
-> --- linux/drivers/ide/ide-cd.c.orig	Mon May  6 12:38:01 2002
-> +++ linux/drivers/ide/ide-cd.c	Tue May  7 16:43:51 2002
-> @@ -962,7 +962,7 @@
->  
->  	/* First, figure out if we need to bit-bucket
->  	   any of the leading sectors. */
-> -	nskip = MIN(rq->current_nr_sectors - bio_sectors(rq->bio), sectors_to_transfer);
-> +	nskip = MIN((int)(rq->current_nr_sectors - bio_sectors(rq->bio)), sectors_to_transfer);
->  
->  	while (nskip > 0) {
->  		/* We need to throw away a sector. */
+> 
+> -static __inline__ void ide_fix_driveid(struct hd_driveid *id)
+> -{
+> -#if defined(CONFIG_AMIGA) || defined (CONFIG_MAC) || defined(M68K_IDE_SWAPW)
+> -   u_char *p = (u_char *)id;
+> -   int i, j, cnt;
+> -   u_char t;
+> -
+> -   if (!MACH_IS_AMIGA && !MACH_IS_MAC && !MACH_IS_Q40 && !MACH_IS_ATARI)
+> -       return;
+> -#ifdef M68K_IDE_SWAPW
+> -   if (M68K_IDE_SWAPW)    /* fix bus byteorder first */
+> -      for (i=0; i < 512; i+=2) {
+> -        t = p[i]; p[i] = p[i+1]; p[i+1] = t;
+> -      }
+> -#endif
+> 
+> bye, Roman
 

@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265020AbUD2Wuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265025AbUD2Wxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265020AbUD2Wuy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbUD2Wuy
+	id S265025AbUD2Wxn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:53:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbUD2Wxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:50:54 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57868 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265020AbUD2Wtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:49:53 -0400
-Date: Thu, 29 Apr 2004 23:49:45 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Ian Campbell <icampbell@arcom.com>, stefan.eletzhofer@eletztrick.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] 2.6 I2C epson 8564 RTC chip
-Message-ID: <20040429234945.M16407@flint.arm.linux.org.uk>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Ian Campbell <icampbell@arcom.com>, stefan.eletzhofer@eletztrick.de,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-References: <20040429120250.GD10867@gonzo.local> <1083242482.26762.30.camel@icampbell-debian> <20040429135408.G16407@flint.arm.linux.org.uk> <20040429224007.GA15265@smtp.west.cox.net>
+	Thu, 29 Apr 2004 18:53:42 -0400
+Received: from gprs214-92.eurotel.cz ([160.218.214.92]:47746 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265025AbUD2Ww4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 18:52:56 -0400
+Date: Fri, 30 Apr 2004 00:52:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Aviram Jenik <aviram@beyondsecurity.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: i830 success!
+Message-ID: <20040429225247.GB8232@elf.ucw.cz>
+References: <20040428103721.GA1057@elf.ucw.cz> <200404300145.04873.aviram@beyondsecurity.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040429224007.GA15265@smtp.west.cox.net>; from trini@kernel.crashing.org on Thu, Apr 29, 2004 at 03:40:07PM -0700
+In-Reply-To: <200404300145.04873.aviram@beyondsecurity.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 03:40:07PM -0700, Tom Rini wrote:
-> A generic one for i2c rtcs or another generic rtc driver?  There's
-> already drivers/char/genrtc.c...
+Hi!
 
-genrtc.c lacks several features ARM needs, the big one being wakeup
-timers.  It also only provides either (configurable) emulation or no
-support of various RTC features, rather than allowing a real RTC to
-provide them if it can - and you need to know the details of your RTC
-at kernel configuration time.
+> I'm very-very happy to say the patch below finally solved my swsusp problems 
+> with the 2.6 kernel!
+> 
+> Here's some information about my setup:
+> I'm using a vaio R505DL, which comes with an i830 video card. Swsusp2 worked 
+> for me on the 2.4 kernel series, but I could never get any of the swsusp 
+> implementations to work for me on the 2.5/2.6 series, unless the intel-agp 
+> driver was unloaded (and this prevented X to work in a decent resolution).
+> 
+> Applying this patch to the 2.6.5 kernel enabled me to suspend using Pavel's 
+> implementation (/proc/acpi/sleep).
+> This patch also makes Nigel's swsusp2 code work with 2.6.5 - note that the 
+> newest swsusp2 patches already include the patch below - so just applying 
+> Nigel's 2.6.5 and core patches should get vaio users suspending.
 
-It provides no support for translating "RTC" time into seconds and
-vice versa which is needed for second-counter based RTCs found in
-PXA, StrongARM, and other ARM SoC platforms.
+> Thank you Pavel for your hard work, and thanks Nigel for making swsusp2 such a 
+> robust suspending mechanism! You guys make Linux what it is.
 
-IOW, its fairly restrictive in what it provides and what it allows
-architectures to provide.
+Well, big thanks go to Herbert Xu who actually diagnosed this problem
+in usefull way.
+								Pavel
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+934a471f20d6580d5aad759bf0d97ddc

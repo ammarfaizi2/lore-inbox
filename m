@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265705AbSLKA1P>; Tue, 10 Dec 2002 19:27:15 -0500
+	id <S266310AbSLKAgX>; Tue, 10 Dec 2002 19:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266310AbSLKA1P>; Tue, 10 Dec 2002 19:27:15 -0500
-Received: from tomts13-srv.bellnexxia.net ([209.226.175.34]:33973 "EHLO
-	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S265705AbSLKA1O>; Tue, 10 Dec 2002 19:27:14 -0500
-Message-ID: <00d501c2a0ac$fe66bc40$0201a8c0@melanson>
-From: "Michael Melanson" <ve3mtm@rac.ca>
-To: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.50.0212102157440.1634-100000@ddx.a2000.nu> <050c01c2a091$77564600$9c094d8e@wcom.ca> <3DF66754.3020901@WirelessNetworksInc.com> <058f01c2a09a$7b9dc4a0$9c094d8e@wcom.ca>
-Subject: Re: Is this going to be true ?
-Date: Tue, 10 Dec 2002 19:33:58 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S266444AbSLKAgX>; Tue, 10 Dec 2002 19:36:23 -0500
+Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:30913
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266310AbSLKAgX>; Tue, 10 Dec 2002 19:36:23 -0500
+Subject: Re: IDE feature request & problem
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Milan Roubal <roubm9am@barbora.ms.mff.cuni.cz>
+Cc: Petr Sebor <petr@scssoft.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <039d01c2a0ab$b19a5ad0$551b71c3@krlis>
+References: <068d01c29d97$f8b92160$551b71c3@krlis><1039312135.27904.11.camel@irongate.sw
+	 ansea.linux.org.uk><20021208234102.GA8293@scssoft.com> 
+	<021401c2a05d$f1c72c80$551b71c3@krlis>
+	<1039540202.14251.43.camel@irongate.swansea.linux.org.uk> 
+	<039d01c2a0ab$b19a5ad0$551b71c3@krlis>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Dec 2002 01:20:43 +0000
+Message-Id: <1039569643.14166.105.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Didn't they support an "Unix subsystem" on older versions of NT, to emulate
-console Unix apps? I seem to remember something about a that a while ago.
+On Wed, 2002-12-11 at 00:24, Milan Roubal wrote:
+> Hi Alan,
+> I have got xfs partition and man fsck.xfs say
+> that it will run automatically on reboot.
 
------------------------------------------
-Michael Melanson
-ve3mtm@rac.ca
-
-73 33
-
------ Original Message -----
-From: "Serge Kuznetsov" <serge@wcom.ca>
-To: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, December 10, 2002 5:21 PM
-Subject: Re: Is this going to be true ?
-
-
->
->
-> > Probably not true, since MS doesn't like the GPL.  However, MS may
-> > release *nix applications any time they want to.  Way back in
-> > prehistory, they did supply unix applications and currently
->
-> Are you saying about Xenix? I remember M$ supports it in late '80s.
->
-> All the Best!
-> Serge.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+You need to force one. Something (I assume XFS) asked the disk for a
+stupid sector number. Thats mostly likely due to some kind of internal
+corruption on the XFS
 

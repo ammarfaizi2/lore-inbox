@@ -1,49 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318114AbSHIBpc>; Thu, 8 Aug 2002 21:45:32 -0400
+	id <S318116AbSHIBtR>; Thu, 8 Aug 2002 21:49:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318116AbSHIBpc>; Thu, 8 Aug 2002 21:45:32 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:62101 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S318114AbSHIBpb>;
-	Thu, 8 Aug 2002 21:45:31 -0400
-Date: Fri, 9 Aug 2002 03:49:04 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Hubertus Franke <frankeh@us.ibm.com>, Andrew Morton <akpm@zip.com.au>,
-       <andrea@suse.de>, <davej@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       Paul Larson <plars@austin.ibm.com>
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-Message-ID: <20020809014904.GA909@win.tue.nl>
-References: <Pine.LNX.4.44.0208081500550.9114-100000@home.transmeta.com> <Pine.LNX.4.44L.0208081936170.2589-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0208081936170.2589-100000@duckman.distro.conectiva>
-User-Agent: Mutt/1.3.25i
+	id <S317512AbSHIBtR>; Thu, 8 Aug 2002 21:49:17 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:60044 "EHLO
+	lists.samba.org") by vger.kernel.org with ESMTP id <S318116AbSHIBtQ>;
+	Thu, 8 Aug 2002 21:49:16 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: driverfs API Updates 
+In-reply-to: Your message of "Thu, 08 Aug 2002 11:21:35 MST."
+             <Pine.LNX.4.44.0208080914060.1241-100000@cherise.pdx.osdl.net> 
+Date: Fri, 09 Aug 2002 11:20:07 +1000
+Message-Id: <20020809015454.D0A274521@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 08, 2002 at 07:37:08PM -0300, Rik van Riel wrote:
+In message <Pine.LNX.4.44.0208080914060.1241-100000@cherise.pdx.osdl.net> you w
+rite:
+> That said, this is what I want to do:
+> 
+> Define helpers for parsing and formatting types; e.g. show_int() and
+> store_int(). Objects' show and store methods can use those for the exposed
+> attribute.
+> 
+> Support single static attributes by having something like this:
+> 
+> struct int_attribute {
+> 	struct attribute	attr;
+> 	show_int_t		show;
+> 	store_int_t		store;
+> 	int			* data;
+> };
+> 
+> INT_ATTR(frobbable,0644);
 
-> Hmmm, I wonder how badly the system will behave when
-> we need to reset last_pid and next_safe with 30000
-> pids in use ...
+Ok, that makes sense, except I prefer to build the interface in
+layers, something like:
 
-On average very well, that is, the time spent in finding
-the next pid is very small on average, but once in a while
-there is a small hiccup.
-On a hard real time system it may be reasonable to choose
-for an average that is ten times higher and avoid the hiccup.
+	ATTRIBUTE(frobbable,int,0644)
+	=> ATTRIBUTE_CALL(frobbable,0644,show_int,store_int)
 
-For systems that really have lots of very short-lived
-processes, one might do what I suggested a moment ago
-for a MP context: have the processes live in several lists,
-that each only use part of the pid-space.
+This still allows you to define your own types...
 
-(One wants for_each_task to take a limited amount of time.
-With N tasks, and sqrt(N) list heads one first picks the
-shortest list, then loops over the list, all in time of order
-sqrt(N). That works well, certainly up to a million processes.)
+> What do you think? It definitely looks a lot like your PARAM stuff, and I 
+> need to look again at what you wrote to see if I can tie in any more of 
+> it. 
 
-Andries
+I think you've got all the good bits now 8)
+
+> Of course, they don't have to be exposed to userspace in order to access
+> them. This is a little further down the road, but by placing them (or
+> pointers to them) in a special section, we could access attributes at boot
+> time or module load time, like module parameters. 
+
+This was my idea with "000" perm attributes: they are explicitly only
+settable at module/kernel init (eg. they and their set/show functions
+can be declared __init).
+
+> I'm thinking that we could macro-ize locking for single static variables 
+> as well. We could have something like:
+> 
+> rwlock_t mylock;
+> 
+> INT_ATTR_LOCKED(frobbable,0644,mylock);
+> 
+> which could then generate 
+> 
+> int get_frobbable(void);
+> 
+> void set_frobbable(int val);
+
+Hmmm, how about:
+
+	ATTRIBUTE_LOCKED(frobbable,int,0644,mylock)
+	=> ATTRIBUTE_CALL(frobbable,0644,mylock,show_int_lock,store_int_lock)
+
+With PARAM()/sysfs, I hit the wall when I tried to handle spinlocks,
+rwlocks, semaphores, rwsemaphores, and backed off until I knew which
+ones were actually useful 8)
+
+This is the nice thing about having people actually using the code is
+you can tell when you've hit the 90% mark (the weird cases can always
+use their own callbacks).  I think trial-and-error is the best way to
+introduce these kind of convenience functions.
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263602AbUDVHPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbUDVH3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263602AbUDVHPV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 03:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263643AbUDVHOk
+	id S261798AbUDVH3U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 03:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263825AbUDVH3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 03:14:40 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:14263 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263602AbUDVHJr (ORCPT
+	Thu, 22 Apr 2004 03:29:10 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:42602 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261798AbUDVHYx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 03:09:47 -0400
-Date: Thu, 22 Apr 2004 00:07:33 -0700
+	Thu, 22 Apr 2004 03:24:53 -0400
+Date: Thu, 22 Apr 2004 00:07:18 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
        linux-kernel@vger.kernel.org
-Subject: [Patch 9 of 17] cpumask v4 - Recode obsolete cpumask macros - arch
- i386
-Message-Id: <20040422000733.38951741.pj@sgi.com>
+Subject: [Patch 7 of 17] cpumask v4 - Rewrite cpumask.h to use bitmap
+ directly.
+Message-Id: <20040422000718.1823f5d5.pj@sgi.com>
 In-Reply-To: <20040421232247.22ffe1f2.pj@sgi.com>
 References: <20040421232247.22ffe1f2.pj@sgi.com>
 Organization: SGI
@@ -27,336 +27,405 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mask9-cpumask-i386-fixup - Remove/recode obsolete cpumask macros from arch i386
-	Remove by recoding all uses of the obsolete cpumask const,
-	coerce and promote macros.
+mask7-new-cpumask-h - Rewrite cpumask.h to use bitmap directly.
 
-Diffstat Patch_7_of_23:
- arch/i386/kernel/io_apic.c                |    2 +-
- arch/i386/kernel/smp.c                    |    2 +-
- arch/i386/mach-voyager/voyager_smp.c      |   30 +++++++++++++++---------------
- include/asm-i386/genapic.h                |    2 +-
- include/asm-i386/mach-bigsmp/mach_apic.h  |    8 ++++----
- include/asm-i386/mach-default/mach_apic.h |   10 +++++-----
- include/asm-i386/mach-es7000/mach_apic.h  |   10 +++++-----
- include/asm-i386/mach-numaq/mach_apic.h   |    2 +-
- include/asm-i386/mach-summit/mach_apic.h  |    8 ++++----
- include/asm-i386/mach-visws/mach_apic.h   |    4 ++--
- 10 files changed, 39 insertions(+), 39 deletions(-)
+	Major rewrite of cpumask to use a single implementation,
+	as a struct-wrapped bitmap.
 
-Index: 2.6.5.mask/arch/i386/kernel/io_apic.c
+	This patch leaves some 26 include/asm-*/cpumask*.h
+	header files orphaned - to be removed next patch.
+
+	Some nine cpumask macros for const variants and to
+	coerce and promote between an unsigned long and a
+	cpumask are obsolete.  Simple emulation wrappers are
+	provided in this patch, which can be removed once each
+	of the 3 archs (i386, ppc64, x86_64) using them are
+	recoded in follow-on patches to not need them.
+
+	The CPU_MASK_ALL macro now avoids leaving possible
+	garbage one bits in any unused portion of the high word.
+
+	An improved comment lists all available operators, for
+	convenient browsing.
+
+Index: 2.6.5.bitmap.v4/include/linux/cpumask.h
 ===================================================================
---- 2.6.5.mask.orig/arch/i386/kernel/io_apic.c	2004-04-03 23:37:35.000000000 -0800
-+++ 2.6.5.mask/arch/i386/kernel/io_apic.c	2004-04-03 23:51:51.000000000 -0800
-@@ -264,7 +264,7 @@
- 	struct irq_pin_list *entry = irq_2_pin + irq;
- 	unsigned int apicid_value;
- 	
--	apicid_value = cpu_mask_to_apicid(mk_cpumask_const(cpumask));
-+	apicid_value = cpu_mask_to_apicid(cpumask);
- 	/* Prepare to do the io_apic_write */
- 	apicid_value = apicid_value << 24;
- 	spin_lock_irqsave(&ioapic_lock, flags);
-Index: 2.6.5.mask/arch/i386/kernel/smp.c
-===================================================================
---- 2.6.5.mask.orig/arch/i386/kernel/smp.c	2004-04-03 23:37:35.000000000 -0800
-+++ 2.6.5.mask/arch/i386/kernel/smp.c	2004-04-03 23:51:51.000000000 -0800
-@@ -160,7 +160,7 @@
-  */
- inline void send_IPI_mask_bitmask(cpumask_t cpumask, int vector)
- {
--	unsigned long mask = cpus_coerce(cpumask);
-+	unsigned long mask = cpus_addr(cpumask)[0];
- 	unsigned long cfg;
- 	unsigned long flags;
+--- 2.6.5.bitmap.v4.orig/include/linux/cpumask.h	2004-04-21 06:50:41.000000000 -0700
++++ 2.6.5.bitmap.v4/include/linux/cpumask.h	2004-04-21 16:45:03.000000000 -0700
+@@ -1,44 +1,330 @@
+ #ifndef __LINUX_CPUMASK_H
+ #define __LINUX_CPUMASK_H
  
-Index: 2.6.5.mask/arch/i386/mach-voyager/voyager_smp.c
-===================================================================
---- 2.6.5.mask.orig/arch/i386/mach-voyager/voyager_smp.c	2004-04-03 23:37:36.000000000 -0800
-+++ 2.6.5.mask/arch/i386/mach-voyager/voyager_smp.c	2004-04-03 23:51:51.000000000 -0800
-@@ -154,7 +154,7 @@
- send_CPI_allbutself(__u8 cpi)
- {
- 	__u8 cpu = smp_processor_id();
--	__u32 mask = cpus_coerce(cpu_online_map) & ~(1 << cpu);
-+	__u32 mask = cpus_addr(cpu_online_map)[0] & ~(1 << cpu);
- 	send_CPI(mask, cpi);
- }
++/*
++ * Cpumasks provide a bitmap suitable for representing the
++ * set of CPU's in a system, one bit position per CPU number.
++ *
++ * See detailed comments in the file linux/bitmap.h describing the
++ * data type on which these cpumasks are based.
++ *
++ * For details of cpumask_scnprintf() and cpumask_parse(),
++ * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
++ *
++ * The available cpumask operations are:
++ *
++ * void cpu_set(cpu, mask)		turn on bit 'cpu' in mask
++ * void cpu_clear(cpu, mask)		turn off bit 'cpu' in mask
++ * void cpus_setall(mask)		set all bits
++ * void cpus_clear(mask)		clear all bits
++ * int cpu_isset(cpu, mask)		true iff bit 'cpu' set in mask
++ * int cpu_test_and_set(cpu, mask)	test and set bit 'cpu' in mask
++ *
++ * void cpus_and(dst, src1, src2)	dst = src1 & src2  [intersection]
++ * void cpus_or(dst, src1, src2)	dst = src1 | src2  [union]
++ * void cpus_xor(dst, src1, src2)	dst = src1 ^ src2
++ * void cpus_andnot(dst, src1, src2)	dst = src1 & ~src2
++ * void cpus_complement(dst, src)	dst = ~src
++ *
++ * int cpus_equal(mask1, mask2)		Does mask1 == mask2?
++ * int cpus_intersects(mask1, mask2)	Do mask1 and mask2 intersect?
++ * int cpus_subset(mask1, mask2)	Is mask1 a subset of mask2?
++ * int cpus_empty(mask)			Is mask empty (no bits sets)?
++ * int cpus_full(mask)			Is mask full (all bits sets)?
++ * int cpus_weight(mask)		Hamming weigh - number of set bits
++ *
++ * void cpus_shift_right(dst, src, n)	Shift right
++ * void cpus_shift_left(dst, src, n)	Shift left
++ *
++ * int first_cpu(mask)			Number lowest set bit, or NR_CPUS
++ * int next_cpu(cpu, mask)		Next cpu past 'cpu', or NR_CPUS
++ *
++ * cpumask_t cpumask_of_cpu(cpu)	Return cpumask with bit 'cpu' set
++ * CPU_MASK_ALL				Initializer - all bits set
++ * CPU_MASK_NONE			Initializer - no bits set
++ * unsigned long *cpus_addr(mask)	Array of unsigned long's in mask
++ *
++ * int cpumask_scnprintf(buf, len, mask) Format cpumask for printing
++ * int cpumask_parse(ubuf, ulen, mask)	Parse ascii string as cpumask
++ *
++ * int num_online_cpus()		Number of online CPUs
++ * int num_possible_cpus()		Number of all possible CPUs
++ * int cpu_online(cpu)			Is some cpu online?
++ * int cpu_possible(cpu)		Is some cpu possible?
++ * void cpu_set_online(cpu)		set cpu in cpu_online_map
++ * void cpu_set_offline(cpu)		clear cpu in cpu_online_map
++ * int any_online_cpu(mask)		First online cpu in mask
++ *
++ * for_each_cpu_mask(cpu, mask)		for-loop cpu over mask
++ * for_each_cpu(cpu)			for-loop cpu over cpu_possible_map
++ * for_each_online_cpu(cpu)		for-loop cpu over cpu_online_map
++ */
++
+ #include <linux/threads.h>
+ #include <linux/bitmap.h>
+-#include <asm/cpumask.h>
+ #include <asm/bug.h>
  
-@@ -403,11 +403,11 @@
- 	/* set up everything for just this CPU, we can alter
- 	 * this as we start the other CPUs later */
- 	/* now get the CPU disposition from the extended CMOS */
--	phys_cpu_present_map = cpus_promote(voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK));
--	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
--	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
--	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
--	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_coerce(phys_cpu_present_map));
-+	cpus_addr(phys_cpu_present_map)[0] = voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK);
-+	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
-+	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
-+	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
-+	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_addr(phys_cpu_present_map)[0]);
- 	/* Here we set up the VIC to enable SMP */
- 	/* enable the CPIs by writing the base vector to their register */
- 	outb(VIC_DEFAULT_CPI_BASE, VIC_CPI_BASE_REGISTER);
-@@ -709,12 +709,12 @@
- 		/* now that the cat has probed the Voyager System Bus, sanity
- 		 * check the cpu map */
- 		if( ((voyager_quad_processors | voyager_extended_vic_processors)
--		     & cpus_coerce(phys_cpu_present_map)) != cpus_coerce(phys_cpu_present_map)) {
-+		     & cpus_addr(phys_cpu_present_map)[0]) != cpus_addr(phys_cpu_present_map)[0]) {
- 			/* should panic */
- 			printk("\n\n***WARNING*** Sanity check of CPU present map FAILED\n");
- 		}
- 	} else if(voyager_level == 4)
--		voyager_extended_vic_processors = cpus_coerce(phys_cpu_present_map);
-+		voyager_extended_vic_processors = cpus_addr(phys_cpu_present_map)[0];
+-#ifdef CONFIG_SMP
++typedef struct { DECLARE_BITMAP(bits, NR_CPUS); } cpumask_t;
++extern cpumask_t _unused_cpumask_arg_;
  
- 	/* this sets up the idle task to run on the current cpu */
- 	voyager_extended_cpus = 1;
-@@ -912,7 +912,7 @@
+-extern cpumask_t cpu_online_map;
+-extern cpumask_t cpu_possible_map;
++#define cpu_set(cpu, dst) __cpu_set((cpu), &(dst))
++static inline void __cpu_set(int cpu, volatile cpumask_t *dstp)
++{
++	if (cpu < NR_CPUS)
++		set_bit(cpu, dstp->bits);
++}
++
++#define cpu_clear(cpu, dst) __cpu_clear((cpu), &(dst))
++static inline void __cpu_clear(int cpu, volatile cpumask_t *dstp)
++{
++	clear_bit(cpu, dstp->bits);
++}
++
++#define cpus_setall(dst) __cpus_setall(&(dst), NR_CPUS)
++static inline void __cpus_setall(cpumask_t *dstp, int nbits)
++{
++	bitmap_fill(dstp->bits, nbits);
++}
++
++#define cpus_clear(dst) __cpus_clear(&(dst), NR_CPUS)
++static inline void __cpus_clear(cpumask_t *dstp, int nbits)
++{
++	bitmap_clear(dstp->bits, nbits);
++}
++
++#define cpu_isset(cpu, cpumask) __cpu_isset((cpu), &(cpumask))
++static inline int __cpu_isset(int cpu, const volatile cpumask_t *addr)
++{
++	return test_bit(cpu, addr->bits);
++}
++
++#define cpu_test_and_set(cpu, cpumask) __cpu_test_and_set((cpu), &(cpumask))
++static inline int __cpu_test_and_set(int cpu, cpumask_t *addr)
++{
++	if (cpu < NR_CPUS)
++		return test_and_set_bit(cpu, addr->bits);
++	else
++		return 0;
++}
++
++#define cpus_and(dst, src1, src2) __cpus_and(&(dst), &(src1), &(src2), NR_CPUS)
++static inline void __cpus_and(cpumask_t *dstp, cpumask_t *src1p,
++					cpumask_t *src2p, int nbits)
++{
++	bitmap_and(dstp->bits, src1p->bits, src2p->bits, nbits);
++}
++
++#define cpus_or(dst, src1, src2) __cpus_or(&(dst), &(src1), &(src2), NR_CPUS)
++static inline void __cpus_or(cpumask_t *dstp, cpumask_t *src1p,
++					cpumask_t *src2p, int nbits)
++{
++	bitmap_or(dstp->bits, src1p->bits, src2p->bits, nbits);
++}
++
++#define cpus_xor(dst, src1, src2) __cpus_xor(&(dst), &(src1), &(src2), NR_CPUS)
++static inline void __cpus_xor(cpumask_t *dstp, cpumask_t *src1p,
++					cpumask_t *src2p, int nbits)
++{
++	bitmap_xor(dstp->bits, src1p->bits, src2p->bits, nbits);
++}
++
++#define cpus_andnot(dst, src1, src2) \
++				__cpus_andnot(&(dst), &(src1), &(src2), NR_CPUS)
++static inline void __cpus_andnot(cpumask_t *dstp, cpumask_t *src1p,
++					cpumask_t *src2p, int nbits)
++{
++	bitmap_andnot(dstp->bits, src1p->bits, src2p->bits, nbits);
++}
++
++#define cpus_complement(dst, src) __cpus_complement(&(dst), &(src), NR_CPUS)
++static inline void __cpus_complement(cpumask_t *dstp,
++					cpumask_t *srcp, int nbits)
++{
++	bitmap_complement(dstp->bits, srcp->bits, nbits);
++}
++
++#define cpus_equal(src1, src2) __cpus_equal(&(src1), &(src2), NR_CPUS)
++static inline int __cpus_equal(cpumask_t *src1p,
++					cpumask_t *src2p, int nbits)
++{
++	return bitmap_equal(src1p->bits, src2p->bits, nbits);
++}
++
++#define cpus_intersects(src1, src2) __cpus_intersects(&(src1), &(src2), NR_CPUS)
++static inline int __cpus_intersects(cpumask_t *src1p,
++					cpumask_t *src2p, int nbits)
++{
++	return bitmap_intersects(src1p->bits, src2p->bits, nbits);
++}
++
++#define cpus_subset(src1, src2) __cpus_subset(&(src1), &(src2), NR_CPUS)
++static inline int __cpus_subset(cpumask_t *src1p,
++					cpumask_t *src2p, int nbits)
++{
++	return bitmap_subset(src1p->bits, src2p->bits, nbits);
++}
++
++#define cpus_empty(src) __cpus_empty(&(src), NR_CPUS)
++static inline int __cpus_empty(cpumask_t *srcp, int nbits)
++{
++	return bitmap_empty(srcp->bits, nbits);
++}
++
++#define cpus_full(cpumask) __cpus_full(&(cpumask), NR_CPUS)
++static inline int __cpus_full(cpumask_t *srcp, int nbits)
++{
++	return bitmap_full(srcp->bits, nbits);
++}
++
++#define cpus_weight(cpumask) __cpus_weight(&(cpumask), NR_CPUS)
++static inline int __cpus_weight(cpumask_t *srcp, int nbits)
++{
++	return bitmap_weight(srcp->bits, nbits);
++}
++
++#define cpus_shift_right(dst, src, n) \
++			__cpus_shift_right(&(dst), &(src), (n), NR_CPUS)
++static inline void __cpus_shift_right(cpumask_t *dstp,
++					cpumask_t *srcp, int n, int nbits)
++{
++	bitmap_shift_right(dstp->bits, srcp->bits, n, nbits);
++}
++
++#define cpus_shift_left(dst, src, n) \
++			__cpus_shift_left(&(dst), &(src), (n), NR_CPUS)
++static inline void __cpus_shift_left(cpumask_t *dstp,
++					cpumask_t *srcp, int n, int nbits)
++{
++	bitmap_shift_left(dstp->bits, srcp->bits, n, nbits);
++}
++
++#define first_cpu(src) __first_cpu(&(src), NR_CPUS)
++static inline int __first_cpu(cpumask_t *srcp, int nbits)
++{
++	return find_first_bit(srcp->bits, nbits);
++}
  
- 	if (!cpumask)
- 		BUG();
--	if ((cpumask & cpus_coerce(cpu_online_map)) != cpumask)
-+	if ((cpumask & cpus_addr(cpu_online_map)[0]) != cpumask)
- 		BUG();
- 	if (cpumask & (1 << smp_processor_id()))
- 		BUG();
-@@ -955,7 +955,7 @@
+-#define num_online_cpus()		cpus_weight(cpu_online_map)
+-#define num_possible_cpus()		cpus_weight(cpu_possible_map)
+-#define cpu_online(cpu)			cpu_isset(cpu, cpu_online_map)
+-#define cpu_possible(cpu)		cpu_isset(cpu, cpu_possible_map)
+-
+-#define for_each_cpu_mask(cpu, mask)					\
+-	for (cpu = first_cpu_const(mk_cpumask_const(mask));		\
+-		cpu < NR_CPUS;						\
+-		cpu = next_cpu_const(cpu, mk_cpumask_const(mask)))
++#define next_cpu(n, src) __next_cpu((n), &(src), NR_CPUS)
++static inline int __next_cpu(int n, cpumask_t *srcp, int nbits)
++{
++	return find_next_bit(srcp->bits, nbits, n+1);
++}
++
++#define cpumask_of_cpu(cpu)						\
++({									\
++	typeof(_unused_cpumask_arg_) m;					\
++	int c = cpu;							\
++	if (sizeof(m) == sizeof(unsigned long)) {			\
++		if (c < NR_CPUS)					\
++			m.bits[0] = 1UL<<c;				\
++	} else {							\
++		cpus_clear(m);						\
++		cpu_set(c, m);						\
++	}								\
++	m;								\
++})
++
++#define CPU_MASK_LAST_WORD BITMAP_LAST_WORD_MASK(NR_CPUS)
++
++#if NR_CPUS <= BITS_PER_LONG
++
++#define CPU_MASK_ALL							\
++{ {									\
++	[BITS_TO_LONGS(NR_CPUS)-1] = CPU_MASK_LAST_WORD			\
++} }
  
- 	preempt_disable();
- 
--	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
-+	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
- 	local_flush_tlb();
- 	if (cpu_mask)
- 		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
-@@ -971,7 +971,7 @@
- 
- 	preempt_disable();
- 
--	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
-+	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
- 
- 	if (current->active_mm == mm) {
- 		if (current->mm)
-@@ -992,7 +992,7 @@
- 
- 	preempt_disable();
- 
--	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
-+	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
- 	if (current->active_mm == mm) {
- 		if(current->mm)
- 			__flush_tlb_one(va);
-@@ -1101,7 +1101,7 @@
- 		   int wait)
- {
- 	struct call_data_struct data;
--	__u32 mask = cpus_coerce(cpu_online_map);
-+	__u32 mask = cpus_addr(cpu_online_map)[0];
- 
- 	mask &= ~(1<<smp_processor_id());
- 
-@@ -1789,9 +1789,9 @@
- 	unsigned long irq_mask = 1 << irq;
- 	int cpu;
- 
--	real_mask = cpus_coerce(mask) & voyager_extended_vic_processors;
-+	real_mask = cpus_addr(mask)[0] & voyager_extended_vic_processors;
- 	
--	if(cpus_coerce(mask) == 0)
-+	if(cpus_addr(mask)[0] == 0)
- 		/* can't have no cpu's to accept the interrupt -- extremely
- 		 * bad things will happen */
- 		return;
-Index: 2.6.5.mask/include/asm-i386/genapic.h
-===================================================================
---- 2.6.5.mask.orig/include/asm-i386/genapic.h	2004-04-03 23:38:10.000000000 -0800
-+++ 2.6.5.mask/include/asm-i386/genapic.h	2004-04-03 23:51:51.000000000 -0800
-@@ -62,7 +62,7 @@
- 
- 	unsigned (*get_apic_id)(unsigned long x);
- 	unsigned long apic_id_mask;
--	unsigned int (*cpu_mask_to_apicid)(cpumask_const_t cpumask);
-+	unsigned int (*cpu_mask_to_apicid)(cpumask_t cpumask);
- 	
- 	/* ipi */
- 	void (*send_IPI_mask)(cpumask_t mask, int vector);
-Index: 2.6.5.mask/include/asm-i386/mach-bigsmp/mach_apic.h
-===================================================================
---- 2.6.5.mask.orig/include/asm-i386/mach-bigsmp/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
-+++ 2.6.5.mask/include/asm-i386/mach-bigsmp/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
-@@ -140,14 +140,14 @@
- 	return (1);
- }
- 
--static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
-+static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
- {
- 	int num_bits_set;
- 	int cpus_found = 0;
- 	int cpu;
- 	int apicid;	
- 
--	num_bits_set = cpus_weight_const(cpumask);
-+	num_bits_set = cpus_weight(cpumask);
- 	/* Return id to all */
- 	if (num_bits_set == NR_CPUS)
- 		return (int) 0xFF;
-@@ -155,10 +155,10 @@
- 	 * The cpus in the mask must all be on the apic cluster.  If are not 
- 	 * on the same apicid cluster return default value of TARGET_CPUS. 
- 	 */
--	cpu = first_cpu_const(cpumask);
-+	cpu = first_cpu(cpumask);
- 	apicid = cpu_to_logical_apicid(cpu);
- 	while (cpus_found < num_bits_set) {
--		if (cpu_isset_const(cpu, cpumask)) {
-+		if (cpu_isset(cpu, cpumask)) {
- 			int new_apicid = cpu_to_logical_apicid(cpu);
- 			if (apicid_cluster(apicid) != 
- 					apicid_cluster(new_apicid)){
-Index: 2.6.5.mask/include/asm-i386/mach-default/mach_apic.h
-===================================================================
---- 2.6.5.mask.orig/include/asm-i386/mach-default/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
-+++ 2.6.5.mask/include/asm-i386/mach-default/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
-@@ -5,12 +5,12 @@
- 
- #define APIC_DFR_VALUE	(APIC_DFR_FLAT)
- 
--static inline cpumask_const_t target_cpus(void)
-+static inline cpumask_t target_cpus(void)
- { 
- #ifdef CONFIG_SMP
--	return mk_cpumask_const(cpu_online_map);
-+	return cpu_online_map;
+-#define for_each_cpu(cpu) for_each_cpu_mask(cpu, cpu_possible_map)
+-#define for_each_online_cpu(cpu) for_each_cpu_mask(cpu, cpu_online_map)
  #else
--	return mk_cpumask_const(cpumask_of_cpu(0));
-+	return cpumask_of_cpu(0);
+-#define	cpu_online_map			cpumask_of_cpu(0)
+-#define	cpu_possible_map		cpumask_of_cpu(0)
+-#define num_online_cpus()		1
+-#define num_possible_cpus()		1
+-#define cpu_online(cpu)			({ BUG_ON((cpu) != 0); 1; })
+-#define cpu_possible(cpu)		({ BUG_ON((cpu) != 0); 1; })
+ 
+-#define for_each_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
+-#define for_each_online_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
++#define CPU_MASK_ALL							\
++{ {									\
++	[0 ... BITS_TO_LONGS(NR_CPUS)-2] = ~0UL,			\
++	[BITS_TO_LONGS(NR_CPUS)-1] = CPU_MASK_LAST_WORD			\
++} }
++
  #endif
- } 
- #define TARGET_CPUS (target_cpus())
-@@ -118,9 +118,9 @@
- 	return physid_isset(GET_APIC_ID(apic_read(APIC_ID)), phys_cpu_present_map);
- }
  
--static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
-+static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
- {
--	return cpus_coerce_const(cpumask);
-+	return cpus_addr(cpumask)[0];
- }
+-#define cpumask_scnprintf(buf, buflen, map)				\
+-	bitmap_scnprintf(buf, buflen, cpus_addr(map), NR_CPUS)
++#define CPU_MASK_NONE							\
++{ {									\
++	[0 ... BITS_TO_LONGS(NR_CPUS)-1] =  0UL				\
++} }
++
++#define cpus_addr(src) ((src).bits)
++
++#define cpumask_scnprintf(buf, len, src) \
++			__cpumask_scnprintf((buf), (len), &(src), NR_CPUS)
++static inline int __cpumask_scnprintf(char *buf, int len,
++					cpumask_t *srcp, int nbits)
++{
++	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
++}
++
++#define cpumask_parse(ubuf, ulen, src) \
++			__cpumask_parse((ubuf), (ulen), &(src), NR_CPUS)
++static inline int __cpumask_parse(const char __user *buf, int len,
++					cpumask_t *srcp, int nbits)
++{
++	return bitmap_parse(buf, len, srcp->bits, nbits);
++}
++
++/*
++ * The following particular system cpumasks and operations
++ * on them manage all (possible) and online cpus.
++ */
++
++extern cpumask_t cpu_online_map;
++extern cpumask_t cpu_possible_map;
++
++#ifdef CONFIG_SMP
++
++#define num_online_cpus()	     cpus_weight(cpu_online_map)
++#define num_possible_cpus()	     cpus_weight(cpu_possible_map)
++#define cpu_online(cpu)		     cpu_isset((cpu), cpu_online_map)
++#define cpu_possible(cpu)	     cpu_isset((cpu), cpu_possible_map)
++#define cpu_set_online(cpu)	     cpu_set((cpu), cpu_online_map)
++#define cpu_set_offline(cpu)	     cpu_clear((cpu), cpu_online_map)
++
++#define any_online_cpu(mask)			\
++({						\
++	cpumask_t m;				\
++	cpus_and(m, mask, cpu_online_map);	\
++	first_cpu(m);				\
++})
++
++#define for_each_cpu_mask(cpu, mask)		\
++	for (cpu = first_cpu(mask);		\
++		cpu < NR_CPUS;			\
++		cpu = next_cpu(cpu, mask))
++
++#else /* !CONFIG_SMP */
++
++#define num_online_cpus()	     1
++#define num_possible_cpus()	     1
++#define cpu_online(cpu)		     ({ BUG_ON((cpu) != 0); 1; })
++#define cpu_possible(cpu)	     ({ BUG_ON((cpu) != 0); 1; })
++#define cpu_set_online(cpu)	     ({ BUG_ON((cpu) != 0); })
++#define cpu_set_offline(cpu)	     ({ BUG(); })
++
++#define any_online_cpu(mask)	     0
++
++#define for_each_cpu_mask(cpu, mask) for (cpu = 0; cpu < 1; cpu++)
++
++#endif /* CONFIG_SMP */
++
++#define for_each_cpu(cpu)	     \
++			for_each_cpu_mask(cpu, cpu_possible_map)
++#define for_each_online_cpu(cpu)     \
++			for_each_cpu_mask(cpu, cpu_online_map)
  
- static inline void enable_apic_mode(void)
-Index: 2.6.5.mask/include/asm-i386/mach-es7000/mach_apic.h
+-#define cpumask_parse(buf, buflen, map)					\
+-	bitmap_parse(buf, buflen, cpus_addr(map), NR_CPUS)
++/* Begin obsolete cpumask operator emulation */
++#define cpu_isset_const(a,b) cpu_isset(a,b)
++#define cpumask_const_t cpumask_t
++#define cpus_coerce(m) (cpus_addr(m)[0])
++#define cpus_coerce_const cpus_coerce
++#define cpus_promote(x) ({ cpumask_t m; m.bits[0] = x; m; })
++#define cpus_weight_const cpus_weight
++#define first_cpu_const first_cpu
++#define mk_cpumask_const(x) x
++#define next_cpu_const next_cpu
++/* End of obsolete cpumask operator emulation */
+ 
+ #endif /* __LINUX_CPUMASK_H */
+Index: 2.6.5.bitmap.v4/kernel/sched.c
 ===================================================================
---- 2.6.5.mask.orig/include/asm-i386/mach-es7000/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
-+++ 2.6.5.mask/include/asm-i386/mach-es7000/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
-@@ -89,7 +89,7 @@
- 	int apic = bios_cpu_apicid[smp_processor_id()];
- 	printk("Enabling APIC mode:  %s.  Using %d I/O APICs, target cpus %lx\n",
- 		(apic_version[apic] == 0x14) ? 
--		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_coerce(TARGET_CPUS));
-+		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_addr(TARGET_CPUS)[0]);
+--- 2.6.5.bitmap.v4.orig/kernel/sched.c	2004-04-21 06:50:45.000000000 -0700
++++ 2.6.5.bitmap.v4/kernel/sched.c	2004-04-21 16:45:03.000000000 -0700
+@@ -2349,6 +2349,11 @@
+ 	return retval;
  }
  
- static inline int multi_timer_check(int apic, int irq)
-@@ -159,14 +159,14 @@
- 	return (1);
- }
- 
--static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
-+static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
- {
- 	int num_bits_set;
- 	int cpus_found = 0;
- 	int cpu;
- 	int apicid;	
- 
--	num_bits_set = cpus_weight_const(cpumask);
-+	num_bits_set = cpus_weight(cpumask);
- 	/* Return id to all */
- 	if (num_bits_set == NR_CPUS)
- 		return 0xFF;
-@@ -174,10 +174,10 @@
- 	 * The cpus in the mask must all be on the apic cluster.  If are not 
- 	 * on the same apicid cluster return default value of TARGET_CPUS. 
- 	 */
--	cpu = first_cpu_const(cpumask);
-+	cpu = first_cpu(cpumask);
- 	apicid = cpu_to_logical_apicid(cpu);
- 	while (cpus_found < num_bits_set) {
--		if (cpu_isset_const(cpu, cpumask)) {
-+		if (cpu_isset(cpu, cpumask)) {
- 			int new_apicid = cpu_to_logical_apicid(cpu);
- 			if (apicid_cluster(apicid) != 
- 					apicid_cluster(new_apicid)){
-Index: 2.6.5.mask/include/asm-i386/mach-numaq/mach_apic.h
-===================================================================
---- 2.6.5.mask.orig/include/asm-i386/mach-numaq/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
-+++ 2.6.5.mask/include/asm-i386/mach-numaq/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
-@@ -136,7 +136,7 @@
-  * We use physical apicids here, not logical, so just return the default
-  * physical broadcast to stop people from breaking us
-  */
--static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
-+static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
- {
- 	return (int) 0xF;
- }
-Index: 2.6.5.mask/include/asm-i386/mach-summit/mach_apic.h
-===================================================================
---- 2.6.5.mask.orig/include/asm-i386/mach-summit/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
-+++ 2.6.5.mask/include/asm-i386/mach-summit/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
-@@ -140,14 +140,14 @@
- {
- }
- 
--static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
-+static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
- {
- 	int num_bits_set;
- 	int cpus_found = 0;
- 	int cpu;
- 	int apicid;	
- 
--	num_bits_set = cpus_weight_const(cpumask);
-+	num_bits_set = cpus_weight(cpumask);
- 	/* Return id to all */
- 	if (num_bits_set == NR_CPUS)
- 		return (int) 0xFF;
-@@ -155,10 +155,10 @@
- 	 * The cpus in the mask must all be on the apic cluster.  If are not 
- 	 * on the same apicid cluster return default value of TARGET_CPUS. 
- 	 */
--	cpu = first_cpu_const(cpumask);
-+	cpu = first_cpu(cpumask);
- 	apicid = cpu_to_logical_apicid(cpu);
- 	while (cpus_found < num_bits_set) {
--		if (cpu_isset_const(cpu, cpumask)) {
-+		if (cpu_isset(cpu, cpumask)) {
- 			int new_apicid = cpu_to_logical_apicid(cpu);
- 			if (apicid_cluster(apicid) != 
- 					apicid_cluster(new_apicid)){
-Index: 2.6.5.mask/include/asm-i386/mach-visws/mach_apic.h
-===================================================================
---- 2.6.5.mask.orig/include/asm-i386/mach-visws/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
-+++ 2.6.5.mask/include/asm-i386/mach-visws/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
-@@ -84,9 +84,9 @@
- 	return physid_isset(boot_cpu_physical_apicid, phys_cpu_present_map);
- }
- 
--static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
-+static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
- {
--	return cpus_coerce_const(cpumask);
-+	return cpus_addr(cpumask)[0];
- }
- 
- static inline u32 phys_pkg_id(u32 cpuid_apic, int index_msb)
++#ifndef CONFIG_SMP
++cpumask_t cpu_online_map = CPU_MASK_ALL;
++cpumask_t cpu_possible_map = CPU_MASK_ALL;
++#endif
++
+ /**
+  * sys_sched_getaffinity - get the cpu affinity of a process
+  * @pid: pid of the process
 
 
 -- 

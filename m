@@ -1,75 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269553AbUICBnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269523AbUICBsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269553AbUICBnn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 21:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269540AbUICBkZ
+	id S269523AbUICBsi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 21:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269540AbUICBsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 21:40:25 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:40119 "EHLO slaphack.com")
-	by vger.kernel.org with ESMTP id S269532AbUICBjd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 21:39:33 -0400
-Message-ID: <4137CB47.1070805@slaphack.com>
-Date: Thu, 02 Sep 2004 20:39:19 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+	Thu, 2 Sep 2004 21:48:17 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:57850 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S269523AbUICBnw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 21:43:52 -0400
+Message-ID: <4137CB3E.4060205@mvista.com>
+Date: Thu, 02 Sep 2004 18:39:10 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Oliver Neukum <oliver@neukum.org>, Spam <spam@tnonline.net>,
-       Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-References: <20040826150202.GE5733@mail.shareable.org> <4136E0B6.4000705@namesys.com> <1117111836.20040902115249@tnonline.net> <200409021309.04780.oliver@neukum.org>            <4137BE36.5020504@slaphack.com> <200409030118.i831IUc6006797@turing-police.cc.vt.edu>
-In-Reply-To: <200409030118.i831IUc6006797@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: john stultz <johnstul@us.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       albert@users.sourceforge.net, Ulrich.Windl@rz.uni-regensburg.de,
+       clameter@sgi.com, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com> <1094159379.14662.322.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1094159379.14662.322.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+john stultz wrote:
+> All,
+> 	This patch implements the architecture independent portion of the time
+> of day subsystem. Included is timeofday.c (which includes all the time
+> of day management and accessor functions), ntp.c (which includes the ntp
+> scaling code, leap second processing, and ntp kernel state machine
+> code), interface definition .h files, the example jiffies timesource
+> (lowest common denominator time source, mainly for use as example code)
+> and minimal hooks into arch independent code.
+> 
+> The patch does not function without minimal architecture specific hooks
+> (i386 example to follow), and it can be applied to a tree without
+> affecting the code.
+> 
+> I look forward to your comments and feedback.
+> 
+> thanks
+> -john
+~
 
-Valdis.Kletnieks@vt.edu wrote:
-| On Thu, 02 Sep 2004 19:43:34 CDT, David Masover said:
-|
-|
-|>And on apps.  Should I teach OpenOffice.org to do version control?
-|>Seems a lot easier to just do it in the kernel, and teach everything to
-|>do version control in one fell swoop.
-|
-|
-| Including files you didn't really want to keep version control of?
+> +static cycle_t jiffies_read(void)
+> +{
+> +	cycle_t ret = get_jiffies_64();
+> +	return ret;
+> +}
+> +
+> +static cycle_t jiffies_delta(cycle_t now, cycle_t then)
+> +{
+> +	/* simple subtraction, no need to mask */
+> +	return now - then;
+> +}
 
-No one said you have to apply it to everything.  Only that you can.
-Right now vim cannot do version control, AFAIK.  But you could do
-something like:
-	echo 1 > foo/version_control
-	vim foo
+This should be inline...
 
-Default would be off, of course.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+> +
+> +static nsec_t jiffies_cyc2ns(cycle_t cyc, cycle_t* remainder)
+> +{
+> +
+> +	cyc *= NSEC_PER_SEC/HZ;
 
-iQIVAwUBQTfLR3gHNmZLgCUhAQKybRAAkF4sqLUCJEfpDNvKEyv8MJGcy0w+qV12
-3Rf50OQeeurZMZrnli0vNIuSIWwIsGI+j7qbj1mlfi+Ps3dAjOlKXav3tGoGshLl
-HH/Wl9XvGPOAWlIQOqqBGAyno8sDIvHAjh5lH3C7m+9/2Ao7s1G/bQ+hm/deYPJK
-WPZxExd/1BdchrbjNjbfWHKrD6LdF/GBa/Vbj1F8m95WEvxsfbDnSTwb5HhvcUxD
-TtqwkINmx7Tle2p9q7PcgR7y76dmcyoWw82ST3BfF/AbGauMQAr0h6jNjvzclfgJ
-yrIOwGXdR3pn8ZK8dHVct79N0f+PYFdeAzLYxMZR2vefB2enQolbbs6Lf7X60g2g
-5hrH/ezenFJIZMPhQtlJqBaFuA5GHw9B2An6VbOmDm7sSOFyHSlKoCUFlJ/I5nZd
-Bcn46lhNxvTJhu3tvnvDqTB8f0/yVYt5QfoBFA1mzHKig2iNN6vr2xLGdWSLU6XD
-vRjy+KyVC+PvjL13E0JrjXy9UuqY7CH2xAunSgLJ2cvfRmNRoVoV1hkp3McQcUqF
-GiD3s0REcztlvsrP+DxKLRtPpnOJi5By5NmZpJkiPdVB9zpIsL/Ia7KL/A7IGGh3
-IF3t/xSUmjgrek01SeadHqsIngeWQ+F8fiars7NtzNhrvRgPVfDVheey3vhQjFxM
-3kDKH+I9rGk=
-=3+nq
------END PGP SIGNATURE-----
+Hm... This assumes that 1/HZ is what is needed here.  Today this value is 
+999898.  Not exactly reachable by NSEC_PER_SEC/HZ.  Or did I miss something, 
+like the relationship of jiffie to 1/HZ and to real time.
+
+> +
+~
+
+> +int ntp_leapsecond(struct timespec now)
+> +{
+> +	/*
+> +	 * Leap second processing. If in leap-insert state at
+> +	 * the end of the day, the system clock is set back one
+> +	 * second; if in leap-delete state, the system clock is
+> +	 * set ahead one second. The microtime() routine or
+> +	 * external clock driver will insure that reported time
+> +	 * is always monotonic. The ugly divides should be
+> +	 * replaced.
+
+??  Is this really to be hidden?  I rather though this was just the same as a 
+user driven clock setting.  In any case, it is a slew of the wall clock and 
+should be presented to abs timer code so that the abs timers can be corrected. 
+This means a call to "clock_was_set()" AND an update of the mono_to_wall value.
+> +	 */
+> +	static time_t leaptime = 0;
+> +
+> +	switch (ntp_state) {
+> +	case TIME_OK:
+> +		if (ntp_status & STA_INS) {
+> +			ntp_state = TIME_INS;
+> +			/* calculate end of today (23:59:59)*/
+> +			leaptime = now.tv_sec + SEC_PER_DAY - (now.tv_sec % SEC_PER_DAY) - 1;
+> +		}
+> +		else if (ntp_status & STA_DEL) {
+> +			ntp_state = TIME_DEL;
+> +			/* calculate end of today (23:59:59)*/
+> +			leaptime = now.tv_sec + SEC_PER_DAY - (now.tv_sec % SEC_PER_DAY) - 1;
+> +		}
+> +		break;
+> +
+> +	case TIME_INS:
+> +		/* Once we are at (or past) leaptime, insert the second */
+> +		if (now.tv_sec > leaptime) {
+> +			ntp_state = TIME_OOP;
+> +			printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
+> +
+> +			return -1;
+> +		}
+> +		break;
+> +
+> +	case TIME_DEL:
+> +		/* Once we are at (or past) leaptime, delete the second */
+> +		if (now.tv_sec >= leaptime) {
+> +			ntp_state = TIME_WAIT;
+> +			printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
+> +
+> +			return 1;
+> +		}
+~
+
+> +/* do_gettimeofday():
+> + *		Returns the time of day
+> + */
+> +void do_gettimeofday(struct timeval *tv)
+> +{
+> +	nsec_t wall, sys;
+> +	unsigned long seq;
+> +
+> +	/* atomically read wall and sys time */
+> +	do {
+> +		seq = read_seqbegin(&system_time_lock);
+> +
+> +		wall = wall_time_offset;
+> +		sys = __monotonic_clock();
+> +
+> +	} while (read_seqretry(&system_time_lock, seq));
+> +
+> +	/* add them and convert to timeval */
+> +	*tv = ns2timeval(wall+sys);
+> +}
+I am not sure you don't want to seperate the locking from the clock read.   This 
+so one lock can be put around larger bits of code.  For example, in 
+posix-times.c we need to get all three clocks under the same lock (that being 
+monotonic, wall_time_offset, and jiffies (and possibly as sub jiffie value)).
+
+Something like:
+void get_tod_parts(nsec_t *wall, nsec_t *mon)
+{
+	*wall = wall_time_offset;
+	*mon  = __monotonic_clock();
+}
+
+This could then be used in a larger function with out the double locking.
+
+> +
+> +
+> +/* do_settimeofday():
+> + *		Sets the time of day
+> + */
+> +int do_settimeofday(struct timespec *tv)
+> +{
+> +	/* convert timespec to ns */
+> +	nsec_t newtime = timespec2ns(tv);
+> +
+> +	/* atomically adjust wall_time_offset to the desired value */
+> +	write_seqlock_irq(&system_time_lock);
+> +
+> +	wall_time_offset = newtime - __monotonic_clock();
+> +
+> +	/* clear NTP settings */
+> +	ntp_clear();
+> +
+> +	write_sequnlock_irq(&system_time_lock);
+
+Also need a clock_was_set() call here.
+> +
+~
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

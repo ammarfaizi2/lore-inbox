@@ -1,70 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265059AbSJRHdr>; Fri, 18 Oct 2002 03:33:47 -0400
+	id <S265029AbSJRHzE>; Fri, 18 Oct 2002 03:55:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265060AbSJRHdr>; Fri, 18 Oct 2002 03:33:47 -0400
-Received: from tml.hut.fi ([130.233.44.1]:28688 "EHLO tml-gw.tml.hut.fi")
-	by vger.kernel.org with ESMTP id <S265059AbSJRHdq>;
-	Fri, 18 Oct 2002 03:33:46 -0400
-Date: Fri, 18 Oct 2002 10:39:17 +0300
-From: Antti Tuominen <ajtuomin@morphine.tml.hut.fi>
-To: Pekka Savola <pekkas@netcore.fi>
-Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, yoshfuji@wide.ad.jp,
-       torvalds@transmeta.com, jagana@us.ibm.com
-Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.43
-Message-ID: <20021018073917.GA19020@morphine.tml.hut.fi>
-References: <20021017162624.GC16370@morphine.tml.hut.fi> <Pine.LNX.4.44.0210172309160.28084-100000@netcore.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210172309160.28084-100000@netcore.fi>
-User-Agent: Mutt/1.4i
+	id <S265035AbSJRHzE>; Fri, 18 Oct 2002 03:55:04 -0400
+Received: from mithra.wirex.com ([65.102.14.2]:40708 "EHLO mail.wirex.com")
+	by vger.kernel.org with ESMTP id <S265029AbSJRHzD>;
+	Fri, 18 Oct 2002 03:55:03 -0400
+Message-ID: <3DAFBFA2.4040207@wirex.com>
+Date: Fri, 18 Oct 2002 01:00:34 -0700
+From: Crispin Cowan <crispin@wirex.com>
+Organization: WireX Communications, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+Cc: greg@kroah.com, hch@infradead.org, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+References: <20021017203652.GB592@kroah.com>	<20021017.133816.82029797.davem@redhat.com>	<20021017205830.GD592@kroah.com> <20021017.135832.54206778.davem@redhat.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-md5;
+ protocol="application/pgp-signature";
+ boundary="------------enig1BCE82564508C8FF24443A47"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 11:14:32PM +0300, Pekka Savola wrote:
-> On Thu, 17 Oct 2002, Antti Tuominen wrote:
-> > Intermediate revision of the specification "Draft 18++" appeared a few
-> > days ago, which addressed most of the issues with earlier drafts (16,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig1BCE82564508C8FF24443A47
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+David S. Miller wrote:
+
+>There is a very important fundamental difference to the USB case.
+>It eats zero space in my kernel when I have no USB devices.
+>CONFIG_USB=m works as designed!
 >
-> Sounds great.  Hopefully it slows down a bit from being a moving target.
+>CONFIG_SECURITY=m still does not exist, so distribution makers have to
+>make a y vs. n choice.
+>
+This was our design goal for LSM: to be as minimally intrusive to the 
+kernel as possible. We would LOVE to have a zero-footprint solution that 
+allowed users to enable LSM when they need it. More precisely, LSM is 
+that mechanism intended to impose as little overhead as possible with no 
+modules loaded, and provide adequate access to the modules when they are 
+loaded.
 
-I heard Draft 19 should be out next week, so that should consolidate
-the MIPv6 effort even further.
+LSM is not zero-footprint, but it is as low as we could make it. We are 
+interested in ways to reduce the footprint, but that reduction needs to 
+be looked at in cost/benefit terms: changes that have very little impact 
+on footprint, but high impact on the functionality of the LSM interface. 
+If you remove this system call, you will save almost nothing in kernel 
+resources, but do a lot of damage to functionality.
 
->  1) current tunneling (including sanity checks which are, I believe, a bit
-> non-existant at the moment) should be generalized to handle v6-in-v6 and
-> v6-in-v4 tunneling anyway.  Not sure if this is the right way, but that's
-> IMO one priority item.
+On the other hand, the complaints about the typing of the arguments are 
+well taken, in the context of 32/64-bit porting issues. So what types 
+should the arguments be? Abstractly, they are integers, in the 
+mathematical sense. What is the preferred word-size-portalbe way to 
+express that?
 
-I'm sure we can improve the v6-in-v6 tunnel.  We had some discussion
-with USAGI people about doing anything-in-v6 general tunnel, but since
-that is somewhat beyond our project scope, v6-in-v6 is all we can
-offer at this time.  I don't know about the USAGI folks' status on
-this.
-
->  2) without IPSEC, there is no way to secure MN-HA traffic.  Therefore I 
-> think the first priority is being able to support Correspondent Node 
-> behaviour.
-
-Right.  We've had our own IPSec AH support in all the previous
-releases, but as everyone probably knows the USAGI guys have
-implemented IPv6 IPSec.  This is why we dropped the IPSec stuff in our
-code.  There is no point doing the same work again.  If (or when)
-USAGI IPSec gets accepted to the kernel, we will be sure to modify our
-code to support it.
-
-> Having IPSEC + MIPv6 in 2.6 series would be Really Cool, though :-)
-
-This is something we're hoping for too.
-
-Regards,
-
-Antti
+Crispin
 
 -- 
-Antti J. Tuominen, Gyldenintie 8A 11, 00200 Helsinki, Finland.
-Research assistant, Institute of Digital Communications at HUT
-work: ajtuomin@tml.hut.fi; home: tuominen@iki.fi
+Crispin Cowan, Ph.D.
+Chief Scientist, WireX                      http://wirex.com/~crispin/
+Security Hardened Linux Distribution:       http://immunix.org
+Available for purchase: http://wirex.com/Products/Immunix/purchase.html
+
+
+--------------enig1BCE82564508C8FF24443A47
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE9r7+q5ZkfjX2CNDARActtAJ98Cwx/Dkfl1TCbARxgM2HITBhSxgCfVlsw
+9a6c6xaVuyNn+BQpDf7liy4=
+=1R7l
+-----END PGP SIGNATURE-----
+
+--------------enig1BCE82564508C8FF24443A47--
 

@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272223AbTG3UHl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 16:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272229AbTG3UHl
+	id S272230AbTG3UXh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 16:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272232AbTG3UXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 16:07:41 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:56821 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272223AbTG3UHk
+	Wed, 30 Jul 2003 16:23:37 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:42973 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S272230AbTG3UXf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 16:07:40 -0400
-Subject: Re: TSCs are a no-no on i386
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030730184529.GE21734@fs.tum.de>
-References: <20030730135623.GA1873@lug-owl.de>
-	 <20030730181006.GB21734@fs.tum.de> <20030730183033.GA970@matchmail.com>
-	 <20030730184529.GE21734@fs.tum.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Jul 2003 21:01:00 +0100
+	Wed, 30 Jul 2003 16:23:35 -0400
+Date: Wed, 30 Jul 2003 16:22:25 -0400 (EDT)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test2-mm1 & ipsec-tools (xfrm_type_2_50?)
+Message-ID: <Pine.LNX.4.56.0307301515250.26621@onqynaqf.yrkvatgba.voz.pbz>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-30 at 19:45, Adrian Bunk wrote:
->   Note that this can also allow Step-A 486's to correctly run multi-thread
->   applications since cmpxchg has a wrong opcode on this early CPU.
-> 
->   Don't use this to enable multi-threading on an SMP machine, the lock
->   atomicity can't be guaranted!
 
-That is of course the other problem with this approach - you can't
-really get the intended results without some extremely heavyweight code
-(using an IPI to halt all CPU's, doing the access and then resuming
-them)
+I built ipsec-tools against the 2.6.0-test2-mm1 includes and am *so*
+close to getting it to work...
 
-The bigger problem (and certainly with some of the cmov emulation hacks
-I've seen) is getting the security checking right when you need to
-reprocess the user data - another reason to do it in userspace with a
-preload 8)
+I'm getting odd errors from racoon:
 
+INFO: isakmp.c:797:isakmp_ph1begin_i(): initiate new phase 1
+	negotiation: 9.30.62.131[500]<=>9.51.94.26[500]
+INFO: isakmp.c:802:isakmp_ph1begin_i(): begin Identity Protection mode.
+INFO: isakmp.c:2418:log_ph1established(): ISAKMP-SA established
+	9.30.62.131[500]-9.51.94.26[500] spi:36dbc14ce81d5d28:dc42216efd6549d4
+INFO: isakmp.c:941:isakmp_ph2begin_i(): initiate new phase 2 negotiation:
+	9.30.62.131[0]<=>9.51.94.26[0]
+modprobe: FATAL: Module ripemd160 not found.
+modprobe: FATAL: Module cast128 not found.
+modprobe: FATAL: Module lzs not found.
+modprobe: FATAL: Module lzjh not found.
+modprobe: FATAL: Module xfrm_type_2_50 not found.
+modprobe: FATAL: Module ripemd160 not found.
+modprobe: FATAL: Module cast128 not found.
+modprobe: FATAL: Module lzs not found.
+modprobe: FATAL: Module lzjh not found.
+modprobe: FATAL: Module xfrm_type_2_50 not found.
+ERROR: pfkey.c:209:pfkey_handler(): pfkey UPDATE failed:
+	 No buffer space available
+ERROR: pfkey.c:209:pfkey_handler(): pfkey ADD failed: No buffer space available
+
+all the ipsec and crypto stuff is modular, for the nonce, until I figure
+what I need/want.
+
+most of the module not found messages are fine, its xfrm_type_2_50 that
+I'm worried about... What am I missing ?
+-- 
+Rick Nelson
+I can saw a woman in two, but you won't want to look in the box when I do
+'For My Next Trick I'll Need a Volunteer' -- Warren Zevon

@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314125AbSDLRxk>; Fri, 12 Apr 2002 13:53:40 -0400
+	id <S314129AbSDLRzy>; Fri, 12 Apr 2002 13:55:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314129AbSDLRxj>; Fri, 12 Apr 2002 13:53:39 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:26884 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S314125AbSDLRxj>; Fri, 12 Apr 2002 13:53:39 -0400
-Message-Id: <200204121751.g3CHpBX15117@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Shawn Starr <shawn.starr@datawire.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel panic 2.4.19-pre6 AND 2.4.19-pre5-ac3
-Date: Fri, 12 Apr 2002 20:54:23 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <1018560530.356.0.camel@unaropia> <1018618403.224.13.camel@unaropia>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S314130AbSDLRzy>; Fri, 12 Apr 2002 13:55:54 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:18586 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S314129AbSDLRzw>;
+	Fri, 12 Apr 2002 13:55:52 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 12 Apr 2002 17:55:50 GMT
+Message-Id: <UTC200204121755.RAA597903.aeb@cwi.nl>
+To: linux-kernel@vger.kernel.org, mark.post@eds.com
+Subject: Re: PROBLEM: kernel mount of initrd fails unless mke2fs uses 1024 byt e blocks
+Cc: alan@lxorguk.ukuu.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 April 2002 11:33, Shawn Starr wrote:
-> The same kernel panic is observed when using 2.4.19-pre6 or
-> 2.4.19-pre5-ac3:
+    From: "Post, Mark K" <mark.post@eds.com>
 
-[snip]
+    [1.] One line summary of the problem:
+        Trying to use an initrd for an installation fails unless the mke2fs
+    used a blocksize of 1024 bytes.
 
-> call trace:
-> [<c01b6996>][<c01ae406>][<c01b5a79>][<c013f81a>][<c01b6013>][<c01b65cf>][<c
->01055000>[<c010506f>][<c0105000>][<c0107316>][<c0105050>]
->
-> Code: 8b 40 20 c7 40 24 00 00 00 00 a1 a0 3e 2d c0 59 89 15 c4 cf
+    [2.] Full description of the problem/report:
+        I'm trying to create a Linux for S/390 version 2.2.20 installation
+    kernel/ramdisk set.  When I create the ramdisk, if I issue the mke2fs
+    command with -b 2048 or -b 4096, it works fine.  But, I try to boot the
+    system, I get an "EXT2-fs: Magic mismatch, very weird !" error when the
+    kernel tries to mount the ramdisk as the root file system.  If I let the
+    blocksize default, or specify -b 1024, everything works fine.
 
-Run this thru ksymoops
+    The comparison that seems to be failing is at line 500 of
+    linux/fs/ext/super.c:
+                    if (es->s_magic != le16_to_cpu(EXT2_SUPER_MAGIC)) {
+                            printk ("EXT2-fs: Magic mismatch, very weird !\n");
+                            goto failed_mount;
 
-======== Durning boot it stopped at:
->
-> hdc: ATAPI 48X CD-ROM drive, 128kB Cache, UDMA(33)
-> Uniform CD-ROM driver Revision: 3.12
-> <NEVER GOT TO THIS BELOW>
-> ===========================
-> Partition check:
->  hda: hda1 hda2 hda3 hda4
-> Floppy drive(s): fd0 is 1.44M
-> FDC 0 is a post-1991 82077
-> ===========================
+Well, we can read the source.
+ext2_read_super() starts finding a blocksize:
 
-I gather it used to reach "partition check" before.
-With which kernel?
---
-vda
+	blocksize = get_hardblocksize(dev);
+
+and buffer.c:get_hardblocksize() returns hardsect_size[major][minor].
+rd.c sets hardsect_size[] to rd_hardsec, and initializes rd_hardsec
+to RDBLK_SIZE, which is 512.
+OK, so blocksize = 512.
+
+Next,
+	if (blocksize < BLOCK_SIZE)
+		blocksize = BLOCK_SIZE;
+
+So, now it is 1024.
+
+Then bread (dev, 1, blocksize) reads the wrong part,
+if in reality blocksize was different.
+
+I once submitted a patch for this, but apparently it is not in 2.2.20.
+Might do so later this evening, if there is time.
+
+Andries

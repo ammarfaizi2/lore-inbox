@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUJWFtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266837AbUJWF6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267385AbUJWFtw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 01:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267618AbUJWFtd
+	id S266837AbUJWF6L (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 01:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUJWF46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 01:49:33 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:41061 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267385AbUJWFsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 01:48:45 -0400
-Message-ID: <4179F0B9.20908@yahoo.com.au>
-Date: Sat, 23 Oct 2004 15:48:41 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: printk() with a spin-lock held.
-References: <Pine.LNX.4.61.0410221504500.6075@chaos.analogic.com> <1098503815.13176.2.camel@krustophenia.net>
-In-Reply-To: <1098503815.13176.2.camel@krustophenia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Oct 2004 01:56:58 -0400
+Received: from [211.58.254.17] ([211.58.254.17]:42128 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S266837AbUJWEY2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 00:24:28 -0400
+Date: Sat, 23 Oct 2004 13:24:22 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: rusty@rustcorp.com.au, mochel@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC/PATCH] Per-device parameter support (2/16)
+Message-ID: <20041023042421.GC3456@home-tj.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Fri, 2004-10-22 at 15:07 -0400, Richard B. Johnson wrote:
-> 
->>Linux-2.6.9 will bug-check and halt if my code executes
->>a printk() with a spin-lock held.
->>
->>Is this the intended behavior?
-> 
-> 
-> Yes.  printk() can sleep.  No sleeping with a spinlock held.
-> 
+ dp_02_param_array_bug.diff
 
-You can call printk anywhere (except from the scheduler).
-Or if you're doing tricky things with preempt.
+ This is the 2nd patch of 16 patches for devparam.
 
-> 
->>If so, NotGood(tm).
-> 
-> 
-> See above.  If you think you can improve the situation, patches are
-> welcome, as always.
-> 
+ This patches fixes param_array_set() to not use arr->max as nump
+argument of param_array.  If arr->max is used as nump and the
+configuration variable is exported writeable in the syfs, the size of
+the array will be limited by the smallest number of elements
+specified.  One side effect is that as the actual number of elements
+is not recorded anymore when nump is NULL, all elements should be
+printed when referencing the corresponding sysfs node.  I don't think
+that will cause any problem.
 
-In this case, the patch would be to himself though.
+
+Signed-off-by: Tejun Heo <tj@home-tj.org>
+
+
+Index: linux-devparam-export/kernel/params.c
+===================================================================
+--- linux-devparam-export.orig/kernel/params.c	2004-10-22 17:13:33.000000000 +0900
++++ linux-devparam-export/kernel/params.c	2004-10-23 11:09:28.000000000 +0900
+@@ -302,9 +302,10 @@ int param_array(const char *name,
+ int param_array_set(const char *val, struct kernel_param *kp)
+ {
+ 	struct kparam_array *arr = kp->arg;
++	unsigned int t;
+ 
+ 	return param_array(kp->name, val, 1, arr->max, arr->elem,
+-			   arr->elemsize, arr->set, arr->num ?: &arr->max);
++			   arr->elemsize, arr->set, arr->num ?: &t);
+ }
+ 
+ int param_array_get(char *buffer, struct kernel_param *kp)

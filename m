@@ -1,25 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276736AbRJKTj5>; Thu, 11 Oct 2001 15:39:57 -0400
+	id <S276765AbRJKTlh>; Thu, 11 Oct 2001 15:41:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276764AbRJKTjs>; Thu, 11 Oct 2001 15:39:48 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:18695 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S276736AbRJKTjh>; Thu, 11 Oct 2001 15:39:37 -0400
-Message-Id: <200110111940.f9BJe8Y97938@aslan.scsiguy.com>
+	id <S276764AbRJKTl2>; Thu, 11 Oct 2001 15:41:28 -0400
+Received: from smtp1.hushmail.com ([64.40.111.31]:6674 "HELO
+	smtp1.hushmail.com") by vger.kernel.org with SMTP
+	id <S276763AbRJKTlM>; Thu, 11 Oct 2001 15:41:12 -0400
+Message-Id: <200110111418.f9BEI9998195@mailserver1.hushmail.com>
+From: jkniiv@hushmail.com
 To: linux-kernel@vger.kernel.org
-Subject: Unconditional include of <linux/module.h> in aic7xxx driver
-Date: Thu, 11 Oct 2001 13:40:08 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+        "Bonds, Deanna" <Deanna_Bonds@adaptec.com>
+Subject: Re: Re: Dilemma: Replace Escalade with Adaptec 2400A or Promise Super
+Date: Thu, 11 Oct 2001 07:18:09 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone comment on why the include of <linux/module.h> is now
-unconditional in the aic7xxx driver?  Assuming MODULE_LICENSE is
-properly qualified by an #ifdef MODULE, the driver appears to compile
-and function correctly without this include.  Are MODULE attributes
-(MODULE_VERSION/AUTHOR/DESCRIPTION/etc.) now supposed to be included in
-static configurations?
 
-Thanks,
-Justin
+-----BEGIN PGP SIGNED MESSAGE-----
+
+
+On Wed, 10 Oct 2001 22:25:43 +0100 (BST), Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>>
+>> We have monitoring/management tools available from http://linux.adaptec.com
+>> .  It is the dptapps package.  They are not open source but they are tested
+>> and released for various distributions of Linux.
+>
+>Question: What is involved in persuading ADaPTec to provide at least enough
+>information for the basic monitoring facilities - so that either the kenrel
+>or open source tools can be written to log errors, triggere rebuilds etc
+>from the command line ?
+>
+>Alan
+
+Yes, as always a valid concern. We need the resilience of open source drivers. And simple monitoring shouldn't be seen as added value.
+
+  // Jarkko
+
+-----BEGIN PGP SIGNATURE-----
+Version: Hush 2.0
+
+wlsEARECABsFAjvFqgUUHGprbmlpdkBodXNobWFpbC5jb20ACgkQlshdxPYU0CYzJgCg
+s09sdSEdy0TOzTLDI9nUUt5ZRbsAnjM1ojJQqHDrGF5pD5bcBf/T2Uih
+=slnC
+-----END PGP SIGNATURE-----
+

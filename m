@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbUCWR6s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 12:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbUCWR6s
+	id S262766AbUCWSFR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 13:05:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbUCWSFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 12:58:48 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:43651 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262742AbUCWR6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 12:58:45 -0500
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <28313883.1080064760@42.150.104.212.access.eclipse.net.uk>
-References: <1079901914.17681.317.camel@imladris.demon.co.uk>
-	 <20040321204931.A11519@infradead.org>
-	 <1079902670.17681.324.camel@imladris.demon.co.uk>
-	 <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org>
-	 <20040321222327.D26708@flint.arm.linux.org.uk> <405E1859.5030906@pobox.com>
-	 <20040321225117.F26708@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.58.0403211504550.1106@ppc970.osdl.org>
-	 <405E23A5.7080903@pobox.com>
-	 <Pine.LNX.4.58.0403211542051.1106@ppc970.osdl.org>
-	 <20040321235854.H26708@flint.arm.linux.org.uk>
-	 <28313883.1080064760@42.150.104.212.access.eclipse.net.uk>
-Content-Type: text/plain
-Message-Id: <1080064710.16509.297.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
-Date: Tue, 23 Mar 2004 17:58:31 +0000
+	Tue, 23 Mar 2004 13:05:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44260 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262750AbUCWSFJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 13:05:09 -0500
+Message-ID: <40607C46.8000409@pobox.com>
+Date: Tue, 23 Mar 2004 13:04:54 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-ide@vger.kernel.org
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       miquels@cistron.nl
+Subject: [sata]  libata update
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-23 at 17:59 +0000, Andy Whitcroft wrote:
-> Would it not be possible to allocate struct page's for these special areas
-> of memory?  Worst, worst, worst case could they not represent pages in a
-> memory only node in the NUMA sense?  I am sure there is some way they could
-> be 'tacked' onto the end of the cmap in reality?
 
-It would be possible. But why? What benefit do we gain from this
-pretence?
+This adds a driver for SiS SATA, and updates Intel ICH5 (ata_piix) 
+probing.  Particularly users with combined mode probing problems and 
+modprobe+rmmod+modprobe problems.  Please test.
 
-Just hide it all from the driver with dma_coherent_mmap() and forget
-about it. Let the arch deal with it -- the _common_ case will be that we
-use nopage for the actual mapping, perhaps. But why mandate it?
+BK repositories (note that these URLs are BK not HTTP):
+	http://gkernel.bkbits.net/libata-2.4
+	http://gkernel.bkbits.net/libata-2.6
+
+Patches:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.4.25-libata11.patch.bz2
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.5-rc2-bk3-libata1.patch.bz2
+
+This will go upstream once 2.6.5 is released.
 
 
--- 
-dwmw2
 

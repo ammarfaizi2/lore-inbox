@@ -1,81 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVAYAar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVAYA6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVAYAar (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 19:30:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVAYAaP
+	id S261774AbVAYA6H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 19:58:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVAYA5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 19:30:15 -0500
-Received: from mta01.pge.com ([131.89.129.71]:36258 "EHLO mta01.pge.com")
-	by vger.kernel.org with ESMTP id S261729AbVAXXUg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 18:20:36 -0500
-Date: Mon, 24 Jan 2005 15:12:44 -0800
-From: Edward Peschko <esp5@pge.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: gcc@gcc.gnu.org, binutils@sources.redhat.com, linux-kernel@vger.kernel.org,
-       libc-alpha@sources.redhat.com
-Subject: Re: forestalling GNU incompatibility - proposal for binary relative dynamic linking
-Message-ID: <20050124231244.GB19422@venus>
-References: <20050124222449.GB16078@venus> <200501241808.52092.vapier@gentoo.org>
+	Mon, 24 Jan 2005 19:57:01 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:26011 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261729AbVAYAxh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 19:53:37 -0500
+Subject: Re: DVD burning still have problems
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kasper Sandberg <lkml@metanurb.dk>
+Cc: Jens Axboe <axboe@suse.de>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Volker Armin Hemmann <volker.armin.hemmann@tu-clausthal.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1106607691.13336.10.camel@localhost>
+References: <200501232126.55191.volker.armin.hemmann@tu-clausthal.de>
+	 <5a4c581d050123125967a65cd7@mail.gmail.com> <20050124150755.GH2707@suse.de>
+	 <1106594023.6154.89.camel@localhost.localdomain>
+	 <20050124204529.GA19242@suse.de>
+	 <1106598811.6154.93.camel@localhost.localdomain>
+	 <1106607691.13336.10.camel@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1106610498.10239.108.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501241808.52092.vapier@gentoo.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 24 Jan 2005 23:48:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 06:08:52PM -0500, Mike Frysinger wrote:
-> On Monday 24 January 2005 05:24 pm, Edward Peschko wrote:
-> > After spending *two weeks* on various ways of building glibc,
-> > I'm convinced that the gnu/linux toolchain is in great danger of
-> > losing interoperability.
-> 
-> sounds like what you want is already being tackled by OSDL and their Binary 
-> Regression Testing group ...
-> http://groups.osdl.org/apps/group_public/workgroup.php?wg_abbrev=binary_sig
-> http://www.osdl.org/docs/isv_issues_and_binary_testing.pdf
-> -mike
+On Llu, 2005-01-24 at 23:01, Kasper Sandberg wrote:
+> > there are certainly chipset and CPU errata in this area.
+> would this mean that i should not use cpu frequency scaling?
 
-well of course the osdl is going to focus on this, but they need tools
-and functionality to do it correctly.. 
-
-In particular, the statement 'Vendor lock-in (at any level) is not 
-desirable' is false - there *is* vendor lock-in, and the suggestion 
-of relative pathing for LD_LIBRARY_PATH is just one way to migrate 
-back to doing things the right way.
-
-
-Distributions are basically hoist by their own petard - they need to 
-support old legacy executables, which have nonstandard glibc's. And since
-they need to support legacy executables in the past, they need 
-to support them in the future.
-
-
-What I'd envision is that the distributions split basically into two: 
-executables using the old style glibc/libraries, and executables using the 
-new, standard glibcs. There would be two paths,
-
-
-	/usr/bin
-
-and
-
-	/usr/standard/bin
-
-
-The first directory would contain old executables which haven't been ported to
-the standard glibc. The second would contain executables that have. The relative
-pathing in LD_LIBRARY_PATH would insure that each tree used the correct libraries.
-
-
-In the process of making /usr/standard/bin, linux vendors would need
-to make their rpms both path-neutral and build clean. However, they would
-*not* need to hold up their release process until everything is ported - 
-they could pick and choose which applications were the most important to 
-port. Ultimately, /usr/standard/bin would go away, and be moved back to 
-/usr/bin, and perhaps the cycle could begin again, with upgrades going into 
-a new /usr/standard/bin.
-
-Ed
+Worth an experiment but I'd be suprised if it was your fix. The more
+data the better however 
 

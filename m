@@ -1,98 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317448AbSHHSVb>; Thu, 8 Aug 2002 14:21:31 -0400
+	id <S317539AbSHHSSx>; Thu, 8 Aug 2002 14:18:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317581AbSHHSUs>; Thu, 8 Aug 2002 14:20:48 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:60168
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317799AbSHHSTg>; Thu, 8 Aug 2002 14:19:36 -0400
-Date: Thu, 8 Aug 2002 11:02:04 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Nick Orlov <nick.orlov@mail.ru>
-cc: Bill Davidsen <davidsen@tmr.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pdc20265 problem.
-In-Reply-To: <20020808174258.GA5622@nikolas.hn.org>
-Message-ID: <Pine.LNX.4.10.10208081052270.25573-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S317782AbSHHSSx>; Thu, 8 Aug 2002 14:18:53 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:27910 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317539AbSHHSSv>;
+	Thu, 8 Aug 2002 14:18:51 -0400
+Date: Thu, 8 Aug 2002 11:19:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Scott Murray <scottm@somanetworks.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: PCI hotplug resource reservation
+Message-ID: <20020808181931.GA22209@kroah.com>
+References: <20020808170611.GA21821@kroah.com> <Pine.LNX.4.33.0208081326480.26999-100000@rancor.yyz.somanetworks.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0208081326480.26999-100000@rancor.yyz.somanetworks.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Thu, 11 Jul 2002 17:16:30 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Because I can not get a FSCKING PATCH past any of the Lead Penquins.
-
-/src/linux-2.5.4-pristine/drivers/ide/ide-pci.c
-#ifdef CONFIG_PDC202XX_FORCE
-        {DEVID_PDC20265,"PDC20265",     PCI_PDC202XX,   ATA66_PDC202XX,
-INIT_PDC202XX,  NULL,           {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
-ON_BOARD,
-48 },
-#else /* !CONFIG_PDC202XX_FORCE */
-        {DEVID_PDC20265,"PDC20265",     PCI_PDC202XX,   ATA66_PDC202XX,
-INIT_PDC202XX,  NULL,           {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
-OFF_BOARD,
-48 },
-#endif
-
-But since there is the option to compile off-board as bootable, it is a
-noop.  I have not been able to directly add code or update any kernel
-first hand since the change in 2.5.3 and my exit of Linux Development at
-2.5.5.  So I really don't give a damn.
-
-But what I do know is people bug me for patches and updates and ask me to
-fix 2.5.XX on a regular bases.  Nobody takes my patches but man when crap
-hits the fan they come running for me to put it right again.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Thu, 8 Aug 2002, Nick Orlov wrote:
-
-> On Thu, Aug 08, 2002 at 03:50:19AM -0700, Andre Hedrick wrote:
-> > On Wed, 7 Aug 2002, Bill Davidsen wrote:
-> > 
-> > > I would just as soon use a boot option as to try and make it a compile
-> > > option, and I think that many people just use a compiled kernel and never
-> > > change, which argues for a reasonable default (most pdc20265) ARE
-> > > currently offboard, and an easy way to change it.
-> > 
-> > There are ZERO pdc20265's offboard, only pdc20267's were in both options.
-> > This is the direct asic packaging.  Thus all pdc20265 have the right to be
-> > listed as onboard.
+On Thu, Aug 08, 2002 at 01:36:35PM -0400, Scott Murray wrote:
 > 
-> Could you comment next couple lines of code (2.4.19-vanilla):
-> 
-> ==========================================
-> #else /* !CONFIG_PDC202XX_FORCE */
-> [ ... skipped ... ]
->         {DEVID_PDC20265,"PDC20265" .... OFF_BOARD ..... },
->                                         ^^^^^^^^^
-> [ ... skipped ... ]
-> #endif
-> ==========================================
-> 
-> Another bug? Just typo?
-> Why author put PDC20265 in off-board list ?
-> 
-> > Cheers,
-> > 
-> > Andre Hedrick
-> > LAD Storage Consulting Group
-> > 
-> 
-> -- 
-> With best wishes,
->         Nick Orlov.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Are you interested in this reservation code as a seperate patch for 2.4,
+> or should I just send you all of my cPCI stuff to look at in one go?  I
+> was going to cut it up into 3-4 patches before sending it to
+> pcihpd-discuss sometime later today, but I can do whatever you want.
 
+I'd prefer it for 2.5 right now.  But if the cPCI stuff doesn't touch
+anything else, I'd be interested in that for 2.4.
+
+I don't want to really touch the core PCI code in 2.4 right now, unless
+we _really_ have to :)
+
+> Done.  I'd considered doing that right off, but it didn't seem to match
+> the style of the rest of the PCI code, for example the proc and pm stuff.
+> If you want, I can work on a patch to clean those up as well.
+
+For 2.5, I'd love a patch to do that.  As I said above, I don't really
+care about that for 2.4.
+
+thanks,
+
+greg k-h

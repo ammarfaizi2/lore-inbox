@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262701AbTCMV60>; Thu, 13 Mar 2003 16:58:26 -0500
+	id <S262736AbTCMV6j>; Thu, 13 Mar 2003 16:58:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262736AbTCMV60>; Thu, 13 Mar 2003 16:58:26 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:14827 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S262701AbTCMV6V>;
-	Thu, 13 Mar 2003 16:58:21 -0500
-Date: Fri, 14 Mar 2003 00:09:05 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Rob Ekl <lkhelp@rekl.yi.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sendfile, loopback, and TCP header checksum
-Message-ID: <20030313220905.GK29167@mea-ext.zmailer.org>
-References: <Pine.LNX.4.53.0303131510060.10653@rekl.yi.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0303131510060.10653@rekl.yi.org>
+	id <S262774AbTCMV6j>; Thu, 13 Mar 2003 16:58:39 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:63151 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S262736AbTCMV6g>;
+	Thu, 13 Mar 2003 16:58:36 -0500
+Message-Id: <200303132107.h2DL7DAK005848@eeyore.valparaiso.cl>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63)) 
+In-Reply-To: Your message of "Wed, 12 Mar 2003 14:18:32 PST."
+             <Pine.LNX.4.44.0303121417530.15738-100000@home.transmeta.com> 
+Date: Thu, 13 Mar 2003 17:07:13 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 13, 2003 at 03:32:58PM -0600, Rob Ekl wrote:
-> Hi.  I'm working on a program that uses sendfile() to copy a file to a TCP
-> socket.  I did some testing where the server and client processes were on
-> the same machine.  While watching ethereal's packet dumps, I noticed the
-> packets that sendfile() creates are reported to have incorrect checksums.  
-> Other packets from the same program (ie created by write() or writev() )
-> have the correct checksum.
+Linus Torvalds <torvalds@transmeta.com> said:
+> On Wed, 12 Mar 2003, Szakacsits Szabolcs wrote:
 
-  copy(-and-checksum) is needed for write*(), and during copying,
-  the checksumming can be thrown in essentially for free.
+[...]
 
-  For sendfile(), the system does not need to do such copying,
-  and these days devices can be reported as capable to handle
-  e.g. tcp checksumming built in.
-
-  Loopback device does not bother with checksums -- it is coming
-  from within the box, no point in checking such things.
-  ( see:  drivers/net/loopback.c   -- there are most curious set
-    of initialized   dev->features  flags. )
-
-...
-> This leads me to the conclusion that using sendfile() on a loopback
-> interface over a TCP connection generates packets with incorrect checksums
-> in the TCP headers.
+> > Decoding what's before is max 7-8 tries by a human and one can figure
+> > out the real code from the context (with high probability).
 > 
-> I do not know if ethereal is falsely reporting that the checksums are 
-> incorrect, but it's a very limited scope of the source of packets with 
-> incorrect checksums (only sendfile-generated to loopback).
+> The point being "with high probability".
+> 
+> I'm not adding uncertain instruction decoding to the kernel.
 
-  It may well be correct report, but to calculate those would be
-  wasted effort.
-
-> Is this something that even needs to be addressed, since the receiver
-> would discard the packet if the checksum is incorrect, but since it's over
-> loopback, there's no chance of receiving data corrupted by the transport
-> medium and loopback ignores the checksum?
-
-  Quite so.
-
-> System information:  2.4.20 on both machines, ia32 CPUs, ethereal 0.9.10 
-> with libpcap 0.7.
-
-/Matti Aarnio
+No need. Just dump some bytes before EIP raw, plus raw bytes + decoded
+after EIP. Could be of some help.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,309 +1,314 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267126AbTBUHgA>; Fri, 21 Feb 2003 02:36:00 -0500
+	id <S267221AbTBUHcw>; Fri, 21 Feb 2003 02:32:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267235AbTBUHgA>; Fri, 21 Feb 2003 02:36:00 -0500
-Received: from packet.digeo.com ([12.110.80.53]:22466 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267126AbTBUHfx>;
-	Fri, 21 Feb 2003 02:35:53 -0500
-Date: Thu, 20 Feb 2003 23:47:33 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: 2.5.62-mm2
-Message-Id: <20030220234733.3d4c5e6d.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267222AbTBUHcw>; Fri, 21 Feb 2003 02:32:52 -0500
+Received: from lmail.actcom.co.il ([192.114.47.13]:33971 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S267221AbTBUHcr>; Fri, 21 Feb 2003 02:32:47 -0500
+Date: Fri, 21 Feb 2003 09:39:49 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] snd_pcm_oss_change_params is a stack offender
+Message-ID: <20030221073948.GJ1202@actcom.co.il>
+References: <39710000.1045757490@[10.10.2.4]> <Pine.LNX.4.44.0302200847060.2493-100000@home.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Feb 2003 07:45:53.0831 (UTC) FILETIME=[43049B70:01C2D97D]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302200847060.2493-100000@home.transmeta.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.62/2.5.62-mm2/
-
-Various little bits and pieces.  Mainly work against the anticipatory
-scheduler.
-
-The anticipatory scheduler has been moved into its own file now, and
-deadline-iosched is unaltered from 2.5.62 base (apart from a small bugfix).
-
-So this tree has three elevators (apart from the no-op elevator).  You can
-select between them via the kernel boot commandline:
-
-	elevator=as
-	elevator=cfq
-	elevator=deadline
-
-The default is AS.
-
-
-
-Changes since 2.5.62-mm1:
-
-
--xfs-warning-fixes.patch
--xfs-cli-fix.patch
--drm-timer-init.patch
--cifs-exports.patch
--mk_pte_huge-header.patch
--summit-numaq-kirq-fix.patch
--remove-MAX_BLKDEV-from-nfsd.patch
--const-warning-fix-1.patch
--const-warning-fix-2.patch
--const-warning-fix-3.patch
--visws-1.patch
--visws-2.patch
--visws-3.patch
--visws-4.patch
--visws-5.patch
--visws-6.patch
--visws-7.patch
--visws-8.patch
--visws-9.patch
--visws-10.patch
--visws-11.patch
--visws-12.patch
--visws-13.patch
--visws-pci-fix.patch
--profiling-cleanup.patch
--profiler-make-static.patch
--tty-module-refcounting.patch
-
- Merged
-
-+ppc64-timer-fix.patch
-+ppc-entry-build-fix.patch
-+ppc64-time-warning-fix.patch
-+ppc64-64-bit-exec-fix.patch
-
- Various ppc64 fixes
-
-+sym-do-160.patch
-
- Make sym-2 driver do 160 MB/sec (this patch is wrong)
-
--reiserfs_file_write-3.patch
-+reiserfs_file_write-4.patch
-
- Latest from Namesys
-
--deadline-np-42.patch
--deadline-np-43.patch
--batch-tuning.patch
--starvation-by-read-fix.patch
--anticipatory_io_scheduling.patch
--deadline-jiffies-wrap.patch
-
- Rolled into the new drivers/block/as-iosched.c
-
-+as-iosched.patch
-
- Break the anticipatory scheduler out into a new file.
-
-+as-comments-and-tweaks.patch
-
- Anticipatory scheduler Update from Nick.
-
-+isp-update-1.patch
-
- Fix the linux-isp driver's shutdown handling.
-
-+crc32-speedup-2.patch
-
- speed up the crc32 code
-
-+aic-makefile-fix.patch
-
- Fix the aicasm build
-
-+atm_dev_sem.patch
-
- ATM locking fix
-
-+flush-tlb-all-2.patch
-
- preempt safety for x86_64, ia64
-
-+linux-2.5.62-early_ioremap_A0.patch
-+linux-2.5.62-x440disco_A0.patch
-+srat-config-fix.patch
-
- summit support fixes
-
-+dget-BUG.patch
-
- Make dget() go BUG() again on zero-ref dentries
-
-+sysfs-dget-fix.patch
-
- Fix sysfs's dget() of zero-ref dentries
-
-+disk-accounting-fix.patch
-
- Fix the SARD accounting
-
-+hugh-inode-pruning-race-fix.patch
-
- Fix race between inode reclaim and unmount
-
--elevator-selection.patch
-
- Folded into as-iosched.patch and cfq-2.patch
-
-
-
-
-All 53 patches:
-
-
-linus.patch
-
-ppc64-reloc_hide.patch
-
-anton-1.patch
-  ppc64 patch
-
-ppc64-pci-patch.patch
-  Subject: pci patch
-
-ppc64-e100-fix.patch
-  fix e100 for big-endian machines
-
-ppc64-aio-32bit-emulation.patch
-  32/64bit emulation for aio
-
-ppc64-timer-fix.patch
-  ppc64: fix the build for posix timer changes
-
-ppc-entry-build-fix.patch
-  ppc64: Fix the build for linux/sys.h changes
-
-ppc64-time-warning-fix.patch
-  ppc64: time warning fixes
-
-ppc64-64-bit-exec-fix.patch
-  Subject: 64bit exec
-
-sym-do-160.patch
-  make the SYM driver do 160 MB/sec
-
-kgdb.patch
-
-nfsd-disable-softirq.patch
-  Fix race in svcsock.c in 2.5.61
-
-report-lost-ticks.patch
-  make lost-tick detection more informative
-
-devfs-fix.patch
-
-ptrace-flush.patch
-  Subject: [PATCH] ptrace on 2.5.44
-
-buffer-debug.patch
-  buffer.c debugging
-
-warn-null-wakeup.patch
-
-ext3-truncate-ordered-pages.patch
-  ext3: explicitly free truncated pages
-
-deadline-dispatching-fix.patch
-  deadline IO scheduler dispatching fix
-
-nfs-unstable-pages.patch
-  "unstable" page accounting for NFS.
-
-initial-jiffies.patch
-  make jiffies wrap 5 min after boot
-
-reiserfs_file_write-4.patch
-  ReiserFS CPU efficient large writes for  2.5
-
-tcp-wakeups.patch
-  Use fast wakeups in TCP/IPV4
-
-lockd-lockup-fix.patch
-  Subject: Re: Fw: Re: 2.4.20 NFS server lock-up (SMP)
-
-rcu-stats.patch
-  RCU statistics reporting
-
-ext3-journalled-data-assertion-fix.patch
-  Remove incorrect assertion from ext3
-
-nfs-speedup.patch
-
-nfs-oom-fix.patch
-  nfs oom fix
-
-sk-allocation.patch
-  Subject: Re: nfs oom
-
-nfs-more-oom-fix.patch
-
-nfs-sendfile.patch
-  Implement sendfile() for NFS
-
-rpciod-atomic-allocations.patch
-  Make rcpiod use atomic allocations
-
-put_page-speedup.patch
-  hugetlb put_page speedup
-
-linux-isp.patch
-
-isp-update-1.patch
-
-remove-unused-congestion-stuff.patch
-  Subject: [PATCH] remove unused congestion stuff
-
-crc32-speedup-2.patch
-  Subject: [PATCH]  crc32 improvements for 2.5, more optimizations
-
-aic-makefile-fix.patch
-  aicasm Makefile fix
-
-atm_dev_sem.patch
-  convert atm_dev_lock from spinlock to semaphore
-
-flush-tlb-all-2.patch
-  flush_tlb_all preempt safety for voyager and x86_64
-
-linux-2.5.62-early_ioremap_A0.patch
-  Early ioremap support for ia32
-
-linux-2.5.62-x440disco_A0.patch
-
-srat-config-fix.patch
-
-dget-BUG.patch
-  Check for zero d_count in dget()
-
-sysfs-dget-fix.patch
-  sysfs dget() fix
-
-disk-accounting-fix.patch
-  SARD accounting fix
-
-hugh-inode-pruning-race-fix.patch
-  Fix race between umount and iprune
-
-as-iosched.patch
-  anticipatory I/O scheduler
-
-as-comments-and-tweaks.patch
-  antsched: commentary and
-
-cfq-2.patch
-  CFQ scheduler, #2
-
-smalldevfs.patch
-  smalldevfs
-
-smalldevfs-dcache_rcu-fix.patch
-  Subject: Re: 2.5.61-mm1
-
-
+On Thu, Feb 20, 2003 at 08:54:55AM -0800, Linus Torvalds wrote:
+
+> Ok, the 4kB stack definitely won't work in real life, but that's because 
+> we have some hopelessly bad stack users in the kernel. But the debugging 
+> part would be good to try (in fact, it might be a good idea to keep the 
+> 8kB stack, but with rather anal debugging. Just the "mcount" part should 
+> do that).
+> 
+> A sorted list of bad stack users (more than 256 bytes) in my default build
+> follows. Anybody can create their own with something like
+> 
+> 	objdump -d linux/vmlinux |
+> 		grep 'sub.*$0x...,.*esp' |
+> 		awk '{ print $9,$1 }' |
+> 		sort > bigstack
+> 
+> and a script to look up the addresses.
+> 
+[snipped] 
+
+> 0xc02ae062 <ide_unregister+8>:				sub    $0x8c4,%esp
+> 0xc010535d <huft_build+9>:				sub    $0x5b0,%esp
+> 0xc0326a53 <snd_pcm_oss_change_params+6>:		sub    $0x590,%esp
+
+Here's a quick patch to fix the third worst offender,
+snd_pcm_oss_change_params. Compiles fine but not tested yet. 
+
+#	sound/core/oss/pcm_oss.c	1.20    -> 1.21   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/02/21	mulix@alhambra.mulix.org	1.1007
+# snd_pcm_oss_change_params was a stack offender, having three large 
+# structs on the stack. Allocate those structs on the heap and change
+# the code accordingly. 
+# --------------------------------------------
+#
+diff -Nru a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
+--- a/sound/core/oss/pcm_oss.c	Fri Feb 21 09:35:24 2003
++++ b/sound/core/oss/pcm_oss.c	Fri Feb 21 09:35:24 2003
+@@ -291,11 +291,51 @@
+ 	return snd_pcm_hw_param_near(substream, params, SNDRV_PCM_HW_PARAM_RATE, best_rate, 0);
+ }
+ 
++static int alloc_param_structs(snd_pcm_hw_params_t** params, 
++			       snd_pcm_hw_params_t** sparams,
++			       snd_pcm_sw_params_t** sw_params)
++{
++	snd_pcm_hw_params_t* hwp; 
++	snd_pcm_sw_params_t* swp; 
++
++	if (!(hwp = kmalloc(sizeof(*hwp), GFP_KERNEL)))
++		goto out; 
++
++	memset(hwp, 0, sizeof(*hwp)); 
++	*params = hwp; 
++
++	if (!(hwp = kmalloc(sizeof(*hwp), GFP_KERNEL)))
++		goto free_params; 
++
++	memset(hwp, 0, sizeof(*hwp)); 
++	*sparams = hwp; 
++
++	if (!(swp = kmalloc(sizeof(*swp), GFP_KERNEL)))
++		goto free_sparams; 
++
++	memset(swp, 0, sizeof(*swp)); 
++	*sw_params = swp; 
++	
++	return 0; 
++
++ free_sparams:
++	kfree(*sparams); 
++	*sparams = NULL; 
++
++ free_params:
++	kfree(*params); 
++	*params = NULL; 
++
++ out: 
++	return -ENOMEM; 
++}
++
++
+ static int snd_pcm_oss_change_params(snd_pcm_substream_t *substream)
+ {
+ 	snd_pcm_runtime_t *runtime = substream->runtime;
+-	snd_pcm_hw_params_t params, sparams;
+-	snd_pcm_sw_params_t sw_params;
++	snd_pcm_hw_params_t *params, *sparams;
++	snd_pcm_sw_params_t *sw_params;
+ 	ssize_t oss_buffer_size, oss_period_size;
+ 	size_t oss_frame_size;
+ 	int err;
+@@ -311,9 +351,14 @@
+ 		direct = (setup != NULL && setup->direct);
+ 	}
+ 
+-	_snd_pcm_hw_params_any(&sparams);
+-	_snd_pcm_hw_param_setinteger(&sparams, SNDRV_PCM_HW_PARAM_PERIODS);
+-	_snd_pcm_hw_param_min(&sparams, SNDRV_PCM_HW_PARAM_PERIODS, 2, 0);
++	if ((err = alloc_param_structs(&params, &sparams, &sw_params))) {
++		snd_printd("out of memory\n"); 
++		return err; 
++	}
++
++	_snd_pcm_hw_params_any(sparams);
++	_snd_pcm_hw_param_setinteger(sparams, SNDRV_PCM_HW_PARAM_PERIODS);
++	_snd_pcm_hw_param_min(sparams, SNDRV_PCM_HW_PARAM_PERIODS, 2, 0);
+ 	snd_mask_none(&mask);
+ 	if (atomic_read(&runtime->mmap_count))
+ 		snd_mask_set(&mask, SNDRV_PCM_ACCESS_MMAP_INTERLEAVED);
+@@ -322,17 +367,17 @@
+ 		if (!direct)
+ 			snd_mask_set(&mask, SNDRV_PCM_ACCESS_RW_NONINTERLEAVED);
+ 	}
+-	err = snd_pcm_hw_param_mask(substream, &sparams, SNDRV_PCM_HW_PARAM_ACCESS, &mask);
++	err = snd_pcm_hw_param_mask(substream, sparams, SNDRV_PCM_HW_PARAM_ACCESS, &mask);
+ 	if (err < 0) {
+ 		snd_printd("No usable accesses\n");
+ 		return -EINVAL;
+ 	}
+-	choose_rate(substream, &sparams, runtime->oss.rate);
+-	snd_pcm_hw_param_near(substream, &sparams, SNDRV_PCM_HW_PARAM_CHANNELS, runtime->oss.channels, 0);
++	choose_rate(substream, sparams, runtime->oss.rate);
++	snd_pcm_hw_param_near(substream, sparams, SNDRV_PCM_HW_PARAM_CHANNELS, runtime->oss.channels, 0);
+ 
+ 	format = snd_pcm_oss_format_from(runtime->oss.format);
+ 
+-	sformat_mask = *hw_param_mask(&sparams, SNDRV_PCM_HW_PARAM_FORMAT);
++	sformat_mask = *hw_param_mask(sparams, SNDRV_PCM_HW_PARAM_FORMAT);
+ 	if (direct)
+ 		sformat = format;
+ 	else
+@@ -349,46 +394,46 @@
+ 			return -EINVAL;
+ 		}
+ 	}
+-	err = _snd_pcm_hw_param_set(&sparams, SNDRV_PCM_HW_PARAM_FORMAT, sformat, 0);
++	err = _snd_pcm_hw_param_set(sparams, SNDRV_PCM_HW_PARAM_FORMAT, sformat, 0);
+ 	snd_assert(err >= 0, return err);
+ 
+ 	if (direct) {
+-		params = sparams;
++		memcpy(params, sparams, sizeof(*params)); 
+ 	} else {
+-		_snd_pcm_hw_params_any(&params);
+-		_snd_pcm_hw_param_set(&params, SNDRV_PCM_HW_PARAM_ACCESS,
++		_snd_pcm_hw_params_any(params);
++		_snd_pcm_hw_param_set(params, SNDRV_PCM_HW_PARAM_ACCESS,
+ 				      SNDRV_PCM_ACCESS_RW_INTERLEAVED, 0);
+-		_snd_pcm_hw_param_set(&params, SNDRV_PCM_HW_PARAM_FORMAT,
++		_snd_pcm_hw_param_set(params, SNDRV_PCM_HW_PARAM_FORMAT,
+ 				      snd_pcm_oss_format_from(runtime->oss.format), 0);
+-		_snd_pcm_hw_param_set(&params, SNDRV_PCM_HW_PARAM_CHANNELS,
++		_snd_pcm_hw_param_set(params, SNDRV_PCM_HW_PARAM_CHANNELS,
+ 				      runtime->oss.channels, 0);
+-		_snd_pcm_hw_param_set(&params, SNDRV_PCM_HW_PARAM_RATE,
++		_snd_pcm_hw_param_set(params, SNDRV_PCM_HW_PARAM_RATE,
+ 				      runtime->oss.rate, 0);
+ 		pdprintf("client: access = %i, format = %i, channels = %i, rate = %i\n",
+-			 params_access(&params), params_format(&params),
+-			 params_channels(&params), params_rate(&params));
++			 params_access(params), params_format(params),
++			 params_channels(params), params_rate(params));
+ 	}
+ 	pdprintf("slave: access = %i, format = %i, channels = %i, rate = %i\n",
+-		 params_access(&sparams), params_format(&sparams),
+-		 params_channels(&sparams), params_rate(&sparams));
++		 params_access(sparams), params_format(sparams),
++		 params_channels(sparams), params_rate(sparams));
+ 
+-	oss_frame_size = snd_pcm_format_physical_width(params_format(&params)) *
+-			 params_channels(&params) / 8;
++	oss_frame_size = snd_pcm_format_physical_width(params_format(params)) *
++			 params_channels(params) / 8;
+ 
+ 	snd_pcm_oss_plugin_clear(substream);
+ 	if (!direct) {
+ 		/* add necessary plugins */
+ 		snd_pcm_oss_plugin_clear(substream);
+ 		if ((err = snd_pcm_plug_format_plugins(substream,
+-						       &params, 
+-						       &sparams)) < 0) {
++						       params, 
++						       sparams)) < 0) {
+ 			snd_printd("snd_pcm_plug_format_plugins failed: %i\n", err);
+ 			snd_pcm_oss_plugin_clear(substream);
+ 			return err;
+ 		}
+ 		if (runtime->oss.plugin_first) {
+ 			snd_pcm_plugin_t *plugin;
+-			if ((err = snd_pcm_plugin_build_io(substream, &sparams, &plugin)) < 0) {
++			if ((err = snd_pcm_plugin_build_io(substream, sparams, &plugin)) < 0) {
+ 				snd_printd("snd_pcm_plugin_build_io failed: %i\n", err);
+ 				snd_pcm_oss_plugin_clear(substream);
+ 				return err;
+@@ -405,51 +450,50 @@
+ 		}
+ 	}
+ 
+-	err = snd_pcm_oss_period_size(substream, &params, &sparams);
++	err = snd_pcm_oss_period_size(substream, params, sparams);
+ 	if (err < 0)
+ 		return err;
+ 
+ 	n = snd_pcm_plug_slave_size(substream, runtime->oss.period_bytes / oss_frame_size);
+-	err = snd_pcm_hw_param_near(substream, &sparams, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, n, 0);
++	err = snd_pcm_hw_param_near(substream, sparams, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, n, 0);
+ 	snd_assert(err >= 0, return err);
+ 
+-	err = snd_pcm_hw_param_near(substream, &sparams, SNDRV_PCM_HW_PARAM_PERIODS,
++	err = snd_pcm_hw_param_near(substream, sparams, SNDRV_PCM_HW_PARAM_PERIODS,
+ 				     runtime->oss.periods, 0);
+ 	snd_assert(err >= 0, return err);
+ 
+ 	snd_pcm_kernel_ioctl(substream, SNDRV_PCM_IOCTL_DROP, 0);
+ 
+-	if ((err = snd_pcm_kernel_ioctl(substream, SNDRV_PCM_IOCTL_HW_PARAMS, &sparams)) < 0) {
++	if ((err = snd_pcm_kernel_ioctl(substream, SNDRV_PCM_IOCTL_HW_PARAMS, sparams)) < 0) {
+ 		snd_printd("HW_PARAMS failed: %i\n", err);
+ 		return err;
+ 	}
+ 
+-	memset(&sw_params, 0, sizeof(sw_params));
+ 	if (runtime->oss.trigger) {
+-		sw_params.start_threshold = 1;
++		sw_params->start_threshold = 1;
+ 	} else {
+-		sw_params.start_threshold = runtime->boundary;
++		sw_params->start_threshold = runtime->boundary;
+ 	}
+ 	if (atomic_read(&runtime->mmap_count))
+-		sw_params.stop_threshold = runtime->boundary;
++		sw_params->stop_threshold = runtime->boundary;
+ 	else
+-		sw_params.stop_threshold = runtime->buffer_size;
+-	sw_params.tstamp_mode = SNDRV_PCM_TSTAMP_NONE;
+-	sw_params.period_step = 1;
+-	sw_params.sleep_min = 0;
+-	sw_params.avail_min = runtime->period_size;
+-	sw_params.xfer_align = 1;
+-	sw_params.silence_threshold = 0;
+-	sw_params.silence_size = 0;
++		sw_params->stop_threshold = runtime->buffer_size;
++	sw_params->tstamp_mode = SNDRV_PCM_TSTAMP_NONE;
++	sw_params->period_step = 1;
++	sw_params->sleep_min = 0;
++	sw_params->avail_min = runtime->period_size;
++	sw_params->xfer_align = 1;
++	sw_params->silence_threshold = 0;
++	sw_params->silence_size = 0;
+ 
+-	if ((err = snd_pcm_kernel_ioctl(substream, SNDRV_PCM_IOCTL_SW_PARAMS, &sw_params)) < 0) {
++	if ((err = snd_pcm_kernel_ioctl(substream, SNDRV_PCM_IOCTL_SW_PARAMS, sw_params)) < 0) {
+ 		snd_printd("SW_PARAMS failed: %i\n", err);
+ 		return err;
+ 	}
+ 	runtime->control->avail_min = runtime->period_size;
+ 
+-	runtime->oss.periods = params_periods(&sparams);
+-	oss_period_size = snd_pcm_plug_client_size(substream, params_period_size(&sparams));
++	runtime->oss.periods = params_periods(sparams);
++	oss_period_size = snd_pcm_plug_client_size(substream, params_period_size(sparams));
+ 	snd_assert(oss_period_size >= 0, return -EINVAL);
+ 	if (runtime->oss.plugin_first) {
+ 		err = snd_pcm_plug_alloc(substream, oss_period_size);
+@@ -468,12 +512,12 @@
+ 		 runtime->oss.period_bytes,
+ 		 runtime->oss.buffer_bytes);
+ 	pdprintf("slave: period_size = %i, buffer_size = %i\n",
+-		 params_period_size(&sparams),
+-		 params_buffer_size(&sparams));
++		 params_period_size(sparams),
++		 params_buffer_size(sparams));
+ 
+-	runtime->oss.format = snd_pcm_oss_format_to(params_format(&params));
+-	runtime->oss.channels = params_channels(&params);
+-	runtime->oss.rate = params_rate(&params);
++	runtime->oss.format = snd_pcm_oss_format_to(params_format(params));
++	runtime->oss.channels = params_channels(params);
++	runtime->oss.rate = params_rate(params);
+ 
+ 	runtime->oss.params = 0;
+ 	runtime->oss.prepare = 1;
+
+
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org
 

@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbTFTNZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 09:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbTFTNZ6
+	id S261292AbTFTNYb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 09:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbTFTNYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 09:25:58 -0400
-Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:48551
-	"HELO ghanima.endorphin.org") by vger.kernel.org with SMTP
-	id S261414AbTFTNZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 09:25:49 -0400
-Date: Fri, 20 Jun 2003 15:38:16 +0200
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Initial Vector Fix for loop.c
-Message-ID: <20030620133816.GA3634@ghanima.endorphin.org>
+	Fri, 20 Jun 2003 09:24:31 -0400
+Received: from host213.137.8.62.manx.net ([213.137.8.62]:22802 "EHLO server")
+	by vger.kernel.org with ESMTP id S261292AbTFTNYb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 09:24:31 -0400
+Date: Fri, 20 Jun 2003 14:38:23 +0100
+From: Matthew Bell <m.bell@bvrh.co.uk>
+To: Philip.Blundell@pobox.com, tim@cyberelk.net, campbell@torque.net,
+       andrea@e-mind.com, linux-parport@torque.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH][2.4] Obvious: drivers/parport/parport_serial.c depends on
+ PCI.
+Message-Id: <20030620143823.14ae651f.m.bell@bvrh.co.uk>
+Organization: Beach View Residential Home, Ltd.
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Fruhwirth Clemens <clemens@endorphin.org>
-X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Need to change the dependencies in drivers/parport/Config.in to add CONFIG_PCI
+as a dependency of parport_serial. Here is a patch that works for me; this
+hasn't been fixed in 2.4.21:
+--- linux.orig/drivers/parport/Config.in	2001-12-21 17:41:55.000000000 +0000
++++ linux/drivers/parport/Config.in	2002-08-06 18:52:21.000000000 +0100
+@@ -17,7 +17,7 @@
+       else
+          define_tristate CONFIG_PARPORT_PC_CML1 $CONFIG_PARPORT_PC
+       fi
+-      dep_tristate '    Multi-IO cards (parallel and serial)'
+CONFIG_PARPORT_SERIAL $CONFIG_PARPORT_PC_CML1
++      dep_tristate '    Multi-IO cards (parallel and serial)'
+CONFIG_PARPORT_SERIAL $CONFIG_PARPORT_PC_CML1 $CONFIG_PCI
+    fi
+    if [ "$CONFIG_PARPORT_PC" != "n" ]; then
+       if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
 
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Andrew Morton wrote:
 
-> Fruhwirth Clemens <clemens-dated-1056963973.bf26@endorphin.org> wrote:
->>
->> If this bug is fixed, we can go ahead and add cryptoloop which is ready
->> and tested.
->
-> Does it use the crypto framework which is present in the 2.5 kernel?
 
-Yes.
-
-> If it does not then the cryptoloop implementation which you mention
-> is inappropriate for inclusion.
->=20
-> If it does then it would be nice to see the full patchset.
-
-http://therapy.endorphin.org/patches/cryptoloop-0.2-2.5.58.diff
-
-It's basically a stub. The lock of the cipher_context can be removed since
-post-2.5.58 a new call has been added which makes the IV an argument.
-However, that's a minor change.
-
-In case you want to test it, you need to patch losetup too, since it needs
-to parse /proc/crypto.=20
-
-http://therapy.endorphin.org/patches/losetup-2.5.diff
-
-Regards, Clemens
-
-p.s.: Andrew please send me carbon copies of your mails. Thanks.
-
---LQksG6bCIzRHxTLp
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+8w5IW7sr9DEJLk4RAq4QAJ0SrcZLBAHCVAwQ6Lnx5Ljfvb+dCACeKBvf
-L1UULrdY1foYO+9LcvqFZ/Y=
-=asJ+
------END PGP SIGNATURE-----
-
---LQksG6bCIzRHxTLp--

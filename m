@@ -1,78 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130073AbRBUWbs>; Wed, 21 Feb 2001 17:31:48 -0500
+	id <S129181AbRBUWci>; Wed, 21 Feb 2001 17:32:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130092AbRBUWbj>; Wed, 21 Feb 2001 17:31:39 -0500
-Received: from foobar.napster.com ([64.124.41.10]:24588 "EHLO
-	foobar.napster.com") by vger.kernel.org with ESMTP
-	id <S130073AbRBUWbY>; Wed, 21 Feb 2001 17:31:24 -0500
-Message-ID: <3A94418D.A0DD99BF@napster.com>
-Date: Wed, 21 Feb 2001 14:30:37 -0800
-From: Jordan Mendelson <jordy@napster.com>
-Organization: Napster, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: ookhoi@dds.nl, Vibol Hou <vibol@khmer.cc>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>, sim@stormix.com
-Subject: Re: 2.4 tcp very slow under certain circumstances (Re: netdev issues 
- (3c905B))
-In-Reply-To: <HDEBKHLDKIDOBMHPKDDKMEGDEFAA.vibol@khmer.cc>
-		<20010221104723.C1714@humilis> <14995.40701.818777.181432@pizda.ninka.net>
+	id <S129281AbRBUWc2>; Wed, 21 Feb 2001 17:32:28 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32012 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S130247AbRBUWcR>; Wed, 21 Feb 2001 17:32:17 -0500
+Date: Wed, 21 Feb 2001 23:32:04 +0100
+From: Martin Mares <mj@suse.cz>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+Message-ID: <20010221233204.A26671@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010221220835.A8781@atrey.karlin.mff.cuni.cz> <XFMail.20010221132959.davidel@xmailserver.org> <20010221223238.A17903@atrey.karlin.mff.cuni.cz> <971ejs$139$1@cesium.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <971ejs$139$1@cesium.transmeta.com>; from hpa@zytor.com on Wed, Feb 21, 2001 at 02:14:20PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> Ookhoi writes:
->  > We have exactly the same problem but in our case it depends on the
->  > following three conditions: 1, kernel 2.4 (2.2 is fine), 2, windows ip
->  > header compression turned on, 3, a free internet access provider in
->  > Holland called 'Wish' (which seemes to stand for 'I Wish I had a faster
->  > connection').
->  > If we remove one of the three conditions, the connection is oke. It is
->  > only tcp which is affected.
->  > A packet on its way from linux server to windows client seems to get
->  > dropped once and retransmitted. This makes the connection _very_ slow.
-> 
-> :-( I hate these buggy systems.
-> 
-> Does this patch below fix the performance problem and are the windows
-> clients win2000 or win95?
+Hello!
 
-I wanted to see if this would fix the problem I was seeing with Win9x
-users on PPP w/ compression dialing up to Earthlink in the bay area
-(there are others, but it's the only one I can reproduce).
+> Not true.  The rehashing is O(n) and it has to be performed O(log n)
+> times during insertion.  Therefore, insertion is O(log n).
 
-I compiled 2.4.1 with this change and for some odd reason, the kernel
-started dropping packets and became unusable (couldn't ssh in) after
-around 4050 connections were opened. I tested it also with 2.4.1-ac20
-and had the same problem right around 4050 connections.
+Rehashing is O(n), but the "n" is the _current_ number of items, not the
+maximum one after all the insertions.
 
-This is on a VA Linux box with dual eepro100's (one used) connected to a
-Cisco 6509.
+Let's assume you start with a single-entry hash table. You rehash for the
+first time after inserting the first item (giving hash table of size 2),
+then after the second item (=> size 4), then after the fourth item (=> size 8)
+and so on. I.e., when you insert n items, the total cost of rehashing summed
+over all the insertions is at most 1 + 2 + 4 + 8 + 16 + ... + 2^k (where
+k=floor(log2(n))) <= 2^k+1 = O(n). That is O(1) operations per item inserted.
 
-
-
-> --- include/net/ip.h.~1~        Mon Feb 19 00:12:31 2001
-> +++ include/net/ip.h    Wed Feb 21 02:56:15 2001
-> @@ -190,9 +190,11 @@
-> 
->  static inline void ip_select_ident(struct iphdr *iph, struct dst_entry *dst)
->  {
-> +#if 0
->         if (iph->frag_off&__constant_htons(IP_DF))
->                 iph->id = 0;
->         else
-> +#endif
->                 __ip_select_ident(iph, dst);
->  }
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
+MIPS: Meaningless Indicator of Processor Speed.

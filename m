@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131329AbRAQKaM>; Wed, 17 Jan 2001 05:30:12 -0500
+	id <S131109AbRAQKgD>; Wed, 17 Jan 2001 05:36:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131394AbRAQKaC>; Wed, 17 Jan 2001 05:30:02 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:16907 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131329AbRAQK3s>; Wed, 17 Jan 2001 05:29:48 -0500
-Message-ID: <3A657404.7EA4AAF9@t-online.de>
-Date: Wed, 17 Jan 2001 11:29:24 +0100
-From: Jeffrey.Rose@t-online.de (Jeffrey Rose)
-Organization: http://ChristForge.SourceForge.net/
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
+	id <S132342AbRAQKfy>; Wed, 17 Jan 2001 05:35:54 -0500
+Received: from mel.alcatel.fr ([212.208.74.132]:34141 "EHLO mel.alcatel.fr")
+	by vger.kernel.org with ESMTP id <S131394AbRAQKfo>;
+	Wed, 17 Jan 2001 05:35:44 -0500
+Message-ID: <3A657537.F4A64F78@vz.cit.alcatel.fr>
+Date: Wed, 17 Jan 2001 11:34:31 +0100
+From: Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr>
+X-Mailer: Mozilla 4.7 [fr] (WinNT; I)
+X-Accept-Language: fr,en
 MIME-Version: 1.0
-To: Giacomo Catenazzi <cate@student.ethz.ch>, linux-kernel@vger.kernel.org
-Subject: Re: Problems in 2.4 kernel
-In-Reply-To: <fa.fb4ouhv.1q2suj4@ifi.uio.no> <3A656C1C.60B4330C@student.ethz.ch>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Jeffrey Rose <Jeffrey.Rose@t-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 config breaks /dev/fd0* major/minor ? Fixed
+In-Reply-To: <3A656749.ACF3F01A@t-online.de> <3A6567CF.E10FDEBD@mandrakesoft.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giacomo Catenazzi wrote:
-> 
-> aprasad@in.ibm.com wrote:
-> >
-> > Sanjeev Wrote:
-> > I am not able to mount my floppy drive. When I try to mount it gives me the
-> > following error
-> > 'mount: /dev/fd0 has wrong major or minor number'
-> 
-> did you update the modutils?
+Jeff Garzik a écrit :
 
-I will double-check. Otherwise, I have noticed that, during reboot, I
-get a message that my PCI ISDN config shows a conflict with IRQ 3 for
-devices: 00:01:0  and  01:08.0 which might have some bearing on this
-problem.
+> Jeffrey Rose wrote:
+> > I get a wrong major/minor reported when attempting
+> > to mount /dev/fd0 ...
+>
+> Sounds like it can't find the floppy driver, for whatever reason...
+>
 
-TIA,
+I have seen this message, new with 2.4.0-2mdk
+(before I have 2.4.0-0.15mdk)
+but only on one PC.
+I have 2 PC, with same hardware, same PCMCIA config
 
-Jeff
+The first have mandrake 7.2 Odissey, and the modules
+floppy and floppy_cs are loaded, and /mnt/floppy is mounted
+modutils-2.4.1-1mdk
 
--- 
-<Jeffrey.Rose@t-online.de>
-KEYSERVER=wwwkeys.de.pgp.net
-SEARCH STRING=Jeffrey Rose
-KEYID=6AD04244
+The second have mandrake 7.1 Helium, and the modules
+fail during init. and I have this message:
+'mount: /dev/fd0 has wrong major or minor number'
+modutils-2.3.21-2mdk (the last rpm-3)
+
+I have copied the files of modutils-2.4.1-1mdk, 
+and created 2 sym.links:
+# ls -l /lib/modules/2.4.0-2mdk/pcmcia/
+total 0
+lrwxrwxrwx    1 root     root           29 jan 10 22:09 ds.o -> ../kernel/drivers/pcmcia/ds.o
+lrwxrwxrwx    1 root     root           32 jan 17 11:30 floppy.o -> ../kernel/drivers/block/floppy.o
+lrwxrwxrwx    1 root     root           35 jan 17 11:30 floppy_cs.o -> ../kernel/drivers/block/floppy_cs.o
+and now, it works!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318080AbSHPCmT>; Thu, 15 Aug 2002 22:42:19 -0400
+	id <S318061AbSHPCsS>; Thu, 15 Aug 2002 22:48:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318099AbSHPCmT>; Thu, 15 Aug 2002 22:42:19 -0400
-Received: from holomorphy.com ([66.224.33.161]:20413 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318080AbSHPCmS>;
-	Thu, 15 Aug 2002 22:42:18 -0400
-Date: Thu, 15 Aug 2002 19:44:36 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S318075AbSHPCsS>; Thu, 15 Aug 2002 22:48:18 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:63673 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318061AbSHPCsS>; Thu, 15 Aug 2002 22:48:18 -0400
+Message-ID: <3D5C68DA.8020102@us.ibm.com>
+Date: Thu, 15 Aug 2002 19:52:10 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: 2.5.31 kmap_atomic copy_*_user benefits
-Message-ID: <20020816024436.GX15685@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <20020815232126.GR15685@holomorphy.com> <3D5C5F05.7080004@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D5C5F05.7080004@us.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+References: <20020815232126.GR15685@holomorphy.com> <3D5C5F05.7080004@us.ibm.com> <20020816024436.GX15685@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 William Lee Irwin III wrote:
->> With and without kmap_atomic() -based copy_*_user() patches from akpm.
->> Taken on a 16x/16GB box.
+ > Hmm, I didn't catch this one. OTOH I did use a fwd port of an
+ > earlier version of the patch. Shall we kgdb?
 
-On Thu, Aug 15, 2002 at 07:10:13PM -0700, Dave Hansen wrote:
-> Have you seen any instability with these things applied?  I seem to be 
-> getting a fair amount of these BUG()s.  But, I imagine that it could 
-> be a race uncovered because of the serialization that highmem locks 
-> caused.
-> kernel BUG at softirq.c:229!
-> invalid operand: 0000
+Yeah, that's the next step.
 
-Hmm, I didn't catch this one. OTOH I did use a fwd port of an earlier
-version of the patch. Shall we kgdb? Which box/workload?
+ > Which box/workload?
 
+3b96 the 8-way Xeon 16GB, during the warmup of the specweb file set.
+It also happened once at the end of a Specweb run
 
-Cheers,
-Bill
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

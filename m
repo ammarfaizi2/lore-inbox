@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267219AbTBILyR>; Sun, 9 Feb 2003 06:54:17 -0500
+	id <S267218AbTBILyA>; Sun, 9 Feb 2003 06:54:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267221AbTBILyR>; Sun, 9 Feb 2003 06:54:17 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:49168 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S267219AbTBILyP>; Sun, 9 Feb 2003 06:54:15 -0500
-Date: Sun, 9 Feb 2003 12:03:58 +0000
-From: John Levon <levon@movementarian.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Switch APIC (+nmi, +oprofile) to driver model
-Message-ID: <20030209120358.GB10576@compsoc.man.ac.uk>
-References: <20030209113201.GA1296@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030209113201.GA1296@elf.ucw.cz>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18hqBj-000DJ3-00*nfaLp3W8SL6*
+	id <S267219AbTBILx7>; Sun, 9 Feb 2003 06:53:59 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:2233 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S267218AbTBILx6>;
+	Sun, 9 Feb 2003 06:53:58 -0500
+Date: Sun, 9 Feb 2003 13:09:26 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Roland McGrath <roland@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Anton Blanchard <anton@samba.org>,
+       Andrew Morton <akpm@digeo.com>, Arjan van de Ven <arjanv@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: heavy handed exit() in latest BK
+In-Reply-To: <200302091156.h19BuoH07869@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.44.0302091307510.5085-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 09, 2003 at 12:32:01PM +0100, Pavel Machek wrote:
 
->  static void nmi_shutdown(void)
->  {
-> -	unset_nmi_pm_callback(oprofile_pmdev);
-> +	nmi_enabled = 0;
->  	unset_nmi_callback();
->  	smp_call_function(nmi_cpu_shutdown, NULL, 0, 1);
->  	nmi_cpu_shutdown(0);
-> +	if (nmi_watchdog == NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE) {
-> +		nmi_watchdog = NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE;
-> +		setup_apic_nmi_watchdog();
-> +	}
+On Sun, 9 Feb 2003, Roland McGrath wrote:
 
-It looks  to me like you'll end up enabilng the watchdog even if user
-didn't enable the watchdog at boot up. Also, setup_apic_nmi_watchdog()
-and the disable function need to exported to modules.
+> >  - a read_lock(&tasklist_lock) is missing around the group_send_sig_info()
+> >    in send_sig_info().
+> 
+> Indeed.  I still intend to clean up those entry points and haven't
+> gotten to it, so I hadn't bothered with this yet either (though I think
+> I sent it to you for the backport).  It certainly does bite in practice,
+> e.g. SIGPIPE.
 
-john
+it does bite - here's the correctness fix meanwhile, until the interface 
+is cleaned up.
+
+	Ingo
+
+--- linux/kernel/signal.c.orig	
++++ linux/kernel/signal.c	
+@@ -1083,17 +1083,19 @@
+ int
+ send_sig_info(int sig, struct siginfo *info, struct task_struct *p)
+ {
++	int ret;
++
+ 	/* XXX should nix these interfaces and update the kernel */
+-	if (T(sig, SIG_KERNEL_BROADCAST_MASK))
+-		/* XXX do callers really always hold the tasklist_lock?? */
+-		return group_send_sig_info(sig, info, p);
+-	else {
+-		int error;
++	if (T(sig, SIG_KERNEL_BROADCAST_MASK)) {
++		read_lock(&tasklist_lock);
++		ret = group_send_sig_info(sig, info, p);
++		read_unlock(&tasklist_lock);
++	} else {
+ 		spin_lock_irq(&p->sighand->siglock);
+-		error = specific_send_sig_info(sig, info, p);
++		ret = specific_send_sig_info(sig, info, p);
+ 		spin_unlock_irq(&p->sighand->siglock);
+-		return error;
+ 	}
++	return ret;
+ }
+ 
+ int
+

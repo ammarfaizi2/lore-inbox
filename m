@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUGIAMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUGIAOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbUGIAMS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 20:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUGIAMR
+	id S261610AbUGIAOF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 20:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUGIAOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 20:12:17 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:29585 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261378AbUGIAMP (ORCPT
+	Thu, 8 Jul 2004 20:14:04 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:21939 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261610AbUGIANG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 20:12:15 -0400
-Subject: [PATCH] [0/2] acpiphp extension for 2.6.7 (final)
+	Thu, 8 Jul 2004 20:13:06 -0400
+Subject: [PATCH] [1/2] acpiphp extension for 2.6.7 (final)
 From: Vernon Mauery <vernux@us.ibm.com>
 To: Greg KH <greg@kroah.com>
-Cc: pcihpd <pcihpd-discuss@lists.sourceforge.net>, Greg KH <gregkh@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>, Pat Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Jess Botts <botts@us.ibm.com>
+Cc: pcihpd <pcihpd-discuss@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Greg KH <gregkh@us.ibm.com>,
+       Pat Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Jess Botts <botts@us.ibm.com>
 In-Reply-To: <20040708232827.GA20755@kroah.com>
 References: <1087934028.2068.57.camel@bluerat>
 	 <200407071147.57604@bilbo.math.uni-mannheim.de>
@@ -22,40 +23,15 @@ References: <1087934028.2068.57.camel@bluerat>
 	 <200407081209.42927@bilbo.math.uni-mannheim.de>
 	 <1089328415.2089.194.camel@bluerat>  <20040708232827.GA20755@kroah.com>
 Content-Type: text/plain
-Message-Id: <1089331908.2089.249.camel@bluerat>
+Message-Id: <1089331956.2089.253.camel@bluerat>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 08 Jul 2004 17:11:48 -0700
+Date: Thu, 08 Jul 2004 17:12:36 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-08 at 16:28, Greg KH wrote:
-> Those checks are fine with me, I don't have a problem with them.
-> 
-> > Either way, after I make the other fixes (and possibly this one), should
-> > I resubmit both patches together or just 1 of 2 alone?
-> 
-> Resend both of them, that way I'm reminded that they both need to be
-> applied :)
-> 
-
-Just for good measure, the description is included below again. :)
-
-The two patches are to follow
-
---Vernon
-
-
-After much discussion, dissection, rewriting and reading (documentation
-of course), I finally think this patch is ready to be included in the
-kernel.  I have chosen to split it into 2 parts because really, that's
-what it is -- a patch to acpiphp that allows other modules to register
-attention LED callback functions and also a new module that does just
-that for the IBM ACPI systems.  These patches were made against the
-2.6.7 kernel tree.
-
-01 - acpiphp-attention-v0.1d.patch
+01 - acpiphp-attention-v0.1e.patch
 
         This patch adds the ability to register callback functions with
         the acpiphp core to set and get the current attention LED
@@ -65,14 +41,249 @@ that for the IBM ACPI systems.  These patches were made against the
         acpiphp, we allow other modules to register their code with it.
 
 
-02 - acpiphp_ibm-v1.0.1d.patch
+ acpiphp.h      |   16 +++++++
+ acpiphp_core.c |  127 ++++++++++++++++++++++++++++++++++++++++++++-------------
+ acpiphp_glue.c |   14 ------
+ 3 files changed, 115 insertions(+), 42 deletions(-)
 
-        This patch adds the first driver that actually uses the callback
-        function for attention LEDs that the acpiphp-attention patch
-        adds.  It searches the ACPI namespace for IBM hardware, sets up
-        the callbacks and sets up a handler to read ACPI events and
-        forward them on to /proc/acpi/event.  It also exports an ACPI
-        table that shows current hotplug status to userland.
+Signed-off-by: Vernon Mauery <vernux@us.ibm.com>
 
+=====================================================================
+
+--- linux-2.6.7.orig/drivers/pci/hotplug/acpiphp.h	2004-06-15 22:20:26.000000000 -0700
++++ linux-2.6.7-apci/drivers/pci/hotplug/acpiphp.h	2004-07-08 16:54:07.996176600 -0700
+@@ -171,6 +171,18 @@
+ 	struct pci_resource *bus_head;
+ };
+ 
++/**
++ * struct acpiphp_attention_info - device specific attention registration
++ *
++ * ACPI has no generic method of setting/getting attention status
++ * this allows for device specific driver registration
++ */
++struct acpiphp_attention_info
++{
++	int (*set_attn)(struct hotplug_slot *slot, u8 status);
++	int (*get_attn)(struct hotplug_slot *slot, u8 *status);
++	struct module *owner;
++};
+ 
+ /* PCI bus bridge HID */
+ #define ACPI_PCI_HOST_HID		"PNP0A03"
+@@ -212,6 +224,10 @@
+ 
+ /* function prototypes */
+ 
++/* acpiphp_core.c */
++extern int acpiphp_register_attention(struct acpiphp_attention_info*info);
++extern int acpiphp_unregister_attention(struct acpiphp_attention_info *info);
++
+ /* acpiphp_glue.c */
+ extern int acpiphp_glue_init (void);
+ extern void acpiphp_glue_exit (void);
+--- linux-2.6.7.orig/drivers/pci/hotplug/acpiphp_core.c	2004-06-15 22:19:37.000000000 -0700
++++ linux-2.6.7-apci/drivers/pci/hotplug/acpiphp_core.c	2004-07-08 16:54:07.997176448 -0700
+@@ -51,6 +51,7 @@
+ 
+ /* local variables */
+ static int num_slots;
++static struct acpiphp_attention_info *attention_info;
+ 
+ #define DRIVER_VERSION	"0.4"
+ #define DRIVER_AUTHOR	"Greg Kroah-Hartman <gregkh@us.ibm.com>, Takayoshi Kochi <t-kochi@bq.jp.nec.com>"
+@@ -62,10 +63,15 @@
+ MODULE_PARM_DESC(debug, "Debugging mode enabled or not");
+ module_param(debug, bool, 644);
+ 
++/* export the attention callback registration methods */
++EXPORT_SYMBOL_GPL(acpiphp_register_attention);
++EXPORT_SYMBOL_GPL(acpiphp_unregister_attention);
++
+ static int enable_slot		(struct hotplug_slot *slot);
+ static int disable_slot		(struct hotplug_slot *slot);
+ static int set_attention_status (struct hotplug_slot *slot, u8 value);
+ static int get_power_status	(struct hotplug_slot *slot, u8 *value);
++static int get_attention_status (struct hotplug_slot *slot, u8 *value);
+ static int get_address		(struct hotplug_slot *slot, u32 *value);
+ static int get_latch_status	(struct hotplug_slot *slot, u8 *value);
+ static int get_adapter_status	(struct hotplug_slot *slot, u8 *value);
+@@ -76,11 +82,54 @@
+ 	.disable_slot		= disable_slot,
+ 	.set_attention_status	= set_attention_status,
+ 	.get_power_status	= get_power_status,
++	.get_attention_status	= get_attention_status,
+ 	.get_latch_status	= get_latch_status,
+ 	.get_adapter_status	= get_adapter_status,
+ 	.get_address		= get_address,
+ };
+ 
++
++/**
++ * acpiphp_register_attention - set attention LED callback
++ * @info: must be completely filled with LED callbacks
++ *
++ * Description: this is used to register a hardware specific ACPI
++ * driver that manipulates the attention LED.  All the fields in
++ * info must be set.
++ **/
++int acpiphp_register_attention(struct acpiphp_attention_info *info)
++{
++	int retval = -EINVAL;
++
++	if (info && info->owner && info->set_attn &&
++			info->get_attn && !attention_info) {
++		retval = 0;
++		attention_info = info;
++	}
++	return retval;
++}
++
++
++/**
++ * acpiphp_unregister_attention - unset attention LED callback
++ * @info: must match the pointer used to register
++ *
++ * Description: this is used to un-register a hardware specific acpi
++ * driver that manipulates the attention LED.  The pointer to the 
++ * info struct must be the same as the one used to set it.
++ **/
++int acpiphp_unregister_attention(struct acpiphp_attention_info *info)
++{
++	int retval = -EINVAL;
++
++	if (info && attention_info == info) {
++		attention_info = NULL;
++		retval = 0;
++	}
++	return retval;
++}
++
++
+ /**
+  * enable_slot - power on and enable a slot
+  * @hotplug_slot: slot to enable
+@@ -117,33 +166,29 @@
+ }
+ 
+ 
+-/**
+- * set_attention_status - set attention LED
+- *
+- * TBD:
+- * ACPI doesn't have known method to manipulate
+- * attention status LED.
+- *
+- */
+-static int set_attention_status(struct hotplug_slot *hotplug_slot, u8 status)
+-{
+-	dbg("%s - physical_slot = %s\n", __FUNCTION__, hotplug_slot->name);
+-
+-	switch (status) {
+-		case 0:
+-			/* FIXME turn light off */
+-			hotplug_slot->info->attention_status = 0;
+-			break;
+-
+-		case 1:
+-		default:
+-			/* FIXME turn light on */
+-			hotplug_slot->info->attention_status = 1;
+-			break;
+-	}
+-
+-	return 0;
+-}
++ /**
++  * set_attention_status - set attention LED
++ * @hotplug_slot: slot to set attention LED on
++ * @status: value to set attention LED to (0 or 1)
++ *
++ * attention status LED, so we use a callback that
++ * was registered with us.  This allows hardware specific
++ * ACPI implementations to blink the light for us.
++ **/
++ static int set_attention_status(struct hotplug_slot *hotplug_slot, u8 status)
++ {
++	int retval = -ENODEV;
++
++ 	dbg("%s - physical_slot = %s\n", __FUNCTION__, hotplug_slot->name);
++ 
++	if (attention_info && try_module_get(attention_info->owner)) {
++		retval = attention_info->set_attn(hotplug_slot, status);
++		module_put(attention_info->owner);
++	} else
++		attention_info = NULL;
++	return retval;
++ }
++ 
+ 
+ /**
+  * get_power_status - get power status of a slot
+@@ -165,6 +210,32 @@
+ 	return 0;
+ }
+ 
++
++ /**
++ * get_attention_status - get attention LED status
++ * @hotplug_slot: slot to get status from
++ * @value: returns with value of attention LED
++ *
++ * ACPI doesn't have known method to determine the state
++ * of the attention status LED, so we use a callback that
++ * was registered with us.  This allows hardware specific
++ * ACPI implementations to determine its state
++ **/
++static int get_attention_status(struct hotplug_slot *hotplug_slot, u8 *value)
++{
++	int retval = -EINVAL;
++
++	dbg("%s - physical_slot = %s\n", __FUNCTION__, hotplug_slot->name);
++
++	if (attention_info && try_module_get(attention_info->owner)) {
++		retval = attention_info->get_attn(hotplug_slot, value);
++		module_put(attention_info->owner);
++	} else
++		attention_info = NULL;
++	return retval;
++}
++
++
+ /**
+  * get_latch_status - get latch status of a slot
+  * @hotplug_slot: slot to get status
+@@ -307,7 +378,7 @@
+ 
+ 		slot->acpi_slot = get_slot_from_id(i);
+ 		slot->hotplug_slot->info->power_status = acpiphp_get_power_status(slot->acpi_slot);
+-		slot->hotplug_slot->info->attention_status = acpiphp_get_attention_status(slot->acpi_slot);
++		slot->hotplug_slot->info->attention_status = 0;
+ 		slot->hotplug_slot->info->latch_status = acpiphp_get_latch_status(slot->acpi_slot);
+ 		slot->hotplug_slot->info->adapter_status = acpiphp_get_adapter_status(slot->acpi_slot);
+ 		slot->hotplug_slot->info->max_bus_speed = PCI_SPEED_UNKNOWN;
+--- linux-2.6.7.orig/drivers/pci/hotplug/acpiphp_glue.c	2004-06-15 22:19:10.000000000 -0700
++++ linux-2.6.7-apci/drivers/pci/hotplug/acpiphp_glue.c	2004-07-08 16:54:07.998176296 -0700
+@@ -1302,20 +1302,6 @@
+ 
+ 
+ /*
+- * attention LED ON: 1
+- *		OFF: 0
+- *
+- * TBD
+- * no direct attention led status information via ACPI
+- *
+- */
+-u8 acpiphp_get_attention_status(struct acpiphp_slot *slot)
+-{
+-	return 0;
+-}
+-
+-
+-/*
+  * latch closed:  1
+  * latch   open:  0
+  */
 
 

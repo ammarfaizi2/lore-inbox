@@ -1,55 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278695AbRJXSgF>; Wed, 24 Oct 2001 14:36:05 -0400
+	id <S278699AbRJXSkZ>; Wed, 24 Oct 2001 14:40:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278699AbRJXSfz>; Wed, 24 Oct 2001 14:35:55 -0400
-Received: from mail6.speakeasy.net ([216.254.0.206]:29701 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S278695AbRJXSfp>; Wed, 24 Oct 2001 14:35:45 -0400
+	id <S278707AbRJXSkP>; Wed, 24 Oct 2001 14:40:15 -0400
+Received: from [200.248.92.2] ([200.248.92.2]:44559 "EHLO
+	inter.lojasrenner.com.br") by vger.kernel.org with ESMTP
+	id <S278699AbRJXSkC>; Wed, 24 Oct 2001 14:40:02 -0400
+Message-Id: <200110241936.RAA04632@inter.lojasrenner.com.br>
 Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-Subject: Re: time tells all about kernel VM's
-Date: Wed, 24 Oct 2001 14:36:19 -0400
-X-Mailer: KMail [version 1.3.2]
-Cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110241957170.1991-100000@Expansa.sns.it>
-In-Reply-To: <Pine.LNX.4.33.0110241957170.1991-100000@Expansa.sns.it>
+From: Andre Margis <andre@sam.com.br>
+Organization: SAM Informatica Ltda
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: linux-2.4.13 high SWAP
+Date: Wed, 24 Oct 2001 16:37:26 -0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0110241509250.885-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0110241509250.885-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20011024183547Z278695-17408+4448@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 October 2001 14:05, Luigi Genoni wrote:
-> On Wed, 24 Oct 2001, safemode wrote:
-> > ok.  Reran e2defrag and got the same effect.
-> > This is the vmstat output by the second.  It starts out with my normal
-> > load (but no mp3s playing).  Then i start e2defrag with the same
-> > arguments as before and allow it to run all the way through.  It ends but
-> > i dont close it until near the very end (which is seen by the swap
-> > dropoff.  Then i let my normal load again be displayed a bit.  One thing
-> > i did notice, however, was that the vm handled that quite a lot better
-> > than how it handled it after being up for 5 days even though it created
-> > the 600MB of buffer.
+Em Qua 24 Out 2001 15:10, Marcelo Tosatti escreveu:
+The tmpfs is configured with 2GB. I'm copying 6 file of 200M, total 1.2GB.
+
+df -k
+
+ Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda3              4096440   3342964    753476  82% /
+/dev/sda2                31111     12264     17241  42% /boot
+/dev/root/fs01         3145628    465992   2679636  15% /u
+/dev/root/fs02         9330396   1475848   7854548  16% /prod
+tmpfs                  2097152    204836   1892316  10% /tmp
+
+Without use the tmpfs, appears to be OK!!!!!!!!!!
+
+Using 2.4.10-ac7, the same test run OK!!!!!!!!
+
+
+Andre
+
+
+> Ok,
 >
-> If I do remember well e2defrag was working just with ext2 with 1k as block
-> size, and latest version compiled with 2.0.12 kernel, (I made also a patch
-> to compile with 2.0.X kernels after), then ext2 simply evolved and
-> e2defrag did not.  (by the way e2defrag sources are really isstructive to
-> learn how a blockFS works).
-
-e2defrag defaults to 4k blocks.  Version 0.73pjm1   30 Apr 2001
-
-> I used e2defrag since earlier versions, (just with old slow disk, now it
-> is almost useless, and I went to journaled FSes). If I do remember well,
-> the behavoiur you are telling was usual with 2.0 kernels.
-> If the pool is to big, i saw that e2dump shows a lot of inode that left
-> their group (sic!), and also there could be some FS corruption.
-> e2defrag was writter to use buffer cache, and now VM changed in details
-> this behaviour. It could be that what you see is due to those changes?
-
-you say it is the same behavior as 2.0 yet you say that i could be seeing 
-this problem due to _changes_ in the vm.  So the comparison to 2.0 doesn't 
-really tell us anything since it has nothing to do with what 2.0 was doing.  
-
+> Have you checked if the amount of data you copied to the tmpfs device is
+> not way too big to fit in memory ?
+>
+> Remember: Everything copied to tmpfs will be kept in memory, so if you
+> simply copy way too much data to tmpfs thats your problem :)
+>
+> On Wed, 24 Oct 2001, Andre Margis wrote:
+> > Em Qua 24 Out 2001 14:44, Marcelo Tosatti escreveu:
+> > Marcelo,
+> >
+> > I restart the test using the same programs, but now I'm using the "cp" on
+> > a normal filesystem. At this time everything is OK.
+> >
+> > In the last run we Nedd 30 minutes to the disaster.
+> >
+> >
+> > Andre
+> >
+> > > On Wed, 24 Oct 2001, Andre Margis wrote:
+> > > > Em Qua 24 Out 2001 15:05, Andre Margis escreveu:
+> > > >
+> > > > Mor minutes later the machine "froze".
+> > >
+> > > Could you please redo the tests without tmpfs?
+> > >
+> > > I'm not sure if its the problem, just want to make sure.
+> > >
+> > > Thanks.
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > > in the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/

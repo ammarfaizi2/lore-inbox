@@ -1,91 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRB1Rdj>; Wed, 28 Feb 2001 12:33:39 -0500
+	id <S129115AbRB1SCH>; Wed, 28 Feb 2001 13:02:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129078AbRB1RdU>; Wed, 28 Feb 2001 12:33:20 -0500
-Received: from hs-gk.cyberbills.com ([216.35.157.254]:1033 "EHLO
-	hs-mail.cyberbills.com") by vger.kernel.org with ESMTP
-	id <S129066AbRB1RdO>; Wed, 28 Feb 2001 12:33:14 -0500
-Date: Wed, 28 Feb 2001 09:33:07 -0800 (PST)
-From: "Sergey Kubushin" <ksi@cyberbills.com>
-To: bradley mclain <bradley_kernel@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: -ac6 mis-reports cpu clock
-In-Reply-To: <20010228062156.33159.qmail@web9204.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.31ksi3.0102280931130.6980-100000@nomad.cyberbills.com>
+	id <S129116AbRB1SB6>; Wed, 28 Feb 2001 13:01:58 -0500
+Received: from penguin.roanoke.edu ([199.111.154.8]:38667 "EHLO
+	penguin.roanoke.edu") by vger.kernel.org with ESMTP
+	id <S129115AbRB1SBq>; Wed, 28 Feb 2001 13:01:46 -0500
+Message-ID: <3A9D3FD0.76E6457B@linuxjedi.org>
+Date: Wed, 28 Feb 2001 13:13:36 -0500
+From: "David L. Parsley" <parsley@linuxjedi.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH][CFT] per-process namespaces for Linux
+In-Reply-To: <Pine.GSO.4.21.0102280213000.4827-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Feb 2001, bradley mclain wrote:
+Alexander Viro wrote:
+> > Evil idea of the day: non-directory (even non-existant) mount points and
+> > non-directory mounts. So then "mount --bind /etc/foo /dev/bar" works.
+> 
+> Try it. It _does_ work.
 
-Another oddity with ac6 (look for those 65+ GHz):
+Yeah, mount --bind is cool, I've been using it on one of my projects
+today.  But - maybe I'm just not thinking creatively enough - what are
+the advantages of mount --bind versus just symlinking?
 
-=== Cut ===
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes) (65044Mhz/65413Mhz FSB)
-stepping	: 2
-cpu MHz		: 400.917
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 799.53
+Also, I tried mount --bind fileone filetwo, and it fails if filetwo
+doesn't exist. ('mount point filetwo doesn't exist').  Is that supposed
+to work?  (using mount from latest redhat beta)
 
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes) (65044Mhz/65413Mhz FSB)
-stepping	: 2
-cpu MHz		: 400.917
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 801.17
-=== Cut ===
+BTW, pivot_root is nifty, too. ;-)
 
-> here is an extract from dmesg from 2.4.2 and -ac6,
-> showing a disparity in cpu clock speed..
->
-> -ac6 has inserted a line claiming my clock is 400Mhz
-> (it is actually 533 -- and i believe my fsb is 133).
->
-> i don't think i compiled these two radically
-> differently.  what could i have done wrong to cause
-> this?  or has -ac6 introduced a bug of some sort?
->
-> any suggestions for debugging or additional
-> information?
->
-> thanks,
-> bradley mclain
->
-> __________________________________________________
-> Do You Yahoo!?
-> Get email at your own domain with Yahoo! Mail.
-> http://personal.mail.yahoo.com/
+regards,
+	David
 
----
-Sergey Kubushin				Sr. Unix Administrator
-CyberBills, Inc.			Phone:	702-567-8857
-874 American Pacific Dr,		Fax:	702-567-8808
-Henderson, NV, 89014
-
+-- 
+David L. Parsley
+Network Administrator
+Roanoke College

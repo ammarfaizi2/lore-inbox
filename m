@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVDEHdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVDEHfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbVDEHdb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 03:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVDEH3q
+	id S261590AbVDEHfz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 03:35:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVDEHfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 03:29:46 -0400
-Received: from dea.vocord.ru ([217.67.177.50]:48589 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S261620AbVDEH25 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 03:28:57 -0400
-Subject: Re: Netlink Connector / CBUS
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       "David S. Miller" <davem@davemloft.net>,
-       James Morris <jmorris@redhat.com>, rml@novell.com,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Xine.LNX.4.44.0504050108260.9383-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0504050108260.9383-100000@thoron.boston.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sXlTmFdVb1kJKT8aZHNH"
-Organization: MIPT
-Date: Tue, 05 Apr 2005 11:34:40 +0400
-Message-Id: <1112686480.28858.17.camel@uganda>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Tue, 05 Apr 2005 11:27:54 +0400 (MSD)
+	Tue, 5 Apr 2005 03:35:03 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:41613 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261603AbVDEHd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 03:33:56 -0400
+Message-ID: <42523F5D.7020201@yahoo.com.au>
+Date: Tue, 05 Apr 2005 17:33:49 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm1
+References: <20050405000524.592fc125.akpm@osdl.org>
+In-Reply-To: <20050405000524.592fc125.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
---=-sXlTmFdVb1kJKT8aZHNH
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> +sched-remove-unnecessary-sched-domains.patch
+> +sched-improve-pinned-task-handling-again.patch
+[snip]
+> 
+>  CPU scheduler updates
+> 
 
-On Tue, 2005-04-05 at 01:10 -0400, Herbert Xu wrote:
->On Tue, Apr 05, 2005 at 11:03:16AM +0400, Evgeniy Polyakov wrote:
->>=20
->> I received comments and feature requests from Herbert Xu and Jamal Hadi
->> Salim,
->> almost all were successfully resolved.
->
->Please do not construe my involvement in these threads as endorsement
->for this system.
+It is no problem that you picked these up for testing. But
+don't merge them yet, please.
 
-Sure.
-I remember you are against it :).
+Suresh's underlying problem with the unnecessary sched domains
+is a failing of sched-balance-exec and sched-balance-fork, which
+I am working on now.
 
->In fact to this day I still don't understand what problems this thing is
->meant to solve.
+Removing unnecessary domains is a nice optimisation, but just
+needs to account for a few more flags before declaring that a
+domain is unnecessary (not to mention this probably breaks if
+isolcpus= is used). I have made some modifications to the patch
+to fix these problems.
 
-Hmm, what else can I add to my words?
-May be checking the size of the code needed to broadcast kobject changes
-in kobject_uevent.c for example...
-Netlink socket allocation + skb handling against call to cn_netlink_send().
+Lastly, I'd like to be a bit less intrusive with pinned task
+handling improvements. I think we can do this while still being
+effective in preventing livelocks.
 
->--=20
->Visit Openswan at http://www.openswan.org/
->Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
->Home Page: http://gondor.apana.org.au/~herbert/
->PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+I will keep you posted with regards to the various scheduler
+patches.
 
-
---=20
-        Evgeniy Polyakov
-
-Crash is better than data corruption -- Arthur Grabowski
-
---=-sXlTmFdVb1kJKT8aZHNH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCUj+QIKTPhE+8wY0RAtcKAJ91ZXvgUr1gGOjGWtnLZRc6iQYeCwCfWLe/
-hMplKPbqSYSR1MIMr/E38+E=
-=Xfba
------END PGP SIGNATURE-----
-
---=-sXlTmFdVb1kJKT8aZHNH--
+-- 
+SUSE Labs, Novell Inc.
 

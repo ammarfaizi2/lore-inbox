@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265678AbTFSBJV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 21:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbTFSBJV
+	id S265680AbTFSBRO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 21:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbTFSBRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 21:09:21 -0400
-Received: from fed1mtao01.cox.net ([68.6.19.244]:48857 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S265678AbTFSBJO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 21:09:14 -0400
-Message-ID: <3EF11080.5060507@cox.net>
-Date: Wed, 18 Jun 2003 18:23:12 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030612
-X-Accept-Language: en-us, en
+	Wed, 18 Jun 2003 21:17:13 -0400
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:60069 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id S265680AbTFSBRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 21:17:12 -0400
+Date: Wed, 18 Jun 2003 21:26:24 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: nfs@lists.sourceforge.net,
+       Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: make NFS work with 64KB page-size
+In-Reply-To: <16113.5317.341448.162576@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.56.0306182124270.29031@filesrv1.baby-dragons.com>
+References: <16112.60959.588900.824473@napali.hpl.hp.com>
+ <16113.5317.341448.162576@gargle.gargle.HOWL>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: glibc compiling with kernel 2.5.70-bk17
-References: <3EF10F3E.1090308@cern.ch>
-In-Reply-To: <3EF10F3E.1090308@cern.ch>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Riccardo-Maria Bianchi wrote:
-> 
-> Good morning,
-> 
-> I'm trying to compiling several version of the glibc but always during 
-> the "make" I obtain these errors:
-> 
+	Hello Neil ,  Hth ,  JimL
 
-<snip>
++++ ./net/sunrpc/svc.c	2003-06-19 11:38:30.000000000 +1000
+...snip...
+-	int pages = 2 + (size+ PAGE_SIZE -1) / PAGE_SIZE;
++	int page;
+	    ^^^^ s/b pages ?
 
-> 
-> Someone have an idea? :)
-> 
-
-Yes, the kernel headers are currently borked for compiling userspace C 
-libraries. The fix is going to take either a large effort to get a 
-sanitized set of userspace kernel headers created, or someone to be 
-willing to accept patches that fix the problems with the existing 
-headers even though userspace is not supposed to be using them.
-
+On Thu, 19 Jun 2003, Neil Brown wrote:
+> On Wednesday June 18, davidm@napali.hpl.hp.com wrote:
+> > NFS currently bugs out on kernels with a page size of 64KB.  The
+> > reason is a mismatch between RPCSVC_MAXPAGES and a calculation in
+> > svc_init_buffer().  I'm not entirely certain which calculation is the
+> > right one, but if I understand the code correctly, RPCSVC_MAXPAGES is
+> > right and svc_init_buffer() is wrong.  The patch below fixes the
+> > latter.
+>
+> I think the +2 is right.
+>
+> For read/readdir the reply can be slightly larger than the "payload",
+> (headers, etc) so we need one payload, plus one for the rest of the
+> reply, plus one to hold the request.
+>
+> For write, the request can be large than the payload, so again we need
+> payload + 1 (for request) + 1 (for reply).
+> Something like the following.
+> NeilBrown
+-- 
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131201AbQKCTgV>; Fri, 3 Nov 2000 14:36:21 -0500
+	id <S131394AbQKCTiL>; Fri, 3 Nov 2000 14:38:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131394AbQKCTgL>; Fri, 3 Nov 2000 14:36:11 -0500
-Received: from exchange-1.cadmus.com ([207.78.64.6]:22790 "EHLO
-	exchange-1.cadmus.com") by vger.kernel.org with ESMTP
-	id <S131201AbQKCTgC>; Fri, 3 Nov 2000 14:36:02 -0500
-Message-ID: <3A032175.C2DDFFFA@cadmus.com>
-Date: Fri, 03 Nov 2000 15:35:01 -0500
-From: "Ethan C. Baldridge" <BaldridgeE@cadmus.com>
-Organization: Cadmus Journal Services
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-3 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: hardware lock-up with 2.4.0-test10
+	id <S131492AbQKCTiB>; Fri, 3 Nov 2000 14:38:01 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:21776 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131394AbQKCThr>; Fri, 3 Nov 2000 14:37:47 -0500
+Date: Fri, 3 Nov 2000 20:37:43 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Josue Emmanuel Amaro <Josue.Amaro@oracle.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Value of TASK_UNMAPPED_SIZE on 2.4
+Message-ID: <20001103203743.E15284@athlon.random>
+In-Reply-To: <3A030EE2.92DC3F2@oracle.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3A030EE2.92DC3F2@oracle.com>; from Josue.Amaro@oracle.com on Fri, Nov 03, 2000 at 11:15:46AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on my box at work, which is a Pentium 200 with 64 megs of ram.
+On Fri, Nov 03, 2000 at 11:15:46AM -0800, Josue Emmanuel Amaro wrote:
+> (page.h).  This works out to be a value of 0x4000000.
+						      ^ one more zero here
+> Are there any negative side effects in defining TASK_UNMAPPED_SIZE to 0x1000000?
 
-no strange messages in /var/log/messages, no commonality I've found
-between the lockups.  This doesn't happen if I go back to 2.2.16 (which
-I'm in right now).
+I guess you mean 0x10000000. There's no risk in doing that. I also did another
+patch that moves the kernel away and allows 3.5G per process on IA32 via plain
+mmap or shmat, but it has the downside of reducing a lot the ZONE_NORMAL where
+on IA32 buffercache and skb still lives.
 
-Twice the lock-up occurred while initscripts were running on boot-up (at
-different places in the initscripts).  Twice now it has happened while
-I've been away from my computer for a while, both times apparently after
-the screensaver has come on (black screen).
-
-I'm running with DevFS and devfsd, IDE hard drive (Intel 82371SB PIIX3
-controller), 3com 3C905 ethernet card, Intel 82439HX Triton II chipset
-motherboard, Pentium with F00F bug.
-
-Has anyone else seen this, and can you give me any suggestions?
-
-Thanks,
-Ethan Baldridge
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

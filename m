@@ -1,54 +1,296 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbUL3MSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbUL3MdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbUL3MSS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 07:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbUL3MSS
+	id S261627AbUL3MdE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 07:33:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbUL3MdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 07:18:18 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:4108 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261624AbUL3MSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 07:18:15 -0500
-Subject: Re: Bug_reply : Out of range ptr error in module indicates bug in
-	slab.c
-From: Arjan van de Ven <arjan@infradead.org>
-To: selvakumar nagendran <kernelselva@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041230121310.41867.qmail@web60605.mail.yahoo.com>
-References: <20041230121310.41867.qmail@web60605.mail.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 30 Dec 2004 13:18:10 +0100
-Message-Id: <1104409090.4170.12.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 30 Dec 2004 07:33:04 -0500
+Received: from [219.239.36.3] ([219.239.36.3]:28062 "HELO mail.sinosoft.com.cn")
+	by vger.kernel.org with SMTP id S261627AbUL3Mct (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 07:32:49 -0500
+Message-ID: <41D3F538.6000801@sinosoft.com.cn>
+Date: Thu, 30 Dec 2004 21:31:52 +0900
+From: Gewj <geweijin@sinosoft.com.cn>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; zh-CN; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: zh-cn
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Bug? setlocale() can't find the right data file while run through
+ rc.d during reboot
+Content-Type: multipart/mixed;
+ boundary="------------090301050808030008030001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-30 at 04:13 -0800, selvakumar nagendran wrote:
-> 
->      Thanks for ur help. The user will be changing
-> this using system calls like dup,dup2 etc. If I keep
-> track of all these modifications by intercepting all
-> those syscalls and use inode number for identifying
-> the structure uniquely, will it break?
+This is a multi-part message in MIME format.
+--------------090301050808030008030001
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
 
-it sure is not a reliable method. The user can change the fd's YOU log.
-So your logging is inaccurate. That may or may not be a problem, it
-depends on what the application of this is.
+Package: glibc
+Version: 2.3.2-95.20.1AX
+
+Addition information about the setlocale puzzle is listed below
+
+gcc version:gcc-3.2.3-36
+kernel version:kernel-2.4.21-9.38AX
+
+I used strace tool to log the run process of my program in both
+reboot mode and shell mode, the result of those two logs are attached.
+
+it is quite strange to find out that the setlocale function's strace
+information is totally same in those two modes, but the file opened is
+differ.
+In reboot mode,
+open("/home/local/mo/en_US/LC_MESSAGES/test.mo", O_RDONLY) = 3
+
+In shell mode
+open("/home/local/mo/ja_JP.eucJP/LC_MESSAGES/test.mo", O_RDONLY) = -1
+ENOENT (No such file or directory)
+open("/home/local/mo/ja_JP.eucjp/LC_MESSAGES/test.mo", O_RDONLY) = -1
+ENOENT (No such file or directory)
+open("/home/local/mo/ja_JP/LC_MESSAGES/test.mo", O_RDONLY) = 3
+
+
+Is it a bug or all thing turn out to be myself's misuse?
+
+Any tips is appriciated
+
+Thanks in advance
+
+Gewj.
+
+Gewj wrote:
+> Package: glibc
+> Version: 2.3.2-95.20.1AX
+>
+>
+> I am root and using  Linux 2.4.21-9.38AX i686(Miracle3.0) with
+> glibc-2.3.2-95.20.1AX
+>
+>
+> When I used the following code in a program and start it in rc3.d(such
+> as S99abc, the last one in the rc3.d)
+>
+> #define _(String) gettext(String)
+>
+>         strcpy(moname,"test");
+>         setlocale(LC_ALL, "ja_JP");
+> 	bindtextdomain(moname, "/home/local/mo");
+> 	textdomain(moname);
+> 	
+> 	memset(uid, 0, MAX_LINE);
+> 	memset(lpBuffer, 0, 1000);;
+> 	
+> 	strcpy(uid, "0xC0040903");
+> 	strcpy(lpBuffer, _(uid));
+>
+> the dir structure of /usr/local/mo is list below:
+> /home/local/mo
+>            -|en_US
+>                  -|LC_MESSAGES
+>            -|ja_JP
+>              -|LC_MESSAGES
+>
+>
+> when I reboot the machine, gettext("0xC0040903") return the string
+> defined in en_US .mo file instead of in ja_JP .mo file.
+> But when I run the same program after reboot(say, through shell) ,it
+> return the right string that define in ja_JP .mo file.
+>
+>
+>
+> -----Test program-------
+>
+> #include <stdarg.h>
+> #include <dlfcn.h>
+> #include <ctype.h>
+> #include <stdio.h>
+> #include <syslog.h>
+>
+> #include <sys/types.h>
+> #include <unistd.h>
+> #include <libintl.h>
+> #include <locale.h>
+>
+> #define MAX_LINE 64
+> #define _(String) gettext(String)
+>
+> int main(int argc ,char * argv[])
+> {
+> 	char  moname[MAX_LINE];
+> 	char  uid[MAX_LINE];
+> 	char lpBuffer[1000];
+> 	
+> 	memset(moname,0,MAX_LINE);
+> 	strcpy(moname,"test");
+>
+>         setlocale(LC_ALL, "ja_JP");
+> 	bindtextdomain(moname, "/home/local/mo");
+> 	textdomain(moname);
+> 	
+> 	memset(uid, 0, MAX_LINE);
+> 	memset(lpBuffer, 0, 1000);
+> 	
+> 	strcpy(uid, "0xC0040903");
+> 	strcpy(lpBuffer, _(uid));
+> 	printf("lpBuffer = %s\n",lpBuffer);
+> 	syslog(6,"lpBuffer = %s",lpBuffer);
+> 	
+> 	return strlen(lpBuffer);
+> }
+>
+>
+>
+
+--------------090301050808030008030001
+Content-Type: text/plain;
+ name="ts.log.reboot"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="ts.log.reboot"
+
+ZXhlY3ZlKCIvaG9tZS9sdXkvdHMiLCBbIi9ob21lL2x1eS90cyJdLCBbLyogMTYgdmFycyAq
+L10pID0gMAp1bmFtZSh7c3lzPSJMaW51eCIsIG5vZGU9ImJsdWVzIiwgLi4ufSkgPSAwCmJy
+aygwKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDB4ODA0OTg1MApvbGRf
+bW1hcChOVUxMLCA0MDk2LCBQUk9UX1JFQUR8UFJPVF9XUklURSwgTUFQX1BSSVZBVEV8TUFQ
+X0FOT05ZTU9VUywgLTEsIDApID0gMHhiNzVlYTAwMApvcGVuKCIvZXRjL2xkLnNvLnByZWxv
+YWQiLCBPX1JET05MWSkgICAgPSAtMSBFTk9FTlQgKE5vIHN1Y2ggZmlsZSBvciBkaXJlY3Rv
+cnkpCm9wZW4oIi9ldGMvbGQuc28uY2FjaGUiLCBPX1JET05MWSkgICAgICA9IDMKZnN0YXQ2
+NCgzLCB7c3RfbW9kZT1TX0lGUkVHfDA2NDQsIHN0X3NpemU9NTQ2NTAsIC4uLn0pID0gMApv
+bGRfbW1hcChOVUxMLCA1NDY1MCwgUFJPVF9SRUFELCBNQVBfUFJJVkFURSwgMywgMCkgPSAw
+eGI3NWRjMDAwCmNsb3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAK
+b3BlbigiL2xpYi90bHMvbGliYy5zby42IiwgT19SRE9OTFkpICAgID0gMwpyZWFkKDMsICJc
+MTc3RUxGXDFcMVwxXDBcMFwwXDBcMFwwXDBcMFwwXDNcMFwzXDBcMVwwXDBcMFBYXDFcMDAw
+Ii4uLiwgNTEyKSA9IDUxMgpmc3RhdDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDc1NSwgc3Rf
+c2l6ZT0xNTExNTUzLCAuLi59KSA9IDAKb2xkX21tYXAoTlVMTCwgMTI3NTg1MiwgUFJPVF9S
+RUFEfFBST1RfRVhFQywgTUFQX1BSSVZBVEUsIDMsIDApID0gMHhiNzRhNDAwMApvbGRfbW1h
+cCgweGI3NWQ2MDAwLCAxMjI4OCwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRF
+fE1BUF9GSVhFRCwgMywgMHgxMzEwMDApID0gMHhiNzVkNjAwMApvbGRfbW1hcCgweGI3NWQ5
+MDAwLCAxMDE4OCwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1BUF9GSVhF
+RHxNQVBfQU5PTllNT1VTLCAtMSwgMCkgPSAweGI3NWQ5MDAwCmNsb3NlKDMpICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICA9IDAKc2V0X3RocmVhZF9hcmVhKHtlbnRyeV9udW1i
+ZXI6LTEgLT4gNiwgYmFzZV9hZGRyOjB4Yjc1ZWFiMDAsIGxpbWl0OjEwNDg1NzUsIHNlZ18z
+MmJpdDoxLCBjb250ZW50czowLCByZWFkX2V4ZWNfb25seTowLCBsaW1pdF9pbl9wYWdlczox
+LCBzZWdfbm90X3ByZXNlbnQ6MCwgdXNlYWJsZToxfSkgPSAwCm11bm1hcCgweGI3NWRjMDAw
+LCA1NDY1MCkgICAgICAgICAgICAgICA9IDAKb3BlbigiL3Vzci9saWIvbG9jYWxlL2xvY2Fs
+ZS1hcmNoaXZlIiwgT19SRE9OTFl8T19MQVJHRUZJTEUpID0gMwpmc3RhdDY0KDMsIHtzdF9t
+b2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT0zMjkzOTUwNCwgLi4ufSkgPSAwCm1tYXAyKE5V
+TEwsIDIwOTcxNTIsIFBST1RfUkVBRCwgTUFQX1BSSVZBVEUsIDMsIDApID0gMHhiNzJhNDAw
+MAptbWFwMihOVUxMLCA4OTcwMjQsIFBST1RfUkVBRCwgTUFQX1BSSVZBVEUsIDMsIDB4ZTc1
+KSA9IDB4YjcxYzkwMDAKYnJrKDApICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ID0gMHg4MDQ5ODUwCmJyaygweDgwNmE4NTApICAgICAgICAgICAgICAgICAgICAgICAgICA9
+IDB4ODA2YTg1MApicmsoMCkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAw
+eDgwNmE4NTAKYnJrKDB4ODA2YjAwMCkgICAgICAgICAgICAgICAgICAgICAgICAgID0gMHg4
+MDZiMDAwCmNsb3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAKb3Bl
+bigiL3Vzci9zaGFyZS9sb2NhbGUvbG9jYWxlLmFsaWFzIiwgT19SRE9OTFkpID0gMwpmc3Rh
+dDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT0yNjAxLCAuLi59KSA9IDAK
+bW1hcDIoTlVMTCwgNDA5NiwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1B
+UF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4YjcxYzgwMDAKcmVhZCgzLCAiIyBMb2NhbGUgbmFt
+ZSBhbGlhcyBkYXRhIGJhc2UuXG4jIi4uLiwgNDA5NikgPSAyNjAxCnJlYWQoMywgIiIsIDQw
+OTYpICAgICAgICAgICAgICAgICAgICAgICA9IDAKY2xvc2UoMykgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgID0gMAptdW5tYXAoMHhiNzFjODAwMCwgNDA5NikgICAgICAgICAg
+ICAgICAgPSAwCm9wZW4oIi9ob21lL2xvY2FsL21vL2VuX1VTL0xDX01FU1NBR0VTL3Rlc3Qu
+bW8iLCBPX1JET05MWSkgPSAzCmZzdGF0NjQoMywge3N0X21vZGU9U19JRlJFR3wwNjQ0LCBz
+dF9zaXplPTEyNzcsIC4uLn0pID0gMAptbWFwMihOVUxMLCAxMjc3LCBQUk9UX1JFQUQsIE1B
+UF9QUklWQVRFLCAzLCAwKSA9IDB4YjcxYzgwMDAKY2xvc2UoMykgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgID0gMApmc3RhdDY0KDEsIHtzdF9tb2RlPVNfSUZJRk98MDYwMCwg
+c3Rfc2l6ZT0wLCAuLi59KSA9IDAKbW1hcDIoTlVMTCwgNDA5NiwgUFJPVF9SRUFEfFBST1Rf
+V1JJVEUsIE1BUF9QUklWQVRFfE1BUF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4YjcxYzcwMDAK
+dGltZShbMTEwNDM3OTQxMF0pICAgICAgICAgICAgICAgICAgICAgID0gMTEwNDM3OTQxMApv
+cGVuKCIvZXRjL2xvY2FsdGltZSIsIE9fUkRPTkxZKSAgICAgICAgPSAzCmZzdGF0NjQoMywg
+e3N0X21vZGU9U19JRlJFR3wwNjQ0LCBzdF9zaXplPTE2NSwgLi4ufSkgPSAwCm1tYXAyKE5V
+TEwsIDQwOTYsIFBST1RfUkVBRHxQUk9UX1dSSVRFLCBNQVBfUFJJVkFURXxNQVBfQU5PTllN
+T1VTLCAtMSwgMCkgPSAweGI3MWM2MDAwCnJlYWQoMywgIlRaaWZcMFwwXDBcMFwwXDBcMFww
+XDBcMFwwXDBcMFwwXDBcMFwwXDBcMFwzXDBcMFwwXDNcMCIuLi4sIDQwOTYpID0gMTY1CmNs
+b3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAKbXVubWFwKDB4Yjcx
+YzYwMDAsIDQwOTYpICAgICAgICAgICAgICAgID0gMApydF9zaWdhY3Rpb24oU0lHUElQRSwg
+ezB4Yjc1N2M1ZTAsIFtdLCBTQV9SRVNUT1JFUiwgMHhiNzRjYmRlOH0sIHtTSUdfREZMfSwg
+OCkgPSAwCnNvY2tldChQRl9VTklYLCBTT0NLX0RHUkFNLCAwKSAgICAgICAgICA9IDMKZmNu
+dGw2NCgzLCBGX1NFVEZELCBGRF9DTE9FWEVDKSAgICAgICAgID0gMApjb25uZWN0KDMsIHtz
+YV9mYW1pbHk9QUZfVU5JWCwgcGF0aD0iL2Rldi9sb2cifSwgMTYpID0gMApzZW5kKDMsICI8
+MTQ+RGVjIDMwIDEyOjAzOjMwIHRzOiBscEJ1ZmZlciIuLi4sIDE2MywgMCkgPSAxNjMKcnRf
+c2lnYWN0aW9uKFNJR1BJUEUsIHtTSUdfREZMfSwgTlVMTCwgOCkgPSAwCndyaXRlKDEsICJs
+cEJ1ZmZlciA9IFRoZSB1c2VkIGNhcGFjaXR5IG9mICIuLi4sIDE0MCkgPSAxNDAKbXVubWFw
+KDB4YjcxYzcwMDAsIDQwOTYpICAgICAgICAgICAgICAgID0gMApleGl0X2dyb3VwKDEyOCkg
+ICAgICAgICAgICAgICAgICAgICAgICAgPSA/Cg==
+--------------090301050808030008030001
+Content-Type: text/plain;
+ name="ts.log.shell"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="ts.log.shell"
+
+ZXhlY3ZlKCIvaG9tZS9sdXkvdHMiLCBbIi9ob21lL2x1eS90cyJdLCBbLyogMjkgdmFycyAq
+L10pID0gMAp1bmFtZSh7c3lzPSJMaW51eCIsIG5vZGU9ImJsdWVzIiwgLi4ufSkgPSAwCmJy
+aygwKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDB4ODA0OTg1MApvbGRf
+bW1hcChOVUxMLCA0MDk2LCBQUk9UX1JFQUR8UFJPVF9XUklURSwgTUFQX1BSSVZBVEV8TUFQ
+X0FOT05ZTU9VUywgLTEsIDApID0gMHhiNzVlYTAwMApvcGVuKCIvZXRjL2xkLnNvLnByZWxv
+YWQiLCBPX1JET05MWSkgICAgPSAtMSBFTk9FTlQgKE5vIHN1Y2ggZmlsZSBvciBkaXJlY3Rv
+cnkpCm9wZW4oIi9ldGMvbGQuc28uY2FjaGUiLCBPX1JET05MWSkgICAgICA9IDMKZnN0YXQ2
+NCgzLCB7c3RfbW9kZT1TX0lGUkVHfDA2NDQsIHN0X3NpemU9NTQ2NTAsIC4uLn0pID0gMApv
+bGRfbW1hcChOVUxMLCA1NDY1MCwgUFJPVF9SRUFELCBNQVBfUFJJVkFURSwgMywgMCkgPSAw
+eGI3NWRjMDAwCmNsb3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAK
+b3BlbigiL2xpYi90bHMvbGliYy5zby42IiwgT19SRE9OTFkpICAgID0gMwpyZWFkKDMsICJc
+MTc3RUxGXDFcMVwxXDBcMFwwXDBcMFwwXDBcMFwwXDNcMFwzXDBcMVwwXDBcMFBYXDFcMDAw
+Ii4uLiwgNTEyKSA9IDUxMgpmc3RhdDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDc1NSwgc3Rf
+c2l6ZT0xNTExNTUzLCAuLi59KSA9IDAKb2xkX21tYXAoTlVMTCwgMTI3NTg1MiwgUFJPVF9S
+RUFEfFBST1RfRVhFQywgTUFQX1BSSVZBVEUsIDMsIDApID0gMHhiNzRhNDAwMApvbGRfbW1h
+cCgweGI3NWQ2MDAwLCAxMjI4OCwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRF
+fE1BUF9GSVhFRCwgMywgMHgxMzEwMDApID0gMHhiNzVkNjAwMApvbGRfbW1hcCgweGI3NWQ5
+MDAwLCAxMDE4OCwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1BUF9GSVhF
+RHxNQVBfQU5PTllNT1VTLCAtMSwgMCkgPSAweGI3NWQ5MDAwCmNsb3NlKDMpICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICA9IDAKc2V0X3RocmVhZF9hcmVhKHtlbnRyeV9udW1i
+ZXI6LTEgLT4gNiwgYmFzZV9hZGRyOjB4Yjc1ZWFiMDAsIGxpbWl0OjEwNDg1NzUsIHNlZ18z
+MmJpdDoxLCBjb250ZW50czowLCByZWFkX2V4ZWNfb25seTowLCBsaW1pdF9pbl9wYWdlczox
+LCBzZWdfbm90X3ByZXNlbnQ6MCwgdXNlYWJsZToxfSkgPSAwCm11bm1hcCgweGI3NWRjMDAw
+LCA1NDY1MCkgICAgICAgICAgICAgICA9IDAKb3BlbigiL3Vzci9saWIvbG9jYWxlL2xvY2Fs
+ZS1hcmNoaXZlIiwgT19SRE9OTFl8T19MQVJHRUZJTEUpID0gMwpmc3RhdDY0KDMsIHtzdF9t
+b2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT0zMjkzOTUwNCwgLi4ufSkgPSAwCm1tYXAyKE5V
+TEwsIDIwOTcxNTIsIFBST1RfUkVBRCwgTUFQX1BSSVZBVEUsIDMsIDApID0gMHhiNzJhNDAw
+MAptbWFwMihOVUxMLCA4OTcwMjQsIFBST1RfUkVBRCwgTUFQX1BSSVZBVEUsIDMsIDB4ZTc1
+KSA9IDB4YjcxYzkwMDAKYnJrKDApICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ID0gMHg4MDQ5ODUwCmJyaygweDgwNmE4NTApICAgICAgICAgICAgICAgICAgICAgICAgICA9
+IDB4ODA2YTg1MApicmsoMCkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAw
+eDgwNmE4NTAKYnJrKDB4ODA2YjAwMCkgICAgICAgICAgICAgICAgICAgICAgICAgID0gMHg4
+MDZiMDAwCmNsb3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAKb3Bl
+bigiL3Vzci9zaGFyZS9sb2NhbGUvbG9jYWxlLmFsaWFzIiwgT19SRE9OTFkpID0gMwpmc3Rh
+dDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT0yNjAxLCAuLi59KSA9IDAK
+bW1hcDIoTlVMTCwgNDA5NiwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1B
+UF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4YjcxYzgwMDAKcmVhZCgzLCAiIyBMb2NhbGUgbmFt
+ZSBhbGlhcyBkYXRhIGJhc2UuXG4jIi4uLiwgNDA5NikgPSAyNjAxCnJlYWQoMywgIiIsIDQw
+OTYpICAgICAgICAgICAgICAgICAgICAgICA9IDAKY2xvc2UoMykgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgID0gMAptdW5tYXAoMHhiNzFjODAwMCwgNDA5NikgICAgICAgICAg
+ICAgICAgPSAwCm9wZW4oIi9ob21lL2xvY2FsL21vL2phX0pQLmV1Y0pQL0xDX01FU1NBR0VT
+L3Rlc3QubW8iLCBPX1JET05MWSkgPSAtMSBFTk9FTlQgKE5vIHN1Y2ggZmlsZSBvciBkaXJl
+Y3RvcnkpCm9wZW4oIi9ob21lL2xvY2FsL21vL2phX0pQLmV1Y2pwL0xDX01FU1NBR0VTL3Rl
+c3QubW8iLCBPX1JET05MWSkgPSAtMSBFTk9FTlQgKE5vIHN1Y2ggZmlsZSBvciBkaXJlY3Rv
+cnkpCm9wZW4oIi9ob21lL2xvY2FsL21vL2phX0pQL0xDX01FU1NBR0VTL3Rlc3QubW8iLCBP
+X1JET05MWSkgPSAzCmZzdGF0NjQoMywge3N0X21vZGU9U19JRlJFR3wwNjQ0LCBzdF9zaXpl
+PTk1MiwgLi4ufSkgPSAwCm1tYXAyKE5VTEwsIDk1MiwgUFJPVF9SRUFELCBNQVBfUFJJVkFU
+RSwgMywgMCkgPSAweGI3MWM4MDAwCmNsb3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICA9IDAKZnN0YXQ2NCgxLCB7c3RfbW9kZT1TX0lGQ0hSfDA2MjAsIHN0X3JkZXY9
+bWFrZWRldigxMzYsIDApLCAuLi59KSA9IDAKbW1hcDIoTlVMTCwgNDA5NiwgUFJPVF9SRUFE
+fFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1BUF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4Yjcx
+YzcwMDAKd3JpdGUoMSwgImxwQnVmZmVyID0gICUxICglMilcMjQ0XDMxNlwyNjZcMzY1XDI0
+NFwyNTVcMzE1XDMwNlwzMTYiLi4uLCA5MikgPSA5Mgp0aW1lKFsxMTA0Mzc5ODMyXSkgICAg
+ICAgICAgICAgICAgICAgICAgPSAxMTA0Mzc5ODMyCm9wZW4oIi9ldGMvbG9jYWx0aW1lIiwg
+T19SRE9OTFkpICAgICAgICA9IDMKZnN0YXQ2NCgzLCB7c3RfbW9kZT1TX0lGUkVHfDA2NDQs
+IHN0X3NpemU9MTY1LCAuLi59KSA9IDAKbW1hcDIoTlVMTCwgNDA5NiwgUFJPVF9SRUFEfFBS
+T1RfV1JJVEUsIE1BUF9QUklWQVRFfE1BUF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4YjcxYzYw
+MDAKcmVhZCgzLCAiVFppZlwwXDBcMFwwXDBcMFwwXDBcMFwwXDBcMFwwXDBcMFwwXDBcMFww
+XDNcMFwwXDBcM1wwIi4uLiwgNDA5NikgPSAxNjUKY2xvc2UoMykgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgID0gMAptdW5tYXAoMHhiNzFjNjAwMCwgNDA5NikgICAgICAgICAg
+ICAgICAgPSAwCnJ0X3NpZ2FjdGlvbihTSUdQSVBFLCB7MHhiNzU3YzVlMCwgW10sIFNBX1JF
+U1RPUkVSLCAweGI3NGNiZGU4fSwge1NJR19ERkx9LCA4KSA9IDAKc29ja2V0KFBGX1VOSVgs
+IFNPQ0tfREdSQU0sIDApICAgICAgICAgID0gMwpmY250bDY0KDMsIEZfU0VURkQsIEZEX0NM
+T0VYRUMpICAgICAgICAgPSAwCmNvbm5lY3QoMywge3NhX2ZhbWlseT1BRl9VTklYLCBwYXRo
+PSIvZGV2L2xvZyJ9LCAxNikgPSAwCnNlbmQoMywgIjwxND5EZWMgMzAgMTI6MTA6MzIgdHM6
+IGxwQnVmZmVyIi4uLiwgMTE1LCAwKSA9IDExNQpydF9zaWdhY3Rpb24oU0lHUElQRSwge1NJ
+R19ERkx9LCBOVUxMLCA4KSA9IDAKbXVubWFwKDB4YjcxYzcwMDAsIDQwOTYpICAgICAgICAg
+ICAgICAgID0gMApleGl0X2dyb3VwKDgwKSAgICAgICAgICAgICAgICAgICAgICAgICAgPSA/
+Cg==
+--------------090301050808030008030001--
 
 

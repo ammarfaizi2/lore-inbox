@@ -1,81 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265098AbSLWNdt>; Mon, 23 Dec 2002 08:33:49 -0500
+	id <S264842AbSLWN30>; Mon, 23 Dec 2002 08:29:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265336AbSLWNdt>; Mon, 23 Dec 2002 08:33:49 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:31366 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265098AbSLWNds>;
-	Mon, 23 Dec 2002 08:33:48 -0500
-Date: Mon, 23 Dec 2002 19:08:48 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: "David S. Miller " <davem@redhat.com>
-Cc: netdev <netdev@oss.sgi.com>, linux-kernel@vger.kernel.org
-Subject: [patch] Convert sockets_in_use to use per_cpu areas
-Message-ID: <20021223190847.G23413@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S265096AbSLWN30>; Mon, 23 Dec 2002 08:29:26 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:2569 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S264842AbSLWN3Z>; Mon, 23 Dec 2002 08:29:25 -0500
+Message-Id: <200212231325.gBNDOks10718@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Torben Frey <kernel@mailsammler.de>, linux-kernel@vger.kernel.org
+Subject: Re: Horrible drive performance under concurrent i/o jobs (dlh problem?)
+Date: Mon, 23 Dec 2002 16:13:37 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <3E00C738.1070506@mailsammler.de>
+In-Reply-To: <3E00C738.1070506@mailsammler.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Here's a simple patch to change sockets_in_use to make use of 
-per-cpu areas.  
+On 18 December 2002 17:06, Torben Frey wrote:
+> Hi list readers (and hopefully writers),
+>
+> after getting crazy with our main server in the company for over a
+> week now, this list is possibly my last help - I am no kernel
+> programmer but suscpect it to be a kernel problem. Reading through
+> the list did not help me (although I already thought so, see below).
+>
+> We are running a 3ware Escalade 7850 Raid controller with 7 IBM
+> Deskstar GXP 180 disks in Raid 5 mode, so it builds a 1.11TB disk.
+> There's one partition on it, /dev/sda1, formatted with Reiserfs
+> format 3.6. The Board is an MSI 6501 (K7D Master) with 1GB RAM but
+> only one processor.
+>
+> We were running the Raid smoothly while there was not much I/O - but
+> when we tried to produce large amounts of data last week, read and
+> write performance went down to inacceptable low rates. The load of
+> the machine went high up to 8,9,10... and every disk access stopped
+> processes from responding for a few seconds (nedit, ls). An "rm" of
+> many small files made the machine not react to "reboot" anymore, I
+> had to reset it.
 
-I have couple of questions though... 
-1. Was this var made per-cpu just to avoid  atomic_t or locking 
-   or are there real life workloads which cause too many sock_alloc
-   and sock_releases to cause cacheline bouncing?
-2. Is this var required? since we can just sum up all proto->stats.inuse 
-   and remove this var altogether? (This var is read only for /proc 
-   reporting)
+Can you provide solid numbers (say Mb/s) of single dd's of varying
+size? Of concurrent dd's? etc...
 
-Thanks,
-Kiran
+> When I am working all alone on the disk creating a 1 GB file by
+> time dd if=/dev/zero of=testfile bs=1G count=1
+> results in real times from 14 seconds when I am very lucky up to 4
+> minutes usually.
+> Watching vmstat 1 shows me that "bo" drops quickly down from rates in
+> the 10 or 20 thousands to low rates of about 2 or 3 thousands when
+> the runs take so long.
 
-
-diff -ruN -X dontdiff linux-2.5.52/net/socket.c sockets_in_use-2.5.52/net/socket.c
---- linux-2.5.52/net/socket.c	Mon Dec 16 07:37:53 2002
-+++ sockets_in_use-2.5.52/net/socket.c	Mon Dec 23 11:48:44 2002
-@@ -189,10 +189,7 @@
-  *	Statistics counters of the socket lists
-  */
- 
--static union {
--	int	counter;
--	char	__pad[SMP_CACHE_BYTES];
--} sockets_in_use[NR_CPUS] __cacheline_aligned = {{0}};
-+static DEFINE_PER_CPU(int, sockets_in_use);
- 
- /*
-  *	Support routines. Move socket addresses back and forth across the kernel/user
-@@ -475,7 +472,8 @@
- 	inode->i_uid = current->fsuid;
- 	inode->i_gid = current->fsgid;
- 
--	sockets_in_use[smp_processor_id()].counter++;
-+	get_cpu_var(sockets_in_use)++;
-+	put_cpu_var(sockets_in_use);
- 	return sock;
- }
- 
-@@ -511,7 +509,8 @@
- 	if (sock->fasync_list)
- 		printk(KERN_ERR "sock_release: fasync list not empty!\n");
- 
--	sockets_in_use[smp_processor_id()].counter--;
-+	get_cpu_var(sockets_in_use)--;
-+	put_cpu_var(sockets_in_use);
- 	if (!sock->file) {
- 		iput(SOCK_INODE(sock));
- 		return;
-@@ -1851,7 +1850,7 @@
- 	int counter = 0;
- 
- 	for (cpu = 0; cpu < NR_CPUS; cpu++)
--		counter += sockets_in_use[cpu].counter;
-+		counter += per_cpu(sockets_in_use, cpu);
- 
- 	/* It can be negative, by the way. 8) */
- 	if (counter < 0)
+Yes, and provide us with vmstat, top, cat /proc/meminfo output
+and the like!
+--
+vda

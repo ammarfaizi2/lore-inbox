@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273691AbRJYNSd>; Thu, 25 Oct 2001 09:18:33 -0400
+	id <S273854AbRJYNYD>; Thu, 25 Oct 2001 09:24:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273729AbRJYNSX>; Thu, 25 Oct 2001 09:18:23 -0400
-Received: from viper.haque.net ([66.88.179.82]:14215 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S273691AbRJYNSM>;
-	Thu, 25 Oct 2001 09:18:12 -0400
-Date: Thu, 25 Oct 2001 09:18:41 -0400 (EDT)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Max number of open files in 2.4.x
-In-Reply-To: <20011025151343.21b3daef.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33.0110250917120.25423-100000@viper.haque.net>
+	id <S273831AbRJYNXy>; Thu, 25 Oct 2001 09:23:54 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:33172 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S273796AbRJYNXl>; Thu, 25 Oct 2001 09:23:41 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+Cc: Andre Margis <andre@sam.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.13 high SWAP
+In-Reply-To: <Pine.LNX.4.21.0110241509250.885-100000@freak.distro.conectiva> <9r73pv$8h1$1@penguin.transmeta.com>
+Organisation: SAP LinuxLab
+Date: 25 Oct 2001 15:23:03 +0200
+In-Reply-To: <Pine.LNX.4.21.0110241509250.885-100000@freak.distro.conectiva>
+Message-ID: <m3lmhz26rs.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Oct 2001, Stephan von Krawczynski wrote:
+Hi Marcelo,
 
-> Hello all,
->
-> Do I really have to patch source and recompile a 2.4 kernel to modify the
-> maximum number of open files?
->
-> Why is there such a hardcoded limit anyway?
->
+On Wed, 24 Oct 2001, Marcelo Tosatti wrote:
+> Remember: Everything copied to tmpfs will be kept in memory, so if
+> you simply copy way too much data to tmpfs thats your problem :)
 
-No need to patch. Check out the entry in /proc/sys/fs/file-max
-	$ cat /proc/sys/fs/file-max
+Nope, it will swap it out.
 
-To change the value:
-	echo XXXXX > /proc/sys/fs/file-max
+On Wed, 24 Oct 2001, Linus Torvalds wrote:
+> Ok, the problem appears to be that tmpfs stuff just stays on the
+> inactive list, and because it cannot be written out it eventually
+> totally clogs the system.
+> 
+> Suggested fix appended (from Andrea),
 
--- 
+> --- v2.4.13/linux/fs/ramfs/inode.c	Tue Oct  9 17:06:53 2001
+> +++ linux/fs/ramfs/inode.c	Wed Oct 24 08:59:21 2001
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
+tmpfs != ramfs. So either the patch is not complete or fixes another
+problem...
 
-  "Alcohol and calculus don't mix.             Developer/Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+Greetings
+		Christoph
+
 

@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277527AbRJER6m>; Fri, 5 Oct 2001 13:58:42 -0400
+	id <S277533AbRJESIM>; Fri, 5 Oct 2001 14:08:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277531AbRJER6c>; Fri, 5 Oct 2001 13:58:32 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:5801 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S277527AbRJER6O>;
-	Fri, 5 Oct 2001 13:58:14 -0400
-Date: Fri, 05 Oct 2001 10:54:02 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: =?ISO-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Olaf Zaplinski <o.zaplinski@mediascape.de>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.11-pre4
-Message-ID: <1551862685.1002279242@mbligh.des.sequent.com>
-In-Reply-To: <1546529396.1002273909@mbligh.des.sequent.com>
-X-Mailer: Mulberry/2.0.8 (Win32)
+	id <S277534AbRJESID>; Fri, 5 Oct 2001 14:08:03 -0400
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:40975 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S277533AbRJESHs>; Fri, 5 Oct 2001 14:07:48 -0400
+Message-ID: <3BBDF6BC.5000300@zk3.dec.com>
+Date: Fri, 05 Oct 2001 14:06:52 -0400
+From: Peter Rival <frival@zk3.dec.com>
+Organization: Tru64 QMG Performance Engineering
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: paulus@samba.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        trini@kernel.crashing.org, benh@kernel.crashing.org
+Subject: Re: [PATCH] change name of rep_nop
+In-Reply-To: <E15pW6U-0006Xx-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Odd. Compiles for me with and without SMP support turned on.
+Alan Cox wrote:
 
-My fault. I'd tested this on SMP and Uniproc, but not uniproc with
-IO apic support. Try this patch:
+>>Here is a patch that addresses those three issues.  It adds an empty
+>>definition of cpu_relax for all architectures except x86 (for x86 it
+>>is defined to be rep_nop), and it changes smp_init to use a barrier
+>>instead of making wait_init_idle be volatile.
+>>
+>>
+> 
+> Looks good to me
 
---- smp.h.old	Fri Oct  5 10:46:40 2001
-+++ smp.h	Fri Oct  5 10:48:37 2001
-@@ -31,9 +31,20 @@
- #  define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all procs */
- # endif
- #else
-+# define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
- # define TARGET_CPUS 0x01
- #endif
- 
-+#ifndef clustered_apic_mode
-+ #ifdef CONFIG_MULTIQUAD
-+  #define clustered_apic_mode (1)
-+  #define esr_disable (1)
-+ #else /* !CONFIG_MULTIQUAD */
-+  #define clustered_apic_mode (0)
-+  #define esr_disable (0)
-+ #endif /* CONFIG_MULTIQUAD */
-+#endif 
-+
- #ifdef CONFIG_SMP
- #ifndef ASSEMBLY
- 
-@@ -76,16 +87,6 @@
- extern volatile int physical_apicid_to_cpu[MAX_APICID];
- extern volatile int cpu_to_logical_apicid[NR_CPUS];
- extern volatile int logical_apicid_to_cpu[MAX_APICID];
--
--#ifndef clustered_apic_mode
-- #ifdef CONFIG_MULTIQUAD
--  #define clustered_apic_mode (1)
--  #define esr_disable (1)
-- #else /* !CONFIG_MULTIQUAD */
--  #define clustered_apic_mode (0)
--  #define esr_disable (0)
-- #endif /* CONFIG_MULTIQUAD */
--#endif 
- 
- /*
-  * General functions that each host system must provide.
+
+You also need to move the call to smp_boot_cpus() below the 
+clear_bit(...) line in smp_init().  Without it, my Wildfire doesn't get 
+past the while(wait_init_idle) loop - seems all of the CPUs have already 
+done their work before the mask is set.  Besides, it's the right place 
+for it anyway.  I'd generate a patch, but my system is bogged down in a 
+benchmark for the next couple of hours.  If someone says so, I'll 
+generate the patch after that...
+
+  - Pete
+
 

@@ -1,82 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTJAWwv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 18:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTJAWwv
+	id S261646AbTJAWrO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 18:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTJAWrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 18:52:51 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:45767 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262598AbTJAWwt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 18:52:49 -0400
-Date: Thu, 2 Oct 2003 00:52:48 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Rik van Riel <riel@redhat.com>, torvalds@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org, vserver@solucorp.qc.ca
-Subject: Re: [vserver] Re: sys_vserver
-Message-ID: <20031001225247.GA26496@DUK2.13thfloor.at>
-Mail-Followup-To: Chris Wright <chrisw@osdl.org>,
-	Rik van Riel <riel@redhat.com>, torvalds@osdl.org, greg@kroah.com,
-	linux-kernel@vger.kernel.org, vserver@solucorp.qc.ca
-References: <20031001115127.A14425@osdlab.pdx.osdl.net> <Pine.LNX.4.44.0310011454530.19538-100000@chimarrao.boston.redhat.com> <20031001121536.J14398@osdlab.pdx.osdl.net> <20031001194747.GA24632@DUK2.13thfloor.at> <20031001141654.N14398@osdlab.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031001141654.N14398@osdlab.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+	Wed, 1 Oct 2003 18:47:14 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:19460 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id S261646AbTJAWrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 18:47:08 -0400
+Date: Wed, 1 Oct 2003 23:47:01 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: David Woodhouse <dwmw2@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test6: Oops at 'sysexit' on all threads after APM resume.
+In-Reply-To: <1065020242.21551.285.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.44.0310012329260.7095-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 02:16:54PM -0700, Chris Wright wrote:
-> * Herbert Poetzl (herbert@13thfloor.at) wrote:
-> > 
-> > one of the advantages the current _and_ future vserver project
-> > has over 'changing/setting some features for a process' is the
-> > concept of a context layer, residing between kernel and processes
-> > _belonging_ to a context ...
+On Wed, 1 Oct 2003, David Woodhouse wrote:
+> general protection fault: 0000 [#11]
+> CPU:	0
+> EIP:	0060:[<c010b3f5>]	Not tainted
+> EFLAGS:	00010246
+> EIP is at sysenter_past_esp+0x6e/0x71
+> eax: 00000001   ebx: 00000000    ecx: bffffd78   edx: ffffe410
+> esi: 0804b280   edi: bffffdab    ebp: d6056000   esp: d6057fc4
 > 
-> Yes, I agree, this is a useful abstraction.
-> 
-> > you could, for example set up a context which allows a maximum
-> > of 10 processes, limited to one ethernet interface, using it's
-> > own root/user quota, start some 'virtual' server in this context
-> > doing all this init stuff, and then visit this context from
-> > outside, via a simple 'context' change ... if you've got the
-> > right capabilities/permissions ...
-> > 
-> > I can not imagine how you would do that with the /proc/<pid>/attr/
-> > interface, but I'm sure you can explain it to me ...
-> 
-> Put it this way, typical security modules have a notion of a
-> context, and the ability to grant/deny actions base on the context.
-> The /proc/<pid>/attr interface is how you can set/retrieve the context
-> per process, and subsequent fork/exec's can chose how to propagate
-> that context.  I believe a reasonable portion of vserver can become a
-> security module, but there would clearly remain a need for some of the
-> virtualization (e.g. hostname, etc.).
+> 0xc010b3f5 <sysenter_past_esp+110>:     sysexit
 
-hmm, okay I see it now clearly, we should take
-the approach which was so successful for scsi ...
+Glad to have your company.  Don't know when this started, first saw it
+when I started using Dell Latitude C610 with RH9 a couple of weeks ago.
+I use the workaround patch below (leaving warning in to remind me it's
+not really a fix).  Seems some uses of suspend key go the intended route
+(lots of noisy debug messages) e.g. the first after reboot; but some
+bypass it completely e.g. the next.  And in that latter case, the vital
+MSRs are not reinitialized.  Sorry, no time at present to follow it up.
 
-echo "vserver add-new-vserver 100 0 1 192 0 0 1" >/proc/1/attr/new
+Hugh
 
-and of course to 'change' the context, a simple
+--- 2.6.0-test6/arch/i386/kernel/sysenter.c	2003-08-09 05:44:45.000000000 +0100
++++ linux/arch/i386/kernel/sysenter.c	2003-10-01 23:27:50.576482336 +0100
+@@ -34,6 +34,32 @@
+ 	put_cpu();	
+ }
+ 
++int fixup_sysenter(void)
++{
++#ifdef CONFIG_X86_HIGH_ENTRY
++	struct tss_struct *tss = (struct tss_struct *) __fix_to_virt(FIX_TSS_0);
++#else
++	struct tss_struct *tss = init_tss;
++#endif
++	unsigned int cs, esp, eip, high;
++	int ret = 0;
++
++	if (!boot_cpu_has(X86_FEATURE_SEP))
++		return 0;
++	tss += get_cpu();
++	rdmsr(MSR_IA32_SYSENTER_CS, cs, high);
++	rdmsr(MSR_IA32_SYSENTER_ESP, esp, high);
++	rdmsr(MSR_IA32_SYSENTER_EIP, eip, high);
++	if (cs != __KERNEL_CS || esp != tss->esp1 ||
++	    eip != (unsigned long) sysenter_entry) {
++		enable_sep_cpu(NULL);
++		printk("fixup_sysenter: %x %x %x\n", cs, esp, eip);
++		ret = 1;
++	}
++	put_cpu();
++	return ret;
++}
++
+ /*
+  * These symbols are defined by vsyscall.o to mark the bounds
+  * of the ELF DSO images included therein.
+--- 2.6.0-test6/arch/i386/kernel/traps.c	2003-09-28 07:31:58.000000000 +0100
++++ linux/arch/i386/kernel/traps.c	2003-10-01 23:27:50.593479752 +0100
+@@ -388,7 +388,7 @@
+ 	return;
+ 
+ gp_in_kernel:
+-	if (!fixup_exception(regs))
++	if (!fixup_sysenter() && !fixup_exception(regs))
+ 		die("general protection fault", regs, error_code);
+ }
+ 
 
-echo "vserver change-to-old-context 100" >/proc/self/attr/migrate
-(and it was never seen again, because it vanished in context 100)
-
-will be sufficient ...
-
-seriously I am completely on your side if we talk about
-limiting a process or changing it's environment, even
-if we talk about setting a class assignment, but I just 
-don't believe it's the perfect solution for everything ...
-
-best,
-Herbert
-
-> thanks,
-> -chris
-> -- 
-> Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

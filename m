@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277658AbRJIAW0>; Mon, 8 Oct 2001 20:22:26 -0400
+	id <S277665AbRJIAX4>; Mon, 8 Oct 2001 20:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277662AbRJIAWR>; Mon, 8 Oct 2001 20:22:17 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:45068 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S277660AbRJIAWI>;
-	Mon, 8 Oct 2001 20:22:08 -0400
-Date: Mon, 8 Oct 2001 17:15:26 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.10-acX
-Message-ID: <20011008171526.A30659@kroah.com>
-In-Reply-To: <1002562837.8724.4.camel@tiger> <E15qeo4-0001MW-00@the-village.bc.nu>
+	id <S277662AbRJIAXh>; Mon, 8 Oct 2001 20:23:37 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:29947 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S277661AbRJIAXS>;
+	Mon, 8 Oct 2001 20:23:18 -0400
+Date: Tue, 9 Oct 2001 02:23:41 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Seiichi Nakashima <nakasei@kamakura.mdis.co.jp>
+Cc: linux-kernel@vger.kernel.org, nakasei@fa.mdis.co.jp
+Subject: Re: linux-2.0.40-pre2 patch error
+Message-ID: <20011009022341.Z7800@khan.acc.umu.se>
+In-Reply-To: <20010923145654.F26627@khan.acc.umu.se> <200110090013.AA00291@MJ136.kamakura.mdis.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E15qeo4-0001MW-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <200110090013.AA00291@MJ136.kamakura.mdis.co.jp>; from nakasei@kamakura.mdis.co.jp on Tue, Oct 09, 2001 at 09:13:38AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 08, 2001 at 07:07:12PM +0100, Alan Cox wrote:
-> -	Various USB toys
+On Tue, Oct 09, 2001 at 09:13:38AM +0900, Seiichi Nakashima wrote:
+> Dear. David Weinehall
+> 
+> I am Seiichi Nakashima.
+> 
+> >
+> >Thanks a lot. I've fixed those two warnings and the error in my tree;
+> >expect a pre2 shortly.
 
-I've been working on sending changes to Linus to reduce the differences
-in the USB trees.  This processes isn't finished yet.
+Ok, that's of course because of stupid me applying a patch to
+the wrong kernel-tree. Sigh...
 
-thanks,
+Will be fixed in v2.0.40-pre3. This code isn't ever executed by the
+kernel afaict, but non-the-less it's good to be correct.
 
-greg k-h
+
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

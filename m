@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129881AbQL1Opb>; Thu, 28 Dec 2000 09:45:31 -0500
+	id <S129997AbQL1Oqm>; Thu, 28 Dec 2000 09:46:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129997AbQL1OpV>; Thu, 28 Dec 2000 09:45:21 -0500
-Received: from p3EE3C765.dip.t-dialin.net ([62.227.199.101]:18692 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S129881AbQL1OpL>; Thu, 28 Dec 2000 09:45:11 -0500
-Date: Thu, 28 Dec 2000 15:14:41 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.2.18: /proc/apm slows system time (was: Linux 2.2.19pre3)
-Message-ID: <20001228151441.A3473@emma1.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20001228112305.A2571@emma1.emma.line.org> <E14Bc2d-0003e0-00@the-village.bc.nu> <20001228145337.A2887@emma1.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001228145337.A2887@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Thu, Dec 28, 2000 at 14:53:37 +0100
+	id <S130329AbQL1Oqc>; Thu, 28 Dec 2000 09:46:32 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:35822 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129997AbQL1OqT>; Thu, 28 Dec 2000 09:46:19 -0500
+Date: Thu, 28 Dec 2000 12:14:52 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Dan Aloni <karrde@callisto.yi.org>, Zlatko Calusic <zlatko@iskon.hr>,
+        "Marco d'Itri" <md@Linux.IT>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexander Viro <viro@math.psu.edu>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: innd mmap bug in 2.4.0-test12
+In-Reply-To: <Pine.LNX.4.10.10012271537260.10485-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0012281210480.14052-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2000, Matthias Andree wrote:
-
-> Relevant dmesg:
-> apm: BIOS version 1.2 Flags 0x03 (Driver version 1.13)
+On Wed, 27 Dec 2000, Linus Torvalds wrote:
+> On Wed, 27 Dec 2000, Rik van Riel wrote:
+> > 
+> > The (trivial) patch below should fix this problem.
 > 
+> It must be wrong.
 > 
-> Board: Gigabyte 7ZXR, BIOS rev. F4 (VIA KT133 chip set, AMIBIOS).
+> If we have a dirty page on the LRU lists, that page _must_ have
+> a mapping.
 
-That's not a notebook, with a Duron CPU.
+Hmm, last I looked buffercache pages didn't have
+page->mapping set ...
 
-For what it's worth, here's a current /proc/apm output:
+And before anyone gets afraid that pure buffercache
+pages get skipped ... they're caught by page_launder()
+just fine, in the `if (page->buffers)' code below the
+dirty page writeout code.
 
-1.13 1.2 0x03 0x01 0xff 0x80 -1% -1 ?
+regards,
 
-That does not really tell us any more than we have APM driver version
-1.13, APM BIOS v1.2, that it does support 16 and 32 bit, but idle does
-not slow the clock, APM is engaged and enabled, that we're running
-on-line and we don't know how long the power plants will last ;-)
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

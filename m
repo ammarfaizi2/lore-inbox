@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262501AbREUVvb>; Mon, 21 May 2001 17:51:31 -0400
+	id <S262500AbREUVtB>; Mon, 21 May 2001 17:49:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262502AbREUVvV>; Mon, 21 May 2001 17:51:21 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:47314 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262504AbREUVvK>;
-	Mon, 21 May 2001 17:51:10 -0400
-Date: Mon, 21 May 2001 17:51:08 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Pavel Machek <pavel@suse.cz>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Matthew Wilcox <matthew@wil.cx>, Andrew Clausen <clausen@gnu.org>,
-        Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <E151xFO-0000ue-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0105211745490.12245-100000@weyl.math.psu.edu>
+	id <S262501AbREUVsv>; Mon, 21 May 2001 17:48:51 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:32251 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262500AbREUVsi>; Mon, 21 May 2001 17:48:38 -0400
+Message-ID: <3B098CF6.722B2B9D@vnet.ibm.com>
+Date: Mon, 21 May 2001 21:47:34 +0000
+From: Tom Gall <tom_gall@vnet.ibm.com>
+Reply-To: tom_gall@vnet.ibm.com
+Organization: IBM
+X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+        torvalds@transmeta.com
+Subject: PATCH: New iSeries Device Drivers
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
+Enclosed you will find for your consideration a set of new device drivers for
+iSeries boxes. This submission is against 2.4.4. 
 
-On Mon, 21 May 2001, Alan Cox wrote:
+Additionally in the background there is also a submission which has been made to
+the ppc maintainers for the set of changes to arch/ppc and include/asm-ppc to
+enable iSeries boxes to run Linux. Those should bubble up soon.
 
-> > Which, BTW, is a wonderful reason for having multiple channels. Instead
-> > of write(fd, "critical_command", 8); read(fd,....); you read from the right fd.
-> > Opened before you enter the hotspot. Less overhead than ioctl() would
-> > have...
-> 
-> The ioctl is one syscall, the read/write pair are two. Im not sure that ioctl
-> is going to be more overhead there. In the video4linux case the high overhead
-> is acking frames received by mmap so might conceivably be considered one way
+The new device drivers are for:
 
-Sure. But we have to do two syscalls only if ioctl has both in- and out-
-arguments that way. Moreover, we are talking about non-trivial in- arguments.
-How many of these are in hotspots?
+virtual console
+virtual harddrive
+virtual ethernet
+virtual tape
+virtual cd
 
+These device drivers will also be used in the up coming ppc64 architecture.
+
+Rather than spamming the list with ~6800 lines of driver code, you can obtain it
+via 
+http://www.ibm.com/linux/ltc/projects/ppc/patches/patch-lpar-dev.gz or via
+ftp.kernel.org/pub/linux/kernel/people/tgall/patch-lpar-dev.gz
+
+Background:
+
+iSeries boxes are otherwise known as IBM's AS/400, a midrange business computer.
+Linux runs on these machines in a logical partition, so akin to how the S390
+runs Linux, iSeries allows you to have multiple Linux boxes running side by side
+on the same machine. Since multiple linux boxes must share physical resources,
+these virtual drivers were developed. The virtual ethernet goes a step beyond
+and allows you to setup your own high speed lan "inside" of the box without
+consuming physical resources.
+
+Also see http://www.ibm.com/linux/ltc/projects/ppc/iSeries_notes.php or
+http://www.ibm.com/servers/eserver/iseries/linux/ for more information.
+
+Regards,
+
+Tom
+-- 
+Tom Gall - PPC64                 "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://www.ibm.com/linux/ltc/projects/ppc

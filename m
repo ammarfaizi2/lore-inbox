@@ -1,77 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbUBUFfH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 00:35:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbUBUFfH
+	id S261516AbUBUFrg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 00:47:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbUBUFrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 00:35:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:217 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261496AbUBUFfA (ORCPT
+	Sat, 21 Feb 2004 00:47:35 -0500
+Received: from hera.kernel.org ([63.209.29.2]:29117 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261516AbUBUFre (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 00:35:00 -0500
-Date: Fri, 20 Feb 2004 21:31:57 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: macka@adixein.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: RE: PROBLEM: Panic booting from USB disk in ioremap.c (line 81)
-Message-Id: <20040220213157.7da96979.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 21 Feb 2004 00:47:34 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: BOOT_CS
+Date: Sat, 21 Feb 2004 05:47:29 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c16rdh$gtk$1@terminus.zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1077342449 17333 63.209.29.3 (21 Feb 2004 05:47:29 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Sat, 21 Feb 2004 05:47:29 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Anyone happen to know of any legitimate reason not to reload %cs in
+head.S?  I think the following would be a lot cleaner, as well as a
+lot safer (the jump and indirect branch aren't guaranteed to have the
+proper effects, although technically neither should be required due to
+the %cr0 write):
 
-As enumerated below:
-| Calling initcall 0xc03f7e19 pcibios_init
-| Calling initcall 0xc03f819c netdev_init
-| Calling initcall 0xc03f1e7c chr_dev_init
-| Calling initcall 0xc03e7084 i8259_init_sysfs
-| Calling initcall 0xc03e7101 init_timer_sysfs
-| Calling initcall 0xc03e90e2 sbf_init
-
-
-I still don't see how USB enters into it, but please try the patch
-below to see if I'm on the right track or not.
-It looks like sbf_init() is finding an invalid ACPI RSDT length field.
-This patch will telll us if that's the case or not.
-
---
-~Randy
-
-
-// Linux 2.6.3
-// handle a garbage RSDT length field;
-
-diffstat:=
- arch/i386/kernel/bootflag.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletion(-)
+@@ -117,10 +147,7 @@
+        movl %cr0,%eax
+        orl $0x80000000,%eax
+        movl %eax,%cr0          /* ..and set paging (PG) bit */
+-       jmp 1f                  /* flush the prefetch-queue */
+-1:
+-       movl $1f,%eax
+-       jmp *%eax               /* make sure eip is relocated */
++       ljmp $__BOOT_CS,$1f     /* Clear prefetch and normalize %eip
+*/
+ 1:
+        /* Set up the stack pointer */
+        lss stack_start,%esp
 
 
-diff -Naurp ./arch/i386/kernel/bootflag.c~sbfinit ./arch/i386/kernel/bootflag.c
---- ./arch/i386/kernel/bootflag.c~sbfinit	2004-02-17 19:59:06.000000000 -0800
-+++ ./arch/i386/kernel/bootflag.c	2004-02-20 21:26:51.000000000 -0800
-@@ -193,7 +193,8 @@ static int __init sbf_init(void)
- 	if(i>0xFFFE0)
- 		return 0;
- 		
--		
-+	printk(KERN_ERR "SBF: remap rsdt to 0x%x, len=0x%x\n",
-+			rsdtbase, rsdtlen);
- 	rsdt = ioremap(rsdtbase, rsdtlen);
- 	if(rsdt == 0)
- 		return 0;
-@@ -208,6 +209,11 @@ static int __init sbf_init(void)
- 	{
- 		rsdtlen = i;
- 		iounmap(rsdt);
-+		if (rsdtlen > 0x1000) {	/* arbitrary for now */
-+			printk(KERN_ERR "SBF: invalid rsdtlen = 0x%x\n",
-+					rsdtlen);
-+			return 0;
-+		}
- 		rsdt = ioremap(rsdtbase, rsdtlen);
- 		if(rsdt == 0)
- 			return 0;
+I've been doing some cleanups in head.S after making the early page
+tables dynamic.
+
+	-hpa

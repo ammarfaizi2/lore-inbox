@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVC2Qig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVC2Qi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVC2Qig (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 11:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVC2Qig
+	id S261205AbVC2Qi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 11:38:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVC2Qi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 11:38:36 -0500
-Received: from digitalimplant.org ([64.62.235.95]:945 "HELO digitalimplant.org")
-	by vger.kernel.org with SMTP id S261210AbVC2QiV (ORCPT
+	Tue, 29 Mar 2005 11:38:26 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:50132 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261205AbVC2QiV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 29 Mar 2005 11:38:21 -0500
-Date: Tue, 29 Mar 2005 08:38:11 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Alan Stern <stern@rowland.harvard.edu>
-cc: David Brownell <david-b@pacbell.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: klists and struct device semaphores
-In-Reply-To: <Pine.LNX.4.44L0.0503281417370.1185-100000@ida.rowland.org>
-Message-ID: <Pine.LNX.4.50.0503290823170.9904-100000@monsoon.he.net>
-References: <Pine.LNX.4.44L0.0503281417370.1185-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200503291638.j2TGcJhY023869@laptop11.inf.utfsm.cl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.12-rc1 from bk today: Build failure on i386
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 29 Mar 2005 12:38:19 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 29 Mar 2005 12:38:19 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm getting:
 
-On Mon, 28 Mar 2005, Alan Stern wrote:
+  CC [M]  net/sched/cls_u32.o
+  net/sched/cls_u32.c: In function `u32_dump':
+  net/sched/cls_u32.c:778: error: structure has no member named `action'
+  net/sched/cls_u32.c:778: error: structure has no member named `action'
+  make[2]: *** [net/sched/cls_u32.o] Error 1
+  make[1]: *** [net/sched] Error 2
 
-> On Mon, 28 Mar 2005, Patrick Mochel wrote:
-
-> > Do you have suggestions about an alternative (with code)?
->
-> Here's something a little better than pseudocode but not as good as a
-> patch... :-)
-
-> To fill the first field in correctly requires that klist creation use a
-> macro; the details are unimportant.  What is important is that during
-> klist_node_init you add:
-
-In principle, you're right. Kind of. We need to tie the "usage" reference
-count of the klist_node to the containing objects' "lifetime" count. But,
-there is no need to confuscate the klist code to do it. At least not at
-this point.
-
-The subsystems that use the code must be sure to appropriately manage the
-lifetime rules of the containing objects. That is true no matter what.
-When they add a node, they should increment the reference count of the
-containing object and decrement when the node is removed. If practice
-shows that there is more that can be rolled into the model, then we can
-revisit it later.
-
-[ Sidebar: Perhaps we can add a callback parameter to klist_remove() to
-call when the node has been removed, instead of the struct completion. ]
-
-
-	Pat
+The patch including the reference to action there is quite recent: 25
+March, by hadi@cyberus.ca and signed off by David Miller. There are other
+files mangled in similar ways in the same changeset.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

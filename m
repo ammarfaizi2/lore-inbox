@@ -1,71 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVCGWzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVCGW6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbVCGWzH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 17:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVCGWya
+	id S261802AbVCGW6z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 17:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVCGW4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 17:54:30 -0500
-Received: from cpc1-oxfd2-6-0-cust43.oxfd.cable.ntl.com ([81.103.191.43]:18441
-	"EHLO fluffy.bear-cave.org.uk") by vger.kernel.org with ESMTP
-	id S261854AbVCGWJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 17:09:27 -0500
-Message-ID: <XFMail.20050307220832.jim.hague@acm.org>
-X-Mailer: XFMail 1.5.4 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 7 Mar 2005 17:56:37 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:65499 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261802AbVCGWLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 17:11:25 -0500
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: David Brownell <david-b@pacbell.net>, Randy Dunlap <rddunlap@osdl.org>,
+       linux-usb-devel@lists.sourceforge.net, fastboot@osdl.org,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: kexec and IRQ sharing
+References: <Pine.LNX.4.44L0.0503071555530.1789-100000@ida.rowland.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Mar 2005 15:08:17 -0700
+In-Reply-To: <Pine.LNX.4.44L0.0503071555530.1789-100000@ida.rowland.org>
+Message-ID: <m1k6ojm7n2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-In-Reply-To: <Pine.LNX.4.60.0503072119420.6636@poirot.grange>
-Date: Mon, 07 Mar 2005 22:08:32 -0000 (GMT)
-X-Face: #e_3/{lz7I8PY]c%cr|7\sfMTD|Ar*F0e~U%InA`aG0^}hG2hT`H9Lr=R?Nl,9-cP)_o}BN
- DAB"m_&V"ntfjv%6q30^]Q\<YL5[mLMi"X_qm`eA^AA?-SC>NTny77`@0?P@FpO{b*dM409XvO$kmP
- [~W=-Cm~|#49QE;@'K}LGK}??aD=>|x=B:n6"`}!9FIrtfOx%`hTC5#VFORluPrtN_#-_6b,Cu^NF|
- :D=97AFz\(mw=K
-Organization: The Bear Cave
-From: Jim Hague <jim.hague@acm.org>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: Re: [2.6.11 Permedia-2 Framebuffer] driver broken (?).
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guennadi,
+Alan Stern <stern@rowland.harvard.edu> writes:
 
-> Thanks for the patch. Yes, it does fix switching between X and VT.
+> On 7 Mar 2005, Eric W. Biederman wrote:
+> 
+> > Alan Stern <stern@rowland.harvard.edu> writes:
+> > 
+> > > Shared IRQs will always be a problem.  And the PCI subsystem doesn't
+> > > implement shutdown() methods; that seems like a pretty big hole.  I guess 
+> > > individual drivers can always create their own, however.
+> > 
+> > Not having seen this in practice what is the bad effect
+> > that happens with shared irqs.  I know there is a warning messages
+> > but is there anything beyond this, such as the irq being stuck on?
+> 
+> The problem comes when two devices share an IRQ line and at least one of 
+> them is actively generating interrupt requests.  An ethernet interface or 
+> a USB controller would make a good example, if they weren't shut down 
+> properly during a kexec reboot.
+> 
+> Let's say devices A and B share the same IRQ, and B has an interrupt
+> request pending.  Initially all the IRQ lines are disabled; they only get
+> enabled as drivers request them.  So consider what happens when the driver
+> for A is initialized.  It will probe A and will request the IRQ line be
+> enabled.  B's outstanding request will immediately interrupt the
+> processor.  But since there's no driver loaded for B, nobody will claim
+> the interrupt or clear its source.
+> 
+> Result: The kernel warns about interrupts not owned by a driver, and 
+> automatically disables the IRQ line.  Now device A is in trouble.  
+> Obviously it can't function correctly without interrupts.  B will be in 
+> trouble too, when its driver loads.
+> 
+> This is exactly what happened to Laurent Riffard in
+> 
+> http://bugme.osdl.org/show_bug.cgi?id=4294
+> 
+> Read his full dmesg attachment; you can see where IRQ 5 was triggered as 
+> soon as one of the USB controllers enabled it.  Apparently the other USB 
+> controller had a pending interrupt.
+> 
+> Things wouldn't be quite so bad if setup_irq() would re-enable a disabled
+> shared IRQ when another driver requests it, but it doesn't.  Is this
+> behavior a bug or is it deliberate?
 
-OK, good.
+Very good question.  I'm going to bounce this discussion towards
+linux-kernel and because it appears that the kernels interrupt
+handling behavior could be made more robust.  It looks like
+irqpoll command line option is a step in that direction.
 
-> As for colours / graphics, disabling CONFIG_FB_PM2_FIFO_DISCONNECT fixes
-> that too, but it worked under 2.6.10-rc2 with that option on too. What does
-> it do and why I cannot use it under 2.6.11 any more? The help text to this 
-> option is not very enlightening...
+/sbin/kexec downs network interfaces before calling sys_reboot()
+so for network interfaces this is largely solved.
 
-(To be honest, I've never looked closely at this but inherited it from Illo's
-2.4 driver. Cue scrabbling around in manuals...)
+The ongoing DMA transfers which are companions of the irq generating
+events are what really concern me, as we could get all kinds of
+interesting memory stomps.  Do you think you could implement
+a reboot notifier or a shutdown() method to handle that case?
 
-pm2fb programs the Permedia registers by writing to a FIFO. Normally if you
-attempt to write to the FIFO and the FIFO is full, the write is lost. So pm2fb
-checks before writing that there is sufficient space in the FIFO to hold the
-full command sequence, and if not it loops waiting for the FIFO to empty
-sufficiently.
+This appears to be yet another case of kexec transforming theoretical
+bugs into actual ones.  Groan.
 
-Enabling FIFO_DISCONNECT enables PCI Disconnect. In this mode, if a write to
-the FIFO occurs when the FIFO is full, the Permedia chip enables PCI Disconnect
-which causes the processor to keep retrying the write cycle until the FIFO
-empties and the write succeeds.
-
-On the one hand this allows faster download to the Permedia because you don't
-have to check the FIFO space, but at a cost of hogging the PCI bus (and possibly
-causing interrupt loss) until the Permedia is ready. The programmers manual
-cautions that it should only be used when you know that the Permedia can
-consume data faster than the host can generate it and/or where there are no
-time-critical periperals on the PCI bus.
-
-All of which sounds to me like enabling PCI Disconnect isn't a great idea and
-offers at best infinitesimal speedups. Having said that, the X driver does seem
-to turn it on, which probably shows how much I know. As to why it's suddenly
-stopped working, I have no idea. I'll try it out and see if I see the same
-problems.
-
--- 
-Jim Hague - jim.hague@acm.org          Never trust a computer you can't lift.
+Eric

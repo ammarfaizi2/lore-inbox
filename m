@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268138AbUJNWz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUJNXEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268138AbUJNWz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 18:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268135AbUJNWzh
+	id S267374AbUJNXEz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 19:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUJNWZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 18:55:37 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:28834 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S268142AbUJNWyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 18:54:33 -0400
-Message-ID: <416EFFBE.7B8F702@sgi.com>
-Date: Thu, 14 Oct 2004 17:37:51 -0500
-From: Colin Ngam <cngam@sgi.com>
-Organization: SGI
-X-Mailer: Mozilla 4.79C-SGI [en] (X11; I; IRIX 6.5 IP32)
-X-Accept-Language: en
+	Thu, 14 Oct 2004 18:25:17 -0400
+Received: from brown.brainfood.com ([146.82.138.61]:25474 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S267497AbUJNWRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 18:17:01 -0400
+Date: Thu, 14 Oct 2004 17:16:57 -0500 (CDT)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
+In-Reply-To: <Pine.LNX.4.58.0410141230380.1221@gradall.private.brainfood.com>
+Message-ID: <Pine.LNX.4.58.0410141716160.1221@gradall.private.brainfood.com>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
+ <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
+ <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+ <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+ <20041014143131.GA20258@elte.hu> <Pine.LNX.4.58.0410141230380.1221@gradall.private.brainfood.com>
 MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] Introduce PCI <-> CPU address conversion [1/2]
-References: <20041014124737.GM16153@parcelfarce.linux.theplanet.co.uk> <20041014125348.GA9633@infradead.org> <20041014135323.GO16153@parcelfarce.linux.theplanet.co.uk> <20041014180005.GA11954@infradead.org> <20041014180748.GS16153@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
+On Thu, 14 Oct 2004, Adam Heath wrote:
 
-> On Thu, Oct 14, 2004 at 07:00:06PM +0100, Christoph Hellwig wrote:
-> > For some architectures the sysdata is different for bus vs device, so
-> > yes, we do want strict typechecking.
+> On Thu, 14 Oct 2004, Ingo Molnar wrote:
 >
-> How interesting.  I was under the impression that dev->sysdata was always
-> a copy of the bus's.  If that's not guaranteed, then we're just going
-> to have to dereference the additional pointer and use the bus' sysdata.
-
-Hi Matthew,
-
-On SGI's Altix system, the sysdata for the device is very much different than
-the sysdata for the bus.
-
-Thanks.
-
-colin
-
+> >
+> > i have released the -U1 PREEMPT_REALTIME patch:
+> >
+> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U1
+> >
+> > Changes since -U0:
+> >
+> >  - bugfix: fixed the highmem related crash reported by Adam Heath and i
+> >    think this could also fix the crash reported by Mark H Johnson.
 >
+> I've reenabled highmem(4g).
 >
-> --
-> "Next the statesmen will invent cheap lies, putting the blame upon
-> the nation that is attacked, and every man will be glad of those
-> conscience-soothing falsities, and will diligently study them, and refuse
-> to examine any refutations of them; and thus he will by and by convince
-> himself that the war is just, and will thank God for the better sleep
-> he enjoys after this process of grotesque self-deception." -- Mark Twain
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Seems to be working fine.  Has been running 11 minutes, without problems.
+>
+> ps: Something that irks me.  During bootup, I get the high-latency traces for
+>     swapper/0.  These fill up the dmesg ring buffer, so the early messages get
+>     dropped.  Is there anything that can be done to fix that?
 
+Got my first message.
+
+scheduling while atomic: kswapd0/0x04000001/10
+caller is cond_resched+0x53/0x70
+ [<c027ad31>] schedule+0x531/0x570
+ [<c027b2a3>] cond_resched+0x53/0x70
+ [<c012c604>] _mutex_lock+0x14/0x40
+ [<c0149521>] page_lock_anon_vma+0x31/0x60
+ [<c0149725>] page_referenced_anon+0x15/0x80
+ [<c01498ba>] page_referenced+0x7a/0x80
+ [<c0141635>] refill_inactive_zone+0x435/0x4b0
+ [<c01408a3>] shrink_slab+0x143/0x160
+ [<c0141728>] shrink_zone+0x78/0xc0
+ [<c0141b7a>] balance_pgdat+0x23a/0x2f0
+ [<c0141ced>] kswapd+0xbd/0xf0
+ [<c012c140>] autoremove_wake_function+0x0/0x50
+ [<c01056d2>] ret_from_fork+0x6/0x14
+ [<c012c140>] autoremove_wake_function+0x0/0x50
+ [<c0141c30>] kswapd+0x0/0xf0
+ [<c0103a2d>] kernel_thread_helper+0x5/0x18
+
+Config is as before, with highmem enabled being the only difference.

@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129453AbRCLH0o>; Mon, 12 Mar 2001 02:26:44 -0500
+	id <S129408AbRCLHp1>; Mon, 12 Mar 2001 02:45:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbRCLH0f>; Mon, 12 Mar 2001 02:26:35 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:23739 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S129453AbRCLH0T>;
-	Mon, 12 Mar 2001 02:26:19 -0500
-Message-ID: <3AAC79D1.F9837EE7@mandrakesoft.com>
-Date: Mon, 12 Mar 2001 02:25:05 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre3 i686)
+	id <S129413AbRCLHpR>; Mon, 12 Mar 2001 02:45:17 -0500
+Received: from tigershark.villa-bosch.de ([195.185.79.56]:64529 "EHLO
+	ktaemail01.villa-bosch.de") by vger.kernel.org with ESMTP
+	id <S129408AbRCLHpC>; Mon, 12 Mar 2001 02:45:02 -0500
+Message-ID: <3AAC7E4E.5C511F1D@eml.villa-bosch.de>
+Date: Mon, 12 Mar 2001 08:44:14 +0100
+From: Ralph Gauges <ralph.gauges@eml.villa-bosch.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, elenstev@mesatop.com,
-        kbuild-devel@lists.sourceforge.net, Alan Cox <alan@redhat.com>
-Subject: Re: Rename all derived CONFIG variables
-In-Reply-To: <20736.984380602@ocs3.ocs-net>
+To: linux-kernel@vger.kernel.org
+Subject: ps2 keyboard not recognized in 2.4.2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> In 2.4.2-ac18 there are 130 CONFIG options that are always derived from
-> other options, the user has no control over them.  It is useful for the
-> kernel build process to know which variables are derived and which
-> variables the user can control.  There are also 6 CONFIG options that
-> are not used anywhere.
-> 
-> ftp://ftp.ocs.com.au/pub/2.4.2-ac18-config_derived.gz
-> 
-> is a 583,904 byte (unzipped) 114,291 (gzipped) patch which removes the
-> unused variables and renames the 130 derived variables from CONFIG_FOO
-> to CONFIG_FOO_DERIVED.  The affected variables are :-
+Hi,
 
-Not only do I think that CONFIG_xxx_DERIVED needlessly extends the name
-of derived vars, but your patch does not belong in a stable series. 
-Derived CONFIG_xxx vars are likely to be referenced in source.  Changing
-those vars in the middle of a stable series pointlessly breaks external
-source code.
+I am not exactly new to linux, but right now I am clueless.
+I have been running Kernel 2.4.0ac4 for a while and now I tried to
+upgrade to 2.4.2. Everything went well, but after boot, I can not use
+the keyboard. I can not type a thing, the only way to reboot is to hit
+the reset switch.
+The keyboard is connected to the ps2 port and the mouse is connected to
+the serial port.
+After booting the old kernel, searched through the boot messages, but I
+could not find an error message anywhere.
+I also tried 2.4.2ac16 with the same result.
+Since this a single machine not connected to any other, I can not log in
+to check some things, so I would be very happy if someone could tell me
+what is going wrong.
 
-I hope vendors don't start applying this patch...
+Machine Specs are:
 
-	Jeff
+Athlon 500 on Ausu K7M
+256 MB RAM
+Matrox G400DH
+3x IDE HDD
+1xISA ISDN Card
+Pinnacle Bt848 Board
+Adaptec 2940U2W
+1x DVD-ROM SCSI
+1x ZIP SCSI
+1x YAMAHA CD-RW SCSI
 
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+Thanks a lot
+
+Ralph
+

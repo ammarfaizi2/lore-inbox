@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSIACkq>; Sat, 31 Aug 2002 22:40:46 -0400
+	id <S312590AbSIACvI>; Sat, 31 Aug 2002 22:51:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSIACkq>; Sat, 31 Aug 2002 22:40:46 -0400
-Received: from holomorphy.com ([66.224.33.161]:5266 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S312560AbSIACkp>;
-	Sat, 31 Aug 2002 22:40:45 -0400
-Date: Sat, 31 Aug 2002 19:42:02 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] mysterious tty deadlock
-Message-ID: <20020901024202.GE18114@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Russell King <rmk@arm.linux.org.uk>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-References: <20020828220114.GA878@holomorphy.com> <3D6D4DD0.1900B894@zip.com.au> <20020829002103.B28455@flint.arm.linux.org.uk> <3D6D6558.B2CE77B6@zip.com.au> <20020829012048.B28773@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020829012048.B28773@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S313060AbSIACvI>; Sat, 31 Aug 2002 22:51:08 -0400
+Received: from dp.samba.org ([66.70.73.150]:59056 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S312590AbSIACvI>;
+	Sat, 31 Aug 2002 22:51:08 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Milton D. Miller II" <miltonm@realtime.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: 2.5.32-mm1 
+In-reply-to: Your message of "Sat, 31 Aug 2002 03:24:43 EST."
+             <200208310824.g7V8OhK11791@sullivan.realtime.net> 
+Date: Sun, 01 Sep 2002 12:54:01 +1000
+Message-Id: <20020831215556.898752C06A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 05:05:44PM -0700, Andrew Morton wrote:
->> But yes, he seems to be able to hit it too frequently for this to be
->> the cause.
+In message <200208310824.g7V8OhK11791@sullivan.realtime.net> you write:
+> 
+> In your patch, you have:
+> 
+> +#define cpu_possible(i)				({ BUG_ON((cpu) != 0); 
+1; })
+> 
+> 
+> Shouldn't the cpu match the i in the arg list?
 
-On Thu, Aug 29, 2002 at 01:20:48AM +0100, Russell King wrote:
-> wli - please let me know if Andrew's patch makes any difference for you.
+Err.. no, I was just checking how many people read my patches.
 
-It's not as easy as doing a single run. It occurs "often" but not
-predictably. Some runs will succeed and others will trigger it, so I
-can't reliably tell whether it's been prevented. At the very least
-several attempts need to be made. I'd just apply it since it's
-apparently correct from the audit and I'll try to catch you again when
-it shows up again (like earlier today). Unfortunately that test run was
-on a freshly improvised tree not including this fix. I've included it
-there now and will just have to remember it for the new tree coming up
-(2.5.32-mm4 of course). I had hoped the backtraces would be more helpful,
-and that someone might know what they waited for that had never happened.
+Linus, please apply,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-I only get this once out of 10 or 20 boots, so turnaround is slow. =(
-I did a bunch of boots with it +2.5.32-mm1 but don't remember the results.
+Name: cpu_possible for UP
+Author: Rusty Russell
+Status: Trivial
 
-Cheers,
-Bill
+D: This patch defines cpu_possible() for non-SMP.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.32/include/linux/smp.h working-2.5.32-cpu-possible/include/linux/smp.h
+--- linux-2.5.32/include/linux/smp.h	2002-08-28 09:29:53.000000000 +1000
++++ working-2.5.32-cpu-possible/include/linux/smp.h	2002-08-29 15:30:49.000000000 +1000
+@@ -94,9 +94,10 @@ int cpu_up(unsigned int cpu);
+ static inline void smp_send_reschedule(int cpu) { }
+ static inline void smp_send_reschedule_all(void) { }
+ #define cpu_online_map				1
+-#define cpu_online(cpu)				({ cpu; 1; })
++#define cpu_online(cpu)				({ BUG_ON((cpu) != 0); 1; })
+ #define num_online_cpus()			1
+ #define num_booting_cpus()			1
++#define cpu_possible(cpu)				({ BUG_ON((cpu) != 0); 1; })
+ 
+ struct notifier_block;
+ 

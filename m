@@ -1,46 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262951AbTC0Oh0>; Thu, 27 Mar 2003 09:37:26 -0500
+	id <S262953AbTC0Ona>; Thu, 27 Mar 2003 09:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262952AbTC0Oh0>; Thu, 27 Mar 2003 09:37:26 -0500
-Received: from mail1-3.netinsight.se ([212.247.11.2]:53518 "HELO
-	ernst.netinsight.se") by vger.kernel.org with SMTP
-	id <S262951AbTC0OhX>; Thu, 27 Mar 2003 09:37:23 -0500
-Message-ID: <3E830EC7.651EB9CE@netinsight.se>
-Date: Thu, 27 Mar 2003 15:46:31 +0100
-From: Stephane <stephane.tessier@netinsight.se>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19-16mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Stephane Tessier <stephane.tessier@netinsight.se>
-Subject: exit_mmap
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S262991AbTC0On3>; Thu, 27 Mar 2003 09:43:29 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:1292 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262952AbTC0On1>; Thu, 27 Mar 2003 09:43:27 -0500
+Date: Thu, 27 Mar 2003 14:54:40 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: David Ford <david+cert@blue-labs.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.66 buglet
+Message-ID: <20030327145440.A900@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Ford <david+cert@blue-labs.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <3E827CDA.8030904@blue-labs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E827CDA.8030904@blue-labs.org>; from david+cert@blue-labs.org on Wed, Mar 26, 2003 at 11:23:54PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a question about mmap and the close operation of a
-vm_area_struct.
-Is there a reason why in exit_mmap, when a process dies unexpectedly,
-the vm_ops->close is called before zap_page_range is called?
+On Wed, Mar 26, 2003 at 11:23:54PM -0500, David Ford wrote:
+> <boot dmesg snip>
+> devfs_register(cpu/microcode): illegal mode: 8180
+> </snip>
+> 
+> # ls /dev/cpu
+> # grep -i microcode /boot/2.5.66/.config
+> CONFIG_MICROCODE=y
+> 
+> Not sure how it breaks between .64 where it worked and .66 where it 
+> doesn't.  The code where it's registered doesn't appear to have changed. 
+> arch/i386/kernel/microcode.c, line 137.
 
-The problem is that if you have allocated one or several kernel pages
-for a vm_area_struct, you can not free them in the vm_ops->close
-operation since the count field of the pages is not 0 because they are
-still mapped. The count will be cleared when zap_page_range is called.
+Please try the appended patch.
 
-This means that exit_mmap calls vm_ops->close and zap_page_range in the
-reverse order of a normal execution of the process, that is when the
-process unmap the area before dying.
 
-It would be more deterministic and simple if vm_ops->close was always
-called when all the pages of the area was unmapped.
-
-PS: please can you CC'ed the answer to stephane.tessier@netinsight.se
--- 
-Stephane Tessier
-Net Insight AB          stephane.tessier@netinsight.se
-Västberga Allé 9        http://www.netinsight.se
-SE-126 30 Hägersten     phone:+46-8-685 04 60
-Sweden                  fax:  +46-8-685 04 20
+--- 1.17/arch/i386/kernel/microcode.c	Tue Mar 11 09:16:36 2003
++++ edited/arch/i386/kernel/microcode.c	Thu Mar 27 10:24:37 2003
+@@ -107,7 +107,6 @@
+ static char *mc_applied;            /* array of applied microcode blocks */
+ static unsigned int mc_fsize;       /* file size of /dev/cpu/microcode */
+ 
+-/* we share file_operations between misc and devfs mechanisms */
+ static struct file_operations microcode_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.read		= microcode_read,
+@@ -122,41 +121,33 @@
+ 	.fops	= &microcode_fops,
+ };
+ 
+-static devfs_handle_t devfs_handle;
+-
+ static int __init microcode_init(void)
+ {
+ 	int error;
+ 
+ 	error = misc_register(&microcode_dev);
+ 	if (error)
+-		printk(KERN_WARNING 
+-			"microcode: can't misc_register on minor=%d\n",
+-			MICROCODE_MINOR);
+-
+-	devfs_handle = devfs_register(NULL, "cpu/microcode",
+-			DEVFS_FL_DEFAULT, 0, 0, S_IFREG | S_IRUSR | S_IWUSR, 
+-			&microcode_fops, NULL);
+-	if (devfs_handle == NULL && error) {
+-		printk(KERN_ERR "microcode: failed to devfs_register()\n");
+-		misc_deregister(&microcode_dev);
+-		goto out;
+-	}
+-	error = 0;
++		goto fail;
++	error = devfs_mk_symlink("cpu/microcode", "../misc/microcode");
++	if (error)
++		goto fail_deregister;
++
+ 	printk(KERN_INFO 
+ 		"IA-32 Microcode Update Driver: v%s <tigran@veritas.com>\n", 
+ 		MICROCODE_VERSION);
++	return 0;
+ 
+-out:
++fail_deregister:
++	misc_deregister(&microcode_dev);
++fail:
+ 	return error;
+ }
+ 
+ static void __exit microcode_exit(void)
+ {
+ 	misc_deregister(&microcode_dev);
+-	devfs_unregister(devfs_handle);
+-	if (mc_applied)
+-		kfree(mc_applied);
++	devfs_remove("cpu/microcode");
++	kfree(mc_applied);
+ 	printk(KERN_INFO "IA-32 Microcode Update Driver v%s unregistered\n", 
+ 			MICROCODE_VERSION);
+ }

@@ -1,67 +1,93 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317743AbSFLRAt>; Wed, 12 Jun 2002 13:00:49 -0400
+	id <S317744AbSFLRFp>; Wed, 12 Jun 2002 13:05:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317744AbSFLRAs>; Wed, 12 Jun 2002 13:00:48 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:50187 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S317743AbSFLRAp>; Wed, 12 Jun 2002 13:00:45 -0400
-Message-Id: <200206121700.g5CH0Prd004386@pincoya.inf.utfsm.cl>
-To: Mark Mielke <mark@mark.mielke.cc>
-cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: RFC: per-socket statistics on received/dropped packets 
-In-Reply-To: Message from Mark Mielke <mark@mark.mielke.cc> 
-   of "Wed, 12 Jun 2002 10:53:55 -0400." <20020612105355.A20760@mark.mielke.cc> 
-Date: Wed, 12 Jun 2002 13:00:25 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S317746AbSFLRFp>; Wed, 12 Jun 2002 13:05:45 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:24580 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S317744AbSFLRFn>; Wed, 12 Jun 2002 13:05:43 -0400
+Message-ID: <3D077FE0.7010308@loewe-komp.de>
+Date: Wed, 12 Jun 2002 19:07:44 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+        frankeh@watson.ibm.com
+Subject: Re: [PATCH] Futex Asynchronous Interface
+In-Reply-To: <Pine.LNX.4.44.0206120946100.22189-100000@home.transmeta.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[CC:'s chopped down to the lists]
-
-Mark Mielke <mark@mark.mielke.cc>
-> On Wed, Jun 12, 2002 at 09:00:08AM -0400, jamal wrote:
-> > On Wed, 12 Jun 2002, Lincoln Dale wrote:
-> > > At 08:33 AM 12/06/2002 -0400, jamal wrote:
-> > > >If 3 people need it, then i would like to ask we add lawn mower
-> > > >support that my relatives have been asking for the last 5 years.
-> > > lawn-mower support sounds like a userspace application to me.
-> > But we need a new system call support
+Linus Torvalds wrote:
 > 
-> This is another non-argument not dissimilar to the method of arguing that
-> David has used up to this point.
 > 
-> If lawn-mower support (whatever that is) is something that people
-> would use, then perhaps it *should* be added, even if it needs a new
-> system call. You have not shown a valid argument against your own
-> sarcastic suggestion, other than an implicit sneer.
+> On Wed, 12 Jun 2002, Peter Wächtler wrote:
+> 
+>>For the uncontended case: their is no blocked process...
+>>
+> 
+> Wrong.
+> 
+> The process that holds the lock can die _before_ it gets contended.
+> 
+> When another thread comes in, it now is contended, but the kernel doesn't
+> know about anything.
+> 
+> 
+>>One (or more) process is blocked in a waitqueue in the kernel - waiting
+>>for a futex to be released.
+>>
+>>The lock holder crashes - say with SIGSEGV.
+>>
+> 
+> The lock holder may have crashed long before the waiting process even
+> started waiting.
+> 
+> Besides, the kernel only knows about those processes that see contention.
+> Even if the contention happened _before_ the lock holder crashed, the
+> kernel doesn't know about the lock holder itself - it only knows about the
+> process that caused the contention. The kernel will get to know about the
+> lock holder only when it tris to resolve the contention, and since that
+> one has crashed, that will never happen.
+> 
+> 
+>>I know that the kernel can't do anything about the aborted critical section.
+>>But the waiters should be "freed" - and now we can discuss if we kill them
+>>or report an error and let them deal with that.
+>>
+> 
+> The waiters should absolutely _not_ be freed. There's nothign they can do
+> about it. The data inside the critical region is no longer valid, and
+> 
+> 
+>>Can't be done? I don't think that this would add a performance hit
+>>since it's only done on exit (and especially "abnormal" exit).
+>>
+> 
+> But the point is not that it would be a performance hit on "exit()", but
+> that WE DON'T TRACK THE LOCKS in the kernel in the first place.
+> 
+> Right now the kernel does _zero_ work for a lock that isn't contended. It
+> doesn't know _anything_ about the process that got the lock initially.
+> 
+> Any amount of tracking would be _extremely_ expensive. Right now getting
+> an uncontended lock is about 15 CPU cycles in user space.
+> 
+> Tryin to tell the kernel about gettign that lock takes about 1us on a P4
+> (system call overhead), ie we're talking 18000 cycles. 18 THOUSAND cycles
+> minimum. Compared to the current 15 cycles. That's more than three orders
+> of magnitude slower than the current code, and you just lost the whole
+> point of doing this all in user space in the first place.
+> 
 
-Linux development has _always_ worked by:
+Thanks for this patient explanation. I see the problem now clearly.
 
-1) You have a problem
-2) You come up with a solution
-3) Others use your patch, perhaps refine it
-4) A discussion ensues on the worthyness of the patch
-5) The community (or at least the halfgods in charge of keeping the Holy
-   Source ;-) sees that the patch is worthwile, tested, and has enough
-   users
-6) After some further cleanups and fixes the patch is accepted into the
-   kernel
-7) The code is carried as part of the standard kernel, and updated with it
+To Frank: I will read the (already downloaded) paper ;-)
 
-Being halfway through (2) or going on (3) and whining that _others_ do the
-work to take care of finishing implementing a solution and then maintaining
-it for you (jumping to (7)) won't get you anywehere. Guaranteed.
+And to all: Did you notice the "nutex" approach
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102373047428621&w=2
 
-Perhaps your proposed solution is subobtimal.
-
-Perhaps your problem is so outlandish that a solution has no place in the
-standard kernel.
-
-Perhaps solving the problem, even a common one, isn't worth the effort in
-placing a solution in the kernel, and then maintaining it forever.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

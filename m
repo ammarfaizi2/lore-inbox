@@ -1,128 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129608AbQKFXYA>; Mon, 6 Nov 2000 18:24:00 -0500
+	id <S129406AbQKFX2C>; Mon, 6 Nov 2000 18:28:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129496AbQKFXXu>; Mon, 6 Nov 2000 18:23:50 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:17491 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129608AbQKFXXc>; Mon, 6 Nov 2000 18:23:32 -0500
-From: "Nathan Scott" <nathans@wobbly.melbourne.sgi.com>
-Message-Id: <10011071020.ZM117549@wobbly.melbourne.sgi.com>
-Date: Tue, 7 Nov 2000 10:20:18 -0400
-In-Reply-To: bobyetman@att.net
-        "Loadavg calculation" (Nov, 5  12:55pm)
-X-Mailer: Z-Mail (3.2.3 08feb96 MediaMail)
-To: bobyetman@att.net
-Subject: Re: Loadavg calculation
-Cc: linux-kernel@vger.kernel.org, pcp@oss.sgi.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129496AbQKFX1x>; Mon, 6 Nov 2000 18:27:53 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:12561 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129406AbQKFX1m>;
+	Mon, 6 Nov 2000 18:27:42 -0500
+Date: Mon, 6 Nov 2000 15:28:30 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: "James A. Sutherland" <jas88@cam.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+In-Reply-To: <00110617370400.24534@dax.joh.cam.ac.uk>
+Message-ID: <Pine.LNX.4.10.10011061521200.30217-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Mon, 6 Nov 2000, James A. Sutherland wrote:
 
-As you've suggested, you'd be better off not using the load
-average but rather some other measure (or combination of
-measures) to figure out when you have enough spare cycles or
-bandwidth.
-
-The "pmie" tool might be useful to you - here's a contrived
-example I just knocked up (instead of a "print" you'd want
-to run your program via the "shell" keyword) with an
-occassional artificial load in the background.
-
-kernel.all.cpu.idle is aggregate idle time across all cpus.
-pmie converts it to a rate (#idle milliseconds / 8 seconds)
-so it will always have a value between 0 (no idle time) and
-1 (lots of idle time).
-
-
-$ pmie -t 8sec -v
-( kernel.all.cpu.idle > 0.5 ) -> print "start a new job";
-^D
-expr_1: ?
-
-Tue Nov  7 09:33:36 2000: start a new job
-expr_1: true
-
-Tue Nov  7 09:33:44 2000: start a new job
-expr_1: true
-
-Tue Nov  7 09:33:52 2000: start a new job
-expr_1: true
-
-expr_1: false
-
-expr_1: false
-
-expr_1: false
-
-Tue Nov  7 09:34:24 2000: start a new job
-expr_1: true
-
-Tue Nov  7 09:34:32 2000: start a new job
-expr_1: true
-
-expr_1: false
-
-expr_1: false
-
-Tue Nov  7 09:34:56 2000: start a new job
-expr_1: true
-
-
-pmie is one of the gpl'd pcp tools which you can get from
-the sgi oss site... hope its useful to you.  mailto the
-pcp list if you need any more info.
-
-cheers.
-
-
-bobyetman@att.net wrote:
+> Except this isn't possible with the hardware in question! If it were, there
+> would be no problem. In cases where the hardware doesn't support the
+> functionality userspace "needs", why put the kludge in the kernel?
 > 
-> I'm working a project a work that is using Linux to run some very
-> math-intensive calculations.   One of the things we do is use the 1-minute
-> loadavg to determine how busy the machine is and can we fire off another
-> program to do more calculations.    However, there's a problem with that.
+> If userspace wants to know what settings it set last time, it should store
+> those values somewhere.
 > 
-> Because it's a 1 minute load average, there's quite a bit of lag time from
-> when 1 program finishes until the loadavg goes down below a threshold for
-> our control mechanism to fire off another program.
+> > jas88@cam.ac.uk said:
+> > >  The right thing in this context is not to screw with hardware
+> > > settings unless and until it is given settings to set. Do not set
+> > > values arbitrarily: set only the values you are explicitly given.
+> > > Anything else is simply a bug in your driver. 
+> > 
+> > It is unwise to assume that the hardware is in a sane state when the driver 
+> > has been unloaded and reloaded. I agree that you should set the values that 
+> > were explicitly given. That's why we should remember them.
 > 
-> Let me give an example (all on a 1-cpu PC)
+> No values are being explicitly given. Loading the driver should not cause
+> any settings to be changed: changing the settings should do that!
 > 
-> HH:MM:SS
-> 00:00:00                fire off 4 programs
-> 00:01:00                loadavg goes up to 4
-> 00:01:30                3 of the 4 programs finish loadavg still at 4
-> 00:02:20                load avg goes down to 1, below our threshold
-> 00:02:21                we fire off 3 more programs.
+> There is no need for the drivers to change any settings. If the settings need
+> to be (re)set, let userspace do it.
+>  
 > 
-> We'd like to reduce that almost 50 second lag time.  Is it possible, in
-> user-space, to duplicate the loadavg calculation period, say to a 15
-> second load average, using the information in /proc?
-> 
-> The other option we looked at, besides using loadavg, was using idle pct%,
-> but if I read the source for top right, involves reading the entire
-> process table to calculate clock ticks used and then figuring out how many
-> weren't used.
-> 
-> Ideas, opinions welcome.  Yes, I read the list, so either respond direct
-> to me, or to the list.
-> 
-> bobyetman@att.net (Robert A. Yetman)
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> James. 
 
--- 
-Nathan
+Sure .. lets see you start a laptop in class or buisness meeting and have
+everyone turn to look at you wondering why your laptop let off an ear
+piercing shreak because the hardware defaults to all settings max.
 
--- 
-Nathan
+And you will _STILL_ have that shriek for 1/2 - 1 second before the
+userspace app loads.
+
+And no we couldn't unplug either the mike or the speakers since they come
+embedded in the laptop's case. 
+
+I don't see in any of your trolling an answer for this problem.
+
+	Gerhard
+
+ 
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

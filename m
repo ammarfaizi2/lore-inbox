@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270473AbTG1Tbr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 15:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270489AbTG1Tbr
+	id S270462AbTG1Tbl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 15:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270473AbTG1Tbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 15:31:47 -0400
-Received: from www.13thfloor.AT ([212.16.59.250]:38815 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S270473AbTG1Tbp (ORCPT
+	Mon, 28 Jul 2003 15:31:41 -0400
+Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:33340
+	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S270462AbTG1Tbk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 15:31:45 -0400
-Date: Mon, 28 Jul 2003 21:31:52 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The well-factored 386
-Message-ID: <20030728193152.GA11006@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <03072809023201.00228@linux24> <20030728093245.60e46186.davem@redhat.com> <20030728164621.GA1773@win.tue.nl> <20030728095506.1655253e.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20030728095506.1655253e.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
+	Mon, 28 Jul 2003 15:31:40 -0400
+Message-ID: <3F257CC3.1030209@rogers.com>
+Date: Mon, 28 Jul 2003 15:42:59 -0400
+From: gaxt <gaxt@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2 - Strange Terminal Problems- Gramofile
+References: <bg1df5$1c2$1@ask.hswn.dk> <20030728022818.GA7221@yahoo.com>
+In-Reply-To: <20030728022818.GA7221@yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [65.49.219.239] using ID <dw2price@rogers.com> at Mon, 28 Jul 2003 15:31:00 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 09:55:06AM -0700, David S. Miller wrote:
-> On Mon, 28 Jul 2003 18:46:21 +0200
-> Andries Brouwer <aebr@win.tue.nl> wrote:
-> 
-> > You on the other hand threaten with censorship.
-> > That is not funny at all.
-> 
-> Run your own mailing lists, then you can tell people
-> what is appropriate or not appropriate for list discussions
-> and then decide how to deal with people who ignore such
-> requests to stay on-topic.
-> 
-> Do you accuse me of censoring spammers too?  I filter
-> them too. :-)
+in 260-test1-mm2-O8+O9 gramofile worked fine
 
-maybe you could add the subscribe/unsubscribe messages
-(sent to lkml, not majordomo ;) to your filters ... 8-)
-
-best,
-Herbert
+in 260-test2 gramofile loads but when you press on "start recording" 
+where you are supposed to get an ASCII equalizer changing with the music 
+input, you get a blank screen. Same in an xterm as in a virtual terminal.
 

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315925AbSH0NTi>; Tue, 27 Aug 2002 09:19:38 -0400
+	id <S316088AbSH0NXf>; Tue, 27 Aug 2002 09:23:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315928AbSH0NTi>; Tue, 27 Aug 2002 09:19:38 -0400
-Received: from h-64-105-35-65.SNVACAID.covad.net ([64.105.35.65]:17059 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S315925AbSH0NTh>; Tue, 27 Aug 2002 09:19:37 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 27 Aug 2002 06:23:48 -0700
-Message-Id: <200208271323.GAA04833@adam.yggdrasil.com>
-To: hch@infradead.org
-Subject: Re: Loop devices under NTFS
+	id <S316113AbSH0NXf>; Tue, 27 Aug 2002 09:23:35 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:26116 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S316088AbSH0NXe>; Tue, 27 Aug 2002 09:23:34 -0400
+Date: Tue, 27 Aug 2002 14:27:50 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Adam J. Richter" <adam@yggdrasil.com>
 Cc: aia21@cantab.net, kernel@bonin.ca, linux-kernel@vger.kernel.org
+Subject: Re: Loop devices under NTFS
+Message-ID: <20020827142750.A26266@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Adam J. Richter" <adam@yggdrasil.com>, aia21@cantab.net,
+	kernel@bonin.ca, linux-kernel@vger.kernel.org
+References: <200208271323.GAA04833@adam.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200208271323.GAA04833@adam.yggdrasil.com>; from adam@yggdrasil.com on Tue, Aug 27, 2002 at 06:23:48AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Tue, Aug 27, 2002 at 05:40:52AM -0700, Adam J. Richter wrote:
->> 	There are only a few file systems that provide writable files
->> without aops->{prepare,commit}_write.  I think they are just tmpfs,
->> ntfs and intermezzo.  If all file systems that provided writable files
->> could be expected to provide {prepare,commit}_write, I could eliminate
->> the file_ops->{read,write} code from loop.c.
+On Tue, Aug 27, 2002 at 06:23:48AM -0700, Adam J. Richter wrote:
+> 	Are you complaining about something in loop.c,
 
->This is the wrong level of abstraction.  There is no reason why a filesystem
->has to use the pagecache at all.
+Yes.  Anything but the filesystem itself and the generic read/write path
+is not supposed to use address space operations directly.
 
-	Are you complaining about something in loop.c, or are you just
-saying that you'd like to see some kind of
-generic_file_{prepare,commit}_write routines that plain files in all
-writable filesystems could use?
+> >Note that there is a more severe bug in loop.c:  it's abuse of
+> >do_generic_file_read.  
+> 
+> 	Could you please elaborate on this and give an example where
+> it return incorrect data, deadlock, generate a kernel oops, etc.?
 
-
->Note that there is a more severe bug in loop.c:  it's abuse of
->do_generic_file_read.  
-
-	Could you please elaborate on this and give an example where
-it return incorrect data, deadlock, generate a kernel oops, etc.?
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Depending on the filesystem implementation _anything_ may happen.
+With current intree filesystems the only real life problem is that
+it doesn't work on certain filesystems.  I think at least the network
+filesystems might be oopsable with some preparation.
 

@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbUJ1PWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbUJ1Pwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261701AbUJ1PWD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 11:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUJ1PNH
+	id S261727AbUJ1Pwn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 11:52:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1Psm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 11:13:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23684 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261701AbUJ1PIA (ORCPT
+	Thu, 28 Oct 2004 11:48:42 -0400
+Received: from fsmlabs.com ([168.103.115.128]:41603 "EHLO musoma.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261721AbUJ1PrP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 11:08:00 -0400
-Date: Thu, 28 Oct 2004 15:56:04 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Andrew Morton <akpm@osdl.org>, Mathieu Segaud <matt@minas-morgul.org>,
-       axboe@suse.de, jfannin1@columbus.rr.com, agk@redhat.com,
-       christophe@saout.de, Linux Kernel <linux-kernel@vger.kernel.org>,
-       bzolnier@gmail.com
-Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
-Message-ID: <20041028145604.GA20448@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Jeff Chua <jeffchua@silk.corp.fedex.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Mathieu Segaud <matt@minas-morgul.org>, axboe@suse.de,
-	jfannin1@columbus.rr.com, christophe@saout.de,
-	Linux Kernel <linux-kernel@vger.kernel.org>, bzolnier@gmail.com
-References: <20041026135955.GA9937@agk.surrey.redhat.com> <20041026213703.GA6174@rivenstone.net> <20041026151559.041088f1.akpm@osdl.org> <87hdogvku7.fsf@barad-dur.crans.org> <20041026222650.596eddd8.akpm@osdl.org> <20041027054741.GB15910@suse.de> <20041027064146.GG15910@suse.de> <877jpcgolt.fsf@barad-dur.crans.org> <20041027132422.760d5f5e.akpm@osdl.org> <Pine.LNX.4.61.0410281245240.31882@silk.corp.fedex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410281245240.31882@silk.corp.fedex.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 28 Oct 2004 11:47:15 -0400
+Date: Thu, 28 Oct 2004 09:44:55 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-mm1: NForce3 problem (IRQ sharing issue?)
+In-Reply-To: <200410251731.11445.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.61.0410280944120.9945@musoma.fsmlabs.com>
+References: <200410222354.44563.rjw@sisk.pl> <200410251627.51939.rjw@sisk.pl>
+ <Pine.LNX.4.61.0410251740060.3029@musoma.fsmlabs.com> <200410251731.11445.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 28, 2004 at 12:52:20PM +0800, Jeff Chua wrote:
-> I'm using 2.6.10-rc1 and got the following error ...
-> # lvcreate -L 100M -n lv01 vg01
->   device-mapper ioctl cmd 0 failed: Inappropriate ioctl for device
->   striped: Required device-mapper target(s) not detected in your kernel
->   lvcreate: Create a logical volume
- 
-But that's *not* the dio problem we're discussing in this thread.
-It's saying userspace communication with device-mapper isn't working,
-most likely because there's something wrong with the way your
-system creates /dev/mapper/control when booting or the ioctl 
-compatibility code (what architecture?).
+On Mon, 25 Oct 2004, Rafael J. Wysocki wrote:
 
-Alasdair
--- 
-agk@redhat.com
+> > Ok, perhaps you shouldn't thank me ;) I actually sortof kinda broke your 
+> > box... The reason why it worked before was because the kernel defaulted to 
+> > disabling the IOAPIC on all nforce3 based systems but we found out that 
+> > most nforce3 systems are actually work with the IOAPIC if we just ignore 
+> > some bogus ACPI BIOS information. Your system happens to be one of the 
+> > more broken ones, i'd actually like to try debug your problem a bit 
+> > further, could you open up a bugzilla entry at bugzilla.kernel.org and 
+> > email me when you're done. In the meantime, just keep booting with 
+> > 'noapic'
+> 
+> OK
+> The bugzilla entry is at:
+> http://bugzilla.kernel.org/show_bug.cgi?id=3639
 
-Subject: Re: 2.6.9-mm1: LVM stopped working
-Reply-To:
-In-Reply-To: <20041026140925.GO16193@agk.surrey.redhat.com>
-                                                                                                                                                         
-On Tue, Oct 26, 2004 at 03:09:25PM +0100, Alasdair G Kergon wrote:
-> On Tue, Oct 26, 2004 at 09:55:38PM +0800, Jeff Chua wrote:
-> > It doesn't work on 2.6.10-rc1 either. Works fine on 2.6.9 and 2.4.8-rc1.
-> >   device-mapper ioctl cmd 0 failed: Inappropriate ioctl for device
->
-> Do you get any corresponding kernel messages?
-> Check /dev/mapper/control corresponds to  /proc/devices & /proc/misc.
-> (See device-mapper scripts/devmap_mknod.sh)
-> Use 'dmsetup version' and 'dmsetup targets' to test.
->
-> Alasdair
-> --
-> agk@redhat.com
+Thanks Rafael,
+	We'll work on it from there then.
+
+	Zwane
+

@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269257AbUJFMyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269010AbUJFMz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269257AbUJFMyx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 08:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269255AbUJFMyx
+	id S269010AbUJFMz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 08:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269250AbUJFMz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 08:54:53 -0400
-Received: from ts2-075.twistspace.com ([217.71.122.75]:13210 "EHLO entmoot.nl")
-	by vger.kernel.org with ESMTP id S269010AbUJFMyw (ORCPT
+	Wed, 6 Oct 2004 08:55:57 -0400
+Received: from iua-mail.upf.es ([193.145.55.10]:60316 "EHLO iua-mail.upf.es")
+	by vger.kernel.org with ESMTP id S269010AbUJFMzw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 08:54:52 -0400
-Message-ID: <010e01c4abab$e90da780$161b14ac@boromir>
-From: "Martijn Sipkema" <martijn@entmoot.nl>
-To: "Ulrich Drepper" <drepper@redhat.com>,
-       "Christoph Lameter" <clameter@sgi.com>
-Cc: "George Anzinger" <george@mvista.com>, <johnstul@us.ibm.com>,
-       <Ulrich.Windl@rz.uni-regensburg.de>, <jbarnes@sgi.com>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <libc-alpha@sources.redhat.com>
-References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com> <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com> <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com> <4159B920.3040802@redhat.com> <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com> <415AF4C3.1040808@mvista.com> <B6E8046E1E28D34EB815A11AC8CA31290322B307@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0410011259190.18738@schroedinger.engr.sgi.com> <415E3D5A.2010501@redhat.com>
-Subject: Re: Posix compliant cpu clocks V6 [2/3]: Glibc patch
-Date: Wed, 6 Oct 2004 14:53:49 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
+	Wed, 6 Oct 2004 08:55:52 -0400
+Date: Wed, 6 Oct 2004 14:55:46 +0200
+From: Maarten de Boer <mdeboer@iua.upf.es>
+To: linux-kernel@vger.kernel.org
+Subject: Badness in enable_irq with 2.6.9-rc3-mm2-vp-t1
+Message-Id: <20041006145546.1a611d27.mdeboer@iua.upf.es>
+Organization: IUA-MTG
+X-Mailer: Sylpheed version 0.9.9-gtk2-20040229 (GTK+ 2.4.9; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+X-MTG-MailScanner: Found to be clean
+X-MTG-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=-2.599, required 5, autolearn=disabled,
+	BAYES_00 -2.60)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Ulrich Drepper" <drepper@redhat.com>
-> Christoph Lameter wrote:
->> The following patch makes glibc not provide the above clocks and use the
->> kernel clocks instead if either of the following condition is met:
->
-> Did you ever hear about a concept called binary compatiblity?  Don't
-> bother working on any glibc patch.
+Hello,
 
-The functionality should arguably not have been added to glibc in the first
-place since its implementation was incorrect.
+(Please Cc: me on reply - I am not on the list)
 
---ms
+I decided to give the voluntary preempt patch a try, but I ran into some
+problems. I share them with you, hoping to contribute in some way to the
+process.
+
+I decided to build my kernel the Debian way (make-kpkg), with the config
+file from the 2.6.8 package as a starting point. In order to get it to
+build, I had to disable:
+CONFIG_SCSI_ADVANSYS
+CONFIG_DVB_BT8XX
+CONFIG_DRM_GAMMA
+and set
+CONFIG_4KSTACKS=y
+
+When booting the new kernel, problems occur with the ethernet device
+(e100), and, not surprisingly, networking fails. Any idea? The IRQ 177
+looks rather strange to me...
+
+Maarten
+
+Oct  6 14:22:59 mtg62 kernel: requesting new irq thread for IRQ177...
+Oct  6 14:22:59 mtg62 kernel: Badness in enable_irq at kernel/irq/manage.c:111
+Oct  6 14:22:59 mtg62 kernel:  [enable_irq+259/272] enable_irq+0x103/0x110
+Oct  6 14:22:59 mtg62 kernel:  [pg0+543215970/1069945856] e100_up+0x162/0x210 [e100]
+Oct  6 14:22:59 mtg62 kernel:  [pg0+543212944/1069945856] e100_intr+0x0/0x140 [e100]
+Oct  6 14:22:59 mtg62 kernel:  [pg0+543220636/1069945856] e100_open+0x2c/0x80 [e100]
+Oct  6 14:22:59 mtg62 kernel:  [dev_open+133/160] dev_open+0x85/0xa0
+Oct  6 14:22:59 mtg62 kernel:  [dev_mc_upload+36/80] dev_mc_upload+0x24/0x50
+Oct  6 14:22:59 mtg62 kernel:  [dev_change_flags+83/304] dev_change_flags+0x53/0x130
+Oct  6 14:22:59 mtg62 kernel:  [dev_load+37/112] dev_load+0x25/0x70
+Oct  6 14:22:59 mtg62 kernel:  [devinet_ioctl+635/1712] devinet_ioctl+0x27b/0x6b0
+Oct  6 14:22:59 mtg62 kernel:  [inet_ioctl+102/176] inet_ioctl+0x66/0xb0
+Oct  6 14:22:59 mtg62 kernel:  [sock_ioctl+217/656] sock_ioctl+0xd9/0x290
+Oct  6 14:22:59 mtg62 kernel:  [sys_ioctl+234/592] sys_ioctl+0xea/0x250
+Oct  6 14:22:59 mtg62 kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Oct  6 14:22:59 mtg62 kernel: e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
+Oct  6 14:22:59 mtg62 kernel: IRQ#177 thread started up.
 
 

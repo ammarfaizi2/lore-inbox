@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135232AbRDLRJd>; Thu, 12 Apr 2001 13:09:33 -0400
+	id <S135233AbRDLRRG>; Thu, 12 Apr 2001 13:17:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135233AbRDLRJY>; Thu, 12 Apr 2001 13:09:24 -0400
-Received: from dfmail.f-secure.com ([194.252.6.39]:47752 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S135232AbRDLRJT>; Thu, 12 Apr 2001 13:09:19 -0400
-Date: Thu, 12 Apr 2001 20:18:24 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Hugh Dickins <hugh@veritas.com>, <Valdis.Kletnieks@vt.edu>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: scheduler went mad?
-In-Reply-To: <Pine.LNX.4.21.0104121209000.2774-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.30.0104122008590.19377-100000@fs131-224.f-secure.com>
+	id <S135234AbRDLRQ4>; Thu, 12 Apr 2001 13:16:56 -0400
+Received: from [209.125.39.114] ([209.125.39.114]:7130 "EHLO
+	mail.etcsupport.com") by vger.kernel.org with ESMTP
+	id <S135233AbRDLRQt>; Thu, 12 Apr 2001 13:16:49 -0400
+From: <strout@etcsupport.com>
+To: linux-kernel@vger.kernel.org
+Message-ID: <e1dccac6.cac6e1dc@etcsupport.com>
+Date: Thu, 12 Apr 2001 13:17:42 -0400
+X-Mailer: Netscape Webmail
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Language: en
+Subject: PCMCIA: APA1480 driver kernel 2.4.3
+X-Accept-Language: en
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Note:  I am not a list memeber, please CC me in replies.
 
-On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
+I recently tried upgrading to kernel 2.4.3 on my laptop.  After checking
+through documentation and all that happy stuff it would seem that the
+CONFIG_PCMCIA_APA1480 option should exist (as in
+Documentation/Configure.help) however it doesn't.  I also can't seem to
+find it anywhere in the drivers tree.
 
-> This patch is broken, ignore it.
-> Just removing wakeup_bdflush() is indeed correct.
-> We already wakeup bdflush at try_to_free_buffers() anyway.
+So to get to the point, is APA1480 (Adaptec PCMCIA SCSI) going to get
+put into the kernel with the rest of the PCMCIA stuff?  What kernel rev
+should I watch for?
 
-I still feel a bit unconfortable about processes looping forever in
-__alloc_pages and because of this oom_killer also can't be moved to page
-fault handler where I think its place should be. I'm using the patch
-below.
-
-	Szaka
-
---- mm/page_alloc.c.orig      Sat Mar 31 19:07:22 2001
-+++ mm/page_alloc.c     Mon Apr  2 21:05:31 2001
-@@ -453,8 +453,12 @@
-                 */
-                if (gfp_mask & __GFP_WAIT) {
-                        memory_pressure++;
--                       try_to_free_pages(gfp_mask);
--                       wakeup_bdflush(0);
-+                       if (!try_to_free_pages(gfp_mask));
-+                               return NULL;
-                        goto try_again;
-                }
-        }
-
+Thanks loads,
+Leeman Strout
+strout@etcsupport.com
 

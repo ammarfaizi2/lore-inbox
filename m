@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288990AbSANTa0>; Mon, 14 Jan 2002 14:30:26 -0500
+	id <S288981AbSANTbw>; Mon, 14 Jan 2002 14:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288991AbSANT3I>; Mon, 14 Jan 2002 14:29:08 -0500
-Received: from arsenal.visi.net ([206.246.194.60]:20675 "EHLO visi.net")
-	by vger.kernel.org with ESMTP id <S288985AbSANT2j>;
-	Mon, 14 Jan 2002 14:28:39 -0500
-X-Virus-Scanner: McAfee Virus Engine
-Date: Mon, 14 Jan 2002 14:28:36 -0500
-From: Ben Collins <bcollins@debian.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Eli Carter <eli.carter@inet.com>,
-        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Message-ID: <20020114192836.GE22175@blimpo.internal.net>
-In-Reply-To: <20020114125228.B14747@thyrsus.com> <E16QBwD-0002So-00@the-village.bc.nu> <20020114132618.G14747@thyrsus.com>
-Mime-Version: 1.0
+	id <S288992AbSANTa3>; Mon, 14 Jan 2002 14:30:29 -0500
+Received: from zeke.inet.com ([199.171.211.198]:25497 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S288994AbSANTaA>;
+	Mon, 14 Jan 2002 14:30:00 -0500
+Message-ID: <3C4331AA.505194BA@inet.com>
+Date: Mon, 14 Jan 2002 13:29:46 -0600
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-10enterprise i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: esr@thyrsus.com
+CC: Charles Cazabon <charlesc@discworld.dyndns.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the 
+ elegant solution)
+In-Reply-To: <20020114125228.B14747@thyrsus.com> <E16QBwD-0002So-00@the-village.bc.nu> <20020114132618.G14747@thyrsus.com> <20020114125508.A3358@twoflower.internal.do> <20020114135412.D17522@thyrsus.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020114132618.G14747@thyrsus.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 01:26:18PM -0500, Eric S. Raymond wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > Now to do everything you describe does not need her to configure a custom
-> > kernel tree. Not one bit. You think apt or up2date build each user a custom
-> > kernel tree ?
+"Eric S. Raymond" wrote:
+> Charles Cazabon <charlesc@discworld.dyndns.org>:
+> > Yes, and yes.  Aunt Tillie is running Linux because someone installed a
+> > distribution for her.
 > 
-> Is it OK in your world that Aunt Tillie is dependent on a distro maker?  Is
-> it OK that she never gets to have a kernel compiled for anything above the
-> least-common-denominator chip?  
+> You don't know that.  Maybe she installed it herself.
+
+>From a box she bought at CompUSA (or equiv.).  She is dependant upon the
+distro maker for the service they provide to her... that's what she's
+paying them for.
+
+> > She is never going to need anything out of her kernel that her vendor-shipped
+> > update kernels do not provide.
 > 
-> Not that I'm running down distro makers.  They do a valuable job, and in fact
-> my approach relies on Aunt Tillie's machine starting life with an all-modular
-> distro kernel.
+> *You can't know that.*
 > 
-> But the point of this game is for Aunt Tillie to have more and better
-> choices.  Isn't that what we're supposed to be about?
+> And your belief that you *can* know it is a key part of the elitist
+> developer psychology and implicit assumptions that keeps Linux mostly
+> inaccessible to the Aunt Tillies of the world.
 
-Wouldn't it be better for Aunt Tillie to continue using an all modular
-kernel (from a distro) so she doesn't have to "update" (in your example,
-that means recompile) a new one everytime she adds new hardware? Does
-she have to connect all of here 1394 and USB devices to the computer
-during this phase in order to have them all supported?
+Then she needs a better distribution, or at least one that caters to her
+needs.
+If there isn't such a distribution for her, she is no longer "Aunt
+Tillie", but has become "Aun7 71LL13" ;)
 
+Ahem, sorry, couldn't resist. :)  I'll be quiet now.
 
-Ben
-
--- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/                   Ben Collins    --    Debian GNU/Linux                  \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'
+Eli
+--------------------.     Real Users find the one combination of bizarre
+Eli Carter           \ input values that shuts down the system for days.
+eli.carter(a)inet.com `-------------------------------------------------

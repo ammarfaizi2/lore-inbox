@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318379AbSGaOF0>; Wed, 31 Jul 2002 10:05:26 -0400
+	id <S318385AbSGaOM6>; Wed, 31 Jul 2002 10:12:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318380AbSGaOF0>; Wed, 31 Jul 2002 10:05:26 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:26602 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S318379AbSGaOF0>; Wed, 31 Jul 2002 10:05:26 -0400
-Subject: Re: 2.5.29, CPU#1 not working with CONFIG_SMP=y, 2.5.28 OK.
-From: Steven Cole <elenstev@mesatop.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Steven Cole <scole@lanl.gov>
-In-Reply-To: <20020731020722.4D4D2421D@lists.samba.org>
-References: <20020731020722.4D4D2421D@lists.samba.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 31 Jul 2002 08:06:13 -0600
-Message-Id: <1028124373.3085.62.camel@spc9.esa.lanl.gov>
+	id <S318386AbSGaOM6>; Wed, 31 Jul 2002 10:12:58 -0400
+Received: from noc.easyspace.net ([62.254.202.67]:22278 "EHLO
+	noc.easyspace.net") by vger.kernel.org with ESMTP
+	id <S318385AbSGaOM5>; Wed, 31 Jul 2002 10:12:57 -0400
+Date: Wed, 31 Jul 2002 15:16:05 +0100
+From: Sam Vilain <sam@vilain.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: davidsen@tmr.com, jamagallon@able.es, andrea@suse.de,
+       alan@lxorguk.ukuu.org.uk, habanero@us.ibm.com,
+       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: Linux 2.4.19-rc3 (hyperthreading)
+In-Reply-To: <Pine.LNX.4.44L.0207310940350.23404-100000@imladris.surriel.com>
+References: <Pine.LNX.3.96.1020730230654.6974E-100000@gatekeeper.tmr.com>
+	<Pine.LNX.4.44L.0207310940350.23404-100000@imladris.surriel.com>
+X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Face: NErb*2NY4\th?$s.!!]_9le_WtWE'b4;dk<5ot)OW2hErS|tE6~D3errlO^fVil?{qe4Lp_m\&Ja!;>%JqlMPd27X|;b!GH'O.,NhF*)e\ln4W}kFL5c`5t'9,(~Bm_&on,0Ze"D>rFJ$Y[U""nR<Y2D<b]&|H_C<eGu?ncl.w'<
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020731141606.093752B65@hofmann>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-30 at 19:34, Rusty Russell wrote:
-[snipped]
-> 
-> Hmm... this is the hint, here.  Please try the patch below (trivial,
-> but untested).
-> 
-> Please tell the results!
-> Rusty.
+Rik van Riel <riel@conectiva.com.br> wrote:
 
-Yes, that worked.  Thanks.  
+> Having code this readable is pretty much essential for
+> maintenance, too.
+> I wouldn't mind if every time I code or patch something
+> that isn't up to the reading standard of Mr. Magallon's
+> code somebody would raise his hand and/or LART me, until
+> the code is easily readable.
 
-I had also previously applied the "Fix ksoftirqd and migration threads
-initcalls" changeset 1.476.1.13 to my 2.5.29 tree.
+The GNU coding standards make some very sensible comments on this
+subject. A very good read;
 
-I tested this with and without appending maxcpus=2 to the boot line.
- 
-Steven
+  http://www.gnu.org/prep/standards_24.html
 
+I find it interesting that a large quantity of the kernel and C
+library source code I have come across recently has no comments (with
+the exception of the O(1) scheduler, very nice).  At the very least, I
+think every function should have a comment listing all of its input
+variables and what they mean, along with a rough idea of what the
+function does, and what it returns, along with any assumptions.  It
+would make the code a *lot* easier for programmers with less than guru
+levels of knowledge to understand and hack on.
+--
+   Sam Vilain, sam@vilain.net     WWW: http://sam.vilain.net/
+    7D74 2A09 B2D3 C30F F78E      GPG: http://sam.vilain.net/sam.asc
+    278A A425 30A9 05B5 2F13
+
+  Its not the size of the ship, its the size of the waves.
+LITTLE RICHARD

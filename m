@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282385AbRKXHIv>; Sat, 24 Nov 2001 02:08:51 -0500
+	id <S282386AbRKXHMV>; Sat, 24 Nov 2001 02:12:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282386AbRKXHIe>; Sat, 24 Nov 2001 02:08:34 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:47620
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S282387AbRKXHIP>; Sat, 24 Nov 2001 02:08:15 -0500
-Date: Fri, 23 Nov 2001 23:06:23 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Martin Eriksson <nitrax@giron.wox.org>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: IDE is still crap.. or something
-In-Reply-To: <017901c17459$5624acc0$0201a8c0@HOMER>
-Message-ID: <Pine.LNX.4.10.10111232239100.32407-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S282387AbRKXHML>; Sat, 24 Nov 2001 02:12:11 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:27440 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S282386AbRKXHL7>; Sat, 24 Nov 2001 02:11:59 -0500
+Date: Sat, 24 Nov 2001 08:12:17 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.15-pre9 breakage (inode.c)
+Message-ID: <20011124081217.A1419@athlon.random>
+In-Reply-To: <20011124080113.A1316@athlon.random> <Pine.GSO.4.21.0111240203520.4000-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.GSO.4.21.0111240203520.4000-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Nov 24, 2001 at 02:06:32AM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Nov 2001, Martin Eriksson wrote:
+On Sat, Nov 24, 2001 at 02:06:32AM -0500, Alexander Viro wrote:
+> 
+> 
+> On Sat, 24 Nov 2001, Andrea Arcangeli wrote:
+> 
+> > this one looks even better (and it doesn't need to propagate the fix to
+> > the lowlevel):
+> > 
+> > --- 2.4.15aa1/fs/super.c.~1~	Fri Nov 23 08:21:01 2001
+> > +++ 2.4.15aa1/fs/super.c	Sat Nov 24 07:58:37 2001
+> > @@ -470,6 +470,7 @@
+> >  	return s;
+> >  
+> >  out_fail:
+> > +	invalidate_inodes(s);
+> 
+> Sigh...
+> 	a) grep, please.
+> 	b) you are triggering method calls for a superblock after failed
+> ->read_super().  Blindly.  Care to audit all filesystems and check that
+> it is legitimate?
 
-> > > any of the -c -u -m -W settings in hdparm. I even applied the 2.4.14 IDE
-> > > patch (after fixing the rejects) but no go.
+if the method or the s_op isn't defined it will do nothing, if it is
+defined it'd better do something not wrong because the fs just did an
+iget within read_super. I don't see obvious troubles and the above looks
+better than making iput more complex (and nitpicking slower 8).
 
-Mr. Martin Eriksson,
-
-As for your subject -- "IDE" died a long time ago, but since it died
-before you entered university, I am not at all surprized.  Now as for
-jumping on the case of the talented Mr. Marcelo Tosatti.  He has not found
-it neccessary to enter university at this time, as he could likely teach
-the content scheduled in the next year to you.
-
-Why are you doing thoughtless things like overriding the ruleset for
-optimizing the HOST/Device pair?  I seriously doubt that you know the
-history of those option?  Of the lot, one of them is retired as of ATA-2;
-however it still is optional for a while.  The other is foolish in most
-cases unless dealing with ATA-2 hardware, or have audio driver problems.
-The next is settable by the kernel if you allow it to do the work for you.
-The last is also set by the kernel, should you allow it to operate.  There
-is no valid reason for you to do anything w/ hdparm.
-
-Now this is a global reply to your list of rants.  Now if you can not
-merge patches and understand what is going on, then please keep the noise
-down.  Next time please have some credablity when you attempt to make
-grand pontifications of code quality in Linux.  Lastly you were not to be
-a target for everyones entertainment but this is where you have come.
-
-Regards,
-
-Andre Hedrick
-Linux ATA Development
-Linux Disk Certification Project
-
-
+Andrea

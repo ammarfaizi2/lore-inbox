@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313628AbSEaBLd>; Thu, 30 May 2002 21:11:33 -0400
+	id <S314101AbSEaBQG>; Thu, 30 May 2002 21:16:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314080AbSEaBLc>; Thu, 30 May 2002 21:11:32 -0400
-Received: from mail.invtools.com ([209.81.227.140]:10756 "EHLO
-	mail.invtools.com") by vger.kernel.org with ESMTP
-	id <S313628AbSEaBLc>; Thu, 30 May 2002 21:11:32 -0400
-From: "Jon Hedlund" <JH_ML@invtools.com>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 30 May 2002 20:11:16 -0500
-Subject: 2.4 bootdisk kernel panic
-Message-ID: <3CF68764.12104.BBA8F3A@localhost>
-X-mailer: Pegasus Mail for Windows (v4.01)
+	id <S314149AbSEaBQF>; Thu, 30 May 2002 21:16:05 -0400
+Received: from pop018pub.verizon.net ([206.46.170.212]:6092 "EHLO
+	pop018.verizon.net") by vger.kernel.org with ESMTP
+	id <S314101AbSEaBQF>; Thu, 30 May 2002 21:16:05 -0400
+Date: Thu, 30 May 2002 21:20:27 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: KBuild 2.5 Impressions
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200205302155.g4ULtEb09500@buggy.badula.org> <E17DZCa-0007hI-00@starship> <1022803993.2799.13.camel@tiger> <E17Daa5-0007iZ-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+Message-Id: <20020531011600.ENOZ28280.pop018.verizon.net@pool-141-150-239-239.delv.east.verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to update a 1.44 floppy based linux system to a 
-2.4.18 kernel from 2.4.4. However whenever I try to boot the 
-updated floppy I get the following kernel panic:
+Daniel Phillips wrote:
+> On Friday 31 May 2002 02:13, Kenneth Johansson wrote:
+> > On Fri, 2002-05-31 at 01:19, Daniel Phillips wrote:
+> > > 
+> > > I think that with these breakups done the thing would be sufficiently
+> > > digestible to satisfy Linus.  Now that I think of it, Linus's request
+> > 
+> > Maybe I'm the idiot here but what dose this gain you??
+> >
+> > The reason to break up a patch is not simply to get more of them. There
+> > is no point in splitting if you still need to use every single one of
+> > them to make anything work. 
+> 
+> See above.  It's all about analyzing the structure of the patch.  To be
+> fair though, it took me less than an hour to get a pretty good idea of
+> how the current patch set is structured.
 
-RAMDISK: Compressed image found at block 501
-VFS: Mounted root (ext2 filesystem)
-Freeing unused kernel memory: 64K freed
-Kernel panic: no init found. Try passing init= option to the kernel.
+I could be wrong but I think Linus wants small patches that slowly
+convert kbuild24 to kbuild25, and not just a chopped up wholesale
+kbuild25.
 
-I have tried it with a bunch of kernels, 2.4.4, 2.4.7 and 2.4.9 boot 
-fine, 2.4.12, 2.4.13, 2.4.17, and 2.4.18 all give the panic.
-I create the bootdisk with the following script:
+There's a big difference between splitting kb25 into pieces and figuring
+out a way to migrate from kb24 to kb25 with small patches.  You're
+suggesting the former while Linus wants the latter.
 
-rdev bzImage /dev/fd0
-rdev -R bzImage 0
-rdev -r bzImage 16885
-# 16885= Don't prompt, Load ramdisk, offset = 501
-dd if=bzImage of=tempfi bs=1k conv=sync
-cat rootfs.gz >> tempfi
-dd if=tempfi of=/dev/fd0 bs=1k
-
-I manually edit the 16885 for whatever the size of the kernel is, just 
-over 500KB in this case.
-The kernel doesn't use loadable modules.
-Modules are compiled into the kernel for the tulip network card, 
-iptables, ext2, floppy drive, etc. I can post my config file if more info 
-is needed.
-
-JonH
-
+-- 
+Skip

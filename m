@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293749AbSCKW5p>; Mon, 11 Mar 2002 17:57:45 -0500
+	id <S310139AbSCKW5p>; Mon, 11 Mar 2002 17:57:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310133AbSCKW5c>; Mon, 11 Mar 2002 17:57:32 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:8723 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S293659AbSCKWz6>;
-	Mon, 11 Mar 2002 17:55:58 -0500
-Message-Id: <200203112255.XAA02708@webserver.ithnet.com>
-From: Stephan von Krawczynski <skraw@ithnet.com>
-Date: Mon, 11 Mar 2002 23:55:23 +0100
-Content-Transfer-Encoding: 7BIT
-Subject: Re: Linux 2.4.19-pre3
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
-In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=US-ASCII
+	id <S293749AbSCKW5g>; Mon, 11 Mar 2002 17:57:36 -0500
+Received: from rj.sgi.com ([204.94.215.100]:10673 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S293736AbSCKW4b>;
+	Mon, 11 Mar 2002 17:56:31 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: zlib vulnerability and modutils
+Date: Tue, 12 Mar 2002 09:56:20 +1100
+Message-ID: <4394.1015887380@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->                                                                     
-> Hi,                                                                 
->                                                                     
-> Here goes -pre3, with the new IDE code. It has been stable enough   
-time in                                                               
-> the -ac tree, in my and Alan's opinion.                             
->                                                                     
-> The inclusion of the new IDE code makes me want to have a longer    
-2.4.19                                                                
-> release cycle, for stress-testing reasons.                          
->                                                                     
-> Please stress test it with huge amounts of data ;)                  
-                                                                      
-Would like to, but:                                                   
-                                                                      
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-pre3/include -Wall           
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer           
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2   
--march=i686 -DMODULE  -DKBUILD_BASENAME=pppoe  -c -o pppoe.o pppoe.c  
-pppoe.c: In function `pppoe_flush_dev':                               
-pppoe.c:282: `PPPOX_ZOMBIE' undeclared (first use in this function)   
-pppoe.c:282: (Each undeclared identifier is reported only once        
-pppoe.c:282: for each function it appears in.)                        
-pppoe.c: In function `pppoe_disc_rcv':                                
-pppoe.c:446: `PPPOX_ZOMBIE' undeclared (first use in this function)   
-pppoe.c: In function `pppoe_ioctl':                                   
-pppoe.c:730: `PPPOX_ZOMBIE' undeclared (first use in this function)   
-make[2]: *** [pppoe.o] Error 1                                        
-make[2]: Leaving directory `/usr/src/linux-2.4.19-pre3/drivers/net'   
-make[1]: *** [_modsubdir_net] Error 2                                 
-make[1]: Leaving directory `/usr/src/linux-2.4.19-pre3/drivers'       
-make: *** [_mod_drivers] Error 2                                      
-                                                                      
-                                                                      
-Regards,                                                              
-Stephan                                                               
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Content-Type: text/plain; charset=us-ascii
+
+A double free vulnerability has been found in zlib which can be used in
+a DoS or possibly in an exploit.  Distributions are now shipping
+upgraded versions of zlib, installing the new version of zlib will fix
+programs that use the shared library.
+
+modutils has an option --enable-zlib which lets modprobe and insmod
+read modules that have been compressed with gzip.  If you built your
+modutils with --enable-zlib and are using insmod.static then you must
+rebuild modutils after first upgrading zlib.  This only applies if
+modutils was built with --enable-zlib (the default is not to use zlib)
+and you also use static versions of modutils.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE8jTYQi4UHNye0ZOoRAnnhAKCrNZ2l8i1JHEVY3fJBnGYrpqAEBgCcDM0q
+tPtmhPq2fdJODlfzLlAatmU=
+=8r7c
+-----END PGP SIGNATURE-----
+

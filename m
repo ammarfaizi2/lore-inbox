@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136711AbREJO7i>; Thu, 10 May 2001 10:59:38 -0400
+	id <S136731AbREJPNl>; Thu, 10 May 2001 11:13:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136710AbREJO71>; Thu, 10 May 2001 10:59:27 -0400
-Received: from idiom.com ([216.240.32.1]:3855 "EHLO idiom.com")
-	by vger.kernel.org with ESMTP id <S136708AbREJO7V>;
-	Thu, 10 May 2001 10:59:21 -0400
-Message-ID: <3AFAABFF.54CEA711@namesys.com>
-Date: Thu, 10 May 2001 07:56:00 -0700
-From: Hans Reiser <reiser@namesys.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: john slee <indigoid@higherplane.net>
-CC: Martin Hamilton <martin@net.lut.ac.uk>,
-        Mart?n Marqu?s <martin@bugs.unl.edu.ar>, linux-kernel@vger.kernel.org
-Subject: Re: reiserfs, xfs, ext2, ext3
-In-Reply-To: <indigoid@higherplane.net> <E14xqGx-0006Y6-00@gadget.lut.ac.uk> <20010511003255.C7653@higherplane.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136735AbREJPNb>; Thu, 10 May 2001 11:13:31 -0400
+Received: from popeye.ipv6.univ-nantes.fr ([193.52.101.20]:4 "HELO
+	popeye.ipv6.univ-nantes.fr") by vger.kernel.org with SMTP
+	id <S136731AbREJPNS>; Thu, 10 May 2001 11:13:18 -0400
+Subject: Deadlock/crash with Quad tulip card in 2.4
+From: Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+X-Mailer: Evolution/0.10+cvs.2001.04.18.22.02 (Preview Release)
+Date: 10 May 2001 17:13:15 +0200
+Message-Id: <989507596.18286.0.camel@olive>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john slee wrote:
+Hello. I'm having problem with Quad eth100 tulip (digital 21140) cards.
 
-> > quite a bit of scope for improvement.  Commercial caching systems have
-> > demonstrated thoughput of thousands of requests/s with similar
-> > hardware, but I suspect Tux-ification of Squid will be necessary to
->
-> not at all, search for X15 in april/may linux-kernel archives.  most of
-> the specific improvements tux made have been reduced to improvements for
-> the general case, hence squid (or equivalent) could probably improve a
-> fair amount.
->
-> j.
->
-> --
-> "Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The machine was acting as a bridge with kernel 2.2 very reliably.
 
-squid needs a deep rewrite, and the sponsor for our doing that is flaking
-regarding sending us money, so for now I have to say to people that even
-though reiserfs is faster for squid than ext2, the bottleneck is squid not
-reiserfs, and you really should use the proprietary stuff because the
-proprietary guys have taken squid, rewritten its engine which is badly
-designed, stolen the gpl code, and nobody is suing them for it and they are
-so much faster than squid that the cost of the software is worth paying for
-(unless you dislike stolen gpl code:-(, and even then there are some like
-Novell that didn't steal from squid and are faster).
+Now, when I boot 2.4.4-ac6, the machine hangs - no oops, nothing. Just
+hang.
 
-Hans
+even CTRL-Scroll lock does nothing.
+
+I supected a bridge problem (I know 2.2  & 2.4 bridge are different) But
+it's not the case as I reproduce the bug on another machine (with
+another motherboard. kernel 2.4.4-ac6 where the bridge is not
+configured.)
+
+single boot is OK,
+
+ifconfig eth0 up is ok (MII negotiation is OK)
+ifconfig eth1 up crash the machine -
+
+on another boot i tried this :
+
+ifconfig eth0 up
+ifconfig eth0 down
+
+ifconfig eth1 up is OK
+ifconfig eth1 down ... etc etc
+
+This works as long as only one interface is up. 
+
+If only 1 interface is up, the machine works reliably.
+
+just putting 2 interfaces up hang the machine.
+
+Can this be an  IRQ sharing / bridge  problem  ??? (all interface shares
+the same IRQ and are after a bridge)
+
+I don't know if this is ac-series specific. I'll try tomorrow.
+
+Any Idea how I can test further ? Without oops it's not easy...
+
+Yann Dupont.
+
+-- 
+\|/ ____ \|/ Fac. des sciences de Nantes-Linux-Python-IPv6-ATM-BONOM....
+"@'/ ,. \@"  Tel :(+33) [0]251125865(AM)[0]251125857(PM)[0]251125868(Fax)
+/_| \__/ |_\ Yann.Dupont@sciences.univ-nantes.fr
+   \__U_/    http://www.unantes.univ-nantes.fr/~dupont
 

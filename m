@@ -1,122 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbTFNUm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 16:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265714AbTFNUmp
+	id S265740AbTFNUsa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 16:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265742AbTFNUsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 16:42:45 -0400
-Received: from ishtar.tlinx.org ([64.81.58.33]:17341 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S265710AbTFNUlj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 16:41:39 -0400
-From: "linda w." <linux-newbie@tlinx.org>
-To: "'Kari Hurtta'" <hurtta+z1@leija.mh.fmi.fi>
-Cc: <linux-newbie@vger.kernel.org>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: reading links in proc - permission denied
-Date: Sat, 14 Jun 2003 13:55:21 -0700
-Message-ID: <000b01c332b7$44c68250$1403a8c0@sc.tlinx.org>
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <200306141905.h5EJ57mE024740@leija.fmi.fi>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+	Sat, 14 Jun 2003 16:48:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11276 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265740AbTFNUsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 16:48:24 -0400
+Date: Sat, 14 Jun 2003 22:02:05 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Matt Porter <mporter@kernel.crashing.org>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] early_port_register
+Message-ID: <20030614220205.F14835@flint.arm.linux.org.uk>
+Mail-Followup-To: Matt Porter <mporter@kernel.crashing.org>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+References: <20030612132001.A4693@home.com> <20030612212723.A15400@infradead.org> <20030612134113.B4693@home.com> <20030612225310.G3348@flint.arm.linux.org.uk> <20030613105238.A29723@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030613105238.A29723@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Jun 13, 2003 at 10:52:38AM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 13, 2003 at 10:52:38AM +0100, Russell King wrote:
+> On Thu, Jun 12, 2003 at 10:53:10PM +0100, Russell King wrote:
+> > Sigh, there seems to be one cset still pending in my serial BK tree:
+> > 
+> > ChangeSet@1.1113.2.1, 2003-05-14 16:50:47+02:00, hch@lab343.munich.sgi.com
+> >   acpi serial stuff
+> > 
+> > I'll request Linus pulls this tonight.
+> 
+> FYI, its still sitting here...
 
+Linus pulled it, but added an extra cset:
 
-> -----Original Message-----
-> From: hurtta@leija.mh.fmi.fi [mailto:hurtta@leija.mh.fmi.fi]
-> Are you sure that 'top' uses that 'exe' ?
----
-	Not at all...in fact was told it doesn't.  Apparently, though,
-the listed permissions on the links are arbitrary and the system
-fairly well ignores them.
+1.1311  Remove strange and broken ACPI rule from serial Makefile
 
-	I vaguely remember someone once saying that even if a symlink
-had permissions lrxw------, it could still be used by group and
-others.  I don't know if that was or is still true -- certainly doesn't
-seem consistent, but when dealing with computer systems made by
-many different humans, inconsistency seems inevitable -- even when
-made by 1 human, that person can be inconsistent over time.
+diff -Nru a/drivers/serial/Makefile b/drivers/serial/Makefile
+--- a/drivers/serial/Makefile	Wed May 14 07:50:37 2003
++++ b/drivers/serial/Makefile	Sat Jun 14 12:07:41 2003
+@@ -8,7 +8,6 @@
+ serial-8250-$(CONFIG_GSC) += 8250_gsc.o
+ serial-8250-$(CONFIG_PCI) += 8250_pci.o
+ serial-8250-$(CONFIG_PNP) += 8250_pnp.o
+-serial-8250-$(CONFIG_ACPI) += acpi.o
+ serial-8250-$(CONFIG_SERIAL_HCDP) += 8250_hcdp.o
+ 
+ obj-$(CONFIG_SERIAL_CORE) += core.o
 
-	And people wonder why computer security is so hard to 'get right'.
+The file is actually called "8250_acpi.o".
 
-The general attitude is often that 'it is the way that it is, and unless
-it is causing a current problem', don't fix it.  In companies -- it
-translates to "if it's not a customer reported bug, or performance problem
-or feature request", then it's not a priority.  And even when customers
-do talk, it depends on the $$$ represented by the customers and the $$$
-it will take to fix it.  Cold hard cash.  Perfect capitalistic system
-that guarantees security problems won't be fixed until they are
-published and/or exploited on enough victims's to add up to $$$'s worth
-of business it will cost to fix the bug.
+Can you guys ensure that the patch and code works and send an update
+direct to Linus please?
 
-	Even Common Criteria evaluations are run simililarly.  To my knowledge
-(and correct me if I am wrong, please! -- http pointers wanted!):
+Unfortunately, its too late for 2.5.71.
 
-1) there is no requirement for a vendor to report known bugs to
-	the third-party evaluation teams or the customers as long as the bug
-	is only in internal company databases.
-
-2) Testplans for a product to pass an evaluation as well as the tests
-	themselves are created and approved by the third party evaluation
-team.
-	So, for example:
-
-	a) if you can create a test plan that doesn't test a
-	known problem area and the certifier approves the plan, that's
-	perfectly legal and going by the system.
-
-	b) if you have to test a problematic area and can create a test that
-	avoids the problem, and the Cert. approves the tests as following the
-	test plan, that's also legal and going by the system.
-
-	c) if you can't avoid writing a test that will show up the plan, you
-	can write the test to be extremely difficult to run and to hide
-	the resulting failure -- like requiring a complete system reinstall
-	both before and after the test is run.  That way, if a test
-	compromises security for later program execution, it won't be
-	uncovered since the test plan required an immediate reboot after
-	test was run (thus hiding the now compromised system state).  And
-again,
-	it would appear this is perfectly legal, and following the letter of
-	the law as defined by the evaluation system.
-
-3) Only bugs that become publicly known and/or to the end customer need to be
-	fixed.
-
-	It seems this is standard practice for the world - accepted CC
-security
-rating system as I last understood it and as it was last explained to me.
-
-	Now this is for government level security-evaluated systems recognized
-in Euro-American (US & Canada) and several other systems.
-
-	The requirements for consumer products, of course, as in the
-non-binding click-through license agreement many customers believe in, are
-less stringent than the above -- test plan?  What's a test plan -- oh yeah,
-that's shipping the product to be tested to 'alpha and beta' sites and see
-what turns up.
-
-	Even at the level of formal government security evaluations, there
-seem to be loopholes large enough to steer the QE-II through.
-
-	If anyone knows information opposite to the above, please let me know.
-	It's pathetic enough now that standard practice with consumer programs
-is to ship with little or no testing, then require the consumers to pay
-money for each bug they want fixed (via time or (increasingly common) per
-incident) fix.
-
-	It's always rubbed me the wrong way to have a company sell me a fault
-product, then I have to pay them a 2nd time to fix a bug they put in
-the first time.  How do I know that bugs aren't being deliberately planted
-to bring in more service revenue -- which can far exceed the cost of the
-original product.
-
--linda
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVAQW7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVAQW7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbVAQW7p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 17:59:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbVAQW5l
+	id S261541AbVAQW7s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 17:59:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVAQW5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 17:57:41 -0500
-Received: from er-systems.de ([217.172.180.163]:42372 "EHLO er-systems.de")
-	by vger.kernel.org with ESMTP id S261535AbVAQWxg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 17:53:36 -0500
-Date: Mon, 17 Jan 2005 23:54:03 +0100 (CET)
-From: Thomas Voegtle <tv@lio96.de>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au,
-       jgarzik@pobox.com
-Subject: Re: [patch 2.4.29-rc1] i810_audio: offset LVI from CIV to avoid
- stalled start
-In-Reply-To: <20050117184609.GE4348@tuxdriver.com>
-Message-ID: <Pine.LNX.4.58.0501172347230.22798@er-systems.de>
-References: <20050117183708.GD4348@tuxdriver.com> <20050117184609.GE4348@tuxdriver.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Mon, 17 Jan 2005 17:57:16 -0500
+Received: from almesberger.net ([63.105.73.238]:45830 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262996AbVAQWuG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 17:50:06 -0500
+Date: Mon, 17 Jan 2005 19:49:19 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Steve Bergman <steve@rueb.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Proper procedure for reporting possible security vulnerabilities?
+Message-ID: <20050117194919.A14107@almesberger.net>
+References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de> <41E2F6B3.9060008@rueb.com> <Pine.LNX.4.61.0501102309270.2987@dragon.hygekrogen.localhost> <20050110164001.Q469@build.pdx.osdl.net> <Pine.LNX.4.61.0501111758290.3368@dragon.hygekrogen.localhost> <1105461562.16168.46.camel@localhost.localdomain> <Pine.LNX.4.61.0501111854120.3368@dragon.hygekrogen.localhost> <20050111132905.N10567@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050111132905.N10567@build.pdx.osdl.net>; from chrisw@osdl.org on Tue, Jan 11, 2005 at 01:29:05PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jan 2005, John W. Linville wrote:
+Chris Wright wrote:
+> +SECURITY CONTACT
+> +P:	Security Officers
+> +M:	kernel-security@{osdl.org, vger.kernel.org, wherever}
+> +S:	Supported
 
-> Offset LVI past CIV when starting DAC/ADC in order to prevent
-> stalled start.
-> ---
-> Here is the (working) patch I'm using against a later 2.4.  This makes
-> sound work fine with Enemy Territory.
-> 
+If you mean this in the sense of "choose one, then put it here",
+this looks good. If you're suggesting multiple choices, to be
+made by the bug reporter, I'm not so sure.
 
-This patch, hand-modified for 2.6.10 enabled sound again with i810 and 
-quake3. (Q3 1.32b linux-i386 Nov 14 2002)
+A single contact point, preferably with a human being that can
+confirm that the message has been received and understood, and
+indicate that there's now somebody taking care of it who knows
+what to do (which may just be forwarding it to someone else or
+some list, and monitoring the reaction), should be useful.
 
-The problem was that in the opening of quake3 sound was there and then 
-suddenly the sound stopped. 
-
-Thank you John for tracking down this problem.
-
-
-       Thomas
+- Werner
 
 -- 
- Thomas Vögtle    email: thomas@voegtle-clan.de
- ----- http://www.voegtle-clan.de/thomas ------
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

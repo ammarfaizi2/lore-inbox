@@ -1,85 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279394AbRJ2TaQ>; Mon, 29 Oct 2001 14:30:16 -0500
+	id <S279412AbRJ2Tec>; Mon, 29 Oct 2001 14:34:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279403AbRJ2TaF>; Mon, 29 Oct 2001 14:30:05 -0500
-Received: from [65.192.191.151] ([65.192.191.151]:21005 "EHLO lucy.trebia.com")
-	by vger.kernel.org with ESMTP id <S279394AbRJ2T3y>;
-	Mon, 29 Oct 2001 14:29:54 -0500
-Message-ID: <3BDDADFF.77EB8912@trebia.com>
-Date: Mon, 29 Oct 2001 14:29:03 -0500
-From: "Ashish A. Palekar" <apalekar@trebia.com>
-Organization: Trebia Networks
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S279408AbRJ2Tdi>; Mon, 29 Oct 2001 14:33:38 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:17133 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S279406AbRJ2Tda>; Mon, 29 Oct 2001 14:33:30 -0500
+Date: 27 Oct 2001 11:10:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8BfMO1UHw-B@khms.westfalen.de>
+In-Reply-To: <20011027012016.F23590@turbolinux.com>
+Subject: Re: Non-standard MODULE_LICENSEs in 2.4.13-ac2
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
-To: greearb@candelatech.com, nitin.dhingra@dcmtech.co.in,
-        linux-kernel@vger.kernel.org
-Subject: Re: iSCSI support for Linux
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <13064.1004153516@ocs3.intra.ocs.com.au> <13064.1004153516@ocs3.intra.ocs.com.au> <20011027012016.F23590@turbolinux.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben/Nitin:
+adilger@turbolabs.com (Andreas Dilger)  wrote on 27.10.01 in <20011027012016.F23590@turbolinux.com>:
 
-I was going through some of the emails you guys had sent out on the LKML
-about iscsi support. I think there is some confusion about the projects.
+> On Oct 27, 2001  13:31 +1000, Keith Owens wrote:
+> > These are the non-standard MODULE_LICENSEs in 2.4.13-ac2, compiling
+> > these as modules will result in a tainted kernel.  "BSD without
+> > advertising clause" is not quite good enough for the kernel, that
+> > licence allows for binary only modules.  Kernel debuggers insist on
+> > general source availability.
+> >
+> > Since the source is already in the kernel which is distributed as a GPL
+> > work, these sources are effectively dual BSD/GPL.  Could the owners
+> > please convert them to "Dual BSD/GPL"?
+>
+> Ah, so Keith has become (self) nominated license God for the kernel?
+> Being included in the kernel source isn't "general source availability"?
+>
+> I can see that you want to make this whole tainted-kernel mess work,
+> but I think you are confusing intent with implementation.  The intent
 
-There are three different projects that I am aware of and are currently
-active.
+No, you are. Keith is asking module owners to change their part of the  
+*implementation*, not any *intent*. He says that if a BSD/noadv module  
+source is in the kernel, the correct tag is GPL/BSD, not BSD/noadv.
 
-1. Cisco
-2. Intel
-3. UNH - Chris Loveland and myself were both from UNH and have since
-graduated. However, there is still active development work.
+> I totally disagree with the assertion that a module has to be "GPL" in
+> order to be "OSS free" especially for sources already in the kernel,
 
-As far as the UNH project goes:
+Sure. What it needs to be, when included with the kernel and distributed  
+(and the inclusion and distribution are the critical points here, not OSS- 
+freeness) is GPL-compatible; that means that the combination *will* be  
+GPL. That is the famous "viral clause" in the GPL.
 
-We have been working on both the Initiator (host) and the Target
-(Server) side. The Initiator side should work directly with the SCSI
-Initiator mid-level. As I am given to understand, the code was revved up
-to version 6.
+That doesn't mean that non-GPL-compatible stuff isn't OSS, just that it  
+cannot be distributed with the kernel, because the kernel *is* GPL. It's a  
+consequence of the GPL, not of the OSS rules.
 
-On the Target side, the project is a little more elaborate. Since there
-is no existing SCSI Target support, we have developed a SCSI Target
-Mid-level. This has three front-ends written for it which support:
+> so lets not go on a witch hunt for non-GPL licenses in the kernel just
 
-1. Adaptec's SCSI Encapsulation Protocol (defunct last November - since
-iSCSI has become the dominant SAN over TCP/IP protocol)
-2. QLogic ISP 2200 A Fibre Channel driver
-3. iSCSI driver (and this works on the TCP/IP software stack which Linux
-has) - so it is pretty much limited by whatever ethernet cards Linux
-supports (including GigE). We did not have access to TCP accelerated
-cards so the development on those has not been done.
+As far as I can see, nobody is.
 
-Thus you have three target drivers written for the SCSI Target mid-level
-which we has been written. For the iSCSI driver itself - there are four
-target drivers one for rev 0, rev 03, rev 06 and rev 08.
+> to make this tainted stuff work without adding a new license.  There is
+> enough animosity between the Linux and GPL camps without more fire for
+> the "GPL is viral, BSD is free" flamewars.
 
-The UNH drivers are available for download from:
+Aah, so it seems *you* are on a witch hunt against the GPL!
 
-http://www.iol.unh.edu/consortiums/fc/fc_linux.html
-http://www.iol.unh.edu/consortiums/iscsi
+I have no idea why someone using the BSD license - which, after all,  
+allows for relicensing under any proprietary scheme you care to dream up -  
+should have any problem whatsoever with relicensing under the GPL. Nor do  
+I have any idea why someone using the GPL should have any problem with  
+anything else also available under the GPL.
 
-They have been GPLed. Lots of people are currently trying out the code
-and letting me and the other developers know about the bugs. Ideally, we
-would like to fix those (however, the rev version of the draft keeps on
-changing :-(). The Initiator code is fairly straightforward. For how to
-use the target code, my thesis is available with the tar ball from one
-of these sites.
+There's no conflict here. We're not talking about who is more free.
 
-Okay .. to your question about authentication Ben .. the consideration
-we had to make was that a lot of the authentication stuff was to be done
-in hardware by most companies developing iSCSI (I know very little about
-authentication and security stuff so I may be completely wrong). From a
-software development perspective it would have taken a decent amount of
-time and the objective was to get code out so that it could be used for
-protocol testing in an iSCSI plugfest.
-
-Hope this clears some of the confusion. If you have any questions,
-please let me know. Sorry for the long email.
-
-Thanks
-Ashish A. Palekar
-
+MfG Kai

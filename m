@@ -1,85 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbVAYTCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVAYTCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbVAYTCK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 14:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVAYTAy
+	id S262071AbVAYTCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 14:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVAYTBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 14:00:54 -0500
-Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:37380 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262065AbVAYS7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 13:59:14 -0500
-Date: Tue, 25 Jan 2005 19:59:18 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Greg KH <greg@kroah.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-Id: <20050125195918.460f2b10.khali@linux-fr.org>
-In-Reply-To: <20050125060256.GB2061@kroah.com>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	<20050124175449.GK3515@stusta.de>
-	<20050124213442.GC18933@kroah.com>
-	<20050124214751.GA6396@infradead.org>
-	<20050125060256.GB2061@kroah.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 25 Jan 2005 14:01:24 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:56728 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262060AbVAYS6c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 13:58:32 -0500
+Date: Tue, 25 Jan 2005 10:58:12 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, viro@zenII.uk.linux.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: make flock_lock_file_wait static
+Message-ID: <20050125185812.GA1499@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050109194209.GA7588@infradead.org> <1105310650.11315.19.camel@lade.trondhjem.org> <1105345168.4171.11.camel@laptopd505.fenrus.org> <1105346324.4171.16.camel@laptopd505.fenrus.org> <1105367014.11462.13.camel@lade.trondhjem.org> <1105432299.3917.11.camel@laptopd505.fenrus.org> <1105471004.12005.46.camel@lade.trondhjem.org> <1105472182.3917.49.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105472182.3917.49.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, Jan 11, 2005 at 08:36:22PM +0100, Arjan van de Ven wrote:
+> On Tue, 2005-01-11 at 14:16 -0500, Trond Myklebust wrote:
+> > > (you may think "it's only 100 bytes", well, there are 700+ other such
+> > > functions, total that makes over at least 70Kb of unswappable, wasted
+> > > memory if not more.)
+> > 
+> > A list of these 700+ unused exported APIs would be very useful so that
+> > we can deprecate and/or get rid of them.
+> 
+> http://people.redhat.com/arjanv/unused
+>
+> has the list of symbols that are unused on an i386 allmodconfig based on
+> the -bk tree 2 days ago.
 
-> As previously mentioned, these patches have had that, on the sensors
-> mailing list.  Lots of review and comments went into them there, and
-> the code was reworked quite a lot based on it.
+<donning asbestos suit with the tungsten pinstripes...>
 
-That's right, I did actually review Evgeniy's code some times ago, as
-can be seen here:
-http://archives.andrew.net.au/lm-sensors/msg27817.html
+SAN Filesystem is an out-of-tree GPL module that uses the following:
 
-I might however add the following:
+o	blk_get_queue(): used to submit I/O requests using the
+	make_request_fn().
 
-1* This was 5 months ago. I'd expect Evgeniy's code to have
-significantly evolved since, so an additional review now would certainly
-be welcome.
+o	sock_setsockopt(): used to control communication with other
+	nodes in the SAN Filesystem.
 
-2* I only reviewed the superio code. The acb part is completely new so I
-obviously couldn't comment on it back then, and I skipped the gpio part
-because I admittedly have no particular interest in this part.
+o	vfs_follow_link(): used to interpret symbolic links, which
+	might point outside of SAN Filesystem.
 
-3* Some of my objections have been ignored by Evgeniy. Among others, the
-choice of "sc" as a prefix for the superio stuff is definitely poor and
-has to be changed.
+SDD is a binary module that has committed to get itself to GPL on its
+first release after December 31, 2005.  It uses:
 
-http://archives.andrew.net.au/lm-sensors/msg27847.html
+o	__read_lock_failed() and __write_lock_failed(): due to SDD's use
+	of read_lock() and write_lock().  So, if the plan is to change
+	read_lock() and write_lock() to do something different, never mind!
 
-I don't think that getting the whole stuff (superio, acb and gpio)
-merged at once is a good idea. Preferably we would merge superio alone
-first, then update the drivers that are already in the kernel and could
-make use of it (it87, w83627hf, pc87360 and smsc47m1, all of i2c/sensors
-fame, come to mind). This would help ensure that Evgeniy's interface
-choices were correct, and would additionally be a very good example of
-how this interface must be used. Then, and only then IMVHO, should the
-gpio and acb stuff be merged.
+So, could the exports for the following symbols from the list please be
+retained through December 31, 2005?
 
-Before all this happens, I really would like Evgeniy to present an
-overall plan of his current superio implementation. Last time we
-discussed about this, we obviously had different views on the interface
-level that should be proposed by the superio core, as well as how
-chip-specific values should be handled (or, according to me, mostly not
-handled). 
+	blk_get_queue
+	sock_setsockopt
+	vfs_follow_link
+	__read_lock_failed
+	__write_lock_failed
 
-Please note that I am certainly not the most qualified of us all to
-review this code. What I can do is check whether I will be able to use
-the new superio interface in the sensor chip drivers I mentioned above,
-and that's about it. I am not familiar enough with kernel core
-architectures to decide whether Evgeniy's approach is correct or not. I
-am willing to help, but I can do so only within my own current skills.
+							Thanx, Paul
 
-Thanks,
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+PS.  Yes, there are more than two out-of-tree modules in IBM.  Some were
+     not affected by this list.  One is looking carefully at Al Viro's
+     propagation-node design to see if it does what they need (looks
+     promising thus far).  Still others are having more trouble accepting
+     the need to stop being binary modules in the near future, but that
+     is their problem, not yours!  ;-)  To be fair, at least one in the
+     last group has some legitimate IP issues, which we are working on.

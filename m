@@ -1,135 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268680AbUHYUiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUHYWYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268680AbUHYUiY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 16:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268591AbUHYUdz
+	id S265943AbUHYWYO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 18:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUHYWXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 16:33:55 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:40097 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S268590AbUHYUcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 16:32:19 -0400
-Date: Wed, 25 Aug 2004 22:32:06 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       David Miller <davem@redhat.com>
-Subject: Re: Linux 2.6.9-rc1
-Message-ID: <20040825203206.GS5824@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
-	David Miller <davem@redhat.com>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org> <412CDFEE.1010505@triplehelix.org>
+	Wed, 25 Aug 2004 18:23:34 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:52460 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265943AbUHYWS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 18:18:29 -0400
+Date: Wed, 25 Aug 2004 23:18:14 +0100
+From: Dave Jones <davej@redhat.com>
+To: Dan Hollis <goemon@anime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bizarre 2.6.8.1 /sys permissions
+Message-ID: <20040825221814.GA20283@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dan Hollis <goemon@anime.net>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0408251319070.4007-100000@sasami.anime.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Fnm8lRGFTVS/3GuM"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <412CDFEE.1010505@triplehelix.org>
-User-Agent: Mutt/1.5.6+20040722i
-X-Spam-Score: -4.8 (----)
+In-Reply-To: <Pine.LNX.4.44.0408251319070.4007-100000@sasami.anime.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 25, 2004 at 01:25:12PM -0700, Dan Hollis wrote:
 
---Fnm8lRGFTVS/3GuM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 25, 2004 at 11:52:30AM -0700, Joshua Kwan wrote:
-> Linus Torvalds wrote:
-> >Harald Welte:
-> ...
-> >  o [NETFILTER]: Make 'helper' list of ip_nat_core static
-> ...
->=20
-> I suspect that this changeset[1] somehow caused this to happen (many=20
-> times) in dmesg:
->=20
-> ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ > Do these file permissions make sense to anyone?
 
-yes, indeed.
+Yes.
 
-> It seems to be working properly (NATting two machines behind a local=20
-> network to the Internet.)
+ > $ cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq
+ > cat: /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq: Permission denied
 
-The 'problem' is that we try to get a readlock while we're already
-protected under a write lock.
+Reading this file causes reads from hardware on some cpufreq drivers.
+This can be a slow operation, so a user could degrade system performance
+for everyone else by repeatedly cat'ing it.
 
-Please see the following [quite trivial, but yet untested] patch:
+ > $ cat /proc/cpuinfo
+ > processor       : 0
+ > vendor_id       : GenuineIntel
+ > cpu family      : 15
+ > model           : 2
+ > model name      : Intel(R) Celeron(R) CPU 2.60GHz
+ > stepping        : 9
+ > cpu MHz         : 324.528
 
---- linux-2.6.9-rc1/net/ipv4/netfilter/ip_nat_core.c	2004-08-25 22:22:36.45=
-0340504 +0200
-+++ linux-2.6.9-rc1-find_helper/net/ipv4/netfilter/ip_nat_core.c	2004-08-25=
- 22:28:37.668273271 +0200
-@@ -635,7 +635,7 @@
-=20
- 	/* If there's a helper, assign it; based on new tuple. */
- 	if (!conntrack->master)
--		info->helper =3D ip_nat_find_helper(&reply);
-+		info->helper =3D __ip_nat_find_helper(&reply);
-=20
- 	/* It's done. */
- 	info->initialized |=3D (1 << HOOK2MANIP(hooknum));
---- linux-2.6.9-rc1/net/ipv4/netfilter/ip_nat_helper.c	2004-08-25 22:22:36.=
-453340376 +0200
-+++ linux-2.6.9-rc1-find_helper/net/ipv4/netfilter/ip_nat_helper.c	2004-08-=
-25 22:27:47.880335112 +0200
-@@ -421,12 +421,18 @@
- }
-=20
- struct ip_nat_helper *
-+__ip_nat_find_helper(const struct ip_conntrack_tuple *tuple)
-+{
-+	return LIST_FIND(&helpers, helper_cmp, struct ip_nat_helper *, tuple);
-+}
-+
-+struct ip_nat_helper *
- ip_nat_find_helper(const struct ip_conntrack_tuple *tuple)
- {
- 	struct ip_nat_helper *h;
-=20
- 	READ_LOCK(&ip_nat_lock);
--	h =3D LIST_FIND(&helpers, helper_cmp, struct ip_nat_helper *, tuple);
-+	h =3D __ip_nat_find_helper(tuple);
- 	READ_UNLOCK(&ip_nat_lock);
-=20
- 	return h;
---- linux-2.6.9-rc1/net/ipv4/netfilter/ip_nat_standalone.c	2004-08-25 22:22=
-:36.461340035 +0200
-+++ linux-2.6.9-rc1-find_helper/net/ipv4/netfilter/ip_nat_standalone.c	2004=
--08-25 22:29:30.047102589 +0200
-@@ -394,4 +394,5 @@
- EXPORT_SYMBOL(ip_nat_mangle_tcp_packet);
- EXPORT_SYMBOL(ip_nat_mangle_udp_packet);
- EXPORT_SYMBOL(ip_nat_used_tuple);
-+EXPORT_SYMBOL(ip_nat_find_helper);
- MODULE_LICENSE("GPL");
+This is read from the cpu_khz variable, so isn't affected by
+this problem.
 
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+ > $ ls -la /sys/devices/system/cpu/cpu0/cpufreq/
+ > total 0
+ > drwxr-xr-x  2 root root    0 Aug 23 13:06 .
+ > drwxr-xr-x  3 root root    0 Aug 23 13:06 ..
+ > -r--------  1 root root 4096 Aug 23 13:06 cpuinfo_cur_freq
+ > -r--r--r--  1 root root 4096 Aug 23 13:06 cpuinfo_max_freq
+ > -r--r--r--  1 root root 4096 Aug 23 13:06 cpuinfo_min_freq
+ > -r--r--r--  1 root root 4096 Aug 23 13:06 scaling_available_frequencies
+ > -r--r--r--  1 root root 4096 Aug 23 13:06 scaling_available_governors
+ > -r--r--r--  1 root root 4096 Aug 23 13:06 scaling_cur_freq
+ > -r--r--r--  1 root root 4096 Aug 23 13:06 scaling_driver
+ > -rw-r--r--  1 root root    0 Aug 25 13:19 scaling_governor
+ > -rw-r--r--  1 root root 4096 Aug 23 13:06 scaling_max_freq
+ > -rw-r--r--  1 root root 4096 Aug 23 13:06 scaling_min_freq
+ > -rw-r--r--  1 root root    0 Aug 25 13:19 scaling_setspeed
 
---Fnm8lRGFTVS/3GuM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Looks fine to me.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+		Dave
 
-iD8DBQFBLPdGXaXGVTD0i/8RAlWUAJ0UiBXNbG4Qu8yxyzFsz8IQgeq8WQCfcV0P
-9Eghv4PZhnYCZUfsYegyEZU=
-=CxAk
------END PGP SIGNATURE-----
-
---Fnm8lRGFTVS/3GuM--

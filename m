@@ -1,119 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbTEKSYT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 14:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTEKSYT
+	id S261842AbTEKS2O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 14:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTEKS2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 14:24:19 -0400
-Received: from havoc.daloft.com ([64.213.145.173]:1190 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261840AbTEKSYP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 14:24:15 -0400
-Date: Sun, 11 May 2003 14:36:57 -0400
+	Sun, 11 May 2003 14:28:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14810 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261842AbTEKS2N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 14:28:13 -0400
+Message-ID: <3EBE993F.1090604@pobox.com>
+Date: Sun, 11 May 2003 14:41:03 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK+PATCHES] net driver merges
-Message-ID: <20030511183657.GA12221@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: davem@redhat.com, alan@lxorguk.ukuu.org.uk, haveblue@us.ibm.com,
+       akpm@digeo.com, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: The magical mystical changing ethernet interface order
+References: <3EB98878.5060607@us.ibm.com>	<1052395526.23259.0.camel@rth.ninka.net>	<1052405730.10038.51.camel@dhcp22.swansea.linux.org.uk>	<20030508.075438.52189319.davem@redhat.com>	<3EBA854D.1030101@pobox.com> <20030508093058.3bf3b6ba.rddunlap@osdl.org>
+In-Reply-To: <20030508093058.3bf3b6ba.rddunlap@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Randy.Dunlap wrote:
+> I don't care what the exact implementation is, but anything except
+> depending on link (tools) order is better than now IMO.
 
-Linus, please do a
+Well, The Leader Has Spoken, even though I disagree w/ him on this :)
 
-	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
 
-Others may grab the patch from
+Short term, addressing $subject, somebody needs to look into fixing up 
+2.5 net driver link order to match history.  History is probably 2.2 in 
+this case, if there is a disparity between 2.2 and 2.4.
 
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.69-bk6-netdrvr1.bz2
+Volunteers?
 
-This will update the following files:
+	Jeff
 
- drivers/net/Kconfig                 |    2 
- drivers/net/bmac.c                  |   53 ++-
- drivers/net/depca.c                 |  282 +++++++++++---------
- drivers/net/mace.c                  |   15 -
- drivers/net/sb1000.c                |  287 ++++++++------------
- drivers/net/setup.c                 |   35 --
- drivers/net/tulip/tulip_core.c      |    7 
- drivers/net/wireless/netwave_cs.c   |   10 
- drivers/net/wireless/wavelan.c      |  184 +++----------
- drivers/net/wireless/wavelan.p.h    |    8 
- drivers/net/wireless/wavelan_cs.c   |  496 +++---------------------------------
- drivers/net/wireless/wavelan_cs.p.h |   35 --
- include/linux/wireless.h            |   89 ++++--
- include/net/iw_handler.h            |   67 ++++
- net/core/wireless.c                 |  281 +++++++++++++++++++-
- net/netsyms.c                       |    9 
- 16 files changed, 837 insertions(+), 1023 deletions(-)
 
-through these ChangeSets:
-
-<mzyngier@freesurf.fr> (03/05/11 1.1112)
-   [PATCH] depca update (was Re: [Patch] DMA mapping API for Alpha)
-   
-   this patch has been sleeping
-   in Alan tree for quite some time. It updates the depca driver to the
-   EISA/sysfs API, gets rid of check_region, and properly reserve memory
-   region. Patch is against latest BK.
-
-<dean@arctic.org> (03/05/11 1.1111)
-   [PATCH] better ali1563 integrated ethernet support
-   
-   it turns out the tulip driver is a much better driver for the integrated
-   ali1563 ethernet than the dmfe driver... the dmfe driver gets tx timeouts
-   every ~15s and can't receive over 5MB/s.  but with the small tulip patch
-   below i'm seeing 11MB/s+ in both directions without problems.
-
-<paulus@samba.org> (03/05/11 1.1110)
-   [PATCH] Update mac ethernet drivers
-   
-   This patch updates the bmac and mace ethernet drivers so that their
-   interrupt routines return an irqreturn_t, and updates the bmac driver
-   to use a spinlock rather than global cli/sti.
-
-<jt@bougret.hpl.hp.com> (03/05/11 1.1109)
-   [PATCH] WE-16 for Wavelan Pcmcia driver
-   
-           This patch update the Wavelan Pcmcia driver for Wireless
-   Extensions 16, and also remove all the backward compatibility cruft
-   that is broken anyway.
-
-<jt@bougret.hpl.hp.com> (03/05/11 1.1108)
-   [PATCH] WE-16 for Wavelan ISA driver
-   
-           This update the Wavelan ISA driver for Wireless Extension 16
-   (going with my previous patch).
-
-<jt@bougret.hpl.hp.com> (03/05/11 1.1107)
-   [PATCH] Wireless Extension 16
-   
-           This patch for 2.5.68-bk11 will update Wireless Extension to
-   version 16 :
-           o increase bitrate and frequency number for 802.11g/802.11a
-           o enhanced iwspy support
-           o minor tweaks and cleanups
-   
-           This patch is only for the core of WE. The patches for the
-   individual drivers have been sent to their respective maintainers.
-   	Compared to the previous version I sent you a few weeks ago,
-   I've just updated to the latest kernel.
-
-<jt@bougret.hpl.hp.com> (03/05/11 1.1106)
-   [PATCH] irq fixes for wavelan_cs/netwave_cs
-   
-           This patch for 2.5.68-bk11 will fix the irq handler of some
-   obsolete wireless drivers (wavelan, wavelan_cs and netwave_cs) plus
-   assorted fixes. All those drivers have been tested on a SMP box.
-
-<hch@lst.de> (03/05/11 1.1105)
-   [PATCH] switch sb1000 to new style net init & pnp
-   
-   This cleans up the driver big time and gets rid of a big ugly wart
-   in setup.c.  Note that I don't have the hardware so this is only
-   compile-tested.
 

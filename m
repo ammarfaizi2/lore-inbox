@@ -1,38 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbUDTQy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263185AbUDTQxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbUDTQy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 12:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUDTQy1
+	id S263185AbUDTQxw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 12:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUDTQxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 12:54:27 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:34473 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S262351AbUDTQyZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 12:54:25 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-390@vm.marist.edu,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Clean up asm/pgalloc.h include (s390)
-Date: Tue, 20 Apr 2004 18:53:25 +0200
-User-Agent: KMail/1.6.1
-References: <OF97AEF891.DC06EC8E-ONC1256E7B.00576CE3-C1256E7B.00578DF9@de.ibm.com> <20040419171122.D29446@flint.arm.linux.org.uk>
-In-Reply-To: <20040419171122.D29446@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200404201853.37947.arnd@arndb.de>
+	Tue, 20 Apr 2004 12:53:51 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:35746 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263185AbUDTQxs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 12:53:48 -0400
+Message-ID: <8F4CF9CC.3D7D157C@mail.gmail.com>
+Date: Tue, 20 Apr 2004 09:46:00 -0700
+From: Ross Biro <ross.biro@gmail.com>
+To: ross@datscreative.com.au
+Subject: Re: Kernel writes to RAM it doesn't own on 2.4.24
+Cc: linux-kernel@vger.kernel.org, root@chaos.analogic.com
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_0_14150698.1082479560614"
+References: <200404171440.18829.ross@datscreative.com.au> <7FF8CDFE.64C50807@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 April 2004 18:11, Russell King wrote:
-> Alternatively, could the diag10() prototype be moved somewhere else
-> (tlbflush or cacheflush?)  Is diag10 a tlb or cache function?  It
-> isn't clear from the code what diag10() does.
+------=_Part_0_14150698.1082479560614
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Think of it as some sort of madvise(,,MADV_DONTNEED) or free() in
-hardware. I guess the next best place to put it is <asm/system.h>.
+> I believe what I did was to save a copy of the e820 maps for later,
+> and then take then take the first free address as the max of the first
+> free address from the user supplied map and the bios supplied map.
+> I'll send out a patch on Tuesday.
 
-	Arnd <><
+Here's the changes to setup.c.  I haven't check to see if it's
+complete, but I did the diff from a working 2.4.18-kernel.  You need
+to apply this patch in arch/i386/kernel.
+
+------=_Part_0_14150698.1082479560614
+Content-Type: application/octet-stream; name="stuff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="stuff"
+
+LS0tIC9ob21lL3Jvc3NiL2xvY2FsL2xpbnV4LTIuNC4xOC9hcmNoL2kzODYva2VybmVsL3NldHVw
+LmMJMjAwMy0wOS0yMyAxOTo1NToxMy4wMDAwMDAwMDAgLTA3MDAKKysrIHNldHVwLmMJMjAwNC0w
+My0yNCAxMDoyMDo1Ni4wMDAwMDAwMDAgLTA4MDAKQEAgLTExMyw2ICsxMTMsMTcgQEAKICNpbmNs
+dWRlIDxhc20vZG1hLmg+CiAjaW5jbHVkZSA8YXNtL21wc3BlYy5oPgogI2luY2x1ZGUgPGFzbS9t
+bXVfY29udGV4dC5oPgorCisjZGVmaW5lIFBGTl9VUCh4KQkoKCh4KSArIFBBR0VfU0laRS0xKSA+
+PiBQQUdFX1NISUZUKQorI2RlZmluZSBQRk5fRE9XTih4KQkoKHgpID4+IFBBR0VfU0hJRlQpCisj
+ZGVmaW5lIFBGTl9QSFlTKHgpCSgoeCkgPDwgUEFHRV9TSElGVCkKKworLyoKKyAqIFJlc2VydmVk
+IHNwYWNlIGZvciB2bWFsbG9jIGFuZCBpb21hcCAtIGRlZmluZWQgaW4gYXNtL3BhZ2UuaAorICov
+CisjZGVmaW5lIE1BWE1FTV9QRk4JUEZOX0RPV04oTUFYTUVNKQorI2RlZmluZSBNQVhfTk9OUEFF
+X1BGTgkoMSA8PCAyMCkKKwogLyoKICAqIE1hY2hpbmUgc2V0dXAuLgogICovCkBAIC0xMjEsNiAr
+MTMyLDggQEAKIHN0cnVjdCBjcHVpbmZvX3g4NiBib290X2NwdV9kYXRhID0geyAwLCAwLCAwLCAw
+LCAtMSwgMSwgMCwgMCwgLTEgfTsKIAogdW5zaWduZWQgbG9uZyBtbXVfY3I0X2ZlYXR1cmVzOwor
+dW5zaWduZWQgbG9uZyBudW1fZTgyMHBoeXNwYWdlczsKK3Vuc2lnbmVkIGxvbmcgbnVtX2U4MjBf
+bm9ucGFlX3BoeXNwYWdlczsKIAogLyoKICAqIEJ1cyB0eXBlcyAuLgpAQCAtMTUxLDYgKzE2NCw3
+IEBACiB9OwogCiBzdHJ1Y3QgZTgyMG1hcCBlODIwOworc3RydWN0IGU4MjBtYXAgYmlvc19lODIw
+OwogCiB1bnNpZ25lZCBjaGFyIGF1eF9kZXZpY2VfcHJlc2VudDsKIApAQCAtNzEwLDExICs3MjQs
+NDQgQEAKIAljaGFyIGMgPSAnICcsICp0byA9IGNvbW1hbmRfbGluZSwgKmZyb20gPSBDT01NQU5E
+X0xJTkU7CiAJaW50IGxlbiA9IDA7CiAJaW50IHVzZXJtZW0gPSAwOworICAgICAgICBpbnQgaTsK
+KyAgICAgICAgdW5zaWduZWQgbG9uZyBtYXhfcGZuOwogCiAJLyogU2F2ZSB1bnBhcnNlZCBjb21t
+YW5kIGxpbmUgY29weSBmb3IgL3Byb2MvY21kbGluZSAqLwogCW1lbWNweShzYXZlZF9jb21tYW5k
+X2xpbmUsIENPTU1BTkRfTElORSwgQ09NTUFORF9MSU5FX1NJWkUpOwogCXNhdmVkX2NvbW1hbmRf
+bGluZVtDT01NQU5EX0xJTkVfU0laRS0xXSA9ICdcMCc7CiAKKyAgICAgICAgLyogQ29tcHV0ZSB0
+aGlzIGhlcmUgaW4gY2FzZSB0aGUgdXNlciB3YW50cyB0byBrbm93IGl0IGxhdGVyLiAqLworCW1h
+eF9wZm4gPSAwOworICAgICAgICBtYXhfbG93X3BmbiA9IDA7CisJZm9yIChpID0gMDsgaSA8IGU4
+MjAubnJfbWFwOyBpKyspIHsKKwkJdW5zaWduZWQgbG9uZyBzdGFydCwgZW5kOworCQkvKiBSQU0/
+ICovCisJCWlmIChlODIwLm1hcFtpXS50eXBlICE9IEU4MjBfUkFNICYmCisgICAgICAgICAgICAg
+ICAgICAgIGU4MjAubWFwW2ldLnR5cGUgIT0gRTgyMF9BQ1BJKQorCQkJY29udGludWU7CisKKwkJ
+c3RhcnQgPSBQRk5fVVAoZTgyMC5tYXBbaV0uYWRkcik7CisJCWVuZCA9IFBGTl9ET1dOKGU4MjAu
+bWFwW2ldLmFkZHIgKyBlODIwLm1hcFtpXS5zaXplKTsKKwkJaWYgKHN0YXJ0ID49IGVuZCkKKwkJ
+CWNvbnRpbnVlOworICAgICAgICAgICAgICAgIGlmIChlbmQgPiBNQVhfTk9OUEFFX1BGTikgewor
+ICAgICAgICAgICAgICAgICAgICAgaWYgKHN0YXJ0IDwgTUFYX05PTlBBRV9QRk4pIHsKKyAgICAg
+ICAgICAgICAgICAgICAgICAgICAgbWF4X2xvd19wZm4gPSBNQVhfTk9OUEFFX1BGTjsKKyAgICAg
+ICAgICAgICAgICAgICAgIH0KKyAgICAgICAgICAgICAgICB9IGVsc2UgeworICAgICAgICAgICAg
+ICAgICAgICAgaWYgKGVuZCA+IG1heF9sb3dfcGZuKSB7CisgICAgICAgICAgICAgICAgICAgICAg
+ICAgIG1heF9sb3dfcGZuID0gZW5kOworICAgICAgICAgICAgICAgICAgICAgfQorICAgICAgICAg
+ICAgICAgIH0KKwkJaWYgKGVuZCA+IG1heF9wZm4pCisJCQltYXhfcGZuID0gZW5kOworCX0KKwor
+ICAgICAgICBudW1fZTgyMHBoeXNwYWdlcyA9IG1heF9wZm47CisgICAgICAgIG51bV9lODIwX25v
+bnBhZV9waHlzcGFnZXMgPSBtYXhfbG93X3BmbjsKKyAgICAgICAgbWVtY3B5KCZiaW9zX2U4MjAs
+ICZlODIwLCBzaXplb2YoZTgyMCkpOworCiAJZm9yICg7OykgewogCQkvKgogCQkgKiAibWVtPW5v
+cGVudGl1bSIgZGlzYWJsZXMgdGhlIDRNQiBwYWdlIHRhYmxlcy4KQEAgLTc4Myw2ICs4MzAsNyBA
+QAogewogCXVuc2lnbmVkIGxvbmcgYm9vdG1hcF9zaXplLCBsb3dfbWVtX3NpemU7CiAJdW5zaWdu
+ZWQgbG9uZyBzdGFydF9wZm4sIG1heF9wZm4sIG1heF9sb3dfcGZuOworICAgICAgICB1bnNpZ25l
+ZCBsb25nIGU4MjBfbG93X21lbV9zaXplOwogCWludCBpOwogCiAjaWZkZWYgQ09ORklHX1ZJU1dT
+CkBAIC04MjIsMTYgKzg3MCw2IEBACiAKIAlwYXJzZV9tZW1fY21kbGluZShjbWRsaW5lX3ApOwog
+Ci0jZGVmaW5lIFBGTl9VUCh4KQkoKCh4KSArIFBBR0VfU0laRS0xKSA+PiBQQUdFX1NISUZUKQot
+I2RlZmluZSBQRk5fRE9XTih4KQkoKHgpID4+IFBBR0VfU0hJRlQpCi0jZGVmaW5lIFBGTl9QSFlT
+KHgpCSgoeCkgPDwgUEFHRV9TSElGVCkKLQotLyoKLSAqIFJlc2VydmVkIHNwYWNlIGZvciB2bWFs
+bG9jIGFuZCBpb21hcCAtIGRlZmluZWQgaW4gYXNtL3BhZ2UuaAotICovCi0jZGVmaW5lIE1BWE1F
+TV9QRk4JUEZOX0RPV04oTUFYTUVNKQotI2RlZmluZSBNQVhfTk9OUEFFX1BGTgkoMSA8PCAyMCkK
+LQogCS8qCiAJICogcGFydGlhbGx5IHVzZWQgcGFnZXMgYXJlIG5vdCB1c2FibGUgLSB0aHVzCiAJ
+ICogd2UgYXJlIHJvdW5kaW5nIHVwd2FyZHM6CkBAIC0xMDMyLDggKzEwNzAsMTYgQEAKIAogCS8q
+IFRlbGwgdGhlIFBDSSBsYXllciBub3QgdG8gYWxsb2NhdGUgdG9vIGNsb3NlIHRvIHRoZSBSQU0g
+YXJlYS4uICovCiAJbG93X21lbV9zaXplID0gKChtYXhfbG93X3BmbiA8PCBQQUdFX1NISUZUKSAr
+IDB4ZmZmZmYpICYgfjB4ZmZmZmY7CisKKyAgICAgICAgZTgyMF9sb3dfbWVtX3NpemUgPSAoKG51
+bV9lODIwX25vbnBhZV9waHlzcGFnZXMgPDwgUEFHRV9TSElGVCkgKyAKKyAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgMHhmZmZmZikgJiB+MHhmZmZmZjsKKworCWlmIChlODIwX2xvd19tZW1f
+c2l6ZSA+IHBjaV9tZW1fc3RhcnQpCisgICAgICAgICAgICAgcGNpX21lbV9zdGFydCA9IGU4MjBf
+bG93X21lbV9zaXplOworICAgICAgICAKIAlpZiAobG93X21lbV9zaXplID4gcGNpX21lbV9zdGFy
+dCkKIAkJcGNpX21lbV9zdGFydCA9IGxvd19tZW1fc2l6ZTsKKyAgICAgICAgICAgICAgICAgICAg
+IAogCiAjaWZkZWYgQ09ORklHX1ZUCiAjaWYgZGVmaW5lZChDT05GSUdfVkdBX0NPTlNPTEUpCg==
+------=_Part_0_14150698.1082479560614--

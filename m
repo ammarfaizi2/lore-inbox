@@ -1,29 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131411AbRBATiu>; Thu, 1 Feb 2001 14:38:50 -0500
+	id <S130165AbRBATvP>; Thu, 1 Feb 2001 14:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131523AbRBATik>; Thu, 1 Feb 2001 14:38:40 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:43275 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S131453AbRBATi1>;
-	Thu, 1 Feb 2001 14:38:27 -0500
-Date: Thu, 1 Feb 2001 14:38:25 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: linux-kernel@vger.kernel.org
-Subject: NT soon to surpass Linux in specweb99 performance?
-Message-ID: <20010201143825.A21237@xi.linuxpower.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
+	id <S130640AbRBATuz>; Thu, 1 Feb 2001 14:50:55 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:8204 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S130165AbRBATur>;
+	Thu, 1 Feb 2001 14:50:47 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200102011949.WAA21764@ms2.inr.ac.ru>
+Subject: Re: AF_UNIX hangs
+To: alan@lxorguk.UKuu.ORG.UK (Alan Cox), davem@redhat.com (Dave Miller)
+Date: Thu, 1 Feb 2001 22:49:56 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E14OOp7-0004rR-00@the-village.bc.nu> from "Alan Cox" at Feb 1, 1 10:15:01 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like TUX caught MS's attention:
-http://www.spec.org/osg/web99/results/res2000q4/web99-20001211-00082.html
+Hello!
 
-Anyone know if their method of achieveing this is as flexible as TUX, or is
-their "SWC 3.0" simply mean 'spec web cheat' and involve implimenting the
-specweb dyanmic stuff in x86 assembly in their microkernel? :)
+> Looking at net/core/datagram.c:wait_for_packet the code will return 0
+
+Yep... Damn, specially split errno and ready values and forgot to use
+this. 8) Sorry.
+
+Alexey
+
+
+
+--- ../vger3-010130/linux/net/core/datagram.c	Thu Dec 28 22:44:08 2000
++++ linux/net/core/datagram.c	Thu Feb  1 22:45:47 2001
+@@ -73,19 +73,19 @@
+ 	/* Socket errors? */
+ 	error = sock_error(sk);
+ 	if (error)
+-		goto out;
++		goto out_err;
+ 
+ 	if (!skb_queue_empty(&sk->receive_queue))
+ 		goto ready;
+ 
+ 	/* Socket shut down? */
+ 	if (sk->shutdown & RCV_SHUTDOWN)
+-		goto out;
++		goto out_noerr;
+ 
+ 	/* Sequenced packets can come disconnected. If so we report the problem */
+ 	error = -ENOTCONN;
+ 	if(connection_based(sk) && !(sk->state==TCP_ESTABLISHED || sk->state==TCP_LISTEN))
+-		goto out;
++		goto out_err;
+ 
+ 	/* handle signals */
+ 	if (signal_pending(current))
+@@ -100,11 +100,16 @@
+ 
+ interrupted:
+ 	error = sock_intr_errno(*timeo_p);
++out_err:
++	*err = error;
+ out:
+ 	current->state = TASK_RUNNING;
+ 	remove_wait_queue(sk->sleep, &wait);
+-	*err = error;
+ 	return error;
++out_noerr:
++	*err = 0;
++	error = 1;
++	goto out;
+ }
+ 
+ /*
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

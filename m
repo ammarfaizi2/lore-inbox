@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265742AbSKAUwU>; Fri, 1 Nov 2002 15:52:20 -0500
+	id <S265741AbSKAUkS>; Fri, 1 Nov 2002 15:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265746AbSKAUwU>; Fri, 1 Nov 2002 15:52:20 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:9105 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S265742AbSKAUvz>;
-	Fri, 1 Nov 2002 15:51:55 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 1 Nov 2002 21:57:49 +0100 (MET)
-Message-Id: <UTC200211012057.gA1KvnH22138.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: mount
-Cc: linux-kernel@vger.kernel.org
+	id <S265742AbSKAUkR>; Fri, 1 Nov 2002 15:40:17 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24841 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265741AbSKAUkQ>; Fri, 1 Nov 2002 15:40:16 -0500
+Date: Fri, 1 Nov 2002 20:46:43 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: Where's the documentation for Kconfig?
+Message-ID: <20021101204643.D26989@flint.arm.linux.org.uk>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0210311452531.13258-100000@serv> <20021101125226.B16919@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211011439420.6949-100000@serv> <20021101193112.B26989@flint.arm.linux.org.uk> <20021101203033.GA5773@opus.bloom.county> <20021101203546.C26989@flint.arm.linux.org.uk> <20021101204225.GA6003@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021101204225.GA6003@opus.bloom.county>; from trini@kernel.crashing.org on Fri, Nov 01, 2002 at 01:42:25PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'll feed it
+On Fri, Nov 01, 2002 at 01:42:25PM -0700, Tom Rini wrote:
+> On Fri, Nov 01, 2002 at 08:35:46PM +0000, Russell King wrote:
+> > On Fri, Nov 01, 2002 at 01:30:33PM -0700, Tom Rini wrote:
+> > > On a related question, can we now have 'UL', etc in a hex statement /
+> > > question?
+> > 
+> > No thanks - that'll stop it being used in linker scripts.
+> 
+> How, if it's not used for a value which a linker script cares about?
 
-OK
+Hmm, maybe I'm misunderstanding you.  Where do you want "UL" to appear
+in relation to a "hex" statement?
 
-> statbuf.st_rdev>>8
->                ^^^
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-> switching to major(statbuf.st_rdev) would probably be a good idea
-
-Now that you suggested this, done.
-But a good idea?
-
-Since 1995 I have off and on run a system with 32-bit or 64-bit dev_t.
-But <sys/sysmacros.h> has
-    # define major(dev) ((int)(((dev) >> 8) & 0xff))
-    # define minor(dev) ((int)((dev) & 0xff))
-and I really mean
-    statbuf.st_rdev>>8
-not
-    (statbuf.st_rdev>>8) & 0xff
-so a private macro major() is needed, different from the glibc one.
-
-Andries
-
-
-[You must have seen my setup a few times: if all nonzero bits
-are among the last 16, then read it as 8+8, otherwise, if
-all nonzero bits are among the last 32, read it as 16+16,
-otherwise read it as 32+32. That way old device numbers
-do not change when dev_t grows. That way some ambiguity in
-isofs mastering is resolved cleanly.]

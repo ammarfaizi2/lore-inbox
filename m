@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbTD3PkA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 11:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbTD3PkA
+	id S262349AbTD3PvC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 11:51:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTD3PvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 11:40:00 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:23498 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262334AbTD3Pj4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 11:39:56 -0400
-Date: Wed, 30 Apr 2003 08:49:44 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Christian =?ISO-8859-1?Q?Borntr=E4ger?= <linux@borntraeger.net>
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [BUG 2.5.67 (and probably earlier)] /proc/dev/net doesnt show
- all net devices
-Message-Id: <20030430084944.5ac3626a.rddunlap@osdl.org>
-In-Reply-To: <200304300911.11287.linux@borntraeger.net>
-References: <200304291434.18272.linux@borntraeger.net>
-	<20030429092857.4ebffcc9.rddunlap@osdl.org>
-	<20030429130742.2c38b5f3.rddunlap@osdl.org>
-	<200304300911.11287.linux@borntraeger.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 30 Apr 2003 11:51:02 -0400
+Received: from mx01.uni-tuebingen.de ([134.2.3.11]:54724 "EHLO
+	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id S262349AbTD3PvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 11:51:01 -0400
+X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
+ wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: dphillips@sistina.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Faster generic_fls
+References: <Pine.LNX.4.44.0304300824190.7157-100000@home.transmeta.com>
+From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Date: 30 Apr 2003 18:03:14 +0200
+In-Reply-To: <Pine.LNX.4.44.0304300824190.7157-100000@home.transmeta.com>
+Message-ID: <87el3kt1kt.fsf@student.uni-tuebingen.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (cabbage)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-AntiVirus: checked by AntiVir Milter 1.0.0.8; AVE 6.19.0.3; VDF 6.19.0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Apr 2003 09:11:11 +0200 Christian Bornträger <linux@borntraeger.net> wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-| > | Christian, can you test this patch?
-| 
-| I can....
-| 
-| > Oh well, I don't think that works.
-| 
-| should I nevertheless test this patch?
+> There is _never_ any excuse to use a lookup table for something that
+> can be calculated with a few simple instructions. That's just
+> stupid.
 
-You didn't need to.  I had already seen the same results that you saw.
+Well, the "few simple instructions" are 28 instructions on Alpha for
+example, including 6 data-dependent branches. So I don't think it's
+*that* stupid.
 
-| > How do I configure the dummy network driver to get loads of interfaces?
-| 
-| Just copy the dummy.o to dummy1.o dummy2.o dummy3.o,  insmod and ifconfig 
-| them.
+But I agree that benchmarking this stand-alone isn't particularly
+useful.
 
-Doesn't work for me.  insmod (from ver. 0.9.11a module-init-tools)
-won't load multiple copies of dummy[n].o or dummy[n].ko.
-(with dummy already loaded)
-
-For the .o files, it says:
-  dummy: no version magic, tainting kernel.
-  Error inserting 'dummy1.o': -1 File exists
-
-and for the .ko files, it says:
-  Error inserting 'dummy1.ko': -1 File exists
-
---
-~Randy
+-- 
+	Falk

@@ -1,146 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316896AbSGBUfU>; Tue, 2 Jul 2002 16:35:20 -0400
+	id <S293680AbSGBVMB>; Tue, 2 Jul 2002 17:12:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316897AbSGBUfT>; Tue, 2 Jul 2002 16:35:19 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:40199 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S316896AbSGBUfS>; Tue, 2 Jul 2002 16:35:18 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
-From: Paul Menage <pmenage@ensim.com>
-To: viro@math.psu.edu
-cc: pmenage@ensim.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Filter /proc/mounts based on process root dir
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 02 Jul 2002 13:37:22 -0700
-Message-Id: <E17PUOo-0003ol-00@pmenage-dt.ensim.com>
+	id <S310206AbSGBVMA>; Tue, 2 Jul 2002 17:12:00 -0400
+Received: from ausadmmsps308.aus.amer.dell.com ([143.166.224.103]:2822 "HELO
+	AUSADMMSPS308.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S293680AbSGBVMA>; Tue, 2 Jul 2002 17:12:00 -0400
+X-Server-Uuid: 5333cdb1-2635-49cb-88e3-e5f9077ccab5
+Message-ID: <F44891A593A6DE4B99FDCB7CC537BBBB07243E@AUSXMPS308.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: marcelo@conectiva.com.br, alan@redhat.com
+cc: linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
+Subject: [PATCH] GUID Partition Tables for 2.4.x
+Date: Tue, 2 Jul 2002 16:14:21 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 113CC83A589495-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(resend, pine confusion ate my From header)
 
-This patch causes /proc/mounts to only display entries for mountpoints
-within the current process root. This makes df and friends behave more
-nicely in a chroot jail or with rootfs.
+Marcelo and Alan:
 
-Most of the logic in proc_check_root() is moved to a new function,
-is_namespace_subdir(), which checks whether the given mount/dentry
-refers to a subdirectory of the process root directory in the current
-namespace. show_vfsmount() now returns without adding an output line if
-is_namespace_subdir() returns false for a given mountpoint.
+Posted to http://domsch.com/linux/patches/gpt is the GUID Partition Table 
+code, copied from the IA64 port patch and applied to 2.4.19-pre1 and 
+2.4.19-pre10-ac2.  This code is identical to that included in the IA64 
+port patch already, and has been in use on IA64 for many many months.  
+Equivalent code is already included in the 2.5 kernel series.  I'm 
+submitting now for 2.4.x so that a partition table scheme which supports 
+Large Block Devices will be available if/when Peter Chubb's work on such 
+is backported from 2.5.x.  I've tested this on x86.
 
-Paul
+The work consist of two parts:
+1) Changes efi_guid_t typedef to match the 2.5.x implementation.  This 
+code is already included in the ia64 port patch for 2.4.x, and I have 
+David Mosberger's approval to submit this directly for 2.4.x.
 
-diff -Naur -X /mnt/elbrus/home/pmenage/dontdiff linux-2.5.24/fs/namespace.c linux-2.5.24-mounts/fs/namespace.c
---- linux-2.5.24/fs/namespace.c	Wed Jun 26 01:07:20 2002
-+++ linux-2.5.24-mounts/fs/namespace.c	Wed Jun 26 01:17:42 2002
-@@ -38,6 +38,36 @@
- 	return tmp & hash_mask;
- }
- 
-+/* Check whether the given mount/dentry is contained within our root */
-+int is_namespace_subdir(struct vfsmount *vfsmnt, struct dentry *dentry) {
-+    
-+	struct vfsmount *our_vfsmnt;
-+	struct dentry   *our_root;
-+	int res = 0;
-+	
-+	spin_lock(&dcache_lock); /* also protects access to current->fs */
-+	
-+	our_vfsmnt = current->fs->rootmnt;
-+	our_root = current->fs->root;
-+
-+	while(vfsmnt != our_vfsmnt) {
-+		if(vfsmnt == vfsmnt->mnt_parent) 
-+			goto out;
-+		dentry = vfsmnt->mnt_mountpoint;
-+		vfsmnt = vfsmnt->mnt_parent;
-+	}
-+	
-+	if(!is_subdir(dentry, our_root))
-+		goto out;
-+	
-+	res = 1;
-+ out:
-+	spin_unlock(&dcache_lock);
-+	return res;
-+}
-+
-+
-+
- struct vfsmount *alloc_vfsmnt(char *name)
- {
- 	struct vfsmount *mnt = kmem_cache_alloc(mnt_cache, GFP_KERNEL); 
-@@ -212,6 +242,9 @@
- 	struct proc_fs_info *fs_infop;
- 	char *path_buf, *path;
- 
-+	if(!is_namespace_subdir(mnt, mnt->mnt_root))
-+		return 0;
-+
- 	path_buf = (char *) __get_free_page(GFP_KERNEL);
- 	if (!path_buf)
- 		return -ENOMEM;
-diff -Naur -X /mnt/elbrus/home/pmenage/dontdiff linux-2.5.24/fs/proc/base.c linux-2.5.24-mounts/fs/proc/base.c
---- linux-2.5.24/fs/proc/base.c	Tue Jun 18 19:11:46 2002
-+++ linux-2.5.24-mounts/fs/proc/base.c	Wed Jun 26 01:19:01 2002
-@@ -265,42 +265,19 @@
- 
- static int proc_check_root(struct inode *inode)
- {
--	struct dentry *de, *base, *root;
--	struct vfsmount *our_vfsmnt, *vfsmnt, *mnt;
-+	struct dentry *root;
-+	struct vfsmount *mnt;
- 	int res = 0;
- 
- 	if (proc_root_link(inode, &root, &vfsmnt)) /* Ewww... */
- 		return -ENOENT;
--	read_lock(&current->fs->lock);
--	our_vfsmnt = mntget(current->fs->rootmnt);
--	base = dget(current->fs->root);
--	read_unlock(&current->fs->lock);
- 
--	spin_lock(&dcache_lock);
--	de = root;
--	mnt = vfsmnt;
-+	if(!is_namespace_subdir(mnt, root))
-+		res = -EACCES;
- 
--	while (vfsmnt != our_vfsmnt) {
--		if (vfsmnt == vfsmnt->mnt_parent)
--			goto out;
--		de = vfsmnt->mnt_mountpoint;
--		vfsmnt = vfsmnt->mnt_parent;
--	}
--
--	if (!is_subdir(de, base))
--		goto out;
--	spin_unlock(&dcache_lock);
--
--exit:
--	dput(base);
--	mntput(our_vfsmnt);
- 	dput(root);
- 	mntput(mnt);
- 	return res;
--out:
--	spin_unlock(&dcache_lock);
--	res = -EACCES;
--	goto exit;
- }
- 
- static int proc_permission(struct inode *inode, int mask)
-diff -Naur -X /mnt/elbrus/home/pmenage/dontdiff linux-2.5.24/include/linux/namespace.h linux-2.5.24-mounts/include/linux/namespace.h
---- linux-2.5.24/include/linux/namespace.h	Tue Jun 18 19:11:55 2002
-+++ linux-2.5.24-mounts/include/linux/namespace.h	Tue Jun 25 19:35:25 2002
-@@ -43,5 +43,6 @@
- 	atomic_inc(&namespace->count);
- }
- 
-+extern int is_namespace_subdir(struct vfsmount *, struct dentry *);
- #endif
- #endif
+ arch/ia64/kernel/efivars.c |   21 +++++----------------
+ arch/ia64/kernel/mca.c     |   28 +++++++++++++---------------
+ include/asm-ia64/efi.h     |   36 +++++++++++++++++++++++++++---------
+ include/asm-ia64/sal.h     |   36 ++++++++++++++++++------------------
+ 4 files changed, 63 insertions, 58 deletions
+
+
+2) Adds fs/partitions/efi.[ch] and associated small changes to related 
+files.  The arch/ia64/defconfig change removes a stale entry.
+
+ Documentation/Configure.help |   11
+ arch/ia64/defconfig          |    1
+ fs/partitions/Config.in      |    1
+ fs/partitions/Makefile       |    2
+ fs/partitions/check.c        |    4
+ fs/partitions/efi.c          |  804
++++++++++++++++++++++++++++++++++++++++++++
+ fs/partitions/efi.h          |  119 ++++++
+ fs/partitions/msdos.c        |   11
+ 8 files changed, 943 insertions, 10 deletions
+
+
+The patches are in both BK Changeset form and traditional diff.
+
+BK:
+http://domsch.com/linux/patches/gpt/linux-2.4-gpt-efiguidt.cset
+http://domsch.com/linux/patches/gpt/linux-2.4-gpt.cset
+
+Patch:
+http://domsch.com/linux/patches/gpt/linux-2.4.19-rc1-efiguidt.patch
+http://domsch.com/linux/patches/gpt/linux-2.4.19-rc1-gpt.patch
+
+
+Marcelo, I understand you won't wish to apply this before 2.4.19 final.  I 
+don't expect any conflicts to arise between this code and anything 
+expected in 2.4.19 final, so please try to apply this after 2.4.19 is out.
+
+Thanks,
+Matt
+
+--
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
 
 
 

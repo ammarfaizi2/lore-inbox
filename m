@@ -1,107 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268225AbUHFTHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268230AbUHFTJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268225AbUHFTHN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 15:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268230AbUHFTHN
+	id S268230AbUHFTJk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 15:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268234AbUHFTJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 15:07:13 -0400
-Received: from gprs214-146.eurotel.cz ([160.218.214.146]:36480 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268225AbUHFTHF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 15:07:05 -0400
-Date: Fri, 6 Aug 2004 21:06:49 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-       p_gortmaker@yahoo.com
-Subject: Re: swsuspend not working
-Message-ID: <20040806190649.GC3048@elf.ucw.cz>
-References: <20040715121042.GB9873@lps.ens.fr> <20040715121825.GC22260@elf.ucw.cz> <20040715132348.GA9939@lps.ens.fr> <20040719191906.GA7053@lps.ens.fr> <20040720131748.GI27492@atrey.karlin.mff.cuni.cz> <20040731182001.GA6760@lps.ens.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040731182001.GA6760@lps.ens.fr>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 6 Aug 2004 15:09:40 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:30314 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268230AbUHFTJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 15:09:38 -0400
+Message-ID: <4113D76E.9060906@yahoo.com.au>
+Date: Sat, 07 Aug 2004 05:09:34 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+CC: linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
+References: <Pine.LNX.4.44.0408052104420.2241-100000@dyn319181.beaverton.ibm.com> <411322E8.4000503@yahoo.com.au> <4113BA65.8050901@lougher.demon.co.uk>
+In-Reply-To: <4113BA65.8050901@lougher.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > ? Destination Host Unreachable ? and nothing more. The interrupt count of
-> > > the card is increasing, however. Unloading and reloading ne2k_pci fixes
-> > > that.
-> > 
-> > Teach ne2k_pci to do on suspend what it does on unload, and to do on
-> > resume what it does on load. Should be easy.
+Phillip Lougher wrote:
+> Nick Piggin wrote:
 > 
-> ? Should be easy ? is easily said. Well.
-
-:-)))).
-
-> The following patch to drivers/net/ne2k-pci.c in 2.6.8-rc1 happens to make
-> my pci ethernet card (Realtek Semiconductor Co., Ltd. RTL-8029(AS))
-> suspend to S4 and resume properly.
+>> Ram Pai wrote:
+>>
+>>>
+>>> there is a check in __do_page_cache_readahead()  that validates this.
+>>> But it is still not guaranteed to work correctly against races.
+>>> The filesystem has to handle such out-of-bound requests gracefully.
+>>>
+>>> However with Nick's fix in do_generic_mapping_read() the filesystem 
+>>> is gauranteed to be called with out-of-bound index, if the file size 
+>>> is a multiple of 4k. Without the fix, the filesystem might get
+>>> called with out-of-bound index only in racy conditions.
+>>>
+>>
+>> How's this?
+>>
 > 
-> I know nothing on suspend/resume architecture, I know nothing on
-> programming ethernet card, I know nothing on patching device drivers; I
-> just looked at other drivers, picked function calls that had nice looking
-> names and put them together in ne2k_pci.c. Miraculously, it works.
+> It doesn't work.  It correctly handles the case where *ppos is equal
+> to i_size on entry to the function (and this does work for files 0, 4k
+> and n * 4k in length), but it doesn't handle readahead inside the for
+> loop.  The check needs to be in the for loop.
 > 
-> Do you think it could get in ?
+> 
 
-Yes, the patch looks good to me, submit it through ne2k-pci
-maintainer...
-
-									Pavel
-
-> --- ne2k-pci.c.orig	2004-07-20 22:15:30.000000000 +0200
-> +++ ne2k-pci.c	2004-07-31 19:48:38.000000000 +0200
-> @@ -653,12 +653,43 @@
->  	pci_set_drvdata(pdev, NULL);
->  }
->  
-> +#ifdef CONFIG_PM
-> +static int ne2k_pci_suspend (struct pci_dev *pdev, u32 state)
-> +{
-> +	struct net_device *dev = pci_get_drvdata (pdev);
-> +
-> +	netif_device_detach(dev);
-> +	ne2k_pci_close(dev);
-> +	ne2k_pci_reset_8390(dev);
-> +	pci_set_power_state (pdev, state);
-> +
-> +	return 0;
-> +}
-> +static int ne2k_pci_resume (struct pci_dev *pdev)
-> +{
-> +	struct net_device *dev = pci_get_drvdata (pdev);
-> +
-> +	pci_set_power_state(pdev, 0);
-> +	ne2k_pci_reset_8390(dev);
-> +	ne2k_pci_open(dev);
-> +	netif_device_attach(dev);
-> +
-> +	return 0;
-> +}
-> +
-> +#endif /* CONFIG_PM */
-> +
->  
->  static struct pci_driver ne2k_driver = {
->  	.name		= DRV_NAME,
->  	.probe		= ne2k_pci_init_one,
->  	.remove		= __devexit_p(ne2k_pci_remove_one),
->  	.id_table	= ne2k_pci_tbl,
-> +#ifdef CONFIG_PM
-> +	.suspend	= ne2k_pci_suspend,
-> +	.resume		= ne2k_pci_resume,
-> +#endif /* CONFIG_PM */
-> +
->  };
->  
->  
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+I don't quite follow. What is i_size, *ppos, and desc->count
+required for your problem to trigger?

@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269810AbRHMFUu>; Mon, 13 Aug 2001 01:20:50 -0400
+	id <S269815AbRHMFUu>; Mon, 13 Aug 2001 01:20:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269815AbRHMFUk>; Mon, 13 Aug 2001 01:20:40 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:31969 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S269811AbRHMFUf>;
-	Mon, 13 Aug 2001 01:20:35 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Reg System.map file 
-In-Reply-To: Your message of "Mon, 13 Aug 2001 10:52:42 +0530."
-             <Pine.LNX.4.10.10108131048560.31544-100000@blrmail> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 13 Aug 2001 15:16:35 +1000
-Message-ID: <10876.997679795@kao2.melbourne.sgi.com>
+	id <S269811AbRHMFUk>; Mon, 13 Aug 2001 01:20:40 -0400
+Received: from phnx1-blk2-hfc-0251-d1db10f1.rdc1.az.coxatwork.com ([209.219.16.241]:39305
+	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S269810AbRHMFUd>; Mon, 13 Aug 2001 01:20:33 -0400
+Message-ID: <028101c123b5$f3d50040$6baaa8c0@kevin>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E15Vvjz-0005k2-00@the-village.bc.nu>
+Subject: Re: Lost interrupt with HPT370
+Date: Sun, 12 Aug 2001 22:08:12 -0700
+Organization: LSG, Inc.
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001 10:52:42 +0530 (IST), 
-"SATHISH.J" <sathish.j@tatainfotech.com> wrote:
->Does the System.map file contain only the addresses of kernel functions
->present at the boot time. What I mean is, suppose I insert a new driver
->into the kernel, Is there any way to show its addresses in the System.map
->file? Please help me out with this.
+I have just tried an HPT-366 card with IC35L040VER07 drives (latest DeskStar
+41G ATA-100, although the card is only ATA-66) and could not get them to
+even let me create a filesystem without hard locking the machine. This was
+using 2.4.8-ac1 and 2.4.7-ac11. I wrote this off to motherboard/IDE card
+compatibility (or lack thereof), but could it still be an IDE driver issue?
 
-System.map contains addresses of all the external symbols in vmlinux.
-It does not contain the address of module symbols because they vary.
-If you want a combined map that contains both kernel and module
-symbols, use ksymoops -s.  That works best when you save the module
-data after each module load and unload.
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Adam Huffman" <bloch@verdurin.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Sunday, August 12, 2001 6:57 AM
+Subject: Re: Lost interrupt with HPT370
 
-  man ksymoops
-  man insmod, section KSYMOOPS SUPPORT IN MODUTILS.
+
+> > I get hde/hdg: lost interrupt messages when booting with 2.4.7/8.
+> >
+> > There are two IBM DTLA-307030 drives on the HPT370 interface (m/b is
+> > Abit KA7-100).
+> >
+> > 2.4.6-ac5 (which I had been using for quite a while) does not have this
+> > problem.
+>
+> The fixes you need to run certain HPT cards with certain drives (HPT370
+> included) are not in the Linus tree. Its waiting Andre to submit the
+> relevant stuff on to Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
 

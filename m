@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319427AbSH3Evt>; Fri, 30 Aug 2002 00:51:49 -0400
+	id <S319428AbSH3E7t>; Fri, 30 Aug 2002 00:59:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319428AbSH3Evt>; Fri, 30 Aug 2002 00:51:49 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6671 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S319427AbSH3Evt>; Fri, 30 Aug 2002 00:51:49 -0400
-Date: Fri, 30 Aug 2002 01:48:16 -0300
-From: Sergio Bruder <sergio@bruder.net>
-To: Anssi Saari <as@sci.fi>, Andre Hedrick <andre@linux-ide.org>,
-       vojtech@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: CD burning at 12x uses excessive CPU, although DMA is enabled
-Message-ID: <20020830044816.GB5793@bruder.net>
-Reply-To: sergio@bruder.net
-Mail-Followup-To: Sergio Bruder <sergio@bruder.net>,
-	Anssi Saari <as@sci.fi>, Andre Hedrick <andre@linux-ide.org>,
-	vojtech@ucw.cz, linux-kernel@vger.kernel.org
-References: <200204092206.02376.roger.larsson@norran.net> <Pine.LNX.4.10.10204091320450.25275-100000@master.linux-ide.org> <20020414123935.GA6441@sci.fi> <20020830043346.GA5793@bruder.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020830043346.GA5793@bruder.net>
-User-Agent: Mutt/1.4i
+	id <S319429AbSH3E7s>; Fri, 30 Aug 2002 00:59:48 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33807 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319428AbSH3E7s>; Fri, 30 Aug 2002 00:59:48 -0400
+Date: Thu, 29 Aug 2002 22:10:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: linux-mm@kvack.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: weirdness with ->mm vs ->active_mm handling
+In-Reply-To: <20020829193413.H17288@redhat.com>
+Message-ID: <Pine.LNX.4.44.0208292206130.1336-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 30, 2002 at 01:33:46AM -0300, Sergio Bruder wrote:
-> (...)
-> Some info about the box in question:
+
+On Thu, 29 Aug 2002, Benjamin LaHaise wrote:
 > 
-> cat /proc/version
-> Linux version 2.4.18-8cl (root@mapi2.distro.conectiva) (gcc version 2.95.4 20010319 (prerelease)) #1 Mon Aug 12 20:27:14 BRT 2002
-> 
-> (...)
+> In trying to track down a bug, I found routines like generic_file_read 
+> getting called with current->mm == NULL.  This seems to be a valid state 
+> for lazy tlb tasks, but the code throughout the kernel doesn't seem to 
+> assume that.
 
-Sorry about replying to myself, but that 2.4.18-8cl is really a
-2.4.19-rc2. From the rpm -q kernel-2.4.18-8cl --changelog:
+Hmm.. Have you actually ever seen this?
 
-* Qui Ago 08 2002 Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
+When tsk->mm is NULL, you should never EVER get a page fault, except for 
+the one special case of the vmalloc'ed area (which is tested for in 
+do_page_fault() before we even _look_ at "tsk->mm").
 
-+ kernel-2.4.18-8cl
-- Updated to 2.4.19-rc2
-- Removed patches (already on -rc2): sis_main
-(...) and so on.
+In fact, do_page_fault() very much checks
 
-Sergio Bruder
---
-http://pontobr.org
-pub  1024D/0C7D9F49 2000-05-26 Sergio Devojno Bruder <sergio@bruder.net>
-     Key fingerprint = 983F DBDF FB53 FE55 87DF  71CA 6B01 5E44 0C7D 9F49
-sub  1024g/138DF93D 2000-05-26
+	if (in_atomic() || !mm)
+		goto no_context;  
+
+which says that a page fault when in a lazy TLB context should always
+cause a trap, killing the thing (or, if the access has a fixup, calling
+the fixup - although I don't think that should happen in any normal code)
+
+In other words: I think your patch is "functionally correct", in that it
+should work fine, but on the other hand having a NULL tsk->mm and trying
+to do any user-level access is _so_ wrong that I'd much rather take a NULL
+pointer fault than try to do something "sane" about it.
+
+		Linus
+

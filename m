@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVBPXgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVBPXqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbVBPXgC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 18:36:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVBPXgC
+	id S262131AbVBPXqo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 18:46:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVBPXqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 18:36:02 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:55253 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262126AbVBPXfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 18:35:55 -0500
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Pedro Venda <pjvenda@arrakis.dhis.org>
-Subject: Re: possible leak in kernel 2.6.10-ac12
-Date: Wed, 16 Feb 2005 18:35:25 -0500
-User-Agent: KMail/1.7.92
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <4213D70F.20104@arrakis.dhis.org>
-In-Reply-To: <4213D70F.20104@arrakis.dhis.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Feb 2005 18:46:44 -0500
+Received: from gprs214-36.eurotel.cz ([160.218.214.36]:8383 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262131AbVBPXqj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 18:46:39 -0500
+Date: Thu, 17 Feb 2005 00:46:27 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: lm@bitmover.com, Steven Rostedt <rostedt@goodmis.org>,
+       Mws <mws@twisted-brains.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BK] upgrade will be needed
+Message-ID: <20050216234627.GD3865@elf.ucw.cz>
+References: <20050214020802.GA3047@bitmover.com> <200502141413.36066.mws@twisted-brains.org> <1108393425.8413.9.camel@localhost.localdomain> <20050214160027.GA8381@bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502161835.26047.kernel-stuff@comcast.net>
+In-Reply-To: <20050214160027.GA8381@bitmover.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 February 2005 06:28 pm, Pedro Venda wrote:
-> Having upgraded most of them to 2.6.10-ac12, one of them showed a linear
-> growth of used memory over the last 7 days, after the first 2.6.10-ac12
-> boot. It came to a point that it started swapping and the swap usage too
-> started to grow linearly.
+On Po 14-02-05 08:00:27, Larry McVoy wrote:
+> On Mon, Feb 14, 2005 at 10:03:45AM -0500, Steven Rostedt wrote:
+> > Can you see Ford Motors telling
+> > someone that you can't go work for GM if you drive a Ford?
+> 
+> You paid for the Ford.  Suppose Ford offered to give you the car but
+> said if you take it then you can't go work at GM because this car is
+> ahead of their technology.
 
-cat /proc/slabinfo please. I am also seeing similar symptoms (although that is 
-with 2.6.11-rc4 there is a possibility of a common bug) here and I seem to 
-have linearly growing size-64 in slabinfo.
+This is irelevant.
 
-Parag
+Your license is illegal in big part of the world. You can just
+download bitkeeper and reverse engineer it in order to interoperate
+with it, no matter what Larry says; just check your local laws.
+
+To make the analogy: "You can stand on the street, giving people free
+Pepsi and telling them they are not allowed to drink Cola if they take
+Pepsi from you. And they can safely take Pepsi from you, drink it and
+laugh at you." Try it.
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

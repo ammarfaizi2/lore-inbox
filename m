@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281102AbRKKVzg>; Sun, 11 Nov 2001 16:55:36 -0500
+	id <S281103AbRKKVz4>; Sun, 11 Nov 2001 16:55:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281103AbRKKVzZ>; Sun, 11 Nov 2001 16:55:25 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:30980 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S281102AbRKKVzP>; Sun, 11 Nov 2001 16:55:15 -0500
-Date: Sun, 11 Nov 2001 22:47:18 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Femitha Majeed <m_femitha@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to handle kernel paging request at virtual address....
-Message-ID: <20011111224718.G22082@arthur.ubicom.tudelft.nl>
-In-Reply-To: <F1336POYFSrAuWiqJmd000226c0@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <F1336POYFSrAuWiqJmd000226c0@hotmail.com>; from m_femitha@hotmail.com on Sat, Nov 10, 2001 at 04:23:03AM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S281105AbRKKVzq>; Sun, 11 Nov 2001 16:55:46 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:38629 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S281103AbRKKVzn>; Sun, 11 Nov 2001 16:55:43 -0500
+Date: Sun, 11 Nov 2001 22:55:36 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Joe <joeja@mindspring.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: loop back broken in 2.2.14
+In-Reply-To: <3BEEED3E.58867BFE@mindspring.com>
+Message-ID: <Pine.NEB.4.40.0111112255180.8577-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 10, 2001 at 04:23:03AM +0000, Femitha Majeed wrote:
-> I am trying to write a kernel module which reads the files in the /proc 
-> directory.
+On Sun, 11 Nov 2001, Joe wrote:
 
-The idea behind /proc is that it allows userland to read or write
-certain kernel variables. You shouldn't read a /proc file from within
-the kernel.
+> compile 2.2.14.
+>
+> Then
+>
+> # modprobe -a loop
+> /lib/modules/2.4.14/kernel/drivers/block/loop.o: unresolved symbol
+> deactivate_page
+> /lib/modules/2.4.14/kernel/drivers/block/loop.o: insmod
+> /lib/modules/2.4.14/kernel/drivers/block/loop.o failed
+> /lib/modules/2.4.14/kernel/drivers/block/loop.o: insmod loop failed
+>
+> do recursive grep through kernel tree:
+>
+> # rgrep -rl  deactivate_page *
+> drivers/block/loop.c
+> drivers/block/loop.o
+>
+> Is there a fix for this?
 
-> When I do an insmod filename.o, I get the following error:
-> Unable to handle kernel paging request at virtual address....
-> 
-> In the module, I use kmalloc to allocate memory. Is that the reason I am 
-> getting this error?
+This is a known bug.
 
-Without having your source it's impossible to tell. Please read the
-procfs guide in your kernel tree or at
-http://www.kernelnewbies.org/documents/ .
+The following patch fixes it:
 
-> I am very new to writing kernel modules, I would really appreciate a reply.
+--- linux-2.4.14-broken/drivers/block/loop.c	Thu Oct 25 13:58:34 2001
++++ linux-2.4.14/drivers/block/loop.c	Mon Nov  5 17:06:08 2001
+@@ -207,7 +207,6 @@
+ 		index++;
+ 		pos += size;
+ 		UnlockPage(page);
+-		deactivate_page(page);
+ 		page_cache_release(page);
+ 	}
+ 	return 0;
+@@ -218,7 +217,6 @@
+ 	kunmap(page);
+ unlock:
+ 	UnlockPage(page);
+-	deactivate_page(page);
+ 	page_cache_release(page);
+ fail:
+ 	return -1;
 
-Go to the www.kernelnewbies.org website and subscribe to the
-kernelnewbies mailing list. The #kernelnewbies IRC channel is also
-quite helpful.
+> Joe
 
-
-Erik
+cu
+Adrian
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+
+Get my GPG key: finger bunk@debian.org | gpg --import
+
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
+

@@ -1,121 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288159AbSBDCf5>; Sun, 3 Feb 2002 21:35:57 -0500
+	id <S288173AbSBDCsq>; Sun, 3 Feb 2002 21:48:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288169AbSBDCfr>; Sun, 3 Feb 2002 21:35:47 -0500
-Received: from clavin.cs.tamu.edu ([128.194.130.106]:49085 "EHLO cs.tamu.edu")
-	by vger.kernel.org with ESMTP id <S288159AbSBDCfg>;
-	Sun, 3 Feb 2002 21:35:36 -0500
-Date: Sun, 3 Feb 2002 20:35:33 -0600 (CST)
-From: Xinwen - Fu <xinwenfu@cs.tamu.edu>
-To: Rob Landley <landley@trommello.org>
-cc: linux-kernel@vger.kernel.org
-Subject: packet_socket = socket(PF_PACKET, int socket_type, int protocol);
-In-Reply-To: <Pine.SOL.4.10.10202031831480.25367-100000@dogbert>
-Message-ID: <Pine.SOL.4.10.10202032016260.27278-100000@dogbert>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288245AbSBDCsh>; Sun, 3 Feb 2002 21:48:37 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:25875 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S288173AbSBDCsW>;
+	Sun, 3 Feb 2002 21:48:22 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+        ultralinux@vger.kernel.org
+Subject: Re: Announce: kdb v2.1 is available for kernel 2.4.17 
+In-Reply-To: Your message of "Fri, 18 Jan 2002 14:00:44 +1100."
+             <7170.1011322844@kao2.melbourne.sgi.com> 
+Date: Mon, 04 Feb 2002 13:48:10 +1100
+Message-ID: <16749.1012790890@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob, 
-	PF_PACKET socket should bypass IPTABLES queue, I think.?
-	http://docs.csoft.net/cgi-bin/man.cgi?section=7&topic=packet
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	I will try logging target and will enjoy it.
-	
-	Thanks!
+Content-Type: text/plain; charset=us-ascii
 
-Xinwen Fu
+Thanks to Ethan Solomita and Tom Duffy, kdb is now supported on
+sparc64.  ftp://oss.sgi.com/projects/kdb/download/v2.1, use the latest
+common patch plus the latest sparc64 patch.
 
-P.S.
-	This semester (I'm still a student, old. Ah, shameful) I took a
-security class. Our (I'm in a black group) task is to hack a Redhat 7.2
-linux
-machine cnotrolled by a golden group. If you'd like, I can tell you what
-we are doing step by step and
-I think you can give a hand to crack these bad guys' machine...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
-
-
-On Sun, 3 Feb 2002, Xinwen - Fu wrote:
-
-> Rob,
-> 	Another problem:
-> 	Will a packet from SOCK_PACKET socket bypass all the queues of
-> IPTABLES?
-> 
-> 	Thanks!
-> 	
-> 
-> Xinwen Fu
-> 
-> 
-> On Sun, 3 Feb 2002, Rob Landley wrote:
-> 
-> > On Sunday 03 February 2002 01:45 pm, Xinwen - Fu wrote:
-> > > Hi, All,
-> > >
-> > > 	I want  to know how a raw packet passes the chain of iptables.
-> > >
-> > > 	Here are the iptables chains
-> > >
-> > > --->PRE------>[ROUTE]--->FWD---------->POST------>
-> > >         Conntrack    |       Filter   ^    NAT (Src)
-> > >         Mangle       |                |    Conntrack
-> > >         NAT (Dst)    |             [ROUTE]
-> > >         (QDisc)      v                |
-> > >                      IN Filter       OUT Conntrack
-> > >
-> > >                      |  Conntrack     ^  Mangle
-> > >                      |
-> > >                      |                |  NAT (Dst)
-> > >
-> > >                      v                |  Filter
-> > >
-> > >
-> > > 	So how a raw packet go through these chains?
-> > 
-> > 
-> > Well, from trial and error and a lot of documentation reading, I eventually 
-> > worked out that a TCP/IP packet basically seems to do this:
-> > 
-> > --->pre--->forward--->post--->
-> >      |                           ^
-> >      |                           |
-> >      v                          |
-> >      input->local ports->output
-> > 
-> > I'd like to point out that the last arrow should point from "output" to 
-> > "post", since kmail apparently is not using a fixed with font, and I can't 
-> > figure out how to get it to do so.  (I did figure out how to get it to use a 
-> > korean, chinese, or cyrillic encoding, but not monospaced.  Sigh...)
-> > 
-> > So in prerouting, the packet is either forwarded on to the forwarding chain 
-> > (if it's not for this box) or to the input chain (if it's for a daemon on 
-> > this box).  Forwarding never sees packets locally generated on this box, they 
-> > go into the output chain and then get sent on to postrouting (which is where 
-> > forwarding also feeds into).
-> > 
-> > It took a little trial and error to work this out, by the way.  It's entirely 
-> > ossibly I'm wrong (since I don't think the above agrees with the 
-> > documentation), but at the same time it works and survives specific behavior 
-> > testing, so... :)  The tables are fairly arbitrarily broken into "NAT" tables 
-> > and non-NAT tables.  Oh, and one of the chains (output, I think) exists in 
-> > both nat and non-nat versions.  To this day, I have no idea why...
-> > 
-> > > 	Thanks!!
-> > >
-> > > Xinwen Fu
-> > 
-> > If the above doesn't help, this might:
-> > 
-> > http://netfilter.samba.org/unreliable-guides/
-> > 
-> > Rob
-> > 
-> 
-> 
-
-
+iD8DBQE8XfZoi4UHNye0ZOoRAqxIAJ9kB7P8vniG9mNp/3sktiqqvN4rZgCeOTc7
+gmnGuh3JkHfyRj0ruEpcczs=
+=Ook0
+-----END PGP SIGNATURE-----
 

@@ -1,56 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311391AbSCMVzT>; Wed, 13 Mar 2002 16:55:19 -0500
+	id <S311397AbSCMWKo>; Wed, 13 Mar 2002 17:10:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311392AbSCMVzJ>; Wed, 13 Mar 2002 16:55:09 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:13557 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S311391AbSCMVzB>; Wed, 13 Mar 2002 16:55:01 -0500
-Date: Wed, 13 Mar 2002 14:54:20 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
-Subject: Re: mke2fs (and mkreiserfs) core dumps
-Message-ID: <20020313215420.GD429@turbolinux.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020313123114.A11658@greenhydrant.com> <20020313205537.GC429@turbolinux.com> <20020313133748.A12472@greenhydrant.com>
+	id <S311396AbSCMWKe>; Wed, 13 Mar 2002 17:10:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26885 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311397AbSCMWKX>;
+	Wed, 13 Mar 2002 17:10:23 -0500
+Date: Wed, 13 Mar 2002 22:10:22 +0000
+From: wli@holomorphy.com
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, wli@parcelfarce.linux.theplanet.co.uk,
+        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
+        phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+Message-ID: <20020313221022.H14628@holomorphy.com>
+Mail-Followup-To: wli@holomorphy.com,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	wli@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
+	riel@surriel.com, hch@infradead.org, phillips@bonn-fries.net
+In-Reply-To: <20020313021838.G14628@holomorphy.com> <Pine.LNX.3.95.1020313134921.28928A-100000@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <20020313133748.A12472@greenhydrant.com>
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.95.1020313134921.28928A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Wed, Mar 13, 2002 at 02:06:48PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 13, 2002  13:37 -0800, David Rees wrote:
-> On Wed, Mar 13, 2002 at 01:55:37PM -0700, Andreas Dilger wrote:
-> > On Mar 13, 2002  12:31 -0800, David Rees wrote:
-> > > I've got an interesting situation here where mke2fs and mkreiserfs core dump
-> > > with the message: File size limit exceeded (core dumped)
-> > 
-> > This is a ulimit bug caused by the kernel and libc 2.1.  If you log into
-> > the system as root at the console (no su) it should work.
-> > 
-> > > The kernel is 2.4.18-rc4 + Trond's NFS_ALL patch.
-> > 
-> > I thought that the fix for this was in the 2.4.18 kernel, but I guess
-> > not.
-> 
-> Thanks for the info.  This explains why I didn't have any problems
-> partitioning the 3ware's RAID, I was logged into the console.
-> 
-> Is there anyway I can avoid logging into the console?  It can be a PITA if
-> the machine happens to be far away.
+On Wed, Mar 13, 2002 at 02:06:48PM -0500, Richard B. Johnson wrote:
+> [SNIPPED..]
 
-If you don't have any "ulimit" calls in the login, it should also be OK.
-It's just that some vendor startup scripts set a ulimit for non-root
-users.  Trying to set it back to "unlimited" doesn't work.
+Nice move. No one will have the foggiest idea without hunting for
+my prior message whether your comments on what I said are accurate.
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
+On Wed, Mar 13, 2002 at 02:06:48PM -0500, Richard B. Johnson wrote:
+> You might want to look at www.eece.unm.edu/faculty/heileman/hash/hash.html
+> rather than assuming everyone is uninformed. Source-code is provided
+> for several hashing functions as well as source-code for tests. This
+> is a relatively old reference although it addresses both the chaos
+> and fractal methods discussed here, plus chaotic probe strategies
+> in address hashing.
+
+You've presented a paper that attempts to establish a connection
+between chaos theory and hashing by open addressing. I'm not convinced
+chaos theory is all that, but some of their measurement techniques
+appear useful, and I'll probably try using them, despite the fact Linux
+appears to favor hashing by separate chaining.
+
+This URL has not convinced me you are informed, and I don't really want
+to be convinced whether you're informed or not. Your contributions to
+these threads have been far less than enlightening or helpful thus far.
+
+
+On Wed, Mar 13, 2002 at 02:06:48PM -0500, Richard B. Johnson wrote:
+> A fast random number generator is essential to produce meaningful
+> tests within a reasonable period of time. It is also used within one
+> of the hashing functions to 'guess' at the direction of displacement
+> when an insertion slot is not immediately located, as well as the
+> displacement mechanism for several chaotic methods discussed.
+
+I don't buy this, and the reason why is that hashing is obviously
+sensitive to the input distribution. To defeat any hash function,
+you need only produce a distribution concentrated on a set hashing
+to the same number. If your distribution is literally uniform, then
+you'll never do better (by one measure) than least residue mod hash
+table size. You need to produce a realistic set of test keys. The key
+distributions you actually want to hash will be neither of the above.
+(Though one should verify it doesn't do poorly on uniform input, it's
+little more than a sanity check.)
+
+
+On Wed, Mar 13, 2002 at 02:06:48PM -0500, Richard B. Johnson wrote:
+> Using your own hash-function as a template for tests of the same
+> hash-function, as you propose, is unlikely to provide meaningful
+> results.
+
+I'm not proposing that. I have no idea why you think I am.
+
+If I may summarize, if you're going to use random number generation
+to simulate test inputs, verify the distribution of the test inputs
+you generate actually resembles the thing you're trying to simulate.
+
+It's far more productive to get samples of kernel virtual addresses
+of the objects whose addresses you're hashing, or inode numbers from
+real filesystems, or filenames, or whatever, than to just feed it a
+stream of numbers spewed by some random number generator no one's
+heard of, and that's not going to change in the least. For a Monte
+Carlo simulation of its usage in the kernel, you're going to need to
+actually figure out how to simulate those things' distributions.
+
+
+Hmm, I wouldn't be suprised to get a bunch of "YHBT" messages after
+this but the chaos theory paper does have some useful stuff for
+analyzing hash table performance. Distributions' entropies and Lyapunov
+exponents of hash functions should be easy enough to compute.
+
+
+Bill

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319668AbSIMPbP>; Fri, 13 Sep 2002 11:31:15 -0400
+	id <S319673AbSIMPhb>; Fri, 13 Sep 2002 11:37:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319673AbSIMPbP>; Fri, 13 Sep 2002 11:31:15 -0400
-Received: from dsl-213-023-022-092.arcor-ip.net ([213.23.22.92]:30095 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S319668AbSIMPbP>;
-	Fri, 13 Sep 2002 11:31:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Subject: Re: [RFC] Raceless module interface
-Date: Fri, 13 Sep 2002 17:37:19 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Alexander Viro <viro@math.psu.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209130919480.10048-100000@hawkeye.luckynet.adm>
-In-Reply-To: <Pine.LNX.4.44.0209130919480.10048-100000@hawkeye.luckynet.adm>
+	id <S319674AbSIMPhb>; Fri, 13 Sep 2002 11:37:31 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:64783
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S319673AbSIMPhb>; Fri, 13 Sep 2002 11:37:31 -0400
+Date: Fri, 13 Sep 2002 08:40:24 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: Lost Interrupts, if you have them ...
+Message-ID: <Pine.LNX.4.10.10209130833140.29877-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17psVT-0008Ae-00@starship>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 September 2002 17:27, Thunder from the hill wrote:
-> > This applies equally to the two-prong interface.  Do you see the pattern
-> > yet?
-> 
-> Yes, but you don't seem to. (No, I don't want to insult you here.)
-> 
-> Just to draw that:
-> 
-> 2p:
-> 
-> thread1						thread2
-> struct x *y = malloc(sizeof(struct x));
-> check y;
-> blah();						cleanup(y et al);
-> touch y->blah; /* bang */
 
-This can't happen because a semaphore serializes the load and unload.
-(Currently, module.c uses lock_kernel, which is obviously inadequate.)
+If you have this problem w/ the -ac patches or any other version, I want
+to know.  Please contact offline as I will ask you to send a list of
+information.  There is a lot of noise and I am searching for the signal
+part of the issue.
 
--- 
-Daniel
+I can only find two settings which can cause the issue predictable.
+hdparm -c2 or -c3 /dev/hdX
+
+I can not reproduce the lost interrupts at some of the reported rates
+recently.  I can produce them under certain situations, but not at a
+predicatble rate.  This is not a simple race to find.
+
+It is looking like a possible OS v/s device race for interrupt delivery.
+More likely the device issues the interrupt w/ out the handler being
+armed.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

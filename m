@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVADBF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVADBKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVADBF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 20:05:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbVADBD7
+	id S261885AbVADBKh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 20:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVADBCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 20:03:59 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:19612 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261965AbVACX2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:28:49 -0500
-Subject: Re: FAT, NTFS, CIFS and DOS attributes
-From: Nicholas Miell <nmiell@comcast.net>
+	Mon, 3 Jan 2005 20:02:42 -0500
+Received: from dp.samba.org ([66.70.73.150]:28116 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261885AbVADBAf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 20:00:35 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16857.59946.683684.231658@samba.org>
+Date: Tue, 4 Jan 2005 11:58:18 +1100
 To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
        samba-technical@lists.samba.org, aia21@cantab.net,
        hirofumi@mail.parknet.co.jp,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41D9C635.1090703@zytor.com>
+Subject: Re: FAT, NTFS, CIFS and DOS attributes
+In-Reply-To: <41D9E3AA.5050903@zytor.com>
 References: <41D9C635.1090703@zytor.com>
-Content-Type: text/plain
-Date: Mon, 03 Jan 2005 15:28:45 -0800
-Message-Id: <1104794925.3604.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.njm.1) 
-Content-Transfer-Encoding: 7bit
+	<16857.56805.501880.446082@samba.org>
+	<41D9E3AA.5050903@zytor.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-03 at 14:24 -0800, H. Peter Anvin wrote:
-> Hello all,
-> 
-> I recently posted to LKML a patch to get or set DOS attribute flags for 
-> fatfs.  That patch used ioctl().  It was suggested that a better way 
-> would be using xattrs, although the xattr mechanism seems clumsy to me, 
-> and has namespace issues.
-> 
-> I also think it would be good to have a unified interface for FAT, NTFS 
-> and CIFS for these attributes.
-> 
-> I noticed that CIFS has a placeholder "user.DosAttrib" in cifs/xattr.c, 
-> although it doesn't seem to be implemented.
-> 
-> Questions:
-> 
-> a) is xattr the right thing?  It seems to be a fairly complex and 
-> ill-thought-out mechanism all along, especially the whole namespace 
-> business (what is a system attribute to one filesystem is a user 
-> attribute to another, for example.)
+ > Oh geez.  Couldn't you have split out the various data items into 
+ > separate xattrs?
 
-More importantly, what has a defined meaning for one filesystem and is
-interpreted and generated on demand by the kernel is irrelevant or
-unsupported on other filesystems.
+fetching and setting this stuff is _really_ common, so I have arranged
+to store them in a way to make it as efficient as possible. For
+example, when a remote client asks for a directory listing we need to
+fetch just one xattr from the kernel per file (directory listings
+in the windows world usually return the equivalent of a full stat
+structure for every name).
 
-So, yes, you can't just copy a bunch of files from vfat to ext3 and
-preserve the vfat attributes, but you should be able to stuff a bunch of
-vfat files into a tar file and then restore them to a vfat filesystem
-with all their original attributes intact.
+Similarly, when these are set the client tends to set more than one at
+a time. The most commonly used set call takes this structure:
 
-> b) if xattr is the right thing, shouldn't this be in the system 
-> namespace rather than the user namespace?
+	/* RAW_SFILEINFO_BASIC_INFO and
+	   RAW_SFILEINFO_BASIC_INFORMATION interfaces */
+	struct {
+		enum smb_setfileinfo_level level;
+		union setfileinfo_file file;
 
-Yes.
+		struct {
+			NTTIME create_time;
+			NTTIME access_time;
+			NTTIME write_time;
+			NTTIME change_time;
+			uint32_t attrib;
+		} in;
+	} basic_info;
 
-> c) What should the representation be?  Binary byte?  String containing a 
-> subset of "rhsvda67" (barf)?
+Having the items that tend to get read/written together grouped
+together allowed me to make it all quite efficient, while still having
+a reasonable chance of the EAs all fitting in-inode on filesystems
+that support that.
 
-ASCII strings require no special tools to manipulate from shell scripts
-(or even for the end user to interpret).
+Obviously it is racy when dealt with from user space, but there really
+is no way to avoid all these races without a user space accessible
+"lock the files meta-data" call and that is why I'm looking forward to
+having a Samba LSM module to avoid these races.
 
--- 
-Nicholas Miell <nmiell@comcast.net>
+ > Samba clearly has other needs than other users, although of course
+ > it would be unfortunate if Samba then can't export this
+ > information.
 
+I think you'll find that all users of dos attributes on Linux will
+have very similar needs to Samba, and will want these things grouped
+together. For example:
+
+ - backup/restore apps will want to backup/restore these attributes as
+   lumps
+ - wine implements essentially the same APIs as Samba, just in a
+   different form, and so tends to get the same groupings of
+   attributes get/set calls that Samba does (the SMB protocol is to a
+   large degree a on-the-wire version of Win32).
+
+Are there any other significant users of DOS attributes on Linux that
+want something different?
+
+Cheers, Tridge

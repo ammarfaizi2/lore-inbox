@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269223AbRHRQ2O>; Sat, 18 Aug 2001 12:28:14 -0400
+	id <S270253AbRHRQgZ>; Sat, 18 Aug 2001 12:36:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270247AbRHRQ2E>; Sat, 18 Aug 2001 12:28:04 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:17420 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S269223AbRHRQ16>;
-	Sat, 18 Aug 2001 12:27:58 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200108181627.UAA19351@ms2.inr.ac.ru>
-Subject: Re: PROBLEM: select() says closed socket readable
-To: jay@rgrs.COM
-Date: Sat, 18 Aug 2001 20:27:47 +0400 (MSK DST)
+	id <S270252AbRHRQgF>; Sat, 18 Aug 2001 12:36:05 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:18956 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S270249AbRHRQf7>;
+	Sat, 18 Aug 2001 12:35:59 -0400
+Message-Id: <200108172239.CAA01781@mops.inr.ac.ru>
+Subject: Re: connect() does not return ETIMEDOUT
+To: Alessandro.Ren@vantcom.NET (Alessandro Motter Ren)
+Date: Sat, 18 Aug 2001 02:39:50 +0400 (MSD)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15Xwmb-0007eJ-00@shell2.shore.net> from "Jay Rogers" at Aug 18, 1 07:45:00 am
+In-Reply-To: <734932D6EA60D511A13600508BDE72485244B6@slentms1.vantcom.net> from "Alessandro Motter Ren" at Aug 17, 1 05:45:06 pm
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
 X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,15 +20,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-> For linux 2.4.2, select() indicates socket ready for read on a
-> socket that's never been connected. 
+> 	I had to set connect to do non blocking connections in order to
+> avoid this problem,
 
-Right. It does not block on read, hence it is readable.
+Sorry, what "this" problem? :-)
 
+You have made something surely not related to the subject.
 
->					 This is inconsistent
+* non-blocking connect succeeds instantly, of course, like blocking one. 
+* error never appears in this case, because connection is succesful.
 
-This is perfectly consistent. Reaction to bugs in applications
-is undefined.
+It was original observation.
 
 Alexey

@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267354AbUBSQ2l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 11:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267355AbUBSQ2k
+	id S267355AbUBSQgG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 11:36:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267360AbUBSQgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 11:28:40 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:42421 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267348AbUBSQ2g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 11:28:36 -0500
-Date: Thu, 19 Feb 2004 17:27:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Joilnen Leite <pidhash@yahoo.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: ide-scsi lock
-Message-ID: <20040219162759.GV27190@suse.de>
-References: <20040219135311.95851.qmail@web12603.mail.yahoo.com> <4034D46B.4020204@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Feb 2004 11:36:06 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:62706 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267355AbUBSQgD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 11:36:03 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Subject: Re: Strange problem with alsa, emu10k1 and ut2003 on 2.6.3
+Date: Thu, 19 Feb 2004 17:42:26 +0100
+User-Agent: KMail/1.5.3
+References: <1077197950.4034bc7ec9730@imp1-q.free.fr> <200402191404.14212.m.watts@eris.qinetiq.com>
+In-Reply-To: <200402191404.14212.m.watts@eris.qinetiq.com>
+Cc: j.combes.ml@free.fr, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4034D46B.4020204@pobox.com>
+Message-Id: <200402191742.26900.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19 2004, Jeff Garzik wrote:
-> Joilnen Leite wrote:
-> >drivers/scsi/ide-scsi.c:897
+
+I believe that some some of ALSA updates 2.6.2->2.6.3 broke OSS emulation,
+ie. xmms works but eats 90-100% CPU.  I experience it with ens1371 driver.
+
+I think it's the same problem, stay tuned...
+
+On Thursday 19 of February 2004 15:04, Mark Watts wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> > Hello,
 > >
-> >spin_lock_irqsave(&ide_lock, flags);
-> >while (HWGROUP(drive)->handler) {
-> >       HWGROUP(drive)->handler = NULL;
-> >       schedule_timeout(1);
-> >}
-> 
-> 
-> Yep, that's definitely a bug.  Good spotting.
+> > I have a strange problem with the sound on my PC [1] with the kernel
+> > 2.6.3 when I play to unreal tournement 2003. I use the same configuration
+> > as the 2.6.1 which work quite well on my computer.
+> >
+> > When I play to UT2003, sounds are not clean : there is some crackling.
+> > Moreover, the music is played two or three time faster than normally. As
+> > I haven't got this problem with 2.6.1, I imagine that it can be a problem
+> > with the new alsa version.
+> >
+> > I test to read some mp3 with xmms, it seem to work correctly.
+>
+> Music in UT2003/4 is in .ogg format.
 
-It's a known bug, Williams patches fix it. Which reminds me...
-
--- 
-Jens Axboe
+It doesn't matter.
 

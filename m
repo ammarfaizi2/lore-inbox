@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267189AbTAFW0j>; Mon, 6 Jan 2003 17:26:39 -0500
+	id <S267196AbTAFWcd>; Mon, 6 Jan 2003 17:32:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267187AbTAFW0H>; Mon, 6 Jan 2003 17:26:07 -0500
-Received: from mail47-s.fg.online.no ([148.122.161.47]:53211 "EHLO
-	mail47.fg.online.no") by vger.kernel.org with ESMTP
-	id <S267184AbTAFWZp>; Mon, 6 Jan 2003 17:25:45 -0500
-Message-ID: <3E1A0466.4070802@pvv.org>
-Date: Mon, 06 Jan 2003 23:34:14 +0100
-From: =?ISO-8859-1?Q?=D8ystein_Svendsen?= <svendsen@pvv.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-MIME-Version: 1.0
-To: Johannes Erdfelt <johannes@erdfelt.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with uhci and usb-uhci
-References: <E18UxuX-0001yJ-00@localhost> <20030104184649.B14645@sventech.com> <3E17781D.30702@pvv.org> <20030106133749.D18351@sventech.com>
-In-Reply-To: <20030106133749.D18351@sventech.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S267197AbTAFWcc>; Mon, 6 Jan 2003 17:32:32 -0500
+Received: from are.twiddle.net ([64.81.246.98]:14208 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S267196AbTAFWcb>;
+	Mon, 6 Jan 2003 17:32:31 -0500
+Date: Mon, 6 Jan 2003 14:41:04 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: davidm@hpl.hp.com
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       bjornw@axis.com, geert@linux-m68k.org, ralf@gnu.org, mkp@mkp.net,
+       willy@debian.org, anton@samba.org, gniibe@m17n.org,
+       kkojima@rr.iij4u.or.jp, Jeff Dike <jdike@karaya.com>
+Subject: Re: Userspace Test Framework for module loader porting
+Message-ID: <20030106144104.A1938@twiddle.net>
+Mail-Followup-To: davidm@hpl.hp.com, Rusty Russell <rusty@rustcorp.com.au>,
+	linux-kernel@vger.kernel.org, bjornw@axis.com, geert@linux-m68k.org,
+	ralf@gnu.org, mkp@mkp.net, willy@debian.org, anton@samba.org,
+	gniibe@m17n.org, kkojima@rr.iij4u.or.jp,
+	Jeff Dike <jdike@karaya.com>
+References: <20030106022803.902F82C0E2@lists.samba.org> <15897.56108.201340.229554@napali.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15897.56108.201340.229554@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Mon, Jan 06, 2003 at 11:38:20AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Erdfelt wrote:
+On Mon, Jan 06, 2003 at 11:38:20AM -0800, David Mosberger wrote:
+> What about all the problems that Richard Henderson pointed out with
+> the original in-kernel module loader?  Were those solved?
 
->I assume you have UHCI hardware then. You would need OHCI hardware to
->use the OHCI driver :)
->
-That was my suspicion.
+Yes.  The most important one for correctness was
 
->The bus doesn't STALL, but there may have been a problem with the host
->controller.
->
->For instance, some VIA controllers will lock up if it receives a BABBLE
->condition.
->  
->
-Ok.  I did some looking into the usb and midi stuff, but it requires 
-quite some work for me to find
-out what's happening here, so I guess that I will not get very far in 
-the near future.
-
-So I installed ALSA, and used the USB/MIDI stuff from within there, and 
-everything works fine, it seems, at least with uhci.o.
-
-So I guess there may be something with usb-midi which causes the problem.
-
-Thanks for your reply, anyway.
-
--- 
-    Øystein Svendsen 
+ChangeSet@1.838.130.13, 2003-01-01 19:02:38-08:00, rusty@rustcorp.com.au
+  [PATCH] Modules 3/3: Sort sections
+  
+  RTH's final complaint (so far 8) was that we should sort the module
+  sections: archs might require some sections to be adjacent, so they can
+  all be reached by a relative pointer (ie.  GOT pointer).  This
+  implements that reordering, and simplfies the module interface for
+  architectures as well.
+  
+  Previously an arch could specify it wanted extra space, but not where
+  that space would be.  The new method (used only by PPC so far) is to
+  allocate an empty section (in asm/module.h or by setting LDFLAGS_MODULE
+  to use an arch specific linker script), and expand that to the desired
+  size in "module_frob_arch_sections()".
 
 
+> My gut feeling is that we really want shared objects for kernel
+> modules on ia64 (and probably alpha?).
 
+Well, most everyone wants it.  Except that MIPS is terminally
+broken.  They need a rewrite of bfd/elfxx-mips.c in order to
+be able to do non-pic ET_DYN images.  Which leaves the rest of
+us out in the cold.
+
+
+r~

@@ -1,72 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbTHWBJq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 21:09:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTHWBJq
+	id S261346AbTHWBTy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 21:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTHWBTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 21:09:46 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:7429 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261263AbTHWBJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 21:09:45 -0400
-Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing
-	tst-mmap-eofsync in glibc on parisc)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: hugh@veritas.com, willy@debian.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>, drepper@redhat.com
-In-Reply-To: <20030822154100.06314c8e.davem@redhat.com>
-References: <20030822110144.5f7b83c5.davem@redhat.com>
-	<Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain>
-	<20030822113106.0503a665.davem@redhat.com>
-	<1061578568.2053.313.camel@mulgrave>
-	<20030822121955.619a14eb.davem@redhat.com>
-	<1061591255.1784.636.camel@mulgrave> 
-	<20030822154100.06314c8e.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 22 Aug 2003 20:09:30 -0500
-Message-Id: <1061600974.2090.809.camel@mulgrave>
-Mime-Version: 1.0
+	Fri, 22 Aug 2003 21:19:54 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:31395 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S261346AbTHWBTv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 21:19:51 -0400
+Date: Sat, 23 Aug 2003 13:03:10 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [PM] Patrick: which part of "maintainer" and "peer review"	needs
+ explaining to you?
+In-reply-to: <Pine.LNX.4.33.0308221454420.2310-100000@localhost.localdomain>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1061600295.1890.21.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <Pine.LNX.4.33.0308221454420.2310-100000@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-22 at 17:41, David S. Miller wrote:
-> I think on parisc you are trying to avoid the write() case
-> of the cache flush for non-shared mmap()s, and sorry you
-> really can't do this, again this is:
+On Sat, 2003-08-23 at 10:05, Patrick Mochel wrote:
+> > This is stable series, and /proc/acpi/sleep was fine for at least
+> > entering S3 and swsusp. Anyway, if you killed sleep, you should kill
+> > alarm as well. Its only usefull for sleeping, and IIRC it never worked
+> > properly, anyway.
 > 
-> 	When a write() system call occurs, the kernel "class" is writing to
-> 	the page so all user mappings (shared or not!) need to be flushed
-> 	out.
+> I will fix alarm. I will also update Nigel's suspend scripts (or release 
+> others) that abstract the mechanism for entering sleep away from the user. 
+
+Thanks for the credit, but they're not mine. I assume there's credit
+already in the suspend.sh; I've never looked at it in much detail.
+
+> > If you want to help, take a look at drivers/pci/power.c. That file
+> > should not need to exist, but if I kill it bad stuff happens after
+> > resume. Killing pm_register() and friends would be nice.
+
+On this topic, can you guys please sort out for once and for all where
+the code is going to end up. I'm trying to make the diff between 2.4 and
+2.6 minimal. :>
+
+> > > Secondly, you can actually remove the second command line parameter 
+> > > ("noresume") by simply specifying a NULL partition to this parameter. It 
+> > > requires about a 5-line change, and makes things simpler. 
+> > 
+> > You'd better not. You are expected to have one "resume=/foo/bar"
+> > specified as append in lilo. You want to able to say noresume and do
+> > one boot without resuming. Turning resume with
+> > "resume=/dev/nonexistent" would be playing roulete with command line
+> > argument order.
 > 
-> If your flush_dcache_page() is not doing this, it's no wonder
-> the test case fails for you.
+> AFAIK, you could have
+> 
+> resume=/dev/hda3 always appended to your command line. Should you suspend 
+> and not want to resume, you should be able to manually add
+> 
+> "resume=" on the command line after the above, and have the setup function 
+> called again, which would reset it to NULL, thereby keeping the same 
+> semantics as "noresume", but with less namespace pollution. Anyway, I'm 
+> not going to do this now. I'll send you a patch if I do.
 
-Yes, that's precisely what we're trying to do.  Our problem is that we
-have to issue the flush to all the aliased addresses (one cache line at
-a time) which is phenomenally expensive.
+It would also break being able to fix the header - unless you like
+having to mkswap after noresume :> (Unless you want us to remember the
+value given by the first resume= parameter, but doesn't that negate the
+logic to your argument?).
 
-What we were hoping is that we could rely on this little property of
-mmap:
+Regards,
 
-       MAP_PRIVATE
-                  Create a private copy-on-write mapping.  Stores
-                  to the region do not affect the original  file.
-                  It  is  unspecified whether changes made to the
-                  file after the mmap call  are  visible  in  the
-                  mapped region.
+Nigel
 
-To avoid having to flush the non-shared mappings (basically on parisc if
-you write to a file backing a MAP_PRIVATE mapping then we don't
-guarantee you see the update).
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
-I suppose if we had a way of telling if any of the i_mmap list members
-were really MAP_SHARED semantics mappings, then we could alter our
-flush_dcache_page() implementation to work.
-
-James
-
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

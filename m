@@ -1,595 +1,233 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261310AbSLUA4U>; Fri, 20 Dec 2002 19:56:20 -0500
+	id <S261356AbSLUBU6>; Fri, 20 Dec 2002 20:20:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261333AbSLUA4U>; Fri, 20 Dec 2002 19:56:20 -0500
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:26565 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261310AbSLUA4M>; Fri, 20 Dec 2002 19:56:12 -0500
-Date: Sat, 21 Dec 2002 02:04:03 +0100
-From: Andi Kleen <ak@muc.de>
-To: torvalds@transmeta.com
+	id <S261370AbSLUBU6>; Fri, 20 Dec 2002 20:20:58 -0500
+Received: from sabre.velocet.net ([216.138.209.205]:44550 "HELO
+	sabre.velocet.net") by vger.kernel.org with SMTP id <S261356AbSLUBUz>;
+	Fri, 20 Dec 2002 20:20:55 -0500
+To: Gregory Stark <gsstark@MIT.EDU>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Some i386 cleanups - MTRR, bootflag
-Message-ID: <20021221010403.GA3922@averell>
-Mime-Version: 1.0
+Subject: Re: Problem with read blocking for a long time on /dev/scd1
+References: <87adj0b3hj.fsf@stark.dyndns.tv>
+In-Reply-To: <87adj0b3hj.fsf@stark.dyndns.tv>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 20 Dec 2002 20:28:58 -0500
+Message-ID: <87n0n09n39.fsf@stark.dyndns.tv>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I decided to share some more code between i386 and x86-64. It is 
-currently done using symlinks done by the x86-64 specific makefile. 
-One of the candidates was the MTRR driver
+Gregory Stark <gsstark@MIT.EDU> writes:
 
-This patch does:
-- fix one warning in bootflag.c
-- change a few longs to int and int to long in the MTRR driver 
-to make it 64bit clean (should be a NOP for 32bit i386, but is needed
-for x86-64)
-- Convert the MTRR /proc interface to seq_file and remove
-the broken compute_ascii() hack. This fixes some broken 
-code e.g. the old mtrr_write was completely broken because
-the loop checking for commands started with a "continue"
-- remove duplicated mtrr type strings.
+> I'm having a problem with ogle that seems to be being caused by the scsi or
+> ide-scsi driver. The video playback freezes for a second or randomly,
+> sometimes every few seconds, sometimes not for several minutes. Every such
+> glitch is correlated perfectly with a read syscall reading on /dev/scd1
+> blocking for an inordinate amount of time.
 
-Patch for 2.5.52. Please consider applying.
+I forgot to include the details:
 
--Andi
+$ uname -a
+Linux stark.dyndns.tv 2.4.19 #6 Tue Sep 10 22:08:51 EDT 2002 i686 unknown unknown GNU/Linux
 
-diff -burpN -X ../KDIFX linux-vanilla/arch/i386/kernel/bootflag.c linux/arch/i386/kernel/bootflag.c
---- linux-vanilla/arch/i386/kernel/bootflag.c	2002-10-19 06:02:27.000000000 +0200
-+++ linux/arch/i386/kernel/bootflag.c	2002-12-21 02:46:02.000000000 +0100
-@@ -48,7 +48,7 @@ static int __init sbf_struct_valid(unsig
- 	unsigned int i;
- 	struct sbf_boot sb;
- 	
--	memcpy_fromio(&sb, tptr, sizeof(sb));
-+	memcpy_fromio(&sb, (void *)tptr, sizeof(sb));
+/dev/hdd:
+ HDIO_GET_MULTCOUNT failed: Input/output error
+ IO_support   =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ BLKRAGET failed: Input/output error
+ HDIO_GETGEO failed: Invalid argument
+
+(that's the same for /dev/hd{a,b,c,d} actually)
+
+$ cat /proc/scsi/scsi
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: YAMAHA   Model: CRW2100E         Rev: 1.0G
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+  Vendor: LG       Model: DVD-ROM DRD8160B Rev: 1.01
+  Type:   CD-ROM                           ANSI SCSI revision: 02
  
- 	if(sb.sbf_len != 40 && sb.sbf_len != 39)
- 		// 39 on IBM ThinkPad A21m, BIOS version 1.02b (KXET24WW; 2000-12-19).
-diff -burpN -X ../KDIFX linux-vanilla/arch/i386/kernel/cpu/mtrr/amd.c linux/arch/i386/kernel/cpu/mtrr/amd.c
---- linux-vanilla/arch/i386/kernel/cpu/mtrr/amd.c	2002-10-19 06:01:55.000000000 +0200
-+++ linux/arch/i386/kernel/cpu/mtrr/amd.c	2002-11-28 07:38:45.000000000 +0100
-@@ -7,7 +7,7 @@
- 
- static void
- amd_get_mtrr(unsigned int reg, unsigned long *base,
--	     unsigned long *size, mtrr_type * type)
-+	     unsigned int *size, mtrr_type * type)
- {
- 	unsigned long low, high;
- 
-diff -burpN -X ../KDIFX linux-vanilla/arch/i386/kernel/cpu/mtrr/centaur.c linux/arch/i386/kernel/cpu/mtrr/centaur.c
---- linux-vanilla/arch/i386/kernel/cpu/mtrr/centaur.c	2002-10-19 06:01:19.000000000 +0200
-+++ linux/arch/i386/kernel/cpu/mtrr/centaur.c	2002-11-28 07:45:37.000000000 +0100
-@@ -26,7 +26,8 @@ centaur_get_free_region(unsigned long ba
- {
- 	int i, max;
- 	mtrr_type ltype;
--	unsigned long lbase, lsize;
-+	unsigned long lbase;
-+	unsigned int lsize;
- 
- 	max = num_var_ranges;
- 	for (i = 0; i < max; ++i) {
-@@ -48,7 +49,7 @@ mtrr_centaur_report_mcr(int mcr, u32 lo,
- 
- static void
- centaur_get_mcr(unsigned int reg, unsigned long *base,
--		unsigned long *size, mtrr_type * type)
-+		unsigned int *size, mtrr_type * type)
- {
- 	*base = centaur_mcr[reg].high >> PAGE_SHIFT;
- 	*size = -(centaur_mcr[reg].low & 0xfffff000) >> PAGE_SHIFT;
-diff -burpN -X ../KDIFX linux-vanilla/arch/i386/kernel/cpu/mtrr/cyrix.c linux/arch/i386/kernel/cpu/mtrr/cyrix.c
---- linux-vanilla/arch/i386/kernel/cpu/mtrr/cyrix.c	2002-10-19 06:01:56.000000000 +0200
-+++ linux/arch/i386/kernel/cpu/mtrr/cyrix.c	2002-11-28 07:41:50.000000000 +0100
-@@ -9,7 +9,7 @@ int arr3_protected;
- 
- static void
- cyrix_get_arr(unsigned int reg, unsigned long *base,
--	      unsigned long *size, mtrr_type * type)
-+	      unsigned int *size, mtrr_type * type)
- {
- 	unsigned long flags;
- 	unsigned char arr, ccr3, rcr, shift;
-@@ -86,7 +86,8 @@ cyrix_get_free_region(unsigned long base
- {
- 	int i;
- 	mtrr_type ltype;
--	unsigned long lbase, lsize;
-+	unsigned long lbase;
-+	unsigned int  lsize;
- 
- 	/* If we are to set up a region >32M then look at ARR7 immediately */
- 	if (size > 0x2000) {
-@@ -213,7 +214,7 @@ static void cyrix_set_arr(unsigned int r
- 
- typedef struct {
- 	unsigned long base;
--	unsigned long size;
-+	unsigned int size;
- 	mtrr_type type;
- } arr_state_t;
- 
-diff -burpN -X ../KDIFX linux-vanilla/arch/i386/kernel/cpu/mtrr/generic.c linux/arch/i386/kernel/cpu/mtrr/generic.c
---- linux-vanilla/arch/i386/kernel/cpu/mtrr/generic.c	2002-11-13 12:07:27.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/mtrr/generic.c	2002-11-28 07:45:24.000000000 +0100
-@@ -1,3 +1,5 @@
-+/* This only handles 32bit MTRR on 32bit hosts. This is strictly wrong
-+   because MTRRs can span upto 40 bits (36bits on most modern x86) */ 
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/mm.h>
-@@ -30,7 +32,7 @@ get_mtrr_var_range(unsigned int index, s
- static void __init
- get_fixed_ranges(mtrr_type * frs)
- {
--	unsigned long *p = (unsigned long *) frs;
-+	unsigned int *p = (unsigned int *) frs;
- 	int i;
- 
- 	rdmsr(MTRRfix64K_00000_MSR, p[0], p[1]);
-@@ -46,7 +48,7 @@ void get_mtrr_state(void)
- {
- 	unsigned int i;
- 	struct mtrr_var_range *vrs;
--	unsigned long lo, dummy;
-+	unsigned lo, dummy;
- 
- 	if (!mtrr_state.var_ranges) {
- 		mtrr_state.var_ranges = kmalloc(num_var_ranges * sizeof (struct mtrr_var_range), 
-@@ -102,7 +104,8 @@ int generic_get_free_region(unsigned lon
- {
- 	int i, max;
- 	mtrr_type ltype;
--	unsigned long lbase, lsize;
-+	unsigned long lbase;
-+	unsigned lsize;
- 
- 	max = num_var_ranges;
- 	for (i = 0; i < max; ++i) {
-@@ -113,11 +116,10 @@ int generic_get_free_region(unsigned lon
- 	return -ENOSPC;
- }
- 
--
- void generic_get_mtrr(unsigned int reg, unsigned long *base,
--		      unsigned long *size, mtrr_type * type)
-+		      unsigned int *size, mtrr_type * type)
- {
--	unsigned long mask_lo, mask_hi, base_lo, base_hi;
-+	unsigned int mask_lo, mask_hi, base_lo, base_hi;
- 
- 	rdmsr(MTRRphysMask_MSR(reg), mask_lo, mask_hi);
- 	if ((mask_lo & 0x800) == 0) {
-@@ -143,10 +145,10 @@ void generic_get_mtrr(unsigned int reg, 
- 
- static int __init set_fixed_ranges(mtrr_type * frs)
- {
--	unsigned long *p = (unsigned long *) frs;
-+	unsigned int *p = (unsigned int *) frs;
- 	int changed = FALSE;
- 	int i;
--	unsigned long lo, hi;
-+	unsigned int lo, hi;
- 
- 	rdmsr(MTRRfix64K_00000_MSR, lo, hi);
- 	if (p[0] != lo || p[1] != hi) {
-@@ -228,13 +230,13 @@ static unsigned long set_mtrr_state(u32 
- }
- 
- 
--static u32 cr4 = 0;
-+static unsigned long cr4 = 0;
- static u32 deftype_lo, deftype_hi;
- static spinlock_t set_atomicity_lock = SPIN_LOCK_UNLOCKED;
- 
- static void prepare_set(void)
- {
--	u32 cr0;
-+	unsigned long cr0;
- 
- 	/*  Note that this is not ideal, since the cache is only flushed/disabled
- 	   for this CPU while the MTRRs are changed, but changing this requires
-diff -burpN -X ../KDIFX linux-vanilla/arch/i386/kernel/cpu/mtrr/if.c linux/arch/i386/kernel/cpu/mtrr/if.c
---- linux-vanilla/arch/i386/kernel/cpu/mtrr/if.c	2002-10-19 06:01:18.000000000 +0200
-+++ linux/arch/i386/kernel/cpu/mtrr/if.c	2002-11-28 07:43:51.000000000 +0100
-@@ -3,27 +3,27 @@
- #include <linux/devfs_fs_kernel.h>
- #include <linux/ctype.h>
- #include <linux/module.h>
-+#include <linux/seq_file.h>
- #include <asm/uaccess.h>
- 
--/* What kind of fucking hack is this? */
--#define MTRR_NEED_STRINGS
-+#define LINE_SIZE 80
- 
- #include <asm/mtrr.h>
- #include "mtrr.h"
- 
--static char *ascii_buffer;
--static unsigned int ascii_buf_bytes;
--
-+/* RED-PEN: this is accessed without any locking */
- extern unsigned int *usage_table;
- 
--#define LINE_SIZE      80
-+static int mtrr_seq_show(struct seq_file *seq, void *offset);
-+
-+#define FILE_FCOUNT(f) (((struct seq_file *)((f)->private_data))->private)
- 
- static int
- mtrr_file_add(unsigned long base, unsigned long size,
- 	      unsigned int type, char increment, struct file *file, int page)
- {
- 	int reg, max;
--	unsigned int *fcount = file->private_data;
-+	unsigned int *fcount = FILE_FCOUNT(file); 
- 
- 	max = num_var_ranges;
- 	if (fcount == NULL) {
-@@ -33,7 +33,7 @@ mtrr_file_add(unsigned long base, unsign
- 			return -ENOMEM;
- 		}
- 		memset(fcount, 0, max * sizeof *fcount);
--		file->private_data = fcount;
-+		FILE_FCOUNT(file) = fcount;
- 	}
- 	if (!page) {
- 		if ((base & (PAGE_SIZE - 1)) || (size & (PAGE_SIZE - 1))) {
-@@ -79,19 +79,7 @@ mtrr_file_del(unsigned long base, unsign
- 	return reg;
- }
- 
--static ssize_t
--mtrr_read(struct file *file, char *buf, size_t len, loff_t * ppos)
--{
--	if (*ppos >= ascii_buf_bytes)
--		return 0;
--	if (*ppos + len > ascii_buf_bytes)
--		len = ascii_buf_bytes - *ppos;
--	if (copy_to_user(buf, ascii_buffer + *ppos, len))
--		return -EFAULT;
--	*ppos += len;
--	return len;
--}
--
-+/* RED-PEN: seq_file can seek now. this is ignored. */
- static ssize_t
- mtrr_write(struct file *file, const char *buf, size_t len, loff_t * ppos)
- /*  Format of control line:
-@@ -149,7 +137,7 @@ mtrr_write(struct file *file, const char
- 	ptr += 5;
- 	for (; isspace(*ptr); ++ptr) ;
- 	for (i = 0; i < MTRR_NUM_TYPES; ++i) {
--//		if (strcmp(ptr, mtrr_strings[i]))
-+		if (strcmp(ptr, mtrr_strings[i]))
- 			continue;
- 		base >>= PAGE_SHIFT;
- 		size >>= PAGE_SHIFT;
-@@ -173,6 +161,8 @@ mtrr_ioctl(struct inode *inode, struct f
- 	struct mtrr_sentry sentry;
- 	struct mtrr_gentry gentry;
- 
-+	printk("mtrr_ioctl %d\n", cmd);
-+
- 	switch (cmd) {
- 	default:
- 		return -ENOIOCTLCMD;
-@@ -291,10 +281,9 @@ static int
- mtrr_close(struct inode *ino, struct file *file)
- {
- 	int i, max;
--	unsigned int *fcount = file->private_data;
-+	unsigned int *fcount = FILE_FCOUNT(file);
- 
--	if (fcount == NULL)
--		return 0;
-+	if (fcount != NULL) {
- 	max = num_var_ranges;
- 	for (i = 0; i < max; ++i) {
- 		while (fcount[i] > 0) {
-@@ -304,13 +293,26 @@ mtrr_close(struct inode *ino, struct fil
- 		}
- 	}
- 	kfree(fcount);
--	file->private_data = NULL;
--	return 0;
-+		FILE_FCOUNT(file) = NULL;
-+	}
-+	return single_release(ino, file);
-+}
-+
-+static int mtrr_open(struct inode *inode, struct file *file)
-+{
-+	if (!mtrr_if) 
-+		return -EIO;
-+	if (!mtrr_if->get) 
-+		return -ENXIO; 
-+	return single_open(file, mtrr_seq_show, NULL);
- }
- 
- static struct file_operations mtrr_fops = {
- 	.owner   = THIS_MODULE,
--	.read    = mtrr_read,
-+	.open	 = mtrr_open, 
-+	.read    = seq_read,
-+	.llseek  = seq_lseek,
-+	.release = single_release,
- 	.write   = mtrr_write,
- 	.ioctl   = mtrr_ioctl,
- 	.release = mtrr_close,
-@@ -329,14 +331,15 @@ char * attrib_to_str(int x)
- 	return (x <= 6) ? mtrr_strings[x] : "?";
- }
- 
--void compute_ascii(void)
-+static int mtrr_seq_show(struct seq_file *seq, void *offset)
- {
- 	char factor;
--	int i, max;
-+	int i, max, len;
- 	mtrr_type type;
--	unsigned long base, size;
-+	unsigned long base;
-+	unsigned int size;
- 
--	ascii_buf_bytes = 0;
-+	len = 0;
- 	max = num_var_ranges;
- 	for (i = 0; i < max; i++) {
- 		mtrr_if->get(i, &base, &size, &type);
-@@ -351,32 +354,19 @@ void compute_ascii(void)
- 				factor = 'M';
- 				size >>= 20 - PAGE_SHIFT;
- 			}
--			sprintf
--			    (ascii_buffer + ascii_buf_bytes,
--			     "reg%02i: base=0x%05lx000 (%4liMB), size=%4li%cB: %s, count=%d\n",
-+			/* RED-PEN: base can be > 32bit */ 
-+			len += seq_printf(seq, 
-+				   "reg%02i: base=0x%05lx000 (%4liMB), size=%4i%cB: %s, count=%d\n",
- 			     i, base, base >> (20 - PAGE_SHIFT), size, factor,
- 			     attrib_to_str(type), usage_table[i]);
--			ascii_buf_bytes +=
--			    strlen(ascii_buffer + ascii_buf_bytes);
- 		}
- 	}
--	devfs_set_file_size(devfs_handle, ascii_buf_bytes);
--#  ifdef CONFIG_PROC_FS
--	if (proc_root_mtrr)
--		proc_root_mtrr->size = ascii_buf_bytes;
--#  endif			/*  CONFIG_PROC_FS  */
-+	devfs_set_file_size(devfs_handle, len);	
-+	return 0;
- }
- 
- static int __init mtrr_if_init(void)
- {
--	int max = num_var_ranges;
--
--	if ((ascii_buffer = kmalloc(max * LINE_SIZE, GFP_KERNEL)) == NULL) {
--		printk("mtrr: could not allocate\n");
--		return -ENOMEM;
--	}
--	ascii_buf_bytes = 0;
--	compute_ascii();
- #ifdef CONFIG_PROC_FS
- 	proc_root_mtrr =
- 	    create_proc_entry("mtrr", S_IWUSR | S_IRUGO, &proc_root);
-diff -burpN -X ../KDIFX linux-vanilla/arch/i386/kernel/cpu/mtrr/main.c linux/arch/i386/kernel/cpu/mtrr/main.c
---- linux-vanilla/arch/i386/kernel/cpu/mtrr/main.c	2002-10-19 06:01:09.000000000 +0200
-+++ linux/arch/i386/kernel/cpu/mtrr/main.c	2002-11-28 07:40:22.000000000 +0100
-@@ -36,7 +36,6 @@
- #include <linux/pci.h>
- #include <linux/smp.h>
- 
--#define MTRR_NEED_STRINGS
- #include <asm/mtrr.h>
- 
- #include <asm/uaccess.h>
-@@ -54,6 +53,7 @@ static DECLARE_MUTEX(main_lock);
- u32 size_or_mask, size_and_mask;
- 
- static struct mtrr_ops * mtrr_ops[X86_VENDOR_NUM] = {};
-+
- struct mtrr_ops * mtrr_if = NULL;
- 
- __initdata char *mtrr_if_name[] = {
-@@ -125,14 +125,6 @@ static void init_table(void)
- 	}
- 	for (i = 0; i < max; i++)
- 		usage_table[i] = 1;
--#ifdef USERSPACE_INTERFACE
--	if ((ascii_buffer = kmalloc(max * LINE_SIZE, GFP_KERNEL)) == NULL) {
--		printk("mtrr: could not allocate\n");
--		return;
--	}
--	ascii_buf_bytes = 0;
--	compute_ascii();
--#endif
- }
- 
- struct set_mtrr_data {
-@@ -163,7 +155,7 @@ static void ipi_handler(void *info)
- 	}
- 
- 	/*  The master has cleared me to execute  */
--	if (data->smp_reg != ~0UL) 
-+	if (data->smp_reg != ~0U) 
- 		mtrr_if->set(data->smp_reg, data->smp_base, 
- 			     data->smp_size, data->smp_type);
- 	else
-@@ -253,7 +245,7 @@ static void set_mtrr(unsigned int reg, u
- 	 * to replicate across all the APs. 
- 	 * If we're doing that @reg is set to something special...
- 	 */
--	if (reg != ~0UL) 
-+	if (reg != ~0U) 
- 		mtrr_if->set(reg,base,size,type);
- 
- 	/* wait for the others */
-@@ -306,7 +298,8 @@ int mtrr_add_page(unsigned long base, un
- {
- 	int i;
- 	mtrr_type ltype;
--	unsigned long lbase, lsize;
-+	unsigned long lbase;
-+	unsigned int lsize;
- 	int error;
- 
- 	if (!mtrr_if)
-@@ -346,7 +339,7 @@ int mtrr_add_page(unsigned long base, un
- 		if ((base < lbase) || (base + size > lbase + lsize)) {
- 			printk(KERN_WARNING
- 			       "mtrr: 0x%lx000,0x%lx000 overlaps existing"
--			       " 0x%lx000,0x%lx000\n", base, size, lbase,
-+			       " 0x%lx000,0x%x000\n", base, size, lbase,
- 			       lsize);
- 			goto out;
- 		}
-@@ -361,7 +354,6 @@ int mtrr_add_page(unsigned long base, un
- 		}
- 		if (increment)
- 			++usage_table[i];
--		compute_ascii();
- 		error = i;
- 		goto out;
- 	}
-@@ -370,7 +362,6 @@ int mtrr_add_page(unsigned long base, un
- 	if (i >= 0) {
- 		set_mtrr(i, base, size, type);
- 		usage_table[i] = 1;
--		compute_ascii();
- 	} else
- 		printk("mtrr: no more MTRRs available\n");
- 	error = i;
-@@ -447,7 +438,8 @@ int mtrr_del_page(int reg, unsigned long
- {
- 	int i, max;
- 	mtrr_type ltype;
--	unsigned long lbase, lsize;
-+	unsigned long lbase;
-+	unsigned int lsize;
- 	int error = -EINVAL;
- 
- 	if (!mtrr_if)
-@@ -491,7 +483,6 @@ int mtrr_del_page(int reg, unsigned long
- 	}
- 	if (--usage_table[reg] < 1)
- 		set_mtrr(reg, 0, 0, 0);
--	compute_ascii();
- 	error = reg;
-  out:
- 	up(&main_lock);
-@@ -547,7 +538,7 @@ static void init_other_cpus(void)
- 		get_mtrr_state();
- 
- 	/* bring up the other processors */
--	set_mtrr(~0UL,0,0,0);
-+	set_mtrr(~0U,0,0,0);
- 
- 	if (use_intel()) {
- 		finalize_mtrr_state();
-@@ -583,7 +574,7 @@ static int __init mtrr_init(void)
- 			   query the width (in bits) of the physical
- 			   addressable memory on the Hammer family.
- 			 */
--			if (boot_cpu_data.x86 == 7
-+			if (boot_cpu_data.x86 >= 7 
- 			    && (cpuid_eax(0x80000000) >= 0x80000008)) {
- 				u32 phys_addr;
- 				phys_addr = cpuid_eax(0x80000008) & 0xff;
-@@ -643,5 +634,16 @@ static int __init mtrr_init(void)
- 	return mtrr_if ? -ENXIO : 0;
- }
- 
-+char *mtrr_strings[MTRR_NUM_TYPES] =
-+{
-+    "uncachable",               /* 0 */
-+    "write-combining",          /* 1 */
-+    "?",                        /* 2 */
-+    "?",                        /* 3 */
-+    "write-through",            /* 4 */
-+    "write-protect",            /* 5 */
-+    "write-back",               /* 6 */
-+};
-+
- core_initcall(mtrr_init);
- 
-diff -burpN -X ../KDIFX linux-vanilla/arch/i386/kernel/cpu/mtrr/mtrr.h linux/arch/i386/kernel/cpu/mtrr/mtrr.h
---- linux-vanilla/arch/i386/kernel/cpu/mtrr/mtrr.h	2002-10-19 06:01:18.000000000 +0200
-+++ linux/arch/i386/kernel/cpu/mtrr/mtrr.h	2002-11-28 07:37:22.000000000 +0100
-@@ -43,7 +43,7 @@ struct mtrr_ops {
- 	void	(*set_all)(void);
- 
- 	void	(*get)(unsigned int reg, unsigned long *base,
--		       unsigned long *size, mtrr_type * type);
-+		       unsigned int *size, mtrr_type * type);
- 	int	(*get_free_region) (unsigned long base, unsigned long size);
- 
- 	int	(*validate_add_page)(unsigned long base, unsigned long size,
-@@ -85,9 +85,6 @@ void get_mtrr_state(void);
- 
- extern void set_mtrr_ops(struct mtrr_ops * ops);
- 
--/* Don't even ask... */
--extern void compute_ascii(void);
--
- extern u32 size_or_mask, size_and_mask;
- extern struct mtrr_ops * mtrr_if;
- 
-diff -burpN -X ../KDIFX linux-vanilla/include/asm-i386/mtrr.h linux/include/asm-i386/mtrr.h
---- linux-vanilla/include/asm-i386/mtrr.h	2002-10-19 06:01:52.000000000 +0200
-+++ linux/include/asm-i386/mtrr.h	2002-11-27 12:41:20.000000000 +0100
-@@ -31,7 +31,7 @@
- struct mtrr_sentry
- {
-     unsigned long base;    /*  Base address     */
--    unsigned long size;    /*  Size of region   */
-+    unsigned int size;    /*  Size of region   */
-     unsigned int type;     /*  Type of region   */
- };
- 
-@@ -39,7 +39,7 @@ struct mtrr_gentry
- {
-     unsigned int regnum;   /*  Register number  */
-     unsigned long base;    /*  Base address     */
--    unsigned long size;    /*  Size of region   */
-+    unsigned int size;    /*  Size of region   */
-     unsigned int type;     /*  Type of region   */
- };
- 
-@@ -65,21 +65,10 @@ struct mtrr_gentry
- #define MTRR_TYPE_WRBACK     6
- #define MTRR_NUM_TYPES       7
- 
--#ifdef MTRR_NEED_STRINGS
--static char *mtrr_strings[MTRR_NUM_TYPES] =
--{
--    "uncachable",               /* 0 */
--    "write-combining",          /* 1 */
--    "?",                        /* 2 */
--    "?",                        /* 3 */
--    "write-through",            /* 4 */
--    "write-protect",            /* 5 */
--    "write-back",               /* 6 */
--};
--#endif
--
- #ifdef __KERNEL__
- 
-+extern char *mtrr_strings[]; 
-+
- /*  The following functions are for use by other drivers  */
- # ifdef CONFIG_MTRR
- extern int mtrr_add (unsigned long base, unsigned long size,
+$ dmesg
+Linux version 2.4.19 (stark@stark.dyndns.tv) (gcc version 2.95.4 20011002 (Debian prerelease)) #6 Tue Sep 10 22:08:51 EDT 2002
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000000fff0000 (usable)
+ BIOS-e820: 000000000fff0000 - 000000000fff3000 (ACPI NVS)
+ BIOS-e820: 000000000fff3000 - 0000000010000000 (ACPI data)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+255MB LOWMEM available.
+Advanced speculative caching feature not present
+On node 0 totalpages: 65520
+zone(0): 4096 pages.
+zone(1): 61424 pages.
+zone(2): 0 pages.
+Kernel command line: BOOT_IMAGE=linux-2.4.19 ro root=302 console=ttyS1,9600 console=tty0 hdc=ide-scsi hdd=ide-scsi
+ide_setup: hdc=ide-scsi
+ide_setup: hdd=ide-scsi
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+Detected 551.263 MHz processor.
+Console: colour VGA+ 80x50
+Calibrating delay loop... 1101.00 BogoMIPS
+Memory: 257228k/262080k available (907k kernel code, 4464k reserved, 391k data, 96k init, 0k highmem)
+Dentry cache hash table entries: 32768 (order: 6, 262144 bytes)
+Inode cache hash table entries: 16384 (order: 5, 131072 bytes)
+Mount-cache hash table entries: 4096 (order: 3, 32768 bytes)
+Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
+CPU: Before vendor init, caps: 0383fbff 00000000 00000000, vendor = 0
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 256K
+CPU: After vendor init, caps: 0383fbff 00000000 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: 0383fbff 00000000 00000000 00000000
+CPU:             Common caps: 0383fbff 00000000 00000000 00000000
+CPU: Intel Pentium III (Coppermine) stepping 01
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 551.2683 MHz.
+..... host bus clock speed is 100.2305 MHz.
+cpu: 0, clocks: 1002305, slice: 501152
+CPU0<T0:1002304,T1:501152,D:0,S:501152,C:1002305>
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+PCI: PCI BIOS revision 2.10 entry at 0xfb2b0, last bus=1
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+Unknown bridge resource 0: assuming transparent
+PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
+Limiting direct PCI/PCI transfers.
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+apm: BIOS version 1.2 Flags 0x07 (Driver version 1.16)
+Starting kswapd
+pty: 256 Unix98 ptys configured
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+hdb: C/H/S=38322/16/255 from BIOS ignored
+hda: QUANTUM FIREBALL EL7.6A, ATA DISK drive
+hdb: MAXTOR 6L080J4, ATA DISK drive
+hdc: YAMAHA CRW2100E, ATAPI CD/DVD-ROM drive
+hdd: LG DVD-ROM DRD-8160B, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 15032115 sectors (7696 MB) w/418KiB Cache, CHS=935/255/63, UDMA(33)
+hdb: 156355584 sectors (80054 MB) w/1819KiB Cache, CHS=155114/16/63, UDMA(33)
+Partition check:
+ hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+ hdb: hdb1 hdb2 hdb3
+es1371: version v0.30 time 19:34:43 Aug 19 2002
+PCI: Found IRQ 5 for device 00:0b.0
+es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x08
+es1371: found es1371 rev 8 at io 0x9800 irq 5
+es1371: features: joystick 0x0
+ac97_codec: AC97 Audio codec, id: 0x4352:0x5913 (Cirrus Logic CS4297A rev A)
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 2048 buckets, 16Kbytes
+TCP: Hash tables configured (established 16384 bind 16384)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 96k freed
+Adding Swap: 128484k swap-space (priority -1)
+Real Time Clock Driver v1.10e
+ne2k-pci.c:v1.02 10/19/2000 D. Becker/P. Gortmaker
+  http://www.scyld.com/network/ne2k-pci.html
+PCI: Found IRQ 10 for device 00:09.0
+PCI: Sharing IRQ 10 with 00:07.2
+eth0: RealTek RTL-8029 found at 0x9400, IRQ 10, 00:80:C8:DF:59:9E.
+CSLIP: code copyright 1989 Regents of the University of California
+PPP generic driver version 2.4.2
+SCSI subsystem driver Revision: 1.00
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: YAMAHA    Model: CRW2100E          Rev: 1.0G
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: LG        Model: DVD-ROM DRD8160B  Rev: 1.01
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 203M
+agpgart: Detected Intel 440BX chipset
+agpgart: AGP aperture is 128M @ 0xe0000000
+[drm] AGP 0.99 on Intel 440BX @ 0xe0000000 128MB
+[drm] Initialized mga 3.0.2 20010321 on minor 0
+Matrox MGA G200/G400/G450/G550 YUV Video interface v2.01 (c) Aaron Holtzman & A'rpi
+mga_vid: Found MGA G400/G450
+mga_vid: MMIO at 0xd0881000 IRQ: 11  framebuffer: 0xEC000000
+mga_vid: OPTION word: 0x50040120  mem: 0x00  SDRAM
+mga_vid: detected RAMSIZE is 16 MB
+syncfb (mga): IRQ disabled in mga_vid.c
+parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,EPP]
+parport0: irq 7 detected
+lp0: using parport0 (polling).
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ DETECT_IRQ SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+Linux Kernel Card Services 3.1.22
+  options:  [pci] [cardbus] [pm]
+Intel PCIC probe: not found.
+Intel PCIC probe: not found.
+Starting AFS cache scan...found 393 non-empty cache files (7%).
+mtrr: 0xec000000,0x2000000 overlaps existing 0xec000000,0x1000000
+mtrr: 0xec000000,0x2000000 overlaps existing 0xec000000,0x1000000
+Adding Swap: 127992k swap-space (priority -2)
+Adding Swap: 131064k swap-space (priority -3)
+Adding Swap: 1048568k swap-space (priority -4)
+
+(The "tainted" is bogus because of openafs, for which I have source. 
+ I've tried it without openafs anyways)
+
+$ lsmod
+Module                  Size  Used by    Tainted: PF 
+sr_mod                 12304   0 (autoclean)
+openafs               403712   2
+pcmcia_core            39872   0
+serial                 50884   0 (autoclean)
+isa-pnp                28708   0 (autoclean) [serial]
+parport_pc             25288   1 (autoclean)
+lp                      6432   0 (autoclean)
+parport                25024   1 (autoclean) [parport_pc lp]
+mga_vid                 7800   0
+mga                    98104   3
+agpgart                16552   3
+ide-scsi                7632   0
+scsi_mod               51356   2 [sr_mod ide-scsi]
+pppoe                   6924   2
+pppox                   1128   1 [pppoe]
+ppp_generic            16416   3 [pppoe pppox]
+slhc                    4480   0 [ppp_generic]
+ne2k-pci                4800   1
+8390                    5968   0 [ne2k-pci]
+rtc                     5916   0 (autoclean)
 
 
+-- 
+greg
 

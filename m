@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262843AbUKXUj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUKXUo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262843AbUKXUj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 15:39:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbUKXUjL
+	id S262837AbUKXUo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 15:44:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbUKXUmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 15:39:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52623 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262850AbUKXUie (ORCPT
+	Wed, 24 Nov 2004 15:42:46 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:43479 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262848AbUKXUmJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 15:38:34 -0500
-Date: Wed, 24 Nov 2004 12:38:32 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: "Zou, Nanhai" <nanhai.zou@intel.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Chris Wright <chrisw@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       "Luck, Tony" <tony.luck@intel.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 1/2] setup_arg_pages can insert overlapping vma
-Message-ID: <20041124123829.U2357@build.pdx.osdl.net>
-References: <894E37DECA393E4D9374E0ACBBE7427013C9AB@pdsmsx402.ccr.corp.intel.com>
+	Wed, 24 Nov 2004 15:42:09 -0500
+Date: Wed, 24 Nov 2004 14:41:38 -0600
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: "Christopher S. Aker" <caker@theshore.net>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>, axboe@suse.de
+Subject: Re: 2.6.10-rc2-bk7 - kernel BUG at fs/sysfs/file.c:87!
+Message-ID: <20041124204138.GA2543@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <002c01c4d25b$3e8b9b10$0201a8c0@hawk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <894E37DECA393E4D9374E0ACBBE7427013C9AB@pdsmsx402.ccr.corp.intel.com>; from nanhai.zou@intel.com on Wed, Nov 24, 2004 at 09:04:28AM +0800
+In-Reply-To: <002c01c4d25b$3e8b9b10$0201a8c0@hawk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zou, Nanhai (nanhai.zou@intel.com) wrote:
->  <<ia64-vm-overlap.tar.gz>>  <<vma-overlap-fix.patch>> I think ia64 ia32
-> subsystem is not vulnerable to this kind of overlapping vm problem,
-> because it does not support a.out binary format, 
-
-I am able to map a section over the arg pages, and for some reason this
-case segfaults (in the application).  Disassembly shows garbage left
-behind in that page.  AFAICT, this can only cause the app to segfault in
-userspace.
-
-> X84_64 is vulnerable to this. 
+On Wed, Nov 24, 2004 at 07:26:43PM +0000, Christopher S. Aker wrote:
+> Doing "cat /sys/block/sda/queue/iosched/show_status" produces the following BUG:
 > 
-> just do a 
-> perl -e'print"\x07\x01".("\x00"x10)."\x00\xe0\xff\xff".("\x00"x16)'>
-> evilaout
-> you will get it.
->  
-> and IA64 is also vulnerable to this kind of bug in 64 bit elf support,
-> it just insert a vma of zero page without checking overlap, so user can
-> construct a elf with section begin from 0x0 to trigger this BUGON().I
-> attach a testcase to trigger this bug
+> ------------[ cut here ]------------
+> kernel BUG at fs/sysfs/file.c:87!
 
-Yes, I was able to reproduce a similar bug last night on ia64 by placing
-a 1k section at 0x1000, and this patch indeed fixes it up.
+I think you are using cfq io scheduler. show_status is from cfq_ioched. Looks 
+like return value freom cfq_status_show() is going beyond one page. 
+read/write buffer for sysfs text attribute files is limited to one page. 
 
-> I don't know what about s390. However, I think it's safe to check
-> overlap before we actually insert a vma into vma list.
->  
-> And I also feel check vma overlap everywhere is unnecessary, because
-> invert_vm_struct will check it again, so the check is duplicated. It's
-> better to have invert_vm_struct return a value then let caller check if
-> it successes.
+Maneesh
 
-Yes I agree.  That's the question I asked early on.  With no answer I
-took defensive route to be sure the BUG() wasn't there for some valid
-reason I was missing.  This looks better.
 
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Maneesh Soni
+Linux Technology Center, 
+IBM Austin
+email: maneesh@in.ibm.com
+Phone: 1-512-838-1896 Fax: 
+T/L : 6781896

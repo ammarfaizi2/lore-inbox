@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317012AbSHTMrM>; Tue, 20 Aug 2002 08:47:12 -0400
+	id <S317023AbSHTMvh>; Tue, 20 Aug 2002 08:51:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317017AbSHTMrM>; Tue, 20 Aug 2002 08:47:12 -0400
-Received: from p50839280.dip.t-dialin.net ([80.131.146.128]:40711 "EHLO
-	calista.inka.de") by vger.kernel.org with ESMTP id <S317012AbSHTMrL>;
-	Tue, 20 Aug 2002 08:47:11 -0400
-Date: Tue, 20 Aug 2002 14:51:27 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-Message-ID: <20020820125127.GA13017@lina.inka.de>
-References: <Pine.LNX.4.44.0208172104420.21581-100000@twinlark.arctic.org> <E17gKXF-0008Ax-00@sites.inka.de> <20020818114858.A13115@linux-mips.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020818114858.A13115@linux-mips.org>
-User-Agent: Mutt/1.4i
-From: Bernd Eckenfels <ecki@lina.inka.de>
+	id <S317056AbSHTMvg>; Tue, 20 Aug 2002 08:51:36 -0400
+Received: from pD9E23620.dip.t-dialin.net ([217.226.54.32]:14982 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317023AbSHTMvf>; Tue, 20 Aug 2002 08:51:35 -0400
+Date: Tue, 20 Aug 2002 06:55:35 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>
+Subject: Re: [BUG] 2.5.30 swaps with no swap device mounted!!
+In-Reply-To: <20020819105520.GK18350@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0208200655040.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 18, 2002 at 11:48:58AM +0200, Ralf Baechle wrote:
-> On Sun, Aug 18, 2002 at 09:31:41AM +0200, Bernd Eckenfels wrote:
-> 
-> > dean gaudet <dean-list-linux-kernel@arctic.org> wrote:
-> > > many southbridges come with audio these days ... isn't it possible to get
-> > > randomness off the adc even without anything connected to it?
-> > 
-> > they also come with RNGs.
-> 
-> I know of one soundcard RND that is simply implemented as a small
-> mask programmed ROM full of random numbers.  That's good enough for
-> audio purposes but doesn't even qualify for /dev/urandom's use ...
+Hi,
 
-I am taking about southbridges with random sources, not about soundchips :)
+On Mon, 19 Aug 2002, William Lee Irwin III wrote:
+> Due to the natural slab shootdown laziness issues, I turned off swap.
+> The kernel reported that it had successfully unmounted the swap device,
+> and for several days ran without it. Tonight, it went 91MB into swap
+> on the supposedly unmounted swap device!
 
-They can be used to contribute some bits to the entropy pool. I dont think
-they are the only source one should trust. But the specs say that they are
-no PNRG, and I havent heared about too disasterous results from statistical
-tests. So they are better than ethernet drivers, anyway.
+It might be interesting to see what happens if you unplug the swap device 
+after umounting.
 
-Greetings
-Bernd
+			Thunder
 -- 
-  (OO)      -- Bernd_Eckenfels@Wendelinusstrasse39.76646Bruchsal.de --
- ( .. )  ecki@{inka.de,linux.de,debian.org} http://home.pages.de/~eckes/
-  o--o     *plush*  2048/93600EFD  eckes@irc  +497257930613  BE5-RIPE
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

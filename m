@@ -1,88 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbTD2BFD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 21:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbTD2BFD
+	id S261446AbTD2Bq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 21:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbTD2Bq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 21:05:03 -0400
-Received: from adsl-68-74-104-142.dsl.klmzmi.ameritech.net ([68.74.104.142]:33547
-	"EHLO tabriel.tabris.net") by vger.kernel.org with ESMTP
-	id S261428AbTD2BFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 21:05:01 -0400
-From: Tabris <tabris@sbcglobal.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21-rc1-ac2 Promise IDE DMA won't work
-Date: Mon, 28 Apr 2003 21:12:46 -0400
-User-Agent: KMail/1.5
-Cc: alan@lxorguk.ukuu.org.uk
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Apr 2003 21:46:29 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:167 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S261446AbTD2Bq2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 21:46:28 -0400
+Date: Mon, 28 Apr 2003 18:58:41 -0700
+To: Pavel Machek <pavel@ucw.cz>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-rc1 compile failure [toshoboe]
+Message-ID: <20030429015841.GA17454@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304282112.47061.tabris@sbcglobal.net>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I looked thru marc's archives, and i'm not finding anything specific to 
-this problem, tho I do believe it is probably a known issue.
+Pavel Machek wrote :
+> I get compile failure for 2.4.21-rc1:
+> 
+> "in irda_device_init: undefined reference to toshoboe_init".
 
-ASUS A7v266-E
-PDC20265
-LITE-ON LTR-32123S
+	Non-modular IrDA is not supported in 2.4.X and is known to be
+broken in various way (see bottom of my web page). This was fixed in
+2.5.24, but won't be fixed in the 2.4.X serie. However, I always
+accept trivial patches...
+	Have fun...
 
-only device on the Promise IDE is the cd-rw drive. have four hard drives 
-on the VIA IDE.
-
-running kernel 2.4.21-rc1-ac2 + preempt + rmap15g + i2c-sensors
-
-burning now works using cdrecord ATAPI (previous was 2.4.21-pre5-ac3 
-where the ide-scsi was too unstable)
-
-at present, reading the cd drive takes 80+% of CPU system time...
-
-I would like to be able to enable DMA. i tried doing it manually with 
-hdparm. enabling 32-bit IO or enabling DMA would both make it just not 
-work.
-[root@tabriel root]# hdparm /dev/hdg
-
-/dev/hdg:
- HDIO_GET_MULTCOUNT failed: Invalid argument
- IO_support   =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  0 (off)
- keepsettings =  0 (off)
- readonly     =  1 (on)
- readahead    =  8 (on)
- HDIO_GETGEO failed: Invalid argument
-[root@tabriel root]#
-[root@tabriel root]# hdparm -I /dev/hdg
-
-/dev/hdg:
-
-ATAPI CD-ROM, with removable media
-        Model Number:       LITE-ON LTR-32123S
-        Serial Number:
-        Firmware Revision:  XS0R
-Standards:
-        Used: ATAPI for CD-ROMs, SFF-8020i, r2.5
-        Supported: CD-ROM ATAPI-2
-Configuration:
-        DRQ response: 50us.
-        Packet size: 12 bytes
-Capabilities:
-        LBA, IORDY(cannot be disabled)
-        DMA: *mdma0 mdma1 mdma2 udma0 udma1 udma2
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4
-             Cycle time: no flow control=227ns  IORDY flow control=120ns
-[root@tabriel root]#
-
-
-any more info needed, just ask. any help much appreciated.
-
-
--- 
-"Ignorance is the soil in which belief in miracles grows."
--- Robert G. Ingersoll
+	Jean
 

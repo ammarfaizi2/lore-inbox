@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264843AbRFYGeI>; Mon, 25 Jun 2001 02:34:08 -0400
+	id <S263703AbRFYGxo>; Mon, 25 Jun 2001 02:53:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbRFYGd6>; Mon, 25 Jun 2001 02:33:58 -0400
-Received: from [209.250.58.187] ([209.250.58.187]:31754 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S264843AbRFYGdx>; Mon, 25 Jun 2001 02:33:53 -0400
-Date: Mon, 25 Jun 2001 01:32:41 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: Andy Ward <andyw@edafio.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: VIA Southbridge bug (Was: Crash on boot (2.4.5))
-Message-ID: <20010625013241.A23425@hapablap.dyn.dhs.org>
-In-Reply-To: <3BDF3E4668AD0D49A7B0E3003B294282BC94@etmain.edafio.com>
+	id <S264424AbRFYGxe>; Mon, 25 Jun 2001 02:53:34 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:25605 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S263703AbRFYGxa>;
+	Mon, 25 Jun 2001 02:53:30 -0400
+Date: Mon, 25 Jun 2001 10:53:26 +0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] i810-tco bugfix
+Message-ID: <20010625105326.A1792@orbita1.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BDF3E4668AD0D49A7B0E3003B294282BC94@etmain.edafio.com>; from andyw@edafio.com on Mon, Jun 25, 2001 at 01:17:57AM -0500
-X-Uptime: 1:28am  up 2 days, 10 min,  1 user,  load average: 1.74, 1.64, 1.51
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Y7xTucakfITjPcLV"
+User-Agent: Mutt/1.0.1i
+X-Uptime: 10:19am  up 25 days, 18:02,  2 users,  load average: 0.08, 0.06, 0.01
+X-Uname: Linux orbita1.ru 2.2.20pre2 
+From: <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Great, glad to here it.  Who (if anyone) is still attempting to unravel
-the puzzle of the Via southbridge bug?  You, Andy, should try and get in
-touch with them and help debug this thing, if you're up to it.
 
-On Mon, Jun 25, 2001 at 01:17:57AM -0500, Andy Ward wrote:
-> Well, I have tried your suggestion, and it works beautifully...  The
-> only change I made was to the cpu type (to 686), and everything *just*
-> works now...  Thanks, all!!!
-> 
-> > From the look of things, you're being bitten by the VIA southbridge
-> > problem.  As I've gathered, its some sort of interaction with that chip
-> > and the 3DNow! fast copy routines the kernel uses.
-> > 
-> > If you compile the kernel for a 686, does the problem go away?  What
-> > about 586 or lower?  If so, I believe there are some people working on
-> > finding common aspects of the hardware that experience this problem,
-> > though I don't remember who.  You should get in contact with them, or
-> > they might get into contact with you.
-> > 
-> > Good luck on working this out.
-> > -- 
-> > -Steven
-> > In a time of universal deceit, telling the truth is a revolutionary act.
-> > 			-- George Orwell
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+--Y7xTucakfITjPcLV
+Content-Type: multipart/mixed; boundary="ibTvN161/egqYuK8"
+
+
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+Hi all,
+
+this small patch fixes stupid bug in i810 TCO watchdog driver.
+This bug was created by me (ugh) along with i815/i8[2456]0 support.
+
+Best regards.
+
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-i810tco-bugfix
+Content-Transfer-Encoding: quoted-printable
+
+diff -ur -X /usr/dontdiff /linux.vanilla/drivers/char/i810-tco.c /linux/dri=
+vers/char/i810-tco.c
+--- /linux.vanilla/drivers/char/i810-tco.c	Mon Jun 25 23:45:39 2001
++++ /linux/drivers/char/i810-tco.c	Tue Jun 26 00:19:14 2001
+@@ -261,12 +261,11 @@
+ 	 */
+=20
+ 	pci_for_each_dev(dev) {
+-		i810tco_pci =3D pci_match_device(i810tco_pci_tbl, dev);
+-		if (i810tco_pci !=3D NULL)
++		if (pci_match_device(i810tco_pci_tbl, dev))
+ 			break;
+ 	}
+=20
+-	if (i810tco_pci) {
++	if ((i810tco_pci =3D dev)) {
+ 		/*
+ 		 *      Find the ACPI base I/O address which is the base
+ 		 *      for the TCO registers (TCOBASE=3DACPIBASE + 0x60)
+
+--ibTvN161/egqYuK8--
+
+--Y7xTucakfITjPcLV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7Nt/mBm4rlNOo3YgRAiYfAJ9mSc84Ho7esLbxmWkgBznIcgtETQCghiq/
+/cTs+g5PFtV8KX0+SruMqxY=
+=C0cd
+-----END PGP SIGNATURE-----
+
+--Y7xTucakfITjPcLV--

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264908AbTBAQSu>; Sat, 1 Feb 2003 11:18:50 -0500
+	id <S264931AbTBAQgK>; Sat, 1 Feb 2003 11:36:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264910AbTBAQSu>; Sat, 1 Feb 2003 11:18:50 -0500
-Received: from rivmkt61.wintek.com ([206.230.0.61]:640 "EHLO
-	dust.rivmkt61.wintek.com") by vger.kernel.org with ESMTP
-	id <S264908AbTBAQSu>; Sat, 1 Feb 2003 11:18:50 -0500
-Date: Sat, 1 Feb 2003 11:27:13 +0000 (UTC)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Chris Bradford <lkml-read@khat-fox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Current Status of Module Utilities for 2.5 Kernels?
-In-Reply-To: <Pine.LNX.4.52.0301312304210.22442@furcntrl.khat-fox.com>
-Message-ID: <Pine.LNX.4.53.0302011125280.1531@dust.rivmkt61.wintek.com>
-References: <Pine.LNX.4.52.0301312304210.22442@furcntrl.khat-fox.com>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264936AbTBAQgK>; Sat, 1 Feb 2003 11:36:10 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:10213 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264931AbTBAQgJ>;
+	Sat, 1 Feb 2003 11:36:09 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 1 Feb 2003 17:45:29 +0100 (MET)
+Message-Id: <UTC200302011645.h11GjTX02579.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, kaos@ocs.com.au
+Subject: Re: system call documentation
+Cc: a.gruenbacher@computer.org, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Jan 2003, Chris Bradford wrote:
+    From kaos@ocs.com.au  Sat Feb  1 14:22:31 2003
 
-> I'm using Slackware 9.0 beta as my distribution, which uses gcc 3.2.1 as
-> its C compiler.  My problems started when I noted that kernel 2.4 is not
-> compilable by gcc v3.x.  I upgraded to linux 2.5.59, which does work with
-> gcc 3.x.  My upgrade produced another hitch, I was unable to use modules.
-> My video card, which uses an nVidia TNT2, is of limited usefulness without
-> the ability to load modules.
-> 
-> Is there a work-around for my problems?
+    >Preparing the next man page release, I compared the list of
+    >system calls for i386 in 2.4.20 with the list of documented
+    >system calls. It looks like
+    >
+    >fgetxattr,
+    > ...
+    >are undocumented so far.
 
-A quick google, or look around an lkml archive would net you this handy 
-site: www.minion.de
+    *xattr* man pages are in the XFS tree and Andreas Gruenbacher's site,
+    contents forwarded under separate copy.
 
--- 
-Alex Goddard
-agoddard@purdue.edu
+    getxattr.2:    getxattr, lgetxattr, fgetxattr2
+    listxattr.2:    listxattr, llistxattr, flistxattr
+    removexattr.2:    removexattr, lremovexattr, fremovexattr
+    setxattr.2:    setxattr, lsetxattr, fsetxattr
+
+Good. Thanks!
+
+However,
+
+.\" (C) Andreas Gruenbacher, February 2001
+.\" (C) Silicon Graphics Inc, September 2001
+
+there is no indication that redistribution (of possibly modified
+copies) is permitted.
+
+Andries
+
+

@@ -1,84 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130063AbRAKKXZ>; Thu, 11 Jan 2001 05:23:25 -0500
+	id <S130763AbRAKKYY>; Thu, 11 Jan 2001 05:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130670AbRAKKXP>; Thu, 11 Jan 2001 05:23:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56326 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130063AbRAKKXJ>;
-	Thu, 11 Jan 2001 05:23:09 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101110734.f0B7Y1x01512@flint.arm.linux.org.uk>
-Subject: Re: Compatibility issue with 2.2.19pre7
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Thu, 11 Jan 2001 07:34:01 +0000 (GMT)
-Cc: mantel@suse.de (Hubert Mantel),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <20010111005924.L29093@athlon.random> from "Andrea Arcangeli" at Jan 11, 2001 12:59:24 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130767AbRAKKYO>; Thu, 11 Jan 2001 05:24:14 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:41487 "EHLO
+	enterprise.cistron.net") by vger.kernel.org with ESMTP
+	id <S130763AbRAKKYI>; Thu, 11 Jan 2001 05:24:08 -0500
+From: dth@lin-gen.com (Danny ter Haar)
+Subject: Re: Drivers under 2.4
+Date: Thu, 11 Jan 2001 10:24:01 +0000 (UTC)
+Organization: Linux Generation bv
+Message-ID: <93k1k0$87v$1@voyager.cistron.net>
+In-Reply-To: <20010110223836.A7321@gruyere.muc.suse.de> <Pine.LNX.4.30.0101110003020.30013-100000@prime.sun.ac.za>
+Reply-To: dth@lin-gen.com
+X-Trace: voyager.cistron.net 979208641 8447 195.64.80.162 (11 Jan 2001 10:24:01 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli writes:
-> However I'd _love_ to see the EIP where you get the fault, I currently don't
-> see the line of code that is crashing your ARM and I know this code doesn't
-> segfault on ARM.
+Hans Grobler  <grobh@sun.ac.za> wrote:
+>The softnet changes are most likely the primary source of breakage (for
+>network drivers).
 
-Examine nlm_lookup_file() and the usage of fh->fh_dev and fh->fh_ino.
-What happens is that in that dprintk fh_dev and fh_ino contain garbage
-and as such, the nlm_lookup_file fails (since it doesn't refer to a valid
-device and inode pair).  Therefore locking does not work.
+I happen to have a multimedia box from siemens/fujitsu with a 
+cyrix processor, chipset and amd/lance ethernet chipset onboard.
+It' working fine with 2.2.x but not with 2.4.x kernels with 
+the same driver version of the pcnet32 networkdriver.
 
-Note: I've never said that it crashes.  I've only said that NFS locking
-does not work.
+2.4.0-ac4
 
-> > And yes, APIs shouldn't break in a major kernel release.  Its a shame some
-> > API broke in 2.2.18.
-> 
-> What broke in 2.2.18?
+Jan  9 17:09:53 multimedia kernel: Linux version 2.4.0-ac4 (root@ws1) (gcc version 2.95.3 20001229 (prerelease)) #2 Tue Jan 9 16:22:08 CET 2001
+Jan  9 17:09:53 multimedia kernel: PCI: Found IRQ 9 for device 00:0f.0
+Jan  9 17:09:53 multimedia kernel: eth0: PCnet/FAST III 79C973 at 0xfce0, 00 00 e2 24 41 1d
+Jan  9 17:09:53 multimedia kernel: pcnet32: pcnet32_private lp=c3c80000 lp_dma_addr=0x3c80000 assigned IRQ 9.
+Jan  9 17:09:53 multimedia kernel: pcnet32.c:v1.25kf 26.9.1999 tsbogend@alpha.franken.de
 
-The API changed:
 
- struct nfs_mount_data {
-        int             version;                /* 1 */
-        int             fd;                     /* 1 */
--       struct nfs_fh   root;                   /* 1 */
-+       struct nfs2_fh  old_root;               /* 1 */
-        int             flags;                  /* 1 */
-        int             rsize;                  /* 1 */
-        int             wsize;                  /* 1 */
-@@ -35,6 +42,7 @@
-        char            hostname[256];          /* 1 */
-        int             namlen;                 /* 2 */
-        unsigned int    bsize;                  /* 3 */
-+       struct nfs_fh   root;                   /* 4 */
- };
+and 2.2.19pre7
 
-which then caused this breakage.  Therefore, I still propose my original
-patch as a bug fix against something that appears to be brand new in
-design.
+Jan 10 20:46:15 multimedia kernel: Linux version 2.2.19pre7 (root@multimedia) (gcc version 2.95.3 20001229 (prerelease)) #2 Wed Jan 10 20:13:57 CET 2001
+Jan 10 20:46:15 multimedia kernel: pcnet32.c: PCI bios is present, checking for devices...
+Jan 10 20:46:15 multimedia kernel: Found PCnet/PCI at 0xfce0, irq 9.
+Jan 10 20:46:15 multimedia kernel: eth0: PCnet/FAST III 79C973 at 0xfce0, 00 00 e2 24 41 1d assigned IRQ 9.
+Jan 10 20:46:15 multimedia kernel: pcnet32.c:v1.25kf 26.9.1999 tsbogend@alpha.franken.de
 
-Anyway, changing it back will break the API on ARM, so either way API
-breakage WILL happen at some point.  The real question is which is better:
+Version number of the driver is the same but it doesn't work.
 
-1. Yucky code in the NFS layers to copy a nfs_fh from userspace to kernel
-   space, translating it into something sane.
-2. Yucky code in the NFS layers to manually handle the nfs_fh to knfs_fh
-   translation.
-3. Accept the breakage of a *brand new* API in 2.2.18 and suffer zero
-   yucky code.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Any thoughts anyone ?
+
+Danny
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

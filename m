@@ -1,89 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266320AbSLIW7S>; Mon, 9 Dec 2002 17:59:18 -0500
+	id <S266259AbSLIWzS>; Mon, 9 Dec 2002 17:55:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266323AbSLIW7S>; Mon, 9 Dec 2002 17:59:18 -0500
-Received: from ext-nj2gw-2.online-age.net ([216.35.73.164]:2237 "EHLO
-	ext-nj2gw-2.online-age.net") by vger.kernel.org with ESMTP
-	id <S266320AbSLIW7Q>; Mon, 9 Dec 2002 17:59:16 -0500
-Message-ID: <A9713061F01AD411B0F700D0B746CA68048955F6@vacho6misge.cho.ge.com>
-From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
-To: "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Subject: [RFC] countdown timer driver
-Date: Mon, 9 Dec 2002 18:06:02 -0500 
+	id <S266295AbSLIWzS>; Mon, 9 Dec 2002 17:55:18 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:2944 "EHLO
+	bilbo.tmr.com") by vger.kernel.org with ESMTP id <S266259AbSLIWzQ>;
+	Mon, 9 Dec 2002 17:55:16 -0500
+Date: Mon, 9 Dec 2002 18:02:56 -0500 (EST)
+From: tmrbilldavidsen <root@tmr.com>
+Reply-To: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] ctxbench kernel.org 2.5.50
+Message-ID: <Pine.LNX.4.44.0212091758280.1420-200000@bilbo.tmr.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810548-1952715543-1039474976=:1420"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Hello all,
+---1463810548-1952715543-1039474976=:1420
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-I am implementing a driver for a set of hardware countdown timers and I have
-a few questions as to how this device's interface should be approached.
+Runs were smp kernel, smp kernel with nospm option, uni kernel. Uni was 
+much faster, smp results varied highly.
 
-Background on the device:
-Actually, there are several implementations of this hardware that I must
-support, but here are the basics that they all have in common.
+I tried more runs and longer runs with the SMP kernel, results (single 
+user mode) still vary a lot.
 
-The device contains several countdown timers. A count is loaded into the
-device,
-the timer is enabled, the timer counts down to 0 at which point it fires an
-interrupt, reloads the counter to the original value, and so on....
-
-To be clear, this device differs from the rtc device in the following ways:
-1. RTC tracks date/time of day. The countdown timer device is not aware of
-   date/time.
-2. There are multiple countdown timers.
-3. Each countdown timer may/may not have programmable clock rates and the
-   rates available vary from device to device. Some have software selectable
-   rates and others have rates selectable by jumpers.
-4. Countdown timers don't have update or alarm interrupt modes.
-5. One may still want to use /dev/rtc alongside the countdown timers.
-
-Questions:
-1. Is there already a standard kernel interface to this type of timer?
-2. Is there any reason to interface/integrate this type of device with the
-   high-res timer stuff currently under development for the 2.5 kernel?
-
-Assuming there is not a standard and this device should be handled separate
-from the high-res timer/posix timer stuff I am proposing this interface:
-
-Goals:
-1. Hide the complexity of each device (counter sizes, clock rates, etc...)
-   so the user has a simple and consistent interface regardless of the
-   particular hardware implementation.
-2. Programmable to nanosecond resolution (limited by the resolution of the
-   individual devices of course).
-3. Ability to set a timeout value of reasonable magnitude. I.e. programming
-   a device using a 32-bit int value corresponding to number of nanoseconds
-   is not a sufficiently large timeout value.
+-- 
+bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
+  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
+since using 2.5 kernels includes a lot of things jumping out of dark
+corners to scare you.
 
 
-The driver registers /dev/timer0, /dev/timer1, etc... for each timer device.
-Obviously a major number would need to be assigned to the /dev/timer device.
+---1463810548-1952715543-1039474976=:1420
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="y.tmp"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0212091802560.1420@bilbo.tmr.com>
+Content-Description: kernel.org 2.5.50
+Content-Disposition: attachment; filename="y.tmp"
 
-The following ioctls would exist:
-#define TIMER_LOAD_COUNT           _IOW('t', 1, struct timespec)
-#define TIMER_GET_COUNT            _IOR('t', 2, struct timespec)
-#define TIMER_START                _IO('t', 3)
-#define TIMER_STOP                 _IO('t', 4)
-
-A read blocks until an interrupt occurs unless interrupts are already
-pending. The read returns number of interrupts since the last read so
-pileups can be
-detected. Select would also be implemented.
-
-
-An alternative approach would be this:
-Writing a value in the form of struct timespec loads and starts the counter.
-Writing a struct timespec with a value of 0 stops the timer.
-A read returns struct timespec with the current timer value.
-Interrupts are received using the select function. The driver would respond
-to
-the select with POLLPRI when the count had expired.
-
-
-Comments?
+DQoNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT0NCiAgICBSdW4gaW5mb3JtYXRpb24N
+Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT0NCg0KUnVuOiAyLjUuNTBub3NtcC1ibA0K
+ICBDUFVfTUh6ICAgICAgICAgICAgICA0OTguMDQ5DQogIENQVXR5cGUgICAg
+ICAgICAgICAgIENlbGVyb24gKE1lbmRvY2lubykNCiAgSG9zdE5hbWUgICAg
+ICAgICAgICAgYmlsYm8udG1yLmNvbQ0KICBLZXJuZWxOYW1lICAgICAgICAg
+ICAyLjUuNTBzbXANCiAgTmNwdSAgICAgICAgICAgICAgICAgMQ0KUnVuOiAy
+LjUuNTBzbXAtYmwNCiAgQ1BVX01IeiAgICAgICAgICAgICAgNDk3Ljg5OA0K
+ICBDUFV0eXBlICAgICAgICAgICAgICBDZWxlcm9uIChNZW5kb2Npbm8pDQog
+IEhvc3ROYW1lICAgICAgICAgICAgIGJpbGJvLnRtci5jb20NCiAgS2VybmVs
+TmFtZSAgICAgICAgICAgMi41LjUwc21wDQogIE5jcHUgICAgICAgICAgICAg
+ICAgIDINClJ1bjogMi41LjUwdW5pLWJsDQogIENQVV9NSHogICAgICAgICAg
+ICAgIDQ5Ny45NTMNCiAgQ1BVdHlwZSAgICAgICAgICAgICAgQ2VsZXJvbiAo
+TWVuZG9jaW5vKQ0KICBIb3N0TmFtZSAgICAgICAgICAgICBiaWxiby50bXIu
+Y29tDQogIEtlcm5lbE5hbWUgICAgICAgICAgIDIuNS41MA0KICBOY3B1ICAg
+ICAgICAgICAgICAgICAxDQoNCg0KPT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KICAg
+IFJlc3VsdHMgYnkgSVBDIHR5cGUNCj09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCg0K
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsb29wcy9zZWMN
+ClNJR1VTUjEgICAgICAgICAgICAgICAgICAgICBsb3cgICAgICAgaGlnaCAg
+ICBhdmVyYWdlDQogIDIuNS41MG5vc21wLWJsICAgICAgICAgIDUxNjc1ICAg
+ICAgNTY0MDMgICAgICA1NDgxOA0KICAyLjUuNTBzbXAtYmwgICAgICAgICAg
+ICAgODg0MSAgICAgIDU1NTM0ICAgICAgMzg2MzINCiAgMi41LjUwdW5pLWJs
+ICAgICAgICAgICAgNjYzNzQgICAgICA2NjUzNiAgICAgIDY2NDM0DQoNCiAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbG9vcHMvc2VjDQpt
+ZXNzYWdlIHF1ZXVlICAgICAgICAgICAgICAgbG93ICAgICAgIGhpZ2ggICAg
+YXZlcmFnZQ0KICAyLjUuNTBub3NtcC1ibCAgICAgICAgIDEwNDk2NSAgICAg
+MTA1MjYxICAgICAxMDUxMDUNCiAgMi41LjUwc21wLWJsICAgICAgICAgICAg
+NDYxODQgICAgIDEwNDY0MCAgICAgIDcxOTI1DQogIDIuNS41MHVuaS1ibCAg
+ICAgICAgICAgMTIxMzgzICAgICAxMjIzNTcgICAgIDEyMTg1MQ0KDQogICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxvb3BzL3NlYw0KcGlw
+ZXMgICAgICAgICAgICAgICAgICAgICAgIGxvdyAgICAgICBoaWdoICAgIGF2
+ZXJhZ2UNCiAgMi41LjUwbm9zbXAtYmwgICAgICAgICAgODEyMTEgICAgICA4
+MTUyOSAgICAgIDgxNDExDQogIDIuNS41MHNtcC1ibCAgICAgICAgICAgIDQy
+NTczICAgICAgNzA5MTAgICAgICA1NjkwMA0KICAyLjUuNTB1bmktYmwgICAg
+ICAgICAgIDEyNzkxMCAgICAgMTI5NjY5ICAgICAxMjg2MDMNCg0KICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsb29wcy9zZWMNCnNlbWlw
+aG9yZSAgICAgICAgICAgICAgICAgICBsb3cgICAgICAgaGlnaCAgICBhdmVy
+YWdlDQogIDIuNS41MG5vc21wLWJsICAgICAgICAgMTEwNTgyICAgICAxMTIw
+NDQgICAgIDExMTQ1MA0KICAyLjUuNTBzbXAtYmwgICAgICAgICAgICA1NDA4
+NSAgICAgIDc4NzQyICAgICAgNjM2NTQNCiAgMi41LjUwdW5pLWJsICAgICAg
+ICAgICAxMzE0MjUgICAgIDEzMjI3NCAgICAgMTMxNzk0DQoNCiAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgbG9vcHMvc2VjDQpzcGluK3lp
+ZWxkICAgICAgICAgICAgICAgICAgbG93ICAgICAgIGhpZ2ggICAgYXZlcmFn
+ZQ0KICAyLjUuNTBub3NtcC1ibCAgICAgICAgIDI1MjA1NSAgICAgMjUyNTI5
+ICAgICAyNTIzNjENCiAgMi41LjUwc21wLWJsICAgICAgICAgICAyNDQxNDYg
+ICAgIDM0NDU5MiAgICAgMjc5MDIyDQogIDIuNS41MHVuaS1ibCAgICAgICAg
+ICAgMzIyNzQyICAgICAzMjUxMDAgICAgIDMyMzU5NA0KDQogICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIGxvb3BzL3NlYw0Kc3BpbmxvY2sg
+ICAgICAgICAgICAgICAgICAgIGxvdyAgICAgICBoaWdoICAgIGF2ZXJhZ2UN
+CiAgMi41LjUwbm9zbXAtYmwgICAgICAgICAgICAgIDMgICAgICAgICAgMyAg
+ICAgICAgICAzDQogIDIuNS41MHNtcC1ibCAgICAgICAgICAxMTk0Nzg1ICAg
+IDExOTQ4ODIgICAgMTE5NDg0MQ0KICAyLjUuNTB1bmktYmwgICAgICAgICAg
+ICAgICAgMyAgICAgICAgICAzICAgICAgICAgIDMNCg0K
+---1463810548-1952715543-1039474976=:1420--

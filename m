@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264276AbTFINUo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 09:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264277AbTFINUo
+	id S264324AbTFINXh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 09:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264281AbTFINXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 09:20:44 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:8190 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264276AbTFINUn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 09:20:43 -0400
-Date: Mon, 9 Jun 2003 15:34:19 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Completely disable AT/PS2 keyboard support in 2.4?
-In-Reply-To: <1055156075.3824.7.camel@paragon.slim>
-Message-ID: <Pine.GSO.4.21.0306091529480.1347-100000@vervain.sonytel.be>
+	Mon, 9 Jun 2003 09:23:37 -0400
+Received: from smtp6.wanadoo.fr ([193.252.22.28]:50612 "EHLO
+	mwinf0304.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S264324AbTFINXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 09:23:36 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: chas williams <chas@cmf.nrl.navy.mil>,
+       Werner Almesberger <wa@almesberger.net>
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2)
+Date: Mon, 9 Jun 2003 15:37:13 +0200
+User-Agent: KMail/1.5.9
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <200306070350.h573oIsG004491@ginger.cmf.nrl.navy.mil>
+In-Reply-To: <200306070350.h573oIsG004491@ginger.cmf.nrl.navy.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200306091537.13345.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Jun 2003, Jurgen Kramer wrote:
-> Is it possible to completely disable AT/PS2 keyboard support
-> in 2.4 or is this still needed when I only use a USB keyboard?
-> 
-> I am currently getting dozens of keyboard messages:
-> 
-> keyboard.c: can't emulate rawmode for keycode 272
-> keyboard.c: can't emulate rawmode for keycode 272
-> keyboard.c: can't emulate rawmode for keycode 272
-> keyboard.c: can't emulate rawmode for keycode 272
-> keyboard.c: can't emulate rawmode for keycode 272
-> keyboard.c: can't emulate rawmode for keycode 272
-> keyboard.c: can't emulate rawmode for keycode 272
-> keyboard.c: can't emulate rawmode for keycode 272
-> 
-> I am not sure if the comes from the USB keyboard or from
-> the non-connected PS2 port.
+> btw, you might get async device 'releases' more often than
+> you would like.  some atm devices are usb and could be
+> unplugged during operation (yes, that's really bad but it
+> would be wise to be prepared for this.)  i actually have
+> a cardbus atm interface.  i might eject it accidentally.
 
-In 2.4.x, the input layer converts input events to PC/AT scancodes, and still
-relies on the PS/2 low-level keyboard driver scancode conversion to interprete
-them. This means you must include the PS/2 low-level keyboard driver. If you
-don't, you may get strange results, especially on architectures where you have
-a different low-level keyboard driver.
+Right.  In the speedtouch (USB ATM DSL modem) driver, when the
+device is unplugged I would have liked to be able to say to the
+ATM layer: I've gone, don't call me any more.  But since there
+is no way to do this, instead I do:
 
-BTW, I guess your arrow keys are not working?
+- refuse to open any more vccs; fail all attempts to send packets
+- call shutdown_atm_dev.  This means that when the last vcc is
+closed, atm_dev_close will be called in my driver.
+- really shutdown in atm_dev_close
 
-Gr{oetje,eeting}s,
+In practice that means that the vcc remains open until pppd realises
+that the connection has gone down (no more echo requests getting
+through, for example).  Maybe I should push a NULL skb down into
+each vcc to get it to close?
 
-						Geert
+Another thing: if the modem is plugged in again, and pppd relaunched,
+it would be nice if connections that were open when the modem was
+unplugged automagically recovered.  Is that possible?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Ciao,
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Duncan.

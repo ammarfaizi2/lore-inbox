@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266048AbUHARYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266065AbUHAR0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266048AbUHARYR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 13:24:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266065AbUHARYR
+	id S266065AbUHAR0o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 13:26:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbUHAR0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 13:24:17 -0400
-Received: from quechua.inka.de ([193.197.184.2]:6573 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S266048AbUHARYP (ORCPT
+	Sun, 1 Aug 2004 13:26:44 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:47784 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S266075AbUHAR0F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 13:24:15 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: secure computing for 2.6.7
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <20040801155128.GG6295@dualathlon.random>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BrK4C-0006d2-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sun, 01 Aug 2004 19:24:12 +0200
+	Sun, 1 Aug 2004 13:26:05 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: "Aneesh Kumar K.V" <aneesh.kumar@hp.com>
+Subject: Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
+Date: Sun, 1 Aug 2004 13:23:01 -0400
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       opendlm-devel@lists.sourceforge.net,
+       opengfs-users@lists.sourceforge.net,
+       opengfs-devel@lists.sourceforge.net, linux-cluster@redhat.com
+References: <410B80BC.4060100@hp.com>
+In-Reply-To: <410B80BC.4060100@hp.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408011323.02478.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040801155128.GG6295@dualathlon.random> you wrote:
->> where this has applied fix 3501 in the 2.6 branch and 123 according to
->> vendor MM, so you do not need to understand vendors XXX schema. However I am
-> 
-> if all vendors uses different numbers (i.e. vendor MM.123) then I can as
-> well build the ugly database in function of the `uname -r`
-> vendorization, building a database of uname -r or a database of
-> MM/linux-26/whatever isn't going to be any different.
+On Saturday 31 July 2004 07:21, Aneesh Kumar K.V wrote:
+> 10. DLM
+>    * is integrated with CLMS and is HA
 
-This is not about different vendors certifying the same level. Mainstream
-software will always require a general fix-level, however internal software
-may require some other hardening/configuration. Distributions and even end
-users could use that string to certify "this build is compliant to
-requirement level 123"
+As briefly mentioned at last week's cluster summit, we'd like to try to 
+integrate the Red Hat (nee Sistina) GDLM, want to give it a try?
 
-But I agree, it might be overkill for the utsname, however I feel leaving
-that out of a secure level syscall may be underkill .)
+"One DLM to rule them all, one DLM to mind them, one DLM to sync them all, and 
+in the cluster, bind them"
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Regards,
+
+Daniel

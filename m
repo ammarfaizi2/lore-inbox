@@ -1,117 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261296AbSJHPaN>; Tue, 8 Oct 2002 11:30:13 -0400
+	id <S261228AbSJHPj3>; Tue, 8 Oct 2002 11:39:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261298AbSJHPaN>; Tue, 8 Oct 2002 11:30:13 -0400
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:9114 "HELO
-	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id <S261296AbSJHPaJ>; Tue, 8 Oct 2002 11:30:09 -0400
-From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-To: "'Ofer Raz'" <oraz@checkpoint.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.9/2.4.18 max kernel allocation size
-Date: Tue, 8 Oct 2002 10:35:35 -0500
-Message-ID: <008b01c26ee0$5ee52380$9d893841@joe>
+	id <S261246AbSJHPj3>; Tue, 8 Oct 2002 11:39:29 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:33728 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261228AbSJHPj3>; Tue, 8 Oct 2002 11:39:29 -0400
+Date: Tue, 08 Oct 2002 08:42:45 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@digeo.com>
+Subject: might_sleep warning in both 41 and 41-mm1
+Message-ID: <1455194388.1034066565@[10.10.2.3]>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <027801c26ede$0f37deb0$8b705a3e@checkpoint.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I might be thinking of something totally different than what you're
-talking about, but here it goes:
+This one still happens in both 41 and 41-mm1. I'd mentioned
+it before, and was told it was fixed in a later kernel, but
+still seems to be there.
 
-Change line 18 of mmzone.h from:
-	#define MAX_ORDER 10
-	to
-	#define MAX_ORDER 24
-
-This allows larger contiguous chunks of memory to be allocated, up to
-32GB.
-
-I'd be very appreciative if you could send me back whatever statistics
-you get as a result of this change.  (To be honest, I'm not a good
-kernel hacker, and I wanted to gather statistics on this for some time
-but don't know how.)
-
-Thanks in advance.
-
-Joseph Wagner
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Ofer Raz
-Sent: Tuesday, October 08, 2002 10:19 AM
-To: linux-kernel@vger.kernel.org
-Subject: FW: 2.4.9/2.4.18 max kernel allocation size
-
-
-
------Original Message-----
-From: Ofer Raz [mailto:oraz@checkpoint.com]
-Sent: Tuesday, October 08, 2002 2:19 PM
-To: 'linux-kernel-owner@vger.kernel.org'
-Subject: 2.4.9/2.4.18 max kernel allocation size
-
-
-I'm trying to obtain the largest kernel allocation possible using
-vmalloc.
-
-I have tested both Linux 2.4.9-7 and 2.4.18-10 max kernel allocation
-using
-vmalloc on Intel platform with different physical memory configurations.
->From my experience, playing with the Virtual/Physical memory split
-issues
-different results (which makes sense)
-
-Following are the results on 2.4.9-7 when the 4GB highmem config option
-is
-set:
-
-Config Option	Physical Memory	Max Allocation
-CONFIG_1GB		512MB			400
-			1024MB		900
-			1536MB		1400
-			2048MB		981
-
-CONFIG_2GB		512MB			400
-			1024MB		900
-			1536MB		461
-			2048MB		VFS Panic on boot
-
-CONFIG_3GB		512MB			400
-			1024MB		85
-			1536MB		VFS Panic on boot
-			2048MB		VFS Panic on boot
-
-Please note that CONFIG_3GB is the default and results 85MB max
-allocation
-for 1GB machine.
-
-For my surprise, I have discovered that the
-CONFIG_1GB/CONFIG_2GB/CONFIG_3GB
-configuration options were removed from 2.4.18-10, it seems that the
-kernel
-is set for the CONFIG_3GB option (by looking at the PAGE_OFFSET mask
-(0xc0000000)).
-
-Any idea how can I make the kernel allocation on 2.4.18-10 larger than
-85MB
-on 1GB machine?
-
-Cheers,
-	Ofer
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Debug: sleeping function called from illegal context at mm/page_alloc.c:512
+Call Trace:
+ [<c0115fb3>] __might_sleep+0x43/0x47
+ [<c0134efc>] __alloc_pages+0x24/0x260
+ [<c0112638>] pte_alloc_one+0x38/0xfc
+ [<c01279cd>] pte_alloc_map+0x2d/0x1b0
+ [<c012f6cc>] move_one_page+0x11c/0x2d8
+ [<c012f794>] move_one_page+0x1e4/0x2d8
+ [<c012f8b7>] move_page_tables+0x2f/0x74
+ [<c012fe4d>] do_mremap+0x551/0x6dc
+ [<c013002b>] sys_mremap+0x53/0x74
+ [<c0106ff7>] syscall_call+0x7/0xb
 

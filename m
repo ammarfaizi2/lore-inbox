@@ -1,144 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVAYLaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVAYLf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbVAYLaq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 06:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVAYL3h
+	id S261899AbVAYLf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 06:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVAYLfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 06:29:37 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:52486 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261900AbVAYL15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 06:27:57 -0500
-Date: Tue, 25 Jan 2005 12:27:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: [2.6 patch] drivers/video/i810/: make some code static
-Message-ID: <20050125112754.GF30909@stusta.de>
+	Tue, 25 Jan 2005 06:35:32 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:52872 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261899AbVAYLcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 06:32:08 -0500
+Date: Tue, 25 Jan 2005 12:31:59 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Florian Lohoff <flo@rfc822.org>
+Cc: linux-kernel@vger.kernel.org, shemminger@osdl.org
+Subject: Re: kernel BUG at fs/sysfs/symlink.c:87
+Message-ID: <20050125113159.GG29797@wohnheim.fh-wedel.de>
+References: <20050124155100.GA2583@paradigm.rfc822.org> <20050124170445.GB4556@paradigm.rfc822.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050124170445.GB4556@paradigm.rfc822.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+On Mon, 24 January 2005 18:04:45 +0100, Florian Lohoff wrote:
+> On Mon, Jan 24, 2005 at 04:51:00PM +0100, Florian Lohoff wrote:
+> > Hi,
+> > while using the bridging code between a tap0 and a real eth1 i got this:
+> > 
+> > Linux zmgr1.wstk.mediaways.net 2.6.10-zmgr-p3cel #1 Mon Jan 24 16:15:39 CET 2005 i686 GNU/Linux
+> > 
+> > UP, P3 Celeron, Non-Preempt, Vanilla Kernel
+> 
+> brctl addbr br0
+> brctl addif br0 tap0
+> brctl addif br0 eth0
+> ifconfig br0 up
+> 
+> Oops
+> 
+> In this order it works
+> 
+> brctl addbr br0
+> ifconfig br0 up
+> brctl addif br0 tap0
+> brctl addif br0 eth0
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Doesn't look too complicated, but I'm not familiar enough with the
+bridge code.  Setting Stephen on CC:, he should know a lot better.
 
----
+Jörn
 
- drivers/video/i810/i810_gtf.c  |   12 ++++++------
- drivers/video/i810/i810_main.c |   12 +++++++-----
- 2 files changed, 13 insertions(+), 11 deletions(-)
-
-This patch was already sent on:
-- 21 Nov 2004
-
---- linux-2.6.10-rc2-mm2-full/drivers/video/i810/i810_gtf.c.old	2004-11-21 15:13:59.000000000 +0100
-+++ linux-2.6.10-rc2-mm2-full/drivers/video/i810/i810_gtf.c	2004-11-21 15:15:02.000000000 +0100
-@@ -26,7 +26,7 @@
-    u32  wm;
- };
- 
--struct wm_info i810_wm_8_100[] = {
-+static struct wm_info i810_wm_8_100[] = {
- 	{ 15, 0x0070c000 },  { 19, 0x0070c000 },  { 25, 0x22003000 },
- 	{ 28, 0x22003000 },  { 31, 0x22003000 },  { 36, 0x22007000 },
- 	{ 40, 0x22007000 },  { 45, 0x22007000 },  { 49, 0x22008000 },
-@@ -40,7 +40,7 @@
- 	{ 218, 0x2220f000 }, { 229, 0x22210000 }, { 234, 0x22210000 }, 
- };
- 
--struct wm_info i810_wm_16_100[] = {
-+static struct wm_info i810_wm_16_100[] = {
- 	{ 15, 0x0070c000 },  { 19, 0x0020c000 },  { 25, 0x22006000 },
- 	{ 28, 0x22006000 },  { 31, 0x22007000 },  { 36, 0x22007000 },
- 	{ 40, 0x22007000 },  { 45, 0x22007000 },  { 49, 0x22009000 },
-@@ -54,7 +54,7 @@
- 	{ 218, 0x22416000 }, { 229, 0x22416000 },
- };
- 
--struct wm_info i810_wm_24_100[] = {
-+static struct wm_info i810_wm_24_100[] = {
- 	{ 15, 0x0020c000 },  { 19, 0x0040c000 },  { 25, 0x22009000 },
- 	{ 28, 0x22009000 },  { 31, 0x2200a000 },  { 36, 0x2210c000 },
- 	{ 40, 0x2210c000 },  { 45, 0x2210c000 },  { 49, 0x22111000 },
-@@ -67,7 +67,7 @@
- 	{ 195, 0x44419000 }, { 202, 0x44419000 }, { 204, 0x44419000 },
- };
- 
--struct wm_info i810_wm_8_133[] = {
-+static struct wm_info i810_wm_8_133[] = {
- 	{ 15, 0x0070c000 },  { 19, 0x0070c000 },  { 25, 0x22003000 },
- 	{ 28, 0x22003000 },  { 31, 0x22003000 },  { 36, 0x22007000 },
- 	{ 40, 0x22007000 },  { 45, 0x22007000 },  { 49, 0x22008000 },
-@@ -81,7 +81,7 @@
- 	{ 218, 0x2220f000 }, { 229, 0x22210000 }, { 234, 0x22210000 }, 
- };
- 
--struct wm_info i810_wm_16_133[] = {
-+static struct wm_info i810_wm_16_133[] = {
- 	{ 15, 0x0020c000 },  { 19, 0x0020c000 },  { 25, 0x22006000 },
- 	{ 28, 0x22006000 },  { 31, 0x22007000 },  { 36, 0x22007000 },
- 	{ 40, 0x22007000 },  { 45, 0x22007000 },  { 49, 0x22009000 },
-@@ -95,7 +95,7 @@
- 	{ 218, 0x22416000 }, { 229, 0x22416000 },
- };
- 
--struct wm_info i810_wm_24_133[] = {
-+static struct wm_info i810_wm_24_133[] = {
- 	{ 15, 0x0020c000 },  { 19, 0x00408000 },  { 25, 0x22009000 },
- 	{ 28, 0x22009000 },  { 31, 0x2200a000 },  { 36, 0x2210c000 },
- 	{ 40, 0x2210c000 },  { 45, 0x2210c000 },  { 49, 0x22111000 },
---- linux-2.6.10-rc2-mm2-full/drivers/video/i810/i810_main.c.old	2004-11-21 15:15:22.000000000 +0100
-+++ linux-2.6.10-rc2-mm2-full/drivers/video/i810/i810_main.c	2004-11-21 15:16:57.000000000 +0100
-@@ -635,7 +635,7 @@
-  * DESCRIPTION:
-  * Calculates buffer pitch in bytes.  
-  */
--u32 get_line_length(struct i810fb_par *par, int xres_virtual, int bpp)
-+static u32 get_line_length(struct i810fb_par *par, int xres_virtual, int bpp)
- {
-    	u32 length;
- 	
-@@ -724,7 +724,7 @@
-  * Description:
-  * Shows or hides the hardware cursor
-  */
--void i810_enable_cursor(u8 __iomem *mmio, int mode)
-+static void i810_enable_cursor(u8 __iomem *mmio, int mode)
- {
- 	u32 temp;
- 	
-@@ -1804,8 +1804,9 @@
- 
- 	return 0;
- }
--	
--int __init i810fb_setup(char *options)
-+
-+#ifndef MODULE
-+static int __init i810fb_setup(char *options)
- {
- 	char *this_opt, *suffix = NULL;
- 
-@@ -1850,6 +1851,7 @@
- 	}
- 	return 0;
- }
-+#endif
- 
- static int __devinit i810fb_init_pci (struct pci_dev *dev, 
- 				   const struct pci_device_id *entry)
-@@ -1976,7 +1978,7 @@
- }                                                	
- 
- #ifndef MODULE
--int __init i810fb_init(void)
-+static int __init i810fb_init(void)
- {
- 	char *option = NULL;
- 
-
+-- 
+When you close your hand, you own nothing. When you open it up, you
+own the whole world.
+-- Li Mu Bai in Tiger & Dragon

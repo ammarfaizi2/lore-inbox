@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVCAGm2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVCAGxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261272AbVCAGm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 01:42:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVCAGm1
+	id S261262AbVCAGxk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 01:53:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVCAGxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 01:42:27 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:39907 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261263AbVCAGmB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 01:42:01 -0500
-Message-ID: <42240EB3.6040504@andrew.cmu.edu>
-Date: Tue, 01 Mar 2005 01:41:55 -0500
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gerd Knorr <kraxel@bytesex.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Potentially dead bttv cards from 2.6.10
-References: <422001CD.7020806@andrew.cmu.edu> <20050228134410.GA7499@bytesex>	<42232DFC.6090000@andrew.cmu.edu> <87mzto3c78.fsf@bytesex.org>
-In-Reply-To: <87mzto3c78.fsf@bytesex.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Mar 2005 01:53:40 -0500
+Received: from users.linvision.com ([62.58.92.114]:15814 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S261262AbVCAGxi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 01:53:38 -0500
+Date: Tue, 1 Mar 2005 07:53:36 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] partitions/msdos.c
+Message-ID: <20050301065336.GA1567@bitwizard.nl>
+References: <20050226213459.GA21137@apps.cwi.nl> <16928.62091.346922.744462@hertz.ikp.physik.tu-darmstadt.de> <Pine.LNX.4.58.0502261424430.25732@ppc970.osdl.org> <20050226225203.GA25217@apps.cwi.nl> <Pine.LNX.4.58.0502261510030.25732@ppc970.osdl.org> <20050226234053.GA14236@apps.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050226234053.GA14236@apps.cwi.nl>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the hints.  Unfortunately the cards in question really are 
-fairly generic and thus don't appear in the list.  I tried the first 75 
-cards as insmod options (using a script of course), and some of them are 
-different, but none work properly.
+On Sun, Feb 27, 2005 at 12:40:53AM +0100, Andries Brouwer wrote:
+> (Concerning the "size" version: it occurred to me that there is one
+> very minor objection: For extended partitions so far the size did
+> not normally play a role. Only the starting sector was significant.
+> If, at some moment we decide also to check the size, then a weaker
+> check, namely only checking for non-extended partitions, might be
+> better at first.)
 
-I am lucky in that I still have a spare.  If you could suggest a very 
-well tested kernel for bttv (2.6.9?), I can set up another machine with 
-that kernel and the remaining card.  That should allow me to isolate the 
-problem better.  At the very least  I could get the right card= option 
-to use for the broken pair.  Hopefully I will be able to generate a 
-table entry for this card for bttv-cards.c;  I'll look some more at this 
-tomorrow.
+I recently encountered a disk that had clipping enabled. If you go
+for the size implementation be careful that people can still run a 
+program to unclip the disk after the disk has been detected and the
+partition rejected.... 
 
-I've heard that there is some way to dump eeproms; Is there a way to 
-write them also?  If I could copy the eeprom from the unused cards to 
-the (now broken) pair that might fix things.
+	Roger. 
 
-Thanks,
-   Jim
-
-Gerd Knorr wrote:
-> James Bruce <bruce@andrew.cmu.edu> writes:
-> 
->>Well, are there any theories as to why it would work flawlessly, then
->>after a hard lockup (due to what I think is a buggy V4L2 application),
->>that the cards no longer work?
-> 
-> No idea why the eeprom doesn't respond any more.  Maybe it's really
-> broken.  Note that the eeprom is read only at insmod time (and even
-> that for some cards only), thus there isn't a clear connection between
-> the crash and the eeprom issue.  It could have died earlied unnoticed.
-> 
-> The eeprom holds the PCI Subsystem ID, so without a working eeprom
-> bttv can't figure automatically what exact card that is (see the
-> "unknown/default" card name in the log) and maybe thats why does not
-> work any more for the card in question.  Thats should be easily
-> fixable using the card= insmod option.
-> 
->   Gerd
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
+Does it sit on the couch all day? Is it unemployed? Please be specific! 
+Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ

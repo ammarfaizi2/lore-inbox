@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbTICILZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 04:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbTICIK2
+	id S261684AbTICIOX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 04:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbTICIOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 04:10:28 -0400
-Received: from mail3.bluewin.ch ([195.186.1.75]:47263 "EHLO mail3.bluewin.ch")
-	by vger.kernel.org with ESMTP id S261548AbTICIJe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 04:09:34 -0400
-Date: Wed, 3 Sep 2003 10:08:52 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: linux-kernel@vger.kernel.org
-Cc: acpi-devel@lists.sourceforge.net
-Subject: Where do I send APIC victims?
-Message-ID: <20030903080852.GA27649@k3.hellgate.ch>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	acpi-devel@lists.sourceforge.net
+	Wed, 3 Sep 2003 04:14:23 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:52718 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261686AbTICINs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 04:13:48 -0400
+Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx
+	doesn't work
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Damian Kolkowski <deimos@deimos.one.pl>
+Cc: Danny ter Haar <dth@ncc1701.cistron.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030903074902.GA1786@deimos.one.pl>
+References: <bj447c$el6$1@news.cistron.nl>
+	 <20030903074902.GA1786@deimos.one.pl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kdGl8FvSU92hyhZXTck1"
+Organization: Red Hat, Inc.
+Message-Id: <1062576819.5058.2.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.0-test4 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Wed, 03 Sep 2003 10:13:39 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As the maintainer of via-rhine, I get bug reports that almost in their
-entirety are "fixed" by turning off APIC and/or ACPI. This has been going
-on for several months now. Every now and then, something promising gets
-posted on LKML, but so far if anything I've seen an _increase_ in those bug
-reports. Maybe a fix is floating around and this will be a non-issue RSN. I
-simply can't tell, since I don't have any IO-APIC hardware to play with.
 
-Instead of just telling everybody to turn off APIC, I'd like to point bug
-reporters to the proper place and tell them what information they should
-provide so it can get fixed for real. According to MAINTAINERS, Ingo Molnar
-does Intel APIC, but the problems are with VIA chip sets. So where do I
-send my users? Any takers?
+--=-kdGl8FvSU92hyhZXTck1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Roger
+On Wed, 2003-09-03 at 09:49, Damian Kolkowski wrote:
+> On Wed, Sep 03, 2003 at 07:11:40AM +0000, Danny ter Haar wrote:
+> > vanilla 2.6.0-test4 & test4-mm[45] & the onboard ethernet doesn't seem =
+to work.
+> > No kernel panics, it just doesn't work :-(
+>=20
+> It's standard APIC bug that no one care!
+
+if you enable APIC (and not ACPI) then you start using a different BIOS
+table for IRQ routing. Several BIOSes have bugs in this table since it's
+not a table that is generally used by Windows on UP boxes. Saying that
+it's the kernel's fault is rather unfair; most (if not all) distros for
+example ship with APIC disabled for this reason. It's nice if it works
+for you but there's quite a few boxes out there that just can't work....
+Don't configure it if you have such a box.
+
+--=-kdGl8FvSU92hyhZXTck1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/VaKzxULwo51rQBIRAo/kAJ43wQSldpC1zZKifCvjdAiOs2PuxgCfc3P1
+xh6dv5HNhgnkNTG5oJrhJd4=
+=+8nm
+-----END PGP SIGNATURE-----
+
+--=-kdGl8FvSU92hyhZXTck1--

@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261513AbREYSpE>; Fri, 25 May 2001 14:45:04 -0400
+	id <S261627AbREYSrE>; Fri, 25 May 2001 14:47:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261519AbREYSoy>; Fri, 25 May 2001 14:44:54 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:1930 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S261513AbREYSon>; Fri, 25 May 2001 14:44:43 -0400
-Date: Fri, 25 May 2001 11:52:27 -0700 (PDT)
-From: Lance Larsh <llarsh@oracle.com>
-To: Heikki Tuuri <Heikki.Tuuri@innobase.inet.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Why O_SYNC and fsync are slow in Linux?
-In-Reply-To: <20010516183630.FZOA13813.fep07.tmt.tele.fi@omnibook>
-Message-ID: <Pine.LNX.4.21.0105251058060.1395-100000@llarsh-pc3.us.oracle.com>
+	id <S261519AbREYSqy>; Fri, 25 May 2001 14:46:54 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:26636 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S261616AbREYSqj>; Fri, 25 May 2001 14:46:39 -0400
+Date: Fri, 25 May 2001 11:46:38 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8 
+In-Reply-To: <1917.990805795@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.33.0105251145530.17081-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 May 2001, Heikki Tuuri wrote:
+On Sat, 26 May 2001, Keith Owens wrote:
 
-> On Red Hat 6.2 and 7.? Intel big block writes are very slow if
-> I open the file with O_SYNC. I call pwrite to write 1 MB chunks to
-> the file, and I get only 1 MB/s write speed. If I open without O_SYNC
-> and call fsync only after writing the whole 100 MB file,
-> I get 5 MB/s. I got the same adequate speed 5 MB/s with 16 MB writes
-> after which I called fdatasync.
+> On Fri, 25 May 2001 08:31:24 -0700 (PDT),
+> dean gaudet <dean-list-linux-kernel@arctic.org> wrote:
+> >another possibility for a debugging mode for the kernel would be to hack
+> >gcc to emit something like the following in the prologue of every function
+> >(after the frame is allocated):
+>
+> IKD already does that, via the CONFIG_DEBUG_KSTACK, CONFIG_KSTACK_METER
+> and CONFIG_KSTACK_THRESHOLD options.  No need to hack gcc.
 
-When you open with O_SYNC, the data must go all the way to disk on
-every write call.  This means you get at least one disk access for
-every write, and possibly more if the writes are large (>64k).
+oh nice!  you hook in through gcc -pg mcount stuff.
 
-When you don't use O_SYNC and only flush after all writes have been
-submitted by the application, then the kernel is able to combine writes
-in the cache and at the blk dev layer.  Therefore you end up with fewer
-accesses to the physical disk, which makes it much faster.
-
-> On a Linux-Compaq Alpha I measured the following: if I open with O_SYNC,
-> I can flush the end of my file (it is a log file) to
-> disk 170 times / second. If I do not open with O_SYNC,
-> but call fsync or fdatasync after each write, I get only 50
-> writes/second.
-
-This is generally the case.  If you need to sync every write, O_SYNC
-is usually faster than fsync.  If you don't need to sync
-every individual write, then a single fsync after the last
-write is the fastest to get all the data to disk.
-
-> 
-> On the Red Hat 7.? I get 500 writes per second if I open with O_SYNC.
-> That is too much because the disk does not rotate
-> 500 rotations/second. Does the disk fool the operating
-> system to believe a write has ended while it has not?
-
-Are you using an IDE disk?  If so, it probably has a huge cache.
-
--Lance
+-dean
 

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266991AbTAOUMn>; Wed, 15 Jan 2003 15:12:43 -0500
+	id <S267083AbTAOUOE>; Wed, 15 Jan 2003 15:14:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266996AbTAOUMn>; Wed, 15 Jan 2003 15:12:43 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:25353 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S266991AbTAOUMm>; Wed, 15 Jan 2003 15:12:42 -0500
-Date: Wed, 15 Jan 2003 20:21:34 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Marek Habersack <grendel@caudium.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS problems (hard lockup and oops on startup) with 2.5.5{6,7}
-Message-ID: <20030115202134.A25143@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Marek Habersack <grendel@caudium.net>, linux-kernel@vger.kernel.org
-References: <20030114175528.GA1213@thanes.org>
-Mime-Version: 1.0
+	id <S267098AbTAOUOE>; Wed, 15 Jan 2003 15:14:04 -0500
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:8201 "EHLO
+	daytona.compro.net") by vger.kernel.org with ESMTP
+	id <S267083AbTAOUOD>; Wed, 15 Jan 2003 15:14:03 -0500
+Message-ID: <3E25C3A0.6B8A4B43@compro.net>
+Date: Wed, 15 Jan 2003 15:25:04 -0500
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-ert i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+References: <1042661316.1743.71.camel@localhost>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030114175528.GA1213@thanes.org>; from grendel@caudium.net on Tue, Jan 14, 2003 at 06:55:28PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 14, 2003 at 06:55:28PM +0100, Marek Habersack wrote:
-> Hello,
+Thomas Hood wrote:
 > 
->   The kernel 2.5.56 seems to have changed something that affected the XFS
-> code as I'm getting hit by one (and possibly two) bugs related to it now.
-> What happens is that the machine suddenly freezes (running Debian/Sid -
-> XFree 4.2.1, glibc 2.3.1, gnome2 - nothing out of ordinary) so that SysRq
-> keys don't have any effect (but Numlock still toggles the led on the
-> keyboard), machine is inaccessible from the net and the only cure is hard
-> reboot. Nothing gets logged on the freeze and on reboot when XFS attempts to
-> check the first filesystem the kernel oopses with Oops code 0002, in the
-> interrupt handler. Nothing gets logged, of course, so I can't provide the
-> full backtrace right now - I'll try to get it logged through the serial console
-> if it happens again with 2.5.58. I have copied some values by hand from the
-> screen (until I lost patience... :)):
+> RMS: This battle is lost.  By continuing to complain
+> about the use of "Linux" you are not only wasting your
+> time; you are harming your reputation, too.  Why?
+> Because you are *wrong*, and yet you won't admit that you
+> are wrong, but continue to reiterate your wrong opinion.
+> This makes you sound like a fanatic.  Your stubbornness
+> has served you well in other causes (where you are closer
+> to the truth), but is hurting you here.
 > 
-> Unable to handle kernel paging request at virtual address 000500074
->  printing EIP
+> Let me explain how you are wrong.  You say things like:
+> 
+> > Calling the system "Linux" denies the GNU Project
+> > credit for the GNU operating system.
+> 
+> This is wrong.  The use of a proper name does not commit
+> the user to any particular characterization of what bears
+> that name.  I can use the name 'Linux' without in any way
+> committing myself to a denial of the role of GNU in Linux.
 
-Hmm, that's really no much info.  And there weren't any XFS changes from
-2.5.52 to 2.5.58..
+I even know people that call it Red-Hat and never even heard of Linux???
 
-
+Sorry I didn't mean to impolite and but it to this ttthhhrrreeeaaaaddd..........

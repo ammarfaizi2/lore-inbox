@@ -1,69 +1,150 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130441AbQKDEYE>; Fri, 3 Nov 2000 23:24:04 -0500
+	id <S132063AbQKDEZx>; Fri, 3 Nov 2000 23:25:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132063AbQKDEXx>; Fri, 3 Nov 2000 23:23:53 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:49551 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S130441AbQKDEXk>;
-	Fri, 3 Nov 2000 23:23:40 -0500
-Date: Fri, 3 Nov 2000 23:23:20 -0500
-Message-Id: <200011040423.XAA21508@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: george@moberg.com
-CC: Tim Hockin <thockin@isunix.it.ilstu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: george@moberg.com's message of Fri, 03 Nov 2000 14:44:17 -0500,
-	<3A031591.EA24ABFA@moberg.com>
-Subject: Re: Can EINTR be handled the way BSD handles it? -- a plea from a 
- user-land
-Phone: (781) 391-3464
+	id <S132400AbQKDEZn>; Fri, 3 Nov 2000 23:25:43 -0500
+Received: from f50.law7.hotmail.com ([216.33.237.50]:32007 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S132063AbQKDEZd>;
+	Fri, 3 Nov 2000 23:25:33 -0500
+X-Originating-IP: [24.221.113.251]
+From: "Bryan Sparks" <lizzardo99@hotmail.com>
+To: linux-kernel@vger.kernel.org, tim@rikers.org, bryan_sparks@lineo.com
+Subject: non-gcc linux?
+Date: Fri, 03 Nov 2000 21:25:23 MST
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F50AjSeCYQlWxgSnr530000a078@hotmail.com>
+X-OriginalArrivalTime: 04 Nov 2000 04:25:24.0048 (UTC) FILETIME=[40212500:01C04617]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Fri, 03 Nov 2000 14:44:17 -0500
-   From: george@moberg.com
+Let me see if I understand you correctly. Metrowerks (Motorola) makes a 
+twenty something million dollar investment in your little company, and as 
+part of the agreement (not to mention Metrowerk's sole motivation) you are 
+required to create a version of Linux that compiles under their ANSI c tool 
+chain. Furthermore, you are attempting to lobby the community into helping 
+your effort under the pretense that it is for the good of Linux? Survey 
+says...bzzzsst. Wrong answer Chuck, but for your consolation prize you get 
+your own non-standard, divergent Linux.
 
-   My problem is that pthread_create (glibc 2.1.3, kernel 2.2.17 i686) is
-   failing because, deep inside glibc somewhere, nanosleep() is returning
-   EINTR.
+Thanks for playing!
+Bryan
 
-Sounds like it might be a bug in pthread_create.... although that's not
-clear.  You haven't given enough information to be sure.
 
-   My code is not using signals.  The threading library is, and there is
-   obviously some subtle bug going on here.  Ever wonder why when browsing
-   with Netscape and you click on a link and it says "Interrupted system
-   call."?  This is it.  I'm arguing that the default behaviour should be
-   SA_RESTART, and if some programmer is so studly that they actually know
-   what the hell they are doing by disabling SA_RESTART, then they can do
-   it explicitly.
+Tim Riker wrote:
 
-Ok first of all, the behaviour of sigaction is specified by the POSIX
-standards.  To quote from the POSIX Rationale for section 3.3 (B.3.3):
+All,
 
-	"Unlike all previous historical implementations, 4.2 BSD
-	restarts some interrupted system calls rather than returning on
-	error with errno set to [EINTR] after the signal-catching
-	function returns.  THIS CHANGE CAUSED PROBLEMS FOR SOME
-	APPLICATION CODE.  (Emphasis mine.)  4.3 BSD and other systems
-	derived from 4.2BSD allow the application to choose whether
-	system calls are to be restarted.   POSIX.1 (in 3.3.4) does not
-	require restart of functions because it was not clear that the
-	semantics of system-call restart in any historical
-	implementation to be of value in a standard.  Implementors are
-	free to add such mechanisms as extensions."
+Alright, I've been lurking long enough on this thread. What say we
+consider the option of building the kernel with a compiler other than
+gcc? This would imply a slightly different structure to the makefiles
+and code.
 
-In Linux, we (well, actually I) added this extension as the SA_RESTART
-flag.  However, other parts of POSIX make it very clear that in absence
-of any extension such as SA_RESTART, "If the signal catching function
-executes a return, the behaviour of the interrupted function shall be as
-described individually for that function" (POSIX.1, 3.3.1.4).  And for
-most functions, it is specified that they return EINTR if they are
-interrupted by a signal.
+There are two immediate reasons I can come up with for this:
 
-So the answer is that if you want this behaviour, you have to call
-sigaction with the appropriate flags --- namely SA_RESTART.
+1. There are architectures where some other compiler may do better
+optimizations than gcc. I will cite some examples here, no need to argue
+out the point unless you disagree with the POSSIBILITY that this may be
+true on at least one architecture. Anyway, possibilities include
+Compaq's compiler on alpha, HP's compiler on hppa, Intel's compiler (or
+rather plugins to another vendors compiler) on ia64, Metrowerk's
+compiler on PPC, etc.
 
-					- Ted
+2. There are architectures where gcc is not yet available, but vendor C
+compilers are.
+
+I suggest that we avoid gcc extensions as much as possible, barring
+performance hits. When there is an ANSI way of doing things we should
+choose that route. Where there is not, then isolate the gcc way such
+that compiler vendors can either:
+
+1. implement the gcc way and conditional compile that code.
+
+2. implement some other way and easily add that conditional code.
+
+I've been looking into this here at Lineo for some of these vendors.
+Here is a brief list of things I've come across:
+
+1. C++ style comments
+
+Occurs in over 4000 lines of source and header files. :-( Should be
+converted to ansi c comments? We will probably want to just skirt this
+issue for now as the next rev of ANSI C is likely to include ANSI C++
+style comments.
+
+2. Inline assembly statements
+
+mostly in arch/ tree. Frequently used in macros as well. Much of this
+will incur performance penalties if moved to external assembly files.
+Some would require moving supported C code over as well. Hence many of
+these will probably translate into conditional compilation based on the
+compiler to avoid and performance hit for the mainstream case.
+
+3. Declaring attributes of functions
+
+The __attribute__ options: noreturn, const, format, section,
+constructor, destructor, unused, and weak. weak and section are needed.
+The rest can be ignored? These might want to be converted to #defines
+such that alternative compilers can implement them differently.
+
+4. Specifying attributes of variables
+
+The __attribute__ options: aligned, packed, section and weak. As above
+these will likely be #defines to handle different compiler syntax.
+
+5. Conditionals with omitted operands
+
+The missing operands should just be added into the mainstream source.
+
+6. Referring to a type with typeof
+
+no recommendation yet.
+
+7. Macros with variable numbers of arguments
+
+no recommendation yet.
+
+8. Inquiring on alignment of types or variables (__alignof__)
+
+no recommendation yet.
+
+Well, I got a bit more long winded than I planned, but there it is.
+Thoughts?
+
+"H. Peter Anvin" wrote:
+>
+>Followup to: <200011020011.QAA20585@pizda.ninka.net> By author: "David S. 
+>Miller" <davem@redhat.com> In newsgroup: linux.dev.kernel > > We already 
+>know we are a bunch of pinheads wrt. the userland compiler > issue, full 
+>stop. It need not be restated several hundred more times. > Believe me, 
+>after such a large fiasco, we have listened :-) > > But, on the other hand, 
+>to say that "kgcc" comceptually is something > only Red Hat has ever done 
+>is a factual error, that is all I am trying > to state, nothing more. >
+>
+>I think at least supporting a "kgcc" compiler makes sense, conceptually 
+>(although it probably should have been called "kcc", but it's too late 
+>now.)
+>
+>The kernel uses a lot of gcc extensions, and history shows that these 
+>extensions aren't as stable as the compiler system as a whole.
+>
+>-hpa
+
+--
+Tim Riker - http://rikers.org/ - short SIGs! <g>
+All I need to know I could have learned in Kindergarten
+... if I'd just been paying attention.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/
+
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
+
+Share information about yourself, create your own public profile at 
+http://profiles.msn.com.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

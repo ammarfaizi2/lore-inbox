@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313731AbSEARqC>; Wed, 1 May 2002 13:46:02 -0400
+	id <S313760AbSEAR6I>; Wed, 1 May 2002 13:58:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313743AbSEARqB>; Wed, 1 May 2002 13:46:01 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:51216 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S313731AbSEARqA>; Wed, 1 May 2002 13:46:00 -0400
-Date: Wed, 1 May 2002 19:44:59 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.enlightnet.local>
-To: "Scott A. Sibert" <kernel@hollins.edu>
-cc: <linux-kernel@vger.kernel.org>, vt <vt@vt.fermentas.lt>
-Subject: Re: 2.5.11 and smbfs
-In-Reply-To: <3CCEF32B.6060807@hollins.edu>
-Message-ID: <Pine.LNX.4.33.0205011842001.1885-100000@cola.enlightnet.local>
+	id <S313765AbSEAR6H>; Wed, 1 May 2002 13:58:07 -0400
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:19625 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S313760AbSEAR6F>; Wed, 1 May 2002 13:58:05 -0400
+Message-ID: <3CD02C60.3030004@wanadoo.fr>
+Date: Wed, 01 May 2002 19:56:48 +0200
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bob_Tracy <rct@gherkin.frus.com>
+CC: system_lists@nullzone.org, linux-kernel@vger.kernel.org
+Subject: Re: SEVERE Problems in 2.5.12 at uid0 access
+In-Reply-To: <m172xYI-0005khC@gherkin.frus.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Apr 2002, Scott A. Sibert wrote:
+Bob_Tracy wrote:
+> Confirmed on a 2.5.11 system as well.  Talk about your basic heart
+> attack!  I'd just installed Postfix and found that I couldn't access
+> any of the directories under /var/spool/postfix.  Fortunately (?),
+> I've got older kernels to fall back on, and that's one of the hazards
+> of running on the bleeding edge I reckon.
+> 
+> Oh yeah...  ext2 filesystem.  I think this bug is at least mostly
+> independent of the filesystem type.
 
-> I can mount other samba shares fine (ie. Samba-2.2.2 from OSX 10.1.4 and 
-> Samba-2.2.2 from Tru64 5.1) and the directories look fine.  When I mount 
-> a share from a Windows 2000 server I only get the first letter of the 
-> entry in the shared folder which, of course, makes no sense and 
-> generates errors when just trying to get an "ls" of the share.  The 
-> Win2K servers are both regular server and Adv Server, both with SP2 and 
-> the latest patches.  The linux machine is running RedHat 7.2 with almost 
-> all of the latest updates and 2.5.11 compiled.
+The same here with 2.5.12 and ext2, have you run fsck on this  fs ?
 
-The server is returning unicode filenames but smbfs isn't expecting them.
 
-You don't say which samba version your smbmount is from, but I'm guessing
-2.2.1/2.2.2. They always negotiate unicode support without knowing if
-smbfs supports it or not, which is a bug.
-
-With smbfs unicode support in 2.5 this started to matter for various
-reasons. I have thought about "autodetection" and maybe that will be
-necessary anyway.
-
-For now, upgrading samba to 2.2.3a should fix this. Let me know if it
-doesn't.
-
-/Urban
+Pierre
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
 

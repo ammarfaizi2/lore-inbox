@@ -1,161 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263637AbTFPKGO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 06:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTFPKGO
+	id S263638AbTFPKNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 06:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263643AbTFPKNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 06:06:14 -0400
-Received: from monaco.directrouter.com ([66.246.85.232]:9640 "EHLO
-	monaco.directrouter.com") by vger.kernel.org with ESMTP
-	id S263637AbTFPKGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 06:06:10 -0400
-From: Zoup <Zoup@zoup.org>
-Organization: Zoup.org
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.71 Frame Buffer Problem
-Date: Mon, 16 Jun 2003 23:49:57 +0430
-User-Agent: KMail/1.5
+	Mon, 16 Jun 2003 06:13:25 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:43533 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S263638AbTFPKNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 06:13:24 -0400
+Date: Mon, 16 Jun 2003 12:27:42 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: NeilBrown <neilb@cse.unsw.edu.au>, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, <akpm@zip.com.au>
+Subject: Re: [PATCH] Add module_kernel_thread for threads that live in modules.
+In-Reply-To: <20030616092316.3E31B2C013@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0306161145570.2079-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_dhh7+BuY4duiTZN"
-Message-Id: <200306162349.57606.Zoup@zoup.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - monaco.directrouter.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - zoup.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Jun 2003, Rusty Russell wrote:
 
---Boundary-00=_dhh7+BuY4duiTZN
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> > You mean your cleanup_thread would block for completion of the keventd 
+> > stuff? Ok, this would work. But then, when calling cleanup_thread, f.e. we 
+> > must not hold any semaphore which might be acquired by _any_ other work 
+> > scheduled for keventd or we might end in deadlock (like the rtnl+hotplug 
+> > issue we had seen recently).
+> 
+> I think we're talking across each other: take a look at the existing
+> kernel/kmod.c __call_usermodehelper to see how we wait at the moment.
 
-Hi :)
-I'm using Albatron Ti4200 graphic card and i can't get 
-frame buffer working on VGA 788 or 790 , 2.5.71 config file 
-attached . 
+Maybe talking across each other... what I meant is some deadlock like 
+this (IMHO possible both on UP and SMP):
 
--- 
-Wish You Were Here ...
---Boundary-00=_dhh7+BuY4duiTZN
-Content-Type: application/x-gzip;
-  name="config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="config.gz"
+rmmod (f.e.)			keventd			somewhere else
 
-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
+down(&some_sem)
+cleanup_thread()
+	.
+	.						schedule_work(w1)
+	.
+	.		w1 (queued, or maybe running):
+	.			down(&some_sem);
+	.			...
+	.			up(&some_sem);
+	.
+schedule_work(w2)
+	.
+	.		w2 (queued behind w1)
+	.			should_die = 1
+	.			sys_wait4()
+	.			complete(thread_exit)
+	.
+/* some_sem still hold */
+wait_for_completion(thread_exit)
 
---Boundary-00=_dhh7+BuY4duiTZN--
+
+Next time we schedule keventd w1 will be executed first which wants to 
+acquire some_sem which is still hold by the rmmod-thread - which in turn 
+blocks for completion of w2 which is queued behind w1 -> deadlock.
+
+The point is the queueing in keventd combined with stuff waiting for 
+keventd-completion could create some possibilities for lock order 
+violation which are at least not very obvious.
+
+IMHO cleanup_thread would be something one MUST NOT call with any lock 
+hold, not even a semaphore if it might get acquired anywhere else in 
+keventd-context.
+
+Thanks.
+Martin
 

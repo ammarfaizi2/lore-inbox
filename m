@@ -1,99 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbTKTSa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 13:30:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTKTSa1
+	id S262352AbTKTSnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 13:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbTKTSnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 13:30:27 -0500
-Received: from dsl254-027-160.sea1.dsl.speakeasy.net ([216.254.27.160]:25328
-	"EHLO mail.tranzoa.net") by vger.kernel.org with ESMTP
-	id S262788AbTKTSaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 13:30:25 -0500
-Date: Thu, 20 Nov 2003 10:30:22 -0800
-From: Scott Robinson <scott@tranzoa.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test4 sidewinder joystick
-Message-ID: <20031120183022.GA7602@tara.mvdomain>
+	Thu, 20 Nov 2003 13:43:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4250 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262352AbTKTSnX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 13:43:23 -0500
+Date: Thu, 20 Nov 2003 18:43:22 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH] sysfs_remove_dir Vs dcache_readdir race fix
+Message-ID: <20031120184322.GE24159@parcelfarce.linux.theplanet.co.uk>
+References: <20031120054707.GA1724@in.ibm.com> <20031120054957.GD24159@parcelfarce.linux.theplanet.co.uk> <20031120055655.GB1724@in.ibm.com> <20031120102525.GD1367@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Disclaimer: The contents of this e-mail, unless otherwise stated, are the property of David Ryland Scott Robinson. Copyright (C) 2003, All Rights Reserved.
-X-Operating-System: Linux tara 2.6.0-test4
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031120102525.GD1367@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 20, 2003 at 03:55:25PM +0530, Maneesh Soni wrote:
+> Actually race is not directly between dcache_readdir and sysfs_remove_dir but
+> it is like this
+> 
+> cpu 0						cpu 1
+> dcache_dir_open()
+> --> adds the cursor dentry
+> 
+> 					sysfs_remove_dir()
+> 					--> list_del_init cursor dentry
+> 
+> dcache_readdir()
+> --> loops forever on inititalized cursor dentry.
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes.  Thanks for spotting...
 
-This is a repeat bug report - originally to the input subsystem mailing list
-and the module maintainer. I received no response and no indication there
-was reception. I have updated the results for -test9. (the bug has existed
-through the entire -test series) This bug does not exist in the 2.4 series.
+> Though all these operations happen under parent's i_sem, but it is dropped 
+> between ->open() and ->readdir() as both are different calls. 
+> 
+> I think people will also agree that there is no need for sysfs_remove_dir() 
+> to modify d_subdirs list.
 
-I am using the 2.6.0-test9 kernel. I have loaded the
-joydev/emu10k1-gp/sidewinder modules. The sidewinder driver, however,
-appears to not work properly.
-
-I have a Sidewinder Gamepad connected. I have also tested with my old Gravis
-Gamepad. (analog)
-
-[joydev, emu10k1-gp, sidewinder results w/ sidewinder connected]
-
-Nov 20 10:22:38 tara kernel: gameport: pci0000:01:07.1 speed 828 kHz
-Nov 20 10:23:29 tara kernel: drivers/input/joystick/sidewinder.c: Init 0: O=
-pened pci0000:01:07.1/gameport0, io 0xd400, speed 828
-Nov 20 10:23:29 tara kernel: sidewinder.c: Read 0 triplets. []
-Nov 20 10:23:29 tara kernel: drivers/input/joystick/sidewinder.c: Init 1: M=
-ode 1. Length 0.
-Nov 20 10:23:29 tara kernel: sidewinder.c: Read 0 triplets. []
-Nov 20 10:23:29 tara kernel: drivers/input/joystick/sidewinder.c: Init 1b: =
-Length 0.
-
-joydev/devfs does not create /dev/js0 symlink.
-
-[joydev, emu10k1-gp, analog results w/ sidewinder connected]
-
-Nov 20 10:24:31 tara kernel: gameport: pci0000:01:07.1 speed 828 kHz
-Nov 20 10:24:33 tara kernel: input: Analog 4-axis 4-button joystick at pci0=
-000:01:07.1/gameport0 [TSC timer, 1446 MHz clock, 1239 ns res]
-
-joydev/devfs creates /dev/js0 symlink. jstest /dev/js0 is unresponsive.
-
-[joydev, emu10k1-gp, analog results w/ gravis connected]
-
-Nov 20 10:26:04 tara kernel: gameport: pci0000:01:07.1 speed 828 kHz
-Nov 20 10:26:06 tara kernel: input: Analog 2-axis 4-button joystick at pci0=
-000:01:07.1/gameport0 [TSC timer, 1446 MHz clock, 1250 ns res]
-
-joydev/devfs creates /dev/js0 symlink. jstest /dev/js0 is responsive.
-
-I am not subscribed to the linux-kernel mailing list. (Kernel Traffic is
-enough, thanks! :-D)
-
-Thank you, in advance, for any help you can provide.
-
-Scott.
-
---=20
-http://quadhome.com/            - Personal webpage
-http://tranzoa.net/             - Corporate webpage
-
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iEYEARECAAYFAj+9CD4ACgkQfOrjFoFaMKI45ACePIWa6qphchtaeuSBeIsih5Qz
-4JQAnR+knIVG9JR5al2Bn/yzm1jmXhx7
-=VC2N
------END PGP SIGNATURE-----
-
---Dxnq1zWXvFF0Q93v--
+Agreed.

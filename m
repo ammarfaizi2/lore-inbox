@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270933AbRHNXRH>; Tue, 14 Aug 2001 19:17:07 -0400
+	id <S270931AbRHNX3I>; Tue, 14 Aug 2001 19:29:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270931AbRHNXQ5>; Tue, 14 Aug 2001 19:16:57 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:4626 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S270934AbRHNXQk>; Tue, 14 Aug 2001 19:16:40 -0400
-Subject: Re: Report: Sony Handycam USB and Linux 2.4.9-pre2
-From: Richard Russon <ldm@flatcap.org>
-To: linux-usb-users@lists.sourceforge.net,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Klaus Mueller <klmuell@web.de>
-In-Reply-To: <200108142242.AAA22621@mailb.telia.com>
-In-Reply-To: <200108141108.f7EB8v612177@mailgate3.cinetic.de> 
-	<200108142242.AAA22621@mailb.telia.com>
-Content-Type: text/plain
+	id <S270936AbRHNX27>; Tue, 14 Aug 2001 19:28:59 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:41478 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S270931AbRHNX2x>; Tue, 14 Aug 2001 19:28:53 -0400
+Message-ID: <3B79B43D.B9350226@delusion.de>
+Date: Wed, 15 Aug 2001 01:29:01 +0200
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-ac5 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.8-ac5
+In-Reply-To: <20010814221556.A7704@lightning.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 15 Aug 2001 00:16:49 +0100
-Message-Id: <997831010.26092.81.camel@home.flatcap.org>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roger,
+Alan Cox wrote:
+> *
+> *       This is a fairly experimental -ac so please treat it with care
+> *
+> 
+> 2.4.8-ac5
 
-> 2.4.9-pre2
->  identifies the device correctly - no patch needed
->  (similar patch in unusual-devices)
->  but is not able to open it "unknown partition table" reported from
->  enabled LDM ... (I enabled it in an attempt to enable everything)
+Hi Alan,
 
-Afraid I can't help you, but I can probably rule out the LDM.
-It's failing when it tries to read a 1KB block from the very
-beginning of the device: "Unable to read partition table."
+2.4.8-ac5 makes the kpnpbios kernel thread go zombie here every time right
+during boot. I know that 2.4.8-ac1 didn't have this problem, but didn't try
+-ac2 to -ac4. If you want me to check which -ac release was the last that
+got it right, just say and I'll check.
 
-LDM complains because it's the first in line for checking
-partitions.  If you were to disable it, then msdos would complain
-(and give up), instead.
+Regards,
+Udo.
 
-FlatCap (Rich)
-ldm@flatcap.org
-
-
-
+bash-2.04# ps uxa
+USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+root         1 13.1  0.0   344  188 ?        S    01:21   0:05 init
+root         2  0.0  0.0     0    0 ?        Z    01:21   0:00 [kpnpbios <defunct>]
+root         3  0.0  0.0     0    0 ?        SW   01:21   0:00 [keventd]
+root         4  3.4  0.0     0    0 ?        SW   01:21   0:01 [kapm-idled]
+root         5  0.0  0.0     0    0 ?        SWN  01:21   0:00 [ksoftirqd_CPU0]
+root         6  0.0  0.0     0    0 ?        SW   01:21   0:00 [kswapd]
+root         7  0.0  0.0     0    0 ?        SW   01:21   0:00 [kreclaimd]
+root         8  0.0  0.0     0    0 ?        SW   01:21   0:00 [bdflush]
+root         9  0.0  0.0     0    0 ?        SW   01:21   0:00 [kupdated]
+root        11  0.0  0.0     0    0 ?        SW   01:21   0:00 [khubd]
+...

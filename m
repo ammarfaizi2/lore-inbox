@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314393AbSEFLsG>; Mon, 6 May 2002 07:48:06 -0400
+	id <S314396AbSEFL4T>; Mon, 6 May 2002 07:56:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314394AbSEFLsF>; Mon, 6 May 2002 07:48:05 -0400
-Received: from gate.perex.cz ([194.212.165.105]:35854 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S314393AbSEFLsE>;
-	Mon, 6 May 2002 07:48:04 -0400
-Date: Mon, 6 May 2002 13:46:57 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
+	id <S314398AbSEFL4S>; Mon, 6 May 2002 07:56:18 -0400
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:1700 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S314396AbSEFL4R>; Mon, 6 May 2002 07:56:17 -0400
+Message-ID: <3CD66E4C.1010305@linuxhq.com>
+Date: Mon, 06 May 2002 07:51:40 -0400
+From: John Weber <john.weber@linuxhq.com>
+Organization: Linux Headquarters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Christoph Hellwig <hch@infradead.org>
-cc: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
+CC: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
         lkml <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5.14 OSS emulation
-In-Reply-To: <20020506123035.A26941@infradead.org>
-Message-ID: <Pine.LNX.4.33.0205061346110.488-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <3CD665A0.2030508@wanadoo.fr> <20020506123035.A26941@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 May 2002, Christoph Hellwig wrote:
-
+Christoph Hellwig wrote:
 > On Mon, May 06, 2002 at 01:14:40PM +0200, Pierre Rousselet wrote:
-> >  From ChangeLog-2.5.14 :
-> > 
-> > <hch@infradead.org> (02/05/05 1.545)
-> > 	[PATCH] fix config.in syntax errors.
-> >         - sound uses a bool where it should use a dep_bool
-> > 
-> > This prevents using OSS emulation with ALSA drivers. What is the reason 
-> > behind ?
+> 
+>> From ChangeLog-2.5.14 :
+>>
+>><hch@infradead.org> (02/05/05 1.545)
+>>	[PATCH] fix config.in syntax errors.
+>>        - sound uses a bool where it should use a dep_bool
+>>
+>>This prevents using OSS emulation with ALSA drivers. What is the reason 
+>>behind ?
+> 
 > 
 > 2.4.13 used to do (in sound/core/Config.in):
 > 
@@ -44,17 +48,8 @@ On Mon, 6 May 2002, Christoph Hellwig wrote:
 > problems - I don't use ALSA and care only about the syntactical
 > correctness of that file.
 
-The correct fix should be:
 
-bool '  OSS API emulation' CONFIG_SND_OSSEMUL
-
-I'm sorry about that.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
+This is very true.  I've had trouble getting my YMFPCI sound to work 
+with ALSA probably for this reason: bad configs.  (After all, I was told 
+the YMFPCI code is the same for OSS and ALSA).
 

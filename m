@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264194AbTH1Trq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 15:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264221AbTH1Trq
+	id S264195AbTH1UGP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 16:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbTH1UGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 15:47:46 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:32979 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264194AbTH1Tro (ORCPT
+	Thu, 28 Aug 2003 16:06:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:53933 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264195AbTH1UGM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 15:47:44 -0400
-Date: Thu, 28 Aug 2003 21:47:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: David Nielsen <Lovechild@foolclan.com>
+	Thu, 28 Aug 2003 16:06:12 -0400
+Date: Thu, 28 Aug 2003 12:50:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: State of the CFQ scheduler
-Message-ID: <20030828194743.GH16684@suse.de>
-References: <1062078948.17363.4.camel@pilot.stavtrup-st.dk>
+Subject: Re: 2.6.0-testX and InnoDB (was: Re: 2.6.0-test2-mm3 and mysql)
+Message-Id: <20030828125010.7b45407d.akpm@osdl.org>
+In-Reply-To: <200308282015.15580.rathamahata@php4.ru>
+References: <1059871132.2302.33.camel@mars.goatskin.org>
+	<20030804000514.GY22824@waste.org>
+	<200308271952.29331.rathamahata@php4.ru>
+	<200308282015.15580.rathamahata@php4.ru>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1062078948.17363.4.camel@pilot.stavtrup-st.dk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 28 2003, David Nielsen wrote:
-> What ever happened to Jens Axboe's CFQ scheduler - as a regular users I
-> really enjoyed the CFQ scheduler as it made my desktop feel a bit
-> smoother. 
-> 
-> Is any work at all been done to this fine piece of code or has it been
-> dropped completely in favor of AS ?
+"Sergey S. Kostyliov" <rathamahata@php4.ru> wrote:
+>
+> And here is another one InnoDB crash I've just got with 2.6.0-test4.
 
-I'm glad you enjoyed it. No CFQ hasn't been dropped, it was/is just on
-hold waiting for the loadable scheduler infrastructure. The reason for
-that is that I made lots of changes to that code base, not the old one
-that was in -mm.
+Which filesystem?
 
-It shouldn't be too hard to adapt the latest version from before -mm
-dropped it and adapting to the current kernels. If you want to give that
-a go, I'd be happy to help you out.
+What sort of I/O system?
 
--- 
-Jens Axboe
+Please grab http://www.zip.com.au/~akpm/linux/patches/stuff/fsx-linux.c
+
+and run
+
+	./fsx-linux foo -s <physmem-in-bytes> foo
+
+on that machine for 12 hours or so.  Where <physmem-in-bytes> is (say)
+256000000 on a 256-MB machine.
+
+If the machine has more than a couple of gigabytes you'll need to run
+multiple instances, against different files.
+
+Make sure that a decent amount of I/O is happening during the run.
 

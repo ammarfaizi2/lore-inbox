@@ -1,94 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVCCL2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVCCL23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbVCCL2b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 06:28:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVCCLY5
+	id S261653AbVCCL23 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 06:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVCCLYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 06:24:57 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44191 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261632AbVCCLQB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 06:16:01 -0500
-Message-ID: <4226F1DE.6000900@pobox.com>
-Date: Thu, 03 Mar 2005 06:15:42 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Thu, 3 Mar 2005 06:24:07 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:28176 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261630AbVCCLTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 06:19:52 -0500
+Message-ID: <4226F38A.3090408@aitel.hist.no>
+Date: Thu, 03 Mar 2005 12:22:50 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Martin Waitz <tali@admingilde.org>
-CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Documentation update
-References: <20050303102852.GG8617@admingilde.org>
-In-Reply-To: <20050303102852.GG8617@admingilde.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Waitz wrote:
-> Hoi :)
-> 
-> I'm still working on fixing and updating the Linux DocBook
-> Documentation.  My tree currently consists of several fixes
-> to the Documentation generation, some additional kernel-doc
-> entries and a move from SGML to valid XML.
-> 
-> Please have a look at it and consider merging.
+Linus Torvalds wrote:
 
-
-Overall, looks pretty good.
-
-Comments:
-
-1) As the author of tulip-user and via-audio docbooks, I can say that 
-they are out of date and should be deleted.
-
-
-2) Very happy to see conversion to XML.
-
-
-3) In general, I'm happy that someone is giving the docbook docs some love.
-
-
-4) Occasionally code movement (not just comment updates) are required, 
-such as:
-
-> @@ -1248,6 +1249,9 @@
->         return retval;
->  }
+>In other words, we'd have an increasing level of instability with an odd 
+>release number, depending on how long-term the instability is.
+>
+> - 2.6.<even>: even at all levels, aim for having had minimally intrusive 
+>   patches leading up to it (timeframe: a week or two)
+>
+>with the odd numbers going like:
+>
+> - 2.6.<odd>: still a stable kernel, but accept bigger changes leading up 
+>   to it (timeframe: a month or two).
+> - 2.<odd>.x: aim for big changes that may destabilize the kernel for 
+>   several releases (timeframe: a year or two)
+> - <odd>.x.x: Linus went crazy, broke absolutely _everything_, and rewrote
+>   the kernel to be a microkernel using a special message-passing version 
+>   of Visual Basic. (timeframe: "we expect that he will be released from 
+>   the mental institution in a decade or two").
+>
 >  
-> +
-> +extern const char *global_mode_option;
-> +
->  /**
->   *     video_setup - process command line options
->   *     @options: string of options
-> @@ -1261,9 +1265,6 @@
->   *     Returns zero.
->   *
->   */
-> -
-> -extern const char *global_mode_option;
-> -
->  int __init video_setup(char *options)
->  {
->         int i, global = 0;
+>
+Fine with me - but I tend to run mm kernels anyway to get the "latest". :-)
 
-Although I do not NAK this change, I am curious if kernel-doc can be 
-fixed so that this sort of change is not necessary.
+Now, if this implies linux 3.0.0 won't ever happen, how about getting
+rid of the major number?  It serves no purpose if not used at all. (I don't
+consider the VB thing realistic . . .)
 
+Or, if you want to keep the major number for consistency with earlier
+kernels, consider:
+2.<even>  minimally intrusive patches
+2.<odd> big changes needing a month
+<odd>.x big changes that destabilize over several releases
+2.x.y takes the role 2.x.y.z has today.
 
-5) Although it is a pain to do this in BitKeeper, now that you've 
-checked everything in, it might be better to send the code changes via 
-the individual maintainers.
+Helge Hafting
 
-
-6) I would feel more comfortable if this spent some time in Andrew 
-Morton's -mm, before going upstream.
-
-Regards,
-
-	Jeff
-
-
+Helge Hafting

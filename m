@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319033AbSHFJkZ>; Tue, 6 Aug 2002 05:40:25 -0400
+	id <S319032AbSHFJkG>; Tue, 6 Aug 2002 05:40:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319034AbSHFJkZ>; Tue, 6 Aug 2002 05:40:25 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:62439 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S319033AbSHFJkX>;
-	Tue, 6 Aug 2002 05:40:23 -0400
-Message-ID: <3D4F9A19.5040100@colorfullife.com>
-Date: Tue, 06 Aug 2002 11:42:49 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL] Warn users about machines with non-working WP bit
-References: <3D4F942D.7020100@colorfullife.com> <20020806.022813.27560736.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319033AbSHFJkG>; Tue, 6 Aug 2002 05:40:06 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:27144 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S319032AbSHFJkG>; Tue, 6 Aug 2002 05:40:06 -0400
+Date: Tue, 6 Aug 2002 10:43:42 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: arnd@bergmann-dalldorf.de
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] 15/18 better pte invalidation
+Message-ID: <20020806104342.A16600@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	arnd@bergmann-dalldorf.de,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>
+References: <200208051830.50713.arndb@de.ibm.com> <200208051954.55546.arndb@de.ibm.com> <20020805180103.A16035@infradead.org> <200208061305.17296.arndb@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200208061305.17296.arndb@de.ibm.com>; from arndb@de.ibm.com on Tue, Aug 06, 2002 at 01:05:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+On Tue, Aug 06, 2002 at 01:05:17PM +0200, Arnd Bergmann wrote:
+> > Otherwise please try to get all this in 2.5 first, it's a major VM change.
+> Right. I guess this one falls more in the category "If anyone wants to build
+> an s390 2.4.19 kernel, use this patch, because it's what we have tested at 
+> IBM".
 
->   From: Manfred Spraul <manfred@colorfullife.com>
->   Date: Tue, 06 Aug 2002 11:17:33 +0200
->
->   > -		printk("No.\n");
->   > +		printk("No (that's security hole).\n");
->   >  #ifdef CONFIG_X86_WP_WORKS_OK
->   
->   Could you explain the hole?
->   WP works for user space apps, only ring0 (or ring 0-2?) code
->   ignores the WP bit on i386.
->
->So copy_to_user() could write to user areas that are write-proteced.
->
->verify_area() checks aren't enough, consider a threaded application
->calling mprotect() while the copy is in progress.
->  
->
-Then we should either fix copy_to_user(), or mark 80386 unsupported, or 
-disable multi-threading on 80386. It's a random memory corruption, far 
-worse than a security hole.
+Umm.  2.4.19 _does_ build on S/390.  By getting in a truckload of patches
+that update everything to IBM's latest & greatest that just require a few
+unacceptable / not yet acceptable intrusive core changes you break that.
 
---
-    Manfred
-
+You probably don't care a lot, but people trying to test S/390 compatiblity
+on Hercules (or a Multiprise in the basement..) really want to compile
+kernels out-of-the-box.
 

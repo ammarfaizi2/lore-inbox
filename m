@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130157AbRATSOp>; Sat, 20 Jan 2001 13:14:45 -0500
+	id <S129511AbRATSQz>; Sat, 20 Jan 2001 13:16:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130217AbRATSOf>; Sat, 20 Jan 2001 13:14:35 -0500
-Received: from smtp5.libero.it ([193.70.192.55]:4821 "EHLO smtp5.libero.it")
-	by vger.kernel.org with ESMTP id <S130200AbRATSO0>;
-	Sat, 20 Jan 2001 13:14:26 -0500
-Message-ID: <3A69D570.BCA00B6E@alsa-project.org>
-Date: Sat, 20 Jan 2001 19:14:08 +0100
-From: Abramo Bagnara <abramo@alsa-project.org>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre6 i586)
-X-Accept-Language: it, en
-MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: Andrea Arcangeli <andrea@suse.de>, mingo@elte.hu, torvalds@transmeta.com,
-        raj@cup.hp.com, linux-kernel@vger.kernel.org, davem@redhat.com
+	id <S130063AbRATSQp>; Sat, 20 Jan 2001 13:16:45 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:23558 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129511AbRATSQ0>;
+	Sat, 20 Jan 2001 13:16:26 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101201803.VAA04679@ms2.inr.ac.ru>
 Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <200101201728.UAA04351@ms2.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: raj@cup.hp.com (Rick Jones)
+Date: Sat, 20 Jan 2001 21:03:43 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A68AFBB.5750B564@cup.hp.com> from "Rick Jones" at Jan 19, 1 01:20:59 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> 
-> 
-> > The manpage disagrees with you:
-> 
-> Do you jest?
-> 
-> This manpages is wrong, or, to be more exact, is incomplete,
-> which is common flaw of them.
-> 
-> get/set mean nothing but read-only/changing, i.e.
-> another important property missing in ioctl interface.
+Hello!
 
-setsockopt i.e. set socket options
+> 							is there really
+> much value in the second request flowing to the server before the first
+> byte of the reply has hit?
 
-I think that Andrea's point is that SIOCPUSH don't set anything (i.e.
-don't change a state), but ask for an action to be done now.
+Yes, of course, it has lots of sense: f.e. all the icons, referenced
+parent page are batched to single well-coalesced stream without rtt delays
+between them. It is the only sense of pipelining yet.
 
-For this reason the name setsockopt is counter intuitive (apart from man
-page) and it seems to violate the principle of least surprise.
+Otherwise, you get http/1.0 with keepalives.
 
-I think this point of view is easily agreeable.
-
--- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
-
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
-
-ALSA project is            http://www.alsa-project.org
-sponsored by SuSE Linux    http://www.suse.com
-
-It sounds good!
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,118 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271242AbRH1PB3>; Tue, 28 Aug 2001 11:01:29 -0400
+	id <S271278AbRH1PD3>; Tue, 28 Aug 2001 11:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271283AbRH1PBK>; Tue, 28 Aug 2001 11:01:10 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:48575 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S271278AbRH1PBE> convert rfc822-to-8bit; Tue, 28 Aug 2001 11:01:04 -0400
-Date: Tue, 28 Aug 2001 16:02:44 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Christian Borntraeger <CBORNTRA@de.ibm.com>
-cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@fs.tum.de>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: VM: Bad swap entry 0044cb00
-In-Reply-To: <OFB30CAF04.8B81270C-ONC1256AB6.004C780A@de.ibm.com>
-Message-ID: <Pine.LNX.4.21.0108281555500.990-100000@localhost.localdomain>
+	id <S271365AbRH1PDU>; Tue, 28 Aug 2001 11:03:20 -0400
+Received: from urc1.cc.kuleuven.ac.be ([134.58.10.3]:14538 "EHLO
+	urc1.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S271278AbRH1PDK>; Tue, 28 Aug 2001 11:03:10 -0400
+Message-ID: <3B8BB2B9.302F6485@pandora.be>
+Date: Tue, 28 Aug 2001 17:03:21 +0200
+From: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
+Organization: MyHome
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: nl-BE, nl, en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Camiel Vanderhoeven <camiel_toronto@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DOS2linux
+In-Reply-To: <001101c12fd0$0fd7f9c0$0100a8c0@kiosks.hospitaladmission.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Aug 2001, Christian Borntraeger wrote:
+Camiel Vanderhoeven wrote:
 > 
-> I am also interested in getting this patch as I face the same problem on an
-> S/390, but with Kernel 2.4.7
-> It is a SMP machine.
-> I don´t know, if you can get informations about this issue from non-intel
-> platforms, but we should try.
+> Did you do a normal read from memory, or did you use port-i/o?
 
-Please try the (untested) patch below, which I hope will identify the
-failing function, giving the return address back to its caller - please
-mail me the message(s), and your System.map entries immediately before
-and immediately after the "from" address reported.  Patch is based on
-2.4.7, but should apply okay (at different offsets) to anything since.
+I used the inb() function.
 
-Thanks,
-Hugh
+> you should use the latter. Of course, your card could be at 2000h in
+> stead of 1000h, or at X000h for that matter.
 
---- 247/mm/swapfile.c	Wed Jul  4 19:50:38 2001
-+++ 247tmp/mm/swapfile.c	Tue Aug 28 15:37:26 2001
-@@ -191,12 +191,12 @@
- 	printk("swap_free: offset exceeds max\n");
- 	goto out;
- bad_free:
--	printk("VM: Bad swap entry %08lx\n", entry.val);
-+	printk("swap_free from %p: Bad swap entry %08lx\n", __builtin_return_address(0), entry.val);
- 	goto out;
- bad_count:
- 	swap_device_unlock(p);
- 	swap_list_unlock();
--	printk(KERN_ERR "VM: Bad count %hd current count %hd\n", count, p->swap_map[offset]);
-+	printk(KERN_ERR "swap_free: Bad count %hd current count %hd\n", count, p->swap_map[offset]);
- 	goto out;
- }
- 
-@@ -867,7 +867,7 @@
- 	else {
- 		static int overflow = 0;
- 		if (overflow++ < 5)
--			printk("VM: swap entry overflow\n");
-+			printk("swap_dup: swap entry overflow\n");
- 		p->swap_map[offset] = SWAP_MAP_MAX;
- 	}
- 	swap_device_unlock(p);
-@@ -876,13 +876,13 @@
- 	return result;
- 
- bad_file:
--	printk("Bad swap file entry %08lx\n", entry.val);
-+	printk("swap_dup: Bad swap file entry %08lx\n", entry.val);
- 	goto out;
- bad_offset:
--	printk("Bad swap offset entry %08lx\n", entry.val);
-+	printk("swap_dup: Bad swap offset entry %08lx\n", entry.val);
- 	goto out;
- bad_unused:
--	printk("Unused swap offset entry in swap_dup %08lx\n", entry.val);
-+	printk("swap_dup from %p: Unused swap offset entry %08lx\n", __builtin_return_address(0), entry.val);
- 	goto out;
- }
- 
-@@ -917,13 +917,13 @@
- 	printk(KERN_ERR "swap_count: null entry!\n");
- 	goto out;
- bad_file:
--	printk("Bad swap file entry %08lx\n", entry.val);
-+	printk("swap_count: Bad swap file entry %08lx\n", entry.val);
- 	goto out;
- bad_offset:
--	printk("Bad swap offset entry %08lx\n", entry.val);
-+	printk("swap_count: Bad swap offset entry %08lx\n", entry.val);
- 	goto out;
- bad_unused:
--	printk("Unused swap offset entry in swap_count %08lx\n", entry.val);
-+	printk("swap_count from %p: Unused swap offset entry in swap_count %08lx\n", __builtin_return_address(0), entry.val);
- 	goto out;
- }
- 
-@@ -938,7 +938,7 @@
- 
- 	type = SWP_TYPE(entry);
- 	if (type >= nr_swapfiles) {
--		printk("Internal error: bad swap-device\n");
-+		printk("rw_swap_page: Internal error: bad swap-device\n");
- 		return;
- 	}
- 
-@@ -949,7 +949,7 @@
- 		return;
- 	}
- 	if (p->swap_map && !p->swap_map[*offset]) {
--		printk("VM: Bad swap entry %08lx\n", entry.val);
-+		printk("rw_swap_page from %p: Bad swap entry %08lx\n", __builtin_return_address(0), entry.val);
- 		return;
- 	}
- 	if (!(p->flags & SWP_USED)) {
+My card is at 1000h, that's something i know for sure, because I can
+probe the EISA ID at 0x1000+0xc80.
 
+> I'm not very familiar with
+> the EISA architecture, but I do know that each card can use the
+> following I/O ranges:
+> X000h-X0FFh; X400h-X4FFh; X800h-X8FFh; XC00-XCFF, where X is the slot
+> number.
+
+I guess you mean X0000h-X0FFF; X1000-X1FFF; ...
+
+> There is a book on the EISA architecture available free of
+> charge as a PDF file from www.mindshare.com/pdf/eisabook.pdf. Perhaps
+> you'll find what you need to know from studying that. I hope this helps.
+
+Tnx for the tip!  I will check it out!
+
+I also found this URL: http://uw7doc.sco.com/cgi-bin/man/man?eisa+D4
+
+It comes from UnixWare 7 documentation and there they have the kind of
+translation that I want to do (that is: translate INT 15h call "Read
+Function" (AH=D8h, AL=01h)) to linux.  As i understood there isn't
+such thing available for linux?  Meaning I'll have to try and
+implement that stuff myself?  But then the problem remains: how do i
+get to the data that is in the 320 byte buffer returned from an INT
+15h call "Read Function" (AH=D8h, AL=01h)
+ 
+
+Greetzzz,
+mc303
+
+-- 
+Ing. Bart Vandewoestyne			 Bart.Vandewoestyne@pandora.be
+Hugo Verrieststraat 48			       GSM: +32 (0)478 397 697
+B-8550 Zwevegem			 http://users.pandora.be/vandewoestyne
+----------------------------------------------------------------------
+"Any fool can know, the point is to understand." - Albert Einstein

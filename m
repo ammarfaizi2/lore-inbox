@@ -1,68 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262992AbTDRJIo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 05:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbTDRJIo
+	id S263016AbTDRJNd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 05:13:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbTDRJNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 05:08:44 -0400
-Received: from dsl-170-219.dsl.cambrium.nl ([213.239.170.219]:15021 "EHLO
-	fratser") by vger.kernel.org with ESMTP id S262992AbTDRJIn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 05:08:43 -0400
-Date: Fri, 18 Apr 2003 11:20:01 +0200 (CEST)
-From: John v/d Kamp <john@connectux.com>
-X-X-Sender: john@fratser
-To: Dave Olien <dmo@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] DAC960_Release bug (2.4.x)
-In-Reply-To: <20030417202714.GA30622@osdl.org>
-Message-ID: <Pine.LNX.4.53.0304181052230.3981@fratser>
-References: <Pine.LNX.4.53.0304161136270.18523@fratser> <20030416224013.GA11514@osdl.org>
- <Pine.LNX.4.53.0304171004160.10181@fratser> <20030417202714.GA30622@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Apr 2003 05:13:33 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:54050 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263016AbTDRJNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 05:13:32 -0400
+Date: Fri, 18 Apr 2003 02:26:06 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Andrei Ivanov <andrei.ivanov@ines.ro>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Christoph Hellwig <hch@lst.de>
+Subject: Re: 2.5.67-mm4
+Message-Id: <20030418022606.56357df4.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.50L0.0304181216180.1931-200000@webdev.ines.ro>
+References: <20030418014536.79d16076.akpm@digeo.com>
+	<Pine.LNX.4.50L0.0304181216180.1931-200000@webdev.ines.ro>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Apr 2003 09:25:22.0128 (UTC) FILETIME=[6F887500:01C3058C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The libhd can be found here:
-ftp://ftp.suse.com/pub/suse/i386/8.1/suse/src/hwinfo-5.39-2.src.rpm
-We use a somewhat older version, but that probably doesn't matter.
+Andrei Ivanov <andrei.ivanov@ines.ro> wrote:
+>
+> 
+> :(
+> 
+> make -f scripts/Makefile.build obj=fs/devfs
+>   gcc -Wp,-MD,fs/devfs/.base.o.d -D__KERNEL__ -Iinclude -Wall 
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+> -pipe -mpreferred-stack-boundary=2 -march=athlon 
+> -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
+> -DKBUILD_BASENAME=base -DKBUILD_MODNAME=devfs -c -o fs/devfs/base.o 
+> fs/devfs/base.c
+> fs/devfs/base.c: In function `devfsd_notify':
+> fs/devfs/base.c:1426: too many arguments to function `devfsd_notify_de'
+> fs/devfs/base.c: In function `devfs_register':
+> fs/devfs/base.c:1460: warning: too few arguments for format
+> make[2]: *** [fs/devfs/base.o] Error 1
+> make[1]: *** [fs/devfs] Error 2
+> make: *** [fs] Error 2
 
-I've compiled the module, and our install software ran just fine.
-Repartitioning the drive was no problem. Using the driver on a normal
-system was no problem either (never was).
+Like this I guess.
 
---
-John van der Kamp, ConnecTUX
 
-On Thu, 17 Apr 2003, Dave Olien wrote:
+diff -puN fs/devfs/base.c~devfs-build-fix fs/devfs/base.c
+--- 25/fs/devfs/base.c~devfs-build-fix	2003-04-18 02:21:47.000000000 -0700
++++ 25-akpm/fs/devfs/base.c	2003-04-18 02:22:11.000000000 -0700
+@@ -1423,7 +1423,7 @@ static int devfsd_notify_de (struct devf
+ static void devfsd_notify (struct devfs_entry *de,unsigned short type)
+ {
+ 	devfsd_notify_de(de, type, de->mode, current->euid,
+-			 current->egid, &fs_info, 0);
++			 current->egid, &fs_info);
+ } 
+ 
+ 
+@@ -1457,7 +1457,8 @@ devfs_handle_t devfs_register (devfs_han
+     struct devfs_entry *de;
+ 
+     if (flags)
+-	printk(KERN_ERR "%s called with flags != 0, please fix!\n");
++	printk(KERN_ERR "%s called with flags != 0, please fix!\n",
++			__FUNCTION__);
+ 
+     if (name == NULL)
+     {
 
->
-> I've been looking over the kernel's code paths that call a block driver's
-> release method.  In linux 2.4 and 2.5, it looks like nowhere does the
-> kernel EVER call the release method with a non-NULL file descriptor.
-> The file pointer argument to the release method seems to be a left-over
-> from linux 2.2.
->
-> I think the DAC960_Open and DAC960_Release methods in 2.4 and 2.5
-> are more broken than it first appears.
->
-> The SPECIAL file descriptor that you get with O_NONBLOCK
-> is a BAD idea.  But we're probably stuck because applications use it.
-> Could you pass me a URL to the libhd library you're using?  I'd like
-> to look it over.  What behavior does it expect with the O_NBLOCK flag?
->
-> I think what I'll do is assert that there can be ONLY ONE such SPECIAL
-> file descriptor open at a time.  At Open time, we'll save a pointer to
-> the inode for this special file descriptor in a module-local variable.
-> If at open time, we discover there is already such an open file descriptor,
-> we'll refuse to open another one.
->
-> In the release function, we'll compare the inode pointer passed in with
-> the saved inode pointer, and do the SPECIAL close case, and then zero
-> out the saved inode pointer.  This isn't a completely reliable solution.
-> But, it's the best I think of for now.
->
-> A patch for 2.4 is attached at the end of this mail.  I'd appreciate it if
-> you could give it a try and let me know how it works.
->
+_
+

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbTFKJbM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 05:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbTFKJbM
+	id S264277AbTFKJga (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 05:36:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264279AbTFKJg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 05:31:12 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:14554 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264266AbTFKJbK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 05:31:10 -0400
-Date: Wed, 11 Jun 2003 10:44:41 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: I Am Falling I Am Fading <skuld@anime.net>
-Cc: linux-kernel@vger.kernel.org, gregor.essers@web.de
-Subject: Re: Via KT400 and AGP 8x Support
-Message-ID: <20030611094441.GE14706@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	I Am Falling I Am Fading <skuld@anime.net>,
-	linux-kernel@vger.kernel.org, gregor.essers@web.de
-References: <Pine.LNX.4.53.0306110210220.27802@inconnu.isu.edu>
-Mime-Version: 1.0
+	Wed, 11 Jun 2003 05:36:29 -0400
+Received: from ns2.q-leap.de ([153.94.51.194]:171 "EHLO mail.q-leap.de")
+	by vger.kernel.org with ESMTP id S264277AbTFKJgZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 05:36:25 -0400
+From: Peter <pk@q-leap.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0306110210220.27802@inconnu.isu.edu>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16102.64334.623864.358666@q-leap.com>
+Date: Wed, 11 Jun 2003 11:50:06 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-rc7 compile error with exec-shield patch
+X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: pk@q-leap.com
+X-Face: "HSWKA_'Lr\(@D}NQgU@jZukje>!f;VO]4Tj%~+[PY$M"=CmMyN.x6&X`p_X|q9.||#uM0mH%/3kBIxN-@(lB?3\_)J+ms63HsTY0{WmL3_K+
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 02:28:24AM -0600, I Am Falling I Am Fading wrote:
+Hello,
 
- > I've had this problem as well.
- > 
- > What I've been able to do is to use a backport for one of the 2.4.21-pre*
- > series, and move the code forward to the current 2.4.21-rc's .
+I just tried to compile your exec-shield patch applied to
+linux-2.4.21-rc7 but it gives me an error.  I applied 
+http://people.redhat.com/mingo/exec-shield/exec-shield-2.4.21-rc1-B6
+These are the last make lines:
 
-That's not a proper fix. The agp code in 2.4.21pre supports the KT400
-only in AGP2.0 mode. When you put an AGP3.0 (x8) card in the slot,
-the chipset configures itself into AGP3 mode, and registers change
-meaning.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.21-rc7/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+-fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2
+-march=i586   -nostdinc -iwithprefix include -DKBUILD_BASENAME=traps
+-c -o traps.o traps.c
+traps.c: In function `trap_init_f00f_bug':
+traps.c:849: `idt' undeclared (first use in this function)
+traps.c:849: (Each undeclared identifier is reported only once
+traps.c:849: for each function it appears in.)
+make[2]: *** [traps.o] Error 1
+make[2]: Leaving directory
+`/usr/src/linux-2.4.21-rc7/arch/i386/kernel'
+make[1]: *** [_dir_arch/i386/kernel] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.21-rc7'
+make: *** [stamp-build] Error 2
 
- > Here's info on the relevant patch:
- > http://lists.insecure.org/lists/linux-kernel/2003/Mar/3999.html
+I also sent this to Ingo but as I don't know if it is a problem with
+the patch or with kernel or a combination of both I send it to you,
+too.
 
-Very, very dated now. Many fixes have gone into the agp code since
-2.5.64, on which that backport is based.
+Thanks,
 
-		Dave
+	Peter
 

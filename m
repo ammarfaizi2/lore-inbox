@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275273AbTHGKL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 06:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275282AbTHGKL6
+	id S275274AbTHGKD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 06:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275275AbTHGKD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 06:11:58 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:45514 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S275273AbTHGKKC (ORCPT
+	Thu, 7 Aug 2003 06:03:27 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:60552 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S275274AbTHGKDZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 06:10:02 -0400
-Date: Thu, 7 Aug 2003 12:09:57 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: cb-lkml@fish.zetnet.co.uk, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Disk priority dependend on nice level...
-Message-ID: <20030807100957.GI858@suse.de>
-References: <20030806232810.GA1623@elf.ucw.cz> <20030806234036.GA209@elf.ucw.cz> <20030807080251.GY7982@suse.de> <20030807100419.GC166@elf.ucw.cz>
+	Thu, 7 Aug 2003 06:03:25 -0400
+Date: Thu, 7 Aug 2003 12:03:09 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: James Simmons <jsimmons@infradead.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [Linux-fbdev-devel] [PATCH] Framebuffer: 2nd try: client notification mecanism & PM
+Message-ID: <20030807100309.GB166@elf.ucw.cz>
+References: <Pine.LNX.4.44.0308070000540.17315-100000@phoenix.infradead.org> <1060249101.1077.67.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030807100419.GC166@elf.ucw.cz>
+In-Reply-To: <1060249101.1077.67.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07 2003, Pavel Machek wrote:
-> Hi!
-> 
-> > > > I ported `subj` to 2.6.0-test2. I do not yet have idea if it works,
-> > > > but it compiles ;-).
-> > > 
-> > > It compiles, it event boots, but it does not seem to have much effect
-> > > :-(.
-> > 
-> > Now that the queue reference counting is in the current bk tree, we are
-> > that much closer to real modular io schedulers. I'll post the cfq with
-> > priorities for that.
-> 
-> I'm looking forward to that. (If you have some patch I could test,
-> mail it my way).
+Hi!
 
-What I have is still some kernel revisions old, plus it's using the
-modular io scheduler interface. So I cannot easily post anything, you
-will have to wait until after my vacation I'm afraid.
+> > > James, if you are ok, can you get that upstream to Linus asap so
+> > > I can start pushing the driver bits for radeon & aty128 ?
+> > 
+> > Working on it. I'm thinking about also how it effects userland and how 
+> > userland affects the console if present. Basically the logic will go 
+> > 
+> > pci suspend ->  framebuffer driver supend function -> call each client
+> > 
+> > Just give me a few days to piece it together.
+> 
+> Right now, we don't have a proper userland notification. So far, the
+> main affected thing is XFree, but this is ok as it will have received
+> a suspend request via /dev/apm_bios (which we emulate on PowerMacs),
+> and so won't touch the framebuffer until resumed.
+> 
+> There isn't much we can do against a userland client tapping the
+> framebuffer that it mmap'ed previously. I don't know how feasible it
+> would be to sort of "hack" this process mapping on the fly (would
+> involve some nasty SMP synchronisation issues) so that the userland
+> process is just put to sleep on fb access while the fb is suspended
+> (or get a SEGV). We probably want to extend the notification mecanism
+> to userland in some way, but this isn't something i cover in this
+> patch.
+
+I believe solution to this is simple: always switch to kernel-owned
+console during suspend. (swsusp does it, there's patch for S3 to do
+the same). That way, Xfree (or qtopia or whoever) should clean up
+after themselves and leave the console to the kernel. (See
+kernel/power/console.c)
+							Pavel
 
 -- 
-Jens Axboe
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

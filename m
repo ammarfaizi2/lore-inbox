@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263427AbTCNRbE>; Fri, 14 Mar 2003 12:31:04 -0500
+	id <S263439AbTCNRds>; Fri, 14 Mar 2003 12:33:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263428AbTCNRbD>; Fri, 14 Mar 2003 12:31:03 -0500
-Received: from otter.mbay.net ([206.55.237.2]:16147 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S263427AbTCNRa7> convert rfc822-to-8bit;
-	Fri, 14 Mar 2003 12:30:59 -0500
-From: John Alvord <jalvo@mbay.net>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Jens Axboe <axboe@suse.de>, Oleg Drokin <green@namesys.com>,
-       Oleg Drokin <green@linuxhacker.ru>, alan@redhat.com,
-       linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: [2.4] init/do_mounts.c::rd_load_image() memleak
-Date: Fri, 14 Mar 2003 09:40:49 -0800
-Message-ID: <fq447vk4b4q823ihqbvakl8g05cnogor86@4ax.com>
-References: <20030313210144.GA3542@linuxhacker.ru> <20030314110421.A28273@namesys.com> <20030314080911.GY836@suse.de> <200303141008.h2EA8gu08535@Port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200303141008.h2EA8gu08535@Port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Forte Agent 1.92/32.570
-MIME-Version: 1.0
+	id <S263440AbTCNRdr>; Fri, 14 Mar 2003 12:33:47 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33542 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S263439AbTCNRdo>; Fri, 14 Mar 2003 12:33:44 -0500
+Date: Fri, 14 Mar 2003 18:44:32 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+       Lars Marowsky-Bree <lmb@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+Message-ID: <20030314174432.GB12147@atrey.karlin.mff.cuni.cz>
+References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314115055.GR1211@marowsky-bree.de> <20030314144347.GA8937@work.bitmover.com> <1047658249.29595.34.camel@irongate.swansea.linux.org.uk> <20030314151455.GB8937@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+In-Reply-To: <20030314151455.GB8937@work.bitmover.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Mar 2003 12:05:40 +0200, Denis Vlasenko
-<vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+Hi!
 
->On 14 March 2003 10:09, Jens Axboe wrote:
->> No that would just be another pointless exercise in causing more
->> annoyance for someone who has to look through patches finding that
->> one hunk that breaks stuff. The recent spelling changes come to mind.
->
->How we should do such global small cleanups?
->Maybe grep the source and bring the list of affected files
->to maintainers' attention, letting the to gradually push
->changes to Linus...
->
->I suspect "bring the list to maintainers' attention"
->will be a trickier part ;)
->
->> But just because you don't seem to have seen any kfree(NULL) in the
->> kernel does not mean they are not there. And should a good trend not
->> allow to grow?
->
->"if(p) free(p)" => "free(p)" is mostly ok, less code.
->
->But free is called now unconditionally. Make an exception
->for performance-critical places where p is almost always 0.
+> I thought you were above deliberately tangling unrelated questions to try
+> and distract from my perfectly valid point.  
+> 
+>     "BitBucket: GPL-ed BitKeeper clone"
 
-The one implementation I looked at carefully (SAS/C) looked like this:
+That was wrong and I apologize for it (I think I apologized already).
 
- 	free(p);
-	---------
-	if (p)
-		malloc(p);
+>     "The goal of this project is to produce a system compatible with
+> BitKeeper"
 
-so 
-	if (p) free(p);
-	-------------
-	if (p)
-	     if (p)
-		malloc(p);
+This is true; long term goal of BitBucket project is to be compatible
+with KitBeeper. I think it is pretty clear.
 
-which seems fairly worthless.
-
-john
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

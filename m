@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262994AbRE1H0X>; Mon, 28 May 2001 03:26:23 -0400
+	id <S262998AbRE1Hfg>; Mon, 28 May 2001 03:35:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262998AbRE1H0N>; Mon, 28 May 2001 03:26:13 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:47435 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S262994AbRE1H0C>; Mon, 28 May 2001 03:26:02 -0400
-Date: Mon, 28 May 2001 10:25:51 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+	id <S262999AbRE1HfZ>; Mon, 28 May 2001 03:35:25 -0400
+Received: from [213.46.240.7] ([213.46.240.7]:47138 "EHLO
+	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S262998AbRE1HfL>; Mon, 28 May 2001 03:35:11 -0400
+From: "Ben Twijnstra" <bentw@chello.nl>
 To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: Re: initrd oops; still happens with 2.4.5ac2
-Message-ID: <20010528102551.N11981@niksula.cs.hut.fi>
-In-Reply-To: <20010526225825.A31713@lightning.swansea.linux.org.uk> <20010527192650.H11981@niksula.cs.hut.fi> <20010528001220.M11981@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010528001220.M11981@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Mon, May 28, 2001 at 12:12:20AM +0300
+Date: Mon, 28 May 2001 09:34:10 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.4.5-ac1 won't boot with 4GB bigmem option
+Reply-to: Ben Twijnstra <bentw@chello.nl>
+Message-ID: <3B121B92.18192.725C5@localhost>
+In-Reply-To: <01052722010200.01106@beastie> from "Ben Twijnstra" at May 27, 2001 10:01:02 PM
+In-Reply-To: <E1547yj-0002Mb-00@the-village.bc.nu>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 28, 2001 at 12:12:20AM +0300, you [Ville Herva] claimed:
-> On Sun, May 27, 2001 at 07:26:50PM +0300, you [Ville Herva] claimed:
+Alan,
+
+2.4.5-ac2 works fine with 4GB on. Thanks! Will try a 2.4.5-aa2 later 
+today, just for fun.
+
+Grtz,
+
+
+Ben
+
+On 27 May 2001, at 22:21, Alan Cox wrote:
+
+> > I compiled and booted the 2.4.5-ac1 kernel with the CONFIG_HIGHMEM4G=y option 
+> > and got an oops in __alloc_pages() (called by alloc_bounce() called by 
+> > schedule()). Everything works fine if I turn the 4GB mode off.
+> > Machine is a Dell Precision with 2 Xeons and 2GB of RAM.
 > > 
-> > I have a reproducible oops on 2.4.4ac17 at initrd unmount (see
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=99079948404775&w=2 for
-> > details) that seems to be related:
+> > 2.4.5 works fine with the 4GB. Any idea what changed between the two?
 > 
-> Ok, some more info:                                                             
->                                                                                 
-> 2.4.2-2 (redhat)       BOOTS OK                                                 
-> 2.4.4ac17              OOPS                                                     
-> 2.4.4ac17+av           OOPS                                                     
-> 2.4.5                  OOPS                                                     
-> 2.4.5ac1+av            OOPS                                                     
-> 2.4.4                  BOOTS OK                                                 
-> 2.4.4ac9               BOOTS OK                                                 
-> 2.4.4ac10              BOOTS OK                                                 
-> 2.4.4ac11              BOOTS OK                                                 
-> 2.4.4ac12              fails to mount root ("Checking root filesystem.          
->                                              /dev/sdb is mounted.")             
-> 2.4.4ac14              fails to mount root                                      
-> 2.4.4ac15              OOPS                                                     
+> The -ac tree has some VM differences for bigmem that really need to be
+> cleaned up and/or removed now the Linus tree is looking solid. I'll probably
+> drop those diffs for -ac2 so that folks are working against one set of VM
+> 
 
-2.4.5ac2                 OOPS
-
-The oops call trace seems to be the same as in 
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99079948404775&w=2
-
-Any ideas?
-
-
--- v --
-
-v@iki.fi

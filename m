@@ -1,75 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263120AbTJUPxl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 11:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbTJUPxl
+	id S263162AbTJUQUL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 12:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbTJUQUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 11:53:41 -0400
-Received: from 24-216-47-96.charter.com ([24.216.47.96]:2692 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S263120AbTJUPxj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 11:53:39 -0400
-Date: Tue, 21 Oct 2003 11:53:37 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test8 and HIGMEM = segfaults and panics?
-Message-ID: <20031021155337.GF2617@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+	Tue, 21 Oct 2003 12:20:11 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:17358 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263162AbTJUQUI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 12:20:08 -0400
+Date: Tue, 21 Oct 2003 09:18:27 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC] must fix lists
+Message-Id: <20031021091827.0c58065e.rddunlap@osdl.org>
+In-Reply-To: <3F94C833.8040204@cyberone.com.au>
+References: <3F94C833.8040204@cyberone.com.au>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mrJd9p1Ce66CJMxE"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Oct 2003 15:46:27 +1000 Nick Piggin <piggin@cyberone.com.au> wrote:
 
---mrJd9p1Ce66CJMxE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+| The following people have their names in Documentation/must-fix.txt. Lots
+| of others in should-fix.txt in 2.6.0-test8-mm1. Please review your entries.
+| Also, please add any other substantial changes you need before 2.6. Thanks.
 
 
+In the should-fix.txt file:
 
-I'm running a dual-athalon system.  When I compiled the 2.6.0-test8 kernel I
-enabled HIGHMEM for 4 Gigs as I'm at 1.5G now and planning on purchasing
-an additional 512Meg DIMM next weekend (yeah, should have with the
-1.5Gig).
+o viro: cleaning up options-parsers in filesystems.  (patch exists, needs
+  porting).
 
-At any rate the box comes up just fine and runs for a while but once the
-memory is in use for a few hours and seems to exceed 220+ Megs about any
-command I execute will Segfault and the kernel has panic'd twice
-(couldn't read the whole oops).
+The parser lib functions are merged and approx. 15 filesystems
+have been converted to use it, so this could be changed to:
 
-I backed out the HIGHMEM and left it at 1.5Gigs and it seems to be
-running fine again.
+o viro: convert more filesystems to use lib/parser.c for parsing options
+(still PRI2 I suppose)
 
-I poked around the archives and couldn't find anything in particular
-related to this.  Anyone seen anything similar, known bug I've missed?
-
-Robert
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Life is not a destination, it's a journey.
-  Microsoft produces 15 car pileups on the highway.
-    Don't stop traffic to stand and gawk at the tragedy.
-
---mrJd9p1Ce66CJMxE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/lVaB8+1vMONE2jsRAvTyAJ0SzlYFgvPWfO/7oti3+EBLTFvTQQCeIOao
-lYg2ad8sT8LXQlu5UOi5JQI=
-=YHLw
------END PGP SIGNATURE-----
-
---mrJd9p1Ce66CJMxE--
+--
+~Randy

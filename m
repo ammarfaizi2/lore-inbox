@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313137AbSDYPaH>; Thu, 25 Apr 2002 11:30:07 -0400
+	id <S313201AbSDYPlc>; Thu, 25 Apr 2002 11:41:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313167AbSDYPaG>; Thu, 25 Apr 2002 11:30:06 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:8975 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S313137AbSDYPaF>;
-	Thu, 25 Apr 2002 11:30:05 -0400
-Date: Thu, 25 Apr 2002 11:24:35 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: rpm <rajendra.mishra@timesys.com>,
-        Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, Nikita@Namesys.COM,
-        Andrey Ulanov <drey@rt.mipt.ru>, linux-kernel@vger.kernel.org
-Subject: Re: FPU, i386
-Message-ID: <20020425112435.A16346@mark.mielke.cc>
-In-Reply-To: <200204251310.g3PD9dI00738@localhost.localdomain> <Pine.LNX.3.95.1020425095821.6728B-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313206AbSDYPlb>; Thu, 25 Apr 2002 11:41:31 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:49168 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S313201AbSDYPla>; Thu, 25 Apr 2002 11:41:30 -0400
+Date: Thu, 25 Apr 2002 12:41:10 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Ian Molton <spyro@armlinux.org>
+Cc: pavel@suse.cz, <phillips@bonn-fries.net>, <lm@bitmover.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+In-Reply-To: <20020425045120.6b63334e.spyro@armlinux.org>
+Message-ID: <Pine.LNX.4.44L.0204251240010.7447-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 25, 2002 at 10:22:49AM -0400, Richard B. Johnson wrote:
-> To use the math macros, the comparison should be something like:
->         if (isless(fabs(a-b), 1.0e-38))
->              break;
+On Thu, 25 Apr 2002, Ian Molton wrote:
+> Rik van Riel Awoke this dragon, who will now respond:
+>
+> >
+> >  "Why should I waste my disk space with SCSI drivers?"
+> >  "Why should I waste my disk space with MIPS support?"
+> >  "Why should I waste my disk space with bluetooth drivers?"
+> >
+> >  In each of these cases you'll get the same answer that I gave
+> >  to your question.
+>
+> Actually, I dont get that.
 
-I might be saying something stupid, but, I was under the impression
-that floating point '==', assuming it follows IEEE rules, does exactly
-this.
+	[snip "Couldn't the kernel be split in various tarballs?"]
 
-I know for certain that it does not do memcmp(), as it has to deal
-with the exponent and mantissa being each off by +/-1 and <</>>1
-respectively.
+> Here is my answer for the record:
+>
+> I shouldnt. its a pointless waste of bandwidth.
+>
+> Now, whats YOUR answer?
 
-mark
+You'll find the answer in the lkml FAQ:
 
+	http://www.tux.org/lkml/#s7-7
+
+cheers,
+
+Rik
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130470AbRDCQOo>; Tue, 3 Apr 2001 12:14:44 -0400
+	id <S130531AbRDCQOe>; Tue, 3 Apr 2001 12:14:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130317AbRDCQOg>; Tue, 3 Apr 2001 12:14:36 -0400
-Received: from web5203.mail.yahoo.com ([216.115.106.97]:33298 "HELO
-	web5203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130470AbRDCQO1>; Tue, 3 Apr 2001 12:14:27 -0400
-Message-ID: <20010403161345.15009.qmail@web5203.mail.yahoo.com>
-Date: Tue, 3 Apr 2001 09:13:45 -0700 (PDT)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: Re: Original destination of transparent proxied connections? 
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m14jf1U-001PKaC@mozart>
+	id <S130317AbRDCQOX>; Tue, 3 Apr 2001 12:14:23 -0400
+Received: from p18-max2.adl.ihug.com.au ([203.173.184.210]:3857 "EHLO
+	ocdi.sb101.org") by vger.kernel.org with ESMTP id <S130470AbRDCQOI>;
+	Tue, 3 Apr 2001 12:14:08 -0400
+Date: Wed, 4 Apr 2001 01:43:15 +0930 (CST)
+From: Trevor Nichols <ocdi@ocdi.org>
+X-X-Sender: <data@ocdi.sb101.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: uninteruptable sleep
+In-Reply-To: <E14kRuT-0008Bc-00@the-village.bc.nu>
+Message-ID: <Pine.BSF.4.33.0104040122330.63187-100000@ocdi.sb101.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Its a kernel bug if it gets stuck like this. You need to provide more info
+> though - what file system, what devices, how much memory. Also ps can give you
+> the wait address of a process stuck in 'D' state which is valuable for debug
 
---- Rusty Russell <rusty@rustcorp.com.au> wrote:
-> Summary: you had to use a *search engine* to find an
-> obscure piece of
-> coding information.
+System specs:
+Pentium 200 MMX
+80MB RAM
 
-Actually, I had to use a search engine to find a
-tangentially related howto that halfway through
-mentioned something in passing which gave me a clue of
-something else to search for that, it turns out,
-didn't work anyway.  (getsockname() in 2.2 returns the
-original destination ip, but not the original
-destination port.  I had to move to
-2.4/netfilter/getsockopt to get that piece of
-information.)
+2 IDE Drives:
+SAMSUNG SV0844D 8.4GB
+WDC AC21200H 1.2GB
 
-And the reason I didn't ask on the netfilter list is I
-was originally trying to use 2.2 ipchains, not 2.4
-iptables.  Didn't think the old stuff was on-topic
-there.
+All partitions are ext2 filesytems.
 
-> Shocked!
-> Rusty.
+ps xl:
+  F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY        TIME  COMMAND
+040  1000  1230     1   9   0 24320    4 down_w D    ?          0:00  /home/data/mozilla/obj/dist/bin/mozi
 
-It still requires pretty good forensic investigation
-skills to make it work...
+[I'm not exactly sure how to get the wait address if it isn't shown above]
 
-> Premature optmztion is rt of all evl. --DK
+Other stuff:
 
-Wouldn't that be "Premtur"? :)
+Creative SB AWE64 PnP
+16MB Voodoo 3 2000 and a 2MB S3 Virge display
+RealTek RTL-8029 NIC
+Sony CRX100E Burner
 
-Rob
+I'm running X in a dual-head configuration using the above 2 cards.
+That's all I can think of at this time.
 
+Thanks,
+Trevor Nichols.
 
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/

@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVACWmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVACWmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVACWmO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVACWjS
+	id S261962AbVACWmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVACWi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:39:18 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:19102 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261929AbVACWZo
+	Mon, 3 Jan 2005 17:38:56 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:19614 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261928AbVACWZr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:25:44 -0500
-Message-ID: <41D9C635.1090703@zytor.com>
-Date: Mon, 03 Jan 2005 14:24:53 -0800
+	Mon, 3 Jan 2005 17:25:47 -0500
+Message-ID: <41D9C64E.7080508@zytor.com>
+Date: Mon, 03 Jan 2005 14:25:18 -0800
 From: "H. Peter Anvin" <hpa@zytor.com>
 User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
-       samba-technical@lists.samba.org, aia21@cantab.net,
-       hirofumi@mail.parknet.co.jp,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: FAT, NTFS, CIFS and DOS attributes
+To: Nicholas Miell <nmiell@comcast.net>
+CC: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] get/set FAT filesystem attribute bits
+References: <41D9B1C4.5050507@zytor.com>	 <1104787447.3604.9.camel@localhost.localdomain>	 <41D9BA8B.2000108@zytor.com>	 <1104788816.3604.17.camel@localhost.localdomain>	 <41D9C111.2090504@zytor.com> <1104790243.3604.23.camel@localhost.localdomain>
+In-Reply-To: <1104790243.3604.23.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Nicholas Miell wrote:
+> 
+> Yeah, I contemplated adding system.fattattrs, system.ntfsattrs, and
+> system.linuxattrs (for the ext2 attrs that have popped up in several
+> other filesystems) a while ago, but xattrs seem to be the red-headed
+> left-handed stepchild of the Linux VFS and I lost interest in the
+> project.
+> 
+> Nice to see someone else interested in it, though.
+ >
 
-I recently posted to LKML a patch to get or set DOS attribute flags for 
-fatfs.  That patch used ioctl().  It was suggested that a better way 
-would be using xattrs, although the xattr mechanism seems clumsy to me, 
-and has namespace issues.
+I'm honestly not sure that using an ASCII string in an xattr is the sane 
+way of doing this.  Even a binary byte in an xattr would make more sense 
+in some ways.
 
-I also think it would be good to have a unified interface for FAT, NTFS 
-and CIFS for these attributes.
+I think the xattr mechanism is ignored largely because it's painfully 
+complex.
 
-I noticed that CIFS has a placeholder "user.DosAttrib" in cifs/xattr.c, 
-although it doesn't seem to be implemented.
+A plus with using xattr is that in theory (but of course not in 
+practice!) it would let one store a copy of a DOS filesystem on an ext3 
+(or xfs, or...) filesystem and have it restored, all using standard (but 
+by necessity, xattr-aware) tools.  However, the splitting of xattr into 
+namespaces may very well make that impossible, since what's a "system" 
+attribute to one filesystem is a "user" attribute to another.  Classic 
+design flaw, by the way.
 
-Questions:
-
-a) is xattr the right thing?  It seems to be a fairly complex and 
-ill-thought-out mechanism all along, especially the whole namespace 
-business (what is a system attribute to one filesystem is a user 
-attribute to another, for example.)
-
-b) if xattr is the right thing, shouldn't this be in the system 
-namespace rather than the user namespace?
-
-c) What should the representation be?  Binary byte?  String containing a 
-subset of "rhsvda67" (barf)?
+Anyway, I'm going to send out something to the various maintainers of 
+DOS-based filesystems (FAT, CIFS, NTFS) and see what they think.
 
 	-hpa

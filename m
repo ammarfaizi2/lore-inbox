@@ -1,63 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268510AbRHFNXR>; Mon, 6 Aug 2001 09:23:17 -0400
+	id <S268514AbRHFNZH>; Mon, 6 Aug 2001 09:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268514AbRHFNXH>; Mon, 6 Aug 2001 09:23:07 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:11524 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S268510AbRHFNWt>;
-	Mon, 6 Aug 2001 09:22:49 -0400
-Date: Mon, 6 Aug 2001 15:22:32 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: <jlnance@intrex.net>
-cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: Ongoing 2.4 VM suckage
-In-Reply-To: <20010803090703.B1248@bessie.localdomain>
-Message-ID: <Pine.LNX.4.33.0108061521280.4694-100000@Expansa.sns.it>
+	id <S268428AbRHFNY5>; Mon, 6 Aug 2001 09:24:57 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:49674
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S266974AbRHFNYt>; Mon, 6 Aug 2001 09:24:49 -0400
+Date: Mon, 06 Aug 2001 09:24:01 -0400
+From: Chris Mason <mason@suse.com>
+To: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+cc: linux-mm@kvack.org, torvalds@transmeta.com
+Subject: Re: [RFC] using writepage to start io
+Message-ID: <316580000.997104241@tiny>
+In-Reply-To: <01080607394704.00294@starship>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-with 2.4.5 i had similar problems with 4 GB RAM on a 4-processor
-sparc64.
-2.4.6 solved my problems.
 
-On Fri, 3 Aug 2001 jlnance@intrex.net wrote:
 
-> On Thu, Aug 02, 2001 at 07:27:42PM -0300, Rik van Riel wrote:
-> > On Thu, 2 Aug 2001, Jeffrey W. Baker wrote:
-> >
-> > > I'm telling you that's not what happens.  When memory pressure
-> > > gets really high, the kernel takes all the CPU time and the box
-> > > is completely useless. Maybe the VM sorts itself out but after
-> > > five minutes of barely responding, I usually just power cycle
-> > > the damn thing.  As I said, this isn't a classic thrash because
-> > > the swap disks only blip perhaps once every ten seconds!
-> >
-> > What kind of workload are you running ?
-> >
-> > We could be dealing with some weird artifact of
-> > virtual page scanning here, or with a strange
-> > side effect of recent VM changes ...
->
-> Rik,
->     FWIW, I am seeing this sort of thing too, though I am running a 2.4.5
-> kernel so I am a little out of date.  Its a large machine with 2G of ram,
-> 4G of swap, and 2 CPUs.  You dont have to actually use all the memory either.
-> When my process gets to about 1.5G and starts doing lots of file I/O, the
-> machine can just disappear for several minutes.  I will be sshed in and
-> I can not even get my shell to give me a new prompt when I hit return.  It
-> will eventually sort it self out, but it might take 15 minutes.  I will try
-> and get a more recent kernel installed, but the machine is not under my
-> control, so I dont get to decide when that happens.
->
-> Thanks,
->
-> Jim
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+On Monday, August 06, 2001 07:39:47 AM +0200 Daniel Phillips
+<phillips@bonn-fries.net> wrote:
+ 
+>> there are at least 3 reasons to write buffers to disk
+>> 
+>> 1) they are too old
+>> 2) the percentage of dirty buffers is too high
+>> 3) you need to reclaim them due to memory pressure
+>> 
+>> There are 3 completely different things; there's no trumping of
+>> priorities.
+> 
+> There is.  If your heavily loaded machine goes down and you lose edits 
+> from 1/2 an hour ago even though your bdflush parms specify a 30 second 
+> update cycle you'll call the system broken, whereas if it runs 5% slower 
+> under heavy write+swap load that's just life.
+
+Ok, we're getting caught up in semantics here.  I'm not saying kupdate
+should switch over to write buffers that might get reclaimed instead of old
+buffers.  There still needs to be proper flushing of old data.
+
+I am saying that it should be possible to have the best buffer flushed
+under memory pressure (by kswapd/bdflush) and still get the old data to
+disk in time through kupdate.
+
+> 
+>> Under memory pressure you write buffers you have a high
+>> chance of freeing, during write throttling you write buffers that
+>> won't get dirty again right away, and when writing old buffers you
+>> write the oldest first.
+>> 
+>> This doesn't mean you can always make the right decision on all 3
+>> cases, or that making the right decision is worth the effort ;-)
+> 
+> If we need to do write throttling we should do it at the point where we 
+> still know its a write, i.e., somewhere in sys_write.  
+
+The rest of the stuff below does make sense, but we need to keep in mind
+that sys_write isn't the only way to dirty file pages.
+
+> Some time after 
+> writes are throttled (specified by bdflush parms) all the old write 
+> buffers will have worked their way through to the drives and your case 
+> (3) gets all the bandwidth.  I don't see a conflict, except that we 
+> don't have such an upstream write throttling mechanism yet.  We sort-of 
+> have one in that a writer will busy itself trying to help out with lru 
+> scanning when it can't get a free page for the page cache.  This has the 
+> ugly result that we have bunches of processes spinning on the lru lock 
+> and we have no idea what the queue scanning rates really are.  We can do 
+> something much more intelligent and predictable there and we'll be a lot 
+> closer to being able to balance intelligently between your cases.
+> 
+> By the way, I think you should combine (2) and (3) using an and, which 
+> gets us back to the "kupdate thing" vs the "bdflush thing".
+
+Perhaps, since I think they would be handled in roughly the same way.
+
+-chris
 

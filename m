@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263227AbTIVQqM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 12:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263232AbTIVQqM
+	id S263220AbTIVRBT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 13:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263237AbTIVRBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 12:46:12 -0400
-Received: from vena.lwn.net ([206.168.112.25]:3007 "HELO lwn.net")
-	by vger.kernel.org with SMTP id S263227AbTIVQqK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 12:46:10 -0400
-Message-ID: <20030922164609.5929.qmail@lwn.net>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RFC: Attributes in /sys/cdev 
-From: corbet@lwn.net (Jonathan Corbet)
-In-reply-to: Your message of "Sat, 20 Sep 2003 02:28:44 BST."
-             <20030920012844.GD7665@parcelfarce.linux.theplanet.co.uk> 
-Date: Mon, 22 Sep 2003 10:46:09 -0600
+	Mon, 22 Sep 2003 13:01:18 -0400
+Received: from port-212-202-185-245.reverse.qdsl-home.de ([212.202.185.245]:38882
+	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S263220AbTIVRBR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 13:01:17 -0400
+Message-ID: <3F6F2B46.2000703@trash.net>
+Date: Mon, 22 Sep 2003 19:03:02 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030908 Debian/1.4-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: philippe.vivarelli@mindspeed.com
+CC: linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: IPSEC-TUNNEL gives error messages: ip_finish_output: bad unowned
+ skb = c5b619e0: PRE_ROUTING LOCAL_IN FORWARD POST_ROUTING
+References: <OF73D4154E.C6C4D37F-ONC1256DA9.005340B9@nice.mindspeed.com>
+In-Reply-To: <OF73D4154E.C6C4D37F-ONC1256DA9.005340B9@nice.mindspeed.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have no idea whether this follows the original plan for /sys/cdev.
-> 
-> They are more of a side effect.
+Hi Philippe,
 
-So...to be sure I have things straight.../sys/cdev isn't really meant to be
-there, and char devices wanting to do things in sysfs should be working
-under /sys/devices or /sys/class or /sys/somethingelse?
+philippe.vivarelli@mindspeed.com wrote:
 
-> 	* driver has embedded struct cdev in its data structures
+>Does someone has already seen thes messages ?.
+>
 
-> 	* ->open() can use ->i_cdev to get whatever data structure driver
-> had intended and avoid any lookups of its own
+Please try the latest -bk or apply these two patches, there have been recent
+changes which affect these messages:
 
-I noticed there's no "private" member in the cdev structure.  So drivers
-should embed the structure and use container_of to get their real structure
-of interest?
+ChangeSet 1.1283.2.5, 2003/09/11 16:46:44-07:00, laforge@netfilter.org
 
-[Forgive my ignorance here...] If I embed a struct cdev within my own
-device structure, how do I know when I can safely free said device
-structure?  Will there be a release method that gets exposed at the driver
-level, or am I missing something obvious again?
+	[NETFILTER]: Clear nf_debug in ipsec tunnel case.
 
-Thanks,
+ChangeSet 1.1315.1.2, 2003/09/12 17:14:53-07:00, acme@conectiva.com.br
 
-jon
+	[NETFILTER]: Fix typo in recent ip_input.c changes.
 
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
+or just disable CONFIG_NETFILTER_DEBUG.
+
+
+Regards,
+Patrick
+
+

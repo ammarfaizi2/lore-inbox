@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263410AbTCNSYx>; Fri, 14 Mar 2003 13:24:53 -0500
+	id <S263455AbTCNS14>; Fri, 14 Mar 2003 13:27:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263424AbTCNSYx>; Fri, 14 Mar 2003 13:24:53 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:60853 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263410AbTCNSYv>; Fri, 14 Mar 2003 13:24:51 -0500
-Date: Fri, 14 Mar 2003 10:25:48 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andreas Dilger <adilger@clusterfs.com>, Alex Tomas <bzzz@tmi.comex.ru>
-cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] concurrent block allocation for ext2 against 2.5.64
-Message-ID: <120000000.1047666348@flay>
-In-Reply-To: <20030313165641.H12806@schatzie.adilger.int>
-References: <m3el5bmyrf.fsf@lexa.home.net> <20030313015840.1df1593c.akpm@digeo.com> <m3of4fgjob.fsf@lexa.home.net> <20030313165641.H12806@schatzie.adilger.int>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S263456AbTCNS14>; Fri, 14 Mar 2003 13:27:56 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:22924 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S263455AbTCNS1u>; Fri, 14 Mar 2003 13:27:50 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 14 Mar 2003 10:48:02 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+In-Reply-To: <20030314182912.GA1873@gtf.org>
+Message-ID: <Pine.LNX.4.50.0303141044191.1903-100000@blue1.dev.mcafeelabs.com>
+References: <Pine.LNX.4.44.0303141120240.8584-100000@bushido>
+ <1047659289.2566.109.camel@sisko.scot.redhat.com> <20030314163727.GE8937@work.bitmover.com>
+ <Pine.LNX.4.50.0303140856340.1903-100000@blue1.dev.mcafeelabs.com>
+ <20030314182912.GA1873@gtf.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> First of all, thanks for this work, Alex.  It's been a long time in coming.
-> 
-> One thing I would wonder about is whether we should be implementing this in
-> ext2, or in ext3 only.  One of the decisions we made in the past is that we
-> shouldn't necessarily implement everything in ext2 (especially features that
-> complicated the code, and are only useful on high-end systems).
-> 
-> There was a desire to keep ext2 small and simple, and ext3 would get the
-> fancy high-end features that make sense if you have a large filesystem
-> that you would likely be using in conjunction with ext3 anyways.
+On Fri, 14 Mar 2003, Jeff Garzik wrote:
 
-Errrm ... if you want to start advocating that sort of thing, I suggest 
-you make ext3 usable on high end systems first. At the moment, that makes 
-no sense whatsoever. Ext3 still doesn't scale to big systems.
+> On Fri, Mar 14, 2003 at 09:09:15AM -0800, Davide Libenzi wrote:
+> > Ok, let's try again. Because honestly I'm pretty sick of this BK saga on
+> > lkml. It's maybe time to understand if people here is against Larry or
+> > against the BK license itself. It seems to me that there's the request of
+> > a read-only tool that is able to read BK repositories to fetch the latest
+> > kernel trees. I proposed before to Larry and to lkml to have Larry to
+> > release a read-only ( read-only here means, able only to fetch sources and
+> > related information ) BK binary under different licensing. Why this
+> > couldn't solve the problem if Larry and the anti-BK movement will find an
+> > agreement on the license ? Larry, is it possible to release such tool
+> > under a less strict license ?
+>
+> No.
+>
+> Because, in order to properly export data, you have to not understand
+> the BK file format, but you also have precisely follow BK's method
+> for creating the "weave" of changesets which produces a valid [GNU
+> patch / changeset / whatever].
+>
+> Thus, even to have an open source BK export tool requires that key
+> BK algorithms be open sourced.
 
-M.
+Precised that the CVS export works for this purpose, why should you need
+to open source algos to simply fetch sources from BK repos ? And, I was
+talking about a binary, not source.
 
+
+
+
+- Davide
 

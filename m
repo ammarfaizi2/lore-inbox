@@ -1,55 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbUJYQvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUJYQt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbUJYQvS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 12:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUJYQvR
+	id S262050AbUJYQt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 12:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbUJYQq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 12:51:17 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:63762 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262055AbUJYQux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 12:50:53 -0400
-Subject: Re: [PATCH 2/17] Generic backward compatibility includes for 4level
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20041025160606.GA26306@verdi.suse.de>
-References: <417CAA05.mail3Y411778M@wotan.suse.de>
-	 <20041025103926.A31632@flint.arm.linux.org.uk>
-	 <20041025160606.GA26306@verdi.suse.de>
-Content-Type: text/plain
-Message-Id: <1098723034.2798.35.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Mon, 25 Oct 2004 18:50:34 +0200
+	Mon, 25 Oct 2004 12:46:58 -0400
+Received: from mail3.utc.com ([192.249.46.192]:21231 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S262074AbUJYQpq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 12:45:46 -0400
+Message-ID: <417D2D8F.8080904@cybsft.com>
+Date: Mon, 25 Oct 2004 11:45:03 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Florian Schmidt <mista.tapas@gmx.net>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+References: <20041022133551.GA6954@elte.hu>	<20041022155048.GA16240@elte.hu>	<20041022175633.GA1864@elte.hu>	<20041025104023.GA1960@elte.hu>	<417CDE90.6040201@cybsft.com>	<20041025111046.GA3630@elte.hu>	<20041025121210.GA6555@elte.hu>	<20041025152458.3e62120a@mango.fruits.de>	<20041025132605.GA9516@elte.hu>	<20041025160330.394e9071@mango.fruits.de>	<20041025141008.GA13512@elte.hu> <20041025170612.6284923a@mango.fruits.de>
+In-Reply-To: <20041025170612.6284923a@mango.fruits.de>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.6 (++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (2.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > Don't we normally add do { } while (0) after empty macros which look like
-> > a function?
+Florian Schmidt wrote:
+> On Mon, 25 Oct 2004 16:10:08 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> iirc Rusty tried to come up with an example some time ago where it actually 
-> made a difference, but failed. But I can change it. 
+> 
+>>>Btw: i still experience some "pauses". They are different now though.
+>>>It seems i can trigger them by reloading a page in mozilla (not
+>>>always). This BUG definetly looks related. Dunno, when exactly it
+>>>happened (related to what i did at that moment), but it's the only one
+>>>in dmesg output on this bootup. Each of the pauses is accompanied by a
+>>>high cpu usage of ksoftirqd. I cannot retrigger the BUG though.
+>>
+>>please try -V0.2 - maybe the delayed-put fix is somehow related. (but
+>>only maybe...)
+>>
+> 
+> 
+> doesn't seem so. V0.2 doesn't fix this for me. This time i got a BUG storm
+> again in syslog (it kinda seems related to starting playback in xmms plus
+> loading pages in mozilla. will boot again to verify):
+> 
+
+Well I have now gotten a couple of these now too (with V0.2). They all 
+seem to be generated by firefox or thunderbird and the traces are all 
+identical except for the offending process.
 
 
-if (foo) 
-	bar(); 
-else 
-	pml4_ERROR(x);
-something_else();
-
--- 
+Oct 25 11:22:11 swdev14 kernel:
+Oct 25 11:22:20 swdev14 kernel: thunderbird-bin/3946: BUG in futex_wait 
+at kernel/futex.c:542
+Oct 25 11:22:20 swdev14 kernel:  [<c0136389>] futex_wait+0x192/0x19c (12)
+Oct 25 11:22:20 swdev14 kernel:  [<c0135646>] 
+sub_preempt_count+0x75/0xd8 (72)
+Oct 25 11:22:20 swdev14 kernel:  [<c02aa9f2>] _spin_unlock+0x1a/0x34 (4)
+Oct 25 11:22:20 swdev14 kernel:  [<c02aa9f2>] _spin_unlock+0x1a/0x34 (84)
+Oct 25 11:22:20 swdev14 kernel:  [<c01120ac>] mcount+0x14/0x18 (4)
+Oct 25 11:22:20 swdev14 kernel:  [<c02aa9f2>] _spin_unlock+0x1a/0x34 (20)
+Oct 25 11:22:20 swdev14 kernel:  [<c0118e15>] 
+default_wake_function+0x0/0x1c (60)
+Oct 25 11:22:20 swdev14 kernel:  [<c0118e15>] 
+default_wake_function+0x0/0x1c (32)
+Oct 25 11:22:20 swdev14 kernel:  [<c0136777>] sys_futex+0xf0/0xfc (12)
+Oct 25 11:22:20 swdev14 kernel:  [<c01120ac>] mcount+0x14/0x18 (8)
+Oct 25 11:22:20 swdev14 kernel:  [<c0136637>] do_futex+0x47/0x97 (20)
+Oct 25 11:22:20 swdev14 kernel:  [<c0136777>] sys_futex+0xf0/0xfc (40)
+Oct 25 11:22:20 swdev14 kernel:  [<c010623d>] 
+sysenter_past_esp+0x52/0x71 (68)
+Oct 25 11:22:20 swdev14 kernel: preempt count: 00000001
+Oct 25 11:22:20 swdev14 kernel: . 1-level deep critical section nesting:
+Oct 25 11:22:20 swdev14 kernel: .. entry 1: print_traces+0x1d/0x59 
+[<c0135a28>] / (dump_stack+0x23/0x27 [<c01070db>])
+Oct 25 11:22:20 swdev14 kernel:
 

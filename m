@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265155AbUBEAeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 19:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbUBEAYi
+	id S265146AbUBEArA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 19:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUBEAqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 19:24:38 -0500
-Received: from zcamail04.zca.compaq.com ([161.114.32.104]:48905 "EHLO
-	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S265155AbUBEAVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 19:21:19 -0500
-Date: Wed, 4 Feb 2004 18:25:42 -0600 (CST)
-From: mikem@beardog.cca.cpqcorp.net
-To: akpm@osdl.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: cciss updates for 2.6 [11 of 11]
-Message-ID: <Pine.LNX.4.58.0402041819510.18320@beardog.cca.cpqcorp.net>
+	Wed, 4 Feb 2004 19:46:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32899 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265178AbUBEAnH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 19:43:07 -0500
+Date: Wed, 4 Feb 2004 16:43:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm mailing list <linux-mm@kvack.org>, kmannth@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving
+ X  (fwd)
+In-Reply-To: <64260000.1075941399@flay>
+Message-ID: <Pine.LNX.4.58.0402041639420.2086@home.osdl.org>
+References: <51080000.1075936626@flay> <Pine.LNX.4.58.0402041539470.2086@home.osdl.org>
+ <60330000.1075939958@flay> <64260000.1075941399@flay>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 11 of 11 (finally).
-This patch fixes an Oops when unloading the driver. Bug fix.
-Please consider this for inclusion.
 
-All of the patches sent out are needed to get the driver in the 2.6 tree
-up to the level of the driver that is in the 2.4 tree, excluding this
-patch which is not required in 2.4.
-More patches will be coming. They include multi-path failover support,
-support for more than 8 controllers, and msi support. Presently working on
-a per logical volume queueing scheme.
-Please forgive me for flooding your inboxes.
---------------------------------------------------------------------------------------
-diff -burN lx262-p010/drivers/block/cciss.c lx262/drivers/block/cciss.c
---- lx262-p010/drivers/block/cciss.c	2004-02-04 12:44:52.000000000 -0600
-+++ lx262/drivers/block/cciss.c	2004-02-04 12:46:44.000000000 -0600
-@@ -2668,7 +2668,6 @@
- 	pci_set_drvdata(pdev, NULL);
- 	iounmap((void*)hba[i]->vaddr);
- 	cciss_unregister_scsi(i);  /* unhook from SCSI subsystem */
--	blk_cleanup_queue(hba[i]->queue);
- 	unregister_blkdev(COMPAQ_CISS_MAJOR+i, hba[i]->devname);
- 	remove_proc_entry(hba[i]->devname, proc_cciss);
 
-@@ -2679,6 +2678,7 @@
- 			del_gendisk(disk);
- 	}
+On Wed, 4 Feb 2004, Martin J. Bligh wrote:
+> 
+> Oh hell ... I remember what's wrong with this whole bit. pfn_valid is
+> used inconsistently in different places, IIRC. Linus / Andrew ... what
+> do you actually want it to mean? Some things seem to use it to say
+> "the memory here is valid accessible RAM", some things "there is a 
+> valid struct page for this pfn". I was aiming for the latter, but a
+> few other arches seemed to disagree.
+> 
+> Could I get a ruling on this? ;-)
 
-+	blk_cleanup_queue(hba[i]->queue);
- 	pci_free_consistent(hba[i]->pdev, NR_CMDS * sizeof(CommandList_struct),
- 			    hba[i]->cmd_pool, hba[i]->cmd_pool_dhandle);
- 	pci_free_consistent(hba[i]->pdev, NR_CMDS * sizeof( ErrorInfo_struct),
+It _definitely_ means "there is a valid 'struct page' for this pfn". 
 
-Thanks,
-mikem
-mike.miller@hp.com
+To test for "there is RAM" here, you need to first check that the pfn is
+valid, and then you can check what the page type is (usually that would be
+PageReserved(), but it could be a highmem check or something like that
+too).
 
+		Linus

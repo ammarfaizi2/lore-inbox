@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVBQTcU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVBQTmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVBQTcU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 14:32:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVBQTcN
+	id S261178AbVBQTmD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 14:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVBQTmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 14:32:13 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:57475 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262376AbVBQTZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 14:25:56 -0500
-From: Pat Gefre <pfg@sgi.com>
-Message-Id: <200502171925.j1HJPmAC107576@fsgi900.americas.sgi.com>
-Subject: [PATCH] 2.6 Altix : Ignore input during early boot
-To: linux-kernel@vger.kernel.org
-Date: Thu, 17 Feb 2005 13:25:47 -0600 (CST)
-Cc: akpm@osdl.org
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	Thu, 17 Feb 2005 14:42:03 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:54504 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261178AbVBQTls (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 14:41:48 -0500
+Date: Thu, 17 Feb 2005 20:42:17 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Kenan Esau <kenan.esau@conan.de>
+Cc: harald.hoyer@redhat.de, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
+Message-ID: <20050217194217.GA2458@ucw.cz>
+References: <20050211201013.GA6937@ucw.cz> <1108457880.2843.5.camel@localhost> <20050215134308.GE7250@ucw.cz> <1108578892.2994.2.camel@localhost> <20050216213508.GD3001@ucw.cz> <1108649993.2994.18.camel@localhost> <20050217150455.GA1723@ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050217150455.GA1723@ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6 Altix console patch to ignore input during early booting
+On Thu, Feb 17, 2005 at 04:04:55PM +0100, Vojtech Pavlik wrote:
 
-Signed-off-by: Patrick Gefre <pfg@sgi.com>
+> > drivers/input/serio/i8042.c: d4 -> i8042 (command) [78489009]
+> > drivers/input/serio/i8042.c: 07 -> i8042 (parameter) [78489009]
+> > drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 12) [78489014]
+> 
+> Ok, this is a regular 'I don't know what you mean' response from the
+> pad.
+> 
+> > drivers/input/serio/i8042.c: d4 -> i8042 (command) [78489014]
+> > drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [78489014]
+> > drivers/input/serio/i8042.c: fc <- i8042 (interrupt, aux, 12) [78489018]
+> 
+> But this return code is _very_ unusual. 0xfc means 'basic assurance test
+> failure' and should be reported only as a response to the 0xff command.
 
-#### diffstat
- sn_console.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
+Kenan, can you check whether the 0xfc response is there even if you
+don't do the setres 7 command before this one?
 
-
-
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/02/17 13:15:56-06:00 pfg@sgi.com 
-#   Don't bother checking for input during early printing
-# 
-# drivers/serial/sn_console.c
-#   2005/02/17 13:15:43-06:00 pfg@sgi.com +5 -2
-#   Don't bother checking for input during early printing
-#   Update copyright
-# 
-diff -Nru a/drivers/serial/sn_console.c b/drivers/serial/sn_console.c
---- a/drivers/serial/sn_console.c	2005-02-17 13:19:01 -06:00
-+++ b/drivers/serial/sn_console.c	2005-02-17 13:19:01 -06:00
-@@ -6,7 +6,7 @@
-  * driver for that.
-  *
-  *
-- * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
-+ * Copyright (c) 2004-2005 Silicon Graphics, Inc.  All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of version 2 of the GNU General Public License
-@@ -104,6 +104,7 @@
- };
- 
- static struct sn_cons_port sal_console_port;
-+static int sn_process_input;
- 
- /* Only used if USE_DYNAMIC_MINOR is set to 1 */
- static struct miscdevice misc;	/* used with misc_register for dynamic */
-@@ -681,7 +682,8 @@
- 
- 	if (!port->sc_port.irq) {
- 		spin_lock_irqsave(&port->sc_port.lock, flags);
--		sn_receive_chars(port, NULL, flags);
-+		if ( sn_process_input )
-+			sn_receive_chars(port, NULL, flags);
- 		sn_transmit_chars(port, TRANSMIT_RAW);
- 		spin_unlock_irqrestore(&port->sc_port.lock, flags);
- 		mod_timer(&port->sc_timer,
-@@ -878,6 +880,7 @@
- 	if (!IS_RUNNING_ON_SIMULATOR()) {
- 		sn_sal_switch_to_interrupts(&sal_console_port);
- 	}
-+	sn_process_input = 1;
- 	return 0;
- }
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

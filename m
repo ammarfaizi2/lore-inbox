@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316423AbSEOPuw>; Wed, 15 May 2002 11:50:52 -0400
+	id <S316422AbSEOPwi>; Wed, 15 May 2002 11:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316422AbSEOPuv>; Wed, 15 May 2002 11:50:51 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:5125 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316423AbSEOPuu>; Wed, 15 May 2002 11:50:50 -0400
-Date: Wed, 15 May 2002 11:47:20 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@redhat.com>
+	id <S316427AbSEOPwh>; Wed, 15 May 2002 11:52:37 -0400
+Received: from inway106.cdi.cz ([213.151.81.106]:48805 "EHLO luxik.cdi.cz")
+	by vger.kernel.org with ESMTP id <S316422AbSEOPwg>;
+	Wed, 15 May 2002 11:52:36 -0400
+Date: Wed, 15 May 2002 17:52:29 +0200 (CEST)
+From: Martin Devera <devik@cdi.cz>
+To: greg@kroah.com
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre8-ac4
-In-Reply-To: <200205151433.g4FEXko20788@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.3.96.1020515114553.5224A-100000@gatekeeper.tmr.com>
+Subject: BUG and OOPS in USB-OHCI again
+Message-ID: <Pine.LNX.4.44.0205151742210.12674-100000@luxik.cdi.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 May 2002, Alan Cox wrote:
+Hi Greg,
 
-> The usual IDE merge comments apply. Please treat this tree with care.
-> It should have knocked out more of the weirdnesses as well as providing the
-> basis for upcoming restructuring of stuff for mmio etc.
-> 
-> 
-> [+ indicates stuff that went to Marcelo, o stuff that has not,
->  * indicates stuff that is merged in mainstream now, X stuff that proved
->    bad and was dropped out]
-> 
-> Linux 2.4.19pre8-ac4
+I read post of some people having problems with OHCI. Well
+I'm having them too.
+We use pwc.o module (without closed-source compression support)
+on two machines with OHCI add-on card.
+It fails regulary (twice a day) with:
+BUG at usb-ohci.h:464 and it panics. With onboard UHCI it works
+well !! When I sumarized other posts on the list we can see that
+there was the same problems with OHCI+modem so that the bug
+should not be related to camera.
+Kernel is vanilla 2.4.18.
 
-Do note that this patch is against 2.4.18, not 2.4.19-pre8. At least
-according to the diff of the top level Makefile.
+Any tips ?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+devik
 

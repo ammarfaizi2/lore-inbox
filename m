@@ -1,103 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135595AbRDXRzQ>; Tue, 24 Apr 2001 13:55:16 -0400
+	id <S135706AbRDXSCg>; Tue, 24 Apr 2001 14:02:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135697AbRDXRzH>; Tue, 24 Apr 2001 13:55:07 -0400
-Received: from cs.utexas.edu ([128.83.139.9]:44431 "EHLO cs.utexas.edu")
-	by vger.kernel.org with ESMTP id <S135595AbRDXRyt>;
-	Tue, 24 Apr 2001 13:54:49 -0400
-Date: Tue, 24 Apr 2001 12:54:42 -0500 (CDT)
-From: Chin-Tser Huang <chuang@cs.utexas.edu>
-To: <alad@hss.hns.com>
-cc: <JColgan@safestory.com>, <linux-kernel@vger.kernel.org>
+	id <S135708AbRDXSC1>; Tue, 24 Apr 2001 14:02:27 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:52752 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135704AbRDXSCQ>; Tue, 24 Apr 2001 14:02:16 -0400
+Date: Tue, 24 Apr 2001 15:02:00 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Chin-Tser Huang <chuang@cs.utexas.edu>
+Cc: <alad@hss.hns.com>, <JColgan@safestory.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: Greetings!
-In-Reply-To: <65256A38.00545705.00@sandesh.hss.hns.com>
-Message-ID: <Pine.GSO.4.33.0104241253470.178-100000@fugue.cs.utexas.edu>
+In-Reply-To: <Pine.GSO.4.33.0104241253470.178-100000@fugue.cs.utexas.edu>
+Message-ID: <Pine.LNX.4.33.0104241501300.17635-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Because there was a mail whose subject is "Children first in fork".
+On Tue, 24 Apr 2001, Chin-Tser Huang wrote:
 
-On Tue, 24 Apr 2001 alad@hss.hns.com wrote:
+> Because there was a mail whose subject is "Children first in fork".
 
->
->
-> well... the book sounds good...
-> but... I am still thinking... what it has to do with linux kernel ??
->
->
->
->
-> JColgan@safestory.com on 04/24/2001 04:27:56 PM
->
-> To:   linux-kernel@vger.kernel.org
-> cc:    (bcc: Amol Lad/HSS)
->
-> Subject:  Greetings!
->
->
->
->
->
-> 1 in 6 children are victimized before the age of 16.
->
-> Hello, my name is Jason Colgan and I am writing to you about my father's unique
-> book on child safety.
->
-> I hope you don't mind me emailing you, but I found your email address on a
-> website that was related to children, so I figured you would definitely be
-> interested in this.
->
-> My father, a retired police Captain, authored a children's book using his unique
-> experience with child safety.  My father has investigated, arrested and taken
-> confessions from child molesters, kidnappers, murderers and some of the most
-> dangerous people in the world.  He often spoke and interacted with them before
-> they had the chance to speak with lawyers or others, so he was able to gain an
-> honest understanding of the way they think and the manner in which they
-> victimize children.
->
-> My father put his 23 years of experience to work for a good cause and developed
-> a children's book, written in a storybook fashion starring a small family of
-> bunnies.  The book has already caused quite a stir and has been featured in
-> local newspapers and even the news.  Even more important, the people who have
-> purchased the book love it and so do their children.  It truly presents a
-> simplified way to educate your child on matters that are difficult for parents,
-> grandparents, or guardians to discuss.
->
-> I would like you to learn more about my father's book by visiting
-> www.SafeStory.com
->
-> If you are curious to see what others think, there is a link on that web site
-> which has some customer opinions and even shows you the write-ups the book has
-> received on Amazon.com.
->
-> Thank you so much for your time and if you have any questions at all, please
-> email me or call and I would love to answer them!
->
-> My sincerest thanks,
-> Jason
->
->
-> http://www.SafeStory.com
->
->
-> P.S. Please email me at jason@jmc1.com or call me anytime. My home phone number
-> is 401-463-2856.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> > 1 in 6 children are victimized before the age of 16.
+
+Considering these statistics, I'm all for running children
+first after fork ...
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

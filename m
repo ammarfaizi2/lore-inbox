@@ -1,64 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVCGE4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVCGFBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVCGE4p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 23:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVCGE4p
+	id S261620AbVCGFBP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 00:01:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVCGFBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 23:56:45 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:8953 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261552AbVCGE4m (ORCPT
+	Mon, 7 Mar 2005 00:01:15 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:19499 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261620AbVCGFBM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 23:56:42 -0500
+	Mon, 7 Mar 2005 00:01:12 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ODy6N0tPKa0J99fkxvYOUr0WEAsBfQlKdkSC8oohfKhdeVHSZzhYelQ0ebUgJmA+ZLwMajLyDm/8aS6gwoT+YhKma6GN1qSGrDc0xnI2oekambofFfENcjzfkjDFRTQ4fS8hL6FStdzEV+YFCRQYz2jXgHIe8Vu8Lmen7YOBgts=
-Message-ID: <29495f1d050306205634336f05@mail.gmail.com>
-Date: Sun, 6 Mar 2005 20:56:42 -0800
+        b=ZdrdK5cpdzzTsrsVRp/xGGY3IEk+MIhT67e0j6EX0fw0IUy8/U0gXpTQcjkvT9ikrXGOqJ51EDg4yBmMxBysaxXN8JRjhL74sdlwZa3XyKUV/jvV8isDf0roVvyRGNBv74c4u9B3ha9nB6Z2cYgdPb1xvFglt86OFNsB8gUAfdI=
+Message-ID: <29495f1d0503062101549b14e8@mail.gmail.com>
+Date: Sun, 6 Mar 2005 21:01:11 -0800
 From: Nish Aravamudan <nish.aravamudan@gmail.com>
 Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 05/14] char/hvsi: use wait_event_timeout()
-Cc: domen@coderock.org, linux-kernel@vger.kernel.org, nacc@us.ibm.com
-In-Reply-To: <20050306193236.1dd2b3de.akpm@osdl.org>
+Subject: Re: [patch 12/14] drivers/dmapool: use TASK_UNINTERRUPTIBLE instead of TASK_INTERRUPTIBLE
+Cc: domen@coderock.org, linux-kernel@vger.kernel.org, nacc@us.ibm.com,
+       Patrick Mochel <mochel@digitalimplant.org>, Greg KH <greg@kroah.com>
+In-Reply-To: <20050306194414.68239e90.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20050306223630.55D7C1ED3D@trashy.coderock.org>
-	 <20050306193236.1dd2b3de.akpm@osdl.org>
+References: <20050306223654.3EE871EC90@trashy.coderock.org>
+	 <20050306194414.68239e90.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Mar 2005 19:32:36 -0800, Andrew Morton <akpm@osdl.org> wrote:
+On Sun, 6 Mar 2005 19:44:14 -0800, Andrew Morton <akpm@osdl.org> wrote:
 > domen@coderock.org wrote:
 > >
-> > Please consider applying. This is my first wait-queue related patch, so comments
-> >  are very welcome.
+> >  use TASK_UNINTERRUPTIBLE  instead of TASK_INTERRUPTIBLE
 > >
-> >  Use wait_event_timeout() in place of custom wait-queue code. The
-> >  code is not changed in any way (I don't think), but is cleaned up quite a bit
-> >  (will get expanded to almost identical code).
+> >  Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+> >  Signed-off-by: Domen Puncer <domen@coderock.org>
+> >  ---
 > >
-> > ...
-
-<snip>
-
-> >  +    if(!wait_event_timeout(hp->stateq, (hp->state == state), jiffies + HVSI_TIMEOUT))
-> >  +            ret = -EIO;
+> >
+> >   kj-domen/drivers/base/dmapool.c |    2 +-
+> >   1 files changed, 1 insertion(+), 1 deletion(-)
+> >
+> >  diff -puN drivers/base/dmapool.c~task_unint-drivers_base_dmapool drivers/base/dmapool.c
+> >  --- kj/drivers/base/dmapool.c~task_unint-drivers_base_dmapool        2005-03-05 16:11:21.000000000 +0100
+> >  +++ kj-domen/drivers/base/dmapool.c  2005-03-05 16:11:21.000000000 +0100
+> >  @@ -293,7 +293,7 @@ restart:
+> >               if (mem_flags & __GFP_WAIT) {
+> >                       DECLARE_WAITQUEUE (wait, current);
+> >
+> >  -                    current->state = TASK_INTERRUPTIBLE;
+> >  +                    set_current_state(TASK_UNINTERRUPTIBLE);
+> >                       add_wait_queue (&pool->waitq, &wait);
+> >                       spin_unlock_irqrestore (&pool->lock, flags);
 > 
-> wait_event_timeout()'s `timeout' arg is number-of-milliseconds-to-wait,
-> not an absolute time, yes?
+> This code is alread a bit odd.  If we're prepared to sleep in there, then
+> why use GFP_ATOMIC?
+> 
+> If it is so that we can dig a bit deeper into the free page pools then
+> something like __GFP_WAIT|__GFP_HIGH would be preferable.
+> 
+> And why isn't mem_flags passed into pool_alloc_page() verbatim?
 
-D'oh. I will fix this and any other timeout version that are being
-pushed to you tomorrow. Sadly, wait_event*() do not take milliseconds,
-but jiffies. I am hoping to push some patches to change that, but it
-may have to wait a while.
+Sorry, far beyond my abilities :(
  
-> Also, it's conventional to put a space between the `if' and the `('.
->
-> It's nice to squeeze the code into an 80-column xterm, too.
+> I agree on the TASK_UNINTERRUPTIBLE change: if the calling task happens to
+> have signal_pending() then the schedule_timeout() will fall right through.
+> Why should we change kernel memory allocation strategy if the user hit ^C?
 
-Will fix these both as well.
+Yup, didn't make much sense to me.
+ 
+> Also, __set_current_state() can be user here: the add_wait_queue() contains
+> the necessary barriers.  (Grubby, but we do that in quite a few places with
+> this particular code sequence (we should have an add_wait_queue() variant
+> which does the add_wait_queue+__set_current_state all in one hit (but let's
+> not, else I'll be buried in another 1000 cleanuplets))).
+
+Ok, I will re-spin this patch. Or would you prefer an incremental one?
 
 Thanks,
 Nish

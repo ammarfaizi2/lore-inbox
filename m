@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVAPEiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVAPEjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbVAPEiH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 23:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAPEhj
+	id S262425AbVAPEjW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 23:39:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAPEjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 23:37:39 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:52934 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262425AbVAPEhf
+	Sat, 15 Jan 2005 23:39:22 -0500
+Received: from gsstark.mtl.istop.com ([66.11.160.162]:7138 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S262425AbVAPEjL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 23:37:35 -0500
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Alex Tomas <alex@clusterfs.com>, Andrew Tridgell <tridge@samba.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Ext3 nanosecond timestamps in big inodes
-References: <200501142216.12726.agruen@suse.de>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 16 Jan 2005 05:37:34 +0100
-In-Reply-To: <200501142216.12726.agruen@suse.de> (Andreas Gruenbacher's
- message of "Fri, 14 Jan 2005 22:16:12 +0100")
-Message-ID: <m1acravvjl.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Sat, 15 Jan 2005 23:39:11 -0500
+To: William <wh@designed4u.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: the umount() saga for regular linux desktop users
+References: <200412311741.02864.wh@designed4u.net>
+In-Reply-To: <200412311741.02864.wh@designed4u.net>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 15 Jan 2005 23:39:00 -0500
+Message-ID: <87brbqt2cb.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Gruenbacher <agruen@suse.de> writes:
+William <wh@designed4u.net> writes:
 
-> this is a spin-off of an old patch by Alex Tomas <alex@clusterfs.com>:
-> Alex originally had nanosecond timestamps in his original patch; here is
-> a rejuvenated version. Please tell me what you think. Alex also added a
-> create timestamp in his original patch. Do we actually need that?
->
-> Nanoseconds consume 30 bits in the 32-bit fields. The remaining two bits 
-> currently are zeroed out implicitly. We could later use them remaining two 
-> bits for years beyond 2038.
+> In my opinion, in order for linux to be trully user friendly, "a umount() 
+> should NEVER fail" (even if the device containing the filesystem is no 
+> longuer attached to the system). The kernel should do it's best to satisfy 
+> the umount request and cleanup. Maybe the kernel could try some of the 
+> following:
 
-Looks good. Just two suggestions:
+What you're asking for is for the umount -f option to be supported. This isn't
+a new fangled idea. BSD supported has supported it since sometime in the last
+millennium. Seriously, it's pretty basic functionality and really ought to be
+supported.
 
-- Provide an mount option to turn it off because there may be
-performance regressions in some workload because inodes will be
-flushed more often.
-[I actually considered doing this generally at the VFS level
-when doing the s_time_gran patch, but it needed some more changes
-that I didn't want to do at that time. Doing it in the FS as
-interim solution would be fine too]
+The semantics of umount -f are simpler than you make it sound. It just
+unmounts the file system normally and revokes any file descriptors for that
+file system. Any further i/o on those file descriptors just gets an error
+(EINVAL I expect). 
 
-- Use the 2 bits for additionals years right now on 64bit
-hosts. No need to keep the y2038 issue around longer than necessary.
+This is one of my biggest pet peeves about Linux.
 
--Andi
+-- 
+greg
+

@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUDZMdC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263134AbUDZMjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUDZMdC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 08:33:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263801AbUDZMdC
+	id S263134AbUDZMjm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 08:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUDZMjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 08:33:02 -0400
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:36495 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264535AbUDZMcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 08:32:48 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
-Date: Mon, 26 Apr 2004 07:32:46 -0500
-User-Agent: KMail/1.6.1
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>
-References: <200404230142.46792.dtor_core@ameritech.net> <20040425235844.E13748@flint.arm.linux.org.uk> <1082975742.28880.120.camel@pegasus>
-In-Reply-To: <1082975742.28880.120.camel@pegasus>
+	Mon, 26 Apr 2004 08:39:42 -0400
+Received: from mail.tpgi.com.au ([203.12.160.57]:34954 "EHLO mail1.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S263134AbUDZMhU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 08:37:20 -0400
+Date: Mon, 26 Apr 2004 22:15:25 +1000
+From: "Nigel Cunningham" <ncunningham@linuxmail.com>
+To: "Herbert Xu" <herbert@gondor.apana.org.au>, 234976@bugs.debian.org
+Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
+Cc: "Roland Stigge" <stigge@antcom.de>, "Pavel Machek" <pavel@suse.cz>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Reply-To: ncunningham@linuxmail.com
+References: <1080310299.2108.10.camel@atari.stigge.org> <20040326142617.GA291@elf.ucw.cz> <1080315725.2951.10.camel@atari.stigge.org> <20040326155315.GD291@elf.ucw.cz> <1080317555.12244.5.camel@atari.stigge.org> <20040326161717.GE291@elf.ucw.cz> <1080325072.2112.89.camel@atari.stigge.org> <20040426094834.GA4901@gondor.apana.org.au> <20040426104015.GA5772@gondor.apana.org.au> <opr6193np1ruvnp2@laptop-linux.wpcb.org.au> <20040426121145.GA7610@gondor.apana.org.au>
+Content-Type: text/plain; format=flowed; delsp=yes; charset=us-ascii
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404260732.46315.dtor_core@ameritech.net>
+Content-Transfer-Encoding: 8bit
+Message-ID: <opr62cbzp9ruvnp2@laptop-linux.wpcb.org.au>
+In-Reply-To: <20040426121145.GA7610@gondor.apana.org.au>
+User-Agent: Opera M2/7.50 (Linux, build 663)
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 April 2004 05:35 am, Marcel Holtmann wrote:
-> Hi Russell,
-> 
-> > Look, Dominik has done a fair amount of work in this area.  There is
-> > a set of patches which need to be worked through and merged in a
-> > controlled manner to get to the point where we can have a struct
-> > device for PCMCIA cards.  We'll get there eventually.  Please don't
-> > try to bypass this process - it won't work, and it'll only cause
-> > unnecessary merge problems with the existing patch sets.
-> 
-> right now we have two broken drivers. They are only broken, because we
-> need a device for loading the firmware. If the PCMCIA driver model
-> integrations is not yet ready, we should find a way to make the firmware
-> loading possible without having a device. We don't need the device for
-> any other task. Actually I don't know how to achieve it, but I think if
-> we give a NULL pointer to the request_firmware() call the firmware_class
-> should create a dummy device.
+Hi.
+
+On Mon, 26 Apr 2004 22:11:45 +1000, Herbert Xu  
+<herbert@gondor.apana.org.au> wrote:
+
+> On Mon, Apr 26, 2004 at 09:27:13PM +1000, Nigel Cunningham wrote:
+>>
+>> There used to be such a check. Centrinos, however, if I recall  
+>> correctly,
+>> don't have PSE but can suspend with our current method. Perhaps we can
 >
-Hi Marcel,
+> Then it's just pure luck.  Whenever you have a page whose page table
+> lies in a page beyond that page itself the non-PSE case will fail.
 
-This is wrong... What if you have several devices that are needed firmware?
-You are not only loading a specific firmware but do it for a specific device.
-You may also want to do something else with it...
+I'm no expert on the hardware side of things, but from what I know, it's  
+really only these hardware devices that are accessing memory while we're  
+doing the copyback that are the problem. All processes are stopped and  
+we've called device_suspend(). Nothing but us should be using/modifying  
+the page tables.
 
-I think until pcmcia either provides or allows to create devices on pcmcia
-bus you can just fixup the name breakage like I did for atmel driver and
-leave it be. The device is not registered and not used in any way except to
-provide "unique" name for fimrware loader, at list in atmel_cs that is the
-case.
+>> come up with a more nuanced test? Better still, though, we should just  
+>> get
+>> proper AGP support for suspending and resuming in.
+>
+> It's got nothing to do with AGP.  This is a flaw in the swsusp code.
+> It can be triggered by anything that plays with page attributes.
 
+Not so much a flaw in the suspend code as something that needs to be dealt  
+with: it's not a bug for pages to have protection, and its not a bug for  
+us to need it temporarily removed in order to do the copyback. We just  
+need the support in the drivers to achieve that. When we have it (as we do  
+in some cases in 2.4), all is well.
+
+Regards,
+
+Nigel
 -- 
-Dmitry
+Nigel Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614, Australia.
++61 (2) 6251 7727 (wk)

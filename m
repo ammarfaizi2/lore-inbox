@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288980AbSCGAiX>; Wed, 6 Mar 2002 19:38:23 -0500
+	id <S288967AbSCGAuS>; Wed, 6 Mar 2002 19:50:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288958AbSCGAiN>; Wed, 6 Mar 2002 19:38:13 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:55985 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S288914AbSCGAiK> convert rfc822-to-8bit; Wed, 6 Mar 2002 19:38:10 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.51 (1003) - Registered Version
-Date: Wed, 6 Mar 2002 16:38:06 -0800
-Subject: atkbd works as module but not linked in, 2.5.5-dj3
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20020307003808.AAA19282@shell.webmaster.com@whenever>
+	id <S289025AbSCGAuI>; Wed, 6 Mar 2002 19:50:08 -0500
+Received: from lsanca1-ar27-4-63-184-089.lsanca1.vz.dsl.gtei.net ([4.63.184.89]:8320
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S288967AbSCGAuE>; Wed, 6 Mar 2002 19:50:04 -0500
+Date: Wed, 6 Mar 2002 16:49:36 -0800 (PST)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.5-dj3 - ide_fops
+In-Reply-To: <3C8604FB.1030907@evision-ventures.com>
+Message-ID: <Pine.LNX.4.33.0203061648330.2886-100000@barbarella.hawaga.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	This is a strange problem. I have CONFIG_KEYBOARD_AT set, and my System.map 
-file has the correct entries to show that the atkbd.c file was linked into my 
-kernel. Yet my AT keyboard is not detected. 'dmesg' shows:
 
- hdc: hdc1 hdc2 < hdc5 hdc6 hdc7 >
-mice: PS/2 mouse device common for all mice
-serio: i8042 KBD port at 0x60,0x64 irq 1
-serio: i8042 AUX port at 0x60,0x64 irq 12
-NET4: Linux TCP/IP 1.0 for NET4.0
+Here's another one.
 
-	Now here's the strange part -- if I manually compile atkbd.c as a module and 
-'insmod' it, this appears:
+2.5.5-dj3 removes EXPORT_SYMBOL(ide_fops)
 
-input: AT Set 2 keyboard on isa0060/serio0
+but doesn't remove ide_fops from the code.
 
-	And then the keyboard works. Am I doing something wrong? Everything worked 
-fine with 2.5.5-dj1, I have not tested 2.5.5-dj2 but would be glad to do so 
-if anyone thought it might help.
+Hence modprobe ide-cd doesn't work.
 
-	System is a dual p3-750, 440BX chipset. I'm going to keep looking into it, 
-checking the code that should initialize the keyboard and also looking at the 
-diffs closely.
+- -- 
+Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
+Live Ben-cam: http://barbarella.hawaga.org.uk/benc-cgi/watchers.cgi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--- 
-David Schwartz
-<davids@webmaster.com>
-
+iD8DBQE8hrkjsYXoezDwaVARAq20AJ484wxymank0VdYnX83JPIlMqwJBwCfYWiR
+M9S2II7fpkGjPi4D7/yqCvw=
+=EbrH
+-----END PGP SIGNATURE-----
 

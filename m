@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280848AbRKLQsl>; Mon, 12 Nov 2001 11:48:41 -0500
+	id <S280839AbRKLQrB>; Mon, 12 Nov 2001 11:47:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280840AbRKLQsb>; Mon, 12 Nov 2001 11:48:31 -0500
-Received: from astcc-423.astound.net ([24.219.123.215]:44805 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S280841AbRKLQsW>; Mon, 12 Nov 2001 11:48:22 -0500
-Date: Mon, 12 Nov 2001 09:47:46 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Mike Dresser <mdresser@windsormachine.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.20-ide patches
-In-Reply-To: <Pine.LNX.4.33.0111120925280.2398-100000@router.windsormachine.com>
-Message-ID: <Pine.LNX.4.10.10111120921430.14811-100000@master.linux-ide.org>
+	id <S280840AbRKLQqw>; Mon, 12 Nov 2001 11:46:52 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23315 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280839AbRKLQqk>; Mon, 12 Nov 2001 11:46:40 -0500
+Date: Mon, 12 Nov 2001 08:42:31 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: <dalecki@evision.ag>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.4.14 mregparm=3 compilation fixes
+In-Reply-To: <3BEFB261.700729A4@evision-ventures.com>
+Message-ID: <Pine.LNX.4.33.0111120838110.15242-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Nov 2001, Mike Dresser wrote:
 
-> My company is a cheap group of people :D  They don't pay their support
-> staff(read: me!) even close to market rate, so I couldn't expect them to
-> go pay for something they think is free as in free beer.  I already have a
-> supervisor pushing to replace these machines with overpriced Compaq NT
-> servers. :/
+On Mon, 12 Nov 2001, Martin Dalecki wrote:
+>
+> The attached patch is fixing compilation and running
+> of the kernel with -mregparm=3 on IA32. The fixes excluding
+> the change in arch/i386/Makefile of course apply to the stock kernel
+> as well, so Linus please include it in 2.4.15 - it just won't hurt...
 
-Well pass it to them that I will be happy to fix their problems when it is
-a Microsoft problem, but a double or triple the rate.  He needs to get
-clue and see that the support contract he will be paying for will exceed
-the cost of supporting what they are depend upon now under Linux.
+I certainly won't enable it in the stock kernel, considering the bad track
+record gcc has had with regparm under register pressure, but the
+"asmlinkage" parts look like real fixes.
 
-I have no problems with people needed to learn lessons the hardware way
-and if you send me his contact information, I will address it for you.
-This will explain that he is needed support and that costs money;
-regardless, of the OS and hardware.
+However, it's kind of sad to make some of the more timing-critical stuff
+(like schedule_tail) be asmlinkage - it might be worth it to do it the
+other way around, and make it FASTCALL() and change the assembly code to
+pass arguments in registers. That way, the calling convention is still the
+same on both regparm=3 and without, but instead of defaulting to the slow
+method we'd default to the fast one..
 
-> I see your point, and don't disagree with it, you've put a lot of work
-> into this.
-
-Thanks for the understanding note.
-
-Regards,
-
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+		Linus
 

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267120AbUBMRST (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 12:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267123AbUBMRST
+	id S267123AbUBMRSg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 12:18:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267128AbUBMRSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 12:18:19 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:36745 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267120AbUBMRSH
+	Fri, 13 Feb 2004 12:18:36 -0500
+Received: from stewie.egr.unlv.edu ([131.216.22.9]:25482 "EHLO
+	mail.egr.unlv.edu") by vger.kernel.org with ESMTP id S267123AbUBMRSd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 12:18:07 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: (was Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three())
-Date: Fri, 13 Feb 2004 18:23:53 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <200402122106.41947.bzolnier@elka.pw.edu.pl> <20040213083718.GA11914@alpha.home.local>
-In-Reply-To: <20040213083718.GA11914@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Fri, 13 Feb 2004 12:18:33 -0500
+Subject: fh_verify: no root_squashed access hundreds of times a second again
+From: Andrew Gray <grayaw@egr.unlv.edu>
+To: linux-kernel@vger.kernel.org
+Organization: University of Nevada Las Vegas - College of Engineering
+Message-Id: <1076692518.15751.5.camel@blargh>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402131823.53939.bzolnier@elka.pw.edu.pl>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 13 Feb 2004 09:18:32 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 of February 2004 09:37, Willy Tarreau wrote:
-> Hi Bart,
->
-> On Thu, Feb 12, 2004 at 09:06:41PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > Willy, it seems you are hitting some other problem.
-> > Have you already tried booting with "ide0=ata66"?
->
-> Sorry, I think I mangled it like "hda=ata66" or "ide0=udma66" instead when
-> I tried. I just rechecked with "ide0=ata66", and I confirm that it works
+I'm not subscribed to the linux-kernel list, I would appreciate a CC on
+any replies, but I will be watching the list as well.  I'm reposting
+this message in the hope someone will answer - neither I nor the mailing
+list got any replies last time.
 
-Great, but I wonder why cable bits are set incorrectly.
-Probably it's a BIOS bug, maybe BIOS update will help?
+I am using kernel 2.4.24 on a heavily-used NFS server. I am receiving
+hundreds of messages like:
 
-> (it uses UDMA100). BTW, wouldn't it be more appropriate to use something
-> such as "udma4" or "80pin" or something else which would be more intuitive
-> than "ata66" ?
+"kernel: fh_verify: no root_squashed access at sessions/lastsession."
 
-It is "ata66" because of compatibility :/.
+in my messages log, usually accompanied by a "last message repeated 6497
+times" a minute or so later. I'm gathering it is just reporting it is
+denying root access to a share, which is fine and exactly what I asked
+for. Is there anyway to shut this logging off without just wiping the
+line from fs/nfsd/nfsfh.c? I really can't afford to be rebooting the box
+to install a new kernel right now. I've searched google, linux-kernel,
+and other resources, and while I've found others with the same problem,
+no solutions have been posted.
 
-Cheers,
---bart
+-- 
+Andrew Gray
+Systems Administrator
+College of Engineering
+University of Nevada, Las Vegas
+
 

@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263379AbSJFLAk>; Sun, 6 Oct 2002 07:00:40 -0400
+	id <S263377AbSJFK6g>; Sun, 6 Oct 2002 06:58:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263378AbSJFLAk>; Sun, 6 Oct 2002 07:00:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:5517 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263379AbSJFLAj>;
-	Sun, 6 Oct 2002 07:00:39 -0400
-Date: Sun, 06 Oct 2002 03:59:34 -0700 (PDT)
-Message-Id: <20021006.035934.106436540.davem@redhat.com>
+	id <S263378AbSJFK6g>; Sun, 6 Oct 2002 06:58:36 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:2701 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263377AbSJFK6g>;
+	Sun, 6 Oct 2002 06:58:36 -0400
+Date: Sun, 06 Oct 2002 03:57:22 -0700 (PDT)
+Message-Id: <20021006.035722.68159471.davem@redhat.com>
 To: mingo@elte.hu
 Cc: alan@lxorguk.ukuu.org.uk, lm@bitmover.com, drepper@redhat.com,
        bcollins@debian.org, torvalds@transmeta.com,
@@ -28,16 +28,12 @@ X-Mailing-List: linux-kernel@vger.kernel.org
    From: Ingo Molnar <mingo@elte.hu>
    Date: Sun, 6 Oct 2002 13:04:39 +0200 (CEST)
    
-   i'm also a bit worried about the legal status of commit messages posted
-   via bkbits. Are they GPL-ed automatically, can we just take them and put
-   them into a free-BK type server? We already have one precedent of a
-   business entity abusing a free OS project and then suing it (and winning
-   the suit), hindering the free OS's development for years.
+   Larry talked about some sort of
+   guarantees that involve GPL-ing of BK code 1-2 years after it's first used
+   by the kernel, to make sure the Linux kernel tree is not left in limbo.
 
-Larry has stated many times over that he doesn't own our bits.
+Ingo, he promised this if the bitkeeper logging went down for
+a period of time or if bitkeeper were to go out of buisness.
 
-That is why once you extract content from the repository into some
-other form (a patch with the change logs prepended, for example) he
-doesn't care what you do with it.
-
-He even said this twice today.
+He did not promise this just because we use it for kernel development
+for 1-2 years, are you out of your mind? :-)

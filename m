@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129606AbRBGBqR>; Tue, 6 Feb 2001 20:46:17 -0500
+	id <S129751AbRBGBuH>; Tue, 6 Feb 2001 20:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130135AbRBGBp5>; Tue, 6 Feb 2001 20:45:57 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:10761 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129606AbRBGBpv>; Tue, 6 Feb 2001 20:45:51 -0500
-Date: Tue, 6 Feb 2001 17:45:41 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jens Axboe <axboe@suse.de>
-cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        Ben LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <20010207023952.A15015@suse.de>
-Message-ID: <Pine.LNX.4.10.10102061741050.2193-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129850AbRBGBtr>; Tue, 6 Feb 2001 20:49:47 -0500
+Received: from scout.phpwebhosting.com ([64.29.16.128]:27396 "HELO
+	scout.phpwebhosting.com") by vger.kernel.org with SMTP
+	id <S129751AbRBGBtk>; Tue, 6 Feb 2001 20:49:40 -0500
+Message-Id: <4.2.2.20010206194415.00b2bb60@mail.heptasphere.com>
+X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.2 
+Date: Tue, 06 Feb 2001 19:45:19 -0600
+To: linux-kernel@vger.kernel.org
+From: Ben Pharr <ben-kernel@heptasphere.com>
+Subject: Re: FA-311 / Natsemi problems with 2.4.1
+In-Reply-To: <3A8088B1.7E4B4604@mandrakesoft.com>
+In-Reply-To: <3A806A22.4020204@netgem.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 05:28 PM 2/6/01 , you wrote:
+>Jocelyn Mayer wrote:
+> >
+> > I found something from OpenBSD:
+> > the natsemi chip (in fact DP83815)
+> > is quite the same as SiS900 one.
+>
+>If that is true, maybe you can hack drivers/net/sis900.c to get it to
+>work with the FA-311?
+>
+>         Jeff
 
 
-On Wed, 7 Feb 2001, Jens Axboe wrote:
-> 
-> > [...] so I would be _really_ nervous about just turning it on
-> > silently. This is all very much a 2.5.x-kind of thing ;)
-> 
-> Then you might want to apply this :-)
-> 
-> --- drivers/block/ll_rw_blk.c~	Wed Feb  7 02:38:31 2001
-> +++ drivers/block/ll_rw_blk.c	Wed Feb  7 02:38:42 2001
-> @@ -1048,7 +1048,7 @@
->  	/* Verify requested block sizes. */
->  	for (i = 0; i < nr; i++) {
->  		struct buffer_head *bh = bhs[i];
-> -		if (bh->b_size % correct_size) {
-> +		if (bh->b_size != correct_size) {
->  			printk(KERN_NOTICE "ll_rw_block: device %s: "
->  			       "only %d-char blocks implemented (%u)\n",
->  			       kdevname(bhs[0]->b_dev),
+My FA311 works fine with the natsemi driver.
 
-Actually, I'd rather leave it in, but speed it up with the saner and
-faster
-
-	if (bh->b_size & (correct_size-1)) {
-		...
-
-That way people who _want_ to test the odd-size thing can do so. And
-normal code (that never generates requests on any other size than the
-"native" size) won't ever notice either way.
-
-(Oh, we'll eventually need to move to "correct_size == hardware
-blocksize", not the "virtual blocksize" that it is now. As it it a tester
-needs to set the soft-blk size by hand now).
-
-		Linus
+Ben Pharr
+bnpharr@olemiss.edu
+-------------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

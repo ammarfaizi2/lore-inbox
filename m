@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbTIIVGy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTIIVGy
+	id S264452AbTIIVDW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbTIIVDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:06:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28099 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264499AbTIIVGw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:06:52 -0400
-Date: Tue, 9 Sep 2003 14:06:44 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: bert hubert <ahu@ds9a.nl>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] (improved) LSM root_plug fixup
-Message-ID: <20030909140644.F7617@osdlab.pdx.osdl.net>
-References: <20030804200130.GA8719@outpost.ds9a.nl> <20030805095840.GA29628@outpost.ds9a.nl> <20030904234738.GA12556@kroah.com> <20030909083752.GB12415@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030909083752.GB12415@outpost.ds9a.nl>; from ahu@ds9a.nl on Tue, Sep 09, 2003 at 10:37:52AM +0200
+	Tue, 9 Sep 2003 17:03:21 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:52454 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S264452AbTIIVDQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 17:03:16 -0400
+Message-ID: <3F5E364E.2040409@terra.com.br>
+Date: Tue, 09 Sep 2003 17:21:34 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Missing memory barrier on net/core/dev.c
+References: <3F5E14D7.9030809@terra.com.br> <20030909124635.3c0d522b.davem@redhat.com>
+In-Reply-To: <20030909124635.3c0d522b.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* bert hubert (ahu@ds9a.nl) wrote:
-> Please find new patch attached, rediffed against test5. The directory in the
-> patch says 2.6.0-test2, but it is against test5. Compiles & works for me.
+	Hi,
 
-It's working for me.  I put it in the LSM tree with one minor typo fixed:
+David S. Miller wrote:
+> On Tue, 09 Sep 2003 14:58:47 -0300
+> Felipe W Damasio <felipewd@terra.com.br> wrote:
+> 
+> 
+>>	I *think* net/core/dev.c is missing a mb() before calling 
+>>schedule_timoeut.
+> 
+> I have another patch in my queue from Andrew Morton that
+> removes the TASK_RUNNING setting altogether, schedule_timeout()
+> always returns with the task in that state.
 
-> +++ linux-2.6.0-test2-bk-ahu/security/commoncap.c	2003-09-09 09:56:53.000000000 +0200
-> @@ -0,0 +1,353 @@
-> +/* Common capabilities, needed by capability.o and root_cap.o 
+	Ok, although that was not the main point of the patch :)
 
-s/root_cap/root_plug/
+	What about the "set_current_state" before calling schedule_timeout. 
+Isn't that mb() needed?
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+	Cheers,
+
+Felipe
+

@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUH0W2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUH0Wda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUH0W2d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 18:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUH0W1l
+	id S264997AbUH0Wda (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 18:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUH0Wct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 18:27:41 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:6366 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261610AbUH0WTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 18:19:12 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Rick Lindsley <ricklind@us.ibm.com>
-Subject: Re: 2.6.9-rc1-mm1
-Date: Sat, 28 Aug 2004 00:29:29 +0200
-User-Agent: KMail/1.5
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Con Kolivas <kernel@kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200408272154.i7RLsJk02714@owlet.beaverton.ibm.com>
-In-Reply-To: <200408272154.i7RLsJk02714@owlet.beaverton.ibm.com>
+	Fri, 27 Aug 2004 18:32:49 -0400
+Received: from web14922.mail.yahoo.com ([216.136.225.6]:11371 "HELO
+	web14922.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263448AbUH0W3k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 18:29:40 -0400
+Message-ID: <20040827222938.12618.qmail@web14922.mail.yahoo.com>
+Date: Fri, 27 Aug 2004 15:29:38 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+To: Matthew Wilcox <willy@debian.org>
+Cc: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Martin Mares <mj@ucw.cz>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <20040827164303.GW16196@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408280029.29339.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 of August 2004 23:54, Rick Lindsley wrote:
->     > Rafael, what baseline release are you comparing to?  I should be able
->     > to provide some tools to measure the effect on updatedb directly for
->     > both 2.6.9-rc1 and your baseline (so long as it's 2.6-based)
->
->     2.6.8.1, for example.  I'd like to compate it with the 2.6.9-rc1-mm1,
-> which contains the Nick's scheduler (2.6.9-rc1 has the same scheduler as
-> 2.6.8.1, AFAIK).
->
-> Okay.  A schedstats patch for 2.6.8.1 is available at
->
->     http://eaglet.rain.com/rick/linux/schedstat/patches/schedstat-2.6.8.1
->     or
->     http://oss.software.ibm.com/linux/patches/?patch_id=730
->
-> You can also pick up the program "latency.c" at
->
->     http://eaglet.rain.com/rick/linux/schedstat/v9/latency.c
->
-> With these two things in hand, you should be able to measure the latency
-> on 2.6.8.1 of a particular process.
->
-> A patch is not necessary for 2.6.9-rc1-mm1 (schedstats is already in there)
-> but you will need to config the kernel to use it.  Then retrieve a slightly
-> different latency.c:
->
->     http://eaglet.rain.com/rick/linux/schedstat/v10/latency.c
->
-> since 2.6.9-rc1-mm1 output format is different (as you noted, it's a
-> different scheduler.)  Then you should be able to see if the latency of
-> a particular process (updatedb, for instance) changes.
+--- Matthew Wilcox <willy@debian.org> wrote:
+> The expansion rom PCI region claims to be 4MB in size, but if we try
+> to read past 1MB, the machine reboots.  This won't be a problem with
+> the latest patch because it'll return a size of 0.
 
-Thanks a lot Rick, I'll give it a try tomorrow.
+I would think that it would return 4MB. If it can't find standard ROM
+headers it should return the window size. 
 
-Regards,
-RJW
+Are you sure you are getting the correct contents of those ROMs? Would
+it be worthwhile to try and get the author of the ROMs to add standard
+ROM headers? The content you included doesn't look that useful unless
+that is what IA64 instructions look like.
 
--- 
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+If reading past 1MB for those ROMs causes a reboots, could something be
+wrong in the IA64 fault handing code?
+
+I'd feel a lot better if someone actually tried this patch on a ppc or
+sun machine.
+
+=====
+Jon Smirl
+jonsmirl@yahoo.com
+
+
+		
+_______________________________
+Do you Yahoo!?
+Win 1 of 4,000 free domain names from Yahoo! Enter now.
+http://promotions.yahoo.com/goldrush

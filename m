@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265316AbSJXDzY>; Wed, 23 Oct 2002 23:55:24 -0400
+	id <S265303AbSJXDw6>; Wed, 23 Oct 2002 23:52:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265317AbSJXDzX>; Wed, 23 Oct 2002 23:55:23 -0400
-Received: from rth.ninka.net ([216.101.162.244]:48279 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S265316AbSJXDzX>;
-	Wed, 23 Oct 2002 23:55:23 -0400
-Subject: Re: feature request - why not make netif_rx() a pointer?
+	id <S265306AbSJXDw6>; Wed, 23 Oct 2002 23:52:58 -0400
+Received: from rth.ninka.net ([216.101.162.244]:46999 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S265303AbSJXDw5>;
+	Wed, 23 Oct 2002 23:52:57 -0400
+Subject: Re: [RESEND] tuning linux for high network performance?
 From: "David S. Miller" <davem@rth.ninka.net>
-To: Slavcho Nikolov <snikolov@okena.com>
-Cc: jt@hpl.hp.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>
-In-Reply-To: <004c01c27a99$927b8a30$800a140a@SLNW2K>
-References: <20021023003959.GA23155@bougret.hpl.hp.com> 
-	<004c01c27a99$927b8a30$800a140a@SLNW2K>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: bert hubert <ahu@ds9a.nl>, netdev@oss.sgi.com,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200210231542.48673.roy@karlsbakk.net>
+References: <200210231218.18733.roy@karlsbakk.net>
+	<20021023130101.GA646@outpost.ds9a.nl>
+	<1035379308.5950.3.camel@rth.ninka.net> 
+	<200210231542.48673.roy@karlsbakk.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 23 Oct 2002 21:13:25 -0700
-Message-Id: <1035432805.9626.4.camel@rth.ninka.net>
+Date: 23 Oct 2002 21:11:09 -0700
+Message-Id: <1035432669.9628.1.camel@rth.ninka.net>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-23 at 06:39, Slavcho Nikolov wrote:
-> As for GPL, I hope that commercial enterprises be allowed to utilize
-> business models
-> which do not necessarily consist in providing services around free software.
-> The more replaceable hooks you provide to filesystems and network stacks,
-> the better.
+On Wed, 2002-10-23 at 06:42, Roy Sigurd Karlsbakk wrote:
+> As far as I've understood, sendfile() won't do much good with large files. Is 
+> this right?
 
-While more hooks may be in your interest, they are not in the interest
-of free software.
-
-I really hope you have competant legal advice for the things you are
-doing, because binary-only derivative works of a GPL work are illegal.
+There is always a benefit to using sendfile(), when you use
+sendfile() the cpu doesn't touch one byte of the data if
+the network card support TX checksumming.  The disk DMAs
+to ram, then the net card DMAs from ram.  Simple as that.
 

@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265023AbSKKOsN>; Mon, 11 Nov 2002 09:48:13 -0500
+	id <S261495AbSKKO4A>; Mon, 11 Nov 2002 09:56:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265238AbSKKOsN>; Mon, 11 Nov 2002 09:48:13 -0500
-Received: from sb0-cf9a4971.dsl.impulse.net ([207.154.73.113]:38417 "EHLO
-	madrabbit.org") by vger.kernel.org with ESMTP id <S265023AbSKKOsL>;
-	Mon, 11 Nov 2002 09:48:11 -0500
-Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
-From: Ray Lee <ray-lk@madrabbit.org>
-To: hps@intermeta.de, rddunlap@osdl.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 11 Nov 2002 06:54:54 -0800
-Message-Id: <1037026495.22906.36.camel@orca>
-Mime-Version: 1.0
+	id <S265648AbSKKO4A>; Mon, 11 Nov 2002 09:56:00 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:53259 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S261495AbSKKO4A>; Mon, 11 Nov 2002 09:56:00 -0500
+Message-Id: <200211111502.gABF2ajg031284@pincoya.inf.utfsm.cl>
+To: hps@intermeta.de
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.4.20-rc1] compiler fix drivers/ide/pdc202xx.c 
+In-Reply-To: Message from "Henning P. Schmiedehausen" <hps@intermeta.de> 
+   of "Mon, 11 Nov 2002 11:49:16 -0000." <aqo5fs$65i$1@forge.intermeta.de> 
+Date: Mon, 11 Nov 2002 12:02:36 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > What should it do?
-> I would model this after user space. (Which does strange things: 
+"Henning P. Schmiedehausen" <hps@intermeta.de> said:
+> Daniel Mehrmann <daniel.mehrmann@gmx.de> writes:
+> 
+> >Hello Marcelo,
+> 
+> >i fix a compiler warning from pdc202xx.c.
+> >The "default:" value in the switch was empty. Gcc don`t like
+> >this. We don`t need this one. 
+> 
+> Correct solution is not to remove the "default:" but to add a "break;"
 
-<snip>
-
-It only sounds strange at first. It actually means that scanf is
-consistent with C's rules of assignment between mixed types. For
-example:
-
-ray:~$ cat signs.c
-
-#include <stdio.h>
-
-main() {
-	char scan[]="-100";
-	unsigned int u;
-	int i;
-
-	sscanf(scan, "%ud", &u);
-	sscanf(scan, "%d", &i);
-	printf("%s scanned to signed %d and unsigned %u\n", scan, i, u);
-
-	i=-100;
-	u=i;
-	printf("%d assigned to unsigned int gives %u\n", i, u);
-}
-
-ray:~$ ./signs
--100 scanned to signed -100 and unsigned 4294967196
--100 assigned to unsigned int gives 4294967196
-
-So, one should think of scanf as having correct knowledge of the types
-it's scanning, and then shoe-horning the result into whatever you asked
-for. Just like C itself.
-
-Ray
-
+So people start wondering if somehow the content of the default case got
+deleted by mistake? Better not. Plus it is needless (source) code bloat.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

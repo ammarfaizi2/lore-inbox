@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267630AbTBLAL3>; Tue, 11 Feb 2003 19:11:29 -0500
+	id <S267352AbTBLANk>; Tue, 11 Feb 2003 19:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267688AbTBLAL2>; Tue, 11 Feb 2003 19:11:28 -0500
-Received: from adsl-66-137-237-97.dsl.rcsntx.swbell.net ([66.137.237.97]:43176
-	"HELO frascone.com") by vger.kernel.org with SMTP
-	id <S267630AbTBLAL1>; Tue, 11 Feb 2003 19:11:27 -0500
-Date: Tue, 11 Feb 2003 18:21:15 -0600
-From: David Frascone <dave@frascone.com>
-To: linux-kernel@vger.kernel.org
-Subject: Faking a memory map?
-Message-ID: <20030212002115.GD26196@wolverine>
+	id <S266967AbTBLANk>; Tue, 11 Feb 2003 19:13:40 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:48557 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267649AbTBLAMP>; Tue, 11 Feb 2003 19:12:15 -0500
+Subject: [RESEND][PATCH] linux-2.5.60_timer-tsc-cleanups_A1
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1045009173.987.18.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 11 Feb 2003 16:19:33 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to get an existing SDK (userland) for a PCI hardware device
-to work across a different propriatary bit-banged interface.
+Linus, All
 
-The original device driver just mmaped the PCI registers / address
-space into userland.  (talk about lazy ;)
+	This cleanup patch makes fast_gettimeoffset_quotient (a timer_tsc
+specific variable) static, and replaces its usage with cpu_khz, making
+it timer_opt independent.
 
-Anyway, the hardware I'm working with is *not* on the PCI bus, and
-therefore not memory-mappable.  So, I'm stuck with a complex driver
-design (compared to the original), and rewriting the entire bottom of
-the SDK.
+Please apply.
 
-So, I thought:  Is there a way to cheat?  Would it be possible for me
-to *fake* the SDK out by memory mapping some RAM, and then reading /
-writing to the ram after bit-banging the device.
+thanks
+-john
 
-I looked into it some, but I couldn't figure out how to get notified
-when the region was read/written to (only when the page changed).  So,
-is it possible to do the (admitedly ugly) hack I'm attempting?
+diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+--- a/arch/i386/kernel/smpboot.c	Tue Feb 11 16:12:33 2003
++++ b/arch/i386/kernel/smpboot.c	Tue Feb 11 16:12:33 2003
+@@ -182,8 +182,6 @@
+ 
+ #define NR_LOOPS 5
+ 
+-extern unsigned long fast_gettimeoffset_quotient;
+-
+ /*
+  * accurate 64-bit/32-bit division, expanded to 32-bit divisions and 64-bit
+  * multiplication. Not terribly optimized but we need it at boot time only
+@@ -223,7 +221,8 @@
+ 
+ 	printk("checking TSC synchronization across %u CPUs: ", num_booting_cpus());
+ 
+-	one_usec = ((1<<30)/fast_gettimeoffset_quotient)*(1<<2);
++	/* convert from kcyc/sec to cyc/usec */
++	one_usec = cpu_khz / 1000;
+ 
+ 	atomic_set(&tsc_start_flag, 1);
+ 	wmb();
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c	Tue Feb 11 16:12:33 2003
++++ b/arch/i386/kernel/timers/timer_tsc.c	Tue Feb 11 16:12:33 2003
+@@ -29,7 +29,7 @@
+  * Equal to 2^32 * (1 / (clocks per usec) ).
+  * Initialized in time_init.
+  */
+-unsigned long fast_gettimeoffset_quotient;
++static unsigned long fast_gettimeoffset_quotient;
+ 
+ static unsigned long get_offset_tsc(void)
+ {
 
-Thanks in advance,
 
--Dave
 
--- 
-David Frascone
-
-          What garlic is to salad, insanity is to art.

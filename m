@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278404AbRJMUmx>; Sat, 13 Oct 2001 16:42:53 -0400
+	id <S278405AbRJMUoe>; Sat, 13 Oct 2001 16:44:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278405AbRJMUmn>; Sat, 13 Oct 2001 16:42:43 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:5871
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S278404AbRJMUm2>; Sat, 13 Oct 2001 16:42:28 -0400
-Date: Sat, 13 Oct 2001 13:42:54 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Robert Love <rml@ufl.edu>, Andrea Arcangeli <andrea@suse.de>,
-        safemode <safemode@speakeasy.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-ac10-preempt lmbench output.
-Message-ID: <20011013134254.A28547@mikef-linux.matchmail.com>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>, Robert Love <rml@ufl.edu>,
-	Andrea Arcangeli <andrea@suse.de>,
-	safemode <safemode@speakeasy.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011010003636Z271005-760+23005@vger.kernel.org> <20011010031803.F8384@athlon.random> <20011010020935.50DEF1E756@Cantor.suse.de> <20011010043003.C726@athlon.random> <1002681480.1044.67.camel@phantasy> <20011012132220.B35@toy.ucw.cz>
+	id <S278406AbRJMUoX>; Sat, 13 Oct 2001 16:44:23 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:19638
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S278405AbRJMUoG>; Sat, 13 Oct 2001 16:44:06 -0400
+Date: Sat, 13 Oct 2001 13:44:13 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Mike Borrelli <mike@nerv-9.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: No love for the PPC
+Message-ID: <20011013134413.A15110@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <Pine.LNX.4.21.0110121002200.13818-100000@asuka.nerv-9.net> <200110130452.f9D4qG9288830@saturn.cs.uml.edu> <20011013114729.D16500@mikef-linux.matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011012132220.B35@toy.ucw.cz>
+In-Reply-To: <20011013114729.D16500@mikef-linux.matchmail.com>
 User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 01:22:20PM +0000, Pavel Machek wrote:
-> Hi!
+On Sat, Oct 13, 2001 at 11:47:29AM -0700, Mike Fedyk wrote:
+> On Sat, Oct 13, 2001 at 12:52:16AM -0400, Albert D. Cahalan wrote:
+> > Mike Borrelli writes:
+> > > Anyway, the real question is, why does the ppc arhitecture /always/ break
+> > > between versions?
+> > 
+> > At the most recent Ottata Linux Symposium, there was a PowerPC
+> > session with about 20 people. Somebody did a poll, asking what
+> > people used. I was the only person who dared to use a kernel
+> > from Linus. Everone else was using the BenH and BitKeeper ones.
+> > 
+> > This is a sorry state of affairs. 
 > 
-> > Now dbench (or any task) is in kernel space for too long.  The CPU time
-> > xmms needs will of course still be given, but _too late_.  Its just not
-> > a cpu resource problem, its a timing problem.  xmms needs x units of CPU
-> > every y units of time.  Just getting the x whenever is not enough.
-> 
-> Yep, with
-> 
-> x = 60msec
-> y = 600msec
->
-> So you can give it time up to 540msec late with no drop-outs.
-> 
+> Actually, this is normal for new ports on Linux.  PPC is relatively new,
+> m68k is developed with their own cvs, as is Intel IA64.  I'm sure others
+> will be able to quote about other arches...
 
-How fast was the processor/memory on the system that produced these numbers?
+Actually, this is a normal state of affairs for !i386.  PPC has actually
+been around in some form or another for 5 years almost... (at least?).
+m68k is older than that.  It's sort of a given that the Linus tree will
+be a bit behind.  But as far as PPC goes, we were actually pretty close
+in 2.4.10 and 2.4.12 and the stable PPC tree had very few (and for the
+most part unimportant) differences.
 
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

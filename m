@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317261AbSINOvO>; Sat, 14 Sep 2002 10:51:14 -0400
+	id <S317073AbSINOqn>; Sat, 14 Sep 2002 10:46:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317331AbSINOvN>; Sat, 14 Sep 2002 10:51:13 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:896 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317261AbSINOvN>;
-	Sat, 14 Sep 2002 10:51:13 -0400
-Date: Sat, 14 Sep 2002 00:46:06 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>,
-       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: LMbench2.0 results
-Message-ID: <20020913224559.GA25487@elf.ucw.cz>
-References: <Pine.LNX.4.44L.0209071553020.1857-100000@imladris.surriel.com> <1031435070.14390.14.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1031435070.14390.14.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S317258AbSINOqn>; Sat, 14 Sep 2002 10:46:43 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:45042 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317073AbSINOqn> convert rfc822-to-8bit; Sat, 14 Sep 2002 10:46:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: Rik van Riel <riel@conectiva.com.br>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Good way to free as much memory as possible under 2.5.34?
+Date: Sat, 14 Sep 2002 16:51:00 +0200
+User-Agent: KMail/1.4.2
+Cc: kernel list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L.0209131830560.1857-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.44L.0209131830560.1857-100000@imladris.surriel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209141651.00974.hpj@urpla.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Rik,
 
-> > > > Comments?
-> > >
-> > > Yeah:  "ouch" because I don't see a single category that's faster.
-> > 
-> > HZ went to 1000, which should help multimedia latencies a lot.
-> 
-> It shouldn't materially damage performance unless we have other things
-> extremely wrong. Its easy enough to verify by putting HZ back to 100 and
-> rebenching 
+On Friday 13 September 2002 23:33, Rik van Riel wrote:
+> On Fri, 13 Sep 2002, Pavel Machek wrote:
+> > Allocating memory is pain because I have to free it afterwards. Yep I
+> > have such code, but it is ugly. try_to_free_pages() really seems like
+> > cleaner solution to me... if you only tell me how to fix it :-).
+>
+> "Fixing" the VM just so it behaves the way swsuspend wants is
+> out. If swsuspend relies on all other subsystems playing nicely,
+> I think it should be removed from the kernel.
 
-1000 times per second, enter timer interrupt, acknowledge it, exit
-interrupt. Few i/o accessess, few tlb entries kicked out, some L1
-cache consumed?
+> I suspect only very few people will use swsuspend, so it should
+> not be intrusive.
 
-Is 10usec per timer interrupt reasonable on modern system? That's 10
-msec per second spend in timer with HZ=1000, thats 1% overall. So it
-seems to me it is possible for HZ=1000 to have performance impact...
+By now, it's only used by a minority (those, who get it going reliably),
+but I bet, things change, when 2.6 is out. I would love and even celebrate
+once swsuspend is working via nbd for my diskless setups. I consider
+this as a real quantum leap (from a usability/energy saving point of view).
 
-								Pavel
+The question is: why is the VM not able to fulfill such a simple need in
+a clean way?
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+> regards,
+>
+> Rik
+
+Regards,
+Hans-Peter

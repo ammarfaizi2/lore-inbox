@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbUDNWVo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 18:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUDNWTk
+	id S261884AbUDNWWO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 18:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUDNWVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 18:19:40 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:31202 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S261914AbUDNWTG (ORCPT
+	Wed, 14 Apr 2004 18:21:55 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:26040 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S261925AbUDNWVP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 18:19:06 -0400
-Date: Wed, 14 Apr 2004 15:19:04 -0700
+	Wed, 14 Apr 2004 18:21:15 -0400
+Date: Wed, 14 Apr 2004 15:20:59 -0700
 To: "David S. Miller" <davem@redhat.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] irlan - change handle_filter_request to irlan_filter_request
-Message-ID: <20040414221904.GF5434@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] irlan -- replace sleep_on with wait_event
+Message-ID: <20040414222059.GI5434@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,52 +26,27 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-irXXX_irlan_handle_filter.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+irXXX_irlan_sleep.diff :
+~~~~~~~~~~~~~~~~~~~~~~
 		<Patch from Stephen Hemminger>
-	o [FEATURE] Change name of handle_filter_request to
-		irlan_filter_request to avoid namespace pollution.
+	o [CORRECT] gets rid of interruptible_sleep_on.
 
 
-diff -Nru a/include/net/irda/irlan_filter.h b/include/net/irda/irlan_filter.h
---- a/include/net/irda/irlan_filter.h	Fri Mar 19 11:29:21 2004
-+++ b/include/net/irda/irlan_filter.h	Fri Mar 19 11:29:21 2004
-@@ -27,7 +27,7 @@
+diff -Nru a/net/irda/irlan/irlan_eth.c b/net/irda/irlan/irlan_eth.c
+--- a/net/irda/irlan/irlan_eth.c	Fri Mar 19 11:43:53 2004
++++ b/net/irda/irlan/irlan_eth.c	Fri Mar 19 11:43:53 2004
+@@ -104,10 +104,10 @@
+ 	self->disconnect_reason = 0;
+ 	irlan_client_wakeup(self, self->saddr, self->daddr);
  
- void irlan_check_command_param(struct irlan_cb *self, char *param, 
- 			       char *value);
--void handle_filter_request(struct irlan_cb *self, struct sk_buff *skb);
-+void irlan_filter_request(struct irlan_cb *self, struct sk_buff *skb);
- int irlan_print_filter(struct seq_file *seq, int filter_type);
- 
- #endif /* IRLAN_FILTER_H */
-diff -Nru a/net/irda/irlan/irlan_filter.c b/net/irda/irlan/irlan_filter.c
---- a/net/irda/irlan/irlan_filter.c	Fri Mar 19 11:29:21 2004
-+++ b/net/irda/irlan/irlan_filter.c	Fri Mar 19 11:29:21 2004
-@@ -29,12 +29,12 @@
- #include <net/irda/irlan_common.h>
+-	/* Make sure we have a hardware address before we return, so DHCP clients gets happy */
+-	interruptible_sleep_on(&self->open_wait);
+-	
+-	return 0;
++	/* Make sure we have a hardware address before we return, 
++	   so DHCP clients gets happy */
++	return wait_event_interruptible(self->open_wait,
++					!self->tsap_data->connected);
+ }
  
  /*
-- * Function handle_filter_request (self, skb)
-+ * Function irlan_filter_request (self, skb)
-  *
-  *    Handle filter request from client peer device
-  *
-  */
--void handle_filter_request(struct irlan_cb *self, struct sk_buff *skb)
-+void irlan_filter_request(struct irlan_cb *self, struct sk_buff *skb)
- {
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == IRLAN_MAGIC, return;);
-diff -Nru a/net/irda/irlan/irlan_provider.c b/net/irda/irlan/irlan_provider.c
---- a/net/irda/irlan/irlan_provider.c	Fri Mar 19 11:29:21 2004
-+++ b/net/irda/irlan/irlan_provider.c	Fri Mar 19 11:29:21 2004
-@@ -358,7 +358,7 @@
- 					 12);
- 		break;
- 	case CMD_FILTER_OPERATION:
--		handle_filter_request(self, skb);
-+		irlan_filter_request(self, skb);
- 		break;
- 	default:
- 		IRDA_DEBUG(2, "%s(), Unknown command!\n", __FUNCTION__ );

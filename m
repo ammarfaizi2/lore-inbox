@@ -1,52 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268137AbUIWB6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268142AbUIWB7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268137AbUIWB6u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 21:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268138AbUIWB6u
+	id S268142AbUIWB7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 21:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268139AbUIWB7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 21:58:50 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:3588 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S268137AbUIWB6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 21:58:49 -0400
-In-Reply-To: <200409222236.26323.norberto+linux-kernel@bensa.ath.cx>
-References: <4506E4E6490@vcnet.vc.cvut.cz> <aeb13402040922144553f096c7@mail.gmail.com> <8250D402-0CEC-11D9-B9FD-000D9352858E@linuxmail.org> <200409222236.26323.norberto+linux-kernel@bensa.ath.cx>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <19102930-0D04-11D9-B9FD-000D9352858E@linuxmail.org>
-Content-Transfer-Encoding: 7bit
-Cc: Kyle Schlansker <kylesch@gmail.com>, linux-kernel@vger.kernel.org
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: NOT FIXED (Is anyone using vmware 4.5 with 2.6.9-rc2-mm
-Date: Thu, 23 Sep 2004 03:58:43 +0200
-To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-X-Mailer: Apple Mail (2.619)
+	Wed, 22 Sep 2004 21:59:11 -0400
+Received: from pointblue.com.pl ([81.219.144.6]:25106 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S268138AbUIWB67 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 21:58:59 -0400
+Message-ID: <41522DD5.6050809@pointblue.com.pl>
+Date: Thu, 23 Sep 2004 03:58:45 +0200
+From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/3] compilation fixes for gcc 4.0
+References: <4151D03D.4030506@pointblue.com.pl>
+In-Reply-To: <4151D03D.4030506@pointblue.com.pl>
+Content-Type: multipart/mixed;
+ boundary="------------010308070601070803040709"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 23, 2004, at 03:36, Norberto Bensa wrote:
+This is a multi-part message in MIME format.
+--------------010308070601070803040709
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Felipe Alfaro Solana wrote:
->>> I must have missed the previous discussion, so
->>> what issues are you having (i.e. how does vmware "not work")?
->>
->> I think all the problems he is having are related to the fact that he
->> has a "tmpfs" mounted on top of "/tmp".
->
-> Exactly, I have tmpfs mounted on /tmp; but why does it work with 
-> kernels up to
-> 2.6.9-rc1-mm5? I'm an ignorant on all this so an explanation would be 
-> nice.
->
->
->> I'm also using VMware with
->> 2.6.9-rc2-mm1 with a plain, disk-based, /tmp directory, with no
->> problems at all.
->
-> I'll try a plain /tmp directory, but I'd like to know why I can't use 
-> tmpfs
-> anymore with kernels >=2.6.9-rc2-mm1.
+Grzegorz Piotr Jaskiewicz wrote:
 
-That's a question that requires far more knowledge than I have.
-Maybe someone here... Andrew?
+> gcc 4.0 doesn't treat this extension as valid anymore.
+>
+> one of the gcc guys said to me:
+> " For that matter, they could neatly avoid the whole issue by writing 
+> ANSI/ISO-compliant code instead of
+>             using GCC extensions."
+> That should be sufficient for explanation.
+>
+> In all these cases, I see no reason to declare prototype inside body 
+> of function. It makes code less readable.
+>
+> I am sure it's present in few more places, but that's the only place 
+> where I can spot it.
+> Please apply.
+>
+This is resend, mozilla seem to do wordwraping. Patch is attached.
 
+Signed-off-by: Grzegorz Jaskiewicz <gj at pointblue.com.pl>
+---
+
+--
+GJ
+
+--------------010308070601070803040709
+Content-Type: text/plain;
+ name="grip_mp.c.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="grip_mp.c.patch"
+
+--- a/drivers/input/joystick/grip_mp.c	2004-08-14 07:37:42 +0200
++++ b/drivers/input/joystick/grip_mp.c	2004-09-22 20:58:40 +0200
+@@ -107,6 +107,8 @@
+ 
+ static int axis_map[] = { 5, 9, 1, 5, 6, 10, 2, 6, 4, 8, 0, 4, 5, 9, 1, 5 };
+ 
++static void register_slot(int i, struct grip_mp *grip);
++
+ /*
+  * Returns whether an odd or even number of bits are on in pkt.
+  */
+@@ -355,7 +357,6 @@
+ 	u32 packet;
+ 	int joytype = 0;
+ 	int slot = 0;
+-	static void register_slot(int i, struct grip_mp *grip);
+ 
+ 	/* Get a packet and check for validity */
+ 
+
+--------------010308070601070803040709--

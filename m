@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbVDETsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVDETv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbVDETsL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 15:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVDETpW
+	id S261943AbVDETv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVDETsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 15:45:22 -0400
-Received: from mail.aknet.ru ([217.67.122.194]:48133 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261882AbVDETlr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 15:41:47 -0400
-Message-ID: <4252EA01.7000805@aknet.ru>
-Date: Tue, 05 Apr 2005 23:41:53 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: ru, en-us, en
+	Tue, 5 Apr 2005 15:48:31 -0400
+Received: from hammer.engin.umich.edu ([141.213.40.79]:1507 "EHLO
+	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
+	id S261923AbVDETrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 15:47:00 -0400
+Date: Tue, 5 Apr 2005 15:46:54 -0400 (EDT)
+From: Christopher Allen Wing <wingc@engin.umich.edu>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
+In-Reply-To: <20050405183141.GA27195@muc.de>
+Message-ID: <Pine.LNX.4.58.0504051539490.13242@hammer.engin.umich.edu>
+References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
+ <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
+ <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu>
+ <20050405183141.GA27195@muc.de>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru> <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-Linus Torvalds wrote:
-> This one can pass through vm86 mode stuff without the high-16-bit fixup,
-> as far as I can tell.
-Yes, but according to Petr, vm86 is not
-affected by the bug at all. I did some
-rough tests in the past that seem to
-confirm that. Also, in any case, the
-dependance of vm86 code on the higher word
-of %esp would be very, very obscure.
 
-> So I'd actually prefer to get that mystery explained..
-IIRC if the interrupt doesn't do the CPL
-switch, the interrupt gate doesn't save
-the stack, and so there may not be the
-full "struct pt_regs" when the kernel
-thread is interrupted.
-Does this sound any realistic?
+On Tue, 5 Apr 2005, Andi Kleen wrote:
 
-So while it would be excellent to hear
-that my patch was not guilty at all, I
-think it is not the case. 
+> Try booting with acpi_skip_timer_override
 
+
+Nope, this doesn't fix the problem. Here's the dmesg of 2.6.11.6 with
+'acpi_skip_timer_override apic=debug':
+	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/dmesg-2.6.11.6-acpi-apicdebug-acpi_skip_timer_override
+
+Here's /proc/interrupts:
+	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/interrupts-2.6.11-6-acpi-apicdebug-acpi_skip_timer_override
+
+
+The clock still runs at double speed. The IRQ assignments seem to all have
+been permuted, though, with 'acpi_skip_timer_override'
+
+
+Thanks,
+Chris

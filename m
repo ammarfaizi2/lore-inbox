@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293558AbSBZKBM>; Tue, 26 Feb 2002 05:01:12 -0500
+	id <S293559AbSBZKIW>; Tue, 26 Feb 2002 05:08:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293559AbSBZKBB>; Tue, 26 Feb 2002 05:01:01 -0500
-Received: from bs1.dnx.de ([213.252.143.130]:29840 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S293558AbSBZKAu>;
-	Tue, 26 Feb 2002 05:00:50 -0500
-Date: Tue, 26 Feb 2002 11:00:09 +0100 (CET)
-From: Robert Schwebel <robert@schwebel.de>
-X-X-Sender: <robert@callisto.local>
-Reply-To: <robert@schwebel.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: New version (2.4.18.1) of AMD Elan patch
-Message-ID: <Pine.LNX.4.33.0202261058350.20170-100000@callisto.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293560AbSBZKIM>; Tue, 26 Feb 2002 05:08:12 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:2564 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S293559AbSBZKIF>;
+	Tue, 26 Feb 2002 05:08:05 -0500
+Date: Tue, 26 Feb 2002 13:12:08 +0300
+From: Andrey Panin <pazke@orbita1.ru>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove unneeded inode semaphores from driverfs
+Message-ID: <20020226101208.GA285@pazke.ipt>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020226085946.GB278@pazke.ipt> <20020226085952.GA30564@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Content-Disposition: inline
+In-Reply-To: <20020226085952.GA30564@kroah.com>
+User-Agent: Mutt/1.3.27i
+X-Uname: Linux pazke 2.5.3-dj3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-A new version of the AMD Elan patch is available on
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  http://www.pengutronix.de/software/elan_en.html
+On Tue, Feb 26, 2002 at 12:59:53AM -0800, Greg KH wrote:
+> On Tue, Feb 26, 2002 at 11:59:46AM +0300, Andrey Panin wrote:
+> > Hi,
+> >=20
+> > __remove_file() in driverfs/inode.c calls down(&dentry->d_inode->i_sem)
+> > before calling vfs_unlink(dentry->d_parent->d_inode,dentry) which=20
+> > tries to claim the same semaphore causing the livelock.
+> > driverfs_remove_dir() makes the same calling vfs_rmdir().
+>=20
+> What kernel version did you generate this patch for?  This patch doesn't
+> apply at all to 2.5.5, and it looks like this problem is already fixed.
 
-This is a maintainance version only, no new functionality has been added.
-The patch against 2.4.18.1 deals with the following stuff:
+It's against 2.5.5-pre1, I was out of the net for some days and
+couldn't check final 2.5.5.
 
-- serial driver bugfix (was sent to Theodore Ts'o and rmk)
-- correct ioport resource reservation for /proc/ioport
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-If you have an AMD Elan processor (SC400, SC410, SC520) please test this
-fix extensively and send me bug reports. You might also want to test it if
-you don't have this special hardware, as the patch now does also affect
-the normal serial driver.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Robert
---
- +--------------------------------------------------------+
- | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
- | Pengutronix - Linux Solutions for Science and Industry |
- |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
- |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
- +--------------------------------------------------------+
+iD8DBQE8e194Bm4rlNOo3YgRAtJeAJ9WQoLpB10wnJp7Hi/nz1sszNqtwgCbB8WW
+ASsiKKLkMVfyeaCJdmTRj1E=
+=+1O+
+-----END PGP SIGNATURE-----
 
-
-
+--pf9I7BMVVzbSWLtt--

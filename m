@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317012AbSHOO2T>; Thu, 15 Aug 2002 10:28:19 -0400
+	id <S317056AbSHOOlr>; Thu, 15 Aug 2002 10:41:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317017AbSHOO2T>; Thu, 15 Aug 2002 10:28:19 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:10766 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S317012AbSHOO2S>; Thu, 15 Aug 2002 10:28:18 -0400
-Date: Thu, 15 Aug 2002 15:32:46 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: j-nomura@ce.jp.nec.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18(19) swapcache oops
-In-Reply-To: <20020815.213929.846960657.nomura@hpc.bs1.fc.nec.co.jp>
-Message-ID: <Pine.LNX.4.44.0208151515420.1610-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S317058AbSHOOlr>; Thu, 15 Aug 2002 10:41:47 -0400
+Received: from avscan1.sentex.ca ([199.212.134.11]:11792 "EHLO
+	avscan1.sentex.ca") by vger.kernel.org with ESMTP
+	id <S317056AbSHOOlq>; Thu, 15 Aug 2002 10:41:46 -0400
+Message-ID: <007101c2446a$bb20b420$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: <JosMHinkle@netscape.net>, <linux-kernel@vger.kernel.org>
+References: <79B43166.1160898F.0BD32098@netscape.net>
+Subject: Re: Linux kernel 2.4.19 failure to access a serial port
+Date: Thu, 15 Aug 2002 10:47:51 -0400
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Aug 2002 j-nomura@ce.jp.nec.com wrote:
-> 
-> I'm using 2.4.18 kernel and suspect there are swapcache race. 
-> I looked into 2.4.19 patch but could not find the fix to it.
+From: <JosMHinkle@netscape.net>
+> Slight expansion: A system with two serial ports on ttyS0 and ttyS1
+> and a hardware modem on ttyS2 was not serviced properly in kernel
+> 2.4.19 and some earlier ones.  The modem at ttyS2 was fairly well
+> ignored.  The interrupt requests used were ttyS0:irq4 ttyS1:irq3
+> ttyS2:irq10
+>
+> Temporary fix:
+>    In drivers/char/serial.c at the directive "#ifdef CONFIG_PCI"
+> the assumption is made that interrupt requests are shared and
+> there are more than four serial ports.  That is not necessarily
+> true, and the directives defeat the options set in configuration.
+>    The solution here was to comment out #define CONFIG_SERIAL_SHARE_IRQ
+> and CONFIG_SERIAL_MANY_PORTS and recompile.
+>
+> #ifdef CONFIG_PCI
+> #define ENABLE_SERIAL_PCI
+> /*** Commented out to allow unshared IRQ's on ttyS0-ttyS3
+> #ifndef CONFIG_SERIAL_SHARE_IRQ
+> #define CONFIG_SERIAL_SHARE_IRQ
+> #endif
+> #ifndef CONFIG_SERIAL_MANY_PORTS
+> #define CONFIG_SERIAL_MANY_PORTS
+> #endif
+> ***/
+> #endif
 
-I see a benign race but no oops.
+This fix breaks the driver in a fundamental way. SHARE_IRQ and
+MANY_PORTS are turned on if CONFIG_PCI is on because a) pci drivers
+*must* share interrrupts and b) generally serial ports that are behind
+a pci bus are multiport boards.
 
-> In the situation such as:
->   - two processes (process A and B) sharing memory space
->   - one of the pages in the space has been swapped out and
->     not remained in swapcache
->   - process A runs on cpu0, process B runs on cpu1
-> 
-> when process A reads the address corresponding to the page,
-> page fault occurs and the cpu0 reads swapped-out page into memory,
-> calls add_to_page_cache_unique() to add it to swapcache and then
-> calls lru_cache_add() to add it to lru list.
-> 
-> If process B reads the same address at that time, cpu1 calls
-> do_swap_page() and lookup_swap_cache() may succeed before cpu0
-> calls lru_cache_add() and cpu1 will set the page active by
-> following mark_page_accessed().
+The effect of MANY_PORTS is merely to increase the size of the static
+array that holds the serial port state. Whether or not it is on should
+not have affected your problem. (I believe the smallest size of the
+array is 4, for ttyS0-3.)
 
-I agree that B may get to mark_page_accessed before A gets to
-lru_cache_add, but B will just SetPageReferenced.  If there's a
-similar process C racing on the page too, its mark_page_accessed
-would call activate_page, but that will see !PageLRU and do nothing.
+SHARE_IRQ should also not have affected your problem, since your modem
+is configured at irq 10, and you haven't mentioned that anything else
+is also using irq 10. If turning off this option "fixes" your problem
+then that should indicate that your setup isn't what you think it is;
+either the modem isn't really at irq 10 (unclear from your previous
+post, and my lack of isapnp knowledge) and/or something else is also
+using the same irq your modem is on.
 
-> lru_cache_add() checks if the page is active and if it is active,
-> it calls BUG().
+Please see my previous email, and try some of my suggestions. The one
+about reserving the irq in bios for isa-only use is critical.
 
-It cannot be made PageActive until after lru_cache_add has set PageLRU.
+..Stu
 
-Hugh
+--
+We make multiport serial boards.
+<http://www.connecttech.com>
+(800) 426-8979
+
 

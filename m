@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269176AbRHHUfI>; Wed, 8 Aug 2001 16:35:08 -0400
+	id <S269409AbRHHUw3>; Wed, 8 Aug 2001 16:52:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269246AbRHHUfA>; Wed, 8 Aug 2001 16:35:00 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:25891 "EHLO
-	mailsorter1.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S269176AbRHHUe4>; Wed, 8 Aug 2001 16:34:56 -0400
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6FBF@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'sparclinux@vger.kernel.org'" <sparclinux@vger.kernel.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: 2.4.7ac9,10 compile error
-Date: Wed, 8 Aug 2001 16:35:01 -0400 
+	id <S269520AbRHHUwU>; Wed, 8 Aug 2001 16:52:20 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:14313 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S269409AbRHHUwG>;
+	Wed, 8 Aug 2001 16:52:06 -0400
+Message-ID: <3B71A6BB.6623B9BF@candelatech.com>
+Date: Wed, 08 Aug 2001 13:53:15 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies Inc
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Donald Becker <becker@scyld.com>
+CC: LKML <linux-kernel@vger.kernel.org>,
+        "eepro100@scyld.com" <eepro100@scyld.com>
+Subject: Re: [eepro100] Problem with Linux 2.4.7 and builtin eepro onIntel'sEEA2  
+ motherboard. (Solved, kinda)
+In-Reply-To: <Pine.LNX.4.10.10108071900340.976-100000@vaio.greennet>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey guys,
+A kind Intel employee told me that the e100 would indeed work
+on 2.4.7 kernels, so I downloaded the driver and gave it a shot.
 
-I am trying to install 2.4.7 on my Ultra 5, and I am running into some
-problems.  Got some errors compiling a sound module to start so I updated to
-2.4.7ac9 and tried again, but got the following error.  I also updated to
-2.4.7ac10 that just came out, and got the same error on compile.  Any ideas
-where I am going wrong?
+So far, it seems to be working flawlessly.  Does anyone know how
+to get mii-diag like information out of the e100?  (For instance,
+I'd like to be able to query the card to see what it's current link
+speed is, and force it to various speeds and advertise flags...)
 
-Error:
-In file included from sched.c:26:
+Enjoy,
+Ben
 
-/usr/src/linux-2.4.7/include/linux/irq.h:61: asm/hw_irq.h: No such file or
-directory
-
-make[2]: *** [sched.o] Error 1
-
-make[1]: *** [first_rule] Error 2
-
-make: *** [_dir_kernel] Error 2    
-                                           
-Bruce Holzrichter 
-Systems Administrator 
-Monster.com 
-Phone:  978-461-8869 
-Cell:      978-375-9558 
-bruce.holzrichter@monster.com 
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

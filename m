@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277246AbRJIOTQ>; Tue, 9 Oct 2001 10:19:16 -0400
+	id <S277244AbRJIOT0>; Tue, 9 Oct 2001 10:19:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277241AbRJIOTH>; Tue, 9 Oct 2001 10:19:07 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:55168 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S277246AbRJIOSs>; Tue, 9 Oct 2001 10:18:48 -0400
-Date: Tue, 9 Oct 2001 10:16:48 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel size
-In-Reply-To: <163112682879.20011009161634@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.3.95.1011009100315.5093A-100000@chaos.analogic.com>
+	id <S277241AbRJIOTQ>; Tue, 9 Oct 2001 10:19:16 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:25362 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S277244AbRJIOTK>; Tue, 9 Oct 2001 10:19:10 -0400
+Message-ID: <3BC30755.30F47321@didntduck.org>
+Date: Tue, 09 Oct 2001 10:19:01 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alejandro Conty <zz01f074@etsiig.uniovi.es>
+CC: Gergely Tamas <dice@mfa.kfki.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] again: Re: Athlon kernel crash (i686 works)
+In-Reply-To: <LAW2-OE29ilTmbtQVi0000079ef@hotmail.com>
+		<Pine.LNX.4.33.0110091347001.12835-100000@falka.mfa.kfki.hu> <20011009155907.6c9e0b98.zz01f074@etsiig.uniovi.es>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, VDA wrote:
-
-> Hi folks
+Alejandro Conty wrote:
 > 
-> I recompiled my kernel with GCC 3.0.1 (was 2.95.x)
-> and guess what - it got bigger...
-> Somehow, I hoped in linux world software gets better
-> with time, not worse...
+> Could my random kernel oopses be caused by that bug?
 > 
-> Maybe that's my fault (misconfigured GCC etc) ?
-> What do you see?
+> I have a VIA (ASUS A7V) cipset an K7 1000Mhz, and sometimes the kernel crash.
+> I just updated to kernel 2.4.10, and the first problem is that I get a random
+> oops if I try to load analog.o with modprobe. I sent a report of this problem
+> two days ago.
 > 
-> Being curious, I looked into vmlinux (uncompressed kernel).
+> Could that patch solve my problem?
 
-It's much worse than you can imagine!
+The oops with the analog joystick driver is fixed in 2.4.11-preX.
 
-`strings /proc/kcore | grep GNU' >qqq.qqq`
+--
 
-Causes a file this big to be generated:
--rw-r--r--   1 root     root      1069748 Oct  9 10:01 qqq.qqq
-
-That's how much space is being wasted by GNU advertising.
-
-A single program:
-
-int foo;
-
-
-Compiled, produces this:
-
-	.file	"xxx.c"
-	.version	"01.01"
-gcc2_compiled.:
-	.comm	foo,4,4
-	.ident	"GCC: (GNU) egcs-2.91.66 19990314 (egcs-1.1.2 release)"
-
-It __might__ be possible to link, without linking in ".ident", which
-currently shares space with .rodata. My gcc man pages are not any
-better than the usual Red Hat so I can't find out if there is any way
-to turn OFF these spurious strings.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+				Brian Gerst

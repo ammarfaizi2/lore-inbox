@@ -1,149 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUAHIBW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 03:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263537AbUAHIBW
+	id S263810AbUAHIPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 03:15:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbUAHIPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 03:01:22 -0500
-Received: from mail.blue-edge.bg ([213.222.56.114]:33679 "HELO
-	mail.blue-edge.bg") by vger.kernel.org with SMTP id S262328AbUAHIBS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 03:01:18 -0500
-Message-ID: <3FFD0E48.1090308@blue-edge.bg>
-Date: Thu, 08 Jan 2004 10:01:12 +0200
-From: Deian Chepishev <deian@blue-edge.bg>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Maetee Maitri <new@ji-net.com>
-CC: tsd@asus.com, linux-kernel@vger.kernel.org
-Subject: Re: P4P800-VM - ASUS - HIGH MEMORY extremely slow under some circumstaces
- - LOG FILES - added
-References: <3FFD09F1.2020702@ji-net.com>
-In-Reply-To: <3FFD09F1.2020702@ji-net.com>
-Content-Type: text/plain; charset=TIS-620; format=flowed
+	Thu, 8 Jan 2004 03:15:09 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:22493 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S263810AbUAHIPC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 03:15:02 -0500
+X-Sender-Authentication: net64
+Date: Thu, 8 Jan 2004 09:14:41 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Ben Greear <greearb@candelatech.com>
+Cc: willy@w.ods.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org
+Subject: Re: Problem with 2.4.24 e1000 and keepalived
+Message-Id: <20040108091441.3ff81b53.skraw@ithnet.com>
+In-Reply-To: <3FFCC430.4060804@candelatech.com>
+References: <20040107200556.0d553c40.skraw@ithnet.com>
+	<20040107210255.GA545@alpha.home.local>
+	<3FFCC430.4060804@candelatech.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess it will work if i do it like you have said but i had not much 
-time to play with that. I have done some further investigation and found 
-the following dependency:
-Since my RAM is on 4 dims 512MB each i started to remove them one bu 
-one. First removed both dims on the second channel. Still the same 
-problem. But when i removed the third dimm and on the mainboard left 
-only one the problem did not appear. I guess that either the chipset has 
-some bug when allocating memory for the video card or ASUS have made 
-really poor implementation.
+On Wed, 07 Jan 2004 18:45:04 -0800
+Ben Greear <greearb@candelatech.com> wrote:
 
-That is why i installed external AGP video card and disabled that one on 
-the main board and the problem have gone.
-Maetee Maitri wrote:
+> Willy Tarreau wrote:
+> > Hi Stephan,
+> > [...]
+> > What I noticed is that if you load the driver while the cable is unplugged,
+> > and then plug it, the MII status says the link is still down.
+> > Unfortunately, the only e100 I have access to are in prod at a customer's
+> > and I really cannot make tests there.
+> 
+> You have to bring the interface 'UP' before it will detect link,
+> with something like:  ifconfig eth2 up
+> 
+> Could that be the problem?
+> 
+> Ben
 
-> Hi,
->
-> I just upgrade from P4 1.8G on GIGABYTE GA-8IGX (Intel 845G) to P4 
-> 2.4c on ASUS P4P800-VM and have the similar problem. My system runing 
-> RedHat 7.3 kernel 2.4.18-26.7.x. My system have only 1G RAM (2x512M 
-> DDR400). both of them set to use only 1M video ram.
->
-> I notice that the setting of difference video RAM and AGP aperture 
-> size in BIOS affected speed of system.
-> I see that /proc/mtrr on P4P800-VM has 6 lines and GA-8IGX has 2 lines.
->
-> GA-8IGX:
-> reg00: base=0x00000000 (   0MB), size=1024MB: write-back, count=1
-> reg01: base=0x3ff00000 (1023MB), size=   1MB: uncachable, count=1
->
-> P4P800-VM:
-> reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
-> reg01: base=0x20000000 ( 512MB), size= 256MB: write-back, count=1
-> reg02: base=0x30000000 ( 768MB), size= 128MB: write-back, count=1
-> reg03: base=0x38000000 ( 896MB), size=  64MB: write-back, count=1
-> reg04: base=0x3c000000 ( 960MB), size=  32MB: write-back, count=1
-> reg05: base=0x3e000000 ( 992MB), size=  16MB: write-back, count=1
->
-> Why a lot of region???
-> I try to clear all mtrr on P4P800-VM and set the new one base on GA-8IGX:
->
-> [root /]# echo "disable=5" >| /proc/mtrr
-> [root /]# echo "disable=4" >| /proc/mtrr
-> [root /]# echo "disable=3" >| /proc/mtrr
-> [root /]# echo "disable=2" >| /proc/mtrr
-> [root /]# echo "disable=1" >| /proc/mtrr
-> [root /]# echo "disable=0" >| /proc/mtrr
-> [root /]# echo "base=0x00000000 size=0x40000000 type=write-back" > 
-> /proc/mtrr
-> [root /]# echo "base=0x3ff00000 size=0x00100000 type=uncachable" > 
-> /proc/mtrr
->
-> Yes!! It work, My system come fast again. the new /proc/mtrr show below:
-> [root /]# cat /proc/mtrr reg00: base=0x00000000 (   0MB), size=1024MB: 
-> write-back, count=1
-> reg01: base=0x3ff00000 (1023MB), size=   1MB: uncachable, count=1
->
-> For your 2G RAM machine. You may change size of first region from 
-> 0x40000000 (1G) to 0x80000000 (2G). The value of base and size of 
-> second region base on your video RAM setting in BIOS.
->
-> Hope this solution will work on your system too.
->
-> Maetee Maitri
->
->
->> Hi,
->>
->> I have ASUS P4P800-VM mother board.
->> Chipset:     Intel 865G GMCH
->>                 Intel ICH5   - 800MHz FSB
->>
->> BIOS  Revision: 1007
->>
->> Embedded LAN  : Intel 82562EZ
->> Embedded Graphics: Intel Extreme Graphics 2
->>
->> RAM  2G    4x512M  DDR400 Samsung
->> HDD IDE  Seagate Barracuda  120G
->> Processor:  P4 - 2.6 GHz   HyperThreading
->>
->> OS: Slackware Linux 9.1
->>
->> Description of the problem:
->>
->> I have installed 2 GB memory 4x512M
->> The embedded video uses system memory. If i set it to use only 1 MB or
->> 32MB of system RAM everything seems ok. The system boots normally and
->> working normally.
->> If i set it to use 4,8 or 16 MB of the system memory the system boots
->> much slower and despite it has no errors or something wrong it works
->> slow. I mean the difference between fast and slow working is really 
->> HUGE.
->> I have made the following test: in a 600MB text file  replace some text
->> with sed. The line looks like this:
->>
->> sed s/deian/test/g  testfile > /dev/null
->>
->> when the system is working normally this is done for ~ 30sec. When the
->> system is working slowly it takes ~ 9 min and 30 sec.
->> I have tested this with kernel 2.4.23 from kernel.org. High memory
->> support is enabled - 4GB. If i have no high memory support enabled the
->> thing are ok but the kernel see only 900MB of my memory.
->> The other strange thing is that with kernel 2.6 the system works
->> normally ONLY IF video card uses 32MB. It is not like with 2.4.23 when 1
->> and 32M but only with 32MB.
->>
->> I dont think this is normal behavior. And i hope that the problem is not
->> the chipset or hardware. I have searched the news groups and other
->> people has the same problem too but no solution yet.
->> I have attached some logs which may help u find what is wrong. If u need
->> me to do something more just mail me i shall respond as fast as i can.
->> Regards,
->>
->> Deian Chepishev
->>
->
-> Maetee Maitri
->
->
+Hi Ben,
+
+the situation is like this (exactly this works flawlessly with tulip):
+
+- unplug all interfaces from the switches
+- reboot box
+- plug in _one_ interface 
+- log into the box (yes, network works flawlessly)
+- start keepalived
+- now plug in rest of the interfaces
+- watch keepalived do _nothing_ (seems no UP event shows up)
+
+in comparison to:
+
+- let all interfaces plugged in
+- reboot box
+- log in
+- start keepalived
+- watch it work as expected
+
+Regards,
+Stephan
 
 

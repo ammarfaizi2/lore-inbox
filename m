@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268828AbTBZRAo>; Wed, 26 Feb 2003 12:00:44 -0500
+	id <S268841AbTBZRHw>; Wed, 26 Feb 2003 12:07:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268829AbTBZRAn>; Wed, 26 Feb 2003 12:00:43 -0500
-Received: from cmailm4.svr.pol.co.uk ([195.92.193.211]:10768 "EHLO
-	cmailm4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S268828AbTBZRAl>; Wed, 26 Feb 2003 12:00:41 -0500
-Date: Wed, 26 Feb 2003 17:10:18 +0000
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 4/8] dm: deregister the misc device before removing /dev/mapper
-Message-ID: <20030226171018.GD8369@fib011235813.fsnet.co.uk>
-References: <20030226170537.GA8289@fib011235813.fsnet.co.uk>
+	id <S268843AbTBZRHv>; Wed, 26 Feb 2003 12:07:51 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:51687 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268841AbTBZRG5>; Wed, 26 Feb 2003 12:06:57 -0500
+Date: Wed, 26 Feb 2003 09:18:57 -0800
+From: Mike Anderson <andmike@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Patrick Mansfield <patmans@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.62-mm2 slow file system writes across multiple disks
+Message-ID: <20030226171857.GA1134@beaverton.ibm.com>
+Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
+	Patrick Mansfield <patmans@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <20030224120304.A29472@beaverton.ibm.com> <20030224135323.28bb2018.akpm@digeo.com> <20030224174731.A31454@beaverton.ibm.com> <20030224204321.5016ded6.akpm@digeo.com> <20030225112458.A5618@beaverton.ibm.com> <20030226004454.2bfd8deb.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030226170537.GA8289@fib011235813.fsnet.co.uk>
-User-Agent: Mutt/1.5.3i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+In-Reply-To: <20030226004454.2bfd8deb.akpm@digeo.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix problem with devfs when unloading the dm module.
+Andrew Morton [akpm@digeo.com] wrote:
+> 
+> > It would be nice if a larger queue depth did not kill performance.
+> 
+> Does the other qlogic driver exhibit the same thing?
 
-dm-ioctl.c: deregister the misc device, and its associated symlink
-*before* removing the /dev/mapper dir.  [Alasdair Kergon]
+Well the qlogic provided driver should exhibit slightly different
+behavior as its per device queue depth is 16 and the request ring count
+is 128.
 
---- diff/drivers/md/dm-ioctl.c	2003-02-26 16:09:52.000000000 +0000
-+++ source/drivers/md/dm-ioctl.c	2003-02-26 16:09:57.000000000 +0000
-@@ -1123,17 +1123,17 @@
- 	return 0;
- 
-       failed:
-+	devfs_remove(DM_DIR "/control");
-+	if (misc_deregister(&_dm_misc) < 0)
-+		DMERR("misc_deregister failed for control device");
- 	dm_hash_exit();
--	misc_deregister(&_dm_misc);
- 	return r;
- }
- 
- void dm_interface_exit(void)
- {
--	dm_hash_exit();
--
- 	devfs_remove(DM_DIR "/control");
--
- 	if (misc_deregister(&_dm_misc) < 0)
- 		DMERR("misc_deregister failed for control device");
-+	dm_hash_exit();
- }
+The feral driver is currently running a per device queue of 63 and a
+request ring size of 64. (if I am reading the driver correctly?). When
+the request count is exceeded I believe it should return a 1 to the call
+of queuecommand. Can you tell if scsi_queue_insert is being called.
+
+> > The larger queue depths can be nice for disk arrays with lots of cache and
+> > (more) random IO patterns.
+> 
+> So says the scsi lore ;)  Have you observed this yourself?  Have you
+> any numbers handy?
+
+I do not have current numbers but you need to get the command on the
+wire to get any benefit.
+
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
+

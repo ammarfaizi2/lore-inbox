@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263048AbTEBSNN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 14:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263055AbTEBSNM
+	id S263160AbTEBUeF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 16:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbTEBUeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 14:13:12 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:3200 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263048AbTEBSNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 14:13:12 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200305021829.h42ITclA000178@81-2-122-30.bradfords.org.uk>
-Subject: Re: [Announcement] "Exec Shield", new Linux security feature
-To: mingo@redhat.com (Ingo Molnar)
-Date: Fri, 2 May 2003 19:29:38 +0100 (BST)
-Cc: arjanv@redhat.com (Arjan van de Ven),
-       davidel@xmailserver.org (Davide Libenzi),
-       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.44.0305021325130.6565-100000@devserv.devel.redhat.com> from "Ingo Molnar" at May 02, 2003 01:32:20 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 2 May 2003 16:34:05 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:47791 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263160AbTEBUeE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 16:34:04 -0400
+Date: Fri, 2 May 2003 13:43:58 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Location of latest block-highmem patch?
+Message-Id: <20030502134358.514f0566.rddunlap@osdl.org>
+In-Reply-To: <1051907847.1969.8.camel@laptop-linux>
+References: <1051907847.1969.8.camel@laptop-linux>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Ingo, do you want protection against shell code injection ? Have the
-> > > kernel to assign random stack addresses to processes and they won't be
-> > > able to guess the stack pointer to place the jump. I use a very simple
-> > > trick in my code :
-> > 
-> > stack randomisation is already present in the kernel, in the form of
-> > cacheline coloring for HT cpus...
-> 
-> we could make it even more prominent than just coloring, to introduce the
-> kind of variability that Davide's approach introduces. It has to be a
-> separate patch obviously. This would further reduce the chance that a
-> remote attack that has to guess the stack would succeed on a random box.
+On Sat, 03 May 2003 08:37:27 +1200 Nigel Cunningham <ncunningham@clear.net.nz> wrote:
 
-Slightly off-topic, but does anybody know whether IA64 or x86-64 allow
-you to make the stack non-executable in the same way you can on SPARC?
+| Hi.
+| 
+| I'm wondering whether the version 19 patch I've found by Googling is the
+| latest. Can anyone provide a pointer to a newer version?
 
-John.
+For what kernel version?
+
+It's already merged in 2.4.20 and 2.5  (if we are talking about
+the same thing).
+
+--
+~Randy

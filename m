@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262910AbTJ3W3N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 17:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbTJ3W3N
+	id S262865AbTJ3WZX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 17:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbTJ3WZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 17:29:13 -0500
-Received: from main.gmane.org ([80.91.224.249]:54997 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262910AbTJ3W3K (ORCPT
+	Thu, 30 Oct 2003 17:25:23 -0500
+Received: from vic20.blipp.com ([217.75.101.38]:51591 "EHLO vic20.blipp.com")
+	by vger.kernel.org with ESMTP id S262865AbTJ3WZT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 17:29:10 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Things that Longhorn seems to be doing right
-Date: Thu, 30 Oct 2003 23:29:06 +0100
-Message-ID: <yw1x8yn21hsd.fsf@kth.se>
-References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org>
- <3FA0475E.2070907@namesys.com>
- <1067466349.3077.274.camel@mentor.gurulabs.com>
- <20031030002005.GC3094@digitasaru.net>
- <16288.24913.844699.956689@notabene.cse.unsw.edu.au>
- <20031030013418.GD3094@digitasaru.net> <20031030212812.GA698@ncsu.edu>
+	Thu, 30 Oct 2003 17:25:19 -0500
+Date: Thu, 30 Oct 2003 23:25:18 +0100
+From: Patrik Wallstrom <pawal@blipp.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH #2] Re: SATA and 2.6.0-test9
+Message-ID: <20031030222518.GL10457@vic20.blipp.com>
+References: <20031027141531.GD15558@vic20.blipp.com> <20031027165809.GD19711@gtf.org> <20031027181052.GG32168@vic20.blipp.com> <3FA14F2F.1080700@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:CLQiDYW1guCPH7H24MF67tEyP3c=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FA14F2F.1080700@pobox.com>
+Organization: Foodfight Stockholm
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jlnance@unity.ncsu.edu writes:
+On Thu, 30 Oct 2003, Jeff Garzik wrote:
 
-> Unfortunatly, we probably dont really have a choice.  MS has enough market
-> share that we must emulate not only their good, but even their bad ideas
-> if we want Linux to be used by people other than those who develop it.
+> >It doesn't hang any more, but the only result is:
+> >sata_via version 0.11
+> >ata3: SATA max UDMA/133 cmd 0xD800 ctl 0xD402 bmdma 0xC800 irq 16
+> >ata4: SATA max UDMA/133 cmd 0xD000 ctl 0xCC02 bmdma 0xC808 irq 16
+> >ata3: thread exiting
+> >scsi2 : sata_via
+> >ata4: thread exiting
+> >scsi3 : sata_via
+> 
+> Actually, attached is a better patch...
 
-Well, do we, necessarily?  Is the goal with Linux to get as many users
-as possible, or to create the best OS possible?  I was hoping for the
-latter.
+Still get the same result as above.
+
+(
+patching file drivers/scsi/sata_via.c
+Hunk #1 succeeded at 105 (offset -3 lines).
+)
+
+Is there any way to know why the thread is exiting?
 
 -- 
-Måns Rullgård
-mru@kth.se
-
+patrik_wallstrom->foodfight->pawal@blipp.com->+46-733173956
+                `-> http://www.gnuheter.com/

@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbRBHRid>; Thu, 8 Feb 2001 12:38:33 -0500
+	id <S129031AbRBHRie>; Thu, 8 Feb 2001 12:38:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129031AbRBHRiO>; Thu, 8 Feb 2001 12:38:14 -0500
-Received: from d14144.upc-d.chello.nl ([213.46.14.144]:44422 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S129033AbRBHRiC>;
-	Thu, 8 Feb 2001 12:38:02 -0500
-Message-Id: <m14Qv0z-000OaDC@amadeus.home.nl>
-Date: Thu, 8 Feb 2001 18:37:53 +0100 (CET)
-From: arjan@fenrus.demon.nl (Arjan van de Ven)
-To: manfred@colorfullife.com (Manfred Spraul)
-Subject: Re: sse for fast_clear_page()?
-cc: linux-kernel@vger.kernel.org
-X-Newsgroups: fenrus.linux.kernel
-In-Reply-To: <3A82D325.9068BC07@colorfullife.com>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
+	id <S129026AbRBHRiN>; Thu, 8 Feb 2001 12:38:13 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:48911 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129031AbRBHRiB>;
+	Thu, 8 Feb 2001 12:38:01 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Alex Deucher <adeucher@UU.NET>
+Date: Thu, 8 Feb 2001 18:36:30 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.4.x, drm, g400 and pci_set_master
+CC: linux-kernel@vger.kernel.org, jhartmann@valinux.com
+X-mailer: Pegasus Mail v3.40
+Message-ID: <14E9CDBC07F1@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A82D325.9068BC07@colorfullife.com> you wrote:
-> fast_clear_page() uses mmx instructions for clearing a page, what about
-> using sse instructions?
-> sse instructions can store 128 bit in one instruction, mmx only 64 bit.
+On  8 Feb 01 at 12:15, Alex Deucher wrote:
 
-the sse FP registers might be lossy. On my athlon, the in-kernel mmx
-functions are memory-bound (eg > 1 Gbyte/sec throughput)
+> I wasn't talking about the drm driver I was talking about programming
+> the PCI controller directly using setpci 1.0.0 .... or some such
+> command, I can't remember off hand.  Which turns on busmastering if it
+> is off for a particular device.
 
-Userspace program for the athlon code:
+OK. 
 
-http://www.fenrus.demon.nl/athlon.c
+> Jeff Hartmann wrote:
+> > 
+> > The DRM drivers don't know about the pcidev structure at all.  All this
+> > is done in the XFree86 ddx driver.  You can probably add something like
+> > this to MGAPreInit (after pMga->PciTag is set, in my copy its
+> > mga_driver.c:1232 yours might be at a slightly different line number
+> > depending on the version your using):
+> > 
+> > {
+> >    CARD32 temp;
+> >    temp = pciReadLong(pMga->PciTag, PCI_CMD_STAT_REG);
+> >    pciWriteLong(pMga->PciTag, PCI_CMD_STAT_REG, temp |
+> > PCI_CMD_MASTER_ENABLE);
+> > }
 
-Greetings,
-   Arjan van de Ven
-
-
+Jeff, do you say that drm code does not use dynamic DMA mapping, which is
+specified as only busmastering interface for kernels 2.4.x, at all? Now 
+I understand what had one friend in the mind when he laughed when I said 
+that it must be easy to get it to work on Alpha...
+                            Thanks anyway for all suggestions,
+                                        Petr Vandrovec
+                                        vandrove@vc.cvut.cz
+                                        
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265171AbTBOV3d>; Sat, 15 Feb 2003 16:29:33 -0500
+	id <S265243AbTBOVcv>; Sat, 15 Feb 2003 16:32:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265198AbTBOV3d>; Sat, 15 Feb 2003 16:29:33 -0500
-Received: from ns.suse.de ([213.95.15.193]:32266 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265171AbTBOV3c> convert rfc822-to-8bit;
-	Sat, 15 Feb 2003 16:29:32 -0500
+	id <S265250AbTBOVcv>; Sat, 15 Feb 2003 16:32:51 -0500
+Received: from packet.digeo.com ([12.110.80.53]:59053 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265243AbTBOVcu>;
+	Sat, 15 Feb 2003 16:32:50 -0500
+Date: Sat, 15 Feb 2003 13:43:20 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Arador <diegocg@teleline.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5: system time goes up to 100%
+Message-Id: <20030215134320.39bafc6e.akpm@digeo.com>
+In-Reply-To: <20030215222229.10b56e5f.diegocg@teleline.es>
+References: <20030215222229.10b56e5f.diegocg@teleline.es>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Labs, SuSE Linux AG
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] Extended attribute fixes, etc.
-Date: Sat, 15 Feb 2003 22:39:24 +0100
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       "Theodore T'so" <tytso@mit.edu>
-References: <200302112018.58862.agruen@suse.de> <200302152017.03259.agruen@suse.de> <20030215210922.A24685@infradead.org>
-In-Reply-To: <20030215210922.A24685@infradead.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302152239.24346.agruen@suse.de>
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Feb 2003 21:42:40.0061 (UTC) FILETIME=[29C8D6D0:01C2D53B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 February 2003 22:09, Christoph Hellwig wrote:
-> On Sat, Feb 15, 2003 at 08:17:03PM +0100, Andreas Gruenbacher wrote:
-> > That sounds quite reasonable. I would have to raise CAP_SYS_ADMIN
-> > for trusted EA's, though. Do you see any potential side effects
-> > while a pretty powerful capability like CAP_SYS_ADMIN is
-> > temporarily raised?
+Arador <diegocg@teleline.es> wrote:
 >
-> Okay, something I missed when looking over your patches, otherwise
-> I'd have shutde earlier :)  Do you really think you want
-> CAP_SYS_ADMIN for trusted EAs?  Soon we'll get CAP_SYS_ADMIN as
-> catchall like old suser()..
->
-> Let me check what XFS uses for that purpose as soon as I'm back in
-> the office.
+> Hi, i've the following case (more info provided below):
+> 
+> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+>  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+>  0  1  44268 124776  10380  64736    5    8    93    37  600   281   11  2 85  3
+>  1  0  44268 124160  10584  64736    0    0   196   196 1750  1518  1 41 49  9
+> ...
+> 8209527 total                                      4,5041
+> 8035501 default_idle                             100443,7625
+>  39060 ext3_find_entry                           35,9007
+>  19200 serial_in                                171,4286
+>  18957 check_poison_obj                         131,6458
 
-The intention of Trusted Extended Attributes is for processes that 
-perform tasks that are relevant for the proper functioning of the 
-system, to allow them to use EAs. Other, non-privileged processes shall 
-have no access whatsoever to those EAs. This level of protection would 
-otherwise only be possible by providing a kernel module. 
+That all looks OK.  Your machine is waiting on disk I/O.
 
-I would be quite happy with a new CAP_TRUSTED_PROCESS or whatever, but 
-going that route for all sorts of applications then we might soon end 
-up with an large number of capabilities. Maybe I'm wrong on that, 
-though.
+We changed the representation of the cpu states in /proc a while ago and I
+have a vague feeling that this has caused some versions of the userspace
+tools to confuse disk-wait with system time.
 
-
-Cheers,
-Andreas.
+Try grabbing the latest vmstat from procps.sourceforge.net
 

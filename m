@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVAOBRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVAOBUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbVAOBRO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 20:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVAOBRL
+	id S262090AbVAOBUu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 20:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVAOBUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 20:17:11 -0500
-Received: from mail.joq.us ([67.65.12.105]:37568 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262084AbVAOBNm (ORCPT
+	Fri, 14 Jan 2005 20:20:38 -0500
+Received: from opersys.com ([64.40.108.71]:64520 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262094AbVAOBTl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 20:13:42 -0500
-To: Mike Galbraith <efault@gmx.de>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       Chris Wright <chrisw@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
-       Matt Mackall <mpm@selenic.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <20050113214320.GB22208@devserv.devel.redhat.com>
-	<20050111214152.GA17943@devserv.devel.redhat.com>
-	<200501112251.j0BMp9iZ006964@localhost.localdomain>
-	<20050111150556.S10567@build.pdx.osdl.net>
-	<87y8ezzake.fsf@sulphur.joq.us>
-	<20050112074906.GB5735@devserv.devel.redhat.com>
-	<87oefuma3c.fsf@sulphur.joq.us>
-	<20050113072802.GB13195@devserv.devel.redhat.com>
-	<878y6x9h2d.fsf@sulphur.joq.us>
-	<20050113210750.GA22208@devserv.devel.redhat.com>
-	<1105651508.3457.31.camel@krustophenia.net>
-	<20050113214320.GB22208@devserv.devel.redhat.com>
-	<5.2.1.1.2.20050114171907.00c05e38@pop.gmx.net>
-From: "Jack O'Quin" <joq@io.com>
-Date: Fri, 14 Jan 2005 19:14:16 -0600
-In-Reply-To: <5.2.1.1.2.20050114171907.00c05e38@pop.gmx.net> (Mike
- Galbraith's message of "Fri, 14 Jan 2005 18:20:35 +0100")
-Message-ID: <87llav7atz.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Fri, 14 Jan 2005 20:19:41 -0500
+Message-ID: <41E8716E.901@opersys.com>
+Date: Fri, 14 Jan 2005 20:27:10 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
+To: tglx@linutronix.de
+CC: Tim Bird <tim.bird@am.sony.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org>	 <1105742791.13265.3.camel@tglx.tec.linutronix.de>	 <41E8543A.8050304@am.sony.com> <1105748656.13265.90.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1105748656.13265.90.camel@tglx.tec.linutronix.de>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith <efault@gmx.de> writes:
 
-> At 05:31 PM 1/13/2005 -0600, Jack O'Quin wrote:
->>Yes.  However, my tests have so far shown a need for "actual FIFO as
->>long as the task behaves itself."
->
-> I for one wonder why that appears to be so.  What happens if you use
-> SCHED_RR instead of SCHED_FIFO?
->
-> (ie is the problem just one of running out of slice at a bad time, or
-> is it the dynamic priority adjustment)
+Thomas Gleixner wrote:
+> Putting a 200k patch into the kernel for limited usage and maybe
+> restricting a generic simple non intrusive and more generic
+> implementation by its mere presence is making it inapplicable enough.
 
-I have no quick and easy test for that.  
+I think you've missed the other thread where people are claiming that
+it's so generic as to be arcane ...
 
-If it's important, I can modify a version of JACK to use SCHED_RR,
-instead.
-
-I very much doubt it would make any difference, since we normally only
-run one realtime thread at a time.  Each client taps the next on the
-shoulder when it is time for it to run, so there is essentially no
-concurrency among them.
+Karim
 -- 
-  joq
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

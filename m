@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263105AbUCSQqB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 11:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbUCSQqB
+	id S263131AbUCSQsb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 11:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263132AbUCSQsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 11:46:01 -0500
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:48512 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S263105AbUCSQp6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 11:45:58 -0500
-Date: Fri, 19 Mar 2004 16:44:47 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@einstein.homenet
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: CDFS
-In-Reply-To: <Pine.LNX.4.53.0403191127040.3230@chaos>
-Message-ID: <Pine.LNX.4.44.0403191640460.3892-100000@einstein.homenet>
+	Fri, 19 Mar 2004 11:48:31 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:45066 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263131AbUCSQs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 11:48:29 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] barrier patch set
+Date: Fri, 19 Mar 2004 17:48:17 +0100
+User-Agent: KMail/1.6.1
+Cc: Jens Axboe <axboe@suse.de>, Chris Mason <mason@suse.com>
+References: <20040319153554.GC2933@suse.de>
+In-Reply-To: <20040319153554.GC2933@suse.de>
+X-Operating-System: Linux 2.6.4-wolk2.1 i686 GNU/Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200403191748.17414@WOLK>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Mar 2004, Richard B. Johnson wrote:
+On Friday 19 March 2004 16:35, Jens Axboe wrote:
 
-> On Fri, 19 Mar 2004, Randy.Dunlap wrote:
-> 
-> > On Fri, 19 Mar 2004 11:01:44 -0500 (EST) Richard B. Johnson wrote:
-> >
-> > |
-> > | Just got a CD/ROM that 'works' on W$, but not Linux.
-> > | W$ `properties` call it 'CDFS'. Is there any such Linux
-> > | support?
-> >
-> > You did try to search for it, right?
-> >
-> 
-> Sure did and what I get was an explaination that, for
-> Linux, the letters "CDFS" refer to something that "exports
-> all the tracks and boot images of a CD as normal files".
-> 
-> That's not what I want. I want to mount a CDFS file-system.
-> 
-> Given that, maybe the explaination is bogus, but I
-> need some CDFS file-system support so I can mount
-> a Microsoft CDFS CD/ROM. If such support exists, I
-> would think that I should be able to do:
-> 
-> mount -t cdfs /dev/cdrom /mnt
+Hi Jens,
 
-Unless something has changed seriously in just a few years, the name CDFS
-was always just a Microsoft synonym for the proper name iso9660. The Linux
-name CDFS is the filesystem which Randy pointed you at, for mounting
-multi-session CDs and accessing individual sessions as files (iso images).
+> A first release of a collected barrier patchset for 2.6.5-rc1-mm2. I
+> have a few changes planned to support dm/md + sata, I'll do those
+> changes over the weekend.
+> Reiser has the best barrier support, ext3 works but only if things don't
+> go wrong. So only attempt to use the barrier feature on ext3 if on ide
+> drives, not SCSI nor SATA.
+> reiserfs-barrier-2.6.5-rc1-mm2-1
+> 	reiser part.
 
-So, if you have what Microsoft calls CDFS then it is simply iso9660 and if 
-it doesn't mount then either your CD is damaged (and you only get a false 
-"impression" of it working in Windows) or there is a bug in Linux iso9660 
-implementation. What are the error messages you get when you try to mount 
-it as an iso9660?
+is this intended? ;)
 
-(You didn't forget to compile Joliet and RR extensions into your kernel, 
-did you?)
+-rw-------    1 axboe    axboe        3377 Mar 19 07:32 
+reiserfs-barrier-2.6.5-rc1-mm2-1.bz2
+-rw-------    1 axboe    axboe         248 Mar 19 07:32 
+reiserfs-barrier-2.6.5-rc1-mm2-1.bz2.sign
+-rw-------    1 axboe    axboe        3473 Mar 19 07:32 
+reiserfs-barrier-2.6.5-rc1-mm2-1.gz
+-rw-------    1 axboe    axboe         248 Mar 19 07:32 
+reiserfs-barrier-2.6.5-rc1-mm2-1.gz.sign
+-rw-------    1 axboe    axboe         248 Mar 19 07:32 
+reiserfs-barrier-2.6.5-rc1-mm2-1.sign
 
-Kind regards
-Tigran
+means permission denied for us.
 
+
+ciao, Marc

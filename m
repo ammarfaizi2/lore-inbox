@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130214AbRCGFrp>; Wed, 7 Mar 2001 00:47:45 -0500
+	id <S130216AbRCGFsz>; Wed, 7 Mar 2001 00:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130216AbRCGFrf>; Wed, 7 Mar 2001 00:47:35 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:36870 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S130214AbRCGFrY>; Wed, 7 Mar 2001 00:47:24 -0500
-Message-Id: <200103070546.f275keO22502@aslan.scsiguy.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
-cc: LK <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.3 and new aic7xxx 
-In-Reply-To: Your message of "Wed, 07 Mar 2001 00:41:39 EST."
-             <3AA5CA13.8C19FC7E@neuronet.pitt.edu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Mar 2001 22:46:40 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S130264AbRCGFsq>; Wed, 7 Mar 2001 00:48:46 -0500
+Received: from falcon.prod.itd.earthlink.net ([207.217.120.74]:63943 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S130216AbRCGFsb>; Wed, 7 Mar 2001 00:48:31 -0500
+Date: Tue, 6 Mar 2001 13:48:59 -0800 (PST)
+From: James Simmons <jsimmons@linux-fbdev.org>
+X-X-Sender: <jsimmons@linux.local>
+To: John R Lenton <john@grulic.org.ar>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        FrameBuffer List <linux-fbdev@vuser.vu.union.edu>
+Subject: Re:IMS Twin Turbo 128 framebuffer
+Message-ID: <Pine.LNX.4.31.0103061346370.1197-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I've a Super P6SBS motherboard with a builtin dual channel Adaptec 7890
->Ultra II scsi controller. I'm attaching the console grab when booting
->2.4.3-pre2. The controller BIOS is configured to boot off the disk with
->scsi id 0 on channel B.
 
-It looks like Doug was right to think that the functions can be
-presented to the device driver in reverse order.  I should have
-a patch for you early tomorrow.
+>Is there any particular reason why imsttfb isn't available in the
+>i386 arch?
+>
+>It doesn't work in X either in spite of being "supported", but
+>that's not for this list.
 
---
-Justin
+I had this card while working at suse and I did try to get it to work on
+ix86. The problem is the card is initialzed by its firmware which is forth
+since this is a Apple card. As for getting the detail specs to get it to
+work on ix86 (making it firmware independent) good luck. You will have to
+suck the info from the deeps pits of apple.
+
+MS: (n) 1. A debilitating and surprisingly widespread affliction that
+renders the sufferer barely able to perform the simplest task. 2. A disease.
+
+James Simmons  [jsimmons@linux-fbdev.org]               ____/|
+fbdev/console/gfx developer                             \ o.O|
+http://www.linux-fbdev.org                               =(_)=
+http://linuxgfx.sourceforge.net                            U
+http://linuxconsole.sourceforge.net
+

@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbVAHI3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVAHIdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbVAHI3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 03:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVAHI20
+	id S261923AbVAHIdo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 03:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVAHI05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 03:28:26 -0500
-Received: from mail.kroah.org ([69.55.234.183]:27270 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261938AbVAHFsv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:51 -0500
-Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <1105163267561@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:47 -0800
-Message-Id: <11051632672444@kroah.com>
+	Sat, 8 Jan 2005 03:26:57 -0500
+Received: from mproxy.gmail.com ([216.239.56.250]:32885 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261955AbVAHFuP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 00:50:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=fcQltHxEw5cMgskqOMH4iy7TKo0JEC1MwT2C6iinoXG5XGs4HQFKTLpB8NeBZWZdpo5a2IVejxA2lyhEPthG0PfJy6cPNLrM5izVJbkmj1z0ePPb8IdsJKbACJciubidG39WgKtXLjGbql1m0gRCbWqDWn6vDOTk+BuBrYTXlpQ=
+Message-ID: <21d7e99705010721504365d373@mail.gmail.com>
+Date: Sat, 8 Jan 2005 16:50:09 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: lindenting the drm directory..
+Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, jonsmirl@gmail.com
+In-Reply-To: <20050107211002.3f86d325.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0501080411190.11556@skynet>
+	 <20050107211002.3f86d325.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.446.30, 2004/12/17 11:41:02-08:00, mdharm-usb@one-eyed-alien.net
+> It's probably best that you wait until the tree is in good shape and stable
+> for a week or two before doing the big reformat because it will introduce a
+> barrier over which patches may not pass in either direction.
 
-[PATCH] USB Storage: Increase Genesys delay
+well as most patches come via the CVS tree and myself it shouldn't be
+too bad, the CVS tree has been Lindented for a couple of months so
+I've been dealing with the issues myself as I pass the patches back
+and forth...
 
-This is patch as436 from Alan Stern.
-
-This patch increases the delay used for Genesys devices about 10%.  At
-least one user reports that this created a significant improvement in
-operation.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Matthew Dharm <mdharm-usb@one-eyed-alien.net>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/usb/storage/transport.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
-
-
-diff -Nru a/drivers/usb/storage/transport.c b/drivers/usb/storage/transport.c
---- a/drivers/usb/storage/transport.c	2005-01-07 15:46:51 -08:00
-+++ b/drivers/usb/storage/transport.c	2005-01-07 15:46:51 -08:00
-@@ -992,9 +992,10 @@
- 	/* send/receive data payload, if there is any */
- 
- 	/* Genesys Logic interface chips need a 100us delay between the
--	 * command phase and the data phase */
-+	 * command phase and the data phase.  Some devices need a little
-+	 * more than that, probably because of clock rate inaccuracies. */
- 	if (us->pusb_dev->descriptor.idVendor == USB_VENDOR_ID_GENESYS)
--		udelay(100);
-+		udelay(110);
- 
- 	if (transfer_length) {
- 		unsigned int pipe = srb->sc_data_direction == DMA_FROM_DEVICE ? 
-
+Dave.

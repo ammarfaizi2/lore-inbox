@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbTDCUL6 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:11:58 -0500
+	id S263591AbTDCUHn 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:07:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S261515AbTDCUL5 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:11:57 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:50566
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261492AbTDCULm 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 15:11:42 -0500
-Subject: Re: your mail
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: root@chaos.analogic.com
-Cc: "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0304031458190.9794@chaos>
-References: <Pine.LNX.4.53.0304031113490.5422@chaos>
-	 <1049397747.12168.1.camel@rth.ninka.net>
-	 <Pine.LNX.4.53.0304031458190.9794@chaos>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049397860.11747.86.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 03 Apr 2003 20:24:20 +0100
+	id S263592AbTDCUHm 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:07:42 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:15877 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S263591AbTDCUHf convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 15:07:35 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] reduce stack in cpqarray.c::ida_ioctl()
+Date: Thu, 3 Apr 2003 14:18:57 -0600
+Message-ID: <45B36A38D959B44CB032DA427A6E10640451339C@cceexc18.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] reduce stack in cpqarray.c::ida_ioctl()
+Thread-Index: AcL6HAzh3Rm9zb09TEG/+WXteHTpigAAWHXg
+From: "Cameron, Steve" <Steve.Cameron@hp.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, "lkml" <linux-kernel@vger.kernel.org>
+Cc: "Arrays" <arrays@hp.com>
+X-OriginalArrivalTime: 03 Apr 2003 20:18:58.0226 (UTC) FILETIME=[41F3E120:01C2FA1E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-04-03 at 21:02, Richard B. Johnson wrote:
-> Well it's not a yahoo users problem because yahoo users can't fix
-> it. Some yahoo users have yahoo "free" mail as their only connection
-> to the internet because of facist network administrators. It gets
-> worse how that you can't tell a company to go screw themselves and
-> get another job. The three engineers that I know who use yahoo do
-> so because they don't have any choice and there is no way that they
-> can configure the mailer to get rid of the empty HTML section.
 
-There are lots of other free email providers.
+> This patch to 2.5.66 reduces stack usage in ida_ioctl() by about
+> 0x500 bytes (on x86).
+
+Looks ok to me, (but i haven't tried it.)
+
+>
+> There is a possibility that the allocation here should be done one time
+> only and the buffer pointer saved for re-use instead of allocating it
+> on each call to ida_ioctl.  If that's desirable, I'll have a few
+> questions.
+
+No, I don't think so.  I think we should
+allow for the possibllity of concurrent calls 
+to this ioctl.  (whether linux allows it is 
+another question.  I think it used to be the case
+that only one ioctl could get in at a time... I can't
+recall if it's still that way.)
+
+-- steve
 

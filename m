@@ -1,113 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262343AbTIUHnw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 03:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbTIUHnw
+	id S262347AbTIUHyr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 03:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTIUHyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 03:43:52 -0400
-Received: from nibbel.kulnet.kuleuven.ac.be ([134.58.240.41]:16272 "EHLO
-	nibbel.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S262343AbTIUHnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 03:43:50 -0400
-Message-ID: <3F6D5640.2040904@abcpages.com>
-Date: Sun, 21 Sep 2003 09:41:52 +0200
-From: Nicolae Mihalache <mache@abcpages.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pekka Pietikainen <pp@ee.oulu.fi>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] suspend/resume for the b44 driver
-References: <3F6783D9.4070702@abcpages.com> <20030917100856.GA29368@ee.oulu.fi> <3F684608.2000707@abcpages.com> <20030917115048.GA2598@ee.oulu.fi>
-In-Reply-To: <20030917115048.GA2598@ee.oulu.fi>
-Content-Type: multipart/mixed;
- boundary="------------060900040008040701010209"
+	Sun, 21 Sep 2003 03:54:46 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:46222 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S262347AbTIUHyn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 03:54:43 -0400
+Date: Sun, 21 Sep 2003 10:54:30 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] move some more intilization out of drivers/char/mem.c
+Message-ID: <20030921075430.GA4938@actcom.co.il>
+References: <20030920132900.GC23153@lst.de> <20030920160645.30c2745d.akpm@osdl.org> <20030921063030.GA1508@lst.de> <20030920234853.7e09f663.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
+In-Reply-To: <20030920234853.7e09f663.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060900040008040701010209
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello,
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch adds suspend/resume support for the Broadcom 4400 network 
-card. It has been tested with 2.6.0-test5-mm1 with suspend to disk 
-(suspend to ram does not work even without b44).
+On Sat, Sep 20, 2003 at 11:48:53PM -0700, Andrew Morton wrote:
+> Christoph Hellwig <hch@lst.de> wrote:
+> >
+> > > Please compile-test things...
+> >=20
+> >  Well, I compiled this here.  I see, looks like I lost half of the patch
+> >  when sending it to you.  Sorryh for that, here's the full patch:
+>=20
+> It still generates warnings.  I suggest you build kernels with a script
+> which saves up stderr and spits it all out at the end.  That way, these
+> things are noticed.
+
+This might be a good time to recommend -Werror. Last time it came up
+(http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D102654562025374&w=3D2),
+Alan was dead set against it, and Linus did not apply it, but did
+think it had some merit
+(http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D102658611213914&w=3D2).=
+=20
+
+Compiling 2.6.0-t5-cvs with my .config and -Werror uncovered only two
+warnings. Patches sent seperately.=20
+
+diff --exclude-from /home/muli/p/dontdiff -Naur ../linux-2.5/Makefile 2.6.0=
+-t5-Werror/Makefile
+--- ../linux-2.5/Makefile	Wed Sep 10 16:21:16 2003
++++ 2.6.0-t5-Werror/Makefile	Sun Sep 21 09:59:29 2003
+@@ -73,7 +73,7 @@
+=20
+ HOSTCC  	=3D gcc
+ HOSTCXX  	=3D g++
+-HOSTCFLAGS	=3D -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS	=3D -Wall -Werror -Wstrict-prototypes -O2 -fomit-frame-pointer
+ HOSTCXXFLAGS	=3D -O2
+=20
+=20
+@@ -223,8 +223,8 @@
+ NOSTDINC_FLAGS  =3D -nostdinc -iwithprefix include
+=20
+ CPPFLAGS	:=3D -D__KERNEL__ -Iinclude
+-CFLAGS 		:=3D -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
+-	  	   -fno-strict-aliasing -fno-common
++CFLAGS 		:=3D -Wall -Werror -Wstrict-prototypes -Wno-trigraphs \
++		   -O2 -fno-strict-aliasing -fno-common
+ AFLAGS		:=3D -D__ASSEMBLY__
+=20
+ export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
+
+-- =20
+Muli Ben-Yehuda
+http://www.mulix.org
 
 
-mache
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQE/bVk2KRs727/VN8sRAsT7AKCSlmC/CAFzy05mJnLI+P0gmXyqogCZASYE
+rhnDkvy/NSkVNs8k7ZrG+tc=
+=XhAZ
+-----END PGP SIGNATURE-----
 
---------------060900040008040701010209
-Content-Type: text/plain;
- name="b44.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="b44.patch"
-
---- b44.c.orig	2003-09-20 21:10:13.168315056 +0200
-+++ b44.c	2003-09-20 21:13:54.567657240 +0200
-@@ -1859,11 +1859,57 @@
- 	}
- }
- 
-+#ifdef CONFIG_PM
-+static int b44_suspend(struct pci_dev *pdev, u32 state)
-+{
-+	struct net_device *dev = pci_get_drvdata(pdev);
-+	struct b44 *bp = dev->priv;
-+
-+        if (!netif_running(dev))
-+                 return 0;
-+
-+	del_timer_sync(&bp->timer);
-+
-+	spin_lock_irq(&bp->lock); 
-+
-+	b44_halt(bp);
-+	netif_carrier_off(bp->dev); 
-+	netif_device_detach(bp->dev);
-+	b44_free_rings(bp);
-+
-+	spin_unlock_irq(&bp->lock);
-+	return 0;
-+}
-+
-+static int b44_resume(struct pci_dev *pdev)
-+{
-+	struct net_device *dev = pci_get_drvdata(pdev);
-+	struct b44 *bp = dev->priv;
-+
-+	if (!netif_running(dev))
-+		return 0;
-+
-+	spin_lock_irq(&bp->lock);
-+
-+	b44_init_rings(bp);
-+	b44_init_hw(bp);
-+	netif_device_attach(bp->dev);
-+	spin_unlock_irq(&bp->lock);
-+
-+	b44_enable_ints(bp);
-+	return 0;
-+}
-+#endif /* CONFIG_PM */
-+
- static struct pci_driver b44_driver = {
- 	.name		= DRV_MODULE_NAME,
- 	.id_table	= b44_pci_tbl,
- 	.probe		= b44_init_one,
- 	.remove		= __devexit_p(b44_remove_one),
-+#ifdef CONFIG_PM
-+        .suspend        = b44_suspend,
-+        .resume         = b44_resume,
-+#endif /* CONFIG_PM */
- };
- 
- static int __init b44_init(void)
-
---------------060900040008040701010209--
-
+--FL5UXtIhxfXey3p5--

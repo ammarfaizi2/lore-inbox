@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131899AbREHIaQ>; Tue, 8 May 2001 04:30:16 -0400
+	id <S131638AbREHIX4>; Tue, 8 May 2001 04:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131949AbREHIaG>; Tue, 8 May 2001 04:30:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29870 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S131899AbREHI3v>;
-	Tue, 8 May 2001 04:29:51 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S131899AbREHIXq>; Tue, 8 May 2001 04:23:46 -0400
+Received: from www.sinfopragma.it ([213.26.181.2]:2825 "EHLO
+	sinfo-www-01.sinfopragma.it") by vger.kernel.org with ESMTP
+	id <S131638AbREHIX3>; Tue, 8 May 2001 04:23:29 -0400
+Date: Tue, 8 May 2001 10:16:12 +0200 (W. Europe Daylight Time)
+From: Lorenzo Marcantonio <lorenzo.marcantonio@sinfopragma.it>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Lorenzo Marcantonio <lomarcan@tin.it>, Rob Turk <r.turk@chello.nl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: SCSI Tape corruption - update
+In-Reply-To: <Pine.LNX.4.05.10105080904010.24912-100000@callisto.of.borg>
+Message-ID: <Pine.WNT.4.31.0105081012030.323-100000@pc209.sinfopragma.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15095.44668.842241.185318@pizda.ninka.net>
-Date: Tue, 8 May 2001 01:29:48 -0700 (PDT)
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() bug
-In-Reply-To: <Pine.LNX.4.21.0105080019420.15378-100000@penguin.transmeta.com>
-In-Reply-To: <15095.38698.313444.486904@pizda.ninka.net>
-	<Pine.LNX.4.21.0105080019420.15378-100000@penguin.transmeta.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 8 May 2001, Geert Uytterhoeven wrote:
 
-Linus Torvalds writes:
- > Maybe it's academic. Do we know that any of this actually makes any
- > performance difference at all?
+> In the mean time I down/upgraded to 2.2.17 on my PPC box (CHRP LongTrail,
+> Sym53c875, HP C5136A  DDS1) and I can confirm that the problem does not happen
+> under 2.2.17 neither.
+>
+> My experiences:
+>   - reading works fine, writing doesn't
 
-We know that dirty swap pages can accumulate to the point where the
-swapper starves before it gets to enough of the "second pass" cases of
-the page_launder loop to run in order to get rid of them.
+Same here
 
-That was the behavior I saw that let me to hacking up my broken patch.
+>   - 2.2.x works fine, 2.4.x doesn't (at least since 2.4.0-test1-ac10)
 
-Even simple "memory hog" test programs can trigger this behavior.
-Just write a program which "grows almost completely into swap then
-subsides" over and over again.
+SAME here
 
-Later,
-David S. Miller
-davem@redhat.com
+>   - hardware compression doesn't matter
+
+SAME HERE
+
+>   - I have a sym53c875, Lorenzo has an Adaptec, so most likely it's not a
+>     SCSI hardware driver bug
+>   - I have a PPC, Lorenzo doesn't, so it's not CPU-specific
+>   - corruption is always a block of 32 bytes being replaced by 32 bytes from
+>     the previous tape block (depending on block size!) (approx. 6 errors per
+>     256 MB)
+
+YESSS... EXACTLY 32 consecutive bytes are different. I'll bet we've got
+the same problem
+
+>   - How many successive bytes are corrupted?
+>   - Where do the corrupted data come from?
+
+
+Hmmmm.... I'll set up some sort of binary pattern match. This afternoon
+I'll pinpoint the source of the rogue bytes...
+
+
+				-- Lorenzo Marcantonio
+
 

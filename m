@@ -1,100 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265041AbUFMKxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265042AbUFMLTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265041AbUFMKxT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 06:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265042AbUFMKxT
+	id S265042AbUFMLTx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 07:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265043AbUFMLTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 06:53:19 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:494 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S265041AbUFMKxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 06:53:10 -0400
-X-Sasl-enc: 155kv7pABlvNC1ZsH3XBMA 1087123989
-Message-ID: <40CC320F.2050500@mailcan.com>
-Date: Sun, 13 Jun 2004 12:53:03 +0200
-From: Leon Woestenberg <leonw@mailcan.com>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Justin Cormack <justin@street-vision.com>
-Cc: Andre Tomt <andre@tomt.net>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Serial ATA (SATA) on Linux status report (2.6.x mainstream	plan
- for AHCI and iswraid??)
-References: <20040610155740.81227.qmail@web90109.mail.scd.yahoo.com>	 <40C8A5F6.3030002@pobox.com>  <40C9193F.9080107@tomt.net> <1087051010.25334.4.camel@lotte.street-vision.com>
-In-Reply-To: <1087051010.25334.4.camel@lotte.street-vision.com>
-Content-Type: multipart/mixed;
- boundary="------------050008090209090605040409"
+	Sun, 13 Jun 2004 07:19:52 -0400
+Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:37640 "EHLO
+	mail.icequake.net") by vger.kernel.org with ESMTP id S265042AbUFMLTv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 07:19:51 -0400
+Date: Sun, 13 Jun 2004 06:19:49 -0500
+From: Ryan Underwood <nemesis-lists@icequake.net>
+To: linux-kernel@vger.kernel.org
+Subject: Request: Netmos support in parport_serial for 2.4.27
+Message-ID: <20040613111949.GB6564@dbz.icequake.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050008090209090605040409
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello,
-
-Justin Cormack wrote:
-> On Fri, 2004-06-11 at 03:30, Andre Tomt wrote:
-> 
->>Since we're on the topic of new libata drivers, how is the Marvell 
->>driver coming along? I'm getting several server units with a 4-port 
->>version on-board in the not-so-distant future, it would be nice if they 
->>could use all their drive bays ;-)
-> 
-We have those as well. (Supermicro P4SCT+ which have a rev 03 88sx8041
-part.)
-
-> 
-> Though not as useful as a libata driver (and not GPL, though the license
-> is entirely unrestrictive), there is an open source driver for the
-> Marvell chipsets:
-> 
-> http://www.highpoint-tech.com/BIOS%20%2B%20Driver/rr1820a/Linux/rr182x-openbuild-v1.02.tgz
-> 
-> It wont build on 2.6 due to cli/sti (v. easy to fix though - its just
-> the irq locking), and it only supports 8 channel chips (only a few
-> #defines for PCI ids and number of ports). Intend to fix it up and test
-> it next week if the libata driver not out, as I have a few of these. The
-> highpoint card is the first PCI-X SATA card I have actually managed to
-> get hold of, but unlike other highpoint cards is not their chipset:
-> 
-> 03:02.0 SCSI storage controller: Marvell MV88SX5081 8-port SATA I PCI-X
-> Controller (rev 03)
-> 
-I have a totally different set of source code files for the 
-MV88SX50[4|8][0|1] chips, also open-source from Marvell (although I have
-to check the exact license).
-
-Looking at the Highpoint source code, they seem to have taken some of 
-the Marvell source code (mv*.*) and adapted it for their RAID system.
-
-I am interested in doing some maintenance work on the Marvell driver,
-which indeed mostly needs attention to proper locking. Also, it did
-not yet support the rev 03 hardware when I downloaded it.
-
-I found the driver source on ftp://ftp.supermicro.com, but it seems to
-have been removed lately. Supermicro forwards me to Adaptec who writes
-the BIOS raid system (ugh).
-
-Regards,
-
-Leon.
-
---------------050008090209090605040409
-Content-Type: text/x-vcard; charset=utf8;
- name="leonw.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="leonw.vcf"
-
-begin:vcard
-fn:Leon Woestenberg
-n:Woestenberg;Leon
-version:2.1
-end:vcard
+--NDin8bjvE/0mNLFQ
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
---------------050008090209090605040409--
+Hi,
+
+There's been a patch floating around for a while now to add Netmos
+support to parport_serial.  It has been submitted numerous times but it
+seems that nobody notices it. :)
+
+Can it be reviewed for inclusion before 2.4.27?  I have a few systems
+with these cards and it would be very nice to have them up to snuff.
+
+The patch against 2.4.20 can be found here:
+http://winterwolf.co.uk/linuxsw
+
+--=20
+Ryan Underwood, <nemesis@icequake.net>
+
+--NDin8bjvE/0mNLFQ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAzDhVIonHnh+67jkRAmoXAKCaHLPbbB68d3w204Lx4l1eQUaGJACeKNvU
+d7kZvl+jpSGlEZd23lO+yVc=
+=jy/7
+-----END PGP SIGNATURE-----
+
+--NDin8bjvE/0mNLFQ--

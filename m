@@ -1,182 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbUKQKLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbUKQKNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbUKQKLm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 05:11:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbUKQKLm
+	id S262267AbUKQKNS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 05:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUKQKNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 05:11:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62398 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262260AbUKQKL2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 05:11:28 -0500
-Date: Wed, 17 Nov 2004 04:06:48 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Ross <chris@tebibyte.org>, andrea@novell.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       piggin@cyberone.com.au, riel@redhat.com,
-       mmokrejs@ribosome.natur.cuni.cz, tglx@linutronix.de
-Subject: Re: [PATCH] fix spurious OOM kills
-Message-ID: <20041117060648.GA19107@logos.cnet>
-References: <20041111112922.GA15948@logos.cnet> <4193E056.6070100@tebibyte.org> <4194EA45.90800@tebibyte.org> <20041113233740.GA4121@x30.random> <20041114094417.GC29267@logos.cnet> <20041114170339.GB13733@dualathlon.random> <20041114202155.GB2764@logos.cnet> <419A2B3A.80702@tebibyte.org> <419B14F9.7080204@tebibyte.org> <20041117012346.5bfdf7bc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041117012346.5bfdf7bc.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 17 Nov 2004 05:13:17 -0500
+Received: from [203.88.135.194] ([203.88.135.194]:4003 "EHLO elitecore.com")
+	by vger.kernel.org with ESMTP id S262247AbUKQKMs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 05:12:48 -0500
+From: "Sumit Pandya" <sumit@elitecore.com>
+To: <linux-kernel@vger.kernel.org>, <len.brown@intel.com>
+Subject: OOPS - APIC or othere?
+Date: Wed, 17 Nov 2004 15:36:35 +0530
+Message-ID: <HGEFKOBCHAIJDIEJLAKDGEMECAAA.sumit@elitecore.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 01:23:46AM -0800, Andrew Morton wrote:
-> Chris Ross <chris@tebibyte.org> wrote:
-> >
-> > As I suspected, like a recalcitrant teenager it was sneakily waiting 
-> >  until everyone was out then it threw a wild party with several ooms and 
-> >  an oops. See below...
-> 
-> That's not an oops - it's just a stack trace.
-> 
-> >  This, obviously is still without Kame's patch, just the same tree as 
-> >  before with the one change you asked for.
-> 
-> Please ignore the previous patch and try the below.  It looks like Rik's
-> analysis is correct: when the caller doesn't have the swap token it just
-> cannot reclaim referenced pages and scans its way into an oom.  Defeating
-> that logic when we've hit the highest scanning priority does seem to fix
-> the problem and those nice qsbench numbers which the thrashing control gave
-> us appear to be unaffected.
+Hi All,
+	At one of our client I faced timer problem in kernel-2.4.26 and I tried to
+fixed with patching "arch/i386/kernel/mpparse.c" file taken from
+patch-2.4.27.
+...	...	...
+Mikael Pettersson:
+  o i386 and x86_64 ACPI mpparse timer bug
+...	...	...
+	After booting up the system now I get OOPS. Did I applied partial patch by
+taking only patch for mpparse.c from the whole buntch? Does it broken
+dependency to some other functionality? I've ACPI support enabled into
+kernel.
+	Does following Len's patch provide solution to my OOPS?
+ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/test/2.4.26-rc4/200
+40422153228-irq2.patch
 
-Oh, this fixes my testcase, and was the reason for the hog slow speed.
+Here is output of ksymsoops.
 
-Excellent, wasted several days in vain. :(
+Unable to handle Kernel NULL pointer dereference at virtual address 00000001
+c02c4d80
+*pde = 00000000
+Oops: 0000
+CPU: 0
+EIP:  0010:[<c02c4d80>] Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010293
+eax: 00000000 ebx: 00000011 ecx: 00000000 edx: 00000000
+esi: 00000000 edi: 00000000 ebp: c02bbf38 esp: c02bbf2c
+ds: 0018 es: 0018 ss: 0018
+Process swapper (pid: 0, stackpage=c02bb000)
+Stack: C02bbf78 fffffffb c02bbf80 c02bbf9c c02c50de 00000000 00000000
+00000000
+       00001000 00000011 00000010 c02bbf78 00001000 00000000 00000246
+00000001
+       00000286 00000000 00000000 00000900 01000000 00000016 c02bbf98
+c0117930
+Call Trace:  [<c0117930>] [<c0105000>] [<c0117930>] [<c0105000>]
+[<c0105000>]
+Code: 0f b6 44 d1 01 3b 45 10 75 26 0f b6 44 d7 06 3a 86 01 dc 2d
 
-> diff -puN mm/vmscan.c~vmscan-ignore-swap-token-when-in-trouble mm/vmscan.c
-> --- 25/mm/vmscan.c~vmscan-ignore-swap-token-when-in-trouble	2004-11-16 20:30:00.000000000 -0800
-> +++ 25-akpm/mm/vmscan.c	2004-11-16 20:30:00.000000000 -0800
-> @@ -380,7 +380,7 @@ static int shrink_list(struct list_head 
->  		if (page_mapped(page) || PageSwapCache(page))
->  			sc->nr_scanned++;
->  
-> -		referenced = page_referenced(page, 1);
-> +		referenced = page_referenced(page, 1, sc->priority <= 0);
->  		/* In active use or really unfreeable?  Activate it. */
->  		if (referenced && page_mapping_inuse(page))
->  			goto activate_locked;
-> @@ -724,7 +724,7 @@ refill_inactive_zone(struct zone *zone, 
->  		if (page_mapped(page)) {
->  			if (!reclaim_mapped ||
->  			    (total_swap_pages == 0 && PageAnon(page)) ||
-> -			    page_referenced(page, 0)) {
-> +			    page_referenced(page, 0, sc->priority <= 0)) {
->  				list_add(&page->lru, &l_active);
->  				continue;
->  			}
-> diff -puN mm/rmap.c~vmscan-ignore-swap-token-when-in-trouble mm/rmap.c
-> --- 25/mm/rmap.c~vmscan-ignore-swap-token-when-in-trouble	2004-11-16 20:30:00.000000000 -0800
-> +++ 25-akpm/mm/rmap.c	2004-11-16 20:30:00.000000000 -0800
-> @@ -248,7 +248,7 @@ unsigned long page_address_in_vma(struct
->   * repeatedly from either page_referenced_anon or page_referenced_file.
->   */
->  static int page_referenced_one(struct page *page,
-> -	struct vm_area_struct *vma, unsigned int *mapcount)
-> +	struct vm_area_struct *vma, unsigned int *mapcount, int ignore_token)
->  {
->  	struct mm_struct *mm = vma->vm_mm;
->  	unsigned long address;
-> @@ -288,7 +288,7 @@ static int page_referenced_one(struct pa
->  	if (ptep_clear_flush_young(vma, address, pte))
->  		referenced++;
->  
-> -	if (mm != current->mm && has_swap_token(mm))
-> +	if (mm != current->mm && !ignore_token && has_swap_token(mm))
->  		referenced++;
->  
->  	(*mapcount)--;
-> @@ -301,7 +301,7 @@ out:
->  	return referenced;
->  }
->  
-> -static int page_referenced_anon(struct page *page)
-> +static int page_referenced_anon(struct page *page, int ignore_token)
->  {
->  	unsigned int mapcount;
->  	struct anon_vma *anon_vma;
-> @@ -314,7 +314,8 @@ static int page_referenced_anon(struct p
->  
->  	mapcount = page_mapcount(page);
->  	list_for_each_entry(vma, &anon_vma->head, anon_vma_node) {
-> -		referenced += page_referenced_one(page, vma, &mapcount);
-> +		referenced += page_referenced_one(page, vma, &mapcount,
-> +							ignore_token);
->  		if (!mapcount)
->  			break;
->  	}
-> @@ -333,7 +334,7 @@ static int page_referenced_anon(struct p
->   *
->   * This function is only called from page_referenced for object-based pages.
->   */
-> -static int page_referenced_file(struct page *page)
-> +static int page_referenced_file(struct page *page, int ignore_token)
->  {
->  	unsigned int mapcount;
->  	struct address_space *mapping = page->mapping;
-> @@ -371,7 +372,8 @@ static int page_referenced_file(struct p
->  			referenced++;
->  			break;
->  		}
-> -		referenced += page_referenced_one(page, vma, &mapcount);
-> +		referenced += page_referenced_one(page, vma, &mapcount,
-> +							ignore_token);
->  		if (!mapcount)
->  			break;
->  	}
-> @@ -388,7 +390,7 @@ static int page_referenced_file(struct p
->   * Quick test_and_clear_referenced for all mappings to a page,
->   * returns the number of ptes which referenced the page.
->   */
-> -int page_referenced(struct page *page, int is_locked)
-> +int page_referenced(struct page *page, int is_locked, int ignore_token)
->  {
->  	int referenced = 0;
->  
-> @@ -400,14 +402,15 @@ int page_referenced(struct page *page, i
->  
->  	if (page_mapped(page) && page->mapping) {
->  		if (PageAnon(page))
-> -			referenced += page_referenced_anon(page);
-> +			referenced += page_referenced_anon(page, ignore_token);
->  		else if (is_locked)
-> -			referenced += page_referenced_file(page);
-> +			referenced += page_referenced_file(page, ignore_token);
->  		else if (TestSetPageLocked(page))
->  			referenced++;
->  		else {
->  			if (page->mapping)
-> -				referenced += page_referenced_file(page);
-> +				referenced += page_referenced_file(page,
-> +								ignore_token);
->  			unlock_page(page);
->  		}
->  	}
-> diff -puN include/linux/rmap.h~vmscan-ignore-swap-token-when-in-trouble include/linux/rmap.h
-> --- 25/include/linux/rmap.h~vmscan-ignore-swap-token-when-in-trouble	2004-11-16 20:30:00.000000000 -0800
-> +++ 25-akpm/include/linux/rmap.h	2004-11-16 20:30:00.000000000 -0800
-> @@ -89,7 +89,7 @@ static inline void page_dup_rmap(struct 
->  /*
->   * Called from mm/vmscan.c to handle paging out
->   */
-> -int page_referenced(struct page *, int is_locked);
-> +int page_referenced(struct page *, int is_locked, int ignore_token);
->  int try_to_unmap(struct page *);
->  
->  /*
-> @@ -103,7 +103,7 @@ unsigned long page_address_in_vma(struct
->  #define anon_vma_prepare(vma)	(0)
->  #define anon_vma_link(vma)	do {} while (0)
->  
-> -#define page_referenced(page,l)	TestClearPageReferenced(page)
-> +#define page_referenced(page,l,i) TestClearPageReferenced(page)
->  #define try_to_unmap(page)	SWAP_FAIL
->  
->  #endif	/* CONFIG_MMU */
-> _
+>>EIP; c02c4d80 <find_irq_entry+30/70>   <=====
+Trace; c0117930 <printk+100/110>
+Trace; c0105000 <_stext+0/0>
+Trace; c0117930 <printk+100/110>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105000 <_stext+0/0>
+Code;  c02c4d80 <find_irq_entry+30/70>
+00000000 <_EIP>:
+Code;  c02c4d80 <find_irq_entry+30/70>   <=====
+   0:   0f b6 44 d1 01            movzbl 0x1(%ecx,%edx,8),%eax   <=====
+Code;  c02c4d85 <find_irq_entry+35/70>
+   5:   3b 45 10                  cmp    0x10(%ebp),%eax
+Code;  c02c4d88 <find_irq_entry+38/70>
+   8:   75 26                     jne    30 <_EIP+0x30> c02c4db0
+<find_irq_entry+60/70>
+Code;  c02c4d8a <find_irq_entry+3a/70>
+   a:   0f b6 44 d7 06            movzbl 0x6(%edi,%edx,8),%eax
+Code;  c02c4d8f <find_irq_entry+3f/70>
+   f:   3a 86 01 dc 2d 00         cmp    0x2ddc01(%esi),%al
+
+ <0>Kernel Panic: Attempted to kill the idle task!
+
+I can see following messages before OOPS
+Enabled ExtINT on CPU#0
+ESR Value before enabling vector : 00000000
+ESR Value after enabling vector : 00000000
+ENABLING IO-APIC IRQs
+... Here OOPS start ....
+
+	One more point here is with same kernel source and its configuration and
+SMP is enabled with 2  processors the kernel boots up. While it was giving
+oops in uniprocessor.
+
+  _____     __    __    ____   ____    __    ______
+/\  ___\  /\  \ /\  \ /\  \ \/ /\  \ /\  \ /\__   _\
+\ \ ____ \\ \  \\_|  \\ \  \_ /\ \  \\ \  \\__ \  \/
+ \//\____ \\ \______ / \ \__\   \ \__\\ \__\  \ \__\
+   \/_____/ \/_____ /   \/__/    \/__/ \/__/   \/__/
+

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293048AbSDIPMm>; Tue, 9 Apr 2002 11:12:42 -0400
+	id <S293092AbSDIPRg>; Tue, 9 Apr 2002 11:17:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293092AbSDIPMl>; Tue, 9 Apr 2002 11:12:41 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:27921 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S293048AbSDIPMk>;
-	Tue, 9 Apr 2002 11:12:40 -0400
-Date: Tue, 9 Apr 2002 08:09:48 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Frank Schaefer <frank.schafer@setuza.cz>
+	id <S293119AbSDIPRf>; Tue, 9 Apr 2002 11:17:35 -0400
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:49927 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S293092AbSDIPRe>;
+	Tue, 9 Apr 2002 11:17:34 -0400
+Date: Tue, 9 Apr 2002 11:17:32 -0400 (EDT)
+From: Rob Radez <rob@osinvestor.com>
+X-X-Sender: <rob@pita.lan>
+To: Corey Minyard <minyard@acm.org>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: syscals
-In-Reply-To: <1018346790.680.10.camel@ADMIN>
-Message-ID: <Pine.LNX.4.33L2.0204090809020.22258-100000@dragon.pdx.osdl.net>
+Subject: Re: Further WatchDog Updates
+In-Reply-To: <3CB2EBC7.4010207@acm.org>
+Message-ID: <Pine.LNX.4.33.0204091103070.17511-100000@pita.lan>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Apr 2002, Frank Schaefer wrote:
 
-| On Tue, 2002-04-09 at 04:10, mark manning wrote:
-| > ok - according to unistd.h we now have exactly 256 syscalls allocated (unless im missing something).  my code needs to be able to account for every single possible syscall and so i need to be able to store the syscall number in a standard way.  not all syscalls are catered for on the outset by at any time the user can say "i need to use syscall x which takes y parameters" and the code will be able to take care of it.
-| >
-| > the problem is that i am currently reserving only 8 bits for the syscall number.  this is ok for now but if we ever get another syscall its going to be unuseable by my existing code :) - should i be reserving 16 bits now in preperation for some new syscalls being added ?
-| > -
-| >
-| Hmm...
-|
-| dunno if you got this right. There are maximal 256 syscalls possible,
-| and, right -- exactly this amount of syscalls is in the entrytable. But
-| alotalotalot of them are defined as sys_ni_syscall (not yet
-| implemented).
-| I think there is still some space for enhancements. See
-| arch/i386/kernel/entry.S.
+On Tue, 9 Apr 2002, Corey Minyard wrote:
 
-Where is the limitation of 256 syscalls possible?
+> Why is that too fine grained?  You would just set the values from 1000
+> to 255000 instead of 1 to 255, and round up.
+>
+> I have a board that sets the time value in wierd times (like 225ms,
+> 450ms, 900ms, 1800ms, 3600ms, etc.).  I wouldn't be against the
+> WDIOS_TIMEINMILLI option, but milliseconds should be good enough for anyone.
 
--- 
-~Randy
+Yet Another Brainfart.  I've been having a lot of them recently.
+
+I don't feel comfortable changing the API that much in a stable kernel
+series.  Also, some other boards that have very small timeout windows
+emulate a larger userspace timeout since it's quite possible that a
+process won't get scheduled every 250ms.  I guess the only reason I can see
+for such a small timeout window is if one needs 99.9999% uptime and the 29
+extra seconds that the watchdog waits before kicking off is important.
+
+Regards,
+Rob Radez
 

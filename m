@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132762AbQLNVDg>; Thu, 14 Dec 2000 16:03:36 -0500
+	id <S132478AbQLNVGf>; Thu, 14 Dec 2000 16:06:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133063AbQLNVD1>; Thu, 14 Dec 2000 16:03:27 -0500
-Received: from smtp8.xs4all.nl ([194.109.127.134]:22727 "EHLO smtp8.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S132762AbQLNVDQ>;
-	Thu, 14 Dec 2000 16:03:16 -0500
-From: thunder7@xs4all.nl
-Date: Thu, 14 Dec 2000 21:09:41 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: [lkml]Re: VM problems still in 2.2.18
-Message-ID: <20001214210941.A707@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <079301c06576$b303f060$0301a8c0@symonds.net> <E146V8k-00043W-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.11i
-In-Reply-To: <E146V8k-00043W-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 14, 2000 at 09:57:28AM +0000
+	id <S132636AbQLNVGZ>; Thu, 14 Dec 2000 16:06:25 -0500
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:4035 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S132478AbQLNVGR>; Thu, 14 Dec 2000 16:06:17 -0500
+Date: Thu, 14 Dec 2000 15:35:48 -0500 (EST)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: Ion Badulescu <ionut@cs.columbia.edu>
+cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
+In-Reply-To: <Pine.LNX.4.30.0012141204210.27848-100000@age.cs.columbia.edu>
+Message-ID: <Pine.LNX.4.30.0012141535310.12994-100000@viper.haque.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2000 at 09:57:28AM +0000, Alan Cox wrote:
-> > bug was discovered.  Ever since, I have two boxes here
-> > that keep falling over.  Box A will randomly lock without 
-> > warning and box B will die and start printing this message 
-> > repeatedly on the screen until I physically hit reset:
-> 
-> What are these two boxes doing ?
-> 
-> > Is there a patch out there that I can apply to 2.2.14
-> > against the security bug?  The machines were very stable
-> > on that kernel.
-> 
-> Andrea's VM-global patch seems to be a wonder cure for those who have tried
-> it. Give it a shot and let folks know.
-My experience:
+I'll be trying in a few hours.
 
-2.2.18pre25 erroneously booted with mem=64M:
+On Thu, 14 Dec 2000, Ion Badulescu wrote:
 
-slrnpull --expire on a news-spool of about 600 Mb in 200,000 files gave
-a lot of 'trying_to_free..' errors.
+> On Thu, 14 Dec 2000, David S. Miller wrote:
+>
+> > If you turn off netfilter, ip_conntrack, etc. does the OOPS still
+> > occur?
+>
+> I'm afraid I won't be able to answer this question, since I'm leaving for
+> a 3-week vacation in about 50 minutes and I need my firewall functional
+> until then. :-) Maybe other people who have seen this problem can
+> experiment further.
+>
+> If I get a few moments, I'll do a quick test before leaving and will let
+> you know. The chance of that happening is extremely slim, though.
+>
+> Thanks,
+> Ion
+>
+>
 
-2.2.18 + VM-global, booted with mem=32M:
-
-slrnpull --expire on the same spool worked fine.
-
-Good luck,
-Jurriaan
 -- 
-proof by reference to inaccessible literature:
-	The author cites a simple corollary of a theorem to be found 
-	in a privately circulated memoir of the Slovenian 
-	Philological Society, 1883 (second edition).
-GNU/Linux 2.2.18 SMP 2x1117 bogomips load av: 0.56 0.15 0.05
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266364AbUGKHAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266454AbUGKHEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266364AbUGKHAk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 03:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266454AbUGKHAk
+	id S266454AbUGKHEq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 03:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266508AbUGKHEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 03:00:40 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:10932 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S266364AbUGKHAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 03:00:37 -0400
-Message-ID: <40F0E586.4040000@t-online.de>
-Date: Sun, 11 Jul 2004 09:00:22 +0200
-From: "Harald Dunkel" <harald.dunkel@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040709
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.7, amd64: PS/2 Mouse detection doesn't work 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 11 Jul 2004 03:04:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50622 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266454AbUGKHEp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 03:04:45 -0400
+Date: Sun, 11 Jul 2004 00:03:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Byron Stanoszek <gandalf@winds.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] 2.6.7 random oops in free_block()
+Message-Id: <20040711000334.41d2397d.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.60.0407101726430.12382@winds.org>
+References: <Pine.LNX.4.60.0407101726430.12382@winds.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-ID: SyJhKsZD8eC8vLBobMcsBAUrmUU8Rnws6fCU+2Gg1QefMjOOQ6eY0f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Byron Stanoszek <gandalf@winds.org> wrote:
+>
+> Unable to handle kernel paging request at virtual address 01000004
+>  c01382d8
+>  *pde = 00000000
+>  Oops: 0002 [#1]
+>  CPU:    1
+>  EIP:    0060:[<c01382d8>]    Not tainted
+>  Using defaults from ksymoops -t elf32-i386 -a i386
+>  EFLAGS: 00010012   (2.6.7)
+>  eax: 01000000   ebx: c78ff000   ecx: c78ff040   edx: cda51040
 
-Most of the times my mouse is detected as generic PS/2,
-even though it is a Logitech. I have to reload the mousedev
-and psmouse modules to make it work.
+A single bit set in %eax: probably a hardware fault.
 
-# grep -i mouse /var/log/kern.log
-Jul 10 17:23:08 r101 kernel: input: PS/2 Generic Mouse on isa0060/serio1
-Jul 10 17:23:08 r101 kernel: mice: PS/2 mouse device common for all mice
-Jul 10 17:24:59 r101 kernel: input: PS/2 Generic Mouse on isa0060/serio1
-Jul 10 17:24:59 r101 kernel: mice: PS/2 mouse device common for all mice
-Jul 10 17:43:41 r101 kernel: input: PS2++ Logitech Mouse on isa0060/serio1
-Jul 10 17:43:41 r101 kernel: mice: PS/2 mouse device common for all mice
-Jul 10 17:46:59 r101 kernel: input: PS2++ Logitech Mouse on isa0060/serio1
-Jul 10 17:47:00 r101 kernel: mice: PS/2 mouse device common for all mice
-Jul 11 07:34:34 r101 kernel: input: PS/2 Generic Mouse on isa0060/serio1
-Jul 11 07:34:34 r101 kernel: mice: PS/2 mouse device common for all mice
-Jul 11 07:36:01 r101 kernel: input: PS/2 Generic Mouse on isa0060/serio1
-Jul 11 07:36:01 r101 kernel: mice: PS/2 mouse device common for all mice
-Jul 11 08:43:33 r101 kernel: mice: PS/2 mouse device common for all mice
-Jul 11 08:43:33 r101 kernel: input: PS2++ Logitech Mouse on isa0060/serio1
-
-
-Usually I wouldn't care, but I can go mad if the 4th mouse
-button doesn't work :-).
-
-
-Any idea?
-
-
-Regards
-
-Harri
+Try running memtest86 for 24 hours.  That might detect it.

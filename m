@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288845AbSANSuc>; Mon, 14 Jan 2002 13:50:32 -0500
+	id <S288859AbSANSyP>; Mon, 14 Jan 2002 13:54:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288809AbSANSsr>; Mon, 14 Jan 2002 13:48:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24070 "EHLO
+	id <S288828AbSANSx3>; Mon, 14 Jan 2002 13:53:29 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33286 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288801AbSANSsf>; Mon, 14 Jan 2002 13:48:35 -0500
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-To: esr@thyrsus.com
-Date: Mon, 14 Jan 2002 19:00:13 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), eli.carter@inet.com (Eli Carter),
-        Michael.Lazarou@etl.ericsson.se ("Michael Lazarou (ETL)"),
+	id <S288834AbSANSxB>; Mon, 14 Jan 2002 13:53:01 -0500
+Subject: Re: Hardwired drivers are going away?
+To: david.lang@digitalinsight.com (David Lang)
+Date: Mon, 14 Jan 2002 19:04:34 +0000 (GMT)
+Cc: esr@thyrsus.com (Eric S. Raymond), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        babydr@baby-dragons.com (Mr. James W. Laferriere),
+        cate@debian.org (Giacomo Catenazzi),
         linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <20020114132618.G14747@thyrsus.com> from "Eric S. Raymond" at Jan 14, 2002 01:26:18 PM
+In-Reply-To: <Pine.LNX.4.40.0201141045130.22904-100000@dlang.diginsite.com> from "David Lang" at Jan 14, 2002 10:50:20 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16QCL7-0002Xs-00@the-village.bc.nu>
+Message-Id: <E16QCPK-0002Yt-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it OK in your world that Aunt Tillie is dependent on a distro maker?  Is
-> it OK that she never gets to have a kernel compiled for anything above the
-> least-common-denominator chip?  
+> 1. security, if you don't need any modules you can disable modules entirly
+> and then it's impossible to add a module without patching the kernel first
+> (the module load system calls aren't there)
 
-The two don't follow. 
+Urban legend.
 
-The goal of a typical end user is "make it work, make it go away and do what
-it did last week". Random mechanics hating car owners don't do engine tuning
-jobs or fit turbochargers.
+> 2. speed, there was a discussion a few weeks ago pointing out that there
+> is some overhead for useing modules (far calls need to be used just in
+> case becouse the system can't know where the module will be located IIRC)
 
-Secondly we've established we can pick the right CPU for the kernel reliably
-that is seperate to modules. 
+I defy you to measure it on x86
 
-Thirdly building a lot of stuff modular is the right choice anyway - in the
-world of hot plugging and USB Grandma is not going to want to recompile her
-kernel because she bought a new trackball to boost her quake score. 
+> 3. simplicity in building kernels for other machines. with a monolithic
+> kernel you have one file to move (and a bootloader to run) with modules
+> you have to move quite a few more files.
 
-Alan
+tar or nfs mount; make modules_install.

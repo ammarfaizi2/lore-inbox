@@ -1,83 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293092AbSB1AOH>; Wed, 27 Feb 2002 19:14:07 -0500
+	id <S293096AbSB1AUQ>; Wed, 27 Feb 2002 19:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293087AbSB1ANg>; Wed, 27 Feb 2002 19:13:36 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:49368 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S293092AbSB1ANT>;
-	Wed, 27 Feb 2002 19:13:19 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Franck <afranck@gmx.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S293095AbSB1ATc>; Wed, 27 Feb 2002 19:19:32 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:53936 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S293094AbSB1ATJ>; Wed, 27 Feb 2002 19:19:09 -0500
+To: linux-kernel@vger.kernel.org
+From: Jonathan Hudson <jonathan@daria.co.uk>
+Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+x-no-productlinks: yes
+X-Comment-To: Alan Cox
+In-Reply-To: <fa.kjtklqv.gnqri3@ifi.uio.no> <fa.g63p78v.1e7kv8e@ifi.uio.no>
 Subject: Re: Linux 2.4.19pre1-ac1
-Date: Thu, 28 Feb 2002 01:13:23 +0100
-X-Mailer: KMail [version 1.2]
-Cc: florin@iucha.net (Florin Iucha), linux-kernel@vger.kernel.org
-In-Reply-To: <E16gDhO-0006OL-00@the-village.bc.nu>
-In-Reply-To: <E16gDhO-0006OL-00@the-village.bc.nu>
-MIME-Version: 1.0
-Message-Id: <02022800441601.01097@dg1kfa>
-Content-Transfer-Encoding: 7BIT
+X-Newsgroups: fa.linux.kernel
+Content-Type: text/plain; charset=iso-8859-1
+NNTP-Posting-Host: daria.co.uk
+Message-ID: <7180.3c7d7778.11315@trespassersw.daria.co.uk>
+Date: Thu, 28 Feb 2002 00:19:04 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan and folks,
+In article <fa.g63p78v.1e7kv8e@ifi.uio.no>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+>> >> With 19-pre1-ac1 on a reiserfs partition I cannot patch a kernel. Patch
+>> >> fails with "Invalid cross-device link" or "Out of disk space".
+>> AF> 
+>> AF> I can reproduce this too on ext2, so this does not seem to be FS related. 
+>> 
+>> Likewise (reiserfs here). Numerous fuzz or outright patch failures
+>> with 2.4.19-pre1-ac1.
+AC> 
+AC> See the other mail for the questions - and reply to that too if you can. 
+AC> Right now I've not managed to reproduce it. Do you see the problem on
+AC> 2.4.19-pre1 (non -ac) [that has the same reiserfs changes in as -ac does]
 
-> What compiler firstly, and what I/O subsystem. Are you using highmem,
-> did you build from a clean tree ?
+There were no problems with 2.4.19-pre1, to which I reverted, pulled
+the full 2.4.18, and patched back up to 2.4.19-pre1-ac2.
 
-gcc 2.95.2, I/O subsystem is PIIX4 IDE here. No problems with "pure" reading 
-and writing however, so it really seems to be connected to something special 
-done by patch. Build was fresh from a clean tree. 
+Booted into 2.4.19-pre1-ac2.
 
-> I also think your report is unrelated to the reiserfs one. 2.4.18 proper
-> and -ac have a small reiserfs fix which is a viable candidate for
-> reiserfs funnies while what you report is somewhat different
+Patched back down to 2.4.18 and then back up to 2.4.19-pre1-ac2 again,
+no problems seen.
 
-Perhaps - but strange both are only triggered by "patch"? Or maybe the 
-reiserfs errors are later consequences of the same problem.
+Rebuilt 2.4.19-pre1-ac2 in 2.4.19-pre1-ac2. Reboot.
 
-> Maybe a candidate
-> 	shared memory filesystem fixes (also used for sys5 shm
-> 		and anonymous shared maps)
-> 		[copy mm/shmem.c from the working -ac to the current -ac
-> 		 and retest]
+Ran the following twice.
 
-Will try this now, sounds possible - but does patch really use shared memory?
-I will try to narrow it down a bit. There also were some changes to 
-mm/memory.c between 2.4.18-rc2-ac2 and 2.4.18-ac1. Also a possibility?
+for i in $(seq 1 10)
+do 
+ bzcat /net/tw/home/jrh/dl/patch-2.4.19-pre1-ac2.bz2 | patch -p1 -R
+ bzcat /net/tw/home/jrh/dl/patch-2.4.19-pre1.bz2 | patch -p1 -R
+ sleep 1
+ bzcat /net/tw/home/jrh/dl/patch-2.4.19-pre1.bz2 | patch -p1  
+ bzcat /net/tw/home/jrh/dl/patch-2.4.19-pre1-ac2.bz2 | patch -p1 
+ echo "===========>" Step $i 
+done
 
-> 	Small pnpbios update (only relevant if building with PNPBIOS)
-> 		[Build without PNPbios and retest]
+No problems seen. ac1 would have not have survived the above, so I'm
+pretty sure that 2.4.19-pre1-ac2 has fixed the pre1 problems.
 
-Have bios enabled in all kernels, will try without. But there were no PNPBIOS 
-changes between the working 2.4.18-rc2-ac2 and the failing 2.4.18-ac1, so
-I would rule this out.
 
-> Wildly improbable
-> 	Correct NULL check in the sd scsi code
-> 	open fix for ps2 driver
-
-Not using sd driver or ps2 at all.
-
-> Hw specific (check your hardware and config and you can rule these out I
-> guess) JFS specific fixes
-> 	A sparc64 specific compile fix
-> 	An off by one fix for loop that only affects using a specific
-> 		option with maxloop=256
-> 	Patches that only impact users of nbd
-> 	An AMD ELan specific driver for watchdog - no affect on others
-> 	Locking fixes for the softdog driver
-> 	A serverworks specific ide=nodma fix
-> 	LS220 experimental code (which shouldnt be enabled or matter)
-> 	Tiny tweaks to the margi DVD card driver
-> 	Ifdef of two lines specific to promise sx6000 raid
-> 	3c359 token ring driver (doesnt touch generic code)
-> 	olypmic token ring specific locking change
-> 	netrom specific fixes
-
-Use nothing at all of them, just compiled most things as modules, which are 
-not loaded.
-
-Greetings,
-Andreas

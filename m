@@ -1,174 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266228AbSLTWbB>; Fri, 20 Dec 2002 17:31:01 -0500
+	id <S266274AbSLTWgt>; Fri, 20 Dec 2002 17:36:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266316AbSLTWbB>; Fri, 20 Dec 2002 17:31:01 -0500
-Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:29962 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id <S266228AbSLTWaw>;
-	Fri, 20 Dec 2002 17:30:52 -0500
-Date: Fri, 20 Dec 2002 14:34:47 -0800
-From: carbonated beverage <ramune@net-ronin.org>
-To: linux-kernel@vger.kernel.org
-Subject: Boot probs on 2.5.52-bk, BusLogic driver.
-Message-ID: <20021220223447.GA20243@net-ronin.org>
+	id <S266295AbSLTWgt>; Fri, 20 Dec 2002 17:36:49 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:29959 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266274AbSLTWgs>;
+	Fri, 20 Dec 2002 17:36:48 -0500
+Date: Fri, 20 Dec 2002 14:41:49 -0800
+From: Greg KH <greg@kroah.com>
+To: lvm-devel@sistina.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] allow dm-ioctl.ko to be used
+Message-ID: <20021220224148.GA13612@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="/9DWx/yDrRhgMJTb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I guess no one runs the dm code as a module :)
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Here's a small patch that allows dm-ioctl.ko to be loaded.  It is
+against the latest 2.5.52-bk tree.  Joe, please add this to the next set
+of patches you send out.
 
-Hi all,
+thanks,
 
-        Had problems booting a bk 2.5.52 pulled around 2002/12/19 03:31 PST.
-It hangs after initializing the BusLogic host adapter, when it's trying to
-probe the devices.
+greg k-h
 
-Debian woody:
 
-gcc 2.95.4
-binutils 2.12.90.0.1
-module-init-tools 0.9.5
-
-        A partial output captured via serial console with BusLogic=Debug
-is attatched gzip'd due to size, along with the .config any more info needed?
-
--- DN
-Daniel
-
---/9DWx/yDrRhgMJTb
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="bk-errs.txt.gz"
-Content-Transfer-Encoding: base64
-
-H4sIAAAAAAACA9w823LjuI7v/RWsmofTvZXuluRL7NTpqaUp2uZYF0aik3i2trTuWEm87VhZ
-X2aS8/ULUr7oQirn1NT2w6bciQWAIAiCAAhSPdhvvexxeZ+M55vFn/NNGqXbdPfRenXblvXp
-CrnL+eM62+6W94hkzy+rdJcuLlC8m+/2W2S9tqwPg3c4jKE1wov5yy7doCidL94M7YH/83y9
-+NhzPx0JvqGWdYXsNvr27Vf4c4XaHeQSZFnIseTv4qdtATFqXaK2g2y3wPYpvf9xFsffr3ZL
-f76V0gyz/XrxYXu/XV6hf5M/6NgKxSRmyN0s/wCym3SzXWZr5Hyxv9hdlD0gu4d+26/eQArL
-yVseuJDs5W2zfHzaIbvf73yGXz30/Q15abYG7aDgC/p9//1H9vCA/r5a/+PfFzDedAW8v9xn
-z79+oFEURld5309Sbf91lOdv6Gm+ResMpZtNtoGH9WK1XD8eW4in5RYtJcEOzdF2/pCiP+dv
-aJehzX6N3rL95sz03CatcEPPe+jze4rmi0W6kK13ku9CaeEDma9WSGzm9+kV+o+/31tOz+61
-5r/+Jzo+zfvt45Ntdaxet/jU6Z2fumlrAU/1mbfalZlH+cwjOfO2/LQ6SGcy1qDasJU3bF0p
-67CRdalpVTW0Vt5dC7qzWnkrZLWrhqb9UGV37TZqd+X3Bsrh8PT7/972j2xrirVz/dgwaI1m
-ejV9dnL6DtD31Sz0pBiObggdc19tR0PfNU+61FIf9VtaXfXtSsNu3rB7sJYualEpZFlgqS7S
-PlqFmmJneJhoIIMe4QMzmH85fXII6NlWH9m8Z55l4N85dnGc9Hze3/30LkFg5U0s6U7WD8vH
-/UYuzpNr8jPwGWggPvc7PcQJQ7fLRYqmq91mnq/yosc9ckJouNw8S/d8dGdXqPPFuhxcIPY1
-BOrFJt1uwe6VnwRgdI0IOIZ1urpC/a9e+ke6OvOSvYI8QH6B3PSPpfQJ/YsiFzq01M9F2f8r
-+Zh7hS4LzOab5e4NKT8NA71CdD3/vpJhhr7u0rV0ReB21tvVfKfEPqDPDOK39f3TJltnYAlB
-+pjtlgfKIbj5i1w9JfhsNguC2eyX2eHnzMpdbu8zGPT97muUHr7V6S+QmD8+glzX+3SvRDZz
-jO/nOxj519F89wQK8JbPS+BoOz0ZR3p230Hb9PE5Xe+2F8ifL1ffs9cUNOjYdkGqPA7J3lLQ
-98vuSRFUdFtCA+Nz+4K0JwK832XPoI/7CzRd7zQErXN7qsKEVAiI8QaLbjPfpY9vkB2kD3OI
-pxf5vIJFIBX8dXN0JBDp5nm5PkzEINs9nac7JtgvzL6yOWRrPEZx4duSvZV7DOtKQzz8F4j7
-XTPxYSilLOGwCNl6Cba1Wv4DdBjv7+9hDTzsV5AfHBMDaFfry2lX+3Lyvpwr6WfA45laluKW
-bY5bbgu1e8g1OZqhJm61/7m4ZZKsRyqSQbqkwlf3SscUNzjC8+TwTfY9hQSu1WpD/nZKHYdD
-8FJrMPzN/mV3eB6l2XO6AxOVj3UOTsv6yxz+qgz2X5bB/ldlULOFrqpm+wFBKFgvss0VYgMf
-5T8quMDCdmfxZ2H17UsryBFR+gd02u+OoZl4e0lzb7kB//gZK4tH2h8cwLpXi38DcSKPO1br
-kC3noQMc4QOkn7B2PqsEdiP3CAgczn1uVQCQQ3kA5wg08wfp6/LEdXPwSFd5tmyh+zxiwbfl
-AnXRCpJf6/9dX72f2Ff/J/YFadVP7Mz+mZ05P7Oz1s/srP0zO+scOvvwy4dfzgnMXEbax3Sd
-yqxkgZ7nP1LoSSbOV2iRrf+2Q+liuYM2JAyGbJTc9brf3o4Pvj89P8S3mJ+fpsy1C5QjGtCI
-kYTFOHF9DAglBgGHCX3u9iqJXamcJXuR6c323CW949DWp4HA3rHhSEm8gvRvt385kwZUFASa
-xTeMkzNgELsJj0JC4zjBhJRJiTgx97L5QqZR6Dlb7OHPdv/ykm0KSvBDd+rRuKAIBUimgRdi
-F8AwshJiGEbkiD6WGkD0Y/NwEIceFVSScxz5RQ4TgBWbKAkhmsmoAZO+g2iCpFk8pFKN6TbX
-66H3Vq9bbHtGtE2ITgNCxMSI8/07zcD8rjKXMyWHWWRTnzGm53TAt/XYiUG2yaUeTj0c6DEk
-msYh1eNuWUDGYDjdRrTTiG25hn5nEburjP68shLi8zsyHp0NSwLvsOuWIZ6dEEzGNInHbCi+
-dY646DamfiI5QJMEe6MwYmLslxtzWALJkAaEluG3PLkNo0mchJMyggU3Hq/INCivdsU35Nit
-NQabKQNGYQiicVYBT2OaSwbDIpN4WloD4+mICm+QcDzSz1nsc41GeUSpz0WRk+qKq/4NU+Ar
-vZQaACgJ4BGDA9J2L0KYiAHW4lhvojcFRsAVhS41yRFHVTkIB6+qZUZdnVsJwjEbjX1a1mUO
-ao+0jA7YrgHtYzFOqD/1sGBhoFvwIorOEzvGNzRxKUm8kEyO3pVnf0LIglA2f0zl1v3o8NFH
-TDi7QJj7n4pOjPs19ycJYa949MonUgXXyQ2aS4YRva5xkpvqU/+cQPec+IThC0QhVF0gn8Av
-+Pbp7PyBqqhPeASbHrAw1vaco10WUSJ0JqrQOJidlSZBkl0ZknModhyTVwc2e6ZOA+zTWNMj
-DKbIRQ7T4Kr08HEouDcd1TRJX9P7/U6FzYel/JVtILAXwviEhBFNqDcsRTcFxOFUaDsbsGDo
-ixq+jK2wPEB9Vo5WSkg/fc4geRLp/dM6W2WPb4ekCybfF27J7OC5HnbnkHOsIEeRhldPCyB0
-8zAqpBUHQFJMQs4w8PaeXTKlAyqGdKfsaepth2wY6toCKp7KfCnUW8aBLBRjGjX0YDu99mnB
-rvaPKsXgq/lbYdRnpgGvL6xVdv8DLXLtnlU08CbgEG6SofvtuTBlB+idaxKauXrHL1sSfp24
-uBFNGKR8DTSycxeTftdqJJmCa9TZ4QHthSHXDSsYuI1sI+xr8d6gboIQg77CP86++kP/a+R5
-Bx3XrRFUdpxB+HohW6pZVK3fm59CY75K51vgn6bIze730mWrAuTX5SL9snvdyZWOntLVy9fl
-+iFD2Vp2l597lZLRI+uxmzTNZk7SoGVo7LK4kGYcAAmEJcFkCl0K4EdsLKJwQpv5klLuXkAM
-vZDzWaPMQKUqNdocwKWJwCAEC2GbUZtTqY77p+ULAI7T+PX7/vFh+arXIPHdbttqHkoepSrw
-wy6soh4ZLeIxBj8szy2aFe/javwrYBNBrht1FA6HgxBH7nuKlN2oLZPODs5iJHgqwupcAyoM
-vJmc83fHomkr2d4y3tAUVxqe4JR0nbu7xrFhj9mdu1Yzje9ett/hoyzgHZJZzyHdfnNfJO50
-nGafN+ai9U5XkqTbbSSJiV1JVioEnLE7nVYDZQeNvIO4d9m2O82WxwXrOnYjDXeJY8EMJqHn
-/nOEAb1tduy/25bVrN745nYSN1Mw5pv2PWcamEi7ea5jj/Qt+s48ich3+s0S3zAMlnVnsFDp
-BuQGOKYiNi9ew8JlN4PmNau8e3yMTMrfmsKfRJYIDxR5xeTjYrn9cYF285f0AhH3cxT6n+pR
-MC7FAzKOcqg+Vz2iw9hAcOKqS7xOzEcnobPntDhEyFHTL49fQFr03/sf6ffs9dNpTM/yXs4L
-ZN3eNCiFDNn+EBgBpd87S5KIqrQPaGIzEXyPBQ5EA4kXjkYsqO8O1DhW2Z+f8xpffitGG9xa
-twnY1h0kRYa9rurnEtbVEJs0rUgwMUWaHD3Gdse5e4eg7TQQYNIsJGbk0rROigRGh6OIXC4S
-5oQNXNwbHMSzhllhgWPyQzkHv9Mi/cu2mcKnI1wdbBE/mMYw9cWijgKHPhPJ0MPxmIcsqGxf
-pUXx6yFpsifXv2vZfbtJPYK0nF7D4KhMfBuxsiL9DgVnDRMwnIopZE9u6GPWsMZGrhg3YA8V
-8oBEnVbTeCqEie83yQaeuMkumGhsHDBsNxkO5w2KY75vRirpSdvq4vdoLl9fzSTxTJpuD9aQ
-8x6fXtNKPPFpGCuO7W4DmrDmRSYJHMdiDRQxc9pNBNdqjSXg+N6lYTF/nw95l8RuXFoxxSMs
-aAMB8y9t6z21t5v06pJW32pw80LeBjJip3Y7abWHDQSeiHAswqjBfGLearAulw405bBwtTjk
-Fcdghz5KAtnkQpFCOlMqOBE3CULdNjKvXMkI/7mc7KCPyiXLTb13Uy6a+vXKwXCv7uH6XNRz
-plO74TSuFHbzHSqlFNmtfht9HC436S38OycfH4sHdCUpZDPVqsYP4plZiEq0U6gg3f2ZbeQV
-t/oBIcdkQktlN/kMjrF4RBFQ4bFA5Rgl4JB5gpZK7SdgfWqPWjq2OR52Bmrzcm6fTGihosvy
-Y8nz+HiekhFsyF+AQAV12AAnUTgVNDKRVUpvBQkYZ7IYVYKMIlqsT+GI6wOrFDihRFfgj2cB
-5IHhhBWPPxU9Hp+7yxnEBQHuhpEvD3kiAOUmwK/kpD4sV/IE+3hXU1WWCjUsDhtAmXcGsEpJ
-seajEEPBqyAWkSroekqntEbHBR6UznBzuI8FGSceg8RFj/Ix0SP4RIgZp6ZW0cSAkZZQLhsX
-0SI0iAjTo0e4MeF6DB6rOdGPmAYjMTbIoI7GdQjC/dgg35h6vLhGijjYRQiDooxznaOnAfEo
-Now8vA3qPVbXag4VOBqBiUb0N0qEAekzede/igyw0IBggVHYw5o44RiMMMIuNcpxOt+pcfZC
-gj0dIg58ngxwzIgOq1kIEqxZMj4ORp5JMo39HTAaAzxgdBZ40kR9HRxQkHAYMFMzSm+B4Nj0
-qxsQdX/P+E1Xs2EVvOyV6nGu0D6R9ElS8fKKic7BYqFPjW88HCQ9y7F1dVjPK8woPCRTVhzf
-XekBXDAMszBD8vB6UpRP1Ro596hEaLpzYYLLcSuHQFIXkhEbSqB2EAeyhsA1iJg70h58O53C
-EDEfVOJy4rIbGumDJoW/VI+6Ba02iCMZQ04tFImRYnwLO9nwFiBAWC/iX2exzMS+Zht5N2uD
-/kdeB5dvGRUvJ4FFjIte4gBKyOC6OlIJHouBURzVLP7dEP0llkcs1HGNtGX1IzYeakUR9Npr
-lEUMho34UXO3blx2DUc4C6BhcYVLxHVYAdBYMIgBRW8twcSLawBwGSxw6V0doaa/bYDXwcPb
-OmzacjTt4xteVekR3jWoROJ56DFyOoY7JMBol253uVmVGEL2MaKBKW02VkmhKfgB6OZUVMUR
-Wae7wslgIV0klQV2XPBT35+Vivdh4FaqgOdlej3FHvtde/ospkHpboI8pBa4frhM5dsgUsqP
-sLmEBWdblv99uftUXmuqecWFjcHjzXxquMcTT4MR9Y1mfEMDN4ySFgkN57UyY3+vdeyT90gg
-/cF1ByP2q+UL+Jbn5eoNrU3zWuInph4zBSD70lCskAeChqsf3FQMUtuL8kWSom1Wb8wA0LCj
-xi7mghKZIUZDSIn0RKRluvmCwemR0FB/b+sLnCTu9V8NuhhF+lILpTwKTdqgJsQQDC/Q3ZOE
-zCymPit7CWciNadl1INdNeFGlAgNRT0W900yc0aMpb5p4BpNW5juWN4wnERj2AkaLYaHcp/e
-uLpBouPKLkw/DZh+EbmeMzFOicF0416rZzgDHWPY7Y31UzCjHmQDQ0PBN+rZ3b5emZN+zzO0
-EmwUBvpTvKHrMsONPc5110k5LP1CSYSXQhA85htPWRLRNQZ8deMkYRi2/6TKSMJgjzgz8JG3
-J/LtXqnVIHbBj3J9o7AQb+PSQORTIhvKrICWzucUSqYRhmqhRMvzQ/WtnvHLotZKvoojDfrj
-Olt/fpo/b+aLZfap6ldhJ8fqJSqR/UjXKJIlqtOJ3SJ9SdeLrbwVo9L3EivRkI7q7TsiJo8Q
-Q2Qrx9R8UPM1Wsr3mx7mpXs+t7gUacdhLOSt+PjG1p+Rk9BwTRCmQl8zh00gaZvCpA/7XUPh
-H1wkvaFe0rYMx/XS3FQlT34BW9FY0Nj1SlYqn2HS9If1CklYTEIzehiZcWYRDtuZQuBrmZyQ
-PhqCR9brYIgjOXqzUKpyKZPC90jGOHKTMcUujd4jrRQEdSQRZH2xwTMTnZeSezyVpxVugzsd
-6WdKK3sQ1Cvi+Hm+S/cbFMklqsuAwHvrFyrbuBh9XK4fNvNNuvikLUFH5duCebvYDYD4+/Zt
-u0ufS+SAgaxXsy0U4FNenrL1m+6+Mh+H5fCYd7N+2e/M1/oCPhXHZH26TTcrWf/XrXFFCR5v
-Cn6yWPQuwxMe4+mdERuTiNIguftmW067mWb27bLbKxaRJdFv4QxIDFVmSSDiZjy9eQ+vO37J
-dShfztdcNRhhX1130JW3Q8h1TgSFsEPzzXTxMWE9q+2U7FSB4XeVe4WCiJ5DjAdjioTDblhz
-/TMf1+FNMfc0tJJGJnSmbtmdxT1CIO0HpqX710cM5HgTwzXVE82deJckoLdC+2JAwWSKr02p
-1z5ip/zKlATW70BXCIChSck5gTzAHPgNBJzYtsWx22BcYL2xYGTSZL/hlIzzFWAeNiu+BZPD
-OIn5pFyHVPCp+lObePI038zv5VFJ7c7uTcFOb4S6pRMW67nj2wKsZGbYk++1yDs9buWuTF4D
-TTfLefGyTrlpz+lY5SVxADZ0p9D0TsBGl9Y7DCDpkhQAUT3rr9kfWMk3B2rdq9cJahqQ53P9
-XsLFLNYBocE0EN+cTvf85pAqnxYH4PEjX/0ddW5yU4LBWtacgBL90afmpQWY7tJNqWmsDFjb
-2zUjlpMISAY1ueDu/mmRPSIy3yxKDvFWHp+44chg5gLSschQzsG+a8QFN5Wb7ccsVpSyM1d4
-+gUWtfrdtmGbD9sbUxkmDoMZr+cLw/yyH2wu0cMqe3l5U7f/jnH28P80FY/Cq0o89j0qbaXg
-saWnyjVXoZXbYv2QAId914iDvbu5ncfM7dRLfQYJ5ez17M7/NnY1zc3aQPivZNJzZ4zBGB96
-EF+JYkAEgePk4nEdN/FM62Qcp9P331cLxJZAKzhazyNpJYS0rHbX1vWeNlSjT8XPTRnGiIov
-wKLjfiFDQqlkWbc16iHnXgPaOJjeIZFKT2SlfxmEyi9qwpWB3p/in/3rYaszda6oEH3TeaOb
-VQSxTY0CqNR4rBjiZga+rjHfxNyAOhhcRFTsbIbqoQGLceweh/zIgPWgS4x2aQvkuru2BZs1
-KcuiX5wzTtcbEkgXmw+qZiJ+4v4XcJEph1/zkHGlZHWhXE1A+LACsU9ph1WmudxqTZMOcs4W
-rjtROn5gCVVNzi+ChvT7gE1nSsXhBO1K3hqrNT6ArDQ86hzrBWLhO5MkljzGFlBe8g7/MVs7
-eNcFSw0LZtpdMFP9gpl2F4xkCuArrO8qjFEIE6qZYSXsVpQgWiZAvbdewmSJlbuYegvhly3k
-YkgJSafzWgdJo5cXphc3i9VFD79XtmJEhhJHXzVUKob9miFeFe7dJd2rygo5xBGifcPOT9GW
-/FBBd5dFD2i92C/h3P6m+ztLOJgSSZXIn2UtUEQpK6M/bnefjj2/lUYR5PjuiCwCUZ76dXj9
-tR/d48y3p/OhdgyAjD6KO1pRgl9tdnHiUnQAoaJmV45WNsbjAQZJ6R0Z4pSkoAOclAR6hrKz
-XhjKJZ9YBhBllRA/Qj7U6l2MV75ZBqFTC0F5k0TAyASV/QkC1cz9JmFqHBS/o/ohgTOokNhY
-t8r0daOYmis2S1V66ZLLnWu2PQvt8ybZHt++t297yVR05V4W/+3h68PzZovfrVsZhlQCkB9h
-I94A5UWWsbmtz5ShkuazYZI3m4whTceQRnU3QnDPHSOTa40hjRHctceQnDGkMVOAhG51SIth
-0sIe0dJizANe2CPmaeGMkMmb4/MkFChY8BtvuBlrOkZswbJ0J5vUl9V9h36A6aCY9iBjeKiz
-QYY7yJgPMhaDDGt4MNbwaCx8OEtGvU1hhivkWVVl7F0SQp22n++H3ZfWqd1HLqjhI49HSSc1
-R5uZ6vj1IfS018PXJ6Q9aOwDfWPUShzDGnNXGhKduUh2mJGqtfF+kE/7N8US/YOxz/2xIbSK
-oxLjV9usc/BM7F+SvP67Pe72rzfJ4fj9X9sEOe3eD+f9DvJFSR1mks4mfoiZeawgTZBiBmuB
-Zgi6Y07gjHPIEaO2ltJ1VACkFudB2i+89NxCSu9FGZRiqEjAhiCIz32fgX0XjHhLlKaP26gT
-ix12OqNAXak7bLVnWqQUuaev56DMyQpFWxNmZbkzZBOr28grR70VbO+mCCYzCS3P8dAGA+5M
-bcsMT82wi8IRt1zPM8FozBXcw1Q8SAjniLdHSxGfiEL/j0yUlOCd1F9ZqAlJYWw44pBZr/q8
-pIvpemi6f2gD017TbFxq7nsGzHINIHnChwqjjAuWlfgDT6ln2xOD4InNCb5g+B1JyPq5n1sn
-oOgCTujMmRmXqGtYRTDTHl5bbFXWZInjS1bcWVMLH1GWTmf4fIsPeMPrI9CFa0ZneO37EIvy
-E2AJSXMMD/I5jVFnknrSuYPGMzbrwFQ9yrhlzyfICdGgVndrF9vBwjbuFgsXh1MSgQ+3jRLi
-1Jvgz5kGkTU3PObamu+t8RnhLKPBivoRNxwQxOvkCGnu8bmvU1yguJ9Y6Xt//oDU35oKfqlL
-FfnXof6DCl3mpoLF4APWPweX4IL39837tk4rf9USGj+PJTjWJqrhEMp5SYIlEwcweMoj3qU1
-T3y8G2DKxEmqu55PCQSl8mdePGo6z2kGtib9DTVJEv6ccpNQbX0hXRTp36u4IKlQLFh9Imju
-S3dNItNrhKJ0/xlUBS37+15w+vV5/nhr1Nd+bGNQPOel5HnQ/N7cN2FokgW7Ls6qJEEs3DWe
-ho4Znplgfk90n01XVOyDGqHCiJta9Ws3Sn5v4pRPrEvpdB4VkDpU03sZ8f5LkRz+PG1Pv25O
-H9/nw1E9cYIiUDfsHzt+Qn2xCfw4M8qlVxdHOUUmZWCY9BkDsf4HhfJhhStoAAA=
-
---/9DWx/yDrRhgMJTb--
+===== drivers/md/Makefile 1.10 vs edited =====
+--- 1.10/drivers/md/Makefile	Sat Dec 14 04:38:56 2002
++++ edited/drivers/md/Makefile	Fri Dec 20 14:35:41 2002
+@@ -2,7 +2,7 @@
+ # Makefile for the kernel software RAID and LVM drivers.
+ #
+ 
+-export-objs	:= md.o xor.o dm-table.o dm-target.o
++export-objs	:= md.o xor.o dm-table.o dm-target.o dm.o
+ dm-mod-objs	:= dm.o dm-table.o dm-target.o dm-linear.o dm-stripe.o \
+ 		   dm-ioctl.o
+ 
+===== drivers/md/dm-table.c 1.5 vs edited =====
+--- 1.5/drivers/md/dm-table.c	Mon Dec 16 01:40:44 2002
++++ edited/drivers/md/dm-table.c	Fri Dec 20 14:35:28 2002
+@@ -752,3 +752,11 @@
+ EXPORT_SYMBOL(dm_get_device);
+ EXPORT_SYMBOL(dm_put_device);
+ EXPORT_SYMBOL(dm_table_event);
++EXPORT_SYMBOL(dm_table_add_target);
++EXPORT_SYMBOL(dm_table_complete);
++EXPORT_SYMBOL(dm_table_get_num_targets);
++EXPORT_SYMBOL(dm_table_put);
++EXPORT_SYMBOL(dm_table_create);
++EXPORT_SYMBOL(dm_table_get_target);
++EXPORT_SYMBOL(dm_table_get_devices);
++EXPORT_SYMBOL(dm_table_add_wait_queue);
+===== drivers/md/dm.c 1.14 vs edited =====
+--- 1.14/drivers/md/dm.c	Mon Dec 16 01:42:31 2002
++++ edited/drivers/md/dm.c	Fri Dec 20 14:35:28 2002
+@@ -863,3 +863,13 @@
+ MODULE_DESCRIPTION(DM_NAME " driver");
+ MODULE_AUTHOR("Joe Thornber <thornber@sistina.com>");
+ MODULE_LICENSE("GPL");
++
++EXPORT_SYMBOL(dm_create);
++EXPORT_SYMBOL(dm_get);
++EXPORT_SYMBOL(dm_put);
++EXPORT_SYMBOL(dm_disk);
++EXPORT_SYMBOL(dm_get_table);
++EXPORT_SYMBOL(dm_suspended);
++EXPORT_SYMBOL(dm_suspend);
++EXPORT_SYMBOL(dm_resume);
++EXPORT_SYMBOL(dm_swap_table);

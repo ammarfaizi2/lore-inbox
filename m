@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316309AbSHBP45>; Fri, 2 Aug 2002 11:56:57 -0400
+	id <S316217AbSHBP4h>; Fri, 2 Aug 2002 11:56:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316408AbSHBP45>; Fri, 2 Aug 2002 11:56:57 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9478 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316309AbSHBP4s>; Fri, 2 Aug 2002 11:56:48 -0400
-Date: Fri, 2 Aug 2002 17:00:07 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: gerg <gerg@snapgear.com>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.30uc0 MMU-less patches
-Message-ID: <20020802170007.E11451@flint.arm.linux.org.uk>
-References: <20020802145034.B24631@parcelfarce.linux.theplanet.co.uk> <3D4AAA87.8050508@snapgear.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D4AAA87.8050508@snapgear.com>; from gerg@snapgear.com on Sat, Aug 03, 2002 at 01:51:35AM +1000
+	id <S316223AbSHBP4h>; Fri, 2 Aug 2002 11:56:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24850 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316217AbSHBP4f>; Fri, 2 Aug 2002 11:56:35 -0400
+Date: Fri, 2 Aug 2002 08:56:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Pavel Machek <pavel@suse.cz>, Chris Friesen <cfriesen@nortelnetworks.com>,
+       Benjamin LaHaise <bcrl@redhat.com>, Pavel Machek <pavel@elf.ucw.cz>,
+       Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>
+Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for
+ 2.5.29)
+In-Reply-To: <1028289587.18317.6.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0208020850550.18265-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 03, 2002 at 01:51:35AM +1000, gerg wrote:
-> Matthew Wilcox wrote:
-> >  - the Makefile changes seem terribly inappropriate.
-> Some simplify cross compilation (like the ARCH and CROSS_COMPILE changes).
 
-make ARCH=foo CROSS_COMPILE=arm-linux-
 
-variables on makes command line override variables in the makefile.
+On 2 Aug 2002, Alan Cox wrote:
+>
+> 2% is way too much for a lot of applications. Thats 28 minutes a day
 
-> >  - drivers/char/mcfserial.c needs to be converted to the new serial core
-> >    and moved to drivers/serial.
-> >  - ditto arch/m68knommu/platform/68360/quicc/uart.c
-> 
-> Yep, I am looking at that now. That will take me a little
-> effort and time to put together.
+Note that _most_ PC clocks are a hell of a lot better than 2% a day, so
+that was really meant as the worst case for fairly broken hardware. But it
+apparently does happen.
 
-You should be aware that I'm going to be submitting a minor change in
-the interface (as detailed in Documentation/serial/driver) soon, mainly
-to make Dave Miller happy.  Patch soon to be available.
+A more realistic schenario is less than 0.1%, but with the caveat that if
+the machine goes to sleep, the error goes up to infinity..
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+(Think of the current "jiffies" update and gettimeofday() _without_ any
+ntp or /etc/adjtime. For most people it is good enough to use as a wall
+clock. But some people literally lose or gain a minute every hour.
+That's the kind of drift I'm talking about).
+
+			Linus
 

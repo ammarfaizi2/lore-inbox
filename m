@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267475AbTGTQ7n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 12:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267533AbTGTQ7n
+	id S267533AbTGTRDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 13:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267548AbTGTRDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 12:59:43 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:12419 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S267475AbTGTQ7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 12:59:42 -0400
-Date: Sun, 20 Jul 2003 18:24:13 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200307201724.h6KHODWk002989@81-2-122-30.bradfords.org.uk>
-To: john@grabjohn.com, vonbrand@inf.utfsm.cl
-Subject: Re: [OT] HURD vs Linux/HURD
-Cc: linux-kernel@vger.kernel.org
+	Sun, 20 Jul 2003 13:03:24 -0400
+Received: from dp.samba.org ([66.70.73.150]:2223 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S267533AbTGTRDY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 13:03:24 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Norbert Kiesel <nk@iname.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH 1/5] Centralize linker-generated symbols. 
+In-reply-to: Your message of "Sun, 20 Jul 2003 00:21:40 MST."
+             <pan.2003.07.20.07.21.32.296776@iname.com> 
+Date: Mon, 21 Jul 2003 01:09:07 +1000
+Message-Id: <20030720171824.A31782C131@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >                                                              We are
-> > discussing what parts of the Hurd and GNU Mach contain code derived
-> > from Linux.  That's actually quite interesting, and on-topic.
+In message <pan.2003.07.20.07.21.32.296776@iname.com> you write:
+> You forgot to remove them from kernel/suspend.c, breaking compile.
 >
-> Why? Are you planing to take anything from Hurd? Or complain that they
-> (legally!) are taking GPLed code and use it elsewhere? In the fist case,
-> discussion about the _technical_ merit of the code to swipe is on-topic,
-> all else isn't. The second case is none of your business, (unless you wrote
-> the code and did not GPL it).
+> Trivial patch:
 
-I'm certaily _not_ going to complain that code has been taken from
-Linux - as you pointed out, that is perfectly legal.
+Thanks!  Linus, please apply.
 
-The use of the Linux drivers in the Hurd is the closest thing[1] we've
-got to a fork[2] of the Linux kernel.
+--- linux-2.5/kernel/suspend.c-orig	2003-07-20 00:04:59.000000000 -0700
++++ linux-2.5/kernel/suspend.c	2003-07-20 00:12:52.000000000 -0700
+@@ -83,7 +83,6 @@
+ #define ADDRESS2(x) __ADDRESS(__pa(x))		/* Needed for x86-64 where some pages are in memory twice */
+ 
+ /* References to section boundaries */
+-extern char _text, _etext, _edata, __bss_start, _end;
+ extern char __nosave_begin, __nosave_end;
+ 
+ extern int is_head_of_free_region(struct page *);
 
-So, yes, I am interested in seeing if they have done anything better
-than we have, or have investigated possibilities we haven't.
-
-John.
-
-[1] I am _NOT_ saying that the Hurd is a fork of Linux, but that it's
-about the only codebase which took Linux kernel code, and has let it
-evolve separately from mainline over a number of years.  OK, the Vax
-port has lived outside of mainline for a number of years too, but
-that's mainly architecture specific changes.
-
-[2] OK, ELKS is a fork of the Linux kernel, but not specifically
-targeted at 386+ boxes.
-
-John.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262076AbRFIDJj>; Fri, 8 Jun 2001 23:09:39 -0400
+	id <S263096AbRFID0s>; Fri, 8 Jun 2001 23:26:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262170AbRFIDJ3>; Fri, 8 Jun 2001 23:09:29 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:2568 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S262076AbRFIDJX>;
-	Fri, 8 Jun 2001 23:09:23 -0400
-Date: Sat, 9 Jun 2001 00:09:14 -0300 (BRST)
+	id <S263064AbRFID0i>; Fri, 8 Jun 2001 23:26:38 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:44296 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S262170AbRFID0V>;
+	Fri, 8 Jun 2001 23:26:21 -0400
+Date: Sat, 9 Jun 2001 00:26:13 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Mike Galbraith <mikeg@wen-online.de>,
         lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: Comment on patch to remove nr_async_pages limit
-In-Reply-To: <87y9r6yksv.fsf@atlas.iskon.hr>
-Message-ID: <Pine.LNX.4.21.0106090008110.10415-100000@imladris.rielhome.conectiva>
+Subject: Re: Background scanning change on 2.4.6-pre1
+In-Reply-To: <Pine.LNX.4.21.0106071330060.6510-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0106090024430.10415-100000@imladris.rielhome.conectiva>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -22,23 +21,25 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Jun 2001, Zlatko Calusic wrote:
-> Marcelo Tosatti <marcelo@conectiva.com.br> writes:
-> 
-> [snip]
-> > Exactly. And when we reach a low watermark of memory, we start writting
-> > out the anonymous memory.
-> 
-> Hm, my observations are a little bit different. I find that writeouts
-> happen sooner than the moment we reach low watermark, and many times
-> just in time to interact badly with some read I/O workload that made a
-> virtual shortage of memory in the first place.
+On Thu, 7 Jun 2001, Linus Torvalds wrote:
+> On Thu, 7 Jun 2001, Marcelo Tosatti wrote:
 
-I have a patch that tries to address this by not reordering
-the inactive list whenever we scan through it. I'll post it
-right now ...
+> > time (the old code from Rik which has been replaced by this code tried to 
+> > avoid that)
+> 
+> Now, I think the problem with the old code was that it didn't do _any_
+> background page aging if "inactive" was large enough. And that really
+> doesn't make all that much sense. Background page aging is needed to
+> "sort" the active list, regardless of how many inactive pages there are.
 
-(yes, I've done some recreational patching while on holidays)
+I'll be posting a patch in a few minutes (against 2.4.5-acX, which
+was the latest kernel available to me while on holidays with no
+net access) which doesn't "roll over" the inactive dirty pages when
+we scan the list.
+
+This should make us reclaim the inactive_dirty pages in a much better
+LRU order, so this whole background aging limiting stuff becomes close
+to moot.
 
 regards,
 

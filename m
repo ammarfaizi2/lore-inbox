@@ -1,126 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262481AbSJ0TGT>; Sun, 27 Oct 2002 14:06:19 -0500
+	id <S262492AbSJ0TNJ>; Sun, 27 Oct 2002 14:13:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262491AbSJ0TGT>; Sun, 27 Oct 2002 14:06:19 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:14536 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id <S262481AbSJ0TGR>;
-	Sun, 27 Oct 2002 14:06:17 -0500
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at drivers/serial/core.c:1067 with 2.5.44
-References: <87elabdf1q.fsf@sycorax.lbl.gov>
-	<20021027163307.A9553@flint.arm.linux.org.uk>
-	<87adkzde90.fsf@sycorax.lbl.gov>
-	<20021027171253.B9553@flint.arm.linux.org.uk>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: 27 Oct 2002 11:12:29 -0800
-In-Reply-To: <20021027171253.B9553@flint.arm.linux.org.uk> (message from Russell King on Sun, 27 Oct 2002 17:12:53 +0000)
-Message-ID: <873cqrelwi.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262500AbSJ0TNJ>; Sun, 27 Oct 2002 14:13:09 -0500
+Received: from ppp-217-133-216-156.dialup.tiscali.it ([217.133.216.156]:22403
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S262492AbSJ0TNH>; Sun, 27 Oct 2002 14:13:07 -0500
+Date: Sun, 27 Oct 2002 20:19:21 +0100
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] x86 multiple user-mode privilege rings
+Message-ID: <20021027191921.GA5484@ldb.ods.org>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>
+References: <1035686893.2272.20.camel@ldb> <m11y6blskf.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+Content-Disposition: inline
+In-Reply-To: <m11y6blskf.fsf@frodo.biederman.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> writes:
 
-> Firstly, you need klogd running with -x so the numbers within [< and >]
-> are preserved.  It is a shame that these distributions still run klogd
-> without -x.
-> 
-> BTW, an even better option would be to enable CONFIG_KALLSYMS.
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-i've recompiled the kernel with CONFIG_KALLSYMS and started klogd with
--x and this is what i get now:
+> But there are privilege switches.
 
-ksymoops 2.4.6 on i686 2.5.44.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.44/ (default)
-     -m /boot/System.map-2.5.44 (default)
+Of course, they are unavoidable. However, they are as fast as the one
+needed to make kernel syscalls.
+=20
+> Let me get the gist of the idea.
+> To accelerate UML, and wine type applications:
+> 1) setup segments with restricted limits, so their children cannot
+>    write into their supervisor process even though they share a mm.
+> 2) load a special system call table that switches processor modes
+>    when any system call is activated.
+>=20
+> Unless I am mistaken all of the above can be accomplished without
+> using the cpus multiple rings of privilege.  Which would allow nesting
+> only limited by the address space reduction of each task.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+You also need:
+3) Prevent less privileged subtasks from loading segments belonging to
+   more privileged ones
 
-Oct 27 10:36:45 trinculo kernel: kernel BUG at drivers/serial/core.c:1067!
-Oct 27 10:36:45 trinculo kernel: invalid operand: 0000
-Oct 27 10:36:45 trinculo kernel: 3c574_cs irtty irda autofs4 microcode ppp_async uhci-hcd ohci-hcd usbcore nls_cp437 vfat snd-pcm-oss snd-mixer-oss snd-ymfpci snd-pcm snd-mpu401-uart snd-rawmidi snd-ac97-codec snd-opl3-lib snd-timer snd-hwdep snd-seq-device snd soundcore
-Oct 27 10:36:45 trinculo kernel: CPU:    0
-Oct 27 10:36:45 trinculo kernel: EIP:    0060:[<c01a7d71>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Oct 27 10:36:45 trinculo kernel: EFLAGS: 00010286
-Oct 27 10:36:45 trinculo kernel: eax: cfd21900   ebx: cabe8000   ecx: 000008bd   edx: c13b1d1c
-Oct 27 10:36:45 trinculo kernel: esi: c13b1d40   edi: 000008bd   ebp: cb6cec2c   esp: cabe9e58
-Oct 27 10:36:45 trinculo kernel: ds: 0068   es: 0068   ss: 0068
-Oct 27 10:36:45 trinculo kernel: Stack: cbd98e00 c13b1d40 cabe9ea8 00000000 cabe8000 d11cf5f8 cb1a3000 cabe9e84
-Oct 27 10:36:45 trinculo kernel:        cb1a3000 cbd98e00 caba3000 00000005 00000000 000008bd 00000000 7f1c030b
-Oct 27 10:36:45 trinculo kernel:        01000415 1a131100 170f1200 2f000016 d11d0321 cbd98e00 00000000 caba3000
-Oct 27 10:36:45 trinculo kernel: Call Trace:
-Oct 27 10:36:45 trinculo kernel:  [<d11cf5f8>] irtty_stop_receiver+0x64/0x70 [irtty]
-Oct 27 10:36:45 trinculo kernel:  [<d11d0321>] irtty_net_open+0x79/0xcc [irtty]
-Oct 27 10:36:45 trinculo kernel:  [<c019e64b>] vsnprintf+0x3db/0x41c
-Oct 27 10:36:45 trinculo kernel:  [<c0214f7c>] dev_open+0x4c/0xa4
-Oct 27 10:36:45 trinculo kernel:  [<c02161e5>] dev_change_flags+0x51/0x104
-Oct 27 10:36:45 trinculo kernel:  [<c021630d>] dev_ifsioc+0x75/0x364
-Oct 27 10:36:45 trinculo kernel:  [<c021690b>] dev_ioctl+0x30f/0x428
-Oct 27 10:36:45 trinculo kernel:  [<d11baf49>] irda_ioctl+0x1cd/0x1d4 [irda]
-Oct 27 10:36:45 trinculo kernel:  [<c020eeff>] sock_ioctl+0xcb/0xf0
-Oct 27 10:36:45 trinculo kernel:  [<c014d879>] sys_ioctl+0x27d/0x2d4
-Oct 27 10:36:45 trinculo kernel:  [<c0106fbb>] syscall_call+0x7/0xb
-Oct 27 10:36:45 trinculo kernel: Code: 0f 0b 2b 04 7e 5c 27 c0 8d b4 26 00 00 00 00 8b 4c 24 1c 3b
+This can be done in hardware using the x86 privilege rings, at the
+cost of limitations on the number of subtasks and the inability to have
+protected pairs of subtasks where none is more privileged than the other.
 
+Of course it is also possible to do this in the kernel, or in a
+privileged user-mode task using LDT/TLS system calls, by modifying
+descriptor tables on interprivilege jumps but this is obviously
+significantly slower.
 
->>EIP; c01a7d71 <uart_set_termios+29/164>   <=====
+Anyway hardware-based and kernel-based privilege separation can
+perfectly coexist.
 
->>eax; cfd21900 <_end+f92f74c/10d12eac>
->>ebx; cabe8000 <_end+a7f5e4c/10d12eac>
->>edx; c13b1d1c <_end+fbfb68/10d12eac>
->>esi; c13b1d40 <_end+fbfb8c/10d12eac>
->>ebp; cb6cec2c <_end+b2dca78/10d12eac>
->>esp; cabe9e58 <_end+a7f7ca4/10d12eac>
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Trace; d11cf5f8 <[irtty]irtty_stop_receiver+64/70>
-Trace; d11d0321 <[irtty]irtty_net_open+79/cc>
-Trace; c019e64b <vsnprintf+3db/41c>
-Trace; c0214f7c <dev_open+4c/a4>
-Trace; c02161e5 <dev_change_flags+51/104>
-Trace; c021630d <dev_ifsioc+75/364>
-Trace; c021690b <dev_ioctl+30f/428>
-Trace; d11baf49 <[irda]irda_ioctl+1cd/1d4>
-Trace; c020eeff <sock_ioctl+cb/f0>
-Trace; c014d879 <sys_ioctl+27d/2d4>
-Trace; c0106fbb <syscall_call+7/b>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Code;  c01a7d71 <uart_set_termios+29/164>
-00000000 <_EIP>:
-Code;  c01a7d71 <uart_set_termios+29/164>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c01a7d73 <uart_set_termios+2b/164>
-   2:   2b 04 7e                  sub    (%esi,%edi,2),%eax
-Code;  c01a7d76 <uart_set_termios+2e/164>
-   5:   5c                        pop    %esp
-Code;  c01a7d77 <uart_set_termios+2f/164>
-   6:   27                        daa    
-Code;  c01a7d78 <uart_set_termios+30/164>
-   7:   c0 8d b4 26 00 00 00      rorb   $0x0,0x26b4(%ebp)
-Code;  c01a7d7f <uart_set_termios+37/164>
-   e:   00 8b 4c 24 1c 3b         add    %cl,0x3b1c244c(%ebx)
+iD8DBQE9vDw5djkty3ft5+cRAl1AAJ9363B25LcAlmcMTHlx6ZIB7QEUPACeOGd7
+KtNK6C9/irGP/inOc3K/ZYA=
+=nvjO
+-----END PGP SIGNATURE-----
 
-
-1 warning issued.  Results may not be reliable.
-
-i hope this helps.
-
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+--C7zPtVaVf+AK4Oqc--

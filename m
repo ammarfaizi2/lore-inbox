@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287149AbSBPFMh>; Sat, 16 Feb 2002 00:12:37 -0500
+	id <S287200AbSBPFnX>; Sat, 16 Feb 2002 00:43:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287148AbSBPFM1>; Sat, 16 Feb 2002 00:12:27 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25868 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287149AbSBPFMP>;
-	Sat, 16 Feb 2002 00:12:15 -0500
-Message-ID: <3C6DEA29.73BBAE1F@mandrakesoft.com>
-Date: Sat, 16 Feb 2002 00:12:09 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S287204AbSBPFnN>; Sat, 16 Feb 2002 00:43:13 -0500
+Received: from smtp1.us.dell.com ([143.166.224.25]:1194 "EHLO
+	smtp1.us.dell.com") by vger.kernel.org with ESMTP
+	id <S287200AbSBPFnA>; Sat, 16 Feb 2002 00:43:00 -0500
+Date: Fri, 15 Feb 2002 23:42:22 -0600 (CST)
+From: Michael E Brown <michael_e_brown@dell.com>
+X-X-Sender: <mebrown@xeon.michaels-house.net>
+Reply-To: Michael E Brown <michael_e_brown@dell.com>
+To: Tux mailing list <tux-list@redhat.com>
+cc: Arjan van de Ven <arjanv@redhat.com>, Rik van Riel <riel@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: How to make Linux/Tux/Whatever better? (was Re: TUX development?
+ Anyone?)
+In-Reply-To: <Pine.LNX.4.30.0202151956290.21207-100000@mustard.heime.net>
+Message-ID: <8433E4BAE190D14C930C136D5B528175BFF947-100000@ausxmrr204.aus.amer.dell.com>
 MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: Dave Jones <davej@suse.de>, Larry McVoy <lm@work.bitmover.com>,
-        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-In-Reply-To: <20020215135557.B10961@thyrsus.com> <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215141433.B11369@thyrsus.com> <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215145421.A12540@thyrsus.com> <20020215124255.F28735@work.bitmover.com> <20020215153953.D12540@thyrsus.com> <20020215221532.K27880@suse.de> <20020215155817.A14083@thyrsus.com> <20020215224916.L27880@suse.de> <20020215170459.A15406@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" wrote:
-> 
-> Dave Jones <davej@suse.de>:
-> >  As you obviously completely ignored my previous point, I'll reiterate it.
+
+Sorry, is it just me, or does this page
+http://www.redhat.com/services/techsupport/application/tux.html
+not detail exactly how you would go about getting high-priority
+support/bugfixes/etc?
+
+And doesn't this page, http://bugzilla.redhat.com/bugzilla, have an entry
+for 'TUX' somewhere?
+
+Red Hat has to make some money somehow... I'm sure there is somebody on
+this list that is capable of generating tux-odds-n-ends-A1.patch and
+hosting it until Ingo/RedHat gets around to merging it, rather than just
+whining...
+
+--
+Michael Brown
+
+On Fri, 15 Feb 2002, Roy Sigurd Karlsbakk wrote:
+
+> > > Please try to understand that banging my head against a problem for (now
+> > > over a month) is quite annoying.
 > >
-> >  1. You run Linus' split-into-config.in script on a 2.4 tree.
-> >  2. You add whatever Config.ins have been updated to the 2.4 config.ins
-> >  3. You regenerate with the find example I showed in the other mail.
-> >
-> >  There. 2.4 Configure.help up to date with latest symbols, but
-> >  containing none of the 2.5 ones.
-> 
-> And you've completely ignored the real problem...which is when I get
-> a text change for one tree, *how do I automatically propagate it to
-> the other*?  How do I *tell* that it ought to be propagated?
+> > You know what...... that's what support is for.
+>
+> Is it only me?
+>
+> Can I please get *some* sort of feedback after submitting a bug report?
+>
+> I thought that was what made open-source projects better...
+>
+> roy
+>
+> --
+> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+>
+> Computers are like air conditioners.
+> They stop working when you open Windows.
+>
+>
+>
+> _______________________________________________
+> tux-list mailing list
+> tux-list@redhat.com
+> https://listman.redhat.com/mailman/listinfo/tux-list
+>
 
-It's easy as hell to propagate a Config[ure].help change across trees. 
-Linus even gave you the code to do it, when he split up Configure.help.
-
-Configure.help is nothing but a database, with two different but
-easy-to-parse formats in 2.4 and 2.5.
-
-
-> Solutions that involve me doing an arbitrary and increasing amount of
-> hand-hacking on every release are right out.
-
-If you are hand-hacking Config[ure].help changes, you are wasting a lot
-of time...
-
-	Jeff
-
-
-
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com

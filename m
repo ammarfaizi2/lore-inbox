@@ -1,87 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261320AbTCJO53>; Mon, 10 Mar 2003 09:57:29 -0500
+	id <S261328AbTCJPJV>; Mon, 10 Mar 2003 10:09:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261325AbTCJO52>; Mon, 10 Mar 2003 09:57:28 -0500
-Received: from pushme.nist.gov ([129.6.16.92]:64687 "EHLO postmark.nist.gov")
-	by vger.kernel.org with ESMTP id <S261320AbTCJO51>;
-	Mon, 10 Mar 2003 09:57:27 -0500
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TransMeta longrun control utility maintainer?
-References: <9cfy93s4mbd.fsf@rogue.ncsl.nist.gov>
-	<20030306181829.GA3431@kroah.com>
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: Mon, 10 Mar 2003 10:07:38 -0500
-In-Reply-To: <20030306181829.GA3431@kroah.com> (Greg KH's message of "Thu, 6
- Mar 2003 10:18:30 -0800")
-Message-ID: <9cfisurs1j9.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i686-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261329AbTCJPJV>; Mon, 10 Mar 2003 10:09:21 -0500
+Received: from smtp.comcast.net ([24.153.64.2]:22153 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S261328AbTCJPJU>;
+	Mon, 10 Mar 2003 10:09:20 -0500
+Date: Mon, 10 Mar 2003 10:03:06 -0500
+From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
+Subject: Re: still having smp/snat problems (Re: Linux 2.4.19-rc3)
+In-reply-to: <002201c2e6e8$ee071d40$0201a8c0@intranet>
+To: Dan Broscoi <brosky@bronet.ro>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Message-id: <20030310150306.GA8145@butterfly.hjsoft.com>
+MIME-version: 1.0
+Content-type: multipart/signed; boundary=KsGdsel6WgEHnImy;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-disposition: inline
+User-Agent: Mutt/1.5.3i
+References: <002201c2e6e8$ee071d40$0201a8c0@intranet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
 
-> On Thu, Mar 06, 2003 at 09:11:18AM -0500, Ian Soboroff wrote:
->> 
->> I know this isn't the best place to ask, but maybe someone here knows.
->> 
->> Who is maintaining the longrun(1) (should probably be longrun(8))
->> utility?  The author is listed as Daniel Quinlan
->> <quinlan@transmeta.com>, but mail to that address bounces.
->> 
->> The longrun utility frobs the MSR on TransMeta processors to switch
->> between performance and economy modes.
->> 
->> On my laptop, currently running 2.4.21-pre5-ac1, I get the following
->> error:
->
-> It works for me just fine on 2.4.21-pre5, have you tried that kernel
-> version?
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm getting the same problem under -pre5, too.
+On Mon, Mar 10, 2003 at 11:39:21AM +0200, Dan Broscoi wrote:
+> i'm writing you after reading your post on=20
+http://hypermail.idiosynkrasia.net/linux-kernel/archived/2002/week28/142
+9.html
+> I have the same problem, compiling a 2.4.20 kernel on Debian 3.0
+> Do you know the fix for this ?
 
-# uname -a
-Linux euphrates 2.4.21-pre5 #1 Thu Mar 6 15:10:53 EST 2003 i686 i686 i386 GNU/Linux
-# longrun -p
-longrun: error reading /dev/cpu/0/cpuid: Invalid argument
-# ls -l /dev/cpu/0
-total 0
-crw-r--r--    1 root     root     203,   0 Aug 30  2002 cpuid
-crw-------    1 root     root      10, 184 Aug 30  2002 microcode
-crw-------    1 root     root     202,   0 Aug 30  2002 msr
-# strace longrun -p
-execve("/usr/local/bin/longrun", ["longrun", "-p"], [/* 33 vars */]) = 0
-uname({sys="Linux", node="euphrates", ...}) = 0
-brk(0)                                  = 0x804ab04
-open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=84791, ...}) = 0
-old_mmap(NULL, 84791, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40013000
-close(3)                                = 0
-open("/lib/i686/libc.so.6", O_RDONLY)   = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\220Y\1"..., 1024) = 1024
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1395734, ...}) = 0
-old_mmap(0x42000000, 1239844, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x42000000
-mprotect(0x42126000, 35620, PROT_NONE)  = 0
-old_mmap(0x42126000, 20480, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x126000) = 0x42126000
-old_mmap(0x4212b000, 15140, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4212b000
-close(3)                                = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40028000
-munmap(0x40013000, 84791)               = 0
-geteuid32()                             = 0
-open("/dev/cpu/0/cpuid", O_RDWR)        = 3
-open("/dev/cpu/0/msr", O_RDWR)          = 4
-pread(3, 0xbffff890, 16, 18446744071570849792) = -1 EINVAL (Invalid argument)
-write(2, "longrun: ", 9longrun: )                = 9
-write(2, "error reading /dev/cpu/0/cpuid", 30error reading /dev/cpu/0/cpuid) = 30
-write(2, ": Invalid argument\n", 19: Invalid argument
-)    = 19
-_exit(1)                                = ?
+no one could really offer any help in the end.  i think having the
+multiple snat rules matching on all interfaces may have been
+triggering a race in the conntrack code.  i should probably resubmit
+my findings.
 
-That offset to pread() looks bogus...
+anyway, limitting the rules by matching them only to their appropriate
+interfaces seemed to alleviate the problem.
 
-Ian
+so now i use something similar to this:
+iptables -t nat -A POSTROUTING -o eth0 -s 192.168.1.0/24 \
+-j SNAT --to 10.1.1.15
+iptables -t nat -A POSTROUTING -o eth1 -s 192.168.1.0/24 \
+-j SNAT --to 192.168.1.1
+iptables -t nat -A POSTROUTING -o eth2 -s 192.168.2.0/24 \
+-j SNAT --to 192.168.2.1
+---
 
+note the -o interface rules.  this keeps it from applying more than
+one snat rule to a packet.  it only applies them to the packet going
+out the proper interface.
+
+ps. i'm actually going to bounce this to the kernel list again to see
+if i can stir up any more noise on this one.
+--=20
+____________________}John Flinchbaugh{______________________
+| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
+~~Powered by Linux: Reboots are for hardware upgrades only~~
+
+--KsGdsel6WgEHnImy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+bKkqCGPRljI8080RAgC9AJoCvL26DiDMP/GuSYKV5HFDFskZHQCggXNW
+K0mMddPoWAcGFsXr+X0Hyzw=
+=zdV6
+-----END PGP SIGNATURE-----
+
+--KsGdsel6WgEHnImy--

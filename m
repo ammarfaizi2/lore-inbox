@@ -1,95 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267709AbUIAVSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268076AbUIAVP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267709AbUIAVSz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 17:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267864AbUIAVPd
+	id S268076AbUIAVP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 17:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267864AbUIAVKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:15:33 -0400
-Received: from [209.195.52.120] ([209.195.52.120]:15572 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S268086AbUIAVOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 17:14:14 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Jeremy Allison <jra@samba.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       Linus Torvalds <torvalds@osdl.org>, reiser@namesys.com, hch@lst.de,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       flx@namesys.com, reiserfs-list@namesys.com
-Date: Wed, 1 Sep 2004 14:09:11 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040901203101.GG31934@mail.shareable.org>
-Message-ID: <Pine.LNX.4.60.0409011408270.3260@dlang.diginsite.com>
-References: <Pine.LNX.4.44.0408261011410.27909-100000@chimarrao.boston.redhat.com>
- <200408261819.59328.vda@port.imtp.ilyichevsk.odessa.ua>
- <1093789802.27932.41.camel@localhost.localdomain> <1093804864.8723.15.camel@lade.trondhjem.org>
- <20040829193851.GB21873@jeremy1> <20040901201945.GE31934@mail.shareable.org>
- <20040901202641.GJ4455@legion.cup.hp.com> <20040901203101.GG31934@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 1 Sep 2004 17:10:41 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:59076 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267840AbUIAUzp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 16:55:45 -0400
+Subject: [patch 01/25]  drivers/char/amiserial.c MIN/MAX removal
+To: linux-kernel@vger.kernel.org
+Cc: akpm@digeo.com, janitor@sternwelten.at
+From: janitor@sternwelten.at
+Date: Wed, 01 Sep 2004 22:55:44 +0200
+Message-ID: <E1C2c8u-0007Ft-Ds@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-what happens when you ue one of the many software packages around that 
-lets windows access a NFS server. when you copy the file to a NFS accessed 
-drive does it loose part of the data?
 
-David Lang
 
-  On Wed, 1 Sep 2004, Jamie Lokier 
-wrote:
+Patch (against 2.6.7) removes unnecessary min/max macros and changes
+calls to use kernel.h macros instead.
 
-> Date: Wed, 1 Sep 2004 21:31:01 +0100
-> From: Jamie Lokier <jamie@shareable.org>
-> To: Jeremy Allison <jra@samba.org>
-> Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
->     Alan Cox <alan@lxorguk.ukuu.org.uk>,
->     Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
->     Rik van Riel <riel@redhat.com>, Christer Weinigel <christer@weinigel.se>,
->     Spam <spam@tnonline.net>, Andrew Morton <akpm@osdl.org>,
->     wichert@wiggy.net, Linus Torvalds <torvalds@osdl.org>, reiser@namesys.com,
->     hch@lst.de, Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
->     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
->     reiserfs-list@namesys.com
-> Subject: Re: silent semantic changes with reiser4
-> 
-> Jeremy Allison wrote:
->>> Streams in a Word file?
->>
->> Yep.
->>
->>> Are you saying that when I copy a .doc file onto my Linux box and off,
->>> I lose part of a Word document?
->>
->> Right now no, because when Samba refuses the stream open, Word falls
->> back into a "tar"-like mode where it linearises the streams into the
->> data (it's a legacy mode for storing data on a FAT drive, not an NTFS
->> drive). However, the problem is that no currently supported Microsoft
->> OS doesn't have streams-capable NTFS support.
->
-> I meant when I copy not using Samba.  For example, I copy the .doc
-> file in Windows NT to an FTP server.
->
-> Does the FTP operation magically linearise the .doc streams on demand?
->
-> Or does FTP lose part of the Word document?
->
-> -- Jamie
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Feedback is always welcome
+Michael
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+
+
+---
+
+ linux-2.6.9-rc1-bk7-max/drivers/char/amiserial.c |    6 +-----
+ 1 files changed, 1 insertion(+), 5 deletions(-)
+
+diff -puN drivers/char/amiserial.c~min-max-char_amiserial drivers/char/amiserial.c
+--- linux-2.6.9-rc1-bk7/drivers/char/amiserial.c~min-max-char_amiserial	2004-09-01 19:33:30.000000000 +0200
++++ linux-2.6.9-rc1-bk7-max/drivers/char/amiserial.c	2004-09-01 19:33:30.000000000 +0200
+@@ -118,10 +118,6 @@ static struct serial_state rs_table[1];
+ 
+ #define NR_PORTS	(sizeof(rs_table)/sizeof(struct serial_state))
+ 
+-#ifndef MIN
+-#define MIN(a,b)	((a) < (b) ? (a) : (b))
+-#endif
+-
+ /*
+  * tmp_buf is used as a temporary buffer by serial_write.  We need to
+  * lock it in case the copy_from_user blocks while swapping in a page,
+@@ -1610,7 +1606,7 @@ static void rs_wait_until_sent(struct tt
+ 	if (char_time == 0)
+ 		char_time = 1;
+ 	if (timeout)
+-	  char_time = MIN(char_time, timeout);
++	  char_time = min_t(unsigned long, char_time, timeout);
+ 	/*
+ 	 * If the transmitter hasn't cleared in twice the approximate
+ 	 * amount of time to send the entire FIFO, it probably won't
+
+_

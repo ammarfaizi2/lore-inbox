@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316695AbSHXVTj>; Sat, 24 Aug 2002 17:19:39 -0400
+	id <S316705AbSHXVVy>; Sat, 24 Aug 2002 17:21:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316705AbSHXVTj>; Sat, 24 Aug 2002 17:19:39 -0400
-Received: from ppp-62-10-61-205.dialup.tiscali.it ([62.10.61.205]:39040 "EHLO
-	luca.lugbs.linux.it") by vger.kernel.org with ESMTP
-	id <S316695AbSHXVTi>; Sat, 24 Aug 2002 17:19:38 -0400
-Date: Sat, 24 Aug 2002 23:33:11 +0200
-From: Luca Giuzzi <giuzzi@dmf.unicatt.it>
-To: linux-kernel@vger.kernel.org
-Subject: ide-scsi (or ide-via?) with 2.4.20-pre*-ac*
-Message-ID: <20020824233311.A6181@dmf.unicatt.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316753AbSHXVVy>; Sat, 24 Aug 2002 17:21:54 -0400
+Received: from p50887F28.dip.t-dialin.net ([80.136.127.40]:59557 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316705AbSHXVVx>; Sat, 24 Aug 2002 17:21:53 -0400
+Date: Sat, 24 Aug 2002 15:25:58 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Toon van der Pas <toon@vanvergehaald.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] make localconfig
+In-Reply-To: <20020824222735.B21265@vdpas.hobby.nl>
+Message-ID: <Pine.LNX.4.44.0208241522061.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have some weird problems when trying to write
-a CD under a 2.4.20-pre*-ac* kernel [everything
-works fine on the same computer with a
-2.4.19-rc-ac1]. The CD writer is an LG-8080B
-connected as slave to the secondary channel of a VIA
-vt82c586b (rev. 47) controller.
+Hi,
 
-Cdrecord, when I try to write an image at full speed
-(that is, speed=8), aborts after the first 4 Mb with
-the following error:
+On Sat, 24 Aug 2002, Toon van der Pas wrote:
+> > localconfig(9)	    Generating local configuration	    localconfig(9)
+> 
+> Yow!  The return of Aunt Tillie compiling a kernel!   :-)
 
-cdrecord: Input/output error. write_g1: scsi sendcmd: no error
-CDB:  2A 00 00 00 08 99 00 00 1F 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 00
-Sense Key: 0x5 Illegal Request, Segment 0
-Sense Code: 0x24 Qual 0x00 (invalid field in cdb) Fru 0x0
-Sense flags: Blk 0 (not valid)
+Oh, please. This was not my intention. I was just suggesting something 
+like this could be done in the real world, also don't I have these ideas. 
+I just think it might save you some time when you've accidently rm'd your 
+.config, and all you want to have is a .config for the local box. Also 
+wouldn't I load all the modules one by one, possibly.
 
-The weird thing is that, according to the "current writing
-speed indication" (I have tried several versions of cdrecord
-as well, and right now I'm doing my tests with 1.11a30 which
-should print the actual transfer rate --- it was just the same
-error with 1.10, though), the computer claims it
-was recording at "20.3x" at the time of the failure: something
-seems to be very wrong indeed. 
-If I re-run cdrecord forcing the speed to be "4x", then it
-succeeds, even if the actual reported (and timed) speed is
-"7.5x".
+If you think it's a _deadly_bad_idea_to_do_ please tell me. It is, after 
+all, just an RFC, means I request you to comment on this. I could even ask 
+for kernel protection for the mice.
 
-Further information:
- dma is turned off for the drive and toggling unmask-irq
- does not seem to change anything. The host adapter emulation
- is seen as the second SCSI controller, the first being an
- aic7850.
-
-Is there any further test I can do?
-
-kind regards,
- lg
-
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

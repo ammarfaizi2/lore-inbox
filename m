@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbUCBWdi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 17:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbUCBWcn
+	id S262126AbUCBWcb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 17:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbUCBWcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 17:32:43 -0500
-Received: from [66.62.77.7] ([66.62.77.7]:57737 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S262228AbUCBWcI (ORCPT
+	Tue, 2 Mar 2004 17:32:31 -0500
+Received: from gprs40-190.eurotel.cz ([160.218.40.190]:63088 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262126AbUCBWby (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 17:32:08 -0500
-Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-From: Dax Kelson <dax@gurulabs.com>
-To: Peter Nelson <pnelson@andrew.cmu.edu>
-Cc: Hans Reiser <reiser@namesys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
-       jfs-discussion@oss.software.ibm.com, reiserfs-list@namesys.com,
-       linux-xfs@oss.sgi.com
-In-Reply-To: <4044B787.7080301@andrew.cmu.edu>
-References: <4044119D.6050502@andrew.cmu.edu> <4044366B.3000405@namesys.com>
-	 <4044B787.7080301@andrew.cmu.edu>
-Content-Type: text/plain
-Message-Id: <1078266793.8582.24.camel@mentor.gurulabs.com>
+	Tue, 2 Mar 2004 17:31:54 -0500
+Date: Tue, 2 Mar 2004 23:31:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: George Anzinger <george@mvista.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kgdb-bugreport@lists.sourceforge.net,
+       "Amit S. Kale" <amitkale@emsyssoft.com>
+Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
+Message-ID: <20040302223143.GE1225@elf.ucw.cz>
+References: <20040302213901.GF20227@smtp.west.cox.net> <40450468.2090700@mvista.com> <20040302221106.GH20227@smtp.west.cox.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 02 Mar 2004 15:33:13 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040302221106.GH20227@smtp.west.cox.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-02 at 09:34, Peter Nelson wrote:
-> Hans Reiser wrote:
+Hi!
+
+> > Tom Rini wrote:
+> > >Hello.  The following interdiff kills kgdb_serial in favor of function
+> > >names.  This only adds a weak function for kgdb_flush_io, and documents
+> > >when it would need to be provided.
+> > 
+> > It looks like you are also dumping any notion of building a kernel that can 
+> > choose which method of communication to use for kgdb at run time.  Is this 
+> > so?
 > 
-> I'm confused as to why performing a benchmark out of cache as opposed to 
-> on disk would hurt performance?
+> Yes, as this is how Andrew suggested we do it.  It becomes quite ugly if
+> you try and allow for any 2 of 3 methods.
 
-My understanding (which could be completely wrong) is that reieserfs v3
-and v4 are algorithmically more complex than ext2 or ext3. Reiserfs
-spends more CPU time to make the eventual ondisk operations more
-efficient/faster.
+I do not think that having kgdb_serial is so ugly. Are there any other
+uglyness associated with that?
+								Pavel
 
-When operating purely or mostly out of ram, the higher CPU utilization
-of reiserfs hurts performance compared to ext2 and ext3.
-
-When your system I/O utilization exceeds cache size and your disks
-starting getting busy, the CPU time previously invested by reiserfs pays
-big dividends and provides large performance gains versus more
-simplistic filesystems.  
-
-In other words, the CPU penalty paid by reiserfs v3/v4 is more than made
-up for by the resultant more efficient disk operations. Reiserfs trades 
-CPU for disk performance.
-
-In a nutshell, if you have more memory than you know what do to with,
-stick with ext3. If you spend all your time waiting for disk operations
-to complete, go with reiserfs.
-
-Dax Kelson
-Guru Labs
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264982AbUETHG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265015AbUETHHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264982AbUETHG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 03:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265015AbUETHG5
+	id S265015AbUETHHx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 03:07:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbUETHHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 03:06:57 -0400
-Received: from ozlabs.org ([203.10.76.45]:38540 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264982AbUETHGz (ORCPT
+	Thu, 20 May 2004 03:07:53 -0400
+Received: from ozlabs.org ([203.10.76.45]:42380 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265015AbUETHHt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 03:06:55 -0400
-Date: Thu, 20 May 2004 17:05:40 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
-Subject: Trivial ppc64 cleanup
-Message-ID: <20040520070540.GH32471@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-	Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-	linuxppc64-dev@lists.linuxppc.org
+	Thu, 20 May 2004 03:07:49 -0400
+Subject: [TRIVIAL] fix compile of PCI-debugging for i386 and x86_64
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1085033533.24935.78.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 20 May 2004 17:07:15 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply:
+  Either pull in pirq_table or remove the debug cruft^Wstuff
+  from sis_router_probe altogether... 
+  Attached does the former. Trivial latter upon request.
 
-The ppc64 head.S contains an enable_32b_mode function which is used
-nowhere.  This patch removes it.
 
-Index: working-2.6/arch/ppc64/kernel/head.S
-===================================================================
---- working-2.6.orig/arch/ppc64/kernel/head.S	2004-05-20 12:57:52.000000000 +1000
-+++ working-2.6/arch/ppc64/kernel/head.S	2004-05-20 16:37:58.061146128 +1000
-@@ -1955,21 +1955,6 @@
- 	isync
- 	blr
+--- trivial-2.6.6-bk6/arch/i386/pci/irq.c.orig	2004-05-20 15:59:00.000000000 +1000
++++ trivial-2.6.6-bk6/arch/i386/pci/irq.c	2004-05-20 15:59:00.000000000 +1000
+@@ -535,6 +535,9 @@
  
--/*
-- * This subroutine clobbers r11, r12 and the LR
-- */
--_GLOBAL(enable_32b_mode)
--	mfmsr   r11                      /* grab the current MSR */
--	li      r12,1
--	rldicr  r12,r12,MSR_SF_LG,(63-MSR_SF_LG)
--	andc	r11,r11,r12
--	li      r12,1
--	rldicr  r12,r12,MSR_ISF_LG,(63-MSR_ISF_LG)
--	andc	r11,r11,r12
--	mtmsrd  r11
--	isync
--	blr
--
- #ifdef CONFIG_PPC_PSERIES
- /*
-  * This is where the main kernel code starts.
-
-
-
+ static __init int sis_router_probe(struct irq_router *r, struct pci_dev *router, u16 device)
+ {
++#ifdef DEBUG
++	struct irq_routing_table *rt = pirq_table;
++#endif
+ 	if (device != PCI_DEVICE_ID_SI_503)
+ 		return 0;
+ 		
 -- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
+  Don't blame me: the Monkey is driving
+  File: Bernhard Fischer <berny.f@aon.at>: [patchlet] fix compile of PCI-debugging for i386 and x86_64
+

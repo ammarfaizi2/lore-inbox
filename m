@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263157AbUKTTZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263164AbUKTT1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263157AbUKTTZa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 14:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbUKTTZ3
+	id S263164AbUKTT1d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 14:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbUKTT1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 14:25:29 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:64144 "HELO
+	Sat, 20 Nov 2004 14:27:33 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:18833 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263157AbUKTTZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 14:25:26 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
+	id S263165AbUKTT10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 14:27:26 -0500
+Subject: Re: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
 From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-In-Reply-To: <20041120191403.GA16262@elte.hu>
-References: <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu>
-	 <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
-	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
-	 <20041118164612.GA17040@elte.hu> <1100920963.1424.1.camel@krustophenia.net>
-	 <20041120125536.GC8091@elte.hu> <1100971141.6879.18.camel@krustophenia.net>
-	 <20041120191403.GA16262@elte.hu>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: John Mock <kd6pag@qsl.net>, linux-kernel@vger.kernel.org, perex@suse.cz,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+In-Reply-To: <20041120185100.GA1205@elf.ucw.cz>
+References: <E1CVYZM-0000Fi-00@penngrove.fdns.net>
+	 <20041120185100.GA1205@elf.ucw.cz>
 Content-Type: text/plain
-Date: Sat, 20 Nov 2004 14:09:24 -0500
-Message-Id: <1100977765.6879.53.camel@krustophenia.net>
+Date: Sat, 20 Nov 2004 14:11:42 -0500
+Message-Id: <1100977903.6879.56.camel@krustophenia.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-11-20 at 20:14 +0100, Ingo Molnar wrote:
-> i only tried the !PREEMPT version though - does that one work for you? 
-> Also, please send me the .config that produces the failing kernel.
+Please cc: alsa-devel on ALSA issues (we now allow posts from non
+subscribers! :-P).
+
+On Sat, 2004-11-20 at 19:51 +0100, Pavel Machek wrote:
+> Hi!
 > 
-
-OK it allows me to set PREEMPT_NONE, PREEMPT_SOFTIRQS, and
-PREEMPT_HARDIRQS.  This should be an illegal combination, right?
-
-Lee 
+> > The software suspend issue was long and tedious to narrow down.  Yep, as
+> > you suspected, it appears to be specific a driver (or group thereof).  It
+> > appears to happen when the sound subsystem is included.  Attached below 
+> > is the .config and a 'diff' from the losing one to one which works.
+> 
+> Okay, this is for the alsa team then. Somewhere between 2.6.10-rc1 and
+> 2.6.10-rc2, ALSA started breaking swsusp :-(.
+> 								Pavel
+> 
+-- 
+Lee Revell <rlrevell@joe-job.com>
 

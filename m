@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288174AbSA3Cw0>; Tue, 29 Jan 2002 21:52:26 -0500
+	id <S288114AbSA3Cz1>; Tue, 29 Jan 2002 21:55:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288173AbSA3CwR>; Tue, 29 Jan 2002 21:52:17 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:60936 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S288114AbSA3CwG>; Tue, 29 Jan 2002 21:52:06 -0500
-Date: Wed, 30 Jan 2002 02:51:47 +0000
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
-Cc: bsprunt@bucknell.edu
-Subject: Re: installing an APIC interrupt handler w/o patching the kernel?
-Message-ID: <20020130025147.GA95029@compsoc.man.ac.uk>
-In-Reply-To: <5.1.0.14.2.20020129095621.02268288@mail.bucknell.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20020129095621.02268288@mail.bucknell.edu>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
-X-Scanner: exiscan *16Vkqp-000COJ-00*v0KTVCbHWEo* (Manchester Computing, University of Manchester)
+	id <S288188AbSA3CzR>; Tue, 29 Jan 2002 21:55:17 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13838 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288288AbSA3CzE>; Tue, 29 Jan 2002 21:55:04 -0500
+Date: Tue, 29 Jan 2002 18:54:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Ricker <kaboom@gatech.edu>
+cc: World Domination Now! <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.LNX.4.44.0201291938530.26901-100000@verdande.oobleck.net>
+Message-ID: <Pine.LNX.4.33.0201291851270.1766-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 10:17:14AM -0500, Brinkley Sprunt wrote:
 
-> Is there a recommended way to install an APIC interrupt handler without
-> patching the kernel?
+On Tue, 29 Jan 2002, Chris Ricker wrote:
+>
+> We're agreed that the files themselves are the best indicator of where to
+> route patches, and that MAINTAINERS isn't useful for much besides deciding
+> who should get IPO offers ;-).  What I'm wondering is where I, as someone
+> who is listed in some of the Documentation/* stuff as its maintainer, should
+> be sending patches.  You want a hierarchy, and I think that's perfectly
+> reasonable, but I have no idea who the layer of the hierarchy between me and
+> you is....
 
-You can set it to NMI delivery and do a horrible hack to install a new IDT
-entry. You might want to talk to Gareth Hughes, btw.
+Ahh..
 
-regards
-john
+I had the same problem with Documentation/Configure.help, as you saw.
 
--- 
-"In no sense is [in]stability a reason to move to a new version. It's never a
-reason."
-	- Bill Gates
+My solution in that case (when the issue came to a flame-fest) was to just
+split up the documentation - which makes it a whole lot more maintainable
+for everybody, and also makes it fairly explicit who maintains it for most
+cases.
+
+Basically, I'd really like documentation to go with the thing it
+documents. This is something where the docbook stuff helped noticeably.
+
+			Linus
+

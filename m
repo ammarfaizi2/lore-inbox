@@ -1,56 +1,483 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267585AbUJNUsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267333AbUJNUsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267585AbUJNUsm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 16:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUJNUr7
+	id S267333AbUJNUsn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 16:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUJNUrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 16:47:59 -0400
-Received: from [81.23.229.73] ([81.23.229.73]:9372 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S267294AbUJNSln (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 14:41:43 -0400
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-Organization: EduSupport
-To: linux-kernel@vger.kernel.org
-Subject: Re: Spam on the list
-Date: Thu, 14 Oct 2004 20:41:33 +0200
-User-Agent: KMail/1.6.2
-References: <416EA06E.3050608@colannino.org> <Pine.LNX.4.53.0410141201470.7694@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.53.0410141201470.7694@chaos.analogic.com>
+	Thu, 14 Oct 2004 16:47:49 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:55494 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S267333AbUJNSqV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 14:46:21 -0400
+Message-ID: <416EC90A.30607@rtr.ca>
+Date: Thu, 14 Oct 2004 14:44:26 -0400
+From: Mark Lord <lsml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410142041.33694.Norbert@edusupport.nl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Export ata_scsi_simulate() for use by non-libata drivers
+References: <4161A06D.8010601@rtr.ca> <4165B233.9080405@rtr.ca> <416D8A4E.5030106@pobox.com> <416DA951.2090104@rtr.ca> <416DAF1A.2040204@pobox.com> <416DB912.7040805@rtr.ca> <416DBC96.2090602@pobox.com> <416EA996.4040402@rtr.ca> <416EAECC.7070000@rtr.ca> <416EB1B6.5070603@pobox.com>
+In-Reply-To: <416EB1B6.5070603@pobox.com>
+Content-Type: multipart/mixed;
+ boundary="------------060009010505020706010201"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can't we run it through spamassassin with a whitelist for the real users on 
-the list, and standard filters for the new users. With keeping track of the 
-pointsscore they will be auto whitelisted if they are not spammers.
+This is a multi-part message in MIME format.
+--------------060009010505020706010201
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thursday 14 October 2004 18:03, Richard B. Johnson wrote:
-> On Thu, 14 Oct 2004, James Colannino wrote:
-> > I was just thinking that the list receives a lot of spam.  Shouldn't the
-> > list be locked down to be posted to by subsribers only as to curb the
-> > bulk of that spam?  That's how most mailing lists I'm on are and it
-> > works well.  Please don't flame me for this... :)  Just thought I'd
-> > mention it.
-> >
-> > James
->
-> Most of the spam comes from spam-machines that pretend that
-> they are vger.kernel.org. Anything on vger.kernel.org isn't
-> going to help that.
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
->             Note 96.31% of all statistics are fiction.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ >Put a prototype in linux/libata.h
+
+Done.  Updated patch attached.
+
+Signed-off-by: Mark Lord <mlord@pobox.com>
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")
+
+--------------060009010505020706010201
+Content-Type: text/plain;
+ name="libata_id3.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libata_id3.patch"
+
+diff -u --recursive --new-file --exclude='.*' linux-2.6.9-rc4/drivers/scsi/libata-core.c linux/drivers/scsi/libata-core.c
+--- linux-2.6.9-rc4/drivers/scsi/libata-core.c	2004-10-13 14:47:26.000000000 -0400
++++ linux/drivers/scsi/libata-core.c	2004-10-14 14:33:54.000000000 -0400
+@@ -829,17 +829,17 @@
+  *	caller.
+  */
+ 
+-void ata_dev_id_string(struct ata_device *dev, unsigned char *s,
++void ata_dev_id_string(u16 *id, unsigned char *s,
+ 		       unsigned int ofs, unsigned int len)
+ {
+ 	unsigned int c;
+ 
+ 	while (len > 0) {
+-		c = dev->id[ofs] >> 8;
++		c = id[ofs] >> 8;
+ 		*s = c;
+ 		s++;
+ 
+-		c = dev->id[ofs] & 0xff;
++		c = id[ofs] & 0xff;
+ 		*s = c;
+ 		s++;
+ 
+@@ -1082,7 +1082,7 @@
+ 	 */
+ 
+ 	/* we require LBA and DMA support (bits 8 & 9 of word 49) */
+-	if (!ata_id_has_dma(dev) || !ata_id_has_lba(dev)) {
++	if (!ata_id_has_dma(dev->id) || !ata_id_has_lba(dev->id)) {
+ 		printk(KERN_DEBUG "ata%u: no dma/lba\n", ap->id);
+ 		goto err_out_nosup;
+ 	}
+@@ -1100,7 +1100,7 @@
+ 
+ 	/* ATA-specific feature tests */
+ 	if (dev->class == ATA_DEV_ATA) {
+-		if (!ata_id_is_ata(dev))	/* sanity check */
++		if (!ata_id_is_ata(dev->id))	/* sanity check */
+ 			goto err_out_nosup;
+ 
+ 		tmp = dev->id[ATA_ID_MAJOR_VER];
+@@ -1114,11 +1114,11 @@
+ 			goto err_out_nosup;
+ 		}
+ 
+-		if (ata_id_has_lba48(dev)) {
++		if (ata_id_has_lba48(dev->id)) {
+ 			dev->flags |= ATA_DFLAG_LBA48;
+-			dev->n_sectors = ata_id_u64(dev, 100);
++			dev->n_sectors = ata_id_u64(dev->id, 100);
+ 		} else {
+-			dev->n_sectors = ata_id_u32(dev, 60);
++			dev->n_sectors = ata_id_u32(dev->id, 60);
+ 		}
+ 
+ 		ap->host->max_cmd_len = 16;
+@@ -1133,7 +1133,7 @@
+ 
+ 	/* ATAPI-specific feature tests */
+ 	else {
+-		if (ata_id_is_ata(dev))		/* sanity check */
++		if (ata_id_is_ata(dev->id))		/* sanity check */
+ 			goto err_out_nosup;
+ 
+ 		rc = atapi_cdb_len(dev->id);
+@@ -3655,3 +3655,4 @@
+ EXPORT_SYMBOL_GPL(ata_host_intr);
+ EXPORT_SYMBOL_GPL(ata_dev_classify);
+ EXPORT_SYMBOL_GPL(ata_dev_id_string);
++EXPORT_SYMBOL_GPL(ata_scsi_simulate);
+diff -u --recursive --new-file --exclude='.*' linux-2.6.9-rc4/drivers/scsi/libata.h linux/drivers/scsi/libata.h
+--- linux-2.6.9-rc4/drivers/scsi/libata.h	2004-10-13 14:47:26.000000000 -0400
++++ linux/drivers/scsi/libata.h	2004-10-14 11:48:35.000000000 -0400
+@@ -29,9 +29,8 @@
+ #define DRV_VERSION	"1.02"	/* must be exactly four chars */
+ 
+ struct ata_scsi_args {
+-	struct ata_port		*ap;
+-	struct ata_device	*dev;
+-	struct scsi_cmnd		*cmd;
++	u16			*id;
++	struct scsi_cmnd	*cmd;
+ 	void			(*done)(struct scsi_cmnd *);
+ };
+ 
+diff -u --recursive --new-file --exclude='.*' linux-2.6.9-rc4/drivers/scsi/libata-scsi.c linux/drivers/scsi/libata-scsi.c
+--- linux-2.6.9-rc4/drivers/scsi/libata-scsi.c	2004-10-13 14:47:26.000000000 -0400
++++ linux/drivers/scsi/libata-scsi.c	2004-10-14 14:36:45.000000000 -0400
+@@ -34,9 +34,6 @@
+ #include "libata.h"
+ 
+ typedef unsigned int (*ata_xlat_func_t)(struct ata_queued_cmd *qc, u8 *scsicmd);
+-static void ata_scsi_simulate(struct ata_port *ap, struct ata_device *dev,
+-			      struct scsi_cmnd *cmd,
+-			      void (*done)(struct scsi_cmnd *));
+ static struct ata_device *
+ ata_scsi_find_dev(struct ata_port *ap, struct scsi_device *scsidev);
+ 
+@@ -411,7 +408,7 @@
+ 	tf->protocol = ATA_PROT_NODATA;
+ 
+ 	if ((tf->flags & ATA_TFLAG_LBA48) &&
+-	    (ata_id_has_flush_ext(qc->dev)))
++	    (ata_id_has_flush_ext(qc->dev->id)))
+ 		tf->command = ATA_CMD_FLUSH_EXT;
+ 	else
+ 		tf->command = ATA_CMD_FLUSH;
+@@ -758,7 +755,7 @@
+ 
+ /**
+  *	ata_scsi_rbuf_fill - wrapper for SCSI command simulators
+- *	@args: Port / device / SCSI command of interest.
++ *	@args: device IDENTIFY data / SCSI command of interest.
+  *	@actor: Callback hook for desired SCSI command simulator
+  *
+  *	Takes care of the hard work of simulating a SCSI command...
+@@ -793,7 +790,7 @@
+ 
+ /**
+  *	ata_scsiop_inq_std - Simulate INQUIRY command
+- *	@args: Port / device / SCSI command of interest.
++ *	@args: device IDENTIFY data / SCSI command of interest.
+  *	@rbuf: Response buffer, to which simulated SCSI cmd output is sent.
+  *	@buflen: Response buffer length.
+  *
+@@ -807,8 +804,6 @@
+ unsigned int ata_scsiop_inq_std(struct ata_scsi_args *args, u8 *rbuf,
+ 			       unsigned int buflen)
+ {
+-	struct ata_device *dev = args->dev;
+-
+ 	u8 hdr[] = {
+ 		TYPE_DISK,
+ 		0,
+@@ -818,7 +813,7 @@
+ 	};
+ 
+ 	/* set scsi removeable (RMB) bit per ata bit */
+-	if (ata_id_removeable(dev))
++	if (ata_id_removeable(args->id))
+ 		hdr[1] |= (1 << 7);
+ 
+ 	VPRINTK("ENTER\n");
+@@ -827,8 +822,8 @@
+ 
+ 	if (buflen > 35) {
+ 		memcpy(&rbuf[8], "ATA     ", 8);
+-		ata_dev_id_string(dev, &rbuf[16], ATA_ID_PROD_OFS, 16);
+-		ata_dev_id_string(dev, &rbuf[32], ATA_ID_FW_REV_OFS, 4);
++		ata_dev_id_string(args->id, &rbuf[16], ATA_ID_PROD_OFS, 16);
++		ata_dev_id_string(args->id, &rbuf[32], ATA_ID_FW_REV_OFS, 4);
+ 		if (rbuf[32] == 0 || rbuf[32] == ' ')
+ 			memcpy(&rbuf[32], "n/a ", 4);
+ 	}
+@@ -852,7 +847,7 @@
+ 
+ /**
+  *	ata_scsiop_inq_00 - Simulate INQUIRY EVPD page 0, list of pages
+- *	@args: Port / device / SCSI command of interest.
++ *	@args: device IDENTIFY data / SCSI command of interest.
+  *	@rbuf: Response buffer, to which simulated SCSI cmd output is sent.
+  *	@buflen: Response buffer length.
+  *
+@@ -880,7 +875,7 @@
+ 
+ /**
+  *	ata_scsiop_inq_80 - Simulate INQUIRY EVPD page 80, device serial number
+- *	@args: Port / device / SCSI command of interest.
++ *	@args: device IDENTIFY data / SCSI command of interest.
+  *	@rbuf: Response buffer, to which simulated SCSI cmd output is sent.
+  *	@buflen: Response buffer length.
+  *
+@@ -902,7 +897,7 @@
+ 	memcpy(rbuf, hdr, sizeof(hdr));
+ 
+ 	if (buflen > (ATA_SERNO_LEN + 4))
+-		ata_dev_id_string(args->dev, (unsigned char *) &rbuf[4],
++		ata_dev_id_string(args->id, (unsigned char *) &rbuf[4],
+ 				  ATA_ID_SERNO_OFS, ATA_SERNO_LEN);
+ 
+ 	return 0;
+@@ -912,7 +907,7 @@
+ 
+ /**
+  *	ata_scsiop_inq_83 - Simulate INQUIRY EVPD page 83, device identity
+- *	@args: Port / device / SCSI command of interest.
++ *	@args: device IDENTIFY data / SCSI command of interest.
+  *	@rbuf: Response buffer, to which simulated SCSI cmd output is sent.
+  *	@buflen: Response buffer length.
+  *
+@@ -941,7 +936,7 @@
+ 
+ /**
+  *	ata_scsiop_noop -
+- *	@args: Port / device / SCSI command of interest.
++ *	@args: device IDENTIFY data / SCSI command of interest.
+  *	@rbuf: Response buffer, to which simulated SCSI cmd output is sent.
+  *	@buflen: Response buffer length.
+  *
+@@ -989,7 +984,7 @@
+ 
+ /**
+  *	ata_msense_caching - Simulate MODE SENSE caching info page
+- *	@dev: Device associated with this MODE SENSE command
++ *	@id: device IDENTIFY data
+  *	@ptr_io: (input/output) Location to store more output data
+  *	@last: End of output data buffer
+  *
+@@ -1001,7 +996,7 @@
+  *	None.
+  */
+ 
+-static unsigned int ata_msense_caching(struct ata_device *dev, u8 **ptr_io,
++static unsigned int ata_msense_caching(u16 *id, u8 **ptr_io,
+ 				       const u8 *last)
+ {
+ 	u8 page[] = {
+@@ -1011,9 +1006,9 @@
+ 		0, 0, 0, 0, 0, 0, 0, 0		/* 8 zeroes */
+ 	};
+ 
+-	if (ata_id_wcache_enabled(dev))
++	if (ata_id_wcache_enabled(id))
+ 		page[2] |= (1 << 2);	/* write cache enable */
+-	if (!ata_id_rahead_enabled(dev))
++	if (!ata_id_rahead_enabled(id))
+ 		page[12] |= (1 << 5);	/* disable read ahead */
+ 
+ 	ata_msense_push(ptr_io, last, page, sizeof(page));
+@@ -1067,7 +1062,7 @@
+ 
+ /**
+  *	ata_scsiop_mode_sense - Simulate MODE SENSE 6, 10 commands
+- *	@args: Port / device / SCSI command of interest.
++ *	@args: device IDENTIFY data / SCSI command of interest.
+  *	@rbuf: Response buffer, to which simulated SCSI cmd output is sent.
+  *	@buflen: Response buffer length.
+  *
+@@ -1081,7 +1076,6 @@
+ 				  unsigned int buflen)
+ {
+ 	u8 *scsicmd = args->cmd->cmnd, *p, *last;
+-	struct ata_device *dev = args->dev;
+ 	unsigned int page_control, six_byte, output_len;
+ 
+ 	VPRINTK("ENTER\n");
+@@ -1109,7 +1103,7 @@
+ 		break;
+ 
+ 	case 0x08:		/* caching */
+-		output_len += ata_msense_caching(dev, &p, last);
++		output_len += ata_msense_caching(args->id, &p, last);
+ 		break;
+ 
+ 	case 0x0a: {		/* control mode */
+@@ -1119,7 +1113,7 @@
+ 
+ 	case 0x3f:		/* all pages */
+ 		output_len += ata_msense_rw_recovery(&p, last);
+-		output_len += ata_msense_caching(dev, &p, last);
++		output_len += ata_msense_caching(args->id, &p, last);
+ 		output_len += ata_msense_ctl_mode(&p, last);
+ 		break;
+ 
+@@ -1141,7 +1135,7 @@
+ 
+ /**
+  *	ata_scsiop_read_cap - Simulate READ CAPACITY[ 16] commands
+- *	@args: Port / device / SCSI command of interest.
++ *	@args: device IDENTIFY data / SCSI command of interest.
+  *	@rbuf: Response buffer, to which simulated SCSI cmd output is sent.
+  *	@buflen: Response buffer length.
+  *
+@@ -1154,11 +1148,15 @@
+ unsigned int ata_scsiop_read_cap(struct ata_scsi_args *args, u8 *rbuf,
+ 			        unsigned int buflen)
+ {
+-	u64 n_sectors = args->dev->n_sectors;
++	u64 n_sectors;
+ 	u32 tmp;
+ 
+ 	VPRINTK("ENTER\n");
+ 
++	if (ata_id_has_lba48(args->id))
++		n_sectors = ata_id_u64(args->id, 100);
++	else
++		n_sectors = ata_id_u32(args->id, 60);
+ 	n_sectors--;		/* ATA TotalUserSectors - 1 */
+ 
+ 	tmp = n_sectors;	/* note: truncates, if lba48 */
+@@ -1196,7 +1194,7 @@
+ 
+ /**
+  *	ata_scsiop_report_luns - Simulate REPORT LUNS command
+- *	@args: Port / device / SCSI command of interest.
++ *	@args: device IDENTIFY data / SCSI command of interest.
+  *	@rbuf: Response buffer, to which simulated SCSI cmd output is sent.
+  *	@buflen: Response buffer length.
+  *
+@@ -1472,7 +1470,7 @@
+ 		if (xlat_func)
+ 			ata_scsi_translate(ap, dev, cmd, done, xlat_func);
+ 		else
+-			ata_scsi_simulate(ap, dev, cmd, done);
++			ata_scsi_simulate(dev->id, cmd, done);
+ 	} else
+ 		ata_scsi_translate(ap, dev, cmd, done, atapi_xlat);
+ 
+@@ -1482,8 +1480,7 @@
+ 
+ /**
+  *	ata_scsi_simulate - simulate SCSI command on ATA device
+- *	@ap: Port to which ATA device is attached.
+- *	@dev: Target device for CDB.
++ *	@id: current IDENTIFY data for target device.
+  *	@cmd: SCSI command being sent to device.
+  *	@done: SCSI command completion function.
+  *
+@@ -1494,15 +1491,14 @@
+  *	spin_lock_irqsave(host_set lock)
+  */
+ 
+-static void ata_scsi_simulate(struct ata_port *ap, struct ata_device *dev,
+-			      struct scsi_cmnd *cmd,
+-			      void (*done)(struct scsi_cmnd *))
++void ata_scsi_simulate(u16 *id,
++		      struct scsi_cmnd *cmd,
++		      void (*done)(struct scsi_cmnd *))
+ {
+ 	struct ata_scsi_args args;
+ 	u8 *scsicmd = cmd->cmnd;
+ 
+-	args.ap = ap;
+-	args.dev = dev;
++	args.id = id;
+ 	args.cmd = cmd;
+ 	args.done = done;
+ 
+diff -u --recursive --new-file --exclude='.*' linux-2.6.9-rc4/drivers/scsi/sata_sil.c linux/drivers/scsi/sata_sil.c
+--- linux-2.6.9-rc4/drivers/scsi/sata_sil.c	2004-10-13 14:47:26.000000000 -0400
++++ linux/drivers/scsi/sata_sil.c	2004-10-14 12:05:23.000000000 -0400
+@@ -287,7 +287,7 @@
+ 	const char *s;
+ 	unsigned int len;
+ 
+-	ata_dev_id_string(dev, model_num, ATA_ID_PROD_OFS,
++	ata_dev_id_string(dev->id, model_num, ATA_ID_PROD_OFS,
+ 			  sizeof(model_num));
+ 	s = &model_num[0];
+ 	len = strnlen(s, sizeof(model_num));
+diff -u --recursive --new-file --exclude='.*' linux-2.6.9-rc4/include/linux/ata.h linux/include/linux/ata.h
+--- linux-2.6.9-rc4/include/linux/ata.h	2004-10-13 14:47:31.000000000 -0400
++++ linux/include/linux/ata.h	2004-10-14 11:51:26.000000000 -0400
+@@ -217,24 +217,24 @@
+ 	u8			command;	/* IO operation */
+ };
+ 
+-#define ata_id_is_ata(dev)	(((dev)->id[0] & (1 << 15)) == 0)
+-#define ata_id_rahead_enabled(dev) ((dev)->id[85] & (1 << 6))
+-#define ata_id_wcache_enabled(dev) ((dev)->id[85] & (1 << 5))
+-#define ata_id_has_flush(dev) ((dev)->id[83] & (1 << 12))
+-#define ata_id_has_flush_ext(dev) ((dev)->id[83] & (1 << 13))
+-#define ata_id_has_lba48(dev)	((dev)->id[83] & (1 << 10))
+-#define ata_id_has_wcache(dev)	((dev)->id[82] & (1 << 5))
+-#define ata_id_has_pm(dev)	((dev)->id[82] & (1 << 3))
+-#define ata_id_has_lba(dev)	((dev)->id[49] & (1 << 9))
+-#define ata_id_has_dma(dev)	((dev)->id[49] & (1 << 8))
+-#define ata_id_removeable(dev)	((dev)->id[0] & (1 << 7))
+-#define ata_id_u32(dev,n)	\
+-	(((u32) (dev)->id[(n) + 1] << 16) | ((u32) (dev)->id[(n)]))
+-#define ata_id_u64(dev,n)	\
+-	( ((u64) dev->id[(n) + 3] << 48) |	\
+-	  ((u64) dev->id[(n) + 2] << 32) |	\
+-	  ((u64) dev->id[(n) + 1] << 16) |	\
+-	  ((u64) dev->id[(n) + 0]) )
++#define ata_id_is_ata(id)	(((id)[0] & (1 << 15)) == 0)
++#define ata_id_rahead_enabled(id) ((id)[85] & (1 << 6))
++#define ata_id_wcache_enabled(id) ((id)[85] & (1 << 5))
++#define ata_id_has_flush(id) ((id)[83] & (1 << 12))
++#define ata_id_has_flush_ext(id) ((id)[83] & (1 << 13))
++#define ata_id_has_lba48(id)	((id)[83] & (1 << 10))
++#define ata_id_has_wcache(id)	((id)[82] & (1 << 5))
++#define ata_id_has_pm(id)	((id)[82] & (1 << 3))
++#define ata_id_has_lba(id)	((id)[49] & (1 << 9))
++#define ata_id_has_dma(id)	((id)[49] & (1 << 8))
++#define ata_id_removeable(id)	((id)[0] & (1 << 7))
++#define ata_id_u32(id,n)	\
++	(((u32) (id)[(n) + 1] << 16) | ((u32) (id)[(n)]))
++#define ata_id_u64(id,n)	\
++	( ((u64) (id)[(n) + 3] << 48) |	\
++	  ((u64) (id)[(n) + 2] << 32) |	\
++	  ((u64) (id)[(n) + 1] << 16) |	\
++	  ((u64) (id)[(n) + 0]) )
+ 
+ static inline int atapi_cdb_len(u16 *dev_id)
+ {
+diff -u --recursive --new-file --exclude='.*' linux-2.6.9-rc4/include/linux/libata.h linux/include/linux/libata.h
+--- linux-2.6.9-rc4/include/linux/libata.h	2004-10-13 14:47:31.000000000 -0400
++++ linux/include/linux/libata.h	2004-10-14 14:35:41.000000000 -0400
+@@ -403,7 +403,7 @@
+ extern void ata_sg_init(struct ata_queued_cmd *qc, struct scatterlist *sg,
+ 		 unsigned int n_elem);
+ extern unsigned int ata_dev_classify(struct ata_taskfile *tf);
+-extern void ata_dev_id_string(struct ata_device *dev, unsigned char *s,
++extern void ata_dev_id_string(u16 *id, unsigned char *s,
+ 			      unsigned int ofs, unsigned int len);
+ extern void ata_bmdma_setup (struct ata_queued_cmd *qc);
+ extern void ata_bmdma_start (struct ata_queued_cmd *qc);
+@@ -415,7 +415,9 @@
+ 			      struct block_device *bdev,
+ 			      sector_t capacity, int geom[]);
+ extern int ata_scsi_slave_config(struct scsi_device *sdev);
+-
++extern void ata_scsi_simulate(u16 *id,
++			      struct scsi_cmnd *cmd,
++			      void (*done)(struct scsi_cmnd *));
+ 
+ static inline unsigned int ata_tag_valid(unsigned int tag)
+ {
+@@ -613,9 +615,9 @@
+ 
+ static inline int ata_try_flush_cache(struct ata_device *dev)
+ {
+-	return ata_id_wcache_enabled(dev) ||
+-	       ata_id_has_flush(dev) ||
+-	       ata_id_has_flush_ext(dev);
++	return ata_id_wcache_enabled(dev->id) ||
++	       ata_id_has_flush(dev->id) ||
++	       ata_id_has_flush_ext(dev->id);
+ }
+ 
+ #endif /* __LINUX_LIBATA_H__ */
+
+--------------060009010505020706010201--

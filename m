@@ -1,60 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313126AbSDDKU5>; Thu, 4 Apr 2002 05:20:57 -0500
+	id <S313128AbSDDKZr>; Thu, 4 Apr 2002 05:25:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313128AbSDDKUs>; Thu, 4 Apr 2002 05:20:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44294 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313124AbSDDKUm>;
-	Thu, 4 Apr 2002 05:20:42 -0500
-Message-ID: <3CAC28C2.927F29E5@zip.com.au>
-Date: Thu, 04 Apr 2002 02:19:46 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
+	id <S313130AbSDDKZi>; Thu, 4 Apr 2002 05:25:38 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:61702 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S313128AbSDDKZU>;
+	Thu, 4 Apr 2002 05:25:20 -0500
+Date: Thu, 4 Apr 2002 11:22:15 +0100 (BST)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: <tigran@einstein.homenet>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Stelian Pop <stelian.pop@fr.alcove.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules... 
+In-Reply-To: <22511.1017902599@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.33.0204041041530.1475-100000@einstein.homenet>
 MIME-Version: 1.0
-To: "Ishan O. Jayawardena" <ioshadij@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] kjournald locking fix
-In-Reply-To: <Pine.LNX.4.21.0204041539260.572-200000@shalmirane.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ishan O. Jayawardena" wrote:
-> 
-> Greetings,
-> 
->         kjournald seems to be missing an unlock_kernel() for a matching
-> lock_kernel(). A posting by  Dennis Vadura to l-k mentions (among other
-> things) a kernel message that says kjournald exited with preempt_count ==
-> 1. The attached patch (text/plain) adds the necessary
-> unlock_kernel(). [But I haven't been able to reproduce the hang that
-> Dennis experiences...]
->         Tested only on UP. Patch is for 2.4.19-pre5 + prempt-kernel, _no_
-> lock-break. I hope the positioning of unlock_kernel() is correct... please
-> correct me if I'm wrong.
+On Thu, 4 Apr 2002, Keith Owens wrote:
+> When the flamers and lawyers agree on what they really mean by
+> EXPORT_SYMBOL_GPL or its replacement and everybody agrees on what the
+> keyword should be, let me know and I will roll a new modutils.
+> Otherwise, leave me out of this flamewar.
 
-The unlock_kernel() is fine.  The kernel will drop the
-lock for us as the task makes its final call to schedule()
-on its way to the process graveyard, but it's neater this way.
+Let's look at the possible design for 2.5 first, then 2.4.
 
->         Please CC me (ioshadij@hotmail.com). I can't subscribe to the list
-> with my own ISP because they aren't ECN-friendly, and subscribing via
-> 
-> PS: Of course, the reparent_to_init() isn't part of the fix, but I've seen
-> kjournald become a zombie in an ugly episode with a deadlock in devfs many
-> moons ago.
+The meaning of EXPORT_SYMBOL_INTERNAL is that it can be used to export
+symbols by base kernel subsystems (static or modular) to other base kernel
+subsystems which can be compiled as a module. So, if the symbol is thus
+exported by what is thought of as "base kernel" then only modules that
+claim to be "base kernel" should use it. Similarly, if it is exported by a
+driver, then only modules closely associated with that driver (for drivers
+split in multiple modules) should be able to use it.
 
-I've always put the reparent_to_init() call after the daemonize()
-call.  I don't immediately see anything wrong with doing it
-beforehand, but that is a less tested code sequence.
+In other words, exporting symbols should not be based on the consumer's
+license because that is technically inappropriate criterion.
 
-But yes, you're right - kjournald needs to call reparent_to_init(),
-else it'll turn into a zombie if the process which mounted the
-filesystem is still running.
+As for implementation, perhaps EXPORT_SYMBOL_INTERNAL could look like:
 
-Could you please move the reparent_to_init() down a line and send
-a diff to Marcelo?
+EXPORT_SYMBOL_INTERNAL(runqueue_lock, "scheduler");
 
-Thanks.
+and the corresponding module that implements a "scheduler" can claim its
+rights by:
+
+MODULE_CLASS("scheduler");
+
+A module should be able to belong to multiple classes, of course, i.e. it
+could provide both "scheduler" to get runqueue_lock and "filesystem" to
+get register_filesystem().
+
+So, modutils would check module's classes and resolve or deny the
+corresponding symbol. And EXPORT_SYMBOL(sym) would mean "disable class
+check by modutils for this symbol".
+
+I am not suggesting to throw away MODULE_LICENSE from .modinfo, only that
+it should have nothing to do with exporting symbols (i.e. it should be
+like author/description etc fields).
+
+Now, all the above does not look like 2.4 matter, it should probably be
+implemented in 2.5. As for 2.4 perhaps it should be a simple matter of
+changing the actual name EXPORT_SYMBOL_GPL to EXPORT_SYMBOL_INTERNAL which
+would place INTERNAL_ instead of GPLONLY_ in .kstrtab. And the thing that
+would link with it in the module should not be MODULE_LICENSE but be a
+new macro:
+
+MODULE_SYMBOLS_INTERNAL;
+
+A module that doesn't make any special claims (for compatibility) gets
+only those exported by EXPORT_SYMBOL, whilst a module that claims access
+to MODULE_SYMBOLS_INTERNAL gets also those exported by
+EXPORT_SYMBOL_INTERNAL.
+
+There should be no "licensing implications" but simply the (documented)
+fact that if a proprietary module writer is stupid enough to make a
+MODULE_SYMBOLS_INTERNAL claim his module will break far more often both
+with respect to existence _and_ semantics/implemention of those entries
+exported only "internally". But that is their own problem -- we should
+neither help them nor prevent them from doing their work and earning their
+living. That is my opinion. If the vendor has so many resources to spend
+on monitoring Linux kernel development (and therefore inevitably getting
+involved and _helping_ with it!) to stay uptodate with every
+implementation of internal symbols, then that is fine -- so much the
+better for Linux. But if they want to write stable and maintainable
+modules then they will never put MODULE_SYMBOLS_INTERNALS. We should
+be always convincing proprietary software writers by our technical
+superiority rather than by making their lives tough based on a whim of
+whoever chooses which license to allow exporting his symbol to.
+
+Simple, ethical and makes everyone happy, or, at least those who
+understand that the design of a Unix-like operating system should be
+driven by technical superiority rather than by using marketroid's weapons
+against them (he who lifts up the sword shall fall by the sword).
+
+Regards,
+Tigran
+

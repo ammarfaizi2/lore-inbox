@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282099AbRLLUsr>; Wed, 12 Dec 2001 15:48:47 -0500
+	id <S282082AbRLLUtH>; Wed, 12 Dec 2001 15:49:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282092AbRLLUs2>; Wed, 12 Dec 2001 15:48:28 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:61702 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S282082AbRLLUsZ>;
-	Wed, 12 Dec 2001 15:48:25 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Wayne Whitney <whitney@math.berkeley.edu>
-Date: Wed, 12 Dec 2001 21:47:49 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Repost: could ia32 mmap() allocations grow downward?
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <BCF5AF03A80@vcnet.vc.cvut.cz>
+	id <S282092AbRLLUs6>; Wed, 12 Dec 2001 15:48:58 -0500
+Received: from mailgate.bodgit-n-scarper.com ([62.49.233.146]:32263 "HELO
+	mould.bodgit-n-scarper.com") by vger.kernel.org with SMTP
+	id <S282082AbRLLUsr>; Wed, 12 Dec 2001 15:48:47 -0500
+Date: Wed, 12 Dec 2001 20:54:44 +0000
+From: Matt <matt@bodgit-n-scarper.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] LVM and (I think) devfs
+Message-ID: <20011212205444.A27950@mould.bodgit-n-scarper.com>
+Mail-Followup-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011212170921.A25596@mould.bodgit-n-scarper.com> <200112121726.fBCHQWu15088@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200112121726.fBCHQWu15088@vindaloo.ras.ucalgary.ca>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 on i686 SMP (mould)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Dec 01 at 12:02, Wayne Whitney wrote:
+On Wed, Dec 12, 2001 at 10:26:32AM -0700, Richard Gooch wrote:
+> 
+> Please try kernel 2.4.16 and see if the problem persists. There were
+> devfs and minor LVM changes since then. Make sure you at least Cc: me.
 
-> o Pick a maximum stack size S and change the kernel so the "mmap()
->   without MAP_FIXED" region starts at 0xC0000000 - S and grows downwards. 
+Ah, a slight problem there. The LVM volume happens to reside on an AACRAID
+controller, which won't get passed fsck'ing with 2.4.16. 2.4.17-pre8 seems
+to have fixed that problem for reasons unknown.
 
-How you'll pick S? 8MB? 128MB? Now you can have 1GB brk + 2GB (stack+mmap),
-after change you have 2.9GB (brk+mmap), but only 128MB stack. And if you'll
-change your malloc implementation, you can have up to 2GB stack now, or
-up to 3GB of mmap. After your change your stack is limited to 128MB, and
-you cannot do anything around that except moving stack somewhere else
-during libc startup - and in this case couple of argv[] assumptions
-setproctitle and other do are no longer valid.
+The .17-preX LVM code should be based on, if not the same as the .16 code
+shouldn't it? The log suggests only changes on the devfs side. If I just
+stuck to the LVM code in the kernel, instead of using the code provided in
+the LVM 1.0.1 package, would that be a fair test?
 
-Another problem is mremap. Due to way how apps works, you'll have
-to move VMAs around much more because of you cannot grow your last
-VMA up without move. And if you shrink your last block, you'll get
-a gap.
- 
-> This seems ideal, as it allows the balance between the mmap() region and
-> the brk() region to vary for each process, automatically.  What changes
-> would be required to the kernel to implement this properly and
-> efficiently?  Is there some downside I am missing?
+Cheers
 
-Nobody can call brk() directly from app, as libc may use brk() for
-implementing malloc(), and libraries can call malloc. So you have to
-create your own allocator on the top of brk() results, and this
-allocator must not release memory back to system, as this could
-release also chunks you do not own. Writting your allocator on the
-top of malloc()ed areas is much better idea.
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
-P.S.: I do not think that your app calls directly brk(). I think that
-your app calls malloc with some small number, and libc decides to use
-brk() instead of mmap(). And in such case it is bug in your libc that 
-it does not use mmap() after brk() fails.
+Matt
+-- 
+"Phase plasma rifle in a forty-watt range?"
+"Only what you see on the shelves, buddy"

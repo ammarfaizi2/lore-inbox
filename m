@@ -1,61 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265095AbTBJUhN>; Mon, 10 Feb 2003 15:37:13 -0500
+	id <S265134AbTBJUjp>; Mon, 10 Feb 2003 15:39:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265096AbTBJUhN>; Mon, 10 Feb 2003 15:37:13 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12245 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265095AbTBJUhM>; Mon, 10 Feb 2003 15:37:12 -0500
-Date: Mon, 10 Feb 2003 21:46:51 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@transmeta.com>, shaggy@austin.ibm.com,
-       jfs-discussion@oss.software.ibm.com
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.60: JFS no longer compiles with gcc 2.95
-Message-ID: <20030210204651.GE17128@fs.tum.de>
-References: <Pine.LNX.4.44.0302101103570.1348-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S265139AbTBJUjo>; Mon, 10 Feb 2003 15:39:44 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:9112 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265134AbTBJUjo>; Mon, 10 Feb 2003 15:39:44 -0500
+X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
+ wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] gcc 2.95 vs 3.21 performance
+References: <1044908011.3133.123.camel@cube>
+From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Date: 10 Feb 2003 21:49:19 +0100
+In-Reply-To: <1044908011.3133.123.camel@cube>
+Message-ID: <87isvrhne8.fsf@student.uni-tuebingen.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (broccoli)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302101103570.1348-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 10, 2003 at 11:08:28AM -0800, Linus Torvalds wrote:
->...
-> Summary of changes from v2.5.59 to v2.5.60
-> ============================================
->...
-> Dave Kleikamp <shaggy@shaggy.austin.ibm.com>:
->...
->   o JFS: replace ugly JFS debug macros with simpler ones
->...
+Albert Cahalan <albert@users.sourceforge.net> writes:
 
-This broke the compilation with gcc 2.95:
+> BTW, in case any gcc hacker is paying attention, the documentation
+> fails to mention the gcc version required for this or any other
+> attribute. Also it would be nice to have an option to ditch the
+> (char*) exception; it's junk when you have __may_alias__.
 
-<--  snip  -->
-
-...
-  gcc -Wp,-MD,fs/jfs/.super.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include  
--D_JFS_4K  -DKBUILD_BASENAME=super -DKBUILD_MODNAME=jfs -c -o 
-fs/jfs/super.o fs/jfs/super.c
-fs/jfs/super.c: In function `jfs_fill_super':
-fs/jfs/super.c:335: parse error before `)'
-make[2]: *** [fs/jfs/super.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
+I don't think a switch that makes standard compliant source break in
+potentially very subtle ways is a good idea. Just use "restrict".
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Falk

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263170AbTDLFZa (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 01:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTDLFZa (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 01:25:30 -0400
-Received: from [12.47.58.73] ([12.47.58.73]:37152 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263170AbTDLFZ3 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 01:25:29 -0400
-Date: Fri, 11 Apr 2003 22:37:18 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Thomas Schlichter <schlicht@uni-mannheim.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] first try for swap prefetch
-Message-Id: <20030411223718.4ba9c024.akpm@digeo.com>
-In-Reply-To: <200304120705.26408.schlicht@uni-mannheim.de>
-References: <200304101948.12423.schlicht@uni-mannheim.de>
-	<200304111352.05774.schlicht@uni-mannheim.de>
-	<20030411143932.6bd0b08a.akpm@digeo.com>
-	<200304120705.26408.schlicht@uni-mannheim.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id S263171AbTDLFli (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 01:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbTDLFli (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 01:41:38 -0400
+Received: from granite.he.net ([216.218.226.66]:16659 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S263171AbTDLFlh (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 01:41:37 -0400
+Date: Fri, 11 Apr 2003 22:54:17 -0700
+From: Greg KH <greg@kroah.com>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'Miquel van Smoorenburg'" <miquels@cistron-office.nl>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Simple Kernel-User Event Interface (Was: RE: [ANNOUNCE] udev 0.1 release)
+Message-ID: <20030412055417.GA1966@kroah.com>
+References: <A46BBDB345A7D5118EC90002A5072C780BEBAB1B@orsmsx116.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Apr 2003 05:37:06.0868 (UTC) FILETIME=[8E0B1F40:01C300B5]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780BEBAB1B@orsmsx116.jf.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
->
-> How can I get the file pointer for a buffered page with the information 
-> available in the kswapd (minly the page struct)??
+On Fri, Apr 11, 2003 at 09:16:02PM -0700, Perez-Gonzalez, Inaky wrote:
+> 
+> Okay, so what about this:
+> 
+> I started playing with a simple event interface, that would allow:
+> 
+> - queuing events and recalling-queued events
+> - not consume (almost) memory when two bazillion events are queued
+> - be accessible by different processes at the same time on 
+>   different fds
 
-You can't, really.  There can be any number of file*'s pointing at an inode.
+Have you looked at relayfs?  I think it might do much the same thing as
+this, but through a fs interface, instead of a char device node.
 
-The pagefault handler will find it by find_vma(faulting_address)->vm_file. 
-Other codepaths use syscalls, and the user passed the file* in.
+> Now, each fd keeps a pointer to the queue list and only when the
+> event has been read by all the open fds, it is then disposed.
 
-You can call page_cache_readahead() with a NULL file*.  That'll mostly work
-except for the odd filesytem like NFS which will oops.  But it's good enough
-for testing and development.
+I don't think you can just count the number of open fds, like your patch
+does to get a count of who all read this message (fds can close and
+others can open, so newer fds might not have read the message before it
+is removed.)
 
-Or you could cook up a local file struct along the lines of
-fs/nfsd/vfs.c:nfsd_read(), but I would not like to lead a young person
-that way ;)
+Looks like a good start, but I'm not moving the hotplug interface over
+to it :)
 
+thanks,
+
+greg k-h

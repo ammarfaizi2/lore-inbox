@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266379AbTA2SqF>; Wed, 29 Jan 2003 13:46:05 -0500
+	id <S266796AbTA2TEm>; Wed, 29 Jan 2003 14:04:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266384AbTA2SqF>; Wed, 29 Jan 2003 13:46:05 -0500
-Received: from ns.suse.de ([213.95.15.193]:17676 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S266379AbTA2SqF>;
-	Wed, 29 Jan 2003 13:46:05 -0500
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: hpa@zytor.com, linux-kernel@vger.kernel.org
+	id <S266804AbTA2TEm>; Wed, 29 Jan 2003 14:04:42 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:7688 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266796AbTA2TEm>;
+	Wed, 29 Jan 2003 14:04:42 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301291914.h0TJEhsa002226@darkstar.example.net>
 Subject: Re: kernel.org frontpage
-References: <200301290947.h0T9lKa9000750@darkstar.example.net.suse.lists.linux.kernel> <3E37A46B.4080907@zytor.com.suse.lists.linux.kernel> <200301291509.h0TF9S4K003537@turing-police.cc.vt.edu.suse.lists.linux.kernel> <3E3819CB.2090409@zytor.com.suse.lists.linux.kernel> <3E381F47.8060200@nortelnetworks.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 29 Jan 2003 19:55:26 +0100
-In-Reply-To: Chris Friesen's message of "29 Jan 2003 19:41:12 +0100"
-Message-ID: <p73bs1zzsyo.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+To: Valdis.Kletnieks@vt.edu
+Date: Wed, 29 Jan 2003 19:14:43 +0000 (GMT)
+Cc: hpa@zytor.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200301291509.h0TF9S4K003537@turing-police.cc.vt.edu> from "Valdis.Kletnieks@vt.edu" at Jan 29, 2003 10:09:28 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen <cfriesen@nortelnetworks.com> writes:
-
-> > THE SIGN FILES DO NOT VERIFY AGAINST A COMPROMISED KERNEL.ORG MASTER SITE.
+> > No, it would add absolutely nothing (other than clutter.)  All the .sign 
+> > files are good for is to check for rogue mirrors.
 > 
-> Perhaps for the truly paranoid the signatures should be posted to this 
-> newsgroup and digitally signed by someone trusted.
+> Or a rogue *primary* site, as has already happened to OpenSSH and Sendmail.
 
-Or just sign them on the ftp site with the key from someone trusted.
+I see what you mean, but I don't see how it makes it any less useful
+to have them on the front page - if you download the latest kernel
+patch from a mirror, you could then just click on the relevant link on
+the front page of kernel.org - infact, as http access to kernel.org is
+frequently much slower than ftp, it might actually be very useful,
+because anybody downloading via http would make two requests, (OK,
+about 7, because of the images on the front page), instead of about
+13, if they traverse each directory to the .sign file.
 
--Andi
+John

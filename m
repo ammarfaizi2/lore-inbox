@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262674AbRE3JdC>; Wed, 30 May 2001 05:33:02 -0400
+	id <S262680AbRE3JeW>; Wed, 30 May 2001 05:34:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262680AbRE3Jcw>; Wed, 30 May 2001 05:32:52 -0400
-Received: from [212.1.33.3] ([212.1.33.3]:12840 "EHLO borg4.zapnet.de")
-	by vger.kernel.org with ESMTP id <S262674AbRE3Jcj>;
-	Wed, 30 May 2001 05:32:39 -0400
-From: Ivan Schreter <is@zapwerk.com>
+	id <S262683AbRE3JeP>; Wed, 30 May 2001 05:34:15 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:27018 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S262680AbRE3Jdu>; Wed, 30 May 2001 05:33:50 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched_yield in 2.2.x
-Date: Wed, 30 May 2001 11:07:00 +0200
-X-Mailer: KMail [version 1.0.29.2]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <01053002030500.01197@linux> <3B146125.77845217@mvista.com>
-In-Reply-To: <3B146125.77845217@mvista.com>
-Cc: george anzinger <george@mvista.com>
-MIME-Version: 1.0
-Message-Id: <01053011323600.01230@linux>
-Content-Transfer-Encoding: 7BIT
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [PATCH] net #9
+Date: Wed, 30 May 2001 09:33:49 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9f2ept$jcp$1@forge.intermeta.de>
+In-Reply-To: <200105300048.CAA04583@green.mif.pg.gda.pl> <20010529180420.A14639@bougret.hpl.hp.com> <3B14493E.63F861E7@mandrakesoft.com> <20010529182506.A14727@bougret.hpl.hp.com> <3B145127.5B173DFF@mandrakesoft.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 991215229 21891 212.34.181.4 (30 May 2001 09:33:49 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 30 May 2001 09:33:49 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
-I'm not subscribed, so replies please CC: to me.
+>This is ANSI C standard stuff.  If a static object with a scalar type is
+>not explicitly initialized, it is initialized to zero by default.
 
-[...]
+"The kernel is not in ANSI C". Who wrote this again? 
 
-> > (I changed it to -1 just to be sure this process isn't accidentally
-> > picked when there is other process to run - maybe I'm wrong here, but
-> > 2.4.5 gives it also goodness -1, so it should be OK).
-[...]
-> The -1 is better than 0 since 0 will trigger a recalc if no other tasks
-> have any time left.  (Or do you want this to happen?  As you have it,
-> the yielding task will get control if all other tasks in the run list
-> have zero counters.  Seems like the recalculation should happen to find
-> a better candidate.)
+	Regards
+		Henning
 
-Yes, I think that is OK according to specs. If we get a recalc, then we get
-control anyway, since we have some time left when calling sched_yield(). Or am
-I wrong here? Anyway, it performs quite well in tests...
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-> The real problem with this patch is that if a real time task yields, the
-> patch will cause the scheduler to pick a lower priority task or a
-> SCHED_OTHER task.  This one is not so easy to solve.  You want to scan
-> the run_list in the proper order so that the real time task will be the
-> last pick at its priority.  Problem is, the pre load with the prev task
-> is out of order.  You might try: http://rtsched.sourceforge.net/
-
-Well, let's look at it this way: real-time tasks may want to yield when they
-are waiting for something to happen that is not system-controlled (like a
-user-mode spinlock). Otherwise they would be waiting in (un)interruptible sleep
-controlled by the kernel. So when a RR task yields, then it yields because some
-condition isn't met. So it has to wait anyway. Scheduling a lower
-priority task in the meantime will do only good to the system IMHO.
-
-I know this is not quite standard, but to make it work standards-compliant
-(task will continue to run if there are no other tasks blabla) it is enough to
-check # of runnable tasks in the run queue in sys_sched_yield() and return
-immediately if we are the only task running. I can implement that. Anybody
-thinks it's worth it?
-
-Ivan Schreter
-is@zapwerk.com
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

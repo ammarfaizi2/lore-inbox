@@ -1,97 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263827AbTCUT1M>; Fri, 21 Mar 2003 14:27:12 -0500
+	id <S263766AbTCUTVy>; Fri, 21 Mar 2003 14:21:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263778AbTCUT0G>; Fri, 21 Mar 2003 14:26:06 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:50308
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263793AbTCUTYj>; Fri, 21 Mar 2003 14:24:39 -0500
-Date: Fri, 21 Mar 2003 20:39:54 GMT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303212039.h2LKdsAf026419@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: FOr efficient non posted I/O people need to know the target
+	id <S263735AbTCUTUz>; Fri, 21 Mar 2003 14:20:55 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:53717 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S263751AbTCUTUF>; Fri, 21 Mar 2003 14:20:05 -0500
+Message-ID: <3E7B686F.9030102@tmsusa.com>
+Date: Fri, 21 Mar 2003 11:30:55 -0800
+From: jjs <jjs@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jochen Hein <jochen@jochen.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.65] tun not working
+References: <873clgh6t7.fsf@jupiter.jochen.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/ide/ide-iops.c linux-2.5.65-ac2/drivers/ide/ide-iops.c
---- linux-2.5.65/drivers/ide/ide-iops.c	2003-03-18 16:46:48.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/ide/ide-iops.c	2003-03-07 18:43:58.000000000 +0000
-@@ -1,13 +1,12 @@
- /*
-- * linux/drivers/ide/ide-iops.c	Version 0.33	April 11, 2002
-+ * linux/drivers/ide/ide-iops.c	Version 0.37	Mar 05, 2003
-  *
-  *  Copyright (C) 2000-2002	Andre Hedrick <andre@linux-ide.org>
-- *
-+ *  Copyright (C) 2003		Red Hat <alan@redhat.com>
-  *
-  */
- 
- #include <linux/config.h>
--#define __NO_VERSION__
- #include <linux/module.h>
- #include <linux/types.h>
- #include <linux/string.h>
-@@ -63,6 +62,10 @@
- {
- }
- 
-+static void ide_unplugged_outbsync (ide_drive_t *drive, u8 addr, unsigned long port)
-+{
-+}
-+
- static void ide_unplugged_outw (u16 val, unsigned long port)
- {
- }
-@@ -82,7 +85,7 @@
- void unplugged_hwif_iops (ide_hwif_t *hwif)
- {
- 	hwif->OUTB	= ide_unplugged_outb;
--	hwif->OUTBSYNC	= ide_unplugged_outb;
-+	hwif->OUTBSYNC	= ide_unplugged_outbsync;
- 	hwif->OUTW	= ide_unplugged_outw;
- 	hwif->OUTL	= ide_unplugged_outl;
- 	hwif->OUTSW	= ide_unplugged_outsw;
-@@ -130,6 +133,11 @@
- 	outb(val, port);
- }
- 
-+static void ide_outbsync (ide_drive_t *drive, u8 addr, unsigned long port)
-+{
-+	outb(addr, port);
-+}
-+
- static void ide_outw (u16 val, unsigned long port)
- {
- 	outw(val, port);
-@@ -153,7 +161,7 @@
- void default_hwif_iops (ide_hwif_t *hwif)
- {
- 	hwif->OUTB	= ide_outb;
--	hwif->OUTBSYNC	= ide_outb;
-+	hwif->OUTBSYNC	= ide_outbsync;
- 	hwif->OUTW	= ide_outw;
- 	hwif->OUTL	= ide_outl;
- 	hwif->OUTSW	= ide_outsw;
-@@ -201,6 +209,11 @@
- 	writeb(value, port);
- }
- 
-+static void ide_mm_outbsync (ide_drive_t *drive, u8 value, unsigned long port)
-+{
-+	writeb(value, port);	
-+}
-+
- static void ide_mm_outw (u16 value, unsigned long port)
- {
- 	writew(value, port);
-@@ -226,7 +239,7 @@
- 	hwif->OUTB	= ide_mm_outb;
- 	/* Most systems will need to override OUTBSYNC, alas however
- 	   this one is controller specific! */
--	hwif->OUTBSYNC	= ide_mm_outb;
-+	hwif->OUTBSYNC	= ide_mm_outbsync;
- 	hwif->OUTW	= ide_mm_outw;
- 	hwif->OUTL	= ide_mm_outl;
- 	hwif->OUTSW	= ide_mm_outsw;
+Just as a data point, tun itself works for
+me on x86 - I use openvpn between my
+lan and our remote pop3 server, so I'd
+find out in a big hurry if it ever broke -
+
+(currently running 2.5.65 on the vpn gw)
+
+Sounds like a 390-sepecific issue, or
+a hercule-specific issue?
+
+Joe
+
+Jochen Hein wrote:
+
+>I'm using tun to connect my virtual S/390 from hercules to the local
+>machine.  That works pretty well with 2.4, but with 2.5.65 hercules
+>fails with:
+>
+>root@gswi1164:~# hercules -f /etc/hercules/hercules.cnf
+>Hercules Version 2.16.5
+>(c)Copyright 1999-2002 by Roger Bowler, Jan Jaeger, and others
+>Built on Jul  9 2002 at 23:09:56
+>Build information:
+>  Debian
+>  Modes: S/370 ESA/390 ESAME
+>  Using setresuid() for setting privileges
+>  HTTP Server support
+>
+>Running on Linux i686 2.5.65 #1 Thu Mar 20 19:11:34 CET 2003
+>ckddasd: /mount/d/hercules/linux.191 cyls=300 heads=15 tracks=4500
+>trklen=47616
+>HHC894I Error setting MTU for tun: No such device
+>HHC897I Error setting driving system IP addr for tun: No such device
+>HHC897I Error setting Hercules IP addr for tun: No such device
+>HHC897I Error setting netmask for tun: No such device
+>HHC898I Error getting flags for tun: No such device
+>HHC848I 0400 configuration failed: hercifc rc=4
+>HHC038I Initialization failed for device 0400
+>
+>hercules uses /dev/net/tun to access the tun device.
+>
+>The module tun is loaded:
+>
+>dmesg:
+>Universal TUN/TAP device driver 1.5 (C)1999-2002 Maxim Krasnyansky
+>
+>root@gswi1164:~# lsmod | grep tun
+>tun                     6240  0
+>
+>Any idea why this fails?
+>
+>Jochen
+>
+>  
+>
+
+

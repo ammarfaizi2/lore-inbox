@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265377AbUADLNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 06:13:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUADLNZ
+	id S265369AbUADLK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 06:10:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265376AbUADLK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 06:13:25 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:49341 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S265377AbUADLNT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 06:13:19 -0500
-Date: Sun, 4 Jan 2004 03:12:57 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Lincoln Dale <ltd@cisco.com>,
-       Con Kolivas <kernel@kolivas.org>, Willy Tarreau <willy@w.ods.org>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, gillb4@telusplanet.net
+	Sun, 4 Jan 2004 06:10:58 -0500
+Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:36264 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265369AbUADLK4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 06:10:56 -0500
 Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-Message-ID: <20040104111257.GO1882@matchmail.com>
-Mail-Followup-To: Soeren Sonnenburg <kernel@nn7.de>,
-	Nick Piggin <piggin@cyberone.com.au>, Lincoln Dale <ltd@cisco.com>,
-	Con Kolivas <kernel@kolivas.org>, Willy Tarreau <willy@w.ods.org>,
-	Mark Hahn <hahn@physics.mcmaster.ca>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, gillb4@telusplanet.net
-References: <200401041242.47410.kernel@kolivas.org> <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <200401040815.54655.kernel@kolivas.org> <20040103233518.GE3728@alpha.home.local> <200401041242.47410.kernel@kolivas.org> <5.1.0.14.2.20040104195316.02151e98@171.71.163.14> <3FF7DA24.40802@cyberone.com.au> <1073211879.3261.6.camel@localhost>
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Soeren Sonnenburg <kernel@nn7.de>, Willy Tarreau <willy@w.ods.org>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       gillb4@telusplanet.net
+In-Reply-To: <200401041949.27408.kernel@kolivas.org>
+References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca>
+	 <200401041242.47410.kernel@kolivas.org>
+	 <1073203762.9851.394.camel@localhost>
+	 <200401041949.27408.kernel@kolivas.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xRbmMezueOpdyL+nI4qt"
+Message-Id: <1073214820.6075.254.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1073211879.3261.6.camel@localhost>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 04 Jan 2004 13:13:40 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 11:24:39AM +0100, Soeren Sonnenburg wrote:
-> [...]
-> > Or, out of interest, an alternate scheduler?
-> > 
-> > http://www.kerneltrap.org/~npiggin/w29p2.gz
-> > (applies 2.6.1-rc1-mm1, please renice X to -10 or so)
-> 
-> Thats nothing *I* can try out as I am on the powerpc benh tree.
-> 
 
-Says who?  The scheduler isn't platform specific.  Nick, do you have any per
-arch defines in your patch?
+--=-xRbmMezueOpdyL+nI4qt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, 2004-01-04 at 10:49, Con Kolivas wrote:
+
+> > I added a fprintf(stderr, "%d\n", amount); to that code and indeed
+> > amount was *always* 1 no matter what I did (it even was 1 when the
+> > (dmesg/...) output came in fast). And jump scrolling would take place i=
+f
+> > amount > 59 in my case... can this still be not a schedulers issue ?
+> >
+>=20
+> > Looking at that how can it not be a scheduling problem ....
+>=20
+> Scheduling problem, yes; of a sort.
+>=20
+> Solution by altering the scheduler, no.=20
+>=20
+> My guess is that turning the xterm graphic candy up or down will change t=
+he=20
+> balance. Trying to be both gui intensive and a console is where it's=20
+> happening. On some hardware you are falling on both sides of the fence wi=
+th=20
+> 2.6 where previously you would be on one side.
+>=20
+
+So its Ok for 'eye candy' to 'lag', but xmms should not skip?  Anyhow,
+its xterm that he have issues with, not gnome-terminal or such with
+transparency.  I smell something ...
+
+
+--=20
+Martin Schlemmer
+
+--=-xRbmMezueOpdyL+nI4qt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA/9/VkqburzKaJYLYRAiqUAJ9vZsZ3Pl+wvKr3QvzM5dlCf4yqigCgl/2K
+Fs7FUoUCh29OEx7mn0qQrTI=
+=UcjM
+-----END PGP SIGNATURE-----
+
+--=-xRbmMezueOpdyL+nI4qt--
+

@@ -1,85 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267502AbUH0Uht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267978AbUH0VRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267502AbUH0Uht (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 16:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267584AbUH0Ucy
+	id S267978AbUH0VRe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 17:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267831AbUH0VNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 16:32:54 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:50388 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S266756AbUH0UaT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 16:30:19 -0400
-Message-ID: <412F99CE.2070906@blue-labs.org>
-Date: Fri, 27 Aug 2004 16:30:06 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040825
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kenneth Lavrsen <kenneth@lavrsen.dk>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	Fri, 27 Aug 2004 17:13:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46472 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267737AbUH0VJy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 17:09:54 -0400
+Date: Fri, 27 Aug 2004 14:09:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       pmarques@grupopie.com, greg@kroah.com, nemosoft@smcc.demon.nl,
        linux-usb-devel@lists.sourceforge.net
-Subject: Re: Summarizing the PWC driver questions/answers
-References: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk>
-In-Reply-To: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk>
-Content-Type: multipart/mixed;
- boundary="------------080607010608070208070600"
+Subject: Re: pwc+pwcx is not illegal
+In-Reply-To: <1093640273.431.6484.camel@cube>
+Message-ID: <Pine.LNX.4.58.0408271408200.14196@ppc970.osdl.org>
+References: <1093634283.431.6370.camel@cube>  <Pine.LNX.4.58.0408271226400.14196@ppc970.osdl.org>
+ <1093640273.431.6484.camel@cube>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080607010608070208070600
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-I'm going to be short and simple.
-
-You're making a huge fuss over this.  You're making wild claims about 
-being forced to throw away $2000 worth of cameras, the next great thing 
-that Linus will toss out of the kernel, companies being hurt, and 10,000 
-or more people being put out.
-
-Here are a few points to consider Kenneth;
-
-- Maintain the PWC support yourself
-- Stay with the last kernel that supported PWC
-- Maintain a patch that puts PWC support into the kernel
-- Since the NDA has long since expired, why not investigate using the 
-whole of the code?
-
-I would also consider the ramifications of a business model that uses 
-bleeding edge releases of kernels for their customers.  You're so upset 
-and maddened by what has happened, that you've lost focus on what is 
-going on.
-
-The hook wasn't right.  It goes against policy of the kernel.  Putting 
-off dealing with it is a slippery slope.
-
-The reaction from the PWC camp seems to be wholly heated and with little 
-logical discussion.  Before you turn your flamethrower on me, I also 
-have two cameras.  Doing things the Right Way is better, I really don't 
-want to be moving the lines every time something doesn't suit me perfectly.
-
--david
-p.s. If you feel like throwing away two grand worth of cameras, feel 
-free to ship them to me.  I'm sure my trashcan would enjoy the use of them.
-
---------------080607010608070208070600
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
-
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
 
 
---------------080607010608070208070600--
+On Fri, 27 Aug 2004, Albert Cahalan wrote:
+> 
+> Sure. That has nothing to do with whether it would
+> be legal or not. It had been implied (by Greg KH)
+> that you thought Linux-specific proprietary drivers
+> using hooks are illegal.
+
+And they may be. As I said, your posturing doesn't matter. Using
+specialized hooks might very well be ruled to be a sign of being a derived
+work.
+
+When you get a court ruling saying otherwise, come back stating it as 
+fact. Until then, it's considered a gray area.
+
+		Linus

@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267230AbUHDCBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267214AbUHDCEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267230AbUHDCBk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 22:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267193AbUHDCBj
+	id S267214AbUHDCEh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 22:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267219AbUHDCEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 22:01:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3512 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267231AbUHDCB1 (ORCPT
+	Tue, 3 Aug 2004 22:04:37 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:10429 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S267214AbUHDCEb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 22:01:27 -0400
-Date: Tue, 3 Aug 2004 22:01:12 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp83-102.boston.redhat.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Chris Wright <chrisw@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
-Subject: Re: [patch] mlock-as-nonroot revisted
-In-Reply-To: <20040804015350.GS2241@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0408032157160.5948-100000@dhcp83-102.boston.redhat.com>
+	Tue, 3 Aug 2004 22:04:31 -0400
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New dev model (was [PATCH] delete devfs)
+References: <Pine.LNX.3.96.1040802144144.17578B-100000@gatekeeper.tmr.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 04 Aug 2004 00:07:14 +0200
+In-Reply-To: <Pine.LNX.3.96.1040802144144.17578B-100000@gatekeeper.tmr.com> (Bill
+ Davidsen's message of "Mon, 2 Aug 2004 14:48:51 -0400 (EDT)")
+Message-ID: <m3r7qn510t.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Aug 2004, Andrea Arcangeli wrote:
-> On Tue, Aug 03, 2004 at 09:21:34PM -0400, Rik van Riel wrote:
-> > This is exactly why named hugetlb files are NOT included
-> > in this accounting, only the ones created through the SHM
-> > interface are.
-> 
-> but you're allowing everybody to alloc all RAM in hugetlb files with
-> the change in the previos patch posted by Arjan
+Bill Davidsen <davidsen@tmr.com> writes:
 
-Nope, Arjan's patch (and my incremental) touch hugetlb_zero_setup,
-which only seems to be called from ipc/shm.c
+>> > And akpm posted that he intended to remove cryptoloop, while others
+>> > are calling for the end to devfs. Not having features disappear is
+>> > part of stable, I would think, not just "not oops more often."
+>> 
+>> OTOH removing things declared "obsolete" for a long time doesn't make
+>> it unstable - does it?
+>
+> Obsolete for a long time? This is a new feature in 2.6!
 
-Normal hugetlb file creation (through the filesystem) isn't touched
-by these patches.
-
-> (you're currently posted incremental patches against Arjan's patch at
-> the top of the thread I hope), so you must definitely apply "this"
-> accounting to hugetlb files too or it's still insecure as far as I can
-> tell.
-
-The patch only touches "anonymous" hugetlb files, ie. the ones
-created through ipc/shm.c.  I'm not sure why you claim that the
-others would be affected by this patch...
-
+Well, actually I was thinking about removing devfs in 2005.
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+Krzysztof Halasa

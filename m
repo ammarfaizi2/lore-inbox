@@ -1,133 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264012AbUDVNFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264019AbUDVNHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264012AbUDVNFi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 09:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbUDVNFi
+	id S264019AbUDVNHE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 09:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbUDVNHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 09:05:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34789 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264012AbUDVNFa
+	Thu, 22 Apr 2004 09:07:04 -0400
+Received: from p4.ensae.fr ([195.6.240.202]:3743 "EHLO pc809.ensae.fr")
+	by vger.kernel.org with ESMTP id S264019AbUDVNGr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 09:05:30 -0400
-Date: Thu, 22 Apr 2004 10:06:51 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.27-pre1
-Message-ID: <20040422130651.GB18358@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Apr 2004 09:06:47 -0400
+From: Guillaume =?iso-8859-1?q?Lac=F4te?= <Guillaume@Lacote.name>
+Reply-To: Guillaume@Lacote.name
+Organization: Guillaume@Lacote.name
+To: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
+Subject: Re: Using compression before encryption in device-mapper
+Date: Thu, 22 Apr 2004 15:06:43 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, Linux@glacote.com
+References: <200404131744.40098.Guillaume@Lacote.name> <200404221220.08987.Guillaume@Lacote.name> <20040422121549.GD3691@wohnheim.fh-wedel.de>
+In-Reply-To: <20040422121549.GD3691@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+Message-Id: <200404221506.43017.Guillaume@Lacote.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks for continuing this discussion.
+>
+> True.  But since the data is random, chances are it is impossible to
+> compress, so guessing the compressed data should be feasible.  The
+> guess could be off by a few bits, but again, this makes the attack
+> harder by just a small factor.
+Not exactly; the random bytes are _not_ drawn uniformly; they are drawn so as 
+to make the distribution on Huffman trees uniform.
 
-Hi, 
+The rough algorithm is as follows:
 
-Here goes the 2.4.27-pre1... Most importantly it contains the addition 
-of SATA drivers backport from v2.6. 
+1) set up the weight of each of the 256 possible bytes. If you want byte x to 
+have a Huffman code of length k, let its weight be 2^k .
 
-Also network driver updates, USB updates, etc.
+2) now draw a sequence of n bytes with these weights; have n be sufficiently 
+high so that with high probability the empirical distribution of the bytes 
+you have actually drawn is close to the theoretical one. This ensures that 
+the resulting Huffman tree will be close to the one you wanted. This is done 
+through the Central Limit Theorem.
 
-Detailed changelog follows
+So the actual random sequence _will_ most often be highly compressible. The 
+point is that all binary sequences that correspond to a possible Huffman tree 
+are equiprobable. This maximizes the entropy (ie this minimizes the 
+information known to the attacker).
 
-Summary of changes from v2.4.26 to v2.4.27-pre1
-============================================
+>
+> > a) the attacker stills knows nothing about the rest of the tree (ie what
+> > the encoding of all other bits are). Basically to construct T2 you take
+> > T1, let "0" be the coding of "0", and prefix the code of all other bytes
+> > with a "1".
+>
+> Too complicated.  Figure out, where to find a block of encrypted
+> zeros, then look it up in a dictionary.  If that is successful, you
+> have the key, full stop.
+OK; my whole point is that it is difficult to "figure out, where to find a 
+block of encrypted zeros". I hope to make this as difficult as to first crack 
+the preceding sequence of random bytes. Which is, by design, only feasible by 
+brute force.
+I may be wrong on this. So assume I have stored 4kB of zeros.
+What you have is the following:
+L1 =  n bytes of random bytes
+L2 = the 4kB of zeros, compressed with the dynamic Huffman tree after L1, then 
+enciphered.
+You do not know n, nor the actual sequence of bytes I have drawn, nor the 
+secret key. How do you do (I do not claim this is not possible although I 
+hope so, I just would like to understand) ?
 
-<khawar.chaudhry:amd.com>:
-  o Update amd8111 net driver
+>
+> The attacker could even look for the most common block (or the 100
+> most common blocks), do a dictionary attack on those and afterwards
+> guess if the plaintext is all zeros, all ones or something similar.
+I do not understand this assertion. What does "look for the most common bloc" 
+mean if you have no clue on which Huffman tree was used to encode them (all 
+Huffman trees are made equi-probable) ? In some of the trees, '0x0' => 
+'00000000', in some other trees '0x0' => '0011', in some others, it gets 
+'00011110100100', etc.
 
-<kirillx:7ka.mipt.ru>:
-  o Fix potential memory leak in devpts
-  o Fix potential memory access to free memory in /proc handling
+>
+> > b) the attacker does not know (?) where the real data starts in the
+> > enciphered stream, since Huffman is variable-length.
+>
+> What if the known plaintext is all zeros and compressed known
+> plaintext is longer than two encryption blocks?  There will be one
+> block containing only compressed zeros.
+OK, maybe I should have made clear that the drawing of random bytes is to be 
+done _at the beginning of each and every block_ (as is done in 
+http://jsam.sourceforge.net).
 
-<lkml:lievin.net>:
-  o tipar char driver (divide by zero)
+> > c) it is sufficient to ensure that not (p >> n). This is easily
+> > satistifed if the expectation of n is in the order of one block size,
+> > since at most p < block_size.
+>
+> Block_size is confusing.  Encryption block?  Compression block?
+Sorry about that: I meant plain data block (ie your 4kB of real data).
+This will be written to 5kB of data or so : about 1kB of random bytes, then 
+the data (possibly compressed), everything being encrypted at the end.
 
-<maragato:gmx.net>:
-  o Add ATI IGP 345M rev2 ID's
+> Either way, even with p << n, you end up with, at most, 512 different
+> encodings for a zero.  Again, 2, 4 or 8 are much more realistic.
+I fail to understand this: assume I want to encode one huge 4GB file full of 
+zeros. This will lead to 10^6 blocks of size 4kB. On writing each block will 
+be preceeded by its own sequence of random bytes, thus have its own uniformly 
+drawn Huffman encoding. Thus the data feed to the cipher will be different 
+for each block. What have I missed ?
 
-<mhf:linuxmail.org>:
-  o Update codingstyle to 2.6 level
+>
+> > Could you detail what you mean with statistical encoding ? Thank you in
+> > advance, Guillaume.
+>
+> Sorry, I meant arithmetical encoding.  Statistical is the superset for
+> huffman (discrete) and arithmetic (continuous).
+>
+> http://dogma.net/markn/articles/arith/part1.htm
+Thank you for the link.
+The idea to use a partition of (0,1) to represent codes is that of Kraft; so 
+is the idea to use a real number range to represent the code. However the 
+remark that inside such a range (e.g. [0.43046721  ; 0.4782969[ ) , there are
+numbers that have a low Kolmogorov complexity (eg. 0.45) is neat, though.
 
-<sezero:superonline.com>:
-  o megaraid2 compilation fix
+But whatever happens, the optimal length of the encoding will be exactly equal 
+to the total entropy of the message, up to a constant of 1. (see Li and 
+Vitanyi, and Introduction to Kolmogorov complexity, Th. 1.11.2 p 75).
 
-<tmattox:engr.uky.edu>:
-  o [netdrvr tulip] add MII support for Comet chips
+It can happen than arithmetic encoding comes closer to the optimal encoding 
+than Huffman, but I fail to understand why this should always be the case.
 
-<vda:port.imtp.ilyichevsk.odessa.ua>:
-  o gcc3 does not inline some functions
+But it holds for sure that Huffman encoding, especially adaptive, will _not_ 
+always achieve it either.
+>
+> Jörn
+>
+> PS: To shorten this endless story, all you're trying to accomplish to
+> avoid dictionary attack on known plaintext.  Those attack are
+> meaningless, as long as the encryption key is strong enough.  So
+> use a true random key end be done with it.
+Could you please point me to the relevant litterature on this subject ? I have 
+read the NIST-AES site on this question, but still: if the entropy of the 
+plain text is low, the entropy of the encoded text _will_ be low. I believe 
+entropy is an orthogonal concept. And the lower the entropy, the higher the 
+information. Wether dividing the search space by 4 leads to any practicable 
+speed up in the key search is another matter I believe you. But if I can 
+prevent it alltogether in the first place, why not ?
 
-Atul Mukker:
-  o megaraid2 driver version 2.10.3
+>
+> And if you care about usability as well, store the key along with the
+> encrypted data, but encrypt the key with the digest of a simple
+> password.  That is prone to dictionary attacks, but since it only
+> encrypts true random data (the real key), you're safe again.
+This is what SuSe has been doing for some time I believe. But this is just 
+another matter. I already assume that the key is random. However the known 
+text is not, and this is my whole problem.
 
-Chris Wright:
-  o e1000: fix probable security hole
-
-Don Fry:
-  o resync pcnet32.c with 2.6.x
-  o netdevice.h add netif_msg_init helper
-  o pcnet32 fix hang/crash with loopback test
-
-Ganesh Venkatesan:
-  o e100: NFS/TCO related Firmware update
-  o e100: change log + version update
-  o e100: use new API, SET_NETDEV_DEV, rx_bytes stat to include MAC header fix
-  o e1000: ethtool set/get ring param support
-  o e1000: backoff Tanacross missed interrupt workaround
-  o e1000: Changed E1000_COLLISION_THRESHOLD from 16 to 15
-  o e1000: use E1000_PBA_BYTES_SHIFT instead of E1000_TX_FIFO_SIZE
-  o e1000: remove polarity reversal workaround for forced 10H/10F links
-  o e1000: fix eeprom update to include e1000_standby_eeprom
-  o e1000: new bit definitions, fix comments
-  o e1000: ethtool set/get eeprom fixes
-  o e1000: use new API, SET_NETDEV_DEV, check register_netdev retval
-  o e1000: all other white space fixes, changelog
-  o e1000: Disable TSO - till TSO related Tx hangs are root caused/fixed
-  o e1000: msec_delay fix
-  o e1000: phy fix, and cleanup
-
-Jeff Garzik:
-  o [netdrvr 8139cp] trivial syncing with 2.6.x
-  o [netdrvr 8139cp] rearrange priv struct, add cacheline-align markers
-  o [netdrvr 8139cp] locking cleanups
-  o [NET] forward-compat definition of netdev_priv()
-  o [netdrvr 8139cp] minor cleanups
-  o [netdrvr 8139cp] use netdev_priv()
-  o [netdrvr 8139cp] complete 64-bit DMA (PCI DAC) support
-  o [netdrvr 8139cp] better dev->close() handling, and misc related stuff
-  o [netdrvr natsemi] correct DP83816 IntrHoldoff register offset
-  o [netdrvr tulip] remove ChangeLog file, we have BitKeeper logs now
-  o Add SATA support
-  o Add Promise SX8 SATA driver
-  o [netdrvr via-rhine] Fix MII phy scanning bug, whitespace cleanups
-
-Marcelo Tosatti:
-  o Herbert Xu: Delete unused drivers/sound/Hwmcode.h, drivers/sound/724hwmcode.h
-  o Cset exclude: loftin@ldl.fc.hp.com|ChangeSet|20040414205510|54931
-  o Changed EXTRAVERSION to 2.4.27-pre1
-  o Fix drmP.h fix typo
-
-Meelis Roos:
-  o Kaupo Arulo: only use set_max when it is present
-
-Paul Gortmaker:
-  o [netdrvr 8390] Fix 8390 log spam
-
-Pavel Roskin:
-  o Tulip endianess fix
-
-Pete Zaitcev:
-  o Improve USB printer locking
-  o More USB storage locking fixes
-
-Randy Dunlap:
-  o drmP.h doesn't need local cmpxchg() and __cmpxchg()
-
-Scott Feldman:
-  o Update MAINTAINERS with new e100/e100 maintainers
-
-Zwane Mwaikambo:
-  o fix module load with gcc3.3.3
+Thank you for your time, and feel free not to answer if you feel bored ...
+Guillaume.
 

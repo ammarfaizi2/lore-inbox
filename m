@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbVBCKsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262949AbVBCKs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262941AbVBCKsg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 05:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbVBCKpd
+	id S262949AbVBCKs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 05:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVBCKrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 05:45:33 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:43959 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262881AbVBCKna (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 05:43:30 -0500
-Date: Thu, 3 Feb 2005 11:45:02 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Daniele Venzano <webvenza@libero.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050203104501.GC3144@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Daniele Venzano <webvenza@libero.it>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050202155403.GE3117@crusoe.alcove-fr> <51cfdfdc084037ae1e3f164b0c524abc@libero.it>
+	Thu, 3 Feb 2005 05:47:52 -0500
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:50067 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262933AbVBCKrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 05:47:24 -0500
+Subject: Re: 2.6.10: kswapd spins like crazy
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Terje =?ISO-8859-1?Q?F=E5berg?= <terje_fb@yahoo.no>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050203102915.61551.qmail@web51602.mail.yahoo.com>
+References: <20050203102915.61551.qmail@web51602.mail.yahoo.com>
+Content-Type: text/plain; charset=utf-8
+Date: Thu, 03 Feb 2005 21:47:09 +1100
+Message-Id: <1107427629.5611.13.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <51cfdfdc084037ae1e3f164b0c524abc@libero.it>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 10:47:58PM +0100, Daniele Venzano wrote:
-
-> Il giorno 02/feb/05, alle 16:54, Stelian Pop ha scritto:
+On Thu, 2005-02-03 at 11:29 +0100, Terje Fåberg wrote:
+> I recently upgraded my desktop from 2.4.28 to
+> 2.6.10. Even under moderate memory pressure kswapd
+> regularly eats almost all available cpu time 
+> whenever there is a little more IO throughput,
+> like copying large files. The system is extremely
+> sluggish during this. The system load goes up to 
+> 7.5 or more.
+>  
+> This is a Pentium3-866 with 768MB RAM, 2x1GB 
+> swap partitions, vanilla 2.6.10. The strange 
+> behaviour starts at about 200 MB of swap in use.
+> 2.4.28 masters the same workload without any
+> problems.
 > 
-> >Hi,
-> >
-> >I've played lately a bit with Subversion and used it for managing
-> >the kernel sources, using Larry McVoy's bk2cvs bridge and Ben Collins'
-> >bkcvs2svn conversion script.
+> vmstat:
+> procs -----------memory---------- 
+>  r  b   swpd   free   buff  cache
+>  6  1 428012   4868  33236 347184
+> ---swap-- -----io---- --system-- ----cpu----
+>  si   so    bi    bo   in    cs us sy id wa
+>  10    7   147   120  108   111 19 10 68  3
 > 
-> Really useful, thanks !
-> I'm using svn to manage a very small part of the kernel tree (2 files). 
-> It is difficult to keep in sync with mainstream development without 
-> having to fetch and keep huge amounts of data (this regardless of the 
-> version control system used).
+> Is there anything I can do to track this down?
+> 
 
-Indeed. As I put it in the howto, the SVN repository is about 900 MB
-(but I think it can be less when using svn's fsfs storage backend,
-I must test this...), plus 600 MB per working copy.
+Can you post about 10 seconds of `vmstat 1` output
+while this is happening?
 
-There is not much anybody can do about this.
+Also:
+`cat /proc/vmstat > pre ; sleep 10 ; cat /proc/vmstat > post`
+while this is happening, and send the pre and post files.
 
-> For now I'm keeping the latest stable 2.6 release of the files I need 
-> in the svn repo, then when I need to sync with the rest of the world, I 
-> get the latest -bk patch and see if there are some related changes. If 
-> so, I create a new branch, apply the -bk patch (only the interesting 
-> part) and then apply my modifications on top of that.
+cat /proc/meminfo also might be helpful.
 
-With the 'full' svn solution you lose some storage space but you
-gain in time. The above steps are automatic and you don't have to
-bother looking at the changes, decide if it matters or not, etc.
+And compile a kernel with "magic sysrq" support, and get a
+couple of Alt+SysRq+M dumps (the output will be in dmesg).
 
-> That still means I have to download usually a >1MB compressed file for 
-> ~60KB of interesting (uncompressed) data, but that is still much better 
-> than the gigabytes of network traffic needed for a full kernel tree and 
-> up to date working copies.
+Thanks,
+Nick
 
-I think you end up with pretty much the same network traffic in both
-cases (svn or linux.tar.gz + bk patches). The only difference is the
-storage cost.
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+

@@ -1,22 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264541AbUEYDuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264569AbUEYEAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264541AbUEYDuf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 23:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbUEYDue
+	id S264569AbUEYEAS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 00:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264560AbUEYEAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 23:50:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56499 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264541AbUEYDub (ORCPT
+	Tue, 25 May 2004 00:00:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38329 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264543AbUEYEAL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 23:50:31 -0400
-Date: Mon, 24 May 2004 20:50:28 -0700 (PDT)
+	Tue, 25 May 2004 00:00:11 -0400
+Date: Mon, 24 May 2004 21:00:02 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-In-Reply-To: <1085439926.951.971.camel@cube>
-Message-ID: <Pine.LNX.4.58.0405242044260.32189@ppc970.osdl.org>
-References: <1085439926.951.971.camel@cube>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@kvack.org>,
+       linux-mm@kvack.org, Architectures Group <linux-arch@vger.kernel.org>
+Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
+In-Reply-To: <20040525034326.GT29378@dualathlon.random>
+Message-ID: <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
+References: <1085369393.15315.28.camel@gaston> <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
+ <1085371988.15281.38.camel@gaston> <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
+ <1085373839.14969.42.camel@gaston> <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
+ <20040525034326.GT29378@dualathlon.random>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,29 +31,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 24 May 2004, Albert Cahalan wrote:
+On Tue, 25 May 2004, Andrea Arcangeli wrote:
 > 
-> The wordy mix-case aspect is kind of annoying, and for
-> all that we don't get to differentiate actions.
+> The below patch should fix it, the only problem is that it can screwup
+> some arch that might use page-faults to keep track of the accessed bit,
 
-I actually really really don't want to differentiate actions. There's 
-really no reason to try to separate things out, and quite often the 
-actions are mixed anyway. Besides, if they all end up having the same 
-technical meaning ("I have the right to pass on this patch") having 
-separate flags is just sure to confuse the process.
+Indeed. At least alpha does this - that's where this code came from. SO 
+this will cause infinite page faults on alpha and any other "accessed bit 
+in software" architectures.
 
-So what I want is something _really_ simple. Something that is
-unambigious, and cannot be confused with something else. And in
-particular, I want that sign-off line to be "strange" enough that there is
-no possibility of ever writing that line by mistake - so that it is clear 
-that the only reason anybody would write something like "Signed-off-by:" 
-is because it meant _that_ particular thing.
+Not good.
 
-In contrast, your suggestion of "modified:" is something that people might 
-actually write when they write a changelog entry. 
+I suspect we should just make a "ptep_set_bits()" inline function that 
+_atomically_ does "set the dirty/accessed bits". On x86, it would be a 
+simple
 
-One reason for uniqueness is literally for automatic parsing - having 
-scripts that pick up on this, and send ACK messages, or do statistics on 
-who patches tend to go through etc etc. 
+		asm("lock ; orl %1,%0"
+			:"m" (*ptep)
+			:"r" (entry));
+
+and similarly on most other architectures it should be quite easy to do 
+the equivalent. You can always do it with a simple compare-and-exchange 
+loop, something any SMP-capable architecture should have.
+
+Of course, arguably we can actually optimize this by "knowing" that it is
+safe to set the dirty bit, so then we don't even need an atomic operation,
+we just need one atomic write.  So we only actually need the atomic op for 
+the accessed bit case, and if we make the write-case be totally separate..
+
+Anybody willing to write up a patch for a few architectures? Is there any 
+architecture out there that would have a problem with this?
 
 		Linus

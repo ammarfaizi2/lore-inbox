@@ -1,153 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266100AbTLIShW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 13:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266102AbTLIShW
+	id S266057AbTLISf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 13:35:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266102AbTLISf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 13:37:22 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:17801 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S266100AbTLISff convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 13:35:35 -0500
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [ACPI] ACPI global lock macros
-Date: Tue, 9 Dec 2003 10:20:56 -0800
-Message-ID: <F760B14C9561B941B89469F59BA3A8470255EFB3@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] ACPI global lock macros
-Thread-Index: AcO+NhAn90EkHop3QQepOQrPAtVYOgASF6+A
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Paul Menage" <menage@google.com>
-Cc: <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 09 Dec 2003 18:20:57.0103 (UTC) FILETIME=[308BC1F0:01C3BE81]
+	Tue, 9 Dec 2003 13:35:28 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:6865 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S266057AbTLISfL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 13:35:11 -0500
+Subject: Re: Kernelpanic in 2.43
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Ulrich Mensfeld <koalasoft@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8zZPc72uGbB@koalasoft>
+References: <8zZPc72uGbB@koalasoft>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fyR8KEd66WlY7m1iCHkH"
+Message-Id: <1070994906.813.18.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Dec 2003 19:35:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul,
 
-Len Brown (len.brown@intel.com) is now the guy for ACPI patch
-submissions, but let me just comment that historically this was a "get
-it working and leave it alone" area, so if you've found potential bugs
-and fixed them, then great.
+--=-fyR8KEd66WlY7m1iCHkH
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-BTW, i386, x86_64 and ia64 all have this macro, so these all might need
-to be looked at.
+On Tue, 2003-12-09 at 01:00, Ulrich Mensfeld wrote:
+> Hallo,
+> don't know, whom to adress.
+>=20
+> I've following problem: Every Linux-Kernel above 2.4.22 crashes with =20
+> capslock and scrolllock blinking, nothing in the message-log, and all i =20
+> can do is magic-sysreq and boot.
+>=20
+> The problem seems to be reproducable: It seems to occur, when my son want=
+s =20
+> to use my pc as a router to the internet. So for detail:
+>=20
+> My pc acts as a dsl-router  on "half"demand with packtfiltering and masq =
+=20
+> (ipchains) for 2 windows-pcs.
+> "Half"demand means, my son has to make a "ping 10.0.0.2" to open an =20
+> outgoing connection, to prevent a bunch of windows tools opening unwanted=
+ =20
+> connections using "DoD".
 
-Regards -- Andy
+This is a known bug :(
 
-PS the question that Arjan brought up about why ACPI needs its own lock
-has come up before. Maybe we should add this reason to the comment above
-these macros in include/asm-*/acpi.h.
+you have three choices:
 
-> -----Original Message-----
-> From: acpi-devel-admin@lists.sourceforge.net 
-> [mailto:acpi-devel-admin@lists.sourceforge.net] On Behalf Of 
-> Paul Menage
+1. Switch to iptables instead of ipchains.
 
-> Hi Andy,
-> 
-> The ACPI_ACQUIRE_GLOBAL_LOCK() macro in 
-> include/asm-i386/acpi.h looks a 
-> little odd:
-> 
-> #define ACPI_ACQUIRE_GLOBAL_LOCK(GLptr, Acq) \
->      do { \
->          int dummy; \
->          asm("1:     movl (%1),%%eax;" \
->              "movl   %%eax,%%edx;" \
->              "andl   %2,%%edx;" \
->              "btsl   $0x1,%%edx;" \
->              "adcl   $0x0,%%edx;" \
->              "lock;  cmpxchgl %%edx,(%1);" \
->              "jnz    1b;" \
->              "cmpb   $0x3,%%dl;" \
->              "sbbl   %%eax,%%eax" \
->              :"=a"(Acq),"=c"(dummy):"c"(GLptr),"i"(~1L):"dx"); \
->      } while(0)
-> 
-> 
-> When compiled, it results in:
-> 
->   266:   mov    0x0,%ecx
->                          268: R_386_32   acpi_gbl_common_fACS
->   26c:   mov    (%ecx),%eax
->   26e:   mov    %eax,%edx
->   270:   and    %ecx,%edx
->   272:   bts    $0x1,%edx
->   276:   adc    $0x0,%edx
->   279:   lock cmpxchg %edx,(%ecx)
->   27d:   jne    26c <acpi_ev_acquire_global_lock+0x2f>
->   27f:   cmp    $0x3,%dl
->   282:   sbb    %eax,%eax
-> 
-> So at location 270 we mask %edx with %ecx, which is the 
-> address of the 
-> global lock. Unless the global lock is aligned on a 2-byte but not 
-> 4-byte boundary, which seems a little unlikely, then this is going to 
-> clear both the owned and the pending bits in %edx, so we'll 
-> always think 
-> that the lock is not owned. Shouldn't the andl be masking 
-> with %3 (which 
-> is initialised as ~1) rather than %2 (the address of the lock)?
-> 
-> Given the comments above the definition, I'm guessing that 
-> the "dummy" 
-> parameter was added later for some reason (to tell gcc that ecx would 
-> get clobbered? - but it doesn't seem to be clobbered), and 
-> the parameter 
-> substitutions in the asm weren't updated. Unless I'm missing 
-> something 
-> fundamental, shouldn't the definition be something more like this:
-> 
-> 
-> #define ACPI_ACQUIRE_GLOBAL_LOCK(GLptr, Acq) \
->      do { \
->          asm volatile("1:movl   (%1),%%eax;" \
->              "movl   %%eax,%%edx;" \
->              "andl   %2,%%edx;" \
->              "btsl   $0x1,%%edx;" \
->              "adcl   $0x0,%%edx;" \
->              "lock;  cmpxchgl %%edx,(%1);" \
->              "jnz    1b;" \
->              "cmpb   $0x3,%%dl;" \
->              "sbbl   %0,%0" \
->              :"=r"(Acq):"r"(GLptr),"i"(~1L):"dx", "ax"); \
->      } while(0)
-> 
-> which compiles to:
-> 
->   2e5:   mov    0x0,%ecx
->                          2e7: R_386_32   acpi_gbl_common_fACS
->   2eb:   mov    (%ecx),%eax
->   2ed:   mov    %eax,%edx
->   2ef:   and    $0xfffffffe,%edx
->   2f2:   bts    $0x1,%edx
->   2f6:   adc    $0x0,%edx
->   2f9:   lock cmpxchg %edx,(%ecx)
->   2fd:   jne    2eb <acpi_ev_acquire_global_lock+0x37>
->   2ff:   cmp    $0x3,%dl
->   302:   sbb    %cl,%cl
-> 
-> 
-> which is identical to the ACPI spec reference implementation, 
-> apart from 
-> returning the result in %cl rather than %al (since we're cleanly 
-> separating clobbered registers from input/output params, and 
-> letting gcc 
-> choose the param registers).
-> 
-> Alternatively it could be defined in C (as in ia64) which 
-> would reduce 
-> the likelihood of asm bugs. (Although it wouldn't be safe to use 
-> __cmpxchg(), as that uses LOCK_PREFIX which is empty on UP, 
-> rather than 
-> an explicit "lock").
-> 
-> ACPI_RELEASE_GLOBAL_LOCK(), and the x86_64 variants of these, seem to 
-> have similar issues.
+2. Use 2.4.23-bk instead.
+
+3. Apply the patch below.
+
+--- linux.old/net/ipv4/netfilter/ip_fw_compat_masq.c	2002-11-29 05:22:53.00=
+0000000 +0530
++++ linux/net/ipv4/netfilter/ip_fw_compat_masq.c	2003-12-04 14:54:06.000000=
+000 +0530
+@@ -91,9 +91,6 @@
+ 			WRITE_UNLOCK(&ip_nat_lock);
+ 			return ret;
+ 		}
+-
+-		place_in_hashes(ct, info);
+-		info->initialized =3D 1;
+ 	} else
+ 		DEBUGP("Masquerading already done on this conn.\n");
+ 	WRITE_UNLOCK(&ip_nat_lock);
+
+--=20
+/Martin
+
+--=-fyR8KEd66WlY7m1iCHkH
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/1hXaWm2vlfa207ERAkaAAKCx40Mhtk+3HKzk51+shbpA9f1ftQCeLh3q
+/VCPP9ncPZVYn7GNxEjKVio=
+=gk1A
+-----END PGP SIGNATURE-----
+
+--=-fyR8KEd66WlY7m1iCHkH--

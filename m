@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264279AbTFPUn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 16:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbTFPUn6
+	id S264292AbTFPUq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 16:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264281AbTFPUqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 16:43:58 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:9635 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264279AbTFPUm2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 16:42:28 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: Joe Thornber <thornber@sistina.com>
-Subject: [PATCH] DM: 2.5.71: dm-ioctl.c: Unregister with devfs before renaming the device
-Date: Mon, 16 Jun 2003 15:53:56 -0500
-User-Agent: KMail/1.5
-Cc: DevMapper <dm-devel@sistina.com>, LKML <linux-kernel@vger.kernel.org>
+	Mon, 16 Jun 2003 16:46:25 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:59564 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264292AbTFPUqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 16:46:21 -0400
+Message-ID: <3EEE2FD4.6060207@nortelnetworks.com>
+Date: Mon, 16 Jun 2003 17:00:04 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: is it expected behaviour to receive one's own broadcast messages?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306161553.57000.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unregister the previous name from devfs before renaming the device.
 
-DM originally stored a devfs handle in the hash-cell, and performed the 
-unregister based on that handle. These devfs handles have since been removed,
-and devices are registered and unregistered simply based on their names. So
-the device now needs to be unregistered before we lose the name.
+I have an app that is sending out broadcast messages to the local network using 
+255.255.255.255.  It is registered for INADDR_ANY.  The thing that seems strange 
+is that it receives a copy of every packet that it sends out.  Is this expected?
 
-See the following BK change for more details:
-http://linux.bkbits.net:8080/linux-2.5/diffs/drivers/md/dm-ioctl.c@1.6?nav=index.html|src/|src/drivers|src/drivers/md|hist/drivers/md/dm-ioctl.c
+The kernel is 2.4.18.
 
---- linux-2.5.71a/drivers/md/dm-ioctl.c	16 Jun 2003 18:14:56 -0000
-+++ linux-2.5.71b/drivers/md/dm-ioctl.c	16 Jun 2003 20:20:05 -0000
-@@ -297,13 +297,14 @@
- 	/*
- 	 * rename and move the name cell.
- 	 */
-+	unregister_with_devfs(hc);
-+
- 	list_del(&hc->name_list);
- 	old_name = hc->name;
- 	hc->name = new_name;
- 	list_add(&hc->name_list, _name_buckets + hash_str(new_name));
- 
- 	/* rename the device node in devfs */
--	unregister_with_devfs(hc);
- 	register_with_devfs(hc);
- 
- 	up_write(&_hash_lock);
+Thanks,
 
+Chris
 
 -- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: 
+cfriesen@nortelnetworks.comnetdev@oss.sgi.comnetdev@oss.sgi.com
 

@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274614AbRITTA1>; Thu, 20 Sep 2001 15:00:27 -0400
+	id <S274615AbRITTAJ>; Thu, 20 Sep 2001 15:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274612AbRITTAH>; Thu, 20 Sep 2001 15:00:07 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:29940 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274615AbRITS7s>;
-	Thu, 20 Sep 2001 14:59:48 -0400
-Date: Thu, 20 Sep 2001 20:59:42 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010920205942.V729@athlon.random>
-In-Reply-To: <20010920201832.M729@athlon.random> <Pine.GSO.4.21.0109201418450.3498-100000@weyl.math.psu.edu>
+	id <S274618AbRITTAG>; Thu, 20 Sep 2001 15:00:06 -0400
+Received: from alcove.wittsend.com ([130.205.0.20]:15519 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S274612AbRITS7h>; Thu, 20 Sep 2001 14:59:37 -0400
+Date: Thu, 20 Sep 2001 14:59:50 -0400
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+Cc: "steve j. kondik" <shade@chemlab.org>, Jens Axboe <axboe@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: encrypted swap on loop in 2.4.10-pre12?
+Message-ID: <20010920145950.I16647@alcove.wittsend.com>
+Mail-Followup-To: Jari Ruusu <jari.ruusu@pp.inet.fi>,
+	"steve j. kondik" <shade@chemlab.org>, Jens Axboe <axboe@suse.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1000912739.17522.2.camel@discord> <3BA907F6.3586811C@pp.inet.fi> <20010920081353.H588@suse.de> <3BA9DC30.DA46A008@pp.inet.fi> <20010920142555.B588@suse.de> <1000991848.569.1.camel@discord> <3BAA21B1.B579D368@pp.inet.fi> <1001006425.1498.9.camel@discord> <3BAA2D7F.DBBCFC8C@pp.inet.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0109201418450.3498-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Sep 20, 2001 at 02:33:34PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <3BAA2D7F.DBBCFC8C@pp.inet.fi>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20, 2001 at 02:33:34PM -0400, Alexander Viro wrote:
-> 
-> 
-> On Thu, 20 Sep 2001, Andrea Arcangeli wrote:
-> 
-> > > > +				truncate_inode_pages(rd_inode[minor]->i_mapping, 0);
-> > > >  				rd_inode[minor] = NULL;
-> > > >  				rd_blocksizes[minor] = rd_blocksize;
-> > > > +			unlock:
-> > > >  				up(&bdev->bd_sem);
-> > > 
-> > > Now think what happens if you go through that code twice.  What argument will
-> > > be passed to iput() the second time you call it?
-> > 
-> > the second time we won't go through that code.
-> 
-> IOW, subsequent calls of ioctl(fd, BLKFLSBUF) will not work.  Which is
-> better than oopsing, but doesn't look right.
+On Thu, Sep 20, 2001 at 08:55:11PM +0300, Jari Ruusu wrote:
+> "steve j. kondik" wrote:
+> > hmm?  both cryptoapi and loop-aes work just fine when encrypting
+> > anything but swap.  this is _only_ with kernel 2.4.10-pre12.  i would
+> > suspect something changed that breaks swap on loopdev in general in this
+> > kernel.
 
-The second call will do the work if there's something to do. If somebody
-did an open/read/writes/close in the middle, it should do the work as
-usual. I actually can see a problem if you use the different inodes, but
-that will be sorted out too automatically as soon as we stop pinning the
-inodes.
+> loop-AES encrypted swap works just fine on 2.4.10-pre12, see:
 
-> Question: why the hell do we bother with iput() and decrementing counters
-> at all?
+	But that's only your system.  He obvious has a counter example
+(which may not be the fault of loop-AES, but something else, that has
+yet to be determined).  So the two of you are now reduced to figuring
+out why his is broken as yours is not.  Standard debugging situation.
 
-Yes, that part should be rewritten using the bdev as you did recently,
-the ipinning of the ramdisk also in the previous 2.4 kernels (before
-your recent patch) had the same problem of my ipinning in the blkdev
-highlevel (it looked only a cleanup but it wasn't).
+> # uname -a
+> Linux debian 2.4.10-pre12 #1 Thu Sep 20 20:15:08 EEST 2001 i686 unknown
+> # vmstat 
+>    procs                      memory    swap          io     system         cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+>  0  0  1   4708   2708   1824  12856  19  28   682   623  223   119   5  74  21
+> # swapon -s
+> Filename                        Type            Size    Used    Priority
+> /dev/loop6                      partition       191512  4704    -1
+> # losetup /dev/loop6
+> /dev/loop6: [0301]:170184 (/dev/hda2) offset 0, AES encryption
 
-Andrea
+> Regards,
+> Jari Ruusu <jari.ruusu@pp.inet.fi>
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+

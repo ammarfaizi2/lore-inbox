@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262859AbUCJWRn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 17:17:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbUCJWRn
+	id S262865AbUCJWSr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 17:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbUCJWSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 17:17:43 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:17868 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S262859AbUCJWRk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 17:17:40 -0500
-Date: Wed, 10 Mar 2004 23:17:40 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for testing] cow behaviour for hard links
-Message-ID: <20040310221740.GA7357@wohnheim.fh-wedel.de>
-References: <20040310193429.GB4589@wohnheim.fh-wedel.de> <20040310213427.GB7341@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040310213427.GB7341@mail.shareable.org>
-User-Agent: Mutt/1.3.28i
+	Wed, 10 Mar 2004 17:18:47 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:56756 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S262865AbUCJWRr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 17:17:47 -0500
+Message-ID: <404F949E.1020905@blue-labs.org>
+Date: Wed, 10 Mar 2004 17:20:14 -0500
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040310
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: root@chaos.analogic.com, "Randy.Dunlap" <rddunlap@osdl.org>,
+       "Godbole, Amarendra (GE Consumer & Industrial)" 
+	<Amarendra.Godbole@ge.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos> <404F6375.3080500@blue-labs.org> <20040310212942.GB31500@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040310212942.GB31500@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 March 2004 21:34:27 +0000, Jamie Lokier wrote:
-> 
-> I like the idea!
+I won't.  I didn't say anything against inability to preserve line 
+boundaries.  I was, and am, referring to linear text and letting the end 
+user reflow that text to suit his or her preferences.
 
-Thanks!
+viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-> I keep many hard-linked kernel trees, and local version management is
-> done by "cp -rl" to make new trees and then change a few files in
-> those trees, compile, test etc.  To prevent changes in one tree
-> accidentally affecting other trees, I "chmod -R a-r" all but the tree
-> I'm currently working on.
-> 
-> Thats works quite nicely, but it'd be even nicer to not need the
-> "chmod", and just be confident that writes won't clobber files in
-> another tree by accident.
-
-Same here, that was my main motivation.  Ultimately I'd like to see a
-lot of SCM functionality inside regular filesystems and this is just
-the first step.
-
-Jörn
-
--- 
-Good warriors cause others to come to them and do not go to others.
--- Sun Tzu
+>Kindly piss off.  My mail reading software uses vi(1) to compose the
+>reply and has enough sense to preserve the line boundaries.
+>  
+>

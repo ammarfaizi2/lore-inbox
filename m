@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315374AbSEBTW6>; Thu, 2 May 2002 15:22:58 -0400
+	id <S315372AbSEBTWm>; Thu, 2 May 2002 15:22:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315375AbSEBTW5>; Thu, 2 May 2002 15:22:57 -0400
-Received: from mcewen.wcnet.org ([63.174.200.22]:51611 "EHLO mcewen.wcnet.org")
-	by vger.kernel.org with ESMTP id <S315374AbSEBTW4>;
-	Thu, 2 May 2002 15:22:56 -0400
-Date: Thu, 2 May 2002 15:24:09 -0400 (EDT)
-From: <skmail@mcewen.wcnet.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel strangeness
-Message-ID: <Pine.LNX.4.33.0205021516240.4418-100000@mcewen.wcnet.org>
+	id <S315374AbSEBTWj>; Thu, 2 May 2002 15:22:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65293 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315372AbSEBTWf>;
+	Thu, 2 May 2002 15:22:35 -0400
+Message-ID: <3CD191C5.AC09B1F4@zip.com.au>
+Date: Thu, 02 May 2002 12:21:41 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel Pittman <daniel@rimspace.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.12 severe ext3 filesystem corruption warning!
+In-Reply-To: <87u1pqln4h.fsf@enki.rimspace.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Pittman wrote:
+> 
+> I gave the 2.5.12 kernel a shot on my workstation tonight and found an
+> *extremely* serious ext3 filesystem corrupting behavior.
 
-Hi all-
+A few things..
 
-I am trying to create a RH 7.2 based system that will run on a read only 
-32 meg flash disk.  It is going on a Soekris Net4501 board, which has 3 
-ethernets, 64 meg memory, and an AMD Elan SC520.  I loaded the flash disk 
-on a full install of RH 7.2.  Custom compiled the kernel for no modules, 
-for an i386 architecture.  It works fine on the desktop system I used to 
-load it, but when I put it on the net4501,  Lilo loads, starts loading the 
-kernel, then it hangs.  The last message on the screen is Freeing unused 
-kernel memory.  I also downloaded the latest 2.4.19-pre7, compiled it for 
-the Elan processor, with no success.  Same thing happens.  
+Are your other filesystems using journalled data as well?
 
-I'm not sure what the kernel is looking for, why it stops at that 
-particular place.  Can anyone help?
+Are you sure that all kernel files were recompiled?  If,
+for example, you had some 2.5.11 objects in the link, that
+would be bad.
 
-TIA
+Do you know whether the bad data is actually on-disk, or
+could it be just in-RAM?  ie: was the data still bad after
+a reboot?
 
+What blocksize is that filesystem using?  The output of
+`dumpe2fs -h /dev/whatever' will tell you this.
+
+Can you please force an fsck against that filesystem,
+see what it says?
+
+Thanks. 
+
+-

@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269034AbTCAVgI>; Sat, 1 Mar 2003 16:36:08 -0500
+	id <S269041AbTCAVhY>; Sat, 1 Mar 2003 16:37:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269036AbTCAVgI>; Sat, 1 Mar 2003 16:36:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38661 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269034AbTCAVgH>;
-	Sat, 1 Mar 2003 16:36:07 -0500
-Message-ID: <3E612A27.2050200@pobox.com>
-Date: Sat, 01 Mar 2003 16:46:15 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Update to 2.5.x snapshots
-References: <3E60FAAB.1080007@pobox.com> <20030301211611.GA23874@finwe.eu.org>
-In-Reply-To: <20030301211611.GA23874@finwe.eu.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S269042AbTCAVhX>; Sat, 1 Mar 2003 16:37:23 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:53772 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S269041AbTCAVhV>;
+	Sat, 1 Mar 2003 16:37:21 -0500
+Date: Sat, 1 Mar 2003 13:38:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [BK PATCH] PCI hotplug changes for 2.5.63
+Message-ID: <20030301213853.GA1975@kroah.com>
+References: <20030228235947.GA29946@kroah.com> <Pine.LNX.4.44.0303011053310.16800-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303011053310.16800-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jacek Kawa wrote:
-> Jeff Garzik wrote:
+On Sat, Mar 01, 2003 at 10:55:50AM -0800, Linus Torvalds wrote:
 > 
+> On Fri, 28 Feb 2003, Greg KH wrote:
+> > 
+> > I've merged with your latest tree again, and it's available at the above
+> > place.  Could you please pull these changes?
 > 
->>Old 2.5.x BK snapshots on kernel.org are now moved into the "old" 
->>sub-directory, instead of being deleted.
->>
->>The script change is untested... so yell at me if things break when 
->>Linus releases 2.5.64.
+> This causes
 > 
+> 	drivers/built-in.o(.text+0xedc7e): In function `cb_free':
+> 	: undefined reference to `pci_remove_device'
+> 	make: *** [.tmp_vmlinux1] Error 1
 > 
-> It may not be related, but  
-> http://www.kernel.org/pub/linux/kernel/v2.4/testing/cset/
-> has "BitKeeper patches since v2.4.21-pre4: 354 Changesets"
-> (not latest -pre).
+> Ehh?
+
+Oops, looks like Russell and I didn't test on a cardbus machine :)
+I've made the following change to the repository, so you can just pull
+it if you want to (from bk://kernel.bkbits.net/gregkh/linux/pci-2.5 ) or
+you can just apply this patch.
+
+It looks right to me, but I don't have a working cardbus machine at the
+moment, so I can't test it, sorry.
+
+Again, sorry about this.
+
+greg k-h
 
 
-Yep, I know :)
+# Cardbus: change cb_free to use pci_remove_device_safe()
 
-The point of nightly snapshots is more for users use and testing 
-purposes.  The csets are very useful for developers, but a bit of a 
-moving target for users.  If users are using the per-cset snapshots, 
-then it becomes a non-trivial chore to developers to track down exactly 
-what version of the kernel a problem is reported against.
-
-	Jeff
-
-
-
+diff -Nru a/drivers/pcmcia/cardbus.c b/drivers/pcmcia/cardbus.c
+--- a/drivers/pcmcia/cardbus.c	Sat Mar  1 13:49:27 2003
++++ b/drivers/pcmcia/cardbus.c	Sat Mar  1 13:49:27 2003
+@@ -313,7 +313,7 @@
+ 
+ 		s->cb_config = NULL;
+ 		for (i = 0 ; i < s->functions ; i++)
+-			pci_remove_device(&c[i].dev);
++			pci_remove_device_safe(&c[i].dev);
+ 
+ 		kfree(c);
+ 		printk(KERN_INFO "cs: cb_free(bus %d)\n", s->cap.cb_dev->subordinate->number);

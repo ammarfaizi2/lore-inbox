@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265939AbUAUMcx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 07:32:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUAUMcx
+	id S265935AbUAUM2f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 07:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265936AbUAUM2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 07:32:53 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:59008 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265939AbUAUMct (ORCPT
+	Wed, 21 Jan 2004 07:28:35 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:52352 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265935AbUAUM2c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 07:32:49 -0500
-Date: Wed, 21 Jan 2004 13:32:53 +0100
+	Wed, 21 Jan 2004 07:28:32 -0500
+Date: Wed, 21 Jan 2004 13:28:35 +0100
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andi Kleen <ak@suse.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: mouse configuration in 2.6.1
-Message-ID: <20040121123253.GA538@ucw.cz>
-References: <p73r7xwglgn.fsf@verdi.suse.de> <20040121043608.6E4BB2C0CB@lists.samba.org> <20040121132337.7f8d3c79.ak@suse.de>
+To: Evaldo Gardenali <evaldo@gardenali.biz>
+Cc: linux-kernel@vger.kernel.org, rddunlap@osdl.org
+Subject: Re: parkbd adapter
+Message-ID: <20040121122835.GA478@ucw.cz>
+References: <4008430C.9090101@gardenali.biz> <20040116133013.12fab7be.rddunlap@osdl.org> <400E60FA.6040806@gardenali.biz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040121132337.7f8d3c79.ak@suse.de>
+In-Reply-To: <400E60FA.6040806@gardenali.biz>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 21, 2004 at 01:23:37PM +0100, Andi Kleen wrote:
+On Wed, Jan 21, 2004 at 09:22:34AM -0200, Evaldo Gardenali wrote:
 
-> (brought to you by the department of redundancy department)
-> 
-> The "new" and "improved" version is apparently:
-> 
-> psmouse_base.psmouse_proto=bare
+> I *KNOW* how to google...
+> I actually just needeed *DOCUMENTATION* I can't find anywhere, and the
+> author seems to ignore my mails (or it goes to spam trash, or whatever
+> happens, the thing is I don't get a reply)
+> I wonder how useful is a piece of code present in millions of boxes if
+> virtually NOBODY knows how to use it. and it annoys me a bit that many
+> requested features are out of the kernel, but a feature that is in the
+> main tree is virtually useless (if its really useful, where's the link
+> for the docs?)
+> </rant>
+> sorry, but I feel frustrated with that
 
-2.6.2 will have it as:
+Your mail is still hanging in my inbox, and unfortunately I don't have
+the complete schematic for the parkbd adapter anywhere near me.
 
-psmouse.proto=bare
+I was hoping I could find it, but I suppose the following might be
+enough for you to build the adapter:
 
-which isn't that bad.
+It's really simple, just two diodes and two resistors in this
+arrangement:
 
-> And 2.6.0 -> 2.6.1 silently changing to that without any documentation
-> anywhere, silently breaking my mouse. And debugging it requires a lot
-> of reboots because we have regressed to Windows state where every
-> mouse setting change requires a reboot :-/
-> 
-> Sorry Rusty. You are probably the wrong target for the flame, but a
-> combination of probably well intended changes including module_parm
-> brought a total usability disaster here.
+            ______
++5V -------|______|--.
+                     |
+INPUT PIN -----------|
+		     |--- KBD PIN
+OUTPUT PIN ---|<|----'
 
-Keep prepared for yet another silent change (documentation _is_ getting
-updated, though). And I'll don my asbestos overall ...
+Now for KBD CLOCK you use STROBE and ACK pins on the parallel port and
+for KBD DATA you use AUTOFD and BUSY pins on the parallel port. I don't
+remember the value of the resistor used, but something like 5k should
+work OK. It's not completely necessary anyway.
+
+And then you'll also have to connect the keyboard +5V and GND pins. For
++5V you can either use the real keyboard or mouse connectors, get +5V
+from the joystick connector or from an external power supply.
 
 -- 
 Vojtech Pavlik

@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132871AbRDPHU4>; Mon, 16 Apr 2001 03:20:56 -0400
+	id <S132872AbRDPIQW>; Mon, 16 Apr 2001 04:16:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132872AbRDPHUr>; Mon, 16 Apr 2001 03:20:47 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16401 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S132871AbRDPHUm>; Mon, 16 Apr 2001 03:20:42 -0400
-Date: Mon, 16 Apr 2001 09:03:20 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: pavel@suse.cz,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Let init know user wants to shutdown
-Message-ID: <20010416090320.A29717@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <3AD5E518.3641B73A@uni-mb.si>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3AD5E518.3641B73A@uni-mb.si>; from david.balazic@uni-mb.si on Thu, Apr 12, 2001 at 07:25:44PM +0200
+	id <S132875AbRDPIQM>; Mon, 16 Apr 2001 04:16:12 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:252 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S132872AbRDPIQC>; Mon, 16 Apr 2001 04:16:02 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104160815.f3G8Fu9q000746@webber.adilger.int>
+Subject: Re: lilo + raid + kernel-2.4.x failure to boot
+To: Linux kernel development list <linux-kernel@vger.kernel.org>
+Date: Mon, 16 Apr 2001 02:15:56 -0600 (MDT)
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linas Vepstas writes:
+> BTW, I noticed that oddly, every time I ran lilo, and then ran
+> lilo -q -v -v, it reported different sector numbers for the kernel
+> images.  This freaked me out at first, but I came to accept it as normal:
+> doesn't affect bootability.  But is this really w.a.d? (I was assuming,
+> appearently erroneously, that lilo -q -v -v was reporting the physical
+> location of the kernel image on the disk; but since the numbers bounce
+> around, that can't be right.  Or is this just weird bios head/cyl/sect
+> math flakiness?)
 
-Hi!
+No, I noticed this behaviour as well.  You run "lilo -v 5" once you get
+one set of numbers, you run it a second time, you get another set of
+numbers.  It repeats every 2 lilo runs.  I believe it has something to
+do with the map file, and keeping a backup copy thereof.
 
-> > Init should get to know that user pressed power button (so it can do 
-> > shutdown and poweroff). Plus, it is nice to let user know that we can 
-> > read such event. [I hunted bug for few hours, thinking that kernel 
-> > does not get the event at all]. 
-> > 
-> > Here's patch to do that. Please apply, 
-> >                                                                 Pavel 
-> 
-> Isn't it better to just send the event to userspace , where
-> is it caught by apmd ( or whatever has replaced it ).
-> Then it can decide what to do about it, instead of dictating
-> a shutdown from kernel ( policy alert ;-) )
+Sorry, this doesn't help your RAID problem.
 
+Note, can you boot from one of the separate RAID drives with the Debian
+LILO directly?  Have you tried CHS, LBA32, and linear options to lilo?
 
-I'm not dictating policy: init is free to do anything it is configured
-to, including /sbin/apmd --button_came or echo "Don't you dare to
-plpress that button again".
-
-> 
-> 
-
+Cheers, Andreas
 -- 
-The best software in life is free (not shareware)!		Pavel
-GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVAZAhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVAZAgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262043AbVAZAhb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 19:37:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVAZAgx
+	id S262014AbVAZAgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 19:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVAZAeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 19:36:53 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:15325 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262270AbVAZAfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 19:35:45 -0500
-Date: Tue, 25 Jan 2005 16:34:29 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: john stultz <johnstul@us.ibm.com>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       Paul Mackerras <paulus@samba.org>, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <amax@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: [RFC][PATCH] new timeofday arch specific hooks (v. A2)
-In-Reply-To: <1106698655.1589.8.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0501251620100.27922@schroedinger.engr.sgi.com>
-References: <1106607089.30884.10.camel@cog.beaverton.ibm.com> 
- <1106607153.30884.12.camel@cog.beaverton.ibm.com>  <1106620134.15850.3.camel@gaston>
-  <1106694561.30884.52.camel@cog.beaverton.ibm.com>  <1106697227.5235.28.camel@gaston>
- <1106698655.1589.8.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Jan 2005 19:34:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27809 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262275AbVAZAcs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 19:32:48 -0500
+Date: Tue, 25 Jan 2005 16:32:47 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: akpm@osdl.org
+Cc: linux-audit@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] fix audit skb leak on congested netlink socket
+Message-ID: <20050125163247.N24171@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005, john stultz wrote:
+When auditd is congested the kernel's audit system leaks skb's.  First,
+it takes them off the audit_buffer sklist at which point they are lost,
+second, it allocates a new skb with 0 length payload.  Then (likely still
+congested), it repeats this losing the new skb.  Plug the leak by making
+sure to requeue the skb, and avoid audit_log_move() on 0 len audit_buffer.
 
-> Agreed. I'll get something like this done for the next release.
->
-> > Well, since it only contains the prescale and postscale offsets and the
-> > scaling value, it only needs to be updated when they change, so a hook
-> > here would be fine.
->
-> Great, thats what I was hoping.
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-I just hope that the implementation of one arch does not become a standard
-without sufficient reflection. Could we first get an explanation of
-the rationale of the offsets? From my viewpoint of the ia64 implementation
-I have some difficulty understanding why such complicated things as
-prescale and postscale are necessary in gettimeday and why the simple
-formula that we use in gettimeofday is not sufficient?
-
-Frankly, the direction that the design of the new time subsystem is
-taking is bothering me. Work on this on our part would just improve the
-situation from drastically worse performance to somewhat worse. So far I
-have not seen a benefit of moving away from the existing code base. For
-the project to make sense it needs at least to be evident that the design
-of the solution would lead to better timer performance in the long run.
-Conceptually that seems so far not to be possible.
-
-I'd love simplication of the timer subsystem through the use of
-nanosecond offsets. However, the POSIX api always has extra fields
-for seconds and nanoseconds and converting back and forth between the
-internal representation in 64bit nanoseconds and the POSIX structures may
-be another performance penalty since it involves divisions and remainder
-processing.
-
-What I think is a priority need is some subsystem that manages
-time sources effectively (including the ability of the ntp code to
-scale the appropriately) and does that in an arch independent
-way so that all the code can be consolidated. Extract the best existing
-solutions and work from there.
+===== kernel/audit.c 1.6 vs edited =====
+--- 1.6/kernel/audit.c	2005-01-20 20:56:04 -08:00
++++ edited/kernel/audit.c	2005-01-25 14:34:32 -08:00
+@@ -494,6 +494,10 @@ static void audit_log_move(struct audit_
+ 	char		*start;
+ 	int		extra = ab->nlh ? 0 : NLMSG_SPACE(0);
+ 
++	/* possible resubmission */
++	if (ab->len == 0)
++		return;
++
+ 	skb = skb_peek(&ab->sklist);
+ 	if (!skb || skb_tailroom(skb) <= ab->len + extra) {
+ 		skb = alloc_skb(2 * ab->len + extra, GFP_ATOMIC);
+@@ -535,6 +539,7 @@ static inline int audit_log_drain(struct
+ 		}
+ 		if (retval == -EAGAIN && ab->count < 5) {
+ 			++ab->count;
++			skb_queue_tail(&ab->sklist, skb);
+ 			audit_log_end_irq(ab);
+ 			return 1;
+ 		}

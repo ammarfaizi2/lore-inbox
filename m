@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315690AbSEIKff>; Thu, 9 May 2002 06:35:35 -0400
+	id <S315693AbSEIK4O>; Thu, 9 May 2002 06:56:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315691AbSEIKfe>; Thu, 9 May 2002 06:35:34 -0400
-Received: from c17997.eburwd3.vic.optusnet.com.au ([210.49.198.98]:30454 "HELO
-	satisfactory.karma") by vger.kernel.org with SMTP
-	id <S315690AbSEIKfd>; Thu, 9 May 2002 06:35:33 -0400
-Date: Thu, 9 May 2002 20:35:24 +1000
-From: Andrew Clausen <clausen@gnu.org>
-To: Kevin Corry <corryk@us.ibm.com>
-Cc: evms-devel@lists.sourceforge.net, evms-announce@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Evms-announce] [ANNOUNCE] EVMS Release 1.0.1
-Message-ID: <20020509103524.GC1137@gnu.org>
-In-Reply-To: <02050810181004.26176@boiler>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Accept-Language: en,pt
+	id <S315695AbSEIK4N>; Thu, 9 May 2002 06:56:13 -0400
+Received: from cm108.omega109.scvmaxonline.com.sg ([218.186.109.108]:24303
+	"EHLO lal.cablix.com") by vger.kernel.org with ESMTP
+	id <S315693AbSEIK4M>; Thu, 9 May 2002 06:56:12 -0400
+Date: Thu, 9 May 2002 19:02:08 +0800 (SGT)
+From: Ng Pek Yong <npy@mailhost.net>
+To: DervishD <raul@viadomus.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Slow harddisk
+In-Reply-To: <3CDA50CE.mail6SA113L7B@viadomus.com>
+Message-ID: <Pine.LNX.4.33.0205091900410.3354-100000@lal.cablix.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 08, 2002 at 10:18:10AM -0500, Kevin Corry wrote:
-> The EVMS team is announcing the next full release of the Enterprise Volume 
-> Management System. Package 1.0.1 is now available for download at the project 
-> web site:
-> http://www.sf.net/projects/evms
-> Version 1.0.1 is primarily minor bug fixes for the previous version (1.0.0), 
-> as noted below.
+On Thu, 9 May 2002, DervishD wrote:
+
+>     Hi, Ng :))
 > 
-> This release again contains an extra package for experimental File System 
-> Interface Module (FSIM) support. Along with the libparted-based FSIM, there 
-> is also a new JFS FSIM. The parted FSIM requires parted version 1.6.x, and 
-> the JFS FSIM requires version 1.0.9 or later of the JFS utilities.
+> > I/O support  =  3 (32-bit w/sync)
+> 
+>     Try w/o sync
+> 
+> > using_dma    =  0 (off)
+> 
+>     Enable dma
+> 
+>     This should increase the speed to normal levels.
+> 
+>     Raúl
+> 
 
-It would be nice if the jfs fsim linked against libjfs, rather than
-exec()ing mkfs & friends.
+It got worse ;)
 
-(mkfs should be a frontend of libjfs)
+(note: I can;t get dma to work; see below)
 
-Notice you have no error handling, etc. now?   Also, the "total system"
-seems more complicated now.  (For example: how are you going to
-interface the resizer, so you can find out the min/max sizes, etc?)
+# hdparm -X69 -d1 -u1 -c1 -m16 /dev/hde
 
-Also, while I'm at it: you didn't like my idea for interfacing
-the parted exception system with evms properly?  I even wrote the code
-for you (without testing it)... I didn't see a reply to my mail...
-you(s) didn't like it?
+/dev/hde:
+ setting 32-bit I/O support flag to 1
+ setting multcount to 16
+ setting unmaskirq to 1 (on)
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ setting xfermode to 69 (UltraDMA mode5)
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  0 (off)
+[root@lal root]# hdparm  -Tt /dev/hde
 
-BTW: what do you think of how libparted interfaces with libreiserfs?
-There has been a lot of work, and it has all been merged properly now.
-I think EVMS should do something similar.  Have a look in
-libparted/fs_reiserfs.
+/dev/hde:
+ Timing buffer-cache reads:   128 MB in  2.12 seconds = 60.38 MB/sec
+ Timing buffered disk reads:  64 MB in 24.37 seconds =  2.63 MB/sec
 
-Andrew
 

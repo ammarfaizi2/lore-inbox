@@ -1,88 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271471AbTGQOnc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 10:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271472AbTGQOnc
+	id S271473AbTGQOoo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 10:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271474AbTGQOoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 10:43:32 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:236 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S271471AbTGQOnS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 10:43:18 -0400
-Date: Thu, 17 Jul 2003 07:58:02 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Rory Browne <robro@frink.nuigalway.ie>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK Licence: Protocols and Research
-Message-ID: <20030717145802.GC24697@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Rory Browne <robro@frink.nuigalway.ie>,
-	linux-kernel@vger.kernel.org
-References: <20030717120505.GA22304@zion.nuigalway.ie>
-Mime-Version: 1.0
+	Thu, 17 Jul 2003 10:44:44 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:643 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S271473AbTGQOog
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 10:44:36 -0400
+Date: Thu, 17 Jul 2003 07:59:15 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 942] New: Mounting CIFS filesystem generates an oops
+Message-ID: <14330000.1058453955@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030717120505.GA22304@zion.nuigalway.ie>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With apologies to the list for the off topic post (I'm really trying to
-not annoy you guys but some stuff we can't let slide due to legalities).
+http://bugme.osdl.org/show_bug.cgi?id=942
 
-On Thu, Jul 17, 2003 at 01:05:05PM +0100, Rory Browne wrote:
-> Would the conduction of research(and publication of results of same) on 
-> the bitkeeper formats/protocols, preclude users from using the Free version 
-> of Bitkeeper, for the research project?
+           Summary: Mounting CIFS filesystem generates an oops
+    Kernel Version: 2.6.0-test1
+            Status: NEW
+          Severity: high
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: janfrode@parallab.no
 
-Yes, for the research project and/or anything else.
 
-> Would the carrying out of such research using the free version of
-> Bitkeeper, prevent them from developing a product which contains
-> substantially similar capabilities of the BitKeeper Software in the
-> Future, assuming that all copies of Bitkeeper were destroyed before the
-> development started?
+Distribution: RedHat 9 + 2.6.0-test1.1.25 kernel from
+http://people.redhat.com/arjanv/2.5/
+Hardware Environment: Dell Optiplex GX260 (single cpu Pentium4, no HT)
+Software Environment:
+Problem Description:
 
-Yes.
+Trying to mount a remote CIFS filesystem with mount.cifs segfaults and gives an
+oops. The cifs and nls_iso8859_1 modules get automatically loaded.
 
-> Would previous activity in the area of developing a product which
-> contains substantially similary features to Bitkeeper preclude users from
-> using the Free Bitkeeper software?
+------------[ cut here ]------------
+kernel BUG at mm/slab.c:1518!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c013b847>]    Not tainted
+EFLAGS: 00010002
+EIP is at cache_grow+0x17/0x240
+eax: f7ffa29c   ebx: 00000015   ecx: f7fff4e0   edx: 00000015
+esi: f7fff4fc   edi: f7fff4e0   ebp: f7fff4ec   esp: f4eb7d7c
+ds: 007b   es: 007b   ss: 0068
+Process mount.cifs (pid: 2441, threadinfo=f4eb6000 task=f4f47880)
+Stack: 00000000 00000000 00000082 f4eb7dcc f7fbb21c f7ffe28c f7fff4fc 00000202
+       f7fff4ec c013bcb8 f7fff4e0 00000015 f692d000 f4eb7dc8 f7fff4ec f7ffa29c
+       00000010 00000000 f7fff4e0 00000202 00000000 c013c2ae f7fff4e0 00000015
+Call Trace:
+ [<c013bcb8>] cache_alloc_refill+0x248/0x380
+ [<c013c2ae>] kmem_cache_alloc+0x15e/0x180
+ [<c01a2d97>] strsep+0x27/0x40
+ [<f8ab9954>] parse_mount_options+0x254/0x770 [cifs]
+ [<f8aba800>] cifs_mount+0x60/0x9a0 [cifs]
+ [<c019837f>] load_nls+0x2f/0x60
+ [<f8ab3059>] cifs_read_super+0x59/0x180 [cifs]
+ [<f8ab3501>] cifs_get_sb+0x81/0xd0 [cifs]
+ [<c0157de3>] do_kern_mount+0x63/0x120
+ [<c016c09b>] do_add_mount+0x6b/0x180
+ [<c016c3fe>] do_mount+0x15e/0x1b0
+ [<c016c290>] copy_mount_options+0xe0/0xf0
+ [<c016c880>] sys_mount+0xa0/0xf0
+ [<c010ab7d>] sysenter_past_esp+0x52/0x71
+ 
+Code: 0f 0b ee 05 f3 02 2b c0 31 c0 f6 c7 20 0f 85 45 01 00 00 c7
+ ------------[ cut here ]------------
+kernel BUG at mm/slab.c:1518!
+invalid operand: 0000 [#2]
+CPU:    0
+EIP:    0060:[<c013b847>]    Not tainted
+EFLAGS: 00010002
+EIP is at cache_grow+0x17/0x240
+eax: f7ffa29c   ebx: 00000015   ecx: f7fff4e0   edx: 00000015
+esi: f7fff4fc   edi: f7fff4e0   ebp: f7fff4ec   esp: f4d4fd7c
+ds: 007b   es: 007b   ss: 0068
+Process mount.cifs (pid: 2475, threadinfo=f4d4e000 task=f4f46c80)
+Stack: 000008c4 f51138c4 f4d4fda0 00000292 f5d99928 f7ffe28c f7fff4fc 00000202
+       f7fff4ec c013bcb8 f7fff4e0 00000015 0000001d 00020001 f7fff4ec f7ffa29c
+       00000010 00000000 f7fff4e0 00000202 00000000 c013c2ae f7fff4e0 00000015
+Call Trace:
+ [<c013bcb8>] cache_alloc_refill+0x248/0x380
+ [<c013c2ae>] kmem_cache_alloc+0x15e/0x180
+ [<c01a2d97>] strsep+0x27/0x40
+ [<f8ab9954>] parse_mount_options+0x254/0x770 [cifs]
+ [<f8aba800>] cifs_mount+0x60/0x9a0 [cifs]
+ [<c0198363>] load_nls+0x13/0x60
+ [<f8ab3059>] cifs_read_super+0x59/0x180 [cifs]
+ [<f8ab3501>] cifs_get_sb+0x81/0xd0 [cifs]
+ [<c0157de3>] do_kern_mount+0x63/0x120
+ [<c016c09b>] do_add_mount+0x6b/0x180
+ [<c016c3fe>] do_mount+0x15e/0x1b0
+ [<c016c290>] copy_mount_options+0xe0/0xf0
+ [<c016c880>] sys_mount+0xa0/0xf0
+ [<c010ab7d>] sysenter_past_esp+0x52/0x71
+ 
+Code: 0f 0b ee 05 f3 02 2b c0 31 c0 f6 c7 20 0f 85 45 01 00 00 c7
+  
 
-Yes.
 
-Each question above can be restated as "Would it be OK if we used BK
-in violation of its license?".  The answer is no and if you did that we
-would be forced to come after you, if we don't and some large company did
-the same thing we would have a much tougher time enforcing the license.
-Trademarks and licenses tend to lose their value if you don't enforce
-them.
+Steps to reproduce:
 
-Your questions indicate one of two things: you either have a burning
-desire to work on BK itself or a burning desire to copy BK.  If it's
-the former, that's easy, send us a resume and if you are a good engineer
-we'll hire you, we need good engineers with a solid understanding of file
-systems, distributed systems, graphs and sets, and/or human interfaces.
 
-If you are trying to copy BK, give it up.  We'll simply follow in the
-footsteps of every other company faced with this sort of thing and change
-the protocol every 6 months.  Since you would be chasing us you can never
-catch up.  If you managed to stay close then we'd put digital signatures
-into the protocol to prevent your clone from interoperating with BK.
+# mount.cifs //cifs.server/share /mnt/share -o username=username,domain=domain
 
-Instead of trying to copy our work in violation of our license, you'd be
-far better served by doing some new work.  If you like SCM then either
-work here, work on some other SCM unrelated to BK, or expect a costly
-discussion with a lawyer.  I realize this is an unpopular position but
-that's tough, it's our code and our license and you obey the rules
-or suffer the consequences.  The license is a contract and it's an
-enforceable contract, we have gone up against a company who spends more
-on lawyers in a week than our annual gross revenues and successfully
-enforced it.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

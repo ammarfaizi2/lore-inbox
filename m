@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316585AbSGQTd7>; Wed, 17 Jul 2002 15:33:59 -0400
+	id <S316592AbSGQTjc>; Wed, 17 Jul 2002 15:39:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316586AbSGQTd7>; Wed, 17 Jul 2002 15:33:59 -0400
-Received: from pD952AE51.dip.t-dialin.net ([217.82.174.81]:37276 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316585AbSGQTd6>; Wed, 17 Jul 2002 15:33:58 -0400
-Date: Wed, 17 Jul 2002 13:35:22 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: bill davidsen <davidsen@tmr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Rusty's module talk at the Kernel Summit
-In-Reply-To: <ah4cao$2ne$1@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0207171333010.3452-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316594AbSGQTjc>; Wed, 17 Jul 2002 15:39:32 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:2293 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S316592AbSGQTjc>; Wed, 17 Jul 2002 15:39:32 -0400
+Subject: Re: [patch 1/13] minimal rmap
+From: Robert Love <rml@tech9.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Daniel Phillips <phillips@arcor.de>, Andrew Morton <akpm@zip.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L.0207171630450.12241-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44L.0207171630450.12241-100000@imladris.surriel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 17 Jul 2002 12:42:22 -0700
+Message-Id: <1026934942.1086.27.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2002-07-17 at 12:31, Rik van Riel wrote:
 
-On 17 Jul 2002, bill davidsen wrote:
-> | int module_do_blah(struct blah *blah, didel_t dei)
-> | #ifdef __MODULE__
-> | {
-> | 	locking_code();
-> | 	pure_module_do_blah(blah, dei)
-> | 	unlocking_code();
-> | }
-> | 
-> | int pure_module_do_blah(struct blah *blah, didel_t dei)
-> | #endif /* __MODULE__ */
+> > That is not a problem with rmap per se, it's a result of not properly
+> > handling streaming IO.
 > 
-> I might write the un/lock code as a macro rather than use the ifdef, but
-> that's a style thing.
+> Umm, updatedb isn't exactly streaming...
 
-Well, this was the "unpacked" version. Of course one could do that much 
-better as a macro MODULE_CALL or whatever. However, Roman Zippel promised 
-to come up with a better solution, and he did come up with a solution. I 
-didn't yet look at it too much (I've had a trip around the world for 
-administration purposes), but I don't exclude that it migh be a better 
-one.
+Similar properties that warrant similar behavior, though - specifically,
+cache and swap behavior ideally would be use-once.
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+	Robert Love
 

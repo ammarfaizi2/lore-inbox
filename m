@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263027AbREWJW1>; Wed, 23 May 2001 05:22:27 -0400
+	id <S263026AbREWJZr>; Wed, 23 May 2001 05:25:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263025AbREWJWR>; Wed, 23 May 2001 05:22:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36616 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263026AbREWJWA>; Wed, 23 May 2001 05:22:00 -0400
-Subject: Re: Gameport analog joystick broken in 2.4.4-ac13
-To: stephen.thomas@insignia.com (Stephen Thomas)
-Date: Wed, 23 May 2001 10:19:25 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), vojtech@suse.cz,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3B0B6808.F42AF166@insignia.com> from "Stephen Thomas" at May 23, 2001 08:34:32 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263028AbREWJZ3>; Wed, 23 May 2001 05:25:29 -0400
+Received: from ns.tulsyan.com ([216.5.0.102]:6669 "EHLO tuls1.tulsyan.com")
+	by vger.kernel.org with ESMTP id <S263026AbREWJZJ>;
+	Wed, 23 May 2001 05:25:09 -0400
+From: hanishkvc@fedtec.com
+Date: Wed, 23 May 2001 14:53:43 +0530 (IST)
+Reply-To: hanishkvc@fedtec.com
+To: Khader Syed <sid.carter@techie.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Changing the Number of processes/tasks
+In-Reply-To: <20010523080152.19119.qmail@mail.com>
+Message-ID: <Pine.LNX.4.21.0105231451550.13213-100000@hanishkvc.fedtec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E152Une-0003AZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It seems not.  It failed on two successive boots last night, but
-> this morning I booted the machine 3 times and the joystick was
-> recognized just fine each time.
-> 
-> Flaky hardware?  The plug is screwed in and the joystick works
-> just fine (as far as I can tell) when in use.
-> 
-> I'll continue to keep an eye on this.
+Hi Khader,
 
-Can you compare /proc/ioports between the two 
+If I am not wrong there is no limit on Number of processes based on the
+process table size or so as It should be dynamicaly growing as required
+in 2.4. 
+
+On Wed, 23 May 2001, Khader Syed wrote:
+
+> Hi Folks,
+> How can I change the Number of processes that can be run on the 2.4 kernel ?
+> Is there a way to change that ? I would be glad if someone can direct me in this regards. In kernel 2.2.x, we could modify tasks.h to accompliish the task. How do we
+> go about doing it in the 2.4 kernel ?
+> Sorry if this question has been answered before, I could not find it in the archives.
+> Thanks in Advance
+> Regards
+>            Carter
+> 
 

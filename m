@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263011AbVCQHCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVCQHPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263011AbVCQHCG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 02:02:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVCQHCG
+	id S261753AbVCQHPh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 02:15:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVCQHPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 02:02:06 -0500
-Received: from mail.kroah.org ([69.55.234.183]:34471 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261753AbVCQHCD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 02:02:03 -0500
-Date: Wed, 16 Mar 2005 22:17:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] Changes to the driver model class code.
-Message-ID: <20050317061724.GC14644@kroah.com>
-References: <20050315170834.GA25475@kroah.com> <9e47339105031615163579ea50@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e47339105031615163579ea50@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+	Thu, 17 Mar 2005 02:15:37 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:65183 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261753AbVCQHPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 02:15:31 -0500
+Date: Thu, 17 Mar 2005 02:15:18 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
+In-Reply-To: <1111000818.21369.8.camel@mindpipe>
+Message-ID: <Pine.LNX.4.58.0503170210530.17019@localhost.localdomain>
+References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain> 
+ <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>  <20050315120053.GA4686@elte.hu>
+  <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> 
+ <20050315133540.GB4686@elte.hu>  <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
+  <20050316085029.GA11414@elte.hu> <20050316011510.2a3bdfdb.akpm@osdl.org> 
+ <20050316095155.GA15080@elte.hu> <20050316020408.434cc620.akpm@osdl.org> 
+ <20050316101906.GA17328@elte.hu> <20050316024022.6d5c4706.akpm@osdl.org> 
+ <Pine.LNX.4.58.0503160600200.11824@localhost.localdomain> 
+ <20050316031909.08e6cab7.akpm@osdl.org>  <Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
+  <Pine.LNX.4.58.0503161141001.14087@localhost.localdomain> 
+ <Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
+ <1111000818.21369.8.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 16, 2005 at 06:16:19PM -0500, Jon Smirl wrote:
-> On Tue, 15 Mar 2005 09:08:34 -0800, Greg KH <greg@kroah.com> wrote:
-> > Hi all,
-> > 
-> > There are 4 patches being posted here in response to this message that
-> > start us on the way toward cleaning up the driver model code so that
-> > it's actually usable by mere kernel developers :)
-> 
-> Is this going to let me make subdirectories in /sys/class/xxx
-> directories that generate hotplug events?
 
-Not yet, no, sorry.
 
-> One example:
-> /sys/class/graphics/fb0/monitor(edid)
-> 
-> If the monitor is hotplugged the monitor directory will be
-> created/destroyed causing a hotplug event.
+On Wed, 16 Mar 2005, Lee Revell wrote:
 
-That would be a good thing, on the todo list...
+> I am a bit confused, big surprise.  Does this thread still have anything
+> to do with this trace from my "Latency regressions" bug report?
 
-greg k-h
+Don't worry, I've been in a state of confusion for a long time now ;-)
+
+>
+> http://www.alsa-project.org/~rlrevell/2912us
+>
+> The problem only is apparent with PREEMPT_DESKTOP and "data=ordered".
+>
+> PREEMPT_RT has always worked perfectly.
+>
+
+I'm surprise that PREEMPT_RT does work.  I'm no longer sure that this does
+affect your latency anymore.  It probably does indirectly somehow.  I
+still think it has to do with the bitspinlocks.  But I'm not sure. Just
+let me know if you want to be taken off this thread and I'll remove you
+from my CC list.  Until then, I'll keep you on.
+
+-- Steve
+

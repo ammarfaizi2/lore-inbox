@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290856AbSARW32>; Fri, 18 Jan 2002 17:29:28 -0500
+	id <S290855AbSARWcu>; Fri, 18 Jan 2002 17:32:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290855AbSARW3T>; Fri, 18 Jan 2002 17:29:19 -0500
-Received: from cti06.citenet.net ([206.123.38.70]:37131 "EHLO
-	cti06.citenet.net") by vger.kernel.org with ESMTP
-	id <S290815AbSARW3R>; Fri, 18 Jan 2002 17:29:17 -0500
-From: Jacques Gelinas <jack@solucorp.qc.ca>
-Date: Fri, 18 Jan 2002 14:23:47 -0500
-To: linux-kernel@vger.kernel.org
-Subject: re: new virtualization syscall to improve uml performance?
-X-mailer: tlmpmail 0.1
-Message-ID: <20020118142347.04f988370c19@remtk.solucorp.qc.ca>
+	id <S290857AbSARWci>; Fri, 18 Jan 2002 17:32:38 -0500
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:33951 "EHLO
+	e23.esmtp.ibm.com") by vger.kernel.org with ESMTP
+	id <S290855AbSARWce>; Fri, 18 Jan 2002 17:32:34 -0500
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFA503EFC2.D11026CD-ON85256B45.007B6E25@raleigh.ibm.com>
+From: "Kent E Yoder" <yoder1@us.ibm.com>
+Date: Fri, 18 Jan 2002 16:32:31 -0600
+X-MIMETrack: Serialize by Router on D04NM109/04/M/IBM(Release 5.0.9 |November 16, 2001) at
+ 01/18/2002 05:32:33 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jan 2002 13:12:59 -0500, baccala@freesoft.org wrote
+  Sorry, this mail was sent acidentally...  but since its out here...
 
-> First, kudos to everyone who worked on user mode linux.  I need to
-> build distribution RPMs for a couple of pieces of free software I help
-> maintain, and have this absurd dilemma about running recent RedHat
-> releases (to get the latest code) or running older releases (to
-> compile RPMs that will install on both older and newer systems).  I've
-> been trying to accommodate both needs by selectively picking and
-> choosing older and newer RPMs to install on my system, and the result
-> is a mess that won't compile anything!  Anyway, I installed UML with
-> the distributed RedHat 6.2 filesystem, fired it up, installed a few
-> missing RPMs like make, and the software built fine.  I think I've
-> solved my dilemma...
-
-The vservers (see my sig) are pretty good to solve that. You can run any linux i386
-distro and version all at once on the same box.
-
-> would be replaced with:
+> 5 & 11) Nope, I had not read Doc/networking/netdevices.txt, so I have a
+question.  What does being inside rtnl_lock() imply other than the sleep
+> issues?
 >
-> 	syscall trap
->
-> Would this be just more kernel bloat to support one application?
-> Perhaps not.  I have other utilities (a user-space HTTP file system,
-> and code to do Plan 9-ish directory overlays) that need to intercept
-> system calls.  I currently do this using the LD_PRELOAD function of
-> the shared library.  This has the following disadvantages:
->
-> 	1. a specially compiled glibc must be installed, because
-> 	   the standard one doesn't export all the needed symbols,
-> 	2. newer versions of the OS/glibc cause problems if they
-> 	   introduce new syscalls (like open64) that don't get
-> 	   caught until you add more code just for them, and
+>   The calls to cli() and save_flags() were wrong from the beginning.
+They were imported by the last maintainer since this driver is a modified
+version  > of the olympic token ring driver.  The current spin_lock() and
+spin_unlock() calls protect the srb_queued variable.  If we were to set it
+to one and then  > get interrupted before we actually write() to the srb,
+the interrupt function will try to service whatever junk happens to be in
+the srb.  If going into the
+> interrupt function is covered by rtnl_lock(), this would be covered, but
+I guess its not (?)....
 
-I solved this in virtualfs (http://www.solucorp.qc.ca/virtualfs) by introducing
-new weak symbol.
+  actually I should be using spin_lock_irqsave() in open() and close()
+since the lock is taken inside the interrupt function, no?
 
-> 	3. it's impossible to have any security, because the user
-> 	   code could just bypass glibc and make the syscalls directly
+Kent
 
-Yes but the reverse is true. With the trap, you end up in your own code
-with full privilege. Does it opens worst problem.
-
-For privilege stuff, the virtualfs dispatcher connects to special server. Using
-unix domain socket, credential passing and file handle passing, you can do
-a lot of privileged stuff this way.
-
----------------------------------------------------------
-Jacques Gelinas <jack@solucorp.qc.ca>
-vserver: run general purpose virtual servers on one box, full speed!
-http://www.solucorp.qc.ca/miscprj/s_context.hc

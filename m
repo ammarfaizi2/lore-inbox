@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135477AbRDRXhW>; Wed, 18 Apr 2001 19:37:22 -0400
+	id <S135483AbRDSAEG>; Wed, 18 Apr 2001 20:04:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135478AbRDRXhD>; Wed, 18 Apr 2001 19:37:03 -0400
-Received: from ns1.uklinux.net ([212.1.130.11]:19217 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S135477AbRDRXgz>;
-	Wed, 18 Apr 2001 19:36:55 -0400
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Tue, 17 Apr 2001 21:12:22 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-Cc: kurt@garloff.de, linux-kernel@vger.kernel.org
-Subject: Re: APIC errors ...
-Message-Id: <20010417211222.5de56788.bruce@ask.ne.jp>
-In-Reply-To: <Pine.LNX.4.33.0104181516030.16915-100000@sol.compendium-tech.com>
-In-Reply-To: <20010406005014.B9058@garloff.etpnet.phys.tue.nl>
-	<Pine.LNX.4.33.0104181516030.16915-100000@sol.compendium-tech.com>
-X-Mailer: Sylpheed version 0.4.63 (GTK+ 1.2.8; i686-pc-linux-gnu)
+	id <S135485AbRDSAD4>; Wed, 18 Apr 2001 20:03:56 -0400
+Received: from femail1.sdc1.sfba.home.com ([24.0.95.81]:11250 "EHLO
+	femail1.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S135483AbRDSADr>; Wed, 18 Apr 2001 20:03:47 -0400
+Date: Wed, 18 Apr 2001 08:04:35 -0400
+From: kambo@home.com
+X-Mailer: The Bat! (v1.41) UNREG / CD5BF9353B3B7091
+Reply-To: kambo@home.com
+X-Priority: 3 (Normal)
+Message-ID: <10336.010418@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: CONFIG_PACKET_MMAP help
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Apr 2001 15:21:17 -0700 (PDT)
-"Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com> wrote:
+Hi,
 
-*snip*
+I upgrading an application to the CONFIG_PACKET_MMAP
+interface, and was trying to figure out how the api works.  I 'RTFS'
+But had a few questions:
 
-> You have a couple solutions: Upgrade the motherboard to one of the VIA
-> 133MHz chipsets (I dont care for the VIA chipset so this really doesn't
-> strike my fancy) or upgrade to that other Intel chipset that supports SMP;
-> unfortunately it also is a rambus board....Serverworks also has a chipset
-> out that does dual intel chips at 133MHz; I've heard only good things
-> about it.
+1. for tp_frame_size, I dont want to truncate any data on ethernet, I
+need 1514 bytes, is this the best way to do it and not waste space?
 
-Er... I believe there was some discussion on l-k some while ago regarding a
-certain lack of forthcomingness by Serverworks and the resultant general
-flakiness of Linux support for their chipsets...
+static const int  TURBO_FRAME_SIZE=TPACKET_ALIGN(TPACKET_ALIGN(sizeof(tpacket_hdr))+TPACKET_ALIGN(sizeof(struct sockaddr_ll)+ETH_HLEN) + 1500);
+
+2. what is tp_block_nr for?  I dont understand it, I just set it to 1
+and make tp_block_size big enough for all the frames I need, so its
+just one contiguous space, all I need is about a megabyte I think.
+
+3. is this the general approach for the api?
+
+open socket
+set ring size
+mmap()
+
+h starts at frame[0] of the mmaped area
+while(1) {
+   if (tp->status == 0) poll() for pollin on the socket  /* is there a
+   race here? */
+   parse/copy out what I want from h + h->tp_mac
+   set tp->status to 0 when I am done
+   h = next packet in ring, or wraps
+}
+
+4. what does the copy threshold setsockopt tuning accomplish? doesnt it always
+have to copy anyway, to the mmaped area?
+
+Thanks,
+c.c. me por favor...
+
+K. Lohan
+------------------------
+kambo at home dawt com
+
+

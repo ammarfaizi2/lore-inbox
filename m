@@ -1,48 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbUJZOnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbUJZOn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbUJZOnt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 10:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUJZOnt
+	id S262287AbUJZOn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 10:43:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUJZOn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 10:43:49 -0400
-Received: from eta.fastwebnet.it ([213.140.2.50]:9691 "EHLO
-	ms005msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S262285AbUJZOlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 10:41:45 -0400
-From: Alessandro Amici <lists@b-open-solutions.it>
-Organization: B-Open Solutions srl
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Subject: Re: Is anyone using the load_ramdisk= option in the kernel still?
-Date: Tue, 26 Oct 2004 16:41:13 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <clkheo$otl$1@terminus.zytor.com> <200410261603.30707.lists@b-open-solutions.it> <E1CMS1A-0001F5-00@chiark.greenend.org.uk>
-In-Reply-To: <E1CMS1A-0001F5-00@chiark.greenend.org.uk>
+	Tue, 26 Oct 2004 10:43:26 -0400
+Received: from out008pub.verizon.net ([206.46.170.108]:21659 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S262287AbUJZOl7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 10:41:59 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+Date: Tue, 26 Oct 2004 10:41:54 -0400
+User-Agent: KMail/1.7
+Cc: Ed Tomlinson <edt@aei.ca>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Bill Davidsen <davidsen@tmr.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+References: <200410260142_MC3-1-8D2A-45C2@compuserve.com> <200410260644.47307.edt@aei.ca>
+In-Reply-To: <200410260644.47307.edt@aei.ca>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410261641.13052.lists@b-open-solutions.it>
+Content-Disposition: inline
+Message-Id: <200410261041.54140.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [141.153.91.102] at Tue, 26 Oct 2004 09:41:57 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 26 October 2004 06:44, Ed Tomlinson wrote:
+>On Tuesday 26 October 2004 01:40, Chuck Ebbert wrote:
+>> Bill Davidsen wrote:
+>> > I don't see the need for a development kernel, and it is
+>> > desirable to be able to run kernel.org kernels.
+>>
+>>   Problem is, kernel.org 'release' kernels are quite buggy.  For
+>> example 2.6.9 has a long list of bugs:
+>>
+>>   - superio parports don't work
+>>   - TCP networking using TSO gives memory allocation failures
+>>   - s390 has a serious security bug (sacf)
+>>   - ppp hangup is broken with some peers
+>>   - exec leaks POSIX timer memory and loses signals
+>>   - auditing can deadlock
+>>   - O_DIRECT and mmap IO can't be used together
+>>   - procfs shows the wrong parent PID in some cases
+>>   - i8042 fails to initialize with some boards using legacy USB
+>>   - kswapd still goes into a frenzy now and then
+>>
+Then the question is begged, is there a common location where patches 
+for these known bugs can be downloaded, diffed against the current 
+stable kernel?  If not, there really should be.  As in the kernel.org 
+stable directory should have a subdir in the 2.6.9 directory  called 
+'bugfixes', with any patches that specifically fix known bugs that 
+have been developed since the release placed there.  No new features, 
+just the bugfix patches.  That would allow those of us who take the 
+chance and bleed, to bleed a bit less.
 
-Matthew,
-
-On Tuesday 26 October 2004 16:09, Matthew Garrett wrote:
-> Alessandro Amici <lists@b-open-solutions.it> wrote:
-> > On Tuesday 26 October 2004 05:48, H. Peter Anvin wrote:
-> >> a) Does anyone use the load_ramdisk= option anymore, or is it
-> >> legitimate to drop?
-> >
-> > I'm pretty sure it is used by the Debian installer when bootstrapping
-> > from a floppy, but...
+>>   Sure, the next release will (may?) fix these bugs, but it will
+>> definitely add a whole set of new ones.
 >
-> I believe that this is no longer the case with the new installer.
+>To my mind this just points out the need for a bug fix branch.  
+> e.g. a branch containing just bug/security fixes against the
+> current stable kernel.  It might also be worth keeping the branch
+> active for the n-1 stable kernel too.
+>
+>Ed
+>
+>PS.  we could call this the Bug/Security or bs kernels.
 
-If you have the root filesystem on a floppy you still need load_ramdisk 
-(checked a few days ago ;)
+Chuckle.  Nice play on words there, but I really do like this idea.  
+Just one suggestion. When the snapshot to start the next patch series 
+in the deveopment tree is done, take it from the latest, all bugfix 
+patches applied, .bs kernel.
 
-cheers,
-alessandro
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

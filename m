@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129141AbRBKCNh>; Sat, 10 Feb 2001 21:13:37 -0500
+	id <S129030AbRBKCTk>; Sat, 10 Feb 2001 21:19:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129030AbRBKCN2>; Sat, 10 Feb 2001 21:13:28 -0500
-Received: from mail49-s.fg.online.no ([148.122.161.49]:15796 "EHLO
-	mail49.fg.online.no") by vger.kernel.org with ESMTP
-	id <S129141AbRBKCNX>; Sat, 10 Feb 2001 21:13:23 -0500
-Message-ID: <6900629.981857587481.JavaMail.webmail1@wm-java2.fg.online.no>
-Date: Sun, 11 Feb 2001 03:13:07 +0100 (CET)
-From: Ole Andre Vadla Ravnaas <oleavr@online.no>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.2-pre3 and 2.4.1-ac9 sound corruption
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E14RfgE-00029m-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="17059273.981857587476.JavaMail.webmail1@wm-java2.fg.online.no"
-X-Mailer: Online Epostleser
-X-Real-User: oleavr
-X-Client-Addr: 62.66.242.169
+	id <S129141AbRBKCTa>; Sat, 10 Feb 2001 21:19:30 -0500
+Received: from femail2.rdc1.on.home.com ([24.2.9.89]:34196 "EHLO
+	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S129030AbRBKCT1>; Sat, 10 Feb 2001 21:19:27 -0500
+Message-ID: <3A85F698.5DCB3F1E@Home.net>
+Date: Sat, 10 Feb 2001 21:19:05 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre3 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkm <linux-kernel@vger.kernel.org>
+Subject: [QUESTION]: IDE Driver support for S.M.A.R.T?
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---17059273.981857587476.JavaMail.webmail1@wm-java2.fg.online.no
-Content-Type: text/plain; charset=ISO8859-1
-Content-Transfer-Encoding: quoted-printable
+Does the current (E)IDE driver support SMART?
 
-> Are you using XFree86 4.0 on a matrox card ?
+Will Linux report any S.M.A.R.T errors or warnings to the system log?
 
-No, it's an nVIDIA Riva TNT2 Ultra 32 MB AGP (card manufacturer: Creative).=
- But these problems are not related to X, as they are the same whether I us=
-e mpg123 in a plain console or xmms in X. But, I've also tried something el=
-se, I compiled a kernel with absolutely NO sound support, then downloaded O=
-SS from www.opensound.com and installed it. The exact _same_ problems occur=
-ed. So now I'm suspecting the IRQ-sharing with the two USB UHCI-controllers=
- to be the problem (worked fine with 2.4.1 "vanilla" though, where the same=
- devices were sharing the same interrupts..). Have there been any changes o=
-n that part? (USB UHCI driver IRQ-sharing etc.)
+Shawn.
 
-(Please CC a copy to me as I'm not subscribed to the linux kernel mailing-l=
-ist right now)
-
-Regards
-Ole Andr=E9 Vadla Ravn=E5s
-
---17059273.981857587476.JavaMail.webmail1@wm-java2.fg.online.no--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

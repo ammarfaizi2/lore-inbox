@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280897AbRKOPVP>; Thu, 15 Nov 2001 10:21:15 -0500
+	id <S280902AbRKOP1F>; Thu, 15 Nov 2001 10:27:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280902AbRKOPVF>; Thu, 15 Nov 2001 10:21:05 -0500
-Received: from inetc.connecttech.com ([64.7.140.42]:16391 "EHLO
-	inetc.connecttech.com") by vger.kernel.org with ESMTP
-	id <S280897AbRKOPUw>; Thu, 15 Nov 2001 10:20:52 -0500
-Message-ID: <03f301c16de9$8b751c00$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Russell King" <rmk@arm.linux.org.uk>, <jgarzik@mandrakesoft.com>
-Cc: <tytso@mit.edu>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <00df01c16d23$b409ab20$294b82ce@connecttech.com> <20011115001016.C19575@flint.arm.linux.org.uk>
-Subject: Re: Fw: [Patch] Some updates to serial-5.05
-Date: Thu, 15 Nov 2001 10:23:57 -0500
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S280904AbRKOP0z>; Thu, 15 Nov 2001 10:26:55 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:12554 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S280902AbRKOP0s>; Thu, 15 Nov 2001 10:26:48 -0500
+Date: Thu, 15 Nov 2001 15:26:36 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: pil@mailnet.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HFS-Bug in Kernel 2.4.12 and above
+Message-ID: <20011115152636.A1259@flint.arm.linux.org.uk>
+In-Reply-To: <3BF3DB8A.CD1BBCE6@mailnet.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BF3DB8A.CD1BBCE6@mailnet.de>; from pil@mailnet.de on Thu, Nov 15, 2001 at 04:13:14PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Russell King" <rmk@arm.linux.org.uk>
-> I've merged the simple bits of this by hand with my serial CVS.  As I
-> said in a previous mail here, I'm not taking on the maintainence of the
-> existing serial.c driver.  Therefore, these comments apply to the
-> new serial driver, not the existing drivers.
+On Thu, Nov 15, 2001 at 04:13:14PM +0100, pil@mailnet.de wrote:
+> Kernel 2.4.12 is no more able to handle two floppy drives with hfs
+> formated floppies.
+> 
+> You can recreate the failure if you have two floppy drives, use Kernel
+> 2.4.12 (and above) with loadable module support for hfs- and
+> vfat-floppies and try to mount the first one with a hfs formated floppy
+> inside. If you unmount the floppy drive again you will get a
+> segmentation fault and an uninterruptible sleep for the mount PID. You
+> cannot mount this drive again.
+> 
+> For all other see attached file 'report'.
+> 
+> Regards
+> 
+> Wolfgang Pichler
+> ARM MFM AND FLOPPY DRIVERS
+> P:      Dave Gilbert
+> M:      linux@treblig.org
+> S:      Maintained
+> 
 
-Copied to you because I thought you might be interested in adding
-some of them to the new driver.
+What is the relevance of the above past from the Linux CREDITS file?
 
-> These two I'd rather waited until we've got the driver merged into 2.5,
-> at which point I'd rather have a patch against the new driver.
-
-Fair enough.
-
-> I don't actually printk() the serial ports that have been discovered at
-> boot time in the new serial CVS.  If people scream enough, I could be
-> persuaded.  I'm currently of the opinion that they're noise, and if
-> we're really interested in them, we've got a userspace tool to do it
-> for us: setserial -bg /dev/ttyS*
-
-From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-> I'll complain ;-)   It seems pretty standard for a driver to print out
-> at least one single line for each "interface" it registers; interface in
-
-I agree with Jeff.
-
-> Only the MULTISERIAL support applied - 2.4 has the PCI class definitions,
-> so when the new driver is merged, we already have the definitions.
-
-serial_compat.h has more than just missing pci #defs. Although
-I suppose you wouldn't need it in the new driver if backwards
-compatability isn't being preserved. Compatability of the new driver
-with old kernels that is.
-
-..Stu
-
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

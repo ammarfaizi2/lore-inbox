@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131027AbQLRIhp>; Mon, 18 Dec 2000 03:37:45 -0500
+	id <S130810AbQLRIwq>; Mon, 18 Dec 2000 03:52:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131034AbQLRIhf>; Mon, 18 Dec 2000 03:37:35 -0500
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:21465 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S131027AbQLRIh1>; Mon, 18 Dec 2000 03:37:27 -0500
-From: Heiko.Carstens@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: Pavel Machek <pavel@suse.cz>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Message-ID: <C12569B9.002C03CF.00@d12mta01.de.ibm.com>
-Date: Mon, 18 Dec 2000 09:00:43 +0100
-Subject: Re: CPU attachent and detachment in a running Linux system
+	id <S131034AbQLRIwh>; Mon, 18 Dec 2000 03:52:37 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50185 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S130810AbQLRIwe>; Mon, 18 Dec 2000 03:52:34 -0500
+Date: Mon, 18 Dec 2000 09:21:58 +0100
+From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: /dev/random: really secure?
+Message-ID: <20001218092158.A7328@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20001217225057.A8897@atrey.karlin.mff.cuni.cz> <NCBBLIEPOCNJOAEKBEAKKEFEMIAA.davids@webmaster.com>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <NCBBLIEPOCNJOAEKBEAKKEFEMIAA.davids@webmaster.com>; from davids@webmaster.com on Sun, Dec 17, 2000 at 04:18:31PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 	There are hidden sources of entropy. One is clock skew between the keyboard
+> processor's clock, the keyboard controller's clock, and the CPU clock
+> generator's PLL. Another is data motion between the CPU cache and main
 
+In the RFC 1750, they write it is not recommended to rely on computer clocks to
+generate random. Isn't it this case?
 
+> > depends solely on the network packets. These can be manipulated and their
+> > leading edge precisely sniffed. I think here exists a severe risk of
+> > compromise. Am I right?
+> 
+> 	Nope. There is no way to sniff their leading edge accurate to a billionth
+> of a second. If you have a 1Ghz Pentium 3, that's the accuracy you'd need.
 
+But it reduces the entropy. When I have a 486/66 and sniff packets accurately to
+3MHz, only 4 bits remain. These bits need not to show a uniform distribution so
+it could be even easier to guess them.
 
-Hi,
-
->> I still wonder what you and other people think about the idea of an
->> interface where the parts of the kernel with per-cpu dependencies should
->> register two functions...
->Why not compile kernel with structeres big enough for 32 processors,
->and then just add CPUs up to the limit without changing anything?
-
-That's a good point and it would probably work for attachment of cpus, but
-it won't work for detachment because there are some data structures that
-need to be updated if a cpu gets detached. For example it would be nice
-to flush the per-cpu cache of the detached cpu in the slabcache. Then one
-has to think of pending tasklets for the detached cpu which should be
-moved to another cpu and then there are a lot of per-cpu data structures
-in the networking part of the kernel.. most of them seem to be for
-statistics only but I think these structures should be updated in any
-case.
-So at least for detaching it would make sense to register functions which
-will be called whenever a cpu gets detached.
-
-Heiko
-
-
+Clock
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVAYAEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVAYA0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbVAYAEs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 19:04:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVAYAC1
+	id S261746AbVAYA0m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 19:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVAXXVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 19:02:27 -0500
-Received: from mta02.pge.com ([131.89.129.72]:34035 "EHLO mta02.pge.com")
-	by vger.kernel.org with ESMTP id S261606AbVAYABH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 19:01:07 -0500
-Date: Mon, 24 Jan 2005 15:53:11 -0800
-From: Edward Peschko <esp5@pge.com>
-To: Richard Henderson <rth@redhat.com>
-Cc: gcc@gcc.gnu.org, libc-alpha@sources.redhat.com,
-       binutils@sources.redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: forestalling GNU incompatibility - proposal for binary relative dynamic linking
-Message-ID: <20050124235311.GD19422@venus>
-References: <20050124222449.GB16078@venus> <20050124231047.GC29545@redhat.com> <20050124231636.GC19422@venus> <20050124233849.GA29765@redhat.com>
+	Mon, 24 Jan 2005 18:21:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:191 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261703AbVAXW4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 17:56:30 -0500
+Date: Mon, 24 Jan 2005 17:09:34 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: David Sims <dpsims@virtualdave.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sata_vsc problem.... Please help me.
+Message-ID: <20050124190934.GA15501@logos.cnet>
+References: <Pine.LNX.4.21.0501241600520.817-100000@ernie.virtualdave.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050124233849.GA29765@redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.21.0501241600520.817-100000@ernie.virtualdave.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 03:38:49PM -0800, Richard Henderson wrote:
-> On Mon, Jan 24, 2005 at 03:16:36PM -0800, Edward Peschko wrote:
-> > cool.. any chance for some syntactic sugar so me (and other 
-> > users/vendors) wouldn't need to change any of their build scripts 
-> > and compilation processes?
+On Mon, Jan 24, 2005 at 04:09:08PM -0600, David Sims wrote:
+> Hi,
 > 
-> Uh, like what?  That's about as simple as you can get.
+>   With kernel 2.6.10 on Intel (Dell Powervault 745N).... When I insert the
+> sata_vsc module via 'modprobe sata_vsc' from the command line, the module
+> immediately recognizes the controller card and then enumerates the
+> attached disks. During this process I am getting errors logged in syslog
+> for each disk as follows:
+> 
+> Jan 24 13:55:37 linux kernel: irq 3: nobody cared!
+> Jan 24 13:55:37 linux kernel:  [<c0128972>] __report_bad_irq+0x22/0x90
+> Jan 24 13:55:37 linux kernel:  [<c0128a68>] note_interrupt+0x58/0x90
+> Jan 24 13:55:37 linux kernel:  [<c01285f8>] __do_IRQ+0xd8/0xe0
+> Jan 24 13:55:37 linux kernel:  [<c0103a7a>] do_IRQ+0x1a/0x30
+> Jan 24 13:55:37 linux kernel:  [<c010254a>] common_interrupt+0x1a/0x20
+> Jan 24 13:55:37 linux kernel:  [<c0114fc0>] __do_softirq+0x30/0x90
+> Jan 24 13:55:37 linux kernel:  [<c0115055>] do_softirq+0x35/0x40
+> Jan 24 13:55:37 linux kernel:  [<c0103a7f>] do_IRQ+0x1f/0x30
+> Jan 24 13:55:37 linux kernel:  [<c010254a>] common_interrupt+0x1a/0x20
+> Jan 24 13:55:37 linux kernel:  [<c0100590>] default_idle+0x0/0x40
+> Jan 24 13:55:37 linux kernel:  [<c01005b4>] default_idle+0x24/0x40
+> Jan 24 13:55:37 linux kernel:  [<c010063e>] cpu_idle+0x2e/0x40
+> Jan 24 13:55:37 linux kernel:  [<c03d277b>] start_kernel+0x15b/0x190
+> Jan 24 13:55:37 linux kernel: handlers:
+> Jan 24 13:55:37 linux kernel: [<c02471e0>] (ide_intr+0x0/0x120)
+> Jan 24 13:55:37 linux kernel: [<c02471e0>] (ide_intr+0x0/0x120)
+> Jan 24 13:55:37 linux kernel: [<e08ef250>] (vsc_sata_interrupt+0x0/0xa0
+> [sata_vsc])
+> Jan 24 13:55:37 linux kernel: Disabling IRQ #3
+> 
+> and in /proc/interrupts the count for irq3 advances by 500,000 (i.e.,
+> 100,000 for the controller and 100,000 for each attached disk).....
 > 
 > 
-> r~
+>   It seems to me that this driver is initializing itself and enabling
+> interrupts before it is fully loaded and ready to deal with them.... 
+> 
+>   If I insert the module during the boot up process, the machine just
+> hangs trying to read/identify the first disk... 
+> 
+>   Is there a way to disable or ignore these interrupts until the driver is
+> fully loaded, the disks are identified and all of the necessary
+> housekeeping is finished and the driver is finished loading?? 
+>
+>   Once the sata_vsc module finishes identifying the attached drives and
+> the 'modprobe sata_vsc' returns to the command prompt the errors stop
+> coming and it seems to work just fine.... You can fdisk and format the
+> disks and all is well... If I could just get it load at boot time I would
+> be happy....
+> 
+>   Any advice would be welcome at this point. ;)
 
-I don't understand. 
 
-Which is simpler, changing an environmental variable, or adding extra 
-CFLAGS to every single compile and recompiling?
+You can use the following to disable the interrupt debugging: 
 
-In addition, in your --rpath example, the relative pathing is hardcoded
-into the executable, wheras with "*" you could modify the runtime behavior
-of the executable at runtime. I suppose you could change this with chrpath,
-but why bother? What if you want to test out two versions of relative
-libraries side by side? 
+Documentation/kernel-parameters.txt:
 
-And in any case, I'm not even sure if you can change the runtime path 
-to something longer than what currently exists in the executable using
-chrunpath.
+        noirqdebug      [IA-32] Disables the code which attempts to detect and
+                        disable unhandled interrupt sources.
+
+But there is definately something wrong with the driver. Jeff?
 
 
-And finally, certain programs (glibc, for example) seem to get into to 
-trouble (ie: not compile) when you use --rpath flags. So, what's the 
-issue with "*"?
 
-Ed
+
+

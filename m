@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVDAOz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbVDAO6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbVDAOz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 09:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVDAOz2
+	id S262756AbVDAO6G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 09:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVDAO6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 09:55:28 -0500
-Received: from smtp-vbr8.xs4all.nl ([194.109.24.28]:6672 "EHLO
-	smtp-vbr8.xs4all.nl") by vger.kernel.org with ESMTP id S262753AbVDAOzY
+	Fri, 1 Apr 2005 09:58:06 -0500
+Received: from fobos.marketsite.ru ([62.152.84.30]:25351 "EHLO
+	relay1.dataart.com") by vger.kernel.org with ESMTP id S262756AbVDAO6C
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 09:55:24 -0500
-In-Reply-To: <Pine.LNX.4.61.0504010805130.12910@chaos.analogic.com>
-References: <11123574931907@2ka.mipt.ru> <Pine.LNX.4.61.0504010805130.12910@chaos.analogic.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <f3db21ceb79616110118e303fe9a5db2@xs4all.nl>
+	Fri, 1 Apr 2005 09:58:02 -0500
+Message-ID: <424D6175.8000700@yandex.ru>
+Date: Fri, 01 Apr 2005 18:57:57 +0400
+From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: "Artem B. Bityuckiy" <dedekind@infradead.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org
+Subject: Re: [RFC] CryptoAPI & Compression
+References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au>	 <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org> <1112366647.3899.66.camel@localhost.localdomain>
+In-Reply-To: <1112366647.3899.66.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
-From: Renate Meijer <kleuske@xs4all.nl>
-Subject: Re: [RFC] : remove unreliable, unused and unmainained arch from kernel.
-Date: Fri, 1 Apr 2005 17:00:51 +0200
-To: linux-os@analogic.com
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Woodhouse wrote:
+> Hm. Could we avoid using Z_SYNC_FLUSH and stick with a larger amount?
+> That would give us better compression.
 
-On Apr 1, 2005, at 3:09 PM, linux-os wrote:
+Yes, the compression will be better. But the implementation will be more 
+complicated.
+We can try to use the "bound" functions to predict how many bytes to 
+pass to the deflate's input, but there is no guarantee they'll fit into 
+the output buffer. In this case we'll need to try again.
 
->
-> [PATCH snipped]
->
-> Cruel joke. Now 80 percent of the Intel clones won't boot.
-> Those are the ones that run industry, you know, the stuff that
-> is necessary to earn money.
->
-> Without i386 support, you don't have any embedded systems. You
-> need to use the garbage Motorola CPUs and the proprietary
-> operating systems in embedded stuff.
+Possibly, we may do something like this:
 
-Have you checked your calender yet?
+Try good compression using the prediction technique.
+If we didn't fit the output buffer, use the old but determined algorithm.
 
-Besides... Never heard of ARM? Atmel has a complete line of those,
-which seem very usefull.
-
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUFTTeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbUFTTlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUFTTeu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 15:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUFTTeu
+	id S263154AbUFTTlL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 15:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUFTTlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 15:34:50 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:25835 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261500AbUFTTes convert rfc822-to-8bit
+	Sun, 20 Jun 2004 15:41:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24224 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263154AbUFTTlG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 15:34:48 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: DMA API issues
-Date: Sun, 20 Jun 2004 21:34:52 +0200
-User-Agent: KMail/1.6.2
-Cc: Ian Molton <spyro@f2s.com>, rmk+lkml@arm.linux.org.uk, david-b@pacbell.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
-       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
-References: <1087584769.2134.119.camel@mulgrave> <200406202002.47025.oliver@neukum.org> <1087759622.10858.97.camel@mulgrave>
-In-Reply-To: <1087759622.10858.97.camel@mulgrave>
-MIME-Version: 1.0
+	Sun, 20 Jun 2004 15:41:06 -0400
+Date: Sun, 20 Jun 2004 16:34:04 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.27-rc1
+Message-ID: <20040620193404.GA7102@logos.cnet>
+References: <20040620004520.GA4599@logos.cnet> <Pine.GSO.4.58.0406201910300.23356@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406202134.58657.oliver@neukum.org>
+In-Reply-To: <Pine.GSO.4.58.0406201910300.23356@waterleaf.sonytel.be>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Am Sonntag, 20. Juni 2004 21:27 schrieb James Bottomley:
-> On Sun, 2004-06-20 at 13:02, Oliver Neukum wrote:
-> > > The DMA API is about allowing devices to transact directly with memory
-> > > behind the memory controller, it's an API that essentially allows the
-> > > I/O controller and memory controller to communicate without CPU
-> > > intervention.  This is still possible through the hypervisor, so the
-> > > iSeries currently fully implements the DMA API.
-> > 
-> > Then what's the problem?
+Hi Geert! 
+
+
+On Sun, Jun 20, 2004 at 07:16:40PM +0200, Geert Uytterhoeven wrote:
+> On Sat, 19 Jun 2004, Marcelo Tosatti wrote:
+> > Marcelo Tosatti:
+> >   o journal_try_to_free_buffers(): Add debug print in case of bh list corruption
 > 
-> If you look at the diagram, you'll see that the OHCI memory isn't behind
-> the memory controller...
+> Which introduced 4 warnings. Here's a fix:
+> 
+> --- linux-2.4.27-rc1/fs/jbd/transaction.c.orig	2004-06-20 13:04:20.000000000 +0200
+> +++ linux-2.4.27-rc1/fs/jbd/transaction.c	2004-06-20 19:08:07.000000000 +0200
+> @@ -1700,11 +1700,11 @@ void debug_page(struct page *p)
+> 
+>  	bh = p->buffers;
+> 
+> -	printk(KERN_ERR "%s: page index:%u count:%d flags:%x\n", __FUNCTION__,
+> +	printk(KERN_ERR "%s: page index:%lu count:%d flags:%lx\n", __FUNCTION__,
+>  		 p->index, atomic_read(&p->count), p->flags);
+> 
+>  	while (bh) {
+> -		printk(KERN_ERR "%s: bh b_next:%p blocknr:%u b_list:%u state:%x\n",
+> +		printk(KERN_ERR "%s: bh b_next:%p blocknr:%lu b_list:%u state:%lx\n",
+>  			__FUNCTION__, bh->b_next, bh->b_blocknr, bh->b_list,
+>  				bh->b_state);
+>  		bh = bh->b_this_page;
 
-And that means what? We don't care about how memory is implemented
-in the machines we run on. All we care about is the consequences of the
-implementation.
-We have an area of memory here that the CPU and a subset of devices
-can directly access. What to do about it?
+Right.
 
-	Regards
-		Oliver
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+> And now I just looked at the original patch:
+> 
+> | --- linux-2.4.26/fs/jbd/transaction.c	2004-02-18 13:36:31.000000000 +0000
+> | +++ linux-2.4.27-rc1/fs/jbd/transaction.c	2004-06-19 23:37:33.000000000 +0000
+> | @@ -1752,6 +1769,11 @@ int journal_try_to_free_buffers(journal_
+> |  	do {
+> |  		struct buffer_head *p = tmp;
+> |
+> | +		if (!unlikely(tmp)) {
+>                     ^^^^^^^^^^^^^^
+> Shouldn't this be `unlikely(!tmp))'?
 
-iD8DBQFA1ebgbuJ1a+1Sn8oRAnFdAJ45v2h3fUe7NIPVxyS9CmH69vEHLgCghgQe
-qXQVLQOlkEabmPVqmCOaSq8=
-=35je
------END PGP SIGNATURE-----
+The original works, but thats cleaner as Willy also pointed out.
+
+I'll fix those.
+
+Thanks!
+

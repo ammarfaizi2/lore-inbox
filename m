@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313202AbSHFQmZ>; Tue, 6 Aug 2002 12:42:25 -0400
+	id <S313571AbSHFQrB>; Tue, 6 Aug 2002 12:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313305AbSHFQmZ>; Tue, 6 Aug 2002 12:42:25 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:59622 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S313202AbSHFQmZ>;
-	Tue, 6 Aug 2002 12:42:25 -0400
-Message-ID: <3D4FFD23.5010707@candelatech.com>
-Date: Tue, 06 Aug 2002 09:45:23 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre1
-References: <Pine.LNX.4.44.0208060832090.6811-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313687AbSHFQq6>; Tue, 6 Aug 2002 12:46:58 -0400
+Received: from mail.hometree.net ([212.34.181.120]:57557 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S313571AbSHFQqz>; Tue, 6 Aug 2002 12:46:55 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: 2.4.19-ac4 IRQ messup?
+Date: Tue, 6 Aug 2002 16:50:33 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <aiouop$5ut$1@forge.intermeta.de>
+References: <Pine.LNX.4.44.0208052251170.21076-100000@korben.citd.de> <200208061139.35323.tmi@wikon.de> <20020806100101.GA20758@alpha.home.local> <200208061643.56773.tmi@wikon.de>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1028652633 11282 212.34.181.4 (6 Aug 2002 16:50:33 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 6 Aug 2002 16:50:33 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> 
-> On Mon, 5 Aug 2002, Ben Greear wrote:
-> 
-> 
->>Marcelo Tosatti wrote:
->>
->>>So here goes -pre1, with a big -ac and x86-64 merges, plus other smaller
->>>stuff.
->>>
->>>2.4.20 will be a much faster release cycle than 2.4.19 was.
->>
->>Two questions:  I see change logs about NAPI going in, and then
->>NAPI being removed.  I assume it is removed...but maybe it will
->>be back soon?
-> 
-> 
-> I want arguments from Davem to include NAPI. Changing the drivers is a
-> reason for me to _not_ want it in.
-> 
-> But lets see if Davem can convince me ;)
+Thomas Mierau <tmi@wikon.de> writes:
 
-Well, I hope he does, and I hope it really works :)
+>I switched cables, checked the switch etc....
+>nothing helps.
+>I installed an extra PCI card which came up as eth0, making the internal ones 
+>eth1 and eth2. No I started pinging with eth0, which was giving me strange 
+>effects again.
+>eth0 = 192.168.47.11
+>eth1 = 192.168.47.12
+>eth2 = 192.168.47.13
+>I took a tcpdump on the receiving box. It was kind of interesting.
+>There were arp packages askin who is 192.168.47.11 and answers coming back 
+>with two dofferent MAC-Id's One from the eth0 and the other one from the eth2 
+>which was actually configured on  IP .13
+> After I shut down etho1 and 2 and ran the box with "noapic" it preforms 
+>perfect with the external card.
+>Either the NIC's are broken, or the driver  or whatever. I hate that !!
 
-The patch I was looking for was the pre-patch you put out.
-I see it's on kernel.org now, so no problem there.
+Are they all on the same ethernet? If yes, then
 
-Ben
-> 
-> 
->>Second:  Where is the patch?  I looked on kernel.org and didn't
->>find it.  If it's going to be there shortly, that's fine, I'll
->>keep checking back.
-> 
-> 
-> Maybe at davem's CVS repo?
-> 
+a) don't do this
+b) try echo "1"> /proc/sys/net/ipv4/conf/all/arp_filter
 
+	Regards
+		Henning
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

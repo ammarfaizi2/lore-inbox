@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264477AbUEXRtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264610AbUEXR4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264477AbUEXRtU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 13:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUEXRtU
+	id S264610AbUEXR4a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 13:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUEXR4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 13:49:20 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:29373 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264669AbUEXRqn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 13:46:43 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 24 May 2004 10:46:41 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       rmk+lkml@arm.linux.org.uk
-Subject: Re: scheduler: IRQs disabled over context switches
-In-Reply-To: <Pine.LNX.4.58.0405241012300.4174@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.58.0405241046060.4174@bigblue.dev.mdolabs.com>
-References: <20040523174359.A21153@flint.arm.linux.org.uk> <20040524083715.GA24967@elte.hu>
- <Pine.LNX.4.58.0405232340070.2676@bigblue.dev.mdolabs.com>
- <20040524090538.GA26183@elte.hu> <Pine.LNX.4.58.0405241012300.4174@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 24 May 2004 13:56:30 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11750 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264610AbUEXR40 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 13:56:26 -0400
+Date: Mon, 24 May 2004 10:55:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christian <evil@g-house.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tarballs of patchsets?
+Message-Id: <20040524105552.311a990b.akpm@osdl.org>
+In-Reply-To: <40B21F98.1080803@g-house.de>
+References: <40B21F98.1080803@g-house.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 May 2004, Davide Libenzi wrote:
+Christian <evil@g-house.de> wrote:
+>
+> i am trying to chase some bug and i know, it must be somewhere between 2.6.4 and 
+>  2.6.5.
 
-> On Mon, 24 May 2004, Ingo Molnar wrote:
-> 
-> > 
-> > * Davide Libenzi <davidel@xmailserver.org> wrote:
-> > 
-> > > We used to do it in 2.4. What changed to make it fragile? The
-> > > threading (TLS) thing?
-> > 
-> > it _should_ work, but in the past we only had trouble from such changes
-> > (at least in the O(1) tree of scheduling - 2.4 scheduler is OK.). We
-> > could try the patch below. It certainly boots on SMP x86. But it causes
-> > a 3.5% slowdown in lat_ctx so i'd not do it unless there are some really
-> > good reasons.
-> 
-> IMO it is fine, as long as it works with IRQ disabled. There are archs 
-
-s/disabled/enabled/
+The most practical way of doing this would be to download bitkeeper and do
+a binary search.
 
 
+ 1: Do `bk changes > foo'.
 
-- Davide
+    This generates a monster changelog file which is your
+    bisection-searching guide.  It has stuff like:
 
+ ChangeSet@1.1734, 2004-05-21 22:59:48+01:00, tony@com.rmk.(none)
+   [ARM PATCH] 1887/1: Update OMAP low level debug functions again
+   
+   Patch from Tony Lindgren
+   
+   This patch makes the low level debug functions work when support is
+   compiled in for multiple OMAPs. The patch also removes now unnecessary
+   include, incorrect comment, and SERIAL_REG_SHIFT ifdefs.
+
+
+ 2: Do
+
+ 	bl clone -ql -r1.1734 ref-repo test-repo
+
+    and you have a tree up to and including 1.1734.
+
+ 3: cd test-repo ; bk -r get
+
+ 4: build, test, choose new revision, goto step 1.
+
+
+It's probably possible to do the same with the CVS tree - I haven't tried.

@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270330AbTGRSzm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 14:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271757AbTGRSzl
+	id S270316AbTGRS5P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 14:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270308AbTGRS5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 14:55:41 -0400
-Received: from filesrv1.system-techniques.com ([199.33.245.55]:6881 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id S270330AbTGRSzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 14:55:37 -0400
-Date: Fri, 18 Jul 2003 15:10:16 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Christophe Saout <christophe@saout.de>
-cc: "Dimitry V. Ketov" <Dimitry.Ketov@avalon.ru>,
-       Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: RE: Partitioned loop device..
-In-Reply-To: <1058538027.19986.3.camel@chtephan.cs.pocnet.net>
-Message-ID: <Pine.LNX.4.56.0307181508490.11351@filesrv1.baby-dragons.com>
-References: <E1B7C89B8DCB084C809A22D7FEB90B3840AB@frodo.avalon.ru>
- <1058538027.19986.3.camel@chtephan.cs.pocnet.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.56.0307181508492.11351@filesrv1.baby-dragons.com>
+	Fri, 18 Jul 2003 14:57:15 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:34821 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S270272AbTGRS44
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 14:56:56 -0400
+Date: Fri, 18 Jul 2003 12:11:43 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Sb16 kernel parameters.
+Message-ID: <20030718191143.GA4583@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20030717220915.GA5046@ping.be> <3F1730C9.4020300@sbcglobal.net> <s5hsmp4jh49.wl@alsa2.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hsmp4jh49.wl@alsa2.suse.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Christophe ,  Are the tools you use in this script only for
-	2.5/2.6 ?  Tia ,  JimL
-On Fri, 18 Jul 2003, Christophe Saout wrote:
-> Am Di, 2003-07-15 um 20.32 schrieb Dimitry V. Ketov:
-> > > You can already use Device-Mapper to create "partitions" on
-> > > your loop devices,
-> > You're right but I want _partitions_ but not "partitions" ;)
-> > It should appears like a real hardware disk, not virtual one.
-> I just hacked up an ugly small shell script, that uses sfdisk and
-> dmsetup to create the partition devices over any block device.
-> Just dmsetup-partitions /dev/loop0 or something.
-> It will then create devices /dev/mapper/loop0p1, etc... just like hda1
-> and so on. To remove them use "dmsetup remove loop0p1", etc...
+On Fri, Jul 18, 2003 at 11:53:26AM +0200, Takashi Iwai wrote:
+> At Thu, 17 Jul 2003 18:27:05 -0500,
+> Wes Janzen wrote:
+> > 
+> > And at the end of the sb16.c file I found:
+> > 
+> > #ifndef MODULE
+> > 
+> > /* format is: snd-sb16=enable,index,id,isapnp,
+> >                        port,mpu_port,fm_port,
+> >                        irq,dma8,dma16,
+> >                        mic_agc,csp,
+> >                        [awe_port,seq_ports]
+> > 
+> > Which is probably what format you'll need to use but I don't know much 
+> > about drivers...;-)
+> > I don't know what "id" stands for either...
+> 
+> enable, index and id are common options for all modules.
+> the id is the identifier string for this card instance and must be
+> unique.  it's used as the directory name in /proc/asound, as the tag
+> in /etc/asound.state, and so on.
+> you can pass the arbitray string via option, or the null string so
+> that the driver chooses an approriate name.
+
+I've not been testing 2.5 yet and perhaps some of what you
+said would make more sense if i had but i for one haven't a
+clue to what the string equivalent to "sb=0x220,7,1,5" would
+be or where i might specify it.  It's been a couple of years
+since i did the digging to figure out i needed the sb= line
+and what the contents should be.
+
+How to do this needs to go into the 2.4-2.6 migration
+document/FAQ.  And it should go in in a rather explicit way
+on the order of "if for SB16 you have been using
+sb=0x220,7,1,5 as a boot parameter you would now need to use
+XXXX=XXXXXXXXXX as ZZZZZ.
+
 -- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

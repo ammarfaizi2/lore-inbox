@@ -1,52 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVAaWEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVAaWEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVAaWEH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 17:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVAaWEH
+	id S261392AbVAaWEa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 17:04:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVAaWEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 17:04:07 -0500
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:13841 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261376AbVAaWEA
+	Mon, 31 Jan 2005 17:04:30 -0500
+Received: from alog0059.analogic.com ([208.224.220.74]:4992 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261392AbVAaWEN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 17:04:00 -0500
-Date: Mon, 31 Jan 2005 23:04:16 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [2.6 patch] i2c-core.c: make some code static
-Message-Id: <20050131230416.59daa051.khali@linux-fr.org>
-In-Reply-To: <20050131214622.GF21437@stusta.de>
-References: <20050131185955.GA18316@stusta.de>
-	<20050131215050.61c2924c.khali@linux-fr.org>
-	<20050131214622.GF21437@stusta.de>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Jan 2005 17:04:13 -0500
+Date: Mon, 31 Jan 2005 17:04:20 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] "biological parent" pid
+In-Reply-To: <Pine.LNX.4.53.0501311923440.18039@gockel.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.61.0501311700350.5829@chaos.analogic.com>
+References: <Pine.LNX.4.53.0501311923440.18039@gockel.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+On Mon, 31 Jan 2005, Tim Schmielau wrote:
 
-> > > -struct bus_type i2c_bus_type = {
-> > > -	.name =		"i2c",
-> > > -	.match =	i2c_device_match,
-> > > -	.suspend =      i2c_bus_suspend,
-> > > -	.resume =       i2c_bus_resume,
-> > > -};
-> > (...)
-> > 
-> > Is moving that code around really necessary? Looks to me like only
-> > the i2c_bus_type structure needs to be moved.
-> 
-> i2c_bus_type requires i2c_device_match, i2c_bus_suspend and 
-> i2c_bus_resume...
+> The ppid of a process is not really helpful if I want to reconstruct the
+> real history of processes on a machine, since it may become 1 when the
+> parent dies and the process is reparented to init.
+>
+> I am not aware of concepts in Linux or other unices that apply to this
+> case. So I made up the "biological parent pid" bioppid (in contrast to the
+> adoptive parents pid) that just never changes.
+> Any user of it must of course remember that it doesn't need to be a valid
+> pid anymore or might even belong to a different process that was forked in
+> the meantime. bioppid only had to be a valid pid at time btime (it's
+> a (btime, pid) pair that unambiguously identifies a process).
+>
+> Comments? (other that I just broke /proc/nnn/status parsing once again :-)
+>
+> Tim
 
-Oops, seems I missed the obvious here :/
+It's worthless for the reasons cited plus others and it just adds more
+unused stuff to the kernel.
 
-Sorry for the noise. I guess I better get some sleep now...
+>
+>
+> --- linux-2.6.10/include/linux/sched.h	2004-12-24 22:33:59.000000000 +0100
+> +++ linux-2.6.10-ppid/include/linux/sched.h	2005-01-31 19:20:00.000000000 +0100
+> @@ -556,6 +556,7 @@ struct task_struct {
+> 	unsigned did_exec:1;
+> 	pid_t pid;
+> 	pid_t tgid;
+> +	pid_t bioppid;                  /* biological parents */
+> 	/*
+> 	 * pointers to (original) parent process, youngest child, younger sibling,
+> 	 * older sibling, respectively.  (p->father can be replaced with
+>
+> --- linux-2.6.10/kernel/fork.c	2004-12-24 22:33:59.000000000 +0100
+> +++ linux-2.6.10-ppid/kernel/fork.c	2005-01-31 18:15:39.000000000 +0100
+> @@ -889,6 +889,7 @@ static task_t *copy_process(unsigned lon
+> 	p->tgid = p->pid;
+> 	if (clone_flags & CLONE_THREAD)
+> 		p->tgid = current->tgid;
+> +	p->bioppid = current->pid;
+>
+> 	if ((retval = security_task_alloc(p)))
+> 		goto bad_fork_cleanup_policy;
+>
+> --- linux-2.6.10/fs/proc/array.c	2004-12-24 22:35:00.000000000 +0100
+> +++ linux-2.6.10-ppid/fs/proc/array.c	2005-01-31 18:19:02.000000000 +0100
+> @@ -165,6 +165,7 @@ static inline char * task_state(struct t
+> 		"Tgid:\t%d\n"
+> 		"Pid:\t%d\n"
+> 		"PPid:\t%d\n"
+> +		"BioPPid:\t%d\n"
+> 		"TracerPid:\t%d\n"
+> 		"Uid:\t%d\t%d\t%d\t%d\n"
+> 		"Gid:\t%d\t%d\t%d\t%d\n",
+> @@ -172,6 +173,7 @@ static inline char * task_state(struct t
+> 		(p->sleep_avg/1024)*100/(1020000000/1024),
+> 	       	p->tgid,
+> 		p->pid, pid_alive(p) ? p->group_leader->real_parent->tgid : 0,
+> +		p->bioppid,
+> 		pid_alive(p) && p->ptrace ? p->parent->pid : 0,
+> 		p->uid, p->euid, p->suid, p->fsuid,
+> 		p->gid, p->egid, p->sgid, p->fsgid);
+>
+> --- linux-2.6.10/kernel/acct.c	2004-12-24 22:34:58.000000000 +0100
+> +++ linux-2.6.10-ppid/kernel/acct.c	2005-01-31 18:19:35.000000000 +0100
+> @@ -446,7 +446,7 @@ static void do_acct_process(long exitcod
+> #endif
+> #if ACCT_VERSION==3
+> 	ac.ac_pid = current->tgid;
+> -	ac.ac_ppid = current->parent->tgid;
+> +	ac.ac_ppid = current->bioppid;
+> #endif
+>
+> 	read_lock(&tasklist_lock);	/* pin current->signal */
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
--- 
-Jean Delvare
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265984AbUBQEuL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 23:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUBQEuL
+	id S266003AbUBQFTG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 00:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266007AbUBQFTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 23:50:11 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:15088 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265978AbUBQEuG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 23:50:06 -0500
-Subject: Non-PCI build broken on sparc64, maybe others
-From: David Dillow <dave@thedillows.org>
-To: sparclinux@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1076993402.21443.5.camel@ori.thedillows.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Feb 2004 23:50:03 -0500
+	Tue, 17 Feb 2004 00:19:06 -0500
+Received: from dp.samba.org ([66.70.73.150]:28108 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266003AbUBQFTA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 00:19:00 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Christophe Saout <christophe@saout.de>,
+       LKML <linux-kernel@vger.kernel.org>, pavel@suse.cz,
+       Dirk Morris <dmorris@metavize.com>
+Subject: Re: kthread, signals and PF_FREEZE (suspend) 
+In-reply-to: Your message of "Mon, 16 Feb 2004 16:53:29 -0000."
+             <20040216165329.GB17323@mail.shareable.org> 
+Date: Tue, 17 Feb 2004 15:44:18 +1100
+Message-Id: <20040217051911.779272C26A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe this changeset in Linus's tree:
-======== ChangeSet 1.1500.12.4 ========
-D 1.1500.12.4 04/02/02 11:04:46-08:00 dsaxena@plexity.net 35779 35702 5/0/1
-P ChangeSet
-C [PATCH] PCI: Replace pci_pool with generic dma_pool
-C
-C - Move drivers/pci/pool.c to drivers/base/pool.c
-C - Initialize struct device.dma_pools in device_initialize()
-C - Remove initialization of struct pci_dev.pools from pci_setup_device()
-------------------------------------------------
+In message <20040216165329.GB17323@mail.shareable.org> you write:
+> Rusty Russell wrote:
+> > > That means that signal_pending() will return true for that process which
+> > > will make kthread stop the thread.
+> > 
+> > Yes, the way they are currently coded.  I had assumed that spurious
+> > signals do not occur.
+> 
+> Yowch.  Does suspend mean this warning in futex_wait is wrong?
+> 
+> 	/* A spurious wakeup should never happen. */
+> 	WARN_ON(!signal_pending(current));
+> 	return -EINTR;
 
-with key: dsaxena@plexity.net|ChangeSet|20040202190446|51997
+That's why it's a WARN_ON not a BUG_ON, and why suspend is
+experimental.  But the bug reports we've seen didn't mention "I was
+suspending when..."
 
-breaks builds that do not include PCI support.
+Although Dirk has CONFIG_SOFTWARE_SUSPEND=y.
 
-If I set CONFIG_PCI=y, it builds. If not, I get:
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x2056c): In function `pool_alloc_page':
-: undefined reference to `dma_alloc_coherent'
-drivers/built-in.o(.text+0x2060c): In function `pool_free_page':
-: undefined reference to `dma_free_coherent'
-make: *** [.tmp_vmlinux1] Error 1
-
-while building BK-latest for my Ultra1.
-
-Just a heads up,
-Dave
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

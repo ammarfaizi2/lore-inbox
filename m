@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265238AbSLBVEk>; Mon, 2 Dec 2002 16:04:40 -0500
+	id <S265211AbSLBVNf>; Mon, 2 Dec 2002 16:13:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265242AbSLBVEk>; Mon, 2 Dec 2002 16:04:40 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:33550 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265238AbSLBVEj>; Mon, 2 Dec 2002 16:04:39 -0500
-Date: Mon, 2 Dec 2002 21:11:53 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Joseph Fannin <jhf@rivenstone.net>
-cc: linux-kernel@vger.kernel.org, <linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: Fbdev 2.5.49 BK fixes.
-In-Reply-To: <20021128083246.GA2703@zion.rivenstone.net>
-Message-ID: <Pine.LNX.4.44.0212022110150.20834-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265228AbSLBVNe>; Mon, 2 Dec 2002 16:13:34 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:63246
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S265211AbSLBVNd>; Mon, 2 Dec 2002 16:13:33 -0500
+Subject: [PATCH] deprecate use of bdflush()
+From: Robert Love <rml@tech9.net>
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1038864066.1221.43.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 02 Dec 2002 16:21:07 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We can never get rid of it if we do not deprecate it - so do so and
+print a stern warning to those who still run bdflush daemons.
 
->     aty128fb works for me here with:
-> 
-> 01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF/PRO AGP 4x TMDS
-> 
->     Thank you!
+Patch is against 2.5.49-mm2.  Please apply.
 
-Great. I made more inprovements with my latest patch. Give it a try. 
+	Robert Love
 
->     There are a few glitches, but I've been unable to pin down
-> anything serious as the fbdev patch's fault.  I'm still playing with
-> things (like Antonio Daplas' patches).  I'll give a more full report
-> later.
 
-I just intergrated a bunch of his work. The subsystem is starting to 
-really take shape. 
+ fs/buffer.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
 
->     FWIW, the fbdev patch applies with a few minor offsets to 2.5.50
-> except for the attached patch, which I extracted from bk.  So if you
-> apply this patch in *reverse* to a clean 2.5.50 tree, the fbdev patch
-> should then apply okay (patch complained about a reversed hunk in
-> fbcon.c, but it should be harmless, I think.)
 
-I noticed. My new patch fixes that.
+diff -urN linux-2.5.49-mm2/fs/buffer.c linux/fs/buffer.c
+--- linux-2.5.49-mm2/fs/buffer.c	2002-12-02 16:07:53.000000000 -0500
++++ linux/fs/buffer.c	2002-12-02 16:17:16.000000000 -0500
+@@ -2757,11 +2757,17 @@
+ /*
+  * There are no bdflush tunables left.  But distributions are
+  * still running obsolete flush daemons, so we terminate them here.
++ *
++ * Use of bdflush() is deprecated and will be removed in a future kernel.
++ * The `pdflush' kernel threads fully replace bdflush daemons and this call.
+  */
+ asmlinkage long sys_bdflush(int func, long data)
+ {
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
++
++	printk(KERN_WARNING "warning: the bdflush system call is deprecated "
++			 "and no longer needed.  Stop using it.\n");
+ 	if (func == 1)
+ 		do_exit(0);
+ 	return 0;
+
+
 

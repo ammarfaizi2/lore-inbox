@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263808AbTFDThk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 15:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTFDThk
+	id S263983AbTFDTnG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 15:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263987AbTFDTnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 15:37:40 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:15849 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S263808AbTFDThj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 15:37:39 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780D6F0F28@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'John Appleby'" <john@dnsworld.co.uk>,
-       "'lkml (linux-kernel@vger.kernel.org)'" 
-	<linux-kernel@vger.kernel.org>
-Subject: RE: Serio keyboard issues 2.5.70
-Date: Wed, 4 Jun 2003 12:51:04 -0700 
+	Wed, 4 Jun 2003 15:43:05 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28935 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263983AbTFDTnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 15:43:03 -0400
+Date: Wed, 4 Jun 2003 12:56:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "P. Benie" <pjb1008@eng.cam.ac.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.5] Non-blocking write can block
+In-Reply-To: <Pine.HPX.4.33L.0306041937290.18475-100000@punch.eng.cam.ac.uk>
+Message-ID: <Pine.LNX.4.44.0306041255060.15174-100000@home.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> void serio_register_device(struct serio_dev *dev)
-> {
->         struct serio *serio;
->         list_add_tail(&dev->node, &serio_dev_list);
-> 	  printk("serio: add_tail %08x\n",&dev->node);
->         list_for_each_entry(serio, &serio_list, node) {
->                 printk("serio: register_device %08x\n",serio->dev);
->                 if (!serio->dev && dev->connect) {
->                         printk("serio: connecting...\n");
->                         dev->connect(serio, dev);
->                 }
->         }
-> }
+On Wed, 4 Jun 2003, P. Benie wrote:
+> 
+> The problem isn't to do with large writes. It's to do with any sequence of
+> writes that fills up the receive buffer, which is only 4K for N_TTY. If
+> the receiving program is suspended, the buffer will fill sooner or later.
 
-Well - I don't know the real reason, but the code is
-adding the device to the 'serio_dev_list', and the
-list iteration is going over the 'serio_list'...
+Well, even then we could just drop the "write_atomic" lock. 
 
+The thing is, I don't know what the tty atomicity guarantees are. I know 
+what they are for pipes (quite reasonable), but tty's? 
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+		Linus
+

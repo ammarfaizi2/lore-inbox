@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbTCYLWW>; Tue, 25 Mar 2003 06:22:22 -0500
+	id <S261994AbTCYLZm>; Tue, 25 Mar 2003 06:25:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261937AbTCYLWV>; Tue, 25 Mar 2003 06:22:21 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:2822 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S261908AbTCYLWV>; Tue, 25 Mar 2003 06:22:21 -0500
-Date: Tue, 25 Mar 2003 14:33:10 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cacheline size detection code in 2.5.66
-Message-ID: <20030325143310.A3487@jurassic.park.msu.ru>
-References: <20030325071532.GA19217@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030325071532.GA19217@averell>; from ak@muc.de on Tue, Mar 25, 2003 at 08:15:32AM +0100
+	id <S261981AbTCYLZm>; Tue, 25 Mar 2003 06:25:42 -0500
+Received: from mail.hometree.net ([212.34.181.120]:41900 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S261994AbTCYLZk>; Tue, 25 Mar 2003 06:25:40 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Ptrace hole / Linux 2.2.25
+Date: Tue, 25 Mar 2003 11:36:50 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <b5pf0i$rfu$2@tangens.hometree.net>
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323194423.GC14750@atrey.karlin.mff.cuni.cz> <1048448838.1486.12.camel@phantasy.awol.org> <20030323195606.GA15904@atrey.karlin.mff.cuni.cz> <1048450211.1486.19.camel@phantasy.awol.org> <402760000.1048451441@[10.10.2.4]>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1048592210 28158 212.34.181.4 (25 Mar 2003 11:36:50 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 25 Mar 2003 11:36:50 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 08:15:32AM +0100, Andi Kleen wrote:
-> This will be wrong on Pentium M for example which has a 32byte cache
-> line but x86 model 9. But it's actually not needed, because all the 
-> new CPUs report their cacheline size as part of CPUID for CLFLUSH.
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-We check x86 family, not model. According to Intel docs Pentium M
-has family code 6.
+>If that's people's attitude ("you should use a vendor"), then we need a 
+>2.4-fixed tree to be run by somebody with an interest in providing 
+>critical bugfixes to the community with no distro ties. People may be
+>perfectly capable of finding, applying, and collecting their own patches,
+>but that's no reason to make it difficult.
 
-> The x86-64 port extract it like this in setup.c:
-> 	if (c->x86_capability[0] & (1<<19)) 
->        		c->x86_clflush_size = ((misc >> 8) & 0xff) * 8;
-> 	}. 
-> I changed its pci code to use that directly now. i386 likely
-> should too. When no CLFLUSH is supported you can safely assume 32byte
-> cachelines.
+Get the vendors to pay someone equally for it. That's much more likely
+to succeed. The current 2.4 model is already doomed, IMHO. 
 
-Apparently it's fine for K8, but what about Athlons? They have
-bit 19 == 0 and 64-byte cache lines.
-BTW, the "AMD Processor Recognition Application Note" calls bit 19
-"Multiprocessing Capable". ;-)
+	Regards
+		Henning
 
-Ivan.
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire

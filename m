@@ -1,58 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129441AbRAYA7g>; Wed, 24 Jan 2001 19:59:36 -0500
+	id <S129444AbRAYBLR>; Wed, 24 Jan 2001 20:11:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129444AbRAYA71>; Wed, 24 Jan 2001 19:59:27 -0500
-Received: from jalon.able.es ([212.97.163.2]:14041 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129441AbRAYA7L>;
-	Wed, 24 Jan 2001 19:59:11 -0500
-Date: Thu, 25 Jan 2001 01:58:53 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: "J . A . Magallon" <jamagallon@able.es>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "Justin T . Gibbs" <gibbs@scsiguy.com>
-Subject: Re: warning in 2.4.1pre10
-Message-ID: <20010125015853.A2839@werewolf.able.es>
-In-Reply-To: <20010125004454.C930@werewolf.able.es> <20010124184500.B6941@cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010124184500.B6941@cadcamlab.org>; from peter@cadcamlab.org on Thu, Jan 25, 2001 at 01:45:00 +0100
-X-Mailer: Balsa 1.1.0
+	id <S129441AbRAYBLI>; Wed, 24 Jan 2001 20:11:08 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45842 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135296AbRAYBKx>; Wed, 24 Jan 2001 20:10:53 -0500
+Subject: Re: Is sendfile all that sexy?
+To: sape@iq.rulez.org (Sasi Peter)
+Date: Thu, 25 Jan 2001 01:11:07 +0000 (GMT)
+Cc: jas88@cam.ac.uk (James Sutherland), linux-kernel@vger.kernel.org
+In-Reply-To: <200101241512.QAA01140@iq.rulez.org> from "Sasi Peter" at Jan 24, 2001 04:12:49 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14LawQ-000893-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I think, that is not what we need. Once Ingo wrote, that since HTTP 
+> serving can also be viewed as a kind of fileserving, it should be 
+> possible to create a TUX like module for the same framwork, that serves 
+> using the SMB protocol instead of HTTP...
 
-On 01.25 Peter Samuelson wrote:
-> 
-> [J. A. Magallon]
-> > It is harmless, 'cause the last sentence in the funtion is a panic,
-> > but it is good to add the 'return 0', just to shut up the compiler.
-> 
-> The correct fix is __attribute__((noreturn)) in the panic() prototype.
-> As it happens, this has already been done....
-> 
 
-I know Linux will never be compiled with any other thing than gcc. But
-what I do not understand is why if there is a standard C way of doing
-something you have to use an strange extension of gcc.
-Same happens with 'return' and 'break'. You type the same to add a
-'/* DO NOT REMEMBER THE PRECISE COMMENT */' to shut up the compiler
-instead of just writing
-case X:
-	...
-	return xxx;
-	break;
-
-???
-Size optimization for the couple of bytes of the jump in return or break ?
-
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.1-pre10 #4 SMP Wed Jan 24 00:20:15 CET 2001 i686
+Kernel SMB is basically not a sane idea. sendfile can help it though
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

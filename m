@@ -1,43 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265776AbUHNU5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUHNU5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265776AbUHNU5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 16:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUHNU5P
+	id S265928AbUHNU5j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 16:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUHNU5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 16:57:15 -0400
-Received: from ms-smtp-03.rdc-kc.rr.com ([24.94.166.129]:6863 "EHLO
-	ms-smtp-03.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S265776AbUHNU5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 16:57:13 -0400
-Date: Sat, 14 Aug 2004 15:57:07 -0500
-From: Greg Norris <haphazard@kc.rr.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.8 - Oops on NFSv3
-Message-ID: <20040814205707.GA11936@yggdrasil.localdomain>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org> <20040814115548.A19527@infradead.org> <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org> <411E0A37.5040507@anomalistic.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 14 Aug 2004 16:57:39 -0400
+Received: from omx2-ext.SGI.COM ([192.48.171.19]:38067 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265928AbUHNU5e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 16:57:34 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Len Brown <len.brown@intel.com>
+Subject: Re: [BKPATCH] ACPI for 2.6
+Date: Sat, 14 Aug 2004 13:56:51 -0700
+User-Agent: KMail/1.6.2
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+References: <1092466509.5028.248.camel@dhcppc4>
+In-Reply-To: <1092466509.5028.248.camel@dhcppc4>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <411E0A37.5040507@anomalistic.org>
-X-Operating-System: Linux yggdrasil 2.6.8-rc4 #1 SMP Thu Aug 12 17:22:13 CDT 2004 i686 GNU/Linux
-User-Agent: Mutt/1.5.6+20040803i
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_TynHBaaPsbMZ9XT"
+Message-Id: <200408141356.51746.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 14, 2004 at 08:48:55PM +0800, Nur Hussein wrote:
-> I hear the first victim of the breakage may be the kernel.org front 
-> page. 2.6.8.1 is not showing up as "latest".
 
-The `patch-kernel' script needs updating as well.
+--Boundary-00=_TynHBaaPsbMZ9XT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-   $ scripts/patch-kernel . ~/kernel/
-   Current kernel version is 2.6.0
-   Applying patch-2.6.1 (bzip2)... done.
-   Applying patch-2.6.2 (bzip2)... done.
-   Applying patch-2.6.3 (bzip2)... done.
-   Applying patch-2.6.4 (bzip2)... done.
-   Applying patch-2.6.5 (bzip2)... done.
-   Applying patch-2.6.6 (bzip2)... done.
-   Applying patch-2.6.7 (bzip2)... done.
-   Applying patch-2.6.8 (bzip2)... done.
+On Friday, August 13, 2004 11:55 pm, Len Brown wrote:
+> Hi Linus, please do a
+>
+> 	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.8
+>
+> 	Key fixes for suspend/resume, a couple of common
+> 	boot failures, and misc. random fixes.
+
+You'll need this fix for ia64 though.  Linus, please apply.
+
+Define acpi_noirq on ia64 since it's used now in pci_link.c.  All ia64 
+machines use ACPI, so we can just define it to 0 like we do for acpi_disabled 
+and acpi_pci_disabled.
+
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+
+Thanks,
+Jesse
+
+--Boundary-00=_TynHBaaPsbMZ9XT
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="ia64-acpi-build-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ia64-acpi-build-fix.patch"
+
+diff -Napur -X /home/jbarnes/dontdiff linux-2.6.8-rc4.orig/include/asm-ia64/acpi.h linux-2.6.8-rc4/include/asm-ia64/acpi.h
+--- linux-2.6.8-rc4.orig/include/asm-ia64/acpi.h	2004-08-10 09:01:34.000000000 -0700
++++ linux-2.6.8-rc4/include/asm-ia64/acpi.h	2004-08-10 09:26:39.000000000 -0700
+@@ -89,6 +89,7 @@ ia64_acpi_release_global_lock (unsigned 
+ 	((Acq) = ia64_acpi_release_global_lock((unsigned int *) GLptr))
+ 
+ #define acpi_disabled 0	/* ACPI always enabled on IA64 */
++#define acpi_noirq 0	/* ACPI always enabled on IA64 */
+ #define acpi_pci_disabled 0 /* ACPI PCI always enabled on IA64 */
+ #define acpi_strict 1	/* no ACPI spec workarounds on IA64 */
+ static inline void disable_acpi(void) { }
+
+--Boundary-00=_TynHBaaPsbMZ9XT--

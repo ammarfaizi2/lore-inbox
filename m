@@ -1,58 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131360AbQLVSl6>; Fri, 22 Dec 2000 13:41:58 -0500
+	id <S131575AbQLVSoh>; Fri, 22 Dec 2000 13:44:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131370AbQLVSlr>; Fri, 22 Dec 2000 13:41:47 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:7296 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S131360AbQLVSle>;
-	Fri, 22 Dec 2000 13:41:34 -0500
-Date: Fri, 22 Dec 2000 10:11:06 -0800 (PST)
-From: J J Sloan <jjs@mirai.cx>
-To: linux-kernel@vger.kernel.org
-Subject: drm woes continue in test13-pre4
-Message-ID: <Pine.LNX.4.10.10012221002580.812-100000@mirai.cx>
+	id <S131822AbQLVSoR>; Fri, 22 Dec 2000 13:44:17 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:16512 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131574AbQLVSoQ>; Fri, 22 Dec 2000 13:44:16 -0500
+Date: Fri, 22 Dec 2000 13:13:33 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.19pre3
+In-Reply-To: <9204fu$ghe$3@enterprise.cistron.net>
+Message-ID: <Pine.LNX.3.95.1001222130921.2200B-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On 22 Dec 2000, Miquel van Smoorenburg wrote:
 
-Up to and including -test12, tdfx.o has built and run nicely.
+> In article <Pine.LNX.3.95.1001222104908.791A-100000@chaos.analogic.com>,
+> Richard B. Johnson <root@chaos.analogic.com> wrote:
+> >alias kwhich='type -path' in ~./bashrc should fix.
+> 
+> Hmm? Smells like a stupid bug to me. The script is called as:
+> 
+> CCFOUND :=$(shell $(CONFIG_SHELL) scripts/kwhich kgcc gcc272 cc gcc)
+> 
+> So how can bash ever decide to replace scripts/kwhich (OBVIOUSLY
+> a call to a non-internal command) with an alias or builtin?
+> 
+> Are you sure this is in fact the bug?
 
-Starting with -test13-pre1, and continuing to -test13-pre4,
-tdfx.o (and other modules e,g the olympic.o token ring driver)
-have not been successfully created. In general, modules work fine,
-it's just a few that have been broken byu the makefile changes.
+No it isn't the bug. I didn't see the path to kwhich when I first
+replied. I assumed another GNUism had appeared.
 
-# uname -r
-2.4.0-test13-pre4 
+> 
+> Couldn't it be the games with IFS in the scripts/kwhich script?
+> 
+> Try this patch:
+> 
+> --- linux-2.2.19pre3/scripts/kwhich.orig	Tue Dec 19 23:16:52 2000
+> +++ linux-2.2.19pre3/scripts/kwhich	Fri Dec 22 19:02:47 2000
+> @@ -7,7 +7,7 @@
+>          exit 1
+>  fi
+>  
+> -IFS=:
+> +IFS=":$IFS"
+>  for cmd in $*
+>  do
+>          for path in $PATH
+>
 
-# lsmod
-Module                  Size  Used by
-iptable_filter          1872   0  (autoclean) (unused)
-ip_nat_ftp              3408   0  (unused)
-iptable_nat            12672   1  [ip_nat_ftp]
-ip_conntrack_ftp        2048   0  (unused)
-ip_conntrack           13056   2  [ip_nat_ftp iptable_nat
-ip_conntrack_ftp]
-ip_tables              10624   4  [iptable_filter iptable_nat]
-ide-scsi                8096   0 
-8139too                15632   2  (autoclean)
-emu10k1                45232   0 
+And yes, this should do it.
 
-However, "modprobe tdfx" yields 34 lines of "unresolved symbol" 
-messages and a failure to load the module.
 
-Other info: 
-modutils version: 2.3.21
-gcc version: egcs-2.91.66
+Cheers,
+Dick Johnson
 
-More info on request
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
 
-Hope this helps direct attention to the problem -
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
-jjs
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

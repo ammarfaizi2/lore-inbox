@@ -1,75 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265441AbUAEF2x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 00:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265882AbUAEF2x
+	id S265889AbUAEFcf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 00:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265888AbUAEFcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 00:28:53 -0500
-Received: from SMTP2.andrew.cmu.edu ([128.2.10.82]:23991 "EHLO
-	smtp2.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S265441AbUAEF2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 00:28:50 -0500
-Date: Mon, 5 Jan 2004 00:28:50 -0500 (EST)
-From: "Nathaniel W. Filardo" <nwf@andrew.cmu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: File system cache corruption in 2.6?
-Message-ID: <Pine.LNX.4.58-035.0401050014450.5565@unix49.andrew.cmu.edu>
+	Mon, 5 Jan 2004 00:32:35 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:12388 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S265889AbUAEFc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 00:32:29 -0500
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linus Torvalds <torvalds@osdl.org>, Daniel Jacobowitz <dan@debian.org>,
+       Andries Brouwer <aebr@win.tue.nl>, Rob Love <rml@ximian.com>,
+       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+References: <20040104034934.A3669@pclin040.win.tue.nl>
+	<Pine.LNX.4.58.0401031856130.2162@home.osdl.org>
+	<20040104142111.A11279@pclin040.win.tue.nl>
+	<Pine.LNX.4.58.0401041302080.2162@home.osdl.org>
+	<20040104230104.A11439@pclin040.win.tue.nl>
+	<Pine.LNX.4.58.0401041847370.2162@home.osdl.org>
+	<20040105030737.GA29964@nevyn.them.org>
+	<Pine.LNX.4.58.0401041918260.2162@home.osdl.org>
+	<20040105035037.GD4176@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.58.0401041954010.2162@home.osdl.org>
+	<20040105043830.GE4176@parcelfarce.linux.theplanet.co.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 Jan 2004 22:26:37 -0700
+In-Reply-To: <20040105043830.GE4176@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <m1y8sndkz6.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-	I'm trying to work out the cause of a series of issues I've seen
-on my 2.6 machine.  It appears as though files (specifically libraries) in
-memory can get corrupted, resulting in strangeness like segfaults and
-things like "relocation error: can't find symbol ...-VOMD-POINTER" instead
-of "...-VOID-POINTER".
+viro@parcelfarce.linux.theplanet.co.uk writes:
 
-I don't believe it's actual hardware failure for a few reasons: memtest86
-passes all tests, GCC doesn't crash (it's a Gentoo system, so gcc and I
-are well acquainted - and before I get jumped on, I've installed udev ;)
-), and most importantly, sometimes thrashing the file system or engaging a
-kernel compile will rectify the situation, as just happened with emacs.
-It crashed, I killed it, it wouldn't load - I started a kernel compile,
-waited a bit, and lo', it works again.  No messages of relevance appear in
-dmesg.
+> On Sun, Jan 04, 2004 at 08:02:20PM -0800, Linus Torvalds wrote:
+> > Now, we'd probably not want to force the switch, but I do suspect we'll 
+> > have exactly this as a switch in the "Kernel Debugging Config" section. 
+> > Where even _common_ things like disks could end up with per-bootup values. 
+> > Just to verify that every part of the system ends up having it right.
+> 
+> Then we'd better have a very good idea of the things that are going to
+> break.  Note that right now even late-boot code in kernel itself will
+> break on that - there are explicit checks for ROOT_DEV==MKDEV(2,0),
+> all sorts of weird crap deep in the bowels of arch/ppc/*/*, etc.
 
-I have no reliable test-case and the problem only seems to surface after a
-decent amount of uptime (12 hours this time, but other times the system
-has been perfectly well behaved for days).
+/sbin/lilo and possibly some of the other bootloaders.  Relationships
+between devices are a challenge to work with.  How do you go from a
+partition to it's actual block device etc.  I don't remember how many
+major numbers lilo has hard coded, I just remember looking at it once
+and realizing I couldn't think of a better way to accomplish what it
+was trying to do.
 
-My system's running XFS filesystems, 2.6.0 vanilla, and is a Fujitsu P2120
-Crusoe based laptop with 386MB RAM.
+Eric
 
-I recall there was some concern about SLAB corruption and XFS - could it
-still be a problem?
-
-ver_linux output:
-Linux Enthare 2.6.0 #1 Wed Dec 24 00:13:49 EST 2003 i686 Transmeta(tm)
-Crusoe(tm) Processor TM5800 GenuineTMx86 GNU/Linux
-
-Gnu C                  3.3.2
-Gnu make               3.80
-util-linux             2.12
-mount                  2.12
-module-init-tools      0.9.15-pre4
-e2fsprogs              1.34
-pcmcia-cs              3.2.5
-nfs-utils              1.0.6
-Linux C Library        2.3.3
-Dynamic linker (ldd)   2.3.3
-Procps                 3.1.15
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               5.0.91
-Modules Loaded         8139too mii crc32 sg md5 ipv6 rtc usbcore
-orinoco_pci orinoco hermes ide_cd cdrom
-
-If anything else could be added to make this bug report / help request
-more useful, let me know.  I'm going to reboot soon with this newly built
-kernel (2.6.0-rc1-mm1) and will report back if the same problem seems to
-crop up again.
-
-Thanks in advance, and keep up the great work.
---nwf;

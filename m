@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbTLZBen (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 20:34:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264439AbTLZBen
+	id S264444AbTLZBqw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 20:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbTLZBqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 20:34:43 -0500
-Received: from colo.khms.westfalen.de ([213.239.196.208]:61568 "EHLO
-	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
-	id S262048AbTLZBem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 20:34:42 -0500
-Date: 25 Dec 2003 14:11:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8-YBaPEXw-B@khms.westfalen.de>
-In-Reply-To: <1072183068.1204.2.camel@ham>
-Subject: Re: DevFS vs. udev
-X-Mailer: CrossPoint v3.12d.kh12 R/C435
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-Organization: Organisation? Me?! Are you kidding?
-References: <1072183068.1204.2.camel@ham>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+	Thu, 25 Dec 2003 20:46:52 -0500
+Received: from lightning.hereintown.net ([141.157.132.3]:61359 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id S264444AbTLZBqu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 20:46:50 -0500
+Subject: GCC 3.4 Heads-up
+From: Chris Meadors <clubneon@hereintown.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1072403207.17036.37.camel@clubneon.clubneon.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 25 Dec 2003 20:46:48 -0500
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1AZh3y-0006W6-Ar*SYD.XeEzQ8.*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mosca@mosca.yi.org (Marcelo Bezerra)  wrote on 23.12.03 in <1072183068.1204.2.camel@ham>:
+I know it isn't the recommended compiler, heck it isn't even released
+yet, but I was messing around with a GCC 3.4 snapshot, and figured I'd
+give compiling the 2.6.0 kernel a shot.
 
-> On Tue, 2003-12-23 at 09:12, Xavier Bestel wrote:
-> > Le mar 23/12/2003 à 12:51, Bradley W. Allen a écrit :
-> > > DevFS was written by an articulate person who solved a lot of
-> > > problems.  udev sounds more like a thug who's smug about winning,
-> > > not explaining himself, saying things like "oh, the other guy
-> > > disappeared, so who cares, you have to use my code, too bad it sucks".
-> > [...]
-> > > I've spent two hours on this problem, and that's absurd;
-> >
-> > Man, you've convinced me !
-> > You've spent *two* hours on this problem ?  Woah, these K-H and Viro
-> > guys must be dorks if they don't subscribe to your theories. Who are
-> > they to think their opinion matters more than yours, who spent *two*
-> > hours on this problem ?
-> >
-> > Are you the new DevFS's maintainer ?
-> In spite you trying to make him sound foolish,
+Other than the constant barrage of warnings about the use of compound
+expressions as lvalues being deprecated* (mostly because of lines 114,
+116, and 117 of rcupdate.h, which is included everywhere), the build
+goes very well.
 
-No need whatsoever, he managed that fine all by himself. It's rare to see  
-such a concentrated amount of stupidity-by-being-too-lazy-to-do-trivial- 
-research on a technical mailing list.
+It isn't until the final link that I get an error.  It seems that
+something goes funny with the ACPI's use of strcpy.  I get undefined
+references to strcpy in:  acpi_bus_generate_event (twice),
+acpi_power_add, acpi_thermal_add, and acpi_bus_add.  There may be
+additional different locations, but the error output stops there.
 
-Of course, whoever thinks Bradley made some profound point must be asked  
-the same question - what made it impossible for you to do a trivial amount  
-of research so you would not utter so incredibly embarassing stupidity?
+As I said, I'm just messing around, and figured I'd let everyone know
+what's in the pipeline.  But if it is a simple fix, I'll give any
+changes anyone wants to try a shot.
 
-MfG Kai
+*It also doesn't like cast or conditional expressions as lvalues.
+
+-- 
+Chris
+

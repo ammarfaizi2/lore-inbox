@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbUACOLc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 09:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbUACOLc
+	id S263448AbUACOSb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 09:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbUACOSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 09:11:32 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1554 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263310AbUACOLa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 09:11:30 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
+	Sat, 3 Jan 2004 09:18:31 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:16019
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S263448AbUACOS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 09:18:29 -0500
+Message-ID: <3FF6CF34.80104@tmr.com>
+Date: Sat, 03 Jan 2004 09:18:28 -0500
 From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: The survival of ide-scsi in 2.6.x
-Date: Sat, 03 Jan 2004 09:11:35 -0500
-Organization: TMR Associates, Inc
-Message-ID: <bt6hs5$apq$1@gatekeeper.tmr.com>
-References: <20031226181242.GE1277@linnie.riede.org> <3FED7E80.20800@planet.nl> <20031227131724.GG1277@linnie.riede.org> <3FEF4EF2.4080303@planet.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1073138373 11066 192.168.12.10 (3 Jan 2004 13:59:33 GMT)
-X-Complaints-To: abuse@tmr.com
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
 X-Accept-Language: en-us, en
-In-Reply-To: <3FEF4EF2.4080303@planet.nl>
+MIME-Version: 1.0
+To: wrlk@riede.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: The survival of ide-scsi in 2.6.x
+References: <20031226181242.GE1277@linnie.riede.org>
+In-Reply-To: <20031226181242.GE1277@linnie.riede.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stef van der Made wrote:
+Willem Riede wrote:
+> I know that many feel that ide-scsi is useless, and should go away.
+> And you are probably tired of message threads talking about it.
+> Yet I ask respectfully that you hear me out, and give me feedback.
 > 
-> Hi Willem,
-> 
-> The standard stuff like mt -f /dev/ht0 status etc etc works. But tar 
-> doesn't wan't to-do backups anymore both with and witout the patch on a 
-> 2.6.0 kernel. I don't have a 2.4.x kernel handy to test if it still 
-> works with those kernels and my drive.
-> 
-> What I've done is the following:
-> 
-> bash-2.05# tar -cvb 64 -f /dev/ht0 /
-> tar: Removing leading `/' from absolute path names in the archive
-> 
-> lost+found/
-> usr/
-> usr/X11
-> usr/adm
-> usr/bin/
-> usr/bin/w
-> usr/bin/ar
-> tar: Cannot write to /dev/ht0: Invalid argument
-> tar: Error is not recoverable: exiting now
-> 
-> It looks as if the backup starts but it almost immediatly ends after the 
-> drive does some spinning and reading and or writing.
+> I need ide-scsi to survive. Why? I maintain osst, a driver for
+> OnStream tape drives, which need special handling. These drives
+> exist in SCSI, ATAPI, USB and IEEE1394 versions.
 
-It sounds stupid, but you did set the tape block size as appropriate, 
-didn't you? I've seen similar with incorrect block size writes in the 
-past, but I don't have the correct hardware home to try it.
+
+> In the spirit of cleaning up one's own mess, I am working on a new
+> patch, to hopefully alleviate the problems. I've made liberal use 
+> of the attachments to the osdl bug reports [1]-[4] created by 
+> Mike Christie and a patch from Philip Auld [10], to give credit
+> where it is due. I've also looked at ide-cd to see what it does 
+> differently.
+
+
+> Linus states in [7] that ide-scsi needs a maintainer. I haven't seen 
+> anyone step forward, so that leads me to believe I may be the only 
+> person that depends enough on ide-scsi to be motivated?
+> 
+> If people will have me, I am prepared to take on that responsibility.
+> I am just concerned that I may not have enough of a variety of devices
+> to be able to thoroughly test it (unless the DI-30 is the only one :-)).
+> What do people see as the requirements to be able to maintain ide-scsi?
+
+Sounds good to me, here we have someone who has both the need, the 
+ambition, and the time to do this. Users of tape and MO still have need 
+for ide-scsi, and would be happy to help test at least.
 
 -- 
 bill davidsen <davidsen@tmr.com>

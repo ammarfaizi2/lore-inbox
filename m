@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310440AbSCLGc0>; Tue, 12 Mar 2002 01:32:26 -0500
+	id <S310441AbSCLGf0>; Tue, 12 Mar 2002 01:35:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310446AbSCLGcV>; Tue, 12 Mar 2002 01:32:21 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:32009 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S310440AbSCLGcG>; Tue, 12 Mar 2002 01:32:06 -0500
-Date: Tue, 12 Mar 2002 07:32:04 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, andersen@codepoet.org,
-        Bill Davidsen <davidsen@tmr.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-Message-ID: <20020312073204.B4863@ucw.cz>
-In-Reply-To: <3C8D5ECD.6090108@mandrakesoft.com> <Pine.LNX.4.33.0203111810220.8121-100000@home.transmeta.com>
+	id <S310438AbSCLGfR>; Tue, 12 Mar 2002 01:35:17 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:45753 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S310451AbSCLGfE>;
+	Tue, 12 Mar 2002 01:35:04 -0500
+Date: Tue, 12 Mar 2002 17:33:32 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, Linus <torvalds@transmeta.com>
+Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
+        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+        Oskar Liljeblad <oskar@osk.mine.nu>, <mjp@securepipe.com>
+Subject: [PATCH] dnotify
+Message-Id: <20020312173332.5bf6f277.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0203111810220.8121-100000@home.transmeta.com>; from torvalds@transmeta.com on Mon, Mar 11, 2002 at 06:19:05PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 06:19:05PM -0800, Linus Torvalds wrote:
+Hi Marcelo, Linus,
 
-> On Mon, 11 Mar 2002, Jeff Garzik wrote:
-> >
-> > You have convinced me that unconditional filtering is bad.  But I still
-> > think people should be provided the option to filter if they so desire.
-> 
-> Hey, choice is always good, except if it adds complexity.
-> 
-> The problem with conditional filtering is that either it is a boot (or
-> compile time) option, or it is a dynamic filter.
-> 
-> If its a dynamic filter, and you don't trust root, what _are_ you going to
-> trust? The root program you don't trust might as well be turning the
-> filtering off because it wants to be "convenient". And since the only
-> programs you really want to filter are _exactly_ the kinds of programs
-> that want to avoid filtering, you're just hosed.
-> 
-> That's my real beef with this whole idiotic parsing thing. Either it is
-> fixed (bad, if you don't know what the commands are for all disks) or it
-> is trivially overcome in the name of "convenience" (equally bad, since it
-> makes the whole thing pointless).
+The following patch makes directory notifications per thread group instead
+of per process tree as they are now.  This means, in particular, that if
+a child closes a file descriptor that has a directory open with notifies
+enabled, the notification will not be removed.
 
-Well, there are uses for the 'dynamic' filter, and it doesn't add too
-much complexity. One could be allowing certain commands to be performed
-on certain devices by normal users - eg. CD-burning or whatever without
-root privileges (I know we're using ide-scsi for the command access
-right now ...), and also protecting the oneself from ACPI and the like.
-Because ACPI can do IDE commands and does that in a way interfaceable to
-a 'taskfile' kernel ioctl. It'd be nice to know a broken ACPI
-implementation can't screw up your drive easily through a kernel driver.
+Thanks to Andrea for the push in the right direction.
 
+Patch against 2.4.19-pre3, but also applies to 2.5.6 with a small offset.
 -- 
-Vojtech Pavlik
-SuSE Labs
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff -ruN 2.4.19-pre3/fs/dnotify.c 2.4.19-pre3-notify/fs/dnotify.c
+--- 2.4.19-pre3/fs/dnotify.c	Wed Nov  8 18:27:57 2000
++++ 2.4.19-pre3-notify/fs/dnotify.c	Tue Mar 12 12:02:15 2002
+@@ -1,7 +1,7 @@
+ /*
+  * Directory notifications for Linux.
+  *
+- * Copyright (C) 2000 Stephen Rothwell
++ * Copyright (C) 2000,2001,2002 Stephen Rothwell
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License as published by the
+@@ -59,7 +59,7 @@
+ 	write_lock(&dn_lock);
+ 	prev = &inode->i_dnotify;
+ 	for (odn = *prev; odn != NULL; prev = &odn->dn_next, odn = *prev)
+-		if (odn->dn_filp == filp)
++		if ((odn->dn_owner == current->files) && (odn->dn_filp == filp))
+ 			break;
+ 	if (odn != NULL) {
+ 		if (turning_off) {
+@@ -82,6 +82,7 @@
+ 	dn->dn_mask = arg;
+ 	dn->dn_fd = fd;
+ 	dn->dn_filp = filp;
++	dn->dn_owner = current->files;
+ 	inode->i_dnotify_mask |= arg & ~DN_MULTISHOT;
+ 	dn->dn_next = inode->i_dnotify;
+ 	inode->i_dnotify = dn;
+diff -ruN 2.4.19-pre3/include/linux/dnotify.h 2.4.19-pre3-notify/include/linux/dnotify.h
+--- 2.4.19-pre3/include/linux/dnotify.h	Wed Mar  6 16:08:12 2002
++++ 2.4.19-pre3-notify/include/linux/dnotify.h	Tue Mar 12 11:23:07 2002
+@@ -11,6 +11,7 @@
+ 						   see linux/fcntl.h */
+ 	int			dn_fd;
+ 	struct file *		dn_filp;
++	fl_owner_t		dn_owner;
+ };
+ 
+ #define DNOTIFY_MAGIC	0x444E4F54

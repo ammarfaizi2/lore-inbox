@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbTE0BJC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 21:09:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTE0BGl
+	id S262498AbTE0BNI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 21:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTE0BJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 21:06:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48271 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262482AbTE0BGL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 21:06:11 -0400
-Date: Mon, 26 May 2003 18:17:34 -0700 (PDT)
-Message-Id: <20030526.181734.68129361.davem@redhat.com>
-To: davej@codemonkey.org.uk
-Cc: andrea@suse.de, akpm@digeo.com, davidsen@tmr.com, haveblue@us.ibm.com,
-       habanero@us.ibm.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: userspace irq balancer
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030527011620.GB7135@suse.de>
-References: <20030526.174841.116378513.davem@redhat.com>
-	<20030527010903.GF3767@dualathlon.random>
-	<20030527011620.GB7135@suse.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 26 May 2003 21:09:16 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:13260
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262426AbTE0BIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 21:08:14 -0400
+Subject: Re: [BK PATCHES] add ata scsi driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0305252236400.10183-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0305252236400.10183-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1053994974.17129.32.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 May 2003 01:22:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Dave Jones <davej@codemonkey.org.uk>
-   Date: Tue, 27 May 2003 02:16:20 +0100
+On Llu, 2003-05-26 at 06:40, Linus Torvalds wrote:
+> > And for specifically Intel SATA, drivers/ide flat out doesn't work (even 
+> > though it claims to).
+> 
+> Well, I don't think it claimed to, until today. Still doesn't work?
 
-   On Tue, May 27, 2003 at 03:09:03AM +0200, Andrea Arcangeli wrote:
-   
-    > rdtsc could do it very well, irqs and softirqs can't be rescheduled so
-    > you can tick measure how long you take in each cpu
-   
-   On CPUs that vary frequency, this will break, unless TSC scales
-   with frequency. You cannot assume that this will be the case.
+Even if it did it would at best be a toy. The core IDE layer doesn't
+handle SCSI errors properly (needed for ATAPI) except using ide-scsi. It
+doesn't handle hot plugging of devices, it doesn't handle tagged
+queueing very well, it hasn't the slightest idea about multipath (SATA2
+can do), it doesn't know a lot of other things either.
 
-This is an important issue, for another reason.
+SATA and especially SATA2 is basically SCSI with some slightly odd ways
+of issuing READ10/WRITE10 to disk devices. A "native" driver would
+basically be a copy of most of drivers/scsi.
 
-The networking packet scheduler layer wants an accurate (but
-cheap) high frequency time source too.
+I actually think thats a positive thing. It means 2.5 drivers/scsi is
+now very close to being the "native queueing driver" with some
+additional default plugins for doing scsi scanning, scsi error recovery 
+and a few other scsi bits.
 
-I keep forgetting to go back and deal with fixing up all of
-those hairy macros in pkt_sched.h, I've added this to my TODO
-list.
+

@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263884AbTIICdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 22:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTIICdJ
+	id S263898AbTIICep (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 22:34:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263907AbTIICep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 22:33:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1922 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263884AbTIICdE (ORCPT
+	Mon, 8 Sep 2003 22:34:45 -0400
+Received: from ejc.ecomda.com ([212.18.24.150]:15597 "EHLO ejc.ecomda.com")
+	by vger.kernel.org with ESMTP id S263898AbTIICds (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 22:33:04 -0400
-Date: Mon, 8 Sep 2003 19:33:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: slpratt@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-Message-Id: <20030908193344.157962b8.akpm@osdl.org>
-In-Reply-To: <200309091231.48709.kernel@kolivas.org>
-References: <3F5D023A.5090405@austin.ibm.com>
-	<200309091210.06333.kernel@kolivas.org>
-	<200309091216.32964.kernel@kolivas.org>
-	<200309091231.48709.kernel@kolivas.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 8 Sep 2003 22:33:48 -0400
+Subject: Re: possible GPL violation by Sigma Designs
+From: Torgeir Veimo <torgeir@pobox.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1063025187.3284.55.camel@africa.netenviron.com>
+References: <1062985742.3771.16.camel@africa.netenviron.com>
+	 <1063024404.21084.7.camel@dhcp23.swansea.linux.org.uk>
+	 <1063025187.3284.55.camel@africa.netenviron.com>
+Content-Type: text/plain
+Message-Id: <1063074827.3768.4.camel@africa.netenviron.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Tue, 09 Sep 2003 03:33:47 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> > Correction sorry: These changes were due to
->  > sched-CAN_MIGRATE_TASK-fix.patch and the test results say
->  > volano-results-2.6.0-test5-A0-*
-> 
->  Further testing shows the patch: sched-balance-fix-2.6.0-test3-mm3-A0.patch to 
->  have no effect on volano results by itself. 
+More detailed information is available here: http://www.duke.edu/~java32/bravo/bravohacking.html 
 
-OK, thanks.
-
-As I have just learnt that volanomark is dominated by sched_yield()-based
-userspace locking I have suddenly lost all interest in it.  We don't want
-to tune the kernel for braindead locking implementations.  Call me when it
-has been converted to futexes ;)
-
-Do we know what specjbb is doing internally?
-
+-- 
+Torgeir Veimo <torgeir@pobox.com>
 

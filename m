@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbUL2Jvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbUL2KZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbUL2Jvu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 04:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbUL2Jvu
+	id S261370AbUL2KZh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 05:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUL2KZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 04:51:50 -0500
-Received: from levante.wiggy.net ([195.85.225.139]:12233 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S261337AbUL2Jvf (ORCPT
+	Wed, 29 Dec 2004 05:25:37 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:20455 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261370AbUL2KZd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 04:51:35 -0500
-Date: Wed, 29 Dec 2004 10:51:30 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Steve French <sfrench@samba.org>, Steve French <sfrench@us.ibm.com>,
-       samba-technical <samba-technical@lists.samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2/3] whitespace cleanups in fs/cifs/file.c
-Message-ID: <20041229095129.GI24603@wiggy.net>
-Mail-Followup-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-	Jesper Juhl <juhl-lkml@dif.dk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Steve French <sfrench@samba.org>, Steve French <sfrench@us.ibm.com>,
-	samba-technical <samba-technical@lists.samba.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0412270019370.3552@dragon.hygekrogen.localhost> <1104104286.16545.7.camel@localhost.localdomain> <Pine.LNX.4.61.0412290048150.3528@dragon.hygekrogen.localhost> <20041229015716.GB29323@wohnheim.fh-wedel.de>
+	Wed, 29 Dec 2004 05:25:33 -0500
+Date: Wed, 29 Dec 2004 11:25:32 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: local root exploit confirmed in 2.6.10: Linux 2.6 Kernel Capability LSM Module Local Privilege Elevation
+Message-ID: <20041229102532.GB9926@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Lee Revell <rlrevell@joe-job.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <1104268915.20714.20.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041229015716.GB29323@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
+In-Reply-To: <1104268915.20714.20.camel@krustophenia.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Jörn Engel wrote:
-> On Wed, 29 December 2004 00:52:32 +0100, Jesper Juhl wrote:
-> > -static int cifs_relock_file(struct cifsFileInfo * cifsFile)
-> > +static int 
-> > +cifs_relock_file(struct cifsFileInfo *cifsFile)
-> 
-> Linus viciously prefers to keep return type and function name on a
-> single line.  I cannot quite follow his reasoning, but would leave
-> that part out, unless explicitly requested by Steve.
+On Tue, Dec 28, 2004 at 04:21:55PM -0500, Lee Revell wrote:
+> Frank Barknecht pointed this out on linux-audio-dev, it's a horrible
+> bug, I confirmed it in 2.6.10, and have not seen it mentioned on the
+> list.
 
-If they are on a single line grep will find the return type as well
-which is extremely convenient.
+Although this sucks, it should be pointed out that it only grants root to
+users able to force the loading of a certain module, aka 'root'.
 
-Wichert.
+Modules have always been free to give root capabilities to all users. We
+don't usually ship these though :-)
 
 -- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

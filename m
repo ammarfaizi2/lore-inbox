@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268791AbUI3FxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268873AbUI3F6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268791AbUI3FxM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 01:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268846AbUI3FxM
+	id S268873AbUI3F6v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 01:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268846AbUI3F6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 01:53:12 -0400
-Received: from cantor.suse.de ([195.135.220.2]:26792 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268791AbUI3FxJ (ORCPT
+	Thu, 30 Sep 2004 01:58:51 -0400
+Received: from quechua.inka.de ([193.197.184.2]:62676 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S268873AbUI3F6t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 01:53:09 -0400
-Date: Thu, 30 Sep 2004 07:53:07 +0200
-From: Olaf Hering <olh@suse.de>
-To: David Gibson <david@gibson.dropbear.id.au>, Andrew Morton <akpm@osdl.org>,
-       Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PPC64] Improved VSID allocation algorithm
-Message-ID: <20040930055307.GA15291@suse.de>
-References: <20040913041119.GA5351@zax> <20040929194730.GA6292@suse.de> <20040930003846.GB25001@zax>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040930003846.GB25001@zax>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Thu, 30 Sep 2004 01:58:49 -0400
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org, ishikawa@yk.rim.or.jp
+Subject: Re: FSCK message suppressed during booting? (2.6.9-rc2)
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <415B5034.6060809@yk.rim.or.jp>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1CCtxn-00075V-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Thu, 30 Sep 2004 07:58:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Sep 30, David Gibson wrote:
+In article <415B5034.6060809@yk.rim.or.jp> you wrote:
+> That is, under previous 2.4.xx kernel, I would have gotten
+> "The disk was not unmounted cleanly. Running fsck." or
+> some such message and fsck printed its
+> progress bar using ASCII characters.
 
-> On Wed, Sep 29, 2004 at 09:47:30PM +0200, Olaf Hering wrote:
-> >  On Mon, Sep 13, David Gibson wrote:
-> > 
-> > > Andrew, please apply.  This patch has been tested both on SLB and
-> > > segment table machines.  This new approach is far from the final word
-> > > in VSID/context allocation, but it's a noticeable improvement on the
-> > > old method.
-> > 
-> > This patch went into 2.6.9-rc2-bk2, and my p640 does not boot anymore.
-> > Hangs after 'returning from prom_init', wants a power cycle.
-> 
-> Have you isolated the problem to the VSID allocation patch?  I think
-> there may have been a number of ppc64 changes which went into
-> 2.6.9-rc2-bk2.
+Well, this is not a kernel function, your Distribution is calling fsck in
+the bootup scripts, and fsck is calling the filesystem specific
+implementation and this is checking if fsck is needed.
 
-Yes, rc2 does not boot on power3 with that patch.
+If you do not get this messages anymore contact your linux distribution
+provider.
 
+Do you habe maybe a journalling filesystem? Or do you have set some flags to
+force the skip of fsck (/fastboot)
+
+Greetings
+Bernd
 -- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130526AbQKIUNb>; Thu, 9 Nov 2000 15:13:31 -0500
+	id <S130607AbQKIUPV>; Thu, 9 Nov 2000 15:15:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130607AbQKIUNV>; Thu, 9 Nov 2000 15:13:21 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:5505 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S130526AbQKIUNG>; Thu, 9 Nov 2000 15:13:06 -0500
-Date: Thu, 9 Nov 2000 15:12:30 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Brian Gerst <bgerst@didntduck.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Module open() problems, Linux 2.4.0
-In-Reply-To: <3A0AFA85.27F38728@didntduck.org>
-Message-ID: <Pine.LNX.3.95.1001109150621.15404A-100000@chaos.analogic.com>
+	id <S131042AbQKIUPL>; Thu, 9 Nov 2000 15:15:11 -0500
+Received: from scaup.prod.itd.earthlink.net ([207.217.121.49]:47808 "EHLO
+	scaup.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S130867AbQKIUO4>; Thu, 9 Nov 2000 15:14:56 -0500
+To: jamagallon@able.es
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Mandrake Kernel <kernel@linux-mandrake.com>
+Subject: Re: Errors in 2.4-test11 build
+In-Reply-To: <20001109023950.A4777@werewolf.able.es>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 09 Nov 2000 12:13:36 -0800
+In-Reply-To: <20001109023950.A4777@werewolf.able.es>
+Message-ID: <m38zqszyxb.fsf@matrix.mandrakesoft.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Nov 2000, Brian Gerst wrote:
+"J . A . Magallon" <jamagallon@able.es> writes:
 
-> "Richard B. Johnson" wrote:
-> > 
-> > `lsmod` shows that a device is open twice when using Linux-2.4.0-test9
-> > when, in fact, it has been opened only once.
-> > 
-
-> > 
-> > When the module is closed, the use-count goes to zero as expected.
-> > However, a single open() causes the use-count to be 2.
+> Trying to build 2.4.0-test11-pre1 I get the following:
 > 
-> This is harmless.  It is caused by a try_inc_mod_count(module) in the
-> function calling device_open(), which is the proper way for module
-> locking to be handled when not holding the BKL.  You can keep the
-> MOD_INC_USE_COUNT in the device driver for compatability with 2.2.
-> 
-> 				Brian Gerst
+> make[1]: Entering directory `/usr/src/linux-2.4.0-test11/arch/i386/kernel'
+> kgcc -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux/include -traditional -c
+> trampoline.S -o trampoline.o
+> gcc: installation problem, cannot exec `tradcpp0': No such file or directory
+> make[1]: *** [trampoline.o] Error 1
+> My egcs does not have a -traditional cpp (Mandrake 7.2, packages egcs and
+> egcs-cpp).
 
-This may be, as you say, "harmless". It is, however, a bug. The
-reporting must be correct or large complex systems can't be
-developed or maintained.
+sorry this is an error with the egcs package can you upgrade to these
+packages :
 
-I had two persons, working nearly a week, trying to find out
-what one of over 200 processes had a device open when only
-one was supposed to have it opened. --Err we have to check
-our work here. The fact that something "works" is not
-sufficient.
+ftp://ftp.chmouel.org/pub/people/chmou/kgcc/
 
-Cheers,
-Dick Johnson
+and let me know if it's work for you (it does for me) and will do an
+update soon.
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+-- 
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

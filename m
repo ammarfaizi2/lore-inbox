@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262319AbRENJzJ>; Mon, 14 May 2001 05:55:09 -0400
+	id <S262311AbRENJx7>; Mon, 14 May 2001 05:53:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262323AbRENJy7>; Mon, 14 May 2001 05:54:59 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:21776 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262319AbRENJyt>; Mon, 14 May 2001 05:54:49 -0400
-Date: Mon, 14 May 2001 11:53:49 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Reply-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: "David S. Miller" <davem@redhat.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Another VM race? (was: page_launder() bug)
-In-Reply-To: <Pine.LNX.4.21.0105132003580.5468-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.3.96.1010514114823.17128A-100000@artax.karlin.mff.cuni.cz>
+	id <S262319AbRENJxt>; Mon, 14 May 2001 05:53:49 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:33007 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S262311AbRENJxj>; Mon, 14 May 2001 05:53:39 -0400
+Message-ID: <3AFFA947.B736CAD0@oracle.com>
+Date: Mon, 14 May 2001 11:45:43 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-sx i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Bill Nottingham <notting@redhat.com>, linux-kernel@vger.kernel.org,
+        tytso@mit.edu, Tom Sightler <ttsig@tuxyturvy.com>
+Subject: Re: [PATCH] make Xircom cardbus modems work
+In-Reply-To: <20010509093733.C18911@devserv.devel.redhat.com> <3AF94ACB.F3688AB@mandrakesoft.com> <20010509172912.A11722@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > CPU 0				CPU 1
-> > is executing the code marked	is executing try_to_free_buffers on
-> > above with ^^^^^^^:		the same page (it can be, because CPU 0
-> > 				did not lock the page)
-> > 
-> > (page->buffers &&
-> > 
-> > 				page->buffers = NULL
-> > 
-> > MAJOR(page->buffers->b_dev) == 
-> > 	RAMDISK_MAJOR)) ===> Oops, NULL pointer dereference!
-> > 
-> > 
-> > 
-> > Maybe compiler CSE optimization will eliminate the double load of
-> > page->buffers, but we must not rely on it. If the compiler doesn't
-> > optimize it, it can produce random oopses.
+Bill Nottingham wrote:
 > 
-> You're right, this should be fixed. Do you happen to have a
-> patch ? ;)
+> Jeff Garzik (jgarzik@mandrakesoft.com) said:
+> > Bill,
+> >
+> > Does the attached patch work for you?
+> 
+> Yup, works fine for me (compiled in.)
+> 
 
-You can apply this one.
+Same here (compiled in so I can dial into our Australia PPP number
+ through the mobile phone over the IR serial link - also found along
+ with the Xircom Cardbus modem).
 
-Mikulas
+**thanks** Jeff for the patience and good work !
 
---- linux/mm/vmscan.c_	Mon May 14 11:41:42 2001
-+++ linux/mm/vmscan.c	Mon May 14 11:44:54 2001
-@@ -454,8 +454,7 @@
- 
- 		/* Page is or was in use?  Move it to the active list. */
- 		if (PageTestandClearReferenced(page) || page->age > 0 ||
--				(!page->buffers && page_count(page) > 1) ||
--				page_ramdisk(page)) {
-+				(!page->buffers && page_count(page) > 1)) {
- 			del_page_from_inactive_dirty_list(page);
- 			add_page_to_active_list(page);
- 			continue;
-@@ -470,6 +469,9 @@
- 			list_add(page_lru, &inactive_dirty_list);
- 			continue;
- 		}
-+
-+		/* M.P.: We must not call page_ramdisk for unlocked page */
-+		if (page_ramdisk(page)) goto page_active;
- 
- 		/*
- 		 * Dirty swap-cache page? Write it out if
+--alessandro      <alessandro.suardi@oracle.com> <asuardi@uninetcom.it>
 
-
+Linux:  kernel 2.2.19/2.4.5-p1 glibc-2.2 gcc-2.96-69 binutils-2.11.90.0.7
+Oracle: Oracle8i 8.1.7.0.1 Enterprise Edition for Linux
+motto:  Tell the truth, there's less to remember.

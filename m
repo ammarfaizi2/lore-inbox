@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315197AbSDWNiC>; Tue, 23 Apr 2002 09:38:02 -0400
+	id <S315200AbSDWNkS>; Tue, 23 Apr 2002 09:40:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315201AbSDWNiB>; Tue, 23 Apr 2002 09:38:01 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:38031 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S315197AbSDWNh4>;
-	Tue, 23 Apr 2002 09:37:56 -0400
-Message-Id: <m1700US-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: [PATCH] linux/kernel/acct.c
-To: linux-kernel@vger.kernel.org
-Date: Tue, 23 Apr 2002 08:37:52 -0500 (CDT)
-CC: torvalds@transmeta.com
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	id <S315201AbSDWNkR>; Tue, 23 Apr 2002 09:40:17 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:58091 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S315200AbSDWNkO>;
+	Tue, 23 Apr 2002 09:40:14 -0400
+Date: Tue, 23 Apr 2002 09:40:13 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Frank Louwers <frank@openminds.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: 2 NICs on same network
+Message-ID: <20020423094013.A27946@havoc.gtf.org>
+In-Reply-To: <20020423113935.A30329@openminds.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For non-SMP systems, running "accton" generates an "Oops".  This was
-diagnosed and fixed in the 2.5.7 timeframe, but the fix didn't make it
-into 2.5.8.  The following trivial patch is against vanilla 2.5.8:
-please apply.
+On Tue, Apr 23, 2002 at 11:39:35AM +0200, Frank Louwers wrote:
+> Our situation is this: we have a server with 2 nics, each with a
+> different IP on the same network, connected to the same switch. Let's
+> assume eth0 has ip 1.2.3.1 and eth1 has 1.2.3.2, with a both with a
+> netmask of 255.255.255.0.
+> 
+> Now the strange thing is that traffic for 1.2.3.2 arrives at eth0 no
+> matter what!
+> 
+> Even if we disconnect the cable for eth1, 1.2.3.2 still replies to
+> pings, ssh, web, ...
 
---- linux/kernel/acct.c.orig	Mon Apr 22 09:33:45 2002
-+++ linux/kernel/acct.c	Mon Apr 22 10:39:01 2002
-@@ -160,8 +160,6 @@
- {
- 	struct file *old_acct = NULL;
- 
--	BUG_ON(!spin_is_locked(&acct_globals.lock));
--
- 	if (acct_globals.file) {
- 		old_acct = acct_globals.file;
- 		del_timer(&acct_globals.timer);
+If the two NICs are on the same network, the kernel will send the
+packets to the first available interface.
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+The kernel has acted like this for years...
+
+	Jeff
+
+
+

@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270864AbTG1Tlq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 15:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270880AbTG1Tlq
+	id S270823AbTG1Tkk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 15:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270827AbTG1Tkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 15:41:46 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:899 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S270864AbTG1Tln (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 15:41:43 -0400
-Date: Mon, 28 Jul 2003 20:41:27 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Jack Dennon <jdd@seasurf.net>, linux-kernel@vger.kernel.org
-Subject: Re: The well-factored 386
-Message-ID: <20030728194127.GA10673@mail.jlokier.co.uk>
-References: <03072809023201.00228@linux24> <20030728093245.60e46186.davem@redhat.com>
-Mime-Version: 1.0
+	Mon, 28 Jul 2003 15:40:40 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:51677 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S270823AbTG1Tkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 15:40:35 -0400
+Date: Mon, 28 Jul 2003 12:40:20 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 999] New: Problem with the /dev/ptmx file
+Message-ID: <3898100000.1059421220@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030728093245.60e46186.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> He talks about his x86 emulator he wrote, and people complain to me
-> all the time about his postings.
-> 
-> Nobody ever follows up to any of his postings, he's not even
-> discussing anything, he's just showing how great he thinkgs
-> his x86 emulator is.
+http://bugme.osdl.org/show_bug.cgi?id=999
 
-I didn't realise he was talking about an x86 emulator.  I thought he
-was analyzing real hardware.
+           Summary: Problem with the /dev/ptmx file
+    Kernel Version: 2.6.0-test2
+            Status: NEW
+          Severity: high
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: areversat@tuxfamily.org
+                CC: areversat@tuxfamily.org
 
-The one thing that made it on-topic for me was his quiet suggestion
-that "forreal" mode interrupts are faster, and that it might, perhaps,
-be possible to modify a Linux kernel to run in that mode - to take
-advantage of the faster interrupts.
 
--- Jamie
+Distribution: Gentoo GNU/Linux
+Hardware Environment: P4 2.0Ghz 512 mo ram, Ati Radeon 9000 Mobility
+Software Environment: Linux 2.6.0-test2
+Problem Description:
+When i want to open an Eterm or an xterm (whatever until it uses a virtual
+terminal) it fails saying granpt(4) failed.
+I've traced the program and it seems that it calls /dev/ptmx well but that ptmx
+doesn't create the right entry in /dev/pts.
+Note : I don't have /dev/pts support in my kernel but it works with a 2.4 like
+that... And i also tried with it compiled in and it didn't work either.
+
+Steps to reproduce:
+For me you only have to open something using a virtual terminal.
+It may be a configuration problem but i searched and didn't find where it was...
+
+

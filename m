@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275320AbRJARVV>; Mon, 1 Oct 2001 13:21:21 -0400
+	id <S275336AbRJAR2v>; Mon, 1 Oct 2001 13:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275324AbRJARVL>; Mon, 1 Oct 2001 13:21:11 -0400
-Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:29124 "EHLO
-	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S275320AbRJARU5>; Mon, 1 Oct 2001 13:20:57 -0400
-Date: Mon, 1 Oct 2001 19:26:15 +0200 (MEST)
-From: Erich Focht <focht@ess.nec.de>
-Reply-To: efocht@ess.nec.de
-To: linux-ia64@linuxia64.org
-cc: linux-kernel@vger.kernel.org
-Subject: deadlock in crashed multithreaded job
-Message-ID: <Pine.LNX.4.21.0110011921160.21953-100000@sx6.ess.nec.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275357AbRJAR2l>; Mon, 1 Oct 2001 13:28:41 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:10136 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S275346AbRJAR2a>;
+	Mon, 1 Oct 2001 13:28:30 -0400
+Date: Mon, 1 Oct 2001 19:28:56 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200110011728.TAA09370@harpo.it.uu.se>
+To: torvalds@transmeta.com
+Subject: Re: 2.4.11-pre1 oops in bdget() -- FIXED
+Cc: linux-kernel@vger.kernel.org, mason@suse.com, viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During the testing of the FFTW library (www.fftw.org) in multithreaded
-mode I am regularly getting strange lock-ups on Itanium LION (4CPU)
-and NEC AzusA (16CPU) systems. Anyway, I don't think this is IA64
-specific...
+On Mon, 1 Oct 2001 08:35:03 -0700 (PDT), Linus Torvalds wrote:
+>
+>The thing we oops on is the _old_ blksize_size[] array information for the
+>floppy, which was loaded as a module and then unloaded - it's ugly that it
+>doesn't clean up its copy of the blksize_size array, but the real cause
+>for the problem is that bdget() references it before it has opened the
+>device.
+>
+>The (untested) fix is to just remove the line in bdget() that sets
+>i_blkbits, as the thing is later set correctly in blkdev_get().
 
-The symptoms: running the tests (make check) sometimes ends up with
-hanging processes. Reading from some of the /proc/pid/* files also
-lead to hangs (top & ps just don't return). The processes cannot be
-killed either.
+Confirmed. With the patch below I can no longer trigger the oops.
 
-As far as I understand, the program crashes while one of the threads
-(#1) tries to get a write lock on mm->mmap_sem. Another thread (#2)
-starts dumping core and gets a read lock in the mean time (before
-thread #1). The write lock request gets queued and a subsequent
-read lock request by thread #2 happening somewhere in the call tree of
-coredump (in access_process_vm) cannot be satisfied. The two threads
-wait forever and attempts to access their mm structure end up in the
-same deadlock.
+/Mikael
 
-The tracebacks obtained by kdb vary from case to case a bit but I
-basically see:
-
-#1 : schedule <- __down_write <- sys_mmap <- ia64_ret_from_syscall
-
-#2: schedule <- __down_read <- access_process_vm <- ia64_sync_user_rbs
-    <- do_copy_regs <- unw_init_running <- load_script <- do_coredump
-    <- ia64_do_signal <- handle_signal_delivery <- ia64_leave_kernel
-
-others... : either already gone or somewhere in do_exit or
-    sys_rt_sigsuspend, unimportant anyway...
-
-
-I'm not really curious to debug the FFTW or pthreads libraries but
-don't think that user program should lead to such deadlocks in the
-kernel. So maybe one can fix this problem in the kernel...
-
-I guess the problem is the nesting of critical sections, in this case
-a critical section is defined in fs/exec.c:do_coredump and in
-kernel/ptrace.c:access_process_vm. Getting rid of this kind of nesting
-is quite tedious, so maybe one should deal with the nested critical
-sections. A solution would be: The read lock request (down_read)
-should be immediately granted if the current thread already owns the
-lock. So maybe each task should remember the locks it owns, maybe in a
-list accessible through the task structure.
-
-I'm curious about your oppinions. Maybe there is already a way to deal
-with this kind of problem?
-
-Best regards,
-Erich
-
----
-Erich Focht                                    <efocht@ess.nec.de>
-NEC European Supercomputer Systems, European HPC Technology Center
-
-
+--- linux-2.4.11-pre1/fs/block_dev.c.~1~	Mon Oct  1 11:48:54 2001
++++ linux-2.4.11-pre1/fs/block_dev.c	Mon Oct  1 18:59:16 2001
+@@ -345,7 +345,6 @@ struct block_device *bdget(dev_t dev)
+ 			inode->i_rdev = kdev;
+ 			inode->i_dev = kdev;
+ 			inode->i_bdev = new_bdev;
+-			inode->i_blkbits = blksize_bits(block_size(kdev));
+ 			inode->i_data.a_ops = &def_blk_aops;
+ 			inode->i_data.gfp_mask = GFP_USER;
+ 			spin_lock(&bdev_lock);

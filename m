@@ -1,107 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266434AbSKUIvF>; Thu, 21 Nov 2002 03:51:05 -0500
+	id <S266417AbSKUI61>; Thu, 21 Nov 2002 03:58:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266435AbSKUIvF>; Thu, 21 Nov 2002 03:51:05 -0500
-Received: from smtp.laposte.net ([213.30.181.11]:49343 "EHLO smtp.laposte.net")
-	by vger.kernel.org with ESMTP id <S266434AbSKUIvE>;
-	Thu, 21 Nov 2002 03:51:04 -0500
-Subject: [PATCH] [2.5] Via KT400 agp support (fixes 'unsupported Via
-	chipset (device id: 3189)')
-From: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <Alan@redhat.com>, Dave Jones <davej@codemonkey.org.uk>,
-       linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ptol2IH/wsCWGhJ1RB0S"
-Organization: 
-Message-Id: <1037869042.5728.16.camel@ulysse.olympe.o2t>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 (1.2.0-1) 
-Date: 21 Nov 2002 09:57:23 +0100
+	id <S266435AbSKUI60>; Thu, 21 Nov 2002 03:58:26 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:4430 "EHLO xsmtp.ethz.ch")
+	by vger.kernel.org with ESMTP id <S266417AbSKUI60>;
+	Thu, 21 Nov 2002 03:58:26 -0500
+Message-ID: <3DDCA1DB.6020807@debian.org>
+Date: Thu, 21 Nov 2002 10:05:31 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en, it-ch, it, fr
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Ross Vandegrift <ross@willow.seitz.com>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: spinlocks, the GPL, and binary-only modules
+References: <fa.onsrmsv.1g08thi@ifi.uio.no> <fa.ni4tkev.3ge008@ifi.uio.no>
+In-Reply-To: <fa.onsrmsv.1g08thi@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Nov 2002 09:05:32.0198 (UTC) FILETIME=[25248C60:01C2913D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-ptol2IH/wsCWGhJ1RB0S
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-[ Re-send with magic keywords in subject, sorry about this ]
+Andre Hedrick wrote:
 
-Hi,
+> On 20 Nov 2002, Alan Cox wrote:
+>
+>
+> >On Wed, 2002-11-20 at 18:57, Andre Hedrick wrote:
+> >
+> >>The double negative unwrapped:
+> >>
+> >>"Being a module doesnt make it not a derivative work."
+> >>
+> >>'Being a module does (not) make it not a derivative work.'
+> >>'Being a module does (not) make it (not) a derivative work.'
+> >>
+> >>'Being a module does make it a derivative work.'
+> >>
+> >>Is this the intent of the statement?
+> >
+> >No
+>
+>
+> Excellent!
+>
+> Now if Linus would just make to position clear.
 
-	This is a tiny patch to support agp on Via KT400 hardware. It basically
-adds the KT400 pci ID and lists it as using Via generic setup routines.
-This patch has been tested with all GL xscreensaver I could find, and
-been reviewed by Dave Jones (full patch history at
-http://bugzilla.kernel.org/show_bug.cgi?id=3D14).
+Check this Linus' post: recent and with clear statment:
+http://lwn.net/Articles/13066/
+[Full discussion in http://lwn.net/Articles/13398/, support LWN!]
 
-	Please apply.
-
-diff -uNr linux-2.5.47-ac6.orig/drivers/char/agp/agp.c
-linux-2.5.47-ac6/drivers/char/agp/agp.c
---- linux-2.5.47-ac6.orig/drivers/char/agp/agp.c	2002-11-11 04:28:26.000000=
-000 +0100
-+++ linux-2.5.47-ac6/drivers/char/agp/agp.c	2002-11-20 22:07:32.000000000 +=
-0100
-@@ -1150,6 +1150,14 @@
- 		.chipset_setup	=3D via_generic_setup
- 	},
- 	{
-+		.device_id	=3D PCI_DEVICE_ID_VIA_8377_0,
-+		.vendor_id	=3D PCI_VENDOR_ID_VIA,
-+		.chipset	=3D VIA_APOLLO_KT400,
-+		.vendor_name	=3D "Via",
-+		.chipset_name	=3D "Apollo Pro KT400",
-+		.chipset_setup	=3D via_generic_setup
-+	},
-+	{
- 		.device_id	=3D PCI_DEVICE_ID_VIA_8653_0,
- 		.vendor_id	=3D PCI_VENDOR_ID_VIA,
- 		.chipset	=3D VIA_APOLLO_PRO,
-diff -uNr linux-2.5.47-ac6.orig/include/linux/agp_backend.h linux-2.5.47-ac=
-6/include/linux/agp_backend.h
---- linux-2.5.47-ac6.orig/include/linux/agp_backend.h	2002-11-11 04:28:29.0=
-00000000 +0100
-+++ linux-2.5.47-ac6/include/linux/agp_backend.h	2002-11-20 22:49:35.000000=
-000 +0100
-@@ -61,6 +61,7 @@
- 	VIA_APOLLO_PRO,
- 	VIA_APOLLO_KX133,
- 	VIA_APOLLO_KT133,
-+	VIA_APOLLO_KT400,
- 	SIS_GENERIC,
- 	AMD_GENERIC,
- 	AMD_IRONGATE,
-diff -uNr linux-2.5.47-ac6.orig/include/linux/pci_ids.h linux-2.5.47-ac6/in=
-clude/linux/pci_ids.h
---- linux-2.5.47-ac6.orig/include/linux/pci_ids.h	2002-11-20 21:46:32.00000=
-0000 +0100
-+++ linux-2.5.47-ac6/include/linux/pci_ids.h	2002-11-20 22:28:37.000000000 =
-+0100
-@@ -1039,6 +1039,7 @@
- #define PCI_DEVICE_ID_VIA_8361		0x3112=20
- #define PCI_DEVICE_ID_VIA_8233A		0x3147
- #define PCI_DEVICE_ID_VIA_8235		0x3177
-+#define PCI_DEVICE_ID_VIA_8377_0	0x3189
- #define PCI_DEVICE_ID_VIA_86C100A	0x6100
- #define PCI_DEVICE_ID_VIA_8231		0x8231
- #define PCI_DEVICE_ID_VIA_8231_4	0x8235
-
-
---=20
-Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
-
---=-ptol2IH/wsCWGhJ1RB0S
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA93J/yI2bVKDsp8g0RAuQpAJ4zjkplqBA99uM2gRk/xnYCeFXxVgCgql8Y
-27bx6U7dE1xvVSjmoj+Bn4c=
-=8gzh
------END PGP SIGNATURE-----
-
---=-ptol2IH/wsCWGhJ1RB0S--
+ciao
+	giacomo
 

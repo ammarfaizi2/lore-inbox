@@ -1,72 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269661AbUINUdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269759AbUINUkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269661AbUINUdO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 16:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269731AbUINU3k
+	id S269759AbUINUkB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 16:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269656AbUINUje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 16:29:40 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:41918 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269738AbUINUXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 16:23:48 -0400
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Robert Love <rml@ximian.com>, Andrea Arcangeli <andrea@novell.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040914192104.GB9106@holomorphy.com>
-References: <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au>
-	 <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au>
-	 <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au>
-	 <20040914150316.GN4180@dualathlon.random>
-	 <1095185103.23385.1.camel@betsy.boston.ximian.com>
-	 <20040914185212.GY9106@holomorphy.com>
-	 <1095188569.23385.11.camel@betsy.boston.ximian.com>
-	 <20040914192104.GB9106@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095189593.16988.72.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 14 Sep 2004 20:19:57 +0100
+	Tue, 14 Sep 2004 16:39:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:667 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269668AbUINUfz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 16:35:55 -0400
+Message-ID: <4147562B.3010006@redhat.com>
+Date: Tue, 14 Sep 2004 16:35:55 -0400
+From: Frank Hirtz <fhirtz@redhat.com>
+User-Agent: Mozilla Thunderbird 0.8 (Macintosh/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: torvalds@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.6.8.1:  display committed memory limit and available
+ in meminfo
+References: <4124BE89.20909@redhat.com> <412B727B.7010603@redhat.com>
+In-Reply-To: <412B727B.7010603@redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------060708020709060204030808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-09-14 at 20:21, William Lee Irwin III wrote:
-> The "safely call schedule() while holding it" needs quite a bit of
-> qualification; it's implicitly dropped during voluntary context
-> switches and reacquired when rescheduled, but it's not valid to force
-> such a task into an involuntary context switch and calling schedule()
-> implies dropping the lock, so it has to be done at the proper times.
-> This is a complex semantic that likely trips up numerous callers (as
-> well as attempts to explain it, though surely you know these things,
-> and merely wanted a shorter line for the bullet point).
+This is a multi-part message in MIME format.
+--------------060708020709060204030808
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The problem is people think of the BKL as a lock. It isn't a lock it has
-never been a lock and it's all DaveM's fault 8) for naming it that when
-he moved my asm entry point stuff into C.
+>> The following patch will have the committed memory limit (per the 
+>> current overcommit ratio) and the amount of memory remaining under 
+>> this limit displayed in meminfo.
+>>
+>> It's presently somewhat difficult to use the strict memory overcommit 
+>> settings as it's somewhat difficult to determine the amount of memory 
+>> remaining under the cap. This patch would make using strict overcommit 
+>> a good bit simpler. Does such an addition seem reasonable?
+>>
+>> Thank you,
+>>
+>> Frank.
+> 
+> 
+Frank Hirtz wrote:
+ > Hi,
+ >
+ > I'm new to the list, and was wondering since I've not seen any feedback
+ > on this patch whether that was because the patch is not good/a good idea
+ > or whether no one has an opinion on displaying this information. I'd
+ > like to get this included and any feedback would be greatly appreciated.
+ >
+ > Thanks again,
+ >
+ > Frank.
+ >
 
-The BKL turns on old style unix non-pre-emptive sematics between all
-code that is within lock_kernel sections, that is it. That also makes it
-hard to clean up because lock_kernel is delimiting code properties (its
-essentially almost a function attribute) and spin_lock/down/up and
-friends are real locks and lock data.
+Hearing no feedback on this, I'd like to request that this patch be included in 
+the stock kernel release. As always, any feedback is appreciated.
 
-I've seen very few cases where there is a magic transform from one to
-the other because of this. So if you want to kill the BKL add proper
-locking to data structures covered by BKL users until the lock_kernel
-simply does nothing.
+Thank you again,
 
-> or sweeps others care to devolve to me, so I'll largely be using
-> whatever tactic whoever cares to drive all this (probably Alan) prefers.
+Frank.
 
-Fix the data structure locking starting at the lowest level is how I've
-always tackled these messes. When the low level locking is right the
-rest just works (usually 8)).
+--------------060708020709060204030808
+Content-Type: text/plain; x-mac-type="0"; x-mac-creator="0";
+ name="linux-2.6.8.1-committedmem.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.8.1-committedmem.patch"
 
-	"Lock data not code"
+--- linux-2.6.8.1/fs/proc/proc_misc.c		2004-08-18 16:32:07.000000000 -0400
++++ linux-2.6.8.1.new/fs/proc/proc_misc.c	2004-08-18 16:55:47.000000000 -0400
+@@ -153,7 +153,7 @@
+ 				 int count, int *eof, void *data)
+ {
+ 	struct sysinfo i;
+-	int len, committed;
++	int len, committed, allowed;
+ 	struct page_state ps;
+ 	unsigned long inactive;
+ 	unsigned long active;
+@@ -171,6 +171,8 @@
+ 	si_meminfo(&i);
+ 	si_swapinfo(&i);
+ 	committed = atomic_read(&vm_committed_space);
++	allowed = ((totalram_pages - hugetlb_total_pages()) 
++		* sysctl_overcommit_ratio / 100) + total_swap_pages;
+ 
+ 	vmtot = (VMALLOC_END-VMALLOC_START)>>10;
+ 	vmi = get_vmalloc_info();
+@@ -198,7 +200,9 @@
+ 		"Writeback:    %8lu kB\n"
+ 		"Mapped:       %8lu kB\n"
+ 		"Slab:         %8lu kB\n"
++		"CommitLimit:  %8lu kB\n"
+ 		"Committed_AS: %8u kB\n"
++		"CommitAvail:  %8ld kB\n"
+ 		"PageTables:   %8lu kB\n"
+ 		"VmallocTotal: %8lu kB\n"
+ 		"VmallocUsed:  %8lu kB\n"
+@@ -220,7 +224,9 @@
+ 		K(ps.nr_writeback),
+ 		K(ps.nr_mapped),
+ 		K(ps.nr_slab),
++		K(allowed),
+ 		K(committed),
++		K(allowed - committed),
+ 		K(ps.nr_page_table_pages),
+ 		vmtot,
+ 		vmi.used,
 
-Alan
-
+--------------060708020709060204030808--

@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTHFOH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 10:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbTHFOH6
+	id S262290AbTHFOGn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 10:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTHFOGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 10:07:58 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:28887 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262439AbTHFOH4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 10:07:56 -0400
-Date: Wed, 6 Aug 2003 16:07:11 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Nick Sanders <sandersn@btinternet.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: IDE DMA problem with 2.6.0-test1
-In-Reply-To: <200308061200.14084.sandersn@btinternet.com>
-Message-ID: <Pine.SOL.4.30.0308061605080.29509-100000@mion.elka.pw.edu.pl>
+	Wed, 6 Aug 2003 10:06:42 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:7578 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262290AbTHFOGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 10:06:40 -0400
+Message-ID: <3F310B6D.6010608@namesys.com>
+Date: Wed, 06 Aug 2003 18:06:37 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Grant Miner <mine0057@mrs.umn.edu>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: Filesystem Tests
+References: <3F306858.1040202@mrs.umn.edu> <20030805224152.528f2244.akpm@osdl.org>
+In-Reply-To: <20030805224152.528f2244.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-Check your IDE cables.
+>But different filesystems will leave different amounts of dirty, unwritten
+>data in memory at the end of the test.  On your machine, up to 200MB of
+>dirty data could be sitting there in memory at the end of the timing
+>interval.  You need to decide how to account for that unwritten data in the
+>measurement.  Simply ignoring it as you have done is certainly valid, but
+>is only realistic in a couple of scenarios:
+>
+unless I misunderstand something, he is running sync and not ignoring that.
 
-On Wed, 6 Aug 2003, Nick Sanders wrote:
+I don't think ext2 is a serious option for servers of the sort that 
+Linux specializes in, which is probably why he didn't measure it.
 
-> Hi,
->
-> I got the following from my logs this morning, any ideas whats happening.
-> Both hda and hdb are IDE hard drives. hdb is only used for backups and wasn't being
-> used at the time.
->
-> Aug  6 08:30:52 gandalf -- MARK --
-> Aug  6 08:31:37 gandalf kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> Aug  6 08:31:37 gandalf kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> Aug  6 08:31:40 gandalf kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> Aug  6 08:31:40 gandalf kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> Aug  6 08:32:16 gandalf kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> Aug  6 08:32:16 gandalf kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> Aug  6 08:32:24 gandalf kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> Aug  6 08:32:24 gandalf kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> Aug  6 08:32:26 gandalf kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> Aug  6 08:32:26 gandalf kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> Aug  6 08:32:26 gandalf kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> Aug  6 08:32:26 gandalf kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> Aug  6 08:32:26 gandalf kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> Aug  6 08:32:26 gandalf kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> Aug  6 08:32:26 gandalf kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> Aug  6 08:32:26 gandalf kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> Aug  6 08:32:26 gandalf kernel: hdb: DMA disabled
-> Aug  6 08:32:26 gandalf kernel: ide0: reset: success
-> Aug  6 08:50:52 gandalf -- MARK --
->
-> If you need anymore info then just say
->
-> Nick
+reiser4 cpu consumption is still dropping rapidly as others and I find 
+kruft in the code and remove it.  Major kruft remains still.
+
+
+-- 
+Hans
+
 

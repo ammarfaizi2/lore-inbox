@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267315AbUHDRB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267351AbUHDRIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267315AbUHDRB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 13:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUHDRB7
+	id S267351AbUHDRIG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 13:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267356AbUHDRIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 13:01:59 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:5549 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S267312AbUHDRB4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 13:01:56 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 4 Aug 2004 13:08:06 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:64672 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267351AbUHDRID (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 13:08:03 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Date: Wed, 4 Aug 2004 10:06:18 -0700
+User-Agent: KMail/1.6.2
+Cc: Jon Smirl <jonsmirl@yahoo.com>, linux-kernel@vger.kernel.org
+References: <E12D1EA555A@vcnet.vc.cvut.cz>
+In-Reply-To: <E12D1EA555A@vcnet.vc.cvut.cz>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: CONFIG_FORCE_MAX_ZONEORDER
-Date: Wed, 4 Aug 2004 09:30:35 -0700
-Message-ID: <01EF044AAEE12F4BAAD955CB7506494301FB54AB@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CONFIG_FORCE_MAX_ZONEORDER
-Thread-Index: AcR6KMKJVfCAii5BRFCjT7nck8t+RAAF3JBw
-From: "Seth, Rohit" <rohit.seth@intel.com>
-To: "Sourav Sen" <souravs@india.hp.com>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 04 Aug 2004 16:30:35.0929 (UTC) FILETIME=[5EBF0890:01C47A40]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408041006.18877.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sourav Sen <> wrote on Wednesday, August 04, 2004 6:39 AM:
+On Wednesday, August 4, 2004 8:57 am, Petr Vandrovec wrote:
+> Test for failure? Test for no ROM devices?
 
-> Hi,
-> 
-> Is there a way of changing the value of MAX_ORDER
-> using CONFIG_FORCE_MAX_ZOMEORDER? During 'make xconfig'
-> I did not see a way. If I change it by hand in .config
-> and then run make oldconfig, it gets changed back to
-> the old value (== 18). The source version is 2.6.6
-> 
-> And, if it matters here -- I am on ia64.
-> 
-> Thanks
-> Sourav
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ia64"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If we get here, we can be sure there's a ROM device otherwise the 'rom' file 
+wouldn't have been created.
 
+> Please read it with readl. At least on my Matrox G550 reading 64KB ROM with
+> byte accesses takes 1334ms, with 16bit accesses 840ms and with
+> 32bit (or 64bit MMX) accesses 551ms. Straight (non-IO aware) memcpy
+> takes 535ms. And put some conditional_schedule()s here, 550ms (or even
+> 34ms for 4KB chunk) is IMHO too long.
 
-arch/ia64/defconfig is the place where you want to make the change.
+memcpy_from_io maybe?  That would probably make the most sense.
+
+Thanks for the comments.  Jon, do you want to respin it?
+
+Thanks,
+Jesse

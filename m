@@ -1,108 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264671AbUD1Gze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264672AbUD1HNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264671AbUD1Gze (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 02:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264670AbUD1Gze
+	id S264672AbUD1HNb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 03:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264661AbUD1HNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 02:55:34 -0400
-Received: from esc.ortopedija.lt ([213.190.36.10]:51722 "EHLO
-	otc.ortopedija.lt") by vger.kernel.org with ESMTP id S264667AbUD1Gz2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 02:55:28 -0400
-Message-ID: <408F5555.3080303@gmc.lt>
-Date: Wed, 28 Apr 2004 09:55:17 +0300
-From: Aidas Kasparas <a.kasparas@gmc.lt>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: lt, en, ru, fr
-MIME-Version: 1.0
-To: Dax Kelson <dax@gurulabs.com>
-CC: linux-net@vger.kernel.org, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5, IPSec, NAT funnies
-References: <1083133394.2817.40.camel@mentor.gurulabs.com>
-In-Reply-To: <1083133394.2817.40.camel@mentor.gurulabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Apr 2004 03:13:31 -0400
+Received: from legolas.restena.lu ([158.64.1.34]:23272 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S264672AbUD1HNS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 03:13:18 -0400
+Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
+From: Craig Bradney <cbradney@zip.com.au>
+To: Erik Steffl <steffl@bigfoot.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <408EF33F.5040104@bigfoot.com>
+References: <40853060.2060508@bigfoot.com>
+	 <200404202326.24409.kim@holviala.com> <408A16EB.30208@bigfoot.com>
+	 <408EEA3E.6030803@bigfoot.com>
+	 <1083108549.8203.12.camel@amilo.bradney.info>
+	 <408EF33F.5040104@bigfoot.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-USgLTSJBVv2AfiJmUJii"
+Message-Id: <1083136394.23415.4.camel@amilo.bradney.info>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 28 Apr 2004 09:13:14 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel bug. IPSec changes ip headers, but fails to say about this to 
-conntrack. More information 
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=215980
-Patch at 
-http://bugs.debian.org/cgi-bin/bugreport.cgi/ipsec_conntrack.diff?bug=215980&msg=3&att=1
 
-As a workaround insert rule exemting ipsec traffic from masquerade:
+--=-USgLTSJBVv2AfiJmUJii
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-iptables -t nat -I POSTROUTING 1 -p esp -j ACCEPT
+On Wed, 2004-04-28 at 01:56, Erik Steffl wrote:
+> Craig Bradney wrote:
+> > On Wed, 2004-04-28 at 01:18, Erik Steffl wrote:
+> >=20
+> >>Erik Steffl wrote:
+> >>
+> >>>Kim Holviala wrote:
+> >>>
+> >>>
+> >>>>On Tuesday 20 April 2004 17:14, Erik Steffl wrote:
+> >>>>
+> >>>>
+> >>>>
+> >>>>>  it looks that after update to 2.6.5 kernel (debian source package =
+but
+> >>>>>I guess it would be the same with stock 2.6.5) the mouse wheel and s=
+ide
+> >>>>>button on Logitech Cordless MouseMan Wheel mouse do not work.
+> >>>>
+> >>>>
+> >>>>
+> >>>>Try my patch for 2.6.5: http://lkml.org/lkml/2004/4/20/10
+> >>>>
+> >>>>Build psmouse into a module (for easier testing) and insert it with=20
+> >>>>the proto parameter. I'd say "modprobe psmouse proto=3Dexps" works fo=
+r=20
+> >>>>you, but you might want to try imps and ps2pp too. The reason I wrote=
+=20
+> >>>>the patch in the first place was that a lot of PS/2 Logitech mice=20
+> >>>>refused to work (and yes, exps works for me and others)....
+> >>>
+> >>>
+> >>>  didn't help, I still see (without X running):
+> >>>
+> >>>8, 0, 0 any button down
+> >>>9, 0, 0 left button up
+> >>>12, 0, 0 wheel up, sidebutton up
+> >>>10, 0, 0 right button up
+> >>>
+> >>>8, 0, 0 wheel rotation (any direction)
+> >>>
+> >>>except of some protocols (IIRC ps2pp, bare, genps) ignore wheel=20
+> >>>completely. is there any way to verify which protocol the mouse is=20
+> >>>using? modprobe -v printed different messages for each protocol so I=20
+> >>>think that worked (it said Generic Explorer etc.)
+> >>>
+> >>>  I tried: exps, imps, ps2pp, bare, genps
+> >>>
+> >>>  any ideas?
+> >>>
+> >>>  the mouse says: Cordless MouseMan Wheel (Logitech), it has left/righ=
+t=20
+> >>>buttonss, wheel that can be pushed or rotated and a side button, not=20
+> >>>sure how to better identify it. With 2.4 kernels it used to work with =
+X=20
+> >>>using protocol MouseManPlusPS/2.
+> >>
+> >>   anybody? any hints? should I look at driver? are there some docs for=
+=20
+> >>logitech mice (protocol)?
+> >=20
+> >=20
+> > err.. they all Just Work (tm) here.. ps2 or USB, IMPS/2 driver
+>=20
+>    which kernel (mine doesn't work with 2.6.5, used to work with 2.4.x),=20
+> which mouse models? I guess there might be more models and for some=20
+> reason my particular model does not work. Can you find out which=20
+> protocol the kernel is using (psmouse, not usb)?
 
-Dax Kelson wrote:
-> I have a 2.6 box doing IPSec and MASQUERADing that is borking up TCP
-> port numbers of .
-> 
->                      /======IPSec ESP SA=====\
-> [box1]-----------[fw1]-------Internet-------[fw2]-----------[box2]
->      |           /    \                     /     \           |
->     .5    10.1.0.1  StaticRealIP    DHCPRealIP  10.200.1.1  .22
-> 
-> 
-> fw1 = RHEL3 with latest official errata kernel (2.4+2.6ipsec)
-> fw2 = Debian Sarge with 2.6.5-2 kernel from unstable
-> 
-> IKE daemon is identical on both boxes -- current OpenSWAN CVS
-> 
-> fw1 is SNATing the internal 10.1.0.0/16 network
-> fw2 is MASQUERADing the internal 10.200.1.0/24 network
-> 
-> iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-> 
-> box2 sends a SYN packet to box1. It arrives OK at box1.
-> 
-> source TCP port 33763, destination TCP port 3389
-> 
-> So far so good.
-> 
-> box1 sends back a SYN/ACK with TCP source port 3389 destination 32834.
-> It leaves fw1 and arrives at fw2 on the external interface (eth0) and
-> gets decrypted OK and unmodified.
-> 
-> Here is the problem.
-> 
-> When the SYN/ACK packet leaves fw2 out eth1 towards box2 the TCP source
-> port has changed from the correct 3389 to the incorrect 1024. Box2
-> naturally sends back an ICMP error message--handshake never completes.
-> 
-> Packet capture details courtesy of tethereal...
-> 
-> arriving and being decrypted on the fw2 external interface (eth0):
-> 
->   0.078883    a.b.c.d  -> w.x.y.z  ESP ESP (SPI=0x3bb63b4f)
->   0.078883    10.1.0.5 -> 10.200.1.22  TCP 3389 > 32834 [SYN, ACK] Seq=0
-> Ack=1 Win=65535 Len=0 MSS=1460 WS=0 TSV=0 TSER=0
-> 
-> leaving the fw2 internal interface (eth1) now borked with the source
-> port changed to 1024:
->                                             /-- error here
->  0.229413    10.1.0.5 -> 10.200.1.22  TCP 1024 > 32834 [SYN, ACK] Seq=0
-> Ack=1 Win=65535 Len=0 MSS=1460 WS=0 TSV=0 TSER=0
-> 
-> If I flush the nat table on fw2 then the borkage disappears and the TCP
-> connection is properly established. The fw2 nat rule is simply this:
-> 
-> iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-> 
-> Another data point. TCP connections from fw2 itself into the remote
-> network are fine.
-> 
-> Dax Kelson
-> Guru Labs
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-net" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+2.4.x, 2.61,3,5, currently 2.6.5 on 4 PCs
 
--- 
-Aidas Kasparas
-IT administrator
-GM Consult Group, UAB
+-logitech cordless optical for notebooks (USB)
+-logitech cordless mouseman optical (via a kmv switch to 2PCs )(ps2)
+-logitech cordless optical mouse(ps2)
+
+err. how do i find out the protocol the kernel uses?
+
+Craig
+
+--=-USgLTSJBVv2AfiJmUJii
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAj1mJi+pIEYrr7mQRAktKAKCJxff/INa0JTCTBHpj8pmRG401wQCfZNDI
+O/BgJVNbihFsbeYWekJaSdQ=
+=8esj
+-----END PGP SIGNATURE-----
+
+--=-USgLTSJBVv2AfiJmUJii--
+

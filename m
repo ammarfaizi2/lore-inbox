@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274708AbRJAHmI>; Mon, 1 Oct 2001 03:42:08 -0400
+	id <S274738AbRJAIDl>; Mon, 1 Oct 2001 04:03:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274709AbRJAHl7>; Mon, 1 Oct 2001 03:41:59 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:20498 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S274708AbRJAHlq>;
-	Mon, 1 Oct 2001 03:41:46 -0400
-Date: Mon, 1 Oct 2001 09:39:47 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Marcus Sundberg <marcus@cendio.se>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] netconsole-2.4.10-B1
-In-Reply-To: <ven13cd5yt.fsf@inigo.sthlm.cendio.se>
-Message-ID: <Pine.LNX.4.33.0110010936240.3436-100000@localhost.localdomain>
+	id <S274736AbRJAIDc>; Mon, 1 Oct 2001 04:03:32 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:9133 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274738AbRJAIDR>;
+	Mon, 1 Oct 2001 04:03:17 -0400
+Date: Mon, 1 Oct 2001 04:03:45 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Erik Andersen <andersen@codepoet.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [CFT][PATCH] cleanup of partition code
+In-Reply-To: <20011001000446.A24245@codepoet.org>
+Message-ID: <Pine.GSO.4.21.0110010345110.14660-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 30 Sep 2001, Marcus Sundberg wrote:
 
-> > sorry :-) definitions of netconsole-terms:
-> >
-> > 'server': the host that is the source of the messages. Ie. the box that
-> >           runs the netconsole.o module. It serves log messages to the
-> >           client.
-> >
-> > 'client': the host that receives the messages. This box is running the
-> >           netconsole-client.c program.
->
-> Then I guess you consider Mozilla to be a http-server, as it serves
-> http-requests to http-clients like Apache? ;)
+On Mon, 1 Oct 2001, Erik Andersen wrote:
 
-no. Mozilla is a http-client, it sends requests to the Apache http-server
-and it receives content produced by the server.
+> Note the ll_rw_block msg from where the acorn stuff is not reading in units
+> of the physical sector size?  Also notice the "unable to read..." msg, which
+> is where acorn chokes the partition table scanning...
+> 
+> 
+> So now, while fdisk is still able to see that partitions exist
+> 
+> 	[andersen@dillweed andersen]$ fdisk -l /dev/sda
+> 	Note: sector size is 2048 (not 512)
+> 
+> 	Disk /dev/sda: 64 heads, 32 sectors, 151 cylinders
+> 	Units = cylinders of 2048 * 2048 bytes
+> 
+> 	   Device Boot    Start       End    Blocks   Id  System
+> 	/dev/sda1   *         1       151    618432   83  Linux
+> 
+> the acorn stuff has caused the partition scan to abort prematurely, such that
+> proc partitions (and Linux) know nothing about the device's partitions.  I can
+> give you a dd from one of these disks, but I doubt that would show the error... 
 
-the netconsole-module box is a log-server that sends messages to the
-log-client, which log content is produced by the netconsole-module box.
-(right now it gets not requests from the client, but it will so in the
-future.)
+	OK, first of all, it's _not_ an acorn partition table at all.
+It's a garden-variety DOS partition table.
 
-(and yes, occasionally Mozilla is the content server, think cookies ...)
+	Actually, you've found a rather nasty bug in acorn.c - code in
+the current tree fails if it tries to look for acorn-style partition
+table on a large-sector disk.  Fails with IO error, and reports that
+to high-level code in check_partitions().  Which decides to stop.
+msdos_partition() would be called after acorn_partition(), so it
+doesn't get called at all.
 
-	Ingo
+	Lovely...  OK, there are two possible fixes - one is to
+add check for block size into acorn_partition() (it's checked on
+almost all branches, but there's one where it's missing).  Another
+is to switch to new partition code, which works with any physical
+sector size.
+
+	I'm putting the new patch on anonftp -
+ftp.math.psu.edu/pub/viro/partition-c-S11-pre1
+
+	News:
+* massaged into form that should be easy to backport.
+* acorn.c converted (_completely_ untested)
+
+	Folks, please help to test that sucker. 
 

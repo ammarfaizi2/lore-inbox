@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276507AbRJKPJK>; Thu, 11 Oct 2001 11:09:10 -0400
+	id <S276503AbRJKPLa>; Thu, 11 Oct 2001 11:11:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276503AbRJKPJA>; Thu, 11 Oct 2001 11:09:00 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:25093 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S276381AbRJKPIm>;
-	Thu, 11 Oct 2001 11:08:42 -0400
-Date: Thu, 11 Oct 2001 17:08:47 +0200
-From: Frank van Maarseveen <fvm@altium.nl>
-To: Manfred Spraul <manfred@colorfullife.com>
+	id <S276381AbRJKPLU>; Thu, 11 Oct 2001 11:11:20 -0400
+Received: from web20508.mail.yahoo.com ([216.136.226.143]:17417 "HELO
+	web20508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S276503AbRJKPLL>; Thu, 11 Oct 2001 11:11:11 -0400
+Message-ID: <20011011151045.40155.qmail@web20508.mail.yahoo.com>
+Date: Thu, 11 Oct 2001 17:10:45 +0200 (CEST)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Linux-2.4.10-ac11
+To: Tom Rini <trini@kernel.crashing.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 8139too: NETDEV WATCHDOG: eth0: transmit timed out
-Message-ID: <20011011170847.A7877@espoo.tasking.nl>
-Reply-To: frank.van.maarseveen@altium.nl
-In-Reply-To: <3BC5B313.10444AA@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BC5B313.10444AA@colorfullife.com>; from manfred@colorfullife.com on Thu, Oct 11, 2001 at 04:56:19PM +0200
-X-Subliminal-Message: Use Linux!
-Organization: ALTIUM Software BV
+In-Reply-To: <20011011080046.C12016@cpe-24-221-152-185.az.sprintbbd.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2001 at 04:56:19PM +0200, Manfred Spraul wrote:
-> 
-> Do you use any user space tools to fix the link speed?
-> 	mii-diag
-> 	eth=0,0,<number>
-> 	module parameter?
+> Erm, these files should include <linux/pm.h>
+directly and not
+> expect something else to pull it in.  Doing a quick
+grep
+> shows that everything else does.
 
-no
+well, I find it normal that a file which uses some
+definitions
+includes the required files itself. Else, a single
+change in any
+".h" file would have repercussions on many files and
+external
+projects.
 
-> What is the link partner? hub, switch, fixed 10-mbit, dual-speed hub?
+Willy
 
-10mb fixed hub:
 
-	CentreCOM MR820TR
-	IEEE 802.3 10BASE-T/10BASE2/AUI
-	multiport micro hub/repeater
-	
--- 
-Frank
+___________________________________________________________
+Un nouveau Nokia Game commence. 
+Allez sur http://fr.yahoo.com/nokiagame avant le 3 novembre
+pour participer à cette aventure tous médias.

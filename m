@@ -1,61 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVC1NWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVC1N0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVC1NWa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 08:22:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVC1NWa
+	id S261738AbVC1N0L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 08:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVC1N0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 08:22:30 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:3558 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261727AbVC1NW0 (ORCPT
+	Mon, 28 Mar 2005 08:26:10 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:33196 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261738AbVC1NZ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 08:22:26 -0500
-Date: Mon, 28 Mar 2005 15:14:04 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Aaron Gyes <floam@sh.nu>
-cc: Adrian Bunk <bunk@stusta.de>,
-       "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-In-Reply-To: <1111951014.9831.4.camel@localhost>
-Message-ID: <Pine.LNX.4.62.0503281513100.7244@numbat.sonytel.be>
-References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com>
- <1111913399.6297.28.camel@laptopd505.fenrus.org> <16d78e9ea33380a1f1ad90c454fb6e1d@mac.com>
- <20050327180417.GD3815@gallifrey>  <20050327183522.GM4285@stusta.de>
- <1111951014.9831.4.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 28 Mar 2005 08:25:56 -0500
+Subject: [RFC/PATCH 1/17][kexec-tools-1.101] vmlinux parameter segment
+	stomping fix
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+       fastboot <fastboot@lists.osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-7GtgTDefXbi6g2KFynVz"
+Date: Mon, 28 Mar 2005 18:55:53 +0530
+Message-Id: <1112016353.4001.72.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Mar 2005, Aaron Gyes wrote:
-> > And then the user want to upgrade the 2.0 kernel that shipped with this 
-> > box although the company that made the hardware went bankrupt some years 
-> > ago.
-> > 
-> > If the user has the source of the driver, he can port the driver or hire 
-> > someone to port the driver (this "obscure piece of hardware" might also 
-> > be an expensive piece of hardware).
-> 
-> So what? Sure, GPL'd drivers are easier for an end-user in that case.
-> What does that have to do with law? What about what's better for the
-> company that made the device? Should NVIDIA be forced to give up their
-> secrets to all their competitors because some over zealous developers
-                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> say so? Should the end-users of the current drivers be forced to lose
-  ^^^^^^^
-> out on features such as sysfs and udev compatability?
 
-Because otherwise they are violating someone else's copyright?
+--=-7GtgTDefXbi6g2KFynVz
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Gr{oetje,eeting}s,
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+--=-7GtgTDefXbi6g2KFynVz
+Content-Disposition: attachment; filename=kexec-tools-vmlinux-parameter-segment-stomping-fix.patch
+Content-Type: text/x-patch; name=kexec-tools-vmlinux-parameter-segment-stomping-fix.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+During loading of panic kernel(vmlinux), it was found that on some systems,
+parameter segment was being stomped over by kernel. This was resulting in 
+corruption of e820 memory map and leading to boot memory allocator
+initialization failures while booting into new kernel. This patch fixes the
+problem by loading the parameter segment beyond alrady loaded kernel image
+and setup code. A 64K buffer has been provided to avoid any stomping by
+kernel.
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ kexec-tools-1.101-root/kexec/arch/i386/kexec-elf-x86.c |   16 ++++++++++++++--
+ 1 files changed, 14 insertions(+), 2 deletions(-)
+
+diff -puN kexec/arch/i386/kexec-elf-x86.c~kexec-tools-vmlinux-parameter-segment-stomping-fix kexec/arch/i386/kexec-elf-x86.c
+--- kexec-tools-1.101/kexec/arch/i386/kexec-elf-x86.c~kexec-tools-vmlinux-parameter-segment-stomping-fix	2005-03-21 16:43:50.000000000 +0530
++++ kexec-tools-1.101-root/kexec/arch/i386/kexec-elf-x86.c	2005-03-21 16:43:50.000000000 +0530
+@@ -199,15 +199,27 @@ int elf_x86_load(int argc, char **argv, 
+ 	}
+ 	else if (arg_style == ARG_STYLE_LINUX) {
+ 		struct x86_linux_faked_param_header *hdr;
+-		unsigned long param_base;
++		unsigned long param_base, min_param_base = 0;
+ 		const unsigned char *ramdisk_buf;
+ 		off_t ramdisk_length;
+ 		struct entry32_regs regs;
++		int i;
+ 
+ 		/* Get the linux parameter header */
+ 		hdr = xmalloc(sizeof(*hdr));
++		/* Add parameter segment beyond already loaded segments, so that
++		 * it does not get stomped by kernel. */
++		for (i = 0; i < info->nr_segments; i++) {
++			unsigned long temp;
++			temp = (unsigned long) info->segment[i].mem +
++				info->segment[i].memsz;
++			if (temp > min_param_base)
++				min_param_base =  temp;
++		}
++		/* 64K of buffer to keep enough distance from kernel. */
++		min_param_base += 64*1024;
+ 		param_base = add_buffer(info, hdr, sizeof(*hdr), sizeof(*hdr),
+-			16, 0, max_addr, 1);
++			16, min_param_base, max_addr, 1);
+ 
+ 		/* Initialize the parameter header */
+ 		memset(hdr, 0, sizeof(*hdr));
+_
+
+--=-7GtgTDefXbi6g2KFynVz--
+

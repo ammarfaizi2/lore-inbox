@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268543AbTANCuF>; Mon, 13 Jan 2003 21:50:05 -0500
+	id <S268539AbTANCqS>; Mon, 13 Jan 2003 21:46:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268542AbTANCts>; Mon, 13 Jan 2003 21:49:48 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:50118 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S268541AbTANCs6>;
-	Mon, 13 Jan 2003 21:48:58 -0500
-Message-Id: <200301140255.h0E2tku20743@w-gaughen.beaverton.ibm.com>
-Reply-to: gone@us.ibm.com
-From: Patricia Gaughen <gone@us.ibm.com>
-To: andrew.grover@intel.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] acpi compilation fix for 2.5.57
-Date: Mon, 13 Jan 2003 18:55:46 -0800
+	id <S268537AbTANCqE>; Mon, 13 Jan 2003 21:46:04 -0500
+Received: from dp.samba.org ([66.70.73.150]:25740 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268524AbTANCqA>;
+	Mon, 13 Jan 2003 21:46:00 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Module state and address in /proc/modules.
+Date: Tue, 14 Jan 2003 13:24:55 +1100
+Message-Id: <20030114025452.563462C374@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The address allows oprofile and ksymoops to work again.  The state is
+simply informative.
 
-Hi,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Stumbled upon two places that got missed when the typedefs in
-the acpi code were removed.  Thought I'd pass the fix along. :-)
+Name: Put more information in /proc/modules
+Author: Stanley Wang, Rusty Russell
+Status: Tested on 2.5.56
 
-Thanks,
-Pat
+D: Puts the state of the module and the address in /proc/modules.
 
----
-Patricia Gaughen (gone@us.ibm.com)
-IBM Linux Technology Center
-http://www.ibm.com/linux/ltc/
-
-diff -Nru a/drivers/acpi/osl.c b/drivers/acpi/osl.c
---- a/drivers/acpi/osl.c	Mon Jan 13 18:50:39 2003
-+++ b/drivers/acpi/osl.c	Mon Jan 13 18:50:39 2003
-@@ -527,7 +527,7 @@
- 
- acpi_status
- acpi_os_write_pci_configuration (
--	acpi_pci_id             *pci_id,
-+	struct acpi_pci_id             *pci_id,
- 	u32                     reg,
- 	acpi_integer            value,
- 	u32                     width)
-@@ -537,7 +537,7 @@
- 
- acpi_status
- acpi_os_read_pci_configuration (
--	acpi_pci_id             *pci_id,
-+	struct acpi_pci_id             *pci_id,
- 	u32                     reg,
- 	void                    *value,
- 	u32                     width)
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5-bk/kernel/module.c working-2.5-bk-procmodules-extra/kernel/module.c
+--- linux-2.5-bk/kernel/module.c	Fri Jan 10 10:55:43 2003
++++ working-2.5-bk-procmodules-extra/kernel/module.c	Sat Jan 11 19:59:58 2003
+@@ -1422,6 +1422,15 @@ static int m_show(struct seq_file *m, vo
+ 	seq_printf(m, "%s %lu",
+ 		   mod->name, mod->init_size + mod->core_size);
+ 	print_unload_info(m, mod);
++
++	/* Informative for users. */
++	seq_printf(m, " %s",
++		   mod->state == MODULE_STATE_GOING ? "Unloading":
++		   mod->state == MODULE_STATE_COMING ? "Loading":
++		   "Live");
++	/* Used by oprofile and other similar tools. */
++	seq_printf(m, " 0x%p", mod->module_core);
++
+ 	seq_printf(m, "\n");
+ 	return 0;
+ }

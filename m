@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318171AbSGQBLz>; Tue, 16 Jul 2002 21:11:55 -0400
+	id <S318176AbSGQBTV>; Tue, 16 Jul 2002 21:19:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318175AbSGQBLy>; Tue, 16 Jul 2002 21:11:54 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:55769 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318171AbSGQBLy>;
-	Tue, 16 Jul 2002 21:11:54 -0400
-Date: Tue, 16 Jul 2002 18:05:21 -0700 (PDT)
-Message-Id: <20020716.180521.57640174.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
+	id <S318177AbSGQBTV>; Tue, 16 Jul 2002 21:19:21 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31501 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318176AbSGQBTU>; Tue, 16 Jul 2002 21:19:20 -0400
+Date: Tue, 16 Jul 2002 18:23:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: close return value
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <ah2frs$164$1@penguin.transmeta.com>
-References: <1026869741.2119.112.camel@irongate.swansea.linux.org.uk>
-	<20020716.172026.55847426.davem@redhat.com>
-	<ah2frs$164$1@penguin.transmeta.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020716.180521.57640174.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0207161817560.4794-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: torvalds@transmeta.com (Linus Torvalds)
-   Date: Wed, 17 Jul 2002 01:05:00 +0000 (UTC)
 
-   In article <20020716.172026.55847426.davem@redhat.com>,
-   David S. Miller <davem@redhat.com> wrote:
-   >Better tell Linus.
-   
-   Oh, Linus knows.  In fact, Linus wrote some of the code in question. 
 
-Ok, I think the issue here is different.
+On Tue, 16 Jul 2002, David S. Miller wrote:
+>
+>    Oh, Linus knows.  In fact, Linus wrote some of the code in question.
+>
+> Ok, I think the issue here is different.
+>
+> Several years ago we were returning -EAGAIN from close() via NFS and
+> that is what caused the problems.
 
-Several years ago we were returning -EAGAIN from close() via NFS and
-that is what caused the problems.
+Oh.
+
+Yes, EAGAIN doesn't really work as a close return value, simply because
+_nobody_ expects that (and leaving the file descriptor open after a
+close() is definitely unexpected, ie people can very validly complain
+about buggy behaviour).
+
+		Linus
+

@@ -1,86 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278087AbRJVIYp>; Mon, 22 Oct 2001 04:24:45 -0400
+	id <S278313AbRJVI2Z>; Mon, 22 Oct 2001 04:28:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278162AbRJVIYf>; Mon, 22 Oct 2001 04:24:35 -0400
-Received: from tank.panorama.sth.ac.at ([193.170.53.11]:52748 "EHLO
-	tank.panorama.sth.ac.at") by vger.kernel.org with ESMTP
-	id <S278087AbRJVIYU>; Mon, 22 Oct 2001 04:24:20 -0400
-Date: Mon, 22 Oct 2001 10:24:59 +0200
-From: Peter Surda <shurdeek@panorama.sth.ac.at>
-To: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Dri-devel] my X-Kernel question
-Message-ID: <20011022102459.X12359@shurdeek.cb.ac.at>
-In-Reply-To: <004901c15ab4$dbbb8fc0$5cbefea9@moya> <Pine.LNX.4.20.0110220224390.11846-100000@node2.localnet.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JjNtGRvLZqzR8wa5"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.20.0110220224390.11846-100000@node2.localnet.net>; from volodya@mindspring.com on Mon, Oct 22, 2001 at 02:27:23AM -0400
-X-Operating-System: Linux shurdeek 2.4.3-20mdk
-X-Editor: VIM - Vi IMproved 6.0z ALPHA (2001 Mar 24, compiled Mar 26 2001 12:25:08)
+	id <S278281AbRJVI2P>; Mon, 22 Oct 2001 04:28:15 -0400
+Received: from pat.uio.no ([129.240.130.16]:2204 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S278275AbRJVI2A>;
+	Mon, 22 Oct 2001 04:28:00 -0400
+To: "H . J . Lu" <hjl@lucon.org>
+Cc: nfs@lists.sourceforge.net, linux kernel <linux-kernel@vger.kernel.org>,
+        alan@redhat.com
+Subject: Re: [NFS] Has anyone run the Connectathon Testsuite recently?
+In-Reply-To: <20011021232452.A2473@lucon.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 22 Oct 2001 10:28:18 +0200
+In-Reply-To: "H . J . Lu"'s message of "Sun, 21 Oct 2001 23:24:52 -0700"
+Message-ID: <shshess6pul.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == hjl  <H> writes:
 
---JjNtGRvLZqzR8wa5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+     > I checked out kernel 2.4.9-6 from RedHat 7.1 updates. It failed
+     > the Connectathon Testsuite against the Linux and none-Linux
+     > server. I believe both NFS server and client are broken in
+     > 2.4.9-6. See
 
-On Mon, Oct 22, 2001 at 02:27:23AM -0400, volodya@mindspring.com wrote:
-> The biggest reason against this is that X (as it is now) support not only
-> Linux but many other OSes: in particular BSD(s) and Solaris. Moving
-> stuff into Linux kernel creates a fork of the drivers which is
-> undesirable..
-That's a lame excuse. I'm using Linux so I won't suffer from Windows, why
-should I suffer because of BSD or Solaris?
+     > http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=54868
 
-<Rant>
-About the precise vsync thingy we're talking about in xpert: we need kernel
-support anyway. So why instead of calling a video driver in kernel "lame" and
-"uncool" and adding a strange inflexible function god-knows-where, shouldn't
-we move the whole driver structure to kernel? Drivers for every other device
-type are in kernel. What would the anti-video-in-kernel-guys think if I
-claimed that network cards should have userspace "drivers" in sort of "uber
-daemon" and if an app wants to make a TCP connection it should contact this
-"uber daemon"? I don't want to have staroffice in kernel, but the DRIVER
-STRUCTURE. For a great UI, we need DMA, vsync and devices communicating with
-each other directly or with little overhead. Why insist on doing this in
-userspace? The reasons to put it into kernel aren't speed, but because it's
-much more easier to add/maintain drivers, add functionality, share code and do
-fancy stuff. DRI is a very good example of what I mean.
-</Rant>
+     > Now the question is how bad the current Linus/AC kernels are?
 
-Short explaination of "the precise vsync thingy": For fluent video playback it
-is necessary to precisely coordinate number of frames the monitor displays.
-It is very visible on a TV. When I have a 25fps video, it should be EXACTLY
-"one frame of data == one frame on TV". Currently, I can tell the card (ATI)
-to blit on vsync (so it won't tear), but I can't tell it "don't miss a frame",
-or "block until vsync". This results in visible "jumps" when suddenly the same
-picture is staying on screen for the double duration than the others and it
-sucks and I can't do anything about it without SOME kernel support. Telling
-Xserver to poll for vsync and eat CPU is lame.
 
->                    Vladimir Dergachev
-Bye,
+They are not affected. The RedHat kernel seems to have the (known) bug
+in which the grace period isn't reset. My fault for introducing it in
+the 2.4.9-ac series...
 
-Peter Surda (Shurdeek) <shurdeek@panorama.sth.ac.at>, ICQ 10236103, +436505122023
+I haven't gotten round to syncing up the AC kernel to the full reclaim
+code that's in Linus' kernel, but Alan has already applied the
+following patch (as of 2.4.10-ac12).
 
---
-                   Disc space - The final frontier.
+Cheers,
+  Trond
 
---JjNtGRvLZqzR8wa5
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--- linux-2.4.9-6/fs/lockd/svc.c.orig	Thu Oct 18 15:00:46 2001
++++ linux-2.4.9-6/fs/lockd/svc.c	Mon Oct 22 10:25:21 2001
+@@ -122,6 +122,15 @@
+ 			if (nlmsvc_ops) {
+ 				nlmsvc_ops->detach();
+ 				grace_period_expire = nlmsvc_grace_period + jiffies;
++#ifdef RPC_DEBUG
++				nlmsvc_grace_period = 10 * HZ;
++#else
++				if (nlm_grace_period)
++					nlmsvc_grace_period = ((nlm_grace_period + nlm_timeout - 1)
++								/ nlm_timeout) * nlm_timeout * HZ;
++				else
++					nlmsvc_grace_period = 5 * nlm_timeout * HZ;
++#endif
+ 			}
+ 		}
+ 
+@@ -133,8 +142,10 @@
+ 		 */
+ 		if (!grace_period_expire) {
+ 			timeout = nlmsvc_retry_blocked();
+-		} else if (time_before(grace_period_expire, jiffies))
++		} else if (time_before(grace_period_expire, jiffies)) {
+ 			grace_period_expire = 0;
++			nlmsvc_grace_period = 0;
++		}
+ 
+ 		/*
+ 		 * Find a socket with data available and call its
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE709fbzogxsPZwLzcRAioqAJ4yegevqnCVWsBRLbR1O89NP4aUbACgjRMn
-tmNMoH6SdKcYjERs99bWffw=
-=lBuy
------END PGP SIGNATURE-----
-
---JjNtGRvLZqzR8wa5--

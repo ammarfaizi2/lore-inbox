@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262376AbRENTB3>; Mon, 14 May 2001 15:01:29 -0400
+	id <S262377AbRENTDa>; Mon, 14 May 2001 15:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262377AbRENTBS>; Mon, 14 May 2001 15:01:18 -0400
-Received: from comverse-in.com ([38.150.222.2]:33742 "EHLO
-	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S262376AbRENTBK>; Mon, 14 May 2001 15:01:10 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678EC2@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: uid_t and gid_t vs.  __kernel_uid_t and __kernel_gid_t
-Date: Mon, 14 May 2001 15:00:18 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="koi8-r"
+	id <S262388AbRENTDU>; Mon, 14 May 2001 15:03:20 -0400
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:24068 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S262377AbRENTDI>;
+	Mon, 14 May 2001 15:03:08 -0400
+Date: Mon, 14 May 2001 12:02:48 -0700
+From: "H . J . Lu" <hjl@lucon.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: =?iso-8859-1?Q?Mads_Martin_J=F8rgensen?= <mmj@suse.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH 2.4.4.ac9: Tulip net driver fixes
+Message-ID: <20010514120248.A26094@lucon.org>
+In-Reply-To: <3AFD8E2E.302F1AB5@mandrakesoft.com> <20010514112216.A25436@lucon.org> <20010514112407.E781@suse.com> <3B002595.76399CE4@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B002595.76399CE4@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, May 14, 2001 at 02:36:05PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had to communicate uid/gid from an application down 
-to a driver, and discovered that uid and gid in user
-space are different from those in kernel space.
+On Mon, May 14, 2001 at 02:36:05PM -0400, Jeff Garzik wrote:
+> Mads Martin Jørgensen wrote:
+> > 
+> > * H . J . Lu <hjl@lucon.org> [May 14. 2001 11:22]:
+> > > On Sat, May 12, 2001 at 03:25:34PM -0400, Jeff Garzik wrote:
+> > > > Attached is a patch against 2.4.4-ac8 which includes several fixes to
+> > > > the Tulip driver.  This should fix the reported PNIC problems, as well
+> > > > as problems with forcing media on MII phys and several other bugs.
+> > >
+> > > Your patch doesn't apply to 2.4.4-ac8 cleanly:
+> > 
+> > No, I noticed that too. But the 1.1.6 from
+> > http://sourceforge.net/projects/tulip/ works fine here.
+> 
+> Attached is a patch against 2.4.4-ac9 which includes the changes found
+> in tulip-devel 1.1.6...   (tulip-devel is sort of a misnomer; right now
+> it's really just a staging and testing point for fixes which go straight
+> into the tulip-stable series)
+> 
 
-I am porting both the driver and the app from platforms
-where uid and gid in userland don't differ from their
-counterparts down in the kernel.
+THANKS. It works!
 
-What would be the appealing portable way (across all 
-Linux platforms with their different byteorders) to 
-declare a type for such user/kernel interface?
+BTW, I cannot select both CONFIG_IP_PNP_DHCP and CONFIG_IP_PNP_BOOTP.
+BOOTP doesn' work even if I pass "ip=bootp" to kernel. I will take
+a look.
 
-Right now I am using smth that I feel is ugly a bit, 
-to declare fields of a transparent type:
-/* MY uid_t/gid_t - shared types for user and kernel space */ 
-   #if defined(LINUX) && defined (__KERNEL__) 
-    
-   #ifdef CONFIG_X86 
-    
-   #       define my_uid_t(var_name,pad_name) \ 
-                   __kernel_uid_t var_name; unsigned short pad_name 
-   #       define my_gid_t(var_name,pad_name) \ 
-                   __kernel_gid_t var_name; unsigned short pad_name 
-   #else /* other archs I need to support, with arch-specific alignment */
-...
-   #endif 
-    
-   #else /* Not Linux kernel - uid/gid same in user/kernel space */ 
-   #       define my_uid_t(var_name,pad_name) uid_t var_name 
-   #       define my_gid_t(var_name,pad_name) gid_t var_name 
-   #endif 
 
-and also I need special functions to set/get the var+
-padding in kernel to make sure that the padding is set 
-to 0/-1 according to the sign of the var, each time I get
-smth from/send smth to the userland from the kernel.
-
-Is there a known pattern for doing things like this? 
-Maybe some special macros just for gid/uid specifically? I am 
-just feeling that I try reinvent a wheel here...
-
-Kind regards,
-	Vassilii
+H.J.

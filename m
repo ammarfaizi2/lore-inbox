@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132099AbQKQMWG>; Fri, 17 Nov 2000 07:22:06 -0500
+	id <S131981AbQKQM2k>; Fri, 17 Nov 2000 07:28:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132004AbQKQMV5>; Fri, 17 Nov 2000 07:21:57 -0500
-Received: from 62-6-231-42.btconnect.com ([62.6.231.42]:46474 "EHLO
-	saturn.homenet") by vger.kernel.org with ESMTP id <S132099AbQKQMVs>;
-	Fri, 17 Nov 2000 07:21:48 -0500
-Date: Fri, 17 Nov 2000 11:51:03 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [patch] hotplug fixes Re: test11-pre6
-In-Reply-To: <Pine.LNX.4.10.10011161832460.803-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0011171148310.8176-100000@saturn.homenet>
+	id <S132004AbQKQM2b>; Fri, 17 Nov 2000 07:28:31 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:37381 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131981AbQKQM2P>;
+	Fri, 17 Nov 2000 07:28:15 -0500
+Message-ID: <3A151D47.172D67E@mandrakesoft.com>
+Date: Fri, 17 Nov 2000 06:57:59 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Wedgwood <cw@f00f.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test11-pre6
+In-Reply-To: <Pine.LNX.4.10.10011161832460.803-100000@penguin.transmeta.com> <20001117203325.A15841@metastasis.f00f.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2000, Linus Torvalds wrote:
-
+Chris Wedgwood wrote:
+> There are 'hotplug' additions -- these now mean the networking code
+> won't build without "CONFIG_HOTPLUG=y".
 > 
-> The log-file says it all..
-> 
-> 		Linus
+> What is the correct fix here; fix the networking code or just take
+> this option out and ensure hotplug functionality is no longer
+> compile-time dependent (always compiled in) ?
 
-No, I am sorry but it does not mention hotplug things in net/core/dev.c
-and they are broken. The fix below.
+Surround the networking code with CONFIG_HOTPLUG.  A patch has already
+been posted to lkml.
 
-Regards,
-Tigran
-
-diff -urN -X dontdiff linux/init/main.c work/init/main.c
---- linux/init/main.c	Fri Nov 17 10:29:34 2000
-+++ work/init/main.c	Fri Nov 17 11:27:27 2000
-@@ -712,11 +712,13 @@
- 	init_pcmcia_ds();		/* Do this last */
- #endif
- 
-+#ifdef CONFIG_HOTPLUG
- 	/* do this after other 'do this last' stuff, because we want
- 	 * to minimize spurious executions of /sbin/hotplug
- 	 * during boot-up
- 	 */
- 	net_notifier_init();
-+#endif
- 
- 	/* Mount the root filesystem.. */
- 	mount_root();
-diff -urN -X dontdiff linux/net/core/dev.c work/net/core/dev.c
---- linux/net/core/dev.c	Fri Nov 17 10:29:34 2000
-+++ work/net/core/dev.c	Fri Nov 17 11:27:15 2000
-@@ -2704,6 +2704,7 @@
- 	return 0;
- }
- 
-+#ifdef CONFIG_HOTPLUG
- 
- /* Notify userspace when a netdevice event occurs,
-  * by running '/sbin/hotplug net' with certain
-@@ -2765,3 +2766,4 @@
- 		printk (KERN_WARNING "unable to register netdev notifier\n"
- 			KERN_WARNING "/sbin/hotplug will not be run.\n");
- }
-+#endif
+	Jeff
 
 
+-- 
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

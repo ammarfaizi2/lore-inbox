@@ -1,75 +1,323 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263024AbTCLE2v>; Tue, 11 Mar 2003 23:28:51 -0500
+	id <S263027AbTCLEeD>; Tue, 11 Mar 2003 23:34:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263027AbTCLE2v>; Tue, 11 Mar 2003 23:28:51 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21516 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263024AbTCLE2u>; Tue, 11 Mar 2003 23:28:50 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Date: 11 Mar 2003 20:39:19 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b4mdln$cd$1@cesium.transmeta.com>
-References: <20030312034330.GA9324@work.bitmover.com>
-MIME-Version: 1.0
+	id <S263028AbTCLEeD>; Tue, 11 Mar 2003 23:34:03 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:30099 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S263027AbTCLEd6>;
+	Tue, 11 Mar 2003 23:33:58 -0500
+Date: Wed, 12 Mar 2003 15:44:13 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Cc: arnd@arndb.de, linux-kernel@vger.kernel.org,
+       Linus <torvalds@transmeta.com>
+Subject: Re: [PATCH][COMPAT] compat_sys_fcntl{,64} 1/9 Generic part
+Message-Id: <20030312154413.40511744.sfr@canb.auug.org.au>
+In-Reply-To: <OF690DDAD1.0533780B-ONC1256CE6.00437602@de.ibm.com>
+References: <OF690DDAD1.0533780B-ONC1256CE6.00437602@de.ibm.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030312034330.GA9324@work.bitmover.com>
-By author:    Larry McVoy <lm@bitmover.com>
-In newsgroup: linux.dev.kernel
+Hi Martin, Arnd,
+
+On Tue, 11 Mar 2003 13:20:39 +0100 "Martin Schwidefsky" <schwidefsky@de.ibm.com> wrote:
+>
 > 
-> If all of this sounds nice, it is.  It was a lot of work for us to do
-> this and you might be wondering why we bothered.  Well, for a couple of
-> reasons.  First of all, it was only recently that I realized that because
-> BK is not free software some people won't run BK to get data out of BK.
-> It may be dense on my part, but I simply did not anticipate that people
-> would be that extreme, it never occurred to me.  We did a ton of work to
-> make sure anyone could get their data out of BK but you do have to run
-> BK to get the data.  I never thought of people not being willing to run
-> BK to get at the data.  Second, we have maintained SCCS compatible file
-> formats so that there would be another way to get the data out of BK.
-> This has held us back in terms of functionality and performance.  I had
-> thought there was some value in the SCCS format but recent discussions
-> on this list have convinced me that without the changeset information
-> the file format doesn't have much value.
+> > Did you notice the use of the address conversion macro? Maybe I missed
+> > something myself, but I suppose this will fail on s390 if the msb of arg
+> > is not cleared.
 > 
+> True. A(arg) removes the high order bit from arg. This can't be done
+> in the system call wrapper because in general arg is a 32 bit parameter.
 
-I can only speak for myself, but I didn't mind until the license ended
-up having the "unless you hack on other tools" exception in it.
-Personally, I value my freedom to hack on whatever I want a lot more
-than the convenience of BK.  This is a personal choice on my part and
-may sound "extreme" to you, and other people have made other
-tradeoffs, but for me freedom was the reason I started hacking Linux
-instead of becoming a Win32 geek.
+I did notice :-)  Does the following look OK to you?
 
-Having this capability available will certainly make life better for
-everyone involved.  Besides, "we won't hold your data hostage" is
-actually a pretty nice selling argument.
+This patch also (goes some way) to fixing the net/compat.c as pointers
+are used there as well.
 
-> 
-> Our goal is to provide the data in a way that you can get at it without
-> being dependent on us or BK in any way.  As soon as we have this
-> debugged, I'd like to move the CVS repositories to kernel.org (if I can
-> get HPA to agree) and then you'll have the revision history and can live
-> without the fear of the "don't piss Larry off license".  Quite frankly,
-> we don't like the current situation any better than many of you, so if
-> this addresses your concerns that will take some pressure off of us.
-> 
-
-I'm sure we can work something out.  However, at the moment
-zeus.kernel.org, our main server with lots and lots of bandwidth, is
-starting to run into its limits, so I can't promise *when* that will
-happen.  Just putting in another server 
-
-	-hpa
+Linus, if Martin says this is OK, please apply.  This patch is relative
+to my previous patch, but applies to recent BK with some fuzz in the
+architectures that haven't merged my previous patch yet.
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff -ruN 2.5.64-2003031211-32bit.1/fs/compat.c 2.5.64-2003031211-32bit.2/fs/compat.c
+--- 2.5.64-2003031211-32bit.1/fs/compat.c	2003-03-12 11:55:17.000000000 +1100
++++ 2.5.64-2003031211-32bit.2/fs/compat.c	2003-03-12 15:11:27.000000000 +1100
+@@ -191,7 +191,7 @@
+ 	case F_GETLK:
+ 	case F_SETLK:
+ 	case F_SETLKW:
+-		ret = get_compat_flock(&f, (struct compat_flock *)arg);
++		ret = get_compat_flock(&f, COMPAT_UPTR_TO_PTR(arg));
+ 		if (ret != 0)
+ 			break;
+ 		old_fs = get_fs();
+@@ -204,14 +204,14 @@
+ 				ret = -EOVERFLOW;
+ 			if (ret == 0)
+ 				ret = put_compat_flock(&f,
+-						(struct compat_flock *)arg);
++						COMPAT_UPTR_TO_PTR(arg));
+ 		}
+ 		break;
+ 
+ 	case F_GETLK64:
+ 	case F_SETLK64:
+ 	case F_SETLKW64:
+-		ret = get_compat_flock64(&f, (struct compat_flock64 *)arg);
++		ret = get_compat_flock64(&f, COMPAT_UPTR_TO_PTR(arg));
+ 		if (ret != 0)
+ 			break;
+ 		old_fs = get_fs();
+@@ -227,7 +227,7 @@
+ 				ret = -EOVERFLOW;
+ 			if (ret == 0)
+ 				ret = put_compat_flock64(&f,
+-						(struct compat_flock64 *)arg);
++						COMPAT_UPTR_TO_PTR(arg));
+ 		}
+ 		break;
+ 
+diff -ruN 2.5.64-2003031211-32bit.1/include/asm-ia64/compat.h 2.5.64-2003031211-32bit.2/include/asm-ia64/compat.h
+--- 2.5.64-2003031211-32bit.1/include/asm-ia64/compat.h	2003-03-09 20:34:45.000000000 +1100
++++ 2.5.64-2003031211-32bit.2/include/asm-ia64/compat.h	2003-03-12 15:36:14.000000000 +1100
+@@ -107,4 +107,13 @@
+ #define COMPAT_OFF_T_MAX	0x7fffffff
+ #define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
+ 
++/*
++ * A pointer passed in from user mode. This should not
++ * be used for syscall parameters, just declare them
++ * as pointers because the syscall entry code will have
++ * appropriately comverted them already.
++ */
++typedef	u32		compat_uptr_t;
++#define COMPAT_UPTR_TO_PTR(ptr)	((void *)(unsigned long)(x))
++
+ #endif /* _ASM_IA64_COMPAT_H */
+diff -ruN 2.5.64-2003031211-32bit.1/include/asm-mips64/compat.h 2.5.64-2003031211-32bit.2/include/asm-mips64/compat.h
+--- 2.5.64-2003031211-32bit.1/include/asm-mips64/compat.h	2003-03-09 20:34:45.000000000 +1100
++++ 2.5.64-2003031211-32bit.2/include/asm-mips64/compat.h	2003-03-12 15:36:28.000000000 +1100
+@@ -103,4 +103,13 @@
+ #define COMPAT_OFF_T_MAX	0x7fffffff
+ #define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
+ 
++/*
++ * A pointer passed in from user mode. This should not
++ * be used for syscall parameters, just declare them
++ * as pointers because the syscall entry code will have
++ * appropriately comverted them already.
++ */
++typedef	u32		compat_uptr_t;
++#define COMPAT_UPTR_TO_PTR(ptr)	((void *)(unsigned long)(x))
++
+ #endif /* _ASM_MIPS64_COMPAT_H */
+diff -ruN 2.5.64-2003031211-32bit.1/include/asm-parisc/compat.h 2.5.64-2003031211-32bit.2/include/asm-parisc/compat.h
+--- 2.5.64-2003031211-32bit.1/include/asm-parisc/compat.h	2003-03-12 11:55:19.000000000 +1100
++++ 2.5.64-2003031211-32bit.2/include/asm-parisc/compat.h	2003-03-12 15:36:42.000000000 +1100
+@@ -103,4 +103,13 @@
+ #define COMPAT_OFF_T_MAX	0x7fffffff
+ #define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
+ 
++/*
++ * A pointer passed in from user mode. This should not
++ * be used for syscall parameters, just declare them
++ * as pointers because the syscall entry code will have
++ * appropriately comverted them already.
++ */
++typedef	u32		compat_uptr_t;
++#define COMPAT_UPTR_TO_PTR(ptr)	((void *)(unsigned long)(x))
++
+ #endif /* _ASM_PARISC_COMPAT_H */
+diff -ruN 2.5.64-2003031211-32bit.1/include/asm-ppc64/compat.h 2.5.64-2003031211-32bit.2/include/asm-ppc64/compat.h
+--- 2.5.64-2003031211-32bit.1/include/asm-ppc64/compat.h	2003-03-09 20:34:45.000000000 +1100
++++ 2.5.64-2003031211-32bit.2/include/asm-ppc64/compat.h	2003-03-12 15:36:52.000000000 +1100
+@@ -98,4 +98,13 @@
+ #define COMPAT_OFF_T_MAX	0x7fffffff
+ #define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
+ 
++/*
++ * A pointer passed in from user mode. This should not
++ * be used for syscall parameters, just declare them
++ * as pointers because the syscall entry code will have
++ * appropriately comverted them already.
++ */
++typedef	u32		compat_uptr_t;
++#define COMPAT_UPTR_TO_PTR(ptr)	((void *)(unsigned long)(x))
++
+ #endif /* _ASM_PPC64_COMPAT_H */
+diff -ruN 2.5.64-2003031211-32bit.1/include/asm-s390x/compat.h 2.5.64-2003031211-32bit.2/include/asm-s390x/compat.h
+--- 2.5.64-2003031211-32bit.1/include/asm-s390x/compat.h	2003-03-12 11:55:20.000000000 +1100
++++ 2.5.64-2003031211-32bit.2/include/asm-s390x/compat.h	2003-03-12 15:37:03.000000000 +1100
+@@ -101,4 +101,13 @@
+ #define COMPAT_OFF_T_MAX	0x7fffffff
+ #define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
+ 
++/*
++ * A pointer passed in from user mode. This should not
++ * be used for syscall parameters, just declare them
++ * as pointers because the syscall entry code will have
++ * appropriately comverted them already.
++ */
++typedef	u32		compat_uptr_t;
++#define COMPAT_UPTR_TO_PTR(ptr)	((void *)(unsigned long)((x) & 0x7fffffffUL))
++
+ #endif /* _ASM_S390X_COMPAT_H */
+diff -ruN 2.5.64-2003031211-32bit.1/include/asm-sparc64/compat.h 2.5.64-2003031211-32bit.2/include/asm-sparc64/compat.h
+--- 2.5.64-2003031211-32bit.1/include/asm-sparc64/compat.h	2003-03-09 20:34:45.000000000 +1100
++++ 2.5.64-2003031211-32bit.2/include/asm-sparc64/compat.h	2003-03-12 15:37:12.000000000 +1100
+@@ -100,4 +100,13 @@
+ #define COMPAT_OFF_T_MAX	0x7fffffff
+ #define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
+ 
++/*
++ * A pointer passed in from user mode. This should not
++ * be used for syscall parameters, just declare them
++ * as pointers because the syscall entry code will have
++ * appropriately comverted them already.
++ */
++typedef	u32		compat_uptr_t;
++#define COMPAT_UPTR_TO_PTR(ptr)	((void *)(unsigned long)(x))
++
+ #endif /* _ASM_SPARC64_COMPAT_H */
+diff -ruN 2.5.64-2003031211-32bit.1/include/asm-x86_64/compat.h 2.5.64-2003031211-32bit.2/include/asm-x86_64/compat.h
+--- 2.5.64-2003031211-32bit.1/include/asm-x86_64/compat.h	2003-03-12 11:55:21.000000000 +1100
++++ 2.5.64-2003031211-32bit.2/include/asm-x86_64/compat.h	2003-03-12 15:37:19.000000000 +1100
+@@ -107,4 +107,13 @@
+ #define COMPAT_OFF_T_MAX	0x7fffffff
+ #define COMPAT_LOFF_T_MAX	0x7fffffffffffffff
+ 
++/*
++ * A pointer passed in from user mode. This should not
++ * be used for syscall parameters, just declare them
++ * as pointers because the syscall entry code will have
++ * appropriately comverted them already.
++ */
++typedef	u32		compat_uptr_t;
++#define COMPAT_UPTR_TO_PTR(ptr)	((void *)(unsigned long)(x))
++
+ #endif /* _ASM_X86_64_COMPAT_H */
+diff -ruN 2.5.64-2003031211-32bit.1/net/compat.c 2.5.64-2003031211-32bit.2/net/compat.c
+--- 2.5.64-2003031211-32bit.1/net/compat.c	2003-03-12 11:55:24.000000000 +1100
++++ 2.5.64-2003031211-32bit.2/net/compat.c	2003-03-12 15:29:48.000000000 +1100
+@@ -27,7 +27,6 @@
+ #include <asm/uaccess.h>
+ #include <net/compat_socket.h>
+ 
+-#define A(__x)		((unsigned long)(__x))
+ #define AA(__x)		((unsigned long)(__x))
+ 
+ extern asmlinkage long sys_getsockopt(int fd, int level, int optname,
+@@ -49,7 +48,7 @@
+ 			break;
+ 		}
+ 		tot_len += len;
+-		kiov->iov_base = (void *)A(buf);
++		kiov->iov_base = COMPAT_UPTR_TO_PTR(buf);
+ 		kiov->iov_len = (__kernel_size_t) len;
+ 		uiov32++;
+ 		kiov++;
+@@ -69,9 +68,9 @@
+ 	if (err)
+ 		return -EFAULT;
+ 
+-	kmsg->msg_name = (void *)A(tmp1);
+-	kmsg->msg_iov = (struct iovec *)A(tmp2);
+-	kmsg->msg_control = (void *)A(tmp3);
++	kmsg->msg_name = COMPAT_UPTR_TO_PTR(tmp1);
++	kmsg->msg_iov = COMPAT_UPTR_TO_PTR(tmp2);
++	kmsg->msg_control = COMPAT_UPTR_TO_PTR(tmp3);
+ 
+ 	err = get_user(kmsg->msg_namelen, &umsg->msg_namelen);
+ 	err |= get_user(kmsg->msg_iovlen, &umsg->msg_iovlen);
+@@ -458,7 +457,7 @@
+ 	    __get_user(uptr, &fprog32->filter))
+ 		return -EFAULT;
+ 
+-	kfprog.filter = (struct sock_filter *)A(uptr);
++	kfprog.filter = COMPAT_UPTR_TO_PTR(uptr);
+ 	fsize = kfprog.len * sizeof(struct sock_filter);
+ 
+ 	kfilter = (struct sock_filter *)kmalloc(fsize, GFP_KERNEL);
+@@ -639,36 +638,37 @@
+ 		ret = sys_socket(a0, a1, a[2]);
+ 		break;
+ 	case SYS_BIND:
+-		ret = sys_bind(a0, (struct sockaddr *)A(a1), a[2]);
++		ret = sys_bind(a0, COMPAT_UPTR_TO_PTR(a1), a[2]);
+ 		break;
+ 	case SYS_CONNECT:
+-		ret = sys_connect(a0, (struct sockaddr *)A(a1), a[2]);
++		ret = sys_connect(a0, COMPAT_UPTR_TO_PTR(a1), a[2]);
+ 		break;
+ 	case SYS_LISTEN:
+ 		ret = sys_listen(a0, a1);
+ 		break;
+ 	case SYS_ACCEPT:
+-		ret = sys_accept(a0, (struct sockaddr *)A(a1), (int *)A(a[2]));
++		ret = sys_accept(a0, COMPAT_UPTR_TO_PTR(a1),
++				COMPAT_UPTR_TO_PTR(a[2]));
+ 		break;
+ 	case SYS_GETSOCKNAME:
+-		ret = sys_getsockname(a0, (struct sockaddr *)A(a1),
+-				       (int *)A(a[2]));
++		ret = sys_getsockname(a0, COMPAT_UPTR_TO_PTR(a1),
++				       COMPAT_UPTR_TO_PTR(a[2]));
+ 		break;
+ 	case SYS_GETPEERNAME:
+-		ret = sys_getpeername(a0, (struct sockaddr *)A(a1),
+-				       (int *)A(a[2]));
++		ret = sys_getpeername(a0, COMPAT_UPTR_TO_PTR(a1),
++				       COMPAT_UPTR_TO_PTR(a[2]));
+ 		break;
+ 	case SYS_SOCKETPAIR:
+-		ret = sys_socketpair(a0, a1, a[2], (int *)A(a[3]));
++		ret = sys_socketpair(a0, a1, a[2], COMPAT_UPTR_TO_PTR(a[3]));
+ 		break;
+ 	case SYS_SEND:
+-		ret = sys_send(a0, (void *)A(a1), a[2], a[3]);
++		ret = sys_send(a0, COMPAT_UPTR_TO_PTR(a1), a[2], a[3]);
+ 		break;
+ 	case SYS_SENDTO:
+ 		ret = sys_sendto(a0, a1, a[2], a[3], a[4], a[5]);
+ 		break;
+ 	case SYS_RECV:
+-		ret = sys_recv(a0, (void *)A(a1), a[2], a[3]);
++		ret = sys_recv(a0, COMPAT_UPTR_TO_PTR(a1), a[2], a[3]);
+ 		break;
+ 	case SYS_RECVFROM:
+ 		ret = sys_recvfrom(a0, a1, a[2], a[3], a[4], a[5]);
+@@ -677,19 +677,20 @@
+ 		ret = sys_shutdown(a0,a1);
+ 		break;
+ 	case SYS_SETSOCKOPT:
+-		ret = compat_sys_setsockopt(a0, a1, a[2], (char *)A(a[3]),
+-				      a[4]);
++		ret = compat_sys_setsockopt(a0, a1, a[2],
++				COMPAT_UPTR_TO_PTR(a[3]), a[4]);
+ 		break;
+ 	case SYS_GETSOCKOPT:
+-		ret = compat_sys_getsockopt(a0, a1, a[2], (char *)(u64)a[3],
+-					    (int *)(u64)a[4]);
++		ret = compat_sys_getsockopt(a0, a1, a[2],
++				COMPAT_UPTR_TO_PTR(a[3]),
++				COMPAT_UPTR_TO_PTR(a[4]));
+ 		break;
+ 	case SYS_SENDMSG:
+-		ret = compat_sys_sendmsg(a0, (struct compat_msghdr *)A(a1),
++		ret = compat_sys_sendmsg(a0, COMPAT_UPTR_TO_PTR(a1),
+ 				         a[2]);
+ 		break;
+ 	case SYS_RECVMSG:
+-		ret = compat_sys_recvmsg(a0, (struct compat_msghdr *)A(a1),
++		ret = compat_sys_recvmsg(a0, COMPAT_UPTR_TO_PTR(a1),
+ 				         a[2]);
+ 		break;
+ 	default:

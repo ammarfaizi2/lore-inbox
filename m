@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267361AbTATWBc>; Mon, 20 Jan 2003 17:01:32 -0500
+	id <S267206AbTATWKu>; Mon, 20 Jan 2003 17:10:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267372AbTATWBc>; Mon, 20 Jan 2003 17:01:32 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:13258 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S267361AbTATWBb>;
-	Mon, 20 Jan 2003 17:01:31 -0500
-Date: Mon, 20 Jan 2003 23:16:12 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] HT scheduler, sched-2.5.59-D7
-In-Reply-To: <3E2C713E.2050301@colorfullife.com>
-Message-ID: <Pine.LNX.4.44.0301202315260.20530-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267237AbTATWKu>; Mon, 20 Jan 2003 17:10:50 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:7787 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S267206AbTATWKt>; Mon, 20 Jan 2003 17:10:49 -0500
+Date: Tue, 21 Jan 2003 00:19:43 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: John Bradford <john@grabjohn.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, peter900000@hotmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel C++ compiler?
+Message-ID: <20030120221943.GV1258@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	John Bradford <john@grabjohn.com>, Jeff Garzik <jgarzik@pobox.com>,
+	peter900000@hotmail.com, linux-kernel@vger.kernel.org
+References: <20030120165417.GB27972@gtf.org> <200301201711.h0KHBEYR005837@darkstar.example.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301201711.h0KHBEYR005837@darkstar.example.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 20, 2003 at 05:11:14PM +0000, you [John Bradford] wrote:
+> > > > Does Intels C++ compiler for Linux works fine for compiling the Linux
+> > > > kernel? It is not 100% compatible, as far as I know.
+> > > 
+> > > I doubt it - Linux makes extensive use of GCC compiler extensions.
+> > 
+> > I doubt your doubting.  It works.
+> 
+> I'm suprised.  Sorry once again for the mis-information, (heh, but at
+> least it was on-topic, which is somewhat amasing for this mailing list
+> :-) ).  Is there a concious effort to make it compile the kernel, or
+> are they aiming for general GCC compliance?
 
-On Mon, 20 Jan 2003, Manfred Spraul wrote:
+I guess both. See
 
-> > 	if (do_wakeup) {
-> >-		wake_up_interruptible(PIPE_WAIT(*inode));
-> >+		wake_up_interruptible_sync(PIPE_WAIT(*inode));
+http://lists.insecure.org/lists/linux-kernel/2002/Oct/6450.html
 
-> What's the purpose of this change?
+Also, Intel has for long aimed to make icc on Linux to be as gcc compliant
+as possible.
 
-It was a quick experiment i forgot to remove from my sources, will fix it
-in the next patch.
 
-	Ingo
+-- v --
 
+v@iki.fi

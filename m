@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264251AbTJOT4G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 15:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbTJOT4G
+	id S264278AbTJOUVv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 16:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTJOUVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 15:56:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57478 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264251AbTJOT4D
+	Wed, 15 Oct 2003 16:21:51 -0400
+Received: from 28-207.surfsnel.dsl.internl.net ([145.99.207.28]:41345 "EHLO
+	pangsit.kjoe.net") by vger.kernel.org with ESMTP id S264278AbTJOUVu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 15:56:03 -0400
-Message-ID: <3F8DA644.50403@pobox.com>
-Date: Wed, 15 Oct 2003 15:55:48 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
-       "David S. Miller" <davem@redhat.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pci_get_slot()
-References: <20031015183213.GG16535@parcelfarce.linux.theplanet.co.uk> <20031015184104.GA22373@kroah.com> <20031015185053.GH16535@parcelfarce.linux.theplanet.co.uk> <20031015193455.GA23727@kroah.com>
-In-Reply-To: <20031015193455.GA23727@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Oct 2003 16:21:50 -0400
+Date: Wed, 15 Oct 2003 22:21:48 +0200
+To: Atte =?iso-8859-15?Q?Andr=E9?= Jensen <atte@ballbreaker.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: orinoco wireless pcmcia driver in test5
+Message-ID: <20031015202147.GA2615@pangsit>
+References: <20031015213013.5244bb4c.atte@ballbreaker.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031015213013.5244bb4c.atte@ballbreaker.dk>
+X-Mailer: Mutt on Debian GNU/Linux sid
+X-Editor: vim
+X-Organisation: SURFnet bv
+X-Address: Radboudburcht, P.O. Box 19035, 3501 DA Utrecht, NL
+X-Phone: +31 302 305 305
+X-Telefax: +31 302 305 329
+User-Agent: Mutt/1.5.4i
+From: Niels den Otter <otter@surfnet.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Oct 15, 2003 at 07:50:53PM +0100, Matthew Wilcox wrote:
->>The only real way to do it is to inline pci_get_slot() into tg3.  Since I
->>also have a need for it in sym2, that doesn't seem like a sensible idea.
->>It would also be racy since it wouldn't take the pci_bus_lock.
+Atte,
+
+On Wednesday, 15 October 2003, Atte Andr? Jensen wrote:
+> What is the result (and purpose) of no mention of the orinoco wireless
+> drivers in the .config for test5?
 > 
+> [atte@aarhus atte]$ grep -i orinoco /usr/src/linux-2.6.0-test5/.config
+> [atte@aarhus atte]$ 
 > 
-> Ok, fair enough.  I'll add it to my tree to be sent to Linus after 2.6.0
-> is out, if Jeff and David agree it's an ok tg3.c patch.
+> Will the driver be linked in anyhow? If not is there a fix?
+
+Please check the configuration options for "HERMES".
 
 
-I'm OK with it...   I guess we'll be shipping tg3 and sym2 known-broken 
-on PCI domain boxes?
-
-Admittedly it's an uncommon case for tg3...
-
-	Jeff
-
-
-
+-- Niels

@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266347AbUHIP5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266126AbUHIP5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266347AbUHIP5p (ORCPT <rfc822;willy@w.ods.org>);
+	id S266126AbUHIP5p (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 9 Aug 2004 11:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUHIPzC
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266730AbUHIPyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 11:55:02 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:36809 "EHLO
+	Mon, 9 Aug 2004 11:54:43 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:39881 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266347AbUHIPwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 11:52:33 -0400
-Subject: Re: dynamic /dev security hole?
+	id S266666AbUHIPyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 11:54:18 -0400
+Subject: Re: [PATCH] implement in-kernel keys & keyring management
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Eric Lammerts <eric@lammerts.org>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, Greg KH <greg@kroah.com>,
-       albert@users.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0408090025590.26834@vivaldi.madbase.net>
-References: <20040808162115.GA7597@kroah.com>
-	 <1091969260.5759.125.camel@cube>
-	 <20040808175834.59758fc0.Ballarin.Marc@gmx.de>
-	 <20040808162115.GA7597@kroah.com>
-	 <20040809000727.1eaf917b.Ballarin.Marc@gmx.de>
-	 <Pine.LNX.4.58.0408090025590.26834@vivaldi.madbase.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: James Morris <jmorris@redhat.com>, David Howells <dhowells@redhat.com>,
+       akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       arjanv@redhat.com, dwmw2@infradead.org, greg@kroah.com,
+       Chris Wright <chrisw@osdl.org>, sfrench@samba.org, mike@halcrow.us,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Kyle Moffett <mrmacman_g4@mac.com>
+In-Reply-To: <Pine.LNX.4.58.0408082114230.1832@ppc970.osdl.org>
+References: <Xine.LNX.4.44.0408082041010.1123-100000@dhcp83-76.boston.redhat.com>
+	 <Pine.LNX.4.58.0408082114230.1832@ppc970.osdl.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092062974.14153.26.camel@localhost.localdomain>
+Message-Id: <1092063060.14152.28.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 09 Aug 2004 15:49:36 +0100
+Date: Mon, 09 Aug 2004 15:51:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-09 at 05:40, Eric Lammerts wrote:
-> Just an idea for a fix for this problem: If udev would change the
-> permissions to 000 and ownership to root.root just before it unlinks
-> the device node, the copy would become useless.
+On Llu, 2004-08-09 at 05:27, Linus Torvalds wrote:
+> But at least to me, the /sbin/request-key thing is more like loading a 
+> module. You might do it to mount a filesystem or read an encrypted volume, 
+> but you wouldn't do it in the "normal" workload. It's a major event.
 
-Unfortunately not the whole story. The permissions are checked at open
-time not on read/write/ioctl so once I have the device opened you
-lose. That means you may have to fix the permissions and ownership
-before trying to unload the device. The unload will fail if it is still
-busy but if not then nobody will be able to open the dev node and
-whatever file it now points to.
-
+The BSD networking PF_KEY does exactly this for IPsec sockets. Coupled
+with a cache it seems to work rather well. In fact is there a reason for
+not using PF_KEY - other than /sbin/hotplug being cleaner ?
 

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129469AbQKNAcA>; Mon, 13 Nov 2000 19:32:00 -0500
+	id <S130393AbQKNAhw>; Mon, 13 Nov 2000 19:37:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129566AbQKNAbu>; Mon, 13 Nov 2000 19:31:50 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:64018 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129469AbQKNAbk>; Mon, 13 Nov 2000 19:31:40 -0500
-Date: Mon, 13 Nov 2000 19:51:15 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rasmus Andersen <rasmus@jaquet.dk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops on 2.2.17 [klogd bonus question]
-In-Reply-To: <20001113162155.A18009@jaquet.dk>
-Message-ID: <Pine.LNX.4.21.0011131950040.32472-100000@freak.distro.conectiva>
+	id <S130400AbQKNAhn>; Mon, 13 Nov 2000 19:37:43 -0500
+Received: from uberbox.mesatop.com ([208.164.122.11]:37643 "EHLO
+	uberbox.mesatop.com") by vger.kernel.org with ESMTP
+	id <S129566AbQKNAhf>; Mon, 13 Nov 2000 19:37:35 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] CONFIG_EISA note in Documentation/Configure.help
+Date: Mon, 13 Nov 2000 17:07:22 -0700
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00111317072200.00727@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I noticed there was no help section for CONFIG_EISA in Configure.help.
+Here is a micro patch.  Hope this is not "really superfluous" this time.
 
+	Steven
 
-On Mon, 13 Nov 2000, Rasmus Andersen wrote:
+diff -urN linux/Documentation/Configure.help.orig 
+linux/DocumentationConfigure.help
+--- linux/Documentation/Configure.help.orig     Sat Nov 11 21:41:55 2000
++++ linux/Documentation/Configure.help  Mon Nov 13 16:53:45 2000
+@@ -2482,6 +2482,20 @@
+   Documentation/mca.txt (and especially the web page given there)
+   before attempting to build an MCA bus kernel.
 
-> Hi.
-> 
-> I'm getting oopses on a linux 2.2.17 box when I try to do
-> tar cvIf <file> -X<file> /. Reproducably. This works fine 
-> for the std. RH 6.2 kernel (2.2.14-5). The resulting file 
-> is about 20MB.
-> 
-> I would submit the oops, but it is run through klogd and
-> I seem to remember people expressing dissatisfaction 
-> with klogd. So what do I do now to get a usable oops
-> to submit?
-
-
-I dont know anything wrong with klogd. 
-
-
-Anyway, kill klogd so you'll get a non decoded oops on your screen and
-then you can decoded it with ksymoops.
-
-
-
++EISA support
++CONFIG_EISA
++  The Extended Industry Standard Architecture (EISA) bus was
++  developed as an open alternative to the IBM MicroChannel bus.
++
++  The EISA bus provided some of the features of the IBM MicroChannel
++  bus while maintaining backward compatibility with cards made for
++  the older ISA bus. The EISA bus saw limited use between 1988 and 1995
++  when it was made obsolete by the PCI bus.
++
++  Say Y here if you are building a kernel for an EISA-based machine.
++
++  Otherwise, say N.
++
+ SGI Visual Workstation support
+ CONFIG_VISWS
+   The SGI Visual Workstation series is an IA32-based workstation
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

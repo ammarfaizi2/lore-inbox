@@ -1,32 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284855AbRLKDPM>; Mon, 10 Dec 2001 22:15:12 -0500
+	id <S284858AbRLKDZg>; Mon, 10 Dec 2001 22:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284858AbRLKDPC>; Mon, 10 Dec 2001 22:15:02 -0500
-Received: from waste.org ([209.173.204.2]:30594 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S284855AbRLKDOu>;
-	Mon, 10 Dec 2001 22:14:50 -0500
-Date: Mon, 10 Dec 2001 21:14:40 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.17-pre8
-In-Reply-To: <Pine.LNX.4.21.0112102018590.25397-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.40.0112102112400.8905-100000@waste.org>
+	id <S284850AbRLKDZ0>; Mon, 10 Dec 2001 22:25:26 -0500
+Received: from mail317.mail.bellsouth.net ([205.152.58.177]:9553 "EHLO
+	imf17bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S284854AbRLKDZX>; Mon, 10 Dec 2001 22:25:23 -0500
+Message-ID: <3C157D8A.4090200@mindspring.com>
+Date: Mon, 10 Dec 2001 22:29:14 -0500
+From: Jonathan Stanford <jomast@mindspring.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: USB + PCI - IRQ = kernel bug??
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Dec 2001, Marcelo Tosatti wrote:
+Got a problem usb subsystem......
+it's not seeing anything past the root hub....
+when a device is connected the following error pops up....
 
-> I know this is a much better thing to do for the changelog... However I
-> really want to spend my available time now on letting 2.4 in a better
-> state.
+USB device not accepting new address=2 (error=-110)
+see for yourself here --> http://quail.no-ip.com/bootmsg.txt
 
-Fair enough. Perhaps I'll send you a patch/script after a few dot releases
-go by.
+what i find interesting is that no interrupts are being sent
+see for yourself here --> http://quail.no-ip.com/interrupts.txt
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+i've removed just about all devices from the system.... and there is no 
+change....
+
+here's a list of the PCI bus......
+http://quail.no-ip.com/lspci.txt
+
+this problem appears on everything from 2.4.7 (RH7.2 kern)  to the 
+latest and greatest (2.4.17-pre8) and probably earlier kernels as well....
+
+the southbridge/usb controler is the VIA Technologies, Inc. VT82C686b chip as you can see in 
+
+http://quail.no-ip.com/lspci.txt
+
+
+Let me know what else you need to make sence of this.......
+
+-Jonathan Stanford
+<jomast@mindspring.com>
+
+
 

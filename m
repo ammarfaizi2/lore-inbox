@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263883AbTLARfH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 12:35:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbTLARfH
+	id S263809AbTLAR0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 12:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTLAR0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 12:35:07 -0500
-Received: from c145167.adsl.hansenet.de ([213.39.145.167]:2689 "EHLO
-	backstube.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S263883AbTLARfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 12:35:03 -0500
-Date: Mon, 1 Dec 2003 18:33:38 +0100
-From: Alexander Heuer <roggenbrot@backstube.kicks-ass.org>
+	Mon, 1 Dec 2003 12:26:24 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:52117 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S263809AbTLAR0W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 12:26:22 -0500
+Date: Mon, 1 Dec 2003 18:26:20 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
 To: linux-kernel@vger.kernel.org
-Subject: weird irda problem with 2.6 kernel and ericsson phone
-Message-Id: <20031201183338.59d30290.roggenbrot@backstube.kicks-ass.org>
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: 2.4.23 *_task_struct() observations ...
+Message-ID: <20031201172620.GA312@MAIL.13thfloor.at>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
 
-I am currently experiencing a weird problem using /dev/ircomm0 to connect to my Sony Ericsson t68i mobile phone using Debian GNU/Linux and Kernel 2.6.0-test11.
+Hi All!
 
-Upon trying to connect via /dev/ircomm0 using dip -t or minicom, I get the following kernel message:
+just wanted to get an opinion on the following ...
 
-"Detected buggy peer, adjust mtt to 10us"
+include/asm-i386/processor.h  defines ...
 
-After reading on the lists and living in google for days, I found some posts from Jean Tourrilhes, where he is writing about a connection problem due to a kernel irda problem and / or buggy Ericsson phones.
-(i.e. http://www.ussg.iu.edu/hypermail/linux/kernel/0306.2/1964.html)
+  #define alloc_task_struct() ((struct task_struct *) \
+				__get_free_pages(GFP_KERNEL,1))
+  #define free_task_struct(p)  free_pages((unsigned long) (p), 1)
+  #define get_task_struct(tsk) atomic_inc(&virt_to_page(tsk)->count)
 
-Either way, after checking on his patch I recognized, that the 2.6 kernel doesnt really differ from his proposal. 
-I then tried playing around with sysctl_min_tx_turn_time but unfortunately... this didn't help either.
+now there seems to be no put_task_struct(), but
+there are some examples where get/free is used 
+where I would expect a put_* ...
 
-Connecting to the phone works fine on my old 2.4.19 so now I am wondering if anyone here has a similar problem after upgrading the kernel.
-Since the only usable messages I found so far regarding this problem were from mailing lists, I figured this might be the best place to ask.
+fs/proc/base.c for example does:
 
-The funny thing I maybe should tell you as well is, I have no problems connecting to a friends mobile, which is actually a siemens.
+        read_lock(&tasklist_lock);
+        task = find_task_by_pid(pid);
+        if (task)
+                get_task_struct(task);
+        read_unlock(&tasklist_lock);
+        if (!task)
+                goto out;
 
-Thanks in advance for your answers and your time
+        inode = proc_pid_make_inode(dir->i_sb, task, PROC_PID_INO);
 
-Alexander Heuer
+        free_task_struct(task);
 
--- 
-roggenbrot@backstube.kicks-ass.org
-[X] <--- Nail here for new Monitor!
+which is a little suspicious ...
+
+please could anybody explain the logic behind that?
+(if it isn't a widespread bug(tm))
+
+TIA,
+Herbert
+
+

@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266749AbSLUHCZ>; Sat, 21 Dec 2002 02:02:25 -0500
+	id <S266735AbSLUHCz>; Sat, 21 Dec 2002 02:02:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266735AbSLUHCZ>; Sat, 21 Dec 2002 02:02:25 -0500
-Received: from codepoet.org ([166.70.99.138]:14988 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S266731AbSLUHCY>;
-	Sat, 21 Dec 2002 02:02:24 -0500
-Date: Sat, 21 Dec 2002 00:10:31 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] aic7xxx bouncing over 4G
-Message-ID: <20021221071031.GA25566@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	"Justin T. Gibbs" <gibbs@scsiguy.com>, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com> <176730000.1040430221@aslan.btc.adaptec.com> <20021221002940.GM25000@holomorphy.com> <190380000.1040432350@aslan.btc.adaptec.com> <20021221013500.GN25000@holomorphy.com> <223910000.1040435985@aslan.btc.adaptec.com>
+	id <S266736AbSLUHCz>; Sat, 21 Dec 2002 02:02:55 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:47326 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S266735AbSLUHCy>;
+	Sat, 21 Dec 2002 02:02:54 -0500
+Date: Fri, 20 Dec 2002 23:05:28 -0800 (PST)
+Message-Id: <20021220.230528.106417474.davem@redhat.com>
+To: kiran@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, dipankar@in.ibm.com,
+       akpm@digeo.com
+Subject: Re: [patch] Make rt_cache_stat use kmalloc_percpu
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021216192212.C26076@in.ibm.com>
+References: <20021216192212.C26076@in.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <223910000.1040435985@aslan.btc.adaptec.com>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Dec 20, 2002 at 06:59:46PM -0700, Justin T. Gibbs wrote:
-> time and in any granularity.  Linux doesn't give me that freedom so 
-> you get this result.  I mean really.  I've only been trying to get
-> Marcelo to take the aic79xx driver since May or something.  Give
-> me a break.
+   From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+   Date: Mon, 16 Dec 2002 19:22:12 +0530
 
-Supposing I wanted to try out the latest aic7xxx driver?
-These are they, right?
-    http://people.freebsd.org/~gibbs/linux/SRC/aic79xx-linux-2.4-20021220.bksend.gz
+   Here's another patch to use kmalloc_percpu.  As usual, this removes
+   NR_CPUS bloat, can work when modulized and helps node local allocation.
 
-I'm looking at it, and I don't know what it is, bit it sure 
-isn't anything I recognize as usable.
-
-    $ file aic79xx-linux-2.4-20021220.bksend 
-    aic79xx-linux-2.4-20021220.bksend: ASCII English text
-
-Is the latest aic7xxx driver available as, say, a unified diff,
-or a tarball, or some similar usable format?
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+I can't consider this seriously until the kmalloc_percpu stuff
+actually makes it into Linus's tree.  Last I checked, Andrew had
+a lot of legitimate gripes with the ideas.

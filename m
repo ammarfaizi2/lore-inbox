@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267399AbTAGO2k>; Tue, 7 Jan 2003 09:28:40 -0500
+	id <S267178AbTAGOkY>; Tue, 7 Jan 2003 09:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267401AbTAGO2k>; Tue, 7 Jan 2003 09:28:40 -0500
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:1965 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id <S267399AbTAGO2j>; Tue, 7 Jan 2003 09:28:39 -0500
-Subject: Re: Why do some net drivers require __OPTIMIZE__?
-From: Alex Bennee <alex@braddahead.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1041867367.17472.40.camel@irongate.swansea.linux.org.uk>
-References: <1041863609.21044.11.camel@cambridge.braddahead> 
-	<1041867367.17472.40.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8-3mdk 
-Date: 07 Jan 2003 14:33:07 +0000
-Message-Id: <1041949988.21044.37.camel@cambridge.braddahead>
-Mime-Version: 1.0
+	id <S267392AbTAGOkY>; Tue, 7 Jan 2003 09:40:24 -0500
+Received: from hoochie.digium.com ([216.207.245.2]:22715 "EHLO
+	hoochie.digium.com") by vger.kernel.org with ESMTP
+	id <S267178AbTAGOkX>; Tue, 7 Jan 2003 09:40:23 -0500
+Date: Tue, 7 Jan 2003 08:49:01 -0600 (CST)
+From: Mark Spencer <markster@digium.com>
+X-X-Sender: <markster@hoochie>
+To: Asterisk mailing list <asterisk@marko.net>
+cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [Asterisk] DTMF noise
+In-Reply-To: <200301071455.32489.roy@karlsbakk.net>
+Message-ID: <Pine.LNX.4.33.0301070848100.28779-100000@hoochie>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-06 at 15:36, Alan Cox wrote:
-> > Does anybody know the history behind those lines? Do they serve any
-> > purpose now or in the past? Should I be nervous about compiling the
-> > kernel at a *lower* than normal optimization level? After all
-> > optimizations are generally processor specific and shouldn't affect the
-> > meaning of the C.
-> 
-> Some of our inline and asm blocks assume things like optimisation. Killing
-> that check and adding -finline-functions ought to be enough to get what
-> you expect.
+The DTMF detector in the linux kernel is fairly simplistic and doesn't do
+many relative energy tests.  The Zapata library has a much better tone
+detector, but it is FP, and so would have to be made fixed point.  If
+nothing else, it may provide some lessons for the ISDN folks.
 
-It appears to go deeper than a few network drivers. Droping to -O0
-breaks a host of other sections (ipc, sockets etc.) for less than
-obvious reasons. The only source files that seem to depend on the
-__OPTIMIZE__ define are a few of the other drivers and the byteswap
-macros.
+Mark
 
-I'll investigate the gcc pages to see if there is anyway to allow
-optimisation without the out-of-order stuff that makes tracing the start
-up so hard. *sigh*
+On Tue, 7 Jan 2003, Roy Sigurd Karlsbakk wrote:
 
-I assume I can't drop the -fomit-frame-pointer for the same reason
-(inline and asm blocks assuming register assigment?).
-
-On a related note should enabling -g on the kernel CFLAGS be ok? For
-some reason vmlinux kernels compiled with -g (even after being stripped)
-seem to break the bootmem allocator on my setup. I'm trying to track
-down if this is due to some linker weirdness due to the symbol table
-being bigger than physical memory even though its not actually being
-loaded into the system.
-
--- 
-Alex Bennee
-Senior Hacker, Braddahead Ltd
-The above is probably my personal opinion and may not be that of my
-employer
+> hi
+>
+> when dialing out from the D-link MGCP phone (they actually work now - most of
+> the time), I get lots of DTMF noise whenever the other person talks. I only
+> get this from the MGCP phone - not with MSN messenger. This seems to be an
+> error in isdn4linux falsely detecting DTMF in speech with Asterisk creating
+> the actual noise.
+>
+> This testing has been done on hhe following cards (from lspci)
+>
+> 02:09.0 Network controller: Cologne Chip Designs GmbH ISDN network controller
+> [HFC-PCI] (rev 02)
+> 02:0a.0 Network controller: Cologne Chip Designs GmbH ISDN network controller
+> [HFC-PCI] (rev 02)
+> 02:0b.0 Network controller: Cologne Chip Designs GmbH ISDN network controller
+> [HFC-PCI] (rev 02)
+>
+> roy
+>
+> --
+> Roy Sigurd Karlsbakk, Datavaktmester
+> ProntoTV AS - http://www.pronto.tv/
+> Tel: +47 9801 3356
+>
+> Computers are like air conditioners.
+> They stop working when you open Windows.
+>
 

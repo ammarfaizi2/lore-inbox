@@ -1,56 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbUBXRH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 12:07:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUBXRHZ
+	id S262317AbUBXRIh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 12:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUBXRIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 12:07:25 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:48648 "EHLO
+	Tue, 24 Feb 2004 12:08:36 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:53512 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262306AbUBXRGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 12:06:31 -0500
-Date: Tue, 24 Feb 2004 17:06:26 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Steven J. Hill" <sjhill@realitydiluted.com>
-Cc: Jeremy Higdon <jeremy@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.6.2, Partition support for SCSI CDROM...
-Message-ID: <20040224170626.A25066@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Steven J. Hill" <sjhill@realitydiluted.com>,
-	Jeremy Higdon <jeremy@sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <40396134.6030906@realitydiluted.com> <20040222190047.01f6f024.akpm@osdl.org> <40396E8F.4050307@realitydiluted.com> <20040224061130.GC503530@sgi.com> <403B8108.6080606@realitydiluted.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <403B8108.6080606@realitydiluted.com>; from sjhill@realitydiluted.com on Tue, Feb 24, 2004 at 11:51:20AM -0500
+	id S262296AbUBXRID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 12:08:03 -0500
+Date: Tue, 24 Feb 2004 17:08:00 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: Apollo framebuffer sysfs 
+In-Reply-To: <Pine.GSO.4.58.0402240931140.3187@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.44.0402241707330.24952-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 11:51:20AM -0500, Steven J. Hill wrote:
-> Here is the second try at the patch.
-> 
-> -Steve
 
+Okay. Applied. Try this patch. If you are happy with it send it to linus.
 
-+static int partitions = 16;
-
-This is changes what sr1 is mapped to without specicying any option.
-The default _must_ be 0 partitions or existing setups will break.
-
-+MODULE_PARM(partitions, "i");
-
-please make this module_param so it works at boot-time aswell.
-
-+MODULE_PARM_DESC(partitions, "number of SCSI CDROM partitions to support");
+--- linus-2.6/drivers/video/dnfb.c	2004-02-18 20:59:07.000000000 -0800
++++ fbdev-2.6/drivers/video/dnfb.c	2004-02-23 15:58:26.000000000 -0800
+@@ -103,8 +103,6 @@
  
-+	/* Check number of partitions specified. */
-+	if (partitions < 0)
-+		partitions = 0;
+ #define SWAP(A) ((A>>8) | ((A&0xff) <<8))
+ 
+-static struct fb_info fb_info;
+-
+ /* frame buffer operations */
+ 
+ static int dnfb_blank(int blank, struct fb_info *info);
+@@ -119,7 +117,7 @@
+ 	.fb_cursor	= soft_cursor,
+ };
+ 
+-struct fb_var_screeninfo dnfb_var __initdata = {
++struct fb_var_screeninfo dnfb_var __devinitdata = {
+ 	.xres		1280,
+ 	.yres		1024,
+ 	.xres_virtual	2048,
+@@ -130,7 +128,7 @@
+ 	.vmode		FB_VMODE_NONINTERLACED,
+ };
+ 
+-static struct fb_fix_screeninfo dnfb_fix __initdata = {
++static struct fb_fix_screeninfo dnfb_fix __devinitdata = {
+ 	.id		"Apollo Mono",
+ 	.smem_start	(FRAME_BUFFER_START + IO_BASE),
+ 	.smem_len	FRAME_BUFFER_LEN,
+@@ -148,7 +146,7 @@
+ 	return 0;
+ }
+ 
+-static 
++static
+ void dnfb_copyarea(struct fb_info *info, const struct fb_copyarea *area)
+ {
+ 
+@@ -224,21 +222,38 @@
+ 	out_8(AP_CONTROL_0, NORMAL_MODE);
+ }
+ 
++/*
++ * Initialization
++ */
+ 
+-unsigned long __init dnfb_init(unsigned long mem_start)
++static int __devinit dnfb_probe(struct device *device)
+ {
+-	int err;
++	struct platform_device *dev = to_platform_device(device);
++	struct fb_info *info;
++	int err = 0;
++
++	info = framebuffer_alloc(0, &dev->dev);
++	if (!info)
++		return -ENOMEM;
++
++	info->fbops = &dn_fb_ops;
++	info->fix = dnfb_fix;
++	info->var = dnfb_var;
++	info->screen_base = (u_char *) info->fix.smem_start;
++
++	err = fb_alloc_cmap(&info->cmap, 2, 0);
++	if (err < 0) {
++		framebuffer_release(info);
++		return err;
++	}
+ 
+-	fb_info.fbops = &dn_fb_ops;
+-	fb_info.fix = dnfb_fix;
+-	fb_info.var = dnfb_var;
+-	fb_info.screen_base = (u_char *) fb_info.fix.smem_start;
+-
+-	fb_alloc_cmap(&fb_info.cmap, 2, 0);
+-
+-	err = register_framebuffer(&fb_info);
+-	if (err < 0)
+-		panic("unable to register apollo frame buffer\n");
++	err = register_framebuffer(info);
++	if (err < 0) {
++		fb_dealloc_cmap(&info->cmap);
++		framebuffer_release(info);
++		return err;
++	}
++	dev_set_drvdata(&dev->dev, info);
+ 
+ 	/* now we have registered we can safely setup the hardware */
+ 	out_8(AP_CONTROL_3A, RESET_CREG);
+@@ -249,7 +264,31 @@
+ 	out_be16(AP_ROP_1, SWAP(0x3));
+ 
+ 	printk("apollo frame buffer alive and kicking !\n");
+-	return mem_start;
++	return err;
++}
++
++static struct device_driver dnfb_driver = {
++	.name	= "dnfb",
++	.bus	= &platform_bus_type,
++	.probe	= dnfb_probe,
++};
++
++static struct platform_device dnfb_device = {
++	.name	= "dnfb",
++};
++
++int __init dnfb_init(void)
++{
++	int ret;
++
++	ret = driver_register(&dnfb_driver);
++
++	if (!ret) {
++		ret = platform_device_register(&dnfb_device);
++		if (ret)
++			driver_unregister(&dnfb_driver);
++	}
++	return ret;
+ }
+ 
+ MODULE_LICENSE("GPL");
 
-now if you made the variable 'unsigned' you wouldn't have that problem..
-
-While you're at it please also cook up an ide-cd variant, having partitions
-only supported on scsi cdroms is more than confusing.

@@ -1,71 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264307AbUE3TfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264308AbUE3Tf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264307AbUE3TfX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 15:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbUE3TfX
+	id S264308AbUE3Tf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 15:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbUE3Tfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 15:35:23 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:27914 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S264307AbUE3TfP
+	Sun, 30 May 2004 15:35:55 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:61964 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S264308AbUE3Tfq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 15:35:15 -0400
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5gwu2tlo97.fsf@patl=users.sf.net>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x partition breakage and dual booting
-References: <40BA2213.1090209@pobox.com>
-In-Reply-To: <40BA2213.1090209@pobox.com>
-Date: 30 May 2004 15:35:12 -0400
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Sun, 30 May 2004 15:35:46 -0400
+Date: Sun, 30 May 2004 21:38:00 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: [RFC] kbuild: Specify default target during configuration
+Message-ID: <20040530193800.GA5426@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+Following patchs allows one to specify default target when
+doing make *config.
+This has the advantage that kbuild knows the final target, a knowledge
+that is required when building rpm's or deb's.
 
-> So it seems that the 2.6.x geometry code breaks dual booting, since
-> Windows wants "sane" CHS values.  See the thread on slashdot, or
-> http://www.redhat.com/archives/fedora-devel-list/2004-May/msg00908.html
-> 
-> Although Fedora Core is current taking grief for this, it's really a
-> 2.6.x kernel problem AFAICT.
-> 
-> Has anybody taken the time to hunt down the csets that cause this
-> massive partition table breakage?  If so, it will save me some time
-> tracking this down.
+The following patch introduce selecting default target for i386,
+and is mainly a RFC. If there is no big complains I will update it
+to cover a few more architectures before submitting.
 
-Here are my contributions to the discussion:
+Comments to the suggested help texts is also appreciated.
 
-    http://groups.google.com/groups?selm=1xXh2-850-17%40gated-at.bofh.it
+	Sam
 
-    http://groups.google.com/groups?selm=1Gjko-6Y1-5%40gated-at.bofh.it
-
-    http://groups.google.com/groups?selm=1Gju8-7bd-29%40gated-at.bofh.it
-
-In short, starting with kernel 2.6.5, Linux invokes the real-mode
-"legacy INT13" interface (INT13/AH=08) at boot time and stashes the
-results away.  The EDD module exports them via sysfs.
-
-Userspace can read these values and issue a command to
-/proc/ide/hda/settings to "fix" the kernel's concept of the geometry
-before running partitioning tools.
-
-Because the legacy geometry is purely a BIOS concept, there is no way
-to obtain it by talking to the disk directly.  (Sure, there may be
-hints in the existing partition table.  I believe 2.4.x would use such
-hints.  But this is unreliable, since it does not work if the disk is
-blank or if it has been moved from a different machine.)
-
-The reason to do this work in userspace is that there is no certain
-way to map between BIOS disk numbers (80h etc.) and Linux devices.
-You can make a pretty good guess, but such guessing probably does not
-belong in the kernel.
-
-I first encountered this problem while trying to install Windows using
-Linux.  I contributed the "legacy geometry" support to the EDD module
-specifically to deal with this issue, and it is working fine for me.
-
- - Pat
-   http://unattended.sourceforge.net/
+===== arch/i386/Kconfig 1.121 vs edited =====
+--- 1.121/arch/i386/Kconfig	2004-05-10 13:25:50 +02:00
++++ edited/arch/i386/Kconfig	2004-05-30 21:25:41 +02:00
+@@ -29,6 +29,42 @@
+ 	bool
+ 	default y
+ 
++choice
++	prompt "Default kernel image"
++	default KERNEL_IMAGE_BZIMAGE
++	help
++	  Specify which kernel image to be build when executing 'make' with
++	  no arguments.
++
++config KERNEL_IMAGE_BZIMAGE
++	bool "bzImage - Compressed kernel image"
++	help
++	  bzImage - located at arch/i386/boot/bzImage.
++	  bzImage can accept larger kernels than zImage
++	
++config KERNEL_IMAGE_ZIMAGE
++	bool "zImage - Compressed kernel image"
++	help
++	  zImage - located at arch/i386/boot/zImage.
++	  zImage is seldom used. zImage supports smaller kernels than bzImage,
++	  and is only used in special situations.
++
++config KERNEL_IMAGE_VMLINUX
++	bool "vmlinux - the bare kernel"
++	help
++	  vmlinux - located at the root of the kernel tree
++	  vmlinux contains the kernel image with no additional bootloader.
++	  vmlinux is seldom used as target for i386.
++
++endchoice
++
++config KERNEL_IMAGE
++	string 
++	default arch/i386/boot/bzImage if KERNEL_IMAGE_BZIMAGE
++	default arch/i386/boot/zImage  if KERNEL_IMAGE_ZIMAGE
++	default vmlinux                if KERNEL_IMAGE_VMLINUX
++
++
+ source "init/Kconfig"
+ 
+ 
+===== Makefile 1.492 vs edited =====
+--- 1.492/Makefile	2004-05-30 08:24:06 +02:00
++++ edited/Makefile	2004-05-30 21:35:32 +02:00
+@@ -409,13 +409,6 @@
+ 
+ scripts_basic: include/linux/autoconf.h
+ 
+-
+-# That's our default target when none is given on the command line
+-# Note that 'modules' will be added as a prerequisite as well, 
+-# in the CONFIG_MODULES part below
+-
+-all:	vmlinux
+-
+ # Objects we will link into vmlinux / subdirs we need to visit
+ init-y		:= init/
+ drivers-y	:= drivers/ sound/
+@@ -448,6 +441,11 @@
+ endif
+ 
+ include $(srctree)/arch/$(ARCH)/Makefile
++
++# Let all: depend on target selected in .config
++# Hereby user only have to issue 'make' to build the kernel, including
++# selected kernel
++all: $(subst ",,$(CONFIG_KERNEL_IMAGE))
+ 
+ ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+ CFLAGS		+= -Os
+===== arch/i386/Makefile 1.67 vs edited =====
+--- 1.67/arch/i386/Makefile	2004-05-15 08:11:50 +02:00
++++ edited/arch/i386/Makefile	2004-05-30 21:27:17 +02:00
+@@ -115,18 +115,20 @@
+ 
+ boot := arch/i386/boot
+ 
+-.PHONY: zImage bzImage compressed zlilo bzlilo \
+-	zdisk bzdisk fdimage fdimage144 fdimage288 install
++# Lot's of documentation refer to these, so keep the short versions for now
++.PHONY: bzImage zImage compressed
++bzImage:    $(boot)/bzImage
++zImage:     $(boot)/zImage
++compressed: $(boot)/zImage
+ 
+-all: bzImage
++# Target's that install the kernel
++.PHONY: zlilo bzlilo zdisk bzdisk fdimage fdimage144 fdimage288 install
+ 
+ BOOTIMAGE=arch/i386/boot/bzImage
+-zImage zlilo zdisk: BOOTIMAGE=arch/i386/boot/zImage
++zlilo zdisk: BOOTIMAGE=arch/i386/boot/zImage
+ 
+-zImage bzImage: vmlinux
+-	$(Q)$(MAKE) $(build)=$(boot) $(BOOTIMAGE)
+-
+-compressed: zImage
++$(boot)/zImage $(boot)/bzImage: vmlinux
++	$(Q)$(MAKE) $(build)=$(boot) $@
+ 
+ zlilo bzlilo: vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(BOOTIMAGE) zlilo

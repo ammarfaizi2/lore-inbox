@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUFWXrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbUFWXt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUFWXrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 19:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUFWXrQ
+	id S262768AbUFWXt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 19:49:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbUFWXt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 19:47:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42386 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262730AbUFWXrN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 19:47:13 -0400
-Date: Thu, 24 Jun 2004 00:47:12 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Daniel McNeil <daniel@osdl.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, Andy <genanr@emsphone.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] retry force umount (was Re: NFS and umount -f)
-Message-ID: <20040623234712.GM12308@parcelfarce.linux.theplanet.co.uk>
-References: <20040608155414.GA3975@thumper2> <1086710357.3896.11.camel@lade.trondhjem.org> <1088034175.2319.11.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1088034175.2319.11.camel@ibm-c.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Jun 2004 19:49:29 -0400
+Received: from lakermmtao12.cox.net ([68.230.240.27]:32454 "EHLO
+	lakermmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S262768AbUFWXtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 19:49:17 -0400
+In-Reply-To: <Xine.LNX.4.44.0406221403100.28926-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0406221403100.28926-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <EF20BDC7-C56F-11D8-8D26-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, serue@us.ibm.com,
+       Joy Latten <latten@austin.ibm.com>, kartik_me@hotmail.com,
+       David Howells <dhowells@redhat.com>, arjanv@redhat.com
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: RSA [patch #1]
+Date: Wed, 23 Jun 2004 19:49:15 -0400
+To: James Morris <jmorris@redhat.com>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 04:42:55PM -0700, Daniel McNeil wrote:
-> This works for me on 2.6.7 as well.  However, I would get EBUSY back
-> if processes were hung doing nfs operations to the downed server.
-> The processes would get unstuck and get EIO, but the umount would
-> still fail.  Doing a 2nd umount -f with no processes waiting for
-> the server would succeed.  This patch retries force umounts in
-> the kernel an extra time after giving them time to wake up and
-> get out of the kernel.  It doesn't seem quite right to fail
-> a bunch of nfs operations and leave the file system mounted.
+On Jun 22, 2004, at 14:08, James Morris wrote:
+> Different kernel asymmetric crypto apps (e.g. module signature checker)
+> will need to be able to manage independent keyrings, and a common
+> filesystem API would be useful for this.  e.g. during startup, some 
+> init
+> script loads keyrings into the kernel via 
+> /proc/crypto/keyring/app/addkey
 
-Is there any reason to do that in the kernel?  What, umount(8) can't do the
-same?
+This is actually somewhat along the line that David Howells and I have
+been working on; getting a key-ring system into the kernel.  We can
+probably have a patch implementing the API we're working on in alpha
+sometime in a couple weeks. This isn't really something that's useful to
+the cryptoapi itself, but it could be used to debug new cryptoapi
+functions.  In addition, cryptoapi will be very useful to the key-ring
+system, if one is ever made.
+
+Cheers,
+Kyle Moffett
+
+

@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbUCKUmK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 15:42:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUCKUjo
+	id S261756AbUCKUmI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 15:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbUCKUji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 15:39:44 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:41600 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261673AbUCKUf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 15:35:56 -0500
-Subject: Re: LKM rootkits in 2.6.x
-From: Christophe Saout <christophe@saout.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200403112033.i2BKX9B6005538@eeyore.valparaiso.cl>
-References: <200403112033.i2BKX9B6005538@eeyore.valparaiso.cl>
+	Thu, 11 Mar 2004 15:39:38 -0500
+Received: from ns.suse.de ([195.135.220.2]:59562 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261718AbUCKUgo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 15:36:44 -0500
+Subject: [PATCH] race in mempool_alloc/free
+From: Chris Mason <mason@suse.com>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
 Content-Type: text/plain
-Message-Id: <1079037332.8048.3.camel@leto.cs.pocnet.net>
+Message-Id: <1079037543.27197.50.camel@watt.suse.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Mar 2004 21:35:32 +0100
+Date: Thu, 11 Mar 2004 15:39:04 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Do, den 11.03.2004 schrieb Horst von Brand um 21:33:
+Hello everyone,
 
-> > > Don't bet on it.  They'll just start doing what binary-only driver vendors
-> > > have been doing for months.. If the table isn't exported, they find a
-> > > symbol that is exported, and grovel around in memory near there until
-> > > they find something that looks like it, and patch accordingly.
-> 
-> > Ugh... this sounds ugly. This should be forbidden. I mean, what are
-> > things like EXPORT_SYMBOL_GPL for if drivers are allowed to patch
-> > whatever they want?
-> 
-> It _is_ forbidden. This isn't any kind of accident we are talking about,
-> this is out and out fraud.
+mempool_alloc and mempool_free check pool->curr_nr without any locks
+held.  This can lead to skipping a wakeup when there are people waiting,
+and sleeping when there are free elements in the pool.  
 
-I'm talking about binary modules, not rootkits. Vendors aren't doing
-forbidden things, are they?
+I can't trigger this reliably, but sooner or later someone on ppc is
+probably going to hit it.
+
+-chris
+
+--- linux.t.orig/mm/mempool.c	2004-03-11 14:34:50.000000000 -0500
++++ linux.t/mm/mempool.c	2004-03-11 14:38:30.000000000 -0500
+@@ -203,6 +203,7 @@
+ 	 * If the pool is less than 50% full and we can perform effective
+ 	 * page reclaim then try harder to allocate an element.
+ 	 */
++	mb();
+ 	if ((gfp_mask & __GFP_FS) && (gfp_mask != gfp_nowait) &&
+ 				(pool->curr_nr <= pool->min_nr/2)) {
+ 		element = pool->alloc(gfp_mask, pool->pool_data);
+@@ -230,6 +231,7 @@
+ 	blk_run_queues();
+ 
+ 	prepare_to_wait(&pool->wait, &wait, TASK_UNINTERRUPTIBLE);
++	mb();
+ 	if (!pool->curr_nr)
+ 		io_schedule();
+ 	finish_wait(&pool->wait, &wait);
+@@ -250,6 +252,7 @@
+ {
+ 	unsigned long flags;
+ 
++	mb();
+ 	if (pool->curr_nr < pool->min_nr) {
+ 		spin_lock_irqsave(&pool->lock, flags);
+ 		if (pool->curr_nr < pool->min_nr) {
 
 
 

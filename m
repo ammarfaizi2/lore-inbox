@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVBDLQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVBDLUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbVBDLQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 06:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVBDLQ6
+	id S261587AbVBDLUc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 06:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVBDLUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 06:16:58 -0500
-Received: from cantor.suse.de ([195.135.220.2]:25288 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261757AbVBDLQ4 (ORCPT
+	Fri, 4 Feb 2005 06:20:31 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:63941 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261886AbVBDLUP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 06:16:56 -0500
-Date: Fri, 4 Feb 2005 12:16:49 +0100
-From: Olaf Kirch <okir@suse.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>, anton@samba.org,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
-Message-ID: <20050204111649.GB32678@suse.de>
-References: <20050131102920.GC4170@suse.de> <E1CvZo6-0001Bz-00@gondolin.me.apana.org.au> <20050203142705.GA11318@krispykreme.ozlabs.ibm.com> <20050203203010.GA7081@gondor.apana.org.au> <20050203141901.5ce04c92.davem@davemloft.net> <20050203235044.GA8422@gondor.apana.org.au> <20050203164922.2627a112.davem@davemloft.net> <20050204012053.GA8949@gondor.apana.org.au> <20050203172357.670c3402.davem@davemloft.net> <20050204015539.GA9727@gondor.apana.org.au>
+	Fri, 4 Feb 2005 06:20:15 -0500
+Date: Fri, 4 Feb 2005 12:20:11 +0100
+From: Stelian Pop <stelian@popies.net>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050204112011.GD29712@sd291.sivit.org>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	"Michael S. Tsirkin" <mst@mellanox.co.il>,
+	linux-kernel@vger.kernel.org
+References: <20050202155403.GE3117@crusoe.alcove-fr> <20050204101827.GA13455@mellanox.co.il> <20050204105942.GC29712@sd291.sivit.org> <20050204110835.GA13474@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050204015539.GA9727@gondor.apana.org.au>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050204110835.GA13474@mellanox.co.il>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 04, 2005 at 12:55:39PM +1100, Herbert Xu wrote:
-> OK, here is the patch to do that.  Let's get rid of kfree_skb_fast
-> while we're at it since it's no longer used.
+On Fri, Feb 04, 2005 at 01:08:35PM +0200, Michael S. Tsirkin wrote:
 
-Thanks, I'll give that to the PPC folks and ask the to run with it.
+> > There is a section called "How do I generate 'proper' diffs ?" dealing
+> > with this.
+> > 
+> > Stelian.
+> > -- 
+> > Stelian Pop <stelian@popies.net>    
+> > 
+> 
+> Yep but the trick with --diff-cmd has the advantage of not changing the
+> default diff for the current user.
 
-Regards,
-Olaf
+Makes sense, I've updated the web page.
+
+Stelian.
 -- 
-Olaf Kirch   |  --- o --- Nous sommes du soleil we love when we play
-okir@suse.de |    / | \   sol.dhoop.naytheet.ah kin.ir.samse.qurax
+Stelian Pop <stelian@popies.net>    

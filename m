@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262973AbVCDSls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262992AbVCDSlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262973AbVCDSls (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 13:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262990AbVCDSlr
+	id S262992AbVCDSlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 13:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbVCDShn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 13:41:47 -0500
-Received: from dialin-161-58.tor.primus.ca ([216.254.161.58]:50069 "EHLO
-	node1.opengeometry.net") by vger.kernel.org with ESMTP
-	id S262973AbVCDSgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 13:36:06 -0500
-Date: Fri, 4 Mar 2005 13:35:51 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050304183551.GA4175@node1.opengeometry.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random> <20050303160330.5db86db7.akpm@osdl.org> <20050304025746.GD26085@tolot.miese-zwerge.org> <20050303213005.59a30ae6.akpm@osdl.org> <1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org> <20050304091612.GG14764@suse.de> <20050304012154.619948d7.akpm@osdl.org> <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.4.2i
+	Fri, 4 Mar 2005 13:37:43 -0500
+Received: from fire.osdl.org ([65.172.181.4]:5592 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262953AbVCDShD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 13:37:03 -0500
+Date: Fri, 4 Mar 2005 10:38:10 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <greg@kroah.com>
+cc: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
+       Chris Wright <chrisw@osdl.org>, jgarzik@pobox.com, olof@austin.ibm.com,
+       paulus@samba.org, rene@exactcode.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/
+ Altivec
+In-Reply-To: <20050304162755.GA28179@kroah.com>
+Message-ID: <Pine.LNX.4.58.0503041031110.25732@ppc970.osdl.org>
+References: <422756DC.6000405@pobox.com> <16935.36862.137151.499468@cargo.ozlabs.ibm.com>
+ <20050303225542.GB16886@austin.ibm.com> <20050303175951.41cda7a4.akpm@osdl.org>
+ <20050304022424.GA26769@austin.ibm.com> <20050304055451.GN5389@shell0.pdx.osdl.net>
+ <20050303220631.79a4be7b.akpm@osdl.org> <4227FC5C.60707@pobox.com>
+ <20050304062016.GO5389@shell0.pdx.osdl.net> <20050303222335.372d1ad2.akpm@osdl.org>
+ <20050304162755.GA28179@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 09:57:38AM -0800, Linus Torvalds wrote:
-> I've long since decided that there's no point to making "-pre". What's
-> the difference between a "-pre" and a daily -bk snapshot? Really?
-> 
-> So when I do a release, it _is_ an -rc. The fact that people have
-> trouble understanding this is not _my_ fault.
 
-My feeling is that there is too many numbers in the kernel version.  
-I think 3 numbers are good enough to get people to try out (knowingly or
-not).  So,
-    2.6.{11,12,13,...} -- for testing (a.k.a. -rc, -pre)
-    2.7 -- stable release
-    2.7.{1,2,3,...} -- for testing
-    2.8 -- another stable release
-    ...
-    2.125 -- when last IDE bug is fixed.
-    3.0 -- stable release
-    3.0.{1,2,3,...} -- for testing
-    ...
+
+On Fri, 4 Mar 2005, Greg KH wrote:
+> 
+> Ok, based on consensus, I've applied this one too.
+
+Btw, I don't think your process works. You never really gave people the
+time to object. So for that reason you applied the first trivial raid6
+thing, and it turned out to be wrong.
+
+I think the patches need to have a rule like "they live outside the sucker 
+tree for at least two days". And during that time, anybody can vote them 
+down (which would move them to "unapplied" status, at which point somebody 
+else might decide that for _their_ tree it's still the right thing to do).
+
+And if at the end of two days, they still haven't gotten enough "yes"  
+votes, they'd go into "limbo" status, with one extra grace-period (ie a
+reminder on whatever list about a patch that is dying). And if it can't 
+get enough "yeah, sure" votes even after that, it goes into the same 
+"unapplied" list.
+
+In other words, I think this really does want some automation. It
+shouldn't be fully automated (at the very least, somebody needs to
+actually check that things patch and fix up the changeset comments etc),
+but the _rules_ should be automated. Otherwise they'll always be broken
+because of "_this_ time it's obvious", which is against the point.
+
+		Linus

@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316655AbSE1Ooq>; Tue, 28 May 2002 10:44:46 -0400
+	id <S316657AbSE1Opr>; Tue, 28 May 2002 10:45:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316657AbSE1Oop>; Tue, 28 May 2002 10:44:45 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:48378 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316655AbSE1Ooo>; Tue, 28 May 2002 10:44:44 -0400
-Subject: Re: Changing the current RTC device interface
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Abraham vd Merwe <abraham@2d3d.co.za>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020528162435.A4917@crystal.2d3d.co.za>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 28 May 2002 16:46:35 +0100
-Message-Id: <1022600795.4123.91.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S316666AbSE1Opq>; Tue, 28 May 2002 10:45:46 -0400
+Received: from [209.237.59.50] ([209.237.59.50]:35884 "EHLO
+	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
+	id <S316657AbSE1Opo>; Tue, 28 May 2002 10:45:44 -0400
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] PentiumPro/II split in x86 config
+In-Reply-To: <3937.1022552654@kao2.melbourne.sgi.com>
+	<buo3cwdf0b0.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<20020528030200.GL20729@conectiva.com.br>
+	<20020528140322.GA6320@werewolf.able.es>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 28 May 2002 07:45:39 -0700
+Message-ID: <524rgse3fw.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-28 at 15:24, Abraham vd Merwe wrote:
-> I have a board with multiple RTC chips (Built-in RTC in the processor +
-> external battery backed RTC).
-> 
-> There are pros and cons to each RTC chip. The CPU's RTC doesn't have a
-> battery, but have high resolution timing + multiple rtc counters/interrupts,
-> so it is especially suited for apps that want to use /dev/rtc for high
-> resolution timing.
-> 
-> On the other hand the external RTC chip can keep time, but its timing is
-> crap (1hz to 8khz in steps of powers of two), so you don't want to use that
-> for timing.
-> 
-> At the moment, Linux only allows for a single RTC device, so one can't reap
-> the benefits of both chips mentioned above.
-> 
-> How about we get a major number assigned to rtc subsystem and then allows
-> for multiple rtc devices.
+>>>>> "J" == J A Magallon <J.A.> writes:
 
-I think you should wait until 2.5 has reached the point we have a
-finished devicefs and 32bit dev_t. Basically we don't have enough device
-numbering left for such trivialities right now.
+    J> Problem is that named initializers '.xx =' are ISO C99, so
+    J> problably they are not supported in gcc till 3.0...the old way
+    J> is working with older compilers.
 
+I actually tried it :).  gcc 2.95 supports named initializers as well:
+
+$ cat a.c
+struct foo {
+  int x;
+  int y;
+};
+
+struct foo bar = {
+  .y = 2,
+  .x = 1
+};
+
+int main() {
+  printf("%d\n", bar.x);
+  return 0;
+}
+
+$ gcc a.c
+$ ./a.out
+1
+$ gcc --version
+2.95.2
+
+Best,
+ Roland

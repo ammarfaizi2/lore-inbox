@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318349AbSGZSzY>; Fri, 26 Jul 2002 14:55:24 -0400
+	id <S317997AbSGZSpa>; Fri, 26 Jul 2002 14:45:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318412AbSGZSzX>; Fri, 26 Jul 2002 14:55:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15122 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318349AbSGZSzX>;
-	Fri, 26 Jul 2002 14:55:23 -0400
-Message-ID: <3D419B59.E99F74DC@zip.com.au>
-Date: Fri, 26 Jul 2002 11:56:25 -0700
+	id <S317999AbSGZSpa>; Fri, 26 Jul 2002 14:45:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4370 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317997AbSGZSp2>;
+	Fri, 26 Jul 2002 14:45:28 -0400
+Message-ID: <3D41990A.EDC1A530@zip.com.au>
+Date: Fri, 26 Jul 2002 11:46:34 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Steven Cole <elenstev@mesatop.com>
-CC: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-       Steven Cole <scole@lanl.gov>
-Subject: Re: 2.5.28, dbench results with ext3 significantly lower than with ext2.
-References: <1027701923.3148.10.camel@spc9.esa.lanl.gov>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+CC: linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>,
+       riel@conectiva.com.br, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC] Scalable statistics counters using kmalloc_percpu
+References: <20020726204033.D18570@in.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole wrote:
+Ravikiran G Thirumalai wrote:
 > 
-> I found that dbench gives significantly lower numbers when
-> the partition on which it is run is mounted as ext3.
+> Here is a Scalable statistics counter implementation which works on top
+> of the kmalloc_percpu dynamic allocator published by Dipankar.
+> This patch is against 2.5.27.
 > 
+> ...
+> +static inline int __statctr_init(statctr_t *stctr)
+> +{
+> +       stctr->ctr = kmalloc_percpu(sizeof(*(stctr->ctr)), GFP_ATOMIC);
+> +       if(!stctr->ctr)
+> +               return -1;
+> +       return 0;
+> +}
 
-ext2 will force writeback when 40% of ZONE_NORMAL is dirty.
-That's normally >300 megabytes.
+Minor nit: please force the caller to pass in the gfp_flags when
+designing an API like this.  The fact that you were forced to use
+GFP_ATOMIC here shows why...
 
-ext3 will force writeback when 75% of the journal space is 
-consumed by metadata.  That's normally 24 megabytes.
+> +       for( i=0; i < NR_CPUS; i++ )
+> +               res += *per_cpu_ptr(stctr->ctr, i);
+> +       return res;
+> +}
 
-dbench generates a storm of metadata and data and then deletes it all.
-It consumes the journal space almost immediately and forces ext3
-to do a lot of writeback.  ext2 benefits because most of the metadata
-and data are deleted before they ever touch disk.
+Oh dear.  Most people only have two CPUs.
 
-If your application generates unusually high volumes of metadata
-and data and then immediately deletes it, ext3 may not be an
-appropriate filesystem.
+Rusty, can we *please* fix this?  Really soon?
 
--
+
+General comment:  we need to clean up the kernel_stat stuff.  We
+cannot just make it per-cpu because it is 32k in size already.  I
+would suggest that we should break out the disk accounting and
+make the rest of kernel_stat per CPU.
+
+That would be a great application of your interface, and a good
+way to get your interface merged ;)  Is that something which you
+have time to do?
+
+Thanks.

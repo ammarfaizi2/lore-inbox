@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbUFHKKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUFHKL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbUFHKKe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 06:10:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264891AbUFHKKd
+	id S262932AbUFHKL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 06:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264891AbUFHKL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 06:10:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56723 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262361AbUFHKK3 (ORCPT
+	Tue, 8 Jun 2004 06:11:29 -0400
+Received: from may.priocom.com ([213.156.65.50]:2197 "EHLO may.priocom.com")
+	by vger.kernel.org with ESMTP id S264946AbUFHKLW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 06:10:29 -0400
-Date: Tue, 8 Jun 2004 03:09:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org, vince@kyllikki.org
-Subject: Re: [VGA16FB] Fix bogus mem_start value
-Message-Id: <20040608030906.0dd7d99f.akpm@osdl.org>
-In-Reply-To: <20040608100530.GA26292@gondor.apana.org.au>
-References: <20040608100530.GA26292@gondor.apana.org.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 8 Jun 2004 06:11:22 -0400
+Subject: [PATCH] 2.6.6 invalid usage of GFP_DMA in drivers/scsi/pluto.c
+From: Yury Umanets <torque@ukrpost.net>
+To: akpm@osdl.org
+Cc: jj@sunsite.mff.cuni.cz, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1086689511.2818.15.camel@firefly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 08 Jun 2004 13:11:51 +0300
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
->
-> The recent change to vga16fb's memory mapping that you partially
->  reverted is still broken.  In particular, it's setting fix.mem_start
->  to a virtual address on i386.  The value of fix.mem_start is meant
->  to be physical.
+Hello Andrew, guys,
 
-Sigh.  Fiasco.
+Found this, what seems to be an invalid usage of GFP_DMA flag. Is this
+patch okay?
 
->  We could simply apply virt_to_phys to it, but somehow I doubt that
->  is what it's meant to do on arm.  So until we hear from someone who
->  knows how it works on arm, let's just revert this change.
+Thanks.
 
-Is this tested?
+ ./linux-2.6.6-modified/drivers/scsi/pluto.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+Signed-off-by: Yury Umanets <torque@ukrpost.net>
+
+--- ./linux-2.6.6/drivers/scsi/pluto.c	Mon May 10 05:32:27 2004
++++ ./linux-2.6.6-modified/drivers/scsi/pluto.c	Tue Jun  8 11:26:07 2004
+@@ -117,7 +117,8 @@ int __init pluto_detect(Scsi_Host_Templa
+ #endif
+ 			return 0;
+ 	}
+-	fcs = (struct ctrl_inquiry *) kmalloc (sizeof (struct ctrl_inquiry) *
+fcscount, GFP_DMA);
++	fcs = (struct ctrl_inquiry *) kmalloc (sizeof (struct ctrl_inquiry) *
+fcscount, 
++			GFP_KERNEL | GFP_DMA);
+ 	if (!fcs) {
+ 		printk ("PLUTO: Not enough memory to probe\n");
+ 		return 0;
+
+-- 
+umka
+

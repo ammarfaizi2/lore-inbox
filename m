@@ -1,61 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265259AbSJRP7e>; Fri, 18 Oct 2002 11:59:34 -0400
+	id <S265197AbSJRQIJ>; Fri, 18 Oct 2002 12:08:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265252AbSJRP7d>; Fri, 18 Oct 2002 11:59:33 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:31452 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265216AbSJRP7b>;
-	Fri, 18 Oct 2002 11:59:31 -0400
-Date: Fri, 18 Oct 2002 12:05:25 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Stephen Cameron <steve.cameron@hp.com>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Patrick Mochel <mochel@osdl.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] 2.5.43 cciss rescan disk ioctl
-In-Reply-To: <20021018094910.A856@zuul.cca.cpqcorp.net>
-Message-ID: <Pine.GSO.4.21.0210181156340.21677-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265200AbSJRQIJ>; Fri, 18 Oct 2002 12:08:09 -0400
+Received: from users.linvision.com ([62.58.92.114]:62346 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S265197AbSJRQIH>; Fri, 18 Oct 2002 12:08:07 -0400
+Date: Fri, 18 Oct 2002 18:13:56 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: "Theodore Ts'o" <tytso@mit.edu>, Andreas Gruenbacher <agruen@suse.de>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Posix capabilities
+Message-ID: <20021018181356.A1664@bitwizard.nl>
+References: <20021016154459.GA982@TK150122.tuwien.teleweb.at> <20021017032619.GA11954@think.thunk.org> <874rblcpw5.fsf@goat.bogus.local> <200210171302.25413.agruen@suse.de> <20021017121213.GA13573@think.thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021017121213.GA13573@think.thunk.org>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 18 Oct 2002, Stephen Cameron wrote:
-
-> Adds CCISS_RESCANDISK ioctl. Applies to 2.5.43 after the 
-> previous 9 patches I sent.
-> -- steve
+On Thu, Oct 17, 2002 at 08:12:13AM -0400, Theodore Ts'o wrote:
+> On Thu, Oct 17, 2002 at 01:02:25PM +0200, Andreas Gruenbacher wrote:
+> > Filesystem capabilities move complexity out of applications into the
+> > file system (=system configuration), so the admins have to deal with
+> > an additional task.
+> > 
+> > From a security point of view suid root applications that are
+> > dropping capabilities voluntarily aren't much different from plain
+> > old suid root apps; there may still be exploitable bugs before the
+> > code that drops capabilities (which doesn't mean that apps shouldn't
+> > drop capabilities). With capabilities the kernel ensures that
+> > applications cannot exceed their capabilities.
 > 
->    This is meant to be used in a configuration like 
->    Steeleye's Lifekeeper.  Two hosts connect to the storage, one 
->    reserves disks.  The 2nd will not be able to read the partition 
->    information because of the reservations.  In the event the 1st 
->    system fails, the 2nd can detect this, (via special hardware +
->    software typically) and then take over the storage and rescan 
->    the disks via this ioctl.  
+> If developers drop capabilities they don't need as the very first
+> thing that the program does --- i.e., the first statement in main()
+> --- then it's done once, and it's no longer a configuration issue.
 
+I'm a C-programmer. I've looked at C++ a long time ago. 
 
-> +		if (minor(inode->i_rdev) != 0) {
-> +			/* if not node 0 make sure it is a partition = 0 */	
-> +			if (minor(inode->i_rdev) & 0x0f)
-> +				return -ENXIO;
+Turns out that my system also supports C++. I still don't care. 
 
-That's bogus.  We call ->open() only for entire disk.
+Turns out that C++ specifies that some code should be run before main
+starts. 
 
-> +	kdev = mk_kdev(MAJOR_NR + ctlr, disk->first_minor);
-> +	bdev = bdget(kdev_t_to_nr(kdev));
-> +	rescan_partitions(disk, bdev);
+It seems that if I happen to link with a library that uses C++
+internally, some code in that library can get run before my first
+statement in main.  Suddenly it IS my problem. 
 
-... and that is (a) obvious leak and (b) broken unless disk is already
-open - it will try to do IO on bdev.
+NOT GOOD. 
 
-More interesting issue, though, is whether we need to bother with
-complications coming from that interface anymore.  Notice that
-comment re "too many device nodes" doesn't hold these days - that
-sort of stuff looks like a candidate for "write command into node
-on driverfs" - especially when we are talking about configuring
-the device, shutting disks down/starting them up, etc.  Linus, Pat?
-Unless I'm mistaken that's precisely the sort of work that is
-supposed to live in driverfs...
+If capabilities are correctly implemented, having "all" capabilities
+will mean that it's equivalent to "setuid-root". Nothing worse than
+what we have now. I can currently decide to take the setuid-ness of
+mount away. I can currently decide to install a setuid bit on "lilo".
+That is the flexibility of having it in the filesystem.
 
+				Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currenyly in such an      * 
+* excursion: The stable situation does not include humans. ***************

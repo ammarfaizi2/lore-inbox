@@ -1,119 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267128AbTAFU5Z>; Mon, 6 Jan 2003 15:57:25 -0500
+	id <S267162AbTAFVBL>; Mon, 6 Jan 2003 16:01:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267139AbTAFU5Z>; Mon, 6 Jan 2003 15:57:25 -0500
-Received: from mail5.intermedia.net ([206.40.48.155]:44050 "EHLO
-	mail5.intermedia.net") by vger.kernel.org with ESMTP
-	id <S267128AbTAFU5W>; Mon, 6 Jan 2003 15:57:22 -0500
-From: "Ranjeet Shetye" <ranjeet.shetye@zultys.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Why is Nvidia given GPL'd code to use in closed source drivers?
-Date: Mon, 6 Jan 2003 13:05:59 -0800
-Message-ID: <015401c2b5c7$6a088da0$0100a8c0@zultys.com>
+	id <S267164AbTAFVBL>; Mon, 6 Jan 2003 16:01:11 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:60099 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267162AbTAFVBI>;
+	Mon, 6 Jan 2003 16:01:08 -0500
+Date: Mon, 6 Jan 2003 13:06:27 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>,
+       <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
+       <szepe@pinerecords.com>
+Subject: Re: [PATCH] configurable LOG_BUF_SIZE
+In-Reply-To: <Pine.LNX.4.33L2.0301061119400.15416-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.33L2.0301061257160.15416-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <ava580$g2a$1@forge.intermeta.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 6 Jan 2003, Randy.Dunlap wrote:
 
-Five years back, when I was working on IPSec, MS wanted to subvert IPSec
-deployment; replace it with L2TP (PPTP + L2F). I almost thought that
-their IPSec clients were purposely and "randomly" faulty when it come to
-interoperability. Drove the rest of us nuts while I guess their minions
-in redmond were working on the real version of the ipsec client. That's
-how unappetizing any interaction with MS was.
+| On Mon, 6 Jan 2003, Linus Torvalds wrote:
+|
+| |
+| | On Mon, 6 Jan 2003, Tom Rini wrote:
+| | >
+| | > > Linus also told me that he's not crazy about this change.
+| | >
+| | > Maybe he would be, if it was cleaner than the current code in the end.
+| | > :)
+| |
+| | No, the reason I'm not crazy about it is that I simply _hate_ having too
+| | many user knobs to tweak. I don't like tweaking like that, it's just
+| | disturbing.
+| |---------------------------------------------------------------------------
+| | I'd probably be happier if the current one didn't even _ask_ the user (or|
+| | only asked the user if kernel debugging is enabled), and just silently   |
+| | defaulted to the normal values.                                          |
+| |---------------------------------------------------------------------------
+|
+| I'll be happy to move it there (later today)...
 
-MS might have their names in the RFCs; doesn't mean that they really
-contribute positively to the community.
+Hm.  Roman, Tomas, Sam-
 
-Ranjeet Shetye
-Senior Software Engineer
+Do any of you know how to write a kconfig item like Linus described
+above (in the box)?
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Henning P. Schmiedehausen
-> Sent: Sunday, January 05, 2003 12:41 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: Why is Nvidia given GPL'd code to use in closed 
-> source drivers?
-> 
-> 
-> Tomas Szepe <szepe@pinerecords.com> writes:
-> 
-> >Even if I overlook that you're effectively comparing the 
-> incomparable, 
-> >Microsoft making 370 times more than RedHat says _nothing_ 
-> about their 
-> >actual achievement in terms of software development.  Should 
-> you insist
-> 
-> You might simply open your eyes and look around you before 
-> you utter such ridicioulous statements.
-> 
-> % cd /home/mirror/RFC
-> % for i in rfc*.txt; do head -20 $i | grep -iq microsoft; if 
-> [ "x$?" = "x0" ]; then    echo $i; fi; done | wc -l
->     102     102    1224 /tmp/rfc-log
-> % for i in rfc*.txt; do head -20 $i | grep -iq 'red hat'; if 
-> [ "x$?" = "x0" ]; then    echo $i; fi; done | wc -l
-> % for i in rfc*.txt; do head -20 $i | grep -iq 'redhat'; if [ 
-> "x$?" = "x0" ]; then    echo $i; fi; done | wc -l
-> 
-> 
-> So in terms of "RFC contributions" which are the established 
-> and accepted base on which to build the internet and "open 
-> software", the score is
-> 
-> Microsoft Corporation vs. Red Hat Inc.
->     102                :    0
-> 
-> Some examples: 
-> 
-> rfc1877:	PPP Internet Protocol Control Protocol 
-> Extensions for Name Server Addresses
-> rfc2069/2617:	An Extension to HTTP : Digest Access Authentication
-> rfc2193:	IMAP4 Mailbox Referrals
-> rfc2237:	Japanese Character Encoding for Internet Messages
-> rfc2338:	Virtual Router Redundancy Protocol
-> rfc2342:	IMAP4 Namespace
-> rfc2445:	Internet Calendaring and Scheduling Core Object 
-> Specification (iCalendar)
-> rfc2518/3253:	HTTP Extensions for Distributed Authoring -- WEBDAV
-> rfc2565:	Internet Printing Protocol/1.0: Encoding and Transport
-> rfc2616:	Hypertext Transfer Protocol -- HTTP/1.1 	
-> (Yup. Microsoft)
-> rfc2661:	Layer Two Tunneling Protocol "L2TP"
-> rfc2782:	A DNS RR for specifying the location of 
-> services (DNS SRV)
-> rfc2989:	Criteria for Evaluating AAA Protocols for 
-> Network Access (Microsoft. Sun. Cisco. Nokia.)
-> 
-> 
-> 	Regards
-> 		Henning
-> 
-> 
-> -- 
-> Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- 
-> Geschaeftsfuehrer
-> INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-> 
-> Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-> D-91054 Buckenhof     Fax.: 09131 / 50654-20   
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+It's simple enough to have a config option that isn't available if
+DEBUG_KERNEL is false, but how do I make default values for it
+when it's false?
+The config option must still exist in this case, but not be presented
+to the user as a choice.
+
+My attempt (for i386) is attached.  Applies to 2.5.54 + yesterday's
+patch.  Are there better ways to do this?
+
+Thanks,
+-- 
+~Randy
+
+
+
+
+--- ./arch/i386/Kconfig%LGBUF	Wed Jan  1 19:21:10 2003
++++ ./arch/i386/Kconfig	Mon Jan  6 12:37:54 2003
+@@ -1624,6 +1624,31 @@
+ 	  If you don't debug the kernel, you can say N, but we may not be able
+ 	  to solve problems without frame pointers.
+
++config LOG_BUF_SHIFT
++	int "Kernel log buffer size"
++	depends on DEBUG_KERNEL
++	default 17 if ARCH_S390
++	default 16 if X86_NUMAQ || IA64
++	default 15 if SMP
++	default 14
++	help
++	  Select kernel log buffer size as a power of 2.
++	  Defaults and Examples:
++	  	     17 (=> 128 KB for S/390)
++		     16 (=> 64 KB for x86 NUMAQ or IA-64)
++	             15 (=> 32 KB for SMP)
++	             14 (=> 16 KB for uniprocessor)
++		     13 (=>  8 KB)
++		     12 (=>  4 KB)
++
++config LOG_BUF_SHIFT
++	int
++	depends on !DEBUG_KERNEL
++	default 17 if ARCH_S390
++	default 16 if X86_NUMAQ || IA64
++	default 15 if SMP
++	default 14
++
+ config X86_EXTRA_IRQS
+ 	bool
+ 	depends on X86_LOCAL_APIC || X86_VOYAGER
+--- ./init/Kconfig%LGBUF	Mon Jan  6 11:52:14 2003
++++ ./init/Kconfig	Mon Jan  6 11:55:00 2003
+@@ -98,51 +98,6 @@
+ 	  building a kernel for install/rescue disks or your system is very
+ 	  limited in memory.
+
+-choice
+-	prompt "Kernel log buffer size"
+-	default LOG_BUF_SHIFT_17 if ARCH_S390
+-	default LOG_BUF_SHIFT_16 if X86_NUMAQ || IA64
+-	default LOG_BUF_SHIFT_15 if SMP
+-	default LOG_BUF_SHIFT_14
+-	help
+-	  Select kernel log buffer size from this list (power of 2).
+-	  Defaults:  17 (=> 128 KB for S/390)
+-		     16 (=> 64 KB for x86 NUMAQ or IA-64)
+-	             15 (=> 32 KB for SMP)
+-	             14 (=> 16 KB for uniprocessor)
+-
+-config LOG_BUF_SHIFT_17
+-	bool "128 KB"
+-	default y if ARCH_S390
+-
+-config LOG_BUF_SHIFT_16
+-	bool "64 KB"
+-	default y if X86_NUMAQ || IA64
+-
+-config LOG_BUF_SHIFT_15
+-	bool "32 KB"
+-	default y if SMP
+-
+-config LOG_BUF_SHIFT_14
+-	bool "16 KB"
+-
+-config LOG_BUF_SHIFT_13
+-	bool "8 KB"
+-
+-config LOG_BUF_SHIFT_12
+-	bool "4 KB"
+-
+-endchoice
+-
+-config LOG_BUF_SHIFT
+-	int
+-	default 17 if LOG_BUF_SHIFT_17=y
+-	default 16 if LOG_BUF_SHIFT_16=y
+-	default 15 if LOG_BUF_SHIFT_15=y
+-	default 14 if LOG_BUF_SHIFT_14=y
+-	default 13 if LOG_BUF_SHIFT_13=y
+-	default 12 if LOG_BUF_SHIFT_12=y
+-
+ endmenu
+
+
 

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263212AbSJHOZ5>; Tue, 8 Oct 2002 10:25:57 -0400
+	id <S261433AbSJHOjH>; Tue, 8 Oct 2002 10:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263213AbSJHOZ4>; Tue, 8 Oct 2002 10:25:56 -0400
-Received: from [217.144.230.27] ([217.144.230.27]:53517 "HELO
-	lexx.infeline.org") by vger.kernel.org with SMTP id <S263212AbSJHOZ4>;
-	Tue, 8 Oct 2002 10:25:56 -0400
-Date: Tue, 8 Oct 2002 16:31:33 +0200 (CEST)
-From: Ketil Froyn <ketil-kernel@froyn.net>
-X-X-Sender: ketil@ketil.np
-To: "jbradford@dial.pipex.com" <jbradford@dial.pipex.com>
-cc: Alexander Viro <viro@math.psu.edu>,
-       "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
-       "mochel@osdl.org" <mochel@osdl.org>,
-       "torvalds@transmeta.com" <torvalds@transmeta.com>,
-       "andre@linux-ide.org" <andre@linux-ide.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] IDE driver model update
-In-Reply-To: <200210081325.g98DP6MY000340@darkstar.example.net>
-Message-ID: <Pine.LNX.4.40L0.0210081627480.1519-100000@ketil.np>
+	id <S261441AbSJHOjH>; Tue, 8 Oct 2002 10:39:07 -0400
+Received: from ndmnet.com ([24.237.5.185]:36613 "EHLO ndmnet.com")
+	by vger.kernel.org with ESMTP id <S261433AbSJHOjF>;
+	Tue, 8 Oct 2002 10:39:05 -0400
+Message-ID: <3DA2EF5D.4080504@ndmnet.com>
+Date: Tue, 08 Oct 2002 06:44:45 -0800
+From: Kent Overstreet <kent@ndmnet.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Oops when rebooting
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, jbradford@dial.pipex.com wrote:
+Just compiled 2.5.41, everything seems to work fine except it oopses 
+reliably when rebooting. It's a tyan tiger mpx with a single cpu. Kernel 
+was configured for smp, preemptible, and acpi. I can send my .config if 
+it'll help
 
-> This raises the interesting possibility of being able to refer to
-> things like removable media directly, instead of the device the media
-> is inserted in.
->
-> The Amiga was doing this years ago.  You could access floppy drives
-> as, E.G. df0:, df1:, etc, but if you formatted a volume and called it
-> foobar, you could access foobar: no matter which floppy drive you put
-> it in to.
+Oops is in driverfs_remove_file + 0x46/0x60
+Process reboot
+Call trace:
+device_remove_file
+driverfs_remove_partitions
+del_gendisk
+idedisk_cleanup
+ide_notify_reboot
+notifier_call_chain
+sys_reboot
+__get_page_state
+sync_inodes_sb
+backround_writeout
+sync_inodes
+syscall_call
 
-Isn't this possible in /etc/fstab already? Standard redhat-installs seem
-to put in the labels of the volume instead of referring to the device.
+I can get the rest of the oops if needed, didn't particularly want to 
+copy all of it down
 
-> Also, Plan 9 does similar interesting things - you can do the
-> equivilent of:
->
-> ls /internet/websites/kernel.org/
->
-> and treat the website as a filesystem.
+Please CC, as i'm not on the list.
 
-Wouldn't you just need a filesystem driver for this? I don't know that
-it's a good idea, though ;)
-
-Ketil
+Kent Overstreet
 

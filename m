@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbUCFOEl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 09:04:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbUCFOEl
+	id S261669AbUCFOEc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 09:04:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbUCFOEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 09:04:41 -0500
-Received: from main.gmane.org ([80.91.224.249]:22195 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261668AbUCFOEj (ORCPT
+	Sat, 6 Mar 2004 09:04:32 -0500
+Received: from zork.zork.net ([64.81.246.102]:39311 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261669AbUCFOEb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 09:04:39 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Other bizarre thing... backspaces?
-Date: Sat, 06 Mar 2004 15:04:35 +0100
-Message-ID: <yw1xd67qax70.fsf@kth.se>
-References: <20040304100503.GA13970@havoc.gtf.org> <20040305232425.GA6239@havoc.gtf.org>
- <20040306133309.GA17397@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti211310a080-4136.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:YR4vUijVfr7iSiAov9QC7YETh+E=
+	Sat, 6 Mar 2004 09:04:31 -0500
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 ide-cd DMA ripping
+References: <20040303113756.GQ9196@suse.de>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Date: Sat, 06 Mar 2004 14:04:26 +0000
+In-Reply-To: <20040303113756.GQ9196@suse.de> (Jens Axboe's message of "Wed,
+ 3 Mar 2004 12:37:56 +0100")
+Message-ID: <6ufzcmm5qt.fsf@zork.zork.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Eger <eger@havoc.gtf.org> writes:
+Jens Axboe <axboe@suse.de> writes:
 
-> There are five files with embedded backspace octets in them.... ;-)
+> Hi,
+>
+> 2.6 still uses PIO for CDROMREADAUDIO cdda ripping, which is less than
+> optimal of course... This patch uses the block layer infrastructure to
+> enable zero copy DMA ripping through CDROMREADAUDIO.
+>
+> I'd appreciate people giving this a test spin. Patch is against
+> 2.6.4-rc1 (well current BK, actually).
 
-That's an old way to do underlining and bold face and it seems like at
-least coda.txt is doing that.  If I could choose I'd probably just
-remove them.
+Applied successfully to 2.6.4-rc1-mm2, and it works great.  For some
+reason, on two different machines, ripping with cdparanoia used to
+somehow crowd out the serial port, but now everything just works.
 
--- 
-Måns Rullgård
-mru@kth.se
+Thanks a lot!
 

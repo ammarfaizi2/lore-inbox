@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUEHFdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264124AbUEHFuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbUEHFdw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 01:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbUEHFdw
+	id S264124AbUEHFuM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 01:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264138AbUEHFuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 01:33:52 -0400
-Received: from gizmo09bw.bigpond.com ([144.140.70.19]:24765 "HELO
-	gizmo09bw.bigpond.com") by vger.kernel.org with SMTP
-	id S264085AbUEHFdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 01:33:44 -0400
-Message-ID: <409C7134.6020706@techdrive.com.au>
-Date: Sat, 08 May 2004 15:33:40 +1000
-From: Richard James <richard@techdrive.com.au>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Richard James <richard@techdrive.com.au>
-CC: Jesse Allen <the3dfxdude@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
- for idle=C1halt, 2.6.5
-References: <20040423013039.GA4945@tesore.local> <409B14F1.9090607@techdrive.com.au>
-In-Reply-To: <409B14F1.9090607@techdrive.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 8 May 2004 01:50:12 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:53511 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264124AbUEHFuH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 01:50:07 -0400
+Date: Sat, 8 May 2004 15:50:00 +1000
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Call might_sleep in tasklet_kill
+Message-ID: <20040508055000.GA31358@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="/04w6evG8XlLl3ft"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard James wrote:
 
-> ASUS have now supplied a BIOS update for the A7N8X-X which fixes the 
-> C1 halt crash.
-> dated the 2004/04/21.  So I assume that they will supply a patch for 
-> all nforce2 motherboards.
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Hi:
 
-No this is wrong after retesting with a clean kernel the machine still 
-locks up. BIOS 1009 does nothing for us.
+The following patch calls might_sleep in tasklet_kill.  This would've
+helped in tracking down http://bugs.debian.org/234365 where someone
+called tasklet_kill with IRQs disabled.
 
-Richard James.
+Cheers,
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: kernel/softirq.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/kernel/softirq.c,v
+retrieving revision 1.1.1.12
+diff -u -r1.1.1.12 softirq.c
+--- a/kernel/softirq.c	5 Apr 2004 09:49:43 -0000	1.1.1.12
++++ b/kernel/softirq.c	8 May 2004 05:48:50 -0000
+@@ -286,8 +286,7 @@
+ 
+ void tasklet_kill(struct tasklet_struct *t)
+ {
+-	if (in_interrupt())
+-		printk("Attempt to kill tasklet from interrupt\n");
++	might_sleep();
+ 
+ 	while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
+ 		do
+
+--/04w6evG8XlLl3ft--

@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261608AbSJBRNs>; Wed, 2 Oct 2002 13:13:48 -0400
+	id <S263191AbSJBRDb>; Wed, 2 Oct 2002 13:03:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261627AbSJBRNs>; Wed, 2 Oct 2002 13:13:48 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:28380 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S261608AbSJBRNq>; Wed, 2 Oct 2002 13:13:46 -0400
-Message-ID: <3D9B2A8D.1040905@drugphish.ch>
-Date: Wed, 02 Oct 2002 19:19:09 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S263192AbSJBRDb>; Wed, 2 Oct 2002 13:03:31 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:40915 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S263191AbSJBRDa>; Wed, 2 Oct 2002 13:03:30 -0400
+Date: Wed, 02 Oct 2002 11:08:43 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Eriksson Stig <stig.eriksson@sweco.se>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: aic7xxx problems?
+Message-ID: <3901880000.1033578523@aslan.btc.adaptec.com>
+In-Reply-To: <E50A0EFD91DBD211B9E40008C75B6CCA01497EDD@ES-STH-012>
+References: <E50A0EFD91DBD211B9E40008C75B6CCA01497EDD@ES-STH-012>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
 MIME-Version: 1.0
-To: Bob McElrath <bob+linux-kernel@mcelrath.org>
-Cc: Petr Sebor <petr@scssoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: NVIDIA binary-only driver patch for 2.5.40
-References: <20021002161006.GM25319@draal.physics.wisc.edu> <3D9B1AD4.3030407@scssoft.com> <20021002164315.GN25319@draal.physics.wisc.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
- > This patch is based on a patch previously posted by Roberto Nibali.  I
- > place my contributions to this patch under the GPL.  NVIDIA may not
- > use this code without prior written consent from me.
-
-You're a funny guy. While I don't care what happens to this patch 
-because I took it from Andrea Arcangeli (IIRC), I am not so sure what 
-exactly you mean by "I place my contributions to this patch under the 
-GPL". But I don't care either. I only hope people are not bugging you 
-for any breakage. ;)
-
-I think NVIDIA would have the right to take portions of this patch 
-wheter you like it or not. I don't think they want to, however.
-
-> Revised patch attached.
+> Hi
 > 
-> P.S. It's not my fault.  That typo was in Roberto's patch.  ;)
+> Maybe You can help me out with this one...
+> I have hp DLT connected to an adaptec SCSI board.
 
-It doesn't really matter, it's for 2.5.x anyway. Besides that it should 
-actually be called rage ;).
+>From the perspective of the controller, the target has taken the
+full command but has yet to REQ for either a cdb transfer retry
+or a new phase.  This looks like a target problem or a cabling
+problem that prevents the initiator from seeing a REQ or two.
 
-Best regards,
-Roberto Nibali, ratz
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
-
+--
+Justin

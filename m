@@ -1,147 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136534AbREDWLo>; Fri, 4 May 2001 18:11:44 -0400
+	id <S136536AbREDWNy>; Fri, 4 May 2001 18:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136536AbREDWLf>; Fri, 4 May 2001 18:11:35 -0400
-Received: from colorfullife.com ([216.156.138.34]:46350 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S136534AbREDWLY>;
-	Fri, 4 May 2001 18:11:24 -0400
-Message-ID: <3AF32872.9137D070@colorfullife.com>
-Date: Sat, 05 May 2001 00:08:50 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, de
+	id <S136537AbREDWNo>; Fri, 4 May 2001 18:13:44 -0400
+Received: from adsl-216-63-56-125.dsl.stlsmo.swbell.net ([216.63.56.125]:57098
+	"EHLO dublin.innovates.com") by vger.kernel.org with ESMTP
+	id <S136536AbREDWN0>; Fri, 4 May 2001 18:13:26 -0400
+X-OpenMail-Hops: 1
+Date: Fri, 4 May 2001 17:16:22 -0500
+Message-Id: <H00000650007236c.0989014582.dublin.innovates.com@MHS>
+Subject: Setting kernel options at compile time.
 MIME-Version: 1.0
-To: torvalds@transmeta.com
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] 3 one-liner bugfixes
-Content-Type: multipart/mixed;
- boundary="------------9594F5241CB3A23B440C2578"
+From: (Chip Schweiss) chip@innovates.com
+TO: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline; filename="BDY.TXT"
+	;Creation-Date="Fri, 4 May 2001 17:16:22 -0500"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------9594F5241CB3A23B440C2578
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+I'm trying to get a 2.2.19 kernel loaded on an i810 system using RPLD on 
+a diskless system.  I can get the kernel loaded and running.  The 
+problem is the i810 needs the kernel parameter "mem=xxxM" set to tell 
+the kernel how much memory the system has since the on the i810 the 
+kernel doesn't know how much was taken for video.
 
-Hi Linus,
+The catch I'm running into is RPLD cannot pass parameters to the kernel 
+and without this setting the system has video problem, most likely from 
+the memory sharing issues.  When the mem parameter is set when using a 
+disk it doesn't demonstrate any problems.
 
-I found a 3 small bugs:
+What I'm trying to figure out is how to compile in this setting.
 
-* mm/slab.c: the offslab_limit calculation used 2 instead of
-sizeof(kmem_bufctl_t) [==4]. Cosmetic bug, since offslab_limit is never
-reached.
-
-* expand_stack is not down_read() safe, but used in the page-in path.
-Fix is trivial.
-
-* missing/wrong lock_kernel calls in fs/fcntl.c: getlk/setlk run without
-the big kernel lock. The ..64 function acquire the lock.
-
---
-	Manfred
---------------9594F5241CB3A23B440C2578
-Content-Type: text/plain; charset=us-ascii;
- name="patch-slabbug-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-slabbug-2"
-
---- 2.4/mm/slab.c	Sat Mar  3 17:58:05 2001
-+++ build-2.4/mm/slab.c	Sat Mar  3 19:57:16 2001
-@@ -448,7 +448,7 @@
- 		/* Inc off-slab bufctl limit until the ceiling is hit. */
- 		if (!(OFF_SLAB(sizes->cs_cachep))) {
- 			offslab_limit = sizes->cs_size-sizeof(slab_t);
--			offslab_limit /= 2;
-+			offslab_limit /= sizeof(kmem_bufctl_t);
- 		}
- 		sprintf(name, "size-%Zd(DMA)",sizes->cs_size);
- 		sizes->cs_dmacachep = kmem_cache_create(name, sizes->cs_size, 0,
-
---------------9594F5241CB3A23B440C2578
-Content-Type: text/plain; charset=us-ascii;
- name="patch-expand-stack"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-expand-stack"
-
---- 2.4/include/linux/mm.h	Mon Apr 30 23:14:10 2001
-+++ build-2.4/include/linux/mm.h	Fri May  4 23:14:35 2001
-@@ -502,12 +502,14 @@
- {
- 	unsigned long grow;
+Thanks,
+Chip Schweiss
  
-+	spin_lock(&vma->vm_mm->page_table_lock);
- 	address &= PAGE_MASK;
- 	grow = (vma->vm_start - address) >> PAGE_SHIFT;
- 	if (vma->vm_end - address > current->rlim[RLIMIT_STACK].rlim_cur ||
--	    ((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) > current->rlim[RLIMIT_AS].rlim_cur)
-+	    ((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) > current->rlim[RLIMIT_AS].rlim_cur) {
-+		spin_unlock(&vma->vm_mm->page_table_lock);
- 		return -ENOMEM;
--	spin_lock(&vma->vm_mm->page_table_lock);
-+	}
- 	vma->vm_start = address;
- 	vma->vm_pgoff -= grow;
- 	vma->vm_mm->total_vm += grow;
-
---------------9594F5241CB3A23B440C2578
-Content-Type: text/plain; charset=us-ascii;
- name="patch-fcntl"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-fcntl"
-
---- 2.4/fs/fcntl.c	Thu Nov 16 07:50:25 2000
-+++ build-2.4/fs/fcntl.c	Fri May  4 23:12:24 2001
-@@ -254,11 +254,15 @@
- 			unlock_kernel();
- 			break;
- 		case F_GETLK:
-+			lock_kernel();
- 			err = fcntl_getlk(fd, (struct flock *) arg);
-+			unlock_kernel();
- 			break;
- 		case F_SETLK:
- 		case F_SETLKW:
-+			lock_kernel();
- 			err = fcntl_setlk(fd, cmd, (struct flock *) arg);
-+			unlock_kernel();
- 			break;
- 		case F_GETOWN:
- 			/*
-@@ -338,22 +342,26 @@
- 	if (!filp)
- 		goto out;
- 
--	lock_kernel();
- 	switch (cmd) {
- 		case F_GETLK64:
-+			lock_kernel();
- 			err = fcntl_getlk64(fd, (struct flock64 *) arg);
-+			unlock_kernel();
- 			break;
- 		case F_SETLK64:
-+			lock_kernel();
- 			err = fcntl_setlk64(fd, cmd, (struct flock64 *) arg);
-+			unlock_kernel();
- 			break;
- 		case F_SETLKW64:
-+			lock_kernel();
- 			err = fcntl_setlk64(fd, cmd, (struct flock64 *) arg);
-+			unlock_kernel();
- 			break;
- 		default:
- 			err = do_fcntl(fd, cmd, arg, filp);
- 			break;
- 	}
--	unlock_kernel();
- 	fput(filp);
- out:
- 	return err;
-
---------------9594F5241CB3A23B440C2578--
-
 

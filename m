@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272718AbRISVyJ>; Wed, 19 Sep 2001 17:54:09 -0400
+	id <S274217AbRISVzt>; Wed, 19 Sep 2001 17:55:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274199AbRISVx7>; Wed, 19 Sep 2001 17:53:59 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31830 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S272718AbRISVxy>; Wed, 19 Sep 2001 17:53:54 -0400
-To: Dan Hollis <goemon@anime.net>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-In-Reply-To: <Pine.LNX.4.30.0109191249130.26700-100000@anime.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Sep 2001 15:44:45 -0600
-In-Reply-To: <Pine.LNX.4.30.0109191249130.26700-100000@anime.net>
-Message-ID: <m1adzqg8j6.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S274221AbRISVzj>; Wed, 19 Sep 2001 17:55:39 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:52615 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S274217AbRISVz1>;
+	Wed, 19 Sep 2001 17:55:27 -0400
+Date: Wed, 19 Sep 2001 14:55:34 -0700 (PDT)
+Message-Id: <20010919.145534.104033668.davem@redhat.com>
+To: ebiederm@xmission.com
+Cc: alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net, rfuller@nsisoftware.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: broken VM in 2.4.10-pre9
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <m1elp2g8vd.fsf@frodo.biederman.org>
+In-Reply-To: <E15jnIB-0003gh-00@the-village.bc.nu>
+	<m1elp2g8vd.fsf@frodo.biederman.org>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Hollis <goemon@anime.net> writes:
+   From: ebiederm@xmission.com (Eric W. Biederman)
+   Date: 19 Sep 2001 15:37:26 -0600
+   
+   That I think is a significant cost.
 
-> On Wed, 19 Sep 2001, Arjan van de Ven wrote:
-> > If it were only 5%, I would vote for disabling the optimisation given the
-> > number of problems; however it's 2x _and_ you can trigger the bug as normal
-> > user from userspace too... so we need to fix the hardware/bios.
-> 
-> But we really dont know what the hell that bit is doing. It might trigger
-> some other obscure bugs and make things a real mess.
-> 
-> Until we get some answer from VIA its IMHO a bad idea to start twiddling
-> this bit willy-nilly on all machines.
+My own personal feeling, after having tried to implement a much
+lighter weight scheme involving "anon areas", is that reverse maps or
+something similar should be looked at as a latch ditch effort.
 
-That is the only way we can get information.  We can twiddle this bit and
-run memory performance tests on machines that aren't affected and
-other stress tests on machines that are affected and see if we can see
-if stability is impacted.
+We are tons faster than anyone else in fork/exec/exit precisely
+because we keep track of so little state for anonymous pages.
 
-Additionaly the motherboards could be instrumented, and we could see
-if there are any timing differences.
-
-Of course VIA looking at what they have done and what that bit is
-supposed to be is easiest as they have the schemantics of those
-chips.  But there is not reason to be limited to just that approach.
-
-Eric
+Later,
+David S. Miller
+davem@redhat.com

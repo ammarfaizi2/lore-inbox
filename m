@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130902AbRCJC6E>; Fri, 9 Mar 2001 21:58:04 -0500
+	id <S130903AbRCJDZd>; Fri, 9 Mar 2001 22:25:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130903AbRCJC5y>; Fri, 9 Mar 2001 21:57:54 -0500
-Received: from npt12056206.cts.com ([216.120.56.206]:26884 "HELO
-	forty.spoke.nols.com") by vger.kernel.org with SMTP
-	id <S130902AbRCJC5p>; Fri, 9 Mar 2001 21:57:45 -0500
-Date: Fri, 9 Mar 2001 18:57:03 -0800
-From: David Rees <dbr@greenhydrant.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18, Intel i815 chipset and DMA
-Message-ID: <20010309185703.A24221@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010309090641.C13905@greenhydrant.com> <E14bQaA-0005Jc-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E14bQaA-0005Jc-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Mar 09, 2001 at 05:21:36PM +0000
+	id <S130904AbRCJDZY>; Fri, 9 Mar 2001 22:25:24 -0500
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:37375 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S130903AbRCJDZK>; Fri, 9 Mar 2001 22:25:10 -0500
+Date: Fri, 09 Mar 2001 19:11:57 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: SLAB vs. pci_alloc_xxx in usb-uhci patch [RFC: API]
+To: Gérard Roudier <groudier@club-internet.fr>
+Cc: Pete Zaitcev <zaitcev@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        "David S. Miller" <davem@redhat.com>,
+        Russell King <rmk@arm.linux.org.uk>,
+        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Message-id: <000c01c0a90f$df0627a0$6800000a@brownell.org>
+MIME-version: 1.0
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset="iso-8859-1"
+Content-transfer-encoding: 7bit
+X-MSMail-Priority: Normal
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <Pine.LNX.4.10.10103092150260.1818-100000@linux.local>
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 09, 2001 at 05:21:36PM +0000, Alan Cox wrote:
-> > I've got a Gateway here with a Intel 815 chipset running 2.2.18.  Inside
-> > it's a PIII 733 with 512MB and a Quantum lct15 drive.
+> >     The reverse mapping
+> > code hast to be less than 0.1KB.
 > 
-> The UDMA100 on the i810/815 is supported by 2.4
-> 
-> > turn it on?  The drive should be capable of 10-20MB/s, but I'm
-> > only getting about 4MB/s with hdparm.  :-(
-> 
-> /dev/hda:
->  Timing buffered disk reads:  64 MB in  2.62 seconds = 24.43 MB/sec
-> 
-> [2.4.2ac17]
+> If reverse mapping means bus_to_virt(), then I would suggest not to
+> provide it since it is a confusing interface. OTOH, only a few drivers
+> need or want to retrieve the virtual address that lead to some bus dma
 
-OK, I moved the machine to 2.4.2, hdparm is now reading 20MB/sec from
-each disk as expected.
+Your SCSI code went the other way; the logic is about the same.
+That's easy enough ... I'm not going to argue that point any longer.
 
-Thanks for the tips,
-Dave
+The driver might even have Real Intelligence to apply.  But I wonder
+how many assumptions drivers will end up making about those dma
+mappings.  It may be important to expose the "logical" page size to
+the driver ("don't cross 4k boundaries"); currently it's hidden.
+
+Other than that L1_CACHE goof, it seems this was the main thing
+needing to change in the I API sent by.  Sound right?  Implementation
+would be a different question.  I'm not in the least attached to what
+I sent by, but some implementation is needed.  Slab-like, or buddy? :)
+
+
+> Does 'usable' apply to Java applications ? :-)
+
+Servers and other non-gui tools?  I don't see why not.  You can make
+good systems software in many languages.  There are advantages to
+not having those classes of memory-related bugs.  I'm looking forward
+to GCC 3.0 with GCJ, compiling Java just like C.  But that's OT.
+
+- Dave
+
+

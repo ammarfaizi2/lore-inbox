@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbUCKUmI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 15:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbUCKUji
+	id S261673AbUCKUmM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 15:42:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUCKUju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 15:39:38 -0500
-Received: from ns.suse.de ([195.135.220.2]:59562 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261718AbUCKUgo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 15:36:44 -0500
-Subject: [PATCH] race in mempool_alloc/free
-From: Chris Mason <mason@suse.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Content-Type: text/plain
-Message-Id: <1079037543.27197.50.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Mar 2004 15:39:04 -0500
+	Thu, 11 Mar 2004 15:39:50 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:46862 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261706AbUCKUfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 15:35:31 -0500
+Message-ID: <4050D0DC.5000404@techsource.com>
+Date: Thu, 11 Mar 2004 15:49:32 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Christophe Saout <christophe@saout.de>, linux-kernel@vger.kernel.org
+Subject: Re: LKM rootkits in 2.6.x
+References: <Pine.LNX.4.44.0403111124020.27770-100000@linuxbox.co.uk> <20040311184835.GA21330@redhat.com>            <1079032587.7517.1.camel@leto.cs.pocnet.net> <200403111930.i2BJU9oh004246@turing-police.cc.vt.edu>
+In-Reply-To: <200403111930.i2BJU9oh004246@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
-
-mempool_alloc and mempool_free check pool->curr_nr without any locks
-held.  This can lead to skipping a wakeup when there are people waiting,
-and sleeping when there are free elements in the pool.  
-
-I can't trigger this reliably, but sooner or later someone on ppc is
-probably going to hit it.
-
--chris
-
---- linux.t.orig/mm/mempool.c	2004-03-11 14:34:50.000000000 -0500
-+++ linux.t/mm/mempool.c	2004-03-11 14:38:30.000000000 -0500
-@@ -203,6 +203,7 @@
- 	 * If the pool is less than 50% full and we can perform effective
- 	 * page reclaim then try harder to allocate an element.
- 	 */
-+	mb();
- 	if ((gfp_mask & __GFP_FS) && (gfp_mask != gfp_nowait) &&
- 				(pool->curr_nr <= pool->min_nr/2)) {
- 		element = pool->alloc(gfp_mask, pool->pool_data);
-@@ -230,6 +231,7 @@
- 	blk_run_queues();
- 
- 	prepare_to_wait(&pool->wait, &wait, TASK_UNINTERRUPTIBLE);
-+	mb();
- 	if (!pool->curr_nr)
- 		io_schedule();
- 	finish_wait(&pool->wait, &wait);
-@@ -250,6 +252,7 @@
- {
- 	unsigned long flags;
- 
-+	mb();
- 	if (pool->curr_nr < pool->min_nr) {
- 		spin_lock_irqsave(&pool->lock, flags);
- 		if (pool->curr_nr < pool->min_nr) {
 
 
+Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 11 Mar 2004 20:16:28 +0100, Christophe Saout said:
+> 
+> 
+>>Ugh... this sounds ugly. This should be forbidden. I mean, what are
+>>things like EXPORT_SYMBOL_GPL for if drivers are allowed to patch
+>>whatever they want?
+> 
+> 
+> If the binary blob knows enough about the innards to be able to do binary
+> patching, it's a derived work and should be GPL.
+
+Maybe!
+
+Unless the offset of an unexported symbol relative to an exported one is 
+simply a "fact" which therefore can't be copyrighted.
+
+This sort of thing would probably be unethical, but it might be legal.
 

@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264961AbUFGR7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264965AbUFGSDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264961AbUFGR7d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 13:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264964AbUFGR7d
+	id S264965AbUFGSDD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 14:03:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264964AbUFGSAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 13:59:33 -0400
-Received: from port-212-202-157-212.reverse.qsc.de ([212.202.157.212]:36815
-	"EHLO bender.portrix.net") by vger.kernel.org with ESMTP
-	id S264961AbUFGR7a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 13:59:30 -0400
-Message-ID: <40C4ACEF.1090707@portrix.net>
-Date: Mon, 07 Jun 2004 19:59:11 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
+	Mon, 7 Jun 2004 14:00:52 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:57094 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S264966AbUFGSAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 14:00:02 -0400
+Message-ID: <40C4B09B.406@techsource.com>
+Date: Mon, 07 Jun 2004 14:14:51 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Who has record no. of  DriveReady SeekComplete DataRequest
- errors?
-References: <200406060007.10150.kernel@kolivas.org> <200406072008.07176.kernel@kolivas.org> <20040607101732.GI13836@suse.de> <200406072029.09765.kernel@kolivas.org> <20040607162923.GP13836@suse.de>
-In-Reply-To: <20040607162923.GP13836@suse.de>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig7C0C0B28B14177FB1A7162AA"
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+CC: Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 4k stacks in 2.6
+References: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com> <20040526130047.GF12142@wohnheim.fh-wedel.de>
+In-Reply-To: <20040526130047.GF12142@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig7C0C0B28B14177FB1A7162AA
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Jens Axboe wrote:
-> Hi Con,
-> 
-> Can you see if this works for you?
 
-That fixes it.
+Jörn Engel wrote:
 
-Thanks,
+> But I'll shut up now and see if I can generate better data over the
+> weekend.  -test11 still had fun stuff like 3k stack consumption over
+> some code paths in a pretty minimal kernel.  Wonder what 2.6.6 will do
+> with allyesconfig. ;)
 
-Jan
+That gave me an idea.  Sometimes in chip design, we 'overconstrain' the 
+logic synthesizer, because static timing analyzers often produce 
+inaccurate results.  Anyhow, what if we were to go to 4K stacks but in 
+static code analysis, flag anything which uses more than 2K or even 1K?
 
---------------enig7C0C0B28B14177FB1A7162AA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAxKz2LqMJRclVKIYRAuWXAJ4630JocCCG5cDPYkxwrFU1NmCWyACgjUMu
-qnU6PrqMwgsii0iJf/QyA8Q=
-=Aldb
------END PGP SIGNATURE-----
-
---------------enig7C0C0B28B14177FB1A7162AA--

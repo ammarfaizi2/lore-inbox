@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267449AbRHAQC5>; Wed, 1 Aug 2001 12:02:57 -0400
+	id <S267418AbRHAQTx>; Wed, 1 Aug 2001 12:19:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267405AbRHAQCi>; Wed, 1 Aug 2001 12:02:38 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:18190 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267418AbRHAQCd>; Wed, 1 Aug 2001 12:02:33 -0400
-Date: Wed, 1 Aug 2001 16:51:53 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Andre Pang <ozone@algorithm.com.au>, linux-kernel@vger.kernel.org,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010801165153.A7053@redhat.com>
-In-Reply-To: <20010726174844.W17244@emma1.emma.line.org> <E15PnTJ-0003z0-00@the-village.bc.nu> <9jpftj$356$1@penguin.transmeta.com> <20010726095452.L27780@work.bitmover.com>, <20010726095452.L27780@work.bitmover.com> <996167751.209473.2263.nullmailer@bozar.algorithm.com.au> <3B60EDD3.2CE54732@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B60EDD3.2CE54732@zip.com.au>; from akpm@zip.com.au on Fri, Jul 27, 2001 at 02:28:03PM +1000
+	id <S267452AbRHAQTm>; Wed, 1 Aug 2001 12:19:42 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:46864 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267418AbRHAQTh>; Wed, 1 Aug 2001 12:19:37 -0400
+Date: Wed, 1 Aug 2001 09:18:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: booting SMP P6 kernel on P4 hangs.
+In-Reply-To: <3B67CE6A.A670093E@redhat.com>
+Message-ID: <Pine.LNX.4.33.0108010917540.20829-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, Jul 27, 2001 at 02:28:03PM +1000, Andrew Morton wrote:
+On Wed, 1 Aug 2001, Arjan van de Ven wrote:
+> >
+> > It should boot, and it looks like the problem may be a bad MP table.
+>
+> Oh it is. And it's due to a recommendation Intel makes to bios writers.
+> As a result, every P4 I've encountered shares this bug. Intel knows it's
+> an invalid MP table, but refuses to change the recommendation.
 
-> I believe that `dirsync' would provide synchronous metadata
-> operations (ie: the metadata is crashproofed on-disk when
-> the syscall returns), but non-sync data.  Correct?
+What's the recommendation? We might be able to change the specific code in
+question..
 
-Not quite: dirsync would provide synchronous metadata operations on
-directories, but would make no guarantees about other file types.
-That way we don't have the cost of doing sync updates to the inodes or
-indirect blocks of regular files --- fsync() is adequate to do that on
-demand.
+Or are they just trying to strongarm the move to the horrid ACPI tables?
 
-Of course, fsync() is also sufficient to do syncing of directory
-operations on demand, but it's a bit heavyweight for that purpose,
-hence the request for dirsync (either as a chattr flag or as a mount
-option.)
+		Linus
 
-> If, however, the application is capable of doing a nice big
-> write() (setvbuf!) then really, the two things will be pretty
-> much the same.
-
-Almost --- it's the same for create+write+close+fsync, but not for
-rename or for unlink (in which case there's not necessarily going to
-be a data fsync to force the directory operation out to disk.)
-
-Cheers,
- Stephen

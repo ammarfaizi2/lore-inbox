@@ -1,53 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129381AbRDWQBp>; Mon, 23 Apr 2001 12:01:45 -0400
+	id <S130038AbRDWQEd>; Mon, 23 Apr 2001 12:04:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131407AbRDWQBe>; Mon, 23 Apr 2001 12:01:34 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:33208 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S131382AbRDWQBU>;
-	Mon, 23 Apr 2001 12:01:20 -0400
-Message-ID: <3AE451C6.619F32F8@mandrakesoft.com>
-Date: Mon, 23 Apr 2001 12:01:10 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
-X-Accept-Language: en
+	id <S131484AbRDWQEO>; Mon, 23 Apr 2001 12:04:14 -0400
+Received: from portraits.wsisiz.edu.pl ([195.205.208.34]:8745 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id <S130038AbRDWQED>; Mon, 23 Apr 2001 12:04:03 -0400
+Date: Mon, 23 Apr 2001 18:03:30 +0200
+Message-Id: <200104231603.f3NG3Uo01954@lt.wsisiz.edu.pl>
+From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
+In-Reply-To: <20010422102234.A1093@ulthar.internal.mclure.org>
+X-Newsgroups: wsisiz.linux-kernel
+X-PGP-Key-Fingerprint: E233 4EB2 BC46 44A7 C5FC  14C7 54ED 2FE8 FEB9 8835
+X-Key-ID: 829B1533
+User-Agent: tin/1.5.9-20010328 ("Blue Water") (UNIX) (Linux/2.4.4-pre6 (i586))
 MIME-Version: 1.0
-To: rjd@xyzzy.clara.co.uk
-Cc: linux-kernel@vger.kernel.org, Krzysztof Halasa <khc@intrepid.pm.waw.pl>
-Subject: Re: New driver for FarSite synchronous cards
-In-Reply-To: <200104231021.f3NAL7P22306@xyzzy.clara.co.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rjd@xyzzy.clara.co.uk wrote:
-> 
-> Hi,
-> 
-> I've just completed the first draft of a new device driver for the FarSite
-> Communications, FarSync T2P and T4P cards.  These cards are intelligent
-> synchronous serial cards supporting 2 or 4 ports running at up to 8Mbps with
-> X.21, V.35 or V.24 signalling.
-> 
-> This mail is basically a call for testers and reviewers, and a plea to find
-> the overall maintainer for WAN card drivers.
+In article <20010422102234.A1093@ulthar.internal.mclure.org> you wrote:
+> I'm having a problem with "su -" on ac11/ac12. ac5 doesn't show the
+> problem.
+> The problem is easy to reproduce - go to a console, log in as root, do an
+> "su -" (this will succeed) and then another "su -". The second "su -"
+> should hang - ps shows it started bash and that the bash process is
+> sleeping. You need to "kill -9" the bash to get your prompt back.
 
-This is from linux/MAINTAINERS:
-WAN ROUTER & SANGOMA WANPIPE DRIVERS & API (X.25, FRAME RELAY, PPP,
-CISCO HDLC)
-P:     Nenad Corbic
-M:     ncorbic@sangoma.com
-M:     dm@sangoma.com
-W:     http://www.sangoma.com
-S:     Supported
+> Distribution is Red Hat 7.1, running on an Athlon Thunderbird 900MHz on a
+> MSI K7T Turbo R motherboard.
 
-The "& API" may apply to you.  Also Krzysztof Halasa (cc'd) has played
-WAN maintainer role as well.
+I have tested it on 2.4.4pre6, here is result:
+
+[root@lt /root]# su - test
+
+[root@lt /root]# ps xaf
+ 1372 tty1     S      0:00 login -- root
+ 1373 tty1     S      0:00  \_ -bash
+ 1819 tty1     S      0:00      \_ su - test
+ 1820 tty1     S      0:00          \_ -bash
+ 1846 tty1     T      0:00              \_ stty erase ?
+
+
+Last 10 lines from gdb su
+
+Loaded symbols for /lib/security/pam_env.so
+Reading symbols from /lib/security/pam_unix.so...done.
+Loaded symbols for /lib/security/pam_unix.so
+Reading symbols from /lib/security/pam_cracklib.so...done.
+Loaded symbols for /lib/security/pam_cracklib.so
+Reading symbols from /usr/lib/libcrack.so.2...done.
+Loaded symbols for /usr/lib/libcrack.so.2
+Reading symbols from /lib/security/pam_limits.so...done.
+Loaded symbols for /lib/security/pam_limits.so
+0x401156c9 in __wait4 () from /lib/libc.so.6
+(gdb)
+
+but:
+
+[lukasz@lt lukasz]$ su -
+Password:
+[root@lt /root]#
+
+It's looks OK :)
+
+
+[lukasz@lt lukasz]$ su --version
+su (GNU sh-utils) 2.0
+
+[lukasz@lt lukasz]$ bash --version
+GNU bash, version 2.04.21(1)-release (i386-redhat-linux-gnu)
+Copyright 1999 Free Software Foundation, Inc.
+
+[lukasz@lt lukasz]$ stty --version
+stty (GNU sh-utils) 2.0
+
+
+Kernel 2.4.4-pre6, 2.2.2-10, 0.74-22  - RedHat 7.1
+AMD-K6 300 Mhz,
+
 
 -- 
-Jeff Garzik      | The difference between America and England is that
-Building 1024    | the English think 100 miles is a long distance and
-MandrakeSoft     | the Americans think 100 years is a long time.
-                 |      (random fortune)
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

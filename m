@@ -1,706 +1,199 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265027AbTFYUZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 16:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbTFYUZ5
+	id S265054AbTFYU0w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 16:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbTFYU0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 16:25:57 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:30871 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S265027AbTFYUYu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 16:24:50 -0400
-Date: Wed, 25 Jun 2003 23:38:40 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
-       intermezzo-devel@lists.sourceforge.net
-Subject: [PATCH] intermezzo stack lossage (was Re: top stack users for 2.5.73)
-Message-ID: <20030625203839.GW15709@actcom.co.il>
-References: <20030625163322.GB1770@wohnheim.fh-wedel.de>
+	Wed, 25 Jun 2003 16:26:52 -0400
+Received: from h24-70-162-27.wp.shawcable.net ([24.70.162.27]:5570 "EHLO ubb")
+	by vger.kernel.org with ESMTP id S265054AbTFYU0h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 16:26:37 -0400
+Message-Id: <v04003a44bb1fb082955b@[192.168.1.4]>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5UQzRzi9WojKXOfC"
-Content-Disposition: inline
-In-Reply-To: <20030625163322.GB1770@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset="us-ascii"
+Organisation: Judean People's Front; Department of Whips, Chains, Thumb-Screws, Six Tons of Whipping Cream, the Entire Soprano Section of the Mormon Tabernacle Choir and Guest Apperances of Eva Peron aka Eric Conspiracy Secret Laboratories
+X-Disclaimer-1: This message has been edited from it's original form by members of the Eric Conspiracy.
+X-Disclaimer-2: There is no Eric Conspiracy.
+X-Not-For-Humans: aardvark@apia.dhs.org and zebra@apia.dhs.org are spamtraps.
+Date: Wed, 25 Jun 2003 15:40:34 -0500
+To: linux-kernel@vger.kernel.org
+From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
+Subject: Disk performance irregularity in 2.4.x
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello *,
 
---5UQzRzi9WojKXOfC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've been running 2.4.18 and 2.4.20 for a while on my server, and I've been
+noticing a performance irregularity during read/write disk activity.
 
-On Wed, Jun 25, 2003 at 06:33:22PM +0200, J?rn Engel wrote:
+Usually the trigger is nothing more than reading and writing a constant
+average of, say, 30-60K/s to disk. This will go normally most of the time,
+but then, seemingly randomly, the machine will start writing to the disk at
+a solid 0.5-1.0MB/s for 5 to 10 seconds while apparently not allowing any
+other IO to take place (for example, my mp3s - playing on another machine
+reading from the server via nfs - will stop playing for the duration of the
+writeout). It can also be triggered more frequently by higher volume
+read/writes (such as CVS activity).
 
-> 0xc0204c1b presto_get_fileid:                            sub    $0x116c,%=
-esp
-> 0xc020378b presto_copy_kml_tail:                         sub    $0x1018,%=
-esp
-> 0xc01fb563 presto_ioctl:                                 sub    $0x4cc,%e=
-sp
+I managed to catch one of these episodes in a vmstat trace just now during
+some CVS activity. The first page is the base-level activity (1 second
+intervals), then on the second page you can see the CVS activity starting
+as the system starts reading from the disk. At about the bottom 1/3rd of
+the second page the blackout starts as the kernel starts single-mindedly
+writing data to disk, then on the 3rd page you can see where the normal CVS
+activity resumes.
 
-Here's a patch for these three. Compiled, but not tested, as I don't
-have intermezzo set up. No fancy games, just replace humongous stack
-allocation with dynamic allocation. This isn't as clean as it could
-be, but I went for minimal changes to core intermezzo code. Before
-embarking on any major cleanups, I'd like to hear from the intermezzo
-maintainers what are their plans wrt 2.5 first. For the time being,
-here are a couple of issues that I noticed with the code now:=20
+I am puzzled as to what is causing this, is it just bdflush tuning? Or is
+something more bizzare going on? If it is bdflush tuning, what values do I
+want to change?
 
-1. presto_finish_kml_truncate does not appear to be called from
-anywhere? if it is, and is indeed called with the
-fset->fset_kml.fd_lock taken, as the comment above it says, it mustn't
-call anything that does non-atomic allocations, such as
-izo_mak_path().=20
+Also, I have no idea where those 60000 extra context switches came from.
 
-2. In presto_ioctl(), there the code calls a function which can return
-0, treats that 0 as an error, and then returns 0 itself. Is this
-intentional or a bug?=20
-
-diff -Naur --exclude-from=3D/home/mulix/dontdiff linux-2.5/fs/intermezzo/di=
-r.c linux-2.5.73-stack-lusers/fs/intermezzo/dir.c
---- linux-2.5/fs/intermezzo/dir.c	2003-03-22 04:25:29.000000000 +0200
-+++ linux-2.5.73-stack-lusers/fs/intermezzo/dir.c	2003-06-25 23:02:34.00000=
-0000 +0300
-@@ -877,17 +877,19 @@
- int presto_ioctl(struct inode *inode, struct file *file,
-                         unsigned int cmd, unsigned long arg)
- {
--        char buf[1024];
-         struct izo_ioctl_data *data =3D NULL;
-         struct presto_dentry_data *dd;
-         int rc;
-+        char* buf;=20
-+        static const size_t bufsz =3D 1024;=20
-=20
-         ENTRY;
-=20
-         /* Try the filesystem's ioctl first, and return if it succeeded. */
-         dd =3D presto_d2d(file->f_dentry);=20
-         if (dd && dd->dd_fset) {=20
--                int (*cache_ioctl)(struct inode *, struct file *, unsigned=
- int, unsigned long ) =3D filter_c2cdfops(dd->dd_fset->fset_cache->cache_fi=
-lter)->ioctl;
-+                int (*cache_ioctl)(struct inode *, struct file *, unsigned=
- int, unsigned long);=20
-+                cache_ioctl =3D filter_c2cdfops(dd->dd_fset->fset_cache->c=
-ache_filter)->ioctl;
-                 rc =3D -ENOTTY;
-                 if (cache_ioctl)
-                         rc =3D cache_ioctl(inode, file, cmd, arg);
-@@ -902,47 +904,49 @@
-                 return -EPERM;
-         }
-=20
--        memset(buf, 0, sizeof(buf));
--       =20
--        if (izo_ioctl_getdata(buf, buf + 1024, (void *)arg)) {=20
-+        /* allocate a zero'd buffer for data */=20
-+        PRESTO_ALLOC(buf, bufsz);=20
-+        if (!buf) {=20
-+                EXIT;=20
-+                return -ENOMEM;=20
-+        }=20
-+
-+        if (izo_ioctl_getdata(buf, buf + bufsz, (void *)arg)) {=20
-                 CERROR("intermezzo ioctl: data error\n");
--                return -EINVAL;
-+                rc =3D -EINVAL;=20
-+                goto done;=20
-         }
-         data =3D (struct izo_ioctl_data *)buf;
-        =20
-         switch(cmd) {
-         case IZO_IOC_REINTKML: {=20
--                int rc;
-                 int cperr;
-                 rc =3D kml_reint_rec(file, data);
-=20
--                EXIT;
-                 cperr =3D copy_to_user((char *)arg, data, sizeof(*data));
-                 if (cperr) {=20
-                         CERROR("WARNING: cperr %d\n", cperr);=20
-                         rc =3D -EFAULT;
-                 }
--                return rc;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_GET_RCVD: {
-                 struct izo_rcvd_rec rec;
-                 struct presto_file_set *fset;
--                int rc;
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
--                }
-+                        rc =3D -ENODEV;=20
-+                        goto done;=20
-+                }=20
-+
-                 rc =3D izo_rcvd_get(&rec, fset, data->ioc_uuid);
--                if (rc < 0) {
--                        EXIT;
--                        return rc;
--                }
-+                if (rc < 0)=20
-+                        goto done;=20
-=20
--                EXIT;
--                return copy_to_user((char *)arg, &rec, sizeof(rec))? -EFAU=
-LT : 0;
-+                rc =3D copy_to_user((char *)arg, &rec, sizeof(rec))? -EFAU=
-LT : 0;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_REPSTATUS: {
-@@ -951,12 +955,11 @@
-                 struct izo_rcvd_rec rec;
-                 struct presto_file_set *fset;
-                 int minor;
--                int rc;
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;=20
-+                        goto done;=20
-                 }
-                 minor =3D presto_f2m(fset);
-=20
-@@ -965,13 +968,11 @@
-=20
-                 rc =3D izo_repstatus(fset, client_kmlsize,=20
-                                        lr_client, &rec);
--                if (rc < 0) {
--                        EXIT;
--                        return rc;
--                }
-+                if (rc < 0)=20
-+                        goto done;=20
-=20
--                EXIT;
--                return copy_to_user((char *)arg, &rec, sizeof(rec))? -EFAU=
-LT : 0;
-+                rc =3D copy_to_user((char *)arg, &rec, sizeof(rec))? -EFAU=
-LT : 0;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_GET_CHANNEL: {
-@@ -979,30 +980,28 @@
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;=20
-+                        goto done;=20
-                 }
-                =20
-                 data->ioc_dev =3D fset->fset_cache->cache_psdev->uc_minor;
-                 CDEBUG(D_PSDEV, "CHANNEL %d\n", data->ioc_dev);=20
--                EXIT;
--                return copy_to_user((char *)arg, data, sizeof(*data))? -EF=
-AULT : 0;
-+                rc =3D copy_to_user((char *)arg, data, sizeof(*data))? -EF=
-AULT : 0;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_SET_IOCTL_UID:
-                 izo_authorized_uid =3D data->ioc_uid;
--                EXIT;
--                return 0;
-+                rc =3D 0;=20
-+                goto done;=20
-=20
-         case IZO_IOC_SET_PID:
-                 rc =3D izo_psdev_setpid(data->ioc_dev);
--                EXIT;
--                return rc;
-+                goto done;=20
-=20
-         case IZO_IOC_SET_CHANNEL:
-                 rc =3D izo_psdev_setchannel(file, data->ioc_dev);
--                EXIT;
--                return rc;
-+                goto done;=20
-=20
-         case IZO_IOC_GET_KML_SIZE: {
-                 struct presto_file_set *fset;
-@@ -1010,14 +1009,14 @@
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;=20
-+                        goto done;=20
-                 }
-=20
-                 kmlsize =3D presto_kml_offset(fset) + fset->fset_kml_logic=
-al_off;
-=20
--                EXIT;
--                return copy_to_user((char *)arg, &kmlsize, sizeof(kmlsize)=
-)?-EFAULT : 0;
-+                rc =3D copy_to_user((char *)arg, &kmlsize, sizeof(kmlsize)=
-)?-EFAULT : 0;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_PURGE_FILE_DATA: {
-@@ -1025,37 +1024,37 @@
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;=20
-+                        goto done;=20
-                 }
-=20
-                 rc =3D izo_purge_file(fset, data->ioc_inlbuf1);
--                EXIT;
--                return rc;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_GET_FILEID: {
-                 rc =3D izo_get_fileid(file, data);
--                EXIT;
-                 if (rc)
--                        return rc;
--                return copy_to_user((char *)arg, data, sizeof(*data))? -EF=
-AULT : 0;
-+                        goto done;=20
-+
-+                rc =3D copy_to_user((char *)arg, data, sizeof(*data))? -EF=
-AULT : 0;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_SET_FILEID: {
-                 rc =3D izo_set_fileid(file, data);
--                EXIT;
-                 if (rc)
--                        return rc;
--                return copy_to_user((char *)arg, data, sizeof(*data))? -EF=
-AULT  : 0;
-+                        goto done;=20
-+                       =20
-+                rc =3D copy_to_user((char *)arg, data, sizeof(*data))? -EF=
-AULT  : 0;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_ADJUST_LML: {=20
-                 struct lento_vfs_context *info;=20
-                 info =3D (struct lento_vfs_context *)data->ioc_inlbuf1;
-                 rc =3D presto_adjust_lml(file, info);=20
--                EXIT;
--                return rc;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_CONNECT: {
-@@ -1064,16 +1063,15 @@
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;
-+                        goto done;=20
-                 }
-                 minor =3D presto_f2m(fset);
-=20
-                 rc =3D izo_upc_connect(minor, data->ioc_ino,
-                                      data->ioc_generation, data->ioc_uuid,
-                                      data->ioc_flags);
--                EXIT;
--                return rc;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_GO_FETCH_KML: {
-@@ -1082,15 +1080,14 @@
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;
-+                        goto done;=20
-                 }
-                 minor =3D presto_f2m(fset);
-=20
-                 rc =3D izo_upc_go_fetch_kml(minor, fset->fset_name,
-                                           data->ioc_uuid, data->ioc_kmlsiz=
-e);
--                EXIT;
--                return rc;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_REVOKE_PERMIT:
-@@ -1098,26 +1095,23 @@
-                         rc =3D izo_revoke_permit(file->f_dentry, data->ioc=
-_uuid);
-                 else
-                         rc =3D izo_revoke_permit(file->f_dentry, NULL);
--                EXIT;
--                return rc;
-+                goto done;=20
-=20
-         case IZO_IOC_CLEAR_FSET:
-                 rc =3D izo_clear_fsetroot(file->f_dentry);
--                EXIT;
--                return rc;
-+                goto done;=20
-=20
-         case IZO_IOC_CLEAR_ALL_FSETS: {=20
-                 struct presto_file_set *fset;
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;
-+                        goto done;=20
-                 }
-=20
-                 rc =3D izo_clear_all_fsetroots(fset->fset_cache);
--                EXIT;
--                return rc;
-+                goto done;=20
-         }
-=20
-         case IZO_IOC_SET_FSET:
-@@ -1127,9 +1121,7 @@
-                 rc =3D presto_set_fsetroot_from_ioc(file->f_dentry,=20
-                                                   data->ioc_inlbuf1,
-                                                   data->ioc_flags);
--                EXIT;
--                return rc;
--
-+                goto done;=20
-=20
-         case IZO_IOC_MARK: {
-                 int res =3D 0;  /* resulting flags - returned to user */
-@@ -1185,16 +1177,16 @@
-                 }
-=20
-                 if (error) {=20
--                        EXIT;
--                        return error;
-+                        rc =3D error;=20
-+                        goto done;=20
-                 }
-                 data->ioc_mark_what =3D res;
-                 CDEBUG(D_DOWNCALL, "mark inode: %ld, and: %x, or: %x, what=
- %x\n",
-                        file->f_dentry->d_inode->i_ino, data->ioc_and_flag,
-                        data->ioc_or_flag, data->ioc_mark_what);
-=20
--                EXIT;
--                return copy_to_user((char *)arg, data, sizeof(*data))? -EF=
-AULT : 0;
-+                rc =3D copy_to_user((char *)arg, data, sizeof(*data))? -EF=
-AULT : 0;
-+                goto done;=20
-         }
- #if 0
-         case IZO_IOC_CLIENT_MAKE_BRANCH: {
-@@ -1203,16 +1195,15 @@
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;
-+                        goto done;=20
-                 }
-                 minor =3D presto_f2m(fset);
-=20
-                 rc =3D izo_upc_client_make_branch(minor, fset->fset_name,
-                                                 data->ioc_inlbuf1,
-                                                 data->ioc_inlbuf2);
--                EXIT;
--                return rc;
-+                goto done;=20
-         }
- #endif
-         case IZO_IOC_SERVER_MAKE_BRANCH: {
-@@ -1221,14 +1212,14 @@
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;
-+                        goto done;=20
-                 }
-                 minor =3D presto_f2m(fset);
-=20
-                 izo_upc_server_make_branch(minor, data->ioc_inlbuf1);
--                EXIT;
--                return 0;
-+                rc =3D 0;=20
-+                goto done;=20
-         }
-         case IZO_IOC_SET_KMLSIZE: {
-                 struct presto_file_set *fset;
-@@ -1237,38 +1228,33 @@
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;=20
-+                        goto done;=20
-                 }
-                 minor =3D presto_f2m(fset);
-=20
-                 rc =3D izo_upc_set_kmlsize(minor, fset->fset_name, data->i=
-oc_uuid,
-                                          data->ioc_kmlsize);
-=20
--                if (rc !=3D 0) {
--                        EXIT;
--                        return rc;
--                }
-+                if (rc !=3D 0)=20
-+                        goto done;=20
-=20
-                 rc =3D izo_rcvd_get(&rec, fset, data->ioc_uuid);
-                 if (rc =3D=3D -EINVAL) {
-                         /* We don't know anything about this uuid yet; no
-                          * worries. */
-                         memset(&rec, 0, sizeof(rec));
--                } else if (rc <=3D 0) {
-+                } else if (rc <=3D 0) { /* do we really want to return 0 i=
-f rc =3D=3D 0 here? */=20
-                         CERROR("InterMezzo: error reading last_rcvd: %d\n"=
-, rc);
--                        EXIT;
--                        return rc;
-+                        goto done;=20
-                 }
-                 rec.lr_remote_offset =3D data->ioc_kmlsize;
-                 rc =3D izo_rcvd_write(fset, &rec);
-                 if (rc <=3D 0) {
-                         CERROR("InterMezzo: error writing last_rcvd: %d\n"=
-, rc);
--                        EXIT;
--                        return rc;
-+                        goto done;=20
-                 }
--                EXIT;
--                return rc;
-+                goto done;=20
-         }
-         case IZO_IOC_BRANCH_UNDO: {
-                 struct presto_file_set *fset;
-@@ -1276,15 +1262,14 @@
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;
-+                        goto done;=20
-                 }
-                 minor =3D presto_f2m(fset);
-=20
-                 rc =3D izo_upc_branch_undo(minor, fset->fset_name,
-                                          data->ioc_inlbuf1);
--                EXIT;
--                return rc;
-+                goto done;=20
-         }
-         case IZO_IOC_BRANCH_REDO: {
-                 struct presto_file_set *fset;
-@@ -1292,28 +1277,33 @@
-=20
-                 fset =3D presto_fset(file->f_dentry);
-                 if (fset =3D=3D NULL) {
--                        EXIT;
--                        return -ENODEV;
-+                        rc =3D -ENODEV;
-+                        goto done;=20
-                 }
-                 minor =3D presto_f2m(fset);
-=20
-                 rc =3D izo_upc_branch_redo(minor, fset->fset_name,
-                                          data->ioc_inlbuf1);
--                EXIT;
--                return rc;
-+                goto done;=20
-         }
-=20
-         case TCGETS:
--                EXIT;
--                return -EINVAL;
-+                rc =3D -EINVAL;=20
-+                goto done;=20
-=20
-         default:
-                 EXIT;
--                return -EINVAL;
--               =20
-+                rc =3D -EINVAL;=20
-+                goto done;=20
-+
-         }
-+
-+        rc =3D 0;=20
-+
-+ done:=20
-+        PRESTO_FREE(buf, bufsz);=20
-         EXIT;
--        return 0;
-+        return rc;
- }
-=20
- struct file_operations presto_dir_fops =3D {
-diff -Naur --exclude-from=3D/home/mulix/dontdiff linux-2.5/fs/intermezzo/jo=
-urnal.c linux-2.5.73-stack-lusers/fs/intermezzo/journal.c
---- linux-2.5/fs/intermezzo/journal.c	2002-12-14 03:57:54.000000000 +0200
-+++ linux-2.5.73-stack-lusers/fs/intermezzo/journal.c	2003-06-25 23:32:50.0=
-00000000 +0300
-@@ -1239,12 +1239,16 @@
-         return izo_rcvd_write(fset, &rec);
- }
-=20
-+/* we are called from presto_finish_kml_truncate, which is called */=20
-+/* with fset->fset_kml.fd_lock held. Allocations must be GFP_ATOMIC */=20
- struct file * presto_copy_kml_tail(struct presto_file_set *fset,
-                                    unsigned long int start)
- {
-         struct file *f;
-         int len;
-         loff_t read_off, write_off, bytes;
-+        char* buf;=20
-+        size_t bufsz;=20
-=20
-         ENTRY;
-=20
-@@ -1258,21 +1262,31 @@
-         write_off =3D 0;
-         read_off =3D start;
-         bytes =3D fset->fset_kml.fd_offset - start;
--        while (bytes > 0) {
--                char buf[4096];
--                int toread;
-=20
--                if (bytes > sizeof(buf))
--                        toread =3D sizeof(buf);
--                else
--                        toread =3D bytes;
-+        bufsz =3D bytes;=20
-+        /* can't use PRESTO_ALLOC - alloction must be atomic */=20
-+        buf =3D kmalloc(bufsz, GFP_ATOMIC);
-+        if (!buf) {
-+                CERROR("IZO: out of memory at %s:%d (trying to "
-+                       "allocate %d)\n", __FILE__, __LINE__,=20
-+                       bufsz);
-+                filp_close(f, NULL);=20
-+                EXIT;=20
-+                return ERR_PTR(-ENOMEM);=20
-+        }
-+
-+        presto_kmem_inc(buf, bufsz);
-+        memset(buf, 0, bufsz);
-=20
--                len =3D presto_fread(fset->fset_kml.fd_file, buf, toread,
-+        while (bytes > 0) {
-+                len =3D presto_fread(fset->fset_kml.fd_file, buf, bufsz,
-                                    &read_off);
-                 if (len <=3D 0)
-                         break;
-=20
-                 if (presto_fwrite(f, buf, len, &write_off) !=3D len) {
-+                        kfree(buf);
-+                        presto_kmem_dec(buf, bufsz);
-                         filp_close(f, NULL);
-                         EXIT;
-                         return ERR_PTR(-EIO);
-@@ -1280,7 +1294,9 @@
-=20
-                 bytes -=3D len;
-         }
--
-+       =20
-+        kfree(buf);
-+        presto_kmem_dec(buf, bufsz);
-         EXIT;
-         return f;
- }
-@@ -1589,11 +1605,12 @@
- {
-         int opcode =3D KML_OPCODE_GET_FILEID;
-         struct rec_info rec;
--        char *buffer, *path, *logrecord, record[4096]; /*include path*/
-+        char *buffer, *path, *logrecord, *record; /*include path*/
-         struct dentry *root;
-         __u32 uid, gid, pathlen;
-         int error, size;
-         struct kml_suffix *suffix;
-+        size_t record_size;=20
-=20
-         ENTRY;
-=20
-@@ -1609,9 +1626,13 @@
-                 size_round(le32_to_cpu(pathlen)) +
-                 sizeof(struct kml_suffix);
-=20
-+        record_size =3D max(4096, size);=20
-+        error =3D -ENOMEM;=20
-+        PRESTO_ALLOC(record, record_size);=20
-+        if (!record)=20
-+                goto free_buffer;=20
-+
-         CDEBUG(D_FILE, "kml size: %d\n", size);
--        if ( size > sizeof(record) )
--                CERROR("InterMezzo: BUFFER OVERFLOW in %s!\n", __FUNCTION_=
-_);
-=20
-         memset(&rec, 0, sizeof(rec));
-         rec.is_kml =3D 1;
-@@ -1632,6 +1653,9 @@
-                                    size_round(le32_to_cpu(pathlen)), path,
-                                    fset->fset_name);
-=20
-+        PRESTO_FREE(record, record_size);=20
-+
-+ free_buffer:=20
-         BUFF_FREE(buffer);
-         EXIT;
-         return error;
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
-http://www.livejournal.com/~mulix/
+The main system drive is an IBM DeathStar 75GXP 60G wired up to the Promise
+PCI card.
 
 
---5UQzRzi9WojKXOfC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 0  0  82056   4416  52108 163596    0    0     0     0  230   293 11 14 75  0
+ 0  0  82056   4424  52108 163596    0    0     0     0  211   267 11 11 78  0
+ 0  0  82056   4416  52108 163596    0    0     0     0  313   303 27  8 65  0
+ 0  0  82056   4400  52124 163596    0    0     0    44  253   296 20 11 69  0
+ 1  0  82056   4416  52108 163612    0    0   128     0  235   275 16  7 77  0
+ 0  0  82056   4400  52108 163612    0    0     0     0  280   293 22 11 67  0
+ 0  0  82056   4408  52108 163612    0    0     0     0  218   267 12 10 78  0
+ 1  0  82056   4392  52124 163612    0    0     0    44  222   284  8 14 78  0
+ 0  0  82056   4392  52124 163612    0    0     0     0  293   317 23  9 68  0
+ 0  0  82056   4376  52104 163652    0    0   128     0  221   273 15 10 75  0
+ 0  0  82056   4376  52104 163652    0    0     0     0  282   290 25 12 63  0
+ 0  0  82056   4348  52132 163652    0    0     4    56  248   297 20 10 70  0
+ 0  0  82056   4476  52132 163524    0    0     0     0  306   291 20 14 66  0
+ 0  0  82056   4484  52132 163524    0    0     0     0  276   261 25 10 66  0
+ 0  0  82056   4864  52080 163192    0    0     0     0  323   335 26 12 62  0
+ 0  0  82056   4736  52080 163320    0    0   128     0  207   299  8 12 80  0
+ 2  0  82056   4688  52116 163320    0    0     4   210  524   407 32 19 49  0
+ 0  0  82056   4696  52116 163320    0    0     0     0  234   296 12 12 76  0
+ 2  0  82056   4572  52116 163448    0    0   128     0  232   301 19 10 70  0
+ 2  0  82056   4400  52080 163484    0    0   384     0  235   312 59 15 26  0
+ 1  0  82056   4832  52028 163308    0    0     0   189  351   338 30 19 52  0
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 0  0  82056   4824  52028 163308    0    0     0     0  230   276 15 10 75  0
+ 1  0  82056   4824  52028 163308    0    0     0     0  212   278 11 10 78  0
+ 3  0  82056   4828  52028 163308    0    0     0     0  310   294 29 11 60  0
+ 0  0  82056   4372  52068 163624    0    0   326   168  248   308 12 11 76  0
+ 0  0  82056   4472  52116 163296    0    0   104     0  267   373 21 12 67  0
+ 2  1  82056   4364  52156 163152    0    0   404     0  383   433 50 25 24  0
+ 6  0  82056   4476  52344 162428    0    0   440     0  430   497 61 31  8  0
+ 1  1  82056   4468  52432 162252    0   12   352  1047 1748   903 63 34  3  0
+ 3  1  82056   4380  52448 162320    0  128   540   128  337   452 68 26  6  0
+ 1  1  82056   4456  52752 162320    0  120   320   120  372   512 35 21 44  0
+ 3  1  82056   4452  52920 162096    0    4   300     4  380   473 41 23 36  0
+ 0  1  82056   4404  53204 161732    0    0   396  1556  381   453 29 25 45  0
+ 3  0  82056   4356  53492 160876    0    0   328     0  379   482 25 35 40  0
+ 2  1  82056   4412  53668 160352    0    0   292     0  419   524 33 25 42  0
+ 1  1  82056   4420  53868 159744    0    0   232     0  346   413 29 33 38  0
+ 1  3  82056   4408  54196 159256    0    0   312  2636  478   493 22 25 52  0
+ 0  2  82056   4400  54148 159308    0    0   132  1644  451   331 24 11 64  0
+ 1  1  82056   4428  54148 159308    0    0   128   964  414   316 11 15 74  0
+ 3  1  82056   4424  54108 159352    0    0   260   716  373   348 27 12 61  0
+ 1  2  82056   4400  54132 159352    0    0     0  1480  401   331 45 12 43  0
+ 1  2  82056   4392  54068 159416    0    0   128  1452  427   311 12 13 75  0
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 0  1  82056   4388  54068 159416    0    0     0  1060  533   391 25 16 59  0
+ 0  2  82056   4384  54068 159416    0    0     0   820  383   304 11 12 77  0
+ 0  4  82056   4392  54056 159432    0    0   256   632  328   296  8 12 80  0
+ 0  5  82056   4384  54060 159432    0    0     0   644  291   283  6 10 84  0
+ 4  3  82056   4388  54064 159432    0    0     0   604  741 36406 23 20 57  0
+ 5  1  82056   4472  54380 158804    0    0   700    32 1979 27335 58 42  0  0
+ 1  1  82056   4468  54644 158396    0    0   348   324  638   683 46 26 28  0
+ 1  1  82056   4408  54884 157908    0    0   372     0  412   559 26 24 50  0
+ 1  1  82056   4436  55204 157204    0    0   384     0  360   495 21 27 52  0
+ 2  1  82056   4432  55436 156728    0    0   524     0  435   553 32 30 39  0
+ 0  1  82056   4460  55764 155792    0    0   380   884  396   533 21 27 52  0
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+ubb:~$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 5
+model           : 4
+model name      : Pentium MMX
+stepping        : 3
+cpu MHz         : 233.856
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : yes
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 mmx
+bogomips        : 466.94
 
-iD8DBQE++ghPKRs727/VN8sRArQPAKCFkZOyET4ypEaCSgEELK62hQgE3wCglsTd
-oOjpE4wFTJ2FWPM48S6kLlE=
-=OagU
------END PGP SIGNATURE-----
+ubb:~$ lspci
+00:00.0 Host bridge: ALi Corporation M1541 (rev 04)
+00:01.0 PCI bridge: ALi Corporation M1541 PCI to AGP Controller (rev 04)
+00:03.0 Bridge: ALi Corporation M7101 PMU
+00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV]
+(rev c3
+)
+00:09.0 SCSI storage controller: Adaptec AHA-2940/2940W / AIC-7871
+00:0a.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 6c)
+00:0b.0 Unknown mass storage controller: Promise Technology, Inc. 20267
+(rev 02)
+00:0f.0 IDE interface: ALi Corporation M5229 IDE (rev c1)
+01:00.0 VGA compatible controller: Trident Microsystems 3DImage 9750 (rev f3)
 
---5UQzRzi9WojKXOfC--
+ubb:~$ uname -a
+Linux ubb 2.4.20 #3 Sat May 17 22:57:31 CDT 2003 i586 GNU/Linux
+
+ubb:~$ cat /proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  329609216 324751360  4857856        0 52637696 178589696
+Swap: 262168576 84054016 178114560
+MemTotal:       321884 kB
+MemFree:          4744 kB
+MemShared:           0 kB
+Buffers:         51404 kB
+Cached:         159960 kB
+SwapCached:      14444 kB
+Active:          93736 kB
+Inactive:       188572 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       321884 kB
+LowFree:          4744 kB
+SwapTotal:      256024 kB
+SwapFree:       173940 kB
+
+ubb:~$ cat /proc/sys/vm/bdflush
+30      500     0       0       500     3000    60      20      0
+
+ubb:~$ mount
+/dev/hda1 on / type ext3 (rw,errors=remount-ro)
+proc on /proc type proc (rw)
+devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+/dev/hda5 on /var type ext3 (rw,errors=remount-ro)
+/dev/hda6 on /usr type ext3 (rw,errors=remount-ro)
+/dev/hda7 on /home type ext3 (rw,errors=remount-ro)
+
+ubb:~$ hdparm -Tt /dev/hda
+
+/dev/hda:
+ Timing buffer-cache reads:   128 MB in  4.04 seconds = 31.68 MB/sec
+ Timing buffered disk reads:  64 MB in  5.47 seconds = 11.70 MB/sec
+
+
+
+Cheers - Tony 'Nicoya' Mantler :)
+
+
+--
+Tony "Nicoya" Mantler - Renaissance Nerd Extraordinaire - nicoya@apia.dhs.org
+Winnipeg, Manitoba, Canada           --           http://nicoya.feline.pp.se/
+
+

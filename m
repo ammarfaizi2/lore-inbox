@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132531AbRDQDhK>; Mon, 16 Apr 2001 23:37:10 -0400
+	id <S132536AbRDQDnK>; Mon, 16 Apr 2001 23:43:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132534AbRDQDhA>; Mon, 16 Apr 2001 23:37:00 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:6143 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S132531AbRDQDgp>; Mon, 16 Apr 2001 23:36:45 -0400
-Date: Tue, 17 Apr 2001 09:07:40 +0530
-From: Maneesh Soni <smaneesh@in.ibm.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module load/unload race protection?
-Message-ID: <20010417090740.A10775@in.ibm.com>
-Reply-To: smaneesh@in.ibm.com
-In-Reply-To: <200104141026.MAA22602@harpo.it.uu.se>
-Mime-Version: 1.0
+	id <S132535AbRDQDnB>; Mon, 16 Apr 2001 23:43:01 -0400
+Received: from snowbird.megapath.net ([216.200.176.7]:16644 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S132533AbRDQDmv>;
+	Mon, 16 Apr 2001 23:42:51 -0400
+Message-ID: <3ADBBBD7.8741C01E@megapathdsl.net>
+Date: Mon, 16 Apr 2001 20:43:19 -0700
+From: Miles Lane <miles@megapathdsl.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3-ac7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ben Ford <ben@kalifornia.com>
+CC: Randolph Bentson <bentson@grieg.holmsjoen.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get 
+ better audio.
+In-Reply-To: <3ADB922B.4DE1F9A4@megapathdsl.net> <20010416185305.B22650@grieg.holmsjoen.com> <3ADBA2C5.3000002@kalifornia.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200104141026.MAA22602@harpo.it.uu.se>; from mikpe@csd.uu.se on Sat, Apr 14, 2001 at 12:26:40PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 14, 2001 at 12:26:40PM +0200, Mikael Pettersson wrote:
-> Does the kernel's module loader (kernel/module.c, not kmod)
-> protect adequately against concurrent load/load or load/unload
-> requests? The question applies to both 2.2 and 2.4 kernels.
+Ben Ford wrote:
 > 
-> I'm trying to track down a problem where a user using a
-> RedHat 2.2.17-14 SMP kernel managed to trigger a situation where
-> a driver module had been unloaded while still being in use
-> (as in "the kernel has pointers into it", not USE_COUNT != 0).
-> I'm reviewing the driver's internal INC/DEC_USE_COUNT usage,
-> but so far I've not found any obvious errors.
+> Randolph Bentson wrote:
 > 
-> /Mikael
+> >On Mon, Apr 16, 2001 at 05:45:31PM -0700, Miles Lane wrote:
+> >
+> >>There is one major shortcoming of the recordings.
+> >>Usually, only the comments of the presenter(s)
+> >>can be heard.
+> >>
+> >
+> >I've heard of conferences where a wireless audience
+> >microphone was put inside a Nerf ball.  It could
+> >then be tossed to the audience member who wished
+> >to speak.
+> >
+> That sounds more Linux-like  *lol*
 
-There are race conditions while module unloading, present in both 2.2 and 2.4
-kernels. Efforts are being made in handling these races by using
-read-copy-update mechanism (http://lse.sourceforge.net/locking/rclock.html)
-and by using synchronize_kernel() (from Rusty Russell, Keith Owens).
- 
- 
-Regards,
-Maneesh                                                                         
+I can see it now.... Linus, go long!
+D'oh!  He dropped it!  :-)
 
--- 
-Maneesh Soni <smaneesh@in.ibm.com>
-http://lse.sourceforge.net/locking/rclock.html
-IBM Linux Technology Center,
-IBM Software Lab, Bangalore, India
+The sound effects from having folks forget to
+switch off the mic before throwing it could be
+pretty entertaining.
+
+Seriously though, this would probably still be an
+impediment to the sort of stream-of-conciousness
+dialog that we'd like to have.  Sometimes, there
+is a quick series of one or two sentence comments
+from several participants.  With a "mike-in-a-ball"
+your discussion might turn into a sports event.  
+Plus, personally, I am a crappy ball thrower.  
+If many of you have my level of athletic prowess, 
+there'd be a lot of time spent scrambling under 
+tables and chairs.
+
+	Miles

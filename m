@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267278AbTBXRHc>; Mon, 24 Feb 2003 12:07:32 -0500
+	id <S267260AbTBXRKt>; Mon, 24 Feb 2003 12:10:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267281AbTBXRHb>; Mon, 24 Feb 2003 12:07:31 -0500
-Received: from mons.uio.no ([129.240.130.14]:38889 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S267278AbTBXRH2>;
-	Mon, 24 Feb 2003 12:07:28 -0500
+	id <S267264AbTBXRKt>; Mon, 24 Feb 2003 12:10:49 -0500
+Received: from [67.99.70.131] ([67.99.70.131]:59657 "EHLO
+	peter.integraltech.com") by vger.kernel.org with ESMTP
+	id <S267260AbTBXRKs>; Mon, 24 Feb 2003 12:10:48 -0500
+Message-ID: <006801c2dc29$1a80e560$8f00a8c0@integraltech.com>
+From: "Rob Murphy" <rmurphy@integraltech.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.5.62 ioremap fails
+Date: Mon, 24 Feb 2003 12:21:01 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15962.21418.869267.676983@charged.uio.no>
-Date: Mon, 24 Feb 2003 18:17:30 +0100
-To: Oleg Drokin <green@namesys.com>
-Cc: Andrew Morton <akpm@digeo.com>, vs@namesys.com, nikita@namesys.com,
-       jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 iget5_locked port attempt to 2.4 (supposedly fixed NFS version this time)
-In-Reply-To: <20030224200323.A18408@namesys.com>
-References: <20030220175309.A23616@namesys.com>
-	<20030220154924.7171cbd7.akpm@digeo.com>
-	<20030221220341.A9325@namesys.com>
-	<20030221200440.GA23699@delft.aura.cs.cmu.edu>
-	<20030224132145.A7399@namesys.com>
-	<15962.19783.182617.822504@charged.uio.no>
-	<20030224200323.A18408@namesys.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Oleg Drokin <green@namesys.com> writes:
+I have been trying to allocate memory past the end of the kernel in a system
+that has more that 1 Gb of memory and have been unsuccessful.  My current
+machine has an athlon processor and 1.5Gb of memory.
 
-    >> like that keeps turning the clock backward on the server, then
-    >> the NFS client has no chance of recognizing which attribute
-    >> updates are the more recent ones.
+I created a driver with the following code:
 
-     > Ok, I stopped ntpd. Will see what will happen. ;) Aha, it died
-     > already: doread: read: Input/output error
+#define MAXHM 0x8000000 // 128 Mb
+int __init init_module(void)
+{
+    void *kHighMem;
 
-Silly question: Are you perhaps testing using the 'soft' mount option?
+    printk(KERN_ERR"before ioremap\n");
+    kHighMem = ioremap(__pa(high_memory), MAXHM);
+    printk(KERN_ERR"ioremap ret: %x\n",kHighMem);
 
-     > How about that "RPC request reserved 1144 but used 4024" alike
-     > stuff"?
+    return 0;
+}
 
-Sounds like Neil made another accounting error in the server code
-8-). Can you try to check on which type of request it occurs (readdir,
-read, readlink?).
+void __exit leave_mod(void) {
+    iounmap(kHighMem);
+    printk(KERN_ERR"iounmap passed\n");
 
-Cheers,
-  Trond
+    printk(KERN_ERR,"module successfully unloaded.\n");
+}
+
+I add the line append="mem=xx" to lilo.
+If I set "xx" to around 860 or above then ioremap fails.  If I set "xx" to
+860 or less then ioremap is successful.  Has anyone had any experience
+trying to allocate a contiguous memory buffer beyond the end of what the
+kernel manages in a system with over 1Gb of memory?  Any help would be
+appreciated in this matter.
+
+Regards,
+Rob Murphy
+
+

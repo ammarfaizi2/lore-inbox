@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271550AbRHZUVb>; Sun, 26 Aug 2001 16:21:31 -0400
+	id <S271537AbRHZUVV>; Sun, 26 Aug 2001 16:21:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271522AbRHZUVW>; Sun, 26 Aug 2001 16:21:22 -0400
-Received: from curlew.cs.man.ac.uk ([130.88.13.7]:3337 "EHLO
-	curlew.cs.man.ac.uk") by vger.kernel.org with ESMTP
-	id <S271515AbRHZUVR>; Sun, 26 Aug 2001 16:21:17 -0400
-Date: Sun, 26 Aug 2001 21:21:32 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with module esssolo1.o
-Message-ID: <20010826212132.A17491@compsoc.man.ac.uk>
-In-Reply-To: <01082622002001.00938@sharkie>
-Mime-Version: 1.0
+	id <S271522AbRHZUVM>; Sun, 26 Aug 2001 16:21:12 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57872 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271515AbRHZUU6>; Sun, 26 Aug 2001 16:20:58 -0400
+Subject: Re: VCool - cool your Athlon/Duron during idle
+To: 520028810828-0001@t-online.de
+Date: Sun, 26 Aug 2001 21:24:07 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <87pu9i7frm.fsf@psyche.kn-bremen.de> from "Joerg Plate" at Aug 26, 2001 10:00:45 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01082622002001.00938@sharkie>
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: 0898 Dave - Brack Dragon
-X-Toppers: N/A
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15b6Rz-0002hM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 26, 2001 at 10:00:20PM +0200, Marcel Loesberg wrote:
+> Try <http://mpet.freeservers.com/LVCool.html>
+> and <http://mpet.freeservers.com/VC_Theory.html>
 
-> 
-> When I try to compile and install the esssolo1.o module I get the following
-> error after typing "make modules_install".
+That says it all for me
 
-use the ac series of kernels, or enable joystick + gameport support.
+"For example I noticed that with the bus disconnect enabled a captured video
+is full of dropped or garbled lines."
 
-regards
-john
+Streaming video is not really different to most bus mastering IDE. Its
+just pci card initiated memory writes with timing constraints. For some
+reason having my disk do that makes me very nervous
 
-p.s. my esssolo1 seems really broken, often it switches into high-pitched screams,
-or the DMA times out (permanently). The driver seems to try forever, making the module unloadable
-
--- 
-"That's just kitten-eating wrong."
-	- Richard Henderson

@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268742AbTBZNUp>; Wed, 26 Feb 2003 08:20:45 -0500
+	id <S268674AbTBZN3x>; Wed, 26 Feb 2003 08:29:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268743AbTBZNUp>; Wed, 26 Feb 2003 08:20:45 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:11510 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id <S268742AbTBZNUo>; Wed, 26 Feb 2003 08:20:44 -0500
-Date: Wed, 26 Feb 2003 13:32:46 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Jonah Sherman <jsherman@stuy.edu>
-cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] 2.5.63 - NULL pointer dereference in loop device
-In-Reply-To: <20030225193817.GA2157@j0nah.ath.cx>
-Message-ID: <Pine.LNX.4.44.0302261322210.1614-100000@localhost.localdomain>
+	id <S268743AbTBZN3x>; Wed, 26 Feb 2003 08:29:53 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:65254 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S268674AbTBZN3w> convert rfc822-to-8bit; Wed, 26 Feb 2003 08:29:52 -0500
+Cc: miquels@cistron-office.nl (Miquel van Smoorenburg),
+       linux-kernel@vger.kernel.org
+References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk>
+	<b3i4nv$sud$1@news.cistron.nl> <87u1er71d0.fsf@goat.bogus.local>
+	<yw1xwujn2t0v.fsf@manganonaujakasit.e.kth.se>
+	<87el5v6xvj.fsf@goat.bogus.local>
+	<yw1xn0kjdxv4.fsf@manganonaujakasit.e.kth.se>
+From: Olaf Dietsche <olaf.dietsche@t-online.de>
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: About /etc/mtab and /proc/mounts
+Date: Wed, 26 Feb 2003 14:39:31 +0100
+In-Reply-To: <yw1xn0kjdxv4.fsf@manganonaujakasit.e.kth.se> (mru@users.sourceforge.net's
+ message of "26 Feb 2003 13:34:23 +0100")
+Message-ID: <8765r76u0c.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Military
+ Intelligence, i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Feb 2003, Jonah Sherman wrote:
-> On Tue, Feb 25, 2003 at 09:15:56PM +0000, Hugh Dickins wrote:
-> > If you "losetup /dev/loop0 /dev/hdN", then it's LO_FLAGS_BH_REMAP
-> > and doesn't even call bio_copy: it doesn't copy bio or buffers or
-> 
-> It appears this way if you just look at none_status, but you didn't look
-> at loop_init_xfer().  Notice that it doesn't call xfer->init unless
-> type != 0, so that flag is infact never set.
+mru@users.sourceforge.net (Måns Rullgård) writes:
 
-Hah!  Indeed, thank you for setting me straight.
+> Olaf Dietsche <olaf.dietsche@t-online.de> writes:
+>
+>> The 'user' option is in /etc/fstab, so this is not a problem. I can
+>> mount _and_ umount /cdrom as a simple user.
+>
+> It's strange if you can.  My mount (fairly recent) looks in fstab to
+> determine whether a user should be allowed to mount a device.
+> However, when unmounting it checks /etc/mtab to make sure it was you
+> who mounted it in the first place, making it impossible to unmount
+> someone else's cdrom.  If you use the 'users' (note the 's') option
+> instead any user can mount or unmount the device at any time, mtab
+> being ignored.
 
-> > Can you shed more light on how to reproduce this?
-> 
-> The block dev it is being used on must be larger than your RAM.  I don't
-> have any swap on this machine, so I don't know if it must be bigger than
-> that too.  Maybe disabling swap before testing this oops will make it
-> work?
+I just verified it. I and anybody else can mount and umount /cdrom. If
+I mounted /cdrom, someone else can umount it.
 
-Yes, I'd tried block dev larger than RAM, with and without swap:
-no luck.  Perhaps my disks somehow keep up with the stuff coming
-down from /dev/zero but yours don't?  (No disgrace!)  But never mind,
-Andrew has a surer way to hit it.
+$ mount -V
+mount: mount-2.11n
 
-> In any case, the patch sent by Andrew Morton fixed this bug.
+$ grep user /etc/fstab
+/dev/hdb/0 /cdrom iso9660 defaults,ro,unhide,user,noauto,noexec,nosuid 0 2
 
-Andrew's patch for this is a thing of great beauty, a shining beacon
-to inspire all whose eyes are graced by it.  But I'd still have liked
-to understand why it's needed in your case not mine: it's a bit
-embarrassing for me to claim I have patches for various loopmem
-hangs, yet be unable to reproduce this.
+$ ls -l /etc/mtab 
+lrwxrwxrwx    1 root     root           12 2002-09-22 02:58 /etc/mtab -> /proc/mounts
 
-Hugh
+When /etc/mtab is a regular file, it works as you described.
 
+Regards, Olaf.

@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264211AbUDVQG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264193AbUDVQE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264211AbUDVQG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 12:06:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264207AbUDVQFh
+	id S264193AbUDVQE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 12:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUDVQE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 12:05:37 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:48273 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S264291AbUDVQCx
+	Thu, 22 Apr 2004 12:04:59 -0400
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:46049 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264207AbUDVQBX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 12:02:53 -0400
-Date: Thu, 22 Apr 2004 16:35:15 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Alexander Hoogerhuis <alexh@boxed.no>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       cpufreq list <cpufreq@www.linux.org.uk>
-Subject: Re: Speedstep on centrino
-Message-ID: <20040422143515.GA21208@dominikbrodowski.de>
-Mail-Followup-To: Jeremy Fitzhardinge <jeremy@goop.org>,
-	Alexander Hoogerhuis <alexh@boxed.no>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	cpufreq list <cpufreq@www.linux.org.uk>
-References: <87n05aoxpa.fsf@dorker.boxed.no> <1082629118.5672.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Content-Disposition: inline
-In-Reply-To: <1082629118.5672.15.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+	Thu, 22 Apr 2004 12:01:23 -0400
+Date: Thu, 22 Apr 2004 18:01:21 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Kim Holviala <kim@holviala.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] psmouse: fix mouse hotplugging 
+In-Reply-To: <200404221546.i3MFka6w004059@eeyore.valparaiso.cl>
+Message-ID: <Pine.LNX.4.55.0404221754470.16448@jurand.ds.pg.gda.pl>
+References: <200404221546.i3MFka6w004059@eeyore.valparaiso.cl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 22 Apr 2004, Horst von Brand wrote:
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > This patch fixes hotplugging of PS/2 devices on hardware which don't
+> > support hotplugging of PS/2 devices. In other words, most desktop
+> machines.
+> 
+> I have seen "hoplugging of mice" fry PS/2 ports, and heard of motherboards
+> killed that way. 
 
-On Thu, Apr 22, 2004 at 08:18:38PM +1000, Jeremy Fitzhardinge wrote:
-> On Sun, 2004-04-18 at 11:56, Alexander Hoogerhuis wrote:
-> > Using SpeedStep for Centrino with decoding the speeds and voltages
-> > (CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI) will not yield any output during
-> > boot regarding cpufreq at all
+ For older systems, a fuse would often blow on these ports, which
+depending on the implementation would require a power cycle or a soldering
+iron.  Then one of those PCxx specs from Microsoft required the PS/2 ports
+to support hot-plugging, so chances are it may pretty safe with recent
+equipment.
 
-This is normal; dmesg is kept clean if no error occurs -- in theory. Maybe
-some errors do not result in printk()s yet, let's see...
-
-> > and the battery useage is heavy. ACPI is enabled.=20
-
-What does /proc/acpi/processor/./performance say, if it exists? and are
-there files and proper values in /sys/devices/system/cpu/cpu0/cpufreq/ ?
-
-	Dominik
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAh9gjZ8MDCHJbN8YRAiUYAJ9z5Wvqh2e2xa+3iwIxGJe+vu3ELwCeOg/z
-ksgZusGnK9Fd2+U4ZNesKMg=
-=6bTW
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

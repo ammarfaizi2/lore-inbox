@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130432AbRCIC7L>; Thu, 8 Mar 2001 21:59:11 -0500
+	id <S129712AbRCIDi6>; Thu, 8 Mar 2001 22:38:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130433AbRCIC7G>; Thu, 8 Mar 2001 21:59:06 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:23087 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S130432AbRCIC6t>; Thu, 8 Mar 2001 21:58:49 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Rob Cermak <cermak@imcs.rutgers.edu>
-cc: linux-kernel@vger.kernel.org, chris.ricker@genetics.utah.edu
-Subject: Re: [PATCH] Documentation/Changes & hunting 
-In-Reply-To: Your message of "Thu, 08 Mar 2001 21:00:25 CDT."
-             <Pine.SOL.4.21.0103082052430.902-100000@imcs.rutgers.edu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 09 Mar 2001 13:58:09 +1100
-Message-ID: <11307.984106689@kao2.melbourne.sgi.com>
+	id <S129730AbRCIDis>; Thu, 8 Mar 2001 22:38:48 -0500
+Received: from chmls20.mediaone.net ([24.147.1.156]:35256 "EHLO
+	chmls20.mediaone.net") by vger.kernel.org with ESMTP
+	id <S129712AbRCIDip>; Thu, 8 Mar 2001 22:38:45 -0500
+Message-ID: <3AA84F7F.27F5C165@mediaone.net>
+Date: Thu, 08 Mar 2001 22:35:27 -0500
+From: Ken Hill <khill2@mediaone.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: compile errors on 2.4.2-ac16
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id OAA28010
 
-On Thu, 8 Mar 2001 21:00:25 -0500 (EST), 
-Rob Cermak <cermak@IMCS.rutgers.edu> wrote:
->Included some info on things needed to compile 2.4.2-ac16.   Feel free to
->further edit and comment.  Patched against -ac16.   [linux = ac16; my
->edited version is ac14].
->+o  flex                   2.5.4                   # flex --version
->+o  bison                  1.28                    # bison --version
->+o  db                     3.1.17 (1)              # strings /lib/libdb.so | grep Sleep | grep DB
->+o  yacc                   (2)
+serial.c: In function `wait_for_xmitr':
+serial.c:5497: `ASYNC_NO_FLOW' undeclared (first use in this function)
+serial.c:5497: (Each undeclared identifier is reported only once
+serial.c:5497: for each function it appears in.)
+serial.c: In function `serial_console_setup':
+serial.c:5666: `ASYNC_NO_FLOW' undeclared (first use in this function)
+make[3]: *** [serial.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/char'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/char'
+make[1]: *** [_subdir_char] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
 
-No.  Building the kernel must not rely on userspace tools like yacc and
-lex and certainly not on db.  The fact that aic7xxx requires these
-tools is a problem for aic7xxx, not for the entire kernel.  We are
-working on fixing aic7xxx to build without the user space tools.
-
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i

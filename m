@@ -1,80 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263459AbVCEAhB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263433AbVCEAg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263459AbVCEAhB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:37:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263456AbVCEALW
+	id S263433AbVCEAg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:36:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263420AbVCEA1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:11:22 -0500
-Received: from mx01.qsc.de ([213.148.129.14]:51658 "EHLO mx01.qsc.de")
-	by vger.kernel.org with ESMTP id S263289AbVCDX2u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 18:28:50 -0500
-Message-ID: <4228EF0B.7030604@exactcode.de>
-Date: Sat, 05 Mar 2005 00:28:11 +0100
-From: Rene Rebe <rene@exactcode.de>
-Organization: ExactCode
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050205)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthias Kindtner <matthias.kindtner@t-online.de>
-CC: sane-devel <sane-devel@lists.alioth.debian.org>,
-       linux-kernel@vger.kernel.org
-Subject: The never ending hpusbscsi storry
-References: <200503050010.04190.matthias.kindtner@t-online.de>
-In-Reply-To: <200503050010.04190.matthias.kindtner@t-online.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 0.0 (/)
+	Fri, 4 Mar 2005 19:27:19 -0500
+Received: from thumbler.kulnet.kuleuven.ac.be ([134.58.240.45]:24508 "EHLO
+	thumbler.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S263399AbVCEAST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 19:18:19 -0500
+From: "Panagiotis Issaris" <panagiotis.issaris@mech.kuleuven.ac.be>
+Date: Sat, 5 Mar 2005 01:18:16 +0100
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Toshiba ACPI failure handling
+Message-ID: <20050305001816.GA4873@mech.kuleuven.ac.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Matthias Kindtner wrote:
+Adds the missing failure handling for a kmalloc in the Toshiba
+ACPI driver.
 
-> scanimage -L
-> scanimage: symbol lookup error: /usr/lib/sane/libsane-avision.so.1: undefined 
-> symbol: sanei_usb_set_timeout
+Signed-off-by: Panagiotis Issaris <takis@gna.org>
 
-With the latest backed you need to update include/sane/sanei_usb.h and 
-sanei/sanei_usb.c from my SVN repository (will go into SANE CVS in the 
-next day).
-
-> device `avision:/dev/sg0' is a Minolta Dimage Scan Dual II film scanner
-
-Don't ever use hpusbscsi. I though I already told all vedors it is that 
-broken that they should never ever ship it. It is the first thing that 
-will be removed in Linux 2.7.
-
-If it would be me it would be removed from _all kernels right now_ ...
-
-> Mar  4 23:40:51 runningdug scsi: Device offlined - not ready after error 
-> recovery: host 1 channel 0 id 0 lun 0
-> Mar  4 23:40:51 runningdug scsi1 (0:0): rejecting I/O to offline device
-> Mar  4 23:40:51 runningdug scsi1 (0:0): rejecting I/O to offline device
-> Mar  4 23:40:51 runningdug scsi1 (0:0): rejecting I/O to offline device
-> 
-> A simple plug-out plug-in of the usb solve the problem and I can start once
-> again
-
-... hpusbscsi as it lifes ...
-
-> I hope there are all messages you need in the mail, otherwise I send it to.
-> 
-> You have any Idea for me??
-
-find /lib/modules -name hpusbscsi.*o | xargs rm -fv
-
-(or so - assuming no spaces in filenames ...)
-
-and build the backend with the updated sanei_usb* files. Or 
-alternatively use a avision backed that is two weeks old (man svn) which 
-does not need the updated sanei functionality.
-
-Yours,
+diff -pruN linux-2.6.11-orig/drivers/acpi/toshiba_acpi.c linux-2.6.11-pi/drivers/acpi/toshiba_acpi.c
+--- linux-2.6.11-orig/drivers/acpi/toshiba_acpi.c	2005-03-05 01:04:40.000000000 +0100
++++ linux-2.6.11-pi/drivers/acpi/toshiba_acpi.c	2005-03-05 01:03:13.000000000 +0100
+@@ -263,6 +263,9 @@ dispatch_write(struct file* file, const 
+ 	 * destination so that sscanf can be used on it safely.
+ 	 */
+ 	tmp_buffer = kmalloc(count + 1, GFP_KERNEL);
++	if(!tmp_buffer)
++		return -ENOMEM;
++
+ 	if (copy_from_user(tmp_buffer, buffer, count)) {
+ 		result = -EFAULT;
+ 	}
 
 -- 
-René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
-             http://www.exactcode.de/ | http://www.t2-project.org/
-             +49 (0)30  255 897 45
-
+  K.U.Leuven, Mechanical Eng.,  Mechatronics & Robotics Research Group
+  http://people.mech.kuleuven.ac.be/~pissaris/

@@ -1,67 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264801AbUEaViY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264809AbUEaWCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264801AbUEaViY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 17:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264804AbUEaViY
+	id S264809AbUEaWCi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 18:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264808AbUEaWCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 17:38:24 -0400
-Received: from S010600a0c9f25a40.vn.shawcable.net ([24.87.160.169]:59598 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id S264801AbUEaViW
+	Mon, 31 May 2004 18:02:37 -0400
+Received: from maximus.kcore.de ([213.133.102.235]:10402 "EHLO
+	maximus.kcore.de") by vger.kernel.org with ESMTP id S264809AbUEaWCd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 17:38:22 -0400
-Date: Mon, 31 May 2004 14:38:21 -0700
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: NFS client behavior on close
-Message-ID: <20040531213820.GA32572@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Mon, 31 May 2004 18:02:33 -0400
+From: Oliver Feiler <kiza@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: "Reliable" faulty SCSI device for testing
+Date: Tue, 1 Jun 2004 00:04:57 +0200
+User-Agent: KMail/1.5
+Cc: linux-scsi@vger.kernel.org
+References: <200405311420.45288.kiza@gmx.net>
+In-Reply-To: <200405311420.45288.kiza@gmx.net>
+X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
+X-PGP-Key: http://kiza.kcore.de/pgpkey
+X-Species: Snow Leopard
+X-Operating-System: Linux
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_Sw6uA1H7qx5spg0";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406010005.07121.kiza@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-'lo,
 
-I have a simple script which downloads pictures from my camera's flash
-card and writes them to the current directory, which is often on an NFS
-mount to a box with available HD space.
+--Boundary-02=_Sw6uA1H7qx5spg0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-I noticed that with files of about this size (~5 MB), there seems to be a
-lot of blocking with "cp" (or "mv"), noted by the LED on the card reader
-being idle between each file.  What seems to be happening is that "cp"
-will open() the source and destination, read and write a bunch of times,
-and then close() the destination and source.  An "strace -r" reveals that
-on the close() of the destination, "cp" blocks for quite a while. 
-Looking at the network, it appears this is happening:
+Ok, I found someone. No more "I'd be interested" mails please. :)
 
-- cp starts copying, data goes to dirty cache (not yet to NFS server)
-- cp closes destination
-- cp blocks while NFS client writes dirty cache to NFS server
-- cp wakes back up when NFS has written all data
-- cp proceeds to the next file
 
-This is quite suboptimal in that while the file is being read from the
-(relatively slow) compact flash reader it has not yet started writing
-over the network, and then between each file it writes all data.
+On Monday 31 May 2004 14:20, Oliver Feiler wrote:
+> Hi,
+>
+> the subject might sound a bit stupid, but I couldn't come up with a better
+> one. I'm not sure if there is a need for such a thing mentioned in this
+> mail. If not, please don't flame me too hard. ;)
+>
+> I have a DVD-RAM drive (Panasonic LF-D101) that has seen the end of its
+> days. The device will stop working anywhere within 15-30 mins of operation
+> and lock up until you power cycle the box. Some device drivers handle this
+> gracefully, some don't like it very much.
+>
+> I don't know how error handling is tested by the developers, I know there
+> are special devices that can simulate various failures, but I guess they
+> could be quite expensive. So my question is if there is anyone who would
+> have a use for this drive? If yes I'd be willing to send it, preferably to
+> some in Germany (Europe, rest of the world).
+>
+> 	Oliver
 
-Is the NFS client required to write all data on close?  If I mount with
-"noac", downloads are actually faster because each block is written
-immediately and there's nothing to unclog on close().  However, with this
-option all other bulk transfers are slower (the network never saturates).
+=2D-=20
+Oliver Feiler  -  http://kiza.kcore.de/
 
-I'm using NFSv3.  Would NFSv4 or another version behave differently here?
+--Boundary-02=_Sw6uA1H7qx5spg0
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-2.6.6 server and client, btw.  Server exported "async", though exported
-with "sync" appears equivalent to the client.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-...
-     0.000073 read(3, "\f\0\322\0z\0\200\0\r\0\n\0"..., 4096) = 800
-     0.000065 write(4, "\f\0\322\0z\0\200\0\r\0\n\0"..., 800) = 800
-     0.000066 read(3, "", 4096)         = 0
-     0.000055 close(4)                  = 0
-     0.906548 close(3)                  = 0
+iD8DBQBAu6wSOpifZVYdT9IRAkMJAKDOhXF1IBJEBTdMk/7Dzo9VpsPTMACg+3E2
+5nF/Hyp2Uo/3L9eQvvKUKi0=
+=vELg
+-----END PGP SIGNATURE-----
 
-Thanks,
+--Boundary-02=_Sw6uA1H7qx5spg0--
 
-Simon-

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282916AbSAASiM>; Tue, 1 Jan 2002 13:38:12 -0500
+	id <S282902AbSAASgM>; Tue, 1 Jan 2002 13:36:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282904AbSAASiC>; Tue, 1 Jan 2002 13:38:02 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:42257 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S282998AbSAASh5>; Tue, 1 Jan 2002 13:37:57 -0500
-Date: Tue, 1 Jan 2002 19:37:48 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ATA RAID-0 FYI-Did the Impossible.
-Message-ID: <20020101193748.A30616@suse.cz>
-In-Reply-To: <Pine.LNX.4.10.10112310558030.4280-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S282904AbSAASgC>; Tue, 1 Jan 2002 13:36:02 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57861 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S282902AbSAASfz>; Tue, 1 Jan 2002 13:35:55 -0500
+Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+To: znmeb@aracnet.com (M. Edward Borasky)
+Date: Tue, 1 Jan 2002 18:46:40 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        harald.holzer@eunet.at (Harald Holzer), linux-kernel@vger.kernel.org
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBMEAHEFAA.znmeb@aracnet.com> from "M. Edward Borasky" at Jan 01, 2002 10:15:59 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10112310558030.4280-100000@master.linux-ide.org>; from andre@linux-ide.org on Mon, Dec 31, 2001 at 06:05:57AM -0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16LTvs-00016I-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 31, 2001 at 06:05:57AM -0800, Andre Hedrick wrote:
+> 1. Shouldn't there be *four* zones: (DMA, low, high and PAE)?
 
-> Writing intelligently...done: 109124 kB/s  51.0 %CPU
-> Reading intelligently...done: 167240 kB/s  97.6 %CPU
+Probably not. PAE isnt special. With PAE you pay the page table penalties
+for all RAM.
 
-> If you want your system to have this kind of performance, that raise hell
-> to get the patches adopted into the main kernel.
+> 2. Isn't the boundary at 2^30 really irrelevant and the three "correct"
+> zones are (0 - 2^24-1), (2^24 - 2^32-1) and (2^32 - 2^36-1)?
 
-Very nice ... but impossible? I don't think so. I'd be quite interested
-in hearing what problem 2.4 has that it doesn't reach the same
-performance as you have shown, though. Or does it?
+Nope. The limit for directly mapped memory is 2^30.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> 3. On a system without ISA DMA devices, can DMA and low be merged into a
+> single zone?
+
+Rarely. PCI vendors are not exactly angels when it comes to implementing all
+32bits of a DMA transfer
+
+

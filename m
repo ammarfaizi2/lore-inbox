@@ -1,82 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272684AbTHPJYz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 05:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272685AbTHPJYz
+	id S272685AbTHPJid (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 05:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272688AbTHPJid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 05:24:55 -0400
-Received: from krynn.se.axis.com ([193.13.178.10]:15824 "EHLO
-	krynn.se.axis.com") by vger.kernel.org with ESMTP id S272684AbTHPJYx
+	Sat, 16 Aug 2003 05:38:33 -0400
+Received: from AMarseille-201-1-3-2.w193-253.abo.wanadoo.fr ([193.253.250.2]:7975
+	"EHLO gaston") by vger.kernel.org with ESMTP id S272685AbTHPJib
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 05:24:53 -0400
-Message-ID: <D069C7355C6E314B85CF36761C40F9A42E20BC@mailse02.se.axis.com>
-From: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
-To: "'Daniel Forrest'" <forrest@lmcg.wisc.edu>
-Cc: "'Timothy Miller'" <miller@techsource.com>,
-       "'Willy Tarreau'" <willy@w.ods.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: RE: generic strncpy - off-by-one error
-Date: Sat, 16 Aug 2003 11:19:30 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	Sat, 16 Aug 2003 05:38:31 -0400
+Subject: Re: [BUG] slab debug vs. L1 alignement
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F3D8D3B.3020708@colorfullife.com>
+References: <3F3D558D.5050803@colorfullife.com>
+	 <1060990883.581.87.camel@gaston>  <3F3D8D3B.3020708@colorfullife.com>
 Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1061026667.881.100.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 16 Aug 2003 11:37:48 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Daniel Forrest [mailto:forrest@lmcg.wisc.edu] 
-> Sent: Saturday, August 16, 2003 10:41
-> To: Peter Kjellerstedt
-> Cc: 'Timothy Miller'; 'Willy Tarreau'; linux-kernel mailing list
-> Subject: Re: generic strncpy - off-by-one error
-> 
-> On Sat, Aug 16, 2003 at 10:15:14AM +0200, Peter Kjellerstedt wrote:
-> > 
-> > Here is the code that I used:
-> > 
-> > char *strncpy(char *dest, const char *src, size_t count)
-> > {
-> > 	char *tmp = dest;
-> > 
-> > 	while (count && *src) {
-> > 		*tmp++ = *src++;
-> > 		count--;
-> > 	}
-> > 
-> > 	if (count) {
-> > 		size_t count2;
-> > 
-> > 		while (count & (sizeof(long) - 1)) {
-> 
-> Shouldn't this be:
-> 
-> 		while (tmp & (sizeof(long) - 1)) {
+> >
+> >Yes, I understand that, but that is wrong for GFP_DMA imho. Also, 
+> >SLAB_MUST_HWCACHE_ALIGN just disables redzoning, which is not smart,
+> >I'd rather allocate more and keep both redzoning and cache alignement,
+> >that would help catch some of those subtle problems when a chip DMA
+> >engine plays funny tricks.
+> >
+> I don't want to upgrade SLAB_HWCACHE_ALIGN to SLAB_MUST_HWCACHE_ALIGN 
+> depending on GFP_DMA: IIRC one arch (ppc64?) marks everything as 
+> GFP_DMA, because all memory is DMA capable.
 
-Actually, it should be:
+Same for ppc32. Anyway, I don't like MUST_HWCACHE_ALIGN because it
+just disables redzoning, I'd rather allocate more and do both redzoning
+and cache alignement.
 
-	while (count && ((long)tmp & (sizeof(long) - 1)))
+In fact, I think cache alignement should be a property of all kmalloc
+calls for any size > L1 cache line size for obvious perfs reasons, and
+redzoning shouldn't change such a property...
 
-> > 			*tmp++ = '\0';
-> > 			count--;
-> > 		}
-> > 
-> > 		count2 = count / sizeof(long);
-> > 		while (count2) {
-> > 			*((long *)tmp)++ = '\0';
-> > 			count2--;
-> > 		}
-> > 
-> > 		count &= (sizeof(long) - 1);
-> > 		while (count) {
-> > 			*tmp++ = '\0';
-> > 			count--;
-> > 		}
-> > 	}
-> > 
-> > 	return dest;
-> > }
+> Which arch do you use? Perhaps alignment could be added for broken archs.
 > 
-> -- 
-> Dan
+> Actually I think you should fix your arch, perhaps by double buffering 
+> in pci_map_ if the input pointers are not aligned. What if someone uses 
+> O_DIRECT with an unaligned pointer?
 
-//Peter
+ppc32 "normally" is cache coherent, that is with high end or desktop CPUs,
+embedded CPUs aren't. Some archs like ARM arent't. But in this case, the
+problem is related to a broken SCSI controller on the motherboard which
+will cause corruption on non-aligned buffers (it basically always issues
+memory write and invalidate cycles).
+
+Anyway, I _still_ think it's stupid to return non-aligned buffers, both
+for performances, and because that prevents from dealing with such cases,
+typically the SCSI layer assumes alignement here among others...
+
+Regarding O_DIRECT with an unaligned pointer, I haven't looked at this
+case yet, I suppose it will be broken in a whole lot of cases.
+
+Ben.
+

@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVCTKxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVCTLOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVCTKxo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 05:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVCTKxo
+	id S262132AbVCTLOh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 06:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVCTLOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 05:53:44 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:21344 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261678AbVCTKxm (ORCPT
+	Sun, 20 Mar 2005 06:14:37 -0500
+Received: from coderock.org ([193.77.147.115]:25739 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262132AbVCTLOd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 05:53:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=YVtjdzMd/bdDEGQ2T4t5DBhsTQc3fMohxR4VLjdAfyg2OE3GFz6T4jeH2YgVpeJg6+b+16N1tQLtbQBEgVOBuGC0EVKTVwE2qohEgkNXTsMIBfGi/BoEOPjK07QHbjFmDBPnWCG/tWTBNzPhYMUIitkgwFo1gPqrcFZXpP8/dnk=
-Message-ID: <aec7e5c3050320025323257b20@mail.gmail.com>
-Date: Sun, 20 Mar 2005 11:53:42 +0100
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: Magnus Damm <magnus.damm@gmail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [PATCH] disable builtin modules
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0503201049190.24849@yvahk01.tjqt.qr>
+	Sun, 20 Mar 2005 06:14:33 -0500
+Date: Sun, 20 Mar 2005 12:14:27 +0100
+From: Domen Puncer <domen@coderock.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, adobriyan@mail.ru
+Subject: Re: [patch 06/10 with proper signed-off] init/do_mounts_initrd.c: fix sparse warning
+Message-ID: <20050320111426.GA14273@nd47.coderock.org>
+References: <20050319131732.75E071F23D@trashy.coderock.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <20050319230648.19238.42743.71351@clementine.local>
-	 <Pine.LNX.4.61.0503201049190.24849@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050319131732.75E071F23D@trashy.coderock.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Mar 2005 10:51:41 +0100 (MET), Jan Engelhardt
-<jengelh@linux01.gwdg.de> wrote:
-> 
-> >This patch makes it possible to disable built in code from the kernel
-> >command line. The patch is rather simple - it extends the compiled-in case
-> >of module_init() to include __setup() with a name based on KBUILD_MODNAME.
-> 
-> What if there is already an option like the modname? I do not know of any
-> code that currently does so, but you never know.
-> 
-> Are acpi= and apm= already what your patch wants to extend to other modules?
-> If not, there's conflict.
 
-There is a conflict. Thanks for pointing that out.
+Signed-off-by: Alexey Dobriyan <adobriyan@mail.ru>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
 
-Both the obsolete __setup() parameter code and the module parameter
-code in kernel/params.c are limited to a single matching parameter.
-The first matching parameter will be used, and non-early obsoleted
-parameters are overridden by module parameter code. If I understand
-the code correctly that is. =)
 
-Maybe it is possible to (mis)use early_param instead of __setup and
-let these parameters become "high priority" parameters that only are
-parsed by do_early_param()...?
+ kj-domen/init/do_mounts_initrd.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-/ magnus
+diff -puN init/do_mounts_initrd.c~sparse-init_do_mounts_initrd init/do_mounts_initrd.c
+--- kj/init/do_mounts_initrd.c~sparse-init_do_mounts_initrd	2005-03-20 12:11:17.000000000 +0100
++++ kj-domen/init/do_mounts_initrd.c	2005-03-20 12:11:17.000000000 +0100
+@@ -41,7 +41,7 @@ static int __init do_linuxrc(void * shel
+ static void __init handle_initrd(void)
+ {
+ 	int error;
+-	int i, pid;
++	int pid;
+ 
+ 	real_root_dev = new_encode_dev(ROOT_DEV);
+ 	create_dev("/dev/root.old", Root_RAM0, NULL);
+@@ -58,7 +58,7 @@ static void __init handle_initrd(void)
+ 
+ 	pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
+ 	if (pid > 0) {
+-		while (pid != sys_wait4(-1, &i, 0, NULL))
++		while (pid != sys_wait4(-1, NULL, 0, NULL))
+ 			yield();
+ 	}
+ 
+_

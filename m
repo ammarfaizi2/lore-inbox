@@ -1,76 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVCAIJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVCAIJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVCAIJF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 03:09:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVCAIJF
+	id S261293AbVCAIJg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 03:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVCAIJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 03:09:05 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:40231 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261286AbVCAII7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 03:08:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=R/uqgfC4AZmPgUMz/EX9QcCPvwgJ2/g8L0zOl+Nw8zsTPPeUBnLghO65dOv+373tA1FN8Vo7OLcEJ6tRRlz60C1tLAvgHlb8MHlvIAJY1vjRM7lmq3R+89+bnA4t+v61YqMGobGBWUNpQEGaoWdfcypAbkV4shWtD/I15mLaVro=
-Message-ID: <3f250c7105030100085ab86bd2@mail.gmail.com>
-Date: Tue, 1 Mar 2005 04:08:15 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH] A new entry for /proc
-Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org, rrebel@whenu.com,
-       marcelo.tosatti@cyclades.com, nickpiggin@yahoo.com.au
-In-Reply-To: <Pine.LNX.4.61.0502282029470.28484@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 1 Mar 2005 03:09:36 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:5731 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261293AbVCAIJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 03:09:25 -0500
+Message-ID: <4224232F.3000600@yahoo.com.au>
+Date: Tue, 01 Mar 2005 19:09:19 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Theurer <habanero@us.ibm.com>
+CC: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/13] timestamp fixes
+References: <42235517.5070504@us.ibm.com> <42235EC6.9030900@us.ibm.com>
+In-Reply-To: <42235EC6.9030900@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20050106202339.4f9ba479.akpm@osdl.org>
-	 <3f250c710502220513179b606a@mail.gmail.com>
-	 <3f250c71050224003110e74704@mail.gmail.com>
-	 <20050224010947.774628f3.akpm@osdl.org>
-	 <3f250c710502240343563c5cb0@mail.gmail.com>
-	 <20050224035255.6b5b5412.akpm@osdl.org>
-	 <3f250c7105022507146b4794f1@mail.gmail.com>
-	 <3f250c71050228014355797bd8@mail.gmail.com>
-	 <3f250c7105022801564a0d0e13@mail.gmail.com>
-	 <Pine.LNX.4.61.0502282029470.28484@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Feb 2005 20:41:31 +0000 (GMT), Hugh Dickins <hugh@veritas.com> wrote:
-> On Mon, 28 Feb 2005, Mauricio Lin wrote:
-> >
-> > Now I am testing with /proc/pid/smaps and the values are showing that
-> > the old one is faster than the new one. So I will keep using the old
-> > smaps version.
+Andrew Theurer wrote:
+> Nick, can you describe the system you run the DB tests on?  Do you have 
+> any cpu idle time stats and hopefully some context switch rate stats?
+
+Yeah, it is dbt3-pgsql on OSDL's 8-way STP machines. I think they're
+PIII Xeons with 2MB L2 cache.
+
+I had been having some difficulty running them recently, but I might
+have just worked out what the problem was, so hopefully I can benchmark
+the patchset I just sent to Andrew (plus fixes from Ingo, etc).
+
+Basically what would happen is that with seemingly small changes, the
+"throughput" figure would go from about 260 tps to under 100. I don't
+know exactly why this benchmark is particularly sensitive to the
+problem, but it has been a good canary for too-much-idle-time
+regressions in the past.
+
+> I think I understand the concern [patch 6] of stealing a task from one 
+> node to an idle cpu in another node, but I wonder if we can have some 
+> sort of check for idle balance: if the domain/node to steal from has 
+> some idle cpu somewhere, we do not steal, period.  To do this we have a 
+> cpu_idle bitmask, we update as cpus go idle/busy, and we reference this 
+> cpu_idle & sd->cpu_mask to see if there's at least one cpu that's idle.
 > 
-> Sorry, I don't have time for more than the briefest look.
+
+I think this could become a scalability problem... and I'd prefer to
+initially try to address problems of too much idle time by tuning them
+out rather than use things like wake-to-idle-cpu.
+
+One of my main problems with wake to idle is that it is explicitly
+introducing a bias so that wakers repel their wakees. With all else
+being equal, we want exactly the opposite effect (hence all the affine
+wakeups and wake balancing stuff).
+
+The regular periodic balancing may be dumb, but at least it doesn't
+have that kind of bias.
+
+The other thing of course is that we want to reduce internode task
+movement at almost all costs, and the periodic balancer can be very
+careful about this - something more difficult for wake_idle unless
+we introduce more complexity there (a very time critical path).
+
+Anyway, I'm not saying no to anything at this stage... let's just see
+how we go.
+
+>> Ingo wrote:
+>>
+>> But i expect fork/clone balancing to be almost certainly a problem. (We
+>> didnt get it right for all workloads in 2.6.7, and i think it cannot be
+>> gotten right currently either, without userspace API help - but i'd be
+>> happy to be proven wrong.)
 > 
-> It appears that your old resident_mem_size method is just checking
-> pte_present, whereas your new smaps_pte_range method is also doing
-> pte_page (yet no prior check for pfn_valid: wrong) and checking
-> !PageReserved i.e. accessing the struct page corresponding to each
-> pte.  So it's not a fair comparison, your new method is accessing
-> many more cachelines than your old method.
 > 
-> Though it's correct to check pfn_valid and !PageReserved to get the
-> same total rss as would be reported elsewhere, I'd suggest that it's
-> really not worth the overhead of those struct page accesses: just
-> stick with the pte_present test.
-So, I can remove the PageReserved macro without no problems, right?
-
-
+> Perhaps initially one could balance on fork up to the domain level which 
+> has task_hot_time=0, up to a shared cache by default.  Anything above 
+> that could require a numactl like preference from userspace.
 > 
-> Your smaps_pte_range is missing pte_unmap?
-Yes, but I already fixed this problem.  Paul Mundt has checked the
-unmap missing.
 
-Thanks,
+That may end up being what we have to do. Probably doesn't make
+much sense to do it at all if we aren't doing it for NUMA.
 
-Let me perform new experiments now.
+Nick
 
-BR,
-
-Mauricio Lin.

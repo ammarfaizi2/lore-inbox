@@ -1,70 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316897AbSHGB4t>; Tue, 6 Aug 2002 21:56:49 -0400
+	id <S317017AbSHGCBE>; Tue, 6 Aug 2002 22:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316898AbSHGB4t>; Tue, 6 Aug 2002 21:56:49 -0400
-Received: from huey.jpl.nasa.gov ([128.149.68.100]:58834 "EHLO
-	huey.jpl.nasa.gov") by vger.kernel.org with ESMTP
-	id <S316897AbSHGB4s>; Tue, 6 Aug 2002 21:56:48 -0400
-Message-ID: <3D507E36.9010109@jpl.nasa.gov>
-Date: Tue, 06 Aug 2002 18:56:06 -0700
-From: Bryan Whitehead <driver@jpl.nasa.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, en
+	id <S317022AbSHGCBE>; Tue, 6 Aug 2002 22:01:04 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:4147 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S317017AbSHGCBC>;
+	Tue, 6 Aug 2002 22:01:02 -0400
+From: <Hell.Surfers@cwctv.net>
+To: niraj_gupta@imedia-tech.com, linux-kernel@vger.kernel.org
+Date: Wed, 7 Aug 2002 03:04:27 +0100
+Subject: RE:need serial tty driver help - implementing a new uart driver
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>, thockin@hockin.org
-Subject: Re: Linux 2.4.20-pre1
-References: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
+X-Mailer: Liberate TVMail 2.6
 Content-Type: multipart/mixed;
- boundary="------------060104070309060302000506"
+ boundary="1028685867072"
+Message-ID: <070c45903020782DTVMAIL10@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060104070309060302000506
-Content-Type: text/plain; charset=us-ascii; format=flowed
+
+--1028685867072
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Marcelo Tosatti wrote:
-> So here goes -pre1, with a big -ac and x86-64 merges, plus other smaller
-> stuff.
-> 
-> 2.4.20 will be a much faster release cycle than 2.4.19 was.
-> 
-> 
+Try looking at the basic serial driver @ linux/drivers/char, or something like that.
 
-This didn't make 2.4.19. Just a spelling error. I tried the maintainer 
-but got no reply...
 
-(yea yea... i just like clean logs... ) :)
 
-;)
+On 	Tue, 6 Aug 2002 18:50:02 -0700 	niraj gupta <niraj_gupta@imedia-tech.com> wrote:
 
--- 
-Bryan Whitehead
-SysAdmin - JPL - Interferometry Systems and Technology
-Phone: 818 354 2903
-driver@jpl.nasa.gov
-
---------------060104070309060302000506
-Content-Type: text/plain;
- name="natsemi.patch"
+--1028685867072
+Content-Type: message/rfc822
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="natsemi.patch"
+Content-Disposition: inline
 
---- linux/drivers/net/natsemi.c.orig	Tue Aug  6 18:50:13 2002
-+++ linux/drivers/net/natsemi.c	Tue Aug  6 18:50:38 2002
-@@ -1685,7 +1685,7 @@
- 			np->tx_config += 2;
- 		if (netif_msg_tx_err(np))
- 			printk(KERN_NOTICE 
--				"%s: increased Tx theshold, txcfg %#08x.\n",
-+				"%s: increased Tx threshold, txcfg %#08x.\n",
- 				dev->name, np->tx_config);
- 		writel(np->tx_config, ioaddr + TxConfig);
- 	}
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Wed, 7 Aug 2002 02:52:30 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S316675AbSHGBq3>; Tue, 6 Aug 2002 21:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S316677AbSHGBq3>; Tue, 6 Aug 2002 21:46:29 -0400
+Received: from oe-mp2pub.managedmail.com ([206.46.164.23]:33973 "EHLO
+	oe-mp2.bizmailsrvcs.net") by vger.kernel.org with ESMTP
+	id <S316675AbSHGBq3>; Tue, 6 Aug 2002 21:46:29 -0400
+Received: from there ([66.14.75.66]) by oe-mp2.bizmailsrvcs.net
+          (InterMail vM.5.01.03.15 201-253-122-118-115-20011108) with SMTP
+          id <20020807015002.FBNL7965.oe-mp2.bizmailsrvcs.net@there>
+          for <linux-kernel@vger.kernel.org>;
+          Tue, 6 Aug 2002 20:50:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: niraj gupta <niraj_gupta@imedia-tech.com>
+Organization: imedia-tech
+To: linux-kernel@vger.kernel.org
+Subject: need serial tty driver help - implementing a new uart driver
+Date: Tue, 6 Aug 2002 18:50:02 -0700
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020807015002.FBNL7965.oe-mp2.bizmailsrvcs.net@there>
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
---------------060104070309060302000506--
+hi
+
+i am working on writing a serial - tty driver for a custom board
+the uart in implemented in a fpga and has two very simple fifo's for rx/tx
+and few bit on status of the fifo, masks for the interrupts. it is a
+simple fixed baud rate bit blaster with three wire interface, i was looking
+to see if there is an existing driver that i can use/modify, or example
+driver to write a new one if need be.
+
+any help is greatly appreciated
+
+TIA
+niraj gupta
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1028685867072--
+
 

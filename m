@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263709AbUGBMEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264206AbUGBMFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263709AbUGBMEl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 08:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUGBMEk
+	id S264206AbUGBMFi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 08:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263975AbUGBMFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 08:04:40 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:49638 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S263725AbUGBMEb convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 08:04:31 -0400
-Subject: Handling Signals in the driver
+	Fri, 2 Jul 2004 08:05:25 -0400
+Received: from mailout06.infosat.net ([66.18.69.6]:30905 "EHLO
+	mail02.infosat.net") by vger.kernel.org with ESMTP id S263664AbUGBMFJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 08:05:09 -0400
+From: "MR.EMEKA EZEM" <emekaa1@galmail.co.za>
+Subject: CONTACT AFRICA
+To: emekaa1@galmail.co.za
+X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
+Date: Fri, 02 Jul 2004 14:03:40 +0200
+Message-ID: <web-357113839@mail01.infosat.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 2 Jul 2004 17:32:19 +0530
-Content-class: urn:content-classes:message
-Message-ID: <4EE0CBA31942E547B99B3D4BFAB348110387AB@mail.esn.co.in>
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Handling Signals in the driver
-Thread-Index: AcRgLGz7WKNutAtySjCYe9aP8H5xAQ==
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-
-Is there any method to send a signal from device driver to a Daemon
-Process? 
-
-Actually I have written a program to generate a daemon process. It was
-working fine. I developed the application to send a signal to my daemon
-to perform some action based on the signal. It was also working fine.
-Now my intention is to send a signal from a device driver to the daemon
-process. Is it possible? 
-
-I am not very sure of how to achieve this. 
-Please help me address this issue. 
-
-Thank in advance,
-
-Srinivas G
+Attn:
+ 
+We have received your completed form, and we are most happy
+to inform you that your payment has been zoned to our
+africa payment centre.I will therefore advice that you
+contact our african payment directors for the release of
+your cheque.
+ 
+Do contact Barr:Frank Ike on tel:234-80-56182868
+Email : africa_sunsweetwin@yahoo.fr
+ 
+Please do note that your cheque has to be notarize in the
+federal high court of justice,so do adhear to the
+instructions and directive from our africa payment director
+for the successful release of your cheque.
+ 
+I wish you all the best,and once again congratulations.
+ 
+Best Regards,
+ 
+Mr.Emeka Ezem.
+FOREIGN SERVICE MANAGER, 
+RAYMOND CROSSROAD, AMSTERDAM.
+ 

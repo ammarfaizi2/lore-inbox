@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264495AbUEOEw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbUEOFDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264495AbUEOEw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 00:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUEOEw7
+	id S262802AbUEOFDg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 01:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264645AbUEOFDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 00:52:59 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:31750 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S264495AbUEOEw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 00:52:57 -0400
-Date: Sat, 15 May 2004 12:52:08 +0800 (WST)
-From: raven@themaw.net
-To: John McCutchan <ttb@tentacle.dhs.org>
-cc: linux-kernel@vger.kernel.org, nautilus-list@gnome.org
-Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
-In-Reply-To: <1084152941.22837.21.camel@vertex>
-Message-ID: <Pine.LNX.4.58.0405151235370.1575@donald.themaw.net>
-References: <1084152941.22837.21.camel@vertex>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.7, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
-	REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
+	Sat, 15 May 2004 01:03:36 -0400
+Received: from mail.telpin.com.ar ([200.43.18.243]:4513 "EHLO
+	mail.telpin.com.ar") by vger.kernel.org with ESMTP id S262802AbUEOFDf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 01:03:35 -0400
+Date: Sat, 15 May 2004 02:02:20 -0300
+From: Alberto Bertogli <albertogli@telpin.com.ar>
+To: Greg KH <greg@kroah.com>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: BUG when removing USB flash drive
+Message-ID: <20040515050205.GA4388@telpin.com.ar>
+Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
+	Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20040514004132.GA10537@telpin.com.ar> <20040514110301.GB29423@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040514110301.GB29423@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 May 2004, John McCutchan wrote:
-
-> Hi,
+On Fri, May 14, 2004 at 04:03:01AM -0700, Greg KH wrote:
+> On Thu, May 13, 2004 at 09:41:32PM -0300, Alberto Bertogli wrote:
+> > 
+> > This is a stock 2.6.6 kernel, on a Pentium 4 with HT (the kernel is
+> > compiled with both SMP and preempt).
 > 
-> I have been working on inotify a dnotify replacement. 
+> Can you test the latest -mm tree and see if it fixes this problem for
+> you?
 
-Help me here a little John I'm a little slow on the uptake.
+Sure. I've just tested -mm2; sorry it took so long but I had a couple of
+other things going on.
 
-> 
-> inotify is a char device that has two ioctls: INOTIFY_WATCH and
-> INOTIFY_IGNORE Which expect an inode number and an inode device number.
-> I know that on some file systems the inode number and inode device
-> number are not guaranteed to be unique. This driver is only meant for
-> file systems that have unique inode numbers. 
-> 
-> The two biggest complaints people have about dnotify are
-> 
-> 1) dnotify delivers events using signals. 
-> 
-> 2) dnotify needs a file to be kept open on the device, causing problems
-> during unmount. 
+Sadly, it locks up hard (no sysrq or anything) after booting, right in the
+login prompt. Sometimes I got as far as typing the username and pressing
+enter, others just frozen without even being able to press a key.
 
-So we are saying we open the device file to do our stuff instead of 
-keeping a file open?
+So I removed the SMT scheduler because I thought it might be related, and
+it didn't even got to boot at all, it seem to freeze somewhere after
+the initial load, but I can't see anything because the screen goes black
+(even after I disabled framebuffer, SMP and preempt just in case).
 
-In kernel functionality could be provided by calling appropriately exported 
-routines?
+I'll see if I can get a working config tomorrow morning so I can get to do
+this tests (and report that lockup too).
 
-This implementation caters read/write notifications only at this stage?
 
-Ian
- 
+Thanks a lot,
+		Alberto
+
 

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289112AbSAGDSC>; Sun, 6 Jan 2002 22:18:02 -0500
+	id <S289101AbSAGDWc>; Sun, 6 Jan 2002 22:22:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289113AbSAGDRp>; Sun, 6 Jan 2002 22:17:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18693 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289101AbSAGDRb>; Sun, 6 Jan 2002 22:17:31 -0500
-Date: Sun, 6 Jan 2002 19:16:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Richard Henderson <rth@twiddle.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Davide Libenzi <davidel@xmailserver.org>, Ingo Molnar <mingo@elte.hu>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <20020106190801.A27356@twiddle.net>
-Message-ID: <Pine.LNX.4.33.0201061908330.5819-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289102AbSAGDWW>; Sun, 6 Jan 2002 22:22:22 -0500
+Received: from are.twiddle.net ([64.81.246.98]:45184 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S289101AbSAGDWJ>;
+	Sun, 6 Jan 2002 22:22:09 -0500
+Date: Sun, 6 Jan 2002 19:22:04 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Anton Blanchard <anton@samba.org>
+Cc: Dave Jones <davej@suse.de>, "David S. Miller" <davem@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: results: Remove 8 bytes from struct page on 64bit archs
+Message-ID: <20020106192204.B27356@twiddle.net>
+Mail-Followup-To: Anton Blanchard <anton@samba.org>,
+	Dave Jones <davej@suse.de>, "David S. Miller" <davem@redhat.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020106.060824.106263786.davem@redhat.com> <Pine.LNX.4.33.0201061542450.3859-100000@Appserv.suse.de> <20020107012555.GA6623@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020107012555.GA6623@krispykreme>; from anton@samba.org on Mon, Jan 07, 2002 at 12:25:55PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 07, 2002 at 12:25:55PM +1100, Anton Blanchard wrote:
+>         li 11,120		; sizeof(struct page)
+[...]
+>         divd 0,0,11
+> 
+> Perhaps the compiler should be optimising this better (can we replace
+> the divide?)
 
-On Sun, 6 Jan 2002, Richard Henderson wrote:
-> On Sun, Jan 06, 2002 at 02:13:32AM +0000, Alan Cox wrote:
-> > ... since an 8bit ffz can be done by lookup table
-> > and that is fast on all processors
->
-> Please still provide the arch hook -- single cycle ffs type
-> instructions are still faster than any memory access.
+The powerpc backend claims to have a fast divide instruction
+(via RTX_COST if you care about such things).  We'll replace
+with shift when dividing by powers of 2, but won't try the
+multiply by a constant inverse trick.
 
-This is probably true even on x86, except in benchmarks (the x86 ffs
-instruction definitely doesn't historically count as "fast", and a table
-lookup will probably win in a benchmark where the table is hot in the
-cache, but you don't have to miss very often to be ok with a few CPU
-cycles..)
 
-(bsfl used to be very slow. That's not as true any more)
-
-		Linus
-
+r~

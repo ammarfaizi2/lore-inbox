@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbUKCK3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbUKCKjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbUKCK3t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 05:29:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbUKCK3t
+	id S261510AbUKCKjp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 05:39:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbUKCKjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 05:29:49 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:50701 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261501AbUKCK3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 05:29:48 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       vlobanov <vlobanov@speakeasy.net>
-Subject: Re: [TRIVIAL PATCH] /init/version.c
-Date: Wed, 3 Nov 2004 12:29:31 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0411022359001.17128@shell2.speakeasy.net> <Pine.LNX.4.53.0411030929140.26206@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0411030929140.26206@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Nov 2004 05:39:45 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:28423 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261510AbUKCKjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 05:39:44 -0500
+Date: Wed, 3 Nov 2004 10:39:27 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org, akpm@osdl.org,
+       davidm@snapgear.com, linux-kernel@vger.kernel.org,
+       uclinux-dev@uclinux.org
+Subject: Re: [PATCH 7/14] FRV: GDB stub dependent additional BUG()'s
+Message-ID: <20041103103927.GA18416@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+	akpm@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org,
+	uclinux-dev@uclinux.org
+References: <20041102093440.GA5841@infradead.org> <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com> <200411011930.iA1JULar023202@warthog.cambridge.redhat.com> <25541.1099411798@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411031229.31412.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <25541.1099411798@redhat.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 November 2004 10:29, Jan Engelhardt wrote:
-> >Hi,
-> >
-> >After looking over the MAINTAINERS file, I have no idea who the right
-> >point of contact / maintainer is for this code. (Or, I simply missed the
-> >right entry while reading, which has been known to happen.) Please advise.
-> 
-> As stated in the MAINTAINERS file at the end, everything else goes to Linus.
+On Tue, Nov 02, 2004 at 04:09:58PM +0000, David Howells wrote:
+> What's the best way to add an invoke_debugger() function without having to
+> change every arch? #ifdef/#endif in kernel/panic.c maybe...
 
-However, I suspect it won't even compile.
+just put it in every arch.  Or even better drop your gdbstub for now
+and integrate it with the common kgdb code in -mm.
 
-See:
-http://lxr.linux.no/source/init/main.c?v=2.6.8.1#L76
-http://lxr.linux.no/source/fs/proc/proc_misc.c?v=2.6.8.1#L253
---
-vda
+Actually I think you should do thata anyway.
+
+> Why? If you've got a debugger attached, it'd seem reasonable to want it to
+> jump into the debugger in these circumstances; after all, your system is
+> probably stuffed after this point.
+
+Because it's not fatal without your debugger, so it shouldn't magically
+get fatal.  If you think this is fatal convience Andrew to add a BUG() here.
 

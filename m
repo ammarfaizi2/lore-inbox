@@ -1,43 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131437AbQKTJyB>; Mon, 20 Nov 2000 04:54:01 -0500
+	id <S131488AbQKTKIs>; Mon, 20 Nov 2000 05:08:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131548AbQKTJxv>; Mon, 20 Nov 2000 04:53:51 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:20041 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131437AbQKTJxl>; Mon, 20 Nov 2000 04:53:41 -0500
-Date: Mon, 20 Nov 2000 09:23:39 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11-pre7: isapnp hang
-Message-ID: <20001120092339.I20970@redhat.com>
-In-Reply-To: <E13xeWC-0003AP-00@the-village.bc.nu> <E13xegT-0003An-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E13xegT-0003An-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Nov 20, 2000 at 12:19:43AM +0000
+	id <S131548AbQKTKIi>; Mon, 20 Nov 2000 05:08:38 -0500
+Received: from wg.redhat.de ([193.103.254.4]:45385 "HELO mail.redhat.de")
+	by vger.kernel.org with SMTP id <S131488AbQKTKIU>;
+	Mon, 20 Nov 2000 05:08:20 -0500
+Date: Mon, 20 Nov 2000 10:38:19 +0100 (CET)
+From: Bernhard Rosenkraenzer <bero@redhat.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Oops in 2.4.0-test11-pre4 (SMP x86)
+Message-ID: <Pine.LNX.4.30.0011201035170.6034-100000@bochum.redhat.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2000 at 12:19:43AM +0000, Alan Cox wrote:
+I just got this on a dual Pentium III-700 system, running
+2.4.0-test11-pre4; no special patches applied except for commenting out
+the printk line generating the tons of "APIC error on CPU0" messages
+generated on Gigabyte P2D boards:
 
-> And a quick read of the code I pasted instead of just pasting
-> suggests instead we should be using the patch below. Question
-> however is who stole port 0x279 which is the normal port to use. It
-> shouldnt be lp since lp is supposed to init after pnp.
+Unexpected IRQ trap at vector 6c
+kernel BUG at smp.c:281
 
-Your patch fixes the problem (of course).  lp is not compiled into the
-kernel (nor is parport), and after boot /proc/ioports shows:
+ksymoops 2.3.4 on i686 2.4.0-test11.  Options used
+     -V (default)
+     -k /proc/ksyms (specified)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.0-test11/ (default)
+     -m /boot/System.map-2.4.0-test11 (specified)
 
-[...]
-01f0-01f7 : ide0
-02e8-02ef : serial(auto)
-[...]
+invalid operand: 0000
+CPU:    1
+EIP:    0010:[<c0177cdd>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010086
+eax: 00000019   ebx: 00000001   ecx: dbff6000   edx: 00000001
+esi: c010b130   edi: dbff6000   ebp: ffffe000   esp: dbff7f64
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=dbff7000)
+Stack: c02090c5 c0209225 00000119 dbff6000 c010b130 c0206d31 dbff6000 dbff6000
+       00000001 c010b130 dbff6000 ffffe000 00000000 c0100018 dbff0018 0000008d
+       c010b15e 00000010 00000246 c010af72 00000002 00000000 00000000 00000000
+Call Trace: [<c02090c5>] [<c0209225>] [<c010b130>] [<c0206d31>] [<c010b130>]
+            [<c0100018>] [<c010b15e>] [<c010af72>] [<c012693f>]
+Code: 0f 0b 83 c4 0c 8d 34 dd 00 00 00 00 8b 86 40 8d 23 c0 39 05
 
-Tim.
-*/
+>>EIP; c0177cdd <shm_put_super+8d/e0>   <=====
+Trace; c02090c5 <stext_lock+5f4d/5f7c>
+Trace; c0209225 <vide+131/13c0>
+Trace; c010b130 <sys_execve+20/60>
+Trace; c0206d31 <stext_lock+3bb9/5f7c>
+Trace; c010b130 <sys_execve+20/60>
+Trace; c0100018 <startup_32+18/cc>
+Trace; c010b15e <sys_execve+4e/60>
+Trace; c010af72 <cpu_idle+12/70>
+Trace; c012693f <printk+14f/1a0>
+Code;  c0177cdd <shm_put_super+8d/e0>
+00000000 <_EIP>:
+Code;  c0177cdd <shm_put_super+8d/e0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0177cdf <shm_put_super+8f/e0>
+   2:   83 c4 0c                  add    $0xc,%esp
+Code;  c0177ce2 <shm_put_super+92/e0>
+   5:   8d 34 dd 00 00 00 00      lea    0x0(,%ebx,8),%esi
+Code;  c0177ce9 <shm_put_super+99/e0>
+   c:   8b 86 40 8d 23 c0         mov    0xc0238d40(%esi),%eax
+Code;  c0177cef <shm_put_super+9f/e0>
+  12:   39 05 00 00 00 00         cmp    %eax,0x0
+
+Kernel panic: Attempted to kill the idle task!
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

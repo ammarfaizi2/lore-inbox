@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311614AbSDCLn6>; Wed, 3 Apr 2002 06:43:58 -0500
+	id <S311618AbSDCLs2>; Wed, 3 Apr 2002 06:48:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311320AbSDCLns>; Wed, 3 Apr 2002 06:43:48 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:52884 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S311211AbSDCLn3>;
-	Wed, 3 Apr 2002 06:43:29 -0500
-Date: Wed, 3 Apr 2002 13:42:41 +0200
-From: Andras Kis-Szabo <kisza@securityaudit.hu>
-To: James Morris <jmorris@intercode.com.au>
-Cc: netfilter-devel@lists.samba.org, Phil <biondi@cartel-securite.fr>,
+	id <S311320AbSDCLsS>; Wed, 3 Apr 2002 06:48:18 -0500
+Received: from ns.suse.de ([213.95.15.193]:5906 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311211AbSDCLsL>;
+	Wed, 3 Apr 2002 06:48:11 -0500
+Date: Wed, 3 Apr 2002 13:48:02 +0200
+From: Mads Martin =?iso-8859-1?Q?J=F8rgensen?= <mmj@suse.de>
+To: john slee <indigoid@higherplane.net>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
         linux-kernel@vger.kernel.org
-Subject: Re: ICMP time exceeded DNAT info leak ? (fwd)
-Message-ID: <20020403134241.A24198@sch.bme.hu>
-In-Reply-To: <Mutt.LNX.4.44.0204031512230.26899-100000@blackbird.intercode.com.au>
+Subject: Re: [OT] who's maintaining util-linux?
+Message-ID: <20020403114802.GF29087@suse.de>
+In-Reply-To: <200204030938.g339cnX16298@Port.imtp.ilyichevsk.odessa.ua> <20020403113459.GB13429@higherplane.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.23i
-X-Organization: SecurityAudit.hu
-X-PGP-Fingerprint: 668B 0727 93F1 BD61 51F1  3971 9EBB 2798 E295 F49F
-X-PGP-KeyID: E295F49F
-X-Operating-System: SunOS 5.8 sun4u sparc SUNW,Ultra-2
-X-PGP-Key-Expire: 01.01.2003.
+X-Message-Flag: Life is too short to use a crappy O/S!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris ....................................... (2002. április 03.)
+* john slee <indigoid@higherplane.net> [Apr 03. 2002 13:37]:
+> > I'm using util-linux and have some problems with them.
+> > The biggest of promlems is that I am unable to contact
+> > maintainers of said utils :-(   Are they maintained?
+> 
+> according to debian/testing's /usr/share/doc/util-linux/copyright:
+> 
+> -----
+> This is the Debian GNU/Linux prepackaged version of util-linux.
+> 
+> This package was put together by Guy Maor <maor@debian.org> and later
+> maintained by Sean 'Shaleh' Perry <shaleh@debian.org>.
+> Current maintainer is Adrian Bunk <bunk@fs.tum.de>.
+> -----
 
- Hi!
+I think this is only the Debian package. 
 
-> iptables -t nat -A PREROUTING -p tcp --dport 666 -j DNAT --to 172.16.3.26:22
- 
-> pbi@exchange1:~$ sudo ./nmap -sS -P0 mymachine -p 22,23,666,667 -t 9
-> Starting nmap V. 2.54BETA32 ( www.insecure.org/nmap/ )
-> Interesting ports on mymachine:
-> Port       State       Service
-> 22/tcp     open        ssh
-> 23/tcp     filtered    telnet
-> 666/tcp    UNfiltered  doom                     DNAT to 192.168.8.10:22
-> 667/tcp    UNfiltered  unknown                  DNAT to 192.168.26.10:22
- 
-You should try this (as a workaround):
-iptables -t nat -A PREROUTING -p tcp --dport 666 -m ttl --ttl-gt 4 -j DNAT --to 172.16.3.26:22
-iptables -t nat -A PREROUTING -m ttl --ttl-lt 5 -j LOG --log-prefix "Evil
-hax0r "
+There is a file in the util-linux tar-ball called MAINTAINER and it
+says:
 
-(So it is not hardcoded as in IPFilter ... )
+Maintainer: Andries Brouwer <aeb@cwi.nl>
+Maintainer address: util-linux@math.uio.no
 
-Regards,
-
-	kisza
+Maintainer of getopt: Frodo Looijaard <frodol@dds.nl>
+Maintainer of simpleinit: Richard Gooch <rgooch@atnf.csiro.au>
 
 -- 
-    Andras Kis-Szabo       Security Development, Design and Audit
--------------------------/        Zorp, NetFilter and IPv6
- kisza@SecurityAudit.hu /-----Member of the BUTE-MIS-SEARCHlab---------->
+Mads Martin Jørgensen, http://mmj.dk
+"Why make things difficult, when it is possible to make them cryptic
+ and totally illogic, with just a little bit more effort?"
+                                -- A. P. J.

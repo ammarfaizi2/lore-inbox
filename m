@@ -1,64 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270439AbTHSOMr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 10:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270420AbTHSOKO
+	id S270626AbTHSOeK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 10:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270627AbTHSOeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 10:10:14 -0400
-Received: from codepoet.org ([166.70.99.138]:37251 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S270730AbTHSNgU (ORCPT
+	Tue, 19 Aug 2003 10:34:09 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:11790 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S270626AbTHSOaz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 09:36:20 -0400
-Date: Tue, 19 Aug 2003 07:32:11 -0600
-From: Erik Andersen <andersen@codepoet.org>
+	Tue, 19 Aug 2003 10:30:55 -0400
+Date: Tue, 19 Aug 2003 16:30:51 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, russo.lutions@verizon.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: cache limit
-Message-ID: <20030819133211.GA27047@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Andrew Morton <akpm@osdl.org>, vda@port.imtp.ilyichevsk.odessa.ua,
-	russo.lutions@verizon.net, linux-kernel@vger.kernel.org
-References: <3F41AA15.1020802@verizon.net> <200308190533.h7J5XoL06419@Port.imtp.ilyichevsk.odessa.ua> <20030818232024.20c16d1f.akpm@osdl.org>
+Cc: Flameeyes <daps_mls@libero.it>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: 2.6.0-test3-mm3
+Message-ID: <20030819143051.GA1261@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Flameeyes <daps_mls@libero.it>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, Sam Ravnborg <sam@ravnborg.org>
+References: <20030819013834.1fa487dc.akpm@osdl.org> <1061287775.5995.7.camel@defiant.flameeyes> <20030819032350.55339908.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030818232024.20c16d1f.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+In-Reply-To: <20030819032350.55339908.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Aug 18, 2003 at 11:20:24PM -0700, Andrew Morton wrote:
-> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
-> >
-> > There was a discussion (and patches) in the middle of 2.5 series
-> >  about O_STREAMING open flag which mean "do not aggressively cache
-> >  this file". Targeted at MP3/video playing, copying large files and such.
-> > 
-> >  I don't know whether it actually was merged. If it was,
-> >  your program can use it.
-> 
-> It was not.  Instead we have fadvise.  So it would be appropriate to change
-> applications such as rsync to optionally run
-> 
-> 	posix_fadvise(fd, 0, -1, POSIX_FADV_DONTNEED)
-> 
-> against file descriptors just before closing them, so all the pagecache
-> gets thrown away.  (Well, most of the pagecache - dirty pages won't get
-> dropped - the app must fsync the files by hand first if it wants this)
+On Tue, Aug 19, 2003 at 03:23:50AM -0700, Andrew Morton wrote:
+> > there's a problem with make xconfig:
+The following patch fixes it.
+I will submit to Linus in separate mail.
 
-This is not supported in 2.4.x though, right?
+	Sam
 
-What if I don't want to fill up the pagecache with garbage in the
-first place?  When closing a file descriptor, it is already too
-late -- the one time only giant pile of data has already caused
-the kernel to wastefully flush useful things out of cache...
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+===== scripts/kconfig/Makefile 1.7 vs edited =====
+--- 1.7/scripts/kconfig/Makefile	Sun Aug 17 00:17:57 2003
++++ edited/scripts/kconfig/Makefile	Tue Aug 19 16:27:03 2003
+@@ -65,12 +65,20 @@
+ conf-objs	:= conf.o  libkconfig.so
+ mconf-objs	:= mconf.o libkconfig.so
+ 
+-ifeq ($(MAKECMDGOALS),$(obj)/qconf)
++ifeq ($(MAKECMDGOALS),xconfig)
++	qconf-target := 1
++endif
++ifeq ($(MAKECMDGOALS),gconfig)
++	gconf-target := 1
++endif
++
++
++ifeq ($(qconf-target),1)
+ qconf-cxxobjs	:= qconf.o
+ qconf-objs	:= kconfig_load.o
+ endif
+ 
+-ifeq ($(MAKECMDGOALS),$(obj)/gconf)
++ifeq ($(gconf-target),1)
+ gconf-objs	:= gconf.o kconfig_load.o
+ endif
+ 
+@@ -91,7 +99,7 @@
+ 
+ $(obj)/qconf.o: $(obj)/.tmp_qtcheck
+ 
+-ifeq ($(MAKECMDGOALS),$(obj)/qconf)
++ifeq ($(qconf-target),1)
+ MOC = $(QTDIR)/bin/moc
+ -include $(obj)/.tmp_qtcheck
+ 
+@@ -121,7 +129,7 @@
+ 
+ $(obj)/gconf.o: $(obj)/.tmp_gtkcheck
+ 
+-ifeq ($(MAKECMDGOALS),$(obj)/gconf)
++ifeq ($(gconf-target),1)
+ -include $(obj)/.tmp_gtkcheck
+ 
+ # GTK needs some extra effort, too...

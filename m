@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289383AbSA1Ulq>; Mon, 28 Jan 2002 15:41:46 -0500
+	id <S289957AbSAWSQU>; Wed, 23 Jan 2002 13:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289467AbSA1Ulj>; Mon, 28 Jan 2002 15:41:39 -0500
-Received: from mailhost.teleline.es ([195.235.113.141]:52792 "EHLO
-	tsmtp3.ldap.isp") by vger.kernel.org with ESMTP id <S289398AbSA1Ule>;
-	Mon, 28 Jan 2002 15:41:34 -0500
-From: "Diego Calleja" <grundig@teleline.es>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        "lkml" <linux-kernel@vger.kernel.org>
-Subject: Re: fonts corruption with 3dfx drm module
-Date: lun, 28 ene 2002 20:41:56 +0000
-In-Reply-To: <Pine.LNX.4.44.0201281612030.18070-100000@netfinity.realnet.co.sz>
-X-Mailer: Pyne 0.6.7 (Debian/GNU/Linux)
-Content-Type: text/plain
+	id <S289956AbSAWSQK>; Wed, 23 Jan 2002 13:16:10 -0500
+Received: from svr3.applink.net ([206.50.88.3]:65296 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S289955AbSAWSP5>;
+	Wed, 23 Jan 2002 13:15:57 -0500
+Message-Id: <200201231813.g0NID5r15047@home.ashavan.org.>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Timothy Covell <timothy.covell@ashavan.org>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+Date: Thu, 24 Jan 2002 12:14:50 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Dave Jones <davej@suse.de>, Andreas Jaeger <aj@suse.de>,
+        Martin Peters <mpet@bigfoot.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0201230814310.29728-100000@infcip10.uni-trier.de>
+In-Reply-To: <Pine.LNX.4.40.0201230814310.29728-100000@infcip10.uni-trier.de>
 MIME-Version: 1.0
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, <grundig@teleline.es>
-Message-Id: <20020128204135Z289398-13997+11239@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 ene 2002, 16:12:34, Zwane Mwaikambo wrote:
-> 
-> On Mon, 28 Jan 2002, Zwane Mwaikambo wrote:
-> 
-> > Do you guys have CONFIG_MTRR and/or CONFIG_FB_VESA enabled? Also which 
-> > motherboard chipset?
-I have CONFIG_MTRR enabled. CONFIG_FB_VESA is disabled.
-Moterhboard: MS-5571
-Chipset: SIS 5571 Trinity, Video card voodoo 3 3000 PCI
-> 
-> Forgot to mention, which XFree86 version?
+[snip]
+>
+> 2. power safing is a realy good idea generally !
+[snip]
 
-X 4.1.0 (debian woody release)
 
-Diego Calleja.
+Hey, don't get me wrong.  I'm all for power-saving.  That's
+why I own a Via C3 based system.   The Via C3 works
+great as an NFS server and draws 12 Watts max (avg.
+is 6 watts).   For just email and web browsing, I'd definitely
+recommend it.   I'd also recommend it for a small firewall/router
+system.   However, for A/V apps and heavy compiling, it's
+definitely not the way to go [BeOS C3 can handle one
+A/V app at a time, but not several].
 
-> 
-> Cheers,
-> 	Zwane Mwaikambo
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+If the patch is really the way to go, then we should get it
+put into the main distribution.  But if it is going to hurt
+my performance, then I'd be happy to stick with vanilla
+kapmd (hlt based) power saving.
+
+-- 
+timothy.covell@ashavan.org.

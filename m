@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265134AbSJPQFJ>; Wed, 16 Oct 2002 12:05:09 -0400
+	id <S265132AbSJPQCk>; Wed, 16 Oct 2002 12:02:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265135AbSJPQFJ>; Wed, 16 Oct 2002 12:05:09 -0400
-Received: from packet.digeo.com ([12.110.80.53]:54527 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265134AbSJPQFI>;
-	Wed, 16 Oct 2002 12:05:08 -0400
-Message-ID: <3DAD8F91.FA93860E@digeo.com>
-Date: Wed, 16 Oct 2002 09:10:57 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@fenrus.demon.nl>
-CC: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
-       NPT library mailing list <phil-list@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [patch] mmap-speedup-2.5.42-C3
-References: <Pine.LNX.4.44.0210160751260.2181-100000@home.transmeta.com> <1034783351.4287.2.camel@localhost.localdomain>
+	id <S265145AbSJPQCk>; Wed, 16 Oct 2002 12:02:40 -0400
+Received: from [198.149.18.6] ([198.149.18.6]:11414 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S265132AbSJPQCk>;
+	Wed, 16 Oct 2002 12:02:40 -0400
+Date: Wed, 16 Oct 2002 19:21:43 -0400
+From: Christoph Hellwig <hch@sgi.com>
+To: Miles Bader <miles@gnu.org>
+Cc: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: mapping 36 bit physical addresses into 32 bit virtual
+Message-ID: <20021016192143.B22932@sgi.com>
+Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
+	Miles Bader <miles@gnu.org>, jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20021015165947.50642.qmail@web13801.mail.yahoo.com> <aoi6bb$309$1@cesium.transmeta.com> <20021016072345.GE7844@pegasys.ws> <buo4rbmvlq8.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Oct 2002 16:10:57.0814 (UTC) FILETIME=[9CB97360:01C2752E]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <buo4rbmvlq8.fsf@mcspd15.ucom.lsi.nec.co.jp>; from miles@lsi.nec.co.jp on Wed, Oct 16, 2002 at 05:20:15PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Wed, Oct 16, 2002 at 05:20:15PM +0900, Miles Bader wrote:
+> jw schultz <jw@pegasys.ws> writes:
+> > i distinctly remember the working with the newest R400x in 1993 which
+> > was still 32bit.  I know MIPS went to 64bit sometime not too long
+> > after that (mid 90's?) but by then Alpha and Sparc had beaten them to
+> > the punch.
 > 
-> On Wed, 2002-10-16 at 16:52, Linus Torvalds wrote:
-> \
-> > > i think it should be unrelated to the mmap patch. In any case, Andrew
-> > > added the mmap-speedup patch to 2.5.43-mm1, so we'll hear about this
-> > > pretty soon.
-> >
-> > There's at least one Oops-report on linux-kernel on 2.5.43-mm1, where the
-> > oops traceback was somewhere in munmap().
-> >
-> > Sounds like there are bugs there.
-> 
-> could be the shared pagetable stuff just as well ;(
-> 
+> You're wrong -- the R4000 was absolutely 64-bit, and was released in
+> 1991.  The 64-bit sparc was circa '93, and alpha I dunno, but I think
+> '91-'92.
 
-Yes, Matt had shared pagetables enabled.  That code is not stable yet.
+The 64bit mode of the original r4k was so buggy that you couldn't use
+it in practice..
+

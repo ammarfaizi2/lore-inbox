@@ -1,77 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263526AbUACPRN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 10:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263537AbUACPRN
+	id S263475AbUACPaW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 10:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbUACPaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 10:17:13 -0500
-Received: from gprs214-81.eurotel.cz ([160.218.214.81]:49281 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263526AbUACPRM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 10:17:12 -0500
-Date: Sat, 3 Jan 2004 16:18:21 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Justin Pryzby <justinpryzby@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: 2.5isms
-Message-ID: <20040103151821.GA543@elf.ucw.cz>
-References: <20030703200134.GA18459@andromeda> <20031230213050.GA3301@andromeda>
+	Sat, 3 Jan 2004 10:30:22 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:42762 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263475AbUACPaT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 10:30:19 -0500
+Date: Sat, 3 Jan 2004 16:41:58 +0100
+To: Libor Vanek <libor@conet.cz>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: Syscall table AKA hijacking syscalls
+Message-ID: <20040103154158.GB5531@hh.idb.hist.no>
+References: <3FF56B1C.1040308@conet.cz> <20040102233542.GW28023@krispykreme> <3FF602C9.4080100@conet.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031230213050.GA3301@andromeda>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <3FF602C9.4080100@conet.cz>
 User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> It seems I've found another 2.5ism.  2.6.0, arch/i386/kernel/dmi_scan.c
-> has
+On Sat, Jan 03, 2004 at 12:46:17AM +0100, Libor Vanek wrote:
+> >>I'm writing some project which needs to hijack some syscalls in VFS 
+> >>layer. AFAIK in 2.6 is this "not-wanted" solution (even that there are 
+> >>some very nasty ways of doing it - see 
+> >>http://mail.nl.linux.org/kernelnewbies/2002-12/msg00266.html )
+> >
+> >
+> >And it will fail miserably on many non x86 architectures for
+> >various reasons:
+> >
+> >1. ppc64 and ia64 use function descriptors
+> >2. sparc64 uses a 32bit call out table
+> >
+> >In short its not only an awful hack, its horribly non portable :)
 > 
-> #ifdef CONFIG_SIMNOW
->         /*
->          *      Skip on x86/64 with simnow. Will eventually go away
->          *      If you see this ifdef in 2.6pre mail me !
->          */
->         return -1;
-> #endif
+> But in short you always get some syscall from userspace and have some table 
+> with function vectors assigned to each syscall, don't you?
 > 
-> I don't know whose file this is ..
-> 
-> Also, 2.6.0 still has the previously mentioned problem in
-> include/asm/io.h.
-> 
-> Not subscribed, CC me.
+> So you can have something like 
+> "append_this_function_before_syscall_sys_open" and 
+> "append_this_function_after_syscall_sys_open" which would be platform 
+> independent but will have platform dependent implementation.
 
-This is obsolete x86-64 code... Please apply,
-								Pavel
+Why bother overriding syscalls?
+If you want a different sys_open, just modify/rewrite it.  Then you get a kernel
+that works your way without touching the syscall table (or other implementation of it) 
+at all.
 
---- tmp/linux/arch/i386/kernel/dmi_scan.c	2004-01-03 16:12:43.000000000 +0100
-+++ linux/arch/i386/kernel/dmi_scan.c	2004-01-03 16:12:17.000000000 +0100
-@@ -108,15 +108,7 @@
- 	u8 buf[15];
- 	u32 fp=0xF0000;
- 
--#ifdef CONFIG_SIMNOW
--	/*
-- 	 *	Skip on x86/64 with simnow. Will eventually go away
-- 	 *	If you see this ifdef in 2.6pre mail me !
-- 	 */
--	return -1;
--#endif
-- 	
--	while( fp < 0xFFFFF)
-+	while (fp < 0xFFFFF)
- 	{
- 		isa_memcpy_fromio(buf, fp, 15);
- 		if(memcmp(buf, "_DMI_", 5)==0 && dmi_checksum(buf))
+Of course this sort of rewrite cannot be acitvated/deactivated by loading/unloading
+a module.  But that isn't necessary, use a writeable flag in /proc instead.
 
+i.e.:
+sys_open(...) 
+{
+  if (activated_in_proc) my_sys_open(...); else standard_sys_open(...);
+}
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Helge Hafting

@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135269AbRDLT2w>; Thu, 12 Apr 2001 15:28:52 -0400
+	id <S135272AbRDLT3c>; Thu, 12 Apr 2001 15:29:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135270AbRDLT2m>; Thu, 12 Apr 2001 15:28:42 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:52948 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S135269AbRDLT23>;
-	Thu, 12 Apr 2001 15:28:29 -0400
-Message-Id: <m14neyS-000Od1C@amadeus.home.nl>
-Date: Thu, 12 Apr 2001 12:09:16 +0100 (BST)
-From: arjan@fenrus.demon.nl (Arjan van de Ven)
-To: alessandro.suardi@oracle.com (Alessandro Suardi)
-Subject: Re: 2.4.3-ac3 XIRCOM_CB only working as module
-cc: linux-kernel@vger.kernel.org
-X-Newsgroups: fenrus.linux.kernel
-In-Reply-To: <3ACC6425.CBF6BCC4@oracle.com>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
+	id <S135271AbRDLT3W>; Thu, 12 Apr 2001 15:29:22 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16647 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135270AbRDLT3Q>; Thu, 12 Apr 2001 15:29:16 -0400
+Subject: Re: i2o & Promise SuperTrak100
+To: achan@achan.com (Andrew Chan)
+Date: Thu, 12 Apr 2001 20:30:47 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <005c01c0c37f$0431a840$5a158640@nien.sjc.wayport.net> from "Andrew Chan" at Apr 13, 2001 02:33:04 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14nmnq-0001K7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3ACC6425.CBF6BCC4@oracle.com> you wrote:
-> It looks like the new xircom_cb driver only works as module - if built
->  in kernel there is no sign of eth0 setup.
+> While you are at it, can you bug them for FastTrak (the software RAID thing)
+> support?
 
-I haven't tried this; I'll look into this once I get back to work (eg where
-my cardbus machine is). I would not be surprised if it
-turns out to be of the "yenta_socket is not initialized yet, so the card is
-invisible at pci scan time" type....
+At some point. They seem very keen not to co-operate on the fasttrak so its
+probably best to avoid motherboards that have the fasttrak chipset and tell
+the board vendor why.
 
-Greetings,
-   Arjan van de Ven
+Alan
 

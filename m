@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129381AbRBVBYq>; Wed, 21 Feb 2001 20:24:46 -0500
+	id <S130069AbRBVBZe>; Wed, 21 Feb 2001 20:25:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130503AbRBVBYe>; Wed, 21 Feb 2001 20:24:34 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:54277 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S130284AbRBVBYU>;
-	Wed, 21 Feb 2001 20:24:20 -0500
-Message-ID: <3A9469D8.DB4679DB@innominate.de>
-Date: Thu, 22 Feb 2001 02:22:32 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-In-Reply-To: <20010221220835.A8781@atrey.karlin.mff.cuni.cz> <XFMail.20010221132959.davidel@xmailserver.org> <20010221223238.A17903@atrey.karlin.mff.cuni.cz> <971ejs$139$1@cesium.transmeta.com> <20010221233204.A26671@atrey.karlin.mff.cuni.cz> <3A94435D.59A4D729@transmeta.com> <20010221235008.A27924@atrey.karlin.mff.cuni.cz> <3A94470C.2E54EB58@transmeta.com> <20010222000755.A29061@atrey.karlin.mff.cuni.cz> <3A944C05.FC2B623A@transmeta.com> <3A945081.E6EB78F4@innominate.de> <3A9453E9.4457668C@transmeta.com>
+	id <S129170AbRBVBZZ>; Wed, 21 Feb 2001 20:25:25 -0500
+Received: from [209.102.105.34] ([209.102.105.34]:1550 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S130284AbRBVBYk>;
+	Wed, 21 Feb 2001 20:24:40 -0500
+Date: Wed, 21 Feb 2001 17:24:00 -0800
+From: Tim Wright <timw@splhi.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Scott Long <smlong@teleport.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux OS boilerplate
+Message-ID: <20010221172400.C2118@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Scott Long <smlong@teleport.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <E14UfQ8-00027g-00@the-village.bc.nu> <m1lmr30yvu.fsf@frodo.biederman.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m1lmr30yvu.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Mon, Feb 19, 2001 at 03:07:33AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" wrote:
-> 
-> Daniel Phillips wrote:
-> >
-> > Have you looked at the structure and algorithms I'm using?  I would not
-> > call this a hash table, nor is it a btree.  It's a 'hash-keyed
-> > uniform-depth tree'.  It never needs to be rehashed (though it might be
-> > worthwhile compacting it at some point).  It also never needs to be
-> > rebalanced - it's only two levels deep for up to 50 million files.
-> 
-> I'm curious how you do that.  It seems each level would have to be 64K
-> large in order to do that, with a minimum disk space consumption of 128K
-> for a directory.  That seems extremely painful *except* in the case of
-> hysterically large directories, which tend to be the exception even on
-> filesystems where they occur.
+On Mon, Feb 19, 2001 at 03:07:33AM -0700, Eric W. Biederman wrote:
+> With linux-2.4 able to do a complete PCI bus setup it isn't as bad it used
+> to be, but it's still pretty significant.
+ 
+For an incomplete subset of chipsets. Serverworks doesn't work correctly for
+a start (see the threads relating to having to kill the Serverworks fixup code
+and rely on the BIOS to see all the PCI busses on larger systems). Of course,
+this is due to Serverworks refusal to release documentation (yes, I've heard
+the excuses regarding protection of IP), and it's a worrisome. What else are
+we potentially failing to setup on this chipset ?
 
-Easy, with average dirent reclen of 16 bytes each directory leaf block
-can holds up to 256 entries.  Each index block indexes 512 directory
-blocks and the root indexes 511 index blocks.  Assuming the leaves are
-on average 75% full this gives:
+Tim
 
-	(4096 / 16) * 512 * 511 * .75 = 50,233,344
-
-I practice I'm getting a little more than 90,000 entries indexed by a
-*single* index block (the root) so I'm not just making this up.
-
-> I think I'd rather take the extra complexity and rebalancing cost of a
-> B-tree.
-
-Do you still think so?
-
---
-Daniel
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

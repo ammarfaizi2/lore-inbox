@@ -1,110 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263335AbTJBMBh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 08:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263334AbTJBMBg
+	id S263339AbTJBNOu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 09:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbTJBNOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 08:01:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:469 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263335AbTJBMBe
+	Thu, 2 Oct 2003 09:14:50 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:63751 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263339AbTJBNOs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 08:01:34 -0400
-Date: Thu, 2 Oct 2003 13:01:33 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Zan Lynx <zlynx@acm.org>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.0-test6 crash while reading files in /proc/fs/reiserfs/sda1
-Message-ID: <20031002120133.GC7665@parcelfarce.linux.theplanet.co.uk>
-References: <1064936688.4222.14.camel@localhost.localdomain> <200309302006.32584.vitaly@namesys.com> <1065019441.4226.1.camel@localhost.localdomain> <16251.5348.570797.101912@laputa.namesys.com> <20031001184338.GW7665@parcelfarce.linux.theplanet.co.uk> <16251.63770.622805.143036@laputa.namesys.com> <20031002103550.GB7665@parcelfarce.linux.theplanet.co.uk> <16252.798.375208.261677@laputa.namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16252.798.375208.261677@laputa.namesys.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 2 Oct 2003 09:14:48 -0400
+Message-ID: <3F7C26E0.4040106@aitel.hist.no>
+Date: Thu, 02 Oct 2003 15:23:44 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: davej@codemonkey.org.uk, dri-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: dri hangs the pc (radeon 7000/VE, SiS645DX  AGP)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Linus, please wait with applying the patch below until ACK from Nikita, OK?]
+I tried to get 3D graphichs, enabling the following
+kernel config options:
+CONFIG_AGP, CONFIG_AGP_SIS, CONFIG_DRM, CONFIG_DRM_RADEON
+I'm also using the radeon framebuffer driver and
+X with the appropriate driver.
 
-On Thu, Oct 02, 2003 at 02:51:10PM +0400, Nikita Danilov wrote:
-> viro@parcelfarce.linux.theplanet.co.uk writes:
->  > On Thu, Oct 02, 2003 at 02:08:26PM +0400, Nikita Danilov wrote:
->  > > What about creating fake struct vfsmount for /proc/fs/reiserfs/<devname>
->  > > and attaching it to the super block of /<mountpoint>? After all
->  > > /proc/fs/reiserfs/<devname> is just a view into /<mountpoint>. This will
->  > > automatically guarantee that /<mountpoint> cannot be unmounted while
->  > > files in /proc/fs/reiserfs/<devname> are opened. Will this screw up
->  > > dcache?
->  > 
->  > I don't see what it would buy you - you get to revalidate the pointer to
->  > vfsmount instead of revalidating pointer to superblock, which is not easier.
-> 
-> I thought that opening procfs file would do mntget() that will pin super
-> block of host file system. Wouldn't it?
+Unfortunately, any attempt to use 3D, such as glxgears,
+hangs the machine immediately.  The mouse cursor stops
+and the keyboard is only useful for sysrq+B. (The
+other sysrq keys do nothing.)
 
-That wouldn't help.  Look, the real problem here is that at some point
-you need to decide that filesystem is getting shut down.  Doesn't really
-matter how you do it - until some moment superblock is up and running,
-after it we start shutting the things down.
+Is this an unsupported hw combination, or am I doing something
+wrong?  I use "debian testing" and got opengl running
+on another machine with similiar software but a Intel BX chipset
+and a matrox G550.
 
-Now, you want two places that would get access to superblock (directly or
-not, again, it doesn't matter): mountpoint and file in procfs.  Mountpoint
-is given up by explicit action - umount.  You want that action to trigger
-removal of file in procfs.  I.e. you don't want simple presense of that
-file to pin the thing down.  OTOH, you want IO on that file to hold
-the filesystem until we are done.  Whether we do that in open() or in
-read(), we still have a transition point somewhere.
+Helge Hafting
 
-And that transition is where the trouble is.  The object you want to access
-is superblock.  So no matter what you do, you will need to get hold of it.
-Which brings us back to revalidation of pointers to superblocks...
-
-There *is* an alternative, and it might be worth considering, but it's much
-more intrusive.  We might give these files a separate superblock and have
-them mounted explicitly.  Then we are fine - this superblock would have
-a pointer to vfsmount or reiserfs superblock directly and would pin it
-down as long as it's mounted.  It would look like that:
-
-mount -t reisermeta <pathname of reiserfs mountpoint> <some directory>
-
-and we get these files under <some directory>.  That would avoid all problems
-nicely and it's not hard to implement, but it's definitely more intrusive than
-sget()-based revalidation and it creates a user-visible interface change.
-
-It might be worth doing as an alternative interface (Jeff Garzik had played
-with similar stuff for ext2 metadata/defragmenting/etc., so there's even
-some existing code), but I would rather go for minimally intrusive correct
-fix right now.
+lspci output:
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] SiS645DX Host & 
+Memory & AGP Controller
+00:01.0 PCI bridge: Silicon Integrated Systems [SiS] SiS 530 Virtual 
+PCI-to-PCI bridge (AGP)
+00:02.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 04)
+00:02.1 SMBus: Silicon Integrated Systems [SiS]: Unknown device 0016
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
+00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS] 
+SiS7012 PCI Audio Accelerator (rev a0)
+00:03.0 USB Controller: Silicon Integrated Systems [SiS] SiS7001 USB 
+Controller (rev 0f)
+00:03.1 USB Controller: Silicon Integrated Systems [SiS] SiS7001 USB 
+Controller (rev 0f)
+00:03.2 USB Controller: Silicon Integrated Systems [SiS] SiS7001 USB 
+Controller (rev 0f)
+00:03.3 USB Controller: Silicon Integrated Systems [SiS] SiS7002 USB 2.0
+00:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] 
+(rev 78)
+00:0c.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+RTL-8139/8139C/8139C+ (rev 10)
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV100 QY 
+[Radeon 7000/VE]
 
 
-Speaking of seq_file...  It's not impossible to do if this context is kept
-on stack of ->start()/->next()/->stop()/->show() callers, but I'm not sure
-it buys us enough to be worth doing.
+glxinfo output:
 
+name of display: :0.0
+display: :0  screen: 0
+direct rendering: Yes
+server glx vendor string: SGI
+server glx version string: 1.2
+server glx extensions:
+     GLX_EXT_visual_info, GLX_EXT_visual_rating, GLX_EXT_import_context
+client glx vendor string: SGI
+client glx version string: 1.2
+client glx extensions:
+     GLX_EXT_visual_info, GLX_EXT_visual_rating, GLX_EXT_import_context
+GLX extensions:
+     GLX_EXT_visual_info, GLX_EXT_visual_rating, GLX_EXT_import_context
+OpenGL vendor string: VA Linux Systems, Inc.
+OpenGL renderer string: Mesa DRI Radeon 20010402 AGP 1x x86/MMX
+OpenGL version string: 1.2 Mesa 3.4.2
+OpenGL extensions:
+     GL_ARB_multitexture, GL_ARB_transpose_matrix, GL_EXT_abgr,
+     GL_EXT_blend_func_separate, GL_EXT_clip_volume_hint,
+     GL_EXT_compiled_vertex_array, GL_EXT_histogram, GL_EXT_packed_pixels,
+     GL_EXT_polygon_offset, GL_EXT_rescale_normal, GL_EXT_stencil_wrap,
+     GL_EXT_texture3D, GL_EXT_texture_env_add, GL_EXT_texture_env_combine,
+     GL_EXT_texture_env_dot3, GL_EXT_texture_object, 
+GL_EXT_texture_lod_bias,
+     GL_EXT_vertex_array, GL_MESA_window_pos, GL_MESA_resize_buffers,
+     GL_NV_texgen_reflection, GL_PGI_misc_hints, GL_SGIS_pixel_texture,
+     GL_SGIS_texture_edge_clamp
+glu version: 1.3
+glu extensions:
+     GLU_EXT_nurbs_tessellator, GLU_EXT_object_space_tess
 
-If you are OK with the patch below - please ACK it.  AFAICS it's the minimal
-fix and combined with optimistic sget() patch it should address all objections.
+    visual  x  bf lv rg d st colorbuffer ax dp st accumbuffer  ms  cav
+  id dep cl sp sz l  ci b ro  r  g  b  a bf th cl  r  g  b  a ns b eat
+----------------------------------------------------------------------
+0x23 24 tc  0 24  0 r  y  .  8  8  8  8  0 24  0  0  0  0  0  0 0 None
+0x24 24 tc  0 24  0 r  y  .  8  8  8  8  0 24  8  0  0  0  0  0 0 Slow
+0x25 24 tc  0 24  0 r  y  .  8  8  8  8  0 24  0 16 16 16 16  0 0 Slow
+0x26 24 tc  0 24  0 r  y  .  8  8  8  8  0 24  8 16 16 16 16  0 0 Slow
+0x27 24 dc  0 24  0 r  y  .  8  8  8  8  0 24  0  0  0  0  0  0 0 None
+0x28 24 dc  0 24  0 r  y  .  8  8  8  8  0 24  8  0  0  0  0  0 0 Slow
+0x29 24 dc  0 24  0 r  y  .  8  8  8  8  0 24  0 16 16 16 16  0 0 Slow
+0x2a 24 dc  0 24  0 r  y  .  8  8  8  8  0 24  8 16 16 16 16  0 0 Slow
 
-diff -urN B6-rest/fs/reiserfs/procfs.c B6-current/fs/reiserfs/procfs.c
---- B6-rest/fs/reiserfs/procfs.c	Sat Sep 27 22:04:57 2003
-+++ B6-current/fs/reiserfs/procfs.c	Thu Oct  2 07:57:31 2003
-@@ -478,14 +478,15 @@
- static void *r_next(struct seq_file *m, void *v, loff_t *pos)
- {
- 	++*pos;
-+	if (v)
-+		deactivate_super(v);
- 	return NULL;
- }
- 
- static void r_stop(struct seq_file *m, void *v)
- {
--	struct proc_dir_entry *de = m->private;
--	struct super_block *s = de->data;
--	deactivate_super(s);
-+	if (v)
-+		deactivate_super(v);
- }
- 
- static int r_show(struct seq_file *m, void *v)

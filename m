@@ -1,86 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129541AbQLMXck>; Wed, 13 Dec 2000 18:32:40 -0500
+	id <S129807AbQLMXct>; Wed, 13 Dec 2000 18:32:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129807AbQLMXca>; Wed, 13 Dec 2000 18:32:30 -0500
-Received: from saltlake.cheek.com ([207.202.196.152]:60678 "EHLO
-	saltlake.cheek.com") by vger.kernel.org with ESMTP
-	id <S129541AbQLMXcO>; Wed, 13 Dec 2000 18:32:14 -0500
-Message-ID: <3A37FFC9.19F05305@cheek.com>
-Date: Wed, 13 Dec 2000 15:01:29 -0800
-From: Joseph Cheek <joseph@cheek.com>
-X-Mailer: Mozilla 4.73C-CCK-MCD Caldera Systems OpenLinux [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S131091AbQLMXck>; Wed, 13 Dec 2000 18:32:40 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:38917 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129774AbQLMXc0>;
+	Wed, 13 Dec 2000 18:32:26 -0500
+Date: Thu, 14 Dec 2000 00:01:35 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
 To: linux-kernel@vger.kernel.org
-Subject: test12: eth0 trasmit timed out after one hour uptime
+Cc: mingo@redhat.com
+Subject: [PATCH] VIA82C694X based SMP board...
+Message-ID: <20001214000135.A1181@vana.vc.cvut.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+Hi,
+  after couple of hours of hacking I finally got my VIA82C694X based
+SMP board (Gigabyte GA-6VXD7) to work. I had to add 'udelay(300);'
+after sending startup ipi, before we print something to screen.
 
-after about an hour of uptime [and heavy HD usage] my ethernet just
-died.  couldn't ping a thing.  syslog showed:
+  Without this udelay it died at the beginning of second printk
+(that is, Startup point 1. was printed, there was one empty line at
+the end of screen, but Waiting for send to finish was not visible.
+And cursor was sometime at the beginning of last line, sometime 
+at the end of last line, and sometime invisible :-( ) in couple 
+of spectacular ways - almost always hard lock, but four times it 
+except hardlocking also powered down both CPU fans and did not react 
+even to hard reset (well, it reacted, but BIOS was not able to 
+initialize machine).
 
-Dec 13 14:51:46 sanfrancisco kernel: NETDEV WATCHDOG: eth0: transmit
-timed out
-Dec 13 14:51:46 sanfrancisco kernel: eth0: transmit timed out, tx_status
-00 status e680.
-Dec 13 14:51:46 sanfrancisco kernel:   Flags; bus-master 1, full 1;
-dirty 3306(10) current 3322(10).
-Dec 13 14:51:46 sanfrancisco kernel:   Transmit list 00000000 vs.
-c7c732a0.
-Dec 13 14:51:46 sanfrancisco kernel:   0: @c7c73200  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   1: @c7c73210  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   2: @c7c73220  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   3: @c7c73230  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   4: @c7c73240  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   5: @c7c73250  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   6: @c7c73260  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   7: @c7c73270  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   8: @c7c73280  length 8000002a
-status 8001002a
-Dec 13 14:51:46 sanfrancisco kernel:   9: @c7c73290  length 8000002a
-status 8001002a
-Dec 13 14:51:46 sanfrancisco kernel:   10: @c7c732a0  length 8000004b
-status 0001004b
-Dec 13 14:51:46 sanfrancisco kernel:   11: @c7c732b0  length 8000004b
-status 0001004b
-Dec 13 14:51:46 sanfrancisco kernel:   12: @c7c732c0  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   13: @c7c732d0  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   14: @c7c732e0  length 8000002a
-status 0001002a
-Dec 13 14:51:46 sanfrancisco kernel:   15: @c7c732f0  length 8000002a
-status 0001002a
+  I have no idea whether memory r-m-w cycle killed it, or whether
+PCI outb cycle (vgacon cursor move) killed it, or what-where-why...
+But it must be something in our secondary CPU kernel initialization,
+as if I add some loop into trampoline.S, I must increase delay.
 
-after reboot it works fine again [i'll give it an hour...]  test12-pre8
-and before worked fine.  any ideas?
+  If somebody has access to VIA specs (I asked them, but no answer
+yet) and can confirm this in their errata, or if someone sees something
+like that in Intel PIII errata (Pentium III Coppermine, BIOS says
+CPU ID: 0683, Patch ID: 0010)...
 
---
-thanks!
+  Anyway, without either of two patches below my machine does not
+boot. Is there any reason why we cannot add 'udelay(300);' after
+sending startup IPI, as first patch does? Both patches are for
+2.4.0-test12. I did not tried 2.2.18 yet (should I?).
 
-joe
-
---
-Joseph Cheek, Sr Linux Consultant, Linuxcare | http://www.linuxcare.com/
-Linuxcare.  Support for the Revolution.      | joseph@linuxcare.com
-CTO / Acting PM, Redmond Linux Project       | joseph@redmondlinux.org
-425 990-1072 vox [1074 fax] 206 679-6838 pcs | joseph@cheek.com
+  And another question, is there anybody successfully using
+Gigabyte 6VXD7 board with two CPUs under Linux 2.4.0-test12 (Netware 
+worked without any patch, just FYI) ?
+					Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
 
 
+
+
+Variant #1:
+
+diff -urdN linux/arch/i386/kernel/smpboot.c linux/arch/i386/kernel/smpboot.c
+--- linux/arch/i386/kernel/smpboot.c	Mon Dec  4 01:48:19 2000
++++ linux/arch/i386/kernel/smpboot.c	Wed Dec 13 22:30:47 2000
+@@ -694,9 +694,22 @@
+ 		apic_write_around(APIC_ICR, APIC_DM_STARTUP
+ 					| (start_eip >> 12));
+ 
++		/*
++		 * Petr Vandrovec:
++		 *
++		 * We must not do I/O operations for at least
++		 * 300us... printk does (probably acquiring spinlock
++		 * kills it)... Kills VT82C694X based
++		 * SMP board. At least mine GA-6VXD7.
++		 * 100us is not enough, 200us is enough,
++		 * so I use 300us for additional safety.
++		 */
++
++		udelay(300);
++
+ 		Dprintk("Startup point 1.\n");
+ 
+ 		Dprintk("Waiting for send to finish...\n");
+ 		timeout = 0;
+ 		do {
+ 			Dprintk("+");
+
+
+Variant #2:
+
+--- linux/arch/i386/kernel/smpboot.c	Mon Dec  4 02:48:19 2000
++++ linux/arch/i386/kernel/smpboot.c	Wed Dec 13 23:29:11 2000
+@@ -694,9 +694,19 @@
+ 		apic_write_around(APIC_ICR, APIC_DM_STARTUP
+ 					| (start_eip >> 12));
+ 
++		/*
++		 * Petr Vandrovec:
++		 *
++		 * We must not do I/O operations for at least
++		 * 300 us... printk does (probably acquiring spinlock
++		 * kills it)... Kills VT82C694X based
++		 * SMP board. At least mine GA-6VXD7.
++
+ 		Dprintk("Startup point 1.\n");
+ 
+ 		Dprintk("Waiting for send to finish...\n");
++		 */
++		
+ 		timeout = 0;
+ 		do {
+ 			Dprintk("+");
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

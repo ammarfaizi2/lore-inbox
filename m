@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291878AbSBHWSI>; Fri, 8 Feb 2002 17:18:08 -0500
+	id <S291880AbSBHWVs>; Fri, 8 Feb 2002 17:21:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291880AbSBHWSB>; Fri, 8 Feb 2002 17:18:01 -0500
-Received: from illiter.at ([63.113.167.61]:27357 "EHLO mail.and.org")
-	by vger.kernel.org with ESMTP id <S291878AbSBHWRw>;
-	Fri, 8 Feb 2002 17:17:52 -0500
-To: "Darren Smith" <data@barrysworld.com>
-Cc: "'Aaron Sethman'" <androsyn@ratbox.org>,
-        "'Andrew Morton'" <akpm@zip.com.au>, "'Dan Kegel'" <dank@kegel.com>,
-        "'Vincent Sweeney'" <v.sweeney@barrysworld.com>,
-        <linux-kernel@vger.kernel.org>, <coder-com@undernet.org>,
-        "'Kevin L. Mitchell'" <klmitch@mit.edu>
-Subject: Re: [Coder-Com] Re: PROBLEM: high system usage / poor SMP network performance
-In-Reply-To: <000001c1ada7$5ad5cfb0$5c5a1e3e@wilma>
-From: James Antill <james@and.org>
-Content-Type: text/plain; charset=US-ASCII
-Date: 08 Feb 2002 17:11:38 -0500
-In-Reply-To: <000001c1ada7$5ad5cfb0$5c5a1e3e@wilma>
-Message-ID: <nnn0yjaajp.fsf@code.and.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	id <S291884AbSBHWVi>; Fri, 8 Feb 2002 17:21:38 -0500
+Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:34522 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S291880AbSBHWVc>;
+	Fri, 8 Feb 2002 17:21:32 -0500
+Message-Id: <m16ZJNl-000OVeC@amadeus.home.nl>
+Date: Fri, 8 Feb 2002 22:20:37 +0000 (GMT)
+From: arjan@fenrus.demon.nl
+To: carson@antd.nist.gov (Mark E. Carson)
+Subject: Re: What "module license" applies to public domain code?
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0202081632041.16834-100000@ran.antd.nist.gov>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Darren Smith" <data@barrysworld.com> writes:
+In article <Pine.LNX.4.30.0202081632041.16834-100000@ran.antd.nist.gov> you wrote:
 
-> I mean I added a usleep() before the poll in s_bsd.c for the undernet
-> 2.10.10 code.
-> 
->  timeout = (IRCD_MIN(delay2, delay)) * 1000;
->  + usleep(100000); <- New Line
->  nfds = poll(poll_fds, pfd_count, timeout);
-> 
-> And now we're using 1/8th the cpu! With no noticeable effects.
+> Of course, anyone else would be free to take the code and apply any
+> license whatsoever to it, but my concern is simply what MODULE_LICENSE()
+> line I can legitimately include, if any.
 
- Note that something else you want to do is call poll() with a 0
-timeout first (and if that doesn't return anything call again with the
-timeout), this removes all the wait queue manipulation inside the
-kernel when something is ready (most of the time).
+how about
 
--- 
-# James Antill -- james@and.org
-:0:
-* ^From: .*james@and\.org
-/dev/null
+MODULE_LICENSE("Dual GPL/Public Domain");
+
+this would need adding to the proper headers though

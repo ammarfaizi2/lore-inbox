@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbULTDWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbULTDpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbULTDWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 22:22:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbULTDWI
+	id S261404AbULTDpu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 22:45:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbULTDpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 22:22:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:4816 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261400AbULTDWF (ORCPT
+	Sun, 19 Dec 2004 22:45:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:24024 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261404AbULTDpp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 22:22:05 -0500
-Date: Sun, 19 Dec 2004 22:21:35 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Con Kolivas <kernel@kolivas.org>
-cc: Mikhail Ramendik <mr@ramendik.ru>, Andrew Morton <akpm@digeo.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, lista4@comhem.se,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
-In-Reply-To: <41C640DE.7050002@kolivas.org>
-Message-ID: <Pine.LNX.4.61.0412192220450.4315@chimarrao.boston.redhat.com>
-References: <14514245.1103496059334.JavaMail.tomcat@pne-ps4-sn2>
- <41C6073B.6030204@yahoo.com.au> <20041219155722.01b1bec0.akpm@digeo.com>
- <200412200303.35807.mr@ramendik.ru> <41C640DE.7050002@kolivas.org>
+	Sun, 19 Dec 2004 22:45:45 -0500
+Date: Sun, 19 Dec 2004 19:45:30 -0800
+Message-Id: <200412200345.iBK3jUwP007592@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Christoph Lameter <clameter@sgi.com>
+X-Fcc: ~/Mail/linus
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] back out CPU clock additions to posix-timers
+In-Reply-To: Christoph Lameter's message of  Sunday, 19 December 2004 19:30:01 -0800 <Pine.LNX.4.58.0412191923360.1580@schroedinger.engr.sgi.com>
+X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Dec 2004, Con Kolivas wrote:
+> I am not sure what the point of these is? 
 
-> I still suspect the thrash token patch even with the swap token timeout 
-> at 0. Is it completely disabled at 0 or does it still do something?
+Andrew doesn't want to put the new code in until after 2.6.10 is released.
+He asked me to back out the userspace-visible changes since 2.6.9, so
+2.6.10 will have no additions rather than having something different from
+what we settle on finally.  
 
-It makes it harder to page out pages from the task holding the
-token.  I wonder if kswapd should try to steal the token away
-from the task holding it, so in effect nobody holds the token
-when the system isn't under a heavy swapping load.
 
--- 
-He did not think of himself as a tourist; he was a traveler. The difference is
-partly one of time, he would explain. Where as the tourist generally hurries
-back home at the end of a few weeks or months, the traveler belonging no more
-to one place than to the next, moves slowly, over periods of years, from one
-part of the earth to another. Indeed, he would have found it difficult to tell,
-among the many places he had lived, precisely where it was he had felt most at
-home.  -- Paul Bowles
+Thanks,
+Roland

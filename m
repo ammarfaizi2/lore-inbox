@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263561AbREYFfW>; Fri, 25 May 2001 01:35:22 -0400
+	id <S263541AbREYFnd>; Fri, 25 May 2001 01:43:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263541AbREYFfM>; Fri, 25 May 2001 01:35:12 -0400
-Received: from Xenon.Stanford.EDU ([171.64.66.201]:43495 "EHLO
-	Xenon.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S263572AbREYFfE>; Fri, 25 May 2001 01:35:04 -0400
-Date: Thu, 24 May 2001 22:34:56 -0700
-From: Andy Chou <acc@CS.Stanford.EDU>
-To: linux-kernel@vger.kernel.org
-Cc: mc@CS.Stanford.EDU, su.class.cs99q@nntp.stanford.edu
-Subject: [CHECKER] Web interface to database
-Message-ID: <20010524223456.A2506@Xenon.Stanford.EDU>
-Reply-To: acc@CS.Stanford.EDU
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.1.1i
+	id <S263543AbREYFnX>; Fri, 25 May 2001 01:43:23 -0400
+Received: from server1.cosmoslink.net ([208.179.167.101]:33632 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S263541AbREYFnM>; Fri, 25 May 2001 01:43:12 -0400
+Message-ID: <001d01c0e4dd$8f9cd7e0$53a6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: "Mike Galbraith" <mikeg@wen-online.de>,
+        "Alan Cox" <laughing@shared-source.org>,
+        <linux-kernel@vger.kernel.org>
+Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <Pine.LNX.4.33.0105250703550.568-100000@mikeg.weiden.de>
+Subject: Re: Linux 2.4.4-ac17
+Date: Thu, 24 May 2001 22:42:59 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've made the database of errors found as part of the MC project
-online.  Some of the cool features are:
+Dear Mike ,
 
-- Over 3500 errors (not necessarily unique across versions)
-- Results for 12 checkers, across 18 Linux versions from 1.0 to 2.4.4
-- Keyword search on the file, function, or cause of an error
-- Default sorting of results by severity of bug/ease of diagnosis
-- Sorting results by file, function, and other fields
-- Filter out error reports that also exist in older versions
-- Links to annotated source code for each error
+>
+> This one I tested with memleak.  It wasn't a leak, it was dcache
+> growth.  Under vm stress, it shrank down fine.
+>
 
-The URL:
+It will depends upon lot of thing :-
+1.What is your size of ramfs ,
+2. Are you using any harddisk ,
+3. How many many files are you creating ,
+4. How frequently you are making files .
+5. What are the size of your files ?
 
-http://hands.stanford.edu/linux
+In my case , my ramfs is of 14 MB , using no hard-disk , i am continously
+making and deleting files of 4 K size , my Machine hangs within 5 minutes ,
+by saying no memory left.
 
+Please tell me about your system and what you are doing on it ?
 
-Some disclaimers:
+Thanks ,
 
-1) We're improving the site and updating the database constantly, so it
-might not always be accessible, or it might show incomplete data at times.
+Best Regards,
 
-2) We're looking for feedback on how to improve things.  Please send
-suggestions to mc@cs.stanford.edu.  Also, please email us if you fix any
-of the errors, or can show that they are not errors.
-
-3) Not all checker results are available for all versions.  We load the
-database asynchronously with the bug reports sent to LKML.
-
-4) All queries are logged.  We are doing this so we can analyze what
-errors people are interested in, and also as a precaution in case there
-are any attacks.
-
-5) Queries that return a large number of results will take a while to run.  
-Please be patient, or restrict the scope of queries.
-
-6) See the FAQ link for answers to some other questions.  The
-documentation, including the description of the checkers, is under
-construction.
+Jaswinder.
+--
+These are my opinions not 3Di.
 
 
-Enjoy,
--Andy Chou
+
+> -Mike
+>
 

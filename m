@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262379AbRE0Vbu>; Sun, 27 May 2001 17:31:50 -0400
+	id <S262384AbRE0Vfk>; Sun, 27 May 2001 17:35:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262384AbRE0Vbl>; Sun, 27 May 2001 17:31:41 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:44460 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S262379AbRE0Vbe>; Sun, 27 May 2001 17:31:34 -0400
-Date: Sun, 27 May 2001 14:31:00 -0700 (PDT)
-From: Chris Rankin <rankinc@pacbell.net>
-Subject: Re: Overkeen CDROM disk-change messages
-In-Reply-To: <E1547xO-0002MO-00@the-village.bc.nu>
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200105272131.f4RLV1P09622@wellhouse.underworld>
-MIME-version: 1.0
-X-Mailer: ELM [version 2.5 PL3]
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	id <S262392AbRE0Vfa>; Sun, 27 May 2001 17:35:30 -0400
+Received: from chromium11.wia.com ([207.66.214.139]:37638 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S262384AbRE0VfS>; Sun, 27 May 2001 17:35:18 -0400
+Message-ID: <3B117412.A196A70C@chromium.com>
+Date: Sun, 27 May 2001 14:39:30 -0700
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5-ac1 won't boot with 4GB bigmem option
+In-Reply-To: <E15482F-0002Mz-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> > ... ;-). This was with Linux 2.4.5, dual Pentium III, devfs, < 1GB
-> > memory. There was no CDROM in the drive, but I had kept the CD player
-> > running anyway.
-> 
-> magicdev bug. Not kernel
-> 
+Alan Cox wrote:
 
-What's "magicdev"? I am not running GNOME or KDE. In fact, I wasn't
-even running X at the time but had xmcd putting its display on another
-machine over the local network.
+> >  > mm: critical shortage of bounce buffers.
+> >
+> > Indeed this message has been pestering me in all the recent .4-acx kernels when
+> > the machine is under heavy FS pressure.
+> >
+> > In these kernels I observe a significative (5-10%) performance degradation as
+> > soon as the FS cache fills up all the available memory, at this moment "kswapd"
+>
+> Its there to prove we had a problem
 
-Chris
+granted
+
+> > 2.4.2-acx and early 2.4.3-acx kernles were much better in this respect and a lot
+> > more stable.
+>
+> Hit any 2.4 kernel pre 2.4.5 vanilla [maybe fixed] and you will break bigmem
+> that way.
+
+I've been using many kernels (I upgrade every week or so) and as far as I can
+recollect I started experiencing serious performance problems with the 2.4.4 series.
+I'm double checking my data right now with older kernels.
+
+ - Fabio
+
+

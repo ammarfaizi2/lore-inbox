@@ -1,114 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272838AbRJQI0c>; Wed, 17 Oct 2001 04:26:32 -0400
+	id <S274990AbRJQIbc>; Wed, 17 Oct 2001 04:31:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274990AbRJQI0W>; Wed, 17 Oct 2001 04:26:22 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:29931 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S272838AbRJQI0K>;
-	Wed, 17 Oct 2001 04:26:10 -0400
-Date: Wed, 17 Oct 2001 04:26:42 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Kamil Iskra <kamil@science.uva.nl>
-cc: csmall@users.sourceforge.net, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.12 breaks fuser
-In-Reply-To: <Pine.LNX.4.33.0110170858400.3761-100000@krakow.science.uva.nl>
-Message-ID: <Pine.GSO.4.21.0110170332040.15716-100000@weyl.math.psu.edu>
+	id <S275045AbRJQIbX>; Wed, 17 Oct 2001 04:31:23 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64522 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S274990AbRJQIbH>; Wed, 17 Oct 2001 04:31:07 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: libz, libbz2, ramfs and cramfs
+Date: 17 Oct 2001 01:31:14 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9qjfki$ob5$1@cesium.transmeta.com>
+In-Reply-To: <19978.1003206943@kao2.melbourne.sgi.com> <3BCBE29D.CFEC1F05@alacritech.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Oct 2001, Kamil Iskra wrote:
-
-> I know nothing about kernel internals, so I can't pinpoint the exact
-> change.  However, I debugged fuser with gdb and what I found out is that
-> fuser expects the st_dev field of /proc/pid/fd/* to be 0 for sockets.  In
-> 2.4.12 st_dev is 4, at least for TCP sockets, so fuser fails to match the
-> entries.
+Followup to:  <3BCBE29D.CFEC1F05@alacritech.com>
+By author:    "Matt D. Robinson" <yakker@alacritech.com>
+In newsgroup: linux.dev.kernel
+> > 
+> > The -ac tree is moving to a single copy of zlib, in fs/inflate_fs.  It
+> > is currently used by cramfs and zisofs.  jffs2 in the -ac tree still
+> > uses its own copy of zlib and should be converted.
 > 
-> I don't know if it's fuser that makes invalid assumptions or if it is a
-> kernel bug.  I guess it's for you guys to decide.
+> Any plans to fix this for the Linus tree?  Also, why place this in fs?
+> Shouldn't this be around for PPP along with other things that
+> can use it (like LKCD)?
+> 
 
-fuser.  Hmm...  OK, our options:
+PPP uses a nonstandard deviant of zlib, or *so I've been told*, so
+that one is out.
 
-	a) revert the last change in net/socket.c (go back to use of
-get_empty_inode()).  Which we may have to do, since it's -STABLE and
-while fuser makes an unwarranted assumption, it was not too unreasonable
-to start with.  That would be
+The reason it's in fs is because I wasn't feeling sure that the memory
+management as implemented is adequate for non-fs-related
+applications.  I might change that, though, but I wanted to move
+somewhat slowly.
 
---- S11-pre1/net/socket.c	Sun Sep 30 17:16:28 2001
-+++ S10/net/socket.c	Sun Sep 23 16:12:10 2001
-@@ -440,10 +440,11 @@
- 	struct inode * inode;
- 	struct socket * sock;
- 
--	inode = new_inode(sock_mnt->mnt_sb);
-+	inode = get_empty_inode();
- 	if (!inode)
- 		return NULL;
- 
-+	inode->i_sb = sock_mnt->mnt_sb;
- 	sock = socki_lookup(inode);
- 
- 	inode->i_mode = S_IFSOCK|S_IRWXUGO;
+Memory management in zlib is nontrivial.  If you port the user-space
+zlib the "obvious" way to kernel space, you get memory management that
+is completely unacceptable to a filesystem application -- too easy to
+get random errors due to memory allocation failures.
 
-	b) fix fuser(1).  Notice that it's not hard - all we need is the
-patch below (guaranteed to work correctly on earlier kernels - it simply
-doesn't make assumptions about the value of st_dev used for sockets).
-IMO also worth doing.
+A major problem is that the module name "deflate" is used by PPP,
+despite it being a nonstandard format...
 
---- fuser.c.old	Mon Oct 25 14:00:43 1999
-+++ fuser.c	Wed Oct 17 04:13:56 2001
-@@ -676,6 +676,22 @@
-     return 1;
- }
- 
-+static dev_t net_dev;
-+
-+static void find_net_dev(void)
-+{
-+    int fd = socket(PF_INET, SOCK_DGRAM, 0);
-+    struct stat buf;
-+    if (fd >= 0 && fstat(fd, &buf) == 0) {
-+	net_dev = buf.st_dev;
-+	close(fd);
-+	return;
-+    }
-+    if (fd >= 0)
-+	close(fd);
-+    fprintf(stderr,"can't find sockets' device number");
-+}
-+
- 
- static void usage(void)
- {
-@@ -718,6 +734,7 @@
- 	list_signals();
- 	return 0;
-     }
-+    find_net_dev();
-     while (--argc) {
- 	argv++;
- 	if (**argv == '-')
-@@ -819,8 +836,8 @@
- 		    for (walk = unix_cache; walk; walk = walk->next)
- 			if (walk->fs_dev == st.st_dev && walk->fs_ino ==
- 			  st.st_ino)
--			    enter_item(*argv,flags,sig_number,0,walk->net_ino,
--			      NULL);
-+			    enter_item(*argv,flags,sig_number,net_dev,
-+			      walk->net_ino, NULL);
- 		}
- 	    }
- 	    else {
-@@ -844,7 +861,7 @@
- 		    if ((lcl_port == -1 || walk->lcl_port == lcl_port) &&
- 		      (!rmt_addr || walk->rmt_addr == rmt_addr) &&
- 		      (rmt_port == -1 || walk->rmt_port == rmt_port))
--			enter_item(*argv,flags,sig_number,0,walk->ino,
-+			enter_item(*argv,flags,sig_number,net_dev,walk->ino,
- 			    this_name_space);
- 	    }
- 	}
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

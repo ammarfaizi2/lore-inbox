@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135263AbRD3SXI>; Mon, 30 Apr 2001 14:23:08 -0400
+	id <S135396AbRD3S06>; Mon, 30 Apr 2001 14:26:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135310AbRD3SWx>; Mon, 30 Apr 2001 14:22:53 -0400
-Received: from adsl-80-148-88.rdu.bellsouth.net ([65.80.148.88]:37530 "HELO
-	inspire.localnet.net") by vger.kernel.org with SMTP
-	id <S135263AbRD3SWb>; Mon, 30 Apr 2001 14:22:31 -0400
-Date: Mon, 30 Apr 2001 14:20:15 -0400 (EDT)
-From: "volodya@mindspring.com" <volodya@mindspring.com>
+	id <S135323AbRD3S0s>; Mon, 30 Apr 2001 14:26:48 -0400
+Received: from rhenium.btinternet.com ([194.73.73.93]:33200 "EHLO rhenium")
+	by vger.kernel.org with ESMTP id <S135310AbRD3S0f>;
+	Mon, 30 Apr 2001 14:26:35 -0400
+Date: Mon, 30 Apr 2001 19:36:29 +0000 (GMT)
+From: James Stevenson <mistral@stev.org>
 To: cacook@freedom.net
-cc: mistral@stev.org, linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Common GUI Config for All Users
-In-Reply-To: <20010430180058Z129346-409+1737@vger.kernel.org>
-Message-ID: <Pine.LNX.4.20.0104301417470.30162-100000@inspire.localnet.net>
+In-Reply-To: <200104301908.f3UJ8Ds09687@mrburns.mantissa.net>
+Message-ID: <Pine.LNX.4.21.0104301935350.23195-100000@cyrix.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi
+
+yeah but i did not see those posts
+anyway you can either run X as a nice window
+system adn run gtk or kde on it i prefere gtk for my needs
+because i find kde a bit heavy
 
 On Mon, 30 Apr 2001 cacook@freedom.net wrote:
 
 > This was my point... Mohammad WAS the only one to help and not criticize.
 > 
 > I did not pass along the crap I got from the 'bad attitudes', like Jasper Jans, Mark Hahn, & Paul Dunne.  All grief, no guidance nor respect.  Tough to be a newbie.
-
-grief: no need for that if you can do what you want
-guidance: source, archive, RFC, FAQ, README
-respect: decide what you want to do, do it, be happy
-
-                      Vladimir Dergachev
-
-
 > --
 > C.
 > 
@@ -63,10 +61,10 @@ respect: decide what you want to do, do it, be happy
 > 
 > 
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+-- 
+---------------------------------------------
+Check Out: http://stev.org
+E-Mail: mistral@stev.org
+  7:30pm  up 6 days,  6:18,  4 users,  load average: 0.58, 0.98, 1.11
 

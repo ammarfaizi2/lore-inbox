@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275449AbRJFSTf>; Sat, 6 Oct 2001 14:19:35 -0400
+	id <S275448AbRJFSZF>; Sat, 6 Oct 2001 14:25:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275448AbRJFSTP>; Sat, 6 Oct 2001 14:19:15 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:9359 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S275449AbRJFSTH>; Sat, 6 Oct 2001 14:19:07 -0400
-Date: Sat, 6 Oct 2001 14:19:37 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200110061819.f96IJbg04607@devserv.devel.redhat.com>
-To: paulus@samba.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to get virtual address from dma address
-In-Reply-To: <mailman.1002371041.9232.linux-kernel2news@redhat.com>
-In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain> <d3n136tc48.fsf@lxplus014.cern.ch> <15294.47999.501719.858693@cargo.ozlabs.ibm.com> <20011006.013819.17864926.davem@redhat.com> <mailman.1002371041.9232.linux-kernel2news@redhat.com>
+	id <S275470AbRJFSYq>; Sat, 6 Oct 2001 14:24:46 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:52359 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S275448AbRJFSYi>;
+	Sat, 6 Oct 2001 14:24:38 -0400
+Date: Sat, 6 Oct 2001 14:25:06 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jan Kara <jack@ucw.cz>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Nathan Scott <nathans@wobbly.melbourne.sgi.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Quotactl change
+In-Reply-To: <20011006150731.C30450@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.GSO.4.21.0110061417260.6465-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I can not even count on one hand how many people I've helped
-> > converting, who wanted a bus_to_virt() and when I showed them
-> > how to do it with information the device provided already they
-> > said "oh wow, I never would have thought of that".  That process
-> > won't happen as often with the suggested feature.
 
-> I look at all the hash-table stuff in the usb-ohci driver and I think
-> to myself about all the complexity that is there (and I haven't
-> managed to convince myself yet that it is actually SMP-safe) and all
-> the time wasted doing that stuff, when on probably 95% of the
-> machines that use the usb-ohci driver, the hashing stuff is totally
-> unnecessary.  I am talking about powermacs, which don't have an iommu,
-> and where the reverse mapping is as simple as adding a constant.
 
-That's one kinky driver, no wonder you were traumatized by looking
-at it. I think you must not project the shock and horror of usb-ohci
-onto other drivers. Gerard already defended the Symbios SCSI.
+On Sat, 6 Oct 2001, Jan Kara wrote:
 
-There may be some approaches to deal with the problem. One is
-to leave hash in and clean up the rest. It would probably
-break a number of devices and take a time to straighten out.
-Another possibility is to limit the number of URBs that are
-posted in any given time to the hardware.
+>   Hello,
+> 
+>   I'm sending you a change for quotactl interface which Nathan Scott proposed
+> for XFS. Actually it's his patch with just a few changes from me.
+>   It allows quotactl() to be overidden by a filesystem and so XFS can do it's
+> tricks with quota without patching dquot.c. Sideeffect of this change is a
+> cleanup in quotactl() interface :).
 
-> That was my second argument, which you didn't reply to - that doing
-> the reverse mapping is very simple on some platforms, and so the right
-> place to do reverse mapping is in the platform-aware code, not in the
-> drivers.  On other platforms the reverse mapping is more complex, but
-> the complexity is bounded by the complexity that is already there in
-> drivers like the usb-ohci driver.
+[snip]
 
-No, it's not bounded. Outside implementation has to be much more
-complex to accomodate slightly different requirements of different
-drivers.
+	Umm...  So you've just given to each fs driver a syscall with
+completely unspecified arguments?  I _really_ doubt that it's a good
+idea, especially since each instance will have to copy structures
+to/from userland.
 
-And remember, you can put it in, but cannot pull it out.
+	Please, put switch by the first argument and copy_{to,from}_user()
+into the syscall itself.  Yes, it means more methods, but it helps to avoid
+large PITA couple of years down the road.
 
--- Pete

@@ -1,32 +1,189 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262962AbTCKQfm>; Tue, 11 Mar 2003 11:35:42 -0500
+	id <S262969AbTCKQhO>; Tue, 11 Mar 2003 11:37:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262969AbTCKQfm>; Tue, 11 Mar 2003 11:35:42 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59399 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262962AbTCKQfm>; Tue, 11 Mar 2003 11:35:42 -0500
-Date: Tue, 11 Mar 2003 08:44:26 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrey Panin <pazke@orbita1.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel/rcupdate.c microcleanup
-In-Reply-To: <20030311140249.GB756@pazke>
-Message-ID: <Pine.LNX.4.44.0303110843340.2664-100000@home.transmeta.com>
+	id <S262970AbTCKQhN>; Tue, 11 Mar 2003 11:37:13 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:42113 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262969AbTCKQhJ>; Tue, 11 Mar 2003 11:37:09 -0500
+Date: Tue, 11 Mar 2003 08:46:40 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Mailing Lists <thelittleprince-lists@asteroid-b612.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: drastically low perform. - quad, 4G ram, 2.4.20
+Message-ID: <34910000.1047401199@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0303110707070.21108-100000@mydns2.compustrat.com>
+References: <Pine.LNX.4.44.0303110707070.21108-100000@mydns2.compustrat.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Can you send out the boot log?
 
-On Tue, 11 Mar 2003, Andrey Panin wrote:
+Slow on memory ops, or just disk?
+
+M.
+
+--On Tuesday, March 11, 2003 07:51:50 -0800 Mailing Lists <thelittleprince-lists@asteroid-b612.org> wrote:
+
 > 
-> attached patch (2.5.64) contains small cleanup of RCU code:
->     - move smp_processor_id() outside of irq disabled region in call_rcu();
+> Have a RH 7.3 system , supermicro mobo (SUPER S2QE6 (MBD-S2QE6-U)) with 
+> quad P3 xeon 700s and 4G ram. Under 2.4.20, 
+> system performance is dractically low. However, telling the kernel to only 
+> use 3G of memory (mem= on the boot line) causes system to behave at a 
+> normal performance level for the platform.
+> As a reference, a compile of the db-4.1.25 package under the normal 4G of 
+> ram, took 1hr50m. Under 3G of ram, 4m28s
+> System used to run suse 7 with 2.4.4 with 4G without problems
+> 
+> 2.4.20 kernel config
+> 
+> CONFIG_X86=y
+> CONFIG_UID16=y
+> CONFIG_MODULES=y
+> CONFIG_MODVERSIONS=y
+> CONFIG_KMOD=y
+> CONFIG_MPENTIUMIII=y
+> CONFIG_X86_WP_WORKS_OK=y
+> CONFIG_X86_INVLPG=y
+> CONFIG_X86_CMPXCHG=y
+> CONFIG_X86_XADD=y
+> CONFIG_X86_BSWAP=y
+> CONFIG_X86_POPAD_OK=y
+> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+> CONFIG_X86_L1_CACHE_SHIFT=5
+> CONFIG_X86_HAS_TSC=y
+> CONFIG_X86_GOOD_APIC=y
+> CONFIG_X86_PGE=y
+> CONFIG_X86_USE_PPRO_CHECKSUM=y
+> CONFIG_X86_F00F_WORKS_OK=y
+> CONFIG_X86_MCE=y
+> CONFIG_MICROCODE=y
+> CONFIG_X86_MSR=y
+> CONFIG_X86_CPUID=y
+> CONFIG_HIGHMEM4G=y
+> CONFIG_HIGHMEM=y
+> CONFIG_HIGHIO=y
+> CONFIG_MTRR=y
+> CONFIG_SMP=y
+> CONFIG_X86_TSC=y
+> CONFIG_HAVE_DEC_LOCK=y
+> CONFIG_NET=y
+> CONFIG_X86_IO_APIC=y
+> CONFIG_X86_LOCAL_APIC=y
+> CONFIG_PCI=y
+> CONFIG_PCI_GOANY=y
+> CONFIG_PCI_BIOS=y
+> CONFIG_PCI_DIRECT=y
+> CONFIG_ISA=y
+> CONFIG_PCI_NAMES=y
+> CONFIG_HOTPLUG=y
+> CONFIG_SYSVIPC=y
+> CONFIG_BSD_PROCESS_ACCT=y
+> CONFIG_SYSCTL=y
+> CONFIG_KCORE_ELF=y
+> CONFIG_BINFMT_AOUT=y
+> CONFIG_BINFMT_ELF=y
+> CONFIG_BINFMT_MISC=y
+> CONFIG_BLK_DEV_FD=y
+> CONFIG_BLK_DEV_LOOP=y
+> CONFIG_BLK_DEV_NBD=y
+> CONFIG_BLK_STATS=y
+> CONFIG_PACKET=y
+> CONFIG_PACKET_MMAP=y
+> CONFIG_UNIX=y
+> CONFIG_INET=y
+> CONFIG_IP_MULTICAST=y
+> CONFIG_IDE=y
+> CONFIG_BLK_DEV_IDE=y
+> CONFIG_BLK_DEV_IDEDISK=y
+> CONFIG_IDEDISK_MULTI_MODE=y
+> CONFIG_BLK_DEV_IDECD=y
+> CONFIG_BLK_DEV_IDEPCI=y
+> CONFIG_IDEPCI_SHARE_IRQ=y
+> CONFIG_BLK_DEV_IDEDMA_PCI=y
+> CONFIG_IDEDMA_PCI_AUTO=y
+> CONFIG_BLK_DEV_IDEDMA=y
+> CONFIG_BLK_DEV_ADMA=y
+> CONFIG_BLK_DEV_SVWKS=y
+> CONFIG_IDEDMA_AUTO=y
+> CONFIG_BLK_DEV_IDE_MODES=y
+> CONFIG_SCSI=y
+> CONFIG_BLK_DEV_SD=y
+> CONFIG_SD_EXTRA_DEVS=40
+> CONFIG_CHR_DEV_ST=y
+> CONFIG_CHR_DEV_OSST=y
+> CONFIG_BLK_DEV_SR=y
+> CONFIG_SR_EXTRA_DEVS=2
+> CONFIG_CHR_DEV_SG=y
+> CONFIG_SCSI_DEBUG_QUEUES=y
+> CONFIG_SCSI_MULTI_LUN=y
+> CONFIG_SCSI_CONSTANTS=y
+> CONFIG_SCSI_AIC7XXX=y
+> CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+> CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+> CONFIG_SCSI_MEGARAID=y
+> CONFIG_NETDEVICES=y
+> CONFIG_DUMMY=m
+> CONFIG_NET_ETHERNET=y
+> CONFIG_NET_PCI=y
+> CONFIG_EEPRO100=y
+> CONFIG_VT=y
+> CONFIG_VT_CONSOLE=y
+> CONFIG_SERIAL=y
+> CONFIG_UNIX98_PTYS=y
+> CONFIG_UNIX98_PTY_COUNT=256
+> CONFIG_MOUSE=y
+> CONFIG_PSMOUSE=y
+> CONFIG_RTC=y
+> CONFIG_AUTOFS4_FS=y
+> CONFIG_REISERFS_FS=y
+> CONFIG_REISERFS_PROC_INFO=y
+> CONFIG_EXT3_FS=y
+> CONFIG_JBD=y
+> CONFIG_FAT_FS=y
+> CONFIG_MSDOS_FS=y
+> CONFIG_VFAT_FS=y
+> CONFIG_TMPFS=y
+> CONFIG_RAMFS=y
+> CONFIG_ISO9660_FS=y
+> CONFIG_JOLIET=y
+> CONFIG_ZISOFS=y
+> CONFIG_PROC_FS=y
+> CONFIG_DEVPTS_FS=y
+> CONFIG_EXT2_FS=y
+> CONFIG_NFS_FS=y
+> CONFIG_NFS_V3=y
+> CONFIG_NFSD=y
+> CONFIG_NFSD_V3=y
+> CONFIG_SUNRPC=y
+> CONFIG_LOCKD=y
+> CONFIG_LOCKD_V4=y
+> CONFIG_ZISOFS_FS=y
+> CONFIG_MSDOS_PARTITION=y
+> CONFIG_NLS=y
+> CONFIG_NLS_DEFAULT="iso8859-1"
+> CONFIG_VGA_CONSOLE=y
+> CONFIG_DEBUG_KERNEL=y
+> CONFIG_MAGIC_SYSRQ=y
+> CONFIG_ZLIB_INFLATE=y
+> 
+> 
+> Thanx,
+> 
+> --Tony
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-That looks wrong, and is likely to break with preemption, since the caller 
-could potentially be moved to another CPU between the smp_processor_id() 
-and the irq disable.
-
-		Linus
 

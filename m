@@ -1,102 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281438AbRKFAVh>; Mon, 5 Nov 2001 19:21:37 -0500
+	id <S276312AbRKFAhb>; Mon, 5 Nov 2001 19:37:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281440AbRKFAV2>; Mon, 5 Nov 2001 19:21:28 -0500
-Received: from ilm.mech.unsw.EDU.AU ([129.94.171.100]:48906 "EHLO
-	ilm.mech.unsw.edu.au") by vger.kernel.org with ESMTP
-	id <S281438AbRKFAVJ>; Mon, 5 Nov 2001 19:21:09 -0500
-Date: Tue, 6 Nov 2001 11:20:52 +1100
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, Ian Maclaine-cross <iml@debian.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-Message-ID: <20011106112052.A10721@ilm.mech.unsw.edu.au>
-In-Reply-To: <20011031113312.A8738@ilm.mech.unsw.edu.au> <20011102121602.A45@toy.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011102121602.A45@toy.ucw.cz>
-User-Agent: Mutt/1.3.23i
-From: Ian Maclaine-cross <iml@ilm.mech.unsw.edu.au>
+	id <S276249AbRKFAhW>; Mon, 5 Nov 2001 19:37:22 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:5812 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S276135AbRKFAhM>; Mon, 5 Nov 2001 19:37:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: Ext2 directory index, updated
+Date: Tue, 6 Nov 2001 01:38:15 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Christian Laursen <xi@borderworlds.dk>, linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net
+In-Reply-To: <20011104022659Z16995-4784+750@humbolt.nl.linux.org> <20011104230046Z17057-18972+12@humbolt.nl.linux.org> <20011105151006.G3957@lynx.no>
+In-Reply-To: <20011105151006.G3957@lynx.no>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011106003705Z17274-18972+251@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
-On Fri, Nov 02, 2001 at 12:16:03PM +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > PROBLEM: Linux updates RTC secretly when clock synchronizes.
+On November 5, 2001 11:10 pm, Andreas Dilger wrote:
+> On Nov 05, 2001  00:01 +0100, Daniel Phillips wrote:
+> > For using the -o index option on a non-throwaway volume, we should do 
+this:
 > > 
-> > Please CC replies etc to Ian Maclaine-cross <iml@debian.org>.
+> >  void ext2_add_compat_feature (struct super_block *sb, unsigned feature)
+> >  {
+> > +	return;
+> >  	if (!EXT2_HAS_COMPAT_FEATURE(sb, feature))
+> >  	{
 > > 
-> > When /usr/sbin/ntpd synchronizes the Linux kernel (or system) clock
-> > using the Network Time Protocol the kernel time is accurate to a few
-> > milliseconds. Linux then sets the Real Time (or Hardware or CMOS)
-> > Clock to this time at approximately 11 minute intervals. Typical RTCs
-> > drift less than 10 s/day so rebooting causes only millisecond errors.
-> > 
-> > Linux currently does not record the 11 minute updates to a log file.
-> > Clock programs (like hwclock) cannot correct RTC drift at boot without
-> > knowing when the RTC was last set. If NTP service is available after a
-> > long shutdown, ntpd may step the time.  Worse after a longer shutdown
-> > ntpd may drop out or even synchronize to the wrong time zone.  The
-> > workarounds are clumsy.
-> > 
-> > Please find following my small patch for linux/arch/i386/kernel/time.c
-> > which adds a KERN_NOTICE of each 11 minute update to the RTC. This is
-> > just for i386 machines at present. A script can search the logs for
-> > the last set time of the RTC and update /etc/adjtime.  Hwclock can
-> > then correct the RTC for drift and set the kernel clock.
+> > And afterwards you can rm -rf your test directory, though actually normal 
+> > ext2 shouldn't see anything unusual about it.  The real reason for rm'ing 
+the 
+> > test directory is so that I can tweak the index format in upcoming 
+prerelease 
+> > versions.
 > 
-> That seems as very wrong solution.
+> Well, e2fsck _should_ really know about the fact that there are indexed
+> directories in the filesystem, which is what the COMPAT flag flag is for.
+> The only current issue is that e2fsck doesn't understand this compat flag.
 > 
-> What about just making kernel only _read_ system clock, and never set it? 
-> That looks way cleaner to me.
-
-QUESTION: What results in best timekeeping by the RTC, constant
-updates or logging the offset?
-
-ANSWER: 
-
-The Linux kernel code for the 11 minute update in
-arch/i386/kernel/time.c has an RTC setting error of +-0.005 s.  The
-adjtimex source suggests an RTC reading error of +-0.000025 s.
-
-Accurate RTC timekeeping also requires an accurate value of average
-drift rate for typical use. Measuring this requires timing over a long
-unset period such as one month.
-
-Logging the offset is more accurate per reading and allows
-more accurate measurement of drift than 11 minute updates.
-
-END ANSWER.
-
-RTC accuracy supports optionalizing the 11 minute update.
-
-Other reasons to optionalize the 11 minute update which various people
-suggest:
-
-1. The kernel should not dictate OS policy;
-
-2. Simplifies programming with /dev/rtc;
-
-3. Improves performance of /dev/rtc;
-
-4. Slightly reduced kernel size;
-
-5. Slightly faster timer_interrupt;
-
-6. Easier to use utilities like hwclock.
-
-I agree with you, Pavel. Commenting out the 11 minute update
-code is a better solution. :)
-
-> 								Pavel
-> -- 
-> Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-> details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+> > I've disabled the add_compat_feature here for now, because until fsck can 
+> > handle it, it just causes trouble.  I'll go read Andreas' writeup on the 
+> > COMPAT flags again and see if I can come up with a more friendly 
+> > interpretation.
 > 
+> No, COMPAT is the friendliest.  It means old kernels can read/write this
+> filesystem without problems, just that e2fsck can't/won't check it.  Even
+> though an old fsck _probably_ won't break such a filesystem, there is no
+> guarantee of that,
 
--- 
-Regards,
-Ian Maclaine-cross (iml@debian.org)
+Well, it's hard to see how the fsck could hurt, since all the blocks of the 
+directory look like legitimate empty blocks.  When did 
+
+> and it definitely won't validate the indexes, so a
+> "successfull" fsck of an indexed directory doesn't mean anything until it
+> can understand this COMPAT flag.
+> 
+> That said, I agree that turning the COMPAT flag off for short term testing
+> is probably not fatal, but I thought we were not going to even suggest
+> using non-throwaway filesystems until the hash function was finalized?
+
+True.  Right now, I'm interested in finding out exactly how the old fscks are 
+going to behave when they run into indexed directories, so I'll leave the 
+COMPAT flag off for now and turn it back on when we hit the first 
+format-frozen release.  The method of restoring a partition to a fsckable 
+state is easy to document:
+
+    # debugfs -w root_fs
+    debugfs: feature -dir_index
+
+Anybody who's running the patch will have access to a recent version of 
+debugfs that knows about the dir_index flag.
+
+> In
+> the end, if an updated e2fsck detects the DIR_INDEX flag (and valid indexes
+> therein) it will turn on the COMPAT flag for us, so all will be well.  I
+> don't advise that we push for patch inclusion until e2fsck is done, however.
+
+Yes, as long as testers heed my warning and stick to test partitions there's 
+no particular danger.  There's a simple recovery procedure for anyone who 
+doesn't want to bother re-mkfsing the partition.  We're in pretty good shape. 
+
+My improved show_buckets routine is working code that could be used to get 
+started on the new fsck code.  It walks the index in hash bucket order 
+dumping out statistics, and, together with the checks in dx_probe, basically 
+defines the index format.
+
+--
+Daniel

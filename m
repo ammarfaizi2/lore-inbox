@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261996AbSKHNvD>; Fri, 8 Nov 2002 08:51:03 -0500
+	id <S262038AbSKHOHc>; Fri, 8 Nov 2002 09:07:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262020AbSKHNvD>; Fri, 8 Nov 2002 08:51:03 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18957 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261996AbSKHNvD>; Fri, 8 Nov 2002 08:51:03 -0500
-Date: Fri, 8 Nov 2002 13:57:42 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Rusty Trivial Russell <trivial@rustcorp.com.au>
-Subject: Re: [PATCH] SCSI on non-ISA systems
-Message-ID: <20021108135742.A22790@flint.arm.linux.org.uk>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>,
-	Rusty Trivial Russell <trivial@rustcorp.com.au>
-References: <Pine.GSO.4.21.0211081443590.23267-100000@vervain.sonytel.be>
+	id <S262040AbSKHOHc>; Fri, 8 Nov 2002 09:07:32 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:16888 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262038AbSKHOHb>; Fri, 8 Nov 2002 09:07:31 -0500
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3DCBC2E3.5040503@convergence.de> 
+References: <3DCBC2E3.5040503@convergence.de>  <28280.1036753951@passion.cambridge.redhat.com> 
+To: Holger Waechtler <holger@convergence.de>
+Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: Switch DVB to generic crc32. 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0211081443590.23267-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Fri, Nov 08, 2002 at 02:46:40PM +0100
+Date: Fri, 08 Nov 2002 14:14:09 +0000
+Message-ID: <16466.1036764849@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 02:46:40PM +0100, Geert Uytterhoeven wrote:
-> Since 2.5.31, the compilation of kernel/dma.c is conditional on
-> CONFIG_GENERIC_ISA_DMA. However, drivers/scsi/hosts.c unconditionally calls
-> free_dma(), which breaks machines with SCSI that don't have ISA.
 
-This isn't actually the original purpose of CONFIG_GENERIC_ISA_DMA (it
-was to allow an architecture to provide ISA-like DMA without having to
-use the ISA DMA request/free functions - eg, they need to claim interrupts
-on request_dma() and free them on free_dma()).
+holger@convergence.de said:
+>  the crc32 table was defined because the same driver works for 2.4
+> kernels, there we need our own crc32 implementation.
 
-However, since this function isn't used on ARM, it doesn't affect me,
-and so I don't have any problem with this patch. 8)
+JFFS2 in 2.4 has the same problem. The fix is to backport the 2.5 crc32 
+code so that 2.4 isn't gratuitously different. That patch has been sent to 
+Alan already, I believe it's going to be sent to Marcelo for 2.4.21-pre1.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+--
+dwmw2
+
 

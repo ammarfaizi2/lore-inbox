@@ -1,83 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271762AbRH0P5q>; Mon, 27 Aug 2001 11:57:46 -0400
+	id <S271761AbRH0P6G>; Mon, 27 Aug 2001 11:58:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271761AbRH0P5h>; Mon, 27 Aug 2001 11:57:37 -0400
-Received: from subcentral.mendosus.org ([195.196.16.180]:3848 "EHLO
-	subcentral.mendosus.org") by vger.kernel.org with ESMTP
-	id <S271762AbRH0P51>; Mon, 27 Aug 2001 11:57:27 -0400
-Date: Mon, 27 Aug 2001 16:55:47 +0200 (CEST)
-From: Per Niva <pna@mendosus.org>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Added devfs support for i386 msr/cpuid driver
-In-Reply-To: <200108271452.f7REqjT15752@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0108271621410.22199-100000@subcentral.mendosus.org>
-Organization: Mendosus
+	id <S271764AbRH0P55>; Mon, 27 Aug 2001 11:57:57 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:3337 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271761AbRH0P5v>; Mon, 27 Aug 2001 11:57:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Date: Mon, 27 Aug 2001 18:04:42 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0108271213370.5646-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0108271213370.5646-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010827155800Z16272-32383+1657@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Aug 2001, Richard Gooch wrote:
+On August 27, 2001 05:14 pm, Rik van Riel wrote:
+> On Mon, 27 Aug 2001, Alex Bligh - linux-kernel wrote:
+> 
+> > A nit: I think it's a MRU list you want.
+> 
+> Absolutely, however ...
+> 
+> > If you are reading
+> > ahead (let's have caps for a page that has been used for reading,
+> > as well as read from the disk, and lowercase for read-ahead that
+> > has not been used):
+> > 	ABCDefghijklmnopq
+> >              |            |
+> >             read         disk
+> > 	   ptr          head
+> > and you want to reclaim memory, you want to drop (say) 'pq'
+> > to get
+> > 	ABCDefghijklmno
+> > for two reasons: firstly because 'efg' etc. are most likely
+> > to be used NEXT, and secondly because the diskhead is nearer
+> > 'pq' when you (inevitably) have to read it again.
+> 
+> This is NOT MRU, since p and q have not been used yet.
+> In this example you really want to drop D and C instead.
 
-> Arjan van de Ven writes:
-> > >
-> > >  int __init msr_init(void)
-> > >  {
-> > > +#ifdef CONFIG_DEVFS_FS
-> > > +    devfs_handle = devfs_register(NULL, "cpu/msr", DEVFS_FL_DEFAULT, 0, 0,
-> > > +                                  S_IFREG | S_IRUGO | S_IWUSR,
-> > > +                                  &msr_fops, NULL);
-> > > +#else
-> > >    if (register_chrdev(MSR_MAJOR, "cpu/msr", &msr_fops)) {
-> > >      printk(KERN_ERR "msr: unable to get major %d for msr\n",
-> > >            MSR_MAJOR);
-> > >      return -EBUSY;
-> > >    }
-> > > +#endif
-> >
-> > this must be wrong as you don't check for devfs_register failures...
->
-> The reason it's wrong is because he put #ifdef's in there. The
-> functions should just be called unconditionally. The #ifdef's are in
-> the header.
+What we mean by "drop" is "deactivate".
 
-I actually pondered a while on this, and settled on
-the cut'n'paste-from-mtrr.c version. There is no error
-check there, and I just overlooked it.
-
-The defence for the #ifdefs is that I didn't see
-register_chrdev() being aware of devfs, and I thought
-we'd be better off just not calling register_chrdev()
-at all if we have devfs.
-
-It's not like I personally like #ifdefs, but it seemed
-justified to my inexperienced eyes at that point. And
-there's a #ifdef CONFIG_DEVFS_FS around the call in
-mtrr.c too, and I thought it safe to do like what's
-already in the official tree.
-
-In microcode.c however, is the new-style without #ifdef
-(or rather with the #ifdef in the headers instead)
-and with error checking, but microcode_init() doesn't
-use register_chrdev() anyway, even if devfs is not
-supported.
-
-Please enlighten me!
-
-> 				Regards,
->
-> 					Richard....
-
-
-Grateful for comments,
-
-
-	Per
-
-
-----------------------------------------------------
-pna@mendosus.org                     +46 705 509 654
-"Beware - the world will never be the same again..."
-
+--
+Daniel

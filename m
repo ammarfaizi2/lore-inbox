@@ -1,69 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135172AbRDLPkt>; Thu, 12 Apr 2001 11:40:49 -0400
+	id <S135206AbRDLPmb>; Thu, 12 Apr 2001 11:42:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135181AbRDLPkk>; Thu, 12 Apr 2001 11:40:40 -0400
-Received: from conx.aracnet.com ([216.99.200.135]:41665 "HELO cj90.in.cjcj.com")
-	by vger.kernel.org with SMTP id <S135172AbRDLPkZ>;
-	Thu, 12 Apr 2001 11:40:25 -0400
-Message-ID: <3AD5CC5F.69D3BAEC@cjcj.com>
-Date: Thu, 12 Apr 2001 08:40:15 -0700
-From: CJ <cj@cjcj.com>
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Asynchronous io
+	id <S135193AbRDLPmM>; Thu, 12 Apr 2001 11:42:12 -0400
+Received: from [32.97.182.101] ([32.97.182.101]:18566 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S135181AbRDLPlu>;
+	Thu, 12 Apr 2001 11:41:50 -0400
+Date: Thu, 12 Apr 2001 21:13:54 +0530
+From: Maneesh Soni <smaneesh@in.ibm.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: tridge@samba.org, lkml <linux-kernel@vger.kernel.org>,
+        lse tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: [RFC][PATCH] Scalable FD Management using Read-Copy-Update
+Message-ID: <20010412211354.A25905@in.ibm.com>
+Reply-To: smaneesh@in.ibm.com
+In-Reply-To: <20010409201311.D9013@in.ibm.com> <20010411182929.A16665@va.samba.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010411182929.A16665@va.samba.org>; from anton@samba.org on Wed, Apr 11, 2001 at 06:29:30PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-//Linux really needs a clean basis for asynchronous and 
-//unbuffered i/o libraries.  Something like the fork/thread
-//clone(), but to replace select() and aio_* polling.  This 
-//might be a start. And it is just a file and very like a
-//pipe or socket.
+On Wed, Apr 11, 2001 at 06:29:30PM -0700, Anton Blanchard wrote:
+> 
+> > This patch provides a very good performance improvement in file 
+> > descriptor management for SMP linux kernel on a 4-way machine with the 
+> > expectation of even higher gains on higher end machines. The patch uses the 
+> > read-copy-update mechanism for Linux, published earlier at the sourceforge
+> > site under Linux Scalablity Effort project.
+> >        http://lse.sourceforge.net/locking/rclock.html.
+> 
+> Good stuff!
+> 
+> It would be interesting to try a filesystem benchmark such as dbench. On
+> a quad PPC fget was chewing up more than its fair share of cpu time.
+> 
+> Anton
 
-//Suppose we add /dev/qio with 64 byte sectors as follows: 
+Hello Anton,
 
-struct qio{            //64 byte i/o request
-    u16 flags;          //0.0 request block variant, SEEK_SET...
-    u16 verb;           //0.2 open,close,read,mmap,sync,write,
-                        //    ioctl
-                        //    mallocIO&read,write&freeIO,
-                        //    mallocIO,freeIO
-                        //    autothread might be an ioctl()
-    u16 errno;          //0.4 per request status
-    u16 completehow;    //0.6 queue,AST,pipe,SIGIO,SIGIO||delete ok
-    u64 offset;         //1 
-    u32 length;         //2.0 bytes requested
-    u32 timeout;        //2.4 im ms or us?
-    u32 transferred;    //3.0 bytes
-    u32 qiohandle;      //3.4 for cancell or polling
-    void* handle;       //4 (open & close might write)
-    void* buffer;       //5
-    void* callback;     //6 optimize special cases w/ completehow
-    void* callparam;    //7 
-};                      //all fields are read xor write
+Thank you for your suggestion. I tried dbench for on a 4-way PIII Xeon box, with
+1MB L2 Cache and 1GB of RAM. I ran it on 8 GB ext2 partition with Adaptec 7896 
+SCSI controller. I ran "dbench 100" and "dbench 200" for five times and took the
+average of the throughput and found that for 
 
-//Writing to the device would schedule i/o, reading would reap
-//completions.  Bad writes would give the byte offset to the 
-//rejected sector field if detected synchronously.  Multiple 
-//sector writes would be truncated on the first bad sector.
-//Accepted writes would be buffered in the kernel.
+Base (2.4.2) - 
+        100 Average Throughput = 39.628  MB/sec
+        200 Average Throughput = 22.792  MB/sec
 
-//Each open creates a new queue, each write is read in the
-//same queue.  Any number of threads can read or write a queue.
+Base + files_struct patch - 
+        100 Average Throughput = 39.874 MB/sec
+        200 Average Throughput = 23.174 MB/sec  
+         
+I found this value quite less than the one present in the README distributed
+with dbench tarball. I think the numbers in the README were for a similar 
+machine but with 2.2.9 kernel.
 
-//some cases might be simplified by kernel processed completions, 
-//such as VMS AST emulation, or putting results in a pipe. Hence
-//completehow, which might use callback and callparam.
+As you can see the performance with files_struct patch is almost same as base. 
+I feel I am hitting some bottleneck other than fget() in both base and the 
+patched versions. I think atleast for base version I should get similar numbers
+as mentions in the README for similar configuration. Though I intend to do some 
+profiling to look into this but it will be helpfull if you can tell me if there 
+is some known thing regarding this.
 
-//timeout?  
-//canceling i/o?  
-//Sun aio emulation?  
-//VMS qio emulation?  
-//MS IOCP emulation?
-//malloc()&free() safe across threads?
-//Should O_DIRECT would error unless properly aligned etc.
+I am copying this to Andrew also, if he can also help. Also if you have some
+dbench numbers from 2.4.x kernel, please let me have a look into those also.
+
+Thank you,
+Maneesh
+
+
+-- 
+Maneesh Soni <smaneesh@in.ibm.com>
+IBM Linux Technology Center,
+IBM Software Lab, Bangalore, India

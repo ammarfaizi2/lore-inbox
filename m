@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265291AbTIJREG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 13:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265297AbTIJREG
+	id S265276AbTIJRCp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 13:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265279AbTIJRCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 13:04:06 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:38558
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265291AbTIJREC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 13:04:02 -0400
-Date: Wed, 10 Sep 2003 19:05:34 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Luca Veraldi <luca.veraldi@katamail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Efficient IPC mechanism on Linux
-Message-ID: <20030910170534.GM21086@dualathlon.random>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030910165944.GL21086@dualathlon.random>
-Mime-Version: 1.0
+	Wed, 10 Sep 2003 13:02:45 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:12993 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S265276AbTIJRCm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 13:02:42 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910165944.GL21086@dualathlon.random>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Transfer-Encoding: 7bit
+Message-ID: <16223.22832.21582.762891@napali.hpl.hp.com>
+Date: Wed, 10 Sep 2003 10:02:40 -0700
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: davidm@hpl.hp.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] asm workarounds in generic header files
+In-Reply-To: <m3d6e8ipf6.fsf@trained-monkey.org>
+References: <A609E6D693908E4697BF8BB87E76A07A022114C0@fmsmsx408.fm.intel.com>
+	<m3llsxivva.fsf@trained-monkey.org>
+	<16222.14136.21774.211178@napali.hpl.hp.com>
+	<m3d6e8ipf6.fsf@trained-monkey.org>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 06:59:44PM +0200, Andrea Arcangeli wrote:
-> About the implementation - the locking looks very wrong: you miss the
-> page_table_lock in all the pte walking, you take a totally worthless
-> lock_kernel() all over the place for no good reason, and the
+>>>>> On 10 Sep 2003 12:22:37 -0400, Jes Sorensen <jes@wildopensource.com> said:
 
-sorry for the self followup, but I just read another message where you
-mention 2.2, if that was for 2.2 the locking was the ok.
+  Jes> I think this really depends on what you are trying to debug. If
+  Jes> you expect the macros to do exactly what they are described to
+  Jes> be doing then I'd agree. However every so often when you look
+  Jes> up the macros you really want to look at the details what they
+  Jes> are actually doing or even compare them to another arch's
+  Jes> implementation to make sure they are behaving the same. At
+  Jes> least thats my experience.
 
-all other problems remains though.
+That's true for some, but not others.  For example, I'd say that
+things like getreg() and setreg() are pretty intuitive.
 
-Andrea
+  Jes> I personally think it's unrealistic to think one can try and
+  Jes> debug things in include/asm without being able to read the
+  Jes> assembly output in the first place.
 
-/*
- * If you refuse to depend on closed software for a critical
- * part of your business, these links may be useful:
- *
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
- * http://www.cobite.com/cvsps/
- *
- * svn://svn.kernel.org/linux-2.6/trunk
- * svn://svn.kernel.org/linux-2.4/trunk
- */
+Assembly output != GCC asm statements.  There are lots of
+assembly-savy folks that have no clue how to read/interpret the GCC
+asm syntax.  Those folks have the option of either generating an
+assembly file or disassembling the resulting object file.  Both
+approaches would let them read the resulting code without having to
+know exactly how the asm statement (or intrinsic) works.
+
+  David> I think the jury is out on this one.  Clearly it's a huge
+  David> benefit if you can make do without inline asm.  GCC has to
+  David> make lots of worst-case assumptions whenever it encounters an
+  David> asm statement and, due to macros and inlining, the asm
+  David> statements are not just hidden in a few leaf routines.
+
+  Jes> Reducing the amount of inline asm in the kernel would be a good
+  Jes> thing. It is cetainly one of those things that have been abused
+  Jes> way beyond it's intent.
+
+Agreed.
+
+	--david

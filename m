@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275963AbRJBJSg>; Tue, 2 Oct 2001 05:18:36 -0400
+	id <S275968AbRJBJV4>; Tue, 2 Oct 2001 05:21:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275968AbRJBJS0>; Tue, 2 Oct 2001 05:18:26 -0400
-Received: from [203.200.144.45] ([203.200.144.45]:1032 "EHLO
-	mx-out-01.nestec.net") by vger.kernel.org with ESMTP
-	id <S275963AbRJBJSW>; Tue, 2 Oct 2001 05:18:22 -0400
-Organization: NeST-India
-Message-ID: <F6E1228667B6D411BAAA00306E00F2A50109C8FC@pdc2.nestec.net>
-From: MOHAMMED AZAD <mohammedazad@nestec.net>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Getting system time in kernel..
-Date: Tue, 2 Oct 2001 14:44:23 +0530 
+	id <S275970AbRJBJVq>; Tue, 2 Oct 2001 05:21:46 -0400
+Received: from frank.gwc.org.uk ([212.240.16.7]:13328 "EHLO frank.gwc.org.uk")
+	by vger.kernel.org with ESMTP id <S275968AbRJBJVd>;
+	Tue, 2 Oct 2001 05:21:33 -0400
+Date: Tue, 2 Oct 2001 10:21:54 +0100 (BST)
+From: Alistair Riddell <ali@gwc.org.uk>
+To: LA Walsh <law@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 'dd' local works, but not over net, help as to why?
+In-Reply-To: <NDBBJDKDKDGCIJFBPLFHMEJPCGAA.law@sgi.com>
+Message-ID: <Pine.LNX.4.21.0110021021150.22548-100000@frank.gwc.org.uk>
+X-foo: bar
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, 2 Oct 2001, LA Walsh wrote:
 
-Any idea how to get the system time in a kernel module.... I tried this in
-solaris... but i am getting only the GMT (that too elapsed time) how do i
-convert this to my locale time.... 
+> Thanks in advance for any work-arounds and explanations...
 
-TIA
-azad
+not sure about explanations, but have you tried using netpipes (faucet /
+hose) as a work-around...?
+
+-- 
+Alistair Riddell - BOFH
+IT Manager, George Watson's College, Edinburgh
+Tel: +44 131 447 7931 Ext 176       Fax: +44 131 452 8594
+Microsoft - because god hates us
+

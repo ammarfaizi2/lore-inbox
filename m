@@ -1,73 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbTIYM3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 08:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTIYM3a
+	id S261337AbTIYMuR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 08:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTIYMuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 08:29:30 -0400
-Received: from aloggw2.analogic.com ([204.178.40.3]:7175 "EHLO
-	aloggw2.analogic.com") by vger.kernel.org with ESMTP
-	id S261293AbTIYM32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 08:29:28 -0400
-From: "Richard B. Johnson" <johnson@quark.analogic.com>
-Reply-To: "Johnson, Richard" <rjohnson@analogic.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: "Johnson, Richard" <rjohnson@analogic.com>, linux-kernel@vger.kernel.org
-Date: Thu, 25 Sep 2003 08:30:14 -0400 (EDT)
-Subject: Re: [OT] Re: Horiffic SPAM
-In-Reply-To: <3F72A59D.4000407@aitel.hist.no>
-Message-ID: <Pine.LNX.4.53.0309250819560.32337@quark.analogic.com>
-References: <Pine.LNX.4.53.0309231408260.28457@quark.analogic.com>
- <20030923183648.GE1269@velociraptor.random> <Pine.LNX.4.53.0309241006500.30216@quark.analogic.com>
- <3F72A59D.4000407@aitel.hist.no>
+	Thu, 25 Sep 2003 08:50:17 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:52478 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S261337AbTIYMuH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 08:50:07 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Shmulik Hen <shmulik.hen@intel.com>
+Reply-To: shmulik.hen@intel.com
+Organization: Intel corp.
+Subject: [PATCH SET][bonding] cleanup
+Date: Thu, 25 Sep 2003 15:49:59 +0300
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+To: bonding-devel@lists.sourceforge.net,
+       bonding-announce@lists.sourceforge.net, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Cc: "Jeff Garzik" <jgarzik@pobox.com>, "Jay Vosburgh" <fubar@us.ibm.com>,
+       "Noam, Amir" <amir.noam@intel.com>,
+       "Mendelson, Tsippy" <tsippy.mendelson@intel.com>,
+       "Noam, Marom" <noam.marom@intel.com>,
+       "Shmulik, Hen" <shmulik.hen@intel.com>
+Message-Id: <200309251549.59177.shmulik.hen@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Sep 2003, Helge Hafting wrote:
+Hi,
 
-> Richard B. Johnson wrote:
-> > On Tue, 23 Sep 2003, Andrea Arcangeli wrote:
-> >
-> >
-> >>On Tue, Sep 23, 2003 at 02:11:59PM -0400, Richard B. Johnson wrote:
-> >>
->
-> > Well it seems that fire-walling the SPAM servers is *not* a good idea.
-> > They are persistant, gang up, and will not give up until they are
-> > able to deliver the mail! When I firewall them, my network traffic
->
-> According to standards they will give up after 5 days or so.
->
-> > ends up being continuous SYN floods as every spam-server in the
-> > country tries to connect. It doesn't do any good to set `ipchains` to
-> > REJECT instead of DENY. They just keep on banging on the door.
-> >
->
-> Have you considered teergrubing them instead?  That ought to
-> fix the bandwith problem.  And it is not so fun for whoever has
-> the spam server either - either disrupting some spammers operation
-> or harassing some server admin into making his box un-abuseable.
->
->
+Now that all the 2.4<->2.6 synchronizing stuff is done, we are moving 
+forward with the cleanup plan. This set is similar to the previous 
+set I sent on 8/27, but it is based on the latest version that was 
+accepted into the kernel with the seq_file changes, a few bug fixes 
+and a bit more cleanup stuff. This set is very comprehensive and 
+touches almost all the code. The set is broken down to many patches 
+for better tracking. It was already tested by me for functionality 
+and is undergoing a more thorough set of testing by our QA group for 
+any corner case bugs. A set that cleans up the 802.3ad code will 
+follow shortly.
 
-I thought it would be easier than that. However, I did write a
-program that keeps the connection open forever (until the SPAM-server
-hangs up). This slows down the servers. I also thought that I could
-make multiple connections to the server and never hang up, depriving
-the SPAM-server of resources. However, I can't make a new connection
-with the same socket (don't know why), EISCONN,  without closing the
-previous.
-This means that I need a new socket for each connection. I run out
-of sockets before the SPAM-servers do.
+This patch applies on 2.4.23-pre5. It would also apply on 2.6.0 after 
+Amir's patch 2/10 from the "[bonding 2.6] propagating master's 
+settings to slaves" set is accepted by Jeff and applied on 2.6.
 
+patch set can be downloaded from:
+http://osdn.dl.sourceforge.net/sourceforge/bonding/bonding-cleanup-2.4.23-pre5.tar.bz2
 
-> Helge Hafting
->
+This will update the following files:
 
+        Documentation/networking/bonding.txt
+        Documentation/networking/ifenslave.c
+        drivers/net/bonding/bond_3ad.c
+        drivers/net/bonding/bond_alb.c
+        drivers/net/bonding/bond_alb.h
+        drivers/net/bonding/bonding.h
+        drivers/net/bonding/bond_main.c
+        include/linux/if_bonding.h
 
-Richard B. Johnson
-Project Engineer
-Analogic Corporation
-Penguin : Linux version 2.2.15 on an i586 machine (330.14 BogoMips).
+Description:
+patch 1 - ifenslave lite - No more IP settings to slaves, unified 
+          printing format, code re-org and broken to more functions.
+patch 2 - convert all debug prints to use the dprintk macro and 
+          consolidate format of all prints (e.g. "bonding: Error: 
+          ...").
+patch 3 - death of typedef. eliminate bonding_t/slave_t types and 
+          consolidate casting.
+patch 4 - remove dead code, old compatibility stuff and redundant 
+          checks.
+patch 5 - consolidate timers initialization, error checking and 
+          re-queuing.
+patch 6 - convert too long if-else to a switch-case. Fix all locations 
+          that handles bond->primary.
+patch 7 - eliminate the multicast_mode module param. settings are now 
+          done only according to mode.
+patch 8 - slave list iteration - bond is no longer part of the list, 
+          added cyclic list iteration macros.
+patch 9 - consolidate function declarations:
+          o all functions begin with bond_
+          o return value, function name and all params are on the same 
+            line.
+          o change some function names to be more descriptive.
+patch 10 - consolidate names of function params and variables (e.g. 
+           bond_dev instead of dev/master/master_dev).
+patch 11 - change names/types for some of the members in struct 
+           bonding. change position of members.
+patch 12 - consolidate return values of functions.
+patch 13 - put curly braces around all if, else, for, while, switch 
+           statements. change conditions to short format.
+           e.g. (ptr == NULL) ==> (!ptr)
+patch 14 - consolidate error handling in all xmit functions.
+patch 15 - chomp all trailing white space.
+patch 16 - remove duplicate empty lines. add empty lines where needed 
+           to improve readability.
+patch 17 - fix indentations.
+patch 18 - code re-organization in bond_main.c according to context
+           (e.g. module initialization, bond initialization, device 
+           entry points, monitoring, etc.). some last minute minor 
+           changes and fixes.
+
+-- 
+| Shmulik Hen   Advanced Network Services  |
+| Israel Design Center, Jerusalem          |
+| LAN Access Division, Platform Networking |
+| Intel Communications Group, Intel corp.  |
+

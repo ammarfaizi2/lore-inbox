@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282482AbSAARjx>; Tue, 1 Jan 2002 12:39:53 -0500
+	id <S281787AbSAARgN>; Tue, 1 Jan 2002 12:36:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282418AbSAARjn>; Tue, 1 Jan 2002 12:39:43 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:19973 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S281926AbSAARje>;
-	Tue, 1 Jan 2002 12:39:34 -0500
-Date: Tue, 1 Jan 2002 18:39:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: "sr: unaligned transfer" in 2.5.2-pre1
-Message-ID: <20020101183902.A16092@suse.de>
-In-Reply-To: <20011231145455.C6465@one-eyed-alien.net> <Pine.LNX.4.10.10112311523040.4780-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S279768AbSAARgD>; Tue, 1 Jan 2002 12:36:03 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:43793 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S281787AbSAARfv>; Tue, 1 Jan 2002 12:35:51 -0500
+Message-ID: <3C31F374.47A8424B@delusion.de>
+Date: Tue, 01 Jan 2002 18:35:48 +0100
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre5 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: munmap return value
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10112311523040.4780-100000@master.linux-ide.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 31 2001, Andre Hedrick wrote:
-> 
-> Matt,
-> 
-> This was a point I tried to make but failed.
-> Not all SCB/SRB's are highmem tested but OEM's claim support.
-> This I tried to have BIO change to do highmen drop to the lowmem window
-> upon entry of the request and this would have prevent most form breaking,
-> but this did not seem to get warm acceptance.
 
-default behaviour is to bounce any highmem page, nothings changed there.
+Hi all,
 
-if you are talking about mapping highmem pages temporarily like
-mentioned in an email a few days back, then that's clearly a bad idea.
+My manpage for munmap(2) says:
+On success, munmap returns 0, on failure -1, and errno is set (probably to EINVAL).
 
--- 
-Jens Axboe
+In reality munmap always returns 0, except for when the address is
+not page-aligned (-EINVAL) or if allocation of kernel structures
+fails (-ENOMEM).
 
+Shouldn't munmap return -EINVAL also if there is nothing mapped
+at the specified address?
+
+Regards,
+Udo.

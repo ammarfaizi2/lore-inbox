@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266706AbRG2JOt>; Sun, 29 Jul 2001 05:14:49 -0400
+	id <S267577AbRG2J2S>; Sun, 29 Jul 2001 05:28:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266710AbRG2JOj>; Sun, 29 Jul 2001 05:14:39 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46134 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S266706AbRG2JOV>; Sun, 29 Jul 2001 05:14:21 -0400
-To: swsnyder@home.com
-Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-Subject: Re: What does "Neighbour table overflow" message indicate?
-In-Reply-To: <01072820231401.01125@mercury.snydernet.lan>
-	<01072820534802.01125@mercury.snydernet.lan>
-	<20010729135728.B3282@weta.f00f.org>
-	<01072821151103.01125@mercury.snydernet.lan>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 29 Jul 2001 03:08:13 -0600
-In-Reply-To: <01072821151103.01125@mercury.snydernet.lan>
-Message-ID: <m11yn0cdc2.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267580AbRG2J2I>; Sun, 29 Jul 2001 05:28:08 -0400
+Received: from pD951F4D6.dip.t-dialin.net ([217.81.244.214]:25984 "EHLO
+	emma1.emma.line.org") by vger.kernel.org with ESMTP
+	id <S267577AbRG2J2D>; Sun, 29 Jul 2001 05:28:03 -0400
+Date: Sun, 29 Jul 2001 11:28:10 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <20010729112810.C9109@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010729011552.B9350@emma1.emma.line.org> <Pine.LNX.4.33L.0107282046560.11893-100000@imladris.rielhome.conectiva> <20010729020812.D9350@emma1.emma.line.org> <20010728195132.M30957@bluemug.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20010728195132.M30957@bluemug.com>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> Further snooping shows the error msg text in file inux/net/ipv4/route.c:
+On Sat, 28 Jul 2001, Mike Touloumtzis wrote:
+
+> You are blurring the boundaries between "undocumented behavior" and
+> "OS-specific behavior".  fsync() on a directory to sync metadata is a
+> defined (according to my copy of fsync(2)), Linux-specific behavior.
+> It is also very reasonable IMHO and in keeping with the traditional
+> Unix notion of directories as lists of files.
+
+No-one claims that fsync() the directory is a bad interface - it's
+non-portable however. Actually, chattr +S is well-documented - it just
+doesn't work on ReiserFS or Minix for now, and it may be unnecessarily
+slow on ext2.
+
+As pointed out more than once, "synchronous meta data" is documented e.
+g.  for FreeBSD, so in at least these two cases, the box relies on
+documented behaviour.
+
+> http://www.google.com/search?q=autoconf
 > 
->     if (net_ratelimit())
->         printk("Neighbour table overflow.\n");
+> Writing portable Unix software has always meant some degree
+> of system-specific accomodation.  It's a bummer but it's life;
+> otherwise Unix wouldn't evolve.
 
-> 
-> The reference to "net_ratelimit" make me wonder if it is related to 
-> iptables.  I am using iptable, and have since kernel 2.4.1, but I've seen 
-> these messages before.  Hmmm.
+How can autoconf figure if you need to fsync() the directory? Apart from
+that, which Unix MTA uses autoconf?
 
-My experience with this is the message occurs when you a machine starts
-arping for a non-existent ip address.  I suspect net_ratelimit triggers
-when there are too many arps.
+Remember, the whole discussion is about getting rid of the need for
+chattr +S and offering the admin the chance to mount or flag a directory
+for synchronous meta data updates.
 
-Run tcpdump -n -i eth0 (assuming your network is on eth0) and see if you
-see an arp request that never gets answered.
-
-Eric
+-- 
+Matthias Andree

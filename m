@@ -1,72 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVCaKoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVCaKux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbVCaKoW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 05:44:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVCaKoV
+	id S261234AbVCaKux (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 05:50:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVCaKux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 05:44:21 -0500
-Received: from [213.170.72.194] ([213.170.72.194]:11652 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261270AbVCaKnJ
+	Thu, 31 Mar 2005 05:50:53 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:25786 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261234AbVCaKug
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 05:43:09 -0500
-Subject: Re: [RFC] CryptoAPI & Compression
-From: "Artem B. Bityuckiy" <dedekind@infradead.org>
-Reply-To: dedekind@infradead.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org
-In-Reply-To: <20050331021909.GA27095@gondor.apana.org.au>
-References: <1111766900.4566.20.camel@sauron.oktetlabs.ru>
-	 <20050326044421.GA24358@gondor.apana.org.au>
-	 <1112030556.17983.35.camel@sauron.oktetlabs.ru>
-	 <20050329103504.GA19468@gondor.apana.org.au>
-	 <Pine.LNX.4.58.0503291252030.22838@phoenix.infradead.org>
-	 <20050331021909.GA27095@gondor.apana.org.au>
-Content-Type: text/plain
-Organization: MTD
-Date: Thu, 31 Mar 2005 14:43:06 +0400
-Message-Id: <1112265786.21585.16.camel@sauron.oktetlabs.ru>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Mar 2005 05:50:36 -0500
+Message-ID: <424BD60A.1070409@in.ibm.com>
+Date: Thu, 31 Mar 2005 16:20:50 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>
+Subject: [PATCH] Sysrq trigger mechanism for kexec based crashdumps
+Content-Type: multipart/mixed;
+ boundary="------------020009040301030608010206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Herbert,
+This is a multi-part message in MIME format.
+--------------020009040301030608010206
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> The GNU coding style is completely different from Linux.
-Ok, NP.
+Hi Andrew,
 
-> Please reformat it when you fix up the overhead calculation.
-Sure.
+The following patch adds a sysrq-trigger mechanism for kexec 
+based crashdumps. Alt-Sysrq-c triggers a kexec based 
+crashdump. Please include this along with the crashdumps 
+patches in the -mm tree.
 
-> Good catch.  I'll apply this one.
-Only one small note: I've spotted this but didn't test. I didn't make
-sure this is OK if we haven't ever used the compression and remove the
-deflate module. (i.e, in this case we call zlib_[in|de]flateEnd() while
-we haven't ever called zlib_[in|de]flate()). Although I believe it must
-be OK, we need to try it.
+Thanks and Regards, Hari
 
-So please, test it or wait while I'll do it.
+--------------020009040301030608010206
+Content-Type: text/plain;
+ name="crashdump-sysrq-trigger.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="crashdump-sysrq-trigger.patch"
 
-> The crypto API needs to operate on buffers that's bigger than that so
-> we need to have a correct upper bound the maximum expansion.
-Well, I'm still not sure. I guess that we call deflate with Z_SYNC_FLUSH
-so most data is already in the output buffer and we only need to provide
-some room for end markers and the like at the final Z_FINISH call. And I
-guess 12 bytes is enough. But again, this is only my guess. I need to
-delve into zlib internals to explore this.
 
-So, it seems I can't just port the JFFS2 stuff. I need to explore zlib
-more closely. Thus, I need some time. I'll inform you about my results.
 
-> I believe this bit of code originally came from FreeS/WAN and was
-> written by Svenning Srensen.  Maybe he or Yoshifuji-san can tell
-> us why?
-If you find some information about the issue, please, let me know.
+Signed-off-by: Hariprasad Nellitheertha <hari@in.ibm.com>
+---
 
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+ linux-2.6.12-rc1-mm3-1M-hari/Documentation/sysrq.txt |    5 +++
+ linux-2.6.12-rc1-mm3-1M-hari/drivers/char/sysrq.c    |   24 +++++++++++++++++--
+ 2 files changed, 27 insertions(+), 2 deletions(-)
 
+diff -puN Documentation/sysrq.txt~crashdump-sysrq-trigger Documentation/sysrq.txt
+--- linux-2.6.12-rc1-mm3-1M/Documentation/sysrq.txt~crashdump-sysrq-trigger	2005-03-31 15:56:06.000000000 +0530
++++ linux-2.6.12-rc1-mm3-1M-hari/Documentation/sysrq.txt	2005-03-31 16:01:09.000000000 +0530
+@@ -72,6 +72,8 @@ On all -  write a character to /proc/sys
+ 'b'     - Will immediately reboot the system without syncing or unmounting
+           your disks.
+ 
++'c'	- Will perform a kexec reboot in order to take a crashdump.
++
+ 'o'     - Will shut your system off (if configured and supported).
+ 
+ 's'     - Will attempt to sync all mounted filesystems.
+@@ -122,6 +124,9 @@ useful when you want to exit a program t
+ re'B'oot is good when you're unable to shut down. But you should also 'S'ync
+ and 'U'mount first.
+ 
++'C'rashdump can be used to manually trigger a crashdump when the system is hung.
++The kernel needs to have been built with CONFIG_KEXEC enabled.
++
+ 'S'ync is great when your system is locked up, it allows you to sync your
+ disks and will certainly lessen the chance of data loss and fscking. Note
+ that the sync hasn't taken place until you see the "OK" and "Done" appear
+diff -puN drivers/char/sysrq.c~crashdump-sysrq-trigger drivers/char/sysrq.c
+--- linux-2.6.12-rc1-mm3-1M/drivers/char/sysrq.c~crashdump-sysrq-trigger	2005-03-31 15:56:06.000000000 +0530
++++ linux-2.6.12-rc1-mm3-1M-hari/drivers/char/sysrq.c	2005-03-31 16:03:21.000000000 +0530
+@@ -34,6 +34,7 @@
+ #include <linux/swap.h>
+ #include <linux/spinlock.h>
+ #include <linux/vt_kern.h>
++#include <linux/kexec.h>
+ 
+ #include <asm/ptrace.h>
+ #ifdef CONFIG_KGDB_SYSRQ
+@@ -112,6 +113,21 @@ static struct sysrq_key_op sysrq_unraw_o
+ };
+ #endif /* CONFIG_VT */
+ 
++#ifdef CONFIG_KEXEC
++/* crashdump sysrq handler */
++static void sysrq_handle_crashdump(int key, struct pt_regs *pt_regs,
++				struct tty_struct *tty)
++{
++	crash_kexec();
++}
++static struct sysrq_key_op sysrq_crashdump_op = {
++	.handler	= sysrq_handle_crashdump,
++	.help_msg	= "Crashdump",
++	.action_msg	= "Trigger a crashdump",
++	.enable_mask	= SYSRQ_ENABLE_DUMP,
++};
++#endif
++
+ /* reboot sysrq handler */
+ static void sysrq_handle_reboot(int key, struct pt_regs *pt_regs,
+ 				struct tty_struct *tty) 
+@@ -285,8 +301,12 @@ static struct sysrq_key_op *sysrq_key_ta
+ 		 it is handled specially on the sparc
+ 		 and will never arrive */
+ /* b */	&sysrq_reboot_op,
+-/* c */ NULL,
+-/* d */	NULL,
++#ifdef CONFIG_KEXEC
++/* c */ &sysrq_crashdump_op,
++#else
++/* c */	NULL,
++#endif
++/* d */ NULL,
+ /* e */	&sysrq_term_op,
+ /* f */	&sysrq_moom_op,
+ /* g */	GDB_OP,
+_
+
+--------------020009040301030608010206--

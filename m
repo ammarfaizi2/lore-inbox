@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291098AbSAaPOo>; Thu, 31 Jan 2002 10:14:44 -0500
+	id <S291103AbSAaPUe>; Thu, 31 Jan 2002 10:20:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291099AbSAaPO0>; Thu, 31 Jan 2002 10:14:26 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:6819 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S291098AbSAaPOJ>; Thu, 31 Jan 2002 10:14:09 -0500
-Date: Thu, 31 Jan 2002 08:12:56 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Christoph Rohland <cr@sap.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
-        Ingo Molnar <mingo@elte.hu>, Rik van Riel <riel@conectiva.com.br>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>,
-        Rob Landley <landley@trommello.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020131151256.GD4970@opus.bloom.county>
-In-Reply-To: <Pine.LNX.4.33.0201301005260.1989-100000@penguin.transmeta.com> <m3d6zraqn1.fsf@linux.local>
-Mime-Version: 1.0
+	id <S291104AbSAaPU1>; Thu, 31 Jan 2002 10:20:27 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2574 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291103AbSAaPUI>; Thu, 31 Jan 2002 10:20:08 -0500
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Thu, 31 Jan 2002 15:32:24 +0000 (GMT)
+Cc: riel@conectiva.com.br (Rik van Riel), velco@fadata.bg (Momchil Velikov),
+        stoffel@casc.com (John Stoffel),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20020131153607.C1309@athlon.random> from "Andrea Arcangeli" at Jan 31, 2002 03:36:07 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3d6zraqn1.fsf@linux.local>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16WJCK-0002Qi-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 09:09:06AM +0100, Christoph Rohland wrote:
-> Hi Linus,
-> 
-> On Wed, 30 Jan 2002, Linus Torvalds wrote:
-> > it would see how far back it can go with an automatic merge and add
-> > "d" at the _furthest_ point possible. 
-> 
-> No, I would prefer a way where the developer gives the merge point and
-> bk checks if it merges cleanly. Else it is too easy to have merge
-> points which are semantically wrong.
+> Mathematically the hashtable complexity is O(N). But probabilistically
+> with the tuning we do on the hashtable size, the collisions will be
+> nearly zero for most buckets for of most workloads. Despite the worst
+> case is with all the pagecache and swapcache queued in a single linked
+> list :).
 
-Well, provided the 'backmerge' respects tag, or certain kinds of tags
-(ie the tree is 'soft tagged' as v2.5.4-pre3, v2.5.4-pre2, v2.5.4-pre1
-and 'hard tagged' as v2.5.3.  'backmerge' will attempt to move a change
-back only as far as v2.5.3, since v2.5.3 had an API change here.
-
-Or the other option, since this isn't the _default_ behavior, but an
-optional one is to give backmerge a 'don't go past tag' since the
-developer should be aware that the API changed at v2.5.3 or v2.5.4-pre2
-and even tho the change might apply cleanly further back, since it's
-updating the driver to the new API, don't try anyways.)
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Providing it handles the worst case. Some of the hash table inputs appear
+to be user controllable so an end user can set out to get worst case 
+behaviour 8(

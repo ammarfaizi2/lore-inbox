@@ -1,54 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280307AbRKEH0g>; Mon, 5 Nov 2001 02:26:36 -0500
+	id <S280305AbRKEHrw>; Mon, 5 Nov 2001 02:47:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280306AbRKEH01>; Mon, 5 Nov 2001 02:26:27 -0500
-Received: from 117.ppp1-1.hob.worldonline.dk ([212.54.84.117]:18304 "EHLO
-	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S280305AbRKEH0R>; Mon, 5 Nov 2001 02:26:17 -0500
-Date: Mon, 5 Nov 2001 08:26:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, lkml <linux-kernel@vger.kernel.org>,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] disk throughput
-Message-ID: <20011105082602.I2580@suse.de>
-In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au>, <3BE5F5BF.7A249BDF@zip.com.au> <20011104193232.A16679@mikef-linux.matchmail.com> <3BE60B51.968458D3@zip.com.au>, <3BE60B51.968458D3@zip.com.au> <20011105080635.D2580@suse.de> <3BE63C53.135106FC@zip.com.au>
+	id <S280306AbRKEHrm>; Mon, 5 Nov 2001 02:47:42 -0500
+Received: from lilly.ping.de ([62.72.90.2]:18707 "HELO lilly.ping.de")
+	by vger.kernel.org with SMTP id <S280305AbRKEHrh>;
+	Mon, 5 Nov 2001 02:47:37 -0500
+Date: 5 Nov 2001 08:46:33 +0100
+Message-ID: <20011105084633.A32243@planetzork.spacenet>
+From: jogi@planetzork.ping.de
+To: "Linus Torvalds" <torvalds@transmeta.com>
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.14-pre8..
+In-Reply-To: <Pine.LNX.4.33.0111031740330.9962-100000@penguin.transmeta.com> <20011104192725.A847@planetzork.spacenet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BE63C53.135106FC@zip.com.au>
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20011104192725.A847@planetzork.spacenet>; from jogi on Sun, Nov 04, 2001 at 07:27:25PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04 2001, Andrew Morton wrote:
-> Jens Axboe wrote:
+On Sun, Nov 04, 2001 at 07:27:25PM +0100, jogi wrote:
+> On Sat, Nov 03, 2001 at 05:44:18PM -0800, Linus Torvalds wrote:
 > > 
-> > On Sun, Nov 04 2001, Andrew Morton wrote:
-> > > The meaning of the parameter to elvtune is a complete mystery, and the
-> > > code is uncommented crud (tautology).  So I just used -r20000 -w20000.
+> > Ok, this is hopefully the last 2.4.14 pre-kernel, and per popular demand I
+> > hope to avoid any major changes between "last pre" and final. So give it a
+> > whirl, and don't whine if the final doesn't act in a way you like it to.
 > > 
-> > It's the number of sectors that are allowed to pass a request on the
-> > queue, because of merges or inserts before that particular request. So
-> > you want lower than that probably, and you want READ latency to be
-> > smaller than WRITE latency too. The default I set is 8192/16384 iirc, so
-> > go lower than this -- -r512 -w1024 or even lower just to check the
-> > results.
+> > Special thanks to Andrea - we spent too much time tracking down a subtle
+> > sigsegv problem, but we got it in the end.
+> > 
+> > Also, I was able to reproduce the total lack of interactivity that the
+> > google people complained about, and while I didn't run the google tests
+> > themselves, at least the load I had is fixed.
+> > 
+> > But most of the changes are actually trying to catch up with some of the
+> > emails that I ignored while working on the VM issues. I hope the VM is
+> > good to go, along with a real 2.4.14.
 > 
-> Right, thanks.  With the ialloc.c one-liner I didn't touch
-> elvtune.  Defaults seem fine.
+> The results for 2.4.14-pre8 of my kernel compile tests are following:
 > 
-> It should the number of requests which are allowed to pass a
-> request, not the number of sectors!
+>                     j25       j50       j75      j100                                     
+>                                                                                           
+> 2.4.13-pre5aa1:   5:02.63   5:09.18   5:26.27   5:34.36                                   
+> 2.4.13-pre5aa1:   4:58.80   5:12.30   5:26.23   5:32.14                                   
+> 2.4.13-pre5aa1:   4:57.66   5:11.29   5:45.90   6:03.53                                   
+> 2.4.13-pre5aa1:   4:58.39   5:13.10   5:29.32   5:44.49                                   
+> 2.4.13-pre5aa1:   4:57.93   5:09.76   5:24.76   5:26.79                                   
+>                                                                                           
+> 2.4.14-pre6:      4:58.88   5:16.68   5:45.93   7:16.56                                   
+> 2.4.14-pre6:      4:55.72   5:34.65   5:57.94   6:50.58                                   
+> 2.4.14-pre6:      4:59.46   5:16.88   6:25.83   6:51.43                                   
+> 2.4.14-pre6:      4:56.38   5:18.88   6:15.97   6:31.72                                   
+> 2.4.14-pre6:      4:55.79   5:17.47   6:00.23   6:44.85                                   
+>                                                                                           
+> 2.4.14-pre7:      4:56.39   5:22.84   6:09.05   9:56.59                                   
+> 2.4.14-pre7:      4:56.55   5:25.15   7:01.37   7:03.74                                   
+> 2.4.14-pre7:      4:59.44   5:15.10   6:06.78   12:51.39*                                 
+> 2.4.14-pre7:      4:58.07   5:30.55   6:15.37      *                                      
+> 2.4.14-pre7:      4:58.17   5:26.80   6:41.44      *
 > 
-> Well, you know what I mean:   Make it 
+> 2.4.14-pre8:      4:57.14   5:10.72   5:54.42   6:37.39
+> 2.4.14-pre8:      4:59.57   5:11.63   6:34.97   11:23.77
+> 2.4.14-pre8:      4:58.18   5:16.67   6:07.88   6:32.38
+> 2.4.14-pre8:      4:56.23   5:16.57   6:15.01   7:02.45
+> 2.4.14-pre8:      4:58.53   5:19.98   5:39.09   12:08.69
 > 
-> 	1 + nr_sectors_in_request / 1000
+> Is there anything else I can measure during the kernel compiles?
+> Are the numbers for >= -pre6 slower because of measures taken to
+> increase the "interactivity" / responsivness of the kernel?
+> 
+> The part that looks most suspicious to me is that the results
+> for make -j100 vary so much ...
 
-That has been tried, performance and latency wasn't good. But yes that
-is what we are really looking to account, the number of seeks.
-Approximately.
+So here are the results of the complete run for the SetPage...
+patch of Linus:
+
+2.4.14-pre8vmscan2:    5:01.64   5:12.03   6:08.62   6:19.32
+2.4.14-pre8vmscan2:    4:56.70   5:15.50   6:17.80   6:50.60
+2.4.14-pre8vmscan2:    4:56.86   5:14.12   6:02.09   6:16.18
+2.4.14-pre8vmscan2:    4:59.43   5:18.02   5:58.50   6:16.87
+2.4.14-pre8vmscan2:    4:56.75   5:17.18   5:52.73   6:15.04
+
+Regards,
+
+   Jogi
 
 -- 
-Jens Axboe
 
+Well, yeah ... I suppose there's no point in getting greedy, is there?
+
+    << Calvin & Hobbes >>

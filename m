@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131331AbRCHLcw>; Thu, 8 Mar 2001 06:32:52 -0500
+	id <S131327AbRCHLew>; Thu, 8 Mar 2001 06:34:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131330AbRCHLcn>; Thu, 8 Mar 2001 06:32:43 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:16655
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S131324AbRCHLce>; Thu, 8 Mar 2001 06:32:34 -0500
-Date: Thu, 8 Mar 2001 06:30:16 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Metod Kozelj <metod.kozelj@rzs-hm.si>
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
-        linux-alpha@vger.kernel.org
-Subject: Re: 2.4.3-pre2 aic7xxx crash on alpha
-Message-ID: <20010308063016.B1803@animx.eu.org>
-In-Reply-To: <200103080445.f284jsO36939@aslan.scsiguy.com> <Pine.HPP.3.96.1010308095215.15847B-100000@hmljhp.rzs-hm.si>
-Mime-Version: 1.0
+	id <S131333AbRCHLem>; Thu, 8 Mar 2001 06:34:42 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:742 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131330AbRCHLec>; Thu, 8 Mar 2001 06:34:32 -0500
+Message-ID: <3AA76E46.71B99B7C@uow.edu.au>
+Date: Thu, 08 Mar 2001 22:34:30 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Hen, Shmulik" <shmulik.hen@intel.com>
+CC: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: Re: spinlock help
+In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B2715F@hasmsx52.iil.intel.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <Pine.HPP.3.96.1010308095215.15847B-100000@hmljhp.rzs-hm.si>; from Metod Kozelj on Thu, Mar 08, 2001 at 10:08:32AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >(scsi1:A:0:0): data overrun detected in Data-out phase.  Tag == 0x36.
-> > >(scsi1:A:0:0): Have seen Data Phase.  Length = 0.  NumSGs = 0.
-> > 
-> > As I mentioned to you the last time you brought up this problem, I
-> > don't believe that this is caused by the aic7xxx driver, but the
-> > aic7xxx driver may be the first to notice the corruption.
+"Hen, Shmulik" wrote:
 > 
-> I can second this somehow. I was testing 2.4.2 on SX164 alpha, same
-> AHA-2940UW controller. In my case, system freezes solid if I do extensive
-> reading from CD-ROM (NEC CD-ROM DRIVE:465). It happens using stock AIC7xxx
-> driver (5.3.something) as well as the new (6.1.2 or something).
-> I'm back to 2.2.18 using AIC7xxx v5.1.31 and everything is happy.
-> This makes me believe that it must be mid-layer SCSI drivers causing
-> problems.
+> OK guys, you were right. The bug was in our code - sorry for trouble.
+> Turns out that while I was away, the problem was solved by someone else. The
+> problem is probably related to the fact that when we did
+> 'spin_lock_irqsave(c,d)', 'd' was a global variable. The fix was to wrap the
+> call with another function and declare 'd' as local. I can't quite explain,
+> but I think that changing from a static to automatic variable made the
+> difference. My best guess is that since 'd' is passed by value and not by
+> reference, the macro expansion of spin_lock_irqsave() relies on the location
+> of 'd' in the stack and if 'd' was on the heap instead, it might get
+> trashed.
+> 
 
-I tried the aic driver from 2.2.17 and 18 which also lockup this system.
+Yes, that makes sense.
 
-Noone on the list that I've seen has used an adaptec card in an alphaserver
-1000a 4/266 and said anything about it.
+spin_lock_irqsave() really means "save the current irq mask
+on the stack, then disable interrupts". spin_lock_irqrestore()
+says "restore the current interrupt mask from the stack".  So they
+nest, and spin_lock_irqsave() doesn't have to care whether or
+not interrupts are currently enabled.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Using a global variable you could get something like:
+
+CPU0:                                     CPU1
+         
+__cli();                                  
+spin_lock_irqsave(lock, global)
+                                          __sti();
+                                          spin_lock_irqsave(lock2, global)
+                                          spin_lock_irqrestore(lock2, global)
+spin_unlock_irqrestore(lock, global)
+/* interrupts should be disabled */
+
+Here, CPU1 will set `global' to "interrupts enabled".  So when
+CPU0 restores its flags from `global' it will be picking up
+CPU1's flags, not its own!
+
+There are probably less subtle failure modes than this..
+
+-

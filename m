@@ -1,73 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265659AbRGOHK3>; Sun, 15 Jul 2001 03:10:29 -0400
+	id <S265933AbRGOHoQ>; Sun, 15 Jul 2001 03:44:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265933AbRGOHKT>; Sun, 15 Jul 2001 03:10:19 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:201 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S265659AbRGOHKL>;
-	Sun, 15 Jul 2001 03:10:11 -0400
-Message-ID: <3B5141A0.2B98693@athlon.maya.org>
-Date: Sun, 15 Jul 2001 09:09:20 +0200
-From: Andreas Hartmann <andihartmann@freenet.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: Again: Linux 2.4.x and AMD Athlon
+	id <S265941AbRGOHoG>; Sun, 15 Jul 2001 03:44:06 -0400
+Received: from [209.234.73.40] ([209.234.73.40]:14344 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S265933AbRGOHn4>;
+	Sun, 15 Jul 2001 03:43:56 -0400
+Date: Sun, 15 Jul 2001 02:42:55 -0500
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Mike Kravetz <mkravetz@sequent.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+        lse-tech@lists.sourceforge.net
+Subject: Re: CPU affinity & IPI latency
+Message-ID: <20010715024255.F3965@altus.drgw.net>
+In-Reply-To: <20010712164017.C1150@w-mikek2.des.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010712164017.C1150@w-mikek2.des.beaverton.ibm.com>; from mkravetz@sequent.com on Thu, Jul 12, 2001 at 04:40:17PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Thu, Jul 12, 2001 at 04:40:17PM -0700, Mike Kravetz wrote:
+> This discussion was started on 'lse-tech@lists.sourceforge.net'.
+> I'm widening the distribution in the hope of getting more input.
+> 
+> It started when Andi Kleen noticed that a single 'CPU Hog' task
+> was being bounced back and forth between the 2 CPUs on his 2-way
+> system.  I had seen similar behavior when running the context
+> switching test of LMbench.  When running lat_ctx with only two
+> threads on an 8 CPU system, one would ?expect? the two threads
+> to be confined to two of the 8 CPUs in the system.  However, what
+> I have observed is that the threads are effectively 'round
+> robined' among all the CPUs and they all end up bearing
+> an equivalent amount of the CPU load.  To more easily observe
+> this, increase the number of 'TRIPS' in the benchmark to a really
+> large number.
 
-On Friday 13 July 2001 13:12, Thomas Foerster wrote:
+Did this 'CPU Hog' task do any I/O that might have caused an interrupt?
 
-> I got only one oops in inode.c (forget the actual line number)
-> The rest are random application crashes on XFree 4.0.3 (GeForce2 GTS, nVidi
-> DRI (older version)) The System NEVER hangs, only applications crash!
+I'm wondering if the interrupt distribution has anything to do with this.. 
+are you using any CPU affinity for interrupts? If not, this might explain 
+why the processes wind up doing a 'round robin'.
 
-Some more experiences with AMD and X-related crashes:
--> I've an Athlon 800 on a Epox EP7KXA Mobo (686A) with 512MB RAM and no
-nVIDIA graphics card, but ATI XPERT 2000.
+I'm trying to reproduce this with gzip on a dual Mac G4, and I'm wondering
+if this will be scewed any because all interrupts are directed at cpu0, so
+anything that generates input or output on the network or serial is going
+to tend to wind up on cpu0.
 
-I've got similar problems with 2.4.x-kernels and I would be very glad,
-if the cause could be found. The problem is more than half of a year
-old!
-I posted it in this list some time ago (more than once) - nobody seemed
-to be interested. I posted it 2 times to the X bug list - no interest.
+I'd also like to figure out what the IPI latency actually is.. Does anyone
+have any suggestions how to measure this? I would hope it's lower on the
+dual 7410 machine I have since I have 4-stage pipelines as opposed to 20
+odd stages that Pentium III class machines do..
 
-But as I can see now, the problem seems to be greater than I thoght.
-Therefore I write here some of my latest experiences:
+> After a little investigation, I believe this 'situation' is caused
+> by the latency of the reschedule IPI used by the scheduler.  Recall
+> that in lat_ctx all threads are in a tight loop consisting of:
+> 
+> pipe_read()
+> pipe_write()
+> 
+> Both threads 'start' on the same CPU and are sitting in pipe_read
+> waiting for data.  A token is written to the pipe and one thread
+> is awakened.  The awakened thread, then immediately writes the token
+> back to the pipe which ultimately results in a call to reschedule_idle()
+> that will 'initiate' the scheduling of the other thread.  In
+> reschedule_idle() we can not take the 'fast path' because WE are
+> currently executing on the other thread's preferred CPU.  Therefore,
+> reschedule_idle() chooses the oldest idle CPU and sends the IPI.
+> However, before the IPI is received (and schedule() run) on the
+> remote CPU, the currently running thread calls pipe_read which
+> blocks and calls schedule().  Since the other task has yet to be
+> scheduled on the other CPU, it is scheduled to run on the current
+> CPU.  Both tasks continue to execute on the one CPU until such time
+> that an IPI induced schedule() on the other CPU hits a window where
+> it finds one of the tasks to schedule.  We continue in this way,
+> migrating the tasks to the oldest idle CPU and eventually cycling our
+> way through all the CPUs.
+> 
+> Does this explanation sound reasonable?
+> 
+> If so, it would then follow that booting with 'idle=poll' would
+> help alleviate this situation.  However, that is not the case.  With
+> idle=poll the CPU load is not as evenly distributed among the CPUs,
+> but is still distributed among all of them.
+> 
+> Does the behavior of the 'benchmark' mean anything?  Should one
+> expect tasks to stay their preferred CPUs if possible?
+> 
+> Thoughts/comments
+> -- 
+> Mike Kravetz                                 mkravetz@sequent.com
+> IBM Linux Technology Center
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-
-# X 4.1 (if I remember right) and 2.4.6 -> a lot off solid crashes (even
-pinging the machine didn't work) while starting X, no matter if DRI was
-turned on or off; no matter if agp was loaded or not. Unuseable.
-
-# X-CVS and 2.4.6ac2 eg. is working fine - with DRI turned on - I didn't
-test it without DRI.
-
-# Before, I tried to run X 4.1 and ac-Kernels. They have been crashing
-too as described above. That's why I'm using X CVS.
-
-# If I try to run X CVS and vanilla 2.4.6, I'm getting blinking screens
-after some restarts of X or after long working with X. It's unuseable,
-too.
-
-
-For me, it seems to be not a nVIDIA related problem.
-
-The question for me is:
-where are the differences between X CVS / X 4.1 and Vanilla / ac-patches
-- and there combinations.
-Why is the combination 2.4.6ac2 or the ac-patches before and X CVS
-(about 4 weeks old; not DRI-CVS; but they have been merged as far as I
-know) working for me without any problems?
-
-Did you try this combination too? It would bee interersting if it would
-work for you too!
-
-
-Regards,
-Andreas Hartmann
+-- 
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Shulz

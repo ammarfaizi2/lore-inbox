@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266522AbUGKVZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266546AbUGKVqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266522AbUGKVZq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 17:25:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266527AbUGKVZq
+	id S266546AbUGKVqL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 17:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUGKVqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 17:25:46 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:3761 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S266522AbUGKVZo (ORCPT
+	Sun, 11 Jul 2004 17:46:11 -0400
+Received: from dsl-64-30-195-78.lcinet.net ([64.30.195.78]:37000 "EHLO
+	jg555.com") by vger.kernel.org with ESMTP id S266546AbUGKVqJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 17:25:44 -0400
-Date: Sun, 11 Jul 2004 23:25:40 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: =?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?= <andre.goddard@gmail.com>,
-       ck kernel mailing list <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ck] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-In-Reply-To: <40F1AF1E.7030301@kolivas.org>
-Message-ID: <Pine.LNX.4.58.0407112324010.8681@alpha.polcom.net>
-References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org>
- <20040710124814.GA27345@elte.hu> <40F0075C.2070607@kolivas.org>
- <40F016D9.8070300@kolivas.org> <20040711064730.GA11254@elte.hu>
- <40F14E53.2030300@kolivas.org> <20040711143853.GA6555@elte.hu>
- <b8bf377804071110291e61d19b@mail.gmail.com> <Pine.LNX.4.58.0407111945030.8681@alpha.polcom.net>
- <40F1AF1E.7030301@kolivas.org>
+	Sun, 11 Jul 2004 17:46:09 -0400
+Message-ID: <008101c46790$6e41bcd0$d100a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Kernel" <linux-kernel@vger.kernel.org>
+References: <20040711203659.GE2899@charite.de>
+Subject: Another FB Problem (trindentfb)
+Date: Sun, 11 Jul 2004 14:45:48 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jul 2004, Con Kolivas wrote:
-> You have an earlier snapshot wich had Ingo's H2 patch which was buggy. 
-> The last snapshot I announced had Ingo's H3 patch which fixed that exact 
-> problem.
+I have a simliar issue with the trindentfb, Is anyone maintaining the
+trindentfb, so I can work them to resolve this issue???
 
-Yes I tried with pure H3 in the meantime and I can confirm my and yours 
-words: it fixed the problem.
+The trindentfb does respond to the setting of the refresh rate properly. I
+have an omnibook XE2, with the cyberblade i/7 video. I need to setup the
+trindentfb to 800x600 with a Horizonatal sync of 35.15 and a fresh rate
+between 55-65.
 
+These are the settings required for X trident driver also.
 
-Thanks,
+Problem has been in all 2.6.x kernels, Just seeing Ralf's message remindend
+me. vesafb works.
 
-Grzegorz Kulewski
 

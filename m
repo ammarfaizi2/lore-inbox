@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319154AbSIDM0l>; Wed, 4 Sep 2002 08:26:41 -0400
+	id <S319152AbSIDMZ2>; Wed, 4 Sep 2002 08:25:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319155AbSIDM0l>; Wed, 4 Sep 2002 08:26:41 -0400
-Received: from mail.hometree.net ([212.34.181.120]:20442 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S319154AbSIDM0j>; Wed, 4 Sep 2002 08:26:39 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Stupid anti-spam testings...
-Date: Wed, 4 Sep 2002 12:31:13 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <al4ueh$iad$1@forge.intermeta.de>
-References: <20020903001509.E22256@sventech.com> <1031066044.21409.4.camel@irongate.swansea.linux.org.uk>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1031142673 2407 212.34.181.4 (4 Sep 2002 12:31:13 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 4 Sep 2002 12:31:13 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S319153AbSIDMZ1>; Wed, 4 Sep 2002 08:25:27 -0400
+Received: from employees.nextframe.net ([212.169.100.200]:61423 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S319152AbSIDMZ1>; Wed, 4 Sep 2002 08:25:27 -0400
+Date: Wed, 4 Sep 2002 14:31:15 +0200
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re:  writing OOPS/panic info to nvram?
+Message-ID: <20020904143115.A117@sexything>
+Reply-To: morten.helgesen@nextframe.net
+References: <200209041350.21358.roy@karlsbakk.net> <1031142093.2796.116.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1031142093.2796.116.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Wed, Sep 04, 2002 at 01:21:33PM +0100, Alan Cox wrote:
+> On Wed, 2002-09-04 at 12:50, Roy Sigurd Karlsbakk wrote:
+> > hi
+> > 
+> > I just read in the OS X.2 technote 
+> > (http://developer.apple.com/technotes/tn2002/tn2053.html#TN001016) that 
+> > they're writing the panic dump to nvram.
+> > 
+> > Is it hard to implement this on Linux?
+> 
+> Its been done years ago. However on a PC you basically have no free
+> nvram so its not terribly useful there.
 
->Matti, it seems a more productive approach would be to make sure that 
->vger deliberately trips the idiot spam filters into failing. That way
->people will rapidly leave the list or fix their systems.
+True - the 'normal' size on a PC is apparently something like 114 bytes ... 
+I  guess we could use it for something useful ... but maybe not for
+OOPSen/panics. 
 
-Internet Mail Wars at eleven.
+I didn`t realize we only had 114 bytes to work with.
 
-	Regards
-		Henning
+== Morten
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
+
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

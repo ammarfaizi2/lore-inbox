@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVBRPmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVBRPnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVBRPmh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 10:42:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVBRPmh
+	id S261392AbVBRPnj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 10:43:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVBRPn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 10:42:37 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:30598 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261208AbVBRPmf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 10:42:35 -0500
-Subject: Re: [RFC][PATCH] Sparse Memory Handling (hot-add foundation)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: lhms <lhms-devel@lists.sourceforge.net>, linux-mm <linux-mm@kvack.org>,
-       Andy Whitcroft <apw@shadowen.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew E Tolentino <matthew.e.tolentino@intel.com>
-In-Reply-To: <m1zmy2b2w9.fsf@muc.de>
-References: <1108685033.6482.38.camel@localhost>  <m1zmy2b2w9.fsf@muc.de>
-Content-Type: text/plain
-Date: Fri, 18 Feb 2005 07:42:31 -0800
-Message-Id: <1108741351.6482.61.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Fri, 18 Feb 2005 10:43:27 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:40114 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261392AbVBRPnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 10:43:18 -0500
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Dan Dennedy <dan@dennedy.org>
+Subject: Re: [PATCH] ohci1394: dma_pool_destroy while in_atomic() && irqs_disabled()
+Date: Fri, 18 Feb 2005 10:42:46 -0500
+User-Agent: KMail/1.7.92
+Cc: Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
+References: <41FD498C.9000708@comcast.net> <1108180477.30605.7.camel@localhost.localdomain> <1108740772.4588.3.camel@kino.dennedy.org>
+In-Reply-To: <1108740772.4588.3.camel@kino.dennedy.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502181042.47404.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-18 at 11:04 +0100, Andi Kleen wrote:
-> Dave Hansen <haveblue@us.ibm.com> writes:
-> 
-> > The attached patch, largely written by Andy Whitcroft, implements a
-> > feature which is similar to DISCONTIGMEM, but has some added features.
-> > Instead of splitting up the mem_map for each NUMA node, this splits it
-> > up into areas that represent fixed blocks of memory.  This allows
-> > individual pieces of that memory to be easily added and removed.
->
-> I'm curious - how does this affect .text size for a i386 or x86-64 NUMA
-> kernel? One area I wanted to improve on x86-64 for a long time was
-> to shrink the big virt_to_page() etc. inline macros. Your new code
-> actually looks a bit smaller.
+On Friday 18 February 2005 10:32 am, Dan Dennedy wrote:
+> I have tested the patches (including for allocation), and it is working
+> great, but should I only commit for now the deallocation patch? Hmm..
+> which is worse the debug or the 200K waste?
+Thanks for following it up.
 
-On x86, it looks like a 3k increase in text size.  I know Matt Tolentino
-has been testing it on x86_64, he might have a comparison there for you.
+IMHO, we should commit both patches for now since we don't have an alternative 
+solution yet. 
 
-$ size i386-T41-laptop*/vmlinux
-   text    data     bss     dec     hex filename
-2897131  580592  204252 3681975  382eb7 i386-T41-laptop.sparse/vmlinux
-2894166  581832  203228 3679226  3823fa i386-T41-laptop/vmlinux
+Jody - Is the 200K waste for sure or do you want me to verify it by some 
+means? ( Reason I am asking is firstly, Dave Brownell was quite sure it 
+wasn't that costly and secondly, I am hoping it isn't.. ;)
 
-BTW, this PAE is on and uses 36-bits of physaddr space.  
-
--- Dave
-
+Parag

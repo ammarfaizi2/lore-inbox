@@ -1,26 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267181AbSKPBV5>; Fri, 15 Nov 2002 20:21:57 -0500
+	id <S267186AbSKPBjb>; Fri, 15 Nov 2002 20:39:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267184AbSKPBV5>; Fri, 15 Nov 2002 20:21:57 -0500
-Received: from adsl-64-166-42-134.dsl.scrm01.pacbell.net ([64.166.42.134]:9220
-	"HELO www.wavicle.org") by vger.kernel.org with SMTP
-	id <S267181AbSKPBV4>; Fri, 15 Nov 2002 20:21:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Joe Burks <jburks@wavicle.org>
-Reply-To: jburks@wavicle.org
-To: linux-kernel@vger.kernel.org
-Subject: RE: 2.5.47 bk latest pull
-Date: Fri, 15 Nov 2002 09:08:00 -0800
-X-Mailer: KMail [version 1.3.2]
+	id <S267193AbSKPBjb>; Fri, 15 Nov 2002 20:39:31 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:61176 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S267186AbSKPBja>; Fri, 15 Nov 2002 20:39:30 -0500
+To: rddunlap@osdl.org ("Randy.Dunlap")
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reserving "special" port numbers in the kernel ?
+References: <Pine.LNX.4.33L2.0211151658010.6746-100000@dragon.pdx.osdl.net>
+From: Arun Sharma <arun.sharma@intel.com>
+Date: 15 Nov 2002 17:46:21 -0800
+In-Reply-To: <Pine.LNX.4.33L2.0211151658010.6746-100000@dragon.pdx.osdl.net>
+Message-ID: <u65uyb82a.fsf@unix-os.sc.intel.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20021116012156Z267181-32597+23019@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had this same problem using 2.5.47bk4 from kernel.org.
+rddunlap@osdl.org ("Randy.Dunlap") writes:
 
-I also noticed that make modules_install no longer runs depmod, so my 
-module dependencies didn't get set up until I ran depmod manually which then 
-exposed the QM_MODULES problem.
+> Look in arch/i386/kernel/setup.c (in 2.4.19):
+> 
+> There is this array:
+>   struct resource standard_io_resources[] = ...
+> that you could add to; you could even make the addition a CONFIG_ option.
+
+That's reserving I/O ports. Are you suggesting that we create an
+analogous array for IP ports ?
+
+        -Arun
+

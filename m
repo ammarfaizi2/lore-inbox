@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262260AbVCBKr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVCBK6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262260AbVCBKr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 05:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVCBKr7
+	id S262261AbVCBK6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 05:58:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbVCBK6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 05:47:59 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:32696 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262261AbVCBKr5 (ORCPT
+	Wed, 2 Mar 2005 05:58:15 -0500
+Received: from news.suse.de ([195.135.220.2]:486 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262261AbVCBK5w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 05:47:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=gX/UuhW13Qq0gCJ6sNR0kZosjvMEkKJsBYKKzLbJnZzRspflVPaJHY5K3jQ1HwT7YP4YoqfG+kN+VxCV8s/4TF8oSmDt9zwfvQkR3MwPxrLkRRfN1XoYl184R/qMj8OjoF2hSsrUavKFixwlm2kLEiR1AnoxaR5iGsEYQ7DAr3A=
-Message-ID: <5ca13e830503020247676df272@mail.gmail.com>
-Date: Wed, 2 Mar 2005 18:47:56 +0800
-From: Zhonghua Dai <zhonghuadai@gmail.com>
-Reply-To: Zhonghua Dai <zhonghuadai@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: trouble with Dell dimension 3000 network adapter
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 05:57:52 -0500
+Message-ID: <42259C1C.5080202@suse.de>
+Date: Wed, 02 Mar 2005 11:57:32 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Call for help: list of machines with working S3
+References: <20050214211105.GA12808@elf.ucw.cz> <4225945A.5010005@suse.de>
+In-Reply-To: <4225945A.5010005@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, 
- 
-I've installed the debian(woody) on my Dell dimension 3000 computer.
-But I can't make the network adapter work, it's type is intel pro/100
-VE network desktop adapter. I've tired such modules as eepro100,
-eexpress, but it doesn't work.
+Stefan Seyfried wrote:
+> Pavel Machek wrote:
+>> Hi!
+> 
+>> Table of known working systems:
+>> 
+>> Model                           hack (or "how to do it")
+>> ------------------------------------------------------------------------------
+> 
+> IBM Thinkpad T20 (S3 Inc. 86C270-294 Savage/IX-MV), model 2647-44G
+> "Just works" out of the box. S1 works, too but does not switch off the
+> backlight and looks "interesting", but does not crash.
 
-Any suggestion or information are welcomed?
+Vesafb is "interesting" also after S3, but X continues to work :-)
+-- 
+Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX Nürnberg.
 
-Thanks in advance.
-
-scar
+"Any ideas, John?"
+"Well, surrounding them's out."

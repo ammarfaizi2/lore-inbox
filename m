@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbUKIP6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbUKIQA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbUKIP6m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 10:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbUKIP6m
+	id S261564AbUKIQA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 11:00:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUKIQAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 10:58:42 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:48020 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261558AbUKIP6j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 10:58:39 -0500
-Date: Tue, 9 Nov 2004 18:00:42 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] don't hide thread_group_leader() from grep
-Message-ID: <20041109170042.GA5289@elte.hu>
-References: <4190F55E.DF508D9F@tv-sign.ru>
-Mime-Version: 1.0
+	Tue, 9 Nov 2004 11:00:25 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:17165 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261564AbUKIQAN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 11:00:13 -0500
+To: lsr@neapel230.server4you.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4] Return better error codes from
+ vfat_valid_longname()
+References: <41901DD1.mail5VX1GOOYK@lsrfire.ath.cx>
+	<20041109013848.GC6835@neapel230.server4you.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 10 Nov 2004 00:28:39 +0900
+In-Reply-To: <20041109013848.GC6835@neapel230.server4you.de> (lsr@neapel230.server4you.de's
+ message of "Tue, 9 Nov 2004 02:38:48 +0100")
+Message-ID: <87vfcf3uu0.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4190F55E.DF508D9F@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+lsr@neapel230.server4you.de writes:
 
-* Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> Currently vfat returns -EINVAL if one tries to create a file or directory
+> with an invalid name. This patch changes vfat_valid_longname() to return
+> a more specific error code.
+>
+> POSIX doesn't define a nice error code for invalid filenames, so I chose
+> EACCES -- unlike EINVAL this is a valid error code of mkdir(2). Hope it
+> sort of fits. (EINVAL did *not* fit; it generally seems to point to
+> problems not with the filename  but with e.g. the flags value of open(2)
+> etc.).
 
-> Trivial. replace open-coded thread_group_leader() calls.
-> 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+Yes, the error code for this should be consistent on _system_.
+Until we do it, this change would not be useful.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

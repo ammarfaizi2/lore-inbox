@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbUKCXsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbUKCXwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262002AbUKCXsN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 18:48:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261995AbUKCXop
+	id S261994AbUKCXwE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 18:52:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUKCXsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 18:44:45 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:25472 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S261997AbUKCXTL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 18:19:11 -0500
-Date: Wed, 3 Nov 2004 17:18:57 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: DervishD <lkml@dervishd.net>
-cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
-       linux-kernel@vger.kernel.org
+	Wed, 3 Nov 2004 18:48:40 -0500
+Received: from zamok.crans.org ([138.231.136.6]:50582 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261975AbUKCXrS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 18:47:18 -0500
+To: Russell Miller <rmiller@duskglow.com>
+Cc: Doug McNaught <doug@mcnaught.org>, Jim Nelson <james4765@verizon.net>,
+       DervishD <lkml@dervishd.net>, Gene Heskett <gene.heskett@verizon.net>,
+       linux-kernel@vger.kernel.org,
+       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
 Subject: Re: is killing zombies possible w/o a reboot?
-In-Reply-To: <20041103152531.GA22610@DervishD>
-Message-ID: <Pine.LNX.4.58.0411031718320.1229@gradall.private.brainfood.com>
 References: <200411030751.39578.gene.heskett@verizon.net>
- <20041103143348.GA24596@outpost.ds9a.nl> <yw1xis8nhtst.fsf@ford.inprovide.com>
- <20041103152531.GA22610@DervishD>
+	<200411031644.58979.rmiller@duskglow.com>
+	<87k6t24jsr.fsf@asmodeus.mcnaught.org>
+	<200411031733.30469.rmiller@duskglow.com>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Thu, 04 Nov 2004 00:47:18 +0100
+In-Reply-To: <200411031733.30469.rmiller@duskglow.com> (Russell Miller's
+	message of "Wed, 3 Nov 2004 18:33:30 -0500")
+Message-ID: <877jp2sdfd.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Nov 2004, DervishD wrote:
+Russell Miller <rmiller@duskglow.com> disait dernièrement que :
 
->     Hi all :)
+> I am going to continue pursuing this at the risk of making a bigger fool of 
+> myself than I already am, but I want to make sure that I understand the 
+> issues - and I did read the message you are referring to.
 >
->  * Måns Rullgård <mru@inprovide.com> dixit:
-> > >> I'd tried to kill the zombie earlier but couldn't.
-> > >> Isn't there some way to clean up a &^$#^#@)_ zombie?
-> > > Kill the parent, is the only (portable) way.
-> > Perhaps not as portable, but another possible, though slightly
-> > complicated, way is to ptrace the parent and force it to wait().
+> I think what you are saying is that there is kind of a race condition here.  
+> When something is on the wait queue, it has to be followed through to 
+> completion.  An interrupt could be received at any time, and if it's taken 
+> off of the wait queue prematurely, it'll crash the kernel, because the 
+> interrupt has no way of telling that.
 >
->     Or write a little program that just 'wait()'s for the specified
-> PID's. That is perfectly portable IMHO. But I must admit that the
-> preferred way should be killing the parent. 'init' will reap the
-> children after that.
+> That's fine as it goes, I understand that.  But I submit that this is a 
+> horrible design.  I've been bitten by this more than once - usually regarding 
+> broken NFS connections.
 
-ptrace the parent, cause it to wait() for it's children, then change IP, etc.
+this is because nfs related syscalls are not interruptible by default.
+you can make them interruptible by mounting your nfs's with the 'intr' option.
+
+-- 
+I love people saying 'we' even though they never contributed a single
+line of code to the project!
+
+	- Jens Axboe turning a troll down on linux-kernel
 

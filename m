@@ -1,83 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbTI0Uao (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 16:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbTI0Uao
+	id S262158AbTI0UZq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 16:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTI0UZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 16:30:44 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:46977 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262190AbTI0UaZ (ORCPT
+	Sat, 27 Sep 2003 16:25:46 -0400
+Received: from mail5.bluewin.ch ([195.186.1.207]:20184 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id S262158AbTI0UZl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 16:30:25 -0400
-Date: Sat, 27 Sep 2003 22:30:32 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Gabor MICSKO <gmicsko@szintezis.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Test] exec-shield-2.6.0-test5-G2 vs. paxtest & libsafe
-In-Reply-To: <1064693831.1792.9.camel@sunshine>
-Message-ID: <Pine.LNX.4.56.0309272220020.25371@localhost.localdomain>
-References: <1064678738.3578.8.camel@sunshine> 
- <Pine.LNX.4.56.0309271950450.21678@localhost.localdomain>
- <1064693831.1792.9.camel@sunshine>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 27 Sep 2003 16:25:41 -0400
+Date: Sat, 27 Sep 2003 22:21:48 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] No Swap. Re: [BUG 2.6.90-test5] kernel shits itself with 48mb ram under moderate load
+Message-ID: <20030927202148.GA31080@k3.hellgate.ch>
+Mail-Followup-To: Ihar 'Philips' Filipau <filia@softhome.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <ArQ0.821.23@gated-at.bofh.it> <ArQ0.821.25@gated-at.bofh.it> <ArQ0.821.21@gated-at.bofh.it> <ArZC.8f1.9@gated-at.bofh.it> <3F75EC3B.4030305@softhome.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F75EC3B.4030305@softhome.net>
+X-Operating-System: Linux 2.6.0-test5 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 27 Sep 2003 21:59:55 +0200, Ihar 'Philips' Filipau wrote:
+>   Better than with swap. This is production workstation - I cannot test 
+> something on it :-(
 
-On Sat, 27 Sep 2003, Gabor MICSKO wrote:
+I don't think there's much risk involved in running 2.[56]. If it doesn't
+boot, you can go back to 2.4. If it does boot, it won't eat your data.
+YMMV, of course.
 
-> >   redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test5-G3
-> >   redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test5-bk12-G3
-> 
-> Yes, this patch really better.
+>    <rant>'Paging like crazy' became for me a synonym of Linux. It 
+> doesn't matter how much memory you have. Less == worse. Developers 
 
-> Linux sunshine 2.6.0-test5-exec-shield-nptl #3 SMP 2003. sze. 27.,
+Oh, it does matter. My workstation has 1 GB RAM and 2 GB swap and I hardly
+see any problems with paging <g>.
 
-> http://www.research.avayalabs.com/project/libsafe/src/libsafe-2.0-16.tgz
+> stopped testing VMM regression on low-memory computers long time ago. 
 
-[all libsafe exploits fail - good.]
+Many of the best Linux devs these days work for companies and organizations
+that are in the business of selling or using big iron. They have people on
+staff who test the kernel and whine if it fails to run well with a ton of
+memory and a gazillion CPUs (plus people who actually fix it); it's not
+their job to care about low end systems. However, you don't have to be a VM
+hacker to run a bunch of benchmarks to compare performance and point out
+regressions. People tend to listen if you offer some hard numbers instead
+of a rant about how nobody cares about the low end.
 
-> http://pageexec.virtualave.net/paxtest-0.9.1.tar.gz
-
-> sunshine:/home/trey/exec/paxtest-0.9.1# ./paxtest
-> It may take a while for the tests to complete
-> Test results:
-> Executable anonymous mapping             : Killed
-> Executable bss                           : Killed
-> Executable data                          : Killed
-> Executable heap                          : Killed
-> Executable stack                         : Killed
-
-ok.
-
-> Executable anonymous mapping (mprotect)  : Killed
-
-this is a testsuite bug i think - anonmap.c mprotanon.c differ in nothing 
-but the name string of the test.
-
-> Executable bss (mprotect)                : Vulnerable
-> Executable data (mprotect)               : Vulnerable
-> Executable heap (mprotect)               : Vulnerable
-> Executable shared library bss (mprotect) : Vulnerable
-> Executable shared library data (mprotect): Vulnerable
-> Executable stack (mprotect)              : Vulnerable
-
-these are 'vulnerable' by design. There can be legitimate reasons to
-mprotect() any of these regions. And if an attacker has enough control
-over the target to execute mprotect() with precise arguments then the game
-is mostly over anyway. Does anyone know the rationale of these mprotect()
-tests?
-
-> Return to function (strcpy)              : Vulnerable
-> Return to function (memcpy)              : Vulnerable
-
-it needs gcc level changes to change the stackframe layout - out of the
-scope of exec-shield.
-
-> Writable text segments                   : Vulnerable
-
-this is a variant of the mprotect() tests too - so possible by design.
-
-	Ingo
+Roger

@@ -1,81 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266134AbTGIUxq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 16:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbTGIUxq
+	id S266147AbTGIU4T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 16:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266148AbTGIU4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 16:53:46 -0400
-Received: from sun13.bham.ac.uk ([147.188.128.145]:19128 "EHLO
-	sun13.bham.ac.uk") by vger.kernel.org with ESMTP id S266134AbTGIUxo
+	Wed, 9 Jul 2003 16:56:18 -0400
+Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:28690 "EHLO
+	mail.icequake.net") by vger.kernel.org with ESMTP id S266147AbTGIU4R
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 16:53:44 -0400
-Subject: Oops 2.4.21-ac4 / pwc / usb-uhci / pwcx-i386 / nvidia
-From: Mark Cooke <mpc@star.sr.bham.ac.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-9WS1TS9jleVlp5G/51Tk"
-Organization: University Of Birmingham
-Message-Id: <1057784902.3148.52.camel@pc24.sr.bham.ac.uk>
+	Wed, 9 Jul 2003 16:56:17 -0400
+Date: Wed, 9 Jul 2003 16:10:55 -0500
+From: Ryan Underwood <nemesis-lists@icequake.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Forking shell bombs
+Message-ID: <20030709211055.GI1031@dbz.icequake.net>
+References: <20030708202819.GM1030@dbz.icequake.net> <3F0B2CE6.8060805@nni.com> <20030708212517.GO1030@dbz.icequake.net> <3F0C2FCB.8060304@blue-labs.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Jul 2003 22:08:22 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <3F0C2FCB.8060304@blue-labs.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-9WS1TS9jleVlp5G/51Tk
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Hi David,
 
-Hi all,
+On Wed, Jul 09, 2003 at 11:07:55AM -0400, David Ford wrote:
+> No such thing exists.  I can have 10,000 processes doing nothing and 
+> have a load average of 0.00.  I can have 100 processes each sucking cpu 
+> as fast as the electrons flow and have a dead box.
 
-Just FYI really, as I had the nvidia driver plus the philips binary
-compression support module loaded.
+Well, like I said, in this specific case we talk about a fork bomb, not
+a bunch of idle processes.  My question is what the upper limit to set,
+in order to ensure that processes that do nothing but "while (1)
+fork();" do not take down the system.  Apparently 2047 is too high for
+2.4.21, at least on my system.  But, a slower box manages a 2047 ulimit
+fine with a 2.4.20 kernel.
 
-Camserv was running, and as the viewer broke off the connection, the
-oops occurred.
+> Learn how to manage resource limits and you can tuck another feather 
+> into your fledgeling sysadmin hat ;)
 
-Cheers,
+I already know how to manage the limits, but I am asking why the system
+seems to hang indefinitely when a maximum of 2047 is set, but not when
+e.g. 1500 is set.  Do you have any idea?  Why would there be such a
+large change in behavior with such a small change in parameter?
 
-Mark
+Furthermore, why does my (slower, 600 < 800mhz) system running 2.4.20
+kill off a fork bomb at a 2047 ulimit instantaneously, but 2.4.21 takes
+half an hour or more, at which point I give up?
 
 -- 
-Mark Cooke <mpc@star.sr.bham.ac.uk>
-University Of Birmingham
-
---=-9WS1TS9jleVlp5G/51Tk
-Content-Disposition: attachment; filename=oops
-Content-Type: text/plain; name=oops; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-
-Jul  9 20:59:28 pc24 kernel: usb-uhci.c: interrupt, status 3, frame# 1139
-Jul  9 21:40:17 pc24 kernel: usb-uhci.c: interrupt, status 2, frame# 1374
-Jul  9 21:40:17 pc24 kernel: hub.c: already running port 2 disabled by hub (EMI?), re-enabling...
-Jul  9 21:40:17 pc24 kernel: usb.c: USB disconnect on device 00:1d.1-2 address 2
-Jul  9 21:40:17 pc24 kernel: pwc Disconnected while device/video is open!
-Jul  9 21:48:05 pc24 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000048
-Jul  9 21:48:05 pc24 kernel:  printing eip:
-Jul  9 21:48:05 pc24 kernel: f8ac8402
-Jul  9 21:48:05 pc24 kernel: *pde = 00000000
-Jul  9 21:48:05 pc24 kernel: Oops: 0000
-Jul  9 21:48:05 pc24 kernel: sg ppp_deflate zlib_deflate ppp_async ppp_generic slhc pl2303 usbserial nfs sd_mod scsi_mod agpgart nvidia binfmt_misc vmnet vmmon lp parport pwc videodev nfs
-Jul  9 21:48:05 pc24 kernel: CPU:    0
-Jul  9 21:48:05 pc24 kernel: EIP:    0010:[<f8ac8402>]    Tainted: PF
-Jul  9 21:48:05 pc24 kernel: EFLAGS: 00010296
-Jul  9 21:48:05 pc24 kernel:
-Jul  9 21:48:05 pc24 kernel: EIP is at video_ioctl [videodev] 0x22 (2.4.21-21.ac4.mc1)
-Jul  9 21:48:05 pc24 kernel: eax: 00000000   ebx: ffffffe7   ecx: 00000005   edx: 40047612
-Jul  9 21:48:05 pc24 kernel: esi: 40047612   edi: f70688e0   ebp: 00000005   esp: f789bf88
-Jul  9 21:48:05 pc24 kernel: ds: 0018   es: 0018   ss: 0018
-Jul  9 21:48:05 pc24 kernel: Process camserv (pid: 1828, stackpage=f789b000)
-Jul  9 21:48:05 pc24 kernel: Stack: 00000000 40047612 0805c64c c014e179 f75fa3e0 f70688e0 40047612 0805c64c
-Jul  9 21:48:05 pc24 kernel:        00000000 00000000 f789a000 0805c490 404e2008 bfffc268 c0109017 00000005
-Jul  9 21:48:05 pc24 kernel:        40047612 0805c64c 0805c490 404e2008 bfffc268 00000036 0000002b 0000002b
-Jul  9 21:48:05 pc24 kernel: Call Trace:   [<c014e179>] sys_ioctl [kernel] 0xc9 (0xf789bf94))
-Jul  9 21:48:05 pc24 kernel: [<c0109017>] system_call [kernel] 0x33 (0xf789bfc0))
-Jul  9 21:48:05 pc24 kernel:
-Jul  9 21:48:05 pc24 kernel:
-Jul  9 21:48:05 pc24 kernel: Code: ff 50 48 89 c2 b8 ea ff ff ff 81 fa fd fd ff ff 0f 45 c2 83
-Jul  9 21:48:05 pc24 kernel:  <7>pwc pwc_isoc_handler() called with status -84 [CRC/Timeout].
-
---=-9WS1TS9jleVlp5G/51Tk--
-
+Ryan Underwood, <nemesis at icequake.net>, icq=10317253

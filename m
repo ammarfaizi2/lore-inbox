@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261653AbSIZBjV>; Wed, 25 Sep 2002 21:39:21 -0400
+	id <S261955AbSIZBpN>; Wed, 25 Sep 2002 21:45:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261955AbSIZBjV>; Wed, 25 Sep 2002 21:39:21 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:36545 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261653AbSIZBjU> convert rfc822-to-8bit; Wed, 25 Sep 2002 21:39:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: nf@hipac.org
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification for Netfilter
-Date: Thu, 26 Sep 2002 03:44:26 +0200
-User-Agent: KMail/1.4.3
-References: <200209260041.56374.nf@hipac.org> <200209260238.06400.nf@hipac.org> <20020925.173728.08323077.davem@redhat.com>
-In-Reply-To: <20020925.173728.08323077.davem@redhat.com>
+	id <S261994AbSIZBpN>; Wed, 25 Sep 2002 21:45:13 -0400
+Received: from [157.182.194.151] ([157.182.194.151]:46010 "EHLO
+	mail.csee.wvu.edu") by vger.kernel.org with ESMTP
+	id <S261955AbSIZBpM>; Wed, 25 Sep 2002 21:45:12 -0400
+Subject: Reg Sparc memory addresses
+From: Shanti Katta <katta@csee.wvu.edu>
+To: sparc-linux@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209260344.26814.nf@hipac.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 25 Sep 2002 22:01:15 -0400
+Message-Id: <1033005676.2723.5.camel@indus>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I compiled user-mode-linux kernel on Ultrasparc with load address set to
+00000000e0000000. But, when I try to debug the kernel, it just says
+cannot access memory at address 0xa00020b0.
+This error message remains the same no matter what I change the load
+address to. Can anyone guide me on valid memory addresses for userspace
+on Sparc? and how much different is that from x86 architecture?
 
-> Seriously, just sit tight with your work, and once the stackable
-> route stuff is done, you can look into applying your algorithms
-> to the new flow cache.
+-Shanti
 
-Sorry, we are a bit confused of the formulation "adding the algorithmus to the 
-new flow cache"
-Why to the flow cache? What exaclty is the job of this flow cache?
-Does the job go beyond caching recently "lookup results"?
-What happens if the flow cache doesn't have a certain lookup result in the 
-cache yet?
-We mean, how is the packet classification solved then?
-Is it right, that the code will then use a linear search algorithm and compare 
-the packet with each rule sequentially until a rule is found that matches all 
-relevant fields?
 
-Our algorithm does not implement some kind of cache. Our algorithm is actually 
-a replacement for that linear search algorithm. Our algorithm implements an 
-advanced approach to the packet classification problem itself.
-
-the nf-hipac team
-	Michael Bellion, Thomas Heinz
 

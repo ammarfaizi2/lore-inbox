@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263579AbTDGSPK (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 14:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbTDGSPK (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 14:15:10 -0400
-Received: from findaloan-online.cc ([216.209.85.42]:19470 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S263579AbTDGSPI (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 14:15:08 -0400
-Date: Mon, 7 Apr 2003 14:33:52 -0400
+	id S263594AbTDGSSF (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 14:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbTDGSSF (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 14:18:05 -0400
+Received: from findaloan-online.cc ([216.209.85.42]:21262 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S263594AbTDGSSD (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 14:18:03 -0400
+Date: Mon, 7 Apr 2003 14:37:00 -0400
 From: Mark Mielke <mark@mark.mielke.cc>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Thomas Schlichter <schlicht@rumms.uni-mannheim.de>,
+       linux-kernel@vger.kernel.org
 Subject: Re: An idea for prefetching swapped memory...
-Message-ID: <20030407183352.GA7311@mark.mielke.cc>
-References: <200304071026.47557.schlicht@uni-mannheim.de> <200304072021.17080.kernel@kolivas.org> <1049712476.3e91575c2e6ae@rumms.uni-mannheim.de> <yw1xsmsuk0sm.fsf@nogger.e.kth.se>
+Message-ID: <20030407183700.GB7311@mark.mielke.cc>
+References: <200304071026.47557.schlicht@uni-mannheim.de> <200304072021.17080.kernel@kolivas.org> <1049712476.3e91575c2e6ae@rumms.uni-mannheim.de> <3E917BFA.4020303@aitel.hist.no> <3E9188ED.1090109@nortelnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <yw1xsmsuk0sm.fsf@nogger.e.kth.se>
+In-Reply-To: <3E9188ED.1090109@nortelnetworks.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 07, 2003 at 01:24:41PM +0200, M?ns Rullg?rd wrote:
-> Thomas Schlichter <schlicht@rumms.uni-mannheim.de> writes:
-> > > This has been argued before. Why would the last swapped out pages
-> > > be the best to swap in? The vm subsystem has (somehow) decided
-> > > they're the least likely to be used again so why swap them in?
-> > > Alternatively how would it know which to swap in instead?  Con
+On Mon, Apr 07, 2003 at 10:19:25AM -0400, Chris Friesen wrote:
+> Helge Hafting wrote:
+> >"What we're going to need soon" is the best.  It isn't always predictable,
+> >but sometimes.  "The block following the last we read from some 
+> >file/fs-structure"
+> >is often a good one though.
 
-> > What I wanted to say is that if there is free memory it should be
-> > filled with the pages that were in use before the memory got
-> > rare. And these are the pages swapped out last. The other swapped
-> > out pages are swapped out even longer and so will likely not be used
-> > in the near future... (That's what the LRU algorithm says...)
+> With the current setup though, the memory is wasted.  It makes sense that 
+> we should fill the memory up with *something* that is likely to be useful.
+> 
+> If I have mozilla open, start a kernel compile, and then come back half an 
+> hour later, I would like to see the mozilla pages speculatively loaded back 
+> into memory.
+> 
+> Since the system is otherwise idle, it doesn't cost anything to do this.  I 
+> think its obvious that it is beneficial to swap in something, the only 
+> trick is getting a decent heuristic as to what it should be.
 
-> Would it be possible to track the most recently used swapped out page?
-> This would possibly be a good candidate for speculative loading.
+Chris: Based on your usage patterns, how would Linux know that you were
+going to be opening up Mozilla, and not that you were going to tweak the
+kernel source and compile it again?
 
-Personally, I'm not sure that this idea sounds very effective. I
-_like_ the fact that after pages get swapped out, my RAM gets filled
-up with file pages with use. It means that although bringing a window
-that I haven't used in a while takes some time to load, my apache
-server, or my xterm, can serve files or requests like 'ls' much
-faster. If swap was automatically pulled in to replace my file pages,
-I suspect I would be trading one evil for another.
+The only time memory is wasted is when you don't have enough of it, and it
+gets trampled for common operations that you perform. All other times, the
+memory is loaded, because it was used, which means it might be used again.
 
 mark
 

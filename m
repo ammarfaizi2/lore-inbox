@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291475AbSBMKJl>; Wed, 13 Feb 2002 05:09:41 -0500
+	id <S291510AbSBMKMw>; Wed, 13 Feb 2002 05:12:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291473AbSBMKJb>; Wed, 13 Feb 2002 05:09:31 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:54152 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S291492AbSBMKJW>;
-	Wed, 13 Feb 2002 05:09:22 -0500
-Date: Wed, 13 Feb 2002 13:07:11 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
-        Tom Rini <trini@kernel.crashing.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>,
-        Rob Landley <landley@trommello.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <20020212190834.W9826@lynx.turbolabs.com>
-Message-ID: <Pine.LNX.4.33.0202131300500.16151-100000@localhost.localdomain>
+	id <S291509AbSBMKMp>; Wed, 13 Feb 2002 05:12:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62470 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291492AbSBMKMb>; Wed, 13 Feb 2002 05:12:31 -0500
+Subject: Re: AX25 Patches for 2.4.17 and above - have they been included yet
+To: stephen@g6dzj.demon.co.uk
+Date: Wed, 13 Feb 2002 10:26:13 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, linux-hams@vger.kernel.org
+In-Reply-To: <E16awCH-000Hrq-0Y@anchor-post-34.mail.demon.net> from "Stephen Kitchener" at Feb 13, 2002 10:03:11 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16awc9-0004sY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I have been looking and searching the latest kernel pachecs and update for 
+> the fixes that were issued some time ago, but I have yet to see them.
 
-On Tue, 12 Feb 2002, Andreas Dilger wrote:
+Thats because they were wrong..
 
-> Is this using "bk clone -l" or just "bk clone"?  I would _imagine_
-> that since the rmap changes are fairly localized that you would only
-> get multiple copies of a limited number of files, and it wouldn't
-> increase the size of each repository very much.
+> + *             Jeroen Vreeken  :       Add check for sk->dead in 
+> sock_def_write_space
+>   *
+>   * To Fix:
+>   *
+> @@ -1146,7 +1147,7 @@
+>         /* Do not wake up a writer until he can make "significant"
+>          * progress.  --DaveM
+>          */
+> -       if((atomic_read(&sk->wmem_alloc) << 1) <= sk->sndbuf) {
+> +       if(!sk->dead && (atomic_read(&sk->wmem_alloc) << 1) <= sk->sndbuf) {
+>                 if (sk->sleep && waitqueue_active(sk->sleep))
 
-the problem is, i'd like to see all these changes in a single tree, and
-i'd like to be able to specify whether two changesets have semantic
-dependencies on each other or not. BK would still enforce 'hard
-orthogonality' - ie. two changesets that change the same line of code
-cannot be defined as nondependent on each other, BK should refuse the
-checking in of such a changeset. The default dependency should be
-something like 'this changeset is dependent on all previous changesets
-committed to this repository' - but if the developer wants it then it
-should be possible to un-depend two changesets.
-
-it's also true in the other direction: two changesets that have no hard
-conflicts could still have semantic dependencies, it's the responsibility
-of the developer.
-
-(detail: it might even be possible to define two changesets as orthogonal
-even if there are hard conflicts between them. For this to work the
-developer has to provide the correct merge in both directions. If that is
-done then BK should allow to make the two changesets independent.)
-
-	Ingo
-
+See 2.4.18-ac which has a newer update for this.

@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbUDJXOq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 19:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbUDJXOq
+	id S262119AbUDJX1N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 19:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUDJX1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 19:14:46 -0400
-Received: from mlf.linux.rulez.org ([192.188.244.13]:49168 "EHLO
-	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S262153AbUDJXOp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 19:14:45 -0400
-Date: Sun, 11 Apr 2004 01:14:42 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Andries Brouwer <aebr@win.tue.nl>, fledely <fledely@bgumail.bgu.ac.il>,
-       linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Accessing odd last partition sector (was: [Linux-NTFS-Dev] mkntfs
- dirty volume marking)
-In-Reply-To: <20040410225514.GX31500@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.21.0404110104230.840-100000@mlf.linux.rulez.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Apr 2004 19:27:13 -0400
+Received: from waste.org ([209.173.204.2]:51590 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262119AbUDJX1L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 19:27:11 -0400
+Date: Sat, 10 Apr 2004 18:27:07 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] shrink hash sizes on small machines, take 2
+Message-ID: <20040410232707.GU6248@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following attempts to cleanly address the low end of the problem,
+something like my calc_hash_order or Marcelo's approach should be used
+to attack the upper end of the problem.
 
-On Sat, 10 Apr 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Sun, Apr 11, 2004 at 12:23:47AM +0200, Szakacsits Szabolcs wrote:
->  
-> > Just one question, in the most common cases the block size ends up between
-> > 512 and 4096 bytes. Depending on how this block size used, it can have a
-> > significant impact on performance (e.g. 512 vs 4096). Is this true or is
-> > it used to be performance independent?
-> 
-> Resulting requests are immediately merged anyway.  Yes, we get more bio
-> sitting on top of the merged request; however, it's heavily IO-dominated
-> and I would be surprised if you really saw any noticable overhead in that
-> situation.
+8<
 
-Thanks, I'll test it in the near future unless somebody does it earlier. 
+Shrink hashes on small systems
 
-I have my test stuff but I'm interested of you could suggest specific ones
-that might exhibit/trigger the overhead if it exists at all.
+Base hash sizes on available memory rather than total memory. An
+additional 50% above current used memory is considered reserved for
+the purposes of hash sizing to compensate for the hashes themselves
+and the remainder of kernel and userspace initialization.
 
-	Szaka
+Index: tiny/fs/dcache.c
+===================================================================
+--- tiny.orig/fs/dcache.c	2004-03-25 13:36:09.000000000 -0600
++++ tiny/fs/dcache.c	2004-04-10 18:14:42.000000000 -0500
+@@ -28,6 +28,7 @@
+ #include <asm/uaccess.h>
+ #include <linux/security.h>
+ #include <linux/seqlock.h>
++#include <linux/swap.h>
+ 
+ #define DCACHE_PARANOIA 1
+ /* #define DCACHE_DEBUG 1 */
+@@ -1619,13 +1620,21 @@
+ 
+ void __init vfs_caches_init(unsigned long mempages)
+ {
+-	names_cachep = kmem_cache_create("names_cache", 
+-			PATH_MAX, 0, 
++	unsigned long reserve;
++
++	/* Base hash sizes on available memory, with a reserve equal to
++           150% of current kernel size */
++
++	reserve = (mempages - nr_free_pages()) * 3/2;
++	mempages -= reserve;
++
++	names_cachep = kmem_cache_create("names_cache",
++			PATH_MAX, 0,
+ 			SLAB_HWCACHE_ALIGN, NULL, NULL);
+ 	if (!names_cachep)
+ 		panic("Cannot create names SLAB cache");
+ 
+-	filp_cachep = kmem_cache_create("filp", 
++	filp_cachep = kmem_cache_create("filp",
+ 			sizeof(struct file), 0,
+ 			SLAB_HWCACHE_ALIGN, filp_ctor, filp_dtor);
+ 	if(!filp_cachep)
+@@ -1633,7 +1642,7 @@
+ 
+ 	dcache_init(mempages);
+ 	inode_init(mempages);
+-	files_init(mempages); 
++	files_init(mempages);
+ 	mnt_init(mempages);
+ 	bdev_cache_init();
+ 	chrdev_init();
 
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

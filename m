@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269589AbTHJOS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 10:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269619AbTHJOS0
+	id S268702AbTHJOdj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 10:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269559AbTHJOdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 10:18:26 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:32782 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S269589AbTHJOSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 10:18:23 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH][2.6.0-test3] i386 cpuid.c devfs support 2/2
-Date: Sun, 10 Aug 2003 18:14:52 +0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200308101252.26584.arvidjaar@mail.ru> <20030810135939.GB17154@redhat.com>
-In-Reply-To: <20030810135939.GB17154@redhat.com>
+	Sun, 10 Aug 2003 10:33:39 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:55803 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S268702AbTHJOdh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 10:33:37 -0400
+Date: Sun, 10 Aug 2003 16:33:00 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] IDE (& PowerMac): Let an hwif have a real parent
+In-Reply-To: <1060524726.595.13.camel@gaston>
+Message-ID: <Pine.SOL.4.30.0308101630280.1330-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308101814.52335.arvidjaar@mail.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 10 August 2003 17:59, Dave Jones wrote:
-> On Sun, Aug 10, 2003 at 12:52:26PM +0400, Andrey Borzenkov wrote:
->  > the same question about default permissions as for msr.c; the same
->  > problem with module unload.
->
-> cpuid is less harmful than msr, but it's possible some admins may not
-> want their users being able to read things like CPU serial numbers
-> (if enabled).
->
 
-should it be 400 or 440 by default? Microcode sets permissions to 640.
+On 10 Aug 2003, Benjamin Herrenschmidt wrote:
 
--andrey
+> Hi Linus & Bart !
+>
+> This patch allows an IDE hwif to be set a "parent" field so it
+> can really descend from any struct device, typically the macio_device
+> I use on pmac, and not only a PCI device or the legacy stuff.
+>
+> This should work fine as long as hwif->gendev.parent doesn't
+> contain junk, but so far, it seems it really only contains
+> NULL unless specifically set by the host driver.
+>
+> Without that, the pmac driver will not appear in it's proper
+> location in the device tree, which is a real problem for power
+> management as it won't be ordered properly with it's hosting
+> asic (and mediabay if any), thus breaking suspend/resume.
+
+Looks good.
+
+> Please apply,
+> Ben.
+
+Can you fix intendation, or I should do it?
+
+> --- a/drivers/ide/ide-probe.c	Sun Aug 10 16:07:40 2003
+> +++ b/drivers/ide/ide-probe.c	Sun Aug 10 16:07:40 2003
+> @@ -650,10 +650,12 @@
+>  	strlcpy(hwif->gendev.bus_id,hwif->name,BUS_ID_SIZE);
+>  	snprintf(hwif->gendev.name,DEVICE_NAME_SIZE,"IDE Controller");
+>  	hwif->gendev.driver_data = hwif;
+> +	if (hwif->gendev.parent == NULL) {
+>  	if (hwif->pci_dev)
+>  		hwif->gendev.parent = &hwif->pci_dev->dev;
+>  	else
+>  		hwif->gendev.parent = NULL; /* Would like to do = &device_legacy */
+> +	}
+>  	device_register(&hwif->gendev);
+>  }
+
+--bartlomiej
+

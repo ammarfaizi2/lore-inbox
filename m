@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266576AbSKGOs4>; Thu, 7 Nov 2002 09:48:56 -0500
+	id <S266570AbSKGOqp>; Thu, 7 Nov 2002 09:46:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266577AbSKGOsz>; Thu, 7 Nov 2002 09:48:55 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:48880 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S266576AbSKGOsz>; Thu, 7 Nov 2002 09:48:55 -0500
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20021107145112.GA24278@suse.de> 
-References: <20021107145112.GA24278@suse.de>  <1036415133.1106.10.camel@irongate.swansea.linux.org.uk> <20021104025458.GA3088@zip.com.au> <9668.1036679581@passion.cambridge.redhat.com> 
-To: Dave Jones <davej@codemonkey.org.uk>
+	id <S266574AbSKGOqp>; Thu, 7 Nov 2002 09:46:45 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:48074 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266570AbSKGOqo>;
+	Thu, 7 Nov 2002 09:46:44 -0500
+Date: Thu, 7 Nov 2002 14:51:12 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.45 / boottime oops (pnp bios I think) 
+Subject: Re: 2.5.45 / boottime oops (pnp bios I think)
+Message-ID: <20021107145112.GA24278@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1036415133.1106.10.camel@irongate.swansea.linux.org.uk> <20021104025458.GA3088@zip.com.au> <9668.1036679581@passion.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 07 Nov 2002 14:55:30 +0000
-Message-ID: <11262.1036680930@passion.cambridge.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <9668.1036679581@passion.cambridge.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 07, 2002 at 02:33:01PM +0000, David Woodhouse wrote:
 
-davej@codemonkey.org.uk said:
->  Relatively pointless given that there are more and more boxes out
-> there that won't boot without ACPI these days.
+ > We should really have an extra taint flag for 'We have run untrusted BIOS 
+ > code'. 
 
-There are also more and more boxes out there which won't run X without the
-nvidia driver loaded. Does that mean we shouldn't bother to record that 
-information either?
+Relatively pointless given that there are more and more boxes out there
+that won't boot without ACPI these days.
 
-I'm not necessarily suggesting we should automatically ignore all reports 
-with the 'BIOS' taint flag set as we do the 'Proprietary' flag; just that 
-it should be reported.
+		Dave
 
---
-dwmw2
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

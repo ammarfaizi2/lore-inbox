@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVA1IpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVA1IqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVA1IpO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 03:45:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVA1IpO
+	id S261210AbVA1IqL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 03:46:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVA1IqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 03:45:14 -0500
-Received: from p-mail2.rd.francetelecom.com ([195.101.245.16]:40454 "EHLO
-	p-mail2.rd.francetelecom.com") by vger.kernel.org with ESMTP
-	id S261204AbVA1IpJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 03:45:09 -0500
-Message-ID: <41F9FBC1.5000204@francetelecom.REMOVE.com>
-Date: Fri, 28 Jan 2005 09:45:53 +0100
-From: Julien TINNES <julien.tinnes.NOSPAM@francetelecom.REMOVE.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Patch 4/6 randomize the stack pointer
-References: <200501280203.j0S23Fc8008333@laptop11.inf.utfsm.cl>
-In-Reply-To: <200501280203.j0S23Fc8008333@laptop11.inf.utfsm.cl>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Jan 2005 08:45:02.0294 (UTC) FILETIME=[A81E5760:01C50515]
+	Fri, 28 Jan 2005 03:46:11 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:46293 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S261210AbVA1IqC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 03:46:02 -0500
+Date: Fri, 28 Jan 2005 09:45:58 +0100
+From: David Weinehall <tao@debian.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Julien TINNES <julien.tinnes.NOSPAM@francetelecom.REMOVE.com>,
+       John Richard Moser <nigelenki@comcast.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch 0/6  virtual address space randomisation
+Message-ID: <20050128084558.GM17242@khan.acc.umu.se>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Julien TINNES <julien.tinnes.NOSPAM@francetelecom.REMOVE.com>,
+	John Richard Moser <nigelenki@comcast.net>,
+	linux-kernel@vger.kernel.org
+References: <20050127101117.GA9760@infradead.org> <41F8D44D.9070409@francetelecom.REMOVE.com> <1106827050.5624.81.camel@laptopd505.fenrus.org> <41F927F2.2080100@comcast.net> <41F9425A.2030101@francetelecom.REMOVE.com> <1106856785.5624.132.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106856785.5624.132.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> Julien TINNES <julien.tinnes.NOSPAM@francetelecom.REMOVE.com> said:
+On Thu, Jan 27, 2005 at 09:13:04PM +0100, Arjan van de Ven wrote:
+> On Thu, 2005-01-27 at 20:34 +0100, Julien TINNES wrote:
+> > > 
+> > > Yeah, if it came from PaX the randomization would actually be useful.
+> > > Sorry, I've just woken up and already explained in another post.
+> > > 
+> > 
+> > Please, no hard feelings.
+> > 
+> > Speaking about implementation of the non executable pages semantics on 
+> > IA32, PaX and Exec-Shield are very different (well not that much since 
+> > 2.6 in fact because PAGEEXEC is now "segmentation when I can").
+> > But when it comes to ASLR it's pretty much the same thing.
+> > 
+> > The only difference may be the (very small) randomization of the brk() 
+> > managed heap on ET_EXEC (which is probably the more "hackish" feature of 
+> > PaX ASLR) but it seems that Arjan is even going to propose a patch for 
+> > that (Is this in ES too ?).
 > 
->>Not very important but ((get_random_int() % 4096) << 4) could be 
->>optimized into get_random_int() & 0xFFF0.
-> 
-> 
-> Check first if the compiler doesn't do it by itself.
+> Exec shield randomized brk() too yes.
+> However that is a both more dangerous and more invasive change to do
+> correctly (you have no idea how hard it is to get that right for
+> emacs...) so that's reserved for the second batch of patches once this
+> first batch is dealt with.
 
-The compiler cannot guess that get_random_int() gives a random result. 
-%4096 and & 0xFFF is'nt the same operation. But (get_random_int() % 
-4096) and (get_random_int() & 0xFFF) gives the same result: a random 
-number between 0 and 4095, without loss of entropy because 0xFFF has no 
-0 bit.
+Oh, so you mean that we can both get a more secure system, *and* make
+emacs stop working?  A win-win situation! =)
 
+
+Regards: David Weinehall
 -- 
-Julien TINNES - & france telecom - R&D Division/MAPS/NSS
-Research Engineer - Internet/Intranet Security
-GPG: C050 EF1A 2919 FD87 57C4 DEDD E778 A9F0 14B9 C7D6
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

@@ -1,78 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292832AbSCPTCH>; Sat, 16 Mar 2002 14:02:07 -0500
+	id <S292888AbSCPTER>; Sat, 16 Mar 2002 14:04:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310393AbSCPTBr>; Sat, 16 Mar 2002 14:01:47 -0500
-Received: from bitmover.com ([192.132.92.2]:46212 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S292832AbSCPTBp>;
-	Sat, 16 Mar 2002 14:01:45 -0500
-Date: Sat, 16 Mar 2002 11:01:44 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Problems using new Linux-2.4 bitkeeper repository.
-Message-ID: <20020316110144.H10086@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200203161608.g2GG8WC05423@localhost.localdomain> <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com> <20020316085213.B10086@work.bitmover.com> <3C937B82.60500@mandrakesoft.com> <20020316091452.E10086@work.bitmover.com> <3C938027.4040805@mandrakesoft.com> <20020316093832.F10086@work.bitmover.com> <3C938966.3080302@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C938966.3080302@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Mar 16, 2002 at 01:05:26PM -0500
+	id <S310422AbSCPTEI>; Sat, 16 Mar 2002 14:04:08 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15367 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310402AbSCPTDz>; Sat, 16 Mar 2002 14:03:55 -0500
+Date: Sat, 16 Mar 2002 11:01:54 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+In-Reply-To: <E16mG2N-0000d7-00@starship>
+Message-ID: <Pine.LNX.4.33.0203161046400.31913-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 01:05:26PM -0500, Jeff Garzik wrote:
-> Larry McVoy wrote:
-> 
-> >>I think a fair question would be, is this scenario going to occur often? 
-> >> I don't know.  But I'll bet you -will- see it come up again in kernel 
-> >>development.  Why?  We are exercising the distributed nature of the 
-> >>BitKeeper system.  The system currently punishes Joe in Alaska and 
-> >>Mikhail in Russia if they independently apply the same GNU patch, and 
-> >>then later on wind up attempting to converge trees.
-> >>
-> >
-> >Indeed.  So speak in file systems, because a BK package is basically a file
-> >system, with multiple distributed instances, all of which may be out of
-> >sync.  The problems show up when the same patch is applied N times and 
-> >then comes together.  The inodes collide.  Right now, you think that's
-> >the problem, and want BK to fix it.  We can fix that.  But that's not 
-> >the real problem.  The real problem is N sets of diffs being applied
-> >and then merged.  The revision history ends up with the data inserted N
-> >times.
-> >
-> 
-> Another thought, that I'm betting you laugh at me for even suggesting :)
-> 
-> Don't insert the data N times.  Give the user the option to say that one 
-> or more changesets are actually the same one.  In filesystem speak, 
-> unlink a file B which is a user-confirmed duplicate of file A, and 
-> re-create file B as a symlink to file A.  Or just unlink file B without 
-> the symlink, whichever metaphor suits you better.  :)
-> 
-> Yes it is "altering history"... but... OTOH the user has just told 
-> BitKeeper, in no uncertain terms, that he is altering history only to 
-> make it more correct.
 
-You need to put on the distributed-think hat.  The problem is never
-what I do in any one instance, we can do all sorts of useful things
-in that instance.  The problem is doing them in such a way so that
-synchronization with repositories which are both ahead and behind works.
-So if you repull from whereever you just pulled from, the system needs
-to remember that some cset is a duplicate and has been eliminated.
-And if you pull in the opposite direction, the past events, including
-duplicate removal, propagate.
+On Sat, 16 Mar 2002, Daniel Phillips wrote:
+> 
+> I meant that the functions are hardwired to the tree structure, which they 
+> certainly are
 
-*All* of this stuff is trivial if you don't care about passing it on, if
-your repository is a backwater dead end.  But that's not the case.
-So you have to decide that you want the events to propagate and if you
-do, then we can do something about it.
+Oh yes.
 
-I'm starting to get psyched about this, I think I see a picture that 
-works, I need to chew on it for a bit though.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Sure, you can abstract the VM stuff much more - and many people do, to the 
+point of actually having a per-architecture VM with very little shared 
+information.
+
+The thing I like about the explicit tree is that while it _is_ an abstract 
+data structure, it's also a data structure that people are very aware of 
+how it maps to the actual hardware, which means that the abstraction 
+doesn't come with a performance penalty. 
+
+(There are two kinds of performance penalties in abstractions: (a) just 
+the translation overhead for compilers etc, and (b) the _mental_ overhead 
+of doing the wrong thing because you don't think of what it actually means 
+in terms of hardware).
+
+Now, the linux tree abstraction is obviously _so_ close to a common set of
+hardware that many people don't realize at all that it's really meant to
+be an abstraction (albeit one with a good mapping to reality).
+
+> It could be a lot more abstract than that.  Chuck Cranor's UVM (which seems 
+> to bear some sort of filial relationship to the FreeBSD VM) buries all 
+> accesses to the page table behind a 'pmap' API, and implements the standard 
+> Unix VM semantics at the 'memory object' level.
+
+Who knows, maybe we'll change the abstraction in Linux some day too.. 
+However, I personally tend to prefer "thin" abstractions that don't hide 
+details.
+
+The problem with the thick abstractions ("high level") is that they often
+lead you down the wrong path. You start thinking that it's really cheap to
+share partial address spaces etc ("hey, I just map this 'memory object'
+into another process, and it's just a matter of one linked list operation
+and incrementing a reference ount").
+
+Until you realize that the actual sharing still implies a TLB switch 
+between the two "threads", and that you need to instantiate the TLB in 
+both processes etc. And suddenly that instantiation is actually the _real_ 
+cost - and your clever highlevel abstraction was actually a lot more 
+expensive than you realized.
+
+[ Side note: I'm very biased by reality. In theory, a non-page-table based 
+  approach which used only a front-side TLB and a fast lookup into higher- 
+  level abstractions might be a really nice setup. However, in practice, 
+  the world is 99%+ based on hardware that natively looks up the TLB in a 
+  tree, and is really good at it too.  So I'm biased. I'd rather do good 
+  on the 99% than care about some theoretical 1% ]
+
+			Linus
+

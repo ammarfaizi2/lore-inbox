@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265803AbSKFQjO>; Wed, 6 Nov 2002 11:39:14 -0500
+	id <S265815AbSKFQor>; Wed, 6 Nov 2002 11:44:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265805AbSKFQjO>; Wed, 6 Nov 2002 11:39:14 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:47882 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265803AbSKFQjN>; Wed, 6 Nov 2002 11:39:13 -0500
-Date: Wed, 6 Nov 2002 11:45:12 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Werner Almesberger <wa@almesberger.net>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] Module loader against 2.5.46: 8/9 
-In-Reply-To: <20021105035229.B20202C0E8@lists.samba.org>
-Message-ID: <Pine.LNX.3.96.1021106113408.24531B-100000@gatekeeper.tmr.com>
+	id <S265816AbSKFQor>; Wed, 6 Nov 2002 11:44:47 -0500
+Received: from packet.digeo.com ([12.110.80.53]:5821 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265815AbSKFQoq>;
+	Wed, 6 Nov 2002 11:44:46 -0500
+Message-ID: <3DC94885.AD5B8A3B@digeo.com>
+Date: Wed, 06 Nov 2002 08:51:17 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: vasya vasyaev <vasya197@yahoo.com>
+CC: "Nakajima, Jun" <jun.nakajima@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Machine's high load when HIGHMEM is enabled
+References: <F2DBA543B89AD51184B600508B68D4000F2ED497@fmsmsx103.fm.intel.com> <20021106101445.42142.qmail@web20502.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Nov 2002 16:51:17.0840 (UTC) FILETIME=[B9D8DD00:01C285B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Nov 2002, Rusty Russell wrote:
-
-> In message <20021105001905.D1407@almesberger.net> you write:
-> > [ Cc: trimmed ]
-> > 
-> > Rusty Russell wrote:
-> > > +config OBSOLETE_MODPARM
-> > > +	bool
-> > > +	default y
-> > > +	help
-> > > +	  Without this option you will not be able to use module parameters on
-> > > +	  modules which have not been converted to the new module parameter
-> > > +	  system yet.  If unsure, say Y.
-> > 
-> > Triple negation, cool :-) How about something like
-> > 
-> > 	You need this option to use module parameters on
-> > 	modules which have not been converted to the new module parameter
-> > 	system yet.  If unsure, say Y.
-> > 
+vasya vasyaev wrote:
 > 
-> No.  I don't think that my original version wasn't clear, nor do I
-> have time to negate every suggestion, no matter how well meaning or
-> not, even if I had no better things to do, which does not seem likely,
-> does it not?
+> Hello,
+> It seems "mem=2016M" is what we need, box works
+> approximately as fast as without enabled HIGHMEM.
+> Thank you!
+> 
+> BTW, we are using 4x512 Mb ECC Registered memory
+> modules, so they seems not to be mixed...
 
-Please don't take this personally, but you just used another double
-negative in your response. Now you may think that way, and talk that way,
-but a lot of people who use Linux are not native speakers of English, and
-from experience I suggest that the complex gramatical constructs in all
-the help stuff should be avoided. Eschew obfuscation.
- 
-> Point taken (although note that this option is never prompted for).
+For some reason your mtrr table was not covering the last 32 megabytes
+of memory.  Probably you could also have fixed this by altering the
+mtrr settings.  See Documentation/mtrr.txt in the kernel source tree.
 
-Then why have help at all? In fact why have the whole option if it can't
-be used? I assume you meant something else entirely, other than "can't be
-used."
+> As this problem has gone, there is last question (I
+> hope ;-):
+> How can I control amount of memory used for disk cache
+> in recent kernels (2.4.18, 19)?
+> ("Cached:" field in `cat /proc/meminfo`)
+> I have to be sure that free memory is not used for
+> caching of disk operations (or how many of it is used
+> for caching)
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+You have to use it for something else :)
 
+Sorry, Linux will only leave a few megabytes of memory unused,
+for emergency and interrupt-time allocations.
+
+Why is this a problem?

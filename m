@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288051AbSAHOF6>; Tue, 8 Jan 2002 09:05:58 -0500
+	id <S288057AbSAHOJS>; Tue, 8 Jan 2002 09:09:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288052AbSAHOFr>; Tue, 8 Jan 2002 09:05:47 -0500
-Received: from 24-163-106-43.he2.cox.rr.com ([24.163.106.43]:27033 "EHLO
-	asd.ppp0.com") by vger.kernel.org with ESMTP id <S288051AbSAHOFi>;
-	Tue, 8 Jan 2002 09:05:38 -0500
-In-Reply-To: <20020107224525.8a899969dbcd@remtk.solucorp.qc.ca>
-            <BD98BECA-0407-11D6-804A-00039355CFA6@suespammers.org>
-            <20020108122225.B11855@xs4all.nl>
-In-Reply-To: <20020108122225.B11855@xs4all.nl> 
-From: "Anthony DeRobertis" <asd@suespammers.org>
-To: jtv <jtv@xs4all.nl>
-Cc: Anthony DeRobertis <asd@suespammers.org>,
-        Jacques Gelinas <jack@solucorp.qc.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Whizzy New Feature: Paged segmented memory
-Date: Tue, 08 Jan 2002 14:05:09 GMT
+	id <S288052AbSAHOI6>; Tue, 8 Jan 2002 09:08:58 -0500
+Received: from [212.169.100.200] ([212.169.100.200]:46581 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S288060AbSAHOIx>; Tue, 8 Jan 2002 09:08:53 -0500
+Date: Tue, 8 Jan 2002 15:07:38 +0100
+From: Morten Helgesen <admin@nextframe.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] drivers/scsi/psi240i.c - io_request_lock fix
+Message-ID: <20020108150738.B6168@sexything>
+Reply-To: admin@nextframe.net
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16NwsH-0005Ud-00@asd.ppp0.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jtv writes: 
+Hey Linus and the rest of you.
 
-> On Tue, Jan 08, 2002 at 02:17:14AM -0500, Anthony DeRobertis wrote:
->> 
->> A nice thing about two stacks is that it can be a completely 
->> userspace thing. No need to involve the kernel at all; just gcc 
->> and friends.
-> 
-> Doesn't it have ABI implications as well?
+A simple fix for the io_request_lock issue leftovers in drivers/scsi/psi240i.c. 
+Not tested, but compiles. Diffed against 2.5.2-pre10. Please apply.
 
-On every architecture I'm familiar with. But that's a userland issue. I 
-don't believe the kernel cares how userland uses its stacks. 
 
-Change gcc. Recompile world. All should work, assuming your gcc changes are 
-bug-free, no one made assumptions about stack layout, no one wrote assembly 
-code, etc. [In other words, after 4 months of debugging you might get X 
-running again...] 
+== Morten
 
-> 
-> If so, why not go all the way and have stacks grow upwards?  :-)
+-- 
 
-Some architectures have hardware assistance for downward growing stacks. One 
-example is 68K. I think x86 does too. OTOH, I don't think PPC does, though I 
-haven't read the Green Book recently. 
+"Det er ikke lett å være menneske" - sitat fra en klok person.
 
-Actually, if I were to be implementing split-stack, I'd probably have one 
-grow upward. Probably the data stack, because some architectures (68K, at 
-least) force the address stack to grow downwards. 
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net
 
-Put an unmapped page between the two stacks, and all should be fine. 
 
->  
-> 
-> Jeroen 
-> 
+--- vanilla-linux-2.5.2-pre10/drivers/scsi/psi240i.c    Tue Jan  8 10:57:31 2002
++++ patched-linux-2.5.2-pre10/drivers/scsi/psi240i.c    Tue Jan  8 14:48:56 2002
+@@ -370,10 +370,11 @@
+ static void do_Irq_Handler (int irq, void *dev_id, struct pt_regs *regs)
+        {
+        unsigned long flags;
++       struct Scsi_Host *host = PsiHost[irq - 10]; 
  
+-       spin_lock_irqsave(&io_request_lock, flags);
++       spin_lock_irqsave(&host->host_lock, flags);
+        Irq_Handler(irq, dev_id, regs);
+-       spin_unlock_irqrestore(&io_request_lock, flags);
++       spin_unlock_irqrestore(&host->host_lock, flags);
+        }
+ /****************************************************************
+  *     Name:   Psi240i_QueueCommand
+

@@ -1,78 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268294AbUILQG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268121AbUILQJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268294AbUILQG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 12:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268121AbUILQG4
+	id S268121AbUILQJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 12:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268365AbUILQJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 12:06:56 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:60608 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S268294AbUILQGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 12:06:21 -0400
-Date: Sun, 12 Sep 2004 12:10:56 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Yielding processor resources during lock contention
-In-Reply-To: <20040912074904.GA7777@elte.hu>
-Message-ID: <Pine.LNX.4.53.0409121157110.2297@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com>
- <16703.60725.153052.169532@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0409090751230.5912@ppc970.osdl.org>
- <Pine.LNX.4.58.0409090754270.5912@ppc970.osdl.org>
- <Pine.LNX.4.53.0409091107450.15087@montezuma.fsmlabs.com>
- <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com> <20040912074904.GA7777@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Sep 2004 12:09:27 -0400
+Received: from share.sks3.muni.cz ([147.251.211.22]:57009 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S268121AbUILQJP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 12:09:15 -0400
+Date: Sun, 12 Sep 2004 18:09:09 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9-rc1-mm4 - USB suspend issues
+Message-ID: <20040912160909.GQ2260@mail.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Hello,
 
-On Sun, 12 Sep 2004, Ingo Molnar wrote:
+I've tried suspend/resume code of USB devices. Unfortunately it does not work :(
 
-> it is not clear from the Intel documentation how well MONITOR+MWAIT
-> works on SMP. It seems to be targeted towards hyperthreaded CPUs - where
-> i suspect it's much easier to monitor the stream of stores done to an
-> address.
+First it complains that USB device has 0 interrupts (as module was not used
+since start but it was loaded)
 
-Indeed, Linus also pointed out how lax the documentation on usage and 
-effects of these opcodes.
+Second I got following messages:
+Sep 11 12:55:33 debian kernel: usb_unlink_urb() is deprecated for synchronous
+unlinks.  Use usb_kill_urb()
+Sep 11 12:55:33 debian kernel: Badness in usb_unlink_urb at
+drivers/usb/core/urb.c:456
+Sep 11 12:55:33 debian kernel:  [usb_unlink_urb+132/144]
+usb_unlink_urb+0x84/0x90
+Sep 11 12:55:33 debian kernel:  [port_release+142/195] port_release+0x8e/0xc3
+Sep 11 12:55:33 debian kernel:  [destroy_inode+78/80] destroy_inode+0x4e/0x50
+Sep 11 12:55:33 debian kernel:  [device_release+25/92] device_release+0x19/0x5c
+Sep 11 12:55:33 debian kernel:  [iput+85/111] iput+0x55/0x6f
+Sep 11 12:55:33 debian kernel:  [kobject_cleanup+152/154]
+kobject_cleanup+0x98/0x9a
+Sep 11 12:55:33 debian kernel:  [kobject_release+0/10] kobject_release+0x0/0xa
+Sep 11 12:55:33 debian kernel:  [kref_put+57/147] kref_put+0x39/0x93
+Sep 11 12:55:33 debian kernel:  [kobject_put+30/34] kobject_put+0x1e/0x22
+Sep 11 12:55:33 debian kernel:  [kobject_put+30/34] kobject_put+0x1e/0x22
+Sep 11 12:55:33 debian kernel:  [kobject_release+0/10] kobject_release+0x0/0xa
+Sep 11 12:55:33 debian kernel:  [destroy_serial+313/373]
+destroy_serial+0x139/0x175
+Sep 11 12:55:33 debian kernel:  [hcd_endpoint_disable+179/323]
+hcd_endpoint_disable+0xb3/0x143
+Sep 11 12:55:33 debian kernel:  [destroy_serial+0/373] destroy_serial+0x0/0x175
+Sep 11 12:55:33 debian kernel:  [kref_put+57/147] kref_put+0x39/0x93
+Sep 11 12:55:33 debian kernel:  [usb_disable_endpoint+79/81]
+usb_disable_endpoint+0x4f/0x51
+Sep 11 12:55:33 debian kernel:  [usb_serial_disconnect+64/147]
+usb_serial_disconnect+0x40/0x93
+Sep 11 12:55:33 debian kernel:  [destroy_serial+0/373] destroy_serial+0x0/0x175
+Sep 11 12:55:33 debian kernel:  [usb_unbind_interface+122/124]
+usb_unbind_interface+0x7a/0x7c
+Sep 11 12:55:33 debian kernel:  [device_release_driver+100/102]
+device_release_driver+0x64/0x66
+Sep 11 12:55:33 debian kernel:  [bus_remove_device+100/165]
+bus_remove_device+0x64/0xa5
+Sep 11 12:55:33 debian kernel:  [device_del+93/155] device_del+0x5d/0x9b
+Sep 11 12:55:33 debian kernel:  [usb_disable_device+185/249]
+usb_disable_device+0xb9/0xf9
+Sep 11 12:55:33 debian kernel:  [usb_disconnect+173/300]
+usb_disconnect+0xad/0x12c
+Sep 11 12:55:33 debian kernel:  [hub_port_connect_change+901/951]
+hub_port_connect_change+0x385/0x3b7
+Sep 11 12:55:33 debian kernel:  [clear_port_feature+88/92]
+clear_port_feature+0x58/0x5c 
+Sep 11 12:55:33 debian kernel:  [hub_events+625/947] hub_events+0x271/0x3b3
+Sep 11 12:55:33 debian kernel:  [hub_thread+47/290] hub_thread+0x2f/0x122
+Sep 11 12:55:33 debian kernel:  [autoremove_wake_function+0/87]
+autoremove_wake_function+0x0/0x57
+Sep 11 12:55:33 debian kernel:  [autoremove_wake_function+0/87]
+autoremove_wake_function+0x0/0x57
+Sep 11 12:55:33 debian kernel:  [hub_thread+0/290] hub_thread+0x0/0x122
+Sep 11 12:55:33 debian kernel:  [kernel_thread_helper+5/11]
+kernel_thread_helper+0x5/0xb
 
-> one good thing to do would be to test the behavior and count cycles - it
-> is possible to set up the 'wrong' caching case that can potentially lead
-> to indefinite delays in mwait. If it turns out to work the expected way
-> then it would be nice to use. (The deep-sleep worries are not a too big
-> issue for latency-sensitive users as deep sleep can already occur via
-> the idle loop so it has to be turned off / tuned anyway.)
-> 
-> but unless the SMP case is guaranteed to work in a time-deterministic
-> way i dont think this patch can be added :-( It's not just the question
-> of high latencies, it's the question of fundamental correctness: with
-> large enough caches there is no guarantee that a CPU will _ever_ flush a
-> dirty cacheline to RAM.
+After resume it disables IRQ 11 for USB and that IRQ is shared with eth0:
 
-The suggested usage of monitor/mwait avoids that scenario, the recommended 
-usage being;
+Sep 11 12:56:04 debian kernel:
+....................................................swsusp: Need to copy 22829
+pages
+Sep 11 12:56:04 debian kernel: ..<3>irq 11: nobody cared!
+Sep 11 12:56:04 debian kernel:  [__report_bad_irq+42/139]
+__report_bad_irq+0x2a/0x8b
+Sep 11 12:56:04 debian kernel:  [note_interrupt+124/222]
+note_interrupt+0x7c/0xde
+Sep 11 12:56:04 debian kernel:  [do_IRQ+235/237] do_IRQ+0xeb/0xed
+Sep 11 12:56:04 debian kernel:  [common_interrupt+24/32]
+common_interrupt+0x18/0x20
+Sep 11 12:56:05 debian kernel:  [__do_softirq+47/138] __do_softirq+0x2f/0x8a
+Sep 11 12:56:05 debian kernel:  [do_softirq+38/40] do_softirq+0x26/0x28
+Sep 11 12:56:05 debian kernel:  [do_IRQ+202/237] do_IRQ+0xca/0xed
+Sep 11 12:56:05 debian kernel:  [common_interrupt+24/32]
+common_interrupt+0x18/0x20
+Sep 11 12:56:05 debian kernel:  [setup_irq+120/170] setup_irq+0x78/0xaa
+Sep 11 12:56:05 debian kernel:  [usb_hcd_irq+0/103] usb_hcd_irq+0x0/0x67
+Sep 11 12:56:05 debian kernel:  [request_irq+167/220] request_irq+0xa7/0xdc
+Sep 11 12:56:05 debian kernel:  [pci_find_capability+41/45]
+pci_find_capability+0x29/0x2d
+Sep 11 12:56:05 debian kernel:  [usb_hcd_pci_resume+143/326]
+usb_hcd_pci_resume+0x8f/0x146
+Sep 11 12:56:05 debian kernel:  [usb_hcd_irq+0/103] usb_hcd_irq+0x0/0x67
+Sep 11 12:56:05 debian kernel:  [pci_device_resume+44/46]
+pci_device_resume+0x2c/0x2e
+Sep 11 12:56:05 debian kernel:  [resume_device+39/41] resume_device+0x27/0x29
+Sep 11 12:56:05 debian kernel:  [dpm_resume+98/100] dpm_resume+0x62/0x64
+Sep 11 12:56:05 debian kernel:  [device_resume+21/33] device_resume+0x15/0x21
+Sep 11 12:56:05 debian kernel:  [finish+8/58] finish+0x8/0x3a
+Sep 11 12:56:05 debian kernel:  [pm_suspend_disk+65/126]
+pm_suspend_disk+0x41/0x7e
+Sep 11 12:56:05 debian kernel:  [enter_state+140/144] enter_state+0x8c/0x90
+Sep 11 12:56:05 debian kernel:  [software_suspend+15/19]
+software_suspend+0xf/0x13
+Sep 11 12:56:05 debian kernel:  [acpi_system_write_sleep+139/141]
+acpi_system_write_sleep+0x8b/0x8d
+Sep 11 12:56:05 debian kernel:  [vfs_write+188/295] vfs_write+0xbc/0x127
+Sep 11 12:56:05 debian kernel:  [sys_write+81/128] sys_write+0x51/0x80
+Sep 11 12:56:05 debian kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
 
-while (*addr != condition) {
-	monitor(addr)
-	if (*addr != condition)
-		mwait();
-}
-
-This method is used because you can receive spurious wakeups from mwait. 
-Like 'hlt' an interrupt, NMI, SMI etc will cause the processor to continue 
-executing the next instruction after mwait. The extended sleep state 
-however could occur if interrupts are disabled which isn't the case with 
-the current users. So there is a sense of time deterministic behaviour 
-with an operating system which uses a periodic timer tick for example. But 
-regardless of that, i also think this requires further clarification with 
-respect to side effects and benchmarking with current hardware.
-
-Thanks,
-	Zwane
+-- 
+Luká¹ Hejtmánek

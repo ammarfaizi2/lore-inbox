@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264593AbTFANZb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 09:25:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264601AbTFANZb
+	id S264610AbTFAN2V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 09:28:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264611AbTFAN2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 09:25:31 -0400
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:33934 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S264593AbTFANZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 09:25:27 -0400
-Date: Sun, 1 Jun 2003 09:37:57 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [2.5.70-bk6] build error, drivers/built-in.o
-Message-ID: <Pine.LNX.4.44.0306010936450.4986-100000@dell>
+	Sun, 1 Jun 2003 09:28:21 -0400
+Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:58888 "HELO
+	legolas.dynup.net") by vger.kernel.org with SMTP id S264610AbTFAN2S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 09:28:18 -0400
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.70-bk6 make xconfig fails
+Date: Sun, 1 Jun 2003 15:41:48 +0200
+User-Agent: KMail/1.5.2
+Cc: Roman Zippel <zippel@linux-m68k.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306011541.48530.rudmer@legolas.dynup.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-  HOSTCC  scripts/modpost.o
-  HOSTLD  scripts/modpost
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  Starting the build. KBUILD_BUILTIN=1 KBUILD_MODULES=
-  CHK     include/linux/compile.h
-./scripts/pnmtologo -t mono -n logo_linux_mono -o drivers/video/logo/logo_linux_mono.c drivers/video/logo/logo_linux_mono.pbm
-  CC      drivers/video/logo/logo_linux_mono.o
-./scripts/pnmtologo -t vga16 -n logo_linux_vga16 -o drivers/video/logo/logo_linux_vga16.c drivers/video/logo/logo_linux_vga16.ppm
-  CC      drivers/video/logo/logo_linux_vga16.o
-./scripts/pnmtologo -t clut224 -n logo_linux_clut224 -o drivers/video/logo/logo_linux_clut224.c drivers/video/logo/logo_linux_clut224.ppm
-  CC      drivers/video/logo/logo_linux_clut224.o
-  LD      drivers/video/logo/built-in.o
-  LD      drivers/video/built-in.o
-  LD      drivers/built-in.o
-drivers/usb/gadget/built-in.o(.text+0x1b40): In function `net2280_set_fifo_mode':
-: multiple definition of `net2280_set_fifo_mode'
-drivers/usb/built-in.o(.text+0x1b760): first defined here
-drivers/usb/gadget/built-in.o(.text+0x5380): In function `usb_gadget_get_string':
-: multiple definition of `usb_gadget_get_string'
-drivers/usb/built-in.o(.text+0x1efa0): first defined here
-drivers/usb/gadget/built-in.o(.text+0x1ea0): In function `usb_gadget_register_driver':
-: multiple definition of `usb_gadget_register_driver'
-drivers/usb/built-in.o(.text+0x1bac0): first defined here
-drivers/usb/gadget/built-in.o(.text+0x20a0): In function `usb_gadget_unregister_driver':
-: multiple definition of `usb_gadget_unregister_driver'
-drivers/usb/built-in.o(.text+0x1bcc0): first defined here
-make[1]: *** [drivers/built-in.o] Error 1
-make: *** [drivers] Error 2
+this is with gcc 3.3, no error with gcc 2.95.3
 
+  g++ -Wp,-MD,scripts/kconfig/.qconf.o.d -O2  -I/opt/qt/include  -c -o 
+scripts/kconfig/qconf.o scripts/kconfig/qconf.cc
+scripts/kconfig/qconf.cc: In destructor `virtual ConfigItem::~ConfigItem()':
+scripts/kconfig/qconf.cc:291: error: non-lvalue in unary `&'
+make[1]: *** [scripts/kconfig/qconf.o] Error 1
+make: *** [scripts/kconfig/qconf] Error 2
 
-rday
+following patch fixes it for gcc 3.3 (and still compiles with gcc 2.95.3).
 
---
+	Rudmer
 
-Robert P. J. Day
-Eno River Technologies
-Unix, Linux and Open Source training
-Waterloo, Ontario
-
-www.enoriver.com
+--- linux-2.5.70-bk6/scripts/kconfig/qconf.cc.orig	2003-06-01 
+15:19:51.000000000 +0200
++++ linux-2.5.70-bk6/scripts/kconfig/qconf.cc	2003-06-01 15:25:01.000000000 
++0200
+@@ -288,7 +288,7 @@
+ ConfigItem::~ConfigItem(void)
+ {
+ 	if (menu) {
+-		ConfigItem** ip = &(ConfigItem*)menu->data;
++		ConfigItem** ip = (ConfigItem**)&menu->data;
+ 		for (; *ip; ip = &(*ip)->nextItem) {
+ 			if (*ip == this) {
+ 				*ip = nextItem;
 

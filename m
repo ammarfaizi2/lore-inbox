@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265238AbTLLPPU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 10:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbTLLPPT
+	id S265260AbTLLPSm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 10:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbTLLPSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 10:15:19 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:42674 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S265238AbTLLPPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 10:15:15 -0500
-Date: Fri, 12 Dec 2003 07:14:56 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nick Piggin <piggin@cyberone.com.au>,
-       Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
-Subject: Re: [CFT][RFC] HT scheduler
-Message-ID: <1349250000.1071242095@[10.10.2.4]>
-In-Reply-To: <3FD9836F.2050003@cyberone.com.au>
-References: <20031212052812.E016B2C072@lists.samba.org> <3FD9679A.1020404@cyberone.com.au> <3FD9836F.2050003@cyberone.com.au>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 12 Dec 2003 10:18:41 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:43137 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265260AbTLLPSk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 10:18:40 -0500
+Date: Fri, 12 Dec 2003 10:20:25 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: floppy motor spins when floppy module not installed
+In-Reply-To: <yw1xy8tixe96.fsf@kth.se>
+Message-ID: <Pine.LNX.4.53.0312121018450.10945@chaos>
+References: <16345.51504.583427.499297@l.a> <yw1xd6auyvac.fsf@kth.se>
+ <Pine.LNX.4.53.0312121000150.10423@chaos> <yw1xy8tixe96.fsf@kth.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> w26 does ALL this, while sched.o is 3K smaller than Ingo's shared 
->> runqueue
->> patch on NUMA and SMP, and 1K smaller on UP (although sched.c is 90 lines
->> longer). kernbench system time is down nearly 10% on the NUMAQ, so it 
->> isn't
->> hurting performance either.
-> 
-> 
-> Hackbench performance on the NUMAQ is improved by nearly 50% at large
-> numbers of tasks due to a better scaling factor (which I think is slightly
-> "more" linear too). It is also improved by nearly 25% (4.08 vs 3.15) on
-> OSDLs 8 ways at small number of tasks, due to a better constant factor.
-> 
-> http://www.kerneltrap.org/~npiggin/w26/hbench.png
-> 
-> And yeah hackbench kills the NUMAQ after about 350 rooms. This is due to
-> memory shortages. All the processes are getting stuck in shrink_caches,
-> get_free_pages, etc.
+On Fri, 12 Dec 2003, [iso-8859-1] Måns Rullgård wrote:
 
-Can you dump out the values of /proc/meminfo and /proc/slabinfo at that
-point, and we'll see what's killing her?
+> "Richard B. Johnson" <root@chaos.analogic.com> writes:
+>
+> > On Fri, 12 Dec 2003, [iso-8859-1] Måns Rullgård wrote:
+> >
+> >> Dale Mellor <dale@dmellor.dabsol.co.uk> writes:
+> >>
+> >> > 1. Floppy motor spins when floppy module not installed.
+> >>
+> >> It's a known problem.  Some broken BIOSes don't turn off the motor
+> >> after probing for a disk.  One solution is to change the boot priority
+> >> in the BIOS settings so the hard disk is tried before floppy.  If you
+> >> ever need to boot from a floppy, you can change it back.
+> >
+> > It is not a broken BIOS! The BIOS timer that ticks 18.206 times
+> > per second has an ISR that, in addition to keeping time, turns
+> > OFF the FDC motor after two seconds of inactivity. This ISR is taken
+> > away by Linux. Therefore Linux must turn off that motor! It is a
+> > Linux bug, not a BIOS bug. Linux took control away from the BIOS
+> > during boot.
+>
+> OK, but why doesn't it affect all machines?
+>
+If you leave the FDC software in the kernel, the FDC software
+sets up everything and turns off the motor. If you have the
+FDC as a module, you have nothing in there to turn off the
+motor until you install the module.
 
-Thanks,
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-M.
 

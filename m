@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129778AbQLUHx6>; Thu, 21 Dec 2000 02:53:58 -0500
+	id <S129260AbQLUIa4>; Thu, 21 Dec 2000 03:30:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129912AbQLUHxs>; Thu, 21 Dec 2000 02:53:48 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:54020 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S129778AbQLUHxd>; Thu, 21 Dec 2000 02:53:33 -0500
-Message-ID: <3A41AFD6.D1DDA78F@Hell.WH8.TU-Dresden.De>
-Date: Thu, 21 Dec 2000 08:23:02 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre3 i686)
-X-Accept-Language: en, de-DE
+	id <S129421AbQLUIaq>; Thu, 21 Dec 2000 03:30:46 -0500
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:19214 "EHLO
+	pobox.com") by vger.kernel.org with ESMTP id <S129260AbQLUIal>;
+	Thu, 21 Dec 2000 03:30:41 -0500
+From: "Barry K. Nathan" <barryn@pobox.com>
+Message-Id: <200012210758.XAA07609@pobox.com>
+Subject: Re: Extreme IDE slowdown with 2.2.18
+To: mharris@opensourceadvocate.org (Mike A. Harris)
+Date: Wed, 20 Dec 2000 23:58:45 -0800 (PST)
+Cc: ja@ssi.bg (Julian Anastasov),
+        robho956@student.liu.se (Robert Högberg),
+        andre@linux-ide.org (Andre Hedrick),
+        linux-kernel@vger.kernel.org (linux-kernel)
+Reply-To: barryn@pobox.com
+In-Reply-To: <Pine.LNX.4.31.0012202253530.748-100000@asdf.capslock.lan> from "Mike A. Harris" at Dec 20, 2000 11:06:02 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Make drivers/media compile as modules
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike A. Harris wrote:
+[snip]
+> message saying UDMA 3/4/5 is not supported.  It also claims the
+> MVP3 chipset is UDMA-33 only, whereas all relevant docs I can
+> muster including the mobo manual state the board is UDMA-66
+> capable.  Mental note to myself: Do not enable WORD93 invalidate.
+> ;o)
 
-Hi Linus,
+I'm somewhat tired and busy, so I'll post URLs without quoting anything
+from them (look at the data in *all* of them, and connect the dots, before
+you come to any conclusions). Short version of the story: Some MVP3's
+support UDMA-66, some don't -- it depends on the southbridge. 596B & 686A
+do, others don't.
 
-The Makefile changes broke compiling drivers/media, such as bttv,
-as kernel modules. Below is the patch against test13-pre3 to fix it.
+http://www.via.com.tw/news/98mvp3nr.htm
+http://www.via.com.tw/products/prodmvp3.htm
+http://www.via.com.tw/support/faq.htm#ide
 
-Please apply.
-
--Udo.
-
---- /sources/linux/drivers/media/Makefile       Thu Dec 21 08:17:17 2000
-+++ /usr/src/linux/drivers/media/Makefile       Thu Dec 21 08:15:55 2000
-@@ -10,8 +10,10 @@
- #
- 
- subdir-y     := video radio
-+subdir-m     := video radio
- 
- O_TARGET     := media.o
- obj-y        := $(join $(subdir-y),$(subdir-y:%=/%.o))
-+obj-m        := $(join $(subdir-m),$(subdir-m:%=/%.o))
- 
- include $(TOPDIR)/Rules.make
+-Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

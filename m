@@ -1,132 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265570AbSLJTQg>; Tue, 10 Dec 2002 14:16:36 -0500
+	id <S263589AbSLJTVp>; Tue, 10 Dec 2002 14:21:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265587AbSLJTQg>; Tue, 10 Dec 2002 14:16:36 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:61452 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S265570AbSLJTQd>; Tue, 10 Dec 2002 14:16:33 -0500
-Subject: [TRIVIAL PATCH] FBDEV: Small impact patch for fbdev
-From: Antonino Daplas <adaplas@pol.net>
-To: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S265437AbSLJTVo>; Tue, 10 Dec 2002 14:21:44 -0500
+Received: from dhcp5.colorado-research.com ([65.171.192.245]:61826 "EHLO
+	dhcp5.colorado-research.com") by vger.kernel.org with ESMTP
+	id <S263589AbSLJTUo>; Tue, 10 Dec 2002 14:20:44 -0500
+Message-ID: <3DF64054.2040602@cora.nwra.com>
+Date: Tue, 10 Dec 2002 12:28:20 -0700
+From: Orion Poplawski <orion@cora.nwra.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: overflow on linux-2.4.19
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1039558622.1054.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 03:18:05 +0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+This is the same system mentioned in an earlier email, now back to 
+running 2.4.19.  This crash I got an "overflow: 0000" message, instead 
+of "Oops:".  I also think I've gotton more of a handle on how to run 
+ksymoops.  Any help would be greatly appreciated:
 
-Here's a diff to correct several small things that escaped through the
-cracks.
+ksymoops 2.4.4 on i686 2.4.19.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19/ (default)
+     -m /boot/System.map-2.4.19 (default)
+     -i
 
-1.  The YNOMOVE scrollmode for non-accelerated drivers is just very slow
-because of a lot of block moves (leads to slow and jerky scrolling in
-vesafb with ypanning enabled).  Depending on var->accel_flags, set the 
-scrollmode to either YREDRAW or YNOMOVE. For drivers with hardware
-acceleration, set var->accel_flags to nonzero for max speed.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-2.  fb_pan_display() always returns an error.  User apps will complain.
+Warning (map_ksym_to_module): cannot match loaded module ext3 to a 
+unique module object.  Trace may not be reliable.
+CPU:    0
+EIP:    0010:[<e7cefffd>] Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00000896
+eax: ef6dc66c   ebx: f76dc000   ecx: 0000000e   edx: 00000001
+esi: 0000000e   edi: f76dc000   ebp: 00000286   esp: ea9e9efc
+ds: 0018  es: 0018  ss: 0018
+Process idl (pid: 2577, stackpage=ea9e9000)
+Stack: c012594c 0000000e 0000000e 00000000 c0125a30 0000000e 00000001 
+f76dc000
+       f76dc000 c011fdc0 00000000 00000000 c011fdcf 0000000e 00000001 
+f76dc000
+       f76dc0e4 c0124b9c f76dc000 f626c000 ea9e9f54 00000086 ea9e9f54 
+ea9e9f54
+Call Trace:    [<c012594c>] [<c0125a30>] [<c011fdc0>] [<c011fdcf>] 
+[<c0124b9c>] [<c0120d3b>] [<c0120c00>] [<c012099b>] [<c010abdc>] 
+[<c010cd48>]
+Code: 27 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-3.  case FBIO_GETCMAP in fb_ioctl does not return immediately.  User
-apps will complain.
+ >>EIP; e7cefffd <_end+279e28c9/384f28cc>   <=====
+Trace; c012594c <deliver_signal+1c/80>
+Trace; c0125a30 <send_sig_info+80/a0>
+Trace; c011fdc0 <it_real_fn+0/50>
+Trace; c011fdcf <it_real_fn+f/50>
+Trace; c0124b9c <timer_bh+28c/3d0>
+Trace; c0120d3b <bh_action+4b/80>
+Trace; c0120c00 <tasklet_hi_action+60/90>
+Trace; c012099b <do_softirq+7b/e0>
+Trace; c010abdc <parse_hex_value+5c/90>
+Trace; c010cd48 <call_do_IRQ+5/d>
+Code;  e7cefffd <_end+279e28c9/384f28cc>
+00000000 <_EIP>:
+Code;  e7cefffd <_end+279e28c9/384f28cc>
+   0:   27                        daa
 
-4.  vgastate.c is not saving the correct blocks.
 
-5.  logo drawing for monochrome displays is just incorrect.(alterations
-were done by eyeballing only, no hardware for testing).
-
-The above will only have a very small effect on the general state of
-fbdev/fbcon.  Patch is against 2.5.51.
-
-Tony 
-
-diff -Naur linux-2.5.51/drivers/video/console/fbcon.c linux/drivers/video/console/fbcon.c
---- linux-2.5.51/drivers/video/console/fbcon.c	2002-12-10 21:55:41.000000000 +0000
-+++ linux/drivers/video/console/fbcon.c	2002-12-10 21:44:46.000000000 +0000
-@@ -291,7 +291,10 @@
- 	struct display *display = fb_display + con;
- 
- 	display->can_soft_blank = info->fbops->fb_blank ? 1 : 0;
--	display->scrollmode = SCROLL_YNOMOVE;
-+	if (info->var.accel_flags)
-+		display->scrollmode = SCROLL_YNOMOVE;
-+	else
-+		display->scrollmode = SCROLL_YREDRAW;
- 	fbcon_changevar(con);
- 	return;
- }
-@@ -2633,7 +2636,7 @@
- 	default:
- 		for (i = 0; i < (LOGO_W * LOGO_H)/8; i++) 
- 			for (j = 0; j < 8; j++) 
--				logo[i*2] = (linux_logo_bw[i] &  (7 - j)) ? 
-+				logo[i*8+j] = (linux_logo_bw[i] &  (7 - j)) ? 
- 					((needs_logo == 1) ? 1 : 0) :
- 					((needs_logo == 1) ? 0 : 1);
- 				
-diff -Naur linux-2.5.51/drivers/video/fbmem.c linux/drivers/video/fbmem.c
---- linux-2.5.51/drivers/video/fbmem.c	2002-12-10 21:55:15.000000000 +0000
-+++ linux/drivers/video/fbmem.c	2002-12-10 21:47:22.000000000 +0000
-@@ -471,11 +471,9 @@
-             yoffset + info->var.yres > info->var.yres_virtual)
-                 return -EINVAL;
-         if (info->fbops->fb_pan_display) {
--                if ((err = info->fbops->fb_pan_display(var, info)))
--                        return err;
--                else
--                        return -EINVAL;
--        }
-+		err = info->fbops->fb_pan_display(var, info);
-+		if (err) return err;
-+	}
-         info->var.xoffset = var->xoffset;
-         info->var.yoffset = var->yoffset;
-         if (var->vmode & FB_VMODE_YWRAP)
-@@ -571,6 +569,7 @@
- 		if (copy_from_user(&cmap, (void *) arg, sizeof(cmap)))
- 			return -EFAULT;
- 		fb_copy_cmap(&info->cmap, &cmap, 0);
-+		return 0;
- 	case FBIOPAN_DISPLAY:
- 		if (copy_from_user(&var, (void *) arg, sizeof(var)))
- 			return -EFAULT;
-diff -Naur linux-2.5.51/drivers/video/vgastate.c linux/drivers/video/vgastate.c
---- linux-2.5.51/drivers/video/vgastate.c	2002-12-10 21:55:20.000000000 +0000
-+++ linux/drivers/video/vgastate.c	2002-12-10 21:52:31.000000000 +0000
-@@ -111,7 +111,7 @@
- 		vga_wgfx(state->vgabase, VGA_GFX_MODE, 0x0);
- 		vga_wgfx(state->vgabase, VGA_GFX_MISC, 0x5);
- 		for (i = 0; i < 8192; i++) 
--			saved->vga_text[i] = vga_r(fbbase + 2 * 8192, i); 
-+			saved->vga_text[8192+i] = vga_r(fbbase, i); 
- 	}
- 
- 	/* restore regs */
-@@ -184,7 +184,7 @@
- 		vga_wgfx(state->vgabase, VGA_GFX_PLANE_READ, 0x3);
- 		vga_wgfx(state->vgabase, VGA_GFX_MODE, 0x0);
- 		vga_wgfx(state->vgabase, VGA_GFX_MISC, 0x5);
--		for (i = 0; i < 4 * 8192; i++) 
-+		for (i = 0; i < state->memsize; i++) 
- 			vga_w(fbbase, i, saved->vga_font1[i]);
- 	}
- 	
-@@ -204,8 +204,7 @@
- 		vga_wgfx(state->vgabase, VGA_GFX_MODE, 0x0);
- 		vga_wgfx(state->vgabase, VGA_GFX_MISC, 0x5);
- 		for (i = 0; i < 8192; i++) 
--			vga_w(fbbase + 2 * 8192, i, 
--			      saved->vga_text[i]);
-+			vga_w(fbbase, i, saved->vga_text[8192+i]);
- 	}
- 
- 	/* unblank screen */
-
+2 warnings issued.  Results may not be reliable.
 
 

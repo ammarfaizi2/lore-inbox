@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267214AbTAKNe0>; Sat, 11 Jan 2003 08:34:26 -0500
+	id <S267209AbTAKNlk>; Sat, 11 Jan 2003 08:41:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267216AbTAKNe0>; Sat, 11 Jan 2003 08:34:26 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19348
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267214AbTAKNeZ>; Sat, 11 Jan 2003 08:34:25 -0500
-Subject: Re: [PATCH]Re: spin_locks without smp.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: manfred@colorfullife.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       solt@dns.toxicfilms.tv, wli@holomorphy.com
-In-Reply-To: <200301111322.OAA26316@harpo.it.uu.se>
-References: <200301111322.OAA26316@harpo.it.uu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042295370.2517.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 11 Jan 2003 14:29:32 +0000
+	id <S267218AbTAKNlk>; Sat, 11 Jan 2003 08:41:40 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:27409 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S267209AbTAKNlj>;
+	Sat, 11 Jan 2003 08:41:39 -0500
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch][2.5] setup default dma_mask for cardbus devices
+References: <20030110235010$4659@gated-at.bofh.it>
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Sat, 11 Jan 2003 14:17:36 +0100
+In-Reply-To: <20030110235010$4659@gated-at.bofh.it> (Zwane Mwaikambo's
+ message of "Sat, 11 Jan 2003 00:50:10 +0100")
+Message-ID: <87k7hbsu4v.fsf@jupiter.jochen.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-11 at 13:22, Mikael Pettersson wrote:
-> On 10 Jan 2003 18:18:39 +0000, Alan Cox wrote:
-> >On Fri, 2003-01-10 at 17:19, Manfred Spraul wrote:
-> >> 
-> >>     disable_irq();
-> >>     spin_lock(&np->lock);
-> >> 
-> >> That's what 8390.c uses, no need for an #ifdef.
-> >
-> >Does someone have a card they can test that on. If so then I agree
-> >entirely it is the best way to go 
-> 
-> I have an ISA NE2000 available for testing, if someone feeds me patches.
-> Only UP hardware, though.
+Zwane Mwaikambo <zwane@holomorphy.com> writes:
 
-Sorry I wasnt clear enough. The 8390 is done, the one that would need the 
-testing is SMP etherexpress.c.
+> Devices hanging off a cardbus bridge don't get a default dma mask which
+> causes problems later when doing pci_alloc_consistent. Patch has been
+> tested with tulip based ethernet.
 
+A kernel patched with this patch and the one from bugzilla #134 works
+for me.  Your patch is already in -bk, thanks.
 
+Jochen
+
+-- 
+#include <~/.signature>: permission denied

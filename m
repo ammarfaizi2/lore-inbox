@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTIMTCx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 15:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbTIMTCx
+	id S262171AbTIMTQD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 15:16:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbTIMTQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 15:02:53 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:52882 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262001AbTIMTCw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 15:02:52 -0400
-Date: Sat, 13 Sep 2003 20:02:42 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: rusty@rustcorp.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kernel/futex.c: Uneeded memory barrier
-Message-ID: <20030913190242.GC7404@mail.jlokier.co.uk>
-References: <3F620E61.4080604@terra.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F620E61.4080604@terra.com.br>
-User-Agent: Mutt/1.4.1i
+	Sat, 13 Sep 2003 15:16:03 -0400
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:6408 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id S262171AbTIMTQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 15:16:00 -0400
+Date: Sat, 13 Sep 2003 16:16:41 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       =?ISO-8859-15?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.23-pre4: failed at atyfb_base.c
+In-Reply-To: <Pine.GSO.4.21.0309131622000.2634-100000@vervain.sonytel.be>
+Message-ID: <Pine.LNX.4.44.0309131616300.20382-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch looks fine to me.
 
-Felipe W Damasio wrote:
-> 	Kills an unneeded set_current_state after schedule_timeout, since it 
-> already guarantees that the task will be TASK_RUNNING.
+
+On Sat, 13 Sep 2003, Geert Uytterhoeven wrote:
+
+> On Sat, 13 Sep 2003, Eyal Lebedinsky wrote:
+> > Marcelo Tosatti wrote:
+> > > Here goes -pre4, which contains networking update, IA64 update, PPC
+> > > update, USB update, bunch of knfsd fixes, amongst others.
+> > gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
+> > -Wstrict-pro
+> > totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> > -fomit-frame-pointer
+> >  -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
+> > -DMODULE -DM
+> > ODVERSIONS -include
+> > /data2/usr/local/src/linux-2.4-pre/include/linux/modversions
+> > .h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=atyfb_base 
+> > -DEXPORT_SYMTAB
+> >  -c atyfb_base.c
+> > atyfb_base.c: In function `aty_set_crtc':
+> > atyfb_base.c:501: warning: passing arg 2 of `aty_st_lcd' makes integer
+> > from pointer without a cast
+> > atyfb_base.c:501: too few arguments to function `aty_st_lcd'
+> > atyfb_base.c:504: warning: passing arg 2 of `aty_st_lcd' makes integer
+> > from pointer without a cast
+> > atyfb_base.c:504: too few arguments to function `aty_st_lcd'
+> > make[3]: *** [atyfb_base.o] Error 1
+> > make[3]: Leaving directory
+> > `/data2/usr/local/src/linux-2.4-pre/drivers/video/aty'
+> > 
+> > I now disabled CONFIG_FB_ATY_GENERIC_LCD and it builds.
 > 
-> 	Also, when setting the state to TASK_RUNNING, isn't that memory 
-> barrier unneeded? Patch removes this memory barrier too.
+> Apparently Daniël didn't sent the latest version to Marcelo?
+> 
+> Here are some fixes:
 
-If _all_ instances in the kernel of
+Applied, 
 
-	set_current_state(TASK_RUNNING)
+Thanks.
 
-can be validly turned into
-
-	__set_current_state(TASK_RUNNING)
-
-it would be good to make the barrier in set_current_state() itself
-conditional on the state being state.
-
--- Jamie

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266962AbSL3NXJ>; Mon, 30 Dec 2002 08:23:09 -0500
+	id <S266967AbSL3NdO>; Mon, 30 Dec 2002 08:33:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266967AbSL3NXJ>; Mon, 30 Dec 2002 08:23:09 -0500
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:12021 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S266962AbSL3NXI>; Mon, 30 Dec 2002 08:23:08 -0500
-Subject: Re: Current unclaimed 2.5 bugs on bugme.osdl.org
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: kernel-janitors@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <129460000.1041214462@titus>
-References: <129460000.1041214462@titus>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041255152.544.14.camel@zion.wanadoo.fr>
+	id <S266968AbSL3NdN>; Mon, 30 Dec 2002 08:33:13 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:26308 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266967AbSL3NdN>;
+	Mon, 30 Dec 2002 08:33:13 -0500
+Date: Mon, 30 Dec 2002 13:40:09 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Henrik Storner <henrik@hswn.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops, panic: KT400 AGP and IO-APIC problems (Re: Linux v2.5.53)
+Message-ID: <20021230134009.GC16072@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Henrik Storner <henrik@hswn.dk>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0212232141010.1079-100000@penguin.transmeta.com> <20021224105559.1876.qmail@osiris.hswn.dk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 30 Dec 2002 14:32:32 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021224105559.1876.qmail@osiris.hswn.dk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-30 at 03:14, Martin J. Bligh wrote:
+On Tue, Dec 24, 2002 at 10:55:59AM -0000, Henrik Storner wrote:
+ > I have a Soltek SL75-FRV motherboard with a KT400 chipset.
+ > AMD XP processor, 512 MB DDR RAM (Kingston). This is a new
+ > system I got a few days ago, and it is giving me headaches:
+ > 
+ > 1) AGP is not working (kernel oops with 2.5.53)
+ > the kernel oops'es when initialising the AGP driver. Copied by hand:
 
-> ID Sev Owner State Result Summary
-> 44 blo khoa@us.ibm.com OPEN radeonfb does not compile at all - seems 
-> incomplete? or w...
+I now have the chipset specs, and a reference board. As soon
+as I get a CPU for it in the next week or so, I'll get this
+fixed up, until then, just say AGP=n for KT400's.
 
-Beeing worked on by James Simmons and myself. Working version in the PPC
-tree, will be part of next round of fbdev updates
+		Dave
 
-> 69 nor mbligh@aracnet.com OPEN Framebuffer bug
-> 72 nor khoa@us.ibm.com OPEN Framebuffer scrolls at the wrong times/places
-> 79 nor khoa@us.ibm.com OPEN Framebuffer scrolling problem
-
-I've seen at least some of these discussed on the linux-fbdev mailing
-list, though I can't talk for the maintainer, I beleive they are beeing
-worked on.
-
-> 117 nor mbligh@aracnet.com OPEN build failure: arch/ppc/kernel/process.c
-
-Works in current ppc bk tree, probably waiting for next round of merges
-by Paul Mackerras to Linus.
-
-> -- 
-> Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,319 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268230AbUIWD1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268231AbUIWDm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268230AbUIWD1y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 23:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268231AbUIWD1y
+	id S268231AbUIWDm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 23:42:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268235AbUIWDmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 23:27:54 -0400
-Received: from smart.net ([66.225.112.68]:19205 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id S268230AbUIWD1l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 23:27:41 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200409230327.XAA26983@smarty.smart.net>
-Subject: Linux in the Oval Office
-To: linux-kernel@vger.kernel.org
-Date: Wed, 22 Sep 2004 23:27:48 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Sep 2004 23:42:25 -0400
+Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:52118 "EHLO
+	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S268231AbUIWDmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 23:42:23 -0400
+Subject: Re: [RFC][PATCH] inotify 0.9.2
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Ray Lee <ray-lk@madrabbit.org>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>, Edgar Toernig <froese@gmx.de>,
+       Robert Love <rml@novell.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       viro@parcelfarce.linux.theplanet.co.uk
+In-Reply-To: <1095904012.11637.81.camel@orca.madrabbit.org>
+References: <1095652572.23128.2.camel@vertex>
+	 <1095744091.2454.56.camel@localhost>
+	 <20040921173404.0b8795c9.froese@gmx.de>
+	 <41504C21.3090506@nortelnetworks.com>  <1095820046.22558.4.camel@vertex>
+	 <1095904012.11637.81.camel@orca.madrabbit.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1095910956.9652.2.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 22 Sep 2004 23:42:36 -0400
+X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.0.0, Antispam-Data: 2004.9.22.4
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-or cLIeNUX, for you punk Fedorans that think cLIeNUX isn't unix.
-
-
-
-Presidential platform of Rick Hohensee, July 2004
-
-I want to be President so that I can try to...
-
-
-Replace the Pledge of Alliegance with daily recitals of varying paragraphs
-of the Constitution. Provide every public school student in grades 5 and
-up a copy of the Constitution every year.
-
-De-authorize all covert activities outside tactical operations in active
-war zones.
-
-Reaffirm that the "war on terror" is mostly diplomacy and police work when
-prosecuted by the competent, and only becomes all-out war when prosecuted
-by the incompetent and/or corrupt.
-
-Personal assessment of the impact of depleted uranium munitions with the
-full information-gathering power of the office of President.
-
-Call off The Crusades by isolating and peacefully dismantling Israel.
-Follow this up concurrently by demanding peace in Sudan and similar.
-
-Reduce legacy government secrets as close as possible to nothing. That is,
-I will massively reduce "classified information", particularly older
-documents, probably everything over 5 years old except for nuclear
-technologies and similar.
-
-Implement a closely controlled self-prescription program for adults to use
-such drugs as cocaine, heroin, marijuana and penicillin. That is, I will
-call off the corrupt drug war and de-glamourize narcotics.
-
-De-commission the CIA entirely, and un-authorize them totally,
-immediately. Out them all in about 6 months. Re-deploy them under INS.
-
-Remove the term "intelligence" from what it was the CIA used to do. Think
-"strinfo".
-
-Eliminate covert operations outside actual war zones immediately. Such
-behavior is well beneath the greatest nation ever. 
-
-Biometrically identify every non-citizen on US soil I can get my hands on.
-
-One immigration rule. (Al Sharpton)
-
-Promote the vote for ex-criminals. Sue if necessary in support of this.
-
-Teach evolution as scientific fact and the Bible, Talmud, Koran, the
-Analects, the Tao Te Ching, Aristotle's Ethics, Machiavelli and so on as
-ethics studies. Foster an Ethics Channel on TV.
-
-Enforce the law with emphasis on the most priviledged facing the closest
-scrutiny. This is my affirmative action policy. I am quite fatigued with
-rich white men giving me a bad name.
-
-Prosecute George Walker Bush for crimes against humanity.
-
-Legalize insider trading.
-
-Investigate deportation of Sun Myung Moon for illegal donations to North
-Korea. Not to mention he quite literally thinks he's God.
-
-Get out of Iraqi cities immediately, including vacating the Green Zone,
-and retreat to functions of state and federal governments, until the
-cities form regional alliances analagous to nations as they see fit.
-
-Eliminate the "not for profit" designation for corporations, churches,
-schools, trust funds and anything else. Charity is taxable income. If the
-government wants to subsidize something it can do it accountably, by
-direct subsidy.
-
-Ensure voting systems accountable to the electorate nationwide, such as my
-own "votescript".
-
-Pardon Martha Stewart due to the brazen political nature of her
-prosecution.
-
-Invite the Congress to take over the Anthrax and Chandra Levy
-investigations using the U.S. Capitol Police and any Executive Branch law
-enforcement capabilities they may wish to avail themselves of, such as the
-Postal Inspector's forces.
-
-List all prisoners at Guantanamo and what they are accused of. (Most will
-probably be released)
-
-Eliminate economic status requirements, particularly college degree
-requirements, from positions and licenses granted by the government.
-
-Plead to the Supreme Court to exclude Florida from the Electoral College
-for the rest of JEB Bush's governorship plus 13 years.
-
-Prosecute Katherine Harris for treason.
-
-Prosecute the management of Diebold Corp. for treason.
-
-Make global support of secular democracy the keystone of foreign policy.
-For example, the USA can no more support a Jewish state in Palestine than
-an Episcopal state in Langley Virginia. I consider "secular" to be a
-fundamental aspect of "nation". Non-secular regions will not be considered
-nations, officially.
-
-Invite 70% of the US military above the rank equivalent to Sargeant Major
-in the Army to resign immediately, with congratulations on winning the
-Cold War. And with the idea that they will not contribute to the loss of
-the peace crucial to the finances of the Bush Crime Family. I'll keep
-generals with surnames starting with, say, F through L or something to
-maintain some continuity during The Big Stand-Down. Maintain a potent,
-progressive, but perhaps significantly smaller military in terms of active
-personnel.
-
-Return reserves to thier proper roles. (John Kerry)
-
-Hand over Halliburton functions in Iraq to the US military and mideastern
-engineering firms. Let Iraqis rebuild Iraq.
-
-Overhaul the White House press corps to exclude the major war infomercial
-networks, ABC, NBC, CBS and so on.
-
-Make it unlawful for entities other than individuals to contribute funds
-to political campaigns.
-
-Conduct a variety of political autopsies, such as on Nicholas Berg.
-
-Establish a position of national developmental sports promoter and invite
-Cal Ripkin to take his work federal.
-
-Make my life as President extremely public. The adult public will be able
-to monitor most of my personal activity via live motion pictures. Big
-Brother is already here. I give the people of the USA the option of
-keeping an unblinking eye on Big Brother if they are so inclined.
-
-Convert the Executive Branch to use of open-source computer operating
-systems, such as Linux, BSD, or Plan 9 From Bell Labs. The military will
-be ordered to do so. I hope they aren't waiting for orders.
-
-Make all publications of the government available by FTP download from the
-Internet in effectively non-proprietary data formats.
-
-Implement checks and balances on law enforcement such that no jurisdiction
-can monopolize the evidence pertaining to any death.
-
-Increase personal financial accountability of members of Congress
-and lobbyists and lobbying organizations. 
-
-Task the FBI with a detailed study of every case of someone dying in
-police custody in the US in the last ten years.
-
-Implement a graduated progressive debt-monetization schedule for the
-Reagan/Bush National Debt to eventually eliminate the regressive debt
-costs left by fiscal incompetents.
-
-Generalize the definitions of criminal anti-competitive behavior to better
-protect small businesses and economic diversity. Lots of things Microsoft
-does legally will become illegal.
-
-Ensure that transportation policy emphasize pedestrians and other
-human-power transport first, then mass transit, then roads. I will
-encourage buses, in particular, publicly and privately operated.
-
-Establish a cabinet-level auditing office, with a general permanent
-mandate and authorization to eliminate corruption and improve efficiency
-throughout the Executive Branch.
-
-Reduce the implementation costs of the tax system and the welfare system
-by simplifying the income tax code to a single simple formula with a
-positive component, formerly mis-named as the proposed "negative income
-tax". Thus there will be no brackets. The top tax rate should be about 50%
-and the top positive tax rate should provide a homeless man with about
-$10-- a day.
-
-Eliminate parasitic "protectionist" tariffs, farm and other
-subsidies to the advantaged. 
-
-Require all products bodily ingested by humans, such as cigarettes, have
-thier ingredients listed as is now the case for most foods. This will
-include products with long-standing exemptions from such requirements,
-such as COCA Cola.
-
-Improve employability and general functionalization services to the
-homeless, literacy programs generally, and many other areas currently
-exhibiting barbaric and outrageously costly neglect. Another area that I
-personally find emblematic of the neglect the USA bestows upon it's
-helpless, my pet peeve if you will, is the condition of the average public
-basketball backboard. A decent outdoor basketball goal is a very
-cost-effective thing. Expect to see full regulation-dimensions rectangular
-backboards with straight rims appearing when I am President. Maybe even
-nets. Expect neglect to decrease generally.
-
-Emphasise the Internet in education.
-
-I support statutes and regulations that result in a decrease in the gross
-bulk of statutes and regulations for the sake thereof, such as more use of
-parametric "schedules" such as the well-known "GS-16" schedule of
-government salaries. A quick glance at the US Code suggests that it could
-easily be smaller by a factor of 4 or more.
-
-Manage my legislative agenda like an open source software project, with
-input from the general population via an FTP site or web wiki.
-
-Gun control is a population density issue. A moose gun is insane in
-Manhatten. Being without one is insane in most of Alaska.  A simple tax
-can be developed based on how many people are in range of a weapon. Let's
-say the tax is 5 cents a year for each human within range of a weapon.
-That's 20 cents for a moose gun in the outskirts of Nome, and hundreds of
-thousands of dollars for a moose gun in Manhatten. The details need some
-work, but therein lies the solution. There are a number of possible
-side-effects, like gun shops become inately rural businesses, which is a
-good thing. There's also a one-second factor, like 5 cents for each round
-the thing can fire in one second, times population density. Thus assault
-weapons cost more at about thier fire rate.
-
-I suggest several Constitutional amendments. This listing is not the exact
-language contemplated.....
-
-	The President may not pardon his own minions. He may petition the
-	Congress to do so. This is the Nixon/Ford amendment, long overdue.
-
-	Growing any naturally bred photosynthetic plant species in any
-	quantity is a basic right of adult citizens.
-
-	Voting in all elections of the USA shall be by approval basis, one
-	vote per voter per candidate. Plurality shall be the elective
-	margin. Vote counting shall be by direct popular count. There
-	shall be hard physical documentation of each ballot.
-
-	All ballots in the USA shall include a "None Of The Above"
-	synthetic candidate. If None Of The Above wins, the contested
-	office shall be filled by a suitable lottery of voters for None Of
-	The Above.
-
-	Border States may secede from the USA.
-
-	Border jurisdictions of States may change States.
-
-	I favor the creation of at-large Representatives and Senators.
-
-
-The above amendment to allow growing any herb could be constructed so as
-to foster family farms and serve as a permanent seedbed for small
-businesses.
-
-Reassess the health risks of cyclamates versus aspartame. Note that Donald
-Rumsfeld was a key lobbyist for aspartame.
-
-Abolish diplomatic immunity outside embassies. The US doesn't have royals,
-and doesn't aknowledge them on our soil.
-
-Change the names of Blair Mansion, the Ronald Reagan White Elephant and
-Internationalist Boondoggle Center, Reagan National Airport, the J. Edgar
-Hoover Building, and the Herbert Hoover Building.
-
-Increase compensation to federal elected officials.
-
-Set up a history ftp/website in the Education department
-
-Promise MLB baseball games in Cuba if Castro adopts a constitution based
-on the template on my webpage.
-
-Marriage is not a federal concern. The proposed tax formula will provide
-positive taxes (back to the person) to dependants, not married couples per
-se.
-
-Establish a national blues jam on the South Lawn of the White House in the
-summer.
-
-The legal tradition of the USA has some fundamental quirks going back to
-English Common Law that need fixing. Malice, intent, custodial
-relationships, sanity and other subtleties are sentencing issues, not
-corpus delecti.
-
-There is no specific labor policy at this time. Labor interests should
-note the elimination of degree requirements from positions licensed by the
-government, the possible huge increase in manpower to the INS via the
-de-commissioning of the CIA, the improved immigration enforcement possible
-in the absence of a corrupt drug war, the reduction in impetus of Latin
-Americans to emigrate to the US in the absense of a corrupt drug war, the
-top tax rate of 50%, and other policies that help the working man, woman
-or family directly, but not explicitly.
-
-I oppose capital punishment. It's not cost-effective. 
-
-As President I'll probably be able to get some things off the ground that
-aren't political per se, such as osimplay, cycluphonics, the Gitslik and
-Rixpik and so on.
-
-Life begins when you no longer blame everything on your mother. If I don't
-get the into White House, I blame my mother. 
-
-
-
-Rick (Richard Allen) Hohensee
-independant candidate for President
-
+On Wed, 2004-09-22 at 21:46, Ray Lee wrote:
+> On Tue, 2004-09-21 at 19:27, John McCutchan wrote:
+> > On Tue, 2004-09-21 at 11:43, Chris Friesen wrote:
+> > > Edgar Toernig wrote:
+> > > > Robert Love wrote:
+> > > > 
+> > > >> struct inotify_event {
+> > > >> 	int wd;
+> > > >> 	int mask;
+> > > >>-	char filename[256];
+> > > >>+	char filename[PATH_MAX];
+> > > >> };
+> > > > 
+> > > > 
+> > > > You really want to shove >4kB per event to userspace???
+> > > 
+> > > Ouch.
+> > > 
+> > > Maybe make it variable-size?  On average it would likely be shorter.
+> > > 
+> > > struct inotify_event {
+> > > 	int wd;
+> > > 	int mask;
+> > > 	short namelen;
+> > > 	char filename[0];
+> > > };
+> > 
+> > This makes reading events from inotify a pain, first you need to read up
+> > to namelen, then read namelen more bytes. 
+> > 
+> 
+> Not the case. A mildly smarter userspace program would merely read
+> everything outstanding (or everything up to a fixed buffer length), and
+> then unserialize the events based on the boundaries it can figure out
+> from the first portion of the structure.
+> 
+> This is a way common technique.
+> 
+> At least in code I write, anyway :-).
+
+Of course this is possible, but the inotify kernel driver only allows userspace 
+program to read in event sized chunks (So that the event queue
+handling is kept simple)
+
+John

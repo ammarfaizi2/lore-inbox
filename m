@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265488AbUAFXxj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 18:53:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbUAFXxj
+	id S265443AbUAFXvr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 18:51:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265488AbUAFXvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 18:53:39 -0500
-Received: from linuxhacker.ru ([217.76.32.60]:52936 "EHLO shrek.linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S265488AbUAFXxh (ORCPT
+	Tue, 6 Jan 2004 18:51:47 -0500
+Received: from stud.fbi.fh-darmstadt.de ([141.100.40.65]:41636 "EHLO
+	stud.fbi.fh-darmstadt.de") by vger.kernel.org with ESMTP
+	id S265443AbUAFXvp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 18:53:37 -0500
-Date: Wed, 7 Jan 2004 01:53:35 +0200
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org, mfedyk@matchmail.com,
-       Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: Suspected bug infilesystems (UFS,ADFS,BEFS,BFS,ReiserFS) related to sector_t being unsigned, advice requested
-Message-ID: <20040106235335.GC415627@linuxhacker.ru>
-References: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk> <3FFA7717.7080808@namesys.com> <Pine.LNX.4.56.0401061218320.7945@jju_lnx.backbone.dif.dk> <20040106174650.GD1882@matchmail.com> <200401062135.i06LZAOY005429@car.linuxhacker.ru> <3FFB46B0.9060101@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Jan 2004 18:51:45 -0500
+From: Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+To: linux-kernel@vger.kernel.org
+Subject: Kconfig entryf or Pegasus USB Ethernet device
+Date: Wed, 7 Jan 2004 00:51:33 +0100
+User-Agent: KMail/1.5.93
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <3FFB46B0.9060101@namesys.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200401070051.40350.vergata@stud.fbi.fh-darmstadt.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, Jan 07, 2004 at 02:37:20AM +0300, Hans Reiser wrote:
+Hi all,
 
-> >This code was never executing anyway.
-> Oleg, I thought you ran a script for finding dead code last fall or 
-> summer?  Any idea why it didn't find this and gcc did?  Or did you only 
-> run it on reiser4?
+Just a small hint for USB Ethernet device.
 
-Actually I found this dead code back then (with gcc as well), though
-it was not looked all that serious. I think I decided we may want to have that
-just in case sector_t will become signed oneday or something like that.
-(in 2.4 the block type is still signed long, for example).
+I only have 1000Mbit card and for testing purpose an External USB 
+Ethernetdongle, so why should I build Ethernet 10 /100 Mbit when i only need 
+an USB Network adapter.
 
-As for why gcc is finding this, but scripts (e.g. smatch) do not is because
-scripts generally know nothing about variable types, so they cannot tell
-this comparison was always false (and since gcc can do this for long time
-already, there is no point in implementing it in scripts anyway).
+So if I'm right this should work too just like the other devices too.
 
-Bye,
-    Oleg
+CU Sergio
+
+- --- Kconfig.old 2004-01-06 21:26:37.000000000 +0100
++++ Kconfig     2004-01-06 21:35:53.000000000 +0100
+@@ -69,7 +69,7 @@
+
+ config USB_PEGASUS
+        tristate "USB Pegasus/Pegasus-II based ethernet device support"
+- -       depends on USB && NET_ETHERNET
++       depends on USB && NET
+        select MII
+        ---help---
+          Say Y here if you know you have Pegasus or Pegasus-II based adapter.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQE/+0oKVP5w5vF/2y8RAoaaAKCauI7Atzrkc6HpxUXM77YZeE9UGwCg7JKF
+VYTBCKqlhFPtDsOhflbh54s=
+=M0Jf
+-----END PGP SIGNATURE-----

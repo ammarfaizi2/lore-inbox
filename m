@@ -1,65 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUE2PWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264302AbUE2PaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbUE2PWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 11:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264302AbUE2PWq
+	id S264302AbUE2PaX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 11:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbUE2PaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 11:22:46 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:54224 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264299AbUE2PWe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 11:22:34 -0400
-Date: Sat, 29 May 2004 17:22:17 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6-BK usb (printing) broken
-Message-ID: <20040529152217.GA17758@suse.de>
-References: <20040529140757.GA16264@suse.de> <20040529143941.GA12257@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040529143941.GA12257@kroah.com>
+	Sat, 29 May 2004 11:30:23 -0400
+Received: from dialin-212-144-165-116.arcor-ip.net ([212.144.165.116]:23691
+	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S264302AbUE2PaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 11:30:21 -0400
+In-Reply-To: <20040528163234.GV2603@schnapps.adilger.int>
+References: <Pine.GSO.4.33.0405280018250.14297-100000@sweetums.bluetronic.net> <200405280941.38784.m.watts@eris.qinetiq.com> <20040528062141.GA18118@cox.net> <20040528150119.GE18449@thunk.org> <20040528163234.GV2603@schnapps.adilger.int>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-7-163235137"
+Message-Id: <168FA640-B185-11D8-9291-000A958E35DC@fhm.edu>
+Content-Transfer-Encoding: 7bit
+Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: ftp.kernel.org
+Date: Sat, 29 May 2004 17:30:17 +0200
+To: Andreas Dilger <adilger@clusterfs.com>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29 2004, Greg KH wrote:
-> On Sat, May 29, 2004 at 04:08:00PM +0200, Jens Axboe wrote:
-> > 
-> > Something between 2.6.7-rc1 and current 2.6-BK broke usb printing here
-> > again. I have two printers attached:
-> > 
-> > usb 1-1: new full speed USB device using address 6
-> > usb 1-1: control timeout on ep0out
-> > usb 1-1: control timeout on ep0out
-> > usb 1-1: device not accepting address 6, error -110
-> > usb 1-1: new full speed USB device using address 7
-> > usb 1-1: control timeout on ep0out
-> > usb 1-1: control timeout on ep0out
-> > usb 1-1: device not accepting address 7, error -110
-> > 
-> > It's a VIA EPIA-800 board, lspci shows the following for usb:
-> > 
-> > 00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 24)
-> > 00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 24)
-> 
-> Alan, looks like your "fix the VIA controller driver" patch broke
-> something here, care to look into it?
 
-Thanks for the hint, backing out this patch:
+--Apple-Mail-7-163235137
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/cset-stern@rowland.harvard.edu|ChangeSet|20040525183839|17182.txt
+On 28.05.2004, at 18:32, Andreas Dilger wrote:
 
-fixes 2.6-BK for me. Both 2.6.7-rc1 and BK current spit out a bunch of:
+> Ideally we would move to something like http/ftp-meets-bittorrent for 
+> content
+> replication.  Then sites which are popular would have lots of mirrors 
+> by
+> default, and dedicated FTP mirror sites would actually share bandwidth 
+> ala
+> bittorrent instead of just having copies of the same data.  If this 
+> started
+> using users' web browser cache as bittorrent mirrors it would be 
+> totally
+> impossible to slashdot a site.
 
-drivers/usb/class/usblp.c: usblp1: nonzero read/write bulk status received: -2
-drivers/usb/class/usblp.c: usblp1: error -2 reading from printer
-drivers/usb/class/usblp.c: usblp1: error -115 reading from printer
-drivers/usb/class/usblp.c: usblp1: error -115 reading from printer
-...
+Actually I think this is *the* idea. Why not simply set up a
+bittorrent tracker and have a distributed kernel.org
+fileserving system? Instead of having links to http and ftp
+sites there could be a torrent link as well. Several
+OpenSource projects started distributing files with BT
+already and it seems to work like a charm.
 
-(about ~80 of that last line) but work for me.
+Servus,
+       Daniel
 
--- 
-Jens Axboe
+--Apple-Mail-7-163235137
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iQEVAwUBQLisiTBkNMiD99JrAQI9egf9EhwwZDTjSxRDWeBkBhFUUn/pU1zdIt6k
+vBw0Xs/X9hnWnjH/tzQiWbqbvJUn+IZiXBeE+79lKMvfjeccOXOcaytKfpwdDm6R
+Ma4MVQRMfY3jjgbc3b7HVQhmlmS2XONnJI/DFT+n79TR6BnWk7TfUjk+1yG0Rpac
+x4UTYyZbcwVyP12HvM+SIdbwYv1nH5umpf9OTIlYgVHg5Z2sIryTGhzxAHjpblG2
+7puNlOrQyiLzyYuqGuv7y5o+LAhHnssIl2hEzQMsrml/OT2LKRf3F3x0HXWMnJOM
+WuigchtB9MAXz4NynfEWjWPbmMBw7JK7JHiB0eyf0i72sf+AVW56JQ==
+=d798
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-7-163235137--
 

@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317427AbSFMC53>; Wed, 12 Jun 2002 22:57:29 -0400
+	id <S317429AbSFMDFD>; Wed, 12 Jun 2002 23:05:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317429AbSFMC52>; Wed, 12 Jun 2002 22:57:28 -0400
-Received: from 12-226-168-48.client.attbi.com ([12.226.168.48]:37769 "EHLO
-	marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id <S317427AbSFMC51>; Wed, 12 Jun 2002 22:57:27 -0400
-Date: Wed, 12 Jun 2002 22:57:02 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Ryan Cumming <ryan@completely.kicks-ass.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S317430AbSFMDFC>; Wed, 12 Jun 2002 23:05:02 -0400
+Received: from adsl-63-205-245-1.dsl.snfc21.pacbell.net ([63.205.245.1]:58581
+	"EHLO amboise.dolphin") by vger.kernel.org with ESMTP
+	id <S317429AbSFMDFB>; Wed, 12 Jun 2002 23:05:01 -0400
+Date: Wed, 12 Jun 2002 20:04:35 -0700 (PDT)
+From: Francois Gouget <fgouget@free.fr>
+X-X-Sender: fgouget@amboise.dolphin
+To: Kurt Wall <kwall@kurtwerks.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-Message-Id: <20020612225702.34a887c1.kwall@kurtwerks.com>
-In-Reply-To: <200206121942.56046.ryan@completely.kicks-ass.org>
-Organization: KurtWerks *Isn't* Organized
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020612222540.23e38e0a.kwall@kurtwerks.com>
+Message-ID: <Pine.LNX.4.43.0206121956010.18826-100000@amboise.dolphin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach Ryan Cumming:
+On Wed, 12 Jun 2002, Kurt Wall wrote:
+
+> Also sprach Alexander Viro:
+[...]
+> > What the hell do you mean "these files are not Unix files"???  They do
+> > have universally understood semantics - persistent named array of
+> > characters. That's what Unix files _are_.
 >
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On June 12, 2002 19:25, Kurt Wall wrote:
-> > That's *precisely* the point I tried to make. .desktop files are
-> > just plain text files, as far as Unix is concerned. They do not map
-> > neatly to Windows .lnk files because the kernel's file system layer
-> > does not handle them specially, as it does symlinks. God and Bill
-> > Gates alone know how Windows handles .lnk files, but it does seem
-> > that Windows imputes to them special semantics, rather like a shell
-> > script.
-> 
-> No, some people actually know how Windows works. The kernel has very
-> little to do with .lnk files, and in fact it sees them as regular
-> files. If you run "notepad foo.lnk", you will see the link's binary
-> contents. If you use the CreateFile or OpenFile kernel calls, you will
-> get a file handle pointing to the link's contents. If you attempt to
-> execute a .lnk file from the command line or using CreateProcess, it
-> will horribly fail.
-> 
-> In fact, to dereference a link in userspace, you must open the .lnk
-> file, examine its contents with a library call, and then open the
-> destination file.  This is extremely similar to how Gnome or KDE
-> handle .desktop files: mainly in the shell.
+> That's *precisely* the point I tried to make. .desktop files are just
+> plain text files, as far as Unix is concerned. They do not map neatly
+> to Windows .lnk files because the kernel's file system layer does
+> not handle them specially, as it does symlinks. God and Bill Gates
+> alone know how Windows handles .lnk files, but it does seem that Windows
+> imputes to them special semantics, rather like a shell script.
 
-Okay. I readily admit that I do not know how Windows works. 
-I stand corrected.
+Well, you should go talk to Wine hackers one day. More is known about
+.lnk files than you think.
 
-Kurt
--- 
-Happiness, n.:
-	An agreeable sensation arising from contemplating the misery of
-another.
-		-- Ambrose Bierce, "The Devil's Dictionary"
+The Windows kernel has nothing to do with them. If you want to
+dereference .lnk files you have to call a regular user-space library,
+more specifically the shell32.dll library. For more information, see the
+IShellLink COM interface:
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/ifaces/ishelllink/ishelllink.asp
+
+
+So .lnk files are handled 100% in userspace, just like .desktop files.
+
+[snipping rest of email which is moot]
+
+
+--
+Francois Gouget         fgouget@free.fr        http://fgouget.free.fr/
+          tcA thgirypoC muinelliM latigiD eht detaloiv tsuj evah uoY
+

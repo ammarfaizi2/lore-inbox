@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284746AbRLJX6y>; Mon, 10 Dec 2001 18:58:54 -0500
+	id <S284751AbRLKAEO>; Mon, 10 Dec 2001 19:04:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284754AbRLJX6o>; Mon, 10 Dec 2001 18:58:44 -0500
-Received: from net128-053.mclink.it ([195.110.128.53]:4078 "EHLO
-	mail.mclink.it") by vger.kernel.org with ESMTP id <S284752AbRLJX6c>;
-	Mon, 10 Dec 2001 18:58:32 -0500
-Message-ID: <3C154C27.2030202@arpacoop.it>
-Date: Tue, 11 Dec 2001 00:58:31 +0100
-From: Carl Scarfoglio <scarfoglio@arpacoop.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.1-pre8: lockups whem mounting scsi cdrom
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S284756AbRLKAEF>; Mon, 10 Dec 2001 19:04:05 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:27242 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S284751AbRLKADt>; Mon, 10 Dec 2001 19:03:49 -0500
+Date: Tue, 11 Dec 2001 01:02:23 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Abraham vd Merwe <abraham@2d3d.co.za>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 & OOM killer screw up
+Message-ID: <20011211010223.Z4801@athlon.random>
+In-Reply-To: <20011210101452.F1502@crystal.2d3d.co.za>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011210101452.F1502@crystal.2d3d.co.za>; from abraham@2d3d.co.za on Mon, Dec 10, 2001 at 10:14:52AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HW: MB Asus A7V, 256MB Ram, Athlon 800 MHz,four HD attache to standard
-ATA and ATA-100 Promise controller, 1 Realtek 8029 ethernet adapter,
-Adaptec 2904 (AIC 7850), 1 scsi CD-writer (Waitec. i.e. Philips 2200 or
-so), Teac scsi CD-ROM, 1 Mustek A3 plugged to external scsi connector.
-The Adaptec has Irq 11 exclusilively.
-SW: SuSE 6.3 with some changes, gcc 2.9.3.
+On Mon, Dec 10, 2001 at 10:14:52AM +0200, Abraham vd Merwe wrote:
+> Hi!
+> 
+> If I leave my machine on for a day or two without doing anything on it (e.g.
+> my machine at work over a weekend) and I come back then 1) all my memory is
+> used for buffers/caches and when I try running application, the OOM killer
+> kicks in, tries to allocate swap space (which I don't have) and kills
+> whatever I try start (that's with 300M+ memory in buffers/caches).
 
-I am running 2.5.1-pre8. I cannot mount data CD. When I execute the
-mount command, on any drive, a hard lockup follows. No messages from the
-mount command, no noise from the drives.
-The PC hangs solid: keyboard and mouse are dead, no telnet access, when
-in X the session is dead. I must flip the power switch.
+I'd try 2.4.17pre4aa1.
 
-But I can write CD's with cdrecord and play audio CD's!!
-
-Kernel 2.5.0 does not have this problem.
-
-TIA
-
-Carlo Scarfoglio
-
+Andrea

@@ -1,89 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265274AbUAJRGi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 12:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbUAJRGi
+	id S265266AbUAJROz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 12:14:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbUAJROz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 12:06:38 -0500
-Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:51087 "EHLO
-	diamond.madduck.net") by vger.kernel.org with ESMTP id S265274AbUAJRGf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 12:06:35 -0500
-Date: Sat, 10 Jan 2004 18:06:34 +0100
-From: martin f krafft <madduck@madduck.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: stability problems with 2.4.24/Software RAID/ext3
-Message-ID: <20040110170634.GA31201@piper.madduck.net>
-Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org
-References: <20040108151225.GA11740@piper.madduck.net> <1073671862.24706.13.camel@tux.rsn.bth.se> <20040109185348.GA24499@piper.madduck.net> <Pine.LNX.4.58L.0401101005470.3641@logos.cnet>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+	Sat, 10 Jan 2004 12:14:55 -0500
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:1473 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S265266AbUAJROy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 12:14:54 -0500
+From: lkml@nitwit.de
+To: Eric <eric@cisu.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6: The hardware reports a non fatal, correctable incident occured on CPU 0.
+Date: Sat, 10 Jan 2004 18:16:22 +0100
+User-Agent: KMail/1.5.4
+References: <200401091748.10859.lkml@nitwit.de> <200401091712.02802.eric@cisu.net>
+In-Reply-To: <200401091712.02802.eric@cisu.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0401101005470.3641@logos.cnet>
-X-OS: Debian GNU/Linux testing/unstable kernel 2.6.1-diamond i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.4i
+Message-Id: <200401101816.22612.lkml@nitwit.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 10 January 2004 00:12, Eric wrote:
+> 	Check your hardware CPU/MOBO/RAM. Overheating? Bad Ram? Cheap mobo?
+> MCE should not be triggered under any circumstances unless it is a kernel
+> bug(RARE, I believe the MCE code is simple) or you REALLY have a hardware
+> problem. As said before, the bios is resetting your fsb to 100 as a
+> fail-safe because something bad happened.
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, my system did run very stable and in the meantime again does run very 
+stable on both, 2.4.21 and Windows XP...
 
-also sprach Marcelo Tosatti <marcelo.tosatti@cyclades.com> [2004.01.10.1306=
- +0100]:
-> Did you ever try to disable the DMA as suggested?
+> 	BTW, check your setup, an AMD 2200+ should run at 1.8ghz i believe. If you
 
-I am sorry, Marcelo, that it took me so long.
+Yes.
 
-In fact, I tried disabling the DMA and I could *not* get it to crash
-without DMA. It did also not crash with DMA on for the onboard (VIA)
-controller and off for the Promise. But when I turned DMA back on
-for the Promise, it crashed again.
+> > What the fuck is going on here?? As far as I figured out this has
+> > something to do with MCE (CONFIG_X86_MCE=y, CONFIG_X86_MCE_NONFATAL=y)
+> > (?).
+>
+> 	Leave it enabled, its a good thing to tell you when you have bad hardware.
+> Its not a kernel problem, but a feature.
 
-Martin Josefsson has suggested that the Promise controller may be
-defective, and it certainly looks like that. I am now trying
-a different Promise controller (20376 rather than the 20369, but
-same driver), but it also crashes.
+Well, it is a good thing to tell me, but it's not a good thing to make my 
+system auto-reset itself before reaching the BIOS afterwards...
 
-Thus, it looks like it's a problem with the driver, doesn't it? Or
-either of the two disks. I will run badblocks over them on
-a known-to-be-good controller when I get a chance.
+timo
 
-If it's a problem with the driver, then I would be happy to help,
-but I know nothing about these layers of the computer. I would,
-however, give the controller away to someone eager to debug the
-driver (provided the university will let me)!
-
-Cheers,
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-=20
-a qui sait comprendre, peu de mots suffisent.
-                                                 -- intelligenti pauca
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAADEaIgvIgzMMSnURAgj/AJ9cpnDJZbb0c+FON9hu0asPLgT1SgCfYhWq
-Ote8IWVUkIiTP7Epf8uyGhA=
-=bY41
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--

@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262708AbTH0Nba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 09:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTH0Nba
+	id S263336AbTH0NiK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 09:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbTH0NiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 09:31:30 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:60933 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S262708AbTH0NbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 09:31:23 -0400
-Subject: Re: 2.6.0-test4 kernel hangs on loading mouse driver
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Phil Stewart <phil@lichp.co.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0308271256330.527-100000@henry>
-References: <Pine.LNX.4.33.0308271256330.527-100000@henry>
-Content-Type: text/plain
-Message-Id: <1061991042.694.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 27 Aug 2003 15:30:43 +0200
+	Wed, 27 Aug 2003 09:38:09 -0400
+Received: from firewall.mdc-dayton.com ([12.161.103.180]:21937 "EHLO
+	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
+	id S263336AbTH0NiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 09:38:04 -0400
+From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Linux and PCI bridge
+Date: Wed, 27 Aug 2003 09:51:21 -0500
+Message-ID: <PMEMILJKPKGMMELCJCIGEEDNCEAA.kfrazier@mdc-dayton.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-08-27 at 14:13, Phil Stewart wrote:
-> I'm having a problem booting the test4 kernel, which has developed since
-> patching up from a functional test2 tree (I haven't compiled a test3
-> kernel on my system, having patched to test3 and then again to test4). The
-> problem seems to lie with the mouse, which is a USB HID mouse. The kernel
-> gets as far as loading the hid core at boot time, giving these messages:
-> 
-> drivers/usb/core/usb.c: registered new driver hid
-> drivers/usb/input/hid-core.c: v2.0: USB HID core driver
-> mice: PS/2 mouse device common for all mice
+Please CC your response.
 
-It's a known problem related to ACPI changes in -test4. Please, see
+We are currently debugging a problem involving 2 PCI boards that we have
+developed.  Our system eventually "hangs" after running for awhile.  By this
+I mean that no hardware interrupts can get through (keyboard, mouse,
+ethernet, etc.).  However, software components are still running.  During
+this process I added some debug software and have determined that individual
+IRQs were not disabled at the 8259 interrupt controller.  I have also
+determined that interrupts are still on at the processor - so there was not
+a naughty piece of software that did a "cli" and forget to clean up after
+itself.  Something is getting hosed in the hardware and interrupts are not
+able to get from our PCI device to my driver.  We have confirmed that our
+device has it's interrupt asserted when it hangs.  That makes the PCI bus,
+bridge and Front Side Bus the suspects in this.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=1123
+So, my questions to you are:
 
-for further information. For me, enabling APIC and IOAPIC solve the
-problem. If you can't enable APIC and IOAPIC, please boot using
-"pci=noacpi".
+- Can anyone recommend any tools that would be useful in debugging this?
+I've started looking at a couple of PCI bus analyzers, but I'm not sure that
+it will allow me to detect anything with respect to the bridge or the FSB.
+
+- Other than the handling of 8259 and APIC interrupts (BTW, we don't use
+APIC), does the Linux O/S drive anything else in the bridge, or is this a
+BIOS thing?
+
+We have tried other slots, exclusive interrupt use and updates to BIOS.  At
+one point, I thought it was an APM related bug in the BIOS because we
+experienced no failures once we told it to NOT issue CPU idle calls.   Since
+we don't need power management, we turned it off completely.  However,
+testing of our second product has not gone as well.  We experience the same
+symptoms.
+
+Thanks in advance for your help.
+
+
+
+Kathy Frazier
+Senior Software Engineer
+Max Daetwyler Corporation-Dayton Division
+2133 Lyons Road
+Miamisburg, OH 45342
+Tel #: 937.439-1582 ext 6158
+Fax #: 937.439-1592
+Email: kfrazier@daetwyler.com
+http://www.daetwyler.com
+
+
 

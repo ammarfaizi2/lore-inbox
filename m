@@ -1,84 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267054AbRGMMDq>; Fri, 13 Jul 2001 08:03:46 -0400
+	id <S267057AbRGMMYd>; Fri, 13 Jul 2001 08:24:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267055AbRGMMDg>; Fri, 13 Jul 2001 08:03:36 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:25289 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S267054AbRGMMD2>; Fri, 13 Jul 2001 08:03:28 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Abramo Bagnara <abramo@alsa-project.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Date: Fri, 13 Jul 2001 22:03:08 +1000 (EST)
-MIME-Version: 1.0
+	id <S267488AbRGMMYX>; Fri, 13 Jul 2001 08:24:23 -0400
+Received: from mohawk.n-online.net ([195.30.220.100]:55051 "HELO
+	mohawk.n-online.net") by vger.kernel.org with SMTP
+	id <S267057AbRGMMYP>; Fri, 13 Jul 2001 08:24:15 -0400
+Date: Fri, 13 Jul 2001 14:19:54 +0200
+From: Thomas Foerster <puckwork@madz.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Again: Linux 2.4.x and AMD Athlon
+X-Mailer: Thomas Foerster's registered AK-Mail 3.11 [ger]
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15182.58236.133661.221154@notabene.cse.unsw.edu.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, nfs-devel@linux.kernel.org,
-        nfs@lists.sourceforge.net
-Subject: Re: [NFS] [PATCH] Bug in NFS - should umask be allowed to set umask???
-In-Reply-To: message from Abramo Bagnara on Friday July 13
-In-Reply-To: <3B4E93E9.F6506CC0@alsa-project.org>
-	<15182.48923.214510.180434@notabene.cse.unsw.edu.au>
-	<3B4EDBCE.D2AEAD16@alsa-project.org>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-Id: <20010713122415Z267057-720+1987@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-[ Background for Linus who has been added to the To: list
-  Abramo noticed that knfsd appeared to be running with a umask of 022.
-  I commented that nfsd has the same umask as /sbin/init as they share
-  current->fs, courtesy of daemonize().  I asked what "init" he was
-  running]
+> Kenneth Vestergaard Schmidt wrote:
+>>
+>> Thomas Foerster wrote:
+>> > Seems to be the problem with the AMD optimazion in the kernel.
+>>
+>> Funny, I have only had one minor problem with my setup. It's the same
+>> processor, only with one 512 meg PC133 block, and the ASUS A7V133
+>> motherboard (which is equipped with the same chipset). My videocard is also
+>> the same (ASUS V-7700), but my PSU is only 300Mhz.
+>>
 
-On Friday July 13, abramo@alsa-project.org wrote:
-> $ rpm -qf /sbin/init
-> SysVinit-2.78-17
+> I am wondering if you are using the NVidia binary driver for X. They
+> seem to cause some "funny" things like SIGSEGVs and random hangs. Even
+> without K7 optimizations.
 
-Ok, I found SysVinit-2.78-15 which is probably close enough, managed
-to find a redhat system to explode it on, and found this patch:
+I do. I use the version coming with redhat 7.1
 
---- sysvinit-2.78/src/init.c.foo        Wed Apr  4 01:42:27 2001
-+++ sysvinit-2.78/src/init.c    Wed Apr  4 01:42:49 2001
-@@ -2451,6 +2451,8 @@
-        p = argv[0];
-        
- 
-+  umask(022);
-+       
-   /*
-    *   Is this telinit or init ?
-    */
-@@ -2523,8 +2525,6 @@
-   /* Check syntax. */
-   if (argc - optind != 1 || strlen(argv[optind]) != 1) Usage(p);
-   if (!strchr("0123456789SsQqAaBbCcUu", argv[optind][0])) Usage(p);
--
--  umask(022);
- 
-   /* Open the fifo and write a command. */
-   memset(&request, 0, sizeof(request));
+Do they behave different when being non root?
 
+Thomas
 
-what this does is that instead of just setting umask when running as
-"telinit", init always sets umask to 022.  This is setting the umask
-for nfsd. This completely explains your observations.
-So we have several options:
-
-1/ Claim that redhat is broken. Leave them to fix SysVinit.
-2/ Have nfsd over-write the umask setting that /sbin/init imposed.
-   This is effectively what your patch does.
-3/ Decide that it is inappropriate for nfsd to share the current->fs
-   fs_struct with init.  Unfortunately this means changing or
-   replacing daemonize().
-
-None of these seem ideal.  (3) is probably most correct (i.e. protect
-the kernel from user space mucking about) but is the most work.
-
-Suggestions please ??? Linus??
-
-NeilBrown

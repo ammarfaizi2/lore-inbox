@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262826AbSKDWqj>; Mon, 4 Nov 2002 17:46:39 -0500
+	id <S262835AbSKDWwD>; Mon, 4 Nov 2002 17:52:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262827AbSKDWqj>; Mon, 4 Nov 2002 17:46:39 -0500
-Received: from almesberger.net ([63.105.73.239]:16649 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S262826AbSKDWqi>; Mon, 4 Nov 2002 17:46:38 -0500
-Date: Mon, 4 Nov 2002 19:52:29 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Rob Landley <landley@trommello.org>
-Cc: dcinege@psychosis.com, andersen@codepoet.org,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
-Message-ID: <20021104195229.C1407@almesberger.net>
-References: <200210272017.56147.landley@trommello.org> <20021030085149.GA7919@codepoet.org> <200210300455.21691.dcinege@psychosis.com> <200211011917.16978.landley@trommello.org>
+	id <S262838AbSKDWwD>; Mon, 4 Nov 2002 17:52:03 -0500
+Received: from bitmover.com ([192.132.92.2]:4012 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S262835AbSKDWwC>;
+	Mon, 4 Nov 2002 17:52:02 -0500
+Date: Mon, 4 Nov 2002 14:58:31 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Geoff Gustafson <geoff@linux.co.intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Open POSIX Test Suite
+Message-ID: <20021104145831.C18053@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Geoff Gustafson <geoff@linux.co.intel.com>,
+	linux-kernel@vger.kernel.org
+References: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211011917.16978.landley@trommello.org>; from landley@trommello.org on Mon, Nov 04, 2002 at 02:13:20AM +0000
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com>; from geoff@linux.co.intel.com on Mon, Nov 04, 2002 at 02:48:47PM -0800
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> Yeah, cpio is a pain and change to use, but so is tar.
+On Mon, Nov 04, 2002 at 02:48:47PM -0800, Geoff Gustafson wrote:
+> I would like to announce a new project to develop and/or assemble a GPL test
+> suite for POSIX APIs. 
 
-Somebody who strogly dislikes cpio could just write wrapper accepting
-tar-style options. Or add a --cpio option to GNU tar, that switches
-to using the cpio format. One could even try to auto-detect the
-format when reading :-)
+Great idea.  We can help in the following way: BitKeeper has an extremely
+simple test harness used for regressions.  It's well thought out in that
+it is trivial to write simple tests and run them in isolation or to 
+run the whole suite.  If you want the harness, we'll give it to you 
+under whatever license you want, I assume GPL, but we don't care.
 
-- Werner (hates cpio, but not enough)
+You can see what the tests look like in BK, if you have it installed, we
+ship all the tests, they are in `bk bin`/t
 
+A simple test might be
+
+	#!/bin/sh
+
+	# test that touch creates a file
+	touch foo
+	test -f foo || {
+		echo failed to create foo
+		exit 1
+	}
+
+The harness takes care of putting you in a clean isolated environment.
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265349AbUFBGMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265362AbUFBGgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265349AbUFBGMt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 02:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUFBGMt
+	id S265362AbUFBGgR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 02:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265368AbUFBGgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 02:12:49 -0400
-Received: from ns1.lanforge.com ([66.165.47.210]:1221 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S265349AbUFBGMr (ORCPT
+	Wed, 2 Jun 2004 02:36:17 -0400
+Received: from dns1.vodatel.hr ([217.14.208.29]:16560 "EHLO dns1.vodatel.hr")
+	by vger.kernel.org with ESMTP id S265362AbUFBGgQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 02:12:47 -0400
-Message-ID: <40BD6FDE.6090006@candelatech.com>
-Date: Tue, 01 Jun 2004 23:12:46 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Wed, 2 Jun 2004 02:36:16 -0400
+From: "Tvrtko A. =?utf-8?q?Ur=C5=A1ulin?=" <tvrtko.ursulin@zg.htnet.hr>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Question about IDE disk shutdown
+Date: Wed, 2 Jun 2004 08:27:59 +0200
+User-Agent: KMail/1.6.2
+References: <200406011713.59904.tvrtko.ursulin@zg.htnet.hr> <200406020041.22420.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200406020041.22420.bzolnier@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: davids@webmaster.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Select/Poll
-References: <MDEHLPKNGKAHNMBLJOLKAEJIMFAA.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEJIMFAA.davids@webmaster.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406020827.59515.tvrtko.ursulin@zg.htnet.hr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
+On Wednesday 02 June 2004 00:41, Bartlomiej Zolnierkiewicz wrote:
 
-> 	Your issue has nothing to do with select or poll scalability, it has to do
-> with the fact that UDP is unreliable and you must provide your own send
-> timing. A UDP server or client cannot just send 100 messages in one shot and
-> expect the other end to get all of them. They probably won't all even make
-> it to the wire, so the recipient can't solve the problem.
+> > Following that I see that ide_device_shutdown flushes the cache, and then
+> > calls dev->bus->suspend(dev, PM_SUSPEND_STANDBY); which is in fact
+> > generic_ide_suspend, right? There, something called REQ_PM_SUSPEND is
+> > issued to the drive. As SUSPEND != STANDBY or SLEEP, I am left uncertain.
+> >
+> > Is there a place to be worried or I am missing something?
+>
+> You are missing PM code in ide-disk.c.  :-)
+>
+> See idedisk_start_power_step() and idedisk_complete_power_step(),
+> also read comment in <linux/ide.h> about ide_pm_state_*.
 
-You can check that they get to the wire in (almost?) all cases by watching
-the return value for the sendto call.  And, if you have decent buffers on
-the receive side, and a clean transport, then you can send at very high speeds
-w/out dropping any significant number of packets, even when using select/poll and
-non-blocking sockets...
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+I saw that, but the comment speaks only about power management. Therefore I 
+wasn't sure that this path is also taken during standard power-off. Thanks!

@@ -1,80 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268121AbUJCUPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268127AbUJCUXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268121AbUJCUPx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 16:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268127AbUJCUPw
+	id S268127AbUJCUXS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 16:23:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268128AbUJCUXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 16:15:52 -0400
-Received: from [66.35.79.110] ([66.35.79.110]:23451 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S268120AbUJCUNI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 16:13:08 -0400
-Date: Sun, 3 Oct 2004 13:10:05 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Hubertus Franke <frankeh@watson.ibm.com>, dipankar@in.ibm.com,
-       Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+	Sun, 3 Oct 2004 16:23:18 -0400
+Received: from mail01.hpce.nec.com ([193.141.139.228]:61629 "EHLO
+	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S268127AbUJCUXO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 16:23:14 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Date: Sun, 3 Oct 2004 22:21:25 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
+       ckrm-tech@lists.sourceforge.net, mbligh@aracnet.com,
        lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
        jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
        linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
        ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-ID: <20041003201005.GA27757@hockin.org>
-References: <247790000.1091762644@[10.10.2.4]> <200408061730.06175.efocht@hpce.nec.com> <20040806231013.2b6c44df.pj@sgi.com> <411685D6.5040405@watson.ibm.com> <20041001164118.45b75e17.akpm@osdl.org> <20041001230644.39b551af.pj@sgi.com> <20041002145521.GA8868@in.ibm.com> <415ED3E3.6050008@watson.ibm.com> <415F37F9.6060002@bigpond.net.au> <821020000.1096814205@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20041001164118.45b75e17.akpm@osdl.org> <20041001230644.39b551af.pj@sgi.com>
+In-Reply-To: <20041001230644.39b551af.pj@sgi.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <821020000.1096814205@[10.10.2.4]>
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410032221.26683.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 03, 2004 at 07:36:46AM -0700, Martin J. Bligh wrote:
-> > This is where I see the need for "CPU sets".  I.e. as a 
-> > replacement/modification to the CPU affinity mechanism basically adding 
-> > an extra level of abstraction to make it easier to use for implementing 
-> > the type of isolation that people seem to want.  I say this because, 
-> > strictly speaking and as you imply, the current affinity mechanism is 
-> > sufficient to provide that isolation BUT it would be a huge pain to 
-> > implement.
+> The other declared potential users of cpusets, Bull and NEC at
+> least, seem from what I can tell to have a somewhat different
+> focus, toward providing a mix of compute services with minimum
+> interference, from what I'd guess are more departmental size
+> systems.
 > 
-> The way cpusets uses the current cpus_allowed mechanism is, to me, the most
-> worrying thing about it. Frankly, the cpus_allowed thing is kind of tacked
-> onto the existing scheduler, and not at all integrated into it, and doesn't
-> work well if you use it heavily (eg bind all the processes to a few CPUs,
-> and watch the rest of the system kill itself). 
+> Bull (Simon) and NEC (Erich) should also look closely at CKRM,
+> and then try to describe their requirements, so we can understand
+> whether CKRM, cpusets or both or neither can meet their needs.
 
-7 years ago, before cpus_allowed was dreamed up, I proposed a pset patch
-and was shot down hard.  Now it's back, and we're trying to find a way to
-cram it in on top.
+The requirements I have in mind come from our customers: users,
+benchmarkers, administrators and compute center management. They are
+used to our kind of big iron, the NEC SX (earth simulator style
+hardware) which is running a proprietary Unix and has a few amenities
+not present in Linux. Among them: gang scheduling (even across
+machines for big parallel jobs), resource groups and tight integration
+of these features with the batch resource manager.
 
-Yeah, it does not fit nicely with cpus_allowed.
+Can cpusets help me/us/Linux to get closer to these requirements?
 
-I have to ask - do we REALLY need cpusets?  I meant, even SGI dropped
-PSET at some point, because (if I recall) NO ONE USED IT.
+A clear yes. Regard cpusets as a new kind of composite resource built
+from memory and CPUs. They can play the role of the resource groups we
+need. Disjunct cpusets can run jobs which will almost never interfere
+cpu-cycle or memory-wise. This can be easilly integrated into PBS/LSF
+or whatever batch resource manager comes to your mind. Cpusets
+selected with some knowledge of the NUMA characteristics of a machine
+guarantee always reproducible and best compute performance. If a job
+runs alone in a cpuset it will run as if the machine has been reduced
+to that piece and is owned exclusively by the job. Also if the set
+contains as many CPUs as MPI processes, the cpuset helps getting some
+sort of gang scheduling (i.e. all members of a parallel process get
+cycles at the same time, this reduces barrier synchronisation times,
+improves performance and makes it more predictible). This is something
+one absolutely needs on big machines when dealing with time critical
+highest performance applications. Permanently losing 10% because the
+CPU placement is poor or because one has to get some other process out
+of the way is just inacceptable. When you sell machines for several
+millions 10% performance loss translates to quite some amount of
+money.
 
-What's the problem being solved that *requires* psets?
+Can CKRM (as it is now) fulfil the requirements?
 
-I have a customer I work with periodically who was using my pset patch up
-until they moved to RH8, when the O(1) scheduler and cpus_allowed changed
-everything.  This was their requirement for pset:
+I don't think so. CKRM gives me to some extent the confidence that I
+will really use the part of the machine for which I paid, say 50%. But
+it doesn't care about the structure of the machine. CKRM tries giving
+a user as much of the machine as possible, at least the amount he paid
+for. For example: When I come in with my job the machine might be
+already running another job who's user also paid for 50% but was the
+only user and got 100% of the machine (say some Java application with
+enough threads...). This job maybe has filled up most of the memory
+and uses all CPUs. CKRM will take care of getting me cycles (maybe
+exclusively on 50% of the CPUs and will treat my job preferrentially
+when allocating memory, but will not care about the placement of the
+CPUs and the memory. Neither will it care whether the previously
+running job is still using my memory blocks and reducing my bandwith
+to them. So I get 50% of the cycles and the memory but these will be
+BAD CYCLES and BAD MEMORY. My job will run slower than possible and a
+second run will be again different. Don't misunderstand me: CKRM in
+its current state is great for different things and running it inside
+a cpuset sounds like a good thing to do.
 
-1. Take a processor out of the general execution pool (call it
-PROC_RESTRICTED).  This processor will not schedule general tasks.
-2. Assign a task to the PROC_RESTRICTED cpu.  Now that CPU will only
-schedule the assigned task (and it's children).
-3. Repeat for every CPU, with the caveat that one CPU must remain
-PROC_ENABLED.
+What about integration with PBS/LSF and alike?
 
-I had an array of enum procstate and a new syscall pair:
-sched_{gs}etprocstate().  The scheduler checks the procstate, and if it is
-not ENABLED, it checks that (cpus_allowed == 1<<cpu).  Simple, but works.
-Could be baked a bit more, for general use.
+It makes sense to let an external resource manager (batch or
+non-batch) keep track of and manage cpusets resources. It can allocate
+them and give them to jobs (exclusively) and delete them. That's
+perfect and exactly what we want. CKRM is a resource manager itself
+and has an own idea about resources. Certainly PBS/LSF/etc. could
+create a CKRM class for each job and run it in this class. The
+difficulty is to avoid the resource managers to interfere and work
+against each other. In such a setup I'd rather expect a batch manager
+to be started inside one CKRM class and let it ensure that e.g. the
+interactive class isn't starved by the batch class.
 
-What if I proposed a patch like this, now?  It would require cleanup for
-2.6, but I'm game if it's useful.
+Can CKRM be extended to do what cpusets do? 
 
-Tim
+Certainly. Probably easilly. But cpusets will have to be reinvented, I
+guess. Same hooks, same checks, different user interface...
+
+Erich
 

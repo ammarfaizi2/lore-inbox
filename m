@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285257AbRLMX13>; Thu, 13 Dec 2001 18:27:29 -0500
+	id <S285260AbRLMXaT>; Thu, 13 Dec 2001 18:30:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285260AbRLMX1K>; Thu, 13 Dec 2001 18:27:10 -0500
-Received: from chiark.greenend.org.uk ([212.22.195.2]:61957 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id <S285257AbRLMX1B>; Thu, 13 Dec 2001 18:27:01 -0500
-Date: Thu, 13 Dec 2001 23:26:59 +0000 (GMT)
-From: "Jonathan D. Amery" <jdamery@chiark.greenend.org.uk>
-To: Markus Hetzmannseder <hetzi@hetzi.at>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VT82C686 && APM deadlock bug?
-In-Reply-To: <Pine.LNX.4.40.0112131125540.26191-100000@hetzmannseder.inst-4.ufg.ac.at>
-Message-ID: <Pine.LNX.4.21.0112132325570.4294-100000@chiark.greenend.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285261AbRLMXaJ>; Thu, 13 Dec 2001 18:30:09 -0500
+Received: from ns.suse.de ([213.95.15.193]:42247 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S285260AbRLMXaC>;
+	Thu, 13 Dec 2001 18:30:02 -0500
+Date: Fri, 14 Dec 2001 00:29:57 +0100
+From: Andi Kleen <ak@suse.de>
+To: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
+        ak@suse.de
+Subject: Re: optimize DNAME_INLINE_LEN
+Message-ID: <20011214002957.A24984@wotan.suse.de>
+In-Reply-To: <3C192A37.4547D2A7@colorfullife.com> <20011213160706.E940@lynx.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011213160706.E940@lynx.no>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Dec 2001, Markus Hetzmannseder wrote:
-
-> I have the same deadlock problem like you with the same VIA-chipset, my
-> Laptop is a gericom hydrospeed. I can reproduce it by mounting a cd in the
-> cd-drive. (My kernel is a 2.4.16 with ide-cd modules)
+On Thu, Dec 13, 2001 at 04:07:06PM -0700, Andreas Dilger wrote:
+> Alternately (also ugly) you could just define struct dentry the as now,
+> but have a fixed size declaration for d_iname, like:
 > 
-> Steps to generate a deadlock on my notebook:
+> #define DNAME_INLINE_MIN 16
 > 
-> 1. mount a normal cd
-> 2. unmount the cd-drive
-> 3. make a apm --suspend
-> 4. wake up the laptop
-> 5. try to remount the cd
-> 6. the laptop get immediately lockt!
-> 
-> Please try out this, i think it could be the same problem?
-> 
+> 	unsigned char d_iname[DNAME_INLINE_MIN];
+                   Using [0] here would also work 
+and fixing other code to add DNAME_INLINE_MIN as needed. Unfortunately
+this "fixing other code" would likely prevent the patch going into 2.4,
+which would be bad. 
 
- This doesn't happen.  This is however the first time I've apm --suspended
-the laptop, and it doesn't really like it (screen corruption in text
-mode).
+#define d_... has a similar problem => the potential to break previously
+compiling source code.
 
--- 
-Jonathan Amery.      Now there's a light at the end of the tunnel,
-   #####                Someone's lit a campfire in my cave.
-  #######__o         The first rays of dawn are breaking through the clouds,
-  #######'/             And somehow I know I can be brave.      - Steve Kitson
+Probably just using an compiler #ifdef is best, and perhaps doing it 
+cleanly (with using d_iname[0]) on 2.5.
 
+
+-Andi
+
+P.S.: I originally picked the 16 number and it was totally arbitary, so 
+an increase on the fallback to 20-30 would be likely ok. 

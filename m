@@ -1,74 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbUKMRz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbUKMSAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbUKMRz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 12:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbUKMRz7
+	id S261856AbUKMSAu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 13:00:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbUKMSAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 12:55:59 -0500
-Received: from ctb-mesg6.saix.net ([196.25.240.78]:61902 "EHLO
-	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S261855AbUKMRzv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 12:55:51 -0500
-Subject: Re: 2.6.10-rc1-mm5 [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041111012333.1b529478.akpm@osdl.org>
-References: <20041111012333.1b529478.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/Svg4l6eU7W/PpM2lyDb"
-Date: Sat, 13 Nov 2004 19:55:53 +0200
-Message-Id: <1100368553.12239.3.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 8bit
+	Sat, 13 Nov 2004 13:00:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8597 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261856AbUKMSAr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 13:00:47 -0500
+Date: Sat, 13 Nov 2004 10:00:38 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: adaplas@pol.net
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Guido Guenther <agx@sigxcpu.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
+In-Reply-To: <200411132000.31465.adaplas@hotpop.com>
+Message-ID: <Pine.LNX.4.58.0411130959280.4100@ppc970.osdl.org>
+References: <200411080521.iA85LbG6025914@hera.kernel.org>
+ <1100309972.20511.103.camel@gaston> <20041113112234.GA5523@bogon.ms20.nix>
+ <200411132000.31465.adaplas@hotpop.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-/Svg4l6eU7W/PpM2lyDb
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2004-11-11 at 01:23 -0800, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/=
-2.6.10-rc1-mm5/
->=20
->=20
-> - Various updates to various things.  Nothing really stands out.
->=20
-> - Let me be the first to report this:
->=20
-> 	*** Warning: "kgdb_irq" [drivers/serial/serial_core.ko] undefined!
-> 	*** Warning: "hotplug_path" [drivers/acpi/container.ko] undefined!
->=20
->=20
->=20
+On Sat, 13 Nov 2004, Antonino A. Daplas wrote:
+> 
+> Why not use in_be* and out_be* for __raw_read and raw_write? 
 
-I want to imagine there is some reason why some threading apps will have
-issues?  I have since rc1-mm4 issues with evolution - some threads do
-not seem to come out of sleep or get running time for some reason.
-Unfortunately I cannot find the thread again.  Is there a patch I can
-apply/revert to get it to work for now?
+Please don't start using some stupid magic ppc-specific macros for a 
+driver that has no reason to be PPC-specific. It then only causes bugs 
+that show on one platform and not another.
 
-
-Thanks,
-
---=20
-Martin Schlemmer
-
-
---=-/Svg4l6eU7W/PpM2lyDb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBlkqpqburzKaJYLYRArSkAJ9VtMswF/kJi4CVseyc9ZdUgXAW+wCbBsyV
-0O/7D/JRToLqHblyGzjv97c=
-=kyW0
------END PGP SIGNATURE-----
-
---=-/Svg4l6eU7W/PpM2lyDb--
-
+		Linus

@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265499AbUGDKTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265500AbUGDKcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265499AbUGDKTY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 06:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265500AbUGDKTY
+	id S265500AbUGDKcd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 06:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265501AbUGDKcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 06:19:24 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:12247 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265499AbUGDKTW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 06:19:22 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Anton Blanchard <anton@samba.org>, akpm@osdl.org
-Subject: Re: [PATCH] gcc 3.5 fixes
-Date: Sun, 4 Jul 2004 12:24:47 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <20040704065811.GA4923@krispykreme> <20040704070144.GB4923@krispykreme>
-In-Reply-To: <20040704070144.GB4923@krispykreme>
+	Sun, 4 Jul 2004 06:32:33 -0400
+Received: from tag.witbe.net ([81.88.96.48]:22214 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S265500AbUGDKcc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 06:32:32 -0400
+Message-Id: <200407041032.i64AWTX21222@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Bernd Eckenfels'" <ecki-news2004-05@lina.inka.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Init single and Serial console : How to ?
+Date: Sun, 4 Jul 2004 12:32:24 +0200
+Organization: AS2917
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407041224.47578.bzolnier@elka.pw.edu.pl>
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <E1Bh3vk-0008Hb-00@calista.eckenfels.6bone.ka-ip.net>
+Thread-Index: AcRhrwtNtyy11t7TSGSGoKSx/siFGQAAjYOQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-Hi,
+> this is only about terminal settings like flags  and line 
+> speed, it is not
+> related to presenting the login on the serial console. It is 
+> a good idea to
+> remove this file and set the baud rate on the boot command line.
+OK.
+ 
+> You must configure /sbin/sulogin which is called from init to run on
+> /dev/console, then you will be fine. Also you should start a getty on
+OK, but remember that my problem is to find a way to access the machine
+when I only have a serial console and it doesn't complete the "classical"
+boot process because some init script at runlevel 3 is blocking...
 
-On Sunday 04 of July 2004 09:01, Anton Blanchard wrote:
-> gcc 3.5 is warning about unused static variables, add __attribute_unused__
-> to the 2 places to silence it.
+This means that I can't go up to the "configure /sbin/sulogin", and need
+a way to be given a serial prompt only by giving parameter at the LILO
+prompt, considering that the kernel has already been configured for serial
+console.
 
-Can't we just remove these variables?
+> /dev/ttySx for multi user modes (see the serial console howto)
+This is already done.
 
-> Signed-off-by: Anton Blanchard <anton@samba.org>
->
-> diff -ur /root/toolchain/linux-2.5-bk/kernel/configs.c
-> linux-2.5-bk/kernel/configs.c ---
-> /root/toolchain/linux-2.5-bk/kernel/configs.c	2004-06-25 09:13:15.000000000
-> +0000 +++ linux-2.5-bk/kernel/configs.c	2004-07-03 11:03:45.019878184 +0000
-> @@ -58,7 +58,7 @@
->  /**************************************************/
->  /* globals and useful constants                   */
->
-> -static const char IKCONFIG_VERSION[] __initdata = "0.7";
-> +static const char IKCONFIG_VERSION[] __attribute_used__ __initdata =
-> "0.7";
->
->  static ssize_t
->  ikconfig_read_current(struct file *file, char __user *buf,
-> diff -ur /root/toolchain/linux-2.5-bk/lib/zlib_inflate/inftrees.c
-> linux-2.5-bk/lib/zlib_inflate/inftrees.c ---
-> /root/toolchain/linux-2.5-bk/lib/zlib_inflate/inftrees.c	2004-02-22
-> 13:48:07.000000000 +0000 +++
-> linux-2.5-bk/lib/zlib_inflate/inftrees.c	2004-07-03 11:27:06.633933752
-> +0000 @@ -7,7 +7,7 @@
->  #include "inftrees.h"
->  #include "infutil.h"
->
-> -static const char inflate_copyright[] =
-> +static const char inflate_copyright[] __attribute_used__ =
->     " inflate 1.1.3 Copyright 1995-1998 Mark Adler ";
->  /*
->    If you use the zlib library in a product, an acknowledgment is welcome
+Regards,
+Paul
 

@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280863AbRKGRI1>; Wed, 7 Nov 2001 12:08:27 -0500
+	id <S280986AbRKGVKV>; Wed, 7 Nov 2001 16:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280864AbRKGRIS>; Wed, 7 Nov 2001 12:08:18 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:10511 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S280863AbRKGRIC>; Wed, 7 Nov 2001 12:08:02 -0500
-Date: Wed, 7 Nov 2001 00:31:31 +0000
-From: Stephen Tweedie <sct@redhat.com>
-To: "Steven N. Hirsch" <shirsch@adelphia.net>
-Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-        "ext3-users@redhat.com" <ext3-users@redhat.com>,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: ext3-0.9.15 against linux-2.4.14
-Message-ID: <20011107003131.D7290@redhat.com>
-In-Reply-To: <3BE7AB6C.97749631@zip.com.au> <Pine.LNX.4.33.0111061305540.8366-100000@atx.fast.net>
+	id <S280985AbRKGVKL>; Wed, 7 Nov 2001 16:10:11 -0500
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:48647 "EHLO
+	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S280982AbRKGVKA>; Wed, 7 Nov 2001 16:10:00 -0500
+Date: Wed, 7 Nov 2001 01:20:09 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Tim Jansen <tim@tjansen.de>
+Cc: =?iso-8859-1?Q?Jakob_=D8stergaard_?= <jakob@unthought.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011107012009.B35@toy.ucw.cz>
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011104172742Z16629-26013+37@humbolt.nl.linux.org> <20011104184159.E14001@unthought.net> <160RwJ-2D3EHoC@fmrl05.sul.t-online.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0111061305540.8366-100000@atx.fast.net>; from shirsch@adelphia.net on Tue, Nov 06, 2001 at 01:09:42PM -0500
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <160RwJ-2D3EHoC@fmrl05.sul.t-online.com>; from tim@tjansen.de on Sun, Nov 04, 2001 at 07:27:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Tue, Nov 06, 2001 at 01:09:42PM -0500, Steven N. Hirsch wrote:
+> > It eats CPU, it's error-prone, and all in all it's just "wrong".
+> 
+> How much of your CPU time is spent parsing /proc files?
 
-> >   This is an incredibly obscure and hard-to-hit situation.  The testcase
-> >   which used to trigger it can no longer do so.  So if anyone sees the
-> >   message "try_to_swap_out: page has buffers!", please shout out.
- 
-> I have been getting thousands of these when the system was under heavy 
-> load, but didn't realize it was from the ext3 code!  I'm using Linus's 
-> 2.4.14-pre7 + ext3 patch from Neil Brown's site (the latter is identified 
-> as "ZeroNineFourteen".)  Would you like me to upgrade kernel and patch?
+30% of 486 if you run top... That's way too much and top is unusable on slower
+machines. 
+"Not fast enough for showing processes" sounds wery wrong.
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-Andrew, the code
-
-	if (page->buffers) {
-		/*
-		 * Anonymous buffercache page left behind by
-		 * truncate.
-		 */
-		printk(__FUNCTION__ ": page has buffers!\n");
-		goto preserve;
-	}
-
-is going to end up preserving the pte forever and shouting to syslog
-every time the VM walks over the pte in question.  I'd be just as
-happy dropping these ptes on the floor when we find them, as they are
-clearly of no use to anybody at this point.
-
-Cheers,
- Stephen

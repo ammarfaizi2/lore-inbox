@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313653AbSDUR5j>; Sun, 21 Apr 2002 13:57:39 -0400
+	id <S313698AbSDUSAD>; Sun, 21 Apr 2002 14:00:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313666AbSDUR5i>; Sun, 21 Apr 2002 13:57:38 -0400
-Received: from theirongiant.weebeastie.net ([203.62.148.50]:23473 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S313653AbSDUR5f>; Sun, 21 Apr 2002 13:57:35 -0400
-Date: Mon, 22 Apr 2002 03:54:04 +1000
-From: CaT <cat@zip.com.au>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+	id <S313705AbSDUSAC>; Sun, 21 Apr 2002 14:00:02 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:42148 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S313698AbSDUR75>;
+	Sun, 21 Apr 2002 13:59:57 -0400
+Date: Sun, 21 Apr 2002 13:59:55 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Larry McVoy <lm@work.bitmover.com>, CaT <cat@zip.com.au>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>,
         Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
 Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421175404.GL4640@zip.com.au>
-In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <20020421171629.GK4640@zip.com.au> <20020421104046.J10525@work.bitmover.com> <E16yz02-0000lC-00@starship>
+Message-ID: <20020421135955.B8142@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yfW9-0000aZ-00@starship> <20020421171629.GK4640@zip.com.au> <20020421104046.J10525@work.bitmover.com> <20020421134851.B7828@havoc.gtf.org> <20020421105437.L10525@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 20, 2002 at 07:50:14PM +0200, Daniel Phillips wrote:
-> > > Ok. I admit I haven't read through the entire thread. It's a wee bit big
-> > > and painful so excuse me if this has already been suggested but... If
-> > > this is the biggest (or one of the biggest) sticking points then why not
-> > > get BK to email the lk mailing list when there's a patch submitted with
-> > 
-> > I can certainly do this for the tree on bkbits.net, i.e., it emails the
-> > lk list when it gets new work.  Linus?
+On Sun, Apr 21, 2002 at 10:54:37AM -0700, Larry McVoy wrote:
+> On Sun, Apr 21, 2002 at 01:48:51PM -0400, Jeff Garzik wrote:
+> > Can you get the bkbits.net interface to spit out text/plain GNU-style
+> > patches?
 > 
-> Horse, barn.  We need a solution that works before the patch gets applied.
-> 
-> Perhaps that's what you're talking about?
+> Not on bkbits.net.  It eats up too much bandwidth.
 
-That's what I meant. Email gets sent out to LKML when the patch gets sent
-to BK for approval by Linus. Another email can then be sent out (unless
-it's felt that it's too verbose to do so) when Linus accepts it into the
-tree. (unless I'm missing something about BK ;)
+Your bkbits.net web interface _already_ spits out HTML-ized patches.
+It _reduces_ bandwidth to spit them out as text/plain.
 
--- 
-			       DANGEROUS TREND:
-	  American Children Are Trying to Masturbate With Electronic
-			 Abdominal Exercise Machines!
-	     http://www.landoverbaptist.org/news0302/abtoner.html
+But I think you are misunderstanding a bit, see below.
+
+
+> Otherwise you are getting a cset at a 
+> time and that's a bit too fine grained, at least I think it is.
+
+That's what the web interface does now, and that's what I'm talking about.
+
+I'm talking about making the "all diffs" link in the web interface spit
+out text/plain.
+
+	Jeff
+
+

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135647AbRDXRpe>; Tue, 24 Apr 2001 13:45:34 -0400
+	id <S135697AbRDXRzg>; Tue, 24 Apr 2001 13:55:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135595AbRDXRpY>; Tue, 24 Apr 2001 13:45:24 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:49682 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S135647AbRDXRpJ>; Tue, 24 Apr 2001 13:45:09 -0400
-From: mshiju@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-Message-ID: <CA256A38.0060F2DE.00@d73mta05.au.ibm.com>
-Date: Tue, 24 Apr 2001 18:30:59 +0530
-Subject: Problem with DHCP when using tokenring on 2.4.x
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S135701AbRDXRz0>; Tue, 24 Apr 2001 13:55:26 -0400
+Received: from armitage.toyota.com ([63.87.74.3]:25098 "EHLO
+	armitage.toyota.com") by vger.kernel.org with ESMTP
+	id <S135697AbRDXRzV>; Tue, 24 Apr 2001 13:55:21 -0400
+Message-ID: <3AE5BE02.B347F1AD@lexus.com>
+Date: Tue, 24 Apr 2001 10:55:14 -0700
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: imel96@trustix.co.id
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Single user linux
+In-Reply-To: <Pine.LNX.4.33.0104241830020.11899-100000@tessy.trustix.co.id>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+imel96@trustix.co.id wrote:
 
-Hello,
-           I have a problem with DHCP when using tokenring card on 2.4.x
-kernel . When I am using IBM tokenring adapter( all) and trying to hook on
-to the lan n/w using DHCP ,I get an error message "operation failed " from
-the dhcp client . The dhcp server is getting the broadcast message when the
-dhcp client  is run. I am using pump that comes with 6.2 redhat
-distribution .  There is no problem when using static IP.  I could
-experience this problem only  on 2.4.x . I am able to get a valid IP
-address on  2.2.x kernel when using tokenring adapter. And also there is no
-problem when using ethernet adapter on 2.4.x . . Has anyone experienced
-this problem on 2.4.x . Can any one help me to resolve this problem.
+> hi,
+>
+> a friend of my asked me on how to make linux easier to use
+> for personal/casual win user.
+>
+>
+> from that, i also found out that it is very awkward to type
+> username and password every time i use my computer.
+> so here's a patch.
 
-Thanks & Regards
-Shiju
+Neet hack, but maybe the kernel isn't the best
+place to do this -
 
+For instance, you can simply use the KDE 2.1.1 login
+manager, with the current kernel intact, to automatically
+log in and start the X session of a specific user, upon
+entering runlevel 5 -
+
+Might this not be a better direction?
+
+cu
+
+jjs
 

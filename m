@@ -1,51 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263080AbUCSQVG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 11:21:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbUCSQVF
+	id S263114AbUCSQZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 11:25:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbUCSQZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 11:21:05 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:43669 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S263080AbUCSQUy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 11:20:54 -0500
-Date: Fri, 19 Mar 2004 08:20:52 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jesse Barnes <jbarnes@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
-Message-ID: <2648260000.1079713251@[10.10.2.4]>
-In-Reply-To: <200403181559.42332.jbarnes@sgi.com>
-References: <1079651064.8149.158.camel@arrakis> <200403181537.10060.jbarnes@sgi.com> <9860000.1079653397@flay> <200403181559.42332.jbarnes@sgi.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 19 Mar 2004 11:25:16 -0500
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:45835 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S263114AbUCSQZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 11:25:00 -0500
+Message-ID: <405B200A.40909@kolumbus.fi>
+Date: Fri, 19 Mar 2004 18:30:02 +0200
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] barrier patch set
+References: <20040319153554.GC2933@suse.de>
+In-Reply-To: <20040319153554.GC2933@suse.de>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 19.03.2004 18:27:23,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 19.03.2004 18:26:26,
+	Serialize complete at 19.03.2004 18:26:26
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Jesse Barnes <jbarnes@sgi.com> wrote (on Thursday, March 18, 2004 15:59:42 -0800):
 
-> On Thursday 18 March 2004 3:43 pm, Martin J. Bligh wrote:
->> > It's probably not too late to change this to
->> > pcibus_to_nodemask(pci_bus *), or pci_to_nodemask(pci_dev *), there
->> > aren't that many callers, are there (my grep is still running)?
->> 
->> It probably shouldn't have anything to do with PCI directly either,
->> so .... ;-) My former thought was that you might just want the most
->> local memory for DMAing into.
-> 
-> Right, we want local memory (or potentially remote memory) for DMA,
-> but what about interrupt redirection?  Some chipsets don't support
-> interrupt round robin, and just target interrupts at one CPU.  In that
-> case (and probably the round robin case too), you want to know which
-> CPU(s) to send the interrupt at.  Can't immediately think of other
-> in-kernel uses though (administrators will of course want to be able
-> to locate a given PCI device in a multirack system, but that's another
-> subject--one that Martin Hicks posted on yesterday).
 
-I think we need both ... maybe a cpumask and a zonelist as the destination
-types.
+Jens Axboe wrote:
 
-M.
+>Hi,
+>
+>A first release of a collected barrier patchset for 2.6.5-rc1-mm2. I
+>have a few changes planned to support dm/md + sata, I'll do those
+>changes over the weekend.
+>
+>Reiser has the best barrier support, ext3 works but only if things don't
+>go wrong. So only attempt to use the barrier feature on ext3 if on ide
+>drives, not SCSI nor SATA.
+>
+>  
+>
+What are these brutal pieces...?
+
+
++static int ide_transform_pc_req(ide_drive_t *drive, struct request *rq)
++{
++ if (rq->cmd[0] != 0x35) {
++ ide_end_request(drive, 0, 0);
++ return 1;
++ }
++
++ if (!drive->wcache) {
++ ide_end_request(drive, 1, 0);
++ return 1;
++ }
++
++ ide_fill_flush_cmd(drive, rq);
++ return 0;
++}
+
+
+/*
++ * basic transformation support for scsi -> ata commands
++ */
++ if (blk_pc_request(rq)) {
++ if (drive->media != ide_disk)
++ goto kill_rq;
++ if (ide_transform_pc_req(drive, rq))
++ return ide_stopped;
++ }
++
+
+
+
+--Mika
+
 

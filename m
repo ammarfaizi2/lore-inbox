@@ -1,301 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267987AbUH1UQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268030AbUH1UUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267987AbUH1UQj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 16:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267904AbUH1UOG
+	id S268030AbUH1UUI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 16:20:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268021AbUH1USs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 16:14:06 -0400
-Received: from holomorphy.com ([207.189.100.168]:2729 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267807AbUH1ULM (ORCPT
+	Sat, 28 Aug 2004 16:18:48 -0400
+Received: from holomorphy.com ([207.189.100.168]:3753 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267851AbUH1UMm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 16:11:12 -0400
-Date: Sat, 28 Aug 2004 13:11:07 -0700
+	Sat, 28 Aug 2004 16:12:42 -0400
+Date: Sat, 28 Aug 2004 13:12:39 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org
-Subject: [4/5] eliminate bh waitqueue hashtable
-Message-ID: <20040828201107.GV5492@holomorphy.com>
+Subject: [5/5] eliminate inode waitqueue hashtable
+Message-ID: <20040828201239.GW5492@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20040828200549.GR5492@holomorphy.com> <20040828200659.GS5492@holomorphy.com> <20040828200841.GT5492@holomorphy.com> <20040828200951.GU5492@holomorphy.com>
+References: <20040828200549.GR5492@holomorphy.com> <20040828200659.GS5492@holomorphy.com> <20040828200841.GT5492@holomorphy.com> <20040828200951.GU5492@holomorphy.com> <20040828201107.GV5492@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040828200951.GU5492@holomorphy.com>
+In-Reply-To: <20040828201107.GV5492@holomorphy.com>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 28, 2004 at 01:09:51PM -0700, William Lee Irwin III wrote:
-> Consolidate bit waiting code patterns for page waitqueues using
-> __wait_on_bit() and __wait_on_bit_lock().
+On Sat, Aug 28, 2004 at 01:11:07PM -0700, William Lee Irwin III wrote:
+> Eliminate the bh waitqueue hashtable using bit_waitqueue() via
+> wait_on_bit() and wake_up_bit() to locate the waitqueue head associated
+> with a bit.
 
-Eliminate the bh waitqueue hashtable using bit_waitqueue() via
+Eliminate the inode waitqueue hashtable using bit_waitqueue() via
 wait_on_bit() and wake_up_bit() to locate the waitqueue head associated
 with a bit.
 
-Index: wait-2.6.9-rc1-mm1/fs/buffer.c
+Index: wait-2.6.9-rc1-mm1/include/linux/fs.h
 ===================================================================
---- wait-2.6.9-rc1-mm1.orig/fs/buffer.c	2004-08-28 09:48:39.107024280 -0700
-+++ wait-2.6.9-rc1-mm1/fs/buffer.c	2004-08-28 09:49:39.441851992 -0700
-@@ -43,14 +43,6 @@
+--- wait-2.6.9-rc1-mm1.orig/include/linux/fs.h	2004-08-28 09:43:24.899791040 -0700
++++ wait-2.6.9-rc1-mm1/include/linux/fs.h	2004-08-28 09:50:30.834039192 -0700
+@@ -1057,6 +1057,7 @@
+ #define I_NEW			64
  
- #define BH_ENTRY(list) list_entry((list), struct buffer_head, b_assoc_buffers)
+ #define I_DIRTY (I_DIRTY_SYNC | I_DIRTY_DATASYNC | I_DIRTY_PAGES)
++#define __I_LOCK		3 /* I_LOCK == 1 << __I_LOCK */
+ 
+ extern void __mark_inode_dirty(struct inode *, int);
+ static inline void mark_inode_dirty(struct inode *inode)
+Index: wait-2.6.9-rc1-mm1/fs/inode.c
+===================================================================
+--- wait-2.6.9-rc1-mm1.orig/fs/inode.c	2004-08-28 09:43:23.419016152 -0700
++++ wait-2.6.9-rc1-mm1/fs/inode.c	2004-08-28 09:50:30.827040256 -0700
+@@ -1257,37 +1257,10 @@
+ 
+ #endif
  
 -/*
-- * Hashed waitqueue_head's for wait_on_buffer()
+- * Hashed waitqueues for wait_on_inode().  The table is pretty small - the
+- * kernel doesn't lock many inodes at the same time.
 - */
--#define BH_WAIT_TABLE_ORDER	7
--static struct bh_wait_queue_head {
+-#define I_WAIT_TABLE_ORDER	3
+-static struct i_wait_queue_head {
 -	wait_queue_head_t wqh;
--} ____cacheline_aligned_in_smp bh_wait_queue_heads[1<<BH_WAIT_TABLE_ORDER];
+-} ____cacheline_aligned_in_smp i_wait_queue_heads[1<<I_WAIT_TABLE_ORDER];
 -
- inline void
- init_buffer(struct buffer_head *bh, bh_end_io_t *handler, void *private)
- {
-@@ -58,49 +50,31 @@
- 	bh->b_private = private;
- }
- 
 -/*
-- * Return the address of the waitqueue_head to be used for this
-- * buffer_head
+- * Return the address of the waitqueue_head to be used for this inode
 - */
--wait_queue_head_t *bh_waitq_head(struct buffer_head *bh)
--{
--	return &bh_wait_queue_heads[hash_ptr(bh, BH_WAIT_TABLE_ORDER)].wqh;
+-static wait_queue_head_t *i_waitq_head(struct inode *inode)
++int inode_wait(void *word)
+ {
+-	return &i_wait_queue_heads[hash_ptr(inode, I_WAIT_TABLE_ORDER)].wqh;
 -}
--EXPORT_SYMBOL(bh_waitq_head);
 -
- void wake_up_buffer(struct buffer_head *bh)
- {
--	wait_queue_head_t *wq = bh_waitq_head(bh);
+-void __wait_on_inode(struct inode *inode)
+-{
+-	DECLARE_WAITQUEUE(wait, current);
+-	wait_queue_head_t *wq = i_waitq_head(inode);
 -
- 	smp_mb();
--	__wake_up_bit(wq, &bh->b_state, BH_Lock);
-+	wake_up_bit(&bh->b_state, BH_Lock);
- }
- EXPORT_SYMBOL(wake_up_buffer);
- 
--static void sync_buffer(struct buffer_head *bh)
-+static int sync_buffer(void *word)
- {
- 	struct block_device *bd;
-+	struct buffer_head *bh
-+		= container_of(word, struct buffer_head, b_state);
- 
- 	smp_mb();
- 	bd = bh->b_bdev;
- 	if (bd)
- 		blk_run_address_space(bd->bd_inode->i_mapping);
-+	io_schedule();
+-	add_wait_queue(wq, &wait);
+-repeat:
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+-	if (inode->i_state & I_LOCK) {
+-		schedule();
+-		goto repeat;
+-	}
+-	remove_wait_queue(wq, &wait);
+-	__set_current_state(TASK_RUNNING);
++	schedule();
 +	return 0;
  }
  
- void fastcall __lock_buffer(struct buffer_head *bh)
- {
--	wait_queue_head_t *wqh = bh_waitq_head(bh);
--	DEFINE_WAIT_BIT(wait, &bh->b_state, BH_Lock);
--
--	do {
--		prepare_to_wait_exclusive(wqh, &wait.wait,
--					TASK_UNINTERRUPTIBLE);
--		if (buffer_locked(bh)) {
--			sync_buffer(bh);
--			io_schedule();
--		}
--	} while (test_set_buffer_locked(bh));
--	finish_wait(wqh, &wait.wait);
-+	wait_on_bit_lock(&bh->b_state, BH_Lock, sync_buffer,
-+							TASK_UNINTERRUPTIBLE);
- }
- EXPORT_SYMBOL(__lock_buffer);
- 
-@@ -118,15 +92,7 @@
+ /*
+@@ -1296,36 +1269,39 @@
+  * that it isn't found.  This is because iget will immediately call
+  * ->read_inode, and we want to be sure that evidence of the deletion is found
+  * by ->read_inode.
+- *
+- * This call might return early if an inode which shares the waitq is woken up.
+- * This is most easily handled by the caller which will loop around again
+- * looking for the inode.
+- *
+  * This is called with inode_lock held.
   */
- void __wait_on_buffer(struct buffer_head * bh)
+ static void __wait_on_freeing_inode(struct inode *inode)
  {
--	wait_queue_head_t *wqh = bh_waitq_head(bh);
--	DEFINE_WAIT_BIT(wait, &bh->b_state, BH_Lock);
--
--	prepare_to_wait(wqh, &wait.wait, TASK_UNINTERRUPTIBLE);
--	if (buffer_locked(bh)) {
--		sync_buffer(bh);
--		io_schedule();
--	}
--	finish_wait(wqh, &wait.wait);
-+	wait_on_bit(&bh->b_state, BH_Lock, sync_buffer, TASK_UNINTERRUPTIBLE);
+-	DECLARE_WAITQUEUE(wait, current);
+-	wait_queue_head_t *wq = i_waitq_head(inode);
++	wait_queue_head_t *wq;
++	DEFINE_WAIT_BIT(wait, &inode->i_state, __I_LOCK);
+ 
+-	add_wait_queue(wq, &wait);
+-	set_current_state(TASK_UNINTERRUPTIBLE);
++	/*
++	 * I_FREEING and I_CLEAR are cleared in process context under
++	 * inode_lock, so we have to give the tasks who would clear them
++	 * a chance to run and acquire inode_lock.
++	 */
++	if (!(inode->i_state & I_LOCK)) {
++		spin_unlock(&inode_lock);
++		yield();
++		spin_lock(&inode_lock);
++		return;
++	}
++	wq = bit_waitqueue(&inode->i_state, __I_LOCK);
++	prepare_to_wait(wq, &wait.wait, TASK_UNINTERRUPTIBLE);
+ 	spin_unlock(&inode_lock);
+ 	schedule();
+-	remove_wait_queue(wq, &wait);
++	finish_wait(wq, &wait.wait);
+ 	spin_lock(&inode_lock);
  }
  
- static void
-@@ -3096,14 +3062,11 @@
+ void wake_up_inode(struct inode *inode)
+ {
+-	wait_queue_head_t *wq = i_waitq_head(inode);
+-
+ 	/*
+ 	 * Prevent speculative execution through spin_unlock(&inode_lock);
+ 	 */
+ 	smp_mb();
+-	if (waitqueue_active(wq))
+-		wake_up_all(wq);
++	wake_up_bit(&inode->i_state, __I_LOCK);
+ }
+ EXPORT_SYMBOL(wake_up_inode);
  
- void __init buffer_init(void)
+@@ -1361,11 +1337,6 @@
+ 
+ void __init inode_init(unsigned long mempages)
  {
 -	int i;
- 	int nrpages;
- 
- 	bh_cachep = kmem_cache_create("buffer_head",
- 			sizeof(struct buffer_head), 0,
- 			SLAB_PANIC, init_buffer_head, NULL);
--	for (i = 0; i < ARRAY_SIZE(bh_wait_queue_heads); i++)
--		init_waitqueue_head(&bh_wait_queue_heads[i].wqh);
- 
- 	/*
- 	 * Limit the bh occupancy to 10% of ZONE_NORMAL
+-
+-	for (i = 0; i < ARRAY_SIZE(i_wait_queue_heads); i++)
+-		init_waitqueue_head(&i_wait_queue_heads[i].wqh);
+-
+ 	/* inode slab cache */
+ 	inode_cachep = kmem_cache_create("inode_cache", sizeof(struct inode),
+ 				0, SLAB_PANIC, init_once, NULL);
 Index: wait-2.6.9-rc1-mm1/kernel/wait.c
 ===================================================================
---- wait-2.6.9-rc1-mm1.orig/kernel/wait.c	2004-08-28 09:49:23.070340840 -0700
-+++ wait-2.6.9-rc1-mm1/kernel/wait.c	2004-08-28 09:49:39.456849712 -0700
-@@ -8,6 +8,7 @@
+--- wait-2.6.9-rc1-mm1.orig/kernel/wait.c	2004-08-28 09:49:39.456849712 -0700
++++ wait-2.6.9-rc1-mm1/kernel/wait.c	2004-08-28 09:50:30.842037976 -0700
+@@ -7,6 +7,7 @@
+ #include <linux/init.h>
  #include <linux/module.h>
  #include <linux/sched.h>
++#include <linux/mm.h>
  #include <linux/wait.h>
-+#include <linux/hash.h>
+ #include <linux/hash.h>
  
- void fastcall add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
+Index: wait-2.6.9-rc1-mm1/fs/fs-writeback.c
+===================================================================
+--- wait-2.6.9-rc1-mm1.orig/fs/fs-writeback.c	2004-08-28 09:43:21.401322888 -0700
++++ wait-2.6.9-rc1-mm1/fs/fs-writeback.c	2004-08-28 09:50:30.840038280 -0700
+@@ -240,6 +240,8 @@
+ __writeback_single_inode(struct inode *inode,
+ 			struct writeback_control *wbc)
  {
-@@ -187,3 +188,13 @@
- 		__wake_up(wq, TASK_INTERRUPTIBLE|TASK_UNINTERRUPTIBLE, 1, &key);
++	wait_queue_head_t *wqh;
++
+ 	if ((wbc->sync_mode != WB_SYNC_ALL) && (inode->i_state & I_LOCK)) {
+ 		list_move(&inode->i_list, &inode->i_sb->s_dirty);
+ 		return 0;
+@@ -248,12 +250,18 @@
+ 	/*
+ 	 * It's a data-integrity sync.  We must wait.
+ 	 */
+-	while (inode->i_state & I_LOCK) {
+-		__iget(inode);
+-		spin_unlock(&inode_lock);
+-		__wait_on_inode(inode);
+-		iput(inode);
+-		spin_lock(&inode_lock);
++	if (inode->i_state & I_LOCK) {
++		DEFINE_WAIT_BIT(wq, &inode->i_state, __I_LOCK);
++
++		wqh = bit_waitqueue(&inode->i_state, __I_LOCK);
++		do {
++			__iget(inode);
++			spin_unlock(&inode_lock);
++			__wait_on_bit(wqh, &wq, &inode->i_state, __I_LOCK,
++					inode_wait, TASK_UNINTERRUPTIBLE);
++			iput(inode);
++			spin_lock(&inode_lock);
++		} while (inode->i_state & I_LOCK);
+ 	}
+ 	return __sync_single_inode(inode, wbc);
  }
- EXPORT_SYMBOL(__wake_up_bit);
-+
-+wait_queue_head_t * fastcall bit_waitqueue(void *word, int bit)
-+{
-+	const int shift = BITS_PER_LONG == 32 ? 5 : 6;
-+	const struct zone *zone = page_zone(virt_to_page(word));
-+	unsigned long val = (unsigned long)word << shift | bit;
-+
-+	return &zone->wait_table[hash_long(val, zone->wait_table_bits)];
-+}
-+EXPORT_SYMBOL(bit_waitqueue);
-Index: wait-2.6.9-rc1-mm1/fs/jbd/transaction.c
+Index: wait-2.6.9-rc1-mm1/include/linux/writeback.h
 ===================================================================
---- wait-2.6.9-rc1-mm1.orig/fs/jbd/transaction.c	2004-08-28 09:42:49.971101008 -0700
-+++ wait-2.6.9-rc1-mm1/fs/jbd/transaction.c	2004-08-28 09:49:39.449850776 -0700
-@@ -633,21 +633,21 @@
- 		 * disk then we cannot do copy-out here. */
+--- wait-2.6.9-rc1-mm1.orig/include/linux/writeback.h	2004-08-28 09:43:02.320223656 -0700
++++ wait-2.6.9-rc1-mm1/include/linux/writeback.h	2004-08-28 09:50:30.836038888 -0700
+@@ -68,7 +68,7 @@
+  */	
+ void writeback_inodes(struct writeback_control *wbc);
+ void wake_up_inode(struct inode *inode);
+-void __wait_on_inode(struct inode * inode);
++int inode_wait(void *);
+ void sync_inodes_sb(struct super_block *, int wait);
+ void sync_inodes(int wait);
  
- 		if (jh->b_jlist == BJ_Shadow) {
--			wait_queue_head_t *wqh;
--			DEFINE_WAIT(wait);
-+			DEFINE_WAIT_BIT(wait, &bh->b_state, BH_Lock);
-+			wait_queue_head_t *wqh
-+					= bit_waitqueue(&bh->b_state, BH_Lock);
+@@ -76,8 +76,8 @@
+ static inline void wait_on_inode(struct inode *inode)
+ {
+ 	might_sleep();
+-	if (inode->i_state & I_LOCK)
+-		__wait_on_inode(inode);
++	wait_on_bit(&inode->i_state, __I_LOCK, inode_wait,
++							TASK_UNINTERRUPTIBLE);
+ }
  
- 			JBUFFER_TRACE(jh, "on shadow: sleep");
- 			jbd_unlock_bh_state(bh);
- 			/* commit wakes up all shadow buffers after IO */
--			wqh = bh_waitq_head(bh);
- 			for ( ; ; ) {
--				prepare_to_wait(wqh, &wait,
-+				prepare_to_wait(wqh, &wait.wait,
- 						TASK_UNINTERRUPTIBLE);
- 				if (jh->b_jlist != BJ_Shadow)
- 					break;
- 				schedule();
- 			}
--			finish_wait(wqh, &wait);
-+			finish_wait(wqh, &wait.wait);
- 			goto repeat;
- 		}
- 
-Index: wait-2.6.9-rc1-mm1/include/linux/wait.h
-===================================================================
---- wait-2.6.9-rc1-mm1.orig/include/linux/wait.h	2004-08-28 09:49:23.059342512 -0700
-+++ wait-2.6.9-rc1-mm1/include/linux/wait.h	2004-08-28 09:49:39.453850168 -0700
-@@ -24,6 +24,7 @@
- #include <linux/stddef.h>
- #include <linux/spinlock.h>
- #include <asm/system.h>
-+#include <asm/current.h>
- 
- typedef struct __wait_queue wait_queue_t;
- typedef int (*wait_queue_func_t)(wait_queue_t *wait, unsigned mode, int sync, void *key);
-@@ -141,6 +142,22 @@
- void FASTCALL(__wake_up_bit(wait_queue_head_t *, void *, int));
- int FASTCALL(__wait_on_bit(wait_queue_head_t *, struct wait_bit_queue *, void *, int, int (*)(void *), unsigned));
- int FASTCALL(__wait_on_bit_lock(wait_queue_head_t *, struct wait_bit_queue *, void *, int, int (*)(void *), unsigned));
-+wait_queue_head_t *FASTCALL(bit_waitqueue(void *, int));
-+
-+/**
-+ * wake_up_bit - wake up a waiter on a bit
-+ * @word: the word being waited on, a kernel virtual address
-+ * @bit: the bit of the word being waited on
-+ *
-+ * There is a standard hashed waitqueue table for generic use. This
-+ * is the part of the hashtable's accessor API that wakes up waiters
-+ * on a bit. For instance, if one were to have waiters on a bitflag,
-+ * one would call wake_up_bit() after clearing the bit.
-+ */
-+static inline void wake_up_bit(void *word, int bit)
-+{
-+	__wake_up_bit(bit_waitqueue(word, bit), word, bit);
-+}
- 
- #define wake_up(x)			__wake_up(x, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, NULL)
- #define wake_up_nr(x, nr)		__wake_up(x, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, nr, NULL)
-@@ -321,6 +338,62 @@
- 		wait->func = autoremove_wake_function;			\
- 		INIT_LIST_HEAD(&wait->task_list);			\
- 	} while (0)
-+
-+/**
-+ * wait_on_bit - wait for a bit to be cleared
-+ * @word: the word being waited on, a kernel virtual address
-+ * @bit: the bit of the word being waited on
-+ * @action: the function used to sleep, which may take special actions
-+ * @mode: the task state to sleep in
-+ *
-+ * There is a standard hashed waitqueue table for generic use. This
-+ * is the part of the hashtable's accessor API that waits on a bit.
-+ * For instance, if one were to have waiters on a bitflag, one would
-+ * call wait_on_bit() in threads waiting for the bit to clear.
-+ * One uses wait_on_bit() where one is waiting for the bit to clear,
-+ * but has no intention of setting it.
-+ */
-+static inline int wait_on_bit(void *word, int bit,
-+				int (*action)(void *), unsigned mode)
-+{
-+	DEFINE_WAIT_BIT(q, word, bit);
-+	wait_queue_head_t *wqh;
-+
-+	if (!test_bit(bit, word))
-+		return 0;
-+
-+	wqh = bit_waitqueue(word, bit);
-+	return __wait_on_bit(wqh, &q, word, bit, action, mode);
-+}
-+
-+/**
-+ * wait_on_bit_lock - wait for a bit to be cleared, when wanting to set it
-+ * @word: the word being waited on, a kernel virtual address
-+ * @bit: the bit of the word being waited on
-+ * @action: the function used to sleep, which may take special actions
-+ * @mode: the task state to sleep in
-+ *
-+ * There is a standard hashed waitqueue table for generic use. This
-+ * is the part of the hashtable's accessor API that waits on a bit
-+ * when one intends to set it, for instance, trying to lock bitflags.
-+ * For instance, if one were to have waiters trying to set bitflag
-+ * and waiting for it to clear before setting it, one would call
-+ * wait_on_bit() in threads waiting to be able to set the bit.
-+ * One uses wait_on_bit_lock() where one is waiting for the bit to
-+ * clear with the intention of setting it, and when done, clearing it.
-+ */
-+static inline int wait_on_bit_lock(void *word, int bit,
-+				int (*action)(void *), unsigned mode)
-+{
-+	DEFINE_WAIT_BIT(q, word, bit);
-+	wait_queue_head_t *wqh;
-+
-+	if (!test_bit(bit, word))
-+		return 0;
-+
-+	wqh = bit_waitqueue(word, bit);
-+	return __wait_on_bit_lock(wqh, &q, word, bit, action, mode);
-+}
- 	
- #endif /* __KERNEL__ */
- 
+ /*

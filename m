@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbTILVRm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 17:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbTILVRl
+	id S261878AbTILVOb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 17:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbTILVOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 17:17:41 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:51164 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261891AbTILVRM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 17:17:12 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Timothy Miller" <miller@techsource.com>
-Cc: "Pascal Schmidt" <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: People, not GPL  [was: Re: Driver Model]
-Date: Fri, 12 Sep 2003 14:17:07 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKGEAOGIAA.davids@webmaster.com>
+	Fri, 12 Sep 2003 17:14:31 -0400
+Received: from web10407.mail.yahoo.com ([216.136.130.99]:40047 "HELO
+	web10407.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261878AbTILVO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 17:14:28 -0400
+Message-ID: <20030912211427.18693.qmail@web10407.mail.yahoo.com>
+Date: Sat, 13 Sep 2003 07:14:27 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: 2.6.0-test5  Compile error
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <3F6234F7.80200@techsource.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > 	Licenses that place restrictions on usage are *not* open
-> > source licenses.
+Sorry if this has been reported.
 
-> What about "usage" of source code?
+drivers/built-in.o(.text+0x5f34f): In function
+`atkbd_interrupt':
+: undefined reference to `serio_rescan'
+drivers/built-in.o(.text+0x5f92e): In function
+`atkbd_disconnect':
+: undefined reference to `serio_close'
+drivers/built-in.o(.text+0x5fa52): In function
+`atkbd_connect':
+: undefined reference to `serio_open'
+drivers/built-in.o(.text+0x5fa90): In function
+`atkbd_connect':
+: undefined reference to `serio_close'
+drivers/built-in.o(.init.text+0x5d4a): In function
+`atkbd_init':
+: undefined reference to `serio_register_device'
+drivers/built-in.o(.exit.text+0x3a6): In function
+`atkbd_exit':
+: undefined reference to `serio_unregister_device'
+make: *** [.tmp_vmlinux1] Error 1
 
-	Same thing.
-
-> GPL says you are not allowed to "use" GPL source in a non-free program
-> that you publish.
-
-	This is a publication restriction, not a usage restriction. Your phrasing
-above is like saying, "you can't put bullets into a gun that you use to
-shoot a police officer". The restriction is on the shooting, not the
-loading.
-
-	Again, quoting the GPL:
-
-Activities other than copying, distribution and modification are not
-covered by this License; they are outside its scope.  The act of
-running the Program is not restricted, and the output from the Program
-is covered only if its contents constitute a work based on the
-Program (independent of having been made by running the Program).
-Whether that is true depends on what the Program does.
-
-> I don't think anyone was talking about use of applications, but rather
-> use of source code.
-
-	I'm not sure why you think this is an important distinction.
-
-	DS
+Build with gcc-2.95.3  . With gcc-3.3.1 it failled
+right the starting point and I forgot to remember :-)
 
 
+
+=====
+S.KIEU
+
+http://search.yahoo.com.au - Yahoo! Search
+- Looking for more? Try the new Yahoo! Search

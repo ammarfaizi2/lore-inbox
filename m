@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262739AbTDFAXq (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 19:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTDFAXq (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 19:23:46 -0500
-Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:6148
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id S262739AbTDFAXp (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 19:23:45 -0500
-From: "Shawn Starr" <spstarr@sh0n.net>
-To: "'Andrew Morton'" <akpm@digeo.com>
-Cc: <roland@topspin.com>, <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: RE: [OOPS][2.5.66bk9+] run_timer_softirq - IRQ Mishandlings - New OOPS w/ timer
-Date: Sat, 5 Apr 2003 19:35:24 -0500
-Message-ID: <000001c2fbd4$6ae9f030$030aa8c0@unknown>
+	id S262740AbTDFAid (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 19:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbTDFAic (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 19:38:32 -0500
+Received: from lloyd-169.caltech.edu ([131.215.89.169]:65410 "HELO
+	homer.d-oh.org") by vger.kernel.org with SMTP id S262740AbTDFAic (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 19:38:32 -0500
+From: "Alex Adriaanse" <alex_a@caltech.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: VFS-Lock patch
+Date: Sat, 5 Apr 2003 16:50:03 -0800
+Message-ID: <JIEIIHMANOCFHDAAHBHOAECGDAAA.alex_a@caltech.edu>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-In-Reply-To: <20030330151746.4394dd2e.akpm@digeo.com>
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, since the new timer changes made, Things are looking solid so far.
-We might want to begin adding things into BK-current no?
+Hi,
 
-Sshd hasn't hung, ttys haven't hung either.
+I'm just curious, is there any reason why the VFS-lock patch provided by the
+LVM people has not been included into the 2.4.x tree yet?
 
-Shawn.
+If I were to apply this patch to a stock 2.4.20 kernel, is it safe to use
+LVM snapshots with ReiserFS on production machines, or are there any
+stability issues with it (either with the LVM version that comes with
+2.4.20, or upgrading to LVM 1.0.7)?
 
+Thanks,
 
------Original Message-----
-From: Andrew Morton [mailto:akpm@digeo.com] 
-Sent: Sunday, March 30, 2003 6:18 PM
-To: Shawn Starr
-Cc: roland@topspin.com; rml@tech9.net; linux-kernel@vger.kernel.org
-Subject: Re: [OOPS][2.5.66bk3+] run_timer_softirq - IRQ Mishandlings - New
-OOPS w/ timer
-
-"Shawn Starr" <spstarr@sh0n.net> wrote:
->
-> drivers/char/tty_io.c - Only
-> 
-> I bet it's this function, there's only a kfree, not destruction of any
-> timers.
-> 
-
-This is fairly foul.
-
---- 25/drivers/char/tty_io.c~a	2003-03-30 15:12:37.000000000 -0800
-+++ 25-akpm/drivers/char/tty_io.c	2003-03-30 15:16:59.000000000 -0800
-@@ -1288,6 +1288,8 @@ static void release_dev(struct file * fi
- 	/*
- 	 * Make sure that the tty's task queue isn't activated. 
- 	 */
-+	clear_bit(TTY_DONT_FLIP, &tty->flags);
-+	del_timer_sync(&tty->flip.work.timer);
- 	flush_scheduled_work();
- 
- 	/* 
-
-_
-
+Alex
 

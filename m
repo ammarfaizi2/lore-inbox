@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315386AbSEBUD7>; Thu, 2 May 2002 16:03:59 -0400
+	id <S315387AbSEBUH7>; Thu, 2 May 2002 16:07:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315387AbSEBUD6>; Thu, 2 May 2002 16:03:58 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:35316 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S315386AbSEBUD5>; Thu, 2 May 2002 16:03:57 -0400
-Date: Thu, 2 May 2002 21:59:37 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.12: hpt34x.c:259: too few arguments to function `ide_dmaproc'
-In-Reply-To: <3CD186E2.9070209@evision-ventures.com>
-Message-ID: <Pine.NEB.4.44.0205022159240.21679-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S315388AbSEBUH6>; Thu, 2 May 2002 16:07:58 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55311 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315387AbSEBUH6>; Thu, 2 May 2002 16:07:58 -0400
+Subject: Re: IDE hotplug support?
+To: jakob@unthought.net (=?iso-8859-1?Q?Jakob_=D8stergaard?=)
+Date: Thu, 2 May 2002 21:26:38 +0100 (BST)
+Cc: dalecki@evision-ventures.com (Martin Dalecki),
+        pavel@suse.cz (Pavel Machek), roy@karlsbakk.net (Roy Sigurd Karlsbakk),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020502215833.V31556@unthought.net> from "=?iso-8859-1?Q?Jakob_=D8stergaard?=" at May 02, 2002 09:58:33 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E173N9y-0004k1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 May 2002, Martin Dalecki wrote:
+> >=20
+> > 8 x 130MBy/s >>>> PCI bus throughput... I would rather recommend
+> > a classical RAID controller card for this kind of
+> > setup.
+> 
+> Because RAID controllers do not use the PCI bus ???    ;)
 
-> > Just FYI:
-> >
-> > The ide_dmaproc changes in 2.5.12 broke the compilation of hpt34x.c (I
-> > tried 2.5.12-dj1 but this shouldn't make a difference):
->
->
-> The following should do the trick.
+The raid card transfers the data once, software raid once per device for
+Raid 1/5 - thats a killer.
 
-Yes, it compiles fine now.
+> By the way, has anyone tried such larger multi-controller setups, and t=
+> ested
+> the bandwidth in configurations with multiple PCI busses on the board, =
+> versus a
+> single PCI bus ?
 
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+With 2.4 yes. With all the 2.5 changes no.

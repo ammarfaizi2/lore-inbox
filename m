@@ -1,77 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266277AbTGHMQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 08:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267213AbTGHMQZ
+	id S267261AbTGHMUG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 08:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267262AbTGHMUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 08:16:25 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:14086 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id S266277AbTGHMQX (ORCPT
+	Tue, 8 Jul 2003 08:20:05 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:7053 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S267261AbTGHMTx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 08:16:23 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Announce: kdb v4.3 is available for kernels 2.4.20, 2.4.21 
+	Tue, 8 Jul 2003 08:19:53 -0400
+Date: Tue, 8 Jul 2003 13:34:21 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Eric Varsanyi <e0216@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: epoll vs stdin/stdout
+Message-ID: <20030708123421.GB14827@mail.jlokier.co.uk>
+References: <20030707154823.GA8696@srv.foo21.com> <Pine.LNX.4.55.0307071153270.4704@bigblue.dev.mcafeelabs.com> <20030707194736.GF9328@srv.foo21.com> <Pine.LNX.4.55.0307071511550.4704@bigblue.dev.mcafeelabs.com> <Pine.LNX.4.55.0307071624550.4704@bigblue.dev.mcafeelabs.com> <20030708003247.GB12127@mail.jlokier.co.uk> <Pine.LNX.4.55.0307071730190.3524@bigblue.dev.mcafeelabs.com> <20030708005226.GD12127@mail.jlokier.co.uk> <Pine.LNX.4.55.0307071802360.3531@bigblue.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 08 Jul 2003 22:30:47 +1000
-Message-ID: <4163.1057667447@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55.0307071802360.3531@bigblue.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ftp://oss.sgi.com/projects/kdb/download/v4.3/
+Davide Libenzi wrote:
+> >    2. When process A sends an fd to process B, the events will appear
+> >       in process B _iff_ the fd number in B happens to be the same
+> >       value as in process A.  (Without your patch, the events will always
+> >       appear in process B).
+> >
+> >       Furthermore, when process B dups the fd or passes it elsewhere,
+> >       events will appear if the new fd happens to be the same as the
+> >       original fd number in A.
+> >
+> >       The only correct application code in this case is to use
+> >       EPOLL_CTL_DEL in A and EPOLL_CTL_ADD in B, although it is
+> >       confusing because you'll have programs which _sometimes_ work
+> >       without that.
+> 
+> This is false.
 
-Current versions are kdb-v4.3-2.4.21-common-6.bz2 and
-kdb-v4.3-2.4.21-i386-4.bz2.  kdb-v4.3-2.4.21-ia64-030702 is nearly
-ready for release.
+Actually it's true :)
 
-common
+> Is like saying that :
+> [...]
+> is a memory leak ;)
 
-2003-07-08 Keith Owens  <kaos@sgi.com>
+Well, yeah :)
 
-	* Export more kdb symbols.  Vamsi Krishna S., IBM.
-	* kdb v4.3-2.4.21-common-6.
+You'll have to document this loud and clear: anyone who closes, dup2s
+over or passed an epoll-activated file descriptor _must_ use
+EPOLL_CTL_DEL first, otherwise heisenbugs may eventually follow.
 
-2003-07-07 Keith Owens  <kaos@sgi.com>
+> > I guess what I'm saying is that hashing on fd number is quite simply
+> > wrong.  The fundamental object is the file *, that's how its meant to be.
+> 
+> The architecture is all based on the file*, it is there that events shows
+> up. The (file*, fd) key is a constraint.
 
-	* Tweak 'waiting for cpus' message.
-	* kdb v4.3-2.4.21-common-5.
+Unfortunately I just thought of a real problem :(
 
-2003-07-07 Keith Owens  <kaos@sgi.com>
+What happens when process A sends (or forks) a dup of its fd 3 to
+process B which also has it as fd 3, and both processes use epoll on
+it?  (This is a fairly common scenario, to have one process/thread
+reading and the other writing a tty or socket).  The two processes
+will clash because they have the same (file *, fd) pair, yet there is
+no way for them to know they are clashing.
 
-	* 2.4.21-ia64-030702 patches common code that affects kdb.  Workaround
-	  this nuisance.
-	* kdb v4.3-2.4.21-common-4.
+With current epoll code this is a problem already, because keying on
+(file *) alone is not enough.  Unfortunately (file *,fd) key doesn't
+fix this one.
 
-2003-06-24 Keith Owens  <kaos@sgi.com>
-
-	* Add task and sigset commands.  Mark Goodwin, SGI.
-	* kdb v4.3-2.4.21-common-3.
-
-2003-06-23 Keith Owens  <kaos@sgi.com>
-
-	* Sync with XFS 2.4.21 tree.
-	* kdb v4.3-2.4.21-common-2.
-
-
-i386
-
-2003-07-08 Keith Owens  <kaos@sgi.com>
-
-	* Add new x86 commands - rdv, gdt, idt, ldt, ldtp, ptex.
-	  Vamsi Krishna S., IBM.
-	* kdb v4.3-2.4.21-i386-4.
-
-2003-07-01 Keith Owens  <kaos@sgi.com>
-
-	* Convert kdba_find_return() to two passes to reduce false positives.
-	* Correct jmp disp8 offset calculation for out of line lock code.
-	* Use NMI for kdb IPI in clustered APIC mode.  Sachin Sant, IBM.
-	* kdb v4.3-2.4.21-i386-3.
-
-2003-06-23 Keith Owens  <kaos@sgi.com>
-
-	* Sync with XFS 2.4.21 tree.
-	* kdb v4.3-2.4.21-i386-2.
-
+-- Jamie

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267362AbSLER32>; Thu, 5 Dec 2002 12:29:28 -0500
+	id <S267378AbSLERdV>; Thu, 5 Dec 2002 12:33:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267367AbSLER31>; Thu, 5 Dec 2002 12:29:27 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:57618 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267362AbSLER2Z>; Thu, 5 Dec 2002 12:28:25 -0500
-Date: Thu, 5 Dec 2002 17:35:56 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Antonino Daplas <adaplas@pol.net>
-cc: Sven Luther <luther@dpt-info.u-strasbg.fr>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] FBDev: vga16fb port
-In-Reply-To: <1039050178.1075.82.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0212051732010.31967-100000@phoenix.infradead.org>
+	id <S267379AbSLERdU>; Thu, 5 Dec 2002 12:33:20 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:63752 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267378AbSLERdU>; Thu, 5 Dec 2002 12:33:20 -0500
+Date: Thu, 5 Dec 2002 12:39:10 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Robert Love <rml@tech9.net>
+cc: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] deprecate use of bdflush()
+In-Reply-To: <1039018361.1505.7.camel@phantasy>
+Message-ID: <Pine.LNX.3.96.1021205122453.18090E-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 4 Dec 2002, Robert Love wrote:
 
-> If X is running  in native mode then it has to save the register state. 
-> Otherwise you cannot switch to a console.  If X is running on top of
-> fbdev, then state restore/saves are done using fb_set_var and
-> fb_get_var.  The registers are not touched, that's the purpose of fbdev.
+> On Wed, 2002-12-04 at 08:10, Daniel Kobras wrote:
 > 
-> If you are running vgacon, fbdev, and native X, then yes, fbdev and X
-> has to do a save of their initial state.
+> > > Bdflush the user-space daemon went away a long time ago, ~1995.
+> > 
+> > sys_bdflush() is still usable in 2.4 to tune kupdated's parameters.
+> > Only func==1 functionality is long gone.
+> 
+> Right.  But the bdflush daemon was gone in 2.4.
 
-Not really. When X closes /dev/fb then fb_release is called which if the 
-driver supports it will switch back to text mode. The exception is 
-firmware based fbdev drivers like vesafb and offb.  
+It's not *gone* it's just moved into the kernel...
+  F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY  TIME COMMAND
+  1     0     5     1  15   0     0    0 bdflus SW   ?    0:00 [bdflush]
 
-> > Does this also apply to vesafb ?
-> Not too sure about this. vesa requires real-mode initialization.  Either
-> you do this at boot time, or fake a real-mode environment like what X
-> does.
+Clearly it doesn't need the syscall interface, so as long as there's a way
+to tune useful parameters the interface isn't needed. Don't know why I
+thought I was doing stuff using that.
 
-X has to reset the vidoe hardware back to the state that matches what the 
-VESA mode was. Other wise it will mess you your system.
-
-P.S
-
-    X on VESA fb always foobars my system when I exit X.
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

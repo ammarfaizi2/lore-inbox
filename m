@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136123AbRDVNtp>; Sun, 22 Apr 2001 09:49:45 -0400
+	id <S136127AbRDVNvg>; Sun, 22 Apr 2001 09:51:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136122AbRDVNtf>; Sun, 22 Apr 2001 09:49:35 -0400
-Received: from mailgate.FH-Aachen.DE ([149.201.10.254]:10175 "EHLO
-	mailgate.fh-aachen.de") by vger.kernel.org with ESMTP
-	id <S136118AbRDVNtW>; Sun, 22 Apr 2001 09:49:22 -0400
-Posted-Date: Sun, 22 Apr 2001 15:49:18 +0200 (MET DST)
-Date: Sun, 22 Apr 2001 15:48:49 +0200
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200104221348.PAA31776@db0bm.ampr.org>
-To: alan@lxorguk.ukuu.org.uk
-Subject: Re: Linux 2.4.3-ac12
-Cc: linux-kernel@vger.kernel.org
+	id <S136125AbRDVNv0>; Sun, 22 Apr 2001 09:51:26 -0400
+Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:56707 "EHLO
+	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S136119AbRDVNvT>; Sun, 22 Apr 2001 09:51:19 -0400
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: junio@siamese.dhis.twinsun.com, manuel@mclure.org (Manuel McLure),
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac12 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "Sun, 22 Apr 2001 14:10:41 BST." <E14rJdU-0005p0-00@the-village.bc.nu> 
+In-Reply-To: <E14rJdU-0005p0-00@the-village.bc.nu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 22 Apr 2001 14:51:03 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E14rKGW-0005qT-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>There are no gcc 2.97 snapshots that compile the kernel correctly because
+>they have the broken bitfield packing ABI change. 
 
-Alan,
+Oh right.  I didn't know about that particular nicety.
 
->> /usr/src/linux-2.4.3-ac12/lib/lib.a(rwsem.o): In function
->> `rwsem_up_write_wake':rwsem.o(.text+0x3c6): undefined reference to
->> `__builtin_expect'
->
->Add a
->
->#define __builtin_expect
+>My belief however is that several million people have gcc 2.96-69+, about 50
+>are likely to have random cvs snapshots and none of them are going to build
+>kernels with them anyway, as they wont work __builtin_expect or otherwise.
 
-I had the same problem here, adding #define __builtin_expect in ../lib/rwsem.c
-solved the problem.
+Fair enough.
 
-gcc is :
+p.
 
-[jean-luc@debian-f5ibh] ~ # gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.3/specs
-gcc version 2.95.3 20010315 (Debian release)
 
--------
-Regards
 
-		Jean-Luc

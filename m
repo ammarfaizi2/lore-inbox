@@ -1,105 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUGZLDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUGZLGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbUGZLDe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 07:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbUGZLDd
+	id S265207AbUGZLGG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 07:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbUGZLF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 07:03:33 -0400
-Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:27053 "EHLO
-	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265029AbUGZLDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 07:03:30 -0400
-Message-ID: <4104E4ED.7030901@kolivas.org>
-Date: Mon, 26 Jul 2004 21:03:09 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Mon, 26 Jul 2004 07:05:58 -0400
+Received: from debug.office.uw.ru ([212.119.104.166]:34242 "EHLO
+	debug.office.uw.ru") by vger.kernel.org with ESMTP id S265181AbUGZLFp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 07:05:45 -0400
+Message-ID: <4104E587.1050606@office.uw.ru>
+Date: Mon, 26 Jul 2004 15:05:43 +0400
+From: Ilyak Kasnacheev <ilyak@office.uw.ru>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Autotune swappiness01
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <200407261234.29565.rjwysocki@sisk.pl> <4104DD27.6050907@kolivas.org> <200407261254.01186.rjwysocki@sisk.pl>
-In-Reply-To: <200407261254.01186.rjwysocki@sisk.pl>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC87F10653CF22663249A8AD6"
+To: linux-kernel@vger.kernel.org
+Subject: Kernel panic (reiserfs), some hangs - bad hardware?.
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC87F10653CF22663249A8AD6
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+I have following problems:
 
-R. J. Wysocki wrote:
-> On Monday 26 of July 2004 12:29, Con Kolivas wrote:
-> 
->>R. J. Wysocki wrote:
->>
->>>On Monday 26 of July 2004 11:31, Con Kolivas wrote:
->>>
->>>>R. J. Wysocki wrote:
->>>>
->>>>>On Monday 26 of July 2004 03:09, Con Kolivas wrote:
->>>>>
->>>>>>Con Kolivas writes:
->>>>>>
->>>>>>>Andrew Morton writes:
->>>>>>>
->>>>>>>>Seriously, we've seen placebo effects before...
->>>>>>>
->>>>>>>I am in full agreement there... It's easy to see that applications do
->>>>>>>not swap out overnight; but i'm having difficulty trying to find a way
->>>>>>>to demonstrate the other part. I guess timing the "linking the kernel
->>>>>>>with full debug" on a low memory box is measurable.
->>>>>>
->>>>>>I should have said - finding a swappiness that ensures not swapping out
->>>>>>applications with updatedb, then using that same swappiness value to do
->>>>>>the linking test.
->>>>>
->>>>>Please excuse me, but is that viable at all?  IMHO, it's just like
->>>>>trying to tune a radio including volume with only one knob.  I don't
->>>>>say it won't work, but the probability that it will is rather small, it
->>>>>seems ...
->>>>
->>>>Well that's what we want. I cant remember other desktop operating
->>>>systems setting a root only control between night and day, or between
->>>>copying ISOs and running applications or...
->>>
->>>I agree, but isn't it related to the fact that other desktop OSes usually
->>>don't run anything like updatedb nightly?
->>>
->>>Perhaps we need a bit more sophisticated swap algorithm than other OSes
->>>do. For example, couldn't we add an additional parameter to control the
->>>swapping "behavior", apart from the swappiness?  Something like adding
->>>the second knob in my radio example?  Just thinking,
->>
->>I think one knob is one knob too many already.
-> 
-> 
-> Can you please tell me why do you think so?
+1) (looks like )Applications such as oggenc or flac, who mmap() output files and write into mapped memory area, produce corrupted files on my system. ~1 error on 10-100M, resulting file just some bytes different from what program wrote.
+Second attempts always removes error (while may cause new one with same proportion)
+More errors on intensive IO/bad interface cable, less errors on no other IO/good cable. Tried 2.6.7 vanilla kernel.
+Am i crazy?
+2) With bad interface cable, my system used to just hang. With better?/40pin cable, it do this very rare.
+Memtest86 and burncpu do not produce errors, and windows works fine on same box. Both 2.4.x and 2.6.7 kernels.
+3) Main. I have got a reiserfs partition with some errors (due to 2)), and kernel panics on it when i do 'find /'.
+with these errors:
+==
+double fault, gdt at c03d2000 [255 bytes]
+double fault, tss at c030e80
+eip = c0115116
+esp = cd0e98b0768
+eax = 00000a96 ebx = cf2a547c ecx = 0f0001e3 edx = 0f000000
+esi = 00000000 edi = c0115030
+ *OR*
+EFLAGS: 0010007 (2.6.7)
+EIP is at scheduler_tick+0x108/0x400
+eax: 00000000 ebx: 00000001 ecx: 0000023d edx: 00000000
+esi: ca0a9750 edi: c0343520 ebp: ca0a7d4c esp: ca0a7d30
+ds: 007b es: 007b ss: 0068
+Process (pid: -1048345824, threadinfo = ca0a6000, task=ca0a9750)
+Stack: c188a23c 00145ad7 00000000 3d108500 00000000 00000001 00000000
+       ca0a7dd4 c0121606 00000000 00000001 00000001 00000000 ca0a6000
+       ca0a7dd4 c0121834 00000000 ca0a6000 c010a2ce ca0a7dd4 c02d51c4
+       20000001 00000000 c010632a
 
-If you wanna discuss pedantics...
+Trace:
+c0121606	update_process_times+0x46/0x60
+c0121834	do_timer+0x34/0xf0
+c010a2ce	timer_interrupt+0x4e/0x120
+c010632a	handle_IRQ_event+0x3a/0x70
+c01066c1	do_IRQ+0x91/0x130
+c0124a48	common_interrupt+0x18/0x20
+c01ba80a	_mmx_memcpy+0x8a/0x170
+d08c8630	reiserfs_readdir+0x4c0/0x560		[reiserfs]
+c0127052	in_group_p+0x42/0x80
+d08e5fa9	__reiserfs_permission+0x169/0x260	[reiserfs]
 
-In my ideal, nonsensical, impossible to obtain world we have an 
-autoregulating operating system that doesn't need any knobs.
+Code: 0f ba 68 08 03 83 c4 10 56 5e 5f c9 c3 b8 00 e0 ff ff 21 e0
 
-Con
+Panic: Fatal exception in interrupt
+==
+Both 2.4.x and 2.6.7. Running fsck.reiserfs --rebuild-trees cured problem,
+but should it behave like this anyway?
+I have this kernel and this filesystem image, and will assist if someone will go fix this.
+All numbers here was transferred by screen-paper-screen, so are not guaranted to be correct.
+4) I have sacred cow files on my XFS system (again thanx to 2)).
+They exist, but can not be stat()ed and deleted.
+like this:
+==
+(1)/usr/share/locale/gr% LANG=C ls
+ls: ESSAGES: No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: džI"Ps?A`0V+A`pS+A`3U^?: No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+ls: A"pT--I^PdžI"?a*RE^PZ+: Invalid argument
+ls: : No such file or directory
+ls: : No such file or directory
+ls: : No such file or directory
+==
+fsck.xfs looks pretty like void main() {};, what should i do?
 
---------------enigC87F10653CF22663249A8AD6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+P.S. Athlon 1333, Via KT266 (Elitegroup motherboard), Seagate Barracuda (don't actually remember model, ST2x0036A?).
+Kernel 2.6.7.
+Checked with memtest86 (3 passes), cpuburn (25 mins), SeaTools (controller, simple, and full tests) - all OK.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+P.P.S. Please CC responces to me.
 
-iD8DBQFBBOTtZUg7+tp6mRURAjFNAJ93ZfmbUVDWek0jRtWiPftpqyoOgACfa1bA
-KwlyNJl+4SY9W6S8DogDJ8c=
-=28mo
------END PGP SIGNATURE-----
 
---------------enigC87F10653CF22663249A8AD6--

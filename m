@@ -1,73 +1,152 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131819AbRCXVXx>; Sat, 24 Mar 2001 16:23:53 -0500
+	id <S131809AbRCXVA1>; Sat, 24 Mar 2001 16:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131823AbRCXVXo>; Sat, 24 Mar 2001 16:23:44 -0500
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:48649 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S131820AbRCXVXg>; Sat, 24 Mar 2001 16:23:36 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com>
-	<vbaelvp3bos.fsf@mozart.stat.wisc.edu>
-	<20010322193549.D6690@unthought.net>
-	<vbawv9hyuj0.fsf@mozart.stat.wisc.edu>
-	<200103240502.VAA02673@penguin.transmeta.com>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: Linus Torvalds's message of "Fri, 23 Mar 2001 21:02:31 -0800"
-Date: 24 Mar 2001 15:22:53 -0600
-Message-ID: <vba7l1ex3o2.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S131811AbRCXVAR>; Sat, 24 Mar 2001 16:00:17 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:25332 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S131809AbRCXVAE> convert rfc822-to-8bit; Sat, 24 Mar 2001 16:00:04 -0500
+Message-Id: <l0313031ab6e2b9537342@[192.168.239.101]>
+In-Reply-To: <l03130319b6e29896c21e@[192.168.239.101]>
+In-Reply-To: <3ABCE547.DD5E78B9@redhat.com>
+ <Pine.LNX.4.33.0103241039590.2310-100000@mikeg.weiden.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Sat, 24 Mar 2001 20:59:10 +0000
+To: Doug Ledford <dledford@redhat.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
-> >
-[ under kernel 2.4.2 ]
-> >
-> >    CVS gcc 3.0:          Debian gcc 2.95.3:   RedHat gcc 2.96:
-> >                      
-> >    real    16m8.423s     real    8m2.417s     real    12m24.939s
-> >    user    15m23.710s    user    7m22.200s    user    10m14.420s
-> >    sys     0m48.730s     sys     0m41.040s    sys     2m13.910s 
-> >maps:    <250 lines           <250 lines          >3000 lines
-> >
-> >Obviously, the *real* problem is RedHat GCC 2.96.  If Linus bothers to
-> >write this patch (he probably already has),
-> 
-> Check out 2.4.3-pre7, I'd be interested to hear what the system time is
-> for that one.
+>Right now my best approximation is to make the OOM test be as optimistic as
+>it is safe to be, and the vm_enough_memory() test as pessimistic as
+>sensible.  Expect a test patch to appear on this list soon.
 
-Okay.  One note about the above results: as Zach pointed out, my
-2.95.3 number for "maps" was wrong.  I must have forgotten to collect
-the data but thought I had.  In fact, there are ~10 lines in "maps"
-for the 2.95.3 "cc1plus" process.  The other "maps" numbers for 3.0
-and 2.96 are correct, at least within an order of magnitude.
+...and here it is!
 
-Under 2.4.3-pre7, I get the following disappointing numbers:
+This fixes a number of small but linked problems:
 
-    CVS gcc 3.0:          Debian gcc 2.95.3:   RedHat gcc 2.96:
+- malloc() never returned 0 when the system ran out of memory, instead the OOM killer was triggered.  Now, malloc() will return 0 if the calling process is more than 4 times the size of the amount of free memory.  As a speedup, available swap space is not considered unless physical memory is not sufficient to contain the process.  Note that if overcommit_memory is switched on, malloc() will never return 0 anyway.
 
-    real    16m10.660s    real    7m58.874s    real    10m36.368s
-    user    15m27.900s    user    7m23.090s    user    10m0.290s 
-    sys     0m48.400s     sys     0m40.350s    sys     0m40.790s 
-maps:   <20 lines             ~10 lines            ~10 lines
+- OOM killer was triggered too early - now takes account of buffer and cache memory, which can be cannibalised before the system has completely run out.
 
-A huge win for 2.96 and absolutely no benefit whatsoever for 3.0, even
-though it obviously had a 10-fold effect on maps counts.  On the
-positive side, there was no performance *hit* either.
+- OOM killer badness() factors readjusted in favour of Oracle-like processes (consuming 10's of MB of RAM but up for 3 days or so and with a low-order UID?  Now less likely to be killed...)
 
-As a blind "have not looked at relevant kernel source" guess, this
-looks like a hash scaling problem to me: the hash size works great for
-~300 maps and falls apart in a major way at ~3000 maps, presumably
-when we get multiple hits per hash bin and start walking 10-member
-lists.
+--- begin oom-patch.diff ---
+diff -u linux-2.4.1.orig/mm/mmap.c linux/mm/mmap.c
+--- linux-2.4.1.orig/mm/mmap.c  Mon Jan 29 16:10:41 2001
++++ linux/mm/mmap.c     Sat Mar 24 19:29:51 2001
+@@ -54,6 +54,7 @@
+         */
 
-How this translates into a course of action---some combination of
-keeping your patch, enlarging the hash, and performance tweaking the
-list-walking---I'm not sure.
+        long free;
++       struct sysinfo swp_info;
 
-Kevin <buhr@stat.wisc.edu>
+         /* Sometimes we want to use more memory than we have. */
+        if (sysctl_overcommit_memory)
+@@ -62,8 +63,32 @@
+        free = atomic_read(&buffermem_pages);
+        free += atomic_read(&page_cache_size);
+        free += nr_free_pages();
+-       free += nr_swap_pages;
+-       return free > pages;
++
++       /* Attempt to curtail memory allocations before hard OOM occurs.
++        * Based on current process size, which is hopefully a good and fast heuristic.
++        * Also fix bug where the real OOM limit of (free == freepages.min) is not taken into account.
++        * In fact, we use freepages.high as the threshold to make sure there's still room for buffers+cache.
++        *
++        * -- Jonathan "Chromatix" Morton, 24th March 2001
++        */
++
++       if(current && current->mm)
++         free -= (current->mm->total_vm / 4);
++
++       free -= freepages.high;
++
++       /* Since getting swap info is expensive, see if our allocation can happen in physical RAM */
++       if(free > pages)
++         return 1;
++
++       /* Use the number of FREE swap pages, not the total */
++       si_swapinfo(&swp_info);
++       free += swp_info.freeswap;
++
++       if(free > pages)
++         return 1;
++
++       return 0;
+ }
+
+ /* Remove one vm structure from the inode's i_mapping address space. */
+Only in linux/mm/: mmap.c~
+diff -u linux-2.4.1.orig/mm/oom_kill.c linux/mm/oom_kill.c
+--- linux-2.4.1.orig/mm/oom_kill.c      Tue Nov 14 18:56:46 2000
++++ linux/mm/oom_kill.c Sat Mar 24 20:35:20 2001
+@@ -76,7 +76,9 @@
+        run_time = (jiffies - p->start_time) >> (SHIFT_HZ + 10);
+
+        points /= int_sqrt(cpu_time);
+-       points /= int_sqrt(int_sqrt(run_time));
++
++       /* Long-running processes are *very* important, so don't take the 4th root */
++       points /= run_time;
+
+        /*
+         * Niced processes are most likely less important, so double
+@@ -93,6 +95,10 @@
+                                p->uid == 0 || p->euid == 0)
+                points /= 4;
+
++       /* Much the same goes for processes with low UIDs */
++       if(p->uid < 100 || p->euid < 100)
++         points /= 2;
++
+        /*
+         * We don't want to kill a process with direct hardware access.
+         * Not only could that mess up the hardware, but usually users
+@@ -192,12 +198,20 @@
+ int out_of_memory(void)
+ {
+        struct sysinfo swp_info;
++       long free;
+
+        /* Enough free memory?  Not OOM. */
+-       if (nr_free_pages() > freepages.min)
++       free = nr_free_pages();
++       if (free > freepages.min)
++               return 0;
++
++       if (free + nr_inactive_clean_pages() > freepages.low)
+                return 0;
+
+-       if (nr_free_pages() + nr_inactive_clean_pages() > freepages.low)
++       /* Buffers and caches can be freed up (Jonathan "Chromatix" Morton) */
++       free += atomic_read(&buffermem_pages);
++       free += atomic_read(&page_cache_size);
++       if (free > freepages.low)
+                return 0;
+
+        /* Enough swap space left?  Not OOM. */
+Only in linux/mm/: oom_kill.c~
+--- end oom-patch.diff ---
+
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
+
+The key to knowledge is not to rely on people to teach you it.
+
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
+
+

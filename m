@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262395AbUCCFJG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 00:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbUCCFJF
+	id S261465AbUCCFMj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 00:12:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbUCCFMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 00:09:05 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:48365 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262395AbUCCFI6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 00:08:58 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: George Anzinger <george@mvista.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: kgdb support in vanilla 2.6.2
-Date: Wed, 3 Mar 2004 10:38:39 +0530
-User-Agent: KMail/1.5
-Cc: ak@suse.de, pavel@ucw.cz, linux-kernel@vger.kernel.org, piggy@timesys.com,
-       trini@kernel.crashing.org
-References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel> <20040302132751.255b9807.akpm@osdl.org> <40451E50.4080806@mvista.com>
-In-Reply-To: <40451E50.4080806@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 3 Mar 2004 00:12:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63384 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261465AbUCCFLz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 00:11:55 -0500
+Date: Tue, 2 Mar 2004 21:13:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: jbarnes@sgi.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: per-cpu blk_plug_list
+Message-Id: <20040302211309.500f43fb.akpm@osdl.org>
+In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB50211E5C8@scsmsx401.sc.intel.com>
+References: <B05667366EE6204181EABE9C1B1C0EB50211E5C8@scsmsx401.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403031038.39339.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 Mar 2004 5:22 am, George Anzinger wrote:
-> Andrew Morton wrote:
-> > George Anzinger <george@mvista.com> wrote:
-> >> Often it is not clear just why we are in the stub, given that
-> >>we trap such things as kernel page faults, NMI watchdog, BUG macros and
-> >> such.
-> >
-> > Yes, that can be confusing.  A little printk on the console prior to
-> > entering the debugger would be nice.
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
 >
-> That assumes that one can do a printk and not run into a lock.  Far better
-> IMNSHO is to provide a simple way to get it from gdb.  One can then even
-> provide a gdb macro to print the relevant source line and its surrounds.  I
-> my lighter moments I call this the comefrom macro :)  In my kgdb it would
-> look like:
->
-> l * kgdb_info.called_from
+> I don't understand the proposal here.  There is a per-device lock
+> already.  But the plugged queue need to be on some list outside itself
+> so a group of them can be unplugged later on to flush all the I/O.
 
-How about echoing "Waiting for gdb connection" stright into the serial line 
-without any encoding? Since gdb won't be connected to the other end, and many 
-a times a minicom could be running at the other end, it'll give a user an 
-indication of kgdb being ready.
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
 
+here's the proposal:
+
+
+Regarding this:
+
+ http://www.ussg.iu.edu/hypermail/linux/kernel/0403.0/0179.html
+
+ And also having looked at Miquel's (currently slightly defective)
+ implementation of the any_congested() API for devicemapper:
+
+ ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6.4-rc1-mm1/broken-out/queue-congestion-dm-implementation.patch
+
+ I am thinking that an appropriate way of solving the blk_run_queues() lock
+ contention problem is to nuke the global plug list altogther and make the
+ unplug function a method in struct backing_device_info.
+
+ This is conceptually the appropriate place to put it - it is almost always
+ the case that when we run blk_run_queues() it is on behalf of an
+ address_space, and the few remaining case can be simply deleted -
+ mm/mempool.c is the last one I think.
+
+ The implementation of backing_dev_info.unplug() would have to run the
+ unplug_fn of every queue which contributes to the top-level queue (the
+ thing which the address_space is sitting on top of).
+
+ We discussed this maybe a year ago with Jens but decided against it for
+ complexity reasons, but gee, dm_table_any_congested() isn't complex.  Do we
+ forsee any particular problem with this?

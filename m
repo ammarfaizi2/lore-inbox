@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbULTCqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbULTDER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbULTCqS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 21:46:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbULTCqS
+	id S261403AbULTDER (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 22:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbULTDER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 21:46:18 -0500
-Received: from rproxy.gmail.com ([64.233.170.198]:25673 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261398AbULTCqQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 21:46:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=aLpyOkPZKR/gqescMayN0+ir9mqwNTN6G1fAuLB/TsBOpVbT0ETAIkNGAzOmdWxJlBe+jNwbV10O6elETNg3lNhVweqo6oJBpu2nbhhmiFckummNMyQhufCTwLCPHyo+iwTnFDeVv87Ol3w+b6wAKgkDYj2aPpXyjRq0hUN1uxo=
-Message-ID: <d4757e60041219184662648df@mail.gmail.com>
-Date: Sun, 19 Dec 2004 21:46:15 -0500
-From: Joe <joecool1029@gmail.com>
-Reply-To: Joe <joecool1029@gmail.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: 2.6.10-rc3-mm1-V0.7.33-03 and NVidia wierdness, with workaround...
-Cc: Valdis.Kletnieks@vt.edu, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1103473203.4143.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200412161626.iBGGQ5CI020770@turing-police.cc.vt.edu>
-	 <1103300362.12664.53.camel@localhost.localdomain>
-	 <1103303011.12664.58.camel@localhost.localdomain>
-	 <200412171810.iBHIAQP3026387@turing-police.cc.vt.edu>
-	 <1103313861.12664.71.camel@localhost.localdomain>
-	 <1103320354.3538.11.camel@localhost.localdomain>
-	 <200412172242.iBHMgVav003005@turing-police.cc.vt.edu>
-	 <1103473203.4143.9.camel@localhost.localdomain>
+	Sun, 19 Dec 2004 22:04:17 -0500
+Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:27025 "EHLO
+	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261403AbULTDEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 22:04:00 -0500
+Message-ID: <41C640DE.7050002@kolivas.org>
+Date: Mon, 20 Dec 2004 14:02:54 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mikhail Ramendik <mr@ramendik.ru>
+Cc: Andrew Morton <akpm@digeo.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       lista4@comhem.se, linux-kernel@vger.kernel.org, riel@redhat.com
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+References: <14514245.1103496059334.JavaMail.tomcat@pne-ps4-sn2> <41C6073B.6030204@yahoo.com.au> <20041219155722.01b1bec0.akpm@digeo.com> <200412200303.35807.mr@ramendik.ru>
+In-Reply-To: <200412200303.35807.mr@ramendik.ru>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig57CEDD287129D82D8B9E9514"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Dec 2004 11:20:03 -0500, Steven Rostedt <rostedt@goodmis.org> wrote:
-> On Fri, 2004-12-17 at 17:42 -0500, Valdis.Kletnieks@vt.edu wrote:
-> 
-> > Most likely, the fact you have SMP/HT and I'm just on a PREEMPT-UP kernel is
-> > what's making the difference.  There's almost certainly a '#ifdef CONFIG_SMP'
-> > involved here somehow....
-> 
-> Yep! I just compiled my system without SMP and I was able to start up X
-> with NVidia on my HT laptop (with V0.7.33-04).
-> 
-> Ingo, do you think this is a bug with NVidia (bad proprietary module) or
-> might be with something in the RT SMP side? I'll look a little more on
-> Monday, but if you know of something, let me know.  I'm curious to why
-> it works fine without RT but will not work with RT (and SMP). I
-> shouldn't say NVidia bug, since it only is a problem with the RT SMP, so
-> I should say incompatibility w.r.t. RT SMP and NVidia.
-> 
-> If you are one of those that don't want anything to do with the NVidia
-> driver, and don't care less if it works or not, let me know that too.
-> That way I won't bother you with this anymore and will only communicate
-> with Valdis :-)
-> 
-> Thanks,
-> 
-> -- Steve
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig57CEDD287129D82D8B9E9514
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Nope, I've experianced the same problem without SMP.  It also appears
-to be a bug where if make menuconfig is not run after using an old
-kernel, for some odd reason CONFIG_SPINLOCK_BKL is set to be on. 
-Anyways, I just wanted to reassure you, this is NOT an SMP bug.
+Mikhail Ramendik wrote:
+> Andrew Morton wrote:
+> 
+> 
+>>- Ask Voluspa to do
+>>
+>>	echo 0 > /proc/sys/vm/swap_token_timeout
+>>
+>>  on 2.6.10-rc3 and retest.
+> 
+> 
+> He did, and I did (but I have not sent my report to lkml). In both cases, 
+> screen freezes remained but were now less in duration (up to 10-20 sec). In 
+> mu case I also monitored CPU loading and the big load peaks were there (the 
+> biggest one was in the beginning).
+> 
+> 
+>>(We still don't know why it chews tons of CPU, do we?)
+> 
+> 
+> It does! Any way to dig into this?
+> 
+
+I still suspect the thrash token patch even with the swap token timeout 
+at 0. Is it completely disabled at 0 or does it still do something?
+
+Con
+
+--------------enig57CEDD287129D82D8B9E9514
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBxkDgZUg7+tp6mRURAmloAJ9YJdJMNtdKPC/ZB6fUKFthC11dYgCfQZ7u
+nAEC/4xY/27ZImKK7dP7F84=
+=0Qj6
+-----END PGP SIGNATURE-----
+
+--------------enig57CEDD287129D82D8B9E9514--

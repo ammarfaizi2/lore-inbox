@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266584AbUBMA62 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 19:58:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266638AbUBMA61
+	id S266637AbUBMBM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 20:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUBMBM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 19:58:27 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:45215 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S266584AbUBMA6O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 19:58:14 -0500
-Message-ID: <402C2105.1030905@cyberone.com.au>
-Date: Fri, 13 Feb 2004 11:57:41 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rudo Thomas <rudo@matfyz.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: bug, or is it? - SCHED_RR and FPU related
-References: <20040212205708.GA1679@ss1000.ms.mff.cuni.cz> <402C050B.2040803@cyberone.com.au> <20040213004727.GA20680@ss1000.ms.mff.cuni.cz>
-In-Reply-To: <20040213004727.GA20680@ss1000.ms.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Feb 2004 20:12:26 -0500
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:59397 "EHLO
+	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
+	id S266637AbUBMBMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 20:12:19 -0500
+Date: Thu, 12 Feb 2004 20:12:13 -0500
+To: Michael Frank <mhf@linuxmail.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+Message-ID: <20040213011213.GB25298@fieldses.org>
+References: <200402130615.10608.mhf@linuxmail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402130615.10608.mhf@linuxmail.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 13, 2004 at 06:15:10AM +0800, Michael Frank wrote:
+> +Note that perhaps the most terrible way to write code is to put multiple
+> +statements onto a single line:
 
+If you can't manage Linus's sense of humor, go for something simple that
+doesn't call attention to itself; e.g., "Don't put multiple statements
+on a single line:"
 
-Rudo Thomas wrote:
+> +Lagging spaces are deprecated.
 
->Hi.
->
->
->>xmms probably goes into an infinite loop, preventing anything else
->>from being scheduled, right?
->>
->
->Nope. When I turn the suid bit off, xmms (does not run with SCHED_RR and) just
->hangs consuming no CPU cycles. Strange.
->
->I will look into it tomorrow, the invalid FP division was not the problem, its
->results are.
->
->
+Does everyone know immediately what "Lagging spaces" means?  "Trailing
+spaces" seem to be more common usage.  "Don't leave whitespace at the
+end of lines" might be clearest.
 
-I think xmms changes the way it runs depending on whether realtime
-scheduling is set or not, but I could be wrong.
+> +The limit on the length of lines is 80 columns and this is a hard limit.
+> +
+> +Statements longer than 80 columns will be broken into sensible chunks.
+> +The beginning of a statement is the parent and further chunks are
+> +descendent's. Descendent's are always shorter than the parent and
 
-Programs using realtime scheduling need to be coded pretty
-carefully. Xmms is not something I'd bet my system's stability on.
+The last vowel of descendant (in the sense you're using it) is an "a",
+and its plural is descendants.
 
+Surely this section is overkill for a discussion of line lengths.  The
+current document has the advantage of being short.
+
+> +Centralized exiting of functions
+
+That, on the other hand, is something worth documenting.
+
+> +Complex expressions are easier to understand and maintain when extra
+> +parenthesis are used. Here is an extreme example
+> +
+> +x = (((a + (b * c)) & d) | e)  // would work also without any parenthesis
+
+Ugh.  This isn't LISP here.  The number of operators in C does make
+keeping track of precedence tricky, but readers should be expected to
+know a few things (like that * is higher precedence than +).  I'd just
+leave out this discussion entirely.  CodingStyle is not, I think, meant
+to be a complete C style guide.
+
+> +Periods terminating kernel messages are deprecated
+
+> +Usage of the apostrophe <'> in kernel messages is deprecated
+
+> +Printing numbers in parenthesis ie (%d) is deprecated
+
+I find the "X is deprecated" construction a little awkward.  In any case
+it's overused here.
+
+--Bruce Fields

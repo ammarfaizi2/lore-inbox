@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288360AbSACWpW>; Thu, 3 Jan 2002 17:45:22 -0500
+	id <S288364AbSACWsM>; Thu, 3 Jan 2002 17:48:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288362AbSACWpM>; Thu, 3 Jan 2002 17:45:12 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:59554 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S288360AbSACWpA>;
-	Thu, 3 Jan 2002 17:45:00 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: State of the new config & build system 
-In-Reply-To: Your message of "Thu, 03 Jan 2002 17:11:37 CDT."
-             <Pine.GSO.4.21.0201031653420.23693-100000@weyl.math.psu.edu> 
-Mime-Version: 1.0
+	id <S288365AbSACWsC>; Thu, 3 Jan 2002 17:48:02 -0500
+Received: from relay1.pair.com ([209.68.1.20]:45321 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S288364AbSACWrz>;
+	Thu, 3 Jan 2002 17:47:55 -0500
+X-pair-Authenticated: 24.126.75.67
+Message-ID: <3C34E061.3455AE74@kegel.com>
+Date: Thu, 03 Jan 2002 14:51:13 -0800
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] smbfs fsx'ed
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 04 Jan 2002 09:44:49 +1100
-Message-ID: <22327.1010097889@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002 17:11:37 -0500 (EST), 
-Alexander Viro <viro@math.psu.edu> wrote:
->On Fri, 4 Jan 2002, Keith Owens wrote:
->
->> * Mount COW layer over clean tree.
->> * Edit a file, writing to the COW layer.
->> * Build the kernel.
->> * Decide that you don't want the change, delete the COW version,
->>   exposing the original version of the file, timestamp goes backwards.
->
->ITYM "creating a whiteout entry".  unlink() on unionfs doesn't expose
->the underlying object.
+Linus Torvalds <torvalds@transmeta.com> wrote:
+> Btw, Urban, is anybody working on trying to do "{read|write}page()"
+> asynchronously? I assume that IO performance on smbfs must be quite
+> horrible with totally synchronous IO..
 
-It does in kbuild 2.5.  You have a pristine source tree, start a
-development layer, edit files, build a kernel, decide your edit was
-wrong, delete the updated version, expose the original and kbuild 2.5
-still gets it right.  IMHO that model better fits kernel development.
+I use smbfs to mount a visual sourcesafe database,
+and run ss via wine.  The combination is very slow.
+Don't know how much of it is wine, and how much is smbfs,
+but any speedup would be greatly appreciated.
 
-The whiteout model makes it more difficult to revert to the standard
-kernel, you have to copy the original code to your writeable layer to
-back out changes.  To satisfy the broken make design, you cannot copy
-with timestamp.  When the base layer changes to a new release, the COW
-version does not get upgraded, even though it is supposed to be
-identical to the base layer.
+(Eventually, wine will bundle its own smb code, but for
+now if you want to access network shares, smbfs is the only way.)
+- Dan
 
-Again, I am not disagreeing with unionfs, it has its uses.  kbuild
-using make and relying solely on timestamps to detect changes is not
-one of them.  Especially when kbuild has to run on other operating
-systems.
-
+p.s. see http://www.kegel.com/linux/vss-howto.html

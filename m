@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbULHOhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbULHOyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbULHOhu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 09:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbULHOhu
+	id S261227AbULHOyR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 09:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbULHOyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 09:37:50 -0500
-Received: from dwdmx2.dwd.de ([141.38.3.197]:14915 "HELO dwdmx2.dwd.de")
-	by vger.kernel.org with SMTP id S261220AbULHOht (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 09:37:49 -0500
-Date: Wed, 8 Dec 2004 14:37:37 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@diagnostix.dwd.de
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG in fs/ext3/dir.c
-In-Reply-To: <20041207201102.GA5177@think.thunk.org>
-Message-ID: <Pine.LNX.4.58.0412081431000.3882@diagnostix.dwd.de>
-References: <Pine.LNX.4.58.0412070953190.11134@diagnostix.dwd.de>
- <20041207201102.GA5177@think.thunk.org>
+	Wed, 8 Dec 2004 09:54:17 -0500
+Received: from outmx012.isp.belgacom.be ([195.238.3.70]:43478 "EHLO
+	outmx012.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S261227AbULHOyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 09:54:12 -0500
+Message-ID: <41B7156C.2000702@246tNt.com>
+Date: Wed, 08 Dec 2004 15:53:32 +0100
+From: Sylvain Munaut <tnt@246tNt.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040816)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dan Malek <dan@embeddededge.com>
+Cc: Kumar Gala <kumar.gala@freescale.com>,
+       Linux/PPC Development <linuxppc-dev@ozlabs.org>,
+       Embedded PPC Linux list <linuxppc-embedded@ozlabs.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Second Attempt: Driver model usage on embedded processors
+References: <48C50EC3-480D-11D9-8A5A-000393DBC2E8@freescale.com> <CC280DE6-485F-11D9-AEAC-003065F9B7DC@embeddededge.com>
+In-Reply-To: <CC280DE6-485F-11D9-AEAC-003065F9B7DC@embeddededge.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Dec 2004, Theodore Ts'o wrote:
+Dan Malek wrote:
 
-> On Tue, Dec 07, 2004 at 09:56:26AM +0000, Holger Kiehl wrote:
-> > [Sorry if you get this twice. This was send to ext3-users@redhat.com and
-> >  the authors of ext3, but got no responce.]
-> 
-> I'm on ext3-users, but I didn't get the e-mail.....  so this is the
-> first time I've seen this.
-> 
-> > When using readdir() on a directory with many files or long file names
-> > it can happen that it returns the same file name twice. Attached is
-> > a program that demonstrates this. 
-> 
-> Thanks for the test case, I'm currently looking at the problem....
-> 
-I see that Andrew Morton took out the relevant patch and that
-Kris Karas reported some filesytem corruption. In my case it did NOT
-corrupt the filesystem. I just checked it after some millions of files
-went through the system for some days.
+> Why don't you just use the feature_call() model like we currently
+> use for PowerPC on the PMac?  Isolate those places in the driver
+> that need that information and call the function with a 
+> selector/information
+> request (and varargs) to get it. 
 
-Holger
+
+> For example,
+> a driver could:
+>
+> feature_call(SOC_FTR, Fast_Ethernet1, INIT_IO_PINS);
+>
+> to configure the IO pins associated with the device, then it could:
+>
+> feature_call(SOC_FTR, Fast_Ethernet1, GET_CLKS, &txclk, &rxclk);
+>
+> to get the routing for the transmit and receive clocks, and finally:
+>
+> feature_call(SOC_FTR, Fast_Ethernet1, GET_PHY_IRQ, &phy_irq);
+>
+> to get the external interrupt number associated with the PHY.
+>
+
+FWIW, I really like this model.
+
+Just as another example, for the I2C driver i2c-mpc, almost the only
+variation between model is the clock selection and that forced to put
+some processor specific stuff into the driver. With that model, you could
+easly avoid theses platform/cpu specific stuff and isolate them.
+
+USB with some really alike bus glues comes to mind too ...
+
+Being able to do "action" in plus of just passing parameters is really nice
+IMHO.
+
+
+    Sylvain

@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265265AbUGGSEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265267AbUGGSHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265265AbUGGSEP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 14:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbUGGSEO
+	id S265267AbUGGSHP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 14:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUGGSHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 14:04:14 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:37391 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S265264AbUGGSEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 14:04:11 -0400
-Message-ID: <40EC406E.5010809@techsource.com>
-Date: Wed, 07 Jul 2004 14:26:54 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Timothy Miller <theosib@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: HELP:  Cannot get ALSA working on via82xx
-References: <BAY1-F133LSW50Pfs56000059d7@hotmail.com>
-In-Reply-To: <BAY1-F133LSW50Pfs56000059d7@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 7 Jul 2004 14:07:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15822 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265263AbUGGSHM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 14:07:12 -0400
+Date: Wed, 7 Jul 2004 11:06:53 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: bert hubert <ahu@ds9a.nl>, jamie@shareable.org, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix tcp_default_win_scale.
+Message-Id: <20040707110653.7c49bef1@dell_ss3.pdx.osdl.net>
+In-Reply-To: <20040706154907.422a6b73.davem@redhat.com>
+References: <20040629222751.392f0a82.davem@redhat.com>
+	<20040630152750.2d01ca51@dell_ss3.pdx.osdl.net>
+	<20040630153049.3ca25b76.davem@redhat.com>
+	<20040701133738.301b9e46@dell_ss3.pdx.osdl.net>
+	<20040701140406.62dfbc2a.davem@redhat.com>
+	<20040702013225.GA24707@conectiva.com.br>
+	<20040706093503.GA8147@outpost.ds9a.nl>
+	<20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net>
+	<20040706194034.GA11021@mail.shareable.org>
+	<20040706131235.10b5afa8.davem@redhat.com>
+	<20040706224453.GA6694@outpost.ds9a.nl>
+	<20040706154907.422a6b73.davem@redhat.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I must once again reiterate my begging for help on this topic.  I've 
-gotten lots of help on the gentoo forum, but none of it's fixed my 
-problems, and I've only gotten one response on LKML.
+I do not argue with that the correct thing to do is to use window scaling
+and find/fix the poor sop's stuck behind busted networks.
 
-*BEG* *BEG* *BEG*
-
-Please, won't someone take pity on me?  :)  Thanks!
-
-
-
-Timothy Miller wrote:
-> Hi.  I'm a list member, subscribed as miller@techsource.com, but I am 
-> not at work right now, so I'm posting from my spam account.  :)
-> 
-> Anyhow, I'm having a heck of a time getting ALSA to work.  I have an 
-> ABIT KD7, which has the KT400 chipset. I have determined that the 
-> applicable driver is "via82xx".  I'm using kernel 
-> "gentoo-dev-sources-2.6.7-r7".
-> 
-> Right now, the state is that regular digital audio works, but MIDI 
-> refuses to work, and some other audio channel is on which produces 
-> random clicks and other such noise.
-> 
-> There's tons I can tell you about my system, but most of what you 
-> probably need to know about my situation and what questions have been 
-> asked, etc can be found by looking at this Gentoo forums discussion that 
-> I started:  "http://forums.gentoo.org/viewtopic.php?t=193711".  Please 
-> have a look and see if you can't figure out what I'm doing wrong.
-> 
-> Thanks!
-> 
-
+But: isn't it better to have just one sysctl parameter set (tcp_rmem)
+and set the window scale as needed rather than increasing the already
+bewildering array of dials and knobs?  I can't see why it would be advantageous
+to set a window scale of 7 if the largest possible window ever offered
+is limited to a smaller value? 

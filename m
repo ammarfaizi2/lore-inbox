@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312711AbSDFSbh>; Sat, 6 Apr 2002 13:31:37 -0500
+	id <S312691AbSDFSdJ>; Sat, 6 Apr 2002 13:33:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312712AbSDFSbg>; Sat, 6 Apr 2002 13:31:36 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:45580 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S312711AbSDFSbf>; Sat, 6 Apr 2002 13:31:35 -0500
-Date: Sat, 6 Apr 2002 12:31:32 -0600
-To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 2.0 is available
-Message-ID: <20020406183132.GF13991@cadcamlab.org>
-In-Reply-To: <6529.1018004347@ocs3.intra.ocs.com.au> <20020405110913.GA11374@atrey.karlin.mff.cuni.cz> <20020405132324.L4640@csr-pc6.local> <20020405182504.GN961@matchmail.com>
+	id <S312712AbSDFSdI>; Sat, 6 Apr 2002 13:33:08 -0500
+Received: from moutng0.kundenserver.de ([212.227.126.170]:15827 "EHLO
+	moutng0.schlund.de") by vger.kernel.org with ESMTP
+	id <S312691AbSDFSdG>; Sat, 6 Apr 2002 13:33:06 -0500
+Date: Sat, 6 Apr 2002 20:32:40 +0200
+From: Martin Hermanowski <martin@mh57.net>
+To: Ookhoi <ookhoi@humilis.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: scsi0:0:10:0: Attempting to queue an ABORT message, scsi0:0:10:0: Command not found, aic7xxx_abort returns 0x2002
+Message-ID: <20020406183240.GB25984@mh57.net>
+Mail-Followup-To: Ookhoi <ookhoi@humilis.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020406142544.F19096@humilis>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
-From: Peter Samuelson <peter@cadcamlab.org>
+X-PGP-Fingerprint: 3A8B 6A9A 3353 8CE7 9C95  31C8 0277 FA58 1FEA 0DF4
+X-PGP-Key-ID: 1FEA0DF4
+X-PGP-Key-At: http://empyreum.de/pgp-keys/MH.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Are you using an smp kernel? I have similar messages at boot time, if I
+use a smp enabled kernel (IBM Netfinity 5000, Adaptec 2940 or 29160).
 
-  [Sebastian Heidl]
-> > It's signed. Just pipe it through gpg with Keiths public key.
+On Sat, Apr 06, 2002 at 02:25:44PM +0200, Ookhoi wrote:
+> Hi people,
+> 
+> dmesg gives a lot of lines like this:
+> 
+> scsi0:0:10:0: Attempting to queue an ABORT message
+> scsi0:0:10:0: Command not found
+> aic7xxx_abort returns 0x2002
+> scsi0:0:10:0: Attempting to queue an ABORT message
+> scsi0:0:10:0: Command not found
+> aic7xxx_abort returns 0x2002
+> scsi0:0:10:0: Attempting to queue an ABORT message
+> scsi0:0:10:0: Command not found
+> aic7xxx_abort returns 0x2002
+> 
+> We think it is a hardware problem, but I thought it is a good thing to
+> ask here for suggestions. I searched the archives and the web, but could
+> only find similar messages dated last year. 
+> 
+> I'm happy to provide more info, but hope all below is enough. Thanks in 
+> advance for suggestions or hints!
+> 
+>         Ookhoi
+> 
+> 
+> kernel 2.4.19-pre2-ac4
+> asus a7m266-d (amd 760mxp)
+> 00:08.0 SCSI storage controller: Adaptec 7892A (rev 02)
+[...]
 
-[Mike Fedyk]
-> Signed means that there is a checksum at the bottom that you can
-> verify with gpg/pgp to see if the message was tampered with, but the
-> text itself it still in ascii and not encoded.
-
-Not that it matters (he did send out a reprint) but the message *was*
-merely signed.  The base64-looking encoding is merely a way to make
-sure that MTAs and other software don't screw with tabs, line breaks,
-etc., which would make the signature look invalid.
-
-> This looks encrypted to me.
-
-It doesn't look encrypted to gpg.  Pipe the message to it, you'll see.
-
-Peter
+-- 
+PGP/GPG encrypted mail preferred, see header
+,-- 
+| Nur tote Fische schwimmen mit dem Strom
+`--

@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272697AbTHKPhV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 11:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272686AbTHKPhV
+	id S272757AbTHKPiv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 11:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272765AbTHKPiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 11:37:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56806 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272697AbTHKPhS (ORCPT
+	Mon, 11 Aug 2003 11:38:50 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:52115 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S272757AbTHKPit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 11:37:18 -0400
-Message-Id: <200308111537.h7BFbGA00557@mail.osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: [OSDL] linux-2.6.0-test2 reaim results (flat text)
-Date: Mon, 11 Aug 2003 08:37:16 -0700
-From: Cliff White <cliffw@osdl.org>
+	Mon, 11 Aug 2003 11:38:49 -0400
+Date: Mon, 11 Aug 2003 17:38:21 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Flameeyes <daps_mls@libero.it>
+Cc: Christoph Bartelmus <columbus@hit.handshake.de>,
+       LIRC list <lirc-list@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+Message-ID: <20030811153821.GC2627@elf.ucw.cz>
+References: <1059820741.3116.24.camel@laurelin> <20030807214311.GC211@elf.ucw.cz> <1060334463.5037.13.camel@defiant.flameeyes> <20030808231733.GF389@elf.ucw.cz> <8rZ2nqa1z9B@hit-columbus.hit.handshake.de> <20030811124744.GB1733@elf.ucw.cz> <1060607466.5035.8.camel@defiant.flameeyes>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060607466.5035.8.camel@defiant.flameeyes>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Sorry, pervious had a messed up attachment. 
- -mm5 4/8 cpu runs are with AS and Nick Piggin patch.
+> > I converted lirc_gpio into input/ layer (and killed support for
+> > hardware I do not have; sorry but it was essential to keep code
+> > small). Ported driver looks like this; I believe it looks better than
+> > old code. Patch is here.
+> You can here see the problem... not all tv cards use the same remote,
+> the switch doesn't work with my remote for example, so we have 2
+> possibilities:
+> 
+> a) hardcode all the possible remotes adding these as new one come up,
+> this is a big work in the kernel source, and also we lost compatibility
+> with remotes that use the same frequency of the ones with the tv card,
+> and that now can be used.
 
-Host: STP 1-CPU
+I guess a) is okay. There are not *so* many remote controls out there.
 
-Reaim test results
+I loose a tiny bit of flexibility: if I take DAV remote that happens
+to almost work with bttv, I was able to use most of its keys with
+lircd, but kernel module will not permit me to do that.
 
-#  STP id PLM#  Kernel Name               Workfile  MaxJPM MaxUser Host PCT
- 1 277453 2049 linux-2.6.0-test3         new_dbase  1020.72     17 stp1-001 0.00
- 2 277302 2043 2.6.0-test2-mm5           new_dbase  983.73     17 stp1-001 -3.62
- 6 276782 2020 linux-2.6.0-test2         new_dbase  1008.42     17 stp1-001 -1.21
-Host: STP 2-CPU
+I guess thats okay; if I want decoder-that-decodes-anything, I need
+one that connects to serial port and has non-trivial configuration.
 
-Reaim test results
-
-#  STP id PLM#  Kernel Name               Workfile  MaxJPM MaxUser Host PCT
- 1 277454 2049 linux-2.6.0-test3         new_dbase  1337.64     22 stp2-001 0.00
- 2 277303 2043 2.6.0-test2-mm5           new_dbase  1333.34     22 stp2-002 -0.32
-14 276572 2020 linux-2.6.0-test2         new_dbase  1320.68     22 stp2-000 -1.27
-Host: STP 4-CPU
-
-Reaim test results
-
-#  STP id PLM#  Kernel Name               Workfile  MaxJPM MaxUser Host PCT
- 1 277455 2049 linux-2.6.0-test3         new_dbase  5324.95     92 stp4-000 0.00
-1 277315 2047 as-mm5-fix2               new_dbase  5138.56     68 stp4-003 -3.50
-10 277206 2020 linux-2.6.0-test2         new_dbase  5430.43     92 stp4-000 1.98
-Host: STP 8-CPU
-
-Reaim test results
-
-#  STP id PLM#  Kernel Name               Workfile  MaxJPM MaxUser Host PCT
- 1 277456 2049 linux-2.6.0-test3         new_dbase  8954.12    144 stp8-002 0.00
- 1 277446 2047 as-mm5-fix2               new_dbase  8244.85    104 stp8-002 -7.90
- 3 276570 2020 linux-2.6.0-test2         new_dbase  8938.54    144 stp8-002 -0.17
-
-
----------------
-Detail on any run:
-http://khack.osdl.org/stp/<STP id> 
-Hardware details:
-http://khack.osdl.org/stp/<STP id>/environment/machine_info
-More results:
-http://developer.osdl.org/cliffw/reaim/index.html
----------------
-
-Code location:
-bk://developer.osdl.org/osdl-aim-7
-tarball:
-http://sourceforge.net/projects/re-aim-7
-
-Run parameters:
-
-./reaim -s$CPU_COUNT -x -t -i$CPU_COUNT -f workfile.new_dbase -r3 -b -l./stp.config
-./reaim -s$CPU_COUNT -q -t -i$CPU_COUNT -f workfile.new_dbase -r3 -b -l./stp.config
-(3 runs each, average of all 6 reported) 
-
-cliffw
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

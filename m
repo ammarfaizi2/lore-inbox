@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVALTM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVALTV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbVALTM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 14:12:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVALTJz
+	id S261314AbVALTV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 14:21:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVALTUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 14:09:55 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:44701 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261326AbVALTGZ
+	Wed, 12 Jan 2005 14:20:32 -0500
+Received: from scrat.hensema.net ([62.212.82.150]:21402 "EHLO
+	scrat.hensema.net") by vger.kernel.org with ESMTP id S261338AbVALTPt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:06:25 -0500
-Date: Wed, 12 Jan 2005 11:03:19 -0800
-From: Greg KH <greg@kroah.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel conector. Reincarnation #1.
-Message-ID: <20050112190319.GA10885@kroah.com>
-References: <1101286481.18807.66.camel@uganda> <1101287606.18807.75.camel@uganda> <20041124222857.GG3584@kroah.com> <1102504677.3363.55.camel@uganda> <20041221204101.GA9831@kroah.com> <1103707272.3432.6.camel@uganda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1103707272.3432.6.camel@uganda>
-User-Agent: Mutt/1.5.6i
+	Wed, 12 Jan 2005 14:15:49 -0500
+From: Erik Hensema <erik@hensema.net>
+Subject: Re: [fuse-devel] Merging?
+Date: Wed, 12 Jan 2005 19:15:44 +0000 (UTC)
+Message-ID: <slrncuatr0.ego.erik@bender.home.hensema.net>
+References: <loom.20041231T155940-548@post.gmane.org> <E1ClQi2-0004BO-00@dorka.pomaz.szeredi.hu> <E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu> <20050112110109.6a21fae5.akpm@osdl.org>
+Reply-To: erik@hensema.net
+User-Agent: slrn/0.9.8.0 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 22, 2004 at 12:21:12PM +0300, Evgeniy Polyakov wrote:
-> Hello, Greg, developers.
-> 
-> This is first public resending of connector patch after several private
-> discussions.
-> Noone objected before, so if there are no complaints, Greg, please
-> apply.
+Andrew Morton (akpm@osdl.org) wrote:
+> Miklos Szeredi <miklos@szeredi.hu> wrote:
+>>
+>>  Well, there doesn't seem to be a great rush to include FUSE in the
+>>  kernel.  Maybe they just don't realize what they are missing out on ;)
+>
+> heh.  What userspace filesystems have thus-far been developed, and what are
+> people using them for?
 
-one minor issue:
+I was using siefs, to mount the fs of my Siemens mobile phone
+(via serial cable). However it doesn't seem to work with the
+current fuse anymore.
 
-> +#include "../connector/connector.h"
-
-Shouldn't connector.h go into include/linux so that everyone can use it
-within the kernel?  If so, then it's dependancy on cn_queue.h needs to
-be fixed up too (why not just merge them both together)?
-
-> +#include "../connector/cn_queue.h"
-
-This can just be:
-	#include "cn_queue.h"
-if you end up still needing it.
-
-
-Sorry for taking so long to get back to this, was on vacation.
-
-thanks,
-
-greg k-h
+-- 
+Erik Hensema <erik@hensema.net>

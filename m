@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129873AbQKBPo1>; Thu, 2 Nov 2000 10:44:27 -0500
+	id <S129523AbQKBQUa>; Thu, 2 Nov 2000 11:20:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129932AbQKBPoR>; Thu, 2 Nov 2000 10:44:17 -0500
-Received: from tetsuo.zabbo.net ([204.138.55.44]:57095 "HELO tetsuo.zabbo.net")
-	by vger.kernel.org with SMTP id <S129873AbQKBPoD>;
-	Thu, 2 Nov 2000 10:44:03 -0500
-Date: Thu, 2 Nov 2000 10:44:01 -0500
-From: Zach Brown <zab@zabbo.net>
-To: Mo McKinlay <mmckinlay@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Maestro3/Allegro: (was ESS device "1998")
-Message-ID: <20001102104401.C16000@tetsuo.zabbo.net>
-In-Reply-To: <Pine.LNX.4.21.0011021158250.8426-100000@kyle.altai.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0011021158250.8426-100000@kyle.altai.org>; from mmckinlay@gnu.org on Thu, Nov 02, 2000 at 12:03:41PM +0000
+	id <S131527AbQKBQUU>; Thu, 2 Nov 2000 11:20:20 -0500
+Received: from Prins.externet.hu ([212.40.96.161]:57348 "EHLO
+	prins.externet.hu") by vger.kernel.org with ESMTP
+	id <S129523AbQKBQUM>; Thu, 2 Nov 2000 11:20:12 -0500
+Date: Thu, 2 Nov 2000 17:20:07 +0100 (CET)
+From: Narancs 1 <narancs1@externet.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: so vesafb doesn't work in i815
+In-Reply-To: <E13rLJT-0001b2-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.02.10011021714550.9875-100000@prins.externet.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2000 at 12:03:41PM +0000, Mo McKinlay wrote:
+On Thu, 2 Nov 2000, Alan Cox wrote:
 
-> I recently obtained an HP Omnibook XE2 laptop. It's a reasonably
+> > It seems that the i815 is not vesa compliant?
+> > Cheap!
+> 
+> The i810 hardware only has limited support for old style linear video modes
+> so that is quite possible.
+> 
 
-As people have mentioned, there is an alpha free driver near
-http://www.zabbo.net/maestro3/.  Its not quite up to par yet.  
+Wow! So then I just cannot use this motherboard at all!
+xfree 3.3.6 , also with the driver that can be downloaded from intel - I
+could run it only at 320x200x4.
+xfree 4.0.1d supports it, but the screen flicker so hard, that is is
+unusable. 
+Now there is no fb support for it. If they sell a vga card that is not
+vesa compliant, they are crazy.
 
-maybe the web page should talk a bit more about the chip familiy. The
-maestro3 has a lot of pieces in common with the maestro2, except for
-the part of the chip that did pcm manipulation.  the m3 only has a dsp
-where the m2 had specific silicon for doing pcm work.  the allegro
-is a "slimmed down" maestro3, and neither have anything to do with
-cirrus/crystal CSxxxx parts as far as I know :)
+I am angry with intel!
+And my bosses, who decided to buy 1500 pcs of this IBM Netvista :-(((
 
-I expect you'll have the 'slow down' problem on the Xe2, we have the
-clocking messed up on some implementations (those that don't clock the
-thing at 49mhz, as god intended? :))
- 
-> I've given up on the internal modem (I'm 90% sure it's some kind of
+Anyway, I'll have to buy a vga card on my own, if I want to use linux.
 
-*nod*  Its the usual mc97 codec setup that leaves the hard work for the
-processor.  I'm sure one can play around with the dsp on it as well,
-but we don't have specs on the dsp's internals.
+2.4.0-test10 seems to be really fine and stable to me!
+Thx for your great work guys!
 
--- 
- zach
+10x4all
+Narancs v1
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUK2SMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbUK2SM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbUK2SMF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 13:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbUK2SMF
+	id S261478AbUK2SM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 13:12:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbUK2SMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 13:12:05 -0500
-Received: from zaphod.axian.com ([64.122.196.146]:64951 "EHLO zaphod.axian.com")
-	by vger.kernel.org with ESMTP id S261443AbUK2SLu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 13:11:50 -0500
-Subject: odd behavior with r8169 and pcap
-From: Terry Griffin <terryg@axian.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1101751909.2291.21.camel@tux.hq.axian.com>
+	Mon, 29 Nov 2004 13:12:42 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45797 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261462AbUK2SMU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 13:12:20 -0500
+Date: Mon, 29 Nov 2004 18:12:12 +0000
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ppcfix.diff
+Message-ID: <20041129181210.GO26051@parcelfarce.linux.theplanet.co.uk>
+References: <20041129154041.GB4616@hugang.soulinfo.com> <20041129172252.GN26051@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.53.0411291843360.9120@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 29 Nov 2004 10:11:49 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0411291843360.9120@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, Nov 29, 2004 at 06:44:14PM +0100, Jan Engelhardt wrote:
+> >>  	if (!cpus_empty(keepmask)) {
+> >> -		cpumask_t irqdest = { .bits[0] = openpic_read(&ISR[irq]->Destination) };
+> >> +		cpumask_t irqdest;
+> >> +		irqdest.bits[0] = openpic_read(&ISR[irq]->Destination);
+> >
+> >Not an equivalent replacement.  The former means "set irqdest.bits[0] to
+> ><expression> and set the rest of fields/array elements in them to zero/null".
+> 
+> Really? I thought zero'ing only happens for static storage.
 
-I'm seeing some very strange behavior with the r8169 driver
-in 2.6.9. (Also observed in FC2's 2.6.5-1).
+Two different issues - behaviour when no initializer is given and behaviour
+when initializer does not cover everything.
 
-Throughput is generally dog slow, less than 100Mb/s. But if
-I fire up any libpcap-based monitoring utility (ethereal,
-iftop, etc) the throughput suddenly jumps an order of magnitude
-to near 1Gb/s. As soon as I quit from the monitoring utility
-the throughput drops back back to where it was before. This can
-be repeated over an over.
+IOW,
 
-I created a dummy libpcap monitoring program (below). This
-is enough to trigger the behavior.
-
-So the obvious questions are: Is this a known problem? Why the
-heck does it do this? Is there a fix or workaround to get the
-high rate all the time other than running a pcap utility 24x7?
-
-Thanks,
-Terry Griffin
-
--- dummy-monitor.c -----------------
-
-#include <pcap.h>
-#define CAPTURE_LENGTH 68
-
-void null_handler(u_char *user, const struct pcap_pkthdr *pkt_header,
-                  const u_char *pkt_data)
+static int a1[4];		/* all zeroes, since it's non-auto */
+static int a2[4] = {1,0,0,0}	/* 1 0 0 0, we have initialized them all */
+static int a3[4] = {1}		/* 1 0 0 0, missing members are zeroed */
+void f(void)
 {
-}
+	int b1[4];		/* undefined contents */
+	int b2[4] = {1,0,0,0}	/* 1 0 0 0, we have initialized them all */
+	int b3[4] = {1}		/* 1 0 0 0, missing members are zeroed */
 
-int main( int argc, char *argv[] )
-{
-    char *iface;
-    pcap_t* pd;
-    char errbuf[PCAP_ERRBUF_SIZE];
-
-    if( argc == 1 )
-        iface = "eth0";
-    else
-        iface = argv[1];
-
-    pd = pcap_open_live(iface,CAPTURE_LENGTH,0,1000,errbuf);
-    pcap_loop(pd,-1,(pcap_handler)null_handler,NULL);
-
-    return 0;
-}
-
-
+C99 6.7.8(21) and 6.7.8(10) deal with "not covers everything" and
+"no initializer at all" resp.

@@ -1,180 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273288AbTHFCax (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 22:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273273AbTHFCax
+	id S273252AbTHFChL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 22:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273336AbTHFChL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 22:30:53 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:42203 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S273356AbTHFCat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 22:30:49 -0400
-Message-ID: <3F306858.1040202@mrs.umn.edu>
-Date: Tue, 05 Aug 2003 21:30:48 -0500
-From: Grant Miner <mine0057@mrs.umn.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: reiserfs-list@namesys.com
-Subject: Filesystem Tests
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 5 Aug 2003 22:37:11 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:40382 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S273252AbTHFChF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 22:37:05 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Wed, 6 Aug 2003 04:37:03 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre lockups (decoded oops for pre8)
+Message-Id: <20030806043703.465c1e68.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.44.0308051340010.2848-100000@logos.cnet>
+References: <20030802142734.5df93471.skraw@ithnet.com>
+	<Pine.LNX.4.44.0308051340010.2848-100000@logos.cnet>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tested the performace of various filesystems with a mozilla build tree 
-of 295MB, with primarily writing and copying operations.  The test 
-system is Linux 2.6.0-test2, 512MB memory, 11531.85MB partition for 
-tests.  Sync is run a few times throughout the test (for full script see 
-bottom of this email).  I ran mkfs on the partition before every test. 
-Running the tests again tends to produces similar times, about +/- 3 
-seconds.
+On Tue, 5 Aug 2003 13:40:48 -0300 (BRT)
+Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
 
-The first item number is time, in seconds, to complete the test (lower 
-is better).  The second number is CPU use percentage (lower is better).
+> 
+> Stephan,
+> 
+> Is this _STOCK_ 2.4.22-pre10 (no vmware, no other modules) ? 
 
-reiser4 171.28s, 30%CPU (1.0000x time; 1.0x CPU)
-reiserfs 302.53s, 16%CPU (1.7663x time; 0.53x CPU)
-ext3 319.71s, 11%CPU	(1.8666x time; 0.36x CPU)
-xfs 429.79s, 13%CPU (2.5093x time; 0.43x CPU)
-jfs 470.88s, 6%CPU (2.7492x time 0.02x CPU)
+This was from a pre8. There were no strange modules and no vmware involved.
+Everything clean, kernel 2.4.22-pre8 on top of SuSE 8.2 distro.
+Output was created via serial console.
 
-What's interesting:
-* ext3's syncs tended to take the longest 10 seconds, except
-* JFS took a whopping 38.18s on its final sync
-* xfs used more CPU than ext3 but was slower than ext3
-* reiser4 had highest throughput and most CPU usage
-* jfs had lowest throughput and least CPU usage
-* total performance of course depends on how IO or CPU bound your task is
+Regards,
+Stephan
 
-Individual test times (first number again is time in seconds, second is 
-CPU usage, last is total again)
-reiser4
-Copying Tree
-33.39,34%
-Sync
-1.54,0%
-recopying tree to mozilla-2
-31.09,34%
-recopying mozilla-2 to mozilla-3
-33.15,33%
-sync
-2.89,3%
-du
-2.05,42%
-rm -rf mozilla
-7.41,52%
-tar c mozilla-2
-52.25,25%
-final sync
-6.77,2%
-171.28,30%
 
-reiserfs
-Copying Tree
-39.55,32%
-Sync
-3.15,1%
-recopying tree to mozilla-2
-75.15,13%
-recopying mozilla-2 to mozilla-3
-77.62,13%
-sync
-3.84,1%
-du
-2.46,21%
-rm -rf mozilla
-5.22,58%
-tar c mozilla-2
-90.83,12%
-final sync
-4.19,3%
-302.53,16%
-
-extended 3
-Copying Tree
-39.42,25%
-Sync
-9.05,0%
-recopying tree to mozilla-2
-79.96,9%
-recopying mozilla-2 to mozilla-3
-98.84,7%
-sync
-8.15,0%
-du
-3.31,11%
-rm -rf mozilla
-3.71,39%
-tar c mozilla-2
-74.93,13%
-final sync
-1.67,1%
-319.71,11%
-
-xfs
-Copying Tree
-43.50,32%
-Sync
-2.08,1%
-recopying tree to mozilla-2
-102.37,12%
-recopying mozilla-2 to mozilla-3
-108.00,12%
-sync
-2.40,2%
-du
-3.73,32%
-rm -rf mozilla
-8.75,56%
-tar c mozilla-2
-157.61,7%
-final sync
-0.95,1%
-429.79,13%
-
-jfs
-Copying Tree
-48.15,20%
-Sync
-3.05,1%
-recopying tree to mozilla-2
-108.39,5%
-recopying mozilla-2 to mozilla-3
-114.96,5%
-sync
-3.86,0%
-du
-2.42,17%
-rm -rf mozilla
-15.33,7%
-tar c mozilla-2
-135.86,6%
-final sync
-38.18,0%
-470.88,6%
-
-Here is the benchmark script:
-#!/bin/sh
-time='time -f%e,%P '
-echo "Copying Tree"
-$time cp -a /home/test/mozilla /mnt/test
-echo "Sync"
-$time sync
-cd /mnt/test &&
-echo "recopying tree to mozilla-2"
-$time cp -a mozilla mozilla-2 &&
-echo "recopying mozilla-2 to mozilla-3"
-$time cp -a mozilla mozilla-2 &&
-echo "sync"
-$time sync &&
-echo "du"
-$time du mozilla > /dev/null &&
-echo "rm -rf mozilla"
-$time rm -rf mozilla
-echo "tar c mozilla-2"
-$time tar c mozilla-2 > mozilla.tar
-echo "final sync"
-$time sync
-
+> 
+> On Sat, 2 Aug 2003, Stephan von Krawczynski wrote:
+> 
+> > Hello Marcelo, hello andrea,
+> > 
+> > after some days of running 2.4.22-pre8 I finally got the crash (freeze as
+> > usual). This time the debuggin setup worked and I got:
+> > 
+> > Unable to handle kernel paging request at virtual address 4129b0fc
+> > c0130084
+> > *pde = 313f6067
+> > Oops: 0002
+> > CPU:    1
+> > EIP:    0010:[<c0130084>]    Not tainted
+> > Using defaults from ksymoops -t elf32-i386 -a i386
+> > EFLAGS: 00010246
+> > eax: 00000000   ebx: c2cfdba0   ecx: 00000000   edx: 4129b0fc
+> > esi: d5fb0a24   edi: 0001ca22   ebp: c02eaaa8   esp: c345df30
+> > ds: 0018   es: 0018   ss: 0018
+> > Process kswapd (pid: 5, stackpage=c345d000)
+> > Stack: c2cfdba0 d5fb0a24 c2cfdba0 c013924f c2cfdba0 000001d0 00000200
+> > 000001d0 
+> >        00000006 00000020 000001d0 00000020 00000006 c0139493 00000006
+> >        00000001 c02eaaa8 000001d0 00000006 c02eaaa8 00000000 c013950e
+> >        00000020 c02eaaa8 
+> > Call Trace:    [<c013924f>] [<c0139493>] [<c013950e>] [<c013961c>]
+> > [<c01396a8>]
+> >   [<c01397d8>] [<c0139740>] [<c0105000>] [<c010592e>] [<c0139740>]
+> > Code: 89 02 c7 43 24 00 00 00 00 f0 ff 0d 9c a5 37 c0 5a 5b 5e c3 
+> > 
+> > 
+> > >>EIP; c0130084 <__remove_inode_page+44/60>   <=====
+> > 
+> > >>ebx; c2cfdba0 <_end+2952980/3852ee40>
+> > >>esi; d5fb0a24 <_end+15c05804/3852ee40>
+> > >>ebp; c02eaaa8 <contig_page_data+168/340>
+> > >>esp; c345df30 <_end+30b2d10/3852ee40>
+> > 
+> > Trace; c013924f <shrink_cache+2df/3b0>
+> > Trace; c0139493 <shrink_caches+63/a0>
+> > Trace; c013950e <try_to_free_pages_zone+3e/60>
+> > Trace; c013961c <kswapd_balance_pgdat+4c/b0>
+> > Trace; c01396a8 <kswapd_balance+28/40>
+> > Trace; c01397d8 <kswapd+98/c0>
+> > Trace; c0139740 <kswapd+0/c0>
+> > Trace; c0105000 <_stext+0/0>
+> > Trace; c010592e <arch_kernel_thread+2e/40>
+> > Trace; c0139740 <kswapd+0/c0>
+> > 
+> > Code;  c0130084 <__remove_inode_page+44/60>
+> > 00000000 <_EIP>:
+> > Code;  c0130084 <__remove_inode_page+44/60>   <=====
+> >    0:   89 02                     mov    %eax,(%edx)   <=====
+> > Code;  c0130086 <__remove_inode_page+46/60>
+> >    2:   c7 43 24 00 00 00 00      movl   $0x0,0x24(%ebx)
+> > Code;  c013008d <__remove_inode_page+4d/60>
+> >    9:   f0 ff 0d 9c a5 37 c0      lock decl 0xc037a59c
+> > Code;  c0130094 <__remove_inode_page+54/60>
+> >   10:   5a                        pop    %edx
+> > Code;  c0130095 <__remove_inode_page+55/60>
+> >   11:   5b                        pop    %ebx
+> > Code;  c0130096 <__remove_inode_page+56/60>
+> >   12:   5e                        pop    %esi
+> > Code;  c0130097 <__remove_inode_page+57/60>
+> >   13:   c3                        ret    
+> 

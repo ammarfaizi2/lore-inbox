@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263190AbTDGB52 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 21:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263192AbTDGB52 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 21:57:28 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:10741 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S263190AbTDGB51 (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 21:57:27 -0400
-Date: Sun, 6 Apr 2003 22:04:51 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.66-bk12 causes "rpm" errors
-In-Reply-To: <20030406183234.1e8abd7f.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0304062200570.1604-100000@localhost.localdomain>
+	id S263194AbTDGCWe (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 22:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbTDGCWe (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 22:22:34 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6919 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263194AbTDGCWd (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 22:22:33 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] new syscall: flink
+Date: 6 Apr 2003 19:33:46 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b6qo2a$ecl$1@cesium.transmeta.com>
+References: <3E907A94.9000305@kegel.com> <200304062156.37325.oliver@neukum.org> <1049663559.1602.46.camel@dhcp22.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Apr 2003, Andrew Morton wrote:
-
-> "Robert P. J. Day" <rpjday@mindspring.com> wrote:
-> >
-> > 
-> >   got 2.5.66-bk12 to boot on my inspiron 8100, and ran 
-> > "rpm -q iptables", got the following:
-> > 
-> > rpmdb: write: 0xbfffc2d0, 8192: Invalid argument
-> > error: db4 error(22) from dbenv->open: Invalid argument
-> > error: cannot open Packages index using db3 - Invalid argument (22)
-> > error: cannot open Packages database in /var/lib/rpm
-> > package iptables is not installed
-> > 
+Followup to:  <1049663559.1602.46.camel@dhcp22.swansea.linux.org.uk>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
 > 
-> Does it work OK with earlier 2.5 kernels?
+> It is actually rather more complicated. Suppose I give you a pipe
+> pair handle. You can flink what was a private object and has no
+> meaning as a name.
+> 
+> Suppose I give you a socket what does the call man ?
+> 
+> Suppose I give you a handle to an anonymous mapping ?
+> 
 
-sorry, i couldn't tell you about that.
+-EXDEV
 
-> The only change which comes to mind is the below one.  Could you do a
-> patch -R of this and retest?
+> Suppose I give you a handle to data, how do you know what disk
+> it belongs to ?
 
-... patch deleted ...
+f_ino->i_sb should give you that information.
 
-that fixed it, but i only this second noticed the "-R" for reversing
-the patch.  i applied it normally against my 2.5.66-bk12 tree, and
-it apparently applied cleanly.  
+> Suppose I give you an O_RDONLY handle to a file which you then
+> flink and gain write access too ?
 
-wouldn't that suggest that that patch wasn't in my tree in the first
-place?  i'm sure i'm up to bk12 at this point.
+This, I believe, is the real issue.  However, we already have that
+problem:
 
-rday
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <limits.h>
 
+int main(int argc, char *argv[])
+{
+  int rfd, wfd;
+  char filebuf[PATH_MAX];
+
+  rfd = open("testfile", O_RDONLY|O_CREAT, 0666);
+  /* Now rfd is a read-only file descriptor */
+
+  sprintf(filebuf, "/proc/self/fd/%d", rfd);
+  wfd = open(filebuf, O_RDWR);
+  /* Now wfd is a read-write file descriptor */
+
+  write(wfd, "Tjo fidelittan hatt!\n", 21);
+
+  return 0;
+}
+
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

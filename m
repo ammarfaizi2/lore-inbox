@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265670AbTBCCAr>; Sun, 2 Feb 2003 21:00:47 -0500
+	id <S265865AbTBCCSk>; Sun, 2 Feb 2003 21:18:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265854AbTBCCAr>; Sun, 2 Feb 2003 21:00:47 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:29059 "EHLO
-	yeti.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S265670AbTBCCAq>; Sun, 2 Feb 2003 21:00:46 -0500
-Date: Mon, 3 Feb 2003 13:09:57 +1100
-From: CaT <cat@zip.com.au>
-To: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Possible PnP BIOS GPF Solution for Sony VAIO and other laptops
-Message-ID: <20030203020957.GE847@zip.com.au>
-References: <20030202203702.GA23248@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030202203702.GA23248@neo.rr.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	id <S265857AbTBCCRm>; Sun, 2 Feb 2003 21:17:42 -0500
+Received: from dp.samba.org ([66.70.73.150]:8166 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265854AbTBCCRi>;
+	Sun, 2 Feb 2003 21:17:38 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Marinceu <elixxir@ucc.gu.uwa.edu.au>
+Cc: linux-kernel@vger.kernel.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: [RFC][PATCH] new modversions implementation 
+In-reply-to: Your message of "Sun, 02 Feb 2003 16:37:52 +0800."
+             <Pine.LNX.4.21.0302021616230.11976-100000@mussel> 
+Date: Mon, 03 Feb 2003 11:46:18 +1100
+Message-Id: <20030203022709.99BAC2C256@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 02, 2003 at 08:37:02PM +0000, Adam Belay wrote:
-> The PnP BIOS may be wandering into segement 0x40.  If that is the case,
-> this patch should fix the problem.  I do not have a buggy system so I
-> cannot test this patch but I'd be intersted to hear the results.  If you
-> have a system that has caused pnpbios problems in the past, I recommend
-> you try this patch.  If it works, the system will not panic on startup.
-> This patch is against 2.5.59 and separate from my other recent patches.
+In message <Pine.LNX.4.21.0302021616230.11976-100000@mussel> you write:
+> +#ifdef CONFIG_MODVERSIONING
+> +       if ((mod->symbols.num_syms && !crcindex)
+> +           || (mod->gpl_symbols.num_syms && !gplcrcindex)) {
 
-This boots fine here. Then again 2.5.59 booted fine aswell. :) I also
-don't get any oopses from reading /proc/bus/pnp stuff as I did before
-when I first reported issues. As with the bootup, I also don't get these
-issues with 2.5.59. (ie 2.5.59 works fine with or without this patch).
+Thanks Paul!  Good catch.
 
-Sorry for not getting back to you earlier btw... I lost almost a
-fortnights worth of email and yours was amongst them. :/
+Kai is currently the one beating this patch into shape: he's the
+Makefile guru, I just twiddle with modules.  I'm waiting for him and
+Andrew Morton to merge with Linus to see what's left to apply.
 
--- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to         kill my dad."
-        - George W. Bush Jr, 'President' of the United States
-          September 26, 2002 (from a political fundraiser in Huston, Texas)
+> Also, whatever happened to modversions.h? A module I have refuses to
+> compile without it. I'm not yet such a good hacker to figure out how your
+> new modversions implementation works 8) 
 
+You shouldn't need modversions.h any more: you can simply excise it.
+This means that such a module will taint a modversioned kernel,
+though.
+
+The correct (and future-proof) way to build external modules is to use
+the kernel makefiles themselves:
+
+http://hypermail.idiosynkrasia.net/linux-kernel/archived/2002/week23/0162.html
+
+Hope that helps!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

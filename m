@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264766AbTAJKHD>; Fri, 10 Jan 2003 05:07:03 -0500
+	id <S264624AbTAJKLS>; Fri, 10 Jan 2003 05:11:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264767AbTAJKHD>; Fri, 10 Jan 2003 05:07:03 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2549 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S264766AbTAJKHC>; Fri, 10 Jan 2003 05:07:02 -0500
-Date: Fri, 10 Jan 2003 11:15:41 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Scott Bambrough <scottb@rebel.com>, rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] remove kernel 2.0 code from arch/arm/nwfpe/fpmodule.c
-Message-ID: <20030110101541.GE6626@fs.tum.de>
-Mime-Version: 1.0
+	id <S264767AbTAJKLR>; Fri, 10 Jan 2003 05:11:17 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:44548 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S264624AbTAJKLQ>;
+	Fri, 10 Jan 2003 05:11:16 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301101019.h0AAJx5w003433@darkstar.example.net>
+Subject: Re: Problem in IDE Disks cache handling in kernel 2.4.XX
+To: fverscheure@wanadoo.fr
+Date: Fri, 10 Jan 2003 10:19:59 +0000 (GMT)
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <20030110095558.E144CFF11@postfix4-1.free.fr> from "Francis Verscheure" at Jan 10, 2003 10:54:53 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removes a #if for kernel 2.0 from
-arch/arm/nwfpe/fpmodule.c in 2.5.55.
+> And by the way how are powered off the IDE drives ?
+> Because a FLUSH CACHE or STANDY or SLEEP is MANDATORY before
+> powering off the drive with cache enabled or you will enjoy lost
+> data.
 
-Please apply
-Adrian
+This was discussed on the list a few months ago:
 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103188486216124&w=2
 
---- linux-2.5.55/arch/arm/nwfpe/fpmodule.c.old	2003-01-10 11:12:13.000000000 +0100
-+++ linux-2.5.55/arch/arm/nwfpe/fpmodule.c	2003-01-10 11:12:33.000000000 +0100
-@@ -44,10 +44,9 @@
- /* kernel symbols required for signal handling */
- #ifdef MODULE
- void fp_send_sig(unsigned long sig, struct task_struct *p, int priv);
--#if LINUX_VERSION_CODE > 0x20115
-+
- MODULE_AUTHOR("Scott Bambrough <scottb@rebel.com>");
- MODULE_DESCRIPTION("NWFPE floating point emulator");
--#endif
- 
- #else
- #define fp_send_sig	send_sig
+I'm not sure it really got fully resolved, I had disks that would
+spin down and then spin up again, because of the order that the
+standby and flush cache commands were sent.
+
+John

@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVCOWS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVCOWS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbVCOWS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:18:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVCOWOh
+	id S261934AbVCOWS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVCOWQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:14:37 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:34758 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261925AbVCOWNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:13:44 -0500
-Subject: [PATCH] Make md thread NO_FREEZE.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1110924908.6454.136.camel@desktop.cunningham.myip.net.au>
+	Tue, 15 Mar 2005 17:16:27 -0500
+Received: from mail.kroah.org ([69.55.234.183]:2787 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261934AbVCOWOm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 17:14:42 -0500
+Date: Tue, 15 Mar 2005 14:14:31 -0800
+From: Greg KH <greg@kroah.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>, dtor_core@ameritech.net,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [RFC] Changes to the driver model class code.
+Message-ID: <20050315221431.GC28880@kroah.com>
+References: <20050315170834.GA25475@kroah.com> <d120d500050315094724938ffc@mail.gmail.com> <20050315193415.GA26299@kroah.com> <20050315201503.GA3591@isilmar.linta.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 16 Mar 2005 09:15:08 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050315201503.GA3591@isilmar.linta.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
+On Tue, Mar 15, 2005 at 09:15:03PM +0100, Dominik Brodowski wrote:
+> On Tue, Mar 15, 2005 at 11:34:15AM -0800, Greg KH wrote:
+> > > And what about device_driver and device structure? Are they going to
+> > > be changed over to be separately allocated linked objects?
+> > 
+> > The driver stuff probably will be, and the device stuff possibly.
+> > However, they are used by a very small ammount of core code (the bus
+> > drivers), so changing that interface is not that important at this time.
+> 
+> So this means every device will have yet another reference count, and you
+> need to be aware of _each_ lifetime to write correct code. And the 
+> _reference counting_ is the hard thing to get right, so we should make 
+> _that_ easier. The existing class API was a step towards this direction, and
+> with the changes you're suggesting here we'd do two jumps backwards.
 
-The md driver is currently frozen during suspend. I'm told this doesn't help much if you're seeking to suspend to RAID :>
+You are correct, it was a step forward in this direction.
 
-Signed-of-by: Nigel Cunningham <ncunningham@cyclades.com>
+But we now have a kref to handle the reference counting for the device,
+which make things a whole lot easier than ever before.
 
-diff -ruNp 213-missing-refrigerator-calls-old/drivers/md/md.c 213-missing-refrigerator-calls-new/drivers/md/md.c
---- 213-missing-refrigerator-calls-old/drivers/md/md.c	2005-02-14 09:05:26.000000000 +1100
-+++ 213-missing-refrigerator-calls-new/drivers/md/md.c	2005-03-11 09:35:15.000000000 +1100
-@@ -36,7 +36,6 @@
- #include <linux/sysctl.h>
- #include <linux/devfs_fs_kernel.h>
- #include <linux/buffer_head.h> /* for invalidate_bdev */
--#include <linux/suspend.h>
- 
- #include <linux/init.h>
- 
-@@ -2763,6 +2762,7 @@ int md_thread(void * arg)
- 	 */
- 
- 	daemonize(thread->name, mdname(thread->mddev));
-+	current->flags |= PF_NOFREEZE;
- 
- 	current->exit_signal = SIGCHLD;
- 	allow_signal(SIGKILL);
-@@ -2787,8 +2787,6 @@ int md_thread(void * arg)
- 
- 		wait_event_interruptible(thread->wqueue,
- 					 test_bit(THREAD_WAKEUP, &thread->flags));
--		if (current->flags & PF_FREEZE)
--			refrigerator(PF_FREEZE);
- 
- 		clear_bit(THREAD_WAKEUP, &thread->flags);
- 
- 
+But the both of you are correct, there is a real need for the class code
+to support trees of devices that are presented to userspace (which is
+what the class code is for).  I'm not taking that away, just trying to
+make the interface to that code simpler.
 
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+I'm also not saying that I'm going to go off and delete those functions
+from the kernel today, or tomorrow.  Just that we need to slowly, over
+time, make this easier to use, as it's too hard to do so today.  I will
+not be removing any functionality, don't worry :)
 
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
+> > > If not then its enouther reason to keep original class interface -
+> > > uniformity of driver model interface.
+> > 
+> > Ease-of-use trumps uniformity
+> 
+> Ease-of-use, maybe. However, it also means
+> ease-of-getting-reference-counting-wrong. And reference counting trumps it
+> all :)
 
+It will not make the reference counting logic easier to get wrong, or
+easier to get right.  It totally takes it away from the user, and makes
+them implement it themselves if they so wish (like the USB HCD patch
+does.)
+
+Anyway, don't worry, the code isn't going away anytime soon, we just
+need to make it easier to use.  Any suggestions that any of you have to
+make this that way (as you are the ones who had to use it to start with)
+would be greatly appreciated.
+
+thanks,
+
+greg k-h

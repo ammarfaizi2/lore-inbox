@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269877AbUIDKbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUIDKg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269877AbUIDKbD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 06:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269876AbUIDKbD
+	id S264256AbUIDKg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 06:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267238AbUIDKg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 06:31:03 -0400
-Received: from colossus.systems.pipex.net ([62.241.160.73]:50906 "EHLO
-	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S269875AbUIDKa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 06:30:59 -0400
-Message-ID: <4139995E.5030505@tungstengraphics.com>
-Date: Sat, 04 Sep 2004 11:30:54 +0100
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
-       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: New proposed DRM interface design
-References: <20040904004424.93643.qmail@web14921.mail.yahoo.com> <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org> <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org> <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org>
-In-Reply-To: <20040904112535.A13750@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Sep 2004 06:36:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48354 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264256AbUIDKgz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 06:36:55 -0400
+Date: Sat, 4 Sep 2004 12:36:48 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Dave Airlie <airlied@linux.ie>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC/patch] macro_removal_agp_mtrr.diff
+Message-ID: <20040904103648.GC5313@devserv.devel.redhat.com>
+References: <Pine.LNX.4.58.0409041053450.25475@skynet> <1094292878.2801.7.camel@laptop.fenrus.com> <Pine.LNX.4.58.0409041126500.25475@skynet>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PuGuTyElPB9bOcsM"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409041126500.25475@skynet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Sat, Sep 04, 2004 at 11:23:35AM +0100, Keith Whitwell wrote:
-> 
->>>Actually regulat users do.  And they do by pulling an uptodate kernel or
->>>using a vendor kernel with backports.  This model would work for video drivers
->>>aswell.
->>
->>Sure, explain to me how I should upgrade my RH-9 system to work on my new i915?
-> 
-> 
-> Download a new kernel.org kernel or petition the fedora legacy folks to
-> include a drm update.  The last release RH-9 kernel has various security
-> and data integrity issues anyway, so you'd be a fool to keep running it.
 
-OK, I've found www.kernel.org, and clicked on the 'latest stable kernel' link. 
-  I got a file called "patch-2.6.8.1.bz2".  I tried to install this but 
-nothing happened.  My i915 still doesn't work.  What do I do now?
+--PuGuTyElPB9bOcsM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Keith
+On Sat, Sep 04, 2004 at 11:30:40AM +0100, Dave Airlie wrote:
+> so something like
+> static inline int drm_core_has_AGP(struct drm_device *dev)
+> {
+> #if __OS_HAS_AGP
+> 	return drm_core_check_feature(dev, DRIVER_USE_AGP);
+> #else
+> 	return 0;
+> }
+> 
+> or the macro one
+> 
+> #if __OS_HAS_AGP
+> #define drm_core_has_AGP(dev) drm_core_check_feature(dev, DRIVER_USE_AGP)
+> #else
+> #define drm_core_has_AGP(dev) (0)
+> #endif
+> 
+> if the inline will work I'll be happier using it.. I just need to know it
+> works for the range of compilers we use...
+
+please do not put ifdefs inside functions; 
+how about
+
+#if __OS_HAS_AGP
+static inline int drm_core_has_AGP(struct drm_device *dev)
+{
+	return drm_core_check_feature(dev, DRIVER_USE_AGP);
+}
+#else
+#define drm_core_has_AGP(dev) 0
+#endif
+
+
+where you can make the later an inline if you really want to but I don't see
+the point.
+
+
+--PuGuTyElPB9bOcsM
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBOZrAxULwo51rQBIRAimaAJ93EpG4P91FfuzWsp0q175K+208EwCfbFGF
+zobVYgGpEjh6Bd4Tn17im0s=
+=MJxv
+-----END PGP SIGNATURE-----
+
+--PuGuTyElPB9bOcsM--

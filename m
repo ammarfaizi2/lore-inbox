@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271977AbRHVJt2>; Wed, 22 Aug 2001 05:49:28 -0400
+	id <S271981AbRHVKKt>; Wed, 22 Aug 2001 06:10:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271978AbRHVJtS>; Wed, 22 Aug 2001 05:49:18 -0400
-Received: from mx2.port.ru ([194.67.57.12]:46087 "EHLO mx2.port.ru")
-	by vger.kernel.org with ESMTP id <S271977AbRHVJtA>;
-	Wed, 22 Aug 2001 05:49:00 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: m.luca@iname.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [FAQ?] More ram=less performance (maximum cacheable RAM)
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.27.180]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15ZUdO-0003O2-00@f9.mail.ru>
-Date: Wed, 22 Aug 2001 13:49:14 +0400
+	id <S271982AbRHVKKj>; Wed, 22 Aug 2001 06:10:39 -0400
+Received: from cnxt10002.conexant.com ([198.62.10.2]:34941 "EHLO
+	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
+	id <S271981AbRHVKK3>; Wed, 22 Aug 2001 06:10:29 -0400
+Date: Wed, 22 Aug 2001 12:10:27 +0200 (CEST)
+From: <rui.p.m.sousa@clix.pt>
+X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
+To: Torrey Hoffman <torrey.hoffman@myrio.com>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Backporting drivers from 2.4 to 2.2
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211C9D4@mail0.myrio.com>
+Message-ID: <Pine.LNX.4.33.0108221209330.3668-100000@sophia-sousar2.nice.mindspeed.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Aug 2001, Torrey Hoffman wrote:
+
 >
-> > It also has nothing to do with Linux.  Some >motherboard's TAG RAM do not
-> > allow for caching more than xMB.
+> Is there a document somewhere that has some hints and tips for
+> backporting 2.4 drivers to the 2.2 series?  I have the O'Reilly
+> Linux Device Drivers (second edition) book by Rubini and Corbet,
+> but it's a little thin on this problem.
 >
-> I'm just proposing to update the FAQ to help people >like me
-> that thinking to gain speed doubling the system ram >have seen
-> a severe performance drop for certain task like >compiling the
-> kernel .
+> Specifically, the new 2.4 PCI-related functions like:
+> pci_alloc_consistent, pci_free_consistent, pci_enable_device...
+>
+> >From this newbie's point of view, it seems that it would be really
+> nice to have a little library of functions that wrap the older 2.2
+> style interface to provide the 2.4-style functions...  or is this
+> impossible to do in a general way?
 
- yes, it have nothing to do with linux, but if we can
- improve linux behaviour in the case, i think we should
-do it (so in the zone approach people even wouldn`t bother) ...
+Have a look at:
 
-
---
-
-
-cheers,
+http://gtf.org/garzik/drivers/kcompat24/
 
 
-   Samium Gromoff
+Rui Sousa
+

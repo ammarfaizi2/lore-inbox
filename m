@@ -1,78 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbUJ3BiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263572AbUJ3BiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbUJ3BiM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 21:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263312AbUJ2Tgx
+	id S263572AbUJ3BiK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 21:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbUJ2Th5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:36:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62393 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261159AbUJ2Smp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 14:42:45 -0400
-Date: Fri, 29 Oct 2004 11:42:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: linux-os@analogic.com
-cc: Richard Henderson <rth@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       Jan Hubicka <jh@suse.cz>
-Subject: Re: Semaphore assembly-code bug
-In-Reply-To: <Pine.LNX.4.61.0410291416040.4844@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.58.0410291133220.28839@ppc970.osdl.org>
-References: <417550FB.8020404@drdos.com> <1098218286.8675.82.camel@mentorng.gurulabs.com>
- <41757478.4090402@drdos.com> <20041020034524.GD10638@michonline.com>
- <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
- <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
- <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
- <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org>
- <Pine.LNX.4.61.0410291316470.3945@chaos.analogic.com> <20041029175527.GB25764@redhat.com>
- <Pine.LNX.4.61.0410291416040.4844@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Oct 2004 15:37:57 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:12168 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261300AbUJ2SuV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 14:50:21 -0400
+References: <1099044244.9566.0.camel@localhost>
+            <20041029131607.GU24336@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20041029131607.GU24336@parcelfarce.linux.theplanet.co.uk>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: davem@davemloft.net, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: net: generic netdev_ioaddr
+Date: Fri, 29 Oct 2004 21:50:20 +0300
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-ID: <courier.418290EC.00002E85@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, 
 
-
-On Fri, 29 Oct 2004, linux-os wrote:
-
-> On Fri, 29 Oct 2004, Richard Henderson wrote:
-> >
-> > Also not necessarily correct.  Intel cpus special-case pop
-> > instructions; two pops can be dual issued, whereas a different
-> > kind of stack pointer manipulation will not.
-> >
+Al Viro writes:
+> NAK.  ->base_addr casting is a Bad Idea(tm) and natsemi "solution" isn't
+> (thanks for spotting that crap in natsemi, though; will fix...) 
 > 
-> Then I guess the Intel documentation is incorrect, too.
+> Note that there is no such thing as "generic IO base address" - it _is_
+> private and in the best case current ->base_addr is a scratch register
+> probably used for something vaguely connected with some IO, but it's
+> really up to driver...
 
-Where?
+Yup, I thought about that after I sent the patch. However, as it stands now, 
+many network drivers use netdev->base_addr for just that.  Perhaps it should 
+be nuked completely instead? 
 
-It definitely depends on the CPU. Some CPU's dual-issue pops, some don't.
+            Pekka 
 
-I think the Pentium can dual-issue, while the PPro/P4 does not. And AMD
-has some other rules, and I think older ones dual-issue stack accesses
-only if esp doesn't change. Haven't looked at K8 rules.
-
-And Pentium M is to some degree more interesting than P4 and Ppro, because
-it's apparently the architecture Intel is going forward with for the
-future of x86, and it is a "improved PPro" core that has a special stack
-engine, iirc.
-
-Anyway, it's quite likely that for several CPU's the fastest sequence ends 
-up actually being 
-
-	movl 4(%esp),%ecx
-	movl 8(%esp),%edx
-	movl 12(%esp),%eax
-	addl $16,%esp
-
-which is also one of the biggest alternatives.
-
-Anyway, making "asmlinkage" imply "regparm(3)" would make the whole 
-discussion moot, so I'm wondering if anybody has the patches to try it 
-out? It requires pretty big changes to all the x86 asm code, but I do know 
-that people _had_ patches like that at least long ago (from when people 
-like Jan were playing with -mregaparm=3 originally). Maybe some of them 
-still exist..
-
-		Linus

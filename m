@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVAMVW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVAMV0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbVAMVW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 16:22:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVAMVTS
+	id S261718AbVAMV0d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 16:26:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVAMVXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 16:19:18 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:35301 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261699AbVAMVPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:15:44 -0500
-Subject: Re: security contact draft
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chris Wright <chrisw@osdl.org>
-Cc: akpm@osdl.org, torvalds@osdl.org, marcelo.tosatti@cyclades.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050113125503.C469@build.pdx.osdl.net>
-References: <20050113125503.C469@build.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105647058.4624.134.camel@localhost.localdomain>
+	Thu, 13 Jan 2005 16:23:04 -0500
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:41641 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261705AbVAMVUT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 16:20:19 -0500
+Date: Thu, 13 Jan 2005 13:20:08 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: George Anzinger <george@mvista.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: VST patches ported to 2.6.11-rc1
+Message-ID: <20050113212008.GH15156@atomide.com>
+References: <20050113132641.GA4380@elf.ucw.cz> <41E6CAAA.4040804@mvista.com> <20050113200227.GE2599@openzaurus.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 20:10:58 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050113200227.GE2599@openzaurus.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-13 at 20:55, Chris Wright wrote:
-> To keep the conversation concrete, here's a pretty rough stab at
-> documenting the policy.
+* Pavel Machek <pavel@ucw.cz> [050113 12:10]:
+> Hi!
+> 
+> > >I really hate sf download system... Here are those patches (only
+> > >common+i386) ported to 2.6.11-rc1.
+> > >
+> > >BTW why is linux-net@vger listed as maintainer of HRT?
+> > 
+> > Oops, should be linux-kernel...
+> > 
+> > If you could send these as seperate attachments (4 different patches, 
+> > me thinks), I will put them in the CVS system and on the site.
+> > 
+> 
+> 
+> Merging was quite easy and I'm not 100% sure I did it right;
+> I do not think it would be suitable for cvs.
 
-It's not documenting the stuff Linus seems to be talking about which is
-a public list ? Or does Linus want both ?
+Just FYI, I have also a working minimal VST patch for x86 based
+on the OMAP VST patch Tuukka Tikkanen & I did a while back.
+I'm hoping to post it real-soon-now(TM).
 
->  It is preferred that mail sent to the security contact is encrypted
->  with $PUBKEY.
+It currently works with PIT for programmable interrupts and TSC 
+for updating time from. Adding more timers, such as PM timer 
+should be easy.
 
-https:// and bugs.kernel.org ? You can make bugzilla autoprivate
-security bugs and alert people.
+I have not looked yet what can be merged with George's patch,
+but I'll look at that after I get something posted first.
 
->  well-tested or for vendor coordination.  However, we expect these delays
->  to be short, measurable in days, not weeks or months.  As a basic default
->  policy, we expect report to disclosure to be on the order of $NUMDAYS.
+Regards,
 
-Sounds good. $NUMDAYS is going to require some debate. My gut feeling is
-14 days is probably the right kind of target for hard stuff remembering
-how long it takes to run QA on an enterprise grade kernel. If it gets
-too short then vendors are going to disclose elsewhere for their own
-findings and only to this list when they are all ready anyway which
-takes us back to square one.
-
-And many are probably a lot less - those nobody is going to rush out and
-build new vendor kernels for, or those that prove to be non serious can
-probably get bumped to the public list by the security officer within a
-day or two.
-
-Alan
-
+Tony

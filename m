@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319423AbSILD0Q>; Wed, 11 Sep 2002 23:26:16 -0400
+	id <S319424AbSILDhs>; Wed, 11 Sep 2002 23:37:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319424AbSILD0Q>; Wed, 11 Sep 2002 23:26:16 -0400
-Received: from dsl-213-023-021-043.arcor-ip.net ([213.23.21.43]:36995 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S319423AbSILD0Q>;
-	Wed, 11 Sep 2002 23:26:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC] Raceless module interface
-Date: Thu, 12 Sep 2002 05:32:31 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Oliver Neukum <oliver@neukum.name>, Roman Zippel <zippel@linux-m68k.org>,
-       Alexander Viro <viro@math.psu.edu>, kaos@ocs.com.au,
-       linux-kernel@vger.kernel.org
-References: <E17pFKr-0007V7-00@starship> <20020912014331.961472C12A@lists.samba.org> <20020912030933.A13608@kushida.apsleyroad.org>
-In-Reply-To: <20020912030933.A13608@kushida.apsleyroad.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17pKiX-0007bp-00@starship>
+	id <S319425AbSILDhs>; Wed, 11 Sep 2002 23:37:48 -0400
+Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:55533 "EHLO
+	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S319424AbSILDhs>; Wed, 11 Sep 2002 23:37:48 -0400
+Date: Wed, 11 Sep 2002 23:45:21 -0400
+To: reiser@namesys.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Performance differences in recent kernels
+Message-ID: <20020912034521.GA5984@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 September 2002 04:09, Jamie Lokier wrote:
->    1. Just before a module's cleanup_module() function is called, mark
->       the module as "unloading".  This should force
->       try_inc_mod_use_count() to fail, causing its caller to behave like
->       the associated resource (e.g. filesystem) isn't actually
->       registered, and to call request_module().
+> Can you test on equal partitions too?
 
-My proposal produces the same effect using a slightly different
-arrangement: module_cleanup() is called, and the first thing it
-does is bail out with an error if there are users, or puts the
-module into the inactive state (count=-1).  This forces
-try_inc_mod_use_count to fail, as you say.
+Tonight I updated the scripts so all filesystem types 
+will use the same partition.
 
->    2. request_module() should simply ignore modules marked as
->       "unloading".  It should proceed to call "insmod" etc.
-> 
->    3. sys_create_module() or sys_init_module() should block if there is
->       a module of the same name currently in the "unloading" state.
->       They should block until that module's cleanup_module() returns.
+> We need to get Chris's patches into the tree
 
-OK, this is a really good example of why replacing the lock_kernel
-with a dedicated module_sem is good: if we do that, the right thing
-happens.  Insmod will block on the module_sem until the module is
-completely unloaded and removed from the list.  By the time it gets
-the semaphore, everything will be in a pristine state.
+> Can we ask you to test again with these patches applied?
 
-The BKL on the other hand will happily relinquish control if the
-cleanup sleeps, messing things up nicely.
+> ftp://ftp.suse.com/pub/people/mason/patches/data-logging
 
->    4. At this point, the new instance of the module will initialise,
->       request_module() calls will return and the callers which called
->       try_inc_mod_use_count() in step 1 will continue with the resource
->       they needed.
+If you have patches against a current tree, I can apply
+them before testing a kernel.  I'll start paying more
+attention to reiserfs-list.  It's probably best to test
+patches when the -rc series starts.  
 
-Yes, I don't see a problem.  The problems start when you try to
-shortcut this cycle.  Given that a shortcut is hardly going to save
-much at all, due to caching, I'd call it a waste of effort.
+> AIM is a proprietary benchmark, yes?
+
+It's gpl.  i only running aim7 on ext2 atm.
+
+> If we send you a copy of reiser4
+> next month, would you be willing to give it a run?
+
+Will there be a choice of mounting reiserfs
+or reiser4?  (like ext2 or ext3), or will there
+be a complete departure?  
 
 -- 
-Daniel
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+

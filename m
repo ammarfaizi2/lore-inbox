@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbULWJM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbULWJQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbULWJM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 04:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbULWJM6
+	id S261187AbULWJQd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 04:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbULWJQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 04:12:58 -0500
-Received: from holomorphy.com ([207.189.100.168]:43445 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261185AbULWJM4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 04:12:56 -0500
-Date: Thu, 23 Dec 2004 01:12:43 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x BUGs at boot time (APIC related)
-Message-ID: <20041223091243.GA771@holomorphy.com>
-References: <200412221731.20105.vda@port.imtp.ilyichevsk.odessa.ua> <200412231102.10171.vda@port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412231102.10171.vda@port.imtp.ilyichevsk.odessa.ua>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Thu, 23 Dec 2004 04:16:33 -0500
+Received: from moutng.kundenserver.de ([212.227.126.173]:10976 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261187AbULWJQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 04:16:30 -0500
+From: Amon Ott <ao@rsbac.org>
+Organization: RSBAC
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: on-access events?
+Date: Thu, 23 Dec 2004 10:16:16 +0100
+User-Agent: KMail/1.6.2
+References: <41C9C1C7.6030405@comcast.net>
+In-Reply-To: <41C9C1C7.6030405@comcast.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_pzoyBc9RwEHpAgA";
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200412231016.25967.ao@rsbac.org>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 December 2004 17:31, Denis Vlasenko wrote:
->>         if (!apic_id_registered())
->>                 BUG();   <=========================
 
-On Thu, Dec 23, 2004 at 11:02:09AM +0000, Denis Vlasenko wrote:
-> Tested with noapic nolapic boot params. Still happens.
-> Call chain is init() -> APIC_init_uniprocessor() ->
-> ->  setup_local_APIC(). I am a bit suspicious why
-> APIC_init_uniprocessor() does not bail out
-> if enable_local_apic<0 (i.e. if I boot with "nolapic"):
-> int __init APIC_init_uniprocessor (void)
-> {
->         if (enable_local_apic < 0)
->                 clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
-> 		<===== missing "return -1"?
-> 
->         if (!smp_found_config && !cpu_has_apic)
->                 return -1;
-> ...
+--Boundary-02=_pzoyBc9RwEHpAgA
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Sounds pretty serious. What happens if you add the missing return -1?
+On Mittwoch, 22. Dezember 2004 19:49, John Richard Moser wrote:
+> What kinds of on-access event driving is there for Linux?  I'm=20
+looking
+> at Dazuko[1] right now, but not sure about what else is out there. =20
+I'm
+> sure I've seen several; is there anything in the kernel?
 
--- wli
+Besides the LSM interface in 2.6 kernels there is also the RSBAC=20
+framework for 2.4 and 2.6, where you can register from kernel modules=20
+at runtime, http://www.rsbac.org.
+
+Dazuko plus caching has also been integrated as RSBAC module.
+
+Amon.
+=2D-=20
+http://www.rsbac.org - GnuPG: 2048g/5DEAAA30 2002-10-22
+
+--Boundary-02=_pzoyBc9RwEHpAgA
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBByozpq9yn6h5RTo8RApPHAJ9evBS7b0ANgnUI8hlkDptaGYC0XACfdkdA
+wMclNV7QNNrsx0ucwke4jBY=
+=6ArY
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_pzoyBc9RwEHpAgA--

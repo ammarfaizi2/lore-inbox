@@ -1,44 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273057AbRIIVTb>; Sun, 9 Sep 2001 17:19:31 -0400
+	id <S273059AbRIIVZu>; Sun, 9 Sep 2001 17:25:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273058AbRIIVTU>; Sun, 9 Sep 2001 17:19:20 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:7120 "EHLO
-	inet-mail4.oraclecorp.com") by vger.kernel.org with ESMTP
-	id <S273057AbRIIVTK>; Sun, 9 Sep 2001 17:19:10 -0400
-Message-ID: <3B9BDD7C.78B58344@oracle.com>
-Date: Sun, 09 Sep 2001 23:22:04 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Josh McKinney <forming@home.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: compiling kernel with gcc-3 (was: 2.4.10-pre5)
-In-Reply-To: <E15fhnT-0003np-00@the-village.bc.nu> <3B9A95C7.DDF81890@oracle.com> <20010908230539.A4927@home.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S273060AbRIIVZk>; Sun, 9 Sep 2001 17:25:40 -0400
+Received: from barry.mail.mindspring.net ([207.69.200.25]:13624 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S273059AbRIIVZ2>; Sun, 9 Sep 2001 17:25:28 -0400
+Subject: Re: Feedback on preemptible kernel patch
+From: Robert Love <rml@tech9.net>
+To: Arjan Filius <iafilius@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109092245240.3676-100000@sjoerd.sjoerdnet>
+In-Reply-To: <Pine.LNX.4.33.0109092245240.3676-100000@sjoerd.sjoerdnet>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.08.07.08 (Preview Release)
+Date: 09 Sep 2001 17:26:08 -0400
+Message-Id: <1000070771.16805.8.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh McKinney wrote:
-> 
-> Since I have gotten a decent amount of flame mail from my one-liner posted
-> yesterday, I am just curious.  Has anyone really been able to successfully
-> compile their kernel with gcc-3*.  I did once or twice long before it was
-> released, but it dies on the same error everytime.  I posted it to the
-> GCC mailing list because it was an internal compiler error, but it went
-> unanswered, along with other reports of the same bug.  Anyway, I just want
-> to see if someone really is able to use it as a reliable compiler.
-> 
+On Sun, 2001-09-09 at 17:07, Arjan Filius wrote:
+> I tried 2.4.10-pre4+preempt+this-patch.
+> Just booted up, and don't notice anything unusual.
 
-I've been compiling kernels since June 22 with 3.0, never a
- problem. -pre5 and -pre6 compiled with 3.0.1 backing out the
- rd.c changes.
+very good so far...
 
---alessandro
+> I found i do anly have a '#define HIGHMEM_DEBUG 1' in
+> ./include/asm/highmem.h, which is default in 2.4.10-pre4.
 
- "this is no time to get cute, it's a mad dog's promenade
-  so walk tall, or baby don't walk at all"
-                (Bruce Springsteen, 'New York City Serenade')
+OK, then no problem there.
+
+> Booting up, X, compiling kernel.. no problems.
+
+good...
+
+> For speed, i DO notice other processes seem not to wait on that one
+> programm which has much disk-access, so the (real) sluggish feeling has
+> gone. This is however with the preempt patch, and the ctx_sw_ patch below
+> seems only to affect stability in positive sense.
+
+_GREAT_ ... now, the reason I asked if you notice any new slowdowns is
+exactly what you seem to realize: I feared the ctx_sw patch may cause
+obvious slowdown.  This could be because the ctw_on/offs are in the
+wrong place, and causing much to much locking.
+
+It seems like you notice no problems, and I am happy.
+
+I am glad to hear this news, I am going to take a look at highmem's code
+and then integrate a final solution into the preemption patch.
+
+> Can you advice what and how to test performance/latency?
+> The grafics/statistics on the websites you named are impressive..
+
+Sure, you can run dbench <ftp://samba.org/pub/tridge/dbench/> try it
+with around 16 threads (dbench -16).  You might also want to try playing
+an mp3 in the background during this.  Notice it should not have large
+skips (one user reporting 3s skipps dropping to 0.5s and 0s).
+
+You can run the audio latency test
+<http://www.gardena.net/benno/linux/latencytest-0.42.tar.gz>, although I
+heard there are problems compiling it from some other preemption users.
+
+Finally, simply time a kernel compile `time make dep clean bzImage' ...
+
+We can use these for preemption enabled and disabled, highmem enabled
+and disabled, etc...
+
+Thank you for your help, 
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

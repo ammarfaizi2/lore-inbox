@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267793AbUH3MXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267827AbUH3MZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267793AbUH3MXx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 08:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267827AbUH3MXx
+	id S267827AbUH3MZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 08:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUH3MZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 08:23:53 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:6834 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S267793AbUH3MXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 08:23:51 -0400
-Message-ID: <41331C57.3070304@grupopie.com>
-Date: Mon, 30 Aug 2004 13:23:51 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+	Mon, 30 Aug 2004 08:25:56 -0400
+Received: from gwout.thalesgroup.com ([195.101.39.227]:41221 "EHLO
+	GWOUT.thalesgroup.com") by vger.kernel.org with ESMTP
+	id S267827AbUH3MZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 08:25:49 -0400
+Message-ID: <41331CC6.6090206@fr.thalesgroup.com>
+Date: Mon, 30 Aug 2004 14:25:42 +0200
+From: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+Reply-To: pierre-olivier.gaillard@fr.thalesgroup.com
+Organization: Thales Air Defence
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Albert Cahalan <albert@users.sf.net>, Roger Luethi <rl@hellgate.ch>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [BENCHMARK] nproc: netlink access to /proc information
-References: <20040828195647.GP5492@holomorphy.com> <20040828201435.GB25523@k3.hellgate.ch> <20040829160542.GF5492@holomorphy.com> <20040829170247.GA9841@k3.hellgate.ch> <20040829172022.GL5492@holomorphy.com> <20040829175245.GA32117@k3.hellgate.ch> <20040829181627.GR5492@holomorphy.com> <20040829190050.GA31641@k3.hellgate.ch> <1093810645.434.6859.camel@cube> <4133020F.1060306@grupopie.com> <20040830105322.GE5492@holomorphy.com>
-In-Reply-To: <20040830105322.GE5492@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: voluntary-preempt-2.6.8.1-P9 : big latency when logging on console
+References: <20040823221816.GA31671@yoda.timesys> <20040824061459.GA29630@elte.hu> <1093556379.5678.109.camel@krustophenia.net> <20040828121413.GB17908@elte.hu> <4132F302.7030706@fr.thalesgroup.com> <20040830094124.GA26445@elte.hu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.37; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> Albert Cahalan wrote:
-> 
->>>This is crummy. It's done for wchan, since that is so horribly
->>>expensive, but I'm not liking the larger race condition window.
->>>Remember that PIDs get reused. There isn't a generation counter
->>>or UUID that can be checked.
+Ingo Molnar wrote:
+> * P.O. Gaillard <pierre-olivier.gaillard@fr.thalesgroup.com> wrote:
 > 
 > 
-> On Mon, Aug 30, 2004 at 11:31:43AM +0100, Paulo Marques wrote:
-> 
->>I just wanted to call your attention to the kallsyms speedup patch that 
->>is now on the -mm tree.
->>It should improve wchan speed. My benchmarks for kallsyms_lookup (the 
->>function that was responsible for the wchan time) went from 1340us to 0.5us.
->>So maybe this is enough not to make wchan a special case anymore...
+>>Hello,
+>>
+>>I have a 1.6ms latency every time I log in with P9.
 > 
 > 
-> This seems to go wrong on big-endian machines; any chance you could look
-> over your stuff and try to figure out what endianness issues it may have?
+> could you try the patch below, ontop of P9? (or ontop of the latest, -Q5
+> patch)
+> 
+> The problem with font loading is that vt_ioctl runs with the BKL held
+> (as all ioctls) which disables preemption, but in this case it seems
+> pretty safe to drop the lock - the vga console has its own spinlock.
+> 
+Thank you very much. I had to add a "#include <linux/smp_lock.h>" at the start 
+of vga_con.c to get it to compile and then :
+1) I can login on the console without getting any latency above 100 microseconds.
+2) Nothing seems to be broken by your change.
 
-I went over the code but at a first glance couldn't find a notorius 
-trouble spot. I don't have big-endian hardware myself so this is hard to 
-test.
+Note: I tested on 2.6.8.1 + P9.
 
-Just a few questions to help me out in finding the problem:
+	thanks !
 
-- is this really an endianess problem or is it a 64-bit integer problem?
+	Pierre-Olivier
 
-- are you cross compiling the kernel?
 
-Thanks in advance,
-
--- 
-Paulo Marques - www.grupopie.com
-
-To err is human, but to really foul things up requires a computer.
-Farmers' Almanac, 1978

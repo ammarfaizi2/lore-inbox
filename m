@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270521AbRHNIbU>; Tue, 14 Aug 2001 04:31:20 -0400
+	id <S270523AbRHNIfU>; Tue, 14 Aug 2001 04:35:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270522AbRHNIbK>; Tue, 14 Aug 2001 04:31:10 -0400
-Received: from mail.erste.de ([195.243.98.251]:39274 "EHLO RalfBurger.com")
-	by vger.kernel.org with ESMTP id <S270521AbRHNIbF>;
-	Tue, 14 Aug 2001 04:31:05 -0400
-Date: Tue, 14 Aug 2001 10:30:58 +0200 (CEST)
-From: "Victoria W." <wicki@terror.de>
-To: linux-kernel@vger.kernel.org
-Subject: module agpgart in 2.4.7
-Message-ID: <Pine.LNX.4.10.10108141022000.4218-100000@csb.terror.de>
+	id <S270529AbRHNIfA>; Tue, 14 Aug 2001 04:35:00 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:19665 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S270528AbRHNIex> convert rfc822-to-8bit; Tue, 14 Aug 2001 04:34:53 -0400
+Importance: Normal
+Subject: Re: BUG: Assertion failure with ext3-0.95 for 2.4.7
+To: Andrew Morton <akpm@zip.com.au>
+Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org,
+        "Carsten Otte" <COTTE@de.ibm.com>,
+        Tom Rini <trini@kernel.crashing.org>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFD45D76E6.BCB6AAFC-ONC1256AA8.002CB890@de.ibm.com>
+From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
+Date: Tue, 14 Aug 2001 10:34:35 +0200
+X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 14/08/2001 10:34:18
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
-
-I'm not shure, if this is the right place for this question, but I'll try
-it.
-
-On a new mini-pc "lspci" shows the following:
-
-00:01.0 Class 0300: 8086:7125 (rev 03)
-or
-00:01.0 VGA compatible controller: Intel Corporation: Unknown device 7125
-(rev 03)
-
-I have complied the agpgart-module with intel-support, but "insmod
-agpgart" results in:
-
-kernel: Linux agpgart interface v0.99 (c) Jeff Hartmann
-kernel: agpgart: Maximum main memory to use for agp memory: 93M
-kernel: agpgart: no supported devices found.
-
-Is there a driver availiable, which supports this chipset?
 
 
-best regards
+> If it's possible, could you please also test journalled data mode?
 
-wicki 
+I finished some tests with journalled data mode and with ordered mode. Both
+modes seems to run correct, in the meaning of stability and correct log
+replay, after a forced restart on S390 architecture, but further testing is
+planned.
 
-------------------------------------------------------
-CONFIG_AGP=m
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_I810=y
-CONFIG_AGP_VIA=y
-CONFIG_AGP_AMD=y
-CONFIG_AGP_SIS=y
-CONFIG_AGP_ALI=y
-CONFIG_AGP_SWORKS=y
-CONFIG_DRM=y
-CONFIG_DRM_TDFX=m
-CONFIG_DRM_GAMMA=m
-CONFIG_DRM_R128=m
-CONFIG_DRM_RADEON=m
-CONFIG_DRM_I810=m
-CONFIG_DRM_MGA=m
+Today I started testing ext3 on an IBM zSeries  (s390x in the kernel tree).
+It might be interesting for you, that s390x is a 64bit big endian machine.
+I will post the results if I face any problems.
+
+--
+Mit freundlichen Grüßen / Best Regards
+
+Christian Bornträger
+IBM Deutschland Entwicklung GmbH
+eServer SW  System Evaluation + Test
+email: CBORNTRA@de.ibm.com
+Tel +49 7031-16-3507
+
+
 
 
 

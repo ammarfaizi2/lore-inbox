@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKCR03>; Fri, 3 Nov 2000 12:26:29 -0500
+	id <S129094AbQKCRb3>; Fri, 3 Nov 2000 12:31:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129094AbQKCR0T>; Fri, 3 Nov 2000 12:26:19 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:8188 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129069AbQKCR0N>; Fri, 3 Nov 2000 12:26:13 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200011031725.eA3HPwP12932@webber.adilger.net>
+	id <S130620AbQKCRbN>; Fri, 3 Nov 2000 12:31:13 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:9076 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129094AbQKCRau>; Fri, 3 Nov 2000 12:30:50 -0500
+Date: Fri, 3 Nov 2000 18:30:37 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Michael Boman <michael.boman@usa.net>, linux-kernel@vger.kernel.org
 Subject: Re: ext3 vs. JFS file locations...
-In-Reply-To: <3A02D150.E7E87398@usa.net> "from Michael Boman at Nov 3, 2000 10:53:04
- pm"
-To: Michael Boman <michael.boman@usa.net>
-Date: Fri, 3 Nov 2000 10:25:58 -0700 (MST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+Message-ID: <20001103183037.K857@athlon.random>
+In-Reply-To: <3A02D150.E7E87398@usa.net> <E13rivh-0003bS-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E13rivh-0003bS-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Nov 03, 2000 at 03:38:56PM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Boman writes:
-> It seems like both IBM's JFS and ext3 wants to use fs/jfs .. IMHO that
-> is like asking for problem.. A more logic location for ext3 should be
-> fs/ext3, no?
+On Fri, Nov 03, 2000 at 03:38:56PM +0000, Alan Cox wrote:
+> [..] while thats very
+> sensible [..]
 
-Actually, if you would look in linux/fs, you will see that ext3 IS in
-linux/fs/ext3.  However, there is a second component to ext3, which is
-a generic block journalling layer which is called jfs.  This journal
-layer is designed so that it isn't ext3 specific, so it would be
-_possible_ for other journalling filesystems to use it.  Whether non-ext3
-filesystems will actually use it is another question (actually the
-InterMezzo distributed filesystem uses the ext3-jfs functionality to
-do compound transactions on disk to ensure cluster coherency).
+Not that it matters much but jfs means "journalling filesystem" and fs/jfs
+isn't a filesystem in the ext3 patch, so it doesn't look that sensible to me.
 
-I think that Stephen at one time said he would change the name, but I
-guess he has not done so yet.
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

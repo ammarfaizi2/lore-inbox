@@ -1,141 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbUKWRvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbUKWRsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbUKWRvI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 12:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUKWRtN
+	id S261389AbUKWRsW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 12:48:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbUKWRrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 12:49:13 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:63361 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261347AbUKWRcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 12:32:19 -0500
-Date: Tue, 23 Nov 2004 11:32:09 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Externalize SLIT table
-Message-ID: <20041123173208.GA13177@sgi.com>
-References: <20041103205655.GA5084@sgi.com.suse.lists.linux.kernel> <20041104.105908.18574694.t-kochi@bq.jp.nec.com.suse.lists.linux.kernel> <20041104040713.GC21211@wotan.suse.de.suse.lists.linux.kernel> <20041104.135721.08317994.t-kochi@bq.jp.nec.com.suse.lists.linux.kernel> <20041105160808.GA26719@sgi.com.suse.lists.linux.kernel> <p73k6sz7am2.fsf@verdi.suse.de>
+	Tue, 23 Nov 2004 12:47:51 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4766 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261389AbUKWRXL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 12:23:11 -0500
+Date: Tue, 23 Nov 2004 09:22:56 -0800
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC/v2][2/21] Add core InfiniBand support
+Message-ID: <20041123172256.GA30264@kroah.com>
+References: <20041123814.rXLIXw020elfd6Da@topspin.com> <20041123814.m1N7Tf2QmSCq9s5q@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p73k6sz7am2.fsf@verdi.suse.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20041123814.m1N7Tf2QmSCq9s5q@topspin.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Sorry for the delay in posting this. Our mail server was
-dropping mail ....)
+On Tue, Nov 23, 2004 at 08:14:19AM -0800, Roland Dreier wrote:
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-bk/drivers/infiniband/core/cache.c	2004-11-23 08:10:16.816082837 -0800
+> @@ -0,0 +1,338 @@
+> +/*
+> +  This software is available to you under a choice of one of two
+> +  licenses.  You may choose to be licensed under the terms of the GNU
+> +  General Public License (GPL) Version 2, available at
+> +  <http://www.fsf.org/copyleft/gpl.html>, or the OpenIB.org BSD
+> +  license, available in the LICENSE.TXT file accompanying this
+> +  software.  These details are also available at
+> +  <http://openib.org/license.html>.
 
+Sorry, but this is wrong license for this file still.  Come on, you
+can't tell me that your lawyers didn't vet this code at least once
+before submission...
 
-Here is an update patch to externalize the SLIT information. I think I have
-encorporated all the comments that were posted previously)
+Looks like the openib group is going to have to give up on their dream
+of keeping a bsd license for their code, sorry.
 
-For example:
+> +/*
+> +  Local Variables:
+> +  c-file-style: "linux"
+> +  indent-tabs-mode: t
+> +  End:
+> +*/
 
-        # cd /sys/devices/system
-        # find .
-        ./node
-        ./node/node5
-        ./node/node5/distance
-        ./node/node5/numastat
-        ./node/node5/meminfo
-        ./node/node5/cpumap
+Are these really necessary in every file?  Just set these to be your
+editor's defaults.
 
-        # cat ./node/node0/distance
-        10 20 64 42 42 22
+thanks,
 
-        # cat node/*/distance
-        10 20 64 42 42 22
-        20 10 42 22 64 84
-        64 42 10 20 22 42
-        42 22 20 10 42 62
-        42 64 22 42 10 20
-        22 84 42 62 20 10
-
-
-Does this look ok???
-
-
-
-
-Signed-off-by: Jack Steiner <steiner@sgi.com>
-
-Add SLIT (inter node distance) information to sysfs. 
-
-
-
-Index: linux/drivers/base/node.c
-===================================================================
---- linux.orig/drivers/base/node.c	2004-11-05 08:34:42.461312000 -0600
-+++ linux/drivers/base/node.c	2004-11-05 15:56:23.345662000 -0600
-@@ -111,6 +111,24 @@ static ssize_t node_read_numastat(struct
- }
- static SYSDEV_ATTR(numastat, S_IRUGO, node_read_numastat, NULL);
- 
-+static ssize_t node_read_distance(struct sys_device * dev, char * buf)
-+{
-+	int nid = dev->id;
-+	int len = 0;
-+	int i;
-+
-+	/* buf currently PAGE_SIZE, need ~4 chars per node */
-+	BUILD_BUG_ON(NR_NODES*4 > PAGE_SIZE/2);
-+
-+	for (i = 0; i < numnodes; i++)
-+		len += sprintf(buf + len, "%s%d", i ? " " : "", node_distance(nid, i));
-+		
-+	len += sprintf(buf + len, "\n");
-+	return len;
-+}
-+static SYSDEV_ATTR(distance, S_IRUGO, node_read_distance, NULL);
-+
-+
- /*
-  * register_node - Setup a driverfs device for a node.
-  * @num - Node number to use when creating the device.
-@@ -129,6 +147,7 @@ int __init register_node(struct node *no
- 		sysdev_create_file(&node->sysdev, &attr_cpumap);
- 		sysdev_create_file(&node->sysdev, &attr_meminfo);
- 		sysdev_create_file(&node->sysdev, &attr_numastat);
-+		sysdev_create_file(&node->sysdev, &attr_distance);
- 	}
- 	return error;
- }
-Index: linux/include/asm-i386/topology.h
-===================================================================
---- linux.orig/include/asm-i386/topology.h	2004-11-05 08:34:53.713053000 -0600
-+++ linux/include/asm-i386/topology.h	2004-11-23 09:59:43.574062951 -0600
-@@ -66,9 +66,6 @@ static inline cpumask_t pcibus_to_cpumas
- 	return node_to_cpumask(mp_bus_id_to_node[bus]);
- }
- 
--/* Node-to-Node distance */
--#define node_distance(from, to) ((from) != (to))
--
- /* sched_domains SD_NODE_INIT for NUMAQ machines */
- #define SD_NODE_INIT (struct sched_domain) {		\
- 	.span			= CPU_MASK_NONE,	\
-Index: linux/include/linux/topology.h
-===================================================================
---- linux.orig/include/linux/topology.h	2004-11-05 08:34:57.492932000 -0600
-+++ linux/include/linux/topology.h	2004-11-23 10:03:26.700821978 -0600
-@@ -55,7 +55,10 @@ static inline int __next_node_with_cpus(
- 	for (node = 0; node < numnodes; node = __next_node_with_cpus(node))
- 
- #ifndef node_distance
--#define node_distance(from,to)	((from) != (to))
-+/* Conform to ACPI 2.0 SLIT distance definitions */
-+#define LOCAL_DISTANCE		10
-+#define REMOTE_DISTANCE		20
-+#define node_distance(from,to)	((from) == (to) ? LOCAL_DISTANCE : REMOTE_DISTANCE)
- #endif
- #ifndef PENALTY_FOR_NODE_WITH_CPUS
- #define PENALTY_FOR_NODE_WITH_CPUS	(1)
--- 
-Thanks
-
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
-
-
+greg k-h

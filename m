@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264642AbSJOTFg>; Tue, 15 Oct 2002 15:05:36 -0400
+	id <S263403AbSJOTCn>; Tue, 15 Oct 2002 15:02:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264660AbSJOTFf>; Tue, 15 Oct 2002 15:05:35 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:20101 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S264642AbSJOTFe>; Tue, 15 Oct 2002 15:05:34 -0400
-Message-ID: <3DAC685B.9070102@metaparadigm.com>
-Date: Wed, 16 Oct 2002 03:11:23 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S263794AbSJOTCm>; Tue, 15 Oct 2002 15:02:42 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:32913 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S263403AbSJOTCl>; Tue, 15 Oct 2002 15:02:41 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 15 Oct 2002 12:16:39 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+In-Reply-To: <20021015150201.K14596@redhat.com>
+Message-ID: <Pine.LNX.4.44.0210151213170.1554-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Steven Dake <sdake@mvista.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] [PATCHES] Advanced TCA Hotswap Support in Linux Kernel
-References: <3DAB1007.6040400@mvista.com> <20021015052916.GA11190@kroah.com> <3DAC52A7.907@mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/16/02 01:38, Steven Dake wrote:
+On Tue, 15 Oct 2002, Benjamin LaHaise wrote:
 
-> At this point, there isn't anything using them.  I am working on a 
-> hotswap manager, that may be in kernel space (for performance reasons) 
-> that may use these interfaces.  I'm also working on a SAFTE Hotswap 
-> processor module (ie; drivers/scsi/sp.c) for the SCSI subsystem that 
-> uses these interfaces.  (Safte is a hotswap standard for SCSI chassis).
+> On Tue, Oct 15, 2002 at 12:00:30PM -0700, Davide Libenzi wrote:
+> > Something like this might work :
+> >
+> > int sys_epoll_create(int maxfds);
+> > void sys_epoll_close(int epd);
+> > int sys_epoll_wait(int epd, struct pollfd **pevts, int timeout);
+> >
+> > where sys_epoll_wait() return the number of events available, 0 for
+> > timeout, -1 for error.
+>
+> There's no reason to make epoll_wait a new syscall -- poll events can
+> easily be returned via the aio_complete mechanism (with the existing
+> aio_poll experiment as a possible means for doing so).
 
-Do you really want to have SAF-TE polling in the kernel?
+Ben, one of the reasons of the /dev/epoll speed is how it returns events
+and how it collapses them. A memory mapped array is divided by two and
+while the user consumes events in one set, the kernel fill the other one.
+The next wait() will switch the pointers. There is no copy from kernel to
+user space. Doing :
 
-This can easily be accomplished in userspace using sg.
+int sys_epoll_wait(int epd, struct pollfd **pevts, int timeout);
 
-safte-monitor <http://gort.metaparadigm.com/safte-monitor/> can already
-provde disk insertion, removal notifications in userspace and already
-supports calling out to a script with the physical slot location information
-(and with tweaks to the code, scsi device of the disk inserted)
+the only data the kernel has to copy to userspace is the 4(8) bytes for
+the "pevts" pointer.
 
-There is even code in safte-monitor to identify the wwn of the devices
-in each slot, although it needs updating to the latest qlogic ioctl
-interface (or hbaapi).
 
-~mc
+
+- Davide
+
 

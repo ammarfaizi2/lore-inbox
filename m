@@ -1,52 +1,371 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317021AbSFQVId>; Mon, 17 Jun 2002 17:08:33 -0400
+	id <S317020AbSFQVGy>; Mon, 17 Jun 2002 17:06:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317023AbSFQVIc>; Mon, 17 Jun 2002 17:08:32 -0400
-Received: from ns.suse.de ([213.95.15.193]:32775 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317021AbSFQVIa>;
-	Mon, 17 Jun 2002 17:08:30 -0400
-Date: Mon, 17 Jun 2002 23:08:32 +0200
-From: Dave Jones <davej@suse.de>
-To: Bob Miller <rem@osdl.org>
-Cc: Benjamin LaHaise <bcrl@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] v2.5.22 - add wait queue function callback support
-Message-ID: <20020617230831.J758@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Bob Miller <rem@osdl.org>, Benjamin LaHaise <bcrl@redhat.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20020617161434.D1457@redhat.com> <20020617222812.I758@suse.de> <20020617135744.A24347@doc.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020617135744.A24347@doc.pdx.osdl.net>; from rem@osdl.org on Mon, Jun 17, 2002 at 01:57:44PM -0700
+	id <S317018AbSFQVGx>; Mon, 17 Jun 2002 17:06:53 -0400
+Received: from pD9530B5B.dip.t-dialin.net ([217.83.11.91]:42580 "EHLO
+	pc1.geisel.info") by vger.kernel.org with ESMTP id <S317016AbSFQVGs> convert rfc822-to-8bit;
+	Mon, 17 Jun 2002 17:06:48 -0400
+Date: Mon, 17 Jun 2002 23:06:45 +0200 (CEST)
+From: Dominik Geisel <devnull@geisel.info>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.5.22 fails to compile, constants.c
+Message-ID: <Pine.LNX.4.44.0206172304100.14277-100000@pc1.geisel.info>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 17, 2002 at 01:57:44PM -0700, Bob Miller wrote:
- > > I thought we killed off wq_write_lock_irqsave 1-2 kernels ago ?
- > It depends on what you mean by killed off.  I submitted a patch to Linus back
- > at 2.5.3 to clean up the way the completion code called the wait queue
- > interface.  This interface got added then.  You picked up those changes at
- > that time (and still have them in your kernel tree) but the changes have
- > never made it into Linus' tree.
- > 
- > So, Linus has never had the code to 'kill' and you've never dropped it
- > after picking it up.
+Hi,
 
-Your patch was to use wq_write_lock and friends in sched.c iirc.
-That change is now removed from my tree (though I've not put up a
-version containing that change yet).
+with gcc-3.1.1, kernel 2.5.22 fails to compile with the following output:
 
-Since 2.5.20 or so, the wq_write_lock functions are dead as in gone.
-Not around, Extinct. They are ex-functions.
+-----------------------------------------------------------------
+fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -nostdinc 
+-iwithprefix include    -DKBUILD_BASENAME=hosts   -c -o hosts.o hosts.c
+  gcc -Wp,-MD,./.scsi_ioctl.o.d -D__KERNEL__ 
+-I/usr/src/linux-2.5.22/include -Wall -Wstrict-prototypes -Wno-trigraphs 
+-O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=athlon  -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=scsi_ioctl   -c -o scsi_ioctl.o scsi_ioctl.c
+  gcc -Wp,-MD,./.constants.o.d -D__KERNEL__ 
+-I/usr/src/linux-2.5.22/include -Wall -Wstrict-prototypes -Wno-trigraphs 
+-O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=athlon  -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=constants   -c -o constants.o constants.c
+constants.c: In function `print_sense_internal':
+constants.c:997: `i' undeclared (first use in this function)
+constants.c:997: (Each undeclared identifier is reported only once
+constants.c:997: for each function it appears in.)
+make[3]: *** [constants.o] Fehler 1
+make[3]: Verlassen des Verzeichnisses Verzeichnis 
+»/usr/src/linux-2.5.22/drivers/scsi«
+make[2]: *** [scsi] Fehler 2
+make[2]: Verlassen des Verzeichnisses Verzeichnis 
+»/usr/src/linux-2.5.22/drivers«
+make[1]: *** [drivers] Fehler 2
+make[1]: Verlassen des Verzeichnisses Verzeichnis »/usr/src/linux-2.5.22«
+make: *** [make_with_config] Fehler 2
+-----------------------------------------------------------------
 
-        Dave
+my .config follows:
+
+-----------------------------------------------------------------
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+
+CONFIG_EXPERIMENTAL=y
+
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+CONFIG_MK7=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_PREEMPT=y
+CONFIG_HAVE_DEC_LOCK=y
+
+
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+
+
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_1284=y
+
+CONFIG_PNP=m
+CONFIG_ISAPNP=m
+
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+
+
+CONFIG_PACKET=y
+CONFIG_NETLINK_DEV=y
+CONFIG_NETFILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IPV6=m
+
+
+
+
+
+CONFIG_IDE=y
+
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_ATAPI=y
+CONFIG_IDEDMA_AUTO=y
+
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_BLK_DEV_SR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=y
+
+
+
+
+
+CONFIG_NETDEVICES=y
+
+CONFIG_DUMMY=m
+
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=m
+
+
+
+
+
+
+
+
+
+
+CONFIG_INPUT=m
+CONFIG_INPUT_KEYBDEV=m
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+CONFIG_INPUT_EVDEV=m
+CONFIG_SOUND_GAMEPORT=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_PHILIPSPAR=m
+CONFIG_I2C_ELV=m
+CONFIG_I2C_VELLEMAN=m
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ELEKTOR=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_PROC=m
+
+CONFIG_BUSMOUSE=m
+CONFIG_LOGIBUSMOUSE=m
+CONFIG_MS_BUSMOUSE=m
+CONFIG_MOUSE=m
+CONFIG_PSMOUSE=y
+
+CONFIG_RTC=y
+
+CONFIG_AGP=m
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+
+CONFIG_VIDEO_DEV=m
+
+CONFIG_VIDEO_PROC_FS=y
+
+
+CONFIG_REISERFS_FS=m
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_NTFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=m
+CONFIG_UDF_FS=m
+
+CONFIG_SMB_FS=m
+
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+CONFIG_NLS_CODEPAGE_936=m
+CONFIG_NLS_CODEPAGE_950=m
+CONFIG_NLS_CODEPAGE_932=m
+CONFIG_NLS_CODEPAGE_949=m
+CONFIG_NLS_CODEPAGE_874=m
+CONFIG_NLS_ISO8859_8=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=m
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+
+
+CONFIG_SOUND=m
+
+
+CONFIG_SND=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=m
+CONFIG_SND_RTCTIMER=m
+
+
+
+CONFIG_SND_EMU10K1=m
+
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI_HCD=m
+CONFIG_USB_UHCI_HCD_ALT=m
+CONFIG_USB_BLUETOOTH_TTY=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_HID=m
+CONFIG_USB_KBD=m
+CONFIG_USB_MOUSE=m
+CONFIG_USB_PWC=m
+
+
+CONFIG_BLUEZ=m
+CONFIG_BLUEZ_L2CAP=m
+CONFIG_BLUEZ_SCO=m
+
+CONFIG_BLUEZ_HCIUSB=m
+CONFIG_BLUEZ_USB_FW_LOAD=y
+CONFIG_BLUEZ_HCIUART=m
+-----------------------------------------------------------------
+
+Thanks for your attention and bye.
+Dominik Geisel
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+It shall be unlawful for any suspicious person to be within the
+municipality.
+-Local ordinance, Euclid Ohio
+907D F135 0EF8 5A4D 633B  805D 25E7 478B 1322 4688
+

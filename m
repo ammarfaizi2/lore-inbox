@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261490AbTCTOrM>; Thu, 20 Mar 2003 09:47:12 -0500
+	id <S261496AbTCTOsi>; Thu, 20 Mar 2003 09:48:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261492AbTCTOrM>; Thu, 20 Mar 2003 09:47:12 -0500
-Received: from mta01ps.bigpond.com ([144.135.25.133]:29904 "EHLO
-	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S261490AbTCTOrL> convert rfc822-to-8bit; Thu, 20 Mar 2003 09:47:11 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Bottleneck on /dev/null
-Date: Fri, 21 Mar 2003 01:57:10 +1100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200303210157.10494.harisri@bigpond.com>
+	id <S261499AbTCTOsh>; Thu, 20 Mar 2003 09:48:37 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:43514 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261496AbTCTOse>; Thu, 20 Mar 2003 09:48:34 -0500
+Date: Thu, 20 Mar 2003 15:59:28 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Greg Ungerer <gerg@snapgear.com>, David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.56: undefined reference to `_ebss' from drivers/mtd/maps/uclinux.c
+Message-ID: <20030320145927.GF11659@fs.tum.de>
+References: <20030112095559.GT21826@fs.tum.de> <3E226969.5080406@snapgear.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E226969.5080406@snapgear.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux-2.4.latest
-PACKET_MMAP
-PCAP_FRAMES=max for tcpdump-3.8/libpcap-0.8 (from http://public.lanl.gov/cpw/)
-e1000 driver
+On Mon, Jan 13, 2003 at 05:23:21PM +1000, Greg Ungerer wrote:
+> Hi Adrian,
+> 
+> Adrian Bunk wrote:
+> >trying to compile 2.5.56 with CONFIG_MTD_UCLINUX fails on i386 with
+> >  undefined reference to `_ebss'
+> >at the final linking.
+> >
+> >It seems _ebss is only defined on the architectures m68knommu and v850?
+> 
+> Hmm, currently that is correct. There doesn't appear to be a
+> "standard" symbol name applied to the immediate end of the bss
+> section. Different architectures are using different names:
+> 
+>   _ebss        -- m68knommu, v850
+>   __bss_stop   -- i386, alpha, ppc, s390
+>   __bss_end    -- x86_64
+>   _end         -- mips, parisc, sparc, (actually most have this)
+> 
+> Actually it looks like _end is probably closer, it seems to
+> almost always fall strait after the bss, on just about every
+> architecture that has it.
+> 
+> Come to think of it _end is probably more appropriate anyway.
+> Since that code is trying to find the location of something
+> concatenated to the end of the kernel image.
 
-2 * Xeon 2800 MHz, 512 KB L2
-1 GB RAM
-70 GB HW RAID-0 on SmartArray 5i
-2 * 2 port Intel GigE cards (only using 1 per card for the testing purposes)
 
-Capturing all packets and writting to /dev/null causes more packet drops than 
-writting to hard drives (approx 40,000 packets/sec of 70 bytes for couple of 
-minutes). I will have a comparision between those figures in a day or two, 
-but /dev/null was well over SCSI hard drives. I thought writting (even 
-multiple of them simultaneously) to /dev/null should be faster than fastest 
-SCSI drives out there :) Interesting.
+This problem (undefined reference to `_ebss') is still present in 
+2.5.65.
 
-(And yes I see plenty of "errors", "dropped", and "overruns" in ifconfig stats 
-on those interfaces. %system is over 80%, and tcpdump goes to "D" state many 
-times. Simon Kirby suggested to use irq-smp_affinity to see if that helps for 
-reducing %system time. A well optimised e1000 would definitely help as tg3 
-does it very well.)
+It might not be a solution for the whole issue, but is it intentionally
+that it's possible to enable CONFIG_MTD_UCLINUX on non-uClinux 
+architectures or should an appropriate dependency be added to the 
+Kconfig file?
 
-I mean to test this /dev/null behavior on 2 tg3 driver configuration perhaps 
-in couple of days time. (But the 2 tg3 cards with out-of-the-box NAPI support 
-on 2.4.latest is able to not to loose a single packet even while writting to 
-hard drives, then I didn't care to test it on /dev/null)
 
-BTW I found 2.5.51 backport of e1000 NAPI support at  
-http://havoc.gtf.org/lunz/linux/net/
-Anyone knows of a recent backport or improved one for 2.4.latest (including 
-2.4.21-pre5 or -pre6). Patches for testing or URL is welcome.
+> Regards
+> Greg
 
-Thanks
+cu
+Adrian
+
 -- 
-Hari
-harisri@bigpond.com
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

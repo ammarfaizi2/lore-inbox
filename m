@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314282AbSDRJ70>; Thu, 18 Apr 2002 05:59:26 -0400
+	id <S314284AbSDRKDR>; Thu, 18 Apr 2002 06:03:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314284AbSDRJ7Z>; Thu, 18 Apr 2002 05:59:25 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:22541 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S314282AbSDRJ7Z>; Thu, 18 Apr 2002 05:59:25 -0400
-Message-Id: <200204180954.g3I9stX00514@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Jan Hubicka <jh@suse.cz>
-Subject: Re: SSE related security hole
-Date: Thu, 18 Apr 2002 12:57:08 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: bugtraq@securityfocus.com, linux-kernel@vger.kernel.org,
-        Pavel Machek <pavel@atrey.karlin.mff.cuni.cz>, jakub@redhat.com,
-        aj@suse.de, ak@suse.de
-In-Reply-To: <20020417145130.GA29952@atrey.karlin.mff.cuni.cz> <20020417152337.GG29952@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S314285AbSDRKDQ>; Thu, 18 Apr 2002 06:03:16 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:52364 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314284AbSDRKDQ>;
+	Thu, 18 Apr 2002 06:03:16 -0400
+Date: Thu, 18 Apr 2002 11:41:28 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] for_each_zone / for_each_pgdat
+Message-ID: <20020418094128.GA114@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.44L.0204112123480.31387-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 April 2002 13:23, Jan Hubicka wrote:
-> #include <stdlib.h>
-> #include <stdio.h>
->
-> int
-> m ()
-> {
->   int i, n = 7;
->   float comp, sum = 0;
-          ^^^^
-unused?
+Hi!
 
->   sin(1);
+> replace slightly obscure while loops with for_each_zone and
+> for_each_pgdat macros, this version has the added optimisation
+> of skipping empty zones       (thanks to William Lee Irwin)
 
-So, removing this sin() stops the bug?
+@@ -501,7 +497,7 @@
+        pg_data_t *pgdat = pgdat_list;
+        unsigned int sum = 0;
 
->   for (i = 1; i <= n; ++i)
->     sum += i;
->   printf ("sum of %d ints: %g\n", n, sum);
->   return 0;
-> }
->
-> main ()
-> {
->   m ();
-> }
-Can m() body be placed directly in main()?
---
-vda
+-       do {
++       for_each_pgdat(pgdat) {
+                zonelist_t *zonelist = pgdat->node_zonelists +
+(GFP_USER & GFP_ZONEMASK);
+                zone_t **zonep = zonelist->zones;
+                zone_t *zone;
+
+You can kill pgdat initialization here.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

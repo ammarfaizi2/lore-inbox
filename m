@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267679AbTBQXXU>; Mon, 17 Feb 2003 18:23:20 -0500
+	id <S267645AbTBQX0u>; Mon, 17 Feb 2003 18:26:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267672AbTBQXQF>; Mon, 17 Feb 2003 18:16:05 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:14753 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267641AbTBQXNx>;
-	Mon, 17 Feb 2003 18:13:53 -0500
-Date: Mon, 17 Feb 2003 18:23:20 +0000
+	id <S267694AbTBQX0H>; Mon, 17 Feb 2003 18:26:07 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:23457 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S267645AbTBQXP7>;
+	Mon, 17 Feb 2003 18:15:59 -0500
+Date: Mon, 17 Feb 2003 18:25:37 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: greg@kroah.com
 Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Jaroslav Kysela <perex@suse.cz>
-Subject: [PATCH] pnp - ISAPnP Updates (5/13)
-Message-ID: <20030217182319.GA31435@neo.rr.com>
+       Shawn Starr <spstarr@sh0n.net>
+Subject: [PATCH] PnP Bug Fixes (12/13)
+Message-ID: <20030217182537.GA31502@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, greg@kroah.com,
 	linux-kernel@vger.kernel.org,
 	Linus Torvalds <torvalds@transmeta.com>,
-	Jaroslav Kysela <perex@suse.cz>
+	Shawn Starr <spstarr@sh0n.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,350 +24,608 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains many isapnp improvements including true get resource support
-which is necessary to get active configs on boot and to ensure a resource set 
-was accepted.  It also adds some initial MEM32 support, more work in that area
-will come in the near future.
+This patch contains numerous bugfixes discovered by myself and Shawn Starr.
 
 Please apply,
+
 Adam
 
 
---- linux-2.5.58/drivers/pnp/isapnp/core.c	Tue Jan 14 05:58:55 2003
-+++ a/drivers/pnp/isapnp/core.c	Sun Feb  9 10:42:49 2003
-@@ -101,7 +101,6 @@
- 
- /* some prototypes */
- 
--static int isapnp_config_prepare(struct pnp_dev *dev);
- extern struct pnp_protocol isapnp_protocol;
- 
- static inline void write_data(unsigned char x)
-@@ -260,7 +259,7 @@
- 		 *	We cannot use NE2000 probe spaces for ISAPnP or we
- 		 *	will lock up machines.
- 		 */
--		if ((rdp < 0x280 || rdp >  0x380) && !check_region(rdp, 1)) 
-+		if ((rdp < 0x280 || rdp >  0x380) && !check_region(rdp, 1))
- 		{
- 			isapnp_rdp = rdp;
- 			return 0;
-@@ -580,14 +579,18 @@
- 						 int depnum, int size)
- {
- 	unsigned char tmp[17];
--	struct pnp_mem32 *mem32;
-+	struct pnp_mem *mem;
- 
- 	isapnp_peek(tmp, size);
--	mem32 = isapnp_alloc(sizeof(struct pnp_mem32));
--	if (!mem32)
-+	mem = isapnp_alloc(sizeof(struct pnp_mem));
-+	if (!mem)
- 		return;
--	memcpy(mem32->data, tmp, 17);
--	pnp_add_mem32_resource(dev,depnum,mem32);
-+	mem->min = (tmp[4] << 24) | (tmp[3] << 16) | (tmp[2] << 8) | tmp[1];
-+	mem->max = (tmp[8] << 24) | (tmp[7] << 16) | (tmp[6] << 8) | tmp[5];
-+	mem->align = (tmp[12] << 24) | (tmp[11] << 16) | (tmp[10] << 8) | tmp[9];
-+	mem->size = (tmp[16] << 24) | (tmp[15] << 16) | (tmp[14] << 8) | tmp[13];
-+	mem->flags = tmp[0];
-+	pnp_add_mem_resource(dev,depnum,mem);
- }
- 
- /*
-@@ -597,15 +600,18 @@
- static void __init isapnp_add_fixed_mem32_resource(struct pnp_dev *dev,
- 						       int depnum, int size)
- {
--	unsigned char tmp[17];
--	struct pnp_mem32 *mem32;
-+	unsigned char tmp[9];
-+	struct pnp_mem *mem;
- 
- 	isapnp_peek(tmp, size);
--	mem32 = isapnp_alloc(sizeof(struct pnp_mem32));
--	if (!mem32)
-+	mem = isapnp_alloc(sizeof(struct pnp_mem));
-+	if (!mem)
- 		return;
--	memcpy(mem32->data, tmp, 17);
--	pnp_add_mem32_resource(dev,depnum,mem32);
-+	mem->min = mem->max = (tmp[4] << 24) | (tmp[3] << 16) | (tmp[2] << 8) | tmp[1];
-+	mem->size = (tmp[8] << 24) | (tmp[7] << 16) | (tmp[6] << 8) | tmp[5];
-+	mem->align = 0;
-+	mem->flags = tmp[0];
-+	pnp_add_mem_resource(dev,depnum,mem);
- }
- 
- /*
-@@ -650,7 +656,6 @@
- 		switch (type) {
- 		case _STAG_LOGDEVID:
- 			if (size >= 5 && size <= 6) {
--				isapnp_config_prepare(dev);
- 				if ((dev = isapnp_parse_device(card, size, number++)) == NULL)
- 					return 1;
- 				pnp_build_resource(dev,0);
-@@ -723,7 +728,7 @@
- 			size = 0;
- 			break;
- 		case _LTAG_ANSISTR:
--			isapnp_parse_name(dev->name, sizeof(dev->name), &size);
-+			isapnp_parse_name(dev->dev.name, sizeof(dev->dev.name), &size);
- 			break;
- 		case _LTAG_UNICODESTR:
- 			/* silently ignore */
-@@ -738,7 +743,7 @@
- 			size = 0;
- 			break;
- 		case _LTAG_FIXEDMEM32RANGE:
--			if (size != 17)
-+			if (size != 9)
- 				goto __skip;
- 			isapnp_add_fixed_mem32_resource(dev, depnum, size);
- 			size = 0;
-@@ -746,7 +751,6 @@
- 		case _STAG_END:
- 			if (size > 0)
- 				isapnp_skip_bytes(size);
--			isapnp_config_prepare(dev);
- 			return 1;
- 		default:
- 			printk(KERN_ERR "isapnp: unexpected or unknown tag type 0x%x for logical device %i (device %i), ignored\n", type, dev->number, card->number);
-@@ -755,7 +759,6 @@
- 	      	if (size > 0)
- 		      	isapnp_skip_bytes(size);
+diff -urN a/drivers/pnp/driver.c b/drivers/pnp/driver.c
+--- a/drivers/pnp/driver.c	Sat Feb 15 22:53:38 2003
++++ b/drivers/pnp/driver.c	Sun Feb 16 20:29:08 2003
+@@ -107,9 +107,6 @@
+ 			if (error < 0)
+ 				return error;
+ 		}
+-	} else {
+-		if ((pnp_drv->flags & PNP_DRIVER_DO_NOT_ACTIVATE))
+-			pnp_disable_dev(pnp_dev);
  	}
--	isapnp_config_prepare(dev);
- 	return 0;
- }
+ 	error = 0;
+ 	if (pnp_drv->probe && pnp_dev->active) {
+diff -urN a/drivers/pnp/interface.c b/drivers/pnp/interface.c
+--- a/drivers/pnp/interface.c	Sat Feb 15 23:26:41 2003
++++ b/drivers/pnp/interface.c	Sun Feb 16 20:29:08 2003
+@@ -229,6 +229,13 @@
  
-@@ -790,7 +793,7 @@
- 		case _STAG_VENDOR:
- 			break;
- 		case _LTAG_ANSISTR:
--			isapnp_parse_name(card->name, sizeof(card->name), &size);
-+			isapnp_parse_name(card->dev.name, sizeof(card->dev.name), &size);
- 			break;
- 		case _LTAG_UNICODESTR:
- 			/* silently ignore */
-@@ -852,6 +855,64 @@
- 	pnpc_add_id(id,card);
- }
+ static DEVICE_ATTR(possible,S_IRUGO,pnp_show_possible_resources,NULL);
  
-+
-+static int isapnp_parse_current_resources(struct pnp_dev *dev, struct pnp_resource_table * res)
++static void pnp_print_conflict_node(pnp_info_buffer_t *buffer, struct pnp_dev * dev)
 +{
-+	int tmp, ret;
-+	struct pnp_rule_table rule;
-+	if (dev->rule)
-+		rule = *dev->rule;
-+	else {
-+		if (!pnp_generate_rule(dev,1,&rule))
-+			return -EINVAL;
-+	}
-+
-+	dev->active = isapnp_read_byte(ISAPNP_CFG_ACTIVATE);
-+	if (dev->active) {
-+		for (tmp = 0; tmp < PNP_MAX_PORT; tmp++) {
-+			ret = isapnp_read_word(ISAPNP_CFG_PORT + (tmp << 1));
-+			if (!ret)
-+				continue;
-+			res->port_resource[tmp].start = ret;
-+			if (rule.port[tmp])
-+				res->port_resource[tmp].end = ret + rule.port[tmp]->size - 1;
-+			else
-+				res->port_resource[tmp].end = ret + 1; /* all we can do is assume 1 :-( */
-+			res->port_resource[tmp].flags = IORESOURCE_IO;
-+		}
-+		for (tmp = 0; tmp < PNP_MAX_MEM; tmp++) {
-+			ret = isapnp_read_dword(ISAPNP_CFG_MEM + (tmp << 3));
-+			if (!ret)
-+				continue;
-+			res->mem_resource[tmp].start = ret;
-+			if (rule.mem[tmp])
-+				res->mem_resource[tmp].end = ret + rule.mem[tmp]->size - 1;
-+			else
-+				res->mem_resource[tmp].end = ret + 1; /* all we can do is assume 1 :-( */
-+			res->mem_resource[tmp].flags = IORESOURCE_MEM;
-+		}
-+		for (tmp = 0; tmp < PNP_MAX_IRQ; tmp++) {
-+			ret = (isapnp_read_word(ISAPNP_CFG_IRQ + (tmp << 1)) >> 8);
-+			if (!ret)
-+				continue;
-+			res->irq_resource[tmp].start = res->irq_resource[tmp].end = ret;
-+			res->irq_resource[tmp].flags = IORESOURCE_IRQ;
-+		}
-+		for (tmp = 0; tmp < PNP_MAX_DMA; tmp++) {
-+			ret = isapnp_read_byte(ISAPNP_CFG_DMA + tmp);
-+			pnp_info("dma %d", tmp);
-+			if (ret == 4)
-+				continue;
-+			if (rule.dma[tmp]) { /* some isapnp systems forget to set this to 4 so we have to check */
-+				res->dma_resource[tmp].start = res->dma_resource[tmp].end = ret;
-+				res->dma_resource[tmp].flags = IORESOURCE_DMA;
-+			}
-+		}
-+	}
-+	return 0;
++	if (!dev)
++		return;
++	pnp_printf(buffer, "'%s'.\n", dev->dev.bus_id);
 +}
 +
-+
- /*
-  *  Build device list for all present ISA PnP devices.
-  */
-@@ -861,6 +922,7 @@
- 	int csn;
- 	unsigned char header[9], checksum;
- 	struct pnp_card *card;
-+	struct pnp_dev *dev;
+ static void pnp_print_conflict_desc(pnp_info_buffer_t *buffer, int conflict)
+ {
+ 	if (!conflict)
+@@ -236,31 +243,31 @@
+ 	pnp_printf(buffer, "  Conflict Detected: %2x - ", conflict);
+ 	switch (conflict) {
+ 	case CONFLICT_TYPE_RESERVED:
+-		pnp_printf(buffer, "This resource was manually reserved.\n");
++		pnp_printf(buffer, "manually reserved.\n");
+ 		break;
  
- 	isapnp_wait();
- 	isapnp_key();
-@@ -893,8 +955,17 @@
- 			printk(KERN_ERR "isapnp: checksum for device %i is not valid (0x%x)\n", csn, isapnp_checksum_value);
- 		card->checksum = isapnp_checksum_value;
- 		card->protocol = &isapnp_protocol;
-+
-+		/* read the current resource data */
-+		card_for_each_dev(card,dev) {
-+			isapnp_device(dev->number);
-+		pnp_init_resource_table(&dev->res);
-+			isapnp_parse_current_resources(dev, &dev->res);
-+		}
-+
- 		pnpc_add_card(card);
+ 	case CONFLICT_TYPE_IN_USE:
+-		pnp_printf(buffer, "This resource resource is currently in use.\n");
++		pnp_printf(buffer, "currently in use.\n");
+ 		break;
+ 
+ 	case CONFLICT_TYPE_PCI:
+-		pnp_printf(buffer, "This resource conflicts with a PCI device.\n");
++		pnp_printf(buffer, "PCI device.\n");
+ 		break;
+ 
+ 	case CONFLICT_TYPE_INVALID:
+-		pnp_printf(buffer, "This resource is invalid.\n");
++		pnp_printf(buffer, "invalid.\n");
+ 		break;
+ 
+ 	case CONFLICT_TYPE_INTERNAL:
+-		pnp_printf(buffer, "This resource conflicts with another resource on this device.\n");
++		pnp_printf(buffer, "another resource on this device.\n");
+ 		break;
+ 
+ 	case CONFLICT_TYPE_PNP_WARM:
+-		pnp_printf(buffer, "This resource conflicts with the active PnP device ");
++		pnp_printf(buffer, "active PnP device ");
+ 		break;
+ 
+ 	case CONFLICT_TYPE_PNP_COLD:
+-		pnp_printf(buffer, "This resource conflicts with the resources that PnP plans to assign to the device ");
++		pnp_printf(buffer, "disabled PnP device ");
+ 		break;
+ 	default:
+ 		pnp_printf(buffer, "Unknown conflict.\n");
+@@ -268,16 +275,9 @@
  	}
-+	isapnp_wait();
- 	return 0;
  }
  
-@@ -948,39 +1019,6 @@
- 	return 0;
- }
- 
--static int isapnp_config_prepare(struct pnp_dev *dev)
+-static void pnp_print_conflict_node(pnp_info_buffer_t *buffer, struct pnp_dev * dev)
 -{
--	int idx;
--	if (dev == NULL)
--		return -EINVAL;
--	if (dev->active || dev->lock_resources)
--		return -EBUSY;
--	for (idx = 0; idx < DEVICE_COUNT_IRQ; idx++) {
--		dev->irq_resource[idx].name = NULL;
--		dev->irq_resource[idx].start = -1;
--		dev->irq_resource[idx].end = -1;
--		dev->irq_resource[idx].flags = IORESOURCE_IRQ|IORESOURCE_UNSET;
--	}
--	for (idx = 0; idx < DEVICE_COUNT_DMA; idx++) {
--		dev->dma_resource[idx].name = NULL;
--		dev->dma_resource[idx].start = -1;
--		dev->dma_resource[idx].end = -1;
--		dev->dma_resource[idx].flags = IORESOURCE_DMA|IORESOURCE_UNSET;
--	}
--	for (idx = 0; idx < DEVICE_COUNT_IO; idx++) {
--		dev->io_resource[idx].name = NULL;
--		dev->io_resource[idx].start = 0;
--		dev->io_resource[idx].end = 0;
--		dev->io_resource[idx].flags = IORESOURCE_IO|IORESOURCE_UNSET;
--	}
--	for (idx = 0; idx < DEVICE_COUNT_MEM; idx++) {
--		dev->mem_resource[idx].name = NULL;
--		dev->mem_resource[idx].start = 0;
--		dev->mem_resource[idx].end = 0;
--		dev->mem_resource[idx].flags = IORESOURCE_MEM|IORESOURCE_UNSET;
--	}
--	return 0;
+-	if (!dev)
+-		return;
+-	pnp_printf(buffer, "%s.\n", dev->dev.bus_id);
 -}
- 
- /*
-  *  Inititialization.
-@@ -999,44 +1037,35 @@
- EXPORT_SYMBOL(isapnp_wake);
- EXPORT_SYMBOL(isapnp_device);
- 
--static int isapnp_get_resources(struct pnp_dev *dev)
-+static int isapnp_get_resources(struct pnp_dev *dev, struct pnp_resource_table * res)
+-
+ static void pnp_print_conflict(pnp_info_buffer_t *buffer, struct pnp_dev * dev, int idx, int type)
  {
--	/* We don't need to do anything but this, the rest is taken care of */
--	if (pnp_port_valid(dev, 0) == 0 &&
--	    pnp_mem_valid(dev, 0) == 0 &&
--	    pnp_irq_valid(dev, 0) == 0 &&
--	    pnp_dma_valid(dev, 0) == 0)
--		dev->active = 0;
--	else
--		dev->active = 1;
--	return 0;
-+	int ret;
-+	pnp_init_resource_table(res);
-+	isapnp_cfg_begin(dev->card->number, dev->number);
-+	ret = isapnp_parse_current_resources(dev, res);
-+	isapnp_cfg_end();
-+	return ret;
+-	struct pnp_dev * cdev, * wdev;
++	struct pnp_dev * cdev, * wdev = NULL;
+ 	int conflict;
+ 	switch (type) {
+ 	case IORESOURCE_IO:
+@@ -310,6 +310,8 @@
+ 
+ 	pnp_print_conflict_desc(buffer, conflict);
+ 
++	if (wdev)
++		pnp_print_conflict_node(buffer, wdev);
+ 
+ 	if (cdev) {
+ 		pnp_print_conflict_desc(buffer, CONFLICT_TYPE_PNP_COLD);
+@@ -392,14 +394,41 @@
+ 		retval = pnp_activate_dev(dev);
+ 		goto done;
+ 	}
++	if (!strnicmp(buf,"reset",5)) {
++		if (!dev->active)
++			goto done;
++		retval = pnp_disable_dev(dev);
++		if (retval)
++			goto done;
++		retval = pnp_activate_dev(dev);
++		goto done;
++	}
+ 	if (!strnicmp(buf,"auto-config",11)) {
+ 		if (dev->active)
+ 			goto done;
+ 		retval = pnp_auto_config_dev(dev);
+ 		goto done;
+ 	}
++	if (!strnicmp(buf,"clear-config",12)) {
++		if (dev->active)
++			goto done;
++		spin_lock(&pnp_lock);
++		dev->config_mode = PNP_CONFIG_MANUAL;
++		pnp_init_resource_table(&dev->res);
++		if (dev->rule)
++			dev->rule->depnum = 0;
++		spin_unlock(&pnp_lock);
++		goto done;
++	}
+ 	if (!strnicmp(buf,"resolve",7)) {
+ 		retval = pnp_resolve_conflicts(dev);
++		goto done;
++	}
++	if (!strnicmp(buf,"get",3)) {
++		spin_lock(&pnp_lock);
++		if (pnp_can_read(dev))
++			dev->protocol->get(dev, &dev->res);
++		spin_unlock(&pnp_lock);
+ 		goto done;
+ 	}
+ 	if (!strnicmp(buf,"set",3)) {
+diff -urN a/drivers/pnp/isapnp/core.c b/drivers/pnp/isapnp/core.c
+--- a/drivers/pnp/isapnp/core.c	Sat Feb 15 23:26:41 2003
++++ b/drivers/pnp/isapnp/core.c	Sun Feb 16 20:29:09 2003
+@@ -765,7 +765,7 @@
+ /*
+  *  Parse resource map for ISA PnP card.
+  */
+- 
++
+ static void __init isapnp_parse_resource_map(struct pnp_card *card)
+ {
+ 	unsigned char type, tmp[17];
+@@ -822,7 +822,7 @@
+ {
+ 	int i, j;
+ 	unsigned char checksum = 0x6a, bit, b;
+-	
++
+ 	for (i = 0; i < 8; i++) {
+ 		b = data[i];
+ 		for (j = 0; j < 8; j++) {
+@@ -900,7 +900,6 @@
+ 		}
+ 		for (tmp = 0; tmp < PNP_MAX_DMA; tmp++) {
+ 			ret = isapnp_read_byte(ISAPNP_CFG_DMA + tmp);
+-			pnp_info("dma %d", tmp);
+ 			if (ret == 4)
+ 				continue;
+ 			if (rule.dma[tmp]) { /* some isapnp systems forget to set this to 4 so we have to check */
+@@ -1174,7 +1173,7 @@
+ 	return 0;
  }
  
--static int isapnp_set_resources(struct pnp_dev *dev, struct pnp_cfg *cfg)
-+static int isapnp_set_resources(struct pnp_dev *dev, struct pnp_resource_table * res)
+-subsys_initcall(isapnp_init);
++device_initcall(isapnp_init);
+ 
+ /* format is: noisapnp */
+ 
+diff -urN a/drivers/pnp/manager.c b/drivers/pnp/manager.c
+--- a/drivers/pnp/manager.c	Sat Feb 15 23:26:41 2003
++++ b/drivers/pnp/manager.c	Sun Feb 16 20:29:09 2003
+@@ -1,7 +1,7 @@
+ /*
+  * manager.c - Resource Management, Conflict Resolution, Activation and Disabling of Devices
+  *
+- * Copyright 2002 Adam Belay <ambx1@neo.rr.com>
++ * Copyright 2003 Adam Belay <ambx1@neo.rr.com>
+  *
+  */
+ 
+@@ -27,31 +27,31 @@
+ static int pnp_next_port(struct pnp_dev * dev, int idx)
  {
- 	int tmp;
--      	isapnp_cfg_begin(dev->card->number, dev->number);
-+
-+	isapnp_cfg_begin(dev->card->number, dev->number);
- 	dev->active = 1;
--	dev->irq_resource[0] = cfg->request.irq_resource[0];
--	dev->irq_resource[1] = cfg->request.irq_resource[1];
--	dev->dma_resource[0] = cfg->request.dma_resource[0];
--	dev->dma_resource[1] = cfg->request.dma_resource[1];
--	for (tmp = 0; tmp < DEVICE_COUNT_IO; tmp++)
--		dev->io_resource[tmp] = cfg->request.io_resource[tmp];
--	for (tmp = 0; tmp < DEVICE_COUNT_MEM; tmp++)
--		dev->mem_resource[tmp] = cfg->request.mem_resource[tmp];
--	for (tmp = 0; tmp < 8 && pnp_port_valid(dev, tmp); tmp++)
--		isapnp_write_word(ISAPNP_CFG_PORT+(tmp<<1), pnp_port_start(dev, tmp));
--	for (tmp = 0; tmp < 2 && pnp_irq_valid(dev, tmp); tmp++) {
--		int irq = pnp_irq(dev, tmp);
-+	for (tmp = 0; tmp < PNP_MAX_PORT && res->port_resource[tmp].flags & IORESOURCE_IO; tmp++)
-+		isapnp_write_word(ISAPNP_CFG_PORT+(tmp<<1), res->port_resource[tmp].start);
-+	for (tmp = 0; tmp < PNP_MAX_IRQ && res->irq_resource[tmp].flags & IORESOURCE_IRQ; tmp++) {
-+		int irq = res->irq_resource[tmp].start;
- 		if (irq == 2)
- 			irq = 9;
- 		isapnp_write_byte(ISAPNP_CFG_IRQ+(tmp<<1), irq);
+ 	struct pnp_port *port;
+-	unsigned long *value1, *value2, *value3;
++	unsigned long *start, *end, *flags;
+ 	if (!dev || idx < 0 || idx >= PNP_MAX_PORT)
+ 		return 0;
+ 	port = dev->rule->port[idx];
+ 	if (!port)
+ 		return 1;
+ 
+-	value1 = &dev->res.port_resource[idx].start;
+-	value2 = &dev->res.port_resource[idx].end;
+-	value3 = &dev->res.port_resource[idx].flags;
++	start = &dev->res.port_resource[idx].start;
++	end = &dev->res.port_resource[idx].end;
++	flags = &dev->res.port_resource[idx].flags;
+ 
+ 	/* set the initial values if this is the first time */
+-	if (*value1 == 0) {
+-		*value1 = port->min;
+-		*value2 = *value1 + port->size -1;
+-		*value3 = port->flags | IORESOURCE_IO;
++	if (*start == 0) {
++		*start = port->min;
++		*end = *start + port->size - 1;
++		*flags = port->flags | IORESOURCE_IO;
+ 		if (!pnp_check_port(dev, idx))
+ 			return 1;
  	}
--	for (tmp = 0; tmp < 2 && pnp_dma_valid(dev, tmp); tmp++)
--		isapnp_write_byte(ISAPNP_CFG_DMA+tmp, pnp_dma(dev, tmp));
--	for (tmp = 0; tmp < 4 && pnp_mem_valid(dev, tmp); tmp++)
--		isapnp_write_word(ISAPNP_CFG_MEM+(tmp<<2), (pnp_mem_start(dev, tmp) >> 8) & 0xffff);
-+	for (tmp = 0; tmp < PNP_MAX_DMA && res->dma_resource[tmp].flags & IORESOURCE_DMA; tmp++)
-+		isapnp_write_byte(ISAPNP_CFG_DMA+tmp, res->dma_resource[tmp].start);
-+	for (tmp = 0; tmp < PNP_MAX_MEM && res->mem_resource[tmp].flags & IORESOURCE_MEM; tmp++)
-+		isapnp_write_word(ISAPNP_CFG_MEM+(tmp<<2), (res->mem_resource[tmp].start >> 8) & 0xffff);
-+	/* FIXME: We aren't handling 32bit mems properly here */
- 	isapnp_activate(dev->number);
- 	isapnp_cfg_end();
- 	return 0;
-@@ -1046,7 +1075,7 @@
+ 
+ 	/* run through until pnp_check_port is happy */
+ 	do {
+-		*value1 += port->align;
+-		*value2 = *value1 + port->size - 1;
+-		if (*value1 > port->max || !port->align)
++		*start += port->align;
++		*end = *start + port->size - 1;
++		if (*start > port->max || !port->align)
+ 			return 0;
+ 	} while (pnp_check_port(dev, idx));
+ 	return 1;
+@@ -60,39 +60,39 @@
+ static int pnp_next_mem(struct pnp_dev * dev, int idx)
  {
- 	if (!dev || !dev->active)
+ 	struct pnp_mem *mem;
+-	unsigned long *value1, *value2, *value3;
++	unsigned long *start, *end, *flags;
+ 	if (!dev || idx < 0 || idx >= PNP_MAX_MEM)
+ 		return 0;
+ 	mem = dev->rule->mem[idx];
+ 	if (!mem)
+ 		return 1;
+ 
+-	value1 = &dev->res.mem_resource[idx].start;
+-	value2 = &dev->res.mem_resource[idx].end;
+-	value3 = &dev->res.mem_resource[idx].flags;
++	start = &dev->res.mem_resource[idx].start;
++	end = &dev->res.mem_resource[idx].end;
++	flags = &dev->res.mem_resource[idx].flags;
+ 
+ 	/* set the initial values if this is the first time */
+-	if (*value1 == 0) {
+-		*value1 = mem->min;
+-		*value2 = *value1 + mem->size -1;
+-		*value3 = mem->flags | IORESOURCE_MEM;
++	if (*start == 0) {
++		*start = mem->min;
++		*end = *start + mem->size -1;
++		*flags = mem->flags | IORESOURCE_MEM;
+ 		if (!(mem->flags & IORESOURCE_MEM_WRITEABLE))
+-			*value3 |= IORESOURCE_READONLY;
++			*flags |= IORESOURCE_READONLY;
+ 		if (mem->flags & IORESOURCE_MEM_CACHEABLE)
+-			*value3 |= IORESOURCE_CACHEABLE;
++			*flags |= IORESOURCE_CACHEABLE;
+ 		if (mem->flags & IORESOURCE_MEM_RANGELENGTH)
+-			*value3 |= IORESOURCE_RANGELENGTH;
++			*flags |= IORESOURCE_RANGELENGTH;
+ 		if (mem->flags & IORESOURCE_MEM_SHADOWABLE)
+-			*value3 |= IORESOURCE_SHADOWABLE;
++			*flags |= IORESOURCE_SHADOWABLE;
+ 		if (!pnp_check_mem(dev, idx))
+ 			return 1;
+ 	}
+ 
+ 	/* run through until pnp_check_mem is happy */
+ 	do {
+-		*value1 += mem->align;
+-		*value2 = *value1 + mem->size - 1;
+-		if (*value1 > mem->max || !mem->align)
++		*start += mem->align;
++		*end = *start + mem->size - 1;
++		if (*start > mem->max || !mem->align)
+ 			return 0;
+ 	} while (pnp_check_mem(dev, idx));
+ 	return 1;
+@@ -101,7 +101,7 @@
+ static int pnp_next_irq(struct pnp_dev * dev, int idx)
+ {
+ 	struct pnp_irq *irq;
+-	unsigned long *value1, *value2, *value3;
++	unsigned long *start, *end, *flags;
+ 	int i, mask;
+ 	if (!dev || idx < 0 || idx >= PNP_MAX_IRQ)
+ 		return 0;
+@@ -109,23 +109,23 @@
+ 	if (!irq)
+ 		return 1;
+ 
+-	value1 = &dev->res.irq_resource[idx].start;
+-	value2 = &dev->res.irq_resource[idx].end;
+-	value3 = &dev->res.irq_resource[idx].flags;
++	start = &dev->res.irq_resource[idx].start;
++	end = &dev->res.irq_resource[idx].end;
++	flags = &dev->res.irq_resource[idx].flags;
+ 
+ 	/* set the initial values if this is the first time */
+-	if (*value1 == -1) {
+-		*value1 = *value2 = 0;
+-		*value3 = irq->flags | IORESOURCE_IRQ;
++	if (*start == -1) {
++		*start = *end = 0;
++		*flags = irq->flags | IORESOURCE_IRQ;
+ 		if (!pnp_check_irq(dev, idx))
+ 			return 1;
+ 	}
+ 
+ 	mask = irq->map;
+-	for (i = *value1 + 1; i < 16; i++)
++	for (i = *start + 1; i < 16; i++)
+ 	{
+ 		if(mask>>i & 0x01) {
+-			*value1 = *value2 = i;
++			*start = *end = i;
+ 			if(!pnp_check_irq(dev, idx))
+ 				return 1;
+ 		}
+@@ -136,8 +136,7 @@
+ static int pnp_next_dma(struct pnp_dev * dev, int idx)
+ {
+ 	struct pnp_dma *dma;
+-	struct resource backup;
+-	unsigned long *value1, *value2, *value3;
++	unsigned long *start, *end, *flags;
+ 	int i, mask;
+ 	if (!dev || idx < 0 || idx >= PNP_MAX_DMA)
  		return -EINVAL;
--      	isapnp_cfg_begin(dev->card->number, dev->number);
-+	isapnp_cfg_begin(dev->card->number, dev->number);
- 	isapnp_deactivate(dev->number);
- 	dev->active = 0;
- 	isapnp_cfg_end();
-@@ -1127,11 +1156,11 @@
- 	protocol_for_each_card(&isapnp_protocol,card) {
- 		cards++;
- 		if (isapnp_verbose) {
--			printk(KERN_INFO "isapnp: Card '%s'\n", card->name[0]?card->name:"Unknown");
-+			printk(KERN_INFO "isapnp: Card '%s'\n", card->dev.name[0]?card->dev.name:"Unknown");
- 			if (isapnp_verbose < 2)
- 				continue;
--			pnp_card_for_each_dev(card,dev) {
--				printk(KERN_INFO "isapnp:   Device '%s'\n", dev->name[0]?dev->name:"Unknown");
-+			card_for_each_dev(card,dev) {
-+				printk(KERN_INFO "isapnp:   Device '%s'\n", dev->dev.name[0]?dev->dev.name:"Unknown");
- 			}
+@@ -145,46 +144,52 @@
+ 	if (!dma)
+ 		return 1;
+ 
+-	value1 = &dev->res.dma_resource[idx].start;
+-	value2 = &dev->res.dma_resource[idx].end;
+-	value3 = &dev->res.dma_resource[idx].flags;
+-	*value3 = dma->flags | IORESOURCE_DMA;
+-	backup = dev->res.dma_resource[idx];
++	start = &dev->res.dma_resource[idx].start;
++	end = &dev->res.dma_resource[idx].end;
++	flags = &dev->res.dma_resource[idx].flags;
+ 
+ 	/* set the initial values if this is the first time */
+-	if (*value1 == -1) {
+-		*value1 = *value2 = 0;
+-		*value3 = dma->flags | IORESOURCE_DMA;
++	if (*start == -1) {
++		*start = *end = 0;
++		*flags = dma->flags | IORESOURCE_DMA;
+ 		if (!pnp_check_dma(dev, idx))
+ 			return 1;
+ 	}
+ 
+ 	mask = dma->map;
+-	for (i = *value1 + 1; i < 8; i++)
++	for (i = *start + 1; i < 8; i++)
+ 	{
+ 		if(mask>>i & 0x01) {
+-			*value1 = *value2 = i;
++			*start = *end = i;
+ 			if(!pnp_check_dma(dev, idx))
+ 				return 1;
  		}
  	}
+-	dev->res.dma_resource[idx] = backup;
+ 	return 0;
+ }
+ 
+-
+ static int pnp_next_rule(struct pnp_dev *dev)
+ {
+ 	int depnum = dev->rule->depnum;
+         int max = pnp_get_max_depnum(dev);
+ 	int priority = PNP_RES_PRIORITY_PREFERRED;
+ 
++	if (depnum < 0)
++		return 0;
++
++	if (max == 0) {
++		if (pnp_generate_rule(dev, 0, dev->rule)) {
++			dev->rule->depnum = -1;
++			return 1;
++		}
++	}
++
+ 	if(depnum > 0) {
+ 		struct pnp_resources * res = pnp_find_resources(dev, depnum);
+ 		priority = res->priority;
+ 	}
+ 
+-	for (; priority <= PNP_RES_PRIORITY_FUNCTIONAL; priority++, depnum=0) {
++	for (; priority <= PNP_RES_PRIORITY_FUNCTIONAL; priority++, depnum = 0) {
+ 		depnum += 1;
+ 		for (; depnum <= max; depnum++) {
+ 			struct pnp_resources * res = pnp_find_resources(dev, depnum);
+@@ -251,6 +256,7 @@
+ 	if (!list_empty(&change->changes))
+ 		list_splice_init(&change->changes, &parent->changes);
+ }
++
+ static int pnp_next_config(struct pnp_dev * dev, int move, struct pnp_change * parent);
+ 
+ static int pnp_next_request(struct pnp_dev * dev, int move, struct pnp_change * parent, struct pnp_change * change)
+@@ -259,7 +265,8 @@
+ 	struct pnp_dev * cdev;
+ 
+ 	for (i = 0; i < PNP_MAX_PORT; i++) {
+-		if (dev->res.port_resource[i].start == 0 || pnp_check_port_conflicts(dev,i,SEARCH_WARM)) {
++		if (dev->res.port_resource[i].start == 0
++		 || pnp_check_port_conflicts(dev,i,SEARCH_WARM)) {
+ 			if (!pnp_next_port(dev,i))
+ 				return 0;
+ 		}
+@@ -274,7 +281,8 @@
+ 		pnp_commit_changes(parent, change);
+ 	}
+ 	for (i = 0; i < PNP_MAX_MEM; i++) {
+-		if (dev->res.mem_resource[i].start == 0 || pnp_check_mem_conflicts(dev,i,SEARCH_WARM)) {
++		if (dev->res.mem_resource[i].start == 0
++		 || pnp_check_mem_conflicts(dev,i,SEARCH_WARM)) {
+ 			if (!pnp_next_mem(dev,i))
+ 				return 0;
+ 		}
+@@ -289,7 +297,8 @@
+ 		pnp_commit_changes(parent, change);
+ 	}
+ 	for (i = 0; i < PNP_MAX_IRQ; i++) {
+-		if (dev->res.irq_resource[i].start == -1 || pnp_check_irq_conflicts(dev,i,SEARCH_WARM)) {
++		if (dev->res.irq_resource[i].start == -1
++		 || pnp_check_irq_conflicts(dev,i,SEARCH_WARM)) {
+ 			if (!pnp_next_irq(dev,i))
+ 				return 0;
+ 		}
+@@ -304,7 +313,8 @@
+ 		pnp_commit_changes(parent, change);
+ 	}
+ 	for (i = 0; i < PNP_MAX_DMA; i++) {
+-		if (dev->res.dma_resource[i].start == -1 || pnp_check_dma_conflicts(dev,i,SEARCH_WARM)) {
++		if (dev->res.dma_resource[i].start == -1
++		 || pnp_check_dma_conflicts(dev,i,SEARCH_WARM)) {
+ 			if (!pnp_next_dma(dev,i))
+ 				return 0;
+ 		}
+@@ -323,12 +333,13 @@
+ 
+ static int pnp_next_config(struct pnp_dev * dev, int move, struct pnp_change * parent)
+ {
+-	struct pnp_change * change = pnp_add_change(parent,dev);
++	struct pnp_change * change;
+ 	move--;
++	if (!dev->rule)
++		return 0;
++	change = pnp_add_change(parent,dev);
+ 	if (!change)
+ 		return 0;
+-	if (!dev->rule)
+-		goto fail;
+ 	if (!pnp_can_configure(dev))
+ 		goto fail;
+ 	if (!dev->rule->depnum) {
+@@ -431,8 +442,6 @@
+ 		spin_unlock(&pnp_lock);
+ 		return 1;
+ 	}
+-	dev->rule->depnum = 0;
+-	pnp_init_resource_table(&dev->res);
+ 	if (!dev->rule) {
+ 		dev->rule = pnp_alloc(sizeof(struct pnp_rule_table));
+ 		if (!dev->rule) {
+@@ -440,6 +449,8 @@
+ 			return -ENOMEM;
+ 		}
+ 	}
++	dev->rule->depnum = 0;
++	pnp_init_resource_table(&dev->res);
+ 	while (pnp_next_rule(dev)) {
+ 		for (i = 0; i < PNP_MAX_PORT; i++) {
+ 			if (!pnp_next_port(dev,i))
+diff -urN a/drivers/pnp/names.c b/drivers/pnp/names.c
+--- a/drivers/pnp/names.c	Sat Feb 15 22:53:38 2003
++++ b/drivers/pnp/names.c	Sun Feb 16 20:31:36 2003
+@@ -33,7 +33,7 @@
+ 	char *name = dev->dev.name;
+ 	for(i=0; i<sizeof(pnp_id_eisaid)/sizeof(pnp_id_eisaid[0]); i++){
+ 		if (compare_pnp_id(dev->id,pnp_id_eisaid[i])){
+-			sprintf(name, "%s", pnp_id_names[i]);
++			snprintf(name, DEVICE_NAME_SIZE, "%s", pnp_id_names[i]);
+ 			return;
+ 		}
+ 	}
+diff -urN a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
+--- a/drivers/pnp/pnpbios/core.c	Sat Feb 15 23:26:41 2003
++++ b/drivers/pnp/pnpbios/core.c	Sun Feb 16 20:29:09 2003
+@@ -146,9 +146,9 @@
+ 
+ /*
+  * At some point we want to use this stack frame pointer to unwind
+- * after PnP BIOS oopses. 
++ * after PnP BIOS oopses.
+  */
+- 
++
+ u32 pnp_bios_fault_esp;
+ u32 pnp_bios_fault_eip;
+ u32 pnp_bios_is_utter_crap = 0;
+diff -urN a/drivers/pnp/resource.c b/drivers/pnp/resource.c
+--- a/drivers/pnp/resource.c	Sat Feb 15 23:26:41 2003
++++ b/drivers/pnp/resource.c	Sun Feb 16 20:29:09 2003
+@@ -2,7 +2,7 @@
+  * resource.c - Contains functions for registering and analyzing resource information
+  *
+  * based on isapnp.c resource management (c) Jaroslav Kysela <perex@suse.cz>
+- * Copyright 2002 Adam Belay <ambx1@neo.rr.com>
++ * Copyright 2003 Adam Belay <ambx1@neo.rr.com>
+  *
+  */
+ 
+@@ -598,7 +598,7 @@
+ 	struct pnp_irq * irq;
+ 	struct pnp_dma * dma;
+ 
+-	if (depnum <= 0 || !rule)
++	if (depnum < 0 || !rule)
+ 		return -EINVAL;
+ 
+ 	/* independent */
+@@ -631,6 +631,8 @@
+ 	}
+ 
+ 	/* dependent */
++	if (depnum == 0)
++		return 1;
+ 	res = pnp_find_resources(dev, depnum);
+ 	if (!res)
+ 		return -ENODEV;
+@@ -680,7 +682,6 @@
+ EXPORT_SYMBOL(pnp_add_dma_resource);
+ EXPORT_SYMBOL(pnp_add_port_resource);
+ EXPORT_SYMBOL(pnp_add_mem_resource);
+-EXPORT_SYMBOL(pnp_add_mem32_resource);
+ EXPORT_SYMBOL(pnp_init_resource_table);
+ EXPORT_SYMBOL(pnp_generate_rule);
+ 
+diff -urN a/drivers/pnp/support.c b/drivers/pnp/support.c
+--- a/drivers/pnp/support.c	Sat Feb 15 23:26:41 2003
++++ b/drivers/pnp/support.c	Sun Feb 16 20:30:49 2003
+@@ -36,7 +36,7 @@
+ #define LARGE_TAG_ANSISTR		0x02
+ #define LARGE_TAG_UNICODESTR		0x03
+ #define LARGE_TAG_VENDOR		0x04
+-#define LARGE_TAG_MEM32		0x05
++#define LARGE_TAG_MEM32			0x05
+ #define LARGE_TAG_FIXEDMEM32		0x06
+ 
+ 
+@@ -143,6 +143,11 @@
+ 				/* ignore this for now */
+ 				break;
+ 			}
++			case LARGE_TAG_VENDOR:
++			{
++				/* do nothing */
++				break;
++			}
+ 			case LARGE_TAG_MEM32:
+ 			{
+ 				int io = *(int *) &p[4];
+@@ -204,6 +209,11 @@
+ 			if (len != 7)
+ 				goto sm_err;
+ 			current_ioresource(res, io, size);
++			break;
++		}
++		case SMALL_TAG_VENDOR:
++		{
++			/* do nothing */
+ 			break;
+ 		}
+ 		case SMALL_TAG_FIXEDPORT:
+diff -urN a/drivers/pnp/system.c b/drivers/pnp/system.c
+--- a/drivers/pnp/system.c	Sat Feb 15 23:26:41 2003
++++ b/drivers/pnp/system.c	Sun Feb 16 20:29:09 2003
+@@ -93,6 +93,7 @@
+ 
+ static struct pnp_driver system_pnp_driver = {
+ 	.name		= "system",
++	.flags		= PNP_DRIVER_DO_NOT_ACTIVATE, 
+ 	.id_table	= pnp_dev_table,
+ 	.probe		= system_pnp_probe,
+ 	.remove		= NULL,

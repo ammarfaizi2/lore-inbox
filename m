@@ -1,30 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129284AbRCBTuj>; Fri, 2 Mar 2001 14:50:39 -0500
+	id <S129466AbRCBTw3>; Fri, 2 Mar 2001 14:52:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129456AbRCBTu3>; Fri, 2 Mar 2001 14:50:29 -0500
-Received: from PO10.ANDREW.CMU.EDU ([128.2.10.110]:33664 "EHLO
-	po10.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id <S129284AbRCBTuP>; Fri, 2 Mar 2001 14:50:15 -0500
-Message-ID: <0ubzXvpz0001Q6cDsp@andrew.cmu.edu>
-Date: Fri,  2 Mar 2001 14:48:11 -0500 (EST)
-From: Chaskiel M Grundman <cg2v+@andrew.cmu.edu>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Subject: Re: APIC error on CPU0 (UP APIC kernel)
-Cc: linux-kernel@vger.kernel.org,
-        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-In-Reply-To: <20010301213248.J3217@conectiva.com.br>
-In-Reply-To: <subjzA1z0001Q6c7QE@andrew.cmu.edu>
-	<20010301213248.J3217@conectiva.com.br>
+	id <S129468AbRCBTwU>; Fri, 2 Mar 2001 14:52:20 -0500
+Received: from [62.81.160.67] ([62.81.160.67]:21952 "EHLO smtp1.alehop.com")
+	by vger.kernel.org with ESMTP id <S129466AbRCBTwE>;
+	Fri, 2 Mar 2001 14:52:04 -0500
+Date: Fri, 2 Mar 2001 20:26:02 +0000 (WET)
+From: Miguel Armas <kuko@ulpgc.es>
+To: linux-kernel@vger.kernel.org
+Cc: Mitchell Blank Jr <mitch@sfgoth.com>
+Subject: Re: kernel 2.4.2 SMP + ATM hangs (fwd)
+Message-ID: <Pine.LNX.4.21.0103022025060.6364-100000@mento.ulpgc.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Excerpts from mail: 1-Mar-101 Re: APIC error on CPU0 (UP .. by Arnaldo
-C. de Melo@conec 
-> can you try 2.4.2-ac8 and tell us the results?
-No change (I used 2.4.2-ac9, since that was available...). (The watchdog
-doesn't trip and display output, but eventually the errors stop and
-rebooting is possible)
 
-> can you run 2.4.2 with noapic?
-No change, either on 2.4.2 or 2.4.2-ac9 
+On Fri, 2 Mar 2001, Mitchell Blank Jr wrote:
+
+> Miguel Armas wrote:
+> > A couple days ago we installed a Fore 200E ATM card and after getting the
+> > ATM address using ilmid the machine hangs. The kernel still respond to
+> > pings, but the userspace is dead.
+> > 
+> > If we remove SMP support in the kernel everything works fine (but with
+> > only one CPU)...
+> 
+> You probably need the patch that Chas Williams came up with in January.
+> I've been meaning to forward it, but I haven't yet.  Please try it and
+> see if it fixes your problem.
+
+I just applied the patch and everything works now. Thanks a lot!
+ 
+Salu2!
+-- 
+------------------------------------
+Miguel Armas del Rio <kuko@ulpgc.es>
+Division de Comunicaciones (DC)
+Universidad de Las Palmas
+------------------------------------
+
+

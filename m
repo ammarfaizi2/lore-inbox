@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbTFOQaM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 12:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbTFOQaM
+	id S262368AbTFOQgo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 12:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbTFOQgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 12:30:12 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:54962 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262366AbTFOQaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 12:30:08 -0400
-Date: Sun, 15 Jun 2003 11:40:26 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: bkSVN live
-Message-ID: <20030615154026.GL542@hopper.phunnypharm.org>
-References: <20030615133631.GF542@hopper.phunnypharm.org> <Pine.GSO.4.21.0306151839170.14609-100000@vervain.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0306151839170.14609-100000@vervain.sonytel.be>
-User-Agent: Mutt/1.5.4i
+	Sun, 15 Jun 2003 12:36:43 -0400
+Received: from clem.clem-digital.net ([68.16.168.10]:49934 "EHLO
+	clem.clem-digital.net") by vger.kernel.org with ESMTP
+	id S262368AbTFOQgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 12:36:41 -0400
+From: Pete Clements <clem@clem.clem-digital.net>
+Message-Id: <200306151650.MAA05807@clem.clem-digital.net>
+Subject: Re: 2.5.71 -- Lost second 3c509 card
+In-Reply-To: <1055693991.7678.0.camel@rth.ninka.net> from "David S. Miller" at "Jun 15, 2003  9:19:51 am"
+To: davem@redhat.com (David S. Miller)
+Date: Sun, 15 Jun 2003 12:50:25 -0400 (EDT)
+Cc: clem@clem.clem-digital.net, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL48 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 15, 2003 at 06:40:46PM +0200, Geert Uytterhoeven wrote:
-> On Sun, 15 Jun 2003, Ben Collins wrote:
-> > For those that know SVN, you need a recent (e.g. upcoming 0.24 release
-> > of SVN, or current trunk) client. I am using revision r6227. If you need
-> 
-> Can you confirm that 0.23.0 (r5962) (from Debian unstable) is too old, or is
-> this a PPC-specific problem?
+Quoting David S. Miller
+  > On Sun, 2003-06-15 at 06:19, Pete Clements wrote:
+  > > As a followup, reverted the 3c509 bk10 changes. Back in business
+  > > with 2.5.71.
+  > 
+  > Are you using command line port number specifications?
+  > If so, what do they look like?
+  > 
+  > -- 
+  > David S. Miller <davem@redhat.com>
+  > 
 
-Too old. 0.24 will release with some incompatible revamps to the ra_svn
-protocol, but it improves checkout over high latency by a noticable
-amount.
+>From boot log:
 
+Kernel command line: auto BOOT_IMAGE=Linux ro root=341 ether=9,0x310,4,0x3c509,eth1
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Pete Clements 
+clem@clem.clem-digital.net

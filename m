@@ -1,71 +1,222 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272387AbTGYXiR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 19:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272388AbTGYXiR
+	id S272388AbTGYXkj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 19:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272389AbTGYXkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 19:38:17 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:52381 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S272387AbTGYXiP (ORCPT
+	Fri, 25 Jul 2003 19:40:39 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:48559 "HELO
+	develer.com") by vger.kernel.org with SMTP id S272388AbTGYXkd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 19:38:15 -0400
-Date: Sat, 26 Jul 2003 01:53:18 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, schierlm@gmx.de,
-       linux-kernel@vger.kernel.org, pavel@suse.cz
-Subject: Re: touchpad doesn't work under 2.6.0-test1-ac2
-Message-ID: <20030725235318.GA1102@ucw.cz>
-References: <82F70261D3A@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Jul 2003 19:40:33 -0400
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+To: Christoph Hellwig <hch@infradead.org>
+Subject: [PATCH] Make I/O schedulers optional (Was: Re: Kernel 2.6 size increase)
+Date: Sat, 26 Jul 2003 01:55:15 +0200
+User-Agent: KMail/1.5.9
+Cc: Willy Tarreau <willy@w.ods.org>, Christoph Hellwig <hch@lst.de>,
+       uClinux development list <uclinux-dev@uclinux.org>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jens Axboe <axboe@suse.de>
+References: <200307232046.46990.bernie@develer.com> <200307242227.16439.bernie@develer.com> <20030725164649.A6557@infradead.org>
+In-Reply-To: <20030725164649.A6557@infradead.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <82F70261D3A@vcnet.vc.cvut.cz>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307260155.15099.bernie@develer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 25, 2003 at 02:16:25AM +0200, Petr Vandrovec wrote:
+On Friday 25 July 2003 17:46, Christoph Hellwig wrote:
+> On Thu, Jul 24, 2003 at 10:27:16PM +0200, Bernardo Innocenti wrote:
+> > Some of the bigger 2.6 additions cannot be configured out.
+> > I wish sysfs and the different I/O schedulers could be removed.
+>
+> Removing the I/O schedulers is pretty trivial, please come up with a
+> patch to make both of them optional and maybe add a trivial noop one.
 
-> > For proper Synaptics support an XFree86 driver is available (get it at
-> > http://w1.894.telia.com/~u89404340/touchpad/index.html). This will allow
-> > for full support, including gesture recongition. Passthrough support for
-> 
-> I do not use XFree. I'm using 1600x1200 radeonfb consoles.
+ Here it is, attached below. I've tested it on both i386 and m68knommu.
 
-gpm support is on the way. Until it's available, you can use
-'psmouse_noext=1' on the kernel or module command line to bring the
-synaptics touchpad to standard PS/2 mouse mode. Then it'll work with gpm
-without any changes. Don't expect advanced
-multitap/scrolling/palmdetection, then, though.
+ Jens, could you please review this patch and push to Linus if you
+like it?
 
-> > Support for touchpads is nonexistent in mousedev.c, it only supports
-> > mice, digitizers and touchscreens. Just adding an entry to the device
-> > table is futile, you'd need much much more than that.
-> 
-> What's difference between touchscreen and touchpad? Both use absolute
-> directions, and rest are just buttons... As I need working gpm, without 
-> mousedev support Synaptics mode is of no use for me.
+> Removing sysfs should also be pretty trivial but I'm not sure whether
+> you really want that.
 
-Touchscreen is overlaid over a screen. The cursor follows the finger
-position exactly. This is the sale for digitizers, except a cursor is
-replaced by a pen. Touchpads are completely different - the finger
-motion is relativized and then summed up again, so instead of the cursor
-following the finger position, it moves in the direction the finger
-moves.
+ I really don't need sysfs on uClinux. I have no programs using it.
+Removing sysfs appears to be a little bit more difficult, though.
+I'll try tomorrow.
 
-As an example, imagine touching the touchscreen in the lower left corner and
-moving it to the upper right. You end up with the cursor in the upper
-right corner. Now tap the lower left corner again, and the cursor moves
-there immediately. This is the behavior mousedev supports.
+--------------------------------------------------------------------------
 
-While with a touchpad, you'll first see the cursor moving towards the
-upper right corner, but not reaching it. Now after tapping the lower
-left corner again, the cursor stays in position and can be moved further
-...
+Add kconfig options to allow excluding either or both the I/O schedulers.
+Mostly useful for embedded systems (save ~13KB):
 
-See the difference?
+With my desktop PC (i386) kernel:
+
+   text    data     bss     dec     hex filename
+   2210707  475856  150444 2837007  2b4a0f vmlinux_with_ioscheds
+   2197763  473446  150380 2821589  2b0dd5 vmlinux_without_ioscheds
+
+With my uClinux (m68knommu) kernel:
+
+   text    data     bss     dec     hex filename
+   807760   47384   78884  934028   e408c linux_without_ioscheds
+   819276   52460   78896  950632   e8168 linux_with_ioscheds
+
+
+diff -Nru linux-2.6.0-test1.orig/drivers/block/Kconfig linux-2.6.0-test1/drivers/block/Kconfig
+--- linux-2.6.0-test1.orig/drivers/block/Kconfig	2003-07-14 05:31:51.000000000 +0200
++++ linux-2.6.0-test1/drivers/block/Kconfig	2003-07-25 18:59:19.000000000 +0200
+@@ -4,6 +4,10 @@
+ 
+ menu "Block devices"
+ 
++menu "I/O schedulers"
++source "drivers/block/Kconfig.iosched"
++endmenu
++
+ config BLK_DEV_FD
+ 	tristate "Normal floppy disk support"
+ 	depends on !X86_PC9800
+diff -Nru linux-2.6.0-test1.orig/drivers/block/Kconfig.iosched linux-2.6.0-test1/drivers/block/Kconfig.iosched
+--- linux-2.6.0-test1.orig/drivers/block/Kconfig.iosched	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.0-test1/drivers/block/Kconfig.iosched	2003-07-25 18:59:53.000000000 +0200
+@@ -0,0 +1,8 @@
++config IOSCHED_AS
++	bool "Anticipatory I/O scheduler"
++	default y
++
++config IOSCHED_DEADLINE
++	bool "Deadline I/O scheduler"
++	default y
++
+diff -Nru linux-2.6.0-test1.orig/drivers/block/Makefile linux-2.6.0-test1/drivers/block/Makefile
+--- linux-2.6.0-test1.orig/drivers/block/Makefile	2003-07-14 05:37:16.000000000 +0200
++++ linux-2.6.0-test1/drivers/block/Makefile	2003-07-25 20:21:50.000000000 +0200
+@@ -13,9 +13,10 @@
+ # kblockd threads
+ #
+ 
+-obj-y	:= elevator.o ll_rw_blk.o ioctl.o genhd.o scsi_ioctl.o \
+-	deadline-iosched.o as-iosched.o
++obj-y	:= elevator.o ll_rw_blk.o ioctl.o genhd.o scsi_ioctl.o
+ 
++obj-$(CONFIG_IOSCHED_AS)	+= as-iosched.o
++obj-$(CONFIG_IOSCHED_DEADLINE)	+= deadline-iosched.o
+ obj-$(CONFIG_MAC_FLOPPY)	+= swim3.o
+ obj-$(CONFIG_BLK_DEV_FD)	+= floppy.o
+ obj-$(CONFIG_BLK_DEV_FD98)	+= floppy98.o
+diff -Nru linux-2.6.0-test1.orig/drivers/block/as-iosched.c linux-2.6.0-test1/drivers/block/as-iosched.c
+--- linux-2.6.0-test1.orig/drivers/block/as-iosched.c	2003-07-14 05:28:54.000000000 +0200
++++ linux-2.6.0-test1/drivers/block/as-iosched.c	2003-07-25 20:19:44.000000000 +0200
+@@ -1,7 +1,7 @@
+ /*
+  *  linux/drivers/block/as-iosched.c
+  *
+- *  Anticipatory & deadline i/o scheduler.
++ *  Anticipatory i/o scheduler.
+  *
+  *  Copyright (C) 2002 Jens Axboe <axboe@suse.de>
+  *                     Nick Piggin <piggin@cyberone.com.au>
+@@ -1832,6 +1832,7 @@
+ 	.elevator_exit_fn =		as_exit,
+ 
+ 	.elevator_ktype =		&as_ktype,
++	.elevator_name =		"anticipatory scheduling",
+ };
+ 
+ EXPORT_SYMBOL(iosched_as);
+diff -Nru linux-2.6.0-test1.orig/drivers/block/deadline-iosched.c linux-2.6.0-test1/drivers/block/deadline-iosched.c
+--- linux-2.6.0-test1.orig/drivers/block/deadline-iosched.c	2003-07-14 05:37:15.000000000 +0200
++++ linux-2.6.0-test1/drivers/block/deadline-iosched.c	2003-07-25 20:20:53.000000000 +0200
+@@ -941,6 +941,7 @@
+ 	.elevator_exit_fn =		deadline_exit,
+ 
+ 	.elevator_ktype =		&deadline_ktype,
++	.elevator_name =		"deadline",
+ };
+ 
+ EXPORT_SYMBOL(iosched_deadline);
+diff -Nru linux-2.6.0-test1.orig/drivers/block/elevator.c linux-2.6.0-test1/drivers/block/elevator.c
+--- linux-2.6.0-test1.orig/drivers/block/elevator.c	2003-07-14 05:36:48.000000000 +0200
++++ linux-2.6.0-test1/drivers/block/elevator.c	2003-07-25 19:27:41.000000000 +0200
+@@ -409,6 +409,7 @@
+ 	.elevator_merge_req_fn		= elevator_noop_merge_requests,
+ 	.elevator_next_req_fn		= elevator_noop_next_request,
+ 	.elevator_add_req_fn		= elevator_noop_add_request,
++	.elevator_name			= "noop",
+ };
+ 
+ module_init(elevator_global_init);
+diff -Nru linux-2.6.0-test1.orig/drivers/block/ll_rw_blk.c linux-2.6.0-test1/drivers/block/ll_rw_blk.c
+--- linux-2.6.0-test1.orig/drivers/block/ll_rw_blk.c	2003-07-14 05:30:40.000000000 +0200
++++ linux-2.6.0-test1/drivers/block/ll_rw_blk.c	2003-07-25 19:27:02.000000000 +0200
+@@ -1205,17 +1205,31 @@
+ 
+ static int __make_request(request_queue_t *, struct bio *);
+ 
+-static elevator_t *chosen_elevator = &iosched_as;
++static elevator_t *chosen_elevator =
++#if defined(CONFIG_IOSCHED_AS)
++	&iosched_as;
++#elif defined(CONFIG_IOSCHED_DEADLINE)
++	&iosched_deadline;
++#else
++	&elevator_noop;
++#endif
+ 
++#if defined(CONFIG_IOSCHED_AS) || defined(CONFIG_IOSCHED_DEADLINE)
+ static int __init elevator_setup(char *str)
+ {
++#ifdef CONFIG_IOSCHED_DEADLINE
+ 	if (!strcmp(str, "deadline"))
+ 		chosen_elevator = &iosched_deadline;
++#endif
++#ifdef CONFIG_IOSCHED_AS
+ 	if (!strcmp(str, "as"))
+ 		chosen_elevator = &iosched_as;
++#endif
+ 	return 1;
+ }
++
+ __setup("elevator=", elevator_setup);
++#endif /* CONFIG_IOSCHED_AS || CONFIG_IOSCHED_DEADLINE */
+ 
+ /**
+  * blk_init_queue  - prepare a request queue for use with a block device
+@@ -1255,10 +1269,7 @@
+ 
+ 	if (!printed) {
+ 		printed = 1;
+-		if (chosen_elevator == &iosched_deadline)
+-			printk("deadline elevator\n");
+-		else if (chosen_elevator == &iosched_as)
+-			printk("anticipatory scheduling elevator\n");
++		printk("Using %s elevator\n", chosen_elevator->elevator_name);
+ 	}
+ 
+ 	if ((ret = elevator_init(q, chosen_elevator))) {
+diff -Nru linux-2.6.0-test1.orig/include/linux/elevator.h linux-2.6.0-test1/include/linux/elevator.h
+--- linux-2.6.0-test1.orig/include/linux/elevator.h	2003-07-14 05:29:27.000000000 +0200
++++ linux-2.6.0-test1/include/linux/elevator.h	2003-07-25 19:18:39.000000000 +0200
+@@ -52,6 +52,7 @@
+ 
+ 	struct kobject kobj;
+ 	struct kobj_type *elevator_ktype;
++	const char *elevator_name;
+ };
+ 
+ /*
+
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+
+

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129053AbRBLKyp>; Mon, 12 Feb 2001 05:54:45 -0500
+	id <S129382AbRBLKzY>; Mon, 12 Feb 2001 05:55:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129055AbRBLKyf>; Mon, 12 Feb 2001 05:54:35 -0500
-Received: from ns.suse.de ([213.95.15.193]:50703 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129053AbRBLKyX>;
-	Mon, 12 Feb 2001 05:54:23 -0500
-Date: Mon, 12 Feb 2001 11:54:14 +0100
-From: Mads Martin Joergensen <mmj@suse.de>
-To: Ryan Hairyes <rhairyes@lee.k12.nc.us>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-logo.h
-Message-ID: <20010212115414.B10809@staudinger.suse.de>
-In-Reply-To: <98191889817235-11131417235rhairyes@lee.k12.nc.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <98191889817235-11131417235rhairyes@lee.k12.nc.us>; from rhairyes@lee.k12.nc.us on Sun, Feb 11, 2001 at 07:14:58PM +0000
+	id <S129332AbRBLKzO>; Mon, 12 Feb 2001 05:55:14 -0500
+Received: from [212.71.97.147] ([212.71.97.147]:25100 "EHLO yak.nomad.ch")
+	by vger.kernel.org with ESMTP id <S129055AbRBLKzJ>;
+	Mon, 12 Feb 2001 05:55:09 -0500
+Date: Mon, 12 Feb 2001 11:55:06 +0100 (CET)
+From: Christian Stocker <chregu@nomad.ch>
+To: <linux-kernel@vger.kernel.org>
+Subject: console blanking and 2.4.1
+Message-ID: <Pine.LNX.4.30.0102121153270.15033-100000@bimbo.nomad.ch>
+Organization: Nomad Online Agents
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ryan Hairyes <rhairyes@lee.k12.nc.us> [Feb 11. 2001 19:18]:
-> Hello All,
-> 
-> Could anyone tell me about linux_logo.h.  I want to put my
-> own picture in there. What format is the picture written in?
-> Any any idea on how I could change it?  Also, could the
-> picture be any bigger than 80x80,  I would like for it to take
-> up the whole screen.
+Hi
 
-There is a gimp plugin to make boot logos here:
+Since I installed Kernel 2.4.1 on our server, the monitor does not turn
+itself off after some minutes off inactivity... The screen goes blank, but
+the monitor stays turned on...
 
-http://registry.gimp.org/plugin?id=376
+Until and including 2.4.0 it worked fine. Monitor shut down, as soon as
+the screen (console) went blank. There's no X on the thing, so that should
+not be the problem. And i used the same .config for 2.4.0 and
+2.4.1. ACPI is turned off. APM on. but it makes no differences if i
+use APM or not (in 2.4.0 and in 2.4.1)
 
--- 
-Mads Martin Joergensen, http://mmj.dk
-"Why make things difficult, when it is possible to make them cryptic and
-totally illogic, with just a little bit more effort."
-                                -- A. P. J.
+Any Idea where the problem could be? It has to be somewhere in the kernel,
+'cause i didn't change anything on the system elsewhere and it still works
+with 2.4.0. But i have no idea where to look at in the sources...
+
+i use SuSE 7.0 and it's a Cyrix 200 Mhz. I don't know what kind of bios,
+but i can have a look, if that's important (i tried different settings
+there in the APM settings, but nothing helped neither)
+
+chregu
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

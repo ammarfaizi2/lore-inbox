@@ -1,36 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313675AbSDZGD6>; Fri, 26 Apr 2002 02:03:58 -0400
+	id <S313676AbSDZGVx>; Fri, 26 Apr 2002 02:21:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313676AbSDZGD5>; Fri, 26 Apr 2002 02:03:57 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:40439 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S313675AbSDZGD4>; Fri, 26 Apr 2002 02:03:56 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.30.0204251151340.17102-100000@hill.cs.ucr.edu> 
-To: John Tyner <jtyner@cs.ucr.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add AM29F040B Support 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 26 Apr 2002 07:03:51 +0100
-Message-ID: <14087.1019801031@redhat.com>
+	id <S313677AbSDZGVw>; Fri, 26 Apr 2002 02:21:52 -0400
+Received: from karpfen.mathe.tu-freiberg.de ([139.20.24.195]:128 "EHLO
+	karpfen.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
+	id <S313676AbSDZGVw>; Fri, 26 Apr 2002 02:21:52 -0400
+Message-Id: <200204261520.g3QFKbQ00938@karpfen.mathe.tu-freiberg.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Michael Dreher <dreher@math.tu-freiberg.de>
+To: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: 2.4.19-pre7: rootfs mounted twice
+Date: Fri, 26 Apr 2002 17:20:36 +0200
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-jtyner@cs.ucr.edu said:
-> Below is a patch that adds support for the AMD AM29F040B flash chip.
-> Hopefully, pine doesn't destory it. 
+on 2.4.18 I get the following:
 
-That chip is already supported in the CVS code. The current plan is to wait 
-for 2.4.19 to be released, send the current code to Marcelo for 
-2.4.20-pre1, and then look at what broke in 2.5, fix it and send the 
-results to Linus.
+dreher@karpfen:~ > uname -a
+Linux karpfen 2.4.18 #2 Sun Apr 21 23:27:03 CEST 2002 i586 unknown
 
---
-dwmw2
+dreher@karpfen:~ > df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/root              7060308   6276080    425580  94% /
+/dev/hda4              3794936   3043812    558344  84% /home
+
+dreher@karpfen:~ > cat /proc/mounts
+/dev/root / ext3 rw,noatime,nodiratime 0 0
+proc /proc proc rw 0 0
+/dev/hda4 /home ext3 rw,noatime,nodiratime 0 0
+usbdevfs /proc/bus/usb usbdevfs rw 0 0
+devpts /dev/pts devpts rw 0 0
 
 
+On the other hand, 2.4.19-pre7 gives:
+
+dreher@karpfen:~ > uname -a
+Linux karpfen 2.4.19-pre7 #6 Sun Apr 21 20:27:47 CEST 2002 i586 unknown
+
+dreher@karpfen:~ > df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+rootfs                 7060308   6276188    425472  94% /
+/dev/root              7060308   6276188    425472  94% /
+/dev/hda4              3794936   3042316    559840  84% /home
+
+dreher@karpfen:~ > cat /proc/mounts
+rootfs / rootfs rw 0 0
+/dev/root / ext3 rw,noatime,nodiratime 0 0
+proc /proc proc rw 0 0
+/dev/hda4 /home ext3 rw,noatime,nodiratime 0 0
+usbdevfs /proc/bus/usb usbdevfs rw 0 0
+devpts /dev/pts devpts rw 0 0
+
+
+I don't know if it is related, but in my bootscripts I link
+/etc/mtab to /proc/mounts.
+
+
+Regards,
+Michael

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262374AbSJVJbP>; Tue, 22 Oct 2002 05:31:15 -0400
+	id <S262369AbSJVJk5>; Tue, 22 Oct 2002 05:40:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262379AbSJVJbO>; Tue, 22 Oct 2002 05:31:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41224 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262374AbSJVJbN>;
-	Tue, 22 Oct 2002 05:31:13 -0400
-Message-ID: <3DB51C5A.2060102@pobox.com>
-Date: Tue, 22 Oct 2002 05:37:30 -0400
+	id <S262370AbSJVJk5>; Tue, 22 Oct 2002 05:40:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50696 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262369AbSJVJk4>;
+	Tue, 22 Oct 2002 05:40:56 -0400
+Message-ID: <3DB51EA2.5060106@pobox.com>
+Date: Tue, 22 Oct 2002 05:47:14 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rik van Riel <riel@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Yay, bug tracking! (was Re: Bug tracking in the run up from 2.5
- to 2.6)
-References: <Pine.LNX.4.44L.0210212339190.22993-100000@imladris.surriel.com> 	<2614308576.1035225800@[10.10.2.3]> <1035280143.31917.17.camel@irongate.swansea.linux.org.uk>
+To: David Dillow <dillowd@y12.doe.gov>
+CC: Christopher Keller <cnkeller@interclypse.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 3COM 3C990 NIC
+References: <1035002976.3086.4.camel@maranello.interclypse.net> <3DB4D9F8.F86ABA4@y12.doe.gov>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Bug reporting systems need maintenance or they collapse
+David Dillow wrote:
+> I have a completely reworked version that I expect to be able to release RSN.
+> (I know, I know, some of you have heard that before... it just takes time to
+> get people around here to sign off on these things. :/)
+> 
+> It will support zero-copy TCP, TCP segmentation offload, and when DaveM's
+> IPSEC is in, I'll be able to do hardware offload for that as well.
 
-Agreed, and IBM said that they would provide people doing this... 
-otherwise I would not have been so enthusiastic :)
+Cool :)
+
+Will you be submitting this for inclusion in the kernel?
+
+And, what differences exists between the 3c59x and 3c90x hardware, and 
+3c990?  Just IPSEC?
+
+	JEff
+
+
 

@@ -1,95 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272619AbRIMAGg>; Wed, 12 Sep 2001 20:06:36 -0400
+	id <S272620AbRIMA2I>; Wed, 12 Sep 2001 20:28:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272620AbRIMAG1>; Wed, 12 Sep 2001 20:06:27 -0400
-Received: from puma.inf.ufrgs.br ([143.54.11.5]:50193 "EHLO inf.ufrgs.br")
-	by vger.kernel.org with ESMTP id <S272619AbRIMAGV>;
-	Wed, 12 Sep 2001 20:06:21 -0400
-Date: Wed, 12 Sep 2001 21:07:17 -0300 (EST)
-From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Re[2]: Duron kernel crash (i686 works)
-In-Reply-To: <17484170901.20010912100011@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.GSO.4.21.0109122059330.10567-100000@jacui>
+	id <S272638AbRIMA17>; Wed, 12 Sep 2001 20:27:59 -0400
+Received: from 63-151-64-156.hsacorp.net ([63.151.64.156]:53509 "EHLO
+	boojiboy.eorbit.net") by vger.kernel.org with ESMTP
+	id <S272620AbRIMA1k>; Wed, 12 Sep 2001 20:27:40 -0400
+From: chris@boojiboy.eorbit.net
+Message-Id: <200109130124.SAA22845@boojiboy.eorbit.net>
+Subject: Re: 2.4.9-ac9 APM w/Compaq 16xx laptop...
+To: linux-kernel@vger.kernel.org
+Date: Wed, 12 Sep 2001 18:24:18 -0700 (PDT)
+Cc: J.A.K.Mouw@ITS.TUDelft.NL, bmacy@macykids.net
+In-Reply-To: <20010913011606.H20118@arthur.ubicom.tudelft.nl> from "Erik Mouw" at Sep 13, 2001 01:16:06 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Sep 2001, VDA wrote:
-
-> RJD> I then get 'Athlon bug!' Still oopses.
+> > When my bios is set ACPI=NO, and APM is compiled in:
+> > A 'shutdown -r' hangs after the "Restarting System" message.  
+> > Depressing the power switch cause a power off.
 > 
-> Waah! That means movntq's moved data to some other place in memory!
-> memcmp detected that and memcpy fixed, but that 'other place' was
-> corrupted and that's the cause of oops.
-> You may change printk to see when this happens:
->     printk(KERN_ERR "Athlon bug! from=%08X to=%08X\n", from, to);
-> If you do, please post from/to pairs printed to lkml.
+> Try "Use real mode APM BIOS call to power off".
 
-Actually, since it usually just oopses once, here is what I get (relevant
-part of the kernel log, I understand it should be ksymoopsed, but the
-idea is to show the order of things):
+With 2.4.9-ac9 'shutdown -r' does not work.  The
+halt '-h' flag does work.  '-r' hangs at "Restarting System."
 
-input2: USB HID v1.00 Mouse [QTRONIX USB Keyboard and Mouse] on usb1:4.1
-Unable to handle kernel paging request at virtual address 03f5e02d
- printing eip:
-c011d9e8
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c011d9e8>]
-EFLAGS: 00010202
-eax: c3fdea54   ebx: c115e564   ecx: 00000027   edx: 03f5e025
-esi: c3f88e00   edi: 00000027   ebp: 00000000   esp: c3d4de88
-ds: 0018   es: 0018   ss: 0018
-Process hostname (pid: 12, stackpage=c3d4d000)
-Stack: c01b5a30 c011e7db c115e564 00000027 c3fdea54 c01b5a30 c3f88e00
-c3f8a380
-       00000000 0000012d c3fdea54 c115e564 c115e4c0 c3f98d40 c011b832
-c3f88e00
-       4004c000 00000000 4004ca64 c3f8a380 ffffffff 00000000 c011b91b
-c3f8a380
-Call Trace: [<c011e7db>] [<c011b832>] [<c011b91b>] [<c010d770>]
-[<c010d8d3>]
-   [<c010d770>] [<c011c592>] [<c011c942>] [<c011c985>] [<c0106d28>]
+I set my machine bios to acpi=no, and also acpi=yes the same 
+hang occurred both times.
 
-Code: 39 5a 08 75 f4 39 4a 0c 75 ef b8 02 00 00 00 0f ab 42 18 85
+Here is the APM config:
 
-Athlon bug! from=C3CE9000 to=C3D5C000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0129386>]
-EFLAGS: 00010202
-eax: c3fa3000   ebx: 00000002   ecx: 00000000   edx: 00000002
-esi: 00000001   edi: c118c580   ebp: 00000001   esp: c3cd5f7c
-ds: 0018   es: 0018   ss: 0018
-Process rc.sysinit (pid: 21, stackpage=c3cd5000)
-Stack: 0010003f 00000001 c0112b08 00000002 c118c580 c3f8a380 c3cd4000
-00000000
-       bfffeeac c118c6a0 c01130d6 c118c580 c3cd4000 40183398 00000000
-c011324e
-       00000000 c0106c37 00000000 40182280 40184814 40183398 00000000
-bfffeeac
-Call Trace: [<c0112b08>] [<c01130d6>] [<c011324e>] [<c0106c37>]
+CONFIG_PM=y
+# CONFIG_ACPI is not set
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+# CONFIG_APM_DO_ENABLE is not set
+# CONFIG_APM_CPU_IDLE is not set
+# CONFIG_APM_DISPLAY_BLANK is not set
+# CONFIG_APM_RTC_IS_GMT is not set
+# CONFIG_APM_ALLOW_INTS is not set
+CONFIG_APM_REAL_MODE_POWER_OFF=y
 
-Code: 8b 43 14 85 c0 75 13 68 a2 61 19 c0 e8 d9 74 fe ff 31 c0 83
 
-and then no more activity. But it's not deterministic. If I pass /bin/sh
-to init I can play a little and get other errors, and not every one of
-them print the Athlon bug error (actually, almost none). Altough I believe
-the error is only there
-(fast_copy_page), because changing the movntqs solves all problems, I
-guess sometimes memcpy really does return 0.
+Here is the pertinent dmesg stuff:
 
-Thanks for the help you guys are giving us,
-
-[]s
-
---
-Roberto Jung Drebes <drebes@inf.ufrgs.br>
-Porto Alegre, RS - Brasil
-http://www.inf.ufrgs.br/~drebes/
-
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
+ BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000ecc00 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000000c000000 (usable)
+ BIOS-e820: 00000000fffc0000 - 0000000100000000 (reserved)
+No local APIC present or hardware disabled
+Kernel command line: auto BOOT_IMAGE=linux ro root=302
+Initializing RT netlink socket
+Compaq 12XL125 machine detected. Enabling interrupts during APM calls.
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265064AbTFCPxK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 11:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbTFCPxK
+	id S265076AbTFCQBA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 12:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265078AbTFCQBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 11:53:10 -0400
-Received: from pat.uio.no ([129.240.130.16]:53713 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S265064AbTFCPwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 11:52:12 -0400
+	Tue, 3 Jun 2003 12:01:00 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:46345 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S265076AbTFCQA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 12:00:58 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, Marc Wilson <msw@cox.net>
+Subject: Re: Linux 2.4.21-rc6
+Date: Tue, 3 Jun 2003 18:13:30 +0200
+User-Agent: KMail/1.5.2
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <20030529052425.GA1566@moonkingdom.net> <20030529055735.GB1566@moonkingdom.net> <Pine.LNX.4.55L.0306031302310.3892@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.55L.0306031302310.3892@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200306031813.10155.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16092.50997.483311.566882@charged.uio.no>
-Date: Tue, 3 Jun 2003 18:05:09 +0200
-To: "Vivek Goyal" <vivek.goyal@wipro.com>
-Cc: "Ion Badulescu" <ionut@badula.org>, <viro@math.psu.edu>,
-       <davem@redhat.com>, <ezk@cs.sunysb.edu>, <indou.takao@jp.fujitsu.com>,
-       <nfs@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: RE: [NFS] Disabling Symbolic Link Content Caching in NFS Client
-In-Reply-To: <2BB7146B38D9CA40B215AB3DAAE24C080BA622@blr-m2-msg.wipro.com>
-References: <2BB7146B38D9CA40B215AB3DAAE24C080BA622@blr-m2-msg.wipro.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have ques\tions about this scanning.
-X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Vivek Goyal <vivek.goyal@wipro.com> writes:
+On Tuesday 03 June 2003 18:02, Marcelo Tosatti wrote:
 
-     > You are right. But our idea is to provide an option to
-     > disable/enable caching based on the nature of intended
-     > application.
+Hi Marcelo,
 
-Apart from hlfsd, which applications actually depend on symlinks not
-being cached?
+> Ok, so you can reproduce the hangs reliably EVEN with -rc6, Marc?
+well, even if you mean Marc Wilson, I also have to say something (as I've 
+written in my previous email some days ago)
 
-     > With this, Linux will have enhanced flexibility in NFS client
-     > like other operating systems. For example.
+The pauses/stops are _a lot_ less than w/o the fix but they are _not_ gone. 
+Tested with 2.4.21-rc6.
 
-Again: Do you have any concrete examples of programs that need this
-functionality, and that cannot be replaced?
+ciao, Marc
 
-Cheers,
-  Trond

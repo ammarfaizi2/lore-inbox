@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280712AbRKFXoT>; Tue, 6 Nov 2001 18:44:19 -0500
+	id <S280701AbRKFXq2>; Tue, 6 Nov 2001 18:46:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280710AbRKFXn5>; Tue, 6 Nov 2001 18:43:57 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:37387 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S280694AbRKFXmN>;
-	Tue, 6 Nov 2001 18:42:13 -0500
-Message-ID: <3BE8754C.2246D74C@lexus.com>
-Date: Tue, 06 Nov 2001 15:42:04 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S280695AbRKFXoc>; Tue, 6 Nov 2001 18:44:32 -0500
+Received: from [216.102.46.130] ([216.102.46.130]:62012 "EHLO
+	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
+	id <S280709AbRKFXoK>; Tue, 6 Nov 2001 18:44:10 -0500
+To: <imran.badr@cavium.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux kernel 2.4 and TCP terminations per second.
+In-Reply-To: <017e01c1671b$91ab38e0$3b10a8c0@IMRANPC>
+From: Roland Dreier <roland@topspincom.com>
+Date: 06 Nov 2001 15:43:36 -0800
+In-Reply-To: "Imran Badr"'s message of "Tue, 6 Nov 2001 15:34:23 -0800"
+Message-ID: <521yjb5utz.fsf@love-boat.topspincom.com>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-To: samson swanson <intellectcrew@yahoo.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.2.19
-In-Reply-To: <20011106211336.50134.qmail@web14304.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-samson swanson wrote:
+    Imran> I am running openssl with apache using modssl. I will have
+    Imran> to look at whether could I use openssl with TUX or zeus.
 
-> Hi all,
->
-> I use slack8 w/ 2.2.19 any of you use that to?
-> Anyway, i was just wondering....
+If you are doing SSL termination without a hardware crypto accelerator
+then the cost of the public key operations for the SSL handshake will
+far outweigh the cost of TCP termination and the webserver.  With a
+typical machine (say a 1 GHz P3) I would estimate you could do 200 SSL
+handshakes/sec with apache/modssl (with 95% of your CPU time spent in
+OpenSSL RSA code).  With a hardware crypto accelerator you could get
+up to 600-1000 handshakes/sec but the crypto will still be the
+bottleneck.
 
-Maybe some old die-hards, but I for one
-am only using 2.4 on all new deployments.
-
-
-> 2. Do i have to recompile kernel w/ iptables, [isn't
->     already set ]
-
-You need kernel 2.4 for iptables, 2.2. won't cut it.
-
-> 3. I'm a kernel newbies as you can tell.  Whats a good
->     site to read to point me in the right direction.
-
-This is a good group to read - but see also
-
-http://www.kernelnewbies.org
-
-cu
-
-jjs
+Roland
 

@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129755AbRAaXUW>; Wed, 31 Jan 2001 18:20:22 -0500
+	id <S129754AbRAaXUc>; Wed, 31 Jan 2001 18:20:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129754AbRAaXUC>; Wed, 31 Jan 2001 18:20:02 -0500
-Received: from goalkeeper.d2.com ([198.211.88.26]:43094 "HELO
-	goalkeeper.d2.com") by vger.kernel.org with SMTP id <S129753AbRAaXUB>;
-	Wed, 31 Jan 2001 18:20:01 -0500
-Date: Wed, 31 Jan 2001 15:15:09 -0800
-From: Greg from Systems <chandler@d2.com>
-To: linux-kernel@vger.kernel.org
-Subject: Bummer...
-In-Reply-To: <3A6ED741.CACC619C@zk3.dec.com>
-Message-ID: <Pine.SGI.4.10.10101311509400.29904-100000@hell.d2.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129770AbRAaXUW>; Wed, 31 Jan 2001 18:20:22 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:38370 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129753AbRAaXUD>;
+	Wed, 31 Jan 2001 18:20:03 -0500
+Date: Thu, 1 Feb 2001 00:19:41 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200101312319.AAA18556@harpo.it.uu.se>
+To: ajschrotenboer@lycosmail.com
+Subject: Re: [BUG] 2.4.1 Detects 64 MB RAM, actual 192MB
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 31 Jan 2001 10:01:08 -0500, Adam Schrotenboer wrote:
 
-I've been playing with the 2.4.0 kernel scince you gave me the patch for
-the alphas...  
+> > On Tue, 30 Jan 2001 23:25:22 -0500, Adam Schrotenboer wrote:
+> >
+> >> 2.4.1 detects 64 MB, but 2.4.0 detects 192 (Maybe 191, not sure).
+> >> ...
+> >> Linux version 2.4.1 (root@tabriel) (gcc version egcs-2.91.66 
+>19990314/Linux (egcs-1.1.2 release)) #9 Tue Jan 30 15:35:21 EST 2001
+> >> BIOS-provided physical RAM map:
+> >> BIOS-88: 000000000009f000 @ 0000000000000000 (usable)
+> >> BIOS-88: 0000000003ff0000 @ 0000000000100000 (usable)
+> >> On node 0 totalpages: 16624
+>...
+>Linux version 2.4.0 (root@tabriel) (gcc version pgcc-2.95.2 19991024 (release)) #2 Mon Jan 8 09:02:27 EST 2001
+>BIOS-provided physical RAM map:
+> BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
+> BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
+> BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
+> BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
+> BIOS-e820: 000000000bef0000 @ 0000000000100000 (usable)
+> BIOS-e820: 000000000000d000 @ 000000000bff3000 (ACPI data)
+> BIOS-e820: 0000000000003000 @ 000000000bff0000 (ACPI NVS)
+>On node 0 totalpages: 49136
 
-What I have found is that it tends to randomly hang...
-No Panic, no OOPs, no nothing...
-The machine is a PC164, Which falls under the EB164 class.
-It exhibits this behaviour on both the "generic" and "eb164" cpu types
-{compile option}  It doesn't even boot compiled as pc164..
-I'm also seeing this problem on my A/S 4100, "Rawhide"..
+Your 2.4.1 kernel is really sick. According to this, your bios
+does support E820 and 2.4.0 picks it up correctly. 2.4.1 for
+some reason doesn't. I've looked through the 2.4.1 patch and
+I cannot see anything which could cause this (the one memory
+detection patch there only applies to the legacy bios-88 call).
+Besides, 2.4.1 obviously works for the majority of users.
 
-My current working kernel is 2.2.18, and I am going to start playing with
-the 2.4.1
+All I can suggest is to recompile 2.4.1 from pristine sources
+(make mrproper or get a fresh tarball), using a known safe
+compiler and absolutely no strange patches or CFLAGS overrides.
 
-Sometimes it hangs on boot {while loading network daemons} and sometimes
-it will boot fine, and I will be doing a compile or something and it will
-just hang...
-
-What kind of info can I send you to help troubleshoot this more?
-
-----------------------------------------------------------------------------
-
-IGNOTUM PER IGNOTIUS
-
-"Grasshopper always wrong in argument with chicken"
-
-The "socratic approach" is what you call starting an argument by
-asking questions.
-
-The human race will begin solving it's problems on the day that it 
-ceases taking itself so seriously.
-
-                                        PRINCIPIA DISCORDIA
-
-
-                Published by POEE Head Temple - San Francisco
-                      " On The Future Site of Beautiful
-                             San Andreas Canyon"
-
-
-                                                Please do not use this
-                                                document as toilet tissue
-Fnord
-
-
+/Mikael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUHaRSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268844AbUHaRYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265264AbUHaRSz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 13:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268754AbUHaRQu
+	id S268844AbUHaRYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 13:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268816AbUHaRXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:16:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7613 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265127AbUHaRM4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:12:56 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
+	Tue, 31 Aug 2004 13:23:43 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:28631 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S268757AbUHaRVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 13:21:23 -0400
+From: mita akinobu <amgta@yacht.ocn.ne.jp>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
+Date: Wed, 1 Sep 2004 02:21:41 +0900
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, Andries Brouwer <aeb@cwi.nl>,
+       Alessandro Rubini <rubini@ipvvis.unipv.it>
+References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com> <200409010145.51224.amgta@yacht.ocn.ne.jp>
+In-Reply-To: <200409010145.51224.amgta@yacht.ocn.ne.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16692.45331.968648.262910@segfault.boston.redhat.com>
-Date: Tue, 31 Aug 2004 13:10:43 -0400
-To: mpm@selenic.com
-CC: linux-kernel@vger.kernel.org
-Subject: netpoll trapped question
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+Content-Disposition: inline
+Message-Id: <200409010221.41992.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Matt,
+Perhaps the prof_buffer[] should have prepared another entry for
+exceeded PC samplings.
 
-This part of the netpoll trapped logic seems suspect to me, from
-include/linux/netdevice.h:
+--- 2.6-mm/kernel/profile.c.orig	2004-09-01 01:46:16.000000000 +0900
++++ 2.6-mm/kernel/profile.c	2004-09-01 01:58:02.549930824 +0900
+@@ -44,7 +44,7 @@ void __init profile_init(void)
+ 		return;
+  
+ 	/* only text is profiled */
+-	prof_len = (_etext - _stext) >> prof_shift;
++	prof_len = ((_etext - _stext) >> prof_shift) + 1;
+ 	prof_buffer = alloc_bootmem(prof_len*sizeof(atomic_t));
+ }
+ 
 
-static inline void netif_wake_queue(struct net_device *dev)
-{
-#ifdef CONFIG_NETPOLL_TRAP
-	if (netpoll_trap())
-		return;
-#endif
-	if (test_and_clear_bit(__LINK_STATE_XOFF, &dev->state))
-		__netif_schedule(dev);
-}
-
-static inline void netif_stop_queue(struct net_device *dev)
-{
-#ifdef CONFIG_NETPOLL_TRAP
-	if (netpoll_trap())
-		return;
-#endif
-	set_bit(__LINK_STATE_XOFF, &dev->state);
-}
-
-This looks buggy.  Network drivers are now not able to stop the queue when
-they run out of Tx descriptors.  I think the __netif_schedule is okay to do
-in the context of netpoll, and certainly a set_bit is okay.  Why are these
-hooks in place?  I've tested alt-sysrq-t over netconsole and also netdump
-with these #ifdef's removed, and things work correctly.  Compare this with
-alt-sysrq-t hanging the system with these tests in place.  If I run netdump
-with this logic still in place, I get the following messages from the tg3
-driver:
-
-  eth0: BUG! Tx Ring full when queue awake!
-
-Shall I send a patch, or have I missed something?
-
--Jeff

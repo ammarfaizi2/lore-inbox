@@ -1,155 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263622AbTJCOZY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 10:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263708AbTJCOZY
+	id S263724AbTJCOmg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 10:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbTJCOmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 10:25:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5289 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263622AbTJCOZU
+	Fri, 3 Oct 2003 10:42:36 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:39131 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263724AbTJCOmd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 10:25:20 -0400
-Date: Fri, 3 Oct 2003 15:25:18 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Yury Umanets <umka@namesys.com>
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: down_timeout
-Message-ID: <20031003142518.GN24824@parcelfarce.linux.theplanet.co.uk>
-References: <3F7D6DA1.9070801@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Oct 2003 10:42:33 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Aniket Malatpure <aniket@sgi.com>
+Subject: Re: Patch to add support for SGI's IOC4 chipset
+Date: Fri, 3 Oct 2003 16:45:57 +0200
+User-Agent: KMail/1.5.4
+Cc: akmp@osdl.org, gwh@sgi.com, jeremy@sgi.com, jbarnes@sgi.com,
+       aniket_m@hotmail.com, linux-kernel@vger.kernel.org
+References: <3F7CB4A9.3C1F1237@sgi.com>
+In-Reply-To: <3F7CB4A9.3C1F1237@sgi.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <3F7D6DA1.9070801@namesys.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200310031645.57341.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 03 of October 2003 01:28, Aniket Malatpure wrote:
+> Hi
+>
+> This patch adds support for the ATAPI part of SGI's IOC4 chipset.
+> A version of this patch for the 2.4 series has been accepted and is present
+> in the tree. This patch is a slight modification of the earlier patch for
+> the 2.4 series.
+>
+> Please merge this patch if there are no outstanding issues.
 
-[l-k people, skip to the bottom, that's where down_timeout is]
+Please follow Documentation/CodingStyle and respect 80-columns limit.
 
-On Fri, Oct 03, 2003 at 04:37:53PM +0400, Yury Umanets wrote:
-> Thus, @quantum_ms will be calculated longer for shorter HZ and this is 
-> definitelly not good in my opinion. Am I right?
++/**
++ * 	"Copied from drivers/ide/ide-dma.c"
++ *	sgiioc4_ide_build_sglist - map IDE scatter gather for DMA I/O
++ *	@hwif: the interface to build the DMA table for
++ *	@rq: the request holding the sg list
++ *	@ddir: data direction
++ *
++ *	Perform the PCI mapping magic neccessary to access the source
++ *	or target buffers of a request via PCI DMA. The lower layers
++ *	of the kernel provide the neccessary cache management so that
++ *	we can operate in a portable fashion.
++ *
++ *	This code is identical to ide_build_sglist in ide-dma.c
++ *	however that it not exported and even if it were would create
++ *	dependancy problems for modular drivers.
++ */
 
-You're right, but for the wrong reason.  This code is pretty inaccurate
-as it's relying on the result of integer divides.  This code should
-work better (disclaimer: compiled, not tested):
++/**
++ * 	Copied from drivers/ide/ide-dma.c
++ *	sgiioc4_ide_raw_build_sglist	-	map IDE scatter gather for DMA
++ *	@hwif: the interface to build the DMA table for
++ *	@rq: the request holding the sg list
++ *
++ *	Perform the PCI mapping magic neccessary to access the source or
++ *	target buffers of a taskfile request via PCI DMA. The lower layers
++ *	of the  kernel provide the neccessary cache management so that we can
++ *	operate in a portable fashion
++ *
++ *	This code is identical to ide_raw_build_sglist in ide-dma.c
++ *	however that it not exported and even if it were would create
++ *	dependancy problems for modular drivers.
++ */
 
-Index: drivers/acpi/osl.c
-===================================================================
-RCS file: /var/cvs/linux-2.6/drivers/acpi/osl.c,v
-retrieving revision 1.3
-diff -u -p -r1.3 osl.c
---- drivers/acpi/osl.c	23 Aug 2003 02:46:37 -0000	1.3
-+++ drivers/acpi/osl.c	3 Oct 2003 14:02:44 -0000
-@@ -827,7 +827,6 @@ acpi_os_wait_semaphore(
- {
- 	acpi_status		status = AE_OK;
- 	struct semaphore	*sem = (struct semaphore*)handle;
--	int			ret = 0;
- 
- 	ACPI_FUNCTION_TRACE ("os_wait_semaphore");
- 
-@@ -842,56 +841,28 @@ acpi_os_wait_semaphore(
- 	if (in_atomic())
- 		timeout = 0;
- 
--	switch (timeout)
--	{
--		/*
--		 * No Wait:
--		 * --------
--		 * A zero timeout value indicates that we shouldn't wait - just
--		 * acquire the semaphore if available otherwise return AE_TIME
--		 * (a.k.a. 'would block').
--		 */
--		case 0:
--		if(down_trylock(sem))
--			status = AE_TIME;
--		break;
--
--		/*
--		 * Wait Indefinitely:
--		 * ------------------
--		 */
--		case ACPI_WAIT_FOREVER:
-+	if (timeout == ACPI_WAIT_FOREVER) {
- 		down(sem);
--		break;
--
--		/*
--		 * Wait w/ Timeout:
--		 * ----------------
--		 */
--		default:
--		// TODO: A better timeout algorithm?
--		{
--			int i = 0;
--			static const int quantum_ms = 1000/HZ;
--
-+	} else if (down_trylock(sem) == 0) {
-+		/* Success, do nothing */
-+	} else {
-+		long now = jiffies;
-+		int ret = 1;
-+		while (jiffies < now + timeout * HZ) {
-+			current->state = TASK_INTERRUPTIBLE;
-+			schedule_timeout(1);
- 			ret = down_trylock(sem);
--			for (i = timeout; (i > 0 && ret < 0); i -= quantum_ms) {
--				current->state = TASK_INTERRUPTIBLE;
--				schedule_timeout(1);
--				ret = down_trylock(sem);
--			}
--	
--			if (ret != 0)
--				status = AE_TIME;
-+			if (!ret)
-+				break;
- 		}
--		break;
-+		if (ret)
-+			status = AE_TIME;
- 	}
- 
- 	if (ACPI_FAILURE(status)) {
- 		ACPI_DEBUG_PRINT ((ACPI_DB_ERROR, "Failed to acquire semaphore[%p|%d|%d], %s\n", 
- 			handle, units, timeout, acpi_format_exception(status)));
--	}
--	else {
-+	} else {
- 		ACPI_DEBUG_PRINT ((ACPI_DB_MUTEX, "Acquired semaphore[%p|%d|%d]\n", handle, units, timeout));
- 	}
- 
+What problems?
+BTW during coping tabs were replaced by spaces in these functions.
 
-[l-k people, this is the interesting bit]
++static int
++sgiioc4_get_info(char *buffer, char **addr, off_t offset, int count)
++{
++	char *p = buffer;
++	unsigned int class_rev;
++	int i = 0;
++
++	while (i < n_sgiioc4_devs) {
++		pci_read_config_dword(sgiioc4_devs[i], PCI_CLASS_REVISION,
++				      &class_rev);
++		class_rev &= 0xff;
++
++		if (sgiioc4_devs[i]->device == PCI_DEVICE_ID_SGI_IOC4) {
++			p += sprintf(p, "\n	SGI IOC4 Chipset rev %d. ", class_rev);
++			p += sprintf(p, "\n	Chipset has 1 IDE channel and supports 2 devices on that channel.");
++			p += sprintf(p, "\n	Chipset supports DMA in MultiMode-2 data transfer protocol.\n");
++			/* Do we need more info. here? */
++		}
++		i++;
++	}
++
++	return p - buffer;
++}
 
-It's still not great because it doesn't preserve ordering.  down_timeout()
-would be a much better primitive.  We have down_interruptible() which
-could be used for this purpose.  Something like (completely uncompiled):
+Do you really need /proc/ide/sgiioc4?
+You can print revision number during init.
 
-/* Returns -EINTR if the timeout expires */
-int down_timeout(struct semaphore *sem, long timeout)
-{
-	struct timer_list timer;
-	int result;
+>From sgiioc4.h:
 
-	init_timer(&timer);
-	timer.expires = timeout + jiffies;
-	timer.data = (unsigned long) current;
-	timer.function = process_timeout;
++static void sgiioc4_init_hwif_ports(hw_regs_t * hw, unsigned long data_port,
++				    unsigned long ctrl_port, unsigned long irq_port);
++static void sgiioc4_ide_setup_pci_device(struct pci_dev *dev, ide_pci_device_t *d);
++static void sgiioc4_resetproc(ide_drive_t * drive);
++static void sgiioc4_maskproc(ide_drive_t * drive, int mask);
++static void sgiioc4_configure_for_dma(int dma_direction, ide_drive_t * drive);
++static void __init ide_init_sgiioc4(ide_hwif_t * hwif);
++static void __init ide_dma_sgiioc4(ide_hwif_t * hwif, unsigned long dma_base);
++static int sgiioc4_checkirq(ide_hwif_t * hwif);
++static int sgiioc4_clearirq(ide_drive_t * drive);
++static int sgiioc4_get_info(char *buffer, char **addr, off_t offset, int count);
++static int sgiioc4_ide_dma_read(ide_drive_t * drive);
++static int sgiioc4_ide_dma_write(ide_drive_t * drive);
++static int sgiioc4_ide_dma_begin(ide_drive_t * drive);
++static int sgiioc4_ide_dma_end(ide_drive_t * drive);
++static int sgiioc4_ide_dma_check(ide_drive_t * drive);
++static int sgiioc4_ide_dma_on(ide_drive_t * drive);
++static int sgiioc4_ide_dma_off(ide_drive_t * drive);
++static int sgiioc4_ide_dma_off_quietly(ide_drive_t * drive);
++static int sgiioc4_ide_dma_test_irq(ide_drive_t * drive);
++static int sgiioc4_ide_dma_host_on(ide_drive_t * drive);
++static int sgiioc4_ide_dma_host_off(ide_drive_t * drive);
++static int sgiioc4_ide_dma_count(ide_drive_t * drive);
++static int sgiioc4_ide_dma_verbose(ide_drive_t * drive);
++static int sgiioc4_ide_dma_lostirq(ide_drive_t * drive);
++static int sgiioc4_ide_dma_timeout(ide_drive_t * drive);
++static int sgiioc4_ide_build_sglist(ide_drive_t *drive, struct request *rq);
++static int sgiioc4_ide_raw_build_sglist(ide_drive_t *drive, struct request *rq);
++
++static u8 sgiioc4_INB(unsigned long port);
++static inline void xide_delay(long ticks);
++extern int (*sgiioc4_display_info) (char *, char **, off_t, int);	/* ide-proc.c */
++static unsigned int sgiioc4_build_dma_table(ide_drive_t * drive, struct request *rq,
++					    int ddir);
++static unsigned int __init pci_init_sgiioc4(struct pci_dev *dev,ide_pci_device_t *d);
 
-	add_timer(&timer);
-	result = down_interruptible(sem);
-	del_timer_sync(&timer);
+Most of this declarations are not needed as sgiioc4.h is only included from shiioc4.c.
 
-	return result;
-}
+Otherwise it looks okay.
 
-(This would have to go in kernel/timer.c as that's where process_timeout
-lives).
+Thanks.
+--bartlomiej
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk

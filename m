@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267386AbUJGR24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267696AbUJGR2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267386AbUJGR24 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 13:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267725AbUJGR24
+	id S267696AbUJGR2A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 13:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267661AbUJGR1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 13:28:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61599 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267702AbUJGRZt (ORCPT
+	Thu, 7 Oct 2004 13:27:21 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:17339 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267696AbUJGRXQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 13:25:49 -0400
-Subject: Re: Probable module bug in linux-2.6.5-1.358
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0410070850480.10751@chaos.analogic.com>
-References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com>
-	 <1097143144.2789.19.camel@laptop.fenrus.com>
-	 <Pine.LNX.4.61.0410070753060.9988@chaos.analogic.com>
-	 <20041007121741.GB23612@devserv.devel.redhat.com>
-	 <Pine.LNX.4.61.0410070823300.10118@chaos.analogic.com>
-	 <20041007122815.GC23612@devserv.devel.redhat.com>
-	 <Pine.LNX.4.61.0410070830140.10213@chaos.analogic.com>
-	 <Pine.LNX.4.61.0410070850480.10751@chaos.analogic.com>
-Content-Type: text/plain
-Organization: Open Source Development Lab
-Date: Thu, 07 Oct 2004 10:25:34 -0700
-Message-Id: <1097169934.29576.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+	Thu, 7 Oct 2004 13:23:16 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+Date: Thu, 7 Oct 2004 10:22:48 -0700
+User-Agent: KMail/1.7
+Cc: "Patrick Gefre" <pfg@sgi.com>, "Grant Grundler" <iod00d@hp.com>,
+       "Colin Ngam" <cngam@sgi.com>, "Matthew Wilcox" <matthew@wil.cx>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <B8E391BBE9FE384DAA4C5C003888BE6F022669A9@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F022669A9@scsmsx401.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410071022.48569.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Still haven't full source so this is still guess work.
-But assuming it is a character device, did you forget to add an owner
-field to the file ops structure?
+On Thursday, October 7, 2004 10:06 am, Luck, Tony wrote:
+> >Yeah, sorry, I shouldn't have said cleanup, fixup is better.
+> >Anyway, they
+> >need to be separate since they'll be going into the tree via
+> >Andrew not Tony.
+>
+> A couple of days back I said that I'm ok pushing these drivers.
+> Although they don't have "arch/ia64" or "include/asm-ia64"
+> prefixes, they are only used by ia64.  I'm even ok with the
+> qla1280.c change as the final version is only touching code
+> inside #ifdef CONFIG_IA64_{GENERIC|SN2) ... but I would like
+> to see a sign-off from the de-facto maintainer Christoph for
+> this file.
 
-static struct file_operations xxx_fops = {
-	.owner	= THIS_MODULE,
-	.read	= my_read,
-...
+Ok great, that'll help keep things in good shape.
 
-The owner field is used by the character device layer to maintain module
-ref counts in 2.6.
+> However ... there's a thread on LKML wailing about huge changes
+> going into "-rc" releases.  Since there still seems to be
+> a lively discussion about the the right way to do the pci_root
+> bits of this patch, I'm very inclined to save this till *after*
+> Linus release 2.6.9-final.  If there's a _mostly_ clean patch
+> presented to me before 2.6.10-rc1 shows up, I'll push that and
+> allow for some follow-on tidy-up patches to clean up.
 
+Sounds good, thanks Tony.
 
-
+Jesse

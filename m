@@ -1,38 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131098AbQKACM5>; Tue, 31 Oct 2000 21:12:57 -0500
+	id <S131082AbQKACVt>; Tue, 31 Oct 2000 21:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131128AbQKACMq>; Tue, 31 Oct 2000 21:12:46 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:10512 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131118AbQKACMj>;
-	Tue, 31 Oct 2000 21:12:39 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-cc: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
-        "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: test10-pre7 (LINK ordering) 
-In-Reply-To: Your message of "Tue, 31 Oct 2000 17:24:24 -0800."
-             <D5E932F578EBD111AC3F00A0C96B1E6F07DBDBE5@orsmsx31.jf.intel.com> 
+	id <S131095AbQKACVk>; Tue, 31 Oct 2000 21:21:40 -0500
+Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:26097
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S131082AbQKACVW>; Tue, 31 Oct 2000 21:21:22 -0500
+Date: Tue, 31 Oct 2000 19:18:07 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.0-test10
+Message-ID: <20001031191807.A32641@opus.bloom.county>
+In-Reply-To: <Pine.LNX.4.10.10010311237430.22165-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 01 Nov 2000 13:11:30 +1100
-Message-ID: <21184.973044690@ocs3.ocs-net>
+Content-Type: multipart/mixed; boundary="7JfCtLOvnd9MIVvH"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10010311237430.22165-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Oct 31, 2000 at 12:41:55PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2000 17:24:24 -0800, 
-"Dunlap, Randy" <randy.dunlap@intel.com> wrote:
->Is it valid to run depmod like this before
->booting the kernel that has usbcore in-kernel?
->depmod -ae works after I boot that kernel + usbcore.
 
-To run depmod against a new 2.4.0-test10 kernel,
-  make modules_install
-  depmod -ae -F System.map 2.4.0-test10
-Without -F, depmod reads /proc/ksyms which are for the old kernel.
-make modules_install runs depmod with those parameters anyway.
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Tue, Oct 31, 2000 at 12:41:55PM -0800, Linus Torvalds wrote:
+ 
+> Ok, test10-final is out there now. This has no _known_ bugs that I
+> consider show-stoppers, for what it's worth.
+
+Sure, it's not a critical bug or anything but hey.  One more time:
+This is a very minor patch for fs/nls/Config.in, which Petr Vandrovec came up
+with.  The problem is that if CONFIG_INET is n, CONFIG_SMB_FS is never set
+so fs/nls/Config.in assumes that the user wants to select some NLS options.
+This fixes it and works on config/menuconfig/xconfig.
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
+
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nls.patch"
+
+--- fs/nls/Config.in.orig	Thu Oct 19 12:54:09 2000
++++ fs/nls/Config.in	Thu Oct 19 12:54:32 2000
+@@ -2,10 +2,17 @@
+ # Native language support configuration
+ #
+ 
++# smb wants NLS
++if [ "$CONFIG_SMB_FS" = "m" -o "$CONFIG_SMB_FS" = "y" ]; then
++  define_bool CONFIG_SMB_NLS y
++else
++  define_bool CONFIG_SMB_NLS n
++fi
++
+ # msdos and Joliet want NLS
+ if [ "$CONFIG_JOLIET" = "y" -o "$CONFIG_FAT_FS" != "n" \
+ 	-o "$CONFIG_NTFS_FS" != "n" -o "$CONFIG_NCPFS_NLS" = "y" \
+-	-o "$CONFIG_SMB_FS" != "n" ]; then
++	-o "$CONFIG_SMB_NLS" = "y" ]; then
+   define_bool CONFIG_NLS y
+ else
+   define_bool CONFIG_NLS n
+
+--7JfCtLOvnd9MIVvH--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

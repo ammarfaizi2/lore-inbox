@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273983AbRI0WUm>; Thu, 27 Sep 2001 18:20:42 -0400
+	id <S273976AbRI0WTv>; Thu, 27 Sep 2001 18:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273977AbRI0WUc>; Thu, 27 Sep 2001 18:20:32 -0400
-Received: from pscgate.progress.com ([192.77.186.1]:64652 "EHLO
-	pscgate.progress.com") by vger.kernel.org with ESMTP
-	id <S273986AbRI0WUP>; Thu, 27 Sep 2001 18:20:15 -0400
-Subject: Broken APIC detection 2.4.10?
-From: "Sujal Shah" <sshah@progress.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-xOM2Lg0rifpQsPhLg30s"
-X-Mailer: Evolution/0.14.99+cvs.2001.09.27.08.08 (Preview Release)
-Date: 27 Sep 2001 18:21:54 -0400
-Message-Id: <1001629314.16742.76.camel@pcsshah>
-Mime-Version: 1.0
+	id <S273977AbRI0WTl>; Thu, 27 Sep 2001 18:19:41 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:58376 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S273976AbRI0WTi>; Thu, 27 Sep 2001 18:19:38 -0400
+Message-ID: <3BB3A572.BF263906@osdlab.org>
+Date: Thu, 27 Sep 2001 15:17:22 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alex Cruise <acruise@infowave.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: apm suspend broken in 2.4.10
+In-Reply-To: <6B90F0170040D41192B100508BD68CA1015A81AE@earth.infowave.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Cruise wrote:
+> 
+> From: Randy.Dunlap [mailto:rddunlap@osdlab.org]
+> 
+> > Verified here.
+> > APM doesn't install if apm=on or apm=off is used in 2.4.10.
+> >
+> > Here's a small patch for it.  With this patch, apm thread,
+> > /proc/apm, misc apm_bios device etc. are created.
+> 
+> Thanks... apm=on works now, but APM functionality itself still suffers from
+> the same failure as before (Resource temporarily unavailble.)
+> 
+> I should mention that before your patch, /dev/misc/apm_bios, /dev/apm_bios
+> and /proc/apm were already being created by the driver; it's going through
+> the motions but not delivering the goods.
+> 
+> -0xe1a
 
---=-xOM2Lg0rifpQsPhLg30s
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+{little-endian n[iy]bbles ?}
 
 
-I just switched up to 2.4.10 on my Sony Vaio N505VX.  In the boot
-messages, I see near the top:
+Sounds like our 2.4.10's are different then.  :)
+Without this patch, mine didn't create /proc/apm, register as a
+misc device, or create the kapmd-idle kernel thread.
+Must be a distro thingy.
 
-Local APIC disabled by BIOS -- reenabling.
-Could not enable APIC!
+Return of EAGAIN from the SUSPEND ioctl means that
+send_event() failed, which means that some device driver
+didn't want suspend to happen...which means that some
+device driver got changed. :(
 
-/proc/interrupts shows XT-PIC for all the interrupts.  This was not the
-case before.  Of course, I'm seeing other weirdness which is related
-(the YMFPCI based sound card won't reset on reboot without shutting down
-completely).
+What was the last working kernel AFAUK (for this APM stuff)?
 
-Anyone have any ideas why this is?  The APIC stuff was getting detected
-fine in 2.4.7.
-
-I'm going to try 2.4.9-ac16 soon (I was going to anyway), but that may
-not happen for a few days. I'll post more if I figure out what
-happened.  I'll also start backing down to 2.4.9 and will try that, too.
-
-Thanks,
-
-Sujal
-
---=20
----- Sujal Shah ---- PSC Labs (Progress Software) ----=20
-
-Now Playing: The Crystal Method - Comin' Back
-
---=-xOM2Lg0rifpQsPhLg30s
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA7s6aCrdegDpOByoARAnlXAJ9po1lIs5ffy7QKmiF+zGW6xscj0QCeL+dS
-krxR8zd3kqqRmL2s/FRnKmY=
-=j1s5
------END PGP SIGNATURE-----
-
---=-xOM2Lg0rifpQsPhLg30s--
-
+~Randy

@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131983AbRDGV0Y>; Sat, 7 Apr 2001 17:26:24 -0400
+	id <S131973AbRDGVeq>; Sat, 7 Apr 2001 17:34:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131974AbRDGV0P>; Sat, 7 Apr 2001 17:26:15 -0400
-Received: from ns.suse.de ([213.95.15.193]:40207 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131973AbRDGV0A>;
-	Sat, 7 Apr 2001 17:26:00 -0400
-Date: Sat, 7 Apr 2001 23:25:55 +0200
-From: Andi Kleen <ak@suse.de>
-To: Paul McKenney <Paul.McKenney@us.ibm.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net, nigel@nrg.org, rusty@rustcorp.com.au
-Subject: Re: [Lse-tech] Re: [PATCH for 2.5] preemptible kernel
-Message-ID: <20010407232555.A1982@gruyere.muc.suse.de>
-In-Reply-To: <OF37B0793C.6B15F182-ON88256A27.0007C3EF@LocalDomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OF37B0793C.6B15F182-ON88256A27.0007C3EF@LocalDomain>; from Paul.McKenney@us.ibm.com on Fri, Apr 06, 2001 at 06:25:36PM -0700
+	id <S131974AbRDGVeg>; Sat, 7 Apr 2001 17:34:36 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:6156 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131973AbRDGVed>; Sat, 7 Apr 2001 17:34:33 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Multi-function PCI devices
+Date: 7 Apr 2001 14:34:26 -0700
+Organization: Transmeta Corporation
+Message-ID: <9ao152$b13$1@penguin.transmeta.com>
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 06, 2001 at 06:25:36PM -0700, Paul McKenney wrote:
-> I see your point here, but need to think about it.  One question:
-> isn't it the case that the alternative to using synchronize_kernel()
-> is to protect the read side with explicit locks, which will themselves
-> suppress preemption?  If so, why not just suppress preemption on the read
-> side in preemptible kernels, and thus gain the simpler implementation
-> of synchronize_kernel()?  You are not losing any preemption latency
-> compared to a kernel that uses traditional locks, in fact, you should
-> improve latency a bit since the lock operations are more expensive than
-> are simple increments and decrements.  As usual, what am I missing
-> here?  ;-)
+In article <3ACECA8F.FEC9439@eunet.at>,
+Michael Reinelt  <reinelt@eunet.at> wrote:
+>
+>The card shows up on the PCI bus as one device. For the card provides
+>both serial and parallel ports, it will be driven by two subsystems, the
+>serial and the parallel driver.
 
-You miss nothing I think. In fact it's already used (see below) 
+Tough.  The PCI specification has a perfectly good way to handle this,
+namely by having subfunctions on the same chip.  The particular chip
+designer was lazy or something, and didn't do it the proper way.  Which
+means that you cannot, and should not, use a generic PCI driver for the
+chip.  Because it doesn't show up as separate devices for the separate
+functions. 
 
-> 
-> > > 2.   Isn't it possible to get in trouble even on a UP if a task
-> > >      is preempted in a critical region?  For example, suppose the
-> > >      preempting task does a synchronize_kernel()?
-> >
-> > Ugly. I guess one way to solve it would be to readd the 2.2 scheduler
-> > taskqueue, and just queue a scheduler callback in this case.
-> 
-> Another approach would be to define a "really low" priority that noone
-> other than synchronize_kernel() was allowed to use.  Then the UP
-> implementation of synchronize_kernel() could drop its priority to
-> this level, yield the CPU, and know that all preempted tasks must
-> have obtained and voluntarily yielded the CPU before synchronize_kernel()
-> gets it back again.
+Now, that doesn't mean that you can't use the card, or the existing
+drivers. It only means that you should fix up the total braindamage of
+the hardware.
 
-That just would allow nasty starvation, e.g. when someone runs a cpu intensive
-screensaver or a seti-at-home.
+It only means that you should probably approach it as being a special
+"invisible PCI bridge", and basically have a specific driver for that
+chip that acts as a _bridge_ driver.
 
-> 
-> I still prefer suppressing preemption on the read side, though I
-> suppose one could claim that this is only because I am -really-
-> used to it.  ;-)
+Writing a bridge driver is not that hard: your init routine will
+instantiate the devices behind the bridge (ie you would allocate two
+"struct pci_device" structures and you would add them to behind the
+"bridge", and you would make _those_ look like real serial and parallell
+devices. 
 
-For a lot of reader cases non-preemption by threads is guaranteed anyways -- 
-e.g.  anything that runs in interrupts, timers, tasklets and network softirq.  
-I think that already covers a lot of interesting cases.
+See for example drivers/pcmcia/cardbus.c: cb_alloc() for how to create a
+new "pci_dev" (see the "for i = 0; i < fn ; i++)" loop: it creates the
+devices for each subfunction found behind the cardbus bridge.  It really
+boils down to "dev = kmalloc(); initialize_dev(dev); pci_insert_dev(dev,
+bus);"). 
 
+At which point you can happily use the current drivers without any
+modifications. 
 
--Andi
-
-
+		Linus

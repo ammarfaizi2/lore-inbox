@@ -1,93 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265899AbUBPVo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 16:44:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265904AbUBPVo0
+	id S265912AbUBPVs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 16:48:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265911AbUBPVs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 16:44:26 -0500
-Received: from mail.shareable.org ([81.29.64.88]:25476 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265899AbUBPVoX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 16:44:23 -0500
-Date: Mon, 16 Feb 2004 21:44:21 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Eduard Bloch <edi@gmx.de>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Message-ID: <20040216214421.GA18853@mail.shareable.org>
-References: <200402121655.39709.robin.rosenberg.lists@dewire.com> <20040213003839.GB24981@mail.shareable.org> <200402130216.53434.robin.rosenberg.lists@dewire.com> <20040213022934.GA8858@parcelfarce.linux.theplanet.co.uk> <20040213032305.GH25499@mail.shareable.org> <20040214150934.GA5023@zombie.inka.de> <20040215010150.GA3611@mail.shareable.org> <20040216140338.GA2927@zombie.inka.de> <20040216142807.GB16658@mail.shareable.org> <20040216192228.GC15087@zombie.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	Mon, 16 Feb 2004 16:48:57 -0500
+Received: from mail.ondacorp.com.br ([200.195.196.14]:715 "EHLO
+	mail.ondacorp.com.br") by vger.kernel.org with ESMTP
+	id S265914AbUBPVs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 16:48:28 -0500
+Message-ID: <40313AA9.1060906@arenanetwork.com.br>
+Date: Mon, 16 Feb 2004 21:48:25 +0000
+From: dual_bereta_r0x <dual_bereta_r0x@arenanetwork.com.br>
+Organization: ArenaNetwork Lan House & Cyber
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dominik Brodowski <linux@dominikbrodowski.de>
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: Re: 2.6.2: P4 ClockMod speed
+References: <20040216213435.GA9680@dominikbrodowski.de>
+In-Reply-To: <20040216213435.GA9680@dominikbrodowski.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040216192228.GC15087@zombie.inka.de>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eduard Bloch wrote:
-> TERM specifies the general capabilities of the terminal. It does
-> _not_ tell the application inside which FONT encoding is used, nor
-> whether it is compatible with multibyte input.
-
-It should - especially the multibyte encoding.
-
-The font is irrelevant; our trouble here is *character encoding* which
-has nothing to do with fonts.  Please don't use the incorrect term as
-there is widespread confusion over it already.
-
-That isn't just about which glyph is displayed in response to each
-byte.  UTF-8 affects terminal escape sequence parsing, and also the
-relationship between number of non-control bytes transmitted and the
-distance moved by the cursor.
-
-If I write a UTF-8 string to a VT220-like terminal (such as xterm
-approximates), some text characters are interpreted as terminal
-commands.  (Hint: 0x9b (which can occur in UTF-8 text) is equivalent
-to 0x1c 0x5b, the control sequence introducer; there are others too).
-
-When you edit a line with the unix terminal line editor, when you type
-DEL, it writes BACKSPACE-SPACE-BACKSPACE and removes one byte from the
-input.  That utterly fails to do the right thing on UTF-8 terminals.
-For example, run the command "cat" by itself, then type "£££", then
-hit DEL twice - it will show one pound sterling sign.  Press enter,
-and cat will echo the line containing _two_ pound sterling signs.
-
-No setting of LANG or TERM makes that behave correctly.
-
-So, do you think the kernel's line editor should be locale-aware too? :)
-
-> > It is wrong that LANG must have a different value depending on whether
-> > I log in using a DEC VT100 or a Gnome Terminal, even though I wish to
-> > see exactly the same language, dialect, messages, number formats,
-> > currency formats, dates and times.
-
-NB: It's wrong because LANG should be for terminal-independent locale
-properties, such as which languages I want to use and how I want text
-files stored.
-
-If I log into a remote machine, I want characters displayed according
-to the local terminal's requirements, but I want text files and
-filenames to use the remote machine's locale, naturally.
-
-> Nonsense, sorry. How should your application know how to encode its
-> output?
-
-Increasingly I'm thinking UTF-8-ness should be a terminal capability,
-like ocrnl.  The kernel's own line editor needs to know this property
-anyway, and it would really help with moving filenames and everything
-else over to UTF-8 - with no change to the simple unix programs such
-as the shell utilities.
-
-> > It is especially wrong that libraries which should be
-> > locale-independent - such as curses, slang and readline - must
-> > read the LANG variable in addition to TERM.
+Dominik Brodowski wrote:
+> Hi,
 > 
-> See above. Especially since different chars are used to draw graphical
-> characters (lines, boxes, ...), they _must_ know which font encoding
-> they have to expect.
+> 
+>>I have a P4 2.4 running @ 3.12GHz.
+> 
+> 
+> So you overclock your CPU but then throttle it down... strange, but well...
 
-See "acsc" in the terminfo(5) database.  Line & box drawing characters
-have been treated as a terminal capability for a long time.  Case made :)
+Actually it isn't throttled down, only sysfs is showing it with low 
+speed. It *is* running @ 3.12 (or /proc/cpuinfo and boot messages are 
+lying to me) when in full power.
 
--- Jamie
+>>In 2.6.0, i could change it frequency 
+>>via speedfreqd(8) up to its actual speed. Since 2.6.1, its max speed is 
+>>locked on cpu *real* speed.
+> 
+> 
+> It's just a change of appearance -- the cpufreq driver uses the theoretical
+> speed of the CPU for its calculations; the actual CPU speed isn't
+> affected. You can verify this by looking at /proc/cpuinfo which still tells
+> 3124.376 MHz.
+> 
+> By doing so it becomes easier to enter different frequencies e.g. into
+> /sys/devices/system/cpu/cpufreq/scaling_setspeed -- on my desktop, typing in
+> 1200000 is easier than 12121224... [*]
+
+Sure but if i want to downgrade it, for example, by night, to a lower 
+speed, and then next day return it to full power? Will I stuck at 2.4GHz?
+
+> 	Dominik
+> 
+> [*] The _actual_ CPU speed should be used on all cpufreq drivers where this
+> specific CPU frequency has implications to external components, e.g. LCD,
+> memory or pcmcia devices. Where only the _frequency ratio_ is of importance
+> [for loops_per_jiffy and friends] such "rounding" is acceptable, as long as
+> the ratio is constant.
+
+Indeed. I'll showing in LCD a lower speed than the running.
+
+-- 
+dual_bereta_r0x -- Alexandre Hautequest
+ArenaNetwork Lan House & Cyber -- www.arenanetwork.com.br
+
+Três anéis para os Reis Élficos sob este céu,
+    Sete para os Senhores-Anões em seus rochosos corredores,
+Nove para Homens Mortais, fadados ao eternos sono,
+    Um para o Senhor do Escuro em seu escuro trono
+Na Terra de Mordor onde as Sombras se deitam.
+    Um Anel para a todos governar, Um Anel para encontrá-los,
+    Um Anel para a todos trazer e na escuridão aprisioná-los
+Na Terra de Mordor onde as Sombras se deitam.

@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265818AbTIJVwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 17:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265854AbTIJVwZ
+	id S265815AbTIJVqT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 17:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265816AbTIJVqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 17:52:25 -0400
-Received: from mail1-106.ewetel.de ([212.6.122.106]:29654 "EHLO
-	mail1.ewetel.de") by vger.kernel.org with ESMTP id S265818AbTIJVwW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 17:52:22 -0400
-To: "David Schwartz" <davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-In-Reply-To: <ujV3.1uP.13@gated-at.bofh.it>
-References: <uess.1w0.9@gated-at.bofh.it> <ujV3.1uP.13@gated-at.bofh.it>
-Date: Wed, 10 Sep 2003 23:52:12 +0200
-Message-Id: <E19xCsm-0000cc-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+	Wed, 10 Sep 2003 17:46:19 -0400
+Received: from gadolinium.btinternet.com ([194.73.73.111]:10422 "EHLO
+	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
+	id S265815AbTIJVqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 17:46:17 -0400
+Message-ID: <3F5F8D34.8020404@btopenworld.com>
+Date: Wed, 10 Sep 2003 21:44:36 +0100
+From: Subodh Shrivastava <subodh@btopenworld.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030901
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Patrick Mochel <mochel@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Power Management Update
+References: <Pine.LNX.4.44.0309101407450.19541-100000@cherise>
+In-Reply-To: <Pine.LNX.4.44.0309101407450.19541-100000@cherise>
+X-Enigmail-Version: 0.76.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Sep 2003 22:40:14 +0200, you wrote in linux.kernel:
 
-> 	However, Richard Stallman does not agree with this view. It's his
-> view that if the authors chose to give you the code, you can use it any
-> way you want to, regardless of how the authors feel about that type of
-> usage. This is why he created the GPL.
 
-Use in any way you want to is the BSD license, not the GPL. The GPL
-does restrict what you're allowed to do in order to keep the source
-free...
+Patrick Mochel wrote:
 
--- 
-Ciao,
-Pascal
+>>Any chance of this  patch to be released against mm series? BTW i have 
+>>tried suspend to disk (2.6.0-test4-mm6) with reiserfs filesystem
+>>it worked fine and no fs corruption.
+>>    
+>>
+>
+>Good to hear. Thanks for testing. 
+>  
+>
+Tried it with 2.6.0-test5-mm1.
+
+When i tried suspend to disk with my usb modem (Alcatel Speedtouch) 
+attached, system generated oops, couldn't get a dump on disk, will send 
+the handwritten oops later. When i tried from X suspend to disk was 
+successful but resume failed and system rebooted itself, did not get a 
+chance to figure out what went wrong.
+
+>Andrew picked up the last bunch of patches for the -mm series, so most of
+>it already resides in that tree. With some luck, he'll do the same with
+>
+>the remaining patches. Otherwise, I can post an incremental patch on top 
+>of the latest -mm kernel.
+>
+Please if you can
+
+>
+>
+>	Pat
+>
+>
+>  
+>
+Subodh
+

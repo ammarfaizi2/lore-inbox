@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264665AbTAJIvC>; Fri, 10 Jan 2003 03:51:02 -0500
+	id <S264702AbTAJI4J>; Fri, 10 Jan 2003 03:56:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264666AbTAJIvC>; Fri, 10 Jan 2003 03:51:02 -0500
-Received: from buitenpost.surfnet.nl ([192.87.108.12]:21688 "EHLO
-	buitenpost.surfnet.nl") by vger.kernel.org with ESMTP
-	id <S264665AbTAJIvB>; Fri, 10 Jan 2003 03:51:01 -0500
-Date: Fri, 10 Jan 2003 09:59:44 +0100
-To: Andrew McGregor <andrew@indranet.co.nz>
-Cc: Andres Salomon <dilinger@voxel.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.x inspiron touchpad breakage
-Message-ID: <20030110085944.GE15011@surly.surfnet.nl>
-References: <pan.2003.01.09.08.27.53.688647@voxel.net> <39260000.1042119837@localhost.localdomain>
+	id <S264705AbTAJI4J>; Fri, 10 Jan 2003 03:56:09 -0500
+Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:4576
+	"EHLO kanoe.ludicrus.net") by vger.kernel.org with ESMTP
+	id <S264702AbTAJI4I>; Fri, 10 Jan 2003 03:56:08 -0500
+Date: Fri, 10 Jan 2003 01:01:13 -0800
+To: davem@ninka.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Some 2.5.55 compile problems
+Message-ID: <20030110090113.GA5114@kamui>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
 Content-Disposition: inline
-In-Reply-To: <39260000.1042119837@localhost.localdomain>
 User-Agent: Mutt/1.4i
-X-Mailer: Mutt on Debian GNU/Linux sid
-X-Editor: vim
-X-Organisation: SURFnet bv
-X-Address: Radboudburcht, P.O. Box 19035, 3501 DA Utrecht, NL
-X-Phone: +31 302 305 305
-X-Telefax: +31 302 305 329
-From: Niels den Otter <Niels.denOtter@surfnet.nl>
+From: "Joshua M. Kwan" <joshk@ludicrus.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 10 January 2003, Andrew McGregor wrote:
-> Works for me on an Inspiron 8000.  The trackpoint does not, which is a
-> known bug.  Of course, the 3800 might be different...
 
-My Dell Latitude C400 has both a touchpad and a trackpoint as well.
-After a cold boot of 2.5.55 (and previous kernels) only the touchpad
-appears to work. To get the trackpoint working I need to hibernate my
-laptop and wake it up again. Didn't have this problem with 2.4 kernels.
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi Dave: (hope i'm addressing this issue to the right person!)
 
--- Niels
+When making bzImage with the current BK I receive the following during=20
+the final link process:
+
+net/built-in.o(.text+0x4ba22): In function `xfrm_probe_algs':
+: undefined reference to `crypto_alg_available'
+net/built-in.o(.text+0x4ba68): In function `xfrm_probe_algs':
+: undefined reference to `crypto_alg_available'
+
+this is because ipv4 seems to depend on some Cryptographic API stuff...=20
+that doesn't sound right though! Anyway, I added base Cryptographic API
+support to shut it up, and the link went fine.
+
+But this was definitely not added until recently - I was able to =20
+compile all 2.5.54 BK cleanly. What's the deal now?
+
+Regards
+Josh
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+HovZ6TRUxq22Mx4RAgy7AJ9562vM9zS09EFq5b3r6xM/DHZ1bgCgvf0N
+0awrVgvTCn1st7U20vlKm1c=
+=XugU
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--

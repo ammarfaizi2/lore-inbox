@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbTJ1WIi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 17:08:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTJ1WIi
+	id S261332AbTJ1WGX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 17:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbTJ1WGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 17:08:38 -0500
-Received: from [192.153.219.146] ([192.153.219.146]:40456 "EHLO
-	manly.caddr.com") by vger.kernel.org with ESMTP id S261509AbTJ1WIg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 17:08:36 -0500
-Subject: problem with ide dvd-rom in 2.6.0 test
-From: Miles Egan <miles@caddr.com>
+	Tue, 28 Oct 2003 17:06:23 -0500
+Received: from smtp.hccnet.nl ([62.251.0.13]:64919 "EHLO smtp.hccnet.nl")
+	by vger.kernel.org with ESMTP id S261332AbTJ1WGW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 17:06:22 -0500
+Message-ID: <3F9EE85D.9060903@hccnet.nl>
+Date: Tue, 28 Oct 2003 23:06:21 +0100
+From: Klaas de Waal <klaas.de.waal@hccnet.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vlcZxhcp60jLB9eMp4Sd"
-Message-Id: <1067378907.5399.9.camel@car>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 28 Oct 2003 14:08:35 -0800
+CC: klaas.de.waal@philips.com
+Subject: Bug in linux-2.0.6-test9/fs/direct-io.c
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bug in parameter of ZERO_PAGE macro in line 679 of fb/direct-io.c
+Parameter dio->cur_user_address has to be dio->curr_user_address.
+This bug shows when compling for MIPS little endian as target, not when 
+compiling for X86.
 
---=-vlcZxhcp60jLB9eMp4Sd
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-I consistently get errors reading dvd-r disks under 2.6.0 test on
-hardware that performs fine under 2.4.x.
+Context diff (direct-io.c.sav is original file, direct-io.c is fixed file):
 
-Specs are Dell Pentium 4 desktop machine running Debian unstable with a
-Samsung DVD/CDRW ide drive.
+*** direct-io.c 2003-10-28 22:59:00.000000000 +0100
+--- direct-io.c.sav     2003-09-28 02:50:29.000000000 +0200
+***************
+*** 676,682 ****
 
-The errors are reported as follows:
-Oct 28 13:26:31 car kernel: attempt to access beyond end of device
-Oct 28 13:26:31 car kernel: hdc: rw=3D0, want=3D8320756, limit=3D8308032
+        this_chunk_bytes = this_chunk_blocks << dio->blkbits;
 
-The kernel recognizes the drive as follows:
-hdc: attached ide-scsi driver.
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: SAMSUNG   Model: CDRW/DVD SM-332B  Rev: T408
-  Type:   CD-ROM                             ANSI SCSI revision: 02
+!       page = ZERO_PAGE(dio->curr_user_address);
+        if (submit_page_section(dio, page, 0, this_chunk_bytes,
+                                dio->next_block_for_io))
+                return;
+--- 676,682 ----
 
-The problem occurs consistently whether I mount the drive using the
-ide-scsi driver or as a plain ide disk.  It occurs with every 2.6.0 test
-kernel I've tried (test2 and on).
+        this_chunk_bytes = this_chunk_blocks << dio->blkbits;
 
-It sounds similar to a problem reported by Jakub Bogusz with 2.6.0 test3
-in August:
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0308.1/1989.html
-
-Any ideas?  Any more information I can provide or anything I should try
-to narrow it down?
-
-Thanks.
-
---=20
-Miles Egan <miles@caddr.com>
-
---=-vlcZxhcp60jLB9eMp4Sd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/nujbU4Jq/wH1PVERAmzkAKDi9tjFf2+/gNvHMJeOY4kwf/2fiACfcN+/
-l7uLWN3fWfC3tNj7PnfsAlA=
-=htVw
------END PGP SIGNATURE-----
-
---=-vlcZxhcp60jLB9eMp4Sd--
+!       page = ZERO_PAGE(dio->cur_user_address);
+        if (submit_page_section(dio, page, 0, this_chunk_bytes,
+                                dio->next_block_for_io))
+                return;
+[
 

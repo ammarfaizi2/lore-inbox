@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267331AbTALIlD>; Sun, 12 Jan 2003 03:41:03 -0500
+	id <S267333AbTALI6h>; Sun, 12 Jan 2003 03:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267332AbTALIlC>; Sun, 12 Jan 2003 03:41:02 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24523 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267331AbTALIlC>; Sun, 12 Jan 2003 03:41:02 -0500
-Date: Sun, 12 Jan 2003 09:49:47 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Greg Ungerer <gerg@snapgear.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] remove kernel 2.0 code from mcfserial.h
-Message-ID: <20030112084947.GQ21826@fs.tum.de>
+	id <S267334AbTALI6h>; Sun, 12 Jan 2003 03:58:37 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:61878 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267333AbTALI6g>;
+	Sun, 12 Jan 2003 03:58:36 -0500
+Date: Sun, 12 Jan 2003 10:07:21 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Kurt Garloff <garloff@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       "Harm v.d. Heijden" <H.v.d.Heijden@phys.tue.nl>
+Subject: Re: [PATCH] sl82c105 driver update
+Message-ID: <20030112100721.A19168@ucw.cz>
+References: <1042302798.525.66.camel@zion.wanadoo.fr> <20030111223231.B21505@flint.arm.linux.org.uk> <1042325055.525.153.camel@zion.wanadoo.fr> <20030111234819.A17524@ucw.cz> <20030112015456.GI9153@nbkurt.casa-etp.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030112015456.GI9153@nbkurt.casa-etp.nl>; from garloff@suse.de on Sun, Jan 12, 2003 at 02:54:56AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removes some #if'd code for kernel 2.0 from 
-drivers/serial/mcfserial.h.
+On Sun, Jan 12, 2003 at 02:54:56AM +0100, Kurt Garloff wrote:
 
-Please apply
-Adrian
+> On Sat, Jan 11, 2003 at 11:48:19PM +0100, Vojtech Pavlik wrote:
+> > Correct, and it seems that if you have automatic DMA disabled in the
+> > kernel and then use hdparm -d1, this leads to a lot of trouble.
+> 
+> Ack, that's the problem I reported to you the other day, if I'm not mistaken.
+> -d1 -Xwhatever worked, just -d1 not.
 
+Yes, that's it. And after some investigation I did it seems like it's so
+by design - without using -Xwhatever the IDE driver 'just enables' DMA,
+using the BIOS settings of harddrive and the chipset. At least it is so
+in recent 2.4's.
 
---- linux-2.5.56/drivers/serial/mcfserial.h.old	2003-01-12 09:44:38.000000000 +0100
-+++ linux-2.5.56/drivers/serial/mcfserial.h	2003-01-12 09:45:04.000000000 +0100
-@@ -69,13 +69,8 @@
- 	struct work_struct	tqueue_hangup;
- 	struct termios		normal_termios;
- 	struct termios		callout_termios;
--#if LINUX_VERSION_CODE <= 0x020100
--	struct wait_queue	*open_wait;
--	struct wait_queue	*close_wait;
--#else
- 	wait_queue_head_t	open_wait;
- 	wait_queue_head_t	close_wait;
--#endif
- 
- };
- 
+I'll have to ask Alan and Andre what really is the intention.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

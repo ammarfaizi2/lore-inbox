@@ -1,73 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263186AbUCMUt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 15:49:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbUCMUt6
+	id S261205AbUCMUqO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 15:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUCMUqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 15:49:58 -0500
-Received: from wingding.demon.nl ([82.161.27.36]:7297 "EHLO wingding.demon.nl")
-	by vger.kernel.org with ESMTP id S263186AbUCMUtz (ORCPT
+	Sat, 13 Mar 2004 15:46:14 -0500
+Received: from zero.aec.at ([193.170.194.10]:54790 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261205AbUCMUqN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 15:49:55 -0500
-Date: Sat, 13 Mar 2004 21:49:15 +0100
-From: rutger@mail.com
-To: linux-kernel@vger.kernel.org
-Subject: [muPATCH] TUN/TAP sysfs fix
-Message-ID: <20040313204915.GB27653@mail.com>
-Reply-To: linux-kernel@tux.tmfweb.nl
-Mime-Version: 1.0
+	Sat, 13 Mar 2004 15:46:13 -0500
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] kref, a tiny, sane, reference count object
+References: <1zhdz-5uL-3@gated-at.bofh.it> <1zhdz-5uL-1@gated-at.bofh.it>
+	<1zm3F-2ex-7@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 13 Mar 2004 21:43:09 +0100
+In-Reply-To: <1zm3F-2ex-7@gated-at.bofh.it> (Greg KH's message of "Sat, 13
+ Mar 2004 19:30:11 +0100")
+Message-ID: <m3d67gscki.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: M38c
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Greg KH <greg@kroah.com> writes:
 
-Using Gentoo2004.0 with udev (with /dev on ramfs) gives most devices
-from sysfs. However, TUN/TAP is not listed. Digging into it further
-revealed the error:
+> But people do get it wrong (I've seen it happen).  Using this keeps you
 
-# ls /sys/class/misc
-agpgart  hw_random  net/tun  psaux  rtc
- # ls -l /sys/class/misc
-ls: /sys/class/misc/net/tun: No such file or directory
-total 0
-drwxr-xr-x    2 root     root            0 Mar 13 18:43 agpgart
-...
+If they cannot get a simple reference counter right it is doubtful
+the rest of their code will do any good.
 
-A file with a '/' embedded.
+> from having to write your own get, and put functions.  Multiply that by
+> every usb driver that wants to (and needs to) use this kind of logic,
+> and you have a lot of duplicated code that is unnecessary.
 
-Suggestion: change name from 'net/tun' to 'net_tun', to be as
-unobtrusive as possible, which lets met use /dev/net_tun (using the
-Unix ASCII to filename conversion convention ;)
+Lots of duplicated one liners. Sounds like a big issue.
+For me this thing smells more like overabstraction.
 
-The correct solution might be to change sysfs into auto-creating
-directories for .names with embedded slashes, but that's outside the
-scope of this quick make-it-work-again hack...
+> So we write it once, get it correct, and let everyone use it.  Isn't
+> that what the code in /lib is for?  :)
 
-*** linux-2.6/drivers/net/tun.c~	Sat Mar 13 20:20:17 2004
---- linux-2.6/drivers/net/tun.c	Sat Mar 13 20:20:57 2004
-***************
-*** 602,608 ****
-  
-  static struct miscdevice tun_miscdev = {
-  	.minor = TUN_MINOR,
-! 	.name = "net/tun",
-  	.fops = &tun_fops
-  };
-  
---- 602,608 ----
-  
-  static struct miscdevice tun_miscdev = {
-  	.minor = TUN_MINOR,
-! 	.name = "net_tun",
-  	.fops = &tun_fops
-  };
-  
+I would agree if it is significant code. But all you're replacing is a
+few straight forward one/two liners, and that at the cost of less
+efficient space usage (12 byte overhead on 64bit)
 
--- 
-Rutger Nijlunsing ---------------------------- rutger ed tux tmfweb nl
-never attribute to a conspiracy which can be explained by incompetence
-----------------------------------------------------------------------
+-Andi
+

@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKPSgd>; Thu, 16 Nov 2000 13:36:33 -0500
+	id <S129069AbQKPSiN>; Thu, 16 Nov 2000 13:38:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129069AbQKPSgY>; Thu, 16 Nov 2000 13:36:24 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:51908 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129076AbQKPSgL>;
-	Thu, 16 Nov 2000 13:36:11 -0500
-Date: Thu, 16 Nov 2000 13:05:53 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, netdev@oss.sgi.com
-Subject: Re: PATCH: 8139too kernel thread
-In-Reply-To: <E13wTKL-000899-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0011161302200.13047-100000@weyl.math.psu.edu>
+	id <S129091AbQKPSiE>; Thu, 16 Nov 2000 13:38:04 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:64783 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129069AbQKPShn>; Thu, 16 Nov 2000 13:37:43 -0500
+Date: Thu, 16 Nov 2000 10:07:11 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: schwidefsky@de.ibm.com, mingo@chiara.elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: Memory management bug
+In-Reply-To: <20001116184512.A6622@athlon.random>
+Message-ID: <Pine.LNX.4.10.10011161000330.2513-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,20 +20,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 16 Nov 2000, Alan Cox wrote:
-
-> > The only disadvantage to this scheme is the added cost of a kernel
-> > thread over a kernel timer.  I think this is an ok cost, because this
-> > is a low-impact thread that sleeps a lot..
+On Thu, 16 Nov 2000, Andrea Arcangeli wrote:
 > 
-> 8K of memory, two tlb flushes, cache misses on the scheduler. The price is
-                ^^^^^^^^^^^^^^^
-> actually extremely high.
+> If they absolutely needs 4 pages for pmd pagetables due hardware constraints
+> I'd recommend to use _four_ hardware pages for each softpage, not two.
 
-<confused>
-Does it really need non-lazy TLB?
+Yes.
 
-I'm not saying that it's a good idea, but...
+However, it definitely is an issue of making trade-offs. Most 64-bit MMU
+models tend to have some flexibility in how you set up the page tables,
+and it may be possible to just move bits around too (ie making both the
+pmd and the pgd twice as large, and getting the expansion of 4 by doing
+two expand-by-two's, for example, if the hardware has support for doing
+things like that).
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

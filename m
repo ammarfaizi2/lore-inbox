@@ -1,197 +1,246 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310318AbSCACPE>; Thu, 28 Feb 2002 21:15:04 -0500
+	id <S310338AbSCADjY>; Thu, 28 Feb 2002 22:39:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310200AbSCACNN>; Thu, 28 Feb 2002 21:13:13 -0500
-Received: from host194.steeleye.com ([216.33.1.194]:9734 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S310316AbSCACId>; Thu, 28 Feb 2002 21:08:33 -0500
-Message-Id: <200203010208.g2128Qq01694@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Chris Mason <mason@suse.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3) 
-In-Reply-To: Message from Chris Mason <mason@suse.com> 
-   of "Thu, 28 Feb 2002 13:12:40 EST." <3903140000.1014919960@tiny> 
+	id <S310166AbSCADhh>; Thu, 28 Feb 2002 22:37:37 -0500
+Received: from suntan.tandem.com ([192.216.221.8]:47756 "EHLO
+	suntan.tandem.com") by vger.kernel.org with ESMTP
+	id <S310323AbSCADfw>; Thu, 28 Feb 2002 22:35:52 -0500
+From: bwatson@kahuna.cag.cpqcorp.net
+Message-Id: <200203010250.g212ofF25736@kahuna.cag.cpqcorp.net>
+To: marcelo@conectiva.com.br
+Cc: dhowells@redhat.com, hch@caldera.de, kmsmith@umich.edu,
+        linux-kernel@vger.kernel.org
+Date: Thu, 28 Feb 2002 18:46 PST
+Subject: [PATCH] 2.4.19-pre2, trylock for read/write semaphores
 Mime-Version: 1.0
-Content-Type: multipart/mixed ;
-	boundary="==_Exmh_-16076857180"
-Date: Thu, 28 Feb 2002 20:08:26 -0600
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart MIME message.
+Marcelo-
 
---==_Exmh_-16076857180
-Content-Type: text/plain; charset=us-ascii
+Again I'm submitting a patch that adds trylock routines for 
+read/write semaphores. I haven't seen it appear in either 
+2.4.18 or 2.4.19-pre2.
 
-mason@suse.com said:
-> So, a little testing with scsi_info shows my scsi drives do have
-> writeback cache on.  great.  What's interesting is they must be doing
-> additional work for ordered tags.  If they were treating the block as
-> written once in cache, using the tags should not change  performance
-> at all.  But, I can clearly show the tags changing performance, and
-> hear the drive write pattern change when tags are on. 
+David Howells has reviewed it and thinks its ready to be 
+submitted. I've tested it and I'm confident it works correctly.
+It doesn't affect the stability of the kernel because nobody's
+using it, yet. All comments and concerns raised on LKML about 
+this patch have been addressed. Both Christoph Hellwig and 
+Kendrick Smith have expressed interest in it for the file 
+system work they're doing.
 
-I checked all mine and they're write through.  However, I inherited all my 
-drives from an enterprise vendor so this might not be that surprising.
+Is there anything else I need to do to get it accepted into 2.4?
 
-I can surmise why ordered tags kill performance on your drive, since an 
-ordered tag is required to affect the ordering of the write to the medium, not 
-the cache, it is probably implemented with an implicit cache flush.
-
-Anyway, the attached patch against 2.4.18 (and I know it's rather gross code) 
-will probe the cache type and try to set it to write through on boot.  See 
-what this does to your performance ordinarily, and also to your tagged write 
-barrier performance.
-
-James
+Brian Watson
+Open SSI Clustering Project
+Compaq Computer Corp
+http://opensource.compaq.com/
 
 
-
---==_Exmh_-16076857180
-Content-Type: text/plain ; name="sd-cache.diff"; charset=us-ascii
-Content-Description: sd-cache.diff
-Content-Disposition: attachment; filename="sd-cache.diff"
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.166   -> 1.167  
-#	   drivers/scsi/sd.c	1.18    -> 1.19   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/02/28	jejb@malley.il.steeleye.com	1.167
-# changes in sd driver
-# 
-# Drive cache set to write back if possible.
-# --------------------------------------------
-#
-diff -Nru a/drivers/scsi/sd.c b/drivers/scsi/sd.c
---- a/drivers/scsi/sd.c	Thu Feb 28 20:04:49 2002
-+++ b/drivers/scsi/sd.c	Thu Feb 28 20:04:49 2002
-@@ -741,7 +741,7 @@
- 	char nbuff[6];
- 	unsigned char *buffer;
- 	unsigned long spintime_value = 0;
--	int the_result, retries, spintime;
-+	int the_result, retries, spintime, mode_retries;
- 	int sector_size;
- 	Scsi_Request *SRpnt;
+diff -Naur linux-2.4.19-pre2/include/asm-i386/rwsem.h rwsem/include/asm-i386/rwsem.h
+--- linux-2.4.19-pre2/include/asm-i386/rwsem.h	Thu Feb 28 15:16:13 2002
++++ rwsem/include/asm-i386/rwsem.h	Thu Feb 28 15:22:18 2002
+@@ -4,6 +4,8 @@
+  *
+  * Derived from asm-i386/semaphore.h
+  *
++ * Trylock by Brian Watson (Brian.J.Watson@compaq.com).
++ *
+  *
+  * The MSW of the count is the negated number of active writers and waiting
+  * lockers, and the LSW is the total number of active locks
+@@ -117,6 +119,29 @@
+ }
  
-@@ -858,6 +858,105 @@
- 		else
- 			printk("ready\n");
- 	}
+ /*
++ * trylock for reading -- returns 1 if successful, 0 if contention
++ */
++static inline int __down_read_trylock(struct rw_semaphore *sem)
++{
++	__s32 result, tmp;
++	__asm__ __volatile__(
++		"# beginning __down_read_trylock\n\t"
++		"  movl      %0,%1\n\t"
++		"1:\n\t"
++		"  movl	     %1,%2\n\t"
++		"  addl      %3,%2\n\t"
++		"  jle	     2f\n\t"
++LOCK_PREFIX	"  cmpxchgl  %2,%0\n\t"
++		"  jnz	     1b\n\t"
++		"2:\n\t"
++		"# ending __down_read_trylock\n\t"
++		: "+m"(sem->count), "=&a"(result), "=&r"(tmp)
++		: "i"(RWSEM_ACTIVE_READ_BIAS)
++		: "memory", "cc");
++	return result>=0 ? 1 : 0;
++}
 +
-+	mode_retries = 2;	/* make two attempts to change the cache type */
++/*
+  * lock for writing
+  */
+ static inline void __down_write(struct rw_semaphore *sem)
+@@ -141,6 +166,19 @@
+ 		: "+d"(tmp), "+m"(sem->count)
+ 		: "a"(sem)
+ 		: "memory", "cc");
++}
 +
-+ retry_mode_select:
-+	retries = 3;
-+	do {
++/*
++ * trylock for writing -- returns 1 if successful, 0 if contention
++ */
++static inline int __down_write_trylock(struct rw_semaphore *sem)
++{
++	signed long ret = cmpxchg(&sem->count,
++				  RWSEM_UNLOCKED_VALUE, 
++				  RWSEM_ACTIVE_WRITE_BIAS);
++	if (ret == RWSEM_UNLOCKED_VALUE)
++		return 1;
++	return 0;
+ }
+ 
+ /*
+diff -Naur linux-2.4.19-pre2/include/linux/rwsem-spinlock.h rwsem/include/linux/rwsem-spinlock.h
+--- linux-2.4.19-pre2/include/linux/rwsem-spinlock.h	Thu Nov 22 11:46:19 2001
++++ rwsem/include/linux/rwsem-spinlock.h	Thu Feb 28 15:22:18 2002
+@@ -3,6 +3,8 @@
+  * Copyright (c) 2001   David Howells (dhowells@redhat.com).
+  * - Derived partially from ideas by Andrea Arcangeli <andrea@suse.de>
+  * - Derived also from comments by Linus
++ *
++ * Trylock by Brian Watson (Brian.J.Watson@compaq.com).
+  */
+ 
+ #ifndef _LINUX_RWSEM_SPINLOCK_H
+@@ -54,7 +56,9 @@
+ 
+ extern void FASTCALL(init_rwsem(struct rw_semaphore *sem));
+ extern void FASTCALL(__down_read(struct rw_semaphore *sem));
++extern int FASTCALL(__down_read_trylock(struct rw_semaphore *sem));
+ extern void FASTCALL(__down_write(struct rw_semaphore *sem));
++extern int FASTCALL(__down_write_trylock(struct rw_semaphore *sem));
+ extern void FASTCALL(__up_read(struct rw_semaphore *sem));
+ extern void FASTCALL(__up_write(struct rw_semaphore *sem));
+ 
+diff -Naur linux-2.4.19-pre2/include/linux/rwsem.h rwsem/include/linux/rwsem.h
+--- linux-2.4.19-pre2/include/linux/rwsem.h	Thu Nov 22 11:46:19 2001
++++ rwsem/include/linux/rwsem.h	Thu Feb 28 15:22:18 2002
+@@ -2,6 +2,8 @@
+  *
+  * Written by David Howells (dhowells@redhat.com).
+  * Derived from asm-i386/semaphore.h
++ *
++ * Trylock by Brian Watson (Brian.J.Watson@compaq.com).
+  */
+ 
+ #ifndef _LINUX_RWSEM_H
+@@ -46,6 +48,18 @@
+ }
+ 
+ /*
++ * trylock for reading -- returns 1 if successful, 0 if contention
++ */
++static inline int down_read_trylock(struct rw_semaphore *sem)
++{
++	int ret;
++	rwsemtrace(sem,"Entering down_read_trylock");
++	ret = __down_read_trylock(sem);
++	rwsemtrace(sem,"Leaving down_read_trylock");
++	return ret;
++}
 +
-+		memset((void *) &cmd[0], 0, 10);
-+		cmd[0] = MODE_SENSE;
-+		cmd[1] = (rscsi_disks[i].device->scsi_level <= SCSI_2) ?
-+			 ((rscsi_disks[i].device->lun << 5) & 0xe0) : 0;
-+		cmd[1] |= 0x08;	/* DBD */
-+		cmd[2] = 0x08;	/* current values, cache page */
-+		cmd[4] = 24;	/* allocation length */
++/*
+  * lock for writing
+  */
+ static inline void down_write(struct rw_semaphore *sem)
+@@ -53,6 +67,18 @@
+ 	rwsemtrace(sem,"Entering down_write");
+ 	__down_write(sem);
+ 	rwsemtrace(sem,"Leaving down_write");
++}
 +
++/*
++ * trylock for writing -- returns 1 if successful, 0 if contention
++ */
++static inline int down_write_trylock(struct rw_semaphore *sem)
++{
++	int ret;
++	rwsemtrace(sem,"Entering down_write_trylock");
++	ret = __down_write_trylock(sem);
++	rwsemtrace(sem,"Leaving down_write_trylock");
++	return ret;
+ }
+ 
+ /*
+diff -Naur linux-2.4.19-pre2/lib/rwsem-spinlock.c rwsem/lib/rwsem-spinlock.c
+--- linux-2.4.19-pre2/lib/rwsem-spinlock.c	Wed Apr 25 13:31:03 2001
++++ rwsem/lib/rwsem-spinlock.c	Thu Feb 28 15:22:18 2002
+@@ -4,6 +4,8 @@
+  * Copyright (c) 2001   David Howells (dhowells@redhat.com).
+  * - Derived partially from idea by Andrea Arcangeli <andrea@suse.de>
+  * - Derived also from comments by Linus
++ *
++ * Trylock by Brian Watson (Brian.J.Watson@compaq.com).
+  */
+ #include <linux/rwsem.h>
+ #include <linux/sched.h>
+@@ -149,6 +151,28 @@
+ }
+ 
+ /*
++ * trylock for reading -- returns 1 if successful, 0 if contention
++ */
++int __down_read_trylock(struct rw_semaphore *sem)
++{
++	int ret = 0;
++	rwsemtrace(sem,"Entering __down_read_trylock");
 +
-+		memset((void *) buffer, 0, 24);
-+		SRpnt->sr_cmd_len = 0;
-+		SRpnt->sr_sense_buffer[0] = 0;
-+		SRpnt->sr_sense_buffer[2] = 0;
++	spin_lock(&sem->wait_lock);
 +
-+		SRpnt->sr_data_direction = SCSI_DATA_READ;
-+		scsi_wait_req(SRpnt, (void *) cmd, (void *) buffer,
-+			    24, SD_TIMEOUT, MAX_RETRIES);
-+
-+		the_result = SRpnt->sr_result;
-+		retries--;
-+
-+	} while (the_result && retries);
-+
-+	if (the_result) {
-+		printk("%s : MODE SENSE failed.\n"
-+		       "%s : status = %x, message = %02x, host = %d, driver = %02x \n",
-+		       nbuff, nbuff,
-+		       status_byte(the_result),
-+		       msg_byte(the_result),
-+		       host_byte(the_result),
-+		       driver_byte(the_result)
-+		    );
-+		if (driver_byte(the_result) & DRIVER_SENSE)
-+			print_req_sense("sd", SRpnt);
-+		else
-+			printk("%s : sense not available. \n", nbuff);
-+	} else {
-+		const char *types[] = { "write through", "none", "write back", "write back, no read (daft)" };
-+		int ct = 0;
-+
-+		ct = (buffer[6] & 0x01 /* RCD */) | ((buffer[6] & 0x04 /* WCE */) >> 1);
-+
-+		printk("%s : checking drive cache: %s \n", nbuff, types[ct]);
-+		if(ct != 0x0 && mode_retries-- == 0) {
-+			printk("%s : FAILED to change cache to write back, continuing\n", nbuff);
-+		}
-+		else if(ct != 0x0) {
-+			retries = 3;
-+			buffer[6] &= (~0x05); /* clear RCD and WCE */
-+			do {
-+				memset((void *) &cmd[0], 0, 10);
-+				cmd[0] = MODE_SELECT;
-+				cmd[1] = (rscsi_disks[i].device->scsi_level <= SCSI_2) ?
-+					((rscsi_disks[i].device->lun << 5) & 0xe0) : 0;
-+				cmd[1] |= 0x10;	/* PF */
-+				cmd[4] = 24;	/* allocation length */
-+				
-+				
-+				SRpnt->sr_cmd_len = 0;
-+				SRpnt->sr_sense_buffer[0] = 0;
-+				SRpnt->sr_sense_buffer[2] = 0;
-+				
-+				SRpnt->sr_data_direction = SCSI_DATA_WRITE;
-+				scsi_wait_req(SRpnt, (void *) cmd, (void *) buffer,
-+					      24, SD_TIMEOUT, MAX_RETRIES);
-+
-+				the_result = SRpnt->sr_result;
-+				retries--;
-+
-+			} while (the_result && retries);
-+
-+			if (the_result) {
-+				printk("%s : MODE SELECT failed.\n"
-+				       "%s : status = %x, message = %02x, host = %d, driver = %02x \n",
-+				       nbuff, nbuff,
-+				       status_byte(the_result),
-+				       msg_byte(the_result),
-+				       host_byte(the_result),
-+				       driver_byte(the_result)
-+				       );
-+				if (driver_byte(the_result) & DRIVER_SENSE)
-+					print_req_sense("sd", SRpnt);
-+				else
-+					printk("%s : sense not available. \n", nbuff);
-+			} else {
-+				printk("%s : changing drive cache to write through\n", nbuff);
-+			}
-+			goto retry_mode_select;
-+		}
-+		
++	if (sem->activity>=0 && list_empty(&sem->wait_list)) {
++		/* granted */
++		sem->activity++;
++		ret = 1;
 +	}
 +
- 	retries = 3;
- 	do {
- 		cmd[0] = READ_CAPACITY;
-
---==_Exmh_-16076857180--
-
-
++	spin_unlock(&sem->wait_lock);
++
++	rwsemtrace(sem,"Leaving __down_read_trylock");
++	return ret;
++}
++
++/*
+  * get a write lock on the semaphore
+  * - note that we increment the waiting count anyway to indicate an exclusive lock
+  */
+@@ -192,6 +216,28 @@
+ 
+  out:
+ 	rwsemtrace(sem,"Leaving __down_write");
++}
++
++/*
++ * trylock for writing -- returns 1 if successful, 0 if contention
++ */
++int __down_write_trylock(struct rw_semaphore *sem)
++{
++	int ret = 0;
++	rwsemtrace(sem,"Entering __down_write_trylock");
++
++	spin_lock(&sem->wait_lock);
++
++	if (sem->activity==0 && list_empty(&sem->wait_list)) {
++		/* granted */
++		sem->activity = -1;
++		ret = 1;
++	}
++
++	spin_unlock(&sem->wait_lock);
++
++	rwsemtrace(sem,"Leaving __down_write_trylock");
++	return ret;
+ }
+ 
+ /*

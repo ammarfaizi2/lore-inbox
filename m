@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbTENGIy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 02:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTENGIy
+	id S262095AbTENGFi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 02:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbTENGFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 02:08:54 -0400
-Received: from holomorphy.com ([66.224.33.161]:57792 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262057AbTENGIw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 02:08:52 -0400
-Date: Tue, 13 May 2003 23:21:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: ahc_linux_map_seg() compile/style/data corruption fixes
-Message-ID: <20030514062134.GG2444@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Justin T. Gibbs" <gibbs@scsiguy.com>, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20030514044934.GC29926@holomorphy.com> <498302704.1052893137@aslan.scsiguy.com>
-Mime-Version: 1.0
+	Wed, 14 May 2003 02:05:38 -0400
+Received: from landfill.ihatent.com ([217.13.24.22]:45186 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id S262095AbTENGFh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 02:05:37 -0400
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-mm4
+References: <20030512225504.4baca409.akpm@digeo.com>
+	<87vfwf8h2n.fsf@lapper.ihatent.com>
+	<20030513001135.2395860a.akpm@digeo.com>
+	<87n0hr8edh.fsf@lapper.ihatent.com>
+	<20030513011232.67c300d0.akpm@digeo.com>
+	<87addq7fr8.fsf@lapper.ihatent.com>
+	<20030513145335.2337e0f7.akpm@digeo.com>
+	<20030513222454.GF4108@waste.org>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 14 May 2003 08:18:23 +0200
+In-Reply-To: <20030513222454.GF4108@waste.org>
+Message-ID: <87wugu59w0.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <498302704.1052893137@aslan.scsiguy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> For the connoisseur, I've attached before/after disassemblies
->> demonstrating that the if () whose failure is caused by (2) is a very,
->> very, very real problem.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, May 14, 2003 at 12:18:57AM -0600, Justin T. Gibbs wrote:
-> This was obvious from code inspection.
+Matt Mackall <mpm@selenic.com> writes:
 
-ISTR a debate where it was claimed the constant would be implicitly
-promoted.
+> While we're on the subject I'll mention that the 2.5 input layer sees
+> only the touchpad on my T30, and not the trackpoint. The psaux driver
+> in 2.4 works fine.
+> 
 
+I'll second that one.
 
-I got your other post too, and am fine with your patch to fix up the
-compile errors.
+mvh,
+A
+- -- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
 
-
--- wli
+iD8DBQE+wd+rCQ1pa+gRoggRAoVbAJ9ue4s3+PtoxE47bfsV7w9aqLrMWgCePwcR
+zrecFYp/2BOkRPatAPHpVFM=
+=14pB
+-----END PGP SIGNATURE-----

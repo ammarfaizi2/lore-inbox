@@ -1,161 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317859AbSHaSeb>; Sat, 31 Aug 2002 14:34:31 -0400
+	id <S317864AbSHaSw7>; Sat, 31 Aug 2002 14:52:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317861AbSHaSeb>; Sat, 31 Aug 2002 14:34:31 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:46470 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317859AbSHaSe3>; Sat, 31 Aug 2002 14:34:29 -0400
-Message-ID: <3D710D21.5070101@bingo-ev.de>
-Date: Sat, 31 Aug 2002 20:38:25 +0200
-From: Michael Obster <michael.obster@bingo-ev.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020719
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.19 and binutils 2.13.90.0.3 dont compile
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------040803020404020403050002"
+	id <S317872AbSHaSw7>; Sat, 31 Aug 2002 14:52:59 -0400
+Received: from ppp-217-133-221-247.dialup.tiscali.it ([217.133.221.247]:15280
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S317864AbSHaSwz>; Sat, 31 Aug 2002 14:52:55 -0400
+Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: trond.myklebust@fys.uio.no
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <15728.61345.184030.293634@charged.uio.no>
+References: <15728.61345.184030.293634@charged.uio.no>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-HHiw9gHn8zQKohqPFjYV"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 31 Aug 2002 20:57:14 +0200
+Message-Id: <1030820234.4408.119.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040803020404020403050002
-Content-Type: text/plain; charset=us-ascii; format=flowed
+
+--=-HHiw9gHn8zQKohqPFjYV
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Hi,
+But aren't credential changes supposed to be infrequent?
 
-can you have a look on that. Seems for me to be a problem with the new 
-binutils version, because with binutils 2.12.90.0.4 the kernel compiles. 
-Is there a workaround present?
+If so, isn't it faster to put the fields directly in task_struct, keep a
+separate shared structure and copy them on kernel entry?
+
+Here is some pseudocode to better illustrate the idea.
+
+vfs_shared_cred::lock can be removed if it's not necessary to do atomic
+modifications of multiple cred fields (otherwise you could copy and then
+exchange a pointer).
+
+vfs_shared_cred::tasklist_lock can be replaced with RCU.
+
+struct vfs_cred_groups
+{
+	int ngroups;
+	gid_t groups[];
+};
+
+struct vfs_cred
+{
+	uid_t uid, gid;
+	struct vfs_cred_groups* groups;
+};
+
+struct vfs_shared_cred
+{
+	atomic_t count;
+	spinlock_t lock;
+	spinlock_t tasklist_lock;
+	vfs_cred cred;
+};
+
+struct task_struct
+{
+	struct vfs_cred cred;
+	struct vfs_cred* shared_cred;
+	list_t shared_cred_list;
+};
+
+struct thread_info
+{
+	unsigned propagate_cred;
+};
+
+propagate_cred()
+{
+	current_thread_info()->propagate_cred = 0;
+
+	spin_lock(&current->shared_cred->lock);
+	current->cred = current->shared_cred->cred;
+	spin_unlock(&current->shared_cred->lock);
+}
+
+kernel_entry() /* asm for every architecture :( */
+{
+	if(unlikely(current_thread_info()->propagate_cred))
+		propagate_cred();
+}
+
+change_credentials()
+{
+	list_t list;
+
+	spin_lock(&current->shared_cred->lock);
+	frob(current->shared_cred);
+	spin_unlock(&current->shared_cred->lock);
+
+	wmb();
+
+	spin_lock(&current->shared_cred->tasklist_lock);
+	list_for_each(list, &current->shared_cred_list)
+	{
+		struct task_struct* task = list_entry(list, struct task_struct, shared_cred_list);
+		task->thread_info->propagate_cred = 1;
+	}
+	spin_unlock(&current->shared_cred->tasklist_lock);
+}
+
+clone()
+{
+	spin_lock(&current->shared_cred->lock);
+	new->cred = current->shared_cred->cred); /* not current->cred! */
+	spin_unlock(&current->shared_cred->lock);
+
+	if(flags & CLONE_CRED)
+	{
+		new->shared_cred = get_shared_cred(current->shared_cred);
+		spin_lock(&current->shared_cred->tasklist_lock);
+		list_add(new, &current->shared_cred_list);
+		spin_unlock(&current->shared_cred->tasklist_lock);
+	}
+}
+
+static void release_task(struct task_struct * p)
+{
+	spin_lock(&current->shared_cred->tasklist_lock);
+	__list_del(current->shared_cred_list);
+	spin_unlock(&current->shared_cred->tasklist_lock);
+
+	put_shared_cred(current->shared_cred);
+}
 
 
-Kind Regards,
-Michael Obster
----
-Do you want to rock?                            ___  ___  ___  _  _
-http://www.rocklinux.org/                      | _ || _ || __|| |//
-                                                ||_|||| ||||   |  /
-                                                |  _|||_||||__ |  \
-                                                ||\\ |_LINUX__||_|\\
-------------------------------------------------------------------
+--=-HHiw9gHn8zQKohqPFjYV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
---------------040803020404020403050002
-Content-Type: application/x-java-vm;
- name="kernel"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="kernel"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-QnVpbGRpbmcgdGhlIGtlcm5lbC4uLiAKZ2NjIC1XYWxsIC1Xc3RyaWN0LXByb3RvdHlwZXMg
-LU8yIC1mb21pdC1mcmFtZS1wb2ludGVyIC1vIHNjcmlwdHMvc3BsaXQtaW5jbHVkZSBzY3Jp
-cHRzL3NwbGl0LWluY2x1ZGUuYwpzY3JpcHRzL3NwbGl0LWluY2x1ZGUgaW5jbHVkZS9saW51
-eC9hdXRvY29uZi5oIGluY2x1ZGUvY29uZmlnCmdjYyAtRF9fS0VSTkVMX18gLUkvcm9jay1s
-aW51eC9zcmMvbGludXgtMi40LjE5LXJvY2svaW5jbHVkZSAtV2FsbCAtV3N0cmljdC1wcm90
-b3R5cGVzIC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm5vLXN0cmljdC1hbGlhc2luZyAtZm5vLWNv
-bW1vbiAtZm9taXQtZnJhbWUtcG9pbnRlciAtcGlwZSAtbXByZWZlcnJlZC1zdGFjay1ib3Vu
-ZGFyeT0yIC1tYXJjaD1hdGhsb24gICAgLURLQlVJTERfQkFTRU5BTUU9bWFpbiAtYyAtbyBp
-bml0L21haW4ubyBpbml0L21haW4uYwouIHNjcmlwdHMvbWt2ZXJzaW9uID4gLnRtcHZlcnNp
-b24KZG5zZG9tYWlubmFtZTogSG9zdCBuYW1lIGxvb2t1cCBmYWlsdXJlCmdjYyAtRF9fS0VS
-TkVMX18gLUkvcm9jay1saW51eC9zcmMvbGludXgtMi40LjE5LXJvY2svaW5jbHVkZSAtV2Fs
-bCAtV3N0cmljdC1wcm90b3R5cGVzIC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm5vLXN0cmljdC1h
-bGlhc2luZyAtZm5vLWNvbW1vbiAtZm9taXQtZnJhbWUtcG9pbnRlciAtcGlwZSAtbXByZWZl
-cnJlZC1zdGFjay1ib3VuZGFyeT0yIC1tYXJjaD1hdGhsb24gICAtRFVUU19NQUNISU5FPSci
-aTM4NiInIC1ES0JVSUxEX0JBU0VOQU1FPXZlcnNpb24gLWMgLW8gaW5pdC92ZXJzaW9uLm8g
-aW5pdC92ZXJzaW9uLmMKZ2NjIC1EX19LRVJORUxfXyAtSS9yb2NrLWxpbnV4L3NyYy9saW51
-eC0yLjQuMTktcm9jay9pbmNsdWRlIC1XYWxsIC1Xc3RyaWN0LXByb3RvdHlwZXMgLVduby10
-cmlncmFwaHMgLU8yIC1mbm8tc3RyaWN0LWFsaWFzaW5nIC1mbm8tY29tbW9uIC1mb21pdC1m
-cmFtZS1wb2ludGVyIC1waXBlIC1tcHJlZmVycmVkLXN0YWNrLWJvdW5kYXJ5PTIgLW1hcmNo
-PWF0aGxvbiAgICAtREtCVUlMRF9CQVNFTkFNRT1kb19tb3VudHMgLWMgLW8gaW5pdC9kb19t
-b3VudHMubyBpbml0L2RvX21vdW50cy5jCm1ha2UgQ0ZMQUdTPSItRF9fS0VSTkVMX18gLUkv
-cm9jay1saW51eC9zcmMvbGludXgtMi40LjE5LXJvY2svaW5jbHVkZSAtV2FsbCAtV3N0cmlj
-dC1wcm90b3R5cGVzIC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm5vLXN0cmljdC1hbGlhc2luZyAt
-Zm5vLWNvbW1vbiAtZm9taXQtZnJhbWUtcG9pbnRlciAtcGlwZSAtbXByZWZlcnJlZC1zdGFj
-ay1ib3VuZGFyeT0yIC1tYXJjaD1hdGhsb24gICIgLUMgIGtlcm5lbAptYWtlWzFdOiBFbnRl
-cmluZyBkaXJlY3RvcnkgYC9yb2NrLWxpbnV4L3NyYy9saW51eC0yLjQuMTktcm9jay9rZXJu
-ZWwnCm1ha2UgYWxsX3RhcmdldHMKbWFrZVsyXTogRW50ZXJpbmcgZGlyZWN0b3J5IGAvcm9j
-ay1saW51eC9zcmMvbGludXgtMi40LjE5LXJvY2sva2VybmVsJwpnY2MgLURfX0tFUk5FTF9f
-IC1JL3JvY2stbGludXgvc3JjL2xpbnV4LTIuNC4xOS1yb2NrL2luY2x1ZGUgLVdhbGwgLVdz
-dHJpY3QtcHJvdG90eXBlcyAtV25vLXRyaWdyYXBocyAtTzIgLWZuby1zdHJpY3QtYWxpYXNp
-bmcgLWZuby1jb21tb24gLWZvbWl0LWZyYW1lLXBvaW50ZXIgLXBpcGUgLW1wcmVmZXJyZWQt
-c3RhY2stYm91bmRhcnk9MiAtbWFyY2g9YXRobG9uICAgIC1ub3N0ZGluYyAtSSAvdXNyL2xp
-Yi9nY2MtbGliL2k2ODYtcGMtbGludXgtZ251LzIuOTUuMy9pbmNsdWRlIC1ES0JVSUxEX0JB
-U0VOQU1FPXNjaGVkICAtZm5vLW9taXQtZnJhbWUtcG9pbnRlciAtYyAtbyBzY2hlZC5vIHNj
-aGVkLmMKc2NoZWQuYzogSW4gZnVuY3Rpb24gYHNjaGVkdWxlJzoKc2NoZWQuYzo1NTk6IHdh
-cm5pbmc6IGFzbSBvcGVyYW5kIDEgcHJvYmFibHkgZG9lc24ndCBtYXRjaCBjb25zdHJhaW50
-cwpzY2hlZC5jOjU2Njogd2FybmluZzogYXNtIG9wZXJhbmQgMSBwcm9iYWJseSBkb2Vzbid0
-IG1hdGNoIGNvbnN0cmFpbnRzCnNjaGVkLmM6Njc4OiB3YXJuaW5nOiBhc20gb3BlcmFuZCAx
-IHByb2JhYmx5IGRvZXNuJ3QgbWF0Y2ggY29uc3RyYWludHMKc2NoZWQuYzo2ODM6IHdhcm5p
-bmc6IGFzbSBvcGVyYW5kIDEgcHJvYmFibHkgZG9lc24ndCBtYXRjaCBjb25zdHJhaW50cwpn
-Y2MgLURfX0tFUk5FTF9fIC1JL3JvY2stbGludXgvc3JjL2xpbnV4LTIuNC4xOS1yb2NrL2lu
-Y2x1ZGUgLVdhbGwgLVdzdHJpY3QtcHJvdG90eXBlcyAtV25vLXRyaWdyYXBocyAtTzIgLWZu
-by1zdHJpY3QtYWxpYXNpbmcgLWZuby1jb21tb24gLWZvbWl0LWZyYW1lLXBvaW50ZXIgLXBp
-cGUgLW1wcmVmZXJyZWQtc3RhY2stYm91bmRhcnk9MiAtbWFyY2g9YXRobG9uICAgIC1ub3N0
-ZGluYyAtSSAvdXNyL2xpYi9nY2MtbGliL2k2ODYtcGMtbGludXgtZ251LzIuOTUuMy9pbmNs
-dWRlIC1ES0JVSUxEX0JBU0VOQU1FPWRtYSAgLWMgLW8gZG1hLm8gZG1hLmMKZ2NjIC1EX19L
-RVJORUxfXyAtSS9yb2NrLWxpbnV4L3NyYy9saW51eC0yLjQuMTktcm9jay9pbmNsdWRlIC1X
-YWxsIC1Xc3RyaWN0LXByb3RvdHlwZXMgLVduby10cmlncmFwaHMgLU8yIC1mbm8tc3RyaWN0
-LWFsaWFzaW5nIC1mbm8tY29tbW9uIC1mb21pdC1mcmFtZS1wb2ludGVyIC1waXBlIC1tcHJl
-ZmVycmVkLXN0YWNrLWJvdW5kYXJ5PTIgLW1hcmNoPWF0aGxvbiAgICAtbm9zdGRpbmMgLUkg
-L3Vzci9saWIvZ2NjLWxpYi9pNjg2LXBjLWxpbnV4LWdudS8yLjk1LjMvaW5jbHVkZSAtREtC
-VUlMRF9CQVNFTkFNRT1mb3JrICAtYyAtbyBmb3JrLm8gZm9yay5jCmZvcmsuYzogSW4gZnVu
-Y3Rpb24gYF9fbW1kcm9wJzoKZm9yay5jOjI2Njogd2FybmluZzogYXNtIG9wZXJhbmQgMSBw
-cm9iYWJseSBkb2Vzbid0IG1hdGNoIGNvbnN0cmFpbnRzCmdjYyAtRF9fS0VSTkVMX18gLUkv
-cm9jay1saW51eC9zcmMvbGludXgtMi40LjE5LXJvY2svaW5jbHVkZSAtV2FsbCAtV3N0cmlj
-dC1wcm90b3R5cGVzIC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm5vLXN0cmljdC1hbGlhc2luZyAt
-Zm5vLWNvbW1vbiAtZm9taXQtZnJhbWUtcG9pbnRlciAtcGlwZSAtbXByZWZlcnJlZC1zdGFj
-ay1ib3VuZGFyeT0yIC1tYXJjaD1hdGhsb24gICAgLW5vc3RkaW5jIC1JIC91c3IvbGliL2dj
-Yy1saWIvaTY4Ni1wYy1saW51eC1nbnUvMi45NS4zL2luY2x1ZGUgLURLQlVJTERfQkFTRU5B
-TUU9ZXhlY19kb21haW4gIC1ERVhQT1JUX1NZTVRBQiAtYyBleGVjX2RvbWFpbi5jCmdjYyAt
-RF9fS0VSTkVMX18gLUkvcm9jay1saW51eC9zcmMvbGludXgtMi40LjE5LXJvY2svaW5jbHVk
-ZSAtV2FsbCAtV3N0cmljdC1wcm90b3R5cGVzIC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm5vLXN0
-cmljdC1hbGlhc2luZyAtZm5vLWNvbW1vbiAtZm9taXQtZnJhbWUtcG9pbnRlciAtcGlwZSAt
-bXByZWZlcnJlZC1zdGFjay1ib3VuZGFyeT0yIC1tYXJjaD1hdGhsb24gICAgLW5vc3RkaW5j
-IC1JIC91c3IvbGliL2djYy1saWIvaTY4Ni1wYy1saW51eC1nbnUvMi45NS4zL2luY2x1ZGUg
-LURLQlVJTERfQkFTRU5BTUU9cGFuaWMgIC1jIC1vIHBhbmljLm8gcGFuaWMuYwpwYW5pYy5j
-OiBJbiBmdW5jdGlvbiBgX19vdXRfb2ZfbGluZV9idWcnOgpwYW5pYy5jOjE0MTogd2Fybmlu
-ZzogYXNtIG9wZXJhbmQgMSBwcm9iYWJseSBkb2Vzbid0IG1hdGNoIGNvbnN0cmFpbnRzCmdj
-YyAtRF9fS0VSTkVMX18gLUkvcm9jay1saW51eC9zcmMvbGludXgtMi40LjE5LXJvY2svaW5j
-bHVkZSAtV2FsbCAtV3N0cmljdC1wcm90b3R5cGVzIC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm5v
-LXN0cmljdC1hbGlhc2luZyAtZm5vLWNvbW1vbiAtZm9taXQtZnJhbWUtcG9pbnRlciAtcGlw
-ZSAtbXByZWZlcnJlZC1zdGFjay1ib3VuZGFyeT0yIC1tYXJjaD1hdGhsb24gICAgLW5vc3Rk
-aW5jIC1JIC91c3IvbGliL2djYy1saWIvaTY4Ni1wYy1saW51eC1nbnUvMi45NS4zL2luY2x1
-ZGUgLURLQlVJTERfQkFTRU5BTUU9cHJpbnRrICAtREVYUE9SVF9TWU1UQUIgLWMgcHJpbnRr
-LmMKcHJpbnRrLmM6IEluIGZ1bmN0aW9uIGBjYWxsX2NvbnNvbGVfZHJpdmVycyc6CnByaW50
-ay5jOjM0Mjogd2FybmluZzogYXNtIG9wZXJhbmQgMSBwcm9iYWJseSBkb2Vzbid0IG1hdGNo
-IGNvbnN0cmFpbnRzCnByaW50ay5jOiBJbiBmdW5jdGlvbiBgYWNxdWlyZV9jb25zb2xlX3Nl
-bSc6CnByaW50ay5jOjQ4OTogd2FybmluZzogYXNtIG9wZXJhbmQgMSBwcm9iYWJseSBkb2Vz
-bid0IG1hdGNoIGNvbnN0cmFpbnRzCmdjYyAtRF9fS0VSTkVMX18gLUkvcm9jay1saW51eC9z
-cmMvbGludXgtMi40LjE5LXJvY2svaW5jbHVkZSAtV2FsbCAtV3N0cmljdC1wcm90b3R5cGVz
-IC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm5vLXN0cmljdC1hbGlhc2luZyAtZm5vLWNvbW1vbiAt
-Zm9taXQtZnJhbWUtcG9pbnRlciAtcGlwZSAtbXByZWZlcnJlZC1zdGFjay1ib3VuZGFyeT0y
-IC1tYXJjaD1hdGhsb24gICAgLW5vc3RkaW5jIC1JIC91c3IvbGliL2djYy1saWIvaTY4Ni1w
-Yy1saW51eC1nbnUvMi45NS4zL2luY2x1ZGUgLURLQlVJTERfQkFTRU5BTUU9bW9kdWxlICAt
-YyAtbyBtb2R1bGUubyBtb2R1bGUuYwptb2R1bGUuYzogSW4gZnVuY3Rpb24gYGludGVyX21v
-ZHVsZV9yZWdpc3Rlcic6Cm1vZHVsZS5jOjExNzogd2FybmluZzogYXNtIG9wZXJhbmQgMSBw
-cm9iYWJseSBkb2Vzbid0IG1hdGNoIGNvbnN0cmFpbnRzCm1vZHVsZS5jOiBJbiBmdW5jdGlv
-biBgaW50ZXJfbW9kdWxlX3VucmVnaXN0ZXInOgptb2R1bGUuYzoxNTg6IHdhcm5pbmc6IGFz
-bSBvcGVyYW5kIDEgcHJvYmFibHkgZG9lc24ndCBtYXRjaCBjb25zdHJhaW50cwptb2R1bGUu
-YzogSW4gZnVuY3Rpb24gYGludGVyX21vZHVsZV9wdXQnOgptb2R1bGUuYzoyMzA6IHdhcm5p
-bmc6IGFzbSBvcGVyYW5kIDEgcHJvYmFibHkgZG9lc24ndCBtYXRjaCBjb25zdHJhaW50cwpn
-Y2MgLURfX0tFUk5FTF9fIC1JL3JvY2stbGludXgvc3JjL2xpbnV4LTIuNC4xOS1yb2NrL2lu
-Y2x1ZGUgLVdhbGwgLVdzdHJpY3QtcHJvdG90eXBlcyAtV25vLXRyaWdyYXBocyAtTzIgLWZu
-by1zdHJpY3QtYWxpYXNpbmcgLWZuby1jb21tb24gLWZvbWl0LWZyYW1lLXBvaW50ZXIgLXBp
-cGUgLW1wcmVmZXJyZWQtc3RhY2stYm91bmRhcnk9MiAtbWFyY2g9YXRobG9uICAgIC1ub3N0
-ZGluYyAtSSAvdXNyL2xpYi9nY2MtbGliL2k2ODYtcGMtbGludXgtZ251LzIuOTUuMy9pbmNs
-dWRlIC1ES0JVSUxEX0JBU0VOQU1FPWV4aXQgIC1jIC1vIGV4aXQubyBleGl0LmMKZXhpdC5j
-OiBJbiBmdW5jdGlvbiBgX19leGl0X21tJzoKZXhpdC5jOjMyNjogd2FybmluZzogYXNtIG9w
-ZXJhbmQgMSBwcm9iYWJseSBkb2Vzbid0IG1hdGNoIGNvbnN0cmFpbnRzCmV4aXQuYzogSW4g
-ZnVuY3Rpb24gYGRvX2V4aXQnOgpleGl0LmM6NDc2OiB3YXJuaW5nOiBhc20gb3BlcmFuZCAx
-IHByb2JhYmx5IGRvZXNuJ3QgbWF0Y2ggY29uc3RyYWludHMKZXhpdC5jOjQ3NjogaW5jb25z
-aXN0ZW50IG9wZXJhbmQgY29uc3RyYWludHMgaW4gYW4gYGFzbScKbWFrZVsyXTogKioqIFtl
-eGl0Lm9dIEVycm9yIDEKbWFrZVsyXTogTGVhdmluZyBkaXJlY3RvcnkgYC9yb2NrLWxpbnV4
-L3NyYy9saW51eC0yLjQuMTktcm9jay9rZXJuZWwnCm1ha2VbMV06ICoqKiBbZmlyc3RfcnVs
-ZV0gRXJyb3IgMgptYWtlWzFdOiBMZWF2aW5nIGRpcmVjdG9yeSBgL3JvY2stbGludXgvc3Jj
-L2xpbnV4LTIuNC4xOS1yb2NrL2tlcm5lbCcKbWFrZTogKioqIFtfZGlyX2tlcm5lbF0gRXJy
-b3IgMgo=
---------------040803020404020403050002--
+iD8DBQA9cRGKdjkty3ft5+cRAsHCAJ9mMmlNY+AmiGewSTnMP4FEe4PAgACgtK3j
+WGjZXH33D5mN3rhDbeESiiM=
+=qkUk
+-----END PGP SIGNATURE-----
 
+--=-HHiw9gHn8zQKohqPFjYV--

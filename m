@@ -1,43 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263534AbUJ2Uhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263556AbUJ2Uhm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263534AbUJ2Uhs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 16:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbUJ2UeJ
+	id S263556AbUJ2Uhm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 16:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbUJ2UfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 16:34:09 -0400
-Received: from convulsion.choralone.org ([212.13.208.157]:52229 "EHLO
-	convulsion.choralone.org") by vger.kernel.org with ESMTP
-	id S263485AbUJ2UWc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:22:32 -0400
-Date: Fri, 29 Oct 2004 21:22:14 +0100
-From: Dave Jones <davej@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Drop IRDA ISA dependency
-Message-ID: <20041029202214.GC18508@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20041029130846.3D6639DF0EA9@verdi.suse.de> <20041029134549.GA12705@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041029134549.GA12705@infradead.org>
-User-Agent: Mutt/1.3.28i
+	Fri, 29 Oct 2004 16:35:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41348 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263514AbUJ2T44 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 15:56:56 -0400
+Date: Fri, 29 Oct 2004 12:56:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andreas Steinmetz <ast@domdv.de>
+cc: linux-os@analogic.com, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: Semaphore assembly-code bug
+In-Reply-To: <41829C91.5030709@domdv.de>
+Message-ID: <Pine.LNX.4.58.0410291249440.28839@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
+ <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
+  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
+ <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
+ <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
+ <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
+ <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org> <41826A7E.6020801@domdv.de>
+ <Pine.LNX.4.61.0410291255400.17270@chaos.analogic.com>
+ <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org> <418292C7.2090707@domdv.de>
+ <Pine.LNX.4.58.0410291212350.28839@ppc970.osdl.org> <41829C91.5030709@domdv.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 02:45:49PM +0100, Christoph Hellwig wrote:
- 
- > but this is bogus.  If it's using isa-style DMA it needs CONFIG_ISA.
 
-Sounds like there is some confusion over what CONFIG_ISA means.
-I always understood it to mean 'We have ISA slots on this architecture'
-regardless of whether theres an ISA style LPC bus.
-Its a means of disabling a whole slew of drivers that have no
-meaning on a particular platform (in Andi's case, x86-64).
 
-Or did I get confused ?
+On Fri, 29 Oct 2004, Andreas Steinmetz wrote:
+> 
+> If you still believe in features I can't find any manufacturer 
+> documentation for, well, you're Linus so it's your decision.
 
-		Dave
+It's not that I'm Linus. It's that I am apparently better informed than
+you are, and the numbers you are looking at are irrelevant. For example,
+have you even _looked_ at the Pentium M stack engine documentation, which
+is what this whole argument is all about?
 
+And the documentation you look at is not revelant. For example, when you
+look at the latency of "pop", who _cares_? That's the latency to use the
+data, and has no meaning, since in this case we don't actually ever use
+it. So what matters is other things entirely, like how well the 
+instructions can run in parallell.
+
+Try it. 
+
+	popl %eax
+	popl %ecx
+
+should one cycle on a Pentium. I pretty much _guarantee_ that
+
+	lea 4(%esp),%esp
+	popl %ecx
+
+takes longer, since they have a data dependency on %esp that is hard to 
+break (the P4 trace-cache _may_ be able to break it, but the only CPU that 
+I think is likely to break it is actually the Transmeta CPU's, which did 
+that kind of thing by default and _will_ parallelise the two, and even 
+combine the stack offsetting into one single micro-op).
+
+So my argument is that "popl" is smaller, and I doubt you can find a
+machine where it's actually slower (most will take two cycles). And I am
+pretty confident that I can find machines where it is faster (ie regular
+Pentium).
+
+Not that any of this matters, since there's a patch that makes all of this 
+moot. If it works.
+
+		Linus

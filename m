@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265074AbSLUWA1>; Sat, 21 Dec 2002 17:00:27 -0500
+	id <S265270AbSLUWFW>; Sat, 21 Dec 2002 17:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265066AbSLUWA1>; Sat, 21 Dec 2002 17:00:27 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:45573 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265065AbSLUWAZ>;
-	Sat, 21 Dec 2002 17:00:25 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212212218.gBLMIate002167@darkstar.example.net>
-Subject: Re: First Bug Found : RE: How to help new comers trying the v2.5x series kernels.
-To: sam@ravnborg.org (Sam Ravnborg)
-Date: Sat, 21 Dec 2002 22:18:35 +0000 (GMT)
-Cc: sampson@attglobal.net, linux-kernel@vger.kernel.org, mec@shout.net,
-       zippel@linux-m68k.org
-In-Reply-To: <20021221215250.GA1905@mars.ravnborg.org> from "Sam Ravnborg" at Dec 21, 2002 10:52:50 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S265437AbSLUWFV>; Sat, 21 Dec 2002 17:05:21 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:128 "EHLO
+	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
+	id <S265270AbSLUWFV>; Sat, 21 Dec 2002 17:05:21 -0500
+Date: Sat, 21 Dec 2002 23:13:22 +0100 (CET)
+From: <folkert@vanheusden.com>
+To: <axel@pearbough.net>
+cc: Ro0tSiEgE <lkml@ro0tsiege.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel GCC Optimizations
+In-Reply-To: <20021221180852.GA31293@neon.pearbough.net>
+Message-ID: <Pine.LNX.4.33.0212212312070.24398-100000@muur.intranet.vanheusden.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The MAINTAINERS file tells you who to contact, (as well as this list):
-> > 
-> > CONFIGURE, MENUCONFIG, XCONFIG
-> > P:      Michael Elizabeth Chastain
-> 
-> Despite the MAINTANERS file, roman Zippel is the right person to contact.
-> roman ripped out three different shell ased parsers and replaced them
-> with a single parser written in yacc and c.
-> During this process 2make menuconfig" functionality was altered.
+> > Is there any risk using -O3 instead of -O2 to compile the kernel, and why?
+> >  Also what about compiling against glibc 2.3.1 and gcc 3.2.x??
+> I believe because of some assembler stuff that needs to be compiled as is and
+> may not be optimized more that -O2 you cannot use -O3.
 
-Whoops, sorry, I should have realised, especially as I was discussing
-that menuconfig problem a couple of weeks ago :-)
+Then selective compile with -O2 or -O6? Like; everything with assembly in
+it with -O2 and the rest with -O6.
 
-John.
+Folkert
+www.vanheusden.com/Linux
+

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273302AbTHKS5q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 14:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273272AbTHKS43
+	id S272994AbTHKTBN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272840AbTHKS7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:56:29 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:56783 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272988AbTHKSyk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:54:40 -0400
-Date: Mon, 11 Aug 2003 11:57:25 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test3-mm1
-Message-ID: <864380000.1060628245@flay>
-In-Reply-To: <20030811180552.GG32488@holomorphy.com>
-References: <20030809203943.3b925a0e.akpm@osdl.org> <94490000.1060612530@[10.10.2.4]> <20030811180552.GG32488@holomorphy.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 11 Aug 2003 14:59:38 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:17537 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S272824AbTHKS6T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 14:58:19 -0400
+Subject: Re: Kconfig -- kill "if you want to read about modules, see" crap?
+From: Steven Cole <elenstev@mesatop.com>
+To: Dave Jones <davej@redhat.com>
+Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz, James Simmons <jsimmons@infradead.org>
+In-Reply-To: <20030811182451.GA3151@redhat.com>
+References: <200308111400.h7BE01NL000208@81-2-122-30.bradfords.org.uk>
+	 <1060625643.1736.10.camel@spc9.esa.lanl.gov>
+	 <20030811182451.GA3151@redhat.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1060628268.1736.16.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 11 Aug 2003 12:57:48 -0600
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Aug 11, 2003 at 07:35:31AM -0700, Martin J. Bligh wrote:
->> Degredation on kernbench is still there:
->> Kernbench: (make -j N vmlinux, where N = 16 x num_cpus)
->>                               Elapsed      System        User         CPU
->>               2.6.0-test3       45.97      115.83      571.93     1494.50
->>           2.6.0-test3-mm1       46.43      122.78      571.87     1496.00
->> Quite a bit of extra sys time. I thought the suspected part of the sched
->> changes got backed out, but maybe I'm just not following it ...
+On Mon, 2003-08-11 at 12:24, Dave Jones wrote:
+> On Mon, Aug 11, 2003 at 12:14:04PM -0600, Steven Cole wrote:
 > 
-> Is this with or without the unit conversion fix for the load balancer?
+>  > Here is a little patch to implement this for
+>  > drivers/input/keyboard/Kconfig for a start.  The patch also fixes some
+>  > module names which were wrong (cut and paste errors).
 > 
-> It will be load balancing extra-aggressively without the fix.
+> We could go one stage further, and add to Kconfig..
+> 
+> 	MODULE_NAME=atkbd
+> 
+> for each option, which would also allow us to only show that info
+> of CONFIG_MODULES=y, as well as eliminating the redundancy.
+> 
+> 		Dave
 
-This is virgin ... can you point me back to the fix you mention?
-I missed that one.
+We will need to accommodate this situation:
 
-M.
+[steven@spc5 2.5-linux]$ find . -name Makefile | xargs grep IP6_NF_MATCH_AHESP
+./net/ipv6/netfilter/Makefile:obj-$(CONFIG_IP6_NF_MATCH_AHESP) += ip6t_esp.o ip6t_ah.o
+
+Steven
+
+
+
+
 

@@ -1,86 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVCETDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVCETDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVCETDI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 14:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVCETDI
+	id S261160AbVCETDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 14:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVCETDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 14:03:08 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:31436 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261267AbVCESlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 13:41:10 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: ncunningham@linuxmail.org
-Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on battery power)
-Date: Sat, 5 Mar 2005 19:43:25 +0100
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       paul.devriendt@amd.com
-References: <200502252237.04110.rjw@sisk.pl> <20050304110408.GL1345@elf.ucw.cz> <1109946109.3772.267.camel@desktop.cunningham.myip.net.au>
-In-Reply-To: <1109946109.3772.267.camel@desktop.cunningham.myip.net.au>
+	Sat, 5 Mar 2005 14:03:25 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:25604 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261288AbVCESli
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 13:41:38 -0500
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/29] fat: fix writev(), add aio support
+References: <87ll92rl6a.fsf@devron.myhome.or.jp>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 06 Mar 2005 03:41:31 +0900
+In-Reply-To: <87ll92rl6a.fsf@devron.myhome.or.jp> (OGAWA Hirofumi's message
+ of "Sun, 06 Mar 2005 03:40:13 +0900")
+Message-ID: <87hdjqrl44.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503051943.25814.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Friday, 4 of March 2005 15:21, Nigel Cunningham wrote:
-[-- snip --]
-> 
-> Will something like this patch help?
-> 
-[-- snip --]
+This patch fixes vectored write support on fat to do the nessecary
+non-standard action done in write() aswell.
 
-I think that the changes below are unnecessary.  free_all_bootmem() is
-actually called _before_ the loop in mem_init() in which PG_nosave is set for
-the first time, so there's no need to clear it earlier.
+Also adds aio support and makes read/write wrappers around the aio
+version.
 
-> diff -ruNp 208-e820-table-support-old/mm/bootmem.c 208-e820-table-support-new/mm/bootmem.c
-> --- 208-e820-table-support-old/mm/bootmem.c	2005-01-12 17:07:15.902387400 +1100
-> +++ 208-e820-table-support-new/mm/bootmem.c	2005-01-12 17:23:44.087160480 +1100
-> @@ -280,12 +280,14 @@ static unsigned long __init free_all_boo
->  
->  			count += BITS_PER_LONG;
->  			__ClearPageReserved(page);
-> +			ClearPageNosave(page);
->  			order = ffs(BITS_PER_LONG) - 1;
->  			set_page_refs(page, order);
->  			for (j = 1; j < BITS_PER_LONG; j++) {
->  				if (j + 16 < BITS_PER_LONG)
->  					prefetchw(page + j + 16);
->  				__ClearPageReserved(page + j);
-> +				ClearPageNosave(page + j);
->  			}
->  			__free_pages(page, order);
->  			i += BITS_PER_LONG;
-> @@ -296,6 +298,7 @@ static unsigned long __init free_all_boo
->  				if (v & m) {
->  					count++;
->  					__ClearPageReserved(page);
-> +					ClearPageNosave(page);
->  					set_page_refs(page, 0);
->  					__free_page(page);
->  				}
-> @@ -316,6 +319,7 @@ static unsigned long __init free_all_boo
->  	for (i = 0; i < ((bdata->node_low_pfn-(bdata->node_boot_start >> PAGE_SHIFT))/8 + PAGE_SIZE-1)/PAGE_SIZE; i++,page++) {
->  		count++;
->  		__ClearPageReserved(page);
-> +		ClearPageNosave(page);
->  		set_page_count(page, 1);
->  		__free_page(page);
->  	}
+ From: Christoph Hellwig <hch@lst.de>
 
-Greets,
-Rafael
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+---
+
+ fs/fat/file.c |   31 ++++++++++++++++++++++++-------
+ 1 files changed, 24 insertions(+), 7 deletions(-)
+
+diff -puN fs/fat/file.c~fat_support-aio fs/fat/file.c
+--- linux-2.6.11/fs/fat/file.c~fat_support-aio	2005-03-06 02:17:05.000000000 +0900
++++ linux-2.6.11-hirofumi/fs/fat/file.c	2005-03-06 02:35:38.000000000 +0900
+@@ -12,13 +12,28 @@
+ #include <linux/smp_lock.h>
+ #include <linux/buffer_head.h>
  
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+-static ssize_t fat_file_write(struct file *filp, const char __user *buf,
+-			      size_t count, loff_t *ppos)
++static ssize_t fat_file_aio_write(struct kiocb *iocb, const char __user *buf,
++				  size_t count, loff_t pos)
++{
++	struct inode *inode = iocb->ki_filp->f_dentry->d_inode;
++	int retval;
++
++	retval = generic_file_aio_write(iocb, buf, count, pos);
++	if (retval > 0) {
++		inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
++		MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
++		mark_inode_dirty(inode);
++	}
++	return retval;
++}
++
++static ssize_t fat_file_writev(struct file *filp, const struct iovec *iov,
++			       unsigned long nr_segs, loff_t *ppos)
+ {
+ 	struct inode *inode = filp->f_dentry->d_inode;
+ 	int retval;
+ 
+-	retval = generic_file_write(filp, buf, count, ppos);
++	retval = generic_file_writev(filp, iov, nr_segs, ppos);
+ 	if (retval > 0) {
+ 		inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
+ 		MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
+@@ -29,12 +44,14 @@ static ssize_t fat_file_write(struct fil
+ 
+ struct file_operations fat_file_operations = {
+ 	.llseek		= generic_file_llseek,
+-	.read		= generic_file_read,
+-	.write		= fat_file_write,
++	.read		= do_sync_read,
++	.write		= do_sync_write,
++	.readv		= generic_file_readv,
++	.writev		= fat_file_writev,
++	.aio_read	= generic_file_aio_read,
++	.aio_write	= fat_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+ 	.fsync		= file_fsync,
+-	.readv		= generic_file_readv,
+-	.writev		= generic_file_writev,
+ 	.sendfile	= generic_file_sendfile,
+ };
+ 
+_

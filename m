@@ -1,98 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267166AbTACJrj>; Fri, 3 Jan 2003 04:47:39 -0500
+	id <S267119AbTACJnb>; Fri, 3 Jan 2003 04:43:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267306AbTACJrj>; Fri, 3 Jan 2003 04:47:39 -0500
-Received: from holomorphy.com ([66.224.33.161]:54984 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267166AbTACJri>;
-	Fri, 3 Jan 2003 04:47:38 -0500
-Date: Fri, 3 Jan 2003 01:55:41 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
+	id <S267166AbTACJnb>; Fri, 3 Jan 2003 04:43:31 -0500
+Received: from rth.ninka.net ([216.101.162.244]:28575 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S267119AbTACJna>;
+	Fri, 3 Jan 2003 04:43:30 -0500
+Subject: Re: [BENCHMARK] Lmbench 2.5.54-mm2 (impressive improvements)
+From: "David S. Miller" <davem@redhat.com>
 To: Andrew Morton <akpm@digeo.com>
-Cc: dada1 <dada1@cosmosbay.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Linux v2.5.54
-Message-ID: <20030103095541.GB9704@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, dada1 <dada1@cosmosbay.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <00fe01c2b303$c3e67790$760010ac@edumazet> <3E155747.6894A289@digeo.com>
+Cc: Aniruddha M Marathe <aniruddha.marathe@wipro.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3E155903.F8C22286@digeo.com>
+References: <94F20261551DC141B6B559DC4910867204491F@blr-m3-msg.wipro.com> 
+	<3E155903.F8C22286@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Jan 2003 02:24:37 -0800
+Message-Id: <1041589477.9242.5.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E155747.6894A289@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dada1 wrote:
->> So finally they did it ...
->> But mmap(NULL, ...) is not yet supported, this is really sad.
+On Fri, 2003-01-03 at 01:33, Andrew Morton wrote:
+> I'm sorry, but all you are doing with these tests is discrediting
+> lmbench, AIM9, tiobench and unixbench.
+ ...
+> Possibly, it is all caused by cache colouring effects - the physical
+> addresses at which critical kernel and userspace text and data
+> happen to end up.
+ ...
+> The teeny little microbenchmarks are telling us that the rmap overhead
+> hurts, that the uninlining of copy_*_user may have been a bad idea, that
+> the addition of AIO has cost a little and that the complexity which
+> yielded large improvements in readv(), writev() and SMP throughput were
+> not free.  All of this is already known.
 
-On Fri, Jan 03, 2003 at 01:26:31AM -0800, Andrew Morton wrote:
-> Bill, this appears to be a matter of implementing a suitable
-> ->get_unmapped_area() within hugetlbfs?
+I think if anything, you are stating the true value of the
+microbenchmarks.  They are showing us how the kernel is getting
+more and more complex, causing basic operations to take longer
+and longer.  That's bad. :-)
 
-At the time of hugetlbfs' integration, it was desirable to be
-minimalistic and the additional logic for placement had no clear
-motivation, as both privilege and great self-awareness were assumed
-of the applications using hugetlbfs. Since then, it's become apparent
-that this placement logic is a requirement for userspace support.
+Last time I brought up an issue like this (a "nobody but weirdos use
+feature which is costing us cycles everywhere"), it got redone until
+it did cost nothing for people who don't use the feature.  See the
+whole security layer fiasco for example.
 
-Apologies in advance for great tardiness; however, I'll send in patches
-implementing in-kernel automatic hugetlb vma placement within 36 hours.
+I truly wish I could config out AIO for example, the overhead is just
+stupid.  I know that if some thought is put into it, the cost could
+be consumed completely.
 
+People who don't see the true value of researching even minor jitters
+in lmbench results (and fixing the causes or backing out the guilty
+patch) aren't kernel developers in my opinion. :-)
 
-dada1 wrote:
->> And arch/i386/Kconfig and Documentation/vm/hugetlbpage.txt still document
->> the sys_alloc_hugepages()/sys_free_hugepages() syscalls.
-
-Documentation updates are also essential, they will also follow shortly,
-in tandem with the automatic vma placement.
-
-
-dada1 wrote:
->> A simple program that doesnt know at all how the memory is layed out by
->> kernel/glibc can not easily get some 4Mo pages in a single syscall.
->> sys_alloc_hugepage() was very convenient for that.
-
-On Fri, Jan 03, 2003 at 01:26:31AM -0800, Andrew Morton wrote:
-> Well.  One would expect userspace library functions to emerge.  The
-> glibc people take patches.
-
-Ulrich Drepper has already accepted a glibc patch integrating the
-SHM_HUGETLB flag into glibc. dada1, I'm hopeful your distribution will
-provide you with an upgrade path to a glibc version implementing it soon,
-or that you'll otherwise be able to upgrade to a cvs glibc version.
-
-
-dada1 wrote:
->> Another problem :
->> if you mount hugetlbfs in /huge, then create a file /huge/BIG of size 4Mo,
->> then use :
->> dd if=/huge/BIG of=/dev/null
->> the dd process hangs on 'D' state : the read() syscall just hang forever.
-
-On Fri, Jan 03, 2003 at 01:26:31AM -0800, Andrew Morton wrote:
-> erk.  Thanks.
-> --- 25/fs/hugetlbfs/inode.c~hugetlbfs_readpage-fix	Fri Jan  3 01:04:42 2003
-> +++ 25-akpm/fs/hugetlbfs/inode.c	Fri Jan  3 01:04:49 2003
-> @@ -79,6 +79,7 @@ static int hugetlbfs_file_mmap(struct fi
->   */
->  static int hugetlbfs_readpage(struct file *file, struct page * page)
->  {
-> +	unlock_page(page);
->  	return -EINVAL;
->  }
-
-This fix is trivially correct; thanks for finding and addressing it.
-Linus, please apply.
-
-
-Thanks for the testing, bugreports, and fixes!
-
-
-Thanks,
-Bill

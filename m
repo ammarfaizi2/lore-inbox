@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262358AbTCMOJg>; Thu, 13 Mar 2003 09:09:36 -0500
+	id <S262385AbTCMOU1>; Thu, 13 Mar 2003 09:20:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262360AbTCMOJg>; Thu, 13 Mar 2003 09:09:36 -0500
-Received: from jack.stev.org ([217.79.103.51]:37940 "EHLO jack.stev.org")
-	by vger.kernel.org with ESMTP id <S262358AbTCMOJd>;
-	Thu, 13 Mar 2003 09:09:33 -0500
-Message-ID: <01f901c2e96c$98b1e3d0$0cfea8c0@ezdsp.com>
-From: "James Stevenson" <james@stev.org>
-To: "pd dd" <parviz_kernel@yahoo.com>, "M. Soltysiak" <msoltysiak@hotmail.com>,
-       "ML-linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: "M. Soltysiak" <msoltysiak@hotmail.com>,
-       "William Stearns" <wstearns@pobox.com>
-References: <20030313091315.14044.qmail@web20504.mail.yahoo.com>
-Subject: Re: Linux BUG: Memory Leak
-Date: Thu, 13 Mar 2003 14:26:53 -0000
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4920.2300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+	id <S262387AbTCMOU0>; Thu, 13 Mar 2003 09:20:26 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8142
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262385AbTCMOUZ>; Thu, 13 Mar 2003 09:20:25 -0500
+Subject: Re: Patches, effort, motivation
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20030313131728.A4861@flint.arm.linux.org.uk>
+References: <20030313131728.A4861@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047569959.25944.37.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 13 Mar 2003 15:39:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-03-13 at 13:17, Russell King wrote:
+> 	8 PCI patches (1 needs to be further cut up)
+> 	10 PCMCIA patches (1 needs to be further cut up)
+> 	1 tty_io.c patch
+> 	16 serial csets
 
-
-> With all due respect to all the great programmers and
-> minds in this mailing list. I could not read this and
-> not reply to this guy:
->
-> Maybe you should take your games and movies to windows
-> and leave linux for more serious stuff. That'll fix
-> your memory leak.
-
-correct me if i am wrong here but i know alot of students
-who use linux todo serious stuff and get really pissed off have to
-reboot into windows to play games because they dont work
-under windows and for various other things that also cause
-problems in linux. Actually quite alot of them end up
-dumping linux because any of the serious games wont work on there
-system because they would have to tear much of it apart toget
-them to work.
-
-this isnt a serious problem then ?
-
-    James
-
-
-
+You are welcome to feed them the -ac tree. The only reason I skipped
+the PCI one before is that I ended up with parts 2-8 only
 

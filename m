@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130473AbQLJUez>; Sun, 10 Dec 2000 15:34:55 -0500
+	id <S131000AbQLJUkh>; Sun, 10 Dec 2000 15:40:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131205AbQLJUep>; Sun, 10 Dec 2000 15:34:45 -0500
-Received: from zero.tech9.net ([209.61.188.187]:20740 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S130473AbQLJUel>;
-	Sun, 10 Dec 2000 15:34:41 -0500
-Date: Sun, 10 Dec 2000 15:04:14 -0500 (EST)
-From: "Robert M. Love" <rml@tech9.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Compile Failure: mga_dma.o on 2.4.0-test12-pre8
-In-Reply-To: <Pine.LNX.4.30.0012101445010.15992-100000@phantasy.awol.org>
-Message-ID: <Pine.LNX.4.30.0012101501160.17790-100000@phantasy.awol.org>
+	id <S131036AbQLJUk2>; Sun, 10 Dec 2000 15:40:28 -0500
+Received: from james.kalifornia.com ([208.179.0.2]:45400 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S131000AbQLJUkS>; Sun, 10 Dec 2000 15:40:18 -0500
+Message-ID: <3A33E30C.618F665B@linux.com>
+Date: Sun, 10 Dec 2000 12:09:49 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: test12-pre8 tq_struct compile failures
+Content-Type: multipart/mixed;
+ boundary="------------F03BA40A97F98D9F4227D741"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------F03BA40A97F98D9F4227D741
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-OK, the problem is that drm_device.tq is a tq_struct, which we just got
-done redoing. tq->next was removed in favor of the new tq.list.
+There seem to be quite a lot of compile failures wrt tq_struct.
 
-so drm_device.tq needs to be rewritten to use the new task queue, and the
-problem will be solved.
+Does anyone have a template patch to use to start fixing these?
 
-ill dig through the archives and see if i can figure out the new queue (is
-there something in /Documentation?) and get a patch out ... i wonder how
-many other drivers need to be patched to handle the new task queue?
+-d
 
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
+
+--------------F03BA40A97F98D9F4227D741
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+url:www.blue-labs.org
+adr:;;;;;;
+version:2.1
+email;internet:david@blue-labs.org
+title:Blue Labs Developer
+note;quoted-printable:GPG key: http://www.blue-labs.org/david@nifty.key=0D=0A
+x-mozilla-cpt:;9952
+fn:David Ford
+end:vcard
+
+--------------F03BA40A97F98D9F4227D741--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

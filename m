@@ -1,65 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275261AbRIZPcb>; Wed, 26 Sep 2001 11:32:31 -0400
+	id <S275268AbRIZPan>; Wed, 26 Sep 2001 11:30:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275262AbRIZPcV>; Wed, 26 Sep 2001 11:32:21 -0400
-Received: from hermes.csd.unb.ca ([131.202.3.20]:23441 "EHLO hermes.csd.unb.ca")
-	by vger.kernel.org with ESMTP id <S275261AbRIZPcA>;
-	Wed, 26 Sep 2001 11:32:00 -0400
-X-WebMail-UserID: newton
-Date: Wed, 26 Sep 2001 12:41:53 -0300
-From: Chris Newton <newton@unb.ca>
-To: Tim Moore <timothymoore@bigfoot.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-X-EXP32-SerialNo: 00003025, 00003442
-Subject: RE: FWD: RE: excessive interrupts on network cards
-Message-ID: <3BB21EAF@webmail1>
+	id <S275274AbRIZPab>; Wed, 26 Sep 2001 11:30:31 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:43510 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S275268AbRIZPaQ>; Wed, 26 Sep 2001 11:30:16 -0400
+Date: Wed, 26 Sep 2001 15:43:11 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Stephen Tweedie <sct@redhat.com>
+Subject: Re: ReiserFS data corruption in very simple configuration
+Message-ID: <20010926154311.C12560@redhat.com>
+In-Reply-To: <200109221000.GAA11263@out-of-band.media.mit.edu> <15276.34915.301069.643178@beta.reiserfs.com> <20010925131304.I23320@mikef-linux.matchmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebMail (Hydra) SMTP v3.61.08
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010925131304.I23320@mikef-linux.matchmail.com>; from mfedyk@matchmail.com on Tue, Sep 25, 2001 at 01:13:04PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim sent me this... and, yes, the count is much lower...  looking around, I 
-found 'mpstat', which returns processor statistics.
+Hi,
 
-  From this output, I would say that procinfo has a bug in the -d and -D 
-options, or in the man page.
+On Tue, Sep 25, 2001 at 01:13:04PM -0700, Mike Fedyk wrote:
 
-  Thanks, for all the help guys, but this seems to be right, according to 
-mpstat anyways.
+> > Stock reiserfs only provides meta-data journalling. It guarantees that
+> > structure of you file-system will be correct after journal replay, not
+> > content of a files. It will never "trash" file that wasn't accessed at
+> > the moment of crash, though. Full data-journaling comes at cost. There
+> > is patch by Chris Mason <Mason@Suse.COM> to support data journaling in
+> > reiserfs. Ext3 supports it also.
+ 
+> When files on a ReiserFS mount have data from other files, does that mean
+> that it has recovered wrong meta-data, or is it because the meta-data was
+> committed before the data?
 
-  Thanks a BUNCH.
+It can be either, but the former can only be the result of a problem
+(either hardware fault or a data-corrupting software bug of some
+description).  In the normal case, only the latter scenario happens.
 
-Chris
+ext3 has a mode to flush all data before metadata gets committed.
+That is its default mode, and it avoids this problem without having to
+actually journal the data.
 
-[root@phantom /root]# mpstat 1
-Linux 2.4.10 (phantom.csd.unb.ca)       09/26/2001
+> So, if I write a file, does ReiserFS write the structures first, and if the
+> data isn't written, whatever else was deleted from the block before will now
+> be in the file?
 
-12:29:48 PM  CPU   %user   %nice %system   %idle    intr/s
-12:29:49 PM  all    3.00    0.00    9.50   87.50   5711.00
-12:29:50 PM  all    5.50    0.00    8.00   86.50   6139.00
-12:29:51 PM  all    2.00    0.00   11.00   87.00   5976.00
-12:29:52 PM  all    3.50    0.00   10.00   86.50   5744.00
-12:29:53 PM  all    5.50    0.00    9.00   85.50   5986.00
-12:29:54 PM  all    7.00    0.00   10.00   83.00   5904.00
-12:29:55 PM  all    5.00    0.00    6.50   88.50   5771.00
+Yep.  ext3 behaves in the same way in its fastest "writeback" data
+mode.
 
+> If that's so, then one way to keep old deleted data from getting into
+> partially written files after a crash would be to zero out the blocks on
+> unlink.  I can imagine that this would prevent undelete, and slow down
+> deleting considerably.
 
+Indeed.
 
->===== Original Message From Tim Moore <timothymoore@bigfoot.com> =====
->Just for grins what does 'procinfo -DSn2' say?
->
->Chris Newton wrote:
->> ...
->> uptime:       0:07:54.17         context :    43253
->>
->> irq  0:       500 timer                 irq 16:       131 eth2
->> irq  1:         0 keyboard              irq 20:     22266 eth0
->> irq  2:         0 cascade [4]           irq 21:         0 eth1
->> irq  6:         0                       irq 30:         0 aic7xxx
->> irq 12:         0                       irq 31:       121 aic7xxx
->> irq 14:         0 ide0
->--
+> Another way, may be to keep a journal of which blocks have actually been
+> committed.  Maybe a bitmap in the journal, or some other structure...
 
+ext3 does exactly that.  It's necessary to keep things in sync if we
+have blocks of data being deleted and reallocated as metadata, or
+vice-versa.
+
+> If you have data journaling, does that mean there is a possability of
+> recovering a complete file -before- it was written?  i.e:
+
+> echo a > test;
+> sync;
+> cat picture.tif > test
+> (writing in progress, only partially in journal)
+> power off
+ 
+> Will "a" be in test upon recovery?
+
+If you are using full data journaling (ext3's "journal" data mode) or
+the default "ordered" data mode, then no, you never see such
+behaviour.
+
+In the ordered mode, it achieves this precisely because it is keeping
+a record of which blocks have been committed (or, more accurately,
+which *deleted* blocks have had the delete committed).  If you do a
+"cat > file", then before the new data is written, the file gets
+truncated and all its old data blocks deleted.  ext3 will then refuse
+to reuse those blocks until the delete has been committed, so if we
+crash and end up rolling back the delete transaction, we'll never see
+new data blocks in the old file.
+
+Cheers,
+ Stephen

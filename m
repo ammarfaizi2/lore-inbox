@@ -1,81 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263976AbTEGRBl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 13:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263858AbTEGRBl
+	id S264127AbTEGRJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 13:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbTEGRJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 13:01:41 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6930 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263976AbTEGRBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 13:01:39 -0400
-Date: Wed, 7 May 2003 18:14:10 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The magical mystical changing ethernet interface order
-Message-ID: <20030507181410.A19615@flint.arm.linux.org.uk>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20030507141458.B30005@flint.arm.linux.org.uk> <20030507082416.0996c3df.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030507082416.0996c3df.rddunlap@osdl.org>; from rddunlap@osdl.org on Wed, May 07, 2003 at 08:24:16AM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Wed, 7 May 2003 13:09:16 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:61428 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S264127AbTEGRJP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 13:09:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: petter wahlman <petter@bluezone.no>, root@chaos.analogic.com
+Subject: Re: The disappearing sys_call_table export.
+Date: Wed, 7 May 2003 12:21:11 -0500
+X-Mailer: KMail [version 1.2]
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+References: <1052321673.3727.737.camel@badeip> <Pine.LNX.4.53.0305071147510.12652@chaos> <1052323711.3739.750.camel@badeip>
+In-Reply-To: <1052323711.3739.750.camel@badeip>
+MIME-Version: 1.0
+Message-Id: <03050712211100.06848@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 08:24:16AM -0700, Randy.Dunlap wrote:
-> What version of 2.5?
+On Wednesday 07 May 2003 11:08, petter wahlman wrote:
+> On Wed, 2003-05-07 at 18:00, Richard B. Johnson wrote:
+> > On Wed, 7 May 2003, petter wahlman wrote:
+> > > It seems like nobody belives that there are any technically valid
+> > > reasons for hooking system calls, but how should e.g anti virus
+> > > on-access scanners intercept syscalls?
+> > > Preloading libraries, ptracing init, patching g/libc, etc. are
+> >
+> >   ^^^^^^^^^^^^^^^^^^^
+> >
+> >                     |________  Is the way to go. That's how
+> >
+> > you communicate every system-call to a user-mode daemon that
+> > does whatever you want it to do, including phoning the National
+> > Security Administrator if that's the policy.
+> >
+> > > obviously not the way to go.
+> >
+> > Oviously wrong.
+>
+> And how would you force the virus to preload this library?
 
-2.5.69.
+You don't have to... The preload is performed by the program image loader,
+before the virus, or even the application, can be started.
 
-> There was a patch 17 days ago by Chuck Ebbert (merged by akpm) that
-> "fixed" PCI scan order in 2.5 to be same as 2.4.  Comment in changelog
-> says "Russell King has acked this change."
-
-Yes, that affects the order of PCI devices on the global list when
-you have multiple PCI buses present.  This machine has only one PCI
-bus, so is not affected by this issue.
-
-Note that I haven't been running 2.5 kernels on NetWinders until recently,
-so I couldn't say when it changed.  A wild stab in the dark, I'd think
-maybe the init ordering changed:
-
-2.5.69 (System.map):
-
-c0023ba4 t __initcall_ne2k_pci_init
-c0023ba8 t __initcall_pcnet32_init_module
-c0023bac t __initcall_eepro100_init_module
-c0023bb0 t __initcall_tulip_init
-
-2.4.19 (System.map):
-
-c004ddd4 ? __initcall_tulip_init
-c004ddd8 ? __initcall_vortex_init
-c004dddc ? __initcall_ne2k_pci_init
-
-2.2.18 (drivers/net/Space.c):
-
-#ifdef CONFIG_NE2K_PCI
-        {ne2k_pci_probe, 0},
-#endif
-#ifdef CONFIG_PCNET32
-        {pcnet32_probe, 0},
-#endif
-#ifdef CONFIG_EEXPRESS_PRO100   /* Intel EtherExpress Pro/100 */
-        {eepro100_probe, 0},
-#endif
-#ifdef CONFIG_LANMEDIA          /* Lanmedia must be before Tulip */
-        {lmc_probe_fake, 0},
-#endif
-#if defined(CONFIG_DEC_ELCP) || defined(CONFIG_DEC_ELCP_OLD)
-        {tulip_probe, 0},
-#endif
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+You don't really want to do it anyway... Consider a file open (like tar)... 
+you gonna try to scan the entire archive for a virus???? 

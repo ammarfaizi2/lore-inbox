@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263725AbUHGRLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263714AbUHGRSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263725AbUHGRLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 13:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUHGRLZ
+	id S263714AbUHGRSp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 13:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbUHGRSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 13:11:25 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:62476 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263626AbUHGRLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 13:11:23 -0400
-Date: Sat, 7 Aug 2004 18:10:51 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: wli@holomorphy.com, davem@redhat.com, geert@linux-m68k.org,
-       schwidefsky@de.ibm.com, linux390@de.ibm.com, sparclinux@vger.kernel.org,
-       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: architectures with their own "config PCMCIA"
-Message-ID: <20040807181051.A19250@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@fs.tum.de>, wli@holomorphy.com, davem@redhat.com,
-	geert@linux-m68k.org, schwidefsky@de.ibm.com, linux390@de.ibm.com,
-	sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-kernel@vger.kernel.org
-References: <20040807170122.GM17708@fs.tum.de>
+	Sat, 7 Aug 2004 13:18:45 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:213 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S263714AbUHGRSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 13:18:43 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Nicholas Miell <nmiell@gmail.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: mj@ucw.cz, James.Bottomley@steeleye.com, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200408071217.i77CHUKm006973@burner.fokus.fraunhofer.de>
+References: <200408071217.i77CHUKm006973@burner.fokus.fraunhofer.de>
+Content-Type: text/plain
+Message-Id: <1091899121.2821.14.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040807170122.GM17708@fs.tum.de>; from bunk@fs.tum.de on Sat, Aug 07, 2004 at 07:01:22PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.njm.1) 
+Date: Sat, 07 Aug 2004 10:18:41 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 07, 2004 at 07:01:22PM +0200, Adrian Bunk wrote:
-> The following architetures have their own "config PCMCIA" instead of 
-> including drivers/pcmcia/Kconfig (in 2.6.8-rc3-mm1):
-> - m68k
-> - s390
-> - sparc
-> - sparc64
-> 
-> Is there any good reason for this, or would a patch to change these 
-> architectures to include drivers/pcmcia/Kconfig be OK?
+[ Different address, hopefully mailhub.fokus.fraunhofer.de won't drop it
+this time. For those of you who've already seen this once, sorry. ]
 
-What about switching them to use drivers/Kconfig instead?
+On Sat, 2004-08-07 at 05:17, Joerg Schilling wrote:
+> From the > 20 platforms that libscg provides abstractions from, _most_
+> platforms do not allow the "UNIX" /dev/something method to work with
+> Generic SCSI:
+> 
+[ long list omitted ]
+> 
+> These are the platforms where /dev/something could work:
+> 
+[ shorter list omitted ]
+> 
+> As you see, the vast majority does not allow the addressing method the
+> people on LKML seem to prefer recently.
+> 
+> Jrg
+
+As a user of cdrecord, could you explain to me why referring to my CD
+burner as 1,0,0 is preferable to /dev/cdrw?
+
+-- Nicholas
+
 

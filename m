@@ -1,54 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263493AbTDSXGF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 19:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263494AbTDSXGF
+	id S263496AbTDSXLH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 19:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263494AbTDSXLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 19:06:05 -0400
-Received: from mail1.ewetel.de ([212.6.122.14]:42378 "EHLO mail1.ewetel.de")
-	by vger.kernel.org with ESMTP id S263493AbTDSXGE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 19:06:04 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 2.5] report unknown NMI reasons only once
-In-Reply-To: <20030419230019$7cdc@gated-at.bofh.it>
-References: <20030419183013$0e6c@gated-at.bofh.it> <20030419230019$7cdc@gated-at.bofh.it>
-Date: Sun, 20 Apr 2003 01:17:49 +0200
-Message-Id: <E1971af-0002vN-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+	Sat, 19 Apr 2003 19:11:07 -0400
+Received: from dsl-217-155-72-205.zen.co.uk ([217.155.72.205]:12552 "EHLO
+	nicole.computer-surgery.co.uk") by vger.kernel.org with ESMTP
+	id S263496AbTDSXLG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 19:11:06 -0400
+Date: Sun, 20 Apr 2003 00:22:17 +0100
+To: mikpe@csd.uu.se
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ATAPI cdrecord issue 2.5.67
+Message-ID: <20030419232217.GA6873@computer-surgery.co.uk>
+References: <1049983308.888.5.camel@gregs> <1049984188.887.11.camel@gregs> <1049986391.599.6.camel@teapot.felipe-alfaro.com> <20030410193420.GD429@vitelus.com> <b74i32$58g$1@cesium.transmeta.com> <1050003892.12498.45.camel@dhcp22.swansea.linux.org.uk> <16022.40189.672337.427776@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Content-Disposition: inline
+In-Reply-To: <16022.40189.672337.427776@gargle.gargle.HOWL>
+User-Agent: Mutt/1.3.28i
+From: Roger Gammans <roger@computer-surgery.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Apr 2003 01:00:19 +0200, you wrote in linux.kernel:
 
->> Those NMIs happen only rarely when the machine is lightly loaded, but
->> under load, I get several of them per second. This quickly makes
->> /var/log/messages grow.
-> 
-> I guess they are overheat traps then
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-At 41 degrees C reported CPU temperature, I don't think so. Even if this
-is off by, say, 10 degrees, it's still not a problem. AMD allows 90 degrees
-for my CPU type (Athlon XP 1700+, Thoroughbred core).
+On Fri, Apr 11, 2003 at 12:46:21PM +0200, mikpe@csd.uu.se wrote:
+> Alan Cox writes:
+>  > On Thu, 2003-04-10 at 20:53, H. Peter Anvin wrote:
+>  > > I think ide-scsi needs to be supported for some time going forward.
+>  > > After all, cdrecord, cdrdao, dvdrecord aren't going to be the only
+>  > > applications.
+>  >=20
+>  > And far longer than that. People seem to be testing and demoing=20
+> [snip]
+>=20
+> ATAPI tape drives will need ide-scsi too, unless ide-tape somehow
+> got repaired lately. And some people already use ide-scsi+st in
+> 2.4 since ide-tape doesn't always work reliably.
 
-Maybe I should add that "under load" in this case means running OpenGL
-games using DRI on a Voodoo4 card.
+Whan I last looked at the ide-tape driver  , which was
+back in 2.2, it looked like the big problem was actually=20
+in it error handling , rather than anywhere else.
 
->> I don't think reporting any of those NMIs more than once provides
->> valuable information, so I've cooked up a patch which only reports each
->> unknown NMI reason once.
-> 
-> Its sitting there saying "Something is wrong" "Something is still
-> wrong".
+I don't think it has been changed significantly it that regard
+since.
 
-Beats me as to what could be wrong. It's not a memory problem and the
-CPU does not overheat.
+IIRC , the behaviour which appeared to be caueing me a problem
+was that some slow driver would be busy long for ide-tape to
+get bored. It also didn;t like getting error codes which weren't
+spelled out it the quik spec. The common travan mechanism I
+get lots of here, spits out quite a few of those. (As well
+as failing one of st's enquiry cmds).
 
-I'll go patch the kernel for my personal use then, but I'm not the only
-one seeing those messages without any system problems.
+TTFN
+--=20
+Roger. 	                        Home| http://www.sandman.uklinux.net/
+Master of Peng Shui.      (Ancient oriental art of Penguin Arranging)
+   GPG Key FPR: CFF1 F383 F854 4E6A 918D  5CFF A90D E73B 88DE 0B3E
+Work|Independent Systems Consultant | http://www.firstdatabase.co.uk/
 
--- 
-Ciao,
-Pascal
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE+odopqQ3nO4jeCz4RAsogAJ0VteBTY183SJ9mM8oEmPTffS393wCeN6UC
+Nk6J7YS2H0NbreDGk2zganQ=
+=ki8C
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--

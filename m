@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVAEBFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVAEBJH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262168AbVAEBFk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 20:05:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVAEBFk
+	id S262180AbVAEBJH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 20:09:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVAEBJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 20:05:40 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:9399 "EHLO
+	Tue, 4 Jan 2005 20:09:05 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:16823 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262091AbVAEBFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 20:05:35 -0500
-Subject: Re: [1/7] LEON SPARC V8 processor support for linux-2.6.10
+	id S262180AbVAEBGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 20:06:38 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jiri Gaisler <jiri@gaisler.com>
-Cc: sparclinux@vger.kernel.org,
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       wli@holomorphy.com
-In-Reply-To: <41DAE89A.6060009@gaisler.com>
-References: <41DAE89A.6060009@gaisler.com>
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1104865198.8346.8.camel@krustophenia.net>
+References: <1104374603.9732.32.camel@krustophenia.net>
+	 <20050103140359.GA19976@infradead.org>
+	 <1104862614.8255.1.camel@krustophenia.net>
+	 <20050104182010.GA15254@infradead.org>  <87u0pxhvn0.fsf@sulphur.joq.us>
+	 <1104865198.8346.8.camel@krustophenia.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104877412.17166.49.camel@localhost.localdomain>
+Message-Id: <1104878646.17166.63.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 05 Jan 2005 00:01:12 +0000
+Date: Wed, 05 Jan 2005 00:01:55 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-01-04 at 19:03, Jiri Gaisler wrote
-> + *  The license and distribution terms for this file may be
-> + *  found in the file LICENSE in this distribution or at
-> + *  http://www.rtems.com/license/LICENSE.
+On Maw, 2005-01-04 at 18:59, Lee Revell wrote:
+> We could do it the was OSX (our real competition) does if that would
+> make people happy.  They just let any user run RT tasks.  Oh wait, but
+> that's a "broken design", everyone knows that OSX is a joke, no one
+> would use *that* OS to mix a CD or score a movie.  :-)
 
-Legalese hat on
+You can do that already, just make everyone root
 
-Please don't do this. Suppose the file changes or the site goes away.
-Include a copy of the license in the patch set directly.
+The problem with uid/gid based hacks is that they get really ugly to
+administer really fast. Especially once you have users who need realtime
+and hugetlb, and users who need one only.
+
+It would be far cleaner to split CAP_SYS_NICE capability down - which
+should cover the real time OS functions nicely. Right now it gives a few
+too many rights but that could be fixed easily.
 

@@ -1,89 +1,184 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263001AbSJBIlh>; Wed, 2 Oct 2002 04:41:37 -0400
+	id <S263002AbSJBIvq>; Wed, 2 Oct 2002 04:51:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263002AbSJBIlh>; Wed, 2 Oct 2002 04:41:37 -0400
-Received: from stud3.tuwien.ac.at ([193.170.75.13]:28662 "EHLO
-	stud3.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S263001AbSJBIlf>; Wed, 2 Oct 2002 04:41:35 -0400
-Date: Wed, 2 Oct 2002 10:47:03 +0200
-From: Stefan Schwandter <swan@shockfrosted.org>
+	id <S263003AbSJBIvq>; Wed, 2 Oct 2002 04:51:46 -0400
+Received: from zamok.crans.org ([138.231.136.6]:23972 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id <S263002AbSJBIvo>;
+	Wed, 2 Oct 2002 04:51:44 -0400
+Date: Wed, 2 Oct 2002 10:57:13 +0200
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.40: problems with cmd649 ide
-Message-ID: <20021002084703.GA640@TK150122.tuwien.teleweb.at>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+Subject: Ext3 documentation
+Message-ID: <20021002085713.GA23086@darwin.crans.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AhhlLboLdkugWU4S"
+Content-Type: multipart/mixed; boundary="pWyiEgJYm5f9v55/"
 Content-Disposition: inline
 User-Agent: Mutt/1.4i
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+From: Vincent Hanquez <tab@tuxfamily.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---AhhlLboLdkugWU4S
+--pWyiEgJYm5f9v55/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Hi!
+	Hi Mailing List,
 
+Here a (small) documentation for ext3 filesystem.
+it seem now correct/accurate. report me any problem/bugs
 
-I can't use my cdrom drive at the moment with 2.5.40. I've appended the
-ide-related output from /var/log/messages. Please tell me if you need
-more data.
-
-
-regards, Stefan
+It can be merge in 2.4/2.5 kernel I think. feedback appreciated.
 
 -- 
-----> http://www.shockfrosted.org
+Vincent Hanquez
 
---AhhlLboLdkugWU4S
+--pWyiEgJYm5f9v55/
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=ide-errors
+Content-Disposition: attachment; filename="ext3.txt"
 
-Oct  2 10:41:33 TK150122 kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-Oct  2 10:41:33 TK150122 kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-Oct  2 10:41:33 TK150122 kernel: CMD649: IDE controller at PCI slot 00:07.0
-Oct  2 10:41:33 TK150122 kernel: CMD649: chipset revision 2
-Oct  2 10:41:33 TK150122 kernel: CMD649: not 100%% native mode: will probe irqs later
-Oct  2 10:41:33 TK150122 kernel: CMD649: ROM enabled at 0xdff00000
-Oct  2 10:41:33 TK150122 kernel:     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:pio, hdb:pio
-Oct  2 10:41:33 TK150122 kernel:     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
-Oct  2 10:41:33 TK150122 kernel: hda: ST360021A, ATA DISK drive
-Oct  2 10:41:33 TK150122 kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-Oct  2 10:41:33 TK150122 kernel: dffd1e34 c0115b54 c02f26e0 c02f7af0 0000055e 00000002 c013301f c02f7af0 
-Oct  2 10:41:33 TK150122 kernel:        0000055e 00000000 ffffffff dffd1ee3 00000002 0000000a ffffffff 00000001 
-Oct  2 10:41:33 TK150122 kernel:        c0165a60 0000004f 000001d0 00000048 c03e9f00 dffd1eea dffd1ee0 ffffffff 
-Oct  2 10:41:33 TK150122 kernel: Call Trace:
-Oct  2 10:41:33 TK150122 kernel:  [__might_sleep+84/96]__might_sleep+0x54/0x60
-Oct  2 10:41:33 TK150122 kernel:  [kmalloc+79/544]kmalloc+0x4f/0x220
-Oct  2 10:41:33 TK150122 kernel:  [proc_create+128/256]proc_create+0x80/0x100
-Oct  2 10:41:33 TK150122 kernel:  [proc_mkdir+23/64]proc_mkdir+0x17/0x40
-Oct  2 10:41:33 TK150122 kernel:  [register_irq_proc+95/112]register_irq_proc+0x5f/0x70
-Oct  2 10:41:33 TK150122 kernel:  [setup_irq+198/224]setup_irq+0xc6/0xe0
-Oct  2 10:41:33 TK150122 kernel:  [ide_intr+0/368]ide_intr+0x0/0x170
-Oct  2 10:41:33 TK150122 kernel:  [request_irq+136/176]request_irq+0x88/0xb0
-Oct  2 10:41:33 TK150122 kernel:  [init_irq+505/864]init_irq+0x1f9/0x360
-Oct  2 10:41:33 TK150122 kernel:  [ide_intr+0/368]ide_intr+0x0/0x170
-Oct  2 10:41:33 TK150122 kernel:  [hwif_init+262/592]hwif_init+0x106/0x250
-Oct  2 10:41:33 TK150122 kernel:  [probe_hwif_init+28/112]probe_hwif_init+0x1c/0x70
-Oct  2 10:41:33 TK150122 kernel:  [ide_setup_pci_device+61/112]ide_setup_pci_device+0x3d/0x70
-Oct  2 10:41:33 TK150122 kernel:  [cmd64x_init_one+51/64]cmd64x_init_one+0x33/0x40
-Oct  2 10:41:33 TK150122 kernel:  [init+47/384]init+0x2f/0x180
-Oct  2 10:41:33 TK150122 kernel:  [init+0/384]init+0x0/0x180
-Oct  2 10:41:33 TK150122 kernel:  [kernel_thread_helper+5/16]kernel_thread_helper+0x5/0x10
-Oct  2 10:41:33 TK150122 kernel: 
-Oct  2 10:41:33 TK150122 kernel: ide0 at 0xe800-0xe807,0xe402 on irq 18
-Oct  2 10:41:33 TK150122 kernel: hdc: IRQ probe failed (0xfffbfcba)
-Oct  2 10:41:33 TK150122 kernel: hdc: IRQ probe failed (0xfffbfcba)
-Oct  2 10:41:33 TK150122 kernel: hdc: CD-RW CRX100E, ATAPI CD/DVD-ROM drive
-Oct  2 10:41:33 TK150122 kernel: hdc: IRQ probe failed (0xfffbfcba)
-Oct  2 10:41:33 TK150122 kernel: hdd: IRQ probe failed (0xfffbfcba)
-Oct  2 10:41:33 TK150122 kernel: hdd: IRQ probe failed (0xfffbfcba)
-Oct  2 10:41:33 TK150122 kernel: ide1: DISABLED, NO IRQ
-Oct  2 10:41:33 TK150122 kernel: hdc: ERROR, PORTS ALREADY IN USE
-Oct  2 10:41:33 TK150122 kernel: hda: host protected area => 1
-Oct  2 10:41:33 TK150122 kernel: hda: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(100)
-Oct  2 10:41:33 TK150122 kernel:  hda: hda1 hda2 < hda5 hda6 hda7 hda8 hda9 hda10 >
 
---AhhlLboLdkugWU4S--
+Ext3 Filesystem
+===============
+
+ext3 was originally released in September 1999. Written by Stephen Tweedie
+for 2.2 branch, and ported to 2.4 kernels by Peter Braam, Andreas Dilger, 
+Andrew Morton, Alexander Viro, Ted Ts'o and Stephen Tweedie.
+
+ext3 is ext2 filesystem enhanced with journalling capabilities. 
+
+Options
+=======
+
+When mounting an ext3 filesystem, the following option are accepted:
+(*) == default
+
+jounal=update		Update the ext3 file system's journal to the 
+			current format.
+
+journal=inum		When a journal already exists, this option is 
+			ignored. Otherwise, it specifies the number of
+			the inode which will represent the ext3 file
+			system's journal file.
+
+bsddf 		(*)	Make 'df' act like BSD.
+minixdf			Make 'df' act like Minix.
+
+check=none		Don't do extra checking of bitmaps on mount.
+nocheck		
+
+debug			Extra debugging information is sent to syslog.
+
+noload			Don't load the journal on mounting.
+
+errors=remount-ro(*)	Remount the filesystem read-only on an error.
+errors=continue		Keep going on a filesystem error.
+errors=panic		Panic and halt the machine if an error occurs.
+
+grpid			Give objects the same group ID as their creator.
+bsdgroups		
+
+nogrpid		(*)	New objects have the group ID of their creator.
+sysvgroups
+
+resgid=n		The group ID which may use the reserved blocks.
+
+resuid=n		The user ID which may use the reserved blocks.
+
+sb=n			Use alternate superblock at this location.
+
+data=journal		All data are commited into the journal prior 
+			to being written into the main file system.
+		
+data=ordered	(*)	All data are forced directly out to the main file 
+			system prior to its metadata being commited to 
+			the journal.
+		
+data=writeback  	Data ordering is not preserved, data may be 
+			written into the main file system after its
+			metadata has been committed to the journal.
+
+quota			Quota options are currently silently ignored.
+noquota			(see fs/ext3/super.c, line 594)
+grpquota
+usrquota
+
+
+Specification
+=============
+ext3 shares all disk implementation with ext2 filesystem, and add
+transactions capabilities to ext2.
+Journaling is done by the Journaling block device layer.
+
+Journaling Block Device layer
+-----------------------------
+The Journaling Block Device layer (JBD) isn't ext3 specific. It was design
+to add journaling capabilities on a block device.
+The ext3 filesystem code will inform the JBD of modifications it is
+performing (Call a transaction). the journal support the transactions start
+and stop, and in case of crash, the journal can replayed the transactions
+to put the partition on a consistant state fastly.
+
+handles represent a single atomic update to a filesystem.
+JBD can handle external journal on a block device.
+
+Data Mode
+---------
+There's 3 different data modes:
+
+* writeback mode
+In data=writeback mode, ext3 doesn't do any form of data journaling at
+all (as XFS, JFS, and ReiserFS).
+Despite the fact it could corrupt recently modified file, this
+mode should give you in general the best ext3 performance.
+
+* ordered mode
+In data=ordered mode, ext3 only officially journals metadata, but it
+logically groups metadata and data blocks into a single unit called a
+transaction. When it's time to write the new metadata out to disk, the
+associated data blocks are written first.
+In general, this mode perform slightly slower than writeback
+but significantly faster than journal mode.
+
+* journal mode
+data=journal mode provides full data and metadata journaling. All new data
+is written to the journal first, and then to its final location.
+In the event of a crash, the journal can be replayed, bringing both data
+and metadata into a consistent state.
+This mode is the slowest except when data needs to be read from and
+written to disk at the same time where it outperform all others mode.
+
+Compatibility
+-------------
+Ext2 partition can be easily convert to ext3, with `tune2fs -j <dev>`.
+Ext3 is fully compatible with Ext2. Ext3 partition can easily be mounted
+as Ext2.
+
+Quota
+=====
+Quota implementation for ext3 is available in -ac tree for 2.4.
+There is no implementation for 2.5 yet.
+
+External Tools
+==============
+see manual pages to know more.
+
+tune2fs: 	create a ext3 journal on a ext2 partition with the -j flags
+mke2fs: 	create a ext3 partition with the -j flags
+debugfs: 	ext2 and ext3 file system debugger
+
+References
+==========
+
+kernel source:	file:/usr/src/linux/fs/ext3
+		file:/usr/src/linux/fs/jbd
+
+programs: 	http://e2fsprogs.sourceforge.net
+
+useful link:
+		http://www.zip.com.au/~akpm/linux/ext3/ext3-usage.html
+		http://www-106.ibm.com/developerworks/linux/library/l-fs7/
+		http://www-106.ibm.com/developerworks/linux/library/l-fs8/
+
+--pWyiEgJYm5f9v55/--

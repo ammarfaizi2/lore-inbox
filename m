@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVCBXnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVCBXir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbVCBXnl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 18:43:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbVCBXkF
+	id S261358AbVCBXir (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 18:38:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVCBXg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 18:40:05 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:8003 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261346AbVCBXgv (ORCPT
+	Wed, 2 Mar 2005 18:36:29 -0500
+Received: from gate.crashing.org ([63.228.1.57]:24784 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261358AbVCBXez (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 18:36:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=JStVmvNnvVhDuVbkZOvsuUArGx0gT6E9n1EyHhnZO09ZdkNCRKR2D0E5nBCSRJb93DeY4trtTowFZbJsbvai5G2K9R3qNlP0ezehascSio4nDnAA8jme34DZV+eiRV7UN7oDYrZn/eApvpv7ALcU0bV31JTmAUqHoSV7QipQ30I=
-Message-ID: <d120d500050302153615c76a64@mail.gmail.com>
-Date: Wed, 2 Mar 2005 18:36:13 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Marcus Furlong <furlongm@hotmail.com>
-Subject: Re: Bug report -- keyboard not working Linux 2.6.11 on Inspiron 1150 (and 5150)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <BAY20-F36510468D55048A77ABE9EC95A0@phx.gbl>
+	Wed, 2 Mar 2005 18:34:55 -0500
+Subject: Re: [PATCH 2/3] openfirmware: adds sysfs nodes for openfirmware
+	devices
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jeffrey Mahoney <jeffm@suse.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050301211824.GC16465@locomotive.unixthugs.org>
+References: <20050301211824.GC16465@locomotive.unixthugs.org>
+Content-Type: text/plain
+Date: Thu, 03 Mar 2005 10:32:14 +1100
+Message-Id: <1109806334.5611.121.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-References: <BAY20-F36510468D55048A77ABE9EC95A0@phx.gbl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Mar 2005 23:16:43 +0000, Marcus Furlong <furlongm@hotmail.com> wrote:
-> Here's the diff of dmesgs between 2.6.10 and 2.6.11
+On Tue, 2005-03-01 at 16:18 -0500, Jeffrey Mahoney wrote:
+> This patch adds sysfs nodes that the hotplug userspace can use to load the
+> appropriate modules.
 > 
-> 2.6.10
-> >i8042.c: Warning: Keylock active.
-> >serio: i8042 AUX port at 0x60,0x64 irq 12
-> >serio: i8042 KBD port at 0x60,0x64 irq 1
+> In order for hotplug to work with macio devices, patches to module-init-tools
+> and hotplug must be applied. Those patches are available at:
 > 
-> 2.6.11
-> < ACPI: PS/2 Keyboard Controller [KBC] at I/O 0x60, 0x66, irq 1
-> < ACPI: PS/2 Mouse Controller [PS2M] at irq 12
-> < i8042.c: Can't read CTR while initializing i8042.
+> ftp://ftp.suse.com/pub/people/jeffm/linux/macio-hotplug/
 > 
+> Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 
-Your BIOS reports incorrect ports for the keyboard controller, should
-be 0x60, 0x64. You will have to boot with i8042.noacpi for now.
+> +static ssize_t
+> +compatible_show (struct device *dev, char *buf)        
+> +{
+> +        struct of_device *of;
+> +        char *compat;
+> +        int cplen;
+> +        int length = 0;
+> +        
+> +        of = &to_macio_device (dev)->ofdev;
+> +	compat = (char *) get_property(of->node, "compatible", &cplen);
+> +	if (!compat) {
+> +		*buf = '\0';
+> +		return 0;
+> +	}
+> +	while (cplen > 0) {
+> +		int l;
+> +		length += sprintf (buf, "%s%s", length ? "," : "", compat);
+> +		buf += length;
+> +		l = strlen (compat) + 1;
+> +		compat += l;
+> +		cplen -= l;
+> +	}
+> +
+> +	return length;
+> +}
+> +
 
--- 
-Dmitry
+There is a problem here. "," is a valid character within a "compatible"
+property, and is actually regulary used. Normally, "compatible" is a
+list, with '\0' beeing the separator. I suggest using CRLF instead.
 
-        -- Is there anything else I can contribute?
-        -- The latitude and longtitude of the bios writers current
-position, and a ballistic missile. (Alan Cox)
+Ben.
+ 
+

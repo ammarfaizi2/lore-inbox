@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264677AbSLBOcN>; Mon, 2 Dec 2002 09:32:13 -0500
+	id <S264724AbSLBOiw>; Mon, 2 Dec 2002 09:38:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264702AbSLBOcN>; Mon, 2 Dec 2002 09:32:13 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:33787 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S264677AbSLBOcM>; Mon, 2 Dec 2002 09:32:12 -0500
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20021202142048.14630.qmail@web14502.mail.yahoo.com> 
-References: <20021202142048.14630.qmail@web14502.mail.yahoo.com> 
-To: PK MK <linuxrouter2@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MTD issue 
-Mime-Version: 1.0
+	id <S264729AbSLBOiw>; Mon, 2 Dec 2002 09:38:52 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:14084 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S264724AbSLBOiv>; Mon, 2 Dec 2002 09:38:51 -0500
+Message-ID: <3DEB70FE.C422A3EB@aitel.hist.no>
+Date: Mon, 02 Dec 2002 15:41:02 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.77 [no] (X11; U; Linux 2.5.50 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.50 hang when copying files, handwritten trace included
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 02 Dec 2002 14:39:40 +0000
-Message-ID: <24561.1038839980@passion.cambridge.redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.5.50 hung when copying 800M.
+mke2fs on a 10G partition, then try to copy
+the entire /home there. Source and destionation
+was on the same disk. After a while, this happened:
 
-linuxrouter2@yahoo.com said:
->      Can anybody tell me whether a single MTD partion can span mutiple
-> Flash ? This is so that I can have a single JFFS on mutiple flash.
->       Or can I have a single JFFS on Mutiple MTD partitions?
+EIP: wake_up_forked_process+0xb8/0x18c
+EAX: 5a5a5a5a   (suspicious)
 
-Yes, it can. If the flash chips are identical and arranged consecutively 
-with no space between them, the chip drivers will register them all as one 
-MTD device anyway. It'll even deal with finding multiple aliases of each 
-chip. 
-
-Or if you have different types of flash chip you can use the 'mtdconcat' 
-driver to combine them.
-
-This kind of question is more likely to get a useful answer on the MTD 
-mailing list (linux-mtd@lists.infradead.org). Certainly not linux-net@vger.
-
---
-dwmw2
+trace:
+do_fork
+kernel_thread
+pdflush
+kernel_thread_helper
+start_one_pdflush_thread
+pdflush
+__pdflush
+__pdflush
+background_writeout
+kernel_thread_helper
 
 
+The machine has 512M ram. It is a pentium IV 2.4GHz.
+The kernel is compiled with smp (hoping for hyperthreading
+but it haven't happened yet), preempt, devfs support (but
+devfs isn't mounted anywhere currently) and IDE driver
+for the SIS 5513.  
+
+Both filesystems are ext2. The machine was in
+single-user mode at the time.  I can reliably
+reproduce this if a more detailed oops 
+will help in debugging. I have 2G of swap space
+on another IDE drive.
+
+compiled with gcc 2.95.4 from debian testing
+
+ide controller:
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
+
+I'm using dma, irq unmasking, 32-bit io and multiple 
+sector transfers.
+
+Helge Hafting

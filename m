@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbTILOQc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 10:16:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTILOQb
+	id S261706AbTILOYO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 10:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbTILOYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 10:16:31 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:20698 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S261637AbTILOQa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 10:16:30 -0400
-Date: Fri, 12 Sep 2003 16:16:20 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: James Bottomley <James.Bottomley@steeleye.com>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] NCR53c406a.c warning
-In-Reply-To: <1063374111.1767.2.camel@mulgrave>
-Message-ID: <Pine.GSO.3.96.1030912161154.17936I-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Sep 2003 10:24:14 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:4090 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S261706AbTILOYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 10:24:13 -0400
+Subject: RE: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+From: Martin Schlemmer <azarah@gentoo.org>
+To: richard.brunner@amd.com
+Cc: LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>
+In-Reply-To: <99F2150714F93F448942F9A9F112634C0638B197@txexmtae.amd.com>
+References: <99F2150714F93F448942F9A9F112634C0638B197@txexmtae.amd.com>
+Content-Type: text/plain
+Message-Id: <1063376046.3376.188.camel@workshop.saharacpt.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 12 Sep 2003 16:14:08 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Sep 2003, James Bottomley wrote:
-
-> > NCR53c406a: Apparently wait_intr() is unused, so remove it.
+On Thu, 2003-09-11 at 06:55, richard.brunner@amd.com wrote:
+> Jun,
 > 
-> It is currently unused.  However, the reason is that we removed the scsi
-> command method that allows polled operation in a driver (this routine is
-> actually polling the interrupt port on the chip).
+> I have to agree with what Andi says. It is in a slow path,
+> and we want to guard against user programs that could hit it.
+> Making it conditional doesn't buy a lot and would cause lots of
+> re-validation of the patch that we would like
+> to avoid so we can get this in to the 2.6 kernel ASAP. 
+> Don't worry! I am pretty certain the patch won't impact the 
+> performance of the 2.6 kernel on processors from other vendors ;-)
 > 
-> I'd like to wait a while to see if anyone still needs this mode when 2.6
-> gets a wider test audience.  If you wish, you can surround the routine
-> with #if 0 and a comment saying we can junk it later if it really is
-> unnecessary.
 
- I've encountered an ISA adapter using this chip in polled mode (no ISA
-IRQ line routed to the chip) quite recently.  But I can't say if the guy
-using it won't throw it away before final 2.6. ;-)
+Would be nice if somebody with more knowledge about all the
+benchmarks and a few non AMD processor machines could test
+to see if its really that non critical (*hint* *hint*).  Yes,
+I am not a kernel dev, but I do know that one or two slowdowns
+in an already slow path is not that critical - problem now is
+just that 5 or 6 might be an issue =)
+
+
+Thanks,
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Martin Schlemmer
+
 

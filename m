@@ -1,155 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267364AbTAVFY3>; Wed, 22 Jan 2003 00:24:29 -0500
+	id <S267377AbTAVFda>; Wed, 22 Jan 2003 00:33:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267367AbTAVFY3>; Wed, 22 Jan 2003 00:24:29 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:11525
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267364AbTAVFY0>; Wed, 22 Jan 2003 00:24:26 -0500
-Date: Wed, 22 Jan 2003 00:33:37 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: engebret@us.ibm.com, <linuxppc64-dev@lists.linuxppc.org>
-Subject: PATCH][2.5][11/18] smp_call_function_on_cpu - ppc64
-Message-ID: <Pine.LNX.4.44.0301220032320.29944-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267378AbTAVFda>; Wed, 22 Jan 2003 00:33:30 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:4107 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S267377AbTAVFd3>;
+	Wed, 22 Jan 2003 00:33:29 -0500
+Date: Wed, 22 Jan 2003 06:42:30 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Miles Bader <miles@gnu.org>
+Cc: Greg Ungerer <gerg@snapgear.com>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: common RODATA in vmlinux.lds.h (2.5.59)
+Message-ID: <20030122054230.GA954@mars.ravnborg.org>
+Mail-Followup-To: Miles Bader <miles@gnu.org>,
+	Greg Ungerer <gerg@snapgear.com>,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0301212045000.1577-100000@chaos.physics.uiowa.edu> <3E2E0F38.7090506@snapgear.com> <buoptqp954l.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <buoptqp954l.fsf@mcspd15.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.5.59/arch/ppc64/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/ppc64/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.c
---- linux-2.5.59/arch/ppc64/kernel/smp.c	17 Jan 2003 11:14:53 -0000	1.1.1.1
-+++ linux-2.5.59/arch/ppc64/kernel/smp.c	22 Jan 2003 00:58:23 -0000
-@@ -430,7 +430,7 @@
- 
- void smp_send_stop(void)
- {
--	smp_call_function(stop_this_cpu, NULL, 1, 0);
-+	smp_call_function(stop_this_cpu, NULL, 0);
- }
- 
- /*
-@@ -458,7 +458,6 @@
-  * [SUMMARY] Run a function on all other CPUs.
-  * <func> The function to run. This must be fast and non-blocking.
-  * <info> An arbitrary pointer to pass to the function.
-- * <nonatomic> currently unused.
-  * <wait> If true, wait (atomically) until function has completed on other CPUs.
-  * [RETURNS] 0 on success, else a negative status code. Does not return until
-  * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-@@ -466,8 +465,7 @@
-  * You must not call this function with disabled interrupts or from a
-  * hardware interrupt handler or from a bottom half handler.
-  */
--int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
--		       int wait)
-+int smp_call_function (void (*func) (void *info), void *info, int wait)
- { 
- 	struct call_data_struct data;
- 	int ret = -1, cpus = num_online_cpus()-1;
-@@ -525,6 +523,95 @@
- out:
- 	HMT_medium();
- 	spin_unlock(&call_lock);
-+	return ret;
-+}
-+
-+/*
-+ * smp_call_function_on_cpu - Runs func on all processors in the mask
-+ *
-+ * @func: The function to run. This must be fast and non-blocking.
-+ * @info: An arbitrary pointer to pass to the function.
-+ * @wait: If true, wait (atomically) until function has completed on other CPUs.
-+ * @mask The bitmask of CPUs to call the function
-+ * 
-+ * Returns 0 on success, else a negative status code. Does not return until
-+ * remote CPUs are nearly ready to execute func or have executed it.
-+ *
-+ * You must not call this function with disabled interrupts or from a
-+ * hardware interrupt handler or from a bottom half handler.
-+ */
-+
-+int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+				unsigned long mask)
-+{ 
-+	struct call_data_struct data;
-+	int ret = 0, cpu, i, num_cpus = hweight64(mask);
-+	unsigned long timeout;
-+
-+	if (num_cpus == 0)
-+		return -EINVAL;
-+
-+	cpu = get_cpu();
-+	if ((1UL << cpu) & mask) {
-+		put_cpu_no_resched();
-+		return -EINVAL;
-+	}
-+
-+	data.func = func;
-+	data.info = info;
-+	atomic_set(&data.started, 0);
-+	data.wait = wait;
-+	if (wait)
-+		atomic_set(&data.finished, 0);
-+
-+	spin_lock(&call_lock);
-+	call_data = &data;
-+	wmb();
-+	/* Send a message to all other CPUs and wait for them to respond */
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (cpu_online(i) && ((1UL << i) & mask))
-+			smp_message_pass(i, PPC_MSG_CALL_FUNCTION, 0, 0);
-+	}
-+
-+	/* Wait for response */
-+	timeout = SMP_CALL_TIMEOUT;
-+	while (atomic_read(&data.started) != num_cpus) {
-+		HMT_low();
-+		if (--timeout == 0) {
-+			if (debugger)
-+				debugger(0);
-+			printk("smp_call_function on cpu %d: other cpus not "
-+			       "responding (%d)\n", cpu,
-+			       atomic_read(&data.started));
-+			ret = -EIO;
-+			goto out;
-+		}
-+	}
-+
-+	if (wait) {
-+		timeout = SMP_CALL_TIMEOUT;
-+		while (atomic_read(&data.finished) != num_cpus) {
-+			HMT_low();
-+			if (--timeout == 0) {
-+				if (debugger)
-+					debugger(0);
-+				printk("smp_call_function on cpu %d: other "
-+				       "cpus not finishing (%d/%d)\n",
-+				       cpu,
-+				       atomic_read(&data.finished),
-+				       atomic_read(&data.started));
-+				ret = -EIO;
-+				goto out;
-+			}
-+		}
-+	}
-+
-+	ret = 0;
-+
-+out:
-+	HMT_medium();
-+	spin_unlock(&call_lock);
-+	put_cpu_no_resched();
- 	return ret;
- }
- 
+On Wed, Jan 22, 2003 at 01:32:10PM +0900, Miles Bader wrote:
+> 
+> [To be honest, I think the stuff with `LOAD_OFFSET' is a bit of a waste;
+> it seems cleaner to just have archs define their own sections as
+> appropriate, and use RODATA_CONTENTS directly -- it's the input sections
+> and related symbols that are always changing (and so better centralized),
+> after all, not the output sections.]
 
--- 
-function.linuxpower.ca
+There were some reports of failed boots that boiled down to
+mis-alignment of a single section.
+With your suggestion we will end up in the same problem.
+__start_ksymbtab will in some cases have a value less than the actual
+start of the first symbol.
 
-
+	Sam

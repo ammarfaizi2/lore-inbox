@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129667AbQKWPRG>; Thu, 23 Nov 2000 10:17:06 -0500
+        id <S129091AbQKWQCb>; Thu, 23 Nov 2000 11:02:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129749AbQKWPQ5>; Thu, 23 Nov 2000 10:16:57 -0500
-Received: from kelland.nwc.alaska.net ([209.112.130.6]:49141 "EHLO alaska.net")
-        by vger.kernel.org with ESMTP id <S129667AbQKWPQv>;
-        Thu, 23 Nov 2000 10:16:51 -0500
-Date: Thu, 23 Nov 2000 05:46:44 -0900
-From: Ethan Benson <erbenson@alaska.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: binary garbage in dmesg/boot messages (2.2.18pre23)
-Message-ID: <20001123054644.A23839@plato.local.lan>
-Mail-Followup-To: Ethan Benson <erbenson@alaska.net>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+        id <S129434AbQKWQCW>; Thu, 23 Nov 2000 11:02:22 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46356 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S129091AbQKWQCF>; Thu, 23 Nov 2000 11:02:05 -0500
+Subject: Re: binary garbage in dmesg/boot messages (2.2.18pre23)
+To: erbenson@alaska.net (Ethan Benson)
+Date: Thu, 23 Nov 2000 15:31:51 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux-Kernel)
+In-Reply-To: <20001123054644.A23839@plato.local.lan> from "Ethan Benson" at Nov 23, 2000 05:46:44 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13yyLo-0007TS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> BIOS Vendor: Intel Corporation
+> BIOS Version: 1.00.10.DD04
+> BIOS Release: 03/19/97
+> System Vendor: Sony Corporation.
+> Product Name: PCV-70(U2).
+> Version Sony GI.
+> Serial Number 1003494.
+> Board Vendor: Intel Corporation.
+> Board Name: Agate.
+> Board Version: AA662195-305.
 
-I was testing out 2.2.18pre23 for USB purposes and found that its
-outputing binary garbage at boot:
+So far so good
 
-BIOS Vendor: Intel Corporation
-BIOS Version: 1.00.10.DD04
-BIOS Release: 03/19/97
-System Vendor: Sony Corporation.
-Product Name: PCV-70(U2).
-Version Sony GI.
-Serial Number 1003494.
-Board Vendor: Intel Corporation.
-Board Name: Agate.
-Board Version: AA662195-305.
-BIOS Vendor: f.£^]<94>fAè^D.£ESC<94>^N^_
-BIOS Version: SV^^gÅu^B.<8B>^^^^<9D><88>^\gÅu^F.<8B>^^
-<9D><89>^\3A^_^[A^^^FfQfPfRfSfUfVfW<8A>àgÄ}^B&<8A>^Eèh^Dr]gÄ}^Fg<8B>U
-÷AüÿuT<83>ú^CtO#OtK^N^_.<8B>7.<8B>O^D÷A^A
-BIOS Release: ùë÷SQR^F^^WV^^^F^_^G<87>÷.<8B>^NÜ<8B>x^CùèCÿrW&<8B>]
-^Cû+E°ÿ^^^F^_Wüóª<8B>U<8B>x_&<8B>^O&<8A>^G&<88>^ECG;ús-âò^G_W.<8B>^NÜ<8B>UAé^BfPf<8B>^Af<89>^E<83>Ç^DâofX<8B>^Vè^U
+> BIOS Vendor: f.=A3^]<94>fA=E8^D.=A3ESC<94>^N^_
 
-it appears to not cause any further problems, other then trashing the
-terminal of anyone who runs dmesg...
+This looks like the table end markers are missing or the length was wrong.
+If you change
 
-/proc/version:
-Linux version 2.2.18pre23 (root@plato) (gcc version 2.95.2 20000220
-(Debian GNU/Linux)) #1 Thu Nov 23 04:01:23 AKST 2000
+static int __init dmi_table(u32 base, int len, int num, void (*decode)(struct d
+{	 
+		char *buf;
+	struct dmi_header *dm;   
+	u8 *data;
+	int i=0;
 
-this does not occur under 2.2.17.  
+in arch/i386/kernel/dmi_scan.c to use
 
-please CC replies.  
+	int i=1;
 
--- 
-Ethan Benson
-http://www.alaska.net/~erbenson/
+does it then behave nicely ?
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVARTiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVARTmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbVARTiR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 14:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVARThA
+	id S261416AbVARTmk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 14:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVARTix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 14:37:00 -0500
-Received: from news.suse.de ([195.135.220.2]:1419 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261409AbVARTfg (ORCPT
+	Tue, 18 Jan 2005 14:38:53 -0500
+Received: from hera.kernel.org ([209.128.68.125]:61420 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261408AbVARTgN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 14:35:36 -0500
-Message-Id: <20050118192608.423265000.suse.de>
-References: <20050118184123.729034000.suse.de>
-Date: Tue, 18 Jan 2005 19:41:23 +0100
-From: Andreas Gruenbacher <agruen@suse.de>
-To: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [kbuild 2/5] Dont use the running kernels config file by default
-Content-Disposition: inline; filename=default-configuration.diff
+	Tue, 18 Jan 2005 14:36:13 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: kbuild: Implicit dependence on the C compiler
+Date: Tue, 18 Jan 2005 19:35:43 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <csjoef$gkt$1@terminus.zytor.com>
+References: <cshbd7$nff$1@terminus.zytor.com> <20050117220052.GB18293@mars.ravnborg.org> <41EC363D.1090106@zytor.com> <20050118190513.GA16120@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1106076944 17054 127.0.0.1 (18 Jan 2005 19:35:44 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 18 Jan 2005 19:35:44 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A user ran into the following problem: They grab a SuSE kernel-source
-package that is more recent than their running kernel. The tree under
-/usr/src/linux is unconfigured by default; there is no .config. User
-does a ``make menuconfig'', which gets its default values from
-/boot/config-$(uname -r). User tries to build the kernel, which doesn't
-work.
+Followup to:  <20050118190513.GA16120@mars.ravnborg.org>
+By author:    Sam Ravnborg <sam@ravnborg.org>
+In newsgroup: linux.dev.kernel
+> 
+> To give some background info about why kbuild does what it does.
+> A kernel being compiled partly with and partly without say -regparm=3
+> will result in a non-workable kernel.
+> 
+> The same goes for a kernel that is partly built using gcc 2.96, partly
+> using 3.3.4 for example.
+> 
+> So kbuild pr. default will force a recompile for any .o file where
+> opions to gcc differ, or name of gcc has changed. Today no check has
+> been implemented to check the actual gcc executable timestamp - and
+> neither is this planned.
+> 
 
-I would like to get rid of using the running kernel's configuration
-unless the user explicitly requests it. Instead, please add the
-cloneconfig target to clone the running kernel's config file. See other
-patch.
+I would argue that "name of gcc has changed" is possibly a condition
+that does more harm than good.  It is just as frequently used to have
+wrappers, like distcc, as it is to have different versions.
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+(FWIW, nothing is more obnoxious than having the kernel tree blown
+away when you try to compile in the one missing driver needed to talk
+to the rest of your distcc cluster.)
 
-Index: linux-2.6.11-rc1-bk6/scripts/kconfig/confdata.c
-===================================================================
---- linux-2.6.11-rc1-bk6.orig/scripts/kconfig/confdata.c
-+++ linux-2.6.11-rc1-bk6/scripts/kconfig/confdata.c
-@@ -20,9 +20,6 @@ const char conf_defname[] = "arch/$ARCH/
- 
- const char *conf_confnames[] = {
- 	".config",
--	"/lib/modules/$UNAME_RELEASE/.config",
--	"/etc/kernel-config",
--	"/boot/config-$UNAME_RELEASE",
- 	conf_defname,
- 	NULL,
- };
+> Default behaviour today is to recompile if anything change.
+> 
+> But as hpa points outs this hits us with nfs mounted kernel tree when
+> performing a make install - because install has vmlinux as prerequsite.
+> So this leaves us with at least two possibilitites:
+> 1) Unconditionally execute make install assuming vmlinux is up-to-date.
+>    make modules_install run unconditionally, so this is already know
+>    practice
+> 2) Detect that aother user is running the build - and therefore skip
+>    the kernel and the module build.
+>    This is a rather intrusive change since with current kbuild structure
+>    it is rather difficult to stop this in all relevant cases.
 
---
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX PRODUCTS GMBH
+I say unconditionally do make install, but there really, REALLY, need
+to be a way to override this check manually.
 
+	-hpa

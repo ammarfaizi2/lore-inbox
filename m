@@ -1,87 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264565AbTLGVVS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 16:21:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbTLGU4J
+	id S264576AbTLGVcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 16:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTLGV2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 15:56:09 -0500
-Received: from amsfep16-int.chello.nl ([213.46.243.26]:22590 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264532AbTLGUzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 15:55:39 -0500
-Date: Sun, 7 Dec 2003 21:51:24 +0100
-Message-Id: <200312072051.hB7KpO75000735@callisto.of.borg>
+	Sun, 7 Dec 2003 16:28:44 -0500
+Received: from amsfep19-int.chello.nl ([213.46.243.20]:22599 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264545AbTLGUzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 15:55:54 -0500
+Date: Sun, 7 Dec 2003 21:51:34 +0100
+Message-Id: <200312072051.hB7KpYNZ000801@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 134] ncr53c7xx SCSI
+Subject: [PATCH 145] Genrtc warning
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ncr53c7xx: Cleanup prototypes for ncr53c7xx_init()
+Genrtc: Move code to kill warning if CONFIG_PROC_FS is disabled
 
---- linux-2.4.23/drivers/scsi/53c7xx.c	2003-09-04 10:29:21.000000000 +0200
-+++ linux-m68k-2.4.23/drivers/scsi/53c7xx.c	2003-11-03 21:34:16.000000000 +0100
-@@ -1104,8 +1104,8 @@
+--- linux-2.4.23/drivers/char/genrtc.c	2003-05-09 11:02:26.000000000 +0200
++++ linux-m68k-2.4.23/drivers/char/genrtc.c	2003-11-30 17:37:51.000000000 +0100
+@@ -378,69 +378,13 @@
+ 	return 0;
  }
  
- /* 
-- * Function : static int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, 
-- *	int chip, u32 base, int io_port, int irq, int dma, long long options,
-+ * Function : int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, int chip,
-+ *	unsigned long base, int io_port, int irq, int dma, long long options,
-  *	int clock);
-  *
-  * Purpose : initializes a NCR53c7,8x0 based on base addresses,
---- linux-2.4.23/drivers/scsi/53c7xx.h	2003-09-04 10:29:22.000000000 +0200
-+++ linux-m68k-2.4.23/drivers/scsi/53c7xx.h	2003-11-03 21:33:25.000000000 +0100
-@@ -1600,5 +1600,9 @@
- /* Paranoid people could use panic() here. */
- #define FATAL(host) shutdown((host));
+-static int gen_rtc_read_proc(char *page, char **start, off_t off,
+-			     int count, int *eof, void *data);
+-
+-
+-/*
+- *	The various file operations we support.
+- */
+-
+-static struct file_operations gen_rtc_fops = {
+-	.owner		= THIS_MODULE,
+-#ifdef CONFIG_GEN_RTC_X
+-	.read		= gen_rtc_read,
+-	.poll		= gen_rtc_poll,
+-#endif
+-	.ioctl		= gen_rtc_ioctl,
+-	.open		= gen_rtc_open,
+-	.release	= gen_rtc_release,
+-};
+-
+-static struct miscdevice rtc_gen_dev =
+-{
+-	.minor		= RTC_MINOR,
+-	.name		= "rtc",
+-	.fops		= &gen_rtc_fops,
+-};
+-
+-static int __init rtc_generic_init(void)
+-{
+-	int retval;
+-
+-	printk(KERN_INFO "Generic RTC Driver v%s\n", RTC_VERSION);
+-
+-	retval = misc_register(&rtc_gen_dev);
+-	if(retval < 0)
+-		return retval;
  
-+extern int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, int chip,
-+			  unsigned long base, int io_port, int irq, int dma,
-+			  long long options, int clock);
+ #ifdef CONFIG_PROC_FS
+-	if((create_proc_read_entry ("driver/rtc", 0, 0, gen_rtc_read_proc, NULL)) == NULL){
+-		misc_deregister(&rtc_gen_dev);
+-		return -ENOMEM;
+-	}
+-#endif
+-
+-	return 0;
+-}
+-
+-static void __exit rtc_generic_exit(void)
+-{
+-	remove_proc_entry ("driver/rtc", NULL);
+-	misc_deregister(&rtc_gen_dev);
+-}
+-
+-module_init(rtc_generic_init);
+-module_exit(rtc_generic_exit);
+-EXPORT_NO_SYMBOLS;
+-
+ 
+ /*
+  *	Info exported via "/proc/rtc".
+  */
+ 
+-#ifdef CONFIG_PROC_FS
+-
+ static int gen_rtc_proc_output(char *buf)
+ {
+ 	char *p;
+@@ -528,6 +472,59 @@
+ #endif /* CONFIG_PROC_FS */
+ 
+ 
++/*
++ *	The various file operations we support.
++ */
 +
- #endif /* NCR53c710_C */
- #endif /* NCR53c710_H */
---- linux-2.4.23/drivers/scsi/amiga7xx.c	2003-04-06 10:29:18.000000000 +0200
-+++ linux-m68k-2.4.23/drivers/scsi/amiga7xx.c	2003-11-03 21:41:22.000000000 +0100
-@@ -30,9 +30,6 @@
++static struct file_operations gen_rtc_fops = {
++	.owner		= THIS_MODULE,
++#ifdef CONFIG_GEN_RTC_X
++	.read		= gen_rtc_read,
++	.poll		= gen_rtc_poll,
++#endif
++	.ioctl		= gen_rtc_ioctl,
++	.open		= gen_rtc_open,
++	.release	= gen_rtc_release,
++};
++
++static struct miscdevice rtc_gen_dev =
++{
++	.minor		= RTC_MINOR,
++	.name		= "rtc",
++	.fops		= &gen_rtc_fops,
++};
++
++static int __init rtc_generic_init(void)
++{
++	int retval;
++
++	printk(KERN_INFO "Generic RTC Driver v%s\n", RTC_VERSION);
++
++	retval = misc_register(&rtc_gen_dev);
++	if(retval < 0)
++		return retval;
++
++#ifdef CONFIG_PROC_FS
++	if((create_proc_read_entry ("driver/rtc", 0, 0, gen_rtc_read_proc, NULL)) == NULL){
++		misc_deregister(&rtc_gen_dev);
++		return -ENOMEM;
++	}
++#endif
++
++	return 0;
++}
++
++static void __exit rtc_generic_exit(void)
++{
++	remove_proc_entry ("driver/rtc", NULL);
++	misc_deregister(&rtc_gen_dev);
++}
++
++
++module_init(rtc_generic_init);
++module_exit(rtc_generic_exit);
++EXPORT_NO_SYMBOLS;
++
+ MODULE_AUTHOR("Richard Zidlicky");
+ MODULE_LICENSE("GPL");
  
- #include<linux/stat.h>
- 
--extern int ncr53c7xx_init (Scsi_Host_Template *tpnt, int board, int chip, 
--			   u32 base, int io_port, int irq, int dma,
--			   long long options, int clock);
- 
- int __init amiga7xx_detect(Scsi_Host_Template *tpnt)
- {
---- linux-2.4.23/drivers/scsi/bvme6000.c	2002-09-13 10:16:31.000000000 +0200
-+++ linux-m68k-2.4.23/drivers/scsi/bvme6000.c	2003-11-03 21:34:23.000000000 +0100
-@@ -23,9 +23,6 @@
- 
- #include<linux/stat.h>
- 
--extern int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, int chip,
--			  u32 base, int io_port, int irq, int dma,
--			  long long options, int clock);
- 
- int bvme6000_scsi_detect(Scsi_Host_Template *tpnt)
- {
---- linux-2.4.23/drivers/scsi/mvme16x.c	2002-09-13 10:16:33.000000000 +0200
-+++ linux-m68k-2.4.23/drivers/scsi/mvme16x.c	2003-11-03 21:34:35.000000000 +0100
-@@ -21,9 +21,6 @@
- 
- #include<linux/stat.h>
- 
--extern int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, int chip,
--			  u32 base, int io_port, int irq, int dma,
--			  long long options, int clock);
- 
- int mvme16x_scsi_detect(Scsi_Host_Template *tpnt)
- {
 
 Gr{oetje,eeting}s,
 

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275565AbTHNU4W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 16:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275576AbTHNU4W
+	id S275461AbTHNUtK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 16:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275464AbTHNUtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 16:56:22 -0400
-Received: from mail13.speakeasy.net ([216.254.0.213]:32426 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S275565AbTHNU4V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 16:56:21 -0400
-Date: Thu, 14 Aug 2003 13:56:17 -0700
-Message-Id: <200308142056.h7EKuH724585@magilla.sf.frob.com>
+	Thu, 14 Aug 2003 16:49:10 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:28171 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S275461AbTHNUtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 16:49:08 -0400
+Date: Thu, 14 Aug 2003 21:49:06 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Jakub Bogusz <qboosh@pld-linux.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] interlace and doublescan modes support for tdfxfb in
+ 2.6
+In-Reply-To: <20030814201951.GC27236@satan.blackhosts>
+Message-ID: <Pine.LNX.4.44.0308142148510.15200-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Matt Wilson <msw@redhat.com>,
-       <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] revert zap_other_threads breakage, disallow CLONE_THREAD
- without CLONE_DETACHED
-In-Reply-To: Linus Torvalds's message of  Thursday, 14 August 2003 10:32:35 -0700 <Pine.LNX.4.44.0308141023480.8148-100000@home.osdl.org>
-X-Fcc: ~/Mail/linus
-X-Windows: some voids are better left unfilled.
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Which means that they are logically not separate bits any more, and we
-> should just get rid of CLONE_DETACHED altogether, and use CLONE_THREAD in
-> all cases where it is tested for.
 
-That is certainly fine by me.
+Applying patch. It will be in the next code drop.
 
 
-Thanks,
-Roland
+On Thu, 14 Aug 2003, Jakub Bogusz wrote:
+
+> Like the second tdfxfb patch I've posted a while ago - it was posted to
+> linux-fbdev-devel few days ago, but I haven't got any feedback...
+> 
+> It works on my Voodoo4 4500 and shouldn't cause any problems on other
+> Voodoos - it's just a port of changes between 2.4.20 and 2.4.21.
+> 
+> 
+> ----- Forwarded message from Jakub Bogusz <qboosh at pld-linux.org> -----
+> 
+> Date: Sun, 10 Aug 2003 01:24:55 +0200
+> From: Jakub Bogusz <qboosh at pld-linux.org>
+> To: linux-fbdev-devel at lists.sourceforge.net
+> Subject: [PATCH] interlace and doublescan modes support for tdfxfb in 2.6
+> 
+> Hello,
+> 
+> this patch adds interlace and doublescan modes support to tdfxfb in 2.6
+> (it's a port of changes already incorporated into 2.4.21).
+> 
+> [...]
+> 
+> 
+

@@ -1,30 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278768AbRKHXNZ>; Thu, 8 Nov 2001 18:13:25 -0500
+	id <S278755AbRKHXOz>; Thu, 8 Nov 2001 18:14:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278818AbRKHXNP>; Thu, 8 Nov 2001 18:13:15 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28947 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278768AbRKHXNB>; Thu, 8 Nov 2001 18:13:01 -0500
-Subject: Re: hang with 2.4.14 & vmware 3.0.x, anyone else seen this?
-To: VANDROVE@vc.cvut.cz (Petr Vandrovec)
-Date: Thu, 8 Nov 2001 23:19:36 +0000 (GMT)
-Cc: lkml-frank@unternet.org (Frank de Lange), linux-kernel@vger.kernel.org
-In-Reply-To: <89EA9194B5B@vcnet.vc.cvut.cz> from "Petr Vandrovec" at Nov 08, 2001 09:08:10 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278962AbRKHXOp>; Thu, 8 Nov 2001 18:14:45 -0500
+Received: from anime.net ([63.172.78.150]:17162 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S278954AbRKHXOb>;
+	Thu, 8 Nov 2001 18:14:31 -0500
+Date: Thu, 8 Nov 2001 15:13:22 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Gniazdowski <refuse7@poczta.fm>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Any lingering Athlon bugs in Kernel 2.4.14?
+In-Reply-To: <20011108215029.3740C2218C@pa160.grajewo.sdi.tpnet.pl>
+Message-ID: <Pine.LNX.4.30.0111081512590.12192-100000@anime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E161ySO-00014Z-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> and for which I can say that they works (== do not use VMware with
-> 2.4.13-ac8, vmmon will not restore correct %cr2 value under some
-> conditions, use -ac7 until it is clear whether non-standard %cr2 usage 
-> is going to stay or not).
+On Thu, 8 Nov 2001, Gniazdowski wrote:
+> > older VM, or does it try to address Athlon bugs more aggressively? Ie: Why
+> Athlon have bugs ?!
+> Or are we talking about Athlon-optimizations bugs ? Or about Athlon SMP ?
 
-%cr2 doesnt work out. Don't worry about it
+We're talking about VIA northbridge bugs triggered by athlon optimized
+code.
 
-Alan
+-Dan
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
+

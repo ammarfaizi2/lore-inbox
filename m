@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbUDOHl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 03:41:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbUDOHl7
+	id S261231AbUDOIFb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 04:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUDOIFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 03:41:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28610 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261790AbUDOHl6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 03:41:58 -0400
-Date: Thu, 15 Apr 2004 00:41:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexander Hoogerhuis <alexh@boxed.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-mm6
-Message-Id: <20040415004137.437b679c.akpm@osdl.org>
-In-Reply-To: <87d669hfaa.fsf@dorker.boxed.no>
-References: <20040414230413.4f5aa917.akpm@osdl.org>
-	<87d669hfaa.fsf@dorker.boxed.no>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 15 Apr 2004 04:05:31 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:29116 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S261231AbUDOIFY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 04:05:24 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Oliver Neukum <oliver@neukum.org>, Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs only on the disconnected interface
+Date: Thu, 15 Apr 2004 10:05:22 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Frederic Detienne <fd@cisco.com>
+References: <200404141245.37101.baldrick@free.fr> <200404141739.56829.baldrick@free.fr> <200404142239.08408.oliver@neukum.org>
+In-Reply-To: <200404142239.08408.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404151005.22143.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Hoogerhuis <alexh@boxed.no> wrote:
+On Wednesday 14 April 2004 22:39, Oliver Neukum wrote:
+> > > I would prefer a real WARN_ON() so that the imbedded people compiling
+> > > for size are not affected.
+> >
+> > What do you mean?  How is a real WARN_ON() better?
 >
-> And the mandatory mail about what goes oops on a new kernel:
+> WARN_ON can be defined away to make a smaller kernel. Code that does
+> not use it takes away that option.
 
-If I had a dollar for every usb->sysfs/kobject oops...
+Hi Oliver, I thought you meant that CONFIG_EMBEDDED made WARN_ON go away
+(or something like that).  If you just mean that it is easy to redefine WARN_ON by
+hand, then all I can say is: it is also easy to redefine warn by hand!  Anyway, I made
+you the following patch:
 
-> [booting...]
-> ehci_hcd 0000:00:1d.7: USB 2.0 enabled, EHCI 1.00, driver 2003-Dec-29
-> hub 4-0:1.0: USB hub found
-> hub 4-0:1.0: 6 ports detected
-> usb 3-1: USB disconnect, address 2
-> Unable to handle kernel NULL pointer dereference at virtual address 00000070
->  printing eip:
-> c017efc1
-> *pde = 00000000
-> Oops: 0002 [#1]
-> PREEMPT 
-> CPU:    0
-> EIP:    0060:[<c017efc1>]    Not tainted VLI
-> EFLAGS: 00010246   (2.6.5-mm6) 
-> EIP is at sysfs_hash_and_remove+0x2b/0x90
-> eax: 00000000   ebx: 00000070   ecx: 00000070   edx: 00000000
-> esi: 00000000   edi: c02bc0f4   ebp: f5fd4e70   esp: f5fd4e60
-> ds: 007b   es: 007b   ss: 0068
-> Process khubd (pid: 5218, threadinfo=f5fd4000 task=f5efa3b0)
-> Stack: f5925a80 f8962ac0 f5b27530 f8962a60 f5fd4e8c c01f6406 f8962ac0 f8962aac 
->        f5b27400 f5b27400 f5f6c690 f5fd4e98 f8959003 f5f6c280 f5fd4eb4 f8935c52 
->        f88deb59 f5f6d800 f5f6c680 f5f6c680 f8937240 f5fd4ec4 f88d90c6 f5f6c690 
-> Call Trace:
->  [<c01f6406>] class_device_del+0x88/0xb9
->  [<f8959003>] hci_unregister_dev+0xb/0x94 [bluetooth]
-
-Apparently bluetooth is known-broken.  Do you actually have any bluetooth
-hardware there?
-
+--- gregkh-2.6/include/linux/usb.h.orig	2004-04-15 09:52:36.000000000 +0200
++++ gregkh-2.6/include/linux/usb.h	2004-04-15 09:56:30.000000000 +0200
+@@ -1073,9 +1073,15 @@
+ #define dbg(format, arg...) do {} while (0)
+ #endif
+ 
+-#define err(format, arg...) printk(KERN_ERR "%s: " format "\n" , __FILE__ , ## arg)
++#if !defined(CONFIG_EMBEDDED) || defined(DEBUG)
+ #define info(format, arg...) printk(KERN_INFO "%s: " format "\n" , __FILE__ , ## arg)
+ #define warn(format, arg...) printk(KERN_WARNING "%s: " format "\n" , __FILE__ , ## arg)
++#else
++#define info(format, arg...) do {} while (0)
++#define warn(format, arg...) do {} while (0)
++#endif
++
++#define err(format, arg...) printk(KERN_ERR "%s: " format "\n" , __FILE__ , ## arg)
+ 
+ 
+ #endif  /* __KERNEL__ */

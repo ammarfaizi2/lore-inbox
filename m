@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263497AbREYCtu>; Thu, 24 May 2001 22:49:50 -0400
+	id <S263494AbREYCwA>; Thu, 24 May 2001 22:52:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263494AbREYCtl>; Thu, 24 May 2001 22:49:41 -0400
-Received: from venus.cs.uml.edu ([129.63.8.51]:47517 "EHLO venus.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S263493AbREYCtZ>;
-	Thu, 24 May 2001 22:49:25 -0400
-Date: Thu, 24 May 2001 22:49:23 -0400 (EDT)
-From: Mike Brown <mbrown@cs.uml.edu>
-To: linux-scsi@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] memory leak in scsi_proc.c
-Message-ID: <Pine.OSF.3.96.1010524223647.334235J-100000@venus.cs.uml.edu>
+	id <S263500AbREYCvu>; Thu, 24 May 2001 22:51:50 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:734 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S263494AbREYCvl>;
+	Thu, 24 May 2001 22:51:41 -0400
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200105250248.TAA00836@csl.Stanford.EDU>
+Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
+To: mikpe@csd.uu.se (Mikael Pettersson)
+Date: Thu, 24 May 2001 19:48:19 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200105242301.BAA05771@harpo.it.uu.se> from "Mikael Pettersson" at May 25, 2001 01:01:48 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> check_nmi_watchdog() is __init and we know exactly when it's called.
+> The interesting cases (SMP kernel, since for UP NR_CPUS==1) are:
 
-If someone writes to a scsi adapter's /proc entry and that scsi adapter
-has not defined a proc_info() entry point, proc_scsi_write() will leak a
-page.  Furthermore, no sense asking for a page if said proc_info() entry
-point does not exist.  This patch fixes the above problem and patches
-cleanly against 2.4.4
+Ah, nice --- I keep meaning to tell the checker to demote its warning
+about NULL bugs or large stack vars in __init routines and/or routines
+that have the substring "init" in them ;-)
 
---- drivers/scsi/scsi_proc.c.orig       Fri Feb  9 14:30:23 2001
-+++ drivers/scsi/scsi_proc.c    Thu May 24 22:26:59 2001
-@@ -99,6 +99,9 @@
-        char * page;
-        char *start;
-     
-+       if (hpnt->hostt->proc_info == NULL)
-+               return -ENOSYS;
-+
-        if (count > PROC_BLOCK_SIZE)
-                return -EOVERFLOW;
- 
-@@ -106,12 +109,10 @@
-                return -ENOMEM;
-        copy_from_user(page, buf, count);
- 
--       if (hpnt->hostt->proc_info == NULL)
--               ret = -ENOSYS;
--       else
--               ret = hpnt->hostt->proc_info(page, &start, 0, count,
--                                               hpnt->host_no, 1);
-+        ret = hpnt->hostt->proc_info(page, &start, 0, count,
-+                                     hpnt->host_no, 1);
-        free_page((ulong) page);
-+
-        return(ret);
- }
- 
 
--Michael F. Brown, UMass Lowell Computer Science
+> IMHO the checker tool should take call paths into consideration
+> when trying to detect stack overflow problems. Does it do that?
+> (I.e. is it polyvariant or monovariant?)
 
-email:  mbrown@cs.uml.edu
+The var checker is more "really stupid".  It just does a flow
+insensitive pass looking for big variables.  I could make it follow
+call chains without too much work (other checkers do do this.)
 
-"In theory, there is no difference between theory and practice,
- but in practice, there is."       - Jan L.A. van de Snepscheut
+> I could write a patch to make 'tmp' __initdata instead, which would
+> silence the checker tool, but I don't really want to do that unless
+> someone can convince me that there is a real problem here.
+
+No need.  Once it's marked as an FP the checker won't warn about it
+anymore.
+
+Thanks for post-mortem.
 

@@ -1,79 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131500AbRBNUs0>; Wed, 14 Feb 2001 15:48:26 -0500
+	id <S129106AbRBNUwQ>; Wed, 14 Feb 2001 15:52:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131533AbRBNUsQ>; Wed, 14 Feb 2001 15:48:16 -0500
-Received: from c1262263-a.grapid1.mi.home.com ([24.183.135.182]:56333 "EHLO
-	mail.neruo.com") by vger.kernel.org with ESMTP id <S131500AbRBNUsE>;
-	Wed, 14 Feb 2001 15:48:04 -0500
-Subject: Re: Video drivers and the kernel
-From: Brad Douglas <brad@neruo.com>
-To: Albert "D." Cahalan <acahalan@cs.uml.edu>
-Cc: Louis Garcia <louisg00@bellsouth.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <200102140609.f1E69Bc346946@saturn.cs.uml.edu>
-Content-Type: text/plain
-X-Mailer: Evolution 0.8 (Developer Preview)
-Date: 14 Feb 2001 12:46:21 -0800
-Mime-Version: 1.0
-Message-Id: <20010214204811Z131500-513+6393@vger.kernel.org>
+	id <S129136AbRBNUwH>; Wed, 14 Feb 2001 15:52:07 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57105 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129106AbRBNUvw>; Wed, 14 Feb 2001 15:51:52 -0500
+Subject: Re: MTU and 2.4.x kernel
+To: roger@kea.grace.cri.nz
+Date: Wed, 14 Feb 2001 20:51:45 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, roger@kea.grace.cri.nz
+In-Reply-To: <200102142039.PAA07913@whio.grace.cri.nz> from "roger@maths.grace.cri.nz" at Feb 14, 2001 03:39:09 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14T8tv-00060Y-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Feb 2001 01:09:10 -0500, Albert D. Cahalan wrote:
-> > I was wondering why video drivers are not part of the kernel like every 
-> > other piece of hardware. I would think if video drivers were part of the 
-> > kernel and had a nice API for X or any other windowing system, would not 
-> > only improve performance but would allow competing windowing systems 
-> > without having to develop drivers for each. Has anyone thought or 
-> > rejected this idea.
-> 
-> Yes.
-> 
-> So then what, split X, with only the hardware access in the kernel?
-> This can actually reduce performance, by a small or great amount
-> depending on how it is done. Stability would improve a bit, assuming
-> the new drivers have Linux quality rather than XFree86 quality.
-> The gain is tiny, while the difficulty is large. At least we'd get
-> a safe and reliable way to print an oops though.
+> Kernel 2.4.x apparently disregards my ppp options MTU setting of 552
+> and sets mss=536 (=> MTU=576). Kernel 2.2.16 sets mss=512 correctly.
+> Is this a kernel bug or what?
 
-This isn't an x86 world.  For most other architectures, there *must* be
-a kernel driver.  Check out linux/drivers/video.  But what X is doing at
-this point is taking over access to the video card and using it's own
-driver.  So see, there needs to be no split of X.  I could also argue
-that if video was moved into the kernel in that manner, stability would
-decrease, but performance could be dramatically increased.
+The kernel is entitled to set an MSS that may cause fragmentation. So no
+it isnt a bug.
 
-> Both options cause political troubles. Currently the X server is
-> shared with OS/2 and other crummy systems. If the Linux kernel had
-> serious video drivers for PC hardware, then driver support for the
-> other operating systems would mostly go away. Linux would become
-> a better desktop OS, at the expense of various crummy systems.
+	536 + 40 = 576
 
-I find this to be a flawed argument.
+Im not sure why it made that choice but it is allowed to.
+(cc'd to netdev to see if they know)
 
-> Both options cause more work for Linus. This totally kills the idea.
-> See his past postings flaming the GGI/KGI developers.
+> Description: Typically Netscape/Lynx will connect to a remote site but
+> will not download (it will hang indefinitely). When the browser is in 
 
-I think GGI/KGI were overkill -- especially at the time.  But with the
-advent of embedded systems, you simply just can't say "use X" anymore.
-I believe that there needs to be basic 2D acceleration available in
-kernel space.  They already have to be there for non-BIOS architectures,
-so why not take advantage of them?
+Typically indicates your ISP has path mtu problems.
 
-> If you ever write this, go ahead and throw in the rest. I mean the
-> window manager, xterm, and a GDK system call even. My hardware can
-> spare the memory, but CPU cycles are way too scarce. Clean design
-> can go screw itself when it eats CPU time. Don't worry about being
-> accepted into the main kernel, because that won't happen no matter
-> what you do. Have fun hacking, and whip XFree86's ass.
+> the browser is locked for almost all remote sites, I _am_ able to
+> connect to (the web page of) the proxy server itself. And after I do
+> this the browser is *unlocked*, and I can connect/download from any web
+> address. However this only lasts for 5 minutes or so, after which time
 
-Check out GTKFb and Embedded QT.  Whip XFree86's ass?  But the author
-was talking about writing kernel drivers *for* Xfree86...  You are
-correct in the fact that this will never happen.  But as far as video in
-the kernel, you are wrong.
+That would be a cached pmtu for that connection. I suspect the connections
+via the proxy server are not sending back valid ICMP fragmentation required
+frames for path mtu discovery.  That would suggest the problem is the ISP.
+2.2 happened to cover this up for the case of a single host directly connected
+to a modem with a low mtu.
 
-Brad Douglas
-brad@neruo.com
-http://www.linux-fbdev.org
-
+Alan
 

@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264476AbTE1ERg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 00:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbTE1ERg
+	id S264495AbTE1EVz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 00:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264496AbTE1EVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 00:17:36 -0400
-Received: from bgp01116664bgs.westln01.mi.comcast.net ([68.42.104.18]:4868
-	"HELO blackmagik.dynup.net") by vger.kernel.org with SMTP
-	id S264476AbTE1ERf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 00:17:35 -0400
-Message-ID: <3ED43388.6010908@blackmagik.dynup.net>
-Date: Tue, 27 May 2003 23:56:56 -0400
-From: Eric Blade <eblade@blackmagik.dynup.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.70 and yahoo
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 May 2003 00:21:55 -0400
+Received: from iucha.net ([209.98.146.184]:45131 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S264495AbTE1EVy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 00:21:54 -0400
+Date: Tue, 27 May 2003 23:35:08 -0500
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] procfs bug exposed by cdev changes
+Message-ID: <20030528043508.GQ3359@iucha.net>
+Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+References: <20030528003105.GD27916@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Cbvl/UgeRTPlujdB"
+Content-Disposition: inline
+In-Reply-To: <20030528003105.GD27916@parcelfarce.linux.theplanet.co.uk>
+X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+User-Agent: Mutt/1.5.4i
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First, I understand that there are tons better mesaging programs that do 
-this protocol.. but...
 
-Just upgraded to 2.5.70, and yahoo's instant messenger for unix (at 
-messenger.yahoo.com ) is acting very strangely.
+--Cbvl/UgeRTPlujdB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Normally, a 'ps ax | grep ymessenger' will show one process for every 
-messenger window that's open at any given time.
+On Wed, May 28, 2003 at 01:31:05AM +0100, viro@parcelfarce.linux.theplanet.=
+co.uk wrote:
+> 	Patch follows.  It had fixed ALSA-triggered memory corruption here -
+> what happens in vanilla 2.5.70 is that clear_inode() is not called when
+> procfs character device inodes are freed.  That leaves a freed inode on
+> a cyclic list, with obvious unpleasantness following when we try to trave=
+rse
+> it (e.g. when unregistering a device).
+>=20
+> 	Please, apply.  Folks who'd seen oopsen/memory corruption after
+> ALSA access - please, check if that fixes all problems.
 
-however, with 2.5.70, when you close a window, it's process doesn't go 
-away.  It did not exhibit this in 2.5.69, and I'm not
-even anywhere near good enough to have the slightest idea where to begin 
-looking at it, but i'd figure i'd let someone know.
+It works fine. The ALSA loads, plays and unloads without a problem.
 
-On the bright side, it seems that this patch might have fixed the 
-problems with Mozilla and Evolution locking up with certain
-window managers, whenever you'd press a keyboard button in their windows.
+Thank you,
+florin
 
+--=20
 
--- 
-----BEGIN GEEK CODE BLOCK----
-Version: 3.1
-GB/CS/MC/MU/O @d+ s:- a- C++++ UL++++  !P  L+++ !E W+++ !N !o K? w--- @O++ !M !V PS+ PE- Y PGP- @t 5? X R tv-- b- DI++ D++ G e* h* r  y+ 
-----END GEEK CODE BLOCK----
+"NT is to UNIX what a doughnut is to a particle accelerator."
 
+--Cbvl/UgeRTPlujdB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQE+1Dx8NLPgdTuQ3+QRAvNiAJ4srN5QEkdOOFyEM+W4s878hkIv4QCfXD+T
+2rEVti16WtiC82rQK9adMgo=
+=bxjL
+-----END PGP SIGNATURE-----
 
+--Cbvl/UgeRTPlujdB--

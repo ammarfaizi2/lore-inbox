@@ -1,369 +1,376 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262664AbSJWCBy>; Tue, 22 Oct 2002 22:01:54 -0400
+	id <S262631AbSJWCKc>; Tue, 22 Oct 2002 22:10:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262631AbSJWCBy>; Tue, 22 Oct 2002 22:01:54 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:55943 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S262664AbSJWCBl>;
-	Tue, 22 Oct 2002 22:01:41 -0400
-Date: Tue, 22 Oct 2002 21:07:13 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: linux-kernel@vger.kernel.org
-cc: "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: 2.5 Problem Report Status
-Message-ID: <Pine.LNX.4.44.0210222038380.8594-100000@dad.molina>
+	id <S262712AbSJWCKc>; Tue, 22 Oct 2002 22:10:32 -0400
+Received: from packet.digeo.com ([12.110.80.53]:60881 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262631AbSJWCK1>;
+	Tue, 22 Oct 2002 22:10:27 -0400
+Message-ID: <3DB6067E.C95174FC@digeo.com>
+Date: Tue, 22 Oct 2002 19:16:30 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: 2.5.44-mm3
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Oct 2002 02:16:30.0391 (UTC) FILETIME=[331B3C70:01C27A3A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following is the latest version of my status report web page.  It can be 
-found at:
-
-http://members.cox.net/tmolina/kernprobs/status.html
-
-I've seen a lot of positive feedback for Martin's proposal to create a 
-bugzilla for kernel bug reports so this is likely to be my last formal 
-posting on this subject.  I intend to enter these as the "seed" bug 
-reports for his effort, so any comment on this is welcome.  
-
-                               2.5 Kernel Problem Reports as of 22 Oct
-   Status                 Discussion  Problem Title
-
-   open                   04 Oct 2002 AIC7XXX boot failure
-   1. http://marc.theaimsgroup.com/?l=linux-kernel&m=103356254615324&w=2
-
---------------------------------------------------------------------------
-   open                   05 Oct 2002 oops in lock_get_status
-   2. http://marc.theaimsgroup.com/?l=linux-kernel&m=103244657605155&w=2
-
---------------------------------------------------------------------------   
-   open                   21 Oct 2002 problems loading/unloading ide-scsi 
-                                      modules
-   3. http://marc.theaimsgroup.com/?l=linux-kernel&m=103446296810822&w=2
-
---------------------------------------------------------------------------
-   open                   08 Oct 2002 IDE problems on prePCI
-   4. http://marc.theaimsgroup.com/?l=linux-kernel&m=103277899317468&w=2
-
---------------------------------------------------------------------------
-   open                   09 Oct 2002 USB Mass Storage problems
-   5. http://marc.theaimsgroup.com/?l=linux-kernel&m=103404393623200&w=2
-
---------------------------------------------------------------------------
-   open                   18 Oct 2002 init_irq() function doing unsafe 
-                                      things inside ide_lock
-   6. http://marc.theaimsgroup.com/?l=linux-kernel&m=103316967724891&w=2
-
---------------------------------------------------------------------------
-   open                   04 Oct 2002 register_console() called in illegal 
-                                      context
-   7. http://marc.theaimsgroup.com/?l=linux-kernel&m=103282695403237&w=2
-
---------------------------------------------------------------------------
-   open                   09 Oct 2002 eata2x_detect() calls port_detect() 
-                                      under driver_lock
-   8. http://marc.theaimsgroup.com/?l=linux-kernel&m=103281310122580&w=2
-
---------------------------------------------------------------------------
-   open                   04 Oct 2002 sym_eh_handler does down(&ep->sem) 
-                                      and might sleep
-   9. http://marc.theaimsgroup.com/?l=linux-kernel&m=103372067026942&w=2
-
---------------------------------------------------------------------------
-   open                   07 Oct 2002 illegal sleeping function called 
-                                      from acpi_os_wait_semaphore()
-  10. http://marc.theaimsgroup.com/?l=linux-kernel&m=103404677824885&w=2
-
---------------------------------------------------------------------------
-   open                   09 Oct 2002 migration_thread atomicity error
-  11. http://marc.theaimsgroup.com/?l=linux-kernel&m=103408159014496&w=2
-
---------------------------------------------------------------------------
-   open                   08 Oct 2002 snd_via8233 atomicity error
-  12. http://marc.theaimsgroup.com/?l=linux-kernel&m=103410375210315&w=2
-
---------------------------------------------------------------------------
-   open                   19 Oct 2002 atomicity error in 
-                                      sound/pci/via82xx.c
-  13. http://marc.theaimsgroup.com/?l=linux-kernel&m=103459664021147&w=2
-
---------------------------------------------------------------------------
-   open                   11 Oct 2002 scheduling while atomic in 
-                                      autofs4_root_lookup
-  14. http://marc.theaimsgroup.com/?l=linux-kernel&m=103426998326969&w=2
-
---------------------------------------------------------------------------
-   open                   14 Oct 2002 atomicity error in 
-                                      drivers/net/ppp_async.c
-  15. http://marc.theaimsgroup.com/?l=linux-kernel&m=103456920802806&w=2
-
---------------------------------------------------------------------------
-   open                   14 Oct 2002 atomicity error in bond_enslave
-  16. http://marc.theaimsgroup.com/?l=linux-kernel&m=103462775624793&w=2
-
---------------------------------------------------------------------------
-   open                   17 Oct 2002 swsusp atomicity error
-  17. http://marc.theaimsgroup.com/?l=linux-kernel&m=103489821623783&w=2
-
---------------------------------------------------------------------------
-   possible fix available 19 Oct 2002 atomicity error in snd_pcm/emufx.c
-  18. http://marc.theaimsgroup.com/?l=linux-kernel&m=103502805324053&w=2
-
---------------------------------------------------------------------------
-   open                   03 Oct 2002 ACPI Mutex failure
-  19. http://marc.theaimsgroup.com/?l=linux-kernel&m=103369523011536&w=2
-
---------------------------------------------------------------------------
-   open                   16 Oct 2002 initrd breakage
-  20. http://marc.theaimsgroup.com/?l=linux-kernel&m=103364305822611&w=2
-
---------------------------------------------------------------------------
-   open                   05 Oct 2002 2.5.x and 8250 UART problems
-  21. http://marc.theaimsgroup.com/?l=linux-kernel&m=103383019409525&w=2
 
---------------------------------------------------------------------------
-   open                   19 Oct 2002 mouse/keyboard freeze in X
-  22. http://marc.theaimsgroup.com/?l=linux-kernel&m=103441624616220&w=2
+url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.44/2.5.44-mm3/
 
---------------------------------------------------------------------------
-   open                   07 Oct 2002 bug related to virtual consoles
-  23. http://marc.theaimsgroup.com/?l=linux-kernel&m=103403138113853&w=2
+. Lots of little fixes.
 
---------------------------------------------------------------------------
-   open                   07 Oct 2002 oops in kmem_cache_create
-  24. http://marc.theaimsgroup.com/?l=linux-kernel&m=103403423716317&w=2
-
---------------------------------------------------------------------------
-   open                   07 Oct 2002 USB Hub failure
-  25. http://marc.theaimsgroup.com/?l=linux-kernel&m=103402696809279&w=2
-
---------------------------------------------------------------------------
-   open                   08 Oct 2002 boot problem on 440GX
-  26. http://marc.theaimsgroup.com/?l=linux-kernel&m=103399796506960&w=2
-
---------------------------------------------------------------------------
-   open                   08 Oct 2002 oops in run_timer_tasklet
-  27. http://marc.theaimsgroup.com/?l=linux-kernel&m=103393743102152&w=2
-
---------------------------------------------------------------------------
-   open                   08 Oct 2002 oops while running kjournald
-  28. http://marc.theaimsgroup.com/?l=linux-kernel&m=103408191314814&w=2
-
---------------------------------------------------------------------------
-   open                   09 Oct 2002 64GB highmem BUG()
-  29. http://marc.theaimsgroup.com/?l=linux-kernel&m=103399745406334&w=2
-
---------------------------------------------------------------------------
-   open                   09 Oct 2002 Attempt to release TCP socket errors
-  30. http://marc.theaimsgroup.com/?l=linux-kernel&m=103409524231641&w=2
-
---------------------------------------------------------------------------
-   closed                 09 Oct 2002 raid 0/1 problems in 2.5
-  31. http://marc.theaimsgroup.com/?l=linux-kernel&m=103414903003887&w=2
-
---------------------------------------------------------------------------
-   open                   18 Oct 2002 raid5 hangs system
-  32. http://marc.theaimsgroup.com/?l=linux-kernel&m=103495428502729&w=2
-
---------------------------------------------------------------------------
-   open                   06 Oct 2002 analog joystick oops
-  33. http://marc.theaimsgroup.com/?l=linux-kernel&m=103393598801189&w=2
-
---------------------------------------------------------------------------
-   open                   07 Oct 2002 DRI not working
-  34. http://marc.theaimsgroup.com/?l=linux-kernel&m=103403348315804&w=2
-
---------------------------------------------------------------------------
-   open                   10 Oct 2002 keyboard generates bogus key results
-  35. http://marc.theaimsgroup.com/?l=linux-kernel&m=103423327423623&w=2
-
---------------------------------------------------------------------------
-   closed                 19 Oct 2002 no mouse wheel
-  36. http://marc.theaimsgroup.com/?l=linux-kernel&m=103351918416613&w=2
-
---------------------------------------------------------------------------
-   open                   10 Oct 2002 PCMCIA trouble
-  37. http://marc.theaimsgroup.com/?l=linux-kernel&m=103420230730597&w=2
-
---------------------------------------------------------------------------
-   open                   13 Oct 2002 apm hangs instead of suspending
-  38. http://marc.theaimsgroup.com/?l=linux-kernel&m=103454656623320&w=2
-
---------------------------------------------------------------------------
-   open                   11 Oct 2002 tcp packets lost
-  39. http://marc.theaimsgroup.com/?l=linux-kernel&m=103429736523667&w=2
-
---------------------------------------------------------------------------
-   open                   11 Oct 2002 shutdown problems in 
-                                      driverfs_remove_file
-  40. http://marc.theaimsgroup.com/?l=linux-kernel&m=103443278524877&w=2
-
---------------------------------------------------------------------------
-   open                   11 Oct 2002 broke ARM zImage/Image
-  41. http://marc.theaimsgroup.com/?l=linux-kernel&m=103442271819464&w=2
-
---------------------------------------------------------------------------
-   open                   20 Oct 2002 loadlin boot failure
-  42. http://marc.theaimsgroup.com/?l=linux-kernel&m=103444415832048&w=2
-
---------------------------------------------------------------------------
-   open                   13 Oct 2002 dual pointing device problem on 
-                                      laptop
-  43. http://marc.theaimsgroup.com/?l=linux-kernel&m=103454188820088&w=2
-
---------------------------------------------------------------------------
-   open                   14 Oct 2002 fbcon oops
-  44. http://marc.theaimsgroup.com/?l=linux-kernel&m=103458863514865&w=2
-
---------------------------------------------------------------------------
-   open                   14 Oct 2002 ACPI/Suspend with an Acer Travelmate 
-                                      350
-  45. http://marc.theaimsgroup.com/?l=linux-kernel&m=103463029127750&w=2
-
---------------------------------------------------------------------------
-   open                   21 Oct 2002 nfsd oops in auth_domain function
-  46. http://marc.theaimsgroup.com/?l=linux-kernel&m=103462971527133&w=2
-
---------------------------------------------------------------------------
-   open                   15 Oct 2002 BUG in put_device during rmmod
-  47. http://marc.theaimsgroup.com/?l=linux-kernel&m=103470283114965&w=2
-
---------------------------------------------------------------------------
-   open                   15 Oct 2002 BUG in kmem_cache_alloc_one_tail on 
-                                          2.5.42
-  48. http://marc.theaimsgroup.com/?l=linux-kernel&m=103472220913410&w=2
-
---------------------------------------------------------------------------
-   open                   15 Oct 2002 oops stopping serial
-  49. http://marc.theaimsgroup.com/?l=linux-kernel&m=103470900729987&w=2
-
---------------------------------------------------------------------------
-   open                   15 Oct 2002 kernel hangs executing rpcinfo
-  50. http://marc.theaimsgroup.com/?l=linux-kernel&m=103462345019675&w=2
-
---------------------------------------------------------------------------
-   open                   17 Oct 2002 reboot kills Dell Latitude keyboard
-  51. http://marc.theaimsgroup.com/?l=linux-kernel&m=103484425027884&w=2
-
---------------------------------------------------------------------------
-   open                   19 Oct 2002 power down fails after 2.5.41
-  52. http://marc.theaimsgroup.com/?l=linux-kernel&m=103479527518536&w=2
-
---------------------------------------------------------------------------
-   open                   16 Oct 2002 ACPI/Sb16 IRQ conflict
-  53. http://marc.theaimsgroup.com/?l=linux-kernel&m=103480163226174&w=2
-
---------------------------------------------------------------------------
-   open                   17 Oct 2002 oops booting via ide controller
-  54. http://marc.theaimsgroup.com/?l=linux-kernel&m=103480082625264&w=2
-
---------------------------------------------------------------------------
-   open                   17 Oct 2002 IDE not powered down on shutdown
-  55. http://marc.theaimsgroup.com/?l=linux-kernel&m=103476420012508&w=2
-
---------------------------------------------------------------------------
-   closed                 20 Oct 2002 scsi/raid-related smp boot crash
-  56. http://marc.theaimsgroup.com/?l=linux-kernel&m=103485010600696&w=2
-
---------------------------------------------------------------------------
-   open                   17 Oct 2002 nfs-related oops
-  57. http://marc.theaimsgroup.com/?l=linux-kernel&m=103477312121275&w=2
-
---------------------------------------------------------------------------
-   open                   17 Oct 2002 neofb oops on shutdown
-  58. http://marc.theaimsgroup.com/?l=linux-kernel&m=103485950708944&w=2
-
---------------------------------------------------------------------------
-   open                   17 Oct 2002 oops inserting xircom_cb network 
-                                      card
-  59. http://marc.theaimsgroup.com/?l=linux-kernel&m=103474343128893&w=2
-
---------------------------------------------------------------------------
-   open                   20 Oct 2002 usb-related boot hang
-  60. http://marc.theaimsgroup.com/?l=linux-kernel&m=103463093028435&w=2
-
---------------------------------------------------------------------------
-   open                   18 Oct 2002 io-apic bug and spinlock deadlock
-  61. http://marc.theaimsgroup.com/?l=linux-kernel&m=103482589715521&w=2
-
---------------------------------------------------------------------------
-   open                   21 Oct 2002 buslogic scsi broke
-  62. http://marc.theaimsgroup.com/?l=linux-kernel&m=103496938421117&w=2
-
---------------------------------------------------------------------------
-   open                   18 Oct 2002 color problem with atyfb
-  63. http://marc.theaimsgroup.com/?l=linux-kernel&m=103424151129857&w=2
-
---------------------------------------------------------------------------
-   open                   18 Oct 2002 ipv4 /proc/net/route bug
-  64. http://marc.theaimsgroup.com/?l=linux-kernel&m=103497845730726&w=2
-
---------------------------------------------------------------------------
-   open                   18 Oct 2002 crash with shared page table
-  65. http://marc.theaimsgroup.com/?l=linux-kernel&m=103499186007896&w=2
-
---------------------------------------------------------------------------
-   open                   18 Oct 2002 qlogic 2x00 driver broke
-  66. http://marc.theaimsgroup.com/?l=linux-kernel&m=103470985631070&w=2
-
---------------------------------------------------------------------------
-   open                   19 Oct 2002 tcq causes filesystem corruption
-  67. http://marc.theaimsgroup.com/?l=linux-kernel&m=103498823305987&w=2
-
---------------------------------------------------------------------------
-   open                   19 Oct 2002 ncr adaptor doesn't see devices
-  68. http://marc.theaimsgroup.com/?l=linux-kernel&m=103506893016255&w=2
-
---------------------------------------------------------------------------
-   open                   21 Oct 2002 ide-cd module broke
-  69. http://marc.theaimsgroup.com/?l=linux-kernel&m=103508472223894&w=2
-
---------------------------------------------------------------------------
-   open                   21 Oct 2002 unable to eject zip disk
-  70. http://marc.theaimsgroup.com/?l=linux-kernel&m=103523397807029&w=2
-
---------------------------------------------------------------------------
-   open                   21 Oct 2002 isdn badly broken
-  71. http://marc.theaimsgroup.com/?l=linux-kernel&m=103513416515540&w=2
-
---------------------------------------------------------------------------
-   open                   21 Oct 2002 ide hangs on boot
-  72. http://marc.theaimsgroup.com/?l=linux-kernel&m=103515327029718&w=2
-
---------------------------------------------------------------------------
-   open                   21 Oct 2002 scsi hang on shutdown
-  73. http://marc.theaimsgroup.com/?l=linux-kernel&m=103504174230947&w=2
-
---------------------------------------------------------------------------
-   open                   21 Oct 2002 oops in ieee1394
-  74. http://marc.theaimsgroup.com/?l=linux-kernel&m=103519819428268&w=2
-
---------------------------------------------------------------------------
-   open                   21 Oct 2002 oops on boot in parport_pc module
-  75. http://marc.theaimsgroup.com/?l=linux-kernel&m=103524170815346&w=2
-
---------------------------------------------------------------------------
-   open                   21 Oct 2002 ZONE_NORMAL exhaustion (dcache slab)
-  76. http://marc.theaimsgroup.com/?l=linux-kernel&m=103523368106684&w=2
-
---------------------------------------------------------------------------
-   open                   22 Oct 2002 2.5.44 fs corruption
-  77. http://marc.theaimsgroup.com/?l=linux-kernel&m=103532467828806&w=2
-
---------------------------------------------------------------------------
-   open                   22 Oct 2002 CS4236B stopping working as of 
-                                      2.5.44
-  78. http://marc.theaimsgroup.com/?l=linux-kernel&m=103532492529636&w=2
-
---------------------------------------------------------------------------
-   open                   22 Oct 2002 2.5.44-mm1 numa-q panic on boot
-  79. http://marc.theaimsgroup.com/?l=linux-kernel&m=103533122402278&w=2
-
---------------------------------------------------------------------------
-   open                   22 Oct 2002 poisoned oops unmounting ramfs
-  80. http://marc.theaimsgroup.com/?l=linux-kernel&m=103530750609277&w=2
-
---------------------------------------------------------------------------
+. Dropped the patch which allocates each CPU's per-cpu memory separately.
+  That's over in experimental/ and has been reworked to use alloc_pages_node(),
+  if anyone's interested.
 
+. Badari has redone the patch which permits finer-than-fs-blocksize
+  direct IO.
+
+. Patch from Rusty permits NR_CPUS > sizeof(unsigned long)*8.
+
+. An enormous patch from Adam Richter against the loop driver.  It needs
+  work, but let's get that under test.
+
+. Added Ingo's put-page-offset-into-ptes-for-mmap patch.  That's ia32-only
+  at present so I've uploaded a 2.5.44-mm3-non-ia32.gz rollup as well,
+  which doesn't have that one.
+
+. Update to the patch management scripts is in
+  http://www.zip.com.au/~akpm/linux/patches/patch-scripts-0.2/
+  This includes a new command "pstatus" from Stephen Cameron which
+  provides a status summary of all your patches.
+
+  User testimonials include "neat", "it encourages you to make
+  fine-grained patches" and "I made 30 patches and almost all of
+  them were merged!".
+
+
+
+Since 2.5.44-mm2
+
++rcu-idle-fix.patch
+
+ RCU idle detection fix
+
++dio-fine-alignment.patch
+
+ Fine-alignment for direct IO
+
++shrink_slab-overflow.patch
+
+ Fix an arith overflow in the VM whcih probably can't happen
+
+-per-cpu-01-core.patch
+
+ Moved into experimental/
+
++larger-cpu-masks.patch
+
+ Support more CPUs
+
++adam-loop.patch
+
+ Loop driver rework
+
++decoded-wchan-output.patch
+
+ Create /proc/pid/wchan
+
++rcu-stats.patch
+
+ Display some rcu info in /proc/rcu
+
++generic-nonlinear-mappings-D0.patch
+
+ pgoff_t-in-pte_t.
+
+
+
+All 101 patches:
+
+
+rcu-idle-fix.patch
+  RCU idle detection fix
+
+ide-warnings.patch
+  Fix some IDE compile warnings
+
+dmi-warning.patch
+  fix a compile warning in dmi_scan.c
+
+scsi-reboot-fix.patch
+
+kgdb.patch
+
+misc.patch
+  misc fixes
+
+ramfs-aops.patch
+  Move ramfs address_space ops into libfs
+
+ramfs-prepare-write-speedup.patch
+  correctness fixes in libfs address_space ops
+
+pipe-fix.patch
+  use correct wakeups in fs/pipe.c
+
+dio-submit-fix.patch
+  rework direct-io for bio_add_page
+
+dio-fine-alignment.patch
+  Allow O_DIRECT to use 512-byte alignment
+
+file_ra_state_init.patch
+  Add a function to initialise file readahead state
+
+less-unlikelies.patch
+  reduced buslocked traffic in the page allocator
+
+running-iowait.patch
+  expose nr_running and nr_iowait task counts in /proc
+
+intel-user-copy-taka.patch
+  Faster copy_*_user for Intel ia32 CPUs
+
+shrink_slab-overflow.patch
+
+uaccess-uninline.patch
+
+ingo-oom-kill.patch
+  oom-killer changes for threaded apps
+
+unbloat-pid.patch
+  Reduce RAM use in kernel/pid.c
+
+per-cpu-ratelimits.patch
+
+for-each-cpu.patch
+  for_each_possible_cpu and for_each_online_cpu macros
+
+per-cpu-warning.patch
+  Fix per-cpu compile warnings on UP
+
+cpuup-notifiers.patch
+  extended cpu hotplug notifiers
+
+per-cpu-02-rcu.patch
+  cpu_possible rcu per_cpu data
+
+per-cpu-03-timer.patch
+  cpu_possible timer percpu data
+
+per-cpu-04-tasklet.patch
+  cpu_possible tasklet percpu data
+
+per-cpu-05-bh.patch
+  cpu_possible bh_accounting
+
+export-per-cpu-symbol.patch
+  create EXPORT_PER_CPU_SYMBOL
+
+per-cpu-page_state.patch
+
+add_timer_on.patch
+  add_timer_on(): function to start a timer on a particular CPU
+
+slab-split-01-rename.patch
+  slab cleanup: rename static functions
+
+slab-split-02-SMP.patch
+  slab: enable the cpu arrays on uniprocessor
+
+slab-split-03-tail.patch
+  slab: reduced internal fragmentation
+
+slab-split-04-drain.patch
+  slab: take the spinlock in the drain function.
+
+slab-split-05-name.patch
+  slab: remove spaces from /proc identifiers
+
+slab-split-06-mand-cpuarray.patch
+  slab: cleanups and speedups
+
+slab-split-07-inline.patch
+  slab: uninline poisoning checks
+
+slab-split-08-reap.patch
+  slab: reap timers
+
+slab-timer.patch
+
+slab-use-sem.patch
+
+slab-cleanup.patch
+  Slab cleanup
+
+slab-per-cpu.patch
+  Use CPU notifiers in slab
+
+ingo-mmap-speedup.patch
+  Ingo's mmap speedup
+
+task-unmapped-base-fix.patch
+  Don't take TASK_UNMAPPED_BAE at compile time
+
+mm-inlines.patch
+  remove some inlines from mm/*
+
+o_streaming.patch
+  O_STREAMING support
+
+larger-cpu-masks.patch
+  support NR_CPUS > sizeof(unsigned long) * 8
+
+shmem_getpage-unlock_page.patch
+  tmpfs 1/9 shmem_getpage unlock_page
+
+shmem_getpage-beyond-eof.patch
+  tmpfs 2/9 shmem_getpage beyond eof
+
+shmem_getpage-reading-holes.patch
+  tmpfs 3/9 shmem_getpage reading holes
+
+shmem-fs-cleanup.patch
+  tmpfs 4/9 shmem fs cleanup
+
+shmem_file_sendfile.patch
+  tmpfs 5/9 shmem_file_sendfile
+
+shmem_file_write-update.patch
+  tmpfs 6/9 shmem_file_write update
+
+shmem_getpage-flush_dcache.patch
+  tmpfs 7/9 shmem_getpage flush_dcache
+
+loopable-tmpfs.patch
+  tmpfs 8/9 loopable tmpfs
+
+event-II.patch
+  f_version/i_version cleanups
+
+event-ext2.patch
+  f_version/i_version cleanups: ext2
+
+mod_timer-race.patch
+
+blkdev-o_direct-short-read.patch
+  Fix O_DIRECT blockdev reads at end-of-device
+
+adam-loop.patch
+
+orlov-allocator.patch
+
+blk-queue-bounce.patch
+  inline blk_queue_bounce
+
+lseek-ext2_readdir.patch
+  remove lock_kernel() from ext2_readdir()
+
+decoded-wchan-output.patch
+  pre-decoded wchan output in /proc/pid/wchan
+
+write-deadlock.patch
+  Fix the generic_file_write-from-same-mmapped-page deadlock
+
+rd-cleanup.patch
+  Cleanup and fix the ramdisk driver (doesn't work right yet)
+
+hugetlb-prefault.patch
+  hugetlbpages: factor out some code for hugetlbfs
+
+hugetlb-header-split.patch
+  Move hugetlb declarations into their own header
+
+htlb-update.patch
+  hugetlb fixes and cleanups
+
+hugetlb-page-count.patch
+  fix hugetlb thinko
+
+hugetlbfs.patch
+  hugetlbfs file system
+
+hugetlb-shm.patch
+  hugetlbfs backing for SYSV shared memory
+
+truncate-bkl.patch
+  don't take the BKL in inode_setattr
+
+akpm-deadline.patch
+  deadline scheduler tweaks
+
+pipe-speedup.patch
+  user faster wakeups in the pipe code
+
+dcache_rcu.patch
+  Use RCU for dcache
+
+rcu-stats.patch
+  RCU statistics reporting
+
+mpopulate.patch
+  remap_file_pages
+
+shmem_populate.patch
+  tmpfs 9/9 Ingo's shmem_populate
+
+ext23-acl-xattr-01.patch
+
+ext23-acl-xattr-02.patch
+
+ext23-acl-xattr-03.patch
+
+ext23-acl-xattr-04.patch
+
+ext23-acl-xattr-05.patch
+
+ext23-acl-xattr-06.patch
+
+ext23-acl-xattr-07.patch
+
+ext23-acl-xattr-08.patch
+
+ext23-acl-xattr-09.patch
+
+ext23-acl-xattr-10.patch
+
+ext23-acl-xattr-11.patch
+
+ext2-mount-fix.patch
+
+acl-xattr-on.patch
+  turn on posix acls and extended attributes
+
+rmqueue_bulk.patch
+  bulk page allocator
+
+free_pages_bulk.patch
+  Bulk page freeing function
+
+hot_cold_pages.patch
+  Hot/Cold pages and zone->lock amortisation
+
+readahead-cold-pages.patch
+  Use cache-cold pages for pagecache reads.
+
+pagevec-hot-cold-hint.patch
+  hot/cold hints for truncate and page reclaim
+
+page-reservation.patch
+  Page reservation API
+
+wli-show_free_areas.patch
+  show_free_areas extensions
+
+shpte-ng.patch
+
+generic-nonlinear-mappings-D0.patch
+  generic nonlinear mappings

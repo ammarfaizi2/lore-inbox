@@ -1,114 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbTIOPgk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 11:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbTIOPgk
+	id S261464AbTIOPg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 11:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbTIOPg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 11:36:40 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:48879 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S261437AbTIOPgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 11:36:37 -0400
-Subject: RE: People, not GPL  [was: Re: Driver Model]
-From: Martin Schlemmer <azarah@gentoo.org>
-To: David Schwartz <davids@webmaster.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pascal Schmidt <der.eremit@email.de>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMEGJGIAA.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKMEGJGIAA.davids@webmaster.com>
-Content-Type: text/plain
-Message-Id: <1063639582.3320.28.camel@workshop.saharacpt.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 15 Sep 2003 17:26:23 +0200
+	Mon, 15 Sep 2003 11:36:58 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:35264 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S261464AbTIOPgz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 11:36:55 -0400
+Message-ID: <3F65DDC5.9090608@pacbell.net>
+Date: Mon, 15 Sep 2003 08:41:57 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: "M.S. Lucas" <mslucas@taos-it.nl>
+CC: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       apcupsd-devel@apcupsd.com
+Subject: Re: [linux-usb-devel] [USB] control queue full when using 2.6.0-test5
+ and apcupsd
+References: <006e01c37b98$6580a140$0301a8c0@bpo.nl>
+In-Reply-To: <006e01c37b98$6580a140$0301a8c0@bpo.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-09-14 at 00:30, David Schwartz wrote:
-
-This is starting to get one of those threads that really
-should have ended a _long_ time ago.
-
+M.S. Lucas wrote:
+> Hello,
 > 
-> > > 	If it has legal value, then it's an additional restriction.
+> I'm having problems with my APC UPS using an USB cable and the 2.6.0-test5
+> kernel
 > 
-> > If it has legal value in showing the work is derivative thats not an
-> > additional restriction.
+> I hope somebody can help me?
 > 
-> 	If the work would not have been restricted without it and is restricted
-> with it and you can't remove it, it's an additional restriction. If not,
-> what would an additional restriction be?
-> 
+> ...
 
-Read further on - it in itself is not a legal issue as such.
-
-> > Its merely showing the intent of the author.
-> 
-> 	The intent of the author has no bearing on whether or not a work is
-> derived.
-> 
-
-If you read the ending part of Alan's message, you will see where
-this fits into.  Removing it, once again do not have any real
-legal value while still within GPL 'usage boundaries'.
-
-If the party that is accused of breaching GPL however did also
-remove the GPL_ONLY symbols, it does once again have no legal
-implication, except maybe enforcing a case of 'look, his intent
-was from day one to breach GPL'.  It is however not binding
-legally, and its worth will depend on the country, legal system
-and so on.
-
-> > If
-> > someone creates a work and its found to be derivative and they didnt
-> > make it GPL compatible they get sued, thats also not an additional
-> > restriction its what the GPL says anyway.
-> 
-> 	Show me where the GPL says you have to GPL derived works that you don't
-> distribute. That restriction is found nowhere in the GPL and if you
-> attempted to impose such a restriction, it would be an additional one.
-> 
-
-I do not see why point you want to make.  If you do _NOT_ distribute
-modified versions of the kernel, or works based on it, wtf worry ?
-If you however do (hello, driver derived from kernel source/examples,
-etc), you are bound by GPL (section 2a) to also distribute it under
-GPL, and thus also the sources, which is exactly what manufactures
-doing binary only drivers do not do.
-
-> > That is the whole point of EXPORT_SYMBOL_GPL, it doesn't enforce
-> > anything and Linus was absolutely specific it should not do the
-> > enforcing. Its a hint and a support filter.
-> 
-> 	If it doesn't enforce anything and isn't a license restriction, then it's
-> perfectly legal and kosher to remove it.
-> 
-
-Yes, didn't Alan just say it does not enforce anything?
-
-What it does though do, what the whole idea behind it is, is if
-party A, say do a binary driver, and they changed EXPORT_SYMBOL_GPL
-to EXPORT_SYMBOL, then the kernel devs will _not_ support party A,
-as Alan said with 'Its a hint and a support filter.'.  Sure, you
-are free to remove it, but if you do, do not expect any support.
-
-The company I work for is a supplier of PC components.  We have
-the same type of support 'safety system' build in - we do not have
-the infrastructure to support the public masses, thus we sell at
-low prices to vendors that have a much higher markup, and good
-support.  If then somebody come to us, that is not a dealer, or
-do not have an Invoice, sorry sir, go to who you bought it from.
-Its basically the same thing if you think about it.
-
-Can we now stop this, or could you continue this in private if
-you still choose not to understand?
+So it looks like it enumerated OK, but then the HID code misbehaved.
 
 
-Thanks,
+> root@orion:/etc/apcupsd $ /etc/init.d/apcupsd-devel start
+> Starting APC UPS power management: apcupsd-devel.
+> This is in my logfiles
+> Sep 15 16:00:06 orion apcupsd[21908]: apcupsd 3.10.6 (05 August 2003) debian
+> startup succeeded
+> Sep 15 16:00:07 orion kernel: drivers/usb/input/hid-core.c: control queue
+> full
+> Sep 15 16:00:38 orion last message repeated 148089 times
+> Sep 15 16:00:53 orion last message repeated 84977 times
+> Sep 15 16:00:53 orion kernel: drivers/usb/input/hid-core.c: control queue
+> full
+> Sep 15 16:00:53 orion last message repeated 3163 times
+> ...etc
 
--- 
-Martin Schlemmer
+Actually the HID code isn't doing control queueing very intelligently.
+
+As of 2.6, it no longer needs to avoid passing multiple control requests
+to the same device ... the HCDs now queue them like any other kind of
+transfer(*).  So the "good" fix there would be to the HID code, getting
+rid of a fixed size queue.  Or, you could make a "dirty" fix and just
+increase the queue size again ... it's already huge (so that it'll
+handle some MGE UPSes), make it even more so.
+
+- Dave
+
+(*) However there's still a patch pending to fix a bug in the UHCI driver,
+     where it inappropriately patches up data toggles in control transfers
+     in certain cases with queue length greater than one URB.  You're using
+     OHCI (or EHCI), and should have no problem with 2.6.0-test5 kernels.
+
+
 
 

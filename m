@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132044AbRCYPtT>; Sun, 25 Mar 2001 10:49:19 -0500
+	id <S132046AbRCYPt7>; Sun, 25 Mar 2001 10:49:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132045AbRCYPtK>; Sun, 25 Mar 2001 10:49:10 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:22400 "EHLO
+	id <S132045AbRCYPtk>; Sun, 25 Mar 2001 10:49:40 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:23936 "EHLO
 	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S132044AbRCYPs7>; Sun, 25 Mar 2001 10:48:59 -0500
-Message-Id: <l03130320b6e3b6e3feea@[192.168.239.101]>
-In-Reply-To: <Pine.LNX.4.30.0103251549100.13864-100000@fs131-224.f-secure.com>
-In-Reply-To: <l03130315b6e242006a4b@[192.168.239.101]>
+	id <S132046AbRCYPtT>; Sun, 25 Mar 2001 10:49:19 -0500
+Message-Id: <l03130321b6e3c0533688@[192.168.239.101]>
+In-Reply-To: <Pine.LNX.4.21.0103251156450.1863-100000@imladris.rielhome.conectiva>
+In-Reply-To: <3ABDF8A6.7580BD7D@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Date: Sun, 25 Mar 2001 16:47:59 +0100
-To: Szabolcs Szakacsits <szaka@f-secure.com>
+Date: Sun, 25 Mar 2001 16:44:57 +0100
+To: Rik van Riel <riel@conectiva.com.br>,
+        Martin Dalecki <dalecki@evision-ventures.com>
 From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] OOM handling
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "James A. Sutherland" <jas88@cam.ac.uk>,
+        Guest section DW <dwguest@win.tue.nl>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >start your app, wait for malloc to fail, hit enter for the other app and
->> >watch you app to be OOM killed ;)
->>
->> That would only happen if memory_overcommit was turned on, in which case my
->> modification would have zero effect anyway (the overcommit test happens
->> before my code).
->
->Thanks for listening and trying out the above trivial code instead of
->wrong theoretical arguments ;)
->
->So again, Linux *always* overcommit memory, the
->/proc/sys/vm/overcommit_memory controls total overcommit or
->quasi-overcommit [ehen you make your check in vm_enough() the memory is
->already overcommitted].
+>- the AGE_FACTOR calculation will overflow after the system has
+>  an uptime of just _3_ days
 
-OK, looks like I got mixed up between *reservation* (malloc) and
-*allocation* (access), and we're checking allocated memory when we should
-really be checking reserved.  Be patient - I haven't done much of this type
-of thing...  but your argument turns out to be correct, and I eventually
-figured it out for myself.  I certainly agree that the default should be to
-assume that all reserved memory will be used.  Maybe even do little nasty
-things like printk(KERN_WARN "root is overcommitting memory!\n"); in
-appropriate places, to discourage overcommitting.
+Tsk tsk tsk...
 
->The solution is something like,
->add optional non-overcommit support,
->	http://lwn.net/2000/0406/a/no-overcommit.html
+>Now if you can make something which preserves the heuristics which
+>serve us so well on desktop boxes and add something that makes it
+>also work on your Oracle servers, then I'd be interested.
 
-This sounds like a good solution.  Saw the size of the patch, it's big and
-touches lots of bits of VM code, but it looks as though parts of my ideas
-will also fit in there and be helpful.
+What do people think of my "adjustments" to the existing algorithm?  Mostly
+it gives extra longevity to low-UID and long-running processes, which to my
+mind makes sense for both server and desktop boxen.
 
-Hmm... so we get an adjusted or replaced OOM-kill-selection algorithm, my
-out_of_memory() fix and runaway process clamp, and this big(ish)
-memory-accounting patch.  Sounds like a good combination to me, fixing all
-the problems I've heard about recently.
+Taking for example an 80Mb process under my adjustments, it is reduced to
+under the badness of a new shell process after less than a week's uptime
+(compared to several months), especially if it is run as low-UID.  Small,
+short-lived interactive processes still don't get *too* adversely affected,
+but a memory hog with only a few hours' uptime will still get killed with
+high probability (pretty much what we want).
 
-There are some unrelated performance problems I've encountered during my
-testing (eg. kswapd gets incredibly inefficient when swap usage grows
-beyond about 500Mb on my 256Mb physical machine, causing swap bandwidth to
-fall way below the HDs' capabilities), which I'm going to ignore for now.
-Probably whoever takes on the VM balancing problem can look into that, as
-it's probably related to that rather than this...
+I didn't quite understand Martin's comments about "not normalised" -
+presumably this is some mathematical argument, but what does this actually
+mean?
 
 --------------------------------------------------------------
 from:     Jonathan "Chromatix" Morton

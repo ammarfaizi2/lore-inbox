@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288862AbSAFNRH>; Sun, 6 Jan 2002 08:17:07 -0500
+	id <S288859AbSAFNQ5>; Sun, 6 Jan 2002 08:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288867AbSAFNQ5>; Sun, 6 Jan 2002 08:16:57 -0500
-Received: from ns.suse.de ([213.95.15.193]:14340 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288862AbSAFNQr>;
-	Sun, 6 Jan 2002 08:16:47 -0500
-Date: Sun, 6 Jan 2002 14:16:46 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <Pine.LNX.4.43.0201060717560.20756-100000@filesrv1.baby-dragons.com>
-Message-ID: <Pine.LNX.4.33.0201061411150.3859-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288867AbSAFNQr>; Sun, 6 Jan 2002 08:16:47 -0500
+Received: from NILE.GNAT.COM ([205.232.38.5]:58029 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S288859AbSAFNQf>;
+	Sun, 6 Jan 2002 08:16:35 -0500
+From: dewar@gnat.com
+To: paulus@samba.org, velco@fadata.bg
+Subject: Re: [PATCH] C undefined behavior fix
+Cc: dewar@gnat.com, gcc@gcc.gnu.org, linux-kernel@vger.kernel.org,
+        trini@kernel.crashing.org
+Message-Id: <20020106131635.1177AF2FF5@nile.gnat.com>
+Date: Sun,  6 Jan 2002 08:16:35 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jan 2002, Mr. James W. Laferriere wrote:
+<<Number of people suggested using assembly for this, why you keep
+ignoring it and insist instead on changing the compiler, changing the
+C standard, switching to another compiler and similar unproductive
+ideas put forward solely for the sake of argument ?
+>>
 
-> > AFAIAC, the /proc/ide/ stuff should never have happened.
-> > It's proven that every bit of it can be done in userspace.
-> 	Then lets get rid of /proc/scsi , How about /proc/sys ...
-> 	What is the differance here ?  Maybe I am missing something ?
+Maybe people will jump on me for saying this, but one objection I have to
+using assembly is that the assembly language feature on gcc seems
 
-And what would you replace /proc/scsi/ with ?
+a) awfully complicated, requiring more detailed knowledge of how the compiler
+works than most programmers have.
 
-Neither of the two you mention have viable alternatives. (yet)
+b) certainly more complicated than comparable features in other compilers,
+e.g. Borland C.
 
-The only time I'd consider sysctl(2) over poking /proc/sys entries
-would possibly be on an embedded system with no /proc/sys. And even then,
-I'd rather try and justify having /proc. ISTR viro proposing to split
-proc/sys out to sysctlfs at some point, which would solve this dilemma
-nicely.
+c) not that well documented
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+We find in the Ada world (where we have duplicated the C assembly language
+feature more or less 100% exactly), that our customers almost always have to
+ask us for help in getting asm inserts correct.
 
+The GNU-C feature here is very powerful, but really not very easy to use!
+
+I also find that introducing asm for this purpose is unnecessarily non-portable.
+Yes in some cases, we are talking about very target specific code, but in other
+cases the code is not so target specific, and it is desirable to stay within
+C if possible.

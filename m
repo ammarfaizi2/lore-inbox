@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318719AbSICHUX>; Tue, 3 Sep 2002 03:20:23 -0400
+	id <S318721AbSICHax>; Tue, 3 Sep 2002 03:30:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318720AbSICHUX>; Tue, 3 Sep 2002 03:20:23 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:50307 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318719AbSICHUW>;
-	Tue, 3 Sep 2002 03:20:22 -0400
-Date: Tue, 3 Sep 2002 12:50:17 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Enable kernel profiling with stepping of 1
-Message-ID: <20020903125017.F21589@in.ibm.com>
-References: <20020902134718.A21466@in.ibm.com> <Pine.LNX.4.33.0209022031240.912-100000@coffee.psychology.mcmaster.ca>
+	id <S318722AbSICHax>; Tue, 3 Sep 2002 03:30:53 -0400
+Received: from codepoet.org ([166.70.99.138]:6609 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S318721AbSICHax>;
+	Tue, 3 Sep 2002 03:30:53 -0400
+Date: Tue, 3 Sep 2002 01:35:25 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de, andre@linux-ide.org
+Subject: Re: Linux 2.4.18: short dd read from IDE cdrom
+Message-ID: <20020903073525.GA13386@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jonathan Woithe <jwoithe@physics.adelaide.edu.au>,
+	linux-kernel@vger.kernel.org, axboe@suse.de, andre@linux-ide.org
+References: <200209020527.g825RHd07114@sprite.physics.adelaide.edu.au> <200209030719.g837JCJ24173@sprite.physics.adelaide.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0209022031240.912-100000@coffee.psychology.mcmaster.ca>; from hahn@physics.mcmaster.ca on Mon, Sep 02, 2002 at 08:38:22PM -0400
+In-Reply-To: <200209030719.g837JCJ24173@sprite.physics.adelaide.edu.au>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 02, 2002 at 08:38:22PM -0400, Mark Hahn wrote:
-> > and the profiling buffer is half the size of kernel text; 2 insns hash on to
+On Tue Sep 03, 2002 at 04:49:12PM +0930, Jonathan Woithe wrote:
+> Hi all
 > 
-> s/insns/bytes of code/
-
-Yep.. I was speaking in terms of the smallest possible size for a insn.
-
+> Yesterday I reported a problem to lkml I observed with `dd' and ide cds:
+> > For a number of years now I have duplicated cds using
+> >   dd if=/dev/cdrom of=foo.iso
+> >   cdrecord ... foo.iso
+> > :
+> > Today I tried the same trick under 2.4.18 and struck a problem: the kernel
+> > would not read the complete CD image. ...
 > 
-> > Profiling with step=1 will help us do insn level profiling with better
-> > granularity
-> 
-> I guess this means you want to do insn- or line-wise profiling, rather 
-> than the original point of this feature (function-wise).  
+> After further testing, it seems that turning off dma using "hdparm -d 0
+> /dev/hdc" allows things to work as expected - the full disk can be read and
+> the resulting image is intact.  It appears therefore that the problem may
 
-Exactly. 
+Interesting.  When DMA is enabled does running 
+    blockdev --setra 0 /dev/cdrom
+make any difference?
 
-Thanks,
-Kiran
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

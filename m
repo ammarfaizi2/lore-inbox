@@ -1,88 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265756AbUAPTua (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 14:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUAPTua
+	id S265740AbUAPTj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 14:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265744AbUAPTj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 14:50:30 -0500
-Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:51087 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265756AbUAPTtm
+	Fri, 16 Jan 2004 14:39:56 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:61906 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S265740AbUAPTjv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 14:49:42 -0500
-Subject: Re: [PATCH] add sysfs class support for vc devices [10/10]
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       linux-hotplug-devel@lists.sourceforge.net
-In-Reply-To: <20040116111738.74636496.akpm@osdl.org>
-References: <20040115204048.GA22199@kroah.com>
-	 <20040115204111.GB22199@kroah.com> <20040115204125.GC22199@kroah.com>
-	 <20040115204138.GD22199@kroah.com> <20040115204153.GE22199@kroah.com>
-	 <20040115204209.GF22199@kroah.com> <20040115204241.GG22199@kroah.com>
-	 <20040115204259.GH22199@kroah.com> <20040115204311.GI22199@kroah.com>
-	 <20040115204329.GJ22199@kroah.com> <20040115204356.GK22199@kroah.com>
-	 <20040115201358.75ffc660.akpm@osdl.org>
-	 <1074279897.23742.754.camel@nosferatu.lan>
-	 <20040116111738.74636496.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qYZGaeuHUKtl3awj3Sw4"
-Message-Id: <1074282773.23742.756.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 16 Jan 2004 21:52:53 +0200
+	Fri, 16 Jan 2004 14:39:51 -0500
+Date: Sat, 17 Jan 2004 08:41:13 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: [PREVIEW] Announce: Software Suspend Core Patch 2.0 rc4.
+To: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1074282072.5328.52.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-6+nigrb48rcTSWQ8+RjB";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-qYZGaeuHUKtl3awj3Sw4
+--=-6+nigrb48rcTSWQ8+RjB
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2004-01-16 at 21:17, Andrew Morton wrote:
-> Martin Schlemmer <azarah@nosferatu.za.org> wrote:
-> >
-> > On Fri, 2004-01-16 at 06:13, Andrew Morton wrote:
-> > > Greg KH <greg@kroah.com> wrote:
-> > > >
-> > > > This patch add sysfs support for vc char devices.
-> > > >=20
-> > > >  Note, Andrew Morton has reported some very strange oopses with thi=
-s
-> > > >  patch, that I can not reproduce at all.  If anyone else also has
-> > > >  problems with this patch, please let me know.
-> > >=20
-> > > It seems to have magically healed itself :(
-> > >=20
-> > > Several people were hitting it.  We shall see.
-> >=20
-> > Might it be due to the vt-locking-fixes patch?
-> >=20
->=20
-> No, I was able to reproduce the oops with just two of Greg's patches on
-> bare 2.6.1-rcX.
->=20
-> It was some refcounting problem in the tty layer.  100% deterministic, no=
-t
-> a race.
+Hi all.
 
-No, I meant that fixed it.  The locking patch was added _after_ you
-removed the vc patch ...
+Release candidate 4 is ready for you to test and now being uploaded to
+Sourceforge. It should be used with the following updated version
+specific patches, which are also now available:
 
+- 2.4.21 revision 1
+- 2.4.22 revision 1
+- 2.4.23 revision 5.
+- 2.4.24
+- 2.6.1  revision 1
+
+Changes since rc3A:
+
+- Fixed issues with preemption resulting in 'bad: scheduling while
+atomic' messages in 2.6.
+- Lots of cleanups and new documentation in the code.
+- Fixed broken automatic swapon/off support. Now also used in debug_info
+proc entry.
+- Preliminary SMP support for 2.4. 2.6 support is coming.
+- LZF compression (thanks to Marc Lehmann) and readahead support.
+Suspend and resume in half the time!
+- Fixed long standing oops when aborting during writing the image
+header. Thanks to Bernard Blackham.  (I would have done it eventually!)
+- Serial port power management support (Thanks Michael Frank). MTRR support=
+ converted to PM
+support.
+- Many other small fixes and improvements.
+
+Further documentation is to be added and one minor quirk addressed, but cod=
+ewise, I'm wondering if
+this might be 2.0 by another name.
+
+Nigel
 --=20
-Martin Schlemmer
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
 
---=-qYZGaeuHUKtl3awj3Sw4
+--=-6+nigrb48rcTSWQ8+RjB
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQBACEEVqburzKaJYLYRAkP2AJ0a1hNYrG36vE4KA599X43T09hiogCfZq3Z
-fnmeuZCdMNhtmg0vldPHqtU=
-=9MH3
+iD8DBQBACD5YVfpQGcyBBWkRAjXlAKChlWOeozBFEw0ppvcdU6oVOpcmXwCgnksi
+yaO53+V+Jy02Abjtqes8G3E=
+=vTHO
 -----END PGP SIGNATURE-----
 
---=-qYZGaeuHUKtl3awj3Sw4--
+--=-6+nigrb48rcTSWQ8+RjB--
 

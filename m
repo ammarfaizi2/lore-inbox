@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbVCSEDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVCSEGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbVCSEDI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 23:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbVCSEDI
+	id S262403AbVCSEGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 23:06:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbVCSEGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 23:03:08 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:20356 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262400AbVCSEDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 23:03:06 -0500
-Subject: Latency tests with 2.6.12-rc1
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       "Jack O'Quin" <joq@io.com>
-Content-Type: text/plain
-Date: Fri, 18 Mar 2005 23:03:04 -0500
-Message-Id: <1111204984.12740.22.camel@mindpipe>
+	Fri, 18 Mar 2005 23:06:16 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:58316
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262401AbVCSEGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 23:06:10 -0500
+Date: Fri, 18 Mar 2005 20:05:55 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: "Seth, Rohit" <rohit.seth@intel.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       davidm@hpl.hp.com
+Subject: Re: [patch] arch hook for notifying changes in PTE protections bits
+Message-Id: <20050318200555.2d1980f6.davem@davemloft.net>
+In-Reply-To: <20050318162943.A3157@unix-os.sc.intel.com>
+References: <20050318162943.A3157@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did the same quick latency tests with 2.6.12-rc1 that I posted about
-for 2.6.11 a few weeks ago.
 
-2.6.12-rc1 is significantly better than 2.6.11.  Running JACK at 64
-frames (1.3 ms) works very well.  I was not able to produce xruns even
-with "dbench 64", which slows the system to a crawl.  With 2.6.11, I
-could easily produce xruns with much lighter loads.
+This is way overkill I think.
 
-It would appear that the latency issues related to the 4 level page
-tables merge have been resolved.
+Take a look at set_pte_at().  You get the "mm", the
+virtual address, the pte pointer, and the new pte value.
 
-Lee
+What else could you possibly need to track stuff like this
+and react appropriately? :-)
 
+It is even an argument for batched TLB processing on ia64.
+It simplifies a lot of cache flushing issues and you can
+control the flushing on a per-translation basis however
+you like.

@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268130AbUJJF3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268131AbUJJFbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268130AbUJJF3W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 01:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268132AbUJJF3W
+	id S268131AbUJJFbR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 01:31:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268132AbUJJFbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 01:29:22 -0400
-Received: from gizmo03ps.bigpond.com ([144.140.71.13]:40893 "HELO
-	gizmo03ps.bigpond.com") by vger.kernel.org with SMTP
-	id S268130AbUJJF3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 01:29:17 -0400
-Subject: /proc/[number] special entries
-From: Matthew Hindle <luminary@penguinmail.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1097386284.7715.3.camel@chiyo.azumanga>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 10 Oct 2004 15:31:24 +1000
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Oct 2004 01:31:16 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:45747 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S268131AbUJJFbA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 01:31:00 -0400
+Date: Sun, 10 Oct 2004 06:30:56 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Greg KH <greg@kroah.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [patch] drm core internal versioning..
+In-Reply-To: <20041010042958.GA28025@kroah.com>
+Message-ID: <Pine.LNX.4.58.0410100625220.12189@skynet>
+References: <Pine.LNX.4.58.0410100050160.6083@skynet>
+ <9e47339104100917527993026d@mail.gmail.com> <Pine.LNX.4.58.0410100328080.11219@skynet>
+ <20041010042958.GA28025@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was wondering if anybody could help me with a hint or two...
+>
+> Then why not just rely on the modversion code in the kernel tree to do
+> this?  As you say:
 
-I'm trying to add a sub-directory to each /proc/[number] directory
-(where [number] is a process id). I think that I need to get a
-proc_dir_entry* so that I can call:
+well that's what I hope to do, I'd just like to stop people doing the
+basic silly thing of insmodding a personality on a core built from a
+different tree...
 
-proc_mkdir("mysubdir", (struct proc_dir_entry *) parent);
+the main reason I can't rely on CONFIG_MODVERSIONS is in my Fedora install
+at least: CONFIG_MODVERSIONS is not set so it is of no use if it is
+optional...
 
-However, I can't work out how to get a reference to the proc_dir_entry*
-I need. I can find the other entries in the proc directory (such as bus,
-cpuinfo. misc, net...) by doing something like this:
+> Which is a pretty good reason not to try to implement your own
+> versioning system, right?
 
-struct proc_dir_entry * dp;
-dp = &proc_root;
-dp = dp->subdir;
-while (dp != NULL) {
-  printk("er... found: %s\n",dp->name);
-  dp = dp->next;
-}
+excactly that's why I just want to do the simple thing that I posted as
+opposed to Jons scheme that increases version numbers and things
+depending on builds... I don't think we need that, the problem we are
+trying to solve is that of someone taking an external DRM tree, building
+it and trying to only use the personality modules.. for us this is a
+support issue we deal with the mails.. someone like ATI is still free for
+example to do it, they can build their module against the current kernel
+core code and all will be okay... and if there is any issues they are paid
+to deal with it...
 
-However, the only entries that don't show up are the [number] entries.
-Assistance please!
+Dave.
 
-Please CC: any replies to <luminary@penguinmail.com>.
-
-Kind regards,
-Matt Hindle.
-
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

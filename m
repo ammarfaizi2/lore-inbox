@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136106AbRDVNPk>; Sun, 22 Apr 2001 09:15:40 -0400
+	id <S136110AbRDVNUT>; Sun, 22 Apr 2001 09:20:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136104AbRDVNPa>; Sun, 22 Apr 2001 09:15:30 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:52726 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S136102AbRDVNPP>;
-	Sun, 22 Apr 2001 09:15:15 -0400
-Date: Sun, 22 Apr 2001 09:15:11 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Races in affs_unlink(), affs_rmdir() and affs_rename()
-In-Reply-To: <3AE2D53C.827DB3CE@linux-m68k.org>
-Message-ID: <Pine.GSO.4.21.0104220907100.28681-100000@weyl.math.psu.edu>
+	id <S136108AbRDVNT7>; Sun, 22 Apr 2001 09:19:59 -0400
+Received: from mail.mesatop.com ([208.164.122.9]:42761 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S136107AbRDVNT5>;
+	Sun, 22 Apr 2001 09:19:57 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.3-ac12 fix renaming of CONFIG_SGI_PROM_CONSOLE 
+Date: Sun, 22 Apr 2001 07:18:55 -0600
+X-Mailer: KMail [version 1.2]
+Cc: alan@lxorguk.ukuu.org.uk, esr@thyrsus.com, elenstev@mesatop.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01042207185504.01451@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It looks like in 2.4.3-ac12  the option CONFIG_SGI_PROM_CONSOLE 
+was renamed to CONFIG_ARC_CONSOLE in the Configure.help file.
 
+However, in /usr/src/linux/arch/mips/config.in, we still have this line:
 
-On Sun, 22 Apr 2001, Roman Zippel wrote:
+      bool 'SGI PROM Console Support' CONFIG_SGI_PROM_CONSOLE
 
-> instead they can be taken when needed. Also unlink/rename of files/dirs
-> are no specially cases anymore (at least locking wise).
-> VFS would just operate on dentries and the fs works with the inodes.
-> With affs I tried to show how it could look on the fs side.
+and the new name CONFIG_ARC_CONSOLE does not appear in any Config.in
+files.  I do see that this option appears in the arch/mips/arc/Makefile , and it
+is used in arch/mips/arc/console.c.  And references to CONFIG_SGI_PROM_CONSOLE
+were deleted from arch/mips/arc/console.c.
 
-I will believe it when I see it. So far the code is racy and I don't
-see a way to fix the rmdir()/unlink() one without holding two locks at
-once.
+Here is a patch to complete the changeover.
 
-> > By the way, how would you detect the attempts to detach a subtree by
-> > rmdir()/rename() with the multiple links on directories? Again, forget about
-> > the VFS side of that business, the question is how to check that
-> > required change doesn't make on-disk data structures inconsistent.
-> 
-> Do you have an example? At the affs side there is no big difference
-> between link to files or dirs.
+Steven
 
-Loop creation:
+--- linux/arch/mips/config.in.ac12	Sun Apr 22 07:06:04 2001
++++ linux/arch/mips/config.in	Sun Apr 22 07:09:13 2001
+@@ -351,7 +351,7 @@
+       else
+ 	 define_bool CONFIG_FONT_8x16 y
+       fi
+-      bool 'SGI PROM Console Support' CONFIG_SGI_PROM_CONSOLE
++      bool 'SGI PROM Console Support' CONFIG_ARC_CONSOLE
+    fi
+    bool 'Unix98 PTY support' CONFIG_UNIX98_PTYS
+    if [ "$CONFIG_UNIX98_PTYS" = "y" ]; then
 
-/A/B and /C/D are links to the same directory. mv /A /C/D/A creates a loop.
-
-Once you have a loop you either have it forever (all directories invloved
-are non-empty) _or_ you have to check whether rmdir() is going to make
-graph disconnected and I'd like to see how you do it.
 

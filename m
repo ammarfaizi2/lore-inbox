@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265126AbSK1L1m>; Thu, 28 Nov 2002 06:27:42 -0500
+	id <S265211AbSK1LmM>; Thu, 28 Nov 2002 06:42:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbSK1L1m>; Thu, 28 Nov 2002 06:27:42 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:21009 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S265126AbSK1L1l>;
-	Thu, 28 Nov 2002 06:27:41 -0500
-Date: Thu, 28 Nov 2002 14:34:03 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: john slee <indigoid@higherplane.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ressurection of VISWS support in 2.5-ac
-Message-ID: <20021128113403.GA319@pazke.ipt>
-Mail-Followup-To: john slee <indigoid@higherplane.net>,
-	linux-kernel@vger.kernel.org
-References: <20021127133809.GD401@pazke.ipt> <1038410268.6390.42.camel@irongate.swansea.linux.org.uk> <20021127150058.GA322@pazke.ipt> <20021127232044.GC7915@higherplane.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
-Content-Disposition: inline
-In-Reply-To: <20021127232044.GC7915@higherplane.net>
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.2.17
+	id <S265414AbSK1LmM>; Thu, 28 Nov 2002 06:42:12 -0500
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:39431 "EHLO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
+	id <S265211AbSK1LmL> convert rfc822-to-8bit; Thu, 28 Nov 2002 06:42:11 -0500
+Date: Thu, 28 Nov 2002 12:49:29 +0100 (CET)
+From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PROBLEM] NFS trouble - file corruptions
+In-Reply-To: <Pine.LNX.4.44.0211280930530.1818-100000@grignard.amagerkollegiet.dk>
+Message-ID: <Pine.LNX.4.44.0211281244570.1818-100000@grignard.amagerkollegiet.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 28 Nov 2002, Rasmus Bøg Hansen wrote:
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On 27 Nov 2002, Trond Myklebust wrote:
+>
+> > >>>>> " " == Rasmus Bøg Hansen <moffe@amagerkollegiet.dk> writes:
+> >
+> >      > [1.] One line summary of the problem: Files created with
+> >      > bzip2/gzip directly to NFS file system gets corrupted
 
-On Thu, Nov 28, 2002 at 10:20:45AM +1100, john slee wrote:
-> > > > I'm proud to present updated VISWS support for 2.5.xx kernels.
-> > > Ok thats truely demented. Care to port ucLinux to the Amiga 500 next =
-8)
-> > 		  ^^^^^^^^
-> > 		  Hmm, why ? And what is Amiga 500 ?
->=20
-> oh come on :P if you can't find that with google you have some pretty
-> serious issues :-)
+> Both client and server now running 2.4.20-rc4, but unfortunately this
+> does not solve the problem:
 
-<OFFTOPIC>
+I just tried NFS over TCP and the problem occurs here too.
 
-Note .ru part of my email address, because of it i have no warm personal
-reminiscences about Amiga 500 and don't want to waste time googling it :))=
-=20
+If I have understood TCP correctly, this should make sure, that this is
+not a physical cabling error or data corruption in the NIC's...
 
-</OFFTOPIC>
+/Rasmus
 
---=20
-Andrey Panin            | Embedded systems software developer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+-- 
+-- [ Rasmus "Møffe" Bøg Hansen ] ---------------------------------------
+I think the sum of intelligence on the internet is constant.
+Only the number of users grows.
+                                 - Uwe Ohse in the monastery
+----------------------------------[ moffe at amagerkollegiet dot dk ] --
 
---PNTmBPCT7hxwcZjr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE95f8rBm4rlNOo3YgRAjMtAJ4xqnCxS5YH8zbqjNz9KjKVL9t5hwCeIvAo
-ozsmYbaRymmbEl9aC3xvVR4=
-=nSWR
------END PGP SIGNATURE-----
-
---PNTmBPCT7hxwcZjr--

@@ -1,63 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133057AbRDLHG7>; Thu, 12 Apr 2001 03:06:59 -0400
+	id <S133058AbRDLHJj>; Thu, 12 Apr 2001 03:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133058AbRDLHGz>; Thu, 12 Apr 2001 03:06:55 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:61345 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S133057AbRDLHG2>;
-	Thu, 12 Apr 2001 03:06:28 -0400
-Message-ID: <3AD553EF.9C585755@mandrakesoft.com>
-Date: Thu, 12 Apr 2001 03:06:23 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre2 i686)
-X-Accept-Language: en
+	id <S133059AbRDLHJa>; Thu, 12 Apr 2001 03:09:30 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:6917 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S133058AbRDLHJK>;
+	Thu, 12 Apr 2001 03:09:10 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104120709.f3C798Y426000@saturn.cs.uml.edu>
+Subject: Re: CML2 1.0.0 release announcement
+To: esr@snark.thyrsus.com (Eric S. Raymond)
+Date: Thu, 12 Apr 2001 03:09:08 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <200104101047.f3AAl0h07395@snark.thyrsus.com> from "Eric S. Raymond" at Apr 10, 2001 06:47:00 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PATCH 2.4.4-pre2: fix build...
-Content-Type: multipart/mixed;
- boundary="------------79BD2878E97D91C34A68538A"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------79BD2878E97D91C34A68538A
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+> * All three interfaces do progressive disclosure -- the user only sees
+>   questions he/she needs to answer (no more hundreds of greyed-out menu
+>   entries for irrelevant drivers!).
 
-Some uniprocessor configurations require the following patch in order to
-build 2.4.4-pre2 at all...
--- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
---------------79BD2878E97D91C34A68538A
-Content-Type: text/plain; charset=us-ascii;
- name="rwsem-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rwsem-fix.patch"
-
-Index: include/asm-i386/rwsem.h
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_4/include/asm-i386/rwsem.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 rwsem.h
---- include/asm-i386/rwsem.h	2001/04/12 03:17:29	1.1.1.1
-+++ include/asm-i386/rwsem.h	2001/04/12 06:49:36
-@@ -15,10 +15,10 @@
- 
- #ifdef __KERNEL__
- 
-+#include <linux/wait.h>
-+#include <linux/spinlock.h>
- #include <asm/system.h>
- #include <asm/atomic.h>
--#include <asm/spinlock.h>
--#include <linux/wait.h>
- 
- #if RWSEM_DEBUG
- #define rwsemdebug(FMT,...) do { if (sem->debug) printk(FMT,__VA_ARGS__); } while(0)
-
---------------79BD2878E97D91C34A68538A--
-
+Well, that sucks. The greyed-out menu entries were the only good
+thing about xconfig. Such entries provide a clue that you need
+to enable something else to get the feature you desire. Otherwise
+you might figure that the feature is missing, or that you have
+overlooked it.

@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262115AbSJJTcJ>; Thu, 10 Oct 2002 15:32:09 -0400
+	id <S262136AbSJJTfk>; Thu, 10 Oct 2002 15:35:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262118AbSJJTcJ>; Thu, 10 Oct 2002 15:32:09 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60425 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262115AbSJJTcH>; Thu, 10 Oct 2002 15:32:07 -0400
-Date: Thu, 10 Oct 2002 12:36:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Wright <chris@wirex.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.41 capget fix
-In-Reply-To: <20021009171500.B25393@figure1.int.wirex.com>
-Message-ID: <Pine.LNX.4.44.0210101235290.2750-100000@penguin.transmeta.com>
+	id <S262143AbSJJTfj>; Thu, 10 Oct 2002 15:35:39 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:51604 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S262136AbSJJTfj>;
+	Thu, 10 Oct 2002 15:35:39 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Arjan van de Ven <arjanv@fenrus.demon.nl>
+Date: Thu, 10 Oct 2002 21:41:00 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [Linux-streams] Re: [PATCH] Re: export of sys_call_tabl
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org,
+       LiS <linux-streams@gsyc.escet.urjc.es>, Dave Miller <davem@redhat.com>,
+       bidulock@openss7.org, dave@gcom.com
+X-mailer: Pegasus Mail v3.50
+Message-ID: <43B789B00E8@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 9 Oct 2002, Chris Wright wrote:
+On 10 Oct 02 at 21:33, Arjan van de Ven wrote:
+> On Thu, 2002-10-10 at 21:07, David Grothe wrote:
 > 
-> Daniel Jacobowitz noticed that sys_capget is not behaving properly when
-> called with pid of 0.  It is supposed to return current capabilities,
-> not those of swapper.  Also cleaned up some duplicate code from a merge
-> error.  Patch is tested, please apply.
+> > LiS is LGPL.  Would it work if the exported symbol was GPL only?
+> 
+> since LiS becomes GPL when you link it into the kernel with insmod,
+> that's not a problem ;)
 
-This is not correct. You drop the tasklist_lock before you actually set 
-read the capabilities, which means that by the time you read them, the 
-task you looked up may not be there any more.
+Only problem is that modutils do not know about LGPL, you must use
+"GPL with additional rights" in source (at least Debian's 2.4.19-3),
+and "GPL with additional rights" might be too ambiguous for authors.
 
-		Linus
-
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            

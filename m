@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUHIPqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUHIPp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266663AbUHIPqX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 11:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUHIPqX
+	id S266692AbUHIPp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 11:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266643AbUHIPm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 11:46:23 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37876 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266663AbUHIPnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 11:43:22 -0400
-Date: Mon, 9 Aug 2004 17:43:09 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [2.6 patch] fix megaraid.c with PROC_FS=n
-Message-ID: <20040809154308.GT26174@fs.tum.de>
+	Mon, 9 Aug 2004 11:42:56 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:57041 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S266303AbUHIPkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 11:40:31 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: David Woodhouse <dwmw2@infradead.org>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, James.Bottomley@steeleye.com,
+       eric@lammerts.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200408091421.i79ELiPS010580@burner.fokus.fraunhofer.de>
+References: <200408091421.i79ELiPS010580@burner.fokus.fraunhofer.de>
+Content-Type: text/plain
+Message-Id: <1092066015.4383.5344.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Mon, 09 Aug 2004 16:40:15 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following compile error with CONFIG_PROC_FS=n:
+On Mon, 2004-08-09 at 16:21 +0200, Joerg Schilling wrote:
+> Please try again after you had a look into the cdrtools sources.
 
-<--  snip  -->
+Jrg, you are making a fool of yourself.
 
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x524563): In function `megaraid_probe_one':
-: undefined reference to `mega_create_proc_entry'
-make: *** [.tmp_vmlinux1] Error 1
+> Cdrecord also needs privilleges to lock memory and to raise prioirity.
 
-<--  snip  -->
+Wrong. Cdrecord does not always _need_ to lock memory or to raise its
+priority.
 
+To do so may be useful when using older drives without buffer underrun
+protection, but is not strictly necessary on current hardware. 
 
-The following patch fixes this issue:
+> Jrg
 
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.8-rc3-mm2-full/drivers/scsi/megaraid.c.old	2004-08-09 17:35:54.000000000 +0200
-+++ linux-2.6.8-rc3-mm2-full/drivers/scsi/megaraid.c	2004-08-09 17:39:58.000000000 +0200
-@@ -4905,7 +4905,9 @@
- 
- 	pci_set_drvdata(pdev, host);
- 
-+#ifdef CONFIG_PROC_FS
- 	mega_create_proc_entry(hba_count, mega_proc_dir_entry);
-+#endif
- 
- 	error = scsi_add_host(host, &pdev->dev);
- 	if (error)
-
+-- 
+dwmw2
 

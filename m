@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279547AbRKXT6L>; Sat, 24 Nov 2001 14:58:11 -0500
+	id <S279822AbRKXUNC>; Sat, 24 Nov 2001 15:13:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279749AbRKXT6B>; Sat, 24 Nov 2001 14:58:01 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:33549 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S279547AbRKXT5p>; Sat, 24 Nov 2001 14:57:45 -0500
-Date: Sat, 24 Nov 2001 16:40:18 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux 2.4.16-pre1
-In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0111241639480.12066-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279846AbRKXUMw>; Sat, 24 Nov 2001 15:12:52 -0500
+Received: from adsl-64-164-47-8.dsl.scrm01.pacbell.net ([64.164.47.8]:56305
+	"EHLO satan.diablo.localnet") by vger.kernel.org with ESMTP
+	id <S279822AbRKXUMj>; Sat, 24 Nov 2001 15:12:39 -0500
+Date: Sat, 24 Nov 2001 12:12:31 -0800
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: kswapd and system response
+Message-ID: <20011124121231.A2062@dirac.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+From: Peter Jay Salzman <p@dirac.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi there,
 
-Its available at
-ftp.xx.kernel.org/pub/linux/kernel/people/marcelo/2.4/testing/
+every so often, my system (2.4.13 smp) gets really sloooooow.   a typical top
+looks something like:
 
-duh. :)
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+    5 root      14   0     0    0     0 RW   99.9  0.0   7:52 kswapd
+    7 root       9   0     0    0     0 SW    1.9  0.0   0:04 kupdated
+ 2053 root      13   0   984  984   776 R     0.7  0.4   0:01 top
+ 2063 p          9   0  2080 2080  1292 S     0.3  0.9   0:00 vim
 
-On Sat, 24 Nov 2001, Marcelo Tosatti wrote:
+kswapd is definitely not behaving correctly.
 
-> 
-> Hi,
-> 
-> So here it goes 2.4.16-pre1. Obviously the most important fix is the
-> iput() one, which probably fixes the filesystem corruption problem people
-> have been seeing.
-> 
-> Please, people who have been experiencing the fs corruption problems test
-> this and tell me its now working so I can release a final 2.4.16 ASAP.
-> 
-> 
-> - Correctly sync inodes in iput()			(Alexander Viro)
-> - Make pagecache readahead size tunable via /proc	(was in -ac tree)
-> - Fix PPC kernel compilation problems			(Paul Mackerras)
-> 
-> 
+the thing that brought it on this time was gtv (an mpeg viewer which uses
+sdl) bailed on me.   X "kind of" froze, so i killed it.  but that's only the
+cause this time around.  last time, it happened between the time of going to
+bed and waking up (ie- the system was pretty much idling from a user's pov).
 
+this has been happening with the 2.4.13 kernel every couple of days.
+
+i thought i'd post it to lkml to let someone know that there's a problem.
+i'm not subscribed to the list, so if there's anything else i can do to help
+diagnose what's going on next time it happens, please cc me.
+
+i feel like such a loser when i reboot.   ;)   i heard that 2.4.15 was just
+released, so i'll try upgrading to that and see if it helps any.
+
+
+pete
+
+-- 
+PGP Fingerprint: B9F1 6CF3 47C4 7CD8 D33E  70A9 A3B9 1945 67EA 951D
+PGP Public Key:  finger p@dirac.org

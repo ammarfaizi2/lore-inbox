@@ -1,72 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbTFFMyU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 08:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTFFMyU
+	id S261414AbTFFMzl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 08:55:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTFFMzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 08:54:20 -0400
-Received: from node-d-5886.a2000.nl ([62.195.88.134]:38018 "HELO
-	mail.alinoe.com") by vger.kernel.org with SMTP id S261365AbTFFMyS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 08:54:18 -0400
-Date: Fri, 6 Jun 2003 15:07:47 +0200
-From: Carlo Wood <carlo@alinoe.com>
-To: spse@secret.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Compile error blkmtd.c, v2.5.70 (and smaller)
-Message-ID: <20030606130747.GA9861@alinoe.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 6 Jun 2003 08:55:41 -0400
+Received: from gate.perex.cz ([194.212.165.105]:6663 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S261414AbTFFMzi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 08:55:38 -0400
+Date: Fri, 6 Jun 2003 15:09:07 +0200 (CEST)
+From: Jaroslav Kysela <perex@perex.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH/BK] ALSA update
+Message-ID: <Pine.LNX.4.44.0306061507290.1499-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel 2.5.70,
+Linus, please do a
 
-drivers/mtd/devices/blkmtd.c
+  bk pull http://linux-sound.bkbits.net/linux-sound
 
-still contains
+The GNU patch is available at:
 
-#include <linux/iobuf.h>
+  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2003-06-06.patch.gz
 
-reason enough not to compile...
-that file was removed from 2.5.
+Additional notes:
 
-I am suprised that this file was apparently never compiled by people :/
+  - includes the USB compilation fix as well
+
+The pull command will update the following files:
+
+ Documentation/sound/alsa/ALSA-Configuration.txt              |    7 
+ Documentation/sound/alsa/DocBook/writing-an-alsa-driver.tmpl |  116 
+ include/sound/ak4xxx-adda.h                                  |    9 
+ include/sound/core.h                                         |    2 
+ include/sound/version.h                                      |    2 
+ sound/core/Makefile                                          |    1 
+ sound/core/init.c                                            |   20 
+ sound/core/pcm_native.c                                      |    2 
+ sound/core/seq/Makefile                                      |    1 
+ sound/core/seq/instr/Makefile                                |    1 
+ sound/drivers/mpu401/Makefile                                |    1 
+ sound/drivers/opl3/Makefile                                  |    1 
+ sound/i2c/other/ak4xxx-adda.c                                |   28 
+ sound/pci/Kconfig                                            |    8 
+ sound/pci/Makefile                                           |    2 
+ sound/pci/ac97/ac97_codec.c                                  |   21 
+ sound/pci/azt3328.c                                          | 1621 +++++++++++
+ sound/pci/azt3328.h                                          |  165 +
+ sound/pci/ens1370.c                                          |    3 
+ sound/pci/fm801.c                                            |    1 
+ sound/pci/ice1712/Makefile                                   |    2 
+ sound/pci/ice1712/ak4xxx.c                                   |   11 
+ sound/pci/ice1712/aureon.c                                   |  507 +++
+ sound/pci/ice1712/aureon.h                                   |   47 
+ sound/pci/ice1712/ice1712.c                                  |    3 
+ sound/pci/ice1712/ice1724.c                                  |   43 
+ sound/pci/ice1712/revo.c                                     |   11 
+ sound/pci/via82xx.c                                          |    1 
+ sound/ppc/pmac.c                                             |   18 
+ sound/ppc/tumbler.c                                          |   66 
+ sound/usb/usbaudio.c                                         |   83 
+ 31 files changed, 2680 insertions(+), 124 deletions(-)
+
+through these ChangeSets:
+
+<perex@suse.cz> (03/06/06 1.1315)
+   ALSA update
+     - added AZT3328 driver
+     - added Terratec Aureon support to ICE1724 driver
+     - fixed possible PCI posting problems
+       - ENS1370, ENS1371, FM801, ICE1712, ICE1724, VIA82xx
+     - AC'97 code
+       - added new IDs
+       - fixed typo in S/PDIF code
+       - C-Media related fixes
+     - USB driver
+       - added nrpacks module option
+       - added hack for AudioTrak Optoplay
+       - removed OLD_USB stuff
 
 
+-----
+Jaroslav Kysela <perex@perex.cz>
 
-Commands used to backup/check my statement:
-
-/usr/src/linux-2.5.69>grep -Hn iobuf.h drivers/mtd/devices/blkmtd.c
-drivers/mtd/devices/blkmtd.c:52:#include <linux/iobuf.h>
-
-/usr/src/linux-2.5.69>find . -type f -exec grep -H 'iobuf\.h' {} \;
-./drivers/mtd/devices/blkmtd.c:#include <linux/iobuf.h>
-
-/usr/src/linux-2.5.69>find . -name 'iobuf.h'
-/usr/src/linux-2.5.69>find . -name '*iobuf*'
-/usr/src/linux-2.5.69>
-
-/usr/src/linux-2.5.69>locate iobuf.h | grep '2\.4'
-/usr/src/jolan/linux-2.4.20/include/linux/iobuf.h
-/usr/src/linux-2.4.20-tcore-akpm-preempt/include/linux/iobuf.h
-/usr/src/linux-2.4.18-tcore-perfctr/include/linux/iobuf.h
-/usr/src/linux-2.4.20-plain/include/linux/iobuf.h
-/usr/src/linux-2.4.20-skas3/include/linux/iobuf.h
-
-/usr/src/linux-2.5.69>tar tjf ../kernel/linux-2.5.69.tar.bz2 | grep 'iobuf\.h'
-/usr/src/linux-2.5.69>
-
-/usr/src/linux-2.5.69>tar tvjf ../kernel/linux-2.5.69.tar.bz2 | grep 'blkmtd\.c'
--rw-r--r-- torvalds/torvalds   36273 2003-05-05 01:52:59 linux-2.5.69/drivers/mtd/devices/blkmtd.c
-
-/usr/src/linux-2.5.69>ls -l drivers/mtd/devices/blkmtd.c
--rw-r--r--    1 carlo    carlo       36273 May  5 01:52 drivers/mtd/devices/blkmtd.c
-
-/usr/src/linux-2.5.69>bzcat ../kernel/patch-2.5.70.bz2 | grep blkmtd
-/usr/src/linux-2.5.69>
-
--- 
-Carlo Wood <carlo@alinoe.com>

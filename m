@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbTEMWEB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 18:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbTEMWEB
+	id S262497AbTEMWCG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 18:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbTEMWCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 18:04:01 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:19406 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S261339AbTEMWDy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 18:03:54 -0400
-Date: Tue, 13 May 2003 15:16:38 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200305132216.h4DMGcGo018057@napali.hpl.hp.com>
-To: jsimmons@infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: radeonfb.c fixes
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+	Tue, 13 May 2003 18:02:06 -0400
+Received: from tomts19-srv.bellnexxia.net ([209.226.175.73]:37351 "EHLO
+	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262497AbTEMWCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 18:02:05 -0400
+Subject: Re: 2.5.69-mm4
+From: Shane Shrybman <shrybman@sympatico.ca>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052864089.2419.203.camel@mars.goatskin.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 May 2003 18:14:49 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I thought we had fixed this already, but now that I tried radeonfb
-again, it didn't work (on ia64 linux).  Patch below fixes the problem
-(OK, I don't really know if the fbdev output looks correct, as I'm
-working remotely today, but at least it gets the machines booting
-again and in the past, this was the only problem).
+Hi,
 
-	--david
+Got this on -mm4. (64bit dev_t patch is backed out too)
 
-===== drivers/video/radeonfb.c 1.23 vs edited =====
---- 1.23/drivers/video/radeonfb.c	Sat May 10 02:48:52 2003
-+++ edited/drivers/video/radeonfb.c	Tue May 13 14:56:34 2003
-@@ -2840,8 +2840,7 @@
- 	}
- 
- 	/* map the regions */
--	rinfo->mmio_base = (u32) ioremap (rinfo->mmio_base_phys,
--				    		    RADEON_REGSIZE);
-+	rinfo->mmio_base = (unsigned long) ioremap (rinfo->mmio_base_phys, RADEON_REGSIZE);
- 	if (!rinfo->mmio_base) {
- 		printk ("radeonfb: cannot map MMIO\n");
- 		release_mem_region (rinfo->mmio_base_phys,
-@@ -2978,8 +2977,7 @@
- 		}
- 	}
- 
--	rinfo->fb_base = (u32) ioremap (rinfo->fb_base_phys,
--				  		  rinfo->video_ram);
-+	rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys, rinfo->video_ram);
- 	if (!rinfo->fb_base) {
- 		printk ("radeonfb: cannot map FB\n");
- 		iounmap ((void*)rinfo->mmio_base);
+drivers/media/video/tuner.c:963: unknown field `name' specified in
+initializer
+drivers/media/video/tuner.c:963: warning: missing braces around
+initializer
+drivers/media/video/tuner.c:963: warning: (near initialization for
+`client_template.dev')
+drivers/media/video/tuner.c:963: warning: initialization from
+incompatible pointer type
+drivers/media/video/tuner.c:964: unknown field `flags' specified in
+initializer
+drivers/media/video/tuner.c:964: warning: initialization makes pointer
+from integer without a cast
+drivers/media/video/tuner.c:965: unknown field `driver' specified in
+initializer
+drivers/media/video/tuner.c:965: warning: initialization from
+incompatible pointer type
+make[3]: *** [drivers/media/video/tuner.o] Error 1
+make[2]: *** [drivers/media/video] Error 2
+make[1]: *** [drivers/media] Error 2
+make: *** [drivers] Error 2
+
+Regards,
+
+Shane
+

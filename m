@@ -1,121 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbTLUJmg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 04:42:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbTLUJmg
+	id S262446AbTLUKOK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 05:14:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTLUKOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 04:42:36 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:4507 "EHLO
-	myware.akkadia.org") by vger.kernel.org with ESMTP id S262427AbTLUJmd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 04:42:33 -0500
-Message-ID: <3FE56A97.3060901@redhat.com>
-Date: Sun, 21 Dec 2003 01:40:39 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031216
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-CC: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] O_DIRECTORY|O_CREAT handling
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------030605030707080304030809"
+	Sun, 21 Dec 2003 05:14:10 -0500
+Received: from 217-124-47-72.dialup.nuria.telefonica-data.net ([217.124.47.72]:64129
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S262446AbTLUKOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 05:14:08 -0500
+Date: Sun, 21 Dec 2003 11:14:06 +0100
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: linux-kernel@vger.kernel.org
+Cc: Dale Amon <amon@vnl.com>
+Subject: Re: Is there still at 2TB limit?
+Message-ID: <20031221101406.GA3211@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Dale Amon <amon@vnl.com>
+References: <20031221010112.GX25351@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031221010112.GX25351@vnl.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030605030707080304030809
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+On Sunday, 21 December 2003, at 01:01:12 +0000,
+Dale Amon wrote:
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Is this standard in 2.6.0 kernels? What filesystem size
+> and file size limits are there currently?
+> 
+In 2.6.x kernels you are also limited by the 2 TiB limit on block device
+sizes, limit which you can extend compiling a 2.6.x kernel with "Large
+Block Device" support (menu "Device Drivers" -> "Block devices", at the end).
 
-The kernel currently handles open() calls with flags having at least
-O_DIRECTORY|O_CREAT set strangely (to say the least).  It creates a
-regular file, completely ignoring the O_DIRECTORY bit.  One can argue
-that open() does not perform any real checking on the parameters and
-that it is the programmers responsibility, but there is a twist.
+You will also need filesystems that support that big sizes and can hold
+big files on them, have a look at the following URL for more information:
+http://www.suse.de/~aj/linux_lfs.html
 
-Some programs create temporary directory which they afterward use as the
-working directory or changed root.  I.e., we have code like this:
+Greetings.
 
-  mkdir ("/some/dirRANDOM");
-  chdir ("/some/dirRANDOM");
-
-or
-
-  mkdir ("/some/dirRANDOM");
-  fd = open ("/some/dirRANDOM", O_DIRECTORY);
-  fchdir (fd);
-
-or
-
-  mkdir ("/some/dirRANDOM");
-  chroot ("/some/dirRANDOM");
-
-All these pieces of code have an obvious flaw, a race.  There is no
-atomic way to do what we want.
-
-Now combine these two problems.  How about making this work?
-
-  fd = open ("/some/dirRANDOM", O_RDONLY|O_CREAT|O_DIRECTORY|O_EXCL, 0700);
-  fchdir (fd);
-
-(and similarly for a new interface fchroot which I can add to glibc).
-
-I've attached a little patch which does just that.  Some comments on the
-code:
-
- ~ if an existing directory is opened with O_RDWR open() returns
-- -EISDIR.  I've mimicked this, allthough the error code might not be the
-most obvious.
-
- ~ O_TRUNC is not allowed.
-
-
-The small attached patch implements this proposal.  At least it does
-what I want it to do, no idea what bugs I introduce.
-
-- --
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/5WqW2ijCOnn/RHQRAjZEAJ9SxzM1O6B/hQZN5jabqSSzXXtZwQCdH2sd
-hRr+ejRNAU4Cl9V8MXpBIYo=
-=jXqY
------END PGP SIGNATURE-----
-
---------------030605030707080304030809
-Content-Type: text/plain;
- name="d-opendir"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="d-opendir"
-
-LS0tIGxpbnV4LTIuNi9mcy9uYW1laS5jLW9wZW5kaXIJMjAwMy0xMi0yMCAyMTozMjo1MC4w
-MDAwMDAwMDAgLTA4MDAKKysrIGxpbnV4LTIuNi9mcy9uYW1laS5jCTIwMDMtMTItMjEgMDE6
-Mzc6MDkuMDAwMDAwMDAwIC0wODAwCkBAIC0xMjk1LDcgKzEyOTUsMTIgQEAKIAlpZiAoIWRl
-bnRyeS0+ZF9pbm9kZSkgewogCQlpZiAoIUlTX1BPU0lYQUNMKGRpci0+ZF9pbm9kZSkpCiAJ
-CQltb2RlICY9IH5jdXJyZW50LT5mcy0+dW1hc2s7Ci0JCWVycm9yID0gdmZzX2NyZWF0ZShk
-aXItPmRfaW5vZGUsIGRlbnRyeSwgbW9kZSwgbmQpOworCQlpZiAodW5saWtlbHkoZmxhZyAm
-IE9fRElSRUNUT1JZKSkgeworCQkJZXJyb3IgPSAtRUlTRElSOworCQkJaWYgKCEoZmxhZyAm
-IEZNT0RFX1dSSVRFKSkKKwkJCQllcnJvciA9IHZmc19ta2RpcihkaXItPmRfaW5vZGUsIGRl
-bnRyeSwgbW9kZSk7CisJCX0gZWxzZQorCQkJZXJyb3IgPSB2ZnNfY3JlYXRlKGRpci0+ZF9p
-bm9kZSwgZGVudHJ5LCBtb2RlLCBuZCk7CiAJCXVwKCZkaXItPmRfaW5vZGUtPmlfc2VtKTsK
-IAkJZHB1dChuZC0+ZGVudHJ5KTsKIAkJbmQtPmRlbnRyeSA9IGRlbnRyeTsKQEAgLTEzMzEs
-NyArMTMzNiwxMSBAQAogCWRwdXQobmQtPmRlbnRyeSk7CiAJbmQtPmRlbnRyeSA9IGRlbnRy
-eTsKIAllcnJvciA9IC1FSVNESVI7Ci0JaWYgKGRlbnRyeS0+ZF9pbm9kZSAmJiBTX0lTRElS
-KGRlbnRyeS0+ZF9pbm9kZS0+aV9tb2RlKSkKKwkvKiBTaW5jZSB3ZSBhbGxvdyBjcmVhdGlu
-ZyBkaXJlY3RvcmllcyB3aXRoIG9wZW4oMikgd2UgZm9yYmlkCisJICAgb3BlbmluZyBhbiBl
-eGlzdGluZyBkaXJlY3Rvcnkgd2l0aCBPX0NSRUFUIG9ubHkgaWYgdGhlCisJICAgT19ESVJF
-Q1RPUlkgZmxhZyBpcyBub3Qgc2V0IG9yIGlmIHRydW5jYXRpb24gaXMgcmVxdWVzdGVkLiAg
-Ki8KKwlpZiAoZGVudHJ5LT5kX2lub2RlICYmIFNfSVNESVIoZGVudHJ5LT5kX2lub2RlLT5p
-X21vZGUpICYmCisJICAgICghKGZsYWcgJiBPX0RJUkVDVE9SWSkgfHwgKGZsYWcgJiBPX1RS
-VU5DKSkpCiAJCWdvdG8gZXhpdDsKIG9rOgogCWVycm9yID0gbWF5X29wZW4obmQsIGFjY19t
-b2RlLCBmbGFnKTsK
---------------030605030707080304030809--
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0)

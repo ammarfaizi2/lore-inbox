@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262224AbTAIIqd>; Thu, 9 Jan 2003 03:46:33 -0500
+	id <S262201AbTAIIqV>; Thu, 9 Jan 2003 03:46:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262289AbTAIIqd>; Thu, 9 Jan 2003 03:46:33 -0500
-Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:47489 "HELO
-	bilbo.math.uni-mannheim.de") by vger.kernel.org with SMTP
-	id <S262224AbTAIIqb>; Thu, 9 Jan 2003 03:46:31 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Rolf Eike Beer <eike@bilbo.math.uni-mannheim.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.55] make PCI_LEGACY_PROC depend on PCI
-Date: Thu, 9 Jan 2003 09:58:30 +0100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200301090958.30536@bilbo.math.uni-mannheim.de>
+	id <S262224AbTAIIqV>; Thu, 9 Jan 2003 03:46:21 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:7694 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262201AbTAIIqU>;
+	Thu, 9 Jan 2003 03:46:20 -0500
+Date: Thu, 9 Jan 2003 00:54:33 -0800
+From: Greg KH <greg@kroah.com>
+To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-pre3 fails compile of ehci-hcd.c
+Message-ID: <20030109085433.GF8400@kroah.com>
+References: <1042096276.8219.126.camel@madmax> <20030109073849.GC8400@kroah.com> <1042100988.3055.11.camel@madmax>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042100988.3055.11.camel@madmax>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jan 09, 2003 at 03:29:46AM -0500, Kristofer T. Karas wrote:
+> On Thu, 2003-01-09 at 02:38, Greg KH wrote:
+> > On Thu, Jan 09, 2003 at 02:11:15AM -0500, Kristofer T. Karas wrote:
+> > > Noticed that I could not get patch-2.4.21-pre3 to compile:
+> > 
+> > Does this patch solve it for you?
+> 
+> Hi Greg - Yes.  The extra whitespace made gcc do the right thing. 
+> Thanks.
 
-from my point of view this would make sense. Or did I miss something magic?
+Thanks for testing it, I'll go add it to my trees.
 
-Rolf Eike Beer
+> <Bewilderment> Well I learn something new every day </Bewilderment>
+> 
+> I notice, however, that speed with this version of EHCI seems down.
+> 	hdparm -t /dev/discs/disc1/disc
+> 		2.4.21-pre2	2.4.21-pre3
+> 		-----------	-----------
+> 		10.5 MB/s	8.3 MB/s
 
---- linux-2.5.55-caliban/drivers/pci/Kconfig.old        Thu Jan  9 09:55:07 2003
-+++ linux-2.5.55-caliban/drivers/pci/Kconfig    Thu Jan  9 09:55:24 2003
-@@ -3,6 +3,7 @@
- #
- config PCI_LEGACY_PROC
-        bool "Legacy /proc/pci interface"
-+       depends on PCI
-        ---help---
-          This feature enables a procfs file -- /proc/pci -- that provides a
-          summary of PCI devices in the system.
+Hm, that is odd.
+
+> Either way, this is a great improvement over my previous attempts at
+> getting USB2.0 running with a Soltek SL75-DRV2 MoBo, which resulted in
+> instantaneous reboots.
+
+Yes, a little slower is better than reboots :)
+
+thanks,
+
+greg k-h

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281340AbRKLIg3>; Mon, 12 Nov 2001 03:36:29 -0500
+	id <S281317AbRKLIbS>; Mon, 12 Nov 2001 03:31:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281343AbRKLIgT>; Mon, 12 Nov 2001 03:36:19 -0500
-Received: from wallext.webflex.nl ([212.115.150.250]:38832 "EHLO
-	palm.webflex.nl") by vger.kernel.org with ESMTP id <S281340AbRKLIgK>;
-	Mon, 12 Nov 2001 03:36:10 -0500
-Message-ID: <XFMail.20011112093536.mathijs@knoware.nl>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S281340AbRKLIbI>; Mon, 12 Nov 2001 03:31:08 -0500
+Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:36879 "EHLO
+	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
+	id <S281317AbRKLIaw>; Mon, 12 Nov 2001 03:30:52 -0500
+Date: Mon, 12 Nov 2001 09:30:47 +0100 (CET)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Thomas Hood <jdthood@home.dhs.org>, <linux-kernel@vger.kernel.org>,
+        <jdthood@mail.com>
+Subject: Re: [PATCH] parport_pc to use pnpbios_register_driver() 
+In-Reply-To: <32053.1005530189@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.33.0111120921110.16450-100000@chaos.tp1.ruhr-uni-bochum.de>
 MIME-Version: 1.0
-In-Reply-To: <E163CLH-0000J4-00@baldrick>
-Date: Mon, 12 Nov 2001 09:35:36 +0100 (CET)
-From: Mathijs Mohlmann <mathijs@knoware.nl>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Subject: Re: tasklets and finalization
-Cc: linux-kernel@vger.kernel.org, Mathijs Mohlmann <mathijs@knoware.nl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 12 Nov 2001, Keith Owens wrote:
 
-On 12-Nov-2001 Duncan Sands wrote:
-> ...
-> tasklet_schedule(&my_tasklet);
-> tasklet_kill(&my_tasklet);
-> ...
+> >The reasoning behind this is the following: When you have a driver 
+> >built-in, but pnpbios modular, the driver cannot use pnpbios 
+> >functionality. The above definition reflects exactly this.
 > 
-> Since (as far as I can see) there is no way the
-> tasklet will run before calling tasklet_kill, this
-> should just kill any pending tasklets.
+> Does this combination make sense?  If you are building a pnpbios driver
+> into the kernel then the configuration should force pnpbios support to
+> be built in as well.  We don't allow this combination for things like
+> scsi or ide, they require the common support to be built in if any
+> drivers are built in.  IMHO this problem should be fixed in .config,
+> not in driver source.
 
-cpu#1           cpu#2
-tasklet_schedule
-                tasklet_schedule
-run tasklet
-                tasklet_kill
-                loop
+The affected drivers usually support different interfaces to the hardware, 
+like ISA, ISAPnP, PCI, so it makes sense to build them w/o ISAPnP support. 
+For instance, people may want to have built-in serial support (w/o ISAPnP 
+support is fine, because they've only got a standard SuperI/O chip), but 
+also modular isapnp and sound driver support, so they can demand load 
+sound support if necessary.
+
+Making ISAPnP mandatory only because you build a driver which supports
+ISAPnP hardware is not an option IMO. This would force people to build
+ISAPnP support who don't even have an ISA bus (only because the driver for
+their PCI card also supports an ISAPnP variant).
+
+--Kai
 
 
--- 
-        me

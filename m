@@ -1,89 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbVCXBEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVCXBH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262054AbVCXBEY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 20:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVCXBEY
+	id S262052AbVCXBH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 20:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbVCXBH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 20:04:24 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:21910 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262054AbVCXBEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 20:04:16 -0500
-Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re:
-	2.6.12-rc1-mm1: Kernel BUG at pci:389)
-From: Len Brown <len.brown@intel.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       Shaohua Li <shaohua.li@intel.com>
-In-Reply-To: <200503240049.25695.rjw@sisk.pl>
-References: <20050322013535.GA1421@elf.ucw.cz>
-	 <200503232329.50461.rjw@sisk.pl> <20050323223918.GL30704@elf.ucw.cz>
-	 <200503240049.25695.rjw@sisk.pl>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1111626180.17317.921.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 23 Mar 2005 20:03:00 -0500
+	Wed, 23 Mar 2005 20:07:28 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:10576 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262052AbVCXBHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 20:07:25 -0500
+Message-ID: <424212C9.2070006@yahoo.com.au>
+Date: Thu, 24 Mar 2005 12:07:21 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Luck, Tony" <tony.luck@intel.com>
+CC: "David S. Miller" <davem@davemloft.net>, Hugh Dickins <hugh@veritas.com>,
+       akpm@osdl.org, benh@kernel.crashing.org, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
+References: <B8E391BBE9FE384DAA4C5C003888BE6F032455F2@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F032455F2@scsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-23 at 18:49, Rafael J. Wysocki wrote:
-> Hi,
+Luck, Tony wrote:
+>>OK, attached is my first cut at slimming down the boundary tests.
+>>I have only had a chance to try it on i386, so I hate to drop it
+>>on you like this - but I *have* put a bit of thought into it....
+>>Treat it as an RFC, and I'll try to test it on a wider range of
+>>things in the next couple of days.
+>>
+>>Not that there is anything really nasty with your system David,
+>>so I don't think it will be a big disaster if I can't get this to
+>>work.
+>>
+>>Goes on top of Hugh's 6 patches.
 > 
-> On Wednesday, 23 of March 2005 23:39, Pavel Machek wrote:
-> > Hi!
-> >
-> > > > > > Will this do it for the moment?
-> > > > >
-> > > > > Its certainly better.
-> > > >
-> > > > With the Len's patch applied I have to unload the modules:
-> > > >
-> > > > ohci_hcd
-> > > > ehci_hcd
-> > > > yenta_socket
-> > > >
-> > > > before suspend as each of them hangs the box solid during either
-> > > > suspend or resume.  Moreover, when I tried to load the ehci_hcd
-> > > > module back after resume, it hanged the box solid too.
+> 
+> Runs on ia64.  Looks much cleaner too.
+> 
 
-Is this failure with suspend to RAM or to disk?
-
-How about if you try this patch?
-
-http://linux-acpi.bkbits.net:8080/to-akpm/cset@423b4875tyauh4CrSSoQfXOEPDkmUw
-
-patch -Rp1 from 2.6.12-rc1-mm and see if it stops being broken
-or patch -Np1 to 2.6.12-rc and see if it starts being broken.
-
-This one removes an earlier attempt at resuming PCI links -- now
-putting the onus on the drivers to be properly written
-to release and acquire their interrupt for a successful suspend/resume.
-
-
-In theory, this is taken care of something like this:
-driver.resume
-	pci_enable_device
-		pci_enable_device_bars
-			pcibios_enable_device
-				pcibios_enable_irq
-					acpi_pci_irq_enable
-
-but if the patch above makes a difference, then theory != practice:-)
-
-I'd believe that ohci_hcd and ehci_hcd are fragile since glancing
-at their lengthy .resume routines it isn't immediately obvious
-that they do this.  But yenta_dev_resume has a pci_enable_device(),
-so that failure may be less straightforward.
-
-cheers,
--Len
-
-ps. if point me to a full dmesg -s64000 from 2.6.12-rc1 acpi-enabled
-boot, that would help -- for it will show if we're even using pci
-interrupt links (and programming them) for these devices on this box.
-
+Oh good. Thanks for testing, Tony.
 

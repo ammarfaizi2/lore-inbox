@@ -1,58 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbTIJOF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 10:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264589AbTIJOF2
+	id S263561AbTIJN7w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 09:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbTIJN7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 10:05:28 -0400
-Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:28319 "EHLO
-	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264500AbTIJOFW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 10:05:22 -0400
-Subject: Re: [ANNOUNCE] New hardware - SGA155D dual STM-1/OC3 PCI ad
-From: Stewart Smith <stewart@linux.org.au>
-To: Horvath Gyorgy <HORVAATH@tmit.bme.hu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <1063119321.30379.19.camel@dhcp23.swansea.linux.org.uk>
-References: <200309091428.h89ES0Oe015172@alpha.ttt.bme.hu>
-	 <1063119321.30379.19.camel@dhcp23.swansea.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1063202707.7632.25.camel@willster>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 11 Sep 2003 00:05:08 +1000
+	Wed, 10 Sep 2003 09:59:52 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:43419 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263561AbTIJN7t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 09:59:49 -0400
+Message-ID: <3F5F2E28.2030901@austin.ibm.com>
+Date: Wed, 10 Sep 2003 08:59:04 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+References: <3F5D023A.5090405@austin.ibm.com>	<20030908155639.2cdc8b56.akpm@osdl.org>	<3F5E4EF5.1030005@austin.ibm.com> <20030909151246.6d42656b.akpm@osdl.org>
+In-Reply-To: <20030909151246.6d42656b.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-10 at 00:55, Alan Cox wrote:
-> > 4. Optionally - and if I have enough time - I'd like
-> >    to develop a twin-linear filesystem driver for
-> >    time-stamped capture/playback for multiple channels
-> >    of data - like a multi-band magnetic tape.
-> >    BTW do you know an existing one?
-> 
-> I've seen people do this in user space (just interleaving the disk in
-> big chunks in the app and driving it with O_DIRECT raw access) but not
-> in kernel file system space.
+Andrew Morton wrote:
 
-(from memory) I think that ext2/ext3 does (or at least did) this - they
-lacked any smart logic for rapid allocations - at least for inodes in
-the same cylinder group. I think this was mentioned in the "Journaling
-the ext2 filesystem" paper.
+>Steven Pratt <slpratt@austin.ibm.com> wrote:
+>  
+>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm6/broken-out/sched-CAN_MIGRATE_TASK-fix.patch
+>>>
+>>>      
+>>>
+>>This patch improves specjjb over test5 and has no real effect on any of 
+>>kernbench, volanomark or specsdet.
+>>    
+>>
+>
+>Fine, it's a good fix.
+>
+>  
+>
+>>>and if you have time, also test5 plus sched-CAN_MIGRATE_TASK-fix.patch plus
+>>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm6/broken-out/sched-balance-fix-2.6.0-test3-mm3-A0.patch
+>>>
+>>>      
+>>>
+>>This patch degrades both specjbb and volanomark, and to a lesser degree 
+>>specsdet
+>>    
+>>
+>
+>ok.  And just confirming: that was test5 plus
+>sched-CAN_MIGRATE_TASK-fix.patch plus
+>sched-balance-fix-2.6.0-test3-mm3-A0.patch?
+>  
+>
+No this was test 5 plus sched-CAN_MIGRATE_TASK-fix.patch only.  I seems 
+I misread the request.  I am running that job now.
 
-This could probably be faked by taking out any intelligence in block
-allocation (allocate last block+1 or some such thing). Even as a mount
-option (seq_alloc), this could be useful (for this type of streaming).
-This will give you great write throughput, but if you don't read things
-off the same way you read them - reading is going to suck.
+>I didn't expect a regression from sched-balance-fix.
+>
+>  
+>
+>>>What I'm afraid of is that those patches will yield improved results over
+>>>test5, and that adding
+>>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm6/broken-out/sched-2.6.0-test2-mm2-A3.patch
+>>>
+>>>      
+>>>
+>>I tried adding this patch to stock test5 and it failed to apply 
+>>cleanly.  I have not had a chance to look at why.  Did you mean for this 
+>>to be applied by itself, or was this supposed to go on top of one of the 
+>>other patches?
+>>    
+>>
+>
+>Yes, it applies on top of the other two patches.
+>
+>Thanks for working on this: it's pretty important right now.
+>
+Ok, this is submitted as well.  Should  have results this afternoon.
 
-I read in a discussion of multimedia filesystems (for PVRs) that a block
-size of 256KB helped in throughput when playback configurations weren't
-known (the more data you read before seeking the better). google for
-"multimedia filesystems" - you'll find a fair few papers on such things.
+Steve
 
-Things like XFS were designed for large, high bandwidth systems, so
-that's also worth looking into as a zero-effort approach :)
+
 

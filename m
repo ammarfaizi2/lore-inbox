@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261598AbRERXBh>; Fri, 18 May 2001 19:01:37 -0400
+	id <S261599AbRERXKK>; Fri, 18 May 2001 19:10:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261599AbRERXB1>; Fri, 18 May 2001 19:01:27 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:61046 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261598AbRERXBT>; Fri, 18 May 2001 19:01:19 -0400
-Date: Fri, 18 May 2001 23:58:52 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Linux 2.4.4-ac10
-Message-ID: <20010518235852.R8080@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0105182153570.387-100000@mikeg.weiden.de> <Pine.LNX.4.21.0105181941070.5531-100000@imladris.rielhome.conectiva>
+	id <S261600AbRERXJ7>; Fri, 18 May 2001 19:09:59 -0400
+Received: from [203.36.158.121] ([203.36.158.121]:15364 "EHLO
+	piro.kabuki.openfridge.net") by vger.kernel.org with ESMTP
+	id <S261599AbRERXJs>; Fri, 18 May 2001 19:09:48 -0400
+Date: Sat, 19 May 2001 09:09:39 +1000
+From: Daniel Stone <daniel@kabuki.openfridge.net>
+To: mirabilos <eccesys@topmail.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CML 1 is ok
+Message-ID: <20010519090939.A675@kabuki.openfridge.net>
+Mail-Followup-To: mirabilos <eccesys@topmail.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010518220028.B139BA5AD65@www.topmail.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0105181941070.5531-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Fri, May 18, 2001 at 07:44:39PM -0300
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010518220028.B139BA5AD65@www.topmail.de>; from eccesys@topmail.de on Sat, May 19, 2001 at 12:00:28AM +0200
+Organisation: Sadly lacking
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, May 19, 2001 at 12:00:28AM +0200, mirabilos wrote:
+> netfilter: I _liked_ ipfwadm
+> because I hate to always re-learn when a new kernel comes out.
 
-On Fri, May 18, 2001 at 07:44:39PM -0300, Rik van Riel wrote:
+Netfilter is going to stay. Rusty knew from early on in ipchains development
+that the whole concept was wrong, but Alan told him to continue on, get it
+into 2.2, and then do a new one for 2.4. There's a document detailing this
+somewhere, I just can't forget where.
 
-> This is the core of why we cannot (IMHO) have a discussion
-> of whether a patch introducing new VM tunables can go in:
-> there is no clear overview of exactly what would need to be
-> tunable and how it would help.
+> our company will soon ship a product still using ipfwadm (I
+> started with 2.0.33, going to .36 and 2.4.0-testX).
+> It's a pity this M$ism to not support it forever (they just
+> stopped supporting DOS! and GW-BASIC *snief*)
 
-It's worse than that.  The workload on most typical systems is not
-static.  The VM *must* be able to cope with dynamic workloads.  You
-might twiddle all the knobs on your system to make your database run
-faster, but end up in such a situation that the next time a mail flood
-arrives for sendmail, the whole box locks up because the VM can no
-longer adapt.
+This is entirely incorrect and FUD. If enable Netfilter, look in the
+Netfilter options, disable conntrack and IP tables support, you have
+(*gasp!*) ipchains compatability, as well as (*ohmygod!*) ipfwadm
+compatability.
+ 
+> -mirabilos
+> 
+> PS: Don't answer plz as I'll be offline for a time.
+>     _And_ I mean this honest, even it might considered sp.m
 
-That's the main problem with static parameters.  The problem you are
-trying to solve is fundamentally dynamic in most cases (which is also
-why magic numbers tend to suck in the VM.)
+The FUD has to be corrected.
 
-Cheers, 
- Stephen
+-- 
+Daniel Stone
+daniel@kabuki.openfridge.net

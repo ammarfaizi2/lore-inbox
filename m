@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132414AbRDFVOL>; Fri, 6 Apr 2001 17:14:11 -0400
+	id <S132407AbRDFVVX>; Fri, 6 Apr 2001 17:21:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132413AbRDFVOC>; Fri, 6 Apr 2001 17:14:02 -0400
-Received: from [204.244.205.25] ([204.244.205.25]:3436 "HELO post.gateone.com")
-	by vger.kernel.org with SMTP id <S132407AbRDFVNq>;
-	Fri, 6 Apr 2001 17:13:46 -0400
-Subject: Re: a quest for a better scheduler
-From: Michael Peddemors <michael@linuxmagic.com>
-To: Timothy "D." Witham <wookie@osdlab.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010406110603.A1599@osdlab.org>
-In-Reply-To: <20010404151632.A2144@kochanski> <18230000.986424894@hellman>
-	<20010405153841.A2452@osdlab.org>  <20010406110603.A1599@osdlab.org>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 06 Apr 2001 14:08:11 -0700
-Message-Id: <986591292.11092.4.camel@mistress>
-Mime-Version: 1.0
+	id <S132416AbRDFVVO>; Fri, 6 Apr 2001 17:21:14 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:57565 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S132407AbRDFVVB>; Fri, 6 Apr 2001 17:21:01 -0400
+Date: Fri, 6 Apr 2001 22:21:14 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Wayne Whitney <whitney@math.berkeley.edu>
+cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>, majer@endeca.com,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: memory allocation problems
+In-Reply-To: <Pine.LNX.4.30.0104061227240.25381-100000@mf1.private>
+Message-ID: <Pine.LNX.4.21.0104062211470.1572-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Missing an important one, our VPN's routinely run on 16 MG Ram, no HD or swap..
-Loaded from an initrd on a floppy..
-
-Don't we need to test on minimalistic machines as well :)
-
-> So the server hardware configurations have evolved to look like 
-> the following.
+On Fri, 6 Apr 2001, Wayne Whitney wrote:
 > 
->       1 way, 512 MB,   2 IDE
->       2 way,   1 GB,  10 SCSI (1 SCSI channel)
->       4 way,   4 GB,  20 SCSI (2 channels) 
->       8 way,   8 GB,  40 SCSI (4 channels) maybe Fibre Channel (FC)
->        16 way,  16 GB,  80 FC   (8 channels)
-> 
+> As was pointed out to me in January, another solution for i386 would be to
+> fix a maximum stack size and have the mmap() allocations grow downward
+> from the "top" of the stack (3GB - max stack size).  I'm not sure why that
+> is not currently done.
 
--- 
-"Catch the Magic of Linux..."
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-LinuxAdministration - Internet Services
-NetworkServices - Programming - Security
-WizardInternet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604)589-0037 Beautiful British Columbia, Canada
+I'd be interested in the answer to that too.  Typically, the memory
+layout has ELF text at the lowest address, starting at 0x08048000 -
+which is a curious place to put it, until you realize that if you
+place the stack below it, you can use (in a typical small program)
+just one page table for stack + text + data (then another for mmaps
+and shared libs from 3GB down): two page tables instead of present three.
+
+Hugh
 

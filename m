@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276118AbRI1PXI>; Fri, 28 Sep 2001 11:23:08 -0400
+	id <S276124AbRI1PYl>; Fri, 28 Sep 2001 11:24:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276122AbRI1PW6>; Fri, 28 Sep 2001 11:22:58 -0400
-Received: from rj.sgi.com ([204.94.215.100]:33198 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S276118AbRI1PWp>;
-	Fri, 28 Sep 2001 11:22:45 -0400
-Message-Id: <200109281522.f8SFMvu20899@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Gerold Jury <gjury@hal.grips.com>
-cc: Andrey Nekrasov <andy@spylog.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [BENCH] Problems with IO throughput and fairness with 2.4.10 and 2.4.9-ac15 
-In-Reply-To: Message from Gerold Jury <gjury@hal.grips.com> 
-   of "Fri, 28 Sep 2001 14:48:36 +0200." <200109281248.f8SCmaT29893@hal.grips.com> 
-Date: Fri, 28 Sep 2001 10:22:57 -0500
-From: Steve Lord <lord@sgi.com>
+	id <S276122AbRI1PXw>; Fri, 28 Sep 2001 11:23:52 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15367 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276123AbRI1PX3>; Fri, 28 Sep 2001 11:23:29 -0400
+Subject: Re: PnP BIOS + 2.4.9-ac16 = no boot
+To: jdthood@mail.com (Thomas Hood)
+Date: Fri, 28 Sep 2001 16:28:45 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BB49543.6A915332@mail.com> from "Thomas Hood" at Sep 28, 2001 11:20:35 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15mzZF-0007NO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks, nice to hear.
+> > The only remaining problem is that the DMI scan routines are
+> > called _after_ the PnP BIOS scan, so the is_sony_vaio_laptop
+> > variable will be always evaluated to 0 in your patch (causing
+> > the same hang again).
 > 
-> So it needs to be something stupid on my side or xfs with the new VM.
+> This is unfortunate.  :(
 
-I am working on a memory deadlock which has come up with XFS, it is not
-new with the latest VM changes, but certainly seems to be likely to
-happen.
-
-Stay tuned.
-
-Steve
-
-
+We need to move the DMI scan earlier anyway to handle 440GX boards

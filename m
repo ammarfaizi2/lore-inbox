@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUGOQ7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUGORAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266242AbUGOQ7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 12:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUGOQ7Y
+	id S266243AbUGORAx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 13:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266247AbUGORAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 12:59:24 -0400
-Received: from mail-gw1.york.ac.uk ([144.32.128.246]:37798 "EHLO
-	mail-gw1.york.ac.uk") by vger.kernel.org with ESMTP id S266242AbUGOQ7W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 12:59:22 -0400
-Message-ID: <011101c46a8d$7a5ceda0$68892090@grouse>
-From: "Jee J.Z." <jz105@york.ac.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Questions on Linux 2.4.20 TCP fast recovery and ECN implementation
-Date: Thu, 15 Jul 2004 18:02:14 +0100
+	Thu, 15 Jul 2004 13:00:53 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:64355 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S266243AbUGORAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 13:00:43 -0400
+Date: Thu, 15 Jul 2004 18:00:34 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] tmpfs preempt count panic
+Message-ID: <Pine.LNX.4.44.0407151755350.7808-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-X-York-MailScanner: Found to be clean
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+Just unearthed another of my warcrimes: reading a 17-page sparse file,
+I mean holey file, hits the in_interrupt panic in do_exit on a current
+highmem kernel (but 2.6.7 is okay).  Fix mismatched preempt count from
+shmem_swp_alloc's swapindex hole case by mapping an empty_zero_page.
 
-I am really having problems understanding some linux 2.4.20 TCP
-implementation behaviours:
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
-1. Fast recovery trigger: I found (by ethereal traces) linux 2.4.20 TCP fast
-recovery is usually triggered by only one duplicate ACK. I used to think
-this is caused by FACK. However, even after I disable FACK by turning off
-(set to 0) /proc/sys/net/ipv4/tcp_fack, the same phenomenon still happen.
-Only when I disable SACK, fast recovery is triggered by 3 duplicate ACK. I
-can't think of any explanation to this phenomenon.
-
-2. FACK: Another issue related to FACK is that somebody said in linux 2.4
-with FACK on, fast recovery is triggered on conditions: if ((snd.fack -
-snd.una) > (N * MSS)) || (dupacks == 3), rather than what I have known: if
-((snd.fack - snd.una) > (3 * MSS)) || (dupacks == 3), where N is dynamically
-determined based on current network conditions such as reordering. However,
-I can't find the codes implementing this algorithm. If this is true, could
-anybody point me to the codes? Also, could anybody point me to the reference
-decribing this algorithm in detail?
-
-3. ECN implementation: As far as I read from a document, linux 2.4 ECN is
-somewhat different from the standard rfc 2481/3168 in that linux 2.4 TCP
-does not halve its congestion window at once on reception of a Congestion
-Experenced packet, but only gradually decreases the congestion window to
-half at the rate of one segment for two incoming ACKs. Is this true and are
-there any paticular reasons for modifying linux 2.4 TCP like this? If I
-don't remember wrong, linux 2.0 conforms to the standard in this issue.
-
-I have been trying to search resources related to these issues for many days
-but haven't found one really heuristic and useful. I would be very grateful
-if anybody could help me out with any of these questions. Thank you very
-much in advance!
-
-Cheers,
-Jee
+--- 2.6.8-rc1/mm/shmem.c	2004-07-11 21:59:42.000000000 +0100
++++ linux/mm/shmem.c	2004-07-15 17:27:58.545771152 +0100
+@@ -337,7 +337,6 @@ static swp_entry_t *shmem_swp_alloc(stru
+ 	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
+ 	struct page *page = NULL;
+ 	swp_entry_t *entry;
+-	static const swp_entry_t unswapped = { 0 };
+ 
+ 	if (sgp != SGP_WRITE &&
+ 	    ((loff_t) index << PAGE_CACHE_SHIFT) >= i_size_read(inode))
+@@ -345,7 +344,7 @@ static swp_entry_t *shmem_swp_alloc(stru
+ 
+ 	while (!(entry = shmem_swp_entry(info, index, &page))) {
+ 		if (sgp == SGP_READ)
+-			return (swp_entry_t *) &unswapped;
++			return shmem_swp_map(ZERO_PAGE(0));
+ 		/*
+ 		 * Test free_blocks against 1 not 0, since we have 1 data
+ 		 * page (and perhaps indirect index pages) yet to allocate:
 

@@ -1,71 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262204AbTINJfv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 05:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbTINJfv
+	id S262343AbTINJgr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 05:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbTINJgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 05:35:51 -0400
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:17374 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S262204AbTINJft convert rfc822-to-8bit (ORCPT
+	Sun, 14 Sep 2003 05:36:47 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:38878
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S262343AbTINJgj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 05:35:49 -0400
-Date: Sun, 14 Sep 2003 11:35:46 +0200 (CEST)
-From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-To: Meelis Roos <mroos@linux.ee>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
-In-Reply-To: <Pine.GSO.4.44.0309141155480.22863-100000@math.ut.ee>
-Message-ID: <Pine.LNX.4.44.0309141117030.15181-100000@deadlock.et.tudelft.nl>
+	Sun, 14 Sep 2003 05:36:39 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] reaim 2x,4x,8x with various SMP balancing patches
+Date: Sun, 14 Sep 2003 19:44:10 +1000
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200309141944.45097.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Sep 2003, Meelis Roos wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> The update to atyfb to add LCD support breaks sparc64. I tried with
-> -pre3, this broke (details below). Patched it with the updated
-> atyfb_base thing but it didn't change anything.
+With the help of the OSDL hardware I've thrown a bootload of reaim benchmarks 
+at these various patches because of the confusion regarding their usefulness. 
+2.6.0-test5 is the baseline, and the 3 unique patches CMT,A3,BT were added by 
+themselves and all together to 2.6.0-test5 for comparison. Finally the full 
+2.6.0-test5-mm1 patch was compared. The A3 patch was modified slightly to 
+overcome the one minor magnitude error for fairness. Looking at the url for 
+each benchmark and examining the "Graph - Jobs per minute" is useful to 
+assess where the performance hovers. 
 
-Ok. The sparc code has not been modified; something weird is going on. (By
-the way, the Sparc code could use some design improvement, as a special
-exception, the Sparc does backcalculation and it is hacky implemented).
 
-> Here is dmesg - the important bit is the bracketed current code value -
-> bug in ksymoops probably. Note the invalid pixel width line before the
-> oops. The pix_width in question comes from
-> pix_width = crtc->gen_cntl & CRTC_PIX_WIDTH_MASK;
+Legend
 
-What is the default video mode on your sparc? Could the value that is
-read be CRTC_PIX_WIDTH_4BPP or CRTC_PIX_WIDTH_16BPP? (Atyfb does only
-support 8, 15, 24 and 32 bpp)
+260t5 - vanilla 2.6.0-test5
+CMT - sched-CAN_MIGRATE_TASK-fix.patch
+A3 - sched-2.6.0-test2-mm2-A3.patch
+BT - sched-balance-tuning.patch
+all - CMT + A3 + BT
+mm1 - 2.6.0-test5-mm1
 
-The code that calls aty_crtc_to_var has been changed a bit to accomodate
-lcd mode calculations. It could be that it is called while the default
-video mode on sparc is still active. This should not harm, since the
-display is set to 640x480, 8bpp afterwards.
 
-> So it seems it breaks on a division at the code 82704002.
->
-> Search throught atyfb_init disassembly show it to be the second division
-> of 3 in atyfb_init. This correnponds to the line
->
-> T = 2 * Q * R / M;
->
-> in atyfb_base.c, line 2668. M gets its value as
-> M = pll_regs[2];
-> a couple of lines above.
+2 CPU:
 
-Ok, pll register 2 is PLL_REV_DIV (perhaps this code should use the
-constants). It cannot be zero, otherwise the chip will malfunction.
-So I think it must be because of a malfunction of aty_ld_pll.
+Kernel	Throughput	URL
+260t5	1337.11		http://khack.osdl.org/stp/279474/
+CMT	1321.92		http://khack.osdl.org/stp/279796/
+A3	1304.82		http://khack.osdl.org/stp/279799
+BT	1326.27		http://khack.osdl.org/stp/279802
+All	1337.79		http://khack.osdl.org/stp/279805/
+mm1	1316.95		http://khack.osdl.org/stp/279588/
 
-> Here I get stuck - maybe pll_regs points to a wrong value...
 
-Quite likely. I'm going to send you a few modifications, we'll see if they
-do something.
+4 CPU:
 
-Daniël
+Kernel	Throughput	URL
+260t5	5406.68		http://khack.osdl.org/stp/279883
+CMT
+A3	5099.14		http://khack.osdl.org/stp/279800
+BT	5721.79		http://khack.osdl.org/stp/279803
+All	4919.36		http://khack.osdl.org/stp/279806
+mm1	5360.32		http://khack.osdl.org/stp/279887
+
+
+8 CPU:
+
+Kernel	Throughput	URL
+260t5	8812.21		http://khack.osdl.org/stp/279448/
+CMT	8794.14		http://khack.osdl.org/stp/279798
+A3	7084.15		http://khack.osdl.org/stp/279801
+BT	8615.13		http://khack.osdl.org/stp/279804
+All	7629.14		http://khack.osdl.org/stp/279919
+mm1	8478.10		http://khack.osdl.org/stp/279562/
+
+
+4xCMT seemed to not successfully finish.
+
+In summary, it appears that all the patches cause detriment to performance, 
+except the combination of BT with 4 cpus. The A3 patch is particularly 
+detrimental, but it is reassuring to see that the extra patches in mm1 (which 
+includes O1int patches) recover a lot of that performance, even with the 
+other balancing patches.
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/ZDhtZUg7+tp6mRURAmJAAJ4zMYHg7iSuVHi7SpiS5hkmoaQl9wCggrcB
+SSH6dbJthgABVnEIn4K/z3M=
+=Jz7G
+-----END PGP SIGNATURE-----
 

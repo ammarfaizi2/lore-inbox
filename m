@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316165AbSEJXVy>; Fri, 10 May 2002 19:21:54 -0400
+	id <S316167AbSEJXe2>; Fri, 10 May 2002 19:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316166AbSEJXVx>; Fri, 10 May 2002 19:21:53 -0400
-Received: from netmail.netcologne.de ([194.8.194.109]:10769 "EHLO
-	netmail.netcologne.de") by vger.kernel.org with ESMTP
-	id <S316165AbSEJXVw>; Fri, 10 May 2002 19:21:52 -0400
-Message-Id: <200205102321.AWB23063@netmail.netcologne.de>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@gmx.de>
-Reply-To: joergprante@gmx.de
-Organization: Linux jungle 2.4.19-pre8 #4 Don Mai 9 23:37:47 CEST 2002 i686 unknown
-To: <rmaureira@alumno.inacap.cl>
-Subject: Re: [PATCHSET] 2.4.19pre8-jp11
-Date: Sat, 11 May 2002 01:19:39 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.44.0205101815560.25246-100000@alumno.inacap.cl>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S316168AbSEJXe1>; Fri, 10 May 2002 19:34:27 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:33241 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S316167AbSEJXe0>;
+	Fri, 10 May 2002 19:34:26 -0400
+Date: Fri, 10 May 2002 16:34:24 -0700
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: jt@hpl.hp.com, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        irda-users@lists.sourceforge.net,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] : ir253_smc_msg.diff
+Message-ID: <20020510163424.A14554@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020510154108.B14407@bougret.hpl.hp.com> <3CDC4648.207@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 11, 2002 at 12:14:32AM +0200, Martin Dalecki wrote:
+> Uz.ytkownik Jean Tourrilhes napisa?:
 
-> Am I missing something or the patch is really broken?
+	Qu'est ce que ca veux dire ?
 
-I don't think it is broken, there are many people who did succeed in building 
-without reporting broken patches. I use "patch" version 2.5.4, Rik's 
-bitkeeper diff's did always work for me. Maybe you should upgrade to a newer 
-version of patch.
+> Should read:
+>    +     IRDA_DEBUG(0, "%s (), releasin.... ", __FUNCTION__,
+> 
+> due to the fact that newer versions of GCC will be more standard
+> aheren. Well the motivation is to coalesce all the places
+> where __FUNCTION__ is used in to one instance of the corresponding
+> string only.
 
-Thank you and good luck
+	Don't mention it. The IrDA code is full of it :-( If you want
+to fix that, be my guest...
 
-Jörg
+	Jean

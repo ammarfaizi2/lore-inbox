@@ -1,71 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263285AbTECJoa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 05:44:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263286AbTECJoa
+	id S263286AbTECJsv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 05:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263288AbTECJsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 05:44:30 -0400
-Received: from mail.gmx.de ([213.165.64.20]:10029 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263285AbTECJo3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 05:44:29 -0400
-Message-ID: <3EB3925F.8050801@gmx.net>
-Date: Sat, 03 May 2003 11:56:47 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Announcement] "Exec Shield", new Linux security feature
-References: <Pine.LNX.4.44.0305030249280.30960-100000@devserv.devel.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0305030249280.30960-100000@devserv.devel.redhat.com>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 3 May 2003 05:48:51 -0400
+Received: from dsl-62-3-122-162.zen.co.uk ([62.3.122.162]:2178 "EHLO
+	marx.trudheim.com") by vger.kernel.org with ESMTP id S263286AbTECJst
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 05:48:49 -0400
+Subject: Re: Compile error kernel 2.4.21-rc1
+From: Anders Karlsson <anders@trudheim.com>
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1051952389.3976.35.camel@marx>
+References: <1051938126.3976.11.camel@marx>  <1051946869.3976.32.camel@marx>
+	 <1051952389.3976.35.camel@marx>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iUNvFVmBPjg9+fHuk1oE"
+Organization: Trudheim Technology Limited
+Message-Id: <1051956068.3979.37.camel@marx>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
+Date: 03 May 2003 11:01:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> On Fri, 2 May 2003, Carl-Daniel Hailfinger wrote:
-> 
-> 
->>Ingo Molnar wrote:
->>
->>>Furthermore, the kernel also remaps all PROT_EXEC mappings to the
->>>so-called ASCII-armor area, which on x86 is the addresses 0-16MB. These
 
-What happens if the ASCII-armor area is full, i.e. sum(PROT_EXEC sizes)
- >16MB for a given binary (Mozilla comes to mind)? Does loading fail or
-does the binary run without any errors, giving the user a false sense of
-security?
+--=-iUNvFVmBPjg9+fHuk1oE
+Content-Type: multipart/mixed; boundary="=-xirzy6VBAZJB6IGu7vwR"
 
->>
->>[snipped]
->>
->>>In the above layout, the highest executable address is 0x01003fff, ie.
->>>every executable address is in the ASCII-armor.
->>
->>If my math is correct,
->>0x01000000 is 16 MB boundary
->>0x01003fff is outside the ASCII-armor.
-> 
-> 
-> the ASCII-armor, more precisely, is between addresses 0x00000000 and
-> 0x0100ffff. Ie. 16 MB + 64K. [in the remaining 64K the \0 character is in
-> the second byte of the address.] So the 0x01003fff address is still inside 
-> the ASCII-armor.
 
-Thanks. However, that brings me to the next question:
+--=-xirzy6VBAZJB6IGu7vwR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-01000000-01004000 r-xp 00000000 16:01 2036120    /home/mingo/cat-lowaddr
+On Sat, 2003-05-03 at 09:59, Anders Karlsson wrote:
+> On Sat, 2003-05-03 at 08:27, Anders Karlsson wrote:
+> > On Sat, 2003-05-03 at 06:02, Anders Karlsson wrote:
+> > > Hi,
+> > >=20
+> > > Just tried to compile kernel 2.4.21-rc1 and I get the compile error a=
+s
+> > > per attached file 'compile_error.txt'. The config file used is also
+> > > attached. This happened while doing 'make rpm'. This is being compile=
+d
+> > > on SuSE Pro 8.2 which is using GCC 3.3.
+> > >=20
+> > > I'll happily try out patches.
+> >=20
+> > Found another compile error. Again attached in 'compile_error.txt'.
+> >=20
+> And another one.
 
-I was wondering why the executable parts of the binary start at the 16
-MB boundary. Is this always the case or just something that happens with
-cat? In the first case, that would be bad for any binary with a
-contiguous executable area bigger than 64K.
+And yet another one.
 
-Thanks for answering,
-Carl-Daniel
+/Anders
+
+--=-xirzy6VBAZJB6IGu7vwR
+Content-Disposition: attachment; filename=compile_error.txt
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=compile_error.txt; charset=UTF-8
+
+gcc -D__KERNEL__ -I/usr/src/packages/BUILD/kernel-2.4.21rc1/include -Wall -=
+Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fom=
+it-frame-pointer -pipe -mpreferred-stack-boundary=3D2 -march=3Di686 -DMODUL=
+E -DMODVERSIONS -include /usr/src/packages/BUILD/kernel-2.4.21rc1/include/l=
+inux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=3Dsdla=
+_chdlc  -c -o sdla_chdlc.o sdla_chdlc.c
+sdla_chdlc.c:594:43: missing terminating " character
+sdla_chdlc.c: In function `wpc_init':
+sdla_chdlc.c:595: error: parse error before "Failed"
+sdla_chdlc.c:595: error: stray '\' in program
+sdla_chdlc.c:595:68: missing terminating " character
+sdla_chdlc.c: In function `port_set_state':
+sdla_chdlc.c:3462: warning: comparison between signed and unsigned
+sdla_chdlc.c: In function `wanpipe_tty_write':
+sdla_chdlc.c:4008: warning: comparison between signed and unsigned
+sdla_chdlc.c: In function `wanpipe_tty_receive':
+sdla_chdlc.c:4145: warning: comparison between signed and unsigned
+sdla_chdlc.c:4155: warning: comparison between signed and unsigned
+sdla_chdlc.c: In function `change_speed':
+sdla_chdlc.c:4352: warning: comparison between signed and unsigned
+/usr/src/packages/BUILD/kernel-2.4.21rc1/include/asm/io.h: At top level:
+/usr/src/packages/BUILD/kernel-2.4.21rc1/include/linux/module.h:299: warnin=
+g: `__module_kernel_version' defined but not used
+/usr/src/packages/BUILD/kernel-2.4.21rc1/include/linux/module.h:302: warnin=
+g: `__module_using_checksums' defined but not used
+sdla_chdlc.c:4747: warning: `__module_license' defined but not used
+make[4]: *** [sdla_chdlc.o] Error 1
+make[4]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1/driver=
+s/net/wan'
+make[3]: *** [_modsubdir_wan] Error 2
+make[3]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1/driver=
+s/net'
+make[2]: *** [_modsubdir_net] Error 2
+make[2]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1/driver=
+s'
+make[1]: *** [_mod_drivers] Error 2
+make[1]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1'
+Bad exit status from /var/tmp/rpm-tmp.10977 (%build)
+make: *** [rpm] Error 1
+
+
+--=-xirzy6VBAZJB6IGu7vwR--
+
+--=-iUNvFVmBPjg9+fHuk1oE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+
+iD8DBQA+s5NkLYywqksgYBoRAjKxAJ92lVdJHczPdpgdS1AkjEO/qCJ98ACeMKm+
+6vLWPjo+wvgMdWwHpcfbqNo=
+=jy+S
+-----END PGP SIGNATURE-----
+
+--=-iUNvFVmBPjg9+fHuk1oE--
 

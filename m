@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131215AbRBUA1u>; Tue, 20 Feb 2001 19:27:50 -0500
+	id <S131200AbRBUAcU>; Tue, 20 Feb 2001 19:32:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129677AbRBUA1l>; Tue, 20 Feb 2001 19:27:41 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34311 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131167AbRBUA10>; Tue, 20 Feb 2001 19:27:26 -0500
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 21 Feb 2001 00:30:05 +0000 (GMT)
-Cc: phillips@innominate.de (Daniel Phillips), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10102201618520.31530-100000@penguin.transmeta.com> from "Linus Torvalds" at Feb 20, 2001 04:22:48 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14VNAU-00014j-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S131167AbRBUAcL>; Tue, 20 Feb 2001 19:32:11 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:55538 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S129677AbRBUAcG>; Tue, 20 Feb 2001 19:32:06 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200102210031.f1L0VQU15564@webber.adilger.net>
+Subject: Re: [lvm-devel] *** ANNOUNCEMENT *** LVM 0.9.1 beta5 available at www.sistina.com
+In-Reply-To: <20010220234219.B2023@athlon.random> from Andrea Arcangeli at "Feb
+ 20, 2001 11:42:19 pm"
+To: Linux LVM Development list <lvm-devel@sistina.com>
+Date: Tue, 20 Feb 2001 17:31:25 -0700 (MST)
+CC: Linux kernel development list <linux-kernel@vger.kernel.org>,
+        Linux FS development list <linux-fsdevel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> probably a bad idea to use it, because in theory at least the VFS layer
-> might decide to switch the hash function around. I'm more interested in
-> hearing whether it's a good hash, and maybe we could improve the VFS hash
-> enough that there's no reason to use anything else..
+Andrea writes:
+> On Tue, Feb 20, 2001 at 10:49:07PM +0000, Heinz Mauelshagen wrote:
+> > A change in the i/o protocoll version *forces* you to update
+> > the driver as well.
+> 
+> I didn't had much time to look into beta5 yet but I can't see why you changed
+> the protocol to 11. There's no breakage between beta4 and beta5 in the
+> datastructures shared with userspace.  I don't like gratuitous API breakage.
 
-Reiserfs seems to have done a lot of work on this and be using tea, which is
-also nice as tea is non trivial to abuse as a user to create pessimal file
-searches intentionally
+The reason why the IOP was changed was because the VG_CREATE ioctl now
+depends on the vg_number in the supplied vg_t to determine which VG minor
+number to use.  The old interface used the minor number of the opened
+device inode, but for devfs the device inodes don't exist until the VG
+is created...  If you run an older kernel with new tools, you can only
+use the first VG.
 
+I suggested reverting this change for the current release, and only fixing
+the LVM devfs code (which is probably still broken in other ways).  Heinz
+decided to update the IOP instead.  Note that with the new library build,
+it is possible to have multiple IOP tools installed at the same time, and
+the correct ones are chosen at runtime based on the kernel IOP.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

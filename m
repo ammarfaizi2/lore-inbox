@@ -1,92 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVBAOel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVBAOsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbVBAOel (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 09:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVBAOel
+	id S262028AbVBAOsK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 09:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVBAOsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 09:34:41 -0500
-Received: from gwout.thalesgroup.com ([195.101.39.227]:5381 "EHLO
-	GWOUT.thalesgroup.com") by vger.kernel.org with ESMTP
-	id S262027AbVBAOei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 09:34:38 -0500
-Message-ID: <41FF9366.5030203@fr.thalesgroup.com>
-Date: Tue, 01 Feb 2005 15:34:14 +0100
-From: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Reply-To: pierre-olivier.gaillard@fr.thalesgroup.com
-Organization: Thales Air Defence
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	Tue, 1 Feb 2005 09:48:10 -0500
+Received: from moutng.kundenserver.de ([212.227.126.191]:16065 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262028AbVBAOsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 09:48:05 -0500
+From: Peter Busser <busser@m-privacy.de>
+Organization: m-privacy
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
+Date: Tue, 1 Feb 2005 15:48:03 +0100
+User-Agent: KMail/1.7.1
+References: <200501311015.20964.arjan@infradead.org> <200502011044.39259.busser@m-privacy.de> <20050201114659.GA30978@elte.hu>
+In-Reply-To: <20050201114659.GA30978@elte.hu>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [WATCHDOG] support of motherboards with ICH6
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502011548.03422.busser@m-privacy.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tuesday 01 February 2005 12:46, you wrote:
+> * Peter Busser <busser@m-privacy.de> wrote:
+> > > ok the paxtest 0.9.5 I downloaded from a security site (not yours) had
+> > > this gem in:
+> > >
+> > > +               do_mprotect((unsigned long)argv & ~4095U, 4096,
+> > > PROT_READ|PROT_WRITE|PROT_EXEC);
+> > >
+> > > which is clearly there to sabotage any segmentation based approach (eg
+> > > execshield and openwall etc); it cannot have any other possible use or
+> > > meaning.
+> > >
+> > > the paxtest 0.9.6 that John Moser mailed to this list had this gem in
+> > > it:
+> > >
+> > > +       /* Dummy nested function */
+> > > +       void dummy(void) {}
+> > >
+> > > which is clearly there with the only possible function of sabotaging
+> > > the automatic PT_GNU_STACK setting by the toolchain (which btw is not
+> > > fedora specific but happens by all new enough (3.3 or later) gcc
+> > > compilers on all distros) since that requires an executable stack.
+>
+> [...]
+>
+> > No, these things are also in the officially released sources. I put
+> > them in myself in fact.
+>
+> *PLONK*
 
-I have a P8SAA Super Micro motherboard that features an i925x chipset and need 
-to use the motherboard's watchdog. Super Micro has told my PC vendor that the 
-watchdog is functional on this motherboard so it should work.
+You still don't get it, do you?
 
-To make it work,I have recompiled a 2.6.11rc2-bk9 kernel since it contains ICH6 
-definitions for the i8xx-tco driver.
-
-So, now I can modprobe i8xx-tco without an error (notably without the error that 
-says that the watchdog is hardware disabled).
-
-But when I open the watchdog and close it the system does not reboot as 
-expected.I am surprised since I see a "not stopping watchdog in /var/log/messages :
-
-Feb  1 16:07:07 think3 kernel: i8xx TCO timer: heartbeat value must be 
-2<heartbeat<39, using 30
-Feb  1 16:07:07 think3 kernel: i8xx TCO timer: initialized (0x0460). 
-heartbeat=30 sec (nowayout=0)
-Feb  1 16:07:15 think3 kernel: i8xx TCO timer: Unexpected close, not stopping 
-watchdog!
-<snip>
-Feb  1 16:12:03 think3 kernel: i8xx TCO timer: Unexpected close, not stopping 
-watchdog!
-
-Here is what lpsci says :
-[root@think3 ~]# lspci
-00:00.0 Host bridge: Intel Corp. 925X/XE Memory Controller Hub (rev 05)
-00:01.0 PCI bridge: Intel Corp. 925X/XE PCI Express Root Port (rev 05)
-00:1d.0 USB Controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI 
-#1 (rev 03)
-00:1d.1 USB Controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI 
-#2 (rev 03)
-00:1d.2 USB Controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI 
-#3 (rev 03)
-00:1d.3 USB Controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI 
-#4 (rev 03)
-00:1d.7 USB Controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB2 
-EHCI Controller (rev 03)
-00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev d3)
-00:1e.2 Multimedia audio controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 
-Family) AC'97 Audio Controller (rev 03)
-00:1f.0 ISA bridge: Intel Corp. 82801FB/FR (ICH6/ICH6R) LPC Interface Bridge 
-(rev 03)
-00:1f.1 IDE interface: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) IDE 
-Controller (rev 03)
-00:1f.3 SMBus: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) SMBus Controller 
-(rev 03)
-01:00.0 VGA compatible controller: ATI Technologies Inc RV370 5B60 [Radeon X300 
-(PCIE)]
-01:00.1 Display controller: ATI Technologies Inc: Unknown device 5b70
-02:00.0 Ethernet controller: Intel Corp. 82546GB Gigabit Ethernet Controller 
-(rev 03)
-02:00.1 Ethernet controller: Intel Corp. 82546GB Gigabit Ethernet Controller 
-(rev 03)
-02:03.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet Controller
-
-
-Has anybody a similar setup working ? I can buy another motherboard easily, so 
-feel free to tell me about other motherboards that work.
-
-	thank you for your help,
-
-       P.O. Gaillard
-
-
+Groetjes,
+Peter.

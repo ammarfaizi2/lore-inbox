@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUKGTfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbUKGTjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUKGTfY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 14:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbUKGTfY
+	id S261591AbUKGTjl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 14:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbUKGTjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 14:35:24 -0500
-Received: from ozlabs.org ([203.10.76.45]:388 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261232AbUKGTfN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 14:35:13 -0500
-Date: Mon, 8 Nov 2004 06:30:07 +1100
-From: Anton Blanchard <anton@samba.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: David Gibson <david@gibson.dropbear.id.au>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, Adam Litke <agl@us.ibm.com>,
-       Andy Whitworth <apw@shadowen.org>
-Subject: Re: [RFC] Consolidate lots of hugepage code
-Message-ID: <20041107193007.GC16976@krispykreme.ozlabs.ibm.com>
-References: <20041029033708.GF12247@zax> <20041029034817.GY12934@holomorphy.com> <20041107172030.GA16976@krispykreme.ozlabs.ibm.com> <20041107192024.GM2890@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 Nov 2004 14:39:41 -0500
+Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:12897 "HELO
+	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S261591AbUKGTiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 14:38:10 -0500
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: =?iso-8859-1?q?Rapha=EBl_Rigo_LKML?= <lkml@twilight-hall.net>
+Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
+Date: Sun, 7 Nov 2004 14:38:38 -0500
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <200411071227.43058.shawn.starr@rogers.com> <418E78A3.9020500@twilight-hall.net>
+In-Reply-To: <418E78A3.9020500@twilight-hall.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <20041107192024.GM2890@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200411071438.38516.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
 
-> It's all pretty obvious. The first is checking page size vs. cache size
-> and whether it's VI or does anything unusual; thus far things look
-> hopeful that flush_dcache_page() analogues are unnecessary. More
-> information about Super-H is needed to wrap up what will probably be no
-> more than an audit. 
+That may have been the past, but if they dont distribute the source any more 
+they are in violation.
 
-Good to hear.
+Shawn.
 
-> The second is a triplefault on x86-64 under some
-> condition involving a long-running database regression test. There has
-> obviously been considerably less progress there in no small part due to
-> the amount of time required to reproduce the issue.
-
-OK. We have not seen a similar issue on ppc64 even with extensive
-testing (although with HPC apps). The question is how long we should
-hold off on further hugetlb development waiting for this one bug report
-on a single architecture to be chased.
-
-Anton
+On November 7, 2004 14:33, Raphaël Rigo LKML wrote:
+> Shawn Starr wrote:
+> > I dont know if this has been brought up but, a company called sveasoft is
+> > blatently violating the GPL by not releasing any code:
+> >
+> > case in point:
+> >
+> > ' Talisman activation will be very simple. Just enter your Sveasoft
+> > account password once and it will pop up working. This even survives a
+> > full reset.
+> >
+> >  This is a bummer but we have a group of folks that are not satisfied
+> > with our public, no-cost firmware and want to end this project so we need
+> > to adapt in order to survive and continue our work. I've tried to make
+> > this as simple and unobtrusive as possible. '
+> >
+> > Its time for the GPL authors Linux kernel, busybox and others to notify
+> > this 'company' that they are violating the GPL. You cannot revoke
+> > existing GPL code with a different license.
+> >
+> > If Linksys had to release the code Sveasoft must follow suit.
+> >
+> > Shawn.
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+> Hello,
+> I think you are wrong, just check this page :
+> http://www.sveasoft.com/modules/phpBB2/viewtopic.php?t=3033
+>
+> My 2 cents,
+> Raphaël Rigo

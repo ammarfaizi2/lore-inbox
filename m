@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318190AbSIJWgU>; Tue, 10 Sep 2002 18:36:20 -0400
+	id <S318202AbSIJWrf>; Tue, 10 Sep 2002 18:47:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318196AbSIJWgU>; Tue, 10 Sep 2002 18:36:20 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31987 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318190AbSIJWgT>; Tue, 10 Sep 2002 18:36:19 -0400
-Date: Wed, 11 Sep 2002 00:40:59 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre6
-In-Reply-To: <Pine.LNX.4.44.0209101501200.16518-100000@freak.distro.conectiva>
-Message-ID: <Pine.NEB.4.44.0209102322290.18902-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318203AbSIJWrf>; Tue, 10 Sep 2002 18:47:35 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:63722 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S318202AbSIJWre>; Tue, 10 Sep 2002 18:47:34 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Oktay Akbal <oktay.akbal@s-tec.de>
+Date: Wed, 11 Sep 2002 08:51:56 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15742.30604.313336.285853@notabene.cse.unsw.edu.au>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: md multipath with disk missing ?
+In-Reply-To: message from Oktay Akbal on Monday September 9
+References: <20020909132713.GA29@marowsky-bree.de>
+	<Pine.LNX.4.44.0209091537020.12771-100000@omega.s-tec.de>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Sep 2002, Marcelo Tosatti wrote:
+On Monday September 9, oktay.akbal@s-tec.de wrote:
+> > > Does this only work with raid-autodetection ?
+> > > When no autodetection is done and a drive is missing, would a raidstart
+> > > kill the raid, since the drives are now available with other devices (sda
+> > > instead of former sdb...) ?
+> >
+> > I don't understand your question, sorry.
+> 
+> Example:
+> 
+> We have sda - sdb (8 drives) and setup up a raidtab to tell linux that
+> sda and sde are the same sdc - sdd etc.
+> Now for some random error the server restarts and the former sda (path to
+> that drive) is no longer available. So now we have sda,sdb...sdg.
+> We do not use autodetect, but raidstart to activate the raid.
 
->...
-> Alan Cox <alan@lxorguk.ukuu.org.uk>:
->...
->   o more irda __FUNCTION__ stuff
->...
+raidstart is broken by design and cannot cope with devices that change
+device number (whether name in /dev is preserved or not.  There are
+device numbers in the superblock which raidstart trusts).
 
-This adds the use of TIOCM_MODEM_BITS to irtty.c but not the corresponding
-addition of it to asm-i386/termios.h:
+This is one of the reasons that I wrote mdadm
+   http://www.cse.unsw.edu.au/~neilb/source/mdadm/
 
-<--  snip  -->
+This affects all raid levels, not just multipath.
 
-...
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc
--iwithprefix include -DKBUILD_BASENAME=irtty  -c -o irtty.o irtty.c
-irtty.c: In function `irtty_set_dtr_rts':
-irtty.c:761: `TIOCM_MODEM_BITS' undeclared (first use in this function)
-irtty.c:761: (Each undeclared identifier is reported only once
-irtty.c:761: for each function it appears in.)
-make[4]: *** [irtty.o] Error 1
-make[4]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.19-full/drivers/net/irda'
-
-<--  snip  -->
-
-
-The following part of -ac is also needed:
-
-
---- linux.20pre5/include/asm-i386/termios.h	2002-08-29 18:39:31.000000000 +0100
-+++ linux.20pre5-ac4/include/asm-i386/termios.h	2002-08-06 15:41:52.000000000 +0100
-@@ -37,6 +37,8 @@
- #define TIOCM_OUT2	0x4000
- #define TIOCM_LOOP	0x8000
-
-+#define TIOCM_MODEM_BITS       TIOCM_OUT2      /* IRDA support */
-+
- /* ioctl (fd, TIOCSERGETLSR, &result) where result may be as below */
-
- /* line disciplines */
-
-
-cu
-Adrian
-
-
+NeilBrown

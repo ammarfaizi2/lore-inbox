@@ -1,58 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264504AbTLCMeb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 07:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbTLCMeb
+	id S264556AbTLCMto (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 07:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264558AbTLCMto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 07:34:31 -0500
-Received: from th5.kapitza.ras.ru ([195.208.33.88]:23435 "EHLO
-	th5.kapitza.ras.ru") by vger.kernel.org with ESMTP id S264504AbTLCMea
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 07:34:30 -0500
-Date: Wed, 3 Dec 2003 15:37:19 +0300 (MSK)
-From: "Lev A. Melnikovsky" <leva@despammed.com>
-To: linux-kernel@vger.kernel.org
-Subject: Hang after adding swap in 2.4.19-2.4.22
-Message-ID: <Pine.LNX.4.58.0312031440160.10231@gu5.xncvgmn.enf.eh>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Dec 2003 07:49:44 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:41416 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264556AbTLCMtj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 07:49:39 -0500
+Date: Wed, 3 Dec 2003 18:23:20 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Raj <raju@mailandnews.com>
+Cc: linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net,
+       manfred@colorfullife.com
+Subject: Re: kernel BUG at kernel/exit.c:792!
+Message-ID: <20031203182319.D14999@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20031203153858.C14999@in.ibm.com> <3FCDCEA3.1020209@mailandnews.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FCDCEA3.1020209@mailandnews.com>; from raju@mailandnews.com on Wed, Dec 03, 2003 at 05:23:07PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
 
-I have this problem quite long already, I first noticed it when switched
-from 2.4.18 to 2.4.19 and it is still here with 2.4.22 (have not tried
-2.4.23 yet). The system "hangs" during the early stages of initscripts
-execution. In my case these are RedHat initscripts (several versions
-tried) but other people reported similar problems with Mandrake (look for
-the words like "hang finding module dependencies" or "hang mounting local
-filesystems"). There was a similar post to the LKML (Brad Tilley, Jun 23
-2003, "OS Fails to Load"). Unfortunately the problem is not 100%
-reproduceable in the sense the system "hangs" some 10%-50% (your mileage
-may vary) of times. On the other side the problem was seen here at three
-separate computers with quite different hardware (well, all CPUs are i386,
-but they are Celeron 533, Athlon XP 2200+ and XP 1700+).
+On Wed, Dec 03, 2003 at 05:23:07PM +0530, Raj wrote:
+> 
+> >Does it make sense to check for leader_task being alive
+> >after the tasklist lock is grabbed and return immediately
+> >if it is not alive (as the patch below does)?
+> >
+> >  
+> >
+> maybe i am wrong, but wouldnt a 'break' in the do-while suffice rather 
+> than a goto ?
+> 
 
-I have collected all possible stack traces, PCs, memory info etc. The
-bunch is available from http://kapitza.ras.ru/~leva/ops.tar.bz2
+I was not sure if the pid_alive check inside the do-while loop
+is for leader_task only or for non-leader tasks also. 
+If that check is for non-leader tasks also, then we would
+like to retain it still ..
 
-[leva@ari ops]$ tar -tjf ops.tar.bz2
-addresses.txt
-oooooops.txt
-ops-improved.txt
-readme
-.config
+> /Raj
 
-If you ask, yes, it does include ksymoops (ops-improved.txt) and addr2line
-(addresses.txt) outputs. And the kernel is just a 2.4.22 with a patch from
-http://w.ods.org/tools/kmsgdump/0.4.4/patch-2.4.23p6-kmsgdump-0.4.4.gz
-just to store the dump after the hang.
+> --- base.c	2003-10-26 00:13:57.000000000 +0530
+> +++ base.c.fix	2003-12-03 17:20:18.877679360 +0530
+> @@ -1669,7 +1669,7 @@
+>  	do {
+>  		int tid = task->pid;
+>  		if (!pid_alive(task))
+> -			continue;
+> +			break;
+>  		if (--index >= 0)
+>  			continue;
+>  		tids[nr_tids] = tid;
 
-I would really appreciate if someone could tell me what the problem is
-and, if this is my own misconfiguration, how I should avoid it. Otherwise,
-if this is a bug, some fix would be available, probably... I will be glad
-to supply any additional information if needed.
 
-If replying, please CC me, as I am not subscribed. Thanks in advance
--L.
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560033

@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265905AbUFDSPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265898AbUFDSS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265905AbUFDSPB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265898AbUFDSPB
+	id S265898AbUFDSS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUFDSS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:15:01 -0400
-Received: from mail.kroah.org ([65.200.24.183]:55989 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265905AbUFDSNt (ORCPT
+	Fri, 4 Jun 2004 14:18:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13038 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265898AbUFDSSN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 14:13:49 -0400
-Date: Fri, 4 Jun 2004 11:12:52 -0700
-From: Greg KH <greg@kroah.com>
-To: nardelli <jnardelli@infosciences.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Memory leak in visor.c and ftdi_sio.c
-Message-ID: <20040604181252.GA11499@kroah.com>
-References: <40C08E6D.8080606@infosciences.com>
+	Fri, 4 Jun 2004 14:18:13 -0400
+Date: Fri, 4 Jun 2004 11:18:04 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: mlock as non-root: use rlimits
+Message-ID: <20040604111804.T22989@build.pdx.osdl.net>
+References: <20040604112845.GA28413@devserv.devel.redhat.com> <20040604151251.GD16897@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40C08E6D.8080606@infosciences.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040604151251.GD16897@devserv.devel.redhat.com>; from arjanv@redhat.com on Fri, Jun 04, 2004 at 05:12:51PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 10:59:57AM -0400, nardelli wrote:
-> Note that I have not verified any of the below on
-> hardware associated with drivers/usb/serial/ftdi_sio.c,
-> only with drivers/usb/serial/visor.c.  If anyone has
-> hardware for this device, I would appreciate your comments.
-> 
-> A memory leak occurs in both drivers/usb/serial/ftdi_sio.c
-> and drivers/usb/serial/visor.c when the usb device is
-> unplugged while data is being written to the device.  This
-> patch should clear that up.
-> 
-> This was prepared against 2.6.7-rc2.
+* Arjan van de Ven (arjanv@redhat.com) wrote:
+> non-root" issue, which recently cropped up again in relation to hugetlbfs
+> and Oracle. The proposed solution comes down to using the MEMLOCK rlimit,
+> which previously was used to restrict how much memory *root* processes can
+> mlock as limit for non-root processes, and let root (well CAP_IPC_LOCK
+> processes) mlock to infinity (which was the rlimit default anyway).
+> The default behavior of the kernel doesn't change with this patch, but with
+> this patch the sysadmin can use the standard rlimit mechanism (eg via PAM
+> usually) to allow specific users to mlock memory, for example the oracle
+> database user account.
+>                                                                               
+> Comments?
 
-This patch has all of the tabs stripped out of it and can not be applied
-:(
+Hi Arjan, how is this different from the last time this patch was posted?
 
-Care to try it again?
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108087017610947&w=2
+
+The hugetlbfs and SHM_LOCK bits don't work well with rlimits.  For
+example, it's trivial to corrupt the locked_vm count with a SHM_LOCK
+segment.  I like this, but I think it only works with mlock().  Did I
+miss something?
 
 thanks,
-
-greg k-h
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

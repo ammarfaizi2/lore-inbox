@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265380AbSKSOQ1>; Tue, 19 Nov 2002 09:16:27 -0500
+	id <S265506AbSKSOUc>; Tue, 19 Nov 2002 09:20:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265396AbSKSOQ1>; Tue, 19 Nov 2002 09:16:27 -0500
-Received: from guru.webcon.net ([66.11.168.140]:18858 "EHLO guru.webcon.net")
-	by vger.kernel.org with ESMTP id <S265380AbSKSOQ0>;
-	Tue, 19 Nov 2002 09:16:26 -0500
-Date: Tue, 19 Nov 2002 09:23:26 -0500 (EST)
-From: Ian Morgan <imorgan@webcon.net>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH][2.4-AC] export smp_num_siblings
-In-Reply-To: <Pine.LNX.4.44.0211190214260.1538-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.44.0211190909580.21575-100000@light.webcon.net>
-Organization: "Webcon, Inc."
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265513AbSKSOUb>; Tue, 19 Nov 2002 09:20:31 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:53543 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP
+	id <S265506AbSKSOUa>; Tue, 19 Nov 2002 09:20:30 -0500
+Date: Tue, 19 Nov 2002 15:27:31 +0100
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20 ACPI
+Message-ID: <20021119142731.GF27595@poup.poupinou.org>
+References: <4.3.2.7.2.20021119134830.00b53680@mail.dns-host.com> <20021119130728.GA28759@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021119130728.GA28759@suse.de>
+User-Agent: Mutt/1.4i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Nov 2002, Zwane Mwaikambo wrote:
+Hi Dave,
 
-> On Mon, 18 Nov 2002, Ian Morgan wrote:
+On Tue, Nov 19, 2002 at 01:07:28PM +0000, Dave Jones wrote:
+> On Tue, Nov 19, 2002 at 01:53:15PM +0100, Margit Schubert-While wrote:
+>  > 	Any chance to get an ACPI update into 2.4.20 ?
 > 
-> > > > c0292e28 D smp_num_siblings
-> > > > 
-> > > > Any clues?
-> > > 
-> > > Is CONFIG_SMP set?
-> > 
-> > Yup.
+> Now that we're in 2.4.20rc stage ? No chance.
 > 
-> Can you give this a try.
-> 
-> Index: linux-2.4.20-rc1-ac4/arch/i386/kernel/i386_ksyms.c
-> ===================================================================
-> RCS file: /build/cvsroot/linux-2.4.20-rc1-ac4/arch/i386/kernel/i386_ksyms.c,v
-> retrieving revision 1.1.1.1
-> diff -u -r1.1.1.1 i386_ksyms.c
-> --- linux-2.4.20-rc1-ac4/arch/i386/kernel/i386_ksyms.c	18 Nov 2002 01:39:49 -0000	1.1.1.1
-> +++ linux-2.4.20-rc1-ac4/arch/i386/kernel/i386_ksyms.c	19 Nov 2002 07:11:43 -0000
-> @@ -131,6 +131,7 @@
->  EXPORT_SYMBOL(cpu_data);
->  EXPORT_SYMBOL(kernel_flag_cacheline);
->  EXPORT_SYMBOL(smp_num_cpus);
-> +EXPORT_SYMBOL(smp_num_siblings);
->  EXPORT_SYMBOL(cpu_online_map);
->  EXPORT_SYMBOL_NOVERS(__write_lock_failed);
->  EXPORT_SYMBOL_NOVERS(__read_lock_failed);
+>  > 	It doesn't like my Intel D845PESV.
+>  
+> The newer ACPI code also introduces problems that aren't
+> present with the current 2.4.20rc code.
 
-Interesting.. that does it. Now we have:
+I disagree with you.  It introduces more enhancements,
+and more bugfix than the current code.  I admit that tt
+could introduce some news bugs, but in the balance it
+should be more stable than before.
+Really, I will be happy to see new code in mainstream.
 
-c0286b53 R __kstrtab_smp_num_siblings
-c028e030 R __ksymtab_smp_num_siblings
-c0292e28 D smp_num_siblings
+> Eg: Last snapshot I tried, My Vaio wouldn't boot if it was
+> running on battery (which is the time I'd need it most).
 
-and the p4-clockmod module loads OK. Thx.
+What is actually the trouble with your Vaio (I mean dmesg when
+it failed) ?  I saw some (old) Vaio where new code worked
+like a charm (even speedstep worked, but it's another
+story ;)
 
-Now my next step is figuring out how to actually set policy with this thing,
-but I'm sure I can manage that one.
+I would be happy also to take a look to the DSDT table of your model.
 
-Regards,
-Ian Morgan
+Cheers,
 
 -- 
--------------------------------------------------------------------
- Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
- imorgan@webcon.ca          PGP: #2DA40D07           www.webcon.ca
-    *  Customized Linux network solutions for your business  *
--------------------------------------------------------------------
-
-
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

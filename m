@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbTIEJe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 05:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbTIEJe5
+	id S262319AbTIEJoD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 05:44:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTIEJoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 05:34:57 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:23823 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S262337AbTIEJe4
+	Fri, 5 Sep 2003 05:44:03 -0400
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:11922 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP id S262319AbTIEJoA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 05:34:56 -0400
-From: Michael Frank <mhf@linuxmail.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test4-mm6
-Date: Fri, 5 Sep 2003 17:32:33 +0800
-User-Agent: KMail/1.5.2
-References: <20030905015927.472aa760.akpm@osdl.org>
-In-Reply-To: <20030905015927.472aa760.akpm@osdl.org>
-Cc: Nigel Cunningham <ncunningham@clear.net.nz>,
-       swsusp-devel-request@lists.sourceforge.net
-X-OS: KDE 3 on GNU/Linux
+	Fri, 5 Sep 2003 05:44:00 -0400
+Subject: Re: corruption with A7A266+200GB disk?
+To: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+Date: Fri, 5 Sep 2003 10:43:57 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <1062596153.19059.42.camel@dhcp23.swansea.linux.org.uk> from "Alan Cox" at Sep 03, 2003 02:35:54 PM
+X-Mailer: ELM [version 2.5 PL0]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309051732.33529.mhf@linuxmail.org>
+Message-Id: <E19vD8H-00079E-00@cent1.lancs.ac.uk>
+From: Steve Bennett <steveb@unix.lancs.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 September 2003 16:59, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2
->.6.0-test4-mm6/
->
->
-> This is only faintly tested.  It's mainly a syncup with people..
->
-> . Initial support for kgdb-over-ethernet.  Mainly from Robert Walsh, based
->   on work by San Mehat.
->
->   It's pretty simple to use - read Documentation/i386/kgdb/kgdbeth.txt
->   carefully.
->
->   This uses the same ethernet driver hooks as netconsole, and is designed
->   to work alongside netconsole.
->
->   Currently it "supports" e100, eepro100, 3c59x, tlan and tulip.  Only e100
->   has been tested.
+> ALi does support LBA48 in PIO mode. Right now the choice is 
+> DMA and 137Gb or no DMA and 200Gb, ideally it should be DMA
+> and fall back to PIO for the top 70Gb, but not yet a while.
 
-This is cute, Nigel can then debug swsusp in 2.6 via the internet while I sleep...
+OK, having actually read what dmesg says (instead of making assumptions),
+I see:
+    hda: max request size: 128KiB
+    hda: cannot use LBA48 - full capacity 390721968 sectors (200049 MB)
+    hda: 268435456 sectors (137438 MB) w/8192KiB Cache, CHS=16709/255/63, UDMA(100)
+     hda: hda1 hda2 hda3 hda4
 
-Regards
-Michael
+and fdisk reports:
+   # /sbin/fdisk -l
+
+   Disk /dev/hda: 137.4 GB, 137438953472 bytes
+   255 heads, 63 sectors/track, 16709 cylinders
+   Units = cylinders of 16065 * 512 = 8225280 bytes
+
+      Device Boot    Start       End    Blocks   Id  System
+   /dev/hda1   *         1        13    104391   83  Linux
+   /dev/hda2            14      1057   8385930   83  Linux
+   /dev/hda3          1058      1188   1052257+  82  Linux swap
+   /dev/hda4          1189      6169  40009882+  83  Linux
+
+So the disk is being correctly downgraded to a non-lba48-compatible size.
+In which case, why is the disk getting trashed?
+
+Maybe there's a fault on the disk itself? I'll find a system that does lba48
+and try it there...
+
+Steve.
 

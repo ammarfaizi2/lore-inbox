@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVAELYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVAELYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbVAELYb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 06:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVAELYb
+	id S262332AbVAELYy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 06:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbVAELYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 06:24:31 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:46992 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262330AbVAELY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 06:24:26 -0500
-Date: Wed, 5 Jan 2005 11:24:25 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, "Jack O'Quin" <joq@io.com>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050105112425.GD30954@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-	Jack O'Quin <joq@io.com>
-References: <1104374603.9732.32.camel@krustophenia.net> <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <1104865034.8346.4.camel@krustophenia.net>
+	Wed, 5 Jan 2005 06:24:54 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:4042 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262332AbVAELYt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 06:24:49 -0500
+Date: Wed, 5 Jan 2005 12:24:35 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Sailer <sailer@scs.ch>
+Cc: Mike Hearn <mh@codeweavers.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, wine-devel@winehq.com,
+       julliard@winehq.com
+Subject: Re: ptrace single-stepping change breaks Wine
+Message-ID: <20050105112435.GA15873@elte.hu>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> <200412311413.16313.sailer@scs.ch> <1104499860.3594.5.camel@littlegreen> <200412311651.12516.sailer@scs.ch> <1104873315.3557.87.camel@littlegreen> <1104921806.7043.27.camel@kronenbourg.scs.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1104865034.8346.4.camel@krustophenia.net>
+In-Reply-To: <1104921806.7043.27.camel@kronenbourg.scs.ch>
 User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 01:57:13PM -0500, Lee Revell wrote:
-> On Tue, 2005-01-04 at 18:20 +0000, Christoph Hellwig wrote:
-> > On Tue, Jan 04, 2005 at 01:16:54PM -0500, Lee Revell wrote:
-> > > Got a patch?  Code talks, BS walks.  This is working perfectly, right
-> > > now, and is being used by thousands of Linux ausio users.
-> > 
-> > Which still doesn't mean it's the right design.  And no, I don't need the
-> > feature so I won't write it.  If you want a certain feature it's up to
-> > you to implement it in a way that's considered mergeable.
-> > 
+
+* Thomas Sailer <sailer@scs.ch> wrote:
+
+> > I'm afraid Alexandre has decided not to apply this patch (the ABI
+> > personality syscall). His reasoning is as follows:
 > 
-> Please specify what's wrong with it.  So far all your objection amounts
-> to is "I don't like it".
+> Quite understandably.
 
-It's tying privilegues to uids/gids, and it does so in an overcomplicated
-way and just for an extremly tiny, specialized subset of available
-privilegues.
+another workaround to switch off flex-mmap is to set the stack ulimit to
+'unlimited':
 
-In short it's a very specialized hack.
+ saturn:~> cat /proc/self/maps | tail -7
+ b7db3000-b7db4000 r--p 00cfd000 03:41 3735973    /usr/lib/locale/locale-archive
+ b7db4000-b7de1000 r--p 00ccc000 03:41 3735973    /usr/lib/locale/locale-archive
+ b7de1000-b7de7000 r--p 00cc3000 03:41 3735973    /usr/lib/locale/locale-archive
+ b7de7000-b7fe7000 r--p 00000000 03:41 3735973    /usr/lib/locale/locale-archive
+ b7fe7000-b7fe8000 rw-p b7fe7000 00:00 0
+ bff2c000-c0000000 rw-p bff2c000 00:00 0
+ ffffe000-fffff000 ---p 00000000 00:00 0
 
-> If you do have anything other that your opinion to back up your
-> assertion that it's a bad design, you should have raised it months ago
-> when this was first posted.  Now that we have it to a mergeable state
-> (as far as the people who worked on it are concerned), you want to pop
-> up and say "Nope, bad design"?
+ saturn:~> ulimit -s unlimited
 
-I'm very sorry but I don't have the time to comment on every single patch
-posted somewhere.  All the review and core kernel work I do on lkml is in my
-unpaid spare time.  If you want me to review specific things in a deadline
-or want me to implement features in a way that fits the kernel grand plan
-(which doesn't equal to it actually beeing accepted by other kernel
-developers), you're free to contract me.
+ saturn:~> cat /proc/self/maps | tail -7
+ 42188000-4218a000 rw-p 00014000 03:41 3433982    /lib/ld-2.3.3.so
+ 4218c000-422aa000 r-xp 00000000 03:41 3434006    /lib/tls/libc-2.3.3.so
+ 422aa000-422ac000 r--p 0011d000 03:41 3434006    /lib/tls/libc-2.3.3.so
+ 422ac000-422ae000 rw-p 0011f000 03:41 3434006    /lib/tls/libc-2.3.3.so
+ 422ae000-422b0000 rw-p 422ae000 00:00 0
+ bfea0000-c0000000 rw-p bfea0000 00:00 0
+ ffffe000-fffff000 ---p 00000000 00:00 0
 
+e.g. SuSE defaults to an unlimited stack so flex-mmap is effectively
+disabled there.
+
+To set the VM to legacy, for all apps, set /proc/sys/vm/legacy_va_layout
+to 1.
+
+	Ingo

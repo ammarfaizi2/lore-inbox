@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273754AbRIXDIx>; Sun, 23 Sep 2001 23:08:53 -0400
+	id <S273755AbRIXDUg>; Sun, 23 Sep 2001 23:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273755AbRIXDIn>; Sun, 23 Sep 2001 23:08:43 -0400
-Received: from ool-18be1462.dyn.optonline.net ([24.190.20.98]:23564 "EHLO
-	moat3225.research.att.com") by vger.kernel.org with ESMTP
-	id <S273754AbRIXDIi>; Sun, 23 Sep 2001 23:08:38 -0400
-Date: Sun, 23 Sep 2001 23:04:56 -0400 (EDT)
-From: "D. Sen" <dsen@nospam_homemail.com.research.att.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: apm broken in 2.4.10? (on IBM Thinkpad T21)
-Message-ID: <Pine.LNX.4.30.0109232300180.16596-100000@moat3225.research.att.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273757AbRIXDU0>; Sun, 23 Sep 2001 23:20:26 -0400
+Received: from cs6625186-50.austin.rr.com ([66.25.186.50]:11904 "EHLO
+	hatchling.taral.net") by vger.kernel.org with ESMTP
+	id <S273755AbRIXDUK>; Sun, 23 Sep 2001 23:20:10 -0400
+Date: Sun, 23 Sep 2001 22:20:36 -0500
+From: Taral <taral@taral.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.10 problems with X + USB mouse
+Message-ID: <20010923222036.A1685@taral.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I have XFree86 4.1.0 and a USB mouse with input core support. On 2.4.9
+everything is happy. On 2.4.10 the mouse clicks randomly and jumps to
+the bottom left corner a lot. This doesn't affect gpm though, only X.
 
-I just upgraded to 2.4.10 from 2.4.7. I didnt change any of the APM
-configurations from my 2.4.7 configuration. Yet, everytime I tried to
-suspend the machine, I got messages saying that APM was not built into the
-kernel.
+Any ideas? I've backed down to 2.4.9 for now.
 
-Finally, I replaced arch/i386/kernel/apm.c with the corresponding apm.c
-from 2.4.7 and got my apm functions to work again.
-
-What has changed since 2.4.7?
-
-DS
-
+-- 
+Taral <taral@taral.net>
+This message is digitally signed. Please PGP encrypt mail to me.
+"Any technology, no matter how primitive, is magic to those who don't
+understand it." -- Florence Ambrose

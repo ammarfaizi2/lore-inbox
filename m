@@ -1,121 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVBMDrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVBMEER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbVBMDrB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 22:47:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVBMDrB
+	id S261245AbVBMEER (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 23:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVBMEEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 22:47:01 -0500
-Received: from ns4.mountaincable.net ([24.215.0.14]:64230 "EHLO
-	ns4.mountaincable.net") by vger.kernel.org with ESMTP
-	id S261242AbVBMDq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 22:46:56 -0500
-Subject: Strange /dev/mem behaviour on IA32, PPC64, (others?)
-From: Ryan Lortie <desrt@desrt.ca>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-XIUubieHobpJpoYCesy2"
-Date: Sat, 12 Feb 2005 22:46:54 -0500
-Message-Id: <1108266414.8479.12.camel@moonpix.desrt.ca>
+	Sat, 12 Feb 2005 23:04:16 -0500
+Received: from gate.crashing.org ([63.228.1.57]:44249 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261245AbVBMEEM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 23:04:12 -0500
+Subject: [PATCH] radeonfb: typos fixes
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sun, 13 Feb 2005 15:03:55 +1100
+Message-Id: <1108267435.6701.46.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.1.5 
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
---=-XIUubieHobpJpoYCesy2
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The dynamic clock code in radeonfb comes almost as-is from X.org (where
+it was contributed by ATI). It has a few typos (wrong register access
+macros) that this patch fixes.
 
-There are a couple of problems that I have encountered with /dev/mem on
-the 2.6.10 kernel.
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-The first problem is that lseek()/read() results in different data than
-mmap() and reading from the mapped memory area.  I've written a small
-program to demonstrate the problem.  I am fairly sure it is correct (a
-few others haved looked over it).  The program produces unexpected
-output when I run it on both IA32 and PPC64.  You need to have at least
-1GB of RAM to run it, but it is easy to modify if you have less.
-
-In short, lseek()/read() returns what I believe to be the correct
-values.  Reading from the mmap() region gives the correct values for the
-first few reads but after that it starts giving zeros.
-
-In testing this program on IA32 I ran into an additional problem.  If
-you lseek() to the (very suspicious) 896MB mark and read() then read
-gives EFAULT (Bad address).
-
-I have high memory support enabled and the 'free' command reports:
-
-             total
-Mem:       1036172
-
-so seeking should be OK all the way up to 1GB.
-
-Any information about these problems (including "you're wrong
-because....") is appreciated.  I'm not on the list, so please Cc:
-replies.
-
-Cheers.
-
---=-XIUubieHobpJpoYCesy2
-Content-Disposition: attachment; filename=fetch.c
-Content-Type: text/x-csrc; name=fetch.c; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-#include <sys/mman.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-
-int main( void )
-{
-  char *ptr;
-  int fd;
-  long i;
-  char z;
-
-  fd = open( "/dev/mem", O_RDONLY, 0666 );
-
-  if( fd < 0 )
-  {
-    perror( "open /dev/mem" );
-    exit( 1 );
-  }
-
-  /* map in 1G worth of physical RAM */
-  ptr = mmap( NULL, 0x40000000L, PROT_READ, MAP_SHARED, fd, 0 );
-
-  if( ptr == (void *) -1 )
-  {
-    perror( "mmap" );
-    exit( 1 );
-  }
-
-  /* print out memory at 8 meg intervals.  8M * 128 = 1024M */
-  for( i = 0; i < 128; i++ )
-  {
-    /* -> for mmap */
-    printf( "%02lx -> %x\n", i, ptr[8 * 1024 * 1024 * i] );
-
-    /* => for lseek/read */
-    if( lseek( fd, 8 * 1024 * 1024 * i, SEEK_SET ) < 0 )
-    {
-      perror( "lseek" );
-      exit( 1 );
-    }
-
-    if( read( fd, &z, 1 ) != 1 )
-    {
-      perror( "read" );
-      exit( 1 );
-    }
-
-    printf( "%02lx => %x\n", i, z );
-  }
-
-  return 0;
-}
+Index: linux-work/drivers/video/aty/radeon_pm.c
+===================================================================
+--- linux-work.orig/drivers/video/aty/radeon_pm.c	2005-02-13 23:18:52.000000000 +1100
++++ linux-work/drivers/video/aty/radeon_pm.c	2005-02-13 15:01:11.005138528 +1100
+@@ -180,7 +180,7 @@
+ 		tmp = INPLL(pllMCLK_CNTL);
+ 		tmp &= ~(MCLK_CNTL__FORCE_MCLKA |
+ 			 MCLK_CNTL__FORCE_YCLKA);
+-		OUTREG(pllMCLK_CNTL, tmp);
++		OUTPLL(pllMCLK_CNTL, tmp);
+ 		radeon_msleep(16);
+ 	}
+ 	/* Hrm... same shit, X doesn't do that but I have to */
+@@ -404,7 +404,7 @@
+ 	    ((INREG(CONFIG_CNTL) & CFG_ATI_REV_ID_MASK) < CFG_ATI_REV_A13)) {
+ 		tmp = INPLL(pllPLL_PWRMGT_CNTL);
+ 		tmp |= PLL_PWRMGT_CNTL__TCL_BYPASS_DISABLE;
+-		OUTREG(pllPLL_PWRMGT_CNTL, tmp);
++		OUTPLL(pllPLL_PWRMGT_CNTL, tmp);
+ 		radeon_msleep(15);
+ 	}
+ 
 
 
---=-XIUubieHobpJpoYCesy2--
 

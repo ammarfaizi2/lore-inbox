@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135196AbRDROvG>; Wed, 18 Apr 2001 10:51:06 -0400
+	id <S135198AbRDROxZ>; Wed, 18 Apr 2001 10:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135197AbRDROuz>; Wed, 18 Apr 2001 10:50:55 -0400
-Received: from cs.huji.ac.il ([132.65.16.10]:27342 "EHLO cs.huji.ac.il")
-	by vger.kernel.org with ESMTP id <S135196AbRDROus>;
-	Wed, 18 Apr 2001 10:50:48 -0400
-Date: Wed, 18 Apr 2001 17:50:40 +0300 (IDT)
-From: Yoav Etsion <etsman@cs.huji.ac.il>
-To: linux-kernel@vger.kernel.org
-cc: Tsafrir Dan <dants@cs.huji.ac.il>
-Subject: Re: a quest for a better scheduler
-Message-ID: <Pine.LNX.4.20_heb2.08.0104181741260.12639-100000@pomela2.cs.huji.ac.il>
+	id <S135199AbRDROxG>; Wed, 18 Apr 2001 10:53:06 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43014 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135198AbRDROwa>; Wed, 18 Apr 2001 10:52:30 -0400
+Subject: Re: [PATCH] IBM ServeRAID driver version 4.71 update
+To: P.Zandbergen@macroscoop.nl (Pim Zandbergen)
+Date: Wed, 18 Apr 2001 15:54:12 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, ipslinux@us.ibm.com (ServeRAID For Linux)
+In-Reply-To: <NCBBJAAFLJPMOAOEDDEDMEBCCHAA.P.Zandbergen@macroscoop.nl> from "Pim Zandbergen" at Apr 18, 2001 03:36:20 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14ptLU-0004u2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> contains linux-2.4.2-ips-471.patch. This looks like the official update
+> to kernel 2.4.X for the IBM ServeRAID driver.
+> 
+> I have not seen this patch published elsewhere.
+> Could we have this patch merged into the standard kernel, please?
 
-I don't want to open any old wounds, but I just got a summary from a
-colleague of mine, Dan Tsafrir, who measured the context switch overhead 
-on Linux with multiple processes. 
-
-You can find the document at:
-http://www.cs.huji.ac.il/~dants/linux-2.2.18-context-switch.ps
-
-The measurements were taken on a quad Pentium III 550MHz IBM NetFinity
-server with 1GB RAM. 
-
-Even though this was done on the older 2.2.18 kernel, this is quite
-intereseting with regard to the current scheduler discussion.
-
-
-Yoav Etsion
+I've asked them to clean up a few things.
 

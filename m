@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUA2Syl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 13:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUA2Syl
+	id S266265AbUA2TEC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 14:04:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUA2TEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 13:54:41 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:25101 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S266304AbUA2Syj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 13:54:39 -0500
-Message-ID: <401957BE.8050601@techsource.com>
-Date: Thu, 29 Jan 2004 13:58:06 -0500
-From: Timothy Miller <miller@techsource.com>
+	Thu, 29 Jan 2004 14:04:02 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266265AbUA2TEA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 14:04:00 -0500
+Date: Thu, 29 Jan 2004 14:03:58 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Satheesh Kumar <nksk76@yahoo.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel compilation : make modules fails
+In-Reply-To: <20040129185401.12454.qmail@web41010.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.53.0401291359140.521@chaos>
+References: <20040129185401.12454.qmail@web41010.mail.yahoo.com>
 MIME-Version: 1.0
-To: Torrey Hoffman <thoffman@arnor.net>
-CC: chakkerz@optusnet.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
-References: <4017F2C0.4020001@techsource.com>	 <200401291211.05461.chakkerz@optusnet.com.au>	 <40193136.4070607@techsource.com> <1075399602.9073.30.camel@moria.arnor.net>
-In-Reply-To: <1075399602.9073.30.camel@moria.arnor.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 29 Jan 2004, Satheesh Kumar wrote:
 
+> Hi,
+>
+> I installed a fresh RedHat 9.0 distribution on my
+> system. I'm trying to compile kernel with a new
+> driver. The compilation steps I'm following are as
+> below:
+> * make oldconfig
+> * make dep
+> * make bzImage
+> * make modules
+> * make modules_install
+>
+> Till 'make bzImage' everything succeeds. However,
+> 'make modules' fails.
+>
+> Can someone help me out with this? Are there any known
+> problems and solutions wit RH9.0 distribution of the
+> kernel sources? The kernel version is 2.4.20.
+>
 
-Torrey Hoffman wrote:
+Some kind of hint on how `make modules` fails? Clearly both
+2.4.20 and the RH9 distribution works okay for others.
 
-> 
-> I think I can do better than that by buying two-generation-behind cards
-> off EBay.  
-> 
-[snip]
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Agreed.  But would those not eventually run out?  Certainly, there will 
-always be a supply of used cards that are 2-generations behind, but 
-eventually, we may get to the point where all the used cards have no 
-public documentation.
-
-But perhaps at that point, Linux will dominate and the manufacturers 
-will feel pressured to open their register sets.
 

@@ -1,58 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282103AbRKWJts>; Fri, 23 Nov 2001 04:49:48 -0500
+	id <S282099AbRKWJsR>; Fri, 23 Nov 2001 04:48:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282098AbRKWJtP>; Fri, 23 Nov 2001 04:49:15 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:19146 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S282104AbRKWJsl>;
-	Fri, 23 Nov 2001 04:48:41 -0500
-Date: Fri, 23 Nov 2001 12:46:24 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: Ryan Cumming <bodnar42@phalynx.dhs.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
-In-Reply-To: <Pine.LNX.4.10.10111221926130.31054-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.33.0111231240320.3988-100000@localhost.localdomain>
+	id <S282095AbRKWJsB>; Fri, 23 Nov 2001 04:48:01 -0500
+Received: from mgw-x2.nokia.com ([131.228.20.22]:5837 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S282099AbRKWJrn>;
+	Fri, 23 Nov 2001 04:47:43 -0500
+Message-ID: <3BFE19B6.4070907@nokia.com>
+Date: Fri, 23 Nov 2001 11:41:10 +0200
+From: Dmitri Kassatkine <dmitri.kassatkine@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>, linux-netdev@vger.kernel.org,
+        linux-net@vger.kernel.org
+CC: "Vilavaara Asko (NRC/Helsinki)" <asko.vilavaara@nokia.com>,
+        "Juopperi Jari (NRC/Helsinki)" <jari.juopperi@nokia.com>,
+        "Deak Imre (EXT-Syntact/Helsinki)" <ext-imre.deak@nokia.com>,
+        Dmitri Kassatkine <Dmitri.Kassatkine@nokia.com>
+Subject: Affix Bluetooth Protocol Stack for Linux  -> http://www-nrc.nokia.com/affix
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linux folks,
 
-On Thu, 22 Nov 2001, Mark Hahn wrote:
+Nokia Research Center has decided to release Affix Bluetooth software for
+Linux under GPL. Affix implements a set of core Bluetooth protocols such 
+as L2CAP,
+RFCOMM, SDP as well as a set of Bluetooth profiles.It can be compiled as 
+a collection
+of modules or linked statically into the kernel.
 
-> only that it's nontrivial to estimate the migration costs, I think. at
-> one point, around 2.3.3*, there was some effort at doing this - or
-> something like it.  specifically, the scheduler kept track of how long
-> a process ran on average, and was slightly more willing to migrate a
-> short-slice process than a long-slice.  "short" was defined relative
-> to cache size and a WAG at dram bandwidth.
+Affix is designed to support relevant Nokia products e.g., Nokia 
+Connectivity Card (DTL-1).
+During the development, however, the following pieces of hardware have 
+also been used with
+Affix:
+- NSM Bluetooth USB dongle (NSC chipset based);
+- CSR Bluetooth USB module;
+- Socket Communications Compact Flash Card.
+- Taiyo Youden USB module.
 
-yes. I added the avg_slice code, and i removed it as well - it was
-hopeless to get it right and it was causing bad performance for certain
-application sloads. Current CPUs simply do not support any good way of
-tracking cache footprint of processes. There are methods that are an
-approximation (eg. uninterrupted runtime and cache footprint are in a
-monotonic relationship), but none of the methods (including cache traffic
-machine counters) are good enough to cover all the important corner cases,
-due to cache aliasing, MESI-invalidation and other effects.
+Affix implements currently the following Bluetooth Profiles:
+- Serial Port Profile;
+- Dialup Networking Profile;
+- LAN Access Profile;
+- OBEX Object Push Profile;
+- OBEX File Transfer Profile;
 
-> the rationale was that if you run for only 100 us, you probably don't
-> have a huge working set.  that justification is pretty thin, and
-> perhaps that's why the code gradually disappeared.
+Other Affix features:
+- Modular implementation (includes kernel patch);
+- Well defined API (Including Socket Interface for L2CAP and RFCOMM)
+- Hardware abstraction. (interface to implement transport driver -
+  PCMCIA, USB, UART).
+- SMP safe;
 
-yes.
+We successfully tested Affix for interoperability with Nokia Bluetooth
+Phone 6210 with Bluetooth battery pack, Digianswer stack for Windows,
+Compaq iPaq,  Bluetooth stack for Palm OS. For more information please
+refer to README from the Affix package.
 
-> hmm, you really want to monitor things like paging and cache misses,
-> but both might be tricky, and would be tricky to use sanely. a really
-> simple, and appealing heuristic is to migrate a process that hasn't
-> run for a long while - any cache state it may have had is probably
-> gone by now, so there *should* be no affinity.
+While we believe that Affix is an useful piece of software, please bear in
+mind that it is not an official Nokia product, but a result of the
+research activity of Nokia Research Center. For further details, please 
+read
+the files README, LICENSE, COPYING and LEGAL in the tar archive.
 
-well it doesnt take much for a process to populate the whole L1 cache with
-dirty cachelines. (which then have to be cross-invalidated if this process
-is moved to another CPU.)
+Affix WEB page:
+http://www-nrc.nokia.com/affix
 
-	Ingo
+
+Best Regards,
+Dmitri Kassatkine and other Affix team members
+Nokia Research Center
+
+-- 
+ Dmitri Kassatkine
+ Nokia Research Center / Helsinki
+ Mobile: +358 50 4836365
+ E-Mail: dmitri.kassatkine@nokia.com
+
 

@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266732AbUHCRGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266731AbUHCRIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266732AbUHCRGA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 13:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266731AbUHCRGA
+	id S266731AbUHCRIx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 13:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266741AbUHCRIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 13:06:00 -0400
-Received: from [138.15.108.3] ([138.15.108.3]:49882 "EHLO mailer.nec-labs.com")
-	by vger.kernel.org with ESMTP id S266732AbUHCRF6 (ORCPT
+	Tue, 3 Aug 2004 13:08:53 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:29579 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266731AbUHCRIv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 13:05:58 -0400
-Subject: Problem installing cloop
-From: Lei Yang <leiyang@nec-labs.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       kernelnewbies <kernelnewbies@nl.linux.org>
-Cc: Lei Yang <leiyang@nec-labs.com>
-Content-Type: text/plain
-Message-Id: <1091563549.5487.62.camel@bijar.nec-labs.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 03 Aug 2004 13:05:50 -0700
+	Tue, 3 Aug 2004 13:08:51 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Date: Tue, 3 Aug 2004 10:07:00 -0700
+User-Agent: KMail/1.6.2
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+References: <20040803023206.68123.qmail@web14921.mail.yahoo.com>
+In-Reply-To: <20040803023206.68123.qmail@web14921.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Aug 2004 17:05:48.0467 (UTC) FILETIME=[1F810030:01C4797C]
+Message-Id: <200408031007.00924.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Monday, August 2, 2004 7:32 pm, Jon Smirl wrote:
+> My original version have this in it:
+>
+> /* assign the ROM an address if it doesn't have one */
+> if (r->parent == NULL)
+>    pci_assign_resource(dev->pdev, PCI_ROM_RESOURCE);
+>
+>
+> if (r->parent) {
+>     release_resource(r);
+>     r->flags &= ~PCI_ROM_ADDRESS_ENABLE;
+>     r->end -= r->start;
+>     r->start = 0;
+> }
+>
+> I was running this code on both 2.4/2.6 but I may have needed to do
+> this for 2.4. Is it consistent to have pci_assign_resource() and then
+> use release_resource()?
+>
+> My i875P AGP controller has a ROM on it as well as my two video cards.
 
-I was trying to get
-cloop-2.0.1 built and installed on a SuSe 9.1 box with kernel version
-2.6.5 . I followed all the instructions in    
-http://www.knopper.net/download/knoppix/cloop.README
+So it seems there's some redundancy here--some platforms will map the ROMs at 
+discovery time while on others we have to map them explicitly?  Which should 
+we count on?  I was assuming the former in the last patch I posted, and would 
+like to keep it that way unless there's some reason not to.
 
-When 'make', I had to comment out the line asking for conf.vars as the
-file cannot be found and comment the lines where it was looking for
-modversions.h. Ok, it all compiled after this. But now when trying to
-'modprobe cloop', or 'insmod /path/to/cloop.ko', I get a 'Invalid module
-format'.
-
-I also tried a
-http://d.linux-bg.org/download/distros/VS_Live/src/cloop-2.01.4.p2.tgz
-Since I found others have got similar problem and there is only a link
-as suggestion. This doesn't work at all, only bring me more errors:( 
-
-TIA! This has been bothering me for a few days.
-
-Lei
-
+Thanks,
+Jesse

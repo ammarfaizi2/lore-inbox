@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267618AbUHWJeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267649AbUHWJh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267618AbUHWJeN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 05:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUHWJeN
+	id S267649AbUHWJh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 05:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbUHWJh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 05:34:13 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:29710 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S267618AbUHWJeM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 05:34:12 -0400
-Date: Mon, 23 Aug 2004 11:34:07 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Alexandre <almeida@urbi.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: wrong IDE disk size
-Message-ID: <20040823093407.GA2682@pclin040.win.tue.nl>
-References: <008601c488c3$a607dd30$21c3060a@nheotfd7dz4lxz>
+	Mon, 23 Aug 2004 05:37:28 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:18356 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S267621AbUHWJhW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 05:37:22 -0400
+Date: Mon, 23 Aug 2004 11:37:16 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: IEEE-1588
+In-Reply-To: <200408230453.35598.gene.heskett@verizon.net>
+Message-Id: <Pine.OSF.4.05.10408231112350.29749-100000@da410.ifa.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <008601c488c3$a607dd30$21c3060a@nheotfd7dz4lxz>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: dmv.com: mailhost.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: 0 () 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 23, 2004 at 12:45:35AM -0300, Alexandre wrote:
+No, NTP is a different protocol altogether. NTP runs on top of IP.
+IEEE-1588 runs on the side IP and needs at least support in the driver
+layer - if not the hardware layer!
 
-> I installed two new SAMSUNG SP1203N (120GB) drives on the same IDE.
-> But, from the boot log:
-> 
-> hdc: attached ide-disk driver.
-> hdc: host protected area => 1
-> hdc: 234493056 sectors (120060 MB) w/2048KiB Cache, CHS=14596/255/63,
-> UDMA(100)
-> hdd: attached ide-disk driver.
-> hdd: host protected area => 1
-> hdd: setmax_ext LBA 234493056, native  66055248
-> hdd: 66055248 sectors (33820 MB) w/2048KiB Cache, CHS=4111/255/63, UDMA(100)
-> 
-> So the second one get its capacity limited to ~33GB.
-> 
-> I'm running kernel 2.4.25. CONFIG_IDEDISK_STROKE is off.
+NTP is supposed to be used over the wide area network. IEEE-1588 is for local 
+area networks - mostly ethernet. NTP relies on IP for routing to
+other networks, IEEE-1588 relies on "boundary" clocks between the
+networks, i.e. the routers have IEEE-1588 implemented.
 
-You may have set the jumpers on this second disk to limit capacity.
+Take a look at
+ http://ieee1588.nist.gov/
 
-Correct jumper settings and/or try enabling CONFIG_IDEDISK_STROKE.
+(Ethereal is mentioned as understanding IEEE-1588 :-)
+
+Esben
+
+On Mon, 23 Aug 2004, Gene Heskett wrote:
+
+> On Monday 23 August 2004 03:51, Esben Nielsen wrote:
+> >Does anyone know about that standard for time syncronization? Is
+> > there any work on Linux-support?
+> >
+> >Esben
+> 
+> Sure.  There is ntpdate, intended for gross corrections at boot time, 
+> and ntp, which finetunes things if you need microsecond accuracy all 
+> day long.  I don't, so I just run ntpdate at boot time and 4x a day 
+> with cron against 4 servers chosen at random from a list of 33, using 
+> a script and a list of servers someone posted years ago now.
+> 
+> Both are installed in a normal full install, but not this script.  ntp 
+> as I understand it needs configured before its used, but it can be 
+> run from /etc/init.d by turning it on with chkconfig once its 
+> configured.
+> 
+> -- 
+> Cheers, Gene
+> "There are four boxes to be used in defense of liberty:
+>  soap, ballot, jury, and ammo. Please use in that order."
+> -Ed Howdershelt (Author)
+> 99.24% setiathome rank, not too shabby for a WV hillbilly
+> Yahoo.com attorneys please note, additions to this message
+> by Gene Heskett are:
+> Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+> 
+
+

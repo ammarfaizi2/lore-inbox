@@ -1,37 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVB1D4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVB1ETN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbVB1D4p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 22:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVB1D4p
+	id S261550AbVB1ETN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 23:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVB1ETN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 22:56:45 -0500
-Received: from fire.osdl.org ([65.172.181.4]:41629 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261543AbVB1D4o (ORCPT
+	Sun, 27 Feb 2005 23:19:13 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:14713 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261550AbVB1ETB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 22:56:44 -0500
-Message-ID: <422293DE.9030007@osdl.org>
-Date: Sun, 27 Feb 2005 19:45:34 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>, torvalds <torvalds@osdl.org>,
-       akpm <akpm@osdl.org>
-Subject: Re: [PATCH] parport_pc: use devinitdata
-References: <20050227192916.037f479f.rddunlap@osdl.org>
-In-Reply-To: <20050227192916.037f479f.rddunlap@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 27 Feb 2005 23:19:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=TbKdoExh1fALyINWQ5Mmi8M8e9WfYSA9Yi3/FcpC+9Ji7iVhWERMyq+hve58WUBrUVpVh3FxdCxmikExpGzW8XV0SSoUTlSlHigwSvmlVh+Qr7MOAHOWPhPSQ95US32R2JHYmLfMAtZ1UCPhOpNPBLQ8A3C0YPfCs0SXVs8Jn+U=
+Message-ID: <537f59d10502272019257fc784@mail.gmail.com>
+Date: Mon, 28 Feb 2005 09:49:01 +0530
+From: Vinay Reddy <vinayvinay@gmail.com>
+Reply-To: Vinay Reddy <vinayvinay@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Panic due to NF_IP_LOCAL_OUT handler calling itself again
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> parport_init_mode is used by devinit code so it should be __devinitdata;
-> 
-> Error: ./drivers/parport/parport_pc.o .text refers to 0000000000002601 R_X86_64_PC32     .init.data+0x00000000000000e0
+Hi,
+I am writing an implementation of a source routing protocol as a
+loadable module. I am using netfilter, I am not using the IP SSR
+option, I am using kernel 2.6.5, without smp and preemption support.
+My design is based on the DSR protocol. I have a header after the IP
+header, describing the source route and the route error. If 's' is the
+src, 'd' is the dst, and x1,x2 ... are the hops, the source route is :
+x1-x2...d. However unlike SSR I don't change the dst field of the ip
+header, which is set to d. Also every src routed packet carries with
+it an ack request for the next hop, to which the next hop is supposed
+to reply to.
+The jist of my code is as follows:
 
-Yes, aeb already fixed this one....  ignore it.
+pre_route_handler:
+For all source routed packets:
+	ackReply to previous hop
+	nxtHop = getNextHop(packet);
+	if(ip_route_input(myaddr,nxtHop)!=0){
+		drop packet;
+	}
+	awaitAck(nxtHop);
+	return NF_ACCEPT.
 
--- 
-~Randy
+In local_out_handler:
+	cruft a packet with the source route. route it to the first hop,
+using ip_route_output_key(flowi,skb). I then do an awaitAck(firstHop).
+
+I intend to use this protocol in wireless networks. And hence I have
+implemented an ack based design, where every node is responsible for
+ensuring that the packet makes it to the next hop. For this the
+function awaitAck does the following:
+
+awaitAck(skb):
+	add an ackRequest header.
+	add a timer(a pointer to it) in the skb->cb. 
+	put this skb to a queue.
+
+When this timer fires:
+	if rtxCount for the skb less than a MAX_RXMT, retransmit, else send a
+route error on the reverse route to the source.
+
+This scheme is working fine when there are no errors. I am testing it
+across an ethernet lan by pinging. However when there are link breaks,
+weird things happen. Specifically I am encountering the following
+problems. I am testing it with the following topology: A-B. Where A is
+the src, C is some fictional destination not connected to B. The src
+route at A is B-C.
+At B, I think that the dst->input points to ip_error instead of
+ip_forward. Note that B knows of a route to C (all A,B,C are in the
+same subnet). However I think that in rt_intern_hash function called
+by ip_route_input, the dst->neighbour is filled by the
+arp_bind_neighbour, which I expect to fail, as B doesn't know of the
+mac address of C, and arp obviously will fail as C and B are not
+connected. Surprisingly, ip_route_input succeeds, and an icmp dest
+unreachable packet is generated by ip_error (I think), which is passed
+on to the local_out_handler. Also as I have done an awaitAck on this
+skb, eventually it will time out and rxmit (using code similar to
+ip_finish_output2), and when the MAX_RXMIT limit is reached, I send a
+route error back (not using netfilter, basically calling
+dst->neighbour->output)
+Even more weird things happen at the src A if I use the topology A - -
+- B. Where again B is some fictional node not connected to A, but in
+the same subnet (the routing table so configured to put such packets
+to eth0). In the local out handler, I do a ip_route_output to B, which
+succeeds! .I call the output function okfn, given to me by netfilter
+directly and return NF_STOLEN. The next packet to come to me in
+local_out is an icmp dest unreach. It is destined to me, so I accept
+it. The next packet is again an icmp dest unreach, and after that
+somehow my local_out_handler is called again, while the first call of
+it hasn't finished. (My kernel is not smp and not preemptible). At
+times this happens over and over. My kernel then panics, either due to
+a stack overflow, or some bad eip value, or something else (with eip
+value not decoded, and nowhere in the /proc/kallsyms). I detect this
+double calling of my local_out_handler by using an atomic_t variable.
+The same effect is seen if I return an NF_DROP or NF_ACCEPT on the skb
+in the reentrant call. I have also used spinlocks but the kernel
+always crashes.
+
+To summarize:
+i) Why do ip_route_input and ip_route_output succeed, if they do, and
+arp obviously has to fail, will the dst->neighbour be null?
+ii) Since my kernel is not smp and not preemptible, the only way my
+local out can be called again is : either I call it myself, by calling
+the okfn, however okfn is always (quite rightly dst_output) and
+dst->output is always ip_output. Or since they are icmp dest unreach
+packets, they could have been called only when the prerouting returns
+with NF_ACCEPT, but my printk statements show no trace of
+pre_route_handler being called in the second test case.
+iii) How are icmp dest unreach packets sent while calling
+ip_route_output, the only place icmp_send(DEST_UNREACH) is called is
+in ip_error, which is assigned in the no_route part of ip_route_input,
+and nowhere in the ip_route_outpout.
+
+I am quite helpless, I have posted on several mailing lists(linux-net,
+kernelnewbies, etc), but haven't received any replies, Also I couldn't
+find any decent material on the web related to my problem.
+I would be obliged if someone could please help me with this. And
+please forgive me for posting such a trivial problem on lkml, but I am
+kind of desperate for help. What am I doing wrong, where can I find
+information on this?
+My code is completely based on Alex Song's DSR implementation for
+linux 2.4, available online at http://piconet.sf.net.
+
+Regards,
+Vinay

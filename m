@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272239AbTHDWQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 18:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272243AbTHDWQ5
+	id S272148AbTHDWN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 18:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272271AbTHDWN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 18:16:57 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:13828 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S272239AbTHDWQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 18:16:43 -0400
-Subject: Re: [PATCH] O13int for interactivity
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200308050746.29140.kernel@kolivas.org>
-References: <200307280112.16043.kernel@kolivas.org>
-	 <1060023104.889.7.camel@teapot.felipe-alfaro.com>
-	 <1060023516.511.0.camel@teapot.felipe-alfaro.com>
-	 <200308050746.29140.kernel@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1060035393.511.13.camel@teapot.felipe-alfaro.com>
+	Mon, 4 Aug 2003 18:13:57 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:49618 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S272148AbTHDWN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 18:13:56 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 5 Aug 2003 00:13:53 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+Message-Id: <20030805001353.6e6bbe92.skraw@ithnet.com>
+In-Reply-To: <03080416092800.04444@tabby>
+References: <20030804141548.5060b9db.skraw@ithnet.com>
+	<03080409334500.03650@tabby>
+	<20030804170506.11426617.skraw@ithnet.com>
+	<03080416092800.04444@tabby>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 05 Aug 2003 00:16:34 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-08-04 at 23:46, Con Kolivas wrote:
-> On Tue, 5 Aug 2003 04:58, Felipe Alfaro Solana wrote:
-> > OK, I had the X server reniced at -20... Renicing the X server at +0
-> > makes the XMMS skips disappear. At least, with X at +0 I've been able to
-> > reproduce them anymore.
+On Mon, 4 Aug 2003 16:09:28 -0500
+Jesse Pollard <jesse@cats-chateau.net> wrote:
+
+> > > It was also done in one of the "popular" code management systems under
+> > > unix. (it allowed a "mount" of the system root to be under the CVS
+> > > repository to detect unauthorized modifications...). Unfortunately,
+> > > the system could not be backed up anymore. 1. A dump of the CVS
+> > > filesystem turned into a dump of the entire system... 2. You could not
+> > > restore the backups... The dumps failed (bru at the time) because the
+> > > pathnames got too long, the restore failed since it ran out of disk space
+> > > due to the multiple copies of the tree being created.
+> >
+> > And they never heard of "--exclude" in tar, did they?
 > 
-> As always, thanks Felipe.
+> Doesn't work. Remember - you have to --exclude EVERY possible loop. And 
+> unless you know ahead of time, you can't exclude it. The only way we found
+> to reliably do the backup was to dismount the CVS.
 
-It's great to be helpful.
+I don't know the system, so I can only judge from your description:
+if they allow mount of something insive the cvs tree, then you have a
+mountpoint and can --exclude=mountpoint. You don't run into the system root and
+are fine, right? If you don't have known fixed mountpoints use mount -l to find
+out.
 
-> This is good news. X should be able to make xmms skip if it's -20, and X 
-> should still be smooth at 0. 
 
-X is pretty smooth, but at certain times, it feels somewhat "jumpy".
-When X is under load (not a single cpu hogger, like my standard devil
-while loop), the mouse cursor is jumpy and X gets CPU at bursts.
-Renicing X to -20 seemed to help in those situations, but caused XMMS to
-skip, so I'm not pretty sure what's better. Meanwhile, I've reniced X
-back to +0 to try to reduce those skips.
-
-At nice +0, I can reproduce X "jumpiness" by opening several instances
-of Konqueror, loading some web pages from http://www.linuxtoday.com, for
-example and then arrange them all "tiled" (more or less tiled is
-perfect, too) on the screen. Then, I drag a window over them as fast as
-I can, then as slow as I can. This causes a lot of repainting, increases
-CPU usage and, instead of concentrating all the CPU usage on a single
-process (like the devil while loop), the load is distributed among all
-the Konqueror processes. That makes X to not feel smooth, but jumpy.
-
-Evolution is another kind of application that requires kinda lot of CPU
-power when requested to do repainting. Many times, forcing Evolution to
-repaint itself, by moving a window over it, generates a lot of "uncover"
-events. Sometimes, Evolution feels pretty smooth, and other times, the
-window I'm dragging over Evolution starts moving not so smoothly.
-
-But anyway, I still feels this is getting on the right track. I think
-it's a matter of time and a little tuning, but this will rock in the
-end.
-
+Regards,
+Stephan

@@ -1,45 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129652AbRCAPcA>; Thu, 1 Mar 2001 10:32:00 -0500
+	id <S129639AbRCAP33>; Thu, 1 Mar 2001 10:29:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129657AbRCAPbk>; Thu, 1 Mar 2001 10:31:40 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:50048 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129652AbRCAPba>; Thu, 1 Mar 2001 10:31:30 -0500
-Date: Thu, 1 Mar 2001 10:31:07 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: God <atm@pinky.penguinpowered.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Stable Version?
-In-Reply-To: <Pine.LNX.4.21.0103011008550.918-100000@scotch.homeip.net>
-Message-ID: <Pine.LNX.3.95.1010301102543.12423A-100000@chaos.analogic.com>
+	id <S129652AbRCAP3T>; Thu, 1 Mar 2001 10:29:19 -0500
+Received: from [62.90.5.51] ([62.90.5.51]:35079 "EHLO salvador.shunra.co.il")
+	by vger.kernel.org with ESMTP id <S129639AbRCAP3H>;
+	Thu, 1 Mar 2001 10:29:07 -0500
+Message-ID: <F1629832DE36D411858F00C04F24847A11DECE@SALVADOR>
+From: Ofer Fryman <ofer@shunra.co.il>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Intel-e1000 for Linux 2.0.36-pre14
+Date: Thu, 1 Mar 2001 17:33:46 +0200 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="WINDOWS-1255"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Mar 2001, God wrote:
+I managed to compiled e1000 for Linux 2.0.36-pre14, I can also load it
+successfully. 
+With the E1000_IMS_RXSEQ bit set in IMS_ENABLE_MASK I get endless interrupts
+and the computer freezes, without this bit set it works but I cannot receive
+or send anything.
 
-> 
-> Hello,
-> 
-> I'll make this quick as I know how much traffic this list gets.
-> 
-> What version of the 2.4.x kernels is actually stable enough to use?
-
-I have been running 2.4.1 on 12 SMP machines with minimal problems.
-All these machines are SCSI (no IDE is even enabled in the BIOS).
-SCSI is aic7xxx and BusLogic. Network cards, 3c59x, eepro100, pcnet32.
-All the machines are daily hard-at-word. One is our main name-server.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Does any one have a clue?.
+Thanks
+Ofer

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131180AbQLQKts>; Sun, 17 Dec 2000 05:49:48 -0500
+	id <S131630AbQLQK6B>; Sun, 17 Dec 2000 05:58:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131630AbQLQKti>; Sun, 17 Dec 2000 05:49:38 -0500
-Received: from mail.valinux.com ([198.186.202.175]:46349 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S131180AbQLQKtY>;
-	Sun, 17 Dec 2000 05:49:24 -0500
-To: lukasz@lt.wsisiz.edu.pl
-CC: twaugh@redhat.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <Pine.LNX.4.30.0012170143360.4003-100000@lt.wsisiz.edu.pl>
-	(message from Lukasz Trabinski on Sun, 17 Dec 2000 01:51:15 +0100
-	(CET))
-Subject: Re: [patch] 2.2.18 PCI_DEVICE_ID_OXSEMI_16PCI954
-From: tytso@valinux.com
-Phone: (781) 391-3464
-In-Reply-To: <Pine.LNX.4.30.0012170143360.4003-100000@lt.wsisiz.edu.pl>
-Message-Id: <E147ato-0006CZ-00@beefcake.hdqt.valinux.com>
-Date: Sun, 17 Dec 2000 02:18:36 -0800
+	id <S132070AbQLQK5w>; Sun, 17 Dec 2000 05:57:52 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:21508 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131630AbQLQK5s>; Sun, 17 Dec 2000 05:57:48 -0500
+Date: Sun, 17 Dec 2000 10:27:19 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Rasmus Andersen <rasmus@jaquet.dk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] link time error in drivers/mtd (240t13p2)
+In-Reply-To: <20001216230701.E609@jaquet.dk>
+Message-ID: <Pine.LNX.4.30.0012171024500.14423-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Sun, 17 Dec 2000 01:51:15 +0100 (CET)
-   From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+On Sat, 16 Dec 2000, Rasmus Andersen wrote:
 
-   OK, You have right, I'm not a driver programmer, but it probably should
-   look like this:
+> Various files in drivers/mtd references cfi_probe (by way of do_cfi_probe).
+> This function is static and thus not shared. The following patch removes
+> the static declaration but if it is What Was Intended I do not know. It
+> makes the kernel link, however.
 
-   +#define PCI_DEVICE_ID_OXSEMI_16PCI954   0x9501
+It is intended, thanks. Not only does it make the inter_module_xxx case
+work reliably, but it also allows you to compile the code at all under
+2.0 uCLinux. The reason it was omitted from test12 is because there are a
+handful of other changes to the CFI code which I haven't yet tested as
+thoroughly as I want to. If you're using CFI flash, please could you test
+the latest version from my CVS tree and let me know the results?
 
-That's correct, yes.  The reason why the original poster was having
-problems was that the serial_compat.h defined PCI_VENDOR_ID_OXSEMI
-PCI_DEVICE_ID_OXSEMI_16PCI954 if PCI_VENDOR_ID_OXSEMI was not defined.
-Since 2.2.18 defines PCI_VENDOR_ID_OXSEMI, but ..._OXSEMI_16PCI954, the
-5.05 serial.c wouldn't compile.  
 
-When we integrate a newer serial driver into 2.2.19, I'll include the
-necessary patches to pci_ids.h.  
+-- 
+dwmw2
 
-   Why serial.c from the 2.2.18 not support 921600 speed? We have to patch
-   it...
 
-2.2.18 has an old serial driver that doesn't know about PCI devices.
-The updated serial driver available at http://serial.sourceforge.net
-should deal with this correctly.
-
-							- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263573AbUDZVEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263577AbUDZVKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbUDZVEI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 17:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbUDZVEI
+	id S263577AbUDZVKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 17:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbUDZVKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 17:04:08 -0400
-Received: from smtp10.wanadoo.fr ([193.252.22.21]:16293 "EHLO
-	mwinf1003.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S263573AbUDZVED convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 17:04:03 -0400
-From: Fabrice =?iso-8859-1?q?M=E9nard?= <menard.fabrice@wanadoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: fbcon and unimap
-Date: Mon, 26 Apr 2004 23:07:54 +0200
-User-Agent: KMail/1.5.2
-Cc: jsimmons@infradead.org, geert@linux-m68k.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200404262307.54767.menard.fabrice@wanadoo.fr>
+	Mon, 26 Apr 2004 17:10:24 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:63377 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S263577AbUDZVKV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 17:10:21 -0400
+Subject: Re: [PATCH 11/11] nfs-acl
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1082975215.3295.81.camel@winden.suse.de>
+References: <1082975215.3295.81.camel@winden.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1083013819.15282.56.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 26 Apr 2004 17:10:19 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2004-04-26 at 06:28, Andreas Gruenbacher wrote:
+> Client nfsacl support
+> 
+> Add support for the nfsacl protocol extension to nfs.
+> 
 
-Trying to solve my latin1 char problems with the framebuffer console, I found 
-that fbcon doesn't set a unicode map (2.6.5 kernel).
+Why do we have to allocate an extra socket here? Can't we always assume
+that the NFSACL server will listen on port 2049 (the same as the NFS
+server)?
 
-Here is the patch:
+If so, we can simply clone the NFS rpc_client in order to share the
+socket/security flavours/...
 
---- linux-2.6.5.original/drivers/video/console/fbcon.c	2004-04-26 
-21:05:57.000000000 +0200
-+++ linux-2.6.5/drivers/video/console/fbcon.c	2004-04-26 22:06:04.000000000 
-+0200
-@@ -609,6 +609,7 @@
- 		fb_display[unit].scrollmode = SCROLL_YNOMOVE;
- 	else
- 		fb_display[unit].scrollmode = SCROLL_YREDRAW;
-+	con_set_default_unimap(unit);
- 	fbcon_set_display(vc, init, !init);
- }
- 
-Don't know if it helps; I cc this message to the mainainer for an eventual 
-inclusion in the next release.
+BTW: why does the client side NFS_ACL select QSORT? Can't userland do
+all that for us?
 
-
-ps: if my english is too bad, please send me a note !
--- 
-Fabrice Ménard
-menard.fabrice@wanadoo.fr
-
-
+Cheers,
+  Trond

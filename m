@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264780AbRFXVj7>; Sun, 24 Jun 2001 17:39:59 -0400
+	id <S264784AbRFXVtk>; Sun, 24 Jun 2001 17:49:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264779AbRFXVjt>; Sun, 24 Jun 2001 17:39:49 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:52584
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S264772AbRFXVji>; Sun, 24 Jun 2001 17:39:38 -0400
-Date: Sun, 24 Jun 2001 23:39:32 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: alan@lxorguk.ukuu.org.uk
+	id <S264788AbRFXVta>; Sun, 24 Jun 2001 17:49:30 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2057 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264784AbRFXVtS>; Sun, 24 Jun 2001 17:49:18 -0400
+Subject: Re: Some experience of linux on a Laptop
+To: pzycrow@hotmail.com (John Nilsson)
+Date: Sun, 24 Jun 2001 22:48:54 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] add create_proc_entry check to videodev.c (245ac16)
-Message-ID: <20010624233932.J847@jaquet.dk>
-Mime-Version: 1.0
+In-Reply-To: <F175UFyfL1QMaCAP6Ki00001f92@hotmail.com> from "John Nilsson" at Jun 24, 2001 10:51:56 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15EHkU-0000Wu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> Features I would like in the kernel:
+> 1: Make the whole insmod-rmmod tingie a kernel internal so they could be 
+> trigged before rootmount.
 
-The patch below adds a check for create_proc_entry return code
-in drivers/media/video/videodev.c. It applies against 245-ac16
-and 246p6.
+Already there. In fact Red Hat uses it for the scsi devices. That is what
+initrd is for. 
 
+> 2: Compile time optimization options in Make menuconfig
 
---- linux-245-ac16-clean/drivers/media/video/videodev.c	Sun May 27 22:15:23 2001
-+++ linux-245-ac16/drivers/media/video/videodev.c	Sun Jun 24 23:33:36 2001
-@@ -373,6 +373,8 @@
- 		return;
- 
- 	p = create_proc_entry(name, S_IFREG|S_IRUGO|S_IWUSR, video_dev_proc_entry);
-+	if (!p)
-+		return;
- 	p->data = vfd;
- 	p->read_proc = videodev_proc_read;
- 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+such as ?
 
-Genius may have its limitations, but stupidity is not thus handicapped. 
-  -- Elbert Hubbard 
+> 3: Lilo/grub config in make menuconfig
+
+make bzlilo does the lilo install - what else would you expect there
+
+> 4: make bzImage && make modules && make modules install && cp 
+> arch/i386/boot/bzImage /boot/'uname -r' something inside make menuconfig
+
+So really you want an outside GUI tool that lets you reconfigure build and
+install kernels. Yeah I'd agree with that. Someone just needs to write the
+killer gnome/kde config tool. I've got C code for parsing/loading config.in
+files and deducing the dependancy constraints if anyone ever wants to try
+and write such a tool 8)
+
+> 5: Better support for toshiba computers... well try =)
+
+modprobe toshiba and look at http://www.buzzard.org.uk/toshiba/
+
+> 6: Wouldn't it be easier for svgalib/framebuffer/GGI/X11 and others if the 
+> graphiccard drivers where kernel modules?
+
+No. 
+
+> 8: A way to change kernel without rebooting. I have no diskdrive or cddrive 
+> in my laptop so I often do drastic things when I install a new distribution.
+
+Thats actually an incredibly hard problem to solve. The only people who do
+this level of stuff are some of the telephony folks, and the expensive 
+tandem non-stop boxes.
+
+Alan
+

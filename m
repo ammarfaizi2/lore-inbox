@@ -1,18 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313970AbSDPXzx>; Tue, 16 Apr 2002 19:55:53 -0400
+	id <S313971AbSDQAD7>; Tue, 16 Apr 2002 20:03:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313971AbSDPXzw>; Tue, 16 Apr 2002 19:55:52 -0400
-Received: from jalon.able.es ([212.97.163.2]:62169 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S313970AbSDPXzv>;
-	Tue, 16 Apr 2002 19:55:51 -0400
-Date: Wed, 17 Apr 2002 01:55:44 +0200
+	id <S313974AbSDQAD6>; Tue, 16 Apr 2002 20:03:58 -0400
+Received: from jalon.able.es ([212.97.163.2]:21466 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S313971AbSDQAD5>;
+	Tue, 16 Apr 2002 20:03:57 -0400
+Date: Wed, 17 Apr 2002 02:03:51 +0200
 From: "J.A. Magallon" <jamagallon@able.es>
-To: Jacek Boboli <hussaile@ant.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel-2.4.19pre7
-Message-ID: <20020416235544.GA1800@werewolf.able.es>
-In-Reply-To: <200204162332.g3GNW4u25399@smtp.wanadoo.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCHSET] Linux 2.4.19-pre7-jam1
+Message-ID: <20020417000351.GC1800@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
@@ -21,32 +19,24 @@ X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-On 2002.04.17 Jacek Boboli wrote:
->Hello !
->
->Got no problem formerly with pre3 but now have problems with make bzImage and 
->make install, just when finalizing.
->
->.....
->.....
->	--end-group \
->	-o vmlinux
->fs/fs.o: In function 'create_data_partitions' ......
->fs/fs.o(.text+0x23101):undefined reference to 'page_cache_release'
->.....
->......
->the same with 'get_disk_objid' and finally :
->more undefined references to 'page_cache_release' follow
->make:***[vmlinux]Error1
->
->then bash again. no bzImage is created.
->modules seems OK.
->
+New version, just collected latest important bugfixes:
 
-Apply this:
+- Serial port number assign (05-serial.gz)
+- pagemap.h include for fs/ (04-fs-pagemap.gz)
+- unlocking order in buffer.c::end_buffer_io_kiobuf (03-unlock-bh-before.gz)
 
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre7-jam1/04-fs-pagemap.gz
+And a couple new additions:
+
+- ide update -3a (very shrinked wrt original, the big ppc part has gone
+  in mainline)
+- netconsole-C2-2 (for my beowulf...)
+
+Rest as usual, O1-sched-k3 (is any backport of the updates planned ??)
+mini-low-lat, splitted-vm-33, bproc-3.1.9.
+
+Enjoy !!
 
 -- 
 J.A. Magallon                           #  Let the source be with you...        

@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbTEMOfD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 10:35:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbTEMOfD
+	id S261326AbTEMOhk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 10:37:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbTEMOhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 10:35:03 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:60037 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261252AbTEMOfC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 10:35:02 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Tue, 13 May 2003 10:37:40 -0400
+Received: from siaag2ad.compuserve.com ([149.174.40.134]:48283 "EHLO
+	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S261326AbTEMOhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 10:37:38 -0400
+Date: Tue, 13 May 2003 10:45:58 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: The disappearing sys_call_table export.
+To: Jesse Pollard <jesse@cats-chateau.net>, Yoav Weiss <ml-lkml@unpatched.org>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Message-ID: <200305131048_MC3-1-38B1-E13F@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16065.1422.44816.110091@laputa.namesys.com>
-Date: Tue, 13 May 2003 18:47:42 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Andreas Schwab <schwab@suse.de>
-Cc: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>,
-       Adrian McMenamin <adrian@mcmen.demon.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: inode values in file system driver
-In-Reply-To: <je3cjihq6h.fsf@sykes.suse.de>
-References: <200305102118.20318.adrian@mcmen.demon.co.uk>
-	<20030513135150.GA1049@arthur.home>
-	<je3cjihq6h.fsf@sykes.suse.de>
-X-Mailer: VM 7.14 under 21.5  (beta11) "cabbage" XEmacs Lucid
-Emacs: if SIGINT doesn't work, try a tranquilizer.
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab writes:
- > Erik Mouw <J.A.K.Mouw@its.tudelft.nl> writes:
- > 
- > |> On Sat, May 10, 2003 at 09:18:20PM +0100, Adrian McMenamin wrote:
- > |> > Am I allowed to assign the value 0 to an inode in a file system driver? I seem 
- > |> > to be having problems with a file that is being assigned this inode value 
- > |> > (its a FAT based filesystem so the inode values are totally artificial).
- > |> 
- > |> Yes, you are. However, glibc thinks that inode 0 is special and won't
- > |> show it.
- > 
- > BS. This has nothing at all to do with glibc.
+Jesse Pollard wrote:
 
-from glibc-2.2.4/sysdeps/unix/readdir.c:
+> > However, it'll just give you false sense of security.  First of all, its
+> > hardware dependent.  Second, it won't get wipe in case of a crash (which
+> > is likely to happen when They come to take your disk).
+>
+> It is also not a valid wipe either.
+> 
+> This particular object reuse assumes the hardware is in a secured area. If it
+> is in a secured area then you don't need to wipe it. It remains completely 
+> under the systems control (even during a crash and reboot). The interval 
+> between crash and reboot is covered by the requirement to be in a secured 
+> area.
 
-      /* Skip deleted files.  */
-    } while (dp->d_ino == 0);
+  ...until the admin walks in, shuts down the system, puts it on a cart
+and hauls it out the door.  Is he going to wipe the swap area before he
+does that?  Sure, you can write a procedure that says that's what he does
+but he will not follow it (been there done that.)
 
-In other words, readdir(3) will not return dirent for inode with ino 0.
 
- > 
- > Andreas.
- > 
-
-Nikita.

@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265037AbTBTJY4>; Thu, 20 Feb 2003 04:24:56 -0500
+	id <S265008AbTBTJYW>; Thu, 20 Feb 2003 04:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265039AbTBTJY4>; Thu, 20 Feb 2003 04:24:56 -0500
-Received: from 251.017.dsl.syd.iprimus.net.au ([210.50.55.251]:27015 "EHLO
-	file1.syd.nuix.com.au") by vger.kernel.org with ESMTP
-	id <S265037AbTBTJYy> convert rfc822-to-8bit; Thu, 20 Feb 2003 04:24:54 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Song Zhao <song.zhao@nuix.com.au>
-Reply-To: song.zhao@nuix.com.au
-Organization: Nuix
-To: linux-kernel@vger.kernel.org
-Subject: Supermicro X5DL8-GG (ServerWorks Grandchampion LE chipset) slow
-Date: Thu, 20 Feb 2003 20:34:28 -0500
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200302202034.28676.song.zhao@nuix.com.au>
+	id <S265039AbTBTJYW>; Thu, 20 Feb 2003 04:24:22 -0500
+Received: from ns.suse.de ([213.95.15.193]:44045 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S265008AbTBTJYV>;
+	Thu, 20 Feb 2003 04:24:21 -0500
+Date: Thu, 20 Feb 2003 10:34:22 +0100
+From: Andi Kleen <ak@suse.de>
+To: Simon Kirby <sim@netnation.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, davem@redhat.com
+Subject: Re: Longstanding networking / SMP issue? (duplextest)
+Message-ID: <20030220093422.GA16369@wotan.suse.de>
+References: <20030219174757.GA5373@netnation.com.suse.lists.linux.kernel> <p73r8a3xub5.fsf@amdsimf.suse.de> <20030220092043.GA25527@netnation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030220092043.GA25527@netnation.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+On Thu, Feb 20, 2003 at 01:20:43AM -0800, Simon Kirby wrote:
+> On Thu, Feb 20, 2003 at 08:52:46AM +0100, Andi Kleen wrote:
+> 
+> > That's probably because of the lazy ICMP socket locking used for the
+> > ICMP socket. When an ICMP is already in process the next ICMP triggered
+> > from a softirq (e.g. ECHO-REQUEST) is dropped  
+> > (see net/ipv4/icmp_xmit_lock_bh())
+> 
+> Hmm...and this is considered desired behavior?  It seems like an odd way
+> of handling packets intended to test latency and reliability. :)
 
-I've been doing some benchmarks with this board, it is terribly disppointing. 
-Has anyone had similar experiences?
+IP is best-effort. Dropping packets in odd cases to make locking simpler
+is not unreasonable. Would you prefer an slower kernel?
 
-The hardware spec is:
-Dual 2.8GHz Xeon, 3ware Escalade 7850 (7500-8) 12 port IDE RAID controller, 
-RAID 10, 4x 1GB DDR SDRAM Registered ECC, 2x 80GB WD HDD, 10x 120GB WD HDD, 
-ServerWorks Grand Champion LE. 
+-Andi
 
-I am running RH7.3 with 2.4.20 kernel. The performance of this box is about 
-half of an almost identical box (Supermicro X5DP8-G2 mobo, E7501 chipset)
-
-Also, this board can't even boot with 8x 1GB memory modules plugged in (8 DIMM 
-slots in total). This is a relative new board and I can't find anything 
-relevant on the net. 
-
-cheers,
-Song Zhao

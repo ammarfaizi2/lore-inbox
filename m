@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268022AbUHKKpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268020AbUHKKtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268022AbUHKKpO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 06:45:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268021AbUHKKpO
+	id S268020AbUHKKtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 06:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268021AbUHKKtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 06:45:14 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:31502 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268020AbUHKKo5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 06:44:57 -0400
-Date: Wed, 11 Aug 2004 11:44:37 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Ketrenos <jketreno@linux.intel.com>
-Cc: Pavel Machek <pavel@suse.cz>, Christoph Hellwig <hch@infradead.org>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-Message-ID: <20040811114437.A27439@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Ketrenos <jketreno@linux.intel.com>,
-	Pavel Machek <pavel@suse.cz>,
-	Jeff Chua <jeffchua@silk.corp.fedex.com>,
-	Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <4119F203.1070009@linux.intel.com>
+	Wed, 11 Aug 2004 06:49:25 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:59569 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S268020AbUHKKtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 06:49:21 -0400
+Date: Wed, 11 Aug 2004 11:47:35 +0100
+From: Dave Jones <davej@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][trivial] line up 'ESR value before/after enabling vector' messages
+Message-ID: <20040811104735.GA24149@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ingo Molnar <mingo@elte.hu>, Jesper Juhl <juhl-lkml@dif.dk>,
+	LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <Pine.LNX.4.61.0408110145030.2690@dragon.hygekrogen.localhost> <20040811062314.GA32700@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4119F203.1070009@linux.intel.com>; from jketreno@linux.intel.com on Wed, Aug 11, 2004 at 05:16:35AM -0500
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20040811062314.GA32700@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 05:16:35AM -0500, James Ketrenos wrote:
-> We're currently working to clean up ipw2100 and ieee80211 code for submission to 
-> netdev for discussion and hopefully inclusion in the future.  The ieee80211 code 
-> is still being heavily developed, but its usable.  If anyone wants to help out, 
-> or if folks feel its ready as-is to get pulled into wireless-2.6, let me know.
+On Wed, Aug 11, 2004 at 08:23:14AM +0200, Ingo Molnar wrote:
+ > 
+ > * Jesper Juhl <juhl-lkml@dif.dk> wrote:
+ > 
+ > > -				" %08lx\n", value);
+ > > +				"  %08lx\n", value);
+ > 
+ > > -		Dprintk("ESR value after enabling vector: %08x\n", value);
+ > > +		Dprintk("ESR value after enabling vector:  %08x\n", value);
+ > 
+ > Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Maybe we should switch to your ieee802.11 for a generic wireless stack then
-instead of the original hostap code.  At least it seems more actively
-maintained right now and supports two drivers already.
+Has this printk actually been useful ? ever ?
+I notice a majority of the time, it never changes too.
+If it is useful, how about changing it so it prints something
+if the value changed ?  (Something like patch below maybe?)
+Or is possible for the APIC to lock up between the two printk's ?
 
-Btw, I've looked at the ipw2100 and have to concerns regarding the firmware,
+		Dave
 
- a) yo'ure not using the proper firmware loader but some horrible
-    handcrafted code using sys_open/sys_read & co that's not namespace
-    safe at all
- b) the firmware has an extremly complicated and hard to comply with license,
-    I'm not sure we want a driver that can't work without a so strangely
-    licensed blob in the kernel. Can you talk to intel lawyers and put it on
-    simple redristribution and binary modification for allowed for all purposes
-    license please?
-    
 
+Only print out the ESR value if it changes after enabling vector.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+--- 1/arch/i386/kernel/apic.c~	2004-08-11 11:43:32.022485536 +0100
++++ 2/arch/i386/kernel/apic.c	2004-08-11 11:45:10.824465352 +0100
+@@ -335,7 +335,7 @@
  
-> Thanks,
-> James
-> 
-> 
-> 
----end quoted text---
+ void __init setup_local_APIC (void)
+ {
+-	unsigned long value, ver, maxlvt;
++	unsigned long oldvalue, value, ver, maxlvt;
+ 
+ 	/* Pound the ESR really hard over the head with a big hammer - mbligh */
+ 	if (esr_disable) {
+@@ -449,9 +449,7 @@
+ 		maxlvt = get_maxlvt();
+ 		if (maxlvt > 3)		/* Due to the Pentium erratum 3AP. */
+ 			apic_write(APIC_ESR, 0);
+-		value = apic_read(APIC_ESR);
+-		printk("ESR value before enabling vector: %08lx\n", value);
+-
++		oldvalue = apic_read(APIC_ESR);
+ 		value = ERROR_APIC_VECTOR;      // enables sending errors
+ 		apic_write_around(APIC_LVTERR, value);
+ 		/*
+@@ -460,7 +458,9 @@
+ 		if (maxlvt > 3)
+ 			apic_write(APIC_ESR, 0);
+ 		value = apic_read(APIC_ESR);
+-		printk("ESR value after enabling vector: %08lx\n", value);
++		if (value != oldvalue)
++			printk("ESR value before enabling vector: %08lx  after: %08lx\n",
++							oldvalue, value);
+ 	} else {
+ 		if (esr_disable)	
+ 			/* 

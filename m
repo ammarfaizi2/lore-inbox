@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271617AbRIBNLu>; Sun, 2 Sep 2001 09:11:50 -0400
+	id <S271618AbRIBNNa>; Sun, 2 Sep 2001 09:13:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271618AbRIBNLl>; Sun, 2 Sep 2001 09:11:41 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:18438 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271617AbRIBNLZ>;
-	Sun, 2 Sep 2001 09:11:25 -0400
-Date: Sun, 2 Sep 2001 10:11:21 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Samium Gromoff <_deepfire@mail.ru>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Rik`s ac12-pmap2 vs ac12-vanilla perfcomp
-In-Reply-To: <200109021710.f82HAbD00606@vegae.deep.net>
-Message-ID: <Pine.LNX.4.33L.0109021009310.24097-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S271619AbRIBNNU>; Sun, 2 Sep 2001 09:13:20 -0400
+Received: from ns.suse.de ([213.95.15.193]:59909 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S271618AbRIBNNK>;
+	Sun, 2 Sep 2001 09:13:10 -0400
+To: Elisheva Alexander <ealexand@checkpoint.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: buffer_head slab memory leak, Linux bug?
+In-Reply-To: <20010902140126.E28228@checkpoint.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 02 Sep 2001 15:13:27 +0200
+In-Reply-To: Elisheva Alexander's message of "2 Sep 2001 13:18:17 +0200"
+Message-ID: <oupbsktzqfc.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Sep 2001, Samium Gromoff wrote:
+Elisheva Alexander <ealexand@checkpoint.com> writes:
 
->    No flames please - i know these were low VM loads, i did this just
-> to know how big is test rmaps maitenance overhead. It shows us that
-> even on low VM load there is a huge win in using rmap. And the win
-> increases with the VM load.
 
-Interesting, I'm just at a proof-of-concept implementation right
-now, which is not yet stable or ready.  ;)
+> it happens quite often (at random), so it's not too hard to recreate it.
 
-I guess page replacement _is_ important...
+It is linux telling you that your code is crappy ;)
 
-cheers,
+It's easy to fix. You just need to fix the lock to not turn off interrupts
+for such a long time. If you're writing non driver network code you likely don't need
+an _irqsave lock anyways, as a _bh lock should suffice. Better would be to use 
+a different lock structure however for such long locks that do not depend on blocking 
+bottom halves or interrupts (e.g. see how the TCP socket lock works as an example) 
 
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+-Andi
 

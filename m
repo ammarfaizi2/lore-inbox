@@ -1,29 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRACOpA>; Wed, 3 Jan 2001 09:45:00 -0500
+	id <S130850AbRACOyL>; Wed, 3 Jan 2001 09:54:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130139AbRACOou>; Wed, 3 Jan 2001 09:44:50 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18440 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129348AbRACOoj>; Wed, 3 Jan 2001 09:44:39 -0500
-Subject: Re: [PATCH] 2.4.0-prerelease-ac4: i810_audio.c: Alternate VRA fix
-To: anwar@austin.rr.com (Anwar Payyoorayil)
-Date: Wed, 3 Jan 2001 14:16:21 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <3A7BB6B1.ABF71834@austin.rr.com> from "Anwar Payyoorayil" at Feb 03, 2001 01:43:45 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131135AbRACOyB>; Wed, 3 Jan 2001 09:54:01 -0500
+Received: from colorfullife.com ([216.156.138.34]:9745 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130850AbRACOxz>;
+	Wed, 3 Jan 2001 09:53:55 -0500
+Message-ID: <3A5335D4.C349DC4A@colorfullife.com>
+Date: Wed, 03 Jan 2001 15:23:16 +0100
+From: Manfred <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-prerelease i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: dominik.kubla@uni-mainz.de, linux-kernel@vger.kernel.org
+Subject: Re: Further ACPI woes with 2.4.0-prerelease
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14DoiG-00041w-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If we find that somebody needs this reset, we can move the VRA enabling code
-> after the codec reset code.
+> ACPI: System description tables not found
 
-Thanks. That now all makes sense
+I would check the Tyan pages for bios upgrades. I had to upgrade my bios
+(gigabyte bxd dual cpu board) before w2k accepted the acpi tables.
+
+Linux still refuses to accept the acpi tables :-(
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

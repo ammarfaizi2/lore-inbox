@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269186AbRHaUfn>; Fri, 31 Aug 2001 16:35:43 -0400
+	id <S269318AbRHaUhx>; Fri, 31 Aug 2001 16:37:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269206AbRHaUfe>; Fri, 31 Aug 2001 16:35:34 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:60548 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S269186AbRHaUfW>;
-	Fri, 31 Aug 2001 16:35:22 -0400
-Message-ID: <3B8FF4D4.BC5FA378@rchland.vnet.ibm.com>
-Date: Fri, 31 Aug 2001 15:34:28 -0500
-From: David Engebretsen <engebret@vnet.ibm.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; AIX 4.3)
-X-Accept-Language: en
+	id <S269254AbRHaUho>; Fri, 31 Aug 2001 16:37:44 -0400
+Received: from anime.net ([63.172.78.150]:45833 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S269229AbRHaUhh>;
+	Fri, 31 Aug 2001 16:37:37 -0400
+Date: Fri, 31 Aug 2001 13:37:16 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        David Hollister <david@digitalaudioresources.org>,
+        Jan Niehusmann <jan@gondor.com>, <linux-kernel@vger.kernel.org>,
+        <rgooch@atnf.csiro.au>
+Subject: Re: Athlon doesn't like Athlon optimisation?
+In-Reply-To: <E15coqr-0003DR-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0108311335150.9298-100000@anime.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        linuxppc64-dev@lists.linuxppc.org
-CC: tom_gall@vnet.ibm.com
-Subject: [PATCH] ppc64 update
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -
+On Fri, 31 Aug 2001, Alan Cox wrote:
+> > So what happens when someone is able to duplicate the problem on say AMD
+> > 760MP chipset with registered ECC PC2100 ram and 450W power supply?
+> > Not to say it has happened yet (I havent got my dual Tyan Tiger MP yet :-)
+> > but where would the finger start pointing then?
+> That would make it a lot more complex. There were a few cases much earlier
+> on with AMD chipset lockups but those have been cured (and were an Athlon
+> processor errata where a prefetch of an uncacheable line made a very very
+> nasty mess).
 
-The patch referenced here provides updates for ppc64. The changes
-include
-bug fixes, performance fixes, feature enhancements, and general cleanup.
+Can you define a hardware configuration that if it fails under athlon
+optimizations, you would consider a falsification of the "marginal
+hardware" theory?
 
-This patch applies against 2.4.9-ac3 and can be found at:
+I want a hardware config that will get everyones attention if it fails.
 
-ftp.kernel.org:/pub/linux/kernel/people/tgall/linuxppc64-2.4.9-ac3-ibm-2.patch.gz
+-Dan
 
-ppc64 users should be cautioned as this is not a complete patch.
-Additional
-patches can be found on linuxppc64.org.
-
-Highlights of this patch (in no particular order):
-
-- cleanup and removal of work arounds for gcc 2.95.3, gcc 3.0.1 now
-required
-- documentation of new configuration options
-- cleanup of Config.in (thanks to Andrzej Krzysztofov)
-- zImage, SBSS, BSS fixes
-- iSeries machines are now supported
-- > 3 gig memory support on p640 bug fix
-- mschunks for sparce discontiguous memory support
-- bolt all real pages in the HPT
-
-Thanks to the members of the ppc64 team who have all contributed to the
-code:
-
-Peter Bergner, Anton Blanchard, Mike Corrigan, Dave Engebretsen,
-Tom Gall, Todd Inglett, Paul Mackerras, Pat McCarthy, Steve Munroe,
-Don Reed, and Al Trautman.
-
-Dave Engebretsen
-IBM Corp
-PPC64 Development
-
-
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

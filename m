@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265732AbUGDPTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265727AbUGDPXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265732AbUGDPTH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 11:19:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265727AbUGDPTG
+	id S265727AbUGDPXz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 11:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbUGDPXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 11:19:06 -0400
-Received: from gprs214-240.eurotel.cz ([160.218.214.240]:46728 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265732AbUGDPTE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 11:19:04 -0400
-Date: Sun, 4 Jul 2004 17:18:49 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Erik Rigtorp <erik@rigtorp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel/power/swsusp.c
-Message-ID: <20040704151848.GC8488@elf.ucw.cz>
-References: <20040703172843.GA7274@linux.nu> <20040703204647.GE31892@elf.ucw.cz> <20040704133715.GA4717@linux.nu>
+	Sun, 4 Jul 2004 11:23:55 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:41937 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265727AbUGDPXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 11:23:53 -0400
+Date: Sun, 4 Jul 2004 16:23:52 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Bernd Schubert <bernd-schubert@web.de>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: 2.6.7: sk98lin unload oops
+Message-ID: <20040704152352.GA5243@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Bernd Schubert <bernd-schubert@web.de>,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+References: <200407041342.18821.bernd-schubert@web.de> <20040704151509.GA5100@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040704133715.GA4717@linux.nu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040704151509.GA5100@infradead.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > You are moving it inside function that should have no business doing
-> > this... Would something like this work better? [hand-edited, apply by
-> > hand; untested].
+On Sun, Jul 04, 2004 at 04:15:09PM +0100, Christoph Hellwig wrote:
+> > Fortunality everything still works fine (I'm running the script over the 
+> > network of the syskonnect cards).
+> > 
+> > This machine has two of those syskonnect cards, on another machine which has 
+> > only one syskonnect card this oops doesn't occur.
 > 
-> Your patch works fine but now the swsusp resume messages appears on the
-> normal console instead. The swsusp console should be allocated earlier as my
-> patch did.
+> As a colleteral damage the following huge patch should fix it, and I need
+> testers for it anyway ;-)
 
-Actually, this has several advantages -- you can actually see the
-messages of the kernel during resume. And reading does logically
-belong to the kernel doing boot, so it belongs on its screen, too...
+Actually the problem sits deeper.  sk98line tries to register a procfile with
+the interfacename of the struct net_device.  The patch below (ontop of
+the previous one) makes it work unless you change the interface name manually,
+but as Linux explicitly allows that the interface is fundamentally broken and
+probably should just go away.
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+--- drivers/net/sk98lin/skge.c~	2004-07-04 19:15:43.219326648 +0200
++++ drivers/net/sk98lin/skge.c	2004-07-04 19:18:21.562254864 +0200
+@@ -5119,9 +5119,12 @@
+ 	if ((pAC->GIni.GIMacsFound == 2) && pAC->RlmtNets == 2)
+ 		have_second_mac = 1;
+ 
++	remove_proc_entry(dev->name, pSkRootDir);
+ 	unregister_netdev(dev);
+-	if (have_second_mac)
++	if (have_second_mac) {
++		remove_proc_entry(pAC->dev[1]->name, pSkRootDir);
+ 		unregister_netdev(pAC->dev[1]);
++	}
+ 
+ 	SkGeYellowLED(pAC, pAC->IoBase, 0);
+ 

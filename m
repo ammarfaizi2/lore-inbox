@@ -1,56 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269583AbUICRNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269515AbUICRL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269583AbUICRNb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 13:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269486AbUICRLm
+	id S269515AbUICRL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 13:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269527AbUICRLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 13:11:42 -0400
-Received: from mail4.utc.com ([192.249.46.193]:6307 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S269583AbUICRLC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 3 Sep 2004 13:11:02 -0400
-Message-ID: <4138A56B.4050006@cybsft.com>
-Date: Fri, 03 Sep 2004 12:10:03 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu>
-In-Reply-To: <20040902215728.GA28571@elte.hu>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from rproxy.gmail.com ([64.233.170.201]:11644 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269515AbUICRIh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 13:08:37 -0400
+Message-ID: <311601c904090310083d057c25@mail.gmail.com>
+Date: Fri, 3 Sep 2004 11:08:36 -0600
+From: Eric Mudama <edmudama@gmail.com>
+Reply-To: Eric Mudama <edmudama@gmail.com>
+To: Greg Stark <gsstark@mit.edu>
+Subject: Re: Crashed Drive, libata wedges when trying to recover data
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Brad Campbell <brad@wasp.net.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <871xhjti4b.fsf@stark.xeocode.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <87oekpvzot.fsf@stark.xeocode.com> <4136E277.6000408@wasp.net.au>
+	 <87u0ugt0ml.fsf@stark.xeocode.com>
+	 <1094209696.7533.24.camel@localhost.localdomain>
+	 <87d613tol4.fsf@stark.xeocode.com>
+	 <1094219609.7923.0.camel@localhost.localdomain>
+	 <877jrbtkds.fsf@stark.xeocode.com>
+	 <1094224166.8102.7.camel@localhost.localdomain>
+	 <871xhjti4b.fsf@stark.xeocode.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i've released the -R0 patch:
+On 03 Sep 2004 12:47:00 -0400, Greg Stark <gsstark@mit.edu> wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 > 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R0
->  
-> ontop of:
+> > On Gwe, 2004-09-03 at 16:58, Greg Stark wrote:
+> > > I've even unmounted the filesystem and tried mounting it again. Now I can't
+> > > even mount it without generating the error.
+> >
+> > You may well need to reset or powercycle the drive to get it back from
+> > such a state.
 > 
->   http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
+> Certainly I know power cycling fixes it. That's what I've been doing so far.
 > 
+> > > Sep  3 11:48:39 stark kernel: ata1: command 0x25 timeout, stat 0x59 host_stat 0x21
+> > > Sep  3 11:48:39 stark kernel: ata1: status=0x59 { DriveReady SeekComplete DataRequest Error }
+> > > Sep  3 11:48:39 stark kernel: ata1: error=0x01 { AddrMarkNotFound }
+> >
+> > "Its dead Jim". Once you get a drive that dies totally (or just keeps
+> > posting up a hardware fail) after the error you are into forensics
+> > (and/or backup) land.
+> 
+> There's nothing the driver can do to reset the drive or get back to a known
+> good protocol state?
+> 
+> The "ATA: abnormal status 0x59 on port 0xEFE7" makes me think it's just the
+> driver getting out of sync with the drive. But i guess that would be hard to
+> distinguish from the drive just going south.
 
-Managed to hang the system again under heavy load. This time with the 
-above patch:
+Here's my guess at what is happening:
 
-http://www.cybsft.com/testresults/crashes/2.6.9-rc1-bk4-R0.txt
+0x59/xx is an artifact of PATA drives being required to transfer bogus
+data on an error to satisfy the way the DMA controller was programmed
+at the start of the transfer.  Most all drives used this same
+technique in PIO modes too, sharing common transfer code in their
+firmware.
 
-Last time was with Q7:
+This behavior, unfortunately, caused a ruckus in SATA ...  At least
+one SATA controller immediately starts sending HOLD primitives when
+they see the error bit get set.
+In PATA, you can asynchronously issue a soft reset or a new command,
+to abort the data transfer for the invalid command.  However, in SATA,
+once the board starts sending HOLD primitives and the drive responds
+with HOLDA, there's no way to transition into X_RDY to send the soft
+reset or a new command.  Boom, you're deadlocked.  This means that in
+SATA, the only way to overcome this deadlock in the driver is to have
+the host/board generate a COMRESET OOB burst to hard-reset the drive.
 
-http://www.cybsft.com/testresults/crashes/2.6.9-rc1-bk4-Q7.txt
+Today's (and tomorrow's) generation of SATA drives will never ever
+generate a 0x59 status... the error and DRQ bits become mutually
+exclusive.  However, unfortunately, there are quite a few drives in
+the field which have this behavior...
 
-
-kr
-
+--eric

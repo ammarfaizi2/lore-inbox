@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132643AbRAKSwZ>; Thu, 11 Jan 2001 13:52:25 -0500
+	id <S132106AbRAKSwd>; Thu, 11 Jan 2001 13:52:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132495AbRAKSwG>; Thu, 11 Jan 2001 13:52:06 -0500
-Received: from [199.26.153.10] ([199.26.153.10]:36363 "EHLO fourelle.com")
-	by vger.kernel.org with ESMTP id <S132106AbRAKSwC>;
-	Thu, 11 Jan 2001 13:52:02 -0500
-Message-ID: <3A5E007A.34084DA5@fourelle.com>
-Date: Thu, 11 Jan 2001 10:50:35 -0800
-From: Adam Scislowicz <adams@fourelle.com>
-Organization: Fourelle Systems, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11-ac4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0 on a bigmemory machine (2GB) with ramdisk+initrd
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132495AbRAKSwZ>; Thu, 11 Jan 2001 13:52:25 -0500
+Received: from sith.mimuw.edu.pl ([193.0.97.1]:3332 "HELO sith.mimuw.edu.pl")
+	by vger.kernel.org with SMTP id <S132106AbRAKSwN>;
+	Thu, 11 Jan 2001 13:52:13 -0500
+Date: Thu, 11 Jan 2001 19:50:30 +0100
+From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+To: torvalds@transmeta.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] ATM breakage introduced in 2.4.0
+Message-ID: <20010111195030.A4961@sith.mimuw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.4.0-ac6 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary: When booting 2.4.0 on x86 with 2GB of memory, the initial
-ramdisk fails to mount. The initial ramdisk is 48MB.
+Hi,
+2.4.0 introduced serious breakage to LANE. It's impossible to do
+ifdown lec? ; ifup lec? because memory allocated by lec? is freed but
+unregister_netdev() is not called, so SIOCGIFFLAGS tells me ok, but 
+SIOCSIFFLAGS tells me -ENODEV. No, rmmod lec ; insmod lec does not help.
+Patch follows
 
-Debugging so far: I can increment and decrement the memory in 512MB
-intervals. The initial ramdisk does mount with 512MB of
-memory installed, but does not with 1GB+ of memory installed.
+--- linux/net/atm/lec.c.orig	Thu Jan 11 19:40:50 2001
++++ linux/net/atm/lec.c	Thu Jan 11 19:42:20 2001
+@@ -858,8 +858,11 @@
+                 if (dev_lec[i] != NULL) {
+                         priv = (struct lec_priv *)dev_lec[i]->priv;
+ #if defined(CONFIG_TR)
+-                        unregister_trdev(dev_lec[i]);
++                	if (priv->is_trdev)
++                        	unregister_trdev(dev_lec[i]);
++                	else
+ #endif
++                        unregister_netdev(dev_lec[i]);
+                         kfree(dev_lec[i]);
+                         dev_lec[i] = NULL;
+                 }
 
-I would appreciate any help I can get on this, thanks in advance.
+And it would be nice if I was able to build Fore 200e driver in 2.4.1 ;)
 
- -Adam Scislowicz <adams@fourelle.com>
+--- linux/drivers/atm/Makefile.orig	Tue Jan  2 10:18:25 2001
++++ linux/drivers/atm/Makefile	Tue Jan  2 12:00:05 2001
+@@ -46,7 +46,7 @@
+   endif
+ endif
+ 
+-obj-$(CONFIG_ATM_FORE200E) += fore200e.o $(FORE200E_FW_OBJS)
++obj-$(CONFIG_ATM_FORE200E) += fore_200e.o
+ 
+ include $(TOPDIR)/Rules.make
 
+Jan
+-- 
+Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
+baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
+BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

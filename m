@@ -1,46 +1,32 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154907AbPIAUrL>; Wed, 1 Sep 1999 16:47:11 -0400
-Received: by vger.rutgers.edu id <S154815AbPIAUpa>; Wed, 1 Sep 1999 16:45:30 -0400
-Received: from adsl-216-101-162-242.dsl.snfc21.pacbell.net ([216.101.162.242]:33858 "EHLO pizda.davem.net") by vger.rutgers.edu with ESMTP id <S154914AbPIAUlx>; Wed, 1 Sep 1999 16:41:53 -0400
-Date: Wed, 1 Sep 1999 13:41:22 -0700
-Message-Id: <199909012041.NAA02138@pizda.davem.net>
-From: "David S. Miller" <davem@redhat.com>
-To: tytso@mit.edu
-CC: torvalds@transmeta.com, linux-kernel@vger.rutgers.edu
-In-reply-to: <199909012017.QAA18692@tsx-prime.MIT.EDU> (tytso@mit.edu)
-Subject: Re: set_current_state
-References: <199909012017.QAA18692@tsx-prime.MIT.EDU>
+Received: by vger.rutgers.edu via listexpand id <S154911AbPIAVJE>; Wed, 1 Sep 1999 17:09:04 -0400
+Received: by vger.rutgers.edu id <S154818AbPIAVBO>; Wed, 1 Sep 1999 17:01:14 -0400
+Received: from int2.nea-fast.com ([208.241.120.39]:60948 "EHLO int2.nea-fast.com") by vger.rutgers.edu with ESMTP id <S154957AbPIAUzG>; Wed, 1 Sep 1999 16:55:06 -0400
+Message-ID: <37CD92A3.D37BD564@pobox.com>
+Date: Wed, 01 Sep 1999 16:54:59 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.3.16 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel List <linux-kernel@vger.rutgers.edu>
+Subject: Universal Driver Interface spec available
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-   Date:   Wed, 1 Sep 1999 16:17:07 -0400
-   From: "Theodore Y. Ts'o" <tytso@mit.edu>
+Members of Project UDI today announced the release of the UDI (Uniform
+Driver Interface) 1.0 Specification. This Specification is the
+culmination of a multi-company development effort designed to provide
+device driver portability for existing and future system configurations.
+UDI supports today's key I/O technologies and is designed with an
+extensible architecture that can easily accommodate future I/O
+technologies and products. 
 
-   Are there any circumstances where we should keep the old usage?
-
-Fundamentally it only matters when you are going into a "sleep until
-condition" polling loop such that:
-
-	add_wait_queue(...);
-	for(;;) {
-		set_current_state(...);
-		if (some asynchronous state)
-			break;
-		schedule();
-	}
-	remove_wait_queue(...);
-
-The idea being that you wish the task state to propagate into the view
-of all cpus in the system before other cpus can potentially cause the
-asynronous event to occur _and_ check your task state while performing
-the wake_up(...)
-
-What we're trying to prevent here is the asynchronous state test load
-not bypassing the store of the new task state.  If the cpu reorders
-these, the wakeup event can be missed.
-
-Later,
-David S. Miller
-davem@redhat.com
+Project home page:	http://www.projectudi.org/
+Specificiations (PDF):	http://stage.sco.com/udi/f-specs-1.0.html
+Story link:
+http://www.newsalert.com/bin/story?StoryId=Cn8YKWbKbyteXmt&FQ=linux&SymHdl=1&Nav=na-search-&StoryTitle=linux
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264816AbUEEWE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264820AbUEEWMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264816AbUEEWE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 18:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264817AbUEEWE6
+	id S264820AbUEEWMj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 18:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264817AbUEEWMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 18:04:58 -0400
-Received: from [213.171.41.46] ([213.171.41.46]:2310 "EHLO
-	kaamos.homelinux.net") by vger.kernel.org with ESMTP
-	id S264816AbUEEWEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 18:04:55 -0400
-From: Alexey Kopytov <alexeyk@mysql.com>
-Organization: MySQL AB
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Random file I/O regressions in 2.6
-Date: Thu, 6 May 2004 02:04:51 +0400
-User-Agent: KMail/1.6.2
-Cc: linuxram@us.ibm.com, nickpiggin@yahoo.com.au, peter@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-References: <200405022357.59415.alexeyk@mysql.com> <200405050301.32355.alexeyk@mysql.com> <20040504162037.6deccda4.akpm@osdl.org>
-In-Reply-To: <20040504162037.6deccda4.akpm@osdl.org>
-MIME-Version: 1.0
+	Wed, 5 May 2004 18:12:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63392 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264820AbUEEWMf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 18:12:35 -0400
+Date: Wed, 5 May 2004 15:48:38 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [ckrm-tech] Re: [RFC] Revised CKRM release
+Message-ID: <20040505184838.GC1350@logos.cnet>
+References: <4090BBF1.6080801@watson.ibm.com> <20040504173529.GE11346@logos.cnet> <409832D2.2020507@watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405060204.51591.alexeyk@mysql.com>
+In-Reply-To: <409832D2.2020507@watson.ibm.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->Alexey Kopytov <alexeyk@mysql.com> wrote:
->> With the patch:
->> ---------------
->> Time spent for test:  86.5459s
->>
->> no of times window reset because of hits: 0
->> no of times window reset because of misses: 0
->> no of times window was shrunk because of hits: 1066
->> no of times the page request was non-contiguous: 5860
->> no of times the page request was contiguous : 18099
->
->The patch brought my test box to the same speed as 2.4.  With the deadline
->scheduler it was a bit faster than 2.4.  I didn't do a lot of testing
->though.  I was using ext2.  Please try deadline.
->
+On Tue, May 04, 2004 at 08:18:26PM -0400, Shailabh Nagar wrote:
 
-Results with the deadline scheduler on my hardware:
+> >It sounds to me the classification engine can be moved to userspace? 
+> >
+> >Such "classification" sounds a better suited to be done there.
+> 
+> I suppose it could. However, one of our design objectives was to 
+> support multi-threaded server apps where each thread (task) changes 
+> its class fairly rapidly (say every time it starts doing work on 
+> behalf of a more/less important transaction). Doing a transition to 
+> userspace and back may be too costly for such a scenario.
 
-Time spent for test:  92.8340s
+But who sets the priority of the tasks is userspace anyway, isnt? AFAICS its
+userspace who knows which transaction is more/less important. 
 
-no of times window reset because of hits: 0
-no of times window reset because of misses: 0
-no of times window was shrunk because of hits: 1108
-no of times the page request was non-contiguous: 5860
-no of times the page request was contiguous : 18091
+> There might also be some concerns with keeping the reclassify 
+> operation atomic wrt deletion of the target class...but we haven't 
+> thought this through for userspace classification.
 
-I have updated the results on the SysBench home page with 2.6.6-rc3 with the 
-patch applied.
+How often is a reclassify operation done?
 
--- 
-Alexey Kopytov, Software Developer
-MySQL AB, www.mysql.com
+> >Note: I haven't read the code yet.
+> >
+> 
+> Why just read when you can test as well :-) We just released a testing 
+> tarball at http://ckrm.sf.net.. any inputs, bugs will be most welcome !
+> 
+> Looking forward to more inputs,
 
-Are you MySQL certified?  www.mysql.com/certification
+Yeah, I'm just nitpicking from the outside and haven't contributed 
+to anything, so...
+

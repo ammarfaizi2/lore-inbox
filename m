@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268123AbTAJDPN>; Thu, 9 Jan 2003 22:15:13 -0500
+	id <S268122AbTAJDU7>; Thu, 9 Jan 2003 22:20:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268124AbTAJDPN>; Thu, 9 Jan 2003 22:15:13 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:63427 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S268123AbTAJDPM>; Thu, 9 Jan 2003 22:15:12 -0500
-Date: Fri, 10 Jan 2003 16:23:31 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Peter Chubb <peter@chubb.wattle.id.au>, eric@andante.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ISO-9660 Rock Ridge gives different links different inums
-Message-ID: <1345590000.1042169011@localhost.localdomain>
-In-Reply-To: <15902.14667.489252.346007@wombat.chubb.wattle.id.au>
-References: <15902.14667.489252.346007@wombat.chubb.wattle.id.au>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268124AbTAJDU7>; Thu, 9 Jan 2003 22:20:59 -0500
+Received: from holomorphy.com ([66.224.33.161]:17558 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S268122AbTAJDU6>;
+	Thu, 9 Jan 2003 22:20:58 -0500
+Date: Thu, 9 Jan 2003 19:29:37 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Brian Tinsley <btinsley@emageon.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20, .text.lock.swap cpu usage? (ibm x440)
+Message-ID: <20030110032937.GI23814@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Brian Tinsley <btinsley@emageon.com>, linux-kernel@vger.kernel.org
+References: <3E1E3B64.5040803@emageon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <3E1E3B64.5040803@emageon.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At some point in the past, I wrote:
+>> There is no extant implementation of paged stacks yet.
+
+On Thu, Jan 09, 2003 at 09:17:56PM -0600, Brian Tinsley wrote:
+> For the most part, this is probably a boundary condition, right? Anyone 
+> that intentionally has 800+ threads in a single application probably 
+> needs to reevaluate their design :)
+
+IMHO multiprogramming is as valid a use for memory as any other. Or
+even otherwise, it's not something I care to get in design debates
+about, it's just how the things are used.
+
+The only trouble is support for what you're doing is unimplemented.
 
 
---On Friday, January 10, 2003 14:08:59 +1100 Peter Chubb 
-<peter@chubb.wattle.id.au> wrote:
+At some point in the past, I wrote:
+>> I'm working on a different problem (mem_map on 64GB on 2.5.x). I
+>> probably won't have time to implement it in the near future, I
+>> probably won't be doing it vs. 2.4.x, and I won't have to if someone
+>> else does it first.
 
->
-> In linux 2.5.54, multiple links to the same file on a rock-ridge CD
-> have different inode numbers.  This confuses cpio, tar and cp -ra
-> because the multiple links are each copied separately as a single file.
->
-> It'll probably also confuse NFS, but I haven't tried that.
+On Thu, Jan 09, 2003 at 09:17:56PM -0600, Brian Tinsley wrote:
+> Is that a hint to someone in particular?
 
-Shouldn't do, but it will probably make the buffer cache on the server less 
-effective.
+Only you, if anyone. My intentions and patchwriting efforts on the 64GB
+and highmem multiprogramming fronts are long since public, and publicly
+stated to be targeted at 2.7. Since there isn't a 2.7 yet, 2.5-CURRENT
+must suffice until there is.
 
-> Currently the inode number appears to be the offset in bytes from the
-> start of the file system to the iso directory entry.  Files with multiple
-> directory entries (i.e., links) therefore have different inums.
->
-> I don't know enough about the ISO9660 standard to be sure what's best
-> to do about this.
 
-Change it to be the offset to the data area, which should be the same for 
-all of them?
-
->
-> --
-> Dr Peter Chubb				    peterc@gelato.unsw.edu.au
-> You are lost in a maze of BitKeeper repositories, all almost the same.
-
+Bill

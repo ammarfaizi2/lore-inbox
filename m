@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263763AbREYPWZ>; Fri, 25 May 2001 11:22:25 -0400
+	id <S263764AbREYPWz>; Fri, 25 May 2001 11:22:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263764AbREYPWQ>; Fri, 25 May 2001 11:22:16 -0400
-Received: from cmn2.cmn.net ([206.168.145.10]:57376 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S263763AbREYPWG>;
-	Fri, 25 May 2001 11:22:06 -0400
-Message-ID: <3B0E7891.5030803@valinux.com>
-Date: Fri, 25 May 2001 09:21:53 -0600
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
-X-Accept-Language: en
+	id <S263765AbREYPWq>; Fri, 25 May 2001 11:22:46 -0400
+Received: from hypnos.cps.intel.com ([192.198.165.17]:12494 "EHLO
+	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S263764AbREYPWj>; Fri, 25 May 2001 11:22:39 -0400
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE2D0@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'sebastien person'" <sebastien.person@sycomore.fr>,
+        liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: RE: changes betwwen 2.2 | 2.4
+Date: Fri, 25 May 2001 08:22:20 -0700
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] free bugs in 2.4.4 and 2.4.4-ac8
-In-Reply-To: <E1533qI-0005jT-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+See http://www.firstfloor.org/~andi/softnet/
 
-> 
->> 		return;
->> /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/char/drm/gamma_dma.c:573:gamma_dma_send_buffers: ERROR:FREE:561:573: WARN: Use-after-free of "last_buf"! set by 'drm_free_buffer':561
->> 		DRM_DEBUG("%d running\n", current->pid);
-> 
-> 
-> Left for the XFree folk
-> 
+~Randy
+-----------------------------------------------
 
-This is a false positive, drm_free_buffer doesn't free any memory 
-associated with a buffer.  This code construct is fine.
-
--Jeff
+> From: sebastien person [mailto:sebastien.person@sycomore.fr]
+> 
+> Is there any documents that explain how upgrade network 
+> driver from 2.2. to 2.4.? that gives details on changes ...
+> 
+> Or maybe best way is to compare same driver in the twice 
+> kernel version ?
 

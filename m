@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266896AbUHTNTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266900AbUHTNYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266896AbUHTNTl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 09:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266917AbUHTNTl
+	id S266900AbUHTNYA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 09:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266917AbUHTNYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 09:19:41 -0400
-Received: from zimbo.cs.wm.edu ([128.239.2.64]:45256 "EHLO zimbo.cs.wm.edu")
-	by vger.kernel.org with ESMTP id S266896AbUHTNTc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 09:19:32 -0400
-Date: Fri, 20 Aug 2004 09:19:31 -0400
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bind Mount Extensions 0.05
-Message-ID: <20040820131931.GA4565@escher.cs.wm.edu>
-References: <20040818125104.GA12286@MAIL.13thfloor.at> <20040818172855.GC14628@MAIL.13thfloor.at> <20040819002803.GA18304@MAIL.13thfloor.at>
+	Fri, 20 Aug 2004 09:24:00 -0400
+Received: from relaycz.systinet.com ([62.168.12.68]:7626 "HELO
+	relaycz.systinet.com") by vger.kernel.org with SMTP id S266900AbUHTNX5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 09:23:57 -0400
+Subject: Re: [RFC] IBM thinkpad Fn+Fx key driver
+From: Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
+To: erik@rigtorp.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040820122809.GA6167@linux.nu>
+References: <20040820122809.GA6167@linux.nu>
+Content-Type: text/plain
+Message-Id: <1093008222.18934.9.camel@narsil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040819002803.GA18304@MAIL.13thfloor.at>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 20 Aug 2004 15:23:42 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> okay, the patch for 2.6.8.1 was updated and should be fine
-> now, please let me know if you encounter any issues, as the
-> version for 2.6.8.1 is relatively new ...
+Hi Erik,
+
+your module is working here on IBM ThinkPad R40 2681-BAG. Previously
+non-working keys (Fn+ F3, F4, F5, F7, F8, F9, F12) are emitting ACPI
+events now. Note that Fn+ F8, F9 are not marked with blue signs here on
+R40, so there is no official function assigned :-).
+
+Your driver even survives ACPI suspend to RAM (and wake-up too :-)) and
+that's great.
+
+Oops, I almost forgot to mention my kernel configuration: Debian's 2.6.7
+(almost vanilla) + ACPI 20040715 (from acpi.sourceforge.net; I need it
+for suspend to RAM).
+
+I can't wait till it gets to mainstream 2.6 kernel.
+
+That's all for this report.
+
+Regards,
+
+Jan "Pogo" Mynarik
+
+On Fri, 2004-08-20 at 14:28, Erik Rigtorp wrote:
+> I've written a driver for some of the extra keys on the thinkpads. The
+> supported keys are: Fn+ F3, F4, F5, F7, F8, F9, F12. It has been tested on
+> two diffrent thinkpad x31, but I would like some feedback from testing on
+> other thinkpads. 
 > 
-> http://www.13thfloor.at/patches/patch-2.6.8.1-bme0.05.1.diff
-
-This patch works wonderfully for me (with ext3).
-
-Have you investigated which cases cause MNT_IS_RDONLY to be called
-with a NULL vfsmount, and whether any of these cases are meaningful?
-
-Quoting Christoph Hellwig (hch@infradead.org):
-> On Wed, Aug 18, 2004 at 02:49:59PM +0100, Jonathan Sambrook wrote:
-> > What's the likelyhood/timeframe for this getting into mainline kernels?
+> http://rigtorp.se/files/src/thinkpad-acpi.tar.gz
 > 
-> This patch? not at all.  THe feature?  Maybe this year, but as it'll need
-> interface changes I'm not sure it's a good idea to do it in 2.6.
+> Just download, extract, run make and insmod thinkpad_acpi.ko
+> 
+> /Erik
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-What are the interface changes which will improve this patch?
-
-Is waiting until 2.7 unnecessary given the new kernel development model?
-Or are the interface changes just that drastic?  :)
-
-thanks,
--serge

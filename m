@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262638AbREVQbE>; Tue, 22 May 2001 12:31:04 -0400
+	id <S262617AbREVQ3O>; Tue, 22 May 2001 12:29:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262629AbREVQay>; Tue, 22 May 2001 12:30:54 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55567 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262628AbREVQap>; Tue, 22 May 2001 12:30:45 -0400
-Date: Tue, 22 May 2001 09:30:27 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
-        Pavel Machek <pavel@suse.cz>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Matthew Wilcox <matthew@wil.cx>, Andrew Clausen <clausen@gnu.org>,
-        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <20010522093342.E6103@cs.cmu.edu>
-Message-ID: <Pine.LNX.4.21.0105220927170.19531-100000@penguin.transmeta.com>
+	id <S262618AbREVQ3F>; Tue, 22 May 2001 12:29:05 -0400
+Received: from sisley.ri.silicomp.fr ([62.160.165.44]:39435 "EHLO
+	sisley.ri.silicomp.fr") by vger.kernel.org with ESMTP
+	id <S262617AbREVQ2v>; Tue, 22 May 2001 12:28:51 -0400
+Date: Tue, 22 May 2001 18:28:33 +0200 (CEST)
+From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
+To: <linux-kernel@vger.kernel.org>
+cc: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
+Subject: [Q] [VFS] i_mapping vs. i_data ?
+Message-ID: <Pine.LNX.4.31.0105221813030.29327-100000@sisley.ri.silicomp.fr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Tue, 22 May 2001, Jan Harkes wrote:
-> 
-> something like,
-> 
->     ssize_t kioctl(int fd, int type, int cmd, void *inbuf, size_t inlen,
-> 		   void *outbuf, size_t outlen);
-> 
-> As far as functionality and errors it works like read/write in a single
-> call, pretty much what Richard proposed earlier with a new 'transaction'
-> syscall. Maybe type is not needed, and cmd can be part of the inbuf in
-> which case it would be identical.
+I have the following question for VFS gurus here:
 
-I'd rather have type and cmd there, simply because right now the
-"cmd" passed in to the ioctl is not well-defined, as several different
-drivers use the same numbers for different things (which is why I want to
-expand that to <type,cmd> to get uniqueness).
+In the inode struct, an address_space (i_data) and a pointer to an
+address_space (i_mapping) are defined, and it looks like i_mapping is
+always a reference to the inode's i_data (except in coda_open). Then what
+is the difference of meaning between these two ?
 
-Also, I think the cmd is separate from the data, so I don't think it
-necessarily makes sense to mix the two. Even if we want to have an ASCII
-command, I'd think that should be separate from the arguments, ie we'd
-have 
 
-	ssize_t kioctl(int fd, const char *cmd, const void *inbuf ...
+Regards,
 
-instead of trying to mix them. This is especially true as the
-"inbuf" would be a user-mode pointer, while "cmd" would come from kernel
-space (whether in the form of a <type,subcmd> number pair or as a kernel
-string).
-
-		Linus
+-- 
+Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
+mailto:saffroy@ri.silicomp.fr
 

@@ -1,49 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132471AbREHMpF>; Tue, 8 May 2001 08:45:05 -0400
+	id <S132416AbREHMpN>; Tue, 8 May 2001 08:45:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132416AbREHMom>; Tue, 8 May 2001 08:44:42 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:18950 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S132425AbREHMnW>; Tue, 8 May 2001 08:43:22 -0400
-Message-ID: <3AF7E9D0.E3097FA1@idb.hist.no>
-Date: Tue, 08 May 2001 14:42:56 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre7 i686)
-X-Accept-Language: no, en
+	id <S132425AbREHMox>; Tue, 8 May 2001 08:44:53 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:46566 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S132471AbREHMoe>; Tue, 8 May 2001 08:44:34 -0400
+Date: Tue, 8 May 2001 12:56:02 +0100 (BST)
+From: Mark Hemment <markhe@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH] allocation looping + kswapd CPU cycles 
+Message-ID: <Pine.LNX.4.21.0105081225520.31900-100000@alloc>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        esr@thyrsus.com
-Subject: Re: CML2 design philosophy heads-up
-In-Reply-To: <E14wt0Q-00048P-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
-> > But Alan's point is a good one.  There are _lots_ of cases you can't get away
-> > with things like this, unless you get very fine grained.  In fact, it would
-> > be much eaiser to do this seperately from the kernel.  Ie another,
-> 
-> There are also a lot of config options that are implied by your setup in
-> an embedded enviromment but which you dont actually want because you didnt
-> wire them
-> 
-> Second guessing is not ideal. As a 'make the default config nice' trick - great
+  In 2.4.3pre6, code in page_alloc.c:__alloc_pages(), changed from;
 
-This is easy without changing CML2.  Make another config option
-for auto-enabling hardware you "probably have"
+	try_to_free_pages(gfp_mask);
+	wakeup_bdflush();
+	if (!order)
+		goto try_again;
+to
+	try_to_free_pages(gfp_mask);
+	wakeup_bdflush();
+	goto try_again;
 
-Rules of the form "X86 and PARPORT implies PARPORT_PC" can then
-be transformed to "X86 and PARPORT and PROBABLE_HARDWARE implies
-PARPORT_PC"
 
-Those who want a nice & easy config may then turn PROBABLE_HARDWARE on.
-Those who want tricks like using only nonstandard (hi-performance?)
-serial
-ports on their pc and save memory on skipping drivers for the built-in
-stuff can do so by turning the probable setting off.
+  This introduced the effect of a non-zero order, __GFP_WAIT allocation
+(without PF_MEMALLOC set), never returning failure.  The allocation keeps
+looping in __alloc_pages(), kicking kswapd, until the allocation succeeds.
 
-Helge Hafting
+  If there is plenty of memory in the free-pools and inactive-lists
+free_shortage() will return false, causing the state of these
+free-pools/inactive-lists not to be 'improved' by kswapd.
+
+  If there is nothing else changing/improving the free-pools or
+inactive-lists, the allocation loops forever (kicking kswapd).
+
+  Does anyone know why the 2.4.3pre6 change was made?
+
+  The attached patch (against 2.4.5-pre1) fixes the looping symptom, by
+adding a counter and looping only twice for non-zero order allocations.
+
+  The real fix is to measure fragmentation and the progress of kswapd, but
+that is too drastic for 2.4.x.
+
+Mark
+
+
+diff -ur linux-2.4.5-pre1/mm/page_alloc.c markhe-2.4.5-pre1/mm/page_alloc.c
+--- linux-2.4.5-pre1/mm/page_alloc.c	Fri Apr 27 22:18:08 2001
++++ markhe-2.4.5-pre1/mm/page_alloc.c	Tue May  8 13:42:12 2001
+@@ -275,6 +275,7 @@
+ {
+ 	zone_t **zone;
+ 	int direct_reclaim = 0;
++	int loop;
+ 	unsigned int gfp_mask = zonelist->gfp_mask;
+ 	struct page * page;
+ 
+@@ -313,6 +314,7 @@
+ 			&& nr_inactive_dirty_pages >= freepages.high)
+ 		wakeup_bdflush(0);
+ 
++	loop = 0;
+ try_again:
+ 	/*
+ 	 * First, see if we have any zones with lots of free memory.
+@@ -453,7 +455,8 @@
+ 		if (gfp_mask & __GFP_WAIT) {
+ 			memory_pressure++;
+ 			try_to_free_pages(gfp_mask);
+-			goto try_again;
++			if (!order || loop++ < 2)
++				goto try_again;
+ 		}
+ 	}
+ 
+

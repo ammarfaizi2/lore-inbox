@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136144AbRD0SIk>; Fri, 27 Apr 2001 14:08:40 -0400
+	id <S136148AbRD0SOv>; Fri, 27 Apr 2001 14:14:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136148AbRD0SIa>; Fri, 27 Apr 2001 14:08:30 -0400
-Received: from oe66.law11.hotmail.com ([64.4.16.201]:24585 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S136144AbRD0SIR>;
-	Fri, 27 Apr 2001 14:08:17 -0400
-X-Originating-IP: [12.19.166.64]
-From: "Dan Mann" <daniel_b_mann@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: preset performance options in make config
-Date: Fri, 27 Apr 2001 14:07:16 -0400
+	id <S136152AbRD0SOm>; Fri, 27 Apr 2001 14:14:42 -0400
+Received: from mail-2.addcom.de ([62.96.128.36]:22802 "HELO mail-2.addcom.de")
+	by vger.kernel.org with SMTP id <S136148AbRD0SOg>;
+	Fri, 27 Apr 2001 14:14:36 -0400
+Date: Fri, 27 Apr 2001 20:14:55 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: "David S. Miller" <davem@redhat.com>
+cc: Matthias Andree <matthias.andree@gmx.de>,
+        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.4-pre7 build failure w/ IP NAT and ipchains
+Message-ID: <Pine.LNX.4.33.0104272012410.1256-100000@vaio>
 MIME-Version: 1.0
-Content-Type: text/plain;	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
-Message-ID: <OE66ONfGAq3jGd2vtXS0000460d@hotmail.com>
-X-OriginalArrivalTime: 27 Apr 2001 18:08:11.0748 (UTC) FILETIME=[0572DA40:01C0CF45]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was wondering if having a make config option with 3 or 4 choices for
-general performance settings would be an option for the kernel?
 
-Like maybe the first question would read something like:
+On Fri, 27 Apr 2001, David S. Miller wrote:
 
-Configure Preset Performance Options? (Y/N) Y
-                Configure as Database Server (Y/N) N
-                Configure as Web Server (Y/N)  N
-                Configure as File & Print Server (Y/N) N
-                Configure as Desktop Workstation (Y/N) Y
+>> net/network.o: In function `ip_nat_setup_info':
+>> net/network.o(.text+0x37b3e): undefined reference to `helpers'
+>> net/network.o(.text+0x37b54): undefined reference to `helpers'
+>
+> Your configuration seems impossible, somehow the config system allowed
+> you to set CONFIG_IP_NF_COMPAT_IPCHAINS without setting
+> CONFIG_IP_NF_CONNTRACK.
+
+Hmmh, actually the Config.in won't allow you to to set
+CONFIG_IP_NF_COMPAT_IPCHAINS if CONFIG_IP_NF_CONNTRACK=y, but I don't
+really understand that Config.in completely. (CONFIG_IP_NF_NAT_NEEDED is
+set, but AFAICS never referenced anywhere).
+
+Anyway, the appended patch fixed the problem for me, vmlinux links okay
+now - didn't try if it works, though.
+
+--Kai
 
 
-If you choose no at the first level you would get the standard vanilla
-kernell.  If you choose Database Server Y, you would have some compile time
-options set for you that make sense for a Data base server, like maybe vm
-and cache settings or something like that.  If you choose Desktop
-Workstation, you would get some compile time options that would increase
-graphics performance, interactivity/latency or whatever. And likewise, if
-you choose File & Print, you might get things that would make a desktop user
-cringe performance wise, but really accelerate the machine in a server
-environment.
+Index: net/ipv4/netfilter/ip_conntrack_core.c
+===================================================================
+RCS file: /scratch/kai/cvsroot/linux_2_4/net/ipv4/netfilter/ip_conntrack_core.c,v
+retrieving revision 1.1.1.3
+diff -u -r1.1.1.3 ip_conntrack_core.c
+--- net/ipv4/netfilter/ip_conntrack_core.c	2001/04/24 00:20:29	1.1.1.3
++++ net/ipv4/netfilter/ip_conntrack_core.c	2001/04/26 20:49:36
+@@ -46,7 +46,7 @@
+ void (*ip_conntrack_destroyed)(struct ip_conntrack *conntrack) = NULL;
+ LIST_HEAD(expect_list);
+ LIST_HEAD(protocol_list);
+-static LIST_HEAD(helpers);
++LIST_HEAD(helpers);
+ unsigned int ip_conntrack_htable_size = 0;
+ static int ip_conntrack_max = 0;
+ static atomic_t ip_conntrack_count = ATOMIC_INIT(0);
 
-This might be really complicated or easy...I don't know.  But I was reading
-some Linux performance tuning stuff that talked about tweaking stuff in
-/proc, and I figured that stuff starts out at a predefined base in the
-source code.  There are tools out there that can work with /proc and help
-tune, but they can't change things that are only available BEFORE the binary
-is built. Maybe also things like different versions of scheduler or you know
-like a schedule_database.c or a schedule_workstation.c, or a vm or disk
-version of the same thing?
 
-I know I might be way off base here...someone tell me if I am :-)....but
-from my angle (non-programming guru) it might make a difference in the way
-that linux performs for the average user/administrator.
 
-What do you think?  Maybe help for someone who is looking to get the most
-perf out of his/her system but maybe doesn't understand src code directly?
 
-Dan
-
-PS - Does anyone have any ideas about NT's kernel config before compile?
-when you buy server is the kernel identical to workstation, with only
-userland tweaks for performance?  Or are there deep source code level
-changes between the two?  I'm sure since the code isn't out there no one
-knows for sure, but does anyone even have an opinion on this matter?

@@ -1,54 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTLAJrG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 04:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbTLAJrG
+	id S262794AbTLAKLc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 05:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTLAKLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 04:47:06 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:54674 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S262738AbTLAJrD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 04:47:03 -0500
-To: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: hash table sizes
-References: <16323.23221.835676.999857@gargle.gargle.HOWL>
-	<20031125204814.GA19397@sgi.com>
-	<20031125130741.108bf57c.akpm@osdl.org>
-	<20031125211424.GA32636@sgi.com>
-	<20031125132439.3c3254ff.akpm@osdl.org>
-	<yq0d6bcmvfd.fsf@wildopensource.com> <20031128145255.GA26853@sgi.com>
-	<yq08ym0mpig.fsf@wildopensource.com> <20031128193536.GA28519@sgi.com>
-	<20031128211827.GA25644@wohnheim.fh-wedel.de>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 01 Dec 2003 04:46:22 -0500
-In-Reply-To: <20031128211827.GA25644@wohnheim.fh-wedel.de>
-Message-ID: <yq0ptf898gh.fsf@wildopensource.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
-Content-Transfer-Encoding: 8BIT
+	Mon, 1 Dec 2003 05:11:32 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:38529 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S262794AbTLAKLa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 05:11:30 -0500
+Date: Mon, 1 Dec 2003 02:11:18 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Christian Axelsson <smiler@lanil.mine.nu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: USB mass-storage hell
+Message-ID: <20031201101118.GA23531@one-eyed-alien.net>
+Mail-Followup-To: Christian Axelsson <smiler@lanil.mine.nu>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3FCB001C.7000705@lanil.mine.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
+Content-Disposition: inline
+In-Reply-To: <3FCB001C.7000705@lanil.mine.nu>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jörn" == Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
 
-Jörn> [pruned CC: list]
-Jörn> On Fri, 28 November 2003 13:35:36 -0600, Jack Steiner wrote:
->> You proposed above to limit the allocation to the amount of memory
->> on a node.
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Jörn> Jes didn't _limit_ the allocation to the memory on a node, he
-Jörn> _based_ it on it, instead of total memory for all nodes.
-Jörn> Therefore a 1024 node NUMA machine with 2GB per node has no
-Jörn> bigger hash tables, than a single CPU machine with 2GB total
-Jörn> memory, however big that may be.
+Look at sysfs and the lsscsi application.
 
-Jörn> Unless I didn't understand his patch, that is. :)
+Matt
 
-Yep, thats exactly what my patch did. There's a gotcha if node 0 has a
-lot less memory than the remaining nodes, but I also suspect the size
-of those hash tables was already out of whack as memory has gone up.
+On Mon, Dec 01, 2003 at 09:47:24AM +0100, Christian Axelsson wrote:
+> I have this USB harddrive and a USB mp3-player, when I plug them in=20
+> would like them to be mounted at /mnt/hd and /mnt/mp3 by auto.
+> Is this possible using 2.6 and some supermount-like daemon?
+>=20
+> Also, the device I plugin first becomes /dev/sda1 and the second=20
+> /dev/sda2 (using devfs) so I cant rely upon device names here to do=20
+> anything. Is there any ID of the USB-device aviable somewhere that can=20
+> be of any use?
+>=20
+> --=20
+> Christan Axelsson
+> smiler@lanil.mine.nu
+>=20
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Thanks,
-Jes
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+I need a computer?
+					-- Customer
+User Friendly, 2/19/1998
+
+--cWoXeonUoKmBZSoM
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/yxPGIjReC7bSPZARAoA8AKDW+GAgBHalXv1p+H2tAybquPuk2wCfeQCs
+tyzEjZH2x5prEZX0U37jCGw=
+=BL8b
+-----END PGP SIGNATURE-----
+
+--cWoXeonUoKmBZSoM--

@@ -1,42 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265535AbSKABFE>; Thu, 31 Oct 2002 20:05:04 -0500
+	id <S265564AbSKABCM>; Thu, 31 Oct 2002 20:02:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265536AbSKABFD>; Thu, 31 Oct 2002 20:05:03 -0500
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:21574 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S265535AbSKABE7>; Thu, 31 Oct 2002 20:04:59 -0500
-Date: Thu, 31 Oct 2002 17:19:02 -0800 (PST)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: [lkcd-devel] Re: What's left over.
-In-Reply-To: <20021031235212.01EB92C147@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0210311718140.23393-100000@nakedeye.aparity.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265565AbSKABCM>; Thu, 31 Oct 2002 20:02:12 -0500
+Received: from dhcp31182033.columbus.rr.com ([24.31.182.33]:4226 "EHLO
+	caphernaum.rivenstone.net") by vger.kernel.org with ESMTP
+	id <S265564AbSKABCL>; Thu, 31 Oct 2002 20:02:11 -0500
+Date: Thu, 31 Oct 2002 20:06:07 -0500
+To: tytso@mit.edu, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH] [BK] 0/11  Ext2/3 Updates: Extended attributes, ACL, etc.
+Message-ID: <20021101010607.GC1683@rivenstone.net>
+Mail-Followup-To: tytso@mit.edu, linux-kernel@vger.kernel.org,
+	zippel@linux-m68k.org
+References: <E187Agn-0003b9-00@snap.thunk.org> <20021101002419.GA1683@rivenstone.net> <20021101004751.GB1683@rivenstone.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="f+W+jCU1fRNres8c"
+Content-Disposition: inline
+In-Reply-To: <20021101004751.GB1683@rivenstone.net>
+User-Agent: Mutt/1.4i
+From: jhf@rivenstone.net (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Nov 2002, Rusty Russell wrote:
-|>The mini-oopser has different aims than LCKD: they want to debug one
-|>system, I want to make sure we're reaping OOPS reports from those 99%
-|>of desktop users who run X and simply reboot when their machine
-|>crashes once a month.
 
-I'd like to incorporate the mini-oopser as an LKCD dump method.
-I'll chat with you off-line about this.  Shouldn't be that
-difficult to do.
+--f+W+jCU1fRNres8c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-|>I did *not* put the mini-oopser on the Snowball list, because I don't
-|>have time to polish it.
-|>
-|>Rusty.
+On Thu, Oct 31, 2002 at 07:47:51PM -0500, Joseph Fannin wrote:
+> On Thu, Oct 31, 2002 at 07:24:19PM -0500, Joseph Fannin wrote:
+> > On Thu, Oct 31, 2002 at 03:28:29AM -0500, tytso@mit.edu wrote:
+> > > Hi Linus,
+> > >=20
+> > > I've updated the ext2/3 patches for 2.5.45.  All of these changes can
+> > > also be grabbed by pulling from:
+> > >=20
+> > > 	bk://extfs.bkbits.net/extfs-2.5-update
+>=20
+> [build error]
+>=20
+>     Okay, this looks like it's a problem with the transition to
+> kconfig.  I have ext3 built in and ext2 built as a module, but
+> CONFIG_FS_MBCACHE=3Dm.  So the problem would be this bit, right?
+>=20
+> # Meta block cache for Extended Attributes (ext2/ext3)
+> config FS_MBCACHE
+>        tristate
+>        depends on EXT2_FS_XATTR || EXT3_FS_XATTR
+>        default m if EXT2_FS=3Dm || EXT3_FS=3Dm
+>        default y if EXT2_FS=3Dy || EXT3_FS=3Dy
+>=20
+>     Which looks right -- it depends on either ext2 or ext3, and needs
+> to be built in if either of ext2 or ext3 are, but if both are modular
+> (or one is modular and the other is not built) then FS_MBCACHE should
+> be modular.  But it doesn't work.
 
-Thanks,
+    Okay, sorry for all the mails.
 
---Matt
+    "If multiple default statements are visible only the first is
+used."
 
+    So the two default lines above need to be reversed.  This seems
+backwards to me (the last should be used), but I've said enough.
+
+--=20
+Joseph Fannin
+jhf@rivenstone.net
+
+"For future reference - don't anybody else try to send patches as vi
+scripts, please. Yes, it's manly, but let's face it, so is bungee-jumping
+with the cord tied to your testicles." -- Linus Torvalds
+
+--f+W+jCU1fRNres8c
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE9wdN/Wv4KsgKfSVgRAkOBAKCMX3igU+Bd4/uaCD0c2NFhN0qBoACeIdGF
+Icodgx+N0OIkA8uHpSsR5Dg=
+=BNaJ
+-----END PGP SIGNATURE-----
+
+--f+W+jCU1fRNres8c--

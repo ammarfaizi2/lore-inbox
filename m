@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262409AbSJVKiq>; Tue, 22 Oct 2002 06:38:46 -0400
+	id <S262404AbSJVKig>; Tue, 22 Oct 2002 06:38:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262408AbSJVKiq>; Tue, 22 Oct 2002 06:38:46 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:33444 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S262409AbSJVKio>; Tue, 22 Oct 2002 06:38:44 -0400
-Date: Mon, 21 Oct 2002 23:55:34 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Netfilter Mailinglist <netfilter@lists.netfilter.org>
-Subject: Re: 2.4.20-pre7: ip_conntrack: table full, dropping packet.
-Message-ID: <20021021215534.GB3039@naboo.club.berlin.ccc.de>
-References: <20021021201644.166db824.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021021201644.166db824.skraw@ithnet.com>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux naboo 2.4.19-pre4-ben0
-X-Date: Today is Sweetmorn, the 72nd day of Bureaucracy in the YOLD 3168
+	id <S262409AbSJVKig>; Tue, 22 Oct 2002 06:38:36 -0400
+Received: from gate.perex.cz ([194.212.165.105]:53771 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S262404AbSJVKif>;
+	Tue, 22 Oct 2002 06:38:35 -0400
+Date: Tue, 22 Oct 2002 12:43:53 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: sound/core/wrappers.c __GENKSYMS__ usage
+In-Reply-To: <20021021211120.A6964@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.33.0210221132400.521-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 08:16:44PM +0200, Stephan von Krawczynski wrote:
-> Hello all,
+On Mon, 21 Oct 2002, Sam Ravnborg wrote:
 
-Hi Stephan. Don't know if you remember me, but we've met at some IN e.V.
-meetings in the past ;)
-
-> After several days running kernel 2.4.20-pre7 I came across the syslogged
-> message:
+> Hi Jaroslav
 > 
-> kernel: ip_conntrack: table full, dropping packet.
+> The usage of __GENKSYMS__ in sound/core/wrappers.c looks wrong.
 > 
-> This box runs about 10 rules for destination nat. My simple question:
-> is this a bug, or a need to tune something? If it is a bug, is there a
-> later kernel that has it fixed?
+> >From the file:
+> #include <linux/version.h>
+> #include <linux/config.h>
+> #ifdef ALSA_BUILD
+> #if defined(CONFIG_MODVERSIONS) && !defined(__GENKSYMS__) && !defined(__DEPEND__)
+> #define MODVERSIONS
+> #include <linux/modversions.h>
+> #include "sndversions.h"
+> #endif
+> #endif
+> 
+> So __GENKSYMS__ etc is used to protect against inclusion of modversions.h
+> and sndversion.h.
+> The latter is not present in my tree (2.5.44).
+> __DEPEND__ is no longer used.
+> 
+> I do not see the purpose of this - please explain.
 
-it's not about the number of NAT rules, but the number of connections
-going on through your machine.
+It's for compatibility with older kernels. We use same sources for 2.2 and 
+2.4 kernels. Also notice that "problematic" #if is after ALSA_BUILD and 
+it's not defined for Linux kernel (we use this definition internally for 
+our build system).
 
-the FAQ (to be found at www.netfilter.org) describes how to raise the
-number of connection tracking table entries.
+Anyway, I'll move this code outside the kernel tree.
 
-> Regards,
-> Stephan
+						Jaroslav
 
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
-V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
+

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316573AbSHGAF2>; Tue, 6 Aug 2002 20:05:28 -0400
+	id <S316579AbSHGAGR>; Tue, 6 Aug 2002 20:06:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316576AbSHGAF2>; Tue, 6 Aug 2002 20:05:28 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:42697 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S316573AbSHGAF2>;
-	Tue, 6 Aug 2002 20:05:28 -0400
-Date: Tue, 6 Aug 2002 17:09:05 -0700
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4] New Wireless Extension API - part2
-Message-ID: <20020807000905.GA12748@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20020806180931.GE11313@bougret.hpl.hp.com> <20020807000118.GA2830@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020807000118.GA2830@louise.pinerecords.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S316578AbSHGAGR>; Tue, 6 Aug 2002 20:06:17 -0400
+Received: from ja.mac.ssi.bg ([212.95.166.194]:52229 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S316576AbSHGAGO>;
+	Tue, 6 Aug 2002 20:06:14 -0400
+Date: Wed, 7 Aug 2002 03:10:26 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: ja@u.domain.uli
+To: Jacek Konieczny <jajcus@pld.org.pl>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: "new style" netdevice allocation patch for TUN driver (2.4.18
+ kernel)
+Message-ID: <Pine.LNX.4.44.0208070259450.17783-100000@u.domain.uli>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 02:01:18AM +0200, Tomas Szepe wrote:
-> > 	Here is the second part of the new driver API for Wireless
-> > Extensions. Few facts :
-> > 		o needed by the new airo driver in 2.4.20-pre1
-> 
-> Does this mean the Aironet driver in 2.4.20-pre1 doesn't work currently?
-> 
-> T.
 
-	No, I would have put "required". And Javier would never had
-done something that stupid.
-	The Aironet driver in 2.4.20-pre1 has some new features that
-depend on WE-14 (such as wireless scanning and wireless events), but
-they are not *critical* features. On the other hand, I would invite
-you to try those new features...
-	Have fun...
+	Hello,
 
-	Jean
+Jacek Konieczny wrote:
+
+> I had a lot of problem with tun devices created with both openvpn and
+> vtund. When I wanted to shut down my system when the devices were in
+> use (eg. TCP connection established on tun0 interface), even if the
+> tunneling daemon was killed, it stopped while trying to deconfigure
+> network. And "unregister_netdevice: waiting for tun0 to become free"
+> message was displayed again and again. I tried to resolve this problem
+> using Google, but I have only found out, that this is behaviour of 2.4
+> kernels, and that it is proper
+...
+> This is patch against 2.4.18 sources.
+
+	Don't waste time, now when 2.4.19 is out can you try with it? It 
+has fix for such problem if you have multipath routes with such devices, 
+Alexey already forgot about it :) As for tun in kernel it looks correct, 
+unregister_netdevice() under rtnl_lock, only that dev_close is redundant.
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+

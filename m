@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279997AbRKXUvE>; Sat, 24 Nov 2001 15:51:04 -0500
+	id <S280059AbRKXU7h>; Sat, 24 Nov 2001 15:59:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280028AbRKXUuy>; Sat, 24 Nov 2001 15:50:54 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:15633 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S279997AbRKXUui>; Sat, 24 Nov 2001 15:50:38 -0500
-Date: Sat, 24 Nov 2001 17:33:14 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Pavel Frolov <pavel.frolov@gmd.de>
+	id <S280037AbRKXU7O>; Sat, 24 Nov 2001 15:59:14 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:34703 "EHLO
+	localhost") by vger.kernel.org with ESMTP id <S280130AbRKXU7I>;
+	Sat, 24 Nov 2001 15:59:08 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Phil Sorber <aafes@psu.edu>
+Subject: Re: Linux 2.4.16-pre1
+Date: Sat, 24 Nov 2001 12:58:50 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.21.0111241639480.12066-100000@freak.distro.conectiva> <1006634201.290.11.camel@praetorian>
+In-Reply-To: <1006634201.290.11.camel@praetorian>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: broken highmemory working in new WM (2.4.14 freeze continuation)
-In-Reply-To: <3BFEE74A.30909@gmd.de>
-Message-ID: <Pine.LNX.4.21.0111241732450.12119-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E167jsx-0005PL-00@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On November 24, 2001 12:36, Phil Sorber wrote:
+> On Sat, 2001-11-24 at 13:40, Marcelo Tosatti wrote:
+> > Its available at
+> > ftp.xx.kernel.org/pub/linux/kernel/people/marcelo/2.4/testing/
+> >
+> > duh. :)
+>
+> Are these going to appear on the front page of kernel.org? all i see
+> there now is 2.5.1pre1, no 2.4.16pre1.
 
-Could you please describe whats your problem with HIGHMEM again?
+I doubt that the kernel.org update scripts respect Marcelo's new position by 
+checking people/marcelo/2.4/testing/ for prepatches. Personally, I think his 
+prepatches should go in v2.4/testing, and Linus' should go in v2.5/testing, 
+it'd be much cleaner that way.
 
-I did not read your first report.
-
-On Sat, 24 Nov 2001, Pavel Frolov wrote:
-
-> Hi, ppl!
->    I have tried to use HIGHMEM on 2.4.15 and 2.4.14 as had written 
-> before without success.
->    On 2.4.9 kernel HIGHMEM is working.
-> 
->     Please check new VM stuff.
->  
->                                                           pasha.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-Ryan

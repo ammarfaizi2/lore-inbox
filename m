@@ -1,45 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265276AbTBCVjl>; Mon, 3 Feb 2003 16:39:41 -0500
+	id <S266233AbTBCVlp>; Mon, 3 Feb 2003 16:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265754AbTBCVjl>; Mon, 3 Feb 2003 16:39:41 -0500
-Received: from main.gmane.org ([80.91.224.249]:43653 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S265276AbTBCVjk>;
-	Mon, 3 Feb 2003 16:39:40 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: John Goerzen <jgoerzen@complete.org>
-Subject: Re: Kernel 2.4.20 panic in scheduler
-Date: Mon, 03 Feb 2003 15:48:41 -0600
-Organization: Complete.Org
-Message-ID: <877kch8286.fsf@christoph.complete.org>
-References: <87k7gh85pw.fsf@christoph.complete.org> <20030203133506.A26686@figure1.int.wirex.com>
+	id <S266408AbTBCVlp>; Mon, 3 Feb 2003 16:41:45 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:51297 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266233AbTBCVlo>; Mon, 3 Feb 2003 16:41:44 -0500
+Date: Mon, 3 Feb 2003 16:51:15 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: thockin@sun.com
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+Subject: NGROUPS patch in 2.4
+Message-ID: <20030203165115.C21506@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@complete.org
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (powerpc-unknown-linux-gnu)
-Cancel-Lock: sha1:wcEEtlJ3S5GXV/8nDJgDdSWwC0U=
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright <chris@wirex.com> writes:
+Tim, do you have the NGROUPS fix for 2.4 somewhere,
+or is it 2.5 only? I'd like to make it working over NFS,
+but I do not want to bother with new modutils and other
+little problems of 2.5.
 
->> Today I experienced a kernel panic running kernel 2.4.20 (plus the ctx
->> vserver patch; otherwise vanilla) with a bcm5700 module added in.  It's
->
-> Have you tried this without the vserver patch?  Last I looked it touched
-> many of the code paths in your trace below.  Also, if possible, set up a
-> serial console, it'll be a lot easier to catch the full trace.
-
-Unfortunately, this is on a production server, and such a drastic
-change to the configuration is not really possible at the moment.
-However, I have gone ahead and sent them this info.  We will see.
-
-I'm already on the serial console option.  Hope to have it soon.
-
-I saw a lot of TCP-related symbols.  Is there any chance that this is
-a bug in the bcm5700 module?  Or in the TCP stack?
-
--- John
-
+-- Pete

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262486AbSKYGsh>; Mon, 25 Nov 2002 01:48:37 -0500
+	id <S262492AbSKYG53>; Mon, 25 Nov 2002 01:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262492AbSKYGsh>; Mon, 25 Nov 2002 01:48:37 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:56984 "EHLO
+	id <S262500AbSKYG53>; Mon, 25 Nov 2002 01:57:29 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:24729 "EHLO
 	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S262486AbSKYGsg>; Mon, 25 Nov 2002 01:48:36 -0500
-Date: Mon, 25 Nov 2002 01:55:26 -0500
+	id <S262492AbSKYG52>; Mon, 25 Nov 2002 01:57:28 -0500
+Date: Mon, 25 Nov 2002 02:04:18 -0500
 From: "Murray J. Root" <murrayr@brain.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.49 Keyboard and mouse lost in X
-Message-ID: <20021125065525.GA1628@Master.Wizards>
+Subject: keyboard and mouse lost in X
+Message-ID: <20021125070418.GB1628@Master.Wizards>
 Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -19,18 +19,10 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got past the not-boot (need to set root=/dev/ide/host0 .... instead 
-of /dev/hda10). Wasn't a reiserfs issue after all.
-
-But - ran into the same keyboard and mouse not responding in X that has
-plagued me in all the 2.5.4x kernels (and recent 2.4.20-xxx)
-
-APIC on/off doesn't help.
-ACPI on/off doesn't help.
-
-ASUS P4S533 (SiS645DX chipset)
-P4 2GHz
-1G PC2700 RAM
+Mandrake's 2.4.20-0.3mdk kernel doesn't have this problem, and it is
+based on 2.4.20-rc2. So - where would I start looking for the possible
+differences that could be causing it in the 2.4.20-rc2/rc3? Mandrake
+adds too many patches for me to just shoot in the dark.
 
 -- 
 Murray J. Root

@@ -1,92 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267545AbUHJSuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267519AbUHJSuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267545AbUHJSuX (ORCPT <rfc822;willy@w.ods.org>);
+	id S267519AbUHJSuX (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 10 Aug 2004 14:50:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267529AbUHJSsh
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267470AbUHJSsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 14:48:37 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:33981 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267361AbUHJSnl (ORCPT
+	Tue, 10 Aug 2004 14:48:10 -0400
+Received: from ida.rowland.org ([192.131.102.52]:32772 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S267545AbUHJSqk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 14:43:41 -0400
-Subject: Re: [PATCH 2.6] ibmveth bug fixes 2/4
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Santiago A. Leon [imap]" <santil@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <41190E8E.9050004@us.ibm.com>
-References: <41190E8E.9050004@us.ibm.com>
-Content-Type: multipart/mixed; boundary="=-80jhYVFp42Um6qhk3rig"
-Message-Id: <1092162537.11212.27.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 10 Aug 2004 11:28:57 -0700
+	Tue, 10 Aug 2004 14:46:40 -0400
+Date: Tue, 10 Aug 2004 14:46:32 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Norbert Preining <preining@logic.at>
+cc: David Brownell <david-b@pacbell.net>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] 2.6.8-rc2-mm2 with usb and input problems
+In-Reply-To: <20040810171809.GA4217@gamma.logic.tuwien.ac.at>
+Message-ID: <Pine.LNX.4.44L0.0408101439320.7558-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Aug 2004, Norbert Preining wrote:
 
---=-80jhYVFp42Um6qhk3rig
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Ok, here are two new ones with 2.6.8-rc4-mm1: The one from lsusb, the
+> other from cat /proc/bus/usb/devices ...
+> 
+> 
+> lsusb         D C0CE8B00     0  2605      1          2611  2351 (NOTLB)
+> d71f0eec 00000086 00000000 c0ce8b00 c015a30d 08088000 d71f0ef0 00000000 
+>        000f83ad 98a6d31f 0000007b dfb8b110 dfb8b2b8 c0d2f024 00000282 d71f0000 
+>        dfb8b110 c02d9d6b c0d2f02c 00000001 dfb8b110 c0118fd7 c0d2f02c c0d2f02c 
+> Call Trace:
+>  [<c015a30d>] link_path_walk+0xa56/0xd91
+>  [<c02d9d6b>] __down+0x8b/0x122
+>  [<c0118fd7>] default_wake_function+0x0/0xc
+>  [<c0205ffc>] get_device+0xe/0x14
+>  [<e08cf8ae>] usb_get_dev+0x12/0x16 [usbcore]
+>  [<c02d9f68>] __down_failed+0x8/0xc
+>  [<e08da6c5>] .text.lock.devio+0x5/0x150 [usbcore]
+>  [<c014cdeb>] dentry_open+0xfe/0x210
+>  [<c014d8ee>] vfs_read+0xa9/0xf5
+>  [<c014db4c>] sys_read+0x47/0x76
+>  [<c0105e4f>] syscall_call+0x7/0xb
+> 
+> cat           D 80000180     0  3902   3131                     (NOTLB)
+> d6c23e0c 00000086 d6c26530 80000180 c15dbe80 d702cc00 80000180 d2c0b840 
+>        00163790 8d5506e2 000000ff d50fee70 d50ff018 e08e58ac d6c23e1c d50fee70 
+>        e08e58ac c02daa87 00000409 e08e58b0 e08e58b0 e08e58b0 d50fee70 00000001 
+> Call Trace:
+>  [<c02daa87>] rwsem_down_read_failed+0x8f/0x191
+>  [<e08dc5cb>] .text.lock.devices+0x7/0x98 [usbcore]
+>  [<e08dbbc7>] usb_dump_interface+0x38/0x79 [usbcore]
+>  [<e08dbcfc>] usb_dump_config+0x91/0xcc [usbcore]
+>  [<e08dbfa7>] usb_dump_desc+0x94/0xad [usbcore]
+>  [<e08dc12e>] usb_device_dump+0x16e/0x2fa [usbcore]
+>  [<e08dc3b6>] usb_device_read+0xfc/0x12f [usbcore]
+>  [<c014d8ee>] vfs_read+0xa9/0xf5
+>  [<c014db4c>] sys_read+0x47/0x76
+>  [<c0105e4f>] syscall_call+0x7/0xb
 
-On Tue, 2004-08-10 at 11:06, Santiago Leon wrote:
-> This patch fixes a race condition that would panic the kernel when 
-> replenishing a buffer pool.  Please apply.
+Maybe the -mm series didn't get my USB device locking patches fully
+reverted.  They certainly didn't get fully corrected, because the patch
+for that was never accepted.  Your traces do make it look as though this
+is the problem.
 
-How about something like this that doesn't add more magic numbers?
+Check in drivers/usb/core/usb.c and see if it mentions
+usb_all_devices_rwsem anywhere.  I'd do it myself, but I don't know _any_
+way to get hold of a single source file from a particular kernel tree,
+other than the ones currently visible via the web at bkbits.net.  :-(
 
-I'm not so sure about the type, though.  Is that (u16) cast OK?
-
--- Dave
-
---=-80jhYVFp42Um6qhk3rig
-Content-Disposition: attachment; filename=ibmveth-invalid_map.patch
-Content-Type: text/x-patch; name=ibmveth-invalid_map.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
---- veth/drivers/net/ibmveth.h.orig	2004-08-10 11:34:05.000000000 -0700
-+++ veth/drivers/net/ibmveth.h	2004-08-10 11:35:01.000000000 -0700
-@@ -77,6 +77,8 @@
- #define IbmVethPool1DftCnt  256
- #define IbmVethPool2DftCnt  256
- 
-+#define IBM_VETH_INVALID_MAP ((u16)0xffff)
-+
- struct ibmveth_buff_pool {
-     u32 size;
-     u32 index;
---- veth/drivers/net/ibmveth.c.orig	2004-08-10 11:35:17.000000000 -0700
-+++ veth/drivers/net/ibmveth.c	2004-08-10 11:37:22.000000000 -0700
-@@ -213,11 +213,12 @@ static void ibmveth_replenish_buffer_poo
- 		free_index = pool->consumer_index++ % pool->size;
- 		index = pool->free_map[free_index];
- 	
--		ibmveth_assert(index != 0xffff);
-+		ibmveth_assert(index != IBM_VETH_INVALID_MAP);
- 		ibmveth_assert(pool->skbuff[index] == NULL);
- 
- 		dma_addr = vio_map_single(adapter->vdev, skb->data, pool->buff_size, DMA_FROM_DEVICE);
- 
-+		pool->free_map[free_index] = IBM_VETH_INVALID_MAP;
- 		pool->dma_addr[index] = dma_addr;
- 		pool->skbuff[index] = skb;
- 
-@@ -232,6 +233,7 @@ static void ibmveth_replenish_buffer_poo
- 		lpar_rc = h_add_logical_lan_buffer(adapter->vdev->unit_address, desc.desc);
- 		    
- 		if(lpar_rc != H_Success) {
-+			pool->free_map[free_index] = IBM_VETH_INVALID_MAP;
- 			pool->skbuff[index] = NULL;
- 			pool->consumer_index--;
- 			vio_unmap_single(adapter->vdev, pool->dma_addr[index], pool->buff_size, DMA_FROM_DEVICE);
-@@ -239,7 +241,6 @@ static void ibmveth_replenish_buffer_poo
- 			adapter->replenish_add_buff_failure++;
- 			break;
- 		} else {
--			pool->free_map[free_index] = 0xffff;
- 			buffers_added++;
- 			adapter->replenish_add_buff_success++;
- 		}
-
---=-80jhYVFp42Um6qhk3rig--
+Alan Stern
 

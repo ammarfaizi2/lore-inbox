@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269459AbTGJQCw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 12:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269455AbTGJQCw
+	id S269296AbTGJP7s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 11:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269345AbTGJP7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 12:02:52 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:28678 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S266365AbTGJQCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 12:02:51 -0400
-Date: Fri, 11 Jul 2003 01:18:58 +0900 (JST)
-Message-Id: <20030711.011858.117900702.yoshfuji@linux-ipv6.org>
-To: pekkas@netcore.fi
-Cc: cat@zip.com.au, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       yoshfuji@linux-ipv6.org
-Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling broken
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <Pine.LNX.4.44.0307101906160.18224-100000@netcore.fi>
-References: <20030711.005542.04973601.yoshfuji@linux-ipv6.org>
-	<Pine.LNX.4.44.0307101906160.18224-100000@netcore.fi>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Thu, 10 Jul 2003 11:59:48 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:42380 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S269296AbTGJP7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 11:59:47 -0400
+Date: Thu, 10 Jul 2003 09:14:24 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS client errors with 2.5.74?
+Message-ID: <20030710091424.A831@google.com>
+References: <20030710054121.GB27038@mail.jlokier.co.uk> <20030710060744.GA27308@mail.jlokier.co.uk> <16141.15548.109496.967464@charged.uio.no>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16141.15548.109496.967464@charged.uio.no>; from trond.myklebust@fys.uio.no on Thu, Jul 10, 2003 at 12:15:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0307101906160.18224-100000@netcore.fi> (at Thu, 10 Jul 2003 19:08:20 +0300 (EEST)), Pekka Savola <pekkas@netcore.fi> says:
+On Thu, Jul 10, 2003 at 12:15:24PM +0200, Trond Myklebust wrote:
+> >>>>> " " == Jamie Lokier <jamie@shareable.org> writes:
+>      > - Every so often, the client's kernel log gets:
+>      >       kernel: nfs: server 192.168.1.1 not responding, timed out
+> 
+> Sigh... I hate soft mounts...  Have I said that before? 8-)
 
-> While technically correct, I'm still not sure if this is (pragmatically) 
-> the correct approach.  It's OK to set a default route to go to the 
-> subnet routers anycast address (so, setting a route to prefix:: should 
-> not give you EINVAL).
+Is "timed out" the key that this is a soft mount?  Trond, I would suggest
+that whenever you log this, you also log a message "... do not report
+a bug, use a hard mount" or some such. :-)
 
-But, on the other side cannot use prefix::, and
-the setting is rather non-sense.
-
-We should educate people not to use /127; use /64 instead.
-v6ops? :-)
-
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+/fc

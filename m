@@ -1,46 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262168AbRFMNei>; Wed, 13 Jun 2001 09:34:38 -0400
+	id <S262389AbRFMNlj>; Wed, 13 Jun 2001 09:41:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262389AbRFMNe2>; Wed, 13 Jun 2001 09:34:28 -0400
-Received: from jalon.able.es ([212.97.163.2]:29943 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S262168AbRFMNeY>;
-	Wed, 13 Jun 2001 09:34:24 -0400
-Date: Wed, 13 Jun 2001 15:35:28 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Kurt Garloff <garloff@suse.de>
-Cc: ognen@gene.pbi.nrc.ca, Christoph Hellwig <hch@ns.caldera.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: threading question
-Message-ID: <20010613153528.A1711@werewolf.able.es>
-In-Reply-To: <200106121858.f5CIwmX05650@ns.caldera.de> <Pine.LNX.4.30.0106121304320.24593-100000@gene.pbi.nrc.ca> <20010613142026.B13623@garloff.etpnet.phys.tue.nl>
+	id <S262622AbRFMNl3>; Wed, 13 Jun 2001 09:41:29 -0400
+Received: from mailrelay.bluelabs.se ([194.17.38.34]:28421 "HELO
+	mailrelay.bluelabs.se") by vger.kernel.org with SMTP
+	id <S262389AbRFMNlT> convert rfc822-to-8bit; Wed, 13 Jun 2001 09:41:19 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999 (debian)
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org
+From: Magnus Sandberg <Magnus.Sandberg@bluelabs.se>
+Subject: Re: Changing CPU Speed while running Linux
+In-Reply-To: Your message of "Wed, 13 Jun 2001 14:21:37 BST."
+             <3B2768E1.2B7E064C@redhat.com>
+In-Reply-To: <20010613143536.A1323@iitb.fhg.de> <3B2768E1.2B7E064C@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010613142026.B13623@garloff.etpnet.phys.tue.nl>; from garloff@suse.de on Wed, Jun 13, 2001 at 14:20:26 +0200
-X-Mailer: Balsa 1.1.5
+Date: Wed, 13 Jun 2001 15:41:11 +0200
+Message-Id: <20010613134111.B126C17C7@mailrelay.bluelabs.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On 20010613 Kurt Garloff wrote:
+I have a brand new Dell Inspiron 8000, laptop. It can run in 700 MHz or
+850 MHz. The manual says that the machine/BIOS switches speed dependent on 
+CPU load. I have not installed Linux yet, but it works with Win2000.
+
+It is also possible to force the BIOS to one speed if the OS don't like 
+speed changes.
+
+Would Linux accept sudden changes of CPU clock rate or is it only the the OS 
+initiate the change of speed it is accepted?
+
+I agree with you that it should be a generic thing. I guess that more and 
+more laptops will get dual-speed CPUs.
+
+
+                                  _\\|//_
+                                  (-0-0-)
+/-------------------------------ooO-(_)-Ooo------------------------------\
+| Magnus Sandberg                    Email: Magnus.Sandberg@bluelabs.se  |
+| Network Engineer, BlueLabs AB                  http://www.bluelabs.se/ |
+| Phone: +46-8-470 2155                             FAX: +46-8-470 2199  |
+\------------------------------------------------------------------------/
+                                  ||   ||
+                                 ooO   Ooo
+
+
+
+ ----- On 13th of June 2001 Arjan van de Ven wrote; -----
+
+Geggus wrote:
 > 
-> What I do in my numerics code to avoid this problem, is to create all the
-> threads (as many as there are CPUs) on program startup and have then wait
-> (block) for a condition. As soon as there's something to to, variables for
-> the thread are setup (protected by a mutex) and the thread gets signalled
-> (cond_signal).
-> If you're interested in the code, tell me.
+> Hi there,
 > 
+> on my Elan410 based System it is very easy to change the CPU clock speed
+> by means od two outb commands.
+> 
+> I was wondering, if it does some harm to the Kernel if the CPU is
+> reprogrammed using a different CPU clock speed, while the system is up and
+> running.
 
-I use the reverse approach. you feed work to the threads, I create the threads
-and let them ask for work to a master until it says 'done'. When the
-master is queried for work, it locks a mutex, decide the next work for
-that thread, and unlocks it. I think it gives the lesser contention and
-is simpler to manage.
+I have a module for the K6 PowerNow which allows you to do
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.5-ac13 #1 SMP Sun Jun 10 21:42:28 CEST 2001 i686
+echo 450 > /proc/sys/cpu/0/frequency
+
+and does the right thing wrt udelay / bogomips etc..
+I can dig it out if you want.. sounds like this should be a more generic
+thing.
+
+Greetings,
+  Arjan van de Ven
+
+

@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270544AbRHNNDj>; Tue, 14 Aug 2001 09:03:39 -0400
+	id <S270616AbRHNNGJ>; Tue, 14 Aug 2001 09:06:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270612AbRHNND3>; Tue, 14 Aug 2001 09:03:29 -0400
-Received: from co3000407-a.belrs1.nsw.optushome.com.au ([203.164.252.88]:31146
-	"EHLO bozar") by vger.kernel.org with ESMTP id <S270544AbRHNNDV>;
-	Tue, 14 Aug 2001 09:03:21 -0400
-Date: Tue, 14 Aug 2001 23:03:01 +1000
-From: Andre Pang <ozone@algorithm.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: usb-uhci + SMP -> bad
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010814002131.A26321@bubba.toscano.org> <E15Wdc6-00016N-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15Wdc6-00016N-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.20i
-Message-Id: <997794181.326309.1471.nullmailer@bozar.algorithm.com.au>
+	id <S270617AbRHNNF7>; Tue, 14 Aug 2001 09:05:59 -0400
+Received: from mail2.megatrends.com ([155.229.80.11]:6667 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S270616AbRHNNFu>; Tue, 14 Aug 2001 09:05:50 -0400
+Message-ID: <1355693A51C0D211B55A00105ACCFE6402D25F2B@ATL_MS1>
+From: "Atul Mukker." <Atulm@ami.com>
+To: "'MEHTA,HIREN (A-SanJose,ex1)'" <hiren_mehta@agilent.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: how to install redhat linux to a scsi disk for which driver i
+	s no t present on the installation media
+Date: Tue, 14 Aug 2001 09:00:24 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 14, 2001 at 01:48:06PM +0100, Alan Cox wrote:
+RedHat ( and most other distributions ) support install time driver update
+diskette. More info for RedHat is available at
+http://people.redhat.com/dledford
 
-> > 	- use the uhci USB driver when I'm using a USB printer.  If I
-> > 	  use the usb-uhci driver with my USB printer, the whole system
-> > 	  locks.  This has been reported a few times on LKML,
-> > 	  linux-usb-users, and linux-usb-developers and nobody helped,
-> > 	  but a few people wrote back with "me too"s.  It was broken in
-> > 	  the trasnition from 2.4.3 to 2.4.4 and only seems to affect
-> > 	  SMP systems.  I just gave up on USB printing and went back to
-> > 	  my parallel port.
+
+
+> -----Original Message-----
+> From:	MEHTA,HIREN (A-SanJose,ex1) [SMTP:hiren_mehta@agilent.com]
+> Sent:	Monday, August 13, 2001 7:08 PM
+> To:	'linux-kernel@vger.kernel.org'
+> Subject:	how to install redhat linux to a scsi disk for which driver
+> is no t present on the installation media
 > 
-> usb-uhci seems to not be SMP safe. Ultimately we don't need both uhci
-> drivers so that hasnt been one that worried me.  Probably we should drop
-> the other uhci driver over time (2.5 maybe)
-
-i'd just thought i'd verify that usb-uchi seems to be causing
-some havoc on SMP boxes.
-
-i've had complete crashes (Alt-SysRq-s doesn't respond) when i
-try to print stuff to a USB printer using the usb-uchi and
-printer modules.  this is on an SMP box.
-
-however -- 2.4.2 works perfectly for that.  it broke from 2.4.4
-onward (tried 2.4.[5-7], i'm presuming .8 hasn't fixed the
-problem.)
-
-if anybody wants me to help them diagnose the problem, i'd be
-more than happy to, but i'm not sure where to start at the
-moment.
-
-
--- 
-#ozone/algorithm <ozone@algorithm.com.au>          - trust.in.love.to.save
+> Hi List,
+> 
+> Can somebody guide me on how to install RedHat Linux (e.g. 7.1)
+> to a scsi disk which is connected to a scsi controller for which the 
+> driver is not present on the installation media ? 
+> 
+> I want the installation prodecure to ask for driver diskette
+> and when I insert the driver diskette, it will load the driver
+> for the controller from the floppy-disk and find out what all 
+> devices are connected to it and then probably start installation 
+> on one of them.
+> 
+> Regards,
+> -hiren
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,27 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292391AbSBYXHF>; Mon, 25 Feb 2002 18:07:05 -0500
+	id <S292131AbSBYXLF>; Mon, 25 Feb 2002 18:11:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292131AbSBYXGp>; Mon, 25 Feb 2002 18:06:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1286 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291152AbSBYXGi>; Mon, 25 Feb 2002 18:06:38 -0500
-Subject: Re: setsockopt(SOL_SOCKET, SO_SNDBUF) broken on 2.4.18?
-To: Raphael_Manfredi@pobox.com (Raphael Manfredi)
-Date: Mon, 25 Feb 2002 23:21:20 +0000 (GMT)
+	id <S292394AbSBYXKz>; Mon, 25 Feb 2002 18:10:55 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:58529 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S292131AbSBYXKp>;
+	Mon, 25 Feb 2002 18:10:45 -0500
+Date: Mon, 25 Feb 2002 15:08:13 -0800 (PST)
+Message-Id: <20020225.150813.66161624.davem@redhat.com>
+To: matthias.andree@stud.uni-dortmund.de
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a5ed9u$3tp$1@lyon.ram.loc> from "Raphael Manfredi" at Feb 25, 2002 10:19:42 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Linux 2.4.18
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020225230156.GA11786@merlin.emma.line.org>
+In-Reply-To: <20020225.140851.31656207.davem@redhat.com>
+	<3C7AB893.4090800@ellinger.de>
+	<20020225230156.GA11786@merlin.emma.line.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16fUQq-0006iZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem is that I don't want to shrink the buffer size, hence I need
-> to read the current size.  Do I need to halve the returned value from
-> getsockopt() then?
+   From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+   Date: Tue, 26 Feb 2002 00:01:56 +0100
 
-The kernel always uses a buffer as big or bigger than you asked for
+   > And how should EXTRAVERSION be accommodated?
+   
+   sed/perl/awk -- a short five-liner "bless-rc-to-final" script should do.
+
+Ummm... no.
+
+This whole conversation exists because "Deleting the EXTRAVERSION
+setting from linux/Makefile" then making new diffs/tars was screwed
+up.  Doing it with a script isn't going to help this kind of problem.
+
+I repeat: it isn't a "release candidate" if it will not match preciely
+what the final tarball/patches contains.  Anything else opens up the
+possibility for errors to be made.

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262882AbTHUThb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 15:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTHUThb
+	id S262879AbTHUTkx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 15:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbTHUTkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 15:37:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50911 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262882AbTHUTha
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 15:37:30 -0400
-Date: Thu, 21 Aug 2003 20:37:28 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Lou Langholtz <ldl@aros.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <willy@debian.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] bio.c: reduce verbosity at boot
-Message-ID: <20030821193728.GB19630@parcelfarce.linux.theplanet.co.uk>
-References: <20030821150211.GU19630@parcelfarce.linux.theplanet.co.uk> <3F44E2EB.6020508@pobox.com> <3F44F88F.9010106@aros.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F44F88F.9010106@aros.net>
-User-Agent: Mutt/1.4.1i
+	Thu, 21 Aug 2003 15:40:53 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:18959 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S262879AbTHUTkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 15:40:52 -0400
+Date: Thu, 21 Aug 2003 21:42:00 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Christian Axelsson <smiler@lanil.mine.nu>
+cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>
+Subject: Re: [2.6.0-test3-mm3] irda compile error
+In-Reply-To: <3F44A22D.6040005@lanil.mine.nu>
+Message-ID: <Pine.LNX.4.44.0308212120380.3006-100000@notebook.home.mdiehl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 21, 2003 at 10:51:27AM -0600, Lou Langholtz wrote:
-> Jeff Garzik wrote:
-> >. . . removing the messages outright might not serve the best 
-> >interests the developer.  Since even KERN_DEBUG still spams dmesg, in 
-> >these situations I usually change these type of messages to be 
-> >conditionally printed iff a debug macro is enabled.
+On Thu, 21 Aug 2003, Christian Axelsson wrote:
+
+> Got this while doing  make. Config attached.
+> Same config compiles fine under mm2
 > 
-> How about using KERN_DEBUG and augmenting the dmesg store so that the 
-> level that is saved is configurable? Even compile time configurable 
-> seems reasonable to start. But axeing out even the possibility of boot 
-> time info seems bad to me.
+>  CC      drivers/net/irda/vlsi_ir.o
+> drivers/net/irda/vlsi_ir.c: In function `vlsi_proc_pdev':
+> drivers/net/irda/vlsi_ir.c:167: structure has no member named `name'
 
-But why is it interesting to have this information at boot time?  As a
-user, I certainly don't care.  As a developer, I don't find it interesting
-information.  Maybe the maintainer of this particular piece of code finds
-it useful (Do you, Jens?), but does it need to be reported at boot time?
+Yep, Thanks. I'm aware of the problem which is due to the recent 
+device->name removal. In fact a fix for this was already included in the 
+latest resent of my big vlsi update patch pending since long.
 
-Perhaps it would be more useful to add some kind of reporting to
-mm/mempool.c along the same lines as /proc/slabinfo so we can get the
-dynamic information about pools at runtime rather than knowing their
-initial state at boot time.
+Anyway, it was pointed out now the patch is too big so I'm currently 
+working on splitting it up. Bunch of patches will follow soon :-)
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Btw., are you actually using this driver? I'm always looking for testers 
+with 2.6 to give better real life coverage...
+
+Martin
+

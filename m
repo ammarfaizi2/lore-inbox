@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbTELHKk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 03:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTELHKk
+	id S261965AbTELHJV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 03:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTELHJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 03:10:40 -0400
-Received: from imhotep.hursley.ibm.com ([194.196.110.14]:43820 "EHLO
-	tor.trudheim.com") by vger.kernel.org with ESMTP id S261968AbTELHKi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 03:10:38 -0400
-Subject: Re: Two RAID1 mirrors are faster than three
-From: Anders Karlsson <anders@trudheim.com>
-To: Paul P Komkoff Jr <i@stingr.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030512054130.GA1318@stingr.net>
-References: <200305112212_MC3-1-386B-32BF@compuserve.com>
-	 <3EBF24A8.1050100@tequila.co.jp>
-	 <1052716203.4100.10.camel@tor.trudheim.com>
-	 <20030512054130.GA1318@stingr.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-BHBxc2eS74haA56Xez5B"
-Organization: Trudheim Technology Limited
-Message-Id: <1052724195.3521.5.camel@tor.trudheim.com>
+	Mon, 12 May 2003 03:09:21 -0400
+Received: from mail9.atl.registeredsite.com ([64.224.219.83]:2878 "EHLO
+	mail9.atl.registeredsite.com") by vger.kernel.org with ESMTP
+	id S261965AbTELHJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 03:09:20 -0400
+Subject: problems with using multicast
+From: "Shantanu.Gogate" <shantanu.gogate@wibhu.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052723893.1807.54.camel@Jughead.Wibhu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
-Date: 12 May 2003 08:23:15 +0100
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 12 May 2003 12:48:13 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+    I am trying to use multicast in an application which. I am running
+kernel 2.4.19.I have interfaces lo, and eth0 on bootup.  Here is what I
+am trying to do...
 
---=-BHBxc2eS74haA56Xez5B
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+When i try to create a socket which becomes a member of a multicast
+group by specifying the grp address and using INADDR_ANY as the
+interface to use, i am able to receive packets sent out the multicast
+group. However if i specifically bind it to the address of eth0 and then
+try to receive packets...i am not getting any....The only other
+interfaces i have are lo. I cant explain why it is working when i use
+INADDR_ANY and does not receive packets when i use the specific address
+of the device....
 
-On Mon, 2003-05-12 at 06:41, Paul P Komkoff Jr wrote:
+the code for this socket init looks as follows ...i have removed error
+handling for readability right now
+--------------
+         server_socket = socket(AF_INET, SOCK_DGRAM,0);
+  
+         memset(&saddr,0,sizeof(struct sockaddr_in));
+         saddr.sin_family = AF_INET;
+         saddr.sin_addr.s_addr = htonl(INADDR_ANY);
+         saddr.sin_port = port;
 
-> Replying to Anders Karlsson:
-> > downtime on it. You then quiesce the database, split off the second cop=
-y
-> > from the mirror, mount that as a separate filesystem and back that up
-> > while the original with its first copy has already stepped back into
-> > full use.
->=20
-> Why do not use snapshots for this?
+        bind(server_socket, (struct sockaddr *) &saddr, sizeof(saddr);
+        
+on=1;
+setsockopt(server_socket,SOL_SOCKET,SO_REUSEADDR,&on,sizeof(on));
 
-Snapshots was not around then. AFAIK snapshotting in the LVM is a recent
-thing. I know people were doing backups by splitting off the 2nd copy in
-a mirror some eight years ago.
+        mreq.imr_multiaddr.s_addr = mcast_addr;
+        mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+       
+setsockopt(server_socket,SOL_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq))
 
-/Anders
+ttl = 1;
+setsockopt(server_socket, IPPROTO_IP, IP_MULTICAST_TTL,&ttl,sizeof(ttl))
 
---=-BHBxc2eS74haA56Xez5B
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+loop = 0;
+setsockoptserver_socket,IPPROTO_IP,IP_MULTICAST_LOOP,&loop,sizeof(loop))
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+return server_socket;
+----------------------------------      
+if i replace INADDR_ANY with the actual interface address which i get
+using ioctl, then i cant receive any packets... However when i see the
+dump from tcpdump i can see the packets coming in, but for some reason
+they are not reaching the socket which had become a member. I can also
+see that the group membership was added if i do netstat -g
 
-iD8DBQA+v0vjLYywqksgYBoRAvZZAJ46Np8Oq0c5hWtqt+3E/UW1xYc5XACeOXuw
-QyfPpHTbvt1fhRwGaytYslo=
-=Ttj4
------END PGP SIGNATURE-----
 
---=-BHBxc2eS74haA56Xez5B--
+I would appreciate any help.
+
+Thanks and regards,
+Shantanu.
 

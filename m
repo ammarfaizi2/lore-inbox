@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281463AbRLQRqg>; Mon, 17 Dec 2001 12:46:36 -0500
+	id <S281739AbRLQSE4>; Mon, 17 Dec 2001 13:04:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281719AbRLQRq0>; Mon, 17 Dec 2001 12:46:26 -0500
-Received: from [24.217.2.182] ([24.217.2.182]:2003 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id <S281463AbRLQRqM>;
-	Mon, 17 Dec 2001 12:46:12 -0500
-Message-Id: <200112171838.fBHIccf01240@linux.local>
-Content-Type: text/plain; charset=US-ASCII
-X-KMail-Redirect-From: Its Squash <squash2@dropnet.net>
-Subject: [PATCH] eepro100.c support for  82801CAM (ie in Compaq Evo N600c)
-From: Its Squash <squash2@dropnet.net> (by way of Its Squash
-	<squash2@dropnet.net>)
-Date: Mon, 17 Dec 2001 12:38:38 -0600
-To: linux-kernel@vger.kernel.org
+	id <S281762AbRLQSEr>; Mon, 17 Dec 2001 13:04:47 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:64013 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S281739AbRLQSEl>; Mon, 17 Dec 2001 13:04:41 -0500
+Date: Mon, 17 Dec 2001 14:49:44 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Yoshiki Hayashi <yoshiki@xemacs.org>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.16 Fix NULL pointer dereferencing in agpgart_be.c
+In-Reply-To: <20011217140036.4a0e8969.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.21.0112171449020.3255-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
-
-This chipset uses the normal eepro100 driver, but needs to be updated to
-recognise the PCI ID. The following patch adds this.  This is already fixed
-in 2.4.17-rc1.
-
-- Josh
-
---- drivers/net/eepro100.c.orig Mon Nov 12 11:47:18 2001
-+++ drivers/net/eepro100.c      Mon Dec 17 09:51:13 2001
-@@ -168,6 +169,9 @@
- #ifndef PCI_DEVICE_ID_INTEL_ID1030
- #define PCI_DEVICE_ID_INTEL_ID1030 0x1030
- #endif
-+#ifndef PCI_DEVICE_ID_INTEL_ID1038
-+#define PCI_DEVICE_ID_INTEL_ID1038 0x1038
-+#endif
 
 
- static int speedo_debug = 1;
-@@ -2270,6 +2274,8 @@
-        { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1029,
-                PCI_ANY_ID, PCI_ANY_ID, },
-        { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1030,
-+               PCI_ANY_ID, PCI_ANY_ID, },
-+       { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1038,
-                PCI_ANY_ID, PCI_ANY_ID, },
-        { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_7,
-                PCI_ANY_ID, PCI_ANY_ID, },
+On Mon, 17 Dec 2001, Stephan von Krawczynski wrote:
+
+> > The attached patch add NULL check before dereferencing the
+> > pointer to fix the problem.
+> 
+> This was solved some weeks ago and the patch is pending somewhere (marcelo?).
+
+The whole patch is queued for 2.4.18pre..
+
+> Unfortunately the complete cure is inside this pending patch, because there are
+> other small tweaks for i830M. The NULL-check is sufficient for non-oops, but
+> i830-register size is smaller than the further ongoings inside agpgart_be.c.
+

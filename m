@@ -1,138 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267233AbUBNBIx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 20:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267275AbUBNBIx
+	id S267237AbUBNBD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 20:03:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267251AbUBNBD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 20:08:53 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:13455 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S267233AbUBNBIn (ORCPT
+	Fri, 13 Feb 2004 20:03:57 -0500
+Received: from gate.crashing.org ([63.228.1.57]:45978 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267237AbUBNBDe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 20:08:43 -0500
-Date: Sat, 14 Feb 2004 02:08:41 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: davidm@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org, linux-gcc@vger.kernel.org,
-       wilson@specifixinc.com
-Subject: Re: Kernel Cross Compiling
-Message-ID: <20040214010841.GA1755@MAIL.13thfloor.at>
-Mail-Followup-To: davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
-	linux-gcc@vger.kernel.org, wilson@specifixinc.com
-References: <20040213205743.GA30245@MAIL.13thfloor.at> <16429.16944.521739.223708@napali.hpl.hp.com> <20040213214420.GA32006@MAIL.13thfloor.at> <16429.29392.529575.21798@napali.hpl.hp.com>
+	Fri, 13 Feb 2004 20:03:34 -0500
+Subject: [PATCH] Fix incorrect kfree in radeonfb
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       James Simmons <jsimmons@infradead.org>
+Content-Type: text/plain
+Message-Id: <1076720526.900.146.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16429.29392.529575.21798@napali.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 14 Feb 2004 12:02:06 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 13, 2004 at 04:58:56PM -0800, David Mosberger wrote:
-> >>>>> On Fri, 13 Feb 2004 22:44:20 +0100, Herbert Poetzl <herbert@13thfloor.at> said:
-> 
->   >> A recipe for building ia32->ia64 cross-toolchain on Debian can be
->   >> found here:
-> 
->   >> http://www.gelato.unsw.edu.au/IA64wiki/CrossCompilation
-> 
->   Herbert> that might work with the ia64 libraries and headers, but it
->   Herbert> seems to fail, with the headers included in the gcc
->   Herbert> tarball, for cross compiling, if you get it to compile
->   Herbert> without (g)libc which should not be required to build the
->   Herbert> crossgcc and the kernel, I would be very interested ...
-> 
-> Ah, I see now what you mean.  I suspect that's a setup that's rarely
-> tested, so I'm not surprised to see some breakage.
-> 
-> Having said that, I got gcc v3.3.3 20031212 (prerelease) to build with
-> minor tweaks (see patch below).  I'm no GCC-built-environment expert
-> and I'm quite certain that the patch isn't totally correct, but all
-> the unwind-related stuff isn't really needed in your case, because
-> that code only comes into play for exception-handling and C cleanup
-> handlers.
-> 
-> The unwind-sjlj.c problem should occur on most other platforms too, so
-> I don't think that problem is ia64-specific.
+Hi !
 
-ah, thanks, will test it, and maybe upgrade to 3.3.3
-if this seems necessary ...
+I missed a kfree -> framebuffer_release() in the new radeonfb, here's
+the patch, please apply (and thanks to Luca for noticing it).
 
-best,
-Herbert
+Ben.
 
-> 	--david
-> 
-> Index: gcc/unwind-sjlj.c
-> ===================================================================
-> RCS file: /cvs/gcc/gcc/gcc/unwind-sjlj.c,v
-> retrieving revision 1.11.2.2
-> diff -u -r1.11.2.2 unwind-sjlj.c
-> --- gcc/unwind-sjlj.c	2 May 2003 21:01:21 -0000	1.11.2.2
-> +++ gcc/unwind-sjlj.c	14 Feb 2004 00:50:33 -0000
-> @@ -22,7 +22,9 @@
->  #include "tconfig.h"
->  #include "tsystem.h"
->  #include "unwind.h"
-> +#ifndef inhibit_libc
->  #include "gthr.h"
-> +#endif
->  
->  #ifdef __USING_SJLJ_EXCEPTIONS__
->  
-> Index: gcc/unwind.h
-> ===================================================================
-> RCS file: /cvs/gcc/gcc/gcc/unwind.h,v
-> retrieving revision 1.7.2.6
-> diff -u -r1.7.2.6 unwind.h
-> --- gcc/unwind.h	4 Sep 2003 09:39:44 -0000	1.7.2.6
-> +++ gcc/unwind.h	14 Feb 2004 00:50:33 -0000
-> @@ -195,7 +195,9 @@
->     compatible with the standard ABI for IA-64, we inline these.  */
->  
->  #ifdef __ia64__
-> -#include <stdlib.h>
-> +# ifndef inhibit_libc
-> +#  include <stdlib.h>
-> +# endif
->  
->  static inline _Unwind_Ptr
->  _Unwind_GetDataRelBase (struct _Unwind_Context *_C)
-> Index: gcc/config/ia64/fde-glibc.c
-> ===================================================================
-> RCS file: /cvs/gcc/gcc/gcc/config/ia64/fde-glibc.c,v
-> retrieving revision 1.5
-> diff -u -r1.5 fde-glibc.c
-> --- gcc/config/ia64/fde-glibc.c	15 Dec 2001 11:46:51 -0000	1.5
-> +++ gcc/config/ia64/fde-glibc.c	14 Feb 2004 00:50:34 -0000
-> @@ -31,6 +31,9 @@
->  #ifndef _GNU_SOURCE
->  #define _GNU_SOURCE
->  #endif
-> +
-> +#ifndef inhibit_libc
-> +
->  #include "config.h"
->  #include <stddef.h>
->  #include <stdlib.h>
-> @@ -162,3 +165,5 @@
->  
->    return data.ret;
->  }
-> +
-> +#endif
-> Index: gcc/config/ia64/linux.h
-> ===================================================================
-> RCS file: /cvs/gcc/gcc/gcc/config/ia64/linux.h,v
-> retrieving revision 1.23
-> diff -u -r1.23 linux.h
-> --- gcc/config/ia64/linux.h	3 Sep 2002 21:09:54 -0000	1.23
-> +++ gcc/config/ia64/linux.h	14 Feb 2004 00:50:34 -0000
-> @@ -58,7 +58,7 @@
->  /* Do code reading to identify a signal frame, and set the frame
->     state data appropriately.  See unwind-dw2.c for the structs.  */
->  
-> -#ifdef IN_LIBGCC2
-> +#ifdef x_IN_LIBGCC2
->  #include <signal.h>
->  #include <sys/ucontext.h>
->  
+===== drivers/video/aty/radeon_base.c 1.2 vs edited =====
+--- 1.2/drivers/video/aty/radeon_base.c	Fri Feb 13 03:10:47 2004
++++ edited/drivers/video/aty/radeon_base.c	Sat Feb 14 12:00:22 2004
+@@ -2291,7 +2291,7 @@
+ #ifdef CONFIG_FB_RADEON_I2C
+ 	radeon_delete_i2c_busses(rinfo);
+ #endif        
+-        kfree (rinfo);
++        framebuffer_release(info);
+ }
+ 
+ 
+
+

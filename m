@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268031AbTCFNBI>; Thu, 6 Mar 2003 08:01:08 -0500
+	id <S268019AbTCFM4s>; Thu, 6 Mar 2003 07:56:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268032AbTCFNBI>; Thu, 6 Mar 2003 08:01:08 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:52461 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S268031AbTCFNBH>;
-	Thu, 6 Mar 2003 08:01:07 -0500
-References: <courier.3E646584.000059D3@softhome.net>
-            <1046800283.999.59.camel@phantasy.awol.org>
-In-Reply-To: <1046800283.999.59.camel@phantasy.awol.org> 
-From: prash_t@softhome.net
-To: Robert Love <rml@tech9.net>
+	id <S268031AbTCFM4s>; Thu, 6 Mar 2003 07:56:48 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:18122 "EHLO
+	nessie.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S268019AbTCFM4r>; Thu, 6 Mar 2003 07:56:47 -0500
+Date: Fri, 7 Mar 2003 00:03:40 +1100
+From: CaT <cat@zip.com.au>
+To: dahinds@users.sourceforge.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Inconsistency in changing the state of task ??
-Date: Thu, 06 Mar 2003 06:11:30 -0700
+Subject: 2.5.64 - xircom realport no workie well
+Message-ID: <20030306130340.GA453@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [32.97.110.66]
-Message-ID: <courier.3E674902.000007D9@softhome.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Robert for the reply.
-But I notice that __set_current_state() is same as current->state. So, I 
-didn't understand the safety factor on using __set_current_state( ). 
+Heyas.
 
-Also why should I use __set_current_state() instead of set_current_state() 
-when the later is SMP safe. 
+With the 2.5.x series of kernels I've lost serial port functionality of
+my xircom pcmcia card and the network port, whilst working, does give
+errors on eject. The dmesg from an insert/eject sequence is:
 
-Thanks in advance....
-Prashanth 
+cs: cb_alloc(bus 2): vendor 0x115d, device 0x0003
+PCI: Enabling device 02:00.0 (0000 -> 0003)
+PCI: Setting latency timer of device 02:00.0 to 64
+eth1: Xircom cardbus revision 3 at irq 10 
+PCI: Enabling device 02:00.1 (0000 -> 0003)
+ttyS15 at I/O 0x1880 (irq = 10) is a 16550A
+Trying to free nonexistent resource <00001880-00001887>
+cs: cb_free(bus 2)
 
-Robert Love writes: 
+When accessing the serial port (ttyS15) all I get is:
 
-> On Tue, 2003-03-04 at 03:36, prash_t@softhome.net wrote: 
-> 
->>      while browsing through fs/select.c file of 2.4.19, I came across two 
->> DIFFERENT ways of changing the state of the current task in do_select():  
->> 
->>             set_current_state = TASK_INTERRUPTIBLE;
->>      AND    current->state = TASK_RUNNING;  
->> 
->> I am curious to know if the second line of code doesn't cause any problem in 
->> SMP systems.  I also see the same situation in do_poll().
-> 
-> You normally want to use set_current_state(), which is a nice
-> abstraction and safe for SMP. 
-> 
-> Sometimes it is safe to use __set_current_state(), which does not
-> provide a memory barrier. 
-> 
-> The above open-coded line can be changed to
-> __set_current_state(TASK_RUNNING). 
-> 
-> 	Robert Love 
-> 
- 
+13 [23:58:06] root@theirongiant:/usr/src/linux>> cat /dev/ttyS15
+cat: /dev/ttyS15: Input/output error
+
+I know this card has a real modem in it as I've used it in the past with
+some version of 2.4.x and pcmcia-cs package. I'd like to use the kernel
+stuff though so that I can stop having to install 4MB or so of modules into
+/lib.
+
+If you need any help from me with debugging/testing/whatnot, then please
+holler. I'll try to do any testing etc asap.
+
+Oh yeah. Relevant .config options:
+
+CONFIG_PCMCIA=y
+CONFIG_PCMCIA_XIRCOM=y
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_XIRC2PS=y
+CONFIG_SERIAL_8250_CS=y
+CONFIG_BLK_DEV_IDECS=y
+
+-- 
+"Other countries of course, bear the same risk. But there's no doubt his
+hatred is mainly directed at us. After all this is the guy who tried to         kill my dad."
+        - George W. Bush Jr, 'President' of the United States
+          September 26, 2002 (from a political fundraiser in Huston, Texas)
+

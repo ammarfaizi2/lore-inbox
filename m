@@ -1,81 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276092AbRI1Ox2>; Fri, 28 Sep 2001 10:53:28 -0400
+	id <S276094AbRI1OzI>; Fri, 28 Sep 2001 10:55:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276090AbRI1OxV>; Fri, 28 Sep 2001 10:53:21 -0400
-Received: from snowball.fnal.gov ([131.225.81.94]:42514 "EHLO
-	snowball.fnal.gov") by vger.kernel.org with ESMTP
-	id <S276092AbRI1OxB>; Fri, 28 Sep 2001 10:53:01 -0400
-Date: Fri, 28 Sep 2001 09:53:21 -0500 (CDT)
-From: Steven Timm <timm@fnal.gov>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: DMA problem (?) w/2.4.6-xfs and ServerWorks OSB4 Chipset
-In-Reply-To: <E15mk45-0005Li-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.31.0109280929030.30363-100000@snowball.fnal.gov>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276095AbRI1Oyv>; Fri, 28 Sep 2001 10:54:51 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:11279 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S276090AbRI1Oxo>;
+	Fri, 28 Sep 2001 10:53:44 -0400
+Date: Fri, 28 Sep 2001 16:54:06 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Thomas Hood <jdthood@mail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PnP BIOS + 2.4.9-ac16 = no boot
+Message-ID: <20010928165406.M21524@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <3BB47F7F.DE2FD301@mail.com> <20010928160250.K21524@come.alcove-fr> <3BB48C29.356901F1@mail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3BB48C29.356901F1@mail.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, Alan for your reply to this,...just a couple clarifications
-needed...
+On Fri, Sep 28, 2001 at 10:41:45AM -0400, Thomas Hood wrote:
 
+> Stelian Pop wrote:
+> > What about making a conditional on 'is_sony_vaio_laptop' here ?
+> > (but you need to extends the conditionnal export of this variable
+> > from dmi_scan.c / i386_ksyms.c).
+> 
+> In addition to applying the patch I just sent
+> (thood-pnpbiosvaio-patch-20010928-3), you will have
+> to move the definition of is_sony_vaio_laptop outside
+> the #ifdefs in arch/i386/kernel/dmi_scan.c and i386_ksyms.c
 
-On Thu, 27 Sep 2001, Alan Cox wrote:
+No need for me since I have CONFIG_SONYPI on.
 
-> > 2.4.7-ac2 patch level and not having any lock-ups with ultraDMA.
-> > My question--there was a new file "serverworks.c" inserted in the
-> > 2.4.6 ac patches.  Does anyone know if that made it into the kernel
-> > and supposedly fixed the problem?  (My guess is that it has *not*
->
-> Short answer is "it should"
->
-OK--"it should" fix the bug--my question is, how far has the
-serverworks.c which was in the 2.4.6-ac series now propagated
-into Linus' tree (and eventually into the RedHat tree?)  Also,
-are the later 2.4.7 and higher -ac patches significantly
-different from that which was found in the 2.4.6-ac patches?
+> You or Alan:  For the cleaned up patch, do we export this
+> variable unconditionally?
 
-> Long answer "I have been chasing a specific problem with OSB4, seagate
-> drives and UDMA corruption. We can reliably reproduce it and see it on one
-> set of machines. Serverworks cannot reproduce it elsewhere"
->
-Too bad we didn't know this a month ago... we had 136 of these machines
-and were seeing it all the time, could have given you a perfect test
-bed...we found the quickest way
-to reproduce it was just to do ls -R /usr | grep Input/output error
-and managed to make 80 of the 136 machines misbehave within a couple
-of days time.  As a result of that the vendor swapped all the drives
-to western digital and left us with a bug that has only happened on
-10 machines over the course of 2 months--where the DMA timeouts
-will hang the machine but not corrupt the data.
+I'd vote for unconditionnally define one int instead of having
+something like:
+	#if defined(CONFIG_SONYPI) || defined(CONFIG_SONYPI_MODULE) || ( defined(CONFIG_PNP) && defined(CONFIG_PROC) )
+(and maybe other defines in the future... :( ).
 
-> So unless your box when running current -ac starts spewing messages about
-> DMA completions seeming broken - it should work. I only mention this
-> because you write:
->
-> > We have seen quite a difference on systems that are otherwise
-> > the same (Supermicro 370DLE w/serverworks OSB4 LE chipset) by swapping
-> > different models of hard disk drives.  With some types of drive
-> > (Seagate) we
-> > observe massive corruption of the file system but nothing reported
-> > in /var/log/messages or on the console.  Currently we see hda
-> > timeouts (but only on about 10 systems over the course of 2 months)
-> > which hang the machine but after a reboot things are fine (Western
-> > Digital).
->
-> I would thus be very interested if the current -ac "hardware just did
-> something impossibly stupid" trap is hit.
->
-> Alan
->
-Just tell me what you think your latest and greatest patch is that
-you would want to see tested and I'll be glad to give it a test on this
-cluster.
-
-Thanks
-
-Steve Timm
-
-
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

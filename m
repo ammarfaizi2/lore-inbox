@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129161AbRBGWZX>; Wed, 7 Feb 2001 17:25:23 -0500
+	id <S129104AbRBGW1X>; Wed, 7 Feb 2001 17:27:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129434AbRBGWZN>; Wed, 7 Feb 2001 17:25:13 -0500
-Received: from mail.heymax.com ([63.96.5.101]:48654 "EHLO heymax.com")
-	by vger.kernel.org with ESMTP id <S129161AbRBGWZH>;
-	Wed, 7 Feb 2001 17:25:07 -0500
-From: "Jason Ford" <jason@heymax.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: aacraid 2.4.0 kernel
-Date: Wed, 7 Feb 2001 17:23:30 -0500
-Message-ID: <PNEPLDDEADCDEBANKDDHEEGPCAAA.jason@heymax.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
-X-MDRemoteIP: 10.0.1.21
-X-Return-Path: jason@heymax.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+	id <S129230AbRBGW1N>; Wed, 7 Feb 2001 17:27:13 -0500
+Received: from vp175097.reshsg.uci.edu ([128.195.175.97]:18954 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S129104AbRBGW1J>; Wed, 7 Feb 2001 17:27:09 -0500
+Date: Wed, 7 Feb 2001 14:26:50 -0800
+Message-Id: <200102072226.f17MQoD17063@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Stefan Majer <stefan@x-cellent.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1 and Adaptec Duralan aka Starfire.c 
+In-Reply-To: <3A812800.CCDAA7ED@x-cellent.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see in the archives of this mailing list that someone was working on the
-aacraid driver for the 2.4 kernel however that post was almost 2 months old.
-I know Alan Cox denied inclusion of the driver due to the poor nature it was
-written for the 2.2 tree. Every post that I have seen so far has just said
-that Adaptec is working on it. However, I am sure there are many people out
-there like myself that have to support this card in enviroments that would
-be benifical to upgrade to 2.4 kernel. I am not a part of this list however
-have been scouring through geocrawler.com archives of this list everyday for
-the last month hoping and waiting.
+On Wed, 07 Feb 2001 11:48:32 +0100, Stefan Majer <stefan@x-cellent.com> wrote:
+> Hi All
+> 
+> I installed a Adaptec Quad Port Ethernet Adapter called Quartet64 and
+> after compiling 2.4.1
+> with starfire support i got the following  messages in syslog 
+> 
+> after 
+> 
+> ifconfig eth2 172.17.1.4 netmask 255.255.0.0 up
+> 
+> Feb  7 11:37:29 cerro kernel: eth2: Internal fault: The skbuff addresses
+> do not match in netdev_rx: 242749457 vs. ce781000 / ce781010.
 
-Does anyone know the status of the driver or even the possibilities of it
-getting included into the next kernel version (2.4.2)?
-
-Please CC me on any replies that you may send.
-
-Thanks for you time..
-
-Jason Ford
-jason@heymax.com
-
-Heymax Interactive
-
-http://www.heymax.com
+These are harmless, although very annoying. Use the driver from
+2.4.1-acXX, it has this and other things fixed. Just copy starfire.c
+into your tree/drivers/net, it will work fine.
 
 
+Ion
 
-
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

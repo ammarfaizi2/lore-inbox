@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285194AbRLRVWY>; Tue, 18 Dec 2001 16:22:24 -0500
+	id <S285196AbRLRVTZ>; Tue, 18 Dec 2001 16:19:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285179AbRLRVUt>; Tue, 18 Dec 2001 16:20:49 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:56593 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S285180AbRLRVTy>; Tue, 18 Dec 2001 16:19:54 -0500
-Date: Tue, 18 Dec 2001 19:19:33 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Larry McVoy <lm@bitmover.com>
-Cc: "David S. Miller" <davem@redhat.com>, <alan@lxorguk.ukuu.org.uk>,
-        <torvalds@transmeta.com>, <bcrl@redhat.com>, <davidel@xmailserver.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <20011218131713.O26374@work.bitmover.com>
-Message-ID: <Pine.LNX.4.33L.0112181918470.28489-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285193AbRLRVR7>; Tue, 18 Dec 2001 16:17:59 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:55186 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285183AbRLRVRE>;
+	Tue, 18 Dec 2001 16:17:04 -0500
+Date: Tue, 18 Dec 2001 13:15:54 -0800 (PST)
+Message-Id: <20011218.131554.84359165.davem@redhat.com>
+To: rmk@arm.linux.org.uk
+Cc: kuznet@ms2.inr.ac.ru, Mika.Liljeberg@welho.com, Mika.Liljeberg@nokia.com,
+        linux-kernel@vger.kernel.org, sarolaht@cs.helsinki.fi
+Subject: Re: ARM: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011218211450.E13126@flint.arm.linux.org.uk>
+In-Reply-To: <20011218210332.D13126@flint.arm.linux.org.uk>
+	<20011218.131155.91757544.davem@redhat.com>
+	<20011218211450.E13126@flint.arm.linux.org.uk>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Dec 2001, Larry McVoy wrote:
-> On Tue, Dec 18, 2001 at 01:14:20PM -0800, David S. Miller wrote:
-> >    From: Larry McVoy <lm@bitmover.com>
-> >    Date: Tue, 18 Dec 2001 13:02:28 -0800
-> >
-> >    Maybe I'm an old stick in the mud, but IRC seems like a big waste of
-> >    time to me.
-> >
-> > It's like being at a Linux conference all the time. :-)
->
-> Let me introduce you to this neat invention called a telephone.  It's
-> the black thing next to your desk, it rings, has buttons.  If you push
-> the right buttons, well, it's magic...
+   From: Russell King <rmk@arm.linux.org.uk>
+   Date: Tue, 18 Dec 2001 21:14:50 +0000
 
-Yeah, but you can't scroll up a page on the phone...
+   On Tue, Dec 18, 2001 at 01:11:55PM -0800, David S. Miller wrote:
+   >    On Tue, Dec 18, 2001 at 11:29:06PM +0300, kuznet@ms2.inr.ac.ru wrote:
+   >    > No doubts it still has broken misaligned access.
+   >    
+   >    You're way out of line with that comment.
+   > 
+   > Not necessarily Russell.  You have even told us on several occaisions
+   > that the older ARMs simply cannot fix up unaligned loads/stores in
+   > fact.
+   
+   It read as "Oh, it's ARM, that's your problem then".
+   
+If it was "your problem, so go away" why did I even bother posting a
+patch for him to test out?
 
-(also, talking with multiple people at the same time
-is kind of annoying in audio, while it's ok on irc)
-
-Rik
---
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

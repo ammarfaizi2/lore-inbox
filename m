@@ -1,89 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbTEPWLv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 18:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbTEPWLv
+	id S262148AbTEPWWN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 18:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbTEPWWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 18:11:51 -0400
-Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:23435 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id S262676AbTEPWLr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 18:11:47 -0400
-Date: Fri, 16 May 2003 15:24:36 -0700
-From: Simon Kirby <sim@netnation.org>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Route cache performance under stress
-Message-ID: <20030516222436.GA6620@netnation.com>
-References: <8765pshpd4.fsf@deneb.enyo.de>
+	Fri, 16 May 2003 18:22:12 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:13047 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262148AbTEPWWL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 18:22:11 -0400
+Date: Fri, 16 May 2003 15:36:24 -0700
+From: Greg KH <greg@kroah.com>
+To: Manuel Estrada Sainz <ranty@debian.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Downing, Thomas" <Thomas.Downing@ipc.com>, jt@hpl.hp.com,
+       Pavel Roskin <proski@gnu.org>
+Subject: Re: request_firmware() hotplug interface, third round.
+Message-ID: <20030516223624.GA16759@kroah.com>
+References: <20030515200324.GB12949@ranty.ddts.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8765pshpd4.fsf@deneb.enyo.de>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030515200324.GB12949@ranty.ddts.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 05, 2003 at 06:37:43PM +0200, Florian Weimer wrote:
-
-> Please read the following paper:
+On Thu, May 15, 2003 at 10:03:24PM +0200, Manuel Estrada Sainz wrote:
+>  Hi all,
 > 
-> <http://www.cs.rice.edu/~scrosby/tr/HashAttack.pdf>
+>  This time, as Greg suggested, it is implemented on top of 'struct
+>  class' and 'struct class_device' but the driver interface is the same
+>  as last time.
+
+First off, nice, this looks a lot better, good job.
+
+>  Attached:
+>  	firmware.h
+> 	firmware_class.c:
+> 		The firmware support itself.
+
+Can you just send this as a patch to the current kernel next time?  It's
+much easier to read and test with that way :)
+
+> 	firmware_sample_driver.c:
+> 		Sample code on how to use from drivers.
+
+I didn't see this in the files you attached.
+
+> 	hotplug:
+> 		A simple hotplug replacement for testing.
+> 	Makefile:
+> 		The obvious.
+> 	README:
+> 		Still pertinent pieces from the previous round.
 > 
-> Then look at the 2.4 route cache implementation.
-> 
-> Short summary: It is possible to freeze machines with 1 GB of RAM and
-> more with a stream of 400 packets per second with carefully chosen
-> source addresses.  Not good.
+>  How it works:
+> 	- Driver calls request_firmware()
 
-Finally, somebody else has noticed this problem!  Unfortunately, I didn't
-see this message until now.
+Yeah, I agree with your comment in the code, I think a struct device *
+should be passed here.  Or at least somewhere...
 
-I have been seeing this problem for over a year, and have had the same
-problems you have with DoS attacks saturating the CPUs on our routers.
+> 	- 'hotplug firmware' gets called with ACCTION=add
 
-We have two Athlon 1800MP boxes doing routing on our network, and the CPU
-saturates under embarrassingly low traffic rates with random source IPs.
-We've noticed this a few times with DoS attacks generated internally and
-with remote DoS attacks.  I too have had to abuse the PREROUTING chain
-(in the mangle table to avoid loading the nat table which would bring in
-connection tracking -- grr...I hate the way this works in iptables),
-particularly with the MSSQL worm that burst out to the 'net that one
-Friday night several few months ago.  Adding a single match udp port,
-DROP rule to PREROUTING chain made the load go back down to normal
-levels.  The same rule in the INPUT/FORWARD chain had no affect on the
-CPU utilization (still saturated).
+I don't see why you need to add a new environment variable in your
+firmware_class_hotplug() call.  What is the FIRMWARE variable for, if we
+already have a device symlink back to the device that is asking for the
+firmware?  Oh, you don't have that :)
 
-> The route cache is a DoS bottleneck in general (that's why I started
-> looking at it).  You have to apply rate-limits in the PREROUTING
-> chain, otherwise a modest packet flood will push the machine off the
-> network (even with truly random source addresses, not triggering hash
-> collisions).  The route cache partially defeats the purpose of SYN
-> cookies, too, because the kernel keeps (transient) state for spoofed
-> connection attempts in the route cache.
+> 	- /sysfs/class/firmware/dev_name/{data,loading} show up.
 
-The idea, I believe, was that the route cache was supposed to stay as a
-mostly O(1) overhead and not fall over in any specific cases.  As you
-say, however, we also have problems with truly random IPs killing large
-boxes.  This same box is capable of routing more than one gigabit of tiny
-(64 byte) packets when the source IP is not random (using Tigon3 cards).
+If you pass a struct device to request_firmware(), then you get a
+symlink to the device for free.  You can also set the class_id to the
+device bus_id, watching out for name collisions (bus_ids are only unique
+per bus type, so different bus types can use the same bus id, but in
+reality they rarely do.)
 
-Under normal operation, it looks like most load we are seeing is in fact
-normal route lookups.  We run BGP peering, and so there is a lot of
-routes in the table.  Alexey suggested adding another level of hashing to
-the fn_hash_lookup function, but that didn't seem to help very much.  The
-last time I was looking at this, I enabled profiling on one router to see
-what functions were using the most CPU.  Here are the results (71 days
-uptime):
+> 	- echo 1 > /sysfs/class/firmware/dev_name/loading
+> 	- cat whatever_fw > /sysfs/class/firmware/dev_name/data
+> 	- echo 0 > /sysfs/class/firmware/dev_name/loading
 
-	http://blue.netnation.com/sim/ref/readprofile.r1
-	http://blue.netnation.com/sim/ref/readprofile.r1.call_sorted
-	http://blue.netnation.com/sim/ref/readprofile.r1.time_sorted
+Nice, but can't you get rid of the loading file by just relying on
+open() and close()?  Oh wait, sysfs doesn't pass that down to you, hm,
+looks like you need that info.  But does the new binary interface in
+sysfs that just got merged into the tree provide that info for you?
 
-The results of this profile are from mostly normal operation.
+> 	- The call to request_firmware() returns with the firmware in a
+> 	  memory buffer and the driver can finish loading.
 
-I will try playing more with this code and look at your patch and paper.
+request_firmware() can't use a static struct class_device, like you have
+it, in order to work properly for multiple calls to request_firmware()
+at the same time by different drivers.  Just create a new struct
+class_device, and put it on a list, like I had to do for the tty class
+code (and i2c_dev class code, but that isn't in the kernel to look at
+yet...)
 
-Thanks,
+Other than those very minor tweaks, I like this interface, it's looking
+very good.  I wouldn't worry about any "checksum" calcuation crud, it's
+up to the userspace tool dumping the firmware to the kernel to make sure
+it's writing correct data, not the kernel.
 
-Simon-
+thanks,
+
+greg k-h

@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268000AbUBRUKr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 15:10:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268003AbUBRUKq
+	id S266884AbUBRUmd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 15:42:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267370AbUBRUmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 15:10:46 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20229 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S268000AbUBRUJF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 15:09:05 -0500
-Message-ID: <4033C63F.5020502@zytor.com>
-Date: Wed, 18 Feb 2004 12:08:31 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
-X-Accept-Language: en, sv
+	Wed, 18 Feb 2004 15:42:33 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:5784 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S266884AbUBRUma (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 15:42:30 -0500
+From: "Nick Warne" <nick@ukfsn.org>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 18 Feb 2004 20:42:20 -0000
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl> <c0ukd2$3uk$1@terminus.zytor.com> <Pine.LNX.4.58.0402171910550.2686@home.osdl.org> <20040218113338.GH28599@mail.shareable.org> <Pine.LNX.4.58.0402181154290.2686@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402181154290.2686@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: 2.6.3 NFS kernel warning 
+Message-ID: <4033CE2C.19615.76C399@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> But that's what you _want_. Having a real out-of-band signal that says 
-> "this stuff is wrong, because it was wrong at some point in the past", and 
-> not allowing concatenation of blocks of utf-8 bytes would be _bad_.
-> 
+Hello all,
 
-Indeed.  What it does mean, however, is that you have to consider your
-concatenation issues if you perform the concatenation in UCS-4 space,
-for example, a string that ends in whatever code you have chosen for
-<BOGUS-C8> that gets concatenated with <BOGUS-80> needs to get converted
-to a valid <U+0200>.  This is of course not an issue if you do the
-concatenation in UTF-8 space and don't do round-trip conversion.
+I am not registered with the list, so please CC if possible - thanks.
 
-None of this is hard, it just takes thinking about rather than
-automatically do the obvious things.
+I am not sure if this is a problem to report (as opposed to my old 
+system's problem), but I get this now in dmesg after building 2.6.3 
+tonight:
 
-> The thing, concatenating two malformed UTF-8 strings is normal behaviour 
-> in a variety of circumstances, all basically having to do with lower 
-> levels now knowing about higer-level concepts.
+nfs_read_super: get root inode failed
 
-Indeed.
+This is 2.6.3 mounting a NFS from an old 486 box running Linux 2.2.13 
+- and the NFS processes of the same age.
 
-	-hpa
+The mount still works OK though; logs from the 486 report no 
+warnings/errors apart from the version 3 is unknown.
+
+But I am intrigued why it gives this warning (and the inode.c code 
+seems to imply it is a fatal error, AFAIK) if it still works?
+
+Thanks, and regards,
+
+Nick
+
+-- 
+"I am not Spock", said Leonard Nimoy.
+"And it is highly illogical of humans to assume so."
 

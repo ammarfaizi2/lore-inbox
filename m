@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265533AbUBPNte (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 08:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265584AbUBPNtM
+	id S265648AbUBPO2X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 09:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUBPO2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 08:49:12 -0500
-Received: from ns.schottelius.org ([213.146.113.242]:45207 "HELO
-	ns.schottelius.org") by vger.kernel.org with SMTP id S265533AbUBPNqV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 08:46:21 -0500
-Date: Mon, 16 Feb 2004 14:46:28 +0100
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: linux-kernel@vger.kernel.org
-Subject: smbfs / loop: problematic or not unuseable?
-Message-ID: <20040216134628.GL1881@schottelius.org>
+	Mon, 16 Feb 2004 09:28:23 -0500
+Received: from mail.shareable.org ([81.29.64.88]:9604 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S265667AbUBPO2J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 09:28:09 -0500
+Date: Mon, 16 Feb 2004 14:28:07 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Eduard Bloch <edi@gmx.de>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+Message-ID: <20040216142807.GB16658@mail.shareable.org>
+References: <20040209115852.GB877@schottelius.org> <200402121655.39709.robin.rosenberg.lists@dewire.com> <20040213003839.GB24981@mail.shareable.org> <200402130216.53434.robin.rosenberg.lists@dewire.com> <20040213022934.GA8858@parcelfarce.linux.theplanet.co.uk> <20040213032305.GH25499@mail.shareable.org> <20040214150934.GA5023@zombie.inka.de> <20040215010150.GA3611@mail.shareable.org> <20040216140338.GA2927@zombie.inka.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux bruehe 2.6.1
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040216140338.GA2927@zombie.inka.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Eduard Bloch wrote:
+> >    I think this is because the character encoding used by the terminal
+> >    should be in the TERM environment variable, but it is in LANG instead.
+> 
+> No. TERM does not have anything to do with locales (LANG).
 
-While still suffering from my more or less dead harddisk I am seeing
-other nice problems. I copied my blowfish encrypted partition to a samba
-server. Now I want to mount it and use it:
+No.  The locale should not have anything to do with the appropriate
+byte sequences need to make the terminal display characters.
 
-pc-it-nico# mount
-[...]
-//fs2/home on /home/nico/fs2 type smbfs (rw)
+It is wrong that LANG must have a different value depending on whether
+I log in using a DEC VT100 or a Gnome Terminal, even though I wish to
+see exactly the same language, dialect, messages, number formats,
+currency formats, dates and times.
 
-pc-it-nico# mount /home/nico/fs2/home-13-Feb-2004.tar.crypt /tmp/ -o loop,encryption=blowfish 
-Password: 
-ioctl: LOOP_SET_FD: Invalid argument
+It is acceptable that LANG may control the encoding stored in files
+and filenames, but this should be independent of the terminal type.
 
-Well, let's try to use a local copy:
+It is especially wrong that libraries which should be
+locale-independent - such as curses, slang and readline - must read
+the LANG variable in addition to TERM.  If curses does not read and
+parse LANG, simple things like the box around a dialog will not line
+up correctly.  This is wrong - it is a terminal characteristic.
 
-pc-it-nico# cd ~nico/fs2
-pc-it-nico# cp home-13-Feb-2004.tar.crypt ..
-pc-it-nico# cd ..
-pc-it-nico# mount -t xfs  home-13-Feb-2004.tar.crypt scice -o loop,encryption=blowfish
-pc-it-nico#
-
-This works fine.
-
-Just wanted to report this and ask whether this is what it should be.
-
-Greetings,
-
-Nico
-
-ps: If somebody can recommened me a good manufacturer for 2.5" notebook
-    disks, please send me a private mail. I am looking for something
-    running longer than 2 months, having some performance, still beiing
-    not too loud :)
-
-
+-- Jamie

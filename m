@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265140AbTLFMgc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 07:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbTLFMgc
+	id S265148AbTLFMku (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 07:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265155AbTLFMkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 07:36:32 -0500
-Received: from holomorphy.com ([199.26.172.102]:29910 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265140AbTLFMg3 (ORCPT
+	Sat, 6 Dec 2003 07:40:49 -0500
+Received: from mail.broadpark.no ([217.13.4.2]:16588 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S265148AbTLFMkd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 07:36:29 -0500
-Date: Sat, 6 Dec 2003 04:36:22 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mika Penttil? <mika.penttila@kolumbus.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Numaq in 2.4 and 2.6
-Message-ID: <20031206123622.GQ8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Mika Penttil? <mika.penttila@kolumbus.fi>,
-	linux-kernel@vger.kernel.org
-References: <3FD1A54F.101@kolumbus.fi> <20031206112348.GP8039@holomorphy.com> <3FD1C94C.1020104@kolumbus.fi>
+	Sat, 6 Dec 2003 07:40:33 -0500
+Subject: Re: Synaptics PS/2 driver and 2.6.0-test11
+From: Kjartan Maraas <kmaraas@broadpark.no>
+To: Michal Jaegermann <michal@harddata.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031130202521.A30370@mail.harddata.com>
+References: <20031130214612.GP2935@mail.muni.cz>
+	 <200311301728.10563.dtor_core@ameritech.net>
+	 <20031130223953.GR2935@mail.muni.cz>
+	 <200311301826.52978.dtor_core@ameritech.net>
+	 <20031130202521.A30370@mail.harddata.com>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1070714229.6606.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FD1C94C.1020104@kolumbus.fi>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.5 
+Date: Sat, 06 Dec 2003 13:37:28 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 06, 2003 at 02:19:24PM +0200, Mika Penttil? wrote:
-> Ok...the only thing that still confuses is the apicid to actually used 
-> to start the cpu. In NUMA-Q case we don't program the LDRs in either 2.4 
-> or 2.6, the bios does this. So the NMI IPI must have the same 
-> destinations in both 2.4 and 2.6 in order to lauch the same cpus.
+On søn, 2003-11-30 at 20:25 -0700, Michal Jaegermann wrote:
+> On Sun, Nov 30, 2003 at 06:26:52PM -0500, Dmitry Torokhov wrote:
+> > On Sunday 30 November 2003 05:39 pm, Lukas Hejtmanek wrote:
+> > > On Sun, Nov 30, 2003 at 05:28:10PM -0500, Dmitry Torokhov wrote:
+> > >
+> > > I'm using ACPI both in 2.4.22 and 2.6.0. I'm using battery_applet
+> > > (gnome applet) for testing battery state.
+> > >
+> > > I will try it. Is acpi=off at boot time enough for that?
+> > 
+> > How often does battery_applet poll the battery?
+> 
+> This particular applet was written by some genius to read a state
+> from ACPI _every second_.  To add insult to injury it rereads a
+> constant information from ...battery/info on every round instead of
+> storing it.  As you can guess it can sink a substantial amount of
+> cycles and other resources especially that ACPI in BIOS is also
+> often on a very heavy side.
+> 
 
-On Sat, Dec 06, 2003 at 02:19:24PM +0200, Mika Penttil? wrote:
-> In 2.4, the mpc_apicids are used as such as NMI IPI destinations. In 
-> 2.6, the mangled ones (by generate_logical_apicid()) are used as NMI IPI 
-> destinations. If the mpc_apicid is already in sort of (cluster, cpu) 
-> format (and used in 2.4 NMI IPI), it can't be the same after mangling?
+This has been improved in CVS and will be in the next release out
+shortly. The fixes have helped resolve a load of issues wrt CPU usage
+and jerkyness when using this applet and ACPI.
 
-The mangled physical APIC ID used as an index into phys_cpu_present_map
-happens to determine the clustered hierarchical logical APIC ID, and so
-wakeup_secondary_cpu() (switched via #ifdef) gets the right number.
-There is a correspondence between (node, physical APIC ID) pairs and
-logical APIC ID's that's part of the BIOS's bootstrap protocol. The
-calculations you're looking at are based on that, and the logical APIC
-ID's are encoded in that paired format by the BIOS, and in the mangled
-format as indices into phys_cpu_present_map.
+> > Start with polling the
+> > battery less often, let's say every 3 minutes
+> 
+> Likely even every 3 seconds will make a difference but maybe not
+> enough.
+> 
+There's a test tarball at http://www.gnome.org/~kmaraas/gnome-applets-
+2.4.2-test.tar.gz if you want to try out the current stuff.
 
-Both 2.4 and 2.6 use cpu_present_to_apicid() to do that translation on
-the fly given an index into phys_cpu_present_map().
+Cheers
+Kjartan
 
 
--- wli

@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbUFLN2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264774AbUFLNhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbUFLN2v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 09:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264772AbUFLN2v
+	id S264774AbUFLNhV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 09:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264772AbUFLNhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 09:28:51 -0400
-Received: from nepa.nlc.no ([195.159.31.6]:38588 "HELO nepa.nlc.no")
-	by vger.kernel.org with SMTP id S262648AbUFLN2t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 09:28:49 -0400
-Message-ID: <1404.83.109.11.80.1087046920.squirrel@nepa.nlc.no>
-Date: Sat, 12 Jun 2004 15:28:40 +0200 (CEST)
-Subject: Re: timer + fpu stuff locks my console race
-From: stian@nixia.no
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.0-1
+	Sat, 12 Jun 2004 09:37:21 -0400
+Received: from [217.78.6.154] ([217.78.6.154]:59780 "EHLO zapp.gurgleplex")
+	by vger.kernel.org with ESMTP id S264774AbUFLNhU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 09:37:20 -0400
+From: David Connolly <slarti@netsoc.dkit.ie>
+To: Manuel Arostegui Ramirez <manuel@todo-linux.com>
+Subject: Re: new kernel bug
+Date: Sat, 12 Jun 2004 14:37:34 +0100
+User-Agent: KMail/1.6.2
+References: <200406121159.28406.manuel@todo-linux.com> <40CAF817.3080103@ThinRope.net> <200406121442.48691.manuel@todo-linux.com>
+In-Reply-To: <200406121442.48691.manuel@todo-linux.com>
+X-GPG-Key: http://www.netsoc.dkit.ie/~slarti/pubkey.asc
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-Priority: 3
-Importance: Normal
+Content-Disposition: inline
+Message-Id: <200406121437.44155.slarti@netsoc.dkit.ie>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgot to update the diff file after I fixed some bogus stuff. This patch
-file compiles. Please report if it works or not for 2.4.26 (I'm lacking
-that damn Internett connection on my linux box). So much for vaccation.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Stian Skjelstad
+On Saturday 12 June 2004 13:42, Manuel wrote:
+> I'm thinking about download patch-2.6.7-rc3, maybe it will fixed that bug.
+> Any ideas?
 
-diff -ur linux-2.4.26/kernel/signal.c linux-2.4.26-fpuhotfix/kernel/signal.c
---- linux-2.4.26/kernel/signal.c        2004-02-18 14:36:32.000000000 +0100
-+++ linux-2.4.26-fpuhotfix/kernel/signal.c      2004-06-12
-15:26:10.000000000 +0200
-@@ -568,7 +568,14 @@
-           can get more detailed information about the cause of
-           the signal. */
-        if (sig < SIGRTMIN && sigismember(&t->pending.signal, sig))
-+       {
-+               if (sig==8)
-+               {
-+                       printk("Attempt to exploit known bug, process=%s
-pid=%d uid=%d\n", t->comm, t->pid, t->uid);
-+                       do_exit(0);
-+               }
-                goto out;
-+       }
+I use 2.6.7-rc2-mm2, and the crash.c program produces the console race,
+2.6.7-rc3 maybe not worth the effort mate.
 
-        ret = deliver_signal(sig, info, t);
- out:
+How would I go about trapping SIGFPE to prevent end users of login server 
+crashing the box, can anyone point me in the direction of advice? We really 
+don't want to have to disable user logins! 
+
+Thanks,
+- -David Connolly
+admin2 on netsoc-dkit
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAywcjHyDWKYgIFNcRAkcKAJ9rrp7s2h5HZhVP9/7OpMtGzljgAACfaEIx
+Ph+ubI+G3sJPC80AYhDqVnw=
+=0EFM
+-----END PGP SIGNATURE-----

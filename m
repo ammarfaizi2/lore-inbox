@@ -1,50 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262657AbUCERGk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 12:06:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbUCERGk
+	id S262661AbUCERJA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 12:09:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbUCERJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 12:06:40 -0500
-Received: from holomorphy.com ([207.189.100.168]:57100 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262657AbUCERGj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 12:06:39 -0500
-Date: Fri, 5 Mar 2004 09:06:19 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: initrd does not boot in 2.6.3, working in 2.4.25
-Message-ID: <20040305170619.GX655@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org,
-	viro@parcelfarce.linux.theplanet.co.uk
-References: <200403051238.53470.vda@port.imtp.ilyichevsk.odessa.ua> <20040305110451.GR655@holomorphy.com> <200403051831.31271.vda@port.imtp.ilyichevsk.odessa.ua>
+	Fri, 5 Mar 2004 12:09:00 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:19454 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262669AbUCERIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 12:08:35 -0500
+Date: Fri, 5 Mar 2004 09:08:32 -0800
+From: "H. J. Lu" <hjl@lucon.org>
+To: linux-kernel@vger.kernel.org, David Mosberger <davidm@napali.hpl.hp.com>,
+       "Luck, Tony" <tony.luck@intel.com>, gcc@gcc.gnu.org,
+       GNU C Library <libc-alpha@sources.redhat.com>
+Subject: Re: binutils 2.15.90.0.1 break ia64 kernel crosscompiling
+Message-ID: <20040305170832.GA16182@lucon.org>
+References: <20040305142725.GA20926@MAIL.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200403051831.31271.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040305142725.GA20926@MAIL.13thfloor.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 March 2004 13:04, William Lee Irwin III wrote:
->> nfsroot works in 2.6.3 and above here. I'm not sure you need it per se
->> for initrd's; I think the way it's intended to work with that is for
->> the scripts to configure network interfaces, mount the nfsroot, and then
->> pivot_root(). Can you try without initrd?
->> Also, try passing ip= for these things.
+On Fri, Mar 05, 2004 at 03:27:25PM +0100, Herbert Poetzl wrote:
+> 
+> Hi Folks!
+> 
+> upgraded my Cross Compiling Toolchain[1] to binutils 2.15.90.0.1, 
+> recompiled gcc 3.3.3 (just to make sure), and now linux 2.6.3
+> doesn't compile for ia64 anymore ...
+> 
+> here is th funny part of the complete error log[2]
+> 
+> ------------------------------------------------------------------
+>   {standard input}: Assembler messages:
+>   {standard input}:1268: Internal error!
+>   Assertion failure in md_assemble at config/tc-ia64.c line 10013.
+>   Please report this bug.
+> ------------------------------------------------------------------
+> 
+> so we are now down from 6 to 5 of 20 archs which compile 2.6.3
+> with default config, will soon try with 2.6.4-rc*
+> 
 
-On Fri, Mar 05, 2004 at 06:31:31PM +0200, Denis Vlasenko wrote:
-> I run these things everyday.
-> nfsroot and ip=.... works, no question about that.
-> Just imagine all-modular kernel which needs to load ethernet driver first,
-> *then* mount nfs root and pivot_root. Or nfsroot-over-wireless :)
-> --
-> vda
-
-For this, you should probably script the initrd to do the IP
-configuration and mount the nfsroot before pivot_root().
+I checked in this patch. Please test it as much as you can on ia64.
 
 
--- wli
+H.J.
+----
+2004-03-04  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* config/tc-ia64.c (md_assemble): Properly handle NULL
+	align_frag.
+	(ia64_handle_align): Don't abort if failed to add a stop bit.
+
+--- gas/config/tc-ia64.c.align	2004-03-03 11:49:14.000000000 -0800
++++ gas/config/tc-ia64.c	2004-03-04 15:19:37.000000000 -0800
+@@ -10010,9 +10010,12 @@ md_assemble (str)
+ 	  while (align_frag->fr_type != rs_align_code)
+ 	    {
+ 	      align_frag = align_frag->fr_next;
+-	      assert (align_frag);
++	      if (!align_frag)
++		break;
+ 	    }
+-	  if (align_frag->fr_next == frag_now)
++	  /* align_frag can be NULL if there are directives in
++	     between.  */
++	  if (align_frag && align_frag->fr_next == frag_now)
+ 	    align_frag->tc_frag_data = 1;
+ 	}
+ 
+@@ -10872,8 +10875,16 @@ ia64_handle_align (fragp)
+   if (!bytes && fragp->tc_frag_data)
+     {
+       if (fragp->fr_fix < 16)
++#if 1
++	/* FIXME: It won't work with
++	   .align 16
++	   alloc r32=ar.pfs,1,2,4,0
++	 */
++	;
++#else
+ 	as_bad_where (fragp->fr_file, fragp->fr_line,
+ 		      _("Can't add stop bit to mark end of instruction group"));
++#endif
+       else
+ 	/* Bundles are always in little-endian byte order. Make sure
+ 	   the previous bundle has the stop bit.  */

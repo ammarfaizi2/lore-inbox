@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267609AbTBFUAp>; Thu, 6 Feb 2003 15:00:45 -0500
+	id <S267598AbTBFUHN>; Thu, 6 Feb 2003 15:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267612AbTBFUAp>; Thu, 6 Feb 2003 15:00:45 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:44709 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267609AbTBFUAl>;
-	Thu, 6 Feb 2003 15:00:41 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 6 Feb 2003 21:10:18 +0100 (MET)
-Message-Id: <UTC200302062010.h16KAIH23613.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: syscall documentation (4)
+	id <S267611AbTBFUHM>; Thu, 6 Feb 2003 15:07:12 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:7640 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S267598AbTBFUHL>; Thu, 6 Feb 2003 15:07:11 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A164@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: gone@us.ibm.com, linux-kernel@vger.kernel.org
+Cc: chandra.sekharan@us.ibm.com, cleverdj@us.ibm.com, johnstul@us.ibm.com
+Subject: RE: [PATCH][RFC] Discontigmem support for the x440 
+Date: Thu, 6 Feb 2003 12:16:34 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The next new page is gettid(2).
+> From: Patricia Gaughen [mailto:gone@us.ibm.com] 
+> This patch provides discontigmem support for the IBM x440.  
+> This code has 
+> passed through the hands of several developers:  Chandra 
+> Seetharaman, James 
+> Cleverdon, John Stultz, and last to touch it, me :-)  This 
+> patch requires full 
+> acpi support.
+> 
+> I've tested this patch on an 8 way x440 16 GB of RAM with and 
+> without HT 
+> (acpi=off).
+> 
+> Any and all feedback regarding this patch is greatly appreciated.
+> --- a/drivers/acpi/events/evevent.c	Wed Feb  5 19:15:58 2003
+> +++ b/drivers/acpi/events/evevent.c	Wed Feb  5 19:15:58 2003
+> @@ -104,6 +104,7 @@
+>  
+>  	ACPI_FUNCTION_TRACE ("ev_handler_initialize");
+>  
+> +	return_ACPI_STATUS (0);
+>  
+>  	/* Install the SCI handler */
+>  
 
-Comments welcome.
-Andries
-aeb@cwi.nl
+This part breaks ACPI event handling.
 
------------------------------------ 
-GETTID(2)           Linux Programmer's Manual           GETTID(2)
+I'm guessing you just stuck that in there to get things working, but we
+all need to figure out more of why this is an issue, and fix things
+properly.
 
-NAME
-       gettid - get thread identification
+Other than that, thumbs up. SRAT support is a good thing to have.
 
-SYNOPSIS
-       #include <sys/types.h>
-       #include <linux/unistd.h>
-
-       _syscall0(pid_t,gettid)
-
-       pid_t gettid(void);
-
-DESCRIPTION
-       gettid  returns the thread ID of the current process. This
-       is equal to the process ID  (as  returned  by  getpid(2)),
-       unless  the  process is part of a thread group (created by
-       specifying the CLONE_THREAD flag to  the  clone(2)  system
-       call).  All  processes  in  the same thread group have the
-       same PID, but each one has a unique TID.
-
-CONFORMING TO
-       gettid is Linux specific and should not be  used  in  pro­
-       grams that are intended to be portable.
-
-SEE ALSO
-       getpid(2), clone(2), fork(2)
-
-Linux 2.4.20                2003-02-01                  GETTID(2)
+Regards -- Andy

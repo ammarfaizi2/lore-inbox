@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261989AbSIYOid>; Wed, 25 Sep 2002 10:38:33 -0400
+	id <S261988AbSIYOif>; Wed, 25 Sep 2002 10:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261990AbSIYOid>; Wed, 25 Sep 2002 10:38:33 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:24083 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S261989AbSIYOib>;
+	id <S261990AbSIYOie>; Wed, 25 Sep 2002 10:38:34 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:23571 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S261988AbSIYOib>;
 	Wed, 25 Sep 2002 10:38:31 -0400
-Date: Wed, 25 Sep 2002 16:44:25 +0200
+Date: Wed, 25 Sep 2002 16:33:54 +0200
 From: Lars Marowsky-Bree <lmb@suse.de>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: alternate event logging proposal
-Message-ID: <20020925144424.GG1102@marowsky-bree.de>
-References: <20020924073051.363D92C1A7@lists.samba.org> <3D90C183.5020806@pobox.com> <3D90C3B0.8090507@nortelnetworks.com>
+To: Benjamin LaHaise <bcrl@redhat.com>,
+       Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UP IO-APIC
+Message-ID: <20020925143354.GF1102@marowsky-bree.de>
+References: <Pine.LNX.4.44.0209240331280.20792-100000@montezuma.mastecende.com> <Pine.GSO.4.33.0209241119500.11624-100000@sweetums.bluetronic.net> <amq996$46e$2@ncc1701.cistron.net> <20020924191934.B2453@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <3D90C3B0.8090507@nortelnetworks.com>
+In-Reply-To: <20020924191934.B2453@redhat.com>
 User-Agent: Mutt/1.4i
 X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-09-24T15:57:36,
-   Chris Friesen <cfriesen@nortelnetworks.com> said:
+On 2002-09-24T19:19:34,
+   Benjamin LaHaise <bcrl@redhat.com> said:
 
-I have cut the Cc/To list severely. Couldn't stand it.
+> > >APIC makes perfect sense albeit rare.  Single processor IO APICs are very
+> > >rare and are usually MP systems with only one processor.
+> > I think most AMD Athlon boards have an IO APIC
+> I'd love to have it enabled in a distro kernel, but as Arjan pointed out, it 
+> currently breaks some laptops if enabled.
 
-> >"What do you want to log?" is as important to me as "how do you want to 
-> >log it?"  And the answers to the two questions are very much intertwined.
-> Also related is "how can userspace be notified of kernel events?". 
-> There is no way for a userspace app to be notified that, for instance, 
-> an ATM device got a loss of signal.  The drivers print it out, but the 
-> userspace app has no clue.
+Well, _not_ enabling IO-APIC on UP breaks my Athlon / KT333 at home; random
+freezes are the result, so I prefer to enable it...
 
-This is a very generic problem. For example, the Open Clustering Framework
-also has a lots of events going back and forth - node membership changes,
-distributed locks gained or lost, messages pending etc.
-
-The interesting issue here is that the provider or consumer may be implemented
-in kernel or user space depending on the task and the given implementation;
-ie, what we would ideally need is a common coherent infrastructure for event
-distribution on Linux, as I expect this to be a common task for many
-scenarios.
-
-Joe DiMartino of OSDL has developed a very nice Event API (I think) for
-user-space (a fixed version with some updates we agreed upon in the last two
-weeks is pending), and we are currently evaluating how to interface with the
-kernel space.
-
-It would be _very nice_ if someone would pick up the lead wrt to "Event
-Processing", so that work is not duplicated between so many (already
-overloaded) groups.
-
-Just my few euro-cents.
+So whichever default is chosen, someone is burned. I hate hardware.
 
 
 Sincerely,

@@ -1,458 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262223AbTEXQvb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 12:51:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTEXQvb
+	id S262263AbTEXQ5S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 12:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTEXQ5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 12:51:31 -0400
-Received: from smtp1.poczta.onet.pl ([213.180.130.31]:39376 "EHLO
-	smtp1.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S262223AbTEXQvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 12:51:22 -0400
-Message-ID: <3ECFA5F9.6060906@poczta.onet.pl>
-Date: Sat, 24 May 2003 19:03:53 +0200
-From: Gutko <gutko@poczta.onet.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.4b) Gecko/20030507
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.21-RC2 Nforce2 AGP patch 
-Content-Type: multipart/mixed;
- boundary="------------040602000107080300080308"
+	Sat, 24 May 2003 12:57:18 -0400
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:57657 "EHLO
+	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S262263AbTEXQ5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 12:57:17 -0400
+Subject: [ANN} 2.4.21-rc3-dis2 - ACPI-only laptop users, you'll like this
+	one
+From: Disconnect <lkml@sigkill.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053796219.13531.14.camel@slappy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 24 May 2003 13:10:20 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040602000107080300080308
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Just a quick announcement, I've put together some generally-useful
+patches (for laptop users mostly) that are running here without issues.
 
-Same again but with proper topic
-Sorry for this
-Gutko
-----------
+If you don't have an Inspiron 8500, (must be that exact machine) you
+must read the Readme.txt and back out the custom-DSDT patch.  Otherwise,
+its 'ready to go'.
 
-Hello,
-This is patch against 2.4.21-rc2 adding Nvidia Nforce1/Nforce2 AGP 
-chipset support.It worked very good on  2.4.21-rc2-ac3. I found this 
-patch here : http://etudiant.epita.fr:8000/~nonolk/nforce-agp.diff
+2.4.21-rc2-dis1 is the most tested (ran it for almost a week,
+suspended/resumed even while opengl apps were running, etc) and
+2.4.21-rc3-dis2 has been running here for about 24 hours and 3 or 4
+suspend/resumes without problems.  Supermount and packet writing are
+untested so far (and I had build issues with packet-mode as a module.
+YMMV.)
 
-Don't know who ported it from 2.5.69, however I know this address above 
-belongs to author of this patch
+This patchset will likely never include O(1) or preempt, as they
+interact badly with swsusp (it looked a lot like the earlier '[OT] I
+love linux' post - mass filesystem death that recovered fine when the
+journal was wiped and recreated. Not Good.)
 
-Gutko
+Patches and readme at http://www.gotontheinter.net/kernel/
 
+For -dis3 I'll probably break it into multiple patches for those people
+who don't want the whole pile.  (And once -ck has swsusp this patchset
+will be mostly unneeded and I may retire it, or at least base off -ck
+instead of stock.)
 
+Suggestions welcome, testers -very- welcome :) 
 
---------------040602000107080300080308
-Content-Type: text/plain;
- name="nforce-agp.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nforce-agp.diff"
+No CC necessary, I'm on the list..
 
-diff --unified --recursive --new-file linux/drivers/char/Config.in linux-2.4.20-nforce/drivers/char/Config.in
---- linux/drivers/char/Config.in	2003-05-09 21:05:38.000000000 +0200
-+++ linux-2.4.20-nforce/drivers/char/Config.in	2003-05-09 20:55:34.000000000 +0200
-@@ -306,6 +306,7 @@
-    bool '  Generic SiS support' CONFIG_AGP_SIS
-    bool '  ALI chipset support' CONFIG_AGP_ALI
-    bool '  Serverworks LE/HE support' CONFIG_AGP_SWORKS
-+   bool '  Nvidia Nforce/Nforce2 support' CONFIG_AGP_NV
-    if [ "$CONFIG_IA64" = "y" ]; then
-       bool '  HP ZX1 AGP support' CONFIG_AGP_HP_ZX1
-    fi
-diff --unified --recursive --new-file linux/drivers/char/agp/agp.h linux-2.4.20-nforce/drivers/char/agp/agp.h
---- linux/drivers/char/agp/agp.h	2003-05-09 21:05:38.000000000 +0200
-+++ linux-2.4.20-nforce/drivers/char/agp/agp.h	2003-05-09 20:59:06.000000000 +0200
-@@ -271,6 +271,12 @@
- #ifndef PCI_DEVICE_ID_AL_M1671_0
- #define PCI_DEVICE_ID_AL_M1671_0	0x1671
- #endif
-+#ifndef PCI_DEVICE_ID_NV_NFORCE_0
-+#define PCI_DEVICE_ID_NV_NFORCE_0	0x01a4
-+#endif
-+#ifndef PCI_DEVICE_ID_NV_NFORCE2_0
-+#define PCI_DEVICE_ID_NV_NFORCE2_0	0x01e0
-+#endif
- 
- /* intel register */
- #define INTEL_APBASE    0x10
-@@ -412,6 +418,17 @@
- #define SVWRKS_POSTFLUSH  0x14
- #define SVWRKS_DIRFLUSH   0x0c
- 
-+/* NVidia registers */
-+#define NVIDIA_0_APBASE		0x10
-+#define NVIDIA_0_APSIZE		0x80
-+#define NVIDIA_1_WBC		0xf0
-+#define NVIDIA_2_GARTCTRL	0xd0
-+#define NVIDIA_2_APBASE		0xd8
-+#define NVIDIA_2_APLIMIT	0xdc
-+#define NVIDIA_2_ATTBASE(i)	(0xe0 + (i) * 4)
-+#define NVIDIA_3_APBASE		0x50
-+#define NVIDIA_3_APLIMIT	0x54
-+
- /* HP ZX1 SBA registers */
- #define HP_ZX1_CTRL		0x200
- #define HP_ZX1_IBASE		0x300
-diff --unified --recursive --new-file linux/drivers/char/agp/agpgart_be.c linux-2.4.20-nforce/drivers/char/agp/agpgart_be.c
---- linux/drivers/char/agp/agpgart_be.c	2003-05-09 21:05:38.000000000 +0200
-+++ linux-2.4.20-nforce/drivers/char/agp/agpgart_be.c	2003-05-09 20:58:39.000000000 +0200
-@@ -3418,7 +3418,7 @@
- } serverworks_private;
- 
- static int serverworks_create_page_map(serverworks_page_map *page_map)
--{
-+{	
- 	int i;
- 	int err = 0;
- 
-@@ -4003,6 +4003,309 @@
- 
- #endif /* CONFIG_AGP_SWORKS */
- 
-+#ifdef CONFIG_AGP_NV
-+
-+static aper_size_info_8 nvidia_generic_sizes[5] =
-+{
-+	{512, 131072, 7, 0},
-+	{256, 65536, 6, 8},
-+	{128, 32768, 5, 12},
-+	{64, 16384, 4, 14},
-+	/* The 32M mode still requires a 64k gatt */
-+	{32, 16384, 4, 15}
-+};
-+
-+static gatt_mask nvidia_generic_masks[] =
-+{
-+	{0x00000001, 0}
-+};
-+
-+static struct _nvidia_private {
-+	struct pci_dev *dev_1;
-+	struct pci_dev *dev_2;
-+	struct pci_dev *dev_3;
-+	volatile u32 *aperture;
-+	int num_active_entries;
-+	off_t pg_offset;
-+	u32 wbc_mask;
-+} nvidia_private;
-+
-+static int nvidia_fetch_size(void)
-+{
-+	int i;
-+	u8 size_value;
-+	aper_size_info_8 *values;
-+
-+	pci_read_config_byte(agp_bridge.dev, NVIDIA_0_APSIZE, &size_value);
-+	size_value &= 0x0f;
-+	values = A_SIZE_8(agp_bridge.aperture_sizes);
-+
-+	for (i = 0; i < agp_bridge.num_aperture_sizes; i++) {
-+		if (size_value == values[i].size_value) {
-+			agp_bridge.previous_size =
-+				agp_bridge.current_size = (void *) (values + i);
-+			agp_bridge.aperture_size_idx = i;
-+			return values[i].size;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int nvidia_configure(void)
-+{
-+	int i, num_dirs;
-+	u32 apbase, aplimit;
-+	aper_size_info_8 *current_size;
-+	u32 temp;
-+
-+	current_size = A_SIZE_8(agp_bridge.current_size);
-+
-+	/* aperture size */
-+	pci_write_config_byte(agp_bridge.dev, NVIDIA_0_APSIZE,
-+		current_size->size_value);
-+
-+    /* address to map to */
-+	pci_read_config_dword(agp_bridge.dev, NVIDIA_0_APBASE, &apbase);
-+	apbase &= PCI_BASE_ADDRESS_MEM_MASK;
-+	agp_bridge.gart_bus_addr = apbase;
-+	aplimit = apbase + (current_size->size * 1024 * 1024) - 1;
-+	pci_write_config_dword(nvidia_private.dev_2, NVIDIA_2_APBASE, apbase);
-+	pci_write_config_dword(nvidia_private.dev_2, NVIDIA_2_APLIMIT, aplimit);
-+	pci_write_config_dword(nvidia_private.dev_3, NVIDIA_3_APBASE, apbase);
-+	pci_write_config_dword(nvidia_private.dev_3, NVIDIA_3_APLIMIT, aplimit);
-+
-+	/* directory size is 64k */
-+	num_dirs = current_size->size / 64;
-+	nvidia_private.num_active_entries = current_size->num_entries;
-+	nvidia_private.pg_offset = 0;
-+	if (num_dirs == 0) {
-+		num_dirs = 1;
-+		nvidia_private.num_active_entries /= (64 / current_size->size);
-+		nvidia_private.pg_offset = (apbase & (64 * 1024 * 1024 - 1) &
-+			~(current_size->size * 1024 * 1024 - 1)) / PAGE_SIZE;
-+	}
-+
-+	/* attbase */
-+	for(i = 0; i < 8; i++) {
-+		pci_write_config_dword(nvidia_private.dev_2, NVIDIA_2_ATTBASE(i),
-+			(agp_bridge.gatt_bus_addr + (i % num_dirs) * 64 * 1024) | 1);
-+	}
-+
-+	/* gtlb control */
-+	pci_read_config_dword(nvidia_private.dev_2, NVIDIA_2_GARTCTRL, &temp);
-+	pci_write_config_dword(nvidia_private.dev_2, NVIDIA_2_GARTCTRL, temp | 0x11);
-+
-+	/* gart control */
-+	pci_read_config_dword(agp_bridge.dev, NVIDIA_0_APSIZE, &temp);
-+	pci_write_config_dword(agp_bridge.dev, NVIDIA_0_APSIZE, temp | 0x100);
-+
-+	/* map aperture */
-+	nvidia_private.aperture =
-+		(volatile u32 *) ioremap(apbase, 33 * PAGE_SIZE);
-+
-+	return 0;
-+}
-+
-+static void nvidia_cleanup(void)
-+{
-+	aper_size_info_8 *previous_size;
-+	u32 temp;
-+
-+	/* gart control */
-+	pci_read_config_dword(agp_bridge.dev, NVIDIA_0_APSIZE, &temp);
-+	pci_write_config_dword(agp_bridge.dev, NVIDIA_0_APSIZE, temp & ~(0x100));
-+
-+	/* gtlb control */
-+	pci_read_config_dword(nvidia_private.dev_2, NVIDIA_2_GARTCTRL, &temp);
-+	pci_write_config_dword(nvidia_private.dev_2, NVIDIA_2_GARTCTRL, temp & ~(0x11));
-+
-+	/* unmap aperture */
-+	iounmap((void *) nvidia_private.aperture);
-+
-+	/* restore previous aperture size */
-+	previous_size = A_SIZE_8(agp_bridge.previous_size);
-+	pci_write_config_byte(agp_bridge.dev, NVIDIA_0_APSIZE,
-+		previous_size->size_value);
-+}
-+
-+static void nvidia_tlbflush(agp_memory * mem)
-+{
-+	unsigned long end;
-+	u32 wbc_reg, temp;
-+	int i;
-+
-+	/* flush chipset */
-+	if (nvidia_private.wbc_mask) {
-+		pci_read_config_dword(nvidia_private.dev_1, NVIDIA_1_WBC, &wbc_reg);
-+		wbc_reg |= nvidia_private.wbc_mask;
-+		pci_write_config_dword(nvidia_private.dev_1, NVIDIA_1_WBC, wbc_reg);
-+
-+		end = jiffies + 3*HZ;
-+		do {
-+			pci_read_config_dword(nvidia_private.dev_1,
-+					NVIDIA_1_WBC, &wbc_reg);
-+			if ((signed)(end - jiffies) <= 0) {
-+				printk(KERN_ERR
-+				    "TLB flush took more than 3 seconds.\n");
-+			}
-+		} while (wbc_reg & nvidia_private.wbc_mask);
-+	}
-+
-+	/* flush TLB entries */
-+	for(i = 0; i < 32 + 1; i++)
-+		temp = nvidia_private.aperture[i * PAGE_SIZE / sizeof(u32)];
-+	for(i = 0; i < 32 + 1; i++)
-+		temp = nvidia_private.aperture[i * PAGE_SIZE / sizeof(u32)];
-+}
-+
-+static unsigned long nvidia_mask_memory(unsigned long addr, int type)
-+{
-+	/* Memory type is ignored */
-+	return addr | agp_bridge.masks[0].mask;
-+}
-+
-+#if 0
-+extern int agp_memory_reserved;
-+
-+static int nvidia_insert_memory(agp_memory * mem, off_t pg_start, int type)
-+{
-+	int i, j;
-+	
-+	if ((type != 0) || (mem->type != 0))
-+		return -EINVAL;
-+	
-+	if ((pg_start + mem->page_count) >
-+		(nvidia_private.num_active_entries - agp_memory_reserved/PAGE_SIZE))
-+		return -EINVAL;
-+	
-+	for(j = pg_start; j < (pg_start + mem->page_count); j++) {
-+		if (!PGE_EMPTY(agp_bridge, agp_bridge->gatt_table[nvidia_private.pg_offset + j]))
-+			return -EBUSY;
-+	}
-+
-+	if (mem->is_flushed == FALSE) {
-+		global_cache_flush();
-+		mem->is_flushed = TRUE;
-+	}
-+	for (i = 0, j = pg_start; i < mem->page_count; i++, j++)
-+		agp_bridge->gatt_table[nvidia_private.pg_offset + j] = mem->memory[i];
-+
-+	agp_bridge->tlb_flush(mem);
-+	return 0;
-+}
-+
-+static int nvidia_remove_memory(agp_memory * mem, off_t pg_start, int type)
-+{
-+	int i;
-+
-+	if ((type != 0) || (mem->type != 0))
-+		return -EINVAL;
-+	
-+	for (i = pg_start; i < (mem->page_count + pg_start); i++) {
-+		agp_bridge->gatt_table[nvidia_private.pg_offset + i] =
-+		    (unsigned long) agp_bridge->scratch_page;
-+	}
-+
-+	agp_bridge->tlb_flush(mem);
-+	return 0;
-+}
-+#endif
-+
-+static int __init nvidia_nforce2_setup (struct pci_dev *pdev)
-+{
-+	nvidia_private.dev_1 =
-+		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(0, 1));
-+	nvidia_private.dev_2 =
-+		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(0, 2));
-+	nvidia_private.dev_3 =
-+		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(30, 0));
-+	if (!nvidia_private.dev_1 || !nvidia_private.dev_2 || !nvidia_private.dev_3) 
-+	{
-+                printk(KERN_INFO PFX "agpgart: Detected an NVIDIA "
-+                        "nForce/nForce2 chipset, but could not find "
-+                        "the secondary devices.\n");
-+                return -ENODEV;
-+        }
-+	nvidia_private.wbc_mask = 0x80000000; 
-+	agp_bridge.masks = nvidia_generic_masks;
-+	agp_bridge.aperture_sizes = (void *) nvidia_generic_sizes;
-+	agp_bridge.size_type = U8_APER_SIZE;
-+	agp_bridge.num_aperture_sizes = 5;
-+	agp_bridge.needs_scratch_page = FALSE;
-+	agp_bridge.configure = nvidia_configure;
-+	agp_bridge.fetch_size = nvidia_fetch_size;
-+	agp_bridge.cleanup = nvidia_cleanup;
-+	agp_bridge.tlb_flush = nvidia_tlbflush;
-+	agp_bridge.mask_memory = nvidia_mask_memory;
-+	agp_bridge.agp_enable = agp_generic_agp_enable;
-+	agp_bridge.cache_flush = global_cache_flush;
-+	agp_bridge.create_gatt_table = agp_generic_create_gatt_table;
-+	agp_bridge.free_gatt_table = agp_generic_free_gatt_table;
-+	agp_bridge.insert_memory = agp_generic_insert_memory;
-+	agp_bridge.remove_memory = agp_generic_remove_memory;
-+	agp_bridge.alloc_by_type = agp_generic_alloc_by_type;
-+	agp_bridge.free_by_type = agp_generic_free_by_type;
-+	agp_bridge.agp_alloc_page = agp_generic_alloc_page;
-+	agp_bridge.agp_destroy_page = agp_generic_destroy_page;
-+	agp_bridge.suspend = agp_generic_suspend;
-+	agp_bridge.resume = agp_generic_resume;
-+	agp_bridge.cant_use_aperture = 0;
-+	agp_bridge.dev_private_data = &nvidia_private;
-+
-+	return 0;
-+	
-+	(void) pdev; /* unused */
-+}
-+
-+static int __init nvidia_nforce_setup (struct pci_dev *pdev)
-+{
-+	nvidia_private.dev_1 =
-+		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(0, 1));
-+	nvidia_private.dev_2 =
-+		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(0, 2));
-+	nvidia_private.dev_3 =
-+		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(30, 0));
-+	if (!nvidia_private.dev_1 || !nvidia_private.dev_2 || !nvidia_private.dev_3) 
-+	{
-+                printk(KERN_INFO PFX "agpgart: Detected an NVIDIA "
-+                        "nForce/nForce2 chipset, but could not find "
-+                        "the secondary devices.\n");
-+                return -ENODEV;
-+        }
-+	nvidia_private.wbc_mask =  0x00010000; 
-+	agp_bridge.masks = nvidia_generic_masks;
-+	agp_bridge.aperture_sizes = (void *) nvidia_generic_sizes;
-+	agp_bridge.size_type = U8_APER_SIZE;
-+	agp_bridge.num_aperture_sizes = 5;
-+	agp_bridge.needs_scratch_page = FALSE;
-+	agp_bridge.configure = nvidia_configure;
-+	agp_bridge.fetch_size = nvidia_fetch_size;
-+	agp_bridge.cleanup = nvidia_cleanup;
-+	agp_bridge.tlb_flush = nvidia_tlbflush;
-+	agp_bridge.mask_memory = nvidia_mask_memory;
-+	agp_bridge.agp_enable = agp_generic_agp_enable;
-+	agp_bridge.cache_flush = global_cache_flush;
-+	agp_bridge.create_gatt_table = agp_generic_create_gatt_table;
-+	agp_bridge.free_gatt_table = agp_generic_free_gatt_table;
-+	agp_bridge.insert_memory = agp_generic_insert_memory;
-+	agp_bridge.remove_memory = agp_generic_remove_memory;
-+	agp_bridge.alloc_by_type = agp_generic_alloc_by_type;
-+	agp_bridge.free_by_type = agp_generic_free_by_type;
-+	agp_bridge.agp_alloc_page = agp_generic_alloc_page;
-+	agp_bridge.agp_destroy_page = agp_generic_destroy_page;
-+	agp_bridge.suspend = agp_generic_suspend;
-+	agp_bridge.resume = agp_generic_resume;
-+	agp_bridge.cant_use_aperture = 0;
-+	agp_bridge.dev_private_data = &nvidia_private;
-+
-+	return 0;
-+	
-+	(void) pdev; /* unused */
-+}
-+
-+#endif /* CONFIG_AGP_NV */
-+
- #ifdef CONFIG_AGP_HP_ZX1
- 
- #ifndef log2
-@@ -4702,6 +5005,22 @@
- 		via_generic_setup },
- #endif /* CONFIG_AGP_VIA */
- 
-+#ifdef CONFIG_AGP_NV
-+	{ PCI_DEVICE_ID_NV_NFORCE2_0,
-+		PCI_VENDOR_ID_NVIDIA,
-+                NV_NFORCE_2,
-+		"Nvidia",
-+		"Nforce2",
-+		nvidia_nforce2_setup },
-+
-+	{ PCI_DEVICE_ID_NV_NFORCE_0,
-+	        PCI_VENDOR_ID_NVIDIA,
-+                NV_NFORCE,
-+		"Nvidia",
-+		"Nforce",
-+		nvidia_nforce_setup },
-+#endif /* CONFIG_AGP_NV */
-+
- #ifdef CONFIG_AGP_HP_ZX1
- 	{ PCI_DEVICE_ID_HP_ZX1_LBA,
- 		PCI_VENDOR_ID_HP,
-diff --unified --recursive --new-file linux/include/linux/agp_backend.h linux-2.4.20-nforce/include/linux/agp_backend.h
---- linux/include/linux/agp_backend.h	2003-05-09 21:05:44.000000000 +0200
-+++ linux-2.4.20-nforce/include/linux/agp_backend.h	2003-05-09 20:58:20.000000000 +0200
-@@ -82,6 +82,8 @@
- 	SVWRKS_LE,
- 	SVWRKS_GENERIC,
- 	HP_ZX1,
-+	NV_NFORCE,
-+        NV_NFORCE_2,
- };
- 
- typedef struct _agp_version {
+Patches added (from 2.4.21-rc2):
+  - acpi 20030512
+  - acpi-swsusp 20030228-swsusp19
+  - netdev-random 2.4.18-1
+  - bcm4400 driver integrated (this may be bad: http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week04/0165.html ..)
+  - patch-agp (for swsusp on i810)
+  - orinoco-0.11b-patch for monitor mode
+  - cpufreq-ck6-1.bz2
+  - patch to cpufreq to allow boot-params to force initial speed
+  * DIS1 released
+  - 2.4.20-rc3
+  - CDRW/DVD-RW packet writing mode from "007_packet_030226_ck_2.4.20.patch"
+    - You'll need userspace support. http://sourceforge.net/projects/linux-udf/
+  - Supermount (http://people.mandrakesoft.com/~quintela/supermount/2.4.21-pre4/)
+  - O_STREAMING-rml-2.4.20-pre9-1
+  - linux-2.4.13-vfat-symlink-0.90
+  - trackpad-2.4.20 (optionally disable touchpad while typing, latest version)
+  - touchless depends generation (for r/o source management checkouts and such)
+  * DIS2 released
 
---------------040602000107080300080308--
+-- 
+Disconnect <lkml@sigkill.net>
 

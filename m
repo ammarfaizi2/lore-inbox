@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267799AbUHXNtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267838AbUHXNuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267799AbUHXNtK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 09:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267838AbUHXNtJ
+	id S267838AbUHXNuo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 09:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUHXNuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 09:49:09 -0400
-Received: from mail3.utc.com ([192.249.46.192]:33954 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S267799AbUHXNtG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 09:49:06 -0400
-Message-ID: <412B4736.4040706@cybsft.com>
-Date: Tue, 24 Aug 2004 08:48:38 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
+	Tue, 24 Aug 2004 09:50:44 -0400
+Received: from out009pub.verizon.net ([206.46.170.131]:20179 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S267838AbUHXNua
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 09:50:30 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Amiga partition reading patch
+Date: Tue, 24 Aug 2004 09:50:27 -0400
+User-Agent: KMail/1.6.82
+Cc: Thomas Richter <thor@math.tu-berlin.de>, jdow <jdow@earthlink.net>
+References: <200408241218.OAA09873@cleopatra.math.tu-berlin.de>
+In-Reply-To: <200408241218.OAA09873@cleopatra.math.tu-berlin.de>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P8
-References: <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>	 <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu>	 <20040820195540.GA31798@elte.hu> <20040821140501.GA4189@elte.hu>	 <20040823210151.GA10949@elte.hu> <1093312154.862.17.camel@krustophenia.net>	 <20040824054128.GA29027@elte.hu> <1093326406.817.7.camel@krustophenia.net>
-In-Reply-To: <1093326406.817.7.camel@krustophenia.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408240950.27709.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.62.54] at Tue, 24 Aug 2004 08:50:29 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Tue, 2004-08-24 at 01:41, Ingo Molnar wrote:
-> 
->>* Lee Revell <rlrevell@joe-job.com> wrote:
->>
->>
->>>> - reduce netdev_max_backlog to 8 (Mark H Johnson)
->>>
->>>On my system this setting has absolutely no effect on the skb related
->>>latencies. [...]
->>
->>it has an effect on input queue length. Output queue lengths can be
->>reduced via 'ifconfig eth0 txqueuelen 8'.
->>
-> 
-> 
-> OK.  With both of these set to 4, the largest latency I was able to
-> generate by ping flooding was 253 usecs.
-> 
+On Tuesday 24 August 2004 08:18, Thomas Richter wrote:
+>Hi Joanne,
 
-Even with both of these set to 4, I still get similar results ~647 usec :(
+Hi Joanne, Thomas.  Good to hear from you both.
 
-<snip>
+>> This is a patch known good against Mandrake 2.6.3-7mdk. I suspect
+>> it will apply to later versions equally well since the file
+>> affected appears to be unchanged as late as 2.6.9-rc1.
+>
+>Sorry, I don't have a patch attached here. Forgot to include?
+
+Apparently, it wasn't attached here either.
+
+>> This partitioning information is known correct. I wrote the low
+>> level portion of the hard disk partitioning code for AmigaDOS 3.5
+>> and 3.9. I am also responsible for one of the more frequently used
+>> partitioning tools, RDPrepX, before that.
+>
+>I can confirm this (as "just another guy" who wrote on AmigaOs 3.9).
+
+And an extremely talented "just another guy",  thanks again for all 
+you did for amigaos back then Thomas.
+
+>So long,
+>	Thomas
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273644AbRJBNFN>; Tue, 2 Oct 2001 09:05:13 -0400
+	id <S273648AbRJBNKx>; Tue, 2 Oct 2001 09:10:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273648AbRJBNFC>; Tue, 2 Oct 2001 09:05:02 -0400
-Received: from dreams.vianet.on.ca ([209.91.128.20]:54253 "EHLO
-	dreams.vianet.on.ca") by vger.kernel.org with ESMTP
-	id <S273644AbRJBNEu>; Tue, 2 Oct 2001 09:04:50 -0400
-Message-ID: <005101c14b42$d180d2d0$5764a8c0@tdnlaptop>
-From: "mofo" <mofo@thirddimension.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: [2.4.10] Possible bug:  Xircom Tulip PCMCIA (new and old driver) DHCP failure
-Date: Tue, 2 Oct 2001 09:04:49 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S273783AbRJBNKn>; Tue, 2 Oct 2001 09:10:43 -0400
+Received: from alf.zfn.uni-bremen.de ([134.102.20.22]:57766 "EHLO
+	alf.zfn.uni-bremen.de") by vger.kernel.org with ESMTP
+	id <S273709AbRJBNKc>; Tue, 2 Oct 2001 09:10:32 -0400
+Date: Tue, 2 Oct 2001 15:10:51 +0200
+From: Christof Efkemann <efkemann@uni-bremen.de>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Intel 830 support for agpgart
+Message-Id: <20011002151051.488306ee.efkemann@uni-bremen.de>
+In-Reply-To: <1001988137.2780.53.camel@phantasy>
+In-Reply-To: <20011002033227.6e047544.efkemann@uni-bremen.de>
+	<1001988137.2780.53.camel@phantasy>
+X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 01 Oct 2001 22:02:08 -0400
+Robert Love <rml@tech9.net> wrote:
 
-I've noticed the following problem when attempting to use either the new or
-old Xircom Tulip PCMCIA driver and DHCP.
+> You don't need all that code.  If agp_try_unsupported works, then
+> intel_generic_setup works, so you don't need an intel_830_setup.
+> 
+> In other words, if agp_try_unsupported=1 makes everything OK, then you
+> just need to add the detection code.
+> 
+> Thus, the patch becomes the following.  Give that a try.
 
-The system will attempt to obtain an address (dhclient) and seem to be
-successful, but it doesn't not show an address bound to the NIC in 'ifconfig
-eth0'.  No TCP/IP traffic can be sent or received as well.  If I installed
-the driver(s) into the kernel or as a module, the effect is the same.
+Yes, that seems to work as well.  Although there are two minor things I
+noticed:
+- First, intel_generic_setup sets num_aperture_sizes to 7, while the i830
+  has only 4 valid values (32 to 256 MB).
+- Second, when intel_generic_configure clears the error status register, it
+  resets bits 8, 9 and 10.  With an i830 it should clear bits 2, 3 and 4.
 
-Now if I enable the 'Use 10/100 PCI/ISA Ethernet Cards' (menuconfig, sorry
-don't know the CONFIG_XX_XX .config file alternative) in 'Network Devices'
-and remove any default cards selected, recompile, and reboot.  The card will
-now show the bound IP address and TCP/IP will work fine.
+So I'm not sure if this works in general, or could it cause errors on other
+systems?
 
-Is this normal that the 'Use 10/100 PCI/ISA Ethernet Cards' must be selected
-for DHCP to work?
-
-Here's the testing I'm going to attempt tonight after work:
-
--static IP addressing
--seeing if the DHCP server sees a request when the client thinks it has no
-IP address.
-
-Thanks much,
-
--reid
-
-Card: Xircom 10/100 56k Cardbus (exact model unknown, works with either new
-or old driver)
-Kernel: 2.4.10 with ext3 patched in
-DHCP Client: dhclient-2.2.x from the ISC
-
-
-
+-- 
+Regards,
+Christof Efkemann

@@ -1,38 +1,233 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264484AbTLGSc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 13:32:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTLGSc0
+	id S264474AbTLGS1K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 13:27:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTLGS1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 13:32:26 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:31874
+	Sun, 7 Dec 2003 13:27:10 -0500
+Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:39041
 	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264484AbTLGScY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 13:32:24 -0500
-Date: Sun, 7 Dec 2003 13:31:23 -0500 (EST)
+	id S264474AbTLGS07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 13:26:59 -0500
+Date: Sun, 7 Dec 2003 13:26:00 -0500 (EST)
 From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sched-HT-2.6.0-test11-A5
-In-Reply-To: <1039560000.1070817418@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.58.0312071330290.1758@montezuma.fsmlabs.com>
-References: <1027750000.1069604762@[10.10.2.4]> <Pine.LNX.4.58.0312011102540.3323@earth>
- <392900000.1070737269@[10.10.2.4]> <Pine.LNX.4.58.0312061601400.1758@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0312071433300.28463@earth> <20031207163914.GB19412@krispykreme>
- <1039560000.1070817418@[10.10.2.4]>
+To: =?ISO-8859-1?Q?Rapha=EBl_Rigo?= <raphael.rigo@inp-net.eu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS?] 2.6-test11 : problem about irq18.
+In-Reply-To: <3FD367F1.2060501@inp-net.eu.org>
+Message-ID: <Pine.LNX.4.58.0312071325250.1758@montezuma.fsmlabs.com>
+References: <3FD367F1.2060501@inp-net.eu.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/Mixed; BOUNDARY=------------090601000504080205000509
+Content-ID: <Pine.LNX.4.58.0312071325251.1758@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Dec 2003, Martin J. Bligh wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> >> i've seen a similar crash once on a 2-way (4-way) HT box, so there some
-> >> startup race going on most likely.
-> >
-> > Im seeing bootup crashes every now and then on a ppc64 box too. A few
-> > other things Ive noticed:
+--------------090601000504080205000509
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-1; FORMAT=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-ID: <Pine.LNX.4.58.0312071325252.1758@montezuma.fsmlabs.com>
 
-Just a datapoint, the migration_queue list appears to be getting
-'corrupted' the ->next pointer is NULL on entry to migration_task.
+On Sun, 7 Dec 2003, [ISO-8859-1] Rapha=EBl Rigo wrote:
+
+> I have a hard time making the 2.6-test11 to work correctly.
+> I constantly get messages about irq 18.
+> The kernel boots, linux works, but I get such messages every second :
+
+Just to verify things, try booting with the 'noirqdebug' kernel parameter.
+Then make sure everything works ok.
+--------------090601000504080205000509
+Content-Type: TEXT/PLAIN; NAME=".configok"
+Content-ID: <Pine.LNX.4.58.0312071325253.1758@montezuma.fsmlabs.com>
+Content-Description: 
+Content-Disposition: INLINE; FILENAME=".configok"
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_MODULES=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_SMP=y
+CONFIG_PREEMPT=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_X86_CPUID=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_ACPI_BOOT=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_IDEDMA_PCI_WIP=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=m
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_IEEE1394=m
+CONFIG_IEEE1394_OUI_DB=y
+CONFIG_IEEE1394_OHCI1394=m
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_DV1394=m
+CONFIG_IEEE1394_RAWIO=m
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_SK98LIN=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_PRINTER=m
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_DRM_I830=y
+CONFIG_VIDEO_DEV=m
+CONFIG_FB=y
+CONFIG_FB_VGA16=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_INTEL8X0=y
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_UHCI_HCD=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_NTFS_FS=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_SMB_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
+CONFIG_FRAME_POINTER=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRC32=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y
+
+--------------090601000504080205000509--

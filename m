@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264845AbTE1TTR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 15:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbTE1TTR
+	id S264841AbTE1TXz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 15:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbTE1TXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 15:19:17 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:2706 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S264845AbTE1TTQ
+	Wed, 28 May 2003 15:23:54 -0400
+Received: from verdi.et.tudelft.nl ([130.161.38.158]:64385 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S264841AbTE1TXx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 15:19:16 -0400
-Date: Wed, 28 May 2003 12:32:13 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Rick Lindsley <ricklind@us.ibm.com>
-cc: Erich Focht <efocht@hpce.nec.com>, Andi Kleen <ak@suse.de>,
-       LSE <lse-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Node affine NUMA scheduler extension 
-Message-ID: <30280000.1054150332@[10.10.2.4]>
-In-Reply-To: <200305281814.h4SIEgj02186@owlet.beaverton.ibm.com>
-References: <200305281814.h4SIEgj02186@owlet.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 28 May 2003 15:23:53 -0400
+Message-Id: <200305281937.h4SJb7og015704@verdi.et.tudelft.nl>
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+X-Exmh-Isig-CompType: repl
+X-Exmh-Isig-Folder: inbox
+To: Nuno Silva <nuno.silva@vgertech.com>
+Cc: linux-kernel@vger.kernel.org, robn@verdi.et.tudelft.nl
+Subject: Re: 2.4 bug: fifo-write causes diskwrites to read-only fs ! 
+In-Reply-To: Your message of "Wed, 28 May 2003 20:22:04 BST."
+             <3ED50C5C.9010309@vgertech.com> 
+Mime-Version: 1.0
+Content-Type: text/plain
+Date: Wed, 28 May 2003 21:37:07 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     Can you define what you mean by big vs small? I presume you mean RSS?
->     There are several factors that come into play here, at least:
->     
->     1. RSS (and which bits of this lie on which node)
->     2. CPU utilisation of the task
->     3. Task duration
->     4. Cache warmth
->     5. the current balance situation.
 > 
-> Along the same lines, would it make sense to *permit* imbalances for some
-> classes of tasks?  It may be worth it, for example, to let three threads
-> sharing a lot of data to saturate one cpu because what they lose from
-> their self-competition is saved from the extremely warm cache.
 > 
-> So you leave cpu0 at 7 tasks even though cpu1 only has 4, because the 7 are
-> "related" and the 4 are "dissimilar"?  The equation changes dramatically,
-> perhaps, once their is an idle cpu, but if everything is busy does it make
-> sense to weight the items in the runqueues in any way?
+> Rob van Nieuwkerk wrote:
+> > Hi all,
+> > 
+> > It turns out that Linux is updating inode timestamps of fifos (named
+> > pipes) that are written to while residing on a read-only filesystem.
+> > It is not only updating in-ram info, but it will issue *physical*
+> > writes to the read-only fs on the disk !
+> 
+> Hi!
+> 
+> I can't give a solution but the workaround is obvious:
+> mount -t ramfs none /myFifos
 
-It'd make sense ... but I think it would be a bitch to implement ;-) 
-How do you know when it's worth it?
+Hi Nuno,
 
-M.
+Yup, already thought of that.
+But would be nice if the bug was fixed too !
 
+	greetings,
+	Rob van Nieuwkerk

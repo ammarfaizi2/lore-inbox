@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268409AbUHNLRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268448AbUHNLTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268409AbUHNLRG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 07:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268406AbUHNLRG
+	id S268448AbUHNLTt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 07:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268436AbUHNLTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 07:17:06 -0400
-Received: from holomorphy.com ([207.189.100.168]:17305 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268409AbUHNLQ6 (ORCPT
+	Sat, 14 Aug 2004 07:19:49 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:17610 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S268454AbUHNLTl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 07:16:58 -0400
-Date: Sat, 14 Aug 2004 04:16:48 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sat, 14 Aug 2004 07:19:41 -0400
+X-Sender-Authentication: net64
+Date: Sat, 14 Aug 2004 13:19:38 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, willy@w.ods.org
 Subject: Re: Linux v2.6.8
-Message-ID: <20040814111648.GW11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-Id: <20040814131938.46c1129c.skraw@ithnet.com>
+In-Reply-To: <411DE9B6.80806@pobox.com>
 References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org>
+	<411DE9B6.80806@pobox.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13, 2004 at 11:05:43PM -0700, Linus Torvalds wrote:
-> The major patches since -rc4 were some sparc64 and parsic updates, but 
-> there's some network driver and SATA updates and a few ARM patches too. 
-> And a use-after-free fix in MTD.
+On Sat, 14 Aug 2004 06:30:14 -0400
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-The KBUILD_IMAGE fix for x86-64 still isn't in here, either. =(
+> Linus Torvalds wrote:
+> > Matthew Wilcox:
+> >   o Remove fcntl f_op
+> 
+> Any chance of a 2.6.9 with working NFS?
+> 
+> See attached patch, which came from this thread:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=109244804202259&w=2
+> http://marc.theaimsgroup.com/?t=109244611400001&r=1&w=2
 
+Hi Jeff,
 
--- wli
-
-Index: wli-2.6.8/arch/x86_64/Makefile
-===================================================================
---- wli-2.6.8.orig/arch/x86_64/Makefile	2004-08-13 22:37:40.000000000 -0700
-+++ wli-2.6.8/arch/x86_64/Makefile	2004-08-14 04:00:28.823938624 -0700
-@@ -77,6 +77,7 @@
- all: bzImage
+I just fell into the same hole. On my box (x86) only write-access to nfs
+produces the known problem.
+I can confirm that your patch solves it.
+I very much vote for 2.6.9 NFS-bugfix. This is a real show-stopper.
  
- BOOTIMAGE                     := arch/x86_64/boot/bzImage
-+KBUILD_IMAGE                  := arch/x86_64/boot/bzImage
- 
- bzImage: vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) $(BOOTIMAGE)
+Regards,
+Stephan

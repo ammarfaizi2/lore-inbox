@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316633AbSEQSEw>; Fri, 17 May 2002 14:04:52 -0400
+	id <S316635AbSEQSPu>; Fri, 17 May 2002 14:15:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316634AbSEQSEv>; Fri, 17 May 2002 14:04:51 -0400
-Received: from dsl-213-023-043-065.arcor-ip.net ([213.23.43.65]:61315 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316633AbSEQSEu>;
-	Fri, 17 May 2002 14:04:50 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        Peter Chubb <peter@chubb.wattle.id.au>
-Subject: Re: [PATCH] remove 2TB block device limit
-Date: Fri, 17 May 2002 20:02:56 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Anton Altaparmakov <aia21@cantab.net>,
-        Peter Chubb <peter@chubb.wattle.id.au>,
-        Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-        axboe@suse.de, akpm@zip.com.au, martin@dalecki.de,
-        neilb@cse.unsw.edu.au
-In-Reply-To: <200205171332.IAA93516@tomcat.admin.navo.hpc.mil>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E178m48-00006Z-00@starship>
+	id <S316636AbSEQSPt>; Fri, 17 May 2002 14:15:49 -0400
+Received: from mailhost2.teleline.es ([195.235.113.141]:26721 "EHLO
+	tsmtp6.mail.isp") by vger.kernel.org with ESMTP id <S316635AbSEQSPs>;
+	Fri, 17 May 2002 14:15:48 -0400
+Date: Fri, 17 May 2002 20:19:00 +0200
+From: Diego Calleja <DiegoCG@teleline.es>
+To: linux-kernel@vger.kernel.org
+Cc: Keith Owens <kaos@ocs.com.au>, torvalds@transmeta.com
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+Message-Id: <20020517201900.65e90bbc.DiegoCG@teleline.es>
+In-Reply-To: <3038.1021588938@ocs3.intra.ocs.com.au>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 May 2002 15:32, Jesse Pollard wrote:
-> And for the curious, the filesystems are SAMFS and SAMQFS on Sun E10000s.
-> We migrated the data from Cray NC1 filesystems with DMF - Cray data
-> migration facility (this took over 4 months. Would have taken only a month
-> or two, but we also had to accept new data at the same time).
+On Fri, 17 May 2002 08:42:18 +1000
+Keith Owens <kaos@ocs.com.au> escribió:
 
-Thanks for the fascinating data, however you left out one crucial piece of
-information: how many data bits in your processor?
 
--- 
-Daniel
+So we have a good patch that can make life better for developers and users.
+
+Not to apply it is a *bad* decision. Linus, soon or later, you'll have to
+replace the existing kbuild and you know that (it seems you're taking patches about it).
+
+You must have some conflict with Keith, but i don't care about it. So,
+if you have to replace the existing kbuild, why re-do it if it's done yet?.
+
+<my suggestions, this doesn't means it's right>
+
+Linus, please tell Keith that he changes kbuild just as you wants, and now. linux
+is yours, and you've the right to take this kid of decisions. Leaders are for that.
+
+And Keith, just try to do kbuild just like Linus wants. We'll help you, too. 
+
+But please, we're not to be fools and re-do all the work again. kbuild 2.5 _is_ good
+and all of us know that. So, please, please....don't let me think we're being so idiot....
+
+
+
+Diego calleja
+DiegoCG@teleline.es

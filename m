@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUIDRzD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUIDR4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265196AbUIDRzD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 13:55:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUIDRxu
+	id S265195AbUIDR4m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 13:56:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUIDRzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 13:53:50 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41483 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S265144AbUIDRx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 13:53:27 -0400
-Date: Sat, 4 Sep 2004 19:52:56 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Maximilian Attems <janitor@sternwelten.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.6.9-rc1-mm3: cdrom/cdu31a.c doesn't compile
-Message-ID: <20040904175256.GC10029@fs.tum.de>
-References: <20040903014811.6247d47d.akpm@osdl.org>
+	Sat, 4 Sep 2004 13:55:19 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:56728 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265195AbUIDRzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 13:55:03 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Mark_H_Johnson@raytheon.com, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>
+In-Reply-To: <1094256256.6575.109.camel@krustophenia.net>
+References: <OFACA329EE.63AC9924-ON86256F04.00556E19-86256F04.00556E29@raytheon.com>
+	 <1094256256.6575.109.camel@krustophenia.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094316731.10586.35.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040903014811.6247d47d.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040818i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 04 Sep 2004 17:52:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 01:48:11AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.9-rc1-mm2:
->...
-> +cdu31a-replace-schedule_timeout-with-msleep.patch
->...
->  Janitorial things
->...
+On Sad, 2004-09-04 at 01:04, Lee Revell wrote:
+> This is looking more and more like a video driver problem:
 
-Doesn't compile:
+Not really. The delay is too small and X is smarter than this. (except a
+VIA case that only recently got squished).
 
-<--  snip  -->
+> The video cards have a command FIFO that is written to via the PCI bus.
+> They also have a status register, read via the PCI bus, which says
+> whether the command FIFO is full or not. The hack is to not check
+> whether the command FIFO is full before attempting to write to it, thus
+> saving a PCI bus read.
 
-...
-  CC      drivers/cdrom/cdu31a.o
-drivers/cdrom/cdu31a.c: In function `do_sony_cd_cmd':
-drivers/cdrom/cdu31a.c:962: parse error before `:'
-drivers/cdrom/cdu31a.c:932: warning: label `retry_cd_operation' defined but not used
-make[2]: *** [drivers/cdrom/cdu31a.o] Error 1
-
-<--  snip  -->
-
-
-Trivial fix:
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.9-rc1-mm3-full/drivers/cdrom/cdu31a.c.old	2004-09-04 11:30:21.000000000 +0200
-+++ linux-2.6.9-rc1-mm3-full/drivers/cdrom/cdu31a.c	2004-09-04 11:31:08.000000000 +0200
-@@ -959,7 +959,7 @@
- 	if (((result_buffer[0] & 0xf0) == 0x20)
- 	    && (num_retries < MAX_CDU31A_RETRIES)) {
- 		num_retries++;
--		msleep(100):
-+		msleep(100);
- 		goto retry_cd_operation;
- 	}
- 
+On problem cards X defaults to polling the status FIFO. You can tell it
+to be rude but you have to actively do so. Newer PCI 2.x specs also have
+a thing or two to say on the subject
 

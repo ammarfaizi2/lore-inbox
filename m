@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266547AbUITNeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUITNtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266547AbUITNeF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 09:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUITNeE
+	id S266519AbUITNtc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 09:49:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUITNtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 09:34:04 -0400
-Received: from cantor.suse.de ([195.135.220.2]:40667 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266547AbUITNeB (ORCPT
+	Mon, 20 Sep 2004 09:49:32 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:60148 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266519AbUITNta (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 09:34:01 -0400
-To: CaT <cat@zip.com.au>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Olaf Hering <olh@suse.de>,
-       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
-	<20040920094602.GA24466@suse.de>
-	<Pine.LNX.4.61.0409201220200.3460@scrub.home>
-	<20040920105618.GB24928@suse.de>
-	<Pine.LNX.4.61.0409201311050.3460@scrub.home>
-	<20040920112607.GA19073@suse.de>
-	<Pine.LNX.4.61.0409201331320.3460@scrub.home>
-	<20040920131910.GB1096@zip.com.au>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Yow!  Now I get to think about all the BAD THINGS I did to a BOWLING
- BALL
- when I was in JUNIOR HIGH SCHOOL!
-Date: Mon, 20 Sep 2004 15:33:56 +0200
-In-Reply-To: <20040920131910.GB1096@zip.com.au> (cat@zip.com.au's message of
- "Mon, 20 Sep 2004 23:19:10 +1000")
-Message-ID: <jewtypvzcr.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 20 Sep 2004 09:49:30 -0400
+Date: Mon, 20 Sep 2004 19:19:11 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, fastboot@osdl.org,
+       Suparna Bhattacharya <suparna@in.ibm.com>, mbligh@aracnet.com,
+       agl@us.ibm.com
+Subject: Re: [Fastboot] Re: [PATCH][2/6]Memory preserving reboot using kexec
+Message-ID: <20040920134911.GA4592@in.ibm.com>
+Reply-To: hari@in.ibm.com
+References: <20040915125041.GA15450@in.ibm.com> <20040915125145.GB15450@in.ibm.com> <20040915125322.GC15450@in.ibm.com> <m1d60i8075.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1d60i8075.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CaT <cat@zip.com.au> writes:
+Hi Eric,
 
-> Does the kernel crash and burn if you pass the filesystem an option it
-> does not know about on a mount?
+On Sun, Sep 19, 2004 at 02:37:18PM -0600, Eric W. Biederman wrote:
+> Hariprasad Nellitheertha <hari@in.ibm.com> writes:
+> 
+> > This patch contains the code that does the memory preserving reboot. It 
+> > copies over the first 640k into a backup region before handing over to 
+> > kexec. The second kernel will boot using only the backup region.
+> 
+> Do you know what the kernel does with the low 1M?
+> 
+> Nothing in the hardware architecture requires us to use the
+> low 1M.  So I think we would be safer if we could track down
+> and remove this dependency.
+> 
+> In general I agree that we need to be prepared to save some of the
+> original machine state, because some architectures give special
+> meaning to addresses in memory.  But x86 is not one of those.
+> 
+> Perhaps the proper abstraction is to add a use_mem= variable
+> that simply tells us which memory addresses we can use.
+> 
+> By still doing some copying we run into the problem, of
+> potentially running out of memory areas where ongoing DMA
+> transfers may be happening.  So this is worth
+> tracking down.
 
-It will refuse to mount.
+I am trying to track this down. I tried moving the first segment of vmlinux
+into the reserved section by modifying kexec-tools. This is the command line
+argument segment. It still seems to need the first few kilobytes, though. 
 
-Andreas.
+Eliminating this is definitely needed so we can avoid using the first 
+kernel's region completely.
 
+Also, I will make the changes in the rest of the patch as per your review
+comments.
+
+Regards, Hari
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Hariprasad Nellitheertha
+Linux Technology Center
+India Software Labs
+IBM India, Bangalore

@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268246AbTCFRwH>; Thu, 6 Mar 2003 12:52:07 -0500
+	id <S268244AbTCFRrL>; Thu, 6 Mar 2003 12:47:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268245AbTCFRwH>; Thu, 6 Mar 2003 12:52:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48905 "EHLO
+	id <S268245AbTCFRrL>; Thu, 6 Mar 2003 12:47:11 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16649 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268039AbTCFRwF>; Thu, 6 Mar 2003 12:52:05 -0500
-Date: Thu, 6 Mar 2003 10:00:18 -0800 (PST)
+	id <S268244AbTCFRrJ>; Thu, 6 Mar 2003 12:47:09 -0500
+Date: Thu, 6 Mar 2003 09:55:07 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ingo Molnar <mingo@elte.hu>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <Pine.LNX.4.44.0303061841480.15041-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303060956190.7720-100000@home.transmeta.com>
+In-Reply-To: <1046976597.17715.93.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0303060949120.7720-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 6 Mar 2003, Ingo Molnar wrote:
+On 6 Mar 2003, Alan Cox wrote:
 > 
-> > And my patch may spread it out _too_ much. Maybe we shouldn't give _all_
-> > of the left-over interactivity to the waker. Maybe we should give just
-> > half of it away..
-> 
-> yes, not spreading out could also make it possible to give it back via
-> multiple wakeup links, interactivity will 'diffuse' along wakeups.
+> X isnt special at all. Research OS people have done stuff like time transfers
+> but I've not seen that in a production OS. In that situation an interactive
+> task blocking on a server hands on some of its interactiveness to whoever
+> services the request.
 
-Yes, I think this could work well. What we could do is basically just
-always spread the interactivity eavenly between the waker and the sleeper,
-instead of my current "give the sleeper as much as we can, and if
-anything is left over give some to the waker" approach.
+This is what I really wanted to do - give the interactivity away at 
+blocking time. However, there's usually no sane way to do that, since we 
+don't know a-priori who we are blocking _for_. We could try to transfer it 
+in the unix domain socket sleep case to whoever is waiting at the other 
+end, but that's actually quite complex and ends up having each sleep entry 
+somehow inform the subsystem it is sleeping on that it wants to give 
+interactivity to the other end.
 
-So my current patch is extreme in that it tries to use up as much as 
-possible of the "interactivity bonus points", but it is _not_ extreme in 
-the sense that it doesn't inherit interactivity both ways. 
+The thing about wakeups is that it's an "illogical" place to give the 
+bonus ("it's too late to give the server a bonus _now_, I wanted it when I 
+went to sleep"), but it's the _trivial_ place to give it.
 
-So my patch will _not_ try to balance a series of three or more processes, 
-where only one is interactive. Because it will trigger only for the 
-process _directly_ connected to the interactive one.
+It also (I'm convinced) is actually in the end exactly equivalent to 
+giving the bonus at sleep time - in the steady state picture. In the 
+single-transfer case it is wrong, but the single transfer case doesn't 
+matter - the interactivity bonus isn't a "immediate shot of caffeine into 
+the bloodstream" anyway. The interactivity bonus is supposed to help over 
+time, so the only thing that matters is really the steady state.
 
-If we spread it out instead by always trying to balance the interactivity, 
-it would spread out from the interactive one along any synchronous wakeup 
-chain. Which is more extreme than I was willing to try with a first 
-example..
+But the proof is in the pudding. Does this actually make things appear 
+"nicer" to people? Or is it just another wanking session?
 
 		Linus
 

@@ -1,93 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUIOSDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267304AbUIOSJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267235AbUIOSDl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 14:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267304AbUIOSCI
+	id S267304AbUIOSJw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 14:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267310AbUIOSJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 14:02:08 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:64907 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S267235AbUIOSAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 14:00:51 -0400
-Message-ID: <41487B6D.1080202@drdos.com>
-Date: Wed, 15 Sep 2004 11:27:09 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Wed, 15 Sep 2004 14:09:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3808 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267304AbUIOSHE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 14:07:04 -0400
+Date: Wed, 15 Sep 2004 11:06:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Being more anal about iospace accesses..
+In-Reply-To: <Pine.LNX.4.58.0409151045530.2333@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0409151059010.2333@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org>
+ <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org>
+ <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org> <20040915165450.GD6158@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.58.0409151004370.2333@ppc970.osdl.org> <20040915173236.GE6158@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.58.0409151045530.2333@ppc970.osdl.org>
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: jmerkey@galt.devicelogics.com, linux-kernel@vger.kernel.org,
-       jmerkey@comcast.net
-Subject: Re: 2.6.8.1 mempool subsystem sickness
-References: <091420042058.15928.41475B8000002BA100003E382200763704970A059D0A0306@comcast.net> <4147555C.7010809@drdos.com> <414777EA.5080406@yahoo.com.au> <20040914223122.GA3325@galt.devicelogics.com> <41478419.3020606@yahoo.com.au>
-In-Reply-To: <41478419.3020606@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------050902090704030608090904"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050902090704030608090904
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Nick Piggin wrote:
-
-> jmerkey@galt.devicelogics.com wrote:
->
->> You bet.  Send them to me.  For some reason I am not able to post to 
->> LKML again.
->>
->> Jeff
->>
-> OK, this is against 2.6.9-rc2. Let me know how you go. Thanks
->
->  
->
-
-Nick,
-
-The problem is corrected with this patch.  I am running with 3GB of 
-kernel memory
-and 1GB user space with the userspace splitting patch with very heavy 
-swapping
-and user space app activity and no failed allocations.  This patch 
-should be rolled
-into 2.6.9-rc2 since it fixes the problem.  With standard 3GB User/1GB 
-kernel
-address space, it also fixes the problems with X server running out of 
-memory
-and the apps crashing.
-
-Jeff
-
-Here's the stats from the test of the patch against 2.6.8-rc2 with the 
-patch applied
 
 
+On Wed, 15 Sep 2004, Linus Torvalds wrote:
+> 
+>    In short: if you don't go "ooh, that will simplify XXX", then you 
+>    should just ignore the new interfaces.
 
---------------050902090704030608090904
-Content-Type: text/plain;
- name="proc.meminfo"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="proc.meminfo"
+Btw, to get an example of what _is_ simplified, look at 
+drivers/scsi/libata-core.c:
 
+	void ata_tf_load(struct ata_port *ap, struct ata_taskfile *tf)
+	{
+	        if (ap->flags & ATA_FLAG_MMIO)
+	                ata_tf_load_mmio(ap, tf);
+	        else
+	                ata_tf_load_pio(ap, tf);
+	}
 
---------------050902090704030608090904
-Content-Type: text/plain;
- name="proc.vmstat"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="proc.vmstat"
+and realize that "ata_tf_load_mmio()" and "ata_tf_load_pio()" are exactly 
+the SAME FUNCTION. Except one uses MMIO, the other uses PIO. With the new 
+setup, it literally collapses into one function, and code size goes down 
+pretty dramatically. Not to mention making the code more readable.
 
+For another example of this (of the static kind), look at something like 
+drivers/net/8139too.c:
 
---------------050902090704030608090904
-Content-Type: text/plain;
- name="proc.slabinfo"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="proc.slabinfo"
+	#ifdef USE_IO_OPS
 
+	#define RTL_R8(reg)             inb (((unsigned long)ioaddr) + (reg))
+	#define RTL_R16(reg)            inw (((unsigned long)ioaddr) + (reg))
+	#define RTL_R32(reg)            ((unsigned long) inl (((unsigned long)ioaddr) + (reg)))
+	...
 
---------------050902090704030608090904--
+	#else
+
+	...
+	/* read MMIO register */
+	#define RTL_R8(reg)             readb (ioaddr + (reg))
+	#define RTL_R16(reg)            readw (ioaddr + (reg))
+	#define RTL_R32(reg)            ((unsigned long) readl (ioaddr + (reg)))
+
+see? In this case, USE_IO_OPS depends on a static configuration variable, 
+namely CONFIG_8139TOO_PIO. So the user at _compile_ time has to decide 
+whether he wants to use MMIO or PIO. See the Kconfig help file:
+
+          This instructs the driver to use programmed I/O ports (PIO) instead 
+          of PCI shared memory (MMIO).  This can possibly solve some problems
+          in case your mainboard has memory consistency issues.  If unsure,
+          say N.
+
+In other words, the new interface is not designed to replace the old ones,
+it's designed to help drivers like these, that either go to a lot of extra
+pain in order to support both methods, or then have a _static_ config
+option that makes it really hard for system vendors to just release one
+driver that knows when it needs to use PIO and when it needs MMIO.
+
+		Linus

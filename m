@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261667AbREOWiI>; Tue, 15 May 2001 18:38:08 -0400
+	id <S261663AbREOWfs>; Tue, 15 May 2001 18:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261670AbREOWiA>; Tue, 15 May 2001 18:38:00 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49157 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261667AbREOWhs>; Tue, 15 May 2001 18:37:48 -0400
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Tue, 15 May 2001 23:33:01 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        rgooch@ras.ucalgary.ca (Richard Gooch),
-        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
-        torvalds@transmeta.com (Linus Torvalds),
-        neilb@cse.unsw.edu.au (Neil Brown),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        viro@math.psu.edu
-In-Reply-To: <200105152228.f4FMSQw02343@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at May 15, 2001 04:28:26 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261667AbREOWfi>; Tue, 15 May 2001 18:35:38 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:55309 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261663AbREOWfX>; Tue, 15 May 2001 18:35:23 -0400
+Message-ID: <3B01AEF6.C309864F@transmeta.com>
+Date: Tue, 15 May 2001 15:34:30 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Chip Salzenberg <chip@valinux.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <E14znJI-0003EY-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14znNG-0003FK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Even if we have per-device filesystems, we are going to have the same
-> issue, in one form or another. If we have a "/devicetype" trailing
-> component added on, then somewhere it has to report "CD-ROM" or "cd"
-> or "Compact Disc".
+Alan Cox wrote:
+> 
+> > 1. is of course a problem in itself.  Someone who creates overlapping
+> > ioctls should be spanked, hard.
+> 
+> No argument there. But there is no LANANA ioctl body
+> 
 
-When I ask it. Not when I name it
+I though Michael Chastain was maintaining this set.  No, we haven't made
+it an official LANANA function, mostly because I didn't want to push.
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

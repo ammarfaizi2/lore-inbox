@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbTE2VHK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 17:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbTE2VHJ
+	id S262824AbTE2VEp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 17:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTE2VEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 17:07:09 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50124 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262827AbTE2VEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 17:04:46 -0400
-Date: Thu, 29 May 2003 23:17:57 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: 2.5.70-mm2: NCR53C9x.c doesn't compile
-Message-ID: <20030529211757.GJ5643@fs.tum.de>
-References: <20030529012914.2c315dad.akpm@digeo.com>
+	Thu, 29 May 2003 17:04:24 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1705 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262955AbTE2VDO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 17:03:14 -0400
+Date: Thu, 29 May 2003 14:15:17 -0700 (PDT)
+Message-Id: <20030529.141517.39161797.davem@redhat.com>
+To: pavel@suse.cz
+Cc: ak@suse.de, akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: must-fix list, v5
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030529200618.GE1454@elf.ucw.cz>
+References: <p73wuga6rin.fsf@oldwotan.suse.de>
+	<20030529.023203.41634240.davem@redhat.com>
+	<20030529200618.GE1454@elf.ucw.cz>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030529012914.2c315dad.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems the following compile error comes from Linus' tree:
+   From: Pavel Machek <pavel@suse.cz>
+   Date: Thu, 29 May 2003 22:06:18 +0200
+   
+   Davem, does trivial copy_in_user I created have expected semantics?
 
-<--  snip  -->
-
-...
-  CC      drivers/scsi/NCR53C9x.o
-drivers/scsi/NCR53C9x.c: In function `esp_proc_info':
-drivers/scsi/NCR53C9x.c:896: `SCpnt' undeclared (first use in this function)
-drivers/scsi/NCR53C9x.c:896: (Each undeclared identifier is reported only once
-drivers/scsi/NCR53C9x.c:896: for each function it appears in.)
-drivers/scsi/NCR53C9x.c: In function `esp_do_data':
-drivers/scsi/NCR53C9x.c:1840: warning: unused variable `flags'
-make[2]: *** [drivers/scsi/NCR53C9x.o] Error 1
-
-<--  snip  -->
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Yes, but obviously it's not a fast one :-)

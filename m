@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317661AbSFMPQx>; Thu, 13 Jun 2002 11:16:53 -0400
+	id <S317710AbSFMP2w>; Thu, 13 Jun 2002 11:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317679AbSFMPQw>; Thu, 13 Jun 2002 11:16:52 -0400
-Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:15314 "EHLO
-	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
-	id <S317661AbSFMPQv>; Thu, 13 Jun 2002 11:16:51 -0400
-Message-Id: <200206131516.g5DFGiM70818@d06relay02.portsmouth.uk.ibm.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-To: Patrick Mochel <mochel@osdl.org>
-Subject: [patch] bad locking in {driver,bus}_for_each_{drv,dev}
-Date: Thu, 13 Jun 2002 19:16:31 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arndb@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S317728AbSFMP2v>; Thu, 13 Jun 2002 11:28:51 -0400
+Received: from oyster.morinfr.org ([62.4.22.234]:8576 "EHLO oyster.morinfr.org")
+	by vger.kernel.org with ESMTP id <S317710AbSFMP2v>;
+	Thu, 13 Jun 2002 11:28:51 -0400
+Date: Thu, 13 Jun 2002 17:28:51 +0200
+From: Guillaume Morin <guillaume@morinfr.org>
+To: "Shipman, Jeffrey E" <jeshipm@sandia.gov>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: TCP checksum?
+Message-ID: <20020613152851.GA3442@morinfr.org>
+Mail-Followup-To: "Shipman, Jeffrey E" <jeshipm@sandia.gov>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <03781128C7B74B4DBC27C55859C9D73809840636@es06snlnt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dans un message du 13 jun à  9:10, Shipman, Jeffrey E écrivait :
+>
+> I'm looking for a function similar to skb_checksum(), but
+> for the tcphdr->check field. I'm playing around with a module
+> I've written for netfilter and I would like to modify options of
+> the IP and TCP headers. For example, right now I'm trying
+> to set the destination IP to the source IP, but the TCP checksum
+> is coming out incorrectly. How can I calculate this checksum?
 
-I just ran in a deadlock in driver_for_each_dev, where read_unlock 
-was called without the lock being held. The patch below avoids the
-problem there and in the other two places I found it.
+There is a netfilter function for that. Look at
+ip_nat_core.c:ip_nat_cheat_check.
 
-	Arnd <><
+-- 
+Guillaume Morin <guillaume@morinfr.org>
 
---- linux-2.5.21/drivers/base/driver.c  Thu Jun 13 19:00:48 2002
-+++ drivers/base/driver.c       Thu Jun 13 19:01:25 2002
-@@ -31,6 +31,7 @@
-                dev = next;
-                if ((error = callback(dev,data))) {
-                        put_device(dev);
-+                       read_lock(&drv->lock);
-                        break;
-                }
-                read_lock(&drv->lock);
---- linux-2.5.21/drivers/base/bus.c     Thu Jun 13 19:05:25 2002
-+++ drivers/base/bus.c  Thu Jun 13 19:06:01 2002
-@@ -61,6 +61,7 @@
-                dev = next;
-                if ((error = callback(dev,data))) {
-                        put_device(dev);
-+                       read_lock(&bus->lock);
-                        break;
-                }
-                read_lock(&bus->lock);
-@@ -96,6 +97,7 @@
-                drv = next;
-                if ((error = callback(drv,data))) {
-                        put_driver(drv);
-+                       read_lock(&bus->lock);
-                        break;
-                }
-                read_lock(&bus->lock);
+          5 years from now everyone will be running free GNU on their
+           200 MIPS, 64M SPARCstation-5 (Andy Tanenbaum, 30 Jan 1992)

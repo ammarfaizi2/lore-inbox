@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131773AbRCUThh>; Wed, 21 Mar 2001 14:37:37 -0500
+	id <S131737AbRCUUGb>; Wed, 21 Mar 2001 15:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131774AbRCUTh2>; Wed, 21 Mar 2001 14:37:28 -0500
-Received: from smtp7.xs4all.nl ([194.109.127.133]:27350 "EHLO smtp7.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S131773AbRCUThT>;
-	Wed, 21 Mar 2001 14:37:19 -0500
-Date: Wed, 21 Mar 2001 19:34:47 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: max ip_conntrack entries
-Message-ID: <20010321193447.A555@grobbebol.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-OS: Linux grobbebol 2.4.2-ac20 
+	id <S131747AbRCUUGV>; Wed, 21 Mar 2001 15:06:21 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:46608 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131737AbRCUUGI>; Wed, 21 Mar 2001 15:06:08 -0500
+Date: Wed, 21 Mar 2001 16:54:48 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Josh Grebe <squash@primary.net>, linux-kernel@vger.kernel.org,
+        Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: Question about memory usage in 2.4 vs 2.2
+In-Reply-To: <20010321141626.A3621@cs.cmu.edu>
+Message-ID: <Pine.LNX.4.21.0103211652270.9056-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 21 Mar 2001, Jan Harkes wrote:
 
-is there a way to dynamically change the limit : kernel: ip_conntrack:
-maximum limit of 16384 entries exceeded ?
+> I've been thinking about this a bit and one possible solution would be
+> to significantly lower the cost of prune_icache by removing the
+> sync_all_inodes and only let it prune inodes that do not have any
+> mappings associated with them. Then it might become possible to call
+> it more frequently, like every time we hit do_try_free_pages.
 
-grepping in the documentation didn't tell much here.
+Marcelo and me have been looking at this issue too, and have
+come to almost the same conclusion as you, with one small
+change.
 
-either a newssus scan or a weird ftp server I tried to connect to,
-caused the table to fill pretty fast and all other connections stopped
-for a short time.
+We -need- to have a way to trigger the writeout of dirty
+inodes under memory pressure. Imagine doing 'chown -R' on
+a huge tree on a low-memory box; you'd end up with zillions
+of dirty inodes in memory with no way to free them.
 
-the entries are similar btw in /proc/net/ip_conntrack :
+Now if prune_icache would write all the dirty inodes without
+data pages to disk automatically, we'd have this issue fixed
+and we'll be able to make a much more efficient prune_icache.
 
-tcp      6 425335 ESTABLISHED src=203.45.72.96 dst=203.45.72.96
-sport=28480 dport=21 [UNREPLIED] src=203.45.72.96 dst=203.45.72.96
-sport=21 dport=28480 use=1
+Anybody willing to give it a shot ?
 
-the source and dest are always the same. weird. currently 15443
-entries.
+regards,
 
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+

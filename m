@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130937AbRBTXOp>; Tue, 20 Feb 2001 18:14:45 -0500
+	id <S130985AbRBTXS1>; Tue, 20 Feb 2001 18:18:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131010AbRBTXOf>; Tue, 20 Feb 2001 18:14:35 -0500
-Received: from jalon.able.es ([212.97.163.2]:31472 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130937AbRBTXOa>;
-	Tue, 20 Feb 2001 18:14:30 -0500
-Date: Wed, 21 Feb 2001 00:14:06 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: swap still stuck
-Message-ID: <20010221001406.A1035@werewolf.able.es>
+	id <S130999AbRBTXSR>; Tue, 20 Feb 2001 18:18:17 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:56965 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S130985AbRBTXSM>; Tue, 20 Feb 2001 18:18:12 -0500
+Message-Id: <l03130359b6b8a6115936@[192.168.239.101]>
+In-Reply-To: <3A92F17E.BFEDEADD@sympatico.ca>
+In-Reply-To: <01022020011905.18944@gimli>
+ <96uijf$uer$1@penguin.transmeta.com> <3A92DCE0.BEE5E90E@sympatico.ca>
+ <3A92DF84.E39E415C@windsormachine.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.1
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 20 Feb 2001 22:58:36 +0000
+To: Jeremy Jackson <jeremy.jackson@sympatico.ca>,
+        Mike Dresser <mdresser@windsormachine.com>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, everyone.
+>Perhaps rm -rf . would be faster?  Let rm do glob expansion,
+>without the sort.  Care to recreate those 65535 files and try it?
 
-I seem to have again a problem that was talked about on the list, but I thought
-it was yet corrected with some VM constants balancing.
+Perhaps, but I think that form is still fairly slow.  It takes an
+"uncomfortable" amount of time to remove a complex directory structure
+using, eg. "rm -rf /usr/src/linux-obsolete" or "rm -rf
+downloads/XFree86-old-and-buggy".  I'm not sure, but I would guess it's not
+as much quicker than removing each file individually as you might think.
 
-I run 2.4.1-ac19-SMP. System works fine, but after a couple kernel untars
-and an open netscape, starts to swap. Read buffers are still there. Do the
-untars, launch netscape and instead of trashing buffers takes a bite on
-swap.
+If I had more time on my hands, I'd run some quick benchmarks on some of my
+systems.
 
-Then you let netscape (what a mem hog example...) forgotten and start to do
-some terminal work, config kernel, build, etc. Return to netscape and it is
-much less responsible and disk starts to crawl to un-swap netscape. And
-my 200 Mb of read buffers are still in main memory...
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-Is there any utility to say to kernel TROW AWAY YOUR READ BUFFERS ?. It looks
-like it does not know how to do it.
+The key to knowledge is not to rely on people to teach you it.
 
-I have finished some work session with just the last rxvt on screen, a mem like:
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-werewolf:~/soft/snd/alsa/alsa-utils# free
-             total       used       free     shared    buffers     cached
-Mem:        255524     244888      10636          0      94816      97052
--/+ buffers/cache:      53020     202504
-Swap:       152576       9024     143552
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
+-----END GEEK CODE BLOCK-----
 
-but swap being 50Mb.
-
-Why system does not try to drop read buffer pages before swapping ?
-
-
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.1-ac19 #1 SMP Mon Feb 19 21:52:31 CET 2001 i686
 

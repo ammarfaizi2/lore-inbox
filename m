@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbULBDJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbULBDUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbULBDJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 22:09:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbULBDJI
+	id S261550AbULBDUu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 22:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbULBDUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 22:09:08 -0500
-Received: from [61.48.53.101] ([61.48.53.101]:35832 "EHLO adam.yggdrasil.com")
-	by vger.kernel.org with ESMTP id S261545AbULBDJB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 22:09:01 -0500
-Date: Wed, 1 Dec 2004 18:59:02 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200412020259.iB22x2D24700@adam.yggdrasil.com>
-To: akpm@osdl.org, chrisw@osdl.org
-Subject: Re: [Patch] Delete sysfs_dirent.s_count, saving ~100kB on my system
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, maneesh@in.ibm.com
+	Wed, 1 Dec 2004 22:20:49 -0500
+Received: from 211-23-141-2.HINET-IP.hinet.net ([211.23.141.2]:43790 "EHLO
+	www.softwell.com.tw") by vger.kernel.org with ESMTP id S261550AbULBDUi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 22:20:38 -0500
+Subject: Kernel 2.6 with X (eats more CPU power)...with test program
+From: Joe Hsu <joe@softwell.com.tw>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1101896767.2640.19.camel@laptop.fenrus.org>
+References: <1101896505.2161.45.camel@joe>
+	 <1101896767.2640.19.camel@laptop.fenrus.org>
+Content-Type: text/plain
+Message-Id: <1101957718.2161.118.camel@joe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 02 Dec 2004 11:21:58 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
->* Andrew Morton (akpm@osdl.org) wrote:
->> That's all well and good, but sysfs_new_dirent() should be using a
->> standalone slab cache for allocating sysfs_dirent instances.  That way, we
->> use 36 bytes for each one rather than 64.
+I put my test program on internet.
+http://bill-goldberg.myweb.hinet.net/monitor3.tgz
 
->Reasonable, here's a patch (lightly tested).  [...]
+Download and extract it. And then read README.TXT.
+It does make difference between different KERNEL HZ.
+This program also shows the time it takes to refresh
+every 600 frames.(Roughly 10 seconds, both in kernel
+2.4 and 2.6)
 
-	Great.  That way 32-bit architectures should be able to
-benefit from some another shrink of sysfs_dirent that I'd like
-to do, and it will also help 64-bit architectures (where sysfs_dirent
-is still larger than 32 bytes even with my change).
+> On Wed, 2004-12-01 at 18:21 +0800, Joe Hsu wrote:
+> 
+> >     And I found something interisting happened. In pentium 4
+> > 3.0G machine and linux kernel 2.6, X and my program total 
+> > consumes 5% of cpu resource.
+> > 
+> >     But in pentium 4 2.xG or below, it would consume 10% or 
+> > more of CPU resource. (If you try this with XFree86 4.2 and 
+> > pentium 1.xG machine, it would consume 30% or more of cpu 
+> > resource at a peak.)
+> > 
+> >     In contrast, I've tried Kernel 2.4 with same X, same 
+> > program, and same machine. It consumes almost zero of CPU 
+> > resource( no matter it runs on a P4 1.xG or P4 3.0G and no
+> > matter it runs on 4.4 or 4.2 X-server).
+> > 
+> >     Same phenomenon happened when I ran 4 mpeg4 playback 
+> > programs (each 320x240, 30 frames per second, no scaling).
+> > It seems that these programs and X consume almost zero of 
+> > CPU power when the KERNEL HZ is 100. (I've 
+> > tried Robert Love's variable HZ patch to kernel 2.4 and 
+> > change HZ to 1000........Same phenomenon as 2.6)
+> > 
+> >     Could any one explain why??? Thanks.
+> > (I wish to be personally CC'ed the answers/comments posted 
+> > to the list in response to your posting 'cause I do not 
+> > subscribe to this mailing list.)
+> > 
 
-	I applied Chris's patch on top of my own (which still
-saves about 14kB on my machine and shrinks the source code by 11
-lines) and I am running it now.  It looks fine to me, although I
-haven't looked into making a separate slab cache before.  I guess
-it's okay that there is no alignment requirement on it for now,
-as there are a lot of sysfs_dirent structure and more every day,
-and programs that would access these structures frequently would
-also probably cause access to a lot of them at the same time (by
-scanning the sysfs tree), so inter-processor cache line contention
-might be offset by the more efficient utilization of the processor's
-cache.
 
-	Chris's patch file applied without conflict (there was a
-one line offset in fs/sysfs/sysfs.h), so it should be easy to
-integrate both patches.  Please let me know if there is anything
-further I should or can do to help make that happen, as I'd like
-to have my fs/sysfs tree in sync before trying to unpin the
-struct dirent and struct inode for sysfs directories, as I
-expect that to be a more complex patch (and unpin hundreds of kbytes).
-
-                    __     ______________
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l

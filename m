@@ -1,61 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274826AbTGaQUh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 12:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274827AbTGaQUh
+	id S272526AbTGaQIo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 12:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272516AbTGaQGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 12:20:37 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:2223 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S274826AbTGaQU3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 12:20:29 -0400
-Date: Thu, 31 Jul 2003 18:20:37 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Turning off automatic screen clanking
-Message-ID: <20030731162037.GB32759@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Timothy Miller <miller@techsource.com>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org> <Pine.LNX.4.53.0307291338260.6166@chaos> <Pine.LNX.4.53.0307292015580.11053@montezuma.mastecende.com> <20030730052213.GU150921@niksula.cs.hut.fi> <3F29296E.6000602@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 31 Jul 2003 12:06:40 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:5830
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272513AbTGaQG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 12:06:26 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.0-test2-mm1 results
+Date: Fri, 1 Aug 2003 02:11:02 +1000
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <5110000.1059489420@[10.10.2.4]> <200308010135.57514.kernel@kolivas.org> <61330000.1059667311@[10.10.2.4]>
+In-Reply-To: <61330000.1059667311@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F29296E.6000602@techsource.com>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200308010211.02246.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 10:36:30AM -0400, Timothy Miller wrote:
-> 
-> 
-> Ville Herva wrote:
-> >On Tue, Jul 29, 2003 at 08:17:15PM -0400, you [Zwane Mwaikambo] wrote:
-> 
-> >Most times when you need to have it fixed is when your box has mysteriously
-> >locked up, and you'd wan't to know if there was a oops on the screen. No 
-> >can
-> >do - the console is already blanked. By then it is too late to fix it.
+On Fri, 1 Aug 2003 02:01, Martin J. Bligh wrote:
+> > On Fri, 1 Aug 2003 01:19, Martin J. Bligh wrote:
+> >> >> Does this help interactivity a lot, or was it just an experiment?
+> >> >> Perhaps it could be less agressive or something?
+> >> >
+> >> > Well basically this is a side effect of selecting out the correct cpu
+> >> > hogs in the interactivity estimator. It seems to be working ;-) The
+> >> > more cpu hogs they are the lower dynamic priority (higher number) they
+> >> > get, and the more likely they are to be removed from the active array
+> >> > if they use up their full timeslice. The scheduler in it's current
+> >> > form costs more to resurrect things from the expired array and restart
+> >> > them, and the cpu hogs will have to wait till other less cpu hogging
+> >> > tasks run.
+> >> >
+> >> > How do we get around this? I'll be brave here and say I'm not sure we
+> >> > need to, as cpu hogs have a knack of slowing things down for everyone,
+> >> > and it is best not just for interactivity for this to happen, but for
+> >> > fairness.
+> >> >
+> >> > I suspect a lot of people will have something to say on this one...
+> >>
+> >> Well, what you want to do is prioritise interactive tasks over cpu hogs.
+> >> What *seems* to be happening is you're just switching between cpu hogs
+> >> more ... that doesn't help anyone really. I don't have an easy answer
+> >> for how to fix that, but it doesn't seem desireable to me - we need some
+> >> better way of working out what's interactive, and what's not.
 > >
-> >In what cases is console blanking so hugely important these days, anyway?
-> 
-> 
-> Why don't we borrow a trick from my old Atari 8-bit computer.  Instead 
-> of blanking, cycle the colors.  Best of both worlds:  You save your 
-> monitor AND you get to see what's on the screen.
+> > Indeed and now that I've thought about it some more, there are 2 other
+> > possible contributors
+> >
+> > 1. Tasks also round robin at 25ms. Ingo said he's not sure if that's too
+> > low, and it definitely drops throughput measurably but slightly.
+> > A simple experiment is changing the timeslice granularity in sched.c and
+> > see if that fixes it to see if that's the cause.
+> >
+> > 2. Tasks waiting for 1 second are considered starved, so cpu hogs running
+> > with their full timeslice used up when something is waiting that long
+> > will be expired. That used to be 10 seconds.
+> > Changing starvation limit will show if that contributes.
+>
+> Ah. If I'm doing a full "make -j" I have almost 100 tasks per cpu.
+> if it's 25ms or 100ms timeslice that's 2.5 or 10s to complete the
+> timeslice. Won't that make *everyone* seem starved? Not sure that's
+> a good idea ... reminds me of Dilbert: "we're going to focus particularly
+> on ... everything!" ;-)
 
-hmm, ignoring the issue that modern monitors will not
-suffer the burnin, how would it help to cycle the colors?
-the only valid solution would be inverting the image on
-a regular basis, and I don't think that this would be
-appreciated ...
+The starvation thingy is also dependent on number of running tasks.
 
-just my opinion,
-Herbert
+I quote from the master engineer Ingo's codebook:
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+#define EXPIRED_STARVING(rq) \
+		(STARVATION_LIMIT && ((rq)->expired_timestamp && \
+		(jiffies - (rq)->expired_timestamp >= \
+			STARVATION_LIMIT * ((rq)->nr_running) + 1)))
+
+Where STARVATION_LIMIT is 1 second.
+
+Con
+

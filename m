@@ -1,76 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVCTTs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVCTUEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVCTTs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 14:48:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVCTTs6
+	id S261198AbVCTUEV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 15:04:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVCTUEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 14:48:58 -0500
-Received: from fnoeppeil48.netpark.at ([217.175.205.176]:38674 "EHLO
-	roarinelk.homelinux.net") by vger.kernel.org with ESMTP
-	id S261253AbVCTTsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 14:48:36 -0500
-Message-ID: <423DD38E.7000409@roarinelk.homelinux.net>
-Date: Sun, 20 Mar 2005 20:48:30 +0100
-From: Manuel Lauss <mano@roarinelk.homelinux.net>
-User-Agent: Thunderbird/1.0 Mnenhy/0.7
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Guido Villa <piribillo@yahoo.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Error with Sil3112A SATA controller and Maxtor 300GB HDD
-References: <20050312160704.22527.qmail@gg.mine.nu>            <4233254F.3000509@roarinelk.homelinux.net> <20050316184523.30672.qmail@gg.mine.nu>
-In-Reply-To: <20050316184523.30672.qmail@gg.mine.nu>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Mar 2005 15:04:21 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59532 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261198AbVCTUEI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 15:04:08 -0500
+Date: Sun, 20 Mar 2005 21:03:49 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: swsusp 1/1: kill swsusp_restore
+Message-ID: <20050320200349.GA11881@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy,
+Hi!
 
-Guido Villa wrote:
+This kills swsusp_resume; it should be arch-neutral but some i386 code
+sneaked in. And arch-specific code is better done in assembly
+anyway. Plus it fixes memory leaks in error paths.
 
->>I happen to have a SiI 3112A controller and a Maxtor 6B300S0 attached to
->>it, formatted with ext2. Never had any problems. I just copied
->>200GB of data to it, worked flawlessly. (Vanilla 2.6.11)
->>Maybe its the Motherboard?
+Please apply,
+								Pavel
 
-> I was checking my kernel configuration, and some doubts arised in my mind. 
-> Would you please check if my parameters are the same as yours? 
-> 
-> set:
-> CONFIG_IDE_GENERIC
-> CONFIG_BLK_DEV_IDEPCI
-> CONFIG_SCSI
-> CONFIG_BLK_DEV_SD
-> CONFIG_SCSI_SATA
-> CONFIG_SCSI_SATA_SIL 
-> 
-> unset:
-> CONFIG_BLK_DEV_GENERIC
-> CONFIG_BLK_DEV_SIIMAGE (I'm unsure on this) 
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-Heres a snippet from the box's .config:
+--- clean-mm/arch/i386/power/swsusp.S	2005-03-19 00:31:06.000000000 +0100
++++ linux-mm/arch/i386/power/swsusp.S	2005-03-20 20:32:04.000000000 +0100
+@@ -51,6 +51,15 @@
+ 	.p2align 4,,7
+ 
+ done:
++	/* Flush TLB, including "global" things (vmalloc) */
++	movl	mmu_cr4_features, %eax
++	movl	%eax, %edx
++	andl	$~(1<<7), %edx;  # PGE
++	movl	%edx, %cr4;  # turn off PGE
++	movl	%cr3, %ecx;  # flush TLB
++	movl	%ecx, %cr3
++	movl	%eax, %cr4;  # turn PGE back on
++
+ 	movl saved_context_esp, %esp
+ 	movl saved_context_ebp, %ebp
+ 	movl saved_context_ebx, %ebx
+@@ -58,5 +67,7 @@
+ 	movl saved_context_edi, %edi
+ 
+ 	pushl saved_context_eflags ; popfl
+-	call swsusp_restore
++
++	xorl	%eax, %eax
++
+ 	ret
+--- clean-mm/arch/x86_64/kernel/suspend_asm.S	2005-03-19 00:31:17.000000000 +0100
++++ linux-mm/arch/x86_64/kernel/suspend_asm.S	2005-03-20 20:32:04.000000000 +0100
+@@ -69,12 +69,21 @@
+ 	movq	pbe_next(%rdx), %rdx
+ 	jmp	loop
+ done:
++	/* Flush TLB, including "global" things (vmalloc) */
++	movq	mmu_cr4_features(%rip), %rax
++	movq	%rax, %rdx
++	andq	$~(1<<7), %rdx;  # PGE
++	movq	%rdx, %cr4;  # turn off PGE
++	movq	%cr3, %rcx;  # flush TLB
++	movq	%rcx, %cr3
++	movq	%rax, %cr4;  # turn PGE back on
++
+ 	movl	$24, %eax
+ 	movl	%eax, %ds
+ 
+ 	movq saved_context_esp(%rip), %rsp
+ 	movq saved_context_ebp(%rip), %rbp
+-	movq saved_context_eax(%rip), %rax
++	/* Don't restore %rax, it must be 0 anyway */
+ 	movq saved_context_ebx(%rip), %rbx
+ 	movq saved_context_ecx(%rip), %rcx
+ 	movq saved_context_edx(%rip), %rdx
+@@ -89,5 +98,7 @@
+ 	movq saved_context_r14(%rip), %r14
+ 	movq saved_context_r15(%rip), %r15
+ 	pushq saved_context_eflags(%rip) ; popfq
+-	call	swsusp_restore
++
++	xorq	%rax, %rax
++
+ 	ret
+--- clean-mm/kernel/power/swsusp.c	2005-03-20 20:35:16.000000000 +0100
++++ linux-mm/kernel/power/swsusp.c	2005-03-20 20:43:25.000000000 +0100
+@@ -892,29 +892,23 @@
+ 	 * at resume time, and evil weirdness ensues.
+ 	 */
+ 	if ((error = device_power_down(PMSG_FREEZE))) {
++		printk(KERN_ERR "Some devices failed to power down, aborting suspend\n");
+ 		local_irq_enable();
++		swsusp_free();
+ 		return error;
+ 	}
+ 	save_processor_state();
+-	error = swsusp_arch_suspend();
++	if ((error = swsusp_arch_suspend()))
++		swsusp_free();
+ 	/* Restore control flow magically appears here */
+ 	restore_processor_state();
++	BUG_ON (nr_copy_pages_check != nr_copy_pages);
+ 	restore_highmem();
+ 	device_power_up();
+ 	local_irq_enable();
+ 	return error;
+ }
+ 
+-
+-asmlinkage int swsusp_restore(void)
+-{
+-	BUG_ON (nr_copy_pages_check != nr_copy_pages);
+-	
+-	/* Even mappings of "global" things (vmalloc) need to be fixed */
+-	__flush_tlb_global();
+-	return 0;
+-}
+-
+ int swsusp_resume(void)
+ {
+ 	int error;
 
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDE_TASK_IOCTL=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_PDC202XX_NEW=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SCSI_SATA=y
-CONFIG_SCSI_SATA_SIL=y
-
-This is for Piix4 + promise20268 IDE
-and the Sil sata ctrl, only harddisks.
 
 -- 
-  Manuel Lauss
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

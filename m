@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263307AbTEMIwk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 04:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbTEMIwk
+	id S263319AbTEMI4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 04:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263323AbTEMI4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 04:52:40 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10253 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263307AbTEMIwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 04:52:39 -0400
-Date: Tue, 13 May 2003 10:03:03 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, hch@infradead.org, gregkh@kroah.com,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] Early init for security modules
-Message-ID: <20030513100303.A5900@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org, hch@infradead.org,
-	gregkh@kroah.com, linux-security-module@wirex.com
-References: <20030512200309.C20068@figure1.int.wirex.com> <20030512200804.K19432@figure1.int.wirex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 May 2003 04:56:15 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:62097 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S263319AbTEMI4O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 04:56:14 -0400
+Message-ID: <20030513090832.9158.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030512200804.K19432@figure1.int.wirex.com>; from chris@wirex.com on Mon, May 12, 2003 at 08:08:04PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Dean McEwan" <dean_mcewan@linuxmail.org>
+To: jamie@shareable.org
+Cc: linux-kernel@vger.kernel.org
+Date: Tue, 13 May 2003 09:08:32 +0000
+Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
+X-Originating-Ip: 195.195.129.3
+X-Originating-Server: ws5-6.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 08:08:04PM -0700, Chris Wright wrote:
-> This is just the arch specific linker bits for the early initialization
-> for security modules patch.  Does this look sane for this arch?
+>Jamie Lokier wrote :
+>> 
+>> What's the position of kernel developers towards using the GPL'd Linux
+>> kernel modules - that is, device drivers, network stack, filesystems
+>> etc. - with a binary-only, closed source kernel that is written
+>> independently of Linux?
 
-Looks sane.
+First much kudos goes to Jamies V. modem work which sped up my V.34 devel
+quite a lot.
+
+companies who use complex kernel functions are supposed to GPL, it doesn't mean they
+do, and lets not tread down that path,lest Andre see me, proprietary modules suck
+everybody knows it, they just keep quiet,
+dare it desturb them making money.
+
+Linus says in the credits file his position, although such a position is supposed to be taken
+from the majority of users and not a few kernel hackers.
+
+Anyway, as im selling a no license version of my software for £13,000 I can hardly complain.
+
+The best opinion on their legality comes from RMS, and although im not a zealot, he did
+write the license, Trawl MARC for lawyers, GNU, and RMS and see if you can find it.
+
+Thanks for your help by working on V.
+
+Cheers, Deano.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
+Powered by Outblaze

@@ -1,264 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291450AbSBAAXr>; Thu, 31 Jan 2002 19:23:47 -0500
+	id <S291456AbSBAAah>; Thu, 31 Jan 2002 19:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291452AbSBAAXa>; Thu, 31 Jan 2002 19:23:30 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:62482 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S291450AbSBAAXL>; Thu, 31 Jan 2002 19:23:11 -0500
-Date: Thu, 31 Jan 2002 16:22:21 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        linux-m68k@lists.linux-m68k.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] amiga input api drivers III
-In-Reply-To: <3C59DCC4.EA3848E@linux-m68k.org>
-Message-ID: <Pine.LNX.4.10.10201311614300.6830-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291454AbSBAAa2>; Thu, 31 Jan 2002 19:30:28 -0500
+Received: from zok.sgi.com ([204.94.215.101]:12231 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S291453AbSBAAaL>;
+	Thu, 31 Jan 2002 19:30:11 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Troy Benjegerdes <hozer@drgw.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin 
+In-Reply-To: Your message of "Thu, 31 Jan 2002 09:19:14 -0800."
+             <20020131091914.L1519@work.bitmover.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 01 Feb 2002 11:29:58 +1100
+Message-ID: <21196.1012523398@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+cc list trimmed.
 
-Okay. This patch should now work. Give it a try. Remember also the amiga
-joystick and mouse are alredy in the Dave Jones tree waiting to be tested
-:-)
+On Thu, 31 Jan 2002 09:19:14 -0800, 
+Larry McVoy <lm@bitmover.com> wrote:
+>On Thu, Jan 31, 2002 at 11:13:37AM -0600, Troy Benjegerdes wrote:
+>> Can you detect the 'collapsed vs full version' thing, and force it to be 
+>> a merge conflict? That, and working LOD support would probably get most 
+>> of what I want (until I try the new version and find more stuff I want 
+>> :P)
+>
+>Are you sure you want that?  If so, that would work today, it's about a
+>20 line script.  You clone the tree, collapse all the stuff into a new
+>changeset, and pull.  It will all automerge.  But now you have the detailed
+>stuff and the non-detailed stuff in the same tree, which I doubt is what
+>you want.  I thought the point was to remove information, not double it.
 
-diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/arch/m68k/amiga/config.c linux/arch/m68k/amiga/config.c
---- linux-2.5.2-dj7/arch/m68k/amiga/config.c	Wed Jan 16 10:31:50 2002
-+++ linux/arch/m68k/amiga/config.c	Thu Jan 31 16:38:00 2002
-@@ -69,11 +69,13 @@
- extern char m68k_debug_device[];
- 
- static void amiga_sched_init(void (*handler)(int, void *, struct pt_regs *));
-+#ifndef CONFIG_KEYBOARD_AMIGA
- /* amiga specific keyboard functions */
- extern int amiga_keyb_init(void);
- extern int amiga_kbdrate (struct kbd_repeat *);
- extern int amiga_kbd_translate(unsigned char keycode, unsigned char *keycodep,
- 			       char raw_mode);
-+#endif
- /* amiga specific irq functions */
- extern void amiga_init_IRQ (void);
- extern void (*amiga_default_handler[]) (int, void *, struct pt_regs *);
-@@ -389,9 +391,11 @@
-     request_resource(&iomem_resource, &((struct resource *)&mb_resources)[i]);
- 
-   mach_sched_init      = amiga_sched_init;
-+#ifndef CONFIG_KEYBOARD_AMIGA
-   mach_keyb_init       = amiga_keyb_init;
-   mach_kbdrate         = amiga_kbdrate;
-   mach_kbd_translate   = amiga_kbd_translate;
-+#endif
-   SYSRQ_KEY            = 0xff;
-   mach_init_IRQ        = amiga_init_IRQ;
-   mach_default_handler = &amiga_default_handler;
-diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/arch/ppc/amiga/config.c linux/arch/ppc/amiga/config.c
---- linux-2.5.2-dj7/arch/ppc/amiga/config.c	Wed Jan 16 10:31:50 2002
-+++ linux/arch/ppc/amiga/config.c	Thu Jan 31 16:38:00 2002
-@@ -77,9 +77,11 @@
- extern char m68k_debug_device[];
- 
- static void amiga_sched_init(void (*handler)(int, void *, struct pt_regs *));
-+#ifndef CONFIG_KEYBOARD_AMIGA
- /* amiga specific keyboard functions */
- extern int amiga_keyb_init(void);
- extern int amiga_kbdrate (struct kbd_repeat *);
-+#endif
- /* amiga specific irq functions */
- extern void amiga_init_IRQ (void);
- extern void (*amiga_default_handler[]) (int, void *, struct pt_regs *);
-@@ -409,8 +411,10 @@
-     request_resource(&iomem_resource, &((struct resource *)&mb_resources)[i]);
- 
-   mach_sched_init      = amiga_sched_init;
-+#ifndef CONFIG_KEYBOARD_AMIGA
-   mach_keyb_init       = amiga_keyb_init;
-   mach_kbdrate         = amiga_kbdrate;
-+#endif
-   mach_init_IRQ        = amiga_init_IRQ;
-   mach_default_handler = &amiga_default_handler;
- #ifndef CONFIG_APUS
-diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/arch/ppc/kernel/apus_setup.c linux/arch/ppc/kernel/apus_setup.c
---- linux-2.5.2-dj7/arch/ppc/kernel/apus_setup.c	Mon Dec 17 11:16:56 2001
-+++ linux/arch/ppc/kernel/apus_setup.c	Thu Jan 31 16:38:00 2002
-@@ -801,9 +801,11 @@
- static void apus_kbd_init_hw(void)
- {
- #ifdef CONFIG_APUS
-+#ifndef CONFIG_KEYBOARD_AMIGA
- 	extern int amiga_keyb_init(void);
- 
- 	amiga_keyb_init();
-+#endif
- #endif
- }
- 
-diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/drivers/input/keyboard/Config.in linux/drivers/input/keyboard/Config.in
---- linux-2.5.2-dj7/drivers/input/keyboard/Config.in	Tue Jan 29 17:36:39 2002
-+++ linux/drivers/input/keyboard/Config.in	Thu Jan 31 16:38:00 2002
-@@ -12,3 +12,7 @@
- if [ "$CONFIG_SH_DREAMCAST" = "y" ]; then
-    dep_tristate '  Maple bus keyboard support' CONFIG_KEYBOARD_MAPLE $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD $CONFIG_MAPLE
- fi
-+
-+if [ "$CONFIG_AMIGA" = "y" ]; then
-+   dep_tristate '  Amiga keyboard' CONFIG_KEYBOARD_AMIKBD $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD
-+fi
-diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/drivers/input/keyboard/Makefile linux/drivers/input/keyboard/Makefile
---- linux-2.5.2-dj7/drivers/input/keyboard/Makefile	Tue Jan 29 17:36:39 2002
-+++ linux/drivers/input/keyboard/Makefile	Thu Jan 31 16:38:00 2002
-@@ -13,6 +13,7 @@
- obj-$(CONFIG_KEYBOARD_PS2SERKBD)	+= ps2serkbd.o
- obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
- obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
-+obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
- 
- # The global Rules.make.
- 
-diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/drivers/input/keyboard/amikbd.c linux/drivers/input/keyboard/amikbd.c
---- linux-2.5.2-dj7/drivers/input/keyboard/amikbd.c	Wed Dec 31 16:00:00 1969
-+++ linux/drivers/input/keyboard/amikbd.c	Thu Jan 31 17:11:00 2002
-@@ -0,0 +1,140 @@
-+/*
-+ * $Id: amikbd.c,v 1.12 2002/02/01 00:12:27 jsimmons Exp $
-+ *
-+ *  Copyright (c) 2000-2001 Vojtech Pavlik
-+ *
-+ *  Based on the work of:
-+ *	Hamish Macdonald
-+ */
-+
-+/*
-+ * Amiga keyboard driver for Linux/m68k
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ * Should you need to contact me, the author, you can do so either by
-+ * e-mail - mail your message to <vojtech@ucw.cz>, or by paper mail:
-+ * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+
-+#include <asm/amigaints.h>
-+#include <asm/amigahw.h>
-+#include <asm/irq.h>
-+
-+MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
-+MODULE_DESCRIPTION("Amiga keyboard driver");
-+MODULE_LICENSE("GPL");
-+
-+static unsigned char amikbd_keycode[0x78] = {
-+	 41,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 43,  0, 82,
-+	 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,  0, 79, 80, 81,
-+	 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,  0,  0, 75, 76, 77,
-+	  0, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,  0, 83, 71, 72, 73,
-+	 57, 14, 15, 96, 28,  1,111,  0,  0,  0, 74,  0,103,108,106,105,
-+	 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 98, 55, 78, 87,
-+	 42, 54, 58, 29, 56,100
-+}
-+
-+static char *amikbd_messages[] = {
-+	KERN_ALERT "amikbd: Ctrl-Amiga-Amiga reset warning!!\n",
-+	KERN_WARNING "amikbd: keyboard lost sync\n",
-+	KERN_WARNING "amikbd: keyboard buffer overflow\n",
-+	KERN_WARNING "amikbd: keyboard controller failure\n",
-+	KERN_ERR "amikbd: keyboard selftest failure\n",
-+	KERN_INFO "amikbd: initiate power-up key stream\n",
-+	KERN_INFO "amikbd: terminate power-up key stream\n",
-+	KERN_WARNING "amikbd: keyboard interrupt\n"
-+};
-+
-+static struct input_dev amikbd_dev;
-+
-+static char *amikbd_name = "Amiga keyboard";
-+static char *amikbd_phys = "amikbd/input0";
-+
-+static void amikbd_interrupt(int irq, void *dummy, struct pt_regs *fp)
-+{
-+	unsigned char scancode, down;
-+
-+	scancode = ~ciaa.sdr;		/* get and invert scancode (keyboard is active low) */
-+	ciaa.cra |= 0x40;		/* switch SP pin to output for handshake */
-+	udelay(85);			/* wait until 85 us have expired */
-+	ciaa.cra &= ~0x40;		/* switch CIA serial port to input mode */
-+
-+	down = scancode & 1;		/* lowest bit is release bit */
-+	scancode = scancode >> 1;
-+
-+	if (scancode < 0x78) {		/* scancodes < 0x78 are keys */
-+
-+		scancode = amikbd_keycode[scancode];
-+	
-+		if (scancode == KEY_CAPS) {	/* CapsLock is a toggle switch key on Amiga */
-+			input_report_key(&amikbd_dev, scancode, 1);
-+			input_report_key(&amikbd_dev, scancode, 0);
-+			return;
-+		}
-+		
-+		input_report_key(&amikbd_dev, scancode, down);
-+
-+		return;
-+	}
-+
-+	printk(amikbd_messages[scancode - 0x78]);	/* scancodes >= 0x78 are error codes */
-+}
-+
-+static int __init amikbd_init(void)
-+{
-+	int i;
-+
-+	if (!AMIGAHW_PRESENT(AMI_KEYBOARD))
-+		return -EIO;
-+
-+	amikbd_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);	
-+	amikbd_dev.keycode = amikbd_keycode;
-+	
-+ 	for (i = 0; i < 0x78; i++)
-+		if (amikbd_keycode[i])
-+			set_bit(amikbd_keycode[i], amikbd_dev.keybit);
-+
-+	ciaa.cra &= ~0x41;	 /* serial data in, turn off TA */
-+	request_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd", NULL);
-+
-+	amikbd_dev.name = amikbd_name;
-+	amikbd_dev.phys = amikbd_phys;
-+	amikbd_dev.idbus = BUS_AMIGA;
-+	amikbd_dev.idvendor = 0x0001;
-+	amikbd_dev.idproduct = 0x0001;
-+	amikbd_dev.idversion = 0x0100;
-+
-+	input_register_device(&amikbd_dev);
-+
-+	printk(KERN_INFO "input: %s\n", amikbd_name);
-+
-+	return 0;
-+}
-+
-+static void __exit amikbd_exit(void)
-+{
-+	input_unregister_device(&amikbd_dev);
-+	free_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt);
-+}
-+
-+module_init(amikbd_init);
-+module_exit(amikbd_exit);
+That sounds almost like what I was looking for, with two differences.
+
+(1) Implement the collapsed set so bk records that it is equivalent to
+    the individual patchsets.  Only record that information in my tree.
+    I need the detailed history of what changes went into the collapsed
+    set, nobody else does.
+
+(2) Somebody else creates a change against the collapsed set and I pull
+    that change.  bk notices that the change is again a collapsed set
+    for which I have local detail.  The external change becomes a
+    branch off the last detailed patch in the collapsed set.
+
+Example.
+
+I have individual changes c1-c17 which are not externally visible.
+
+Tell bk to generate collapsed patch A from c1-c17.  A is externally
+visible, without the detailed internal change history of c1-c17.  This
+is the equivalent of exporting a patch but it is recorded in bk.
+
+I continue development with c18 onwards, based off c17.
+
+Somebody makes change B against A.  B is externally visible.
+
+I pull B.  bk recognises that B is against A for which local data
+exists and therefore B is not really against A but is against c17.
+bk creates B as a branch against c17, in parallel with c18.
+
+Outside world sees A->B.  I see A[c1-c17], c17->c18 ..., c17->B (two
+branches).
+
+That processing model hides all the backtracking and partial checkins
+from the outside world, which only sees the final patchset A, no
+information overload.  It allows me to continue with internal
+development with all the information that I need.  And it allows me to
+automatically take back changes, identify that the changes are in
+parallel to my internal changes and merge while keeping local details.
 

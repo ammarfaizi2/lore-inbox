@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318032AbSHCWRo>; Sat, 3 Aug 2002 18:17:44 -0400
+	id <S318025AbSHCWQM>; Sat, 3 Aug 2002 18:16:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318033AbSHCWRo>; Sat, 3 Aug 2002 18:17:44 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:9718 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318032AbSHCWRn>; Sat, 3 Aug 2002 18:17:43 -0400
-Subject: Re: No Subject
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Pawel Kot <pkot@linuxnews.pl>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.30.0208040010520.696-100000@mion.elka.pw.edu.pl>
-References: <Pine.SOL.4.30.0208040010520.696-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain
+	id <S318026AbSHCWQM>; Sat, 3 Aug 2002 18:16:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26897 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318025AbSHCWQL>;
+	Sat, 3 Aug 2002 18:16:11 -0400
+Message-ID: <3D4C5935.568C1CF2@zip.com.au>
+Date: Sat, 03 Aug 2002 15:29:09 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: question on dup_task_struct
+References: <17b65z-1ERay0C@fmrl02.sul.t-online.com> <3D4C57BB.9D735B13@zip.com.au>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Aug 2002 00:38:00 +0100
-Message-Id: <1028417880.1760.52.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-08-03 at 23:16, Bartlomiej Zolnierkiewicz wrote:
-> Just rethough it. What if chipset is in compatibility mode?
-> Like VIA with base addresses set to 0?
+Andrew Morton wrote:
+> 
+> Oliver Neukum wrote:
+> >
+> > Hi,
+> >
+> > why is GFP_ATOMIC used in fork.c::dup_task_struct?
+> 
+> Presumably so that the allocation of the task structure can
+> dip into the emergency pools, giving fork a better chance
+> of succeeding?
 
-If we found a register that was marked as unassigned with a size then we
-would map it to a PCI address. That would go for BAR0-3 on any PCI IDE
-device attached to the south bridge.
+Or maybe it's to _make_ it fail, so we don't loop forever in
+a 1-order allocation?
 
-What problems does that cause for the VIA stuff ?
-
+Let's find out, and add a comment, fer crissake.

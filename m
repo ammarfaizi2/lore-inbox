@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287545AbSAPVFA>; Wed, 16 Jan 2002 16:05:00 -0500
+	id <S287591AbSAPVHt>; Wed, 16 Jan 2002 16:07:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287591AbSAPVEs>; Wed, 16 Jan 2002 16:04:48 -0500
-Received: from 216-21-153-9.ip.van.radiant.net ([216.21.153.9]:62730 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S287633AbSAPVE2>;
-	Wed, 16 Jan 2002 16:04:28 -0500
-Date: Wed, 16 Jan 2002 13:38:30 +0000 (/etc/localtime)
-From: <gmack@innerfire.net>
-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-cc: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][PATCH] New fs to control access to system resources
-In-Reply-To: <20020116195105.C18039@devcon.net>
-Message-ID: <Pine.LNX.4.21.0201161335500.27780-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287593AbSAPVHk>; Wed, 16 Jan 2002 16:07:40 -0500
+Received: from zero.tech9.net ([209.61.188.187]:10506 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287588AbSAPVHY>;
+	Wed, 16 Jan 2002 16:07:24 -0500
+Subject: Re: [PATCH] I3 sched tweaks...
+From: Robert Love <rml@tech9.net>
+To: mingo@elte.hu
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0201162343290.18971-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0201162343290.18971-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 16 Jan 2002 16:10:09 -0500
+Message-Id: <1011215440.814.82.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Andreas Ferber wrote:
+On Wed, 2002-01-16 at 17:46, Ingo Molnar wrote:
 
-> And some wishlist items:
+> we pass pointers across functions regularly, even if the pointer could be
+> calculated within the function. We do this in the timer code too. It's
+> slightly cheaper to pass an already existing (calculated) 'current'
+> pointer over to another function, instead of calculating it once more in
+> that function. This will be especially true once we make 'current' a tiny
+> bit more expensive (Alan's kernel stack coloring rewrite will do that i
+> think, it will be one more instruction to get 'current'.)
+
+Maybe we should benchmark it?  It is very easy to calculate current.
+
+Certainly I see the benefit if we start coloring the pointer (it adds 2
+instructions I believe) but let's make sure it is worth passing another
+32-bit argument.  It could very well be, schedule_tick is called
+enough...
+
+> > Moreover, the function doesn't make *sense* if p != current...
 > 
-> - It would be nice if there were a way to distinguish between TCP and
->   UDP ports.
-> - IPv6 support would be nice. This raises the question what will
->   happen if a process has the privileges to bind a particular port
->   with IPv6 but not with IPv4 (IPv6 listeners take IPv4 connections
->   also). Is there any value in distinguishing IPv6 and IPv4 at all,
->   in particular if IPv6 gets into more widespread use in the future?
-> - Restricting access to certain high ports would be valuable. For
->   example many SQL server use those ports, and it would be nice if one
->   could prevent ordinary user processes from taking over their ports
->   in case the SQL daemon gets restarted or the like.
-> 
-> At least accessfs is a nice and expandable idea. Keep up the work :-)
-> 
+> yes - would it be perhaps cleaner then to name the variable 'this_task' or
+> something like that?
 
-What would be nice would be to have a way to restrict access to ports
-based on IP ex: user1 gets 10.0.0.1 and user2 gets 10.0.0.2.
+Yes, good idea.
 
-	Gerhard
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+	Robert Love
 

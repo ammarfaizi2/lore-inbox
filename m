@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbTDKVPV (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTDKVPU (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 17:15:20 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:5076 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S261783AbTDKVPT (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 17:15:19 -0400
-Date: Fri, 11 Apr 2003 08:43:46 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
-Message-ID: <20030411154345.GV31739@ca-server1.us.oracle.com>
-References: <200304101339.49895.pbadari@us.ibm.com> <Pine.LNX.4.44.0304110157460.12110-100000@serv> <200304101825.12299.pbadari@us.ibm.com>
+	id S261700AbTDKVRL (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbTDKVRL (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 17:17:11 -0400
+Received: from albireo.ucw.cz ([81.27.194.19]:55817 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S261700AbTDKVRK (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 17:17:10 -0400
+Date: Fri, 11 Apr 2003 23:28:50 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Mike Dresser <mdresser_l@windsormachine.com>
+Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net, message-bus-list@redhat.com
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Message-ID: <20030411212850.GA13608@ucw.cz>
+References: <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.33.0304111418320.14943-100000@router.windsormachine.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200304101825.12299.pbadari@us.ibm.com>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.33.0304111418320.14943-100000@router.windsormachine.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 10, 2003 at 06:25:12PM -0700, Badari Pulavarty wrote:
-> I can't see (2) happening easily. I know that Greg KH is working on
-> udev (/dev/ memory filesystem). Once that happens, we have to change
-> drivers/subsystems (we need) to make dynamic allocation. All of this Is 
-> going to happen for 2.6 ?
+Hello, world!\n
 
-	Just to be clear, let's not repeat the devfsd fiasco.  If we
-have dynamic update of device nodes (we need it), I want it to work with
-my /dev on ext3.
+> Someone PLEASE tell me the simpler way to do this.
 
-Joel
+If you have an arbitrary system of splitters and you hook another 3-way
+splitter to any of its outputs, you lose one output and gain 3 new
+outputs, so the total number of outputs increases by 2. Hence if you
+take K inputs and N 3-way splitters, the network has K+2N outputs,
+no matter how the splitters are connected (of course unless you create
+a cycle :-) ).
 
+So in our case, we are searching for the smallest possible N such that
+5+2N >= 4000, which equals ceil((4000-5)/2) = 1998.
+
+				Have a nice fortnight
 -- 
-
-"You look in her eyes, the music begins to play.
- Hopeless romantics, here we go again."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+God is real, unless declared integer.

@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269724AbUJGGIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267287AbUJGGQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269724AbUJGGIx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 02:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUJGGIx
+	id S267287AbUJGGQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 02:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267303AbUJGGQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 02:08:53 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:16047 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269724AbUJGGIr (ORCPT
+	Thu, 7 Oct 2004 02:16:27 -0400
+Received: from holomorphy.com ([207.189.100.168]:30412 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267287AbUJGGQ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 02:08:47 -0400
-Date: Thu, 7 Oct 2004 08:10:10 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Subject: Re: [patch] sched: auto-tuning task-migration
-Message-ID: <20041007061010.GA32679@elte.hu>
-References: <20041006200439.GA15003@elte.hu> <200410062118.i96LIC608654@unix-os.sc.intel.com>
+	Thu, 7 Oct 2004 02:16:26 -0400
+Date: Wed, 6 Oct 2004 23:16:10 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: __init poisoning for i386, too
+Message-ID: <20041007061610.GU9106@holomorphy.com>
+References: <20041006221854.GA1622@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410062118.i96LIC608654@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20041006221854.GA1622@elf.ucw.cz>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 07, 2004 at 12:18:55AM +0200, Pavel Machek wrote:
+> Overwrite __init section so calls to __init functions from normal code
+> are catched, reliably. I wonder if this should be configurable... but
+> it is configurable on x86-64 so I copied it. Please apply,
 
-* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
+Any chance we could:
+(a) set the stuff to 0x0f0b so illegal instructions come of it; jumps are
+	most often aligned to something > 16 bits anyway
+(b) poison __initdata, memsetting to some bit pattern oopsable to dereference
 
-> > could you try the replacement patch below - what results does it give?
-> 
-> By the way, I wonder why you chose to round down, but not up.
 
-what do you mean - the minimum search within the matrix?
-
-	Ingo
+-- wli

@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129385AbQKKXTL>; Sat, 11 Nov 2000 18:19:11 -0500
+	id <S129391AbQKKXbQ>; Sat, 11 Nov 2000 18:31:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129697AbQKKXTC>; Sat, 11 Nov 2000 18:19:02 -0500
-Received: from u-177.karlsruhe.ipdial.viaginterkom.de ([62.180.21.177]:33030
-	"EHLO u-177.karlsruhe.ipdial.viaginterkom.de") by vger.kernel.org
-	with ESMTP id <S129385AbQKKXS4>; Sat, 11 Nov 2000 18:18:56 -0500
-Date: Sat, 11 Nov 2000 14:06:34 +0100
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: rth@cygnus.com, Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] show_task() and thread_saved_pc() fix for x86
-Message-ID: <20001111140634.A4865@bacchus.dhis.org>
-In-Reply-To: <Pine.GSO.4.21.0011101618030.17943-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.GSO.4.21.0011101618030.17943-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, Nov 10, 2000 at 04:26:32PM -0500
-X-Accept-Language: de,en,fr
+	id <S129457AbQKKXa5>; Sat, 11 Nov 2000 18:30:57 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:32780 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129391AbQKKXax>; Sat, 11 Nov 2000 18:30:53 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Where is it written?
+Date: 11 Nov 2000 15:30:43 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8ukkr3$f2h$1@cesium.transmeta.com>
+In-Reply-To: <20001110184031.A2704@munchkin.spectacle-pond.org> <20001110192751.A2766@munchkin.spectacle-pond.org> <20001111163204.B6367@inspiron.suse.de> <20001111171749.A32100@wire.cadcamlab.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 04:26:32PM -0500, Alexander Viro wrote:
+Followup to:  <20001111171749.A32100@wire.cadcamlab.org>
+By author:    Peter Samuelson <peter@cadcamlab.org>
+In newsgroup: linux.dev.kernel
+> 
+> [Andrea Arcangeli]
+> > Can you think at one case where it's better to push the parameter on
+> > the stack instead of passing them through the callee clobbered
+> > ebx/eax/edx?
+> 
+> Well it's safer if you are lazy about prototyping varargs functions.
+> But of course by doing that you're treading on thin ice anyway, in
+> terms of type promotion and portability.  So I guess it's much better
+> to say "varargs functions MUST be prototyped" and use the registers.
+> 
 
-> 	* thread_saved_pc() on x86 returns (thread->esp)[3]. Bogus, since the
-> third word from the stack top has absolutely nothing to return address of
-> any kind. Correct value: (thread->esp)[0][1] - ebp is on top of the stack
-> and the rest is obvious. Current code gives completely bogus addresses -
-> try to say Alt-SysRq-T and watch the show.
+It definitely is now.  At the time the original x86 ABI was created, a
+lot of C code was still K&R, and thus prototypes didn't exist...
 
-Reminds me that the Alpha implementation of get_wchan() looks to me like
-it doesn't handle all cases of schedule() being called from another
-scheduler function correctly.  Some Alpha guru may want to take a look at
-it.
+> 
+> AIUI gcc can cope OK with multiple ABIs to be chosen at runtime, am I
+> right?  IRIX, HP-UX and AIX all have both 32-bit and 64-bit ABIs.
+> 
 
-I recently had to fix the mips / mips64 versions of get_wchan() - for the
-dozenth time.  I'd really like to see a wchan field in task_struct to avoid
-get_wchan breaking every once in a while.  Current implementation more than
-qualifies as a crazy hack ...
+I don't think we want to introduce a new ABI in user space at this
+time.  If we ever have to major-rev the ABI (libc.so.7), then we
+should consider this.
 
-  Ralf
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

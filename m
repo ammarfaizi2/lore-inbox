@@ -1,100 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263105AbSJBP2Q>; Wed, 2 Oct 2002 11:28:16 -0400
+	id <S263107AbSJBPeF>; Wed, 2 Oct 2002 11:34:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263108AbSJBP2Q>; Wed, 2 Oct 2002 11:28:16 -0400
-Received: from host187.south.iit.edu ([216.47.130.187]:11648 "EHLO
-	host187.south.iit.edu") by vger.kernel.org with ESMTP
-	id <S263105AbSJBP2O>; Wed, 2 Oct 2002 11:28:14 -0400
-Message-ID: <3D9B119A.6020800@host187.south.iit.edu>
-Date: Wed, 02 Oct 2002 10:32:42 -0500
-From: Stephen Marz <smarz@host187.south.iit.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Netfilter ipt_owner.o
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263109AbSJBPeF>; Wed, 2 Oct 2002 11:34:05 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:51902 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S263107AbSJBPeE>;
+	Wed, 2 Oct 2002 11:34:04 -0400
+Date: Wed, 2 Oct 2002 16:42:39 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Nick Sanders <sandersn@btinternet.com>
+Cc: Stig Brautaset <s.brautaset@wmin.ac.uk>, linux-kernel@vger.kernel.org,
+       vojtech@suse.cz
+Subject: Re: 2.5.40: menuconfig: no choice of keyboards
+Message-ID: <20021002154239.GB1988@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Nick Sanders <sandersn@btinternet.com>,
+	Stig Brautaset <s.brautaset@wmin.ac.uk>,
+	linux-kernel@vger.kernel.org, vojtech@suse.cz
+References: <20021002113053.GA482@arwen.brautaset.org> <200210021431.25941.sandersn@btinternet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210021431.25941.sandersn@btinternet.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I attached a patch below that will allow ipt_owner to be loaded as a 
-module, for those who actually use ipt_owner.
+On Wed, Oct 02, 2002 at 02:31:25PM +0100, Nick Sanders wrote:
 
-----START PATCH---
-diff -c ../linux-2.5.40/kernel/Makefile ./kernel/Makefile
-*** ../linux-2.5.40/kernel/Makefile    Tue Oct  1 02:06:22 2002
---- ./kernel/Makefile    Wed Oct  2 10:25:04 2002
-***************
-*** 3,9 ****
-  #
- 
-  export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
-!           printk.o platform.o suspend.o dma.o module.o cpufreq.o
- 
-  obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
-          module.o exit.o itimer.o time.o softirq.o resource.o \
---- 3,10 ----
-  #
- 
-  export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
-!           printk.o platform.o suspend.o dma.o module.o cpufreq.o pid.o \
-!           exit.o
- 
-  obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
-          module.o exit.o itimer.o time.o softirq.o resource.o \
-diff -c ../linux-2.5.40/kernel/exit.c ./kernel/exit.c
-*** ../linux-2.5.40/kernel/exit.c    Tue Oct  1 02:06:28 2002
---- ./kernel/exit.c    Wed Oct  2 10:25:22 2002
-***************
-*** 706,712 ****
- 
-      return pid_task(tmp, PIDTYPE_TGID);
-  }
-!
-  /*
-   * this kills every thread in the thread group. Note that any externally
-   * wait4()-ing process will get the correct exit code - even if this
---- 706,712 ----
- 
-      return pid_task(tmp, PIDTYPE_TGID);
-  }
-! EXPORT_SYMBOL(next_thread);
-  /*
-   * this kills every thread in the thread group. Note that any externally
-   * wait4()-ing process will get the correct exit code - even if this
-diff -c ../linux-2.5.40/kernel/pid.c ./kernel/pid.c
-*** ../linux-2.5.40/kernel/pid.c    Tue Oct  1 02:07:03 2002
---- ./kernel/pid.c    Wed Oct  2 10:17:29 2002
-***************
-*** 23,28 ****
---- 23,29 ----
-  #include <linux/slab.h>
-  #include <linux/init.h>
-  #include <linux/bootmem.h>
-+ #include <linux/module.h>
- 
-  #define PIDHASH_SIZE 4096
-  #define pid_hashfn(nr) ((nr >> 8) ^ nr) & (PIDHASH_SIZE - 1)
-***************
-*** 228,234 ****
-          return NULL;
-      return pid_task(pid->task_list.next, PIDTYPE_PID);
-  }
-!
-  /*
-   * This function switches the PIDs if a non-leader thread calls
-   * sys_execve() - this must be done without releasing the PID.
---- 229,235 ----
-          return NULL;
-      return pid_task(pid->task_list.next, PIDTYPE_PID);
-  }
-! EXPORT_SYMBOL(find_task_by_pid);
-  /*
-   * This function switches the PIDs if a non-leader thread calls
-   * sys_execve() - this must be done without releasing the PID.
+ > > Nothing happens if I go to the "Input Device Support" section in
+ > > menuconf, and pick "Keyboards"; I get no new options. Got around it by
+ > > manually selecting a keyboard in .config to be able to test it further.
+ > > Either I chose the wrong one, or it just doesn't build it anyway, 'cause
+ > > the machine would not respond on boot.
+ > I think you need 'Serial i/o support' just above the 'Keyboards' option
 
+Quite a few people seem to stumble over the new input layer options.
+It's non-obvious to quite a few people that serial i/o is anything to
+do with their keyboard. Likewise i8042 doesn't ring 'keyboard' noises
+in most peoples heads.
 
----END PATCH---
+IMO, the input layer options need simplification, or at least
+a sensible set of defaults.
 
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265819AbSLXUac>; Tue, 24 Dec 2002 15:30:32 -0500
+	id <S265828AbSLXUgF>; Tue, 24 Dec 2002 15:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265828AbSLXUac>; Tue, 24 Dec 2002 15:30:32 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6153 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265819AbSLXUac>; Tue, 24 Dec 2002 15:30:32 -0500
-Date: Tue, 24 Dec 2002 12:39:36 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Ulrich Drepper <drepper@redhat.com>, <bart@etpmod.phys.tue.nl>,
-       <davej@codemonkey.org.uk>, <hpa@transmeta.com>,
-       <terje.eggestad@scali.com>, Matti Aarnio <matti.aarnio@zmailer.org>,
-       <hugh@veritas.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <Pine.LNX.4.44.0212242127190.6603-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0212241235110.1219-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265843AbSLXUgF>; Tue, 24 Dec 2002 15:36:05 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:61712 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265828AbSLXUgF>;
+	Tue, 24 Dec 2002 15:36:05 -0500
+Date: Tue, 24 Dec 2002 12:40:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PROBLEM][2.5.52][USB] USB Device unusable
+Message-ID: <20021224204029.GB3052@kroah.com>
+References: <200212241533.21347.spstarr@sh0n.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212241533.21347.spstarr@sh0n.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 24, 2002 at 03:33:21PM -0500, Shawn Starr wrote:
+> * NOTE: This is -mm2. I will be compiling 2.5.53 (-mm1) today and test this as 
+> well.
 
+Please let us know how 2.5.53 works, as there were a number of ehci
+patches in it that might have helped.
 
-On Tue, 24 Dec 2002, Ingo Molnar wrote:
->
-> this basically hardcodes flat segment layout on x86. If anything (Wine?)
-> modifies the default segments, it can wrap syscalls by saving/restoring
-> the modified %ds and %es selectors explicitly.
+thanks,
 
-Note that that was true even before this patch - you cannot use glibc
-without having the default DS/ES settings anyway. I not only checked with
-Uli, but gcc simply cannot generate code that has different segments for
-stack and data, so if you have non-flat segments you had to either
-
- - flatten them out before calling the standard library
- - do your system calls directly by hand
-
-And note how both of these still work fine (if you flatten things out it
-trivially works, and if you do system calls by hand the old "int 0x80"
-approach obviously doesn't change anything, and non-flat still works).
-
-So the new code really only takes advantage of the fact that non-flat
-wouldn't have worked with glibc in the first place, and without glibc you
-don't see any difference in behaviour since it won't be using the new
-calling convention.
-
-				Linus
-
+greg k-h

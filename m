@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136472AbRAZS6R>; Fri, 26 Jan 2001 13:58:17 -0500
+	id <S129790AbRAZTIU>; Fri, 26 Jan 2001 14:08:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136473AbRAZS6H>; Fri, 26 Jan 2001 13:58:07 -0500
-Received: from limes.hometree.net ([194.231.17.49]:11268 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S136472AbRAZS55>; Fri, 26 Jan 2001 13:57:57 -0500
-To: linux-kernel@vger.kernel.org
-Date: Fri, 26 Jan 2001 18:37:12 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <94sg4o$1o4$1@forge.intermeta.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <Pine.SOL.4.21.0101261528190.16539-100000@red.csi.cam.ac.uk>, <Pine.GNU.4.32.0101260850150.23316-100000@hanuman.oobleck.net>
-Reply-To: hps@tanstaafl.de
-Subject: Re: hotmail not dealing with ECN
+	id <S129982AbRAZTIK>; Fri, 26 Jan 2001 14:08:10 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:8197 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129790AbRAZTIG>;
+	Fri, 26 Jan 2001 14:08:06 -0500
+Message-ID: <3A71CA8D.A50B70E0@innominate.de>
+Date: Fri, 26 Jan 2001 20:05:49 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: inode->i_dirty_buffers redundant ?
+In-Reply-To: <200101251047.QAA16434@vxindia.veritas.com> <20010125164432.A12984@redhat.com> <3A708722.C21EC12A@innominate.de> <20010126113507.J11607@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kaboom@gatech.edu (Chris Ricker) writes:
+"Stephen C. Tweedie" wrote:
+> 
+> Hi,
+> 
+> On Thu, Jan 25, 2001 at 09:05:54PM +0100, Daniel Phillips wrote:
+> > "Stephen C. Tweedie" wrote:
+> > > We also maintain the
+> > > per-page buffer lists as caches of the virtual-to-physical mapping to
+> > > avoid redundant bmap()ping.
+> >
+> > Could you clarify that one, please?
+> 
+> The buffer contains a physical label for the block's location on disk.
+> The page cache is indexed purely by logical location, so doing IO
+> to/from the page cache requires us to lookup the physical locations of
+> each block within the page.
+> 
+> Caching the buffer_heads for page cache pages means that once those
+> lookups are done once, further IO on the same page can bypass the
+> lookup and go straight to disk.
 
->> If ECN is so wonderful, why doesn't anybody actually WANT to use it
->> anyway?
+OK, this was just a terminology problem - I normally say 'filesystem
+block' or just 'block' where you said 'physical', and if you say
+'physical' to me, I'll hear 'physical memory address' :-/  I was also
+confused by 'bmap', which to me means the bad old way of
+generic_reading, and to you means 'mapping a buffer to a disk
+location'.  Um.  Which I would express as 'mapping a buffer to a block'.
 
->Lots of people do.  Lots of other people (such as, in this case, hotmail)
->will never upgrade their software until the groundswell of complaints is
->more expensive than their perception of the cost of upgrading....
+Leaving that confusing behind, I am now working out an approach to
+mapping an inode's index blocks into the page cache.  Probably, I am
+reinventing the wheel, but here it is.  I plan to create another
+address_space mapping in the inode's ext2-private area, called
+i_index_mapping.  This maps all possible index blocks onto the
+i_index_mapping, IOW, for each possible data block we can directly
+compute the index into the i_index_mapping at which we will search for
+the datablock's parent index block.  Normally we will find the index
+block there (because it was read recently) and not have to search down
+through its parents as we must with the buffer cache approach.  Perhaps
+then the inode->dirty_buffers list can go away.
 
-Well, I guess, this is the price we must pay for having a monoculture
-(a Cisco-powered) internet. If the single source of routers, switches
-and network components (speak: Cisco) makes a single mistake in a
-release version of their software (speak: drop ECN frames), everyone
-suffers.
+Obviously the impact on ext2_get_block is fairly major, but I think the
+end result will be simpler than what we have now.
 
-Cisco: If I buy a _new_ PIIX oder LDIR today, do I get an ECN capable
-IOS or not? If not, will my CCNA know about this and upgrade my Box
-before deploying?
-
-Everyone I know and their brothers, that use Cisco Equipment, have a
-support contract with Cisco. Why not push an "mandatory upgrade" along
-this path once the ECN leaves "experimental" status.
-
-But I definitely agree with HPA, that forcing ECN in its current state
-on all users is unacceptable.
-
-Solution that I see: 
-
-DaveM at RedHat ships Kernels with ECN enabled per default.
-RedHat ships Distributions with net.ipv4.ip_ecn = 0 in /etc/sysctl.conf
-
-Ah, the small bliss of diversity... ;-) (And this means not, running
-both flavors of Linux, Debian _and_ RedHat... ;-) )
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

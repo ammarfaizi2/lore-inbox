@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130759AbRBQAfD>; Fri, 16 Feb 2001 19:35:03 -0500
+	id <S130780AbRBQAex>; Fri, 16 Feb 2001 19:34:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130833AbRBQAex>; Fri, 16 Feb 2001 19:34:53 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:21508 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S130739AbRBQAef>;
-	Fri, 16 Feb 2001 19:34:35 -0500
-Date: Sat, 17 Feb 2001 01:34:23 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: "Matt D. Robinson" <yakker@alacritech.com>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux stifles innovation...
-Message-ID: <20010217013422.A3055@almesberger.net>
-In-Reply-To: <Pine.LNX.4.33.0102161843490.2548-100000@asdf.capslock.lan> <3A8DC2A7.43C7A5C3@alacritech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A8DC2A7.43C7A5C3@alacritech.com>; from yakker@alacritech.com on Fri, Feb 16, 2001 at 04:15:35PM -0800
+	id <S130759AbRBQAen>; Fri, 16 Feb 2001 19:34:43 -0500
+Received: from borg.denalics.net ([209.112.170.15]:9741 "HELO
+	borg.denalics.net") by vger.kernel.org with SMTP id <S130735AbRBQAe3>;
+	Fri, 16 Feb 2001 19:34:29 -0500
+Date: Fri, 16 Feb 2001 15:35:20 -0900 (AKST)
+From: "Christopher E. Brown" <cbrown@denalics.net>
+To: "Willis L. Sarka" <wlsarka@the-republic.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multiport NICs and ether channel?
+In-Reply-To: <Pine.LNX.4.30.0102170006240.24008-100000@matrix.the-republic.org>
+Message-ID: <Pine.LNX.4.10.10102161533240.13397-100000@borg.denalics.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt D. Robinson wrote:
-> My feeling is we should splinter the kernel development for
-> different purposes (enterprise, UP, security, etc.).  I'm sure
-> it isn't a popular view, but I feel it would allow faster progression
-> of kernel functionality and features in the long run.
+On Sat, 17 Feb 2001, Willis L. Sarka wrote:
 
-"enterprise" XOR security ? I think you understand the problem with
-your approach well ;-)
+> Greetings,
+> 
+> Just a general question or two.. Please point me to a URL or tell me where
+> to RTFM, or answer back ;-).
+> 
+> What is the status/condition of using muliport NICs  and bonding
+> them together to form a larger pipe (i.e. a quad channel ethernet card for
+> an Intel box, bonding all four interfaces together to get a theoretical
+> 400Mbps pipe)?  Are there any highly recommended cards of this type?  Will
+> the bonding work when connected to a Cisco catalyst switch with ether
+> channel?
 
-Linux scales well from PDAs to large clusters. This is quite an
-achievement. Other operating systems are not able to match this.
-So why do you think that Linux should try to mimic their flaws ?
-Out of pity ?
 
-BTW, parallel development does happen all the time. The point of
-convergence in a single "mainstream" kernel is that you benefit
-from all the work that's been going on while you did the stuff
-you care most about.
 
-- Werner (having pity with the hungry looking trolls)
+	Linux bonding is compat with Sun EtherTrunking and Cisco
+EtherChannel/FastEtherChannel.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+
+	On the Cisco side you follow their setup examples, *except*
+you *must* trun keepalives off on the cisco.  These are a Cisco
+extension.  If you fail to do this the Cisco will toggle the
+onterfaces *off* every 10 - 30 seconds.
+
+ ---
+        The roaches seem to have survived, but they are not routing packets
+correctly.
+        --About the Internet and nuclear war.
+
+

@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266160AbUFUI17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266167AbUFUI2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266160AbUFUI17 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 04:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266157AbUFUI16
+	id S266167AbUFUI2p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 04:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUFUI2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 04:27:58 -0400
-Received: from [195.255.196.126] ([195.255.196.126]:32230 "EHLO
-	gw.compusonic.fi") by vger.kernel.org with ESMTP id S266167AbUFUI1o
+	Mon, 21 Jun 2004 04:28:08 -0400
+Received: from gprs187-64.eurotel.cz ([160.218.187.64]:14720 "EHLO
+	midnight.ucw.cz") by vger.kernel.org with ESMTP id S266173AbUFUI1x
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 04:27:44 -0400
-Date: Mon, 21 Jun 2004 11:27:42 +0300 (EEST)
-From: Hannu Savolainen <hannu@opensound.com>
-X-X-Sender: hannu@zeus.compusonic.fi
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: 4Front Technologies <dev@opensound.com>,
-       David Lang <david.lang@digitalinsight.com>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-In-Reply-To: <1087802737.31390.3.camel@speedy.priv.grenoble.com>
-Message-ID: <Pine.LNX.4.58.0406211103200.26608@zeus.compusonic.fi>
-References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay> 
- <40D23701.1030302@opensound.com>  <1087573691.19400.116.camel@winden.suse.de>
- <40D32C1D.80309@opensound.com>  <20040618190257.GN14915@schnapps.adilger.int>
-  <40D34CB2.10900@opensound.com>  <200406181940.i5IJeBDh032311@turing-police.cc.vt.edu>
-  <Pine.LNX.4.60.0406181326210.3688@dlang.diginsite.com> 
- <Pine.LNX.4.58.0406191148570.30038@zeus.compusonic.fi> 
- <Pine.LNX.4.60.0406201506360.6470@dlang.diginsite.com>  <40D636EA.7090704@opensound.com>
-  <Pine.LNX.4.58.0406210933470.26543@zeus.compusonic.fi>
- <1087802737.31390.3.camel@speedy.priv.grenoble.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Jun 2004 04:27:53 -0400
+Date: Mon, 21 Jun 2004 10:28:31 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Michael Langley <nwo@hacked.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with psmouse detecting generic ImExPS/2
+Message-ID: <20040621082831.GC1200@ucw.cz>
+References: <20040621021651.4667bf43.nwo@hacked.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040621021651.4667bf43.nwo@hacked.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jun 2004, Xavier Bestel wrote:
+On Mon, Jun 21, 2004 at 02:16:51AM -0500, Michael Langley wrote:
+> I noticed this after upgrading 2.6.6->2.6.7
+> 
+> Even after building psmouse as a module, and specifying the protocol,
+> all I get is an ImPS/2 Generic Wheel Mouse.
+> 
+> [root@purgatory root]# modprobe psmouse proto=exps
+> Jun 21 01:51:57 purgatory kernel: input: ImPS/2 Generic Wheel Mouse on
+> isa0060/serio1
+> 
+> My ImExPS/2 was detected correctly in <=2.6.6 and after examining the
+> current psmouse code, and the changes in patch-2.6.7, I can't figure out
+> what's breaking it.  A little help?
+ 
+Maybe your mouse needs the ImPS/2 init before the ExPS/2 one. You can
+try to copy and-paste the ImPS/2 init once more in the code, without a
+return, of course.
 
-> Having more maintained drivers in the kernel can't be a bad thing. For a
-> standard desktop or server, having all these drivers installed
-> under /lib/modules is also beneficial.
-Having more drivers in the kernel is not bad. However having every
-possible driver there is stupid.
-
-A friend of mine created (years ago) an innovative oxygene analyzer for
-forest industry. They sold that to all possible factories in Finland and
-then got out of business because there were no more customers. What do all
-the millions of Linux users benefit if the driver for such device is
-included in the kernel? If Linux is really going to be the #1 operating
-system in the future then Linux drivers for this kind of devices will be
-quite common. In fact a large number of Linux kernel experts will work on
-this kind of projects. Isn't there any idea in making their life easier by
-dropping the silly idea that everything can be included in the kernel
-tree.
-
-Best regards,
-
-Hannu
------
-Hannu Savolainen (hannu@opensound.com)
-http://www.opensound.com (Open Sound System (OSS))
-http://www.compusonic.fi (Finnish OSS pages)
-OH2GLH QTH: Karkkila, Finland LOC: KP20CM
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,96 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318960AbSICV2U>; Tue, 3 Sep 2002 17:28:20 -0400
+	id <S318928AbSICVZM>; Tue, 3 Sep 2002 17:25:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318961AbSICV2U>; Tue, 3 Sep 2002 17:28:20 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:529 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S318960AbSICV2R>; Tue, 3 Sep 2002 17:28:17 -0400
-Message-Id: <200209032132.g83LWdD09043@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: aic7xxx sets CDR offline, how to reset? 
-In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
-   of "03 Sep 2002 21:59:37 BST." <1031086777.21579.33.camel@irongate.swansea.linux.org.uk> 
+	id <S318943AbSICVZM>; Tue, 3 Sep 2002 17:25:12 -0400
+Received: from hacksaw.org ([216.41.5.170]:23456 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S318928AbSICVZL>; Tue, 3 Sep 2002 17:25:11 -0400
+Message-Id: <200209032132.g83LWKOO020742@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.5 08/15/2002 with nmh-1.0.4
+To: Thunder from the hill <thunder@lightweight.ods.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c 
+In-reply-to: Your message of "Tue, 03 Sep 2002 15:05:52 MDT."
+             <Pine.LNX.4.44.0209031456210.3373-100000@hawkeye.luckynet.adm> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 03 Sep 2002 16:32:38 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Date: Tue, 03 Sep 2002 17:32:20 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan@lxorguk.ukuu.org.uk said:
-> What do we plan to do for the cases where reset is disabled because we
-> have shared disk scsi so don't want to reset and hose the reservations
+> Disk-backed raid config storage can do that just as well. I don't really 
+> think a partition table is the thing you'll want in order to store your 
+> raid config.
 
-The reset gets issued and the reservation gets broken.  Good HA or other 
-software knows the reservation may be lost and takes this into account in the 
-cluster algorithm.
+Don't mix the two. I want the RAID to store it's configuration on disk. 
+Additionally, I want the OS to be able to do what it wants with the disk, 
+which may well mean logically dividing the disks presented by the RAID into 
+logical partitions.
 
-With SCSI-2 reservations, there's no way to preserve the reservation and have 
-the reset be effective (I know, in theory, that this can be circumvented by 
-the soft reset alternative, but I've never seen a device that implements it 
-correctly).  I suppose we hope SCSI-3 Persistent Group Reservations come along 
-quickly.
+In fact, the two systems (RAID controller and OS) should not have anything to 
+do with each other. The OS should just see disks, and the controller should 
+just see raw data for it to put where ever the OS says to put it.
 
-> If your error correction always requires all commands return to the
-> block layer then the block layer is IMHO broken. Its messy enough
-> doing that before you hit the fun situations where insert scsi
-> commands of their own the block layer never initiated. 
+> As mentioned -- there may still be bad hardware out there. And why can't 
+> the people just live with it? I mean you can't resize disks either.
 
-This is part of the slim SCSI down approach.  The block layer already has 
-handling for tag errors like this.  Inserted SCSI commands should now work 
-correctly since we're deprecating the scsi_do_cmnd() in favour of scsi_do_req, 
-which means the command is always associated with a request and goes into the 
-block queue just like any other request.
+Business requirement say you can't live with it. And yes you can resize disks, 
+especially if you don't mind hosing the data thereon.
 
-I think the block layer, which already knows about the barrier ordering, is 
-the appropriate place for this.  If you think the scsi error handler is a 
-hairy wart now, just watch it grow into a stonking great carbuncle as I try to 
-introduce it to the concept of command queue ordering and appropriate recovery.
+You 
+> could even assign a number of disks of different size to the users, and if 
+> one of them needs to get to another level of disk space, shall he. A pool 
+> of disks can save you resizes.
 
-> Next you only need to return stuff if commands have been issued
-> between the aborting command and a barrier. Since most sane systems
-> will never be causing REQ_BARRIER that should mean the general case
-> for an abort is going to be fine. The CD burner example is also true
-> for this. If we track barrier sequences then we will know the barrier
-> count for the command we are aborting and the top barrier count for
-> commands issued to the device. Finally you only need to go to the
-> large hammer approach when you are dealing with a media changing
-> command (ie WRITE*) - if we abort a read then knowing we don't queue
-> overlapping read then write to disk we already know that the read will
-> not break down the tag ordering as I understand it ? 
+We bought disk space like it was going out of style, but don't believe for an 
+instant we had *any* left over. It was often assigned before we ever even got 
+the disks in house. And when one guys wants his 20G as one big block, and 
+another guy wants 5 4G slices, I have to accomodate him. And when he later 
+wants his 5 slices made into two bigs ones, I have to be able to do that.
 
-I agree with your reasoning.  However, errors occur infrequently enough (I 
-hope) so that its just not worth the extra code complexity to make the error 
-handler look for that case.
+> (I still wonder how often you resize your partitions, per second.)
 
-However, in all honesty, I have to say that I just don't believe ABORTs are 
-ever particularly effective.  As part of error recovery, If a device is 
-tipping over into failure, adding another message isn't a good way to pull it 
-back.  ABORT is really part of the I/O cancellation API, and, like all 
-cancellation implementations, it's potentially full of holes.  The only uses 
-it might have---like oops I didn't mean to fixate that CD, give it back to me 
-now---aren't clearly defined in the SPEC to produce the desired effect (stop 
-the fixation so the drive door can be opened).
+Not often. I probably changed disk setup once a week. Even still, I want it to 
+take me almost zero time, and the RAID as a whole must remain up at all times, 
+24/7.
 
-> If we get to the point we need an abort we don't want to issue a
-> reset. Not every device comes back sane from a reset and in some cases
-> we have to issue a whole sequence of commands to get the state of the
-> device back (door locking, power management, ..)
+> I was talking about saving your time. And I've presented the theory of no 
+> partition tables on raid, which reduces the whole thing to backup work on 
+> PC, or few seeking on small disks, up to 200 GiB. Yes, currently.
 
-Well, this is SCSI---the first thing most controllers do for parallel SCSI at 
-least is reset the BUS.  Some FC drivers do the FC equivalent as well (not 
-that they should, but that's another issue).
+The theory doesn't match my experience. Maybe ten years from now it will. But 
+I doubt it seriously. In ten years I think we'll have PC's shipping with 4TiB 
+disks that are still damned slow.
 
-The pain of coming back from a reset (and I grant, it isn't trivial) is well 
-known and well implemented in SCSI.  It also, from error handlings point of 
-view, sets the device back to a known point in the state model.
-
-James
+And my time could include every developer. At $250 an hour, 70 idle developers 
+= $17,500 for an hour of down time.
+-- 
+We recognise in others what we know most deeply in ourselves.
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
 
 

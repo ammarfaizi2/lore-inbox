@@ -1,83 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbTJIKeH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 06:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTJIKeG
+	id S261966AbTJIK3c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 06:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJIK3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 06:34:06 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:20435 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261695AbTJIKeA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 06:34:00 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16261.14743.394699.836359@laputa.namesys.com>
-Date: Thu, 9 Oct 2003 14:33:59 +0400
+	Thu, 9 Oct 2003 06:29:31 -0400
+Received: from M947P005.adsl.highway.telekom.at ([62.47.150.69]:59008 "EHLO
+	stallburg.dyndns.org") by vger.kernel.org with ESMTP
+	id S261966AbTJIK3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 06:29:30 -0400
+Date: Thu, 9 Oct 2003 12:29:29 +0200
+From: maximilian attems <janitor@sternwelten.at>
 To: linux-kernel@vger.kernel.org
-Cc: mikeb@netnation.com, Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: File System shootout...
-In-Reply-To: <1065636511.29220.34.camel@mikeb.staff.netnation.com>
-References: <1065636511.29220.34.camel@mikeb.staff.netnation.com>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
+Cc: Trivial Patch Monkey <trivial@rustcorp.com.au>,
+       Tim Waugh <twaugh@redhat.com>, SamRavnborg <sam@ravnborg.org>
+Subject: [patch 2.6] add warning DocBook/Makefile
+Message-ID: <20031009102929.GA1138@mail.sternwelten.at>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Benoit writes:
- > To all those who are interested, here are the results of the benchmarks
- > I've been running over the last week between all the major file systems
- > (and there different mount options) using both Bonnie++ and IOzone. More
- > tests are currently underway, so the results will be updated as they
- > come in. 
- > 
- > Hopefully these results will give you a good comparative overview of each of the
- > different file systems strengths and weaknesses.
- > 
- > http://fsbench.netnation.com/
 
-I should probably add that I am getting quite different bonnie++ results
-for reiser4 vs. ext3:
+--x+6KMIRAuhnl3hBn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-on the box with 128M of ram:
+fixes the following error message,
+when transfig - utilities for converting XFig figure files -
+is not installed:
 
-./bonnie++ -s 1g -n 10 -x 5
+/bin/sh: fig2dev: command not found
+make[1]: *** [Documentation/DocBook/parport-share.eps] Error 127
+make: *** [pdfdocs] Error 2
 
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite-   -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-v4.128M          1G 19903  89 37911  20 15392  11 13624  58 41807  12 131.0   0
-v4.128M          1G 19965  89 37600  20 15845  11 13730  58 41751  12 130.0   0
-v4.128M          1G 19937  89 37746  20 15404  11 13624  58 41793  12 132.1   0
-v4.128M          1G 19998  89 37184  19 15007  10 13393  56 41611  11 130.2   0
-v4.128M          1G 19771  89 37679  20 15206  11 13466  57 41808  11 130.2   1
-ext3.128M        1G 21236  99 37258  22 11357   4 13460  56 41748   6 120.0   0
-ext3.128M        1G 20821  99 36838  23 12176   5 13154  55 40671   6 120.7   0
-ext3.128M        1G 20755  99 37032  24 12069   4 12908  54 40851   5 120.2   0
-ext3.128M        1G 20651  99 37094  24 11817   5 13038  54 40842   6 121.3   0
-ext3.128M        1G 20928  99 37300  23 12287   4 13067  55 41404   6 120.1   0
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-files:max:min        /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-v4.128M          10 18503 100 +++++ +++  9488  99 10158  99 +++++ +++ 11635  99
-v4.128M          10 19760  99 +++++ +++  9696  99 10441 100 +++++ +++ 11831  99
-v4.128M          10 19583 100 +++++ +++  9672 100 10597  99 +++++ +++ 11846 100
-v4.128M          10 19720 100 +++++ +++  9577  99 10126 100 +++++ +++ 11924 100
-v4.128M          10 19682 100 +++++ +++  9683 100 10461 100 +++++ +++ 11834 100
-ext3.128M        10  3279  97 +++++ +++ +++++ +++  3406 100 +++++ +++  8951  95
-ext3.128M        10  3303  98 +++++ +++ +++++ +++  3423  99 +++++ +++  8558  96
-ext3.128M        10  3317  98 +++++ +++ +++++ +++  3402 100 +++++ +++  8721  93
-ext3.128M        10  3325  98 +++++ +++ +++++ +++  3390 100 +++++ +++  9242 100
-ext3.128M        10  3315  97 +++++ +++ +++++ +++  3439 100 +++++ +++  8896  96
 
-./bonnie++ -f -d . -s 3072 -n 10:100000:10:10 -x 1
+please apply
+ma(ks|x(imilian)?)
 
-Version  1.03        ------Sequential Output------ --Sequential Input- --Random-
-                     -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine         Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-v4                3G           37579  19 15657  11           41531  11 105.8   0
-v4                3G           37993  20 15478  11           41632  11 105.4   0
-ext3              3G           35221  22 10987   4           41105   6  90.9   0
-ext3              3G           35099  22 11517   4           41416   6  90.7   0
-		             ------Sequential Create------ --------Random Create--------
-		             -Create-- --Read--- -Delete-- -Creat
+
+--- linux-2.6.0-test7/Documentation/DocBook/Makefile	2003-10-08 21:24:05.00=
+0000000 +0200
++++ linux/Documentation/DocBook/Makefile	2003-10-09 11:41:27.000000000 +0200
+@@ -149,12 +149,18 @@
+       cmd_fig2eps =3D fig2dev -Leps $< $@
+=20
+ %.eps: %.fig
++	@(which fig2dev > /dev/null 2>&1) || \
++	 (echo "*** You need to install transfig ***"; \
++	  exit 1)
+ 	$(call cmd,fig2eps)
+=20
+ quiet_cmd_fig2png =3D FIG2PNG $@
+       cmd_fig2png =3D fig2dev -Lpng $< $@
+=20
+ %.png: %.fig
++	@(which fig2dev > /dev/null 2>&1) || \
++	 (echo "*** You need to install transfig ***"; \
++	  exit 1)
+ 	$(call cmd,fig2png)
+=20
+ ###
+
+--x+6KMIRAuhnl3hBn
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/hTiJ6//kSTNjoX0RAldkAJ0UsLK1INSd8rOVzNoyQxfg2+5MzACdEY47
+gFMqGCrIlRT5kd/WeeUrFVo=
+=OEZo
+-----END PGP SIGNATURE-----
+
+--x+6KMIRAuhnl3hBn--

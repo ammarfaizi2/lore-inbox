@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbVCWJPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262888AbVCWJTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262899AbVCWJPL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 04:15:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbVCWJOM
+	id S262888AbVCWJTj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 04:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbVCWJTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 04:14:12 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:43883 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262889AbVCWJNe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 04:13:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=nCGcNAAmYhcBsylm9ulEoymKkBSgeiqKo2FyE5iZAGFukOsplb5u018U0JvILbJc+NbtqLeQyLoUcPIlNjZLY781JCQR3ZVgXSK8YwiIf6pBf5acmjEriEPXYFW7mkExieHzmtd/cNmrdcLTW3HI5My1HnSiQl7KmJ2nnlCtLUE=
-Message-ID: <42413336.2010004@gmail.com>
-Date: Wed, 23 Mar 2005 18:13:26 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
+	Wed, 23 Mar 2005 04:19:38 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:6 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262888AbVCWJT3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 04:19:29 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: 7eggert@gmx.de,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Samsung 40G drive locking up 2.6.11
+Date: Wed, 23 Mar 2005 11:19:04 +0200
+User-Agent: KMail/1.5.4
+References: <fa.gg9u7j2.1vm65hi@ifi.uio.no> <E1DDkGQ-0000t8-9g@be1.7eggert.dyndns.org>
+In-Reply-To: <E1DDkGQ-0000t8-9g@be1.7eggert.dyndns.org>
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 07/08] scsi: remove bogus	{get|put}_device()
- calls
-References: <20050323021335.960F95F8@htj.dyndns.org>	 <20050323021335.0D9E25EE@htj.dyndns.org> <1111551355.5520.100.camel@mulgrave>
-In-Reply-To: <1111551355.5520.100.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503231119.05084.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
-
-James Bottomley wrote:
-> On Wed, 2005-03-23 at 11:14 +0900, Tejun Heo wrote:
+On Tuesday 22 March 2005 16:21, Bodo Eggert wrote:
+> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
 > 
->>	So, basically, SCSI high-level object (scsi_disk) and
->>	mid-level object (scsi_device) are reference counted by users,
->>	not the requests they submit.  Reference count cannot go zero
->>	with active users and users cannot access the object once the
->>	reference count reaches zero.
+> > dd if=/dev/hdc of=/dev/null with this disk
+> > kills the system. Drive may do it's work
+> > for minute or two, but then it does 'klak' sound.
 > 
-> 
-> Actually, no.  Unfortunately we still have some fire and forget APIs, so
-> the contention that we always have an open refcounted descriptor isn't
-> always true.
+> Did you try shdiag or hutil from samsung.com?
 
-  Yeap, you're right.  So, what we have is
+No. I am not worried about driver being possibly defective etc.
+This happens. I am mostly unhappy with this possibly defective
+drive being able to solidly lock up a Linux system!
+(Linux is on *hda*, I don't think it's ok for IO problems
+on *hdc* to affect hda and overall system stability).
 
-  * All high-level users have open access to the scsi high-level
-    object on issueing requests, but may close it before its requests
-    complete.
-  * All mid-layer users do get_device() before submitting requests,
-    but may put_device() before its requests complete.
-
-  Thanks for pointing that out.  :-)
-
--- 
-tejun
+Unfortunately, the disk promptly stopped misbehaving.
+I'll keep an eye on it, tho.
+--
+vda
 

@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311871AbSCUQgw>; Thu, 21 Mar 2002 11:36:52 -0500
+	id <S312248AbSCUQiC>; Thu, 21 Mar 2002 11:38:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312248AbSCUQgo>; Thu, 21 Mar 2002 11:36:44 -0500
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:31137 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S311871AbSCUQfi>;
-	Thu, 21 Mar 2002 11:35:38 -0500
-Date: Thu, 21 Mar 2002 19:34:53 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: 2.5.7 does not compile
-Message-Id: <20020321193453.0fe5c3ba.johnpol@2ka.mipt.ru>
-In-Reply-To: <3C9A0735.8999EBB3@wanadoo.fr>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Thu__21_Mar_2002_19:34:53_+0300_08262b48"
+	id <S312379AbSCUQhs>; Thu, 21 Mar 2002 11:37:48 -0500
+Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:47876
+	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S312248AbSCUQhD>; Thu, 21 Mar 2002 11:37:03 -0500
+Message-ID: <3C9A0C22.3090702@inet6.fr>
+Date: Thu, 21 Mar 2002 17:36:50 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020307
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: nicholas black <dank@trellisinc.com>
+CC: linux-kernel@vger.kernel.org, marcelo@connectiva.com.br
+Subject: Re: sis 5591 ide in 2.4.19-pre3 consumes souls
+In-Reply-To: <20020321110412.A6558@fancypants.trellisinc.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+nicholas black wrote:
 
---Multipart_Thu__21_Mar_2002_19:34:53_+0300_08262b48
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+>yesterday night i excitedly came home to my shiny new -pre3, to discover
+>that on boot, all ide devices timeout on DMA requests.  i'm using the
+>sis ide driver on my sis 5591 controller, which is integrated onto an
+>amptron 810 motherboard.  
+>
 
-On Thu, 21 Mar 2002 17:15:49 +0100
-Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr> wrote:
+There's definitely a problem with some UDMA 33 chipsets. I'll ask SiS 
+for 5591 chipset info RSN and look into this as soon as I find some time.
 
-> make[3]: Entering directory
-> `/usr/src/kernel-sources-2.5.7/drivers/net/hamradio'
-> gcc -D__KERNEL__ -I/usr/src/kernel-sources-2.5.7/include -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> -march=k6 -DMODULE -DMODVERSIONS -include
-> /usr/src/kernel-sources-2.5.7/include/linux/modversions.h 
-> -DKBUILD_BASENAME=scc  -c -o scc.o scc.c
-> scc.c: In function `scc_net_rx':
-> scc.c:1664: `dev' undeclared (first use in this function)
-> scc.c:1664: (Each undeclared identifier is reported only once
-> scc.c:1664: for each function it appears in.)
-> make[3]: *** [scc.o] Error 1
-> make[3]: Leaving directory
-> `/usr/src/kernel-sources-2.5.7/drivers/net/hamradio'
-> make[2]: *** [_modsubdir_net/hamradio] Error 2
-> make[2]: Leaving directory `/usr/src/kernel-sources-2.5.7/drivers'
-> make[1]: *** [_mod_drivers] Error 2
-> make[1]: Leaving directory `/usr/src/kernel-sources-2.5.7'
-> make: *** [stamp-build] Error 2
+>
+>i haven't had a chance to capture exact logs yet, but can do testing
+>tonight.  exact behavior follows:
+>
+>rebooted with 2.4.19-pre3-jl11 (preemptive; jl11 is a patch to
+>networking code that should play no role here).  hard drive hda and
+>cdrom's hdc,hdd are detected.  upon partition check of hda1, the system
+>hung for roughly 20 seconds, after which it was declared dma commands
+>had timed out.  this was repeated for all other partitions on the drive,
+>after which the kernel panicked, unable to mount the root fs.
+>
+>this behavior continued to manifest over any number of reboots.
+>interestingly, i could get my old 2.4.18-jl11 (non-preempt) to work
+>fine, but only after a hard power down.  reboots left it in the same
+>situation, but not logging nearly so much to the console :).
+>
+Could you send us the output of "lspci -vxxx" with 2.4.18-jl11 and boot 
+logs of 2.4.19-pre3-jl11 please ?
 
-I hope this path will help you.
+Did you "make oldconfig" on the 2.4.19-pre3-jl11 sources with the your 
+old 2.4.18-jl11 .config or made a new config from scratch ?
+If so assuming you didn't modify your source trees could you send us the 
+result of :
+diff <2.4.18-jl11_tree>/.config <2.4.19-pre3-jl11_tree>/.config | grep  
+"^. CONFIG"
 
-> -----------
-> Regards
-> 	Jean-Luc
+LB.
 
-	Evgeniy Polyakov ( s0mbre )
-
---Multipart_Thu__21_Mar_2002_19:34:53_+0300_08262b48
-Content-Type: application/octet-stream;
- name="drivers_net_hamradio_scc_c.diff"
-Content-Disposition: attachment;
- filename="drivers_net_hamradio_scc_c.diff"
-Content-Transfer-Encoding: base64
-
-LS0tIC4vZHJpdmVycy9uZXQvaGFtcmFkaW8vc2NjLmN+CUZyaSBNYXIgIDggMjE6MTM6MjIgMjAw
-MgorKysgLi9kcml2ZXJzL25ldC9oYW1yYWRpby9zY2MuYwlUaHUgTWFyIDIxIDE5OjMyOjE4IDIw
-MDIKQEAgLTE2NjEsNyArMTY2MSw3IEBACiAJc2tiLT5wa3RfdHlwZSA9IFBBQ0tFVF9IT1NUOwog
-CQogCW5ldGlmX3J4KHNrYik7Ci0JZGV2LT5sYXN0X3J4ID0gamlmZmllczsKKwlzY2MtPmRldi0+
-bGFzdF9yeCA9IGppZmZpZXM7CiAJcmV0dXJuOwogfQogCg==
-
---Multipart_Thu__21_Mar_2002_19:34:53_+0300_08262b48--

@@ -1,82 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269001AbUJKOJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268982AbUJKOIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269001AbUJKOJF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 10:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268999AbUJKOJB
+	id S268982AbUJKOIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 10:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268989AbUJKOIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 10:09:01 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:6803 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S268979AbUJKOF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 10:05:28 -0400
-Message-ID: <416A92B9.2020603@sgi.com>
-Date: Mon, 11 Oct 2004 09:03:37 -0500
-From: Patrick Gefre <pfg@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+	Mon, 11 Oct 2004 10:08:15 -0400
+Received: from dev.tequila.jp ([128.121.50.153]:29960 "EHLO dev.tequila.jp")
+	by vger.kernel.org with ESMTP id S268982AbUJKOFd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 10:05:33 -0400
+Message-ID: <416A9248.8070107@tequila.co.jp>
+Date: Mon, 11 Oct 2004 23:01:44 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040926 Thunderbird/0.8 Mnenhy/0.6.0.104
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Luck, Tony" <tony.luck@intel.com>
-CC: Colin Ngam <cngam@sgi.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com> <41644301.9EC028B3@sgi.com> <20041006195424.GF25773@cup.hp.com> <200410061327.28572.jbarnes@engr.sgi.com> <20041006204832.GB26459@cup.hp.com> <20041006210525.GI16153@parcelfarce.linux.theplanet.co.uk> <41645BDE.E9732310@sgi.com> <4166AF3D.9080808@sgi.com> <20041009222011.GA10422@cup.hp.com> <4169A508.84FB19C7@sgi.com>
-In-Reply-To: <4169A508.84FB19C7@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Mike Houston <mikeserv@bmts.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm3 woes
+References: <4169FCB5.8050808@tequila.co.jp> <20041011014747.128d92c5.mikeserv@bmts.com>
+In-Reply-To: <20041011014747.128d92c5.mikeserv@bmts.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+On 10/11/2004 02:47 PM, Mike Houston wrote:
 
-We came to a resolution on the pci_root-ops issue, Jesse is OK with the code, Jes and Christoph are 
-fine with the qla mod. I've added a couple of fixes from us as well as removing a redundant check 
-pointed out in the review - see the full list below. So the code is ready to go.
-
-Can you take this now Tony ?
-
-Thanks,
--- Pat
-
-ftp://oss.sgi.com/projects/sn2/sn2-update/001-kill-files
-ftp://oss.sgi.com/projects/sn2/sn2-update/002-add-files
-ftp://oss.sgi.com/projects/sn2/sn2-update/003-qla-mod
-ftp://oss.sgi.com/projects/sn2/sn2-update/004-sn_hwperf               - fix from us
-ftp://oss.sgi.com/projects/sn2/sn2-update/005-redundant-check-killed  - removed rundundant check
-ftp://oss.sgi.com/projects/sn2/sn2-update/006-sn_set_affinity_irq     - fix from us
-ftp://oss.sgi.com/projects/sn2/sn2-update/007-root-ops                - make pci_root_ops non-static
-
-
-Colin Ngam wrote:
-> Grant Grundler wrote:
+> Hello, I had something like that happen the other day because without
+> paying attention,  I said 'n' to the question of "Local version -
+> append to kernel release" during oldconfig instead of leaving it
+> blank. It was 2.6.9-rc3n
 > 
-> Hi Tony,
-> 
-> Jesse is alright with this issue too.  Unfortunately, I believe his 
-> email may not have gotten out of SGI because we were having email 
-> problems on Friday.
-> 
-> Thanks gents.
-> 
-> colin
-> 
->> On Fri, Oct 08, 2004 at 10:16:13AM -0500, Colin Ngam wrote:
->> > Now, if we can remove the static from pci_root_ops, I can use it in
->> > io_init.c, that would be cleanest and that was what we started with.
->>
->> willy already agreed:
->> http://marc.theaimsgroup.com/?l=linux-ia64&m=109709521721980&w=2 
->> <http://marc.theaimsgroup.com/?l=linux-ia64&m=109709521721980&w=2>
->>
->> I'm ok with it too.
->>
->> hth,
->> grant
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
+> Check to make sure you haven't done something similar (it's under
+> General Setup).
 
+OH! hehe, that comes when you make oldconfig, and just don't read new
+stuff in detail. Thanks a lot, I would have never found that ...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBapJIjBz/yQjBxz8RAp/bAJ9uBjVhHOjKAWgH5ly6ZbyKOHrbDACeNoj4
+lrMlo1Z3MA9aSTV8L4quvLM=
+=dzId
+-----END PGP SIGNATURE-----

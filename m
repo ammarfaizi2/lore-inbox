@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262421AbRFNJZJ>; Thu, 14 Jun 2001 05:25:09 -0400
+	id <S262610AbRFNJ0U>; Thu, 14 Jun 2001 05:26:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262432AbRFNJY7>; Thu, 14 Jun 2001 05:24:59 -0400
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:6835 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S262421AbRFNJYz>; Thu, 14 Jun 2001 05:24:55 -0400
-Date: Thu, 14 Jun 2001 10:24:47 +0100 (BST)
-From: James Sutherland <jas88@cam.ac.uk>
-X-X-Sender: <jas88@green.csi.cam.ac.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rainer Mager <rmager@vgkk.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: obsolete code must die
-In-Reply-To: <E15ARz4-0004Jm-00@the-village.bc.nu>
-Message-ID: <Pine.SOL.4.33.0106141023030.15074-100000@green.csi.cam.ac.uk>
+	id <S262432AbRFNJ0K>; Thu, 14 Jun 2001 05:26:10 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:50444 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S262242AbRFNJZ6>; Thu, 14 Jun 2001 05:25:58 -0400
+Message-ID: <3B2882C0.EDA802E3@idb.hist.no>
+Date: Thu, 14 Jun 2001 11:24:16 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lar@cs.york.ac.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.6-pre2, pre3 VM Behavior
+In-Reply-To: <JKEGJJAJPOLNIFPAEDHLGEMBDCAA.laramie.leavitt@btinternet.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Jun 2001, Alan Cox wrote:
+Laramie Leavitt wrote:
 
-> > Would it make sense to create some sort of 'make config' script that
-> > determines what you want in your kernel and then downloads only those
-> > components? After all, with the constant release of new hardware, isn't a
-> > 50MB kernel release not too far away? 100MB?
->
-> This should be a FAQ entry.
->
-> For folks doing kernel development a split tree is a nightmare to
-> manage so we dont bother. Nothing stops a third party splitting and
-> maintaining the tools to download just the needed bits for those who
-> want to do it that way
+> Would it be possible to maintain a dirty-rate count
+> for the dirty buffers?
+> 
+> For example, we it is possible to figure an approximate
+> disk subsystem speed from most of the given information.
 
-I vaguely remember a distro shipping a kernel source tree without the
-non-i386 arch directories. Looked like a good idea at first - saved a fair
-chunk of disk space, and didn't break anything. Then you try applying a
-patch, and get a truckload of errors... Easier just to keep the whole
-thing together, IMO.
+Disk speed is difficult.  I may enable and disable swap on any number of
+very different disks and files.  And making it per-device won't help
+that
+much.  The device may have other partitions with varying access
+patterns.
+and sometimes differnet devices interfer with each other, such
+as two IDE drives on the same cable.  Or several scsi drives
+using up scsi (or pci!) bandwith for file access.
 
+You may be able to get some useful approximations, but you
+will probably not be able to get good numbers in all cases.
 
-James.
-
+Helge Hafting

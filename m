@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290894AbSASBFt>; Fri, 18 Jan 2002 20:05:49 -0500
+	id <S290895AbSASBJj>; Fri, 18 Jan 2002 20:09:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290895AbSASBFj>; Fri, 18 Jan 2002 20:05:39 -0500
-Received: from c007-h015.c007.snv.cp.net ([209.228.33.222]:18910 "HELO
-	c007.snv.cp.net") by vger.kernel.org with SMTP id <S290894AbSASBF2>;
-	Fri, 18 Jan 2002 20:05:28 -0500
-X-Sent: 19 Jan 2002 01:05:22 GMT
-Message-ID: <3C48C64B.422003A1@bigfoot.com>
-Date: Fri, 18 Jan 2002 17:05:15 -0800
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.21pre1 i686)
-X-Accept-Language: en
+	id <S290897AbSASBJ3>; Fri, 18 Jan 2002 20:09:29 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30476 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290895AbSASBJL>; Fri, 18 Jan 2002 20:09:11 -0500
+Subject: Re: [RFC] Summit interrupt routing patches
+To: jamesclv@us.ibm.com
+Date: Sat, 19 Jan 2002 01:18:09 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200201190018.g0J0Idq11657@butler1.beaverton.ibm.com> from "James Cleverdon" at Jan 18, 2002 04:18:37 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Aaron Tiensivu <mojomofo@mojomofo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VIA KT133 & HPT 370 IDE disk corruption
-In-Reply-To: <00c201c1a033$1cf46700$b71c64c2@viasys.com> <3C48BF64.FBF58C7C@bigfoot.com> <014501c1a083$e5c44650$58dc703f@bnscorp.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16Rk93-0008SU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Tiensivu wrote:
-> 
-> > My BP6's [hpt366] had similar sustained I/O lockup issues, especially
-> > when running a RAID stripe.  From the v1.01 BP6 manual:
-> 
-> Unfortunately, I suspect that is due to the older HPT drivers still in the
-> current kernels (the HPT366 is a very broken beast by design, and from what
-> I've gathered from others, is that Abit did poor job connecting it into the
-> BP6)
-> 
-> Another reason for those lockups could be due to the noisy APIC bus on the
-> BP6.
-> 
-> As much as I love my BP6, as an "ultimate dirty hack not approved by Intel"
-> motherboard, it has its flaws.
-> I'm just thankful it is still running. :)
+> idle CPUs.  If none are idle, then aim them at the CPUs running the "least 
+> important" tasks.  Also, since each CPU's local APIC only has two interrupt 
+> latches per `level' (the upper nibble of the IRQ's vector), it would be a 
+> good idea to avoid sending IRQs to those CPUs that are already processing one.
 
-Yes, the board you love to hate.  I also did the EC10 capacitor fix
-which is why I still have no heart to retire/upgrade them.
+Im not sure aiming at least important is worth anything. Aiming at idle 
+processors on a box not doing power management seems easy providing you'll
+accept 99.99% accuracy. Switch the priority up in the idle code, switch it
+back down again before the idle task schedule()'s. If you hit during the
+schedule well tough.
 
---
+> soon.  I wonder if Marcelo is going to allow this kind of futzing around with 
+> interrupt and scheduler code in 2.4....
+
+Thats another reason to keep it small and clean.

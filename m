@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317359AbSGDHob>; Thu, 4 Jul 2002 03:44:31 -0400
+	id <S317362AbSGDHxT>; Thu, 4 Jul 2002 03:53:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317361AbSGDHoa>; Thu, 4 Jul 2002 03:44:30 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:19444 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S317359AbSGDHo1>;
-	Thu, 4 Jul 2002 03:44:27 -0400
-Message-ID: <3D23FD5F.19C0DDDC@mvista.com>
-Date: Thu, 04 Jul 2002 00:46:39 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Xinwen - Fu <xinwenfu@cs.tamu.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel timers vs network card interrupt
-References: <Pine.LNX.3.95.1020703143207.1862A-100000@chaos.analogic.com>
+	id <S317363AbSGDHxS>; Thu, 4 Jul 2002 03:53:18 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:40630 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S317362AbSGDHxS>;
+	Thu, 4 Jul 2002 03:53:18 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __ex_table vs. init sections bug in most architectures 
+In-reply-to: Your message of "Thu, 04 Jul 2002 00:09:17 MST."
+             <200207040709.AAA05891@adam.yggdrasil.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 04 Jul 2002 17:55:40 +1000
+Message-ID: <13382.1025769340@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Wed, 3 Jul 2002, Xinwen - Fu wrote:
-> 
-> > Hi, all,
-> >       I'm curious that if a network card interrupt happens at the same
-> > time as the kernel timer expires, what will happen?
-> >
-> >       It's said the kernel timer is guaranteed accurate. But if
-> > interrupts are not masked off, the network interrupt also should get
-> > response when a kernel timer expires. So I don't know who will preempt
-> > who.
-> >
-> >       Thanks for information!
-> >
-> > Xinwen Fu
-> 
-> The highest priority interrupt will get serviced first. It's the timer.
-> Interrupts are serviced in priority-order. Hardware "remembers" which
-> ones are pending so none are lost if some driver doesn't do something
-> stupid.
+On Thu, 4 Jul 2002 00:09:17 -0700, 
+"Adam J. Richter" <adam@yggdrasil.com> wrote:
+>	It looks like all architectures except {sparc,ppc}{,64} rely on
+>the __ex_table section already being sorted by the address of the
+>instruction that caused the memory access violation that is to be fixed
+>up.  However, __ex_table will not be constructed in sorted order if it
+>includes any references made from an __init or __exit routine, because
+>these routines are loaded into the kernel image after all of the other
+>routines, rather than being loaded in the order in which they appear in
+>each source file.
 
-That is true as far as it goes, HOWEVER, timers are serviced
-by bottom half code which is run at the end of the
-interrupt, WITH THE INTERRUPT SYSTEM ON.  Therefore, timer
-servicing can be interrupted by an interrupt and thus be
-delayed.
- 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101912337804026&w=2 and
+the following thread.  I was going to recode using the ppc insert sort
+but got sidetracked.
+
+>One refinement of this
+>approach would be have some bfd tool sort __ex_table in vmlinux
+>when the kernel is linked, and to do something similar for
+>modules, to keep the sort out of the kernel and save a few
+>microseconds of run time.
+
+That either requires bfd devel to build the kernel (no chance) or a
+program that can cope with cross compilation, including different word
+sizes and endianness between the build and target machines.  It is
+easier and safer to do the sort at boot time then discard the code.
+

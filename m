@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270346AbTHBVMr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 17:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270375AbTHBVMr
+	id S270370AbTHBVqN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 17:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270375AbTHBVqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 17:12:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:16872 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270346AbTHBVMq (ORCPT
+	Sat, 2 Aug 2003 17:46:13 -0400
+Received: from public1-brig1-3-cust85.brig.broadband.ntl.com ([80.0.159.85]:37261
+	"EHLO ppg_penguin.kenmoffat.uklinux.net") by vger.kernel.org
+	with ESMTP id S270370AbTHBVqK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 17:12:46 -0400
-Message-ID: <32991.4.4.25.4.1059858764.squirrel@www.osdl.org>
-Date: Sat, 2 Aug 2003 14:12:44 -0700 (PDT)
-Subject: Re: .config in bzImage ?
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <seanlkml@rogers.com>
-In-Reply-To: <093901c35924$f3040ed0$7f0a0a0a@lappy7>
-References: <093901c35924$f3040ed0$7f0a0a0a@lappy7>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.11)
+	Sat, 2 Aug 2003 17:46:10 -0400
+Date: Sat, 2 Aug 2003 22:46:09 +0100 (BST)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.22-pre10] Cleanup DRM menu and give it a submenu
+In-Reply-To: <200307312250.40474.m.c.p@wolk-project.de>
+Message-ID: <Pine.LNX.4.56.0308022242400.18619@ppg_penguin>
+References: <200307312250.40474.m.c.p@wolk-project.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There was some talk of the .config file being included
-> within bzImage.  Did this ever happen?  If so, how
-> does one extract the .config from the resulting image?
+On Fri, 1 Aug 2003, Marc-Christian Petersen wrote:
 
-Alan sent my ikconfig patch to Linus a couple of days ago and it's
-in 2.6.0-test-current ... except for the Kconfig part of it,
-which Alan or I will send soon (if Alan hasn't already done so).
+> Hi Marcelo,
+>
+> I've been getting complaints about the menu structure from the linux kernel
+> config subsystem for a _long time_. Now let's clean up the DRM menu and give
+> it a submenu. We are getting close that the menu will look more cleaner :)
+>
+> More cleanups for different menu's are following.
+>
+> Please apply for 2.4.22-pre10. Thank you :)
+>
+> ciao, Marc
+>
 
-The full was (which is partially merged) is at
-  http://developer.osdl.org/rddunlap/patches/ikconfig/ikconfig_260c.patch
-It includes a script (extract-ikconfig) and a small C program
-(binoffsets.c) that are used to extract the saved .config image.
+ Is this really worth doing ?  `make menuconfig' seems to hide the
+options nicely until you turn drm on, and more importantly the 2.4
+kernel modules aren't exactly useful with X-4.3 so they're becoming
+increasingly redundant.
 
-The .config file is also available in /proc as a CONFIG option.
+Ken
+-- 
 
-~Randy
 
 
 

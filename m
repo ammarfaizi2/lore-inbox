@@ -1,43 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267603AbUHTHKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267605AbUHTHPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267603AbUHTHKt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 03:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267597AbUHTHKt
+	id S267605AbUHTHPe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 03:15:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbUHTHPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 03:10:49 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:14518 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S267603AbUHTHG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 03:06:28 -0400
-Message-ID: <4125A2F6.5050308@namesys.com>
-Date: Fri, 20 Aug 2004 00:06:30 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Cherry <cherry@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Alexander Zarochentcev <zam@namesys.com>,
-       Vladimir Demidov <demidov@namesys.com>
-Subject: Re: 2.6.8.1-mm2
-References: <20040819014204.2d412e9b.akpm@osdl.org> <1092927166.29916.0.camel@cherrybomb.pdx.osdl.net>
-In-Reply-To: <1092927166.29916.0.camel@cherrybomb.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 20 Aug 2004 03:15:33 -0400
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:44181 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267605AbUHTHPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 03:15:01 -0400
+Subject: Re: [PATCH] bio_uncopy_user mem leak
+From: Greg Afinogenov <antisthenes@inbox.ru>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <41256DC9.7070500@kolivas.org>
+References: <1092909598.8364.5.camel@localhost>
+	 <412489E5.7000806@kolivas.org> <1092923494.12138.1667.camel@watt.suse.com>
+	 <20040819195521.GC12363@tpkurt.garloff.de>  <41256DC9.7070500@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1092986104.7882.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 20 Aug 2004 02:15:05 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Cherry wrote:
+On Thu, 2004-08-19 at 22:19, Con Kolivas wrote:
+> Kurt Garloff wrote:
+> > Hi Chris,
+> > 
+> > On Thu, Aug 19, 2004 at 09:51:34AM -0400, Chris Mason wrote:
+> > 
+> >>On Thu, 2004-08-19 at 07:07, Con Kolivas wrote:
+> >>
+> >>>Ok I just tested this patch discretely and indeed the memory leak goes 
+> >>>away but it still produces coasters so something is still amuck. Just as 
+> >>>a data point; burning DVDs and data cds is ok. Burning audio *and 
+> >>>videocds* is not.
+> >>
+> >>It might be the cold medicine talking, but I think we need something
+> >>like this.  gcc tested it for me, beyond that I make no promises....
+> >>
+> >>--- l/fs/bio.c.1	2004-08-19 09:36:13.596858736 -0400
+> >>+++ l/fs/bio.c	2004-08-19 09:47:46.392537784 -0400
+> >>@@ -454,6 +454,7 @@
+> >> 	 */
+> >> 	if (!ret) {
+> >> 		if (!write_to_vm) {
+> >>+			unsigned long p = uaddr;
+> >> 			bio->bi_rw |= (1 << BIO_RW);
+> >> 			/*
+> >> 	 		 * for a write, copy in data to kernel pages
+> >>@@ -462,8 +463,9 @@
+> >> 			bio_for_each_segment(bvec, bio, i) {
+> >> 				char *addr = page_address(bvec->bv_page);
+> >> 
+> >>-				if (copy_from_user(addr, (char *) uaddr, bvec->bv_len))
+> >>+				if (copy_from_user(addr, (char *) p, bvec->bv_len))
+> >> 					goto cleanup;
+> >>+				p += bvec->bv_len;
+> >> 			}
+> >> 		}
+> >> 
+> > 
+> > 
+> > Hmm, that patch would make a lot of sense to me.
+> > 
+> > It matches the problem description; burning data CDs, we don't
+> > use bounce buffers, so that does not use this code path. Here,
+> > it looks like we copied the same userspace page again and again
+> > into a multisegment BIO. Ouch!
+> > 
+> > Not yet tested either :-(
+> 
+> Ok looks like your cold medicine is working well for you ;-). This patch 
+> on top of the other patch has the memory freeing _and_ burns good cds. 
+> Well done. I only tested with a video cd. Can someone confirm audio cd 
+> (although it seems obvious it would help both).
+> 
+> Andrew did you threaten to make a 2.6.8.2 since 2.6.8{,.1} cannot safely 
+> burn an audio cd?
+> 
+> Cheers,
+> Con
 
->The new "errors" are from reiser4 code and they all appear to be...
->
->fs/reiser4/reiser4.h:18:2: #error "Please turn 4k stack off"
->
->  
->
-zam, can you or Mr. Demidov work on using kmalloc to reduce stack usage?
+Yup, it works fine with audio CDs too.  Great!
 
-Andrew suggested that for statically sized objects kmalloc is quite fast 
-(one instruction I think he said), so my objection to kmallocing a lot 
-has faded.
+
+

@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131629AbRCSWBi>; Mon, 19 Mar 2001 17:01:38 -0500
+	id <S131634AbRCSWL2>; Mon, 19 Mar 2001 17:11:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131625AbRCSWBb>; Mon, 19 Mar 2001 17:01:31 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:14853 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S131644AbRCSWBQ>; Mon, 19 Mar 2001 17:01:16 -0500
-Message-ID: <3AB68141.F0FFBCE9@didntduck.org>
-Date: Mon, 19 Mar 2001 16:59:29 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S131636AbRCSWLS>; Mon, 19 Mar 2001 17:11:18 -0500
+Received: from spike.i405.net ([63.229.23.90]:19718 "EHLO spike.i405.net")
+	by vger.kernel.org with ESMTP id <S131634AbRCSWLD>;
+	Mon, 19 Mar 2001 17:11:03 -0500
+Message-ID: <3FA68C00B3E3A3418373DA6446330DD30328E0@spike.i405.net>
+From: "Stephen Gutknecht (linux-kernel)" <linux-kernel@i405.com>
+To: "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Linux should better cope with power failure
+Date: Mon, 19 Mar 2001 14:11:16 -0800
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux should better cope with power failure
-In-Reply-To: <Pine.LNX.3.95.1010319162020.12070A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Mon, 19 Mar 2001, Brian Gerst wrote:
-> [SNIPPED...]
-> 
-> >
-> > At the very least the disk should be consistent with memory.  If the
-> > dirty pages aren't written back to the disk (but not necessarily removed
-> > from memory) after a reasonable idle period, then there is room for
-> > improvement.
-> >
-> 
-> Hmmm. Now think about it a minute. You have a database operation
-> with a few hundred files open, most of which will be deleted after
-> a sort/merge completes. At the same time, you've got a few thousand
-> directories with their ATIME being updated. Also, you have thousands
-> of temporary files being created in /tmp during a compile that didn't
-> use "-pipe".
-> 
-> If you periodically write everything to disk, you don't have many
-> CPU cycles available to do anything useful.
+Otto,
 
-Note the key words "reasonable idle period".  It was stated elsewhere
-that this is the case already so it is a moot point.
+If you are doing development work (or playing with new kernels) and things
+like USB failures lock you from keyboard and mouse...
 
---
+Have you considered telnet into your box from a second machine?  Even a 486
+system would do this fine... network cards are cheap.  You could try to
+recover the system or at least do a shutdown.
 
-				Brian Gerst
+Maybe there are reason you have ruled this out; just making sure you haven't
+overlooked a possible prevention solution.
+
+  Stephen Gutknecht
+  Renton, Washington
+  http://www.RoundSparrow.com/
+
+
+-----Original Message-----
+From: Otto Wyss [mailto:otto.wyss@bluewin.ch]
+Sent: Monday, March 19, 2001 11:47 AM
+To: linux-kernel@vger.kernel.org
+Subject: Linux should better cope with power failure
+
+
+Lately I had an USB failure, leaving me without any access to my system
+since I only use an USB-keyboard/-mouse. All I could do in that
+situation was switching power off and on after a few minutes of
+inactivity. From the impression I got during the following startup, I
+assume Linux (2.4.2, EXT2-filesystem) is not very suited to any power
+failiure or manually switching it off. Not even if there wasn't any
+activity going on. 
+[snip]

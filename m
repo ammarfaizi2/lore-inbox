@@ -1,83 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265724AbTF3Dwz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 23:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265728AbTF3Dwz
+	id S265658AbTF3D4X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 23:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265629AbTF3D4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 23:52:55 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:23813 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S265724AbTF3Dwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 23:52:53 -0400
-Subject: [PATCH] move sg_dma_ macros out of asm-i386/pci.h
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: torvalds@transmeta.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-cyow+OlVH8vzkSdbW7TU"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 29 Jun 2003 23:07:11 -0500
-Message-Id: <1056946032.2886.396.camel@mulgrave>
-Mime-Version: 1.0
+	Sun, 29 Jun 2003 23:56:23 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:22027
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S265658AbTF3D4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 23:56:18 -0400
+Date: Sun, 29 Jun 2003 21:07:09 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Svein Ove Aas <svein.ove@aas.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dell vs. GPL
+In-Reply-To: <1056882823.16249.2.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10306292053480.2711-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-cyow+OlVH8vzkSdbW7TU
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Where is Dell's Head Quarters?
+Please goto your local justice and get a UK ruling for a US Corporation.
+What gives you the right to pursue in court GPL for materials you do not
+have copyright ownership?  I use this loose in this case because you now
+have copyright context in the material in question.
 
-These macros belong in asm-i386/scatterlist.h instead.
+Third party defense will be laughed out of court.
 
-As the headers are disentangled this has shown up as a problem with my
-MCA SCSI drivers since they no-longer include asm/pci.h in any form but
-need to traverse the scatterlist.
+I know first hand that I can not take "RAIDZONE" to court yet to sue for
+GPL violation to get the code back into the community and monetary
+damages, until I fully file a registered copyright and not the halfassed
+crap of just sticking you name and email address in a file.
 
-James
+I am in the process of getting the formal registered copyright.
 
+I will take GPL to court and will not settle out of court.
+GPL will live or die in this case, I do not give a damn which way it
+falls.
 
---=-cyow+OlVH8vzkSdbW7TU
-Content-Disposition: attachment; filename=tmp.diff
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=tmp.diff; charset=ISO-8859-1
+GPL wins great.
+GPL loses, maybe better so it can be replaced with OSL and then it gets
+serious because we will have teeth to defend the ideas of open source.
 
-=3D=3D=3D=3D=3D include/asm-i386/pci.h 1.22 vs edited =3D=3D=3D=3D=3D
---- 1.22/include/asm-i386/pci.h	Mon Jun  9 11:25:58 2003
-+++ edited/include/asm-i386/pci.h	Sun Jun 29 21:18:53 2003
-@@ -82,14 +82,6 @@
- 	flush_write_buffers();
- }
-=20
--/* These macros should be used after a pci_map_sg call has been done
-- * to get bus addresses of each of the SG entries and their lengths.
-- * You should only work with the number of sg entries pci_map_sg
-- * returns.
-- */
--#define sg_dma_address(sg)	((sg)->dma_address)
--#define sg_dma_len(sg)		((sg)->length)
--
- #define HAVE_PCI_MMAP
- extern int pci_mmap_page_range(struct pci_dev *dev, struct vm_area_struct =
-*vma,
- 			       enum pci_mmap_state mmap_state, int write_combine);
-=3D=3D=3D=3D=3D include/asm-i386/scatterlist.h 1.3 vs edited =3D=3D=3D=3D=
-=3D
---- 1.3/include/asm-i386/scatterlist.h	Wed Feb  6 07:32:52 2002
-+++ edited/include/asm-i386/scatterlist.h	Sun Jun 29 21:18:54 2003
-@@ -8,6 +8,14 @@
-     unsigned int	length;
- };
-=20
-+/* These macros should be used after a pci_map_sg call has been done
-+ * to get bus addresses of each of the SG entries and their lengths.
-+ * You should only work with the number of sg entries pci_map_sg
-+ * returns.
-+ */
-+#define sg_dma_address(sg)	((sg)->dma_address)
-+#define sg_dma_len(sg)		((sg)->length)
-+
- #define ISA_DMA_THRESHOLD (0x00ffffff)
-=20
- #endif /* !(_I386_SCATTERLIST_H) */
+Cheers,
 
---=-cyow+OlVH8vzkSdbW7TU--
+Andre Hedrick
+LAD Storage Consulting Group
+
+On 29 Jun 2003, Alan Cox wrote:
+
+> On Sul, 2003-06-29 at 05:22, Andre Hedrick wrote:
+> > Everyone here forgets, GPL is WORTHLESS without a "REGISTERED" copyright.
+> 
+> Wrong, thats a weird US copyright law flaw that applies only to US
+> citizens. The Berne convention gives everyone else rights.
+> 
 

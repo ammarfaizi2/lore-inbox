@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264265AbTLBAB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 19:01:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbTLBAB3
+	id S264261AbTLBAG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 19:06:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbTLBAG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 19:01:29 -0500
-Received: from ugw.utcc.utoronto.ca ([128.100.102.3]:18696 "HELO
-	ugw.utcc.utoronto.ca") by vger.kernel.org with SMTP id S264265AbTLBAB2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 19:01:28 -0500
-To: linux-kernel@vger.kernel.org
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, ralf@linux-mips.org
-Subject: drivers/char/rtc.c compile failure in current 2.4 BitKeeper tree:
-Date: Mon, 1 Dec 2003 19:01:17 -0500
-From: Chris Siebenmann <cks@utcc.utoronto.ca>
-Message-Id: <03Dec1.190119est.6025@ugw.utcc.utoronto.ca>
+	Mon, 1 Dec 2003 19:06:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:50085 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264261AbTLBAG4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 19:06:56 -0500
+Date: Mon, 1 Dec 2003 16:06:49 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Norberto Bensa <nbensa@gmx.net>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6 security patches merged? was: Linux 2.4 future
+Message-ID: <20031201160649.A9693@osdlab.pdx.osdl.net>
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312011226.04750.nbensa@gmx.net> <20031201233025.GK1566@mis-mike-wstn.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20031201233025.GK1566@mis-mike-wstn.matchmail.com>; from mfedyk@matchmail.com on Mon, Dec 01, 2003 at 03:30:25PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- I'm compiling for SMP x86 and getting:
-	make[3]: Entering directory `/homes/hawkwind/u0/cks/sys/linux-BK/drivers/char'
-	gcc -D__KERNEL__ -I/homes/hawkwind/u0/cks/sys/linux-BK/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix include -DKBUILD_BASENAME=rtc  -c -o rtc.o rtc.c
-	rtc.c: In function `rtc_init':
-	rtc.c:772: `RTC_IOMAPPED' undeclared (first use in this function)
-	rtc.c:772: (Each undeclared identifier is reported only once
-	rtc.c:772: for each function it appears in.)
-	rtc.c:773: `RTC_IO_EXTENT' undeclared (first use in this function)
-	rtc.c: In function `rtc_exit':
-	rtc.c:873: `RTC_IOMAPPED' undeclared (first use in this function)
-	rtc.c:874: `RTC_IO_EXTENT' undeclared (first use in this function)
-	make[3]: *** [rtc.o] Error 1
+* Mike Fedyk (mfedyk@matchmail.com) wrote:
+> That reminds me, have all of the security patches that went into 2.4 been
+> forward ported to 2.6 and merged already?
 
-It looks like the MIPS changes require these to be defined in
-include/asm-*/mc146818rtc.h (or included files) for all architectures
-(previously RTC_IO_EXTENT was defined in rtc.c and RTC_IOMAPPED didn't
-exist), but only MIPS has been updated to do this. From looking at the
-diffs to rtc.c, it looks like the correct additions are just:
+Forward ported: yes.  Merged: still underway.
 
-	#define RTC_IO_EXTENT	0x10	/* Only really two ports, but...	*/
-	#define	RTC_IOMAPPED	0
-
-	- cks
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,108 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVAIQso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVAIRKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVAIQso (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 11:48:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVAIQso
+	id S261650AbVAIRKn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 12:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVAIRKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 11:48:44 -0500
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:679 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261592AbVAIQsj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 11:48:39 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: for USB guys - strange things in dmesg
-Date: Sun, 9 Jan 2005 08:48:37 -0800
-User-Agent: KMail/1.7.1
+	Sun, 9 Jan 2005 12:10:43 -0500
+Received: from fsmlabs.com ([168.103.115.128]:47007 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261650AbVAIRKd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 12:10:33 -0500
+Date: Sun, 9 Jan 2005 10:10:11 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andi Kleen <ak@muc.de>
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86_64: Notify user of MCE events (updated)
+In-Reply-To: <m1sm5av9fd.fsf@muc.de>
+Message-ID: <Pine.LNX.4.61.0501091005590.13639@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.61.0501082121380.13639@montezuma.fsmlabs.com>
+ <m1sm5av9fd.fsf@muc.de>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_lBW4Bfd/dj8m/Dy"
-Message-Id: <200501090848.37978.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_lBW4Bfd/dj8m/Dy
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+x86_64 uses a userspace mce utility to decode MCEs, this patch will ensure
+that the user is notified of MCE events being logged too.
 
-Pete Zaitcev writes:
-> What happens here is that the device disconnects itself during or after
-> it's initialized.
-> 
-> Once the HC hardware detects the disconnect, future URBs will end with
-> -84 error. However, the HID driver does not do anything about it.
+Updated to incorporate suggestions from Andi Kleen.
 
-Right ... -EILSEQ one of those awkward faults that can appear both during
-disconnect processing and during normal operation.  So it's never clear
-when a driver should treat it as fatal or try to recover.
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 
-
-> It continues to attempt to resubmit until the khubd does its processing
-> and enters its disconnect method. In extreme cases, it is possible to
-> have this submit-and-error-and-repeat loop to monopolize the CPU and
-> prevent khubd from working ever, thus effectively locking up the box.
-
-Right ... these being two separate problems:  (a) too much resubmitting,
-and (b) too much printk.  The resubmitting is barely noticeable in terms
-of load (and HID doesn't track such faults), but the printks are trouble.
-
-For (b), printk_ratelimit() would be an appropriate fix for HID and
-other drivers that log this fault and then attempt to recover by
-resubmitting.  The attached patch should help.
-
-
-> Fortunately, in 2.6 kernel we standardized error codes, and thus drivers
-> like hid can rely on -84 meaning a disconnect and not something else.
-
-That's not  true; -EILSEQ doesn't always indicate disconnect.
-See Documentation/usb/error-oodes.txt ...
-
-
-> In such case, hid has to stop resubmitting before its disconnect method
-> is executed.
-> 
-> This is relevant to all drivers which submit interrupt URBs. One driver
-> which does it correctly is mct_u232 (surprisingly enough), so the code
-> can be taken from there.
-
-Since mct_u232 treats -EILSEQ as always-fatal, when it's not, that's not
-the best example.  I think a better example is usbnet, which handles this
-fault -- for bulk RX and TX of network packets, it doesn't currently use
-interrupt URBs! -- by briefly throttling back traffic.  (It also has more
-complete handling of other urb->status values than most other drivers.)
-
-During disconnect processing, there's neither log flooding nor hundreds of
-false network errors; during normal processing, there's still a chance for
-hardware to recover itself.
-
-- Dave
-
---Boundary-00=_lBW4Bfd/dj8m/Dy
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="hid.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="hid.patch"
-
-Ratelimit some HID messages that can happen during disconnect processing.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
---- 1.105/drivers/usb/input/hid-core.c	2005-01-07 20:55:37 -08:00
-+++ edited/drivers/usb/input/hid-core.c	2005-01-09 08:40:17 -08:00
-@@ -931,7 +931,9 @@
- 		case -ETIMEDOUT:	/* NAK */
- 			break;
- 		default:		/* error */
--			warn("input irq status %d received", urb->status);
-+			if (!printk_ratelimit())
-+				warn("input irq status %d received",
-+						urb->status);
- 	}
- 	
- 	status = usb_submit_urb(urb, SLAB_ATOMIC);
-
---Boundary-00=_lBW4Bfd/dj8m/Dy--
+Index: linux-2.6.10-mm1/arch/x86_64/kernel/mce.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-mm1/arch/x86_64/kernel/mce.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 mce.c
+--- linux-2.6.10-mm1/arch/x86_64/kernel/mce.c	4 Jan 2005 04:03:35 -0000	1.1.1.1
++++ linux-2.6.10-mm1/arch/x86_64/kernel/mce.c	9 Jan 2005 17:09:39 -0000
+@@ -31,6 +31,8 @@ static int mce_dont_init;
+ static int tolerant = 1;
+ static int banks;
+ static unsigned long bank[NR_BANKS] = { [0 ... NR_BANKS-1] = ~0UL };
++static unsigned long console_logged;
++static int notify_user;
+ 
+ /*
+  * Lockless MCE logging infrastructure.
+@@ -68,6 +70,9 @@ void mce_log(struct mce *mce)
+ 	smp_wmb();
+ 	mcelog.entry[entry].finished = 1;
+ 	smp_wmb();
++
++	if (!test_and_set_bit(0, &console_logged))
++		notify_user = 1;
+ }
+ 
+ static void print_mce(struct mce *m)
+@@ -252,6 +257,19 @@ static void mcheck_timer(void *data)
+ {
+ 	on_each_cpu(mcheck_check_cpu, NULL, 1, 1);
+ 	schedule_delayed_work(&mcheck_work, check_interval * HZ);
++
++	/*
++	 * It's ok to read stale data here for notify_user and
++	 * console_logged as we'll simply get the updated versions
++	 * on the next mcheck_timer execution and atomic operations
++	 * on console_logged act as synchronization for notify_user
++	 * writes.
++	 */
++	if (notify_user && console_logged) {
++		notify_user = 0;
++		clear_bit(0, &console_logged);
++		printk(KERN_EMERG "Machine check exception logged\n");
++	}
+ }
+ 
+ 

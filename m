@@ -1,79 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbUDNWwB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 18:52:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbUDNWvo
+	id S261880AbUDNW67 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 18:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUDNW6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 18:51:44 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:46465 "EHLO
+	Wed, 14 Apr 2004 18:58:49 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:6557 "EHLO
 	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S262041AbUDNWqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 18:46:42 -0400
-Subject: [PATCH] ATP867X PCI IDE driver
-To: marcelo@hera.kernel.org
-Date: Wed, 14 Apr 2004 15:46:06 -0700 (PDT)
+	id S261880AbUDNWy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 18:54:29 -0400
+Subject: [PATCH] ATP867X PCI IDE driver for 2.6.5
+To: alan@lxorguk.ukuu.org.uk, torvalds@osdl.org
+Date: Wed, 14 Apr 2004 15:53:55 -0700 (PDT)
 Cc: linux-kernel@vger.kernel.org
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1BDt8w-0002Qo-7h@sidney.corp.google.com>
+Message-Id: <E1BDtGV-0002SU-68@sidney.corp.google.com>
 From: Eric Uhrhane <ericu@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo et al:
+Alan, Linus, et al:
 
-	This is a new driver for the Acard/Artop PCI ATA/SATA cards
+        This is a new driver for the Acard/Artop PCI ATA/SATA cards
 (6885[LP]/6896[S]) based on the ATP867{A,B} chips.  It supports connectivity
 only, no fancy ATP867B RAID stuff, for up to 8 drives.  The first version of
 this patch [written for 2.4.18] has been tested on about a dozen x86 SMP
 machines with several kinds of hard drives, in PIO4 and UDMA5, as well as in a
-few other configurations.  This 2.4.26 port has had minimal testing, but has
-also had minimal changes from the original.
-	Acard tell me that they may have seen issues running ATAPI devices using
+few other configurations.  This 2.6.5 port has had much less testing, but has
+also had only small changes from the original.
+        Acard tell me that they may have seen issues running ATAPI devices using
 this driver, but that they can't be sure that they weren't seeing problems with
-higher-level software.  I've given it a quick test with my DVD drive, and didn't
-see anything obvious.  YMMV.
-	Feel free to send me comments directly, but I'll also try to check on
-the list via archives.  Stay tuned for the 2.6.5 port.
+higher-level software.  I've given it a quick test [under 2.4] with my DVD
+drive, and didn't see anything obvious.  YMMV.
+        Feel free to send me comments directly, but I'll also try to check on
+the list via archives.
 
-	Eric Uhrhane
-	ericu@google.com
+        Eric Uhrhane
+        ericu@google.com
 
-diff -rNBdU 3 linux-2.4.26.orig/Documentation/Configure.help linux-2.4.26/Documentation/Configure.help
---- linux-2.4.26.orig/Documentation/Configure.help	2004-04-14 06:05:24.000000000 -0700
-+++ linux-2.4.26/Documentation/Configure.help	2004-04-14 14:17:34.000000000 -0700
-@@ -1167,6 +1167,14 @@
+diff -rNBdU 3 linux-2.6.5.orig/drivers/ide/Kconfig linux-2.6.5/drivers/ide/Kconfig
+--- linux-2.6.5.orig/drivers/ide/Kconfig	2004-04-03 19:37:06.000000000 -0800
++++ linux-2.6.5/drivers/ide/Kconfig	2004-04-14 14:37:28.000000000 -0700
+@@ -569,6 +569,13 @@
  
-   Say Y here if you have an ATI IXP chipset IDE controller.
+ 	  Say Y here if you have an ATI IXP chipset IDE controller.
  
-+Acard/Artop 867X (867A) Support
-+CONFIG_BLK_DEV_ATP867X
-+  This driver supports the Acard 6885[LP]/6896[S] PCI IDE RAID cards, based
-+  on the Artop 867X chip.  It supplies connectivity only, for up to 8 drives--
-+  no fancy RAID features.
++config BLK_DEV_ATP867X
++	tristate "Artop/Acard ATP867X support"
++	help
++	  This driver supports the Acard 6885[LP]/6896[S] PCI IDE RAID cards,
++	  based on the Artop 867X chip.  It supplies connectivity only, for up
++	  to 8 drives--no fancy RAID features.
 +
-+  If unsure, say N.
-+
- CMD64X/CMD680 chipset support
- CONFIG_BLK_DEV_CMD64X
-   Say Y here if you have an IDE controller which uses any of these
-diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/Config.in linux-2.4.26/drivers/ide/Config.in
---- linux-2.4.26.orig/drivers/ide/Config.in	2004-04-14 06:05:29.000000000 -0700
-+++ linux-2.4.26/drivers/ide/Config.in	2004-04-14 14:21:52.000000000 -0700
-@@ -50,6 +50,7 @@
- 	    dep_tristate '    AMD and nVidia IDE support' CONFIG_BLK_DEV_AMD74XX $CONFIG_BLK_DEV_IDEDMA_PCI
- 	    dep_mbool    '      AMD Viper ATA-66 Override' CONFIG_AMD74XX_OVERRIDE $CONFIG_BLK_DEV_AMD74XX
- 	    dep_tristate '    ATI IXP chipset IDE support' CONFIG_BLK_DEV_ATIIXP $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
-+	    dep_bool '    ACARD 867X support' CONFIG_BLK_DEV_ATP867X $CONFIG_BLK_DEV_IDEDMA_PCI
- 	    dep_tristate '    CMD64{3|6|8|9} chipset support' CONFIG_BLK_DEV_CMD64X $CONFIG_BLK_DEV_IDEDMA_PCI
- 	    dep_tristate '    Compaq Triflex IDE support' CONFIG_BLK_DEV_TRIFLEX $CONFIG_BLK_DEV_IDEDMA_PCI
- 	    dep_tristate '    CY82C693 chipset support' CONFIG_BLK_DEV_CY82C693 $CONFIG_BLK_DEV_IDEDMA_PCI
-diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/atp867.c linux-2.4.26/drivers/ide/pci/atp867.c
---- linux-2.4.26.orig/drivers/ide/pci/atp867.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.4.26/drivers/ide/pci/atp867.c	2004-04-14 14:17:34.000000000 -0700
-@@ -0,0 +1,737 @@
+ config BLK_DEV_CMD64X
+ 	tristate "CMD64{3|6|8|9} chipset support"
+ 	help
+diff -rNBdU 3 linux-2.6.5.orig/drivers/ide/pci/atp867.c linux-2.6.5/drivers/ide/pci/atp867.c
+--- linux-2.6.5.orig/drivers/ide/pci/atp867.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.5/drivers/ide/pci/atp867.c	2004-04-14 14:37:28.000000000 -0700
+@@ -0,0 +1,725 @@
 +/*
 + *  Copyright 2003-4 by Eric Uhrhane and Google, Inc., with code adapted from
 + *  via82cxxx.c, which was
@@ -125,7 +113,6 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/atp867.c linux-2.4.26/drivers/id
 +#include <asm/io.h>
 +
 +#include "ide-timing.h"
-+#include "ide_modes.h"
 +#include "atp867.h"
 +
 +#undef NO_DMA
@@ -407,16 +394,16 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/atp867.c linux-2.4.26/drivers/id
 +        if ((id->dma_ultra & 0x0040) && ultra66) {
 +                speed = XFER_UDMA_6;
 +        } else if ((id->dma_ultra & 0x0020) &&
-+            (!HWIF(drive)->ide_dma_bad_drive(drive)) && ultra66) {
++            (!__ide_dma_bad_drive(drive)) && ultra66) {
 +                 speed = XFER_UDMA_5;
 +	} else if ((id->dma_ultra & 0x0010) &&
-+		   (!HWIF(drive)->ide_dma_bad_drive(drive)) && ultra66) {
++		   (!__ide_dma_bad_drive(drive)) && ultra66) {
 +		speed = XFER_UDMA_4;
 +	} else if ((id->dma_ultra & 0x0008) &&
-+                   (!HWIF(drive)->ide_dma_bad_drive(drive)) &&
++                   (!__ide_dma_bad_drive(drive)) &&
 +		   ultra66) {
 +		speed = XFER_UDMA_3;
-+	} else if (id->dma_ultra && (!HWIF(drive)->ide_dma_bad_drive(drive))) {
++	} else if (id->dma_ultra && (!__ide_dma_bad_drive(drive))) {
 +		if (id->dma_ultra & 0x0004) {
 +			speed = XFER_UDMA_2;
 +		} else if (id->dma_ultra & 0x0002) {
@@ -451,7 +438,7 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/atp867.c linux-2.4.26/drivers/id
 +
 +	if (id && (id->capability & 1) && HWIF(drive)->autodma) {
 +		/* Consult the list of known "bad" drives */
-+		if (HWIF(drive)->ide_dma_bad_drive(drive)) {
++		if (__ide_dma_bad_drive(drive)) {
 +			rval = 1;
 +			goto fast_ata_pio;
 +		}
@@ -471,7 +458,7 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/atp867.c linux-2.4.26/drivers/id
 +				if (rval)
 +					goto no_dma_set;
 +			}
-+		} else if (HWIF(drive)->ide_dma_good_drive(drive)) {
++		} else if (__ide_dma_good_drive(drive)) {
 +			if (id->eide_dma_time > 150) {
 +				goto no_dma_set;
 +			}
@@ -538,15 +525,6 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/atp867.c linux-2.4.26/drivers/id
 +#include <linux/proc_fs.h>
 +
 +static int atp867x_get_info(char *, char **, off_t, int);
-+
-+static ide_pci_host_proc_t atp867x_procs[] __initdata = {
-+	{
-+		.name		= "atp867x",
-+		.set		= 1,
-+		.get_info	= atp867x_get_info,
-+		.parent		= NULL,
-+	},
-+};
 +
 +#define ATP867X_MAX_DEVS 8  // Don't increase without changing atp867x_get_info!
 +static struct pci_dev *atp867x_devs[ATP867X_MAX_DEVS];
@@ -680,7 +658,7 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/atp867.c linux-2.4.26/drivers/id
 +	if (ATP867X_MAX_DEVS > atp867x_num_devs) {
 +		atp867x_devs[atp867x_num_devs++] = dev;
 +		if (1 == atp867x_num_devs) {
-+			ide_pci_register_host_proc(atp867x_procs);
++			ide_pci_create_host_proc("atp867x", atp867x_get_info);
 +		}
 +	}
 +#endif
@@ -809,11 +787,9 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/atp867.c linux-2.4.26/drivers/id
 +MODULE_AUTHOR("Eric Uhrhane, Vojtech Pavlik, Michel Aubry, Jeff Garzik, Andre Hedrick");
 +MODULE_DESCRIPTION("PCI driver module for Artop/Acard 867x IDE");
 +MODULE_LICENSE("GPL");
-+
-+EXPORT_NO_SYMBOLS;
-diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/atp867.h linux-2.4.26/drivers/ide/pci/atp867.h
---- linux-2.4.26.orig/drivers/ide/pci/atp867.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.4.26/drivers/ide/pci/atp867.h	2004-04-14 14:17:34.000000000 -0700
+diff -rNBdU 3 linux-2.6.5.orig/drivers/ide/pci/atp867.h linux-2.6.5/drivers/ide/pci/atp867.h
+--- linux-2.6.5.orig/drivers/ide/pci/atp867.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.5/drivers/ide/pci/atp867.h	2004-04-14 14:37:28.000000000 -0700
 @@ -0,0 +1,11 @@
 +#ifndef ATP867X_H
 +#define ATP867X_H
@@ -826,20 +802,20 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/atp867.h linux-2.4.26/drivers/id
 +	unsigned long *base, unsigned long *control);
 +
 +#endif /* ATP867X_H */
-diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/pci/Makefile linux-2.4.26/drivers/ide/pci/Makefile
---- linux-2.4.26.orig/drivers/ide/pci/Makefile	2004-04-14 06:05:29.000000000 -0700
-+++ linux-2.4.26/drivers/ide/pci/Makefile	2004-04-14 14:20:59.000000000 -0700
-@@ -9,6 +9,7 @@
+diff -rNBdU 3 linux-2.6.5.orig/drivers/ide/pci/Makefile linux-2.6.5/drivers/ide/pci/Makefile
+--- linux-2.6.5.orig/drivers/ide/pci/Makefile	2004-04-03 19:36:26.000000000 -0800
++++ linux-2.6.5/drivers/ide/pci/Makefile	2004-04-14 14:37:49.000000000 -0700
+@@ -4,6 +4,7 @@
  obj-$(CONFIG_BLK_DEV_ALI15X3)		+= alim15x3.o
  obj-$(CONFIG_BLK_DEV_AMD74XX)		+= amd74xx.o
  obj-$(CONFIG_BLK_DEV_ATIIXP)		+= atiixp.o
 +obj-$(CONFIG_BLK_DEV_ATP867X)		+= atp867.o
- obj-$(CONFIG_BLK_DEV_CMD640)		+= cmd640.o
  obj-$(CONFIG_BLK_DEV_CMD64X)		+= cmd64x.o
+ obj-$(CONFIG_BLK_DEV_CS5520)		+= cs5520.o
  obj-$(CONFIG_BLK_DEV_CS5530)		+= cs5530.o
-diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/setup-pci.c linux-2.4.26/drivers/ide/setup-pci.c
---- linux-2.4.26.orig/drivers/ide/setup-pci.c	2003-08-25 04:44:41.000000000 -0700
-+++ linux-2.4.26/drivers/ide/setup-pci.c	2004-04-14 14:17:35.000000000 -0700
+diff -rNBdU 3 linux-2.6.5.orig/drivers/ide/setup-pci.c linux-2.6.5/drivers/ide/setup-pci.c
+--- linux-2.6.5.orig/drivers/ide/setup-pci.c	2004-04-03 19:36:57.000000000 -0800
++++ linux-2.6.5/drivers/ide/setup-pci.c	2004-04-14 14:37:28.000000000 -0700
 @@ -32,6 +32,9 @@
  #include <asm/io.h>
  #include <asm/irq.h>
@@ -850,7 +826,7 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/setup-pci.c linux-2.4.26/drivers/ide
  
  /**
   *	ide_match_hwif	-	match a PCI IDE against an ide_hwif
-@@ -183,6 +186,11 @@
+@@ -185,6 +188,11 @@
  second_chance_to_dma:
  #endif /* CONFIG_BLK_DEV_IDEDMA_FORCED */
  
@@ -859,10 +835,10 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/setup-pci.c linux-2.4.26/drivers/ide
 +		return atp867x_get_dma_base(hwif);
 +#endif
 +
- 	if (hwif->mmio && hwif->dma_base)
+ 	if ((hwif->mmio) && (hwif->dma_base))
  		return hwif->dma_base;
- 	else if (hwif->mate && hwif->mate->dma_base) {
-@@ -416,12 +424,23 @@
+ 
+@@ -422,6 +430,13 @@
  	unsigned long ctl = 0, base = 0;
  	ide_hwif_t *hwif;
  
@@ -871,22 +847,12 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/setup-pci.c linux-2.4.26/drivers/ide
 +	if ((dev->device == PCI_DEVICE_ID_ARTOP_ATP867A)) {
 +		atp867x_get_ports(dev, port, &base, &ctl);
 +	}
-+	else {
++	else
 +#endif
-+
- 	/*  Possibly we should fail if these checks report true */
- 	ide_pci_check_iomem(dev, d, 2*port);
- 	ide_pci_check_iomem(dev, d, 2*port+1);
-  
- 	ctl  = pci_resource_start(dev, 2*port+1);
- 	base = pci_resource_start(dev, 2*port);
-+#ifdef CONFIG_BLK_DEV_ATP867X
-+	}
-+#endif
- 	if ((ctl && !base) || (base && !ctl)) {
- 		printk(KERN_ERR "%s: inconsistent baseregs (BIOS) "
- 			"for port %d, skipping\n", d->name, port);
-@@ -627,9 +646,19 @@
+ 	if(!d->isa_ports)
+ 	{
+ 		/*  Possibly we should fail if these checks report true */
+@@ -604,9 +619,19 @@
  	 * Set up the IDE ports
  	 */
  	 
@@ -908,10 +874,10 @@ diff -rNBdU 3 linux-2.4.26.orig/drivers/ide/setup-pci.c linux-2.4.26/drivers/ide
  		/* 
  		 * If this is a Promise FakeRaid controller,
  		 * the 2nd controller will be marked as 
-diff -rNBdU 3 linux-2.4.26.orig/include/linux/pci_ids.h linux-2.4.26/include/linux/pci_ids.h
---- linux-2.4.26.orig/include/linux/pci_ids.h	2004-04-14 06:05:40.000000000 -0700
-+++ linux-2.4.26/include/linux/pci_ids.h	2004-04-14 14:17:35.000000000 -0700
-@@ -1292,6 +1292,7 @@
+diff -rNBdU 3 linux-2.6.5.orig/include/linux/pci_ids.h linux-2.6.5/include/linux/pci_ids.h
+--- linux-2.6.5.orig/include/linux/pci_ids.h	2004-04-03 19:36:57.000000000 -0800
++++ linux-2.6.5/include/linux/pci_ids.h	2004-04-14 14:37:28.000000000 -0700
+@@ -1405,6 +1405,7 @@
  #define PCI_DEVICE_ID_ARTOP_ATP860R	0x0007
  #define PCI_DEVICE_ID_ARTOP_ATP865	0x0008
  #define PCI_DEVICE_ID_ARTOP_ATP865R	0x0009

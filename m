@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263371AbUJ2PDD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263396AbUJ2PDC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263371AbUJ2PDD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 11:03:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbUJ2O7U
+	id S263396AbUJ2PDC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 11:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263405AbUJ2O6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 10:59:20 -0400
-Received: from mail.gmx.de ([213.165.64.20]:14289 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263395AbUJ2Owl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 10:52:41 -0400
-X-Authenticated: #4399952
-Date: Fri, 29 Oct 2004 17:09:49 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-Message-ID: <20041029170949.04d68ecf@mango.fruits.de>
-In-Reply-To: <20041029142538.GC25204@elte.hu>
-References: <20041027205126.GA25091@elte.hu>
-	<20041027211957.GA28571@elte.hu>
-	<33083.192.168.1.5.1098919913.squirrel@192.168.1.5>
-	<20041028063630.GD9781@elte.hu>
-	<20668.195.245.190.93.1098952275.squirrel@195.245.190.93>
-	<20041028085656.GA21535@elte.hu>
-	<26253.195.245.190.93.1098955051.squirrel@195.245.190.93>
-	<20041028093215.GA27694@elte.hu>
-	<43163.195.245.190.94.1098981230.squirrel@195.245.190.94>
-	<20041029163135.1886d67f@mango.fruits.de>
-	<20041029142538.GC25204@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Oct 2004 10:58:22 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:48780 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263342AbUJ2OwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:52:09 -0400
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: Why UML often does not build (was: Re: [PATCH] UML: Build fix for TT w/o SKAS)
+Date: Fri, 29 Oct 2004 16:53:02 +0200
+User-Agent: KMail/1.7.1
+Cc: Werner Almesberger <wa@almesberger.net>, Chris Wedgwood <cw@f00f.org>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Dike <jdike@addtoit.com>
+References: <20041027053602.GB30735@taniwha.stupidest.org> <20041029002831.GD12434@taniwha.stupidest.org> <20041029034444.A24523@almesberger.net>
+In-Reply-To: <20041029034444.A24523@almesberger.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410291653.02985.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Oct 2004 16:25:38 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+On Friday 29 October 2004 08:44, Werner Almesberger wrote:
+> Chris Wedgwood wrote:
+> > the problem here is that ptrace semantics are not well defined to
+> > anything subtle can and will break from time to time
+>
+> I wonder what the "correct" solution for this would be: write a
+> specification for Linux ptrace, or try to get the POSIX folks
+> interested ?
 
-> > ksoftirqd/0:
-> > mango:~# chrt -p 2
-> > pid 2's current scheduling policy: SCHED_FIFO
-> > pid 2's current scheduling priority: 99
-> 
-> dont do this ... ksoftirqd can spend alot of time processing various
-> stuff and it should not be relevant to the audio path. It should be
-> SCHED_OTHER.
+> Given that we get subtle ptrace breakages quite regularly, it
+> would be nice to see this eventually get resolved. "The
+> implementation is the specification" doesn't seem to work well
+> in this case.
+Well, you are quite right - Linux is aimed at never breaking existing 
+binaries, and ptrace() does not follow that.
 
-ah ok, i was wondering about this.. i saw it in rui's setup [SCHED_FIFO with
-high prio]. Doesn't seem to make a difference though on first sight. still
-xruns plenty above 1ms. 
+However, the problem here is that UML was not behaving correctly. Instead of 
+using the documented way, PTRACE_KILL, we just sent a SIGKILL and that 
+happened to work (and since PTRACE_KILL implementation just sends a SIGKILL, 
+you would still expect it to work).
 
-playback only or rmmod'ing the network adapter driver or using the dummy
-soundcard driver instead of snd-cs46xx doesn't make a difference either.
+In fact, I fixed the Gerd Knorr test program to use PTRACE_KILL and it works 
+on 2.6.9.
 
-after rmmoding the network card driver i saw:
+> BTW, things have improved around UML quite a bit recently, and I
+> think this is to no small amount due to Paolo's work.
+Thanks a lot for that, it's something very important for me, but I'm not the 
+only one deserving such recognition. See the amount of work done by Bodo 
+Stroesser in a few weeks - he solved lots of problems which I fought against 
+without success.
 
-sis900 0000:00:03.0: Device was removed without properly calling
-pci_disable_device(). This may need fixing.
-
-in m dmesg. rmmod'ing snd-cs46xx gives me:
-
-Sound Fusion CS46xx 0000:00:0f.0: Device was removed without properly
-calling pci_disable_device(). This may need fixing.
-
-too, so maybe i have already hit a BUG in the kernel and this screwed up all
-further test results.
-
-Will build a kernel with debugging stuff to see what's up. I'll also build a
-VP only version to see if i still get these pci_disable_device() messages
-with a "more vanilla" kernel ;)
-
-flo
+Besides that, I need to do a lot of janitorial work, while holding on more 
+advanced stuff - so I think that anybody could be able to help here.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

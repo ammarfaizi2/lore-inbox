@@ -1,79 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316372AbSEOKph>; Wed, 15 May 2002 06:45:37 -0400
+	id <S316361AbSEOKu3>; Wed, 15 May 2002 06:50:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316374AbSEOKpg>; Wed, 15 May 2002 06:45:36 -0400
-Received: from pD952C091.dip.t-dialin.net ([217.82.192.145]:21452 "EHLO
-	minerva.local.lan") by vger.kernel.org with ESMTP
-	id <S316372AbSEOKpf>; Wed, 15 May 2002 06:45:35 -0400
-From: Martin Loschwitz <madkiss@madkiss.org>
-Date: Wed, 15 May 2002 12:45:27 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.5.15-ml2
-Message-ID: <20020515104527.GA864@madkiss.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S316374AbSEOKu2>; Wed, 15 May 2002 06:50:28 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:47623 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316361AbSEOKu1>; Wed, 15 May 2002 06:50:27 -0400
+Message-ID: <3CE22EA8.60905@evision-ventures.com>
+Date: Wed, 15 May 2002 11:47:20 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE PIO write Fix #2
+In-Reply-To: <3CE0795B.62C956F0@cinet.co.jp> <3CE0D6DE.8090407@evision-ventures.com> <abroiv$ifs$1@penguin.transmeta.com>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+U¿ytkownik Linus Torvalds napisa³:
+> In article <3CE0D6DE.8090407@evision-ventures.com>,
+> Martin Dalecki  <dalecki@evision-ventures.com> wrote:
+> 
+>>>--- linux-2.5.15/drivers/ide/ide-taskfile.c.orig	Fri May 10 11:49:35 2002
+>>>+++ linux-2.5.15/drivers/ide/ide-taskfile.c	Tue May 14 10:40:43 2002
+>>>@@ -606,7 +606,7 @@
+>>> 		if (!ide_end_request(drive, rq, 1))
+>>> 			return ide_stopped;
+>>> 
+>>>-	if ((rq->current_nr_sectors==1) ^ (stat & DRQ_STAT)) {
+>>>+	if ((rq->nr_sectors == 1) ^ ((stat & DRQ_STAT) != 0)) {
+>>
+> 
+> Well, that's definitely an improvement - the original code makes no
+> sense at all, since it's doing a bitwise xor on two bits that are not
+> the same, and then uses that as a boolean value.
+> 
+> Your change at least makes it use the bitwise xor on properly logical
+> values, making the bitwise xor work as a _logical_ xor. 
+> 
+> Although at that point I'd just get rid of the xor, and replace it by
+> the "!=" operation - which is equivalent on logical ops.
+> 
+> 
+>>> 		pBuf = ide_map_rq(rq, &flags);
+>>> 		DTF("write: %p, rq->current_nr_sectors: %d\n", pBuf, (int) rq->current_nr_sectors);
+>>
+>>
+>>Hmm. There is something else that smells in the above, since the XOR operator
+>>doesn't seem to be proper. Why shouldn't we get DRQ_STAT at all on short
+>>request? Could you perhaps just try to replace it with an OR?
+> 
+> 
+> The XOR operation is a valid op, if you just use it on valid values,
+> which the patch does seem to make it do.
+> 
+> I don't know whether the logic is _correct_ after that, but at least
+> there is some remote chance that it might make sense.
+> 
+> 		Linus
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+As far as I can see the patch makes sense. It is just exposing a problem
+which was hidden before.
 
-Linux 2.5.15-ml2 is available. It contains more bugfixes.
-
-BTW: If you have patches you want to have included in -ml2, please don't
-hestitate to contact me.
-
-The following patches are applied in Linux 2.5.15-ml2:
-  =20
-   o IDE 61 (by Martin Dalecki <dalecki@evision-ventures.com>)
-   o IDE 62 (by Martin Dalecki <dalecki@evision-ventures.com>)
-   o IDE 63 (by Martin Dalecki <dalecki@evision-ventures.com>)
-   o devfs v211 (by Richard Gooch <rgooch@atnf.csiro.au>)
-   o rationalise asm-*/errno.h (by Stephen Rothwell <sfr@canb.auug.org.au>)
-   o include asm/io.h in mm/bootmem.c (by Johan Adolfsson <johan.adolfsson@=
-axis.com>)
-   o Fix PPPoATM crash on disconnection (by Luca Barbieri <ldb@ldb.ods.org>)
-   o Fixing "offslab_limit /=3D" in mm/slab.c
-   o vm86-Fixes (by Manfred Spraul <manfred@colorfullife.com>)
-
-The following patches are applied in Linux 2.5.15-ml1:
-
-   o Fix possible Oops in 3c509.c (by Kasper Dupont <kasperd@daimi.au.dk>)
-   o IDE 60 (by Martin Dalecki <dalecki@evision-ventures.com>)
-   o iget_locked patches 1 to 6 (by Jan Harkes <jaharkes@cs.cmu.edu>)
-   o ir253_smc_msg, ir253_long_set_bit and ir253_lsap_cache_fix
-     patches (by Jean Tourrilhes <jt@bougret.hpl.hp.com>)
-   o NTFS 2.0.7 release (by Anton Altaparmakov <aia21@cantab.net>)
-   o remove unused variables from drivers/block/paride/pcd.c and
-     drivers/block/paride/pd.c (by Frank Davis <fdavis@si.rr.com>)
-   o Wireless ctitical fix (by Jean Tourrilhes <jt@bougret.hpl.hp.com>)
-			      =20
---=20
-*---------* -+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+-+
-|  .''`.  | Martin Loschwitz ----------- hobbit.NeverAgain.DE |
-| : :'  : + <madkiss@madkiss.org> ----- <madkiss@madkiss.de>  +
-| `. `'`  + Viersen / Germany --- www: http://www.madkiss.de/ +
-|   `-    | Use Debian GNU/Linux --- http://www.debian.org    |
-*---------* -+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+-+
-
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE84jxHHPo+jNcUXjARApicAKCKP6Gvv6YUqMZFN0O5DCf5VxlDiwCfbpmx
-BshJSAaJ8i47jtTSeBbLlBc=
-=b6ba
------END PGP SIGNATURE-----
-
---Qxx1br4bt0+wmkIi--

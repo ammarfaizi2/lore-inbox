@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbULBSK6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbULBSOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbULBSK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 13:10:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbULBSK4
+	id S261714AbULBSOS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 13:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbULBSLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 13:10:56 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:26105 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261698AbULBSI4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 13:08:56 -0500
-Date: Thu, 2 Dec 2004 10:00:12 -0800
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Rogier Wolff <R.E.Wolff@BitWizard.nl>, kuba@mareimbrium.org,
-       bryder@sgi.com, linux-kernel@vger.kernel.org,
-       edwin@harddisk-recovery.nl
-Subject: Re: FTDI SIO patch to allow custom vendor/product IDs.
-Message-ID: <20041202180012.GD7655@kroah.com>
-References: <20041202124831.GA31745@bitwizard.nl> <20041202133437.GA27994@infradead.org>
+	Thu, 2 Dec 2004 13:11:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29078 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261702AbULBSKx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 13:10:53 -0500
+Date: Thu, 2 Dec 2004 10:10:29 -0800
+From: cliff white <cliffw@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: mbligh@aracnet.com, akpm@osdl.org, torvalds@osdl.org, clameter@sgi.com,
+       hugh@veritas.com, benh@kernel.crashing.org, nickpiggin@yahoo.com.au,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch V12 [0/7]: Overview and
+ performance tests
+Message-Id: <20041202101029.7fe8b303.cliffw@osdl.org>
+In-Reply-To: <41AEC4D7.4060507@pobox.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+	<Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
+	<Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
+	<Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org>
+	<41AEB44D.2040805@pobox.com>
+	<20041201223441.3820fbc0.akpm@osdl.org>
+	<41AEBAB9.3050705@pobox.com>
+	<20041201230217.1d2071a8.akpm@osdl.org>
+	<179540000.1101972418@[10.10.2.4]>
+	<41AEC4D7.4060507@pobox.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041202133437.GA27994@infradead.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02, 2004 at 01:34:37PM +0000, Christoph Hellwig wrote:
-> On Thu, Dec 02, 2004 at 01:48:31PM +0100, Rogier Wolff wrote:
-> > 
-> > To prevent XP from hijacking devices that require a different driver,
-> > some people flash a different Vendor/Product ID into their FTDI based
-> > device. 
-> > 
-> > Also some "new" devices may come out which are perfectly valid to be
-> > driven by the ftdi_sio driver, but happen to have a vendor/product
-> > id which is not (yet) included in the driver.  I've built a patch
-> > that allows you to tell the driver "vendor=... product=...." to 
-> > make it accept such devices.
-> > 
-> > Does this patch make sense?
+On Thu, 02 Dec 2004 02:31:35 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
+
+> Martin J. Bligh wrote:
+> > Yeah, probably. Though the stress tests catch a lot more than the 
+> > functionality ones. The big pain in the ass is drivers, because I don't
+> > have a hope in hell of testing more than 1% of them.
 > 
-> I think it would be much better to have something like the dynamic PCI IDs
-> support to USB aswell.
+> My dream is that hardware vendors rotate their current machines through 
+> a test shop :)  It would be nice to make sure that the popular drivers 
+> get daily test coverage.
+> 
+> 	Jeff, dreaming on
 
-I agree, and this is what I have stated a number of times already.  But
-it's going to take some driver core rework to get correct, and I'm
-finding less time than I expected in order to do that work...
+OSDL has recently re-done the donation policy, and we're much better positioned
+to support that sort of thing now - Contact Tom Hanrahan at OSDL if you 
+are a vendor, or know a vendor. ( Or you can become a vendor ) 
 
-Hopefully soon...
+cliffw
 
-thanks,
+> 
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux-mm.org/ .
+> Don't email: <a href=mailto:"aart@kvack.org"> aart@kvack.org </a>
+> 
 
-greg k-h
+
+-- 
+The church is near, but the road is icy.
+The bar is far, but i will walk carefully. - Russian proverb

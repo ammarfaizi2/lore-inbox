@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314469AbSE0Hta>; Mon, 27 May 2002 03:49:30 -0400
+	id <S314484AbSE0IG4>; Mon, 27 May 2002 04:06:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314484AbSE0Ht3>; Mon, 27 May 2002 03:49:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61702 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314469AbSE0Ht3>;
-	Mon, 27 May 2002 03:49:29 -0400
-Message-ID: <3CF1E5CF.2B11258F@zip.com.au>
-Date: Mon, 27 May 2002 00:52:47 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Rohland <cr@sap.com>
-CC: zlatko.calusic@iskon.hr, linux-kernel@vger.kernel.org,
-        Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.5.18 / ext3 / oracle trouble
-In-Reply-To: <877klr2ank.fsf@atlas.iskon.hr> <d6vi836v.fsf@sap.com>
+	id <S314285AbSE0IGz>; Mon, 27 May 2002 04:06:55 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:36787 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S310637AbSE0IGz>;
+	Mon, 27 May 2002 04:06:55 -0400
+Date: Mon, 27 May 2002 10:06:32 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+        Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org,
+        "chen, xiangping" <chen_xiangping@emc.com>
+Subject: Re: Poor read performance when sequential write presents
+Message-ID: <20020527080632.GC17674@suse.de>
+In-Reply-To: <3CED4843.2783B568@zip.com.au> <XFMail.20020524105942.pochini@shiny.it> <3CEE0758.27110CAD@zip.com.au> <20020524094606.GH14918@holomorphy.com> <3CEE1035.1E67E1B8@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Rohland wrote:
+On Fri, May 24 2002, Andrew Morton wrote:
+> > What kinds of phenomena appear to be associated with IDE's latencies?
+> > I recall some comments from prior IDE maintainers on poor interactions
+> > between generic disk I/O layers and IDE drivers, particularly with
+> > respect to small transactions being given to the drivers to perform.
+> > Are these comments still relevant, or is this of a different nature?
 > 
-> Hi Zlatko,
-> 
-> On Sun, 26 May 2002, Zlatko Calusic wrote:
-> > Hi!
-> >
-> > After lots of testing, I can say that 2.5.18 works great in all
-> > three modes of ext3 for all but one purpose. Oracle database still
-> > gets corrupted during insert load. More precisely, online redo log
-> > gets corrupted, database panics and restore is in order.
-> >
-> > This leads me to thinking that there's something wrong with sysv
-> > shared memory in 2.5.x. Although the problem could also be in
-> > fsync() or swap_out() & co. paths, it's yet to be discovered.
-> >
-> > It could also be that journaled mode helps the trouble, and it could
-> > be that some swapping makes it more certain, but none of these two
-> > facts are proved for sure. Take it as an observation.
-> >
-> > Christoph, I don't know if you're still taking care of shmem in
-> > 2.5.x, so take my apologies if you didn't want to see this email.
-> >
-> > Regards,
-> > --
-> > Zlatko
-> 
-> Unfortunately I do not have the time to work on shmem right now. Hugh
-> Dickins is the right guy to contact nowadays.
-> 
+> I assume that there's a difference in the way in which the generic layer
+> treats queueing for IDE devices.  In 2.4, IDE devices are `head active',
+> so the request at the head of the queue is under I/O.  But SCSI isn't
+> head-active.  Requests get removed from the head of the queue prior to
+> being serviced.  At least, that's how I think it goes.  I also believe that
 
-Most likely suspect here is the heavy fsync() load is triggering
-some timing problem in ext3 - it'll be pushing the commits though
-at high rate.
+That's correct for IDE when the queue is unplugged (if plugged, first
+request is ok to touch).
 
-I'll teach fsx-linux (great test app, btw) about fsync() and see
-how it stands up.  And if Zlatko can retest on ext2 that would be a
-big help.
+> the 2.4 elevator does not look at the active request at the head when making
+> merging decisions.
 
--
+When unplugged, right.
+
+> But in 2.5, head-activeness went away and as far as I know, IDE and SCSI are
+> treated the same.  Odd.
+
+It didn't really go away, it just gets handled automatically now.
+elv_next_request() marks the request as started, in which case the i/o
+scheduler won't consider it for merging etc. SCSI removes the request
+directly after it has been marked started, while IDE leaves it on the
+queue until it completes. For IDE TCQ, the behaviour is the same as with
+SCSI.
+
+-- 
+Jens Axboe
+

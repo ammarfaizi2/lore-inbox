@@ -1,60 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135443AbRDRWn0>; Wed, 18 Apr 2001 18:43:26 -0400
+	id <S135448AbRDRWrF>; Wed, 18 Apr 2001 18:47:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135450AbRDRWnQ>; Wed, 18 Apr 2001 18:43:16 -0400
-Received: from www.resilience.com ([209.245.157.1]:41171 "EHLO
-	www.resilience.com") by vger.kernel.org with ESMTP
-	id <S135443AbRDRWm4>; Wed, 18 Apr 2001 18:42:56 -0400
-Message-ID: <3ADE194C.ED9C1CAA@resilience.com>
-Date: Wed, 18 Apr 2001 15:46:36 -0700
-From: Jeff Golds <jgolds@resilience.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S135450AbRDRWq4>; Wed, 18 Apr 2001 18:46:56 -0400
+Received: from [212.95.166.64] ([212.95.166.64]:37892 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S135448AbRDRWql>;
+	Wed, 18 Apr 2001 18:46:41 -0400
+Date: Thu, 19 Apr 2001 01:46:55 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+To: Sampsa Ranta <sampsa@netsonic.fi>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ARP responses broken!
+In-Reply-To: <Pine.LNX.4.33.0104190039460.27239-100000@nalle.netsonic.fi>
+Message-ID: <Pine.LNX.4.30.0104190112190.1192-100000@u.domain.uli>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] proc_lookup not exported
-In-Reply-To: <Pine.GSO.4.21.0104181747460.15153-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> On Wed, 18 Apr 2001, Jeff Golds wrote:
-> 
-> > I don't see why not. I created my own mkdir and rmdir handlers in my
-> > module.  I'd like to use the lookup function that proc supplies instead
-> > of supplying my own, why shouldn't I be allowed to do that?  It's not as
-> > if I am doing something other than what normally happens:  I am
-> > assigning inode_operations::lookup to be proc_lookup.
-> 
-> Use ramfs as a model; procfs is not well-suited for that sort of work.
-> 
 
-I don't want to cause trouble, but it sure seems like the kernel source
-tree could be better organized.  For example, in every C application I
-have seen, global header files specify interfaces into the relevant
-module and local header files are for intramodule use only.  In the
-Linux kernel tree, ALL the header files are global, thus, you can't
-easily tell what things are exported and what is not as you can't just
-look at the header file.  Isn't this against what open source is about: 
-Requiring inside knowledge about the code?
+	Hello,
 
-I don't understand why local header files are not used.  It's easy to
-prevent people from using the wrong functions, simply make a script that
-checks to see if people are including the local header files from other
-modules and return an error if they are.  This could be checked at build
-time.
+On Thu, 19 Apr 2001, Sampsa Ranta wrote:
 
-Maybe this is all old news, I am rather new to the Linux kernel, but
-perhaps this is something that could be addressed in future (2.5?)
-versions of the kernel.
+> Yes, I wan't that other routers only see the MAC address of the interface
+> I assigned the IP address for if someone asks it by ARP. I also control
+> outgoing traffic with routing. But how am I supposed to do this in 2.4
+> enviroment?
 
--Jeff
+	Eric Weigle exactly pointed out the solutions and the links.
+There is still no standard support in the 2.4 kernel for your problem
+but you can try http://www.linuxvirtualserver.org/hidden-2.3.41-1.diff
+You can see some fails while applying but don't worry. You can try
+the same 2.4.2 patch (I should make actual diff one day, for now may be
+I'm trying to determine how long can live this patch) from
+http://marc.theaimsgroup.com/?l=linux-virtual-server&m=98286657511673&w=2
+This functionality is same as in Linux 2.2
 
--- 
-Jeff Golds
-jgolds@resilience.com
+> I also would want outgoing traffic to work from either of the interfaces,
+> not depending from which the incoming traffic did come, so outgoing ARP
+> requests would have the MAC address and IP address of the interface they
+> were asked from. For filtering IP traffic, the iptables is good enough so
+
+	With "hidden" you will see that your ARP probes can go through
+any device without problem, of course, if the targets listen everywhere.
+If an address can't be announced from the outgoing device, it is replaced
+with valid source address in the ARP probe. You still can need some
+source routing rules if you want the other IP traffic with specific
+source address to go through specific interface. In other case (routes
+by destination, for example), your ARP probes and the IP traffic will
+go through one device only.
+
+> I can filter just as I want, I don't need filtering to happen by routing
+> table at the moment.
+
+	Fine :) Because the "hidden" usage assumes secure environment
+in some cases.
+
+> Yeah, I could do this by defining ARP addresses by hand but I would rather
+> not do that because there are two many routers involved.
+
+        The ARP usage is recommended :)
+
+> Btw. Kernel sets up two routes to the subnet, which one is selected and
+>      should the other one be deleted?
+
+        You can determine it with:
+
+ip route get DESTINATION_IP
+
+	Only the displayed route will be selected but you don't need
+to delete the other.
+
+> Thanks,
+>    Sampsa Ranta
+>    sampsa@netsonic.fi
+
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+

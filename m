@@ -1,59 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265859AbUBCEzo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 23:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265871AbUBCEzo
+	id S265875AbUBCE7E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 23:59:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265876AbUBCE7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 23:55:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29107 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265859AbUBCEzl (ORCPT
+	Mon, 2 Feb 2004 23:59:04 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:17597 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S265875AbUBCE7B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 23:55:41 -0500
-Date: Mon, 2 Feb 2004 20:53:21 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] add syscalls.h (v2)
-Message-Id: <20040202205321.12da4b04.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 2 Feb 2004 23:59:01 -0500
+Subject: Acer TM 240
+From: Dan Brow <fms@istop.com>
+To: Kernel-List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1075784648.10819.19.camel@zeus.fullmotionsolutions.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 03 Feb 2004 00:04:08 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have an Acer TM 240 laptop with a synaptics touch pad, when I use any
+of the 2.6.x kernels the mouse jump randomly all over the screen. This
+happens with or with out the synaptics drivers for X.  I also lose tap
+click but that could just how it's configured.  Please help.
 
-Andrew Morton wrote:
-| +#include <asm/signal.h>
-| +#include <asm/stat.h>
-| 
-| I'd be inclined to lose the includes and just add forward decls for
-| structs.  Of course, you'll need the includes for typedefs. 
+TIA,
 
-Yes, I was already contemplating on that one.
+DAn.
 
-| +extern asmlinkage long sys_unlink(const char __user *pathname);
-| +extern asmlinkage long sys_chmod(const char __user *filename, mode_t mode);
-| +extern asmlinkage long sys_fchmod(unsigned int fd, mode_t mode);
-| 
-| Maybe lose the `extern' too.  It's just a waste of space.  I normally put
-| it in for consistency if the surrounding code is done that way, but for a
-| new header file, why bother?
-
-Done.  And updated to 2.6.2-rc3.
-
-Many more syscalls added.  Complete patch (87 KB) is at
-  http://developer.osdl.org/rddunlap/syscalls/2.6.2-rc3-syscalls.diff
-
-Build allmodconfig and allyesconfig on P4.  Not booted yet.
-Plan to boot Tue. Feb. 3.
-
-Also plan to build on ia64, maybe some other $ARCH that I don't have....
-
-
-More comments etc.?
-I'm still searching for syscalls that I have missed.
-
---
-~Randy

@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314389AbSEBMy7>; Thu, 2 May 2002 08:54:59 -0400
+	id <S314393AbSEBNBk>; Thu, 2 May 2002 09:01:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314393AbSEBMy6>; Thu, 2 May 2002 08:54:58 -0400
-Received: from ns.suse.de ([213.95.15.193]:6668 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314389AbSEBMy6>;
-	Thu, 2 May 2002 08:54:58 -0400
-Date: Thu, 2 May 2002 14:54:56 +0200
-From: Dave Jones <davej@suse.de>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org, gibbs@scsiguy.com
-Subject: Re: Linux 2.5.12-dj1
-Message-ID: <20020502145456.B16935@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>, rwhron@earthlink.net,
-	linux-kernel@vger.kernel.org, gibbs@scsiguy.com
-In-Reply-To: <20020502072010.A26936@rushmore>
-Mime-Version: 1.0
+	id <S314394AbSEBNBj>; Thu, 2 May 2002 09:01:39 -0400
+Received: from melancholia.rimspace.net ([210.23.138.19]:8975 "EHLO
+	melancholia.danann.net") by vger.kernel.org with ESMTP
+	id <S314393AbSEBNBj>; Thu, 2 May 2002 09:01:39 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.12 severe ext3 filesystem corruption warning!
+From: Daniel Pittman <daniel@rimspace.net>
+Organization: Not today, thank you, Mother.
+Date: Thu, 02 May 2002 23:01:34 +1000
+Message-ID: <87u1pqln4h.fsf@enki.rimspace.net>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.5 (bamboo,
+ i686-pc-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 02, 2002 at 07:20:10AM -0400, rwhron@earthlink.net wrote:
- > This is the output while compiling aic7xxx_old.c:
- > 
- > aic7xxx_old.c:11950: unknown field `abort' specified in initializer
- > aic7xxx_old.c:11950: unknown field `reset' specified in initializer
+I gave the 2.5.12 kernel a shot on my workstation tonight and found an
+*extremely* serious ext3 filesystem corrupting behavior.
 
-Stereotypical "needs error handling code" errors.
+The only files that were mangled were files that had been modified while
+running, so it looks like this is an issue with finding the contents of
+modified files to write, not with random data dropping onto the disk.
 
- > aic7xxxx_old.c compiles in 2.5.12 and 2.5.7-dj3, although it may
- > be broken in some other way.
+That said, however, the contents were rather random -- blocks from
+.overview were placed into a number of other files, chunks of
+.newsrc.eld written to the gkrellm configuration file and the like.
 
-Yep. Removal of the abort/reset methods shows us which SCSI drivers
-don't have any error handling. So they 'worked' up until you got
-an error, and then...
+Unmodified files, however, don't seem to have been touched. This can't
+be perfect, of course, as something I never look at may have been
+destroyed, but it seems to be reliably.
 
- > Is it appropriate to edit .config to use the new driver by setting:
- > CONFIG_SCSI_AIC7XXX=y
- > CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
- > CONFIG_AIC7XXX_RESET_DELAY_MS=15000
- > Is the new driver experimental, or ?
+The system is a mobile P4, 512MB RAM, IDE disk. Only one filesystem
+seems badly effected, my home directory, which is ext3 and fully
+data-journaled.
 
-I've no experience of either driver in practice, so I'm not actually
-sure what the game plan is here. Someone want to fill us in? Justin?
+I couldn't find corruption on the root filesystem[1] but there isn't
+much of that which is actively written at runtime. Nothing notable in
+/var seems broken, thankfully, so no panic. :)
+
+Anyway, I don't know if anyone else is seeing the problems but this is a
+first worrying datapoint with the kernel...
+
+        Daniel
+
+Footnotes: 
+[1]  Contains everything else, including /usr and /var
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+20+ years as a vegetarian and the guy who steals my credit card
+orders $6,000 worth of chicken parts: proof that the most powerful
+force in the universe is Irony.
+        -- David Weinberger, _JOHO_ (2000-03-20)

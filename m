@@ -1,74 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263987AbUCZQ1z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 11:27:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbUCZQ1z
+	id S264086AbUCZQdP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 11:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbUCZQdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 11:27:55 -0500
-Received: from wren.rentec.com ([65.213.84.9]:3829 "EHLO wren.rentec.com")
-	by vger.kernel.org with ESMTP id S263987AbUCZQ1x (ORCPT
+	Fri, 26 Mar 2004 11:33:15 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:33152 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S264080AbUCZQdM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 11:27:53 -0500
-From: Brian Childs <brian@rentec.com>
-Date: Fri, 26 Mar 2004 11:27:48 -0500
-To: linux-kernel@vger.kernel.org, suse-linux-e@suse.com
-Subject: NFS client bug, (Stale NFS file handle)
-Message-ID: <20040326162746.GB11274@rentec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 26 Mar 2004 11:33:12 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: RE[PATCH]2.6.5-rc2 MSI Support for IA64
+Date: Fri, 26 Mar 2004 08:32:44 -0800
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502404058199@orsmsx404.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RE[PATCH]2.6.5-rc2 MSI Support for IA64
+Thread-Index: AcQS3vdvs8JHXDcRRzq5Y+IbQMv3OQAb8Jjg
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Zwane Mwaikambo" <zwane@linuxpower.ca>
+Cc: <davidm@napali.hpl.hp.com>, <jgarzik@pobox.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, "Luck, Tony" <tony.luck@intel.com>,
+       <greg@kroah.com>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 26 Mar 2004 16:32:45.0539 (UTC) FILETIME=[F7E2B330:01C4134F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We beleive we're hitting an NFS client bug:
+On Friday, 26 Mar 2004, Zwane Mwaikambo wrote:
 
- Disto: SuSE-9.0 (64 bit)
-  Arch: x86_64 SMP
-Kernel: 2.4.21 (SuSE k_smp-2.4.21-201)
+>> >> +#ifndef CONFIG_IA64
+>> >>  int assign_irq_vector(int irq)
+>> >>  {
+>> >
+>> >We could define this as a weak function with arch override.
+>>
+>> Agree. We are thinking of replacing the semantics of assign_irq_vector()
+>> in existing arch/i386/kernel/io_apic.c with the semantics of
+>> assign_irq_vector() in drivers/pci/msi.c. With this way,
+>
+>There shouldn't be a problem replacing it on i386, the only thing is
+>perhaps making sure it's marked __init when we're not using
+>CONFIG_PCI_USE_VECTOR
 
-We're getting stale file handle errors for files in a directory two
-levels below the mountpoint.
+Good! Will make changes on next update. Regarding __init, thanks for your
+suggestion. 
 
-For example:
-
-hosta$ cd /mountpoint/a/b
-hosta$ ls -l
-ls: A-spotpr: Stale NFS file handle
-ls: B-spotpr: Stale NFS file handle
-ls: C-spotpr: Stale NFS file handle
-ls: D-spotpr: Stale NFS file handle
-ls: E-spotpr: Stale NFS file handle
-<snip>
-total 0
-hosta$ 
-
-HOWEVER...
-
-otherhost$ cd /mountpoint/a/b
-otherhost$ ls -l
-total 2352
--rw-rw-r--    1 db       data        82896 Mar 25 17:02 A-spotpr
--rw-rw-r--    1 db       data        57840 Mar 25 17:10 B-spotpr
--rw-rw-r--    1 db       data        82896 Mar 25 17:02 C-spotpr
--rw-rw-r--    1 db       data       213840 Mar 25 17:10 D-spotpr
--rw-rw-r--    1 db       data        82896 Mar 25 17:02 E-spotpr
-<snip>
-otherhost$
-
-Where hosta & otherhost are the same type of machine running the same
-OS, and they mount the directories at the same time.
-
-I've never seen this before.  I'm used to seeing system-wide stale
-handles for a mountpoint, but never for a specific file under a
-mountpoint.
-
-/mountpoint/a works without a problem, as does all files under
-/mountpoint/a/c
-
-I can't reliably reproduce this, but I know it happens after the
-contents of /mountpoint/a/b are updated with an rsync.
-
-Any help in diagnosing or fixing this will be greatly appreciated.
-
-Brian
+Thanks,
+Long

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265813AbSKAX01>; Fri, 1 Nov 2002 18:26:27 -0500
+	id <S265823AbSKAXYM>; Fri, 1 Nov 2002 18:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265817AbSKAX01>; Fri, 1 Nov 2002 18:26:27 -0500
-Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:8877 "EHLO
-	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S265813AbSKAX00>; Fri, 1 Nov 2002 18:26:26 -0500
-Date: Fri, 1 Nov 2002 16:32:50 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: Where's the documentation for Kconfig?
-Message-ID: <20021101233250.GA6410@opus.bloom.county>
-References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0210311452531.13258-100000@serv> <20021101125226.B16919@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211011439420.6949-100000@serv> <20021101193112.B26989@flint.arm.linux.org.uk> <20021101203033.GA5773@opus.bloom.county> <20021101203546.C26989@flint.arm.linux.org.uk> <20021101204225.GA6003@opus.bloom.county> <20021101204643.D26989@flint.arm.linux.org.uk>
+	id <S265824AbSKAXYL>; Fri, 1 Nov 2002 18:24:11 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:5764 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265823AbSKAXYK>;
+	Fri, 1 Nov 2002 18:24:10 -0500
+Date: Fri, 1 Nov 2002 23:29:48 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Matt D. Robinson" <yakker@aparity.com>
+Cc: "Donepudi, Suneeta" <sdonepudi@3eti.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Panic during memcpy_toio to PCI card
+Message-ID: <20021101232948.GA7650@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Matt D. Robinson" <yakker@aparity.com>,
+	"Donepudi, Suneeta" <sdonepudi@3eti.com>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+References: <EF5625F9F795C94BA28B150706A215480DF84D@MAIL> <Pine.LNX.4.44.0211011527460.27345-100000@nakedeye.aparity.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021101204643.D26989@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0211011527460.27345-100000@nakedeye.aparity.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 08:46:43PM +0000, Russell King wrote:
-> On Fri, Nov 01, 2002 at 01:42:25PM -0700, Tom Rini wrote:
-> > On Fri, Nov 01, 2002 at 08:35:46PM +0000, Russell King wrote:
-> > > On Fri, Nov 01, 2002 at 01:30:33PM -0700, Tom Rini wrote:
-> > > > On a related question, can we now have 'UL', etc in a hex statement /
-> > > > question?
-> > > 
-> > > No thanks - that'll stop it being used in linker scripts.
-> > 
-> > How, if it's not used for a value which a linker script cares about?
-> 
-> Hmm, maybe I'm misunderstanding you.  Where do you want "UL" to appear
-> in relation to a "hex" statement?
+On Fri, Nov 01, 2002 at 03:28:10PM -0800, Matt D. Robinson wrote:
 
-I want both of these statements to be legal:
+ >It still caused the crash in the same manner and at the same location.
+ >Could someone help me with pointers to where I should start looking ?
+ >Disabling interrupts around the memcpy_toio() did not make any
+ >difference. Is this a hardware problem with the PCI card ? We are using
+ >a Xilinx core with out FPGA build into it.
 
-config HEXVAL_A
-	hex
-	depends on FOO || BAR
-	default "0x12345678"
+memcpy_toio() in 2.4 is still using memcpy() which could use prefetch()
+if you compile for certain processors.  Prefetching io space could do
+all sorts of nasties.
 
-config HEXVAL_B
-	hex
-	depends on BAZ
-	default "0x12345678UL"
+2.5 changed this define (in include/asm-i386/io.h) to use __memcpy
+instead, which doesn't use prefetching.
+
+		Dave
+
+		Dave
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+| Dave Jones.        http://www.codemonkey.org.uk

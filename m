@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbTIPPFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 11:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbTIPPFQ
+	id S261898AbTIPPAW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 11:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTIPPAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 11:05:16 -0400
-Received: from dyn-ctb-210-9-243-132.webone.com.au ([210.9.243.132]:33286 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S261887AbTIPPFK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 11:05:10 -0400
-Message-ID: <3F672689.40404@cyberone.com.au>
-Date: Wed, 17 Sep 2003 01:04:41 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       David Yu Chen <dychen@stanford.edu>, linux-kernel@vger.kernel.org,
-       mc@cs.stanford.edu, David Woodhouse <dwmw2@infradead.org>,
-       linux-mtd@lists.infradead.org
-Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
-References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU> <20030916065553.GA12329@wohnheim.fh-wedel.de> <3F672396.10906@techsource.com>
-In-Reply-To: <3F672396.10906@techsource.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Sep 2003 11:00:22 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:28433 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S261898AbTIPPAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 11:00:20 -0400
+Date: Tue, 16 Sep 2003 10:09:54 -0500
+From: mike.miller@hp.com
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: cciss version change
+Message-ID: <20030916150954.GA31009@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch bumps the version of the cciss driver from 2.4.47 to 2.4.49 to more accurately reflect the capabilities of the driver. It was built/tested against 2.4.23-pre4.
 
+Please consider this patch for inclusion.
 
-Timothy Miller wrote:
-
->
->>> 276:    /* OK, it's not open. Create cache info for it */
->>> START -->
->>> 277:    mtdblk = kmalloc(sizeof(struct mtdblk_dev), GFP_KERNEL);
->>> 278:    if (!mtdblks)
->>> END -->
->>> 279:        return -ENOMEM;
->>
->
->>
->> Invalid.  This is quite an obvious false positive, at least if your
->> algorithm checks for possible value ranges.
->
->
-> Wait... one is "mtdblk", and the other is "mtdblks".  One has an extra 
-> 's' on it.  Unless there is some kind of aliasing going on, they would 
-> appear to be different variables.  Naturally, I didn't check the 
-> original code, so I could be full of it.  :)
-
-
-Yes its a bug from glancing at the source code.
-
-
+Thanks,
+mikem
+--------------------------------------------------------------------------------
+diff -burN lx2423-pre4/drivers/block/cciss.c lx2423-pre4.test/drivers/block/cciss.c
+--- lx2423-pre4/drivers/block/cciss.c	2003-09-16 09:30:24.000000000 -0500
++++ lx2423-pre4.test/drivers/block/cciss.c	2003-09-16 10:02:34.000000000 -0500
+@@ -45,12 +45,12 @@
+ #include <linux/genhd.h>
+ 
+ #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
+-#define DRIVER_NAME "HP CISS Driver (v 2.4.47)"
+-#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,4,47)
++#define DRIVER_NAME "HP CISS Driver (v 2.4.49)"
++#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,4,49)
+ 
+ /* Embedded module documentation macros - see modules.h */
+ MODULE_AUTHOR("Hewlett-Packard Company");
+-MODULE_DESCRIPTION("Driver for HP SA5xxx SA6xxx Controllers version 2.4.47");
++MODULE_DESCRIPTION("Driver for HP SA5xxx SA6xxx Controllers version 2.4.49");
+ MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"); 
+ MODULE_LICENSE("GPL");
+ 

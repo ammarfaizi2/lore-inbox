@@ -1,29 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135215AbRDRQWU>; Wed, 18 Apr 2001 12:22:20 -0400
+	id <S135218AbRDRQ0a>; Wed, 18 Apr 2001 12:26:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135218AbRDRQWL>; Wed, 18 Apr 2001 12:22:11 -0400
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:4431 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S135215AbRDRQWC>; Wed, 18 Apr 2001 12:22:02 -0400
-Date: Wed, 18 Apr 2001 12:21:59 -0400 (EDT)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP in 2.4
-In-Reply-To: <5.0.2.1.0.20010418110702.03850d20@mail.etinc.com>
-Message-ID: <Pine.LNX.4.10.10104181220400.14361-100000@coffee.psychology.mcmaster.ca>
+	id <S135219AbRDRQ0U>; Wed, 18 Apr 2001 12:26:20 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:31916 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S135218AbRDRQ0O>; Wed, 18 Apr 2001 12:26:14 -0400
+Message-ID: <3ADDC00A.2DFE366F@mvista.com>
+Date: Wed, 18 Apr 2001 09:25:46 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: schedule() seems to have changed.
+In-Reply-To: <Pine.LNX.3.95.1010418102332.1771A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Richard B. Johnson" wrote:
+> 
+> It seems that the nature of schedule() has changed in recent
+> kernels. I am trying to update my drivers to correspond to
+> the latest changes. Here is an example:
+> 
+> This waits for some hardware (interrupt sets flag), time-out in one
+> second. This is in an ioctl(), i.e., user context:
+> 
+>     set_current_state(TASK_INTERRUPTIBLE);
+>     current->policy = SCHED_YIELD;
+>     timer = jiffies + HZ;
+>     while(time_before(jiffies, timer))
+>     {
+>         if(flag) break;
+>         schedule();
+>     }
+>     set_current_state(TASK_RUNNING);
+> 
+> The problem is that schedule() never returns!!! If I use
+> schedule_timeout(1), it returns, but the granularity
+> of the timeout interval is such that it slows down the
+> driver (0.1 ms).
+> 
+> So, is there something that I'm not doing that is preventing
+> schedule() from returning?  It returns on a user-interrupt (^C),
+> but otherwise gives control to the kernel forever.
+> 
+When schedule() is entered with TASK_INTERRUPTIBLE (actually with
+current state !=TASK_RUNNING) it takes the task out of the run_list.  It
+has been this way for a long time.  The normal way for the task to move
+back to the run_list is for wake_up to be called, which, of course (^C)
+does.  In your case it would be best if you could get what ever sets
+"flag" to call wake_up.
 
-Dennis is like a pie in the face: messy, unexpected, but trivial.
+If what you really want to do is to spin in a SCHED_YIELD waiting for
+"flag" you need to a.) move the setting of SCHED_YIELD inside the while,
+and b.) eliminate the setting of current_state (both of them).
 
-
-On Wed, 18 Apr 2001, Dennis wrote:
-
-> Does 2.4 have something similar to spl levels or does it still require the 
-> ridiculous MS-DOSish spin-locks to protect every bit of code?
-
+George

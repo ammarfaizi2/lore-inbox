@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbUDNXTv (ORCPT <rfc822;willy@w.ods.org>);
+	id S261943AbUDNXTv (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 14 Apr 2004 19:19:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbUDNWar
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbUDNWb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 18:30:47 -0400
-Received: from mail.kroah.org ([65.200.24.183]:37023 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261943AbUDNWYw convert rfc822-to-8bit
+	Wed, 14 Apr 2004 18:31:57 -0400
+Received: from mail.kroah.org ([65.200.24.183]:35487 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261939AbUDNWYs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 18:24:52 -0400
+	Wed, 14 Apr 2004 18:24:48 -0400
 Subject: Re: [PATCH] I2C update for 2.6.5
-In-Reply-To: <10819814493235@kroah.com>
+In-Reply-To: <10819814513813@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 14 Apr 2004 15:24:09 -0700
-Message-Id: <1081981449280@kroah.com>
+Date: Wed, 14 Apr 2004 15:24:11 -0700
+Message-Id: <10819814511233@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,300 +22,232 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1643.36.2, 2004/03/19 13:24:39-08:00, aurelien@aurel32.net
+ChangeSet 1.1643.36.16, 2004/04/08 10:23:27-07:00, khali@linux-fr.org
 
-[PATCH] I2C: add new chip driver: pcf8574
+[PATCH] I2C: Refactor swap_bytes in i2c chip drivers
 
-Please find below a patch against kernel 2.6.5-rc1 to add the pcf8574
-driver (an I/O expander for the I2C bus). I have ported it from the 2.4
-version, and it includes some fixes and simplifications.
+> Ick, no, we should be using the proper kernel call for this, swab16(),
+> right?  Care to redo this patch to just fix the drivers and get rid of
+> our duplicating of this function.
 
-It has been reviewed by Jean Delvare on IRC.
+Oh, I didn't know such a function existed, sorry.
+
+Here's a new patch, hope you like it. Tested to work on my as99127f, btw
+(w83781d driver).
+
+Documentation update follows (well, tomorrow it does).
 
 
- drivers/i2c/chips/Kconfig   |   11 +
- drivers/i2c/chips/Makefile  |    1 
- drivers/i2c/chips/pcf8574.c |  245 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 257 insertions(+)
+ drivers/i2c/chips/asb100.c  |   15 +++++----------
+ drivers/i2c/chips/ds1621.c  |   10 ++--------
+ drivers/i2c/chips/gl518sm.c |   10 ++--------
+ drivers/i2c/chips/lm75.c    |   10 ++--------
+ drivers/i2c/chips/w83781d.c |   20 +++++---------------
+ 5 files changed, 16 insertions(+), 49 deletions(-)
 
 
-diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
---- a/drivers/i2c/chips/Kconfig	Wed Apr 14 15:14:55 2004
-+++ b/drivers/i2c/chips/Kconfig	Wed Apr 14 15:14:55 2004
-@@ -209,4 +209,15 @@
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called eeprom.
+diff -Nru a/drivers/i2c/chips/asb100.c b/drivers/i2c/chips/asb100.c
+--- a/drivers/i2c/chips/asb100.c	Wed Apr 14 15:13:38 2004
++++ b/drivers/i2c/chips/asb100.c	Wed Apr 14 15:13:38 2004
+@@ -862,11 +862,6 @@
+ 	return 0;
+ }
  
-+config SENSORS_PCF8574
-+	tristate "Philips PCF8574 and PCF8574A"
-+	depends on I2C && EXPERIMENTAL
-+	select I2C_SENSOR
-+	help
-+	  If you say yes here you get support for Philips PCF8574 and 
-+	  PCF8574A chips.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called pcf8574.
-+
- endmenu
-diff -Nru a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
---- a/drivers/i2c/chips/Makefile	Wed Apr 14 15:14:55 2004
-+++ b/drivers/i2c/chips/Makefile	Wed Apr 14 15:14:55 2004
-@@ -19,6 +19,7 @@
- obj-$(CONFIG_SENSORS_LM83)	+= lm83.o
- obj-$(CONFIG_SENSORS_LM85)	+= lm85.o
- obj-$(CONFIG_SENSORS_LM90)	+= lm90.o
-+obj-$(CONFIG_SENSORS_PCF8574)	+= pcf8574.o
- obj-$(CONFIG_SENSORS_VIA686A)	+= via686a.o
- obj-$(CONFIG_SENSORS_W83L785TS)	+= w83l785ts.o
+-static u16 swap_bytes(u16 val)
+-{
+-	return (val >> 8) | (val << 8);
+-}
+-
+ /* The SMBus locks itself, usually, but nothing may access the chip between
+    bank switches. */
+ static int asb100_read_value(struct i2c_client *client, u16 reg)
+@@ -891,17 +886,17 @@
+ 		/* convert from ISA to LM75 I2C addresses */
+ 		switch (reg & 0xff) {
+ 		case 0x50: /* TEMP */
+-			res = swap_bytes(i2c_smbus_read_word_data (cl, 0));
++			res = swab16(i2c_smbus_read_word_data (cl, 0));
+ 			break;
+ 		case 0x52: /* CONFIG */
+ 			res = i2c_smbus_read_byte_data(cl, 1);
+ 			break;
+ 		case 0x53: /* HYST */
+-			res = swap_bytes(i2c_smbus_read_word_data (cl, 2));
++			res = swab16(i2c_smbus_read_word_data (cl, 2));
+ 			break;
+ 		case 0x55: /* MAX */
+ 		default:
+-			res = swap_bytes(i2c_smbus_read_word_data (cl, 3));
++			res = swab16(i2c_smbus_read_word_data (cl, 3));
+ 			break;
+ 		}
+ 	}
+@@ -939,10 +934,10 @@
+ 			i2c_smbus_write_byte_data(cl, 1, value & 0xff);
+ 			break;
+ 		case 0x53: /* HYST */
+-			i2c_smbus_write_word_data(cl, 2, swap_bytes(value));
++			i2c_smbus_write_word_data(cl, 2, swab16(value));
+ 			break;
+ 		case 0x55: /* MAX */
+-			i2c_smbus_write_word_data(cl, 3, swap_bytes(value));
++			i2c_smbus_write_word_data(cl, 3, swab16(value));
+ 			break;
+ 		}
+ 	}
+diff -Nru a/drivers/i2c/chips/ds1621.c b/drivers/i2c/chips/ds1621.c
+--- a/drivers/i2c/chips/ds1621.c	Wed Apr 14 15:13:38 2004
++++ b/drivers/i2c/chips/ds1621.c	Wed Apr 14 15:13:38 2004
+@@ -97,11 +97,6 @@
  
-diff -Nru a/drivers/i2c/chips/pcf8574.c b/drivers/i2c/chips/pcf8574.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/i2c/chips/pcf8574.c	Wed Apr 14 15:14:55 2004
-@@ -0,0 +1,245 @@
-+/*
-+    pcf8574.c - Part of lm_sensors, Linux kernel modules for hardware
-+             monitoring
-+    Copyright (c) 2000  Frodo Looijaard <frodol@dds.nl>, 
-+                        Philip Edelbrock <phil@netroedge.com>,
-+                        Dan Eaton <dan.eaton@rocketlogix.com>
-+    Ported to Linux 2.6 by Aurelien Jarno <aurel32@debian.org> with 
-+    the help of Jean Delvare <khali@linux-fr.org>
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+    
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+*/
-+
-+/* A few notes about the PCF8574:
-+
-+* The PCF8574 is an 8-bit I/O expander for the I2C bus produced by
-+  Philips Semiconductors.  It is designed to provide a byte I2C
-+  interface to up to 8 separate devices.
-+  
-+* The PCF8574 appears as a very simple SMBus device which can be
-+  read from or written to with SMBUS byte read/write accesses.
-+
-+  --Dan
-+
-+*/
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-sensor.h>
-+
-+/* Addresses to scan */
-+static unsigned short normal_i2c[] = { I2C_CLIENT_END };
-+static unsigned short normal_i2c_range[] = { 0x20, 0x27, 0x38, 0x3f, I2C_CLIENT_END };
-+static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
-+static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
-+
-+/* Insmod parameters */
-+SENSORS_INSMOD_2(pcf8574, pcf8574a);
-+
-+/* Initial values */
-+#define PCF8574_INIT 255	/* All outputs on (input mode) */
-+
-+/* Each client has this additional data */
-+struct pcf8574_data {
-+	struct semaphore update_lock;
-+
-+	u8 read, write;			/* Register values */
-+};
-+
-+static int pcf8574_attach_adapter(struct i2c_adapter *adapter);
-+static int pcf8574_detect(struct i2c_adapter *adapter, int address, int kind);
-+static int pcf8574_detach_client(struct i2c_client *client);
-+static void pcf8574_init_client(struct i2c_client *client);
-+static struct pcf8574_data *pcf8574_update_client(struct device *dev);
-+
-+/* This is the driver that will be inserted */
-+static struct i2c_driver pcf8574_driver = {
-+	.owner		= THIS_MODULE,
-+	.name		= "pcf8574",
-+	.id		= I2C_DRIVERID_PCF8574,
-+	.flags		= I2C_DF_NOTIFY,
-+	.attach_adapter	= pcf8574_attach_adapter,
-+	.detach_client	= pcf8574_detach_client,
-+};
-+
-+static int pcf8574_id = 0;
-+
-+/* following are the sysfs callback functions */
-+static ssize_t show_read(struct device *dev, char *buf)
-+{
-+	struct pcf8574_data *data = pcf8574_update_client(dev);
-+	return sprintf(buf, "%u\n", data->read);
-+}
-+
-+static DEVICE_ATTR(read, S_IRUGO, show_read, NULL);
-+
-+static ssize_t show_write(struct device *dev, char *buf)
-+{
-+	struct pcf8574_data *data = i2c_get_clientdata(to_i2c_client(dev));
-+	return sprintf(buf, "%u\n", data->write);
-+}
-+
-+static ssize_t set_write(struct device *dev, const char *buf,
-+			 size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct pcf8574_data *data = i2c_get_clientdata(client);
-+	data->write = simple_strtoul(buf, NULL, 10);
-+	i2c_smbus_write_byte(client, data->write);
-+	return count;
-+}
-+
-+static DEVICE_ATTR(write, S_IWUSR | S_IRUGO, show_write, set_write);
-+
-+/*
-+ * Real code
-+ */
-+
-+static int pcf8574_attach_adapter(struct i2c_adapter *adapter)
-+{
-+	return i2c_detect(adapter, &addr_data, pcf8574_detect);
-+}
-+
-+/* This function is called by i2c_detect */
-+int pcf8574_detect(struct i2c_adapter *adapter, int address, int kind)
-+{
-+	struct i2c_client *new_client;
-+	struct pcf8574_data *data;
-+	int err = 0;
-+	const char *client_name = "";
-+
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE))
-+		goto exit;
-+
-+	/* OK. For now, we presume we have a valid client. We now create the
-+	   client structure, even though we cannot fill it completely yet. */
-+	if (!(new_client = kmalloc(sizeof(struct i2c_client) +
-+				   sizeof(struct pcf8574_data),
-+				   GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto exit;
-+	}
-+
-+	memset(new_client, 0, sizeof(struct i2c_client) +
-+	       sizeof(struct pcf8574_data));
-+
-+	data = (struct pcf8574_data *) (new_client + 1);
-+	i2c_set_clientdata(new_client, data);
-+	new_client->addr = address;
-+	new_client->adapter = adapter;
-+	new_client->driver = &pcf8574_driver;
-+	new_client->flags = 0;
-+
-+	/* Now, we would do the remaining detection. But the PCF8574 is plainly
-+	   impossible to detect! Stupid chip. */
-+
-+	/* Determine the chip type */
-+	if (kind <= 0) {
-+		if (address >= 0x38 && address <= 0x3f)
-+			kind = pcf8574a;
-+		else
-+			kind = pcf8574;
-+	}
-+
-+	if (kind == pcf8574a)
-+		client_name = "pcf8574a";
-+	else
-+		client_name = "pcf8574";
-+
-+	/* Fill in the remaining client fields and put it into the global list */
-+	strlcpy(new_client->name, client_name, I2C_NAME_SIZE);
-+
-+	new_client->id = pcf8574_id++;
-+	init_MUTEX(&data->update_lock);
-+
-+	/* Tell the I2C layer a new client has arrived */
-+	if ((err = i2c_attach_client(new_client)))
-+		goto exit_free;
-+	
-+	/* Initialize the PCF8574 chip */
-+	pcf8574_init_client(new_client);
-+
-+	/* Register sysfs hooks */
-+	device_create_file(&new_client->dev, &dev_attr_read);
-+	device_create_file(&new_client->dev, &dev_attr_write);
-+	return 0;
-+
-+/* OK, this is not exactly good programming practice, usually. But it is
-+   very code-efficient in this case. */
-+
-+      exit_free:
-+	kfree(new_client);
-+      exit:
-+	return err;
-+}
-+
-+static int pcf8574_detach_client(struct i2c_client *client)
-+{
-+	int err;
-+
-+	if ((err = i2c_detach_client(client))) {
-+		dev_err(&client->dev,
-+			"Client deregistration failed, client not detached.\n");
-+		return err;
-+	}
-+
-+	kfree(client);
-+	return 0;
-+}
-+
-+/* Called when we have found a new PCF8574. */
-+static void pcf8574_init_client(struct i2c_client *client)
-+{
-+	struct pcf8574_data *data = i2c_get_clientdata(client);
-+	data->write = PCF8574_INIT;
-+	i2c_smbus_write_byte(client, data->write);
-+}
-+
-+static struct pcf8574_data *pcf8574_update_client(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct pcf8574_data *data = i2c_get_clientdata(client);
-+
-+	down(&data->update_lock);
-+	dev_dbg(&client->dev, "Starting pcf8574 update\n");
-+	data->read = i2c_smbus_read_byte(client); 
-+	up(&data->update_lock);
-+	
-+	return data;
-+}
-+
-+static int __init pcf8574_init(void)
-+{
-+	return i2c_add_driver(&pcf8574_driver);
-+}
-+
-+static void __exit pcf8574_exit(void)
-+{
-+	i2c_del_driver(&pcf8574_driver);
-+}
-+
-+
-+MODULE_AUTHOR
-+    ("Frodo Looijaard <frodol@dds.nl>, "
-+     "Philip Edelbrock <phil@netroedge.com>, "
-+     "Dan Eaton <dan.eaton@rocketlogix.com> "
-+     "and Aurelien Jarno <aurelien@aurel32.net>");
-+MODULE_DESCRIPTION("PCF8574 driver");
-+MODULE_LICENSE("GPL");
-+
-+module_init(pcf8574_init);
-+module_exit(pcf8574_exit);
+ static int ds1621_id = 0;
+ 
+-static u16 swap_bytes(u16 val)
+-{
+-	return (val >> 8) | (val << 8);
+-}
+-
+ /* All registers are word-sized, except for the configuration register.
+    DS1621 uses a high-byte first convention, which is exactly opposite to
+    the usual practice. */
+@@ -110,7 +105,7 @@
+ 	if (reg == DS1621_REG_CONF)
+ 		return i2c_smbus_read_byte_data(client, reg);
+ 	else
+-		return swap_bytes(i2c_smbus_read_word_data(client, reg));
++		return swab16(i2c_smbus_read_word_data(client, reg));
+ }
+ 
+ /* All registers are word-sized, except for the configuration register.
+@@ -121,8 +116,7 @@
+ 	if (reg == DS1621_REG_CONF)
+ 		return i2c_smbus_write_byte_data(client, reg, value);
+ 	else
+-		return i2c_smbus_write_word_data(client, reg,
+-						 swap_bytes(value));
++		return i2c_smbus_write_word_data(client, reg, swab16(value));
+ }
+ 
+ static void ds1621_init_client(struct i2c_client *client)
+diff -Nru a/drivers/i2c/chips/gl518sm.c b/drivers/i2c/chips/gl518sm.c
+--- a/drivers/i2c/chips/gl518sm.c	Wed Apr 14 15:13:38 2004
++++ b/drivers/i2c/chips/gl518sm.c	Wed Apr 14 15:13:38 2004
+@@ -484,18 +484,13 @@
+ 	return 0;
+ }
+ 
+-static inline u16 swap_bytes(u16 val)
+-{
+-	return (val >> 8) | (val << 8);
+-}
+-
+ /* Registers 0x07 to 0x0c are word-sized, others are byte-sized 
+    GL518 uses a high-byte first convention, which is exactly opposite to
+    the usual practice. */
+ static int gl518_read_value(struct i2c_client *client, u8 reg)
+ {
+ 	if ((reg >= 0x07) && (reg <= 0x0c))
+-		return swap_bytes(i2c_smbus_read_word_data(client, reg));
++		return swab16(i2c_smbus_read_word_data(client, reg));
+ 	else
+ 		return i2c_smbus_read_byte_data(client, reg);
+ }
+@@ -506,8 +501,7 @@
+ static int gl518_write_value(struct i2c_client *client, u8 reg, u16 value)
+ {
+ 	if ((reg >= 0x07) && (reg <= 0x0c))
+-		return i2c_smbus_write_word_data(client, reg,
+-						 swap_bytes(value));
++		return i2c_smbus_write_word_data(client, reg, swab16(value));
+ 	else
+ 		return i2c_smbus_write_byte_data(client, reg, value);
+ }
+diff -Nru a/drivers/i2c/chips/lm75.c b/drivers/i2c/chips/lm75.c
+--- a/drivers/i2c/chips/lm75.c	Wed Apr 14 15:13:38 2004
++++ b/drivers/i2c/chips/lm75.c	Wed Apr 14 15:13:38 2004
+@@ -206,11 +206,6 @@
+ 	return 0;
+ }
+ 
+-static u16 swap_bytes(u16 val)
+-{
+-	return (val >> 8) | (val << 8);
+-}
+-
+ /* All registers are word-sized, except for the configuration register.
+    LM75 uses a high-byte first convention, which is exactly opposite to
+    the usual practice. */
+@@ -219,7 +214,7 @@
+ 	if (reg == LM75_REG_CONF)
+ 		return i2c_smbus_read_byte_data(client, reg);
+ 	else
+-		return swap_bytes(i2c_smbus_read_word_data(client, reg));
++		return swab16(i2c_smbus_read_word_data(client, reg));
+ }
+ 
+ /* All registers are word-sized, except for the configuration register.
+@@ -230,8 +225,7 @@
+ 	if (reg == LM75_REG_CONF)
+ 		return i2c_smbus_write_byte_data(client, reg, value);
+ 	else
+-		return i2c_smbus_write_word_data(client, reg,
+-						 swap_bytes(value));
++		return i2c_smbus_write_word_data(client, reg, swab16(value));
+ }
+ 
+ static void lm75_init_client(struct i2c_client *client)
+diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
+--- a/drivers/i2c/chips/w83781d.c	Wed Apr 14 15:13:38 2004
++++ b/drivers/i2c/chips/w83781d.c	Wed Apr 14 15:13:38 2004
+@@ -275,11 +275,6 @@
+ static struct w83781d_data *w83781d_update_device(struct device *dev);
+ static void w83781d_init_client(struct i2c_client *client);
+ 
+-static inline u16 swap_bytes(u16 val)
+-{
+-	return (val >> 8) | (val << 8);
+-}
+-
+ static struct i2c_driver w83781d_driver = {
+ 	.owner = THIS_MODULE,
+ 	.name = "w83781d",
+@@ -1407,20 +1402,17 @@
+ 			/* convert from ISA to LM75 I2C addresses */
+ 			switch (reg & 0xff) {
+ 			case 0x50:	/* TEMP */
+-				res =
+-				    swap_bytes(i2c_smbus_read_word_data(cl, 0));
++				res = swab16(i2c_smbus_read_word_data(cl, 0));
+ 				break;
+ 			case 0x52:	/* CONFIG */
+ 				res = i2c_smbus_read_byte_data(cl, 1);
+ 				break;
+ 			case 0x53:	/* HYST */
+-				res =
+-				    swap_bytes(i2c_smbus_read_word_data(cl, 2));
++				res = swab16(i2c_smbus_read_word_data(cl, 2));
+ 				break;
+ 			case 0x55:	/* OVER */
+ 			default:
+-				res =
+-				    swap_bytes(i2c_smbus_read_word_data(cl, 3));
++				res = swab16(i2c_smbus_read_word_data(cl, 3));
+ 				break;
+ 			}
+ 		}
+@@ -1481,12 +1473,10 @@
+ 				i2c_smbus_write_byte_data(cl, 1, value & 0xff);
+ 				break;
+ 			case 0x53:	/* HYST */
+-				i2c_smbus_write_word_data(cl, 2,
+-							  swap_bytes(value));
++				i2c_smbus_write_word_data(cl, 2, swab16(value));
+ 				break;
+ 			case 0x55:	/* OVER */
+-				i2c_smbus_write_word_data(cl, 3,
+-							  swap_bytes(value));
++				i2c_smbus_write_word_data(cl, 3, swab16(value));
+ 				break;
+ 			}
+ 		}
 

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270863AbTHLRA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 13:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270864AbTHLRA4
+	id S271146AbTHLQ4g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 12:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271148AbTHLQ4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 13:00:56 -0400
-Received: from proibm3.portoweb.com.br ([200.248.222.108]:63444 "EHLO
-	portoweb.com.br") by vger.kernel.org with ESMTP id S270863AbTHLRAy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 13:00:54 -0400
-Date: Tue, 12 Aug 2003 14:02:58 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: "Brown, Len" <len.brown@intel.com>
-cc: Hugh Dickins <hugh@veritas.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Florian Weimer <fw@deneb.enyo.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: [2.6.0-test3] Hyperthreading gone
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC33@hdsmsx402.hd.intel.com>
-Message-ID: <Pine.LNX.4.44.0308121402310.10045-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 12 Aug 2003 12:56:36 -0400
+Received: from dsl017-022-215.chi1.dsl.speakeasy.net ([69.17.22.215]:30470
+	"EHLO gateway.two14.net") by vger.kernel.org with ESMTP
+	id S271146AbTHLQ4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 12:56:33 -0400
+Date: Tue, 12 Aug 2003 11:56:24 -0500
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: maney@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-rc2 ext2 filesystem corruption
+Message-ID: <20030812165624.GA1070@furrr.two14.net>
+Reply-To: maney@pobox.com
+References: <20030812134221.GA6412@furrr.two14.net> <Pine.LNX.4.44.0308121109530.5995-100000@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308121109530.5995-100000@logos.cnet>
+User-Agent: Mutt/1.3.28i
+From: maney@two14.net (Martin Maney)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 12, 2003 at 11:10:51AM -0300, Marcelo Tosatti wrote:
+> I'll try to reproduce around here. In the meantime can you try to isolate 
+> the corruption. You said it didnt happen with 2.4.21 -- which pre shows up 
+> the problem? 
 
+The problem appears only in rc2 (okay, assuming it's not a
+regression).  With 2.4.21-rc1 the file corruption I've been seeing does
+not happen.  From what Stephan has said I think I should try some more
+varied tests.  At this point I plan to do that a little later; I will
+also try an rc2 with unnecessary features omitted from the build.  So
+far I've stayed with the base config, but it's a config shared by most
+of the machines on the LAN and thus has plenty of extras.
 
-On Tue, 12 Aug 2003, Brown, Len wrote:
-
-> Hugh,
-> My changes go to Marcelo via Andy.  This one has been waiting in his
-> staging area while he was out on vacation.  Now that he is back --
-> unless something broke in his tree -- I assume he'll be sending it along
-> to Marcelo shortly.
-
-Good to know. Andrew, I'll wait for you on those updates to release -rc3.
+-- 
+Self-pity can make one weep, as can onions.  -- Fodor
 

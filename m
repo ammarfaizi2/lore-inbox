@@ -1,61 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266619AbUAWR7l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 12:59:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266621AbUAWR7l
+	id S266610AbUAWR5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 12:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266614AbUAWR5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 12:59:41 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:39861 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266619AbUAWR7j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 12:59:39 -0500
-Subject: Re: 2.6.2-rc1-mm2
-From: john stultz <johnstul@us.ibm.com>
-To: Thomas Schlichter <thomas.schlichter@web.de>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <200401231430.35014.thomas.schlichter@web.de>
-References: <20040123013740.58a6c1f9.akpm@osdl.org>
-	 <200401231430.35014.thomas.schlichter@web.de>
-Content-Type: text/plain
-Message-Id: <1074880768.12442.22.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 23 Jan 2004 09:59:28 -0800
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Jan 2004 12:57:16 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:44046 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266610AbUAWR5I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 12:57:08 -0500
+To: Andreas Happe <andreashappe@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [net/8139cp] still crashes my notebook
+References: <slrnc104io.mp.andreashappe@flatline.ath.cx>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sat, 24 Jan 2004 02:56:56 +0900
+In-Reply-To: <slrnc104io.mp.andreashappe@flatline.ath.cx>
+Message-ID: <87vfn24kgn.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-01-23 at 05:30, Thomas Schlichter wrote:
-> Hi,
+Andreas Happe <andreashappe@gmx.net> writes:
+
+> hi,
 > 
-> Am Freitag, 23. Januar 2004 10:37 schrieb Andrew Morton:
-> > +use-pmtmr-for-delay_pmtmr.patch
-> >
-> >  Fix a boot-time crash which occurs when testing the APIC timer when using
-> >  the ACPI PM timer.  This causes bogomips to be reported at 50% of what it
-> >  used to be.
-> 
-> I don't know which Oops this fixes, but with this patch my bogomips value is 
-> 8.19 (!!!) instead of ~1300. With clock=pit I get about 1300 bogomips, and 
-> with clock=tsc I get about 2600 bogomips. The CPU is a 1300MHz AMD Duron.
+> my notebook (hp/compaq nx7000) still crashes when using 8139cp (runs
+> rock solid with 8139too driver). The computer just locks up, there is no
+> dmesg output. This has happened since I've got this laptop (around
+> november '03).
 
-I know it feels like a kick in the pants when your BogoMIPS drops to
-leves not seen since the 80s, but the value you are getting is expected.
-Since the patch above uses the pmtmr for __delay(), loops_per_jiffies is
-then calibrated to the ACPI PM timer's frequency instead of aproximately
-the cpu's freq. 
+It seems 8139cp.c has the race condition of rx_poll and interrupt.
+Does the following patch fix this problem?
 
-This was necessary, because on some systems calibrate_dealy()
-incorrectly calibrates delays. Your system shows this, but its your
-cycle based delay (clock=tsc) which is overestimated, so you see no
-problem. The case Andrew describes above is when the loop based delay
-(clock=pit or clock=pmtmr w/o this patch) is under estimated causing
-problems when we initialize the APIC timer.  
+NOTE, since I don't have this device, patch is untested. Sorry.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-Additionally, since we're no longer dependent on the cpu speed,
-speedstep like changes to the cpu freqency no longer affects time.
+---
 
-thanks
--john
+ drivers/net/8139cp.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
 
+diff -puN drivers/net/8139cp.c~8139cp-napi-race-fix drivers/net/8139cp.c
+--- linux-2.6.2-rc1/drivers/net/8139cp.c~8139cp-napi-race-fix	2004-01-24 02:22:36.000000000 +0900
++++ linux-2.6.2-rc1-hirofumi/drivers/net/8139cp.c	2004-01-24 02:37:43.000000000 +0900
+@@ -615,8 +615,10 @@ rx_next:
+ 		if (cpr16(IntrStatus) & cp_rx_intr_mask)
+ 			goto rx_status_loop;
+ 
+-		netif_rx_complete(dev);
++		local_irq_disable();
+ 		cpw16_f(IntrMask, cp_intr_mask);
++		__netif_rx_complete(dev);
++		local_irq_enable();
+ 
+ 		return 0;	/* done */
+ 	}
+@@ -643,6 +645,12 @@ cp_interrupt (int irq, void *dev_instanc
+ 
+ 	spin_lock(&cp->lock);
+ 
++	/* close possible race's with dev_close */
++	if (unlikely(!netif_running(dev))) {
++		cpw16(IntrMask, 0);
++		goto out;
++	}
++
+ 	if (status & (RxOK | RxErr | RxEmpty | RxFIFOOvr)) {
+ 		if (netif_rx_schedule_prep(dev)) {
+ 			cpw16_f(IntrMask, cp_norx_intr_mask);
+@@ -664,7 +672,7 @@ cp_interrupt (int irq, void *dev_instanc
+ 
+ 		/* TODO: reset hardware */
+ 	}
+-
++out:
+ 	spin_unlock(&cp->lock);
+ 	return IRQ_HANDLED;
+ }
+
+_

@@ -1,86 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbUCCEwF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 23:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbUCCEbG
+	id S261398AbUCCEzp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 23:55:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbUCCEwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 23:31:06 -0500
-Received: from mail.kroah.org ([65.200.24.183]:37506 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262361AbUCCEWA convert rfc822-to-8bit
+	Tue, 2 Mar 2004 23:52:33 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:48333 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262346AbUCCEau
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 23:22:00 -0500
-Subject: Re: [PATCH] Driver Core update for 2.6.4-rc1
-In-Reply-To: <10782873972560@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 2 Mar 2004 20:16:38 -0800
-Message-Id: <107828739888@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Tue, 2 Mar 2004 23:30:50 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] IDE cleanups for 2.6.4-rc1 (2/3)
+Date: Wed, 3 Mar 2004 05:38:10 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200403022215.07385.bzolnier@elka.pw.edu.pl> <404513E8.9010101@pobox.com>
+In-Reply-To: <404513E8.9010101@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403030538.10029.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1557.72.2, 2004/02/19 15:38:41-08:00, shemminger@osdl.org
+On Wednesday 03 of March 2004 00:08, Jeff Garzik wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > [IDE] remove ide_cmd_type_parser() logic
+> >
+> > Set ide_task_t fields (command_type, handler and prehandler) directly.
+> > Remove unused ide_task_t->posthandler and all ide_cmd_type_parser()
+> > logic.
+> >
+> > ide_cmd_type_parser() was meant to be used for ioctls but
+> > ended up checking validity of kernel generated requests (doh!).
+> >
+> > Rationale for removal:
+> > - it can't be used for existing ioctls (changes the way they work)
+> > - kernel shouldn't check validity of (root only) user-space requests
+> >   (it can and should be done in user-space)
+> > - it wastes CPU cycles on going through parsers
+> > - it makes code harder to understand/follow
+> >   (now info about request is localized)
+>
+> Without the annoyingly-large 'switch', how do you figure out whether a
+> command is non-data, pio-read, pio-write, dma-read, or dma-write?
 
-[PATCH] propogate errors from misc_register to caller
+Using ide_task_t->{command_type, handler}, command_type values:
 
-The patch to check for / in class_device is not enough.
-The misc_register function needs to check return value of the things it calls!
+	IDE_DRIVE_TASK_IN - read
+	IDE_DRIVE_TASK_RAW_WRITE - write
+	IDE_DRIVE_TASK_NO_DATA - no data
 
+If handler is NULL we know that command is a DMA one.
 
- drivers/char/misc.c |   24 +++++++++++++++++++-----
- 1 files changed, 19 insertions(+), 5 deletions(-)
+HDIO_DRIVE_TASKFILE gets information about taskfile from user-space in
+ide_task_request_t->{command_type, data_phase}, data_phase can be:
 
+	TASKFILE_OUT_DMA{Q}
+	TASKFILE_IN_DMA{Q}
+	TASKFILE_MULTI_OUT
+	TASKFILE_OUT
+	TASKFILE_MULTI_IN
+	TASKFILE_IN
+	TASKFILE_NO_DATA
 
-diff -Nru a/drivers/char/misc.c b/drivers/char/misc.c
---- a/drivers/char/misc.c	Tue Mar  2 19:52:14 2004
-+++ b/drivers/char/misc.c	Tue Mar  2 19:52:14 2004
-@@ -212,6 +212,9 @@
- int misc_register(struct miscdevice * misc)
- {
- 	struct miscdevice *c;
-+	struct class_device *class;
-+	dev_t dev;
-+	int err;
- 	
- 	down(&misc_sem);
- 	list_for_each_entry(c, &misc_list, list) {
-@@ -240,19 +243,30 @@
- 		snprintf(misc->devfs_name, sizeof(misc->devfs_name),
- 				"misc/%s", misc->name);
- 	}
-+	dev = MKDEV(MISC_MAJOR, misc->minor);
- 
--	class_simple_device_add(misc_class, MKDEV(MISC_MAJOR, misc->minor),
--				misc->dev, misc->name);
--	devfs_mk_cdev(MKDEV(MISC_MAJOR, misc->minor),
--			S_IFCHR|S_IRUSR|S_IWUSR|S_IRGRP, misc->devfs_name);
-+	class = class_simple_device_add(misc_class, dev,
-+					misc->dev, misc->name);
-+	if (IS_ERR(class)) {
-+		err = PTR_ERR(class);
-+		goto out;
-+	}
-+
-+	err = devfs_mk_cdev(dev, S_IFCHR|S_IRUSR|S_IWUSR|S_IRGRP, 
-+			    misc->devfs_name);
-+	if (err) {
-+		class_simple_device_remove(dev);
-+		goto out;
-+	}
- 
- 	/*
- 	 * Add it to the front, so that later devices can "override"
- 	 * earlier defaults
- 	 */
- 	list_add(&misc->list, &misc_list);
-+ out:
- 	up(&misc_sem);
--	return 0;
-+	return err;
- }
- 
- /**
+and this information is translated into ide_task_t->handler.
+
+This is of course non-optimal and driver should be using something like
+ata_taskfile->protocol (as in libata).
+
+Please note that any attempts to verify commands (like this 'switch')
+will fail for future or vendor specific ones.
+
+Bartlomiej
 

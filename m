@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbUBTPsx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 10:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUBTPhh
+	id S261162AbUBTPm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 10:42:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUBTPlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 10:37:37 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:19107 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261290AbUBTPdA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 10:33:00 -0500
-Message-ID: <40362863.9090109@grupopie.com>
-Date: Fri, 20 Feb 2004 15:31:47 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Fri, 20 Feb 2004 10:41:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:43654 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261295AbUBTPgU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 10:36:20 -0500
+Date: Fri, 20 Feb 2004 07:41:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Tridge <tridge@samba.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(),
+ O_CLEAN
+In-Reply-To: <20040220120417.GA4010@elte.hu>
+Message-ID: <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org>
+References: <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org>
+ <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
+ <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
+ <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+ <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+ <20040220120417.GA4010@elte.hu>
 MIME-Version: 1.0
-To: Andy Lutomirski <amluto@hotmail.com>
-Cc: Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB update for 2.6.3
-References: <fa.d7mjamc.1l40pri@ifi.uio.no> <4035AA75.1060109@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski wrote:
 
-> Greg KH wrote:
+
+On Fri, 20 Feb 2004, Ingo Molnar wrote:
 > 
->>
->> Paulo Marques:
->>   o USB: fix usblp.c
->>
-> 
-> Unless I'm missing something, this won't fix the usblp_write spinning 
-> bug I hit.  If it helps, I can try to reproduce it with some debugging 
-> code attached.
-> 
+> One 'user-space cache is valid/clean' bit should be enough - where all
+> non-Samba accesses clear the 'valid bit', and Samba sets the bit
+> manually.
 
+Yes, that, together with O_CLEAN would work.
 
-That is why on our latest thread about this I requested that you tested the 
-patch to check your bug went way.
+The problem is that you'd still need other system calls: it's not like 
+open(O_CREAT) is the only way to create a file. So you'd have to add 
+versions of "link()" etc, which means that O_CLEAN is really pretty 
+pointless, and you might as well just do it in a new system call.
 
-My patch *does* correct *a* bug. I tested it myself because I could trigger the 
-bug easily, and after the patch the bug was gone.
+Your version is also not multi-threaded: you can never allow more than one 
+thread doing the "sys_mark_dir_clean()". That was the reason for having 
+two bits: so that anybody can do a lookup in parallell, and only the 
+"filldir" part needs to be serialized.
 
-I just wanted you to test if our bugs were different, or on the contrary, they 
-are in fact the same.
+So I do believe you'd want two bits anyway.
 
-They could be the same, because in my case, the driver would hang sending 
-garbage to the printer. Because the printer was a dot-matrix "print what it 
-receives" kind of printer, it would output the garbage continously. If it were a 
-more "inteligent" printer it might refuse the garbage and not print anything at 
-all, giving the same result as if nothing was being printed.
-
-Anyway, if the bugs are different, then yes, another patch is needed to fix 
-"your" bug :)
-
-You will be the best person to do it, since you can trigger the bug, and test a 
-before / after scenario.
-
--- 
-Paulo Marques - www.grupopie.com
-
-"In a world without walls and fences who needs windows and gates?"
-
+		Linus

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273888AbRI0Un0>; Thu, 27 Sep 2001 16:43:26 -0400
+	id <S273894AbRI0Usr>; Thu, 27 Sep 2001 16:48:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273895AbRI0UnQ>; Thu, 27 Sep 2001 16:43:16 -0400
-Received: from fe040.worldonline.dk ([212.54.64.205]:61191 "HELO
-	fe040.worldonline.dk") by vger.kernel.org with SMTP
-	id <S273888AbRI0Um7>; Thu, 27 Sep 2001 16:42:59 -0400
-Message-ID: <3BB20C27.4125F9BA@eisenstein.dk>
-Date: Wed, 26 Sep 2001 19:11:03 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OOM killer
-In-Reply-To: <3BB34D5C.15C76E1A@yahoo.co.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S273895AbRI0Ush>; Thu, 27 Sep 2001 16:48:37 -0400
+Received: from AMontpellier-201-1-1-55.abo.wanadoo.fr ([193.252.31.55]:6916
+	"EHLO awak") by vger.kernel.org with ESMTP id <S273894AbRI0Us1> convert rfc822-to-8bit;
+	Thu, 27 Sep 2001 16:48:27 -0400
+Subject: Re: 2.4.9-ac15 sluggish
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <Pine.LNX.4.33L.0109271212100.19147-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0109271212100.19147-100000@imladris.rielhome.conectiva>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.14.99+cvs.2001.09.27.08.00 (Preview Release)
+Date: 27 Sep 2001 22:43:15 +0200
+Message-Id: <1001623396.18174.14.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Hood wrote:
+le jeu 27-09-2001 at 17:13 Rik van Riel a écrit :
+> We discovered a merge bug, -ac15 has a few lines in
+> try_to_swap_out() 10 lines higher than they were in
+> the patch I sent to Alan ;)
+> 
+> This is fixed in the age+launder patch from my home
+> page ard in the vmscan.c I sent to Alan for -ac16.
 
-> How about assigning each process a property similar to its niceness
-> which would be used to decide which process to kill in the event of
-> OOM?
-
-Or maybe make it a configure option if Linux should over commit memory or
-not.
-In some cases it would be nice if you could be sure that the memory you got
-was actually there, and for those cases you could build the kernel with
-CONFIG_NO_MEM_OVERCOMMIT (or something like that) so that linux would simply
-report ENOMEM when there's no more memory.
+Mmmh ... i'm now compiling (make -j5) -ac16 under -ac15-age+launder and
+it's sluggish: xmms drops audio sometimes, my mouse pointer is jerky.
 
 
-Best regards,
-Jesper Juhl
-juhl@eisenstein.dk
-
-
+         Xav
 

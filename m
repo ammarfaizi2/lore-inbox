@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbULEENF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbULEF2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbULEENF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 23:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbULEENF
+	id S261247AbULEF2O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 00:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbULEF2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 23:13:05 -0500
-Received: from smtpout03-04.mesa1.secureserver.net ([64.202.165.74]:28103 "HELO
-	smtpout03-04.mesa1.secureserver.net") by vger.kernel.org with SMTP
-	id S261252AbULEENB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 23:13:01 -0500
-Message-ID: <41B28946.5010904@starnetworks.us>
-Date: Sat, 04 Dec 2004 21:06:30 -0700
-From: "Kevin P. Fleming" <kpfleming@starnetworks.us>
-Organization: Star Networks, LLC
-User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       David Howells <dhowells@redhat.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       libc-alpha@sources.redhat.com
-Subject: Re: Proposal for a userspace "architecture portability" library
-References: <16818.23575.549824.733470@cargo.ozlabs.ibm.com> <1102214647.5520.133.camel@gaston>
-In-Reply-To: <1102214647.5520.133.camel@gaston>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Dec 2004 00:28:14 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:58796 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261247AbULEF2L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 00:28:11 -0500
+Message-Id: <200412050023.iB50NUdF025947@laptop11.inf.utfsm.cl>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Imanpreet Singh Arora <imanpreet@gmail.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What if? 
+In-Reply-To: Message from Jan Engelhardt <jengelh@linux01.gwdg.de> 
+   of "Thu, 02 Dec 2004 11:25:09 BST." <Pine.LNX.4.53.0412021124450.1873@yvahk01.tjqt.qr> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Sat, 04 Dec 2004 21:23:29 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+Jan Engelhardt <jengelh@linux01.gwdg.de> said:
+> Imanpreet Singh Arora <imanpreet@gmail.com> said:
+> >    Firstly I have read the FAQ. So though FAQ answers my question, it
+> >does so only partially.
+> >
+> >    "What if Linux were to be implemented in C++?"
 
-> Interesting ... note also that it goes well with my intend of having
-> some of these (atomics, locks, ...) be provided by the kernel via the
-> vDSO library mapped by the kernel in userland on ppc. That library would
-> abstract that nicely. (That way, the kernel can take care of providing
-> the best implementation for a given processor, dealing with CPU errata
-> that often happen around areas of locks & atomics, etc...)
+> To quota Alan Cox (IIRC): "Been there, done that, threw it out".
 
-Another thought... the Apache APR library already attempts to provide 
-some of this functionality (atomic operations and locks, among others). 
-This would fit nicely, as it would provide the underlying core for these 
-operations, and allow APR to be extremely well optimized when built for 
-a Linux platform.
+Not really. There was support to compile Linux using g++ for a C compiler
+some time back (because of better (at the time) type checking), the result
+was horrible (mainly due to compiler bugs, IIRC). The gain wasn't near
+worth the pain.
+
+Rewriting Linux in C++ means fundamental redesign(s); as mentioned, the VFS
+would become a class, as would the driver interfaces, and much more. The
+object model inside Linux is sufficiently different from C++'s that it
+would be a _huge_ job. And pointless, you'd just get Linux as it stands
+today, and loose many current developers (due to unfamiliarity with C++).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

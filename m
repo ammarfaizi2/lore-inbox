@@ -1,89 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267451AbTASLrv>; Sun, 19 Jan 2003 06:47:51 -0500
+	id <S265140AbTASMER>; Sun, 19 Jan 2003 07:04:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267452AbTASLrv>; Sun, 19 Jan 2003 06:47:51 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10206 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267451AbTASLru>; Sun, 19 Jan 2003 06:47:50 -0500
-Date: Sun, 19 Jan 2003 12:56:47 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: David Woodhouse <dwmw2@infradead.org>
+	id <S265198AbTASMER>; Sun, 19 Jan 2003 07:04:17 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:28398 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S265140AbTASMEQ>; Sun, 19 Jan 2003 07:04:16 -0500
+Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Olaf Titz <olaf@bigred.inka.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5 patch] mics cleanups for mtd
-Message-ID: <20030119115647.GD10647@fs.tum.de>
-References: <20030119012938.GY10647@fs.tum.de> <Pine.LNX.4.44.0301191117540.29823-100000@imladris.demon.co.uk>
+In-Reply-To: <E18a1aZ-0006mL-00@bigred.inka.de>
+References: <25160.1042809144@passion.cambridge.redhat.com>
+	 <Pine.LNX.4.33L2.0301171857230.25073-100000@vipe.technion.ac.il>
+	 <E18a1aZ-0006mL-00@bigred.inka.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6B32tKOZX7KEZsFu9Uhc"
+Organization: Red Hat, Inc.
+Message-Id: <1042930522.15782.12.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301191117540.29823-100000@imladris.demon.co.uk>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 18 Jan 2003 23:55:25 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 19, 2003 at 11:32:33AM +0000, David Woodhouse wrote:
-> On Sun, 19 Jan 2003, Adrian Bunk wrote:
-> 
-> > Below is a cleanup for mtd:
-> > 
-> > I started with removing all #if'd code for kernels < 2.4.4.
-> 
-> That's a reasonable idea, I suppose -- I haven't had someone bitch about
-> me breaking the 2.2 uClinux build for a while now. I want to go further
-> than that with the block device drivers -- they'll be completely forked
-> for 2.4/2.5 support because it's just too ugly to try to support both.  
-> 
-> For most of the other code, the pain of maintaining two separate versions
-> just isn't justified by the marginal cleanup which this affords -- 
-> especially for the drivers where the _only_ difference between building 
-> out-of-the-box in 2.4 and not doing so is a #include <linux/mtd/compatmac.h>
 
-The #include <linux/mtd/compatmac.h> has _no_ effect for building on 2.4
-kernels, it only affects 2.0 and 2.2 kernels.
+--=-6B32tKOZX7KEZsFu9Uhc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The only reason why I said kernels < 2.4.4 is that I removed some
-  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,4)
-from drivers/mtd/devices/blkmtd.c.
+On Sat, 2003-01-18 at 23:37, Olaf Titz wrote:
+> > > Use "/lib/modules/`uname -r`/build" as a default kernel directory, bu=
+t
+> > > allow it to be overridden somehow from the command line. Then do some=
+thing
+> > > like...
+> >...
+> > Do you mean I'll need a live Linux kernel to build the kernel module
+> > package?
+>=20
+> Whoever invented this /lib/modules/... scheme should have known that
+> it provokes this sort of misunderstandings, not to mention is broken
+> in other ways too.
 
-If you want to support the kernels 2.4.0, 2.4.1, 2.4.2 and 2.4.3 these 
-should be kept, but linux/mtd/compatmac.h is not needed for this.
+it was Linus who decreed this to be the standard;)
 
-> > After this cleanup linux/mtd/compatmac.h contained only #include's so I 
-> > completely removed this file, removed all #include's of it in both the 
-> > mtd and jffs2 (sic) code and added the few needed #include's in the .c 
-> > files.
-> 
-> You misunderstand the purpose of this. The idea is that the code itself
-> can be written for the latest kernel, but people can use it on older
-> kernels and compatmac.h makes it OK. If you remove the #include
-> compatmac.h then that doesn't work; obviously :)
+>=20
+> You need the _source_ of the kernel the module will run on to compile
+> modules. You don't need to _run_ this kernel while compiling. Putting
+> build infrastructure into a deployment directory at the least causes
+> confusion, not to mention that the deployment directory might not even
+> exist on the development machine. (I routinely compile kernels and
+> modules of different configurations for three boxes on one of them,
+> the other two don't even have a complete development toolset.)
 
-I can send whatever patch you want.
+yes, and most of the time you want to compile against the currently
+running kernel, at which point `uname -r` comes in handy; for other
+kernels you just change the path a bit.
+make install and make modules_install make the symlink right already....
+it's a 99% solution, sure, but it's ok for all but a few cases.
 
-What is the minimum kernel version you want to support:
-- 2.0.0
-- 2.2.0
-- 2.4.0
-- 2.4.4
 
->...
-> Adding the include files which were indirectly included through 
-> compatmac.h is also OK -- we can just 'touch' those to make it build with 
-> older kernels; they weren't intentionally omitted.
+--=-6B32tKOZX7KEZsFu9Uhc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-I haven't checked older kernels but at least kernel 2.2.20 includes all 
-header files I've added (init.h, sched.h, vmalloc.h).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
->...
-> dwmw2
+iD8DBQA+KdtaxULwo51rQBIRAijvAJ9Y4jMVmB2u58kz8BubSmsYr1rdUQCfWM4x
+tvnwEkLXcHRlleatM1Keb2U=
+=fX1Q
+-----END PGP SIGNATURE-----
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--=-6B32tKOZX7KEZsFu9Uhc--

@@ -1,97 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317865AbSHUMTZ>; Wed, 21 Aug 2002 08:19:25 -0400
+	id <S318265AbSHUMni>; Wed, 21 Aug 2002 08:43:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318263AbSHUMTZ>; Wed, 21 Aug 2002 08:19:25 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:63637 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317865AbSHUMTX>;
-	Wed, 21 Aug 2002 08:19:23 -0400
-Date: Wed, 21 Aug 2002 18:03:33 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
+	id <S318266AbSHUMni>; Wed, 21 Aug 2002 08:43:38 -0400
+Received: from waste.org ([209.173.204.2]:22235 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S318265AbSHUMnh>;
+	Wed, 21 Aug 2002 08:43:37 -0400
+Date: Wed, 21 Aug 2002 07:47:38 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
 Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (re-xmit): kprobes for i386
-Message-ID: <20020821180333.A1227@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-References: <20020821140155.A987@in.ibm.com> <20020821055103.121A62C05E@lists.samba.org>
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (0/4) Entropy accounting fixes
+Message-ID: <20020821124738.GB12128@waste.org>
+References: <20020818025913.GF21643@waste.org> <Pine.LNX.4.44.0208172006050.1491-100000@home.transmeta.com> <20020821104410.A25461@bitwizard.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020821055103.121A62C05E@lists.samba.org>; from rusty@rustcorp.com.au on Wed, Aug 21, 2002 at 08:48:44PM +1000
+In-Reply-To: <20020821104410.A25461@bitwizard.nl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
-
-On Wed, Aug 21, 2002 at 08:48:44PM +1000, Rusty Russell wrote:
-> In message <20020821140155.A987@in.ibm.com> you write:
-> > No. Don't do this. When a trap occurs in kernel space, the
+On Wed, Aug 21, 2002 at 10:44:10AM +0200, Rogier Wolff wrote:
+> On Sat, Aug 17, 2002 at 08:08:36PM -0700, Linus Torvalds wrote:
+> > 
+> > On Sat, 17 Aug 2002, Oliver Xymoron wrote:
+> > > 
+> > > Let me clarify that 2-5 orders thing. The kernel trusts about 10 times
+> > > as many samples as it should, and overestimates each samples' entropy
+> > > by about a factor of 10 (on x86 with TSC) or 1.3 (using 1kHz jiffies).
+> > 
+> > Lookin gat the code, your _new_ code just throws samples away _entirely_ 
+> > just because some random event hasn't happened (the first thing I noticed 
+> > was the context switch testing, there may be others there that I just 
+> > didn't react to).
 > 
-> Sorry Vamsi: I'll have more faith in your code next time, I promise.
+> Oliver, 
 > 
-Thanks :-). But, I think you forgot to apply my incremental patch. 
-Here it is:
+> Let me state that with a proper mixing function you should always 
+> mix in possible entropy sources, even if they CAN be controlled
+> from the outside. 
+> 
+> If you mistrust the source, feel free to add (almost) zero to the 
+> "proven entropy". 
+> 
+> Now, how about keeping both a conservative and a bit more liberal
+> count of the entropy in the pool? Then we can have three device
+> nodes, which provide random entropy. One should follow YOUR rules, 
+> and can only be used on desktop machines with humans typing and
+> mousing at the console (that's your proposition for "random"). 
+> The other is useful for random numbers for keys and such (that's 
+> our current "random"). The last is our old urandom. 
 
-Thanks again,
-Vamsi.
+My current version adds a sysctl that lets you assign between 0.01 and 1
+bits to untrusted sources, defaulting to 0. Headless folks without
+hardware RNGs can use it to get ample amounts of entropy from network
+packets (together with patches that turn on SA_SAMPLE_RANDOM for
+NICs). I believe this should be acceptable to all parties - I'll
+resend sometime soon.
+
 -- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com
---
-diff -u 31-dp/arch/i386/kernel/entry.S 31-dp/arch/i386/kernel/entry.S
---- 31-dp/arch/i386/kernel/entry.S	2002-08-21 11:20:18.000000000 +0530
-+++ 31-dp/arch/i386/kernel/entry.S	2002-08-21 12:10:30.000000000 +0530
-@@ -430,7 +430,7 @@
- 	jmp ret_from_exception
- 
- ENTRY(debug)
--	pushl %eax
-+	pushl $-1			# mark this as an int
- 	SAVE_ALL
- 	movl %esp,%edx
- 	pushl $0
-@@ -452,7 +452,7 @@
- 	RESTORE_ALL
- 
- ENTRY(int3)
--	pushl %eax
-+	pushl $-1			# mark this as an int
- 	SAVE_ALL
- 	movl %esp,%edx
- 	pushl $0
-diff -u 31-dp/arch/i386/kernel/kprobes.c 31-dp/arch/i386/kernel/kprobes.c
---- 31-dp/arch/i386/kernel/kprobes.c	2002-08-21 11:20:18.000000000 +0530
-+++ 31-dp/arch/i386/kernel/kprobes.c	2002-08-21 12:09:50.000000000 +0530
-@@ -117,11 +117,12 @@
- 	/*
- 	 * We singlestepped with interrupts disabled. So, the result on
- 	 * the stack would be incorrect for "pushfl" instruction.
-+	 * Note that regs->esp is actually the top of the stack when the
-+	 * trap occurs in kernel space.
- 	 */
- 	if (current_kprobe->opcode == 0x9c) { /* pushfl */
--		unsigned long *stacktop = (unsigned long *)regs->esp;
--		*stacktop &= ~(TF_MASK | IF_MASK);
--		*stacktop |= kprobe_old_eflags;
-+		regs->esp &= ~(TF_MASK | IF_MASK);
-+		regs->esp |= kprobe_old_eflags;
- 	}
- 
- 	rearm_kprobe(current_kprobe, regs);
-diff -u 31-dp/include/linux/kprobes.h 31-dp/include/linux/kprobes.h
---- 31-dp/include/linux/kprobes.h	2002-08-21 11:20:18.000000000 +0530
-+++ 31-dp/include/linux/kprobes.h	2002-08-21 12:30:24.000000000 +0530
-@@ -2,6 +2,8 @@
- #define _LINUX_KPROBES_H
- #include <linux/config.h>
- #include <linux/list.h>
-+#include <linux/notifier.h>
-+#include <linux/smp.h>
- #include <asm/kprobes.h>
- 
- struct kprobe;
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272422AbRIORkm>; Sat, 15 Sep 2001 13:40:42 -0400
+	id <S272407AbRIORpM>; Sat, 15 Sep 2001 13:45:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272421AbRIORkc>; Sat, 15 Sep 2001 13:40:32 -0400
-Received: from ppp25.ts2-2.NewportNews.visi.net ([209.8.198.25]:50422 "EHLO
-	blimpo.internal.net") by vger.kernel.org with ESMTP
-	id <S272407AbRIORk1>; Sat, 15 Sep 2001 13:40:27 -0400
-Date: Sat, 15 Sep 2001 13:40:32 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Kristian Hogsberg <hogsberg@users.sourceforge.net>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
-        linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH] modutils: ieee1394 device_id extraction
-Message-ID: <20010915134031.W8723@visi.net>
-In-Reply-To: <m38zfgmohp.fsf@dk20037170.bang-olufsen.dk> <20010915121233.U8723@visi.net> <m34rq4mnaa.fsf@dk20037170.bang-olufsen.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m34rq4mnaa.fsf@dk20037170.bang-olufsen.dk>
-User-Agent: Mutt/1.3.20i
+	id <S272421AbRIORpC>; Sat, 15 Sep 2001 13:45:02 -0400
+Received: from [24.254.60.22] ([24.254.60.22]:5045 "EHLO
+	femail32.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S272407AbRIORor>; Sat, 15 Sep 2001 13:44:47 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, VDA@port.imtp.ilyichevsk.odessa.ua
+Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
+Date: Sat, 15 Sep 2001 10:44:10 -0700
+X-Mailer: KMail [version 1.2]
+Cc: VANDROVE@vc.cvut.cz (Petr Vandrovec), linux-kernel@vger.kernel.org
+In-Reply-To: <E15i2Bp-00017m-00@the-village.bc.nu>
+In-Reply-To: <E15i2Bp-00017m-00@the-village.bc.nu>
+MIME-Version: 1.0
+Message-Id: <01091510441001.00174@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 15, 2001 at 06:28:13PM +0200, Kristian Hogsberg wrote:
-> Ben Collins <bcollins@debian.org> writes:
-> 
-> > On Sat, Sep 15, 2001 at 06:02:10PM +0200, Kristian Hogsberg wrote:
-> > > 
-> > > Hi,
-> > > 
-> > > I've been adding hotplug support to the ieee1394 subsystem, and the
-> > > ieee1394 stack in cvs now calls the usermode helper just like usb, pci
-> > > and the rest of them.  Next step is to extend depmod so it extracts
-> > > the device id tables from the 1394 device drivers, which is exactly
-> > > what the patch below does.
-> > > 
-> > > Keith, would you apply this to modutils?
-> > 
-> > Any ETA on converting the sbp2 driver to the hotplug/nodemgr interfaces?
-> > I can either sync the current CVS with Linus as-is, or wait till that is
-> > done, if you think it will be done soon.
-> 
-> I think you should merge it as-is.  The sbp2 driver will still work
-> with the hotplug system, it just does it's own probing now.  As for
-> the ETA, I'll be working on it this weekend, so I hope to have
-> something ready soon.
+On Friday 14 September 2001 04:16 pm, Alan Cox wrote:
+> > +static void __init pci_fixup_athlon_bug(struct pci_dev *d)
+> > +{
+> > +       u8 v;
+> > +       pci_read_config_byte(d, 0x55, &v);
+> > +       if(v & 0x80) {
+> > +               printk(KERN_NOTICE "Stomping on Athlon bug.\n");
+> > +               v &= 0x7f; /* clear bit 55.7 */
+> > +               pci_write_config_byte(d, 0x55, v);
+> > +       }
+> > +}
+> >
+> > Well, these are cosmetic changes anyway...
+> > What is more important now:
+> > 1) Do we have people who still see Athlon bug with the patch?
+> > 2) Do Alan read these messages? ;-)
+>
+> Im watching the discussion with interest. If it proves to be the magic
+> bullet I will ask VIA for guidance on the issue
 
-Ok, I'll merge the current code then.
-
--- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/  Ben Collins  --  ...on that fantastic voyage...  --  Debian GNU/Linux   \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'
+Not being a developer or guru on the internal software workings of the 
+hardware here, I have to ask, does this clear up some bug, or does it 
+disable the optimizations causing the problem? Is this a *fix* or a 
+band-aid?

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292685AbSBUSDR>; Thu, 21 Feb 2002 13:03:17 -0500
+	id <S292687AbSBUSE5>; Thu, 21 Feb 2002 13:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292683AbSBUSDD>; Thu, 21 Feb 2002 13:03:03 -0500
-Received: from boink.boinklabs.com ([162.33.131.250]:49680 "EHLO
-	boink.boinklabs.com") by vger.kernel.org with ESMTP
-	id <S292687AbSBUSCl>; Thu, 21 Feb 2002 13:02:41 -0500
-Date: Thu, 21 Feb 2002 13:02:40 -0500
-From: Charlie Wilkinson <cwilkins@boinklabs.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Hard lock-ups on RH7.2 install - Via Chipset?
-Message-ID: <20020221130240.B12456@boink.boinklabs.com>
-In-Reply-To: <20020221105756.A9728@boink.boinklabs.com> <E16dw9r-0007R1-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <E16dw9r-0007R1-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Feb 21, 2002 at 04:33:23PM +0000
-X-Home-Sweet-Home: RedHat 6.0 / Linux 2.2.12 on an AMD K6-225
+	id <S292683AbSBUSEl>; Thu, 21 Feb 2002 13:04:41 -0500
+Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:63698 "EHLO
+	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
+	id <S292687AbSBUSEU>; Thu, 21 Feb 2002 13:04:20 -0500
+Date: Thu, 21 Feb 2002 13:04:18 -0500 (EST)
+From: "Kendrick M. Smith" <kmsmith@umich.edu>
+X-X-Sender: <kmsmith@robotron.gpcc.itd.umich.edu>
+To: <bwatson@kahuna.cag.cpqcorp.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.18-pre9, trylock for read/write semaphores
+Message-ID: <Pine.SOL.4.33.0202211255240.9973-100000@robotron.gpcc.itd.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 21, 2002 at 04:33:23PM +0000, Alan Cox waxed eloquent:
-> 
-> > I can confirm that it still locks up.  :/  What can I do to help?
-> 
-> I'm assuming its a hardware issue. It works on non VIA for multiple people
-> it fails on VIA for multiple people
 
-yeah, appears to be specific to the KT133 (not 233), as Mark indicated.
-If I recall I've seen reports that this has happened with the KT133A
-as well, though I wonder if they are all related specifically to PCI
-load, or might it be the old Athlon optimization problem in some cases?
-(That was a seperate and distinct issue, generally unrelated to this
-problem, yes?)
+On Tue Feb 12 2002, 17:45:00 EST, Brian Watson wrote:
 
-And then there was something about incorrect chipset register settings
-from the BIOS...
+> Marcelo-
+>
+> Attached is a patch that adds trylock routines for read/write
+> semaphores. David Howells saw it last August and thought it was ready
+> to be submitted then, but I became distracted and haven't taken the
+> time to submit it until now. My motivation is that Christoph Hellwig
+> says he needs it for JFS.
 
-I'm getting confused....  8-o
+I just returned from vacation and saw this thread.  I also need trylock()
+routines for read-write semaphores for NFS version 4, but you're way ahead
+of me: I hadn't even started to implement them yet, and have been working
+around the deficiency.  So I would really like to see some variant of this
+patch go into the 2.5.x series eventually.  Anything I can do to help out?
 
-One thing I noticed - and it may mean nothing - but I noticed that
-during my load tests the drive access lights were not always on solid,
-that the lights went out for all drives for a small fraction of a second
-occasionally.  (concurrent dd's from /dev/zero to each drive.)  I was
-wondering if this might possibly work back to some kind of timeout issue.
-And more importantly, is it possible to crank up debugging messages in
-the kernel and watch for that sort of thing.  Is there any point?
+Cheers,
+ Kendrick Smith
+ Center for Information Technology and Integration, University of Michigan
 
-Thanks for any tips.
-
--cw-

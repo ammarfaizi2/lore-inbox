@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263342AbSLTRqQ>; Fri, 20 Dec 2002 12:46:16 -0500
+	id <S263228AbSLTR4E>; Fri, 20 Dec 2002 12:56:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263491AbSLTRqQ>; Fri, 20 Dec 2002 12:46:16 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:56336
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263342AbSLTRqP>; Fri, 20 Dec 2002 12:46:15 -0500
-Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
-From: Robert Love <rml@tech9.net>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Con Kolivas <conman@kolivas.net>, Andrew Morton <akpm@digeo.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200212201217.07097.m.c.p@wolk-project.de>
-References: <200212200850.32886.conman@kolivas.net>
-	 <200212201042.48161.conman@kolivas.net> <1040341995.2521.81.camel@phantasy>
-	 <200212201217.07097.m.c.p@wolk-project.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040406854.2519.119.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 20 Dec 2002 12:54:14 -0500
-Content-Transfer-Encoding: 7bit
+	id <S263256AbSLTR4E>; Fri, 20 Dec 2002 12:56:04 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:52352 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S263228AbSLTR4D>;
+	Fri, 20 Dec 2002 12:56:03 -0500
+Date: Fri, 20 Dec 2002 19:04:01 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200212201804.TAA12661@harpo.it.uu.se>
+To: marcelo@conectiva.com.br
+Subject: Re: 2.4.21-pre1 broke the ide-tape driver
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-20 at 06:17, Marc-Christian Petersen wrote:
+On Thu, 19 Dec 2002 18:08:15 -0200 (BRST), Marcelo Tosatti wrote:
+>> - ide-disk/ide-floppy do the test&call inside the loop rather than after,
+>>   so possibly the call should be moved into the loop, and augmented
+>>   to be "if (drive && drive->proc) ide_remove_proc_entries(...)".
+>
+>Yes... here is a patch which moves the ide_remove_proc_entries inside the
+>detection loop. Without ide_remove_proc_entries inside the loop we would
+>also not unregister more than one device /proc entries, too.
+>
+>Please test it, works for me.
 
-> FYI: These changes are a horrible slowdown of all apps while kernel 
-> compilation.
+Tested. Works for me too.
 
-Try leaving interactive_delta at 2.  If there are still issues, then it
-may just be the normal "lack" of interactivity bonus.  A heavy compile
-is never pleasant to the other applications.
+/Mikael
 
-You could also try Andrew's numbers (max_timeslice=10 and
-prio_bonus_rate=0 or 10), but I would prefer not to decrease
-max_timeslice so much.
-
-	Robert Love
-
+>
+>--- linux-bk/drivers/ide/ide-tape.c	2002-12-19 18:05:07.000000000 -0200
+>+++ linux-2.4.21/drivers/ide/ide-tape.c	2002-12-19 17:59:39.000000000 -0200
+>@@ -6597,14 +6597,16 @@
+>
+> 	for (minor = 0; minor < MAX_HWIFS * MAX_DRIVES; minor++) {
+> 		drive = idetape_chrdevs[minor].drive;
+>-		if (drive != NULL && idetape_cleanup(drive))
+>-			printk(KERN_ERR "ide-tape: %s: cleanup_module() "
+>-				"called while still busy\n", drive->name);
+>-	}
+>+		if (drive) {
+>+			if (idetape_cleanup(drive))
+>+				printk(KERN_ERR "ide-tape: %s: cleanup_module() "
+>+					"called while still busy\n", drive->name);
+> #ifdef CONFIG_PROC_FS
+>-	if (drive->proc)
+>-		ide_remove_proc_entries(drive->proc, idetape_proc);
+>+			if (drive->proc)
+>+				ide_remove_proc_entries(drive->proc, idetape_proc);
+> #endif
+>+		}
+>+	}
+>
+> 	ide_unregister_module(&idetape_module);
+> }
+>

@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266804AbTBGWsw>; Fri, 7 Feb 2003 17:48:52 -0500
+	id <S266796AbTBGWzd>; Fri, 7 Feb 2003 17:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266805AbTBGWsw>; Fri, 7 Feb 2003 17:48:52 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:11023 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S266804AbTBGWsv>; Fri, 7 Feb 2003 17:48:51 -0500
-Date: Fri, 7 Feb 2003 23:58:17 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>, jt@hpl.hp.com,
-       Mikael Pettersson <mikpe@csd.uu.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-Subject: Re: two x86_64 fixes for 2.4.21-pre3
-Message-ID: <20030207225816.GD1879@arthur.ubicom.tudelft.nl>
-References: <20030124193721.GA24876@wotan.suse.de> <15926.60767.451098.218188@harpo.it.uu.se> <20030128212753.GA29191@wotan.suse.de> <15927.62893.336010.363817@harpo.it.uu.se> <20030129162824.GA4773@wotan.suse.de> <15934.49235.619101.789799@harpo.it.uu.se> <20030203194923.GA27997@bougret.hpl.hp.com> <20030203201255.GA32689@wotan.suse.de> <20030207105818.GB750@elf.ucw.cz> <1044628339.14350.5.camel@irongate.swansea.linux.org.uk>
+	id <S266805AbTBGWzd>; Fri, 7 Feb 2003 17:55:33 -0500
+Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:31106
+	"EHLO www.piet.net") by vger.kernel.org with ESMTP
+	id <S266796AbTBGWzd>; Fri, 7 Feb 2003 17:55:33 -0500
+Subject: Re: Linux Kernel Architectural Diagram
+From: Piet Delaney <piet@www.piet.net>
+To: Linux Lists <user_linux@citma.cu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5E3C3E93.80209@citma.cu>
+References: <20030203221923.M79151@webmail.citma.cu>
+	<1044360902.23312.16.camel@irongate.swansea.linux.org.uk> 
+	<5E3C3E93.80209@citma.cu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Feb 2003 15:04:55 -0800
+Message-Id: <1044659095.2481.11.camel@www.piet.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZmUaFz6apKcXQszQ"
-Content-Disposition: inline
-In-Reply-To: <1044628339.14350.5.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2020-02-06 at 08:28, Linux Lists wrote:
+> Where can I get a diagram of the Linux Kernel Architectural ?
 
---ZmUaFz6apKcXQszQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+David Mosberger's Book:
 
-On Fri, Feb 07, 2003 at 02:32:20PM +0000, Alan Cox wrote:
-> -ENOSYS is the normal return for an unknown syscall. -ENOTTY for an
-> invalid ioctl (-EINVAL I think is wrong ?)
+	ia-64 Linux Kernel Design and Implementation
 
-About a year ago -ENOTTY was explained like this:
+is the best I've seen.
 
-  IOW, "not a tty" used to mean "WTF are you using ioctls here?"
+-piet@www.piet.net
 
-          - Al Viro explaining ENOTTY on linux-kernel
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+piet@www.piet.net
 
-(Hey, the kernelnewbies.org fortunes file is useful, right? ;)
-
-
-Erik
-
---=20
-J.A.K. (Erik) Mouw
-Email: J.A.K.Mouw@its.tudelft.nl  mouw@nl.linux.org
-
---ZmUaFz6apKcXQszQ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE+RDoI/PlVHJtIto0RAveyAJ4/6YCL8xRRxZkiRRV3He+6539USwCcCya8
-nwl3wkahFJIvgC+SjcadHWI=
-=zUMV
------END PGP SIGNATURE-----
-
---ZmUaFz6apKcXQszQ--

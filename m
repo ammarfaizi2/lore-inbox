@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbVCJBKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVCJBKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262615AbVCJBKi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 20:10:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262643AbVCJBGq
+	id S262618AbVCJBKo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 20:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVCJBG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:06:46 -0500
-Received: from mail.kroah.org ([69.55.234.183]:64415 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262641AbVCJAmi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:38 -0500
-Date: Wed, 9 Mar 2005 16:37:46 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] Add Superhighway bus support for 2.6.11
-Message-ID: <20050310003746.GA32473@kroah.com>
+	Wed, 9 Mar 2005 20:06:56 -0500
+Received: from mail.kroah.org ([69.55.234.183]:46751 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262613AbVCJAmZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:42:25 -0500
+Cc: gregkh@suse.de
+Subject: [PATCH] debufs: make built in types add a \n to their output
+In-Reply-To: <20050310002444.GA32153@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 9 Mar 2005 16:26:22 -0800
+Message-Id: <1110414382208@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.2033, 2005/03/09 15:24:07-08:00, gregkh@suse.de
 
-Here is one changeset that adds superhighway bus support to the 2.6.11
-kernel.  It has been in the -mm releases for a while.
+[PATCH] debufs: make built in types add a \n to their output
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/2.6.11/sh
+Thanks to Alessandro Rubini <rubini@gnudd.com> for pointing this out.
 
-Individual patches will follow, sent to the linux-kernel list.
-
-thanks,
-
-greg k-h
-
- drivers/sh/Makefile                      |    6 
- drivers/sh/superhyway/Makefile           |    7 +
- drivers/sh/superhyway/superhyway-sysfs.c |   45 ++++++
- drivers/sh/superhyway/superhyway.c       |  201 +++++++++++++++++++++++++++++++
- include/linux/superhyway.h               |   79 ++++++++++++
- 5 files changed, 338 insertions(+)
------
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
-Paul Mundt:
-  o Add SuperHyway bus subsystem
+ fs/debugfs/file.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/fs/debugfs/file.c b/fs/debugfs/file.c
+--- a/fs/debugfs/file.c	2005-03-09 16:23:09 -08:00
++++ b/fs/debugfs/file.c	2005-03-09 16:23:09 -08:00
+@@ -52,7 +52,7 @@
+ 	char buf[32];								\
+ 	type *val = file->private_data;						\
+ 										\
+-	snprintf(buf, sizeof(buf), format, *val);				\
++	snprintf(buf, sizeof(buf), format "\n", *val);				\
+ 	return simple_read_from_buffer(user_buf, count, ppos, buf, strlen(buf));\
+ }										\
+ static ssize_t write_file_##type(struct file *file, const char __user *user_buf,\
 

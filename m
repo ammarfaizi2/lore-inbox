@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVBHRnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVBHRsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVBHRnk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 12:43:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVBHRnk
+	id S261607AbVBHRsL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 12:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVBHRsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 12:43:40 -0500
-Received: from imag.imag.fr ([129.88.30.1]:56788 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S261605AbVBHRnh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 12:43:37 -0500
-Message-ID: <4208FC2E.4010306@naurel.org>
-Date: Tue, 08 Feb 2005 18:51:42 +0100
-From: =?ISO-8859-1?Q?Aur=E9lien_Francillon?= <aurel@naurel.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050117)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stefan Seyfried <seife@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG]  linux-2.6.11-rc3 probably in ACPI  battery procfs ...
-References: <4207557B.2090500@naurel.org> <4208BC68.8070700@suse.de>
-In-Reply-To: <4208BC68.8070700@suse.de>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 8 Feb 2005 12:48:11 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:26898 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261607AbVBHRsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 12:48:07 -0500
+Message-Id: <200502081747.j18Hlt54012728@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: Chris Wright <chrisw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8) 
+In-Reply-To: Your message of "Tue, 08 Feb 2005 11:24:50 CST."
+             <20050208172450.GA3598@halcrow.us> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050207192108.GA776@halcrow.us> <20050207193129.GB834@halcrow.us> <20050207142603.A469@build.pdx.osdl.net>
+            <20050208172450.GA3598@halcrow.us>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1107884875_3999P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Greylist: Message not sent from an IPv4 address, not delayed by milter-greylist-1.4 (imag.imag.fr [IPv6:2001:660:5301:1e::101]); Tue, 08 Feb 2005 18:43:09 +0100 (CET)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+Date: Tue, 08 Feb 2005 12:47:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Seyfried wrote:
-> aurelien francillon wrote:
-> 
->>hi,
->>since just before linux-2.6.11-rc3  ( i think it's rc2-bk10 ) there
->>seems to have a bug in the acpi part of the proc file system :
->>reading /proc/acpi/battery/BAT0/info  takes a very long time and locks
->>up the computer, time gives:
->>cat /proc/acpi/battery/BAT0/info  0.00s user 6.76s system 12030% cpu
->>0.056 total
->>I notice it because kde reads it every 10seconds ... so the compuer gets
->>locked for ~5s every ~10s ...
-> 
-> 
->>computer is a dell D600 laptop,
-> 
-> 
-> I have seen the same on a D600 and an Compaq Armada E500, not 6 seconds
-> but ~1.2 seconds. Try to put a
-> 
-> #define ACPI_ENABLE_OBJECT_CACHE 1
-> 
-> at the end of include/acpi/acpi.h (before the last #endif), this sort of
-> fixed it for me (now it again needs ~0.2 seconds, still way too long,
-> but the same as with the last good 2.6.11-rc2-bk9).
-> 
-> Good luck :-)
-> 
-> Stefan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--==_Exmh_1107884875_3999P
+Content-Type: text/plain; charset=us-ascii
 
+On Tue, 08 Feb 2005 11:24:50 CST, Michael Halcrow said:
 
-that's "fixed" it for me too,
-thanks
-Aurel
+> While the program is waiting for a keystroke, mount the block device.
+> Enter a keystroke.  The result without the patch is 1, which is a
+> security violation.  This occurs because the bd_release function will
+> bd_release(bdev) and set inode->i_security to NULL on the close(fd1).
 
--- 
-Lat:     45:11:43N (45.1954)
-Lon:      5:43:36E ( 5.7268)
+Sounds like a bug, not a feature.  Should it be zeroing out inode->i_security
+for an inode with a non-zero reference count?
+
+--==_Exmh_1107884875_3999P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCCPtKcC3lWbTT17ARAtM2AJ0b8z1sXikCbfrCkAfv6M93OEZmawCgic73
+UOfHqJ1bVBrCzZj8ji3fUWg=
+=OxCR
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1107884875_3999P--

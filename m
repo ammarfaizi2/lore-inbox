@@ -1,135 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271244AbUJVL7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271250AbUJVMJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271244AbUJVL7W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 07:59:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271240AbUJVL7V
+	id S271250AbUJVMJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 08:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271252AbUJVMJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 07:59:21 -0400
-Received: from neopsis.com ([213.239.204.14]:56968 "EHLO
-	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
-	id S271244AbUJVL6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 07:58:46 -0400
-Message-ID: <4178F5EF.7000503@dbservice.com>
-Date: Fri, 22 Oct 2004 13:58:39 +0200
-From: Tomas carnecky <tom@dbservice.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Blizbor <kernel@globalintech.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: my opinion about VGA devices
-References: <417590F3.1070807@dbservice.com> <200410201318.26430.oliver@neukum.org> <41765A8C.2020309@dbservice.com> <Pine.LNX.4.61.0410200851080.10711@chaos.analogic.com> <417672BF.5040708@dbservice.com> <Pine.LNX.4.61.0410201022370.12062@chaos.analogic.com> <41767DB4.9040008@dbservice.com> <4178F276.2040501@globalintech.pl>
-In-Reply-To: <4178F276.2040501@globalintech.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Please contact the ISP for more information
-X-Neopsis-MailScanner: Found to be clean
-X-MailScanner-From: tom@dbservice.com
+	Fri, 22 Oct 2004 08:09:08 -0400
+Received: from hell.sks3.muni.cz ([147.251.210.30]:39308 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S271250AbUJVMI6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 08:08:58 -0400
+Date: Fri, 22 Oct 2004 14:08:22 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 - e1000 - page allocation failed
+Message-ID: <20041022120821.GA12619@mail.muni.cz>
+References: <20041021221622.GA11607@mail.muni.cz> <20041021225825.GA10844@electric-eye.fr.zoreil.com> <20041022025158.7737182c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041022025158.7737182c.akpm@osdl.org>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blizbor wrote:
+On Fri, Oct 22, 2004 at 02:51:58AM -0700, Andrew Morton wrote:
+> I'd be interested in knowing if this fixes it - I don't expect it will,
+> because that's a zero-order allocation failure.  He's really out of memory.
+> 
+> The e1000 driver has a default rx ring size of 256 which seems a bit nutty:
+> a back-to-back GFP_ATOMIC allocation of 256 skbs could easily exhaust the
+> page allocator pools.
+> 
+> Probably this machine needs to increase /proc/sys/vm/min_free_kbytes.
 
-> Tomas Carnecky wrote:
->
->> Richard B. Johnson wrote:
->>
->>>> Why do you let user-mode programs access the hardware directly?
->>>> You don't do this with network devices (there you have syscalls), 
->>>> you don't do this with sound devices (alsa).
->>>
->>>
->>>
->>>
->>> Any root process can mmap() any of the memory-mapped hardware
->>> including network devices. This isn't normally done because
->>> handling interrupts from such hardware isn't very efficient
->>> in user-mode, and redistributing data meant for another
->>> process would be a nightmare. However, it can be done.
->>>
->>>> IMO it makes a proper power managment implementation impossible.
->>>>
->>>
->>> Wrong. The 'normal' user can't do such I/O, root can. See iopl(), which
->>> sets the I/O privilege level. This has nothing to do with power-
->>> management.
->>
->>
->>
->> Power managment should be done in the kernel, that's why there is 
->> sysfs and the kobjects. But it can't be done properly if some process 
->> from user-mode (even root processes) do access the hardware directly.
->> Power managment isn't the only reason why it shouldn't be done, but 
->> also everything related to the device managment etc. There should 
->> always be a driver between a process and the hardware as a protection.
->>
->>>
->>>> Last time I've tried a LiveCD distro I've seen a nice boot console 
->>>> with background picture, high resolution (1024x768) and nice small 
->>>> font. That means that the framebuffer driver had to be initialized 
->>>> at that time. I don't have framebuffer drivers compiled into my 
->>>> kernel so I don't know at which point these are initialized, but it 
->>>> must be at a quite early point in the boot process.
->>>
->>>
->>>
->>>
->>> Even Fedora, which boots in a 'graphical' mode, really boots standard
->>> text-mode until 'init' gets control. They just hide the console output
->>> by setting the grub command-line parameter, "quiet".
->>>
->>> The kernel messages are still available using `dmesg`. If you want
->>> to eliminate any possibility of losing kernel messages because
->>> the kernel failed to get up all the way, just use /dev/ttyS0 as
->>> your console during boot.
->>
->>
->>
->> Well... that's why I don't understand why we should keep the VGA code 
->> in the kernel. It's very unlikely that the kernel crashes before a 
->> graphics driver can be initialized (if you do this as soon as 
->> possible) unless you have a bad CPU etc.
->>
-> I think you're wrong.
-> This is not a good idea. In such important (should I say 'critical' ?) 
-> software like kernel
-> there is no room to developers 'probability sense'. If exists 
-> hypotethical situation that
-> something will go wrong it should be taken into account and a software 
-> way to handle it
-> must exist.
+It did not help.
 
-I don't think there is any way you can handle a crash at that stage, 
-either the kernel starts successfully or not.
+However I tweak network stack a little bit:
+/sbin/sysctl -w net/core/rmem_max=8388608
+/sbin/sysctl -w net/core/wmem_max=8388608
+/sbin/sysctl -w net/core/rmem_default=1048576
+/sbin/sysctl -w net/core/wmem_default=1048576
+/sbin/sysctl -w net/ipv4/tcp_window_scaling=1
+/sbin/sysctl -w net/ipv4/tcp_rmem="4096 1048576 8388608"
+/sbin/sysctl -w net/ipv4/tcp_wmem="4096 1048576 8388608"
+/sbin/ifconfig eth0 txqueuelen 1000
 
->
-> 1. What if kernel crashes during graphics driver initialisation ?
+this is /proc/meminfo:
+cat /proc/meminfo 
+MemTotal:      1035116 kB
+MemFree:        447028 kB
+Buffers:             0 kB
+Cached:         522444 kB
+SwapCached:          0 kB
+Active:          98092 kB
+Inactive:       460408 kB
+HighTotal:      131008 kB
+HighFree:          308 kB
+LowTotal:       904108 kB
+LowFree:        446720 kB
+SwapTotal:     4008208 kB
+SwapFree:      4008204 kB
+Dirty:               0 kB
+Writeback:           0 kB
+Mapped:          45804 kB
+Slab:            21112 kB
+Committed_AS:   128148 kB
+PageTables:       1528 kB
+VmallocTotal:   114680 kB
+VmallocUsed:      2964 kB
+VmallocChunk:   111700 kB
 
-Developers can have a serial console attached to the computer and get 
-the info from there and any other user don't really care, I don't think 
-that the office workers in the Munich government would care about it and 
-send a bug report to the LKML.
+Note that there is 400MB of _free_ memory.
 
-> 2. What if you move HD to another box with totally diferrent graphics 
-> device ?
+This is from slabinfo (hope that it is relevant info..)
 
-You could have two drivers compiled in, one very small and simple (VGA) 
-for the case that you'll change the computer and a boot parameter to 
-change them. But usually people compile a new kernel before putting the 
-HD into a new box so I don't see this as a a stong argument.
+size-131072(DMA)       0      0 131072    1   32 : tunables
+8    4    0 : slabdata      0      0      0
+size-131072            0      0 131072    1   32 : tunables
+8    4    0 : slabdata      0      0      0
+size-65536(DMA)        0      0  65536    1   16 : tunables
+8    4    0 : slabdata      0      0      0
+size-65536             1      1  65536    1   16 : tunables
+8    4    0 : slabdata      1      1      0
+size-32768(DMA)        0      0  32768    1    8 : tunables
+8    4    0 : slabdata      0      0      0
+size-32768            16     16  32768    1    8 : tunables
+8    4    0 : slabdata     16     16      0
+size-16384(DMA)        0      0  16384    1    4 : tunables
+8    4    0 : slabdata      0      0      0
+size-16384             2      2  16384    1    4 : tunables
+8    4    0 : slabdata      2      2      0
+size-8192(DMA)         0      0   8192    1    2 : tunables
+8    4    0 : slabdata      0      0      0
+size-8192            120    120   8192    1    2 : tunables
+8    4    0 : slabdata    120    120      0
+size-4096(DMA)         0      0   4096    1    1 : tunables   24   12
+8 : slabdata      0      0      0
+size-4096            300    300   4096    1    1 : tunables   24   12
+8 : slabdata    300    300      0
+size-2048(DMA)         0      0   2048    2    1 : tunables   24   12
+8 : slabdata      0      0      0
+size-2048            106    106   2048    2    1 : tunables   24   12
+8 : slabdata     53     53      0
+size-1024(DMA)         0      0   1024    4    1 : tunables   54   27
+8 : slabdata      0      0      0
+size-1024           1052   1052   1024    4    1 : tunables   54   27
+8 : slabdata    263    263      0
+size-512(DMA)          0      0    512    8    1 : tunables   54   27
+8 : slabdata      0      0      0
+size-512             294   1240    512    8    1 : tunables   54   27
+8 : slabdata    155    155      0
+size-256(DMA)          0      0    256   15    1 : tunables  120   60
+8 : slabdata      0      0      0
+size-256             211   1170    256   15    1 : tunables  120   60
+8 : slabdata     78     78      0
+size-128(DMA)          0      0    128   31    1 : tunables  120   60
+8 : slabdata      0      0      0
+size-128            1688   2728    128   31    1 : tunables  120   60
+8 : slabdata     88     88      0
+size-64(DMA)           0      0     64   61    1 : tunables  120   60
+8 : slabdata      0      0      0
+size-64              610   2318     64   61    1 : tunables  120   60
+8 : slabdata     38     38      0
+size-32(DMA)           0      0     32  119    1 : tunables  120   60
+8 : slabdata      0      0      0
+size-32             1381   4641     32  119    1 : tunables  120   60
+8 : slabdata     39     39     15
+kmem_cache           165    165    256   15    1 : tunables  120   60
+8 : slabdata     11     11      0
 
-> 3. What if the kernel DO crash before graph.dev. initialisation ? How 
-> many hours you will spend diagnosing ?
-
-Not even a minute, I'd switch to a driver version that worked before. 
-And maybe report that the new version doesn't work.
-
->
-> 4. What if before or during graphisc driver initialisation a kind of 
-> delayed error in other device will occur ?
-
-Not if you initialize the graph.dev. before any other device, as soon as 
-possible, just after the bus(PCI etc.) initialization.
-
-tom
-
+-- 
+Luká¹ Hejtmánek

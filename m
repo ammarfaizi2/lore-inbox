@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267961AbUJSVg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269863AbUJSVgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267961AbUJSVg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 17:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUJSVbm
+	id S269863AbUJSVgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 17:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269773AbUJSVbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 17:31:42 -0400
-Received: from smtp2.netcabo.pt ([212.113.174.29]:30394 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S268138AbUJSVMH (ORCPT
+	Tue, 19 Oct 2004 17:31:21 -0400
+Received: from gprs214-24.eurotel.cz ([160.218.214.24]:3456 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267301AbUJSVLc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 17:12:07 -0400
-Message-ID: <32839.192.168.1.5.1098220140.squirrel@192.168.1.5>
-In-Reply-To: <32806.192.168.1.5.1098218772.squirrel@192.168.1.5>
-References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>  
-     <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>   
-    <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>   
-    <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>   
-    <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>   
-    <20041019180059.GA23113@elte.hu>
-    <32806.192.168.1.5.1098218772.squirrel@192.168.1.5>
-Date: Tue, 19 Oct 2004 22:09:00 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U7
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 19 Oct 2004 21:12:05.0505 (UTC) FILETIME=[491CCF10:01C4B620]
+	Tue, 19 Oct 2004 17:11:32 -0400
+Date: Tue, 19 Oct 2004 23:11:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kendall Bennett <KendallB@scitechsoft.com>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       penguinppc-team@lists.penguinppc.org
+Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041019211114.GC1142@elf.ucw.cz>
+References: <416E6ADC.3007.294DF20D@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <416E6ADC.3007.294DF20D@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ingo Molnar wrote:
->>
->> i have released the -U7 Real-Time Preemption patch:
->>
->>   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U7
->>
->
->
-> As an aside, my greatest complaint is that jackd -R doesn't work at all:
->
-> JACK: unable to mlock() port buffers: Cannot allocate memory
-> jack_create_thread: error -1 switching current thread to rt for
-> inheritance: Unknown error 4294967295
-> cannot start watchdog thread
-> cannot load driver module alsa
->
+Hi!
 
-Forget this. The reason is that realtime-lsm module wasn't being loaded.
+> I am writing this email to guage the interest in having code contributed 
+> to the main stream Linux kernel that would support the user of a generic, 
+> full featured VESA framebuffer driver that works on any CPU architecture 
+> along with a generic Video card BOOT or POST mechanism.
 
-Sorry.
+BTW, does this look like right way to POST VGA BIOS from real mode? It
+is what we currently use... and it works on some machines...
+
+        movw    $0xb800, %ax
+        movw    %ax,%fs
+        movw    $0x0e00 + 'L', %fs:(0x10)
+
+        cli
+        cld
+
+        # setup data segment
+        movw    %cs, %ax
+        movw    %ax, %ds                                        # Make ds:0 point to wakeup_start
+        movw    %ax, %ss
+        mov     $(wakeup_stack - wakeup_code), %sp              # Private stack is needed for ASUS board
+        movw    $0x0e00 + 'S', %fs:(0x12)
+
+        pushl   $0                                              # Kill any dangerous flags
+        popfl
+
+        movl    real_magic - wakeup_code, %eax
+        cmpl    $0x12345678, %eax
+        jne     bogus_real_magic
+
+        testl   $1, video_flags - wakeup_code
+        jz      1f
+        lcall   $0xc000,$3
+        movw    %cs, %ax
+        movw    %ax, %ds                                        # Bios might have played with that
+        movw    %ax, %ss
+1:
+
+								Pavel
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129497AbQKIQsi>; Thu, 9 Nov 2000 11:48:38 -0500
+	id <S129186AbQKIQuH>; Thu, 9 Nov 2000 11:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129296AbQKIQs2>; Thu, 9 Nov 2000 11:48:28 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:59146 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129251AbQKIQsV>;
-	Thu, 9 Nov 2000 11:48:21 -0500
-Date: Thu, 9 Nov 2000 16:45:43 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Marco d'Itri" <md@Linux.IT>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: Linux-2.4.0-test10
-Message-ID: <20001109164543.G14456@redhat.com>
-In-Reply-To: <E13qiR9-0008FT-00@the-village.bc.nu> <20001102171717.L1876@redhat.com> <20001104194937.E3423@wonderland.linux.it>
+	id <S129181AbQKIQt5>; Thu, 9 Nov 2000 11:49:57 -0500
+Received: from f253.law3.hotmail.com ([209.185.240.26]:15119 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129103AbQKIQts>;
+	Thu, 9 Nov 2000 11:49:48 -0500
+X-Originating-IP: [204.68.140.35]
+From: "jim M." <msg124@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: changelog
+Date: Thu, 09 Nov 2000 16:49:41 GMT
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20001104194937.E3423@wonderland.linux.it>; from md@Linux.IT on Sat, Nov 04, 2000 at 07:49:37PM +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <F253FJ3sl3xbYiMCIqt0000e78a@hotmail.com>
+X-OriginalArrivalTime: 09 Nov 2000 16:49:41.0447 (UTC) FILETIME=[0E143570:01C04A6D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hi all,
 
-On Sat, Nov 04, 2000 at 07:49:37PM +0100, Marco d'Itri wrote:
-> On Nov 02, "Stephen C. Tweedie" <sct@redhat.com> wrote:
-> 
->  >2.2 O_SYNC is actually broken too --- it doesn't sync all metadata (in
->  >particular, it doesn't update the inode), but I'd rather fix that for
->  >2.4 rather than change 2.2, as the main users of O_SYNC, databases,
->  >are writing to preallocated files anyway.
-> What about fsync(2)? Will it update metadata too?
+Sorry, but i could not find a more appropriate group list to post this on. 
+my fault in anyways.
+I like to keep track of what is installed after each RPM or any other 
+install command is performed. Like dates inatlled and who installed it,....  
+Like create a log of changes,...
+what is the command for it?.  how do i incorporate the date and who command 
+into with install command.
 
-Always.  fdatasync() is permitted to skip timestamp updates, but
-fsync() is not.
+J
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 
-Cheers,
- Stephen
+Share information about yourself, create your own public profile at 
+http://profiles.msn.com.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

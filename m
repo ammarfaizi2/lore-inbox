@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S281555AbUKAWdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267051AbUKAWeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S281555AbUKAWdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 17:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S377339AbUKAWdY
+	id S267051AbUKAWeG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 17:34:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbUKAWeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 17:33:24 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:8094 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S311627AbUKAUKK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 15:10:10 -0500
-Subject: Re: [RFC][PATCH] inotify 0.15
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org, gamin-list@gnome.org,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       bkonrath@redhat.com, greg@kroah.com
-In-Reply-To: <1099330316.12182.2.camel@vertex>
-References: <1099330316.12182.2.camel@vertex>
-Content-Type: text/plain
-Date: Mon, 01 Nov 2004 15:07:49 -0500
-Message-Id: <1099339669.31022.36.camel@betsy.boston.ximian.com>
+	Mon, 1 Nov 2004 17:34:04 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:31211 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S275634AbUKASsH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 13:48:07 -0500
+Date: Mon, 1 Nov 2004 19:48:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       "K.R. Foley" <kr@cybsft.com>, LKML <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041101184847.GC32009@elte.hu>
+References: <OF45B54BA4.2C7A16BA-ON86256F3F.0059443C@raytheon.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF45B54BA4.2C7A16BA-ON86256F3F.0059443C@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-01 at 12:31 -0500, John McCutchan wrote:
 
-> In this release of inotify I have added a new ulimit for the
-> number of watches a particular user can have. I am interested
-> in peoples response to this addition and any alternative solutions.
-> 
-> Here is release 0.15.0 of inotify. Attached is a patch to 2.6.9
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-By and by, people using 2.6.10-rc1 or -mm or whatever will find that
-several interfaces used by this patch coincidentally changed.
+> Did notice an odd message during the dump of tasks...
+> Losing too many ticks!
+> TSC cannot be used as a timesource.
+> Possible reasons for this are:
+>   You're running with Speedstep.   [almost surely not]
+>   You don't have DMA enabled for your hard disk (see hdparm), [udma4 should
+> be set at this point]
+>   Incorrect TSC synchronization on an SMP system (see dmesg). [can't look
+> at that, system is hung]
+> Falling back to a sane timesource now.
 
-So I thought I'd point you all at an updated 2.6.10-rc1 patch:
+this is just due to the messages going out to the serial console slowly
+and with interrupts disabled. You can safely ignore this during the
+dump, the system wont get into any much worse state from this. So it's a
+pure side-effect.
 
-http://www.kernel.org/pub/linux/kernel/people/rml/inotify/v2.6/0.15/
-
-Which might be easier.
-
-	Robert Love
-
-
+	Ingo

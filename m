@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264005AbUCZJj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 04:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbUCZJj2
+	id S263985AbUCZJq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 04:46:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbUCZJq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 04:39:28 -0500
-Received: from gprs214-219.eurotel.cz ([160.218.214.219]:896 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264121AbUCZJjY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 04:39:24 -0500
-Date: Fri, 26 Mar 2004 01:11:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: B.Zolnierkiewicz@elka.pw.edu.pl,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Subject: Kill IDE debug messages during suspend
-Message-ID: <20040326001154.GA3353@elf.ucw.cz>
+	Fri, 26 Mar 2004 04:46:59 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:51211 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263985AbUCZJq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 04:46:57 -0500
+Date: Fri, 26 Mar 2004 09:46:56 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Christian Leber <christian@leber.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with remap_page_range/mmap
+Message-ID: <20040326094656.A3812@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Christian Leber <christian@leber.de>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20040325234804.GA29507@core.home> <20040326071739.B2637@infradead.org> <20040326093619.GA15965@core.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040326093619.GA15965@core.home>; from christian@leber.de on Fri, Mar 26, 2004 at 10:36:19AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Mar 26, 2004 at 10:36:19AM +0100, Christian Leber wrote:
+> It also didn´t work with PG_reserved.
+> What would be the good idea? I need at least 8 at least 4MB (2MB are enough for 2.4)
+> big physical memory pieces for DMA, mapped to userspace.
+> 
+> What is the reason why it doesn´t work? There seems to be no special
+> remap_page_range for ia64.
 
-Suspend/resume support in ide seems to work okay these days, so this
-should be applied...
-								Pavel
+Put the page structs into an array and return them from ->nopage.  The
+kernel pagefault code will set up the ptes for you.
 
---- clean/include/linux/ide.h	2004-03-11 18:11:23.000000000 +0100
-+++ linux/include/linux/ide.h	2004-03-26 01:08:28.000000000 +0100
-@@ -24,8 +24,6 @@
- #include <asm/io.h>
- #include <asm/semaphore.h>
- 
--#define DEBUG_PM
--
- /*
-  * This is the multiple IDE interface driver, as evolved from hd.c.
-  * It supports up to four IDE interfaces, on one or more IRQs (usually 14 & 15).
+Now actually getting 4MB of continguous memory is a different issue..
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I'm surprised you actually managed to get the allocation to succeed.
+

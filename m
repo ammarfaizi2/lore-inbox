@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSIDUPG>; Wed, 4 Sep 2002 16:15:06 -0400
+	id <S315260AbSIDUPs>; Wed, 4 Sep 2002 16:15:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315370AbSIDUPF>; Wed, 4 Sep 2002 16:15:05 -0400
-Received: from [64.6.248.2] ([64.6.248.2]:30090 "EHLO greenie.frogspace.net")
-	by vger.kernel.org with ESMTP id <S315198AbSIDUPF>;
-	Wed, 4 Sep 2002 16:15:05 -0400
-Date: Wed, 4 Sep 2002 13:19:33 -0700 (PDT)
-From: Peter <cogweb@cogweb.net>
-X-X-Sender: cogweb@greenie.frogspace.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-ac4 build problem
-Message-ID: <Pine.LNX.4.44.0209041311250.16204-100000@greenie.frogspace.net>
+	id <S315370AbSIDUPr>; Wed, 4 Sep 2002 16:15:47 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:58130 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S315260AbSIDUPq>; Wed, 4 Sep 2002 16:15:46 -0400
+Message-ID: <3D766A79.D1975DCA@zip.com.au>
+Date: Wed, 04 Sep 2002 13:18:01 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: Ed Tomlinson <tomlins@cam.org>, William Lee Irwin III <wli@holomorphy.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.33-mm1
+References: <200209032251.54795.tomlins@cam.org> <3D757F11.B72BB708@zip.com.au> <20020904202523.A15699@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Stephen C. Tweedie" wrote:
+> 
+> Hi,
+> 
+> On Tue, Sep 03, 2002 at 08:33:37PM -0700, Andrew Morton wrote:
+> 
+> > I *really* think we need to throw away those pages instantly.
+> >
+> > The only possible reason for hanging onto them is because they're
+> > cache-warm.  And we need a global-scope cpu-local hot pages queue
+> > anyway.
+> 
+> Yep --- except for caches with constructors, for which we do save a
+> bit more by hanging onto the pages for longer.
 
-Hi Greg -
+Ah, of course.  Thanks.
 
-Agree -- I couldn't find it either. This may be a makefile error:
+We'll still have a significant volume of pre-constructed objects
+in the partially-full slabs: it seems that these things are fairly
+prone to internal fragmentation, which works to our advantage in
+this case.
 
-linux-2.4.19-ac4 # grep usbdrv.o * -r
-Makefile:DRIVERS-$(CONFIG_USB) += drivers/usb/usbdrv.o
-drivers/usb/Makefile:O_TARGET   := usbdrv.o
-
-The kernel compiled fine when I defined Input core support in the kernel
-rather than as modules (cf. below). And USB is working great -- keyboard, 
-cordless mouse, webcam, scanner, printer, the works.
-
-Cheers,
-Peter
-
-
-Does not compile:
-
-#
-# Input core support
-#
-CONFIG_INPUT=m
-CONFIG_INPUT_KEYBDEV=m
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_JOYDEV=m
-# CONFIG_INPUT_EVDEV is not set
-
-Compiles:
-
-#
-# Input core support
-#
-CONFIG_INPUT=y
-CONFIG_INPUT_KEYBDEV=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_JOYDEV=y
-CONFIG_INPUT_EVDEV=y
-
-I don't know if the last two lines matter.
-
+So yes, perhaps we need to hang onto some preconstructed pages
+for these slabs, if the internal fragmentation of the existing
+part-filled slabs is low.

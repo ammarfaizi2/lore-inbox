@@ -1,116 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263402AbVCJXMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262881AbVCJWz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263402AbVCJXMA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 18:12:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263306AbVCJXHd
+	id S262881AbVCJWz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 17:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263422AbVCJWww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 18:07:33 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:22747 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S263363AbVCJXCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 18:02:36 -0500
-Date: Thu, 10 Mar 2005 18:02:34 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 2.6.11-mm2 vs audio for kino and tvtime
-In-reply-to: <20050308224441.2e29f895.akpm@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, video4linux-list@redhat.com,
-       linux1394-devel@lists.sourceforge.net, sensors@stimpy.netroedge.com
-Reply-to: gene.heskett@verizon.net
-Message-id: <200503101802.34407.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200503082326.28737.gene.heskett@verizon.net>
- <20050308224441.2e29f895.akpm@osdl.org>
-User-Agent: KMail/1.7
+	Thu, 10 Mar 2005 17:52:52 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55560 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262086AbVCJWwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 17:52:01 -0500
+Date: Thu, 10 Mar 2005 22:51:51 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-serial@vger.kernel.org
+Subject: Re: Someting's busted with serial in 2.6.11 latest
+Message-ID: <20050310225151.E1044@flint.arm.linux.org.uk>
+Mail-Followup-To: Steven Cole <elenstev@mesatop.com>,
+	Stephen Hemminger <shemminger@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+References: <20050309155049.4e7cb1f4@dxpl.pdx.osdl.net> <20050310195326.A1044@flint.arm.linux.org.uk> <4230CCCB.6030909@mesatop.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4230CCCB.6030909@mesatop.com>; from elenstev@mesatop.com on Thu, Mar 10, 2005 at 03:40:11PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 March 2005 01:44, Andrew Morton wrote:
->Gene Heskett <gene.heskett@verizon.net> wrote:
->> Greetings Andrew;
->
->g'day.
->
->> 2.6.11-mm2 seems to work, mostly.
->>
->> First, the ieee1394 stuff seems to have fixed up that driver, and
->> kino can access my movie cameras video over the firewire very
->> nicely without applying the bk-ieee1394-patch.  The camera has
->> builtin stereo mics in it, but nary a peep can be heard from it
->> thru the firewire.  Am I supposed to be able to hear that?
->
->Was it working with 2.6.11+bk-ieee1394.patch?  Or with anything
-> else?
+On Thu, Mar 10, 2005 at 03:40:11PM -0700, Steven Cole wrote:
+> Russell King wrote:
+> > On Wed, Mar 09, 2005 at 03:50:49PM -0800, Stephen Hemminger wrote:
+> > 
+> >>Some checkin since 2.6.11 has caused the serial driver to
+> >>drop characters.  Console output is chopped and messages are garbled.
+> >>Even the shell prompt gets truncated.
+> > 
+> > 
+> > There was a problem with 2.6.11-bk1 which should now be resolved.
+> > 
+> > Is this still true of the latest bk kernel?  Also, seeing the kernel
+> > messages may provide some hint.
+> > 
+> 
+> Here is a post I made perhaps relevant to this.
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111042402103071&w=2
+> 
+> I'll test current bk tonight, but I don't see any recent fix to
+> drivers/serial/8250.c when browsing linux.bkbits.net/linux-2.6.
 
-Yes, as long as that patch was applied.
+There are only two recent revisions to 8250.c.  One adds slightly buggy
+Xscale UART detection, the other fixes the buggyness.
 
->Cc'ed linux1394-devel@lists.sourceforge.net
->
->> Second, I have a pdHDTV-3000 card, and up till now I've been
->> overwriting the bttv stuffs with the drivers in pcHDTV-1.6.tar.gz
->> by doing a make clean;make;make install.  But now thats broken,
->> and the error message doesn't seem to make sense to this old K&R C
->> guy.
->>
->> The error exit:
->> make[1]: Entering directory `/usr/src/linux-2.6.11-mm2'
->>   CC
->> [M] 
->> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.o
->> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c:36
->>2: error: unknown field `id' specified in initializer
->> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c:36
->>2: warning: missing braces around initializer
->> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c:36
->>2: warning: (near initialization for
->> `bttv_i2c_client_template.released')
->> make[2]: ***
->> [/usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.o]
->> Error 1
->> make[1]: ***
->> [_module_/usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver]
->> Error 2
->> make[1]: Leaving directory `/usr/src/linux-2.6.11-mm2'
->> make: *** [modules] Error 2
->>
->> The braces are indeed there.
->
->What's pcHDTV-1.6.tar.gz?  If it was merged up then these things
-> wouldn't happen.
->
->CC'ed video4linux-list@redhat.com
->
->> Third, somewhere between 2.6.11-rc5-RT-V0.39-02 and 2.6.11, I've
->> lost my sensors except for one on the motherboard called THRM by
->> gkrellm-2.28.  Nothing seems to be able to bring the w83627hf back
->> to life.
->
->CC'ed sensors@Stimpy.netroedge.com
+What I don't know is whether either of these two changes are the cause
+of your exact problems, because I don't actually know what you're
+testing.  Since Stephen's bug is a lot more well defined than yours,
+it makes sense to tackle Stephen's situation first.
 
-That I got, somewhere in trying to build a working kernel without the 
-config_broken, i2c-isa got lost.  Restored that and all is well in 
-that dept.
-
-I've got 3 patches that remove the '&& EXPERIMENTAL' from the Kconfigs 
-for the nforce2 stuffs, and even posted one here, but got .000zip 
-response, so I don't know if they are welcome or not...
->
->--
->video4linux-list mailing list
->Unsubscribe
-> mailto:video4linux-list-request@redhat.com?subject=unsubscribe
-> https://www.redhat.com/mailman/listinfo/video4linux-list
+The reason for this is taht pppd getting a SIGHUP doesn't actually tell
+me anything at all.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

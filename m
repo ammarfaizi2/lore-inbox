@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136542AbRECJy2>; Thu, 3 May 2001 05:54:28 -0400
+	id <S136601AbRECJ6I>; Thu, 3 May 2001 05:58:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136560AbRECJyW>; Thu, 3 May 2001 05:54:22 -0400
-Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:3969 "HELO
-	lunchbox.oisec.net") by vger.kernel.org with SMTP
-	id <S136542AbRECJyD>; Thu, 3 May 2001 05:54:03 -0400
-Date: Thu, 3 May 2001 11:53:58 +0200
-From: Cliff Albert <cliff@oisec.net>
-To: poptix <poptix@poptix.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.4, 2.4.4-ac1, 2.4.4-ac2, neighbour discovery bug (ipv6)
-Message-ID: <20010503115358.A7793@oisec.net>
-In-Reply-To: <20010501154437.A23200@oisec.net> <Pine.LNX.4.33.0105022155090.444-100000@3jane.ashpool.org>
-Mime-Version: 1.0
+	id <S136595AbRECJ57>; Thu, 3 May 2001 05:57:59 -0400
+Received: from smtp3.libero.it ([193.70.192.53]:27316 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S136560AbRECJ5u>;
+	Thu, 3 May 2001 05:57:50 -0400
+Message-ID: <3AF12B94.60083603@alsa-project.org>
+Date: Thu, 03 May 2001 11:57:40 +0200
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i586)
+X-Accept-Language: it, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: "David S. Miller" <davem@redhat.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: unsigned long ioremap()?
+In-Reply-To: <3AF10E80.63727970@alsa-project.org>  <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net> <11718.988883128@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33.0105022155090.444-100000@3jane.ashpool.org>; from poptix@poptix.net on Wed, May 02, 2001 at 09:56:20PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 02, 2001 at 09:56:20PM +0200, poptix wrote:
-
-> >
-> > When i traceroute6 my 2.4.4 box on my local lan, the 2.4.4 box panic's after about 10 seconds. The traceroute6 completes on the other box.
-> >
-> > 2.4.3-ac14 doesn't experience these problems. Only 2.4.4 (with or without ac{1,2}) panics
-> >
-> > ---- traceroute6 output ----
-> > traceroute to neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a) from 3ffe:8114:2000:0:210:4bff:feb3:1fb4, 30 hops max, 16 byte packets
-> >  1  neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a)  0.583 ms  0.278 ms  0.233 ms
-> >
-> >
-> [snip]
+David Woodhouse wrote:
 > 
-> I am unable to reproduce this, either locally or remotely, I am also using
-> the 2.4.4 kernel, do you have any more information on this, and is it
-> possible to reproduce every time?
+> abramo@alsa-project.org said:
+> >  The problem I see is that with the former solution nothing prevents
+> > from to do:
+> 
+> >       regs->reg2 = 13;
+> 
+> > That's indeed the reason to change ioremap prototype for 2.5.
+> 
+> An alternative is to add an fixed offset to the cookie before returning it,
+> and subtract it again in {read,write}[bwl].
 
-Was reproducable every single time, on multiple machines. a simple PING6 or TRACEROUTE6 would kill the box. Using native connection or tunneled connection doesn't matter after some investigation.
+You understand that in this way you change a compile time warning in a
+runtime error (conditioned to path reaching, not easy to interpret,
+etc.)
+
+IMO this is a far less effective debugging strategy.
 
 -- 
-Cliff Albert		| IRCNet:    #linux.nl, #ne2000, #linux, #freebsd.nl
-cliff@oisec.net		| 	     #openbsd, #ipv6, #cu2.nl
--[ICQ: 18461740]--------| 6BONE:     CA2-6BONE       RIPE:     CA3348-RIPE
+Abramo Bagnara                       mailto:abramo@alsa-project.org
+
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
+
+ALSA project               http://www.alsa-project.org
+It sounds good!

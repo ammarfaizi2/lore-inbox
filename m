@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130105AbQKBHPw>; Thu, 2 Nov 2000 02:15:52 -0500
+	id <S130389AbQKBHTd>; Thu, 2 Nov 2000 02:19:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130389AbQKBHPn>; Thu, 2 Nov 2000 02:15:43 -0500
-Received: from proxy.povodiodry.cz ([212.47.5.214]:38647 "HELO pc11.op.pod.cz")
-	by vger.kernel.org with SMTP id <S130105AbQKBHPc>;
-	Thu, 2 Nov 2000 02:15:32 -0500
-From: "Vitezslav Samel" <samel@mail.cz>
-Date: Thu, 2 Nov 2000 08:15:22 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.0-test10
-Message-ID: <20001102081522.A28970@pc11.op.pod.cz>
-In-Reply-To: <39FFB221.D6A1B5FF@megsinet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <39FFB221.D6A1B5FF@megsinet.net>; from vanl@megsinet.net on Wed, Nov 01, 2000 at 12:03:13AM -0600
+	id <S130704AbQKBHTW>; Thu, 2 Nov 2000 02:19:22 -0500
+Received: from www.wen-online.de ([212.223.88.39]:36615 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130389AbQKBHTM>;
+	Thu, 2 Nov 2000 02:19:12 -0500
+Date: Thu, 2 Nov 2000 08:19:06 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: David Mansfield <lkml@dm.ultramaster.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] /proc/<pid>/stat access stalls badly for swapping process,
+  2.4.0-test10
+In-Reply-To: <Pine.LNX.4.21.0011011643050.6740-100000@duckman.distro.conectiva>
+Message-ID: <Pine.Linu.4.10.10011020800010.1299-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi!
+On Wed, 1 Nov 2000, Rik van Riel wrote:
 
-> My list of 2.4.0-testX problems
+> On Wed, 1 Nov 2000, David Mansfield wrote:
 > 
-> Problem description:
->  
-> 1.  kernel compiled w/o FB support.  When attempting to switch
->     back to X from VC1-6 system locks hard for SMP.  Nada thing
->     fixes this except hard reset... no Alt-SysRq-B, nothing
->     DRI not enabled.  Video card has r128 chipset.
+> > I'd like to report what seems like a performance problem in the latest
+> > kernels.  Actually, all recent kernels have exhibited this problem, but
+> > I was waiting for the new VM stuff to stabilize before reporting it. 
+> > 
+> > My test is: run 7 processes that each allocate and randomly
+> > access 32mb of ram (on a 256mb machine).  Even though 7*32MB =
+> > 224MB, this still sends the machine lightly into swap.  The
+> > machine continues to function fairly smoothly for the most part.  
+> > I can do filesystem operations, run new programs, move desktops
+> > in X etc.
+> > 
+> > Except: programs which access /proc/<pid>/stat stall for an
+> > inderminate amount of time.  For example, 'ps' and 'vmstat'
+> > stall BADLY in these scenarios.  I have had the stalls last over
+> > a minute in higher VM pressure situations.
+> 
+> I have one possible reason for this ....
+> 
+> 1) the procfs process does (in fs/proc/array.c::proc_pid_stat)
+> 	down(&mm->mmap_sem);
+> 
+> 2) but, in order to do that, it has to wait until the process
+>    it is trying to stat has /finished/ its page fault, and is
+>    not into its next one ...
+> 
+> 3) combine this with the elevator starvation stuff (ask Jens
+>    Axboe for blk-7 to alleviate this issue) and you have a
+>    scenario where processes using /proc/<pid>/stat have the
+>    possibility to block on multiple processes that are in the
+>    process of handling a page fault (but are being starved)
 
+I'm experimenting with blk.[67] in test10 right now.  The stalls
+are not helped at all.  It doesn't seem to become request bound
+(haven't instrumented that yet to be sure) but the stalls persist.
 
-	Me Too (tm). No FB support, no DRI, lock occurs randomly during
-	switching back to X from VC. no keyboard, no net, no video (my
-	monitor switches off)
+	-Mike
 
-	HW:	Asus P2B-D (2xPIII/700)
-		ATI Rage Pro r128
-
-	.config or other info available
-
-
-
-			Vitezslav Samel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265810AbUGTMCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265815AbUGTMGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265810AbUGTMCO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 08:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUGTMCO
+	id S265815AbUGTMGA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 08:06:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUGTMF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 08:02:14 -0400
-Received: from colin2.muc.de ([193.149.48.15]:7179 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S265810AbUGTMCN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 08:02:13 -0400
-Date: 20 Jul 2004 14:02:11 +0200
-Date: Tue, 20 Jul 2004 14:02:11 +0200
-From: Andi Kleen <ak@muc.de>
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc1: Possible SCSI-related problem on dual Opteron w/ NUMA
-Message-ID: <20040720120211.GA72772@muc.de>
-References: <200407171826.03709.rjwysocki@sisk.pl> <20040717181240.GA67332@muc.de> <200407172109.38088.rjwysocki@sisk.pl> <200407181448.14614.rjwysocki@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407181448.14614.rjwysocki@sisk.pl>
-User-Agent: Mutt/1.4.1i
+	Tue, 20 Jul 2004 08:05:59 -0400
+Received: from relay02.roc.ny.frontiernet.net ([66.133.131.35]:16043 "EHLO
+	relay02.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S265815AbUGTMEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 08:04:44 -0400
+Message-ID: <40FD0A61.1040503@xfs.org>
+Date: Tue, 20 Jul 2004 07:04:49 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Cahya Wirawan <cwirawan@email.archlab.tuwien.ac.at>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 4K stack kernel get Oops in Filesystem stress test
+References: <20040720114418.GH21918@email.archlab.tuwien.ac.at>
+In-Reply-To: <20040720114418.GH21918@email.archlab.tuwien.ac.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I had this problem again this morning.  I was unpacking the kernel tarball to 
-> /dev/sda8 and it went south (the tarball had been partially unpacked before 
-> the partition was remounted r-o).  Then, I got back to 2.6.7 and ran fsck - 
-> now it found some errors (obviously) and fixed them.  Next (on 2.6.7), I 
-> unpacked the kernel to /dev/sda8 (again) and compiled the 2.6.8-rc2.  I ran 
-> it, unpacked the kernel to /dev/sda8 (again) and compiled it - everything 
-> worked.  Then, I applied your patch on top of the newly created 2.6.8-rc2 
-> tree and compiled the kernel.  After installing and running it I tried to 
-> unpack the kernel to /dev/sda8 (again) and it went south, so I got back to 
-> the "plain" 2.6.8-rc2, ran fsck and fixed the partition, unpacked the kernel 
-> to /dev/sda8 - and it all worked.
-> 
-> So, it seems, there's something in your patch that causes this misbehavior.
+Cahya Wirawan wrote:
+> Hi,
+> I use vanila kernel 2.6.7 and 2.6.8-rc1 with 4K stack enabled,
+> but if I execute the filesystem stress test from ltp.sf.net (linux test
+> project) the machine always crash immediately. Or it will crash also after few
+> hours if I do kernel compile test repeatedly. But if I use 8K stack,
+> my server survive this filesystem stress test.
+> Also my notebook get oops if I used 4k stack in kernel , but it crashed 
+> after few minutes running the filesystem stress test (not immediately).
+> My configuration is
+> compaq proliant ML530/G2 , 2 processor intel 2.4Ghz, 1GB ram ,
+> LVM1 volume with XFS filesystem.
+> and here is the Oops message:
 
-In which patch eactly? x86_64-2.6.8rc1-1 or x86_64-2.6.8rc1-2 ? 
 
-If it started with -2 can you check if -1 has the problem too?
+Don't use 4K stacks and XFS. What you hit here is a path where the
+filesystem is getting full and it needs to free some reserved space
+by flushing cached data which is using reserved extents. Reserved
+extents do not yet have an on disk address and they include a
+reservation for the worst case metadata usage. Flushing them will
+get you room back.
 
--Andi
+As you can see, it is a pretty deep call stack, most of XFS is going
+to work just fine with a 4K stack, but there are end cases like
+this one which will just not fit.
+
+Steve
+

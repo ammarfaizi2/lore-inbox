@@ -1,96 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267364AbUHDR7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267354AbUHDSP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267364AbUHDR7j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 13:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUHDR7j
+	id S267354AbUHDSP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 14:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUHDSP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 13:59:39 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:56259 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S267364AbUHDR7f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 13:59:35 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: rusty@rustcorp.com.au
-Subject: [PATCH] fix reading string module parameters in sysfs
-Date: Wed, 4 Aug 2004 19:58:46 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_WPSEBeZDwkDatL5";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408041958.46589.arnd@arndb.de>
+	Wed, 4 Aug 2004 14:15:28 -0400
+Received: from 216-99-218-29.dsl.aracnet.com ([216.99.218.29]:57581 "EHLO
+	tabla.groveronline.com") by vger.kernel.org with ESMTP
+	id S267354AbUHDSPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 14:15:14 -0400
+From: agrover <agrover@groveronline.com>
+Date: Wed, 4 Aug 2004 11:14:57 -0700
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] pirq_enable_irq cleanup
+Message-ID: <20040804181457.GA30739@groveronline.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, this should apply cleanly against mm2 or rc3.
 
---Boundary-02=_WPSEBeZDwkDatL5
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+This is a cleanup of pirq_enable_irq. I couldn't understand this function easily 
+so I cleaned it up.
 
-Reading the contents of a module_param_string through sysfs currently
-oopses because the param_get_charp() function cannot operate on a
-kparam_string struct. This introduces the required param_get_string.
+- Hoisted Via quirk to top -- shouldn't break anything but who knows - can someone 
+with this chipset test?
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+- Hoisted legacy IDE check too.
 
-=3D=3D=3D=3D=3D include/linux/moduleparam.h 1.8 vs edited =3D=3D=3D=3D=3D
-=2D-- 1.8/include/linux/moduleparam.h	Fri May 21 09:50:15 2004
-+++ edited/include/linux/moduleparam.h	Wed Aug  4 16:16:23 2004
-@@ -73,7 +73,7 @@
- #define module_param_string(name, string, len, perm)			\
- 	static struct kparam_string __param_string_##name		\
- 		=3D { len, string };					\
-=2D	module_param_call(name, param_set_copystring, param_get_charp,	\
-+	module_param_call(name, param_set_copystring, param_get_string,	\
- 		   &__param_string_##name, perm)
-=20
- /* Called on module insert or kernel boot */
-@@ -140,6 +140,7 @@
- extern int param_array_get(char *buffer, struct kernel_param *kp);
-=20
- extern int param_set_copystring(const char *val, struct kernel_param *kp);
-+extern int param_get_string(char *buffer, struct kernel_param *kp);
-=20
- int param_array(const char *name,
- 		const char *val,
-=3D=3D=3D=3D=3D kernel/params.c 1.8 vs edited =3D=3D=3D=3D=3D
-=2D-- 1.8/kernel/params.c	Fri May  7 23:22:37 2004
-+++ edited/kernel/params.c	Wed Aug  4 16:23:59 2004
-@@ -339,6 +339,12 @@
+- Reduced indenting, added comments.
+
+Regards -- Andy
+
+===== arch/i386/pci/irq.c 1.47 vs edited =====
+--- 1.47/arch/i386/pci/irq.c	2004-08-02 01:00:43 -07:00
++++ edited/arch/i386/pci/irq.c	2004-08-04 10:15:26 -07:00
+@@ -1003,64 +1003,68 @@
+ 	u8 pin;
+ 	extern int interrupt_line_quirk;
+ 	struct pci_dev *temp_dev;
++	char *msg;
++	msg = "";
++
++	/* VIA bridges use interrupt line for apic/pci steering across
++	   the V-Link */
++	if (interrupt_line_quirk)
++		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq & 15);
+ 
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+-	if (pin && !pcibios_lookup_irq(dev, 1) && !dev->irq) {
+-		char *msg;
+-		msg = "";
+-		if (io_apic_assign_pci_irqs) {
+-			int irq;
+ 
+-			if (pin) {
+-				pin--;		/* interrupt pins are numbered starting from 1 */
+-				irq = IO_APIC_get_PCI_irq_vector(dev->bus->number, PCI_SLOT(dev->devfn), pin);
+-				/*
+-				 * Busses behind bridges are typically not listed in the MP-table.
+-				 * In this case we have to look up the IRQ based on the parent bus,
+-				 * parent slot, and pin number. The SMP code detects such bridged
+-				 * busses itself so we should get into this branch reliably.
+-				 */
+-				temp_dev = dev;
+-				while (irq < 0 && dev->bus->parent) { /* go back to the bridge */
+-					struct pci_dev * bridge = dev->bus->self;
+-
+-					pin = (pin + PCI_SLOT(dev->devfn)) % 4;
+-					irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
+-							PCI_SLOT(bridge->devfn), pin);
+-					if (irq >= 0)
+-						printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
+-							bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
+-					dev = bridge;
+-				}
+-				dev = temp_dev;
+-				if (irq >= 0) {
++	/* No irq for devices that don't need them, like legacy IDE. */
++	if (!pin || (dev->class >> 8 == PCI_CLASS_STORAGE_IDE && !(dev->class & 0x5)))
++		return 0;
++
++	/* Try $PIR table first */
++	if (pcibios_lookup_irq(dev, 1) || dev->irq)
++		return 0;
++
++	/* Next, try MPS */
++	if (io_apic_assign_pci_irqs) {
++		int irq;
++
++		pin--;	/* interrupt pins are numbered starting from 1 */
++		irq = IO_APIC_get_PCI_irq_vector(dev->bus->number, PCI_SLOT(dev->devfn), pin);
++		/*
++		 * Busses behind bridges are typically not listed in the MP-table.
++		 * In this case we have to look up the IRQ based on the parent bus,
++		 * parent slot, and pin number. The SMP code detects such bridged
++		 * busses itself so we should get into this branch reliably.
++		 */
++		temp_dev = dev;
++		while (irq < 0 && dev->bus->parent) { /* go back to the bridge */
++			struct pci_dev * bridge = dev->bus->self;
++
++			pin = (pin + PCI_SLOT(dev->devfn)) % 4;
++			irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
++					PCI_SLOT(bridge->devfn), pin);
++			if (irq >= 0)
++				printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
++					bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
++			dev = bridge;
++		}
++		dev = temp_dev;
++		if (irq >= 0) {
+ #ifdef CONFIG_PCI_MSI
+-					if (!platform_legacy_irq(irq))
+-						irq = IO_APIC_VECTOR(irq);
++			if (!platform_legacy_irq(irq))
++				irq = IO_APIC_VECTOR(irq);
+ #endif
+-					printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",
+-						dev->bus->number, PCI_SLOT(dev->devfn), pin, irq);
+-					dev->irq = irq;
+-					return 0;
+-				} else
+-					msg = " Probably buggy MP table.";
+-			}
+-		} else if (pci_probe & PCI_BIOS_IRQ_SCAN)
+-			msg = "";
+-		else
+-			msg = " Please try using pci=biosirq.";
+-			
+-		/* With IDE legacy devices the IRQ lookup failure is not a problem.. */
+-		if (dev->class >> 8 == PCI_CLASS_STORAGE_IDE && !(dev->class & 0x5))
++			printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",
++				dev->bus->number, PCI_SLOT(dev->devfn), pin, irq);
++			dev->irq = irq;
+ 			return 0;
+-			
+-		printk(KERN_WARNING "PCI: No IRQ known for interrupt pin %c of device %s.%s\n",
+-		       'A' + pin - 1, pci_name(dev), msg);
+-	}
+-	/* VIA bridges use interrupt line for apic/pci steering across
+-	   the V-Link */
+-	else if (interrupt_line_quirk)
+-		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq & 15);
++		} else
++			msg = " Probably buggy MP table.";
++	} else if (pci_probe & PCI_BIOS_IRQ_SCAN)
++		msg = "";
++	else
++		msg = " Please try using pci=biosirq.";
++
++	printk(KERN_WARNING "PCI: No IRQ known for interrupt pin %c of device %s.%s\n",
++	       'A' + pin - 1, pci_name(dev), msg);
++
  	return 0;
  }
-=20
-+int param_get_string(char *buffer, struct kernel_param *kp)
-+{
-+	struct kparam_string *kps =3D kp->arg;
-+	return strlcpy(buffer, kps->string, kps->maxlen);
-+}
-+
- EXPORT_SYMBOL(param_set_short);
- EXPORT_SYMBOL(param_get_short);
- EXPORT_SYMBOL(param_set_ushort);
-@@ -360,3 +366,4 @@
- EXPORT_SYMBOL(param_array_set);
- EXPORT_SYMBOL(param_array_get);
- EXPORT_SYMBOL(param_set_copystring);
-+EXPORT_SYMBOL(param_get_string);
+ 
 
---Boundary-02=_WPSEBeZDwkDatL5
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBESPW5t5GS2LDRf4RAhN3AJwMJFAOLeNxt28imDXRmzBu9ULBjACeLoLy
-bKlKUuKPllDpicM2Wy+2YxQ=
-=4MA+
------END PGP SIGNATURE-----
-
---Boundary-02=_WPSEBeZDwkDatL5--

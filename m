@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262951AbSJFWwB>; Sun, 6 Oct 2002 18:52:01 -0400
+	id <S262248AbSJFW3n>; Sun, 6 Oct 2002 18:29:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262952AbSJFWwA>; Sun, 6 Oct 2002 18:52:00 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:26530 "EHLO
+	id <S262249AbSJFW3n>; Sun, 6 Oct 2002 18:29:43 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:43671 "EHLO
 	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262951AbSJFWv6>; Sun, 6 Oct 2002 18:51:58 -0400
-Date: Sun, 6 Oct 2002 19:57:32 -0300 (BRT)
+	id <S262248AbSJFW2i>; Sun, 6 Oct 2002 18:28:38 -0400
+Date: Sun, 6 Oct 2002 19:33:55 -0300 (BRT)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: riel@imladris.surriel.com
-To: Jeff Dike <jdike@karaya.com>
-cc: Daniel Phillips <phillips@arcor.de>, Larry McVoy <lm@bitmover.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem? 
-In-Reply-To: <200210062354.SAA04224@ccure.karaya.com>
-Message-ID: <Pine.LNX.4.44L.0210061955500.22735-100000@imladris.surriel.com>
+To: Aaron Lehmann <aaronl@vitelus.com>
+cc: Larry McVoy <lm@work.bitmover.com>, Nicolas Pitre <nico@cam.org>,
+       Ulrich Drepper <drepper@redhat.com>, Larry McVoy <lm@bitmover.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <20021006220300.GA9785@vitelus.com>
+Message-ID: <Pine.LNX.4.44L.0210061931460.22735-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -22,31 +23,23 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Oct 2002, Jeff Dike wrote:
-> phillips@arcor.de said:
-> > Linus has indeed shown respect, but you have not, quite the contrary.
+On Sun, 6 Oct 2002, Aaron Lehmann wrote:
+> On Sat, Oct 05, 2002 at 12:54:12PM -0700, Larry McVoy wrote:
+> > You can do this today.  rsync a BK tree and use GNU CSSC to check out
+> > the sources.  We maintained SCCS compat for exactly that reason.
+> > You've had the ability to ignore the BKL since day one if you aren't
+> > running the BK binaries.
 >
-> Don't you have anything better to do than to take useless, content-free
-> potshots at things you don't like?
+> Sounds great, but where can I rsync a linux bk tree from?
 
-<obligatory explanation of "ad-hominem" here>
+I just started exporting this on nl.linux.org, see
+ftp://nl.linux.org/pub/linux/bk2patch/README
 
-<retort>
+The following command should work:
 
-<counter retort>
+	rsync -rav --delete nl.linux.org::kernel/linux-2.4 linux-2.4
 
-<hitler or immoral equivalent>
-
-<godwin, I win!>
-
-(there, some bandwidth saved already)
-
-> Surely, there's some code that needs writing.
-
-Shhhh, if he hears he might attack us for not having written
-the code he's been wanting for weeks now ;)
-
-cheers,
+regards,
 
 Rik
 -- 

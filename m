@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310224AbSCBA6s>; Fri, 1 Mar 2002 19:58:48 -0500
+	id <S310228AbSCBBQX>; Fri, 1 Mar 2002 20:16:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310225AbSCBA6i>; Fri, 1 Mar 2002 19:58:38 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7175 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310224AbSCBA60>;
-	Fri, 1 Mar 2002 19:58:26 -0500
-Message-ID: <3C8023B2.FB6ADCB9@mandrakesoft.com>
-Date: Fri, 01 Mar 2002 19:58:26 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 3c509 Power Management (take 2)
-In-Reply-To: <Pine.LNX.4.44.0203010826180.26745-100000@netfinity.realnet.co.sz> <Pine.LNX.4.44.0203011222010.31530-100000@netfinity.realnet.co.sz> <20020301093317.I22608@lynx.adilger.int>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S310231AbSCBBQO>; Fri, 1 Mar 2002 20:16:14 -0500
+Received: from DIRTY-BASTARD.MIT.EDU ([18.241.0.136]:5248 "EHLO
+	dirty-bastard.pthbb.org") by vger.kernel.org with ESMTP
+	id <S310238AbSCBBQD>; Fri, 1 Mar 2002 20:16:03 -0500
+Message-Id: <200203021329.g22DTNW00880@dirty-bastard.pthbb.org>
+To: linux-kernel@vger.kernel.org
+Subject: Tulip bug?
+Date: Sat, 02 Mar 2002 08:29:23 -0500
+From: Jerrad Pierce <belg4mit@dirty-bastard.pthbb.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> On Mar 01, 2002  12:24 +0200, Zwane Mwaikambo wrote:
-> > -static char versionA[] __initdata = DRV_NAME ".c:" DRV_VERSION " " DRV_RELDATE "becker@scyld.com\n";
-> > +static char versionA[] __initdata = DRV_NAME ".c:" DRV_VERSION " " DRV_RELDATE " becker@scyld.com\n";
-> >  static char versionB[] __initdata = "http://www.scyld.com/network/3c509.html\n";
-> 
-> Should this still be reporting becker@scyld.com if you guys are now
-> maintaining it?  This is doubly true of the URL, since that URL will
-> not have the driver that is in the kernel.
+Hello, I upgraded to 2.4.16 shortly after it was released and have since
+experienced quasi-periodic kernel panics (every few weeks). I have tested
+my memory and while I got a few faults after several hours this panic
+behavior is not what I (perhaps erroneously) would expect from faulty memory
+instigated kernel panics. I've also run 2.4.17 and also get kernel panics.
 
-I leave it in there mainly for two reasons,
-first, for several drivers, it lets people know the base version upon
-which the driver was based.  This is useful if someone wanted to do some
-merging of a more recent Becker version, and
-second, as a courtesy, since typically the code in the driver is still
-well over 60% Becker's even after all the Linus-tree modifications.
+Yesterday I noticed something in the panic spew (it's hard to notice
+much as more than a screenful is output, why is that? It seems to be
+counterproductive.)
 
-	Jeff
+  eth0: Internal fault the skbuff addresses do not match in tulip_rx: 00000010
+  vs. 077f8010 c77f8000/c77f8010
 
+I have a Netgear Fastgear 310TX and compiled in the tulip and old DECChip
+modules (it didn't seem to work with just tulip).
 
-
--- 
-Jeff Garzik      |
-Building 1024    |
-MandrakeSoft     | Choose life.
+PS> Please (b)cc as I am not subscribed

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293269AbSBWXlb>; Sat, 23 Feb 2002 18:41:31 -0500
+	id <S293270AbSBWXqM>; Sat, 23 Feb 2002 18:46:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293270AbSBWXlN>; Sat, 23 Feb 2002 18:41:13 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:11276 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S293269AbSBWXlJ>;
-	Sat, 23 Feb 2002 18:41:09 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] C exceptions in kernel 
-In-Reply-To: Your message of "24 Feb 2002 00:07:13 BST."
-             <d3n0xzre5a.fsf@lxplus049.cern.ch> 
+	id <S293272AbSBWXqC>; Sat, 23 Feb 2002 18:46:02 -0500
+Received: from zero.tech9.net ([209.61.188.187]:64011 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S293270AbSBWXpt>;
+	Sat, 23 Feb 2002 18:45:49 -0500
+Subject: Re: [PATCH] only irq-safe atomic ops
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1014505987.1003.1104.camel@phantasy>
+In-Reply-To: <3C773C02.93C7753E@zip.com.au>,
+	<1014444810.1003.53.camel@phantasy> <3C773C02.93C7753E@zip.com.au>
+	<1014449389.1003.149.camel@phantasy> <3C774AC8.5E0848A2@zip.com.au>
+	<20020223043815.B29874@hq.fsmlabs.com> <1014488408.846.806.camel@phantasy>
+	<20020223120648.A1295@hq.fsmlabs.com> <3C781037.EA4ADEF5@linux-m68k.org> 
+	<3C781351.DCB40AD3@zip.com.au>  <1014505987.1003.1104.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 23 Feb 2002 18:45:50 -0500
+Message-Id: <1014507951.850.1140.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 24 Feb 2002 10:40:55 +1100
-Message-ID: <927.1014507655@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Feb 2002 00:07:13 +0100, 
-Jes Sorensen <jes@sunsite.dk> wrote:
->Pete Zaitcev <zaitcev@redhat.com> writes:
->
->> Personally, I have no problem handling current practices.
->> But I may see the point of the guy with the try/catch patch.
->> Do not make me to defend him though. I am trying to learn
->> is those exceptions are actually helpful. BTW, we all know
->> where they come from (all of Cutler's NT is written that way),
->> but let it not cloud our judgement.
->
->The problem here is that when using exceptions, you stop thinking
->about what is going on underneath at the low level which is really not
->what one wants in the kernel.
->
->After all, C is just and advanced assembly interface, which is exactly
->why it's such a great language ;-)
+On Sat, 2002-02-23 at 18:13, Robert Love wrote:
+> On Sat, 2002-02-23 at 17:10, Andrew Morton wrote:
+> 
+> > ooh.  me likee.
+> > 
+> > #define smp_get_cpuid() ({ preempt_disable(); smp_processor_id(); })
+> > #define smp_put_cpuid() preempt_enable()
+> > 
+> > Does rml likee?
+> 
+> Yah, that works.
 
-What is worse is that the exceptions patch has to use assembler to walk
-the stack frames.  Exceptions are being touted as a replacement for
-goto in new driver code but the sample patch only works for i386.  No
-arch independent code can use exceptions until you have arch specific
-code that does the equivalent of longjmp for _all_ architectures.
+OK, I still likee, but I was just thinking, if we are going to add have
+to add something why not consider the irq-safe atomic ops?  It is
+certainly the most optimal.
 
-Doing longjmp in the kernel is _hard_, I know because I had to do it
-for kdb on i386 and ia64.  The kernel does things differently from user
-space and sometimes the arch maintainers decide to change the internal
-register usage.  They are allowed to do this because it only affects
-the kernel, but any change to kernel register usage will probably
-require a corresponding change to setjmp/longjmp.
-
-So you have arch dependent code which has to be done for all
-architectures before any driver can use it and the code has to be kept
-up to date by each arch maintainer.  Tell me again why the existing
-mechanisms are not working and why we need exceptions?  IOW, what
-existing problem justifies all the extra arch work and maintenance?
+	Robert Love
 

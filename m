@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262937AbSKMVvS>; Wed, 13 Nov 2002 16:51:18 -0500
+	id <S264646AbSKMVy2>; Wed, 13 Nov 2002 16:54:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262884AbSKMVvR>; Wed, 13 Nov 2002 16:51:17 -0500
-Received: from ngw.bvu.edu ([147.92.2.13]:34317 "EHLO ngw.bvu.edu")
-	by vger.kernel.org with ESMTP id <S264614AbSKMVuX> convert rfc822-to-8bit;
-	Wed, 13 Nov 2002 16:50:23 -0500
-Message-Id: <sdd26bdb.018@ngw.bvu.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0.1
-Date: Wed, 13 Nov 2002 15:12:10 -0600
-From: "Anthony Murray" <murrant@bvu.edu>
-To: <alan@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [bug] i2o_lan modules fails to build in 2.5.47
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S264649AbSKMVy2>; Wed, 13 Nov 2002 16:54:28 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:42627 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264646AbSKMVy1>; Wed, 13 Nov 2002 16:54:27 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200211132201.gADM1Fw09895@devserv.devel.redhat.com>
+Subject: Re: sysfs support for ide disks
+To: pavel@ucw.cz (Pavel Machek)
+Date: Wed, 13 Nov 2002 17:01:15 -0500 (EST)
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <20021113215618.GA8744@elf.ucw.cz> from "Pavel Machek" at Nov 13, 2002 10:56:19 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I am hvaing trouble building the i2o_lan module for 2.5.47.  I have a 3com 905 net card and built support for it into the kernel. Here is the errors:
+> I had to select between standby written in ide-disk.c (uses
+> ide_raw_taskfile) and standby written in sc1200.c (uses
+> ide_wait_cmd). I do not know which one is correct, but I tend to trust
+> ide-disk.c version a bit more, and used that.
 
-[...snip...]
-make -f scripts/Makefile.build obj=drivers/message/i2o
-  gcc -Wp,-MD,drivers/message/i2o/.i2o_lan.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium3 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE -include include/linux/modversions.h   -DKBUILD_BASENAME=i2o_lan   -c -o drivers/message/i2o/i2o_lan.o drivers/message/i2o/i2o_lan.c
-drivers/message/i2o/i2o_lan.c:28:2: #error Please convert me to Documentation/DMA-mapping.txt
-drivers/message/i2o/i2o_lan.c:120: parse error before "struct"
-drivers/message/i2o/i2o_lan.c: In function `i2o_lan_receive_post_reply':
-drivers/message/i2o/i2o_lan.c:385: `run_i2o_post_buckets_task' undeclared (first use in this function)
-drivers/message/i2o/i2o_lan.c:385: (Each undeclared identifier is reported only once
-drivers/message/i2o/i2o_lan.c:385: for each function it appears in.)
-drivers/message/i2o/i2o_lan.c: In function `i2o_lan_register_device':
-drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
-drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
-drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
-drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
-drivers/message/i2o/i2o_lan.c:1407: structure has no member named `sync'
-make[3]: *** [drivers/message/i2o/i2o_lan.o] Error 1
-make[2]: *** [drivers/message/i2o] Error 2
-make[1]: *** [drivers/message] Error 2
-make: *** [drivers] Error 2
+They'll both ultimately do the same thing.
 
-Thanks,
-Tony Murray
+> Apply if it looks good to you,
+
+Ok will do. My only gripe is about printk levels this time 8)
+

@@ -1,118 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVAVAie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbVAVAn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbVAVAie (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 19:38:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbVAUXXx
+	id S262587AbVAVAn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 19:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbVAVAl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 18:23:53 -0500
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:50605 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S262587AbVAUXO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 18:14:28 -0500
-Date: Sat, 22 Jan 2005 00:10:51 +0100 (CET)
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [ide-dev 5/5] kill ide_driver_t->pre_reset
-Message-ID: <Pine.GSO.4.58.0501220010180.28844@mion.elka.pw.edu.pl>
+	Fri, 21 Jan 2005 19:41:57 -0500
+Received: from mail.joq.us ([67.65.12.105]:14027 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262624AbVAVAIR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 19:08:17 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
+ scheduling
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>
+	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Fri, 21 Jan 2005 18:09:43 -0600
+Message-ID: <87wtu6fho8.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar <mingo@elte.hu> writes:
 
-Add ide_drive_t->post_reset flag and use it to signal post reset
-condition to the ide-tape driver (the only user of ->pre_reset).
+> just finished a short testrun with nice--20 compared to SCHED_FIFO, on a
+> relatively slow 466 MHz box:
 
-diff -Nru a/drivers/ide/ide-iops.c b/drivers/ide/ide-iops.c
---- a/drivers/ide/ide-iops.c	2005-01-22 00:09:32 +01:00
-+++ b/drivers/ide/ide-iops.c	2005-01-22 00:09:32 +01:00
-@@ -1132,7 +1132,7 @@
- 	if (drive->media == ide_disk)
- 		ide_disk_pre_reset(drive);
- 	else
--		drive->driver->pre_reset(drive);
-+		drive->post_reset = 1;
+> this shows the surprising result that putting all RT tasks on nice--20
+> reduced context-switch rate by 20% and the Delay Maximum is lower as
+> well. (although the Delay Maximum is quite unreliable so this could be a
+> fluke.) But the XRUN count is the same.
 
- 	if (!drive->keep_settings) {
- 		if (drive->using_dma) {
-diff -Nru a/drivers/ide/ide-tape.c b/drivers/ide/ide-tape.c
---- a/drivers/ide/ide-tape.c	2005-01-22 00:09:32 +01:00
-+++ b/drivers/ide/ide-tape.c	2005-01-22 00:09:32 +01:00
-@@ -2428,6 +2428,11 @@
- 	if (!drive->dsc_overlap && !(rq->cmd[0] & REQ_IDETAPE_PC2))
- 		set_bit(IDETAPE_IGNORE_DSC, &tape->flags);
+> can anyone else reproduce this, with the test-patch below applied?
 
-+	if (drive->post_reset == 1) {
-+		set_bit(IDETAPE_IGNORE_DSC, &tape->flags);
-+		drive->post_reset = 0;
-+	}
-+
- 	if (tape->tape_still_time > 100 && tape->tape_still_time < 200)
- 		tape->measure_insert_time = 1;
- 	if (time_after(jiffies, tape->insert_time))
-@@ -3558,16 +3563,6 @@
- }
+I finally made new kernel builds for the latest patches from both Ingo
+and Con.  I kept the two patch sets separate, as they modify some of
+the same files.
 
- /*
-- *	idetape_pre_reset is called before an ATAPI/ATA software reset.
-- */
--static void idetape_pre_reset (ide_drive_t *drive)
--{
--	idetape_tape_t *tape = drive->driver_data;
--	if (tape != NULL)
--		set_bit(IDETAPE_IGNORE_DSC, &tape->flags);
--}
--
--/*
-  *	idetape_space_over_filemarks is now a bit more complicated than just
-  *	passing the command to the tape since we may have crossed some
-  *	filemarks during our pipelined read-ahead mode.
-@@ -4690,7 +4685,6 @@
- 	.cleanup		= idetape_cleanup,
- 	.do_request		= idetape_do_request,
- 	.end_request		= idetape_end_request,
--	.pre_reset		= idetape_pre_reset,
- 	.proc			= idetape_proc,
- 	.attach			= idetape_attach,
- 	.drives			= LIST_HEAD_INIT(idetape_driver.drives),
-diff -Nru a/drivers/ide/ide.c b/drivers/ide/ide.c
---- a/drivers/ide/ide.c	2005-01-22 00:09:32 +01:00
-+++ b/drivers/ide/ide.c	2005-01-22 00:09:32 +01:00
-@@ -2037,10 +2037,6 @@
- 	return __ide_error(drive, rq, stat, err);
- }
+I ran three sets of tests with three or more 5 minute runs for each
+case.  The results (log files and graphs) are in these directories...
 
--static void default_pre_reset (ide_drive_t *drive)
--{
--}
--
- static sector_t default_capacity (ide_drive_t *drive)
- {
- 	return 0x7fffffff;
-@@ -2059,7 +2055,6 @@
- 	if (d->end_request == NULL)	d->end_request = default_end_request;
- 	if (d->error == NULL)		d->error = default_error;
- 	if (d->abort == NULL)		d->abort = default_abort;
--	if (d->pre_reset == NULL)	d->pre_reset = default_pre_reset;
- 	if (d->capacity == NULL)	d->capacity = default_capacity;
- }
+  1) sched-fifo -- as a baseline
+     http://www.joq.us/jack/benchmarks/sched-fifo
 
-diff -Nru a/include/linux/ide.h b/include/linux/ide.h
---- a/include/linux/ide.h	2005-01-22 00:09:32 +01:00
-+++ b/include/linux/ide.h	2005-01-22 00:09:32 +01:00
-@@ -721,6 +721,7 @@
- 					 *  3=64-bit
- 					 */
- 	unsigned scsi		: 1;	/* 0=default, 1=ide-scsi emulation */
-+	unsigned post_reset	: 1;
+  2) sched-iso -- Con's scheduler, no privileges
+     http://www.joq.us/jack/benchmarks/sched-iso
 
-         u8	quirk_list;	/* considered quirky, set for a specific host */
-         u8	init_speed;	/* transfer rate set at boot */
-@@ -1099,7 +1100,6 @@
- 	ide_startstop_t	(*error)(ide_drive_t *, struct request *rq, u8, u8);
- 	ide_startstop_t	(*abort)(ide_drive_t *, struct request *rq);
- 	int		(*ioctl)(ide_drive_t *, struct inode *, struct file *, unsigned int, unsigned long);
--	void		(*pre_reset)(ide_drive_t *);
- 	sector_t	(*capacity)(ide_drive_t *);
- 	ide_proc_entry_t	*proc;
- 	int		(*attach)(ide_drive_t *);
+  3) nice-20 -- Ingo's "nice --20" scheduler hack
+     http://www.joq.us/jack/benchmarks/nice-20
+
+The SCHED_FIFO runs are all with Con's scheduler.  I could not figure
+out how to get SCHED_FIFO working with Ingo's version.  With or
+without the appropriate privileges, it used nice --20, instead.  I
+used schedtool to verify that the realtime threads were running in the
+expected class for each test.
+
+It's hard to make much sense out of all this information.  The
+SCHED_FIFO results are clearly best.  There were no xruns at all in
+those three runs.  All of the others had at least a few, some quite
+severe.  But, one of the nice-20 runs had just one small sub-
+millisecond xrun.  I made some extra runs with that, because I was
+puzzled by its lack of consistency.
+
+Yet, both Ingo's and Con's schedulers basically seem to work well.
+I'm not sure how to explain the xruns.  Maybe they are caused by other
+kernel latency bugs.  (But then, why not SCHED_FIFO?)  Maybe those
+schedulers work most of the time, but are not sufficiently careful to
+always preempt the running process when an audio interrupt arrives?
+
+I had some problems with the y2 graph axis (for XRUN and DELAY).  In
+most of the graphs it is unreadable.  In some it is inconsistent.  I
+hacked on the jack_test3_plot.sh script several times, trying to set
+readable values, mostly without success.  There is too much variation
+in those numbers.  So, be careful reading and comparing that
+information.  Some xruns look better or worse than they really are.
+
+These tests were run without any other heavy demands on the system.  I
+want to try some with a compile running in the background.  But, I
+won't have time for that until tomorrow at the earliest.  So, I'll
+post these preliminary results now for your enjoyment.
+-- 
+  joq

@@ -1,102 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262397AbULCREu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbULCRJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262397AbULCREu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 12:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbULCREu
+	id S262412AbULCRJR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 12:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbULCRJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 12:04:50 -0500
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:43502 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S262397AbULCREU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 12:04:20 -0500
-Date: Fri, 03 Dec 2004 12:04:22 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: wakeup_pmode_return jmp failing?
-In-reply-to: <41B09D4B.3090906@tmr.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <41B09C96.7090207@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <41B084B4.1050402@sun.com> <41B09D4B.3090906@tmr.com>
+	Fri, 3 Dec 2004 12:09:16 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7173 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262412AbULCRJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 12:09:00 -0500
+Date: Fri, 3 Dec 2004 17:08:53 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch-2.6.x] fix compile failure if CONFIG_PROC_KCORE not set.
+Message-ID: <20041203170853.B24118@flint.arm.linux.org.uk>
+Mail-Followup-To: Tigran Aivazian <tigran@veritas.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0412031632310.4221@ezer.homenet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61.0412031632310.4221@ezer.homenet>; from tigran@veritas.com on Fri, Dec 03, 2004 at 05:01:57PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Dec 03, 2004 at 05:01:57PM +0000, Tigran Aivazian wrote:
+> I know that /proc/kcore support cannot be disabled by normal means but 
+> since it is conditional upon CONFIG_PROC_KCORE in fs/proc/Makefile it 
+> makes sense to make sure that kernel compiles even if it is disabled 
+> manually by editing .config and include/linux/autoconf.h or if in the 
+> future CONFIG_PROC_KCORE becomes a real CONFIG_ variable.
 
-Bill Davidsen wrote:
-> Mike Waychison wrote:
-> 
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Hello,
->>
->> Not sure who to direct this to.  I've been trying to get acpi s3 to work
->> on my pentium M laptop (tecra m2).  Without the nvidia driver loaded, I
->> can echo 3 > /proc/acpi/sleep and the machine does indeed suspend (power
->> light throbs and all).  However, when I try to wake up the thing, it
->> would flash the bios screen and throw me back to grub.
->>
->> I've been investigating the code at arch/i386/kernel/acpi/wakeup.S, and
->> have discovered that if I place a busy wait directory before the ljmpl
->> to wakeup_pmode_return, that I indeed do see 'Lin' on the screen instead
->> of the bios screen.
->>
->> The joke is, if I place a busy wait first thing after the
->> wakeup_pmode_return label, it never gets executed and I get a regular
->> boot.
->>
->> It would appear as though the jump from 16bit code into the 32bit code
->> is failing and the bios is kicking in with a regular startup.
->>
->> Anybody have any suggestions?
-> 
-> 
-> Install a 2.4 kernel with apm enabled and use that.
-> 
-> That's serious, I have an IBM, Tecra, Dell, and Acer, and 5-6 friends
-> running Linux on laptops. Every one (other than the Acer) works with
-> "apm -s" and recovers. Some work with "apm -S". The Acer never had a 2.4
-> kernel, and I haven't rebuilt with apm on 2.6 (or even looked to see if
-> it was supported). All of these suspend fine with ACPI, none ever wakes up.
+CONFIG_PROC_KCORE currently exists to allow ARM and others to drop
+the nonfunctional /proc/kcore support from the kernel.  It wasn't
+intended to be a configuration option as such.
 
-FWIW, my last attempts (months ago) at getting suspend to work with acpi
-on 2.4 appeared to fail the same way.  That is, when I could get the
-machine to boot properly with acpi enabled.
+However, if you wish it to be so, there's no problem provided that
+the architectures are fixed up as you've done for x86, and that the
+ability for certain architectures to ensure that this is never
+selected is preserved.
 
-> 
-> Is suspend even supposed to be generally functional? I thought it was a
-> WIP not expected to work except on certain models which have been hand
-> tuned by the developers. In fact I have a message somewhere saying you
-> have to get out of X to a text console, manually shutdown the network,
-> and then it might work. Then start everything up again.
-> 
-
-Well, I'm doing this with no X, no network, no usb.  Like I said, it
-appears to suspend fine, but fails in the early wakeup code.
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBsJyWdQs4kOxk3/MRAvm0AKCaMgXg5KZDi6h8bOjWlwml+HlzlQCfRjzV
-1rLlgYtJ4dY4e3N1EsQmOsg=
-=qtoe
------END PGP SIGNATURE-----
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

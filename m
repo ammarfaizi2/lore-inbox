@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263423AbVBCWSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVBCWXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263423AbVBCWSj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 17:18:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVBCWPx
+	id S261683AbVBCWXo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 17:23:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbVBCWXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 17:15:53 -0500
-Received: from av9-2-sn4.m-sp.skanova.net ([81.228.10.107]:44165 "EHLO
-	av9-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S262754AbVBCWGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 17:06:31 -0500
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] Fix "pointer jumps to corner of screen" problem on ALPS Glidepoint touchpads.
-References: <m34qgz9pj5.fsf@telia.com> <m3zmyr8avm.fsf@telia.com>
-	<m3vf9f8asf.fsf_-_@telia.com>
-	<MPG.1c6c19f1476bb4a98970e@news.gmane.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 03 Feb 2005 23:06:28 +0100
-In-Reply-To: <MPG.1c6c19f1476bb4a98970e@news.gmane.org>
-Message-ID: <m3vf99wb6j.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Feb 2005 17:23:42 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:29972 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262698AbVBCWXK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 17:23:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=tPopuRkAdk0qWxMEBV5vvRGHY0pklWQkflbB50hE/JBwaL31c4aKOjCOrMYEZVD5I+dcwV2yO1zuGacrj+Jz8DdaLP3NuHyyK3dBkKf/+v4KXbKgEKXJKe2uTnOMGv6TUH0EApvMBbgSbNBC0uXBCTfWFXp1fSX2THFRPAyltuE=
+Message-ID: <58cb370e05020314231d3237d9@mail.gmail.com>
+Date: Thu, 3 Feb 2005 23:23:06 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: via82cxxx resume failure.
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <4202A25A.9050700@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1105953931.26551.314.camel@hades.cambridge.redhat.com>
+	 <58cb370e05020312296060f4bf@mail.gmail.com>
+	 <4202A25A.9050700@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuseppe Bilotta <bilotta78@hotpop.com> writes:
-
-> Peter Osterlund wrote:
-> > Only parse a "z == 127" packet as a relative Dualpoint stick packet if
-> > the touchpad actually is a Dualpoint device.  The Glidepoint models
-> > don't have a stick, and can report z == 127 for a very wide finger. If
-> > such a packet is parsed as a stick packet, the mouse pointer will
-> > typically jump to one corner of the screen.
+On Thu, 03 Feb 2005 17:14:50 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > Sorry for the delay.
+> >
+> > On Mon, 17 Jan 2005 09:25:30 +0000, David Woodhouse <dwmw2@infradead.org> wrote:
+> >
+> >>On resume from sleep, via_set_speed() doesn't reinstate the correct DMA
+> >>mode, because it thinks the drive is already configured correctly. This
+> >>one-line hack is sufficient to make it refrain from dying a horrible
+> >>death immediately after resume, but presumably has other problems...
+> >
+> >
+> > I applied this to libata-dev so it gets some testing in -mm.
 > 
-> I remember reading specs of a touchpad (can't remember if it 
-> was ALPS or Synaptics) (driver) which could do "palm 
-> detection" (basically ignoring events when a large part of the 
-> hand accidentally touched/pressed the pad, FWICS).
+> Chuckle -- you mean ide-dev, presumably :)
 
-Some synaptics touchpads can do palm detection in firmware, but the
-software driver has to decide if the corresponding events shall be
-ignored or not.
-
-Anyway, this is unrelated to the patch. Without this patch, the packet
-from the touchpad will be parsed incorrectly as a very big stick
-motion, so a higher level driver (such as the X driver) can't really
-see that there might be a palm touching the pad.
-
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+yes, obviously :)

@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290320AbSAPBHa>; Tue, 15 Jan 2002 20:07:30 -0500
+	id <S290314AbSAPBK1>; Tue, 15 Jan 2002 20:10:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290316AbSAPBHR>; Tue, 15 Jan 2002 20:07:17 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:10763 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S290314AbSAPBHO>; Tue, 15 Jan 2002 20:07:14 -0500
-Date: Tue, 15 Jan 2002 17:07:00 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fbdev fbgen cleanup
-Message-ID: <Pine.LNX.4.10.10201151702130.31251-100000@www.transvirtual.com>
+	id <S290316AbSAPBKR>; Tue, 15 Jan 2002 20:10:17 -0500
+Received: from [203.94.130.164] ([203.94.130.164]:34578 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id <S290314AbSAPBKD>;
+	Tue, 15 Jan 2002 20:10:03 -0500
+Date: Wed, 16 Jan 2002 12:25:56 +1100 (EST)
+From: brett@bad-sports.com
+To: linux-kernel@vger.kernel.org
+Subject: more unresolved symbols in 2.4.18-pre4
+Message-ID: <Pine.LNX.4.40.0201161224250.21260-100000@bad-sports.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi folks!!
+Hey,
 
-    On to the massive fbdev cleanup. The second patch requires the first
-patch. The first patch is the currcon one that I posted earlier. Every
-driver makes use of the currcon field in struct fb_info.  The second patch
-makes every driver start to use fbgen. The first function that is mass
-reproduced in every driver do_install_cmap is removed to one spot. I like
-people to test this before it is sent off to Dave Jones. The patches are
-big so here is the link to them:
+One was already reported, but have some more :)
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
+depmod: *** Unresolved symbols in /lib/modules/2.4.18-pre4/kernel/drivers/char/drm/sis.o
+depmod: 	sis_malloc_Ra3329ed5
+depmod: 	sis_free_Rced25333
+depmod: *** Unresolved symbols in /lib/modules/2.4.18-pre4/kernel/fs/minix/minix.o
+depmod: 	waitfor_one_page
+depmod: *** Unresolved symbols in /lib/modules/2.4.18-pre4/kernel/fs/sysv/sysv.o
+depmod: 	waitfor_one_page
 
-http://www.transvirtual.com/~jsimmons/fbcurrcon.diff
-http://www.transvirtual.com/~jsimmons/doinstallcmap.diff
+thanks,
 
-Have fun. I have tested on my local machine. Works like a charm. 
+	/ Brett
 

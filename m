@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318291AbSIKCaW>; Tue, 10 Sep 2002 22:30:22 -0400
+	id <S318290AbSIKCdO>; Tue, 10 Sep 2002 22:33:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318292AbSIKCaW>; Tue, 10 Sep 2002 22:30:22 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:37510 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S318291AbSIKCaT>;
-	Tue, 10 Sep 2002 22:30:19 -0400
-Date: Tue, 10 Sep 2002 22:35:05 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Rick Lindsley <ricklind@us.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.34 gendisk changes
-In-Reply-To: <200209110209.g8B298D00202@eng4.beaverton.ibm.com>
-Message-ID: <Pine.GSO.4.21.0209102234280.6397-100000@weyl.math.psu.edu>
+	id <S318292AbSIKCdO>; Tue, 10 Sep 2002 22:33:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31238 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318290AbSIKCdN>;
+	Tue, 10 Sep 2002 22:33:13 -0400
+Message-ID: <3D7EAC65.8030101@mandrakesoft.com>
+Date: Tue, 10 Sep 2002 22:37:25 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steve Mickeler <steve@neptune.ca>
+CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre6 tg3 compile errors
+References: <Pine.LNX.4.44.0209102218460.3875-100000@triton.neptune.on.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 10 Sep 2002, Rick Lindsley wrote:
-
-> It would seem that in 2.5.34 gendisk->part[0] no longer refers to the
-> whole disk, but instead refers to the first partition.  Is this
-> correct? There isn't a struct hd_struct that refers to the whole disk
-> anymore?
+Steve Mickeler wrote:
+> Ok, I applied the entire 2.4.20-pre6 and still get compile errors:
 > 
-> I'm working on porting forward the sard patch for disk statistics, so I
-> want to make sure this is the intent and not an off-by-one bug. Other
-> code, though, suggests it's intentional.
+> gcc -D__KERNEL__ -I/usr/src/test/linux-2.4.20-pre6/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
+> -nostdinc -iwithprefix include -DKBUILD_BASENAME=tg3  -c -o tg3.o tg3.c
+> 
+> tg3.c: In function `__tg3_set_rx_mode':
+> tg3.c:4881: structure has no member named `vlgrp'
 
-It is intentional.
+
+Wrap this line of code inside a
+
+#if TG3_VLAN_TAG_USED
+...line 4881 here...
+#endif
 

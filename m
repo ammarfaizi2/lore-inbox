@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315593AbSGNCQN>; Sat, 13 Jul 2002 22:16:13 -0400
+	id <S315599AbSGNDUP>; Sat, 13 Jul 2002 23:20:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315595AbSGNCQM>; Sat, 13 Jul 2002 22:16:12 -0400
-Received: from p50886DAC.dip.t-dialin.net ([80.136.109.172]:38532 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315593AbSGNCQL>; Sat, 13 Jul 2002 22:16:11 -0400
-Date: Sat, 13 Jul 2002 20:19:02 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [SCRIPT] kbuild-2.4/2.5 symbol export parser
-Message-ID: <Pine.LNX.4.44.0207132002030.3331-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
+	id <S315607AbSGNDUO>; Sat, 13 Jul 2002 23:20:14 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22278 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S315599AbSGNDUO>; Sat, 13 Jul 2002 23:20:14 -0400
+Date: Sat, 13 Jul 2002 23:17:09 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG?] unwanted proxy arp in 2.4.19-pre10
+In-Reply-To: <1026584920.13885.29.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.3.96.1020713230703.16934B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 13 Jul 2002, Alan Cox wrote:
 
-This one checks if your Makefile's and Makefile.in's report the correct 
-files exporting symbols. A file that exports symbols must be listed. This 
-script checks whether files that export symbols are set in expsyms and its 
-kbuild-2.4 equivalent, and whether the files listed there really export 
-symbols.
+> On Sat, 2002-07-13 at 17:21, Bill Davidsen wrote:
+> > In the absense of the proxy_arp flag, I would not expect that reply,
+> > the IP is not on that NIC. Before I "fix" that, is this intended
+> > behaviour for some reason? Will I break something if I add check logic?
+> > Is there something in /proc/sys/net/ipv4 I missed which will avoid this
+> > response?
+> 
+> Your suspicion and the reality don't match. The RFC's leave the
+> situation unclear and some OS's do either. Newer 2.4 has arpfilter which
+> can be used to control what actually occurs
 
-It's quite a kludge. I don't do the parsing on my own here, since I'm just 
-as lazy as you, but I use the (in)famous grep for each file.
+I tried setting conf/arp_filter, proxy_arp, and looked at rp_filter but
+didn't try anything with it. I'm using tcpdump on the machine sending
+who-has and getting two packets back. I tried the obvious setting eth0 and
+1, setting default, and setting 'all." The current settings, just the NICs
+in question, are producing two arp-replies with settings:
 
-Lots of stuff, produces result and tmp files only in a special directory 
-called ".deps" (because some of the code was inherited from another script 
-of mine that computer dependencies for kbuild-2.5 Makefile.in's and thus 
-created them automagically).
+newsmst01:conf# for n in */arp_filter;do echo $n; cat $n; done
+all/arp_filter
+0
+default/arp_filter
+0
+eth0/arp_filter
+1
+eth1/arp_filter
+1
+lo/arp_filter
+0
+newsmst01:conf# 
 
-Usage: go to your kernel tree (main directory) and run the script there 
-without parameters. Takes me a minute to run on my Alpha, produces approx. 
-270 kB of output files. Requires find, grep, diff, sort and, of course, 
-perl.
+This was with 2.4.19-pre10ac2+one smp locking patch.
 
-<URL:ftp://luckynet.dynu.com/pub/linux/kbuild-2.5/tools/expsyms-check.pl.bz2>
+Oh well, thanks anyway, if it's intended to work that way I'll look at
+making it so.
 
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

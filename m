@@ -1,75 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbUKAPga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272263AbUKAPhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbUKAPga (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 10:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268126AbUKAPga
+	id S272263AbUKAPhP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 10:37:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272430AbUKAPhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 10:36:30 -0500
-Received: from inetc.connecttech.com ([64.7.140.42]:49160 "EHLO
-	inetc.connecttech.com") by vger.kernel.org with ESMTP
-	id S267423AbUKAPMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 10:12:53 -0500
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Paul Fulghum'" <paulkf@microgate.com>, <tytso@mit.edu>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Russell King'" <rmk+lkml@arm.linux.org.uk>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UPkernel
-Date: Mon, 1 Nov 2004 10:12:38 -0500
-Organization: Connect Tech Inc.
-Message-ID: <002a01c4c025$39f22530$294b82ce@stuartm>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <418643E2.9080006@microgate.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Importance: Normal
+	Mon, 1 Nov 2004 10:37:06 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:47510 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262859AbUKAOgJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 09:36:09 -0500
+Date: Mon, 1 Nov 2004 15:36:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Florian Schmidt <mista.tapas@gmx.net>, Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041101143633.GA22981@elte.hu>
+References: <OF7D48BC89.318047B1-ON86256F3F.004FE424-86256F3F.004FE4A1@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF7D48BC89.318047B1-ON86256F3F.004FE424-86256F3F.004FE4A1@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Fulghum [mailto:paulkf@microgate.com] 
-> Stuart MacDonald wrote:
-> > I always thought the whole point of low_latency was to make the
-> > receive-path very fast, which means specifically allowing the flip
-> > routine to run from the ISR. So checking for calling from 
-> the ISR and
-> > specifically disallowing that is basically negating the 
-> entire raison
-> > d'etre for low_latency.
+
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+
+> Hmm. I was in the middle of a V0.6.4 build when I saw this message.
+> I let it run but the build stopped with the following error:
 > 
-> I was thought it was to speed processing if the
-> caller was already in process context. Maybe the
-> real intentions are lost to history.
+>   CC [M]  drivers/scsi/qla2xxx/qla_os.o
+>   CC [M]  drivers/usb/media/stv680.o
+> drivers/scsi/qla2xxx/qla_os.c: In function `qla2x00_do_dpc':
+> drivers/scsi/qla2xxx/qla_os.c:3193: warning: implicit declaration of
+> function `DECLARE_MUTEX_LOCKED'
 
-Best person to ask may be Ted; he was once the serial maintainer. Ted?
+the patch below should fix it, will be in the next release.
 
-> Moving forward, Alan stated that the flip
-> routine should not be called in interrupt context.
-> His last post concerning some transient state
-> of low_latency has confused me.
+	Ingo
 
-I didn't follow that either, but I wasn't reading too closely.
-
-> Currently, with the 8250 driver and N_TTY
-> line discipline, calling the flip routine from
-> ISR causes an SMP deadlock. There are two paths that
-> cause this:
-> 1. low_latency is set
-> 2. flip buffer becomes full
-> 
-> So calling the flip routine from the ISR may work
-> with some specific drivers, but it would be
-> dangerous to assume this works in all cases.
-
-I haven't looked at the 2.6 serial rewrite in depth yet, but the
-problem always existed in the 2.4 driver. I got around the problem by
-checking for interrupt context and taking the locks or not at a much
-earlier stage.
-
-..Stu
-www.connecttech.com
-
+--- linux/drivers/scsi/qla2xxx/qla_os.c.orig
++++ linux/drivers/scsi/qla2xxx/qla_os.c
+@@ -3190,7 +3190,7 @@ qla2x00_free_sp_pool( scsi_qla_host_t *h
+ static int
+ qla2x00_do_dpc(void *data)
+ {
+-	DECLARE_MUTEX_LOCKED(sem);
++	DECLARE_MUTEX(sem);
+ 	scsi_qla_host_t *ha;
+ 	fc_port_t	*fcport;
+ 	os_lun_t        *q;
+@@ -3204,6 +3204,8 @@ qla2x00_do_dpc(void *data)
+ 	int t;
+ 	os_tgt_t *tq;
+ 
++	down(&sem);
++
+ 	ha = (scsi_qla_host_t *)data;
+ 
+ 	lock_kernel();

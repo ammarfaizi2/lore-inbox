@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272496AbRHaDuq>; Thu, 30 Aug 2001 23:50:46 -0400
+	id <S272595AbRHaD6Q>; Thu, 30 Aug 2001 23:58:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272595AbRHaDug>; Thu, 30 Aug 2001 23:50:36 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:20662 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S272496AbRHaDuZ>; Thu, 30 Aug 2001 23:50:25 -0400
-Date: Thu, 30 Aug 2001 21:50:42 -0600
-Message-Id: <200108310350.f7V3ogk27286@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: david@digitalaudioresources.org (David Hollister),
-        jan@gondor.com (Jan Niehusmann), linux-kernel@vger.kernel.org
-Subject: Re: Athlon doesn't like Athlon optimisation?
-In-Reply-To: <200108310334.f7V3YZm442148@saturn.cs.uml.edu>
-In-Reply-To: <3B8EFF67.9010409@digitalaudioresources.org>
-	<200108310334.f7V3YZm442148@saturn.cs.uml.edu>
+	id <S272596AbRHaD6G>; Thu, 30 Aug 2001 23:58:06 -0400
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:57390 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272595AbRHaD5z>; Thu, 30 Aug 2001 23:57:55 -0400
+Subject: Re: Linux 2.4.9-ac5
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <laughing@shared-source.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010831013311.A8535@lightning.swansea.linux.org.uk>
+In-Reply-To: <20010831013311.A8535@lightning.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 30 Aug 2001 23:58:11 -0400
+Message-Id: <999230300.5953.20.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan writes:
-> Richard, the FAQ could use an entry about this and the other VIA
-> problem.
+On Thu, 2001-08-30 at 20:33, Alan Cox wrote:
+> 2.4.9-ac5
+> o	Add MODULE_LICENSE tagging			(me)
+> o	Add tags in drivers upto and including drivers/char/*
 
-How about sending me a patch to the HTML file? That's less work for me
-:-)
+looks like a typo in drivers/block/z2ram.c 's addition of
+MODULE_LICENSE.  Patch enclosed fixes:
 
-				Regards,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+--- linux-2.4.9-ac5/drivers/block/z2ram.c	Thu Aug 30 22:52:34 2001
++++ linux/drivers/block/z2ram.c	Thu Aug 30 23:52:56 2001
+@@ -375,10 +375,10 @@
+     return 0;
+ }
+ 
+-#if defined(MODULE
++#if defined(MODULE)
+ 
+ MODULE_LICENSE("GPL");
+-)
++
+ int
+ init_module( void )
+ {
+
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

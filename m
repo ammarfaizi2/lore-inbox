@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129458AbQLXBJR>; Sat, 23 Dec 2000 20:09:17 -0500
+	id <S129595AbQLXBOR>; Sat, 23 Dec 2000 20:14:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129595AbQLXBJI>; Sat, 23 Dec 2000 20:09:08 -0500
-Received: from itaipu.nitnet.com.br ([200.255.111.241]:56850 "HELO
-	itaipu.nitnet.com.br") by vger.kernel.org with SMTP
-	id <S129458AbQLXBIv>; Sat, 23 Dec 2000 20:08:51 -0500
-Date: Sat, 23 Dec 2000 22:38:14 -0200
-To: David Schwartz <davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP keepalive seems to send to only one port
-Message-ID: <20001223223814.A2281@flower.cesarb>
-In-Reply-To: <20001223213156.A1947@flower.cesarb> <NCBBLIEPOCNJOAEKBEAKKEPOMJAA.davids@webmaster.com>
-Mime-Version: 1.0
+	id <S131039AbQLXBN5>; Sat, 23 Dec 2000 20:13:57 -0500
+Received: from mail-4.tiscalinet.it ([195.130.225.150]:52869 "EHLO
+	mail.tiscalinet.it") by vger.kernel.org with ESMTP
+	id <S129595AbQLXBNy>; Sat, 23 Dec 2000 20:13:54 -0500
+Message-ID: <3A4546B8.DA532EA4@tiscalinet.it>
+Date: Sun, 24 Dec 2000 01:43:36 +0100
+From: Fabrizio Gennari <fabrizio.ge@tiscalinet.it>
+X-Mailer: Mozilla 4.5 [it] (Win98; I)
+X-Accept-Language: it
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Trouble when linking aic7xxx.c
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKKEPOMJAA.davids@webmaster.com>; from davids@webmaster.com on Sat, Dec 23, 2000 at 04:19:31PM -0800
-From: Cesar Eduardo Barros <cesarb@nitnet.com.br>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 23, 2000 at 04:19:31PM -0800, David Schwartz wrote:
-> 
-> > This means that keepalive is useless for keeping alive more than
-> > one connection
-> > to a given host.
-> 
-> 	Actually, keepalive is useless for keeping connections alive anyway. It's
-> very badly named. It's purpose is to detect dead peers, not keep peers
-> alive.
+I am having trouble when biulding the 2.2.18 Linux kernel (on a Redhat
+7.0, gcc-2.96). At link-time, the linker complains that in the file
+aic7xxx.o, in the function aic7xxx_load_seeprom, there is an "undefined
+reference to 'memcpy'". In fact, doing 'nm aic7xxx.o' gives a 'U
+memcpy', but, strangely enough, there is no explicit reference to memcpy
+in the function! Commenting out the whole function will make the 'U
+memcpy' symbol disappear from aic7xxx.o (but obviously would give a
+broken kernel)
 
-Then what do you do when you are behind a NAT? And how do you expire entries in
-ESTABLISHED state that could stay lingering forever without some sort of
-keepalive? (The FINs might have been lost due to a conectivity transient, so
-you can have another perfectly valid and alive connection with the same host,
-and application-level timeouts are useless for some applications
-(*cough*nc*cough*))
-
--- 
-Cesar Eduardo Barros
-cesarb@nitnet.com.br
-cesarb@dcc.ufrj.br
+What could be the cause? I can send the configuration file made by 'make
+menuconfig', if needed.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

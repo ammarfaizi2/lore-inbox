@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266020AbSLYB3T>; Tue, 24 Dec 2002 20:29:19 -0500
+	id <S266043AbSLYB6v>; Tue, 24 Dec 2002 20:58:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266038AbSLYB3T>; Tue, 24 Dec 2002 20:29:19 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:17619 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S266020AbSLYB3S> convert rfc822-to-8bit; Tue, 24 Dec 2002 20:29:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Debugging "cpu freezes"
-Date: Wed, 25 Dec 2002 02:37:03 +0100
-User-Agent: KMail/1.4.3
-References: <200212241856.TAA14250@mail41.fg.online.no>
-In-Reply-To: <200212241856.TAA14250@mail41.fg.online.no>
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Michael <soppscum@online.no>
+	id <S266053AbSLYB6v>; Tue, 24 Dec 2002 20:58:51 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:46235 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S266043AbSLYB6u>; Tue, 24 Dec 2002 20:58:50 -0500
+Date: Wed, 25 Dec 2002 00:06:45 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: get_pid-no-deadlock-and-boosted for mainline? Why not?
+In-Reply-To: <200212242200.48479.m.c.p@wolk-project.de>
+Message-ID: <Pine.LNX.4.50L.0212250006270.26879-100000@imladris.surriel.com>
+References: <200212242200.48479.m.c.p@wolk-project.de>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212250237.03662.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 December 2002 19:56, Michael wrote:
+On Tue, 24 Dec 2002, Marc-Christian Petersen wrote:
 
-Hi Michael,
+> is there _any_ reason why below patch isn't merged yet?
 
-> I'm wondering what the procedure for debugging instances where the computer
-> freezes completly, when sysRQ doesn't even work. Since I know how to
-> reproduce(and workaround for daily use) a complete system freeze in 2.4.X,
-> don't know if I can explain how, but for example booting the knoppix
-> live-cd to kde would be a perfect way of freezing it(after moving a few
-> windows) (Not using KDE reduces the risk of it freezing greatly)
-you could try boot parameter nmi_watchdog=1 or =2
-(Read Documentation/nmi_watchdog.txt).
+My guess is that the author never submitted it for inclusion.
 
-ciao, Marc
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

@@ -1,94 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261324AbSJYJNb>; Fri, 25 Oct 2002 05:13:31 -0400
+	id <S261321AbSJYJNG>; Fri, 25 Oct 2002 05:13:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261325AbSJYJNa>; Fri, 25 Oct 2002 05:13:30 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:48348 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261324AbSJYJN2>;
-	Fri, 25 Oct 2002 05:13:28 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: linux-kernel@vger.kernel.org
-Date: Fri, 25 Oct 2002 11:19:04 +0200
+	id <S261324AbSJYJNG>; Fri, 25 Oct 2002 05:13:06 -0400
+Received: from elixir.e.kth.se ([130.237.48.5]:30991 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S261321AbSJYJNF>;
+	Fri, 25 Oct 2002 05:13:05 -0400
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Ed Sweetman <ed.sweetman@wmich.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [CFT] faster athlon/duron memory copy implementation
+References: <3DB82ABF.8030706@colorfullife.com>
+	<200210242048.36859.earny@net4u.de> <3DB85385.6030302@wmich.edu>
+	<20021024202654.GA14351@suse.de>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 25 Oct 2002 11:19:16 +0200
+In-Reply-To: Dave Jones's message of "Thu, 24 Oct 2002 21:26:54 +0100"
+Message-ID: <yw1xof9i27vv.fsf@starwars.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.5.44: Strange oopses triggered by pipe_write?
-X-mailer: Pegasus Mail v3.50
-Message-ID: <5991E8D4D49@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Oct 02 at 17:57, Petr Vandrovec wrote:
+Dave Jones <davej@codemonkey.org.uk> writes:
 
-> Hi,
->   I just left my 2.5.44 box unattended for hour and half, and when
-> I came back, I saw very strange things on screen:
+> The functions being benchmarked are written in assembly.
+> gcc will not change these in any way, making compiler flags
+> or revision irrelevant.
 
-Machine did it again yesterday 7:55 morning, after having ~10 hours
-uptime. All three dumps are same, with minor difference in last one:
-*pde is 024c4067, and Process line is 'cat (pid: 11497, threadinfo=c3960000,
-task=d1c3a780)'... All other values are same.
+Doesn't gcc schedule inline assembly instructions?
 
-And during boot I received:
-
-...
-Adding 1024120k swap on /dev/hda2.  Priority:-1 extents:1
-EXT2-fs error (device ide0(3,1)): ext2_free_blocks: Freeing blocks not in
-   datazone - block 3245558600, count = 38276
-Checking root file system...
-fsck 1.30-WIP (30-Sep-2002)
-...   
-
-It looks to me very strange that ext2 was freeing blocks while being
-mounted read-only...
-
-And I forgot in last mail: kernel is compiled WITHOUT preempt.
-                                            Thanks,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
-
-> Debug: sleeping function called from illegal context at include/asm/semaphore.h:119
-> Call Trace:
->   [<c011a0f3>] __might_sleep+0x43/0x47
->   [..........] pipe_write+0x7f/0x230
->   ...........  vfs_write+0xc1/0x160
->   ...........  sys_write+0x2a/0x3c
->   [<c0107437>] syscall_call+0x7/0xb
->  
-> bad: scheduling while atomic!
->   [<c0117ea2>] schedule+0x2e/0x480
->   ............ sys_write+0x33/0x3c
->   [<c010745e>] work_resched+0x5/0x16
->
-> Unable to handle kernel paging request at virtual address 401202b8
->  printing eip:
-> 4004cb65
-> *pde = 10f6a067
-> *pte = 00000000
-> Oops: 0004
-> parport_pc parport tvaudio bttv tuner video-buf videodev i810_audio
->  ac97_codec soundcore af_packet nls_cp852 nls_iso8859-2 ipx p8022 psnap llc
->  e100
-> CPU: 0
-> EIP: 0023:[<4004cb65>]   Not tainted
-> EFLAGS: 00010246
-> eax: 00000004  ebx: 40131704  ecx: 4012d54c  edx: 401320a8
-> esi: 00001000  edi: 00000000  ebp: bffffc88  esp: bffffc70
-> ds: 002b  es: 002b  ss: 002b
-> Process cat (pid: 26569, threadinfo=c586c000, task=da9ac100)
->  <0>Kernel panic: Aiee, killing interrupt handler!
-> In interrupt handler - not syncing
-> 
-> 
-> It looks to me like that system first complained a bit about some
-> spinlock being held, panicked in schedule, and then it printed
-> very strange oopses: they look like userspace CPU context.
-> 
-> Kernel is 2.5.44, compiled for SMP, running on machine with 1 CPU.
-> Before this incident machine was up for about 60 hours.
-> After reboot fsck found 31 deleted inodes with zero dtime.
->                                                 Thanks,
->                                                     Petr Vandrovec
->                                                     vandrove@vc.cvut.cz
+-- 
+Måns Rullgård
+mru@users.sf.net

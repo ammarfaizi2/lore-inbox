@@ -1,38 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUHOMei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUHOMhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbUHOMei (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 08:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUHOMeh
+	id S266663AbUHOMhG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 08:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUHOMhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 08:34:37 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:4101 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264531AbUHOMeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 08:34:37 -0400
-Date: Sun, 15 Aug 2004 13:34:32 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Airlie <airlied@linux.ie>
-Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20040815133432.A1750@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Airlie <airlied@linux.ie>, torvalds@osdl.org,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0408151311340.27003@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0408151311340.27003@skynet>; from airlied@linux.ie on Sun, Aug 15, 2004 at 01:19:31PM +0100
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 15 Aug 2004 08:37:06 -0400
+Received: from everest.2mbit.com ([24.123.221.2]:9884 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S266663AbUHOMhC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 08:37:02 -0400
+Message-ID: <411F58DF.2070002@greatcn.org>
+Date: Sun, 15 Aug 2004 20:36:47 +0800
+From: Coywolf Qi Hunt <coywolf@greatcn.org>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+CC: linux-kernel@vger.kernel.org
+References: <E1BwJne-0006M7-00@calista.eckenfels.6bone.ka-ip.net>
+In-Reply-To: <E1BwJne-0006M7-00@calista.eckenfels.6bone.ka-ip.net>
+X-Scan-Signature: fad39d3eb0bc82a8daaaab38959dee5c
+X-SA-Exim-Connect-IP: 218.24.189.67
+X-SA-Exim-Mail-From: coywolf@greatcn.org
+Subject: Re: [PATCH] Remove obsolete HEAD in top Makefile
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
+	*      [218.24.189.67 listed in cnkrbl.ahbl.org]
+X-SA-Exim-Version: 4.0+cvs20040712 (built Mon, 09 Aug 2004 23:30:37 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 01:19:31PM +0100, Dave Airlie wrote:
-> Graphics, and the DRM now uses PCI properly if no framebuffer is loaded
-> (it falls back if framebuffer is enabled...),
+Bernd Eckenfels wrote:
 
-Can you explain what this means?
+>In article <411F3A48.2030201@greatcn.org> you wrote:
+>  
+>
+>>Now the 2.6 kbuild is no longer using it. I have tested it.
+>>    
+>>
+>...
+>  
+>
+>>-head-y += $(HEAD)
+>>vmlinux-objs := $(head-y) $(init-y) $(core-y) $(libs-y) $(drivers-y) 
+>>$(net-y)
+>>    
+>>
+>
+>
+>iff it is not using it you need to remove it in the next line, too.
+>  
+>
+
+Nah, I'm only removing HEAD, not head-y. :p
+
+
+-- 
+Coywolf Qi Hunt
+Homepage http://greatcn.org/~coywolf/
+Admin of http://GreatCN.org and http://LoveCN.org
 

@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVBBNvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbVBBN5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbVBBNvE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 08:51:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbVBBNvE
+	id S262354AbVBBN5x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 08:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbVBBN5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 08:51:04 -0500
-Received: from main.gmane.org ([80.91.229.2]:9966 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262364AbVBBNur (ORCPT
+	Wed, 2 Feb 2005 08:57:39 -0500
+Received: from gprs214-204.eurotel.cz ([160.218.214.204]:29639 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262492AbVBBN5c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 08:50:47 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Rodrigo Ventura <yoda@isr.ist.utl.pt>
-Subject: cdrtools 2.01 not working in 2.6.10
-Date: Wed, 02 Feb 2005 13:49:58 +0000
-Message-ID: <m3651bdqbd.fsf@pixie.isrnet>
+	Wed, 2 Feb 2005 08:57:32 -0500
+Date: Wed, 2 Feb 2005 14:56:30 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+Message-ID: <20050202135629.GA1309@elf.ucw.cz>
+References: <20050127212902.GF15274@atomide.com> <20050201110006.GA1338@elf.ucw.cz> <20050201204008.GD14274@atomide.com> <20050201212542.GA3691@openzaurus.ucw.cz> <20050201230357.GH14274@atomide.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: gtisr.ist.utl.pt
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:VT79ixagwm0BtmFmiGkyE8VngJk=
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+Content-Disposition: inline
+In-Reply-To: <20050201230357.GH14274@atomide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-I can't use cdrtools 2.01 with kernel 2.6.10 (i386, P4). Once the "0
-of xxx MB written" message appears, the CD-writer spins down, the HD
-led lits, and the system nearly hangs (many processes in D(isk)
-state). After a minute or two, timeout messages on hda (main HD)
-appear in dmesg, followed by hdc (CD-writer, plextor) timeout
-messages.
+> I don't think it's HPET timer, or CONFIG_SMP. It also looks like your
+> local APIC timer is working.
+> 
+> If you have a serial console, you can put one letter printks in the
+> code. Can you check if you ever get to smp_apic_timer_interrupt()?
+> That's where you should get to after the sleep, and that calls the
+> PIT timer interrupt to get it going again. I'm thinking that you'll
+> get to smp_apic_timer_interrupt(), but once therebut function
+> dyn_tick->interrupt(0, NULL, regs) never gets called.
 
-Is this a known issue of 2.6.10? I'm not giving more details because I
-believe I'm not the only one with this problem.
+dyn_tick->interrupt *is* being called:
 
-However, all works fine with 2.6.9.
+Feb  2 14:53:41 amd last message repeated 36 times
+Feb  2 14:53:41 amd postfix/postfix-script: starting the Postfix mail
+system
+Feb  2 14:53:41 amd kernel: dyn_tick->interrupt
+Feb  2 14:53:41 amd kernel: dyn_tick->interrupt
+Feb  2 14:53:41 amd postfix/master[1301]: daemon started -- version
+2.1.5
+Feb  2 14:53:41 amd kernel: dyn_tick->interrupt
+Feb  2 14:53:45 amd last message repeated 30 times
+Feb  2 14:53:45 amd log1n[1220]: ROOT LOGIN on `tty8'
+Feb  2 14:53:45 amd kernel: dyn_tick->interrupt
+Feb  2 14:54:16 amd last message repeated 228 times
 
-If this is an unknown issue, I could give more details (logs, config,
-etc.). Otherwise, will this be solved by 2.6.11?
-
-Cheers,
-
-Rodrigo Ventura
-
-PS: please CC replies to me (yoda AT isr DOT ist DOT utl DOT pt).
-
+I'll try turning off CONFIG_PREEMPT...
+								Pavel
 -- 
-
-*** Rodrigo Martins de Matos Ventura <yoda@isr.ist.utl.pt>
-***  Web page: http://www.isr.ist.utl.pt/~yoda
-***   Teaching Assistant and PhD Student at ISR:
-***    Instituto de Sistemas e Robotica, Polo de Lisboa
-***     Instituto Superior Tecnico, Lisboa, PORTUGAL
-*** PGP fingerprint = 0119 AD13 9EEE 264A 3F10  31D3 89B3 C6C4 60C6 4585
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271910AbRIYWJh>; Tue, 25 Sep 2001 18:09:37 -0400
+	id <S272667AbRIYWLH>; Tue, 25 Sep 2001 18:11:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271834AbRIYWJ1>; Tue, 25 Sep 2001 18:09:27 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:23280 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S271844AbRIYWJQ>;
-	Tue, 25 Sep 2001 18:09:16 -0400
-Date: Wed, 26 Sep 2001 00:09:22 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Paul Larson <plars@austin.ibm.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Christian =?iso-8859-1?Q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>,
-        Jacek =?iso-8859-1?Q?=5Biso-8859-2=5D_Pop=B3awski?= 
-	<jpopl@interia.pl>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: __alloc_pages: 0-order allocation failed
-Message-ID: <20010926000922.I8350@athlon.random>
-In-Reply-To: <1001319223.4613.34.camel@plars.austin.ibm.com> <Pine.LNX.4.21.0109240933390.1593-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0109240933390.1593-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Sep 24, 2001 at 09:38:24AM -0300
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S271861AbRIYWKt>; Tue, 25 Sep 2001 18:10:49 -0400
+Received: from lambik.cc.kuleuven.ac.be ([134.58.10.1]:22279 "EHLO
+	lambik.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S271834AbRIYWKi>; Tue, 25 Sep 2001 18:10:38 -0400
+Message-Id: <200109252211.AAA32046@lambik.cc.kuleuven.ac.be>
+Content-Type: text/plain; charset=US-ASCII
+From: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10 data corruption ?
+Date: Wed, 26 Sep 2001 00:10:57 +0200
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 24, 2001 at 09:38:24AM -0300, Marcelo Tosatti wrote:
-> --- linux.orig/mm/vmscan.c	Mon Sep 24 10:36:40 2001
-> +++ linux/mm/vmscan.c	Mon Sep 24 10:54:01 2001
-> @@ -567,6 +567,9 @@
->  		if (nr_pages <= 0)
->  			return 1;
->  
-> +		if (nr_pages < SWAP_CLUSTER_MAX)
-> +			ret |= 1;
-> +
+oops ...
+sorry for the empty mail, and what i wanted to write is:
+atleast one of the machines is showing hardware troubles. So i think the 
+other one will be an unlucky coincidence ...
+sorry for the false alert,
 
-too much permissive (vm-tweaks-1 does something similar but not that
-permissive)
+greetings,
+frank
 
->  		ret |= swap_out(priority, classzone, gfp_mask, SWAP_CLUSTER_MAX << 2);
->  	} while (--priority);
->  
-> --- linux.orig/mm/page_alloc.c	Mon Sep 24 10:36:40 2001
-> +++ linux/mm/page_alloc.c	Mon Sep 24 10:44:12 2001
-> @@ -400,7 +400,7 @@
->  			if (!z)
->  				break;
->  
-> -			if (zone_free_pages(z, order) > z->pages_high) {
-> +			if (zone_free_pages(z, order) > z->pages_min) {
 
-that breaks oom detection.
+op dinsdag 25 september 2001 20:22 , schreef Frank Dekervel  in 
+<200109251842.UAA25156@lambik.cc.kuleuven.ac.be> :
 
-Andrea
+> hello,
+> 
+> two machines (both athlon) did strange things after i upgraded to 2.4.10
+> (started to crash at random, i got errors loading shared libs after
+> upgrading them and a reinstall of the same .deb's fixed it)
+> both are athlons, non-overclocked. On one of them i always ran 2.4, the
+> other is new so it could be a hardware failure ...
+> 
+> I didn't find (if there is) the actual corruption yet, i'll do md5sums on
+> the broken and the correct machines tomorrow.
+> Someone got similar problems ?
+> 
+> greetings,
+> Frank
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264692AbSJ3O2r>; Wed, 30 Oct 2002 09:28:47 -0500
+	id <S264678AbSJ3Oa5>; Wed, 30 Oct 2002 09:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264693AbSJ3O2r>; Wed, 30 Oct 2002 09:28:47 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:50832 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S264692AbSJ3O2q>;
-	Wed, 30 Oct 2002 09:28:46 -0500
-Date: Wed, 30 Oct 2002 15:35:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: merlin hughes <merlin@merlin.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at drivers/scsi/scsi_lib.c:819 with 2.5.44-ac5
-Message-ID: <20021030143502.GK3416@suse.de>
-References: <20021030141812.BF07786921@primary.mx.nitric.com>
+	id <S264682AbSJ3Oa5>; Wed, 30 Oct 2002 09:30:57 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:5381 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S264678AbSJ3Oa4>; Wed, 30 Oct 2002 09:30:56 -0500
+Date: Wed, 30 Oct 2002 09:37:20 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Stelian Pop <stelian.pop@fr.alcove.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: [PATCH 2.5.bk] allow sbp2 driver to compile again
+Message-ID: <20021030143720.GH1521@phunnypharm.org>
+References: <20021030141338.GF17103@tahoe.alcove-fr> <20021030142611.GG1521@phunnypharm.org> <20021030143218.GH17103@tahoe.alcove-fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021030141812.BF07786921@primary.mx.nitric.com>
+In-Reply-To: <20021030143218.GH17103@tahoe.alcove-fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 30 2002, merlin hughes wrote:
-> Hi,
+On Wed, Oct 30, 2002 at 03:32:18PM +0100, Stelian Pop wrote:
+> On Wed, Oct 30, 2002 at 09:26:12AM -0500, Ben Collins wrote:
 > 
-> Tyan Tiger S2466-4M, 2xAthlon MP, Adaptec 29160, Adaptec 2940u2w,
-> software RAID 5, gcc 2.95.4. The core drives are on the 29160. Works
-> fine under 2.4.19.
+> > On Wed, Oct 30, 2002 at 03:13:38PM +0100, Stelian Pop wrote:
+> > > Hi,
+> > > 
+> > > The attached patch is required to make the sbp2 compile again.
+> > > 
+> > > Note however that, until 2.5.45 is released, one should tweak 
+> > > the Makefile to manually change the version in order to get
+> > > the KERNEL_VERSION tests work...
+> > 
+> > You're going to need to diff this against our SVN tree, or wait till I
+> > resync with 2.5.45. Seems it depends on patches in BK against our stock
+> > source.
 > 
-> 2.5.44 panics during boot with SCSI problems; I didn't catch what the
-> error was.
+> Sure, no problem, it's a two-liner...
 > 
-> 2.5.44-ac5 boots but bugs after a few seconds.
-> 
-> Attached: config, syslog, lspci (under 2.4.19)
-> 
-> Oct 28 12:36:09 badb kernel: Incorrect number of segments after building list
-> Oct 28 12:36:09 badb kernel: counted 2, received 1
-> Oct 28 12:36:09 badb kernel: req nr_sec 8, cur_nr_sec 8
+> While we are at it, there are a lot of 'bad: scheduling while atomic!'
+> and 'sleeping function called from illegal context' when loading
+> the ohci1394/sbp2 drivers (detailed stack available when compiling
+> with CONFIG_DEBUG_KERNEL)...
 
-Please try 2.5.44-BK and see if that works, James fixed this one.
+Yeah, I've noticed aswell. Problem is I don't have a machine that runs
+2.5.x stable enough to do some testing.
 
 -- 
-Jens Axboe
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,47 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263625AbUDUS5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263623AbUDUTAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263625AbUDUS5a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 14:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263621AbUDUS53
+	id S263623AbUDUTAA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 15:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263621AbUDUTAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 14:57:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35456 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263618AbUDUSyM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 14:54:12 -0400
-Date: Wed, 21 Apr 2004 11:54:11 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Chris Wright <chrisw@osdl.org>, Andy Lutomirski <luto@myrealbox.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: compute_creds fixup in -mm
-Message-ID: <20040421115411.M22989@build.pdx.osdl.net>
-References: <20040421010621.L22989@build.pdx.osdl.net> <4086AEFC.5010002@myrealbox.com> <1082571199.9213.61.camel@moss-spartans.epoch.ncsc.mil> <20040421112827.O21045@build.pdx.osdl.net> <1082572971.9213.75.camel@moss-spartans.epoch.ncsc.mil>
+	Wed, 21 Apr 2004 15:00:00 -0400
+Received: from outmx006.isp.belgacom.be ([195.238.2.99]:51090 "EHLO
+	outmx006.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S263623AbUDUS7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 14:59:07 -0400
+Subject: [PATCH 2.6.6-rc2-mm1] BUGFIX - autofs4
+From: FabF <Fabian.Frederick@skynet.be>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-ggBWd/WTAP6EqPlHzMnn"
+Message-Id: <1082574181.11705.6.camel@bluerhyme.real3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1082572971.9213.75.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Wed, Apr 21, 2004 at 02:42:51PM -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 21 Apr 2004 21:03:02 +0200
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx006.isp.belgacom.be)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> On Wed, 2004-04-21 at 14:28, Chris Wright wrote:
-> > * Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> > > I didn't see Chris' patch.  I assume that the worst case is unexpected
-> > > program failure due to lack of capability, right?  The SELinux security
-> > 
-> > The opposite.  You'd get a program with non-root euid, but full
-> > capability set, and AT_SECURE set false.  My patch is below.
-> 
-> Sorry, I wasn't clear.  I meant the worst case due to the share/ptrace
-> state check being duplicated in SELinux and in commoncap, as opposed to
-> being performed once as in Andy's patch.
 
-Ah, indeed.
+--=-ggBWd/WTAP6EqPlHzMnn
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Andrew,
+
+	Here's a bugfix against autofs4 (AFAICS, we parse_int to fd without
+check) and parser optimization.
+
+Could you apply ?
+
+Regards,
+Fabian
+
+--=-ggBWd/WTAP6EqPlHzMnn
+Content-Disposition: attachment; filename=autofs41.diff
+Content-Type: text/x-patch; name=autofs41.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+diff -Naur orig/fs/autofs4/inode.c edited/fs/autofs4/inode.c
+--- orig/fs/autofs4/inode.c	2004-04-21 18:11:01.000000000 +0200
++++ edited/fs/autofs4/inode.c	2004-04-21 20:56:30.000000000 +0200
+@@ -132,34 +132,25 @@
+ 			continue;
+ 
+ 		token = match_token(p, tokens, args);
++		if (match_int(args, pipefd))
++			return 1;
+ 		switch (token) {
+ 		case Opt_fd:
+-			if (match_int(args, pipefd))
+-				return 1;
++			*pipefd = option;
+ 			break;
+ 		case Opt_uid:
+-			if (match_int(args, &option))
+-				return 1;
+ 			*uid = option;
+ 			break;
+ 		case Opt_gid:
+-			if (match_int(args, &option))
+-				return 1;
+ 			*gid = option;
+ 			break;
+ 		case Opt_pgrp:
+-			if (match_int(args, &option))
+-				return 1;
+ 			*pgrp = option;
+ 			break;
+ 		case Opt_minproto:
+-			if (match_int(args, &option))
+-				return 1;
+ 			*minproto = option;
+ 			break;
+ 		case Opt_maxproto:
+-			if (match_int(args, &option))
+-				return 1;
+ 			*maxproto = option;
+ 			break;
+ 		default:
+
+--=-ggBWd/WTAP6EqPlHzMnn--
+

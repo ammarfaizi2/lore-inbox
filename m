@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265759AbSLQTPY>; Tue, 17 Dec 2002 14:15:24 -0500
+	id <S267001AbSLQTTm>; Tue, 17 Dec 2002 14:19:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266292AbSLQTPY>; Tue, 17 Dec 2002 14:15:24 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:25573 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S265759AbSLQTOi>; Tue, 17 Dec 2002 14:14:38 -0500
-Date: Tue, 17 Dec 2002 14:22:35 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: My fixes to ide-tape in 2.4.20-ac2
-Message-ID: <20021217142235.C8233@devserv.devel.redhat.com>
-References: <20021213224424.A3446@devserv.devel.redhat.com> <Pine.LNX.4.50L.0212162248480.31876-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.50L.0212162248480.31876-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Dec 16, 2002 at 10:49:35PM -0200
+	id <S266998AbSLQTTm>; Tue, 17 Dec 2002 14:19:42 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10758 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266993AbSLQTTi>; Tue, 17 Dec 2002 14:19:38 -0500
+Date: Tue, 17 Dec 2002 11:28:09 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>, Hugh Dickins <hugh@veritas.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>, <hpa@transmeta.com>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <Pine.LNX.4.44.0212171050470.1095-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0212171115450.1095-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Mon, 16 Dec 2002 22:49:35 -0200 (BRST)
-> From: Marcelo Tosatti <marcelo@conectiva.com.br>
 
-> > I checked that my fixes were not corrected by Alan Stern,
-> > and re-diffed them against 2.4.20-ac2. I think it would
-> > be right if Alan (Cox :-) applied this patch to -ac3 or something.
-> > Marcelo agreed to take it many times but forgot to actually apply.
-> 
-> I haven't applied them because I was afraid they could break something.
-> 
-> Great that now its been tested in -ac.
 
-Yes, Alan saves the day. However, I would think this is what your
--pre series were supposed to do. Add fixes, see if they break things.
-Release more often. If patches regress, remove them. Obviously, your
-master vision is different, but personally I think it's unfortunate.
+On Tue, 17 Dec 2002, Linus Torvalds wrote:
+>
+> Hmm.. Which system calls have all six parameters? I'll have to see if I
+> can find any way to make those use the new interface too.
 
-Greetings,
--- Pete
+The only ones I found from a quick grep are
+ - sys_recvfrom
+ - sys_sendto
+ - sys_mmap2()
+ - sys_ipc()
+
+and none of them are of a kind where the system call entry itself is the
+biggest performance issue (and sys_ipc() is deprecated anyway), so it's
+probably acceptable to just use the old interface for them.
+
+One other alternative is to change the calling convention for the
+new-style system call, and not have arguments in registers at all. We
+could make the interface something like
+
+ - %eax contains system call number
+ - %edx contains pointer to argument block
+ - call *syscallptr	// trashes all registers
+
+and then the old "compatibility" function would be something like
+
+	movl 0(%edx),%ebx
+	movl 4(%edx),%ecx
+	movl 12(%edx),%esi
+	movl 16(%edx),%edi
+	movl 20(%edx),%ebp
+	movl 8(%edx),%edx
+	int $0x80
+	ret
+
+while the "sysenter" interface would do the loads from kernel space.
+
+That would make some things easier, but the problem with this approach is
+that if you have a single-argument system call, and you just pass in the
+stack pointer offset in %edx directly, then the system call stubs will
+always load 6 arguments, and if we're just at the end of the stack it
+won't actually _work_. So part of the calling convention would have to be
+the guarantee that there is stack-space available (should always be true
+in practice, of course).
+
+			Linus
+

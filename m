@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271007AbTGVSwK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271008AbTGVSwK
+	id S271006AbTGVSwD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:52:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271007AbTGVSwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:52:10 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58598 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271007AbTGVSwF (ORCPT
+	Tue, 22 Jul 2003 14:52:03 -0400
+Received: from codepoet.org ([166.70.99.138]:57728 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S271006AbTGVSwA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:52:05 -0400
-Date: Tue, 22 Jul 2003 12:04:35 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: jamie@shareable.org, linux-kernel@vger.kernel.org
-Subject: Re: asm (lidt) question
-Message-Id: <20030722120435.0ba9ae14.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.55.0307221156180.1372@bigblue.dev.mcafeelabs.com>
-References: <20030717152819.66cfdbaf.rddunlap@osdl.org>
-	<Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
-	<Pine.LNX.4.55.0307171615580.4845@bigblue.dev.mcafeelabs.com>
-	<20030722172722.GC3267@mail.jlokier.co.uk>
-	<Pine.LNX.4.55.0307221021130.1372@bigblue.dev.mcafeelabs.com>
-	<20030722115823.4b34f9ce.rddunlap@osdl.org>
-	<Pine.LNX.4.55.0307221156180.1372@bigblue.dev.mcafeelabs.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 22 Jul 2003 14:52:00 -0400
+Date: Tue, 22 Jul 2003 13:07:05 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATA driver GPL'd
+Message-ID: <20030722190705.GA2500@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030722184532.GA2321@codepoet.org> <20030722185443.GB6004@gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030722185443.GB6004@gtf.org>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jul 2003 11:58:16 -0700 (PDT) Davide Libenzi <davidel@xmailserver.org> wrote:
+On Tue Jul 22, 2003 at 02:54:43PM -0400, Jeff Garzik wrote:
+> Bart, Alan, and I have been looking at this.  It uses the ancient CAM
+> model, that we don't really want to merge directly in the kernel.  It's
+> very close to the libata model, from the user perspective, so life is 
+> good.
 
-| > Yes, less confusion is better, so here's a patch to use the
-| > same reasonable syntax in all places.
-| >
-| > Look OK?  Generates the same code, as Davide pointed out.
-| 
-| Yep, that's the right syntax (pls push to Andrew or Linus) ;)
-| 
+I was reading over your libata driver yesterday.  Certainly a lot
+cleaner than the cam stuff IMHO.  Given the info made available
+via the Promise driver, I expect that I could get an initial
+libata host adaptor driver hacked together in short order.  After
+all, the Intel one is just 400 lines.  So unless you (or anyone
+else) have already started or would prefer to do the honors,
+I'll try to hack something together this evening,
 
-Yes, planning to.
+ -Erik
 
-~Randy
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

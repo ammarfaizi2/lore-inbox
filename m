@@ -1,69 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312178AbSCYAtH>; Sun, 24 Mar 2002 19:49:07 -0500
+	id <S312193AbSCYA4v>; Sun, 24 Mar 2002 19:56:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312181AbSCYAs6>; Sun, 24 Mar 2002 19:48:58 -0500
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:57315 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S312178AbSCYAsu>; Sun, 24 Mar 2002 19:48:50 -0500
-Date: Mon, 25 Mar 2002 00:48:49 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: Steve Whitehouse <Steve@ChyGwyn.com>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org,
-        pavel@suse.cz, linux-fsdevel@vger.kernel.org
-Subject: Re: NBD client/server broken?
-In-Reply-To: <200203242016.UAA05010@gw.chygwyn.com>
-Message-ID: <Pine.SOL.3.96.1020325002758.23892A-100000@virgo.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312194AbSCYA4k>; Sun, 24 Mar 2002 19:56:40 -0500
+Received: from netlx010.civ.utwente.nl ([130.89.1.92]:51631 "EHLO
+	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
+	id <S312193AbSCYA4d>; Sun, 24 Mar 2002 19:56:33 -0500
+Date: Mon, 25 Mar 2002 01:56:33 +0100
+From: Arjan Opmeer <a.d.opmeer@student.utwente.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Anyone else seen VM related oops on 2.4.18?
+Message-ID: <20020325005633.GA1121@Ado.student.utwente.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Mar 2002, Steven Whitehouse wrote:
-> > Just to keep interested parties informed:
-> > 
-> > Thanks to Steven Whitehouse I found out that the latest nbd client/server 
-> > user space programs are in CVS on Sourceforge (the kernel nbd documentation 
-> > needs updating to point to http://sf.net/projects/nbd)...
-> > 
-> > And I have just submitted a patch to Steven to make the nbd-server 64-bit 
-> > clean on 32-bit machines and to allow proper auto detection of device size. 
-> > Hopefully we will see it entering the CVS soon. Otherwise patch is 
-> > available on request from me. (-:
-> > 
-> Its all there now and as you suggested I've added the configure script so
-> autoconf is no longer required to build it.
 
-Great.
+Hi,
 
-> > Mounting a NTFS 15GiB partition over nbd (using ntfs tng driver) gave me a 
-> > data throughput of 7-10MiB/sec over 100MBit ethernet (going via switch and 
-> > a hub) which is quite impressive. (-:
-> > 
-> Also there is the zerocopy nbd patch I did for my UKUUG talk last year on my 
-> patches page: http://www.chygwyn.com/~steve/kpatch/ its out of date now
-> but my plan is to update and sumbit it for 2.5 in the next few weeks or so. 
-> It should make things even faster or at least more efficient if we are maxing 
-> out the network already :-)
+Are there other people that are suffering from a VM related oops on kernel
+2.4.18? 
 
-Oooh. Cool. (-:
+The problem is that before I started to have this problem I upgraded both
+the kernel to 2.4.18 but also the NVidia driver module to the latest
+version.
 
-Talking about performance. When streaming I noticed that the request size
-increases until it reaches 128kiB. 
+Yes, I know that using a closed source module taints the kernel and that I
+cannot expect much help from the kernel hacker community, but I am just
+trying to find out whether the kernel or the driver upgrade is causing this
+problem.
 
-This would be all fine except that nbd (or other part of the kernel?)
-splits those up into two requests, one 130048 bytes and one 1024 bytes
-which is not the best for performance. Note I am running a kernel with
-memmory debugging (and everything else debugging) enabled so that might be
-interfering here, haven't tried without debugging support in the kernel
-yet... Just thought you might want to know... (The client here is 2.5.7 +
-latest nbd-client from nbd CVS on SF.net.)
+Another problem is that the oops occurs during the morning cronjobs, like
+updatedb, and I am not at the machine to get a better oops trace. For anyone
+that is interested to take a look anyway, this is what it looks like in the
+log:
 
-Best regards,
+ invalid operand: 0000
+ CPU:    0
+ EIP:    0010:[__free_pages_ok+40/500]    Tainted: P
+ EFLAGS: 00010282
+ eax: c12bc79c   ebx: c1311980   ecx: c1311980   edx: c01e1520
+ esi: c1311980   edi: 00000000   ebp: 00000b08   esp: c1437f28
+ ds: 0018   es: 0018   ss: 0018
+ Process kswapd (pid: 4, stackpage=c1437000)
+ Stack: c2a0e440 c1311980 0000001e 00000b08 c1311980 000001d0 c2a0e440 c1311980
+        c0127a72 c01287f3 c0127aab 00000020 000001d0 00000020 00000006 00000006
+        c1436000 0000011a 000001d0 c01e1648 c0127ca1 00000006 0000001b 00000006
+ Call Trace: [shrink_cache+454/724] [__free_pages+27/28] [shrink_cache+511/724] [shrink_caches+93/132] [try_to_free_pages+52/84]
+    [kswapd_balance_pgdat+67/140] [kswapd_balance+18/40] [kswapd+153/188] [kernel_thread+40/56]
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+ Code: 0f 0b 89 d8 2b 05 ec 8e 23 c0 c1 f8 06 3b 05 e0 8e 23 c0 72
+ invalid operand: 0000
+ CPU:    0
+ EIP:    0010:[__free_pages_ok+40/500]    Tainted: P
+ EFLAGS: 00010282
+ eax: c1320d1c   ebx: c13c33c0   ecx: c13c33c0   edx: c01e1520
+ esi: c13c33c0   edi: 00000000   ebp: 00000b12   esp: cdf67e20
+ ds: 0018   es: 0018   ss: 0018
+ Process find (pid: 31508, stackpage=cdf67000)
+ Stack: c2a0e140 c13c33c0 00000020 00000b12 c13c33c0 000001d2 c2a0e140 c13c33c0
+        c0127a72 c01287f3 c0127aab 00000020 000001d2 00000020 00000006 00000006
+        cdf66000 0000011b 000001d2 c01e1648 c0127ca1 00000006 0000001b 00000006
+ Call Trace: [shrink_cache+454/724] [__free_pages+27/28] [shrink_cache+511/724] [shrink_caches+93/132] [try_to_free_pages+52/84]
+    [balance_classzone+78/364] [__alloc_pages+254/352] [read_cache_page+61/288] [_alloc_pages+22/24] [read_cache_page+84/288] [ext2_get_page+29/112]
+    [ext2_readpage+0/20] [ext2_readdir+222/504] [vfs_readdir+89/124] [filldir64+0/276] [sys_getdents64+79/179] [filldir64+0/276]
+    [sys_fcntl64+127/136] [system_call+51/64]
 

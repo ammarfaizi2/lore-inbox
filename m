@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbUBYNkb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 08:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbUBYNkb
+	id S261326AbUBYNq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 08:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbUBYNq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 08:40:31 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:45995 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261323AbUBYNk3
+	Wed, 25 Feb 2004 08:46:56 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:62592 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261326AbUBYNqz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 08:40:29 -0500
-Message-ID: <403CA5CC.5040207@namesys.com>
-Date: Wed, 25 Feb 2004 16:40:28 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Wed, 25 Feb 2004 08:46:55 -0500
+Date: Wed, 25 Feb 2004 08:48:35 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Helmut Auer <vdr@helmutauer.de>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Change in compiler.h causes compile errors in many applications
+In-Reply-To: <403CA56E.90403@helmutauer.de>
+Message-ID: <Pine.LNX.4.53.0402250844490.8103@chaos>
+References: <403CA56E.90403@helmutauer.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Latest Reiser4 Snapshot
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 25 Feb 2004, Helmut Auer wrote:
 
-new reiser4 snapshot against 2.6.3 kernel is available at
+> Hello,
+> With kernel 2.6.3 a
+> #ifdef __KERNEL__
+> was added at the beginning of linux/compiler.h
+> That causes compile errors in severel applications, because the
+> following includes were no longer done.
+> Was that caused by accident ?
+>
+> --
+> Helmut Auer, helmut@helmutauer.de
 
-http://www.namesys.com/snapshots/2004.02.25
+The kernel headers are to be used for compiling the kernel only!
+Older distributions may have a sim-link (two) for /usr/include/linux
+and /usr/include/asm. These should point to the headers used to
+compile the 'C' runtime library, not the current kernel headers.
 
-It contains bug fixes and stability improvements. On-disk format is
-compatible with the previous snapshot. Also,
+A fix is to remove these symlinks and create directories that contain
+your last working headers.
 
-  * raid0 preliminary support, and
-
-  * improved loop back support
-
-were added.
-
-In "standard" configuration reiser4 is stable except for a multiple umount/mount 
-issue we are still analyzing. See the READ.ME file for not-well-supported 
-features and options.
-
-Hopefully our next snapshot will be ready for inclusion, and hopefully it is 
-just a few days away.
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

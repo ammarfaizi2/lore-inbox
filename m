@@ -1,61 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130027AbQLMCRG>; Tue, 12 Dec 2000 21:17:06 -0500
+	id <S129226AbQLMC3K>; Tue, 12 Dec 2000 21:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130277AbQLMCQ4>; Tue, 12 Dec 2000 21:16:56 -0500
-Received: from smtp1.jp.psi.net ([154.33.63.111]:39183 "EHLO smtp1.jp.psi.net")
-	by vger.kernel.org with ESMTP id <S130027AbQLMCQt>;
-	Tue, 12 Dec 2000 21:16:49 -0500
-From: "Rainer Mager" <rmager@vgkk.com>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: RE: Signal 11 - the continuing saga
-Date: Wed, 13 Dec 2000 10:45:21 +0900
-Message-ID: <NEBBJBCAFMMNIHGDLFKGKEAKCJAA.rmager@vgkk.com>
+	id <S129267AbQLMC3A>; Tue, 12 Dec 2000 21:29:00 -0500
+Received: from isunix.it.ilstu.edu ([138.87.124.103]:52996 "EHLO
+	isunix.it.ilstu.edu") by vger.kernel.org with ESMTP
+	id <S129226AbQLMC2s>; Tue, 12 Dec 2000 21:28:48 -0500
+From: Tim Hockin <thockin@isunix.it.ilstu.edu>
+Message-Id: <200012130128.TAA01479@isunix.it.ilstu.edu>
+Subject: Re: National Semiconductor DP83815 ethernet driver?
+To: torrey.hoffman@myrio.com (Torrey Hoffman)
+Date: Tue, 12 Dec 2000 19:28:34 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org, adam@yggdrasil.com ('adam@yggdrasil.com')
+In-Reply-To: <4461B4112BDB2A4FB5635DE19958743202239C@mail0.myrio.com> from "Torrey Hoffman" at Dec 12, 2000 04:42:56 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20001212191719.A12420@vger.timpanogas.org>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the info...
+> >From searching Google, I know some sort of driver exists. In July, Adam J.
+> Richter (adam@yggdrasil.com) posted a 2.2.16 driver he obtained from Dave
+> Gotwisner at Wyse Technologies. And Tim Hockin mentioned that he was using
+> an NSC driver, but had made some minor modifications.
 
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Jeff V. Merkey
-> > 	So, is this related to the larger signal 11 problems?
->
-> There's a corruption bug in the page cache somewhere, and it's 100%
-> reproducable.  Finding it will be tough....
-
-Ok, granted this will be tough but is anyone even actively working on it?
-What can I do to help?
-
-
-
-> > Anyone know how to do [disable L1 and L2 caches]?
->
-> Usually this is performed in the BIOS setup.  You can also disable L1
-> with a sequence of instructions that write to the CR0 register on intel
-> and flip a bit, but in doing this you have to execute a WBINV (write
-> back invalidate) instruction to flush out the cache.  BIOS setup is
-> probably simpler.  Disabling Level I will make the machine slower
-> than mollasses, BTW, and if this bug is race related (they always
-> are) it won't help much in running it down.
-
-Aha, just as I suspected. My BIOS doesn't appear to support this. You seem
-to be saying that doing so won't really contribute anything anyway so I will
-hold off for now.
-
-
-
---Rainer
-
+We're still using a heavily hacked version of the NSC driver on 2.2.x.
+When we do 2.4.x, I'll examine the other driver more closely.  I can send
+you my hacks on the NSC version, if you need.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

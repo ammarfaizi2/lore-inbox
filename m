@@ -1,98 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273376AbRINMy0>; Fri, 14 Sep 2001 08:54:26 -0400
+	id <S273383AbRINNJC>; Fri, 14 Sep 2001 09:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273379AbRINMyI>; Fri, 14 Sep 2001 08:54:08 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:36755 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S273376AbRINMxz>;
-	Fri, 14 Sep 2001 08:53:55 -0400
-From: Matthias Kramm <matthias.kramm@stud.tu-muenchen.de>
-To: linux-kernel@vger.kernel.org
-Subject: ISOFS corrupt filesizes
-Message-ID: <20010914145352.A9952@stud.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Date: Fri, 14 Sep 2001 14:54:17 +0200
+	id <S273382AbRINNIv>; Fri, 14 Sep 2001 09:08:51 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:30887 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S273380AbRINNIm>; Fri, 14 Sep 2001 09:08:42 -0400
+Date: Fri, 14 Sep 2001 08:09:04 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200109141309.IAA86711@tomcat.admin.navo.hpc.mil>
+To: otto.wyss@bluewin.ch, linux-kernel@vger.kernel.org
+Subject: Re: How errorproof is ext2 fs?
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Otto Wyss <otto.wyss@bluewin.ch>:
+> While reading the thread about "HFS Plus on Linux?" at
+> "debian-powerpc@list.debian.org" I had the following experience:
+> 
+> Within an hour I had to hard reset both of my computers, first my Linux-i386 due
+> to a complete lockup of the system while using el3diag, second my MacOS-powermac
+> due to an not responding USB-keyboard/-mouse (what a nice coincident). Now while
+> the Mac restarted without any fuse I had to fix the ext2-fs manually for about
+> 15 min. Luckily it seems I haven't lost anything on both system. 
+> 
+> This leaves me a bad taste of Linux in my mouth. Does ext2 fs really behave so
+> worse in case of a crash? Okay Linux does not crash that often as MacOS does, so
+> it does not need a good  error proof fs. Still can't ext2 be made a little more
+> error proof?
+> 
+> Okay, there are other fs for Linux which cope better with such a situation, but
+> are they really more errorproof or are they just better in fixing up the mess
+> afterwards? Could there be more attention in not creating errors instead of
+> fixing them afterwards?
 
-According to the (2.4.9) MAINTAINERS-File,  ISOFS doesn't have a maintainer,
-so this probably best fits in this list.
+I've used linux for about 8 years now. The only time I've had a catastrophic
+failure was with a disk drive went south.
 
-I came across a (commercial) DVD with an ISOFS Filesystem on it and filesizes
-bigger than 1M.
-I.e. "ls -l /mnt/cdrom/video_ts" shows
+About the only times I've seen ext2fs require manual repair is a crash/power
+failure during fsck on boot. It doesn't happen very often. Even then, it
+may not be a serious falure, just the type of error that requires a choice
+in fix - missing inode/partially written inode in the root file system will
+usually require the choice of deleting, or putting in lost+found.
 
-total 8153965
--r-xr-xr-x    1 root     root        34816 Feb 29  2000 video_ts.bup
--r-xr-xr-x    1 root     root        34816 Feb 29  2000 video_ts.ifo
--r-xr-xr-x    1 root     root   1201278976 Feb 29  2000 video_ts.vob <---
--r-xr-xr-x    1 root     root        18432 Feb 29  2000 vts_01_0.bup
--r-xr-xr-x    1 root     root        18432 Feb 29  2000 vts_01_0.ifo
--r-xr-xr-x    1 root     root        20480 Feb 29  2000 vts_01_0.vob
--r-xr-xr-x    1 root     root        10240 Feb 29  2000 vts_01_1.vob
--r-xr-xr-x    1 root     root        18432 Feb 29  2000 vts_02_0.bup
--r-xr-xr-x    1 root     root        18432 Feb 29  2000 vts_02_0.ifo
--r-xr-xr-x    1 root     root    967038976 Feb 29  2000 vts_02_1.vob
--r-xr-xr-x    1 root     root        96256 Feb 29  2000 vts_03_0.bup
--r-xr-xr-x    1 root     root        96256 Feb 29  2000 vts_03_0.ifo
--r-xr-xr-x    1 root     root    195196928 Feb 29  2000 vts_03_0.vob
--r-xr-xr-x    1 root     root   1073709056 Feb 29  2000 vts_03_1.vob
--r-xr-xr-x    1 root     root   1073709056 Feb 29  2000 vts_03_2.vob
--r-xr-xr-x    1 root     root   1073709056 Feb 29  2000 vts_03_3.vob
-                                   (...)
+No file system is immune to that level of failure. Some are better at
+hiding the damage (xfs will lose free data blocks like mad - 3 in a row lost
+6GB out of 12, though no used data was (visibly) lost.
 
-Actually, that is what it _should_ show. Here is the  actual output:
-(kernel versions 2.2.18 through 2.4.9)
+15 minutes isn't that bad - wait until you have to spend 30 minutes to
+3 hours on an NTFS or FAT32 rebuild, only to find you have to reinstall.
 
-$ ls -l /mnt/cdrom/video_ts
-Warning: defective CD-ROM. Enabling "cruft" mount option.
-total 142925
--r-xr-xr-x    1 root     root        34816 Feb 29  2000 video_ts.bup
--r-xr-xr-x    1 root     root        34816 Feb 29  2000 video_ts.ifo
--r-xr-xr-x    1 root     root     10096640 Feb 29  2000 video_ts.vob
--r-xr-xr-x    1 root     root        18432 Feb 29  2000 vts_01_0.bup
--r-xr-xr-x    1 root     root        18432 Feb 29  2000 vts_01_0.ifo
--r-xr-xr-x    1 root     root        20480 Feb 29  2000 vts_01_0.vob
--r-xr-xr-x    1 root     root        10240 Feb 29  2000 vts_01_1.vob
--r-xr-xr-x    1 root     root        18432 Feb 29  2000 vts_02_0.bup
--r-xr-xr-x    1 root     root        18432 Feb 29  2000 vts_02_0.ifo
--r-xr-xr-x    1 root     root     10737664 Feb 29  2000 vts_02_1.vob
--r-xr-xr-x    1 root     root        96256 Feb 29  2000 vts_03_0.bup
--r-xr-xr-x    1 root     root        96256 Feb 29  2000 vts_03_0.ifo
--r-xr-xr-x    1 root     root     10647552 Feb 29  2000 vts_03_0.vob
--r-xr-xr-x    1 root     root     16744448 Feb 29  2000 vts_03_1.vob
--r-xr-xr-x    1 root     root     16744448 Feb 29  2000 vts_03_2.vob
--r-xr-xr-x    1 root     root     16744448 Feb 29  2000 vts_03_3.vob
-                                   (...)
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-Notice the corrupt filesizes. The culprit is obviously in the code which
-"printk"s the "cruft" message above.
-
-In 2.4.9-kernel/fs/isofs/inode.c around line 1190 it says
-
-if ((inode->i_size < 0 || inode->i_size > 1073741824) &&
-    inode->i_sb->u.isofs_sb.s_cruft == 'n') {
-	printk(KERN_WARNING "Warning: defective CD-ROM.  "
-	       "Enabling \"cruft\" mount option.\n");
-	inode->i_sb->u.isofs_sb.s_cruft = 'y';
-}
-
-My personal guess would be that the assumption that iso files can't be
-bigger than 1M unless the CD-ROM is defective is wrong.
-(I don't know where the 1M comes from. 2M sounds more logical to me,
- however)
-After removing the "indode->i_size > 1073741824" test, I got the correct
-output for ls. Also was I able to cat (css-cat, actually) the whole 1201278976 
-bytes without an error, which may lead to the assumption the file
-is actually that big.
-If I'm wrong and the dvd is actually broken, however, I'd like to 
-suggest making the automatic cruft mount optional.
-
-Greetings 
-
-Matthias
-
-
+Any opinions expressed are solely my own.

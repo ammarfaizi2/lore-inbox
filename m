@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265982AbRF1OuI>; Thu, 28 Jun 2001 10:50:08 -0400
+	id <S265972AbRF1Oss>; Thu, 28 Jun 2001 10:48:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265977AbRF1Ot6>; Thu, 28 Jun 2001 10:49:58 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:1549 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265976AbRF1Otm>; Thu, 28 Jun 2001 10:49:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        tori@unhappy.mine.nu (Tobias Ringstrom)
-Subject: Re: VM Requirement Document - v0.0
-Date: Thu, 28 Jun 2001 16:52:56 +0200
-X-Mailer: KMail [version 1.2]
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mike_phillips@urscorp.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E15Fbyy-0006xF-00@the-village.bc.nu>
-In-Reply-To: <E15Fbyy-0006xF-00@the-village.bc.nu>
+	id <S265976AbRF1Osj>; Thu, 28 Jun 2001 10:48:39 -0400
+Received: from mailout4-0.nyroc.rr.com ([24.92.226.120]:23696 "EHLO
+	mailout4-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S265972AbRF1Os2>; Thu, 28 Jun 2001 10:48:28 -0400
+Message-ID: <00b101c0ffe2$fb77ad30$0701a8c0@morph>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "John Fremlin" <vii@users.sourceforge.net>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.d69j5vv.ej8irj@ifi.uio.no> <fa.h2rpibv.87m5bp@ifi.uio.no>
+Subject: Re: A signal fairy tale
+Date: Thu, 28 Jun 2001 10:59:50 -0400
 MIME-Version: 1.0
-Message-Id: <01062816525604.00419@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 June 2001 15:37, Alan Cox wrote:
-> > The problem with updatedb is that it pushes all applications to the swap,
-> > and when you get back in the morning, everything has to be paged back
-> > from swap just because the (stupid) OS is prepared for yet another
-> > updatedb run.
->
-> Updatedb is a bit odd in that it mostly sucks in metadata and the buffer to
-> page cache balancing is a bit suspect IMHO.
+> Signals are a pretty dopey API anyway - so instead of trying to patch
+> them up, why not think of something better for AIO?
 
-For Ext2, most or all of that metadata will be moved into the page cache 
-early in 2.5, and other filesystem will likely follow that lead.  That's not 
-to say the buffer/page cache balancing shouldn't get attention, just that 
-this particular problem will die by itself.
+I have to agree, in a way... At some point we need to swallow our pride,
+admit that UNIX has a crappy event model, and implement something like Win32
+GetMessage =)...
 
---
-Daniel
+I've been having trouble finding situations where asynchronous signals are
+really the most appropriate technique, aside from delivering
+life-threatening things like SIGTERM, SIGKILL, and SIGSEGV. The mutation
+into queued, information-carrying siginfo signals just shows how badly we
+need a more robust event model... (what would truly kick butt is a unified
+interface that could deliver everything from fd events to AIO completions to
+semaphore/msgqueue events, etc, with explicit binding between event queues
+and threads).
+
+Regards,
+Dan
+

@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129939AbQLQSiF>; Sun, 17 Dec 2000 13:38:05 -0500
+	id <S130325AbQLQSxf>; Sun, 17 Dec 2000 13:53:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130325AbQLQShz>; Sun, 17 Dec 2000 13:37:55 -0500
-Received: from ms1.hinet.net ([168.95.4.10]:52726 "EHLO ms1.hinet.net")
-	by vger.kernel.org with ESMTP id <S129939AbQLQShw>;
-	Sun, 17 Dec 2000 13:37:52 -0500
-Message-ID: <3A3D00A7.87F6051F@teatime.com.tw>
-Date: Mon, 18 Dec 2000 02:06:31 +0800
-From: Tommy Wu <tommy@teatime.com.tw>
-Reply-To: tommy@teatime.com.tw
-Organization: TeaTime Development
-X-Mailer: Mozilla 4.76 [zh] (Windows NT 5.0; U)
-X-Accept-Language: en,zh,zh-TW,zh-CN
+	id <S130405AbQLQSxZ>; Sun, 17 Dec 2000 13:53:25 -0500
+Received: from web.sajt.cz ([212.71.160.9]:1289 "EHLO web.sajt.cz")
+	by vger.kernel.org with ESMTP id <S130325AbQLQSxM>;
+	Sun, 17 Dec 2000 13:53:12 -0500
+Date: Sun, 17 Dec 2000 19:19:46 +0100 (CET)
+From: Pavel Rabel <pavel@web.sajt.cz>
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sim710.c compiler warning
+Message-ID: <Pine.LNX.4.21.0012171917310.25444-100000@web.sajt.cz>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel panic for nfsd access for test12
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  Does anyone use nfsd on kernel 2.4.0-test12 ?
+Patch fixes compiler warning for 2.4.0-test12
 
-  Usually, I backup my linux box via another machine use nfs to mount it, then run
-  afio to backup file to mo. It is work very fine through kernel 2.4.0-test7 to test11.
+sim710.c: In function `sim710_detect':
+sim710.c:1452: warning: comparison between pointer and integer
 
-  But this week, I change my linux box's kernel to 2.4.0-test12, I found when I use
-  another linux box (kernel 2.2.18pre21) to mount the directory in the linux server
-  running kernel 2.4.0-test12, it can be mounted, but if I do any file access, the
-  server will show kernel panic screen.... and there is no any log write down to file.
-  All system will be halt, just can be power down. (SysRq don't work)
+Pavel Rabel
 
-  I change the kernel back to 2.4.0-test11, everything is ok. So, I think it should be
-  a bug in 2.4.0-test12. (I use the same .config to build both kernel, nfsd is make as
-  a module)
+--- drivers/scsi/sim710.c.old	Tue Dec  5 15:34:00 2000
++++ drivers/scsi/sim710.c	Tue Dec  5 15:37:18 2000
+@@ -1449,7 +1449,7 @@
+ 
+     for(indx = 0; indx < no_of_boards; indx++) {
+         unsigned long page = __get_free_pages(GFP_ATOMIC, order);
+-        if(page == NULL)
++        if( !page )
+         {
+         	printk(KERN_WARNING "sim710: out of memory registering board %d.\n", indx);
+         	break;
 
-  Because I can't see all of the kernel trace dump screen, so I can't give any ksymoops
-  for that...
-
--- 
-
-    Tommy Wu
-    mailto:tommy@teatime.com.tw
-    http://www.teatime.com.tw/~tommy
-    ICQ: 22766091
-    Mobile Phone: +886 936 909490
-    TeaTime BBS +886 2 3151964 24Hrs V.Everything
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262907AbTCKMLi>; Tue, 11 Mar 2003 07:11:38 -0500
+	id <S262910AbTCKMNO>; Tue, 11 Mar 2003 07:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262908AbTCKMLi>; Tue, 11 Mar 2003 07:11:38 -0500
-Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:33676 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S262907AbTCKMLh>; Tue, 11 Mar 2003 07:11:37 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH][COMPAT] compat_sys_fcntl{,64} 1/9 Generic part
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF690DDAD1.0533780B-ONC1256CE6.00437602@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Tue, 11 Mar 2003 13:20:39 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 11/03/2003 13:21:57
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S262911AbTCKMNO>; Tue, 11 Mar 2003 07:13:14 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:2515 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S262910AbTCKMNN>; Tue, 11 Mar 2003 07:13:13 -0500
+Date: Tue, 11 Mar 2003 13:23:53 +0100
+From: =?unknown-8bit?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org, phoebe-list@redhat.com
+Subject: Re: Stack growing and buffer overflows
+Message-ID: <20030311122353.GA12274@wohnheim.fh-wedel.de>
+References: <20030310230012.26391.qmail@linuxmail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030310230012.26391.qmail@linuxmail.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 11 March 2003 00:00:12 +0100, Felipe Alfaro Solana wrote:
+>  
+> on x86, the stack grows downwards (from higher memory addresses to
+> lower memory addresses). This makes buffer overflows attacks easy to
+> exploit: if a function uses strcpy() instead of strncpy() to copy
+> data [...]
+>  
+> However, what would happen if the stack was implemented to grow
+> upwards [...]
 
-> Did you notice the use of the address conversion macro? Maybe I missed
-> something myself, but I suppose this will fail on s390 if the msb of arg
-> is not cleared.
+Stack overflows by mistake would go unnoticed, bad.
+Stakc overflows in order to gain root privileges take only little more
+effort, no change.
 
-True. A(arg) removes the high order bit from arg. This can't be done
-in the system call wrapper because in general arg is a 32 bit parameter.
+Nothing gained, something lost.
 
-blue skies,
-   Martin
+Jörn
 
-
+-- 
+Geld macht nicht glücklich.
+Glück macht nicht satt.

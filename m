@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAPNlN>; Tue, 16 Jan 2001 08:41:13 -0500
+	id <S129834AbRAPNpO>; Tue, 16 Jan 2001 08:45:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129485AbRAPNlD>; Tue, 16 Jan 2001 08:41:03 -0500
-Received: from lca0042.lss.emc.com ([168.159.120.42]:37264 "EHLO
-	lca0042.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S129401AbRAPNkx>; Tue, 16 Jan 2001 08:40:53 -0500
-To: linux-kernel@vger.kernel.org
-Subject: problem mounting root under 2.4.0
-From: Chris Jones <clj@emc.com>
-Date: 16 Jan 2001 08:40:41 -0500
-Message-ID: <hp4ryzk42u.fsf@lca2240.lss.emc.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	id <S129784AbRAPNo6>; Tue, 16 Jan 2001 08:44:58 -0500
+Received: from comunit.de ([195.21.213.33]:14368 "HELO comunit.de")
+	by vger.kernel.org with SMTP id <S129485AbRAPNof>;
+	Tue, 16 Jan 2001 08:44:35 -0500
+Date: Tue, 16 Jan 2001 14:44:32 +0100 (CET)
+From: Sven Koch <haegar@cut.de>
+To: rtviado <root@iligan.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ip_conntrack: maximum limit of 16368 entries exceeded
+In-Reply-To: <Pine.LNX.4.30.0101161444450.24215-100000@bigbird-ipgi.iligan.com>
+Message-ID: <Pine.LNX.4.30.0101161442330.14328-100000@space.comunit.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm unable to boot a 2.4.0 kernel on a system that's been running 2.2.18.  It
-fails early in boot with the following messages:
+On Tue, 16 Jan 2001, rtviado wrote:
 
-request-module[block-major-8]: Root fs not mounted
-VFS: Cannot open root device "801" or 08:01
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on 08:01
+> I got this in my logs:
+>
+>  ip_conntrack: maximum limit of 16368 entries exceeded
+>
+> what does this mean, I know i can change the limits in
+> /proc/sys/net/ipv4/ip_conntrack_max, but I want to know what this is for.
 
-I suspect the problem is related to loading the aic7xxx.o module, but the
-relevant messages have scrolled off the top of the screen.  I tried setting the
-VGA mode to extended to give me 50 lines of output, but even though "lilo -q
--v" shows "VGA mode: EXTENDED", I still have a 25 line screen.  CTRL-Alt-DEL
-doesn't work, so I have to power-cycle the machine, so I lose any messages that
-are saved in memory.  Is there a way I can get the equivalent of "more" breaks
-on boot so I have a chance to read the messages?
+This means that iptable is tracking more than 16368 parallel connections.
+Either a very busy box or some spoofed flooding.
 
-I have upgraded to modutils 2.4.1 and mkinitrd 2.5.  Are there some gotchas I
-should be aware of?
+> P.S. I looked into linux/Documentation but did not find any mention of
+> this configrable parameter....
+
+see http://netfilter.kernelnotes.org/ - seems that the in-kernel documents
+are not uptodate
+
+c'ya
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

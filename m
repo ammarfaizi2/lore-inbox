@@ -1,61 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278584AbRKAIoB>; Thu, 1 Nov 2001 03:44:01 -0500
+	id <S278587AbRKAItm>; Thu, 1 Nov 2001 03:49:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278589AbRKAInv>; Thu, 1 Nov 2001 03:43:51 -0500
-Received: from tartu-gw.cv.ee ([213.168.20.162]:6273 "EHLO tartu.cv.ee")
-	by vger.kernel.org with ESMTP id <S278582AbRKAInn>;
-	Thu, 1 Nov 2001 03:43:43 -0500
-Date: Thu, 1 Nov 2001 10:43:44 +0200 (EET)
-From: Janek Hiis <janek@tartu.cv.ee>
-X-X-Sender: <janek@cat.cvo>
-To: <linux-kernel@vger.kernel.org>
-Subject: general protection fault: 0000
-Message-ID: <Pine.LNX.4.33.0111011034010.8576-100000@cat.cvo>
+	id <S278589AbRKAItb>; Thu, 1 Nov 2001 03:49:31 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:40375 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S278587AbRKAItX>; Thu, 1 Nov 2001 03:49:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hasch@t-online.de (Juergen Hasch)
+To: linux-kernel@vger.kernel.org,
+        Thomas =?iso-8859-1?q?Lang=E5s?= <tlan@stud.ntnu.no>
+Subject: Re: Intel EEPro 100 with kernel drivers
+Date: Thu, 1 Nov 2001 09:48:56 +0100
+X-Mailer: KMail [version 1.3]
+Cc: linux-kernel@vger.kernel.org, J Sloan <jjs@pobox.com>
+In-Reply-To: <20011029021339.B23985@stud.ntnu.no> <15yzpC-26N6dEC@fwd04.sul.t-online.com> <20011101090348.E2102@stud.ntnu.no>
+In-Reply-To: <20011101090348.E2102@stud.ntnu.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <15zDX1-1svMLQC@fwd03.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have kernel 2.2.19, one 3Com nic. 32 MB memory. This is a small mail
-server.
-After these messages are received the system is still usable ...
-What do these messages mean and could this be a hardware problem ?
+> Here's the full /proc/net/PRO_LAN_Adapters/eth0.info output (after NFS
+> timeouts):
+>
+> gekko:~# cat /proc/net/PRO_LAN_Adapters/eth0.info
+> Description               Intel(R) 8255x-based Ethernet Adapter
+> Driver_Name               e100
+> Driver_Version            1.6.22
+> PCI_Vendor                0x8086
+> PCI_Device_ID             0x1229
+> PCI_Subsystem_Vendor      0x1028
+> PCI_Subsystem_ID          0x009b
+> PCI_Revision_ID           0x0008
+> PCI_Bus                   2
+> PCI_Slot                  4
+> IRQ                       16
+> System_Device_Name        eth0
+> Current_HWaddr            00:B0:D0:F0:8B:65
+> Permanent_HWaddr          00:B0:D0:F0:8B:65
+> Part_Number               07195d-000
+>
+> Link                      up
+> Speed                     100
+> Duplex                    full
+> State                     up
+>
+> Rx_Packets                27747043
+> Tx_Packets                25999146
+> Rx_Bytes                  1730389022
+> Tx_Bytes                  21884644
+> Rx_Errors                 0
+> Tx_Errors                 0
+> Rx_Dropped                0
+> Tx_Dropped                0
+> Multicast                 0
+> Collisions                0
+> Rx_Length_Errors          0
+> Rx_Over_Errors            0
+> Rx_CRC_Errors             0
+> Rx_Frame_Errors           0
+> Rx_FIFO_Errors            0
+> Rx_Missed_Errors          0
+> Tx_Aborted_Errors         0
+> Tx_Carrier_Errors         0
+> Tx_FIFO_Errors            0
+> Tx_Heartbeat_Errors       0
+> Tx_Window_Errors          0
+>
+> Rx_TCP_Checksum_Good      0
+> Rx_TCP_Checksum_Bad       0
+> Tx_TCP_Checksum_Good      0
+> Tx_TCP_Checksum_Bad       0
+>
+> Tx_Abort_Late_Coll        0
+> Tx_Deferred_Ok            0
+> Tx_Single_Coll_Ok         0
+> Tx_Multi_Coll_Ok          0
+> Rx_Long_Length_Errors     0
+> Rx_Align_Errors           0
+>
+> Tx_Flow_Control_Pause     0
+> Rx_Flow_Control_Pause     0
+> Rx_Flow_Control_Unsup     0
+>
+> Tx_TCO_Packets            0
+> Rx_TCO_Packets            1
+> scbp = 0xf89da000        bddp = 0xf77568c0
 
-Oct 26 14:40:24 mail kernel: Unable to handle kernel paging request at virtual address 40d505e3
-Oct 26 14:40:24 mail kernel: current->tss.cr3 = 01b71000, %%cr3 = 01b71000
-Oct 26 14:40:24 mail kernel: *pde = 00000000
-Oct 26 14:40:24 mail kernel: Oops: 0002
-Oct 26 14:40:24 mail kernel: CPU:    0
-Oct 26 14:40:24 mail kernel: EIP:    0010:[3c509:__insmod_3c509_O/lib/modules/2.2.19/net/3c509.o_M3B4054B3_V+-8511361/76]
-Oct 26 14:40:24 mail kernel: EFLAGS: 00010256
-Oct 26 14:40:24 mail kernel: eax: c01306e3   ebx: c1fa8860   ecx: 0000000c   edx: c1ff0058
-Oct 26 14:40:24 mail kernel: esi: c1fa4060   edi: c1337005   ebp: c1ff2928   esp: c1491f00
-Oct 26 14:40:24 mail kernel: ds: 0018   es: 0018   ss: 0018
-Oct 26 14:40:24 mail kernel: Process ipop3d (pid: 531, process nr: 20, stackpage=c1491000)
-Oct 26 14:40:24 mail kernel: Stack: c1491f54 c1491f54 00000000 c1337005 0000000b c1ff2928 c1337001 00006223
-Oct 26 14:40:24 mail kernel:        00000003 c012b7f4 c1fa4060 c1491f54 c1491f54 c012ba6f c1fa4060 c1491f54
-Oct 26 14:40:24 mail kernel:        0000000b c19275c0 ffffffe9 00000001 bfffe874 c1337001 00000003 00006223
-Oct 26 14:40:24 mail kernel: Call Trace: [cached_lookup+16/84] [lookup_dentry+275/488] [open_namei+102/748] [filp_open+68/240] [sys_open+54/148] [system_call+52/56]
-Oct 26 14:40:24 mail kernel: Code: c1 80 00 ff c1 80 00 ff c1 88 00 ff c1 88 00 ff c1 90 00 ff Oc
+Well this doesn't look exactly the same as on the system I had problems with.
+But your Rx_TCO_Packets counter is  1, so this may be related
+(I also got Rx overrun errors). It may be that your BMC receives the packet
+and simply chooses to ignore it because it is no valid server management 
+packet.
 
-Oct 26 15:10:55 mail kernel: general protection fault: 0000
-Oct 26 15:10:55 mail kernel: CPU:    0
-Oct 26 15:10:55 mail kernel: EIP:    0010:[3c509:__insmod_3c509_O/lib/modules/2.2.19/net/3c509.o_M3B4054B3_V+-8511374/76]
-Oct 26 15:10:55 mail kernel: EFLAGS: 00010256
-Oct 26 15:10:55 mail kernel: eax: c01306e3   ebx: c1fa8860   ecx: 0000000c   edx: c1ff0058
-Oct 26 15:10:55 mail kernel: esi: c1fa4060   edi: c1285005   ebp: c1ff2928   esp: c1451f00
-Oct 26 15:10:55 mail kernel: ds: 0018   es: 0018   ss: 0018
-Oct 26 15:10:55 mail kernel: Process ipop3d (pid: 781, process nr: 21, stackpage=c1451000)
-Oct 26 15:10:55 mail kernel: Stack: c1451f54 c1451f54 00000000 c1285005 0000000b c1ff2928 c1285001 00006223
-Oct 26 15:10:55 mail kernel:        00000003 c012b7f4 c1fa4060 c1451f54 c1451f54 c012ba6f c1fa4060 c1451f54
-Oct 26 15:10:55 mail kernel:        0000000b c1fa2860 ffffffe9 00000001 bfffe874 c1285001 00000003 00006223
-Oct 26 15:10:55 mail kernel: Call Trace: [cached_lookup+16/84] [lookup_dentry+275/488] [open_namei+102/748] [filp_open+68/240] [sys_open+54/148] [system_call+52/56]
-Oct 26 15:10:55 mail kernel: Code: 2e c1 18 42 2e c1 78 00 ff c1 78 00 ff c1 80 00 ff c1 80 00
+Could you make another test and take a look at the eth0.info ?
+I could reproduce the problem when copying a large file over NFS, but not 
+when transferring it via ftp. Try this a few times.
+If you can reproduce you network card being stuck only when using NFS and 
+having Rx_TCO_Packets > 0 after it is stuck, this is it.
+Then you either need tu upgrade your BMC firmware or add another network card,
+which doesn't eat NFS packets.
 
-
-TIA,
-Janek Hiis
+...Juergen
 

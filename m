@@ -1,54 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268231AbUH2Rtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268249AbUH2Rve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268231AbUH2Rtp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 13:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUH2Rto
+	id S268249AbUH2Rve (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 13:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268250AbUH2Rve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 13:49:44 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:20178 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268231AbUH2Rtl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 13:49:41 -0400
-Subject: Re: SMP Panic caused by [PATCH] sched: consolidate sched domains
-From: Nathan Lynch <nathanl@austin.ibm.com>
+	Sun, 29 Aug 2004 13:51:34 -0400
+Received: from holomorphy.com ([207.189.100.168]:65454 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268249AbUH2RvO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 13:51:14 -0400
+Date: Sun, 29 Aug 2004 10:50:58 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: James Bottomley <James.Bottomley@SteelEye.com>
 Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
        Linus Torvalds <torvalds@osdl.org>,
        Matthew Dobson <colpatch@us.ibm.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1093800241.1708.25.camel@mulgrave>
-References: <1093786747.1708.8.camel@mulgrave>
-	 <200408290948.06473.jbarnes@engr.sgi.com>
-	 <1093798704.10973.15.camel@mulgrave>
-	 <200408291007.50553.jbarnes@engr.sgi.com>
-	 <1093800241.1708.25.camel@mulgrave>
-Content-Type: text/plain
-Message-Id: <1093801714.29741.15.camel@booger>
+Subject: Re: SMP Panic caused by [PATCH] sched: consolidate sched domains
+Message-ID: <20040829175058.GP5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Matthew Dobson <colpatch@us.ibm.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1093786747.1708.8.camel@mulgrave> <200408290948.06473.jbarnes@engr.sgi.com> <20040829170328.GK5492@holomorphy.com> <1093799390.10990.19.camel@mulgrave> <20040829172250.GM5492@holomorphy.com> <20040829172923.GN5492@holomorphy.com> <20040829174039.GO5492@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 29 Aug 2004 12:48:35 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040829174039.GO5492@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-29 at 12:24, James Bottomley wrote:
-> On Sun, 2004-08-29 at 13:07, Jesse Barnes wrote:
-> > I've up and downed a few CPUs on an Altix, and it seems to work ok, but that's 
-> > a pretty basic test.  How about this?
-> 
-> Incidentally, down and up tests won't pick up these initialisation
-> problems because the SMP paths will already have created the start of
-> day data structures for these CPUs.  You need to boot with the CPU down
-> and bring it up after boot to see the issues.
+On Sun, Aug 29, 2004 at 10:40:39AM -0700, William Lee Irwin III wrote:
+> Okay, if you prefer the #ifdef:
 
-I've got a patch which reinitializes sched domains at cpu hotplug time. 
-We need something like this on ppc64 for partitioned systems (we run
-into the same issue when adding a cpu which wasn't present at boot).  I
-had been waiting to post it until some cpu hotplug issues with preempt
-were solved, but it seems it would help the case of hotplugging
-secondary cpus at boot, so I'll submit that soon.
-
-Nathan
+And for the other half of it:
 
 
+Index: wait-2.6.9-rc1-mm1/kernel/sched.c
+===================================================================
+--- wait-2.6.9-rc1-mm1.orig/kernel/sched.c	2004-08-28 11:41:47.000000000 -0700
++++ wait-2.6.9-rc1-mm1/kernel/sched.c	2004-08-29 10:46:52.543081208 -0700
+@@ -4224,7 +4224,11 @@
+ 		sd = &per_cpu(phys_domains, i);
+ 		group = cpu_to_phys_group(i);
+ 		*sd = SD_CPU_INIT;
++#ifdef CONFIG_NUMA
+ 		sd->span = nodemask;
++#else
++		sd->span = cpu_possible_map;
++#endif
+ 		sd->parent = p;
+ 		sd->groups = &sched_group_phys[group];
+ 
+@@ -4262,6 +4266,7 @@
+ 						&cpu_to_isolated_group);
+ 	}
+ 
++#ifdef CONFIG_NUMA
+ 	/* Set up physical groups */
+ 	for (i = 0; i < MAX_NUMNODES; i++) {
+ 		cpumask_t nodemask = node_to_cpumask(i);
+@@ -4273,6 +4278,10 @@
+ 		init_sched_build_groups(sched_group_phys, nodemask,
+ 						&cpu_to_phys_group);
+ 	}
++#else
++	init_sched_build_groups(sched_group_phys, cpu_possible_map,
++							&cpu_to_phys_group);
++#endif
+ 
+ #ifdef CONFIG_NUMA
+ 	/* Set up node groups */

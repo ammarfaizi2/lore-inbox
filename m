@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274179AbRIXV61>; Mon, 24 Sep 2001 17:58:27 -0400
+	id <S274190AbRIXWAH>; Mon, 24 Sep 2001 18:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274183AbRIXV6T>; Mon, 24 Sep 2001 17:58:19 -0400
-Received: from pc-62-30-67-185-az.blueyonder.co.uk ([62.30.67.185]:26862 "EHLO
-	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S274165AbRIXV6G>; Mon, 24 Sep 2001 17:58:06 -0400
-Date: Mon, 24 Sep 2001 22:57:47 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Chris Meadors <clubneon@hereintown.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.10 + ext3
-Message-ID: <20010924225747.E9688@kushida.jlokier.co.uk>
-In-Reply-To: <20010924204946.C9688@kushida.jlokier.co.uk> <Pine.LNX.4.40.0109241621100.12894-100000@rc.priv.hereintown.net>
+	id <S274188AbRIXWAB>; Mon, 24 Sep 2001 18:00:01 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:30266 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S274165AbRIXV7V>; Mon, 24 Sep 2001 17:59:21 -0400
+Subject: Re: report: success with agp_try_unsupported=1
+From: Robert Love <rml@ufl.edu>
+To: Peter Jay Salzman <p@dirac.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1001368244.1194.27.camel@phantasy>
+In-Reply-To: <20010924144006.A13695@dirac.org> 
+	<1001368244.1194.27.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99+cvs.2001.09.24.08.08 (Preview Release)
+Date: 24 Sep 2001 17:59:46 -0400
+Message-Id: <1001368787.8773.1.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.40.0109241621100.12894-100000@rc.priv.hereintown.net>; from clubneon@hereintown.net on Mon, Sep 24, 2001 at 04:22:13PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Meadors wrote:
-> > I did have a big disaster once when I compiled ext3 into a kernel and
-> > not ext2 (which I left as a module).  You can guess, it couldn't mount
-> > the root filesystem.
-> 
-> What exactly did you do?  I have several machines that only have ext3
-> compiled in, no ext2 at all, module or otherwise.  They all boot fine.
+On Mon, 2001-09-24 at 17:50, Robert Love wrote:
+> I will write a patch for this to add VIA KT266 support (so you don't
+> need to do the agp_try_unsupported=1 mess, it will be supported
+> natively).  Although, the patch is going to be against 2.4.10.
 
-So do mine.  I had forgotten to convert the root filesystem, that's all.
+I take that back, no I won't :)
 
--- Jamie
+I think support was added during 2.4.10-pre from a merge with Alan's
+tree.
+
+Upgrade to 2.4.10 and see if not it works.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

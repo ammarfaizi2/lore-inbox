@@ -1,61 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263998AbUDQPpv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 11:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264001AbUDQPpv
+	id S263982AbUDQPoq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 11:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263999AbUDQPoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 11:45:51 -0400
-Received: from eik.ii.uib.no ([129.177.16.3]:6604 "EHLO eik.ii.uib.no")
-	by vger.kernel.org with ESMTP id S263991AbUDQPpo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 11:45:44 -0400
-Date: Sat, 17 Apr 2004 17:45:40 +0200
-From: Jan-Frode Myklebust <janfrode@parallab.uib.no>
-To: "Moore, Eric Dean" <Emoore@lsil.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: LSI Logic FC HBA / mptscsih hang
-Message-ID: <20040417154540.GA23053@ii.uib.no>
-Mail-Followup-To: "Moore, Eric Dean" <Emoore@lsil.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <0E3FA95632D6D047BA649F95DAB60E570442C23E@exa-atlanta.se.lsil.com> <20040414211645.GA21837@ii.uib.no>
-Mime-Version: 1.0
+	Sat, 17 Apr 2004 11:44:46 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:32698 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263982AbUDQPol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 11:44:41 -0400
+From: oschoett@t-online.de (Oliver Schoett)
+To: linux-kernel@vger.kernel.org
+Subject: Re: AGP problem SiS 746FX Linux 2.6.5-rc3
+References: <1HPrP-5sW-3@gated-at.bofh.it> <1I53J-1k7-57@gated-at.bofh.it>
+	<1I5wD-1Gx-15@gated-at.bofh.it> <1I5wH-1Gx-35@gated-at.bofh.it>
+	<1I5Q0-1Vt-7@gated-at.bofh.it> <1obEA-82t-11@gated-at.bofh.it>
+Date: 17 Apr 2004 17:44:31 +0200
+In-Reply-To: <1I5Q0-1Vt-7@gated-at.bofh.it>
+Message-ID: <s23k70eehi8.fsf@oschoett.dialin.t-online.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040414211645.GA21837@ii.uib.no>
+X-Seen: false
+X-ID: ESv56wZvYe5XjDv4BE4BAO3L5P2Pah3TnIMek44nCADGiIP8ZJN+8+
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 11:16:45PM +0200, Jan-Frode Myklebust wrote:
-> On Wed, Apr 14, 2004 at 05:01:14PM -0400, Moore, Eric Dean wrote:
-> > I can send you update 2.05.16 mpt driver RPM's for redhat 
-> > in seperate email. Let me know if you can accept 
-> > 17MB zip file.  
+Dave Jones <davej@redhat.com> writes:
 
-I saw the same problem with this 2.05.16 mpt driver. Now I also tried
-upgrading to both the kernel-smp-2.6.5-1.326.i686.rpm from
-http://people.redhat.com/arjanv/, and plain 2.6.6-rc1 kernel, and
-these are also hanging with the same error:
+ > Ok, so your system is fully AGP v3 compliant, (both host and gfx card).
+ > The missing check highlighted in your diff means that we only do
+ > AGPv3 stuff if we have an AGP 3.5 host bridge. You have a 3.0 bridge,
+ > so it was falling back to AGP v2.  My suspicion now is that the 648 and
+ > 746 chipsets vary too much for them to both use the generic routines,
+ > so I'll reinstate the check.  It'll still report that it finds an
+ > AGP v3.0 device, but until someone comes forward with chipset docs,
+ > it looks like it'll be limited to AGP v2. (I'm amazed that it works
+ > at all, really).
 
-Fusion MPT base driver 3.01.03
-Copyright (c) 1999-2004 LSI Logic Corporation
-PCI: Enabling device 0000:01:06.0 (0000 -> 0003)
-mptbase: Initiating ioc0 bringup
-ioc0: FC919X: Capabilities={Initiator,Target,LAN}
-mptbase: Initiating ioc0 recovery
-mptbase: Initiating ioc0 recovery
-mptbase: Initiating ioc0 recovery
-Fusion MPT SCSI Host driver 3.01.03
-scsi1 : ioc0: LSIFC919X, FwRev=01000000h, Ports=1, MaxQ=1023, IRQ=11
-mptscsih: ioc0: >> Attempting task abort! (sc=f7cccb00)
-mptscsih: ioc0: >> Attempting target reset! (sc=f7cccb00)
-mptbase: Initiating ioc0 recovery
-mptbase: Initiating ioc0 recovery
-mptscsih: ioc0: >> Attempting bus reset! (sc=f7cccb00)
+Here is some information about the AGP mode checks I learned from
+Oliver Heilmann: The two chipsets SiS 648 and SiS 648FX both have the
+chipset ID 0x0648, but need different initalisation code.  The way to
+distinguish them is that the 648FX reports itself as AGP v3.5 capable,
+while the 648 reports itself as AGP v3.0 capable.  This is handled
+correctly in Heilmann's patch in his Article
+<1obEA-82t-11@gated-at.bofh.it> Date: Thu, 12 Feb 2004 00:10:08 +0100:
 
-btw: I also seem unable to send BREAK-t (or other magic sysrq
-commands) via the serial console after this hang.. Maybe sysrq hasn't
-been enabled that early in the boot, or the kernel is hanging too
-hard..? 
++static void __devinit sis_get_driver(struct agp_bridge_data *bridge)
++{
++	if(bridge->dev->device==PCI_DEVICE_ID_SI_648)
++	{
++		if(agp_bridge->major_version==3 && agp_bridge->minor_version < 5)
++		{
++			sis_driver.agp_enable=sis_648_enable;
++		}
++		else
++		{
++			sis_driver.agp_enable         = sis_648_enable;
++			sis_driver.aperture_sizes     = agp3_generic_sizes;
++			sis_driver.size_type	      = U16_APER_SIZE;
++			sis_driver.num_aperture_sizes = AGP_GENERIC_SIZES_ENTRIES;
++			sis_driver.configure	      = agp3_generic_configure;
++			sis_driver.fetch_size	      = agp3_generic_fetch_size;
++			sis_driver.cleanup	      = agp3_generic_cleanup;
++			sis_driver.tlb_flush	      = agp3_generic_tlbflush;
++		}
++	}
++	bridge->driver=&sis_driver;
++}
++
 
+Please preserve this distinction in your patch and don't degrade the
+SiS 648 chipset to AGP 2.0 (currently, 2.6.5 runs fine with AGP 3.0 on
+my SiS 648 chipset).
 
-   -jf
+By the way, I noticed an oddity in the changeset
+http://linux.bkbits.net:8080/linux-2.5/patch@1.1643.35.7: the line
+
+-		set_current_state(TASK_INTERRUPTIBLE);
+
+becomes
+
++			set_current_state(TASK_UNINTERRUPTIBLE);
+
+Which of the two settings is correct?
+
+Regards,
+
+Oliver Schoett
+

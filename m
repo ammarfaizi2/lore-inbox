@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270212AbTGRLXk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 07:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271682AbTGRLXk
+	id S271682AbTGRLXq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 07:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271695AbTGRLXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 07:23:40 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:56530
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S270212AbTGRLXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 07:23:39 -0400
-Subject: Re: [PATCH] PATCH: typo bits
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0307181221390.22944-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0307181221390.22944-100000@vervain.sonytel.be>
-Content-Type: text/plain
+	Fri, 18 Jul 2003 07:23:46 -0400
+Received: from dyn-ctb-203-221-74-239.webone.com.au ([203.221.74.239]:37906
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S271682AbTGRLXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 07:23:42 -0400
+Message-ID: <3F17DC22.2070605@cyberone.com.au>
+Date: Fri, 18 Jul 2003 21:38:10 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Wiktor Wodecki <wodecki@gmx.de>
+CC: Con Kolivas <kernel@kolivas.org>, Mike Galbraith <efault@gmx.de>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [PATCH] O6int for interactivity
+References: <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net> <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net> <20030718103105.GE622@gmx.de> <200307182043.06029.kernel@kolivas.org> <20030718113436.GA627@gmx.de>
+In-Reply-To: <20030718113436.GA627@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058528165.19558.3.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 18 Jul 2003 12:36:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > -  dep_tristate '  SL811HS Alternate (support isochornous mode)' CONFIG_USB_SL811HS_ALT $CONFIG_USB
-> > +   dep_tristate '  SL811HS Alternate (support isosynchronous mode)' CONFIG_USB_SL811HS_ALT $CONFIG_USB
-> >  fi
-> > diff -Nru a/drivers/usb/host/sl811.c b/drivers/usb/host/sl811.c
-> > --- a/drivers/usb/host/sl811.c	Thu Jul 17 11:07:46 2003
-> > +++ b/drivers/usb/host/sl811.c	Thu Jul 17 11:07:46 2003
-> > @@ -9,7 +9,7 @@
-> >   * 	  Adam Richter, Gregory P. Smith;
-> >    	2.Original SL811 driver (hc_sl811.o) by Pei Liu <pbl@cypress.com>
-> >   *
-> > - * It's now support isochronous mode and more effective than hc_sl811.o
-> > + * It's now support isosynchronous mode and more effective than hc_sl811.o
-> 
-> I thought the correct term was `isochronous'...
 
-Perhaps someone can clarify - however isochornus is definitely wrong either way
+
+Wiktor Wodecki wrote:
+
+>On Fri, Jul 18, 2003 at 08:43:05PM +1000, Con Kolivas wrote:
+>
+>>On Fri, 18 Jul 2003 20:31, Wiktor Wodecki wrote:
+>>
+>>>On Fri, Jul 18, 2003 at 12:18:33PM +0200, Mike Galbraith wrote:
+>>>
+>>>>That _might_ (add salt) be priorities of kernel threads dropping too low.
+>>>>
+>>>>I'm also seeing occasional total stalls under heavy I/O in the order of
+>>>>10-12 seconds (even the disk stops).  I have no idea if that's something
+>>>>in mm or the scheduler changes though, as I've yet to do any isolation
+>>>>and/or tinkering.  All I know at this point is that I haven't seen it in
+>>>>stock yet.
+>>>>
+>>>I've seen this too while doing a huge nfs transfer from a 2.6 machine to
+>>>a 2.4 machine (sparc32). Thought it'd be something with the nfs changes
+>>>which were recently, might be the scheduler, tho. Ah, and it is fully
+>>>reproducable.
+>>>
+>>Well I didn't want to post this yet because I'm not sure if it's a good 
+>>workaround yet but it looks like a reasonable compromise, and since you have a 
+>>testcase it will be interesting to see if it addresses it. It's possible that 
+>>a task is being requeued every millisecond, and this is a little smarter. It 
+>>allows cpu hogs to run for 100ms before being round robinned, but shorter for 
+>>interactive tasks. Can you try this O7 which applies on top of O6.1 please:
+>>
+>>available here:
+>>http://kernel.kolivas.org/2.5
+>>
+>
+>sorry, the problem still persists. Aborting the cp takes less time, tho
+>(about 10 seconds now, before it was about 30 secs). I'm aborting during
+>a big file, FYI.
+>
+
+OK if the IO actually stops then it shouldn't be an IO scheduler or
+request allocation problem, but could you try to capture a sysrq T
+trace for me during the freeze.
 

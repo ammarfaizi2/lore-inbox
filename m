@@ -1,84 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbTIQMpA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 08:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbTIQMpA
+	id S262743AbTIQMqg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 08:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbTIQMqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 08:45:00 -0400
-Received: from mail.native-instruments.de ([217.9.41.138]:18121 "EHLO
-	mail.native-instruments.de") by vger.kernel.org with ESMTP
-	id S262740AbTIQMo6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 08:44:58 -0400
-Message-ID: <00c501c37d19$7eb34c80$9602010a@jingle>
-From: "Florian Schirmer" <jolt@tuxbox.org>
-To: "Kjartan Maraas" <kmaraas@broadpark.no>, <linux-kernel@vger.kernel.org>
-References: <wJBI.3Mx.7@gated-at.bofh.it>
-Subject: Re: Problems with Synaptics touchpad on Compaq Evo N600c and 	2.6.0-test5
-Date: Wed, 17 Sep 2003 14:44:54 +0200
+	Wed, 17 Sep 2003 08:46:36 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:41686 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262743AbTIQMqe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 08:46:34 -0400
+Date: Wed, 17 Sep 2003 14:46:29 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Vaio doesn't poweroff with 2.4.22
+In-Reply-To: <20030917103135.GL1205@elf.ucw.cz>
+Message-ID: <Pine.GSO.4.21.0309171445150.3677-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 17 Sep 2003, Pavel Machek wrote:
+> > > > With 2.4.22, my Sony Vaio PCG-Z600TEK (s/600/505/ in US/JP) shows a regression
+> > > > w.r.t. power management:
+> > > >   - It doesn't poweroff anymore (screen contents are still there after the
+> > > >     powering down message)
+> > > >   - It doesn't reboot anymore (screen goes black, though)
+> > > >   - It accidentally suspended to RAM once while I was actively working on it (I
+> > > >     never managed to get suspend working, except for this `accident'). I didn't
+> > > >     see any messages about this in the kernel log.
+> > > 
+> > > It suspended to RAM... Did it also *resume* correctly?
+> > 
+> > Yes, since I could continue working without problems (except for lost Ethernet,
+> > solved by ifdown -a/ifup -a).
+> 
+> And was that acpi or apm? If it was acpi you saw a little miracle.
 
-i can confirm this on a HP Pavilion ze5343ea. Booting with "psmouse_noext=1"
-works around it.
+ACPI.
 
-Regards,
-    Florian
+BTW, I just started to see other weird things that may be related to ACPI, but
+aren't related to Linux (machine powers down 1 second after power up, etc.),
+but now it's fine again (running 2.4.21).
 
------ Original Message ----- 
-From: "Kjartan Maraas" <kmaraas@broadpark.no>
-Newsgroups: linux.kernel
-Sent: Wednesday, September 17, 2003 2:30 PM
-Subject: Problems with Synaptics touchpad on Compaq Evo N600c and
-2.6.0-test5
+Gr{oetje,eeting}s,
 
+						Geert
 
-> I tried booting this kernel from http://people.redhat.com/arjanv/2.5/
-> and lost my mouse completely. Here's a snippet from /var/log/messages
->
-> Sep 17 12:45:13 localhost kernel: mice: PS/2 mouse device common for all
-> mice
-> Sep 17 12:45:13 localhost kernel: i8042.c: Detected active multiplexing
-> controller, rev 1.1.
-> Sep 17 12:45:13 localhost kernel: serio: i8042 AUX0 port at 0x60,0x64
-> irq 12
-> Sep 17 12:45:13 localhost kernel: serio: i8042 AUX1 port at 0x60,0x64
-> irq 12
-> Sep 17 12:45:13 localhost kernel: serio: i8042 AUX2 port at 0x60,0x64
-> irq 12
-> Sep 17 12:45:13 localhost kernel: synaptics reset failed
-> Sep 17 12:45:13 localhost last message repeated 2 times
-> Sep 17 12:45:13 localhost kernel: Synaptics Touchpad, model: 1
-> Sep 17 12:45:13 localhost kernel:  Firware: 5.8
-> Sep 17 12:45:13 localhost kernel:  180 degree mounted touchpad
-> Sep 17 12:45:13 localhost kernel:  Sensor: 27
-> Sep 17 12:45:13 localhost kernel:  new absolute packet format
-> Sep 17 12:45:13 localhost kernel:  Touchpad has extended capability bits
-> Sep 17 12:45:13 localhost kernel:  -> multifinger detection
-> Sep 17 12:45:13 localhost kernel:  -> palm detection
-> Sep 17 12:45:13 localhost kernel: input: Synaptics Synaptics TouchPad on
-> isa0060/serio4
->
-> I've been testing with the XFree86 packages from rawhide, updated as of
-> today, and the mouse works ok with the 2.4.x kernel from the same place.
->
-> I've got the latest BIOS for this laptop if that matters.
->
-> Cheers
-> Kjartan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,101 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266034AbUA1Rjz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 12:39:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266036AbUA1Rjz
+	id S265999AbUA1Rot (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 12:44:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266036AbUA1Rot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 12:39:55 -0500
-Received: from pool-162-84-168-72.ny5030.east.verizon.net ([162.84.168.72]:2755
-	"EHLO mail.blazebox.homeip.net") by vger.kernel.org with ESMTP
-	id S266034AbUA1Rjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 12:39:52 -0500
-Subject: Re: [2.6.2-rc1-mm3] Badness in interruptible_sleep_on.
-From: Paul Blazejowski <paulb@blazebox.homeip.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, XFS List <linux-xfs@oss.sgi.com>
-In-Reply-To: <1075140703.2291.8.camel@blaze.homeip.net>
-References: <1075140703.2291.8.camel@blaze.homeip.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RxMUEWcBDmmM7M+Z9p49"
-Message-Id: <1075311607.3551.3.camel@blaze.homeip.net>
+	Wed, 28 Jan 2004 12:44:49 -0500
+Received: from ns.suse.de ([195.135.220.2]:47585 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265999AbUA1Roo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 12:44:44 -0500
+Date: Wed, 28 Jan 2004 18:41:37 +0100
+From: Andi Kleen <ak@suse.de>
+To: Grant Grundler <iod00d@hp.com>
+Cc: ishii.hironobu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
+Message-Id: <20040128184137.616b6425.ak@suse.de>
+In-Reply-To: <20040128172004.GB5494@cup.hp.com>
+References: <00a201c3e541$c0e7d680$2987110a@lsd.css.fujitsu.com>
+	<20040128172004.GB5494@cup.hp.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (Slackware Linux)
-Date: Wed, 28 Jan 2004 12:40:08 -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 28 Jan 2004 09:20:04 -0800
+Grant Grundler <iod00d@hp.com> wrote:
 
---=-RxMUEWcBDmmM7M+Z9p49
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2004-01-26 at 13:11, Paul Blazejowski wrote:
-> Hello Andrew,
->=20
-> I see these panics related to pagebuf from XFS on:
->=20
-> Linux blaze 2.6.2-rc1-mm3 #1 Sun Jan 25 18:24:01 EST 2004 i686 AMD
-> Athlon(tm) XP 3200+ AuthenticAMD GNU/Linux
->=20
-> Code snip:
->=20
-> Badness in interruptible_sleep_on at kernel/sched.c:2242
-> Call Trace:
->  [<c011cb93>] interruptible_sleep_on+0x103/0x110
->  [<c011c740>] default_wake_function+0x0/0x20
->  [<c0209db0>] pagebuf_daemon+0x0/0x260
->  [<c0209ff4>] pagebuf_daemon+0x244/0x260
->=20
-> ret_from_fork+0x6/0x14
->  [<c0209d80>] pagebuf_daemon_wakeup+0x0/0x30
->  [<c0209db0>] <6>hda: 58633344 sectors (30020 MB) w/2048KiB Cache,
-> CHS=3D58168/16/63, UDMA(100)
->  hda: hda1
-> pagebuf_daemon+0x0/0x260
->  [<c0108e49>] kernel_thread_helper+0x5/0xc
->=20
-> Also this creeps in:
->=20
-> atkbd.c: Unknown key released (translated set 2, code 0x7a on
-> isa0060/serio0).
-> atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
-> atkbd.c: Unknown key released (translated set 2, code 0x7a on
-> isa0060/serio0).
-> atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
-> request_module: failed /sbin/modprobe -- block-major-11-0. error =3D 256
+> I could be wrong. Exception handling is ugly. But my hope is that
+> by putting all the exception handling in one place in the driver,
+> the driver will be forced to be methodical in being "deterministic"
+> WRT to driver state and can return to a known state by calling one
+> routine. This will keep the drivers maintainable by "part-time hackers"
+> who don't care about error recovery.
 
-Hello folks,
+One big problem is how to get rid of the spinlocks after the exception though
+(hardware access usually happens inside a spinlock) 
 
-Just to add the same happens under 2.6.2-rc2-mm1 kernel i just compiled.
+I presume you could return a magic value (all ones), but then you still
+have to make sure the driver doesn't break when that happens. That would
+likely require testing for that value on every read access and make
+the code similarly ugly and difficult to write as with Linus' 
+explicit checking model.
 
-Badness in interruptible_sleep_on at kernel/sched.c:2239
-Call Trace:
- [<c011cc13>] interruptible_sleep_on+0x103/0x110
- [<c011c7c0>] default_wake_function+0x0/0x20
- [<c0209ef0>] pagebuf_daemon+0x0/0x260
- [<c020a134>] pagebuf_daemon+0x244/0x260
+But there may be no other choice, see below...
 
-ret_from_fork+0x6/0x14
- [<c0209ec0>] pagebuf_daemon_wakeup+0x0/0x30
-hda: 58633344 sectors (30020 MB) w/2048KiB Cache, CHS=3D58168/16/63,
-UDMA(100)
- hda: hda1
- [<c0209ef0>] pagebuf_daemon+0x0/0x260
- [<c0108e49>] kernel_thread_helper+0x5/0xc
 
-Regards,
+> >        I know, unfortunately, that i386 can't support this kind
+> >        of I/F, because it can't recover from machine check state.
+> 
+> I think i386 could. The method to check for errors will be different
+> and the types of errors which are detectable are fewer.
 
-Paul B.
+Yes, there are often magic bits in northbridges and chipsets. Problem is that 
+they're sometimes buggy (because not well tested) and give random errors.
 
---=-RxMUEWcBDmmM7M+Z9p49
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Also enabling them tends to trigger a *lot* of bugs in random drivers.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+> I'm not sure it would be recoverable though. But it should be able
 
-iD8DBQBAF/P3v0+bfGBjm98RAl4oAJ9TgwJzIqnWk1lho4H2/UN9lesAJwCfZKDP
-zqld3HqW6ZyvLf4p6MYnVLw=
-=U0t/
------END PGP SIGNATURE-----
+They usually give an MCE, but it is not exact for writes (happens sometime
+later) and may not even be for reads.
 
---=-RxMUEWcBDmmM7M+Z9p49--
+The only sane way to handle them would be a global call back per pci_dev,
+but then you run into problems with the locking again.
+
+Also in my experience from AMD64 which originally was a bit aggressive
+on enabling MCEs: enabling MCEs increases your kernel support load a lot.
+
+Many people have slightly buggy systems which still happen to work mostly.
+If you report every problem you as kernel maintainer will be flooded with
+reports about things you can nothing to do about. So I don't think it would
+make sense to enable it by default.
+
+One idea I played with was to only enable it for driver debugging, but
+it is hard to educate driver developers about it (most just don't know 
+about it and we have no way to pass information to them). In the end 
+I removed it because it was too much hazzle. In short this stuff
+probably only makes sense when you're a system vendor who sells
+support contracts for whole systems including hardware support.
+For the normal linux model where software is independent from hardware
+(and hardware is usually crappy) it just doesn't work very well.
+
+-Andi

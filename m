@@ -1,69 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262593AbTELUYu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 16:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTELUYu
+	id S262636AbTELU1s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 16:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbTELU1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 16:24:50 -0400
-Received: from inet-mail1.oracle.com ([148.87.2.201]:45026 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id S262593AbTELUYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 16:24:48 -0400
-Date: Mon, 12 May 2003 13:37:06 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: linux-kernel@vger.kernel.org
-Subject: WimMark I report for 2.5.69-mjb1
-Message-ID: <20030512203702.GP3989@ca-server1.us.oracle.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Mon, 12 May 2003 16:27:48 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:13473 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S262636AbTELU1r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 16:27:47 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16064.1726.440360.935187@napali.hpl.hp.com>
+Date: Mon, 12 May 2003 13:40:30 -0700
+To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+Cc: davidm@hpl.hp.com, Dave Jones <davej@codemonkey.org.uk>,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: [Dri-devel] Re: Improved DRM support for cant_use_aperture
+	platforms
+In-Reply-To: <1052768911.10752.268.camel@thor>
+References: <200305101009.h4AA9GZi012265@napali.hpl.hp.com>
+	<1052653415.12338.159.camel@thor>
+	<16062.37308.611438.5934@napali.hpl.hp.com>
+	<20030511195543.GA15528@suse.de>
+	<1052690133.10752.176.camel@thor>
+	<16063.60859.712283.537570@napali.hpl.hp.com>
+	<1052768911.10752.268.camel@thor>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OK, could you try with this patch applied on top of my previous patch?
+Checking against KERNEL_VERSION(2,5,68) ensures that we have the new
+(4-wargument) vmap() call and the "#ifndef PAGE_AGP" part ensures that
+things will compile fine until the kernel's asm/agp.h gets updated.
 
-WimMark I report for 2.5.69-mjb1
+	--david
 
-Runs:  1889.74 1767.44 1816.31
+===== drivers/char/drm/drm_memory.h 1.16 vs edited =====
+--- 1.16/drivers/char/drm/drm_memory.h	Sat May 10 01:32:08 2003
++++ edited/drivers/char/drm/drm_memory.h	Mon May 12 13:37:57 2003
+@@ -42,7 +42,12 @@
+  */
+ #define DEBUG_MEMORY 0
+ 
+-#if __REALLY_HAVE_AGP
++/* Need at least kernel v2.5.68 to get the 4-argument version of vmap().  */
++#if __REALLY_HAVE_AGP && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,68))
++
++#ifndef PAGE_AGP
++# define PAGE_AGP	PAGE_KERNEL_NOCACHE
++#endif
+ 
+ /*
+  * Find the drm_map that covers the range [offset, offset+size).
+@@ -127,7 +132,7 @@
+ {
+ 	int remap_aperture = 0;
+ 
+-#if __REALLY_HAVE_AGP
++#if __REALLY_HAVE_AGP && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,68))
+ 	if (dev->agp->cant_use_aperture) {
+ 		drm_map_t *map = drm_lookup_map(offset, size, dev);
+ 
+@@ -146,7 +151,7 @@
+ {
+ 	int remap_aperture = 0;
+ 
+-#if __REALLY_HAVE_AGP
++#if __REALLY_HAVE_AGP && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,68))
+ 	if (dev->agp->cant_use_aperture) {
+ 		drm_map_t *map = drm_lookup_map(offset, size, dev);
+ 
+@@ -163,7 +168,7 @@
+ static inline void drm_ioremapfree(void *pt, unsigned long size, drm_device_t *dev)
+ {
+ 	int unmap_aperture = 0;
+-#if __REALLY_HAVE_AGP
++#if __REALLY_HAVE_AGP && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,68))
+ 	/*
+ 	 * This is a bit ugly.  It would be much cleaner if the DRM API would use separate
+ 	 * routines for handling mappings in the AGP space.  Hopefully this can be done in
 
-	WimMark I is a rough benchmark we have been running
-here at Oracle against various kernels.  Each run tests an OLTP
-workload on the Oracle database with somewhat restrictive memory
-conditions.  This reduces in-memory buffering of data, allowing for
-more I/O.  The I/O is read and sync write, random and seek-laden.  The
-runs all do ramp-up work to populate caches and the like.
-	The benchmark is called "WimMark I" because it has no
-official standing and is only a relative benchmark useful for comparing
-kernel changes.  The benchmark is normalized an arbitrary kernel, which
-scores 1000.0.  All other numbers are relative to this.  A bigger number
-is a better number.  All things being equal, a delta <50 is close to
-unimportant, and a delta < 20 is very identical.
-	This benchmark is sensitive to random system events.  I run
-three runs because of this.  If two runs are nearly identical and the
-remaining run is way off, that run should probably be ignored (it is
-often a low number, signifying that something on the system impacted
-the benchmark).
-	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
-of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
-10K RPM U2W SCSI of similar vintage.  The data files are living on an
-ext3 filesystem.  Unless mentioned, all runs are
-on this machine (variation in hardware would indeed change the
-benchmark).
-	WimMark I run results are archived at
-http://oss.oracle.com/~jlbec/wimmark/wimmark_I.html
-
--- 
-
-"Sometimes I think the surest sign intelligent
- life exists elsewhere in the universe is that
- none of it has tried to contact us."
-                                -Calvin & Hobbes
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

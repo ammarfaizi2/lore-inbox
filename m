@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266248AbUG0E2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265301AbUG0E6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266248AbUG0E2j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 00:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbUG0E2j
+	id S265301AbUG0E6h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 00:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbUG0E6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 00:28:39 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:63449 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266254AbUG0E0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 00:26:54 -0400
+	Tue, 27 Jul 2004 00:58:37 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:32653 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265301AbUG0E6f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 00:58:35 -0400
+Date: Mon, 26 Jul 2004 21:57:38 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: akpm@osdl.org, achew@nvidia.com, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
 Subject: Re: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andrew Chew <achew@nvidia.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-In-Reply-To: <20040726173806.7cc0e9d5.akpm@osdl.org>
+Message-Id: <20040726215738.5c4a8b42.pj@sgi.com>
+In-Reply-To: <1090902426.1094.33.camel@mindpipe>
 References: <DBFABB80F7FD3143A911F9E6CFD477B03F95DD@hqemmail02.nvidia.com>
-	 <20040726173806.7cc0e9d5.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1090902426.1094.33.camel@mindpipe>
+	<20040726173806.7cc0e9d5.akpm@osdl.org>
+	<1090902426.1094.33.camel@mindpipe>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 27 Jul 2004 00:27:07 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-07-26 at 20:38, Andrew Morton wrote:
-> "Andrew Chew" <achew@nvidia.com> wrote:
-> >
-> > This patch updates include/linux/pci_ids.h with the CK804 audio
-> >  controller ID, and adds the CK804 audio controller to the
-> >  sound/pci/intel8x0.c audio driver.
-> 
-> I'm getting many workwrapped and tab-replaced patches nowadays.  Could
-> people pleeeeze ensure that their email clients are sending unmangled
-> patches?
-> 
-> I fixed this one up.  I usually do :(
-> 
+> For now the only fix for people using an X environment ... insert file ...
 
-The problem is not people's email clients, the problem is that xterm,
-gnome-terminal, and konsole all mangle tabs to spaces when copying
-text.  There is nothing the mailer can do about it.  For now the only
-fix for people using an X environment is to pipe to a text file and then
-use their email client's 'insert file' feature.  There is an open Debian
-bug report for xterm regarding this issue, I encourage everyone bothered
-by this to add comments.
+Another fix is to copy from a non-brain damaged window, such as a gui
+text editor window (nedit, for example).
 
-I realize it has always been this way, but people coming from any other
-OS expect to be able to copy and paste a tab and have it stay a tab.
+I'm guessing that the tabs are lost in the cut or copy operation, not in
+the paste operation.
 
-Many other devel lists encourage patches be sent as MIME attachents due
-to this issue.  I would prefer that the console apps be fixed.
+But file insertion is, in general, a sufficiently winning choice that I
+think it's better just to get in the habit of always inserting patches
+that way, at least on email clients that support it.
 
-Lee
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,46 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbUJ0BoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbUJ0B6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbUJ0BoY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 21:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbUJ0BoX
+	id S261514AbUJ0B6W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 21:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbUJ0B6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 21:44:23 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:14094 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S261525AbUJ0BoQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 21:44:16 -0400
-Date: Tue, 26 Oct 2004 18:43:08 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.3
-Message-ID: <20041027014308.GA2222@nietzsche.lynx.com>
-References: <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041027001542.GA29295@elte.hu>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Tue, 26 Oct 2004 21:58:22 -0400
+Received: from mail.scitechsoft.com ([63.195.13.67]:44685 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S261514AbUJ0B6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 21:58:15 -0400
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: Paulo Marques <pmarques@grupopie.com>
+Date: Tue, 26 Oct 2004 18:58:05 -0700
+MIME-Version: 1.0
+Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+CC: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       penguinppc-team@lists.penguinppc.org,
+       linuxconsole-dev@lists.sourceforge.net
+Message-ID: <417E9E3D.573.3C0CDE1A@localhost>
+In-reply-to: <417E317C.2020703@grupopie.com>
+References: <200410160841.08441.adaplas@hotpop.com>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 02:15:42AM +0200, Ingo Molnar wrote:
+Paulo Marques <pmarques@grupopie.com> wrote:
+
+> Well, I played with the emulator last night to see if I could
+> reduce the code size, so that it would be easier to make it to the
+> official kernel. 
 > 
-> i have released the -V0.3 Real-Time Preemption patch, which can be
-> downloaded from:
+> I only took ops.c and did some transformations, like using a
+> single function to make several operations based on the opcode,
+> instead of a separate function for each opcode, etc.[1] 
 > 
-> 	http://redhat.com/~mingo/realtime-preempt/
+> This is the result. Before:
+> 
+> Size of stripped libx86emu.a: ~74kb
+> ops.c source code lines: 11682
+> ops.o .text size: 36136
+> ops.o .data: 1312
+> 
+> After:
+> 
+> Size of stripped libx86emu.a: ~57kb
+> ops.c source code lines: 5908
+> ops.o .text size: 19320
+> ops.o .data: 1280
+> 
+> If the same treatment is applied to ops2.c and prim_ops.c, I
+> believe it would be possible to have a functional emulator for
+> about 32kb of kernel code size, which seems pretty reasonable to
+> me and could solve a lot of problems. 
 
->  + http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-mm1-V0.3
+Wow, that is great!
 
-Bad link.
+> The decrease in source code size also helps maintenance, since
+> there is not so much repeated code has it was before. 
+> 
+> Of course, these changes are optimizing the emulator for code
+> size, and not execution speed. I haven't done any benchmarks to
+> see if there is a noticeable difference in speed. 
 
-bill
+Did you get the latest code? I have been sick with the flu and I think I 
+forgot to send you the latest code to play with. We should get you set up 
+so you can merge your changes into our tree and then we can update the 
+one in the X.org tree as well (Egbert Eich usually does that from our 
+tree).
+
+Regards,
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
+
 

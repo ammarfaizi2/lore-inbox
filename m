@@ -1,186 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262302AbSI0QUv>; Fri, 27 Sep 2002 12:20:51 -0400
+	id <S262525AbSI0Q14>; Fri, 27 Sep 2002 12:27:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262513AbSI0QUv>; Fri, 27 Sep 2002 12:20:51 -0400
-Received: from web10407.mail.yahoo.com ([216.136.130.99]:1809 "HELO
-	web10407.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262302AbSI0QUm>; Fri, 27 Sep 2002 12:20:42 -0400
-Message-ID: <20020927162601.72935.qmail@web10407.mail.yahoo.com>
-Date: Fri, 27 Sep 2002 09:26:01 -0700 (PDT)
-From: "D.J. Barrow" <barrow_dj@yahoo.com>
-Subject: mips unaligned.c bugfix
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ralf Baechle <ralf@uni-koblenz.de>
+	id <S262526AbSI0Q14>; Fri, 27 Sep 2002 12:27:56 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:39861 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262525AbSI0Q1z>;
+	Fri, 27 Sep 2002 12:27:55 -0400
+Date: Fri, 27 Sep 2002 18:42:23 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Rusty Russell <rusty@rustcorp.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 'virtual => physical page mapping cache', vcache-2.5.38-B8
+In-Reply-To: <Pine.LNX.4.44.0209270922340.2013-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209271836540.15550-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1071516413-1033143961=:72664"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1071516413-1033143961=:72664
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hi Ralf & others,
+On Fri, 27 Sep 2002, Linus Torvalds wrote:
 
-I found & fixed kernel bug in unaligned.c which was affecting the iptables code 
-in little mips32 endian.
+> > I have fixed a new futex bug as well: pin_page() alone does not guarantee
+> > that the mapping does not change magically, only taking the MM semaphore
+> > in write-mode does.
+> 
+> And this makes no sense to me.
+> 
+> A read lock on the semaphore should give you all the same protection as
+> a write lock does.
+> 
+> To protect against the swapper etc, you really need to get the mm
+> spinlock, not the semaphore. And once you have the spinlock, you should
+> be totally safe.  Please explain what you saw?
 
-The patch is against 2.4.17 on oss.sgi.com & should hopefully apply to the latest
-kernel.
+the futex code needs to 'get to the physical page', 'hash the futex queue'
+and 'hash the vcache entry' atomically.
 
-The fixes code for I did mips 64 is untested, I had no way to test them unfortunately.
+otherwise a physical page might magically change under us - eg. another
+thread doing a fork(), which marks the futex's mapping COW, then the same
+thread also hits the COW - all this after the get_user_page() call, but
+before the 'hash futex and vcache' thing. I took the mm semaphore in
+write-mode to exclude COWs [or parallel munmap()s].
 
-An example of the bug is the bug following sequence of mips instructions
-beqz        v0,<destaddr>
-lw          v0,(t3) 
+The swapper is something i did not think about, but that makes things even
+worse. So it appears that all 3 operations have to be done at once, with
+the page_table_lock held? Ie. first a slow (and possibly blocking)  
+get_user_pages() call, then we would take the page_table_lock, call a
+(new) atomic version of get_user_pages() which just re-checks the virt =>
+phys mapping without blocking or taking any spinlock, then if the page has
+not changed meanwhile we hash the futex and the vcache. If the page has 
+changed meanwhile then we re-try the slow get_user_pages() call.
 
-say reg t3 points to an unaligned address
+am i missing something?
 
-In the emulation the v0 register was being loaded & modified before
-the computation of the destination address ( which depended on v0 ) 
-this was incorrect so I had to save the updating of the v0 register
-until the computation of the destination address was done.
+	Ingo
 
-=====
-D.J. Barrow Linux kernel developer
-eMail: dj_barrow@ariasoft.ie 
-Home: +353-22-47196.
-Work: +353-91-758353
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
---0-1071516413-1033143961=:72664
-Content-Type: application/x-unknown; name="unaligned.diff"
-Content-Transfer-Encoding: base64
-Content-Description: unaligned.diff
-Content-Disposition: attachment; filename="unaligned.diff"
-
-LS0tIGtlcm5lbC5vcmlnL2FyY2gvbWlwcy9rZXJuZWwvdW5hbGlnbmVkLmMJ
-VHVlIEphbiAxNSAwNDowODowOSAyMDAyCisrKyBrZXJuZWwvYXJjaC9taXBz
-L2tlcm5lbC91bmFsaWduZWQuYwlGcmkgU2VwIDI3IDE2OjU4OjIyIDIwMDIK
-QEAgLTgsNiArOCwxMSBAQAogICogQ29weXJpZ2h0IChDKSAxOTk2LCAxOTk4
-IGJ5IFJhbGYgQmFlY2hsZQogICogQ29weXJpZ2h0IChDKSAxOTk5IFNpbGlj
-b24gR3JhcGhpY3MsIEluYy4KICAqCisgKiBGaXhlczogCisgKiAgICAgICAg
-ICAyMDAyIERlbmlzIEpvc2VwaCBCYXJyb3cgPGRqX2JhcnJvd0Bhcmlhc29m
-dC5pZT4KKyAqICAgICAgICAgIEZpeCB0byBkb19hZGUgdG8gY29tcHV0ZSBk
-ZXN0aW5hdGlvbiBhZGRyZXNzZXMgY29ycmVjdGx5IAorICogICAgICAgICAg
-YWZ0ZXIgZml4aW5nIGRlbGF5IHNsb3QgaW5zdHJ1Y3Rpb25zLgorICogCiAg
-KiBUaGlzIGZpbGUgY29udGFpbnMgZXhjZXB0aW9uIGhhbmRsZXIgZm9yIGFk
-ZHJlc3MgZXJyb3IgZXhjZXB0aW9uIHdpdGggdGhlCiAgKiBzcGVjaWFsIGNh
-cGFiaWxpdHkgdG8gZXhlY3V0ZSBmYXVsdGluZyBpbnN0cnVjdGlvbnMgaW4g
-c29mdHdhcmUuICBUaGUKICAqIGhhbmRsZXIgZG9lcyBub3QgdHJ5IHRvIGhh
-bmRsZSB0aGUgY2FzZSB3aGVuIHRoZSBwcm9ncmFtIGNvdW50ZXIgcG9pbnRz
-CkBAIC05NywxMyArMTAyLDE1IEBACiAJCWdvdG8gc2lnYnVzOwogCiBzdGF0
-aWMgaW5saW5lIGludCBlbXVsYXRlX2xvYWRfc3RvcmVfaW5zbihzdHJ1Y3Qg
-cHRfcmVncyAqcmVncywKLQl1bnNpZ25lZCBsb25nIGFkZHIsIHVuc2lnbmVk
-IGxvbmcgcGMpCisJdW5zaWduZWQgbG9uZyBhZGRyLCB1bnNpZ25lZCBsb25n
-IHBjLAorCXVuc2lnbmVkIGxvbmcgKipyZWdwdHIsdW5zaWduZWQgbG9uZyAq
-bmV3dmFsdWUpCiB7CiAJdW5pb24gbWlwc19pbnN0cnVjdGlvbiBpbnNuOwog
-CXVuc2lnbmVkIGxvbmcgdmFsdWUsIGZpeHVwOwogCXVuc2lnbmVkIGludCBy
-ZXM7CiAKIAlyZWdzLT5yZWdzWzBdID0gMDsKKwkqcmVncHRyPU5VTEw7CiAJ
-LyoKIAkgKiBUaGlzIGxvYWQgbmV2ZXIgZmF1bHRzLgogCSAqLwpAQCAtMTY5
-LDcgKzE3Niw4IEBACiAJCQk6ICJyIiAoYWRkciksICJpIiAoLUVGQVVMVCkp
-OwogCQlpZiAocmVzKQogCQkJZ290byBmYXVsdDsKLQkJcmVncy0+cmVnc1tp
-bnNuLmlfZm9ybWF0LnJ0XSA9IHZhbHVlOworCQkqbmV3dmFsdWU9dmFsdWU7
-CisJCSpyZWdwdHI9JnJlZ3MtPnJlZ3NbaW5zbi5pX2Zvcm1hdC5ydF07CiAJ
-CXJldHVybiAwOwogCiAJY2FzZSBsd19vcDoKQEAgLTE5Niw3ICsyMDQsOCBA
-QAogCQkJOiAiciIgKGFkZHIpLCAiaSIgKC1FRkFVTFQpKTsKIAkJaWYgKHJl
-cykKIAkJCWdvdG8gZmF1bHQ7Ci0JCXJlZ3MtPnJlZ3NbaW5zbi5pX2Zvcm1h
-dC5ydF0gPSB2YWx1ZTsKKwkJKm5ld3ZhbHVlPXZhbHVlOworCQkqcmVncHRy
-PSZyZWdzLT5yZWdzW2luc24uaV9mb3JtYXQucnRdOwogCQlyZXR1cm4gMDsK
-IAogCWNhc2UgbGh1X29wOgpAQCAtMjI3LDcgKzIzNiw4IEBACiAJCQk6ICJy
-IiAoYWRkciksICJpIiAoLUVGQVVMVCkpOwogCQlpZiAocmVzKQogCQkJZ290
-byBmYXVsdDsKLQkJcmVncy0+cmVnc1tpbnNuLmlfZm9ybWF0LnJ0XSA9IHZh
-bHVlOworCQkqbmV3dmFsdWU9dmFsdWU7CisJCSpyZWdwdHI9JnJlZ3MtPnJl
-Z3NbaW5zbi5pX2Zvcm1hdC5ydF07CiAJCXJldHVybiAwOwogCiAJY2FzZSBs
-d3Vfb3A6CkBAIC0zNjUsNyArMzc1LDcgQEAKIAogYXNtbGlua2FnZSB2b2lk
-IGRvX2FkZShzdHJ1Y3QgcHRfcmVncyAqcmVncykKIHsKLQl1bnNpZ25lZCBs
-b25nIHBjOworCXVuc2lnbmVkIGxvbmcgcGMsKnJlZ3B0cixuZXd2YWw7CiAJ
-ZXh0ZXJuIGludCBkb19kc2VtdWxyZXQoc3RydWN0IHB0X3JlZ3MgKik7CiAK
-IAkvKiAKQEAgLTM5NSw5ICs0MDUsMTggQEAKIAkgKiBEbyBicmFuY2ggZW11
-bGF0aW9uIG9ubHkgaWYgd2UgZGlkbid0IGZvcndhcmQgdGhlIGV4Y2VwdGlv
-bi4KIAkgKiBUaGlzIGlzIGFsbCBzbyBidXQgdWdseSAuLi4KIAkgKi8KLQlp
-ZiAoIWVtdWxhdGVfbG9hZF9zdG9yZV9pbnNuKHJlZ3MsIHJlZ3MtPmNwMF9i
-YWR2YWRkciwgcGMpKQorCWlmICghZW11bGF0ZV9sb2FkX3N0b3JlX2luc24o
-cmVncywgcmVncy0+Y3AwX2JhZHZhZGRyLCBwYywmcmVncHRyLCZuZXd2YWwp
-KQorCXsKIAkJY29tcHV0ZV9yZXR1cm5fZXBjKHJlZ3MpOwotCisgICAgICAg
-ICAgICAgICAgLyogV2UgbmVlZCB1c2UgdGhlIHJlZ3B0ciBjb21wbGljYXRp
-b24gZm9yIGRlbGF5IHNsb3QgaW5zdHJ1Y3Rpb25zIAorICAgICAgICAgICAg
-ICAgICAqIHdoaWNoIGNhbiBtaXNjb21wdXRlIGRlc3RpbmF0aW9uIGFkZHJl
-c3NlcworICAgICAgICAgICAgICAgICAqIGUuZy4gY29uc2lkZXIgdGhlIHNl
-cXVlbmNlIAorICAgICAgICAgICAgICAgICAqIGJlcXogICAgICAgIHYwLDxk
-ZXN0YWRkcj4KKyAgICAgICAgICAgICAgICAgKiBsdyAgICAgICAgICB2MCwo
-dDMpIAorICAgICAgICAgICAgICAgICAqLyAKKwkJaWYocmVncHRyKQorCQkJ
-KnJlZ3B0cj1uZXd2YWw7CisJfQogI2lmZGVmIENPTkZJR19QUk9DX0ZTCiAJ
-dW5hbGlnbmVkX2luc3RydWN0aW9ucysrOwogI2VuZGlmCi0tLSBrZXJuZWwu
-b3JpZy9hcmNoL21pcHM2NC9rZXJuZWwvdW5hbGlnbmVkLmMJU2F0IEphbiAy
-NiAwNzoyODozNSAyMDAyCisrKyBrZXJuZWwvYXJjaC9taXBzNjQva2VybmVs
-L3VuYWxpZ25lZC5jCUZyaSBTZXAgMjcgMTc6MDk6MjggMjAwMgpAQCAtOCw2
-ICs4LDExIEBACiAgKiBDb3B5cmlnaHQgKEMpIDE5OTYsIDE5OTgsIDE5OTkg
-YnkgUmFsZiBCYWVjaGxlCiAgKiBDb3B5cmlnaHQgKEMpIDE5OTkgU2lsaWNv
-biBHcmFwaGljcywgSW5jLgogICoKKyAqIEZpeGVzOiAKKyAqICAgICAgICAg
-IDIwMDIgRGVuaXMgSm9zZXBoIEJhcnJvdyA8ZGpfYmFycm93QGFyaWFzb2Z0
-LmllPgorICogICAgICAgICAgRml4IHRvIGRvX2FkZSB0byBjb21wdXRlIGRl
-c3RpbmF0aW9uIGFkZHJlc3NlcyBjb3JyZWN0bHkgCisgKiAgICAgICAgICBh
-ZnRlciBmaXhpbmcgZGVsYXkgc2xvdCBpbnN0cnVjdGlvbnMuCisgKiAKICAq
-IFRoaXMgZmlsZSBjb250YWlucyBleGNlcHRpb24gaGFuZGxlciBmb3IgYWRk
-cmVzcyBlcnJvciBleGNlcHRpb24gd2l0aCB0aGUKICAqIHNwZWNpYWwgY2Fw
-YWJpbGl0eSB0byBleGVjdXRlIGZhdWx0aW5nIGluc3RydWN0aW9ucyBpbiBz
-b2Z0d2FyZS4gIFRoZQogICogaGFuZGxlciBkb2VzIG5vdCB0cnkgdG8gaGFu
-ZGxlIHRoZSBjYXNlIHdoZW4gdGhlIHByb2dyYW0gY291bnRlciBwb2ludHMK
-QEAgLTk3LDEyICsxMDIsMTQgQEAKIAkJZ290byBzaWdidXM7CiAKIHN0YXRp
-YyBpbmxpbmUgaW50IGVtdWxhdGVfbG9hZF9zdG9yZV9pbnNuKHN0cnVjdCBw
-dF9yZWdzICpyZWdzLAotCXVuc2lnbmVkIGxvbmcgYWRkciwgdW5zaWduZWQg
-bG9uZyBwYykKKwl1bnNpZ25lZCBsb25nIGFkZHIsIHVuc2lnbmVkIGxvbmcg
-cGMsCisgCXVuc2lnbmVkIGxvbmcgKipyZWdwdHIsdW5zaWduZWQgbG9uZyAq
-bmV3dmFsdWUpCiB7CiAJdW5pb24gbWlwc19pbnN0cnVjdGlvbiBpbnNuOwog
-CXVuc2lnbmVkIGxvbmcgdmFsdWUsIGZpeHVwOwogCiAJcmVncy0+cmVnc1sw
-XSA9IDA7CisJKnJlZ3B0cj1OVUxMOwogCS8qCiAJICogVGhpcyBsb2FkIG5l
-dmVyIGZhdWx0cy4KIAkgKi8KQEAgLTE2Miw3ICsxNjksOCBAQAogCQkJIi5w
-cmV2aW91cyIKIAkJCToiPSZyIiAodmFsdWUpCiAJCQk6InIiIChhZGRyKSwg
-ImkiICgmJmZhdWx0KSk7Ci0JCXJlZ3MtPnJlZ3NbaW5zbi5pX2Zvcm1hdC5y
-dF0gPSB2YWx1ZTsKKyAJCSpuZXd2YWx1ZT12YWx1ZTsKKyAJCSpyZWdwdHI9
-JnJlZ3MtPnJlZ3NbaW5zbi5pX2Zvcm1hdC5ydF07CiAJCXJldHVybiAwOwog
-CiAJY2FzZSBsd19vcDoKQEAgLTE4Miw4ICsxOTAsOSBAQAogCQkJIi5wcmV2
-aW91cyIKIAkJCToiPSZyIiAodmFsdWUpCiAJCQk6InIiIChhZGRyKSwgImki
-ICgmJmZhdWx0KSk7Ci0JCQlyZWdzLT5yZWdzW2luc24uaV9mb3JtYXQucnRd
-ID0gdmFsdWU7Ci0JCQlyZXR1cm4gMDsKKyAJCSpuZXd2YWx1ZT12YWx1ZTsK
-KyAJCSpyZWdwdHI9JnJlZ3MtPnJlZ3NbaW5zbi5pX2Zvcm1hdC5ydF07CisJ
-CXJldHVybiAwOwogCiAJY2FzZSBsaHVfb3A6CiAJCWNoZWNrX2F4cyhwYywg
-YWRkciwgMik7CkBAIC0yMDYsNyArMjE1LDggQEAKIAkJCSIucHJldmlvdXMi
-CiAJCQk6Ij0mciIgKHZhbHVlKQogCQkJOiJyIiAoYWRkciksICJpIiAoJiZm
-YXVsdCkpOwotCQlyZWdzLT5yZWdzW2luc24uaV9mb3JtYXQucnRdID0gdmFs
-dWU7CisgCQkqbmV3dmFsdWU9dmFsdWU7CisgCQkqcmVncHRyPSZyZWdzLT5y
-ZWdzW2luc24uaV9mb3JtYXQucnRdOwogCQlyZXR1cm4gMDsKIAogCWNhc2Ug
-bHd1X29wOgpAQCAtMjI3LDcgKzIzNyw4IEBACiAJCQk6Ij0mciIgKHZhbHVl
-KQogCQkJOiJyIiAoYWRkciksICJpIiAoJiZmYXVsdCkpOwogCQl2YWx1ZSAm
-PSAweGZmZmZmZmZmOwotCQlyZWdzLT5yZWdzW2luc24uaV9mb3JtYXQucnRd
-ID0gdmFsdWU7CisJCSpuZXd2YWx1ZT12YWx1ZTsKKyAJCSpyZWdwdHI9JnJl
-Z3MtPnJlZ3NbaW5zbi5pX2Zvcm1hdC5ydF07CiAJCXJldHVybiAwOwogCiAJ
-Y2FzZSBsZF9vcDoKQEAgLTI0OSw3ICsyNjAsOCBAQAogCQkJIi5wcmV2aW91
-cyIKIAkJCToiPSZyIiAodmFsdWUpCiAJCQk6InIiIChhZGRyKSwgImkiICgm
-JmZhdWx0KSk7Ci0JCXJlZ3MtPnJlZ3NbaW5zbi5pX2Zvcm1hdC5ydF0gPSB2
-YWx1ZTsKKyAJCSpuZXd2YWx1ZT12YWx1ZTsKKyAJCSpyZWdwdHI9JnJlZ3Mt
-PnJlZ3NbaW5zbi5pX2Zvcm1hdC5ydF07CiAJCXJldHVybiAwOwogCiAJY2Fz
-ZSBzaF9vcDoKQEAgLTM5OCw5ICs0MTAsMTggQEAKIAkgKiBEbyBicmFuY2gg
-ZW11bGF0aW9uIG9ubHkgaWYgd2UgZGlkbid0IGZvcndhcmQgdGhlIGV4Y2Vw
-dGlvbi4KIAkgKiBUaGlzIGlzIGFsbCBzbyBidXQgdWdseSAuLi4KIAkgKi8K
-LQlpZiAoIWVtdWxhdGVfbG9hZF9zdG9yZV9pbnNuKHJlZ3MsIHJlZ3MtPmNw
-MF9iYWR2YWRkciwgcGMpKQorCWlmICghZW11bGF0ZV9sb2FkX3N0b3JlX2lu
-c24ocmVncywgcmVncy0+Y3AwX2JhZHZhZGRyLCBwYywmcmVncHRyLCZuZXd2
-YWwpKQorCXsKIAkJY29tcHV0ZV9yZXR1cm5fZXBjKHJlZ3MpOwotCisgICAg
-ICAgICAgICAgICAgLyogV2UgbmVlZCB1c2UgdGhlIHJlZ3B0ciBjb21wbGlj
-YXRpb24gZm9yIGRlbGF5IHNsb3QgaW5zdHJ1Y3Rpb25zIAorICAgICAgICAg
-ICAgICAgICAqIHdoaWNoIGNhbiBtaXNjb21wdXRlIGRlc3RpbmF0aW9uIGFk
-ZHJlc3NlcworICAgICAgICAgICAgICAgICAqIGUuZy4gY29uc2lkZXIgdGhl
-IHNlcXVlbmNlIAorICAgICAgICAgICAgICAgICAqIGJlcXogICAgICAgIHYw
-LDxkZXN0YWRkcj4KKyAgICAgICAgICAgICAgICAgKiBsdyAgICAgICAgICB2
-MCwodDMpIAorICAgICAgICAgICAgICAgICAqLyAKKwkJaWYocmVncHRyKQor
-CQkJKnJlZ3B0cj1uZXd2YWw7CisJfQogI2lmZGVmIENPTkZJR19QUk9DX0ZT
-CiAJdW5hbGlnbmVkX2luc3RydWN0aW9ucysrOwogI2VuZGlmCgoKCgoKCgoK
-Cg==
-
---0-1071516413-1033143961=:72664--

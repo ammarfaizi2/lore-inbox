@@ -1,242 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265198AbSLHFoi>; Sun, 8 Dec 2002 00:44:38 -0500
+	id <S265168AbSLHH1m>; Sun, 8 Dec 2002 02:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265201AbSLHFoi>; Sun, 8 Dec 2002 00:44:38 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:41991 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265198AbSLHFof>; Sun, 8 Dec 2002 00:44:35 -0500
-Date: Sun, 8 Dec 2002 06:51:55 +0100
-From: Jurriaan <thunder7@xs4all.nl>
+	id <S265171AbSLHH1m>; Sun, 8 Dec 2002 02:27:42 -0500
+Received: from holomorphy.com ([66.224.33.161]:16020 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S265168AbSLHH1l>;
+	Sun, 8 Dec 2002 02:27:41 -0500
+Date: Sat, 7 Dec 2002 23:35:05 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.50: strange /devices/bus/pci/drivers/EMU10K1/Audigy entry - file is half there?
-Message-ID: <20021208055155.GB2712@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
+Subject: 2.5.50-bk6-wli-1
+Message-ID: <20021208073505.GO11023@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-INTEL :ls
-8139too  EMU10K1/Audigy  HPT366 IDE  Promise Old IDE  VIA IDE  agpgart  matroxfb  parport_pc  serial
-INTEL :ls -l
-ls: EMU10K1/Audigy: No such file or directory
-total 0
-drwxr-xr-x    2 root     root            0 Dec  8 06:23 8139too
-drwxr-xr-x    2 root     root            0 Dec  8 06:23 HPT366 IDE
-drwxr-xr-x    2 root     root            0 Dec  8 06:23 Promise Old IDE
-drwxr-xr-x    2 root     root            0 Dec  8 06:23 VIA IDE
-drwxr-xr-x    2 root     root            0 Dec  8 06:23 agpgart
-drwxr-xr-x    2 root     root            0 Dec  8 06:23 matroxfb
-drwxr-xr-x    2 root     root            0 Dec  8 06:23 parport_pc
-drwxr-xr-x    2 root     root            0 Dec  8 06:23 serial
-INTEL :
+New in this release are the node-local pgdat allocation patches (which
+wasn't recently written, but never mind that), Manfred's slab ctor
+return code patch, and the patch to attach pmd's in the pgd slab ctor,
+which relies on Manfred's patch.
 
-It's mounted like this:
-sysfs		/devices	sysfs	defaults	0	0
+	ftp://ftp.kernel.org/pub/linux/people/wli/kernels/2.5.50-bk6-wli-1/
 
-.config:
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_SWAP=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_MODULES=y
-CONFIG_KMOD=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_SMP=y
-CONFIG_PREEMPT=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_APM=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_PDC202XX_OLD=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_PDC202XX=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_SYM53C8XX_2=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_ROUTE_LARGE_TABLES=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_PRINTER=y
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_WATCHDOG=y
-CONFIG_SOFT_WATCHDOG=y
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_MGA=y
-CONFIG_RAW_DRIVER=y
-CONFIG_REISERFS_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_NTFS_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_UDF_FS=y
-CONFIG_FS_MBCACHE=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_MATROX=y
-CONFIG_FB_MATROX_G450=y
-CONFIG_FB_MATROX_G100=y
-CONFIG_FB_MATROX_I2C=m
-CONFIG_FBCON_ADVANCED=y
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-CONFIG_FONT_SUN12x22=y
-CONFIG_FBCON_FONTS=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_EMU10K1=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_SCANNER=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
+wli-2.5.50-bk6-1  fix for still-broken driverfs memblk & node stuff
+wli-2.5.50-bk6-2  remove tasklist iteration from __do_SAK()
+wli-2.5.50-bk6-3  remove for_each_process() from proc_fill_super()
+wli-2.5.50-bk6-4  remove do_each_thread() from cap_set_pg()
+wli-2.5.50-bk6-5  remove do_each_thread() from vm86 (actually a bugfix)
+wli-2.5.50-bk6-6  remove for_each_process() from UML's get_task()
+wli-2.5.50-bk6-7  speed up NUMA-Q highmem mem_map initialization
+wli-2.5.50-bk6-8  allocate pgdats from node-local memory on NUMA-Q
+wli-2.5.50-bk6-9  remove has_stopped_jobs(), which is unused
+wli-2.5.50-bk6-10 drop node > 0 IO-APIC's and PCI buses for my NUMA-Q box
+wli-2.5.50-bk6-11 bump up the size of the inode cache wait table
+wli-2.5.50-bk6-12 Manfred Spraul's patch for slab ctor error return codes
+wli-2.5.50-bk6-13 allocate pmd's in pgd slab ctors, and use a pmd slab too
 
-And it isn't an Audigy, even. From dmesg:
 
-Linux version 2.5.50 (root@middle) (gcc version 2.95.4 20011002 (Debian prerelease)) #1 SMP Thu Nov 28 08:46:42 CET 2002
-Advanced Linux Sound Architecture Driver Version 0.9.0rc5 (Sun Nov 10 19:48:18 2002 UTC).
-ALSA device list:
-  #0: Sound Blaster Live! at 0xc400, irq 17
-
-Kind regards,
-Jurriaan
--- 
-HORROR FILM WISDOM:
-17. If you've beaten the monster into a bloody pulp and you're sure he
-must be dead, take the opportunity to dismember, burn, eat, blow up or
-otherwise utterly destroy him.
-GNU/Linux 2.5.50 SMP/ReiserFS 2x1384 bogomips load av: 3.00 3.77 1.87
+Bill

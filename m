@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271597AbRIVPrd>; Sat, 22 Sep 2001 11:47:33 -0400
+	id <S271708AbRIVPyy>; Sat, 22 Sep 2001 11:54:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271708AbRIVPrX>; Sat, 22 Sep 2001 11:47:23 -0400
-Received: from bau1.a-city.de ([195.126.182.1]:48657 "EHLO bau1.a-city.de")
-	by vger.kernel.org with ESMTP id <S271597AbRIVPrF>;
-	Sat, 22 Sep 2001 11:47:05 -0400
-Message-Id: <200109221547.f8MFlUP06141@bau1.a-city.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Martin Heiss <mheiss99@uni.de>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel PPP driver broken in 2.4.10-pre14
-Date: Sat, 22 Sep 2001 17:47:26 +0200
-X-Mailer: KMail [version 1.3]
+	id <S271712AbRIVPyn>; Sat, 22 Sep 2001 11:54:43 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35084 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271708AbRIVPy0>; Sat, 22 Sep 2001 11:54:26 -0400
+Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
+To: gward@python.net (Greg Ward)
+Date: Sat, 22 Sep 2001 16:58:53 +0100 (BST)
+Cc: davidgrant79@hotmail.com (David Grant), bugs@linux-ide.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010922110945.B678@gerg.ca> from "Greg Ward" at Sep 22, 2001 11:09:45 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15kpB7-0003XS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-the linux kernel 2.4.10-pre14 ppp driver seems to be broken for me. 
-In kernels <= 2.4.9 it used to work fine!
+> up... or it locks up.  (I had the lockup problem with kernel 2.4.2 and
+> the suspect drive on my Promise IDE interface.  On the VIA interface, it
+> booted eventually after ~60 sec of timeout errors.  Under 2.4.9, the
+> kernel doesn't take as long to timeout, and it's not as noisy as it was
+> under 2.4.2, but the underlying problem is still there: no DMA.)
 
-When i try to insmod the "ppp_async" module it complains about "unresolved 
-symbol tty_register_ldisc" and therefore refuses to load.
+The timeout is it issuing DMA requests that failed. 
 
-After looking at the changes being introduced in 2.4.10-pre I was able to fix 
-the problem:
+> > 10, sometimes 100), the installer halts, the hard disk light stays on, and
+> > if I use CTRL-ALT-F4, I see these DMA timeout errors.  The hard drive is
+> > unresponsive unless I do a cold boot, as opossed to warm boot.
 
-The problem is caused by the fact, that in 2.4.10-pre* the line
-	EXPORT_SYMBOL(tty_register_ldisc); 
-has been _removed_ from 'net/netsyms.c'
+For RH and other stuff that picked up the RH diffs (now in Linus 2.4.7+
+tree or so) you can boot with the option "ide=nodma"
 
-after readding this line (i added the "EXPORT_SYMBOL(tty_register_ldisc);" 
-right under the tty_register_ldisc declaration in "drivers/char/tty_io.c", 
-but "net/netsyms.c" should work too) and recompiling everything now works 
-fine for me. (ppp_async now loads correctly again)
+> drive.  I've had positive reports from two people with the ASUS A7V
+> motherboard and ATA/100 drives under Linux 2.4, so it's certainly
+> possible.  I just need to find someone with some redundant hardware that
 
-Therefore I recommend you to readd the 
-	EXPORT_SYMBOL(tty_register_ldisc); 
-line whereever you consider it the right place (e.g. drivers/char/tty_io.c 
-etc)
+Older trees take one DMA timeout and go PIO. That turns out to be bad
+because very very occasionally other things (I guess drive calibration etc)
+will cause the DMA to timeout.
 
-cu 
-
-   Martin Heiss
+With the 2.4.9-ac tree I have two boxes which get DMA timeouts. One of them
+very very rarely and the retry recovers nicely, the other DMA does not work
+and after poking around I discovered windows also disables DMA on this
+mini notebook..

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310438AbSCSIAq>; Tue, 19 Mar 2002 03:00:46 -0500
+	id <S310468AbSCSIfn>; Tue, 19 Mar 2002 03:35:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310439AbSCSIAg>; Tue, 19 Mar 2002 03:00:36 -0500
-Received: from daimi.au.dk ([130.225.16.1]:58380 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S310438AbSCSIA0>;
-	Tue, 19 Mar 2002 03:00:26 -0500
-Message-ID: <3C96F015.24BDC9FF@daimi.au.dk>
-Date: Tue, 19 Mar 2002 09:00:21 +0100
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-12smp i686)
-X-Accept-Language: en
+	id <S310469AbSCSIfd>; Tue, 19 Mar 2002 03:35:33 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:50694 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310468AbSCSIfT>;
+	Tue, 19 Mar 2002 03:35:19 -0500
+Date: Tue, 19 Mar 2002 05:35:03 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Pavel Machek <pavel@suse.cz>
+Cc: Dave Jones <davej@suse.de>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper licence issues
+In-Reply-To: <20020318234315.GJ1740@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.44L.0203190534230.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4 and 2.5: remove Alt-Sysrq-L
-In-Reply-To: <sc91c4ce.020@mail-01.med.umich.edu> <20020315150241.H24984@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> With all recent kernels, init exiting causes the last of these to trigger:
-> 
-> NORET_TYPE void do_exit(long code)
-> {
->         struct task_struct *tsk = current;
-> 
->         if (in_interrupt())
->                 panic("Aiee, killing interrupt handler!");
->         if (!tsk->pid)
->                 panic("Attempted to kill the idle task!");
->         if (tsk->pid == 1)
->                 panic("Attempted to kill init!");
+On Tue, 19 Mar 2002, Pavel Machek wrote:
 
-Why actually panic because of an attempt to kill init?
+> strace does not solve the problem (it is trivial to detect you are
+> traced), and I do not think Larry should require me to objdump
+> installer.
 
-Of course a message should be printed, but after that
-couldn't do_exit enter a loop where it just handles
-signals and zombies?
+Larry doesn't require you to _use_ his software, at all.
 
+Now better check my email to see if I haven't hidden any
+backdoors.
+
+regards,
+
+Rik
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

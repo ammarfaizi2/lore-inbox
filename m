@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266317AbUKATQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S276755AbUKATSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266317AbUKATQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 14:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267731AbUKATQ2
+	id S276755AbUKATSb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 14:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S276750AbUKATSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 14:16:28 -0500
-Received: from chello083144090118.chello.pl ([83.144.90.118]:4357 "EHLO
-	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S266317AbUKATQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 14:16:15 -0500
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
-To: Johannes Stezenbach <js@convergence.de>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] HOWTO find oops location, v2
-Date: Mon, 1 Nov 2004 20:16:00 +0100
-User-Agent: KMail/1.7.1
-References: <200408151439.31891.vda@port.imtp.ilyichevsk.odessa.ua> <20040817093034.GA14077@convergence.de>
-In-Reply-To: <20040817093034.GA14077@convergence.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Nov 2004 14:18:31 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:42990 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269030AbUKATHv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 14:07:51 -0500
+Date: Mon, 1 Nov 2004 12:07:49 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: janitor@sternwelten.at
+Cc: netdev@oss.sgi.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       kernel-janitors@lists.osdl.org
+Subject: [PATCH] Add ssleep_interruptible()
+Message-ID: <20041101200749.GF1730@us.ibm.com>
+References: <E1CO1vc-00022t-N2@sputnik>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Message-Id: <200411012016.01027.pluto@pld-linux.org>
+In-Reply-To: <E1CO1vc-00022t-N2@sputnik>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 of August 2004 11:30, Johannes Stezenbach wrote:
+Description: Adds ssleep_interruptible() to allow longer delays to occur
+in TASK_INTERRUPTIBLE, similarly to ssleep(). To be consistent with
+msleep_interruptible(), ssleep_interruptible() returns the remaining time
+left in the delay in terms of seconds. This required dividing the return
+value of msleep_interruptible() by 1000, thus a cast to (unsigned long)
+to prevent any floating point issues.
 
-> Try: make EXTRA_CFLAGS="-g -Wa,-a,-ad   " ...
-                                        ^ -fverbose-asm helps too.
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
--- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
-
-                           #define say(x) lie(x)
+--- 2.6.10-rc1-vanilla/include/linux/delay.h	2004-10-30 15:34:03.000000000 -0700
++++ 2.6.10-rc1/include/linux/delay.h	2004-11-01 12:06:11.000000000 -0800
+@@ -46,4 +46,9 @@ static inline void ssleep(unsigned int s
+ 	msleep(seconds * 1000);
+ }
+ 
++static inline unsigned long ssleep_interruptible(unsigned int seconds)
++{
++	return (unsigned long)(msleep_interruptible(seconds * 1000) / 1000);
++}
++
+ #endif /* defined(_LINUX_DELAY_H) */

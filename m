@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316634AbSFDNDy>; Tue, 4 Jun 2002 09:03:54 -0400
+	id <S317494AbSFDNTt>; Tue, 4 Jun 2002 09:19:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317494AbSFDNDx>; Tue, 4 Jun 2002 09:03:53 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:57786 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316634AbSFDNDw>; Tue, 4 Jun 2002 09:03:52 -0400
-Date: Tue, 4 Jun 2002 14:35:20 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Scott Murray <scottm@somanetworks.com>,
-        Lightweight patch manager <patch@luckynet.dynu.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] Port opl3sa2 changes from 2.4
-In-Reply-To: <Pine.LNX.4.44.0206031709370.3833-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0206041431480.19645-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317496AbSFDNTs>; Tue, 4 Jun 2002 09:19:48 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40100 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317494AbSFDNTs>;
+	Tue, 4 Jun 2002 09:19:48 -0400
+Date: Tue, 04 Jun 2002 06:16:40 -0700 (PDT)
+Message-Id: <20020604.061640.118624496.davem@redhat.com>
+To: jasonp@boo.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] page coloring for 2.4.18 kernel
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3.0.6.32.20020407110100.007c2b70@boo.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jun 2002, Thunder from the hill wrote:
+   From: Jason Papadopoulos <jasonp@boo.net>
+   Date: Sun, 07 Apr 2002 11:01:00 -0400
 
-> His patch won't match for 2.5. I just adapted it, even though I've had a 
-> typo there.
+   Hello. This is a re-diff of the 2.4.17 patch I posted
+   previously.
+   
+   www.boo.net/~jasonp/page_color-2.2.20-20020108.patch
+   www.boo.net/~jasonp/page_color-2.4.17-20020113.patch
+   www.boo.net/~jasonp/page_color-2.4.18-20020323.patch
+   
+   I'm not subscribed to LKML, so please cc responses
+   to this email address.
 
-That would be because the one in 2.5 is quite a few revisions behind 
-(perhaps 2-3 patches)
+Hi Jason.  I noticed that your code assumes zones begin on well
+aligned physical addresses.  This is not true.
 
-> > > +		opl3sa2_state[card].activated = 1;
-> > 
-> > This line should really be below the following if statement, as I believe
-> > Zwane mentioned to Gerald.
-> 
-> You could of course have it there. No problem with that.
-
-If you put it there you'd have to unset it on a failure path.
-
-Regards,
-	Zwane Mwaikambo
---
-http://function.linuxpower.ca
-		
-
-
+For example, in page_color_start you use the raw
+(page - zone->zone_mem_map) index as the color.  This
+is wrong, what if the zone starts at page 1?  In such
+a case all of your colors will be computed incorrectly
+and pages with different colors in different zones can actually be of
+the same color.

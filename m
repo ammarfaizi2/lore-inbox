@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261505AbREQTFj>; Thu, 17 May 2001 15:05:39 -0400
+	id <S261515AbREQTYV>; Thu, 17 May 2001 15:24:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbREQTF3>; Thu, 17 May 2001 15:05:29 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:23021 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S261505AbREQTFR>;
-	Thu, 17 May 2001 15:05:17 -0400
-Message-ID: <3B0420EA.DD8D4015@mandrakesoft.com>
-Date: Thu, 17 May 2001 15:05:14 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac10
-In-Reply-To: <E150QuA-0005ah-00@the-village.bc.nu> <20010517204616.K754@nightmaster.csn.tu-chemnitz.de> <20010517210023.A1052@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii
+	id <S261517AbREQTYL>; Thu, 17 May 2001 15:24:11 -0400
+Received: from ns.muni.cz ([147.251.4.33]:32724 "EHLO aragorn.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S261518AbREQTX5>;
+	Thu, 17 May 2001 15:23:57 -0400
+Newsgroups: cz.muni.redir.linux-kernel
+Path: news
+From: Zdenek Kabelac <kabi@i.am>
+Subject: hang with 2.4.5-pre3
+Message-ID: <3B042555.A071AA5B@i.am>
+Date: Thu, 17 May 2001 19:24:05 GMT
+X-Nntp-Posting-Host: dual.fi.muni.cz
 Content-Transfer-Encoding: 7bit
+X-Accept-Language: cs, en
+Content-Type: text/plain; charset=us-ascii
+Mime-Version: 1.0
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1-RTL3.0 i686)
+Organization: unknown
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J . A . Magallon" wrote:
-> --- linux-2.4.4-ac10/include/linux/raid/md_k.h.orig     Thu May 17 19:35:41
-> 2001
-> +++ linux-2.4.4-ac10/include/linux/raid/md_k.h  Thu May 17 19:36:15 2001
-> @@ -38,6 +38,8 @@
->                 case RAID5:             return 5;
->         }
->         panic("pers_to_level()");
-> +
-> +       return 0;
->  }
+Hello
 
-panic should be marked attribute(noreturn), so gcc is being silly here
-by warning at all.
+Just pointing out that my system has locked hard in XWindows system.
+Sorry no-oops as linux so far is unable to switch to VGA mode in this
+case
+and show me this log.
 
-I do this too, because IMHO its inline and won't make things bigger just
-shut up the warning.  But Alan will yell at you for fixing gcc bugs in
-the kernel source :)
+I'd not seen any oops with 2.4.5-pre1 during the whole usage of this
+kernel
+on my SMP box BP6.
 
-Also, add a comment "fixes gcc warning" next to the code, so people know
-why it's there.
+-pre3 has locked after 5 hours - and I've been working with this machine
+only for the last hour.
 
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+I could only describe situation: - starting multithread application
+which has been loading data across nfs.
+
+Thats all I can say ... switching back to -pre1
+(BTW Core is still no being generated for threaded apps in -pre3 -
+please fix)
+
+bye
+
+kabi
+

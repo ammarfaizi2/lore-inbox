@@ -1,115 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbUCaUHM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 15:07:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbUCaUHM
+	id S262412AbUCaUFe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 15:05:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUCaUFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 15:07:12 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16260 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262416AbUCaUG4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 15:06:56 -0500
-Date: Wed, 31 Mar 2004 12:06:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-mm2
-Message-Id: <20040331120634.39c959fd.akpm@osdl.org>
-In-Reply-To: <200403311102.58136.jbarnes@sgi.com>
-References: <20040317201454.5b2e8a3c.akpm@osdl.org>
-	<20040330113620.33d01d9c.akpm@osdl.org>
-	<200403301144.26050.jbarnes@sgi.com>
-	<200403311102.58136.jbarnes@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Mar 2004 15:05:34 -0500
+Received: from build.arklinux.oregonstate.edu ([128.193.0.51]:31368 "EHLO
+	test.arklinux.org") by vger.kernel.org with ESMTP id S262412AbUCaUFa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 15:05:30 -0500
+Date: Wed, 31 Mar 2004 12:15:01 -0800 (PST)
+From: bero@arklinux.org
+X-X-Sender: bero@build.arklinux.oregonstate.edu
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] Aureal Vortex sound drivers broken in 2.6.5-rc3-mm3
+Message-ID: <Pine.LNX.4.58.0403311213590.14154@build.arklinux.oregonstate.edu>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1048562944-990213000-1080764101=:14154"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes <jbarnes@sgi.com> wrote:
->
-> On Tuesday 30 March 2004 11:44 am, Jesse Barnes wrote:
-> > It looks like there's a bug in the sysrq implementation in the sn_serial
-> > driver.  Once the initial console is opened, sysrq no longer works.  All
-> > I've determined so far is that both CPUs in my box are in cpu_idle
-> > somewhere... Anyway, I'll keep looking.
-> 
-> Ah, now sysrq is working (just had to configure it correctly).
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-great.
+---1048562944-990213000-1080764101=:14154
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
->  I've seen two
-> backtraces in the hangs I've seen.  The one I just reproduced looks like this:
-> 
-> Enabling local filesystem quotas:  [  OK  ]
-> Enabling swap space:  [  OK  ]
-> INIT: Entering runlevel: 3
-> Entering non-interactive startup
-> Starting sysstat:  [  OK  ]
-> Setting network parameters:  ^[SYSSysRq : Show State
-> [ bunch of kernel daemon traces ]
-> ...
-> S10network    S a0000001000d8cf0     0  1143   1104  1156               (NOTLB)
-> 
-> Call Trace:
->  [<a0000001000c4200>] schedule+0xda0/0x1360
->                                 sp=e00000387a27fdc0 bsp=e00000387a2791b8
->  [<a0000001000d8cf0>] sys_wait4+0x450/0x660
->                                 sp=e00000387a27fdd0 bsp=e00000387a2790f0
->  [<a000000100011a60>] ia64_ret_from_syscall+0x0/0x20
->                                 sp=e00000387a27fe30 bsp=e00000387a2790b8
-> initlog       S a0000001000e8650     0  1156   1143  1157               (NOTLB)
-> 
-> Call Trace:
->  [<a0000001000c4200>] schedule+0xda0/0x1360
->                                 sp=e00000387af47ce0 bsp=e00000387af411a0
->  [<a0000001000e8650>] schedule_timeout+0x190/0x1a0
->                                 sp=e00000387af47cf0 bsp=e00000387af41168
->  [<a00000010072eb70>] unix_wait_for_peer+0x210/0x220
->                                 sp=e00000387af47d30 bsp=e00000387af41130
->  [<a00000010072ee30>] unix_stream_connect+0x2b0/0xd00
->                                 sp=e00000387af47d90 bsp=e00000387af41098
->  [<a0000001006285f0>] sys_connect+0xf0/0x140
->                                 sp=e00000387af47da0 bsp=e00000387af41020
->  [<a000000100011a60>] ia64_ret_from_syscall+0x0/0x20
->                                 sp=e00000387af47e30 bsp=e00000387af41020
-> sysctl        Z a0000001000d7330     0  1157   1156                     (L-TLB)
-> 
-> Call Trace:
->  [<a0000001000c4200>] schedule+0xda0/0x1360
->                                 sp=e00000347a5a7e20 bsp=e00000347a5a1078
->  [<a0000001000d7330>] do_exit+0x490/0x500
->                                 sp=e00000347a5a7e30 bsp=e00000347a5a1018
->  [<a0000001000d77b0>] do_group_exit+0x290/0x360
->                                 sp=e00000347a5a7e30 bsp=e00000347a5a0fe0
->  [<a000000100011a60>] ia64_ret_from_syscall+0x0/0x20
->                                 sp=e00000347a5a7e30 bsp=e00000347a5a0fc8
-> 
-> and the CPU is in cpu_idle (somewhere, either default_idle or somewhere
-> along that call path).  The other failure was also a hang, and it looked
-> like an infinite number of page faults was being generated, something
-> like
-> 
-> ...
->  [<a0000001001233c0>] __free_pages+0x60/0x140
->                                 sp=e0000030148ebb80 bsp=e0000030148e5388
->  [<a00000010012b670>] slab_destroy+0x2f0/0x3e0
->                                 sp=e0000030148ebb80 bsp=e0000030148e5338
->  [<a000000100130120>] reap_timer_fnc+0x480/0x680
->                                 sp=e0000030148ebb80 bsp=e0000030148e5268
->  [<a0000001000e7ee0>] run_timer_softirq+0x380/0x5c0
->                                 sp=e0000030148ebb90 bsp=e0000030148e51e0
->  [<a0000001000dbd10>] __do_softirq+0x1d0/0x1e0
->                                 sp=e0000030148ebbb0 bsp=e0000030148e5160
->  [<a0000001000dbda0>] do_softirq+0x80/0xe0
->                                 sp=e0000030148ebbb0 bsp=e0000030148e5100
->  [<a000000100018300>] ia64_handle_irq+0x180/0x1c0
->                                 sp=e0000030148ebbb0 bsp=e0000030148e50c0
->  [<a000000100011c00>] ia64_leave_kernel+0x0/0x280
->                                 sp=e0000030148ebbb0 bsp=e0000030148e50c0
->  [<a000000100019d20>] default_idle+0xe0/0x180
-> 
+SSIA - fix attached.
 
-So are we to assume that this is the offending process?  That the periodic
-slab reaping code has screwed up?
+LLaP
+bero
+
+-- 
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
+
+Redistribution and processing of this message is subject to
+http://www.arklinux.org/terms.php
+---1048562944-990213000-1080764101=:14154
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="linux-2.6.5-rc3-mm3-aureal-fix.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.58.0403311215010.14154@build.arklinux.oregonstate.edu>
+Content-Description: Fix Aureal
+Content-Disposition: attachment; filename="linux-2.6.5-rc3-mm3-aureal-fix.patch"
+
+LS0tIGxpbnV4LTIuNi40L2luY2x1ZGUvbGludXgvcGNpX2lkcy5oLmFyawky
+MDA0LTA0LTAxIDA0OjU1OjU3LjAwMDAwMDAwMCArMDIwMA0KKysrIGxpbnV4
+LTIuNi40L2luY2x1ZGUvbGludXgvcGNpX2lkcy5oCTIwMDQtMDQtMDEgMDQ6
+NTg6MTguNDQwMDI0OTI4ICswMjAwDQpAQCAtMTYzOCw2ICsxNjM4LDcgQEAN
+CiAjZGVmaW5lIFBDSV9WRU5ET1JfSURfQVVSRUFMCQkweDEyZWINCiAjZGVm
+aW5lIFBDSV9ERVZJQ0VfSURfQVVSRUFMX1ZPUlRFWF8xCTB4MDAwMQ0KICNk
+ZWZpbmUgUENJX0RFVklDRV9JRF9BVVJFQUxfVk9SVEVYXzIJMHgwMDAyDQor
+I2RlZmluZSBQQ0lfREVWSUNFX0lEX0FVUkVBTF9BRFZBTlRBR0UJMHgwMDAz
+DQogDQogI2RlZmluZSBQQ0lfVkVORE9SX0lEX0VMRUNUUk9OSUNERVNJR05H
+TUJIIDB4MTJmOA0KICNkZWZpbmUgUENJX0RFVklDRV9JRF9MTUxfMzNSMTAJ
+CTB4OGEwMg0KLS0tIGxpbnV4LTIuNi40L3NvdW5kL3BjaS9hdTg4eDAvYXU4
+ODMwLmMuYXJrCTIwMDQtMDQtMDEgMDU6MDU6MDAuOTkwODI3OTA0ICswMjAw
+DQorKysgbGludXgtMi42LjQvc291bmQvcGNpL2F1ODh4MC9hdTg4MzAuYwky
+MDA0LTA0LTAxIDA1OjA1OjA3LjA1MjkwNjMyOCArMDIwMA0KQEAgLTEsNyAr
+MSw3IEBADQogI2luY2x1ZGUgImF1ODgzMC5oIg0KICNpbmNsdWRlICJhdTg4
+eDAuaCINCiBzdGF0aWMgc3RydWN0IHBjaV9kZXZpY2VfaWQgc25kX3ZvcnRl
+eF9pZHNbXSA9IHsNCi0Je1BDSV9WRU5ET1JfSURfQVVSRUFMLCBQQ0lfREVW
+SUNFX0lEX0FVUkVBTF9WT1JURVgyLA0KKwl7UENJX1ZFTkRPUl9JRF9BVVJF
+QUwsIFBDSV9ERVZJQ0VfSURfQVVSRUFMX1ZPUlRFWF8yLA0KIAkgUENJX0FO
+WV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgMCx9LA0KIAl7MCx9DQogfTsNCi0t
+LSBsaW51eC0yLjYuNC9zb3VuZC9wY2kvYXU4OHgwL2F1ODh4MC5oLmFyawky
+MDA0LTA0LTAxIDA1OjA1OjEzLjYzODkwNTEwNCArMDIwMA0KKysrIGxpbnV4
+LTIuNi40L3NvdW5kL3BjaS9hdTg4eDAvYXU4OHgwLmgJMjAwNC0wNC0wMSAw
+NTowNToyMS41Nzg2OTgwNzIgKzAyMDANCkBAIC04MCw4ICs4MCw4IEBADQog
+I2RlZmluZSBWT1JURVhfSVNfUVVBRCh4KSAoKHgtPmNvZGVjID09IE5VTEwp
+ID8gIDAgOiAoeC0+Y29kZWMtPmV4dF9pZHwweDgwKSkNCiAvKiBDaGVjayBp
+ZiBjaGlwIGhhcyBidWcuICovDQogI2RlZmluZSBJU19CQURfQ0hJUCh4KSAo
+XA0KLQkoeC0+cmV2IDwgMyAmJiB4LT5kZXZpY2UgPT0gUENJX0RFVklDRV9J
+RF9BVVJFQUxfVk9SVEVYKSB8fCBcDQotCSh4LT5yZXYgPCAweGZlICYmIHgt
+PmRldmljZSA9PSBQQ0lfREVWSUNFX0lEX0FVUkVBTF9WT1JURVgyKSB8fCBc
+DQorCSh4LT5yZXYgPCAzICYmIHgtPmRldmljZSA9PSBQQ0lfREVWSUNFX0lE
+X0FVUkVBTF9WT1JURVhfMSkgfHwgXA0KKwkoeC0+cmV2IDwgMHhmZSAmJiB4
+LT5kZXZpY2UgPT0gUENJX0RFVklDRV9JRF9BVVJFQUxfVk9SVEVYXzIpIHx8
+IFwNCiAJKHgtPnJldiA8IDB4ZmUgJiYgeC0+ZGV2aWNlID09IFBDSV9ERVZJ
+Q0VfSURfQVVSRUFMX0FEVkFOVEFHRSkpDQogDQogDQo=
+
+---1048562944-990213000-1080764101=:14154--

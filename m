@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbUKXWZD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262870AbUKXWaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbUKXWZD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 17:25:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbUKXWZD
+	id S262870AbUKXWaL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 17:30:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUKXWaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 17:25:03 -0500
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:62360 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S261595AbUKXWY7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 17:24:59 -0500
-Message-ID: <41A4F198.70607@blue-labs.org>
-Date: Wed, 24 Nov 2004 15:39:52 -0500
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041012
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-rc2 and x86_64; spontaneous reboots
-References: <41A4D5A4.3010605@blue-labs.org> <41A4EDE2.3030309@stud.feec.vutbr.cz>
-In-Reply-To: <41A4EDE2.3030309@stud.feec.vutbr.cz>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	Wed, 24 Nov 2004 17:30:11 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:44468 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262870AbUKXW3e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 17:29:34 -0500
+Subject: Re: Suspend 2 merge: 18/51: Debug page_alloc support.
+From: Dave Hansen <haveblue@us.ibm.com>
+To: ncunningham@linuxmail.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1101327214.3425.6.camel@desktop.cunninghams>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101295326.5805.259.camel@desktop.cunninghams>
+	 <1101312173.8940.47.camel@localhost>
+	 <1101327214.3425.6.camel@desktop.cunninghams>
+Content-Type: text/plain
+Message-Id: <1101335184.8940.433.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 24 Nov 2004 14:26:24 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oddly, yes.  Or almost yes since I haven't measured it exactly.  The 
-typical reboot is right around five minutes of uptime.  The three times 
-that I did watch /proc/uptime, right around the 2nd column going to 300 
-seconds is when it rebooted.
+On Wed, 2004-11-24 at 12:17, Nigel Cunningham wrote:
+> On Thu, 2004-11-25 at 03:02, Dave Hansen wrote:
+> > On Wed, 2004-11-24 at 04:58, Nigel Cunningham wrote:
+> > > +#ifdef CONFIG_HIGHMEM
+> > > +	if (page >= highmem_start_page) 
+> > > +		return 0;
+> > > +#endif
+> > 
+> > There's a patch pending in -mm to kill highmem_start_page.  Please use
+> > PageHighMem().
+> 
+> That's not out-of-line, is it? (We use it while resuming too, IIRC).
+> I'll take a look.
 
--david
+Nope.  That's a simple single-bit page->flags check.
 
-Michal Schmidt wrote:
+-- Dave
 
-> David Ford wrote:
->
->> Is anyone else experiencing spontaneous reboots within a few minutes 
->> of bootup?  (If the system survives past the first 10 minutes, it 
->> stays up for a long time, but it reliably does an instant reboot with 
->> no panic or other indication a good 9 out of 10 times.  The system is 
->> purely idle, nothing going on.  memtest86+ runs for hours with no 
->> failures.
->
->
-> Do the restarts occur exactly 5 minutes after bootup? That would 
-> indicate a problem with jiffies overflow. Probably some buggy driver.
->
-> Michal
->

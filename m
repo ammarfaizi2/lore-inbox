@@ -1,68 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261302AbTCOCSV>; Fri, 14 Mar 2003 21:18:21 -0500
+	id <S261307AbTCOCXn>; Fri, 14 Mar 2003 21:23:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261303AbTCOCSV>; Fri, 14 Mar 2003 21:18:21 -0500
-Received: from adsl-67-121-154-32.dsl.pltn13.pacbell.net ([67.121.154.32]:8416
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id <S261302AbTCOCSU>; Fri, 14 Mar 2003 21:18:20 -0500
-Date: Fri, 14 Mar 2003 18:29:08 -0800
-To: Christian Daudt <csd_ob@daudt.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-kernel-revision-control list (was: Re: Never ever use word BitKeeper if Larry does not like you)
-Message-ID: <20030315022908.GA6917@triplehelix.org>
-References: <Pine.LNX.4.44.0303141120240.8584-100000@bushido> <1047659289.2566.109.camel@sisko.scot.redhat.com> <20030314163727.GE8937@work.bitmover.com> <200303140856.11839.csd_ob@daudt.org>
+	id <S261308AbTCOCXn>; Fri, 14 Mar 2003 21:23:43 -0500
+Received: from coral.ocn.ne.jp ([211.6.83.180]:60155 "HELO
+	smtp.coral.ocn.ne.jp") by vger.kernel.org with SMTP
+	id <S261307AbTCOCXm>; Fri, 14 Mar 2003 21:23:42 -0500
+Date: Sat, 15 Mar 2003 11:34:29 +0900
+From: Bruce Harada <bharada@coral.ocn.ne.jp>
+To: Dale Harris <rodmur@maybe.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dual AMD MP 2000+ and ASUS A7M266-D problems
+Message-Id: <20030315113429.5851f75d.bharada@coral.ocn.ne.jp>
+In-Reply-To: <20030314231227.GA19468@maybe.org>
+References: <20030314231227.GA19468@maybe.org>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
-Content-Disposition: inline
-In-Reply-To: <200303140856.11839.csd_ob@daudt.org>
-User-Agent: Mutt/1.5.3i
-From: Joshua Kwan <joshk@triplehelix.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 14 Mar 2003 15:12:27 -0800
+Dale Harris <rodmur@maybe.org> wrote:
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> So I'm wondering if anyone has any insight into what the problem might
+> be.  Is underclocking the chips all I can do?
 
-On Fri, Mar 14, 2003 at 08:56:11AM -0800, Christian Daudt wrote:
-> This BitKeeper subject resurfaces every week or so and probably accounts =
-for=20
-> 5-10% of the linux-kernel mailing list traffic. While a terribly interest=
-ing=20
-> topic to some - it really isn't about the kernel. Could someone be so kin=
-d as=20
-> to create a linux-kernel-bitkeeper (or linux-kernel-revision-control) mai=
-ling=20
-> list so that these discussions (which obviously are not going away) can h=
-ave=20
-> a proper home?
-
-Use mutt - then you can ^R entire threads about BK if you're sick (like
-me) of reading them. All this hubbub is turning into a freaking soap
-opera. I can vividly imagine it as truly being one...
-
-"As The SCM Turns"
-
-Regards,
-Josh
-
---
-New PGP public key: 0x27AFC3EE
-
---Nq2Wo0NMKNjxTN9z
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+co/0T2bz5yevw+4RAqhIAKDYMP2v5tyka/dG4cXbObm0peweIACfWpyd
-67qaLNGeS/DCIisDlMpJT4Y=
-=BhXc
------END PGP SIGNATURE-----
-
---Nq2Wo0NMKNjxTN9z--
+Have you checked your power supplies?

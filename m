@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312558AbSH0ABf>; Mon, 26 Aug 2002 20:01:35 -0400
+	id <S318151AbSH0AJz>; Mon, 26 Aug 2002 20:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315870AbSH0ABe>; Mon, 26 Aug 2002 20:01:34 -0400
-Received: from mx3.sac.fedex.com ([199.81.208.11]:4108 "EHLO mx3.sac.fedex.com")
-	by vger.kernel.org with ESMTP id <S312558AbSH0ABe>;
-	Mon, 26 Aug 2002 20:01:34 -0400
-Date: Tue, 27 Aug 2002 08:05:14 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] initrd >24MB corruption
-In-Reply-To: <1030355656.16618.32.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0208270758080.15296-100000@boston.corp.fedex.com>
+	id <S318243AbSH0AJz>; Mon, 26 Aug 2002 20:09:55 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:63413 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S318151AbSH0AJy>; Mon, 26 Aug 2002 20:09:54 -0400
+Date: Mon, 26 Aug 2002 21:13:38 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: Ed Tomlinson <tomlins@cam.org>, <linux-mm@kvack.org>,
+       <linux-kernel@vger.kernel.org>,
+       Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+       Daniel Phillips <phillips@arcor.de>
+Subject: Re: MM patches against 2.5.31
+In-Reply-To: <3D6AC0BB.FE65D5F7@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0208262113070.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/27/2002
- 08:05:48 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/27/2002
- 08:05:49 AM,
-	Serialize complete at 08/27/2002 08:05:49 AM
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 26 Aug 2002, Andrew Morton wrote:
 
-On 26 Aug 2002, Alan Cox wrote:
+> Well we wouldn't want to leave tons of free pages on the LRU - the VM
+> would needlessly reclaim pagecache before finding the free pages.  And
+> higher-order page allocations could suffer.
 
-> > 	RAMDISK: Compressed image found at block 0 ... then stuck!
-> Force a 1K block size when you make the fs
+We did this with the swap cache in 2.4.<7 and it was an
+absolute disaster.
 
-That was the default for mke2fs.
+regards,
 
-Tried compress instead of gzip. Same problem. I guess the compressed file
-is too big for the kernel. The 8MB compressed (from 24MB) didn't work. 6MB
-compressed from 18MB worked. The 24MB filesystem has just one extra junk
-file in /tmp to fill up the filesystem to 90% and this caused the system
-to hang.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-I'm thinking it could be the ungzip function in the kernel that's causing
-the problem.
-
-
-Jeff.
+http://www.surriel.com/		http://distro.conectiva.com/
 

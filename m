@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbTIRUYY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 16:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTIRUYY
+	id S262120AbTIRU2T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 16:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbTIRU2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 16:24:24 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:50386 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262115AbTIRUYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 16:24:23 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: =?ISO-8859-1?Q?Dani=EBl?= Mantione <daniel@deadlock.et.tudelft.nl>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       James Simmons <jsimmons@infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0309180940460.17499-100000@deadlock.et.tudelft.nl>
-References: <Pine.LNX.4.44.0309180940460.17499-100000@deadlock.et.tudelft.nl>
-Message-Id: <1063916627.603.5.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 18 Sep 2003 22:23:47 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: Patch: Make iBook1 work again
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+	Thu, 18 Sep 2003 16:28:18 -0400
+Received: from imo-d02.mx.aol.com ([205.188.157.34]:16518 "EHLO
+	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S262120AbTIRU2L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 16:28:11 -0400
+Date: Thu, 18 Sep 2003 16:28:08 -0400
+From: bee71e@netscape.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: excessive swapping in 2.4.x
+MIME-Version: 1.0
+Message-ID: <3C19C4AA.6428E24C.0005DAE9@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 209.131.38.143
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin <piggin@cyberone.com.au> wrote:
 
-> The Mach64 LT does not have the M64F_FIFO_24 flag set! That will result in
-> completely different values to be calculated and cause a distorted
-> display.
+>
+>
+>bee71e@netscape.net wrote:
+>
+>>Hi, 
+>>
+>>I am using 2.4.21 and I see an unusually large amount of swapping for relatively low load : 
+>>
+>>sample vmstat output: (note that the system is almost idle)
+>>
+>>  procs                      memory    swap          io     system         cpu
+>>r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+>>0  2  0 1850220  10524   9412 703652 3030 1102  3912  1106 1506  1710   1   1  98
+>>0  2  0 1849188  10572   9388 700568 2780 376  3558   379 1434  1284   1   1  99
+>>0  5  0 1851576  11668   9404 698228 2999 479  3890   488 1499  1487   1   1  98
+>>
+>>Is this a known issue? Whats happening? How do I fix this?
+>>
+>
+>You could try the latest 2.4 prerelease. It has some VM updates.
 
-I confirm, problem fixed ;)
+thanks. Will do that. btw, I narrowed down this particular issue to a hardware failure. 
 
-Ben.
+__________________________________________________________________
+McAfee VirusScan Online from the Netscape Network.
+Comprehensive protection for your entire computer. Get your free trial today!
+http://channels.netscape.com/ns/computing/mcafee/index.jsp?promo=393397
 
-
+Get AOL Instant Messenger 5.1 free of charge.  Download Now!
+http://aim.aol.com/aimnew/Aim/register.adp?promo=380455

@@ -1,78 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286346AbRLTToJ>; Thu, 20 Dec 2001 14:44:09 -0500
+	id <S286340AbRLTToJ>; Thu, 20 Dec 2001 14:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286340AbRLTTnu>; Thu, 20 Dec 2001 14:43:50 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:5072 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S286278AbRLTTno>;
-	Thu, 20 Dec 2001 14:43:44 -0500
-Date: Thu, 20 Dec 2001 20:43:26 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Nicholas Knight <nknight@pocketinet.com>
-Cc: Dana Lacoste <dana.lacoste@peregrine.com>,
-        "'Matt Bernstein'" <matt@theBachChoir.org.uk>,
-        Steven Cole <scole@lanl.gov>, esr@thyrsus.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.hel p.
-Message-ID: <20011220204326.D5235@khan.acc.umu.se>
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A20@ottonexc1.ottawa.loran.com> <WHITEGtPrPrvCWO6hm8000002fb@white.pocketinet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <WHITEGtPrPrvCWO6hm8000002fb@white.pocketinet.com>; from nknight@pocketinet.com on Thu, Dec 20, 2001 at 11:13:52AM -0800
+	id <S286355AbRLTTnu>; Thu, 20 Dec 2001 14:43:50 -0500
+Received: from [207.88.206.43] ([207.88.206.43]:7822 "HELO
+	intruder-luxul.gurulabs.com") by vger.kernel.org with SMTP
+	id <S286350AbRLTTnk>; Thu, 20 Dec 2001 14:43:40 -0500
+Date: Thu, 20 Dec 2001 12:43:38 -0700 (MST)
+From: Dax Kelson <dax@gurulabs.com>
+X-X-Sender: <dkelson@mooru.gurulabs.com>
+To: David Chow <davidchow@rcn.com.hk>
+cc: "trond.myklebust@fys.uio.no" <trond.myklebust@fys.uio.no>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Subject: Re: nfsroot dead slow with redhat 7.2
+In-Reply-To: <1008836323.972.6.camel@star7.planet.rcn.com.hk>
+Message-ID: <Pine.LNX.4.33.0112201241450.6262-100000@mooru.gurulabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 20, 2001 at 11:13:52AM -0800, Nicholas Knight wrote:
-> On Thursday 20 December 2001 10:36 am, Dana Lacoste wrote:
-> > > I believe that the main purpose of documentation, help etc is
-> > > to get the
-> > > information across in a way that is most easily understood, ie that
-> > > minimises the number of support questions.. ..and everyone
-> > > surely knows
-> > > what GB, MB and KB stand for. So let's leave it at that.
-> > > Where's the "i"
-> > > in "megabyte" ? Or is 1MiB 1000000 bytes, rather than 1048576?
-> >
-> > 1 MB isn't 1048576.
-> >
-> > it's 1000000
-> >
-> > mega isn't 2^10, it's 10^6
-> >
-> > so where are YOU coming from?
-> >
-> > (no, i'm not arguin, i don't particularly care.  but i'm
-> > pointing out that some people have completely firmly set
-> > definitions and some other people also have firm definitions
-> > and neither will agree the other's right.  MiB is the international
-> > standard for a 2^10 B(yte) specification.  so if you mean
-> > 2^10 bytes, you mean MiB, not MB, even if you don't like it :)
-> 
-> This "international" standard seems to have excluded a few countries. 
-> It wasn't until it was SET that I even heard of its existance. (And 
-> then only through SLASHDOT!)
-> 
-> Everyone I know has been using KB/MB/GB for 1024 forever. The *only* 
-> exception is networking, and the occasional FLASH/ROM size. The latter 
-> isn't very common discussion, and among those that it is, they'd know 
-> what the other was talking about. For the former, I can distinguish 
-> easily depending on who it is.
-> 
-> Someone without a lot of experience: I have a 1MB connection. (this 
-> user has a 1 Megabit connection)
-> 
-> Someone with experience: I have a 1mb/Mb connection. (This person has a 
-> 1 megabit connection has used a "standard" abbreviation.)
+On 20 Dec 2001, David Chow wrote:
 
-You have a 1 millibit per Megabit connection?!?!
+> Just find out... it is a problem of some settings in /etc directory 
+> it is not related to the FSes . I replaced the /etc directory with the
+> one we are using on the production machines... by the way. What can be
+> wrong? When it starts init , and execute the /etc/rc.d/rc.sysinit , it
+> is hell slow. We have tried replace /sbin/init with bash and we got out
+> a shell but "ls -l" takes more than 2 minutes... do you know what sort
+> of settings in the /etc will affect use space "bash" or "glibc" on
+> nfsroot behaves different ? This is so strange.
 
-[snip]
+David.  I asked yesterday for you to try "ls -ln" and report if it is any
+faster.  What you are just now discovering, I suspected when I first read 
+your report.
 
+Please try "ls -ln" and report.
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Dax
+

@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278692AbRJ1Vx6>; Sun, 28 Oct 2001 16:53:58 -0500
+	id <S278695AbRJ1WBT>; Sun, 28 Oct 2001 17:01:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278695AbRJ1Vxt>; Sun, 28 Oct 2001 16:53:49 -0500
-Received: from ns1.uklinux.net ([212.1.130.11]:4869 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S278692AbRJ1Vxd>;
-	Sun, 28 Oct 2001 16:53:33 -0500
-Envelope-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Message-Id: <a05100316b80221a2f45f@[192.168.239.101]>
-In-Reply-To: <20011028191328.CCC828A6EA@pobox.com>
-In-Reply-To: <20011028191328.CCC828A6EA@pobox.com>
-Date: Sun, 28 Oct 2001 21:42:17 +0000
-To: barryn@pobox.com, zlatko.calusic@iskon.hr
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
-Cc: torvalds@transmeta.com (Linus Torvalds), axboe@suse.de (Jens Axboe),
-        marcelo@conectiva.com.br (Marcelo Tosatti), linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org (lkml)
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S278696AbRJ1WBJ>; Sun, 28 Oct 2001 17:01:09 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:58753 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S278695AbRJ1WA5>; Sun, 28 Oct 2001 17:00:57 -0500
+Message-ID: <033901c15ffc$53100280$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "David Grant" <davidgrant79@hotmail.com>,
+        "linux kernel mailinglist" <linux-kernel@vger.kernel.org>
+In-Reply-To: <045301c15fa7$c2809b70$1901a8c0@node0.idium.eu.org> <OE499R5FyGYPyZ0R7HL00016c26@hotmail.com>
+Subject: Re: Via KT133 and 2.4.8 and a hard disk problem ?
+Date: Sun, 28 Oct 2001 23:03:06 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > Unfortunately, things didn't change on my first disk (IBM 7200rpm
->>  @home). I'm still getting low numbers, check the vmstat output at the
->>  end of the email.
->>
->>  But, now I found something interesting, other two disk which are on
->>  the standard IDE controller work correctly (writing is at 17-22
->>  MB/sec). The disk which doesn't work well is on the HPT366 interface,
->>  so that may be our culprit. Now I got the idea to check patches
->  > retrogradely to see where it started behaving poorely.
+----- Original Message -----
+From: "David Grant" <davidgrant79@hotmail.com>
+To: "David Flynn" <Dave@keston.u-net.com>; "linux kernel mailinglist"
+<linux-kernel@vger.kernel.org>
+Sent: Sunday, October 28, 2001 9:46 PM
+Subject: Re: Via KT133 and 2.4.8 and a hard disk problem ?
 
->This really reminds me of a problem I once had with a hard drive of
->mine. It would usually go at 15-20MB/sec, but sometimes (under both
->Linux and Windows) would slow down to maybe 350KB/sec. The slowdown, or
->lack thereof, did seem to depend on the alignment of the stars. I lived
->with it for a number of months, then started getting intermittent I/O
->errors as well, as if the drive had bad sectors on disk.
->
->The problem turned out to be insufficient ventilation for the controller
->board on the bottom of the drive
+> I've had these problems before.  Can you provide a listings of the kernel
+> errors you are getting?  I'm curious myself, and I'm sure this would help
+> any developers as well.  Also, is it an old KT133 (with vt82c686a chip) or
+> KT133A (with vt82c686b chip).
 
-As an extra datapoint, my IBM Deskstar 60GXP's (40Gb version) runs 
-slightly slower with writing than with reading.  This is on a VIA 
-686a controller, UDMA/66 active.  The drive also has plenty of air 
-around it, being in a 5.25" bracket with fans in front.
+Actually, the KT133 revision has nothing (substantial) to do with the 686
+chip. There were some motherboards with both KT133 and 686B, such as my MSI
+K7TPRO 2-A. There are also AMD chipsets that use the 686A/B as an IO
+chipset, and other VIA chipsets, such as Apollo Pro.
 
-Writing 1GB from /dev/zero takes 34.27s = 29.88MB/sec, 19% CPU
-Reading 1GB from test file takes 29.64s = 34.58MB/sec, 18% CPU
+_____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  MSc CSE student, department of Computing Science
+|  Umeå University, Sweden
 
-Hmm, that's almost as fast as the 10000rpm Ultrastar sited just above 
-it, but with higher CPU usage.  Ultrastar gets 36MB/sec on reading 
-with hdparm, haven't tested write performance due to probable 
-fragmentation.
 
-Both tests conducted using 'dd bs=1k' on my 1GHz Athlon with 256Mb 
-RAM.  Test file is on a freshly-created ext2 filesystem starting at 
-10Gb into the 40Gb drive (knowing IBM's recent trend, this'll still 
-be fairly close to the outer rim).  Write test includes a sync at the 
-end.  Kernel is Linus 2.4.9, no relevant patches.
-
--- 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-website:  http://www.chromatix.uklinux.net/vnc/
-geekcode: GCS$/E dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$
-           V? PS PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
-tagline:  The key to knowledge is not to rely on people to teach you it.

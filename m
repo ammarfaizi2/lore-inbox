@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270453AbTHLOfS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 10:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270455AbTHLOfS
+	id S270432AbTHLOmK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 10:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270436AbTHLOmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 10:35:18 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:24470
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S270453AbTHLOfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 10:35:12 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: gaxt <gaxt@rogers.com>
-Subject: Re: WINE + Galciv + 2.6.0-test3-mm1-O15
-Date: Wed, 13 Aug 2003 00:40:50 +1000
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>
-References: <3F22F75D.8090607@rogers.com> <200307292246.36808.kernel@kolivas.org> <3F38FCBA.1000008@rogers.com>
-In-Reply-To: <3F38FCBA.1000008@rogers.com>
+	Tue, 12 Aug 2003 10:42:10 -0400
+Received: from out004pub.verizon.net ([206.46.170.142]:27542 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S270432AbTHLOmG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 10:42:06 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: Michael Buesch <fsdeveloper@yahoo.de>,
+       Christophe Saout <christophe@saout.de>,
+       Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: [2.6 patch] add an -Os config option
+Date: Tue, 12 Aug 2003 10:42:02 -0400
+User-Agent: KMail/1.5.1
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20030811211145.GA569@fs.tum.de> <200308112129.48990.gene.heskett@verizon.net> <200308121211.45406.fsdeveloper@yahoo.de>
+In-Reply-To: <200308121211.45406.fsdeveloper@yahoo.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200308130040.50090.kernel@kolivas.org>
+Message-Id: <200308121042.02816.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.10.14] at Tue, 12 Aug 2003 09:42:04 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003 00:42, gaxt wrote:
-> Photoshop 6 (yes, legal owned version) in wine is flawless (as it was
-> with 2.6.0-test3)
+On Tuesday 12 August 2003 06:11, Michael Buesch wrote:
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
 >
-> Galciv plays videos quite smoothly but as soon as I run it it will
-> freeze the cursor for 12-15 seconds every half-minute or so even within
-> the game itself which is turn-based strategy without a lot of whizbang
-> stuff. In the past, the videos would stutter but the game would not
-> suffer from more than short pauses now and then.
+>On Tuesday 12 August 2003 03:29, Gene Heskett wrote:
+>> No, the quoted "significantly" version is the correct english
+>> useage in this apparently present tense.
+>
+>Thank you all for the correction.
+>I'll now take my english-dictinoary to learn a bit. :)
 
-Yes, herein lies one of those mysteries that still eludes me but I have been 
-investigating it. I can now reproduce in other applications what appears to 
-be the problem - Two cpu hogs, X and evolution for example are running and 
-evolution is making X the cpu hog. The problem is that X gets demoted whereas 
-evolution doesn't. Strangely, dropping evolution to nice +1 or making X -1 
-seems to change which one gets demoted, and X is now much smoother. I assume 
-the same thing is happening here between wine and wineserver, which is why 
-you've seen reversal of priorities in your previous posts. See if renicing 
-one of them +1 helps for the time being. I will continue investigating to 
-find out why the heck this happens and try and fix it.
+And I pushed somebodies hot button when I said 'useage' instead of 
+'usage'.  You win some, and you lose some. :)
 
-Con
-
-P.S. I've cc'ed MG because he has seen the scheduler do other forms of 
-trickery and may have thoughts on why this happens.
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

@@ -1,66 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUJEUfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUJEUjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265051AbUJEUfe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 16:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUJEUfY
+	id S265093AbUJEUjb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 16:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUJEUjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 16:35:24 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:17325 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S265051AbUJEUfI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 16:35:08 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 5 Oct 2004 16:39:31 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:58120 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S265093AbUJEUgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 16:36:25 -0400
+Message-ID: <4163078F.8080709@techsource.com>
+Date: Tue, 05 Oct 2004 16:43:59 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] 2.6 SGI Altix I/O code reorganization
-Date: Tue, 5 Oct 2004 13:34:53 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.6 SGI Altix I/O code reorganization
-Thread-Index: AcSrEurd8pNG+kLZSiiy5hvxZy68jgABYRlg
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Patrick Gefre" <pfg@sgi.com>
-Cc: <cngam@sgi.com>, "Matthew Wilcox" <matthew@wil.cx>,
-       "Grant Grundler" <iod00d@hp.com>, "Jesse Barnes" <jbarnes@engr.sgi.com>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 05 Oct 2004 20:34:54.0841 (UTC) FILETIME=[C5BFFE90:01C4AB1A]
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Mark_H_Johnson@raytheon.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>
+Subject: GPU driver misbehavior  [Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9]
+References: <OFACA329EE.63AC9924-ON86256F04.00556E19-86256F04.00556E29@raytheon.com> <1094256256.6575.109.camel@krustophenia.net>
+In-Reply-To: <1094256256.6575.109.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It had been suggested that we submit this as new code - since 
->it can't be transitioned to. And I thought that was what we
->had decided on - a 'kill' patch and an 'add' patch.
 
-Sorry ... I must have missed that.
 
->I can remove any Lindent'ing of older files if you don't want that.
+Lee Revell wrote:
 
-Yes please.
+> 
+> "Misbehaving video card drivers are another source of significant delays
+> in scheduling user code. A number of video cards manufacturers recently
+> began employing a hack to save a PCI bus transaction for each display
+> operation in order to gain a few percentage points on their WinBench
+> [Ziff-Davis 98] Graphics WinMark performance.
+> 
+> The video cards have a command FIFO that is written to via the PCI bus.
+> They also have a status register, read via the PCI bus, which says
+> whether the command FIFO is full or not. The hack is to not check
+> whether the command FIFO is full before attempting to write to it, thus
+> saving a PCI bus read.
+> 
+> The problem with this is that the result of attempting to write to the
+> FIFO when it is full is to stall the CPU waiting on the PCI bus write
+> until a command has been completed and space becomes available to accept
+> the new command. In fact, this not only causes the CPU to stall waiting
+> on the PCI bus, but since the PCI controller chip also controls the ISA
+> bus and mediates interrupts, ISA traffic and interrupt requests are
+> stalled as well. Even the clock interrupts stop.
+> 
+> These video cards will stall the machine, for instance, when the user
+> drags a window. For windows occupying most of a 1024x768 screen on a
+> 333MHz Pentium II with an AccelStar II AGP video board (which is based
+> on the 3D Labs Permedia 2 chip set) this will stall the machine for
+> 25-30ms at a time!"
 
->I will take out the Kconfig mod.
+I would expect that I'm not the first to think of this, but I haven't 
+seen it mentioned, so it makes me wonder.  Therefore, I offer my solution.
 
-Good.
+Whenever you read the status register, keep a copy of the "number of 
+free fifo entries" field.  Whenever you're going to do a group of writes 
+to the fifo, you first must check for enough free entries.  The macro 
+that does this checks the copy of the status register to see if there 
+were enough free the last time you checked.  If so, deduct the number of 
+free slots you're about to use, and move on.  If not, re-read the status 
+register and loop or sleep if you don't have enough free.
 
->I believe Christoph is the maintainer of the qla driver (he was one of 
->the reviewers).
+The copy of the status register will always be "correct" in that it will 
+always report a number of free entries less than or equal to the actual 
+number, and it will never report a number greater than what is available 
+(barring a hardware glitch of a bug which is bad for other reasons). 
+This is because you're assuming the fifo doesn't drain, when in fact, it 
+does.
 
-His fingerprints are all over the revision history.  It looks like the
-only real change you want here is deleting the ugly hack for SN2:
+This results in nearly optimal performance, because usually you end up 
+reading the status register mostly when the fifo is full (a time when 
+extra bus reads don't hurt anything).  If you have a 256-entry fifo, 
+then you end up reading the status register once for ever 256 writes, 
+for a performance loss of only 0.39%, and you ONLY get this performance 
+loss when the fifo drains faster than you can fill it.
 
-< #if defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_SGI_SN2)
-< #include <asm/sn/pci/pciio.h>
-< /* Ugly hack needed for the virtual channel fix on SN2 */
-< extern int snia_pcibr_rrb_alloc(struct pci_dev *pci_dev,
-< 				int *count_vchan0, int *count_vchan1);
-< #endif
-
-If Christoph signs off on that, then I can feed a separate patch
-that does that at the same time as the kill/add.
-
--Tony
-
+One challenge to this is when you have more than one entity trying to 
+access the same resource.  But in that case, you'll already have to be 
+using some sort of mutex mechanism anyhow.
 

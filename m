@@ -1,181 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVBYVXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVBYVbn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVBYVXA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 16:23:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVBYVWr
+	id S261636AbVBYVbn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 16:31:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVBYVbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 16:22:47 -0500
-Received: from news.suse.de ([195.135.220.2]:12708 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261451AbVBYVWC (ORCPT
+	Fri, 25 Feb 2005 16:31:43 -0500
+Received: from fire.osdl.org ([65.172.181.4]:2716 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261636AbVBYVbl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 16:22:02 -0500
-Date: Fri, 25 Feb 2005 22:21:57 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: 2.6.11-rc5
-Message-ID: <20050225212157.GA31227@suse.de>
-References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <20050224145049.GA21313@suse.de> <1109287708.15026.25.camel@gaston> <20050225070813.GA13735@suse.de> <1109316551.14993.63.camel@gaston> <20050225172945.GA31211@suse.de> <Pine.LNX.4.56.0502251758370.20213@pentafluge.infradead.org> <20050225202423.GA24282@suse.de>
+	Fri, 25 Feb 2005 16:31:41 -0500
+Date: Fri, 25 Feb 2005 13:30:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jay Lan <jlan@sgi.com>
+Cc: kaigai@ak.jp.nec.com, lse-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net,
+       tim@physik3.uni-rostock.de, erikj@subway.americas.sgi.com,
+       limin@dbear.engr.sgi.com, jbarnes@sgi.com
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+Message-Id: <20050225133034.09da67f9.akpm@osdl.org>
+In-Reply-To: <421F6139.5020207@sgi.com>
+References: <42168D9E.1010900@sgi.com>
+	<20050218171610.757ba9c9.akpm@osdl.org>
+	<421993A2.4020308@ak.jp.nec.com>
+	<421B955A.9060000@sgi.com>
+	<421C2B99.2040600@ak.jp.nec.com>
+	<421CEC38.7010008@sgi.com>
+	<421EB299.4010906@ak.jp.nec.com>
+	<20050224212839.7953167c.akpm@osdl.org>
+	<421F6139.5020207@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7AUc2qLy4jB3hD7Z"
-Content-Disposition: inline
-In-Reply-To: <20050225202423.GA24282@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-
- On Fri, Feb 25, Olaf Hering wrote:
-
->  On Fri, Feb 25, James Simmons wrote:
+Jay Lan <jlan@sgi.com> wrote:
+>
+> Andrew Morton wrote:
+>  > Kaigai Kohei <kaigai@ak.jp.nec.com> wrote:
+>  > 
+>  >>In my understanding, what Andrew Morton said is "If target functionality can
+>  >> implement in user space only, then we should not modify the kernel-tree".
+>  > 
+>  > 
+>  > fork, exec and exit upcalls sound pretty good to me.  As long as
+>  > 
+>  > a) they use the same common machinery and
+>  > 
+>  > b) they are next-to-zero cost if something is listening on the netlink
+>  >    socket but no accounting daemon is running.
+>  > 
+>  > Question is: is this sufficient for CSA?
 > 
-> > 
-> > > cfb_imageblit(320) dst1 fa51a800 base e0b80000 bitstart 1999a800
-> > > fast_imageblit(237) s daea4000 dst1 fa51a800
-> > > fast_imageblit(269) j 1 fa51a800 0
-> > > Unable to handle kernel paging request at virtual address fa51a800
-> > > 
-> > > is bitstart incorrect or is the thing just not (yet) mapped?
-> > 
-> > Looks like the screen_base is not mapped to.
+>  Yes, fork, exec, and exit upcalls are sufficient for CSA.
 > 
-> rc3 worked ok, rc4 does not. testing the -bk snapshots now.
+>  The framework i proposed earlier should satisfy your requirement a
+>  and b, and provides upcalls needed by BSD, ELSA and CSA. Maybe i
+>  misunderstood your concern of the 'very light weight' framework
+>  i proposed besides being "overkill"?
 
-bk8 works, bk9 breaks, it contains the radeonfb update.
-it works ok if the driver is compiled into the kernel.
+"upcall" is poorly defined.
 
---7AUc2qLy4jB3hD7Z
-Content-Type: application/x-gunzip
-Content-Disposition: attachment; filename="config-radeonfb-i386.gz"
-Content-Transfer-Encoding: base64
+What I meant was that ELSA can perform its function when the kernel merely
+sends asynchronous notifications of forks out to userspace via netlink.
 
-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
+Further, I'm wondering if CSA can perform its function with the same level
+of kernel support, perhaps with the addition of netlink-based notification
+of exec and exit as well.
 
---7AUc2qLy4jB3hD7Z--
+The framework patch which you sent was designed to permit the addition of
+more kernel accounting code, which is heading in the opposite direction.
+
+In other words: given that ELSA can do its thing via existing accounting
+interfaces and a fork notifier, why does CSA need to add lots more kernel
+code?

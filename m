@@ -1,114 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265470AbTB0QYy>; Thu, 27 Feb 2003 11:24:54 -0500
+	id <S265446AbTB0Q3z>; Thu, 27 Feb 2003 11:29:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265523AbTB0QYy>; Thu, 27 Feb 2003 11:24:54 -0500
-Received: from zmamail02.zma.compaq.com ([161.114.64.102]:43525 "EHLO
-	zmamail02.zma.compaq.com") by vger.kernel.org with ESMTP
-	id <S265470AbTB0QYw>; Thu, 27 Feb 2003 11:24:52 -0500
-Date: Thu, 27 Feb 2003 10:37:41 +0600
-From: Stephen Cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.21-pre5 cciss fix unlikely startup problem
-Message-ID: <20030227043741.GA812@zuul.cca.cpqcorp.net>
-Reply-To: steve.cameron@hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265567AbTB0Q3y>; Thu, 27 Feb 2003 11:29:54 -0500
+Received: from dsl-212-144-205-077.arcor-ip.net ([212.144.205.77]:20100 "EHLO
+	server1.intern.kubla.de") by vger.kernel.org with ESMTP
+	id <S265446AbTB0Q3w> convert rfc822-to-8bit; Thu, 27 Feb 2003 11:29:52 -0500
+From: Dominik Kubla <dominik@kubla.de>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: About /etc/mtab and /proc/mounts
+Date: Thu, 27 Feb 2003 17:40:03 +0100
+User-Agent: KMail/1.5
+Cc: Kasper Dupont <kasperd@daimi.au.dk>, Miles Bader <miles@gnu.org>,
+       DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+References: <200302271600.h1RG0Cdh011948@eeyore.valparaiso.cl>
+In-Reply-To: <200302271600.h1RG0Cdh011948@eeyore.valparaiso.cl>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200302271740.06139.dominik@kubla.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 27 February 2003 17:00, Horst von Brand wrote:
+> Dominik Kubla <dominik@kubla.de> said:
+> > Quoting the Solaris 8 man page:
+>
+> I fail to see any significant difference to /proc/mounts (possibly
+> expanded). Sure, /proc is the wrong place for this kind of stuff, but...
 
-* Make driver wait longer for board to enter simple mode to
-  handle an unlikely corner case.  (If you hot replace a 144 GB
-  failed disk in a RAID 5 set at just the right time prior to 
-  driver initialization, the board can take an extra long time
-  to become ready when switched into "simple mode" when the
-  driver is starting up.  Without the patch, in those cases, the
-  driver will give up before the board becomes ready, and will not work.  
-  (Though rebooting will generally "fix" it).  This patch avoids
-  the problem.)
-* Fix a couple of affected ioctls to return EAGAIN instead of 
-  inappropriate EFAULT.
+Then i suggest that you re-read the mnttab(4) man page and compare
+it to the Linux implementation.  :-)
 
+Keep in mind that i only qouted some parts of the man page. Some thing
+are just details (but as we all know details do matter):
 
---- lx2421p5/drivers/block/cciss.c~cfg_table_wait	2003-02-27 10:11:35.000000000 +0600
-+++ lx2421p5-scameron/drivers/block/cciss.c	2003-02-27 10:11:35.000000000 +0600
-@@ -94,7 +94,8 @@ static struct board_type products[] = {
- };
- 
- /* How long to wait (in millesconds) for board to go into simple mode */
--#define MAX_CONFIG_WAIT 1000 
-+#define MAX_CONFIG_WAIT 30000 
-+#define MAX_IOCTL_CONFIG_WAIT 1000
- 
- /*define how many times we will try a command because of bus resets */
- #define MAX_CMD_RETRIES 3
-@@ -578,7 +579,7 @@ static int cciss_ioctl(struct inode *ino
-                         &(c->cfgtable->HostWrite.CoalIntCount));
- 		writel( CFGTBL_ChangeReq, c->vaddr + SA5_DOORBELL);
- 
--		for(i=0;i<MAX_CONFIG_WAIT;i++) {
-+		for(i=0;i<MAX_IOCTL_CONFIG_WAIT;i++) {
- 			if (!(readl(c->vaddr + SA5_DOORBELL) 
- 					& CFGTBL_ChangeReq))
- 				break;
-@@ -586,8 +587,11 @@ static int cciss_ioctl(struct inode *ino
- 			udelay(1000);
- 		}	
- 		spin_unlock_irqrestore(&io_request_lock, flags);
--		if (i >= MAX_CONFIG_WAIT)
--			return -EFAULT;
-+		if (i >= MAX_IOCTL_CONFIG_WAIT)
-+			/* there is an unlikely case where this can happen,
-+			 * involving hot replacing a failed 144 GB drive in a 
-+			 * RAID 5 set just as we attempt this ioctl. */
-+			return -EAGAIN;
-                 return 0;
-         }
- 	case CCISS_GETNODENAME:
-@@ -627,7 +631,7 @@ static int cciss_ioctl(struct inode *ino
- 			
- 		writel( CFGTBL_ChangeReq, c->vaddr + SA5_DOORBELL);
- 
--		for(i=0;i<MAX_CONFIG_WAIT;i++) {
-+		for(i=0;i<MAX_IOCTL_CONFIG_WAIT;i++) {
- 			if (!(readl(c->vaddr + SA5_DOORBELL) 
- 					& CFGTBL_ChangeReq))
- 				break;
-@@ -635,8 +639,11 @@ static int cciss_ioctl(struct inode *ino
- 			udelay(1000);
- 		}	
- 		spin_unlock_irqrestore(&io_request_lock, flags);
--		if (i >= MAX_CONFIG_WAIT)
--			return -EFAULT;
-+		if (i >= MAX_IOCTL_CONFIG_WAIT)
-+			/* there is an unlikely case where this can happen,
-+			 * involving hot replacing a failed 144 GB drive in a 
-+			 * RAID 5 set just as we attempt this ioctl. */
-+			return -EAGAIN;
-                 return 0;
-         }
- 
-@@ -2583,11 +2590,17 @@ static int cciss_pci_init(ctlr_info_t *c
- 		&(c->cfgtable->HostWrite.TransportRequest));
- 	writel( CFGTBL_ChangeReq, c->vaddr + SA5_DOORBELL);
- 
-+	/* Here, we wait, possibly for a long time, (4 secs or more). 
-+	 * In some unlikely cases, (e.g. A failed 144 GB drive in a 
-+	 * RAID 5 set was hot replaced just as we're coming in here) it 
-+	 * can take that long.  Normally (almost always) we will wait 
-+	 * less than 1 sec. */
- 	for(i=0;i<MAX_CONFIG_WAIT;i++) {
- 		if (!(readl(c->vaddr + SA5_DOORBELL) & CFGTBL_ChangeReq))
- 			break;
- 		/* delay and try again */
--		udelay(1000);
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		schedule_timeout(1);
- 	}	
- 
- #ifdef CCISS_DEBUG
+[Linux]
+# ls -l /proc mounts
+lrwxrwxrwx    1 root     root           11 Feb 27 17:10 /proc/mounts -> 
+self/mounts
+# ls -l /proc/self/mounts
+-r--r--r--    1 root     root            0 Feb 27 17:11 /proc/self/mounts
+# wc -c /proc/self/mounts
+   1058 /proc/self/mounts
 
-_
+[Solaris]
+# ls -l /etc/mnttab
+ r--r--r--   1 root         1178 Feb 25 16:26 /etc/mnttab
+# wc -c /etc/mnttab
+    1178 /etc/mnttab
+
+The snapshot feature as quoted in the man page is not present under
+Linux.  The poll(2) feature is not implemented. The solaris mntfs also
+implements special ioctrls. Quoting the man page again:
+
+[...]
+IOCTLS
+     The following ioctl(2) calls are supported:
+
+     MNTIOC_NMOUNTS
+           Returns the count of mounted resources in the  current
+           snapshot in the uint32_t pointed to by arg.
+
+     MNTIOC_GETDEVLIST
+           Returns an array of uint32_t's that is twice  as  long
+           as the length returned by MNTIOC_NMOUNTS. Each pair of
+           numbers  is the major and minor device number for  the
+           file  system at the corresponding  line in the current
+           /etc/mnttab snapshot. arg points to the memory  buffer
+           to receive the device number information.
+
+    MNTIOC_SETTAG
+           Sets a tag word into the options list  for  a  mounted
+           file  system.  A tag is a notation that will appear in
+           the options string of a mounted file system but it  is
+           not recognized or interpreted by the file system code.
+           arg points to a filled  in  mnttagdesc  structure,  as
+           shown in the following example:
+
+           uint_t  mtd_major; /* major number for mounted fs */
+           uint_t  mtd_minor; /* minor number for mounted fs */
+           char    *mtd_mntpt; /* mount point of file system */
+           char    *mtd_tag;  /* tag to set/clear */
+
+           If the tag already exists then it is marked as set but
+           not re-added. Tags can be at most MAX_MNTOPT_TAG long.
+
+     MNTIOC_CLRTAG
+           Marks a tag in the options list  for  a  mounted  file
+           system as not set. arg points to the same structure as
+           MNTIOC_SETTAG, which identifies the  file  system  and
+           tag to be cleared.
+[...]
+
+There is also an extended set of library functions to go along with that,
+eg. getmntany(3), getextmntent(3), resetmnttab(3) and hasmntopt(3).
+
+It is very helpful that one can get the time a mount happened! You can
+not get this kind of information on Linux, neither from /etc/mtab nor from
+/proc/self/mounts.
+
+getextmnttab(3) also gives easy access to the device major and minor
+number of the mount point.
+
+So there are quite some differences between the Linux proc file and
+the Solaris mntfs filesystem.  If these differences justify us doing it the
+same way is debateable.
+
+The strongest argument i see is: It's already been done this way by one
+major Unix version, so why should Linux reinvent the wheel. Again.
+
+Regards,
+  Dominik
+-- 
+"What this  country needs is  a short, victorious war  to stem the  tide of
+revolution." (V.K. von Plehve, Russian Minister  of Interior on the  eve of
+the Russo-Japanese war.)
+

@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319395AbSILBKS>; Wed, 11 Sep 2002 21:10:18 -0400
+	id <S319402AbSILBV2>; Wed, 11 Sep 2002 21:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319396AbSILBKS>; Wed, 11 Sep 2002 21:10:18 -0400
-Received: from quechua.inka.de ([212.227.14.2]:16480 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S319395AbSILBKS>;
-	Wed, 11 Sep 2002 21:10:18 -0400
-From: Bernd Eckenfels <ecki-news2002-09@lina.inka.de>
+	id <S319403AbSILBV2>; Wed, 11 Sep 2002 21:21:28 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:24588 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S319402AbSILBV1>; Wed, 11 Sep 2002 21:21:27 -0400
+Date: Wed, 11 Sep 2002 18:25:52 -0700
+From: jw schultz <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
-In-Reply-To: <20020911195232.GH1212@marowsky-bree.de>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E17pIZX-0001HF-00@sites.inka.de>
-Date: Thu, 12 Sep 2002 03:15:07 +0200
+Subject: Re: the userspace side of driverfs
+Message-ID: <20020912012552.GF10315@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <1031707119.1396.30.camel@entropy> <Pine.LNX.4.44.0209102122520.1057-100000@cherise.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209102122520.1057-100000@cherise.pdx.osdl.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020911195232.GH1212@marowsky-bree.de> you wrote:
->> I've been think about this separately.  FC in particular needs some type of
->> event notification API (something like "I've just seen this disk" or "my
->> loop just went down").  I'd like to leverage a mid-layer api into hot plug
->> for some of this, but I don't have the details worked out.
+On Tue, Sep 10, 2002 at 09:38:24PM -0700, Patrick Mochel wrote:
+> I agree. There has been a lot of talk on this topic, but I don't think 
+> much has gotten down on paper, though there might be some in the 
+> archives...
+> 
+> The main ideal that we're shooting for is to have one ASCII value per
+> file. The ASCII part is mandatory, but there will definitely be exceptions
+> where we will have an array of or multiple values per file. We want to
+> minimize those instances, though. Both for the sake of easy parsing, but
+> also for easy formatting within the drivers.
 
-> This isn't just FC, but also dasd on S/390. Potentially also network block
-> devices, which can notice a link down.
+Good so far.  When you have one value in a file the filename
+tells you what it is.  What i don't want to see is more of
+the multiple values in a file without labels or headings.
+eg. /proc/sys/fs/inode-state (2.4.18):
+	1792	133	0	0	0	0	0
+I can't really trust documentation to keep up so the only
+way i can be sure what these numbers are, is to look in the
+kernel source.
 
-It is true for every device. Starting from a IDE Disk which can fail to a
-SCSI DEvice, to a network link, even hot Plug-PCI Cards and CPUs, RAM
-Modules and so on can use this API.
+Please, if you must have multiple values give them labels.
 
-Recovering from an ahardware failure is a major weakness of non-host
-operating systems. Linux Filesystems used to panic much too often. It is
-getting better, but it is still a long way to allow multipath IO, especially
-in environemnts where it is more complicated than a faild FC loop. For
-example 2 FC adapters on 2 different PCI bus should be able to deactivate
-themself if IO with the adapter locks.
+If it can only be 1 dimensional put one per line with a
+label.  I don't care whether whether it 'label text:  value'
+or 'label_text=value'  just as long as we are consistent
+about the delimiters, capitalization (don't), whitespace and
+underscore/dash.
 
-> I vote for exposing the path via driverfs (which, I think, is already
-> concensus so the multipath group, topology etc can be used) and allowing
-> user-space to reenable them after doing whatever probing deemed necessary.
+If it needs to be 2 dimensional put the labels at the top as
+a comment line (/^[;#]/d).  Using fixed width fields is asking
+for trouble.  I prefer tab delimited but padding the fields
+for alignment is OK as would be using tabs as long as we
+agree on method and the labels don't have spaces.
 
-There are situations where a path is reenabled by the kernel, for example
-network interfaces. But it makes sence in a HA environemnt to move this to a
-user mode daemon, simply because the additional stability is worth the extra
-daemon. On the other hand, kernel might need to detect congestion/jam
-anyway, especially if load balancing is used.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-Personally I like the simple md approach for IO Multipath, as long as not
-the whole kernel is able to operate sanely with changing hardware topology.
-
-This is especially less intrusiver to all the drivers out there. And allows
-funny combinations like SAN with NAS Backups.
-
-Greetings
-Bernd
+		Remember Cernan and Schmitt

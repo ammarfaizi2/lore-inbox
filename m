@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312988AbSDBXMU>; Tue, 2 Apr 2002 18:12:20 -0500
+	id <S312993AbSDBXeR>; Tue, 2 Apr 2002 18:34:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312989AbSDBXMK>; Tue, 2 Apr 2002 18:12:10 -0500
-Received: from h53n2fls32o986.telia.com ([213.67.49.53]:35589 "EHLO
-	localhost.toothpaste.org") by vger.kernel.org with ESMTP
-	id <S312988AbSDBXL6>; Tue, 2 Apr 2002 18:11:58 -0500
-Date: Wed, 3 Apr 2002 02:08:52 +0200
-From: Erik =?ISO-8859-1?Q?Ljungstr=F6m?= <insight@metalab.unc.edu>
+	id <S312994AbSDBXeI>; Tue, 2 Apr 2002 18:34:08 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33042 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312993AbSDBXeC>; Tue, 2 Apr 2002 18:34:02 -0500
 To: linux-kernel@vger.kernel.org
-Subject: ATI Rage drivers?
-Message-Id: <20020403020852.0030283f.insight@metalab.unc.edu>
-Organization: Independent C0der
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: how to increase UNIX98 pty number?
+Date: 2 Apr 2002 15:33:53 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a8df51$jjo$1@cesium.transmeta.com>
+In-Reply-To: <OF391D2B4A.E68BC179-ON86256B8E.005D10CA@3com.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <OF391D2B4A.E68BC179-ON86256B8E.005D10CA@3com.com>
+By author:    Hui_Ning@3com.com
+In newsgroup: linux.dev.kernel
+> 
+> hi,
+> 
+> Where should I change to increase the UNIX98 pty number beyond 2048? The
+> maximum allowed in xconfig is 2048.
+> Is there any reason that this number can't go beyond 2048? Thanks,
+> 
 
-Is there still someone developing the Ati Rage Pro agp driver for VESA? When I
-compile my kernel (2.4.17) with this driver set to Y the console gets all corny. Letters disappears and reappears, the update frequency is extremely low, and the
-text gets all dazed and flickers. It doesn't matter which mode I give to lilo,
-the problem persists.
+Yes, dev_t is too small.
 
-I tried to contact the autor a while ago, without success. 
-The VESA Frame buffer driver works perfectly.
+You could hack the kernel to locally allocate additional major
+numbers, preferrably in the 240-255 range, if you need it.
 
- 
---
-Best regards, Erik
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

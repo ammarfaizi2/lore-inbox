@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262439AbVCSKLB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVCSKW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbVCSKLB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 05:11:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbVCSKLB
+	id S262440AbVCSKW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 05:22:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVCSKW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 05:11:01 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30349 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262439AbVCSKKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 05:10:51 -0500
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: Paul Mackerras <paulus@samba.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, riel@redhat.com,
-       Ian.Pratt@cl.cam.ac.uk, kurt@garloff.de, Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
-References: <E1DBsgI-0001Cg-00@mta1.cl.cam.ac.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Mar 2005 03:07:18 -0700
-In-Reply-To: <E1DBsgI-0001Cg-00@mta1.cl.cam.ac.uk>
-Message-ID: <m1k6o40x0p.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sat, 19 Mar 2005 05:22:56 -0500
+Received: from john.hrz.tu-chemnitz.de ([134.109.132.2]:36066 "EHLO
+	john.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S262440AbVCSKWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 05:22:51 -0500
+Date: Sat, 19 Mar 2005 11:22:50 +0100
+From: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 3c59x concerns on 2.4->2.6 update?
+Message-ID: <20050319102250.GA11557@bayes.mathematik.tu-chemnitz.de>
+Mail-Followup-To: Matthias Andree <matthias.andree@gmx.de>,
+	linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20050318103418.GA14636@merlin.emma.line.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050318103418.GA14636@merlin.emma.line.org>
+User-Agent: Mutt/1.4.2.1i
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: --- Start der SpamAssassin 3.0.2 Textanalyse (-2.8 Punkte)
+	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
+	-2.8 ALL_TRUSTED            Nachricht wurde nur ueber vertrauenswuerdige Rechner weitergeleitet
+	--- Ende der SpamAssassin Textanalyse
+X-Scan-Signature: a37c3661e0372786d6c154dc38711565
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keir Fraser <Keir.Fraser@cl.cam.ac.uk> writes:
+In 2.6.11 ethtool data should be available. Please let me know if
+you are using 2.6.11 and ethtool does not work with your card. 
 
-> > > now, the patch lines that poke into the GATT I guess stay as they are. 
-> > > We can maintain an out-of-tree patch for Xen, or perhaps if 
-> > > virt_to_phys() is not used very much we can override its definition.
-> > 
-> > It sounds like xen is trying to overload the concepts of physical and
-> > bus addresses to represent the mapping from "logical" addresses seen
-> > by the kernel to "absolute" addresses (the "real" physical
-> > addresses).  IMHO that is a mistake and will only lead to trouble.
+I have no Tornado card to test but with 3c905/3c905B cards and 
+options=0x204 configured, mii-diag reports:
+Auto-negotiation disabled, with Speed fixed at 100 mbps, full-duplex.
+
+I suppose you talking about 3c905C Tornado cards 
+(3c900 cards are not of Tornado type).
+
+Steffen
+
+On Fri, Mar 18, 2005 at 11:34:19AM +0100, Matthias Andree wrote:
+> Hi,
 > 
-> Well, actually it has worked well for us so far. Our model of memory
-> allocation amongst Xen guests is fine-grained (page granularity). The
-> fact a guest can get random sparse physical pages does not fit well
-> with Linux's expectation (even with discontig-mem builds) of at least
-> getting fairly large contiguous physical chunks of RAM.
-
-There is data excess data structure but it fits fine.  You simply
-allocate one region and set PG_reserved on all of the pages that
-the OS does not have access too.  Trivial and you don't have
-to hack anything.
-
-Larger than 4K granularity pages are important for performance reasons
-in a number of contexts.  The primary reason is the large pages allow
-a reduction in tlb misses.  But it is worth noting that DRAM pages
-can be as large as 32KiB.  So there are other cases where there are
-benefits in dealing with contiguous memory addresses besides reducing
-the tlb miss count.
-
-> For this reason, we do rather abuse the notion of 'phys'
-> addresses. But we get away with it because it really doesn't matter to
-> the VM system that these addresses bear no relation to reality. In
-> most cases that it does matter it is because we are programming an I/O
-> device, in which case we have convenient hook points (bus-address
-> macros and the DMA-mapping interface). Another slightly tricky one was
-> block-I/O buffer merging but, again, we found a fairly clean way of
-> hooking that in an appropriate manner.
-
-You also have broken kexec.  
-
-And how well does hugetlbfs work under Xen?
- 
-> I'd be happy to cook up a patch to do this if it isn't too offensive
-> for anyone.
-
-For this specific case there may be another resolution but could
-you please, please look at marking the missing pages PG_reserved
-and not hacking phys_to_virt.
-
-At this point anything short of explicitly introducing an intermediate
-step say virt_to_logical() logical_to_virt() will be extremely
-confusing and lead to very hard to spot bugs.  Silently changing
-the semantics of functions is bad.
-
-Eric
+> I've recently upgraded a router which has three 3Com900C Tornado cards
+> revisions 74 and 78 from Linux 2.4 to 2.6.
+> 
+> IIRC, Linux 2.4 allowed to report if the link beat was sensed to be 10
+> or 100 mbps, Linux 2.6 does not. One of these cards is attached to
+> peculiar network gear and needs to be forced to 100baseTx-FD.
+> I configured options=0x204 for that interface, which sorta worked;
+> vortex-diag and mii-diag still report autonegotiation were enabled.
+> Strange.
+> 
+> ethtool (I tried v2 and v3) does not appear to work at all for 3C900C
+> cards, "No data available" if run without options.
+> 
+> Any insight into these would be appreciated,
+> 
+> -- 
+> Matthias Andree
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-net" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

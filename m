@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265926AbTFVV2d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 17:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265927AbTFVV2c
+	id S265902AbTFVVaO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 17:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265927AbTFVVaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 17:28:32 -0400
-Received: from p68.rivermarket.wintek.com ([208.13.56.68]:6273 "EHLO
-	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
-	id S265926AbTFVV2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 17:28:31 -0400
-Date: Sun, 22 Jun 2003 16:45:55 -0500 (EST)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Florin Iucha <florin@iucha.net>
-Cc: Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.73
-In-Reply-To: <Pine.LNX.4.56.0306221615230.11747@dust>
-Message-ID: <Pine.LNX.4.56.0306221635550.1758@dust.p68.rivermarket.wintek.com>
-References: <Pine.LNX.4.44.0306221150440.17823-100000@old-penguin.transmeta.com>
- <20030622204607.GA16386@iucha.net> <Pine.LNX.4.56.0306221615230.11747@dust>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 22 Jun 2003 17:30:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52969 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265902AbTFVVaI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 17:30:08 -0400
+Date: Sun, 22 Jun 2003 22:44:12 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Lou Langholtz <ldl@aros.net>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@digeo.com>, torvalds@osdl.org
+Subject: Re: [PATCH] nbd driver for 2.5+: fix for 2.5 block layer (improved)
+Message-ID: <20030622214412.GM6754@parcelfarce.linux.theplanet.co.uk>
+References: <3EF6034C.1070204@aros.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EF6034C.1070204@aros.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Jun 2003, Alex Goddard wrote:
+On Sun, Jun 22, 2003 at 01:28:12PM -0600, Lou Langholtz wrote:
 
-> An attempt at a fix.  It just moves pci_desroy_dev outside the #ifdef).  
-> I have no idea if this is the correct way to fix this.  It compiles okay.
+> 4. that the allocation of request_queue is dynamic and seperate from 
+> other allocated objects [Al]
 
-It also boots and seems to run okay.
+*Ugh*.  Not on ->open(), please...  _If_ you really want that sort of
+on-demand allocation - make it happen via blk_register_region() and
+allocate both gendisk and queue at once.
 
--- 
-Alex Goddard
-agoddard@purdue.edu
+However, I would suggest to make that a separate patch and for now allocate
+queues at the same place where you allocate gendisks, without any on-demand
+stuff.

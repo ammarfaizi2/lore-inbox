@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbUDGKeA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 06:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUDGKeA
+	id S262514AbUDGKhz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 06:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbUDGKhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 06:34:00 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:8414 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S261942AbUDGKd6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 06:33:58 -0400
-Date: Wed, 7 Apr 2004 12:33:52 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5: keyboard lockup on a Toshiba laptop
-In-Reply-To: <200404071222.21397.rjwysocki@sisk.pl>
-Message-ID: <Pine.LNX.4.58.0404071227430.10871@alpha.polcom.net>
-References: <200404071222.21397.rjwysocki@sisk.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Apr 2004 06:37:55 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:35793 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S262514AbUDGKhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 06:37:53 -0400
+Date: Wed, 7 Apr 2004 12:37:46 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.5-mm2 build problem
+Message-ID: <20040407103746.GF20293@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Apr 2004, R. J. Wysocki wrote:
+2.6.5-mm1 builds OK, 2.6.5-mm2 does not:
 
-> Hi,
-> 
-> FYI, I've just had a keyboard lockup on a Toshiba laptop (Satellite 1400-103) 
-> with the 2.6.5 kernel.
-> 
-> It occured when I was typing some text in kmail.  Everything worked just fine 
-> except for the keyboard that was locked (dead - even capslock did not work).  
-> Fortunately the (USB) mouse worked, so I could reboot the machine "gently" to 
-> get my keyboard back in order.
-> 
-> I use RH9 with some modifications to support the 2.6.x kernels.  Attached is 
-> the .config.
+  CC [M]  drivers/scsi/scsicam.o
+  CC [M]  drivers/scsi/scsi_error.o
+  CC [M]  drivers/scsi/scsi_lib.o
+  CC [M]  drivers/scsi/scsi_scan.o
+  CC [M]  drivers/scsi/scsi_syms.o
+  CC [M]  drivers/scsi/scsi_sysfs.o
+  CC [M]  drivers/scsi/scsi_devinfo.o
+  CC [M]  drivers/scsi/scsi_sysctl.o
+  CC [M]  drivers/scsi/scsi_proc.o
+  CC [M]  drivers/scsi/sd.o
+  CC [M]  drivers/scsi/sr.o
+drivers/scsi/sr.c: In function scsi_cd_get':
+drivers/scsi/sr.c:128: error: structure has no member named kobj'
+drivers/scsi/sr.c: In function scsi_cd_put':
+drivers/scsi/sr.c:135: error: structure has no member named kobj'
+drivers/scsi/sr.c: In function sr_probe':
+drivers/scsi/sr.c:554: error: structure has no member named kobj'
+drivers/scsi/sr.c:555: error: structure has no member named kobj'
+drivers/scsi/sr.c: In function sr_kobject_release':
+drivers/scsi/sr.c:904: error: structure has no member named kobj'
+drivers/scsi/sr.c:904: warning: type defaults to int' in declaration of __mptr'
+drivers/scsi/sr.c:904: warning: initialization from incompatible pointer type
+drivers/scsi/sr.c:904: error: structure has no member named kobj'
+make[3]: *** [drivers/scsi/sr.o] Error 1
+make[2]: *** [drivers/scsi] Error 2
+make[1]: *** [drivers] Error 2
+make[1]: Leaving directory /usr/src/linux-2.6.5-mm2'
+make: *** [stamp-build] Error 2
 
-Hi,
+My .config is here:
+http://www.stahl.bau.tu-bs.de/~hildeb/satellitepro/kernel-config-2.6		      
 
-Was anything in your logs about that?
-
-I think that maybe you should disable PREEMPTION.
-
-Or use different distribution than RH9. They often modify gcc and other 
-programs, maybe even X - maybe try to compile your kernel on "vanilla" gcc 
-3.3.3. I can give you a shell on computer with Gentoo and working gcc. Or 
-change distribution: Gentoo works ok for me and my friends! :-)
-
-
-regards
-
-Grzegorz Kulewski
-
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
+IT-Zentrum Standort Campus Mitte                          AIM.  ralfpostfix

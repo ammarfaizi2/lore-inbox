@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267295AbSKPROJ>; Sat, 16 Nov 2002 12:14:09 -0500
+	id <S267311AbSKPRSA>; Sat, 16 Nov 2002 12:18:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267307AbSKPROI>; Sat, 16 Nov 2002 12:14:08 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:19642 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S267295AbSKPROI>; Sat, 16 Nov 2002 12:14:08 -0500
-Date: Sat, 16 Nov 2002 18:21:00 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: yodaiken@fsmlabs.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: lan based kgdb
-Message-ID: <20021116172100.GG1877@tahoe.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	yodaiken@fsmlabs.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay> <ar3op8$f20$1@penguin.transmeta.com> <20021115222430.GA1877@tahoe.alcove-fr> <3DD57A5F.87119CB4@digeo.com> <20021115225932.GC1877@tahoe.alcove-fr> <20021116092341.A30010@hq.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021116092341.A30010@hq.fsmlabs.com>
-User-Agent: Mutt/1.3.25i
+	id <S267314AbSKPRSA>; Sat, 16 Nov 2002 12:18:00 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:14236 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267311AbSKPRR7> convert rfc822-to-8bit; Sat, 16 Nov 2002 12:17:59 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.[45] fixes for design locking bug in wait_on_page/wait_on_buffer/get_request_wait
+Date: Sat, 16 Nov 2002 18:23:26 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, Con Kolivas <conman@kolivas.net>
+References: <200211161657.51357.m.c.p@wolk-project.de> <20021116165956.GF31697@dualathlon.random>
+In-Reply-To: <20021116165956.GF31697@dualathlon.random>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211161810.23039.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 16, 2002 at 09:23:41AM -0700, yodaiken@fsmlabs.com wrote:
+On Saturday 16 November 2002 17:59, Andrea Arcangeli wrote:
 
-> > > Here is the kgdb stub's "send a byte" function:
-[...]
-> 
-> > USB (with USB-to-serial adapter), network, ieee1394 would be 
-> > acceptable replacements for me.
-> 
-> Have you ever looked at a USB or 1394 driver? 
+Hi Andrea,
 
-As a matter of fact, I did.
+> Your pausing problem have little to do with the pausing fix, the problem
+> for you is the read latency, you're not triggering the race condition
+> fixed by the pausing fix so it can't make differences. One of the
+> foundamental obstacles to the read latency is the size of the I/O queue,
+> factor that is workarounded by the read-latency patch that basically
+> bypasses the size of the queue hiding the problem and in turn can't fix
+> the write latency with O_SYNC and the read latency during true read aio
+> etc...
+ok, after some further tests, I think this is _somewhat_ FS dependent. I tried 
+this with ext2, ext3 (no difference there) and also with ReiserFS and what 
+must I say, those "Pausings" caused be the write latency doing it with 
+ReiserFS are alot less than with ext2|ext3 but are still occuring.
 
-> The nice thing about
-> serial is that the software to make it work is trivial. A debugger that 
-> relies on a 5000 line driver is quite suspect.
+There must went in something bullshitty into 2.4.19/2.4.20 that causes those 
+ugly things because 2.4.18 does not have that problem. This is still why I 
+don't use any kernels >2.4.18.
 
-Agreed. But even a suspect debugger is preferable to no debugger at all.
+After changing elevator things like this:
 
-Look, serial ports are becoming obsolete. We (not everybody but many
-people) need kgdb.
+root@codeman:[/] # elvtune /dev/hda
 
-The general oppinion seems to be that a mini network stack + a simple
-network card driver is the easiest thing to implement (mostly because
-already done). That's fine for me.
+/dev/hda elevator ID            0
+        read_latency:           2048
+        write_latency:          1024
+        max_bomb_segments:      0
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+those "pausings" are less worse than before but are still there.
+NOTE: Write latency is lower than read latency (it's not a typo :)
+
+ciao, Marc
+
+

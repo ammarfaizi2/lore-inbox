@@ -1,80 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbTJAMwG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 08:52:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTJAMwG
+	id S261844AbTJANKE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 09:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbTJANKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 08:52:06 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:25284 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262074AbTJAMwA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 08:52:00 -0400
-Date: Wed, 1 Oct 2003 09:51:33 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@localhost.localdomain
-To: Santiago Garcia Mantinan <manty@manty.net>, <bridge@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
-Subject: Re: bridge breaks loopback on 2.4.22
-In-Reply-To: <20030927202200.GA612@man.beta.es>
-Message-ID: <Pine.LNX.4.44.0309301531530.2511-100000@localhost.localdomain>
+	Wed, 1 Oct 2003 09:10:04 -0400
+Received: from ausadmmsrr504.aus.amer.dell.com ([143.166.83.91]:33297 "HELO
+	AUSADMMSRR504.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id S262101AbTJANIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 09:08:36 -0400
+X-Server-Uuid: 5b9b39fe-7ea5-4ce3-be8e-d57fc0776f39
+Message-ID: <1065013713.23121.4.camel@iguana.localdomain>
+From: Matt_Domsch@Dell.com
+To: rankincj@yahoo.com
+cc: jamesclv@us.ibm.com, linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
+Subject: Re: APIC error on SMP machine
+Date: Wed, 1 Oct 2003 08:08:18 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 13640E4C4762939-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Oh well, I hear that Dell are selling dual 2.6 GHz
+> Xeons with RedHat preinstalled nowadays. (These should
+> have "hyperthreading support", right ;-) ?)
 
-Stephen, 
+Right.
 
-Have you looked into this? 
-
-Thank you 
-
-On Sat, 27 Sep 2003, Santiago Garcia Mantinan wrote:
-
-> Hi!
-> 
-> Since the change to 2.4.22 I've been experimenting problems here, after
-> many tests I have seen what I think is the problem that is causing this.
-> 
-> The problem I'm seing is the loopback starts loosing packages, I don't know
-> if this could also happen on other interfaces. I'm testing this by starting
-> a:
-> 	tcpdump -n -i lo port
-> then a:
-> 	nc -n -l port >/dev/null
-> and a:
-> 	nc localhost port </dev/zero
-> 
-> If everything is fine my cpu goes to 100% and I see the packages all the way
-> in my tcpdump screen, great. But there are sometimes when this doesn't go
-> smooth and the tcpdump starts to show only one or two packages each N
-> seconds, till it ends up showing the resend of the last package which is
-> never acknowledged, you can even see that the timings of this packages that
-> are being repeated match those of tcp backoff, my cpu charge is then really
-> really low, nc disconnects after a while, ...
-> 
-> When does this happen?
-> 
-> It took me a while to find this out, but it happens when you have a bridge
-> interface and one of the ports of the bridge is told to drop packages, like
-> when they detect a loop in the net and an interface is set to a blocking
-> state.
-> 
-> Of course that the loopback is not a part of any bridge in any of my setups,
-> and I've seen this in a couple of machines, one SMP and the other one single
-> micro, 2.4.21 worked ok, at least I could not reproduce this on that one. If
-> the interfaces have been in a forwarding state all the time since the bridge
-> was setup, without being in a blocking state, then this problem does not
-> seem to happen.
-> 
-> I believe that the changes the bridge went through from 2.4.21 to 2.4.22 are
-> to blame on this one, but this is just a guess.
-> 
-> Hope we can find a fix for this so that it is integrated in 2.4.23 kernel,
-> I'll be happy to make any tests you want to track this farther down.
-> 
-> Regards...
-> 
-
-
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 

@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267579AbUHTGPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267582AbUHTGXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267579AbUHTGPs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 02:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267582AbUHTGPs
+	id S267582AbUHTGXe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 02:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267587AbUHTGXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 02:15:48 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:19328 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267579AbUHTGPp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 02:15:45 -0400
-Date: Fri, 20 Aug 2004 11:47:49 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: Re: 2.6.8.1-mm2
-Message-ID: <20040820061749.GA30850@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040819014204.2d412e9b.akpm@osdl.org>
+	Fri, 20 Aug 2004 02:23:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:21209 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267582AbUHTGXc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 02:23:32 -0400
+Date: Thu, 19 Aug 2004 23:21:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: remove dentry_open::file_ra_init_state() duplicated memset was
+ Re: kernbench on 512p
+Message-Id: <20040819232145.2fd5c54a.akpm@osdl.org>
+In-Reply-To: <20040820005654.GC6374@logos.cnet>
+References: <200408191216.33667.jbarnes@engr.sgi.com>
+	<20040820005654.GC6374@logos.cnet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040819014204.2d412e9b.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 19, 2004 at 08:49:17AM +0000, Andrew Morton wrote:
-> ppc64-fix-v_regs-pointer-setup.patch
->   ppc64: Fix v_regs pointer setup
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> So this patch creates a __file_ra_state_init() function, which initializes
+>  the file_ra_state fields, without the memset. 
+> 
+>  file_ra_state_init() does the memset + its __ counterpart. 
 
-Paul rightly pointed out that is should be +15 and not +16. My mistake.
-Updated ppc64-fix-v_regs-pointer-setup.patch below:
+Seems unnecessarily fiddly.  How about this?
 
-
-Signed-off-by : Srivatsa Vaddagiri <vatsa@in.ibm.com>
-
+--- 25/mm/readahead.c~file_ra_state_init-speedup	2004-08-19 23:20:11.695876032 -0700
++++ 25-akpm/mm/readahead.c	2004-08-19 23:20:42.077257360 -0700
+@@ -28,12 +28,12 @@ struct backing_dev_info default_backing_
+ EXPORT_SYMBOL_GPL(default_backing_dev_info);
  
----
-
- linux-2.6.8.1-mm2-vatsa/arch/ppc64/kernel/signal.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN arch/ppc64/kernel/signal.c~ppc64-fix-v_regs-pointer-setup arch/ppc64/kernel/signal.c
---- linux-2.6.8.1-mm2/arch/ppc64/kernel/signal.c~ppc64-fix-v_regs-pointer-setup	2004-08-20 11:43:05.000000000 +0530
-+++ linux-2.6.8.1-mm2-vatsa/arch/ppc64/kernel/signal.c	2004-08-20 11:43:22.000000000 +0530
-@@ -127,7 +127,7 @@ static long setup_sigcontext(struct sigc
- 	 * v_regs pointer or not
- 	 */
- #ifdef CONFIG_ALTIVEC
--	elf_vrreg_t __user *v_regs = (elf_vrreg_t __user *)(((unsigned long)sc->vmx_reserve + 16) & ~0xful);
-+	elf_vrreg_t __user *v_regs = (elf_vrreg_t __user *)(((unsigned long)sc->vmx_reserve + 15) & ~0xful);
- #endif
- 	long err = 0;
- 
-
+ /*
+- * Initialise a struct file's readahead state
++ * Initialise a struct file's readahead state.  Assumes that the caller has
++ * memset *ra to zero.
+  */
+ void
+ file_ra_state_init(struct file_ra_state *ra, struct address_space *mapping)
+ {
+-	memset(ra, 0, sizeof(*ra));
+ 	ra->ra_pages = mapping->backing_dev_info->ra_pages;
+ 	ra->average = ra->ra_pages / 2;
+ }
+diff -puN fs/nfsd/vfs.c~file_ra_state_init-speedup fs/nfsd/vfs.c
+--- 25/fs/nfsd/vfs.c~file_ra_state_init-speedup	2004-08-19 23:20:11.713873296 -0700
++++ 25-akpm/fs/nfsd/vfs.c	2004-08-19 23:21:05.721662864 -0700
+@@ -771,6 +771,7 @@ nfsd_get_raparms(dev_t dev, ino_t ino, s
+ 	ra = *frap;
+ 	ra->p_dev = dev;
+ 	ra->p_ino = ino;
++	memset(&ra->p_ra, 0, sizeof(ra->p_ra));
+ 	file_ra_state_init(&ra->p_ra, mapping);
+ found:
+ 	if (rap != &raparm_cache) {
 _
 
-_
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271810AbRIEOFg>; Wed, 5 Sep 2001 10:05:36 -0400
+	id <S272181AbRIEOPS>; Wed, 5 Sep 2001 10:15:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271822AbRIEOF1>; Wed, 5 Sep 2001 10:05:27 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:45756 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S271810AbRIEOFO>; Wed, 5 Sep 2001 10:05:14 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Linux 2.4.9-ac6
-Date: Wed, 5 Sep 2001 14:05:32 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9n5bfc$i7c$1@forge.intermeta.de>
-In-Reply-To: <1257554973.999687013@[169.254.198.40]> <NOEJJDACGOHCKNCOGFOMAECKDLAA.davids@webmaster.com> <20010905145039.A10655@pc8.lineo.fr>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 999698732 18821 212.34.181.4 (5 Sep 2001 14:05:32 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 5 Sep 2001 14:05:32 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S272182AbRIEOPJ>; Wed, 5 Sep 2001 10:15:09 -0400
+Received: from caymail.com ([199.227.10.105]:20663 "HELO pop1.netcis.com")
+	by vger.kernel.org with SMTP id <S272181AbRIEOOz>;
+	Wed, 5 Sep 2001 10:14:55 -0400
+Date: Wed, 5 Sep 2001 10:15:25 -0400 (EDT)
+From: Jeremiah Johnson <miah@pop1.netcis.com>
+To: volodya@mindspring.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Re[4]: 2.4.9 UDP broke?
+In-Reply-To: <Pine.LNX.4.20.0109042354001.22370-100000@node2.localnet.net>
+Message-ID: <Pine.LNX.4.10.10109051010220.29827-100000@pop1.netcis.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr> writes:
 
->Would it not be possible with your scheme to package a closed source driver
->in an open source wrapper driver and then defeat your tainting technique.
 
->Is it legally possible to copyright a kind of magic number with a copyright
->allowing only it's used in open & public source driver ?
+Ironically, the latest "stable" version of the tulip driver on:
+http://sourceforge.net/projects/tulip is older than whats in 2.4.9.  I'm
+willing to bet the latest "devel" is older too (they're dated June
+15(devel), and February 19(stable).
 
-Congratulations, you've just invented the Microsoft HW Labs
-certification procedure with module signing. ;-)
+-miah
 
-I can really see it:
+On Tue, 4 Sep 2001 volodya@mindspring.com wrote:
+> 
+> 
+> On Tue, 4 Sep 2001, Jeremiah Johnson wrote:
+> 
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: MD5
+> > 
+> > Hello volodya,
+> > 
+> > I found the answer to the problem today.  It has to do with a bug in
+> > one of these options:
+> > 
+> > CONFIG_TULIP_MWI
+> > CONFIG_TULIP_MMIO
+> 
+> Hmm, interesting. I'll check the latest version of tulip (as well as the
+> one on Donald Becker's website). Did you try them out already ?
+> 
+>                           Vladimir Dergachev
 
-# insmod <module>
-This module <module> is not signed with the Linus Torvalds Hardware
-Certification Labs key.
-
-Do you want to
-
-a) insert the module anyway (Errors and Crashes from your kernel will
-not be processed by major kernel developers
-b) not insert the module
-c) search for an alternative driver that is open source, download it,
-   compile it and use that instead of <module>
-d) download a skeleton driver to write your own driver
-e) install Microsoft Windows XP
-f) exit
-
--> f
-# 
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

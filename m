@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268339AbTCFUQI>; Thu, 6 Mar 2003 15:16:08 -0500
+	id <S268295AbTCFU1K>; Thu, 6 Mar 2003 15:27:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268332AbTCFUP6>; Thu, 6 Mar 2003 15:15:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45062 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268339AbTCFUPt>; Thu, 6 Mar 2003 15:15:49 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [patch] work around gcc-3.x inlining bugs
-Date: 6 Mar 2003 12:26:11 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b48at3$5pt$1@cesium.transmeta.com>
-References: <20030306032208.03f1b5e2.akpm@digeo.com.suse.lists.linux.kernel> <p73fzq067an.fsf@amdsimf.suse.de>
-MIME-Version: 1.0
+	id <S268332AbTCFU1K>; Thu, 6 Mar 2003 15:27:10 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:50606 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268295AbTCFU1J>;
+	Thu, 6 Mar 2003 15:27:09 -0500
+Date: Thu, 6 Mar 2003 12:36:01 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: aia21@cantab.net, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [Linux-NTFS-Dev] ntfs OOPS (2.5.63)
+Message-Id: <20030306123601.0fdcc6ad.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.30.0303062101570.31029-100000@divine.city.tvnet.hu>
+References: <Pine.LNX.4.30.0303062035390.31029-100000@divine.city.tvnet.hu>
+	<Pine.LNX.4.30.0303062101570.31029-100000@divine.city.tvnet.hu>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <p73fzq067an.fsf@amdsimf.suse.de>
-By author:    Andi Kleen <ak@suse.de>
-In newsgroup: linux.dev.kernel
-> 
-> I submitted a similar patch (using -include) it to Linus some time ago.
-> It's even required to work around gcc 3.3 inlining bugs.
-> Unfortunately he didn't like it and prefered __force_inline
-> to be added to the places that really rely on inline.
-> 
+On Thu, 6 Mar 2003 21:15:35 +0100 (MET) Szakacsits Szabolcs <szaka@sienet.hu> wrote:
 
-I would like to suggest that always_inline is defined as
-"extern __inline__" plus whatever the particular compiler needs, and
-that plain inline is redefined as "static __inline__" or whatever.
+| 
+| On Thu, 6 Mar 2003, Szakacsits Szabolcs wrote:
+| > On Thu, 6 Mar 2003, Randy.Dunlap wrote:
+| > > I must have missed something here.  What other 2 oopses are you
+| > > referring to?
+| >
+| > Quoting from your report:
+| >
+| > ==> Mar  1 13:35:44 midway kernel: Oops: 0002
+| >
+| > This means oops counter is 2. So there were two oopses before with
+| > counter value 0 and 1.
+| 
+| I just checked, this is not true (I could dig up the false source
+| of information if interested). It's error_code: no page found,
+| kernel-mode write fault. Sorry for the confusion :(
+| 
+| > > As for closing bug reports because they are not reproducible...
+| >
+| > No. Not because it's not reproducible however because it's untrustable
+| > and bogus. Unless as I mentioned before ... please see above. Thanks!
+| 
+| So this is also invalid ... Could you please send the 'objdump -S
+| fs/ntfs/inode.o' output? The __ntfs_init_inode part would be enough
+| also.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+I'm glad that this little confusion is cleared up.
+I was about to correct it, but you beat me to it.
+However, such an oops counter could be useful...
+
+--
+~Randy

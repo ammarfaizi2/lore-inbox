@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290713AbSBFRnY>; Wed, 6 Feb 2002 12:43:24 -0500
+	id <S290740AbSBFRuE>; Wed, 6 Feb 2002 12:50:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290715AbSBFRnO>; Wed, 6 Feb 2002 12:43:14 -0500
-Received: from dial-up-2.energonet.ru ([195.16.109.101]:12928 "EHLO
-	dial-up-2.energonet.ru") by vger.kernel.org with ESMTP
-	id <S290713AbSBFRnG>; Wed, 6 Feb 2002 12:43:06 -0500
-Date: Wed, 6 Feb 2002 20:46:08 +0000 (GMT)
-From: ertzog <ertzog@bk.ru>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Anuradha Ratnaweera <anuradha@gnu.org>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] kernelconf-0.1.2
-In-Reply-To: <20020125163213.A1635@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.21.0202062043520.919-100000@dial-up-2.energonet.ru>
+	id <S290736AbSBFRt4>; Wed, 6 Feb 2002 12:49:56 -0500
+Received: from smtp.mediascape.net ([212.105.192.20]:52232 "EHLO
+	smtp.mediascape.net") by vger.kernel.org with ESMTP
+	id <S290747AbSBFRti>; Wed, 6 Feb 2002 12:49:38 -0500
+Message-ID: <3C616CB0.7080705@mediascape.de>
+Date: Wed, 06 Feb 2002 18:49:36 +0100
+From: Olaf Zaplinski <o.zaplinski@mediascape.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020202
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Warning, 2.5.3 eats filesystems
+In-Reply-To: <20020205192826.GA112@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
+> Hi!
+> 
+> 2.5.3 managed to damage my ext2 filesystem (few lost directories);
+> beware.
+> 								Pavel
 
-> Therefore my intention was to point you in the direction of
-> an although incomplete implementation of a CML2 compiler
-> written in C.
-> This could give you the possibility to use the well documented
-> and by several people already accepted CML2 language, but at the
-> same time you had the flexibility to create your own front-end.
+/me too. 2.5.3 ate my bookmarks.html (and perhaps other files too, I did not 
+check yet). I just ran it up to the 1st freeze, then switched back to 
+2.4.17. Reiserfs then did a rather long log replay...
 
-
-Sorry, but I cannot understand, if a new text parser is going to be
-written. I tried to compare a parser, written by my self in C and
-in lex+yacc. The second was 4 times quicker and 4 times easier to write,
-so can I repeat the question:
-
-how syntax is parsed ?
+Olaf
 

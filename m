@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267772AbUIPHBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267777AbUIPHDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267772AbUIPHBi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 03:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267708AbUIPHBi
+	id S267777AbUIPHDl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 03:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUIPHDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 03:01:38 -0400
-Received: from zero.aec.at ([193.170.194.10]:30214 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S267807AbUIPHBc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 03:01:32 -0400
-To: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: lost memory on a 4GB amd64
-References: <2EWxl-7CI-13@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 16 Sep 2004 09:01:28 +0200
-In-Reply-To: <2EWxl-7CI-13@gated-at.bofh.it> (Sergei Haller's message of
- "Thu, 16 Sep 2004 07:00:11 +0200")
-Message-ID: <m3hdpyy9x3.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 16 Sep 2004 03:03:41 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:398 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S267777AbUIPHD3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 03:03:29 -0400
+Date: Thu, 16 Sep 2004 09:02:11 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Hans-Frieder Vogt <hfvogt@arcor.de>
+Cc: Jon Mason <jdmason@us.ibm.com>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, netdev@oss.sgi.com
+Subject: Re: 2.6.9-rc1-bk11+ and 2.6.9-rc1-mm3,4 r8169: freeze during boot (FIX included)
+Message-ID: <20040916070211.GA32592@electric-eye.fr.zoreil.com>
+References: <200409130035.50823.hfvogt@arcor.de> <200409160040.03532.hfvogt@arcor.de> <20040915230936.GA24467@electric-eye.fr.zoreil.com> <200409160132.34160.hfvogt@arcor.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409160132.34160.hfvogt@arcor.de>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergei Haller <Sergei.Haller@math.uni-giessen.de> writes:
+Hans-Frieder Vogt <hfvogt@arcor.de> :
+[...]
+> r8169: eth0: Config2 = 0x10
+> 
+> ... does not seem to be the already known issue? Anyhow, if you have more 
 
-> the problem is that about 512 MB of that memory is lost (AGP aperture and 
-> stuff). Although everything is perfect otherwise.
-> As far as I understand, all the PCI/AGP hardware uses the top end of the 
-> 4GB address range to access their memory and there is just an 
-> "overlapping" of the addresses. thus only the remaining 3.5 GB are 
-> available.
+Typo of mine: it is. The BSD people have noticed some time ago that the DAC
+of the chipset apparently does bad things when the card is inserted in a
+32 bits wide slot. 
 
-It's a BIOS issue. Nothing the kernel can do about it. You are 
-talking to the wrong people.
+Jon, if your ppc64 box offers 64 bits wide PCI slots, it would be nice if
+you could ttry 2.6.9-rc2-bkX, apply
+http://www.fr.zoreil.com/people/francois/misc/r8169-xx0.patch
+and report the content of the "Config2" line in the logs of the kernel.
 
--Andi
-
-
+--
+Ueimor

@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264471AbTEPPyT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 11:54:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264474AbTEPPyT
+	id S264477AbTEPPzk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 11:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTEPPzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 11:54:19 -0400
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:23965 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S264471AbTEPPyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 11:54:18 -0400
-Message-Id: <200305161605.h4GG5fGi018381@locutus.cmf.nrl.navy.mil>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] add reference counting to atm_dev 
-In-reply-to: Your message of "Thu, 15 May 2003 17:14:57 PDT."
-             <20030515.171457.02279102.davem@redhat.com> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Fri, 16 May 2003 12:05:41 -0400
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	Fri, 16 May 2003 11:55:40 -0400
+Received: from garnet.acns.fsu.edu ([146.201.2.25]:20969 "EHLO
+	garnet.acns.fsu.edu") by vger.kernel.org with ESMTP id S264477AbTEPPzi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 11:55:38 -0400
+Message-ID: <3EC50CD9.6020508@cox.net>
+Date: Fri, 16 May 2003 12:07:53 -0400
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Support for SiS 961/961B/962/963/630S/630ET/633/733 IDE
+References: <20030516143021.A17346@ucw.cz>
+In-Reply-To: <20030516143021.A17346@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030515.171457.02279102.davem@redhat.com>,"David S. Miller" writes
-:
->There is no correlation between whether you use netdevice or not
->and whether network configuration changes should be synchronized
->using the RTNL semaphore :-)
+Vojtech Pavlik wrote:
+> Hi!
+> 
+> The goal of this patch is to add support for the new generation of
+> MuTIOL southbridges by SiS, namely the 961/961B, 962 and 963. These
+> integrate the IDE controller, unlike all other SiS chipsets where the
+> controller is bound to the northbridge.
+> 
+> I had to do quite some research on what SiS IDE controllers exist that
+> don't use the 96* southbridges, and thus found out that the 633 and 733
+> controllers were missing. So those were added too.
+> 
+> This patch hovewer integrates a patch from Lionel which adds 630S/ET
+> UDMA100 support.
+> 
+> And while doing the changes I did also some cleanups, mainly removing a
+> bunch of debug code that doesn't seem very useful when lspci does the
+> same job. And removing the config_drive_xfer_rate in favor of functions
+> from ide-timing.h.
+> 
+> Tested on SiS963, works great.
+> 
+> Patches for current 2.4 and 2.5 attached.
 
-true.  however, i think i would like to do both at once.  but it seems 
-like just replacing atm_dev_lock with rtnl would probably be enough
-for right now.
+I never thought about it, but my SiS963 is not recognized in lspci. The 
+below is a link which has a diagram of the SiS648/SiS963 combo that is 
+on my motherboard. Would it enhance performance any or would this 
+correction just be cosmetic?
 
->Ok, I'll apply this.  But long term we really need to clean out
->the cobwebs here, use RTNL, do solid module refcounting etc.
+Thanks,
+David
 
-are you referring to the other bits of linux-atm like br2684, lane,
-mpoa, pppoatm or something else?
+Link: http://www.sis.com/products/chipsets/oa/pentium4/648.htm
+

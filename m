@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262942AbSIPVAB>; Mon, 16 Sep 2002 17:00:01 -0400
+	id <S263012AbSIPVFc>; Mon, 16 Sep 2002 17:05:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262957AbSIPVAB>; Mon, 16 Sep 2002 17:00:01 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61414 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262942AbSIPVAB>;
-	Mon, 16 Sep 2002 17:00:01 -0400
-Date: Mon, 16 Sep 2002 13:56:06 -0700 (PDT)
-Message-Id: <20020916.135606.107746701.davem@redhat.com>
-To: lists@mdiehl.de
-Cc: akropel1@rochester.rr.com, linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: Streaming DMA mapping question
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0209162144550.6230-100000@notebook.diehl.home>
-References: <20020915.203006.123845370.davem@redhat.com>
-	<Pine.LNX.4.21.0209162144550.6230-100000@notebook.diehl.home>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S263034AbSIPVFc>; Mon, 16 Sep 2002 17:05:32 -0400
+Received: from smtpout.mac.com ([204.179.120.97]:55254 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S263012AbSIPVFb>;
+	Mon, 16 Sep 2002 17:05:31 -0400
+Date: Mon, 16 Sep 2002 23:10:16 +0200
+Subject: Re: Oops in sched.c on PPro SMP
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v482)
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de, mingo@redhat.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Peter Waechtler <pwaechtler@mac.com>
+In-Reply-To: <1032187767.1191.16.camel@irongate.swansea.linux.org.uk>
+Message-Id: <B2E24D20-C9B8-11D6-8873-00039387C942@mac.com>
 Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Martin Diehl <lists@mdiehl.de>
-   Date: Mon, 16 Sep 2002 23:06:35 +0200 (CEST)
-   
-   Wasn't there a patch submitted which suggested to add pci_dma_prep_*()
-   calls in order to sync the cpu-driven changes back to the bus? I'm asking
-   because I'm dealing with a driver that needs to reuse streaming pci maps.
-   
-Yes, basically this is what must happen.
+Am Montag den, 16. September 2002, um 16:49, schrieb Alan Cox:
 
-If someone would code up a patch that includes the MIPS
-implementation, adds NOP implementations to every other asm/pci.h file
-and updates the Documentation/DMA-mapping.txt file appropriately,
-I'll probably just apply the patch and merge it upstream immediately.
+> On Mon, 2002-09-16 at 15:25, Peter Waechtler wrote:
+>> I suffered from lockups on PPro SMP as I switched from 2.4.18-SuSE
+>> to 2.4.19 and 2.4.20-pre7
+>
+> What compiler did you build it with ? I've seen oopses like this from
+> gcc 3.0.x that went away with gcc 3.2, 2.95 or 2.96
+>
+> Also does turning off the nmi watchdog junk make the box stable ?
+>
 
-I don't have time to work on this patch right now and I don't know how
-the MIPS part should be implemented so...
+It's 2.95.3:
+
+Reading specs from /usr/lib/gcc-lib/i486-suse-linux/2.95.3/specs
+gcc version 2.95.3 20010315 (SuSE)
+
+But I will check the readlocks more closely.
+

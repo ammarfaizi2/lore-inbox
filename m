@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266498AbUJAU1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266460AbUJAUXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266498AbUJAU1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 16:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUJAUYH
+	id S266460AbUJAUXw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 16:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266352AbUJAUXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 16:24:07 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:37259 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S266308AbUJAUVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:21:55 -0400
-Message-ID: <415DB427.7050108@drdos.com>
-Date: Fri, 01 Oct 2004 13:46:47 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Fri, 1 Oct 2004 16:23:36 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.61]:51353 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S266460AbUJAUW0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 16:22:26 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: linux-fbdev-devel@lists.sourceforge.net, Gerd Knorr <kraxel@bytesex.org>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] vesafb memory size mismatch
+Date: Sat, 2 Oct 2004 04:22:14 +0800
+User-Agent: KMail/1.5.4
+References: <20041001153624.267a808b@homer.gnuage.org> <87acv6l9ru.fsf@bytesex.org>
+In-Reply-To: <87acv6l9ru.fsf@bytesex.org>
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-Cc: jmerkey@comcast.net, linux-kernel@vger.kernel.org
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <200410011934.i91JYU2t014578@turing-police.cc.vt.edu>
-In-Reply-To: <200410011934.i91JYU2t014578@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410020422.15936.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 01 October 2004 23:48, Gerd Knorr wrote:
+> +	/*   size_vmode -- that is the amount of memory needed for the
+> +	 *                 used video mode, i.e. the minimum amount of
+> +	 *                 memory we need. */
+> +	size_vmode = (vesafb_defined.xres * vesafb_defined.yres *
+> +		vesafb_defined.bits_per_pixel) >> 3;
+> +
+> +	/*   size_total -- all video memory we have. Used for mtrr
+> +	 *                 entries and bounds checking. */
+> +	size_total = screen_info.lfb_size * 65536;
+> +	if (size_total < size_vmode)
+> +		size_total = size_vmode;
+> +	if (vram)
+> +		size_total = vram * 1024 * 1024;
+> +
+> +	/*   size_remap -- the amount of video memory we are going to
+> +	 *                 use for vesafb.  With modern cards it is no
+> +	 *                 option to simply use size_total as that
+> +	 *                 wastes plenty of kernel address space. */
+> +	size_remap  = size_vmode * 2;
+> +	if (size_remap > size_total)
+> +		size_remap = size_total;
+> +	vesafb_fix.smem_len = size_remap;
 
->Umm.. It's OK to take the GPL'ed source and make your own fork for your own
->amusement.  Trying to distribute it without accepting the GPL on the parts
->you're shipping copies of *is* a problem. As the COPYING file says:
->
->  5. You are not required to accept this License, since you have not
->signed it.  However, nothing else grants you permission to modify or
->distribute the Program or its derivative works.  These actions are
->prohibited by law if you do not accept this License.  Therefore, by
->modifying or distributing the Program (or any work based on the
->Program), you indicate your acceptance of this License to do so, and
->all its terms and conditions for copying, distributing or modifying
->the Program or works based on it.
->
->So you have three choices: You can accept the terms of the GPL, and comply
->with them, or you can not ship those pieces covered by the GPL (basically
->the entire kernel), or you can ship it in violation and wait for the hate
->mail to start arriving..... 
-> 
->
->  
->
-And the hate mail is the only thing that will arrive.   The GPL doesn't 
-really seem
-to protect anyone since the copyright holders really can't do much with 
-it.  I've
-got a bunch of people using GPL code I've put out there in all sorts of 
-commercial
-products and Can't do anything to them for failing to return changes.  
-They can always
-say they didn't accept the license then convert the code into their own IP .
+Probably a typo, but shouldn't it be...
 
-Jeff
+size_remap = size_vmode * 2;
+if (vram)
+	size_remap = vram * 1024 * 1024;
+if (size_remap > size_total)
+	size_remap = size_total
+
+... so vram doesn't mess up with mtrr and user and fbcon can multibuffer
+> size_vmode?
+
+Tony  
+
+

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263509AbTDGPiS (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 11:38:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263516AbTDGPiS (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 11:38:18 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25237
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263509AbTDGPiQ (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 11:38:16 -0400
-Subject: Re: [PATCH][RESEND] socket interface for IPMI against 2.5.66-bk
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Corey Minyard <minyard@acm.org>
-Cc: Louis Zhuang <louis.zhuang@linux.co.intel.com>,
-       OPENIPMIML <openipmi-developer@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E9196B6.8030601@acm.org>
-References: <1049363835.1168.6.camel@hawk.sh.intel.com>
-	 <3E8C63D4.8040807@mvista.com> <1049433965.1165.2.camel@hawk.sh.intel.com>
-	 <3E8D9CD2.8060506@acm.org> <1049678799.1165.24.camel@hawk.sh.intel.com>
-	 <3E9196B6.8030601@acm.org>
-Content-Type: text/plain
+	id S263499AbTDGPhb (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 11:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbTDGPhb (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 11:37:31 -0400
+Received: from smtp03.web.de ([217.72.192.158]:7177 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263499AbTDGPh3 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 11:37:29 -0400
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: root@chaos.analogic.com
+Subject: Re: modifying line state manually on ttyS
+Date: Mon, 7 Apr 2003 17:48:50 +0200
+User-Agent: KMail/1.5
+References: <200304071702.08114.freesoftwaredeveloper@web.de> <Pine.LNX.4.53.0304071139390.18753@chaos>
+In-Reply-To: <Pine.LNX.4.53.0304071139390.18753@chaos>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049727074.2967.73.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Apr 2003 15:51:15 +0100
+Content-Disposition: inline
+Message-Id: <200304071748.50910.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Just curious, should we add copyright even when I have announced it by
-> >'MODULE_LICENSE("GPL")'? I dislike too many leagal text in code...
-> 
-> I guess it's up to you, but you had added the header in all files but
-> that one.
+On Monday 07 April 2003 17:51, Richard B. Johnson wrote:
+> This means that you can't control TxD directly. I suggest that
+> you use the parallel printer-port. This port allows you to set
 
-It is a good idea to do so (although its a matter of taste too). It
-doesn't need a foot long pile of blurb. Its quite sufficient to say
-Copyright (C) <year> <author) and state where the GPL is found.
+That's my problem. parallel-port is used by a printer and I don't
+wanna by an expensive extension card for second parport. :)
 
-Some people advise that the no warranty piece by present in each file
-and you'll see IBM I think do that.
+> Now, if you really need the +/- 12 volts that you think you
+> will get out of a UART, please measure it first. Many new computers
+> use I/O chips that only provide +/- 5 volts! Anyway, you can use the
 
+That's no problem, because I "down-volt" it to 4.7V before using it.
+
+> calls. You probably want to disable the SIGHUP signal before
+> you muck with those bits. Some versions of Linux will send the
+> hangup signal to the TTY owner even though it's not the controlling
+> terminal for the process. This could cause your program to exit
+> for "unknown" reasons; signal(SIGHUP, SIG_IGN) prevents such problems.
+
+Thanks for this important information.
+
+Regards
+Michael Buesch.
+
+-- 
+My homepage: http://www.8ung.at/tuxsoft
+fighting for peace is like fu**ing for virginity
 

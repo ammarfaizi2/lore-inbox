@@ -1,50 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261956AbRFBA0q>; Fri, 1 Jun 2001 20:26:46 -0400
+	id <S261960AbRFBAwq>; Fri, 1 Jun 2001 20:52:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261960AbRFBA0h>; Fri, 1 Jun 2001 20:26:37 -0400
-Received: from hank-fep8-0.inet.fi ([194.251.242.203]:24990 "EHLO
-	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S261956AbRFBA0c>; Fri, 1 Jun 2001 20:26:32 -0400
-Message-ID: <3B183297.4D8F77F0@pp.inet.fi>
-Date: Sat, 02 Jun 2001 03:25:59 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19aa2 i686)
-X-Accept-Language: en
+	id <S261978AbRFBAwi>; Fri, 1 Jun 2001 20:52:38 -0400
+Received: from ns01.vbnet.com.br ([200.230.208.6]:53987 "EHLO
+	iron.vbnet.com.br") by vger.kernel.org with ESMTP
+	id <S261960AbRFBAw1>; Fri, 1 Jun 2001 20:52:27 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_M55A4YC3I6H7ZVVA5Y2U"
+From: Carlos E Gorges <carlos@techlinux.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, cltien@cmedia.com.tw (ChenLi Tien),
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] cmpci pc-speaker volume control support
+Date: Fri, 1 Jun 2001 21:51:22 -0400
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: L Larssen <rescue_disk_13@usa.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: international patches from kerneli far behind
-In-Reply-To: <20010601201659.9930.qmail@nwcst337.netaddress.usa.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01060121512200.18700@shark.techlinux>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-L Larssen wrote:
-> Sorry if this subject does not fit in this list.
-> I am a bit worried about the development of the international kernel patches
-> from kerneli.org.
-> 
-> These patches are getting far behind on the real kernel distributions.
-> At this moment the latest patches are 2.2.18.3 and 2.4.3.1 while the kernel at
-> now is at 2.2.19 and 2.4.5.
-> 
-> There is now news to the public why these patches are falling behind.
-> 
-> I hope more people are consirned about this.
 
-International crypto patch is misdesigned and broken, period. Block device
-drivers are supposed handle varying transfer sizes, international crypto
-patch doesn't. Loop device transfers are supposed to be re-entrant,
-international crypto patch transfers are not. Summary: international crypto
-patch will corrupt your data. Avoid using it.
+--------------Boundary-00=_M55A4YC3I6H7ZVVA5Y2U
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-If you don't want to play russian roulette with your data, you should
-consider using loop-AES package. loop-AES announcement is here:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: RIPEMD160
 
-    http://mail.nl.linux.org/linux-crypto/2001-05/msg00003.html
-    http://marc.theaimsgroup.com/?l=linux-crypto&m=98923954103730&w=2
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+Hi all, the following patch adds pc-speaker volume control to
+cmpci driver.
+
+- --- linux/drivers/sound/cmpci.c.orig	Thu May 31 20:32:44 2001
++++ linux/drivers/sound/cmpci.c	Thu May 31 21:02:41 2001
+@@ -1293,10 +1293,10 @@
+ 	[SOUND_MIXER_CD]     = { DSP_MIX_CDVOLIDX_L,     DSP_MIX_CDVOLIDX_R,     MT_5MUTE,     0x04, 0x02 },
+ 	[SOUND_MIXER_LINE]   = { DSP_MIX_LINEVOLIDX_L,   DSP_MIX_LINEVOLIDX_R,   MT_5MUTE,     0x10, 0x08 },
+ 	[SOUND_MIXER_MIC]    = { DSP_MIX_MICVOLIDX,      DSP_MIX_MICVOLIDX,      MT_5MUTEMONO, 0x01, 0x01 },
+- -
+ 	[SOUND_MIXER_SYNTH]  = { DSP_MIX_FMVOLIDX_L,  	 DSP_MIX_FMVOLIDX_R,     MT_5MUTE,     0x40, 0x00 },
+ 	[SOUND_MIXER_VOLUME] = { DSP_MIX_MASTERVOLIDX_L, DSP_MIX_MASTERVOLIDX_R, MT_5MUTE,     0x00, 0x00 },
+- -	[SOUND_MIXER_PCM]    = { DSP_MIX_VOICEVOLIDX_L,  DSP_MIX_VOICEVOLIDX_R,  MT_5MUTE,     0x00, 0x00 }
++	[SOUND_MIXER_PCM]    = { DSP_MIX_VOICEVOLIDX_L,  DSP_MIX_VOICEVOLIDX_R,  MT_5MUTE,     0x00, 0x00 },
++	[SOUND_MIXER_SPEAKER]= { DSP_MIX_SPKRVOLIDX,	 DSP_MIX_SPKRVOLIDX,	 MT_5MUTEMONO, 0x01, 0x01 }
+ };
+ 
+ #ifdef OSS_DOCUMENTED_MIXER_SEMANTICS
+@@ -1359,7 +1359,8 @@
+ 	[SOUND_MIXER_MIC]    = 3,
+ 	[SOUND_MIXER_SYNTH]  = 4,
+ 	[SOUND_MIXER_VOLUME] = 5,
+- -	[SOUND_MIXER_PCM]    = 6
++	[SOUND_MIXER_PCM]    = 6,
++	[SOUND_MIXER_SPEAKER]= 7
+ };
+ 
+ #endif /* OSS_DOCUMENTED_MIXER_SEMANTICS */
+- --
+ 
+	 _________________________
+	 Carlos E Gorges          
+	 (carlos@techlinux.com.br)
+	 Tech informática LTDA
+	 Brazil                   
+	 _________________________
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iQIXAwUBOxhGnhfQA3nqPEsZFAM5KwgAn3PwYejzyNk8KrdVIAnAFHUENDZfOddT
+t+IN9NIEia8kXRtCx1sNJCzjCJmgumZJ9e0C6W/TKpUdHiuqH2FvGl4PmTjWsvW8
+XbcQQj1HhU5nuE6TxKDwvaUiHs2dodKp943z8YQXm8eiPgqHWr1C1gMNOzw+Fx6q
+4rIb8WtOU4fwSEvfOwGtJVdExewi/pJyL7sZgtE8m4SMpQtM4tUD6ugIlPTxjjcA
+yNBm8VwV+E0vnkceurP54MNlXTMyeQ+D9gIkcdd0CIKe8FVo0DTwBvgzhxlFMibl
+WeRMs2kH0Zml7Wg4hibAzskYopDGMPBy5ubWwYDInfaK4dK9O/11EQf8CySglQeK
+lst7wVAlVi1mRagH+4I23ZdXqPzZAUnm94WFJcF3NwQCs6LkWzmF92rMiA8QFKv6
+ZWEfh02RwgMRSnes6+Kupg2mN11xJQ9p7G/i7j8LcD1DRjccT/WAl6SoAwHkOfUD
+gb44mVOLODSKLer3svMlNAcVE8fnOJkxMcHgN1xlWQ8Eb2Ii6u3D6dYCAPsSe0Fb
+uQh91omuRJPsoLCEq0K8fYJaRZkPCi96nb0EJCPneKAqx9frXvO+rI5jozUHNKVI
+aaMbgero3Dit1i4X8sBs1vRc2lOSJqiYrdZpuxEtUMHpjAEGqJSZKxV6APXIuElb
+Bp9DyJKfIRBxGQ==
+=WoFD
+-----END PGP SIGNATURE-----
+
+--------------Boundary-00=_M55A4YC3I6H7ZVVA5Y2U
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="diff"
+
+LS0tIGxpbnV4L2RyaXZlcnMvc291bmQvY21wY2kuYy5vcmlnCVRodSBNYXkgMzEgMjA6MzI6NDQg
+MjAwMQorKysgbGludXgvZHJpdmVycy9zb3VuZC9jbXBjaS5jCVRodSBNYXkgMzEgMjE6MDI6NDEg
+MjAwMQpAQCAtMTI5MywxMCArMTI5MywxMCBAQAogCVtTT1VORF9NSVhFUl9DRF0gICAgID0geyBE
+U1BfTUlYX0NEVk9MSURYX0wsICAgICBEU1BfTUlYX0NEVk9MSURYX1IsICAgICBNVF81TVVURSwg
+ICAgIDB4MDQsIDB4MDIgfSwKIAlbU09VTkRfTUlYRVJfTElORV0gICA9IHsgRFNQX01JWF9MSU5F
+Vk9MSURYX0wsICAgRFNQX01JWF9MSU5FVk9MSURYX1IsICAgTVRfNU1VVEUsICAgICAweDEwLCAw
+eDA4IH0sCiAJW1NPVU5EX01JWEVSX01JQ10gICAgPSB7IERTUF9NSVhfTUlDVk9MSURYLCAgICAg
+IERTUF9NSVhfTUlDVk9MSURYLCAgICAgIE1UXzVNVVRFTU9OTywgMHgwMSwgMHgwMSB9LAotCiAJ
+W1NPVU5EX01JWEVSX1NZTlRIXSAgPSB7IERTUF9NSVhfRk1WT0xJRFhfTCwgIAkgRFNQX01JWF9G
+TVZPTElEWF9SLCAgICAgTVRfNU1VVEUsICAgICAweDQwLCAweDAwIH0sCiAJW1NPVU5EX01JWEVS
+X1ZPTFVNRV0gPSB7IERTUF9NSVhfTUFTVEVSVk9MSURYX0wsIERTUF9NSVhfTUFTVEVSVk9MSURY
+X1IsIE1UXzVNVVRFLCAgICAgMHgwMCwgMHgwMCB9LAotCVtTT1VORF9NSVhFUl9QQ01dICAgID0g
+eyBEU1BfTUlYX1ZPSUNFVk9MSURYX0wsICBEU1BfTUlYX1ZPSUNFVk9MSURYX1IsICBNVF81TVVU
+RSwgICAgIDB4MDAsIDB4MDAgfQorCVtTT1VORF9NSVhFUl9QQ01dICAgID0geyBEU1BfTUlYX1ZP
+SUNFVk9MSURYX0wsICBEU1BfTUlYX1ZPSUNFVk9MSURYX1IsICBNVF81TVVURSwgICAgIDB4MDAs
+IDB4MDAgfSwKKwlbU09VTkRfTUlYRVJfU1BFQUtFUl09IHsgRFNQX01JWF9TUEtSVk9MSURYLAkg
+RFNQX01JWF9TUEtSVk9MSURYLAkgTVRfNU1VVEVNT05PLCAweDAxLCAweDAxIH0KIH07CiAKICNp
+ZmRlZiBPU1NfRE9DVU1FTlRFRF9NSVhFUl9TRU1BTlRJQ1MKQEAgLTEzNTksNyArMTM1OSw4IEBA
+CiAJW1NPVU5EX01JWEVSX01JQ10gICAgPSAzLAogCVtTT1VORF9NSVhFUl9TWU5USF0gID0gNCwK
+IAlbU09VTkRfTUlYRVJfVk9MVU1FXSA9IDUsCi0JW1NPVU5EX01JWEVSX1BDTV0gICAgPSA2CisJ
+W1NPVU5EX01JWEVSX1BDTV0gICAgPSA2LAorCVtTT1VORF9NSVhFUl9TUEVBS0VSXT0gNwogfTsK
+IAogI2VuZGlmIC8qIE9TU19ET0NVTUVOVEVEX01JWEVSX1NFTUFOVElDUyAqLwo=
+
+--------------Boundary-00=_M55A4YC3I6H7ZVVA5Y2U--

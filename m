@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263193AbSJJDmn>; Wed, 9 Oct 2002 23:42:43 -0400
+	id <S262824AbSJJED0>; Thu, 10 Oct 2002 00:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263204AbSJJDmn>; Wed, 9 Oct 2002 23:42:43 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:13841 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S263193AbSJJDmm>; Wed, 9 Oct 2002 23:42:42 -0400
-Date: Wed, 9 Oct 2002 20:48:22 -0700
-From: jw schultz <jw@pegasys.ws>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: rsync kernel tree Re: New BK License Problem?
-Message-ID: <20021010034822.GA15333@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L.0210062308290.22735-100000@imladris.surriel.com>
-Mime-Version: 1.0
+	id <S263204AbSJJEDZ>; Thu, 10 Oct 2002 00:03:25 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:30924 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262824AbSJJEDZ>; Thu, 10 Oct 2002 00:03:25 -0400
+Date: Wed, 09 Oct 2002 21:06:16 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: colpatch@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, LSE <lse-tech@lists.sourceforge.net>,
+       Andrew Morton <akpm@zip.com.au>, Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [rfc][patch] Memory Binding API v0.3 2.5.41
+Message-ID: <1586204621.1034197575@[10.10.2.3]>
+In-Reply-To: <3DA4D3E4.6080401@us.ibm.com>
+References: <3DA4D3E4.6080401@us.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0210062308290.22735-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 11:10:48PM -0300, Rik van Riel wrote:
-> People can grab the repository for use with CSSC from:
-> 
-> 	ftp://nl.linux.org/pub/linux/bk2patch/
-> 
-> Or using rsync:
-> 	rsync -rav --delete nl.linux.org::kernel/linux-2.4 linux-2.4
-> 	rsync -rav --delete nl.linux.org::kernel/linux-2.5 linux-2.5
-> 
-> Currently these repositories are updated every two hours, but if
-> there is a large demand I could update it every hour or even every
-> 30 minutes.  Don't feel ashamed to put the above rsyncs into your
-> crontabs, grab the source and use it ;)
-> 
-> have fun,
 
-I just might.  Although a straight tree (instead of
-repository) would suit me better.
+> +#define for_each_valid_zone(zone, zonelist) 		\
+> +	for (zone = *zonelist->zones; zone; zone++)	\
+> +		if (current->memblk_binding.bitmask & (1 << zone->zone_pgdat->memblk_id))
 
-Like many i haven't been folowing the BK license thread.  I
-only found out about this message because of a kernel trap
-headline.  Rik you might get a better exposure if you
-announced this outside of the BK license thread.
+Does the compiler optimise the last bit away on non-NUMA?
+Want to wrap it in #ifdef CONFIG_NUMA_MEMBIND or something?
+Not sure what the speed impact of this would be, but I'd
+rather it was optional, even on NUMA boxen.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Other than that, looks pretty good.
 
-		Remember Cernan and Schmitt
+M.
+
+

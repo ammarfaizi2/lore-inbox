@@ -1,86 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265021AbTF1CU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 22:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265024AbTF1CU6
+	id S265023AbTF1CZY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 22:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265024AbTF1CZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 22:20:58 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:28763 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265021AbTF1CUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 22:20:55 -0400
-Date: Fri, 27 Jun 2003 19:35:21 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: bcollins@debian.org, davidel@xmailserver.org, davem@redhat.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: networking bugs and bugme.osdl.org
-Message-Id: <20030627193521.25040f3e.akpm@digeo.com>
-In-Reply-To: <36630000.1056766403@[10.10.2.4]>
-References: <20030626.224739.88478624.davem@redhat.com>
-	<21740000.1056724453@[10.10.2.4]>
-	<Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com>
-	<20030627.143738.41641928.davem@redhat.com>
-	<Pine.LNX.4.55.0306271454490.4457@bigblue.dev.mcafeelabs.com>
-	<20030627213153.GR501@phunnypharm.org>
-	<20030627162527.714091ce.akpm@digeo.com>
-	<35240000.1056760723@[10.10.2.4]>
-	<20030627181432.61bf6f3a.akpm@digeo.com>
-	<36630000.1056766403@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 27 Jun 2003 22:25:23 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25820 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265023AbTF1CZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 22:25:23 -0400
+Date: Sat, 28 Jun 2003 04:39:36 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: support@moxa.com.tw, linux-kernel@vger.kernel.org
+Subject: Re: [2.5 patch] remove two unused variables from mxser.c
+Message-ID: <20030628023935.GQ24661@fs.tum.de>
+References: <20030619231222.GF29247@fs.tum.de> <20030620050950.32FB52C11D@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Jun 2003 02:35:10.0646 (UTC) FILETIME=[E5469560:01C33D1D]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030620050950.32FB52C11D@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> 1. default owners -> lists:
+On Fri, Jun 20, 2003 at 02:31:06PM +1000, Rusty Russell wrote:
+> In message <20030619231222.GF29247@fs.tum.de> you write:
+> > The patch below removes two unused variables from drivers/char/mxser.c .
 > 
-> Setting default owners to existing lists is somewhat invasive, and
-> might provoke riots ;-) Not only do you get the new bug notification,
-> but also any updates, which may become irritating.
+> While you're there, would you fix the init returning "-1" for no good
+> reason at the bottom, too?  (I don't think they really meant EPERM).
 
-That's OK.  It is a matter of people being aware that the updates will be
-echoed to a mailing list and acting appropriately.
+There is at least one other driver under drivers/char/ doing the 
+same...
 
-If some low-value stuff leaks through then ho-hum, at least it was
-on-topic.  It is not as if we are unused to low-value content...
+Which return code do you suggest?
 
-It would be good if pure administrata such as changing the status were
-filtered.
+> Thanks,
+> Rusty.
 
-In fact, there is probably no point in sending anything bugzilla->list apart
-from the initial report.  If the bug is then pursued via bugzilla then OK. 
-If is is pursued via email then bugzilla just captures the discussion.   
+cu
+Adrian
 
-> There's probably 
-> some vaguely happy medium to be found between: 
-> 	a) sending newly logged bugs to existing lists,
-> 	b) sending updates to some new list.
-> Maybe if we just create a new list for each category, and let
-> people subscribe at will to those ... and I keep sending newly logged
-> bugs to linux-kernel? I can cc netdev / linux-scsi / whatever on those
-> new ones if that helps?
+-- 
 
-I think sending the initial report to the relevant lists and then capturing
-incoming email would suffice.
-
-> 2. email back in.
-> 
-> Email back in is harder, and needs more thought as to how to make it
-> easy to use, whilst avoiding logging crap (eg. ensuing flamewars that 
-> derive from the bug reports, etc).
-
-Well hopefully people will have the sense to cut the bugzilla address off
-the Cc line if it drifts off-topic.
-
-> My intuition is to log replies by
-> default, and hack off certain threads by hand
-
-Nah.  Just log everything and hack off the crap by larting people.
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,50 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278163AbRJWSOf>; Tue, 23 Oct 2001 14:14:35 -0400
+	id <S278160AbRJWSQZ>; Tue, 23 Oct 2001 14:16:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278160AbRJWSOZ>; Tue, 23 Oct 2001 14:14:25 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28435 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278163AbRJWSOO>; Tue, 23 Oct 2001 14:14:14 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [Q] pivot_root and initrd
-Date: 23 Oct 2001 11:14:28 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9r4c24$g2k$1@cesium.transmeta.com>
-In-Reply-To: <3BD5ABF3.1040404@usa.net>
+	id <S278170AbRJWSQP>; Tue, 23 Oct 2001 14:16:15 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:61314 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S278160AbRJWSQB>; Tue, 23 Oct 2001 14:16:01 -0400
+Date: Tue, 23 Oct 2001 14:16:30 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Behavior of poll() within a module
+In-Reply-To: <002601c15bec$ea4ed950$010411ac@local>
+Message-ID: <Pine.LNX.3.95.1011023140753.16624A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3BD5ABF3.1040404@usa.net>
-By author:    Eric <ebrower@usa.net>
-In newsgroup: linux.dev.kernel
->
-> Would it even be worthwhile to propose a patch that would set a flag 
-> when pivot_root is called during an initrd and prevent change_root from 
-> occuring once the linuxrc thread exits?
+On Tue, 23 Oct 2001, Manfred Spraul wrote:
+
+> From: "Richard B. Johnson" <root@chaos.analogic.com>
+> > 
+> > In this module, there isn't any read() or write() event that can
+> > clear the poll mask. Instead, the sole purpose of poll is to tell
+> > the user-mode caller that there is new status available as a result
+> > of an interrupt. This is a module that controls a motor. It runs
+> > <forever> on its own. It gets new parameters via an ioctl(). It
+> > reports exceptions (like overload conditions) using the poll
+> > mechanism.
+> > 
+> > The caller reads the cached status via an ioctl(). Any caller sleeping
+> > in poll must be awakened as a result of the interrupt event. Any caller
+> > can read the cached status at any time. If this was allowed to
+> > clear the poll mask, only one caller would be awakened. 
+> >
+> Ugh.
+> ->poll must never change any state. The kernel is free to call poll
+> multiple times (common are once, twice and three times).
+
+That's the problem. It calls poll even when there is not any user-mode
+select/poll active.
+
 > 
-> Your method of placing "initrx=xxx" and "root=xxx" is similar to my 
-> method of stuffing those values into /proc/sys/kernel/real_root_dev once 
-> the pivot_root is complete; I am not really happy with that solution, 
-> not the least of which because it is an undocumented work-around and 
-> somewhat unexpected behavior for a system call that is to (presumably) 
-> replace or augment change_root.
+> Can you use a per-filp pollmask?
+
+Yes. You've got it. Private data is a place to put the per-process
+poll mask.
+
+> * remove poll_active
+> * remove poll_mask
+
+Yes.
+
+> * add event counters for every possible event.
+>     poll_count_POLLIN, poll_count_POLLOUT, etc.
+> * interrupt handler increases the counter.
+> * ioctl() copies the value of the counters into
+>     filp->private_data->event_handled_POLL{IN,OUT}
+> * poll sets the pollmask if
+>     filp->private_data->event_seen != info->poll_count
 > 
-> I was also hoping that Warner or Hans would chime-in either in defense 
-> of the current documentation or with clarifications...
+Yes. May not actually need counters because each interrupt
+will cache a status that can be read by anybody.
+
+The struct file_pointer.private_data is the savior.
+
+> If filps (file descriptors) are shared between apps, then I have no
+> idea how to fix your design.
 > 
 
-The right thing is to get rid of the old initrd compatibility cruft,
-but that's a 2.5 change.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

@@ -1,55 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbTJMGgl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 02:36:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbTJMGgl
+	id S261311AbTJMGrr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 02:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbTJMGrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 02:36:41 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:54214
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261500AbTJMGgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 02:36:39 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Deja vu...
-Date: Sun, 12 Oct 2003 23:53:58 -0500
-User-Agent: KMail/1.5
-References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310122353.58935.rob@landley.net>
+	Mon, 13 Oct 2003 02:47:47 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:2849 "EHLO
+	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S261311AbTJMGrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 02:47:45 -0400
+Message-Id: <200310130652.h9D6qiib005952@pasta.boston.redhat.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Dave Kleikamp <shaggy@austin.ibm.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x performance tests Re: [PATCH] BUG() in exec_mmap()
+In-Reply-To: Your message of "Thu, 09 Oct 2003 17:25:52 -0300."
+Date: Mon, 13 Oct 2003 02:52:44 -0400
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Correct me if I'm wrong, but I vaguely remember back at the end of 1998 the 
-big "let's ship 2.2" push crescendoed towards the end of the year after two 
-and a half years of development, there was the big push to ship it by 
-christmas, then by new years, and after missing both deadlines it shipped a 
-dot-zero release in january 1999, followed shortly thereafter by a "brown 
-paper bag" bugfix release.
+On Thursday, 9-Oct-2003 at 17:25 -0300, Marcelo Tosatti wrote:
 
-The big "let's ship 2.4" push crescendoed towards the end of 2000,  after 
-about two and a half years of development (give or take the 2.2 stabilization 
-period before 2.3 forked off), there was a big push to ship it by christmas, 
-then by new years, and after missing both deadlines it shipped a dot-zero at 
-the start of january 2001, followed by the brown paper bag...
-
-It's now coming up on two and a half years of development towards 2.6.  It's 
-getting towards the end of the year.  (I take Linus is aiming to have the 2.6 
-release out by this christmas? ;)
-
-Does this seem kind of familiar to anyone else...?
-
-Rob
-
-(I don't remember if 2.1 had a new feature freeze a year or so before the 
-final code freeze the way 2.3 and 2.5 did, but it does seem we've got a 
-pattern going here.  But then I'm sleep-deprived right now, and could easily 
-be imagining it...)
+> BTW, further performance testing of the removal of this optimization is
+> VERY welcome.
+>
+> I've done some tests and no big performance harm has showed up, but thats
+> just me.
 
 
+In a variation of a (loosely) 2.4.21-based kernel, I get a 0% degradation
+in the speed of a program exec'ing itself 1,000,000 times with the addition
+of the missing locking in exec_mmap():
+
+--- linux-2.4.21/fs/exec.c.orig
++++ linux-2.4.21/fs/exec.c
+@@ -452,9 +452,11 @@ static int exec_mmap(void)
+ 
+ 	old_mm = current->mm;
+ 	if (old_mm && atomic_read(&old_mm->mm_users) == 1) {
++		down_write(&old_mm->mmap_sem);
+ 		mm_release();
+ 		exit_aio(old_mm);
+ 		exit_mmap(old_mm);
++		up_write(&old_mm->mmap_sem);
+ 		return 0;
+ 	}
+ 
+
+Applying your change to the same kernel, I get a 2.5% degradation in the
+same test case:
+
+--- linux-2.4.21/fs/exec.c.orig
++++ linux-2.4.21/fs/exec.c
+@@ -451,12 +451,6 @@ static int exec_mmap(void)
+ 	struct mm_struct * mm, * old_mm;
+ 
+ 	old_mm = current->mm;
+-	if (old_mm && atomic_read(&old_mm->mm_users) == 1) {
+-		mm_release();
+-		exit_aio(old_mm);
+-		exit_mmap(old_mm);
+-		return 0;
+-	}
+ 
+ 	mm = mm_alloc();
+ 	if (mm) {
+
+
+Average times over 3 runs (of 1,000,000 execs each) were:
+
+	base kernel:	529 elapsed seconds
+	w/1st change:	529 elapsed seconds
+	w/2nd change:	542 elapsed seconds
+
+I wouldn't bother optimizing for an exec() syscall, but the 1st change
+also eliminates the possibility of two ENOMEM error paths in the typical
+case of not sharing an mm_struct.
+
+
+Also, a reproducer that could expose the race condition (in typically 5-20
+seconds) on a dual-Xeon Dell box ran for 10's of minutes without problems
+with either fix.
+
+Cheers.  -ernie

@@ -1,111 +1,146 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269804AbRHMFH3>; Mon, 13 Aug 2001 01:07:29 -0400
+	id <S269796AbRHMFDK>; Mon, 13 Aug 2001 01:03:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269805AbRHMFHU>; Mon, 13 Aug 2001 01:07:20 -0400
-Received: from mtiwmhc26.worldnet.att.net ([204.127.131.51]:53660 "EHLO
-	mtiwmhc26.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S269804AbRHMFHD>; Mon, 13 Aug 2001 01:07:03 -0400
-Message-ID: <XFMail.20010813010701.f.duncan.m.haldane@worldnet.att.net>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S269801AbRHMFCu>; Mon, 13 Aug 2001 01:02:50 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:44306 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S269796AbRHMFCa>;
+	Mon, 13 Aug 2001 01:02:30 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200108130502.f7D52eI16075@saturn.cs.uml.edu>
+Subject: Re: __asm__ usage ????
+To: vraghava_raju@yahoo.com (Raghava Raju)
+Date: Mon, 13 Aug 2001 01:02:40 -0400 (EDT)
+Cc: egger@suse.de (Daniel Egger), linux-kernel@vger.kernel.org
+In-Reply-To: <20010811210336.39004.qmail@web20001.mail.yahoo.com> from "Raghava Raju" at Aug 11, 2001 02:03:36 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-In-Reply-To: <Pine.LNX.4.10.10108130227420.7720-100000@coffee.psychology.mcmaster.ca>
-Date: Mon, 13 Aug 2001 01:07:01 -0400 (EDT)
-From: f.duncan.m.haldane@worldnet.att.net
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Subject: Re: PCI spec question/possible VIA quirk?
-Cc: mj@suse.cz, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Raghava Raju writes:
 
-On 13-Aug-2001 Mark Hahn wrote:
->> Can anyone tell me what the PCI specs say config registers 0x2c:0x2f 
->> should contain? 
-> 
-> via's kt133a spec says 0x2c-2d is "subsystem vendor ID"
-> defaults to zero, and 0x2d-2f is "subsystem ID" (also def zero).
-> these are RW, so the bios could put something cute in them, I guess.
-> 
-Seems like the W in RW isnt working...
+>>> 	__asm__ __volatile__(SMP_WMB "\
+>>> 1:	lwarx 	%0,0,%3
+>>> 	andc  	%0,%0,%2
+>>> 	stwcx 	%0,0,%3
+>>> 	bne 	1b"
+>>> 	SMP_MB
+>>> 	: "=&r" (old), "=m" (*p)
+>>> 	: "r" (mask), "r" (p), "m" (*p)
+>>> 	: "cc")"
+>>>         4) I think in power PC we can't access
+>>> directly the contents of memory, but we should
+>>> give addresses of memory in registers then use
+>>> registers in instructions to access memory. But in
+>>> above example he is using %3 in lwarx command
+>>> accessing that memory directly. Is my
+>> interpretation
+>>> of above instructions wrong.
+>>
+>> Yes, you're wrong. By issuing an "r" (p) the p
+>> (which is a pointer in this case) is assigned
+>> to a register which is then used in the load
+>> command as the absolute address.
+>
+>    What I meant is that say in command
+>     "andc  	%0,%0,%2" he is directly accessing the
+>     contents of memory and using them in "andc". But
 
+NO! He is not doing that. The compiler changes the
+above into this:
 
-As you say, I see that the entries are the subsystem vendor ID/subsystem ID 
-which are on normal PCI cards, but which _should_ have been replaced 
-with the mem_limit_hi entry = 00 00 00 00 on a PCI-to-PCI bridge.
-The correct location _is_ at 0x2c:0x2f (32 bits), so pci.h is correct.
+1. address generation for the variable "p"
+2. whatever SMP_WMB is
+3. something like "lwarx r5,0,r8" (gcc picks the registers)
+4. something like "andc  r5,r5,r7"
+5. something like "stwcx r5,0,r8"
+6. a branch back to the lwarx
+7. whatever SMP_MB is
 
+Note: the lwarx is a special type of load instruction.
 
-Somehow, this re-initialization seems to be failing here.
-I tried to use pci_write_config_dword() to write 00 00 00 00
-into the register, but this does not seem to work.
-(I could not find the actual code for pci_write_config_dword()
-anywhere in the kernel source, though ????? )
+>     it seems to be that he should use indirectly, like
+>    storing the address of variable in register. Then
+>    use register in "andc" instead of directly using
+>    %0(i.e accessing memory directly). Correct me if
 
-All very strange!
-Obviously, I've found the hack that fixes my problem, but
-I would like to see if this a bug in the kernel code, a VIA
-problem requiring a quirks.c entry, or a faulty hardware issue....
+The funny notation at the end instructs gcc to load the
+variable into a register and save it back as needed.
 
+>    I am wrong since powerPC mannual described that
+>    we should not use memory directly in instructions.
 
+You may not use memory directly in the andc instruction.
 
-----------------from dmesg:-----------------------------
-PCI: PCI BIOS revision 2.10 entry at 0xfd7ee, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 0: assuming transparent
-PCI: 0 quick hack to fix invalid mem_limit_hi=802f1043
-------------------------------------------------------
+>>> 6) Finally I want to write a simple programme
+>>> to write the contents of a local variable "xyz"
+>>> into register r33, then store the contents of
+>>> r33 into local variable "abc". Kindly would u
+>>> give me a sample code of doing it.
+>>
+>> Negative for two reasons: There is no register 33
+>> (at least) on 32bit PPC CPUs, and second, you
+>> normally don't want to hardcode registers in
+>> inline assembly. If you really want to then use
+>> normal assembly.
+>>
+>> But for your example:
+>> long xyz, abc;
+>>
+>> __asm__ __volatile__ ("mr %0,%1\n\t": "r" (abc) :
+>> "r" (xyz));
+>>
+>> However this is a really dumb example.
+>
+> Here I dont bother about logic of the example, but
+> I want know how to load the value of some (valid
+> register, if not r33 something else in powerPC)
+> register into a local variable xyz and vice versa.
 
-This seems to prove that pci_write_config_dword() is unable to
-write 00 00 00 00 into 0x2c:0x2f of the PCI bridge config .   Hmmm.
-it _should_ be a RW register.
+Stop thinking like this. You can not write good code if you
+insist on choosing registers. The strange gcc assembly notation
+is designed to let you cooperate with the compiler. Rather than
+saying you want "r33" you say you want "any normal integer
+register containing the content of variable xyz". Then gcc will
+pick a free register, call it %0 or %1 or whatever, and load it
+with variable "xyz".
 
+If variable "xyz" is already in register r6, then why wouldn't
+you want to use r6 for your assembly? If you pick a specific
+register, then the compiler might have to copy from r6 into the
+one you specified. That would be bad. When you let gcc choose,
+it picks a register that is good to use.
 
-------from my hacked drivers/pci/pci.c-------------------------------------
-        pci_read_config_dword(dev, PCI_PREF_BASE_UPPER32, &mem_base_hi);
-        /* hack! (added by me) */
-        i = pci_write_config_dword(dev, PCI_PREF_LIMIT_UPPER32, 0x0000);
-        pci_read_config_dword(dev, PCI_PREF_LIMIT_UPPER32, &mem_limit_hi);
-        /* a dirty hack! */
-        if(mem_limit_hi) {
-          printk(KERN_ERR "PCI: %d quick hack to fix invalid mem_limit_hi=%x\n",
-                i, mem_limit_hi);
-          mem_limit_hi = mem_base_hi;
-        }
------------------------------------------------------------------
-(mem_base_hi is 00 00 00 00)
-If pci_write_config_dword had succeeded, I shouldnt have got the printk 
-message... 
+Looking at this again:
 
-> on my (Asus) A7V133, those bytes are zero.
+__asm__ __volatile__ (
+"mr %0,%1"               /* %0 and %1 may represent r6 */
+: "=r" (abc)             /* the output (can have many!) */
+: "r" (xyz)              /* the input (can have many!) */
+:                        /* no special registers will be modified */
+);
 
-They were correctly overwritten with 00 00 00 00, I suppose. 
+You could even code this as a NOP, using the funny constraint notation
+to make gcc do the copy for you. Simply specify that the input is to
+be the exact same register as the input. I think it is something
+like this:
 
+__asm__ __volatile__ (
+""                       /* just empty -- don't even need a NOP */
+: "=r" (abc)             /* let gcc select an output register */
+: "0" (xyz)              /* ask gcc to use the same register for input */
+:                        /* no special registers will be modified */
+);
 
-> 
-> again, the kt133a spec says "prefetchable memory base" should
-> be at register 0x24-25, and "prefetchable memory limit" at 0x26-27.
-> 
-> I'm guessing pci.h should have:
-> 
->#define PCI_PREF_BASE_UPPER32   0x28    /* Upper half of prefetchable memory
->#range */
-> - #define PCI_PREF_LIMIT_UPPER32  0x2c
-> + #define PCI_PREF_LIMIT_UPPER32  0x2a
-> 
-> (pardon the manual pseudopatch)
+Well there you go. This makes gcc load xyz into a register if it isn't
+already in one, then makes gcc assume that the register contains the
+new value for abc.
 
-No, I think 0x2c is correct. both of these are 32 bits. 
+Be careful about the constraint letters you choose. For most PowerPC
+instructions, any integer register will do. For load/store instructions,
+the CPU treats r0 as a special case. You might need to change the "r"
+to something else, like "b" or "a" maybe. Look it up in the gcc manual.
 
-Duncan
-----------------------------------
-E-Mail: f.duncan.m.haldane@worldnet.att.net
-Date: 13-Aug-2001
-Time: 00:52:18
-
-This message was sent by XFMail
-----------------------------------

@@ -1,80 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278098AbRKFGub>; Tue, 6 Nov 2001 01:50:31 -0500
+	id <S278081AbRKFGrC>; Tue, 6 Nov 2001 01:47:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278218AbRKFGuV>; Tue, 6 Nov 2001 01:50:21 -0500
-Received: from gnu.in-berlin.de ([192.109.42.4]:29196 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S278125AbRKFGuJ>;
-	Tue, 6 Nov 2001 01:50:09 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 5 Nov 2001 22:52:01 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: volodya@mindspring.com
-Cc: video4linux-list@redhat.com, livid-gatos@linuxvideo.org,
+	id <S278098AbRKFGqv>; Tue, 6 Nov 2001 01:46:51 -0500
+Received: from unthought.net ([212.97.129.24]:21721 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S278081AbRKFGqt>;
+	Tue, 6 Nov 2001 01:46:49 -0500
+Date: Tue, 6 Nov 2001 07:46:47 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: SpaceWalker <spacewalker@altern.org>
+Cc: Stuart Young <sgy@amc.com.au>, Alexander Viro <viro@math.psu.edu>,
         linux-kernel@vger.kernel.org
-Subject: Re: [V4L] Re: [RFC] alternative kernel multimedia API
-Message-ID: <20011105225201.A17854@bytesex.org>
-In-Reply-To: <20011105095245.B11001@bytesex.org> <Pine.LNX.4.20.0111051544120.3346-100000@node2.localnet.net>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011106074647.A1588@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	SpaceWalker <spacewalker@altern.org>, Stuart Young <sgy@amc.com.au>,
+	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.0.20011105144855.01f83310@mail.amc.localnet> <5.1.0.14.0.20011105154947.01f6fec0@mail.amc.localnet> <3BE6BF22.E06E8D19@altern.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.20.0111051544120.3346-100000@node2.localnet.net>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <3BE6BF22.E06E8D19@altern.org>; from spacewalker@altern.org on Mon, Nov 05, 2001 at 05:32:34PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > different kernel versions because a driver IMHO should be maintained for
-> > both current stable and current hacker kernels.
+On Mon, Nov 05, 2001 at 05:32:34PM +0100, SpaceWalker wrote:
+> Stuart Young wrote:
+> > 
+> > At 11:05 PM 4/11/01 -0500, Alexander Viro wrote:
+> > 
+> > >On Mon, 5 Nov 2001, Stuart Young wrote:
+> > >
+> > > > Any reason we can't move all the process info into something like
+> > > > /proc/pid/* instead of in the root /proc tree?
+> > >
+> > >Thanks, but no thanks.  If we are starting to move stuff around, we
+> > >would be much better off leaving in /proc only what it was supposed
+> > >to contain - per-process information.
+> > 
 > 
-> The change I was talking about has occured someplace between 2.4.2 and
-> 2.4.9. On the other hand some interface did not change at all - for
-> example serial devices /dev/ttySx. I do not see anything too special to
-> video capture to warrant constanly changing interfaces.
+> We could add a file into /proc like /proc/processes that contains once
+> all process informations that some programs like top or ps can read only
+> Once.
+> It could save a lot of time in kernel mode scanning the process list for
+> each process.
+> later, a new version of ps or top could simply stat /proc/processes and
+> if it exists uses it to give informations to the user.
+> What do you think of this idea ?
 
-That was me in kernel 2.4.3 IIRC.  Added one more argument to allow
-drivers to ask for specific minor numbers (so you can give your devices
-fixed minor numbers using insmod options).  And this has _NOTHING_ to do
-with the API visible to the applications.
+We would have the same "changing format of /proc/processes" parsing
+problems as we have now with the rest of /proc.
 
+Why not implement all of top in the kernel, so that you could do a
+ cat /dev/top   and have the usual top output nicely shown ?   ;)
 
-> > Why this needs to be in the kernel?  Simply ship a copy of the header
-> > file with both application and driver or require the driver being
-> > installed to build the application.  Once you've worked out good,
-> > working interfaces they can go into the kernel headers.  You don't need
-> > that for experimental stuff.
-> 
-> And what am I to do if someone introduces the exact same ioctl number into
-> the kernel ? I will get instant breakage. People will start saying: this
-> does not work with kernele 2.4.(N+x). So, I'll change the number and will
-> get bugreports of the kind "it does not work with 2.4.(N-1-y)". I do not
-> want that.
+(yes, the last one was a joke!)
 
-Such clashes shouldn't happen as v4l has ioctl number ranges for driver
-private stuff which can be used for such tests and shouldn't cause
-clashes with new, official ioctls.
+Your suggestion may improve the performance of one or two userland
+applications, but it does not attack the real problem: that /proc is not
+machine readable.   
 
-Beside that I don't see why breaking applications is a problem for
-_experimental_ interfaces.  On the one hand you want to have the
-flexibility to change interfaces easily to test them, on the other hand
-you care alot about compatibility and stuff.  You can't get both, I
-don't see a way to do that without making either the drivers or the
-applications (or both) very complex.
-
-That is the price users will have to pay for playing with bleeding edge
-stuff.
-
-> > becomes harder to debug because the failures are more subtile.  With a
-> > obsolete ioctl struct you likely get back -EINVAL, which is quite
-> > obvious if the application does sane error checking.  Or the application
-> > doesn't even compile.  Both are IMHO much better than some stange
-> 
-> This is a separate issue.. Just keep in mind that there are plenty of
-> applications that ignore return values from ioctl's.
-
-s/applications/broken applications/
-
-  Gerd
+We would be maintaining yet another /proc file, but we'd still have the
+problems we have now.   Implementing an A.I. in every CPU meter applet out
+there, while still having to accept that the A.I. gives up on us every now and
+then (when someone decides to add an ASCII art visualization of the utilization
+of the various ALUs in /proc/cpuinfo for example - the worst part being that
+this example is probably not even far fetched!)
 
 -- 
-Netscape is unable to locate the server localhost:8000.
-Please check the server name and try again.
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

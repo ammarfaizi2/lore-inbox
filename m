@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268653AbRGZU4L>; Thu, 26 Jul 2001 16:56:11 -0400
+	id <S268674AbRGZVNl>; Thu, 26 Jul 2001 17:13:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268686AbRGZU4B>; Thu, 26 Jul 2001 16:56:01 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:52439 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S268653AbRGZUzl>; Thu, 26 Jul 2001 16:55:41 -0400
-Message-Id: <5.1.0.14.2.20010726214022.00b14920@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 26 Jul 2001 21:55:46 +0100
-To: Linus Torvalds <torvalds@transmeta.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: ext3-2.4-0.9.4
-Cc: Richard A Nelson <cowboy@vnet.ibm.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0107261233000.1062-100000@penguin.transmeta.
- com>
-In-Reply-To: <Pine.LNX.4.33.0107261429190.19887-100000@badlands.lexington.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S268676AbRGZVNb>; Thu, 26 Jul 2001 17:13:31 -0400
+Received: from atlrel1.hp.com ([156.153.255.210]:48634 "HELO atlrel1.hp.com")
+	by vger.kernel.org with SMTP id <S268674AbRGZVNY>;
+	Thu, 26 Jul 2001 17:13:24 -0400
+Message-ID: <3B60880E.9FBAA76B@fc.hp.com>
+Date: Thu, 26 Jul 2001 15:13:50 -0600
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Support for serial console on legacy free machines
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-At 20:37 26/07/2001, Linus Torvalds wrote:
->On Thu, 26 Jul 2001, Richard A Nelson wrote:
-> > In looking at the synchronous directory options, I'm unsure as to
-> > the 'real' status wrt fsync() on a directory:
-> >       1) Does fsync() of a directory work on most/all current FS?
->
->Modulo bugs, yes.
->
->Now, there's another issue, of course: if you have an important mail-spool
->on some of the less tested filesystems, I would consider you crazy
->regardless of fsync() working ;). I don't think anybody has ever verified
->that fsync() (or much anything else wrt writing) does the right thing on
->NTFS, for example.
+I am working on adding support for serial console on legacy free
+machines. Legacy free machines are not expected to have the legacy COM
+ports. The serial ports on these machines can exist in I/O space, memory
+space or they could be PCI devices. This brings up the problem of
+detecting where the serial console is. This problem is supposed to be
+solved by ACPI 2.0 tables. The table that gives the details of serial
+console is "Serial Port Console Redirection" (SPCR) table. This table
+gives me almost all the information I need to initialize and use a
+serial console. The bummer is this table was designed by Microsoft and
+Microsoft owns the copyright on it. Microsoft primarily designed this
+table for use by Whistler. Their copyright may cause potential problems
+with using it in Linux. This makes me reluctant to use this table. I
+would like to know how do others feel about using an ACPI table with
+Microsoft copyright. I would like to try to push for another table in
+ACPI spec that is free from copyright by any corporation and is simply a
+part of spec, if most Linux developers are opposed to using a
+copyrighted ACPI table.
 
-NTFS doesn't even have an fsync() operation defined so calling fsync() 
-system call won't do anything at all. A quick look at 
-fs/buffer.c::sys_fsync() shows it will return -EINVAL straight away.
-
-But considering the fsync, even if present may well trash the file or the 
-whole partition's data, it's just as well it doesn't happen...
-
-Anton
-
+Please ask questions if you need more info. URL for SPCR table
+definition, if you would like to look at it, is
+<http://www.microsoft.com/hwdev/headless/download/SerialPortRedir.zip>.
 
 -- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Khalid
 
+====================================================================
+Khalid Aziz                              Linux Systems Operation R&D
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

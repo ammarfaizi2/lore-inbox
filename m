@@ -1,28 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312830AbSCVUQz>; Fri, 22 Mar 2002 15:16:55 -0500
+	id <S312834AbSCVUe1>; Fri, 22 Mar 2002 15:34:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312827AbSCVUQp>; Fri, 22 Mar 2002 15:16:45 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:23436 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S312830AbSCVUQi>;
-	Fri, 22 Mar 2002 15:16:38 -0500
-Date: Fri, 22 Mar 2002 22:16:32 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: ORBZ is dead, don't use it...
-Message-ID: <20020322221632.A27741@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S312835AbSCVUeR>; Fri, 22 Mar 2002 15:34:17 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:60614 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S312834AbSCVUeG>; Fri, 22 Mar 2002 15:34:06 -0500
+Date: Fri, 22 Mar 2002 21:33:41 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IBM PCI Hotplug driver doesn't compile in 2.4.19-pre4
+In-Reply-To: <20020322195338.GI9629@kroah.com>
+Message-ID: <Pine.NEB.4.44.0203222133020.2125-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have been dropping people because they use now dead ORBZ:
+On Fri, 22 Mar 2002, Greg KH wrote:
 
-    Rejected - see http://orbz.org/
+>...
+> Let me know if the patch below does not solve this for you.
 
-The problem with these DNS-RBL things is that they are subject to
-all kinds of external pressures, and apparently ORBZ has followed
-ORBS in this manner.
+The patch solved the problem.  :-)
 
-/Matti Aarnio
+> thanks,
+>
+> greg k-h
+
+cu
+Adrian
+
+

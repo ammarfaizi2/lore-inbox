@@ -1,96 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131499AbQL1Sjr>; Thu, 28 Dec 2000 13:39:47 -0500
+	id <S131245AbQL1StV>; Thu, 28 Dec 2000 13:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131523AbQL1Sj1>; Thu, 28 Dec 2000 13:39:27 -0500
-Received: from server0011.freedom2surf.net ([194.106.56.14]:13436 "EHLO
-	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S131499AbQL1SjY>; Thu, 28 Dec 2000 13:39:24 -0500
-From: chris@freedom2surf.net
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Repeatable Oops in 2.4t13p4ac2
-Message-ID: <978026911.3a4b819f71050@www.freedom2surf.net>
-Date: Thu, 28 Dec 2000 18:08:31 +0000 (GMT)
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, chris@freedom2surf.net,
+	id <S131424AbQL1StL>; Thu, 28 Dec 2000 13:49:11 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:12561 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131245AbQL1StH>; Thu, 28 Dec 2000 13:49:07 -0500
+Date: Thu, 28 Dec 2000 14:25:56 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Juan Quintela <quintela@fi.udc.es>, Rik van Riel <riel@conectiva.com.br>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <E14BghF-0003wu-00@the-village.bc.nu>
-In-Reply-To: <E14BghF-0003wu-00@the-village.bc.nu>
+Subject: Re: [PATCH] not sleep while holding a locked page in block_truncate_page
+In-Reply-To: <Pine.LNX.4.10.10012280955570.12064-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0012281411550.12364-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.1
-X-Originating-IP: 194.106.48.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > 
-> > > > Do you remember if the reports you've got always oopsed the same
-> > > > address (0040000) ? 
-> > > 
-
-Hi - Here's another Oops from the same machine. It looks to be in a totally 
-different place in the code which probably means it's a memory problem? I'll 
-try installing on another box to confirm.
-
-Thank you for your help!
-
-Chris
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000120
-c0145914
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0145914>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010207
-eax: 00000000   ebx: 00000100   ecx: 0000001e   edx: 00000c0c
-esi: 00000100   edi: 00000000   ebp: 0025dbb1   esp: c333fe5c
-ds: 0018   es: 0018   ss: 0018
-Process nfsd (pid: 194, stackpage=c333f000)
-Stack: 00041182 dff86060 0025dbb1 c18ee000 c0145d3e c18ee000 0025dbb1 dff86060
-       00000000 00000000 00041182 c337a200 c3345ec0 c93da800 c0167b01 c18ee000
-       0025dbb1 00000000 00000000 00000003 c337a200 c0167f41 c18ee000 0025dbb1
-Call Trace: [<c0145d3e>] [<c0167b01>] [<c0167f41>] [<c01eaef6>] [<c01684b0>] 
-[<c0168a3a>] [<c0166d39
-       [<c01666c3>] [<c01f8715>] [<c01664ed>] [<c0107480>]
-Code: 39 6e 20 75 ef 8b 44 24 14 39 86 90 00 00 00 75 e3 85 ff 74
-
->>EIP; c0145914 <find_inode+1c/48>   <=====
-Trace; c0145d3e <iget4+52/e8>
-Trace; c0167b01 <nfsd_iget+19/f0>
-Trace; c0167f41 <find_fh_dentry+21/324>
-Trace; c01eaef6 <inet_sendmsg+3e/44>
-Trace; c01684b0 <fh_verify+26c/48c>
-Trace; c0168a3a <nfsd_lookup+6a/4f8>
-Trace; c01666c3 <nfsd_dispatch+cb/168>
-Trace; c01f8715 <svc_process+28d/4c8>
-Trace; c01664ed <nfsd+215/320>
-Trace; c0107480 <kernel_thread+28/38>
-Code;  c0145914 <find_inode+1c/48>
-00000000 <_EIP>:
-Code;  c0145914 <find_inode+1c/48>   <=====
-   0:   39 6e 20                  cmp    %ebp,0x20(%esi)   <=====
-Code;  c0145917 <find_inode+1f/48>
-   3:   75 ef                     jne    fffffff4 <_EIP+0xfffffff4> c0145908 
-<find_inode+10/48>
-Code;  c0145919 <find_inode+21/48>
-   5:   8b 44 24 14               mov    0x14(%esp,1),%eax
-Code;  c014591d <find_inode+25/48>
-   9:   39 86 90 00 00 00         cmp    %eax,0x90(%esi)
-Code;  c0145923 <find_inode+2b/48>
-   f:   75 e3                     jne    fffffff4 <_EIP+0xfffffff4> c0145908 
-<find_inode+10/48>
-Code;  c0145925 <find_inode+2d/48>
-  11:   85 ff                     test   %edi,%edi
-Code;  c0145927 <find_inode+2f/48>
-  13:   74 00                     je     15 <_EIP+0x15> c0145929 
-<find_inode+31/48>
 
 
--------------------------------------------------
-Everyone should have http://www.freedom2surf.net/
+On Thu, 28 Dec 2000, Linus Torvalds wrote:
+
+> 
+> 
+> On Thu, 28 Dec 2000, Marcelo Tosatti wrote:
+> > 
+> > Hi Linus, 
+> > 
+> > block_truncate_page() function unecessarily calls mark_buffer_dirty(),
+> > which may wait on bdflush, while holding a locked page.
+> 
+> Good catch. It should be ok to sleep for bdflush while holding the page,
+> but at the same time it's certainly preferable _not_ to do that.
+> 
+> bdflush should not need any locks that we hold, so it shouldn't have
+> deadlocked. How did you find this? Just reading the source, or have you
+> seen any real problems? 
+
+Just reading the code.
+
+> If the latter, maybe there's something that tries to get a FS lock
+> when it shouldn't?
+
+No, its not a deadlock. Its just a potential performance
+problem. 
+
+Actually, ext2 is full of calls to mark_buffer_dirty() while holding the
+superblock lock. Juan Quintela (which is being CC'ed) has a patch to
+minimize the contention of the superblock lock by calling balance_dirty()
+only after the sb lock gets unlocked all over ext2. Would you accept that
+patch for 2.4?
+
+Moreover, it seems mark_buffer_dirty does not makes a lot of sense wrt
+balance_dirty:
+
+---
+
+/* atomic version, the user must call balance_dirty() by hand
+   as soon as it become possible to block */
+void __mark_buffer_dirty(struct buffer_head *bh)
+{
+        if (!atomic_set_buffer_dirty(bh))
+                __mark_dirty(bh);
+}
+
+void mark_buffer_dirty(struct buffer_head *bh)
+{
+        __mark_buffer_dirty(bh);
+        balance_dirty(bh->b_dev);
+}
+
+--- 
+
+If we call mark_buffer_dirty() on an already dirty buffer, we may sleep
+waiting for bdflush even if we haven't caused _any_ real disk IO (because
+the buffer was already dirty anyway).
+
+I think it makes more sense if we only call balance_dirty if we actually
+caused real disk IO.
+
+Would you accept a patch to change that situation by making
+__mark_buffer_dirty return the old dirty bit value and make
+mark_buffer_dirty only sleep on bdflush if we dirtied a clean buffer?
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

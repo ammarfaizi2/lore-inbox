@@ -1,57 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268175AbRHAUzy>; Wed, 1 Aug 2001 16:55:54 -0400
+	id <S268182AbRHAU6o>; Wed, 1 Aug 2001 16:58:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268182AbRHAUzo>; Wed, 1 Aug 2001 16:55:44 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:9600 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268175AbRHAUzd>; Wed, 1 Aug 2001 16:55:33 -0400
-Date: Wed, 1 Aug 2001 16:55:25 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Raghava Raju <vraghava_raju@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Basic question..
-In-Reply-To: <20010801204401.21619.qmail@web20009.mail.yahoo.com>
-Message-ID: <Pine.LNX.3.95.1010801165338.3099A-100000@chaos.analogic.com>
+	id <S268174AbRHAU6f>; Wed, 1 Aug 2001 16:58:35 -0400
+Received: from ns.starentnetworks.com ([64.240.141.2]:38823 "HELO
+	starentnetworks.com") by vger.kernel.org with SMTP
+	id <S268197AbRHAU6X>; Wed, 1 Aug 2001 16:58:23 -0400
+Message-ID: <3B686D73.6040602@starentnetworks.com>
+Date: Wed, 01 Aug 2001 16:58:27 -0400
+From: Brian Ristuccia <bristuccia@starentnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, djohnson@starentnetworks.com
+Subject: repeated failed open()'s results in lots of used memory [Was: [Fwd: memory consumption]]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Aug 2001 20:58:27.0156 (UTC) FILETIME=[B5F66940:01C11ACC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001, Raghava Raju wrote:
+We've been experiencing a problem where an errant process would run in a 
+tight loop trying to create files in a directory where it did not have 
+access. While this errant process was running, we'd notice all of the 
+available memory shift from buffers/cache (or free) to used and stay 
+that way while the process was running. vmstat also reports heavy in/out 
+traffic on the swap, but swap consumption does not grow past a few dozen 
+megabytes. The memory used by the process itself does not grow.
 
-> 
-> 
->    Hi
-> 
->         I am new to kernel programming. I have
->    just written a module consisting of init and
-> cleanup
->    functions. I call init function of the module in
->    kernel initialization function. So when system
->    comes up, it shows that it entered module init 
->    function(printk in "init" print some string), but 
->    when I do lsmod it is not there in  list of 
->    modules. But if I do insmod module, the module is
->    listed in lsmod output. So is it that calling init
->    module and insmod are not equivalent?
-> 
->    Thank You
->    Raghava.
+Note that we increase the default values for certain FS parameters:
 
-If it's built into the kernel (a driver), it's not a module.
-It won't show when executing `lsmod`. It also can't be removed.
-Only drivers inserted as modules show with `lsmod`.
+echo '16384' >/proc/sys/fs/super-max
+echo '32768' >/proc/sys/fs/file-max
+echo '65535' > /proc/sys/fs/inode-max
+
+We've created the following test program, which excercises the problem 
+on both 2.2.19 and 2.4.7. All of the machines have at least 512mb of 
+memory. I'd appreciate any feedback about reproducing the problem and 
+potential causes/fixes.
+
+Thanks.
+
+-------- Original Message --------
+Subject: memory consumption
+Date: Wed, 1 Aug 2001 16:33:18 -0400 (EDT)
+From: Dave Johnson <djohnson@starentnetworks.com>
+Reply-To: djohnson@starentnetworks.com
+To: bristucc@sw.starentnetworks.com
 
 
-Cheers,
-Dick Johnson
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+$ mkdir testdir
+$ chmod a-w testdir
+$ ./open_test testdir/test
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+
+strace shows:
+
+open("testdir/test.10001051", O_WRONLY|O_CREAT|O_EXCL, 0666) = -1 EACCES 
+(Permission denied)
+open("testdir/test.10001052", O_WRONLY|O_CREAT|O_EXCL, 0666) = -1 EACCES 
+(Permission denied)
+open("testdir/test.10001053", O_WRONLY|O_CREAT|O_EXCL, 0666) = -1 EACCES 
+(Permission denied)
+open("testdir/test.10001054", O_WRONLY|O_CREAT|O_EXCL, 0666) = -1 EACCES 
+(Permission denied)
+
+
+memory starts getting used until the system begins to swap like crazy....
+
+interestingly.. the filename needs to change, and it wont happen for a
+while if you start with 0.
+
+
+Happens with both 2.4.7 and 2.2.19
+
+
+
+-----
+
+
+
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main (int argc, char *argv[])
+{
+   int i;
+   int fd;
+   char name[100];
+
+   if (argc != 2)
+     return 1;
+
+   for (i=10000000; i>=0; i++)
+     {
+
+       snprintf(name,99,"%s.%d",argv[1],i);
+
+       fd = open(name, O_WRONLY|O_CREAT|O_EXCL, 0666);
+       if (fd >= 0) close(fd);
+
+     }
+
+   return 0;
+}
+
+--------
+
+-- 
+David Johnson                       Starent Networks, Corp.
+978-851-1173                        30 International Place
+djohnson@starentnetworks.com        Tewksbury, MA 01876
 
 

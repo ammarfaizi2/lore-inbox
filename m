@@ -1,96 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271713AbTGXQnB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 12:43:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271714AbTGXQnA
+	id S271714AbTGXQpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 12:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271715AbTGXQpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 12:43:00 -0400
-Received: from mailrelay3.lanl.gov ([128.165.4.104]:14526 "EHLO
-	mailrelay3.lanl.gov") by vger.kernel.org with ESMTP id S271713AbTGXQml
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 12:42:41 -0400
-Subject: Re: Posting format
-From: Steven Cole <elenstev@mesatop.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030724160327.GB22052@louise.pinerecords.com>
-References: <20030723201801.GB32585@rdlg.net>
-	 <20030723212224.A527@infradead.org> <20030723220037.GC32585@rdlg.net>
-	 <20030723225333.GC16244@louise.pinerecords.com>
-	 <bfn5v6$m20$1@gatekeeper.tmr.com>
-	 <1059059667.1672.202.camel@spc9.esa.lanl.gov>
-	 <20030724154732.GJ32585@rdlg.net>
-	 <20030724160327.GB22052@louise.pinerecords.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1059065578.1668.234.camel@spc9.esa.lanl.gov>
+	Thu, 24 Jul 2003 12:45:25 -0400
+Received: from dsl093-170-248.sfo2.dsl.speakeasy.net ([66.93.170.248]:16599
+	"HELO parts-unknown.org") by vger.kernel.org with SMTP
+	id S271714AbTGXQpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 12:45:19 -0400
+Date: Thu, 24 Jul 2003 10:00:20 -0700
+From: David Benfell <benfell@greybeard95a.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCO offers UnixWare licenses for Linux
+Message-ID: <20030724170020.GB11885@parts-unknown.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1058807414.513.4.camel@sunshine> <141DFFFA-BBA4-11D7-A61F-000A95773C00@seven-angels.net> <20030721205940.7190f845.diegocg@teleline.es> <1059058329.957.11.camel@teapot.felipe-alfaro.com> <20030724150841.GA12647@work.bitmover.com> <Pine.LNX.4.53.0307241134200.21503@chaos> <20030724160146.GF12647@work.bitmover.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 24 Jul 2003 10:52:58 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
+Content-Disposition: inline
+In-Reply-To: <20030724160146.GF12647@work.bitmover.com>
+User-Agent: Mutt/1.3.28i
+X-stardate: [-29]0638.51
+X-moon: The Moon is Waning Crescent (20% of Full)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-24 at 10:03, Tomas Szepe wrote:
-> > [Robert.L.Harris@rdlg.net]
-> > 
-> > On the other hand if everyone posted at the top it would be considerably
-> > easier reading for those who have been following the conversation
-> > without having to scroll down and figure out where comments and the
-> > conversation is at.
-> 
-> So how do you context-quote when replying at the top?
-> 
-> Original text:
-> 
-> 	Argument A.
-> 	Argument B.
-> 
-> Reply:
-> 
-> 	Reply intro text.
-> 
-> 	Reaction A.
-> 	> Argument A.
-> 
-> 	Reaction B.
-> 	> Argument B.
-> 
-> I don't think so.  Awkward (mixing directions) and confusing.
-> 
-> > For those new to the conversation they can just start at the bottom and
-> > scroll up.
-> 
-> Ever actually tried doing that?  IMHO it's not half as practical and
-> natural as reading from the top down.  (You have to keep scrolling,
-> searching for block starts.)
 
-I think Tomas has just hit upon why top posting is fundamentally wrong.
+--9zSXsLTf0vkW971A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Indo-European languages read left to right, Semitic languages read right
-to left, and some Oriental languages read top to bottom, but no human
-languages I'm aware of read bottom to top.  
+On Thu, 24 Jul 2003 09:01:46 -0700, Larry McVoy wrote:
+>=20
+> Yeah, right. =20
+>=20
+>     ``I "found" these 3GB of mp3's of music and I had no idea that
+>     they were stolen but now that you mention it, here they are back.
+>     Finders keepers, right?''
+>=20
+> What were you thinking?  That's obviously incorrect, I know that it is
+> incorrect from both observation of recent court cases as well as direct
+> personal experience.
+>=20
+I think the phrase you're looking for is "receiving stolen property."
+I am not a lawyer, so I really can't comment further.
 
-Consider a Cafe sign:
+--=20
+David Benfell
+benfell@parts-unknown.org
 
-C
-a
-f
-e
+--9zSXsLTf0vkW971A
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-That is readable.  How about:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (Darwin)
 
-e
-f
-a
-C
+iQEXAwUBPyAQo3w5zqzgtjVOFAKjTgQAjMAMBgk1atjC/0ZVjY0YuDzZejTEGO0y
+Jqi6XfFeOpOBXUjCYSAWioyf4SMOs26vPNCRdcnUyfCHwW29HHieYKPH1I/92GX9
+ui9QdeqLRDx+jxgs4+JjS0dzz7IfrRlPOnunuJUdkR1v61YxCxXpfou4sr/bsi7g
+LxlbDM3Oe0ED/iDu5+gmVvS3rhxbcmZR2yAa1BUBTgm4ocx1uwHf3h42r9ix9rCC
+5PHb4aDH/sGsqjHIJ1rQre/zsLXa70g3p/tOMhu3UQUbLcIIHUpEjDGWsEHF65wW
+wNDPMntd9YJYuvJtQQT30VO24/kC1jbrtsJnQDeXobB6eBjFh0KCkPjZ
+=bTdN
+-----END PGP SIGNATURE-----
 
-Not very readable unless you spend extra processing time to think about
-it. Reading bottom to top is counter-intuitive and wastes time. Speaking
-of which, apologies to all who feel they've wasted time by reading this.
-
-Hmm, it looks like you top-posters out there are in good company. 
-Marcelo seems to be taking the lead.  Grumble.
-
-Steven
-
+--9zSXsLTf0vkW971A--

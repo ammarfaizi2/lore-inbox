@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267123AbTA2Toe>; Wed, 29 Jan 2003 14:44:34 -0500
+	id <S267146AbTA2Tp6>; Wed, 29 Jan 2003 14:45:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267025AbTA2Toe>; Wed, 29 Jan 2003 14:44:34 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:19464 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267123AbTA2Tod>;
-	Wed, 29 Jan 2003 14:44:33 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301291954.h0TJsZcd002358@darkstar.example.net>
-Subject: Re: kernel.org frontpage
-To: Valdis.Kletnieks@vt.edu
-Date: Wed, 29 Jan 2003 19:54:34 +0000 (GMT)
-Cc: hpa@zytor.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200301291920.h0TJKF4K007454@turing-police.cc.vt.edu> from "Valdis.Kletnieks@vt.edu" at Jan 29, 2003 02:20:15 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267134AbTA2Tp6>; Wed, 29 Jan 2003 14:45:58 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:1466 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S267025AbTA2Tp4> convert rfc822-to-8bit;
+	Wed, 29 Jan 2003 14:45:56 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Balram Adlakha <b_adlakha@softhome.net>,
+       (by way of Balram Adlakha <b_adlakha@softhome.net>)
+Subject: Re: Scaring the non-geeks (was Bootscreen)
+Date: Thu, 30 Jan 2003 01:21:48 +0530
+User-Agent: KMail/1.4.3
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301300121.48705.b_adlakha@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> --==_Exmh_1523870505P
-> Content-Type: text/plain; charset=us-ascii
-> 
-> On Wed, 29 Jan 2003 19:14:43 GMT, John Bradford said:
-> 
-> > I see what you mean, but I don't see how it makes it any less useful
-> > to have them on the front page - if you download the latest kernel
-> > patch from a mirror, you could then just click on the relevant link on
-> > the front page of kernel.org - infact, as http access to kernel.org is
-> > frequently much slower than ftp, it might actually be very useful,
-> > because anybody downloading via http would make two requests, (OK,
-> > about 7, because of the images on the front page), instead of about
-> > 13, if they traverse each directory to the .sign file.
-> 
-> I was arguing that they *should* be on the front page, since they *are*
-> useful and it *would* lower the number of requests.
+On Wednesday 29 January 2003 20:38, Alan Cox wrote:
+> On Wed, 2003-01-29 at 13:19, Richard B. Tilley (Brad) wrote:
+> > How do positive terms such as OK or YES scare people?
+>
+> Because they contain phrases that are not understood. Sometimes
+> they also contain phrases which trigger concerned responses
+> even when that isnt appropriate. I've for example been tweaking
+> some messages so it is clear that the problem the kernel found
+> it also fixed.
+>
+> People find the PC boot intimidating (ask PC support people about
+> people who call in 'lost in the cosmos' and other such gems). Thats
+> why the PC boot has often gone graphical.
+>
+> Alan
 
-Sorry, I'd deleted the original message, and didn't want to break the
-thread :-)
+Exactly...
+So now its justified that there SHOULD be such a thing, and it SHOULD be
+WITHING THE KERNEL SOURCES because so many people will be using it and
+we don't want so many patched kernels do we?
+So now that there SHOULD be sucha thing, why not create a few implimentations
+of it which actually work well and put them into the sources?
+People seem to like MacOS X don't they? With a nice bootscreen, and with the
+latest version of kde, won't linux be similiar/better than macOS to the
+"click click" type users?
 
-John.

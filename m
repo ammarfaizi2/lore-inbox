@@ -1,54 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264061AbUEHDpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264054AbUEHDsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264061AbUEHDpy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 23:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUEHDpy
+	id S264054AbUEHDsy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 23:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264056AbUEHDsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 23:45:54 -0400
-Received: from gizmo03ps.bigpond.com ([144.140.71.13]:26577 "HELO
-	gizmo03ps.bigpond.com") by vger.kernel.org with SMTP
-	id S264061AbUEHDpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 23:45:52 -0400
-Message-ID: <409C57F3.4010009@techdrive.com.au>
-Date: Sat, 08 May 2004 13:45:55 +1000
-From: Richard James <richard@techdrive.com.au>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ian Kumlien <pomac@vapor.com>, linux-kernel@vger.kernel.org
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
-References: <1083914992.2797.82.camel@big>
-In-Reply-To: <1083914992.2797.82.camel@big>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 May 2004 23:48:54 -0400
+Received: from [61.135.145.13] ([61.135.145.13]:42611 "EHLO websmtp03.sohu.com")
+	by vger.kernel.org with ESMTP id S264054AbUEHDsv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 23:48:51 -0400
+Message-ID: <4830745.1083988124818.JavaMail.postfix@mx0.mail.sohu.com>
+Date: Sat, 8 May 2004 11:48:44 +0800 (CST)
+From: <dongzai007@sohu.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: vid&pid problems in usb_probe()
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Sohu Web Mail 2.0.13
+X-SHIP: 221.218.37.174
+X-Priority: 3
+X-SHMOBILE: 0
+X-SHBIND: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kumlien wrote:
 
->>ASUS have now supplied a BIOS update for the A7N8X-X which fixes the 
->>C1 halt crash. dated the 2004/04/21.  So I assume that they will 
->>supply a patch for all nforce2 motherboards.
->>    
->>
->
->you mean the 1009 bios? It doesn't fix anything.
->I'm using it and:
->
->dmesg output:
->...
->Asus A7N8X-X detected: BIOS IRQ0 pin2 override will be ignored
->...
->PCI: nForce2 C1 Halt Disconnect fixup
->...
->
->(I'm the one that told Len about the new bios that doesn't fix the pin2
->bug and afair, the C1 Halt Disconnect fix checked for flawed values, ie,
->this bios dosn't fix anything...)
->  
->
-Weird as it no longer crashes my system. Which Kernel are you using? Did 
-you turn off the C1Halt patch?
 
-Richard James
+I am writting an usb driver.You know function usb_probe(...) is used to determine whether the usbdevices just pluged in is what the driver is for.
+
+The Vid and Pid of my usb device are 0x1111 and 0x0000 respectively.
+
+the program is :
+
+static void* usb_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id)
+{
+    ..............
+    ..............
+    
+    printk("<1>Vid:%x\nPid:%x\n",udev->descriptor.idVendor,udev->descriptor.idProduct);
+
+    if ((udev->descriptor.idVendor!=0x1111)
+         ||(udev->descriptor.idProduct!=0x0000)) return NULL;
+
+    ..............
+}
+
+when I plug the device whose vid & pid is 0x1111 & 0x0000 respectively.
+this Module displayed
+
+
+Vid:0
+Pid:201
+
+usb.c ........ no active driver for this device;
+
+and when I plug another device , I also got wrong vid & pid.
+
+But when I wrote program as below:
+
+__u16 tmp=0x1111;
+printk("<1>%x",tmp);
+
+it can print "1111" on the screen. That means my syntax is correct.
+I mean, the problem may be at the data transfered into function usb_probe()
+Maybe data transfered into function usb_probe() is wrong.
+
+I wonder where is the problem, how can i solve.
+
 

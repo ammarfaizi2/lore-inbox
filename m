@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131547AbRA3BLJ>; Mon, 29 Jan 2001 20:11:09 -0500
+	id <S131712AbRA3BL7>; Mon, 29 Jan 2001 20:11:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131795AbRA3BK7>; Mon, 29 Jan 2001 20:10:59 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:56072 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131547AbRA3BKl>; Mon, 29 Jan 2001 20:10:41 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: DVD Disk Detection
-Date: 29 Jan 2001 17:10:31 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9554a7$ncu$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0101291759200.6259-100000@penguin.linuxhardware.org>
+	id <S131753AbRA3BLu>; Mon, 29 Jan 2001 20:11:50 -0500
+Received: from cc399455-a.chmchl1.ca.home.com ([65.0.176.232]:17427 "EHLO
+	polaris.wox.org") by vger.kernel.org with ESMTP id <S131712AbRA3BLp>;
+	Mon, 29 Jan 2001 20:11:45 -0500
+Date: Mon, 29 Jan 2001 17:09:34 -0800 (PST)
+From: Mike Pontillo <mike_p@polaris.wox.org>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+cc: "Michael H. Warfield" <mhw@wittsend.com>,
+        John Jasen <jjasen@datafoundation.com>, linux-kernel@vger.kernel.org
+Subject: Re: Support for 802.11 cards?
+In-Reply-To: <87wvbekyr7.fsf@pelerin.serpentine.com>
+Message-ID: <Pine.LNX.4.21.0101291707220.15918-100000@polaris.wox.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.21.0101291759200.6259-100000@penguin.linuxhardware.org>
-By author:    Kernel Related Emails <kernel@penguin.linuxhardware.org>
-In newsgroup: linux.dev.kernel
->
-> I was just wondering if anyone had any suggestions to check to see if a
-> DVD is in a users DVD drive.  Currently if you run a CDROM_DISC_STATUS on
-> a DVD you get a CDS_DATA_1 returned.  What kernel level call would
-> destinguish between an actual Data CD and a DVD?
+	Hmm, this is interesting... I know that the kernel can be set to
+try to detect PCI devices on its own, without the help of the BIOS. Is
+there any reason why that feature wouldn't work with this particular type
+of card?
+
+Thanks,
+Mike Pontillo
+
+
+On 29 Jan 2001, Bryan O'Sullivan wrote:
+
+> m> The ISA bridge also works on the 2.4 kernels but I have not
+> m> retested the PCI bridge on 2.4.
+> 
+> The Lucent PCI-to-Cardbus bridge only works on machines that have a
+> recent PCI BIOS.  Any motherboard more than about 16 months old simply
+> won't find the bridge card, and hence neither will Linux.
+> 
+> 	<b
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 > 
 
-Why does it matter?  Seriously, do you have any reason to act
-differently between a CD and a small DVD, either of which contains a
-UDF filesystem?  If not, don't.
-
-Size, type of filesystem, etc, are obviously important -- but
-shouldn't be determined by the type of the physical media.  It's
-perfectly legitimate to have a large ISO 9660 filesystem on a DVD, or
-an UDF filesystem on a CD.
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

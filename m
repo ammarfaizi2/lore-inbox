@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289563AbSBEPB0>; Tue, 5 Feb 2002 10:01:26 -0500
+	id <S289578AbSBEPC1>; Tue, 5 Feb 2002 10:02:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289564AbSBEPBQ>; Tue, 5 Feb 2002 10:01:16 -0500
-Received: from ns.muni.cz ([147.251.4.33]:25342 "EHLO aragorn.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S289563AbSBEPA6>;
-	Tue, 5 Feb 2002 10:00:58 -0500
-Date: Tue, 5 Feb 2002 16:00:54 +0100
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] fix 2.4.18-pre8 compile error in cosa.c
-Message-ID: <20020205150054.GE11523@informatics.muni.cz>
-In-Reply-To: <Pine.NEB.4.44.0202051546330.24218-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S289568AbSBEPCR>; Tue, 5 Feb 2002 10:02:17 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:25094 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S289564AbSBEPCH>;
+	Tue, 5 Feb 2002 10:02:07 -0500
+Date: Tue, 5 Feb 2002 15:42:34 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Momchil Velikov <velco@fadata.bg>
+Cc: Ralf Oehler <R.Oehler@GDAmbH.com>, Scsi <linux-scsi@vger.kernel.org>,
+        linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>,
+        Jens Axboe <axboe@kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: one-line-patch against SCSI-Read-Error-BUG()
+Message-ID: <20020205154234.B16105@suse.de>
+In-Reply-To: <XFMail.20020205153210.R.Oehler@GDAmbH.com> <20020205152434.A16105@suse.de> <871yg07zg4.fsf@fadata.bg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.44.0202051546330.24218-100000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <871yg07zg4.fsf@fadata.bg>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-: the patch below fixes the following compile error in 2.4.18-pre8:
+On Tue, Feb 05 2002, Momchil Velikov wrote:
+> >>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
+> 
+> Jens> On Tue, Feb 05 2002, Ralf Oehler wrote:
+> >> Hi, List
+> >> 
+> >> I think, I found a very simple solution for this annoying BUG().
+> 
+> Jens> You fail to understand that the BUG triggering indicates that their is a
+> Jens> BUG _somewhere_ -- the triggered BUG is not the bug itself, of course,
+> Jens> that would be stupid :-)
+> 
+> Erm, having a BUG() somewhere can be a bug by itself ;)
+> 
+> I think that's what he meant (regardless if he was right or not). 
 
-	Looks OK, please apply.
-
-: --- drivers/net/wan/cosa.c.old	Tue Feb  5 15:37:20 2002
-: +++ drivers/net/wan/cosa.c	Tue Feb  5 15:47:37 2002
-: @@ -105,13 +105,6 @@
-:  #include <net/syncppp.h>
-:  #include "cosa.h"
-: 
-: -/* Linux version stuff */
-: -#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,1)
-: -typedef struct wait_queue *wait_queue_head_t;
-: -#define DECLARE_WAITQUEUE(wait, current) \
-: -	struct wait_queue wait = { current, NULL }
-: -#endif
-: -
-:  /* Maximum length of the identification string. */
-:  #define COSA_MAX_ID_STRING	128
-
--Yenya
+Of course it can, any statement can be a bug. That's hardly the point
+:-)
 
 -- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-|\    As anyone can tell you trying to force things on Linux developers   /|
-|\\   generally works out pretty badly.              (Alan Cox in lkml)  //|
+Jens Axboe
+

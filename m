@@ -1,80 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264461AbTDXVWp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 17:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbTDXVWp
+	id S264474AbTDXVQM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 17:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTDXVQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 17:22:45 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46087 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264461AbTDXVWk
+	Thu, 24 Apr 2003 17:16:12 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:18824 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264474AbTDXVQG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 17:22:40 -0400
-Date: Thu, 24 Apr 2003 17:29:40 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Theurer <habanero@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       ricklind@us.ibm.com
-Subject: Re: [patch] HT scheduler, sched-2.5.68-B2
-In-Reply-To: <1574320000.1051137515@flay>
-Message-ID: <Pine.LNX.3.96.1030424162544.11351D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 24 Apr 2003 17:16:06 -0400
+Date: Thu, 24 Apr 2003 22:28:11 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Downing, Thomas" <Thomas.Downing@ipc.com>
+Cc: Daniel Phillips <phillips@arcor.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030424212811.GH30082@mail.jlokier.co.uk>
+References: <170EBA504C3AD511A3FE00508BB89A9201FD91E8@exnanycmbx4.ipc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <170EBA504C3AD511A3FE00508BB89A9201FD91E8@exnanycmbx4.ipc.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Apr 2003, Andrew Theurer wrote:
-
-> Well on high load, you shouldn't have an idle cpu anyway, so you would never 
-> pass the requirements for the agressive -idle- steal even if it was turned 
-> on.   On low loads on HT, without this agressive balance on cpu bound tasks, 
-> you will always load up one core before using any of the others.  When you 
-> fork/exec, the child will start on the same runqueue as the parent, the idle 
-> sibling will start running it, and it will never get a chance to balance 
-> properly while it's in a run state.  This is the same behavior I saw with the 
-> NUMA-HT solution, because I didn't have this agressive balance (although it 
-> could be added I suppose), and as a result it consistently performed less 
-> than Ingo's solution (but still better than no patch at all).
-
-Sorry if I misunderstand, but if HT is present, I would think that you
-would want to start the child of a fork on the same runqueue, because the
-cache is loaded, and to run the child first because in many cases the
-child will do and exac. At that point it is probable that the exec'd
-process run on another CPU would leave the cache useful to the parent.
-
-I fully admit that this is "seems to me" rather than measured, but
-protecting the cache is certainly a good thing in general.
-
-
-On Wed, 23 Apr 2003, Martin J. Bligh wrote:
-
-> Actually, what must be happening here is that we're agressively stealing
-> things on non-HT machines ... we should be able to easily prevent that.
+Downing, Thomas wrote:
+> From: Daniel Phillips [mailto:phillips@arcor.de]
+> > To join a game, you'd have to be able to prove you're running code
+> > that is secure all the way from boot to reboot, where everything
+> > from network driver to physics engine is known to be compiled from
+> > open source that all participants agree is good.
 > 
-> Suppose we have 2 real cpus + HT ... A,B,C,D are the cpus, where A, B 
-> are HT twins, and C,D are HT twins. A&B share runqueue X, and C&D share
-> runqueue Y
-> 
-> What I presume you're trying to do is when A and B are running 1 task
-> each, and C and D are not running anything, balance out so we have
-> one on A and one on C. If we define some "nr_active(rq)" concept to be
-> the number of tasks actually actively running on cpus, then if we we're
-> switching from nr_actives of 2/0 to 1/0.
-> 
-> However, we don't want to switch from 2/1 to 1/2 ... that's pointless.
-> Or 0/1 to 1/0 (which I think it's what's happening). But in the case
-> where we had (theoretically) 4 HT siblings per real cpu, we would want
-> to migrate 1/3 to 2/2.
-> 
-> The key is that we want to agressively steal when 
-> nr_active(remote) - nr_active(idle) > 1 ... not > 0.
-> This will implicitly *never* happen on non HT machines, so it seems
-> like a nice algorithm ... ?
+> How would you do that?  What's the protocol?
 
-Is it really that simple? 
+Public key exchange lets you communicate securely over an insecure link.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+So, the game server and the BIOS have a chat, through the operating
+system (which counts as an insecure link), and the BIOS tells the
+server that it is the correct DRM BIOS, and it loaded a signed kernel.
 
+So the server can trust the kernel.  It chats with the kernel, which
+confirms that it is running a signed physics engine, a signed 3rd party
+network driver, a signed video driver, the video is connected to a
+signed monitor, the input is connected to a signed joystick, and that
+conversations on TCP port XXX are connected to the physics engine.
+
+This is how a game server can verify it is working with a known game
+client and the client is connected to a known type of monitor and
+input device.  I.e. it can verify there is no electronic frame grabber
+using the video signals and driving an AI assist through the input
+device.
+
+Additionally, the trusted kernel and trusted video driver can prove
+that they are encrypting the video link, so that it is imposible to
+record the gameplay using standard video recording hardware.
+
+   ---
+
+Substitute "broadcaster" for "game server" and you see that the same
+methods ensure that you really have the TV switched on and you are not
+recording the show.
+
+They also ensure you are not recording a screenshot of a politically
+sensitive article about Iraq that was accidentally shown on CNN's web
+site for 10 minutes.  We can't have people recording things like that.
+
+Also that day, that same article doesn't load from Al-Jazeera or
+anywhere else, on the PC you bought from the only affordable store in
+town.  Is the net flaky today, or is somebody remote-controlling your
+PC to control your "browsing experience"?
+
+-- Jamie

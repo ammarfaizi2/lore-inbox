@@ -1,50 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262614AbRFSNwZ>; Tue, 19 Jun 2001 09:52:25 -0400
+	id <S263906AbRFSNwz>; Tue, 19 Jun 2001 09:52:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263906AbRFSNwP>; Tue, 19 Jun 2001 09:52:15 -0400
-Received: from [199.111.154.8] ([199.111.154.8]:62985 "EHLO
-	penguin.roanoke.edu") by vger.kernel.org with ESMTP
-	id <S262614AbRFSNwD>; Tue, 19 Jun 2001 09:52:03 -0400
-Message-ID: <3B2F5BEC.A94F33A3@linuxjedi.org>
-Date: Tue, 19 Jun 2001 10:04:28 -0400
-From: "David L. Parsley" <parsley@linuxjedi.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexandr Andreev <andreev@niisi.msk.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Using cramfs as root filesystem on diskless machine
-In-Reply-To: <3B2A0F05.6050902@niisi.msk.ru> <3B2A538A.BA62148A@linuxjedi.org> <3B2F5282.30602@niisi.msk.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263928AbRFSNwq>; Tue, 19 Jun 2001 09:52:46 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:43280
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S263906AbRFSNwg>; Tue, 19 Jun 2001 09:52:36 -0400
+From: Larry McVoy <lm@bitmover.com>
+Date: Tue, 19 Jun 2001 06:52:33 -0700
+Message-Id: <200106191352.f5JDqXO12351@work.bitmover.com>
+To: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: 2.4.5 corruption (again)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexandr Andreev wrote:
-> 
-> David L. Parsley wrote:
-> 
-> >Mathias Killian wrote a patch to allow cramfs initrd's, see:
-> >http://www.cs.helsinki.fi/linux/linux-kernel/2001-01/1064.html
-> >
-> Thank you. I applied this patch, and recompiled my kernel.
-> All works fine, if the size of root filesystem less than 4096Kb. But
-> when i create
-> an image of root filesystem which size is bigger than 4096Mb, the kernel
-> said:
-> ...
-> RAMDISK driver initialized: 16 RAM disks of 4096K size 4096 blocksize
-                                              ^^^^^
-You also need to give the kernel 'ramdisk_size=XXXX'.  I've used
-larger cramfs initrd's with no problem, but the kernel has to make
-larger ramdisks.  By editing rd.c, you can make this stuff default.
+OK, my corruption is back and this time I'm saving the data.  Al, send some 
+email when you are around, we can talk about access to the data.  I'm tarring
+up both good & bad right now.  I've looked at a few files and they look
+"shifted".
 
-regards,
-	David
--- 
-David L. Parsley
-Network Administrator, Roanoke College
-"If I have seen further it is by standing on ye shoulders of
-Giants."
---Isaac Newton
+	extra junk
+	original file less sizeof(extra junk) bytes
+
+The machine has been up 6 days since the last corruption happened and the
+process which detected the corruption ran successfully every night as well
+as about 4 times by hand after my last corroption report.  

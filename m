@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267312AbTAGGZK>; Tue, 7 Jan 2003 01:25:10 -0500
+	id <S267318AbTAGGck>; Tue, 7 Jan 2003 01:32:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267313AbTAGGZK>; Tue, 7 Jan 2003 01:25:10 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:61388 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S267312AbTAGGY1>; Tue, 7 Jan 2003 01:24:27 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Date: Tue, 7 Jan 2003 17:07:06 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15898.28298.486412.214548@notabene.cse.unsw.edu.au>
+	id <S267317AbTAGGck>; Tue, 7 Jan 2003 01:32:40 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:23697 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S267318AbTAGGcj>; Tue, 7 Jan 2003 01:32:39 -0500
+To: jt@hpl.hp.com
+Subject: [PATCH]  Fix socket.c compilation failure when CONFIG_NET=n
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Define hash_mem in lib/hash.c to apply hash_long to an arbitraty piece of memory.
-In-Reply-To: message from Aaron Lehmann on Monday January 6
-References: <15898.24480.346258.361959@notabene.cse.unsw.edu.au>
-	<20030107053152.GF26827@vitelus.com>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Reply-To: Miles Bader <miles@gnu.org>
+Message-Id: <20030107064107.C19A73745@mcspd15.ucom.lsi.nec.co.jp>
+Date: Tue,  7 Jan 2003 15:41:07 +0900 (JST)
+From: miles@lsi.nec.co.jp (Miles Bader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday January 6, aaronl@vitelus.com wrote:
-> On Tue, Jan 07, 2003 at 04:03:28PM +1100, Neil Brown wrote:
-> > I did a little testing and found that on a list of 2 million 
-> > basenames from a recent backup index (800,000 unique):
-> > 
-> >  hash_mem (as included here) is noticably faster than HASH_HALF_MD4 or
-> >  HASH_TEA: 
-> > 
-> >   hash_mem:		10 seconds
-> >   DX_HASH_HALF_MD4:	14 seconds
-> >   DX_HASH_TEA:		15.2 seconds
-> 
-> I'm curious how the hash at
-> http://www.burtleburtle.net/bob/hash/doobs.html would fare. He has a
-> 64-bit version at
-> http://www.burtleburtle.net/bob/c/lookup8.c.
+[I send this to Linus earlier and he ignored it; maybe you're the right
+ person...]
 
-Performing the same tests: producing 8 bit hashes from 800,000
-filenames.
+In net/socket.c, <linux/wireless.h> is included twice, once conditionally
+(on CONFIG_NET_RADIO || CONFIG_NET_PCMCIA_RADIO) and once unconditionally.
+However, including <linux/wireless.h> defines WIRELESS_EXT, and this causes an
+#ifdef in `sock_ioctl' to reference `dev_ioctl', which isn't defined when
+CONFIG_NET=n, and so results in an unresolved symbol reference in that case.
 
-Speed is 10 seconds, comarable to hash_mem
-
-normalised standard deviation of frequencies is 0.0171039
-which is is the same ball park as the hashes ext3 uses
-(they gave 0.0169 and 0.0182.  hash_mem gave 0.02255).
-
-So (on this set of values at least) it does seem to be a better hash
-function. 
-
-I might look more closely at it.
+The following patch fixes this by removing the unconditional include, and only
+keeping the conditional one.
 
 Thanks,
-NeilBrown
+
+-Miles
+
+diff -ruN -X../cludes linux-2.5.54-moo.orig/net/socket.c linux-2.5.54-moo/net/socket.c
+--- linux-2.5.54-moo.orig/net/socket.c	2002-11-25 10:30:11.000000000 +0900
++++ linux-2.5.54-moo/net/socket.c	2003-01-06 13:27:17.000000000 +0900
+@@ -75,7 +75,6 @@
+ #include <linux/cache.h>
+ #include <linux/module.h>
+ #include <linux/highmem.h>
+-#include <linux/wireless.h>
+ #include <linux/divert.h>
+ #include <linux/mount.h>
+ 

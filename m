@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129604AbRAUWwv>; Sun, 21 Jan 2001 17:52:51 -0500
+	id <S130119AbRAUXOe>; Sun, 21 Jan 2001 18:14:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130701AbRAUWwc>; Sun, 21 Jan 2001 17:52:32 -0500
-Received: from barry.mail.mindspring.net ([207.69.200.25]:53767 "EHLO
-	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S129604AbRAUWw1>; Sun, 21 Jan 2001 17:52:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jeff Lightfoot <jeffml@pobox.com>
-Reply-To: jeffml@pobox.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.1pre9 Oops (was Re: 2.4.1pre8 Oops)
-Date: Sun, 21 Jan 2001 15:52:18 -0700
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01012111414100.15973@earth>
-In-Reply-To: <01012111414100.15973@earth>
+	id <S130521AbRAUXOZ>; Sun, 21 Jan 2001 18:14:25 -0500
+Received: from cnq0-9.cablevision.qc.ca ([24.212.0.9]:46086 "EHLO
+	cnqnt02.Cablevision.qc.ca") by vger.kernel.org with ESMTP
+	id <S130119AbRAUXOR>; Sun, 21 Jan 2001 18:14:17 -0500
+Message-ID: <3A6B6D63.5673EC41@nwb.qc.ca>
+Date: Sun, 21 Jan 2001 18:14:43 -0500
+From: Keven Belanger <kevenb@nwb.qc.ca>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.3.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01012115521800.18005@earth>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Problems with sound card and NIC
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 January 2001 11:41, I wrote:
-> Nothing special with this box.  SMP no modules, Squid proxy and
-> running VNC/Pan at the time.  Using kernel version of reiserfs on
-> filesystems other than root.
+Hello, I got a problem: since several version of the kernel we can't
+choose the io, irq, dma, etc... for the oss 100% compatible sound
+blaster sound card, my sound card should be set on irq 5.  In kernel
+version 2.3.42 my sound card is irq 5 and my net card is irq 10, but
+when I try to build a kernel newer than 2.3.42 (I think that 2.3.42 is
+the last one where we can choose the settings of the sound card) I got a
 
-I also failed to mention that I use devfs.
+problem: the kernel put irq 5 on my network card and didn't detect my
+sound blaster card (SB32).
 
-[Oops snipped]
+How can I tell to the kernel (2.4.0) that my nic (AcerLAN ALN-101) is
+irq 5 ?
+I use the NE2000 driver for this one...
+And how can I tell to the kernel to use irq 5 for my sb32 card ?
 
-Upgraded to 2.4.1pre9 and got the following Oops:
+This is a snippet of "procinfo" for kernel version 2.3.42 and 2.4.0
+Please help my cause I really need another kernel version that the old
+2.3.42...
+Note: 2.2.16 and 2.2.17 don't work too cause again we can't choose the
+irq, dma, etc...
 
-EIP:    0010:[<c022b533>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00000086
-eax: 00000001   ebx: 00000001   ecx: 00000001   edx: c0238440
-esi: c02d7068   edi: 00000020   ebp: 0000000d   esp: c7a63ed0
-ds: 0018   es: 0018   ss: 0018
-Process pan (pid: 2318, stackpage=c7a63000)
-Stack: 00000001 c02d7068 00000020 0000000d 00000082 00000001 c02da381
-0000001e
-       c01125bf c0238440 00000001 00000001 00000001 00000001 c0233d6d
-00000001
-       00000020 c02f502c c02d7068 00000020 0000000d ffffe000 c1460018
-c0100018
-Call Trace: [<c01125bf>] [<c0100018>] [<c01ed565>] [<c011916c>]
-[<c010a8c5>] [<c0109014>] [<ffff0018>]
-       [<c0130018>] [<c0130e19>] [<c0108f53>] [<c010002b>]
-Code: 80 3d c0 6d 28 c0 00 f3 90 7e f5 e9 d6 b7 ee ff 80 3d c0 6d
+2.3.42:
+irq  0:      5559 timer                 irq 10:        12 NE2000
+irq  1:       152 keyboard           irq 11:        65 fdomain
+irq  2:         0 cascade [4]         irq 12:         0 PS/2 Mouse
+irq  5:         1 soundblaster       irq 13:         1 fpu
+irq  6:         3                              irq 14:     49418 ide0
 
->>EIP; c022b533 <stext_lock+787/662d>   <=====
-Trace; c01125bf <smp_error_interrupt+43/48>
-Trace; c0100018 <startup_32+18/cb>
-Trace; c01ed565 <net_tx_action+5/118>
-Trace; c011916c <do_softirq+5c/8c>
-Trace; c010a8c5 <do_IRQ+e5/f4>
-Trace; c0109014 <ret_from_intr+0/20>
-Trace; ffff0018 <END_OF_CODE+3fcd7e44/????>
-Trace; c0130018 <sys_fchdir+c/11c>
-Trace; c0130e19 <sys_read+a1/c4>
-Trace; c0108f53 <system_call+33/38>
-Trace; c010002b <startup_32+2b/cb>
-Code;  c022b533 <stext_lock+787/662d>
-00000000 <_EIP>:
-Code;  c022b533 <stext_lock+787/662d>   <=====
-   0:   80 3d c0 6d 28 c0 00      cmpb   $0x0,0xc0286dc0   <=====
-Code;  c022b53a <stext_lock+78e/662d>
-   7:   f3 90                     repz nop 
-Code;  c022b53c <stext_lock+790/662d>
-   9:   7e f5                     jle    0 <_EIP>
-Code;  c022b53e <stext_lock+792/662d>
-   b:   e9 d6 b7 ee ff            jmp    ffeeb7e6 <_EIP+0xffeeb7e6> 
-c0116d19 <printk+11/17c>
-Code;  c022b543 <stext_lock+797/662d>
-  10:   80 3d c0 6d 00 00 00      cmpb   $0x0,0x6dc0
+2.4.0:
+irq  0:    579821 timer                 irq  6:         3
+irq  1:      6043 keyboard            irq 11:        65 fdomain
+irq  2:         0 cascade [4]           irq 12:      1220 PS/2 Mouse
+irq  5:         0 NE2000                 irq 14:     77770 ide0
+
+Thank you so much !!!
+
+-Keven-
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

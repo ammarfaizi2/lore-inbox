@@ -1,90 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265588AbSJSMAg>; Sat, 19 Oct 2002 08:00:36 -0400
+	id <S265595AbSJSMF3>; Sat, 19 Oct 2002 08:05:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265589AbSJSMAf>; Sat, 19 Oct 2002 08:00:35 -0400
-Received: from marcie.netcarrier.net ([216.178.72.21]:24844 "HELO
-	marcie.netcarrier.net") by vger.kernel.org with SMTP
-	id <S265588AbSJSMAe>; Sat, 19 Oct 2002 08:00:34 -0400
-Message-ID: <3DB14BED.722CFB06@compuserve.com>
-Date: Sat, 19 Oct 2002 08:11:25 -0400
-From: Kevin Brosius <cobra@compuserve.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-4GB i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kernel <linux-kernel@vger.kernel.org>
-CC: Dave Olien <dmo@osdl.org>
-Subject: [PATCH] (was Re: [2.5.43] (DAC960 compile failure))
-References: <3DAEDBFA.6A8A169B@kns.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265596AbSJSMF3>; Sat, 19 Oct 2002 08:05:29 -0400
+Received: from [211.167.76.68] ([211.167.76.68]:26761 "HELO soulinfo")
+	by vger.kernel.org with SMTP id <S265595AbSJSMF0>;
+	Sat, 19 Oct 2002 08:05:26 -0400
+Date: Sat, 19 Oct 2002 20:01:04 +0800
+From: Hu Gang <hugang@soulinfo.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
+       mochel@osdl.org
+Subject: [PATCH]1/2: fix power manager recall problem.
+Message-Id: <20021019200104.650ba8bc.hugang@soulinfo.com>
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.8.2claws28 (GTK+ 1.2.10; i386-linux-debian-i386-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.Hz7Snl41h65OI8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave, all,
-  Dave and I have made the 2.5.43 patch available for download.  You can
-find it on my page at:
+--=.Hz7Snl41h65OI8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-http://www.user1.netcarrier.com/~kbrosius/pages/mylex.html
+Hello Patrick Mochel, Pavel Machek:
 
-This patch allows me to boot 2.5.43 on a dual Athlon system with a Mylex
-eXtremeRAID 2000 controller successfully.
+I'm tested the 2.5.3X suspend function and found the problem.
+I'm enable debug option here is the log.
+----------------------
+skip...
+Freeing memory: |
+Syncing disks before copy
+call device_resume SUSPEND_NOTIFY
+Suspending devices
+suspending device PCI device 8086:7111
+suspending device PCI device 1022:2000
+call device_resume SUSPEND_SAVE_STATE
+Suspending devices
+suspending device PCI device 8086:7111
+suspending device PCI device 1022:2000
+call device_resume SUSPEND_DISABLE
+Suspending devices
+suspending device PCI device 8086:7111
+suspending device PCI device 1022:2000
+call pm_send_all PM_SUSPEND
+call pci_pm_suspend
+call pcnet32_suspend
+/critical section: Counting pages to copy[nosave c02af000] (pages needed: 4795+512=5307 free: 27972)
+Alloc pagedir
+[nosave c02af000]<4>Freeing prev allocated pagedir
+call device_resume RESUME_RESTORE_STATE
+resuming device PCI device 1022:2000
+call pcnet32_resume
+resuming device PCI device 8086:7111
+resuming device i8259A PIC
+skip......
+------------------------
+first the we call device suspend it suspend pci device and other device, but when we call pm_send_all to pm_suspend, it retry to suspend pci device, here is the real problem. 
 
-Thanks Dave!
-Kevin
-
-
-> 
-> Hi Dave,
->   I'll give it a shot tonight.  Did you post the patch to the
-> linux-kernel mailing list?  I can't find it in the archives.  If not,
-> would you mail a copy to my home address (compuserve, or have you posted
-> it on a web location?)  If you'd like me to put up copies of the patch
-> for general consumption I'll make space available on a web page.
-> 
-> Kevin
-> 
-> >
-> > I just posted a DAC960 patch for 2.5.42.  Tomorrow, I'll post
-> > a 2.5.43 patch. There are some minor changes needed (about three
-> > lines) for 2.5.43.  See the patch posting regarding ACPI
-> > interactions.
-> >
-> > I'd love to hear any good or bad results you have with these
-> > patches.
-> >
-> > Thanks!
-> >
-> > Dave Olien
-> > Open Source Developement Lab
-> >
-> > On Wed, Oct 16, 2002 at 07:28:07PM -0400, Kevin Brosius wrote:
-> > > >
-> > > > looking at that i realise that DAC960 code in 2.5.43
-> > > > is not supposed to be tested:
-> > > > ======
-> > > > #error I am a non-portable driver, please convert me to use the \
-> > > > Documentation/DMA-mapping.txt interfaces ======
-> > > > am i right?
-> > > >
-> > > > the following weirdo appears in both gcc-3.1 and 3.2 (also in 2.5.42)
-> > > > ======
-> > > > drivers/block/DAC960.c: In function `DAC960_DetectControllers':
-> > > > drivers/block/DAC960.c:2465: `Controller' undeclared (first use in this function)
-> > > > drivers/block/DAC960.c:2465: (Each undeclared identifier is reported only once
-> > > > drivers/block/DAC960.c:2465: for each function it appears in.)
-> > > >
-> > >
-> > > Yes, 2.5.42 did this also.  It looks like gcc 3.2 doesn't like goto's
-> > > which reference variables outside their native scope.  You can move the
-> > > Controller definition to full function scope to fix that error.
-> > >
-> > > The DAC960 doesn't seem usable out of the stock kernel build though.
-> > > You'll need to try patches previously posted to the list.  (Which don't
-> > > fully work for me either...)
-> > >
-> > > --
-> > > Kevin
-
+This patch can fix it. Please apply.
+------------------------------
+diff -ur linux-2.5.44-clean/drivers/base/power.c linux-2.5.44-suspend/drivers/base/power.c
+--- linux-2.5.44-clean/drivers/base/power.c	Sat Oct 19 15:56:47 2002
++++ linux-2.5.44-suspend/drivers/base/power.c	Sat Oct 19 18:00:28 2002
+@@ -37,6 +37,14 @@
+ 	down(&device_sem);
+ 	list_for_each(node,&global_device_list) {
+ 		struct device * dev = to_dev(node);
++		if (dev->bus) {
++			char *name = dev->bus->name;
++			pr_debug("bus is %s\n", name);
++			if (strncmp(name, "pci", 3) ==  0) {
++				pr_debug("skip pci bus\n");
++				continue;
++			}
++		}
+ 		if (device_present(dev) && dev->driver && dev->driver->suspend) {
+ 			pr_debug("suspending device %s\n",dev->name);
+ 			error = dev->driver->suspend(dev,state,level);
+@@ -63,6 +71,14 @@
+ 	down(&device_sem);
+ 	list_for_each_prev(node,&global_device_list) {
+ 		struct device * dev = to_dev(node);
++		if (dev->bus) {
++			char *name = dev->bus->name;
++			pr_debug("bus is %s\n", name);
++			if (strncmp(name, "pci", 3) ==  0) {
++				pr_debug("skip pci bus\n");	
++				continue;
++			}
++		}
+ 		if (device_present(dev) && dev->driver && dev->driver->resume) {
+ 			pr_debug("resuming device %s\n",dev->name);
+ 			dev->driver->resume(dev,level);
 -- 
-Kevin
+		- Hu Gang
+
+--=.Hz7Snl41h65OI8
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9sUmDPM4uCy7bAJgRAs4BAJ9h85BbsY3ZYuJbKFQ12JO5YLQzYgCdHKr/
+6Qt3WYZDh1Bv8DGkud/grNw=
+=78QX
+-----END PGP SIGNATURE-----
+
+--=.Hz7Snl41h65OI8--

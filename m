@@ -1,62 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVC2XVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVC2XVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261627AbVC2XVv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 18:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVC2XVu
+	id S261628AbVC2XVm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 18:21:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVC2XVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 18:21:50 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:16564 "HELO
+	Tue, 29 Mar 2005 18:21:41 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:10932 "HELO
 	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261627AbVC2XV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 18:21:29 -0500
+	id S261628AbVC2XVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 18:21:23 -0500
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
+To: dtor_core@ameritech.net
 Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Date: Wed, 30 Mar 2005 01:05:03 +0200
+Date: Tue, 29 Mar 2005 23:49:26 +0200
 User-Agent: KMail/1.7.1
-Cc: dtor_core@ameritech.net, Stefan Seyfried <seife@suse.de>,
+Cc: Pavel Machek <pavel@suse.cz>, Stefan Seyfried <seife@suse.de>,
        Andy Isaacson <adi@hexapodia.org>,
        kernel list <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-References: <4243252D.6090206@suse.de> <d120d500050329130714e1daaf@mail.gmail.com> <20050329211239.GG8125@elf.ucw.cz>
-In-Reply-To: <20050329211239.GG8125@elf.ucw.cz>
+       Vojtech Pavlik <vojtech@suse.cz>
+References: <20050323184919.GA23486@hexapodia.org> <20050325142414.GF23602@elf.ucw.cz> <d120d50005032506526f6b9304@mail.gmail.com>
+In-Reply-To: <d120d50005032506526f6b9304@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200503300105.03861.rjw@sisk.pl>
+Message-Id: <200503292349.26940.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Tuesday, 29 of March 2005 23:12, Pavel Machek wrote:
-> Hi!
-> 
-> > > I don't really want us to try execve during resume... Could we simply
-> > > artifically fail that execve with something if (in_suspend()) return
-> > > -EINVAL; [except that in_suspend() just is not there, but there were
-> > > some proposals to add it].
-> > > 
-> > > Or just avoid calling hotplug at all in resume case? And then do
-> > > coldplug-like scan when userspace is ready...
-> > > 
+On Friday, 25 of March 2005 15:52, Dmitry Torokhov wrote:
+> On Fri, 25 Mar 2005 15:24:15 +0100, Pavel Machek <pavel@suse.cz> wrote:
+> > Hi!
 > > 
-> > I am leaning towards calling disable_usermodehelper (not writtent yet)
-> > after swsusp completes snapshotting memory. We really don't care about
-> > hotplug events in this case and this will allow keeping "normal"
-> > resume in drivers as is. What do you think?
+> > > > > > OK, anything else I should try?
+> > > > >
+> > > > > not really, i just wait for Vojtech and Pavel :-)
+> > > >
+> > > > Try commenting out "call_usermodehelper". If that helps, Stefan's
+> > > > theory is confirmed, and this waits for Vojtech to fix it.
+> > > >
+> > >
+> > > This is more of a general swsusp problem I believe - the second phase
+> > > when it blindly resumes entire system. Resume of a device can fail
+> > > (any reason whatsoever) and it will attempt to clean up after itself,
+> > > but userspace is dead and hotplug never completes. While I am
+> > > interested to know why ALPS does not want to resume on ANdy's laptop
+> > > the issue will never be completely resolved from within the input
+> > > system.
+> > 
+> > When device fails to resume, what should I do? I think I could
+> > 
+> >        if (error)
+> >                panic("Device resume failed\n");
+> > 
+> > , but... that does not look like what you want.
 > 
-> That would certianly do the trick.
-> 
-> [Or perhaps in_suspend() is slightly nicer solution? People wanted it
-> for other stuff (sanity checking, like BUG_ON(in_suspend())), too....]
+> Oh, always panic-happy Pavel ;). It really depends on what kind of
+> device has faled to resume. If the device is really needed for writing
+> image then panic is the only recourse, but if it some other device you
+> resuming just ignore it, who cares...
 
-IMHO, they are not mutually exclusive.    However, by using
-disable_usermodehelper we would get rid of the reason (ie hotplug events)
-instead of just curing the symptoms (ie execve() during suspend).
+Moreover, if we panic() here, we potentially lose data.  IMO we should not
+do this for a device that is not needed for saving the image and/or
+contains the root filesystem.
+
+> Btw, I dont think that doing selective resume (as opposed to selective
+> suspend and Nigel's partial device trees) would be so much
+> complicated. You'd always resume sysdevs and then, when iterating over
+> "normal" devices, just skip ones not in resume path. It can all be
+> contained in driver core I believe (sorry but no patch, for now at
+> least).
+
+In fact, the only devices that we really need to resume-during-suspend are
+those necessary for saving the image.
 
 Greets,
 Rafael

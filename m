@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265559AbRGOBqV>; Sat, 14 Jul 2001 21:46:21 -0400
+	id <S265620AbRGOBuV>; Sat, 14 Jul 2001 21:50:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265571AbRGOBqL>; Sat, 14 Jul 2001 21:46:11 -0400
-Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:25987 "EHLO
-	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
-	id <S265559AbRGOBqB>; Sat, 14 Jul 2001 21:46:01 -0400
-Message-ID: <3B50F5B0.7058B30A@acm.org>
-Date: Sun, 15 Jul 2001 11:45:20 +1000
-From: Gareth Hughes <gareth.hughes@acm.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S265592AbRGOBuL>; Sat, 14 Jul 2001 21:50:11 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:23557 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S265571AbRGOBuC>; Sat, 14 Jul 2001 21:50:02 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: [PATCH] 64 bit scsi read/write
+Date: Sun, 15 Jul 2001 03:53:54 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-lvm@sistina.com
+In-Reply-To: <E15LL3Y-0000yJ-00@the-village.bc.nu> <0107142211300W.00409@starship> <3B50F000.53EAB651@uow.edu.au>
+In-Reply-To: <3B50F000.53EAB651@uow.edu.au>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.6-ac3
-In-Reply-To: <E15LVfl-0001fh-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01071503535411.00409@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> I've read the DRI 4.1 code. Its unreadable macro abuse.
+On Sunday 15 July 2001 03:21, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > On Saturday 14 July 2001 16:50, Chris Wedgwood wrote:
+> > > On Sat, Jul 14, 2001 at 09:45:44AM +0100, Alan Cox wrote:
+> > >
+> > >     As far as I can tell none of them at least in the IDE world
+> > >
+> > > SCSI disk must, or at least some... if not, how to peopel like
+> > > NetApp get these cool HA certifications?
+> >
+> > Atomic commit.  The superblock, which references the updated
+> > version of the filesystem, carries a sequence number and a
+> > checksum.  It is written to one of two alternating locations.  On
+> > restart, both locations are read and the highest numbered
+> > superblock with a correct checksum is chosen as the new filesystem
+> > root.
+>
+> But this assumes that it is the most-recently-written sector/block
+> which gets lost in a power failure.
+>
+> The disk will be reordering writes - so when it fails it may have
+> written the commit block but *not* the data which that block is
+> committing.
+>
+> You need a barrier or a full synchronous flush prior to writing
+> the commit block.  A `don't-reorder-past-me' barrier is very much
+> preferable, of course.
 
-Fair enough.  However, we now no longer have the same core DRM functions
-copied-and-pasted into each individual driver, renamed to foo_* and
-tweaked to add AGP support.  If something needs fixing in the core DRM
-stuff, it can be done in one place now, and all drivers will see the
-fix.
+Oh yes, absolutely, that's very much part of the puzzle.  Any disk
+that doesn't support a real write barrier or write cache flush is
+fundamentally broken as far as failsafe operation goes.  A disk that
+claims to provide such support and doesn't is an even worse offender.
+I find Alan's comment there worrisome.  We need to know which disks
+devliver on this and which don't.
 
-Oh, and at least the new MGA driver is stable.
-
--- Gareth
+--
+Daniel

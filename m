@@ -1,268 +1,199 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTHBKZz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 06:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTHBKZz
+	id S263062AbTHBKrF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 06:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTHBKrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 06:25:55 -0400
-Received: from mail.broadpark.no ([217.13.4.2]:57802 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S262116AbTHBKZu (ORCPT
+	Sat, 2 Aug 2003 06:47:05 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50911 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263062AbTHBKq6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 06:25:50 -0400
-From: Frank Aune <faune@stud.ntnu.no>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2: Badness in pci_find_subsys at drivers/pci/search.c:132
-Date: Sat, 2 Aug 2003 12:23:48 +0200
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 2 Aug 2003 06:46:58 -0400
+Date: Sat, 2 Aug 2003 03:47:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [1/3] writes: report truncate and io errors on async
+ writes
+Message-Id: <20030802034756.11c7287c.akpm@osdl.org>
+In-Reply-To: <20030802041731.GA22824@waste.org>
+References: <20030802041731.GA22824@waste.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308021223.48920.faune@stud.ntnu.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Oliver Xymoron <oxymoron@waste.org> wrote:
+>
+> These patches add the missing infrastructure for reporting
+> asynchronous write errors to block devices to userspace. Errors are
+> reported at the next fsync, fdatasync, or msync on the given file, and
+> on close if the error occurs in time.
 
-Sat and enjoyed a game of Enemy Territory, and the game locked up after 
-awhile. I was able to ssh in and kill the process, and here is the recorded 
-info I found after the incident:
+Thank you for persisting with this.  I won't lose the patches this time.
 
-Mainboard:
-Gigabyte GA-7DPXDW+ AMD-760MPX board
+I made some adjustments...
 
-Periperals connected to the PCI bus (output of lspci -v):
---------------------------
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System 
-Controller (rev 11)
-	Flags: bus master, 66Mhz, medium devsel, latency 32
-	Memory at d0000000 (32-bit, prefetchable) [size=256M]
-	Memory at f4000000 (32-bit, prefetchable) [size=4K]
-	I/O ports at c000 [disabled] [size=4]
-	Capabilities: [a0] AGP version 2.0
 
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP 
-Bridge (prog-if 00 [Normal decode])
-	Flags: bus master, 66Mhz, medium devsel, latency 32
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-	Memory behind bridge: f0000000-f1ffffff
-	Prefetchable memory behind bridge: e0000000-efffffff
 
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 05)
-	Flags: bus master, 66Mhz, medium devsel, latency 0
+- code simplifications
 
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 
-04) (prog-if 8a [Master SecP PriP])
-	Flags: bus master, medium devsel, latency 32
-	I/O ports at f000 [size=16]
+- No need to lock the page to stabilise ->mapping in mpage.c
 
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
-	Flags: medium devsel
 
-00:07.5 Multimedia audio controller: Advanced Micro Devices [AMD] AMD-768 
-[Opus] Audio (rev 03)
-	Flags: bus master, medium devsel, latency 32, IRQ 17
-	I/O ports at b000 [size=256]
-	I/O ports at b400 [size=64]
+ fs/mpage.c   |   29 +++++++----------------------
+ fs/open.c    |   10 ++++------
+ mm/filemap.c |    6 +++---
+ mm/vmscan.c  |   38 +++++++++++++++++++++++---------------
+ 4 files changed, 37 insertions(+), 46 deletions(-)
 
-00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 05) 
-(prog-if 00 [Normal decode])
-	Flags: bus master, 66Mhz, medium devsel, latency 32
-	Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
-	I/O behind bridge: 00009000-0000afff
-	Memory behind bridge: f2000000-f3ffffff
+diff -puN fs/open.c~awe-core-fixes fs/open.c
+--- 25/fs/open.c~awe-core-fixes	2003-08-02 03:33:28.000000000 -0700
++++ 25-akpm/fs/open.c	2003-08-02 03:33:28.000000000 -0700
+@@ -955,20 +955,18 @@ int filp_close(struct file *filp, fl_own
+ 	}
+ 
+ 	err = mapping->error;
+-	if (err && !retval) {
+-		mapping->error = 0;
++	if (!retval)
+ 		retval = err;
+-	}
++	mapping->error = 0;
+ 
+ 	if (!file_count(filp)) {
+ 		printk(KERN_ERR "VFS: Close: file count is 0\n");
+ 		return retval;
+ 	}
+ 
+-	if (filp->f_op && filp->f_op->flush)
+-	{
++	if (filp->f_op && filp->f_op->flush) {
+ 		err = filp->f_op->flush(filp);
+-		if (err && !retval)
++		if (!retval)
+ 			retval = err;
+ 	}
+ 
+diff -puN mm/vmscan.c~awe-core-fixes mm/vmscan.c
+--- 25/mm/vmscan.c~awe-core-fixes	2003-08-02 03:33:28.000000000 -0700
++++ 25-akpm/mm/vmscan.c	2003-08-02 03:33:37.000000000 -0700
+@@ -236,6 +236,27 @@ static int may_write_to_queue(struct bac
+ }
+ 
+ /*
++ * We detected a synchronous write error writing a page out.  Probably
++ * -ENOSPC.  We need to propagate that into the address_space for a subsequent
++ * fsync(), msync() or close().
++ *
++ * The tricky part is that after writepage we cannot touch the mapping: nothing
++ * prevents it from being freed up.  But we have a ref on the page and once
++ * that page is locked, the mapping is pinned.
++ *
++ * We're allowed to run sleeping lock_page() here because we know the caller has
++ * __GFP_FS.
++ */
++static void handle_write_error(struct address_space *mapping,
++				struct page *page, int error)
++{
++	lock_page(page);
++	if (page->mapping == mapping)
++		mapping->error = error;
++	unlock_page(page);
++}
++
++/*
+  * shrink_list returns the number of reclaimed pages
+  */
+ static int
+@@ -362,21 +383,8 @@ shrink_list(struct list_head *page_list,
+ 
+ 				SetPageReclaim(page);
+ 				res = mapping->a_ops->writepage(page, &wbc);
+-
+-				if (res < 0) {
+-					/*
+-					 * lock the page to keep truncate away
+-					 * then check that it is still on the
+-					 * mapping.
+-					 */
+-					lock_page(page);
+-					if (page->mapping == mapping)
+-						mapping->error = res;
+-					unlock_page(page);
+-				}
+-				if (res < 0) {
+-					mapping->error = res;
+-				}
++				if (res < 0)
++					handle_write_error(mapping, page, res);
+ 				if (res == WRITEPAGE_ACTIVATE) {
+ 					ClearPageReclaim(page);
+ 					goto activate_locked;
+diff -puN mm/filemap.c~awe-core-fixes mm/filemap.c
+--- 25/mm/filemap.c~awe-core-fixes	2003-08-02 03:33:28.000000000 -0700
++++ 25-akpm/mm/filemap.c	2003-08-02 03:33:28.000000000 -0700
+@@ -199,9 +199,9 @@ restart:
+ 	spin_unlock(&mapping->page_lock);
+ 
+ 	/* Check for outstanding write errors */
+-	if (mapping->error)
+-	{
+-		ret = mapping->error;
++	if (mapping->error) {
++		if (!ret)
++			ret = mapping->error;
+ 		mapping->error = 0;
+ 	}
+ 
+diff -puN fs/mpage.c~awe-core-fixes fs/mpage.c
+--- 25/fs/mpage.c~awe-core-fixes	2003-08-02 03:33:28.000000000 -0700
++++ 25-akpm/fs/mpage.c	2003-08-02 03:33:28.000000000 -0700
+@@ -563,17 +563,11 @@ confused:
+ 	if (bio)
+ 		bio = mpage_bio_submit(WRITE, bio);
+ 	*ret = page->mapping->a_ops->writepage(page, wbc);
+-	if (*ret < 0) {
+-		/*
+-		 * lock the page to keep truncate away
+-		 * then check that it is still on the
+-		 * mapping.
+-		 */
+-		lock_page(page);
+-		if (page->mapping == mapping)
+-			mapping->error = *ret;
+-		unlock_page(page);
+-	}
++	/*
++	 * The caller has a ref on the inode, so *mapping is stable
++	 */
++	if (*ret < 0)
++		mapping->error = *ret;
+ out:
+ 	return bio;
+ }
+@@ -675,17 +669,8 @@ mpage_writepages(struct address_space *m
+ 					test_clear_page_dirty(page)) {
+ 			if (writepage) {
+ 				ret = (*writepage)(page, wbc);
+-				if (ret < 0) {
+-					/*
+-					 * lock the page to keep truncate away
+-					 * then check that it is still on the
+-					 * mapping.
+-					 */
+-					lock_page(page);
+-					if (page->mapping == mapping)
+-						mapping->error = ret;
+-					unlock_page(page);
+-				}
++				if (ret < 0)
++					mapping->error = ret;
+ 			} else {
+ 				bio = mpage_writepage(bio, page, get_block,
+ 					&last_block_in_bio, &ret, wbc);
 
-01:05.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti4400] 
-(rev a2) (prog-if 00 [VGA])
-	Subsystem: Micro-star International Co Ltd: Unknown device 8711
-	Flags: bus master, 66Mhz, medium devsel, latency 248, IRQ 17
-	Memory at f0000000 (32-bit, non-prefetchable) [size=16M]
-	Memory at e0000000 (32-bit, prefetchable) [size=128M]
-	Memory at e8000000 (32-bit, prefetchable) [size=512K]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [60] Power Management version 2
-	Capabilities: [44] AGP version 2.0
-
-02:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB (rev 
-07) (prog-if 10 [OHCI])
-	Flags: bus master, medium devsel, latency 32, IRQ 19
-	Memory at f3025000 (32-bit, non-prefetchable) [size=4K]
-
-02:04.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 04)
-	Subsystem: Creative Labs CT4850 SBLive! Value
-	Flags: bus master, medium devsel, latency 32, IRQ 16
-	I/O ports at 9000 [size=32]
-	Capabilities: [dc] Power Management version 1
-
-02:04.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 
-01)
-	Subsystem: Creative Labs Gameport Joystick
-	Flags: bus master, medium devsel, latency 32
-	I/O ports at 9400 [size=8]
-	Capabilities: [dc] Power Management version 1
-
-02:07.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 0d)
-	Subsystem: Intel Corp. EtherExpress PRO/100 Server Adapter
-	Flags: bus master, medium devsel, latency 32, IRQ 16
-	Memory at f3024000 (32-bit, non-prefetchable) [size=4K]
-	I/O ports at 9800 [size=64]
-	Memory at f3000000 (32-bit, non-prefetchable) [size=128K]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [dc] Power Management version 2
-
-02:08.0 RAID bus controller: Promise Technology, Inc. PDC20276 IDE (rev 01) 
-(prog-if 85)
-	Subsystem: Promise Technology, Inc.: Unknown device 1275
-	Flags: bus master, 66Mhz, slow devsel, latency 32, IRQ 18
-	I/O ports at 9c00 [size=8]
-	I/O ports at a000 [size=4]
-	I/O ports at a400 [size=8]
-	I/O ports at a800 [size=4]
-	I/O ports at ac00 [size=16]
-	Memory at f3020000 (32-bit, non-prefetchable) [size=16K]
-	Capabilities: [60] Power Management version 1
-
----------------------------
-
-This is the dmesg output run through ksymoops:
-
--------------------------
-ksymoops 2.4.9 on i686 2.6.0-test2.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.6.0-test2/ (default)
-     -m /usr/src/linux/System.map (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-CPU 1 IS NOW UP!
-Machine check exception polling timer started.
-e100: selftest OK.
-e100: eth0: Intel(R) PRO/100 Network Connection
-e100: eth0 NIC Link is Up 100 Mbps Full duplex
-UDF-fs DEBUG fs/udf/lowlevel.c:57:udf_get_last_session: XA disk: no, 
-vol_desc_start=0
-UDF-fs DEBUG fs/udf/super.c:1477:udf_fill_super: Multi-session=0
-UDF-fs DEBUG fs/udf/super.c:465:udf_vrs: Starting at sector 16 (2048 byte 
-sectors)
-UDF-fs DEBUG fs/udf/super.c:492:udf_vrs: ISO9660 Primary Volume Descriptor 
-found
-UDF-fs DEBUG fs/udf/super.c:501:udf_vrs: ISO9660 Volume Descriptor Set 
-Terminator found
-UDF-fs DEBUG fs/udf/lowlevel.c:57:udf_get_last_session: XA disk: no, 
-vol_desc_start=0
-UDF-fs DEBUG fs/udf/super.c:1477:udf_fill_super: Multi-session=0
-UDF-fs DEBUG fs/udf/super.c:465:udf_vrs: Starting at sector 16 (2048 byte 
-sectors)
-UDF-fs DEBUG fs/udf/super.c:492:udf_vrs: ISO9660 Primary Volume Descriptor 
-found
-UDF-fs DEBUG fs/udf/super.c:501:udf_vrs: ISO9660 Volume Descriptor Set 
-Terminator found
-Call Trace:
- [<c01cb9e6>] pci_find_subsys+0x116/0x120
- [<c01cba1f>] pci_find_device+0x2f/0x40
- [<c01cb8a8>] pci_find_slot+0x28/0x50
- [<e0c81348>] os_pci_init_handle+0x3a/0x67 [nvidia]
- [<e0c93c6f>] __nvsym00057+0x1f/0x24 [nvidia]
- [<e0da41c8>] __nvsym04875+0xf8/0x170 [nvidia]
- [<e0da3f9a>] __nvsym00780+0x21a/0x224 [nvidia]
- [<e0d3bb94>] __nvsym03928+0x70/0x98 [nvidia]
- [<e0d3b854>] __nvsym00610+0x7ac/0x954 [nvidia]
- [<e0cc6cea>] __nvsym00803+0x16/0x1c [nvidia]
- [<e0db6421>] __nvsym05234+0x1d/0x278 [nvidia]
- [<e0cb0f71>] __nvsym01822+0x19/0xf4 [nvidia]
- [<e0cae7b5>] __nvsym00805+0x11/0x228 [nvidia]
- [<e0d6ab7a>] __nvsym00688+0x16a/0x338 [nvidia]
- [<e0c96379>] __nvsym00827+0xd/0x1c [nvidia]
- [<e0c97a14>] rm_isr_bh+0xc/0x10 [nvidia]
- [<c0124312>] tasklet_action+0x72/0xc0
- [<c0124045>] do_softirq+0xd5/0xe0
- [<c010bcec>] do_IRQ+0x14c/0x1b0
- [<c0109d88>] common_interrupt+0x18/0x20
-Call Trace:
- [<c01cb9e6>] pci_find_subsys+0x116/0x120
- [<c01cba1f>] pci_find_device+0x2f/0x40
- [<c01cb8a8>] pci_find_slot+0x28/0x50
- [<e0c81348>] os_pci_init_handle+0x3a/0x67 [nvidia]
- [<e0c93c6f>] __nvsym00057+0x1f/0x24 [nvidia]
- [<e0d282a2>] __nvsym03763+0x72/0xe0 [nvidia]
- [<e0d6cdb1>] __nvsym04466+0x15/0x78 [nvidia]
- [<e0da41f7>] __nvsym04875+0x127/0x170 [nvidia]
- [<e0da3f9a>] __nvsym00780+0x21a/0x224 [nvidia]
- [<e0d3bb94>] __nvsym03928+0x70/0x98 [nvidia]
- [<e0d3b854>] __nvsym00610+0x7ac/0x954 [nvidia]
- [<e0cc6cea>] __nvsym00803+0x16/0x1c [nvidia]
- [<e0db6421>] __nvsym05234+0x1d/0x278 [nvidia]
- [<e0cb0f71>] __nvsym01822+0x19/0xf4 [nvidia]
- [<e0cae7b5>] __nvsym00805+0x11/0x228 [nvidia]
- [<e0d6ab7a>] __nvsym00688+0x16a/0x338 [nvidia]
- [<e0c96379>] __nvsym00827+0xd/0x1c [nvidia]
- [<e0c97a14>] rm_isr_bh+0xc/0x10 [nvidia]
- [<c0124312>] tasklet_action+0x72/0xc0
- [<c0124045>] do_softirq+0xd5/0xe0
- [<c010bcec>] do_IRQ+0x14c/0x1b0
- [<c0109d88>] common_interrupt+0x18/0x20
-Warning (Oops_read): Code line not seen, dumping what data is available
-
-Trace; c01cb9e6 <pci_find_subsys+116/120>
-Trace; c01cba1f <pci_find_device+2f/40>
-Trace; c01cb8a8 <pci_find_slot+28/50>
-Trace; e0c81348 <_end+208cc498/3fc49150>
-Trace; e0c93c6f <_end+208dedbf/3fc49150>
-Trace; e0da41c8 <_end+209ef318/3fc49150>
-Trace; e0da3f9a <_end+209ef0ea/3fc49150>
-Trace; e0d3bb94 <_end+20986ce4/3fc49150>
-Trace; e0d3b854 <_end+209869a4/3fc49150>
-Trace; e0cc6cea <_end+20911e3a/3fc49150>
-Trace; e0db6421 <_end+20a01571/3fc49150>
-Trace; e0cb0f71 <_end+208fc0c1/3fc49150>
-Trace; e0cae7b5 <_end+208f9905/3fc49150>
-Trace; e0d6ab7a <_end+209b5cca/3fc49150>
-Trace; e0c96379 <_end+208e14c9/3fc49150>
-Trace; e0c97a14 <_end+208e2b64/3fc49150>
-Trace; c0124312 <tasklet_action+72/c0>
-Trace; c0124045 <do_softirq+d5/e0>
-Trace; c010bcec <do_IRQ+14c/1b0>
-Trace; c0109d88 <common_interrupt+18/20>
-Trace; c01cb9e6 <pci_find_subsys+116/120>
-Trace; c01cba1f <pci_find_device+2f/40>
-Trace; c01cb8a8 <pci_find_slot+28/50>
-Trace; e0c81348 <_end+208cc498/3fc49150>
-Trace; e0c93c6f <_end+208dedbf/3fc49150>
-Trace; e0d282a2 <_end+209733f2/3fc49150>
-Trace; e0d6cdb1 <_end+209b7f01/3fc49150>
-Trace; e0da41f7 <_end+209ef347/3fc49150>
-Trace; e0da3f9a <_end+209ef0ea/3fc49150>
-Trace; e0d3bb94 <_end+20986ce4/3fc49150>
-Trace; e0d3b854 <_end+209869a4/3fc49150>
-Trace; e0cc6cea <_end+20911e3a/3fc49150>
-Trace; e0db6421 <_end+20a01571/3fc49150>
-Trace; e0cb0f71 <_end+208fc0c1/3fc49150>
-Trace; e0cae7b5 <_end+208f9905/3fc49150>
-Trace; e0d6ab7a <_end+209b5cca/3fc49150>
-Trace; e0c96379 <_end+208e14c9/3fc49150>
-Trace; e0c97a14 <_end+208e2b64/3fc49150>
-Trace; c0124312 <tasklet_action+72/c0>
-Trace; c0124045 <do_softirq+d5/e0>
-Trace; c010bcec <do_IRQ+14c/1b0>
-Trace; c0109d88 <common_interrupt+18/20>
-
-2 warnings and 1 error issued.  Results may not be reliable.
--------------------
-
-Seems to me the problem is related to every kernel devs "favourite" binary 
-driver; nvidia. Its version 4496 if that matters... Let me know if you need 
-more information.
-
-Cheers!
+_
 

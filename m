@@ -1,81 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130517AbRCDUvS>; Sun, 4 Mar 2001 15:51:18 -0500
+	id <S130507AbRCDVHD>; Sun, 4 Mar 2001 16:07:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130518AbRCDUvI>; Sun, 4 Mar 2001 15:51:08 -0500
-Received: from mail.lightband.com ([199.79.199.3]:43529 "EHLO
-	mail.lightband.com") by vger.kernel.org with ESMTP
-	id <S130517AbRCDUuw>; Sun, 4 Mar 2001 15:50:52 -0500
-Message-ID: <20010304205046.15690.qmail@alongtheway.com>
-Date: Sun, 4 Mar 2001 20:50:46 +0000
-From: Jim Breton <jamesb-kernel@alongtheway.com>
-To: linux-kernel@vger.kernel.org
-Subject: eject weirdness on NEC disc changer, kernel 2.4.2
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130518AbRCDVGy>; Sun, 4 Mar 2001 16:06:54 -0500
+Received: from smtp-rt-4.wanadoo.fr ([193.252.19.156]:52402 "EHLO
+	areca.wanadoo.fr") by vger.kernel.org with ESMTP id <S130507AbRCDVGq>;
+	Sun, 4 Mar 2001 16:06:46 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Cort Dougan <cort@fsmlabs.com>
+Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Question about IRQ_PENDING/IRQ_REPLAY
+Date: Sun, 4 Mar 2001 22:06:25 +0100
+Message-Id: <19350127143809.22288@smtp.wanadoo.fr>
+In-Reply-To: <20010303144856.A18389@ftsoj.fsmlabs.com>
+In-Reply-To: <20010303144856.A18389@ftsoj.fsmlabs.com>
+X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, I've gotten a response from the "eject" author and he seems to
-agree that this is something in the kernel causing this issue.
+>We do have broken interrupt controllers in this respect.  We already have a
+>way of handling it.  Ben, take a look at set_lost().
 
-Anyone got any ideas?  Thanks.
+Heh, I know, thanks ;)
 
-(P.S. I am not subscribed currently, please copy me on responses.
-Gracias.)
+However, our current scheme implies a hack to __sti() that I'd like to get
+rid of since it adds an overhead allover the place that could probably be
+localized if we managed to force an interrupt (using the DEC for example,
+or using a mac-specific device as this controller only exist on macs anyway).
 
------ Forwarded message from Jim Breton -----
+Also, we currently don't use the same mecanism as i386, and since Linus
+expressed his desire to have irq.c become generic, I'm trying to make sure
+I fully understand it before merging in PPC the bits that I didn't merge
+them yet.
 
-From: Jim Breton
-Date: Sat, 3 Mar 2001 21:34:47 +0000
-Subject: eject weirdness on NEC disc changer, kernel 2.4.2
-
-Package: eject
-Version: 2.0.2-1
-Severity: wishlist
-
-Hi Jeff and Martin, I'm running a Debian 2.2r2 potato box which has an
-ATAPI NEC cd changer:
-
-$ grep NEC /var/log/dmesg 
-hdd: NEC CD-ROM DRIVE:251, ATAPI CD/DVD-ROM drive
-
-I have 4 audio CDs in the drive.  When I run the following command:
-
-eject -c 1
-
-it switches to slot 2 (as it should), but when I play a track off the
-CD, it starts several seconds into the track rather than at the
-beginning.
-
-When I do the following:
-
-eject -c 2
-eject -c 3
-
-I get the following in syslog:
-
-Mar  3 16:11:30 tarkin kernel: VFS: Disk change detected on device
-ide1(22,64)
-Mar  3 16:11:51 tarkin kernel: hdd: irq timeout: status=0xd0 { Busy }
-Mar  3 16:11:51 tarkin kernel: hdd: ATAPI reset complete
-
-and the drive switches me back to the first slot.
-
-If I have a data CD in a slot, I do not see this problem.
-
-Any idea what is going on?  I tried a copy compiled straight from the
-source and the same thing happens.  Considering data CDs do not make
-this happen, do you think the kernel is doing something odd?  Should the
-kernel really care what kind of CD is in the drive before I try to read
-it?  Or is this something caused by eject?
-
-Thanks.
-
-P.S. I just tried cdctl ( http://sourceforge.net/projects/cdctl/ ) and
-apparently the same thing occurs, so it's looking like this may be a
-kernel issue.  My former kernel was 2.2.19pre9 and I didn't have any
-problems there (or on any of my other 2.2.x kernels).
-
------ End forwarded message -----
+Ben.

@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129894AbQLNXmv>; Thu, 14 Dec 2000 18:42:51 -0500
+	id <S129423AbQLNXpC>; Thu, 14 Dec 2000 18:45:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129870AbQLNXmk>; Thu, 14 Dec 2000 18:42:40 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:22022 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129784AbQLNXmd>; Thu, 14 Dec 2000 18:42:33 -0500
-Date: Thu, 14 Dec 2000 15:11:33 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Bernhard Rosenkraenzer <bero@redhat.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Signal 11
-In-Reply-To: <Pine.LNX.4.30.0012142351520.19104-100000@bochum.redhat.de>
-Message-ID: <Pine.LNX.4.10.10012141507070.12451-100000@penguin.transmeta.com>
+	id <S129880AbQLNXow>; Thu, 14 Dec 2000 18:44:52 -0500
+Received: from [199.26.153.10] ([199.26.153.10]:41994 "EHLO fourelle.com")
+	by vger.kernel.org with ESMTP id <S129423AbQLNXon>;
+	Thu, 14 Dec 2000 18:44:43 -0500
+Message-ID: <3A3953DB.CDA2DF4E@fourelle.com>
+Date: Thu, 14 Dec 2000 15:12:27 -0800
+From: Adam Scislowicz <adams@fourelle.com>
+Organization: Fourelle Systems, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11-ac4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Non-Blocking socket (SOCK_STREAM send)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Could someone explain why send is failing with EPIPE on the 2.4.x
+kernel, while it is working with the 2.2.x kernels.
 
+The PsuedoCode:
+sock = socket(AF_INET, SOCK_STREAM, 0)
+buf = fcntl(sock, F_GETFL)
+fcntl(sock, F_SETFL, buf | O_NONBLOCK) // we check the SETFL return
+value, it succeeds
+while ((retval = connect(sock, addr, sizeof(struct sockaddr_in))) < 0)
+{
+  if (retval < 0) {
+   if (errno != EINPROGRESS) return -1; // return failure
+ }
+} // the connect succeeds during first iteration with return value of 0.
 
-On Thu, 14 Dec 2000, Bernhard Rosenkraenzer wrote:
-> >
-> > gcc-2.95.2 is at least a real release, from a branch that is actively
-> > maintained
-> 
-> Not very actively.
-> Please take the time to compare the activity in gcc_2_95_branch with the
-> patches in the current "2.96" version in rawhide.
+send(sock, msg, msg_length, 0) // this connection is to the thttpd web
+server on the same host. XXX
+XXX: send fails with EPIPE on the 2.4.0-test11-ac 4 and 2.4.0-test12
+kernels, whereas it does not fail on 2.2.14-5.0(redhat kernel)
 
-Take a look at the differences in linux-2.2.x and linux-2.3.x.
-
-linux-2.3.x is was a h*ll of a lot more "actively maintained".
-
-But nobody really considers that to be an argument for RedHat (or anybody
-else) to installa 2.3.x kernel by default. Sure, most distributions have a
-"hacker kernel", but it's NOT installed by default, and it is clearly
-marked as experimental.
-
-Your arguments make no sense.
-
-The compiler is often _more_ important to system stability than the
-kernel. A "real release" implies that it at least had testing, and that
-people know what the problem spots tend to be.
-
-Note that the "know what the problem spots tend to be" is important.
-
-> > As to X compile problems - neither egcs nor 2.95.2 appears to have any
-> > trouble with the CVS tree.
-> 
-> Neither does 2.96-68.
-
-Good. Maybe you'd make it clearer to everybody who installed from your
-CD's that they had better upgrade. Pronto.
-
-		Linus
+More Info:
+ thttpd is working properly on the 2.4.x machine, I can access it via
+Netscape, our software is a proxy.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285570AbRLNWvK>; Fri, 14 Dec 2001 17:51:10 -0500
+	id <S285569AbRLNWwu>; Fri, 14 Dec 2001 17:52:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285572AbRLNWvA>; Fri, 14 Dec 2001 17:51:00 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:58635 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S284553AbRLNWuw>;
-	Fri, 14 Dec 2001 17:50:52 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: linux-kernel@vger.kernel.org
-Date: Fri, 14 Dec 2001 23:50:32 +0100
+	id <S285572AbRLNWwl>; Fri, 14 Dec 2001 17:52:41 -0500
+Received: from www.wen-online.de ([212.223.88.39]:22532 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S285568AbRLNWwa>;
+	Fri, 14 Dec 2001 17:52:30 -0500
+Date: Fri, 14 Dec 2001 23:54:57 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Leigh Orf <orf@mailbag.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Ken Brownfield <brownfld@irridia.com>,
+        "M.H.VanLeeuwen" <vanl@megsinet.net>,
+        Mark Hahn <hahn@physics.mcmaster.ca>, Andrew Morton <akpm@zip.com.au>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 memory badness (fixed?) 
+In-Reply-To: <200112101549.fBAFnOq08395@orp.orf.cx>
+Message-ID: <Pine.LNX.4.33.0112142336290.470-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: ECP Parallel Port
-CC: makemehappy@rocketmail.com, philip.blundell@pobox.com
-X-mailer: Pegasus Mail v3.40
-Message-ID: <C01668F6B4E@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  one of VMware users just pointed to me that ECP mode is now broken 
-in kernel. 2.4.10-ac9 reports correctly:
+On Mon, 10 Dec 2001, Leigh Orf wrote:
 
-0x378: FIFO is 16 bytes
-0x378: writeIntrThreshold is 8
-0x378: readIntrThreshold is 8
-parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,COMPAT,ECP]
-parport_pc: Via 686A parallel port: io=0x378
+> And in fact, after furthur playing around with the "fixed" version
+> (moving shrink_[id]cache_memory to the top of vmscan.c::shrink_caches)
+> I find that I still will get ENOMEM after updatedb occasionally. Less
+> often than before, but it still happens.
 
-while 2.4.12-ac1 (and all following up to and including 2.4.17-rc1) say just:
+Yes.. reasonable.
 
-parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
-parport_pc: Via 686A parallel port: io=0x378
+	-Mike
 
-It looks like a bug to me. Is it known problem, or should I look into
-it more deeply?
-                                            Thanks,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                

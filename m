@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275367AbTHISwp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 14:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275370AbTHISwp
+	id S275297AbTHITFm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 15:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275299AbTHITFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 14:52:45 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43918 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S275367AbTHISwo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 14:52:44 -0400
-Date: Sat, 9 Aug 2003 11:52:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "ismail (cartman) donmez" <kde@myrealbox.com>
-Cc: tmolina@cablespeed.com, linux-kernel@vger.kernel.org,
-       James Simmons <jsimmons@infradead.org>
-Subject: Re: Linux 2.6.0-test3: logo patch
-Message-Id: <20030809115245.7ef1ff59.akpm@osdl.org>
-In-Reply-To: <200308091927.04894.kde@myrealbox.com>
-References: <Pine.LNX.4.44.0308091059490.2587-100000@localhost.localdomain>
-	<200308091927.04894.kde@myrealbox.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 9 Aug 2003 15:05:42 -0400
+Received: from letku14.adsl.netsonic.fi ([194.29.195.14]:51717 "EHLO
+	tupa.firmament.fi") by vger.kernel.org with ESMTP id S275297AbTHITFi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 15:05:38 -0400
+Date: Sat, 9 Aug 2003 22:04:05 +0300
+To: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+Cc: Maxim Krasnyansky <maxk@qualcomm.com>, LKML <linux-kernel@vger.kernel.org>,
+       trivial@rustcorp.com.au
+Subject: Re: [PATCH 2.6.0-test3][BLUETOOTH] BUG fix for drivers/bluetooth/hci_usb.c
+Message-ID: <20030809190405.GA27995@riihi.firmament.fi>
+References: <1060434720.2511.45.camel@lima.royalchallenge.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060434720.2511.45.camel@lima.royalchallenge.com>
+User-Agent: Mutt/1.3.28i
+From: =?iso-8859-1?Q?Taneli_V=E4h=E4kangas?= <taneli@firmament.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"ismail (cartman) donmez" <kde@myrealbox.com> wrote:
->
-> Patch somehow got out of -mm tree too. Andrew can you please apply this  too ?
-> > The following patch has been floating around forever.  Can we get it in
-> > mainstream sometime in the near future?
-> >
-> > --- linux-2.5-tm/drivers/video/cfbimgblt.c.orig	2003-08-08
-> > 17:42:16.000000000 -0500 +++
-> > linux-2.5-tm/drivers/video/cfbimgblt.c	2003-08-08 17:42:30.000000000 -0500
-> > @@ -325,7 +325,7 @@
-> >  		else
-> >  			slow_imageblit(image, p, dst1, fgcolor, bgcolor,
-> >  					start_index, pitch_index);
-> > -	} else if (image->depth == bpp)
-> > +	} else if (image->depth <= bpp)
-> >  		color_imageblit(image, p, dst1, start_index, pitch_index);
-> >  }
-> >
-> >
+On Sat, Aug 09, 2003 at 06:41:59PM +0530, Vinay K Nallamothu wrote:
+> Hi,
+> 
+> The patch below fixes two pointer reference bugs (shows up as compile
+> time warnings given below) which wrongly take the address of "struct
+> usb_interface*".
+> 
+> ============compiler warning============================
+> drivers/bluetooth/hci_usb.c: In function `hci_usb_probe':
+> drivers/bluetooth/hci_usb.c:786: warning: assignment from incompatible
+> pointer type
+> drivers/bluetooth/hci_usb.c:810: warning: assignment from incompatible
+> pointer type
 
-This change was also present in James's fbdev update, so I dropped it.  But
-then James's fbdev update broke so I dropped that too.
+Hey, not only that, the fix also made bluetooth work for me (previously
+it would just oops when loading hci-usb). Thanks a lot!
 
-James was going to send me an updated patch.  Hint. :)
-
+	Taneli
 

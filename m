@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263113AbTI3Eli (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 00:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbTI3Eli
+	id S263108AbTI3EzL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 00:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263109AbTI3EzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 00:41:38 -0400
-Received: from mail01.hansenet.de ([213.191.73.61]:14044 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S263113AbTI3Elg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 00:41:36 -0400
-From: Malte =?iso-8859-1?q?Schr=F6der?= <MalteSch@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM] [2.6.0-test6] Stale NFS file handle
-Date: Tue, 30 Sep 2003 06:41:24 +0200
-User-Agent: KMail/1.5.3
-References: <200309282031.54043.MalteSch@gmx.de> <20030928204753.GA28255@oscar.prima.de> <20030929185834.GA31748@oscar.prima.de>
-In-Reply-To: <20030929185834.GA31748@oscar.prima.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_3lQe/SwnjhJ4yMt";
-  charset="iso-8859-1"
+	Tue, 30 Sep 2003 00:55:10 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:37125
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S263108AbTI3EzI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 00:55:08 -0400
+Subject: Re: -mregparm=3 (was Re: [PATCH] i386 do_machine_check() is
+	redundant.
+From: Robert Love <rml@tech9.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200309300449.h8U4nSvl002308@turing-police.cc.vt.edu>
+References: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org>
+	 <1064775868.5045.4.camel@laptop.fenrus.com>
+	 <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz>
+	 <20030929202604.GA23344@nevyn.them.org>
+	 <Pine.LNX.4.58.0309292309050.7824@artax.karlin.mff.cuni.cz>
+	 <200309300449.h8U4nSvl002308@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Message-Id: <1064897712.4568.32.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
+Date: Tue, 30 Sep 2003 00:55:13 -0400
 Content-Transfer-Encoding: 7bit
-Message-Id: <200309300641.27616.MalteSch@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-09-30 at 00:49, Valdis.Kletnieks@vt.edu wrote:
 
---Boundary-02=_3lQe/SwnjhJ4yMt
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+> I discovered that -test6-mm1 doesn't build with -ffreestanding with gcc 3.3.1,
+> for an odd reason:  when I specify -ffreestanding, it generates 'call abs' calls
+> where it was able to do it inline otherwise. -ffreestanding says there's no library,
+> so it can't inline the library call (which leaves no external call to 'abs()').
 
-On Monday 29 September 2003 20:58, Patrick Mau wrote:
-> Hallo Malte,
->
-> I accidently deleted your original mail. Did you try exporting your
-> filesystems with "no_subtree_check", like this ?
->
-> /dvd \
->   tony.local.net(rw,async,no_subtree_check)
-This makes the messages go away :)
+Hm, we may need to do something like:
 
->
-> If not, could you please try and tell me if that helps ?
->
-> Thanks,
-> Patrick
+	#define abs(n)	 __builtin_abs((n))
 
-=2D-=20
-=2D--------------------------------------
-Malte Schr=F6der
-MalteSch@gmx.de
-ICQ# 68121508
-=2D--------------------------------------
+because -ffreestanding implies -fno-builtin, which disables use of
+built-in functions that do not begin with __builtin.
 
+	Robert Love
 
---Boundary-02=_3lQe/SwnjhJ4yMt
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/eQl34q3E2oMjYtURAnKeAKDK3qvfJxCrkrafo/i2tock+KeZugCcCr3y
-tmQAYY7uuBdpOR6OgRRvccE=
-=L3iV
------END PGP SIGNATURE-----
-
---Boundary-02=_3lQe/SwnjhJ4yMt--
 

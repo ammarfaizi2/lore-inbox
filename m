@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbUK2WfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbUK2WfC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbUK2WfD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 17:35:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUK2Wda
+	id S261839AbUK2WfC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 17:35:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbUK2Wdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 17:33:30 -0500
-Received: from [69.55.226.176] ([69.55.226.176]:24767 "EHLO www.drugphish.ch")
-	by vger.kernel.org with ESMTP id S261834AbUK2Wcw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 17:33:35 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:6351 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261839AbUK2Wcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 29 Nov 2004 17:32:52 -0500
-Message-ID: <41ABA38E.3010507@drugphish.ch>
-Date: Mon, 29 Nov 2004 23:32:46 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Followup-To: linux-net@vger.kernel.org
-To: =?ISO-8859-1?Q?jo=EBl_Winteregg?= <joel.winteregg@eivd.ch>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: client socket and source port selection
-References: <1101576123.744.31.camel@debian>
-In-Reply-To: <1101576123.744.31.camel@debian>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Mon, 29 Nov 2004 22:32:51 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [PATCH] CKRM: 0/10 Class Based Kernel Resource Management
+Message-ID: <20041129223251.GA12192@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Gerrit Huizenga <gh@us.ibm.com>, linux-kernel@vger.kernel.org,
+	akpm@osdl.org, Rik van Riel <riel@redhat.com>,
+	Chris Mason <mason@suse.com>,
+	ckrm-tech <ckrm-tech@lists.sourceforge.net>
+References: <E1CYqW1-00056B-00@w-gerrit.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CYqW1-00056B-00@w-gerrit.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Nov 29, 2004 at 10:44:49AM -0800, Gerrit Huizenga wrote:
+> The following ten patches add the core of CKRM (Class Based Resource
+> Management) to Linux.  Current patches are against 2.6.10-rc2.  This
+> set of patches is essentailly a cleaned up version of what is
+> known on the ckrm-tech@lists.sourcerforge.net as the E16 code base.
+> As compared to E16, the patch breakout has been reorganized for easier
+> application to mainline with a number of stylistic cleanups more
+> in line with mainline kernel code.
 
-> For the project i'm doing, i must know how the Linux kernel allocate
-> sockets source port (from the dynamic range of the (2**16)-1 ports). I
-> looked on the Web but it's really hard to find the algoritm of the
-> source port allocation...
+And where's the people who wrote the code?  Are people at IBM really
+all anxious cowards these days that can't submit their own code but have
+to abuse a highlevel manager for it.
 
-Check the source ;). There is a proc-fs entry which relates to the 
-source port range setting. Over this entry point you get in case of TCP 
-sockets to ../net/ipv4/tcp_ipv4.c:tcp_v4_get_port(...). For UDP sockets 
-you need to peek into ../net/ipv4/udp.c:udp_v4_get_port().
+I must also say that I'm a bit disappointed by you, Gerrit.  Either you
+haven't actually read the code or I vastly overrated your taste.
 
-> Someone maybe know how it's work or if there is a paper on the web that
-> explain this source port selection ?
-
-Not likely, but reading the source should help. You can set the local 
-port range via /proc/sys/net/ipv4/ip_local_port_range. It's documented.
-
-HTH and best regards,
-Roberto Nibali, ratz
--- 
-echo 
-'[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq' | dc

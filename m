@@ -1,65 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262826AbRE0RSj>; Sun, 27 May 2001 13:18:39 -0400
+	id <S262825AbRE0RTu>; Sun, 27 May 2001 13:19:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262825AbRE0RSU>; Sun, 27 May 2001 13:18:20 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54153 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262822AbRE0RSL>;
-	Sun, 27 May 2001 13:18:11 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S262827AbRE0RTj>; Sun, 27 May 2001 13:19:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48908 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262825AbRE0RTd>; Sun, 27 May 2001 13:19:33 -0400
+Subject: Re: 2.4.5-ac1 hard disk corruption... acpi responsible?
+To: codygould@yahoo.com.au
+Date: Sun, 27 May 2001 18:17:16 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010527143912.23667.qmail@web12801.mail.yahoo.com> from "=?iso-8859-1?q?Cody=20Gould?=" at May 28, 2001 12:39:12 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15121.13986.987230.445825@pizda.ninka.net>
-Date: Sun, 27 May 2001 10:17:22 -0700 (PDT)
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: [patch] severe softirq handling performance bug, fix, 2.4.5
-In-Reply-To: <20010527190700.H676@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0105261920030.3336-200000@localhost.localdomain>
-	<20010527190700.H676@athlon.random>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-Id: <E1544AG-00026i-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Today I moved to 2.4.5-ac1, the only different thing
+> than normal was I enabled ACPI instead of APM.  
 
-[ Linus removed from the CC:, he wouldn't read any of this since
-  he's in Japan currently :-)]
+Bad idea. The kernel ACPI is not the most debugged, the ACPI in many BIOSes
+is complete garbage and there isnt a lot you can do to debug them either.
 
-Andrea Arcangeli writes:
- > On Sat, May 26, 2001 at 07:59:28PM +0200, Ingo Molnar wrote:
- > > the two error cases are:
- > > 
- > >  #1 hard-IRQ interrupts user-space code, activates softirq, and returns to
- > >     user-space code
- > 
- > Before returning to userspace do_IRQ just runs do_softirq by hand from C
- > code.
+APM is a definite better choice, at least in the shorter term
 
-Ok, someone agrees with me. :-)
-
- > >  #2 hard-IRQ interrupts the idle task, activates softirq and returns to
- > >     the idle task.
- > 
- > The problem only happens when we return to the idle task and a softirq
- > is been marked active again and we cannot keep running it or we risk to
- > soft deadlock.
-
-I still fail to understand, won't the C code in do_IRQ() handle
-this case as well?  What is so special about returning from an
-interrupt to the idle task on x86?  And what about that special'ness
-makes the code at the end of do_IRQ() magically not run?
-
-In fact, with the do_IRQ() check _and_ the check in schedule() itself,
-the only case entry.S has to really deal with is "end of system call"
-which it does.
-
-Andrea, I think you are talking about a deeper and different problem.
-Specifically, a softirq that makes new softirqs happen, or something
-like this.  Right?
-
-Later,
-David S. Miller
-davem@redhat.com

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263032AbRFRU7H>; Mon, 18 Jun 2001 16:59:07 -0400
+	id <S263595AbRFSVAA>; Tue, 19 Jun 2001 17:00:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263049AbRFRU65>; Mon, 18 Jun 2001 16:58:57 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:3076 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263032AbRFRU6r>;
-	Mon, 18 Jun 2001 16:58:47 -0400
-Message-ID: <20010617231129.A6466@bug.ucw.cz>
-Date: Sun, 17 Jun 2001 23:11:29 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Airlie <airlied@skynet.ie>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux/VAX booting to a shell.
-In-Reply-To: <Pine.LNX.4.32.0106161228490.18791-100000@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.32.0106161228490.18791-100000@skynet>; from Dave Airlie on Sat, Jun 16, 2001 at 12:43:56PM +0100
+	id <S263596AbRFSU7k>; Tue, 19 Jun 2001 16:59:40 -0400
+Received: from pc7.prs.nunet.net ([199.249.167.77]:46861 "HELO
+	pc7.prs.nunet.net") by vger.kernel.org with SMTP id <S263595AbRFSU72>;
+	Tue, 19 Jun 2001 16:59:28 -0400
+Message-ID: <20010619205926.5459.qmail@pc7.prs.nunet.net>
+From: "Rico Tudor" <rico-linux-kernel@patrec.com>
+Subject: Re: [SMP] 2.4.5-ac13 memory corruption/deadlock?
+To: glamm@mail.ece.umn.edu (Bob Glamm)
+Date: Tue, 19 Jun 101 15:59:26 -0500 (CDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010619135310.A15004@kittpeak.ece.umn.edu> from "Bob Glamm" at Jun 19, 1 01:53:10 pm
+X-Mailer: ELM [version 2.4 PL25]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Are you sure about bad memory?
 
-> Hi all, (mind crossposts on follow ups..)
-> 
-> attached below is a bootlog from the Linux/VAX port, booting up, loading
-> up busybox/uClibc sh and cat /proc/cpuinfo, from my VAXStation 3100m38,
-> 
-> Thanks to the other two members of the core VAX porting team, Andy
-> Phillips and Kenn Humborg and others on the linux-vax list who've given
-> their help, this is the second major milestone for the project, (gcc
-> porting was the first) now to get it working on a few other systems and
-> move into userspace...
+Single-bit errors will be corrected; double-bit errors will generate NMI.
+You can also find memory errors with an exerciser.  Unfortunately,
+trusty memtest86 bombs on my ServerWorks machine.  Instead I use
 
-Congratulations. (This is pretty big machine, for the VAX, no? When
-was it build? How much power does it take?)
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+	http://www.qcc.sk.ca/~charlesc/software/memtester/
+
+which runs in user-mode.  I diagnosed thermal problems by running
+this utility.  Within 3 minutes of cold start, it raised main memory
+temperature sufficiently to induce a hard error, which was detected
+simultaneously by it and the hardware (NMI taken by kernel).
+
+Can you recommend one of your (shorter) tests for me to try?

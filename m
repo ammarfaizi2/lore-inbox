@@ -1,88 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbTLUTzf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 14:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbTLUTzf
+	id S263985AbTLUT6A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 14:58:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbTLUT5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 14:55:35 -0500
-Received: from pdbn-d9bb8708.pool.mediaWays.net ([217.187.135.8]:57861 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S263945AbTLUTzc (ORCPT
+	Sun, 21 Dec 2003 14:57:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30175 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263985AbTLUT5n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 14:55:32 -0500
-Date: Sun, 21 Dec 2003 20:55:28 +0100
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Stan Bubrouski <stan@ccs.neu.edu>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
-Message-ID: <20031221195528.GA29261@citd.de>
-References: <1071969177.1742.112.camel@cube> <20031221105333.GC3438@mail.shareable.org> <1072034966.1286.119.camel@duergar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1072034966.1286.119.camel@duergar>
-User-Agent: Mutt/1.3.27i
+	Sun, 21 Dec 2003 14:57:43 -0500
+Date: Sun, 21 Dec 2003 11:56:02 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Karim Yaghmour <karim@opersys.com>
+cc: yodaiken@fsmlabs.com, Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Updating real-time and nanokernel maintainersy
+In-Reply-To: <3FE5F2E6.8030002@opersys.com>
+Message-ID: <Pine.LNX.4.58.0312211145490.13039@home.osdl.org>
+References: <3FE234E4.8020500@opersys.com> <Pine.LNX.4.58.0312181821270.19491@montezuma.fsmlabs.com>
+ <3FE23966.7060001@opersys.com> <Pine.LNX.4.58.0312181836360.19491@montezuma.fsmlabs.com>
+ <3FE23CD1.4080802@opersys.com> <3FE23E3F.2000801@cyberone.com.au>
+ <3FE2424B.70901@opersys.com> <20031219094122.GA23469@wohnheim.fh-wedel.de>
+ <20031221082736.GA11795@hq.fsmlabs.com> <3FE5F2E6.8030002@opersys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 21, 2003 at 02:29:27PM -0500, Stan Bubrouski wrote:
-> On Sun, 2003-12-21 at 05:53, Jamie Lokier wrote:
-> > Albert Cahalan wrote:
-> > > What about the obvious Kconfig option?
-> > > 
-> > > config PATENT_1234567890
-> > >         bool "Patent 1234567890"
-> > >         default n
-> > >         help
-> > >           Say Y here if you have the right to use
-> > >           patent 1234567890 (the foo patent). Some
-> > >           countries do not recognise this patent, an
-> > >           educational or research exemption may apply,
-> > >           you may be the patent holder, the patent
-> > >           may have expired, or you may have aquired
-> > >           rights via licensing. Seek legal help if you
-> > >           need advice concerning your rights. If unsure,
-> > >           say N.
-> > 
-> > I expect this was said in jest, but it would be delightful to see this
-> > done for real.  To the best of my knowlege it's uncharted territory,
-> > so perhaps what you suggest _would_ be upheld in a court of law as
-> > permissible?
-> <SNIP>
+
+
+On Sun, 21 Dec 2003, Karim Yaghmour wrote:
 > 
-> No No No No No...do you really think including code for a patented
-> algorithm(s) is a good idea?  You are still distributing the code and
-> allowing people to illegally use it in countries where they are not
-> allowed to.  In essence you are providing a catalyst for them to violate
-> a patent and making yourself and other liable along the way.  US law is
-> sick and fucked up, and if someone sues you for patent infringement
-> you're most likely fucked, because you can never have enough money to
-> defend yourself...for the sake of us stuck in this so-called free
-> country (though we can be arrested and jailed without trial?) please do
-> not include patented algoriths in Linux...
+> If there is, then it should definitely be taken out. First, as Linus
+> has stated recently (and as has been the policy for a while), the
+> kernel should avoid having any patented code
 
-The question is "What toes are OK to step onto".
+That's not true.
 
-e.g.
-To the best of my knowledge it should be illegal to distribute 2.6
-kernel in France because AFAIK it is illegal to use encryption there.
-(If not France, there are other countries that fit)
-(And you remember that this same problem was only resolved a few years
-ago for the U.S.! Otherwise the crypto-stuff would have been in kernel
-for years!)
+The kernel should have no patented code THAT DOESN'T HAVE A LICENSE.
 
-So the only question is "Is it OK to step on the U.S. toe?".
-I guess there are other countries on this small planet (>200 IIRC) where
-the current linux kernel has it's "problems(tm)" here and there.
+There are several cases where this came up: RCU is one obvious one, but 
+there were also issues with Intel's initial submissions of some of the 
+networking drivers where they didn't want to originally release under the 
+GPL because of worrying about patents they owned.
 
+The email you quote expressly says "unless you can get the patent holder 
+to grant a license". And the RTLinux patents were licensed to GPL'd 
+projects. See the RTLinux "open patent license".
 
+I don't understand why people continually complain about the RTLinux
+patents. I bet it's because Victor has all the easy charm of Larry McVoy,
+but I don't see why people still continue to spread obvious
+mis-information about the situation.
 
+It's doubly discgusting with some of the people who were trying to spread 
+all the FUD and mis-information were doing so because they were themselves 
+doing a non-GPL microkernel, and they complained about how the patents 
+were somehow against the GPL and wanted to get community support by trying 
+to make out the situation to be somehow different from what it was.
 
+I'm not a supporter of software patents, but while I dislike them, I don't 
+dislike them _nearly_ as much as I dislike dishonest people.
 
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
-
+		Linus

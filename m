@@ -1,127 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263388AbUAISnN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 13:43:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUAISlr
+	id S263806AbUAIS4a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 13:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUAIS4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 13:41:47 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:17072 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S263130AbUAISkX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 13:40:23 -0500
-Date: Sat, 10 Jan 2004 07:33:05 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: PATCH 1/2: Make gotoxy & siblings use unsigned variables
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1073672901.2069.15.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-y4JHp6ZkmNdQkXgMuoNK";
- protocol="application/pgp-signature"; micalg=pgp-sha1
+	Fri, 9 Jan 2004 13:56:17 -0500
+Received: from smtp07.auna.com ([62.81.186.17]:58834 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id S263806AbUAIS4B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 13:56:01 -0500
+From: Ivanovich <ivanovich@menta.net>
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: Kernel 2.6.0 and i2c-viapro posible Bug
+Date: Fri, 9 Jan 2004 19:55:55 +0100
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200401091955.55007.ivanovich@menta.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jean Delvare wrote:
 
---=-y4JHp6ZkmNdQkXgMuoNK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>> I thinks that thgere is  probably a bug in I2c-viapro module,
+>> cuz when i load i2c-viapro after loading w82781d, my computer  just
+>> put very slow..., i try loading as modules in the kernel or built in,
+>> in both cases i have the same problem.
+>>
+>> I use 2.6.0 Vanilla Kernel sources.
+>> Please i will really apreciate if some one responde to this
+>> mail, put my adress in the CC field please cuz i not in the LKML.
+>> If someone need another information about my computer, config..
+>> or somehting more, just ask for it.
+>>
+>> Thanks.
+> 
+> Tested this on my own system with similar hardware (as far as i2c is
+> concerned) under 2.6.1-rc2. I did not experience any slowdown.
+> 
+> Could you please provide the following information:
+> 
+> * Output of "lspci -n".
+> 
+> * Can you reproduce the problem with a 2.4.24 kernel and i2c+lm_sensors
+>   2.8.2?
+> 
+> * Can you reproduce the problem with a 2.6.1-rc2 kernel?
+> 
+> * Can you reproduce the problem without ACPI support enabled into your
+>   kernel?
+> 
+> * Does the slowdown affect only the hard-disk drive?
+> 
+> * Does the speed come back to normal if you remove i2c-viapro?
+> 
+> * Does the slowdown occur if you load i2c-viapro before w83781d?
+> 
+> Yeah, I know, this is much work, but we need a hint to start digging.
+> 
+> Thanks.
+> 
 
-This patch makes console X and Y coordinates unsigned, rather than
-signed. Issues with wide (> 128 char?) consoles, seen when developing
-Software Suspend's 'nice display' are thus fixed. A brief examination of
-related code showed that this use of signed variables was the exception
-rather than the rule.
 
-Regards,
+>> ACPI: RSDT (v001 ASUS   CUV4X_E 
+I have this very same board CUV4X_E and the same problem too (present in 2.6.0 
+and before)
+The workaround i found is to not initialize the chip "modprobe w83781d init=0"
 
-Nigel
+And answering some of your questions, yes, the slowdown is global, not only 
+disk and it doesn't gets better if you unload the modules.
 
-diff -ruN linux-2.6.1-rc3/drivers/char/vt.c console-patch-1/drivers/char/vt=
-.c
---- linux-2.6.1-rc3/drivers/char/vt.c	2004-01-09 14:24:45.000000000 +1300
-+++ console-patch-1/drivers/char/vt.c	2004-01-10 07:17:08.000000000 +1300
-@@ -149,7 +149,7 @@
- static void vc_init(unsigned int console, unsigned int rows,
- 		    unsigned int cols, int do_clear);
- static void blank_screen(unsigned long dummy);
--static void gotoxy(int currcons, int new_x, int new_y);
-+static void gotoxy(int currcons, unsigned int new_x, unsigned int new_y);
- static void save_cur(int currcons);
- static void reset_terminal(int currcons, int do_clear);
- static void con_flush_chars(struct tty_struct *tty);
-@@ -859,9 +859,9 @@
-  * might also be negative. If the given position is out of
-  * bounds, the cursor is placed at the nearest margin.
-  */
--static void gotoxy(int currcons, int new_x, int new_y)
-+static void gotoxy(int currcons, unsigned int new_x, unsigned int new_y)
- {
--	int min_y, max_y;
-+	unsigned int min_y, max_y;
-=20
- 	if (new_x < 0)
- 		x =3D 0;
-@@ -888,7 +888,7 @@
- }
-=20
- /* for absolute user moves, when decom is set */
--static void gotoxay(int currcons, int new_x, int new_y)
-+static void gotoxay(int currcons, unsigned int new_x, unsigned int new_y)
- {
- 	gotoxy(currcons, new_x, decom ? (top+new_y) : new_y);
- }
-@@ -2996,13 +2996,13 @@
- 	return screenpos(currcons, 2 * w_offset, viewed);
- }
-=20
--void getconsxy(int currcons, char *p)
-+void getconsxy(int currcons, unsigned char *p)
- {
- 	p[0] =3D x;
- 	p[1] =3D y;
- }
-=20
--void putconsxy(int currcons, char *p)
-+void putconsxy(int currcons, unsigned char *p)
- {
- 	gotoxy(currcons, p[0], p[1]);
- 	set_cursor(currcons);
-diff -ruN linux-2.6.1-rc3/include/linux/selection.h console-patch-1/include=
-/linux/selection.h
---- linux-2.6.1-rc3/include/linux/selection.h	2004-01-09 14:22:25.000000000=
- +1300
-+++ console-patch-1/include/linux/selection.h	2004-01-10 07:17:08.000000000=
- +1300
-@@ -36,8 +36,8 @@
- extern void complement_pos(int currcons, int offset);
- extern void invert_screen(int currcons, int offset, int count, int shift);
-=20
--extern void getconsxy(int currcons, char *p);
--extern void putconsxy(int currcons, char *p);
-+extern void getconsxy(int currcons, unsigned char *p);
-+extern void putconsxy(int currcons, unsigned char *p);
-=20
- extern u16 vcs_scr_readw(int currcons, const u16 *org);
- extern void vcs_scr_writew(int currcons, u16 val, u16 *org);
-
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-y4JHp6ZkmNdQkXgMuoNK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA//vLEVfpQGcyBBWkRAj3CAKCdGWKGVk+3a4McINVPQpFZYWiHnACfexsi
-7mQWTGEwhKv/R+MBBnivmLI=
-=+etF
------END PGP SIGNATURE-----
-
---=-y4JHp6ZkmNdQkXgMuoNK--
+It's fixed in 2.6.1? going to download+compile and see if it works. 
+Thanks!
 

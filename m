@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132686AbRDIEkU>; Mon, 9 Apr 2001 00:40:20 -0400
+	id <S132690AbRDIEi3>; Mon, 9 Apr 2001 00:38:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132689AbRDIEkK>; Mon, 9 Apr 2001 00:40:10 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:10217 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132686AbRDIEj7>;
-	Mon, 9 Apr 2001 00:39:59 -0400
-Date: Mon, 9 Apr 2001 00:39:37 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: warren <warren@infortrend.com.tw>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: race condition on looking up inodes
-In-Reply-To: <000201c0c0a4$eb5c7b10$321ea8c0@saturn>
-Message-ID: <Pine.GSO.4.21.0104090033280.7440-100000@weyl.math.psu.edu>
+	id <S132689AbRDIEiT>; Mon, 9 Apr 2001 00:38:19 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:31500 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S132686AbRDIEiO>;
+	Mon, 9 Apr 2001 00:38:14 -0400
+Date: Mon, 9 Apr 2001 01:33:26 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Michael Peddemors <michael@linuxmagic.com>, linux-kernel@vger.kernel.org
+Subject: Re: goodbye
+In-Reply-To: <20010408023228.L805@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.21.0104090117450.5424-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 8 Apr 2001, Matti Aarnio wrote:
 
+> 	The incentive behind the DUL is to force users not to post
+> 	straight out to the world, but to use their ISP's servers
+> 	for outbound email --- normal M$ users do that, after all.
+> 	Only spammers - and UNIX powerusers - want to post directly
+> 	to the world from dialups.  And UNIX powerusers should know
+> 	better,
 
-On Mon, 9 Apr 2001, warren wrote:
+UNIX power users do know better.  They know their ISPs mail
+server could show up in RSS or ORBS any moment. Therefor they
+use their own machines for sending out email.
 
-> 
-> 
-> Hi,
->     I had post a simillar message before.
->     Thanks for the replay from Albert D. Cahalan. But i found some results
-> confusing me.
->     For example,  process 1 and process 2 run concurrently and execute the
-> following system calls.
-> 
->     rename("/usr/hybrid/cfg/data","/usr/mytemp/data1"); /*for process 1*/
-> 
->    ----------------------------------------------------------------
-> 
->   rename("/usr/mytemp/data1","/usr/test");/* for process 2*/
+IMHO DUL is an unethical list to use because it assumes guilty
+by default. This is different from all other spam blocking lists,
+which only block hosts _after_ they've found something wrong with
+them.
 
->   ----------------------------------------------------------------
->   It is possible that context switch happens when process 1 is look ing up
-> the inode for "/usr/mytemp/data1"  or the inode for "/usr/hybrid/cfg/data".
+The other exception is untestable-netblocks.orbs.org, which blocks
+everything it cannot test and is just as bad as DUL.
 
->  It will result in diffrent behaviour for process 2 and confuses the
-> application.
+Anyway, since linux-kernel has chosen to not receive email from me
+I won't bother answering VM bugreports or anything here. It's up to
+Matti and Davem to decide how useful a place linux-kernel will be.
 
->   If so,how does Linux solve?
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-Solves what, precisely? Result depends on the order of these calls. If
-you don't provide any serialization - you get timing-dependent results
-you were asking for. What's the problem and what behaviour do you expect?
-
-Besides, what's the difference caused by the moment of context switch?
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

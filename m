@@ -1,85 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVCaJ5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVCaKBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261213AbVCaJ5N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 04:57:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVCaJzX
+	id S261202AbVCaKBL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 05:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVCaKBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 04:55:23 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:46354 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261213AbVCaJxW
+	Thu, 31 Mar 2005 05:01:10 -0500
+Received: from smtp-out.tiscali.no ([213.142.64.144]:48655 "EHLO
+	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S261202AbVCaKAc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 04:53:22 -0500
-Date: Thu, 31 Mar 2005 19:51:51 +1000
-To: "Artem B. Bityuckiy" <dedekind@infradead.org>
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, jmorris@redhat.com,
-       svenning@post5.tele.dk, YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-Subject: Re: [RFC] CryptoAPI & Compression
-Message-ID: <20050331095151.GA13992@gondor.apana.org.au>
-References: <1111766900.4566.20.camel@sauron.oktetlabs.ru> <20050326044421.GA24358@gondor.apana.org.au> <1112030556.17983.35.camel@sauron.oktetlabs.ru>
+	Thu, 31 Mar 2005 05:00:32 -0500
+Subject: Re: forkbombing Linux distributions
+From: Natanael Copa <mlists@tanael.org>
+To: Jacek =?iso-8859-2?Q?=A3uczak?= <difrost@pin.if.uz.zgora.pl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <424AE48C.8000805@pin.if.uz.zgora.pl>
+References: <424AE48C.8000805@pin.if.uz.zgora.pl>
+Content-Type: text/plain; charset=iso-8859-2
+Date: Thu, 31 Mar 2005 12:00:30 +0200
+Message-Id: <1112263230.1165.15.camel@nc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1112030556.17983.35.camel@sauron.oktetlabs.ru>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 28, 2005 at 05:22:36PM +0000, Artem B. Bityuckiy wrote:
+On Wed, 2005-03-30 at 19:40 +0200, Jacek £uczak wrote:
+> Hi
 > 
-> I made the changes to deflate_decompr() because the old version doesn't
-> work properly for me. There are 2 changes.
+> I made some tests and almost all Linux distros brings down while freebsd 
+> survive!Forkbombing is a big problem but i don't think that something like
 > 
-> 1. I've added the following code:
+> max_threads = mempages / (16 * THREAD_SIZE / PAGE_SIZE);
 > 
-> ------------------------------------------------------------------------
-> if (slen > 2 && !(src[1] & PRESET_DICT) /* No preset dictionary */
->     && ((src[0] & 0x0f) == Z_DEFLATED)  /* Comp. method byte is OK */
->     && !(((src[0] << 8) + src[1]) % 31)) {      /* CMF*256 + FLG */
->     stream->next_in += 2;
->     stream->avail_in -= 2;
-> }
-> ------------------------------------------------------------------------
-
-The reason you need to add this is because the window bits that
-was used to produce the compressed data is positive while the window
-bits crypto/deflate is using to perform the decompression isn't.
-
-So what we should do here is turn window bits into a configurable
-parameter.
-
-Once you supply the correct window bits information, the above is
-then simply an optimisation.
-
-Rather than keeping the above optimisation, JFFS should simply do
-the compression with a negative window bits value.
-
-Of course to maintain backwards compatibility you'll need to do this
-as a new compression type.
- 
-> 2. I've removed the "strange" (for me) uncompress sequence:
+> is good solution!!!
+> How about add max_user_threads to the kernel? It could be tunable via 
+> proc filesystem. Limit is set only for users.
+> I made a fast:) patch - see below - and test it on 2.6.11, 
+> 2.6.11ac4,2.6.12rc1...works great!!!New forks are stoped in 
+> copy_process() before dup_task_struct() and EAGAIN is returned. System 
+> works without any problems and root can killall -9 forkbomb.
 > 
-> ------------------------------------------------------------------------
-> ret = zlib_inflate(stream, Z_SYNC_FLUSH);
-> /*
->  * Work around a bug in zlib, which sometimes wants to taste an extra
->  * byte when being used in the (undocumented) raw deflate mode.
->  * (From USAGI).
->  */
 
-I believe this bit of code originally came from FreeS/WAN and was
-written by Svenning Sørensen.  Maybe he or Yoshifuji-san can tell
-us why?
+I really liked this approach because:
 
-Unless we're sure that zlib has been fixed we should leave it in.
-It should be a no-op if zlib has been fixed.  So this probably
-isn't causing the breakage that you saw.
+* it is similar to other *nixes. (freebsd, openbsd)
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+* it is easily tuneable (/proc or systcl)
+
+* it is stupid simple - small chance that things can go wrong.
+
+* this solves *many* things in comparation to possible problems it
+causes.
+
+Only thing that could be a problem that I come to think of is that you
+cannot raise the limit through /etc/security/limits.conf or similar. Eg.
+you migh want all setuid() services/daemons run with a low limit but you
+want give user Bob more processes. (I don't know if this is a realistic
+situation though)
+
+The default value could be something like:
+
+max_user_threads = max_threads / 2
+
+or:
+
+max_user_threads = max_threads / 4;
+
+With a lower limit to 20 or something, just like max_threads (in case
+you try run Linux on 2MiB RAM)
+
+If a fixed value (like 300, 512, 2000) is used then will probably
+systems with low amount of RAM be vulerable to the forkbomb attack.
+
+--
+Natanael Copa
+
+

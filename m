@@ -1,83 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbVCBDoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVCBDtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbVCBDoh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 22:44:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVCBDoh
+	id S262156AbVCBDtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 22:49:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVCBDtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 22:44:37 -0500
-Received: from smtpout.mac.com ([17.250.248.83]:206 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262144AbVCBDoe (ORCPT
+	Tue, 1 Mar 2005 22:49:25 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:62925 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262156AbVCBDtD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 22:44:34 -0500
-In-Reply-To: <200503021327.31429.jcook@siliconriver.com.au>
-References: <200502281459.31402.jcook@siliconriver.com.au> <200503010202.j2122b80025303@turing-police.cc.vt.edu> <200502282135.35405.dtor_core@ameritech.net> <200503021327.31429.jcook@siliconriver.com.au>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <5DFD93E4-8ACD-11D9-858B-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Complicated networking problem
-Date: Tue, 1 Mar 2005 22:44:23 -0500
-To: Jarne Cook <jcook@siliconriver.com.au>
-X-Mailer: Apple Mail (2.619)
+	Tue, 1 Mar 2005 22:49:03 -0500
+Date: Tue, 1 Mar 2005 19:49:00 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Page fault scalability patch V18: Overview
+Message-ID: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 01, 2005, at 22:27, Jarne Cook wrote:
-> Damn
->
-> Having to configure the interfaces using bonding was not really the 
-> answer I
-> was expecting.
->
-> I did not think linux would be that rigid.  I figured if poodoze is 
-> able to do
-> it (seamlessly mind you), surely linux (with some tinkering) would be 
-> able to
-> do it also.
->
-> The goal was to have the networking on the laptop work as perfectly as
-> crapdoze does.
->
-> Perhaps I should and this topic to my list of software issues that 
-> no-one else
-> cares about. "man that list is getting big".  maybe one day I'll 
-> develop the
-> balls to get deep into the code.
+Is there any chance that this patchset could go into mm now? This has been
+discussed since last August....
 
-Well, what exactly is the desired behavior for you?  If you have two 
-network
-interfaces to the same local network, the default config will pick a 
-random
-one (They're both equal-cost unless you tell it otherwise) and send 
-ARPs and
-everything else through that one interface.  If you take it down, it may
-require a minute or so to update the rest of the network to the new 
-hardware
-address, but eventually they will figure it out.  I suppose if that is 
-the
-expected config, you could tell the box to send out a gratuitous ARP 
-packet
-when you reconfigure interfaces, but that's a userspace issue in any 
-case.
+Changelog:
 
-As far as networking is concerned, a subnet is an atomic networking 
-unit.
-Everything on it is considered directly and equally attached to 
-everything
-else, unless informed otherwise via a switch protocol.  Any system that
-doesn't follow that rule is broken.
+V17->V18 Rediff against 2.6.11-rc5-bk4
+V16->V17 Do not increment page_count in do_wp_page. Performance data
+	posted.
+V15->V16 of this patch: Redesign to allow full backback
+	for architectures that do not supporting atomic operations.
 
-Cheers,
-Kyle Moffett
+An introduction to what this patch does and a patch archive can be found on
+http://oss.sgi.com/projects/page_fault_performance. The archive also has the
+result of various performance tests (LMBench, Microbenchmark and
+kernel compiles).
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+The basic approach in this patchset is the same as used in SGI's 2.4.X
+based kernels which have been in production use in ProPack 3 for a long time.
+
+The patchset is composed of 4 patches (and was tested against 2.6.11-rc5-bk4):
+
+1/4: ptep_cmpxchg and ptep_xchg to avoid intermittent zeroing of ptes
+
+	The current way of synchronizing with the CPU or arch specific
+	interrupts updating page table entries is to first set a pte
+	to zero before writing a new value. This patch uses ptep_xchg
+	and ptep_cmpxchg to avoid writing the zero for certain
+	configurations.
+
+	The patch introduces CONFIG_ATOMIC_TABLE_OPS that may be
+	enabled as a experimental feature during kernel configuration
+	if the hardware is able to support atomic operations and if
+	an SMP kernel is being configured. A Kconfig update for i386,
+	x86_64 and ia64 has been provided. On i386 this options is
+	restricted to CPUs better than a 486 and non PAE mode (that
+	way all the cmpxchg issues on old i386 CPUS and the problems
+	with 64bit atomic operations on recent i386 CPUS are avoided).
+
+	If CONFIG_ATOMIC_TABLE_OPS is not set then ptep_xchg and
+	ptep_xcmpxchg are realized by falling back to clearing a pte
+	before updating it.
+
+	The patch does not change the use of mm->page_table_lock and
+	the only performance improvement is the replacement of
+	xchg-with-zero-and-then-write-new-pte-value with an xchg with
+	the new value for SMP on some architectures if
+	CONFIG_ATOMIC_TABLE_OPS is configured. It should not do anything
+	major to VM operations.
+
+2/4: Macros for mm counter manipulation
+
+	There are various approaches to handling mm counters if the
+	page_table_lock is no longer acquired. This patch defines
+	macros in include/linux/sched.h to handle these counters and
+	makes sure that these macros are used throughout the kernel
+	to access and manipulate rss and anon_rss. There should be
+	no change to the generated code as a result of this patch.
+
+3/4: Drop the first use of the page_table_lock in handle_mm_fault
+
+	The patch introduces two new functions:
+
+	page_table_atomic_start(mm), page_table_atomic_stop(mm)
+
+	that fall back to the use of the page_table_lock if
+	CONFIG_ATOMIC_TABLE_OPS is not defined.
+
+	If CONFIG_ATOMIC_TABLE_OPS is defined those functions may
+	be used to prep the CPU for atomic table ops (i386 in PAE mode
+	may f.e. get the MMX register ready for 64bit atomic ops) but
+	are simply empty by default.
+
+	Two operations may then be performed on the page table without
+	acquiring the page table lock:
+
+	a) updating access bits in pte
+	b) anonymous read faults installed a mapping to the zero page.
+
+	All counters are still protected with the page_table_lock thus
+	avoiding any issues there.
+
+	Some additional statistics are added to /proc/meminfo to
+	give some statistics. Also counts spurious faults with no
+	effect. There is a surprisingly high number of those on ia64
+	(used to populate the cpu caches with the pte??)
+
+4/4: Drop the use of the page_table_lock in do_anonymous_page
+
+	The second acquisition of the page_table_lock is removed
+	from do_anonymous_page and allows the anonymous
+	write fault to be possible without the page_table_lock.
+
+	The macros for manipulating rss and anon_rss in include/linux/sched.h
+	are changed if CONFIG_ATOMIC_TABLE_OPS is set to use atomic
+	operations for rss and anon_rss (safest solution for now, other
+	solutions may easily be implemented by changing those macros).
+
+	This patch typically yield significant increases in page fault
+	performance for threaded applications on SMP systems.
 
 

@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbTDQI7f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 04:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbTDQI7f
+	id S261296AbTDQJqe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 05:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTDQJqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 04:59:35 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:56857 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261283AbTDQI7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 04:59:34 -0400
-Date: Thu, 17 Apr 2003 05:11:27 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BK+PATCH] remove __constant_memcpy
-Message-ID: <20030417051126.W13397@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <Pine.LNX.4.44.0304161904170.1534-100000@home.transmeta.com> <1050569207.1412.1.camel@laptop.fenrus.com> <Pine.LNX.4.44.0304171102040.12110-100000@serv> <20030417090444.A4209@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030417090444.A4209@devserv.devel.redhat.com>; from arjanv@redhat.com on Thu, Apr 17, 2003 at 09:04:44AM +0000
+	Thu, 17 Apr 2003 05:46:34 -0400
+Received: from ns0.epita.net ([163.5.254.20]:28814 "HELO neo.epita.net")
+	by vger.kernel.org with SMTP id S261296AbTDQJqd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 05:46:33 -0400
+Message-ID: <001901c304c8$93d27740$3602a8c0@team.3ie.org>
+From: "Pestouille" <pestouille@3ie.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4.20 AT keyboard present ?
+Date: Thu, 17 Apr 2003 12:03:21 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 17, 2003 at 09:04:44AM +0000, Arjan van de Ven wrote:
-> On Thu, Apr 17, 2003 at 11:02:43AM +0200, Roman Zippel wrote:
-> > Hi,
-> > 
-> > On 17 Apr 2003, Arjan van de Ven wrote:
-> > 
-> > > it can do that ANYWAY for all kinds of things.
-> > > We really should ask the gcc folks to add a
-> > > -fdontyoudareusefloatingpoint flag (well different name probably) to
-> > > make sure it never ever will generate FP code. (would also help catch
-> > > abusers of FP code in the kernel as a bonus ;)
-> > 
-> > -msoft-float?
-> 
-> that is a decent start but has a different effect, eg it doesnt' actually
-> forbid gcc from generatic fpu code, just tells it to use emu lib functions
-> for it .
+Hi,
 
-But the emu lib functions aren't provided in the kernel, so you'll get
-errors anyway.
-On some targets the option is -mno-fpu though (e.g. sparc* kernels use
-it for eons).
+I'm not an expert in kernel compilation but I had this problem :
 
-	Jakub
+keyboard: Timeout - AT keyboard not present?
+keyboard: Timeout - AT keyboard not present?
+
+My system is as follows :
+
+- Dell dimension 8250
+- P4 3.06 with HT (enabled in bios)
+- 512 RDRAM
+- DD Ide 120 Go
+- ATI Radeon 9700 Pro
+- Debian with lastest packages
+
+This problem occurs with a 2.4.20 kernel. With the basic 2.2.20 provided in
+the woody, the system works without problems.
+The thing really odd is when using a 2.4.20 patched kernel for gentoo, I've
+got the keyboard working but the X don't let me use my keyboard either my
+mouse.
+
+I also tried using a 2.4.21-pre7 without success.
+
+I'm open to any suggestions ;)
+
+PS : my kernel is compiled with SMP support and my keyboard and mouse are
+PS/2.
+
+I didn't subscribe to the lkml so If you would be nice enough to send me
+answer by mail.
+
+Thank you.
+
+--
+Adrien Pestel
+

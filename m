@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314984AbSDWAnn>; Mon, 22 Apr 2002 20:43:43 -0400
+	id <S314991AbSDWAtn>; Mon, 22 Apr 2002 20:49:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314986AbSDWAnm>; Mon, 22 Apr 2002 20:43:42 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:12550 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S314984AbSDWAnm>;
-	Mon, 22 Apr 2002 20:43:42 -0400
-Date: Tue, 23 Apr 2002 02:43:24 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Keith Owens <kaos@sgi.com>
-cc: Wichert Akkerman <wichert@cistron.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: XFS in the main kernel 
-In-Reply-To: <6047.1019518162@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.44.0204230235440.31961-100000@Expansa.sns.it>
+	id <S314994AbSDWAtm>; Mon, 22 Apr 2002 20:49:42 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:640 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S314991AbSDWAtm>;
+	Mon, 22 Apr 2002 20:49:42 -0400
+Date: Mon, 22 Apr 2002 20:49:40 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: [RFC] race in request_module()
+Message-ID: <Pine.GSO.4.21.0204222027360.5686-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Looks like request_module() has quite a few problems:
 
+* there is no way to distinguish between failing modprobe and successful
+  one followed by rmmod -a (e.g. called by cron).  For one thing, we
+  don't pass exit value of modprobe to caller of request_module().
 
-On Tue, 23 Apr 2002, Keith Owens wrote:
+* even if we would pass it, obvious attempt to cope with rmmod -a races
+  fails.  I.e. something like
 
-> On 22 Apr 2002 18:55:20 +0200,
-> wichert@cistron.nl (Wichert Akkerman) wrote:
-> >In article <3CC427F4.12C40426@fnal.gov>,
-> >Dan Yocum  <yocum@fnal.gov> wrote:
-> >>I know it's been discussed to death, but I am making a formal request to you
-> >>to include XFS in the main kernel.  We (The Sloan Digital Sky Survey) and
-> >>many, many other groups here at Fermilab would be very happy to have this in
-> >>the main tree.
-> >
-> >Has XFS been proven to be completely stable
->
-> As much as any other filesystem.  "There are no bugs in filesystem XYZ.
-> That just means that you have not looked hard enough." :)  There is a
-> daily QA suite that XFS is run through.
+	while (object doesn't exist) {
+		if (request_module(module_name) < 0)
+			break;
+	}
 
-In the reality the inclusion on XFS in the 2.5 tree would probably move
-more peole to use it, and so also to eventually trigger bugs, to report
-them, sometimes to fix them.
-This way XFS would improve faster, and of course that would be a
-good thing.
+  would screw up for something like
 
-That said, it is important to
-consider the technical reasons to include XFS in 2.5 or not; if this
-inclusion could cause some troubles, if XFS fits the requirements
-Linus asks for the inclusion and what impact the inclusion would have on
-the kernel (Think to JFS as a good example of an easy inclusion, with low
-impact).
+mount -t floppy <whatever>
 
-Luigi
+  since we would happily load floppy.o and look for fs type called "floppy".
+  And keep doing that forever, since floppy.o doesn't define any fs.
+
+* we could try to protect against rmmod -a by changing semantics of module
+  syscalls and modprobe(8).  Namely, let modprobe called by request_module()
+  pin the module(s) down and make request_module() (actually its caller)
+  decrement refcounts.  That would solve the problem, but we get another one:
+  how to find all modules pulled in by modprobe(8) and its children.
+  Notice that argument of request_module() doesn't help at all - it can have
+  nothing to name of module we load (block-major-2 -> floppy) and we could have
+  other modules grabbed by the same modprobe.
+
+* we might try to pull the following trick: in sys_create_module() follow
+  ->parent until we step on request_module()-spawned task.  Then put the new
+  module on a list for that instance of request_module().  That would solve
+  the problem, but I'm not too happy about such solution - IMO it's ugly.
+  However, I don't see anything else...
+
+Comments?
+
+  
 

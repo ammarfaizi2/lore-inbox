@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130612AbRBMHTJ>; Tue, 13 Feb 2001 02:19:09 -0500
+	id <S130741AbRBMHXt>; Tue, 13 Feb 2001 02:23:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130741AbRBMHS7>; Tue, 13 Feb 2001 02:18:59 -0500
-Received: from sfovwl03.infy.com ([206.236.143.9]:57606 "HELO
-	sfovwl03.infy.com") by vger.kernel.org with SMTP id <S130612AbRBMHSo>;
-	Tue, 13 Feb 2001 02:18:44 -0500
-Message-ID: <426C1E9EBA27D411839000D0B74752F83E33E5@punmsg02.ad.infosys.com>
-From: nomit kalidhar <nomit_kalidhar@infy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Routing table change indication...
-Date: Mon, 12 Feb 2001 23:19:53 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130789AbRBMHXi>; Tue, 13 Feb 2001 02:23:38 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:58127 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130741AbRBMHXW>;
+	Tue, 13 Feb 2001 02:23:22 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Ph. Marek" <marek@mail.bmlv.gv.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.[01] and duron - unresolved symbol _mmx_memcpy 
+In-Reply-To: Your message of "Tue, 13 Feb 2001 07:47:33 BST."
+             <3.0.6.32.20010213074733.00917210@pop3.bmlv.gv.at> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Feb 2001 18:23:13 +1100
+Message-ID: <1151.982048993@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 13 Feb 2001 07:47:33 +0100, 
+"Ph. Marek" <marek@mail.bmlv.gv.at> wrote:
+>and the modules dependencies are not all set!
+>make modules_install does not check for modules compilation - says
+>"cp: file not found". I think that's because modules_install doesn't
+>depend on the modules
 
-I have been trying to get a solution to a minor problem but unfortunately i
-have not been able to solve it or get some help on it and i am stuck up from
-a long time.
+Correct.  The current recursive makefile design means it is difficult
+to get a definitive list of modules without excessive overhead.  So
+modules_install assumes that you have compiled the modules already and
+lets the 'cp' command fail.  The 2.5 Makefile redesign will get this
+right.
 
-Is there any way i can find out that there has been a change in the kernel
-routing table in linux ?
+>grep _mmx_memcpy /proc/ksyms
+>	c01a4e20 _mmx_memcpy_R__ver__mmx_memcpy
 
-In the file rtnetlink.h there is a rtm_flags feild RTM_F_NOTIFY which says
-it notifies the user of route change but i have not been able to capture it
-when there is a change in the routing table. 
-Is this the right approach ??? 
-please give some pointers..
+Broken 2.4 makefile design.  http://www.tux.org/lkml/#s8-8
+The 2.5 makefile redesign will kill this problem once and for all.
 
-with warm regards
-
-Nomit Kalidhar  

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319018AbSHSUyH>; Mon, 19 Aug 2002 16:54:07 -0400
+	id <S319015AbSHSU5Y>; Mon, 19 Aug 2002 16:57:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319020AbSHSUyH>; Mon, 19 Aug 2002 16:54:07 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:8382 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S319018AbSHSUyG>;
-	Mon, 19 Aug 2002 16:54:06 -0400
-Date: Mon, 19 Aug 2002 22:59:17 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+	id <S319012AbSHSU5Y>; Mon, 19 Aug 2002 16:57:24 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:41576 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S319015AbSHSU5Y>; Mon, 19 Aug 2002 16:57:24 -0400
+Date: Mon, 19 Aug 2002 16:01:14 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: [patch] O(1) sys_exit(), threading, scalable-exit-2.5.31-A6
-In-Reply-To: <65670000.1029783102@baldur.austin.ibm.com>
-Message-ID: <Pine.LNX.4.44.0208192251540.2201-100000@localhost.localdomain>
+Message-ID: <91360000.1029790874@baldur.austin.ibm.com>
+In-Reply-To: <Pine.LNX.4.44.0208192251540.2201-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0208192251540.2201-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 19 Aug 2002, Dave McCracken wrote:
+--On Monday, August 19, 2002 10:59:17 PM +0200 Ingo Molnar <mingo@elte.hu>
+wrote:
 
-> In looking at the code I was wondering something.  What happens to the
-> real parent of a ptraced task when it calls wait4()?  If that's its only
-> child, won't it return ECHILD?
+> this whole mess can only be fixed by decoupling the ptrace() mechanism
+> from signals and wait4 completely, it's a nasty relationship that infests
+> both the kernel and userspace code [check out strace.c once to see the
+> kind of pain it has to go through to isolate ptrace events from other
+> signals.]
 
-hm, so this could be fixed by iterating over the ptraced tasks as well
-when doing a wait4.
+I guess this is why most versions of Unix have abandoned ptrace for a
+debugging API based on /proc.
 
-the problem is that the debugger wants to do a wait4 as well, to receive
-the SIGSTOP result. Now if the original parent 'steals' the wait4 result,
-what will happen?
+Dave
 
-this whole mess can only be fixed by decoupling the ptrace() mechanism
-from signals and wait4 completely, it's a nasty relationship that infests
-both the kernel and userspace code [check out strace.c once to see the
-kind of pain it has to go through to isolate ptrace events from other
-signals.]
-
-I'm not quite sure whether this is possible, how deeply do ptrace
-applications depend on a real SIGSTOP signal interrupting the task? Would
-it be equally good if it was a different interruption/signalling method
-that did this? [with a few minor and straightforward cleanups to entry.S i
-think we could use a task ornament flag for ptrace interruption. This
-would result in a few orders better behavior on all fronts.]
-
-	Ingo
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

@@ -1,73 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262985AbTDVIDu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 04:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTDVIDu
+	id S262987AbTDVIEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 04:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbTDVIEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 04:03:50 -0400
-Received: from [213.69.58.83] ([213.69.58.83]:49162 "EHLO invsv002.invision.de")
-	by vger.kernel.org with ESMTP id S262985AbTDVIDs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 04:03:48 -0400
-Subject: inconsistent usage of 
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF07767E6D.29E660DD-ONC1256D10.002B8A2D@invision.de>
-From: Heiko.Rabe@InVision.de
-Date: Tue, 22 Apr 2003 10:11:11 +0200
-X-MIMETrack: Serialize by Router on invsv002/InVision/DE(Release 5.0.8 |June 18, 2001) at
- 04/22/2003 10:11:04 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Tue, 22 Apr 2003 04:04:09 -0400
+Received: from b071133.adsl.hansenet.de ([62.109.71.133]:35077 "EHLO
+	b071133.adsl.hansenet.de") by vger.kernel.org with ESMTP
+	id S262987AbTDVIEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 04:04:04 -0400
+Date: Tue, 22 Apr 2003 10:16:07 +0200
+From: Florian Hinzmann <f.hinzmann@hamburg.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org,
+       jan-hinnerk_reichert@hamburg.de
+Subject: problem solved - late answer.. (was: Re: DMA problems w/ PIIX3 IDE,
+ 2.4.20-pre4-ac2)
+Message-Id: <20030422101607.6bf1c30e.f.hinzmann@hamburg.de>
+In-Reply-To: <1032187595.1285.13.camel@irongate.swansea.linux.org.uk>
+References: <XFMail.20020916162624.f.hinzmann@hamburg.de>
+	<1032187595.1285.13.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found inconsistent behavoir between SMP oand none SMP kernels using spin
-locks inside driver programming
-As first an simple example:
+Hello!
 
-static spinlock_t        qtlock               = SPIN_LOCK_UNLOCKED;
+Quite some months ago I raised some questions, got some answers and 
+continued working silently until my problem was solved. While digging 
+the archives for yet another IDE problem today I realized I did
+not send any message to you guys nor to the list afterwards.
 
-void foo()
-{
-     unsigned long  local_flags;
-     spin_lock_irqsave (&qtlock, local_flags);
-     spin_lock_irqsave (&qtlock, local_flags);
-}
+Just in case someone is interested or cares still:
 
-Calling the function foo() works proper in none SMP kernels. I assume, the
-spinlocks internaly will be initialized as
-recursive semaphore as default. So it is possible to aquire it more than
-once by the same thread.
+1) Sorry for not sending a "problem solved" mail when it was solved
+2) My box is running smoothly again. It was neither a kernel issue
+   nor a hardware problem with the disks. Different kernel versions 
+   did behave differently, but the cause of it all seems to be a broken
+   CPU (or broken jumper settings). 
+   Installing a new CPU made all problems go away. And the box is
+   rock solid with or without IDE-DMA turned on.
 
-If foo() has been called using a SMP kernel, it freezes the kernel. I
-assume that the semaphore object will be initialized as
-default to be none recursive. So the semaphore can't aquired a second time
-from the same thread.
 
-I found it during investigation of open source ISDN USB external Box
-drivers, that is well working in none SMP kernels
-but freeze at SMP kernels. Course i have an SMP kernel, i run into the
-freeze problem shown above.
-The example is only the simple structure about, it's not coded in that way
-inside the driver but results in this scenario.
-I have fixed the problem at driver to work well at SMP kernels too, but it
-seems to be a general issue.
+    Regards
+        Florian
+   
 
-I think, semaphores should be have the same behavoir (default
-initialization) at SMP and none SMP kernels. Some code
-problems running software at SMP kernels that freeze could be avoided, if
-we had a consistent default behavoir of semaphores.
+P.S: A little block quoted below in case someone wants to remember what
+     this was about:
 
-Is the there any reason for this difference i doesn't know ?
-Could this be handled in cosistent behavoir handling ?
+On 16 Sep 2002 15:46:35 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-regards
+> On Mon, 2002-09-16 at 15:26, Florian Hinzmann wrote:
+> > 
+> > On 16-Sep-2002 Alan Cox wrote:
+> > > On Mon, 2002-09-16 at 12:17, Florian Hinzmann wrote:
+> > >> kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+> > >> kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
+> > >> kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+> > > 
+> > > Which is the drive reporting a physical media error
+> > 
+> > Which seems to exist only while using the named combinations of DMA access
+> > and kernel versions. While using i.e. 2.4.19 without DMA I can access the same data,
+> > dd the whole disk to /dev/null or run badblock checks without finding
+> > any physical media errors.
+> > 
+> > 2.4.19 should complain, too, if there is a physical error indeed, right?
+> 
+> The "sectoridnotfound" return is from the drive. That makes it very hard
+> to believe it isnt a physical error
+>
 
-Heiko Rabe
-Senior Developer
-InVision Software AG
-Tel.: +49-(0)341/497208-12
-Fax: +49-(0)2102/728-111
-mailto:heiko.rabe@invision.de
-
+-- 
+  Florian Hinzmann                         private: f.hinzmann@hamburg.de
+                                            Debian: fh@debian.org
+PGP Key / ID: 1024D/B4071A65
+Fingerprint : F9AB 00C1 3E3A 8125 DD3F  DF1C DF79 A374 B407 1A65

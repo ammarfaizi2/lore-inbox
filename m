@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263092AbRFECEl>; Mon, 4 Jun 2001 22:04:41 -0400
+	id <S263088AbRFECDb>; Mon, 4 Jun 2001 22:03:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263093AbRFECEb>; Mon, 4 Jun 2001 22:04:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:47517 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263092AbRFECEV>;
-	Mon, 4 Jun 2001 22:04:21 -0400
+	id <S263092AbRFECDV>; Mon, 4 Jun 2001 22:03:21 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:45981 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263088AbRFECDN>;
+	Mon, 4 Jun 2001 22:03:13 -0400
 From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15132.15898.969850.255800@pizda.ninka.net>
-Date: Mon, 4 Jun 2001 19:04:10 -0700 (PDT)
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, bjornw@axis.com,
+Message-ID: <15132.15829.322534.88410@pizda.ninka.net>
+Date: Mon, 4 Jun 2001 19:03:01 -0700 (PDT)
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, bjornw@axis.com,
         linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: Re: Missing cache flush. 
-In-Reply-To: <14147.991697362@redhat.com>
+Subject: Re: Missing cache flush.
 In-Reply-To: <3B1C1872.8D8F1529@mandrakesoft.com>
-	<13942.991696607@redhat.com>
-	<14147.991697362@redhat.com>
+In-Reply-To: <13942.991696607@redhat.com>
+	<3B1C1872.8D8F1529@mandrakesoft.com>
 X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-David Woodhouse writes:
- > > What should it do on i386?  mb()? 
+Jeff Garzik writes:
+ > David Woodhouse wrote:
+ > > I was pointed at Documentation/DMA-mapping.txt but that doesn't seem very
+ > > helpful - it's very PCI-specific, and a quick perusal of pci_dma_sync() on
+ > > i386 shows that it doesn't do what's required anyway.
  > 
- > For it to have any use in the situation I described, it would need to 
- > writeback and invalidate the dcache for the affected range. It doesn't seem 
- > to do so, so it seems that it isn't what I require.
+ > What should it do on i386?  mb()?
 
-It only needs to do that on cpus where the cache is not consistent
-with the rest of the system.  x86 caches are fully consistent with the
-rest of the system, thus no flushing necessary.
+The x86 doesn't have dumb caches, therefore it really doesn't need to
+flush anything.  Maybe a mb(), but that is it.
 
 Later,
 David S. Miller

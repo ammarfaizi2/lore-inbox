@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264646AbUFPXpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264402AbUFPXqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264646AbUFPXpj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 19:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbUFPXpj
+	id S264402AbUFPXqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 19:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264647AbUFPXqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 19:45:39 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:58898 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S264646AbUFPXpg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 19:45:36 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <oliver@neukum.org>
-Cc: <erikharrison@gmail.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: more files with licenses that aren't GPL-compatible
-Date: Wed, 16 Jun 2004 16:45:28 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKIELGMKAA.davids@webmaster.com>
+	Wed, 16 Jun 2004 19:46:15 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:40905 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S264402AbUFPXqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 19:46:11 -0400
+Date: Wed, 16 Jun 2004 19:48:04 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@fsmlabs.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Stephen Hemminger <shemminger@osdl.org>
+Subject: [PATCH][2.6] fix bridge sysfs improperly initialised knobject
+Message-ID: <Pine.LNX.4.58.0406161247140.1944@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200406170045.32844.oliver@neukum.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2120
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 16 Jun 2004 16:23:16 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 16 Jun 2004 16:23:18 -0700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The bridge sysfs interface introduced around 2.6.7-rc1 created a bad
+entry in /sys because it didn't initialise the name member of the kobject.
 
-> Am Mittwoch, 16. Juni 2004 23:21 schrieb David Schwartz:
+zwane@montezuma /sys {0:0} ls -l
+total 0
+?---------   ? ?    ?    ?            ?
+drwxr-xr-x  17 root root 0 Jun 15 15:47 block
+drwxr-xr-x   7 root root 0 Jun 15 15:47 bus
+drwxr-xr-x  16 root root 0 Jun 15 15:47 class
+drwxr-xr-x   5 root root 0 Jun 15 15:47 devices
+drwxr-xr-x   3 root root 0 Jun 15 15:47 firmware
+drwxr-xr-x   8 root root 0 Jun 15 19:55 module
 
-> >     b) You must cause any work that you distribute or publish, that in
-> >     whole or in part contains or is derived from the Program or any
-> >     part thereof, to be licensed as a whole at no charge to all third
-> >     parties under the terms of this License.
-> >
+Index: linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 br_sysfs_br.c
+--- linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c	14 Jun 2004 12:49:12 -0000	1.1.1.1
++++ linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c	16 Jun 2004 16:45:20 -0000
+@@ -305,9 +305,7 @@ static struct bin_attribute bridge_forwa
+  * This is a dummy kset so bridge objects don't cause
+  * hotplug events
+  */
+-struct subsystem bridge_subsys = {
+-	.kset = { .hotplug_ops = NULL },
+-};
++decl_subsys_name(bridge, net_bridge, NULL, NULL);
 
-> >         How can you cause the Linux kernel combined with this
-> > firmware to be
-> > licensed under the terms of the GPL? (And, by the way, I think this
-> > prohibits trademark as well, which is very interesting.)
-
-> This all boils down to the question of whether fimware is code or not.
-
-	Perhaps I'm missing something. Can you explain why you think that matters?
-I'll repeat the GPL section I'm talking about:
-
-     b) You must cause any work that you distribute or publish, that in
-     whole or in part contains or is derived from the Program or any
-     part thereof, to be licensed as a whole at no charge to all third
-     parties under the terms of this License.
-
-	First, this says, "any work", it's not limited to code. It says, "in whole
-or in part contains or is derived from the Program" -- a binary of the Linux
-kernel is clearly derived from the Linux kernel source. And it says
-"licensed *as a whole* ... under the terms of *this* license".
-
-	So where's the gray area you seem to be imagining?
-
-> As this question is extremely unlikely to be resolved on this list and
-> was discussed here several times already, I kindly request that
-> you take this discussion to a legalistic list and confine traffic of this
-> kind on this list to clear and technical issues.
-
-	This is a different issue. This isn't about distributing firmware and
-whether the firmware itself is a derived work. This is about distributing
-the Linux kernel as a work containing non-GPL'd elements with use
-restrictions. GPL section 2b authoritatively prohibits this. There is no
-gray area here.
-
-	This is a clear issue, but not a technical one. However, being unable to
-distribute binaries of the Linux kernel would present numerous technical
-problems.
-
-	DS
-
-
+ void br_sysfs_init(void)
+ {

@@ -1,29 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293221AbSBWVom>; Sat, 23 Feb 2002 16:44:42 -0500
+	id <S293222AbSBWVsM>; Sat, 23 Feb 2002 16:48:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293223AbSBWVoc>; Sat, 23 Feb 2002 16:44:32 -0500
-Received: from ubermail.mweb.co.za ([196.2.53.169]:3598 "EHLO
-	ubermail.mweb.co.za") by vger.kernel.org with ESMTP
-	id <S293222AbSBWVoX>; Sat, 23 Feb 2002 16:44:23 -0500
-Subject: [PATH] kdev_t compilation fixes (Framebuffer)
+	id <S293224AbSBWVsC>; Sat, 23 Feb 2002 16:48:02 -0500
+Received: from mono.mweb.co.za ([196.2.53.170]:54033 "EHLO mono.mweb.co.za")
+	by vger.kernel.org with ESMTP id <S293222AbSBWVrz>;
+	Sat, 23 Feb 2002 16:47:55 -0500
+Subject: [PATCH] kdev_t compilation fixes (Framebuffer)
 From: Bongani Hlope <bonganilinux@mweb.co.za>
 To: linux-kernel@vger.kernel.org
 Cc: fero@drama.obuda.kando.hu, kraxel@goldbach.in-berlin.de
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.21mdk 
-Date: 23 Feb 2002 23:57:16 +0200
-Message-Id: <1014501451.3917.19.camel@localhost.localdomain>
+Message-Id: <1014501626.4293.25.camel@localhost.localdomain>
 Mime-Version: 1.0
+X-Mailer: Evolution/1.0.21mdk 
+Date: 24 Feb 2002 00:01:01 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+I misspelled patch on the subject of the first mail, some plp's filters
+may miss it (I guess) so here it goes again.
 
 I thinks these were missed during 2.5.2-pre6, Feren I hope you are
 the right person to send the for the first patch (your name is listed as
 the Maintainer),Gerd yours is listed for the second patch.
 
-	--Bongani
+        --Bongani
 
 --- linux-2.5/drivers/video/riva/fbdev.c        Thu Nov 15 00:52:20 2001
 +++ linux-2.5-dev/drivers/video/riva/fbdev.c    Sat Feb 23 23:35:08 2002

@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbULAJUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbULAJbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbULAJUg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 04:20:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbULAJUf
+	id S261320AbULAJbv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 04:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbULAJbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 04:20:35 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:8379 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261346AbULAJUb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 04:20:31 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 1 Dec 2004 10:02:03 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Blaisorblade <blaisorblade_spam@yahoo.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jdike@addtoit.com, bstroesser@fujitsu-siemens.com,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: VFS interactions with UML and other big UML changes (was: Re: [patch 1/2] Uml - first part rework of run_helper() and users.)
-Message-ID: <20041201090203.GD12963@bytesex>
-References: <20041130200845.2C5058BAFE@zion.localdomain> <20041130152017.129e134c.akpm@osdl.org> <200412010120.39579.blaisorblade_spam@yahoo.it>
+	Wed, 1 Dec 2004 04:31:51 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:19934 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261320AbULAJbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 04:31:48 -0500
+Subject: Re: Suspend 2 merge
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@suse.cz>
+Cc: Stefan Seyfried <seife@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20041130222027.GE1361@elf.ucw.cz>
+References: <20041124132839.GA13145@infradead.org>
+	 <1101329104.3425.40.camel@desktop.cunninghams>
+	 <20041125192016.GA1302@elf.ucw.cz>
+	 <1101422088.27250.93.camel@desktop.cunninghams>
+	 <20041125232200.GG2711@elf.ucw.cz>
+	 <1101426416.27250.147.camel@desktop.cunninghams> <41AAED32.2010703@suse.de>
+	 <1101766833.4343.425.camel@desktop.cunninghams> <41AC6480.6020002@suse.de>
+	 <1101849416.5715.13.camel@desktop.cunninghams>
+	 <20041130222027.GE1361@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101893275.5073.0.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412010120.39579.blaisorblade_spam@yahoo.it>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 01 Dec 2004 20:27:55 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > uml-terminal-cleanup.patch
+Hi.
+
+On Wed, 2004-12-01 at 09:20, Pavel Machek wrote:
+> Hi!
 > 
-> I don't know technically this one. It won't probably go in 2.6.10, I think 
-> later... tested in the SuSE tree, but let's be quiet in merging _big_ things, 
-> ok? It was also tested in a different tree, so it perfectly working on 2.6.9 
-> does not mean perfectly working on current kernels.
+> > > >>Putting only the absolutely necessary things into the kernel (the same
+> > > >>is true for the interactive resume thing - if someone wants interactive
+> > > >>startup at a failing resume, he has to use an initrd, i don't see a
+> > > >>problem with that) will probably increase the acceptance a bit :-)
+> > > > 
+> > > > That's fine if your initrd is properly configured and you're willing to
+> > > 
+> > > This is something distributions have to take care of.
+> > 
+> > No; it's something the users will have to take care of. Distro makers
+> > might make the process more automated, but in the end it's the user's
+> > problem if it doesn't work.
+> 
+> Actually, no, its not like that. 
+> 
+> User will click icon in KDE, and if it does not suspend & resume
+> properly, distribution has problem to fix. And yes, it works well in
+> SUSE9.2.
 
-Tested by me on 2.6.10-rc2-bk<something> as well.  It needed some
-trivial adaptions to the tty layer changes done by Linus compared
-to the old 2.6.9 version.  I'm pretty confident it wouldn't break
-anything, but as it is to big to be classified as ObviouslyCorrect[tm]
-fix it probably should not go to into 2.6.10 but be merged in the
-2.6.11 cycle.
+I didn't know you had support for initramfs and initrd configurations
+already. You are making progress.
 
-  Gerd
-
+Nigel
 -- 
-#define printk(args...) fprintf(stderr, ## args)
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

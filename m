@@ -1,100 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVBGRvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVBGRxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVBGRvw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 12:51:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVBGRvw
+	id S261207AbVBGRxs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 12:53:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVBGRxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 12:51:52 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:11647 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261203AbVBGRvs (ORCPT
+	Mon, 7 Feb 2005 12:53:48 -0500
+Received: from mail.njit.edu ([128.235.251.32]:16065 "EHLO mail-gw4.njit.edu")
+	by vger.kernel.org with ESMTP id S261207AbVBGRxf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 12:51:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Jl3wDbxuJoOnwQxys93h23veaAzm6ryB44KfWrTVCEsWw2owSJZmwQGuulPcadpJRwE5q1X7v2TUoBLCZ0w2AR44ty3eAqLU8zuOYO5HcDkCy+1m888cGTe9xzAJYEWcoGRsKxk92hZ4+1MikcbKw0IN3qDv5m7ROvfXUEIeilc=
-Message-ID: <d4b385205020709515d579934@mail.gmail.com>
-Date: Mon, 7 Feb 2005 18:51:46 +0100
-From: Mikkel Krautz <krautz@gmail.com>
-Reply-To: Mikkel Krautz <krautz@gmail.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-In-Reply-To: <20050207174303.GA3113@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050207154424.GB4742@omnipotens.localhost>
-	 <20050207174303.GA3113@ucw.cz>
+	Mon, 7 Feb 2005 12:53:35 -0500
+Date: Mon, 7 Feb 2005 12:53:23 -0500 (EST)
+From: Rahul Jain <rbj2@oak.njit.edu>
+To: Kronos <kronos@kronoz.cjb.net>
+cc: Kernel Traffic Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to add source files in kernel
+In-Reply-To: <20050204202628.GA14973@dreamland.darkstar.lan>
+Message-ID: <Pine.GSO.4.58.0502071249580.6273@chrome.njit.edu>
+References: <20050204202628.GA14973@dreamland.darkstar.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are you talking about the following line?
 
-+		else
-+			hid_mousepoll_interval = interval;
 
-If so, I put it there, to fill a tiny gap, i felt was missing.
+On Fri, 4 Feb 2005, Kronos wrote:
 
-If no parameter is passed, hid_mousepoll_interval is obviously 0.
+>
+>
+>
+> Rahul Jain <rbj2@oak.njit.edu> ha scritto:
+> > The kernel recompilation went without any problems. I wrote loadable
+> > module programs that can access the functions defined in .c. When I try to
+> > install these modules, they came back with the following error
+> >
+> > /sbin/insmod x.o
+> > x.o: unresolved symbol enqueue_sfi
+> > x.o: unresolved symbol init_skbuff_list
+> > x.o: unresolved symbol get_head_sfi
+> > x.o: unresolved symbol search_sfi
+> > x.o: unresolved symbol enqueue_skbuff_list
+> > x.o: unresolved symbol init_head_sfi
+> > x.o:
+> > Hint: You are trying to load a module without a GPL compatible license
+> >      and it has unresolved symbols.  Contact the module supplier for
+> >      assistance, only they can help you.
+> >
+> > make: *** [install] Error 1
+>
+> You forgot the EXPORT for those symbols, add:
+>
+> EXPORT_SYMBOL(symbol_name);
+>
+> to .c file. Or you may have exported the symbols as GPL only
+> (EXPORT_SYMBOL_GPL) and the module which is not licensed under GPL
+> cannot see them.
+>
+> Luca
+> --
+> Home: http://kronoz.cjb.net
+> La somma dell'intelligenza sulla terra e` una costante.
+> La popolazione e` in aumento.
+>
+I added EXPORT_SYMBOL(fn_name) for all the functions that I wanted to
+access from my module. I also added MODULE_LICENSE("GPL") to the .c file.
+And in the Makefile I added my_file.o to 'export_objs'. However I am still getting
+the same error.
 
-If a user, who doesn't pass the parameter to usbhid, reads
-'/sys/module/usbhid/parameters/mousepoll', the answer would be "0",
-which is incorrect, no?
+Any suggestions ? Are there any resources online which I can read.
 
 Thanks,
-Mikkel
-
-On Mon, 7 Feb 2005 18:43:03 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Mon, Feb 07, 2005 at 04:44:24PM +0100, Mikkel Krautz wrote:
-> > And, here's an updated version of hid-core.c:
-> >
-> > Signed-off-by: Mikkel Krautz <krautz@gmail.com>
-> > ---
-> > --- clean/drivers/usb/input/hid-core.c
-> > +++ dirty/drivers/usb/input/hid-core.c
-> > @@ -37,13 +37,20 @@
-> >   * Version Information
-> >   */
-> >
-> > -#define DRIVER_VERSION "v2.0"
-> > +#define DRIVER_VERSION "v2.01"
-> >  #define DRIVER_AUTHOR "Andreas Gal, Vojtech Pavlik"
-> >  #define DRIVER_DESC "USB HID core driver"
-> >  #define DRIVER_LICENSE "GPL"
-> >
-> >  static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
-> >                               "Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
-> > +/*
-> > + * Module parameters.
-> > + */
-> > +
-> > +static unsigned int hid_mousepoll_interval;
-> > +module_param_named(mousepoll, hid_mousepoll_interval, uint, 0644);
-> > +MODULE_PARM_DESC(mousepoll, "Polling interval of mice");
-> >
-> >  /*
-> >   * Register a new report for a device.
-> > @@ -1695,6 +1702,12 @@
-> >               if (dev->speed == USB_SPEED_HIGH)
-> >                       interval = 1 << (interval - 1);
-> >
-> > +             /* Change the polling interval of mice. */
-> > +             if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
-> > +                     interval = hid_mousepoll_interval;
-> > +             else
-> > +                     hid_mousepoll_interval = interval;
-> 
-> This line is trying to achieve what?
-> 
-> > +
-> >               if (endpoint->bEndpointAddress & USB_DIR_IN) {
-> >                       if (hid->urbin)
-> >                               continue;
-> >
-> >
-> 
-> --
-> Vojtech Pavlik
-> SuSE Labs, SuSE CR
->
+Rahul.

@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264069AbTDJPPB (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 11:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264070AbTDJPPB (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 11:15:01 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:51982 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S264069AbTDJPPA (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 11:15:00 -0400
-Date: Thu, 10 Apr 2003 17:26:35 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: R S-P Chan <rspchan@dso.org.sg>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Does kbuild 2.5 support separate obj/src trees
-Message-ID: <20030410152635.GA1577@mars.ravnborg.org>
-Mail-Followup-To: R S-P Chan <rspchan@dso.org.sg>,
-	linux-kernel@vger.kernel.org
-References: <3E939034.8010106@dso.org.sg>
-Mime-Version: 1.0
+	id S264066AbTDJPNX (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 11:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264067AbTDJPNX (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 11:13:23 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:38871 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264066AbTDJPNW (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 11:13:22 -0400
+Date: Thu, 10 Apr 2003 08:24:21 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix obj vma sorting
+Message-ID: <212430000.1049988260@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0304101618570.1873-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0304101618570.1873-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3E939034.8010106@dso.org.sg>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 09, 2003 at 11:15:00AM +0800, R S-P Chan wrote:
-> Haven't been building kernels for a while but the Makefile contains
-> srctree/objtree variables - so does kbuild 2.5 now support
-> separate obj/src trees? Tks.
+>> Eeek. There's no way we can set this up to do it as two separate VMAs
+>> initially, is there?
+> 
+> What if we could?  It's already shown the VMA sorting is (liable to be)
+> too slow.  Changing that most common case won't change the fact.
 
-Not yet.
-I have posted a patch enabling this a couple of times, but it has not
-mainstream kernel yet :-(
-There is people that request this feature, and it is doable - with some
-annoying restrictions. The main issue is that the kernel src shall be
-free of generated files when compiling for a separate objtree.
-I got limited feedback on the implementataion so far.
+Well, it'd thrash it substantially less, I guess. However, you're probably
+right ... need a design change instead of tweaking. Doubling the number
+of tasks would probably just take us back to where we were before ... need
+something more radical.
 
-The patch will most likely be updated during easter.
+M.
 
-	Sam

@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266552AbSKOR01>; Fri, 15 Nov 2002 12:26:27 -0500
+	id <S266560AbSKOR1S>; Fri, 15 Nov 2002 12:27:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266553AbSKOR01>; Fri, 15 Nov 2002 12:26:27 -0500
-Received: from to-velocet.redhat.com ([216.138.202.10]:21234 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S266552AbSKOR00>; Fri, 15 Nov 2002 12:26:26 -0500
-Date: Fri, 15 Nov 2002 12:33:22 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Kernel Janitors Project 
-	<kernel-janitor-discuss@lists.sourceforge.net>
-Subject: Re: [PATCH] use thread_info.h in uaccess.h
-Message-ID: <20021115123322.A7422@redhat.com>
-References: <20021115113223.GN18180@conectiva.com.br> <20021115164927.G20070@parcelfarce.linux.theplanet.co.uk>
+	id <S266564AbSKOR1S>; Fri, 15 Nov 2002 12:27:18 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:26799 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266560AbSKOR1Q>; Fri, 15 Nov 2002 12:27:16 -0500
+Subject: Re: Status of the CMD680 IDE driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Gabor Z. Papp" <gzp@myhost.mynet>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <73fe.3dd52324.188a7@gzp1.gzp.hu>
+References: <73fe.3dd52324.188a7@gzp1.gzp.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 15 Nov 2002 18:00:37 +0000
+Message-Id: <1037383237.19971.49.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021115164927.G20070@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Fri, Nov 15, 2002 at 04:49:27PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 04:49:27PM +0000, Matthew Wilcox wrote:
-> 
-> While we're janitoring headers...
-> 
-> This patch removes all the wait_queue handling code from sched.h and puts
-> it in wait.h with the rest of the wait_queue handling code.  Note that
-> sched.h must continue to include wait.h for the wait_queue_head_t embedded
-> in struct task.  However there may be files which only need wait.h now.
+On Fri, 2002-11-15 at 16:39, Gabor Z. Papp wrote:
+> Seems like it is in the later 2.4, but removed from the -ac
+> line, and missing from the 2.5 tree.
 
-Move the typedef into linux/types.h and that problem goes away.
+siimage driver drives the CMD680 and the SATA SII3112 version of the
+chip.
 
-		-ben

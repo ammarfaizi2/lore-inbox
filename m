@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267612AbSKTC7p>; Tue, 19 Nov 2002 21:59:45 -0500
+	id <S267622AbSKTDEJ>; Tue, 19 Nov 2002 22:04:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267622AbSKTC7p>; Tue, 19 Nov 2002 21:59:45 -0500
-Received: from 1-064.ctame701-1.telepar.net.br ([200.181.137.64]:5311 "EHLO
-	1-064.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267612AbSKTC7o>; Tue, 19 Nov 2002 21:59:44 -0500
-Date: Wed, 20 Nov 2002 01:06:39 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: David McIlwraith <quack@bigpond.net.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: spinlocks, the GPL, and binary-only modules
-In-Reply-To: <024101c2903f$7650a050$41368490@archaic>
-Message-ID: <Pine.LNX.4.44L.0211200105090.4103-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S267624AbSKTDEJ>; Tue, 19 Nov 2002 22:04:09 -0500
+Received: from marcie.netcarrier.net ([216.178.72.21]:44298 "HELO
+	marcie.netcarrier.net") by vger.kernel.org with SMTP
+	id <S267622AbSKTDEI>; Tue, 19 Nov 2002 22:04:08 -0500
+Message-ID: <3DDB0C7D.DCA1276D@compuserve.com>
+Date: Tue, 19 Nov 2002 23:15:57 -0500
+From: Kevin Brosius <cobra@compuserve.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-4GB i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kernel <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: kksymoops
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Nov 2002, David McIlwraith wrote:
+> Jeff Garzik wrote:
+> 
+> > Rusty,
+> >
+> > What is the status of kksymoops?
+> 
+> 
+> 
+> LOL -- look at me eat my words.
+> 
+> I see it's now in Linus's tree -- thanks much!
+> 
 
-> How should it? The compiler (specifically, the C preprocessor) includes
-> the code, thus it is not the AUTHOR violating the GPL.
+Thanks guys! (I figured I'd give him a day or two before pinging Rusty
+directly.)  This'll help chase some driver problems on the USB side.
 
-"Your honour, he didn't die because I shot him; he died
-because he tried to catch the bullet, with his chest..."
-
-If the compiler includes a .h file, it happens because
-the programmer told it to do so, using a #include.
-
-The programmer (or the copyright holder of the code) is
-responsible.
-
-regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
-
+Kevin

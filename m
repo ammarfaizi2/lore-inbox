@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290797AbSBXTsk>; Sun, 24 Feb 2002 14:48:40 -0500
+	id <S290843AbSBXTvu>; Sun, 24 Feb 2002 14:51:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290818AbSBXTsa>; Sun, 24 Feb 2002 14:48:30 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:17426 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S290797AbSBXTsV>; Sun, 24 Feb 2002 14:48:21 -0500
-Message-ID: <3C79435E.8030208@evision-ventures.com>
-Date: Sun, 24 Feb 2002 20:47:42 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: [PATCH] IDE clean 12 3rd attempt
-In-Reply-To: <UTC200202241352.g1ODqeb08003.aeb@apps.cwi.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290839AbSBXTvk>; Sun, 24 Feb 2002 14:51:40 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:42314 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S290818AbSBXTvY> convert rfc822-to-8bit; Sun, 24 Feb 2002 14:51:24 -0500
+Date: Sun, 24 Feb 2002 14:46:08 +0100
+From: Heinz Diehl <hd@cavy.de>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Chris Sykes <chris@sykes.uklinux.net>, linux-kernel@vger.kernel.org
+Subject: Re: floppy in 2.4.17
+Message-ID: <20020224134608.GA168@chiara.cavy.de>
+Mail-Followup-To: Mike Fedyk <mfedyk@matchmail.com>,
+	Chris Sykes <chris@sykes.uklinux.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020223160544.A1905@werewolf.able.es> <20020223184916.GA1518@chiara.cavy.de> <20020223220007.A461@cooper> <20020224030528.GQ20060@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20020224030528.GQ20060@matchmail.com>
+User-Agent: Mutt/1.5.0i (Linux 2.4.18-rc2-ac1 i586)
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by chiara.cavy.de id g1OJpxxk000193
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
->>Since this apparently didn't get through to the mailing list
->>I'm sending it again. This time compressed.
->>
-> 
-> Pity - noncompressed is better, now only people with too much time
-> will look at it.
-> 
-> There is something else one might do.
-> In ide-geometry.c there is the routine probe_cmos_for_drives().
-> Long ago I already wrote "Eventually the entire routine below
-> should be removed". I think this is the proper time to do this.
-> 
-> This probe is done only for the i386 architecture, and only
-> for the first two IDE disks, and only influences their geometry.
-> It has been a pain - for example, it gives the first two disks
-> a different geometry from the others, which is inconvenient
-> when one want a RAID of identical disks.
->
-Basically I lend toward your arguments. I think too that a bios based
-detection is already right and then we have now the ide-skip kernel
-parameter which is allowing to exclude a drive from handling by the 
-linux ide driver anyway. And I think that 2.4.x and above don't run on
-i386's anymore anyway.
+On Sat Feb 23 2002, Mike Fedyk wrote:
 
+> So, can you guys stress the -ac patch to see if it's fixed there?
 
+chiara:~ # mke2fs -t ext2 /dev/fd0
+mke2fs 1.24, 30-Aug-2001 for EXT2 FS Lö,
+mke2fs: bad blocks count - /dev/fd0
 
+chiara:~ # uname -a
+Linux chiara 2.4.18-rc2-ac1 #1 Sun Feb 24 14:20:33 CET 2002 i586 unknown
+	
+-- 
+# Heinz Diehl, 68259 Mannheim, Germany

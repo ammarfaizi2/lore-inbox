@@ -1,45 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291766AbSCHXAJ>; Fri, 8 Mar 2002 18:00:09 -0500
+	id <S292222AbSCHXCU>; Fri, 8 Mar 2002 18:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292092AbSCHW7t>; Fri, 8 Mar 2002 17:59:49 -0500
-Received: from jhuml3.jhu.edu ([128.220.2.66]:57301 "EHLO jhuml3.jhu.edu")
-	by vger.kernel.org with ESMTP id <S292150AbSCHW7j>;
-	Fri, 8 Mar 2002 17:59:39 -0500
-Date: Fri, 08 Mar 2002 18:00:40 -0500
-From: Thomas Hood <jdthood@mail.com>
-Subject: PnP BIOS driver status
-To: linux-kernel@vger.kernel.org
-Message-id: <1015628440.14518.212.camel@thanatos>
-MIME-version: 1.0
-X-Mailer: Evolution/1.0.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
+	id <S292150AbSCHXCL>; Fri, 8 Mar 2002 18:02:11 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:41469 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292237AbSCHXCA>; Fri, 8 Mar 2002 18:02:00 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: george anzinger <george@mvista.com>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+Date: Fri, 8 Mar 2002 18:02:52 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0203081109390.2749-100000@penguin.transmeta.com> <3C89234B.F9F1BDD1@mvista.com>
+In-Reply-To: <3C89234B.F9F1BDD1@mvista.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020308230156.D7AB23FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple people have asked me about the status of the 
-PnP BIOS driver, so I thought I'd post an update. 
+On Friday 08 March 2002 03:47 pm, george anzinger wrote:
+> Linus Torvalds wrote:
+> > On Fri, 8 Mar 2002, Hubertus Franke wrote:
+> > > Could you also comment on the functionality that has been discussed.
+> >
+> > First off, I have to say that I really like the current patch by Rusty.
+> > The hashing approach is very clean, and it all seems quite good. As to
+> >
+> > specific points:
+> > > (I) the fairness issues that have been raised.
+> > >     do you support two wakeup mechanism: FUTEX_UP and FUTEX_UP_FAIR
+> > >     or you don't care about fairness and starvation
+> >
+> > I don't think fairness and starvation is that big of a deal for
+> > semaphores, usually being unfair in these things tends to just improve
+> > performance through better cache locality with no real downside. That
+> > said, I think the option should be open (which it does seem to be).
+> >
+> > For rwlocks, my personal preference is the fifo-fair-preference (unlike
+> > semaphore fairness, I have actually seen loads where read- vs
+> > write-preference really is unacceptable). This might be a point where we
+> > give users the choice.
+> >
+> > I do think we should make the lock bigger - I worry that atomic_t simply
+> > won't be enough for things like fair rwlocks, which might want a
+> > "cmpxchg8b" on x86.
+> >
+> > So I would suggest making the size (and thus alignment check) of locks at
+> > least 8 bytes (and preferably 16). That makes it slightly harder to put
+> > locks on the stack, but gcc does support stack alignment, even if the
+> > code sucks right now.
+>
+> I think this is needed if we want to address the "task dies while
+> holding a lock" issue.  In this case we need to know who holds the lock.
+>
+> -g
+>
 
-History: During the pre-Tosatti 2.4-ac series the driver was 
-hammered into a reliable form.  However it never entered the 
-mainline kernel series. 
+Georg, while desirable its very tricky if possible at all.
 
-The driver was then stripped down to the core functionality 
-required to make the lspnp and setpnp utilities work. 
-pnpbios_register_driver() and pnpbios_unregister_driver() are 
-still there but aren't used by anything.  Additional /proc/ 
-interface files were then added to allow reading of ESCD info. 
+You need to stick your pid or so into the lock and do it 
+atomically. So let's assume we only stick with architectures that can do 
+cmpxchg-doubleword, still its not fool proof. 
+First, the app could still corrupt that count or pid field of the lock 
+In that case the whole logic get'ss crewed up.
+There is no guarantee that you ever know who holds the locks !!!
 
-The latest version of the driver seems nice 'n' stable and can 
-be found in Alan's latest 2.4 patches. 
-
-Current 2.5 kernels also contain the driver, but it's a bit out 
-of date.  There's a patch in 2.5-dj but that's also out of date. 
-("Out of date" here means "missing new features and some 
-cleanups".)  Once DJ releases a 2.5.6-dj I'll send him a patch 
-to bring his tree up to date.  Then he can pass it on to Linus. 
+Secondly, what guarantee do you have that your data is kosher ?
+I tend to agree with the masses, that hand waving might be the best
+first approximation 
 
 -- 
-Thomas Hood
-
+-- Hubertus Franke  (frankeh@watson.ibm.com)

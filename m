@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316668AbSGYXpe>; Thu, 25 Jul 2002 19:45:34 -0400
+	id <S316673AbSGZAE4>; Thu, 25 Jul 2002 20:04:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316672AbSGYXpe>; Thu, 25 Jul 2002 19:45:34 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:20204 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316668AbSGYXpd>; Thu, 25 Jul 2002 19:45:33 -0400
-Date: Fri, 26 Jul 2002 01:48:41 +0200
-From: axel@hh59.org
-To: linux-kernel@vger.kernel.org
-Cc: kkeil@suse.de, kai.germaschewski@gmx.de
-Subject: 2.5.28: depmod: *** Unresolved symbols in dss1_divert.o, isdnloop.o
-Message-ID: <20020725234841.GA18222@neon.hh59.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org, kkeil@suse.de,
-	kai.germaschewski@gmx.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Organization: hh59.org
+	id <S316695AbSGZAE4>; Thu, 25 Jul 2002 20:04:56 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:36074 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S316681AbSGZAEz>; Thu, 25 Jul 2002 20:04:55 -0400
+Message-ID: <3D4092F6.9030608@snapgear.com>
+Date: Fri, 26 Jul 2002 10:08:22 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: uClinux (MMU-less) patches against 2.5.28
+References: <3D3FA130.6020701@snapgear.com> <9309.1027608767@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi David,
 
-just built 2.5.28 and here are unresolved symbols in the above modules..
+David Woodhouse wrote:
+> gerg@snapgear.com said:
+> 
+>> A new set of uClinux (MMU-less) patches agains 2.5.28. You can get it
+>>at:
+> 
+>>http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.28uc0.patch.gz 
+> 
+> 
+> Perhaps drop drivers/block/blkmem.c or justify reinventing the wheel?
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.28; fi
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.28/kernel/drivers/isdn/divert/dss1_divert.o
-depmod:         cli
-depmod:         restore_flags
-depmod:         save_flags
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.28/kernel/drivers/isdn/isdnloop/isdnloop.o
-depmod:         cli
-depmod:         restore_flags
-depmod:         save_flags
-make: *** [_modinst_post] Error 1
+Indeed. That blkmem driver is a complete mess.
+I can't think of any justification for it existing :-)
+I'll work on cleaning that out.
 
-Regards,
-Axel
+Work is on going to remove the remaining bogosity we are
+still carrying in this patch.
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
+

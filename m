@@ -1,64 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264879AbSKEPwF>; Tue, 5 Nov 2002 10:52:05 -0500
+	id <S264888AbSKEQBb>; Tue, 5 Nov 2002 11:01:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264880AbSKEPwF>; Tue, 5 Nov 2002 10:52:05 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:2021 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S264879AbSKEPwD>; Tue, 5 Nov 2002 10:52:03 -0500
-Date: Tue, 5 Nov 2002 16:58:36 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre10-ac2, Sony PCG-C1MHP and Sonypi
-Message-ID: <20021105155836.GE12610@tahoe.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Manuel Serrano <Manuel.Serrano@sophia.inria.fr>,
-	linux-kernel@vger.kernel.org
-References: <20021105104620.7c1282fa.Manuel.Serrano@sophia.inria.fr> <20021105151540.GB12610@tahoe.alcove-fr>
+	id <S264889AbSKEQBb>; Tue, 5 Nov 2002 11:01:31 -0500
+Received: from tomts9.bellnexxia.net ([209.226.175.53]:20671 "EHLO
+	tomts9-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S264888AbSKEQA6>; Tue, 5 Nov 2002 11:00:58 -0500
+Subject: re: [announce] swap mini-howto (updated)
+From: Shane Shrybman <shrybman@sympatico.ca>
+To: rddunlap@osdl.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 05 Nov 2002 11:07:32 -0500
+Message-Id: <1036512453.15824.10.camel@mars.goatskin.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021105151540.GB12610@tahoe.alcove-fr>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 05, 2002 at 04:15:40PM +0100, Stelian Pop wrote:
+Hi Randy,
 
-> > Incompatibility between USB and SONYPI.
-> > 
-> > [2.] Full description of the problem/report:
-> > ============================================
-> > 
-> > Sonypi and USB modules seems to be incompatible. That is, if I don't load
-> > any USB kernel modules, using Sonypi works perfectly (I mostly use it
-> > to access the LCD brightness). 
-> 
-> Does this mean that you can use it to get jogdial or Fn keys events too ?
-> 
-> > If I load USB modules, then Sonypi reports
-> > errors:
-> 
-> Please send me (off list)  a copy of your dissassambled ACPI bios(*)
-> and I'll take a look at it.
+I thought that it might be possible that the folks who might need this
+swap mini-howto might not be the folks who understand terms like "memory
+pressure" and "dirty" memory. Have a look at the below and use or don't
+use whatever you want. I also included a bit on features and a little
+more on priorities.
 
-After seing your ACPI bios I cannot find out the reason why it 
-interferes with the USB subsystem.
+I also am curious about this sentence:
 
-The failed commands happen when sonypi tries to access the 0x62
-and 0x66 ports, which are (wrongly) reserved by the keyboard 
-(this is why sonypi cannot reserve them). These registers are
-also used by ACPI 'Embedded Controller'.
+"Block size in swap space is assumed to be the CPU architecture's
+page size."
 
-But I still cannot understand what the USB does in this area.
+What should a user be aware of with regard to this info?
 
-You didn't say if you compiled in the ACPI susbystem. Does it
-change something if you do not compile it (in case you did
-previously) or if you do compile it (in case you didn't) ?
+Introduction
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+Linux uses swap space as "extra" or "virtual" memory. When most of
+the system's real memory is in use, and there is a need for more,
+some data will be moved into swap to free real RAM memory for use by
+applications. This is called swapping out. When the data that is
+in swap needs to be used it is swapped back in from swap space. The
+rate at which data is swapped to and from one or more swap spaces
+can be monitored with the vmstat command's swap-in (si) and swap-out
+(so) columns.
+
+Linux kernel code and data is not swappable and is never moved to swap.
+User code never needs to be written to swap space because it already
+exists on disk and can be read in from there if it is required again.
+User data can be written to swap space and read back in when needed.
+
+Features
+
+Managing swap with Linux is very easy and flexible compared to most of
+proprietary operating systems. Linux's swap spaces can be turned on and
+off without a reboot and even while they are in use!
+
+Logical Volumes can be used as swap devices.
+
+Version 0 swap space format is no longer supported in 2.5+.
+
+Swap spaces can be given different priorities, (man 2 swapon) that
+determine how the swap spaces will be used. Higher priority swap spaces
+will be exhausted first and swap spaces with equal priorities will be
+striped. The Priority can be specified at swap space activation with
+the swapon command or in the /etc/fstab file.
+
+/dev/hda2       none    swap    pri=5,defaults 0 0
+/dev/hde2       none    swap    pri=5,defaults 0 0
+
+Regards,
+
+Shane
+
+

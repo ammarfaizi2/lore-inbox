@@ -1,129 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbUKIWRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbUKIWT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261726AbUKIWRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 17:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbUKIWRZ
+	id S261731AbUKIWT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 17:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUKIWT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 17:17:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59037 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261726AbUKIWRQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 17:17:16 -0500
-Date: Tue, 9 Nov 2004 16:52:21 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au
-Subject: Re: balance_pgdat(): where is total_scanned ever updated?
-Message-ID: <20041109185221.GA8414@logos.cnet>
-References: <200411061418_MC3-1-8E17-8B6C@compuserve.com> <20041106161114.1cbb512b.akpm@osdl.org> <20041109104220.GB6326@logos.cnet> <20041109113620.16b47e28.akpm@osdl.org> <20041109180223.GG7632@logos.cnet> <20041109134032.124b55fa.akpm@osdl.org>
+	Tue, 9 Nov 2004 17:19:56 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:39402 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261730AbUKIWS4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 17:18:56 -0500
+Date: Wed, 10 Nov 2004 00:20:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.23
+Message-ID: <20041109232002.GA14503@elte.hu>
+References: <OFC1C59379.C97F0CF1-ON86256F47.00720C09@raytheon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041109134032.124b55fa.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <OFC1C59379.C97F0CF1-ON86256F47.00720C09@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 01:40:32PM -0800, Andrew Morton wrote:
-> > > > > I had a patch which fixes it in -mm for a while.  It does increase the
-> > > > > number of pages which are reclaimed via direct reclaim and decreases the
-> > > > > number of pages which are reclaimed by kswapd.  As one would expect from
-> > > > > throttling kswapd.  This seems undesirable.
-> > > > 
-> > > > Hi Andrew,
-> > > > 
-> > > > Do you have any numbers to backup the claim "It does increase the
-> > > > number of pages which are reclaimed via direct reclaim and decreases the
-> > > > number of pages which are reclaimed by kswapd", please?
-> > > 
-> > > Run a workload and watch /proc/vmstat.  iirc, the one-line total_scanned
-> > > fix takes the kswapd-vs-direct reclaim rate from 1:1 to 1:3 or thereabouts.
-> > 
-> > You're talking about laptop_mode ONLY, then?
-> 
-> No, not at all.
-> 
-> If we restore the total_scanned logic then kswapd will throttle itself, as
-> designed.  Regardless of laptop_mode.  I did that, and monitored the page
-> scanning and reclaim rates under various workloads.  I observed that with
-> the fix in place, kswapd performed less page reclaim and direct-reclaim
-> performed more reclaim.  And I wasn't able to demonstrate any benchmark
-> improvements with the fix in place, so things are left as they are.
 
-Ah, OK, I understand what you mean. I was thinking about sc->may_writepage 
-only and its effects on shrink_list/pageout.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-You remind me about the self throttling (blk_congestion_wait).
-It makes sense now.
+> [3] I am not so sure that the latency tracing works. I do not get any
+> trace output, even if I set preempt_max_latency to zero.
 
-Andrea noted that blk_congestion_wait waits on IO which is not generated by 
-reclaim - which is indeed a bad thing - it should only wait on IO which the
-VM itself has started.
+What is the value of preempt_thresh? If it's set then it overrides the
+preempt_max_latency value. (previously the bogus timing values probably
+triggered even a relatively high preempt-threshold, but now with a
+correct tracer it's not possible anymore.)
 
-> > How can that have any effect if may_writepage is ignored if !laptop_mode? 
-> 
-> This is to do with kswapd throttling.  If we put kswapd to sleep more
-> often, it does less scanning and reclaiming.
+> [...] I also noticed that /proc/sys/kernel/preempt_wakeup_timing was
+> removed at .20 but not sure if that was deliberate. [...]
 
-OK! 
+yeah, this was deliberate - it's a side-effect of separating it from the
+other timing options.
 
-> > About /proc/vmstat - each output is huge - do you actually read those?
-> 
-> yup.
-> 
-> 	cat /proc/vmstat > /tmp/1
-> 	run workload
-> 	cat /proc/vmstat > /tmp/2
-> 	analyse /tmp/1 and /tmp/2
-
-Will do that more often. :) 
-
-> > We need a vmstat like tool for that information to be readable.
-> 
-> Would be nice.
-
-I've been thinking on doing a Python based tool someday.
-
-> > > > Because linux-2.6.10-rc1-mm2 (and 2.6.9) completly ignores sc->may_writepage 
-> > > > under normal operation, its only used when laptop_mode is on:
-> > > > 
-> > > > 		if (laptop_mode && !sc->may_writepage)
-> > > > 			goto keep_locked;
-> > > > 
-> > > > Is this intentional ???
-> > > 
-> > > yup.  In laptop mode we try to scan further to find a clean page rather
-> > > than spinning up the disk for a writepage.
-> > 
-> > It might be interesting to use sc->may_writepage independantly of
-> > laptop mode (ie make kswapd only writeout pages if the reclaim ratio 
-> > is low).
-> 
-> sure.
-
-Another related thing I noted this afternoon is that right now kswapd will
-always block on full queues:
-
-static int may_write_to_queue(struct backing_dev_info *bdi)
-{
-        if (current_is_kswapd())
-                return 1;
-        if (current_is_pdflush())       /* This is unlikely, but why not... */
-                return 1;
-        if (!bdi_write_congested(bdi))
-                return 1;
-        if (bdi == current->backing_dev_info)
-                return 1;
-        return 0;
-}
-
-We should make kswapd use the "bdi_write_congested" information and avoid
-blocking on full queues. It should improve performance on multi-device 
-systems with intense VM loads.
-
-Maybe something along the lines 
-
-"if the reclaim ratio is high, do not writepage"
-"if the reclaim ratio is below high, writepage but not block"
-"if the reclaim ratio is low, writepage and block"
+	Ingo

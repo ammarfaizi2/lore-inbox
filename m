@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRADEa5>; Wed, 3 Jan 2001 23:30:57 -0500
+	id <S129436AbRADEe0>; Wed, 3 Jan 2001 23:34:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRADEar>; Wed, 3 Jan 2001 23:30:47 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41477 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129324AbRADEa2>; Wed, 3 Jan 2001 23:30:28 -0500
-Date: Thu, 4 Jan 2001 00:38:53 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bdflush synchronous IO on prerelease-diff 
-In-Reply-To: <Pine.LNX.4.21.0101032241500.839-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0101040016580.839-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132454AbRADEeG>; Wed, 3 Jan 2001 23:34:06 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:43529 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129436AbRADEd7>;
+	Wed, 3 Jan 2001 23:33:59 -0500
+Date: Thu, 4 Jan 2001 05:33:52 +0100
+From: Andi Kleen <ak@suse.de>
+To: Sourav Sen <sourav@csa.iisc.ernet.in>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: is eth header is not transmitted
+Message-ID: <20010104053352.A16847@gruyere.muc.suse.de>
+In-Reply-To: <20010104044141.A16489@gruyere.muc.suse.de> <Pine.SOL.3.96.1010104091857.10702A-100000@kohinoor.csa.iisc.ernet.in>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.SOL.3.96.1010104091857.10702A-100000@kohinoor.csa.iisc.ernet.in>; from sourav@csa.iisc.ernet.in on Thu, Jan 04, 2001 at 09:39:43AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 3 Jan 2001, Marcelo Tosatti wrote:
-
+On Thu, Jan 04, 2001 at 09:39:43AM +0530, Sourav Sen wrote:
 > 
-> Hi Linus, 
+> Ya, I also noticed if it is skb_push() it may work, but where is
+> skb_push() called?? ...  the following
+> is part of the  fn. call  trace for udp send :
 > 
-> I've noticed you changed bdflush to do synchronous IO on page_launder().
+> 	in ip_build_xmit()
 > 
-> That seems to be a performance problem, since kflushd will have to wait
-> for dirty buffers to get synced instead looping on the inactive dirty
-> list more often. 
+> 	sock_alloc_send_skb()  -- allocates the sk_buff
+> 	skb_reserve()   -- advances the data pointer to by
+> 			   sizeof(hard_hdr)  amt.
+> 	skb_put()       -- puts the ip_hdr
+> 	>> getfrag() --> udp_getfrag_nosum()(assuming chksum off) --
+> 			 sets udp_hdr.
+> 	memcpy_fromiovecend() --  puts the data after that.
 > 
-> Here is a patch to change this. 
-> 
-> --- linux.orig/fs/buffer.c      Wed Jan  3 22:43:24 2001
-> +++ linux/fs/buffer.c   Thu Jan  4 00:28:50 2001
-> @@ -2710,7 +2710,7 @@
->  
->                 flushed = flush_dirty_buffers(0);
->                 if (free_shortage())
-> -                       flushed += page_launder(GFP_KERNEL, 1);
-> +                       flushed += page_launder(GFP_KERNEL, 0);
->  
->                 /*
->                  * If there are still a lot of dirty buffers around,
+> 	r->u.dst.output() -- > dev_queue_xmit() -- queues the pkt.
 
-And here are some dbench numbers:
-
-12 clients / 64M ram
-without the patch: 10.04 Mb/s  
-with the patch: 14.47 Mb/s
-
-48 clients / 256M ram 
-without the patch: 14.40 Mb/s
-with the patch: 15.69 Mb/s 
+dst.output() normally points to ip_output(), which fills the hh in (using
+appropiate other neighbour callbacks or the hh cache) 
 
 
+> 	Another question is why in sock_alloc_send_skb() , 15 is added to
+> length field?
 
+So that you can use long word accesses and it doesn't fault when the packet
+happens to be at the end of memory. Actually it is not required anymore with
+the current memory allocator.
 
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

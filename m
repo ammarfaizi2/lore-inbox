@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbUKQUul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbUKQUum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbUKQUul (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 15:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUKQUs4
+	id S262472AbUKQUum (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 15:50:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbUKQUsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 15:48:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11659 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262530AbUKQUq4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 15:46:56 -0500
-Date: Wed, 17 Nov 2004 12:46:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm1 - detect-atomic-counter-underflows.patch
-Message-Id: <20041117124640.08bac623.akpm@osdl.org>
-In-Reply-To: <200411171803.iAHI3wIG018055@turing-police.cc.vt.edu>
-References: <200411171803.iAHI3wIG018055@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 17 Nov 2004 15:48:39 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:6016 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262472AbUKQUrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 15:47:12 -0500
+Message-Id: <200411172047.iAHKl1DE004845@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: Grzegorz Piotr Jaskiewicz <gj@kde.org.uk>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: pid_max madness 
+In-Reply-To: Your message of "Wed, 17 Nov 2004 21:12:07 +0100."
+             <419BB097.8030405@kde.org.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <419BB097.8030405@kde.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1588431168P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 17 Nov 2004 15:47:00 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->
-> Now, I *may* have simply shot myself in the foot, but when I tried booting
-> 2.6.10-rc2-mm1, I got spewed *thousands* of messages triggered by this:
-> 
-> diff -puN include/asm-i386/atomic.h~detect-atomic-counter-underflows include/asm-i386/atomic.h
-> --- 25/include/asm-i386/atomic.h~detect-atomic-counter-underflows       Wed Nov  3 15:27:37 2004
-> +++ 25-akpm/include/asm-i386/atomic.h   Wed Nov  3 15:27:37 2004
-> @@ -132,6 +132,10 @@ static __inline__ int atomic_dec_and_tes
->  {
->         unsigned char c;
->  
-> +       if (!atomic_read(v)) {
-> +               printk("BUG: atomic counter underflow at:\n");
-> +               dump_stack();
-> +       }
->         __asm__ __volatile__(
->                 LOCK "decl %0; sete %1"
->                 :"=m" (v->counter), "=qm" (c)
-> 
-> Somehow, warning a *counter* is non-zero doesn't seem right (calling it an
-> underflow 4 times if the value goes 4, 3, 2, 1 and then NOT complain when it
-> hits zero?) , and I'm not flooded if it says:
-> 
-> 	if (atomic_read(v) < 0) {
+--==_Exmh_1588431168P
+Content-Type: text/plain; charset=us-ascii
 
-No, the code is OK.  It's telling us that we're about to take the counter
-negative, and that's a good predictor of a bug somewhere.
+On Wed, 17 Nov 2004 21:12:07 +0100, Grzegorz Piotr Jaskiewicz said:
 
-> So is this code wrong, or did I introduce an now-detected underflow with some
-> self-inflicted patch that this is picking up?
+> Anyway, does it mean that after max unsigned value is reached pids are 
+> going to be negative in value ??
 
-Dunno.  What was in the traces?
+No, because something in the /proc drivers will die of indigestion *much*
+sooner (I think it's some very low value like 64K or 128K on i386?)
+
+
+--==_Exmh_1588431168P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBm7jEcC3lWbTT17ARAjh/AJ43lH8Iz1n+dGyQkJvGcAihItjTGgCg7wRt
+GQWxDEfBfDDCK3mBOEiw7HA=
+=E20b
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1588431168P--

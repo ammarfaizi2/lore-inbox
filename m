@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315456AbSFDSWz>; Tue, 4 Jun 2002 14:22:55 -0400
+	id <S315762AbSFDS2x>; Tue, 4 Jun 2002 14:28:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315754AbSFDSWy>; Tue, 4 Jun 2002 14:22:54 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:28420 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S315456AbSFDSWw>; Tue, 4 Jun 2002 14:22:52 -0400
-Message-Id: <200206041822.g54IMLiq012827@pincoya.inf.utfsm.cl>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Jens Axboe <axboe@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.20 RAID5 compile error 
-In-Reply-To: Message from Martin Dalecki <dalecki@evision-ventures.com> 
-   of "Tue, 04 Jun 2002 16:24:17 +0200." <3CFCCD91.4020308@evision-ventures.com> 
-Date: Tue, 04 Jun 2002 14:22:21 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S315870AbSFDS2w>; Tue, 4 Jun 2002 14:28:52 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:10252 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S315762AbSFDS2v>; Tue, 4 Jun 2002 14:28:51 -0400
+Date: Tue, 4 Jun 2002 14:24:47 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre9, still USB freeze
+In-Reply-To: <20020529145010.21d01e80.skraw@ithnet.com>
+Message-ID: <Pine.LNX.3.96.1020604142039.5024A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki <dalecki@evision-ventures.com> said:
-> Well it's kind like the answer to the question: why don't do it all in hand
-> optimized assembler? Or in other words - let's give the GCC guys good
-> reasons for more hard work. But more seriously:
-> 
-> Things like unlikely() tricks and other friends seldomly really
-> pay off if applied randomly. But they can:
-> 
-> 1. Have quite contrary effects to what one would expect due to
-> the fact that one is targetting a single instruction set but in
-> reality multiple very different CPU archs or even multiple archs.
-> 
-> 2. Changes/improvements to the compiler.
-> 
-> My personal rule of thumb is - don't do something like the
-> above unless you did:
-> 
-> 1. Some real global profiling.
-> 2. Some real CPU cycle counting on the micro level.
-> 3. You really have too. (This should be number 1!)
+On Wed, 29 May 2002, Stephan von Krawczynski wrote:
 
-Anybody trying to tune code should read (and learn by heart):
+> as noted for pre8, pre9 freezes still, when connecting a sandisk SDDR-05 to USB
+> (only device attached), and trying to mount some compact-flash. Or, as an
+> alternative test, even with no compact flash inserted, when starting up
+> xcdroast. Both completely freezes the machine.
+> 
+> pre6 was ok.
 
-@Book{bentley82:_writing_eff_progr,
-  author =	 {Jon Louis Bentley},
-  title = 	 {Writing Efficient Programs},
-  publisher = 	 {Prentice Hall},
-  year = 	 1982
-}
+I have been seeing lockups on the same kernels with compact flash and a
+dual PCMCIA adaptor in an SMP machine. Prior to pre7 the kernel PCMCIA
+would take forever (longer than overnight) to access the device, while
+disabling the kernel PCMCIA and using the separate modules works.
 
-(sadly out of print AFAIK)
+The kernel stuff works fine in a uni laptop, so hard to tell where the
+problem lies, other than I think you mentioned being SMP also?
+
+Random semi-relevant facts, hopefully useful to someone.
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

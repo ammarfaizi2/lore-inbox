@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266295AbRGJNZ5>; Tue, 10 Jul 2001 09:25:57 -0400
+	id <S266301AbRGJNdh>; Tue, 10 Jul 2001 09:33:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266296AbRGJNZr>; Tue, 10 Jul 2001 09:25:47 -0400
-Received: from weta.f00f.org ([203.167.249.89]:35970 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S266295AbRGJNZc>;
-	Tue, 10 Jul 2001 09:25:32 -0400
-Date: Wed, 11 Jul 2001 01:25:24 +1200
+	id <S266303AbRGJNd2>; Tue, 10 Jul 2001 09:33:28 -0400
+Received: from weta.f00f.org ([203.167.249.89]:36738 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S266301AbRGJNdS>;
+	Tue, 10 Jul 2001 09:33:18 -0400
+Date: Wed, 11 Jul 2001 01:33:11 +1200
 From: Chris Wedgwood <cw@f00f.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <andrewm@uow.edu.au>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: msync() bug
-Message-ID: <20010711012524.A31799@weta.f00f.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Craig Soules <soules@happyplace.pdl.cmu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: NFS Client patch
+Message-ID: <20010711013311.B31799@weta.f00f.org>
+In-Reply-To: <Pine.LNX.3.96L.1010709131315.16113O-200000@happyplace.pdl.cmu.edu.suse.lists.linux.kernel> <oupbsmueyv8.fsf@pigdrop.muc.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010709170835.J1594@athlon.random>
+In-Reply-To: <oupbsmueyv8.fsf@pigdrop.muc.suse.de>
 User-Agent: Mutt/1.3.18i
 X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(cc' list snipped)
+On Mon, Jul 09, 2001 at 08:33:31PM +0200, Andi Kleen wrote:
 
-This stuff is gold.
+    Actually all the file systems who do that on Linux (JFS, XFS,
+    reiserfs) have fixed the issue properly server side, by adding a
+    layer that generates stable cookies. You should too.
 
-Anyone clueful want to comment things so this will end up in the
-documentation when you do a make docbook or something?
+I've always thought that was a stupid fix. Why not have the clients be
+smarted and make them responsible for getting a new cookie if the old
+one is hosed?
 
-Having access to simple facts like this is of so much value to those
-of us who simply just don't have the time and/or exposure and many of
-you (oh, and of course some of us just aren't as clever and need a
-little more help!)
-
+For linux, with the dcache, I'm not even sure that this would be all
+the hard. Persumable Solaris could (does?) do the same?
 
 
 
   --cw
-
-
-On Mon, Jul 09, 2001 at 05:08:35PM +0200, Andrea Arcangeli wrote:
-
-    On Tue, Jul 10, 2001 at 12:43:12AM +1000, Andrew Morton wrote:
-
-    > If the physical address of the page is somewhere inside our
-    > working RAM.
-    
-    correct.
-    
-    > > !PageReserved(page)
-    > 
-    > And it's not a reserved page (discontigmem?)
-    
-    yes, but it's not discontigmem issue, it is the other way around (page
-    structure is valid but it maps to non ram, like the 640k-1M region that
-    we have the page structure for, we don't use discontigmem for it because
-    the hole is too smalle, but it is non ram, or also normal ram mapped by
-    some device as dma region).
-    
-    > > ptep_test_and_clear_dirty(ptep))
-    > 
-    > And if it was modified via this mapping
-    
-    yes.
-    
-    > 
-    > > +                       flush_tlb_page(vma, address);
-    > > +                       set_page_dirty(page);
-    > 
-    > Question:  What happens if a program mmap's a part of /dev/mem
-    > which passes all of these tests?   Couldn't it then pick some
-    
-    that cannot happen, remap_pte_range only maps invalid pages or reserved
-    pages.
-    

@@ -1,73 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbTFZPPh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 11:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbTFZPPh
+	id S261939AbTFZP05 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 11:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTFZP05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 11:15:37 -0400
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:40886 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S261876AbTFZPPf
+	Thu, 26 Jun 2003 11:26:57 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:12191 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261939AbTFZP04
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 11:15:35 -0400
-Date: Thu, 26 Jun 2003 11:29:46 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: inode problem?
-Message-ID: <20030626152946.GN21580@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2xzXx3ruJf7hsAzo"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Thu, 26 Jun 2003 11:26:56 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16123.5139.767962.494409@laputa.namesys.com>
+Date: Thu, 26 Jun 2003 19:41:07 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: inode problem?
+In-Reply-To: <20030626152946.GN21580@rdlg.net>
+References: <20030626152946.GN21580@rdlg.net>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
+X-Uboat-Death-Message: TORPEDOED BY CORVETTE. TORPEDOS. LEAVE BOAT. U-383.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert L. Harris writes:
+ > 
+ > 
+ >   I have a system at work that seems to have an ext3 filesystem made 
+ > with -T largefile when it really shouldn't have and is running low on 
+ > inodes.  A co-worker has mentioned that reiserfs doesn't have inode 
+ > problems.  I tried to look this up but am having problems 
+ > verifying/denying this:
+ > 
+ > {0}:Documentation>host www.reiserfs.org
+ > www.reiserfs.org does not exist, try again
 
---2xzXx3ruJf7hsAzo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+$ host www.reiserfs.org
+www.reiserfs.org has address 212.16.7.65
 
+(you can also use namesys.com)
 
+ > 
+ > Whois also doesn't return anything.  Anyone have any proof either way
+ > and news on the current stability of reiserfs in the 2.4.21 tree?
 
-  I have a system at work that seems to have an ext3 filesystem made=20
-with -T largefile when it really shouldn't have and is running low on=20
-inodes.  A co-worker has mentioned that reiserfs doesn't have inode=20
-problems.  I tried to look this up but am having problems=20
-verifying/denying this:
+It exists and is stable.
 
-{0}:Documentation>host www.reiserfs.org
-www.reiserfs.org does not exist, try again
+ > 
+ > Robert
+ > 
 
-Whois also doesn't return anything.  Anyone have any proof either way
-and news on the current stability of reiserfs in the 2.4.21 tree?
+Nikita.
 
-Robert
-
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---2xzXx3ruJf7hsAzo
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE++xFq8+1vMONE2jsRAnbtAJ9MeA2SiG10GcBAxYmdDG47cRuZyACffzVu
-Q5CnMFHMZgISeHguDdhaFuU=
-=cjUe
------END PGP SIGNATURE-----
-
---2xzXx3ruJf7hsAzo--
+ > 

@@ -1,80 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbTLPOQm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 09:16:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTLPOQm
+	id S261660AbTLPOkm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 09:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTLPOkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 09:16:42 -0500
-Received: from pool-68-237-24-107.ny325.east.verizon.net ([68.237.24.107]:25103
-	"HELO pool-68-237-24-107.ny325.east.verizon.net") by vger.kernel.org
-	with SMTP id S261719AbTLPOQk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 09:16:40 -0500
-Message-ID: <3c$-$s76kugs3r1s@jeo.13hw6x>
-From: "Fredrick Albright" <c3fchb@yahoo.com>
-Reply-To: "Fredrick Albright" <c3fchb@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE:Alprazolam.m Valium.m Vicodin.n Xanax.x jupellsun
-Date: Tue, 16 Dec 03 08:23:04 GMT
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+	Tue, 16 Dec 2003 09:40:42 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:13839 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261660AbTLPOkl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 09:40:41 -0500
+Message-ID: <3FDF1C03.2020509@aitel.hist.no>
+Date: Tue, 16 Dec 2003 15:51:47 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="E.0B._74F_3._C8FD"
-X-Priority: 3
-X-MSMail-Priority: Normal
+To: jw schultz <jw@pegasys.ws>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: raid0 slower than devices it is assembled of?
+References: <200312151434.54886.adasi@kernel.pl> <20031216040156.GJ12726@pegasys.ws>
+In-Reply-To: <20031216040156.GJ12726@pegasys.ws>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jw schultz wrote:
 
---E.0B._74F_3._C8FD
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
+> No Linux [R]AID improves sequential performance.  How would
+> reading 65KB from two disks in alternation be faster than
+> reading continuously from one disk?
+> 
+Raid-0 is ideally N times faster than a single disk, when
+you have N disks.  Because you can read continuously from N
+disks instead of from 1, thereby N-doubling the bandwith.
 
-Many Specials running this week
+Wether the current drivers manages that is of course another story.
 
-THE RE.AL THING
-not like the other sites that 
-imitate these products.
+Helge Hafting
 
-No hidd.en char.ges - Fast Delivery
-
-Vic.odin Val.ium Xan.ax
-
-Via.gra Diaz.epam Alpra.zolam
-
-So.ma Fior.icet Amb.ien
-
-Stil.nox Ult.ram Zo.loft
-
-Clon.azepam At.ivan Tr.amadol
-
-Xeni.cal Cele.brex Vi.oxx
-
-Pro.zac Bus.par Much M.ore....
-
-http://www.dealsforu.biz/l/110/index.htm
-
-
-
-
-
-
-If you have recieved this in error
-please use
-http://www.dealsforu.biz/optout.html
-
-
-
-
-
-hl  mrch
-uly
-yd pzdhqpyt
-fdkel fexrjv
-pchupuso
-n zw eahzgliz
-un t hst
-v
-
---E.0B._74F_3._C8FD--
 

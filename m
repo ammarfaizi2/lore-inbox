@@ -1,88 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263687AbUGLVZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUGLVc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263687AbUGLVZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 17:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUGLVZZ
+	id S263713AbUGLVc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 17:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbUGLVc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 17:25:25 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:44944 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263687AbUGLVZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 17:25:11 -0400
-Subject: Re: desktop and multimedia as an afterthought?
-From: Florin Andrei <florin@andrei.myip.org>
-Reply-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0407121507530.20260-100000@coffee.psychology.mcmaster.ca>
-References: <Pine.LNX.4.44.0407121507530.20260-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain
-Message-Id: <1089667506.15341.81.camel@stantz.corp.sgi.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 12 Jul 2004 14:25:06 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jul 2004 17:32:27 -0400
+Received: from mail013.syd.optusnet.com.au ([211.29.132.67]:38277 "EHLO
+	mail013.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263713AbUGLVcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 17:32:25 -0400
+Message-ID: <40F30364.5020405@kolivas.org>
+Date: Tue, 13 Jul 2004 07:32:20 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc1 -ck snapshot
+References: <40F2A9C9.2040107@kolivas.org> <40F2B4C6.5010307@vision.ee>
+In-Reply-To: <40F2B4C6.5010307@vision.ee>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigACC8315636F9C6C0FDCCC6FE"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-07-12 at 12:12, Mark Hahn wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigACC8315636F9C6C0FDCCC6FE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-> > The CK patches floated around as separate patches for a long time, even
-> > though they brought significant improvements to the kernel w.r.t.
-> > desktop and media.
+Lenar Lõhmus wrote:
+> Hi,
 > 
-> how do you show this?  measured how, under what load, with what benefits?
-
-Run the vanilla kernel. Run Ardour to do the digital audio work, plus a
-sequencer (Rosegarden, Muse, Seq24) to drive the MIDI gear. Do a
-multitrack record.
-If you fiddle too much with Mozilla and/or Evolution, GIMP, gThumb,
-OpenOffice while doing the record session, Ardour will skip parts of the
-tracks.
-
-Repeat everything, using a CK kernel instead (or the kernel provided by
-PlanetCCRMA). No amounts of Mozilla/Evolution/etc normal usage will make
-Ardour skip anything.
-
-Want numbers?
-0 skips if running the CK/PlanetCCRMA kernel.
->0 skips if running vanilla kernel.
-
-Anything more than 0 is not acceptable for this type of usage.
-
-System is:
-AthlonXP/1800, 512MB RAM, NForce1 mobo, Audigy2, ALSA, Fedora 2 and
-various flavours of Linux-2.6 (similar results with Red Hat 9 and
-Linux-2.4)
-Similar results reported by almost anyone doing sound studio type of
-work with Linux, on a large variety of hardware.
-
-> > And rightly so. If i reboot my computer into Windows and perform the
-> > same multimedia tasks, there are fewer chances of it skipping frames or
+> Con Kolivas wrote:
 > 
-> this normally shows only that windows drivers are better.
+>> I've posted a snapshot of the current -ck development against 2.6.8-rc1
+> 
+> 
+> Just compiled it, found one minor problem (2.6.8-rc1-ck5+reiserfs4)
+> which was fixed like this (maybe reiserfs4 patch is the offender):
 
-Which drivers? Sound card?
+Thanks. The reiser4 snapshot was not part of the full snapshot for 
+safety reasons so I never quite got to fixing it. I'll update the 
+reiser4 snapshot in that directory soon.
 
-The same issues manifest when doing an all-internal record.
+Cheers,
+Con
 
-E.g.: run a softsynth (a software that generates sound, such as
-Specimen, AlsaModularSynth or ZynAddSubFX) and route the output to JACK.
-Run some LADSPA effects (reverb, chorus, flanger) on top of the JACK
-pipe for good measure. At the other end of the JACK pipe run Ardour,
-Audacity or any other DAW (digital audio workstation) software. Add a
-few more softsynth instances, and drive them via a sequencer.
-All sound is routed inside the computer. It never touches the sound
-card. Any driver that's involved is the IDE or SCSI driver (because the
-DAW dumps the audio tracks onto the hard-drive). Even if the driver was
-defective, it wouldn't probably matter, because of the multiple levels
-of caching that are involved.
+--------------enigACC8315636F9C6C0FDCCC6FE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Yet the exact same problems happen (skipping parts of the tracks if
-system is only marginally used by other apps), with the exact same
-solution (apply the CK patches to the kernel).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
--- 
-Florin Andrei
+iD8DBQFA8wNkZUg7+tp6mRURAkINAKCJ1x7r8PT1S/pyyDzznLeb5to6EwCfc4YP
+cCPNRKIdSHhpd57kCByjuFI=
+=NqpW
+-----END PGP SIGNATURE-----
 
-http://florin.myip.org/
-
+--------------enigACC8315636F9C6C0FDCCC6FE--

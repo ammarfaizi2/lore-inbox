@@ -1,88 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbUK3Q25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUK3Q3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbUK3Q25 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 11:28:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUK3Q24
+	id S262176AbUK3Q3w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 11:29:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbUK3Q3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 11:28:56 -0500
-Received: from postman1.arcor-online.net ([151.189.20.156]:41669 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S262164AbUK3Q2l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 11:28:41 -0500
-Message-ID: <33560.194.39.131.40.1101824878.squirrel@noto.dyndns.org>
-Date: Tue, 30 Nov 2004 15:27:58 +0100 (CET)
-Subject: growisofs / system load / dma setting
-From: "Thomas Fritzsche" <tf@noto.de>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Tue, 30 Nov 2004 11:29:52 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:29190 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262176AbUK3Q3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 11:29:45 -0500
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+In-Reply-To: <Pine.LNX.4.58.0411300751570.22796@ppc970.osdl.org>
+References: <19865.1101395592@redhat.com>
+	 <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+	 <1101406661.8191.9390.camel@hades.cambridge.redhat.com>
+	 <20041127032403.GB10536@kroah.com>
+	 <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
+	 <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
+	 <1101828924.26071.172.camel@hades.cambridge.redhat.com>
+	 <Pine.LNX.4.58.0411300751570.22796@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1101832116.26071.236.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Tue, 30 Nov 2004 16:28:36 +0000
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linux-Hackers,
+On Tue, 2004-11-30 at 07:58 -0800, Linus Torvalds wrote:
+> The fact is, despite this stupid and way-too-long thread, #ifdef 
+> __KERNEL__ has worked for over a decade, and works damn well, everything 
+> considered. 
 
-I posted this message first to the cdwriter mailing list (
-http://www.mail-archive.com/cdwrite%40other.debian.org/msg07041.html )
-but they told me this is a kernel problem, thus I post it here again.
-Because I had this DVD-Device running without problem in 2.6.8 I can
-exclude that it's a cabel/hw-problem.
+I don't agree with that. The current setup is a complete PITA and that's
+why people are clamouring for us to clean the crap up.
 
-Thanks and regards,
- Thomas Fritzsche
----------------------------------------
-Hi all,
+But if you feel this strongly about it, then let's go ahead with the
+existing mess. We can add more ifdef __KERNEL__ and add rules to the
+makefiles to export it for userspace, generating something like the
+existing glibc-kernheaders setup. And of course we can look at the
+better alternative 'annotations' instead of using #ifdef __KERNEL__.
 
-I'm using growisofs -Z /dev/hdc=/link/to/iso.iso to burn DVD-Video's. This
-works, BUT the system load is very high while burning. I'l checked DMA
-setting but DMA is on (and 32 bit). I googled around but can not find a
-solution. I tried again and found that after burning dma is off!? I
-checked dmesg and found message:
---------------------------------------
-hdc: irq timeout: status=0xd0 { Busy }
-hdc: irq timeout: error=0xd0LastFailedSense 0x0d
-hdc: DMA disabled
-hdc: ATAPI reset complete
---------------------------------------
-I tested a few times and sometimes only the system load is very high but
-DMA  is still set after the run, but often DMA setting is disabled and I
-get the message above.
+I think we'll all hate it, and I don't think it's going to really fix
+the problem. But we can always reconsider the position later.
 
-My system configuration is:
+> Same thing here. The __KERNEL__ approach says "whatever you want, boss".  
+> It doesn't get in the way. Maybe it doesn't actively _help_ you either,
+> but you never have to fight any structure it imposes on you.
 
-uname -a
-Linux vdr.noto.de 2.4.27-ctvdr-1 #1 Fri Oct 15 18:38:29 UTC 2004 i686
-GNU/Linux
+Having to think before adding something that's user visible is a
+_benefit_ not a disadvantage.
 
-hdparm -i /dev/hdc
-
-
-/dev/hdc:
-
- Model=_NEC DVD_RW ND-3500AG, FwRev=2.16, SerialNo=
- Config={ Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 *udma2
- AdvancedPM=no
-
- * signifies the current active mode
-
-------------------------------
-
-Is this a growisofs problem or a kernel problem? What causes this trouble?
-What can I do to avoid this problems.
-
-Thanks for any help and kind regards,
- Thomas Fritzsche
-
-
+-- 
+dwmw2
 

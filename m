@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbUCILcj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 06:32:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbUCILcj
+	id S261880AbUCILfU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 06:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbUCILfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 06:32:39 -0500
-Received: from [218.22.21.1] ([218.22.21.1]:64114 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S261879AbUCILcf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 06:32:35 -0500
-Date: Tue, 9 Mar 2004 19:28:25 +0800
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fadvise invalidating range fix
-Message-ID: <20040309112825.GA4150@mail.ustc.edu.cn>
-References: <20040308130754.GA5204@mail.ustc.edu.cn> <20040308120322.118a640b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040308120322.118a640b.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: WU Fengguang <wfg@mail.ustc.edu.cn>
+	Tue, 9 Mar 2004 06:35:19 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:42190 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S261880AbUCILfL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 06:35:11 -0500
+Message-ID: <404DABEC.4070605@stesmi.com>
+Date: Tue, 09 Mar 2004 12:35:08 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7a) Gecko/20040219
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bjoern Schmidt <lucky21@uni-paderborn.de>
+CC: len.brown@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: fsb of older cpu
+References: <A6974D8E5F98D511BB910002A50A6647615F47CB@hdsmsx402.hd.intel.com> <1078815523.2342.535.camel@dhcppc4> <404DA7A8.4090109@uni-paderborn.de>
+In-Reply-To: <404DA7A8.4090109@uni-paderborn.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 08, 2004 at 12:03:22PM -0800, Andrew Morton wrote:
-> WU Fengguang <wfg@mail.ustc.edu.cn> wrote:
-> >
-> > 
-> >  - When 'offset' and/or 'offset+len' do no align to page boundary, we must
-> >    decide whether to abandon the partial page at the beginning/end of the range. 
-> >    My patch assumes that the application is scanning forward,
-> >    which is the most common case.
-> >    So 'end_index' is set to the page just before the ending partial page.
-> 
-> If you're going to preserve the partial page at `end' (which seems
-> reasonable) then you should also preserve the partial page at `start', don't
-> you agree?
-> 
-> -	start_index = offset >> PAGE_CACHE_SHIFT;
-> +	start_index = (offset + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
-> 
-In fact, it depends on the access pattern.
-I would expect the normal usage of fadvise to be:
-	
-	for() {
-		read() and consume() data in [offset, offset+LEN);
-		fadvise(fd, offset, LEN, POSIX_FADV_DONTNEED);
-		offset += LEN; /*scanning forward*/
-	}
-	
-In this case, the partial page at `start' should be freed.
-Certainly there may be other patterns. 
+Hi Bjoern.
 
-I wonder the best solution in kernel is to code in favor of the normal case,
-and the best(safe and portable) practice in usermode code is to always align
-'offset' and 'offset+len' to page boundaries.
-And some comment in the manual page of posix_fadvise is recommended.
+> In the System Programming Guide i can read that i can reprogram the
+> clock multiplier by setting RESET# to low and A20M#, IGNNE#, LINT[1]
+> and LINT[0] to 1111 for 1/2. Unfortunately i dont know how to
+> program this in assembler code, i can several programming
+> languages, but not yet asm :(
+> Can you recommend a good online book?
+
+Think for a moment what happens when you pull RESET# low :)
+
+It... resets the chip thereby resetting the computer.
+
+It also (as far as I know) can't be pulled low by software.
+
+Neither can the other pins.
+
+// Stefan

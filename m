@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262877AbSJAWVp>; Tue, 1 Oct 2002 18:21:45 -0400
+	id <S262878AbSJAW0X>; Tue, 1 Oct 2002 18:26:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262868AbSJAWUG>; Tue, 1 Oct 2002 18:20:06 -0400
-Received: from packet.digeo.com ([12.110.80.53]:29421 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262863AbSJAWSN>;
-	Tue, 1 Oct 2002 18:18:13 -0400
-Message-ID: <3D9A207A.14BFF440@digeo.com>
-Date: Tue, 01 Oct 2002 15:23:54 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Boman <aboman@nerdfest.org>,
-       "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.39 "Sleeping function called from illegal context at 
- slab.c:1374"
-References: <3D99885B.533C320D@aitel.hist.no> <3D99EF62.3A3E6932@digeo.com> <20021001215907.GA8273@midgaard.us>
+	id <S262866AbSJAWUB>; Tue, 1 Oct 2002 18:20:01 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:16900 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262865AbSJAWSV>;
+	Tue, 1 Oct 2002 18:18:21 -0400
+Date: Mon, 30 Sep 2002 06:40:40 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Gustafson, Geoffrey R" <geoffrey.r.gustafson@intel.com>,
+       "'Andy Pfiffer'" <andyp@osdl.org>, cgl_discussion@osdl.org,
+       "Rhoads, Rob" <rob.rhoads@intel.com>,
+       hardeneddrivers-discuss@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Hardeneddrivers-discuss] RE: [cgl_discussion] Some Initial Comments on DDH-Spec-0.5h.pdf
+Message-ID: <20020930064039.A159@toy.ucw.cz>
+References: <EDC461A30AC4D511ADE10002A5072CAD01FD8CEA@orsmsx119.jf.intel.com> <3D8FC2DA.3010107@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Oct 2002 22:23:30.0769 (UTC) FILETIME=[2BED7410:01C26999]
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3D8FC2DA.3010107@pobox.com>; from jgarzik@pobox.com on Mon, Sep 23, 2002 at 09:41:46PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Boman wrote:
+Hi!
+
+> > Most of what makes a 'good' driver is common for all purposes - things you
+> > mention like don't make the system hang, don't cause fatal exceptions. But
+> > there are some things that would be different between a desktop, embedded
+> > system, enterprise server, or carrier server. For instance, when there is a
+> > tradeoff between reliability and performance; when reliability is king, it
+> > might be wise to do an insane amount of parameter checking to offset the
+> > merest chance of an undetected bug crashing a system.
 > 
-> * Andrew Morton (akpm@digeo.com) wrote:
-> > Helge Hafting wrote:
-> > >
-> > > ..
-> > >  [<c01146c4>]__might_sleep+0x54/0x60
-> > >  [<c012dca0>]kmalloc+0x4c/0x130
-> > >  [<c010b6b2>]sys_ioperm+0x82/0x11c
-> > >  [<c0106fbb>]syscall_call+0x7/0xb
-> > >
-> >
-> >
-> > You up to trying this fix?
-> >
-> 
-> This patch on 2.3.40+xfsfix didnt change anything here, while my trace
-> does look different it seems to be related.
+> This is not a valid example.  We do not make tradeoffs between 
+> performance and reliability.  Reliability _always_ comes first.  If it 
+> did not, it's a bug.
 
-It's different.
+No. We do run all drivers in *one* addressspace. That's bad for reliability.
 
-> I get a similar oops when ide initializes during boot,
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-It's not an oops.  It's just a warning.
-
-> 
->  Debug: sleeping function called from illegal context at slab.c:1374
-
-See?  I added "Debug:" to the message ;)
-
->  Call Trace:
->   [__kmem_cache_alloc+255/272]__kmem_cache_alloc+0xff/0x110
->   [get_vm_area+38/256]get_vm_area+0x26/0x100
->   [__vmalloc+75/304]__vmalloc+0x4b/0x130
->   [vmalloc+34/48]vmalloc+0x22/0x30
->   [<e08fe502>]sg_init+0x82/0x130 [sg]
->   [<e09022c7>].rodata.str1.1+0x23/0x2b0 [sg]
->   [<e0903be0>]sg_fops+0x0/0x58 [sg]
->   [<e0903b20>]sg_template+0x0/0x94 [sg]
-
-That is known - sg_init() is blatantly calling vmalloc under
-write_lock_irqsave().

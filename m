@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263303AbTLBS1x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 13:27:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTLBS1w
+	id S262731AbTLBSQv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 13:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbTLBSQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 13:27:52 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:31492 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263303AbTLBS1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 13:27:51 -0500
-Date: Tue, 2 Dec 2003 18:27:46 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Murthy Kambhampaty <murthy.kambhampaty@goeci.com>,
-       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: XFS for 2.4
-Message-ID: <20031202182746.A27964@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Murthy Kambhampaty <murthy.kambhampaty@goeci.com>,
-	'Marcelo Tosatti' <marcelo.tosatti@cyclades.com>,
-	Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
-	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-	Andrew Morton <akpm@osdl.org>
-References: <2D92FEBFD3BE1346A6C397223A8DD3FC0924C8@THOR.goeci.com> <20031202180251.GB17045@work.bitmover.com> <20031202181146.A27567@infradead.org> <20031202182037.GD17045@work.bitmover.com> <20031202182346.A27914@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031202182346.A27914@infradead.org>; from hch@infradead.org on Tue, Dec 02, 2003 at 06:23:46PM +0000
+	Tue, 2 Dec 2003 13:16:51 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:25472 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262731AbTLBSQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 13:16:22 -0500
+Date: Tue, 2 Dec 2003 18:20:04 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200312021820.hB2IK4Wv000220@81-2-122-30.bradfords.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031202160853.GB22608@gtf.org>
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet>
+ <200312011226.04750.nbensa@gmx.net>
+ <20031202115436.GA10288@physik.tu-cottbus.de>
+ <20031202120315.GK13388@conectiva.com.br>
+ <20031202131311.GA10915@physik.tu-cottbus.de>
+ <3FCC95BB.60205@wmich.edu>
+ <20031202160136.GB10915@physik.tu-cottbus.de>
+ <20031202160853.GB22608@gtf.org>
+Subject: Re: Linux 2.4 future
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 06:23:46PM +0000, Christoph Hellwig wrote:
-> On Tue, Dec 02, 2003 at 10:20:37AM -0800, Larry McVoy wrote:
-> > So what's wrong with asking $VFS_MAINTAINER to refresh Marcelo's memory
-> > about that?
+Quote from Jeff Garzik <jgarzik@pobox.com>:
+> On Tue, Dec 02, 2003 at 05:01:36PM +0100, Ionut Georgescu wrote:
+> > I can understand that, but I don't take 2.6 for an answer.  2.4 is not
+> > yet dead and it won't be for a long time, just as 2.2 has gotten to
+> > 2.2.25, although 2.4.0 was out when, 3 years ago ?
 > 
-> There is no such thing as a VFS maintainer.  At least Al doesn't want
-> to be in that position and I guess no one else would qualify (maybe
-> akpm)
+> 2.4 has continued life, yes.
+> 
+> But the real question is, should 2.4 continue to be developed?
+> 
+> I agree with Marcelo, increasingly the answer should be "No".  New
+> features and core changes should be intended for 2.6.  Bug fixes,
+> security errata, and the like will always be OK for 2.4.  Just like Alan
+> continues to release new 2.2.x releases, when major bugs are found.
 
-And akpm queued up most of these patches in -mm and revieved them
-before they went into 2.5, but he is (fortunately for him :))  on
-vacation so you shouldn't expect any respone from him here.
+Even doing that becomes increasingly difficult when you have fewer and
+fewer systems actually running the code.
 
+Backporting a security fix to 2.0.x, and touching some core code,
+could easily result in something breaking and it going unnoticed for
+months, especially if it is something that's hard to trigger.
+
+John.

@@ -1,219 +1,959 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUDBWEI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 17:04:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUDBWEH
+	id S261206AbUDBWH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 17:07:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUDBWH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 17:04:07 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28167 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261210AbUDBWDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 17:03:03 -0500
-Date: Fri, 2 Apr 2004 23:02:59 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David L <idht4n@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: serial port canonical mode weirdness?
-Message-ID: <20040402230259.C12306@flint.arm.linux.org.uk>
-Mail-Followup-To: David L <idht4n@hotmail.com>,
-	linux-kernel@vger.kernel.org
-References: <BAY2-F51LDp7mvjkO2200021e67@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <BAY2-F51LDp7mvjkO2200021e67@hotmail.com>; from idht4n@hotmail.com on Wed, Mar 31, 2004 at 04:44:32PM -0800
+	Fri, 2 Apr 2004 17:07:57 -0500
+Received: from data.daybyday.de ([213.191.85.38]:64399 "EHLO data.daybyday.de")
+	by vger.kernel.org with ESMTP id S261206AbUDBWC7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 17:02:59 -0500
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Transfer-Encoding: 7bit
+Message-Id: <7CA30FDE-84F1-11D8-8FED-000393C43976@postmail.ch>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Stefan Wanner <stefan.wanner@postmail.ch>
+Subject: SCSI generic support: Badness in kobject_get
+Date: Sat, 3 Apr 2004 00:02:52 +0200
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 31, 2004 at 04:44:32PM -0800, David L wrote:
-> When I configure a serial port for canonical mode (newtio.c_lflag = ICANON),
-> I get behavior that isn't what I'd expect.
->...
-> Is this a kernel bug or an ignorant user?  I might expect some
-> data to be lost if a buffer overruns, but I didn't expect this behavior.
+Hi
 
-It's a kernel bug.  There are actually three bugs:
+I have an Alpha AS400 with Debian Linux 3.0 and Kernel 2.6.3
+When I load the generic SCSI module with "moprobe sg" I get the 
+following warnings:
 
-1. when we receive a buffer-full of characters, followed by a new line,
-   we mark the first character of the buffer as being the last character
-   of that line.  (this is why you get one character returned.)
+Apr  2 23:48:58 alpha kernel: Badness in kobject_get at 
+lib/kobject.c:429
+Apr  2 23:48:58 alpha kernel: fffffc0008873d88 00000000000001ad 
+fffffc00003e9e90 0000000000000000
+Apr  2 23:48:58 alpha kernel:        fffffc00003e9964 fffffc000bdd1498 
+fffffc000037f094 fffffc000bdd1498
+Apr  2 23:48:58 alpha kernel:        fffffc000b181140 0000000000000001 
+fffffffffffffffb 0000000000000000
+Apr  2 23:48:58 alpha kernel:        fffffffc0026d858 fffffc000bdd1498 
+0000000001500000 fffffffc00254000
+Apr  2 23:48:58 alpha kernel:        0000000000000000 0000000000000000 
+fffffc00003e9788 fffffc000bd96830
+Apr  2 23:48:58 alpha kernel:        fffffc000041de2c fffffc000bdd16e8 
+fffffc00005c2a70 fffffffc00274fa0
+Apr  2 23:48:58 alpha kernel: Trace:fffffc00003e9e90 fffffc00003e9964 
+fffffc000037f094 fffffc00003e9788 fffffc000041de2c fffffc000043c424 
+fffffc00003492f4 fffffc0000313144 fffffc00003130a0
+Apr  2 23:48:58 alpha kernel: Attached scsi generic sg0 at scsi0, 
+channel 0, id 0, lun 0,  type 0
+Apr  2 23:48:58 alpha kernel: Badness in kobject_get at 
+lib/kobject.c:429
+Apr  2 23:48:58 alpha kernel: fffffc0008873d88 00000000000001ad 
+fffffc00003e9e90 0000000000000000
+Apr  2 23:48:58 alpha kernel:        fffffc00003e9964 fffffc000bdd0898 
+fffffc000037f094 fffffc000bdd0898
+Apr  2 23:48:58 alpha kernel:        fffffc000b1813c0 0000000000000001 
+fffffffffffffffb 0000000000000000
+Apr  2 23:48:58 alpha kernel:        fffffffc0026d858 fffffc000bdd0898 
+0000000001500001 fffffffc00274fa0
+Apr  2 23:48:58 alpha kernel:        0000000000000001 0000000000000000 
+0000000000000000 fffffc000bd96830
+Apr  2 23:48:58 alpha kernel:        fffffc000041de2c fffffc000bdd0ae8 
+fffffc00005c2a70 fffffffc00274fa0
+Apr  2 23:48:58 alpha kernel: Trace:fffffc00003e9e90 fffffc00003e9964 
+fffffc000037f094 fffffc000041de2c fffffc000043c424 fffffc00003492f4 
+fffffc0000313144 fffffc00003130a0
+Apr  2 23:48:58 alpha kernel: Attached scsi generic sg1 at scsi0, 
+channel 0, id 1, lun 0,  type 0
+Apr  2 23:48:58 alpha kernel: Badness in kobject_get at 
+lib/kobject.c:429
+Apr  2 23:48:58 alpha kernel: fffffc0008873d88 00000000000001ad 
+fffffc00003e9e90 0000000000000000
+Apr  2 23:48:58 alpha kernel:        fffffc00003e9964 fffffc000bd5bc98 
+fffffc000037f094 fffffc000bd5bc98
+Apr  2 23:48:58 alpha kernel:        fffffc000b181440 0000000000000001 
+fffffffffffffffb 0000000000000000
+Apr  2 23:48:58 alpha kernel:        fffffffc0026d858 fffffc000bd5bc98 
+0000000001500002 fffffffc00274fa0
+Apr  2 23:48:58 alpha kernel:        0000000000000002 0000000000000000 
+0000000000000000 fffffc000bd96830
+Apr  2 23:48:58 alpha kernel:        fffffc000041de2c fffffc000bd5bee8 
+fffffc00005c2a70 fffffffc00274fa0
+Apr  2 23:48:58 alpha kernel: Trace:fffffc00003e9e90 fffffc00003e9964 
+fffffc000037f094 fffffc000041de2c fffffc000043c424 fffffc00003492f4 
+fffffc0000313144 fffffc00003130a0
+Apr  2 23:48:58 alpha kernel: Attached scsi generic sg2 at scsi0, 
+channel 0, id 4, lun 0,  type 5
+Apr  2 23:48:58 alpha kernel: Badness in kobject_get at 
+lib/kobject.c:429
+Apr  2 23:48:58 alpha kernel: fffffc0008873d88 00000000000001ad 
+fffffc00003e9e90 0000000000000000
+Apr  2 23:48:58 alpha kernel:        fffffc00003e9964 fffffc000bd5b098 
+fffffc000037f094 fffffc000bd5b098
+Apr  2 23:48:58 alpha kernel:        fffffc000b1814c0 0000000000000001 
+fffffffffffffffb 0000000000000000
+Apr  2 23:48:58 alpha kernel:        fffffffc0026d858 fffffc000bd5b098 
+0000000001500003 fffffffc00274fa0
+Apr  2 23:48:58 alpha kernel:        0000000000000003 0000000000000000 
+0000000000000005 fffffc000bd96830
+Apr  2 23:48:58 alpha kernel:        fffffc000041de2c fffffc000bd5b2e8 
+fffffc00005c2a70 fffffffc00274fa0
+Apr  2 23:48:58 alpha kernel: Trace:fffffc00003e9e90 fffffc00003e9964 
+fffffc000037f094 fffffc000041de2c fffffc000043c424 fffffc00003492f4 
+fffffc0000313144 fffffc00003130a0
+Apr  2 23:48:58 alpha kernel: Attached scsi generic sg3 at scsi0, 
+channel 0, id 5, lun 0,  type 5
 
-2. when the new line is received, we have no buffer space to store it.
-   with (1) fixed, this results in the canon head never being reached,
-   so future read() calls returning zero without waiting.
 
-3. we don't atomically add two and three byte character sequences to the
-   buffer, so it's possible to have incomplete sequences in the buffer.
+The CD burner seems to work. So should I care about those messages? 
+Where do they come from? In 2.4.x I didn't have them.
 
-This patch fixes all three (according to my rudimentary testing here),
-though please test it anyway.
 
-Please note that this actually means that we can only receive 4094
-characters before we overrun the buffer instead of 4096, even in raw
-mode.
+Regards,
+Stefan
 
---- orig/drivers/char/n_tty.c	Sat Feb 28 10:09:05 2004
-+++ linux/drivers/char/n_tty.c	Fri Apr  2 22:57:27 2004
-@@ -83,24 +83,30 @@ static inline void free_buf(unsigned cha
- 		free_page((unsigned long) buf);
- }
- 
--static inline void put_tty_queue_nolock(unsigned char c, struct tty_struct *tty)
-+static inline void put_tty_queue_nolock(struct tty_struct *tty, unsigned char *s, int num)
- {
--	if (tty->read_cnt < N_TTY_BUF_SIZE) {
--		tty->read_buf[tty->read_head] = c;
--		tty->read_head = (tty->read_head + 1) & (N_TTY_BUF_SIZE-1);
--		tty->read_cnt++;
-+	if (tty->read_cnt + num < N_TTY_BUF_SIZE) {
-+		while (num--) {
-+			tty->read_buf[tty->read_head] = *s++;
-+			tty->read_head = (tty->read_head + 1) & (N_TTY_BUF_SIZE-1);
-+			tty->read_cnt++;
-+		}
- 	}
- }
- 
--static inline void put_tty_queue(unsigned char c, struct tty_struct *tty)
-+static inline void put_tty_queue(struct tty_struct *tty, unsigned char *s, int num)
- {
- 	unsigned long flags;
- 	/*
- 	 *	The problem of stomping on the buffers ends here.
- 	 *	Why didn't anyone see this one coming? --AJK
-+	 *
-+	 *	We must allow two spare characters for the EOL
-+	 *	character(s). --rmk
- 	*/
- 	spin_lock_irqsave(&tty->read_lock, flags);
--	put_tty_queue_nolock(c, tty);
-+	if (tty->read_cnt + num < N_TTY_BUF_SIZE - 2)
-+		put_tty_queue_nolock(tty, s, num);
- 	spin_unlock_irqrestore(&tty->read_lock, flags);
- }
- 
-@@ -481,6 +487,9 @@ static inline void isig(int sig, struct 
- 
- static inline void n_tty_receive_break(struct tty_struct *tty)
- {
-+	unsigned char str[3];
-+	int idx = 0;
-+
- 	if (I_IGNBRK(tty))
- 		return;
- 	if (I_BRKINT(tty)) {
-@@ -488,10 +497,11 @@ static inline void n_tty_receive_break(s
- 		return;
- 	}
- 	if (I_PARMRK(tty)) {
--		put_tty_queue('\377', tty);
--		put_tty_queue('\0', tty);
-+		str[idx++] = '\377';
-+		str[idx++] = '\0';
- 	}
--	put_tty_queue('\0', tty);
-+	str[idx++] = '\0';
-+	put_tty_queue(tty, str, idx);
- 	wake_up_interruptible(&tty->read_wait);
- }
- 
-@@ -511,26 +521,32 @@ static inline void n_tty_receive_overrun
- static inline void n_tty_receive_parity_error(struct tty_struct *tty,
- 					      unsigned char c)
- {
-+	unsigned char str[3];
-+	int idx = 0;
-+
- 	if (I_IGNPAR(tty)) {
- 		return;
- 	}
- 	if (I_PARMRK(tty)) {
--		put_tty_queue('\377', tty);
--		put_tty_queue('\0', tty);
--		put_tty_queue(c, tty);
-+		str[idx++] = '\377';
-+		str[idx++] = '\0';
-+		str[idx++] = c;
- 	} else	if (I_INPCK(tty))
--		put_tty_queue('\0', tty);
-+		str[idx++] = '\0';
- 	else
--		put_tty_queue(c, tty);
-+		str[idx++] = c;
-+	put_tty_queue(tty, str, idx);
- 	wake_up_interruptible(&tty->read_wait);
- }
- 
- static inline void n_tty_receive_char(struct tty_struct *tty, unsigned char c)
- {
- 	unsigned long flags;
-+	unsigned char str[3];
-+	int idx;
- 
- 	if (tty->raw) {
--		put_tty_queue(c, tty);
-+		put_tty_queue(tty, &c, 1);
- 		return;
- 	}
- 	
-@@ -574,9 +590,11 @@ static inline void n_tty_receive_char(st
- 				tty->canon_column = tty->column;
- 			echo_char(c, tty);
- 		}
-+		idx = 0;
- 		if (I_PARMRK(tty) && c == (unsigned char) '\377')
--			put_tty_queue(c, tty);
--		put_tty_queue(c, tty);
-+			str[idx++] = c;
-+		str[idx++] = c;
-+		put_tty_queue(tty, str, idx);
- 		return;
- 	}
- 		
-@@ -613,6 +631,7 @@ send_signal:
- 		}
- 	}
- 	if (tty->icanon) {
-+		idx = 0;
- 		if (c == ERASE_CHAR(tty) || c == KILL_CHAR(tty) ||
- 		    (c == WERASE_CHAR(tty) && L_IEXTEN(tty))) {
- 			eraser(c, tty);
-@@ -678,12 +697,13 @@ send_signal:
- 			 * EOL_CHAR and EOL2_CHAR?
- 			 */
- 			if (I_PARMRK(tty) && c == (unsigned char) '\377')
--				put_tty_queue(c, tty);
-+				str[idx++] = c;
- 
- 		handle_newline:
-+			str[idx++] = c;
- 			spin_lock_irqsave(&tty->read_lock, flags);
- 			set_bit(tty->read_head, tty->read_flags);
--			put_tty_queue_nolock(c, tty);
-+			put_tty_queue_nolock(tty, str, idx);
- 			tty->canon_head = tty->read_head;
- 			tty->canon_data++;
- 			spin_unlock_irqrestore(&tty->read_lock, flags);
-@@ -710,10 +730,13 @@ send_signal:
- 		}
- 	}
- 
-+	idx = 0;
- 	if (I_PARMRK(tty) && c == (unsigned char) '\377')
--		put_tty_queue(c, tty);
-+		str[idx++] = c;
-+
-+	str[idx++] = c;
- 
--	put_tty_queue(c, tty);
-+	put_tty_queue(tty, str, idx);
- }	
- 
- static int n_tty_receive_room(struct tty_struct *tty)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+alpha:~# uname -a
+Linux alpha 2.6.4 #23 Fri Apr 2 23:39:04 CEST 2004 alpha GNU/Linux
+alpha:~# gcc -v
+Reading specs from /usr/lib/gcc-lib/alpha-linux/2.95.4/specs
+gcc version 2.95.4 20011002 (Debian prerelease)
+alpha:~# ld -v
+GNU ld version 2.14.90.0.7 20031029 Debian GNU/Linux
+
+
+.config:
+
+#
+# Automatically generated make config: don't edit
+#
+CONFIG_ALPHA=y
+CONFIG_64BIT=y
+CONFIG_MMU=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_ISA_DMA=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
+
+#
+# General setup
+#
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+# CONFIG_HOTPLUG is not set
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+# CONFIG_MODULE_FORCE_UNLOAD is not set
+CONFIG_OBSOLETE_MODPARM=y
+# CONFIG_MODVERSIONS is not set
+CONFIG_KMOD=y
+
+#
+# System setup
+#
+# CONFIG_ALPHA_GENERIC is not set
+# CONFIG_ALPHA_ALCOR is not set
+# CONFIG_ALPHA_XL is not set
+# CONFIG_ALPHA_BOOK1 is not set
+CONFIG_ALPHA_AVANTI_CH=y
+# CONFIG_ALPHA_CABRIOLET is not set
+# CONFIG_ALPHA_DP264 is not set
+# CONFIG_ALPHA_EB164 is not set
+# CONFIG_ALPHA_EB64P_CH is not set
+# CONFIG_ALPHA_EB66 is not set
+# CONFIG_ALPHA_EB66P is not set
+# CONFIG_ALPHA_EIGER is not set
+# CONFIG_ALPHA_JENSEN is not set
+# CONFIG_ALPHA_LX164 is not set
+# CONFIG_ALPHA_LYNX is not set
+# CONFIG_ALPHA_MARVEL is not set
+# CONFIG_ALPHA_MIATA is not set
+# CONFIG_ALPHA_MIKASA is not set
+# CONFIG_ALPHA_NAUTILUS is not set
+# CONFIG_ALPHA_NONAME_CH is not set
+# CONFIG_ALPHA_NORITAKE is not set
+# CONFIG_ALPHA_PC164 is not set
+# CONFIG_ALPHA_P2K is not set
+# CONFIG_ALPHA_RAWHIDE is not set
+# CONFIG_ALPHA_RUFFIAN is not set
+# CONFIG_ALPHA_RX164 is not set
+# CONFIG_ALPHA_SX164 is not set
+# CONFIG_ALPHA_SABLE is not set
+# CONFIG_ALPHA_SHARK is not set
+# CONFIG_ALPHA_TAKARA is not set
+# CONFIG_ALPHA_TITAN is not set
+# CONFIG_ALPHA_WILDFIRE is not set
+CONFIG_ISA=y
+CONFIG_PCI=y
+CONFIG_PCI_DOMAINS=y
+CONFIG_ALPHA_EV4=y
+CONFIG_ALPHA_APECS=y
+CONFIG_ALPHA_AVANTI=y
+CONFIG_ALPHA_SRM=y
+CONFIG_EARLY_PRINTK=y
+# CONFIG_DISCONTIGMEM is not set
+CONFIG_VERBOSE_MCHECK=y
+CONFIG_VERBOSE_MCHECK_ON=1
+# CONFIG_PCI_LEGACY_PROC is not set
+CONFIG_PCI_NAMES=y
+CONFIG_SRM_ENV=m
+CONFIG_BINFMT_ELF=y
+# CONFIG_BINFMT_AOUT is not set
+# CONFIG_BINFMT_EM86 is not set
+# CONFIG_BINFMT_MISC is not set
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+CONFIG_DEBUG_DRIVER=y
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+# CONFIG_PARPORT_SERIAL is not set
+# CONFIG_PARPORT_PC_FIFO is not set
+# CONFIG_PARPORT_PC_SUPERIO is not set
+# CONFIG_PARPORT_OTHER is not set
+# CONFIG_PARPORT_1284 is not set
+
+#
+# Plug and Play support
+#
+# CONFIG_PNP is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=m
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+CONFIG_BLK_DEV_LOOP=m
+# CONFIG_BLK_DEV_CRYPTOLOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+# CONFIG_IDE is not set
+
+#
+# SCSI device support
+#
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=y
+# CONFIG_CHR_DEV_ST is not set
+# CONFIG_CHR_DEV_OSST is not set
+CONFIG_BLK_DEV_SR=m
+# CONFIG_BLK_DEV_SR_VENDOR is not set
+CONFIG_CHR_DEV_SG=m
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+# CONFIG_SCSI_MULTI_LUN is not set
+# CONFIG_SCSI_REPORT_LUNS is not set
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA1542 is not set
+# CONFIG_SCSI_AACRAID is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+# CONFIG_SCSI_AIC79XX is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+# CONFIG_SCSI_MEGARAID is not set
+# CONFIG_SCSI_SATA is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_GENERIC_NCR5380_MMIO is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_PPA is not set
+# CONFIG_SCSI_IMM is not set
+# CONFIG_SCSI_NCR53C406A is not set
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=0
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+# CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PSI240I is not set
+# CONFIG_SCSI_QLOGIC_FAS is not set
+# CONFIG_SCSI_QLOGIC_ISP is not set
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_QLOGIC_1280 is not set
+CONFIG_SCSI_QLA2XXX=y
+# CONFIG_SCSI_QLA21XX is not set
+# CONFIG_SCSI_QLA22XX is not set
+# CONFIG_SCSI_QLA2300 is not set
+# CONFIG_SCSI_QLA2322 is not set
+# CONFIG_SCSI_QLA6312 is not set
+# CONFIG_SCSI_QLA6322 is not set
+# CONFIG_SCSI_SYM53C416 is not set
+# CONFIG_SCSI_DC395x is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_T128 is not set
+# CONFIG_SCSI_U14_34F is not set
+# CONFIG_SCSI_DEBUG is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+
+#
+# IEEE 1394 (FireWire) support
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+
+#
+# Macintosh device drivers
+#
+
+#
+# Networking support
+#
+CONFIG_NET=y
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+CONFIG_NETLINK_DEV=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=m
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+CONFIG_INET_ECN=y
+# CONFIG_SYN_COOKIES is not set
+CONFIG_INET_AH=m
+CONFIG_INET_ESP=m
+# CONFIG_INET_IPCOMP is not set
+
+#
+# IP: Virtual Server Configuration
+#
+# CONFIG_IP_VS is not set
+# CONFIG_IPV6 is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+# CONFIG_IP_NF_TFTP is not set
+# CONFIG_IP_NF_AMANDA is not set
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+# CONFIG_IP_NF_MATCH_LIMIT is not set
+# CONFIG_IP_NF_MATCH_IPRANGE is not set
+# CONFIG_IP_NF_MATCH_MAC is not set
+# CONFIG_IP_NF_MATCH_PKTTYPE is not set
+# CONFIG_IP_NF_MATCH_MARK is not set
+# CONFIG_IP_NF_MATCH_MULTIPORT is not set
+# CONFIG_IP_NF_MATCH_TOS is not set
+# CONFIG_IP_NF_MATCH_RECENT is not set
+# CONFIG_IP_NF_MATCH_ECN is not set
+# CONFIG_IP_NF_MATCH_DSCP is not set
+# CONFIG_IP_NF_MATCH_AH_ESP is not set
+# CONFIG_IP_NF_MATCH_LENGTH is not set
+# CONFIG_IP_NF_MATCH_TTL is not set
+# CONFIG_IP_NF_MATCH_TCPMSS is not set
+# CONFIG_IP_NF_MATCH_HELPER is not set
+# CONFIG_IP_NF_MATCH_STATE is not set
+# CONFIG_IP_NF_MATCH_CONNTRACK is not set
+# CONFIG_IP_NF_MATCH_OWNER is not set
+CONFIG_IP_NF_FILTER=m
+# CONFIG_IP_NF_TARGET_REJECT is not set
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+# CONFIG_IP_NF_TARGET_REDIRECT is not set
+# CONFIG_IP_NF_TARGET_NETMAP is not set
+# CONFIG_IP_NF_TARGET_SAME is not set
+# CONFIG_IP_NF_NAT_LOCAL is not set
+# CONFIG_IP_NF_NAT_SNMP_BASIC is not set
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+# CONFIG_IP_NF_MANGLE is not set
+# CONFIG_IP_NF_TARGET_LOG is not set
+# CONFIG_IP_NF_TARGET_ULOG is not set
+# CONFIG_IP_NF_TARGET_TCPMSS is not set
+# CONFIG_IP_NF_ARPTABLES is not set
+CONFIG_IP_NF_COMPAT_IPCHAINS=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=m
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+CONFIG_IPV6_SCTP__=y
+# CONFIG_IP_SCTP is not set
+# CONFIG_ATM is not set
+CONFIG_VLAN_8021Q=m
+# CONFIG_LLC2 is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=m
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_ETHERTAP is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_MII is not set
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNGEM is not set
+CONFIG_NET_VENDOR_3COM=y
+# CONFIG_EL1 is not set
+# CONFIG_EL2 is not set
+# CONFIG_ELPLUS is not set
+# CONFIG_EL16 is not set
+# CONFIG_EL3 is not set
+# CONFIG_3C515 is not set
+CONFIG_VORTEX=m
+# CONFIG_TYPHOON is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+
+#
+# Tulip family network device support
+#
+CONFIG_NET_TULIP=y
+CONFIG_DE2104X=m
+# CONFIG_TULIP is not set
+# CONFIG_DE4X5 is not set
+# CONFIG_WINBOND_840 is not set
+# CONFIG_DM9102 is not set
+# CONFIG_AT1700 is not set
+# CONFIG_DEPCA is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_ISA is not set
+# CONFIG_NET_PCI is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_E1000 is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_R8169 is not set
+# CONFIG_SIS190 is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_TIGON3 is not set
+
+#
+# Ethernet (10000 Mbit)
+#
+# CONFIG_IXGB is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BT is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=800
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=600
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input I/O drivers
+#
+# CONFIG_GAMEPORT is not set
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PARKBD is not set
+# CONFIG_SERIO_PCIPS2 is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=m
+# CONFIG_MOUSE_SERIAL is not set
+# CONFIG_MOUSE_INPORT is not set
+# CONFIG_MOUSE_LOGIBM is not set
+# CONFIG_MOUSE_PC110PAD is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=m
+# CONFIG_INPUT_UINPUT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+CONFIG_SERIAL_8250=m
+CONFIG_SERIAL_8250_NR_UARTS=4
+# CONFIG_SERIAL_8250_EXTENDED is not set
+
+#
+# Non-8250 serial port support
+#
+CONFIG_SERIAL_CORE=m
+CONFIG_UNIX98_PTYS=y
+# CONFIG_LEGACY_PTYS is not set
+CONFIG_PRINTER=m
+# CONFIG_LP_CONSOLE is not set
+# CONFIG_PPDEV is not set
+# CONFIG_TIPAR is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# IPMI
+#
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_NVRAM is not set
+# CONFIG_RTC is not set
+# CONFIG_GEN_RTC is not set
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+# CONFIG_RAW_DRIVER is not set
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# Misc devices
+#
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# Digital Video Broadcasting Devices
+#
+# CONFIG_DVB is not set
+
+#
+# Graphics support
+#
+# CONFIG_FB is not set
+
+#
+# Console display driver support
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_MDA_CONSOLE is not set
+CONFIG_DUMMY_CONSOLE=y
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# USB Gadget Support
+#
+# CONFIG_USB_GADGET is not set
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+# CONFIG_EXT2_FS_XATTR is not set
+CONFIG_EXT3_FS=y
+# CONFIG_EXT3_FS_XATTR is not set
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+# CONFIG_REISERFS_FS is not set
+# CONFIG_JFS_FS is not set
+# CONFIG_XFS_FS is not set
+CONFIG_MINIX_FS=m
+# CONFIG_ROMFS_FS is not set
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+# CONFIG_ZISOFS is not set
+# CONFIG_UDF_FS is not set
+
+#
+# DOS/FAT/NT Filesystems
+#
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+# CONFIG_DEVFS_FS is not set
+# CONFIG_DEVPTS_FS_XATTR is not set
+CONFIG_TMPFS=y
+# CONFIG_HUGETLB_PAGE is not set
+CONFIG_RAMFS=y
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+CONFIG_HFS_FS=m
+CONFIG_HFSPLUS_FS=m
+# CONFIG_BEFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+# CONFIG_NFS_V4 is not set
+# CONFIG_NFS_DIRECTIO is not set
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+# CONFIG_NFSD_V4 is not set
+# CONFIG_NFSD_TCP is not set
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SUNRPC=m
+# CONFIG_SUNRPC_GSS is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_CIFS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_CODA_FS is not set
+# CONFIG_AFS_FS is not set
+
+#
+# Partition Types
+#
+CONFIG_PARTITION_ADVANCED=y
+# CONFIG_ACORN_PARTITION is not set
+CONFIG_OSF_PARTITION=y
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+# CONFIG_MAC_PARTITION is not set
+# CONFIG_MSDOS_PARTITION is not set
+# CONFIG_LDM_PARTITION is not set
+# CONFIG_NEC98_PARTITION is not set
+# CONFIG_SGI_PARTITION is not set
+# CONFIG_ULTRIX_PARTITION is not set
+# CONFIG_SUN_PARTITION is not set
+# CONFIG_EFI_PARTITION is not set
+
+#
+# Native Language Support
+#
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+CONFIG_NLS_CODEPAGE_852=y
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_CODEPAGE_1250 is not set
+# CONFIG_NLS_CODEPAGE_1251 is not set
+CONFIG_NLS_ISO8859_1=m
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+# CONFIG_NLS_UTF8 is not set
+
+#
+# Profiling support
+#
+# CONFIG_PROFILING is not set
+
+#
+# Kernel hacking
+#
+CONFIG_ALPHA_LEGACY_START_ADDRESS=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MATHEMU=y
+# CONFIG_DEBUG_SLAB is not set
+CONFIG_MAGIC_SYSRQ=y
+# CONFIG_DEBUG_SPINLOCK is not set
+# CONFIG_DEBUG_RWLOCK is not set
+# CONFIG_DEBUG_SEMAPHORE is not set
+# CONFIG_DEBUG_INFO is not set
+
+#
+# Security options
+#
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+# CONFIG_CRYPTO_NULL is not set
+# CONFIG_CRYPTO_MD4 is not set
+CONFIG_CRYPTO_MD5=m
+CONFIG_CRYPTO_SHA1=m
+# CONFIG_CRYPTO_SHA256 is not set
+# CONFIG_CRYPTO_SHA512 is not set
+CONFIG_CRYPTO_DES=m
+# CONFIG_CRYPTO_BLOWFISH is not set
+# CONFIG_CRYPTO_TWOFISH is not set
+# CONFIG_CRYPTO_SERPENT is not set
+# CONFIG_CRYPTO_AES is not set
+# CONFIG_CRYPTO_CAST5 is not set
+# CONFIG_CRYPTO_CAST6 is not set
+# CONFIG_CRYPTO_ARC4 is not set
+# CONFIG_CRYPTO_DEFLATE is not set
+# CONFIG_CRYPTO_TEST is not set
+
+#
+# Library routines
+#
+CONFIG_CRC32=y
+

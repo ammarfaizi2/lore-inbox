@@ -1,41 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261593AbSK0E4h>; Tue, 26 Nov 2002 23:56:37 -0500
+	id <S261574AbSK0E5v>; Tue, 26 Nov 2002 23:57:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261587AbSK0E4h>; Tue, 26 Nov 2002 23:56:37 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:57296 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S261593AbSK0E4g>; Tue, 26 Nov 2002 23:56:36 -0500
-Date: Wed, 27 Nov 2002 00:03:26 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.49-ac2
-Message-ID: <20021127050326.GB1642@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200211262321.gAQNLPR12191@devserv.devel.redhat.com>
+	id <S261582AbSK0E5v>; Tue, 26 Nov 2002 23:57:51 -0500
+Received: from mnh-1-18.mv.com ([207.22.10.50]:58884 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S261574AbSK0E5u>;
+	Tue, 26 Nov 2002 23:57:50 -0500
+Message-Id: <200211270508.AAA04715@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: uml-patch-2.5.49-1 
+In-Reply-To: Your message of "Tue, 26 Nov 2002 20:30:48 PST."
+             <3DE44A78.9070602@zytor.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211262321.gAQNLPR12191@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
+Date: Wed, 27 Nov 2002 00:08:40 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 26, 2002 at 06:21:25PM -0500, Alan Cox wrote:
-> Linux 2.5.49-ac2
-> o	Switch to maintainrs preferred vlsi_ir fix	(Adrian Bunk)
-> o	Fix SiS APIC building				(me)
+hpa@zytor.com said:
+> Absolutely.  I think /proc is heavily overused as a really bad devfs. 
 
-In the new GUI config tool the only uniprocessor APIC option I see is
-a branch under NCR Voyager. I'm assuming that it's misplaced, unless 
-it breaks something, and selecting it anyway.
+OK, I'll send in the request, and make the switch in the next patch.
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker 
+				Jeff
 

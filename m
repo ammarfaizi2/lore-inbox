@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264992AbTFCM6r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 08:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbTFCM6r
+	id S264988AbTFCM6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 08:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbTFCM6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 08:58:47 -0400
-Received: from [211.167.76.68] ([211.167.76.68]:51357 "HELO soulinfo")
-	by vger.kernel.org with SMTP id S264992AbTFCM6p (ORCPT
+	Tue, 3 Jun 2003 08:58:25 -0400
+Received: from holomorphy.com ([66.224.33.161]:4518 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264988AbTFCM6Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 08:58:45 -0400
-Date: Tue, 3 Jun 2003 21:11:56 +0800
-From: hugang <hugang@soulinfo.com>
-To: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: software suspend in 2.5.70-mm3.
-Message-Id: <20030603211156.726366e7.hugang@soulinfo.com>
-X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Tue, 3 Jun 2003 08:58:24 -0400
+Date: Tue, 3 Jun 2003 06:11:20 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Margit Schubert-While <margitsw@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21rc6-ac2
+Message-ID: <20030603131120.GT8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Margit Schubert-While <margitsw@t-online.de>,
+	linux-kernel@vger.kernel.org
+References: <5.1.0.14.2.20030603143135.00ae9d40@pop.t-online.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
- =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= Pavel Machek <pavel@suse.cz>
- =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.2.20030603143135.00ae9d40@pop.t-online.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel Machek:
+On Tue, Jun 03, 2003 at 02:38:24PM +0200, Margit Schubert-While wrote:
+> Alan, a few things that I think should be in (and for the next rc ?) -
+> 1) Force inline for >= gcc 3.3
+> 2) -march=  for pentium3/4
+> 3) Radeon 9k support
+> 4) Junk the chipset id'ing in agp_support.h
+>      (Not in DRI/DRM mainline and not in 2.5)
 
-I try the 2.5.70-mm3 with software suspend function. When suspend it will oops at ide-disk.c 1526 line
-   BUG_ON (HWGROUP(drive)->handler);
+This looks a lot like an announcement, except from the wrong person.
+Any chance you could preface it with "Re:" or "about"?
 
-I'm disable this check, The software suspend can work, and also can resumed. But this fix is not best way. I found in ide-io.c 1196
-   hwgroup->handler = NULL;
-is the problem.
 
-thanks.
-
--- 
-Hu Gang / Steve
-Email        : huagng@soulinfo.com, steve@soulinfo.com
-GPG FinePrint: 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
-http://soulinfo.com/~hugang/HuGang.asc
-ICQ#         : 205800361
-Registered Linux User : 204016
+-- wli

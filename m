@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265933AbUBCIbx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 03:31:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265937AbUBCIbw
+	id S265937AbUBCIdK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 03:33:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265940AbUBCIdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 03:31:52 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:62913 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265933AbUBCIbv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 03:31:51 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [ACPI] system crashes after cat /proc/acpi/battery/BAT0/state
-Date: Tue, 3 Feb 2004 16:31:36 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8401CBB672@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] system crashes after cat /proc/acpi/battery/BAT0/state
-Thread-Index: AcPo5PaYH0ML0lOUR0KaTOrMPcLo4wBSgbbg
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Peter Muessig-Trapp" <muessig-trapp@web.de>,
-       <acpi-devel@lists.sourceforge.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Feb 2004 08:31:36.0736 (UTC) FILETIME=[2341F200:01C3EA30]
+	Tue, 3 Feb 2004 03:33:10 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:53428 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265937AbUBCIcs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 03:32:48 -0500
+Date: Tue, 3 Feb 2004 09:31:43 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>,
+       dipankar@in.ibm.com
+Subject: Re: [PATCH 3/4] 2.6.2-rc2-mm2 CPU Hotplug: The Core
+Message-ID: <20040203083143.GA1726@elte.hu>
+References: <20040203080436.GA374@elte.hu> <20040203082839.DA05B2C0AB@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040203082839.DA05B2C0AB@lists.samba.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: SpamAssassin 2.60
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> excuse me, but I forgot to tell, that I'm using the ACPI DSDT initrd 
-> patch and a special DSDT-file for Compaq Evo N800v (while I have an
-> Compaq Evo N800c)
 
-My question is whether your fixs to DSDT is correct or necessary? 
-We need to sort out real ACPI interpreter bug !
+* Rusty Russell <rusty@rustcorp.com.au> wrote:
 
---Luming
+> > > If we can't do it well, leave it to userspace to sort out 8)
+> > 
+> > yes, but currently there's no mechanism for userspace to get notified -
+> > hence no clean way for userspace to sort it out. (other than userspace
+> > continuously polling the CPU mask - bleh.) But this is a separate issue.
+> 
+> We use /sbin/hotplug at the moment.  I'm hoping that DBUS turn this
+> from "possible" into "easy" some day...
+
+ok. Anyway, it should be relatively rare for userspace to care about
+this.
+
+	Ingo

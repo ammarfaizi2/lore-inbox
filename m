@@ -1,36 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261464AbTDBD5M>; Tue, 1 Apr 2003 22:57:12 -0500
+	id <S261470AbTDBECG>; Tue, 1 Apr 2003 23:02:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261501AbTDBD5L>; Tue, 1 Apr 2003 22:57:11 -0500
-Received: from dial-ctb0348.webone.com.au ([210.9.243.48]:32516 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S261464AbTDBD5L>;
-	Tue, 1 Apr 2003 22:57:11 -0500
-Message-ID: <3E8A6227.7080209@cyberone.com.au>
-Date: Wed, 02 Apr 2003 14:08:07 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
+	id <S261491AbTDBECG>; Tue, 1 Apr 2003 23:02:06 -0500
+Received: from ns.conceptual.net.au ([203.190.192.15]:30933 "EHLO
+	conceptual.net.au") by vger.kernel.org with ESMTP
+	id <S261470AbTDBECF>; Tue, 1 Apr 2003 23:02:05 -0500
+Message-ID: <3E8A6298.8060600@seme.com.au>
+Date: Wed, 02 Apr 2003 12:10:00 +0800
+From: Brad Campbell <brad@seme.com.au>
+User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@digeo.com>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.66-mm2 with contest
-References: <200304021324.10799.kernel@kolivas.org>
-In-Reply-To: <200304021324.10799.kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: via-rhine problem on EPIAV-1Ghz 2.4.21-pre6
+References: <3E88FA24.7040406@seme.com.au> <20030401042734.GA21273@gtf.org> <3E89171A.8010506@seme.com.au> <20030401185258.GC3736@arthur.home>
+In-Reply-To: <20030401185258.GC3736@arthur.home>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-SFilter: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+Erik Mouw wrote:
 
->Big rise in ctar_load and io_load. Drop in read_load.
->(All uniprocessor with IDE and AS elevator). AS tweaks? No obvious scheduler 
->tweak result changes.
->
-Thanks Con,
-I'm a bit busy now, but next week I'll work something out for it.
-It is most likely to be as-queue_notready-cleanup.patch. I'll
-wait until after Jens ports his dynamic requests stuff over to
-mm before I go further.
+> 
+> Here's the 2.5 driver backported to 2.4.20, it solved my timeout
+> problems (with thanks to Roger Luethi). Don't know if the "noapic"
+> option is still necessary, but it won't hurt anyway.
+> 
+> 
+> Erik
+Yup, Roger sent me the file directly (Many thanks Roger!)
+It solved the timeout propblems, I do get these however.
+
+Not that they cause any hiccups in throughput.
+
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Transmit error, Tx status 00008800.
+eth0: Transmitter underrun, Tx threshold now 40.
+eth0: Tx descriptor write-back race.
+eth0: Transmit error, Tx status 00008800.
+eth0: Transmitter underrun, Tx threshold now 60.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+eth0: Tx descriptor write-back race.
+
+
+-- 
+Brad....
+  /"\
+  \ /     ASCII RIBBON CAMPAIGN
+   X      AGAINST HTML MAIL
+  / \
 

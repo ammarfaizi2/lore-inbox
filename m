@@ -1,83 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268011AbTBRVBa>; Tue, 18 Feb 2003 16:01:30 -0500
+	id <S268020AbTBRVKG>; Tue, 18 Feb 2003 16:10:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268013AbTBRVBa>; Tue, 18 Feb 2003 16:01:30 -0500
-Received: from mx.laposte.net ([213.30.181.11]:57552 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id <S268011AbTBRVB3>;
-	Tue, 18 Feb 2003 16:01:29 -0500
-Subject: Re: [2.5] EHCI HID keyboard not unloaded at reboot time ?
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
-In-Reply-To: <20030216212801.GA2546@elf.ucw.cz>
-References: <1045324980.1767.28.camel@rousalka>
-	 <20030216212801.GA2546@elf.ucw.cz>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4bfaXpMCEm8MV+VSMxLJ"
-Organization: 
-Message-Id: <1045602674.2091.8.camel@rousalka>
+	id <S268022AbTBRVKG>; Tue, 18 Feb 2003 16:10:06 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64772 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S268020AbTBRVKF>; Tue, 18 Feb 2003 16:10:05 -0500
+Date: Tue, 18 Feb 2003 22:19:40 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: alan@redhat.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Toshiba keyboard workaroun
+Message-ID: <20030218211940.GA1048@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
-Date: 18 Feb 2003 22:11:14 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-4bfaXpMCEm8MV+VSMxLJ
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+You said that you'll submit toshiba keyboard fix for 2.4 to
+marcelo... Here goes 2.5 version, will you submit it to Linus? ;-).
 
-Le dim 16/02/2003 =E0 22:28, Pavel Machek a =E9crit :
-> Hi!
->=20
-> > 	This is a question related to :
-> > http://bugzilla.kernel.org/show_bug.cgi?id=3D9
-> >=20
-> > 	Basically I have a usb keyboard plugged on an external USB2 hub. Using
-> > a monolithic ehci/hid kernel I can get it to work in 2.5. It's also use=
-d
-> > in usb1 mode by the bios and the bootloader.
-> >=20
-> > 	However when I shut down or reboot from 2.5, I loose keyboard support
-> > in the bios/bootloader/linux 2.4 (used to loose it in linux 2.5 also bu=
-t
-> > recent ehci enhancements enable 2.5 to recover it). Nothing short of a
-> > PSU stop (neither reset nor stop button works) will recover it.
->=20
-> Well, if reset does not work, it looks like hw bug ;-). OTOH this
-> might be quite easy to workaround in sw. What happens if you unplug
-> and replug the keyboard?
+--- clean/drivers/char/keyboard.c	2003-02-15 18:51:18.000000000 +0100
++++ linux/drivers/char/keyboard.c	2003-02-15 19:19:45.000000000 +0100
+@@ -1020,6 +1041,23 @@
+ 	struct tty_struct *tty;
+ 	int shift_final;
+ 
++        /*
++         * Fix for Toshiba Satellites. Toshiba's like to repeat 
++	 * "key down" event for A in combinations like shift-A.
++	 * Thanx to Andrei Pitis <pink@roedu.net>.
++         */
++        static int prev_scancode = 0;
++        static int stop_jiffies = 0;
++
++        /* new scancode, trigger delay */
++        if (keycode != prev_scancode) 	       stop_jiffies = jiffies;
++        else if (jiffies - stop_jiffies >= 10) stop_jiffies = 0;
++        else {
++	    printk( "Keyboard glitch detected, ignoring keypress\n" );
++            return;
++	}
++        prev_scancode = keycode;
++
+ 	if (down != 2)
+ 		add_keyboard_randomness((keycode << 1) ^ down);
+ 
 
-Hey, thanks for the reply.
-
-Turns out I was right about the diagnostic. 2.5 *did* *not* *unload*
-*ehci*. So after the reboot all usb1-aware systems (bios, linux 2.4,
-etc) found usb components that expected usb2 commands. David Brownell
-send me a patch that forced ehci unload at shutdown (via a reboot
-notifier) and all's been well since. So it was a real 2.5 bug.
-
-Sure the hardware could have moped up usb remains better, but since
-other evil OSes cleanup their usb stack correctly, I guess they didn't
-bother (plus I suspect it would have made boot times a bit longer).
-
-Anyway, closing one of the first ten bugzilla bugs at last one feels
-very good:)
-
---=20
-Nicolas Mailhot
-
---=-4bfaXpMCEm8MV+VSMxLJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+UqFyI2bVKDsp8g0RAuckAJ0TJKN0T+h8Fd2m3HseDHf5HRuEJgCfWDSM
-gIHyDmTzgGvs2Rh/J/iWMuI=
-=/hpR
------END PGP SIGNATURE-----
-
---=-4bfaXpMCEm8MV+VSMxLJ--
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

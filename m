@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVACVlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVACVqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbVACVlr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 16:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVACVlr
+	id S261418AbVACVqm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 16:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVACVqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 16:41:47 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:27037 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261409AbVACVli
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 16:41:38 -0500
-Message-ID: <41D9BC07.8070209@zytor.com>
-Date: Mon, 03 Jan 2005 13:41:27 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [3/8] kill gen_init_cpio.c printk() of size_t warning
-References: <20050103172013.GA29332@holomorphy.com> <41D9881B.4020000@pobox.com> <20050103180915.GK29332@holomorphy.com> <Pine.LNX.4.61.0501031329030.13385@chaos.analogic.com> <crccas$la0$1@terminus.zytor.com> <20050103213627.GS29332@holomorphy.com>
-In-Reply-To: <20050103213627.GS29332@holomorphy.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 3 Jan 2005 16:46:42 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:44360 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261418AbVACVqk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 16:46:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=oh2m1qw+tc7EOOC2GccgLo/fm9VRUDwm6zMvKMzE7/IUj+69c918s1BDYwZrVxdEIfqCifAw6f/RC/jXfi2GujILM1RakKv/gSb/8boLs9njjPN0Cju6sr4fXWVp0NFYz3kqQcmkXYSq3pvUxTyf8i7pWyMzLJVfiFgxP/AEYzg=
+Message-ID: <5a2cf1f6050103134611114dbd@mail.gmail.com>
+Date: Mon, 3 Jan 2005 22:46:40 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+Reply-To: jerome lacoste <jerome.lacoste@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 50% CPU user usage but top doesn't list any CPU unfriendly task
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> 
-> On Mon, Jan 03, 2005 at 09:09:48PM +0000, H. Peter Anvin wrote:
-> 
->>Dear Wrongbot,
->>Bullshit.  Signed is promoted to unsigned.
-> 
-> I'm not sure who you're responding to here, but gcc emitted an actual
-> warning and I was only attempting to carry out the minimal effort
-> necessary to silence it. I'm not really interested in creating or
-> being involved with controversy, just silencing the core build in the
-> least invasive and so on way possible, leaving deeper drivers/ issues
-> to the resolution of the true underlying problems.
-> 
-> I don't have anything to do with the code excerpt above; I merely
-> followed the style of the other unsigned integer coercions in the file.
-> 
+Hi,
 
-I was not responding to you, your stuff is perfectly sane.
+on a fairly old box used as a desktop (PII 300 Mhz with 196M RAM), I
+observe the following strange behavior which I believe comes from the
+kernel.
 
-The claim from the Wrongbot was that "foo + 1" is bad when foo is a 
-size_t.  This is utter bullshit, since that's EXACTLY equivalent to:
+There's a VoIP known 'P2P' closed source application running, an IP
+tables based firewall and a remote ssh session initiated. When using
+top, sorting by CPU usage, no program is using more than a couple of
+percent of CPU. On the other side, the total CPU user time is at
+around 40%, with a 1.5 load average. Memory looks OK. The machine is
+responsive as usual.
 
-	foo + (size_t)1
+So I wonder why the cpu user time is at 40% without any particular
+program showing as using CPU in the top listing. 'Problem' was
+reproducible with 2.4.x and now with 2.6.8.1.
 
-... because of promotion rules.
+So it this a real problem or is there something that I don't
+understand in particular? Thanks for the insight.
 
-	-hpa
+Jerome

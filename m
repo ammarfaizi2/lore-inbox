@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbTFKQT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 12:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbTFKQT6
+	id S262645AbTFKQUm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 12:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTFKQUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 12:19:58 -0400
-Received: from uni-paderborn.de ([131.234.22.30]:63122 "EHLO mail-gate")
-	by vger.kernel.org with ESMTP id S262589AbTFKQT5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 12:19:57 -0400
-Message-ID: <3EE75968.F789F33C@upb.de>
-Date: Wed, 11 Jun 2003 18:31:36 +0200
-From: Kay Salzwedel <nkz@upb.de>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
+	Wed, 11 Jun 2003 12:20:42 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59409 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262645AbTFKQUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 12:20:41 -0400
+Date: Wed, 11 Jun 2003 09:31:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: viro@parcelfarce.linux.theplanet.co.uk, Frank Cusack <fcusack@fcusack.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number
+ mismatch)
+In-Reply-To: <1055348515.2420.12.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0306110929260.1653-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: buffer requests served by cache
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I'd like to know the amount of requests to block devices that are served
-by the cache instead of a read/write to the device itself. Can anybody
-point my code where the kernel distinguishes between the two?
+On 11 Jun 2003, Alan Cox wrote:
+> 
+> fs/vfat - d_revalidate: vfat_revalidate
 
-Thanks for yur help.
+That still shouldn't cause ESTALE, it should just force a dropping of the 
+dentry, and a re-lookup (and that, in turn, should either get the right 
+thing, or should return ENOENT).
 
-Regards KAy
--- 
---------------------------------------------------------------------
-Kay A Salzwedel
+Or are you talking about 2.4.x and that is doing something strange these
+days?
 
-Heinz Nixdorf Institute
-University of Paderborn
-Germany
-------------------------------------------
-E-Mail:  kay@hni.uni-paderborn.de
-Tel.:    +49-5251-60 64 58
---------------------------------------------------------------------
+[ You have entered the twilight zone: "Tee-dee tee-dee.." ]
+
+			Linus
+

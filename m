@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135331AbRD1Pym>; Sat, 28 Apr 2001 11:54:42 -0400
+	id <S135550AbRD1Q0s>; Sat, 28 Apr 2001 12:26:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135416AbRD1Pyb>; Sat, 28 Apr 2001 11:54:31 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:53519 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S135331AbRD1PyS>;
-	Sat, 28 Apr 2001 11:54:18 -0400
-Date: Sat, 28 Apr 2001 17:52:42 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Ville Herva <vherva@mail.niksula.cs.hut.fi>,
-        Fabio Riccardi <fabio@chromium.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-Message-ID: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135556AbRD1Q0i>; Sat, 28 Apr 2001 12:26:38 -0400
+Received: from www.linux.org.uk ([195.92.249.252]:60434 "EHLO www.linux.org.uk")
+	by vger.kernel.org with ESMTP id <S135550AbRD1Q01>;
+	Sat, 28 Apr 2001 12:26:27 -0400
+Date: Sat, 28 Apr 2001 17:25:54 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: IPv4 NAT doesn't compile in 2.4.4
+Message-ID: <20010428172554.H21792@flint.arm.linux.org.uk>
+Mail-Followup-To: Russell King <rmk@flint.arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+net/network.o: In function `init_or_cleanup':
+net/network.o(.text+0x4a530): relocation truncated to fit: R_ARM_PC24 ip_nat_cleanup
 
-On Sat, 28 Apr 2001, Andi Kleen wrote:
+says it all.
 
-> You can also just use the cycle counter directly in most modern CPUs.
-> It can be read with a single instruction. In fact modern glibc will do
-> it for you when you use clock_gettime(CLOCK_PROCESS_CPUTIME_ID, ...)
+ip_nat_standalone.c:
 
-well, it's not reliable while using things like APM, so i'd not recommend
-to depend on it too much.
+static int init_or_cleanup(int init)
+{
+...
+ cleanup_nat:
+        ip_nat_cleanup();
+...
+}
 
-	Ingo
+ip_nat_core:
 
+void __exit ip_nat_cleanup(void)
+{
+        ip_ct_selective_cleanup(&clean_nat, NULL);
+        ip_conntrack_destroyed = NULL;
+}
+
+*Don't* do this - its fundamentally wrong.  Code in the kernel should _not_
+reference code that has been removed by the linker.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVACVqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVACVrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVACVqm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 16:46:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVACVqm
+	id S261430AbVACVrD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 16:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVACVrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 16:46:42 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:44360 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261418AbVACVqk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 16:46:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=oh2m1qw+tc7EOOC2GccgLo/fm9VRUDwm6zMvKMzE7/IUj+69c918s1BDYwZrVxdEIfqCifAw6f/RC/jXfi2GujILM1RakKv/gSb/8boLs9njjPN0Cju6sr4fXWVp0NFYz3kqQcmkXYSq3pvUxTyf8i7pWyMzLJVfiFgxP/AEYzg=
-Message-ID: <5a2cf1f6050103134611114dbd@mail.gmail.com>
-Date: Mon, 3 Jan 2005 22:46:40 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-Reply-To: jerome lacoste <jerome.lacoste@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 50% CPU user usage but top doesn't list any CPU unfriendly task
+	Mon, 3 Jan 2005 16:47:03 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:29879 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261430AbVACVq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 16:46:58 -0500
+Subject: Re: [PATCH] get/set FAT filesystem attribute bits
+From: Nicholas Miell <nmiell@comcast.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <41D9BA8B.2000108@zytor.com>
+References: <41D9B1C4.5050507@zytor.com>
+	 <1104787447.3604.9.camel@localhost.localdomain>
+	 <41D9BA8B.2000108@zytor.com>
+Content-Type: text/plain
+Date: Mon, 03 Jan 2005 13:46:56 -0800
+Message-Id: <1104788816.3604.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3.njm.1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2005-01-03 at 13:35 -0800, H. Peter Anvin wrote:
+> Nicholas Miell wrote:
+> > Instead of adding another ioctl, wouldn't an xattr be more appropriate?
+> > For instance, system.fatattrs containing a text representation of the
+> > attribute bits.
+> > 
+> 
+> This really worries me, because it's not clear to me that Microsoft 
+> isn't going to add NTFS-style xattrs to FAT in the future.  There is a 
+> very specific reason why they might want to do that: since they want to 
+> keep NTFS secret and proprietary, FAT is the published interchange 
+> format that other devices can use to exchange data with MS operating 
+> systems.  If we then have overloaded the xattr mechanism, that would be 
+> very ugly.
+> 
+> 	-hpa
 
-on a fairly old box used as a desktop (PII 300 Mhz with 196M RAM), I
-observe the following strange behavior which I believe comes from the
-kernel.
+That's why I put fatattrs in the system namespace, which is wholly owned
+by the Linux kernel. Any theoretical FAT-with-xattrs variant would put
+those xattrs in the user namespace.
 
-There's a VoIP known 'P2P' closed source application running, an IP
-tables based firewall and a remote ssh session initiated. When using
-top, sorting by CPU usage, no program is using more than a couple of
-percent of CPU. On the other side, the total CPU user time is at
-around 40%, with a 1.5 load average. Memory looks OK. The machine is
-responsive as usual.
+On another note, NTFS-style xattrs (aka named streams) are unrelated to
+Linux xattrs. A named stream is a separate file with a funny name, while
+a Linux xattr is a named extension to struct stat.
+-- 
+Nicholas Miell <nmiell@comcast.net>
 
-So I wonder why the cpu user time is at 40% without any particular
-program showing as using CPU in the top listing. 'Problem' was
-reproducible with 2.4.x and now with 2.6.8.1.
-
-So it this a real problem or is there something that I don't
-understand in particular? Thanks for the insight.
-
-Jerome

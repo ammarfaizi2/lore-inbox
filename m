@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129994AbQK0Xpg>; Mon, 27 Nov 2000 18:45:36 -0500
+        id <S130218AbQK0Xrg>; Mon, 27 Nov 2000 18:47:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130127AbQK0Xp0>; Mon, 27 Nov 2000 18:45:26 -0500
-Received: from nread2.inwind.it ([212.141.53.75]:2953 "EHLO relay4.inwind.it")
-        by vger.kernel.org with ESMTP id <S129994AbQK0XpO>;
-        Mon, 27 Nov 2000 18:45:14 -0500
-Date: Tue, 28 Nov 2000 01:16:13 +0100
-From: Gianluca Anzolin <root@vger.kernel.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: KERNEL BUG: console not working in linux
-Message-ID: <20001128011613.A317@fourier.home.intranet>
-In-Reply-To: <E140Pc3-0003AI-00@the-village.bc.nu> <200011271849.eARInfc255418@saturn.cs.uml.edu> <8vubeq$r5r$1@cesium.transmeta.com>
+        id <S129931AbQK0Xr0>; Mon, 27 Nov 2000 18:47:26 -0500
+Received: from p3EE1EE54.dip.t-dialin.net ([62.225.238.84]:52745 "EHLO master")
+        by vger.kernel.org with ESMTP id <S129744AbQK0XrO>;
+        Mon, 27 Nov 2000 18:47:14 -0500
+Date: Tue, 28 Nov 2000 01:30:01 +0100
+From: Udo Held <udo@udoheld.de>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        netdev@oss.sgi.com
+Subject: [udo@udoheld.de: Hardware recognization error on Davicom 9102 with Tulip DS21140 driver]
+Message-ID: <20001128013001.A1459@udoheld.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <8vubeq$r5r$1@cesium.transmeta.com>; from hpa@zytor.com on Mon, Nov 27, 2000 at 11:08:10AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il giorno Mon, Nov 27, 2000 at 11:08:10AM -0800, H. Peter Anvin scrisse: 
-|Yes, it can.  Unfortunately, some "legacy-free" PCs apparently are
-|starting to take the tack that the KBC is legacy.  Therefore, the use
-|of port 92h is mandatory on those systems.
-|
-|Port 92h dates back to at the very least the IBM PS/2.
-|
-|Either way, the video card of the original poster is broken in more
-|ways than that.  Ports 0x00-0xFF are reserved for the motherboard
-|chipset and have been since the original IBM PC.
+---- Forwarded message from Udo Held <udo@udoheld.de> -----
 
-I'd like to add only that the video card is integrated on the mainboard.
-Maybe that register disables the integrated video card. I don't know.
-Anyway I must also point out that on FreeBSD that register is used only
-for IBM_L40 PC.
-That said now I know how to make linux work again on this PC.
-Let's see what will happen when 2.2.18 will come out as the new stable kernel.
+Date: Tue, 28 Nov 2000 00:01:26 +0100
+From: Udo Held <udo@udoheld.de>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+	netdev@oss.sgi.com
+Subject: Hardware recognization error on Davicom 9102 with Tulip DS21140 driver
+User-Agent: Mutt/1.2.5i
 
-Bye
-	Gianluca
+> Hi!
+> 
+> I didn't know which driver was the right one for my network card so I
+> just compiled all network-card drivers that where listed into my kernel
+> I tried it with test9 and test11. The DS21140 Tulip driver found my card
+> and crashes the system during boot up. My card is a Davicom 9102(?). It's
+> working fine with the right driver.
 
-NB: the video card works without problems now. it's even found by lspci
-(which couldn't find it before). I can also use any extended vga mode.
-So the problem wasn't probably the video chipset.
+The system crashes with an oops. I'm not able
+to copy and paste it without pencil and paper, because it's hanging
+during booting up. If you really need that output please tell me.
+Imo you should just fix that the Tulip driver thinks there is a card
+with a DS21140 chipset.
+
+I'm using the right experimental driver and it's working. So please 
+don't mail me about using the right driver.
+
+[..]
+
+Cheers,
+Udo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

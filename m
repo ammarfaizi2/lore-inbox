@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUHDFGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266787AbUHDFTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266867AbUHDFGn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 01:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266787AbUHDFGn
+	id S266787AbUHDFTl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 01:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267253AbUHDFTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 01:06:43 -0400
-Received: from mail.tpgi.com.au ([203.12.160.113]:51384 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S266867AbUHDFGi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 01:06:38 -0400
-Subject: Re: Solving suspend-level confusion
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Brownell <david-b@pacbell.net>, Oliver Neukum <oliver@neukum.org>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <1091595811.5226.105.camel@gaston>
-References: <20040730164413.GB4672@elf.ucw.cz>
-	 <200408020938.17593.david-b@pacbell.net> <1091493486.7396.92.camel@gaston>
-	 <200408031928.08475.david-b@pacbell.net>
-	 <1091586381.3189.14.camel@laptop.cunninghams>
-	 <1091587985.5226.74.camel@gaston>
-	 <1091587929.3303.38.camel@laptop.cunninghams>
-	 <1091592870.5226.80.camel@gaston>
-	 <1091593555.3191.48.camel@laptop.cunninghams>
-	 <1091595125.5227.96.camel@gaston>
-	 <1091595258.3303.74.camel@laptop.cunninghams>
-	 <1091595811.5226.105.camel@gaston>
-Content-Type: text/plain
-Message-Id: <1091595933.3303.82.camel@laptop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 04 Aug 2004 15:05:33 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+	Wed, 4 Aug 2004 01:19:41 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:16096 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266787AbUHDFTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 01:19:39 -0400
+Date: Wed, 4 Aug 2004 01:23:25 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: MTRR driver model support broken on SMP.
+In-Reply-To: <1091585241.3303.6.camel@laptop.cunninghams>
+Message-ID: <Pine.LNX.4.58.0408040119270.19619@montezuma.fsmlabs.com>
+References: <1091585241.3303.6.camel@laptop.cunninghams>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 4 Aug 2004, Nigel Cunningham wrote:
 
-On Wed, 2004-08-04 at 15:03, Benjamin Herrenschmidt wrote:
-> On Wed, 2004-08-04 at 14:54, Nigel Cunningham wrote:
-> > On Wed, 2004-08-04 at 14:52, Benjamin Herrenschmidt wrote:
-> > > > Hmm. That's what I was doing and do do for the remainder of the devices.
-> > > > Oh well. I'll give it a try again. What would 3 do? (There was a stage
-> > > > when all three implementations used 3; I've just played sheep in
-> > > > changing to 4).
-> > > 
-> > > 3 would be S3 -> suspend to RAM. We may still want to fix drivers to
-> > > pass 4 as a PCI state though ;)
-> > 
-> > Okay. Wasn't sure whether it was D3 or S3 or something-else-3! I take it
-> > the ide driver does the same thing for S3 and S4?
-> 
-> That's where the whole confusion is indeed... and why we need to make
-> that clear. The IDE driver will sleep the disk for 3 and keep it spinning
-> for 4
+> MTRR driver support is broken on SMP because it calls smp functions with
+> interrupts disabled, but interrupts should be disabled because it is
+> called via device_power_up.
+>
+> Badness in smp_call_function at arch/i386/kernel/smp.c:565
+>  [<c0107f88>] dump_stack+0x1e/0x20
+>  [<c0116927>] smp_call_function+0x12b/0x137
+>  [<c011063f>] set_mtrr+0x67/0x121
+>  [<c0110c9b>] mtrr_restore+0x4f/0x73
+>  [<c0219c0f>] sysdev_resume+0x6f/0xf0
+>  [<c021d591>] device_power_up+0x8/0xf
 
-Okee doke. Maybe I did the partial tree code before the switch from 3 to
-4.
-
-Nigel
-
+Looking at this i'm really curious as to whether we need to bother at all,
+can you remove the mtrr restore code and then compare /proc/mtrr before
+and after suspending.

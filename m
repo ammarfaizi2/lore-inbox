@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUARXPN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 18:15:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUARXPN
+	id S264289AbUARX1d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 18:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264290AbUARX1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 18:15:13 -0500
-Received: from mail41-s.fg.online.no ([148.122.161.41]:38580 "EHLO
-	mail41.fg.online.no") by vger.kernel.org with ESMTP id S264261AbUARXPK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 18:15:10 -0500
-Message-ID: <400B137E.3080505@online.no>
-Date: Mon, 19 Jan 2004 00:15:10 +0100
-From: Andreas Tolfsen <ato@online.no>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
+	Sun, 18 Jan 2004 18:27:33 -0500
+Received: from tristate.vision.ee ([194.204.30.144]:2758 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S264289AbUARX1b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 18:27:31 -0500
+From: Lenar =?ISO-8859-1?Q?L=F5hmus?= <lenar@city.ee>
+Subject: Re: Unknown CPU
+To: linux-kernel@vger.kernel.org
+Date: Mon, 19 Jan 2004 01:27:30 +0200
+References: <1eIsb-5BX-23@gated-at.bofh.it> <1eJob-6so-13@gated-at.bofh.it> <1eKX6-7RO-35@gated-at.bofh.it> <1eLT3-nm-19@gated-at.bofh.it>
+User-Agent: KNode/0.7.6
 MIME-Version: 1.0
-To: Andreas Tolfsen <ato@online.no>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove graphic linux logo on framebuffer, kernel-2-4-24
-References: <4241753368.20040118220237@wpk.p.lodz.pl> <Pine.LNX.4.58.0401182123490.9146@ppg_penguin> <400B1264.6050600@online.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <20040118232730.8A27A1A0C@xs.dev>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Tolfsen wrote:
+David Ford wrote:
 
-> Well anyway how you see it, having a option for it when making the 
-> kernel would be very nice.  Then you would have the trouble of making 
-> an init script every time you install it on a new machine.
+> Nope, the CPU is clocked per spec.  I have an issue with this
+> motherboard since I got it, half the time when I reboot it blurps and
+> simply won't boot with a high-low warble.  I have to turn the machine
+> off for about 30 minutes or drain the cmos and reset everything.
+> 
 
-"Wouldn't" --- Most sorry :-(
+I had this no-boot problem with one of the Epox mb's (nForce2). It just
+hanged at POST and booted only after many tries. The solution was to
+disable showing Health Information (those fan RPMs and temperatures) at
+BIOS POST.
 
+Strange, but works this way.
 
+Maybe helps somebody.
+
+Lenar

@@ -1,74 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSHFOYM>; Tue, 6 Aug 2002 10:24:12 -0400
+	id <S319095AbSHFO0w>; Tue, 6 Aug 2002 10:26:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313190AbSHFOYM>; Tue, 6 Aug 2002 10:24:12 -0400
-Received: from daimi.au.dk ([130.225.16.1]:56209 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S312973AbSHFOYL>;
-	Tue, 6 Aug 2002 10:24:11 -0400
-Message-ID: <3D4FDCDB.744EE7C9@daimi.au.dk>
-Date: Tue, 06 Aug 2002 16:27:39 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
+	id <S319096AbSHFO0w>; Tue, 6 Aug 2002 10:26:52 -0400
+Received: from mx7.sac.fedex.com ([199.81.194.38]:48144 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S319095AbSHFO0v> convert rfc822-to-8bit; Tue, 6 Aug 2002 10:26:51 -0400
+Date: Tue, 6 Aug 2002 22:29:03 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Thomas Munck Steenholdt <tmus@get2net.dk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Sv: i810 sound broken...
+In-Reply-To: <200208061030.MAA20559@eday-fe3.tele2.ee>
+Message-ID: <Pine.LNX.4.44.0208062226350.885-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: manfred@colorfullife.com, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL] Warn users about machines with non-working WP bit
-References: <3D4FD736.DA443B4B@daimi.au.dk>
-		<20020806.065652.12285252.davem@redhat.com>
-		<3D4FDA23.90CAB62F@daimi.au.dk> <20020806.070535.24871584.davem@redhat.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/06/2002
+ 10:30:20 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/06/2002
+ 10:30:22 PM,
+	Serialize complete at 08/06/2002 10:30:22 PM
+Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
->    From: Kasper Dupont <kasperd@daimi.au.dk>
->    Date: Tue, 06 Aug 2002 16:16:03 +0200
-> 
->    "David S. Miller" wrote:
->    > What if we have to sleep and page in some memory from disk?
->    >
->    > Your idea could lead to deadlock in a multi-threaded app.
-> 
->    Why? The page should eventually get into memory from the disk,
->    at this point the process doing the copy can continue, and
->    when it finishes the other processes gets waked up. While the
->    copy_to_user is in progress all the processes witht this mm
->    should be in noninterruptible sleep. The sleeping procces
->    doesn't need to do anything to get the page into memory, so I
->    cannot see the problem.
-> 
-> What if the other thread we freeze is holding a lock we
-> need in order to get the page from disk?
 
-If the other thread is in user mode, that should not be possible.
-If the other thread is in kernel mode, things starts getting
-complicated. Maybe we could delay the freezing until the other
-thread leaves kernel. I don't right away see if the current
-thread has to wait for the other process to leave kernel and
-get frozen.
+On Tue, 6 Aug 2002, Thomas Munck Steenholdt wrote:
 
-I just get another idea, that might be easier to get right. If
-the only problem is one process changing the mm while another
-process is doing a copy_to_user, we should be able to fix it by
-placing a readlock on the mm while the copy_to_user is in progress.
+> I'm afraid even that didn't help much - Only now I get a different kind
+> of error... Before, trying to play a sound, the operation would just
+> fisish immediatelyand a few noises were heard in the speakers... Now the
+> operation never finishes - still no sound... and I found these error
+> messages in dmesg..
 
-I don't remember if the mm is protected by a spinlock or
-semaphore, if it is a spinlock maybe it could be replaced by a
-semaphore? Otherwise we could prevent the copy_to_user from
-completing if it has to sleep, and just release the lock if it
-does go to sleep. In that case when the process gets waked up, it
-has to get a special return value, that forces it to repeat the
-verification of the area. (Isn't there a way to ensure the pages
-are in memory before starting the actual copy, that would make
-things simpler?)
+one last try ...
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razrep@daimi.au.dk
-or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+unload all network, scsi, modems. Bare minimum and see if the sound alone
+would work. Again, use "aumix" before playing anything.
+
+Jeff
+
+>
+> dmesg:
+> --------------------------------------------------------------
+> Intel 810 + AC97 Audio, version 0.21, 11:44:41 Aug  6 2002
+> PCI: Setting latency timer of device 00:1f.5 to 64
+> i810: Intel ICH2 found at IO 0x1880 and 0x1c00, IRQ 11
+> i810_audio: Audio Controller supports 6 channels.
+> ac97_codec: AC97 Audio codec, id: 0x4144:0x5362 (Unknown)
+> i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's not present), total channels = 2
+> i810_audio: drain_dac, dma timeout?
+>
+>
+> Any more suggestions?
+>
+> Thomas
+>
+> -- Send gratis SMS og brug gratis e-mail på Everyday.com --
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

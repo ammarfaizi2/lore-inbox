@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbTEZWDl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 18:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTEZWDk
+	id S262268AbTEZWE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 18:04:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbTEZWE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 18:03:40 -0400
-Received: from mail.gmx.de ([213.165.65.60]:26529 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262267AbTEZWDk (ORCPT
+	Mon, 26 May 2003 18:04:56 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:36769 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262268AbTEZWEx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 18:03:40 -0400
-Message-ID: <3ED2924D.2000409@gmx.net>
-Date: Tue, 27 May 2003 00:16:45 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: "David S. Miller" <davem@redhat.com>, Willy Tarreau <willy@w.ods.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, gibbs@scsiguy.com,
-       acme@conectiva.com.br
-Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-References: <1053732598.1951.13.camel@mulgrave>  <20030524064340.GA1451@alpha.home.local> <1053923112.14018.16.camel@rth.ninka.net> <Pine.LNX.4.55L.0305261541320.20861@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.55L.0305261541320.20861@freak.distro.conectiva>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 26 May 2003 18:04:53 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 27 May 2003 00:18:03 +0200 (MEST)
+Message-Id: <UTC200305262218.h4QMI3I11185.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com
+Subject: [patch] kill lvm from compat_ioctl.h
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> 
-> Splitting up the work with someone is senseless, IMO. As I said before,
-> 2.4.22-pre should be better in that aspect. In case it doesnt, I'm giving
-> up 2.4.x maintenance.
+CONFIG_BLK_DEV_LVM is gone, but there is still some associated code.
+This is the include/linux/compat_ioctl.h part.
 
-Please don't give up!
-
-This e-mail is meant as public encouragement and big THANKS for you.
-Every time I hit a bug in 2.4 and sent you a patch, it was applied after
-a short time (few days). So far, 2.4 has been working perfectly for me.
-
-There are many users and developers who are happy with the 2.4 kernel
-and with you as a maintainer, they just don't say it. Something that
-works is often forgotten, once it breaks or doesn't work as expected,
-people start crying loudly.
-
-
-Thank you for maintaining a stable tree,
-
-Carl-Daniel
-
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/compat_ioctl.h b/include/linux/compat_ioctl.h
+--- a/include/linux/compat_ioctl.h	Thu May 22 13:16:24 2003
++++ b/include/linux/compat_ioctl.h	Tue May 27 01:12:14 2003
+@@ -539,28 +539,6 @@
+ COMPATIBLE_IOCTL(ATMTCP_REMOVE)
+ COMPATIBLE_IOCTL(ATMMPC_CTRL)
+ COMPATIBLE_IOCTL(ATMMPC_DATA)
+-#if defined(CONFIG_BLK_DEV_LVM) || defined(CONFIG_BLK_DEV_LVM_MODULE)
+-/* 0xfe - lvm */
+-COMPATIBLE_IOCTL(VG_SET_EXTENDABLE)
+-COMPATIBLE_IOCTL(VG_STATUS_GET_COUNT)
+-COMPATIBLE_IOCTL(VG_STATUS_GET_NAMELIST)
+-COMPATIBLE_IOCTL(VG_REMOVE)
+-COMPATIBLE_IOCTL(VG_RENAME)
+-COMPATIBLE_IOCTL(VG_REDUCE)
+-COMPATIBLE_IOCTL(PE_LOCK_UNLOCK)
+-COMPATIBLE_IOCTL(PV_FLUSH)
+-COMPATIBLE_IOCTL(LVM_LOCK_LVM)
+-COMPATIBLE_IOCTL(LVM_GET_IOP_VERSION)
+-#ifdef LVM_TOTAL_RESET
+-COMPATIBLE_IOCTL(LVM_RESET)
+-#endif
+-COMPATIBLE_IOCTL(LV_SET_ACCESS)
+-COMPATIBLE_IOCTL(LV_SET_STATUS)
+-COMPATIBLE_IOCTL(LV_SET_ALLOCATION)
+-COMPATIBLE_IOCTL(LE_REMAP)
+-COMPATIBLE_IOCTL(LV_BMAP)
+-COMPATIBLE_IOCTL(LV_SNAPSHOT_USE_RATE)
+-#endif /* LVM */
+ #if defined(CONFIG_DRM) || defined(CONFIG_DRM_MODULE)
+ COMPATIBLE_IOCTL(DRM_IOCTL_GET_MAGIC)
+ COMPATIBLE_IOCTL(DRM_IOCTL_IRQ_BUSID)

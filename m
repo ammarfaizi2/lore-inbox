@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136540AbREDWSg>; Fri, 4 May 2001 18:18:36 -0400
+	id <S136544AbREDWUe>; Fri, 4 May 2001 18:20:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136538AbREDWSZ>; Fri, 4 May 2001 18:18:25 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10256 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136537AbREDWST>; Fri, 4 May 2001 18:18:19 -0400
-Subject: Re: Setting kernel options at compile time.
-To: chip@innovates.com (Chip Schweiss)
-Date: Fri, 4 May 2001 23:21:31 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <H00000650007236c.0989014582.dublin.innovates.com@MHS> from "Chip Schweiss" at May 04, 2001 05:16:22 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S136543AbREDWUO>; Fri, 4 May 2001 18:20:14 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:19466 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S136537AbREDWT5>;
+	Fri, 4 May 2001 18:19:57 -0400
+Date: Sat, 5 May 2001 00:19:17 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Cc: proski@gnu.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.4-ac4 - oops on unload "cdrom" module
+Message-ID: <20010505001917.P16507@suse.de>
+In-Reply-To: <200105042110.XAA20705@green.mif.pg.gda.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14vnx8-000893-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <200105042110.XAA20705@green.mif.pg.gda.pl>; from ankry@green.mif.pg.gda.pl on Fri, May 04, 2001 at 11:10:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> a diskless system.  I can get the kernel loaded and running.  The 
-> problem is the i810 needs the kernel parameter "mem=xxxM" set to tell 
-> the kernel how much memory the system has since the on the i810 the 
-> kernel doesn't know how much was taken for video.
+On Fri, May 04 2001, Andrzej Krzysztofowicz wrote:
+> > This oops happens when I run "rmmod cdrom" on a 2.4.4-ac4 kernel with
+> > CONFIG_SYSCTL enabled. It doesn't happen if CONFIG_SYSCTL is disabled.
+> > 
+> > sr_mod isn't loaded at this point. Reference to sd_mod looks weird. After
+> > this oops the "cdrom" module remains in memory in the "deleted" state.
+> 
+> > Unable to handle kernel NULL pointer dereference at virtual address 00000008
+> [...]
+> > >>EIP; c0118051 <unregister_sysctl_table+5/2c>   <=====
+> 
+> The following patch fixes unloading of cdrom module when no cdrom driver
+> loaded (2.4.5-pre, 2.4.4-ac):
+> 
+> --- drivers/cdrom/cdrom.c.old	Fri May  4 22:44:31 2001
+> +++ drivers/cdrom/cdrom.c	Fri May  4 22:54:36 2001
+> @@ -2698,7 +2698,8 @@
+>  
+>  static void cdrom_sysctl_unregister(void)
+>  {
+> -	unregister_sysctl_table(cdrom_sysctl_header);
+> +	if (cdrom_sysctl_header)
+> +		unregister_sysctl_table(cdrom_sysctl_header);
+>  }
+>  
+>  #endif /* CONFIG_SYSCTL */
 
-The BIOS itself marks off the block of memory used in VGA emulation
-modes. The agpgart driver then gets used by X11 to allocate for the other
-modes it uses.  At least for every i810 device I have ever seen.
+Thanks applied.
 
-Alan
+-- 
+Jens Axboe
 

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261682AbRESHFS>; Sat, 19 May 2001 03:05:18 -0400
+	id <S261678AbRESHEs>; Sat, 19 May 2001 03:04:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261681AbRESHFJ>; Sat, 19 May 2001 03:05:09 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:51445 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261679AbRESHE7>;
-	Sat, 19 May 2001 03:04:59 -0400
-Date: Sat, 19 May 2001 03:04:57 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrew Clausen <clausen@gnu.org>
-cc: Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code 
- inuserspace
-In-Reply-To: <3B06194B.C487240C@gnu.org>
-Message-ID: <Pine.GSO.4.21.0105190259350.3724-100000@weyl.math.psu.edu>
+	id <S261679AbRESHEi>; Sat, 19 May 2001 03:04:38 -0400
+Received: from skif.spylog.com ([194.67.35.250]:40515 "HELO skif.spylog.com")
+	by vger.kernel.org with SMTP id <S261678AbRESHE2>;
+	Sat, 19 May 2001 03:04:28 -0400
+Date: Sat, 19 May 2001 11:04:12 +0400
+From: Peter Zaitsev <pz@spylog.ru>
+X-Mailer: The Bat! (v1.51)
+Reply-To: Peter Zaitsev <pz@spylog.ru>
+Organization: http://www.spylog.ru
+X-Priority: 3 (Normal)
+Message-ID: <195243776381.20010519110412@spylog.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Linux RAID5 issues.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello linux-kernel,
 
+  I'm using software raid5 on about 30 servers, and Yet twice I had a
+  serious data loss becouse of the behavior of  linux RAID device.
 
-On Sat, 19 May 2001, Andrew Clausen wrote:
+    In several cases I've got more then one of drives completely
+  disconnected. I have no ideas why this happened but this had
+  something to do with new AHA controler drivers and enabled TCQ.
+  After reboot all drivers turned back.
+    Other options for this to happen may be a controler failure, then
+  array is on several of them.
 
-> (1) these issues are independent.  The partition parsing could
-> be done in user space, today, by blkpg, if I read the code correctly
-> ;-)  (there's an ioctl for [un]registering partitions)  Never
-> tried it though ;-)
+  The linux RAID behavior in this case was to still allow write to the
+  array, so what only writes to online drives there made.  This have
+  produced a huge mess on the drive after half an hour of running in
+  this mode.
 
-ioctls are even more evil than encoding limits into the name. Cease
-and desist, please.
+  The better solution I  think would be block writes to the array
+  after second drive fail. This would at least give users more
+  recovery options.
 
-> (2) what about bootstrapping?  how do you find the root device?
-> Do you do "root=/dev/hda/offset=63,limit=1235823"?  Bit nasty.
+  
+  
+  
 
-Ben's patch makes initrd mandatory.
+-- 
+Best regards,
+ Peter                          mailto:pz@spylog.ru
 
-> (3) how does this work for LVM and RAID?
-
-It doesn't
- 
-> (4) <propaganda>libparted already has a fair bit of partition
-> scanning code, etc.  Should be trivial to hack it up... That said,
-> it should be split up into .so modules... 200k is a bit heavy just
-> for mounting partitions (most of the bulk is file system stuff).
-> </propaganda>
-
-We will be much better off providing a sane API from the kernel. And
-dropping the layout-aware code from fdisk, parted, yodda, yodda.
-
-Libraries do not remove code duplication. You still need to relink the
-stuff you keep statically linked, etc. Otherwise you get version skew.
-Big way. Besides, you can't use library from a script, etc.
 

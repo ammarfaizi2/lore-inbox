@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262036AbRERBCX>; Thu, 17 May 2001 21:02:23 -0400
+	id <S262226AbRERBal>; Thu, 17 May 2001 21:30:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262221AbRERBCE>; Thu, 17 May 2001 21:02:04 -0400
-Received: from nat-hdqt.valinux.com ([198.186.202.17]:16768 "EHLO
-	think.thunk.org") by vger.kernel.org with ESMTP id <S262036AbRERBB6>;
-	Thu, 17 May 2001 21:01:58 -0400
-Date: Wed, 16 May 2001 19:12:06 -0400
-From: Theodore Tso <tytso@valinux.com>
-To: Val Henson <val@nmt.edu>
-Cc: Stuart MacDonald <stuartm@connecttech.com>,
-        Theodore Tso <tytso@valinux.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] drivers/char/serial.c bug in ST16C654 detection
-Message-ID: <20010516191206.B857@think.thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@valinux.com>,
-	Val Henson <val@nmt.edu>,
-	Stuart MacDonald <stuartm@connecttech.com>,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20010511182723.M18959@boardwalk> <033101c0dcaf$10557f40$294b82ce@connecttech.com> <20010514162010.G5060@boardwalk> <010001c0dd46$38fc9360$294b82ce@connecttech.com> <20010516161245.O6892@boardwalk>
+	id <S262227AbRERBab>; Thu, 17 May 2001 21:30:31 -0400
+Received: from felix.convergence.de ([212.84.236.131]:6057 "EHLO
+	convergence.de") by vger.kernel.org with ESMTP id <S262226AbRERBa2>;
+	Thu, 17 May 2001 21:30:28 -0400
+Date: Fri, 18 May 2001 03:29:23 +0200
+From: Felix von Leitner <leitner@convergence.de>
+To: linux-kernel@vger.kernel.org
+Subject: problem: reading from (rivafb) framebuffer is really slow
+Message-ID: <20010518032923.A17686@convergence.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010516161245.O6892@boardwalk>; from val@nmt.edu on Wed, May 16, 2001 at 04:12:45PM -0600
+User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 16, 2001 at 04:12:45PM -0600, Val Henson wrote:
-> Anyone know where Ted Tso is?  He hasn't posted in several weeks.
-> Alan, will you put this in -ac?  This patch fixes a bug in serial.c
-> that causes a crash on machines with a ST16C654.
+When benchmarking DirectFB, I found that a typical software alpha
+blending rectangle fill is completely dominated (I'm talking 90% of the
+CPU cycles here) by the time it takes to read pixels from the
+framebuffer.
 
-I'm around, just swamped with a few other things.  Dealing with serial
-driver issues is on the top of my to do list....
+The pixels are read linearly in chunks of aligned 32-bit words.  It's a
+Geforce 2 GTS in 1024x768 with 32-bit color depth using rivafb.  This
+looks quite crass to me.  Any ideas?  Maybe rivafb does not initialize
+AGP and the card is in PCI mode or something?
 
-						- Ted
+Felix

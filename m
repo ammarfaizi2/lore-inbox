@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144543AbRA2AVk>; Sun, 28 Jan 2001 19:21:40 -0500
+	id <S144567AbRA2AaC>; Sun, 28 Jan 2001 19:30:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144574AbRA2AVb>; Sun, 28 Jan 2001 19:21:31 -0500
-Received: from blackdog.wirespeed.com ([208.170.106.25]:7941 "EHLO
-	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
-	id <S144543AbRA2AVN>; Sun, 28 Jan 2001 19:21:13 -0500
-Message-ID: <3A74B59A.5070502@redhat.com>
-Date: Sun, 28 Jan 2001 18:13:14 -0600
-From: Joe deBlaquiere <jadb@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Michael H. Warfield" <mhw@wittsend.com>
-CC: John Jasen <jjasen@datafoundation.com>,
-        Mike Pontillo <mike_p@polaris.wox.org>, linux-kernel@vger.kernel.org
-Subject: Re: Support for 802.11 cards?
-In-Reply-To: <Pine.LNX.4.21.0101281344040.12805-100000@polaris.wox.org> <Pine.LNX.4.30.0101281704050.2343-100000@flash.datafoundation.com> <20010128182358.F23716@alcove.wittsend.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S144583AbRA2A3w>; Sun, 28 Jan 2001 19:29:52 -0500
+Received: from platan.vc.cvut.cz ([147.32.240.81]:10758 "EHLO
+	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
+	id <S144567AbRA2A3p>; Sun, 28 Jan 2001 19:29:45 -0500
+Date: Mon, 29 Jan 2001 01:28:48 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: trevor-hemsley@dial.pipex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: display problem with matroxfb
+Message-ID: <20010129012848.A16593@platan.vc.cvut.cz>
+In-Reply-To: <20010129011553.A1085@ppc.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010129011553.A1085@ppc.vc.cvut.cz>; from vandrove@vc.cvut.cz on Mon, Jan 29, 2001 at 01:15:53AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a rather informative discussion of wireless support at :
-
-http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Linux.Wireless.drivers.html
-
-Though possibly a little out of date, the author of this obviously did 
-their research. Kudos!
-
---
-Joe
-
-Michael H. Warfield wrote:
-
-> On Sun, Jan 28, 2001 at 05:07:33PM -0500, John Jasen wrote:
+> > you do not have to specify vesa,pixclock,hslen and vslen, as you leave
+> > them on defaults. 
 > 
->> On Sun, 28 Jan 2001, Mike Pontillo wrote:
+> Talking of defaults for matroxfb, would you consider limiting the fv: 
+> value default to something reasonable that'll work on all monitors? It
+> took me several recompiles/reboots to get a setting that would not put
+> my monitor into auto-powerdown. If you defaulted to fv:60 then it 
+> would work on 99.9% of monitors and then people could override that 
+> upwards. I have a Philips 201B 21" monitor and was using 
 > 
+> append="video=matrox:vesa:400"
 > 
->>> 	I was wondering what 802.11 PCI cards anyone knows of that run
->>> under Linux-2.4. (or 2.2 for that matter)
->> 
-> 
->> I _think_ a good many of the 802.11 wireless ISA and PCI cards are just
->> bus to PCMCIA adapters, so it would be a question of whether or not the
->> PCMCIA card is supported and if the bridge is supported.
-> 
-> 
-> 	Last I knew (straight from the Lucent people), the ISA bridge
-> card worked fine and the PCI card did NOT work at all.  I've since
-> confirmed that, first hand, myself (I currently have the ISA bridge in
-> operation) on the 2.2 kernels.  The ISA bridge also works on the 2.4
-> kernels but I have not retested the PCI bridge on 2.4.  The Lucent
-> people claim that the Linux pcmcia people are aware of the problem.
-> 
-> 	Mike
+> and this was setting too high a vertical refresh rate for the monitors
+> capabilities. Adding fv:85 lets it work. The card is a Matrox 
+> Millennium G200 8MB SDRAM.
 
+Are you sure that it did not run out of horizontal sync, or something
+like that? vesa:400 == vesa:0x190 == 1152x864/60Hz... And it powers
+up in 60Hz, at least here ;-)
 
+See timmings array in drivers/video/matrox/matroxfb_base.c - all videomodes
+except XXXx400 powerups in fv=60Hz unless you specified fh/fv/pixclock.
+XXXx400 powerups with fv=70Hz, like standard VGA does.
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274078AbRISOxw>; Wed, 19 Sep 2001 10:53:52 -0400
+	id <S274077AbRISOvu>; Wed, 19 Sep 2001 10:51:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274082AbRISOxk>; Wed, 19 Sep 2001 10:53:40 -0400
-Received: from t2.redhat.com ([199.183.24.243]:8184 "HELO
+	id <S274080AbRISOvk>; Wed, 19 Sep 2001 10:51:40 -0400
+Received: from t2.redhat.com ([199.183.24.243]:7160 "HELO
 	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S274078AbRISOxG>; Wed, 19 Sep 2001 10:53:06 -0400
+	id <S274078AbRISOvR>; Wed, 19 Sep 2001 10:51:17 -0400
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: David Howells <dhowells@redhat.com>,
         Manfred Spraul <manfred@colorfullife.com>,
@@ -14,2380 +14,2280 @@ Cc: David Howells <dhowells@redhat.com>,
 Subject: Re: Deadlock on the mm->mmap_sem 
 In-Reply-To: Message from Linus Torvalds <torvalds@transmeta.com> 
    of "Tue, 18 Sep 2001 09:49:42 PDT." <Pine.LNX.4.33.0109180948260.2077-100000@penguin.transmeta.com> 
-Date: Wed, 19 Sep 2001 15:53:23 +0100
-Message-ID: <5079.1000911203@warthog.cambridge.redhat.com>
+Date: Wed, 19 Sep 2001 15:51:34 +0100
+Message-ID: <5063.1000911094@warthog.cambridge.redhat.com>
 From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Here's a patch to make rwsems unfair.
+Linus Torvalds <torvalds@transmeta.com> wrote:
+> On Tue, 18 Sep 2001, David Howells wrote:
+> >
+> > Okay preliminary as-yet-untested patch to cure coredumping of the need
+> > to hold the mm semaphore:
+> >
+> > 	- kernel/fork.c: function to partially copy an mm_struct and attach it
+> > 			 to the task_struct in place of the old.
+> 
+> Oh, please no.
+> 
+> If the choice is between a hack to do strange and incomprehensible things
+> for a special case, and just making the semaphores do the same thing
+> rw-spinlocks do and make the problem go away naturally, Ill take #2 any
+> day. The patches already exist, after all.
+
+But surely giving rw-semaphores this behaviour is even worse... It introduces
+the possibility of livelock, and so DoS attacks, and it affects more than just
+access to the mm_struct.
+
+Also comparing them to rw-spinlocks isn't really fair IMHO since they have
+different restrictions. Things inside spinlocks aren't allowed to sleep, and
+mustn't incur pagefaults.
+
+I also don't think the hack is that bad. All it's doing is taking a copy of
+the process's VM decription so that it knows that nobody is going to modify it
+whilst a coredump is in progress. Furthermore, it _only_ affects the coredump
+path, and the coredump path is just about the last thing on the agenda for a
+dying process.
+
+However, if you don't like that, how about just changing the lock on mm_struct
+to a special mm_struct-only type lock that has a recursive lock operation for
+use by the pagefault handler (and _only_ the pagefault handler)? I've attached
+a patch to do just that. This introduces five operations:
+
+	- mm_lock_shared()		- get shared lock fairly
+	- mm_lock_shared_recursive()	- get shared lock unfairly
+	- mm_unlock_shared()		- release shared lock
+	- mm_lock_exclusive()		- get exclusive lock
+	- mm_unlock_exclusive()		- release exclusive lock
 
 David
 
 
-diff -uNr linux-2.4.10-pre12/arch/alpha/config.in linux-rwsem/arch/alpha/config.in
---- linux-2.4.10-pre12/arch/alpha/config.in	Tue Sep 18 08:45:58 2001
-+++ linux-rwsem/arch/alpha/config.in	Wed Sep 19 14:46:18 2001
-@@ -5,8 +5,6 @@
+diff -uNr linux-2.4.10-pre12/arch/alpha/kernel/osf_sys.c linux-mmsem/arch/alpha/kernel/osf_sys.c
+--- linux-2.4.10-pre12/arch/alpha/kernel/osf_sys.c	Tue Sep 18 08:45:58 2001
++++ linux-mmsem/arch/alpha/kernel/osf_sys.c	Wed Sep 19 12:57:04 2001
+@@ -241,9 +241,9 @@
+ 			goto out;
+ 	}
+ 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	ret = do_mmap(file, addr, len, prot, flags, off);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	if (file)
+ 		fput(file);
+ out:
+diff -uNr linux-2.4.10-pre12/arch/alpha/mm/fault.c linux-mmsem/arch/alpha/mm/fault.c
+--- linux-2.4.10-pre12/arch/alpha/mm/fault.c	Wed Sep 19 10:39:05 2001
++++ linux-mmsem/arch/alpha/mm/fault.c	Wed Sep 19 13:55:13 2001
+@@ -113,7 +113,7 @@
+ 		goto vmalloc_fault;
+ #endif
  
- define_bool CONFIG_ALPHA y
- define_bool CONFIG_UID16 n
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK n
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM y
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+ 		goto bad_area;
+@@ -147,7 +147,7 @@
+ 	 * the fault.
+ 	 */
+ 	fault = handle_mm_fault(mm, vma, address, cause > 0);
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
  
- mainmenu_name "Kernel configuration of Linux for Alpha machines"
+ 	if (fault < 0)
+ 		goto out_of_memory;
+@@ -161,7 +161,7 @@
+  * Fix it, but check if it's kernel or user first..
+  */
+ bad_area:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
  
-diff -uNr linux-2.4.10-pre12/arch/arm/config.in linux-rwsem/arch/arm/config.in
---- linux-2.4.10-pre12/arch/arm/config.in	Tue Sep 18 08:46:39 2001
-+++ linux-rwsem/arch/arm/config.in	Wed Sep 19 14:46:18 2001
-@@ -9,8 +9,6 @@
- define_bool CONFIG_SBUS n
- define_bool CONFIG_MCA n
- define_bool CONFIG_UID16 y
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
+ 	if (user_mode(regs)) {
+ 		force_sig(SIGSEGV, current);
+@@ -198,7 +198,7 @@
+ 	if (current->pid == 1) {
+ 		current->policy |= SCHED_YIELD;
+ 		schedule();
+-		down_read(&mm->mmap_sem);
++		mm_lock_shared_recursive(mm);
+ 		goto survive;
+ 	}
+ 	printk(KERN_ALERT "VM: killing process %s(%d)\n",
+diff -uNr linux-2.4.10-pre12/arch/arm/kernel/sys_arm.c linux-mmsem/arch/arm/kernel/sys_arm.c
+--- linux-2.4.10-pre12/arch/arm/kernel/sys_arm.c	Tue Sep 18 08:46:39 2001
++++ linux-mmsem/arch/arm/kernel/sys_arm.c	Wed Sep 19 12:57:09 2001
+@@ -74,9 +74,9 @@
+ 			goto out;
+ 	}
  
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
  
- mainmenu_option next_comment
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/anakin linux-rwsem/arch/arm/def-configs/anakin
---- linux-2.4.10-pre12/arch/arm/def-configs/anakin	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/anakin	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+ 	if (file)
+ 		fput(file);
+@@ -125,9 +125,9 @@
+ 	    vectors_base() == 0)
+ 		goto out;
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/assabet linux-rwsem/arch/arm/def-configs/assabet
---- linux-2.4.10-pre12/arch/arm/def-configs/assabet	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/assabet	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	ret = do_mremap(addr, old_len, new_len, flags, new_addr);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/bitsy linux-rwsem/arch/arm/def-configs/bitsy
---- linux-2.4.10-pre12/arch/arm/def-configs/bitsy	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/bitsy	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+ out:
+ 	return ret;
+diff -uNr linux-2.4.10-pre12/arch/arm/mm/fault-common.c linux-mmsem/arch/arm/mm/fault-common.c
+--- linux-2.4.10-pre12/arch/arm/mm/fault-common.c	Tue Sep 18 08:46:39 2001
++++ linux-mmsem/arch/arm/mm/fault-common.c	Wed Sep 19 13:56:39 2001
+@@ -251,9 +251,9 @@
+ 	if (in_interrupt() || !mm)
+ 		goto no_context;
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/ebsa110 linux-rwsem/arch/arm/def-configs/ebsa110
---- linux-2.4.10-pre12/arch/arm/def-configs/ebsa110	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/ebsa110	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
+ 	fault = __do_page_fault(mm, addr, error_code, tsk);
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/flexanet linux-rwsem/arch/arm/def-configs/flexanet
---- linux-2.4.10-pre12/arch/arm/def-configs/flexanet	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/flexanet	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+ 	/*
+ 	 * Handle the "normal" case first
+diff -uNr linux-2.4.10-pre12/arch/cris/kernel/sys_cris.c linux-mmsem/arch/cris/kernel/sys_cris.c
+--- linux-2.4.10-pre12/arch/cris/kernel/sys_cris.c	Tue Sep 18 08:46:43 2001
++++ linux-mmsem/arch/cris/kernel/sys_cris.c	Wed Sep 19 12:57:13 2001
+@@ -59,9 +59,9 @@
+                         goto out;
+         }
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/integrator linux-rwsem/arch/arm/def-configs/integrator
---- linux-2.4.10-pre12/arch/arm/def-configs/integrator	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/integrator	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+-        down_write(&current->mm->mmap_sem);
++        mm_lock_exclusive(current->mm);
+         error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-        up_write(&current->mm->mmap_sem);
++        mm_unlock_exclusive(current->mm);
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/lart linux-rwsem/arch/arm/def-configs/lart
---- linux-2.4.10-pre12/arch/arm/def-configs/lart	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/lart	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+         if (file)
+                 fput(file);
+diff -uNr linux-2.4.10-pre12/arch/cris/mm/fault.c linux-mmsem/arch/cris/mm/fault.c
+--- linux-2.4.10-pre12/arch/cris/mm/fault.c	Tue Sep 18 08:46:43 2001
++++ linux-mmsem/arch/cris/mm/fault.c	Wed Sep 19 13:57:18 2001
+@@ -266,7 +266,7 @@
+ 	if (in_interrupt() || !mm)
+ 		goto no_context;
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/neponset linux-rwsem/arch/arm/def-configs/neponset
---- linux-2.4.10-pre12/arch/arm/def-configs/neponset	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/neponset	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+ 		goto bad_area;
+@@ -324,7 +324,7 @@
+                 goto out_of_memory;
+ 	}
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/pleb linux-rwsem/arch/arm/def-configs/pleb
---- linux-2.4.10-pre12/arch/arm/def-configs/pleb	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/pleb	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return;
+ 	
+ 	/*
+@@ -334,7 +334,7 @@
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/rpc linux-rwsem/arch/arm/def-configs/rpc
---- linux-2.4.10-pre12/arch/arm/def-configs/rpc	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/rpc	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+  bad_area:
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/arm/def-configs/shark linux-rwsem/arch/arm/def-configs/shark
---- linux-2.4.10-pre12/arch/arm/def-configs/shark	Tue Sep 18 08:46:40 2001
-+++ linux-rwsem/arch/arm/def-configs/shark	Wed Sep 19 14:46:18 2001
-@@ -6,8 +6,6 @@
- # CONFIG_SBUS is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/cris/config.in linux-rwsem/arch/cris/config.in
---- linux-2.4.10-pre12/arch/cris/config.in	Tue Sep 18 08:46:43 2001
-+++ linux-rwsem/arch/cris/config.in	Wed Sep 19 14:46:18 2001
-@@ -5,8 +5,6 @@
- mainmenu_name "Linux/CRIS Kernel Configuration"
+  bad_area_nosemaphore:
+ 	DPG(show_registers(regs));
+@@ -397,14 +397,14 @@
+ 	 */
  
- define_bool CONFIG_UID16 y
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
+  out_of_memory:
+-        up_read(&mm->mmap_sem);
++        mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", tsk->comm);
+ 	if(user_mode(regs))
+ 		do_exit(SIGKILL);
+ 	goto no_context;
  
- mainmenu_option next_comment
- comment 'Code maturity level options'
-diff -uNr linux-2.4.10-pre12/arch/cris/defconfig linux-rwsem/arch/cris/defconfig
---- linux-2.4.10-pre12/arch/cris/defconfig	Tue Sep 18 08:46:43 2001
-+++ linux-rwsem/arch/cris/defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+  do_sigbus:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
  
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/i386/config.in linux-rwsem/arch/i386/config.in
---- linux-2.4.10-pre12/arch/i386/config.in	Wed Sep 19 10:39:05 2001
-+++ linux-rwsem/arch/i386/config.in	Wed Sep 19 14:46:18 2001
-@@ -50,8 +50,6 @@
-    define_bool CONFIG_X86_CMPXCHG n
-    define_bool CONFIG_X86_XADD n
-    define_int  CONFIG_X86_L1_CACHE_SHIFT 4
--   define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--   define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
- else
-    define_bool CONFIG_X86_WP_WORKS_OK y
-    define_bool CONFIG_X86_INVLPG y
-@@ -59,8 +57,6 @@
-    define_bool CONFIG_X86_XADD y
-    define_bool CONFIG_X86_BSWAP y
-    define_bool CONFIG_X86_POPAD_OK y
--   define_bool CONFIG_RWSEM_GENERIC_SPINLOCK n
--   define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM y
- fi
- if [ "$CONFIG_M486" = "y" ]; then
-    define_int  CONFIG_X86_L1_CACHE_SHIFT 4
-diff -uNr linux-2.4.10-pre12/arch/i386/defconfig linux-rwsem/arch/i386/defconfig
---- linux-2.4.10-pre12/arch/i386/defconfig	Wed Sep 19 10:39:05 2001
-+++ linux-rwsem/arch/i386/defconfig	Wed Sep 19 14:46:18 2001
-@@ -42,8 +42,6 @@
- CONFIG_X86_XADD=y
- CONFIG_X86_BSWAP=y
- CONFIG_X86_POPAD_OK=y
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- CONFIG_X86_L1_CACHE_SHIFT=5
- CONFIG_X86_TSC=y
- CONFIG_X86_GOOD_APIC=y
-diff -uNr linux-2.4.10-pre12/arch/ia64/config.in linux-rwsem/arch/ia64/config.in
---- linux-2.4.10-pre12/arch/ia64/config.in	Tue Sep 18 08:46:41 2001
-+++ linux-rwsem/arch/ia64/config.in	Wed Sep 19 14:46:18 2001
-@@ -23,8 +23,6 @@
- define_bool CONFIG_EISA n
- define_bool CONFIG_MCA n
- define_bool CONFIG_SBUS n
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
+ 	/*
+          * Send a sigbus, regardless of whether we were in kernel
+diff -uNr linux-2.4.10-pre12/arch/i386/kernel/ldt.c linux-mmsem/arch/i386/kernel/ldt.c
+--- linux-2.4.10-pre12/arch/i386/kernel/ldt.c	Tue Sep 18 08:45:58 2001
++++ linux-mmsem/arch/i386/kernel/ldt.c	Wed Sep 19 12:57:03 2001
+@@ -73,7 +73,7 @@
+ 	 * the GDT index of the LDT is allocated dynamically, and is
+ 	 * limited by MAX_LDT_DESCRIPTORS.
+ 	 */
+-	down_write(&mm->mmap_sem);
++	mm_lock_exclusive(mm);
+ 	if (!mm->context.segments) {
+ 		void * segments = vmalloc(LDT_ENTRIES*LDT_ENTRY_SIZE);
+ 		error = -ENOMEM;
+@@ -124,7 +124,7 @@
+ 	error = 0;
  
- if [ "$CONFIG_IA64_HP_SIM" = "n" ]; then
-   define_bool CONFIG_ACPI y
-diff -uNr linux-2.4.10-pre12/arch/m68k/config.in linux-rwsem/arch/m68k/config.in
---- linux-2.4.10-pre12/arch/m68k/config.in	Tue Sep 18 08:46:04 2001
-+++ linux-rwsem/arch/m68k/config.in	Wed Sep 19 14:46:18 2001
-@@ -4,8 +4,6 @@
- #
- 
- define_bool CONFIG_UID16 y
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
- 
- mainmenu_name "Linux/68k Kernel Configuration"
- 
-diff -uNr linux-2.4.10-pre12/arch/mips/config.in linux-rwsem/arch/mips/config.in
---- linux-2.4.10-pre12/arch/mips/config.in	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/config.in	Wed Sep 19 14:46:18 2001
-@@ -68,8 +68,6 @@
-    fi
- bool 'Support for Alchemy Semi PB1000 board' CONFIG_MIPS_PB1000
- 
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
- 
- #
- # Select some configuration options automatically for certain systems.
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig linux-rwsem/arch/mips/defconfig
---- linux-2.4.10-pre12/arch/mips/defconfig	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig	Wed Sep 19 14:46:18 2001
-@@ -32,8 +32,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_ARC32=y
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-atlas linux-rwsem/arch/mips/defconfig-atlas
---- linux-2.4.10-pre12/arch/mips/defconfig-atlas	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-atlas	Wed Sep 19 14:46:18 2001
-@@ -32,8 +32,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_PCI=y
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-ddb5476 linux-rwsem/arch/mips/defconfig-ddb5476
---- linux-2.4.10-pre12/arch/mips/defconfig-ddb5476	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-ddb5476	Wed Sep 19 14:46:18 2001
-@@ -32,8 +32,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_ISA=y
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-ddb5477 linux-rwsem/arch/mips/defconfig-ddb5477
---- linux-2.4.10-pre12/arch/mips/defconfig-ddb5477	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-ddb5477	Wed Sep 19 14:46:18 2001
-@@ -32,8 +32,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_CPU_LITTLE_ENDIAN=y
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-decstation linux-rwsem/arch/mips/defconfig-decstation
---- linux-2.4.10-pre12/arch/mips/defconfig-decstation	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-decstation	Wed Sep 19 14:46:18 2001
-@@ -32,8 +32,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- # CONFIG_ISA is not set
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-ip22 linux-rwsem/arch/mips/defconfig-ip22
---- linux-2.4.10-pre12/arch/mips/defconfig-ip22	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-ip22	Wed Sep 19 14:46:18 2001
-@@ -32,8 +32,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_ARC32=y
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-it8172 linux-rwsem/arch/mips/defconfig-it8172
---- linux-2.4.10-pre12/arch/mips/defconfig-it8172	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-it8172	Wed Sep 19 14:46:18 2001
-@@ -37,8 +37,6 @@
- # CONFIG_IT8172_SCR1 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_PCI=y
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-malta linux-rwsem/arch/mips/defconfig-malta
---- linux-2.4.10-pre12/arch/mips/defconfig-malta	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-malta	Wed Sep 19 14:46:18 2001
-@@ -32,8 +32,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_I8259=y
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-nino linux-rwsem/arch/mips/defconfig-nino
---- linux-2.4.10-pre12/arch/mips/defconfig-nino	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-nino	Wed Sep 19 14:46:18 2001
-@@ -35,8 +35,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_PC_KEYB=y
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-ocelot linux-rwsem/arch/mips/defconfig-ocelot
---- linux-2.4.10-pre12/arch/mips/defconfig-ocelot	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-ocelot	Wed Sep 19 14:46:18 2001
-@@ -32,8 +32,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_PCI=y
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-pb1000 linux-rwsem/arch/mips/defconfig-pb1000
---- linux-2.4.10-pre12/arch/mips/defconfig-pb1000	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-pb1000	Wed Sep 19 14:46:18 2001
-@@ -32,8 +32,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- CONFIG_MIPS_PB1000=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_MIPS_AU1000=y
-diff -uNr linux-2.4.10-pre12/arch/mips/defconfig-rm200 linux-rwsem/arch/mips/defconfig-rm200
---- linux-2.4.10-pre12/arch/mips/defconfig-rm200	Wed Sep 19 10:39:06 2001
-+++ linux-rwsem/arch/mips/defconfig-rm200	Wed Sep 19 14:46:18 2001
-@@ -32,8 +32,6 @@
- # CONFIG_MIPS_ITE8172 is not set
- # CONFIG_MIPS_IVR is not set
- # CONFIG_MIPS_PB1000 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_MCA is not set
- # CONFIG_SBUS is not set
- CONFIG_ARC32=y
-diff -uNr linux-2.4.10-pre12/arch/mips64/config.in linux-rwsem/arch/mips64/config.in
---- linux-2.4.10-pre12/arch/mips64/config.in	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/mips64/config.in	Wed Sep 19 14:46:18 2001
-@@ -27,8 +27,6 @@
- fi
- endmenu
- 
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
- 
- #
- # Select some configuration options automatically based on user selections
-diff -uNr linux-2.4.10-pre12/arch/mips64/defconfig linux-rwsem/arch/mips64/defconfig
---- linux-2.4.10-pre12/arch/mips64/defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/mips64/defconfig	Wed Sep 19 14:46:18 2001
-@@ -19,8 +19,6 @@
- # CONFIG_REPLICATE_KTEXT is not set
- # CONFIG_REPLICATE_EXHANDLERS is not set
- CONFIG_SMP=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- CONFIG_BOOT_ELF64=y
- CONFIG_ARC64=y
- CONFIG_COHERENT_IO=y
-diff -uNr linux-2.4.10-pre12/arch/mips64/defconfig-ip22 linux-rwsem/arch/mips64/defconfig-ip22
---- linux-2.4.10-pre12/arch/mips64/defconfig-ip22	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/mips64/defconfig-ip22	Wed Sep 19 14:46:18 2001
-@@ -12,8 +12,6 @@
- #
- CONFIG_SGI_IP22=y
- # CONFIG_SGI_IP27 is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- CONFIG_BOOT_ELF32=y
- CONFIG_ARC32=y
- CONFIG_BOARD_SCACHE=y
-diff -uNr linux-2.4.10-pre12/arch/mips64/defconfig-ip27 linux-rwsem/arch/mips64/defconfig-ip27
---- linux-2.4.10-pre12/arch/mips64/defconfig-ip27	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/mips64/defconfig-ip27	Wed Sep 19 14:46:18 2001
-@@ -19,8 +19,6 @@
- # CONFIG_REPLICATE_KTEXT is not set
- # CONFIG_REPLICATE_EXHANDLERS is not set
- CONFIG_SMP=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- CONFIG_BOOT_ELF64=y
- CONFIG_ARC64=y
- CONFIG_COHERENT_IO=y
-diff -uNr linux-2.4.10-pre12/arch/mips64/defconfig-ip32 linux-rwsem/arch/mips64/defconfig-ip32
---- linux-2.4.10-pre12/arch/mips64/defconfig-ip32	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/mips64/defconfig-ip32	Wed Sep 19 14:46:18 2001
-@@ -13,8 +13,6 @@
- # CONFIG_SGI_IP22 is not set
- # CONFIG_SGI_IP27 is not set
- CONFIG_SGI_IP32=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- CONFIG_BOOT_ELF32=y
- CONFIG_ARC32=y
- CONFIG_PC_KEYB=y
-diff -uNr linux-2.4.10-pre12/arch/parisc/config.in linux-rwsem/arch/parisc/config.in
---- linux-2.4.10-pre12/arch/parisc/config.in	Tue Sep 18 08:46:43 2001
-+++ linux-rwsem/arch/parisc/config.in	Wed Sep 19 14:46:18 2001
-@@ -7,8 +7,6 @@
- 
- define_bool CONFIG_PARISC y
- define_bool CONFIG_UID16 n
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
- 
- mainmenu_option next_comment
- comment 'Code maturity level options'
-diff -uNr linux-2.4.10-pre12/arch/ppc/config.in linux-rwsem/arch/ppc/config.in
---- linux-2.4.10-pre12/arch/ppc/config.in	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/config.in	Wed Sep 19 14:46:18 2001
-@@ -4,8 +4,6 @@
- # see Documentation/kbuild/config-language.txt.
- #
- define_bool CONFIG_UID16 n
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK n
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM y
- 
- mainmenu_name "Linux/PowerPC Kernel Configuration"
- 
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/IVMS8_defconfig linux-rwsem/arch/ppc/configs/IVMS8_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/IVMS8_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/IVMS8_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/SM850_defconfig linux-rwsem/arch/ppc/configs/SM850_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/SM850_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/SM850_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/SPD823TS_defconfig linux-rwsem/arch/ppc/configs/SPD823TS_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/SPD823TS_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/SPD823TS_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/TQM823L_defconfig linux-rwsem/arch/ppc/configs/TQM823L_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/TQM823L_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/TQM823L_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/TQM850L_defconfig linux-rwsem/arch/ppc/configs/TQM850L_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/TQM850L_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/TQM850L_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/TQM860L_defconfig linux-rwsem/arch/ppc/configs/TQM860L_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/TQM860L_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/TQM860L_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/apus_defconfig linux-rwsem/arch/ppc/configs/apus_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/apus_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/apus_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/bseip_defconfig linux-rwsem/arch/ppc/configs/bseip_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/bseip_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/bseip_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/common_defconfig linux-rwsem/arch/ppc/configs/common_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/common_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/common_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/est8260_defconfig linux-rwsem/arch/ppc/configs/est8260_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/est8260_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/est8260_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/gemini_defconfig linux-rwsem/arch/ppc/configs/gemini_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/gemini_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/gemini_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/ibmchrp_defconfig linux-rwsem/arch/ppc/configs/ibmchrp_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/ibmchrp_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/ibmchrp_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/mbx_defconfig linux-rwsem/arch/ppc/configs/mbx_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/mbx_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/mbx_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/oak_defconfig linux-rwsem/arch/ppc/configs/oak_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/oak_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/oak_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/power3_defconfig linux-rwsem/arch/ppc/configs/power3_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/power3_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/power3_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/rpxcllf_defconfig linux-rwsem/arch/ppc/configs/rpxcllf_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/rpxcllf_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/rpxcllf_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/rpxlite_defconfig linux-rwsem/arch/ppc/configs/rpxlite_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/rpxlite_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/rpxlite_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/configs/walnut_defconfig linux-rwsem/arch/ppc/configs/walnut_defconfig
---- linux-2.4.10-pre12/arch/ppc/configs/walnut_defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/configs/walnut_defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/ppc/defconfig linux-rwsem/arch/ppc/defconfig
---- linux-2.4.10-pre12/arch/ppc/defconfig	Wed Sep 19 10:39:07 2001
-+++ linux-rwsem/arch/ppc/defconfig	Wed Sep 19 14:46:18 2001
-@@ -2,8 +2,6 @@
- # Automatically generated make config: don't edit
- #
- # CONFIG_UID16 is not set
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- 
- #
- # Code maturity level options
-diff -uNr linux-2.4.10-pre12/arch/s390/config.in linux-rwsem/arch/s390/config.in
---- linux-2.4.10-pre12/arch/s390/config.in	Tue Sep 18 08:46:42 2001
-+++ linux-rwsem/arch/s390/config.in	Wed Sep 19 14:46:18 2001
-@@ -7,8 +7,6 @@
- define_bool CONFIG_EISA n
- define_bool CONFIG_MCA n
- define_bool CONFIG_UID16 y
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
- 
- mainmenu_name "Linux Kernel Configuration"
- define_bool CONFIG_ARCH_S390 y
-diff -uNr linux-2.4.10-pre12/arch/s390/defconfig linux-rwsem/arch/s390/defconfig
---- linux-2.4.10-pre12/arch/s390/defconfig	Tue Sep 18 08:46:42 2001
-+++ linux-rwsem/arch/s390/defconfig	Wed Sep 19 14:46:18 2001
-@@ -5,8 +5,6 @@
- # CONFIG_EISA is not set
- # CONFIG_MCA is not set
- CONFIG_UID16=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- CONFIG_ARCH_S390=y
- 
- #
-diff -uNr linux-2.4.10-pre12/arch/s390x/config.in linux-rwsem/arch/s390x/config.in
---- linux-2.4.10-pre12/arch/s390x/config.in	Tue Sep 18 08:46:43 2001
-+++ linux-rwsem/arch/s390x/config.in	Wed Sep 19 14:46:16 2001
-@@ -6,8 +6,6 @@
- define_bool CONFIG_ISA n
- define_bool CONFIG_EISA n
- define_bool CONFIG_MCA n
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
- 
- mainmenu_name "Linux Kernel Configuration"
- define_bool CONFIG_ARCH_S390 y
-diff -uNr linux-2.4.10-pre12/arch/s390x/defconfig linux-rwsem/arch/s390x/defconfig
---- linux-2.4.10-pre12/arch/s390x/defconfig	Tue Sep 18 08:46:43 2001
-+++ linux-rwsem/arch/s390x/defconfig	Wed Sep 19 14:45:43 2001
-@@ -4,8 +4,6 @@
- # CONFIG_ISA is not set
- # CONFIG_EISA is not set
- # CONFIG_MCA is not set
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- CONFIG_ARCH_S390=y
- CONFIG_ARCH_S390X=y
- 
-diff -uNr linux-2.4.10-pre12/arch/sh/config.in linux-rwsem/arch/sh/config.in
---- linux-2.4.10-pre12/arch/sh/config.in	Wed Sep 19 10:39:08 2001
-+++ linux-rwsem/arch/sh/config.in	Wed Sep 19 14:46:18 2001
-@@ -7,8 +7,6 @@
- define_bool CONFIG_SUPERH y
- 
- define_bool CONFIG_UID16 y
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
- 
- mainmenu_option next_comment
- comment 'Code maturity level options'
-diff -uNr linux-2.4.10-pre12/arch/sparc/config.in linux-rwsem/arch/sparc/config.in
---- linux-2.4.10-pre12/arch/sparc/config.in	Tue Sep 18 08:45:59 2001
-+++ linux-rwsem/arch/sparc/config.in	Wed Sep 19 14:46:18 2001
-@@ -48,8 +48,6 @@
- define_bool CONFIG_SUN_CONSOLE y
- define_bool CONFIG_SUN_AUXIO y
- define_bool CONFIG_SUN_IO y
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
- 
- bool 'Support for SUN4 machines (disables SUN4[CDM] support)' CONFIG_SUN4
- if [ "$CONFIG_SUN4" != "y" ]; then
-diff -uNr linux-2.4.10-pre12/arch/sparc/defconfig linux-rwsem/arch/sparc/defconfig
---- linux-2.4.10-pre12/arch/sparc/defconfig	Tue Sep 18 08:45:59 2001
-+++ linux-rwsem/arch/sparc/defconfig	Wed Sep 19 14:46:18 2001
-@@ -38,8 +38,6 @@
- CONFIG_SUN_CONSOLE=y
- CONFIG_SUN_AUXIO=y
- CONFIG_SUN_IO=y
--CONFIG_RWSEM_GENERIC_SPINLOCK=y
--# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
- # CONFIG_SUN4 is not set
- # CONFIG_PCI is not set
- CONFIG_SUN_OPENPROMFS=m
-diff -uNr linux-2.4.10-pre12/arch/sparc64/config.in linux-rwsem/arch/sparc64/config.in
---- linux-2.4.10-pre12/arch/sparc64/config.in	Tue Sep 18 08:46:06 2001
-+++ linux-rwsem/arch/sparc64/config.in	Wed Sep 19 14:46:18 2001
-@@ -33,8 +33,6 @@
- 
- # Global things across all Sun machines.
- define_bool CONFIG_HAVE_DEC_LOCK y
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK n
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM y
- define_bool CONFIG_ISA n
- define_bool CONFIG_ISAPNP n
- define_bool CONFIG_EISA n
-diff -uNr linux-2.4.10-pre12/arch/sparc64/defconfig linux-rwsem/arch/sparc64/defconfig
---- linux-2.4.10-pre12/arch/sparc64/defconfig	Wed Sep 19 10:39:08 2001
-+++ linux-rwsem/arch/sparc64/defconfig	Wed Sep 19 14:46:18 2001
-@@ -23,8 +23,6 @@
- CONFIG_SMP=y
- CONFIG_SPARC64=y
- CONFIG_HAVE_DEC_LOCK=y
--# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
--CONFIG_RWSEM_XCHGADD_ALGORITHM=y
- # CONFIG_ISA is not set
- # CONFIG_ISAPNP is not set
- # CONFIG_EISA is not set
-diff -uNr linux-2.4.10-pre12/drivers/char/sysrq.c linux-rwsem/drivers/char/sysrq.c
---- linux-2.4.10-pre12/drivers/char/sysrq.c	Wed Sep 19 10:39:11 2001
-+++ linux-rwsem/drivers/char/sysrq.c	Wed Sep 19 15:17:20 2001
-@@ -32,7 +32,7 @@
- 
- #include <asm/ptrace.h>
- 
--extern void wakeup_bdflush(int);
-+extern void wakeup_bdflush();
- extern void reset_vc(unsigned int);
- extern struct list_head super_blocks;
- 
-@@ -221,7 +221,7 @@
- static void sysrq_handle_sync(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
- 	emergency_sync_scheduled = EMERG_SYNC;
--	wakeup_bdflush(0);
-+	wakeup_bdflush();
+ out_unlock:
+-	up_write(&mm->mmap_sem);
++	mm_unlock_exclusive(mm);
+ out:
+ 	return error;
  }
- static struct sysrq_key_op sysrq_sync_op = {
- 	handler:	sysrq_handle_sync,
-@@ -232,7 +232,7 @@
- static void sysrq_handle_mountro(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
- 	emergency_sync_scheduled = EMERG_REMOUNT;
--	wakeup_bdflush(0);
-+	wakeup_bdflush();
+diff -uNr linux-2.4.10-pre12/arch/i386/kernel/sys_i386.c linux-mmsem/arch/i386/kernel/sys_i386.c
+--- linux-2.4.10-pre12/arch/i386/kernel/sys_i386.c	Tue Sep 18 08:45:58 2001
++++ linux-mmsem/arch/i386/kernel/sys_i386.c	Wed Sep 19 12:57:03 2001
+@@ -55,9 +55,9 @@
+ 			goto out;
+ 	}
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	if (file)
+ 		fput(file);
+diff -uNr linux-2.4.10-pre12/arch/i386/mm/fault.c linux-mmsem/arch/i386/mm/fault.c
+--- linux-2.4.10-pre12/arch/i386/mm/fault.c	Wed Sep 19 10:39:06 2001
++++ linux-mmsem/arch/i386/mm/fault.c	Wed Sep 19 13:55:18 2001
+@@ -191,7 +191,7 @@
+ 	if (in_interrupt() || !mm)
+ 		goto no_context;
+ 
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
+ 
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+@@ -265,7 +265,7 @@
+ 		if (bit < 32)
+ 			tsk->thread.screen_bitmap |= 1 << bit;
+ 	}
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return;
+ 
+ /*
+@@ -273,7 +273,7 @@
+  * Fix it, but check if it's kernel or user first..
+  */
+ bad_area:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	/* User mode accesses just cause a SIGSEGV */
+ 	if (error_code & 4) {
+@@ -341,11 +341,11 @@
+  * us unable to handle the page fault gracefully.
+  */
+ out_of_memory:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	if (tsk->pid == 1) {
+ 		tsk->policy |= SCHED_YIELD;
+ 		schedule();
+-		down_read(&mm->mmap_sem);
++		mm_lock_shared_recursive(mm);
+ 		goto survive;
+ 	}
+ 	printk("VM: killing process %s\n", tsk->comm);
+@@ -354,7 +354,7 @@
+ 	goto no_context;
+ 
+ do_sigbus:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	/*
+ 	 * Send a sigbus, regardless of whether we were in kernel
+diff -uNr linux-2.4.10-pre12/arch/ia64/ia32/sys_ia32.c linux-mmsem/arch/ia64/ia32/sys_ia32.c
+--- linux-2.4.10-pre12/arch/ia64/ia32/sys_ia32.c	Tue Sep 18 08:46:41 2001
++++ linux-mmsem/arch/ia64/ia32/sys_ia32.c	Wed Sep 19 12:57:11 2001
+@@ -245,9 +245,9 @@
+ 		}
+ 		__copy_user(back, (char *)addr + len, PAGE_SIZE - ((addr + len) & ~PAGE_MASK));
+ 	}
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	r = do_mmap(0, baddr, len + (addr - baddr), prot, flags | MAP_ANONYMOUS, 0);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	if (r < 0)
+ 		return(r);
+ 	if (addr == 0)
+@@ -291,9 +291,9 @@
+ 		poff = offset & PAGE_MASK;
+ 		len += offset - poff;
+ 
+-		down_write(&current->mm->mmap_sem);
++		mm_lock_exclusive(current->mm);
+ 		error = do_mmap_pgoff(file, addr, len, prot, flags, poff >> PAGE_SHIFT);
+-		up_write(&current->mm->mmap_sem);
++		mm_unlock_exclusive(current->mm);
+ 
+ 		if (!IS_ERR((void *) error))
+ 			error += offset - poff;
+@@ -338,9 +338,9 @@
+ 	if ((a.offset & ~PAGE_MASK) != 0)
+ 		return -EINVAL;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	retval = do_mmap_pgoff(file, a.addr, a.len, a.prot, a.flags, a.offset >> PAGE_SHIFT);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ #else
+ 	retval = ia32_do_mmap(file, a.addr, a.len, a.prot, a.flags, a.fd, a.offset);
+ #endif
+@@ -2605,11 +2605,11 @@
+ 		return(-EFAULT);
+ 	}
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	addr = do_mmap_pgoff(file, IA32_IOBASE,
+ 			     IOLEN, PROT_READ|PROT_WRITE, MAP_SHARED,
+ 			     (ia64_iobase & ~PAGE_OFFSET) >> PAGE_SHIFT);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	if (addr >= 0) {
+ 		ia64_set_kr(IA64_KR_IO_BASE, addr);
+diff -uNr linux-2.4.10-pre12/arch/ia64/kernel/sys_ia64.c linux-mmsem/arch/ia64/kernel/sys_ia64.c
+--- linux-2.4.10-pre12/arch/ia64/kernel/sys_ia64.c	Tue Sep 18 08:46:41 2001
++++ linux-mmsem/arch/ia64/kernel/sys_ia64.c	Wed Sep 19 12:57:11 2001
+@@ -106,7 +106,7 @@
+ 	 * check and the clearing of r8.  However, we can't call sys_brk() because we need
+ 	 * to acquire the mmap_sem before we can do the test...
+ 	 */
+-	down_write(&mm->mmap_sem);
++	mm_lock_exclusive(mm);
+ 
+ 	if (brk < mm->end_code)
+ 		goto out;
+@@ -146,7 +146,7 @@
+ 	mm->brk = brk;
+ out:
+ 	retval = mm->brk;
+-	up_write(&mm->mmap_sem);
++	mm_unlock_exclusive(mm);
+ 	regs->r8 = 0;		/* ensure large retval isn't mistaken as error code */
+ 	return retval;
  }
- static struct sysrq_key_op sysrq_mountro_op = {
- 	handler:	sysrq_handle_mountro,
-diff -uNr linux-2.4.10-pre12/include/asm-alpha/rwsem.h linux-rwsem/include/asm-alpha/rwsem.h
---- linux-2.4.10-pre12/include/asm-alpha/rwsem.h	Tue Sep 18 08:45:14 2001
-+++ linux-rwsem/include/asm-alpha/rwsem.h	Thu Jan  1 01:00:00 1970
-@@ -1,208 +0,0 @@
--#ifndef _ALPHA_RWSEM_H
--#define _ALPHA_RWSEM_H
--
--/*
-- * Written by Ivan Kokshaysky <ink@jurassic.park.msu.ru>, 2001.
-- * Based on asm-alpha/semaphore.h and asm-i386/rwsem.h
-- */
--
--#ifndef _LINUX_RWSEM_H
--#error please dont include asm/rwsem.h directly, use linux/rwsem.h instead
--#endif
--
--#ifdef __KERNEL__
--
--#include <asm/compiler.h>
--#include <linux/list.h>
--#include <linux/spinlock.h>
--
--struct rwsem_waiter;
--
--extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
--
--/*
-- * the semaphore definition
-- */
--struct rw_semaphore {
--	long			count;
--#define RWSEM_UNLOCKED_VALUE		0x0000000000000000L
--#define RWSEM_ACTIVE_BIAS		0x0000000000000001L
--#define RWSEM_ACTIVE_MASK		0x00000000ffffffffL
--#define RWSEM_WAITING_BIAS		(-0x0000000100000000L)
--#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
--	spinlock_t		wait_lock;
--	struct list_head	wait_list;
--#if RWSEM_DEBUG
--	int			debug;
--#endif
--};
--
--#if RWSEM_DEBUG
--#define __RWSEM_DEBUG_INIT      , 0
--#else
--#define __RWSEM_DEBUG_INIT	/* */
--#endif
--
--#define __RWSEM_INITIALIZER(name) \
--	{ RWSEM_UNLOCKED_VALUE, SPIN_LOCK_UNLOCKED, \
--	LIST_HEAD_INIT((name).wait_list) __RWSEM_DEBUG_INIT }
--
--#define DECLARE_RWSEM(name) \
--	struct rw_semaphore name = __RWSEM_INITIALIZER(name)
--
--static inline void init_rwsem(struct rw_semaphore *sem)
--{
--	sem->count = RWSEM_UNLOCKED_VALUE;
--	spin_lock_init(&sem->wait_lock);
--	INIT_LIST_HEAD(&sem->wait_list);
--#if RWSEM_DEBUG
--	sem->debug = 0;
--#endif
--}
--
--static inline void __down_read(struct rw_semaphore *sem)
--{
--	long oldcount;
--#ifndef	CONFIG_SMP
--	oldcount = sem->count;
--	sem->count += RWSEM_ACTIVE_READ_BIAS;
--#else
--	long temp;
--	__asm__ __volatile__(
--	"1:	ldq_l	%0,%1\n"
--	"	addq	%0,%3,%2\n"
--	"	stq_c	%2,%1\n"
--	"	beq	%2,2f\n"
--	"	mb\n"
--	".subsection 2\n"
--	"2:	br	1b\n"
--	".previous"
--	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
--	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
--#endif
--	if (__builtin_expect(oldcount < 0, 0))
--		rwsem_down_read_failed(sem);
--}
--
--static inline void __down_write(struct rw_semaphore *sem)
--{
--	long oldcount;
--#ifndef	CONFIG_SMP
--	oldcount = sem->count;
--	sem->count += RWSEM_ACTIVE_WRITE_BIAS;
--#else
--	long temp;
--	__asm__ __volatile__(
--	"1:	ldq_l	%0,%1\n"
--	"	addq	%0,%3,%2\n"
--	"	stq_c	%2,%1\n"
--	"	beq	%2,2f\n"
--	"	mb\n"
--	".subsection 2\n"
--	"2:	br	1b\n"
--	".previous"
--	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
--	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
--#endif
--	if (__builtin_expect(oldcount, 0))
--		rwsem_down_write_failed(sem);
--}
--
--static inline void __up_read(struct rw_semaphore *sem)
--{
--	long oldcount;
--#ifndef	CONFIG_SMP
--	oldcount = sem->count;
--	sem->count -= RWSEM_ACTIVE_READ_BIAS;
--#else
--	long temp;
--	__asm__ __volatile__(
--	"	mb\n"
--	"1:	ldq_l	%0,%1\n"
--	"	subq	%0,%3,%2\n"
--	"	stq_c	%2,%1\n"
--	"	beq	%2,2f\n"
--	".subsection 2\n"
--	"2:	br	1b\n"
--	".previous"
--	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
--	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
--#endif
--	if (__builtin_expect(oldcount < 0, 0)) 
--		if ((int)oldcount - RWSEM_ACTIVE_READ_BIAS == 0)
--			rwsem_wake(sem);
--}
--
--static inline void __up_write(struct rw_semaphore *sem)
--{
--	long count;
--#ifndef	CONFIG_SMP
--	sem->count -= RWSEM_ACTIVE_WRITE_BIAS;
--	count = sem->count;
--#else
--	long temp;
--	__asm__ __volatile__(
--	"	mb\n"
--	"1:	ldq_l	%0,%1\n"
--	"	subq	%0,%3,%2\n"
--	"	stq_c	%2,%1\n"
--	"	beq	%2,2f\n"
--	"	subq	%0,%3,%0\n"
--	".subsection 2\n"
--	"2:	br	1b\n"
--	".previous"
--	:"=&r" (count), "=m" (sem->count), "=&r" (temp)
--	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
--#endif
--	if (__builtin_expect(count, 0))
--		if ((int)count == 0)
--			rwsem_wake(sem);
--}
--
--static inline void rwsem_atomic_add(long val, struct rw_semaphore *sem)
--{
--#ifndef	CONFIG_SMP
--	sem->count += val;
--#else
--	long temp;
--	__asm__ __volatile__(
--	"1:	ldq_l	%0,%1\n"
--	"	addq	%0,%2,%0\n"
--	"	stq_c	%0,%1\n"
--	"	beq	%0,2f\n"
--	".subsection 2\n"
--	"2:	br	1b\n"
--	".previous"
--	:"=&r" (temp), "=m" (sem->count)
--	:"Ir" (val), "m" (sem->count));
--#endif
--}
--
--static inline long rwsem_atomic_update(long val, struct rw_semaphore *sem)
--{
--#ifndef	CONFIG_SMP
--	sem->count += val;
--	return sem->count;
--#else
--	long ret, temp;
--	__asm__ __volatile__(
--	"1:	ldq_l	%0,%1\n"
--	"	addq 	%0,%3,%2\n"
--	"	addq	%0,%3,%0\n"
--	"	stq_c	%2,%1\n"
--	"	beq	%2,2f\n"
--	".subsection 2\n"
--	"2:	br	1b\n"
--	".previous"
--	:"=&r" (ret), "=m" (sem->count), "=&r" (temp)
--	:"Ir" (val), "m" (sem->count));
--
--	return ret;
--#endif
--}
--
--#endif /* __KERNEL__ */
--#endif /* _ALPHA_RWSEM_H */
-diff -uNr linux-2.4.10-pre12/include/asm-i386/rwsem.h linux-rwsem/include/asm-i386/rwsem.h
---- linux-2.4.10-pre12/include/asm-i386/rwsem.h	Tue Sep 18 08:45:13 2001
-+++ linux-rwsem/include/asm-i386/rwsem.h	Thu Jan  1 01:00:00 1970
-@@ -1,226 +0,0 @@
--/* rwsem.h: R/W semaphores implemented using XADD/CMPXCHG for i486+
-- *
-- * Written by David Howells (dhowells@redhat.com).
-- *
-- * Derived from asm-i386/semaphore.h
-- *
-- *
-- * The MSW of the count is the negated number of active writers and waiting
-- * lockers, and the LSW is the total number of active locks
-- *
-- * The lock count is initialized to 0 (no active and no waiting lockers).
-- *
-- * When a writer subtracts WRITE_BIAS, it'll get 0xffff0001 for the case of an
-- * uncontended lock. This can be determined because XADD returns the old value.
-- * Readers increment by 1 and see a positive value when uncontended, negative
-- * if there are writers (and maybe) readers waiting (in which case it goes to
-- * sleep).
-- *
-- * The value of WAITING_BIAS supports up to 32766 waiting processes. This can
-- * be extended to 65534 by manually checking the whole MSW rather than relying
-- * on the S flag.
-- *
-- * The value of ACTIVE_BIAS supports up to 65535 active processes.
-- *
-- * This should be totally fair - if anything is waiting, a process that wants a
-- * lock will go to the back of the queue. When the currently active lock is
-- * released, if there's a writer at the front of the queue, then that and only
-- * that will be woken up; if there's a bunch of consequtive readers at the
-- * front, then they'll all be woken up, but no other readers will be.
-- */
--
--#ifndef _I386_RWSEM_H
--#define _I386_RWSEM_H
--
--#ifndef _LINUX_RWSEM_H
--#error please dont include asm/rwsem.h directly, use linux/rwsem.h instead
--#endif
--
--#ifdef __KERNEL__
--
--#include <linux/list.h>
--#include <linux/spinlock.h>
--
--struct rwsem_waiter;
--
--extern struct rw_semaphore *FASTCALL(rwsem_down_read_failed(struct rw_semaphore *sem));
--extern struct rw_semaphore *FASTCALL(rwsem_down_write_failed(struct rw_semaphore *sem));
--extern struct rw_semaphore *FASTCALL(rwsem_wake(struct rw_semaphore *));
--
--/*
-- * the semaphore definition
-- */
--struct rw_semaphore {
--	signed long		count;
--#define RWSEM_UNLOCKED_VALUE		0x00000000
--#define RWSEM_ACTIVE_BIAS		0x00000001
--#define RWSEM_ACTIVE_MASK		0x0000ffff
--#define RWSEM_WAITING_BIAS		(-0x00010000)
--#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
--	spinlock_t		wait_lock;
--	struct list_head	wait_list;
--#if RWSEM_DEBUG
--	int			debug;
--#endif
--};
--
--/*
-- * initialisation
-- */
--#if RWSEM_DEBUG
--#define __RWSEM_DEBUG_INIT      , 0
--#else
--#define __RWSEM_DEBUG_INIT	/* */
--#endif
--
--#define __RWSEM_INITIALIZER(name) \
--{ RWSEM_UNLOCKED_VALUE, SPIN_LOCK_UNLOCKED, LIST_HEAD_INIT((name).wait_list) \
--	__RWSEM_DEBUG_INIT }
--
--#define DECLARE_RWSEM(name) \
--	struct rw_semaphore name = __RWSEM_INITIALIZER(name)
--
--static inline void init_rwsem(struct rw_semaphore *sem)
--{
--	sem->count = RWSEM_UNLOCKED_VALUE;
--	spin_lock_init(&sem->wait_lock);
--	INIT_LIST_HEAD(&sem->wait_list);
--#if RWSEM_DEBUG
--	sem->debug = 0;
--#endif
--}
--
--/*
-- * lock for reading
-- */
--static inline void __down_read(struct rw_semaphore *sem)
--{
--	__asm__ __volatile__(
--		"# beginning down_read\n\t"
--LOCK_PREFIX	"  incl      (%%eax)\n\t" /* adds 0x00000001, returns the old value */
--		"  js        2f\n\t" /* jump if we weren't granted the lock */
--		"1:\n\t"
--		".section .text.lock,\"ax\"\n"
--		"2:\n\t"
--		"  pushl     %%ecx\n\t"
--		"  pushl     %%edx\n\t"
--		"  call      rwsem_down_read_failed\n\t"
--		"  popl      %%edx\n\t"
--		"  popl      %%ecx\n\t"
--		"  jmp       1b\n"
--		".previous"
--		"# ending down_read\n\t"
--		: "+m"(sem->count)
--		: "a"(sem)
--		: "memory", "cc");
--}
--
--/*
-- * lock for writing
-- */
--static inline void __down_write(struct rw_semaphore *sem)
--{
--	int tmp;
--
--	tmp = RWSEM_ACTIVE_WRITE_BIAS;
--	__asm__ __volatile__(
--		"# beginning down_write\n\t"
--LOCK_PREFIX	"  xadd      %0,(%%eax)\n\t" /* subtract 0x0000ffff, returns the old value */
--		"  testl     %0,%0\n\t" /* was the count 0 before? */
--		"  jnz       2f\n\t" /* jump if we weren't granted the lock */
--		"1:\n\t"
--		".section .text.lock,\"ax\"\n"
--		"2:\n\t"
--		"  pushl     %%ecx\n\t"
--		"  call      rwsem_down_write_failed\n\t"
--		"  popl      %%ecx\n\t"
--		"  jmp       1b\n"
--		".previous\n"
--		"# ending down_write"
--		: "+d"(tmp), "+m"(sem->count)
--		: "a"(sem)
--		: "memory", "cc");
--}
--
--/*
-- * unlock after reading
-- */
--static inline void __up_read(struct rw_semaphore *sem)
--{
--	__s32 tmp = -RWSEM_ACTIVE_READ_BIAS;
--	__asm__ __volatile__(
--		"# beginning __up_read\n\t"
--LOCK_PREFIX	"  xadd      %%edx,(%%eax)\n\t" /* subtracts 1, returns the old value */
--		"  js        2f\n\t" /* jump if the lock is being waited upon */
--		"1:\n\t"
--		".section .text.lock,\"ax\"\n"
--		"2:\n\t"
--		"  decw      %%dx\n\t" /* do nothing if still outstanding active readers */
--		"  jnz       1b\n\t"
--		"  pushl     %%ecx\n\t"
--		"  call      rwsem_wake\n\t"
--		"  popl      %%ecx\n\t"
--		"  jmp       1b\n"
--		".previous\n"
--		"# ending __up_read\n"
--		: "+m"(sem->count), "+d"(tmp)
--		: "a"(sem)
--		: "memory", "cc");
--}
--
--/*
-- * unlock after writing
-- */
--static inline void __up_write(struct rw_semaphore *sem)
--{
--	__asm__ __volatile__(
--		"# beginning __up_write\n\t"
--		"  movl      %2,%%edx\n\t"
--LOCK_PREFIX	"  xaddl     %%edx,(%%eax)\n\t" /* tries to transition 0xffff0001 -> 0x00000000 */
--		"  jnz       2f\n\t" /* jump if the lock is being waited upon */
--		"1:\n\t"
--		".section .text.lock,\"ax\"\n"
--		"2:\n\t"
--		"  decw      %%dx\n\t" /* did the active count reduce to 0? */
--		"  jnz       1b\n\t" /* jump back if not */
--		"  pushl     %%ecx\n\t"
--		"  call      rwsem_wake\n\t"
--		"  popl      %%ecx\n\t"
--		"  jmp       1b\n"
--		".previous\n"
--		"# ending __up_write\n"
--		: "+m"(sem->count)
--		: "a"(sem), "i"(-RWSEM_ACTIVE_WRITE_BIAS)
--		: "memory", "cc", "edx");
--}
--
--/*
-- * implement atomic add functionality
-- */
--static inline void rwsem_atomic_add(int delta, struct rw_semaphore *sem)
--{
--	__asm__ __volatile__(
--LOCK_PREFIX	"addl %1,%0"
--		:"=m"(sem->count)
--		:"ir"(delta), "m"(sem->count));
--}
--
--/*
-- * implement exchange and add functionality
-- */
--static inline int rwsem_atomic_update(int delta, struct rw_semaphore *sem)
--{
--	int tmp = delta;
--
--	__asm__ __volatile__(
--LOCK_PREFIX	"xadd %0,(%2)"
--		: "+r"(tmp), "=m"(sem->count)
--		: "r"(sem), "m"(sem->count)
--		: "memory");
--
--	return tmp+delta;
--}
--
--#endif /* __KERNEL__ */
--#endif /* _I386_RWSEM_H */
-diff -uNr linux-2.4.10-pre12/include/asm-ppc/rwsem.h linux-rwsem/include/asm-ppc/rwsem.h
---- linux-2.4.10-pre12/include/asm-ppc/rwsem.h	Tue Sep 18 08:45:14 2001
-+++ linux-rwsem/include/asm-ppc/rwsem.h	Thu Jan  1 01:00:00 1970
-@@ -1,137 +0,0 @@
--/*
-- * BK Id: SCCS/s.rwsem.h 1.6 05/17/01 18:14:25 cort
-- */
--/*
-- * include/asm-ppc/rwsem.h: R/W semaphores for PPC using the stuff
-- * in lib/rwsem.c.  Adapted largely from include/asm-i386/rwsem.h
-- * by Paul Mackerras <paulus@samba.org>.
-- */
--
--#ifndef _PPC_RWSEM_H
--#define _PPC_RWSEM_H
--
--#ifdef __KERNEL__
--#include <linux/list.h>
--#include <linux/spinlock.h>
--#include <asm/atomic.h>
--#include <asm/system.h>
--
--/*
-- * the semaphore definition
-- */
--struct rw_semaphore {
--	/* XXX this should be able to be an atomic_t  -- paulus */
--	signed long		count;
--#define RWSEM_UNLOCKED_VALUE		0x00000000
--#define RWSEM_ACTIVE_BIAS		0x00000001
--#define RWSEM_ACTIVE_MASK		0x0000ffff
--#define RWSEM_WAITING_BIAS		(-0x00010000)
--#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
--	spinlock_t		wait_lock;
--	struct list_head	wait_list;
--#if RWSEM_DEBUG
--	int			debug;
--#endif
--};
--
--/*
-- * initialisation
-- */
--#if RWSEM_DEBUG
--#define __RWSEM_DEBUG_INIT      , 0
--#else
--#define __RWSEM_DEBUG_INIT	/* */
--#endif
--
--#define __RWSEM_INITIALIZER(name) \
--	{ RWSEM_UNLOCKED_VALUE, SPIN_LOCK_UNLOCKED, \
--	  LIST_HEAD_INIT((name).wait_list) \
--	  __RWSEM_DEBUG_INIT }
--
--#define DECLARE_RWSEM(name)		\
--	struct rw_semaphore name = __RWSEM_INITIALIZER(name)
--
--extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *sem);
--
--static inline void init_rwsem(struct rw_semaphore *sem)
--{
--	sem->count = RWSEM_UNLOCKED_VALUE;
--	spin_lock_init(&sem->wait_lock);
--	INIT_LIST_HEAD(&sem->wait_list);
--#if RWSEM_DEBUG
--	sem->debug = 0;
--#endif
--}
--
--/*
-- * lock for reading
-- */
--static inline void __down_read(struct rw_semaphore *sem)
--{
--	if (atomic_inc_return((atomic_t *)(&sem->count)) >= 0)
--		smp_wmb();
--	else
--		rwsem_down_read_failed(sem);
--}
--
--/*
-- * lock for writing
-- */
--static inline void __down_write(struct rw_semaphore *sem)
--{
--	int tmp;
--
--	tmp = atomic_add_return(RWSEM_ACTIVE_WRITE_BIAS,
--				(atomic_t *)(&sem->count));
--	if (tmp == RWSEM_ACTIVE_WRITE_BIAS)
--		smp_wmb();
--	else
--		rwsem_down_write_failed(sem);
--}
--
--/*
-- * unlock after reading
-- */
--static inline void __up_read(struct rw_semaphore *sem)
--{
--	int tmp;
--
--	smp_wmb();
--	tmp = atomic_dec_return((atomic_t *)(&sem->count));
--	if (tmp < -1 && (tmp & RWSEM_ACTIVE_MASK) == 0)
--		rwsem_wake(sem);
--}
--
--/*
-- * unlock after writing
-- */
--static inline void __up_write(struct rw_semaphore *sem)
--{
--	smp_wmb();
--	if (atomic_sub_return(RWSEM_ACTIVE_WRITE_BIAS,
--			      (atomic_t *)(&sem->count)) < 0)
--		rwsem_wake(sem);
--}
--
--/*
-- * implement atomic add functionality
-- */
--static inline void rwsem_atomic_add(int delta, struct rw_semaphore *sem)
--{
--	atomic_add(delta, (atomic_t *)(&sem->count));
--}
--
--/*
-- * implement exchange and add functionality
-- */
--static inline int rwsem_atomic_update(int delta, struct rw_semaphore *sem)
--{
--	smp_mb();
--	return atomic_add_return(delta, (atomic_t *)(&sem->count));
--}
--
--#endif /* __KERNEL__ */
--#endif /* _PPC_RWSEM_XADD_H */
-diff -uNr linux-2.4.10-pre12/include/asm-sparc64/rwsem.h linux-rwsem/include/asm-sparc64/rwsem.h
---- linux-2.4.10-pre12/include/asm-sparc64/rwsem.h	Tue Sep 18 08:45:14 2001
-+++ linux-rwsem/include/asm-sparc64/rwsem.h	Thu Jan  1 01:00:00 1970
-@@ -1,233 +0,0 @@
--/* $Id: rwsem.h,v 1.4 2001/04/26 02:36:36 davem Exp $
-- * rwsem.h: R/W semaphores implemented using CAS
-- *
-- * Written by David S. Miller (davem@redhat.com), 2001.
-- * Derived from asm-i386/rwsem.h
-- */
--#ifndef _SPARC64_RWSEM_H
--#define _SPARC64_RWSEM_H
--
--#ifndef _LINUX_RWSEM_H
--#error please dont include asm/rwsem.h directly, use linux/rwsem.h instead
--#endif
--
--#ifdef __KERNEL__
--
--#include <linux/list.h>
--#include <linux/spinlock.h>
--
--struct rwsem_waiter;
--
--extern struct rw_semaphore *FASTCALL(rwsem_down_read_failed(struct rw_semaphore *sem));
--extern struct rw_semaphore *FASTCALL(rwsem_down_write_failed(struct rw_semaphore *sem));
--extern struct rw_semaphore *FASTCALL(rwsem_wake(struct rw_semaphore *));
--
--struct rw_semaphore {
--	signed int count;
--#define RWSEM_UNLOCKED_VALUE		0x00000000
--#define RWSEM_ACTIVE_BIAS		0x00000001
--#define RWSEM_ACTIVE_MASK		0x0000ffff
--#define RWSEM_WAITING_BIAS		0xffff0000
--#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
--	spinlock_t		wait_lock;
--	struct list_head	wait_list;
--};
--
--#define __RWSEM_INITIALIZER(name) \
--{ RWSEM_UNLOCKED_VALUE, SPIN_LOCK_UNLOCKED, LIST_HEAD_INIT((name).wait_list) }
--
--#define DECLARE_RWSEM(name) \
--	struct rw_semaphore name = __RWSEM_INITIALIZER(name)
--
--static inline void init_rwsem(struct rw_semaphore *sem)
--{
--	sem->count = RWSEM_UNLOCKED_VALUE;
--	spin_lock_init(&sem->wait_lock);
--	INIT_LIST_HEAD(&sem->wait_list);
--}
--
--static inline void __down_read(struct rw_semaphore *sem)
--{
--	__asm__ __volatile__(
--		"! beginning __down_read\n"
--		"1:\tlduw	[%0], %%g5\n\t"
--		"add		%%g5, 1, %%g7\n\t"
--		"cas		[%0], %%g5, %%g7\n\t"
--		"cmp		%%g5, %%g7\n\t"
--		"bne,pn		%%icc, 1b\n\t"
--		" add		%%g7, 1, %%g7\n\t"
--		"cmp		%%g7, 0\n\t"
--		"bl,pn		%%icc, 3f\n\t"
--		" membar	#StoreStore\n"
--		"2:\n\t"
--		".subsection	2\n"
--		"3:\tmov	%0, %%g5\n\t"
--		"save		%%sp, -160, %%sp\n\t"
--		"mov		%%g1, %%l1\n\t"
--		"mov		%%g2, %%l2\n\t"
--		"mov		%%g3, %%l3\n\t"
--		"call		%1\n\t"
--		" mov		%%g5, %%o0\n\t"
--		"mov		%%l1, %%g1\n\t"
--		"mov		%%l2, %%g2\n\t"
--		"ba,pt		%%xcc, 2b\n\t"
--		" restore	%%l3, %%g0, %%g3\n\t"
--		".previous\n\t"
--		"! ending __down_read"
--		: : "r" (sem), "i" (rwsem_down_read_failed)
--		: "g5", "g7", "memory", "cc");
--}
--
--static inline void __down_write(struct rw_semaphore *sem)
--{
--	__asm__ __volatile__(
--		"! beginning __down_write\n\t"
--		"sethi		%%hi(%2), %%g1\n\t"
--		"or		%%g1, %%lo(%2), %%g1\n"
--		"1:\tlduw	[%0], %%g5\n\t"
--		"add		%%g5, %%g1, %%g7\n\t"
--		"cas		[%0], %%g5, %%g7\n\t"
--		"cmp		%%g5, %%g7\n\t"
--		"bne,pn		%%icc, 1b\n\t"
--		" cmp		%%g7, 0\n\t"
--		"bne,pn		%%icc, 3f\n\t"
--		" membar	#StoreStore\n"
--		"2:\n\t"
--		".subsection	2\n"
--		"3:\tmov	%0, %%g5\n\t"
--		"save		%%sp, -160, %%sp\n\t"
--		"mov		%%g2, %%l2\n\t"
--		"mov		%%g3, %%l3\n\t"
--		"call		%1\n\t"
--		" mov		%%g5, %%o0\n\t"
--		"mov		%%l2, %%g2\n\t"
--		"ba,pt		%%xcc, 2b\n\t"
--		" restore	%%l3, %%g0, %%g3\n\t"
--		".previous\n\t"
--		"! ending __down_write"
--		: : "r" (sem), "i" (rwsem_down_write_failed),
--		    "i" (RWSEM_ACTIVE_WRITE_BIAS)
--		: "g1", "g5", "g7", "memory", "cc");
--}
--
--static inline void __up_read(struct rw_semaphore *sem)
--{
--	__asm__ __volatile__(
--		"! beginning __up_read\n\t"
--		"1:\tlduw	[%0], %%g5\n\t"
--		"sub		%%g5, 1, %%g7\n\t"
--		"cas		[%0], %%g5, %%g7\n\t"
--		"cmp		%%g5, %%g7\n\t"
--		"bne,pn		%%icc, 1b\n\t"
--		" cmp		%%g7, 0\n\t"
--		"bl,pn		%%icc, 3f\n\t"
--		" membar	#StoreStore\n"
--		"2:\n\t"
--		".subsection	2\n"
--		"3:\tsethi	%%hi(%2), %%g1\n\t"
--		"sub		%%g7, 1, %%g7\n\t"
--		"or		%%g1, %%lo(%2), %%g1\n\t"
--		"andcc		%%g7, %%g1, %%g0\n\t"
--		"bne,pn		%%icc, 2b\n\t"
--		" mov		%0, %%g5\n\t"
--		"save		%%sp, -160, %%sp\n\t"
--		"mov		%%g2, %%l2\n\t"
--		"mov		%%g3, %%l3\n\t"
--		"call		%1\n\t"
--		" mov		%%g5, %%o0\n\t"
--		"mov		%%l2, %%g2\n\t"
--		"ba,pt		%%xcc, 2b\n\t"
--		" restore	%%l3, %%g0, %%g3\n\t"
--		".previous\n\t"
--		"! ending __up_read"
--		: : "r" (sem), "i" (rwsem_wake),
--		    "i" (RWSEM_ACTIVE_MASK)
--		: "g1", "g5", "g7", "memory", "cc");
--}
--
--static inline void __up_write(struct rw_semaphore *sem)
--{
--	__asm__ __volatile__(
--		"! beginning __up_write\n\t"
--		"sethi		%%hi(%2), %%g1\n\t"
--		"or		%%g1, %%lo(%2), %%g1\n"
--		"1:\tlduw	[%0], %%g5\n\t"
--		"sub		%%g5, %%g1, %%g7\n\t"
--		"cas		[%0], %%g5, %%g7\n\t"
--		"cmp		%%g5, %%g7\n\t"
--		"bne,pn		%%icc, 1b\n\t"
--		" sub		%%g7, %%g1, %%g7\n\t"
--		"cmp		%%g7, 0\n\t"
--		"bl,pn		%%icc, 3f\n\t"
--		" membar	#StoreStore\n"
--		"2:\n\t"
--		".subsection 2\n"
--		"3:\tmov	%0, %%g5\n\t"
--		"save		%%sp, -160, %%sp\n\t"
--		"mov		%%g2, %%l2\n\t"
--		"mov		%%g3, %%l3\n\t"
--		"call		%1\n\t"
--		" mov		%%g5, %%o0\n\t"
--		"mov		%%l2, %%g2\n\t"
--		"ba,pt		%%xcc, 2b\n\t"
--		" restore	%%l3, %%g0, %%g3\n\t"
--		".previous\n\t"
--		"! ending __up_write"
--		: : "r" (sem), "i" (rwsem_wake),
--		    "i" (RWSEM_ACTIVE_WRITE_BIAS)
--		: "g1", "g5", "g7", "memory", "cc");
--}
--
--static inline int rwsem_atomic_update(int delta, struct rw_semaphore *sem)
--{
--	int tmp = delta;
--
--	__asm__ __volatile__(
--		"1:\tlduw	[%2], %%g5\n\t"
--		"add		%%g5, %1, %%g7\n\t"
--		"cas		[%2], %%g5, %%g7\n\t"
--		"cmp		%%g5, %%g7\n\t"
--		"bne,pn		%%icc, 1b\n\t"
--		" nop\n\t"
--		"mov		%%g7, %0\n\t"
--		: "=&r" (tmp)
--		: "0" (tmp), "r" (sem)
--		: "g5", "g7", "memory");
--
--	return tmp + delta;
--}
--
--#define rwsem_atomic_add rwsem_atomic_update
--
--static inline __u16 rwsem_cmpxchgw(struct rw_semaphore *sem, __u16 __old, __u16 __new)
--{
--	u32 old = (sem->count & 0xffff0000) | (u32) __old;
--	u32 new = (old & 0xffff0000) | (u32) __new;
--	u32 prev;
--
--again:
--	__asm__ __volatile__("cas	[%2], %3, %0\n\t"
--			     "membar	#StoreStore | #StoreLoad"
--			     : "=&r" (prev)
--			     : "0" (new), "r" (sem), "r" (old)
--			     : "memory");
--
--	/* To give the same semantics as x86 cmpxchgw, keep trying
--	 * if only the upper 16-bits changed.
--	 */
--	if (prev != old &&
--	    ((prev & 0xffff) == (old & 0xffff)))
--		goto again;
--
--	return prev & 0xffff;
--}
--
--static inline signed long rwsem_cmpxchg(struct rw_semaphore *sem, signed long old, signed long new)
--{
--	return cmpxchg(&sem->count,old,new);
--}
--
--#endif /* __KERNEL__ */
--
--#endif /* _SPARC64_RWSEM_H */
-diff -uNr linux-2.4.10-pre12/include/linux/rwsem-spinlock.h linux-rwsem/include/linux/rwsem-spinlock.h
---- linux-2.4.10-pre12/include/linux/rwsem-spinlock.h	Tue Sep 18 08:45:13 2001
-+++ linux-rwsem/include/linux/rwsem-spinlock.h	Thu Jan  1 01:00:00 1970
-@@ -1,62 +0,0 @@
--/* rwsem-spinlock.h: fallback C implementation
-- *
-- * Copyright (c) 2001   David Howells (dhowells@redhat.com).
-- * - Derived partially from ideas by Andrea Arcangeli <andrea@suse.de>
-- * - Derived also from comments by Linus
-- */
--
--#ifndef _LINUX_RWSEM_SPINLOCK_H
--#define _LINUX_RWSEM_SPINLOCK_H
--
--#ifndef _LINUX_RWSEM_H
--#error please dont include linux/rwsem-spinlock.h directly, use linux/rwsem.h instead
--#endif
--
--#include <linux/spinlock.h>
--#include <linux/list.h>
--
--#ifdef __KERNEL__
--
--#include <linux/types.h>
--
--struct rwsem_waiter;
--
--/*
-- * the rw-semaphore definition
-- * - if activity is 0 then there are no active readers or writers
-- * - if activity is +ve then that is the number of active readers
-- * - if activity is -1 then there is one active writer
-- * - if wait_list is not empty, then there are processes waiting for the semaphore
-- */
--struct rw_semaphore {
--	__s32			activity;
--	spinlock_t		wait_lock;
--	struct list_head	wait_list;
--#if RWSEM_DEBUG
--	int			debug;
--#endif
--};
--
--/*
-- * initialisation
-- */
--#if RWSEM_DEBUG
--#define __RWSEM_DEBUG_INIT      , 0
--#else
--#define __RWSEM_DEBUG_INIT	/* */
--#endif
--
--#define __RWSEM_INITIALIZER(name) \
--{ 0, SPIN_LOCK_UNLOCKED, LIST_HEAD_INIT((name).wait_list) __RWSEM_DEBUG_INIT }
--
--#define DECLARE_RWSEM(name) \
--	struct rw_semaphore name = __RWSEM_INITIALIZER(name)
--
--extern void FASTCALL(init_rwsem(struct rw_semaphore *sem));
--extern void FASTCALL(__down_read(struct rw_semaphore *sem));
--extern void FASTCALL(__down_write(struct rw_semaphore *sem));
--extern void FASTCALL(__up_read(struct rw_semaphore *sem));
--extern void FASTCALL(__up_write(struct rw_semaphore *sem));
--
--#endif /* __KERNEL__ */
--#endif /* _LINUX_RWSEM_SPINLOCK_H */
-diff -uNr linux-2.4.10-pre12/include/linux/rwsem.h linux-rwsem/include/linux/rwsem.h
---- linux-2.4.10-pre12/include/linux/rwsem.h	Tue Sep 18 08:45:13 2001
-+++ linux-rwsem/include/linux/rwsem.h	Wed Sep 19 14:50:22 2001
-@@ -9,40 +9,59 @@
+@@ -205,9 +205,9 @@
+ 	if (rgn_index(addr) != rgn_index(addr + len))
+ 		return -EINVAL;
  
- #include <linux/linkage.h>
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	addr = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
  
--#define RWSEM_DEBUG 0
--
- #ifdef __KERNEL__
+ 	if (file)
+ 		fput(file);
+diff -uNr linux-2.4.10-pre12/arch/ia64/mm/fault.c linux-mmsem/arch/ia64/mm/fault.c
+--- linux-2.4.10-pre12/arch/ia64/mm/fault.c	Tue Sep 18 08:46:41 2001
++++ linux-mmsem/arch/ia64/mm/fault.c	Wed Sep 19 13:56:55 2001
+@@ -60,7 +60,7 @@
+ 	if (in_interrupt() || !mm)
+ 		goto no_context;
  
- #include <linux/config.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
-+#include <linux/spinlock.h>
-+#include <linux/list.h>
- #include <asm/system.h>
--#include <asm/atomic.h>
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
  
--struct rw_semaphore;
-+/*
-+ * the rw-semaphore definition
-+ * - if activity is 0 then there are no active readers or writers
-+ * - if activity is +ve then that is the number of active readers
-+ * - if activity is -1 then there is one active writer
-+ * - if wait_list is not empty, then there are processes waiting for the semaphore
-+ */
-+struct rw_semaphore {
-+	int			activity;
-+	spinlock_t		lock;
-+	struct list_head	wait_list;
+ 	vma = find_vma_prev(mm, address, &prev_vma);
+ 	if (!vma)
+@@ -112,7 +112,7 @@
+ 	      default:
+ 		goto out_of_memory;
+ 	}
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return;
+ 
+   check_expansion:
+@@ -135,7 +135,7 @@
+ 	goto good_area;
+ 
+   bad_area:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	if (isr & IA64_ISR_SP) {
+ 		/*
+ 		 * This fault was due to a speculative load set the "ed" bit in the psr to
+@@ -184,7 +184,7 @@
+ 	return;
+ 
+   out_of_memory:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", current->comm);
+ 	if (user_mode(regs))
+ 		do_exit(SIGKILL);
+diff -uNr linux-2.4.10-pre12/arch/m68k/kernel/sys_m68k.c linux-mmsem/arch/m68k/kernel/sys_m68k.c
+--- linux-2.4.10-pre12/arch/m68k/kernel/sys_m68k.c	Tue Sep 18 08:46:05 2001
++++ linux-mmsem/arch/m68k/kernel/sys_m68k.c	Wed Sep 19 12:57:08 2001
+@@ -59,9 +59,9 @@
+ 			goto out;
+ 	}
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	if (file)
+ 		fput(file);
+@@ -146,9 +146,9 @@
+ 	}
+ 	a.flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap_pgoff(file, a.addr, a.len, a.prot, a.flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	if (file)
+ 		fput(file);
+ out:
+diff -uNr linux-2.4.10-pre12/arch/m68k/mm/fault.c linux-mmsem/arch/m68k/mm/fault.c
+--- linux-2.4.10-pre12/arch/m68k/mm/fault.c	Tue Sep 18 08:46:05 2001
++++ linux-mmsem/arch/m68k/mm/fault.c	Wed Sep 19 13:56:17 2001
+@@ -101,7 +101,7 @@
+ 	if (in_interrupt() || !mm)
+ 		goto no_context;
+ 
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
+ 
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+@@ -168,7 +168,7 @@
+ 	#warning should be obsolete now...
+ 	if (CPU_IS_040_OR_060)
+ 		flush_tlb_page(vma, address);
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return 0;
+ 
+ /*
+@@ -203,6 +203,6 @@
+ 	current->thread.faddr = address;
+ 
+ send_sig:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return send_fault_sig(regs);
+ }
+diff -uNr linux-2.4.10-pre12/arch/mips/kernel/irixelf.c linux-mmsem/arch/mips/kernel/irixelf.c
+--- linux-2.4.10-pre12/arch/mips/kernel/irixelf.c	Tue Sep 18 08:45:59 2001
++++ linux-mmsem/arch/mips/kernel/irixelf.c	Wed Sep 19 12:57:05 2001
+@@ -314,12 +314,12 @@
+ 		   (unsigned long) elf_prot, (unsigned long) elf_type,
+ 		   (unsigned long) (eppnt->p_offset & 0xfffff000));
+ #endif
+-	    down_write(&current->mm->mmap_sem);
++	    mm_lock_exclusive(current->mm);
+ 	    error = do_mmap(interpreter, vaddr,
+ 			    eppnt->p_filesz + (eppnt->p_vaddr & 0xfff),
+ 			    elf_prot, elf_type,
+ 			    eppnt->p_offset & 0xfffff000);
+-	    up_write(&current->mm->mmap_sem);
++	    mm_unlock_exclusive(current->mm);
+ 
+ 	    if(error < 0 && error > -1024) {
+ 		    printk("Aieee IRIX interp mmap error=%d\n", error);
+@@ -498,12 +498,12 @@
+ 		prot  = (epp->p_flags & PF_R) ? PROT_READ : 0;
+ 		prot |= (epp->p_flags & PF_W) ? PROT_WRITE : 0;
+ 		prot |= (epp->p_flags & PF_X) ? PROT_EXEC : 0;
+-	        down_write(&current->mm->mmap_sem);
++	        mm_lock_exclusive(current->mm);
+ 		(void) do_mmap(fp, (epp->p_vaddr & 0xfffff000),
+ 			       (epp->p_filesz + (epp->p_vaddr & 0xfff)),
+ 			       prot, EXEC_MAP_FLAGS,
+ 			       (epp->p_offset & 0xfffff000));
+-	        up_write(&current->mm->mmap_sem);
++	        mm_unlock_exclusive(current->mm);
+ 
+ 		/* Fixup location tracking vars. */
+ 		if((epp->p_vaddr & 0xfffff000) < *estack)
+@@ -762,10 +762,10 @@
+ 	 * Since we do not have the power to recompile these, we
+ 	 * emulate the SVr4 behavior.  Sigh.
+ 	 */
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	(void) do_mmap(NULL, 0, 4096, PROT_READ | PROT_EXEC,
+ 		       MAP_FIXED | MAP_PRIVATE, 0);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ #endif
+ 
+ 	start_thread(regs, elf_entry, bprm->p);
+@@ -837,14 +837,14 @@
+ 	while(elf_phdata->p_type != PT_LOAD) elf_phdata++;
+ 	
+ 	/* Now use mmap to map the library into memory. */
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap(file,
+ 			elf_phdata->p_vaddr & 0xfffff000,
+ 			elf_phdata->p_filesz + (elf_phdata->p_vaddr & 0xfff),
+ 			PROT_READ | PROT_WRITE | PROT_EXEC,
+ 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE,
+ 			elf_phdata->p_offset & 0xfffff000);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	k = elf_phdata->p_vaddr + elf_phdata->p_filesz;
+ 	if (k > elf_bss) elf_bss = k;
+@@ -916,12 +916,12 @@
+ 		prot  = (hp->p_flags & PF_R) ? PROT_READ : 0;
+ 		prot |= (hp->p_flags & PF_W) ? PROT_WRITE : 0;
+ 		prot |= (hp->p_flags & PF_X) ? PROT_EXEC : 0;
+-		down_write(&current->mm->mmap_sem);
++		mm_lock_exclusive(current->mm);
+ 		retval = do_mmap(filp, (hp->p_vaddr & 0xfffff000),
+ 				 (hp->p_filesz + (hp->p_vaddr & 0xfff)),
+ 				 prot, (MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE),
+ 				 (hp->p_offset & 0xfffff000));
+-		up_write(&current->mm->mmap_sem);
++		mm_unlock_exclusive(current->mm);
+ 
+ 		if(retval != (hp->p_vaddr & 0xfffff000)) {
+ 			printk("irix_mapelf: do_mmap fails with %d!\n", retval);
+diff -uNr linux-2.4.10-pre12/arch/mips/kernel/syscall.c linux-mmsem/arch/mips/kernel/syscall.c
+--- linux-2.4.10-pre12/arch/mips/kernel/syscall.c	Tue Sep 18 08:45:59 2001
++++ linux-mmsem/arch/mips/kernel/syscall.c	Wed Sep 19 12:57:05 2001
+@@ -69,9 +69,9 @@
+ 			goto out;
+ 	}
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	if (file)
+ 		fput(file);
+diff -uNr linux-2.4.10-pre12/arch/mips/kernel/sysirix.c linux-mmsem/arch/mips/kernel/sysirix.c
+--- linux-2.4.10-pre12/arch/mips/kernel/sysirix.c	Tue Sep 18 08:45:59 2001
++++ linux-mmsem/arch/mips/kernel/sysirix.c	Wed Sep 19 12:57:05 2001
+@@ -471,7 +471,7 @@
+ 		if (retval)
+ 			return retval;
+ 
+-		down_read(&mm->mmap_sem);
++		mm_lock_shared(mm);
+ 		pgdp = pgd_offset(mm, addr);
+ 		pmdp = pmd_offset(pgdp, addr);
+ 		ptep = pte_offset(pmdp, addr);
+@@ -484,7 +484,7 @@
+ 				                   PAGE_SHIFT, pageno);
+ 			}
+ 		}
+-		up_read(&mm->mmap_sem);
++		mm_unlock_shared(mm);
+ 		break;
+ 	}
+ 
+@@ -534,7 +534,7 @@
+ 	struct mm_struct *mm = current->mm;
+ 	int ret;
+ 
+-	down_write(&mm->mmap_sem);
++	mm_lock_exclusive(mm);
+ 	if (brk < mm->end_code) {
+ 		ret = -ENOMEM;
+ 		goto out;
+@@ -592,7 +592,7 @@
+ 	ret = 0;
+ 
+ out:
+-	up_write(&mm->mmap_sem);
++	mm_unlock_exclusive(mm);
+ 	return ret;
+ }
+ 
+@@ -1082,9 +1082,9 @@
+ 
+ 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	retval = do_mmap(file, addr, len, prot, flags, offset);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	if (file)
+ 		fput(file);
+ 
+@@ -1642,9 +1642,9 @@
+ 
+ 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	if (file)
+ 		fput(file);
+diff -uNr linux-2.4.10-pre12/arch/mips/mm/fault.c linux-mmsem/arch/mips/mm/fault.c
+--- linux-2.4.10-pre12/arch/mips/mm/fault.c	Tue Sep 18 08:45:59 2001
++++ linux-mmsem/arch/mips/mm/fault.c	Wed Sep 19 13:55:33 2001
+@@ -72,7 +72,7 @@
+ 	printk("[%s:%d:%08lx:%ld:%08lx]\n", current->comm, current->pid,
+ 	       address, write, regs->cp0_epc);
+ #endif
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+ 		goto bad_area;
+@@ -115,7 +115,7 @@
+ 		goto out_of_memory;
+ 	}
+ 
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return;
+ 
+ /*
+@@ -123,7 +123,7 @@
+  * Fix it, but check if it's kernel or user first..
+  */
+ bad_area:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ bad_area_nosemaphore:
+ 	/* User mode accesses just cause a SIGSEGV */
+@@ -177,14 +177,14 @@
+  * us unable to handle the page fault gracefully.
+  */
+ out_of_memory:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", tsk->comm);
+ 	if (user_mode(regs))
+ 		do_exit(SIGKILL);
+ 	goto no_context;
+ 
+ do_sigbus:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	/*
+ 	 * Send a sigbus, regardless of whether we were in kernel
+diff -uNr linux-2.4.10-pre12/arch/mips64/kernel/linux32.c linux-mmsem/arch/mips64/kernel/linux32.c
+--- linux-2.4.10-pre12/arch/mips64/kernel/linux32.c	Wed Sep 19 10:39:07 2001
++++ linux-mmsem/arch/mips64/kernel/linux32.c	Wed Sep 19 12:57:12 2001
+@@ -443,10 +443,10 @@
+ 	 *  `execve' frees all current memory we only have to do an
+ 	 *  `munmap' if the `execve' failes.
+ 	 */
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	av = (char **) do_mmap_pgoff(0, 0, len, PROT_READ | PROT_WRITE,
+ 				     MAP_PRIVATE | MAP_ANONYMOUS, 0);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	if (IS_ERR(av))
+ 		return (long) av;
+diff -uNr linux-2.4.10-pre12/arch/mips64/kernel/syscall.c linux-mmsem/arch/mips64/kernel/syscall.c
+--- linux-2.4.10-pre12/arch/mips64/kernel/syscall.c	Wed Sep 19 10:39:07 2001
++++ linux-mmsem/arch/mips64/kernel/syscall.c	Wed Sep 19 12:57:12 2001
+@@ -65,9 +65,9 @@
+ 	}
+         flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+         error = do_mmap(file, addr, len, prot, flags, offset);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+         if (file)
+                 fput(file);
+ out:
+diff -uNr linux-2.4.10-pre12/arch/mips64/mm/fault.c linux-mmsem/arch/mips64/mm/fault.c
+--- linux-2.4.10-pre12/arch/mips64/mm/fault.c	Wed Sep 19 10:39:07 2001
++++ linux-mmsem/arch/mips64/mm/fault.c	Wed Sep 19 13:57:01 2001
+@@ -124,7 +124,7 @@
+ 	printk("Cpu%d[%s:%d:%08lx:%ld:%08lx]\n", smp_processor_id(), current->comm,
+ 		current->pid, address, write, regs->cp0_epc);
+ #endif
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+ 		goto bad_area;
+@@ -167,7 +167,7 @@
+ 		goto out_of_memory;
+ 	}
+ 
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return;
+ 
+ /*
+@@ -175,7 +175,7 @@
+  * Fix it, but check if it's kernel or user first..
+  */
+ bad_area:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ bad_area_nosemaphore:
+ 	if (user_mode(regs)) {
+@@ -233,14 +233,14 @@
+  * us unable to handle the page fault gracefully.
+  */
+ out_of_memory:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", tsk->comm);
+ 	if (user_mode(regs))
+ 		do_exit(SIGKILL);
+ 	goto no_context;
+ 
+ do_sigbus:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	/*
+ 	 * Send a sigbus, regardless of whether we were in kernel
+diff -uNr linux-2.4.10-pre12/arch/parisc/kernel/sys_parisc.c linux-mmsem/arch/parisc/kernel/sys_parisc.c
+--- linux-2.4.10-pre12/arch/parisc/kernel/sys_parisc.c	Tue Sep 18 08:46:43 2001
++++ linux-mmsem/arch/parisc/kernel/sys_parisc.c	Wed Sep 19 12:57:13 2001
+@@ -51,7 +51,7 @@
+ 	struct file * file = NULL;
+ 	int error;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	lock_kernel();
+ 	if (!(flags & MAP_ANONYMOUS)) {
+ 		error = -EBADF;
+@@ -65,7 +65,7 @@
+ 		fput(file);
+ out:
+ 	unlock_kernel();
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return error;
+ }
+ 
+diff -uNr linux-2.4.10-pre12/arch/parisc/mm/fault.c linux-mmsem/arch/parisc/mm/fault.c
+--- linux-2.4.10-pre12/arch/parisc/mm/fault.c	Tue Sep 18 08:46:43 2001
++++ linux-mmsem/arch/parisc/mm/fault.c	Wed Sep 19 13:57:13 2001
+@@ -175,7 +175,7 @@
+ 	if (in_interrupt() || !mm)
+ 		goto no_context;
+ 
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
+ 	vma = pa_find_vma(mm, address);
+ 	if (!vma)
+ 		goto bad_area;
+@@ -218,14 +218,14 @@
+ 	      default:
+ 		goto out_of_memory;
+ 	}
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return;
+ 
+ /*
+  * Something tried to access memory that isn't in our memory map..
+  */
+ bad_area:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	if (user_mode(regs)) {
+ 		struct siginfo si;
+@@ -275,7 +275,7 @@
+ 	parisc_terminate("Bad Address (null pointer deref?)",regs,code,address);
+ 
+   out_of_memory:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", current->comm);
+ 	if (user_mode(regs))
+ 		do_exit(SIGKILL);
+diff -uNr linux-2.4.10-pre12/arch/ppc/kernel/syscalls.c linux-mmsem/arch/ppc/kernel/syscalls.c
+--- linux-2.4.10-pre12/arch/ppc/kernel/syscalls.c	Tue Sep 18 08:46:01 2001
++++ linux-mmsem/arch/ppc/kernel/syscalls.c	Wed Sep 19 12:57:06 2001
+@@ -202,9 +202,9 @@
+ 			goto out;
+ 	}
+ 	
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	ret = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	if (file)
+ 		fput(file);
+ out:
+diff -uNr linux-2.4.10-pre12/arch/ppc/mm/fault.c linux-mmsem/arch/ppc/mm/fault.c
+--- linux-2.4.10-pre12/arch/ppc/mm/fault.c	Tue Sep 18 08:46:01 2001
++++ linux-mmsem/arch/ppc/mm/fault.c	Wed Sep 19 13:55:48 2001
+@@ -103,7 +103,7 @@
+ 		bad_page_fault(regs, address, SIGSEGV);
+ 		return;
+ 	}
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+ 		goto bad_area;
+@@ -163,7 +163,7 @@
+                 goto out_of_memory;
+ 	}
+ 
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	/*
+ 	 * keep track of tlb+htab misses that are good addrs but
+ 	 * just need pte's created via handle_mm_fault()
+@@ -173,7 +173,7 @@
+ 	return;
+ 
+ bad_area:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	pte_errors++;	
+ 
+ 	/* User mode accesses cause a SIGSEGV */
+@@ -194,7 +194,7 @@
+  * us unable to handle the page fault gracefully.
+  */
+ out_of_memory:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", current->comm);
+ 	if (user_mode(regs))
+ 		do_exit(SIGKILL);
+@@ -202,7 +202,7 @@
+ 	return;
+ 
+ do_sigbus:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	info.si_signo = SIGBUS;
+ 	info.si_errno = 0;
+ 	info.si_code = BUS_ADRERR;
+diff -uNr linux-2.4.10-pre12/arch/s390/kernel/sys_s390.c linux-mmsem/arch/s390/kernel/sys_s390.c
+--- linux-2.4.10-pre12/arch/s390/kernel/sys_s390.c	Tue Sep 18 08:46:42 2001
++++ linux-mmsem/arch/s390/kernel/sys_s390.c	Wed Sep 19 12:57:12 2001
+@@ -61,9 +61,9 @@
+ 			goto out;
+ 	}
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	if (file)
+ 		fput(file);
+diff -uNr linux-2.4.10-pre12/arch/s390/mm/fault.c linux-mmsem/arch/s390/mm/fault.c
+--- linux-2.4.10-pre12/arch/s390/mm/fault.c	Tue Sep 18 08:46:43 2001
++++ linux-mmsem/arch/s390/mm/fault.c	Wed Sep 19 13:57:08 2001
+@@ -113,7 +113,7 @@
+ 	 * task's user address space, so we search the VMAs
+ 	 */
+ 
+-        down_read(&mm->mmap_sem);
++        mm_lock_shared_recursive(mm);
+ 
+         vma = find_vma(mm, address);
+         if (!vma)
+@@ -164,7 +164,7 @@
+ 		goto out_of_memory;
+ 	}
+ 
+-        up_read(&mm->mmap_sem);
++        mm_unlock_shared(mm);
+         return;
+ 
+ /*
+@@ -172,7 +172,7 @@
+  * Fix it, but check if it's kernel or user first..
+  */
+ bad_area:
+-        up_read(&mm->mmap_sem);
++        mm_unlock_shared(mm);
+ 
+         /* User mode accesses just cause a SIGSEGV */
+         if (regs->psw.mask & PSW_PROBLEM_STATE) {
+@@ -231,14 +231,14 @@
+  * us unable to handle the page fault gracefully.
+ */
+ out_of_memory:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", tsk->comm);
+ 	if (regs->psw.mask & PSW_PROBLEM_STATE)
+ 		do_exit(SIGKILL);
+ 	goto no_context;
+ 
+ do_sigbus:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	/*
+ 	 * Send a sigbus, regardless of whether we were in kernel
+diff -uNr linux-2.4.10-pre12/arch/s390x/kernel/binfmt_elf32.c linux-mmsem/arch/s390x/kernel/binfmt_elf32.c
+--- linux-2.4.10-pre12/arch/s390x/kernel/binfmt_elf32.c	Tue Sep 18 08:46:43 2001
++++ linux-mmsem/arch/s390x/kernel/binfmt_elf32.c	Wed Sep 19 12:57:13 2001
+@@ -194,11 +194,11 @@
+ 	if(!addr)
+ 		addr = 0x40000000;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	map_addr = do_mmap(filep, ELF_PAGESTART(addr),
+ 			   eppnt->p_filesz + ELF_PAGEOFFSET(eppnt->p_vaddr), prot, type,
+ 			   eppnt->p_offset - ELF_PAGEOFFSET(eppnt->p_vaddr));
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return(map_addr);
+ }
+ 
+diff -uNr linux-2.4.10-pre12/arch/s390x/kernel/exec32.c linux-mmsem/arch/s390x/kernel/exec32.c
+--- linux-2.4.10-pre12/arch/s390x/kernel/exec32.c	Tue Sep 18 08:46:43 2001
++++ linux-mmsem/arch/s390x/kernel/exec32.c	Wed Sep 19 12:57:13 2001
+@@ -54,7 +54,7 @@
+ 	if (!mpnt) 
+ 		return -ENOMEM; 
+ 	
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	{
+ 		mpnt->vm_mm = current->mm;
+ 		mpnt->vm_start = PAGE_MASK & (unsigned long) bprm->p;
+@@ -77,7 +77,7 @@
+ 		}
+ 		stack_base += PAGE_SIZE;
+ 	}
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	
+ 	return 0;
+ }
+diff -uNr linux-2.4.10-pre12/arch/s390x/kernel/linux32.c linux-mmsem/arch/s390x/kernel/linux32.c
+--- linux-2.4.10-pre12/arch/s390x/kernel/linux32.c	Tue Sep 18 08:46:43 2001
++++ linux-mmsem/arch/s390x/kernel/linux32.c	Wed Sep 19 12:57:13 2001
+@@ -4186,14 +4186,14 @@
+ 			goto out;
+ 	}
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+ 	if (!IS_ERR((void *) error) && error + len >= 0x80000000ULL) {
+ 		/* Result is out of bounds.  */
+ 		do_munmap(current->mm, addr, len);
+ 		error = -ENOMEM;
+ 	}
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	if (file)
+ 		fput(file);
+diff -uNr linux-2.4.10-pre12/arch/s390x/kernel/sys_s390.c linux-mmsem/arch/s390x/kernel/sys_s390.c
+--- linux-2.4.10-pre12/arch/s390x/kernel/sys_s390.c	Tue Sep 18 08:46:44 2001
++++ linux-mmsem/arch/s390x/kernel/sys_s390.c	Wed Sep 19 12:57:13 2001
+@@ -61,9 +61,9 @@
+ 			goto out;
+ 	}
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	if (file)
+ 		fput(file);
+diff -uNr linux-2.4.10-pre12/arch/s390x/mm/fault.c linux-mmsem/arch/s390x/mm/fault.c
+--- linux-2.4.10-pre12/arch/s390x/mm/fault.c	Tue Sep 18 08:46:44 2001
++++ linux-mmsem/arch/s390x/mm/fault.c	Wed Sep 19 13:57:25 2001
+@@ -141,7 +141,7 @@
+ 	 * task's user address space, so we search the VMAs
+ 	 */
+ 
+-        down_read(&mm->mmap_sem);
++        mm_lock_shared_recursive(mm);
+ 
+         vma = find_vma(mm, address);
+         if (!vma) {
+@@ -195,7 +195,7 @@
+ 		goto out_of_memory;
+ 	}
+ 
+-        up_read(&mm->mmap_sem);
++        mm_unlock_shared(mm);
+         return;
+ 
+ /*
+@@ -203,7 +203,7 @@
+  * Fix it, but check if it's kernel or user first..
+  */
+ bad_area:
+-        up_read(&mm->mmap_sem);
++        mm_unlock_shared(mm);
+ 
+         /* User mode accesses just cause a SIGSEGV */
+         if (regs->psw.mask & PSW_PROBLEM_STATE) {
+@@ -262,14 +262,14 @@
+  * us unable to handle the page fault gracefully.
+ */
+ out_of_memory:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", tsk->comm);
+ 	if (regs->psw.mask & PSW_PROBLEM_STATE)
+ 		do_exit(SIGKILL);
+ 	goto no_context;
+ 
+ do_sigbus:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	/*
+ 	 * Send a sigbus, regardless of whether we were in kernel
+diff -uNr linux-2.4.10-pre12/arch/sh/kernel/sys_sh.c linux-mmsem/arch/sh/kernel/sys_sh.c
+--- linux-2.4.10-pre12/arch/sh/kernel/sys_sh.c	Wed Sep 19 10:39:08 2001
++++ linux-mmsem/arch/sh/kernel/sys_sh.c	Wed Sep 19 12:57:10 2001
+@@ -96,9 +96,9 @@
+ 			goto out;
+ 	}
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	if (file)
+ 		fput(file);
+diff -uNr linux-2.4.10-pre12/arch/sh/mm/fault.c linux-mmsem/arch/sh/mm/fault.c
+--- linux-2.4.10-pre12/arch/sh/mm/fault.c	Wed Sep 19 10:39:08 2001
++++ linux-mmsem/arch/sh/mm/fault.c	Wed Sep 19 13:56:46 2001
+@@ -105,7 +105,7 @@
+ 	if (in_interrupt() || !mm)
+ 		goto no_context;
+ 
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared_recursive(mm);
+ 
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+@@ -147,7 +147,7 @@
+ 		goto out_of_memory;
+ 	}
+ 
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return;
+ 
+ /*
+@@ -155,7 +155,7 @@
+  * Fix it, but check if it's kernel or user first..
+  */
+ bad_area:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	if (user_mode(regs)) {
+ 		tsk->thread.address = address;
+@@ -204,14 +204,14 @@
+  * us unable to handle the page fault gracefully.
+  */
+ out_of_memory:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", tsk->comm);
+ 	if (user_mode(regs))
+ 		do_exit(SIGKILL);
+ 	goto no_context;
+ 
+ do_sigbus:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	/*
+ 	 * Send a sigbus, regardless of whether we were in kernel
+diff -uNr linux-2.4.10-pre12/arch/sparc/kernel/sys_sparc.c linux-mmsem/arch/sparc/kernel/sys_sparc.c
+--- linux-2.4.10-pre12/arch/sparc/kernel/sys_sparc.c	Tue Sep 18 08:45:59 2001
++++ linux-mmsem/arch/sparc/kernel/sys_sparc.c	Wed Sep 19 12:57:04 2001
+@@ -242,9 +242,9 @@
+ 
+ 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	retval = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ out_putf:
+ 	if (file)
+@@ -288,7 +288,7 @@
+ 	if (old_len > TASK_SIZE - PAGE_SIZE ||
+ 	    new_len > TASK_SIZE - PAGE_SIZE)
+ 		goto out;
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	if (flags & MREMAP_FIXED) {
+ 		if (ARCH_SUN4C_SUN4 &&
+ 		    new_addr < 0xe0000000 &&
+@@ -323,7 +323,7 @@
+ 	}
+ 	ret = do_mremap(addr, old_len, new_len, flags, new_addr);
+ out_sem:
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ out:
+ 	return ret;       
+ }
+diff -uNr linux-2.4.10-pre12/arch/sparc/kernel/sys_sunos.c linux-mmsem/arch/sparc/kernel/sys_sunos.c
+--- linux-2.4.10-pre12/arch/sparc/kernel/sys_sunos.c	Tue Sep 18 08:45:59 2001
++++ linux-mmsem/arch/sparc/kernel/sys_sunos.c	Wed Sep 19 12:57:04 2001
+@@ -116,9 +116,9 @@
+ 	}
+ 
+ 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	retval = do_mmap(file, addr, len, prot, flags, off);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	if(!ret_type)
+ 		retval = ((retval < PAGE_OFFSET) ? 0 : retval);
+ 
+@@ -145,7 +145,7 @@
+ 	unsigned long rlim;
+ 	unsigned long newbrk, oldbrk;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	if(ARCH_SUN4C_SUN4) {
+ 		if(brk >= 0x20000000 && brk < 0xe0000000) {
+ 			goto out;
+@@ -208,7 +208,7 @@
+ 	do_brk(oldbrk, newbrk-oldbrk);
+ 	retval = 0;
+ out:
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return retval;
+ }
+ 
+diff -uNr linux-2.4.10-pre12/arch/sparc/mm/fault.c linux-mmsem/arch/sparc/mm/fault.c
+--- linux-2.4.10-pre12/arch/sparc/mm/fault.c	Tue Sep 18 08:45:59 2001
++++ linux-mmsem/arch/sparc/mm/fault.c	Wed Sep 19 12:57:05 2001
+@@ -222,7 +222,7 @@
+         if (in_interrupt() || !mm)
+                 goto no_context;
+ 
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared(mm);
+ 
+ 	/*
+ 	 * The kernel referencing a bad kernel pointer can lock up
+@@ -272,7 +272,7 @@
+ 	default:
+ 		goto out_of_memory;
+ 	}
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return;
+ 
+ 	/*
+@@ -280,7 +280,7 @@
+ 	 * Fix it, but check if it's kernel or user first..
+ 	 */
+ bad_area:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ bad_area_nosemaphore:
+ 	/* User mode accesses just cause a SIGSEGV */
+@@ -336,14 +336,14 @@
+  * us unable to handle the page fault gracefully.
+  */
+ out_of_memory:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", tsk->comm);
+ 	if (from_user)
+ 		do_exit(SIGKILL);
+ 	goto no_context;
+ 
+ do_sigbus:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	info.si_signo = SIGBUS;
+ 	info.si_errno = 0;
+ 	info.si_code = BUS_ADRERR;
+@@ -477,7 +477,7 @@
+ 	printk("wf<pid=%d,wr=%d,addr=%08lx>\n",
+ 	       tsk->pid, write, address);
+ #endif
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared(mm);
+ 	vma = find_vma(mm, address);
+ 	if(!vma)
+ 		goto bad_area;
+@@ -498,10 +498,10 @@
+ 	}
+ 	if (!handle_mm_fault(mm, vma, address, write))
+ 		goto do_sigbus;
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return;
+ bad_area:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ #if 0
+ 	printk("Window whee %s [%d]: segfaults at %08lx\n",
+ 	       tsk->comm, tsk->pid, address);
+@@ -516,7 +516,7 @@
+ 	return;
+ 
+ do_sigbus:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	info.si_signo = SIGBUS;
+ 	info.si_errno = 0;
+ 	info.si_code = BUS_ADRERR;
+diff -uNr linux-2.4.10-pre12/arch/sparc64/kernel/binfmt_aout32.c linux-mmsem/arch/sparc64/kernel/binfmt_aout32.c
+--- linux-2.4.10-pre12/arch/sparc64/kernel/binfmt_aout32.c	Tue Sep 18 08:46:07 2001
++++ linux-mmsem/arch/sparc64/kernel/binfmt_aout32.c	Wed Sep 19 12:57:09 2001
+@@ -277,24 +277,24 @@
+ 			goto beyond_if;
+ 		}
+ 
+-	        down_write(&current->mm->mmap_sem);
++	        mm_lock_exclusive(current->mm);
+ 		error = do_mmap(bprm->file, N_TXTADDR(ex), ex.a_text,
+ 			PROT_READ | PROT_EXEC,
+ 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE | MAP_EXECUTABLE,
+ 			fd_offset);
+-	        up_write(&current->mm->mmap_sem);
++	        mm_unlock_exclusive(current->mm);
+ 
+ 		if (error != N_TXTADDR(ex)) {
+ 			send_sig(SIGKILL, current, 0);
+ 			return error;
+ 		}
+ 
+-	        down_write(&current->mm->mmap_sem);
++	        mm_lock_exclusive(current->mm);
+  		error = do_mmap(bprm->file, N_DATADDR(ex), ex.a_data,
+ 				PROT_READ | PROT_WRITE | PROT_EXEC,
+ 				MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE | MAP_EXECUTABLE,
+ 				fd_offset + ex.a_text);
+-	        up_write(&current->mm->mmap_sem);
++	        mm_unlock_exclusive(current->mm);
+ 		if (error != N_DATADDR(ex)) {
+ 			send_sig(SIGKILL, current, 0);
+ 			return error;
+@@ -369,12 +369,12 @@
+ 	start_addr =  ex.a_entry & 0xfffff000;
+ 
+ 	/* Now use mmap to map the library into memory. */
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap(file, start_addr, ex.a_text + ex.a_data,
+ 			PROT_READ | PROT_WRITE | PROT_EXEC,
+ 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE,
+ 			N_TXTOFF(ex));
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	retval = error;
+ 	if (error != start_addr)
+ 		goto out;
+diff -uNr linux-2.4.10-pre12/arch/sparc64/kernel/sys_sparc.c linux-mmsem/arch/sparc64/kernel/sys_sparc.c
+--- linux-2.4.10-pre12/arch/sparc64/kernel/sys_sparc.c	Tue Sep 18 08:46:06 2001
++++ linux-mmsem/arch/sparc64/kernel/sys_sparc.c	Wed Sep 19 12:57:09 2001
+@@ -292,9 +292,9 @@
+ 			goto out_putf;
+ 	}
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	retval = do_mmap(file, addr, len, prot, flags, off);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ out_putf:
+ 	if (file)
+@@ -310,9 +310,9 @@
+ 	if (len > -PAGE_OFFSET ||
+ 	    (addr < PAGE_OFFSET && addr + len > -PAGE_OFFSET))
+ 		return -EINVAL;
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	ret = do_munmap(current->mm, addr, len);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return ret;
+ }
+ 
+@@ -332,7 +332,7 @@
+ 		goto out;
+ 	if (addr < PAGE_OFFSET && addr + old_len > -PAGE_OFFSET)
+ 		goto out;
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	if (flags & MREMAP_FIXED) {
+ 		if (new_addr < PAGE_OFFSET &&
+ 		    new_addr + new_len > -PAGE_OFFSET)
+@@ -363,7 +363,7 @@
+ 	}
+ 	ret = do_mremap(addr, old_len, new_len, flags, new_addr);
+ out_sem:
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ out:
+ 	return ret;       
+ }
+diff -uNr linux-2.4.10-pre12/arch/sparc64/kernel/sys_sparc32.c linux-mmsem/arch/sparc64/kernel/sys_sparc32.c
+--- linux-2.4.10-pre12/arch/sparc64/kernel/sys_sparc32.c	Tue Sep 18 08:46:06 2001
++++ linux-mmsem/arch/sparc64/kernel/sys_sparc32.c	Wed Sep 19 12:57:09 2001
+@@ -4141,7 +4141,7 @@
+ 		goto out;
+ 	if (addr > 0xf0000000UL - old_len)
+ 		goto out;
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	if (flags & MREMAP_FIXED) {
+ 		if (new_addr > 0xf0000000UL - new_len)
+ 			goto out_sem;
+@@ -4171,7 +4171,7 @@
+ 	}
+ 	ret = do_mremap(addr, old_len, new_len, flags, new_addr);
+ out_sem:
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ out:
+ 	return ret;       
+ }
+diff -uNr linux-2.4.10-pre12/arch/sparc64/kernel/sys_sunos32.c linux-mmsem/arch/sparc64/kernel/sys_sunos32.c
+--- linux-2.4.10-pre12/arch/sparc64/kernel/sys_sunos32.c	Tue Sep 18 08:46:08 2001
++++ linux-mmsem/arch/sparc64/kernel/sys_sunos32.c	Wed Sep 19 12:57:09 2001
+@@ -100,12 +100,12 @@
+ 	flags &= ~_MAP_NEW;
+ 
+ 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	retval = do_mmap(file,
+ 			 (unsigned long) addr, (unsigned long) len,
+ 			 (unsigned long) prot, (unsigned long) flags,
+ 			 (unsigned long) off);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	if(!ret_type)
+ 		retval = ((retval < 0xf0000000) ? 0 : retval);
+ out_putf:
+@@ -126,7 +126,7 @@
+ 	unsigned long rlim;
+ 	unsigned long newbrk, oldbrk, brk = (unsigned long) baddr;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	if (brk < current->mm->end_code)
+ 		goto out;
+ 	newbrk = PAGE_ALIGN(brk);
+@@ -170,7 +170,7 @@
+ 	do_brk(oldbrk, newbrk-oldbrk);
+ 	retval = 0;
+ out:
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return retval;
+ }
+ 
+diff -uNr linux-2.4.10-pre12/arch/sparc64/mm/fault.c linux-mmsem/arch/sparc64/mm/fault.c
+--- linux-2.4.10-pre12/arch/sparc64/mm/fault.c	Wed Sep 19 10:39:08 2001
++++ linux-mmsem/arch/sparc64/mm/fault.c	Wed Sep 19 12:57:09 2001
+@@ -306,7 +306,7 @@
+ 		address &= 0xffffffff;
+ 	}
+ 
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared(mm);
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+ 		goto bad_area;
+@@ -378,7 +378,7 @@
+ 		goto out_of_memory;
+ 	}
+ 
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	goto fault_done;
+ 
+ 	/*
+@@ -387,7 +387,7 @@
+ 	 */
+ bad_area:
+ 	insn = get_fault_insn(regs, insn);
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ handle_kernel_fault:
+ 	do_kernel_fault(regs, si_code, fault_code, insn, address);
+@@ -400,7 +400,7 @@
+  */
+ out_of_memory:
+ 	insn = get_fault_insn(regs, insn);
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	printk("VM: killing process %s\n", current->comm);
+ 	if (!(regs->tstate & TSTATE_PRIV))
+ 		do_exit(SIGKILL);
+@@ -412,7 +412,7 @@
+ 
+ do_sigbus:
+ 	insn = get_fault_insn(regs, insn);
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	/*
+ 	 * Send a sigbus, regardless of whether we were in kernel
+diff -uNr linux-2.4.10-pre12/arch/sparc64/solaris/misc.c linux-mmsem/arch/sparc64/solaris/misc.c
+--- linux-2.4.10-pre12/arch/sparc64/solaris/misc.c	Wed Sep 19 10:39:08 2001
++++ linux-mmsem/arch/sparc64/solaris/misc.c	Wed Sep 19 12:57:09 2001
+@@ -92,12 +92,12 @@
+ 	ret_type = flags & _MAP_NEW;
+ 	flags &= ~_MAP_NEW;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
+ 	retval = do_mmap(file,
+ 			 (unsigned long) addr, (unsigned long) len,
+ 			 (unsigned long) prot, (unsigned long) flags, off);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	if(!ret_type)
+ 		retval = ((retval < 0xf0000000) ? 0 : retval);
+ 	                        
+diff -uNr linux-2.4.10-pre12/drivers/char/mem.c linux-mmsem/drivers/char/mem.c
+--- linux-2.4.10-pre12/drivers/char/mem.c	Wed Sep 19 10:39:10 2001
++++ linux-mmsem/drivers/char/mem.c	Wed Sep 19 12:58:59 2001
+@@ -350,7 +350,7 @@
+ 
+ 	mm = current->mm;
+ 	/* Oops, this was forgotten before. -ben */
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared(mm);
+ 
+ 	/* For private mappings, just map in zero pages. */
+ 	for (vma = find_vma(mm, addr); vma; vma = vma->vm_next) {
+@@ -374,7 +374,7 @@
+ 			goto out_up;
+ 	}
+ 
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	
+ 	/* The shared case is hard. Let's do the conventional zeroing. */ 
+ 	do {
+@@ -389,7 +389,7 @@
+ 
+ 	return size;
+ out_up:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return size;
+ }
+ 
+diff -uNr linux-2.4.10-pre12/drivers/sgi/char/graphics.c linux-mmsem/drivers/sgi/char/graphics.c
+--- linux-2.4.10-pre12/drivers/sgi/char/graphics.c	Wed Sep 19 10:39:17 2001
++++ linux-mmsem/drivers/sgi/char/graphics.c	Wed Sep 19 12:59:13 2001
+@@ -152,11 +152,11 @@
+ 		 * sgi_graphics_mmap
+ 		 */
+ 		disable_gconsole ();
+-		down_write(&current->mm->mmap_sem);
++		mm_lock_exclusive(current->mm);
+ 		r = do_mmap (file, (unsigned long)vaddr,
+ 			     cards[board].g_regs_size, PROT_READ|PROT_WRITE,
+ 			     MAP_FIXED|MAP_PRIVATE, 0);
+-		up_write(&current->mm->mmap_sem);
++		mm_unlock_exclusive(current->mm);
+ 		if (r)
+ 			return r;
+ 	}
+diff -uNr linux-2.4.10-pre12/drivers/sgi/char/shmiq.c linux-mmsem/drivers/sgi/char/shmiq.c
+--- linux-2.4.10-pre12/drivers/sgi/char/shmiq.c	Wed Sep 19 10:39:17 2001
++++ linux-mmsem/drivers/sgi/char/shmiq.c	Wed Sep 19 12:59:13 2001
+@@ -285,11 +285,11 @@
+ 			s = req.arg * sizeof (struct shmqevent) +
+ 			    sizeof (struct sharedMemoryInputQueue);
+ 			v = sys_munmap (vaddr, s);
+-			down_write(&current->mm->mmap_sem);
++			mm_lock_exclusive(current->mm);
+ 			do_munmap(current->mm, vaddr, s);
+ 			do_mmap(filp, vaddr, s, PROT_READ | PROT_WRITE,
+ 			        MAP_PRIVATE|MAP_FIXED, 0);
+-			up_write(&current->mm->mmap_sem);
++			mm_unlock_exclusive(current->mm);
+ 			shmiqs[minor].events = req.arg;
+ 			shmiqs[minor].mapped = 1;
+ 
+diff -uNr linux-2.4.10-pre12/fs/binfmt_aout.c linux-mmsem/fs/binfmt_aout.c
+--- linux-2.4.10-pre12/fs/binfmt_aout.c	Wed Sep 19 10:39:20 2001
++++ linux-mmsem/fs/binfmt_aout.c	Wed Sep 19 11:42:59 2001
+@@ -377,24 +377,24 @@
+ 			goto beyond_if;
+ 		}
+ 
+-		down_write(&current->mm->mmap_sem);
++		mm_lock_exclusive(current->mm);
+ 		error = do_mmap(bprm->file, N_TXTADDR(ex), ex.a_text,
+ 			PROT_READ | PROT_EXEC,
+ 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE | MAP_EXECUTABLE,
+ 			fd_offset);
+-		up_write(&current->mm->mmap_sem);
++		mm_unlock_exclusive(current->mm);
+ 
+ 		if (error != N_TXTADDR(ex)) {
+ 			send_sig(SIGKILL, current, 0);
+ 			return error;
+ 		}
+ 
+-		down_write(&current->mm->mmap_sem);
++		mm_lock_exclusive(current->mm);
+  		error = do_mmap(bprm->file, N_DATADDR(ex), ex.a_data,
+ 				PROT_READ | PROT_WRITE | PROT_EXEC,
+ 				MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE | MAP_EXECUTABLE,
+ 				fd_offset + ex.a_text);
+-		up_write(&current->mm->mmap_sem);
++		mm_unlock_exclusive(current->mm);
+ 		if (error != N_DATADDR(ex)) {
+ 			send_sig(SIGKILL, current, 0);
+ 			return error;
+@@ -476,12 +476,12 @@
+ 		goto out;
+ 	}
+ 	/* Now use mmap to map the library into memory. */
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap(file, start_addr, ex.a_text + ex.a_data,
+ 			PROT_READ | PROT_WRITE | PROT_EXEC,
+ 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE,
+ 			N_TXTOFF(ex));
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	retval = error;
+ 	if (error != start_addr)
+ 		goto out;
+diff -uNr linux-2.4.10-pre12/fs/binfmt_elf.c linux-mmsem/fs/binfmt_elf.c
+--- linux-2.4.10-pre12/fs/binfmt_elf.c	Wed Sep 19 10:39:20 2001
++++ linux-mmsem/fs/binfmt_elf.c	Wed Sep 19 11:43:48 2001
+@@ -224,11 +224,11 @@
+ {
+ 	unsigned long map_addr;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	map_addr = do_mmap(filep, ELF_PAGESTART(addr),
+ 			   eppnt->p_filesz + ELF_PAGEOFFSET(eppnt->p_vaddr), prot, type,
+ 			   eppnt->p_offset - ELF_PAGEOFFSET(eppnt->p_vaddr));
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return(map_addr);
+ }
+ 
+@@ -743,10 +743,10 @@
+ 		   Since we do not have the power to recompile these, we
+ 		   emulate the SVr4 behavior.  Sigh.  */
+ 		/* N.B. Shouldn't the size here be PAGE_SIZE?? */
+-		down_write(&current->mm->mmap_sem);
++		mm_lock_exclusive(current->mm);
+ 		error = do_mmap(NULL, 0, 4096, PROT_READ | PROT_EXEC,
+ 				MAP_FIXED | MAP_PRIVATE, 0);
+-		up_write(&current->mm->mmap_sem);
++		mm_unlock_exclusive(current->mm);
+ 	}
+ 
+ #ifdef ELF_PLAT_INIT
+@@ -827,7 +827,7 @@
+ 	while (elf_phdata->p_type != PT_LOAD) elf_phdata++;
+ 
+ 	/* Now use mmap to map the library into memory. */
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	error = do_mmap(file,
+ 			ELF_PAGESTART(elf_phdata->p_vaddr),
+ 			(elf_phdata->p_filesz +
+@@ -836,7 +836,7 @@
+ 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE,
+ 			(elf_phdata->p_offset -
+ 			 ELF_PAGEOFFSET(elf_phdata->p_vaddr)));
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	if (error != ELF_PAGESTART(elf_phdata->p_vaddr))
+ 		goto out_free_ph;
+ 
+diff -uNr linux-2.4.10-pre12/fs/exec.c linux-mmsem/fs/exec.c
+--- linux-2.4.10-pre12/fs/exec.c	Wed Sep 19 10:39:20 2001
++++ linux-mmsem/fs/exec.c	Wed Sep 19 11:44:38 2001
+@@ -307,7 +307,7 @@
+ 	if (!mpnt) 
+ 		return -ENOMEM; 
+ 	
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	{
+ 		mpnt->vm_mm = current->mm;
+ 		mpnt->vm_start = PAGE_MASK & (unsigned long) bprm->p;
+@@ -330,7 +330,7 @@
+ 		}
+ 		stack_base += PAGE_SIZE;
+ 	}
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	
+ 	return 0;
+ }
+@@ -969,9 +969,9 @@
+ 	if (do_truncate(file->f_dentry, 0) != 0)
+ 		goto close_fail;
+ 
+-	down_read(&current->mm->mmap_sem);
++	mm_lock_shared(current->mm);
+ 	retval = binfmt->core_dump(signr, regs, file);
+-	up_read(&current->mm->mmap_sem);
++	mm_unlock_shared(current->mm);
+ 
+ close_fail:
+ 	filp_close(file, NULL);
+diff -uNr linux-2.4.10-pre12/fs/proc/array.c linux-mmsem/fs/proc/array.c
+--- linux-2.4.10-pre12/fs/proc/array.c	Tue Sep 18 08:45:09 2001
++++ linux-mmsem/fs/proc/array.c	Wed Sep 19 11:47:34 2001
+@@ -181,7 +181,7 @@
+ 	unsigned long data = 0, stack = 0;
+ 	unsigned long exec = 0, lib = 0;
+ 
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared(mm);
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		unsigned long len = (vma->vm_end - vma->vm_start) >> 10;
+ 		if (!vma->vm_file) {
+@@ -212,7 +212,7 @@
+ 		mm->rss << (PAGE_SHIFT-10),
+ 		data - stack, stack,
+ 		exec - lib, lib);
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	return buffer;
+ }
+ 
+@@ -317,7 +317,7 @@
+ 	task_unlock(task);
+ 	if (mm) {
+ 		struct vm_area_struct *vma;
+-		down_read(&mm->mmap_sem);
++		mm_lock_shared(mm);
+ 		vma = mm->mmap;
+ 		while (vma) {
+ 			vsize += vma->vm_end - vma->vm_start;
+@@ -325,7 +325,7 @@
+ 		}
+ 		eip = KSTK_EIP(task);
+ 		esp = KSTK_ESP(task);
+-		up_read(&mm->mmap_sem);
++		mm_unlock_shared(mm);
+ 	}
+ 
+ 	wchan = get_wchan(task);
+@@ -479,7 +479,7 @@
+ 	task_unlock(task);
+ 	if (mm) {
+ 		struct vm_area_struct * vma;
+-		down_read(&mm->mmap_sem);
++		mm_lock_shared(mm);
+ 		vma = mm->mmap;
+ 		while (vma) {
+ 			pgd_t *pgd = pgd_offset(mm, vma->vm_start);
+@@ -500,7 +500,7 @@
+ 				drs += pages;
+ 			vma = vma->vm_next;
+ 		}
+-		up_read(&mm->mmap_sem);
++		mm_unlock_shared(mm);
+ 		mmput(mm);
+ 	}
+ 	return sprintf(buffer,"%d %d %d %d %d %d %d\n",
+@@ -577,7 +577,7 @@
+ 	column = *ppos & (MAPS_LINE_LENGTH-1);
+ 
+ 	/* quickly go to line lineno */
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared(mm);
+ 	for (map = mm->mmap, i = 0; map && (i < lineno); map = map->vm_next, i++)
+ 		continue;
+ 
+@@ -658,7 +658,7 @@
+ 		if (volatile_task)
+ 			break;
+ 	}
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 
+ 	/* encode f_pos */
+ 	*ppos = (lineno << MAPS_LINE_SHIFT) + column;
+diff -uNr linux-2.4.10-pre12/fs/proc/base.c linux-mmsem/fs/proc/base.c
+--- linux-2.4.10-pre12/fs/proc/base.c	Tue Sep 18 08:45:09 2001
++++ linux-mmsem/fs/proc/base.c	Wed Sep 19 11:47:49 2001
+@@ -64,7 +64,7 @@
+ 	task_unlock(task);
+ 	if (!mm)
+ 		goto out;
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared(mm);
+ 	vma = mm->mmap;
+ 	while (vma) {
+ 		if ((vma->vm_flags & VM_EXECUTABLE) && 
+@@ -76,7 +76,7 @@
+ 		}
+ 		vma = vma->vm_next;
+ 	}
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	mmput(mm);
+ out:
+ 	return result;
+diff -uNr linux-2.4.10-pre12/include/linux/sched.h linux-mmsem/include/linux/sched.h
+--- linux-2.4.10-pre12/include/linux/sched.h	Wed Sep 19 10:39:23 2001
++++ linux-mmsem/include/linux/sched.h	Wed Sep 19 13:07:34 2001
+@@ -209,7 +209,9 @@
+ 	atomic_t mm_users;			/* How many users with user space? */
+ 	atomic_t mm_count;			/* How many references to "struct mm_struct" (users count as 1) */
+ 	int map_count;				/* number of VMAs */
+-	struct rw_semaphore mmap_sem;
++	spinlock_t mmsem_lock;			/* protects access to mmsem stuff */
++	int mmsem_activity;			/* 0 inactive, +n active readers, -1 active writer */
++	struct list_head mmsem_waiters;
+ 	spinlock_t page_table_lock;		/* Protects task page tables and mm->rss */
+ 
+ 	struct list_head mmlist;		/* List of all active mm's.  These are globally strung
+@@ -233,15 +235,70 @@
+ 
+ extern int mmlist_nr;
+ 
+-#define INIT_MM(name) \
+-{			 				\
+-	mm_rb:		RB_ROOT,			\
+-	pgd:		swapper_pg_dir, 		\
+-	mm_users:	ATOMIC_INIT(2), 		\
+-	mm_count:	ATOMIC_INIT(1), 		\
+-	mmap_sem:	__RWSEM_INITIALIZER(name.mmap_sem), \
+-	page_table_lock: SPIN_LOCK_UNLOCKED, 		\
+-	mmlist:		LIST_HEAD_INIT(name.mmlist),	\
++#define INIT_MM(name)						\
++{								\
++	mm_rb:		RB_ROOT,				\
++	pgd:		swapper_pg_dir,				\
++	mm_users:	ATOMIC_INIT(2),				\
++	mm_count:	ATOMIC_INIT(1),				\
++	mmsem_lock:	SPIN_LOCK_UNLOCKED,			\
++	mmsem_activity:	0,					\
++	mmsem_waiters:	LIST_HEAD_INIT(name.mmsem_waiters),	\
++	page_table_lock: SPIN_LOCK_UNLOCKED,			\
++	mmlist:		LIST_HEAD_INIT(name.mmlist),		\
++}
++
++extern void __mm_lock_wait(struct mm_struct *mm, int bias);
++extern void __mm_lock_wake(struct mm_struct *mm);
++
++static inline void mm_lock_shared(struct mm_struct *mm)
++{
++	spin_lock(&mm->mmsem_lock);
++	if (mm->mmsem_activity>=0 && list_empty(&mm->mmsem_waiters)) {
++		mm->mmsem_activity++;
++		spin_unlock(&mm->mmsem_lock);
++	}
++	else
++		__mm_lock_wait(mm,1);
++}
++
++static inline void mm_lock_shared_recursive(struct mm_struct *mm)
++{
++	spin_lock(&mm->mmsem_lock);
++	if (mm->mmsem_activity>=0) {
++		mm->mmsem_activity++;
++		spin_unlock(&mm->mmsem_lock);
++	}
++	else
++		__mm_lock_wait(mm,1);
++}
++
++static inline void mm_unlock_shared(struct mm_struct *mm)
++{
++	spin_lock(&mm->mmsem_lock);
++	if (!--mm->mmsem_activity && !list_empty(&mm->mmsem_waiters))
++		__mm_lock_wake(mm);
++	spin_unlock(&mm->mmsem_lock);
++}
++
++static inline void mm_lock_exclusive(struct mm_struct *mm)
++{
++	spin_lock(&mm->mmsem_lock);
++	if (mm->mmsem_activity==0) {
++		mm->mmsem_activity--;
++		spin_unlock(&mm->mmsem_lock);
++	}
++	else
++		__mm_lock_wait(mm,-1);
++}
++
++static inline void mm_unlock_exclusive(struct mm_struct *mm)
++{
++	spin_lock(&mm->mmsem_lock);
++	mm->mmsem_activity++;
++	if (!list_empty(&mm->mmsem_waiters))
++		__mm_lock_wake(mm);
++	spin_unlock(&mm->mmsem_lock);
+ }
+ 
+ struct signal_struct {
+diff -uNr linux-2.4.10-pre12/ipc/shm.c linux-mmsem/ipc/shm.c
+--- linux-2.4.10-pre12/ipc/shm.c	Wed Sep 19 10:39:23 2001
++++ linux-mmsem/ipc/shm.c	Wed Sep 19 12:32:57 2001
+@@ -619,9 +619,9 @@
+ 	shp->shm_nattch++;
+ 	shm_unlock(shmid);
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	user_addr = (void *) do_mmap (file, addr, file->f_dentry->d_inode->i_size, prot, flags, 0);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 
+ 	down (&shm_ids.sem);
+ 	if(!(shp = shm_lock(shmid)))
+@@ -650,14 +650,14 @@
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *shmd, *shmdnext;
+ 
+-	down_write(&mm->mmap_sem);
++	mm_lock_exclusive(mm);
+ 	for (shmd = mm->mmap; shmd; shmd = shmdnext) {
+ 		shmdnext = shmd->vm_next;
+ 		if (shmd->vm_ops == &shm_vm_ops
+ 		    && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr)
+ 			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start);
+ 	}
+-	up_write(&mm->mmap_sem);
++	mm_unlock_exclusive(mm);
+ 	return 0;
+ }
+ 
+diff -uNr linux-2.4.10-pre12/kernel/acct.c linux-mmsem/kernel/acct.c
+--- linux-2.4.10-pre12/kernel/acct.c	Tue Sep 18 08:45:11 2001
++++ linux-mmsem/kernel/acct.c	Wed Sep 19 11:38:59 2001
+@@ -315,13 +315,13 @@
+ 	vsize = 0;
+ 	if (current->mm) {
+ 		struct vm_area_struct *vma;
+-		down_read(&current->mm->mmap_sem);
++		mm_lock_shared(current->mm);
+ 		vma = current->mm->mmap;
+ 		while (vma) {
+ 			vsize += vma->vm_end - vma->vm_start;
+ 			vma = vma->vm_next;
+ 		}
+-		up_read(&current->mm->mmap_sem);
++		mm_unlock_shared(current->mm);
+ 	}
+ 	vsize = vsize / 1024;
+ 	ac.ac_mem = encode_comp_t(vsize);
+diff -uNr linux-2.4.10-pre12/kernel/fork.c linux-mmsem/kernel/fork.c
+--- linux-2.4.10-pre12/kernel/fork.c	Wed Sep 19 10:39:23 2001
++++ linux-mmsem/kernel/fork.c	Wed Sep 19 11:41:48 2001
+@@ -216,7 +216,9 @@
+ {
+ 	atomic_set(&mm->mm_users, 1);
+ 	atomic_set(&mm->mm_count, 1);
+-	init_rwsem(&mm->mmap_sem);
++	spin_lock_init(&mm->mmsem_lock);
++	mm->mmsem_activity = 0;
++	INIT_LIST_HEAD(&mm->mmsem_waiters);
+ 	mm->page_table_lock = SPIN_LOCK_UNLOCKED;
+ 	mm->pgd = pgd_alloc(mm);
+ 	if (mm->pgd)
+@@ -333,9 +335,9 @@
+ 	if (!mm_init(mm))
+ 		goto fail_nomem;
+ 
+-	down_write(&oldmm->mmap_sem);
++	mm_lock_exclusive(oldmm);
+ 	retval = dup_mmap(mm);
+-	up_write(&oldmm->mmap_sem);
++	mm_unlock_exclusive(oldmm);
+ 
+ 	if (retval)
+ 		goto free_pt;
+diff -uNr linux-2.4.10-pre12/kernel/ksyms.c linux-mmsem/kernel/ksyms.c
+--- linux-2.4.10-pre12/kernel/ksyms.c	Wed Sep 19 10:39:23 2001
++++ linux-mmsem/kernel/ksyms.c	Wed Sep 19 14:13:42 2001
+@@ -87,6 +87,8 @@
+ EXPORT_SYMBOL(exit_files);
+ EXPORT_SYMBOL(exit_fs);
+ EXPORT_SYMBOL(exit_sighand);
++EXPORT_SYMBOL(__mm_lock_wait);
++EXPORT_SYMBOL(__mm_lock_wake);
+ 
+ /* internal kernel memory management */
+ EXPORT_SYMBOL(_alloc_pages);
+diff -uNr linux-2.4.10-pre12/kernel/ptrace.c linux-mmsem/kernel/ptrace.c
+--- linux-2.4.10-pre12/kernel/ptrace.c	Wed Sep 19 10:39:23 2001
++++ linux-mmsem/kernel/ptrace.c	Wed Sep 19 11:40:34 2001
+@@ -208,13 +208,13 @@
+ 	if (!mm)
+ 		return 0;
+ 
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared(mm);
+ 	vma = find_extend_vma(mm, addr);
+ 	copied = 0;
+ 	if (vma)
+ 		copied = access_mm(mm, vma, addr, buf, len, write);
+ 
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	mmput(mm);
+ 	return copied;
+ }
+diff -uNr linux-2.4.10-pre12/mm/filemap.c linux-mmsem/mm/filemap.c
+--- linux-2.4.10-pre12/mm/filemap.c	Wed Sep 19 10:39:24 2001
++++ linux-mmsem/mm/filemap.c	Wed Sep 19 11:33:14 2001
+@@ -1949,7 +1949,7 @@
+ 	struct vm_area_struct * vma;
+ 	int unmapped_error, error = -EINVAL;
+ 
+-	down_read(&current->mm->mmap_sem);
++	mm_lock_shared(current->mm);
+ 	if (start & ~PAGE_MASK)
+ 		goto out;
+ 	len = (len + ~PAGE_MASK) & PAGE_MASK;
+@@ -1995,7 +1995,7 @@
+ 		vma = vma->vm_next;
+ 	}
+ out:
+-	up_read(&current->mm->mmap_sem);
++	mm_unlock_shared(current->mm);
+ 	return error;
+ }
+ 
+@@ -2298,7 +2298,7 @@
+ 	int unmapped_error = 0;
+ 	int error = -EINVAL;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 
+ 	if (start & ~PAGE_MASK)
+ 		goto out;
+@@ -2349,7 +2349,7 @@
+ 	}
+ 
+ out:
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return error;
+ }
+ 
+@@ -2451,7 +2451,7 @@
+ 	int unmapped_error = 0;
+ 	long error = -EINVAL;
+ 
+-	down_read(&current->mm->mmap_sem);
++	mm_lock_shared(current->mm);
+ 
+ 	if (start & ~PAGE_CACHE_MASK)
+ 		goto out;
+@@ -2503,7 +2503,7 @@
+ 	}
+ 
+ out:
+-	up_read(&current->mm->mmap_sem);
++	mm_unlock_shared(current->mm);
+ 	return error;
+ }
+ 
+diff -uNr linux-2.4.10-pre12/mm/memory.c linux-mmsem/mm/memory.c
+--- linux-2.4.10-pre12/mm/memory.c	Wed Sep 19 10:39:24 2001
++++ linux-mmsem/mm/memory.c	Wed Sep 19 11:33:28 2001
+@@ -464,7 +464,7 @@
+ 	if (err)
+ 		return err;
+ 
+-	down_read(&mm->mmap_sem);
++	mm_lock_shared(mm);
+ 
+ 	err = -EFAULT;
+ 	iobuf->locked = 0;
+@@ -522,12 +522,12 @@
+ 		ptr += PAGE_SIZE;
+ 	}
+ 
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	dprintk ("map_user_kiobuf: end OK\n");
+ 	return 0;
+ 
+  out_unlock:
+-	up_read(&mm->mmap_sem);
++	mm_unlock_shared(mm);
+ 	unmap_kiobuf(iobuf);
+ 	dprintk ("map_user_kiobuf: end %d\n", err);
+ 	return err;
+diff -uNr linux-2.4.10-pre12/mm/mlock.c linux-mmsem/mm/mlock.c
+--- linux-2.4.10-pre12/mm/mlock.c	Wed Sep 19 10:39:24 2001
++++ linux-mmsem/mm/mlock.c	Wed Sep 19 11:35:27 2001
+@@ -198,7 +198,7 @@
+ 	unsigned long lock_limit;
+ 	int error = -ENOMEM;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	len = PAGE_ALIGN(len + (start & ~PAGE_MASK));
+ 	start &= PAGE_MASK;
+ 
+@@ -219,7 +219,7 @@
+ 
+ 	error = do_mlock(start, len, 1);
+ out:
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return error;
+ }
+ 
+@@ -227,11 +227,11 @@
+ {
+ 	int ret;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	len = PAGE_ALIGN(len + (start & ~PAGE_MASK));
+ 	start &= PAGE_MASK;
+ 	ret = do_mlock(start, len, 0);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return ret;
+ }
+ 
+@@ -268,7 +268,7 @@
+ 	unsigned long lock_limit;
+ 	int ret = -EINVAL;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	if (!flags || (flags & ~(MCL_CURRENT | MCL_FUTURE)))
+ 		goto out;
+ 
+@@ -286,7 +286,7 @@
+ 
+ 	ret = do_mlockall(flags);
+ out:
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return ret;
+ }
+ 
+@@ -294,8 +294,8 @@
+ {
+ 	int ret;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	ret = do_mlockall(0);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return ret;
+ }
+diff -uNr linux-2.4.10-pre12/mm/mmap.c linux-mmsem/mm/mmap.c
+--- linux-2.4.10-pre12/mm/mmap.c	Wed Sep 19 10:39:24 2001
++++ linux-mmsem/mm/mmap.c	Wed Sep 19 13:24:42 2001
+@@ -149,7 +149,7 @@
+ 	unsigned long newbrk, oldbrk;
+ 	struct mm_struct *mm = current->mm;
+ 
+-	down_write(&mm->mmap_sem);
++	mm_lock_exclusive(mm);
+ 
+ 	if (brk < mm->end_code)
+ 		goto out;
+@@ -185,7 +185,7 @@
+ 	mm->brk = brk;
+ out:
+ 	retval = mm->brk;
+-	up_write(&mm->mmap_sem);
++	mm_unlock_exclusive(mm);
+ 	return retval;
+ }
+ 
+@@ -995,9 +995,9 @@
+ 	int ret;
+ 	struct mm_struct *mm = current->mm;
+ 
+-	down_write(&mm->mmap_sem);
++	mm_lock_exclusive(mm);
+ 	ret = do_munmap(mm, addr, len);
+-	up_write(&mm->mmap_sem);
++	mm_unlock_exclusive(mm);
+ 	return ret;
+ }
+ 
+@@ -1172,4 +1172,86 @@
+ 		BUG();
+ 	vma_link(mm, vma, prev, rb_link, rb_parent);
+ 	validate_mm(mm);
++}
++
++
++struct mm_waiter {
++	struct list_head	list;
++	struct task_struct	*task;
++	unsigned int		flags;
++#define MM_WAITING_FOR_READ	0x00000001
++#define MM_WAITING_FOR_WRITE	0x00000002
 +};
 +
 +/*
-+ * initialisation
-+ */
-+#define __RWSEM_INITIALIZER(name) \
-+{ 0, SPIN_LOCK_UNLOCKED, LIST_HEAD_INIT((name).wait_list) }
-+
-+#define DECLARE_RWSEM(name) \
-+	struct rw_semaphore name = __RWSEM_INITIALIZER(name)
-+
-+static inline void init_rwsem(struct rw_semaphore *sem)
-+{
-+	sem->activity = 0;
-+	spin_lock_init(&sem->lock);
-+	INIT_LIST_HEAD(&sem->wait_list);
-+}
- 
--#ifdef CONFIG_RWSEM_GENERIC_SPINLOCK
--#include <linux/rwsem-spinlock.h> /* use a generic implementation */
--#else
--#include <asm/rwsem.h> /* use an arch-specific implementation */
--#endif
--
--#ifndef rwsemtrace
--#if RWSEM_DEBUG
--extern void FASTCALL(rwsemtrace(struct rw_semaphore *sem, const char *str));
--#else
--#define rwsemtrace(SEM,FMT)
--#endif
--#endif
-+extern void FASTCALL(__rwsem_wait(struct rw_semaphore *sem, int bias));
-+extern void FASTCALL(__rwsem_wake(struct rw_semaphore *sem));
- 
- /*
-  * lock for reading
-  */
- static inline void down_read(struct rw_semaphore *sem)
- {
--	rwsemtrace(sem,"Entering down_read");
--	__down_read(sem);
--	rwsemtrace(sem,"Leaving down_read");
-+	spin_lock(&sem->lock);
-+	if (sem->activity>=0) {
-+		sem->activity++;
-+		spin_unlock(&sem->lock);
-+	}
-+	else
-+		__rwsem_wait(sem,1);
- }
- 
- /*
-@@ -50,9 +69,13 @@
-  */
- static inline void down_write(struct rw_semaphore *sem)
- {
--	rwsemtrace(sem,"Entering down_write");
--	__down_write(sem);
--	rwsemtrace(sem,"Leaving down_write");
-+	spin_lock(&sem->lock);
-+	if (sem->activity==0) {
-+		sem->activity--;
-+		spin_unlock(&sem->lock);
-+	}
-+	else
-+		__rwsem_wait(sem,-1);
- }
- 
- /*
-@@ -60,9 +83,10 @@
-  */
- static inline void up_read(struct rw_semaphore *sem)
- {
--	rwsemtrace(sem,"Entering up_read");
--	__up_read(sem);
--	rwsemtrace(sem,"Leaving up_read");
-+	spin_lock(&sem->lock);
-+	if (!--sem->activity && !list_empty(&sem->wait_list))
-+		__rwsem_wake(sem);
-+	spin_unlock(&sem->lock);
- }
- 
- /*
-@@ -70,9 +94,11 @@
-  */
- static inline void up_write(struct rw_semaphore *sem)
- {
--	rwsemtrace(sem,"Entering up_write");
--	__up_write(sem);
--	rwsemtrace(sem,"Leaving up_write");
-+	spin_lock(&sem->lock);
-+	sem->activity++;
-+	if (!list_empty(&sem->wait_list))
-+		__rwsem_wake(sem);
-+	spin_unlock(&sem->lock);
- }
- 
- 
-diff -uNr linux-2.4.10-pre12/lib/Makefile linux-rwsem/lib/Makefile
---- linux-2.4.10-pre12/lib/Makefile	Wed Sep 19 10:39:23 2001
-+++ linux-rwsem/lib/Makefile	Wed Sep 19 14:49:09 2001
-@@ -8,12 +8,9 @@
- 
- L_TARGET := lib.a
- 
--export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o
-+export-objs := cmdline.o dec_and_lock.o rwsem.o
- 
--obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o bust_spinlocks.o rbtree.o
--
--obj-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
--obj-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
-+obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o bust_spinlocks.o rbtree.o rwsem.o
- 
- ifneq ($(CONFIG_HAVE_DEC_LOCK),y) 
-   obj-y += dec_and_lock.o
-diff -uNr linux-2.4.10-pre12/lib/rwsem-spinlock.c linux-rwsem/lib/rwsem-spinlock.c
---- linux-2.4.10-pre12/lib/rwsem-spinlock.c	Tue Sep 18 08:45:12 2001
-+++ linux-rwsem/lib/rwsem-spinlock.c	Thu Jan  1 01:00:00 1970
-@@ -1,239 +0,0 @@
--/* rwsem-spinlock.c: R/W semaphores: contention handling functions for generic spinlock
-- *                                   implementation
-- *
-- * Copyright (c) 2001   David Howells (dhowells@redhat.com).
-- * - Derived partially from idea by Andrea Arcangeli <andrea@suse.de>
-- * - Derived also from comments by Linus
-- */
--#include <linux/rwsem.h>
--#include <linux/sched.h>
--#include <linux/module.h>
--
--struct rwsem_waiter {
--	struct list_head	list;
--	struct task_struct	*task;
--	unsigned int		flags;
--#define RWSEM_WAITING_FOR_READ	0x00000001
--#define RWSEM_WAITING_FOR_WRITE	0x00000002
--};
--
--#if RWSEM_DEBUG
--void rwsemtrace(struct rw_semaphore *sem, const char *str)
--{
--	if (sem->debug)
--		printk("[%d] %s({%d,%d})\n",
--		       current->pid,str,sem->activity,list_empty(&sem->wait_list)?0:1);
--}
--#endif
--
--/*
-- * initialise the semaphore
-- */
--void init_rwsem(struct rw_semaphore *sem)
--{
--	sem->activity = 0;
--	spin_lock_init(&sem->wait_lock);
--	INIT_LIST_HEAD(&sem->wait_list);
--#if RWSEM_DEBUG
--	sem->debug = 0;
--#endif
--}
--
--/*
-- * handle the lock being released whilst there are processes blocked on it that can now run
-- * - if we come here, then:
-- *   - the 'active count' _reached_ zero
-- *   - the 'waiting count' is non-zero
-- * - the spinlock must be held by the caller
-- * - woken process blocks are discarded from the list after having flags zeroised
-- */
--static inline struct rw_semaphore *__rwsem_do_wake(struct rw_semaphore *sem)
--{
--	struct rwsem_waiter *waiter;
--	int woken;
--
--	rwsemtrace(sem,"Entering __rwsem_do_wake");
--
--	waiter = list_entry(sem->wait_list.next,struct rwsem_waiter,list);
--
--	/* try to grant a single write lock if there's a writer at the front of the queue
--	 * - we leave the 'waiting count' incremented to signify potential contention
--	 */
--	if (waiter->flags & RWSEM_WAITING_FOR_WRITE) {
--		sem->activity = -1;
--		list_del(&waiter->list);
--		waiter->flags = 0;
--		wake_up_process(waiter->task);
--		goto out;
--	}
--
--	/* grant an infinite number of read locks to the readers at the front of the queue */
--	woken = 0;
--	do {
--		list_del(&waiter->list);
--		waiter->flags = 0;
--		wake_up_process(waiter->task);
--		woken++;
--		if (list_empty(&sem->wait_list))
--			break;
--		waiter = list_entry(sem->wait_list.next,struct rwsem_waiter,list);
--	} while (waiter->flags&RWSEM_WAITING_FOR_READ);
--
--	sem->activity += woken;
--
-- out:
--	rwsemtrace(sem,"Leaving __rwsem_do_wake");
--	return sem;
--}
--
--/*
-- * wake a single writer
-- */
--static inline struct rw_semaphore *__rwsem_wake_one_writer(struct rw_semaphore *sem)
--{
--	struct rwsem_waiter *waiter;
--
--	sem->activity = -1;
--
--	waiter = list_entry(sem->wait_list.next,struct rwsem_waiter,list);
--	list_del(&waiter->list);
--
--	waiter->flags = 0;
--	wake_up_process(waiter->task);
--	return sem;
--}
--
--/*
-- * get a read lock on the semaphore
-- */
--void __down_read(struct rw_semaphore *sem)
--{
--	struct rwsem_waiter waiter;
--	struct task_struct *tsk;
--
--	rwsemtrace(sem,"Entering __down_read");
--
--	spin_lock(&sem->wait_lock);
--
--	if (sem->activity>=0 && list_empty(&sem->wait_list)) {
--		/* granted */
--		sem->activity++;
--		spin_unlock(&sem->wait_lock);
--		goto out;
--	}
--
--	tsk = current;
--	set_task_state(tsk,TASK_UNINTERRUPTIBLE);
--
--	/* set up my own style of waitqueue */
--	waiter.task = tsk;
--	waiter.flags = RWSEM_WAITING_FOR_READ;
--
--	list_add_tail(&waiter.list,&sem->wait_list);
--
--	/* we don't need to touch the semaphore struct anymore */
--	spin_unlock(&sem->wait_lock);
--
--	/* wait to be given the lock */
--	for (;;) {
--		if (!waiter.flags)
--			break;
--		schedule();
--		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
--	}
--
--	tsk->state = TASK_RUNNING;
--
-- out:
--	rwsemtrace(sem,"Leaving __down_read");
--}
--
--/*
-- * get a write lock on the semaphore
-- * - note that we increment the waiting count anyway to indicate an exclusive lock
-- */
--void __down_write(struct rw_semaphore *sem)
--{
--	struct rwsem_waiter waiter;
--	struct task_struct *tsk;
--
--	rwsemtrace(sem,"Entering __down_write");
--
--	spin_lock(&sem->wait_lock);
--
--	if (sem->activity==0 && list_empty(&sem->wait_list)) {
--		/* granted */
--		sem->activity = -1;
--		spin_unlock(&sem->wait_lock);
--		goto out;
--	}
--
--	tsk = current;
--	set_task_state(tsk,TASK_UNINTERRUPTIBLE);
--
--	/* set up my own style of waitqueue */
--	waiter.task = tsk;
--	waiter.flags = RWSEM_WAITING_FOR_WRITE;
--
--	list_add_tail(&waiter.list,&sem->wait_list);
--
--	/* we don't need to touch the semaphore struct anymore */
--	spin_unlock(&sem->wait_lock);
--
--	/* wait to be given the lock */
--	for (;;) {
--		if (!waiter.flags)
--			break;
--		schedule();
--		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
--	}
--
--	tsk->state = TASK_RUNNING;
--
-- out:
--	rwsemtrace(sem,"Leaving __down_write");
--}
--
--/*
-- * release a read lock on the semaphore
-- */
--void __up_read(struct rw_semaphore *sem)
--{
--	rwsemtrace(sem,"Entering __up_read");
--
--	spin_lock(&sem->wait_lock);
--
--	if (--sem->activity==0 && !list_empty(&sem->wait_list))
--		sem = __rwsem_wake_one_writer(sem);
--
--	spin_unlock(&sem->wait_lock);
--
--	rwsemtrace(sem,"Leaving __up_read");
--}
--
--/*
-- * release a write lock on the semaphore
-- */
--void __up_write(struct rw_semaphore *sem)
--{
--	rwsemtrace(sem,"Entering __up_write");
--
--	spin_lock(&sem->wait_lock);
--
--	sem->activity = 0;
--	if (!list_empty(&sem->wait_list))
--		sem = __rwsem_do_wake(sem);
--
--	spin_unlock(&sem->wait_lock);
--
--	rwsemtrace(sem,"Leaving __up_write");
--}
--
--EXPORT_SYMBOL(init_rwsem);
--EXPORT_SYMBOL(__down_read);
--EXPORT_SYMBOL(__down_write);
--EXPORT_SYMBOL(__up_read);
--EXPORT_SYMBOL(__up_write);
--#if RWSEM_DEBUG
--EXPORT_SYMBOL(rwsemtrace);
--#endif
-diff -uNr linux-2.4.10-pre12/lib/rwsem.c linux-rwsem/lib/rwsem.c
---- linux-2.4.10-pre12/lib/rwsem.c	Tue Sep 18 08:45:12 2001
-+++ linux-rwsem/lib/rwsem.c	Wed Sep 19 15:09:25 2001
-@@ -1,7 +1,8 @@
- /* rwsem.c: R/W semaphores: contention handling functions
-  *
-- * Written by David Howells (dhowells@redhat.com).
-- * Derived from arch/i386/kernel/semaphore.c
-+ * Copyright (c) 2001   David Howells (dhowells@redhat.com).
-+ * - Derived partially from idea by Andrea Arcangeli <andrea@suse.de>
-+ * - Derived also from comments by Linus
-  */
- #include <linux/rwsem.h>
- #include <linux/sched.h>
-@@ -15,196 +16,78 @@
- #define RWSEM_WAITING_FOR_WRITE	0x00000002
- };
- 
--#if RWSEM_DEBUG
--#undef rwsemtrace
--void rwsemtrace(struct rw_semaphore *sem, const char *str)
--{
--	printk("sem=%p\n",sem);
--	printk("(sem)=%08lx\n",sem->count);
--	if (sem->debug)
--		printk("[%d] %s({%08lx})\n",current->pid,str,sem->count);
--}
--#endif
--
- /*
-  * handle the lock being released whilst there are processes blocked on it that can now run
-  * - if we come here, then:
-- *   - the 'active part' of the count (&0x0000ffff) reached zero but has been re-incremented
-- *   - the 'waiting part' of the count (&0xffff0000) is negative (and will still be so)
-- *   - there must be someone on the queue
++ * handle the lock being released whilst there are processes blocked on it that can now run
++ * - if we come here, then:
 + *   - the 'active count' _reached_ zero
 + *   - the 'waiting count' is non-zero
-  * - the spinlock must be held by the caller
-  * - woken process blocks are discarded from the list after having flags zeroised
-  */
--static inline struct rw_semaphore *__rwsem_do_wake(struct rw_semaphore *sem)
-+void __rwsem_wake(struct rw_semaphore *sem)
- {
- 	struct rwsem_waiter *waiter;
--	struct list_head *next;
--	signed long oldcount;
--	int woken, loop;
--
--	rwsemtrace(sem,"Entering __rwsem_do_wake");
--
--	/* only wake someone up if we can transition the active part of the count from 0 -> 1 */
-- try_again:
--	oldcount = rwsem_atomic_update(RWSEM_ACTIVE_BIAS,sem) - RWSEM_ACTIVE_BIAS;
--	if (oldcount & RWSEM_ACTIVE_MASK)
--		goto undo;
++ * - the spinlock must be held by the caller
++ * - woken process blocks are discarded from the list after having flags zeroised
++ */
++void __mm_lock_wake(struct mm_struct *mm)
++{
++	struct mm_waiter *waiter;
 +	int woken;
- 
- 	waiter = list_entry(sem->wait_list.next,struct rwsem_waiter,list);
- 
- 	/* try to grant a single write lock if there's a writer at the front of the queue
--	 * - note we leave the 'active part' of the count incremented by 1 and the waiting part
--	 *   incremented by 0x00010000
++
++	waiter = list_entry(mm->mmsem_waiters.next,struct mm_waiter,list);
++
++	/* try to grant a single write lock if there's a writer at the front of the queue
 +	 * - we leave the 'waiting count' incremented to signify potential contention
- 	 */
--	if (!(waiter->flags & RWSEM_WAITING_FOR_WRITE))
--		goto readers_only;
-+	if (waiter->flags & RWSEM_WAITING_FOR_WRITE) {
-+		sem->activity = -1;
++	 */
++	if (waiter->flags & MM_WAITING_FOR_WRITE) {
++		mm->mmsem_activity = -1;
 +		list_del(&waiter->list);
 +		waiter->flags = 0;
 +		wake_up_process(waiter->task);
 +		return;
 +	}
- 
--	list_del(&waiter->list);
--	waiter->flags = 0;
--	wake_up_process(waiter->task);
--	goto out;
--
--	/* grant an infinite number of read locks to the readers at the front of the queue
--	 * - note we increment the 'active part' of the count by the number of readers (less one
--	 *   for the activity decrement we've already done) before waking any processes up
--	 */
-- readers_only:
++
 +	/* grant an infinite number of read locks to the readers at the front of the queue */
- 	woken = 0;
- 	do {
--		woken++;
--
--		if (waiter->list.next==&sem->wait_list)
--			break;
--
--		waiter = list_entry(waiter->list.next,struct rwsem_waiter,list);
--
--	} while (waiter->flags & RWSEM_WAITING_FOR_READ);
--
--	loop = woken;
--	woken *= RWSEM_ACTIVE_BIAS-RWSEM_WAITING_BIAS;
--	woken -= RWSEM_ACTIVE_BIAS;
--	rwsem_atomic_add(woken,sem);
--
--	next = sem->wait_list.next;
--	for (; loop>0; loop--) {
--		waiter = list_entry(next,struct rwsem_waiter,list);
--		next = waiter->list.next;
++	woken = 0;
++	do {
 +		list_del(&waiter->list);
- 		waiter->flags = 0;
- 		wake_up_process(waiter->task);
--	}
--
--	sem->wait_list.next = next;
--	next->prev = &sem->wait_list;
++		waiter->flags = 0;
++		wake_up_process(waiter->task);
 +		woken++;
-+		if (list_empty(&sem->wait_list))
++		if (list_empty(&mm->mmsem_waiters))
 +			break;
-+		waiter = list_entry(sem->wait_list.next,struct rwsem_waiter,list);
-+	} while (waiter->flags&RWSEM_WAITING_FOR_READ);
- 
-- out:
--	rwsemtrace(sem,"Leaving __rwsem_do_wake");
--	return sem;
--
--	/* undo the change to count, but check for a transition 1->0 */
-- undo:
--	if (rwsem_atomic_update(-RWSEM_ACTIVE_BIAS,sem)!=0)
--		goto out;
--	goto try_again;
-+	sem->activity += woken;
- }
- 
- /*
-- * wait for a lock to be granted
-+ * wait for a lock on the rw_semaphore
-+ * - must be entered with the rwsemsem_lock spinlock held
-  */
--static inline struct rw_semaphore *rwsem_down_failed_common(struct rw_semaphore *sem,
--								 struct rwsem_waiter *waiter,
--								 signed long adjustment)
-+void __rwsem_wait(struct rw_semaphore *sem, int bias)
- {
--	struct task_struct *tsk = current;
--	signed long count;
-+	struct rwsem_waiter waiter;
++		waiter = list_entry(mm->mmsem_waiters.next,struct mm_waiter,list);
++	} while (waiter->flags&MM_WAITING_FOR_READ);
++
++	mm->mmsem_activity += woken;
++}
++
++/*
++ * wait for a lock on the mm_struct
++ * - must be entered with the mmsem_lock spinlock held
++ */
++void __mm_lock_wait(struct mm_struct *mm, int bias)
++{
++	struct mm_waiter waiter;
 +	struct task_struct *tsk;
- 
++
 +	tsk = current;
- 	set_task_state(tsk,TASK_UNINTERRUPTIBLE);
- 
--	/* set up my own style of waitqueue */
--	spin_lock(&sem->wait_lock);
--	waiter->task = tsk;
--
--	list_add_tail(&waiter->list,&sem->wait_list);
--
--	/* note that we're now waiting on the lock, but no longer actively read-locking */
--	count = rwsem_atomic_update(adjustment,sem);
++	set_task_state(tsk,TASK_UNINTERRUPTIBLE);
++
 +	/* add to the waitqueue */
 +	waiter.task = tsk;
-+	waiter.flags = RWSEM_WAITING_FOR_READ;
- 
--	/* if there are no longer active locks, wake the front queued process(es) up
--	 * - it might even be this process, since the waker takes a more active part
--	 */
--	if (!(count & RWSEM_ACTIVE_MASK))
--		sem = __rwsem_do_wake(sem);
-+	list_add_tail(&waiter.list,&sem->wait_list);
- 
--	spin_unlock(&sem->wait_lock);
-+	/* we don't need to touch the semaphore anymore */
-+	spin_unlock(&sem->lock);
- 
- 	/* wait to be given the lock */
- 	for (;;) {
--		if (!waiter->flags)
++	waiter.flags = MM_WAITING_FOR_READ;
++
++	list_add_tail(&waiter.list,&mm->mmsem_waiters);
++
++	/* we don't need to touch the mm_struct anymore */
++	spin_unlock(&mm->mmsem_lock);
++
++	/* wait to be given the lock */
++	for (;;) {
 +		if (!waiter.flags)
- 			break;
- 		schedule();
- 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
- 	}
- 
- 	tsk->state = TASK_RUNNING;
--
--	return sem;
--}
--
--/*
-- * wait for the read lock to be granted
-- */
--struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem)
--{
--	struct rwsem_waiter waiter;
--
--	rwsemtrace(sem,"Entering rwsem_down_read_failed");
--
--	waiter.flags = RWSEM_WAITING_FOR_READ;
--	rwsem_down_failed_common(sem,&waiter,RWSEM_WAITING_BIAS-RWSEM_ACTIVE_BIAS);
--
--	rwsemtrace(sem,"Leaving rwsem_down_read_failed");
--	return sem;
--}
--
--/*
-- * wait for the write lock to be granted
-- */
--struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem)
--{
--	struct rwsem_waiter waiter;
--
--	rwsemtrace(sem,"Entering rwsem_down_write_failed");
--
--	waiter.flags = RWSEM_WAITING_FOR_WRITE;
--	rwsem_down_failed_common(sem,&waiter,-RWSEM_ACTIVE_BIAS);
--
--	rwsemtrace(sem,"Leaving rwsem_down_write_failed");
--	return sem;
--}
--
--/*
-- * handle waking up a waiter on the semaphore
-- * - up_read has decremented the active part of the count if we come here
-- */
--struct rw_semaphore *rwsem_wake(struct rw_semaphore *sem)
--{
--	rwsemtrace(sem,"Entering rwsem_wake");
--
--	spin_lock(&sem->wait_lock);
--
--	/* do nothing if list empty */
--	if (!list_empty(&sem->wait_list))
--		sem = __rwsem_do_wake(sem);
--
--	spin_unlock(&sem->wait_lock);
--
--	rwsemtrace(sem,"Leaving rwsem_wake");
--
--	return sem;
++			break;
++		schedule();
++		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
++	}
++
++	tsk->state = TASK_RUNNING;
  }
+diff -uNr linux-2.4.10-pre12/mm/mprotect.c linux-mmsem/mm/mprotect.c
+--- linux-2.4.10-pre12/mm/mprotect.c	Wed Sep 19 10:39:24 2001
++++ linux-mmsem/mm/mprotect.c	Wed Sep 19 11:36:18 2001
+@@ -281,7 +281,7 @@
+ 	if (end == start)
+ 		return 0;
  
--EXPORT_SYMBOL_NOVERS(rwsem_down_read_failed);
--EXPORT_SYMBOL_NOVERS(rwsem_down_write_failed);
--EXPORT_SYMBOL_NOVERS(rwsem_wake);
--#if RWSEM_DEBUG
--EXPORT_SYMBOL(rwsemtrace);
--#endif
-+EXPORT_SYMBOL(__rwsem_wait);
-+EXPORT_SYMBOL(__rwsem_wake);
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 
+ 	vma = find_vma_prev(current->mm, start, &prev);
+ 	error = -EFAULT;
+@@ -332,6 +332,6 @@
+ 		prev->vm_mm->map_count--;
+ 	}
+ out:
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return error;
+ }
+diff -uNr linux-2.4.10-pre12/mm/mremap.c linux-mmsem/mm/mremap.c
+--- linux-2.4.10-pre12/mm/mremap.c	Wed Sep 19 10:39:24 2001
++++ linux-mmsem/mm/mremap.c	Wed Sep 19 11:36:35 2001
+@@ -346,8 +346,8 @@
+ {
+ 	unsigned long ret;
+ 
+-	down_write(&current->mm->mmap_sem);
++	mm_lock_exclusive(current->mm);
+ 	ret = do_mremap(addr, old_len, new_len, flags, new_addr);
+-	up_write(&current->mm->mmap_sem);
++	mm_unlock_exclusive(current->mm);
+ 	return ret;
+ }

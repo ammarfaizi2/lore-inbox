@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVBQQAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVBQQNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVBQQAS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 11:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVBQQAR
+	id S262301AbVBQQNY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 11:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVBQQNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 11:00:17 -0500
-Received: from mail.charite.de ([160.45.207.131]:17816 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S262282AbVBQQAL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 11:00:11 -0500
-Date: Thu, 17 Feb 2005 17:00:00 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Dale Blount <linux-kernel@dale.us>, linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.6.10-ac12 in kjournald (journal_commit_transaction)
-Message-ID: <20050217160000.GA6680@charite.de>
-Mail-Followup-To: Dale Blount <linux-kernel@dale.us>,
-	linux-kernel@vger.kernel.org
-References: <20050215145618.GP24211@charite.de> <20050216153338.GA26953@atrey.karlin.mff.cuni.cz> <20050216200441.GH19871@charite.de> <1108590885.17089.17.camel@dale.velocity.net> <20050216145548.53f67fec.akpm@osdl.org> <20050217105818.GS6680@charite.de> <20050217132148.GE6680@charite.de> <4214BD6F.7080203@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4214BD6F.7080203@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 17 Feb 2005 11:13:24 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:38773 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262302AbVBQQNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 11:13:06 -0500
+Message-ID: <4214C28F.6060608@yahoo.com.au>
+Date: Fri, 18 Feb 2005 03:13:03 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] page table iterators
+References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au> <Pine.LNX.4.58.0502170754110.2383@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0502170754110.2383@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Randy.Dunlap <rddunlap@osdl.org>:
-
-> >Is it normal that the kernel with debugging enabled is not larger than
-> >the normal kernel?
-> >-
+Linus Torvalds wrote:
 > 
-> No, it should be much larger.  Recheck the .config file
-> for CONFIG_DEBUG_INFO=y.  Maybe you need to do 'make clean'
-> first.
+> On Fri, 18 Feb 2005, Nick Piggin wrote:
+> 
+>>I am pretty surprised myself that I was able to consolidate
+>>all "page table range" functions into a single type of iterator
+>>(well, there are a couple of variations, but it's not too bad).
+> 
+> 
+> Ok, this is post-2.6.11 material, so please remind me.
+> 
 
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_SCHEDSTATS is not set
-# CONFIG_DEBUG_SLAB is not set
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-# CONFIG_DEBUG_KOBJECT is not set
-# CONFIG_DEBUG_HIGHMEM is not set
-CONFIG_DEBUG_INFO=y
-# CONFIG_FRAME_POINTER is not set
-CONFIG_EARLY_PRINTK=y
+Sure... it will probably be best to go through -mm, but either
+way I'll package the patches up nicely and rediff them against
+2.6.11 when it comes out.
 
-I built that using "make-kpkg"
-
-make-kpkg clean
-CONCURRENCY_LEVEL=4 MAKEFLAGS="CC=gcc-3.4" make-kpkg --revision=20050217 kernel_image
-
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

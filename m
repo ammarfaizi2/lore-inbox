@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261831AbTIYLbB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 07:31:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbTIYLbB
+	id S261801AbTIYLZS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 07:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTIYLZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 07:31:01 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33998 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261831AbTIYLa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 07:30:59 -0400
-Date: Thu, 25 Sep 2003 13:30:54 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fix non-modular ftape compile
-Message-ID: <20030925113054.GP15696@fs.tum.de>
-References: <20030925102309.GI15696@fs.tum.de> <20030925113816.A9693@infradead.org> <20030925110325.GK15696@fs.tum.de> <20030925121913.A10483@infradead.org>
+	Thu, 25 Sep 2003 07:25:18 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:62892 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261801AbTIYLZQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 07:25:16 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Thu, 25 Sep 2003 13:25:07 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Ronald Bultje <rbultje@ronald.bitfreak.net>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       video4linux-list@redhat.com
+Subject: Re: linux/time.h annoyance
+Message-ID: <20030925112507.GA6212@bytesex.org>
+References: <1064483200.6405.442.camel@shrek.bitfreak.net> <20030925105436.A8809@infradead.org> <1064485031.2220.468.camel@shrek.bitfreak.net> <20030925112326.A9412@infradead.org> <1064487333.2228.475.camel@shrek.bitfreak.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030925121913.A10483@infradead.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1064487333.2228.475.camel@shrek.bitfreak.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 25, 2003 at 12:19:13PM +0100, Christoph Hellwig wrote:
-> On Thu, Sep 25, 2003 at 01:03:25PM +0200, Adrian Bunk wrote:
-> > It increases the kernel size since in 2.6 __exit functions are discarded 
-> > at runtime and not at link time.
+> > If you ask Gerd nicely he might even include that change in the kernel
+> > version so don't have to keep a delta.
 > 
-> Oh.  That sounds silly.  Do you remember who changed it and why?
+> Hm, makes sense... Gerd, could you please remove linux/time.h from
+> linux/videodev2.h?
 
-Andi Kleen changed it, it was needed for .altinstructions .
+I can't remove it, it will break in kernel space then.  But my latest
+version has it #ifdef'ed already (patches at bytesex.org/patches, as
+usual ...).
 
-cu
-Adrian
+  Gerd
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+You have a new virus in /var/mail/kraxel

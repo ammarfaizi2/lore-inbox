@@ -1,54 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132398AbRDJQFz>; Tue, 10 Apr 2001 12:05:55 -0400
+	id <S132392AbRDJQMP>; Tue, 10 Apr 2001 12:12:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132395AbRDJQFp>; Tue, 10 Apr 2001 12:05:45 -0400
-Received: from www.thebucket.org ([216.63.180.35]:24851 "EHLO www")
-	by vger.kernel.org with ESMTP id <S132392AbRDJQFj>;
-	Tue, 10 Apr 2001 12:05:39 -0400
-Date: Tue, 10 Apr 2001 11:43:13 -0500 (CDT)
-From: Bart Dorsey <echo@thebucket.org>
+	id <S132395AbRDJQL4>; Tue, 10 Apr 2001 12:11:56 -0400
+Received: from phoenix.datrix.co.za ([196.37.220.5]:34592 "EHLO
+	phoenix.datrix.co.za") by vger.kernel.org with ESMTP
+	id <S132392AbRDJQLv>; Tue, 10 Apr 2001 12:11:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marcin Kowalski <kowalski@datrix.co.za>
+Reply-To: kowalski@datrix.co.za
+Organization: Datrix Solutions
 To: linux-kernel@vger.kernel.org
-Subject: Patch to abyss.c against 2.4.2-ac28
-Message-ID: <Pine.LNX.4.21.0104101140410.25307-200000@www>
+Subject: Kernel 2.4.3 Crash - (Kernel BUG at highmem.c:155)
+Date: Tue, 10 Apr 2001 18:11:15 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-76311105-986920993=:25307"
+Message-Id: <0104101811150C.25951@webman>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi All
 
---8323328-76311105-986920993=:25307
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+This is quite a long email which I have split in two for those that are 
+interested problem and background...
 
-This is my first time sending in a patch to the kernel. 
+---Problem---
 
-This is a one line fix to the abyss tokenring driver in 2.4.2-ac28
+Kernel Panic Occured with Messages:
+Kernel BUG at highmem.c:155
+Invalid Operand ???? With sshd somewhere in the mix. 
 
-I got this fix from the driver maintainer who said 
+Unfortunately I did a task dump with SYSRQ before I could get the rest of the 
+info..  and syslogd had stopped logging to disk already. I then had to reboot.
 
-"I guess I really should send this in to Linus"
+Looking at line 155 :
+/*
+         * A count must never go down to zero
+         * without a TLB flush!
+         */
+        switch (--pkmap_count[nr]) {
+        case 0:
+                BUG();
+        case 1:
+                wake_up(&pkmap_map_wait);
+        }
+        spin_unlock(&kmap_lock);
 
-I'm just going to go ahead and jump the gun and submit it ;)
+WHat went wrong???? to make the count go to zero??
+
+---Background----
+
+I am running Linux 2.4.3 on A HP netserver 2000r, it has 1.2gigs of RAM, at 
+dual 933mhz Xeon (Piii actually, but paid for Xeons??) and a Netraid 4m SCSI 
+Card with 6x 18.4gig HP Drives in a Raid 5 Configuration with No Hot Standby.
+The Root FS is on a 9.2 GIG HP Scsi Drive. Both root and home are reiserfs 
+(9.4 gig and 85gig respectively).
+The kernel is patch with the axboe-scsi-patch and the latest aacraid patch. 
+Running under SUse Linux 7.0 (new modutils).
+
+THe server is running samba, httpd, sendmail, mrtg, named and a number of 
+other porcesses but the loadaverage tends to stay below 1.0 mostly, although 
+it exhibits erratic behaviour with load climbing to 3-5-6 with top showing no 
+apparent candidate, with most of the time spent in SYStem calls. 
+Occassional lockups lasting 5-20 seconds were experienced when working on the 
+box under 2.4.2 but seem to be much better in 2.4.3.
+
+Today the server tends to "eat up" shared+used memory over time eventually 
+using +- 700mb of RAM with no process reflecting this in top.
+
+Running SWAPoff today, when 64mb of swap was being used, resulted in complete 
+machine lockup for about 30-40 seconds. 
+
+I strongly suspect the aacraid drivers but need further proof to convince the 
+powers that be to swap for a Mylex or something better supported....
+
+Any advice/answers would be very welcome.
+
+TIA
+MARCin
 
 
-
---8323328-76311105-986920993=:25307
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="patch-abyss-2.4.2-ac28.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0104101143130.25307@www>
-Content-Description: 
-Content-Disposition: attachment; filename="patch-abyss-2.4.2-ac28.diff"
-
-LS0tIGxpbnV4L2RyaXZlcnMvbmV0L3Rva2VucmluZy9hYnlzcy5jLm9sZAlG
-cmkgRmViIDE2IDE4OjAyOjM2IDIwMDENCisrKyBsaW51eC9kcml2ZXJzL25l
-dC90b2tlbnJpbmcvYWJ5c3MuYwlXZWQgTWFyIDE0IDE1OjIwOjAwIDIwMDEN
-CkBAIC0xMzcsNyArMTM3LDcgQEANCiAJICovDQogCWRldi0+YmFzZV9hZGRy
-ICs9IDB4MTA7DQogCQkNCi0JcmV0ID0gdG1zZGV2X2luaXQoZGV2LDAscGRl
-dik7DQorCXJldCA9IHRtc2Rldl9pbml0KGRldiwweGZmZmZmZmZmLHBkZXYp
-Ow0KIAkvKiBYWFg6IHNob3VsZCBiZSB0aGUgbWF4IFBDSTMyIERNQSBtYXgg
-Ki8NCiAJaWYgKHJldCkgew0KIAkJcHJpbnRrKCIlczogdW5hYmxlIHRvIGdl
-dCBtZW1vcnkgZm9yIGRldi0+cHJpdi5cbiIsIA0K
---8323328-76311105-986920993=:25307--
+-- 
+-----------------------------
+     Marcin Kowalski
+     Linux/Perl Developer
+     Datrix Solutions
+     Cel. 082-400-7603
+      ***Open Source Kicks Ass***
+-----------------------------

@@ -1,77 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131181AbQKUXws>; Tue, 21 Nov 2000 18:52:48 -0500
+	id <S131731AbQKUXzs>; Tue, 21 Nov 2000 18:55:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130510AbQKUXwj>; Tue, 21 Nov 2000 18:52:39 -0500
-Received: from 213-120-136-183.btconnect.com ([213.120.136.183]:49924 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S131181AbQKUXwd>;
-	Tue, 21 Nov 2000 18:52:33 -0500
-Date: Tue, 21 Nov 2000 23:22:52 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch-2.4.0-test11] show_mem() to dump free pages
-In-Reply-To: <Pine.LNX.4.21.0011212210270.780-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0011212321400.950-100000@penguin.homenet>
+	id <S131763AbQKUXzi>; Tue, 21 Nov 2000 18:55:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59474 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131731AbQKUXzY>; Tue, 21 Nov 2000 18:55:24 -0500
+Subject: Re: Linux 2.4.0test11-ac1
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Tue, 21 Nov 2000 23:25:44 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3A1AC4E1.80E5F423@mandrakesoft.com> from "Jeff Garzik" at Nov 21, 2000 01:54:25 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13yMnL-0005Ky-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2000, Tigran Aivazian wrote:
+> > o       Cleanup console_verbose() dunplication
+> include/linux/kernel.h:  if we are adding new inlines to kernel headers,
+> they should be 'static inline'..
 
-> Hi Linus,
+Agreed
+
+> > o       Epic100 update
 > 
-> In arch/i386/mm/init.c:show_mem() we calculate the number of free pages
-> but don't printk it out. Therefore, we must either a) remove the variable
-> and the calculation or b) make use of it. I think b) is obviously better.
-> 
-> The patch below was tested under 2.4.0-test11.
+> dhinds seemed to question the epic100 fix which is enclosed in
+> CONFIG_CARDBUS...  also I have a big endian fix for epic100 in my local
+> tree.
 
-apparently, IA64, SuperH and S390 architectures are just as broken as i386
-wrt not showing 'free'in show_mem() so here is more complete patch which
-covers all architectures:
+I dont think its CONFIG_CARDBUS, we need to test the chip version. But
+as it stands without that newer cards dont work. Its a WiP
 
---- linux/arch/ia64/mm/init.c	Tue Oct 10 01:54:56 2000
-+++ work/arch/ia64/mm/init.c	Tue Nov 21 23:18:31 2000
-@@ -264,6 +264,7 @@
- 			shared += page_count(mem_map + i) - 1;
- 	}
- 	printk("%d pages of RAM\n", total);
-+	printk("%d free pages\n", free);
- 	printk("%d reserved pages\n", reserved);
- 	printk("%d pages shared\n", shared);
- 	printk("%d pages swap cached\n", cached);
---- linux/arch/s390/mm/init.c	Mon Oct 16 20:58:51 2000
-+++ work/arch/s390/mm/init.c	Tue Nov 21 23:19:51 2000
-@@ -211,6 +211,7 @@
-                         shared += atomic_read(&mem_map[i].count) - 1;
-         }
-         printk("%d pages of RAM\n",total);
-+        printk("%d free pages\n",free);
-         printk("%d reserved pages\n",reserved);
-         printk("%d pages shared\n",shared);
-         printk("%d pages swap cached\n",cached);
---- linux/arch/sh/mm/init.c	Mon Oct 16 20:58:51 2000
-+++ work/arch/sh/mm/init.c	Tue Nov 21 23:20:28 2000
-@@ -169,6 +169,7 @@
- 			shared += page_count(mem_map+i) - 1;
- 	}
- 	printk("%d pages of RAM\n",total);
-+	printk("%d free pages\n",free);
- 	printk("%d reserved pages\n",reserved);
- 	printk("%d pages shared\n",shared);
- 	printk("%d pages swap cached\n",cached);
---- arch/i386/mm/init.c.0	Tue Nov 21 22:00:52 2000
-+++ arch/i386/mm/init.c	Tue Nov 21 22:00:36 2000
-@@ -221,6 +221,7 @@
- 	}
- 	printk("%d pages of RAM\n", total);
- 	printk("%d pages of HIGHMEM\n",highmem);
-+	printk("%d free pages\n",free);
- 	printk("%d reserved pages\n",reserved);
- 	printk("%d pages shared\n",shared);
- 	printk("%d pages swap cached\n",cached);
+> The change to hp-plus is totally unnecessary and backwards... 
+> [un]load_8390_module is null, has been for a while.  A bombing run was
+> made recently through most drivers to -remove- the now-null calls to
+> *_8390_module.
+
+Thats just cruft, already done
+
+> > o       Tulip crash fix on weird eeproms
+> Hopefully an update with this and more will be out this week.
+
+Ok
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

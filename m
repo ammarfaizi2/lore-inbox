@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbTJNQum (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 12:50:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbTJNQul
+	id S262609AbTJNQ4e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 12:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbTJNQ4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 12:50:41 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:58004 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S262592AbTJNQuk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 12:50:40 -0400
-content-class: urn:content-classes:message
+	Tue, 14 Oct 2003 12:56:34 -0400
+Received: from ns.exp-math.uni-essen.de ([132.252.150.1]:10121 "EHLO
+	pilz.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
+	id S262609AbTJNQ4c convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 12:56:32 -0400
+From: Andreas Jungmaier <ajung@exp-math.uni-essen.de>
+Organization: University Duisburg-Essen
+To: linux-kernel@vger.kernel.org
+Subject: Compile warning for smbfs
+Date: Tue, 14 Oct 2003 18:59:13 +0200
+User-Agent: KMail/1.5.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: ACPI in -pre7 builds with -Os
-Date: Tue, 14 Oct 2003 09:50:30 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A84702C93046@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI in -pre7 builds with -Os
-Thread-Index: AcOR9G2lp9gGLLl1QDmnQfmbAnOZSAAfrCCQ
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: <earny@net4u.de>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 14 Oct 2003 16:50:30.0782 (UTC) FILETIME=[4712E1E0:01C39273]
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200310141859.24529.ajung@exp-math.uni-essen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Ernst Herzberg
-> > ACPI_CFLAGS := -Os
-> >
-> > Uh ?
-> 
-> Looks like a bug. And a missing feature.
-> 
-> - ACPI_CFLAGS := -Os
-> + ACPI_CFLAGS := -Os --bzip2
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-What does that do, excatly? (Obviously compression-related...) I
-couldn't find it in the gcc 3.2.2 documentation, is it new?
+Hi,
 
-Regards -- Andy
+I am compiling linux-2.4.6-test7 and got the following warning:
+
+CC [M]  fs/smbfs/inode.o
+  fs/smbfs/inode.c: In function `smb_fill_super':
+  fs/smbfs/inode.c:554: warning: comparison is always false due to limited range of data type
+  fs/smbfs/inode.c:555: warning: comparison is always false due to limited range of data type
+CC [M]  fs/smbfs/file.o
+
+*Maybe* that needs to be fixed. Just to let you know.
+Please CC any answers also to my email address.
+
+Apart from that, this kernel runs great on my Toshiba Tecra 8200.
+
+Best regards,
+Andreas 
+- -- 
+Dipl.-Ing. Andreas Jungmaier              
+Computer Networking Technology Group     
+University of Duisburg-Essen                       
+http://www.exp-math.uni-essen.de/~ajung   
+PGP Key-ID: D382 4AC0             
+
+PGP Key-Fingerprint: 228C 7C2C 3381 2DD4  9998 2812 5C0B 0B04  D382 4AC0
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/jCtmXAsLBNOCSsARAoCcAKCv/fRePMZ94llFv67qxhnmY6mHmACcDtxo
+UXBr0jcXuBKjwk3rCVixCpk=
+=stDT
+-----END PGP SIGNATURE-----
+

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280832AbRKTCAb>; Mon, 19 Nov 2001 21:00:31 -0500
+	id <S280828AbRKTCHD>; Mon, 19 Nov 2001 21:07:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280828AbRKTCAW>; Mon, 19 Nov 2001 21:00:22 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:51353 "EHLO
-	localhost") by vger.kernel.org with ESMTP id <S280832AbRKTCAF>;
-	Mon, 19 Nov 2001 21:00:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: Dan Merillat <harik@chaos.ao.net>
-Subject: Re: radeonfb bug: text ends up scrolling in the middle of tux.
-Date: Mon, 19 Nov 2001 17:59:46 -0800
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200111200133.fAK1XT2J000773@vulpine.ao.net>
-In-Reply-To: <200111200133.fAK1XT2J000773@vulpine.ao.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S280834AbRKTCGw>; Mon, 19 Nov 2001 21:06:52 -0500
+Received: from mauve.demon.co.uk ([158.152.209.66]:14266 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S280828AbRKTCGo>; Mon, 19 Nov 2001 21:06:44 -0500
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200111200206.CAA07946@mauve.demon.co.uk>
+Subject: Can't link?
+To: linux-kernel@vger.kernel.org
+Date: Tue, 20 Nov 2001 02:06:35 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1660CQ-0001CY-00@localhost>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 19, 2001 17:33, Dan Merillat wrote:
-> Ok, I've poked around but I can't find a penguin or tux bitmap to
-> figure out why scrolling is so broken.  I've got to login blind and type
-> reset to get the console back.  Needless to say, no kernel messages
-> are readable after the mode-switch (they all overwrite themselves on
-> a single line)
+Rather odd thing happening right now, that I can't figure out.
 
-Type 'dmesg' as root to get all your lost kernel messages back. Hopefully 
-they'll shed some light on the problem.
+Running 2.4.11 on a ext2 filesystem, with a couple of 40Gb drives, and 
+some NFS mounts.
 
--Ryan
+After reading man link, I tried the following in /
+
+bash-2.03# >1 
+bash-2.03# ls -l
+total 0
+-rw-r--r--   1 root     root            0 Nov 20 01:57 1
+bash-2.03# ln 1 2
+ln: cannot create hard link `2' to `1': No such file or directory
+
+With strace:
+stat("1", {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+lstat("2", 0xbffff824)                  = -1 ENOENT (No such file or directory)
+lstat("2", 0xbffff824)                  = -1 ENOENT (No such file or directory)
+link("1", "2")                          = -1 ENOENT (No such file or directory)
+
+I tried this with root, as shown above, when I encountered bizarre problems
+due to tin not being able to rename files.
+

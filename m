@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262662AbUCJPga (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 10:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbUCJPg3
+	id S262667AbUCJPmY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 10:42:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbUCJPmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 10:36:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36788 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262662AbUCJPg2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 10:36:28 -0500
-Date: Wed, 10 Mar 2004 07:43:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Richard Henderson <rth@twiddle.net>
-cc: Thomas Schlichter <thomas.schlichter@web.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       gcc@gcc.gnu.org
-Subject: Re: [PATCH] fix warning about duplicate 'const'
-In-Reply-To: <20040310054918.GB4068@twiddle.net>
-Message-ID: <Pine.LNX.4.58.0403100740120.1092@ppc970.osdl.org>
-References: <200403090043.21043.thomas.schlichter@web.de>
- <20040308161410.49127bdf.akpm@osdl.org> <Pine.LNX.4.58.0403081627450.9575@ppc970.osdl.org>
- <200403090217.40867.thomas.schlichter@web.de> <Pine.LNX.4.58.0403081728250.9575@ppc970.osdl.org>
- <20040310054918.GB4068@twiddle.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Mar 2004 10:42:24 -0500
+Received: from piggy.rz.tu-ilmenau.de ([141.24.4.8]:14056 "EHLO
+	piggy.rz.tu-ilmenau.de") by vger.kernel.org with ESMTP
+	id S262694AbUCJPlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 10:41:45 -0500
+Date: Wed, 10 Mar 2004 16:41:37 +0100
+From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+To: Bruce Allen <ballen@gravity.phys.uwm.edu>
+Cc: Henrik Persson <nix@syndicalist.net>, linux-kernel@vger.kernel.org
+Subject: Re: Strange DMA-errors and system hang with Promise 20268
+Message-ID: <20040310154137.GC31893@darkside.22.kls.lan>
+Mail-Followup-To: Mario 'BitKoenig' Holbe <Mario.Holbe@RZ.TU-Ilmenau.DE>,
+	Bruce Allen <ballen@gravity.phys.uwm.edu>,
+	Henrik Persson <nix@syndicalist.net>, linux-kernel@vger.kernel.org
+References: <1078752642.1239.14.camel@vega> <Pine.GSO.4.21.0403100547430.8400-100000@dirac.phys.uwm.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0403100547430.8400-100000@dirac.phys.uwm.edu>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 10, 2004 at 05:50:12AM -0600, Bruce Allen wrote:
+> > > I suspect it having something to do with 2.4.25 new "One last
+> > > read after the timeout" in ide-iops.c and accessing the drive
+> > > while selftest running (possibly especially short selftest).
+> Does the disk's SMART error log (smartctl -l error) show any entries
+
+Just in addition, to point this out more clearly:
+I personally don't suspect smartmontools having some
+problem.
+I run debians smartmontools package since a long time
+and it does the selftests a long time as well. It never
+had problems with it, it wasnt updated close to first
+occurence of the problem or changed in any other way.
+I have 4 disks, 2 on the onboard VIA controller, 2 on
+the Promise. The problem always occured on the Promise
+(like Henrik pointed too) disk.
+I more suspect any kernel ide <-> promise-driver timing
+problem. Maybe smartmontools makes it more possibe that
+this timing problem occurs, maybe not (with Henriks
+answer to my question I rather favorite the 'maybe not'),
+maybe it's even just some load issue making the problem
+occur.
 
 
-On Tue, 9 Mar 2004, Richard Henderson wrote:
-> 
-> seems dicey at best.  I'm not sure what to do about this, actually.
-> We might could do something with a new __nonqual_typeof(a) that
-> strips outermost type qualifications, but I havn't given that much
-> thought.
-
-Ok, let's try just stripping the "const" out of the min/max macros, and
-see what complains. What the code _really_ wants to do is to just compare
-two types for being basically equal, and in real life what Linux really
-would prefer is to have "types" as first-class citizens and being able to
-compare them directly instead of playing games. And we may end up having
-that as a preprocessor phase (ie I might add it to the semantic parse
-thing).
-
-		Linus
+Mario
+-- 
+<jv> Oh well, config
+<jv> one actually wonders what force in the universe is holding it
+<jv> and makes it working
+<Beeth> chances and accidents :)

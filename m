@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262783AbSI2QAy>; Sun, 29 Sep 2002 12:00:54 -0400
+	id <S262787AbSI2QFn>; Sun, 29 Sep 2002 12:05:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262786AbSI2QAy>; Sun, 29 Sep 2002 12:00:54 -0400
-Received: from ns.commfireservices.com ([216.6.9.162]:55313 "HELO
-	hemi.commfireservices.com") by vger.kernel.org with SMTP
-	id <S262783AbSI2QAx>; Sun, 29 Sep 2002 12:00:53 -0400
-Date: Sun, 29 Sep 2002 12:04:52 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Murray J. Root" <murrayr@brain.org>
+	id <S262789AbSI2QFn>; Sun, 29 Sep 2002 12:05:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23047 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262787AbSI2QFm>;
+	Sun, 29 Sep 2002 12:05:42 -0400
+Date: Sun, 29 Sep 2002 17:11:04 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Hu Gang <gang_hu@soul.com.cn>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: v2.6 vs v3.0
-In-Reply-To: <20020929111918.GA1639@Master.Wizards>
-Message-ID: <Pine.LNX.4.44.0209291202000.24805-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [patch] Serial 2/2
+Message-ID: <20020929171104.G18377@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Sep 2002, Murray J. Root wrote:
 
-> ASUS P4S533 (SiS645DX chipset)
-> P4 2Ghz
-> 1G PC2700 RAM
-> 
-> Disable SMP, enable APIC & IO APIC
-> Get "WARNING - Unexpected IO APIC found"
-> system freezes
+> @@ -1582,10 +1583,10 @@
+>                          ret = -ENOMEM;
+>          }
+>  
+> - if (ret) {
+> - if (res_rsa)
+> + if (ret == 0) {
+> + if (res_rsa == 0)
+>                          release_resource(res_rsa);
+> - if (res)
+> + if (res == 0)
+>                          release_resource(res);
+>          }
+>          return ret;
 
-Send the subsequent messages (iirc it prints some verbose info about the 
-IOAPIC in question).
+definitely not.
 
-> Disable IO APIC, enable ACPI
-> system detects ACPI, builds table, freezes.
+	if (res_rsa)
+		release_resource(res_rsa);
 
-Send messages, motherboard/chipset info..
+will release the resource if we allocated it.  your patch calls
+release_resource with an argument of NULL, and we'll leak the resource
+we allocated.
 
-> Disable ACPI, enable ide-scsi in the kernel
-> kernel panic analyzing hdc
+i'm not sure about the rest of your changes, but this one is definitely
+wrong.
 
-ditto.
-
-> None of these have been reported because I haven't had time to do all the
-> work involved in making a report that anyone on the team will read.
-
-Shouldn't take too long, most time would be spent writing them down if you 
-can't retrieve via serial console.
-
-	Zwane
 -- 
-function.linuxpower.ca
-
+Revolutions do not require corporate support.

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272140AbTHDS54 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 14:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272153AbTHDS54
+	id S272126AbTHDSwI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 14:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272135AbTHDSwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 14:57:56 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:10625 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S272140AbTHDS5x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 14:57:53 -0400
-Date: Mon, 4 Aug 2003 11:57:25 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Paul Blazejowski <paulb@blazebox.homeip.net>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: Badness in device_release at drivers/base/core.c:84
-Message-ID: <20030804115725.A26812@beaverton.ibm.com>
-References: <20030801182207.GA3759@blazebox.homeip.net> <20030801144455.450d8e52.akpm@osdl.org> <20030803015510.GB4696@blazebox.homeip.net> <20030802190737.3c41d4d8.akpm@osdl.org> <20030803214755.GA1010@blazebox.homeip.net> <20030803145211.29eb5e7c.akpm@osdl.org> <20030803222313.GA1090@blazebox.homeip.net> <20030803223115.GA1132@blazebox.homeip.net> <20030804093035.A24860@beaverton.ibm.com> <1060021614.889.6.camel@blaze.homeip.net>
+	Mon, 4 Aug 2003 14:52:06 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:54145 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272126AbTHDSvJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 14:51:09 -0400
+Date: Mon, 4 Aug 2003 11:45:46 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: davidm@hpl.hp.com
+Cc: davidm@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
+Message-Id: <20030804114546.10786f84.davem@redhat.com>
+In-Reply-To: <16174.43161.252794.244789@napali.hpl.hp.com>
+References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
+	<20030804113144.47fcc112.davem@redhat.com>
+	<16174.43161.252794.244789@napali.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1060021614.889.6.camel@blaze.homeip.net>; from paulb@blazebox.homeip.net on Mon, Aug 04, 2003 at 02:26:54PM -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 04, 2003 at 02:26:54PM -0400, Paul Blazejowski wrote:
-> 
-> Patrick,
-> 
-> I enabled CONFIG_SCSI_LOGGING=y in kernel then i used
-> scsi_mod.scsi_logging_level=0x140 and scsi_mod.max_scsi_luns=1 when
-> booting the kernel from lilo.I can see some debug information scroll on
-> the screen and i did see ID0 LUN0 get probed even the correct transfer
-> rate for the SCSI disk is set.I forgot but isn't there a key sequence
-> when pressed it will stop the screen output like pause/break key?
-> 
-> I have few screen snaps which can be viewed at 
-> http://www.blazebox.homeip.net:81/diffie/images/linux-2.6.0-test2/aic7xxx/
+On Mon, 4 Aug 2003 11:40:25 -0700
+David Mosberger <davidm@napali.hpl.hp.com> wrote:
 
-Yep, the shot that might have useful information is blurred.
+> For what it's worth, I spend on average about 1 day a week on ia64
+> linux maintenance and that's just about as much as I'd want to (though
+> in recent months it has been a bit more, partly so that we can get
+> into sync with Linus' tree).
 
-I assume you are unable to use a serial console.
+I'm not addressing you specifically, but I will note how great
+you tend to say ia64 is when platform performance comparison
+discussions happen on the lists :-)
 
-I can usually "Shift + page-up" as long as there is not too much data, and
-depending on your console, AFAIR I can't pause my console output.
+In general, I think some platform maintainence drifts way too easily
+into a tail-spin of local changes that take forever to get merged.
 
-Also, does the adapter bios show the drive at boot time?
+My point was that if some random single monkey like me can keep a
+loser platform like sparc64 still building in Linus's tree, a group of
+several trained professionals should be able to fare much better :)
 
-Hopefully Justin will add more useful suggestions for debugging.
-
--- Patrick Mansfield

@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263283AbSKEHmK>; Tue, 5 Nov 2002 02:42:10 -0500
+	id <S264768AbSKEHrd>; Tue, 5 Nov 2002 02:47:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264706AbSKEHmK>; Tue, 5 Nov 2002 02:42:10 -0500
-Received: from pacific.moreton.com.au ([203.143.238.4]:1222 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S263283AbSKEHmJ>; Tue, 5 Nov 2002 02:42:09 -0500
-Message-ID: <3DC77832.6040600@snapgear.com>
-Date: Tue, 05 Nov 2002 17:50:10 +1000
-From: gerg@snapgear.com
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S264772AbSKEHrd>; Tue, 5 Nov 2002 02:47:33 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:13188 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S264768AbSKEHrc>; Tue, 5 Nov 2002 02:47:32 -0500
+Date: Mon, 04 Nov 2002 23:50:21 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: kcn <kcn@263.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel freeze
+Message-ID: <3845928973.1036453820@[10.10.2.3]>
+In-Reply-To: <002d01c2849c$927faa40$31036fa6@zhoulin>
+References: <002d01c2849c$927faa40$31036fa6@zhoulin>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.46-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> I'll lay you a large bet that lowmem is full of garbage.
+>> Probably buffer_heads, inodes or PTEs. Output of /proc/meminfo 
+>> and /proc/slabinfo as you approach oblivion would be useful.
+>> As would a description of the workload that triggers it.
+>> 
+>> M.
+>   I think it's the reason. But I have to decreased memory from 4G to 2G
+> because of the complain from my customers, so I can't give you the
+> /proc/meminfo or /proc/slabinfo now. :(
 
-Hi All,
+The patches don't seem to have wended their way back to mainline
+yet, probably because people have been concentrating on 2.5 recently.
+I think Andrea's -aa kernel has fixes for most, if not all of these
+problems.
 
-Here is a much reduced set of MMU-less fixups for 2.5.46 :-)
-Now that the majority of the code is in there is just a few
-little things missing and some clean ups.
+>   Why the linux-vm can't manage lowmem correctly? I have seen some
+> articles talking about the LRU pre zone patch, but why 2.4.19+rmap14a
+> patch also has this problem?
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc0.patch.gz
+rmap won't help you in this instance, as the stuff you're filling
+ZONE_NORMAL with is unswappable. In fact, it may make it worse,
+due the overhead of pte_chains ... but this will probably only
+hurt you if you have many large tasks sharing memory.
 
-Change log:
-1. patch against 2.5.46
-2. add MAC setting support to fec driver
-3. clean up ColdFire entry.S (more to come)
+Changing PAGE_OFFSET from 3Gb to 2Gb may be a better workaround than
+decreasing from 4Gb to 2Gb of RAM, if you don't have any huge single
+process.
 
-
-You can get smaller patches here:
-
-. FEC (5272) patch
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc0-fec.patch.gz
-
-. 68k/ColdFire/v850 serial drivers
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc0-serial.patch.gz
-
-. 68328 frame buffer driver
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc0-fb.patch.gz
-
-. m68knommu patches
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc0-m68knommu.patch.gz
-
-. v850 patches
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc0-v850.patch.gz
-
-. missing no MM peices (some mm/, /kernel and /fs/proc files)
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc0-mm.patch.gz
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
+M.
 

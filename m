@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263662AbTK2Fqo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 00:46:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263675AbTK2Fqo
+	id S263661AbTK2GCH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 01:02:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263675AbTK2GCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 00:46:44 -0500
-Received: from holomorphy.com ([199.26.172.102]:52164 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263662AbTK2Fqn (ORCPT
+	Sat, 29 Nov 2003 01:02:07 -0500
+Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:51819
+	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S263661AbTK2GCE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 00:46:43 -0500
-Date: Fri, 28 Nov 2003 21:46:35 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Shawn Willden <shawn-lkml@willden.org>
-Cc: Misha Nasledov <misha@nasledov.com>,
-       Nigel Cunningham <ncunningham@clear.net.nz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sat, 29 Nov 2003 01:02:04 -0500
+Message-ID: <3FC7F031.5060502@rogers.com>
+Date: Sat, 29 Nov 2003 01:02:41 +0000
+From: pZa1x <pZa1x@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
 Subject: Re: APM Suspend Problem
-Message-ID: <20031129054635.GG8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Shawn Willden <shawn-lkml@willden.org>,
-	Misha Nasledov <misha@nasledov.com>,
-	Nigel Cunningham <ncunningham@clear.net.nz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20031127062057.GA31974@nasledov.com> <20031129021712.GA13798@nasledov.com> <20031129022005.GE8039@holomorphy.com> <200311282238.21420.shawn-lkml@willden.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311282238.21420.shawn-lkml@willden.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.157.208.226] using ID <dw2price@rogers.com> at Sat, 29 Nov 2003 01:00:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 November 2003 07:20 pm, William Lee Irwin III wrote:
->> There is an oddity I forgot to report: it doesn't suspend when I close
->> the lid if I still have the power plugged in. Also, I tried the suspend
->> button, and it works perfectly fine here for both suspend and resume on
->> a standard LTC issue Stinkpad T21, again with the power cord proviso.
+I would like to join in here. I have a Thinkpad T20 I just put 
+2.6.0-test11 on and APM will only suspend properly if the power plug is 
+pulled out of the back (thanks for that tip, btw). With power connected, 
+it plays a high-low beep and turns off screen and HD without suspending 
+properly (and if left too long, may not come back to life).
 
-On Fri, Nov 28, 2003 at 10:38:18PM -0700, Shawn Willden wrote:
-> Do you also have a PCMCIA card in the slot?
-> I've always found that my Thinkpads (about three different models, 
-> currently a T21) will not suspend with power connected and a PCMCIA card 
-> in.  If I remove either power or my PC cards, then closing the lids will 
-> trigger a suspend.
-> I stumbled across something a while back that indicated this was a Thinkpad 
-> BIOS bug, but I have no idea if that is correct.
+I believe I read somewhere there is some kind of settings to override 
+power features when AC power is connected. Perhaps this problem is 
+related to that. I tried running "apm -i" and "apm -n" but it wouldn't 
+recognize the commands as set out in the man page.
 
-No, I rarely have PCMCIA cards in. Just the power cord being plugged in
-is enough to break it here.
+If I stop apmd AND rmmod apm then I can suspend by closing the lid 
+(hardware suspend I guess) but then I have no battery monitor capability.
 
+I tried ACPI but it would not work without =force as a kernel parameter 
+and when used, did not cleanly come back from a suspend.
 
--- wli
+APM worked perfectly in 2.4.20 which is what I used up to today. Are the 
+APM/ACPI people out there?
+
+an interesting email on "suspend rejects" caused by kernel drivers from 
+a year ago or more:
+
+http://open.nit.ca/lists/archives/apmd-list/msg00006.html
+

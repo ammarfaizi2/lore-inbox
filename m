@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268231AbTGIMpz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 08:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268232AbTGIMpz
+	id S268228AbTGIMnD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 08:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268229AbTGIMnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 08:45:55 -0400
-Received: from landfill.ihatent.com ([217.13.24.22]:460 "EHLO
-	pileup.ihatent.com") by vger.kernel.org with ESMTP id S268231AbTGIMpy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 08:45:54 -0400
-To: Daniel <daniel@hawton.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI status in 2.5.x/2.6.0
-References: <3F0BD5D1.2010801@hawton.org>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 09 Jul 2003 15:00:27 +0200
-In-Reply-To: <3F0BD5D1.2010801@hawton.org>
-Message-ID: <87k7ardfdg.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 9 Jul 2003 08:43:03 -0400
+Received: from rtichy.netro.cz ([213.235.180.210]:59120 "HELO 192.168.1.21")
+	by vger.kernel.org with SMTP id S268228AbTGIMnB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 08:43:01 -0400
+Message-ID: <026301c34619$a7fe1840$401a71c3@izidor>
+From: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Promise SATA 150 TX2 plus
+Date: Wed, 9 Jul 2003 14:57:30 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel <daniel@hawton.org> writes:
+Hi,
+I got one card SATA 150 TX2 plus with version v1.00.0.20 on chip.
+I want to make it working under SuSE linux 8.0. I have downloaded
+drivers from www.promise.com, but driver is not working, because of bad
+major/minor numbers of /dev/sda, /dev/sda1, /dev/sdb, .....
+What are the major/minor numbers for making it work?
 
-> I have a Compaq Laptop (*shiver*) and present distro versions
-> featuring the 2.4.x kernel seem to panic or lock on bootup on my
-> laptop.  I was wondering if ACPI was better supported in the 2.5.x
-> kernel branch/2.6.0 pre-kernel.  Any advice would be greatly
-> appreciated.
-> 
+Or is there any other driver that I should use for making this card =
+working?
+What are major/minor numbers for that drivers?
+Thanks very much for your answers.
+    Milan Roubal
+    roubm9am@barbora.ms.mff.cuni.cz
 
-What model is the laptop?
-
-> -Daniel
-
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy

@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262270AbSJNXzf>; Mon, 14 Oct 2002 19:55:35 -0400
+	id <S262247AbSJOAGb>; Mon, 14 Oct 2002 20:06:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262272AbSJNXze>; Mon, 14 Oct 2002 19:55:34 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:2761 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S262270AbSJNXzc>; Mon, 14 Oct 2002 19:55:32 -0400
-Subject: [PATCH] Forward port of 2.4 fsync_buffers_list() fix.
-From: Tim Wright <timw@splhi.com>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 14 Oct 2002 17:01:20 -0700
-Message-Id: <1034640080.2017.33.camel@kryten.internal.splhi.com>
+	id <S262258AbSJOAGb>; Mon, 14 Oct 2002 20:06:31 -0400
+Received: from mail023.syd.optusnet.com.au ([210.49.20.162]:38576 "EHLO
+	mail023.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S262247AbSJOAGb>; Mon, 14 Oct 2002 20:06:31 -0400
+Date: Tue, 15 Oct 2002 10:10:54 +1000
+From: Andrew Clausen <clausen@gnu.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Oliver Neukum <oliver@neukum.name>, Shawn <core@enodev.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Michael Clark <michael@metaparadigm.com>,
+       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: Linux v2.5.42
+Message-ID: <20021015001054.GA2054@gnu.org>
+References: <200210150104.13593.oliver@neukum.name> <Pine.GSO.4.21.0210141907190.6505-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0210141907190.6505-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.28i
+X-Accept-Language: en,pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-there was a bug in fysnc_buffers_list() in 2.4 (fixed in 2.4.19) that
-could cause the function to return without having written the current
-contents of all the buffers. Obviously, this could be bad for anybody
-relying on ordering using O_SYNC or fsync(). If an I/O was already in
-flight for a particular bh at the time of the call to
-fsync_buffers_list(), ll_rw_block() will not initiate a new I/O even
-though the contents may have changed. It is therefore necessary to wait
-before the call. Here's a patch against 2.5.42 that applies the same
-fix.
+On Mon, Oct 14, 2002 at 07:16:22PM -0400, Alexander Viro wrote:
+> If you are willing to help EVMS folks - go ahead and offer them your help in
+> cleaning the codebase up.
 
-Regards,
+They refused my patches.
 
-Tim
+Does anyone want me to dig them up?
 
---- linux-2.5.42/fs/buffer.c	Mon Oct 14 16:38:53 2002
-+++ linux/fs/buffer.c	Mon Oct 14 16:51:54 2002
-@@ -812,6 +812,13 @@
- 			if (buffer_dirty(bh)) {
- 				get_bh(bh);
- 				spin_unlock(lock);
-+				/*
-+				 * Ensure any pending I/O completes so that
-+				 * ll_rw_block() actually writes the current
-+				 * contents - it is a noop if I/O is still in
-+				 * flight on potentially older contents.
-+				 */
-+				wait_on_buffer(bh);
- 				ll_rw_block(WRITE, 1, &bh);
- 				brelse(bh);
- 				spin_lock(lock);
+Andrew
 

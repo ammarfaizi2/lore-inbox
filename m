@@ -1,91 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267536AbUHXLhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267591AbUHXLlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267536AbUHXLhG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 07:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbUHXLf6
+	id S267591AbUHXLlM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 07:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267532AbUHXLku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 07:35:58 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:486 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S267536AbUHXLf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 07:35:27 -0400
-Date: Tue, 24 Aug 2004 13:35:26 +0200
-To: linux-kernel@vger.kernel.org, pp@ee.oulu.fi,
-       acpi-devel@lists.sourceforge.net
-Subject: acpi and b44: irq disabled, b44: Error, poll already scheduled
-Message-ID: <20040824113526.GA25947@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Tue, 24 Aug 2004 07:40:50 -0400
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:55006 "EHLO
+	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S267549AbUHXLhv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 07:37:51 -0400
+Message-ID: <00f301c489ce$c2cd01a0$1225a8c0@kittycat>
+From: "jdow" <jdow@earthlink.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Amiga partition reading patch
+Date: Tue, 24 Aug 2004 04:37:39 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list, hi Pekka!
+This is a patch known good against Mandrake 2.6.3-7mdk. I suspect it will
+apply to later versions equally well since the file affected appears to
+be unchanged as late as 2.6.9-rc1.
 
-I am using 2.6.8.1-mm4 and try to get suspend to work. I can suspend to
-disk, and resume, but after loading the b44 module and some activity
-suddenly millions of
-	b44: Error, poll already scheduled
-and no response otherwise, not even sysrq.
+I have a large archive of files stored on Amiga volumes. Many of these
+volumes are on Fujitsu magneto-optical disks with 2k sector size. The
+existing partitioning code cannot properly read them since it appears
+the OS automatically deblocks the large sectors into logical 512 byte
+sectors, something AmigaDOS never did. I arranged the partitioning code
+to handle this situation.
 
-THis problem only occurs after suspending/resuming (to disk).
+Second I have some rather strange test case disks, including my largest
+storage partition, that have somewhat unusual partition values. As such
+I needed additional information in addition to the first and last block
+number information. AmigaDOS reserves N blocks, with N greater than or
+equal to 1 and less than the size of the partition, for some boot time
+information and signatures. I have some partitions that use other than
+the usual value of 2.
 
-I suspect an interrupt problem here, because in the dmesg output of the
-resume:
-irq 5: nobody cared!
-...
- [<c01082aa>] __report_bad_irq+0x24/0x7b
- [<c0108383>] note_interrupt+0x64/0x88
- [<c0108264>] handle_IRQ_event+0x2e/0x50
- [<c010862a>] do_IRQ+0x120/0x12f
- [<c0106870>] common_interrupt+0x18/0x20
- [<c011fef4>] __do_softirq+0x2c/0x80
- [<c011ff6e>] do_softirq+0x26/0x28
- [<c010860b>] do_IRQ+0x101/0x12f
- [<c0106870>] common_interrupt+0x18/0x20
- [<c01b007b>] cbc_encrypt+0xa/0x3c
- [<c0108aff>] setup_irq+0x73/0xdf
- [<e08dbd90>] usb_hcd_irq+0x0/0x5d [usbcore]
- [<c01086df>] request_irq+0x74/0xad
- [<e08df7fd>] usb_hcd_pci_probe+0x1c4/0x494 [usbcore]
- [<c01ba25d>] pci_device_probe_static+0x46/0x55
- [<c01ba29c>] __pci_device_probe+0x30/0x40
- [<c01ba2cf>] pci_device_probe+0x23/0x3f
- [<c0208070>] bus_match+0x32/0x5b
- [<c0208171>] driver_attach+0x51/0x7b
- [<c01b3d69>] kobject_register+0x22/0x53
- [<c0208577>] bus_add_driver+0x88/0xa3
- [<c02089e3>] driver_register+0x28/0x2c
- [<c01ba4ad>] pci_register_driver+0x56/0x7c
- [<e08600ac>] uhci_hcd_init+0xac/0x107 [uhci_hcd]
- [<c01306c1>] sys_init_module+0xdf/0x203
- [<c0105f03>] syscall_call+0x7/0xb
-handlers:
-[<e08dbd90>] (usb_hcd_irq+0x0/0x5d [usbcore])
-Disabling IRQ #5
+There is one more "fix" that could be put in if someone needs it. Another
+value in the "Rigid Disk Blocks" description of a partition is a "PreAlloc"
+value. It defines a number of blocks at the end of the disk that are not
+considered to be a real part of the partition. This was "important" in
+the days of 20 meg and 40 meg hard disks. It is hardly important and not
+used on modern drives without special user intervention.
 
-and usb and eth0 are hanging on irq5.
+This partitioning information is known correct. I wrote the low level
+portion of the hard disk partitioning code for AmigaDOS 3.5 and 3.9. I
+am also responsible for one of the more frequently used partitioning
+tools, RDPrepX, before that.
 
-What can I do about this? Thanks a lot and all the best
+Please consider adding this to the build tree as a completeness item.
 
-Norbert
+Thank you.
+{^_^}   Joanne Dow, jdow@earthlink.net
+        (I tried submitting this to Roland a couple times now and
+        nothing happened so I am submitting it to the list.)
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-Now it is such a bizarrely improbable coincidence that
-anything so mindboggingly useful could have evolved purely
-by chance that some thinkers have chosen to see it as the
-final and clinching proof of the non-existence of God.
-The argument goes something like this: `I refuse to prove
-that I exist,' says God, `for proof denies faith, and
-without faith I am nothing.'
-The Babel fish is a dead giveaway, isn't
-it? It could not have evolved by chance. It proves you
-exist, and so therefore, by your own arguments, you don't.
-QED.'
-                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy

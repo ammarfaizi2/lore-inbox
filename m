@@ -1,25 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267022AbTBLKvF>; Wed, 12 Feb 2003 05:51:05 -0500
+	id <S267030AbTBLKuh>; Wed, 12 Feb 2003 05:50:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267029AbTBLKvF>; Wed, 12 Feb 2003 05:51:05 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:5001 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267022AbTBLKvA>;
-	Wed, 12 Feb 2003 05:51:00 -0500
-Date: Wed, 12 Feb 2003 12:00:38 +0100
+	id <S267032AbTBLKuh>; Wed, 12 Feb 2003 05:50:37 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:905 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267030AbTBLKud>;
+	Wed, 12 Feb 2003 05:50:33 -0500
+Date: Wed, 12 Feb 2003 11:59:54 +0100
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
+To: vojtech@suse.cz
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [patch] input: Remove include/linux/pc_keyb.h and old PS/2 code [2/14]
-Message-ID: <20030212120038.A1563@ucw.cz>
-References: <20030212115954.A1268@ucw.cz>
+Subject: [patch] input: Update AT+PS/2 mouse and keyboard drivers [1/14]
+Message-ID: <20030212115954.A1268@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030212115954.A1268@ucw.cz>; from vojtech@suse.cz on Wed, Feb 12, 2003 at 11:59:54AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Hi!
+
+I'm resending the last batch of changesets, cleaned up and merged from
+37 into just 14. They all are re-applied to current 2.5.60 to avoid any
+need of merges.
 
 
 You can pull this changeset from:
@@ -27,168 +31,249 @@ You can pull this changeset from:
 
 ===================================================================
 
-ChangeSet@1.1005, 2003-02-12 10:28:17+01:00, jsimmons@maxwell.earthlink.net
-  input: Remove include/linux/pc_keyb.h and old PS/2 code
-  from drivers/char/misc.c
+ChangeSet@1.1004, 2003-02-12 10:24:25+01:00, vojtech@suse.cz
+  input: Update AT+PS/2 mouse and keyboard drivers:
+  	- Fix a possible deadlock with 0xfe resend command (atkbd)
+  	- Make ->ack variables volatile (they're updated from irq)
+  	- Fix the GETID one/two byte command to avoid any races
+  	- Fix Logitech PS2++ extended packet detection
+  	- Use RESET_BAT on reboot to make notebooks happy
 
 
- b/drivers/char/misc.c   |    3 -
- include/linux/pc_keyb.h |  130 ------------------------------------------------
- 2 files changed, 133 deletions(-)
+ keyboard/atkbd.c |   56 ++++++++++++++++++++++++++++++++-----------------------
+ mouse/psmouse.c  |   36 ++++++++++++++++++++++-------------
+ 2 files changed, 56 insertions(+), 36 deletions(-)
 
 ===================================================================
 
-diff -Nru a/drivers/char/misc.c b/drivers/char/misc.c
---- a/drivers/char/misc.c	Wed Feb 12 11:57:23 2003
-+++ b/drivers/char/misc.c	Wed Feb 12 11:57:23 2003
-@@ -50,8 +50,6 @@
- #include <linux/tty.h>
- #include <linux/kmod.h>
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	Wed Feb 12 11:57:28 2003
++++ b/drivers/input/keyboard/atkbd.c	Wed Feb 12 11:57:28 2003
+@@ -86,8 +86,7 @@
+ #define ATKBD_CMD_SETLEDS	0x10ed
+ #define ATKBD_CMD_GSCANSET	0x11f0
+ #define ATKBD_CMD_SSCANSET	0x10f0
+-#define ATKBD_CMD_GETID		0x01f2
+-#define ATKBD_CMD_GETID2	0x0100
++#define ATKBD_CMD_GETID		0x02f2
+ #define ATKBD_CMD_ENABLE	0x00f4
+ #define ATKBD_CMD_RESET_DIS	0x00f5
+ #define ATKBD_CMD_RESET_BAT	0x01ff
+@@ -120,12 +119,12 @@
+ 	unsigned char cmdbuf[4];
+ 	unsigned char cmdcnt;
+ 	unsigned char set;
+-	unsigned char oldset;
+ 	unsigned char release;
+-	signed char ack;
++	volatile signed char ack;
+ 	unsigned char emul;
+ 	unsigned short id;
+ 	unsigned char write;
++	unsigned char resend;
+ };
  
--#include "busmouse.h"
--
  /*
-  * Head entry for the doubly linked miscdevice list
-  */
-@@ -64,7 +62,6 @@
- #define DYNAMIC_MINORS 64 /* like dynamic majors */
- static unsigned char misc_minors[DYNAMIC_MINORS / 8];
- 
--extern int psaux_init(void);
- #ifdef CONFIG_SGI_NEWPORT_GFX
- extern void gfx_register(void);
+@@ -142,11 +141,15 @@
+ 	printk(KERN_DEBUG "atkbd.c: Received %02x flags %02x\n", data, flags);
  #endif
-diff -Nru a/include/linux/pc_keyb.h b/include/linux/pc_keyb.h
---- a/include/linux/pc_keyb.h	Wed Feb 12 11:57:23 2003
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,130 +0,0 @@
--/*
-- *	include/linux/pc_keyb.h
-- *
-- *	PC Keyboard And Keyboard Controller
-- *
-- *	(c) 1997 Martin Mares <mj@atrey.karlin.mff.cuni.cz>
+ 
+-	if ((flags & (SERIO_FRAME | SERIO_PARITY)) && (~flags & SERIO_TIMEOUT) && atkbd->write) {
++	if ((flags & (SERIO_FRAME | SERIO_PARITY)) && (~flags & SERIO_TIMEOUT) && !atkbd->resend && atkbd->write) {
+ 		printk("atkbd.c: frame/parity error: %02x\n", flags);
+ 		serio_write(serio, ATKBD_CMD_RESEND);
++		atkbd->resend = 1;
+ 		return;
+ 	}
++	
++	if (!flags)
++		atkbd->resend = 0;
+ 
+ 	switch (code) {
+ 		case ATKBD_RET_ACK:
+@@ -227,12 +230,15 @@
+ 
+ static int atkbd_command(struct atkbd *atkbd, unsigned char *param, int command)
+ {
+-	int timeout = 50000; /* 500 msec */
++	int timeout = 500000; /* 500 msec */
+ 	int send = (command >> 12) & 0xf;
+ 	int receive = (command >> 8) & 0xf;
+ 	int i;
+ 
+ 	atkbd->cmdcnt = receive;
++
++	if (command == ATKBD_CMD_RESET_BAT)
++		timeout = 2000000; /* 2 sec */
+ 	
+ 	if (command & 0xff)
+ 		if (atkbd_sendbyte(atkbd, command & 0xff))
+@@ -242,14 +248,28 @@
+ 		if (atkbd_sendbyte(atkbd, param[i]))
+ 			return (atkbd->cmdcnt = 0) - 1;
+ 
+-	while (atkbd->cmdcnt && timeout--) udelay(10);
++	while (atkbd->cmdcnt && timeout--) {
++
++		if (atkbd->cmdcnt == 1 && command == ATKBD_CMD_RESET_BAT)
++			timeout = 100000;
++
++		if (atkbd->cmdcnt == 1 && command == ATKBD_CMD_GETID &&
++		    atkbd->cmdbuf[1] != 0xab && atkbd->cmdbuf[1] != 0xac) {
++			atkbd->cmdcnt = 0;
++			break;
++		}
++	
++		udelay(1);
++	}
+ 
+ 	if (param)
+ 		for (i = 0; i < receive; i++)
+ 			param[i] = atkbd->cmdbuf[(receive - 1) - i];
+ 
+-	if (atkbd->cmdcnt) 
+-		return (atkbd->cmdcnt = 0) - 1;
++	if (atkbd->cmdcnt) {
++		atkbd->cmdcnt = 0;
++		return -1;
++	}
+ 
+ 	return 0;
+ }
+@@ -303,13 +323,6 @@
+ 	unsigned char param[2];
+ 
+ /*
+- * Remember original scancode set value, so that we can restore it on exit.
 - */
 -
--/*
-- *	Configuration Switches
-- */
--
--#undef KBD_REPORT_ERR			/* Report keyboard errors */
--#define KBD_REPORT_UNKN			/* Report unknown scan codes */
--#define KBD_REPORT_TIMEOUTS		/* Report keyboard timeouts */
--#undef KBD_IS_FOCUS_9000		/* We have the brain-damaged FOCUS-9000 keyboard */
--#undef INITIALIZE_MOUSE			/* Define if your PS/2 mouse needs initialization. */
--
--
--
--#define KBD_INIT_TIMEOUT 1000		/* Timeout in ms for initializing the keyboard */
--#define KBC_TIMEOUT 250			/* Timeout in ms for sending to keyboard controller */
--#define KBD_TIMEOUT 1000		/* Timeout in ms for keyboard command acknowledge */
+-	if (atkbd_command(atkbd, &atkbd->oldset, ATKBD_CMD_GSCANSET))
+-		atkbd->oldset = 2;
 -
 -/*
-- *	Internal variables of the driver
-- */
+  * For known special keyboards we can go ahead and set the correct set.
+  * We check for NCD PS/2 Sun, NorthGate OmniKey 101 and
+  * IBM RapidAccess / IBM EzButton / Chicony KBP-8993 keyboards.
+@@ -376,8 +389,8 @@
+  */
+ 
+ 	if (atkbd_reset)
+-		if (atkbd_command(atkbd, NULL, ATKBD_CMD_RESET_BAT))
+-			printk(KERN_WARNING "atkbd.c: keyboard reset failed\n");
++		if (atkbd_command(atkbd, NULL, ATKBD_CMD_RESET_BAT)) 
++			printk(KERN_WARNING "atkbd.c: keyboard reset failed on %s\n", atkbd->serio->phys);
+ 
+ /*
+  * Then we check the keyboard ID. We should get 0xab83 under normal conditions.
+@@ -401,10 +414,7 @@
+ 
+ 	if (param[0] != 0xab && param[0] != 0xac)
+ 		return -1;
+-	atkbd->id = param[0] << 8;
+-	if (atkbd_command(atkbd, param, ATKBD_CMD_GETID2))
+-		return -1;
+-	atkbd->id |= param[0];
++	atkbd->id = (param[0] << 8) | param[1];
+ 
+ /*
+  * Set the LEDs to a defined state.
+@@ -442,7 +452,7 @@
+ static void atkbd_cleanup(struct serio *serio)
+ {
+ 	struct atkbd *atkbd = serio->private;
+-	atkbd_command(atkbd, &atkbd->oldset, ATKBD_CMD_SSCANSET);
++	atkbd_command(atkbd, NULL, ATKBD_CMD_RESET_BAT);
+ }
+ 
+ /*
+diff -Nru a/drivers/input/mouse/psmouse.c b/drivers/input/mouse/psmouse.c
+--- a/drivers/input/mouse/psmouse.c	Wed Feb 12 11:57:28 2003
++++ b/drivers/input/mouse/psmouse.c	Wed Feb 12 11:57:28 2003
+@@ -30,8 +30,7 @@
+ #define PSMOUSE_CMD_GETINFO	0x03e9
+ #define PSMOUSE_CMD_SETSTREAM	0x00ea
+ #define PSMOUSE_CMD_POLL	0x03eb	
+-#define PSMOUSE_CMD_GETID	0x01f2
+-#define PSMOUSE_CMD_GETID2	0x0100
++#define PSMOUSE_CMD_GETID	0x02f2
+ #define PSMOUSE_CMD_SETRATE	0x10f3
+ #define PSMOUSE_CMD_ENABLE	0x00f4
+ #define PSMOUSE_CMD_RESET_DIS	0x00f6
+@@ -54,7 +53,7 @@
+ 	unsigned char model;
+ 	unsigned long last;
+ 	char acking;
+-	char ack;
++	volatile char ack;
+ 	char error;
+ 	char devname[64];
+ 	char phys[32];
+@@ -85,9 +84,9 @@
+ 
+ 	if (psmouse->type == PSMOUSE_PS2PP || psmouse->type == PSMOUSE_PS2TPP) {
+ 
+-		if ((packet[0] & 0x40) == 0x40 && (int) packet[1] - (int) ((packet[0] & 0x10) << 4) > 191 ) {
++		if ((packet[0] & 0x40) == 0x40 && abs((int)packet[1] - (((int)packet[0] & 0x10) << 4)) > 191 ) {
+ 
+-			switch (((packet[1] >> 4) & 0x03) | ((packet[0] >> 2) & 0xc0)) {
++			switch (((packet[1] >> 4) & 0x03) | ((packet[0] >> 2) & 0x0c)) {
+ 
+ 			case 1: /* Mouse extra info */
+ 
+@@ -106,10 +105,11 @@
+ 
+ 				break;
+ 
++#ifdef DEBUG
+ 			default:
 -
--extern unsigned char pckbd_read_mask;
--extern unsigned char aux_device_present;
+ 				printk(KERN_WARNING "psmouse.c: Received PS2++ packet #%x, but don't know how to handle.\n",
+-					((packet[1] >> 4) & 0x03) | ((packet[0] >> 2) & 0xc0));
++					((packet[1] >> 4) & 0x03) | ((packet[0] >> 2) & 0x0c));
++#endif
+ 
+ 			}
+ 
+@@ -248,6 +248,9 @@
+ 
+ 	psmouse->cmdcnt = receive;
+ 
++	if (command == PSMOUSE_CMD_RESET_BAT)
++                timeout = 2000000; /* 2 sec */
++
+ 	if (command & 0xff)
+ 		if (psmouse_sendbyte(psmouse, command & 0xff))
+ 			return (psmouse->cmdcnt = 0) - 1;
+@@ -256,7 +259,19 @@
+ 		if (psmouse_sendbyte(psmouse, param[i]))
+ 			return (psmouse->cmdcnt = 0) - 1;
+ 
+-	while (psmouse->cmdcnt && timeout--) udelay(1);
++	while (psmouse->cmdcnt && timeout--) {
++	
++		if (psmouse->cmdcnt == 1 && command == PSMOUSE_CMD_RESET_BAT)
++			timeout = 100000;
++
++		if (psmouse->cmdcnt == 1 && command == PSMOUSE_CMD_GETID &&
++		    psmouse->cmdbuf[1] != 0xab && psmouse->cmdbuf[1] != 0xac) {
++			psmouse->cmdcnt = 0;
++			break;
++		}
++
++		udelay(1);
++	}
+ 
+ 	for (i = 0; i < receive; i++)
+ 		param[i] = psmouse->cmdbuf[(receive - 1) - i];
+@@ -497,11 +512,6 @@
+ 
+ 	if (psmouse_command(psmouse, param, PSMOUSE_CMD_GETID))
+ 		return -1;
 -
--/*
-- *	Keyboard Controller Registers on normal PCs.
-- */
--
--#define KBD_STATUS_REG		0x64	/* Status register (R) */
--#define KBD_CNTL_REG		0x64	/* Controller command register (W) */
--#define KBD_DATA_REG		0x60	/* Keyboard data register (R/W) */
--
--/*
-- *	Keyboard Controller Commands
-- */
--
--#define KBD_CCMD_READ_MODE	0x20	/* Read mode bits */
--#define KBD_CCMD_WRITE_MODE	0x60	/* Write mode bits */
--#define KBD_CCMD_GET_VERSION	0xA1	/* Get controller version */
--#define KBD_CCMD_MOUSE_DISABLE	0xA7	/* Disable mouse interface */
--#define KBD_CCMD_MOUSE_ENABLE	0xA8	/* Enable mouse interface */
--#define KBD_CCMD_TEST_MOUSE	0xA9	/* Mouse interface test */
--#define KBD_CCMD_SELF_TEST	0xAA	/* Controller self test */
--#define KBD_CCMD_KBD_TEST	0xAB	/* Keyboard interface test */
--#define KBD_CCMD_KBD_DISABLE	0xAD	/* Keyboard interface disable */
--#define KBD_CCMD_KBD_ENABLE	0xAE	/* Keyboard interface enable */
--#define KBD_CCMD_WRITE_AUX_OBUF	0xD3    /* Write to output buffer as if
--					   initiated by the auxiliary device */
--#define KBD_CCMD_WRITE_MOUSE	0xD4	/* Write the following byte to the mouse */
--
--/*
-- *	Keyboard Commands
-- */
--
--#define KBD_CMD_SET_LEDS	0xED	/* Set keyboard leds */
--#define KBD_CMD_SET_RATE	0xF3	/* Set typematic rate */
--#define KBD_CMD_ENABLE		0xF4	/* Enable scanning */
--#define KBD_CMD_DISABLE		0xF5	/* Disable scanning */
--#define KBD_CMD_RESET		0xFF	/* Reset */
--
--/*
-- *	Keyboard Replies
-- */
--
--#define KBD_REPLY_POR		0xAA	/* Power on reset */
--#define KBD_REPLY_ACK		0xFA	/* Command ACK */
--#define KBD_REPLY_RESEND	0xFE	/* Command NACK, send the cmd again */
--
--/*
-- *	Status Register Bits
-- */
--
--#define KBD_STAT_OBF 		0x01	/* Keyboard output buffer full */
--#define KBD_STAT_IBF 		0x02	/* Keyboard input buffer full */
--#define KBD_STAT_SELFTEST	0x04	/* Self test successful */
--#define KBD_STAT_CMD		0x08	/* Last write was a command write (0=data) */
--#define KBD_STAT_UNLOCKED	0x10	/* Zero if keyboard locked */
--#define KBD_STAT_MOUSE_OBF	0x20	/* Mouse output buffer full */
--#define KBD_STAT_GTO 		0x40	/* General receive/xmit timeout */
--#define KBD_STAT_PERR 		0x80	/* Parity error */
--
--#define AUX_STAT_OBF (KBD_STAT_OBF | KBD_STAT_MOUSE_OBF)
--
--/*
-- *	Controller Mode Register Bits
-- */
--
--#define KBD_MODE_KBD_INT	0x01	/* Keyboard data generate IRQ1 */
--#define KBD_MODE_MOUSE_INT	0x02	/* Mouse data generate IRQ12 */
--#define KBD_MODE_SYS 		0x04	/* The system flag (?) */
--#define KBD_MODE_NO_KEYLOCK	0x08	/* The keylock doesn't affect the keyboard if set */
--#define KBD_MODE_DISABLE_KBD	0x10	/* Disable keyboard interface */
--#define KBD_MODE_DISABLE_MOUSE	0x20	/* Disable mouse interface */
--#define KBD_MODE_KCC 		0x40	/* Scan code conversion to PC format */
--#define KBD_MODE_RFU		0x80
--
--/*
-- *	Mouse Commands
-- */
--
--#define AUX_SET_RES		0xE8	/* Set resolution */
--#define AUX_SET_SCALE11		0xE6	/* Set 1:1 scaling */
--#define AUX_SET_SCALE21		0xE7	/* Set 2:1 scaling */
--#define AUX_GET_SCALE		0xE9	/* Get scaling factor */
--#define AUX_SET_STREAM		0xEA	/* Set stream mode */
--#define AUX_SET_SAMPLE		0xF3	/* Set sample rate */
--#define AUX_ENABLE_DEV		0xF4	/* Enable aux device */
--#define AUX_DISABLE_DEV		0xF5	/* Disable aux device */
--#define AUX_RESET		0xFF	/* Reset aux device */
--#define AUX_ACK			0xFA	/* Command byte ACK. */
--
--#define AUX_BUF_SIZE		2048	/* This might be better divisible by
--					   three to make overruns stay in sync
--					   but then the read function would need
--					   a lock etc - ick */
--
--struct aux_queue {
--	unsigned long head;
--	unsigned long tail;
--	wait_queue_head_t proc_list;
--	struct fasync_struct *fasync;
--	unsigned char buf[AUX_BUF_SIZE];
--};
+-	if (param[0] == 0xab || param[0] == 0xac) {
+-		psmouse_command(psmouse, param, PSMOUSE_CMD_GETID2);
+-		return -1;
+-	}
+ 
+ 	if (param[0] != 0x00 && param[0] != 0x03 && param[0] != 0x04)
+ 		return -1;

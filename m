@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278492AbRKNRJp>; Wed, 14 Nov 2001 12:09:45 -0500
+	id <S274862AbRKNRZg>; Wed, 14 Nov 2001 12:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280707AbRKNRJf>; Wed, 14 Nov 2001 12:09:35 -0500
-Received: from rly-ip02.mx.aol.com ([152.163.225.160]:62161 "EHLO
-	rly-ip02.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S278492AbRKNRJX>; Wed, 14 Nov 2001 12:09:23 -0500
-Message-ID: <3BF2A2A2.29021CF6@cs.com>
-Date: Wed, 14 Nov 2001 09:58:10 -0700
-From: Charles Marslett <cmarslett9@cs.com>
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,zh-TW,ja
+	id <S277228AbRKNRZ0>; Wed, 14 Nov 2001 12:25:26 -0500
+Received: from [64.92.133.94] ([64.92.133.94]:32006 "HELO boxxtech.com")
+	by vger.kernel.org with SMTP id <S274862AbRKNRZK>;
+	Wed, 14 Nov 2001 12:25:10 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Marvin Justice <mjustice@boxxtech.com>
+Reply-To: mjustice@boxxtech.com
+Organization: BOXX Technologies, Inc.
+To: "Ion Badulescu" <ionut@cs.columbia.edu>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: What Athlon chipset is most stable in Linux?
+Date: Wed, 14 Nov 2001 11:24:56 -0600
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B6867E6CB09B24385A73719A50C7C9A797750@athena.boxxtech.com>
+In-Reply-To: <3B6867E6CB09B24385A73719A50C7C9A797750@athena.boxxtech.com>
 MIME-Version: 1.0
-To: Philippe Amelant <philippe.amelant@free.fr>
-CC: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-In-Reply-To: <Pine.GSO.4.33.0111141607170.14971-100000@gurney> <1005759280.23907.10.camel@avior>
-Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-X-Apparently-From: Cmarslett9@cs.com
+Message-Id: <200111141119328.SM01008@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The 762 North Bridge definitely has AGP issues and will lock up with GeForce 
+3 and nVidia's latest official drivers. I just got my hands on beta drivers  
+and the lockups appear to have gone away --- so far ;-) Their binary only 
+kernel module has functions with names ike "AMD_FixupGART", 
+"AMD_ApplyChipsetUpdates" etc.
+
+-Marvin
 
 
-Philippe Amelant wrote:
-> 
-> le mer 14-11-2001 à 17:15, Alastair Stevens a écrit :
-> > > We just finished putting together what was for us a pretty big box using
-> > > the Tyan S2460 with 1.4GHz Athlons (not MP) and ran into some troublesome
-> > > heating problems.
-> >
-> > Well, I finally managed to check, and both CPUs are at 76C - sounds
-> > quite hot to me. Is that problematic? I've never run these Athlons
-> > before, so I'm not sure what's supposed to be normal ;-)
-> >
-> 
-> It's hot i think, my dual celeron hang around 60°C.
-
-I agree, but the Thunderbirds (older 1.4 GHz processors) run hotter than anything
-else, so this may be normal.  My dual 1.2 GHz MPs run about 72C, and they are
-supposed to be a bit cooler than the Thunderbirds.  I don't have much in the
-way of cooling, though....
-
---Charles 
-          /"\                           |
-          \ /     ASCII Ribbon Campaign |
-           X      Against HTML Mail     |--Charles Marslett
-          / \                           |  www.wordmark.org
+On Wednesday 14 November 2001 10:54 am, Ion Badulescu wrote:
+> On Tue, 13 Nov 2001 19:16:07 -0800 (PST), David S. Miller 
+<davem@redhat.com> wrote:
+>  >   From: Dan Hollis <goemon@anime.net>
+>  >   Date: Tue, 13 Nov 2001 19:11:56 -0800 (PST)
+>  >
+>  >   BTW this bug apparently doesnt affect AMD760MP as I am able to use
+>  >   geforce2 with quake and unreal tournament for hours straight without
+>  > any problems.
+>  >
+>  > I'm rather sure the AMD761 problems are motherboard vendor
+>  > independant, because I have 2 systems so far, using totally different
+>  > AMD761 based motherboards, which both hang pretty reliably with AGP.
+>
+> As far as I know, the 760MP chipset uses a 762 North Bridge, not a 761.
+>  That might explain why the 760MP is stable and the 760 is not.
+>
+> Ion

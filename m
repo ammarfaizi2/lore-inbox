@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270066AbUJHRX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270068AbUJHRX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270066AbUJHRX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 13:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270069AbUJHRX5
+	id S270068AbUJHRX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 13:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270069AbUJHRX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 13:23:57 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:10165 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S270066AbUJHRXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 13:23:51 -0400
-Subject: Re: [PATCH] protect against buggy drivers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linus@osdl.org, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097254421.16787.27.camel@localhost.localdomain>
-References: <1097254421.16787.27.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097252477.2528.20.camel@localhost.localdomain>
+	Fri, 8 Oct 2004 13:23:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36022 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270068AbUJHRVg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 13:21:36 -0400
+Date: Fri, 8 Oct 2004 10:19:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: shobhit@calsoftinc.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Performance of del_single_shot_timer_sync
+Message-Id: <20041008101949.49cda1a8.akpm@osdl.org>
+In-Reply-To: <1097242659.11717.483.camel@kuber>
+References: <1097242659.11717.483.camel@kuber>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 08 Oct 2004 17:21:19 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-10-08 at 17:53, Stephen Hemminger wrote:
-> # fs/char_dev.c
-> #   2004/10/08 09:51:52-07:00 shemminger@zqx3.pdx.osdl.net +5 -0
-> #   Protect against bad driver writers who pass invalid names when
-> #   setting up character devices.
-> # 
+shobhit dayal <shobhit@calsoftinc.com> wrote:
+>
+> Andrew Morton wrote:
+> > By how much?  (CPU load, overall runtime, etc)
+> > 
+> > It's a bit odd to have an expired-timer-intensive workload.  Presumably
+> > postgres has some short-lived nanosleep or select-based polling loop in
+> > there which isn't doing much.
+> 
+> I am running this load on a numa hardware so I profile the kernel by logging
+> functions that cause remote node memory access. I generate a final log
+> that shows functions that cause remote memory accesses greater that 0.5%
+> of all remote memory access on the system.
+> 
+> del_timer_sync was responsible for about 2% of all remote memory
+> accesses on the system and came up as part of the top 10 functions who
+> were doing this. On top was schedule(7.52%) followed by
+> default_wake_function(2.79%). Rest every one in the top 10 were
+> around the range of 2%.
+> 
+> After the patch it never came up in the logs again( so less than 0.5% of
+> all faulting eip's).
+> 
 
-And how many badly mannered people check the return on this ?
-Shouldn't it just BUG() ?
-
-
+And what is the overall improvement from the del_timer_sync speedup patch? 
+I mean: overall runtime and CPU time improvements for a
+relatively-real-world benchmark?

@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbULIQ1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbULIQiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbULIQ1A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 11:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbULIQ07
+	id S261544AbULIQiI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 11:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbULIQiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 11:26:59 -0500
-Received: from oss.sgi.com ([192.48.159.27]:37279 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id S261543AbULIQ05 (ORCPT
+	Thu, 9 Dec 2004 11:38:07 -0500
+Received: from mail00hq.adic.com ([63.81.117.10]:38359 "EHLO mail00hq.adic.com")
+	by vger.kernel.org with ESMTP id S261548AbULIQhu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 11:26:57 -0500
-Date: Thu, 9 Dec 2004 08:25:37 -0800
-From: Robin Holt <holt@oss.sgi.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Limit the route hash size.
-Message-ID: <20041209082537.A1262@oss.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Thu, 9 Dec 2004 11:37:50 -0500
+Message-ID: <41B87E68.2070508@xfs.org>
+Date: Thu, 09 Dec 2004 10:33:44 -0600
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: negative dentry_stat.nr_unused causes aggressive dcache pruning
+References: <41B77D54.4080909@xfs.org> <20041209020919.6f17e322.akpm@osdl.org>
+In-Reply-To: <20041209020919.6f17e322.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Dec 2004 16:37:45.0223 (UTC) FILETIME=[69165970:01C4DE0D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Steve Lord <lord@xfs.org> wrote:
+> 
+>>I have seen this stat go negative (just from booting up a multi cpu box),
+>> and looking at the code, it is manipulated without locking in a number
+>> of places. I have only seen this in real life on a 2.4 kernel, but 2.6
+>> also looks vulnerable.
+> 
+> 
+> In 2.6, both dentry_stat.nr_unused and dentry_stat.nr_dentry are covered
+> by dcache_lock.  I just double-checked and all seems well.
+> 
 
-I got the following from the boot of one of our really large machines:
-IP: routing cache hash table of 33554432 buckets, 524288Kbytes
+Looked again, you are right, looks like a 2.4 only problem and even there I
+am darned if I can see how it leaks now, still digging as to where it is coming
+from. I have a box which goes negative shortly after bootup, this seems to put
+it in a feedback loop and  it just keeps heading south from there pushing on the
+dcache. This is running on a fedora legacy kernel for redhat 9.0 which I added
+kdb to. Starting to wonder if the compiler screwed up somewhere. I have an
+external fiberchannel driver loaded, but it does not have any dentry related
+code in it.
 
-I have done a lot of testing with the rt_hash_table.  I would like to
-propose that for the overwhelming majority of machines, the default size
-is wrong.
+Steve
 
-It is currently based on numphyspages().  I would suggest that the
-majority of machines will never need more than a single page of memory
-for this hash.  In my testing, I found a single 16k page would only get an
-11% fill in a fairly heavily used production machine on a large network.
-
-The only place where the large route cache seems to make sense is for
-larger servers that are servicing internet connections from many sites.
-Since the cache is completely flushed every 10 minutes by default, the
-above machine would have to be adding 55,924 routes per second that were
-ideally distrbuted throughout the hash space to even fill every bucket.
-
-The patch I am proposing is as follows.  For the sites that need larger
-route hashes, they can use the rhash_entries command line option to set
-it as desired.
-
-Signed-off-by: Robin Holt <holt@sgi.com>
-
-
-diff -Naur linux-orig/net/ipv4/route.c linux/net/ipv4/route.c
---- linux-orig/net/ipv4/route.c	2004-12-09 09:00:06 -06:00
-+++ linux/net/ipv4/route.c	2004-12-09 08:56:33 -06:00
-@@ -2728,7 +2728,7 @@
- 	if (!ipv4_dst_ops.kmem_cachep)
- 		panic("IP: failed to allocate ip_dst_cache\n");
- 
--	goal = num_physpages >> (26 - PAGE_SHIFT);
-+	goal = 0;
- 	if (rhash_entries)
- 		goal = (rhash_entries * sizeof(struct rt_hash_bucket)) >> PAGE_SHIFT;
- 	for (order = 0; (1UL << order) < goal; order++)

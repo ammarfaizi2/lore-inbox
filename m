@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317653AbSGOVeh>; Mon, 15 Jul 2002 17:34:37 -0400
+	id <S317658AbSGOVgG>; Mon, 15 Jul 2002 17:36:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317657AbSGOVeg>; Mon, 15 Jul 2002 17:34:36 -0400
-Received: from 217-13-24-22.dd.nextgentel.com ([217.13.24.22]:3503 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S317653AbSGOVed>;
-	Mon, 15 Jul 2002 17:34:33 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jlnance@intrex.net, linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-References: <E17SIHK-00078r-00@the-village.bc.nu>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 15 Jul 2002 22:53:53 +0200
-In-Reply-To: <E17SIHK-00078r-00@the-village.bc.nu>
-Message-ID: <m3it3gg1b2.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S317657AbSGOVgF>; Mon, 15 Jul 2002 17:36:05 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:17480 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317658AbSGOVfo>; Mon, 15 Jul 2002 17:35:44 -0400
+Date: Mon, 15 Jul 2002 15:38:37 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: "Patrick J. LoPresti" <patl@curl.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+In-Reply-To: <s5g7kjwsn12.fsf@egghead.curl.com>
+Message-ID: <Pine.LNX.4.44.0207151537360.3452-100000@hawkeye.luckynet.adm>
+X-Location: Canberra; Australia
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Hi,
 
-> > On Tue, Jul 09, 2002 at 11:21:25PM +0100, Alan Cox wrote:
-> > > 
-> > > There are lots of them hiding 8)
-> > 
-> > Just out of curisoty.  If I remember correctly SMP came to Linux when
-> > Caldera hired you to make it work.  Did you invent the BKL?
-> 
-> Caldera bought the hardware, rather than hiring me. Having said that at
-> the time the dual P90 board + processors was not exactly cheap. The board
-> btw is alive and well and currently owned by Dave Jones.
-> 
-> As far as the locking goes I invented the big kernel lock, but the basis of
-> that is all taken directly from "Unix systems for modern architectures"
-> by Schimmel which is required reading for anyone who cares about caches,
-> SMP and locking. 
-> 
-> 	I'd prefer the trees to be separate for testing purposes: it 
-> 	doens't	make much sense to have SMP support as a normal kernel 
-> 	feature when most people won't have SMP anyway"
-> 			-- Linus Torvalds
-> 
+On 15 Jul 2002, Patrick J. LoPresti wrote:
+> Note that this means writing a truly reliable shell or Perl script is
+> tricky.  I suppose you can "use POSIX qw(fsync);" in Perl.  But what do
+> you do for a shell script?  /bin/sync :-) ?
 
-That takes Linux even one step closer to the big commercial world, we
-now have a statement to quialify for membership into the same club as
-Mr. Gates' "Who needs more than 640kb anyway?" and Olsen's (Digital?)
-"There will only be a handfull of computers in the nation". :)
+Write a binary (/usr/bin/fsync) which opens a fd, fsync it, close it, be 
+done with it.
 
-mvh,
-A
+							Regards,
+							Thunder
 -- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131479AbRDNJbR>; Sat, 14 Apr 2001 05:31:17 -0400
+	id <S131631AbRDNJpl>; Sat, 14 Apr 2001 05:45:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131631AbRDNJbI>; Sat, 14 Apr 2001 05:31:08 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:32529 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131479AbRDNJbB> convert rfc822-to-8bit; Sat, 14 Apr 2001 05:31:01 -0400
+	id <S131742AbRDNJpV>; Sat, 14 Apr 2001 05:45:21 -0400
+Received: from binky.de.uu.net ([192.76.144.28]:37675 "EHLO binky.de.uu.net")
+	by vger.kernel.org with ESMTP id <S131631AbRDNJpR>;
+	Sat, 14 Apr 2001 05:45:17 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Andreas Peter <ujq7@rz.uni-karlsruhe.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SW-RAID0 Performance problems
-Date: Sat, 14 Apr 2001 11:38:06 +0200
+From: Detlev Offenbach <detlev@offenbach.fs.uunet.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: MO-Drive under 2.4.3
+Date: Sat, 14 Apr 2001 11:45:13 +0200
 X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.10.10104131048550.1669-100000@coffee.psychology.mcmaster.ca> <01041318282003.00665@debian> <20010414000433.F4557@greenhydrant.com>
-In-Reply-To: <20010414000433.F4557@greenhydrant.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E14o3Jb-0002q9-00@the-village.bc.nu>
+In-Reply-To: <E14o3Jb-0002q9-00@the-village.bc.nu>
 MIME-Version: 1.0
-Message-Id: <01041411380600.00516@debian>
+Message-Id: <01041411451300.01534@majestix>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 14. April 2001 09:04 schrieb David Rees:
+Hi Alan,
 
-> OK, so it's not the RAID setup.  There's two things that can cause this.
-> One is that DMA is turned off  (what does hdparm /dev/hda and hdparm
-> /dev/hdc show?), the second was that the drives are on the same channel
-> (which obviously isn't the case here).  Can you verify that the drives are
-> in DMA mode?
+thanks for the reply.
 
-hdparm /dev/hda 
+Am Freitag, 13. April 2001 15:08 schrieb Alan Cox:
+> > I have a problem using my MO-Drive under kernel 2.4.3. I have several
+> > disks formated with a VFAT filesystem. Under kernel 2.2.19 everything
+> > works fine. Under kernel 2.4.3 I cannot write anything to the disk
+> > without hanging the complete system so that I have to use the reset
+> > button. For disks with an ext2 filesystem it works okay.
+>
+> This is a bug in the scsi layer. linux-scsi@vger.kernel.org, not that any
+> of the scsi maintainers seem to care about it right now.
 
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 59556/16/63, sectors = 60032448, start = 0
+Does this mean I can forget about using kernel 2.4.x? :-(( Can you give me a 
+hint where to look. Maybe I can fix it myself.
 
-the same on /dev/hdc
-
-I played with different hdparm-settings, but it's not possible to speed up 
-the HDs
-
-Andreas
+Regards
+Detlev
 -- 
-Andreas Peter *** ujq7@rz.uni-karlsruhe.de
-
+Detlev Offenbach
+detlev@offenbach.fs.uunet.de

@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271174AbTG1XC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 19:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271186AbTG1XC7
+	id S271159AbTG1XBh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 19:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271163AbTG1XBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 19:02:59 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:34753 "HELO
-	develer.com") by vger.kernel.org with SMTP id S271174AbTG1XCK (ORCPT
+	Mon, 28 Jul 2003 19:01:37 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:47882 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S271159AbTG1XBf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 19:02:10 -0400
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer S.r.l.
-To: Nicolas Pitre <nico@cam.org>
-Subject: Re: [uClinux-dev] Kernel 2.6 size increase
-Date: Tue, 29 Jul 2003 01:02:01 +0200
-User-Agent: KMail/1.5.9
-Cc: Willy Tarreau <willy@w.ods.org>, Christoph Hellwig <hch@lst.de>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <Pine.LNX.4.44.0307281307480.6507-100000@xanadu.home>
-In-Reply-To: <Pine.LNX.4.44.0307281307480.6507-100000@xanadu.home>
-MIME-Version: 1.0
+	Mon, 28 Jul 2003 19:01:35 -0400
+Date: Tue, 29 Jul 2003 01:01:33 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2: cursor started to disappear
+Message-ID: <20030728230133.GB1845@win.tue.nl>
+References: <20030728181408.GA499@elf.ucw.cz> <20030728182757.GA1793@win.tue.nl> <20030728131741.528a4707.akpm@osdl.org> <20030728203838.GB1815@win.tue.nl> <20030728133431.0a4825ca.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307290102.01313.bernie@develer.com>
+In-Reply-To: <20030728133431.0a4825ca.akpm@osdl.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 July 2003 19:13, Nicolas Pitre wrote:
+On Mon, Jul 28, 2003 at 01:34:31PM -0700, Andrew Morton wrote:
 
-> > Removing the I/O schedulers is pretty trivial, please come up with a
-> > patch to make both of them optional and maybe add a trivial noop one.
-> >
-> > Removing sysfs should also be pretty trivial but I'm not sure whether
-> > you really want that.
->
-> Being able to remove the block layer entirely, just as for the networking
-> layer, should be considered too, since none of ramfs, tmpfs, nfs, smbfs,
-> jffs and jffs2 just to name those ones actually need the block layer to
-> operate.  This is really a big pile of dead code in many embedded setups.
+> That's cryptoloop.  I thought you were referring to vanilla loop.
+> 
+> Are you saying that the problems are only with cryptoloop, or does
+> normal old loop have some bug?
 
-It's a great idea.
-
-I've read in the Kconfig help that JFFS2 still depends on mtdblock even
-though it doesn't use it for I/O. I think I've also seen some promise
-that this dependency will eventually be removed...
-
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+It would be too optimistic to claim that it has none,
+but the easily provoked corruption I mentioned is for cryptoloop.
+Sorry for being imprecise.
 
 

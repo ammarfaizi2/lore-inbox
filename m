@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135764AbRDYARK>; Tue, 24 Apr 2001 20:17:10 -0400
+	id <S135765AbRDYAUu>; Tue, 24 Apr 2001 20:20:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135765AbRDYARB>; Tue, 24 Apr 2001 20:17:01 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57871 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135764AbRDYAQj>; Tue, 24 Apr 2001 20:16:39 -0400
+	id <S135771AbRDYAUl>; Tue, 24 Apr 2001 20:20:41 -0400
+Received: from vitelus.com ([64.81.36.147]:1037 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S135767AbRDYAUi>;
+	Tue, 24 Apr 2001 20:20:38 -0400
+Date: Tue, 24 Apr 2001 17:20:27 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: imel96@trustix.co.id, Daniel Stone <daniel@kabuki.openfridge.net>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Single user linux
-To: daniel@kabuki.openfridge.net (Daniel Stone)
-Date: Wed, 25 Apr 2001 01:16:03 +0100 (BST)
-Cc: aaronl@vitelus.com (Aaron Lehmann), imel96@trustix.co.id,
-        daniel@kabuki.openfridge.net (Daniel Stone),
-        viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
-In-Reply-To: <20010425100748.A11099@piro.kabuki.openfridge.net> from "Daniel Stone" at Apr 25, 2001 10:07:48 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Message-ID: <20010424172027.G19171@vitelus.com>
+In-Reply-To: <20010424225841.D5803@piro.kabuki.openfridge.net> <Pine.LNX.4.33.0104242018410.16215-100000@tessy.trustix.co.id> <20010424233801.A6067@piro.kabuki.openfridge.net> <20010424170118.F19171@vitelus.com> <20010425100748.A11099@piro.kabuki.openfridge.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14sCyT-0003I4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010425100748.A11099@piro.kabuki.openfridge.net>; from daniel@kabuki.openfridge.net on Wed, Apr 25, 2001 at 10:07:48AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Quit being a naysayer. UNIX on a PDA is a wet dream.
+On Wed, Apr 25, 2001 at 10:07:48AM +1000, Daniel Stone wrote:
 > What real value does it have, apart from the geek "look at me, I'm using
 > bash" value?
 
-It means I can do anything on my ipaq I can do anywhere else. I can run 
-multiple apps at a time. I can run X11. I can run the palm emulator even ;)
-
-Its the same reason Linux is valuable on an S/390 mainframe. Its a common pool
-of apps, environments and tools. Anything your PC can do, my ipaq can do.
-
-Alan
-
+I don't really want to get into it at the moment, but imagine hacking
+netfilter without lugging a laptop around. PDA's are sleek and cool,
+and using UNIX on them lets you write shell scripts to sort your
+addresses and stuff like that. Basically it's everything that's cool
+about Unix as a workstation OS scaled down to PDA-size.

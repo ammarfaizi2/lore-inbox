@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264449AbTKMWvX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 17:51:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264457AbTKMWvX
+	id S261217AbTKMXOR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 18:14:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264448AbTKMXOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 17:51:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43181 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264449AbTKMWvW (ORCPT
+	Thu, 13 Nov 2003 18:14:17 -0500
+Received: from mk-smarthost-1.mail.uk.tiscali.com ([212.74.114.37]:10003 "EHLO
+	mk-smarthost-1.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id S261217AbTKMXOQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 17:51:22 -0500
-Date: Thu, 13 Nov 2003 14:51:04 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jochen Voss <voss@seehuhn.de>
-cc: "Nakajima, Jun" <jun.nakajima@intel.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: invalid SMP mptable on Toshiba Satellite 2430-301
-In-Reply-To: <20031113224410.GA7852@seehuhn.de>
-Message-ID: <Pine.LNX.4.44.0311131450220.1861-100000@home.osdl.org>
+	Thu, 13 Nov 2003 18:14:16 -0500
+Date: Fri, 14 Nov 2003 00:14:07 +0100
+Message-ID: <3FA537D70002A717@mk-cpfrontend-3.mail.uk.tiscali.com>
+From: colawhite@tiscali.co.uk
+Subject: HELLO FRIEND
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+FROM THE DESK OF DR CHRISTOFER OLA-WHITE
 
-On Thu, 13 Nov 2003, Jochen Voss wrote:
-> 
-> I think the best thing would be, to incorporate the patch to
-> prevent the crashes with "local APIC support on
-> uniprocessors" enabled and ignore the rest of the problem.
+DEAR FRIEND
 
-Yup, I'm going to commit a minimal patch that just changes the panic calls 
-into printk's.
+I am Dr CHRISTOPHER OLA-WHITE, THE DIRECTOR OF BROWNAMAJ
+ALUMINIUM ENGINEERING COMPANY, WEST AFRICA ,BUYER AND SELLER OF ALUMINUIM
+SLIDING DOORS AND WINDOWS ,OFFICE PARTITIONING AND CASHIER CUBICLES e.t.c
 
-Thanks for the debugging,
+SIR,A CONTRACT OF $5.6,000,000 (FIVE MILLION SIX HUNDRED THOUSAND
+DOLLAS) WAS AWARDED TO ME TO INSTALL ALUMINIUM SLIDING WINDOWS AND DOORS
+IN SAN PEDRO (A CONTRACT OF THE WORLD BANK PROJECT) AND THE MONEY WILL BE
+PAID INTO A FOREIGN ACCOUNT , OF WHICH I DONT HAVE BECAUSE I HAVE NOT DONE
+AN INTERNATIONAL BUSINESS BEFORE BEEN A FRIEND TO THE PRESENT ADMINISTRATION
+(THE STATE GOVERNOR).THIS CONTRACT WAS AWARDED TO ME AND I DONT HAVE A FOREIGN
+ACCOUNT THIS IS WHY I WANT YOU TO ASISST ME SO THAT THIS MONEY CAN BE PAID
+INTO YOUR ACCOUNT AND PART OF THIS MONEY WILL BE USED TO BUY ALUMINNIUM
+PROFILE AND ACCESSORIES FROM YOUR COMPANY , I ALSO WANT TO INVEST MY PROFIT
+THROUGH
+YOU IN YOUR COUNTRY AND I WILL CONPENSATE YOU FOR YOUR HELP ,I WANT THIS
+BUSINESS TO BE DONE BY YOU AND ME I WANT YOU TO SEND ME
+A REPLY MAIL AS SOON AS YOU RECEIVE THIS MAIL.PLEASE NOTE THAT YOU ARE NOT
+TO PAY ANY UPFRONT TO ME OR ANY SECURITY COMPANIES JUST INDICATE YOUR WILLINESS
+AND I SHALL BRIEF YOU ON WHAT NEXT.
 
-		Linus
+YOURS FAITHFULLY
+CHRISTOPHER OLA-WHITE
+
+
+
+
 

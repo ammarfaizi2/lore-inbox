@@ -1,73 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbULAWmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbULAWlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbULAWmi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 17:42:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbULAWmh
+	id S261491AbULAWlx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 17:41:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbULAWlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 17:42:37 -0500
-Received: from pop.gmx.net ([213.165.64.20]:15766 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261490AbULAWmA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 17:42:00 -0500
-X-Authenticated: #4399952
-Date: Wed, 1 Dec 2004 23:43:55 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
-Message-ID: <20041201234355.0dac74cf@mango.fruits.de>
-In-Reply-To: <20041201220916.GA24992@elte.hu>
-References: <17532.195.245.190.94.1101829198.squirrel@195.245.190.94>
-	<20041201103251.GA18838@elte.hu>
-	<32831.192.168.1.5.1101905229.squirrel@192.168.1.5>
-	<20041201154046.GA15244@elte.hu>
-	<20041201160632.GA3018@elte.hu>
-	<20041201162034.GA8098@elte.hu>
-	<33059.192.168.1.5.1101927565.squirrel@192.168.1.5>
-	<20041201212925.GA23410@elte.hu>
-	<20041201213023.GA23470@elte.hu>
-	<32788.192.168.1.8.1101938057.squirrel@192.168.1.8>
-	<20041201220916.GA24992@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Dec 2004 17:41:52 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:22197 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261497AbULAWiU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 17:38:20 -0500
+Message-ID: <41AE47F3.7090502@tmr.com>
+Date: Wed, 01 Dec 2004 17:38:43 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cd burning, capabilities and available modes
+References: <1101908433l.8423l.0l@werewolf.able.es>
+In-Reply-To: <1101908433l.8423l.0l@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Dec 2004 23:09:16 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
-
-> but ... this brings up the question, is this a valid scenario? How can
-> jackd block on clients for so long? Perhaps this means that every audio
-> buffer has run empty and jackd desperately needed some new audio input,
-> which it didnt get from the clients, up until after the xrun? In theory
-> this should only be possible if there's CPU saturation (that's why i
-> asked about how much CPU% time there was in use).
+J.A. Magallon wrote:
+> Hi...
 > 
-> One indication that this might have been the case is that in the full
-> 3.5 msecs trace there's not a single cycle spent idle. But, lots of time
-> was spent by e.g. X or gkrellm-4356, which are not RT tasks - so from
-> the RT task POV i think there were cycles left to be utilized. Could
-> this be a client bug? That seems a bit unlikely because to let jackd
-> 'run empty', each and every client would have to starve it, correct?
+> Following my little oddisey to let cd-burning easy for my users,
+> I think I have found another problem.
+> 
+> It looks like the formats available to cdrecord depend on being root
+> (cdrecord is not suid, if it is it complains it cant reserve some
+> buffers).
+> 
+> As root:
+> 
+> werewolf:/store/tmp# cdrecord -dummy dev=ATAPI:1,0,0 *.iso
+> ...
+> Device seems to be: Generic mmc2 DVD-R/DVD-RW.
+> Using generic SCSI-3/mmc   CD-R/CD-RW driver (mmc_cdr).
+> Driver flags   : MMC-3 SWABAUDIO BURNFREE 
+> Supported modes: TAO PACKET SAO SAO/R96P SAO/R96R RAW/R16 RAW/R96P RAW/R96R
+> 
+> As user:
+> werewolf:/store/tmp> cdrecord -dummy dev=ATAPI:1,0,0 *.iso
+> ...
+> cdrecord: Cannot allocate memory. WARNING: Cannot do mlockall(2).
+> cdrecord: WARNING: This causes a high risk for buffer underruns.
+> cdrecord: Operation not permitted. WARNING: Cannot set RR-scheduler
+> cdrecord: Permission denied. WARNING: Cannot set priority using setpriority().
+> cdrecord: WARNING: This causes a high risk for buffer underruns.
+> scsidev: 'ATAPI:1,0,0'
+> devname: 'ATAPI'
+> scsibus: 1 target: 0 lun: 0
+> Warning: Using ATA Packet interface.
+> Warning: The related Linux kernel interface code seems to be unmaintained.
+> Warning: There is absolutely NO DMA, operations thus are slow.
+> WARNING ! Cannot gain SYS_RAWIO capability ! 
+> : Operation not permitted
+> Using libscg version 'schily-0.8'.
+> Device type    : Removable CD-ROM
+> Version        : 0
+> Response Format: 2
+> Capabilities   : 
+> Vendor_info    : 'HL-DT-ST'
+> Identifikation : 'DVDRAM GSA-4120B'
+> Revision       : 'A102'
+> Device seems to be: Generic mmc2 DVD-R/DVD-RW.
+> Using generic SCSI-3/mmc   CD-R/CD-RW driver (mmc_cdr).
+> Driver flags   : MMC-3 SWABAUDIO BURNFREE 
+> Supported modes: 
+> cdrecord: Drive does not support TAO recording.
+> cdrecord: Illegal write mode for this drive.
+> 
+> Uh ?
+> 
+> Some suggestions ?
 
-actually a single client doing nasty (non RT) stuff in its process()
-callback can "starve" jackd. AFAIK jackd waits until the last client has
-finished its process callback. So, if some client's process callback
-decides to use (for example) some blocking system call (big no no) and
-consequently falls asleep for a relatively long time, then it can cause
-jackd to miss its deadline. I'm not sure though wether this triggers an
-xrun in jackd or just a delay exceeded message.
+I get that all the time, because one of my drives doesn't support TAO 
+burning. I suspect your firmware sucks, and you will have to use session 
+at a time rather than track at a time, option "-sao" works for me. Are 
+you running standard cdrecord or one of the hacks?
 
-flo
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

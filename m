@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269643AbRHIAIu>; Wed, 8 Aug 2001 20:08:50 -0400
+	id <S269645AbRHIA0L>; Wed, 8 Aug 2001 20:26:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269644AbRHIAIj>; Wed, 8 Aug 2001 20:08:39 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:1037 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S269643AbRHIAIW>;
-	Wed, 8 Aug 2001 20:08:22 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: kbuild-2.5 for 2.5.7-ac9 is available
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 09 Aug 2001 10:08:28 +1000
-Message-ID: <6761.997315708@ocs3.ocs-net>
+	id <S269646AbRHIA0B>; Wed, 8 Aug 2001 20:26:01 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:21000 "EHLO paip.net")
+	by vger.kernel.org with ESMTP id <S269645AbRHIAZx>;
+	Wed, 8 Aug 2001 20:25:53 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: encrypted swap(beating a dead horse)
+Date: 9 Aug 2001 00:22:51 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <9ksl4r$5us$2@abraham.cs.berkeley.edu>
+In-Reply-To: <5.1.0.14.2.20010808111228.00a83720@pop.prism.gatech.edu>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 997316571 6108 128.32.45.153 (9 Aug 2001 00:22:51 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 9 Aug 2001 00:22:51 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A patch from kbuild-2.5-2.4.8-pre6-1 to 2.4.7-ac9 is available on
-http://sourceforge.net/projects/kbuild/, under Release 1.
+David Maynor  wrote:
+>This is true, so the best thing for this, in my opinion, instead of 
+>throwing the crypto blanket over everything, scrub the swap when a process 
+>is terminated so when the machine is shut down, you won't have to clean the 
+>entire swap.
 
-Apply this patch in the following order.
+(If I'm repeating myself and you already knew this, I apologize.)
 
-  Kernel 2.4.7
-  patch-2.4.7-ac9
-  kbuild-2.5-2.4.8-pre6-1 from http://sourceforge.net/projects/kbuild/
-  This patch
+Scrubbing swap is a good idea, but it turns out it is much harder
+to do right then you might think.  In particular, data can survive
+many erases, due to the physical properties of hard drives as well
+as the properties of filesystems and hard drive caching.
 
-  It may or may not work, if it eats your system for breakfast, fix it
-  and send patches to kbuild-devel@lists.sourceforge.net.  If you want
-  a patch against a more recent -ac kernel and there is not one on
-  sourceforge, upgrade the Makefile.in files yourself and send your
-  updates to kbuild-devel.
-
+It seems that the only way to have any assurance that you've reliably
+deleted data is to ensure that it was only written in encrypted form
+in the first place, and to securely erase the key when you're done
+with the data and want to erase it.

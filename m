@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132390AbQKWAtt>; Wed, 22 Nov 2000 19:49:49 -0500
+        id <S132403AbQKWAu3>; Wed, 22 Nov 2000 19:50:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132403AbQKWAt3>; Wed, 22 Nov 2000 19:49:29 -0500
-Received: from dsl-206.169.4.82.wenet.com ([206.169.4.82]:14341 "EHLO
-        phobos.illtel.denver.co.us") by vger.kernel.org with ESMTP
-        id <S132390AbQKWAtV>; Wed, 22 Nov 2000 19:49:21 -0500
-Date: Wed, 22 Nov 2000 16:21:52 -0800 (PST)
-From: Alex Belits <abelits@phobos.illtel.denver.co.us>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: uname
-In-Reply-To: <20001123010145.A744@werewolf.able.es>
-Message-ID: <Pine.LNX.4.20.0011221620440.22722-100000@phobos.illtel.denver.co.us>
+        id <S132417AbQKWAuT>; Wed, 22 Nov 2000 19:50:19 -0500
+Received: from mail2.rdc2.on.home.com ([24.9.0.41]:22962 "EHLO
+        mail2.rdc2.on.home.com") by vger.kernel.org with ESMTP
+        id <S132403AbQKWAuE>; Wed, 22 Nov 2000 19:50:04 -0500
+Message-ID: <3A1C62AA.5D4579B3@cmedia.com.tw>
+Date: Wed, 22 Nov 2000 19:19:54 -0500
+From: cmedia <cltien@cmedia.com.tw>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Newsgroups: comp.os.linux.announce,alt.os.beos
+To: linux-kernel@vger.kernel.org
+Subject: Linux driver for c-media cm8x38 ver 4.12 released
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2000, J . A . Magallon wrote:
+Hi all,
 
-> Little question about 'uname'. Does it read data from kernel, /proc or
-> get its data from other source ?
+For those who has C-Media 8338/8738-based sound card or as on-board
+sound chip and need to work with Linux or BeOS, please download the beta
+driver at http://members.home.net/puresoft/cmedia.html. The Linux driver
+can work with kernel 2.2 and 2.4.
 
-uname(1) utility calls uname(2) syscall.
+For questions, please e-mail to support@cmedia.com.tw, thanks a lot !
 
--- 
-Alex
-
-----------------------------------------------------------------------
- Excellent.. now give users the option to cut your hair you hippie!
-                                                  -- Anonymous Coward
+Sincerely,
+ChenLi Tien
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

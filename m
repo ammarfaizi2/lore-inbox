@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262625AbTDAQNd>; Tue, 1 Apr 2003 11:13:33 -0500
+	id <S262627AbTDAQNk>; Tue, 1 Apr 2003 11:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262629AbTDAQNc>; Tue, 1 Apr 2003 11:13:32 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:6872 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262625AbTDAQNb>;
-	Tue, 1 Apr 2003 11:13:31 -0500
-Date: Tue, 1 Apr 2003 21:59:57 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: bcrl@redhat.com, akpm@digeo.com
-Cc: linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Filesystem aio rdwr patchset 
-Message-ID: <20030401215957.A1800@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-Mime-Version: 1.0
+	id <S262629AbTDAQNk>; Tue, 1 Apr 2003 11:13:40 -0500
+Received: from smtpde01.sap-ag.de ([155.56.68.140]:2782 "EHLO
+	smtpde01.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S262627AbTDAQNf>; Tue, 1 Apr 2003 11:13:35 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Mikael Starvik <mikael.starvik@axis.com>
+Cc: "'tomlins@cam.org'" <tomlins@cam.org>, "'CaT'" <cat@zip.com.au>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+Organisation: Development SAP J2EE Engine
+Date: Tue, 01 Apr 2003 18:24:16 +0200
+In-Reply-To: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE982@mailse01.se.axis.com> (Mikael
+ Starvik's message of "Tue, 1 Apr 2003 16:22:18 +0200")
+Message-ID: <ovn0jakwy7.fsf@sap.com>
+User-Agent: Gnus/5.090016 (Oort Gnus v0.16) XEmacs/21.4 (Native Windows TTY
+ Support (Windows), cygwin32)
+References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE982@mailse01.se.axis.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have taken a first pass at implementing the write path
-for filesystem aio. 
+Hi Mikael,
 
-Attached as a response to this mail is the full 
-patchset for filesystem aio (retry based model) including 
-read and write paths.
+On Tue, 1 Apr 2003, Mikael Starvik wrote:
+> All systems that uses tmpfs doesn't necessairly have a swap, 
+> tmpfs is used in several diskless embedded systems.
 
-01aioretry.patch : this is the common generic aio
-  retry code
-02aiordwr.patch  : this is the filesystem read+write
-  changes for aio using the retry model
+But on these systems you better use ramfs.
 
-03aiobread.patch : code for async breads which can
-  be used by filesystems for providing async get block 
-  implementation
-04ext2-aiogetblk.patch :  an async get block 
-  implementation for ext2
+Greetings
+		Christoph
 
-I would really appreciate comments and review feedback 
-from the perspective of fs developers especially on
-the latter 2 patches in terms of whether this seems a 
-sound approach or if I'm missing something very crucial
-(which I just well might be)
-Is this easy to do for other filesystems as well ?
-
-Regards
-Suparna
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
 

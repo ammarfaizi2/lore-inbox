@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270349AbRHIRk1>; Thu, 9 Aug 2001 13:40:27 -0400
+	id <S270456AbRHIRph>; Thu, 9 Aug 2001 13:45:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270456AbRHIRkH>; Thu, 9 Aug 2001 13:40:07 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:27493 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S270349AbRHIRkA>; Thu, 9 Aug 2001 13:40:00 -0400
-Message-ID: <3B72CAF5.8010101@blue-labs.org>
-Date: Thu, 09 Aug 2001 13:40:05 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S270481AbRHIRpR>; Thu, 9 Aug 2001 13:45:17 -0400
+Received: from imo-r06.mx.aol.com ([152.163.225.102]:13288 "EHLO
+	imo-r06.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S270456AbRHIRpM>; Thu, 9 Aug 2001 13:45:12 -0400
+From: Floydsmith@aol.com
+Message-ID: <6a.11d48002.28a42627@aol.com>
+Date: Thu, 9 Aug 2001 13:45:11 EDT
+Subject: can't get buffer cache to flush with /dev/ram with 2.4.4 using "update"/"sync" 
 To: linux-kernel@vger.kernel.org
-Subject: Re: ext2 problems in 2.4
-Content-Type: text/plain; charset=us-ascii; format=flowed
+CC: Floydsmith@aol.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: AOL 4.0 for Windows 95 sub 14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, the problem appears to have been fixed.  I venture the bug is likely 
-in the e2fs tools for the simple reason that on the last time I took the 
-machine down for maintenance, I ran e2fsck five times and got different 
-results for the first three runs.  Now before everyone flys off the 
-handle with their favorite flamethrower, the server was in single user 
-mode with nothing else running but the kernel threads.  There weren't 
-any processes left and lsof was also clean.  I have also been forcing 
-fsck on boot every time.
+Hello all,
 
-The machine has been up for four days now without any errors and no 
-unaccounted for disk space.
+I boot linux using "loadlin" with an "initrd" ram disk image ("minix" type 
+fs) of size 32 Meg with kernel 2.4.4. The /linuxrc (a C executable) runs and 
+it shows that the mounted file sysem is of proper type and size. Then my 
+"linuxrc" extracts a "tar" achrive (to populate the mounted /dev/ram [on 
+"/"]) with a small subset of  "linux" about (18 Meg) (as a "rescue" floppy 
+boot). Before the "extract", debug code shows that the "cached" entry in 
+"/proc/meminfo" to be practically zero (and thus plenty of "freemem"). 
+However, after the "extract", the "cached" line shows about "18Meg"  and I 
+can find nothing that works to "flush" it. I have tried "spawing" 
+"/sbin/update" and waiting several min. and running "/bin/sync" and also 
+waiting - no change in the "cahed" entry (or and increase in the "freemem").  
+(ps -ef shows a process "bdflush" running [spawned] on its own.) Thus, trying 
+to bring up a "logon" shell (and its "init" scripts) results in that process 
+being killed do to lack of "freemem". I have only 64M and less than 4 Meg 
+free after the "extract". Any suggestions greatly appreciated in advance. If 
+there any "syscall" I can make in "linuxrc" that will flush "all" buffers 
+without knowing anything like "file descriptors"? Is this "syscall" 
+"synchronus" - or do do I have wait several seconds for it to work?
 
-David
+This problem does NOT occur with 2.2.18.
 
-
+Floyd,

@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265176AbUELTdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265200AbUELTfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265176AbUELTdM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 15:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265198AbUELTbm
+	id S265200AbUELTfa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 15:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265192AbUELTf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 15:31:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23180 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265176AbUELT1a (ORCPT
+	Wed, 12 May 2004 15:35:29 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:48096 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265193AbUELTet (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 15:27:30 -0400
-Date: Wed, 12 May 2004 12:26:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Sean Neakums <sneakums@zork.net>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org,
-       Kim Holviala <kim@holviala.com>
-Subject: Re: 2.6.6-mm1
-Message-Id: <20040512122628.63b3479c.akpm@osdl.org>
-In-Reply-To: <6ufza5yfmn.fsf@zork.zork.net>
-References: <20040510024506.1a9023b6.akpm@osdl.org>
-	<6ufza5yfmn.fsf@zork.zork.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 12 May 2004 15:34:49 -0400
+Date: Wed, 12 May 2004 21:33:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>
+Subject: Re: MSEC_TO_JIFFIES is messed up...
+Message-ID: <20040512193349.GA14936@elte.hu>
+References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40A26FFA.4030701@pobox.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Neakums <sneakums@zork.net> wrote:
->
-> Andrew Morton <akpm@osdl.org> writes:
+
+* Jeff Garzik <jgarzik@pobox.com> wrote:
+
+> >Woah, that's new.  And wrong.  The code in include/asm-i386/param.h that
+> >says:
+> >	# define JIFFIES_TO_MSEC(x)     (x)
+> >	# define MSEC_TO_JIFFIES(x)     (x)
+> >
+> >Is not correct.  Look at kernel/sched.c for verification of this :)
 > 
->  > psmouse-fix-mouse-hotplugging.patch
->  >   psmouse: fix mouse hotplugging
 > 
->  This change seems to cause psmouse.proto=bare to no longer work as a
->  way of disabling the passthrough port on my laptop's Synaptics touchpad.
+> Yes, that is _massively_ broken.
 
-OK, thanks.  I'll drop it.
+why is it wrong?
 
-
-
-
-
-This patch fixes hotplugging of PS/2 devices on hardware which don't
-support hotplugging of PS/2 devices.  In other words, most desktop
-machines.
-
-
----
-
- 25-akpm/drivers/input/mouse/psmouse-base.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN drivers/input/mouse/psmouse-base.c~psmouse-fix-mouse-hotplugging drivers/input/mouse/psmouse-base.c
---- 25/drivers/input/mouse/psmouse-base.c~psmouse-fix-mouse-hotplugging	2004-05-08 13:13:40.636484424 -0700
-+++ 25-akpm/drivers/input/mouse/psmouse-base.c	2004-05-08 13:13:40.640483816 -0700
-@@ -470,7 +470,7 @@ static int psmouse_probe(struct psmouse 
-  * Then we reset and disable the mouse so that it doesn't generate events.
-  */
- 
--	if (psmouse_command(psmouse, NULL, PSMOUSE_CMD_RESET_DIS))
-+	if (psmouse_reset(psmouse))
- 		printk(KERN_WARNING "psmouse.c: Failed to reset mouse on %s\n", psmouse->serio->phys);
- 
- /*
-
-_
-
+	Ingo

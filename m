@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265236AbUGCS4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265237AbUGCUM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265236AbUGCS4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 14:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUGCS4Y
+	id S265237AbUGCUM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 16:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265238AbUGCUM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 14:56:24 -0400
-Received: from verein.lst.de ([212.34.189.10]:14035 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S265236AbUGCS4W (ORCPT
+	Sat, 3 Jul 2004 16:12:29 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:19210 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S265237AbUGCUM2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 14:56:22 -0400
-Date: Sat, 3 Jul 2004 20:56:06 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@osdl.org, pavel@ucw.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: current BK compilation failure on ppc32
-Message-ID: <20040703185606.GA4718@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, torvalds@osdl.org, pavel@ucw.cz,
-	linux-kernel@vger.kernel.org
+	Sat, 3 Jul 2004 16:12:28 -0400
+Date: Sat, 3 Jul 2004 22:12:24 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Clausen <clausen@gnu.org>
+Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Steffen Winterfeldt <snwint@suse.de>, bug-parted@gnu.org,
+       Thomas Fehr <fehr@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
+Message-ID: <20040703201224.GC6456@pclin040.win.tue.nl>
+References: <s5gwu1mwpus.fsf@patl=users.sf.net> <Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org> <20040703013552.GA630@gnu.org> <s5g8ye1qjg9.fsf@patl=users.sf.net> <20040703144500.GL630@gnu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <20040703144500.GL630@gnu.org>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel/power/smp.c: In function `smp_pause':
-kernel/power/smp.c:24: error: storage size of `ctxt' isn't known
-kernel/power/smp.c:24: warning: unused variable `ctxt'
+On Sun, Jul 04, 2004 at 12:45:00AM +1000, Andrew Clausen wrote:
 
-kernel/power/smp.c seems to be inherently swsusp-specific but is
-compiled for CONFIG_PM. (Same seems to be true for amny other files
-in kernel/power/, but as they compile it only causes bloat..)
+> I was under the impression that 2.6 provides a mechanism for setting the
+> HDIO_GETGEO thingy... so any program can tell Parted (and everything
+> else, for that matter) what they want the geometry to be.
 
+It is not a good idea to ask the user to tell the kernel so that the kernel
+can tell parted. It is easier if one can tell parted directly.
 
---- 1.10/kernel/power/Makefile	2004-07-02 07:23:47 +02:00
-+++ edited/kernel/power/Makefile	2004-07-03 22:07:29 +02:00
-@@ -1,5 +1,7 @@
- obj-y				:= main.o process.o console.o pm.o
-+ifeq ($(CONFIG_SOFTWARE_SUSPEND), y)
- obj-$(CONFIG_SMP)		+= smp.o
-+endif
- obj-$(CONFIG_SOFTWARE_SUSPEND)	+= swsusp.o
- obj-$(CONFIG_PM_DISK)		+= disk.o pmdisk.o
- 
+> It contains this:
+> 
+> 	echo "bios_cyl:C bios_head:H bios_sect:S" > /proc/ide/hda/settings
+> 
+> Isn't the kernel the right place for this kind of communication to
+> be happening, anyway?
+
+No. This is stuff that is going away. It is a kludge that happens to work today.
+
+Andries
+

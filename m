@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131155AbQLLMCI>; Tue, 12 Dec 2000 07:02:08 -0500
+	id <S131375AbQLLMLa>; Tue, 12 Dec 2000 07:11:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131375AbQLLMB7>; Tue, 12 Dec 2000 07:01:59 -0500
-Received: from kleopatra.acc.umu.se ([130.239.18.150]:23281 "EHLO
-	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
-	id <S131155AbQLLMBt>; Tue, 12 Dec 2000 07:01:49 -0500
-Date: Tue, 12 Dec 2000 12:31:19 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18 release notes
-Message-ID: <20001212123119.C17348@khan.acc.umu.se>
-In-Reply-To: <E145f1E-0000a9-00@the-village.bc.nu> <005501c063eb$e55437a0$0163a8c0@mojo>
+	id <S131684AbQLLMLU>; Tue, 12 Dec 2000 07:11:20 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:57874 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131375AbQLLMLJ>;
+	Tue, 12 Dec 2000 07:11:09 -0500
+Date: Tue, 12 Dec 2000 12:40:09 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Jonathan Morton <chromatix@penguinpowered.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18pre24 spurious diskchanges
+Message-ID: <20001212124009.P294@suse.de>
+In-Reply-To: <l03130303b65ba02ad4e6@[192.168.239.101]> <200012121023.LAA05097@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <005501c063eb$e55437a0$0163a8c0@mojo>; from paulkf@microgate.com on Mon, Dec 11, 2000 at 09:30:37PM -0600
+In-Reply-To: <200012121023.LAA05097@microsoft.com>; from xavier.bestel@free.fr on Tue, Dec 12, 2000 at 09:23:35AM -0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2000 at 09:30:37PM -0600, Paul Fulghum wrote:
-> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-> >   Linux 2.2.18 Release Notes
-> 
-> patch-2.2.18.tar.gz   size=2.9MBytes
+On Tue, Dec 12 2000, Xavier Bestel wrote:
+> > >on my ide CDROm I get, roughly each 2 seconds, disk changes although the
+> > >drive is empty and I don't touch it:
+> > >
+> > >Dec 12 08:57:43 localhost kernel: VFS: Disk change detected on device
+> > >ide0(3,64)
+> > >Dec 12 08:58:14 localhost last message repeated 16 times
+> > >Dec 12 08:59:16 localhost last message repeated 31 times
+> > >Dec 12 09:00:17 localhost last message repeated 30 times
+> > >Dec 12 09:01:19 localhost last message repeated 31 times
+> > >Dec 12 09:02:21 localhost last message repeated 31 times
+> > >etc ...
+> > 
+> > It would probably help if you told us what make/model CD-ROM drive, and
+> > whether you're using any particular driver with it (usually the standard
+> > ATAPI one).
 
-Ehrm?! A tar'ed-up patch?! You didn't mean something like:
+Huh? It says (3,64) which would make it hdd -- the only driver possible
+is ide-cd here.
 
-3049653 Dec 11 00:45 patch-2.2.18.gz
+> Oops, I just killed magicdev, as told by someone, and this is gone.
 
-now did you?! :^)
+Yep, remove that awful beast.
 
-> from my scanning of the kernel archives, this is the *all time*
-> largest kernel patch (including 2.3/2.4 patches).
-
-Well, this one does contain sync of two platforms (m68k & arm) + the
-USB-backport and several other biggies, so it's not too strange.
-
-
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,78 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264572AbRFOX53>; Fri, 15 Jun 2001 19:57:29 -0400
+	id <S264574AbRFPACj>; Fri, 15 Jun 2001 20:02:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264573AbRFOX5T>; Fri, 15 Jun 2001 19:57:19 -0400
-Received: from web11004.mail.yahoo.com ([216.136.131.54]:55556 "HELO
-	web11004.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S264572AbRFOX5J>; Fri, 15 Jun 2001 19:57:09 -0400
-Message-ID: <20010615235708.31568.qmail@web11004.mail.yahoo.com>
-Date: Fri, 15 Jun 2001 16:57:08 -0700 (PDT)
-From: Walt <asys77@yahoo.com>
-Subject: Re: Snowhite and the Seven Dwarfs - The REAL story!  (VIRUS ALERT)
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010615164556.A31511@one-eyed-alien.net>
+	id <S264573AbRFPAC3>; Fri, 15 Jun 2001 20:02:29 -0400
+Received: from armitage.toyota.com ([63.87.74.3]:25872 "EHLO
+	armitage.toyota.com") by vger.kernel.org with ESMTP
+	id <S264574AbRFPACQ>; Fri, 15 Jun 2001 20:02:16 -0400
+Message-ID: <3B2AA1FD.4F7EAD49@lexus.com>
+Date: Fri, 15 Jun 2001 17:02:05 -0700
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Tobias Ringstrom <tori@unhappy.mine.nu>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: Snowhite and the Seven Dwarfs - The REAL story!
+In-Reply-To: <Pine.LNX.4.33.0106160127050.10814-100000@boris.prodako.se>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NM
+Tobias Ringstrom wrote:
 
---- Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-wrote:
-> No kidding... getting this once was funny enough on
-> this mailing list...
-> but twice in the same day?  I am just rolling in the
-> asiles here...
-> 
-> Matt
-> 
-> On Sat, Jun 16, 2001 at 01:34:59AM +0200, Tobias
-> Ringstrom wrote:
-> > On Fri, 15 Jun 2001, Hahaha wrote:
-> > 
-> > > Today, Snowhite was turning 18. The 7 Dwarfs
-> always where very educated and
-> > > polite with Snowhite. When they go out work at
-> mornign, they promissed a
-> > > *huge* surprise. Snowhite was anxious.
-> Suddlently, the door open, and the Seven
-> > > Dwarfs enter...
-> > 
-> > Ah... the joy of reading mail using non-MS
-> software, on a non-MS OS...
-> > 
-> > Hahaha, indeed!
-> > 
-> > /Tobias
-> > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> Matthew Dharm                              Home:
-> mdharm-usb@one-eyed-alien.net 
-> Maintainer, Linux USB Mass Storage Driver
-> 
-> S:  Another stupid question?
-> G:  There's no such thing as a stupid question, only
-> stupid people.
-> 					-- Stef and Greg
-> User Friendly, 7/15/1998
-> 
+> Ah... the joy of reading mail using non-MS software, on a non-MS OS...
+>
+> Hahaha, indeed!
 
-> ATTACHMENT part 2 application/pgp-signature 
+Indeed, since:
+
+Jun 15 15:39:03 mirai sendmail[21499]: f5FMd2t21499:
+from=<linux-kernel-owner@vger.kernel.org>, size=33547, class=-60, nrcpts=1,
+msgid=<0GEZ00CP7TBG20@iris.services.ou.edu>, bodytype=7BIT, proto=ESMTP, daemon=MTA,
+relay=freeside.toyota.com [63.87.74.7]
+Jun 15 15:39:03 mirai scanmails[21501]: execution started
+Jun 15 15:39:04 mirai scanmails[21501]: FOUND VIRUS IN MAIL from
+linux-kernel-owner@vger.kernel.org to jjs
+
+cu
+
+jjs
 
 
-
-__________________________________________________
-Do You Yahoo!?
-Spot the hottest trends in music, movies, and more.
-http://buzz.yahoo.com/

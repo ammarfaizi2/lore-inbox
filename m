@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVBOUAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVBOTuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbVBOUAH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 15:00:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVBOT7U
+	id S261844AbVBOTuE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 14:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVBOTtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 14:59:20 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:42721 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261848AbVBOT4X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 14:56:23 -0500
-Date: Tue, 15 Feb 2005 13:56:14 -0600
-To: Diego Calleja <diegocg@gmail.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, prakashp@arcor.de,
-       paolo.ciarrocchi@gmail.com, gregkh@suse.de, pmcfarland@downeast.net,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Optimizing disk-I/O [was Re: [ANNOUNCE] hotplug-ng 001 release]
-Message-ID: <20050215195614.GT23424@austin.ibm.com>
-References: <20050215004329.5b96b5a1.diegocg@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050215004329.5b96b5a1.diegocg@gmail.com>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Tue, 15 Feb 2005 14:49:18 -0500
+Received: from fire.osdl.org ([65.172.181.4]:11905 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261844AbVBOToY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 14:44:24 -0500
+Date: Tue, 15 Feb 2005 11:44:13 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andreas Schwab <schwab@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Pty is losing bytes
+In-Reply-To: <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0502151129210.5570@ppc970.osdl.org>
+References: <jebramy75q.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 12:43:29AM +0100, Diego Calleja was heard to remark:
+
+
+On Tue, 15 Feb 2005, Linus Torvalds wrote:
 > 
-> Also, it analyzes all those io "logs" and defragments 
+> On Tue, 15 Feb 2005, Andreas Schwab wrote:
+> >
+> > Recent kernel are losing bytes on a pty. 
+> 
+> Great catch.
+> 
+> I think it may be a n_tty line discipline bug, brought on by the fact that
+> the PTY buffering is now 4kB rather than 2kB. 4kB is also the
+> N_TTY_BUF_SIZE, and if n_tty has some off-by-one error, that would explain 
+> it.
+> 
+> Does the problem go away if you change the default value of "chunk" (in 
+> drivers/char/tty_io.c:do_tty_write) from 4096 to 2048? If so, that means 
+> that the pty code has _claimed_ to have written 4kB, and only ever wrote 
+> 4kB-1 bytes. That in turn implies that "ldisc.receive_room()" disagrees 
+> with "ldisc.receive_buf()".
 
-I dislike hearing/reading about what XP does, since its probably patented,
-and I don't want that shadow hanging over Linux.
+Ok, I just tried this myself, and yes, the change from 4kB chunks to 2kB 
+chunks seems to fix your PTY test code.
 
-I assume that the following simple idea, obvious to any practictioner 
-versed in the state of the art, is not patented or patentable:
+However, then when I start looking at n_tty_receive_room() and 
+n_tty_receive_buf(), my stomach gets a bit queasy. I have this horrid 
+feeling that I had something to do with the mess, but I'm going to lash 
+out and blame somebody else, like tytso, for most of it. That's some _old_ 
+code, regardless (gone through a lot of "let's fix up that detail", but 
+not a lot of "boy, I bet we could fix it entirely").
 
-> linux can do decisions like "this system starts openoffice, so I'm going to move the
-> binaries to another place of the disk where they'll load faster" or "when X program
-> uses /lib/libfoo.so it also uses /lib/libbar.so, so I'm going to put those two together
-> in the disk because that will avoid seeks". 
+We should get rid of the separate "how much room do you have to write" and 
+"do the write" stuff, and just make "receive_buf()" able to write partial 
+results. As it is, if (as it seems to be the case) n_tty_receive_room() 
+claims to have more room than "n_tty_receive_buf()" can actually fill, 
+then the tty layer will never know that somebody lied, and that characters
+got dropped on the floor.
 
-Now I like this idea. It need not have anything to do with startup,
-or with any particular program or distro whatsoever.  Rather, one 
-would have a daemon keeping track of disk i/o patterns, and constantly 
-trying to figure out if there is a rearrangement of the sectors on disk
-that would minimize i/o seeks based on past uasge. 
+This bug was apparently hidden just because the PTY layer used the flip 
+buffers as it's staging area, and that happens to be 2kB in size. That, 
+in turn, is only half of what the actual N_TTY_BUF_SIZE is, so a single
+call could never fill up N_TTY_BUF_SIZE, even if characters were expanded 
+(ie LF -> CRLF translation etc).
 
-The optimization routine could be some simulated annealing or 
-genetic algorithm or whatever whiz-bang technique someone is into.
-Just keep it running in the background, low priority, constantly...
-This would give you the best "time weighted" disk access performance,
-although it would potentially hurt boot times, since most users spend
-most of thier time doing disk access other than booting ... 
+I'd love for somebody to try to take a look at where n_tty goes wrong, but 
+I think that for now I'll just make the fix be the cheezy "limit tty 
+chunks to 2kB". It's worked for a decade, it can work for a bit longer ;)
 
---linas
+Who here feels they know n_tty and have a strong stomach?  Raise your 
+hands now. Don't be shy.
 
+		Linus

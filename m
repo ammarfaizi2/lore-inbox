@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267726AbUHMXbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267730AbUHMXfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267726AbUHMXbt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 19:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUHMXbt
+	id S267730AbUHMXfh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 19:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUHMXfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 19:31:49 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:50318 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S267726AbUHMXbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 19:31:46 -0400
-Message-ID: <411D5D70.9070909@clanhk.org>
-Date: Fri, 13 Aug 2004 18:31:44 -0600
-From: "J. Ryan Earl" <heretic@clanhk.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: Linux SATA RAID FAQ
-References: <411B0F45.8070500@pobox.com> <20040812113413.GA19252@alpha.home.local>
-In-Reply-To: <20040812113413.GA19252@alpha.home.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 13 Aug 2004 19:35:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61335 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267730AbUHMXff (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 19:35:35 -0400
+Date: Fri, 13 Aug 2004 16:35:27 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Neil Horman <nhorman@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mike_phillips@urscorp.com, zaitcev@redhat.com
+Subject: Re: [Patch} to fix oops in olympic token ring driver on media
+ disconnect
+Message-Id: <20040813163527.17aec0b5@lembas.zaitcev.lan>
+In-Reply-To: <1092434830.25002.25.camel@localhost.localdomain>
+References: <411D126B.6090303@redhat.com>
+	<1092434830.25002.25.camel@localhost.localdomain>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
+On Fri, 13 Aug 2004 23:07:16 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
->I like it. It's fairly simple. I'm always amazed how many people do really
->believe that these cards provide hardware RAID !!! The problem is when you
->ask a reseller to add a real hardware RAID card in a system you purchase
->and you end up with a cheap silicon image... It happened to us once and it's
->not funny at all.
->
-On the brightside, md raid5 is often faster than hardware raid5.  At 
-least on the 7000 and 8000 series of 3ware hardware; the 9000 series 
-looks promising though.  I haven't seen megaraid SATA numbers, and I 
-don't know what happened to the SX8.
+> On Gwe, 2004-08-13 at 20:11, Neil Horman wrote:
+> > the olympic_close routine was waiting on.  This patch cleans that up.
+> > 
+> > Tested by me, on 2.4 and 2.6 with good, working results, and no more oopses.
+> 
+> Should it not be blocking the IRQs on the chip as well ?
 
-When the libata Marvell drivers come out, you'll have a cheap upgrade 
-path for PCI-X boards if you want fast md raid: 
-http://www.supermicro.com/products/accessories/addon/DAC-SATA-MV8.cfm  
-$100 to add 8 unbottlenecked SATA ports to your server motherboard.
+I assumed that old olympic_close() did, but perhaps it didn't after all.
+There is nothing like the following in it:
 
--ryan
++#define DISABLE_IRQS(base_addr) do { \
++   writel(LISR_LIE,(base_addr)+LISR_RWM);\
++   writel(SISR_MI,(base_addr)+SISR_RWM);\
++} while(0)
+
+This is curious. If something was never used, how do we know if it works?
+Maybe it's safer just to leave things as Neil did.
+
+-- Pete

@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVBPIf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVBPIlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVBPIf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 03:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVBPIf0
+	id S261960AbVBPIlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 03:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbVBPIlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 03:35:26 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:2790 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261912AbVBPIfW (ORCPT
+	Wed, 16 Feb 2005 03:41:16 -0500
+Received: from pop.gmx.de ([213.165.64.20]:44215 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261960AbVBPIlO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 03:35:22 -0500
-Date: Wed, 16 Feb 2005 09:35:49 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: InputML <linux-input@atrey.karlin.mff.cuni.cz>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RCF/RFT] Fix race timer race in gameport-based joystick drivers
-Message-ID: <20050216083549.GD1535@ucw.cz>
-References: <200502150042.32564.dtor_core@ameritech.net> <d120d500050215065115706773@mail.gmail.com> <20050215150606.GA8560@ucw.cz> <200502160046.00311.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Feb 2005 03:41:14 -0500
+X-Authenticated: #14776911
+From: Stefan =?iso-8859-1?q?D=F6singer?= <stefandoesinger@gmx.at>
+To: acpi-devel@lists.sourceforge.net, Stefan Schweizer <sschweizer@gmail.com>
+Subject: Re: [ACPI] Call for help: list of machines with working S3
+Date: Wed, 16 Feb 2005 09:48:42 +0100
+User-Agent: KMail/1.7.2
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       seife@suse.de, rjw@sisk.pl
+References: <20050214211105.GA12808@elf.ucw.cz> <e796392205021521541da7ee25@mail.gmail.com>
+In-Reply-To: <e796392205021521541da7ee25@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200502160046.00311.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200502160948.43005.stefandoesinger@gmx.at>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 16, 2005 at 12:45:59AM -0500, Dmitry Torokhov wrote:
-> Somehow missed sidewinder driver...
-> 
-> ======================================================================
-> 
-> Input: fix timer handling race in sidewinder joystick driver by
->        switching to gameport's polling facilities.
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-Thanks; applied.
+> The problems with this patch are:
+> - you need to press a key to come back from the "resume-console" after
+> resume. - DRI in X does not work (at least for me with intel-agp, others
+> reportet it works)
+> I just disabloed it by not loading intel-agp (hotplug-blacklist)
+You can force the radeon X driver to use pci mode by setting Option 
+"ForcePciMode" to "true" or something simmilar in you X config file. This way 
+you can get dri without intel-agp. This is much slower, but enought to play 
+tuxracer ;-)
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Stefan

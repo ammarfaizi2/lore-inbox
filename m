@@ -1,57 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132655AbRDQUnL>; Tue, 17 Apr 2001 16:43:11 -0400
+	id <S132702AbRDQUom>; Tue, 17 Apr 2001 16:44:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132678AbRDQUnB>; Tue, 17 Apr 2001 16:43:01 -0400
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:27677 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S132655AbRDQUmx>; Tue, 17 Apr 2001 16:42:53 -0400
-Date: Tue, 17 Apr 2001 21:23:52 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Rik van Riel <riel@conectiva.com.br>, Christoph Rohland <cr@sap.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [NEED TESTERS] remove swapin_readahead Re: shmem_getpage_locked() / swapin_readahead() race in 2.4.4-pre3
-Message-ID: <20010417212352.D2505@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0104141625200.9455-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0104142007320.1866-100000@freak.distro.conectiva>
+	id <S132690AbRDQUoa>; Tue, 17 Apr 2001 16:44:30 -0400
+Received: from bastard.inflicted.net ([216.10.33.10]:61453 "EHLO
+	bastard.inflicted.net") by vger.kernel.org with ESMTP
+	id <S132678AbRDQUoU>; Tue, 17 Apr 2001 16:44:20 -0400
+From: Jesse S Sipprell <jss@inflicted.net>
+Date: Tue, 17 Apr 2001 16:44:07 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: Jesse S Sipprell <jss@inflicted.net>,
+        Jan Kasprzak <kas@informatics.muni.cz>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Possible problem with zero-copy TCP and sendfile()
+Message-ID: <20010417164407.B21620@bastard.inflicted.net>
+In-Reply-To: <20010417170206.C2589096@informatics.muni.cz> <E14pXxg-0002cI-00@the-village.bc.nu> <20010417181524.E2589096@informatics.muni.cz> <20010417161036.A21620@bastard.inflicted.net> <15068.42539.768756.883953@pizda.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0104142007320.1866-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Sat, Apr 14, 2001 at 08:31:07PM -0300
+In-Reply-To: <15068.42539.768756.883953@pizda.ninka.net>; from davem@redhat.com on Tue, Apr 17, 2001 at 01:23:07PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Apr 17, 2001 at 01:23:07PM -0700, David S. Miller wrote:
 
-On Sat, Apr 14, 2001 at 08:31:07PM -0300, Marcelo Tosatti wrote:
-> On Sat, 14 Apr 2001, Rik van Riel wrote:
-> > On Sat, 14 Apr 2001, Marcelo Tosatti wrote:
-> > 
-> > > There is a nasty race between shmem_getpage_locked() and
-> > > swapin_readahead() with the new shmem code (introduced in
-> > > 2.4.3-ac3 and merged in the main tree in 2.4.4-pre3):
+> One more subtle note, for the case of error handling.  There is a
+> change to sendfile() in the zerocopy patches which causes sendfile()
+> to act more like sendmsg() when errors occur.
 
-> Test (multiple shm-stress) runs fine without swapin_readahead(), as
-> expected.
+How is this likely to affect applications?
 
-> Stephen/Linus? 
+Currently, the glibc2.1 sendfile interface looks like:
 
-I don't see the problem.  shmem_getpage_locked appears to back off
-correctly if it encounters a swap-cached page already existing if
-swapin_readahead has installed the page first, at least with the code
-in 2.4.3-ac5.
+ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
 
-There *does* appear to be a race, but it's swapin_readahead racing
-with shmem_writepage.  That code does not search for an existing entry
-in the swap cache when it decides to move a shmem page to swap, so we
-can install the page twice and end up doing a lookup on the wrong
-physical page if there is swap readahead going on.
+On error, -1 is returned in the usual fashion and offset is purported to be
+updated to point to the next byte following the last one sent.
 
-To fix that, shmem_writepage needs to do a swap cache lookup and lock
-before installing the new page --- it should probably just copy the
-new page into the old one if it finds one already there.
+Will the zerocopy patches break this?
 
---Stephen
+> 
+> Specifically, sendmsg() works roughly like the following when an
+> error happens:
+> 
+> handle_error:
+> 	if (sent_something)
+> 		return how_much_we_sent;
+> 	else
+> 		return ERROR_CODE;
+> 
+> So when an error happens, and the kernel was able to send some of
+> the data, you see something like this in the trace:
+> 
+> 	sendmsg() = N
+> 	...
+> 	sendmsg() = ERROR_CODE
+> 
+> sendfile() used to act differently, and this made it difficult to
+> directly transform a sendmsg()+local_buffer based server into a
+> sendfile() one because the error handling was so different.
+> 
+> Previously, sendfile() wouldn't give you the partial transfer length,
+> you'd just get the error _regardless_ of whether any data was sent
+> successfully during that call.  Alexey, myself, and others considered
+> this behavior bogus and inconsistent.  So it was changed.
+> 
+> The long and short of it is that sendfile() now acts just like
+> sendmsg() when errors happen mid-send.
+> 
+> Later,
+> David S. Miller
+> davem@redhat.com
+
+-- 
+"In the event of a failure, the system can be configured to automatically
+restart itself.  This feature of Windows NT Server provides maximum system
+up-time."  -- Reliability and Fault Tolerance in Windows NT Server, MSC

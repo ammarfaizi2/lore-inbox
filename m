@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316456AbSFDTTM>; Tue, 4 Jun 2002 15:19:12 -0400
+	id <S316616AbSFDTVp>; Tue, 4 Jun 2002 15:21:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316616AbSFDTTL>; Tue, 4 Jun 2002 15:19:11 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:60665 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316456AbSFDTTL>; Tue, 4 Jun 2002 15:19:11 -0400
-Subject: Re: [OT] Re: please kindly get back to me
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: J Sloan <jjs@lexus.com>
-Cc: Hank Leininger <hlein@progressive-comp.com>,
-        linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CFD0899.6040402@lexus.com>
-Content-Type: text/plain
+	id <S316617AbSFDTVo>; Tue, 4 Jun 2002 15:21:44 -0400
+Received: from h64-251-67-69.bigpipeinc.com ([64.251.67.69]:38154 "HELO
+	kelownamail.packeteer.com") by vger.kernel.org with SMTP
+	id <S316616AbSFDTVo>; Tue, 4 Jun 2002 15:21:44 -0400
+From: "Stephane Charette" <scharette@packeteer.com>
+To: "Brett Dikeman" <brett@cloud9.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Tue, 04 Jun 2002 12:21:44 -0700
+Reply-To: "Stephane Charette" <scharette@packeteer.com>
+X-Mailer: PMMail 2000 Standard (2.10.2010) For Windows 2000 (5.0.2195;2)
+In-Reply-To: <a05111705b922b09b689a@[10.1.0.123]>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Jun 2002 21:24:35 +0100
-Message-Id: <1023222275.6773.182.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Subject: Re: 2.4.18 assertion failure in journal_commit_transaction
+Message-Id: <20020604192144Z316616-22651+75074@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-06-04 at 19:36, J Sloan wrote:
-> Complacency is never a good idea - however,
-> let's give credit where credit is due - it's orders
-> of magnitude more difficult to do something like
-> this against a unix system - most script kiddies
-> will go for the easy targets (microsoft) instead
+>kernel that came with the distro(versioned 2.4.18-3; -4 is out, but I 
+>reviewed the changelogs and it didn't look like they did anything 
+>that would affect this problem, but I really couldn't tell.)  ext3 
+>for all filesystems, hardware raid 0+1 via the Compaq controller.
 
-Each of the major viruses has probably got one author singular.
+Didn't RH 2.4.18-4 fix an ext3 bug on SMP?
 
-There are ways of making systems much more resistant to attack including
-viruses. Things like RSBAC and the NSA security modules help you get
-into a situation where this kind of stuff doesn't occur
+http://rhn.redhat.com/errata/RHBA-2002-085.html
 
-	User1 gets a virus
-	User1 owns a binary root users
-	Root gets the virus
-	Splat
+Is this related to what you saw?
 
-Because with a trust model it goes instead
+Stephane Charette
 
-	User1 geta a virus
-	User1 owns a binary root users
-	User1 virus patches the binary
-
-	Root is refused permission to run the binary because it no 	longer has
-a high enough integrity
-
-Even before that the lack of people checking GPG keys on RPM and other
-packages is disturbing. 
-
-Alan
 

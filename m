@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129790AbRAMNwD>; Sat, 13 Jan 2001 08:52:03 -0500
+	id <S129859AbRAMOAn>; Sat, 13 Jan 2001 09:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129859AbRAMNvx>; Sat, 13 Jan 2001 08:51:53 -0500
-Received: from d83b5259.dsl.flashcom.net ([216.59.82.89]:5249 "EHLO
-	home.lameter.com") by vger.kernel.org with ESMTP id <S129790AbRAMNvg>;
-	Sat, 13 Jan 2001 08:51:36 -0500
-Date: Sat, 13 Jan 2001 05:46:29 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-cc: linux-kernel@vger.linux.org
-Subject: Re: khttpd beats boa with persistent patch
-In-Reply-To: <Pine.LNX.4.30.0101122343220.30402-100000@twinlark.arctic.org>
-Message-ID: <Pine.LNX.4.21.0101130545030.3390-100000@home.lameter.com>
+	id <S129983AbRAMOAY>; Sat, 13 Jan 2001 09:00:24 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:17848 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129859AbRAMOAV>; Sat, 13 Jan 2001 09:00:21 -0500
+To: david+validemail@kalifornia.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: shmem or swapfs? was: [Patch] make shm filesystem part configurable
+In-Reply-To: <m366jj20si.fsf@linux.local> <3A604B26.53EC029F@linux.com>
+From: Christoph Rohland <cr@sap.com>
+Date: 13 Jan 2001 15:04:41 +0100
+In-Reply-To: <3A604B26.53EC029F@linux.com>
+Message-ID: <m33denk0p2.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001, dean gaudet wrote:
+David Ford <david@linux.com> writes:
 
-> anyhow a real network benchmark might show that kHTTPd latency is actually
-> not as broken as this one indicates.  i'd however really hesitate to call
-> this a win.
+> Now...is this shared memory or swap?  If it's swap, why is it
+> different than a swapfile?  If you are intending the shmem be called
+> swapfs, I personally thing that it'll cause a significant amount of
+> confusion.
 
-Well as Arjan says: khttpd starves userspace and that might cause the
-latency. I dont have the ability to really test it over a 100mbs link.
+It is a filesystem which lives in RAM and can swap out. SYSV shm and
+shared anonymous maps are still build on top of this (The config
+option only disables the part not needed for this).
 
-> btw is your CPU slow or something?  'cause istr getting numbers at least
-> this good from apache across localhost several years ago even under
-> 2.0.x... and boa and khttpd should both beat apache in this.
+I am quite open about naming, but "shm" is not appropriate any more
+since the fs does a lot more than shared memory. Solaris calles this
+"tmpfs" but I did not want to 'steal' their name and I also do not
+think that it's a very good name.
 
-Its a Cyrix 150. So yes.
+So any suggestions for a better name?
 
-
-
+Greetings
+                Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264512AbUG2Mvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUG2Mw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264512AbUG2Mvc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 08:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUG2Mvc
+	id S264500AbUG2Mw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 08:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUG2Mwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 08:51:32 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:50402 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264526AbUG2MvB (ORCPT
+	Thu, 29 Jul 2004 08:52:55 -0400
+Received: from smtp1.volja.net ([217.72.64.59]:55058 "EHLO smtp1.volja.net")
+	by vger.kernel.org with ESMTP id S264500AbUG2Mws (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 08:51:01 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: ncunningham@linuxmail.org
-Subject: Re: fixing usb suspend/resuming
-Date: Thu, 29 Jul 2004 14:51:05 +0200
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@ucw.cz>, David Brownell <david-b@pacbell.net>,
-       Alexander Gran <alex@zodiac.dnsalias.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200405281406.10447@zodiac.zodiac.dnsalias.org> <20040729083543.GG21889@openzaurus.ucw.cz> <1091103438.2703.13.camel@desktop.cunninghams>
-In-Reply-To: <1091103438.2703.13.camel@desktop.cunninghams>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Thu, 29 Jul 2004 08:52:48 -0400
+Subject: Compile error in 2.6.8-rc2-mm1 - rivafb related
+From: Grega Fajdiga <Gregor.Fajdiga@guest.arnes.si>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1091105305.11537.6.camel@cable155-82.ljk.voljatel.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 29 Jul 2004 14:52:25 +0200
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407291451.05630.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Good day,
+Please CC me, since I'm not subscribed. 
+I just tried to compile 2.6.8-rc2-mm1 and got this error:
+drivers/built-in.o(.text+0x7e369): In function `rivafb_probe'::
+undefined reference to `riva_create_i2c_busses'
+drivers/built-in.o(.text+0x7e4c1): In function `rivafb_probe'::
+undefined reference to `riva_delete_i2c_busses'
+drivers/built-in.o(.exit.text+0x1ca): In function `rivafb_remove'::
+undefined reference to `riva_delete_i2c_busses'
+make: *** [.tmp_vmlinux1] Error 1
 
-> Regarding the spinning down before suspending to disk, I have a patch in
-> my version that adds support for excluding part of the device tree when
-> calling drivers_suspend. I take the bdevs we're writing the image to,
-> trace the structures to get the relevant device tree entry/ies and then
-> move (in the correct order) those devices and their parents from the
-> active devices list to a 'dont' touch' list (I don't call it that in
+Config attached. BTW why can't I disable SCSI support in menuconfig? I 
+don't really need it.
 
-How do you deal with md, loop, etc... ?
+Thanks,
+Grega
 
-	Regards
-		Oliver

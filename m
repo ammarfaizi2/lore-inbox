@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266558AbUGKKc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266560AbUGKKgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266558AbUGKKc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 06:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUGKKc1
+	id S266560AbUGKKgx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 06:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUGKKgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 06:32:27 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:44501 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266557AbUGKKcL (ORCPT
+	Sun, 11 Jul 2004 06:36:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24039 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266557AbUGKKgl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 06:32:11 -0400
-Date: Sun, 11 Jul 2004 12:30:20 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com,
-       linux-audio-dev@music.columbia.edu
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040711103020.GA24797@elte.hu>
-References: <20040709182638.GA11310@elte.hu> <20040710222510.0593f4a4.akpm@osdl.org> <20040711093209.GA17095@elte.hu> <20040711024518.7fd508e0.akpm@osdl.org> <20040711095039.GA22391@elte.hu> <20040711025855.08afbca1.akpm@osdl.org>
+	Sun, 11 Jul 2004 06:36:41 -0400
+Date: Sun, 11 Jul 2004 03:35:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: bert hubert <ahu@ds9a.nl>
+Cc: albertogli@telpin.com.ar, linux-kernel@vger.kernel.org
+Subject: Re: Syncing a file's metadata in a portable way
+Message-Id: <20040711033527.4017170d.akpm@osdl.org>
+In-Reply-To: <20040711102743.GB16199@outpost.ds9a.nl>
+References: <20040709030637.GB5858@telpin.com.ar>
+	<20040709023948.59497dca.akpm@osdl.org>
+	<20040710115404.GA11420@outpost.ds9a.nl>
+	<20040710131459.13ffec23.akpm@osdl.org>
+	<20040711102743.GB16199@outpost.ds9a.nl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040711025855.08afbca1.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=0, required 5.9,
-	autolearn=not spam
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: 0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+bert hubert <ahu@ds9a.nl> wrote:
+>
+> On Sat, Jul 10, 2004 at 01:14:59PM -0700, Andrew Morton wrote:
+> 
+> > If only the one file has been written to, an fsync on ext3 shouldn't
+> > produce any more writeout than an fsync on ext2.
+> (...)
+> > Either that, or SQLite is broken.
+> 
+> I'll show strace and vmstat tomorrow - I found very little writes, no mmap,
+> some fsync and massive writeouts. On ext2, performance was two orders of
+> magnitude better.
+> 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+One scenario which could cause this is if the application is writing a
+large amount of data to a file and is repeatedly *overwriting* that data. 
+And the application is repeatedly adding new blocks to, and fsyncing a
+separate file.
 
-> OK, but most of the new ones are unneeded with CONFIG_PREEMPT=y.  I'm
-> still failing to see why a non-preempt, voluntary preemption kernel
-> even needs to try to be competitive with a preemptible kernel?
+strace might tell us that, if the traces are skilfully captured and studied.
 
-the reason is difference in overhead (codesize, speed) and risks (driver
-robustness). We do not want to enable preempt for Fedora yet because it
-breaks just too much stuff and is too heavy. So we looked for a solution
-that might work for a generic distro.
+You should try data=writeback.  Given that the app is using fsync() for its
+own data integrity purposes anyway, you don't need data=ordered.
 
-here are the code size differences. With a typical .config (debugging
-options disabled), the 2.6.7-mm7(+voluntary-preempt) UP x86 kernel gets
-the following .text sizes:
-
-   orig:      1776911 bytes
-   preempt:   1855519 bytes  (+4.4%)
-   voluntary: 1783407 bytes  (+0.3%)
-
-so if voluntary-preempt can get close to real preempt's numbers for
-practical stuff then we get most of the benefits while excluding some of
-the nastiest risks and disadvantages.
-
-(Long-term i'd like to see preempt be used unconditionally - at which
-point the 10-line CONFIG_VOLUNTARY_PREEMPT Kconfig and kernel.h change
-could go away.)
-
-	Ingo
+It's strange though.  databases often preallocate the file space, so a
+regular write won't add new blocks to the file and won't allocate any new
+metadata.  In this situation, an fsync() will only force a commit once per
+second, when the inode mtime changes.

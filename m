@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317107AbSHTSeJ>; Tue, 20 Aug 2002 14:34:09 -0400
+	id <S317081AbSHTSiM>; Tue, 20 Aug 2002 14:38:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317112AbSHTSeJ>; Tue, 20 Aug 2002 14:34:09 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:8722 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317107AbSHTSeF>;
-	Tue, 20 Aug 2002 14:34:05 -0400
-Date: Tue, 20 Aug 2002 11:32:53 -0700
-From: Greg KH <greg@kroah.com>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.31 driverfs: patch for your consideration
-Message-ID: <20020820183253.GB29228@kroah.com>
-References: <Pine.LNX.4.44.0208191111100.1048-100000@cherise.pdx.osdl.net> <3D6113E1.302@netscape.net> <20020819195909.GA24488@kroah.com> <3D61691B.7080409@netscape.net> <20020820033254.GA26331@kroah.com> <20020820065159.GD28996@pegasys.ws>
-Mime-Version: 1.0
+	id <S317102AbSHTSiM>; Tue, 20 Aug 2002 14:38:12 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:59663 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S317081AbSHTSiL>; Tue, 20 Aug 2002 14:38:11 -0400
+Message-ID: <3D628D14.E686C970@zip.com.au>
+Date: Tue, 20 Aug 2002 11:40:20 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Lahti Oy <rlahti@netikka.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: schedule_timeout()
+References: <000b01c24870$d8419970$d20a5f0a@deldaran>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020820065159.GD28996@pegasys.ws>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Tue, 23 Jul 2002 16:07:32 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 19, 2002 at 11:51:59PM -0700, jw schultz wrote:
-> On Mon, Aug 19, 2002 at 08:32:55PM -0700, Greg KH wrote:
-> > On Mon, Aug 19, 2002 at 09:54:35PM +0000, Adam Belay wrote:
-> > > By the way, is diethotplug a space efficient binary version of the
-> > > hotplug scripts or is there more to it then that?
-> > 
-> > Yes it is a space efficient version (the resulting binary is usually
-> > 300% smaller than the original modules.*map files being used.)  It
-> > achieves these space savings at the expense of flexibility, the binary
-> > is always tied to a specific kernel version.
+Lahti Oy wrote:
 > 
-> My apologies if you meant 30%
+> Why does schedule_timeout() take a signed long as an argument and then check
+> for possible negative values? Wouldn't it be better to just take an unsigned
+> long as argument, thus eliminating all dumb checks in the code?
 
-Very sorry, I ment that the original modules.*map files are 300% larger
-than the diethotplug binary.
+Because someone may do:
 
-Hm, for the options I use in 2.5.31 I get these results:
-  modules.pcimap	  6273 bytes
-  modules.usbmap	 98513 bytes
-  modules.ieee1394map	    73 bytes
-  ----------------------------------
-  total			104859 bytes
+	schedule_timeout(when_i_want_to_wake - jiffies);
 
-  diethotplug binary	 16332 bytes
+and if the current time happens to be _after_ when_i_want_to_wake,
+we want schedule_timeout to cope with that and do the right thing.
 
-Looks like the modules.*map files are closer to 650% larger :)
+> Another issue I found concerns setting current task state to TASK_RUNNING
+> after calling schedule_timeout(). This seems to be done in many parts of the
+> kernel, though Kernel-API documentations found from kernelnewbies.org seem
+> to claim that task state is guaranteed to be TASK_RUNNING after
+> schedule_timeout() returns. Is the documentation faulty or does the kernel
+> have obsoleted code?
 
-thanks,
-
-greg k-h
+The documentation is correct.

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLANGl>; Fri, 1 Dec 2000 08:06:41 -0500
+	id <S129183AbQLANIl>; Fri, 1 Dec 2000 08:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129414AbQLANGb>; Fri, 1 Dec 2000 08:06:31 -0500
-Received: from nas1-12.kmp.club-internet.fr ([213.44.17.12]:45551 "EHLO
-	microsoft.com") by vger.kernel.org with ESMTP id <S129345AbQLANGP>;
-	Fri, 1 Dec 2000 08:06:15 -0500
-Message-Id: <200012011230.NAA04009@microsoft.com>
-Subject: Re: [RFC] Configuring synchronous interfaces in Linux
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Christoph Hellwig <hch@caldera.de>
-Cc: cw@f00f.org, Ivan Passos <lists@cyclades.com>,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com, romieu@ensta.fr
-In-Reply-To: <200012011100.MAA14789@ns.caldera.de>
-Content-Type: text/plain
-X-Mailer: Evolution 0.6 (Developer Preview)
-Date: 01 Dec 2000 11:30:33 -0100
+	id <S129414AbQLANIb>; Fri, 1 Dec 2000 08:08:31 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:26898 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129226AbQLANIP>;
+	Fri, 1 Dec 2000 08:08:15 -0500
+Date: Fri, 1 Dec 2000 13:37:45 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: corruption
+Message-ID: <20001201133745.B21481@suse.de>
+In-Reply-To: <b09.3a269edc.6bd12@trespassersw.daria.co.uk> <Pine.GSO.4.21.0011301400290.20801-100000@weyl.math.psu.edu> <3A26C82D.26267202@uow.edu.au> <3A26F77B.2800C58D@asiapacificm01.nt.com>, <3A26F77B.2800C58D@asiapacificm01.nt.com>; <20001201131814.C21309@suse.de> <3A279ABD.957C0EF@uow.edu.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A279ABD.957C0EF@uow.edu.au>; from andrewm@uow.edu.au on Fri, Dec 01, 2000 at 11:34:05PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In article <20001201233227.A9457@metastasis.f00f.org> you wrote:
-> > Actually; Ethernet badly needs something like this too. I would kill
-> > to be able to do something like:
+On Fri, Dec 01 2000, Andrew Morton wrote:
+> > > mmmm... choc-chip.
+> > >
+> > > With the above patch applied the machine crashed after an hour. Crashed
+> > > a second time during the e2fsck.  gdb backtrace:
+> > 
+> > Very interesting. IDE / SCSI?
 > 
-> >     ifconfig eth0 speed 100 duplex full
+> hmm..  Overlapping emails.
 > 
-> > o across different networks cards -- I've been thinking about it of
-> > late as I had to battle with this earlier this week; depending on
-> > what network card you use, you need different magic incarnations to
-> > do the above.
-> 
-> > A standard interface is really needed; unless anyone objects I may
-> > look at drafting something up -- but it will require some input if it
-> > is not to look completely Ethernet centric.
-> 
-> For ethernet we have ethtool, recently changed from sparc only to
-> architecture independend.
+> The crash with e2fsck was easily repeatable with the above patch.  Just
+> dirty a few buffers and run /sbin/sync.  It's due to the __make_request
+> queue_head thing which you fixed in test12-pre3.  Yes, this was IDE.
 
-It should be consistent with the wireless extentions (same goal)
+Ah ok, I thought this was on test12-pre3.
 
-Xav
+> However the original problem of a list_del being performed on a wild
+> pointer is being seen on SCSI systems.  I expect the above patch will
+> catch it if it's still happening.
+
+Indeed, and I don't think it's request queue_head related anymore. I
+will look forward to seeing a trace, though :-)
+
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269266AbTCBSRp>; Sun, 2 Mar 2003 13:17:45 -0500
+	id <S269264AbTCBSPb>; Sun, 2 Mar 2003 13:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269267AbTCBSRp>; Sun, 2 Mar 2003 13:17:45 -0500
-Received: from mario.gams.at ([194.42.96.10]:30826 "EHLO mario.gams.at")
-	by vger.kernel.org with ESMTP id <S269266AbTCBSRm> convert rfc822-to-8bit;
-	Sun, 2 Mar 2003 13:17:42 -0500
-X-Mailer: exmh version 2.6.1 18/02/2003 with nmh-1.0.4
-From: Bernd Petrovitsch <bernd@gams.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel source spellchecker 
-References: <20030302144702.P2791@almesberger.net> 
-In-reply-to: Your message of "Sun, 02 Mar 2003 14:47:02 -0300."
-             <20030302144702.P2791@almesberger.net> 
-X-url: http://www.luga.at/~bernd/
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Sun, 02 Mar 2003 19:28:06 +0100
-Message-ID: <27937.1046629686@frodo.gams.co.at>
+	id <S269263AbTCBSPb>; Sun, 2 Mar 2003 13:15:31 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:27410 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S269264AbTCBSP3>; Sun, 2 Mar 2003 13:15:29 -0500
+Date: Sun, 2 Mar 2003 19:25:43 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Norbert Kiesel <nkiesel@tbdnetworks.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Multiple & vs. && and | vs. || bugs in 2.4.20
+In-Reply-To: <3E6247F7.8060301@redhat.com>
+Message-ID: <Pine.LNX.4.44.0303021919180.32518-100000@serv>
+References: <20030302121425.GA27040@defiant> <3E6247F7.8060301@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger <wa@almesberger.net> wrote:
->Bernd Petrovitsch wrote:
->> 'invokation' is absolutely not-existing in German, see
->> http://dict.leo.org/?p=T8PXU.&search=invocation. In case of function 
->> one would use "Aufruf" (similar to "call a function").
->
->That's not entirely true. If you capitalize it, it means the act of
->calling upon your God(s), i.e. something a distressed programmer may
->in fact end up doing ;-)
+Hi,
 
-ACK (as usual, Werner is right):
-http://www.xipolis.net/03411d6535c36372d9c8396ca394a93d/suche/abstract.php?shortname=felix&artikel_id=80254
-Never heard of it before, though.
+On Sun, 2 Mar 2003, Ulrich Drepper wrote:
 
-[ sorry for the long broken URL ]
+> > -	if (!urb->status & !acm->throttle)  {
+> > +	if (!urb->status && !acm->throttle)  {
+> 
+> [...]
+> 
+> Observe the extra 'jne' and the fact that the value of 'throttle'
+> element cannot be loaded until after the conditional jump.   Not even
+> out of order execution can arrange that.
 
-	Bernd
+But speculative execution can arrange that (providing the cpu predicted 
+the jump target correctly).
 
--- 
-Bernd Petrovitsch                              Email : bernd@gams.at
-g.a.m.s gmbh                                  Fax : +43 1 205255-900
-Prinz-Eugen-Straße 8                    A-1040 Vienna/Austria/Europe
-                     LUGA : http://www.luga.at
+> To summarize, I'd probably not be amused if you would change any of my
+> code which takes advantage of such programming finess.
 
+If that was really intentional, I would assume to see something like this:
+
+	if (!(urb->status | acm->throttle)) {
+
+bye, Roman
 

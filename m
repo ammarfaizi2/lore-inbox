@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261333AbTADTeu>; Sat, 4 Jan 2003 14:34:50 -0500
+	id <S261349AbTADTim>; Sat, 4 Jan 2003 14:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261337AbTADTeu>; Sat, 4 Jan 2003 14:34:50 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:5334 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S261333AbTADTet>; Sat, 4 Jan 2003 14:34:49 -0500
-Date: Sun, 05 Jan 2003 08:43:02 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Matan Ziv-Av <matan@svgalib.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Gauntlet Set NOW!
-Message-ID: <570510000.1041709382@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.21_heb2.09.0301042115010.5981-100000@matan.home>
-References: <Pine.LNX.4.21_heb2.09.0301042115010.5981-100000@matan.home>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S261338AbTADTim>; Sat, 4 Jan 2003 14:38:42 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:59264
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261337AbTADTil>; Sat, 4 Jan 2003 14:38:41 -0500
+Subject: Re: [2.5 patch] re-add zft_dirty to zftape-ctl.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       claus@momo.math.rwth-aachen.de, linux-tape@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20030104151404.GX6114@fs.tum.de>
+References: <20030104151404.GX6114@fs.tum.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: 
+Message-Id: <1041712127.2036.1.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 04 Jan 2003 20:28:48 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Which is all nice and good, but trying to do this in order to suspend a 
-laptop is going to result in vastly more code, and you just can't get the 
-documentation.
+On Sat, 2003-01-04 at 15:14, Adrian Bunk wrote:
+> Hi Alan,
+> 
+> your
+> 
+>   [PATCH] rescue ftape from the ravages of that Rusty chap
+> 
+> removed zft_dirty from zftape-ctl.c in Linus' 2.5 tree. This seems to be
+> accidentially and wrong, it was the only definition of zft_dirty in the
+> whole kernel sources and now there's an error at the final linking of
+> the kernel. The patch below (against 2.5.54) re-adds it.
 
-After all, the vendor gave you the code with the hardware in this case, so 
-it's not as if you can possibly not have a license for it :-)
+I disagree entirely. The zft_dirty function is junk. I accidentally missed
+removing one other reference to it when you compile it in, that is all. For some
+reason the fix to that never got into Linus tree. Remove the other use of it.
 
-Andrew
 
---On Saturday, January 04, 2003 21:31:38 +0200 Matan Ziv-Av 
-<matan@svgalib.org> wrote:
-
-> On Sat, 4 Jan 2003, Andrew McGregor wrote:
->
->> Or else find that the NV3x has some stonking quick CPU embedded, and apps
->> talk GLX to it...
->>
->> Strange how noone objects to APM BIOS calls or ACPI.
->
-> Actually, I object to this.
-> On my via 686a, the advice on this list for getting the power saving was
-> to use ACPI (after setting some bits in PCI config space). But lvcool
-> program showed how to do this without proprietary programs, and I
-> adapted it to bit of kernel code:
->
-
-<snip>
-
->
-> And I don't need to run any proprietary code during normal system run. I
-> still need to use BIOS to boot and to poweroff the system, but
-> that will be solved as well.
->
->
-> --
-> Matan Ziv-Av.                         matan@svgalib.org
->
->
->
-
+Alan
 

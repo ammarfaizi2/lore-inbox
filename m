@@ -1,306 +1,264 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVAZAcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVAZAgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbVAZAcV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 19:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbVAZAbm
+	id S262130AbVAZAgY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 19:36:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVAZAeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 19:31:42 -0500
-Received: from smtp08.auna.com ([62.81.186.18]:60572 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S262268AbVAZAZS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 19:25:18 -0500
-Date: Wed, 26 Jan 2005 00:25:14 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: patch to enable Nvidia v5336 on v2.6.11 kernel (was Re:
- inter_module_get and __symbol_get)
-To: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
-Cc: davidm@hpl.hp.com, Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <16885.32149.788747.550216@napali.hpl.hp.com>
-	<31612.1106607781@ocs3.ocs.com.au>
-	<16885.38947.35646.558780@napali.hpl.hp.com>
-	<1106657785l.6979l.0l@werewolf.able.es>
-	<20050125205046.GA19738@babylon.d2dc.net>
-In-Reply-To: <20050125205046.GA19738@babylon.d2dc.net> (from
-	warp@babylon.d2dc.net on Tue Jan 25 21:50:47 2005)
-X-Mailer: Balsa 2.2.6
-Message-Id: <1106699114l.12382l.0l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
-	protocol="application/pgp-signature"; boundary="=-kVKRjLHWvG+GmbvL99H8"
+	Tue, 25 Jan 2005 19:34:22 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:62890 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262264AbVAZAXl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 19:23:41 -0500
+Subject: [RFC][PATCH 1/5] refactor i386 memory setup
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, Dave Hansen <haveblue@us.ibm.com>, apw@shadowen.org
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Tue, 25 Jan 2005 16:23:33 -0800
+Message-Id: <E1Ctay6-0006if-00@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-kVKRjLHWvG+GmbvL99H8
-Content-Type: multipart/mixed; boundary="=-umvbs/oVkLdzdqywq97M"
 
---=-umvbs/oVkLdzdqywq97M
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Refactor the i386 default and CONFIG_DISCONTIG_MEM setup_memory()
+functions to share the common bootmem initialisation code.  This code
+is intended to be identical, but there are currently some fixes
+applied to one and not the other.  This patch extracts this common
+initialisation code.
 
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
 
-On 2005.01.25, Zephaniah E. Hull wrote:
-> On Tue, Jan 25, 2005 at 12:56:25PM +0000, J.A. Magallon wrote:
-> <snip>
-> > You can use the latest drivers (6629) with this patches:
-> >=20
-> > http://www.minion.de/files/1.0-6629/
-> >=20
-> > They work fine up to -rc2.
-> >=20
-> > If you want to use the driver with -mm, you have to kill the support
-> > for AGPGART in nvidia driver, add -DNOAGPGART to EXTRA_CFLAGS in the
-> > makefile. It will require a big change to use the multi-agp patches
-> > in -mm. But you are restricted to those AGPs supported by nvidia
-> > (ah, and don't load any agp related module...).
->=20
-> For values of big changes that equal the attached patch.
->=20
+ memhotplug-dave/arch/i386/kernel/setup.c |   28 ++++---
+ memhotplug-dave/arch/i386/mm/discontig.c |  118 +------------------------------
+ 2 files changed, 21 insertions(+), 125 deletions(-)
 
-Opps, previous patch was wrapped. Correct one attached.
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-jam6 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
-
-
---=-umvbs/oVkLdzdqywq97M
-Content-Type: text/x-patch; charset=us-ascii;
-	name=NVIDIA_kernel-multiagp.diff
-Content-Disposition: attachment; filename=NVIDIA_kernel-multiagp.diff
-Content-Transfer-Encoding: quoted-printable
-
-diff -ruN nv-6629-jam/src/nv/nv-linux.h nv-6629-jam-2/src/nv/nv-linux.h
---- nv-6629-jam/src/nv/nv-linux.h	2005-01-24 23:16:46.000000000 +0100
-+++ nv-6629-jam-2/src/nv/nv-linux.h	2005-01-26 00:25:10.000000000 +0100
-@@ -930,6 +930,9 @@
-=20
-     /* lock for linux-specific alloc queue */
-     struct semaphore at_lock;
+diff -puN arch/i386/kernel/setup.c~B-sparse-060-refactor-setup_memory-i386 arch/i386/kernel/setup.c
+--- memhotplug/arch/i386/kernel/setup.c~B-sparse-060-refactor-setup_memory-i386	2005-01-25 13:04:29.000000000 -0800
++++ memhotplug-dave/arch/i386/kernel/setup.c	2005-01-25 13:44:28.000000000 -0800
+@@ -1000,8 +1000,6 @@ unsigned long __init find_max_low_pfn(vo
+ 	return max_low_pfn;
+ }
+ 
+-#ifndef CONFIG_DISCONTIGMEM
+-
+ /*
+  * Free all available memory for boot time allocation.  Used
+  * as a callback function by efi_memory_walk()
+@@ -1075,15 +1073,15 @@ static void __init reserve_ebda_region(v
+ 		reserve_bootmem(addr, PAGE_SIZE);	
+ }
+ 
++#ifndef CONFIG_DISCONTIGMEM
++void __init setup_bootmem_allocator(void);
+ static unsigned long __init setup_memory(void)
+ {
+-	unsigned long bootmap_size, start_pfn, max_low_pfn;
+-
+ 	/*
+ 	 * partially used pages are not usable - thus
+ 	 * we are rounding upwards:
+ 	 */
+-	start_pfn = PFN_UP(init_pg_tables_end);
++	min_low_pfn = PFN_UP(init_pg_tables_end);
+ 
+ 	find_max_pfn();
+ 
+@@ -1099,10 +1097,22 @@ static unsigned long __init setup_memory
+ #endif
+ 	printk(KERN_NOTICE "%ldMB LOWMEM available.\n",
+ 			pages_to_mb(max_low_pfn));
 +
-+	/* AGP bridge handle */
-+	struct agp_bridge_data *agp_bridge;
- } nv_linux_state_t;
-=20
-=20
-diff -ruN nv-6629-jam/src/nv/nv.c nv-6629-jam-2/src/nv/nv.c
---- nv-6629-jam/src/nv/nv.c	2005-01-24 23:16:46.000000000 +0100
-+++ nv-6629-jam-2/src/nv/nv.c	2005-01-26 00:47:14.000000000 +0100
-@@ -3011,10 +3011,11 @@
-             return -1;
-         }
- #elif defined(AGPGART)
--        int error;
--        if ((error =3D agp_backend_acquire()) !=3D -EINVAL)
-+		nv_linux_state_t *nvl =3D NV_GET_NVL_FROM_NV_STATE(nv);
-+		nvl->agp_bridge =3D agp_backend_acquire(nvl->dev);
-+        if (nvl->agp_bridge)
-         {
--            if (!error) agp_backend_release();
-+            agp_backend_release(nvl->agp_bridge);
-             nv_printf(NV_DBG_WARNINGS,
-                       "NVRM: not using NVAGP, an AGPGART backend is loaded=
-!\n");
-             return -1;
-diff -ruN nv-6629-jam/src/nv/os-agp.c nv-6629-jam-2/src/nv/os-agp.c
---- nv-6629-jam/src/nv/os-agp.c	2005-01-24 23:16:46.000000000 +0100
-+++ nv-6629-jam-2/src/nv/os-agp.c	2005-01-26 00:49:01.000000000 +0100
-@@ -60,23 +60,23 @@
++	setup_bootmem_allocator();
++
++	return max_low_pfn;
++}
++#else
++extern unsigned long setup_memory(void);
++#endif /* !CONFIG_DISCONTIGMEM */
++
++void __init setup_bootmem_allocator(void)
++{
++	unsigned long bootmap_size;
+ 	/*
+ 	 * Initialize the boot-time allocator (with low memory only):
+ 	 */
+-	bootmap_size = init_bootmem(start_pfn, max_low_pfn);
++	bootmap_size = init_bootmem(min_low_pfn, max_low_pfn);
+ 
+ 	register_bootmem_low_pages(max_low_pfn);
+ 
+@@ -1112,7 +1122,7 @@ static unsigned long __init setup_memory
+ 	 * the (very unlikely) case of us accidentally initializing the
+ 	 * bootmem allocator with an invalid RAM area.
+ 	 */
+-	reserve_bootmem(HIGH_MEMORY, (PFN_PHYS(start_pfn) +
++	reserve_bootmem(HIGH_MEMORY, (PFN_PHYS(min_low_pfn) +
+ 			 bootmap_size + PAGE_SIZE-1) - (HIGH_MEMORY));
+ 
+ 	/*
+@@ -1182,11 +1192,7 @@ static unsigned long __init setup_memory
+ 		}
+ 	}
  #endif
-=20
- #if defined(KERNEL_2_6)
--#define NV_AGPGART_BACKEND_ACQUIRE(o) agp_backend_acquire()
--#define NV_AGPGART_BACKEND_ENABLE(o,mode) agp_enable(mode)
--#define NV_AGPGART_BACKEND_RELEASE(o) agp_backend_release()
--#define NV_AGPGART_COPY_INFO(o,p) agp_copy_info(p)
--#define NV_AGPGART_ALLOCATE_MEMORY(o,count,type) agp_allocate_memory(count=
-,type)
--#define NV_AGPGART_FREE_MEMORY(o,p) agp_free_memory(p)
--#define NV_AGPGART_BIND_MEMORY(o,p,offset) agp_bind_memory(p,offset)
--#define NV_AGPGART_UNBIND_MEMORY(o,p) agp_unbind_memory(p)
-+#define NV_AGPGART_BACKEND_ACQUIRE(nvl,o) ({ nvl->agp_bridge =3D agp_backe=
-nd_acquire(nvl->dev); !nvl->agp_bridge; })
-+#define NV_AGPGART_BACKEND_ENABLE(nvl,o,mode) agp_enable(nvl->agp_bridge,m=
-ode)
-+#define NV_AGPGART_BACKEND_RELEASE(nvl,o) agp_backend_release(nvl->agp_bri=
-dge)
-+#define NV_AGPGART_COPY_INFO(nvl,o,p) agp_copy_info(nvl->agp_bridge,p)
-+#define NV_AGPGART_ALLOCATE_MEMORY(nvl,o,count,type) agp_allocate_memory(n=
-vl->agp_bridge,count,type)
-+#define NV_AGPGART_FREE_MEMORY(nvl,o,p) agp_free_memory(p)
-+#define NV_AGPGART_BIND_MEMORY(nvl,o,p,offset) agp_bind_memory(p,offset)
-+#define NV_AGPGART_UNBIND_MEMORY(nvl,o,p) agp_unbind_memory(p)
- #elif defined(KERNEL_2_4)
--#define NV_AGPGART_BACKEND_ACQUIRE(o) ({ (o)->acquire(); 0; })
--#define NV_AGPGART_BACKEND_ENABLE(o,mode) (o)->enable(mode)
--#define NV_AGPGART_BACKEND_RELEASE(o) ((o)->release())
--#define NV_AGPGART_COPY_INFO(o,p) ({ (o)->copy_info(p); 0; })
--#define NV_AGPGART_ALLOCATE_MEMORY(o,count,type) (o)->allocate_memory(coun=
-t,type)
--#define NV_AGPGART_FREE_MEMORY(o,p) (o)->free_memory(p)
--#define NV_AGPGART_BIND_MEMORY(o,p,offset) (o)->bind_memory(p,offset)
--#define NV_AGPGART_UNBIND_MEMORY(o,p) (o)->unbind_memory(p)
-+#define NV_AGPGART_BACKEND_ACQUIRE(nvl,o) ({ (o)->acquire(); 0; })
-+#define NV_AGPGART_BACKEND_ENABLE(nvl,o,mode) (o)->enable(mode)
-+#define NV_AGPGART_BACKEND_RELEASE(nvl,o) ((o)->release())
-+#define NV_AGPGART_COPY_INFO(nvl,o,p) ({ (o)->copy_info(p); 0; })
-+#define NV_AGPGART_ALLOCATE_MEMORY(nvl,o,count,type) (o)->allocate_memory(=
-count,type)
-+#define NV_AGPGART_FREE_MEMORY(nvl,o,p) (o)->free_memory(p)
-+#define NV_AGPGART_BIND_MEMORY(nvl,o,p,offset) (o)->bind_memory(p,offset)
-+#define NV_AGPGART_UNBIND_MEMORY(nvl,o,p) (o)->unbind_memory(p)
+-	return max_low_pfn;
+ }
+-#else
+-extern unsigned long setup_memory(void);
+-#endif /* !CONFIG_DISCONTIGMEM */
+ 
+ /*
+  * Request address space for all standard RAM and ROM resources
+diff -puN arch/i386/mm/discontig.c~B-sparse-060-refactor-setup_memory-i386 arch/i386/mm/discontig.c
+--- memhotplug/arch/i386/mm/discontig.c~B-sparse-060-refactor-setup_memory-i386	2005-01-25 13:04:29.000000000 -0800
++++ memhotplug-dave/arch/i386/mm/discontig.c	2005-01-25 13:42:10.000000000 -0800
+@@ -139,46 +139,6 @@ static void __init allocate_pgdat(int ni
+ 	}
+ }
+ 
+-/*
+- * Register fully available low RAM pages with the bootmem allocator.
+- */
+-static void __init register_bootmem_low_pages(unsigned long system_max_low_pfn)
+-{
+-	int i;
+-
+-	for (i = 0; i < e820.nr_map; i++) {
+-		unsigned long curr_pfn, last_pfn, size;
+-		/*
+-		 * Reserve usable low memory
+-		 */
+-		if (e820.map[i].type != E820_RAM)
+-			continue;
+-		/*
+-		 * We are rounding up the start address of usable memory:
+-		 */
+-		curr_pfn = PFN_UP(e820.map[i].addr);
+-		if (curr_pfn >= system_max_low_pfn)
+-			continue;
+-		/*
+-		 * ... and at the end of the usable range downwards:
+-		 */
+-		last_pfn = PFN_DOWN(e820.map[i].addr + e820.map[i].size);
+-
+-		if (last_pfn > system_max_low_pfn)
+-			last_pfn = system_max_low_pfn;
+-
+-		/*
+-		 * .. finally, did all the rounding and playing
+-		 * around just make the area go away?
+-		 */
+-		if (last_pfn <= curr_pfn)
+-			continue;
+-
+-		size = last_pfn - curr_pfn;
+-		free_bootmem_node(NODE_DATA(0), PFN_PHYS(curr_pfn), PFN_PHYS(size));
+-	}
+-}
+-
+ void __init remap_numa_kva(void)
+ {
+ 	void *vaddr;
+@@ -227,21 +187,11 @@ static unsigned long calculate_numa_rema
+ 	return reserve_pages;
+ }
+ 
+-/*
+- * workaround for Dell systems that neglect to reserve EBDA
+- */
+-static void __init reserve_ebda_region_node(void)
+-{
+-	unsigned int addr;
+-	addr = get_bios_ebda();
+-	if (addr)
+-		reserve_bootmem_node(NODE_DATA(0), addr, PAGE_SIZE);
+-}
+-
++extern void setup_bootmem_allocator(void);
+ unsigned long __init setup_memory(void)
+ {
+ 	int nid;
+-	unsigned long bootmap_size, system_start_pfn, system_max_low_pfn;
++	unsigned long system_start_pfn, system_max_low_pfn;
+ 	unsigned long reserve_pages, pfn;
+ 
+ 	/*
+@@ -308,67 +258,6 @@ unsigned long __init setup_memory(void)
+ 
+ 	NODE_DATA(0)->bdata = &node0_bdata;
+ 
+-	/*
+-	 * Initialize the boot-time allocator (with low memory only):
+-	 */
+-	bootmap_size = init_bootmem_node(NODE_DATA(0), min_low_pfn, 0, system_max_low_pfn);
+-
+-	register_bootmem_low_pages(system_max_low_pfn);
+-
+-	/*
+-	 * Reserve the bootmem bitmap itself as well. We do this in two
+-	 * steps (first step was init_bootmem()) because this catches
+-	 * the (very unlikely) case of us accidentally initializing the
+-	 * bootmem allocator with an invalid RAM area.
+-	 */
+-	reserve_bootmem_node(NODE_DATA(0), HIGH_MEMORY, (PFN_PHYS(min_low_pfn) +
+-		 bootmap_size + PAGE_SIZE-1) - (HIGH_MEMORY));
+-
+-	/*
+-	 * reserve physical page 0 - it's a special BIOS page on many boxes,
+-	 * enabling clean reboots, SMP operation, laptop functions.
+-	 */
+-	reserve_bootmem_node(NODE_DATA(0), 0, PAGE_SIZE);
+-
+-	/*
+-	 * But first pinch a few for the stack/trampoline stuff
+-	 * FIXME: Don't need the extra page at 4K, but need to fix
+-	 * trampoline before removing it. (see the GDT stuff)
+-	 */
+-	reserve_bootmem_node(NODE_DATA(0), PAGE_SIZE, PAGE_SIZE);
+-
+-	/* reserve EBDA region, it's a 4K region */
+-	reserve_ebda_region_node();
+-
+-#ifdef CONFIG_ACPI_SLEEP
+-	/*
+-	 * Reserve low memory region for sleep support.
+-	 */
+-	acpi_reserve_bootmem();
+-#endif
+-
+-	/*
+-	 * Find and reserve possible boot-time SMP configuration:
+-	 */
+-	find_smp_config();
+-
+-#ifdef CONFIG_BLK_DEV_INITRD
+-	if (LOADER_TYPE && INITRD_START) {
+-		if (INITRD_START + INITRD_SIZE <= (system_max_low_pfn << PAGE_SHIFT)) {
+-			reserve_bootmem_node(NODE_DATA(0), INITRD_START, INITRD_SIZE);
+-			initrd_start =
+-				INITRD_START ? INITRD_START + PAGE_OFFSET : 0;
+-			initrd_end = initrd_start+INITRD_SIZE;
+-		}
+-		else {
+-			printk(KERN_ERR "initrd extends beyond end of memory "
+-			    "(0x%08lx > 0x%08lx)\ndisabling initrd\n",
+-			    INITRD_START + INITRD_SIZE,
+-			    system_max_low_pfn << PAGE_SHIFT);
+-			initrd_start = 0;
+-		}
+-	}
+-#endif
+ #ifdef CONFIG_KEXEC
+ 	if (crashk_res.start != crashk_res.end) {
+ 		reserve_bootmem(crashk_res.start, crashk_res.end - crashk_res.start + 1);
+@@ -381,7 +270,8 @@ unsigned long __init setup_memory(void)
+ 		}
+ 	}
  #endif
-=20
- #endif /* AGPGART */
-@@ -96,6 +96,7 @@
-     U032  agp_fw;
-     void *bitmap;
-     U032 bitmap_size;
-+	nv_linux_state_t *nvl =3D NV_GET_NVL_FROM_NV_STATE(nv);
-=20
-     memset( (void *) &gart, 0, sizeof(agp_gart));
-=20
-@@ -110,7 +111,7 @@
-      * the memory controller.
-      */
-=20
--    if (NV_AGPGART_BACKEND_ACQUIRE(drm_agp_p))
-+    if (NV_AGPGART_BACKEND_ACQUIRE(nvl,drm_agp_p))
-     {
-         nv_printf(NV_DBG_INFO, "NVRM: AGPGART: no backend available\n");
-         goto bailout;
-@@ -128,7 +129,7 @@
-         agp_fw =3D 1;
-     agp_fw &=3D 0x00000001;
-=20
--    if (NV_AGPGART_COPY_INFO(drm_agp_p, &agpinfo))
-+    if (NV_AGPGART_COPY_INFO(nvl,drm_agp_p, &agpinfo))
-     {
-         nv_printf(NV_DBG_ERRORS,
-             "NVRM: AGPGART: kernel reports chipset as unsupported\n");
-@@ -188,7 +189,7 @@
-     if (!(agp_rate & 0x00000004)) agpinfo.mode &=3D ~0x00000004;
-     if (!(agp_rate & 0x00000002)) agpinfo.mode &=3D ~0x00000002;
-    =20
--    NV_AGPGART_BACKEND_ENABLE(drm_agp_p, agpinfo.mode);
-+    NV_AGPGART_BACKEND_ENABLE(nvl,drm_agp_p, agpinfo.mode);
-=20
-     *ap_phys_base   =3D (void*) agpinfo.aper_base;
-     *ap_mapped_base =3D (void*) gart.aperture;
-@@ -200,7 +201,7 @@
-=20
- failed:
-     MTRR_DEL(gart); /* checks gart.mtrr */
--    NV_AGPGART_BACKEND_RELEASE(drm_agp_p);
-+    NV_AGPGART_BACKEND_RELEASE(nvl,drm_agp_p);
- bailout:
- #if defined(KERNEL_2_4)
-     inter_module_put("drm_agp");
-@@ -219,6 +220,7 @@
-     return 1;
- #else
-     void *bitmap;
-+	nv_linux_state_t *nvl;
-=20
-     /* sanity check to make sure we should actually be here. */
-     if (!gart.ready)
-@@ -234,7 +236,8 @@
-         NV_IOUNMAP(gart.aperture, RM_PAGE_SIZE);
-     }
-=20
--    NV_AGPGART_BACKEND_RELEASE(drm_agp_p);
-+	nvl =3D NV_GET_NVL_FROM_NV_STATE(nv);
-+	NV_AGPGART_BACKEND_RELEASE(nvl,drm_agp_p);
- #if defined(KERNEL_2_4)
-     inter_module_put("drm_agp");
- #endif
-@@ -268,6 +271,7 @@
-     agp_memory *ptr;
-     agp_priv_data *data;
-     RM_STATUS status;
-+	nv_linux_state_t *nvl;
-=20
-     if (!gart.ready)
-     {
-@@ -283,7 +287,8 @@
-         return RM_ERROR;
-     }
-=20
--    ptr =3D NV_AGPGART_ALLOCATE_MEMORY(drm_agp_p, PageCount, AGP_NORMAL_ME=
-MORY);
-+	nvl =3D NV_GET_NVL_FROM_NV_STATE(nv);
-+    ptr =3D NV_AGPGART_ALLOCATE_MEMORY(nvl,drm_agp_p, PageCount, AGP_NORMA=
-L_MEMORY);
-     if (ptr =3D=3D NULL)
-     {
-         *pAddress =3D (void*) 0;
-@@ -291,7 +296,7 @@
-         return RM_ERR_NO_FREE_MEM;
-     }
-    =20
--    if (NV_AGPGART_BIND_MEMORY(drm_agp_p, ptr, *Offset))
-+    if (NV_AGPGART_BIND_MEMORY(nvl,drm_agp_p, ptr, *Offset))
-     {
-         // this happens a lot when the aperture itself fills up..
-         // not a big deal, so don't alarm people with an error message
-@@ -304,7 +309,7 @@
-     if (status !=3D RM_OK)
-     {
-         nv_printf(NV_DBG_ERRORS, "NVRM: AGPGART: memory allocation failed\=
-n");
--        NV_AGPGART_UNBIND_MEMORY(drm_agp_p, ptr);
-+        NV_AGPGART_UNBIND_MEMORY(nvl,drm_agp_p, ptr);
-         goto fail;
-     }
-=20
-@@ -319,7 +324,7 @@
-     return RM_OK;
-=20
- fail:
--    NV_AGPGART_FREE_MEMORY(drm_agp_p, ptr);
-+    NV_AGPGART_FREE_MEMORY(nvl,drm_agp_p, ptr);
-     *pAddress =3D (void*) 0;
-=20
-     return RM_ERROR;
-@@ -359,7 +364,7 @@
-     {
-         nv_printf(NV_DBG_ERRORS, "NVRM: AGPGART: unable to remap %lu pages=
-\n",
-             (unsigned long)agp_data->num_pages);
--        NV_AGPGART_UNBIND_MEMORY(drm_agp_p, agp_data->ptr);
-+        NV_AGPGART_UNBIND_MEMORY(nvl,drm_agp_p, agp_data->ptr);
-         goto fail;
-     }
-    =20
-@@ -458,8 +463,8 @@
-     {
-         size_t pages =3D ptr->page_count;
-=20
--        NV_AGPGART_UNBIND_MEMORY(drm_agp_p, ptr);
--        NV_AGPGART_FREE_MEMORY(drm_agp_p, ptr);
-+        NV_AGPGART_UNBIND_MEMORY(nvl,drm_agp_p, ptr);
-+        NV_AGPGART_FREE_MEMORY(nvl,drm_agp_p, ptr);
-=20
-         nv_printf(NV_DBG_INFO, "NVRM: AGPGART: freed %ld pages\n",
-             (unsigned long)pages);
-
-
---=-umvbs/oVkLdzdqywq97M--
-
---=-kVKRjLHWvG+GmbvL99H8
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBB9uNqRlIHNEGnKMMRAnalAJ9kFM33k3tOS8w3i5mdU5fwbM+snACfbLeA
-2V9LXWNkRTQkH3vNsVTQBfU=
-=90dJ
------END PGP SIGNATURE-----
-
---=-kVKRjLHWvG+GmbvL99H8--
-
+-	return system_max_low_pfn;
++	setup_bootmem_allocator();
++	return max_low_pfn;
+ }
+ 
+ void __init zone_sizes_init(void)
+_

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267468AbSLRUgc>; Wed, 18 Dec 2002 15:36:32 -0500
+	id <S267351AbSLRUlu>; Wed, 18 Dec 2002 15:41:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267471AbSLRUgc>; Wed, 18 Dec 2002 15:36:32 -0500
-Received: from mid-1.inet.it ([213.92.5.18]:2192 "EHLO mid-1.inet.it")
-	by vger.kernel.org with ESMTP id <S267468AbSLRUgb> convert rfc822-to-8bit;
-	Wed, 18 Dec 2002 15:36:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: marco mascherpa aka mush <mush@monrif.net>
-To: "Steve Lee" <steve@tuxsoft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: A7M266-D problems with integrate sound device and USB 2.0 PCI card
-Date: Wed, 18 Dec 2002 21:43:55 +0100
-User-Agent: KMail/1.4.3
-References: <000301c2a6d5$bc9bfee0$0201a8c0@pluto>
-In-Reply-To: <000301c2a6d5$bc9bfee0$0201a8c0@pluto>
+	id <S267352AbSLRUlu>; Wed, 18 Dec 2002 15:41:50 -0500
+Received: from [213.171.53.133] ([213.171.53.133]:14603 "EHLO gulipin.miee.ru")
+	by vger.kernel.org with ESMTP id <S267351AbSLRUlt>;
+	Wed, 18 Dec 2002 15:41:49 -0500
+Date: Wed, 18 Dec 2002 23:49:45 +0300 (MSK)
+From: "Ruslan U. Zakirov" <cubic@miee.ru>
+To: Richard A Nelson <cowboy@vnet.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.52 PNP failure
+In-Reply-To: <Pine.LNX.4.51.0212171730020.7058@nqynaqf.yrkvatgba.voz.pbz>
+Message-ID: <Pine.BSF.4.05.10212182341570.25928-100000@wildrose.miee.ru>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212182143.55943.mush@monrif.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 December 2002 21:40, Steve Lee wrote:
-> One of my systems uses the A7M266-D and I've never had any issues with
-> the onboard sound or the usb 2.0 pci card.  I'm wondering if something
-> else in your system could be causing the conflict?
+On Tue, 17 Dec 2002, Richard A Nelson wrote:
 
-i can't imagine what could it be. here's my lspci in case you see something 
-unusual:
-
-root@penelope mush # lspci
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System 
-Controller (rev 11)
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP 
-Bridge
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 05)
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 
-04)
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
-00:09.0 SCSI storage controller: Adaptec AIC-7892A U160/m (rev 02)
-00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 05)
-01:05.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
-02:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB (rev 
-07)
-02:04.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
-02:05.0 Ethernet controller: VIA Technologies, Inc. VT86C100A [Rhine] (rev 06)
-02:08.0 USB Controller: NEC Corporation USB (rev 41)
-02:08.1 USB Controller: NEC Corporation USB (rev 41)
-02:08.2 USB Controller: NEC Corporation USB 2.0 (rev 02)
+> 
+> Hand transcribed, so probably missing something important ...
+> 
+> Oops: 0000
+> Eip:  0060:[<c01cdbf3>] Not tainted
+> EIP is at compare_pnp_id+0x4f/0x78
+> Call Trace:
+> [<c01cfa43>] pnp_name_device+0x23/0x58
+> [<c01cd9af>] __pnp_add_device+0xf/0xc8
+> [<c01cdab4>] pnp_add_device+0x4c/0x54
+> [<c010509b>] init+0x33/0x188
+> [<c0105068>] init+0x0/0x188
+> [<c0109211>] kernel_thread_helper+0x5/0xc
+> 
+> <0>Kernel panic: Attempted to kill init!
+> 
+Try this small patch. I think it'll help.
+--- drivers/pnp/driver.c~       2002-12-20 02:15:30.000000000 +0300
++++ drivers/pnp/driver.c        2002-12-20 02:24:53.000000000 +0300
+@@ -165,6 +165,7 @@
+        if (!dev)
+                return -EINVAL;
+        ptr = dev->id;
++       id->next = NULL;
+        while (ptr && ptr->next)
+                ptr = ptr->next;
+        if (ptr)
+--
+			Ruslan.
 

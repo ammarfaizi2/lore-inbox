@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbTDQLHT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 07:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTDQLHT
+	id S261312AbTDQLeO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 07:34:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTDQLeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 07:07:19 -0400
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:3570 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id S261308AbTDQLHS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 07:07:18 -0400
-Date: Thu, 17 Apr 2003 13:30:56 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: Rik van Riel <riel@imladris.surriel.com>
-Cc: Daniel Sheltraw <sheltraw@unm.edu>, linux-kernel@vger.kernel.org
-Subject: Re: i386 kernel binaries
-Message-ID: <20030417113056.GB16335@wind.cocodriloo.com>
-References: <1050543109.3e9e0405ae425@webmail.unm.edu> <Pine.LNX.4.50L.0304162134000.18306-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50L.0304162134000.18306-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.28i
+	Thu, 17 Apr 2003 07:34:14 -0400
+Received: from camay.yandex.ru ([213.180.193.64]:8458 "EHLO camay.yandex.ru")
+	by vger.kernel.org with ESMTP id S261312AbTDQLeN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 07:34:13 -0400
+Date: Thu, 17 Apr 2003 15:45:55 +0400 (MSD)
+From: "DigorA" <ydigora@yandex.ru>
+Reply-To: ydigora@yandex.ru
+Message-Id: <3E9E93F3.000007.06385@camay.yandex.ru>
+MIME-Version: 1.0
+X-Mailer: Yamail [ http://yandex.ru ]
+To: linux-kernel@vger.kernel.org
+Subject: /target0/lun0/
+X-source-ip: 212.40.192.21
+Content-Type: text/plain;
+  charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 16, 2003 at 09:34:44PM -0400, Rik van Riel wrote:
-> On Wed, 16 Apr 2003, Daniel Sheltraw wrote:
-> 
-> > Can one build a Linux Kernel that can be expected to run on all
-> > i386 machines. If so how? Can you point me in the right direction?
-> 
-> Look at the -BOOT kernels from the various distributions.
-> 
-> The kernel on the installer media should run on all x86
-> machines.
-> 
-> cheers,
-> 
-> Rik
-> -- 
-> Engineers don't grow up, they grow sideways.
-> http://www.surriel.com/		http://kernelnewbies.org/
+Waiting for your help!
 
-Try setting processor type to i386 and enabling FPU emulation. This
-should cover even 386sx machines.
+After successfull update of a new kernel from 2.2.14 to 2.4.18 first rebooting did failed.  On the stage of initialisation (but before inittab) had wrote "Partition check: /dev/ide/host0/bus0/target0/lun0" and buzzed.  Booting from rescue disk with differnet kernel (some disks with kernel 2.4.x does work, some doesn't) enables disk.  But I'm resctricted with usage and long booting and differnet kernel and so on.  So hard disk works through other kernel.  What can be done?
 
-Greets, Antonio.
+Thank you in advance,
+
+Igor A. Dmitriev.

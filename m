@@ -1,38 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315168AbSGQOeN>; Wed, 17 Jul 2002 10:34:13 -0400
+	id <S313711AbSGQOw2>; Wed, 17 Jul 2002 10:52:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315162AbSGQOeN>; Wed, 17 Jul 2002 10:34:13 -0400
-Received: from imr2.ericy.com ([198.24.6.3]:33463 "EHLO imr2.ericy.com")
-	by vger.kernel.org with ESMTP id <S314938AbSGQOeM>;
-	Wed, 17 Jul 2002 10:34:12 -0400
-Message-ID: <7B2A7784F4B7F0409947481F3F3FEF8303A070F6@eammlnt051.lmc.ericsson.se>
-From: "Philippe Veillette (LMC)" <Philippe.Veillette@ericsson.ca>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: question about the receiving ip path
-Date: Wed, 17 Jul 2002 10:37:04 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315179AbSGQOw2>; Wed, 17 Jul 2002 10:52:28 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:28642 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S313711AbSGQOw1>; Wed, 17 Jul 2002 10:52:27 -0400
+Date: Wed, 17 Jul 2002 16:55:23 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: input subsystem config ?
+Message-ID: <20020717145523.GJ14581@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20020716143415.GO7955@tahoe.alcove-fr> <20020717095618.GD14581@tahoe.alcove-fr> <20020717120135.A12452@ucw.cz> <20020717101001.GE14581@tahoe.alcove-fr> <20020717140804.B12529@ucw.cz> <20020717132459.GF14581@tahoe.alcove-fr> <20020717154448.A19761@ucw.cz> <20020717135823.GG14581@tahoe.alcove-fr> <20020717162904.B19935@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020717162904.B19935@ucw.cz>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Wed, Jul 17, 2002 at 04:29:04PM +0200, Vojtech Pavlik wrote:
 
-With the lsm hook, I have found that each time I receive a packet (a UDP
-packet) it's allocating a sk_buff, after, it's cloning it, then it free
-it!!!, then i receive the first skbuff and then it's freed.  Should i add
-that i didn't see the cloned sk_buff.
+> > I should enhance however that it works with the old pc_keyb driver.
+> 
+> Yes, I know. That's why I suggested skipping the detection, as the
+> pc_keyb driver doesn't do that.
+> 
+> Try this:
+> 
+> --- i8042.c.old	Wed Jul 17 16:05:57 2002
+> +++ i8042.c	Wed Jul 17 16:27:54 2002
+> @@ -571,6 +571,8 @@
+>  
+>  	i8042_flush();
+>  
+> +#if 0
+[...]
 
-Ok, i know that there should be something done with the cloned sk_buff,
-since if it's not the case, if only slowing the receving side for no good
-reason...
+Argh, with this patch, the mouse still doesn't work but I also
+lose the keyboard (but keyboard press/release events are
+however present in the logs...)!
 
-I would like to know if the cloned sk_buff is really needed, and also what
-is the path used, (how to find it, since it's a maze to try to figure out
-the receiving path, by looking at place where sk_buff are cloned, since I
-don't know the entry function).  At least knowing the entry function could
-help a lot.
+[...]
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ hda: 23579136 sectors w/512KiB Cache, CHS=23392/16/63, UDMA(33)
+ hda: [PTBL] [1467/255/63] hda1 hda2 hda3 < hda5 hda6 >
+mice: PS/2 mouse device common for all mice
+i8042.c: fa <- i8042 (flush, kbd) [0]
+i8042.c: 20 -> i8042 (command) [0]
+i8042.c: 47 <- i8042 (return) [0]
+i8042.c: 60 -> i8042 (command) [1]
+i8042.c: 56 -> i8042 (parameter) [1]
+i8042.c: a8 -> i8042 (command) [1]
+i8042.c: 60 -> i8042 (command) [1]
+i8042.c: 56 -> i8042 (parameter) [1]
+serio: i8042 AUX port at 0x60,0x64 irq 12
+i8042.c: 60 -> i8042 (command) [1]
+i8042.c: 46 -> i8042 (parameter) [1]
+serio: i8042 KBD port at 0x60,0x64 irq 1
+NET4: Linux TCP/IP 1.0 for NET4.0
+[...]
+i8042.c: 39 <- i8042 (interrupt, kbd, 0) [96160]
+i8042.c: b9 <- i8042 (interrupt, kbd, 0) [96260]
+i8042.c: 39 <- i8042 (interrupt, kbd, 0) [97310]
+i8042.c: b9 <- i8042 (interrupt, kbd, 0) [97410]
+i8042.c: 39 <- i8042 (interrupt, kbd, 0) [102010]
+i8042.c: b9 <- i8042 (interrupt, kbd, 0) [102110]
 
-Philippe
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

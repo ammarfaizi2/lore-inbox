@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131468AbQJ2AIo>; Sat, 28 Oct 2000 20:08:44 -0400
+	id <S131451AbQJ2ANG>; Sat, 28 Oct 2000 20:13:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131469AbQJ2AIe>; Sat, 28 Oct 2000 20:08:34 -0400
-Received: from hera.cwi.nl ([192.16.191.1]:17366 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131468AbQJ2AIX>;
-	Sat, 28 Oct 2000 20:08:23 -0400
-Date: Sun, 29 Oct 2000 02:08:20 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200010290008.CAA107942.aeb@aak.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: panther ethernet and SCSI
-Cc: linux-scsi@vger.kernel.org
+	id <S131462AbQJ2AMz>; Sat, 28 Oct 2000 20:12:55 -0400
+Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:39872
+	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
+	with SMTP id <S131451AbQJ2AMe>; Sat, 28 Oct 2000 20:12:34 -0400
+Date: Sun, 29 Oct 2000 02:12:32 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] ide-patch for 2.2.18(pre)
+In-Reply-To: <Pine.LNX.4.21.0010280032200.9401-100000@tricky>
+Message-ID: <Pine.NEB.4.30.0010290207120.19188-100000@gaia.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently I got a "Professional Workstation" - a 486DX33
-with 82596 on board ethernet and NCR(?) on board SCSI.
+On Sat, 28 Oct 2000, Bartlomiej Zolnierkiewicz wrote:
 
-It was not very difficult to get the 82596 to work
-(I put something that works on
-	ftp.XX.kernel.org/pub/linux/kernel/people/aeb/lp486e.c
-comments are welcome)
-The 82596 itself is well-documented in Intel's 29021806.pdf
-but I have almost no information on the use of the I/O ports
-and do not know a good way to find the ethernet address.
+>...
+> I don't use 2.2.x kernels anymore so I don't do ide-patches for pre
+> kernels. But there will be patches for stable 2.2.x. (Although it's
+> a real pain - I hate doing backporting instead of new stuff).
 
-But there is also SCSI on this board - at boot time it prints
-        Ballard Synergy CAMcore(R), Copyright 1991, 1.602
-        LP486E  NCR SDMS
-if and only if SCSI is enabled in the BIOS setup.
-Does anybody have an idea how to make this do something?
+I have modified your patch to apply cleanly against 2.2.18pre18. You can
+find this patch at
 
-Andries
+  http://www.fs.tum.de/~bunk/ide.2.2.18pre18.adrian.patch.bz2
+
+
+cu,
+Adrian
+
+-- 
+A "No" uttered from deepest conviction is better and greater than a
+"Yes" merely uttered to please, or what is worse, to avoid trouble.
+                -- Mahatma Ghandi
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

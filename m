@@ -1,60 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312588AbSDFQwa>; Sat, 6 Apr 2002 11:52:30 -0500
+	id <S312604AbSDFRCD>; Sat, 6 Apr 2002 12:02:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312604AbSDFQw3>; Sat, 6 Apr 2002 11:52:29 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:47080 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S312588AbSDFQw2>;
-	Sat, 6 Apr 2002 11:52:28 -0500
-Date: Sat, 6 Apr 2002 11:52:28 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [WTF] ->setattr() locking changes
-In-Reply-To: <Pine.LNX.4.33.0204060818440.16963-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0204061131040.632-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312606AbSDFRCC>; Sat, 6 Apr 2002 12:02:02 -0500
+Received: from bitmover.com ([192.132.92.2]:4564 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S312604AbSDFRCB>;
+	Sat, 6 Apr 2002 12:02:01 -0500
+Date: Sat, 6 Apr 2002 09:01:57 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Larry McVoy <lm@bitmover.com>, reiserfs-dev@namesys.com,
+        linux-kernel@vger.kernel.org, flx <flx@namesys.com>
+Subject: Re: ReiserFS Bug Fixes 3 of 6 (Please apply all 6)
+Message-ID: <20020406090157.A12017@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Hans Reiser <reiser@namesys.com>, Larry McVoy <lm@bitmover.com>,
+	reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org,
+	flx <flx@namesys.com>
+In-Reply-To: <200204052027.g35KRc002869@bitshadow.namesys.com> <Pine.LNX.4.33.0204051347500.1746-100000@penguin.transmeta.com> <20020405171001.C6087@work.bitmover.com> <3CAEE365.4020301@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 06, 2002 at 04:00:37PM +0400, Hans Reiser wrote:
+> I am confused, the bk patches look like they have normal patches at the 
+> top of them.  
 
+If you just want to send him regular patches, use bk export -tpatch.
+That's sort of a lame way to go if you are using BK on both ends,
+you're going to end up merging your changes with your changes when
+you pull from Linus' tree.  There are lots of reasons why this isn't
+a good idea.
 
-On Sat, 6 Apr 2002, Linus Torvalds wrote:
- 
-> > _Please_, grep before doing global changes.  Trivial search for
-> > notify_change() would show several calls under ->i_sem.  E.g. one
-> > in fs/nfsd/vfs.c.  Or in hpfs_unlink().
-> 
-> Hmm.. I don't think the fs/nfsd/vfs.c case is "obviously" under i_sem.  
-> Certainly not from grepping. Where?
+> We were planning on setting up a clone for non-Namesys users outside our 
+> firewall, but we need for Linus's access to be just as secure as ours. 
 
-fh_lock()/fh_unlock().  Hell, it does call notify_change() with ATTR_SIZE,
-so unless i_sem was taken by caller we would be in big trouble, wouldn't
-we?  Old rules were "if you call it to truncate a file, grab i_sem".
+bk help url, then look at 
 
-> The hpfs/namei.c one definitely needs the removal of the up/down, though. 
-> Altghough for the life of me I don't see why the filesystem _does_ that at 
-> all, since it should have been done by the upper layers already, no?
+       bk://<user>@<host>
+	Connects to <host> using ssh, assumes that bkd is  the
+	login shell.  The home directory of <user> must be the
+	root of the repository.
 
-<looking> oh, crap.
+then you can make a login shell that looks like
 
-OK, here's the story:
-	* HPFS can run out of space trying to remove entry from directory.
-Joys of badly implemented B-Trees.  So as a last-ditch we try to truncate
-victim in hope that it will give us some space.  _If_ there is nobody else
-who'd have access to it.  Thus the truncate() attempt.
-	* my flame re grep(1) applies to myself - first deadlock in there
-had been created by new locking rules patch (in fs/namei.c).
-	* Dave's patch had added one more level of the same.  Happy, happy,
-joy, joy...
+	#!/bin/sh
+	exec bk bkd -xcd 
 
-	Looking at that stuff, I'd suggest to
-a) kill that branch in hpfs_unlink().
-b) remove fh_lock()/fh_unlock() in nfsd/vfs.c::nfsd_setattr() (Trond?)
-c) add ATTR_SXID that would do s[ug]id removal - under ->i_sem and switch
-   the callers to it.
+and you have an ssh based login which can only look at data in that
+directory.  This is how the write path on bkbits.net works.
 
-Comments?  If you don't see any problems with this variant I'll do it.
+> Another model you might consider, one which would probably make you more 
+> money, make us happier, and better avoid "freeloaders", would be to make 
+> bitkeeper free for use with free software only.  This would be rather 
+> similar to what I use for reiserfs, which is free for use with free 
+> operating systems only, and available for a fee for all others.  It 
+> allows you to "do unto others as they would do unto you" (The Reiser 
+> Rule ;-) ).
 
+We are dealing with various commercial organizations who play games
+with the checkin comments so that they can use BK for free and not give
+up any information.  Technically, it's a violation of the license if
+they do that, but proving that they are doing it just isn't worth it.
+What I'm tempted to do is to figure out a reasonable way to force free
+uses to make their changes publically available.  More like sourceforge,
+if you use their service, anyone can get at your source.  The problem
+is that we can't force all the changes out into the open immediately,
+people may have good reasons to hide (security changes, for example),
+along with bad reasons (they're freeloaders).
+
+Allowing free use of BK with free software only doesn't solve anything.
+We have lots of people doing that and still hiding their changes
+behind empty (or "fixed") checkin comments.  It's only the commercial
+organizations who are a problem.  I'd really like to force those changes
+out in the open if they aren't going to pay.  The whole point of the
+openlogging stuff was to get people to work out in the open.
+
+I've thought a bit about some sort of answer which addresses this and
+I'm curious to see what people would think if the rule were that your
+changes had to show up on a public server within a given time period
+(a month? 2 months? 3 months?).  In other words, factor in a reasonable
+ability to work in privacy but make it be limited enough that it only
+works for truly free software.
+
+My definition of free software is anything where the source is publically
+available.  It's sometimes called "Open Source".  Open source software
+where you can't get at the source is lame.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288012AbSCTOOP>; Wed, 20 Mar 2002 09:14:15 -0500
+	id <S290983AbSCTOWP>; Wed, 20 Mar 2002 09:22:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290983AbSCTOOF>; Wed, 20 Mar 2002 09:14:05 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47881 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288012AbSCTONy>; Wed, 20 Mar 2002 09:13:54 -0500
-Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
-To: macro@ds2.pg.gda.pl
-Date: Wed, 20 Mar 2002 14:29:10 +0000 (GMT)
-Cc: Martin.Wilck@fujitsu-siemens.com (Martin Wilck),
-        pavel@suse.cz (Pavel Machek), mingo@elte.hu (Ingo Molnar),
-        linux-kernel@vger.kernel.org (Linux Kernel mailing list)
-In-Reply-To: <Pine.GSO.3.96.1020320121631.13532A-100000@delta.ds2.pg.gda.pl> from "Maciej W. Rozycki" at Mar 20, 2002 02:27:15 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16nh5S-0002NW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S311589AbSCTOWF>; Wed, 20 Mar 2002 09:22:05 -0500
+Received: from cm.med.3284844210.kabelnet.net ([195.202.190.178]:59356 "EHLO
+	phobos.hvrlab.org") by vger.kernel.org with ESMTP
+	id <S290983AbSCTOVy>; Wed, 20 Mar 2002 09:21:54 -0500
+Subject: Re: 2.4.19pre3aa2
+From: Herbert Valerio Riedel <hvr@hvrlab.org>
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+Cc: Jens Axboe <axboe@suse.de>, Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C97C924.A9A256F6@pp.inet.fi>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-1zQJ8Ko0NbVH9NaxO2ZH"
+X-Mailer: Evolution/1.0.2 
+Date: 20 Mar 2002 15:21:25 +0100
+Message-Id: <1016634085.1944.39.camel@janus.txd.hvrlab.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Depending on the configuration -- a user may specify "notsc" for whatever
-> reason (although admittedly, that's mostly a debugging option).
 
-Mixed multiplier x86 for one - I've got some basic code there to handle
-this automatically but its not yet finished. Plenty of BP6 folks have
-mismatched celewrongs
+--=-1zQJ8Ko0NbVH9NaxO2ZH
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> no need to keep it enabled unconditionally and I/O cycles are quite
-> expensive.  The following patch implements it.  Please test it.  It should
-> cure your problems as a side effect, but that does not mean the BIOS isn't
-> to be fixed.
+On Wed, 2002-03-20 at 00:26, Jari Ruusu wrote:
+> > > If there is any chance of being merged to mainline kernel, I will fix=
+ these
+> > > "hurt the eyes" formatting issues.
+> > I think there is. At least I can safely say there's no chance it will b=
+e
+> > merged if these things aren't fixed. So take your pick :-)
+> OK, I have fixed above mentioned formatting issues. A patch is attached.
 
-The DMI strings for that bios version would be useful to so that we can
-panic with a "BIOS upgrade required" message
+...well, you still haven't honored my modest wish of the innocent 2
+#define's and 1 typedef...=20
+
+regards,
+--=20
+Herbert Valerio Riedel       /    Phone: (EUROPE) +43-1-58801-18840
+Email: hvr@hvrlab.org       /    Finger hvr@gnu.org for GnuPG Public Key
+GnuPG Key Fingerprint: 7BB9 2D6C D485 CE64 4748  5F65 4981 E064 883F
+4142
+
+--=-1zQJ8Ko0NbVH9NaxO2ZH
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8mJrkSYHgZIg/QUIRArswAJwMNtXKP/qVWeuaxEC386hXFnIQQQCfQN9t
+/63Vsi9hk+52e7ZtFj78AaA=
+=I9zp
+-----END PGP SIGNATURE-----
+
+--=-1zQJ8Ko0NbVH9NaxO2ZH--
+

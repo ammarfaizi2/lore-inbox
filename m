@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283267AbRLDSwo>; Tue, 4 Dec 2001 13:52:44 -0500
+	id <S282392AbRLDSvD>; Tue, 4 Dec 2001 13:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283273AbRLDSvS>; Tue, 4 Dec 2001 13:51:18 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:3753 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S283304AbRLDSut>; Tue, 4 Dec 2001 13:50:49 -0500
-Date: Tue, 4 Dec 2001 11:50:49 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: raul@viadomus.com
-Cc: linux-kernel@vger.kernel.org
+	id <S283223AbRLDStr>; Tue, 4 Dec 2001 13:49:47 -0500
+Received: from zero.tech9.net ([209.61.188.187]:44804 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S283293AbRLDSsT>;
+	Tue, 4 Dec 2001 13:48:19 -0500
 Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204185049.GP17651@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <E16BKeT-0001zt-00@DervishD.viadomus.com>
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: esr@thyrsus.com, Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@caldera.de>,
+        Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
+        torvalds@transmeta.com
+In-Reply-To: <E16BJt4-0002rT-00@the-village.bc.nu>
+In-Reply-To: <E16BJt4-0002rT-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 04 Dec 2001 13:47:59 -0500
+Message-Id: <1007491684.1307.16.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16BKeT-0001zt-00@DervishD.viadomus.com>
-User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 07:50:45PM +0100, Ra?l N??ez de Arenas Coronado wrote:
+On Tue, 2001-12-04 at 13:01, Alan Cox wrote:
 
-> >The spec for CML2 is out there, and there's even a CML2-in-C project.
-> 
->     How advanced? Where is the spec, please?
+> Feel free. You'll find python v1. There is a very early python2 on the
+> optional power tools CD that some folks will have but downloaders generally
+> dont bother with.
 
-I'm not sure how far the C version is, the spec is:
-http://www.tuxedo.org/~esr/cml2/cml2-reference.html
+Also, I don't think any version of RedHat has Tkinter 2.0 yet ...
 
-> >>     The kernel should depend just on the compiler and assembler, IMHO.
-> >The right tools for the right job.  C is good for the kernel.  Python is
-> >good at manipulating strings.
-> 
->     Well, IMHO Python is good only in being big and doing things
-> slow, but... why the parser cannot be built over flex/bison?. That
-> way it can be 'pregenerated' and people won't need additional tools
-> to build the kernel.
+	Robert Love
 
-ESR didn't feel it was the right choice, basically.
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/

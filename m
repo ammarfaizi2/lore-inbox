@@ -1,1094 +1,353 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317483AbSGTUSD>; Sat, 20 Jul 2002 16:18:03 -0400
+	id <S317488AbSGTUTC>; Sat, 20 Jul 2002 16:19:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317488AbSGTUSD>; Sat, 20 Jul 2002 16:18:03 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:37620 "EHLO
+	id <S317494AbSGTUTB>; Sat, 20 Jul 2002 16:19:01 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:38644 "EHLO
 	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317483AbSGTURp>; Sat, 20 Jul 2002 16:17:45 -0400
-Subject: [PATCH] VM strict overcommit
+	id <S317488AbSGTUSr>; Sat, 20 Jul 2002 16:18:47 -0400
+Subject: [PATCH] generalized spin_lock_bit
 From: Robert Love <rml@tech9.net>
-To: akpm@zip.com.au, torvalds@transmeta.com
-Cc: riel@conectiva.com.br, linux-kernel@vger.kernel.org
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@conectiva.com.br,
+       wli@holomorphy.com
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 20 Jul 2002 13:20:03 -0700
-Message-Id: <1027196403.1086.751.camel@sinai>
+Date: 20 Jul 2002 13:21:51 -0700
+Message-Id: <1027196511.1555.767.camel@sinai>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus and Andrew,
+Linus, 
 
-The following patch implements VM strict overcommit for rmap.  Strict
-overcommit couples address space accounting with a strict commit rule to
-ensure all allocated memory is backed and consequently we never OOM. 
-All memory failures should be pushed into the allocation routines - a
-page access should never result in a process kill.
+The attached patch implements bit-sized spinlocks via the following
+interfaces:
 
-The new strict overcommit policies are implemented via sysctl.
+	static inline void spin_lock_bit(int nr, unsigned long * lock)
+	static inline void spin_unlock_bit(int nr, unsigned long * lock)
 
-This is relatively low-impact on other code and does not change the
-behavior of the system in the default overcommit policy.  Rik has given
-his approval.
+This is to abstract the per-page bit-sized locking used in rmap and fold
+those uses into a general interface.  Right now the VM code is using its
+own interface.  This patch replaces those uses with the above interface.
+The locks optimize away on UP (which they currently do not).  They are
+preempt-safe.  Object code should remain the same for SMP while UP will
+no longer have the unneeded locks.
 
-This is based on Alan Cox's work in 2.4-ac with some cleanup and a new
-overcommit mode for swapless machines. Hugh Dickins also contributed
-some fixes for shmfs.
+Thanks to Christoph Hellwig for prodding to make it per-architecture,
+Ben LaHaise for the loop optimization, and William Irwin for the
+original bit locking.
 
 Patch is against 2.5.27, please apply.
 
 	Robert Love
 
-diff -urN linux-2.5.27/Documentation/sysctl/vm.txt linux/Documentation/sysctl/vm.txt
---- linux-2.5.27/Documentation/sysctl/vm.txt	Sat Jul 20 12:11:30 2002
-+++ linux/Documentation/sysctl/vm.txt	Sat Jul 20 12:35:11 2002
-@@ -78,7 +78,11 @@
- programs that malloc() huge amounts of memory "just-in-case"
- and don't use much of it.
- 
--Look at: mm/mmap.c::vm_enough_memory() for more information.
-+Flag values of 2 - 4 introduce a new "strict overcommit"
-+policy that attempt to prevent any overcommit of memory.
-+
-+See Documentation/vm/overcommit-accounting and
-+mm/mmap.c::vm_enough_memory() for more information.
- 
- ==============================================================
- 
-diff -urN linux-2.5.27/Documentation/vm/overcommit-accounting linux/Documentation/vm/overcommit-accounting
---- linux-2.5.27/Documentation/vm/overcommit-accounting	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/vm/overcommit-accounting	Sat Jul 20 12:35:11 2002
-@@ -0,0 +1,77 @@
-+The Linux kernel supports four overcommit handling modes
-+
-+0	-	Heuristic overcommit handling. Obvious overcommits of
-+		address space are refused. Used for a typical system. It
-+		ensures a seriously wild allocation fails while allowing
-+		overcommit to reduce swap usage.  This is the default.
-+
-+1	-	No overcommit handling. Appropriate for some scientific
-+		applications.
-+
-+2	-	(NEW) swapless strict overcommit. The total address space
-+		commit for the system is not permitted to exceed 95% of
-+		free memory. This mode utilizes the new stricter accounting
-+		but does not impose a very strict rule.  It is possible that
-+		the system could kill a process accessing pages in certain
-+		cases.  If mode 3 is too strict when no swap is	present
-+		this is the best you can do.
-+
-+3	-	(NEW) strict overcommit. The total address space commit
-+		for the system is not permitted to exceed swap + half ram.
-+		In almost all situations this means a process will not be
-+		killed while accessing pages but only by malloc failures
-+		that are reported back by the kernel mmap/brk code.
-+
-+4	-	(NEW) paranoid overcommit. The total address space commit
-+		for the system is not permitted to exceed swap. The machine
-+		will never kill a process accessing pages it has mapped
-+		except due to a bug (ie report it!).
-+
-+Gotchas
-+-------
-+
-+The C language stack growth does an implicit mremap. If you want absolute
-+guarantees and run close to the edge you MUST mmap your stack for the 
-+largest size you think you will need. For typical stack usage is does
-+not matter much but its a corner case if you really really care
-+
-+In modes 2 and 3 the MAP_NORESERVE flag is ignored. 
-+
-+
-+How It Works
-+------------
-+
-+The overcommit is based on the following rules
-+
-+For a file backed map
-+	SHARED or READ only	-	0 cost (the file is the map not swap)
-+
-+	WRITABLE SHARED		-	size of mapping per instance
-+
-+For a direct map
-+	SHARED or READ only	-	size of mapping
-+	PRIVATE WRITEABLE	-	size of mapping per instance
-+
-+Additional accounting
-+	Pages made writable copies by mmap
-+	shmfs memory drawn from the same pool
-+
-+Status
-+------
-+
-+o	We account mmap memory mappings
-+o	We account mprotect changes in commit
-+o	We account mremap changes in size
-+o	We account brk
-+o	We account munmap
-+o	We report the commit status in /proc
-+o	Account and check on fork
-+o	Review stack handling/building on exec
-+o	SHMfs accounting
-+o	Implement actual limit enforcement
-+
-+To Do
-+-----
-+o	Account ptrace pages (this is hard)
-+o	Account for shared anonymous mappings properly
-+	- right now we account them per instance
-diff -urN linux-2.5.27/fs/exec.c linux/fs/exec.c
---- linux-2.5.27/fs/exec.c	Sat Jul 20 12:11:14 2002
-+++ linux/fs/exec.c	Sat Jul 20 12:35:11 2002
-@@ -313,8 +313,13 @@
- 
- 	mpnt = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
- 	if (!mpnt) 
--		return -ENOMEM; 
--	
-+		return -ENOMEM;
-+
-+	if (!vm_enough_memory((STACK_TOP - (PAGE_MASK & (unsigned long) bprm->p))>>PAGE_SHIFT)) {
-+		kmem_cache_free(vm_area_cachep, mpnt);
-+		return -ENOMEM;
-+	}
-+
- 	down_write(&current->mm->mmap_sem);
- 	{
- 		mpnt->vm_mm = current->mm;
-diff -urN linux-2.5.27/fs/proc/proc_misc.c linux/fs/proc/proc_misc.c
---- linux-2.5.27/fs/proc/proc_misc.c	Sat Jul 20 12:11:08 2002
-+++ linux/fs/proc/proc_misc.c	Sat Jul 20 12:36:19 2002
-@@ -126,11 +126,13 @@
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- }
- 
-+extern atomic_t vm_committed_space;
-+
- static int meminfo_read_proc(char *page, char **start, off_t off,
- 				 int count, int *eof, void *data)
- {
- 	struct sysinfo i;
--	int len;
-+	int len, committed;
- 	struct page_state ps;
- 
- 	get_page_state(&ps);
-@@ -140,6 +142,7 @@
- #define K(x) ((x) << (PAGE_SHIFT - 10))
- 	si_meminfo(&i);
- 	si_swapinfo(&i);
-+	committed = atomic_read(&vm_committed_space);
- 
- 	/*
- 	 * Tagged format, for easy grepping and expansion.
-@@ -160,6 +163,7 @@
- 		"SwapFree:     %8lu kB\n"
- 		"Dirty:        %8lu kB\n"
- 		"Writeback:    %8lu kB\n"
-+		"Committed_AS: %8u kB\n"
- 		"PageTables:   %8lu kB\n"
- 		"PteChainTot:  %8lu kB\n"
- 		"PteChainUsed: %8lu kB\n",
-@@ -178,6 +182,7 @@
- 		K(i.freeswap),
- 		K(ps.nr_dirty),
- 		K(ps.nr_writeback),
-+		K(committed),
- 		K(ps.nr_page_table_pages),
- 		K(ps.nr_pte_chain_pages),
- 		ps.used_pte_chains_bytes >> 10
-diff -urN linux-2.5.27/include/linux/mm.h linux/include/linux/mm.h
---- linux-2.5.27/include/linux/mm.h	Sat Jul 20 12:11:06 2002
-+++ linux/include/linux/mm.h	Sat Jul 20 12:35:11 2002
-@@ -103,8 +103,9 @@
- #define VM_DONTCOPY	0x00020000      /* Do not copy this vma on fork */
- #define VM_DONTEXPAND	0x00040000	/* Cannot expand with mremap() */
- #define VM_RESERVED	0x00080000	/* Don't unmap it from swap_out */
-+#define VM_ACCOUNT	0x00100000	/* Is a VM accounted object */
- 
--#define VM_STACK_FLAGS	(0x00000100 | VM_DATA_DEFAULT_FLAGS)
-+#define VM_STACK_FLAGS	(0x00000100 | VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT)
- 
- #define VM_READHINTMASK			(VM_SEQ_READ | VM_RAND_READ)
- #define VM_ClearReadHint(v)		(v)->vm_flags &= ~VM_READHINTMASK
-@@ -430,7 +431,7 @@
- 	return ret;
- }
- 
--extern int do_munmap(struct mm_struct *, unsigned long, size_t);
-+extern int do_munmap(struct mm_struct *, unsigned long, size_t, int);
- 
- extern unsigned long do_brk(unsigned long, unsigned long);
- 
-@@ -472,31 +473,8 @@
- void page_cache_readaround(struct file *file, unsigned long offset);
- void handle_ra_miss(struct file *file);
- 
--/* vma is the first one with  address < vma->vm_end,
-- * and even  address < vma->vm_start. Have to extend vma. */
--static inline int expand_stack(struct vm_area_struct * vma, unsigned long address)
--{
--	unsigned long grow;
--
--	/*
--	 * vma->vm_start/vm_end cannot change under us because the caller is required
--	 * to hold the mmap_sem in write mode. We need to get the spinlock only
--	 * before relocating the vma range ourself.
--	 */
--	address &= PAGE_MASK;
--	grow = (vma->vm_start - address) >> PAGE_SHIFT;
--	if (vma->vm_end - address > current->rlim[RLIMIT_STACK].rlim_cur ||
--	    ((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) > current->rlim[RLIMIT_AS].rlim_cur)
--		return -ENOMEM;
--	spin_lock(&vma->vm_mm->page_table_lock);
--	vma->vm_start = address;
--	vma->vm_pgoff -= grow;
--	vma->vm_mm->total_vm += grow;
--	if (vma->vm_flags & VM_LOCKED)
--		vma->vm_mm->locked_vm += grow;
--	spin_unlock(&vma->vm_mm->page_table_lock);
--	return 0;
--}
-+/* Do stack extension */
-+extern int expand_stack(struct vm_area_struct * vma, unsigned long address);
- 
- /* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
- extern struct vm_area_struct * find_vma(struct mm_struct * mm, unsigned long addr);
-diff -urN linux-2.5.27/include/linux/mman.h linux/include/linux/mman.h
---- linux-2.5.27/include/linux/mman.h	Sat Jul 20 12:11:08 2002
-+++ linux/include/linux/mman.h	Sat Jul 20 12:35:11 2002
-@@ -6,4 +6,7 @@
- #define MREMAP_MAYMOVE	1
- #define MREMAP_FIXED	2
- 
-+extern int vm_enough_memory(long pages);
-+extern void vm_unacct_memory(long pages);
-+
- #endif /* _LINUX_MMAN_H */
-diff -urN linux-2.5.27/ipc/shm.c linux/ipc/shm.c
---- linux-2.5.27/ipc/shm.c	Sat Jul 20 12:11:20 2002
-+++ linux/ipc/shm.c	Sat Jul 20 12:35:11 2002
-@@ -670,7 +670,7 @@
- 		shmdnext = shmd->vm_next;
- 		if (shmd->vm_ops == &shm_vm_ops
- 		    && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr) {
--			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start);
-+			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start, 1);
- 			retval = 0;
- 		}
- 	}
-diff -urN linux-2.5.27/kernel/fork.c linux/kernel/fork.c
---- linux-2.5.27/kernel/fork.c	Sat Jul 20 12:11:07 2002
-+++ linux/kernel/fork.c	Sat Jul 20 12:36:45 2002
-@@ -23,6 +23,7 @@
- #include <linux/personality.h>
- #include <linux/file.h>
- #include <linux/binfmts.h>
-+#include <linux/mman.h>
- #include <linux/fs.h>
- #include <linux/security.h>
- 
-@@ -181,6 +182,7 @@
- {
- 	struct vm_area_struct * mpnt, *tmp, **pprev;
- 	int retval;
-+	unsigned long charge = 0;
- 
- 	flush_cache_mm(current->mm);
- 	mm->locked_vm = 0;
-@@ -208,6 +210,17 @@
- 		retval = -ENOMEM;
- 		if(mpnt->vm_flags & VM_DONTCOPY)
- 			continue;
-+
-+		/*
-+		 * FIXME: shared writable map accounting should be one off
-+		 */
-+		if (mpnt->vm_flags & VM_ACCOUNT) {
-+			unsigned int len = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;
-+			if (!vm_enough_memory(len))
-+				goto fail_nomem;
-+			charge += len;
-+		}
-+
- 		tmp = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
- 		if (!tmp)
- 			goto fail_nomem;
-@@ -248,9 +261,12 @@
- 	retval = 0;
- 	build_mmap_rb(mm);
- 
--fail_nomem:
-+out:
- 	flush_tlb_mm(current->mm);
- 	return retval;
-+fail_nomem:
-+	vm_unacct_memory(charge);
-+	goto out;
- }
- 
- spinlock_t mmlist_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
-diff -urN linux-2.5.27/mm/mmap.c linux/mm/mmap.c
---- linux-2.5.27/mm/mmap.c	Sat Jul 20 12:11:07 2002
-+++ linux/mm/mmap.c	Sat Jul 20 12:35:11 2002
-@@ -1,8 +1,11 @@
- /*
-- *	linux/mm/mmap.c
-+ * mm/mmap.c
-  *
-  * Written by obz.
-+ *
-+ * Address space accounting code	<alan@redhat.com>
-  */
-+
- #include <linux/slab.h>
- #include <linux/shm.h>
- #include <linux/mman.h>
-@@ -49,51 +52,94 @@
- };
- 
- int sysctl_overcommit_memory;
-+atomic_t vm_committed_space = ATOMIC_INIT(0);
- 
--/* Check that a process has enough memory to allocate a
-- * new virtual mapping.
-+/*
-+ * Check that a process has enough memory to allocate a new virtual
-+ * mapping. 1 means there is enough memory for the allocation to
-+ * succeed and 0 implies there is not.
-+ *
-+ * We currently support four overcommit policies, which are set via the
-+ * overcommit_memory sysctl.  See Documentation/vm/overcommit-acounting
-+ *
-+ * Strict overcommit modes added 2002 Feb 26 by Alan Cox.
-  */
- int vm_enough_memory(long pages)
- {
--	/* Stupid algorithm to decide if we have enough memory: while
--	 * simple, it hopefully works in most obvious cases.. Easy to
--	 * fool it, but this should catch most mistakes.
--	 */
--	/* 23/11/98 NJC: Somewhat less stupid version of algorithm,
--	 * which tries to do "TheRightThing".  Instead of using half of
--	 * (buffers+cache), use the minimum values.  Allow an extra 2%
--	 * of num_physpages for safety margin.
--	 */
-+	unsigned long free, allowed;
- 
--	unsigned long free;
--	
--        /* Sometimes we want to use more memory than we have. */
--	if (sysctl_overcommit_memory)
--	    return 1;
--
--	/* The page cache contains buffer pages these days.. */
--	free = get_page_cache_size();
--	free += nr_free_pages();
--	free += nr_swap_pages;
-+	atomic_add(pages, &vm_committed_space);
- 
--	/*
--	 * This double-counts: the nrpages are both in the page-cache
--	 * and in the swapper space. At the same time, this compensates
--	 * for the swap-space over-allocation (ie "nr_swap_pages" being
--	 * too small.
-+        /*
-+	 * Sometimes we want to use more memory than we have
- 	 */
--	free += swapper_space.nrpages;
-+	if (sysctl_overcommit_memory == 1)
-+		return 1;
- 
--	/*
--	 * The code below doesn't account for free space in the inode
--	 * and dentry slab cache, slab cache fragmentation, inodes and
--	 * dentries which will become freeable under VM load, etc.
--	 * Lets just hope all these (complex) factors balance out...
--	 */
--	free += (dentry_stat.nr_unused * sizeof(struct dentry)) >> PAGE_SHIFT;
--	free += (inodes_stat.nr_unused * sizeof(struct inode)) >> PAGE_SHIFT;
-+	if (sysctl_overcommit_memory == 0) {
-+		free = get_page_cache_size();
-+		free += nr_free_pages();
-+		free += nr_swap_pages;
-+
-+		/*
-+		 * This double-counts: the nrpages are both in the
-+		 * page-cache and in the swapper space. At the same time,
-+		 * this compensates for the swap-space over-allocation
-+		 * (ie "nr_swap_pages" being too small).
-+		 */
-+		free += swapper_space.nrpages;
-+
-+		/*
-+		 * The code below doesn't account for free space in the
-+		 * inode and dentry slab cache, slab cache fragmentation,
-+		 * inodes and dentries which will become freeable under
-+		 * VM load, etc. Lets just hope all these (complex)
-+		 * factors balance out...
-+		 */
-+		free += (dentry_stat.nr_unused * sizeof(struct dentry)) >>
-+			PAGE_SHIFT;
-+		free += (inodes_stat.nr_unused * sizeof(struct inode)) >>
-+			PAGE_SHIFT;
-+
-+		if (free > pages)
-+			return 1;
-+		atomic_sub(pages, &vm_committed_space);
-+		return 0;
-+	}
-+
-+	if (sysctl_overcommit_memory == 2) {
-+		/*
-+		 * FIXME: need to add arch hooks to get the bits we need
-+		 * without the higher overhead crap
-+		 */
-+		struct sysinfo i;
-+		si_meminfo(&i);
-+		allowed = i.totalram - (i.totalram / 20);
-+	} else if (sysctl_overcommit_memory == 3) {
-+		struct sysinfo i;
-+		si_meminfo(&i);	
-+		allowed = total_swap_pages + (i.totalram >> 1);
-+	} else  /* sysctl_overcommit_memory == 4 */
-+		allowed = total_swap_pages;
-+
-+	if (atomic_read(&vm_committed_space) < allowed)
-+		return 1;
-+
-+	atomic_sub(pages, &vm_committed_space);
-+
-+	return 0;
-+}
- 
--	return free > pages;
-+void inline vm_unacct_memory(long pages)
-+{	
-+	atomic_sub(pages, &vm_committed_space);
-+}
-+
-+void vm_unacct_vma(struct vm_area_struct *vma)
-+{
-+	int len = vma->vm_end - vma->vm_start;
-+	if (vma->vm_flags & VM_ACCOUNT)
-+		vm_unacct_memory(len >> PAGE_SHIFT);
- }
- 
- /* Remove one vm structure from the inode's i_mapping address space. */
-@@ -162,7 +208,7 @@
- 
- 	/* Always allow shrinking brk. */
- 	if (brk <= mm->brk) {
--		if (!do_munmap(mm, newbrk, oldbrk-newbrk))
-+		if (!do_munmap(mm, newbrk, oldbrk-newbrk, 1))
- 			goto set_brk;
- 		goto out;
- 	}
-@@ -176,10 +222,6 @@
- 	if (find_vma_intersection(mm, oldbrk, newbrk+PAGE_SIZE))
- 		goto out;
- 
--	/* Check if we have enough memory.. */
--	if (!vm_enough_memory((newbrk-oldbrk) >> PAGE_SHIFT))
--		goto out;
--
- 	/* Ok, looks good - let it rip. */
- 	if (do_brk(oldbrk, newbrk-oldbrk) != oldbrk)
- 		goto out;
-@@ -385,8 +427,9 @@
- 	return 0;
- }
- 
--unsigned long do_mmap_pgoff(struct file * file, unsigned long addr, unsigned long len,
--	unsigned long prot, unsigned long flags, unsigned long pgoff)
-+unsigned long do_mmap_pgoff(struct file * file, unsigned long addr,
-+			unsigned long len, unsigned long prot,
-+			unsigned long flags, unsigned long pgoff)
- {
- 	struct mm_struct * mm = current->mm;
- 	struct vm_area_struct * vma, * prev;
-@@ -394,6 +437,7 @@
- 	int correct_wcount = 0;
- 	int error;
- 	rb_node_t ** rb_link, * rb_parent;
-+	unsigned long charged = 0;
- 
- 	if (file && (!file->f_op || !file->f_op->mmap))
- 		return -ENODEV;
-@@ -480,7 +524,7 @@
- munmap_back:
- 	vma = find_vma_prepare(mm, addr, &prev, &rb_link, &rb_parent);
- 	if (vma && vma->vm_start < addr + len) {
--		if (do_munmap(mm, addr, len))
-+		if (do_munmap(mm, addr, len, 1))
- 			return -ENOMEM;
- 		goto munmap_back;
- 	}
-@@ -490,11 +534,17 @@
- 	    > current->rlim[RLIMIT_AS].rlim_cur)
- 		return -ENOMEM;
- 
-+	if (sysctl_overcommit_memory > 1)
-+		vm_flags &= ~MAP_NORESERVE;
-+
- 	/* Private writable mapping? Check memory availability.. */
--	if ((vm_flags & (VM_SHARED | VM_WRITE)) == VM_WRITE &&
--	    !(flags & MAP_NORESERVE)				 &&
--	    !vm_enough_memory(len >> PAGE_SHIFT))
--		return -ENOMEM;
-+	if ((((vm_flags & (VM_SHARED | VM_WRITE)) == VM_WRITE) ||
-+			(file == NULL)) && !(flags & MAP_NORESERVE)) {
-+		charged = len >> PAGE_SHIFT;
-+		if (!vm_enough_memory(charged))
-+			return -ENOMEM;
-+		vm_flags |= VM_ACCOUNT;
-+	}
- 
- 	/* Can we just expand an old anonymous mapping? */
- 	if (!file && !(vm_flags & VM_SHARED) && rb_parent)
-@@ -506,8 +556,9 @@
- 	 * not unmapped, but the maps are removed from the list.
- 	 */
- 	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+	error = -ENOMEM;
- 	if (!vma)
--		return -ENOMEM;
-+		goto unacct_error;
- 
- 	vma->vm_mm = mm;
- 	vma->vm_start = addr;
-@@ -570,6 +621,9 @@
- 	zap_page_range(vma, vma->vm_start, vma->vm_end - vma->vm_start);
- free_vma:
- 	kmem_cache_free(vm_area_cachep, vma);
-+unacct_error:
-+	if (charged)
-+		vm_unacct_memory(charged);
- 	return error;
- }
- 
-@@ -699,6 +753,45 @@
- 	return prev ? prev->vm_next : vma;
+diff -urN linux-2.5.27/include/asm-i386/spinlock.h linux/include/asm-i386/spinlock.h
+--- linux-2.5.27/include/asm-i386/spinlock.h	Sat Jul 20 12:11:11 2002
++++ linux/include/asm-i386/spinlock.h	Sat Jul 20 12:41:45 2002
+@@ -128,6 +128,30 @@
+ 		:"=m" (lock->lock) : : "memory");
  }
  
 +/*
-+ * vma is the first one with  address < vma->vm_end,
-+ * and even address < vma->vm_start. Have to extend vma.
++ * Bit-sized spinlocks.  Introduced by the VM code to fit locks
++ * where no lock has gone before.
 + */
-+int expand_stack(struct vm_area_struct * vma, unsigned long address)
++static inline void _raw_spin_lock_bit(int nr, unsigned long * lock)
 +{
-+	unsigned long grow;
-+
 +	/*
-+	 * vma->vm_start/vm_end cannot change under us because the caller
-+	 * is required to hold the mmap_sem in write mode. We need to get
-+	 * the spinlock only before relocating the vma range ourself.
++	 * Assuming the lock is uncontended, this never enters
++	 * the body of the outer loop. If it is contended, then
++	 * within the inner loop a non-atomic test is used to
++	 * busywait with less bus contention for a good time to
++	 * attempt to acquire the lock bit.
 +	 */
-+	address &= PAGE_MASK;
-+ 	spin_lock(&vma->vm_mm->page_table_lock);
-+	grow = (vma->vm_start - address) >> PAGE_SHIFT;
-+
-+	/* Overcommit.. */
-+	if(!vm_enough_memory(grow)) {
-+		spin_unlock(&vma->vm_mm->page_table_lock);
-+		return -ENOMEM;
++	while (test_and_set_bit(nr, lock)) {
++		while (test_bit(nr, lock))
++			cpu_relax();
 +	}
-+	
-+	if (vma->vm_end - address > current->rlim[RLIMIT_STACK].rlim_cur ||
-+			((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) >
-+			current->rlim[RLIMIT_AS].rlim_cur) {
-+		spin_unlock(&vma->vm_mm->page_table_lock);
-+		vm_unacct_memory(grow);
-+		return -ENOMEM;
-+	}
-+	vma->vm_start = address;
-+	vma->vm_pgoff -= grow;
-+	vma->vm_mm->total_vm += grow;
-+	if (vma->vm_flags & VM_LOCKED)
-+		vma->vm_mm->locked_vm += grow;
-+	spin_unlock(&vma->vm_mm->page_table_lock);
-+	return 0;
 +}
 +
- #ifdef ARCH_STACK_GROWSUP
- struct vm_area_struct * find_extend_vma(struct mm_struct * mm, unsigned long addr)
- {
-@@ -824,7 +917,6 @@
- 	kmem_cache_free(vm_area_cachep, area);
- }
- 
--
- /*
-  * Update the VMA and inode share lists.
-  *
-@@ -851,19 +943,25 @@
- 	struct vm_area_struct *mpnt,
- 	struct vm_area_struct *prev,
- 	unsigned long start,
--	unsigned long end)
-+	unsigned long end,
-+	int acct)
- {
- 	mmu_gather_t *tlb;
- 
- 	tlb = tlb_gather_mmu(mm, 0);
- 
- 	do {
--		unsigned long from, to;
-+		unsigned long from, to, len;
- 
- 		from = start < mpnt->vm_start ? mpnt->vm_start : start;
- 		to = end > mpnt->vm_end ? mpnt->vm_end : end;
- 
- 		unmap_page_range(tlb, mpnt, from, to);
++static inline void _raw_spin_unlock_bit(int nr, unsigned long * lock)
++{
++	clear_bit(nr, lock);
++}
 +
-+		if (acct && (mpnt->vm_flags & VM_ACCOUNT)) {
-+			len = to - from;
-+			vm_unacct_memory(len >> PAGE_SHIFT);
-+		}
- 	} while ((mpnt = mpnt->vm_next) != NULL);
  
- 	free_pgtables(tlb, prev, start, end);
-@@ -941,7 +1039,7 @@
-  * work.  This now handles partial unmappings.
-  * Jeremy Fitzhardine <jeremy@sw.oz.au>
-  */
--int do_munmap(struct mm_struct *mm, unsigned long start, size_t len)
-+int do_munmap(struct mm_struct *mm, unsigned long start, size_t len, int acct)
- {
- 	unsigned long end;
- 	struct vm_area_struct *mpnt, *prev, *last;
-@@ -985,7 +1083,7 @@
- 	 */
- 	spin_lock(&mm->page_table_lock);
- 	mpnt = touched_by_munmap(mm, mpnt, prev, end);
--	unmap_region(mm, mpnt, prev, start, end);
-+	unmap_region(mm, mpnt, prev, start, end, acct);
- 	spin_unlock(&mm->page_table_lock);
- 
- 	/* Fix up all other VM information */
-@@ -1000,7 +1098,7 @@
- 	struct mm_struct *mm = current->mm;
- 
- 	down_write(&mm->mmap_sem);
--	ret = do_munmap(mm, addr, len);
-+	ret = do_munmap(mm, addr, len, 1);
- 	up_write(&mm->mmap_sem);
- 	return ret;
- }
-@@ -1037,7 +1135,7 @@
-  munmap_back:
- 	vma = find_vma_prepare(mm, addr, &prev, &rb_link, &rb_parent);
- 	if (vma && vma->vm_start < addr + len) {
--		if (do_munmap(mm, addr, len))
-+		if (do_munmap(mm, addr, len, 1))
- 			return -ENOMEM;
- 		goto munmap_back;
- 	}
-@@ -1053,7 +1151,7 @@
- 	if (!vm_enough_memory(len >> PAGE_SHIFT))
- 		return -ENOMEM;
- 
--	flags = VM_DATA_DEFAULT_FLAGS | mm->def_flags;
-+	flags = VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
- 
- 	/* Can we just expand an old anonymous mapping? */
- 	if (rb_parent && vma_merge(mm, prev, rb_parent, addr, addr + len, flags))
-@@ -1063,8 +1161,10 @@
- 	 * create a vma struct for an anonymous mapping
- 	 */
- 	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
--	if (!vma)
-+	if (!vma) {
-+		vm_unacct_memory(len >> PAGE_SHIFT);
- 		return -ENOMEM;
-+	}
- 
- 	vma->vm_mm = mm;
- 	vma->vm_start = addr;
-@@ -1120,6 +1220,13 @@
- 		unsigned long start = mpnt->vm_start;
- 		unsigned long end = mpnt->vm_end;
- 
-+		/*
-+		 * If the VMA has been charged for, account for its
-+		 * removal
-+		 */
-+		if (mpnt->vm_flags & VM_ACCOUNT)
-+			vm_unacct_vma(mpnt);
-+
- 		mm->map_count--;
- 		unmap_page_range(tlb, mpnt, start, end);
- 		mpnt = mpnt->vm_next;
-diff -urN linux-2.5.27/mm/mprotect.c linux/mm/mprotect.c
---- linux-2.5.27/mm/mprotect.c	Sat Jul 20 12:11:14 2002
-+++ linux/mm/mprotect.c	Sat Jul 20 12:35:11 2002
-@@ -1,7 +1,10 @@
  /*
-- *	linux/mm/mprotect.c
-+ *  mm/mprotect.c
-  *
-  *  (C) Copyright 1994 Linus Torvalds
-+ *
-+ *  Address space accounting code	<alan@redhat.com>
-+ *  (C) Copyright 2002 Red Hat Inc, All Rights Reserved
-  */
- #include <linux/mm.h>
- #include <linux/slab.h>
-@@ -247,6 +250,7 @@
- {
- 	pgprot_t newprot;
- 	int error;
-+	unsigned long charged = 0;
+  * Read-write spinlocks, allowing multiple readers
+diff -urN linux-2.5.27/include/linux/page-flags.h linux/include/linux/page-flags.h
+--- linux-2.5.27/include/linux/page-flags.h	Sat Jul 20 12:11:09 2002
++++ linux/include/linux/page-flags.h	Sat Jul 20 12:41:45 2002
+@@ -229,31 +229,6 @@
+ #define TestClearPageDirect(page)	test_and_clear_bit(PG_direct, &(page)->flags)
  
- 	if (newflags == vma->vm_flags) {
- 		*pprev = vma;
-@@ -263,9 +267,18 @@
- 	else
- 		error = mprotect_fixup_middle(vma, pprev, start, end, newflags, newprot);
- 
--	if (error)
-+	if (error) {
-+		if (newflags & PROT_WRITE)
-+			vm_unacct_memory(charged);
- 		return error;
-+	}
- 
-+	/*
-+	 * Delayed accounting for reduction of memory use - done last to
-+	 * avoid allocation races
-+	 */
-+	if (charged && !(newflags & PROT_WRITE))
-+		vm_unacct_memory(charged);
- 	change_protection(vma, start, end, newprot);
- 	return 0;
- }
-diff -urN linux-2.5.27/mm/mremap.c linux/mm/mremap.c
---- linux-2.5.27/mm/mremap.c	Sat Jul 20 12:11:22 2002
-+++ linux/mm/mremap.c	Sat Jul 20 12:35:11 2002
-@@ -1,7 +1,10 @@
  /*
-- *	linux/mm/remap.c
-+ *	mm/remap.c
-  *
-  *	(C) Copyright 1996 Linus Torvalds
-+ *
-+ *	Address space accounting code	<alan@redhat.com>
-+ *	(C) Copyright 2002 Red Hat Inc, All Rights Reserved
-  */
- 
- #include <linux/mm.h>
-@@ -18,8 +21,6 @@
- #include <asm/cacheflush.h>
- #include <asm/tlbflush.h>
- 
--extern int vm_enough_memory(long pages);
+- * inlines for acquisition and release of PG_chainlock
+- */
+-static inline void pte_chain_lock(struct page *page)
+-{
+-	/*
+-	 * Assuming the lock is uncontended, this never enters
+-	 * the body of the outer loop. If it is contended, then
+-	 * within the inner loop a non-atomic test is used to
+-	 * busywait with less bus contention for a good time to
+-	 * attempt to acquire the lock bit.
+-	 */
+-	preempt_disable();
+-	while (test_and_set_bit(PG_chainlock, &page->flags)) {
+-		while (test_bit(PG_chainlock, &page->flags))
+-			cpu_relax();
+-	}
+-}
 -
- static inline pte_t *get_one_pte_map_nested(struct mm_struct *mm, unsigned long addr)
+-static inline void pte_chain_unlock(struct page *page)
+-{
+-	clear_bit(PG_chainlock, &page->flags);
+-	preempt_enable();
+-}
+-
+-/*
+  * The PageSwapCache predicate doesn't use a PG_flag at this time,
+  * but it may again do so one day.
+  */
+diff -urN linux-2.5.27/include/linux/spinlock.h linux/include/linux/spinlock.h
+--- linux-2.5.27/include/linux/spinlock.h	Sat Jul 20 12:11:19 2002
++++ linux/include/linux/spinlock.h	Sat Jul 20 12:41:45 2002
+@@ -83,12 +83,15 @@
+ # define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
+ #endif
+ 
+-#define spin_lock_init(lock)	do { (void)(lock); } while(0)
+-#define _raw_spin_lock(lock)	(void)(lock) /* Not "unused variable". */
+-#define spin_is_locked(lock)	((void)(lock), 0)
+-#define _raw_spin_trylock(lock)	((void)(lock), 1)
+-#define spin_unlock_wait(lock)	do { (void)(lock); } while(0)
+-#define _raw_spin_unlock(lock)	do { (void)(lock); } while(0)
++#define spin_lock_init(lock)		do { (void)(lock); } while(0)
++#define _raw_spin_lock(lock)		(void)(lock) /* no "unused variable" */
++#define spin_is_locked(lock)		((void)(lock), 0)
++#define _raw_spin_trylock(lock)		((void)(lock), 1)
++#define spin_unlock_wait(lock)		do { (void)(lock); } while(0)
++#define _raw_spin_unlock(lock)		do { (void)(lock); } while(0)
++
++#define _raw_spin_lock_bit(nr, lock)	do { (void)(lock); } while(0)
++#define _raw_spin_unlock_bit(nr, lock)	do { (void)(lock); } while(0)
+ 
+ /*
+  * Read-write spinlocks, allowing multiple readers
+@@ -177,11 +180,23 @@
+ #define write_trylock(lock)	({preempt_disable();_raw_write_trylock(lock) ? \
+ 				1 : ({preempt_enable(); 0;});})
+ 
++#define spin_lock_bit(nr, lock) \
++do { \
++	preempt_disable(); \
++	_raw_spin_lock_bit(nr, lock); \
++} while(0)
++
++#define spin_unlock_bit(nr, lock) \
++do { \
++	_raw_spin_unlock_bit(nr, lock); \
++	preempt_enable(); \
++} while(0)
++
+ #else
+ 
+ #define preempt_get_count()		(0)
+ #define preempt_disable()		do { } while (0)
+-#define preempt_enable_no_resched()	do {} while(0)
++#define preempt_enable_no_resched()	do { } while(0)
+ #define preempt_enable()		do { } while (0)
+ #define preempt_check_resched()		do { } while (0)
+ 
+@@ -190,6 +205,9 @@
+ #define spin_unlock(lock)		_raw_spin_unlock(lock)
+ #define spin_unlock_no_resched(lock)	_raw_spin_unlock(lock)
+ 
++#define spin_lock_bit(lock, nr)		_raw_spin_lock_bit(nr, lock)
++#define spin_unlock_bit(lock, nr)	_raw_spin_unlock_bit(nr, lock)
++
+ #define read_lock(lock)			_raw_read_lock(lock)
+ #define read_unlock(lock)		_raw_read_unlock(lock)
+ #define write_lock(lock)		_raw_write_lock(lock)
+diff -urN linux-2.5.27/mm/rmap.c linux/mm/rmap.c
+--- linux-2.5.27/mm/rmap.c	Sat Jul 20 12:12:20 2002
++++ linux/mm/rmap.c	Sat Jul 20 12:42:54 2002
+@@ -61,7 +61,7 @@
+  *
+  * Quick test_and_clear_referenced for all mappings to a page,
+  * returns the number of processes which referenced the page.
+- * Caller needs to hold the pte_chain_lock.
++ * Caller needs to hold the PG_chainlock bit.
+  */
+ int page_referenced(struct page * page)
  {
- 	pgd_t * pgd;
-@@ -209,7 +210,11 @@
- 				new_vma->vm_ops->open(new_vma);
- 			insert_vm_struct(current->mm, new_vma);
+@@ -110,7 +110,7 @@
+ 		return;
+ 
+ #ifdef DEBUG_RMAP
+-	pte_chain_lock(page);
++	spin_lock_bit(PG_chainlock, &page->flags);
+ 	{
+ 		struct pte_chain * pc;
+ 		if (PageDirect(page)) {
+@@ -123,10 +123,10 @@
+ 			}
  		}
--		do_munmap(current->mm, addr, old_len);
-+		/*
-+		 * The old VMA has been accounted for,
-+		 * don't double account
-+		 */
-+		do_munmap(current->mm, addr, old_len, 0);
- 		current->mm->total_vm += new_len >> PAGE_SHIFT;
- 		if (new_vma->vm_flags & VM_LOCKED) {
- 			current->mm->locked_vm += new_len >> PAGE_SHIFT;
-@@ -224,6 +229,8 @@
- 	return -ENOMEM;
+ 	}
+-	pte_chain_unlock(page);
++	spin_unlock_bit(PG_chainlock, &page->flags);
+ #endif
+ 
+-	pte_chain_lock(page);
++	spin_lock_bit(PG_chainlock, &page->flags);
+ 
+ 	if (PageDirect(page)) {
+ 		/* Convert a direct pointer into a pte_chain */
+@@ -147,7 +147,7 @@
+ 		SetPageDirect(page);
+ 	}
+ 
+-	pte_chain_unlock(page);
++	spin_unlock_bit(PG_chainlock, &page->flags);
  }
  
-+extern int sysctl_overcommit_memory;	/* FIXME!! */
-+
- /*
-  * Expand (or shrink) an existing mapping, potentially moving it at the
-  * same time (controlled by the MREMAP_MAYMOVE flag and available VM space)
-@@ -237,6 +244,7 @@
- {
- 	struct vm_area_struct *vma;
- 	unsigned long ret = -EINVAL;
-+	unsigned long charged = 0;
+ /**
+@@ -170,7 +170,7 @@
+ 	if (!pfn_valid(pfn) || PageReserved(page))
+ 		return;
  
- 	if (flags & ~(MREMAP_FIXED | MREMAP_MAYMOVE))
- 		goto out;
-@@ -266,16 +274,17 @@
- 		if ((addr <= new_addr) && (addr+old_len) > new_addr)
- 			goto out;
+-	pte_chain_lock(page);
++	spin_lock_bit(PG_chainlock, &page->flags);
  
--		do_munmap(current->mm, new_addr, new_len);
-+		do_munmap(current->mm, new_addr, new_len, 1);
- 	}
+ 	if (PageDirect(page)) {
+ 		if (page->pte.direct == ptep) {
+@@ -208,7 +208,7 @@
+ #endif
  
- 	/*
- 	 * Always allow a shrinking remap: that just unmaps
- 	 * the unnecessary pages..
-+	 * do_munmap does all the needed commit accounting
- 	 */
- 	ret = addr;
- 	if (old_len >= new_len) {
--		do_munmap(current->mm, addr+new_len, old_len - new_len);
-+		do_munmap(current->mm, addr+new_len, old_len - new_len, 1);
- 		if (!(flags & MREMAP_FIXED) || (new_addr == addr))
- 			goto out;
- 	}
-@@ -305,11 +314,14 @@
- 	if ((current->mm->total_vm << PAGE_SHIFT) + (new_len - old_len)
- 	    > current->rlim[RLIMIT_AS].rlim_cur)
- 		goto out;
--	/* Private writable mapping? Check memory availability.. */
--	if ((vma->vm_flags & (VM_SHARED | VM_WRITE)) == VM_WRITE &&
--	    !(flags & MAP_NORESERVE)				 &&
--	    !vm_enough_memory((new_len - old_len) >> PAGE_SHIFT))
--		goto out;
-+
-+	if (sysctl_overcommit_memory > 1)
-+		flags &= ~MAP_NORESERVE;
-+	if (vma->vm_flags & VM_ACCOUNT) {
-+		charged = (new_len - old_len) >> PAGE_SHIFT;
-+		if (!vm_enough_memory(charged))
-+			goto out_nc;
-+	}
- 
- 	/* old_len exactly to the end of the area..
- 	 * And we're not relocating the area.
-@@ -356,6 +368,9 @@
- 		ret = move_vma(vma, addr, old_len, new_len, new_addr);
- 	}
  out:
-+	if (ret & ~PAGE_MASK)
-+		vm_unacct_memory(charged);
-+out_nc:
- 	return ret;
+-	pte_chain_unlock(page);
++	spin_unlock_bit(PG_chainlock, &page->flags);
+ 	return;
+ 			
  }
- 
-diff -urN linux-2.5.27/mm/shmem.c linux/mm/shmem.c
---- linux-2.5.27/mm/shmem.c	Sat Jul 20 12:11:15 2002
-+++ linux/mm/shmem.c	Sat Jul 20 12:35:11 2002
-@@ -5,7 +5,8 @@
-  *		 2000 Transmeta Corp.
-  *		 2000-2001 Christoph Rohland
-  *		 2000-2001 SAP AG
-- * 
-+ *		 2002 Red Hat Inc.
-+ *
-  * This file is released under the GPL.
+@@ -224,7 +224,7 @@
+  * Locking:
+  *	pagemap_lru_lock		page_launder()
+  *	    page lock			page_launder(), trylock
+- *		pte_chain_lock		page_launder()
++ *		PG_chainlock bit	page_launder()
+  *		    mm->page_table_lock	try_to_unmap_one(), trylock
   */
- 
-@@ -21,6 +22,7 @@
- #include <linux/devfs_fs_kernel.h>
- #include <linux/fs.h>
- #include <linux/mm.h>
-+#include <linux/mman.h>
- #include <linux/file.h>
- #include <linux/swap.h>
- #include <linux/pagemap.h>
-@@ -35,6 +37,13 @@
- #define TMPFS_MAGIC	0x01021994
- 
- #define ENTRIES_PER_PAGE (PAGE_CACHE_SIZE/sizeof(unsigned long))
-+#define BLOCKS_PER_PAGE  (PAGE_CACHE_SIZE/512)
-+
-+#define SHMEM_MAX_INDEX  (SHMEM_NR_DIRECT + ENTRIES_PER_PAGE * \
-+		(ENTRIES_PER_PAGE/2) * (ENTRIES_PER_PAGE+1))
-+#define SHMEM_MAX_BYTES  ((unsigned long long)SHMEM_MAX_INDEX << \
-+		PAGE_CACHE_SHIFT)
-+#define VM_ACCT(size)    (((size) + PAGE_CACHE_SIZE - 1) >> PAGE_SHIFT)
- 
- static inline struct shmem_sb_info *SHMEM_SB(struct super_block *sb)
- {
-@@ -54,8 +63,6 @@
- 
- static struct page *shmem_getpage_locked(struct shmem_inode_info *, struct inode *, unsigned long);
- 
--#define BLOCKS_PER_PAGE (PAGE_CACHE_SIZE/512)
--
- /*
-  * shmem_recalc_inode - recalculate the size of an inode
+ static int FASTCALL(try_to_unmap_one(struct page *, pte_t *));
+@@ -386,7 +386,7 @@
+  * This function unlinks pte_chain from the singly linked list it
+  * may be on and adds the pte_chain to the free list. May also be
+  * called for new pte_chain structures which aren't on any list yet.
+- * Caller needs to hold the pte_chain_lock if the page is non-NULL.
++ * Caller needs to hold the PG_chainlock bit if the page is non-NULL.
+  */
+ static inline void pte_chain_free(struct pte_chain * pte_chain,
+ 		struct pte_chain * prev_pte_chain, struct page * page)
+@@ -407,7 +407,7 @@
   *
-@@ -132,8 +139,6 @@
-  * 	      	       +-> 52-55
+  * Returns a pointer to a fresh pte_chain structure. Allocates new
+  * pte_chain structures as required.
+- * Caller needs to hold the page's pte_chain_lock.
++ * Caller needs to hold the page's PG_chainlock bit.
   */
- 
--#define SHMEM_MAX_BLOCKS (SHMEM_NR_DIRECT + ENTRIES_PER_PAGE * ENTRIES_PER_PAGE/2*(ENTRIES_PER_PAGE+1))
--
- static swp_entry_t * shmem_swp_entry (struct shmem_inode_info *info, unsigned long index, unsigned long page) 
+ static inline struct pte_chain * pte_chain_alloc()
  {
- 	unsigned long offset;
-@@ -186,7 +191,7 @@
- 	unsigned long page = 0;
- 	swp_entry_t * res;
- 
--	if (index >= SHMEM_MAX_BLOCKS)
-+	if (index >= SHMEM_MAX_INDEX)
- 		return ERR_PTR(-EFBIG);
- 
- 	if (info->next_index <= index)
-@@ -358,15 +363,46 @@
- 	up(&info->sem);
+diff -urN linux-2.5.27/mm/vmscan.c linux/mm/vmscan.c
+--- linux-2.5.27/mm/vmscan.c	Sat Jul 20 12:11:08 2002
++++ linux/mm/vmscan.c	Sat Jul 20 12:43:33 2002
+@@ -42,7 +42,7 @@
+ 	return page_count(page) - !!PagePrivate(page) == 1;
  }
  
-+static int shmem_setattr(struct dentry * dentry, struct iattr *attr)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	long change = 0;
-+	int error;
-+
-+	if ((attr->ia_valid & ATTR_SIZE) && (attr->ia_size <= SHMEM_MAX_BYTES)){
-+		/*
-+	 	 * Account swap file usage based on new file size,
-+		 * but just let vmtruncate fail on out-of-range sizes.	
-+	 	 */
-+		long change = (attr->ia_size>>PAGE_SHIFT) - (inode->i_size >> PAGE_SHIFT);
-+
-+		change = VM_ACCT(attr->ia_size) - VM_ACCT(inode->i_size);
-+		if (change > 0) {
-+			if (!vm_enough_memory(change))
-+				return -ENOMEM;
-+		} else
-+			vm_unacct_memory(-change);
-+	}
-+
-+	error = inode_change_ok(inode, attr);
-+	if (!error)
-+		error = inode_setattr(inode, attr);
-+	if (error && change)
-+		vm_unacct_memory(change);
-+	return error;
-+}
-+
-+
- static void shmem_delete_inode(struct inode * inode)
+-/* Must be called with page's pte_chain_lock held. */
++/* Must be called with page's PG_chainlock bit held. */
+ static inline int page_mapping_inuse(struct page * page)
  {
- 	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
+ 	struct address_space *mapping = page->mapping;
+@@ -137,11 +137,11 @@
+ 		 * The page is in active use or really unfreeable. Move to
+ 		 * the active list.
+ 		 */
+-		pte_chain_lock(page);
++		spin_lock_bit(PG_chainlock, &page->flags);
+ 		if (page_referenced(page) && page_mapping_inuse(page)) {
+ 			del_page_from_inactive_list(page);
+ 			add_page_to_active_list(page);
+-			pte_chain_unlock(page);
++			spin_unlock_bit(PG_chainlock, &page->flags);
+ 			unlock_page(page);
+ 			KERNEL_STAT_INC(pgactivate);
+ 			continue;
+@@ -155,7 +155,7 @@
+ 		 */
+ 		if (page->pte.chain && !page->mapping && !PagePrivate(page)) {
+ 			page_cache_get(page);
+-			pte_chain_unlock(page);
++			spin_unlock_bit(PG_chainlock, &page->flags);
+ 			spin_unlock(&pagemap_lru_lock);
+ 			if (!add_to_swap(page)) {
+ 				activate_page(page);
+@@ -166,7 +166,7 @@
+ 			}
+ 			page_cache_release(page);
+ 			spin_lock(&pagemap_lru_lock);
+-			pte_chain_lock(page);
++			spin_lock_bit(PG_chainlock, &page->flags);
+ 		}
  
--	inode->i_size = 0;
--	if (inode->i_op->truncate == shmem_truncate){ 
-+	if (inode->i_op->truncate == shmem_truncate) { 
- 		spin_lock (&shmem_ilock);
- 		list_del (&SHMEM_I(inode)->list);
- 		spin_unlock (&shmem_ilock);
-+		vm_unacct_memory(VM_ACCT(inode->i_size));
-+		inode->i_size = 0;
- 		shmem_truncate (inode);
+ 		/*
+@@ -179,14 +179,14 @@
+ 				case SWAP_FAIL:
+ 					goto page_active;
+ 				case SWAP_AGAIN:
+-					pte_chain_unlock(page);
++					spin_unlock_bit(PG_chainlock, &page->flags);
+ 					unlock_page(page);
+ 					continue;
+ 				case SWAP_SUCCESS:
+ 					; /* try to free the page below */
+ 			}
+ 		}
+-		pte_chain_unlock(page);
++		spin_unlock_bit(PG_chainlock, &page->flags);
+ 		mapping = page->mapping;
+ 
+ 		if (PageDirty(page) && is_page_cache_freeable(page) &&
+@@ -316,7 +316,7 @@
+ 		 */
+ 		del_page_from_inactive_list(page);
+ 		add_page_to_active_list(page);
+-		pte_chain_unlock(page);
++		spin_unlock_bit(PG_chainlock, &page->flags);
+ 		unlock_page(page);
+ 		KERNEL_STAT_INC(pgactivate);
  	}
- 	spin_lock (&sbinfo->stat_lock);
-@@ -823,6 +859,7 @@
- 	unsigned long	written;
- 	long		status;
- 	int		err;
-+	loff_t		maxpos;
+@@ -345,16 +345,16 @@
  
- 	if ((ssize_t) count < 0)
- 		return -EINVAL;
-@@ -835,12 +872,12 @@
- 	pos = *ppos;
- 	err = -EINVAL;
- 	if (pos < 0)
--		goto out;
-+		goto out_nc;
+ 		KERNEL_STAT_INC(pgscan);
  
- 	err = file->f_error;
- 	if (err) {
- 		file->f_error = 0;
--		goto out;
-+		goto out_nc;
+-		pte_chain_lock(page);
++		spin_lock_bit(PG_chainlock, &page->flags);
+ 		if (page->pte.chain && page_referenced(page)) {
+ 			list_del(&page->lru);
+ 			list_add(&page->lru, &active_list);
+-			pte_chain_unlock(page);
++			spin_unlock_bit(PG_chainlock, &page->flags);
+ 			continue;
+ 		}
+ 		del_page_from_active_list(page);
+ 		add_page_to_inactive_list(page);
+-		pte_chain_unlock(page);
++		spin_unlock_bit(PG_chainlock, &page->flags);
+ 		KERNEL_STAT_INC(pgdeactivate);
  	}
- 
- 	written = 0;
-@@ -848,6 +885,17 @@
- 	if (file->f_flags & O_APPEND)
- 		pos = inode->i_size;
- 
-+	maxpos = inode->i_size;
-+	if (pos + count > inode->i_size) {
-+		maxpos = pos + count;
-+		if (maxpos > SHMEM_MAX_BYTES)
-+			maxpos = SHMEM_MAX_BYTES;
-+		if (!vm_enough_memory(VM_ACCT(maxpos) - VM_ACCT(inode->i_size))){
-+			err = -ENOMEM;
-+			goto out_nc;
-+		}
-+	}
-+
- 	/*
- 	 * Check whether we've reached the file size limit.
- 	 */
-@@ -937,6 +985,10 @@
- 
- 	err = written ? written : status;
- out:
-+	/* Short writes give back address space */
-+	if (inode->i_size != maxpos)
-+		vm_unacct_memory(VM_ACCT(maxpos) - VM_ACCT(inode->i_size));
-+out_nc:
- 	up(&inode->i_sem);
- 	return err;
- fail_write:
-@@ -1386,7 +1438,7 @@
- 	sbinfo->free_blocks = blocks;
- 	sbinfo->max_inodes = inodes;
- 	sbinfo->free_inodes = inodes;
--	sb->s_maxbytes = (unsigned long long) SHMEM_MAX_BLOCKS << PAGE_CACHE_SHIFT;
-+	sb->s_maxbytes = SHMEM_MAX_BYTES;
- 	sb->s_blocksize = PAGE_CACHE_SIZE;
- 	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
- 	sb->s_magic = TMPFS_MAGIC;
-@@ -1480,6 +1532,7 @@
- 
- static struct inode_operations shmem_inode_operations = {
- 	truncate:	shmem_truncate,
-+	setattr:	shmem_setattr,
- };
- 
- static struct inode_operations shmem_dir_inode_operations = {
-@@ -1603,17 +1656,16 @@
-  */
- struct file *shmem_file_setup(char * name, loff_t size)
- {
--	int error;
-+	int error = -ENOMEM;
- 	struct file *file;
- 	struct inode * inode;
- 	struct dentry *dentry, *root;
- 	struct qstr this;
--	int vm_enough_memory(long pages);
- 
--	if (size > (unsigned long long) SHMEM_MAX_BLOCKS << PAGE_CACHE_SHIFT)
-+	if (size > SHMEM_MAX_BYTES)
- 		return ERR_PTR(-EINVAL);
- 
--	if (!vm_enough_memory((size) >> PAGE_CACHE_SHIFT))
-+	if (!vm_enough_memory(VM_ACCT(size)))
- 		return ERR_PTR(-ENOMEM);
- 
- 	this.name = name;
-@@ -1622,7 +1674,7 @@
- 	root = shm_mnt->mnt_root;
- 	dentry = d_alloc(root, &this);
- 	if (!dentry)
--		return ERR_PTR(-ENOMEM);
-+		goto put_memory;
- 
- 	error = -ENFILE;
- 	file = get_empty_filp();
-@@ -1648,8 +1700,11 @@
- 	put_filp(file);
- put_dentry:
- 	dput (dentry);
-+put_memory:
-+	vm_unacct_memory(VM_ACCT(size));
- 	return ERR_PTR(error);	
- }
-+
- /*
-  * shmem_zero_setup - setup a shared anonymous mapping
-  *
+ 	spin_unlock(&pagemap_lru_lock);
 

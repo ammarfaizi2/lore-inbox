@@ -1,92 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269425AbUJTE0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268346AbUJTEdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269425AbUJTE0R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 00:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270157AbUJSXg4
+	id S268346AbUJTEdF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 00:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268342AbUJTEdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:36:56 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10378 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270131AbUJSWqe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:46:34 -0400
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI fixes for 2.6.9
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <1098225734848@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:14 -0700
-Message-Id: <1098225734438@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Wed, 20 Oct 2004 00:33:04 -0400
+Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:63847 "HELO
+	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268346AbUJTEc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 00:32:28 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] RE: PATCH/RFC: driver model/pmcore wakeup hooks (1/4)
+Date: Tue, 19 Oct 2004 22:51:13 -0500
+User-Agent: KMail/1.6.2
+Cc: "Li, Shaohua" <shaohua.li@intel.com>,
+       "David Brownell" <david-b@pacbell.net>,
+       "Brown, Len" <len.brown@intel.com>, "Pavel Machek" <pavel@ucw.cz>,
+       <linux-kernel@vger.kernel.org>
+References: <16A54BF5D6E14E4D916CE26C9AD3057559A042@pdsmsx402.ccr.corp.intel.com>
+In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD3057559A042@pdsmsx402.ccr.corp.intel.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410192251.14740.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.17, 2004/10/06 11:54:36-07:00, janitor@sternwelten.at
+On Tuesday 19 October 2004 04:11 am, Li, Shaohua wrote:
+> A final solution is device core adds an ACPI layer. That is we can link
+> ACPI device and physical device. This way, the PCI device can know which
+> ACPI is linked with it, so the PCI API can use specific ACPI method. 
+> You are right, we currently haven't a method to reach the goal. To match
+> a physical device and ACPI device, we need to know the ACPI device's
+> _ADR and bus.
+> I have a toy to link the PCI device and ACPI device, and some PCI
+> function can use _SxD method and _PSx method to get some information for
+> suspend/resume.
+> 
 
-[PATCH] PCI list_for_each: arch-alpha-kernel-pci.c
+The only caveat is that PCI core should not depend on ACPI because it is not
+available on all platforms, not all world is x86.
 
-Change for loops with list_for_each().
-
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- arch/alpha/kernel/pci.c |   16 +++++-----------
- 1 files changed, 5 insertions(+), 11 deletions(-)
-
-
-diff -Nru a/arch/alpha/kernel/pci.c b/arch/alpha/kernel/pci.c
---- a/arch/alpha/kernel/pci.c	2004-10-19 15:26:19 -07:00
-+++ b/arch/alpha/kernel/pci.c	2004-10-19 15:26:19 -07:00
-@@ -280,7 +280,6 @@
- 	/* Propagate hose info into the subordinate devices.  */
- 
- 	struct pci_controller *hose = bus->sysdata;
--	struct list_head *ln;
- 	struct pci_dev *dev = bus->self;
- 
- 	if (!dev) {
-@@ -304,9 +303,7 @@
-  		pcibios_fixup_device_resources(dev, bus);
- 	} 
- 
--	for (ln = bus->devices.next; ln != &bus->devices; ln = ln->next) {
--		struct pci_dev *dev = pci_dev_b(ln);
--
-+	list_for_each_entry(dev, &bus->devices, bus_list) {
- 		pdev_save_srm_config(dev);
- 		if ((dev->class >> 8) != PCI_CLASS_BRIDGE_PCI)
- 			pcibios_fixup_device_resources(dev, bus);
-@@ -403,11 +400,10 @@
- static void __init
- pcibios_claim_one_bus(struct pci_bus *b)
- {
--	struct list_head *ld;
-+	struct pci_dev *dev;
- 	struct pci_bus *child_bus;
- 
--	for (ld = b->devices.next; ld != &b->devices; ld = ld->next) {
--		struct pci_dev *dev = pci_dev_b(ld);
-+	list_for_each_entry(dev, &b->devices, bus_list) {
- 		int i;
- 
- 		for (i = 0; i < PCI_NUM_RESOURCES; i++) {
-@@ -426,12 +422,10 @@
- static void __init
- pcibios_claim_console_setup(void)
- {
--	struct list_head *lb;
-+	struct pci_bus *b;
- 
--	for(lb = pci_root_buses.next; lb != &pci_root_buses; lb = lb->next) {
--		struct pci_bus *b = pci_bus_b(lb);
-+	list_for_each_entry(b, &pci_root_buses, node)
- 		pcibios_claim_one_bus(b);
--	}
- }
- 
- void __init
-
+-- 
+Dmitry

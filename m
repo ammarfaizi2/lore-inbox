@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265909AbRGOGIK>; Sun, 15 Jul 2001 02:08:10 -0400
+	id <S265659AbRGOHK3>; Sun, 15 Jul 2001 03:10:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265941AbRGOGIA>; Sun, 15 Jul 2001 02:08:00 -0400
-Received: from weta.f00f.org ([203.167.249.89]:58243 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S265909AbRGOGHt>;
-	Sun, 15 Jul 2001 02:07:49 -0400
-Date: Sun, 15 Jul 2001 18:07:52 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: John Alvord <jalvo@mbay.net>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        Andreas Dilger <adilger@turbolinux.com>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Ben LaHaise <bcrl@redhat.com>,
-        Ragnar Kjxrstad <kernel@ragnark.vestdata.no>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mike@bigstorage.com, kevin@bigstorage.com, linux-lvm@sistina.com
-Subject: Re: [PATCH] 64 bit scsi read/write
-Message-ID: <20010715180752.B7993@weta.f00f.org>
-In-Reply-To: <Pine.LNX.4.20.0107142304010.17541-100000@otter.mbay.net>
-Mime-Version: 1.0
+	id <S265933AbRGOHKT>; Sun, 15 Jul 2001 03:10:19 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:201 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S265659AbRGOHKL>;
+	Sun, 15 Jul 2001 03:10:11 -0400
+Message-ID: <3B5141A0.2B98693@athlon.maya.org>
+Date: Sun, 15 Jul 2001 09:09:20 +0200
+From: Andreas Hartmann <andihartmann@freenet.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: Again: Linux 2.4.x and AMD Athlon
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.20.0107142304010.17541-100000@otter.mbay.net>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 14, 2001 at 11:05:36PM -0700, John Alvord wrote:
+Hello all,
 
-    In the IBM solution to this (1977-78, VM/CMS) the critical data was
-    written at the begining and the end of the block. If the two data items
-    didn't match then the block was rejected.
+On Friday 13 July 2001 13:12, Thomas Foerster wrote:
 
-Neat.
+> I got only one oops in inode.c (forget the actual line number)
+> The rest are random application crashes on XFree 4.0.3 (GeForce2 GTS, nVidi
+> DRI (older version)) The System NEVER hangs, only applications crash!
+
+Some more experiences with AMD and X-related crashes:
+-> I've an Athlon 800 on a Epox EP7KXA Mobo (686A) with 512MB RAM and no
+nVIDIA graphics card, but ATI XPERT 2000.
+
+I've got similar problems with 2.4.x-kernels and I would be very glad,
+if the cause could be found. The problem is more than half of a year
+old!
+I posted it in this list some time ago (more than once) - nobody seemed
+to be interested. I posted it 2 times to the X bug list - no interest.
+
+But as I can see now, the problem seems to be greater than I thoght.
+Therefore I write here some of my latest experiences:
 
 
-Simple and effective.  Presumably you can also checksum the block, and
-check that.
+# X 4.1 (if I remember right) and 2.4.6 -> a lot off solid crashes (even
+pinging the machine didn't work) while starting X, no matter if DRI was
+turned on or off; no matter if agp was loaded or not. Unuseable.
+
+# X-CVS and 2.4.6ac2 eg. is working fine - with DRI turned on - I didn't
+test it without DRI.
+
+# Before, I tried to run X 4.1 and ac-Kernels. They have been crashing
+too as described above. That's why I'm using X CVS.
+
+# If I try to run X CVS and vanilla 2.4.6, I'm getting blinking screens
+after some restarts of X or after long working with X. It's unuseable,
+too.
 
 
+For me, it seems to be not a nVIDIA related problem.
 
-  --cw
+The question for me is:
+where are the differences between X CVS / X 4.1 and Vanilla / ac-patches
+- and there combinations.
+Why is the combination 2.4.6ac2 or the ac-patches before and X CVS
+(about 4 weeks old; not DRI-CVS; but they have been merged as far as I
+know) working for me without any problems?
+
+Did you try this combination too? It would bee interersting if it would
+work for you too!
+
+
+Regards,
+Andreas Hartmann

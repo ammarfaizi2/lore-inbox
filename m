@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130911AbRBPTB0>; Fri, 16 Feb 2001 14:01:26 -0500
+	id <S130741AbRBPTBi>; Fri, 16 Feb 2001 14:01:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130821AbRBPTBQ>; Fri, 16 Feb 2001 14:01:16 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:24850 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130741AbRBPTBH>; Fri, 16 Feb 2001 14:01:07 -0500
-Date: Fri, 16 Feb 2001 11:00:41 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, linux-kernel@vger.kernel.org,
-        bcrl@redhat.com
-Subject: Re: x86 ptep_get_and_clear question
-In-Reply-To: <3A8D764B.9CD6B3A8@colorfullife.com>
-Message-ID: <Pine.LNX.4.10.10102161056250.767-100000@penguin.transmeta.com>
+	id <S130821AbRBPTB1>; Fri, 16 Feb 2001 14:01:27 -0500
+Received: from mail.valinux.com ([198.186.202.175]:2820 "EHLO mail.valinux.com")
+	by vger.kernel.org with ESMTP id <S130741AbRBPTBR>;
+	Fri, 16 Feb 2001 14:01:17 -0500
+Message-ID: <3A8D78ED.B7D06362@valinux.com>
+Date: Fri, 16 Feb 2001 11:01:01 -0800
+From: Samuel Flory <sflory@valinux.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre11-va1.7smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, "tytso@valinux.com" <tytso@valinux.com>,
+        Chip Salzenberg <chip@valinux.com>
+Subject: Re: mke2fs and kernel VM issues
+In-Reply-To: <E14ThUy-0002ed-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 16 Feb 2001, Manfred Spraul wrote:
+Alan Cox wrote:
 > 
-> That leaves msync() - it currently does a flush_tlb_page() for every
-> single dirty page.
-> Is it possible to integrate that into the mmu gather code?
+> > heavily modifed VA kernel based on 2.2.18.  Is there a kernel which is
+> > believed to be a known good kernel?  (both 2.2.x and 2.4.x)
+> 
+> I've not seen the problem on unmodified 2.2.18. The 2.2.17/18 VM does have
+> its problems but not these. 2.2.19pre3 and higher have the Andrea VM fixes which
+> have worked wonders for everyone so far.
 
-Not even necessary.
 
-The D bit does not have to be coherent. We need to make sure that we flush
-the TLB before we start the IO on the pages which clears the per-physical
-D bit (so that no CPU will have done any modifications that didn't show up
-in one of the D bits - whther virtual in the page tables or physical in
-the memory map), but there are no other real requirements.
+  Hmm I believe Chip got his VM patches from Andrea.  So the behavior
+may be more 2.2.19pre3ish than 2.2.18ish.
 
-So you don't strictly need to gather them at all, although right now with
-the type of setup we have I suspect it's hard to actually implement any
-other way (because msync doesn't necessarily know when the IO has been
-physically started and has no good way of hooking into it..).
-
-		Linus
-
+-- 
+Solving people's computer problems always
+requires more hardware be given to you.
+(The Second Rule of Hardware Acquisition)
+Samuel J. Flory  <sam@valinux.com>

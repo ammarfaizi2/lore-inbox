@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290535AbSAQXki>; Thu, 17 Jan 2002 18:40:38 -0500
+	id <S290536AbSAQXsR>; Thu, 17 Jan 2002 18:48:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290534AbSAQXkQ>; Thu, 17 Jan 2002 18:40:16 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:23693 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290535AbSAQXkL>;
-	Thu, 17 Jan 2002 18:40:11 -0500
-Date: Thu, 17 Jan 2002 15:38:59 -0800 (PST)
-Message-Id: <20020117.153859.26929091.davem@redhat.com>
-To: balbir_soni@hotmail.com
+	id <S290537AbSAQXsG>; Thu, 17 Jan 2002 18:48:06 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:18327 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S290536AbSAQXrv>; Thu, 17 Jan 2002 18:47:51 -0500
+Subject: Re: FC & MULTIPATH !? (any hope?)
+From: Brian Beattie <alchemy@us.ibm.com>
+To: Mario Mikocevic <mozgy@hinet.hr>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Suspected bug in getpeername and getsockname
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <F79oay0q0NTY9agv3Su00012f71@hotmail.com>
-In-Reply-To: <F79oay0q0NTY9agv3Su00012f71@hotmail.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+In-Reply-To: <20020114123301.B30997@danielle.hinet.hr>
+In-Reply-To: <20020114123301.B30997@danielle.hinet.hr>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 17 Jan 2002 15:36:54 -0800
+Message-Id: <1011310615.519.3.camel@w-beattie1>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Balbir Singh" <balbir_soni@hotmail.com>
-   Date: Thu, 17 Jan 2002 15:35:59 -0800
+On Mon, 2002-01-14 at 03:33, Mario Mikocevic wrote:
+> Hi,
+> 
+> is there any hope of working combination of MULTIPATH with FC !?
+> 
+> At the moment I am using raid option multipath but it's one way
+> street, when one FC connection dies it successfully switches onto
+> another FC connection but when that second dies aswell, mount point
+> is in a limbo, no switching back to first FC connection.
+> 
+> Any other solutions, patches ?!
+> 
 
-   
-   >From: "David S. Miller" <davem@redhat.com>
-   >Optimizing error cases never bears any fruit.
-   
-   In this case, I certainly think it does. Could u give a
-   case as to why doing this would be harmful? I think the
-   only issue can be maintainability and doing the change
-   cleanly. But I think u are a good maintainer and will
-   accept the changes only if they are properly fixed.
-   Right :-)
+After analysing the current code in md/multipath and discussing it with
+other here who have experience with multipath support I have come up
+with the following approach.
 
-If I give up the maintainability (ie. make the code more error prone
-due to duplication) I better be getting something back.
+When a path fails and there are no more good paths, an attempt will be
+made complete the operation using each previously failed path untill the
+operation succeds, or all know paths have been tried.  If the operation
+succeds, that path will be marked good.
 
-Can the user eat up more than a scheduling quantum because of the
-work done by ->getname()?  I certainly don't think you can prove
-this.
+When a operation is attempted and no good paths exist, the operation
+will be attempted on each know path until success or all know paths are
+tried.
 
-Since the user can't, there is no real gain from the change, only
-negative maintainability aspects.  (and perhaps that it would make
-you happy)
+Probable enhancements to this would include, provideing a method to mark
+a path to not attempt this crude form of auto recovery and a way to mark
+a failed path as good.  Finally a device wide flag to disable
+auto-recovery.
 
-It certainly isn't work the long discussion we're having about it,
-that is for sure.
+A disadvantage to this approach is that it would potentially, multiply
+the amount or time it takes to ultimately fail the attempt, by the
+number of paths.  This would seem to be acceptable since the alternative
+is to fail the operation when a good route might exist.
 
-You want this to make your broken getname() protocol semantics work
-and I'd like you to address that instead.  I get the feeling that
-you've designed this weird behavior and that it is not specified in
-any standard anyways that your protocol must behave in this way.  I
-suggest you change it to work without the user length being
-available.
+I would appreciate any thoughts, flames, or suggestions.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com

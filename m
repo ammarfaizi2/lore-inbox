@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130493AbRCLRGB>; Mon, 12 Mar 2001 12:06:01 -0500
+	id <S130502AbRCLR0z>; Mon, 12 Mar 2001 12:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130492AbRCLRFw>; Mon, 12 Mar 2001 12:05:52 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:32510 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S130493AbRCLRFg>; Mon, 12 Mar 2001 12:05:36 -0500
-Date: Mon, 12 Mar 2001 17:08:46 +0000 (GMT)
-From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
-To: linux-kernel@vger.kernel.org
-Subject: system call for process information?
-Message-ID: <Pine.LNX.4.21.0103121658360.30542-100000@erdos.shef.ac.uk>
+	id <S130505AbRCLR0q>; Mon, 12 Mar 2001 12:26:46 -0500
+Received: from smtp1.sentex.ca ([199.212.134.4]:27916 "EHLO smtp1.sentex.ca")
+	by vger.kernel.org with ESMTP id <S130502AbRCLR0h>;
+	Mon, 12 Mar 2001 12:26:37 -0500
+Message-ID: <3AAD055C.A5300E9E@coplanar.net>
+Date: Mon, 12 Mar 2001 12:20:28 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pozsar Balazs <pozsy@sch.bme.hu>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ide Hot-swaping?
+In-Reply-To: <Pine.GSO.4.30.0103121717480.11985-100000@balu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Pozsar Balazs wrote:
 
-I asked this question on kernel-newbies - no reply, hope to be luckier
-here:-)
+> Is it possible to hot-swap ide drives and re-detect them?
+> Does 'normal' Pc-hardware allow it?
 
-I need to collect some info on processes. One way is to read /proc
-tree. But isn't there a system call (ioctl) for this? And what are those
-task[], task_struct, etc. about?
+read a recent man page for hdparm and you will see kernel
+allows remove/add ide interface.  scripts with correct
+parameter usage are in contrib directory of hdparm source.
+IDE maintainer has code to electrically turn off (tristate)
+ide channels on most PC ide chips, but is waiting to
+demonstrate at an industry conference before releasing
+to public.
 
-Thanks
-Guennadi
-___
-
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
-
-
--
-Kernelnewbies: Help each other learn about the Linux kernel.
-Archive:       http://mail.nl.linux.org/
-IRC Channel:   irc.openprojects.net / #kernelnewbies
-Web Page:      http://www.surriel.com/kernelnewbies.shtml
+>
+>
+> thanks,
+> Balazs Pozsar.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

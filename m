@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbTKCNZl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 08:25:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTKCNZl
+	id S261764AbTKCNrH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 08:47:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbTKCNrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 08:25:41 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:64904 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261881AbTKCNZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 08:25:40 -0500
-Date: Mon, 3 Nov 2003 13:24:09 +0000
-From: Dave Jones <davej@redhat.com>
-To: Geoffrey Lee <glee@gnupilgrims.org>
+	Mon, 3 Nov 2003 08:47:07 -0500
+Received: from tweedy.ksc.nasa.gov ([128.217.76.165]:24034 "EHLO
+	tweedy.ksc.nasa.gov") by vger.kernel.org with ESMTP id S261764AbTKCNrF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 08:47:05 -0500
+Subject: Re: initrd help -- umounts root after pivot_root
+From: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
+To: "H. Peter Anvin" <hpa@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] reproducible athlon mce fix
-Message-ID: <20031103132409.GA25183@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Geoffrey Lee <glee@gnupilgrims.org>, linux-kernel@vger.kernel.org
-References: <20031102055748.GA1218@anakin.wychk.org> <20031102125202.GA7992@redhat.com> <20031103092048.GB14080@anakin.wychk.org>
+In-Reply-To: <bnulvd$fps$1@cesium.transmeta.com>
+References: <1067604362.5526.15.camel@tweedy.ksc.nasa.gov>
+	 <bnulvd$fps$1@cesium.transmeta.com>
+Content-Type: text/plain
+Message-Id: <1067867220.5526.55.camel@tweedy.ksc.nasa.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031103092048.GB14080@anakin.wychk.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 03 Nov 2003 08:47:00 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 03, 2003 at 05:20:48PM +0800, Geoffrey Lee wrote:
+On Fri, 2003-10-31 at 16:59, H. Peter Anvin wrote:
+> 	From: H. Peter Anvin <hpa@zytor.com>
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=ISO-8859-1
+> Content-Transfer-Encoding: 8bit
+> X-Comment-To: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
+> Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+> Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+> 
+> Followup to:  <1067604362.5526.15.camel@tweedy.ksc.nasa.gov>
+> By author:    Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
+> In newsgroup: linux.dev.kernel
+> > 
+> > John,
+> > 
+> > It does not appear that the kernel(s) will support the root fs on
+> > tmpfs.  Looking through the init kernel code:  It boils down to a block
+> > device with real major and minor number or NFS.
+> > 
+> 
+> Baloney.  See the SuperRescue CD, for example, for a distro which uses
+> exactly this.
+> 
+> 	-hpa
 
- > Would checking boot_cpu_data.x86_vendor == X86_VENDOR_AMD and 
- > boot_cpu_data.x86 == 6 be sufficient?  It seems to do the right thing ..
- > Updated patch attached.
+I stand corrected.  I should have been clearer making this statement.  I
+did not see a mechanism for mounting a tmpfs in do_mounts.c, or main.c. 
+One question:  I see that superrescue execs init and the end of
+linuxrc.  Does this cause the kernel initialization to yield in
+handle_initrd(), until init exits (reboot/shutdown)?
 
-Yup, looks to be pretty much the same change I made in my local tree.
-
-		Dave
+Bob... 
 

@@ -1,88 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277545AbRJOPxn>; Mon, 15 Oct 2001 11:53:43 -0400
+	id <S277560AbRJOQAd>; Mon, 15 Oct 2001 12:00:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277652AbRJOPxd>; Mon, 15 Oct 2001 11:53:33 -0400
-Received: from linux.ee.tku.edu.tw ([163.13.132.68]:29705 "HELO
-	linux.ee.tku.edu.tw") by vger.kernel.org with SMTP
-	id <S277559AbRJOPxZ>; Mon, 15 Oct 2001 11:53:25 -0400
-Date: Tue, 16 Oct 2001 08:12:03 +0800 (CST)
-From: Gian-Yan Xu <kids@linux.ee.tku.edu.tw>
-To: linux-kernel@vger.kernel.org
-Subject: ptrace bug
-Message-ID: <Pine.LNX.4.21.0110160805440.12289-100000@linux.ee.tku.edu.tw>
+	id <S277556AbRJOQAX>; Mon, 15 Oct 2001 12:00:23 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:3031 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S277559AbRJOQAO>; Mon, 15 Oct 2001 12:00:14 -0400
+Date: Mon, 15 Oct 2001 12:00:22 -0400
+From: Chris Mason <mason@suse.com>
+To: Hans-Peter Jansen <hpj@urpla.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mount hanging 2.4.12
+Message-ID: <90180000.1003161622@tiny>
+In-Reply-To: <20011015153750.16F46F89@shrek.lisa.de>
+In-Reply-To: <Pine.GSO.4.21.0110141231570.6026-100000@weyl.math.psu.edu> <2314290000.1003133922@tiny> <20011015153750.16F46F89@shrek.lisa.de>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Today I try to get register's value via ptrace(PTRACE_GETREGS, ...),
-but only EBX, ECX, EDX, ESI, EDI, EBP, EAX registers are correct.
-I notice that file /usr/src/linux/include/asm/ptrace.h:
 
-#define FS 9
-#define GS 10
+On Monday, October 15, 2001 05:37:49 PM +0200 Hans-Peter Jansen <hpj@urpla.net> wrote:
 
-but in the declare of struct pt_regs:
-                                                                    
-struct pt_regs {                                                
-        long ebx;                                      
-        long ecx;                    
-        long edx;                                                             
-        long esi;                                                             
-        long edi;                    
-        long ebp;                    
-        long eax;
-        int  xds;
-        int  xes;
-        long orig_eax;
-        long eip;     
-        int  xcs;     
-        long eflags;  
-        long esp;     
-        int  xss;     
-};                    
-                                                                    
-There is no xfs/xgs member in that struct, and the #define FRAME_SIZE 17
-is not match the number of member in the pt_regs struct.                
-                                                                        
-                                                                              
-In addition, in the ptrace.c:                                                 
-                                                                        
-   case PTRACE_GETREGS: { /* Get all gp regs from the child. */         
-   if (!access_ok(VERIFY_WRITE, (unsigned *)data,
-FRAME_SIZE*sizeo(long))) {
-                        ret = -EIO;                                         
-                        break;                                              
-   }                                                                        
-   for ( i = 0; i < FRAME_SIZE*sizeof(long); i += sizeof(long) ) {          
-              __put_user(getreg(child, i),(unsigned long *) data);          
-             data += sizeof(long);                                          
-   }                                                                        
-   ret = 0;                                                                 
-                                                                            
-FRAME_SIZE*sizeof(long) is larger than sizeof(struct pt_regs),              
-the ptrace() will overwrite the data of parent process!                     
-                                                                            
-To fix the bug, try this patch:                                             
-                                                                            
---- ptrace.h.orig       Mon Oct 15 21:00:48 2001                            
-+++ ptrace.h    Mon Oct 15 21:05:56 2001                                    
-@@ -33,6 +33,8 @@                                                           
-        long eax;                                                           
-        int  xds;                                                           
-        int  xes;                                                           
-+       int  xfs;                                                           
-+       int  xgs;                                                           
-        long orig_eax;                                                      
-        long eip;                                                           
-        int  xcs;                                                           
-                                 
-                                                              
+> 
+> Hi Chris,
+> 
+> I discovered some mount problems/hangs when playing with dvds,
+> so I gave your patch a try, but it does not apply properly on 
+> 2.4.12. Can you shred some light on this:
 
--- 
-Best regards,
-Gian-Yain Xu. (kids@linux.ee.tku.edu.tw)
+The patch was against 2.4.13-pre2 + lvm 1.0.1rc4, it is used for
+journaled filesystem snapshots on lvm, so it should not help
+the dvd case at all (sorry) .  It fixed Ed Tomlinson's problem because
+he was using a buggy previous version of the patch.
 
+-chris
 

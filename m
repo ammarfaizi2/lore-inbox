@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129340AbQLOWTe>; Fri, 15 Dec 2000 17:19:34 -0500
+	id <S129982AbQLOWZg>; Fri, 15 Dec 2000 17:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129982AbQLOWTZ>; Fri, 15 Dec 2000 17:19:25 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:50955 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129340AbQLOWTQ>; Fri, 15 Dec 2000 17:19:16 -0500
-Message-ID: <3A3A9FE3.ECADF36@t-online.de>
-Date: Fri, 15 Dec 2000 23:49:07 +0100
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S130468AbQLOWZ0>; Fri, 15 Dec 2000 17:25:26 -0500
+Received: from WARSL401PIP1.highway.telekom.at ([195.3.96.69]:3650 "HELO
+	email01.aon.at") by vger.kernel.org with SMTP id <S129982AbQLOWZV>;
+	Fri, 15 Dec 2000 17:25:21 -0500
+From: Philipp Schmid <ph.schmid@aon.at>
 To: linux-kernel@vger.kernel.org
-Subject: lx240test12 hangs VAIO after "OK, booting the kernel"
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: bluetooth and linux
+Date: Fri, 15 Dec 2000 23:53:58 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <20001215222524Z129982-439+4126@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Linux-2.4.0-test12 doesn't boot on VAIO PCG-N505SN,
-whereas linux-2.2.10 works fine (both booted by lilo-21).
+Gnome vs kde2: ja ich verwende kde2 auf debian, na und ?
+MIME-Version: 1.0
+Message-Id: <00121523535800.06182@dagobert>
+Content-Transfer-Encoding: 8bit
 
-It just hangs after printing:
-Uncompressing Linux... Ok, booting the kernel.
-HANG
+hi,
 
-Btw. Raw bzImage booted over USB-floppy just reboots...
+i'm going to buy a notebook in the near future, which supports bluetooth.
+so my question is: is anyone working on bluetooth drivers or do i have to 
+forget about it ?
 
-Can this be infamous A20 again ?
-
-Regards, Gunther
+greets philipp
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,818 +1,1588 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317850AbSFMVwT>; Thu, 13 Jun 2002 17:52:19 -0400
+	id <S317851AbSFMVxW>; Thu, 13 Jun 2002 17:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317854AbSFMVwS>; Thu, 13 Jun 2002 17:52:18 -0400
-Received: from psmtp2.dnsg.net ([193.168.128.42]:30375 "HELO psmtp2.dnsg.net")
-	by vger.kernel.org with SMTP id <S317850AbSFMVvY>;
-	Thu, 13 Jun 2002 17:51:24 -0400
-Subject: [PATCH][2.5.21] memory management change request.
+	id <S317858AbSFMVxW>; Thu, 13 Jun 2002 17:53:22 -0400
+Received: from psmtp2.dnsg.net ([193.168.128.42]:31399 "HELO psmtp2.dnsg.net")
+	by vger.kernel.org with SMTP id <S317851AbSFMVvg>;
+	Thu, 13 Jun 2002 17:51:36 -0400
+Subject: [PATCH][2.5.21]new xpram driver (was [REVERT] 2.5.21 s390/block/xpram.c)
 To: linux-kernel@vger.kernel.org
-Date: Fri, 14 Jun 2002 01:46:48 +0200 (CEST)
+Date: Fri, 14 Jun 2002 01:41:40 +0200 (CEST)
 CC: torvalds@transmeta.com
 X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17IeJ2-0000GT-00@skybase>
+Message-Id: <E17IeE5-00009t-00@skybase>
 From: Martin Schwidefsky <martin.schwidefsky@debitel.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'd like to propose a change to the memory management to be able to optimize
-the tlb handling on s/390. There are two major differences between the way
-s/390 copes with tlbs and the way the rest of the world does it:
+>During the course of the patch-2.5.21 I noticed the
+>following attached chunk, which resurrect hardsects array in the
+>affected code. This is of course entierly bogous.
+>Please revert this chunk, since it's most propably just
+>a merge error on behalf of the Big Blue.
+>
+>Oh well oh well...
 
-1) the dirty and the referenced bit is kept in the storage key (there is
-   one for every physical page) and not in the page table entries. This
-   difference is the reason for the new function "flush_tlb_dirty". In
-   mm/msync.c:filemap_sync_pte() the dirty bit is 'moved' from the hardware
-   to the page structure. The dirty bit is tested and cleared with
-   ptep_test_and_clear_dirty and if it is set the tlb for the page is
-   flushed and the dirty bit in the page structure is set:
-
-	if (!PageReserved(page) && ptep_test_and_clear_dirty(ptep)) {
-		flush_tlb_page(vma, address);
-		set_page_dirty(page);
-	}
-
-   This is quite suboptimal on s/390 because the ptep_test_and_clear_dirty
-   has already done everything that is needed. The tlb has nothing to do
-   with the dirty bit on s/390! So we would like to replace flush_tlb_page
-   with a new function flush_tlb_dirty:
-
-	if (!PageReserved(page) && ptep_test_and_clear_dirty(ptep)) {
-		flush_tlb_dirty(vma, address);
-		set_page_dirty(page);
-	}
-
-   flush_tlb_dirty is defined as flush_tlb_page on all architectures
-   but s/390. On s/390 we simply do nothing and do not have to take the
-   performance penalty of a tlb flush.
-   
-2) s/390 has an instruction called ipte (invalidate page table entry) that
-   is used to get rid of virtual pages. It does two things, first it sets
-   the invalid bit in the pte and second it flushes the tlbs for this
-   page on all cpus. Very handy but it requires that the pte it should
-   flush is still valid. The introduction of establish_pte was a step
-   into the right direction but it is defined in mm/memory.c. We need
-   to be able to replace this function with a special s/390 variant.
-   I tried to move establish_pte to include/asm/pgtable.h but this
-   failed because of include order conflicts. Therefore I moved it
-   to include/asm/pgalloc.h (and renamed it to ptep_establish). To make
-   ptep_establish available on architectures that do not want to replace
-   it (all others), I added asm-generic/pgalloc.h and an include in
-   asm-<arch>/pgalloc.h for all architectures != s390. The same problem
-   as with establish_pte exists with invalidating ptes. The sequence
-   used e.g. in mm/vmscan.c is
-
-	flush_cache_page(vma, address);
-	pte = ptep_get_and_clear(page_table);
-	flush_tlb_page(vma, addess);
-
-   Again this makes it impossible to use the ipte in flush_tlb_page. The
-   sequence of these tree lines is replaced by ptep_invalidate. The "old"
-   implementation is moved to asm-generic/pgalloc.h and s/390 has its own
-   implementation with ipte.
+Oh, sorry. I didn't noticed that someone else removed hardsecs from the
+xpram driver. I looked at the xpram code to repair the damage and ended
+up with a rewrite. Its now half the size and uses a make_request function
+instead of a full blown request queue. Much better, don't you think?
 
 blue skies,
   Martin.
 
-diff -urN linux-2.5.21/include/asm-alpha/pgalloc.h linux-2.5.21-ptep/include/asm-alpha/pgalloc.h
---- linux-2.5.21/include/asm-alpha/pgalloc.h	Sun Jun  9 07:26:29 2002
-+++ linux-2.5.21-ptep/include/asm-alpha/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -72,4 +72,6 @@
- 
- #define check_pgt_cache()	do { } while (0)
- 
-+#include <asm-generic/pgalloc.h>
-+
- #endif /* _ALPHA_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-alpha/tlbflush.h linux-2.5.21-ptep/include/asm-alpha/tlbflush.h
---- linux-2.5.21/include/asm-alpha/tlbflush.h	Sun Jun  9 07:26:23 2002
-+++ linux-2.5.21-ptep/include/asm-alpha/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -133,6 +133,8 @@
- 		flush_tlb_other(mm);
- }
- 
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
-+
- /* Flush a specified range of user mapping.  On the Alpha we flush
-    the whole user tlb.  */
- static inline void
-@@ -149,6 +151,7 @@
- extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
- extern void flush_tlb_range(struct vm_area_struct *, unsigned long,
- 			    unsigned long);
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
- 
- #endif /* CONFIG_SMP */
- 
-diff -urN linux-2.5.21/include/asm-arm/pgalloc.h linux-2.5.21-ptep/include/asm-arm/pgalloc.h
---- linux-2.5.21/include/asm-arm/pgalloc.h	Sun Jun  9 07:31:24 2002
-+++ linux-2.5.21-ptep/include/asm-arm/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -31,4 +31,6 @@
- 
- #define check_pgt_cache()		do { } while (0)
- 
-+#include <asm-generic/pgalloc.h>
-+
- #endif
-diff -urN linux-2.5.21/include/asm-arm/proc-armo/pgalloc.h linux-2.5.21-ptep/include/asm-arm/proc-armo/pgalloc.h
---- linux-2.5.21/include/asm-arm/proc-armo/pgalloc.h	Sun Jun  9 07:28:14 2002
-+++ linux-2.5.21-ptep/include/asm-arm/proc-armo/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -42,3 +42,5 @@
- #define pte_alloc_one(mm,addr)	((struct page *)pte_alloc_one_kernel(mm,addr))
- #define pte_free(pte)		pte_free_kernel((pte_t *)pte)
- #define pmd_populate(mm,pmdp,ptep) pmd_populate_kernel(mm,pmdp,(pte_t *)ptep)
-+
-+#include <asm-generic/pgalloc.h>
-diff -urN linux-2.5.21/include/asm-arm/proc-armo/tlbflush.h linux-2.5.21-ptep/include/asm-arm/proc-armo/tlbflush.h
---- linux-2.5.21/include/asm-arm/proc-armo/tlbflush.h	Sun Jun  9 07:26:57 2002
-+++ linux-2.5.21-ptep/include/asm-arm/proc-armo/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -5,12 +5,14 @@
-  *  - flush_tlb_mm(mm) flushes the specified mm context TLB's
-  *  - flush_tlb_page(vma, vmaddr) flushes one page
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
-+ *  - flush_tlb_dirty(vma, vmaddr) flushes the dirty bit for one page
-  */
- #define flush_tlb_all()				memc_update_all()
- #define flush_tlb_mm(mm)			memc_update_mm(mm)
- #define flush_tlb_range(vma,start,end)		\
- 		do { memc_update_mm(vma->vm_mm); (void)(start); (void)(end); } while (0)
- #define flush_tlb_page(vma, vmaddr)		do { } while (0)
-+#define flush_tlb_dirty(vma, vmaddr)		do { } while (0)
- 
+diff -urN linux-2.5.21/drivers/s390/block/xpram.c linux-2.5.21-s390/drivers/s390/block/xpram.c
+--- linux-2.5.21/drivers/s390/block/xpram.c	Sun Jun  9 07:31:13 2002
++++ linux-2.5.21-s390/drivers/s390/block/xpram.c	Thu Jun 13 17:08:23 2002
+@@ -1,4 +1,3 @@
+-
  /*
-  * The following handle the weird MEMC chip
-diff -urN linux-2.5.21/include/asm-arm/proc-armv/pgalloc.h linux-2.5.21-ptep/include/asm-arm/proc-armv/pgalloc.h
---- linux-2.5.21/include/asm-arm/proc-armv/pgalloc.h	Sun Jun  9 07:26:24 2002
-+++ linux-2.5.21-ptep/include/asm-arm/proc-armv/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -122,3 +122,6 @@
- 	pmd_val(pmd) += 256 * sizeof(pte_t);
- 	set_pmd(pmdp + 1, pmd);
- }
-+
-+#include <asm-generic/pgalloc.h>
-+
-diff -urN linux-2.5.21/include/asm-arm/proc-armv/tlbflush.h linux-2.5.21-ptep/include/asm-arm/proc-armv/tlbflush.h
---- linux-2.5.21/include/asm-arm/proc-armv/tlbflush.h	Sun Jun  9 07:28:02 2002
-+++ linux-2.5.21-ptep/include/asm-arm/proc-armv/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -67,6 +67,7 @@
- #define flush_tlb_mm(mm)		__cpu_flush_user_tlb_mm(mm)
- #define flush_tlb_range(vma,start,end)	__cpu_flush_user_tlb_range(start,end,vma)
- #define flush_tlb_page(vma,vaddr)	__cpu_flush_user_tlb_page(vaddr,vma)
-+#define flush_tlb_dirty(vma,vaddr)	__cpu_flush_user_tlb_page(vaddr,vma)
- #define flush_tlb_kernel_range(s,e)	__cpu_flush_kern_tlb_range(s,e)
- #define flush_tlb_kernel_page(kaddr)	__cpu_flush_kern_tlb_page(kaddr)
- 
-diff -urN linux-2.5.21/include/asm-cris/pgalloc.h linux-2.5.21-ptep/include/asm-cris/pgalloc.h
---- linux-2.5.21/include/asm-cris/pgalloc.h	Sun Jun  9 07:31:19 2002
-+++ linux-2.5.21-ptep/include/asm-cris/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -112,4 +112,6 @@
- 
- extern int do_check_pgt_cache(int, int);
- 
-+#include <asm-generic/pgalloc.h>
-+
- #endif
-diff -urN linux-2.5.21/include/asm-cris/pgtable.h linux-2.5.21-ptep/include/asm-cris/pgtable.h
---- linux-2.5.21/include/asm-cris/pgtable.h	Sun Jun  9 07:26:34 2002
-+++ linux-2.5.21-ptep/include/asm-cris/pgtable.h	Thu Jun 13 21:06:11 2002
-@@ -135,7 +135,7 @@
-  *  - flush_tlb_mm(mm) flushes the specified mm context TLB's
-  *  - flush_tlb_page(vma, vmaddr) flushes one page
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
+  * Xpram.c -- the S/390 expanded memory RAM-disk
+  *           
+@@ -8,14 +7,11 @@
+  *
+  * Author of XPRAM specific coding: Reinhard Buendgen
+  *                                  buendgen@de.ibm.com
++ * Rewrite for 2.5: Martin Schwidefsky <schwidefsky@de.ibm.com>
+  *
+  * External interfaces:
+  *   Interfaces to linux kernel
+- *        xpram_setup: read kernel parameters   (see init/main.c)
+- *        xpram_init:  initialize device driver (see drivers/block/ll_rw_blk.c)
+- *   Module interfaces
+- *        init_module
+- *        cleanup_module
++ *        xpram_setup: read kernel parameters
+  *   Device specific file operations
+  *        xpram_iotcl
+  *        xpram_open
+@@ -26,121 +22,54 @@
+  *    (with different minors). The partitioning set up can be
+  *    set by kernel or module parameters (int devs & int sizes[])
+  *
+- *    module parameters: devs= and sizes=
+- *    kernel parameters: xpram_parts=
+- *      note: I did not succeed in parsing numbers 
+- *            for module parameters of type string "s" ?!?
 - *
-+ *  - flush_tlb_dirty(vma, vmaddr) flushes the dirty bit for one page
+- * Other kenel files/modules affected(gerp for "xpram" or "XPRAM":
+- *    drivers/s390/Config.in
+- *    drivers/s390/block/Makefile
+- *    include/linux/blk.h
+- *    include/linux/major.h
+- *    init/main.c
+- *    drivers/block//ll_rw_blk.c
+- *
+- *
+  * Potential future improvements:
+- *   request clustering: first coding started not yet tested or integrated
+- *                       I doubt that it really pays off 
+  *   generic hard disk support to replace ad-hoc partitioning
+- *
+- * Tested with 2.2.14 (under VM)
   */
  
- extern void flush_tlb_all(void);
-@@ -145,6 +145,8 @@
- extern void flush_tlb_range(struct vm_area_struct *vma,
- 			    unsigned long start,
- 			    unsigned long end);
-+
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
+-#ifdef MODULE
+-#  ifndef __KERNEL__
+-#    define __KERNEL__
+-#  endif
+-#  define __NO_VERSION__ /* don't define kernel_version in module.h */
+-#endif /* MODULE */
+-
+ #include <linux/module.h>
+ #include <linux/version.h>
++#include <linux/ctype.h>  /* isdigit, isxdigit */
++#include <linux/errno.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/blk.h>
++#include <linux/blkpg.h>
++#include <linux/hdreg.h>  /* HDIO_GETGEO */
++#include <asm/uaccess.h>
  
- static inline void flush_tlb_pgtables(struct mm_struct *mm,
-                                       unsigned long start, unsigned long end)
-diff -urN linux-2.5.21/include/asm-generic/pgalloc.h linux-2.5.21-ptep/include/asm-generic/pgalloc.h
---- linux-2.5.21/include/asm-generic/pgalloc.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.21-ptep/include/asm-generic/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -0,0 +1,29 @@
-+#ifndef _ASM_GENERIC_PGALLOC_H
-+#define _ASM_GENERIC_PGALLOC_H
-+
-+#include <asm/pgtable.h>
-+#include <asm/cacheflush.h>
-+#include <asm/tlbflush.h>
-+
-+static inline void
-+ptep_establish(struct vm_area_struct *vma, 
-+	       unsigned long address, pte_t *ptep, pte_t entry)
-+{
-+	set_pte(ptep, entry);
-+	flush_tlb_page(vma, address);
-+	update_mmu_cache(vma, address, entry);
-+}
-+
-+static inline pte_t
-+ptep_invalidate(struct vm_area_struct *vma,
-+		unsigned long address, pte_t *ptep)
-+{
-+	pte_t pte;
-+
-+	flush_cache_page(vma, address);
-+        pte = ptep_get_and_clear(ptep);
-+	flush_tlb_page(vma, address);
-+	return pte;
-+}
-+
-+#endif /* _ASM_GENERIC_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-i386/pgalloc.h linux-2.5.21-ptep/include/asm-i386/pgalloc.h
---- linux-2.5.21/include/asm-i386/pgalloc.h	Sun Jun  9 07:26:55 2002
-+++ linux-2.5.21-ptep/include/asm-i386/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -52,4 +52,6 @@
+ #ifdef MODULE
+ char kernel_version [] = UTS_RELEASE;
+ #endif
  
- #define check_pgt_cache()	do { } while (0)
- 
-+#include <asm-generic/pgalloc.h>
+-#include <linux/config.h>
+-#include <linux/init.h>
+-#include <linux/sched.h>
+-#include <linux/kernel.h> /* printk() */
+-#include <linux/slab.h> /* kmalloc() */
+-#include <linux/devfs_fs_kernel.h>
+-#include <linux/fs.h>     /* everything... */
+-#include <linux/errno.h>  /* error codes */
+-#include <linux/timer.h>
+-#include <linux/types.h>  /* size_t */
+-#include <linux/ctype.h>  /* isdigit, isxdigit */
+-#include <linux/fcntl.h>  /* O_ACCMODE */
+-#include <linux/hdreg.h>  /* HDIO_GETGEO */
+-
+-#include <asm/system.h>   /* cli(), *_flags */
+-#include <asm/uaccess.h>  /* put_user */
+-
+-#define MAJOR_NR xpram_major /* force definitions on in blk.h */
+-int xpram_major;   /* must be declared before including blk.h */
+-devfs_handle_t xpram_devfs_handle;
+-
+-#define DEVICE_NR(device) MINOR(device)   /* xpram has no partition bits */
+-#define DEVICE_NAME "xpram"               /* name for messaging */
+-#define DEVICE_INTR xpram_intrptr         /* pointer to the bottom half */
+-#define DEVICE_NO_RANDOM                  /* no entropy to contribute */
+-#define DEVICE_OFF(d)                     /* do-nothing */
+-
+-#include <linux/blk.h>
+-
+-#include "xpram.h"        /* local definitions */
+-
+-__setup("xpram_parts=", xpram_setup);
+-
+-/*
+-   define the debug levels:
+-   - 0 No debugging output to console or syslog
+-   - 1 Log internal errors to syslog, ignore check conditions 
+-   - 2 Log internal errors and check conditions to syslog
+-   - 3 Log internal errors to console, log check conditions to syslog
+-   - 4 Log internal errors and check conditions to console
+-   - 5 panic on internal errors, log check conditions to console
+-   - 6 panic on both, internal errors and check conditions
+- */
+-#define XPRAM_DEBUG 4
+-
+-#define PRINTK_HEADER XPRAM_NAME
+-
+-#if XPRAM_DEBUG > 0
+-#define PRINT_DEBUG(x...) printk ( KERN_DEBUG PRINTK_HEADER "debug:" x )
+-#define PRINT_INFO(x...) printk ( KERN_INFO PRINTK_HEADER "info:" x )
+-#define PRINT_WARN(x...) printk ( KERN_WARNING PRINTK_HEADER "warning:" x )
+-#define PRINT_ERR(x...) printk ( KERN_ERR PRINTK_HEADER "error:" x )
+-#define PRINT_FATAL(x...) panic ( PRINTK_HEADER "panic:"x )
+-#else
+-#define PRINT_DEBUG(x...) printk ( KERN_DEBUG PRINTK_HEADER "debug:"  x )
+-#define PRINT_INFO(x...) printk ( KERN_DEBUG PRINTK_HEADER "info:" x )
+-#define PRINT_WARN(x...) printk ( KERN_DEBUG PRINTK_HEADER "warning:" x )
+-#define PRINT_ERR(x...) printk ( KERN_DEBUG PRINTK_HEADER "error:" x )
+-#define PRINT_FATAL(x...) printk ( KERN_DEBUG PRINTK_HEADER "panic:" x )
+-#endif
++#define XPRAM_NAME	"xpram"
++#define XPRAM_DEVICE_NAME_PREFIX "slram" /* Prefix device name for major 35 */
++#define XPRAM_DEVS	1	/* one partition */
++#define XPRAM_MAX_DEVS	32	/* maximal number of devices (partitions) */
 +
- #endif /* _I386_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-i386/tlbflush.h linux-2.5.21-ptep/include/asm-i386/tlbflush.h
---- linux-2.5.21/include/asm-i386/tlbflush.h	Sun Jun  9 07:29:28 2002
-+++ linux-2.5.21-ptep/include/asm-i386/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -62,6 +62,7 @@
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
-  *  - flush_tlb_kernel_range(start, end) flushes a range of kernel pages
-  *  - flush_tlb_pgtables(mm, start, end) flushes a range of page tables
-+ *  - flush_tlb_dirty(vma, vmaddr) flushes the dirty bit for one page
++#define PRINT_DEBUG(x...)	printk(KERN_DEBUG XPRAM_NAME " debug:" x)
++#define PRINT_INFO(x...)	printk(KERN_INFO XPRAM_NAME " info:" x)
++#define PRINT_WARN(x...)	printk(KERN_WARNING XPRAM_NAME " warning:" x)
++#define PRINT_ERR(x...)		printk(KERN_ERR XPRAM_NAME " error:" x)
++#define PRINT_FATAL(x...)	panic(PRINTK_HEADER "panic:" x)
++
++typedef struct {
++	unsigned long  size;	       /* size of xpram segment in pages */
++	unsigned long  offset;         /* start page of xpram segment */
++	char           device_name[16];
++	devfs_handle_t devfs_entry;
++} xpram_device_t;
++
++static xpram_device_t xpram_devices[XPRAM_MAX_DEVS];
++static unsigned long xpram_sizes[XPRAM_MAX_DEVS];
++static unsigned long xpram_pages;
++static int xpram_devs;
++static devfs_handle_t xpram_devfs_handle;
+ 
+ /*
+- * Non-prefixed symbols are static. They are meant to be assigned at
+- * load time. Prefixed symbols are not static, so they can be used in
+- * debugging. They are hidden anyways by register_symtab() unless
+- * XPRAM_DEBUG is defined.
++ * Parameter parsing functions.
+  */
+-
+-static int major    = XPRAM_MAJOR;
+-static int devs     = XPRAM_DEVS;
+-static int sizes[XPRAM_MAX_DEVS] = { 0, };
+-static int blksize  = XPRAM_BLKSIZE;
+-static int hardsect = XPRAM_HARDSECT;
+-
+-int xpram_devs;
+-int xpram_blksize, xpram_hardsect;
+-int xpram_mem_avail = 0;
+-unsigned long xpram_sizes[XPRAM_MAX_DEVS];
+-
++static int devs = XPRAM_DEVS;
++static unsigned long sizes[XPRAM_MAX_DEVS] = { 0, };
+ 
+ MODULE_PARM(devs,"i");
+ MODULE_PARM(sizes,"1-" __MODULE_STRING(XPRAM_MAX_DEVS) "i"); 
+@@ -153,511 +82,308 @@
+ 		 "remaining space on the expanded strorage not "
+ 		 "claimed by explicit sizes\n");
+ 
+-
+-
+-/* The following items are obtained through kmalloc() in init_module() */
+-
+-Xpram_Dev *xpram_devices = NULL;
+-int *xpram_hardsects = NULL;
+-int *xpram_offsets = NULL;   /* partition offsets */
+-
+-#define MIN(x,y) ((x) < (y) ? (x) : (y))
+-#define MAX(x,y) ((x) > (y) ? (x) : (y))
+-
+-/* 
+- *              compute nearest multiple of 4 , argument must be non-negative
+- *              the macros used depends on XPRAM_KB_IN_PG = 4 
+- */
+-
+-#define NEXT4(x) ((x & 0x3) ? (x+4-(x &0x3)) : (x))   /* increment if needed */
+-#define LAST4(x) ((x & 0x3) ? (x-4+(x & 0x3)) : (x))  /* decrement if needed */
+-
+-#if 0               /* this is probably not faster than the previous code */
+-#define NEXT4(x)   ((((x-1)>>2)>>2)+4)             /* increment if needed */
+-#define LAST4(x)   (((x+3)>>2)<<2)                 /* decrement if needed */
+-#endif
+-
+-/* integer formats */
+-#define XPRAM_INVALF -1    /* invalid     */
+-#define XPRAM_HEXF    0    /* hexadecimal */
+-#define XPRAM_DECF    1    /* decimal     */
+-
+-/* 
+- *    parsing operations (needed for kernel parameter parsing)
+- */
+-
+-/* -------------------------------------------------------------------------
+- * sets the string pointer after the next comma 
+- *
+- * argument:    strptr pointer to string
+- * side effect: strptr points to endof string or to position of the next 
+- *              comma 
+- * ------------------------------------------------------------------------*/
+-static void
+-xpram_scan_to_next_comma (char **strptr)
+-{
+-	while ( ((**strptr) != ',') && (**strptr) )
+-		(*strptr)++;
+-}
+-
+-/* -------------------------------------------------------------------------
+- * interpret character as hex-digit
++#ifndef MODULE
++/*
++ * Parses the kernel parameters given in the kernel parameter line.
++ * The expected format is
++ *           <number_of_partitions>[","<partition_size>]*
++ * where
++ *           devices is a positive integer that initializes xpram_devs
++ *           each size is a non-negative integer possibly followed by a
++ *           magnitude (k,K,m,M,g,G), the list of sizes initialises
++ *           xpram_sizes
   *
-  * ..but the i386 has somewhat limited tlb flushing capabilities,
-  * and page-granular flushes are available only on i486 and up.
-@@ -86,6 +87,8 @@
- 		__flush_tlb_one(addr);
- }
- 
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
-+
- static inline void flush_tlb_range(struct vm_area_struct *vma,
- 	unsigned long start, unsigned long end)
- {
-@@ -106,6 +109,7 @@
- extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
- 
- #define flush_tlb()	flush_tlb_current_task()
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
- 
- static inline void flush_tlb_range(struct vm_area_struct * vma, unsigned long start, unsigned long end)
- {
-diff -urN linux-2.5.21/include/asm-ia64/pgalloc.h linux-2.5.21-ptep/include/asm-ia64/pgalloc.h
---- linux-2.5.21/include/asm-ia64/pgalloc.h	Sun Jun  9 07:26:35 2002
-+++ linux-2.5.21-ptep/include/asm-ia64/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -181,4 +181,6 @@
- 	set_bit(PG_arch_1, &page->flags);	/* mark page as clean */
- }
- 
-+#include <asm-generic/pgalloc.h>
-+
- #endif /* _ASM_IA64_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-ia64/tlbflush.h linux-2.5.21-ptep/include/asm-ia64/tlbflush.h
---- linux-2.5.21/include/asm-ia64/tlbflush.h	Sun Jun  9 07:28:50 2002
-+++ linux-2.5.21-ptep/include/asm-ia64/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -63,6 +63,8 @@
- #endif
- }
- 
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, addr)
-+
- /*
-  * Flush the TLB entries mapping the virtually mapped linear page
-  * table corresponding to address range [START-END).
-diff -urN linux-2.5.21/include/asm-m68k/pgalloc.h linux-2.5.21-ptep/include/asm-m68k/pgalloc.h
---- linux-2.5.21/include/asm-m68k/pgalloc.h	Sun Jun  9 07:30:07 2002
-+++ linux-2.5.21-ptep/include/asm-m68k/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -16,4 +16,6 @@
- #include <asm/motorola_pgalloc.h>
- #endif
- 
-+#include <asm-generic/pgalloc.h>
-+
- #endif /* M68K_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-m68k/tlbflush.h linux-2.5.21-ptep/include/asm-m68k/tlbflush.h
---- linux-2.5.21/include/asm-m68k/tlbflush.h	Sun Jun  9 07:27:43 2002
-+++ linux-2.5.21-ptep/include/asm-m68k/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -73,6 +73,8 @@
- 		__flush_tlb_one(addr);
- }
- 
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
-+
- static inline void flush_tlb_range(struct vm_area_struct *vma,
- 				   unsigned long start, unsigned long end)
- {
-@@ -166,6 +168,8 @@
- 	sun3_put_context(oldctx);
- 
- }
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
-+
- /* Flush a range of pages from TLB. */
- 
- static inline void flush_tlb_range (struct vm_area_struct *vma,
-diff -urN linux-2.5.21/include/asm-mips/pgalloc.h linux-2.5.21-ptep/include/asm-mips/pgalloc.h
---- linux-2.5.21/include/asm-mips/pgalloc.h	Sun Jun  9 07:30:22 2002
-+++ linux-2.5.21-ptep/include/asm-mips/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -18,6 +18,7 @@
-  *  - flush_tlb_mm(mm) flushes the specified mm context TLB entries
-  *  - flush_tlb_page(vma, vmaddr) flushes a single page
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
-+ *  - flush_tlb_dirty(vma, vmaddr) flushes the dirty bit for one page
-  */
- extern void flush_tlb_all(void);
- extern void flush_tlb_mm(struct mm_struct *mm);
-@@ -25,6 +26,8 @@
- 			       unsigned long end);
- extern void flush_tlb_page(struct vm_area_struct *vma, unsigned long page);
- 
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
-+
- extern inline void flush_tlb_pgtables(struct mm_struct *mm,
-                                       unsigned long start, unsigned long end)
- {
-@@ -176,5 +179,7 @@
- #define pgd_populate(mm, pmd, pte)	BUG()
- 
- extern int do_check_pgt_cache(int, int);
-+
-+#include <asm-generic/pgalloc.h>
- 
- #endif /* _ASM_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-mips64/pgalloc.h linux-2.5.21-ptep/include/asm-mips64/pgalloc.h
---- linux-2.5.21/include/asm-mips64/pgalloc.h	Sun Jun  9 07:28:42 2002
-+++ linux-2.5.21-ptep/include/asm-mips64/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -18,6 +18,7 @@
-  *  - flush_tlb_page(vma, vmaddr) flushes a single page
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
-  *  - flush_tlb_pgtables(mm, start, end) flushes a range of page tables
-+ *  - flush_tlb_dirty(vma, vmaddr) flushes the dirty bit for one page
-  */
- extern void (*_flush_tlb_all)(void);
- extern void (*_flush_tlb_mm)(struct mm_struct *mm);
-@@ -31,6 +32,7 @@
- #define flush_tlb_mm(mm)		_flush_tlb_mm(mm)
- #define flush_tlb_range(vma,vmaddr,end)	_flush_tlb_range(vma, vmaddr, end)
- #define flush_tlb_page(vma,page)	_flush_tlb_page(vma, page)
-+#define flush_tlb_dirty(vma,vmaddr)	_flush_tlb_page(vma, vmaddr)
- 
- #else /* CONFIG_SMP */
- 
-@@ -39,6 +41,8 @@
- extern void flush_tlb_range(struct vm_area_struct *, unsigned long, unsigned long);
- extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
- 
-+#define flush_tlb_dirty(vma,vmaddr) flush_tlb_page(vma,vmaddr)
-+
- #endif /* CONFIG_SMP */
- 
- extern inline void flush_tlb_pgtables(struct mm_struct *mm,
-@@ -196,5 +200,7 @@
- extern pmd_t kpmdtbl[PTRS_PER_PMD];
- 
- extern int do_check_pgt_cache(int, int);
-+
-+#include <asm-generic/pgalloc.h>
- 
- #endif /* _ASM_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-parisc/pgalloc.h linux-2.5.21-ptep/include/asm-parisc/pgalloc.h
---- linux-2.5.21/include/asm-parisc/pgalloc.h	Sun Jun  9 07:31:28 2002
-+++ linux-2.5.21-ptep/include/asm-parisc/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -200,6 +200,8 @@
- 		
- }
- 
-+#define flush_tlb_dirty(vma,vmaddr) flush_tlb_page(vma,vmaddr)
-+
- static inline void flush_tlb_range(struct vm_area_struct *vma,
- 	unsigned long start, unsigned long end)
- {
-@@ -403,5 +405,7 @@
- }
- 
- extern int do_check_pgt_cache(int, int);
-+
-+#include <asm-generic/pgalloc.h>
- 
- #endif
-diff -urN linux-2.5.21/include/asm-ppc/pgalloc.h linux-2.5.21-ptep/include/asm-ppc/pgalloc.h
---- linux-2.5.21/include/asm-ppc/pgalloc.h	Sun Jun  9 07:26:26 2002
-+++ linux-2.5.21-ptep/include/asm-ppc/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -37,5 +37,7 @@
- 
- #define check_pgt_cache()	do { } while (0)
- 
-+#include <asm-generic/pgalloc.h>
-+
- #endif /* _PPC_PGALLOC_H */
- #endif /* __KERNEL__ */
-diff -urN linux-2.5.21/include/asm-ppc/tlbflush.h linux-2.5.21-ptep/include/asm-ppc/tlbflush.h
---- linux-2.5.21/include/asm-ppc/tlbflush.h	Sun Jun  9 07:27:39 2002
-+++ linux-2.5.21-ptep/include/asm-ppc/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -36,6 +36,7 @@
- static inline void flush_tlb_kernel_range(unsigned long start,
- 				unsigned long end)
- 	{ __tlbia(); }
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
- #define update_mmu_cache(vma, addr, pte)	do { } while (0)
- 
- #elif defined(CONFIG_8xx)
-@@ -54,6 +55,7 @@
- static inline void flush_tlb_kernel_range(unsigned long start,
- 				unsigned long end)
- 	{ __tlbia(); }
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
- #define update_mmu_cache(vma, addr, pte)	do { } while (0)
- 
- #else	/* 6xx, 7xx, 7xxx cpus */
-@@ -66,6 +68,7 @@
- 			    unsigned long end);
- extern void flush_tlb_kernel_range(unsigned long start, unsigned long end);
- 
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
- /*
-  * This gets called at the end of handling a page fault, when
-  * the kernel has put a new PTE into the page table for the process.
-diff -urN linux-2.5.21/include/asm-ppc64/pgalloc.h linux-2.5.21-ptep/include/asm-ppc64/pgalloc.h
---- linux-2.5.21/include/asm-ppc64/pgalloc.h	Sun Jun  9 07:26:52 2002
-+++ linux-2.5.21-ptep/include/asm-ppc64/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -89,4 +89,6 @@
- 
- #define check_pgt_cache()	do { } while (0)
- 
-+#include <asm-generic/pgalloc.h>
-+
- #endif /* _PPC64_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-ppc64/tlbflush.h linux-2.5.21-ptep/include/asm-ppc64/tlbflush.h
---- linux-2.5.21/include/asm-ppc64/tlbflush.h	Sun Jun  9 07:26:22 2002
-+++ linux-2.5.21-ptep/include/asm-ppc64/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -13,6 +13,7 @@
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
-  *  - flush_tlb_kernel_range(start, end) flushes a range of kernel pages
-  *  - flush_tlb_pgtables(mm, start, end) flushes a range of page tables
-+ *  - flush_tlb_dirty(vma, vmaddr) flushes the dirty bit for one page
-  */
- 
- extern void flush_tlb_mm(struct mm_struct *mm);
-@@ -24,6 +25,8 @@
- 
- #define flush_tlb_kernel_range(start, end) \
- 	__flush_tlb_range(&init_mm, (start), (end))
-+
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
- 
- static inline void flush_tlb_pgtables(struct mm_struct *mm,
- 				      unsigned long start, unsigned long end)
-diff -urN linux-2.5.21/include/asm-s390/pgalloc.h linux-2.5.21-ptep/include/asm-s390/pgalloc.h
---- linux-2.5.21/include/asm-s390/pgalloc.h	Sun Jun  9 07:30:36 2002
-+++ linux-2.5.21-ptep/include/asm-s390/pgalloc.h	Thu Jun 13 20:59:37 2002
-@@ -16,6 +16,7 @@
- #include <linux/config.h>
- #include <asm/processor.h>
- #include <linux/threads.h>
-+#include <linux/mm.h>
- 
- #define check_pgt_cache()	do {} while (0)
- 
-diff -urN linux-2.5.21/include/asm-s390/tlbflush.h linux-2.5.21-ptep/include/asm-s390/tlbflush.h
---- linux-2.5.21/include/asm-s390/tlbflush.h	Sun Jun  9 07:31:29 2002
-+++ linux-2.5.21-ptep/include/asm-s390/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -15,6 +15,7 @@
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
-  *  - flush_tlb_kernel_range(start, end) flushes a range of kernel pages
-  *  - flush_tlb_pgtables(mm, start, end) flushes a range of page tables
-+ *  - flush_tlb_dirty(vma, vmaddr) flushes the dirty bit for one page
-  */
- 
- /*
-@@ -53,6 +54,11 @@
- {
- 	local_flush_tlb();
- }
-+static inline void flush_tlb_dirty(struct vm_area_struct *vma,
-+				   unsigned long addr)
-+{
-+	/* No need to flush TLB; bits are in the storage key */
-+}
- static inline void flush_tlb_range(struct vm_area_struct *vma,
- 				   unsigned long start, unsigned long end)
- {
-@@ -117,6 +123,11 @@
- 				  unsigned long addr)
- {
- 	__flush_tlb_mm(vma->vm_mm);
-+}
-+static inline void flush_tlb_dirty(struct vm_area_struct *vma,
-+				   unsigned long addr)
-+{
-+	/* No need to flush TLB; bits are in the storage key */
- }
- static inline void flush_tlb_range(struct vm_area_struct *vma,
- 				   unsigned long start, unsigned long end)
-diff -urN linux-2.5.21/include/asm-s390x/pgalloc.h linux-2.5.21-ptep/include/asm-s390x/pgalloc.h
---- linux-2.5.21/include/asm-s390x/pgalloc.h	Sun Jun  9 07:27:32 2002
-+++ linux-2.5.21-ptep/include/asm-s390x/pgalloc.h	Thu Jun 13 20:59:49 2002
-@@ -16,6 +16,7 @@
- #include <linux/config.h>
- #include <asm/processor.h>
- #include <linux/threads.h>
-+#include <linux/mm.h>
- 
- #define check_pgt_cache()	do { } while (0)
- 
-diff -urN linux-2.5.21/include/asm-s390x/tlbflush.h linux-2.5.21-ptep/include/asm-s390x/tlbflush.h
---- linux-2.5.21/include/asm-s390x/tlbflush.h	Sun Jun  9 07:30:53 2002
-+++ linux-2.5.21-ptep/include/asm-s390x/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -15,6 +15,7 @@
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
-  *  - flush_tlb_kernel_range(start, end) flushes a range of kernel pages
-  *  - flush_tlb_pgtables(mm, start, end) flushes a range of page tables
-+ *  - flush_tlb_dirty(vma, vmaddr) flushes the dirty bit for one page
-  */
- 
- /*
-@@ -52,6 +53,11 @@
- {
- 	local_flush_tlb();
- }
-+static inline void flush_tlb_dirty(struct vm_area_struct *vma,
-+				   unsigned long addr)
-+{
-+	/* No need to flush TLB; bits are in the storage key */
-+}
- static inline void flush_tlb_range(struct vm_area_struct *vma,
- 				   unsigned long start, unsigned long end)
- {
-@@ -114,6 +120,11 @@
- 				  unsigned long addr)
- {
- 	__flush_tlb_mm(vma->vm_mm);
-+}
-+static inline void flush_tlb_dirty(struct vm_area_struct *vma,
-+				   unsigned long addr)
-+{
-+	/* No need to flush TLB; bits are in the storage key */
- }
- static inline void flush_tlb_range(struct vm_area_struct *vma,
- 				   unsigned long start, unsigned long end)
-diff -urN linux-2.5.21/include/asm-sh/pgalloc.h linux-2.5.21-ptep/include/asm-sh/pgalloc.h
---- linux-2.5.21/include/asm-sh/pgalloc.h	Sun Jun  9 07:30:02 2002
-+++ linux-2.5.21-ptep/include/asm-sh/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -80,6 +80,7 @@
-  *  - flush_tlb_page(vma, vmaddr) flushes one page
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
-  *  - flush_tlb_pgtables(mm, start, end) flushes a range of page tables
-+ *  - flush_tlb_dirty(vma, vmaddr) flushes the dirty bit for one page
-  */
- 
- extern void flush_tlb(void);
-@@ -90,6 +91,8 @@
- extern void flush_tlb_page(struct vm_area_struct *vma, unsigned long page);
- extern void __flush_tlb_page(unsigned long asid, unsigned long page);
- 
-+#define flush_tlb_dirty(vma,vmaddr) flush_tlb_page(vma,vmaddr)
-+
- static inline void flush_tlb_pgtables(struct mm_struct *mm,
- 				      unsigned long start, unsigned long end)
- { /* Nothing to do */
-@@ -156,4 +159,7 @@
- 	pte_t old_pte = *ptep;
- 	set_pte(ptep, pte_mkdirty(old_pte));
- }
-+
-+#include <asm-generic/pgalloc.h>
-+
- #endif /* __ASM_SH_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-sparc/pgalloc.h linux-2.5.21-ptep/include/asm-sparc/pgalloc.h
---- linux-2.5.21/include/asm-sparc/pgalloc.h	Sun Jun  9 07:27:13 2002
-+++ linux-2.5.21-ptep/include/asm-sparc/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -78,6 +78,7 @@
- #define flush_tlb_mm(mm) BTFIXUP_CALL(flush_tlb_mm)(mm)
- #define flush_tlb_range(vma,start,end) BTFIXUP_CALL(flush_tlb_range)(vma,start,end)
- #define flush_tlb_page(vma,addr) BTFIXUP_CALL(flush_tlb_page)(vma,addr)
-+#define flush_tlb_dirty(vma,addr) flush_tlb_page(vma,addr)
- 
- BTFIXUPDEF_CALL(void, __flush_page_to_ram, unsigned long)
- BTFIXUPDEF_CALL(void, flush_sig_insns, struct mm_struct *, unsigned long)
-@@ -140,5 +141,7 @@
- #define free_pte_fast(pte)	BTFIXUP_CALL(free_pte_fast)(pte)
- 
- #define pte_free(pte)		free_pte_fast(pte)
-+
-+#include <asm-generic/pgalloc.h>
- 
- #endif /* _SPARC_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-sparc64/pgalloc.h linux-2.5.21-ptep/include/asm-sparc64/pgalloc.h
---- linux-2.5.21/include/asm-sparc64/pgalloc.h	Sun Jun  9 07:29:15 2002
-+++ linux-2.5.21-ptep/include/asm-sparc64/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -225,4 +225,6 @@
- #define pgd_free(pgd)		free_pgd_fast(pgd)
- #define pgd_alloc(mm)		get_pgd_fast()
- 
-+#include <asm-generic/pgalloc.h>
-+
- #endif /* _SPARC64_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-sparc64/tlbflush.h linux-2.5.21-ptep/include/asm-sparc64/tlbflush.h
---- linux-2.5.21/include/asm-sparc64/tlbflush.h	Sun Jun  9 07:30:57 2002
-+++ linux-2.5.21-ptep/include/asm-sparc64/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -53,6 +53,8 @@
- 			 SECONDARY_CONTEXT); \
- } while(0)
- 
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
-+
- #define flush_tlb_vpte_page(mm, addr) \
- do { struct mm_struct *__mm = (mm); \
-      if(CTX_VALID(__mm->context)) \
-@@ -80,6 +82,7 @@
- 	smp_flush_tlb_kernel_range(start, end)
- #define flush_tlb_page(vma, page) \
- 	smp_flush_tlb_page((vma)->vm_mm, page)
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
- #define flush_tlb_vpte_page(mm, page) \
- 	smp_flush_tlb_page((mm), page)
- 
-diff -urN linux-2.5.21/include/asm-x86_64/pgalloc.h linux-2.5.21-ptep/include/asm-x86_64/pgalloc.h
---- linux-2.5.21/include/asm-x86_64/pgalloc.h	Sun Jun  9 07:30:22 2002
-+++ linux-2.5.21-ptep/include/asm-x86_64/pgalloc.h	Thu Jun 13 21:06:11 2002
-@@ -75,5 +75,6 @@
- 	__free_page(pte);
- } 
- 
-+#include <asm-generic/pgalloc.h>
- 
- #endif /* _X86_64_PGALLOC_H */
-diff -urN linux-2.5.21/include/asm-x86_64/tlbflush.h linux-2.5.21-ptep/include/asm-x86_64/tlbflush.h
---- linux-2.5.21/include/asm-x86_64/tlbflush.h	Sun Jun  9 07:26:34 2002
-+++ linux-2.5.21-ptep/include/asm-x86_64/tlbflush.h	Thu Jun 13 21:06:11 2002
-@@ -53,6 +53,7 @@
-  *  - flush_tlb_range(vma, start, end) flushes a range of pages
-  *  - flush_tlb_kernel_range(start, end) flushes a range of kernel pages
-  *  - flush_tlb_pgtables(mm, start, end) flushes a range of page tables
-+ *  - flush_tlb_dirty(vma, vmaddr) flushes the dirty bit for one page
+- * argument: c charcter
+- * result: c interpreted as hex-digit
+- * note: can be used to read digits for any base <= 16
+- * ------------------------------------------------------------------------*/
+-static int
+-xpram_get_hexdigit (char c)
+-{
+-	if ((c >= '0') && (c <= '9'))
+-		return c - '0';
+-	if ((c >= 'a') && (c <= 'f'))
+-		return c + 10 - 'a';
+-	if ((c >= 'A') && (c <= 'F'))
+-		return c + 10 - 'A';
+-	return -1;
+-}
+-
+-/*--------------------------------------------------------------------------
+- * Check format of unsigned integer
++ * Arguments
++ *           str: substring of kernel parameter line that contains xprams
++ *                kernel parameters.
   *
-  * ..but the x86_64 has somewhat limited tlb flushing capabilities,
-  * and page-granular flushes are available only on i486 and up.
-@@ -77,6 +78,8 @@
- 		__flush_tlb_one(addr);
+- * Argument: strptr pointer to string 
+- * result:   -1 if strptr does not start with a digit 
+- *                (does not start an integer)
+- *           0  if strptr starts a positive hex-integer with "0x" 
+- *           1  if strptr start a positive decimal integer
++ * Result    0 on success, -EINVAL else -- only for Version > 2.3
+  *
+- * side effect: if strptr start a positive hex-integer then strptr is
+- *              set to the character after the "0x"
+- *-------------------------------------------------------------------------*/
+-static int
+-xpram_int_format(char **strptr)
++ * Side effects
++ *           the global variabls devs is set to the value of
++ *           <number_of_partitions> and sizes[i] is set to the i-th
++ *           partition size (if provided). A parsing error of a value
++ *           results in this value being set to -EINVAL.
++ */
++int xpram_setup (char *str)
+ {
+-	if ( !isdigit(**strptr) )
+-		return XPRAM_INVALF;
+-	if ( (**strptr == '0') 
+-	     && ( (*((*strptr)+1) == 'x') || (*((*strptr) +1) == 'X') ) 
+-	     && isdigit(*((*strptr)+3)) ) {
+-		*strptr=(*strptr)+2;
+-		return XPRAM_HEXF;
+-	} else return XPRAM_DECF;
+-}
+-
+-/*--------------------------------------------------------------------------
+- * Read non-negative decimal integer
+- *
+- * Argument: strptr pointer to string starting with a non-negative integer
+- *           in decimal format
+- * result:   the value of theinitial integer pointed to by strptr
+- *
+- * side effect: strptr is set to the first character following the integer
+- *-------------------------------------------------------------------------*/
++	char *cp;
++	int i;
+ 
+-static int
+-xpram_read_decint (char ** strptr)
+-{
+-	int res=0;
+-	while ( isdigit(**strptr) ) {
+-		res = (res*10) + xpram_get_hexdigit(**strptr);
+-		(*strptr)++;
+-	}
+-	return res;
++	devs = simple_strtoul(str, &cp, 10);
++	if (cp <= str)
++		return 0;
++	for (i = 0; (i < devs) && (*cp++ == ','); i++) {
++		sizes[i] = simple_strtoul(cp, &cp, 10);
++		if (*cp == 'g' || *cp == 'G') {
++			sizes[i] <<= 20;
++			cp++;
++		} else if (*cp == 'm' || *cp == 'M') {
++			sizes[i] <<= 10;
++			cp++;
++		} else if (*cp == 'k' || *cp == 'K')
++			cp++;
++		while (isspace(*cp)) cp++;
++	}
++	if (*cp == ',' && i >= devs)
++		PRINT_WARN("partition sizes list has too many entries.\n");
++	else if (*cp != 0)
++		PRINT_WARN("ignored '%s' at end of parameter string.\n", cp);
++	return 1;
  }
  
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
+-/*--------------------------------------------------------------------------
+- * Read non-negative hex-integer
+- *
+- * Argument: strptr pointer to string starting with a non-negative integer
+- *           in hexformat (without "0x" prefix)
+- * result:   the value of the initial integer pointed to by strptr
+- *
+- * side effect: strptr is set to the first character following the integer
+- *-------------------------------------------------------------------------*/
++__setup("xpram_parts=", xpram_setup);
++#endif
+ 
+-static int
+-xpram_read_hexint (char ** strptr)
+-{
+-	int res=0;
+-	while ( isxdigit(**strptr) ) {
+-		res = (res<<4) + xpram_get_hexdigit(**strptr);
+-		(*strptr)++;
+-	}
+-	return res;
++/*
++ * Copy expanded memory page (4kB) into main memory                  
++ * Arguments                                                         
++ *           page_addr:    address of target page                    
++ *           xpage_index:  index of expandeded memory page           
++ * Return value                                                      
++ *           0:            if operation succeeds
++ *           -EIO:         if pgin failed
++ *           -ENXIO:       if xpram has vanished
++ */
++int xpram_page_in (unsigned long page_addr, unsigned long xpage_index)
++{
++	int cc;
 +
- static inline void flush_tlb_range(struct vm_area_struct *vma,
- 	unsigned long start, unsigned long end)
++	__asm__ __volatile(
++		"   lhi   %0,2\n"  /* return unused cc 2 if pgin traps */
++		"   .insn rre,0xb22e0000,%1,%2\n"  /* pgin %1,%2 */
++                "0: ipm   %0\n"
++		"   srl   %0,28\n"
++		"1:\n"
++#ifndef CONFIG_ARCH_S390X
++		".section __ex_table,\"a\"\n"
++		"   .align 4\n"
++		"   .long  0b,1b\n"
++		".previous"
++#else
++                ".section __ex_table,\"a\"\n"
++                "   .align 8\n"
++                "   .quad 0b,2b\n"
++                ".previous"
++#endif
++		: "=&d" (cc) 
++		: "a" (__pa(page_addr)), "a" (xpage_index) 
++		: "cc" );
++	if (cc == 3)
++		return -ENXIO;
++	if (cc == 2) {
++		PRINT_ERR("expanded storage lost!\n");
++		return -ENXIO;
++	}
++	if (cc == 1) {
++		PRINT_ERR("page in failed for page index %ld.\n",
++			  xpage_index);
++		return -EIO;
++	}
++	return 0;
+ }
+-/*--------------------------------------------------------------------------
+- * Read non-negative integer
+- *
+- * Argument: strptr pointer to string starting with a non-negative integer
+-             (either in decimal- or in hex-format
+- * result:   the value of the initial integer pointed to by strptr
+- *           in case of a parsing error the result is -EINVAL
+- *
+- * side effect: strptr is set to the first character following the integer
+- *-------------------------------------------------------------------------*/
+ 
+-static int
+-xpram_read_int (char ** strptr)
++/*
++ * Copy a 4kB page of main memory to an expanded memory page          
++ * Arguments                                                          
++ *           page_addr:    address of source page                     
++ *           xpage_index:  index of expandeded memory page            
++ * Return value                                                       
++ *           0:            if operation succeeds
++ *           -EIO:         if pgout failed
++ *           -ENXIO:       if xpram has vanished
++ */
++long xpram_page_out (unsigned long page_addr, unsigned long xpage_index)
  {
-@@ -95,6 +98,8 @@
- extern void flush_tlb_current_task(void);
- extern void flush_tlb_mm(struct mm_struct *);
- extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
+-	switch (  xpram_int_format(strptr) ) {
+-	case XPRAM_INVALF: return -EINVAL;
+-	case XPRAM_HEXF:   return xpram_read_hexint(strptr);
+-	case XPRAM_DECF:   return xpram_read_decint(strptr);
+-	default: return -EINVAL;
+-	}
+-}
++	int cc;
+ 
+-/*--------------------------------------------------------------------------
+- * Read size
+- *
+- * Argument: strptr pointer to string starting with a non-negative integer
+- *           followed optionally by a size modifier:
+- *             k or K for kilo (default),
+- *             m or M for mega
+- *             g or G for giga
+- * result:   the value of the initial integer pointed to by strptr
+- *           multiplied by the modifier value devided by 1024
+- *           in case of a parsing error the result is -EINVAL
+- *
+- * side effect: strptr is set to the first character following the size
+- *-------------------------------------------------------------------------*/
+-
+-static int
+-xpram_read_size (char ** strptr)
+-{
+-	int res;
+-  
+-	res=xpram_read_int(strptr);
+-	if ( res < 0 )return res;
+-	switch ( **strptr ) {
+-	case 'g':
+-	case 'G': res=res*1024;
+-	case 'm':
+-	case 'M': res=res*1024;
+-	case 'k' :
+-	case 'K' : (* strptr)++;
++	__asm__ __volatile(
++		"   lhi   %0,2\n"  /* return unused cc 2 if pgout traps */
++		"   .insn rre,0xb22f0000,%1,%2\n"  /* pgout %1,%2 */
++                "0: ipm   %0\n"
++		"   srl   %0,28\n"
++		"1:\n"
++#ifndef CONFIG_ARCH_S390X
++		".section __ex_table,\"a\"\n"
++		"   .align 4\n"
++		"   .long  0b,1b\n"
++		".previous"
++#else
++                ".section __ex_table,\"a\"\n"
++                "   .align 8\n"
++                "   .quad 0b,2b\n"
++                ".previous"
++#endif
++		: "=&d" (cc) 
++		: "a" (__pa(page_addr)), "a" (xpage_index) 
++		: "cc" );
++	if (cc == 3)
++		return -ENXIO;
++	if (cc == 2) {
++		PRINT_ERR("expanded storage lost!\n");
++		return -ENXIO;
+ 	}
+-  
+-	return res;
+-}
+-
+-
+-/*--------------------------------------------------------------------------
+- * Read tail of comma separated size list  ",i1,i2,...,in"
+- *
+- * Arguments:strptr pointer to string. It is assumed that the string has
+- *                  the format (","<size>)*
+- *           maxl integer describing the maximal number of elements in the
+-                  list pointed to by strptr, max must be > 0.
+- *           ilist array of dimension >= maxl of integers to be modified
+- *
+- * result:   -EINVAL if the list is longer than maxl
+- *           0 otherwise
+- *
+- * side effects: for j=1,...,n ilist[ij] is set to the value of ij if it is
+- *               a valid non-negative integer and to -EINVAL otherwise
+- *               if no comma is found where it is expected an entry in
+- *               ilist is set to -EINVAL
+- *-------------------------------------------------------------------------*/
+-static int
+-xpram_read_size_list_tail (char ** strptr, int maxl, int * ilist)
+-{ 
+-	int i=0;
+-	char *str = *strptr;
+-	int res=0;
+-
+-	while ( (*str == ',') && (i < maxl) ) {
+-		str++;      
+-		ilist[i] = xpram_read_size(&str);
+-		if ( ilist[i] == -EINVAL ) {
+-			xpram_scan_to_next_comma(&str);
+-			res = -EINVAL;
+-		}
+-		i++;
++	if (cc == 1) {
++		PRINT_ERR("page out failed for page index %ld.\n",
++			  xpage_index);
++		return -EIO;
+ 	}
+-	return res;
+-#if 0  /* be lenient about trailing stuff */
+-	if ( *str != 0 && *str != ' ' ) {
+-		ilist[MAX(i-1,0)] = -EINVAL;
+-		return -EINVAL;
+-	} else return 0;
+-#endif
++	return 0;
+ }
+ 
+-
+ /*
+- *   expanded memory operations
++ * Check if xpram is available.
+  */
+-
+-
+-/*--------------------------------------------------------------------*/
+-/* Copy expanded memory page (4kB) into main memory                   */
+-/* Arguments                                                          */
+-/*           page_addr:    address of target page                     */
+-/*           xpage_index:  index of expandeded memory page            */
+-/* Return value                                                       */
+-/*           0:            if operation succeeds                      */
+-/*           non-0:       otherwise                                   */
+-/*--------------------------------------------------------------------*/
+-long xpram_page_in (unsigned long page_addr, unsigned long xpage_index)
++int xpram_present(void)
+ {
+-	int cc=0;
+-	unsigned long real_page_addr = __pa(page_addr);
+-#ifndef CONFIG_ARCH_S390X
+-	__asm__ __volatile__ (
+-		"   lr  1,%1         \n"   /* r1 = real_page_addr            */
+-		"   lr  2,%2         \n"   /* r2 = xpage_index               */
+-		"   .long 0xb22e0012 \n"   /* pgin r1,r2                     */
+-		/* copy page from expanded memory */
+-		"0: ipm  %0          \n"   /* save status (cc & program mask */
+-		"   srl  %0,28       \n"   /* cc into least significant bits */
+-                "1:                  \n"   /* we are done                    */
+-                ".section .fixup,\"ax\"\n" /* start of fix up section        */
+-                "2: lhi    %0,2      \n"   /* return unused condition code 2 */
+-                "   bras 1,3f        \n"   /* safe label 1: in r1 and goto 3 */
+-                "   .long 1b         \n"   /* literal containing label 1     */
+-                "3: l    1,0(1)      \n"   /* load label 1 address into r1   */
+-                "   br   1           \n"   /* goto label 1 (across sections) */
+-                ".previous           \n"   /* back in text section           */
+-                ".section __ex_table,\"a\"\n" /* start __extable             */
+-                "   .align 4         \n"
+-                "   .long 0b,2b      \n"   /* failure point 0, fixup code 2  */
+-                ".previous           \n"
+-		: "=d" (cc) : "d" (real_page_addr), "d" (xpage_index) : "cc", "1", "2"
+-		);
+-#else /* CONFIG_ARCH_S390X */
+-	__asm__ __volatile__ (
+-		"   lgr  1,%1        \n"   /* r1 = real_page_addr            */
+-		"   lgr  2,%2        \n"   /* r2 = xpage_index               */
+-		"   .long 0xb22e0012 \n"   /* pgin r1,r2                     */
+-		/* copy page from expanded memory */
+-		"0: ipm  %0          \n"   /* save status (cc & program mask */
+-		"   srl  %0,28       \n"   /* cc into least significant bits */
+-                "1:                  \n"   /* we are done                    */
+-                ".section .fixup,\"ax\"\n" /* start of fix up section        */
+-                "2: lghi %0,2        \n"   /* return unused condition code 2 */
+-                "   jg   1b          \n"   /* goto label 1 above             */
+-                ".previous           \n"   /* back in text section           */
+-                ".section __ex_table,\"a\"\n" /* start __extable             */
+-                "   .align 8         \n"
+-                "   .quad 0b,2b      \n"   /* failure point 0, fixup code 2  */
+-                ".previous           \n"
+-		: "=d" (cc) : "d" (real_page_addr), "d" (xpage_index) : "cc", "1", "2"
+-		);
+-#endif /* CONFIG_ARCH_S390X */
+-	switch (cc) {
+-	case 0: return 0;
+-	case 1: return -EIO;
+-        case 2: return -ENXIO;
+-	case 3: return -ENXIO;
+-	default: return -EIO;  /* should not happen */
+-	};
+-}
++	unsigned long mem_page;
++	int rc;
+ 
+-/*--------------------------------------------------------------------*/
+-/* Copy a 4kB page of main memory to an expanded memory page          */
+-/* Arguments                                                          */
+-/*           page_addr:    address of source page                     */
+-/*           xpage_index:  index of expandeded memory page            */
+-/* Return value                                                       */
+-/*           0:            if operation succeeds                      */
+-/*           non-0:        otherwise                                  */
+-/*--------------------------------------------------------------------*/
+-long xpram_page_out (unsigned long page_addr, unsigned long xpage_index)
+-{
+-	int cc=0;
+-	unsigned long real_page_addr = __pa(page_addr);
+-#ifndef CONFIG_ARCH_S390X
+-	__asm__ __volatile__ (
+-		"  lr  1,%1        \n"   /* r1 = mem_page                  */
+-		"  lr  2,%2        \n"   /* r2 = rpi                       */
+-		" .long 0xb22f0012 \n"   /* pgout r1,r2                    */
+-                                /* copy page from expanded memory */
+-		"0: ipm  %0        \n"   /* save status (cc & program mask */
+-                " srl  %0,28       \n"   /* cc into least significant bits */
+-                "1:                  \n"   /* we are done                    */
+-                ".section .fixup,\"ax\"\n" /* start of fix up section        */
+-                "2: lhi   %0,2       \n"   /* return unused condition code 2 */
+-                "   bras 1,3f        \n"   /* safe label 1: in r1 and goto 3 */
+-                "   .long 1b         \n"   /* literal containing label 1     */
+-                "3: l    1,0(1)      \n"   /* load label 1 address into r1   */
+-                "   br   1           \n"   /* goto label 1 (across sections) */
+-                ".previous           \n"   /* back in text section           */
+-                ".section __ex_table,\"a\"\n" /* start __extable             */
+-                "   .align 4         \n"
+-                "   .long 0b,2b      \n"   /* failure point 0, fixup code 2  */
+-                ".previous           \n"
+-		: "=d" (cc) : "d" (real_page_addr), "d" (xpage_index) : "cc", "1", "2"
+-		);
+-#else /* CONFIG_ARCH_S390X */
+-	__asm__ __volatile__ (
+-		"  lgr  1,%1       \n"   /* r1 = mem_page                  */
+-		"  lgr  2,%2       \n"   /* r2 = rpi                       */
+-		" .long 0xb22f0012 \n"   /* pgout r1,r2                    */
+-                                         /* copy page from expanded memory */
+-		"0: ipm  %0        \n"   /* save status (cc & program mask */
+-                "  srl  %0,28      \n"   /* cc into least significant bits */
+-                "1:                \n"   /* we are done                    */
+-                ".section .fixup,\"ax\"\n" /* start of fix up section      */
+-                "2: lghi %0,2      \n"   /* return unused condition code 2 */
+-                "   jg   1b        \n"   /* goto label 1 above             */
+-                ".previous         \n"   /* back in text section           */
+-                ".section __ex_table,\"a\"\n" /* start __extable           */
+-                "   .align 8       \n"
+-                "   .quad 0b,2b    \n"   /* failure point 0, fixup code 2  */
+-                ".previous         \n"
+-		: "=d" (cc) : "d" (real_page_addr), "d" (xpage_index) : "cc", "1", "2"
+-		);
+-#endif  /* CONFIG_ARCH_S390X */
+-	switch (cc) {
+-	case 0: return 0;
+-	case 1: return -EIO;
+-        case 2: { PRINT_ERR("expanded storage lost!\n"); return -ENXIO; }
+-	case 3: return -ENXIO;
+-	default: return -EIO;  /* should not happen */
+-        }
++	mem_page = (unsigned long) __get_free_page(GFP_KERNEL);
++	rc = xpram_page_in(mem_page, 0);
++	free_page(mem_page);
++	return rc ? -ENXIO : 0;
+ }
+ 
+-/*--------------------------------------------------------------------*/
+-/* Measure expanded memory                                            */
+-/* Return value                                                       */
+-/*           size of expanded memory in kB (must be a multipe of 4)   */
+-/*--------------------------------------------------------------------*/
+-int xpram_size(void)
++/*
++ * Return index of the last available xpram page.
++ */
++unsigned long xpram_highest_page_index(void)
+ {
+-	int cc=0;  
+-        unsigned long base=0;
+-	unsigned long po, pi, rpi;   /* page index order, page index */
+-
+-	unsigned long mem_page = __get_free_page(GFP_KERNEL);
+-
+-	/* for po=0,1,2,... try to move in page number base+(2^po)-1 */
+-	pi=1;   
+-	for (po=0; po <= 32; po++) { /* pi = 2^po */
+-		cc=xpram_page_in(mem_page,base+pi-1);
+-		if ( cc ) break;
+-		pi <<= 1;  
+-	}
+-	if ( cc && (po < 31 ) ) {
+-                pi >>=1;
+-		base += pi;
+-		pi >>=1;
+-		for ( ; pi > 0; pi >>= 1) {
+-			rpi = pi - 1;
+-			cc=xpram_page_in(mem_page,base+rpi);
+-			if ( !cc ) base += pi;
+-		}
++	unsigned long page_index, add_bit;
++	unsigned long mem_page;
 +
-+#define flush_tlb_dirty(vma, vmaddr) flush_tlb_page(vma, vmaddr)
++	mem_page = (unsigned long) __get_free_page(GFP_KERNEL);
++
++	page_index = 0;
++	add_bit = 1ULL << (sizeof(unsigned long)*8 - 1);
++	while (add_bit > 0) {
++		if (xpram_page_in(mem_page, page_index | add_bit) == 0)
++			page_index |= add_bit;
++		add_bit >>= 1;
+ 	}
+-	
++
+ 	free_page (mem_page);
  
- #define flush_tlb()	flush_tlb_current_task()
+-	if ( cc && (po < 31) ) 
+-		return (XPRAM_KB_IN_PG * base);
+-	else          /* return maximal value possible */
+-		return INT_MAX;
++	return page_index;
+ }
  
-diff -urN linux-2.5.21/mm/memory.c linux-2.5.21-ptep/mm/memory.c
---- linux-2.5.21/mm/memory.c	Sun Jun  9 07:29:42 2002
-+++ linux-2.5.21-ptep/mm/memory.c	Thu Jun 13 21:06:11 2002
-@@ -918,20 +918,6 @@
- 	return error;
+ /*
+- * Open and close
++ * Block device make request function.
+  */
+-
+-int xpram_open (struct inode *inode, struct file *filp)
++static int xpram_make_request(request_queue_t *q, struct bio *bio)
+ {
+-	Xpram_Dev *dev; /* device information */
+-	int num = MINOR(inode->i_rdev);
+-
+-
+-	if (num >= xpram_devs) return -ENODEV;
+-	dev = xpram_devices + num;
++	xpram_device_t *xdev;
++	struct bio_vec *bvec;
++	unsigned long index;
++	unsigned long page_addr;
++	unsigned long bytes;
++	int i;
+ 
+-	PRINT_DEBUG("calling xpram_open for device %d\n",num);
+-        PRINT_DEBUG("  size %dkB, name %s, usage: %d\n", 
+-                     dev->size,dev->device_name, atomic_read(&(dev->usage)));
++	if (minor(to_kdev_t(bio->bi_bdev->bd_dev)) > xpram_devs)
++		/* No such device. */
++		goto fail;
++	xdev = xpram_devices + minor(to_kdev_t(bio->bi_bdev->bd_dev));
++	if ((bio->bi_sector & 3) != 0 || (bio->bi_size & 4095) != 0)
++		/* Request is not page-aligned. */
++		goto fail;
++	if ((bio->bi_size >> 12) > xdev->size)
++		/* Request size is no page-aligned. */
++		goto fail;
++	index = (bio->bi_sector >> 3) + xdev->offset;
++	bio_for_each_segment(bvec, bio, i) {
++		page_addr = (unsigned long)
++			kmap(bvec->bv_page) + bvec->bv_offset;
++		bytes = bvec->bv_len;
++		if ((page_addr & 4095) != 0 || (bytes & 4095) != 0)
++			/* More paranoia. */
++			goto fail;
++		while (bytes > 0) {
++			if (bio_data_dir(bio) == READ) {
++				if (xpram_page_in(page_addr, index) != 0)
++					goto fail;
++			} else {
++				if (xpram_page_out(page_addr, index) != 0)
++					goto fail;
++			}
++			page_addr += 4096;
++			bytes -= 4096;
++			index++;
++		}
++	}
++	set_bit(BIO_UPTODATE, &bio->bi_flags);
++	bio->bi_end_io(bio);
++	return 0;
++fail:
++	bio_io_error(bio);
++	return 0;
++}
+ 
+-	atomic_inc(&(dev->usage));
+-	return 0;          /* success */
++/*
++ * The file operations
++ */
++int xpram_open (struct inode *inode, struct file *filp)
++{
++	if ((!inode) || kdev_none(inode->i_rdev))
++		return -EINVAL;
++	if (minor(inode->i_rdev) >= xpram_devs)
++		return -ENODEV;
++	return 0;
+ }
+ 
+ int xpram_release (struct inode *inode, struct file *filp)
+ {
+-	Xpram_Dev *dev = xpram_devices + MINOR(inode->i_rdev);
+-
+-	PRINT_DEBUG("calling xpram_release for device %d (size %dkB, usage: %d)\n",MINOR(inode->i_rdev) ,dev->size,atomic_read(&(dev->usage)));
+-
+-	/*
+-	 * If the device is closed for the last time, start a timer
+-	 * to release RAM in half a minute. The function and argument
+-	 * for the timer have been setup in init_module()
+-	 */
+-	if (!atomic_dec_return(&(dev->usage))) {
+-		/* but flush it right now */
+-		/* Everything is already flushed by caller -- AV */
+-	}
+-	return(0);
++	if ((!inode) || kdev_none(inode->i_rdev))
++		return -EINVAL;
++	if (minor(inode->i_rdev) >= xpram_devs)
++		return -ENODEV;
++	return 0;
+ }
+ 
+-
+-/*
+- * The ioctl() implementation
+- */
+-
+ int xpram_ioctl (struct inode *inode, struct file *filp,
+ 		 unsigned int cmd, unsigned long arg)
+ {
+-	int err, size;
+-	struct hd_geometry *geo = (struct hd_geometry *)arg;
++	struct hd_geometry *geo;
++	unsigned long size;
++	int idx;
+ 
+-	PRINT_DEBUG("ioctl 0x%x 0x%lx\n", cmd, arg);
+-	switch(cmd) {
+-
+-	case BLKGETSIZE:  /* 0x1260 */
++	if ((!inode) || kdev_none(inode->i_rdev))
++		return -EINVAL;
++	idx = minor(inode->i_rdev);
++	if (idx >= xpram_devs)
++		return -ENODEV;
++	switch (cmd) {
++	case BLKGETSIZE:
+ 		/* Return the device size, expressed in sectors */
+-		return put_user( 1024* xpram_sizes[MINOR(inode->i_rdev)]
+-                           / XPRAM_SOFTSECT,
+-			   (unsigned long *) arg);
+-
++		return put_user(xpram_sizes[idx] << 1, (unsigned long *) arg);
+ 	case BLKGETSIZE64:
+-		return put_user( (u64)(1024* xpram_sizes[MINOR(inode->i_rdev)]
+-                           / XPRAM_SOFTSECT) << 9,
+-			   (u64 *) arg);
+-
+-	case BLKFLSBUF: /* flush, 0x1261 */
+-		fsync_bdev(inode->i_bdev);
+-		if ( capable(CAP_SYS_ADMIN) )invalidate_bdev(inode->i_bdev, 0);
+-		return 0;
+-
+-	case BLKRRPART: /* re-read partition table: can't do it, 0x1259 */
++		/* Return the device size, expressed in bytes */
++		return put_user((u64) xpram_sizes[idx] << 10, (u64 *) arg);
++	case BLKFLSBUF:
++		return blk_ioctl(((struct inode *) inode)->i_bdev, cmd, arg);
++	case BLKRRPART:
++		/* re-read partition table: can't do it */
+ 		return -EINVAL;
+-
+ 	case HDIO_GETGEO:
+ 		/*
+ 		 * get geometry: we have to fake one...  trim the size to a
+ 		 * multiple of 64 (32k): tell we have 16 sectors, 4 heads,
+ 		 * whatever cylinders. Tell also that data starts at sector. 4.
+ 		 */
+-		size = xpram_mem_avail * 1024 / XPRAM_SOFTSECT;
+-		/* size = xpram_mem_avail * 1024 / xpram_hardsect; */
+-		size &= ~0x3f; /* multiple of 64 */
+-		if (geo==NULL) return -EINVAL;
+-                /* 
+-                 * err=verify_area_20(VERIFY_WRITE, geo, sizeof(*geo));
+-		 * if (err) return err;
+-                 */
+-
++		geo = (struct hd_geometry *) arg;
++		if (geo == NULL)
++			return -EINVAL;
++		size = (xpram_pages * 8) & ~0x3f;
+ 		put_user(size >> 6, &geo->cylinders);
+-		put_user(        4, &geo->heads);
+-		put_user(       16, &geo->sectors);
+-		put_user(        4, &geo->start);
+-
++		put_user(4, &geo->heads);
++		put_user(16, &geo->sectors);
++		put_user(4, &geo->start);
+ 		return 0;
++	default:
++		return -EINVAL;
+ 	}
+-
+-	return -EINVAL; /* unknown command */
  }
  
 -/*
-- * Establish a new mapping:
-- *  - flush the old one
-- *  - update the page tables
-- *  - inform the TLB about the new one
-- *
-- * We hold the mm semaphore for reading and vma->vm_mm->page_table_lock
+- * The file operations
 - */
--static inline void establish_pte(struct vm_area_struct * vma, unsigned long address, pte_t *page_table, pte_t entry)
--{
--	set_pte(page_table, entry);
--	flush_tlb_page(vma, address);
--	update_mmu_cache(vma, address, entry);
--}
- 
- /*
-  * We hold the mm semaphore for reading and vma->vm_mm->page_table_lock
-@@ -941,7 +927,8 @@
+ struct block_device_operations xpram_devops =
  {
- 	flush_page_to_ram(new_page);
- 	flush_cache_page(vma, address);
--	establish_pte(vma, address, page_table, pte_mkwrite(pte_mkdirty(mk_pte(new_page, vma->vm_page_prot))));
-+	ptep_establish(vma, address, page_table,
-+		pte_mkwrite(pte_mkdirty(mk_pte(new_page, vma->vm_page_prot))));
- }
+ 	owner:   THIS_MODULE,
+@@ -667,432 +393,150 @@
+ };
  
  /*
-@@ -979,7 +966,8 @@
- 		unlock_page(old_page);
- 		if (reuse) {
- 			flush_cache_page(vma, address);
--			establish_pte(vma, address, page_table, pte_mkyoung(pte_mkdirty(pte_mkwrite(pte))));
-+ 			ptep_establish(vma, address, page_table,
-+				pte_mkyoung(pte_mkdirty(pte_mkwrite(pte))));
- 			pte_unmap(page_table);
- 			spin_unlock(&mm->page_table_lock);
- 			return 1;	/* Minor fault */
-@@ -1394,7 +1382,7 @@
- 		entry = pte_mkdirty(entry);
- 	}
- 	entry = pte_mkyoung(entry);
--	establish_pte(vma, address, pte, entry);
-+	ptep_establish(vma, address, pte, entry);
- 	pte_unmap(pte);
- 	spin_unlock(&mm->page_table_lock);
- 	return 1;
-diff -urN linux-2.5.21/mm/mremap.c linux-2.5.21-ptep/mm/mremap.c
---- linux-2.5.21/mm/mremap.c	Sun Jun  9 07:30:24 2002
-+++ linux-2.5.21-ptep/mm/mremap.c	Thu Jun 13 21:06:11 2002
-@@ -64,38 +64,29 @@
- 	return pte;
- }
- 
--static inline int copy_one_pte(struct mm_struct *mm, pte_t * src, pte_t * dst)
--{
--	int error = 0;
--	pte_t pte;
+- * Block-driver specific functions
+- */
 -
--	if (!pte_none(*src)) {
--		pte = ptep_get_and_clear(src);
--		if (!dst) {
--			/* No dest?  We must put it back. */
--			dst = src;
--			error++;
+-void xpram_request(request_queue_t * queue)
+-{
+-	Xpram_Dev *device;
+-	/*     u8 *ptr;          */
+-	/*    int size;          */
+-
+-	unsigned long page_no;         /* expanded memory page number */
+-	unsigned long sects_to_copy;   /* number of sectors to be copied */
+-        char * buffer;                 /* local pointer into buffer cache */
+-	int dev_no;                    /* device number of request */
+-	int fault;                     /* faulty access to expanded memory */
+-        struct request * current_req;      /* working request */
+-
+-	while(1) {
+-		if (blk_queue_empty(QUEUE)) {
+-			CLEAR_INTR;
+-			return;
 -		}
--		set_pte(dst, pte);
+-
+-		fault=0;
+-		current_req = CURRENT;
+-		dev_no = DEVICE_NR(current_req->rq_dev);
+-		/* Check if the minor number is in range */
+-		if ( dev_no > xpram_devs ) {
+-			static int count = 0;
+-			if (count++ < 5) /* print the message at most five times */
+-				PRINT_WARN(" request for unknown device\n");
+-			end_request(0);
+-			continue;
+-		}
+-
+-		/* pointer to device structure, from the global array */
+-		device = xpram_devices + dev_no;   
+-		sects_to_copy = current_req->current_nr_sectors;
+-                /* does request exceed size of device ? */
+-		if ( XPRAM_SEC2KB(sects_to_copy) > xpram_sizes[dev_no] ) {
+-			PRINT_WARN(" request past end of device\n");
+-			end_request(0);
+-			continue;
+-		}
+-
+-                /* Does request start at page boundery? -- paranoia */
+-#if 0
+-		PRINT_DEBUG(" req %lx, sect %lx, to copy %lx, buf addr %lx\n", (unsigned long) current_req, current_req->sector, sects_to_copy, (unsigned long) current_req->buffer);
+-#endif
+-                buffer = current_req->buffer;
+-#if XPRAM_SEC_IN_PG != 1
+-                /* Does request start at an expanded storage page boundery? */
+-                if ( current_req->sector &  (XPRAM_SEC_IN_PG - 1) ) {
+-			PRINT_WARN(" request does not start at an expanded storage page boundery\n");
+-			PRINT_WARN(" referenced sector: %ld\n",current_req->sector);
+-			end_request(0);
+-			continue;
+-		}
+-		/* Does request refere to partial expanded storage pages? */
+-                if ( sects_to_copy & (XPRAM_SEC_IN_PG - 1) ) {
+-			PRINT_WARN(" request referes to a partial expanded storage page\n");
+-			end_request(0);
+-			continue;
+-		}
+-#endif /*  XPRAM_SEC_IN_PG != 1 */
+-		/* Is request buffer aligned with kernel pages? */
+-		if ( ((unsigned long)buffer) & (XPRAM_PGSIZE-1) ) {
+-			PRINT_WARN(" request buffer is not aligned with kernel pages\n");
+-			end_request(0);
+-			continue;
+-		}
+-
+-                /* which page of expanded storage is affected first? */
+-		page_no = (xpram_offsets[dev_no] >> XPRAM_KB_IN_PG_ORDER)
+-			+ (current_req->sector >> XPRAM_SEC_IN_PG_ORDER); 
+-
+-#if 0 
+-		PRINT_DEBUG("request: %d ( dev %d, copy %d sectors, at page %d ) \n", current_req->cmd,dev_no,sects_to_copy,page_no);
+-#endif
+-
+-		switch(current_req->cmd) {
+-		case READ:
+-			do {
+-				if ( (fault=xpram_page_in((unsigned long)buffer,page_no)) ) {
+-					PRINT_WARN("xpram(dev %d): page in failed for page %ld.\n",dev_no,page_no);
+-					break;
+-				}
+-				sects_to_copy -= XPRAM_SEC_IN_PG;
+-                                buffer += XPRAM_PGSIZE;
+-				page_no++;
+-			} while ( sects_to_copy > 0 );
+-			break;
+-		case WRITE:
+-			do {
+-				if ( (fault=xpram_page_out((unsigned long)buffer,page_no)) 
+-					) {
+-					PRINT_WARN("xpram(dev %d): page out failed for page %ld.\n",dev_no,page_no);
+-					break;
+-				}
+-				sects_to_copy -= XPRAM_SEC_IN_PG;
+-				buffer += XPRAM_PGSIZE;
+-				page_no++;
+-			} while ( sects_to_copy > 0 );
+-			break;
+-		default:
+-			/* can't happen */
+-			end_request(0);
+-			continue;
+-		}
+-		if ( fault ) end_request(0);
+-		else end_request(1); /* success */
 -	}
--	return error;
 -}
 -
- static int move_one_page(struct vm_area_struct *vma, unsigned long old_addr, unsigned long new_addr)
+-/*
+- *    Kernel interfaces
++ * Setup xpram_sizes array.
+  */
+-
+-/*
+- * Parses the kernel parameters given in the kernel parameter line.
+- * The expected format is 
+- *           <number_of_partitions>[","<partition_size>]*
+- * where 
+- *           devices is a positive integer that initializes xpram_devs
+- *           each size is a non-negative integer possibly followed by a
+- *           magnitude (k,K,m,M,g,G), the list of sizes initialises 
+- *           xpram_sizes
+- *
+- * Arguments
+- *           str: substring of kernel parameter line that contains xprams
+- *                kernel parameters. 
+- *           ints: not used -- not in Version > 2.3 any more
+- *
+- * Result    0 on success, -EINVAl else -- only for Version > 2.3
+- *
+- * Side effects
+- *           the global variabls devs is set to the value of 
+- *           <number_of_partitions> and sizes[i] is set to the i-th
+- *           partition size (if provided). A parsing error of a value
+- *           results in this value being set to -EINVAL.
+- */
+-int xpram_setup (char *str)
++int xpram_setup_sizes(unsigned long pages)
  {
- 	struct mm_struct *mm = vma->vm_mm;
- 	int error = 0;
- 	pte_t *src, *dst;
-+	pte_t pte;
+-	devs = xpram_read_int(&str);
+-	if ( devs != -EINVAL )
+-		if ( xpram_read_size_list_tail(&str,devs,sizes) < 0 ) {
+-			PRINT_ERR("error while reading xpram parameters.\n");
+-			return -EINVAL;
+-		}
+-		else
+-			return 0;
+-	else
+-		return -EINVAL;
+-}
+-
+-/*
+- * initialize xpram device driver
+- *
+- * Result: 0 ok
+- *         negative number: negative error code
+- */
++	unsigned long mem_needed;
++	unsigned long mem_auto;
++	int mem_auto_no;
++	int i;
  
- 	spin_lock(&mm->page_table_lock);
- 	src = get_one_pte_map_nested(mm, old_addr);
- 	if (src) {
- 		dst = alloc_one_pte_map(mm, new_addr);
--		error = copy_one_pte(mm, src, dst);
-+		if (!pte_none(*src)) {
-+			pte = ptep_invalidate(vma, old_addr, src);
-+			if (!dst) {
-+				/* No dest?  We must put it back. */
-+				dst = src;
-+				error++;
-+			}
-+			set_pte(dst, pte);
-+		}
- 		pte_unmap_nested(src);
- 		pte_unmap(dst);
+-int xpram_init(void)
+-{
+-	int result, i;
+-	int mem_usable;       /* net size of expanded memory */
+-	int mem_needed=0;     /* size of expanded memory needed to fullfill
+-			       * requirements of non-zero parameters in sizes
+-			       */
+-
+-	int mem_auto_no=0;    /* number of (implicit) zero parameters in sizes */
+-	int mem_auto;         /* automatically determined device size          */
+-	int minor_length;     /* store the length of a minor (w/o '\0') */
+-        int minor_thresh;     /* threshhold for minor lenght            */
+-
+-        request_queue_t *q;   /* request queue */
+-
+-				/*
+-				 * Copy the (static) cfg variables to public prefixed ones to allow
+-				 * snoozing with a debugger.
+-				 */
+-
+-	xpram_blksize  = blksize;
+-	xpram_hardsect = hardsect;
+-
+-	PRINT_INFO("initializing: %s\n","");
+-				/* check arguments */
+-	xpram_major    = major;
+-	if ( (devs <= 0) || (devs > XPRAM_MAX_DEVS) ) {
++	/* Check number of devices. */
++	if (devs <= 0 || devs > XPRAM_MAX_DEVS) {
+ 		PRINT_ERR("invalid number %d of devices\n",devs);
+-                PRINT_ERR("Giving up xpram\n");
+ 		return -EINVAL;
  	}
--	flush_tlb_page(vma, old_addr);
- 	spin_unlock(&mm->page_table_lock);
- 	return error;
- }
-diff -urN linux-2.5.21/mm/msync.c linux-2.5.21-ptep/mm/msync.c
---- linux-2.5.21/mm/msync.c	Sun Jun  9 07:29:10 2002
-+++ linux-2.5.21-ptep/mm/msync.c	Thu Jun 13 21:06:11 2002
-@@ -30,8 +30,9 @@
- 		unsigned long pfn = pte_pfn(pte);
- 		if (pfn_valid(pfn)) {
- 			page = pfn_to_page(pfn);
--			if (!PageReserved(page) && ptep_test_and_clear_dirty(ptep)) {
--				flush_tlb_page(vma, address);
-+			if (!PageReserved(page) &&
-+			    ptep_test_and_clear_dirty(ptep)) {
-+				flush_tlb_dirty(vma, address);
- 				set_page_dirty(page);
- 			}
- 		}
-diff -urN linux-2.5.21/mm/vmscan.c linux-2.5.21-ptep/mm/vmscan.c
---- linux-2.5.21/mm/vmscan.c	Sun Jun  9 07:27:31 2002
-+++ linux-2.5.21-ptep/mm/vmscan.c	Thu Jun 13 21:06:11 2002
-@@ -106,9 +106,7 @@
- 	 * is needed on CPUs which update the accessed and dirty
- 	 * bits in hardware.
- 	 */
--	flush_cache_page(vma, address);
--	pte = ptep_get_and_clear(page_table);
--	flush_tlb_page(vma, address);
-+	pte = ptep_invalidate(vma, address, page_table);
+-	xpram_devs     = devs;
+-	for (i=0; i < xpram_devs; i++) {
+-		if ( sizes[i] < 0 ) {
+-			PRINT_ERR("Invalid partition size %d kB\n",xpram_sizes[i]);
+-                        PRINT_ERR("Giving up xpram\n");
+-			return -EINVAL;
+-		} else {
+-		  xpram_sizes[i] = NEXT4(sizes[i]);  /* page align */
+-			if ( sizes[i] ) mem_needed += xpram_sizes[i];
+-			else mem_auto_no++;
+-		}
+-	}
++	xpram_devs = devs;
  
- 	if (pte_dirty(pte))
- 		set_page_dirty(page);
+-	PRINT_DEBUG("  major %d \n", xpram_major);
++	/*
++	 * Copy sizes array to xpram_sizes and align partition
++	 * sizes to page boundary.
++	 */
++	mem_needed = 0;
++	mem_auto_no = 0;
++	for (i = 0; i < xpram_devs; i++) {
++		xpram_sizes[i] = (sizes[i] + 3) & -4UL;
++		if (xpram_sizes[i])
++			mem_needed += xpram_sizes[i];
++		else
++			mem_auto_no++;
++	}
++	
+ 	PRINT_INFO("  number of devices (partitions): %d \n", xpram_devs);
+-	for (i=0; i < xpram_devs; i++) {
+-		if ( sizes[i] )
+-			PRINT_INFO("  size of partition %d: %d kB\n", i, xpram_sizes[i]);
++	for (i = 0; i < xpram_devs; i++) {
++		if (xpram_sizes[i])
++			PRINT_INFO("  size of partition %d: %ld kB\n",
++				   i, xpram_sizes[i]);
+ 		else
+-			PRINT_INFO("  size of partition %d to be set automatically\n",i);
++			PRINT_INFO("  size of partition %d to be set "
++				   "automatically\n",i);
+ 	}
+-	PRINT_DEBUG("  memory needed (for sized partitions): %d kB\n", mem_needed);
+-	PRINT_DEBUG("  partitions to be sized automatically: %d\n", mem_auto_no);
++	PRINT_DEBUG("  memory needed (for sized partitions): %ld kB\n",
++		    mem_needed);
++	PRINT_DEBUG("  partitions to be sized automatically: %d\n",
++		    mem_auto_no);
+ 
+-#if 0
+-				/* Hardsect can't be changed :( */
+-                                /* I try it any way. Yet I must distinguish
+-                                 * between hardsects (to be changed to 4096)
+-                                 * and soft sectors, hard-coded for buffer 
+-                                 * sizes within the requests
+-                                 */
+-	if (hardsect != 512) {
+-		PRINT_ERR("Can't change hardsect size\n");
+-		hardsect = xpram_hardsect = 512;
++	if (mem_needed > pages * 4) {
++		PRINT_ERR("Not enough expanded memory available\n");
++		return -EINVAL;
+ 	}
+-#endif
+-        PRINT_INFO("  hardsector size: %dB \n",xpram_hardsect);
+ 
+ 	/*
+-	 * Register your major, and accept a dynamic number
++	 * partitioning:
++	 * xpram_sizes[i] != 0; partition i has size xpram_sizes[i] kB
++	 * else:             ; all partitions with zero xpram_sizes[i]
++	 *                     partition equally the remaining space
++	 */
++	if (mem_auto_no) {
++		mem_auto = ((pages - mem_needed / 4) / mem_auto_no) * 4;
++		PRINT_INFO("  automatically determined "
++			   "partition size: %ld kB\n", mem_auto);
++		for (i = 0; i < xpram_devs; i++)
++			if (xpram_sizes[i] == 0)
++				xpram_sizes[i] = mem_auto;
++	}
++	return 0;
++}
++
++int xpram_setup_blkdev(void)
++{
++	request_queue_t *q;
++	unsigned long offset;
++	int i, rc;
++
++	/*
++	 * Register xpram major.
+ 	 */
+-	result = devfs_register_blkdev(xpram_major, "xpram", &xpram_devops);
+-	if (result < 0) {
+-		PRINT_ERR("Can't get major %d\n",xpram_major);
+-                PRINT_ERR("Giving up xpram\n");
+-		return result;
++	rc = devfs_register_blkdev(XPRAM_MAJOR, XPRAM_NAME, &xpram_devops);
++	if (rc < 0) {
++		PRINT_ERR("Can't get xpram major %d\n", XPRAM_MAJOR);
++		return rc;
+ 	}
++
+ 	xpram_devfs_handle = devfs_mk_dir (NULL, "slram", NULL);
+-	devfs_register_series (xpram_devfs_handle, "%u", XPRAM_MAX_DEVS,
++	devfs_register_series (xpram_devfs_handle, "%u", xpram_devs,
+ 			       DEVFS_FL_DEFAULT, XPRAM_MAJOR, 0,
+ 			       S_IFBLK | S_IRUSR | S_IWUSR,
+ 			       &xpram_devops, NULL);
+-	if (xpram_major == 0) xpram_major = result; /* dynamic */
+-	major = xpram_major; /* Use `major' later on to save typing */
+-
+-	result = -ENOMEM; /* for the possible errors */
+-
+-	/*
+-	 * measure expanded memory
+-	 */
+-
+-	xpram_mem_avail = xpram_size();
+-	if (!xpram_mem_avail) {
+-		PRINT_ERR("No or not enough expanded memory available\n");
+-                PRINT_ERR("Giving up xpram\n");
+-		result = -ENODEV;
+-		goto fail_malloc;
+-	}
+-	PRINT_INFO("  %d kB expanded memory found.\n",xpram_mem_avail );
+ 
+ 	/*
+-	 * Assign the other needed values: request, size, blksize,
+-	 * hardsect. All the minor devices feature the same value.
++	 * Assign the other needed values: make request function, sizes and
++	 * hardsect size. All the minor devices feature the same value.
+ 	 * Note that `xpram' defines all of them to allow testing non-default
+ 	 * values. A real device could well avoid setting values in global
+ 	 * arrays if it uses the default values.
+ 	 */
+-
+-	q = BLK_DEFAULT_QUEUE(major);
+-	blk_init_queue (q, xpram_request);
+-
+-	/* we want to have XPRAM_UNUSED blocks security buffer between devices */
+-	mem_usable=xpram_mem_avail-(XPRAM_UNUSED*(xpram_devs-1));
+-	if ( mem_needed > mem_usable ) {
+-		PRINT_ERR("Not enough expanded memory available\n");
+-                PRINT_ERR("Giving up xpram\n");
+-		goto fail_malloc;
+-	}
++	q = BLK_DEFAULT_QUEUE(XPRAM_MAJOR);
++	blk_queue_make_request(q,xpram_make_request);
++	blk_queue_hardsect_size(q, 4096);
++	blk_size[XPRAM_MAJOR] = (void *) xpram_sizes;
+ 
+ 	/*
+-	 * partitioning:
+-	 * xpram_sizes[i] != 0; partition i has size xpram_sizes[i] kB
+-	 * else:             ; all partitions i with xpram_sizesxpram_size[i] 
+-	 *                     partition equally the remaining space
+-	 */
+-
+-	if ( mem_auto_no ) {
+-		mem_auto=LAST4((mem_usable-mem_needed)/mem_auto_no);
+-		PRINT_INFO("  automatically determined partition size: %d kB\n", mem_auto);
+-		for (i=0; i < xpram_devs; i++) 
+-			if (xpram_sizes[i] == 0) xpram_sizes[i] = mem_auto;
+-	}
+-	blk_size[major] = xpram_sizes;
+-
+-	xpram_offsets = kmalloc(xpram_devs * sizeof(int), GFP_KERNEL);
+-	if (!xpram_offsets) {
+-		PRINT_ERR("Not enough memory for xpram_offsets\n");
+-                PRINT_ERR("Giving up xpram\n");
+-		goto fail_malloc;
+-	}
+-	xpram_offsets[0] = 0;
+-	for (i=1; i < xpram_devs; i++) 
+-		xpram_offsets[i] = xpram_offsets[i-1] + xpram_sizes[i-1] + XPRAM_UNUSED;
+-
+-#if 0
+-	for (i=0; i < xpram_devs; i++)
+-		PRINT_DEBUG(" device(%d) offset = %d kB, size = %d kB\n",i, xpram_offsets[i], xpram_sizes[i]);
+-#endif
+-
+-	xpram_hardsects = kmalloc(xpram_devs * sizeof(int), GFP_KERNEL);
+-	if (!xpram_hardsects) {
+-		PRINT_ERR("Not enough memory for xpram_hardsects\n");
+-                PRINT_ERR("Giving up xpram\n");
+-		goto fail_malloc_hardsects;
+-	}
+-	for (i=0; i < xpram_devs; i++) /* all the same hardsect */
+-		xpram_hardsects[i] = xpram_hardsect;
+-	hardsect_size[major]=xpram_hardsects;
+-   
+-	/* 
+-	 * allocate the devices -- we can't have them static, as the number
+-	 * can be specified at load time
++	 * Setup device structures.
+ 	 */
+-
+-	xpram_devices = kmalloc(xpram_devs * sizeof (Xpram_Dev), GFP_KERNEL);
+-	if (!xpram_devices) {
+-		PRINT_ERR("Not enough memory for xpram_devices\n");
+-                PRINT_ERR("Giving up xpram\n");
+-		goto fail_malloc_devices;
++	offset = 0;
++	for (i = 0; i < xpram_devs; i++) {
++		xpram_devices[i].size = xpram_sizes[i] / 4;
++		xpram_devices[i].offset = offset;
++		offset += xpram_devices[i].size;
++		sprintf(xpram_devices[i].device_name,
++			XPRAM_DEVICE_NAME_PREFIX "%d", i);
+ 	}
+-	memset(xpram_devices, 0, xpram_devs * sizeof (Xpram_Dev));
+-        minor_length = 1;
+-        minor_thresh = 10;
+-	for (i=0; i < xpram_devs; i++) {
+-		/* data and usage remain zeroed */
+-		xpram_devices[i].size = xpram_sizes[i];  /* size in kB not in bytes */
+-		atomic_set(&(xpram_devices[i].usage),0);
+-                if (i == minor_thresh) {
+-		  minor_length++;
+-		  minor_thresh *= 10;
+-		}
+-                xpram_devices[i].device_name = 
+-                  kmalloc(1 + strlen(XPRAM_DEVICE_NAME_PREFIX) + minor_length,GFP_KERNEL);
+-		if ( xpram_devices[i].device_name == NULL ) {
+-		  PRINT_ERR("Not enough memory for xpram_devices[%d].device_name\n",i);
+-                  PRINT_ERR("Giving up xpram\n");
+-		  goto fail_devfs_register;
+-		}
+-                sprintf(xpram_devices[i].device_name,XPRAM_DEVICE_NAME_PREFIX "%d",i);
+-
+-	PRINT_DEBUG("initializing xpram_open for device %d\n",i);
+-        PRINT_DEBUG("  size %dkB, name %s, usage: %d\n", 
+-                     xpram_devices[i].size,xpram_devices[i].device_name, atomic_read(&(xpram_devices[i].usage)));
+-
+-#if 0  /* WHY? */
+-                xpram_devices[i].devfs_entry =
+-		  devfs_register(NULL /* devfs root dir */,
+-                                 xpram_devices[i].device_name, 0,
+-                                 0 /* flags */,
+-				 XPRAM_MAJOR,i,
+-                                 0755 /* access mode */,
+-				 0 /* uid */, 0 /* gid */,
+-                                 &xpram_devops,
+-				 (void *) &(xpram_devices[i])
+-				 );
+-		if ( xpram_devices[i].devfs_entry == NULL ) {
+-		  PRINT_ERR("devfs system registry failed\n");
+-		  PRINT_ERR("Giving up xpram\n");
+-		  goto fail_devfs_register;
+-		}
+-#endif  /* WHY? */
+-				 
+-	}
+-
+-	return 0; /* succeed */
+ 
+-	/* clean up memory in case of failures */
+- fail_devfs_register:
+-        for (i=0; i < xpram_devs; i++) {
+-	  if ( xpram_devices[i].device_name )
+-	    kfree(xpram_devices[i].device_name);
+-	}
+-	kfree(xpram_devices);
+-	kfree (xpram_offsets);
+- fail_malloc_hardsects:
+- fail_malloc_devices:
+-	kfree(xpram_hardsects);
+-	hardsect_size[major] = NULL;
+- fail_malloc:
+-	/* ???	unregister_chrdev(major, "xpram"); */
+-	unregister_blkdev(major, "xpram");
+-	return result;
++	return 0;
+ }
+ 
+ /*
+- * Finally, the module stuff
++ * Finally, the init/exit functions.
+  */
+-
+-int init_module(void)
++void xpram_exit(void)
+ {
+-	int rc = 0;
+-
+-	PRINT_INFO ("trying to load module\n");
+-	rc = xpram_init ();
+-	if (rc == 0) {
+-		PRINT_INFO ("Module loaded successfully\n");
+-	} else {
+-		PRINT_WARN ("Module load returned rc=%d\n", rc);
+-	}
+-	return rc;
++	blk_clear(XPRAM_MAJOR);
++	devfs_unregister_blkdev(XPRAM_MAJOR, "xpram");
++	devfs_unregister(xpram_devfs_handle);
+ }
+ 
+-void cleanup_module(void)
++int xpram_init(void)
+ {
+-	int i;
+-
+-	/* first of all, reset all the data structures */
+-	kfree(hardsect_size[major]);
+-	kfree(xpram_offsets);
+-	blk_clear(major);
++	int rc;
+ 
+-				/* finally, the usual cleanup */
+-	devfs_unregister(xpram_devfs_handle);
+-	if (devfs_unregister_blkdev(MAJOR_NR, "xpram"))
+-		printk(KERN_WARNING "xpram: cannot unregister blkdev\n");
+-	kfree(xpram_devices);
++	/* Find out size of expanded memory. */
++	if (xpram_present() != 0) {
++		PRINT_WARN("No expanded memory available\n");
++		return -ENODEV;
++	}
++	xpram_pages = xpram_highest_page_index();
++	PRINT_INFO("  %li pages expanded memory found (%li KB).\n",
++		   xpram_pages, xpram_pages*4);
++	rc = xpram_setup_sizes(xpram_pages);
++	if (rc)
++		return rc;
++	rc = xpram_setup_blkdev();
++	if (rc)
++		return rc;
++	return 0;
+ }
++
++module_init(xpram_init);
++module_exit(xpram_exit);
+diff -urN linux-2.5.21/drivers/s390/block/xpram.h linux-2.5.21-s390/drivers/s390/block/xpram.h
+--- linux-2.5.21/drivers/s390/block/xpram.h	Sun Jun  9 07:30:00 2002
++++ linux-2.5.21-s390/drivers/s390/block/xpram.h	Thu Jan  1 01:00:00 1970
+@@ -1,70 +0,0 @@
+-
+-/*
+- * xpram.h -- definitions for the char module
+- *
+- *********/
+-
+-
+-#include <linux/ioctl.h>
+-#include <asm/atomic.h>
+-#include <linux/major.h>
+-
+-/* version dependencies have been confined to a separate file */
+-
+-/*
+- * Macros to help debugging
+- */
+-
+-#define XPRAM_NAME "xpram"  /* name of device/module */
+-#define XPRAM_DEVICE_NAME_PREFIX "slram" /* Prefix device name for major 35 */
+-#define XPRAM_DEVS 1        /* one partition */
+-#define XPRAM_RAHEAD 8      /* no real read ahead */
+-#define XPRAM_PGSIZE 4096   /* page size of (expanded) mememory pages
+-                             * according to S/390 architecture
+-                             */
+-#define XPRAM_BLKSIZE XPRAM_PGSIZE  /* must be equalt to page size ! */
+-#define XPRAM_HARDSECT XPRAM_PGSIZE /* FIXME -- we have to deal with both
+-                                     * this hard sect size and in some cases
+-                                     * hard coded 512 bytes which I call
+-                                     * soft sects:
+-                                     */
+-#define XPRAM_SOFTSECT 512
+-#define XPRAM_MAX_DEVS 32   /* maximal number of devices (partitions) */
+-#define XPRAM_MAX_DEVS1 33  /* maximal number of devices (partitions) +1 */
+-
+-/* The following macros depend on the sizes above */
+-
+-#define XPRAM_KB_IN_PG 4                     /* 4 kBs per page */
+-#define XPRAM_KB_IN_PG_ORDER 2               /* 2^? kBs per page */
+-
+-/* Eventhough XPRAM_HARDSECT is set to 4k some data structures use hard
+- * coded 512 byte sa sector size
+- */
+-#define XPRAM_SEC2KB(x) ((x >> 1) + (x & 1)) /* modifier used to compute size 
+-                                                in kB from number of sectors */
+-#define XPRAM_SEC_IN_PG 8                    /* 8 sectors per page */
+-#define XPRAM_SEC_IN_PG_ORDER 3              /* 2^? sectors per page */
+-
+-#define XPRAM_UNUSED 40                     /* unused space between devices, 
+-                                             * in kB, i.e.
+-                                             * must be a multiple of 4
+-                                             */
+-/*
+- * The xpram device is removable: if it is left closed for more than
+- * half a minute, it is removed. Thus use a usage count and a
+- * kernel timer
+- */
+-
+-typedef struct Xpram_Dev {
+-   int            size;   /* size in KB not in Byte - RB - */
+-   atomic_t       usage;
+-   char *         device_name;   /* device name prefix in devfs */
+-   devfs_handle_t devfs_entry;   /* handle needed to unregister dev from devfs */
+-   u8 *data;
+-}              Xpram_Dev;
+-
+-/* 2.2: void xpram_setup (char *, int *); */
+-/* begin 2.3 */
+-int xpram_setup (char *);
+-/* end 2.3 */
+-int xpram_init(void);

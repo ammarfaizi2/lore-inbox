@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVCBN7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVCBOAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbVCBN7g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 08:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262295AbVCBN7g
+	id S262295AbVCBOAp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 09:00:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbVCBOAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 08:59:36 -0500
-Received: from smtp.cs.aau.dk ([130.225.194.6]:27786 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S262294AbVCBN7d convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 08:59:33 -0500
-From: Kristian =?iso-8859-1?q?S=F8rensen?= <ks@cs.aau.dk>
-Organization: Aalborg University
-To: Christophe Lucas <clucas@rotomalug.org>
-Subject: Re: UserMode bug in 2.6.11-rc5? autolearn=disabled version=3.0.2
-Date: Wed, 2 Mar 2005 14:59:39 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <200503021236.26561.ks@cs.aau.dk> <20050302134533.GE13075@rhum.iomeda.fr>
-In-Reply-To: <20050302134533.GE13075@rhum.iomeda.fr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 2 Mar 2005 09:00:45 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:54802 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262295AbVCBOAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 09:00:25 -0500
+Date: Wed, 2 Mar 2005 15:00:19 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, kai@germaschewski.name, sam@ravnborg.org,
+       rusty@rustcorp.com.au
+Cc: Vincent Vanackere <vincent.vanackere@gmail.com>, keenanpepper@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
+Message-ID: <20050302140019.GC4608@stusta.de>
+References: <422550FC.9090906@gmail.com> <20050302012331.746bf9cb.akpm@osdl.org> <65258a58050302014546011988@mail.gmail.com> <20050302032414.13604e41.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503021459.39846.ks@cs.aau.dk>
+In-Reply-To: <20050302032414.13604e41.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 March 2005 14:45, Christophe Lucas wrote:
-> Kristian Sørensen (ks@cs.aau.dk) wrote:
-> > Hi!
+On Wed, Mar 02, 2005 at 03:24:14AM -0800, Andrew Morton wrote:
+> Vincent Vanackere <vincent.vanackere@gmail.com> wrote:
 > >
-> > I've just tried usermode Linux with a 2.6.11-rc5 kernel. My kernel boots,
-> > but when the shell is to be spawned it freezes:
-> > ----
-> > INIT: Entering runlevel: 2
-> > Starting system log daemon: syslogd.
-> > Starting kernel log daemon: klogd.
-> > Starting internet superserver: inetd.
-> > Starting deferred execution scheduler: atd.
-> > Starting periodic command scheduler: cron.
-> > INIT: Id "0" respawning too fast: disabled for 5 minutes
-> > INIT: Id "1" respawning too fast: disabled for 5 minutes
-> > INIT: Id "2" respawning too fast: disabled for 5 minutes
-> > INIT: Id "c" respawning too fast: disabled for 5 minutes
-> > INIT: no more processes left in this runlevel
-> > ----
-> >
-> > I've attached the .config for both 2.6.10 (working perfectly) and the one
-> > for 2.6.11-rc5. The root filesystem this:
-> > http://prdownloads.sourceforge.net/user-mode-linux/Debian-3.0r0.ext2.bz2
->
-> Hi,
->
-> What do you have in your /etc/inittab of your root_fs ?
-> I think you sould replace tty0 by vc/0 such as.
->
-> I have had this on a kernel 2.6.10 and debian-3.1 root_fs.
->
-> 	~Christophe
-Hey! Thanks - that fixed the problem! :-D
+> > I have the exact same problem. 
+> >  .config is attached
+> >  (this may be a debian specific problem as I'm running debian too)
+> 
+> OK, there are no vmlinux references to lib/parser.o's symbols.  So it isn't
+> getting linked in.
 
+That much I figured out after Vincent sent his bug report two weeks ago.
 
-Best,
-Kristian.
+> In lib/Makefile, remove parser.o from the lib-y: rule and add
+> 
+> obj-y	+= parser.o
 
+This I didn't find.
+
+Is it really the intention to silently omit objects that are not 
+referenced or could this be changed?
+
+Why doesn't an EXPORT_SYMBOL create a reference?
+
+cu
+Adrian
 
 -- 
-Kristian Sørensen
-- The Umbrella Project  --  Security for Consumer Electronics
-  http://umbrella.sourceforge.net
 
-E-mail: ipqw@users.sf.net, Phone: +45 29723816
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263570AbTKKQKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 11:10:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbTKKQKJ
+	id S264311AbTKKQ2N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 11:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTKKQ2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 11:10:09 -0500
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:33995 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S263570AbTKKQKH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 11:10:07 -0500
-Date: Tue, 11 Nov 2003 17:05:42 +0100 (CET)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.23-rc1-pac1
-Message-ID: <Pine.LNX.4.56.0311111703510.22683@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Nov 2003 11:28:13 -0500
+Received: from dp.samba.org ([66.70.73.150]:38560 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264311AbTKKQ2M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 11:28:12 -0500
+Date: Wed, 12 Nov 2003 03:25:23 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: hot cache line due to note_interrupt()
+Message-ID: <20031111162523.GN930@krispykreme>
+References: <20031110215844.GC21632@sgi.com> <20031111082915.GC1130@llm08.in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031111082915.GC1130@llm08.in.ibm.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-$SUBJECT is at
-ftp://ftp.kernel.org/pub/linux/kernel/people/bero/2.4/2.4.23/
+ 
+> The answer to this is probably alloc_percpu for the counters.
+> right now this might not possible because irq_desc_t table might be used very
+> early, and alloc_percpu uses slab underneath.  alloc_percpu will have to be 
+> made to work early enough for this....
 
-Changes:
-- Sync with -rc1
-- Fix compilation of the VIA DRI driver
-- Add Forcedeth driver for nvnet chips
+Also keep in mind the memory bloat with high NR_IRQS and NR_IRQS.
 
-LLaP
-bero
-
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
-
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
+Anton

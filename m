@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbUDAH0g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 02:26:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbUDAH0g
+	id S262756AbUDAH07 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 02:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbUDAH07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 02:26:36 -0500
-Received: from gprs213-219.eurotel.cz ([160.218.213.219]:9088 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262579AbUDAH0e (ORCPT
+	Thu, 1 Apr 2004 02:26:59 -0500
+Received: from mail.kroah.org ([65.200.24.183]:40145 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262758AbUDAH0z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 02:26:34 -0500
-Date: Thu, 1 Apr 2004 09:26:24 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Cc: Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Suspend development list <swsusp-devel@lists.sourceforge.net>
-Subject: Re: [Swsusp-devel] [PATCH 2.6]: suspend to disk only available if non-modular IDE
-Message-ID: <20040401072623.GA224@elf.ucw.cz>
-References: <200403282136.55435.arekm@pld-linux.org> <1080517040.2223.3.camel@laptop-linux.wpcb.org.au> <20040330201123.GE3084@openzaurus.ucw.cz> <1080772560.3081.0.camel@calvin.wpcb.org.au>
+	Thu, 1 Apr 2004 02:26:55 -0500
+Date: Wed, 31 Mar 2004 23:24:59 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrew Morton <akpm@osdl.org>, maneesh@in.ibm.com, david-b@pacbell.net,
+       viro@math.psu.edu, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Unregistering interfaces
+Message-ID: <20040401072459.GG13028@kroah.com>
+References: <20040331003327.GB10262@kroah.com> <Pine.LNX.4.44L0.0403311035130.1752-100000@ida.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1080772560.3081.0.camel@calvin.wpcb.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.44L0.0403311035130.1752-100000@ida.rowland.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Mar 31, 2004 at 10:54:17AM -0500, Alan Stern wrote:
+> Here's a suggestion for a correct solution.  It's a little bit awkward,
+> but less so than other ideas I've heard.
 
-> > > Applied to 2.4 and 2.6.
-> > 
-> > Bad idea. For swsusp2 the patch is bad because it can resume from 
-> > after initrd (IIRC). For swsusp1 patch is bad
-> > because it should be able to resume
-> > from usb mass storage drive.
-> 
-> So long as the initrd doesn't mess our filesystems up, we should be
-> okay, shouldn't we?
+<snip>
 
-As long as we test it once a while, yes.
+> If you think this sounds good, I will start working on it.
 
-But if resume from initrd works there's no reason to disallow modular
-IDE... and that was what patch did.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Yes, this sounds like an excellent way of doing this, and is what I was
+mulling over today in between doing real work :)
+
+It would be great if you want to work on this, and have the time to.
+Feel free to post incremental changes, and if you need any other help
+with this.
+
+thanks for volunteering.
+
+greg k-h

@@ -1,86 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269281AbUISRFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269285AbUISRG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269281AbUISRFa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 13:05:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269283AbUISRFa
+	id S269285AbUISRG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 13:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269284AbUISRFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 13:05:30 -0400
-Received: from imap.gmx.net ([213.165.64.20]:38301 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269281AbUISRE7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 13:04:59 -0400
-X-Authenticated: #1725425
-Date: Sun, 19 Sep 2004 19:11:29 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev is too slow creating devices
-Message-Id: <20040919191129.6f06293d.Ballarin.Marc@gmx.de>
-In-Reply-To: <cikaf1$e60$1@sea.gmane.org>
-References: <414C9003.9070707@softhome.net>
-	<1095568704.6545.17.camel@gaston>
-	<414D42F6.5010609@softhome.net>
-	<20040919140034.2257b342.Ballarin.Marc@gmx.de>
-	<414D96EF.6030302@softhome.net>
-	<20040919171456.0c749cf8.Ballarin.Marc@gmx.de>
-	<cikaf1$e60$1@sea.gmane.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 19 Sep 2004 13:05:54 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:4356 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S269283AbUISRFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 13:05:48 -0400
+In-Reply-To: <20040919122618.GA24982@elte.hu>
+References: <20040906110626.GA32320@elte.hu> <200409061348.41324.rjw@sisk.pl> <1094473527.13114.4.camel@boxen> <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <22BB3F86-0A5E-11D9-96E1-000D9352858E@linuxmail.org>
 Content-Transfer-Encoding: 7bit
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       Mark_H_Johnson@Raytheon.com
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
+Date: Sun, 19 Sep 2004 19:05:41 +0200
+To: Ingo Molnar <mingo@elte.hu>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Sep 2004 22:00:52 +0600
-"Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
+On Sep 19, 2004, at 14:26, Ingo Molnar wrote:
+>
+> i've released the -S1 VP patch:
+...
+> Reports, comments welcome,
 
-> 
-> OK. The fact is that, when mounting the root filesystem, the kernel can 
-> (?) definitely say "there is no such device, and it's useless to wait 
-> for it--so I panic". Is it possible to duplicate this logic in the case 
-> with udev and modprobe? If so, it should be built into a common place 
-> (either the kernel or into modprobe), but not into all apps.
+I've been running 2.6.9-rc2-mm1-VP-S1 for some time now and it seems to 
+be performing well.
 
-Well, once  the system is running, the device might appear any time, so
-waiting is hardly useless then.
-
-In the past you did modprobe and afterwards tried to access the device. If
-this succeeded, the device was created successfully, if not, something
-went wrong, and your script returned an error code.
-This approach has some problems.
-The device is plugged in later on: "su" to root, re-run script. Not nice.
-The script doesn't check properly for later errors: something breaks.
-
-Now, the device is either autodetected or - when this is not possible
-("legacy" devices) you have to modprobe manually.
-If this succeeds, you are informed in dev.d. If it fails you are
-"informed" by not being called in dev.d.
-
-If I understand correctly, you wish do modprobe for a legacy device and
-then know if this succeeded completely.
-Simply choose a state-file in /var and write something like "not detected"
-inside. Then do modprobe.
-The other part of your script will wait in dev.d for the event. If it
-arrives, the script will change the state file to "found" and do its work.
-So, as long as the state is "not detected" you treat the device as not
-present - just as if your old, synchronous script had returned an error
-code. The advantage is, that if the device appears later on everything
-will work automatically.
-
-> 
-> Then the "char-major" aliases were always broken, do I understand 
-> correctly? Once we realize that, isn't it the time to mark the 
-> "Automatic kernel module loading" in the kernel configuration as BROKEN 
-> or OBSOLETE?
-
-IIRC this feature is intended primarily for loadable kernel features and
-pseudo devices, not "real" device drivers.
-
-> 
-> Yes. Now we have a lot of short scriptlets under /etc/dev.d. But I don't
-> yet see how these scriptlets interact with each other.
-
-You could use some state file if hotplug messages aren't enough, as
-described above.
-
-mfg

@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbUJZX3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbUJZXbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbUJZX3A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 19:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUJZX3A
+	id S261544AbUJZXbw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 19:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUJZXbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 19:29:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31892 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261541AbUJZX25 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 19:28:57 -0400
-Date: Tue, 26 Oct 2004 19:28:28 -0400
-From: Dave Jones <davej@redhat.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: "O.Sezer" <sezeroz@ttnet.net.tr>, linux-kernel@vger.kernel.org,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Pete Zaitcev <zaitcev@redhat.com>, jgarzik@pobox.com,
-       tglx@linutronix.de, Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Subject: Re: Linux 2.4.28-rc1
-Message-ID: <20041026232828.GH2307@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	"O.Sezer" <sezeroz@ttnet.net.tr>, linux-kernel@vger.kernel.org,
-	Russell King <rmk+lkml@arm.linux.org.uk>,
-	Pete Zaitcev <zaitcev@redhat.com>, jgarzik@pobox.com,
-	tglx@linutronix.de, Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-References: <417E5904.9030107@ttnet.net.tr> <20041026203334.GB29688@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041026203334.GB29688@logos.cnet>
-User-Agent: Mutt/1.4.1i
+	Tue, 26 Oct 2004 19:31:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19892 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261544AbUJZXbj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 19:31:39 -0400
+Message-ID: <417EDE4C.20003@pobox.com>
+Date: Tue, 26 Oct 2004 19:31:24 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Douglas Gilbert <dougg@torque.net>, Jens Axboe <axboe@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: [PATCH 2.4] the perils of kunmap_atomic
+Content-Type: multipart/mixed;
+ boundary="------------050501010008070200090100"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 06:33:34PM -0200, Marcelo Tosatti wrote:
+This is a multi-part message in MIME format.
+--------------050501010008070200090100
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+kunmap_atomic() violates the Principle of Least Surprise in a nasty way. 
+    kmap(), kunmap(), and kmap_atomic() all take struct page* to 
+reference the memory location.  kunmap_atomic() is the oddball of the 
+three, and takes a kernel address.
+
+Ignoring the driver-related bugs that are present due to 
+kunmap_atomic()'s weirdness, there also appears to be a big in the 
+!CONFIG_HIGHMEM implementation in 2.4.x.
+
+(Bart is poking through some of the 2.6.x-related kunmap_atomic slip-ups)
+
+Anyway, what do people think about the attached patch to 2.4.x?  I'm 
+surprised it has gone unnoticed until now.
+
+	Jeff
+
+
+
+
+--------------050501010008070200090100
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+===== include/linux/highmem.h 1.12 vs edited =====
+--- 1.12/include/linux/highmem.h	2003-06-30 20:18:42 -04:00
++++ edited/include/linux/highmem.h	2004-10-26 19:26:14 -04:00
+@@ -70,7 +70,7 @@
+ #define kunmap(page) do { } while (0)
  
- > > - Dave Jones:  AMD K7 MCE changes backported from 2.6.
- > >   http://marc.theaimsgroup.com/?l=linux-kernel&m=106521456014393&w=2
- > 
- > Should be merged - Dave?
+ #define kmap_atomic(page,idx)		kmap(page)
+-#define kunmap_atomic(page,idx)		kunmap(page)
++#define kunmap_atomic(addr,idx)		kunmap(virt_to_page(addr))
+ 
+ #define bh_kmap(bh)			((bh)->b_data)
+ #define bh_kunmap(bh)			do { } while (0)
 
-yep.
-
-		Dave
+--------------050501010008070200090100--

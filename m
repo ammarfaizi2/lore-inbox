@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132257AbQLQEVY>; Sat, 16 Dec 2000 23:21:24 -0500
+	id <S132303AbQLQEYo>; Sat, 16 Dec 2000 23:24:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132303AbQLQEVO>; Sat, 16 Dec 2000 23:21:14 -0500
-Received: from p050.as-l001.contactel.cz ([212.65.194.50]:15876 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S132257AbQLQEU4>;
-	Sat, 16 Dec 2000 23:20:56 -0500
-Date: Sun, 17 Dec 2000 04:49:20 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test13-pre1 lockup: run_task_queue or tty_io are wrong
-Message-ID: <20001217044920.H410@ppc.vc.cvut.cz>
-In-Reply-To: <20001217034928.A410@ppc.vc.cvut.cz> <Pine.LNX.4.10.10012161859340.23256-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10012161859340.23256-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Dec 16, 2000 at 07:09:56PM -0800
+	id <S132357AbQLQEYe>; Sat, 16 Dec 2000 23:24:34 -0500
+Received: from anime.net ([63.172.78.150]:29701 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S132303AbQLQEYa>;
+	Sat, 16 Dec 2000 23:24:30 -0500
+Date: Sat, 16 Dec 2000 19:54:08 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: <davej@suse.de>
+cc: Rico Tudor <rico@patrec.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: ServerWorks docs?
+In-Reply-To: <Pine.LNX.4.21.0012161956020.7396-100000@neo.local>
+Message-ID: <Pine.LNX.4.30.0012161951400.21856-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2000 at 07:09:56PM -0800, Linus Torvalds wrote:
-> 				
-> which basically will never re-start at the head if a tq re-inserts iself
-> (side note: new entires are inserted at the end, but if it was already the
-> last entry then re-inserting it will not re-execute it, should this should
-> avoid your problem).
-> 
-> Does this fix the problem for you?
+On Sat, 16 Dec 2000 davej@suse.de wrote:
+> On 16 Dec 2000, Rico Tudor wrote:
+> > Does anyone have reference material for the ServerWorks northbridge?
+> > I want to add their chipsets to my ECC-monitoring utility, but their
+> > web site is little more than marketing drivel.  Plus, they don't respond
+> > to e-mail.
+> I've tried on several occasions, but not got anywhere.
+> Judging by the comments on the lm-sensors homepage, chances of them
+> publically releasing register level info seems pretty slim.
 
-It looks like that it does. I hope that there are not two such users in
-kernel, as if they are, it can loop again.
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+serverworks requires you not only to sign an NDA, but also do all
+development on-site at their santa clara HQ under their direct
+supervision.
+
+I think it's rather stupid to have to take several days off work to fly
+down to their HQ just for code that will take maybe 5 minutes to write.
+
+If someone in santa clara wants to do it, fine.
+
+-Dan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

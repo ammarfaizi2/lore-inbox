@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262504AbVBXVoB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVBXVqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262504AbVBXVoB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 16:44:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVBXVoA
+	id S262502AbVBXVqu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 16:46:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVBXVqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 16:44:00 -0500
-Received: from alog0087.analogic.com ([208.224.220.102]:20352 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262503AbVBXVng
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 16:43:36 -0500
-Date: Thu, 24 Feb 2005 16:42:43 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Linux 2.6.10 sleep mode
-Message-ID: <Pine.LNX.4.61.0502241641460.23574@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 24 Feb 2005 16:46:50 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:27223 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262502AbVBXVqg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 16:46:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
+        b=H56qSHdySV+ugmFARcAW9o9K5KeaiBVgOWWvhMrN33ARfn42+WVIm56HlbMyXTdV8kAcL/w+G4dtJUPMd+pQ7t9RAtcj/mOF9fjKTy5jTG43yC8wPhsysv3IRSYh+952AjgkQhtL+jxbBHAniwC9Pdg3PdBq4TOQDEpMgVBZh9Q=
+Message-ID: <a728f9f905022413465b96acd4@mail.gmail.com>
+Date: Thu, 24 Feb 2005 16:46:34 -0500
+From: Alex Deucher <alexdeucher@gmail.com>
+Reply-To: Alex Deucher <alexdeucher@gmail.com>
+To: netdev@oss.sgi.com
+Subject: Marvell 88W8310 and 88E8050 PCI Express support
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've noticed most of the new AMD64 chipsets now include integrated
+marvell GigE and wifi chips onboard.  I haven't been able to find much
+on the status of linux support for these chips.  Apparently the PCIE
+GigE chip only works with sk98lin and not skge:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0502.1/0010.html
+Does anyone know if support for the chip is being added to skge?  The
+88W8310 doesn't seem to be supported at all, at least not that I can
+see.  Does anyone know the status of the 88W8310?  Are there any
+experimental drivers?  Is Marvell friendly to opensource?  Are the
+databooks available?
 
-I put Linux-2.6.10 on a COMPAQ presario 1800 (bad choice).
-After a few minutes without any keyboard activity, it enters
-"sleep mode" and dies. I need to remove the battery and
-external power to be able to re-boot. Even after that,
-it needs to be rebooted twice because it will get to
-"Uncompressing Linux" and hang. An added data-point:
-If I boot Linux, then properly shut down, it will
-not boot Linux again unless I hit Ctrl-Alt-Del when
-it hangs. The second time, it will boot okay.
+Thanks,
 
-The last kernel version that worked properly on
-this machine was Linux-2.2.17 SuSE Linux-6.4
-It had no such problems.
+Alex
 
-How do I turn this "feature" OFF?
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+PS, please CC: me as I'm not subscribed.

@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293493AbSCASmM>; Fri, 1 Mar 2002 13:42:12 -0500
+	id <S293498AbSCASqc>; Fri, 1 Mar 2002 13:46:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293498AbSCASmC>; Fri, 1 Mar 2002 13:42:02 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29715 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S293493AbSCASl6>; Fri, 1 Mar 2002 13:41:58 -0500
-Date: Fri, 1 Mar 2002 13:39:59 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Submissions for 2.4.19-pre [sdmany (Richard Gooch)] [Discuss :) ]
-In-Reply-To: <E16gmKy-0003Xa-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1020301133250.7225A-100000@gatekeeper.tmr.com>
+	id <S293505AbSCASqW>; Fri, 1 Mar 2002 13:46:22 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:47811 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S293498AbSCASqG>; Fri, 1 Mar 2002 13:46:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: "Paul W. Abrahams" <abrahams@acm.org>
+To: linux-kernel@vger.kernel.org
+Subject: Changing processor type causes module load errors, 2.4.17
+Date: Fri, 1 Mar 2002 13:45:59 -0500
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020301184600.HLLJ2626.rwcrmhc51.attbi.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Mar 2002, Alan Cox wrote:
+I''m running the 2.4.17 kernel.   If I change the processor type from 586 to 
+Athlon-Duron, I get a number of module loading errors.   Unfortunately only 
+one of them shows up in /var/log/boot.msg.   Here's the difference:
 
-> > I would say that is a fair question. I find it in the production kernel?
-> > Good, so it was considered ready by someone. Seems to me one of the Redhat
-> > kernels had devfs as a module, they seem to think so.
-> 
-> <Red Hat on>We don't ship devfs.</Red Hat>
+With Athlon/Duron:
 
-Thanks, someone has obviously rebuilt the kernel on the machine I was
-considering, possibly even me... :-(
+Mar  1 13:18:02 suillus automount[488]: starting automounter version 4.0.0, 
+path = /misc, maptype = file, mapname = /etc/auto.misc
+Mar  1 13:18:02 suillus automount[490]: starting automounter version 4.0.0, 
+path = /net, maptype = program, mapname = /etc/auto.net
+Mar  1 13:18:02 suillus insmod: 
+/lib/modules/2.4.17/kernel/fs/autofs4/autofs4.o: insmod autofs failed
+Mar  1 13:18:02 suillus automount[488]: cannot find autofs in kernel
+Mar  1 13:18:02 suillus automount[488]: /misc: mount failed!
+Mar  1 13:18:02 suillus insmod: 
+/lib/modules/2.4.17/kernel/fs/autofs4/autofs4.o: insmod autofs failed
+Mar  1 13:18:02 suillus automount[490]: cannot find autofs in kernel
+Mar  1 13:18:02 suillus automount[490]: /net: mount failed!
 
-In any case if devfs is stable enough to be in the stable kernel, can we
-really say that something using it isn't (for that reason alone)? I any
-case I'm still interested, TB are not what they used to be.
+With 586 (this works):
 
-Okay, I'll look at other solutions, AIX seems able to handle it.
+Mar  1 13:31:55 suillus automount[485]: starting automounter version 4.0.0, 
+path = /misc, maptype = file, mapname = /etc/auto.misc
+Mar  1 13:31:55 suillus automount[487]: starting automounter version 4.0.0, 
+path = /net, maptype = program, mapname = /etc/auto.net
+Mar  1 13:31:55 suillus automount[485]: using kernel protocol version 4
+Mar  1 13:31:55 suillus automount[485]: using timeout 300 seconds; freq 75 
+secs
+Mar  1 13:31:55 suillus insmod: insmod: a module named autofs4 already exists
+Mar  1 13:31:55 suillus insmod: insmod: insmod autofs failed
+Mar  1 13:31:55 suillus automount[487]: using kernel protocol version 4
+Mar  1 13:31:55 suillus automount[487]: using timeout 300 seconds; freq 75 
+secs
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+The other errors show up as an inability to load /deb/lp0 and /dev/eth0.   I 
+can't be more precise about these errors because I haven't managed to capture 
+the messages; I can only try to observe them as they fly by on the opening 
+screens.
 
+Paul Abrahams

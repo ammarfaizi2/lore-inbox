@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265895AbUACCbV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 21:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265901AbUACCbV
+	id S265886AbUACDIO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 22:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265901AbUACDIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 21:31:21 -0500
-Received: from brian.cwazy.net ([69.10.134.66]:10126 "EHLO brian.cwazy.net")
-	by vger.kernel.org with ESMTP id S265895AbUACCbU (ORCPT
+	Fri, 2 Jan 2004 22:08:14 -0500
+Received: from dp.samba.org ([66.70.73.150]:11722 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265886AbUACDIF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 21:31:20 -0500
-Message-ID: <1100.68.99.220.166.1073097089.squirrel@newsite.cwazy.net>
-Date: Sat, 3 Jan 2004 02:31:29 -0000 (GMT)
-Subject: dev_add_pack() & calling functions that can sleep
-From: "jnf" <jnf@redwhitearmy.com>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Fri, 2 Jan 2004 22:08:05 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] kthread_create 
+In-reply-to: Your message of "Fri, 02 Jan 2004 08:58:09 -0800."
+             <Pine.LNX.4.44.0401020856150.2278-100000@bigblue.dev.mdolabs.com> 
+Date: Sat, 03 Jan 2004 14:05:40 +1100
+Message-Id: <20040103030802.BD1DB2C06E@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In message <Pine.LNX.4.44.0401020856150.2278-100000@bigblue.dev.mdolabs.com> you write:
+> Rusty, you still have to use global static data when there is no need.
 
-I've been mucking around in my network stack some as of late, trying to
-get a feel for how it works, etc. I've just about got the hang of it, but
-I am having an issue in one area.
+And you're still putting obscure crap in the task struct when there's
+no need.  Honestly, I'd be ashamed to post such a patch.
 
-Now as I understand it, when i add a callback routine via dev_add_pack,
-that callback routine gets called in an interupt context and thus i cannot
-call any functions that sleep. Is there any way around this? I'm wanting
-after my callback routine has been called, as it finishes to call a
-function that has parts that can in fact sleep. But because of the
-contexts of everything I cannot figure a way to do this. Any help would be
-appreciated.
+> I like this version better though ;)
 
-
-cheers,
-jnf
+I think I should seek a second opinion though.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

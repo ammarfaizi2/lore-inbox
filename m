@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318930AbSH1TcJ>; Wed, 28 Aug 2002 15:32:09 -0400
+	id <S318918AbSH1Tk5>; Wed, 28 Aug 2002 15:40:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318931AbSH1TcJ>; Wed, 28 Aug 2002 15:32:09 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:30639 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S318930AbSH1TcH>;
-	Wed, 28 Aug 2002 15:32:07 -0400
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Wed, 28 Aug 2002 13:32:40 -0600
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Dominik Brodowski <devel@brodo.de>, cpufreq@www.linux.org.uk,
-       linux-kernel@vger.kernel.org
+	id <S318929AbSH1Tk5>; Wed, 28 Aug 2002 15:40:57 -0400
+Received: from mail2.uklinux.net ([80.84.72.32]:58515 "EHLO mail2.uklinux.net")
+	by vger.kernel.org with ESMTP id <S318918AbSH1Tk4>;
+	Wed, 28 Aug 2002 15:40:56 -0400
+To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-Message-ID: <20020828133240.A766@host110.fsmlabs.com>
-References: <20020828134600.A19189@brodo.de> <Pine.LNX.4.33.0208281140030.4507-100000@penguin.transmeta.com> <20020828124839.F5492@host110.fsmlabs.com> <1030562708.7190.59.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+References: <20020828134600.A19189@brodo.de>
+	<Pine.LNX.4.33.0208281140030.4507-100000@penguin.transmeta.com>
+	<20020828124839.F5492@host110.fsmlabs.com>
+	<1030562708.7190.59.camel@irongate.swansea.linux.org.uk>
+From: Peter Riocreux <peter.riocreux@cakes.org.uk>
+Date: 28 Aug 2002 20:41:03 +0100
+In-Reply-To: <1030562708.7190.59.camel@irongate.swansea.linux.org.uk>
+Message-ID: <9ksn0yn54g.fsf@homer.cakes.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1030562708.7190.59.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Aug 28, 2002 at 08:25:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My frustration comes from the fact that my CPU time is being stolen from me
-because of bad mechanical and software design.  I'm not even notified of
-it.  If there were some way for the OS to over-ride or even be notified of
-these events I'd have less of a problem with it.  As it is now, poor
-system design is affecting OS design more and more.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-} Systems designers are designing on the basis of thermal slowdowns being
-} the optimal way to build some systems. Its actually quite reasonable for
-} many workloads.
-} 
-} > micro-code programmer now-a-days.  That situation needs to be improved
-} > upon, as well.
-} 
-} Cpufreq doesn't handle this case yet in the 2.4 code but it already
-} includes the needed udelay correction. Not everything CPUfreq has to
-} deal with need be user initiated
-} 
+> On Wed, 2002-08-28 at 19:48, Cort Dougan wrote:
+> > It's even worse for some of the very new P4's that don't have their
+> > heatsink seated properly.  They heat up every few minutes and then throttle
+> > themselves due to thermal overload.  I think this situation is going to
+> > become more and more common, now.  We're at the mercy of every BIOS and
+> 
+> Systems designers are designing on the basis of thermal slowdowns being
+> the optimal way to build some systems. Its actually quite reasonable for
+> many workloads.
+
+Don't forget the low end of the scale too...
+
+An interface of this type even has applicability in the absence of a
+clock. Research in the Amulet group at Manchester University (home of
+the Amulet processors - self-timed ARM cores) and elsewhere is looking
+at management of /maximum/ power consumption (instantaneous power
+consumption is a function of the work to be done) by constraining the
+maximum number of instructions in flight, rather than the clocked
+equivalent of capping the clock frequency. This might be done where
+the power supply's capability is very limited (solar, wireless
+induction, smartcard, wind, etc).  
+
+This number can be managed by the processor if you build the right
+peripheral into the system, and this would need an equivalent
+interface for control - it wouldn't be a clock frequency, but it would
+be a number controlling the /maximum/ speed of the processor.
+
+Peter

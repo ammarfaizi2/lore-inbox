@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272625AbTG1Blp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 21:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272231AbTG1BkK
+	id S272009AbTG1CBb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 22:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271033AbTG1ABI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 21:40:10 -0400
-Received: from rth.ninka.net ([216.101.162.244]:34179 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S272315AbTG1Bj5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 21:39:57 -0400
-Date: Sun, 27 Jul 2003 18:55:08 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: florin@iucha.net (Florin Iucha)
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [TRIVIAL] Fix ipt_helper compilation. Was: Linux
- v2.6.0-test2
-Message-Id: <20030727185508.35307c31.davem@redhat.com>
-In-Reply-To: <20030727202234.GA7280@iucha.net>
-References: <Pine.LNX.4.44.0307271003360.3401-100000@home.osdl.org>
-	<20030727202234.GA7280@iucha.net>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 27 Jul 2003 20:01:08 -0400
+Received: from ss1000.ms.mff.cuni.cz ([195.113.19.221]:37598 "EHLO
+	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S272682AbTG0XUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 19:20:00 -0400
+Date: Mon, 28 Jul 2003 01:35:06 +0200
+From: Rudo Thomas <thomr9am@ss1000.ms.mff.cuni.cz>
+To: Balram Adlakha <b_adlakha@softhome.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2 OSS emu10k1
+Message-ID: <20030728013506.A29614@ss1000.ms.mff.cuni.cz>
+Mail-Followup-To: Balram Adlakha <b_adlakha@softhome.net>,
+	linux-kernel@vger.kernel.org
+References: <20030727190257.GA2840@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030727190257.GA2840@localhost.localdomain>; from b_adlakha@softhome.net on Mon, Jul 28, 2003 at 12:32:57AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jul 2003 15:22:34 -0500
-florin@iucha.net (Florin Iucha) wrote:
-
-> One of these broke the compilation of net/ipv4/netfilter/ipt_helper.o:
->   CC [M]  net/ipv4/netfilter/ipt_helper.o
-> In file included from net/ipv4/netfilter/ipt_helper.c:13:
-> include/linux/netfilter_ipv4/ip_conntrack_core.h: In function `ip_conntrack_confirm':
-> include/linux/netfilter_ipv4/ip_conntrack_core.h:46: error: `NF_ACCEPT' undeclared (first use in this function)
-> include/linux/netfilter_ipv4/ip_conntrack_core.h:46: error: (Each undeclared identifier is reported only once
-> include/linux/netfilter_ipv4/ip_conntrack_core.h:46: error: for each function it appears in.)
+> I cannot compile the emu10k1 module:
 > 
-> This trivial patch fixes it:
+> sound/oss/emu10k1/hwaccess.c:182: redefinition of `emu10k1_writefn0_2'
+> sound/oss/emu10k1/hwaccess.c:164: `emu10k1_writefn0_2' previously defined here
 
-Please post this to the networking and netfilter lists
-so that people who work in this area of the kernel will
-see your posting.
+You screwed up somehow, I see only one definition of that function in 2.6.0-test2...
 
-Thank you.
+Rudo.

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBPPoi>; Fri, 16 Feb 2001 10:44:38 -0500
+	id <S129111AbRBPPyn>; Fri, 16 Feb 2001 10:54:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129137AbRBPPo2>; Fri, 16 Feb 2001 10:44:28 -0500
-Received: from ns.suse.de ([213.95.15.193]:25875 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129027AbRBPPoU>;
-	Fri, 16 Feb 2001 10:44:20 -0500
-To: aprasad@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: query about sending udp packets in kernel mode
-In-Reply-To: <CA2569F5.0045056E.00@d73mta05.au.ibm.com>
-From: Andi Kleen <ak@suse.de>
-Date: 16 Feb 2001 16:44:17 +0100
-In-Reply-To: aprasad@in.ibm.com's message of "16 Feb 2001 13:35:17 +0100"
-Message-ID: <oup1ysytyy6.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S129259AbRBPPyY>; Fri, 16 Feb 2001 10:54:24 -0500
+Received: from colorfullife.com ([216.156.138.34]:22799 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129111AbRBPPyR>;
+	Fri, 16 Feb 2001 10:54:17 -0500
+Message-ID: <3A8D4D43.CF589FA0@colorfullife.com>
+Date: Fri, 16 Feb 2001 16:54:44 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86 ptep_get_and_clear question
+In-Reply-To: <3A8C499A.E0370F63@colorfullife.com> <Pine.LNX.4.10.10102151702320.12656-100000@penguin.transmeta.com> <20010216151839.A3989@pcep-jamie.cern.ch> <3A8D4045.F8F27782@colorfullife.com> <20010216162741.A4284@pcep-jamie.cern.ch>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-aprasad@in.ibm.com writes:
+Jamie Lokier wrote:
+> 
+> /* mprotect.c */
+>         entry = ptep_get_and_clear(pte);
+>         set_pte(pte, pte_modify(entry, newprot));
+> 
+> I.e. the only code with the race condition is code which explicitly
+> clears the dirty bit, in vmscan.c.
+> 
+> Do you see any possibility of losing a dirty bit here?
+>
+Of course.
+Just check the output after preprocessing.
+It's 
+	int entry;
+	entry = *pte;
+	entry &= ~_PAGE_CHG_MASK;
+	entry |= pgprot_val(newprot)
+	*pte = entry;
 
-> i am getting EFAULT.
+We need
+	atomic_clear_mask (_PAGE_CHG_MASK, pte);
+	atomic_set_mask (pgprot_val(newprot), *pte);
 
-Use
+for multi threaded apps.
 
-mm_segment_t oldseg = get_fs();
-set_fs(KERNEL_DS);
+> If not, there's no need for the intricate "gather" or "double scan"
+> schemes for mprotect() and it can stay as fast as possible.
+>
+Correct, but we need a platform specific "update_pte", and perhaps
+update_begin, update_end hooks (empty on i386) for other archs.
 
-... sendmsg
-
-set_fs(oldseg); 
-
-
--Andi
-
-P.S.: This is really getting a FAQ. If it isn't already please someone add 
-it to the linux-kernel FAQ.
-
+--
+	Manfred

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264532AbTLGVVX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 16:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbTLGU4k
+	id S264542AbTLGVcR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 16:32:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbTLGV2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 15:56:40 -0500
-Received: from amsfep13-int.chello.nl ([213.46.243.24]:20284 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264535AbTLGUzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 15:55:41 -0500
-Date: Sun, 7 Dec 2003 21:51:27 +0100
-Message-Id: <200312072051.hB7KpRXg000753@callisto.of.borg>
+	Sun, 7 Dec 2003 16:28:16 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:278 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264542AbTLGUzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 15:55:52 -0500
+Date: Sun, 7 Dec 2003 21:51:36 +0100
+Message-Id: <200312072051.hB7Kpa3l000813@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 137] Amiga debug fix
+Subject: [PATCH 147] Amiga Buddha/CatWeasel IDE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amiga: Fix `debug=mem' (record all kernel messages in ChipRAM): virt_to_phys()
-no longer works for Zorro II memory space, we must use ZTWO_PADDR()
+Buddha/CatWeasel IDE: Make sure the core IDE driver doesn't try to request the
+MMIO ports a second time, since this will fail.
 
---- linux-2.4.23/arch/m68k/amiga/config.c	2003-04-06 10:28:29.000000000 +0200
-+++ linux-m68k-2.4.23/arch/m68k/amiga/config.c	2003-11-08 19:20:04.000000000 +0100
-@@ -877,7 +877,7 @@
-     savekmsg = amiga_chip_alloc_res(SAVEKMSG_MAXMEM, &debug_res);
-     savekmsg->magic1 = SAVEKMSG_MAGIC1;
-     savekmsg->magic2 = SAVEKMSG_MAGIC2;
--    savekmsg->magicptr = virt_to_phys(savekmsg);
-+    savekmsg->magicptr = ZTWO_PADDR(savekmsg);
-     savekmsg->size = 0;
- }
+--- linux-2.4.23/drivers/ide/legacy/buddha.c	2003-02-27 10:15:46.000000000 +0100
++++ linux-m68k-2.4.23/drivers/ide/legacy/buddha.c	2003-12-07 10:42:43.000000000 +0100
+@@ -146,6 +146,7 @@
+ void __init buddha_init(void)
+ {
+ 	hw_regs_t hw;
++	ide_hwif_t *hwif;
+ 	int i, index;
  
+ 	struct zorro_dev *z = NULL;
+@@ -212,8 +213,9 @@
+ 						IRQ_AMIGA_PORTS);
+ 			}	
+ 			
+-			index = ide_register_hw(&hw, NULL);
++			index = ide_register_hw(&hw, &hwif);
+ 			if (index != -1) {
++				hwif->mmio = 2;
+ 				printk("ide%d: ", index);
+ 				switch(type) {
+ 				case BOARD_BUDDHA:
 
 Gr{oetje,eeting}s,
 

@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268557AbTBZBTX>; Tue, 25 Feb 2003 20:19:23 -0500
+	id <S268562AbTBZB0F>; Tue, 25 Feb 2003 20:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268562AbTBZBTX>; Tue, 25 Feb 2003 20:19:23 -0500
-Received: from dp.samba.org ([66.70.73.150]:44720 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S268557AbTBZBTW>;
-	Tue, 25 Feb 2003 20:19:22 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Modules race fix
-Date: Wed, 26 Feb 2003 12:25:13 +1100
-Message-Id: <20030226012938.DB6662C2D2@lists.samba.org>
+	id <S268568AbTBZB0F>; Tue, 25 Feb 2003 20:26:05 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:10719 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S268562AbTBZB0E>; Tue, 25 Feb 2003 20:26:04 -0500
+Date: Tue, 25 Feb 2003 19:36:10 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Richard Henderson <rth@twiddle.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] eliminate warnings in generated module files 
+In-Reply-To: <20030226012305.A31342C158@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0302251930280.13501-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+On Wed, 26 Feb 2003, Rusty Russell wrote:
 
-Name: Fix two module races
-Author: Bob Miller, Rusty Russell
-Status: Trivial
+> In message <Pine.LNX.4.44.0302251546590.2185-100000@home.transmeta.com> you wri
+> te:
+> > 
+> > On Tue, 25 Feb 2003, Rusty Russell wrote:
+> > > 
+> > > __optional should always be __attribute__((__unused__)), and
+> > > __required should be your __attribute_used__.
+> > 
+> > But I think rth's point was that "__module_depends" should definitely 
+> > _not_ be "optional", since that just means that the compiler can (and 
+> > will) optimize away the whole thing.
+> > 
+> > So marking it optional is definitely the wrong thing to do.
+> 
+> This time for sure!
 
-D: Bob Miller points out that the try_module_get in use_module() can,
-D: of course, fail.  Secondly, there is a race between setting the module
-D: live, and a simultaneous removal of it.
+FWIW, I think it's not a good idea. Why call it 'required' in the kernel 
+when the normal (gcc) expression for it is 'used'. - We didn't rename 
+'deprecated' to 'obsolete', either ;)
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.62-bk6/kernel/module.c working-2.5.62-bk6-modraces/kernel/module.c
---- linux-2.5.62-bk6/kernel/module.c	2003-02-18 11:18:57.000000000 +1100
-+++ working-2.5.62-bk6-modraces/kernel/module.c	2003-02-24 13:42:44.000000000 +1100
-@@ -173,16 +173,19 @@ static int use_module(struct module *a, 
- 	struct module_use *use;
- 	if (b == NULL || already_uses(a, b)) return 1;
- 
-+	if (!strong_try_module_get(b))
-+		return 0;
-+
- 	DEBUGP("Allocating new usage for %s.\n", a->name);
- 	use = kmalloc(sizeof(*use), GFP_ATOMIC);
- 	if (!use) {
- 		printk("%s: out of memory loading\n", a->name);
-+		module_put(b);
- 		return 0;
- 	}
- 
- 	use->module_which_uses = a;
- 	list_add(&use->list, &b->modules_which_use_me);
--	try_module_get(b); /* Can't fail */
- 	return 1;
- }
- 
-@@ -1456,10 +1459,12 @@ sys_init_module(void *umod,
- 	}
- 
- 	/* Now it's a first class citizen! */
-+	down(&module_mutex);
- 	mod->state = MODULE_STATE_LIVE;
- 	module_free(mod, mod->module_init);
- 	mod->module_init = NULL;
- 	mod->init_size = 0;
-+	up(&module_mutex);
- 
- 	return 0;
- }
+Also, I don't really see any use for __optional at this point, so why add 
+it at all?
+
+So IMO, the only change which possibly makes sense is to rename
+__attribute_used__ to __used, since it makes it more consistent with
+similar things like __deprecated, __init, __exit etc.
+
+--Kai
 
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

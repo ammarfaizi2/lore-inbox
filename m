@@ -1,56 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbTJUNYX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 09:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263068AbTJUNYX
+	id S263052AbTJUNZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 09:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263061AbTJUNZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 09:24:23 -0400
-Received: from main.gmane.org ([80.91.224.249]:6333 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263014AbTJUNYD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 09:24:03 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [2.6.0-test8] Difference between Software Suspend and
- Suspend-to-disk?
-Date: Tue, 21 Oct 2003 15:24:00 +0200
-Message-ID: <yw1xptgqd8r3.fsf@kth.se>
-References: <200310211315.58585.lkml@kcore.org> <20031021113444.GC9887@louise.pinerecords.com>
- <yw1xy8veddj7.fsf@kth.se>
- <1066741540.2068.1.camel@teapot.felipe-alfaro.com>
+	Tue, 21 Oct 2003 09:25:59 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:163 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S263052AbTJUNZz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 09:25:55 -0400
+Date: Tue, 21 Oct 2003 15:25:48 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Proposal to remove workqueue usage from request_firmware_async()
+Message-ID: <20031021132548.GA20368@ranty.pantax.net>
+Reply-To: ranty@debian.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:EuKgpcpbMdeoWxChnxNhtcV6iVE=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> writes:
+ Michael Hunold also confirmed that it works for him, IMHO it should be
+ safe at least for the -mm tree.
 
->> >> Software Suspend (EXPERIMENTAL)
->> >> Suspend-to-Disk Support
->> >
->> > They're competing implementations of the same mechanism.
->> 
->> And neither one works reliably, I might add.  They both appear to save
->> the current state to disk, but no matter what I try, I can't make it
->> resume properly.
->
-> Yep! I must say I cannot resume my system from disk. The kernel always
-> complains about failing when trying to resume from disk. Also, after
-> suspending to disk, the swap partition is completely valid, and I don't
-> need to "mkswap" it. On previous releases of the kernel, when STD
-> worked, trying to skip resume from disk left the swap partition unusable
-> (as expected after dumping memory to the swap file).
+ The only difference with the previous patch is:
 
-Same here.  I recall seeing a patch that did something to sync the
-disks before powering off.  Maybe it's related.  I'll dig out the
-patch and see what it's all about.
+	 -daemonize("%s/%s", "firmware", fw_work->name);
+	 +daemonize("firmware/%s", fw_work->name);
+
+ ChangeLog:
+	
+	 In it's current form request_firmware sleeps for too long on the system's
+	 common workqueue, and using a private workqueue as previously proposed is not
+	 optimal. This patch creates one kernel_thread for each
+	 request_firmware_async() invocation which dies once the job is done.
+
+
+ firmware_class.c |   21 ++++++++++++++++-----
+ 1 files changed, 16 insertions(+), 5 deletions(-)
+
+
+Index: drivers/base/firmware_class.c
+===================================================================
+--- linux-2.5/drivers/base/firmware_class.c	(revision 14117)
++++ linux-2.5/drivers/base/firmware_class.c	(working copy)
+@@ -415,18 +415,22 @@
+ 	void (*cont)(const struct firmware *fw, void *context);
+ };
+ 
+-static void
++static int
+ request_firmware_work_func(void *arg)
+ {
+ 	struct firmware_work *fw_work = arg;
+ 	const struct firmware *fw;
+-	if (!arg)
+-		return;
++	if (!arg) {
++		WARN_ON(1);
++		return 0;
++	}
++	daemonize("firmware/%s", fw_work->name);
+ 	request_firmware(&fw, fw_work->name, fw_work->device);
+ 	fw_work->cont(fw, fw_work->context);
+ 	release_firmware(fw);
+ 	module_put(fw_work->module);
+ 	kfree(fw_work);
++	return 0;
+ }
+ 
+ /**
+@@ -451,6 +455,8 @@
+ {
+ 	struct firmware_work *fw_work = kmalloc(sizeof (struct firmware_work),
+ 						GFP_ATOMIC);
++	int ret;
++
+ 	if (!fw_work)
+ 		return -ENOMEM;
+ 	if (!try_module_get(module)) {
+@@ -465,9 +471,14 @@
+ 		.context = context,
+ 		.cont = cont,
+ 	};
+-	INIT_WORK(&fw_work->work, request_firmware_work_func, fw_work);
+ 
+-	schedule_work(&fw_work->work);
++	ret = kernel_thread(request_firmware_work_func, fw_work,
++			    CLONE_FS | CLONE_FILES);
++	
++	if (ret < 0) {
++		fw_work->cont(NULL, fw_work->context);
++		return ret;
++	}
+ 	return 0;
+ }
+ 
 
 -- 
-Måns Rullgård
-mru@kth.se
-
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.

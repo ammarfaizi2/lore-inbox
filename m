@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272021AbRHVO6q>; Wed, 22 Aug 2001 10:58:46 -0400
+	id <S272024AbRHVPE5>; Wed, 22 Aug 2001 11:04:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272022AbRHVO6g>; Wed, 22 Aug 2001 10:58:36 -0400
-Received: from sweetums.bluetronic.net ([24.162.254.3]:7354 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S272021AbRHVO62>; Wed, 22 Aug 2001 10:58:28 -0400
-Date: Wed, 22 Aug 2001 10:58:41 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
-To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Qlogic/FC firmware
-In-Reply-To: <200108220615.IAA16563@ns.cablesurf.de>
-Message-ID: <Pine.GSO.4.33.0108221053270.6389-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272025AbRHVPEr>; Wed, 22 Aug 2001 11:04:47 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15631 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S272024AbRHVPE3>; Wed, 22 Aug 2001 11:04:29 -0400
+Date: Wed, 22 Aug 2001 17:04:40 +0200
+From: Jan Kara <jack@suse.cz>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Ext2 quota bug in 2.4.8
+Message-ID: <20010822170440.C13229@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010822104424.D11019@atrey.karlin.mff.cuni.cz> <Pine.GSO.4.21.0108220520110.10119-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.GSO.4.21.0108220520110.10119-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Aug 22, 2001 at 05:21:02AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Oliver Neukum wrote:
->> > Oh for the love of God, will you people stop drooling over the fucking
->> > GPL? It's *firmware*... it's just a bunch of bits.  It's *not* a program
->> > the kernel executes.  It's just data. (__init_data to be exact.)
->>
->> Look, if its not distributable then its no good to anyone.
->
->Are you allowed to distribute an initrd that contains it, build from it and
->GNU tools ?
+  Hello,
 
-Depends on who's interpreting the license.  I say as long as the source to
-the whole mess is available (even provided *with* the binaries), you aren't
-violating anything.  On the otherhand, strictly speaking, once the file
-is compiled, it becomes "in binary form" which needs the notice attached to
-it in some way -- like all the fine print one finds on any box of stuff from
-Sun, Compaq/Digital, Cisco, etc.
+> On Wed, 22 Aug 2001, Jan Kara wrote:
+> 
+> >   Hello,
+> > 
+> >   Jan Sanislo <oystr@cs.washington.edu> found a bug in ext2 quota code in 2.4.6+.
+> > During changes in ext2 code in 2.4.6 some DQUOT_INIT()s were removed but they
+> > shouldn't and as a result quota is not computed right.
+> >   The patch which adds missing DQUOT_INIT()s is below. I didn't place DQUOT_INIT()s to
+> > original places but rather to generic vfs parts which seems better to me.
+> >   Please apply - patch is against 2.4.8.
+> 
+> Wrong place - DQUOT_INIT should be in iput(), just before the call of
+> ->delete_inode()
+  OK. I was also thinking about this place but finally I chose those places in namei.c..
+bad choice :)
+  The patch which places DQUOT_INIT() in iput() is below. Please apply.
 
-However, as others have said, none of us are lawyers.  Of course, none of us
-have been sued by Qlogic either.
+										Honza
+--
+Jan Kara <jack@suse.cz>
+SuSE Labs
+------------------------------------------------------------------------------------
 
---Ricky
-
-
+--- linux-2.4.9/fs/inode.c	Wed Aug 22 17:00:51 2001
++++ linux-2.4.9/fs/inode.c	Wed Aug 22 17:01:11 2001
+@@ -1049,6 +1049,7 @@
+ 
+ 			if (op && op->delete_inode) {
+ 				void (*delete)(struct inode *) = op->delete_inode;
++				DQUOT_INIT(inode);
+ 				/* s_op->delete_inode internally recalls clear_inode() */
+ 				delete(inode);
+ 			} else

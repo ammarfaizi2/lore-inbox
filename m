@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262759AbSITPIb>; Fri, 20 Sep 2002 11:08:31 -0400
+	id <S262760AbSITPNh>; Fri, 20 Sep 2002 11:13:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262760AbSITPIb>; Fri, 20 Sep 2002 11:08:31 -0400
-Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:62989 "EHLO
-	daytona.compro.net") by vger.kernel.org with ESMTP
-	id <S262759AbSITPIa>; Fri, 20 Sep 2002 11:08:30 -0400
-Message-ID: <3D8B3BDE.11C7E177@compro.net>
-Date: Fri, 20 Sep 2002 11:16:46 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Booting problems with dual p4 on i860 chipset with 2.4 and 2.5
-References: <20020920190537.A11244@namesys.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S262770AbSITPNh>; Fri, 20 Sep 2002 11:13:37 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:4313 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S262760AbSITPNg>; Fri, 20 Sep 2002 11:13:36 -0400
+Subject: [PATCH] 2.5.36-bk3 fix build error with CONFIG_EEPRO100=y.
+From: Steven Cole <elenstev@mesatop.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 20 Sep 2002 09:14:52 -0600
+Message-Id: <1032534892.14946.156.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin wrote:
-> 
-> Hello!
-> 
->    We have a problem with newly acquired dual p4 xeon (2.2Ghz, heperthreading
->    blah blah) box built on i860 chipset (SuperMicro P4DC6+ motherboard).
->    Whenever we try to boot 2.4 or 2,5 kernel in there it decompresses
->    the kernel itself, states 'Ok, booting the kernel' and hangs.
->    We already tested these versions 2.4.15, 2.4.20-pre7, 2.4.18 from SuSE 8.0,
->    2.4.18 from RedHat 7.3 and latest RedHat beta (null), 2.5.36 (latest bk
->    snapshot as of now).
->    I remember I saw something like we experience now being reported on lkml
->    awhile back and 2.2 was able to boot in that case, so we tried 2.2.21
->    and it worked to our surprise.
->    We tried to install latest BIOS version available from MB manufacturer but
->    that did not help.
->    Unfortunatelly we are no longer able to find that mail with similar problems,
->    so may be someone have any ideas on what to do to get 2.4 (and 2.5)
->    up and runing on such a box?
-> 
->    Thank you.
-> 
+The following patch fixes this error with 2.5.36-bk3 and 
+CONFIG_EEPRO100=y:
 
-I've got 6 of them here running SuSE 8.0. Hyperthreading was disabled in the
-bios when Suse-8.0 was
-installed and 3 of the 6 had the clock speed set at it's lowest setting when
-they arrived but other than that there were no problems. HT was enabled after
-the install of SuSE-8.0 and no problems there either. ?????
+drivers/built-in.o: In function `netdev_ethtool_ioctl':
+drivers/built-in.o(.text+0x28891): undefined reference to `mii_ethtool_gset'
+drivers/built-in.o(.text+0x2896f): undefined reference to `mii_ethtool_sset'
+drivers/built-in.o(.text+0x289ab): undefined reference to `mii_nway_restart'
+drivers/built-in.o(.text+0x289d5): undefined reference to `mii_link_ok'
+make: *** [vmlinux] Error 1
 
-Mark
+--- linux-2.5.36-bk3/drivers/net/Makefile.orig	Fri Sep 20 09:03:52 2002
++++ linux-2.5.36-bk3/drivers/net/Makefile	Fri Sep 20 09:04:17 2002
+@@ -41,7 +41,7 @@
+ obj-$(CONFIG_VORTEX) += 3c59x.o
+ obj-$(CONFIG_NE2K_PCI) += ne2k-pci.o 8390.o
+ obj-$(CONFIG_PCNET32) += pcnet32.o mii.o
+-obj-$(CONFIG_EEPRO100) += eepro100.o
++obj-$(CONFIG_EEPRO100) += eepro100.o mii.o
+ obj-$(CONFIG_TLAN) += tlan.o
+ obj-$(CONFIG_EPIC100) += epic100.o mii.o
+ obj-$(CONFIG_SIS900) += sis900.o
+
+

@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbUKCLg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbUKCLif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbUKCLg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 06:36:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUKCLg4
+	id S261554AbUKCLif (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 06:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbUKCLiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 06:36:56 -0500
-Received: from 252.5.3.213.fix.bluewin.ch ([213.3.5.252]:65386 "EHLO elonex.ch")
-	by vger.kernel.org with ESMTP id S261497AbUKCLgy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 06:36:54 -0500
-Subject: 2.4 lockup issue (flush_tlb_all)
-From: Thomas Oulevey <thomas.oulevey@elonex.ch>
-Reply-To: thomas.oulevey@elonex.ch
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Elonex Switzerland
-Date: Wed, 03 Nov 2004 12:36:47 +0100
-Message-Id: <1099481807.4714.85.camel@localhost.localdomain>
+	Wed, 3 Nov 2004 06:38:20 -0500
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:37064 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261554AbUKCLiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 06:38:11 -0500
+Date: Wed, 3 Nov 2004 03:37:36 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Blaisorblade <blaisorblade_spam@yahoo.it>,
+       user-mode-linux-devel@lists.sourceforge.net,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] UML: Use PTRACE_KILL instead of SIGKILL to kill host-OS processes
+Message-ID: <20041103113736.GA23041@taniwha.stupidest.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+kill(..., SIGKILL) doesn't work to kill host-OS processes created in
+the exec path in TT mode --- for this we need PTRACE_KILL (it did work
+in previous kernels, but not by design).  Without this process will
+accumulate on the host-OS (although the won't be visible inside UML).
 
-We are experiencing some lockup problems with our SMP configuration. 
-Here are the details :
-- The computers lockup with no relevant logs.
-- The kernel still replies to ping but higher level services are not
-responding.
-- After few hours (5-8), the kernel answers again and the load is around
-40 then decreasing. 
+Signed-off-by: Chris Wedgwood <cw@f00f.org>
+---
 
-We manage to get some SysRq showPc output (screenshot :
-http://www.elonex.ch/shot/)
-According to the basic sysreq debugging, the problem seems to be related
-to the function flush_tlb_all, and it is triggered with a write or read
-(local or on nfs sometimes).
+Yes, there are other fixes along these lines which are needed but one
+at a time as we test these...
 
-I looked at the LKML, and didn't find any known issues.
-Maybe it has been corrected but not backported by redhat ! 
-I'll appreciate any help.
-
-Thank you in advance.
-
-detailed configuration :
----------------
-Processor   : 2 x 2.8Ghz Pentium Xeon
-Motherboard : Intel se7501cw2
-Memory      : 4 x 512MB DDR 266 ECC registered
-Kernel      : 2.4.20-31 (Redhat 7.3 with updates)
-
-
-PLEASE CC the answers/comments
-
--- 
-Thomas OULEVEY System Engineer
-Elonex Switzerland      Email: thomas.oulevey@elonex.ch
-Switzerland
-
+Index: cw-current/arch/um/kernel/tt/exec_user.c
+===================================================================
+--- cw-current.orig/arch/um/kernel/tt/exec_user.c	2004-11-03 02:10:18.064830204 -0800
++++ cw-current/arch/um/kernel/tt/exec_user.c	2004-11-03 02:12:10.447716745 -0800
+@@ -35,7 +35,8 @@
+ 		tracer_panic("do_exec failed to get registers - errno = %d",
+ 			     errno);
+ 
+-	kill(old_pid, SIGKILL);
++	if (ptrace(PTRACE_KILL, old_pid, NULL, NULL))
++		printk("Warning: ptrace(PTRACE_KILL, %d, ...) saw %d\n", errno);
+ 
+ 	if(ptrace_setregs(new_pid, regs) < 0)
+ 		tracer_panic("do_exec failed to start new proc - errno = %d",

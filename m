@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315536AbSFJREZ>; Mon, 10 Jun 2002 13:04:25 -0400
+	id <S315539AbSFJRHL>; Mon, 10 Jun 2002 13:07:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315539AbSFJREY>; Mon, 10 Jun 2002 13:04:24 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:54680 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315536AbSFJREV>; Mon, 10 Jun 2002 13:04:21 -0400
-Date: Mon, 10 Jun 2002 10:04:11 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: manjuanth n <manju_tt@yahoo.com>
-Cc: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
-Subject: Re: need help
-Message-ID: <20020610100411.A9734@eng2.beaverton.ibm.com>
-In-Reply-To: <3D025E50.1020506@metaparadigm.com> <20020610142139.50949.qmail@web14405.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S315540AbSFJRHK>; Mon, 10 Jun 2002 13:07:10 -0400
+Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:45990 "EHLO
+	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id <S315539AbSFJRHJ>; Mon, 10 Jun 2002 13:07:09 -0400
+Date: Mon, 10 Jun 2002 19:07:00 +0200 (MET DST)
+From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andreas Dilger <adilger@clusterfs.com>, Dan Aloni <da-x@gmx.net>,
+        Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 - list.h cleanup
+In-Reply-To: <Pine.LNX.4.44.0206100954250.30535-100000@home.transmeta.com>
+Message-ID: <Pine.GSO.4.05.10206101904480.17299-100000@mausmaki.cosy.sbg.ac.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 10, 2002 at 07:21:39AM -0700, manjuanth n wrote:
-> Dear  Michael,
-> 
-> Thanks  for the solution, but  my  problem still 
-> remains  unresolved.  I  added the following lines  to
->  scsi_scan.c  and recompiled
 
->         {"HITACHI", "OPEN E*4", "*", BLIST_FORCELUN},
+On Mon, 10 Jun 2002, Linus Torvalds wrote:
 
->  the  out put of the scsi venders  are  as follows
->  cat  /proc/scsi/scsi
+--snip/snip
+> But in the end, maintainership matters. I personally don't want the
+> typedef culture to get the upper hand, but I don't mind a few of them, and
+> people who maintain their own code usually get the last word.
 
-> Host: scsi3 Channel: 00 Id: 00 Lun: 00
->   Vendor: HITACHI  Model: OPEN-E*4         Rev: 0116
->   Type:   Processor                        ANSI SCSI
-> revision: 02
+to sum it up:
 
-> 	{"HITACHI", "OPEN E*4", "*", BLIST_FORCELUN},
+using the "struct mystruct" is _recommended_, but not a must.
 
-It looks like you are missing a '-' in the above.
+	tm
 
--- Patrick Mansfield
+-- 
+in some way i do, and in some way i don't.
+

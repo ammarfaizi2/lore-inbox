@@ -1,29 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292869AbSCFBNm>; Tue, 5 Mar 2002 20:13:42 -0500
+	id <S292854AbSCFBQS>; Tue, 5 Mar 2002 20:16:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292854AbSCFBN3>; Tue, 5 Mar 2002 20:13:29 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54539 "EHLO
+	id <S292858AbSCFBQI>; Tue, 5 Mar 2002 20:16:08 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57867 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292869AbSCFBNO>; Tue, 5 Mar 2002 20:13:14 -0500
-Subject: Re: [PATCH] sysevq (kqueue equivalent)
-To: tejun@aratech.co.kr
-Date: Wed, 6 Mar 2002 01:27:59 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0203061000240.16197-100000@atj.dyndns.org> from "TeJun Huh" at Mar 06, 2002 10:03:39 AM
+	id <S292854AbSCFBP5>; Tue, 5 Mar 2002 20:15:57 -0500
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+To: jdike@karaya.com (Jeff Dike)
+Date: Wed, 6 Mar 2002 01:30:19 +0000 (GMT)
+Cc: hpa@zytor.com (H. Peter Anvin), bcrl@redhat.com (Benjamin LaHaise),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200203051812.NAA03363@ccure.karaya.com> from "Jeff Dike" at Mar 05, 2002 01:12:19 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16iQDn-00056T-00@the-village.bc.nu>
+Message-Id: <E16iQG3-000578-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > to use to be a real time one, mask it and pull it off the queue when you
-> > want. It hands you back the file handle.
-> 
->  I don't really see how rt signals work with network i/o multiplexing.
-> Can you give me a pointer? Thx in advance.
+> maximum memory exceeding the available tmpfs as long as they don't all need
+> all that memory at once.  And, if they do, the patch I just posted will let
+> them deal fairly sanely with the situation.
 
-http://www.zabbo.net/phhttpd/
+And the address space management stuff in the -ac tree will do all that and
+more without force allocating pages and regardless of what other apps do
+including without allowing your rude app to kill them.
+
+You are using an axe to batter down a door. Worse than that I fitted a
+perfectly good door handle.

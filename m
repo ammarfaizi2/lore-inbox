@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUHIQfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266720AbUHIQmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266717AbUHIQfr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 12:35:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266715AbUHIQfr
+	id S266720AbUHIQmD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 12:42:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266715AbUHIQmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 12:35:47 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:43977 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266726AbUHIQfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 12:35:45 -0400
-Subject: Re: dynamic /dev security hole?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Eric Lammerts <eric@lammerts.org>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, Greg KH <greg@kroah.com>,
-       albert@users.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0408091203160.8353@vivaldi.madbase.net>
-References: <20040808162115.GA7597@kroah.com>
-	 <1091969260.5759.125.camel@cube>
-	 <20040808175834.59758fc0.Ballarin.Marc@gmx.de>
-	 <20040808162115.GA7597@kroah.com>
-	 <20040809000727.1eaf917b.Ballarin.Marc@gmx.de>
-	 <Pine.LNX.4.58.0408090025590.26834@vivaldi.madbase.net>
-	 <1092062974.14153.26.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0408091203160.8353@vivaldi.madbase.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092065586.14144.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 09 Aug 2004 16:33:08 +0100
+	Mon, 9 Aug 2004 12:42:03 -0400
+Received: from snota.svorka.net ([194.19.72.11]:56238 "HELO snota.svorka.net")
+	by vger.kernel.org with SMTP id S266720AbUHIQlv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 12:41:51 -0400
+Message-ID: <4117A955.9010708@svorka.net>
+Date: Mon, 09 Aug 2004 18:41:57 +0200
+From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <eldiablo@svorka.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: nForce 3 support
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-09 at 17:17, Eric Lammerts wrote:
-> It's only meant as a fix for the hardlink trick, not against the open
-> file descriptor trick. About the latter, if someone still has the
-> device opened, how can it go away? And if it doesn't go away, how can
-> udev create a new node with the same major/minor?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-User closes device
-I have linked copy (not open)
-Device unloaded
-I open the linked copy
-This makes new device load for me.
+I have heard a lot of people complaining about stability problems with
+nForce2, i wonder if nForce 3 have these problems, or any other for
+that sake.
 
+- --
+Med Vennlig Hilsen / Best Regards
+Espen Fjellvær Olsen
+eldiablo@svorka.net
+Norway
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-I'm just trying to point out that the order of operations matters here
-because the old nodes must all be dead before the new device. Its even
-worse for less dynamic numbering.
-
-Alan
+iD8DBQFBF6lUibTL5aHQf7URAqDsAKCeJf/CyahanVDpCeU/juR30kfVSQCeI+hh
+Vf4j/fFLfLKTmcLRjqamuOg=
+=yxcn
+-----END PGP SIGNATURE-----
 

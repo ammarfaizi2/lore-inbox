@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268674AbUJTQkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268717AbUJTQqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268674AbUJTQkB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 12:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268609AbUJTQjJ
+	id S268717AbUJTQqK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 12:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268655AbUJTQpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 12:39:09 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:2272 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S268660AbUJTQh5 convert rfc822-to-8bit (ORCPT
+	Wed, 20 Oct 2004 12:45:50 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:14309 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S268490AbUJTQmz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 12:37:57 -0400
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Yu, Luming" <luming.yu@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
-References: <3ACA40606221794F80A5670F0AF15F8405D3BF5B@pdsmsx403>
-	<20041018114109.GC4400@openzaurus.ucw.cz>
-	<yw1xekjt4fa8.fsf@mru.ath.cx> <20041020154718.GD26439@elf.ucw.cz>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
-Date: Wed, 20 Oct 2004 18:37:42 +0200
-In-Reply-To: <20041020154718.GD26439@elf.ucw.cz> (Pavel Machek's message of
- "Wed, 20 Oct 2004 17:47:18 +0200")
-Message-ID: <yw1x65554a7d.fsf@mru.ath.cx>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Wed, 20 Oct 2004 12:42:55 -0400
+Date: Wed, 20 Oct 2004 18:42:38 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: David Howells <dhowells@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-m68k@vger.kernel.org, uClinux list <uclinux-dev@uclinux.org>
+Subject: Re: [PATCH] Add key management syscalls to non-i386 archs
+In-Reply-To: <3506.1098283455@redhat.com>
+Message-ID: <Pine.GSO.4.61.0410201840440.6837@waterleaf.sonytel.be>
+References: <3506.1098283455@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+On Wed, 20 Oct 2004, David Howells wrote:
+> The attached patch adds syscalls for almost all archs (everything barring
+> m68knommu which is in a real mess, and i386 which already has it).
 
-> Hi!
->
->> >> >> ... and lose all the benefits of HZ=1000.  What would happen if one
->> >> >> were to set HZ to a higher value, like 10000?
->> >> 
->> >> There is a similar issue filed on :
->> >> http://bugzilla.kernel.org/show_bug.cgi?id=3406
->> >> 
->> >
->> > He he, someone should write a driver to play music on
->> > those capacitors....
->> 
->> Why not?  They used to have special files that played music on the
->> printer when printed.
->
-> Yes, it would be nice... to scare people :-). Also with such piece of
-> software it would be rather easy to tell if given mainboard is junk.
+m68nommu mirrors m68k now, but that patch doesn't seem to be in Linus' tree
+yet.
 
-I've noticed my laptop makes a slight noise whenever there's heavy
-network traffic.  Maybe that could be used to control the pitch even
-without a kernel hack.
+Anyway, I'll reserve 3 syscalls for m68k, together with the other pending
+syscall numbers.
 
--- 
-Måns Rullgård
-mru@mru.ath.cx
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

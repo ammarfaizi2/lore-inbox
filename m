@@ -1,33 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUE0RGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264897AbUE0RJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUE0RGT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 13:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264896AbUE0RGS
+	id S264897AbUE0RJL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 13:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUE0RJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 13:06:18 -0400
-Received: from ozlabs.org ([203.10.76.45]:54958 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261654AbUE0REr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 13:04:47 -0400
-Date: Fri, 28 May 2004 03:03:34 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Thomas Zehetbauer <thomasz@hostmaster.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_IRQBALANCE for AMD64?
-Message-ID: <20040527170334.GE23262@krispykreme>
-References: <1085629714.6583.12.camel@hostmaster.org> <40B578F1.3090704@pobox.com> <1085675774.6583.23.camel@hostmaster.org>
+	Thu, 27 May 2004 13:09:10 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:1410 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S264893AbUE0RIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 13:08:23 -0400
+Date: Thu, 27 May 2004 21:08:21 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6] don't put IDE disks in standby mode on halt on Alpha
+Message-ID: <20040527210821.A2004@jurassic.park.msu.ru>
+References: <20040527194920.A1709@jurassic.park.msu.ru> <200405271854.21499.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1085675774.6583.23.camel@hostmaster.org>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200405271854.21499.bzolnier@elka.pw.edu.pl>; from B.Zolnierkiewicz@elka.pw.edu.pl on Thu, May 27, 2004 at 06:54:21PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Seems to work, just like the i386 irqbalanced before it has been
-> obsoleted by CONFIG_IRQBALANCE
+On Thu, May 27, 2004 at 06:54:21PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > >>> boot -file new_kernel_image.gz
+> 
+> How is it different from reboot?
 
-No, CONFIG_IRQBALANCE is an x86 specific hack.
+In this scenario it's not different, except you boot
+to another kernel.
 
-Anton
+> So how does it work in 2.4?
+
+2.4 needs similar fix.
+
+> No more <asm/ide.h> crap, please.
+
+Would #ifdef __alpha__ be better?
+
+Ivan.

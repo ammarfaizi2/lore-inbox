@@ -1,55 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266474AbUI0JSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUI0Jc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266474AbUI0JSj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 05:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266467AbUI0JSX
+	id S266467AbUI0Jc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 05:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUI0Jc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 05:18:23 -0400
-Received: from port-222-152-48-85.fastadsl.net.nz ([222.152.48.85]:10112 "EHLO
-	tornado.reub.net") by vger.kernel.org with ESMTP id S266539AbUI0JOK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 05:14:10 -0400
-Message-Id: <6.1.2.0.2.20040927210918.019f5790@tornado.reub.net>
-X-Mailer: QUALCOMM Windows Eudora Version 6.1.2.0
-Date: Mon, 27 Sep 2004 21:14:15 +1200
-To: Ingo Molnar <mingo@elte.hu>
-From: Reuben Farrelly <reuben-lkml@reub.net>
-Subject: Re: Stack traces in 2.6.9-rc2-mm4
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jens Axboe <axboe@suse.de>
-In-Reply-To: <20040927085744.GA32407@elte.hu>
-References: <6.1.2.0.2.20040927184123.019b48b8@tornado.reub.net>
- <20040927085744.GA32407@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Mon, 27 Sep 2004 05:32:58 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:26600 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S266467AbUI0Jcz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 05:32:55 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: Video : Activate X to use rivafb
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Mon, 27 Sep 2004 15:05:21 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB34811107FC3@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Video : Activate X to use rivafb
+Thread-Index: AcSkc8/3xpd53OclQAyNny/UO18bjAAABe5g
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:57 p.m. 27/09/2004, Ingo Molnar wrote:
 
->* Reuben Farrelly <reuben-lkml@reub.net> wrote:
->
-> > Since upgrading from -mm3 to -mm4, I'm now getting messages like this
-> > logged every second or so:
-> >
-> > Sep 27 18:28:06 tornado kernel: using smp_processor_id() in preemptible 
-> code: swapper/1
-> > Sep 27 18:28:06 tornado kernel:  [<c0104dce>] dump_stack+0x17/0x19
-> > Sep 27 18:28:06 tornado kernel:  [<c0117fc6>] smp_processor_id+0x80/0x86
-> > Sep 27 18:28:06 tornado kernel:  [<c0282bf3>] make_request+0x174/0x2e7
-> > Sep 27 18:28:06 tornado kernel:  [<c02073dd>] 
-> generic_make_request+0xda/0x190
->
->this is the remove-bkl patch's debugging feature showing that there's
->more preempt-unsafe disk statistics code in the RAID code.
->
->i've attached a patch that introduces preempt and non-preempt versions
->of the statistics code and updates the block code to use the appropriate
->ones - does this fix all the smp_processor_id() warnings you get?
->
->         Ingo
+Hello all,
 
-It certainly does, thanks muchly Ingo.
+The question I am asking may the simplest of this field, but I found it no where. Pls help.
 
-Reuben
+How to activate X with rivafb framebuffer not the generic fb driver (fbdev).
+
+I am working with the following configuration:-
+* Red Hat Linux 7.3 
+* Kernel 2.4.18-3 
+* Nvidia Riva TNT card 
+* Rivafb driver 
+* XFree86 4.2.0 
+ 
+My edited the XF86Confoig file as follows( related sections only):-
+
+Section "device"
+	Identifier "linix fb"
+	Driver "rivafb"	# Is rivafb the right keyword for rivafb.o module?
+	BoardName "Unknown"
+EndSection
+
+Section "Screen"
+	Identifier "Screen0"
+	Device "linux fb"
+	Monitor "COMPAQ S510"
+	DefaultDepth 8
+	Subsection "Display"
+		Depth 8
+	EndSubSection 
+EndSection
+
+Is rivafb the right keyword for rivafb.o module?
+Is it the driver name(module name) that we should keep in the Driver part of Device section?
+
+If I startx afterb modprobing the rivafb, it results in errors. # startx 
+
+(EE) Fialed to load module "rivafb" ( module does not exist, 0)
+(EE) No devices detected.
+
+Please help me in this regard. I have spend good enough time on this and its I high time get it done.
+
+Is it so easy a question? Just becos I didn't find any info about in the internet and no body replies for question.
+
+Aim Behind all this : 
+To debug the rivafb driver when it being called or used by X server( XF86 ).
+
+Regards,
+Mukund jampala
 

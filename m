@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318043AbSGLWh4>; Fri, 12 Jul 2002 18:37:56 -0400
+	id <S318049AbSGLWjB>; Fri, 12 Jul 2002 18:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318044AbSGLWhz>; Fri, 12 Jul 2002 18:37:55 -0400
-Received: from holomorphy.com ([66.224.33.161]:35487 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318043AbSGLWhy>;
-	Fri, 12 Jul 2002 18:37:54 -0400
-Date: Fri, 12 Jul 2002 15:39:42 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: Martin.Bligh@us.ibm.com
-Subject: NUMA-Q breakage 2/7 xquad_portio ioremap deadlock
-Message-ID: <20020712223942.GZ25360@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, Martin.Bligh@us.ibm.com
+	id <S318050AbSGLWi7>; Fri, 12 Jul 2002 18:38:59 -0400
+Received: from ns.suse.de ([213.95.15.193]:34831 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318049AbSGLWih>;
+	Fri, 12 Jul 2002 18:38:37 -0400
+Date: Sat, 13 Jul 2002 00:41:26 +0200
+From: Dave Jones <davej@suse.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Thunder from the hill <thunder@ngforever.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] 56 potential lock/unlock bugs in 2.5.8
+Message-ID: <20020713004126.I18503@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Thunder from the hill <thunder@ngforever.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20020713001456.H18503@suse.de> <Pine.LNX.4.44.0207130033240.8911-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0207130033240.8911-100000@serv>; from zippel@linux-m68k.org on Sat, Jul 13, 2002 at 12:34:40AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The cpu_online_map stuff for hotplug cpu created a brand new bootstrap
-ordering problem for NUMA-Q. The mmapped portio region needs to be
-ioremapped early but ioremap attempts to do TLB shootdown, and
-smp_call_function() (called by flush_tlb_all()) deadlocks when
-cpu_online_map is uninitialized.
+On Sat, Jul 13, 2002 at 12:34:40AM +0200, Roman Zippel wrote:
+ > > How old exactly out of curiosity ?
+ > Since 2.5.15 (about two months ago).
 
-Workaround (due to Matt Dobson) below.
+Ha, the testbox rebooted at some point back to 2.4.18 without
+me noticing.. Don't I feel a dork..
 
+2.5.25 with fsx -W -R seems to survive. Apologies for the
+the false alarm.
 
+        Dave.
 
-diff -Nur linux-2.5.23-vanilla/arch/i386/kernel/smp.c linux-2.5.23-patched/arch/i386/kernel/smp.c
---- linux-2.5.23-vanilla/arch/i386/kernel/smp.c	Tue Jun 18 19:11:47 2002
-+++ linux-2.5.23-patched/arch/i386/kernel/smp.c	Mon Jul  8 14:52:32 2002
-@@ -569,7 +569,7 @@
- 	struct call_data_struct data;
- 	int cpus = num_online_cpus()-1;
- 
--	if (!cpus)
-+	if (cpus <= 0)
- 		return 0;
- 
- 	data.func = func;
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

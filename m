@@ -1,89 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264062AbTJ1SNf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 13:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264056AbTJ1SMe
+	id S264084AbTJ1S1w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 13:27:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbTJ1S1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 13:12:34 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:29683 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261723AbTJ1SMV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 13:12:21 -0500
-Message-ID: <3F9EB17F.9020308@mvista.com>
-Date: Tue, 28 Oct 2003 11:12:15 -0700
-From: Mark Bellon <mbellon@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+	Tue, 28 Oct 2003 13:27:51 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:54415 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S264084AbTJ1S1q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 13:27:46 -0500
+Message-ID: <3F9EB4CE.2080308@colorfullife.com>
+Date: Tue, 28 Oct 2003 19:26:22 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Patrick Mochel <mochel@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: ANNOUNCE: User-space System Device Enumeration (uSDE)
-References: <Pine.LNX.4.33.0310280901490.7139-100000@osdlab.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.33.0310280901490.7139-100000@osdlab.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: David Liontooth <liontooth@post.com>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [2.6.0-test-9] natsemi oops
+References: <20031028040421.98826.qmail@mail.com>
+In-Reply-To: <20031028040421.98826.qmail@mail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
+[netdev added to cc list: it looks like a module refcount bug with ipx]
 
->>The uSDE was built in response to a set of telco and embedded community
->>requirements. We found it difficult to express our ideas. Everyone
->>wanted to see code and documentation. Here is the code and the initial
->>documentation. This is a starting point...
->>    
->>
+David Liontooth wrote:
+
+>The natsemi oops is triggered in 2.6.0-test9 too. 
 >
->I find it difficult to see your justification for designing a project from
->scratch instead of contributing your time, effort, and ideas to a pair of
->already existing, albeit immature, projects that do exactly the same
->thing.
+>kernel BUG at include/linux/module.h:296
+>  
 >
->Please note that I'm not trying to incite yet another device naming flame
->war, but you have to understand how frustrating it is to see you guys make
->the same mistakes over and over, ad inifitum.
+That's BUG_ON(module_refcount(module) == 0) in __module_get. I doubt 
+that the natsemi driver has anything to do with the bug, it looks like a 
+bug in the ipx core.
+
+>Everything freezes. 
 >
->Let's review. SDET was posted several months ago by the Montavista telco
->group as a 2.4 solution that was driven by customer requirements. So be
->it.
+>Am I the only one to get this? 
 >
->In the last year, you (and/or your group) has posted several proposed
->device naming solutions; each of which were shot down because of
->over-design, misdirection, or simply tastelessness. Each time we
->encouraged you to align yourselves with the overall design goals or simply
->contribute to existing projects.
+>I don't know when it started, but 2.5.69 has no problems.
+>  
 >
->Personal contact in Ottawa resulted the same message. IIRC, many if not
->all, of the atttending MV telco engineers even saw Greg's talk on udev.
->
->In the time since, you've designed and written a solution from scratch,
->without even trying to contribute to the udev effort. (And while, I might
->add, another MV engineer contributed several patches to in his free time
->to help package and productize it.)
->
->I fail to see your point in this project. AFAIC, you've wasted your time.
->It surely can't be customer requirements, as I highly doubt any customer
->solutions are based on a 2.6 kernel yet. You've completely duplicated the
->efforts of a project destined to become the de facto standard for the
->requirement you're trying to fulfill, for what gain?
+My guess: 2.5.69 has no bug check. It will oops with the right timing of 
+rmmod and a packet arrival.
+
+>Cheers,
+>David
 >
 >
->
->	Pat
->
+>----- Original Message -----
+>From: "David Liontooth" <liontooth@post.com>
+>Date: Mon, 20 Oct 2003 21:05:13 -0500
+>To: linux-kernel@vger.kernel.org
+>Subject: Re: [2.6.0-test-7] natsemi oops
 >
 >  
 >
-I can't respond to the emotion and ad hominum references in this 
-message. The uSDE announcement is my first posting. I can't address any 
-past dealings with MontaVista.
+>>Correction: I get the oops also when natsemi is compiled as a module. 
+>>It is triggered not when the module is loaded, but when it is used 
+>>the first time. Oops (some fragments below) followed by a total freeze;
+>>nothing gets logged.
+>>
+>>Is this a known problem? 
+>>
+>>Is there a workaround?
+>>
+>>Cheers,
+>>David
+>>
+>>
+>>----- Original Message -----
+>>From: David Liontooth
+>>Date: Mon, 20 Oct 2003 05:24:52 -0500
+>>To: linux-kernel@vger.kernel.org
+>>Subject: [2.6.0-test-7] natsemi oops
+>>
+>>    
+>>
+>>>The 2.6.0-test-7 boots fine and works great -- until I plug
+>>>in the ethernet cable. Within a second I get an oops and
+>>>everything freezes. Booting with "acpi=off" makes no difference.
+>>>If I boot with the ethernet cable plugged in, I get to the 
+>>>login prompt, and it oopses within a second. If I time it right,
+>>>I can log into the machine remotely for one second before it 
+>>>oopses (so the natsemi driver is working). Very reproducible! 
+>>>/proc/kmsg is empty. 
+>>>
+>>>If I compile natsemi as a module, I don't get the oops. 
+>>>However, now the driver is not working -- I can't ping out.
+>>>Everything works fine in 2.5.69, which I've been running
+>>>since early July.
+>>>
+>>>Here's some of the oops, taken by hand:
+>>>
+>>>Process swapper (pid: 0, threadinfo=c042a000 task c03a47a0)
+>>>
+>>>Stack
+>>>
+>>>Call trace:
+>>>
+>>>ipxitf_auto_create
+>>>ipx_rcv
+>>>netif_receive_skb
+>>>process_backlog
+>>>net_rx_action
+>>>do_softirq
+>>>do_IRQ
+>>>_stext
+>>>common_interrupt
+>>>acpi_processor_idle
+>>>cpu_idle
+>>>start_kernel
+>>>unknown_bootoption
+>>>
+>>>Kernel panic: Fatal exception in interrupt
+>>>In interrupt handler -- not syncing
+>>>
+>>>Configuration, lspci, and dmesg attached.
+>>>
+>>>Cheers,
+>>>David
+>>>
+>>>
+>>>
+>>>      
+>>>
+>><< config-2.6.0-test7-3 >>
+>><< dmesg-2.6.0-test7-7 >>
+>><< lspci-2.6.0-test7 >>
+>>
+>>-- 
+>>__________________________________________________________
+>>Sign-up for your own personalized E-mail at Mail.com
+>>http://www.mail.com/?sr=signup
+>>
+>>CareerBuilder.com has over 400,000 jobs. Be smarter about your job search
+>>http://corp.mail.com/careers
+>>
+>>    
+>>
+>
+>  
+>
 
-The uSDE ideas and implementation was started with the OSDL requirements 
-in August of 2002.
-This is the first time any form of it has been posted. From 
-time-to-time, since the project started, ideas related to it have been 
-floated with the community. The feedback was carefully listened to and 
-utitized in the implementation that was just posted.
-
-mark
+--
+    Manfred
 

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129346AbRDYRRp>; Wed, 25 Apr 2001 13:17:45 -0400
+	id <S130485AbRDYR2r>; Wed, 25 Apr 2001 13:28:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130038AbRDYRRf>; Wed, 25 Apr 2001 13:17:35 -0400
-Received: from vega.digitel2002.hu ([213.163.0.181]:59546 "HELO
-	vega.digitel2002.hu") by vger.kernel.org with SMTP
-	id <S129346AbRDYRRY>; Wed, 25 Apr 2001 13:17:24 -0400
-Date: Wed, 25 Apr 2001 19:17:11 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: Ahmed Warsame <awarsame@bbm.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NTOP for Redhat
-Message-ID: <20010425191711.B32461@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-In-Reply-To: <8366512BA71AD2119FAE00A0C9D634FAFE3739@torex1.tor.bbm.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <8366512BA71AD2119FAE00A0C9D634FAFE3739@torex1.tor.bbm.ca>; from awarsame@bbm.ca on Wed, Apr 25, 2001 at 10:55:44AM -0400
-X-Operating-System: vega Linux 2.2.19 i686
+	id <S130532AbRDYR22>; Wed, 25 Apr 2001 13:28:28 -0400
+Received: from rumor.cps.intel.com ([192.102.198.242]:6114 "EHLO
+	rumor.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S130485AbRDYR2R>; Wed, 25 Apr 2001 13:28:17 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDDCA@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
+        Stephen Torri <s.torri@lancaster.ac.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Recent ACPI patch
+Date: Wed, 25 Apr 2001 10:27:42 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 25, 2001 at 10:55:44AM -0400, Ahmed Warsame wrote:
-> I tried to install my Linux Redhat the Network Monitoring system call Ntop
-> and the following messages is what I am getting each time I execute make.
+> From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
+> Stephen Torri wrote:
+> > 
+> > I noticed that the big update patch for ACPI was a part of 
+> 2.4.3-ac11 (Can
+> > remember). Now its not a part of 2.4.3-ac12. Has it been 
+> removed? I have
+> > turned on experimental settings when running make xconfig.
 > 
-> I thought Libpcap is what is needed and I installed but it did not help.
+> Alan noted the update did not build, so it was removed.
 
-Install the development package of libpcap as well.
-(libpcap-dev on Debian, I guess it must be libpcap-devel or something on
-RedHat)
-However, it's not the right forum for these types of questions.
-This mailing list is about kernel developmenting and related topics.
+Doh!
 
-- Gabor
+OK, I'm on it. ;-) BTW did ACPI in ac11 build for you?
 
--- 
- --[ Gábor Lénárt ]---[ Vivendi Telecom Hungary ]---------[ lgb@lgb.hu ]--
- U have 8 bit comp or chip of them and it's unused or to be sold? Call me!
- -------[ +36 30 2270823 ]------> LGB <-----[ Linux/UNIX/8bit 4ever ]-----
+-- Andy
+

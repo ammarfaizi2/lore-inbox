@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280026AbRLBPnL>; Sun, 2 Dec 2001 10:43:11 -0500
+	id <S280056AbRLBPxD>; Sun, 2 Dec 2001 10:53:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280029AbRLBPmv>; Sun, 2 Dec 2001 10:42:51 -0500
-Received: from colorfullife.com ([216.156.138.34]:21257 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S280026AbRLBPmn>;
-	Sun, 2 Dec 2001 10:42:43 -0500
-Message-ID: <000901c17b47$fe3f99c0$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "Blindauer Emmanuel" <manu@agat.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: what happened with thread, from 2.2 to 2.4 ?!
-Date: Sun, 2 Dec 2001 16:42:41 +0100
+	id <S280029AbRLBPwx>; Sun, 2 Dec 2001 10:52:53 -0500
+Received: from relay-2v.club-internet.fr ([194.158.96.113]:27119 "HELO
+	relay-2v.club-internet.fr") by vger.kernel.org with SMTP
+	id <S280114AbRLBPwm>; Sun, 2 Dec 2001 10:52:42 -0500
+Message-ID: <3C0A4E56.1070409@freesurf.fr>
+Date: Sun, 02 Dec 2001 16:52:54 +0100
+From: Kilobug <kilobug@freesurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011130
+X-Accept-Language: fr-fr, fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: lkm <linux-kernel@vger.kernel.org>
+Subject: [2.5.1-pre5] Unresolved symbols in nfs module
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> When it was possible, for the computer with the bug, under an 2.4 kernel, 
-> I've recompiled a 2.2.20, and the bug has disappeared!
->
-Could you strace a gdb session for the same executable, with 2.2.20 and 2.4?
+make modules_install:
 
---
-    Manfred
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.1-pre5; fi
+depmod: *** Unresolved symbols in 
+/lib/modules/2.5.1-pre5/kernel/fs/nfs/nfs.o
+depmod:         seq_escape
+depmod:         seq_printf
 
+-- 
+  ** Gael Le Mignot, Ing3 EPITA, Coder of The Kilobug Team **
+Home Mail : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM       : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Web       : http://kilobug.freesurf.fr or http://drizzt.dyndns.org
+
+"Software is like sex it's better when it's free.", Linus Torvalds
 

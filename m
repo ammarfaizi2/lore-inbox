@@ -1,87 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131343AbRBMXoY>; Tue, 13 Feb 2001 18:44:24 -0500
+	id <S131141AbRBMXoY>; Tue, 13 Feb 2001 18:44:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131141AbRBMXoO>; Tue, 13 Feb 2001 18:44:14 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:32692 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131418AbRBMXn4>; Tue, 13 Feb 2001 18:43:56 -0500
-Date: Tue, 13 Feb 2001 23:43:49 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S131126AbRBMXoO>; Tue, 13 Feb 2001 18:44:14 -0500
+Received: from unthought.net ([212.97.129.24]:42680 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S131419AbRBMXn4>;
+	Tue, 13 Feb 2001 18:43:56 -0500
+Date: Wed, 14 Feb 2001 00:43:55 +0100
+From: Jakob Østergaard <jakob@unthought.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.2-pre3: parport_pc init_module bug
-Message-ID: <20010213234349.O9459@redhat.com>
+Subject: Re: Stale NFS handles on 2.4.1
+Message-ID: <20010214004355.C11906@unthought.net>
+Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010214002750.B11906@unthought.net> <E14SovJ-0003H1-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <E14SovJ-0003H1-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Feb 13, 2001 at 11:31:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Tue, Feb 13, 2001 at 11:31:50PM +0000, Alan Cox wrote:
+> > The NFS clients are getting
+> >  "Stale NFS handle"
+> > messages every once in a while which will make a "touch somefile.o"
+> > fail.
+> 
+> If they have the previous .o handle cached and it was removed on another
+> client thats quite reasonable behaviour. NFS isnt coherent
 
-Here's a patch that fixes a bug that can cause PCI driver list
-corruption.  If parport_pc's init_module fails after it calls
-pci_register_driver, cleanup_module isn't called and so it's still
-registered when it gets unloaded.
+So a solution would be to
+ <local node>  rm -f output.o
+ <remote node> g++ .... -o output.o
+ <local node>  touch output.o
 
-Tim.
-*/
+I do the touch in the first place because a subsequent link job on
+another remote node used to fail if I didn't.   NFS caching magic I guess...
 
-2001-01-13  Tim Waugh  <twaugh@redhat.com>
+> 
+> > It's quite annoying and I didn't see it on 2.2 even after the NFS
+> > patches were integrated.
+> 
+> I wonder if its because 2.4 runs faster and caches better 8). You can
+> tune the attribute cache times that may help. Are we talking 30 second
+> intervals here or stuff being cached for far too long (which would imply a bug)
 
-	* parport_pc.c: Fix PCI driver list corruption on
-	unsuccessful module load (Andrew Morton).
+It runs faster indeed, and it makes the work more fun and makes the
+internet go faster !   (uhhh...  or maybe the internet speedup is because
+of the Intel CPUs - I forgot...)
 
---- linux/drivers/parport/parport_pc.c.init	Tue Feb 13 23:31:25 2001
-+++ linux/drivers/parport/parport_pc.c	Tue Feb 13 23:35:56 2001
-@@ -89,6 +89,7 @@
- } superios[NR_SUPERIOS] __devinitdata = { {0,},};
- 
- static int user_specified __devinitdata = 0;
-+static int registered_parport;
- 
- /* frob_control, but for ECR */
- static void frob_econtrol (struct parport *pb, unsigned char m,
-@@ -2605,6 +2606,7 @@
- 	count += parport_pc_find_nonpci_ports (autoirq, autodma);
- 
- 	r = pci_register_driver (&parport_pc_pci_driver);
-+	registered_parport = 1;
- 	if (r > 0)
- 		count += r;
- 
-@@ -2667,6 +2669,7 @@
- 	/* Work out how many ports we have, then get parport_share to parse
- 	   the irq values. */
- 	unsigned int i;
-+	int ret;
- 	for (i = 0; i < PARPORT_PC_MAX_PORTS && io[i]; i++);
- 	if (i) {
- 		if (parport_parse_irqs(i, irq, irqval)) return 1;
-@@ -2691,7 +2694,11 @@
- 			}
- 	}
- 
--	return !parport_pc_init (io, io_hi, irqval, dmaval);
-+	ret = !parport_pc_init (io, io_hi, irqval, dmaval);
-+	if (ret && registered_parport)
-+		pci_unregister_driver (&parport_pc_pci_driver);
-+
-+	return ret;
- }
- 
- void cleanup_module(void)
-*** linux/drivers/parport/ChangeLog.init	Fri Jan  5 10:41:52 2001
---- linux/drivers/parport/ChangeLog	Tue Feb 13 23:32:02 2001
-***************
-*** 0 ****
---- 1,7 ----
-+ 2001-02-13  Andrew Morton <andrewm@uow.edu.au>
-+ 
-+ 	* parport_pc.c (registered_parport): New static variable.
-+ 	(parport_pc_find_ports): Set it when we register PCI driver.
-+ 	(init_module): Unregister PCI driver if necessary when we
-+ 	fail.
-+ 
+Usually how a compile goes is:
+
+a make -j10 spawns concurrent compile jobs. Each job consists of
+  "spawn on remote node"  g++ ... -o somefile.o
+  "on local node"  touch somefile.o
+
+After a truckload of .o files have been generated, it will start
+up link jobs, on other remote nodes.  I haven't tried this without
+the touch trick for a long time.
+
+Each g++ job takes from a few seconds to several minutes depending
+on the file and optimization options etc.  I think I mainly see this
+with the fast jobs...  Most .o files are ~1-4 MB and I have about 200
+of them.
+
+~200 compilers and ~12 linkers take about 4-5 minutes to complete on
+the cluster of three dual machines and two-three single cpus.  Producing
+about 1.5G of object code in total  (yes C++ symbols are HUGE).
+
+So, the touch is _immediately_ after a compile completion.  But the
+.o file has not been in use on any other machine than the one running
+the compiler for hours or at least many minutes (a different compile).
+
+I'll try this without the touch trick and see how things fare...
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

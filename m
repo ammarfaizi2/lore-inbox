@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUIIOlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUIIOlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265106AbUIIOlX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 10:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUIIOlW
+	id S265029AbUIIOlg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 10:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUIIOlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 10:41:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:27095 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264997AbUIIOiN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 10:38:13 -0400
-Date: Thu, 9 Sep 2004 16:36:56 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix leak with bounced bio's
-Message-ID: <20040909143656.GB1737@suse.de>
-References: <20040909084204.GO1737@suse.de> <414069DF.9000804@bio.ifi.lmu.de>
+	Thu, 9 Sep 2004 10:41:36 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:4523 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265044AbUIIOjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 10:39:53 -0400
+Subject: Re: 2.6.9-rc1-mm4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Blazejowski <diffie@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <9dda3492040908214277f3d454@mail.gmail.com>
+References: <9dda3492040908214277f3d454@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094737054.14646.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <414069DF.9000804@bio.ifi.lmu.de>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 09 Sep 2004 14:37:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 09 2004, Frank Steiner wrote:
-> Jens Axboe wrote:
-> >Hi,
-> >
-> >This might fix the last leak of memory reported with cd writing, the
-> >current highmem bounce code will leak n-1 pages for any n page bio where
-> >n > 1. CD writing typically uses 16 pages bios, so it is affected.
-> 
-> 
-> it fixes the leak for us that I described a while back
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109360958318479&w=2
-> 
-> Great :-))
+On Iau, 2004-09-09 at 05:42, Paul Blazejowski wrote:
+> IT8212 driver fails to recognize RAID0 setup. The driver is built in
+> as module (it8212).
 
-Great, thanks for confirming!
+You need the -ac patch for this. I depend upon some core IDE fixes that
+I'm waiting for Bartlomiej to merge in order to do the RAID devices.
 
-Maybe we should unconditionally bounce all bios for a while in a test
-kernel, to make sure that all bouncing bugs are shaken out ;-)
-
--- 
-Jens Axboe
+Alan
 

@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261751AbSJMWiB>; Sun, 13 Oct 2002 18:38:01 -0400
+	id <S261774AbSJMWma>; Sun, 13 Oct 2002 18:42:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261753AbSJMWiA>; Sun, 13 Oct 2002 18:38:00 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:40788 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S261751AbSJMWht>; Sun, 13 Oct 2002 18:37:49 -0400
-Date: Mon, 14 Oct 2002 00:42:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Srihari Vijayaraghavan <harisri@bigpond.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre10aa1 oops report (was Re: Linux-2.4.20-pre8-aa2 oops report. [solved])
-Message-ID: <20021013224247.GC24468@dualathlon.random>
-References: <200210051247.14368.harisri@bigpond.com> <20021010012626.GW2958@dualathlon.random> <200210102017.04048.harisri@bigpond.com> <200210131153.30036.harisri@bigpond.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210131153.30036.harisri@bigpond.com>
-User-Agent: Mutt/1.3.27i
+	id <S261775AbSJMWma>; Sun, 13 Oct 2002 18:42:30 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:40596 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S261774AbSJMWma>; Sun, 13 Oct 2002 18:42:30 -0400
+From: Richard Stallman <rms@gnu.org>
+To: linux-kernel@vger.kernel.org
+Subject: Bitkeeper outragem, old and new
+Reply-to: rms@gnu.org
+Message-Id: <E180rX3-0005dL-00@fencepost.gnu.org>
+Date: Sun, 13 Oct 2002 18:48:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 13, 2002 at 11:53:29AM +1000, Srihari Vijayaraghavan wrote:
-> Oct 11 22:43:19 localhost kernel: Process modprobe (pid: 1675, 
+The new restrictions on Bitkeeper, saying that people who contribute
+to CVS or Subversion and even companies that distribute them cannot
+even run Bitkeeper, have sparked outrage.  While these specific
+restrictions are new, their spirit fits perfectly with the previous
+Bitkeeper license.
 
-this smells like a problem with one of your modules. Please make 100%
-sure you use exactly the same .config for both 2.4.20pre10 and
-2.4.20pre10aa1 and please try to find which is the module that is
-crashing the kernel after it's being loaded. Expect always different
-kind of crashes and oopses. You can also try to turn on the slab
-debugging option in the kernel hacking menu.
+The spirit of the Bitkeeper license is the spirit of the whip hand.
+It is the spirit that says, "You have no right to use Bitkeeper, only
+temporary privileges that we can revoke.  Be grateful that we allow
+you to use Bitkeeper.  Be grateful, and don't do anything we dislike,
+or we may revoke those privileges."  It is the spirit of proprietary
+software.  Every non-free license is designed to control the users
+more or less.  Outrage at this spirit is the reason for the free
+software movement.  (By contrast, the open source movement prefers to
+play down this same outrage.)
 
-> Code;  c01e55e2 <fast_clear_page+12/50>
-
-you also may want to configure the kernel as i686 instead of K7 so
-fast_clear_page won't be used to see if it makes any difference.
-
-> The mainline (2.4.20-pre10) does not exhibit this issue. Unlike 
-> 2.4.20-pre8aa1, 2.4.20-pre10aa1 rebooted itself after the above oops.
-> 
-> I am hoping some of these oops might reveal the real issue/reason/bug to 
-> kernel developers one of these days.
-
-the place where the oops happens is most certainly not the problem,
-either something is wrong with fast_clear_page for whatever hardware
-reason, or more likely the moduled by modprobe is corrupting the
-freelist and alloc_pages returned garbage.
-
-btw, how much memory do you have? If you've more than 800M it could be a
-broken driver using pte_offset by hand, try to reproduce with mem=800m
-in such case. To fix this you should find which is the module that is
-destabilizing the kernel.
-
-thanks for the reports.
-
-Andrea
+If the latest outrage brings the spirit of the non-free Bitkeeper
+license into clear view, perhaps that will be enough to convince the
+developers of Linux to stop using Bitkeeper for Linux development.

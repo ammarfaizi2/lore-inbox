@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbTEXQm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 12:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbTEXQm3
+	id S262223AbTEXQvb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 12:51:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTEXQvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 12:42:29 -0400
-Received: from smtp4.poczta.onet.pl ([213.180.130.28]:2768 "EHLO
-	smtp4.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S262221AbTEXQmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 12:42:20 -0400
-Message-ID: <3ECFA40C.2000906@poczta.onet.pl>
-Date: Sat, 24 May 2003 18:55:40 +0200
+	Sat, 24 May 2003 12:51:31 -0400
+Received: from smtp1.poczta.onet.pl ([213.180.130.31]:39376 "EHLO
+	smtp1.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S262223AbTEXQvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 12:51:22 -0400
+Message-ID: <3ECFA5F9.6060906@poczta.onet.pl>
+Date: Sat, 24 May 2003 19:03:53 +0200
 From: Gutko <gutko@poczta.onet.pl>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.4b) Gecko/20030507
 X-Accept-Language: pl, en-us, en
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.21-RC2 nforce2 agp patch 
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.21-RC2 Nforce2 AGP patch 
 Content-Type: multipart/mixed;
- boundary="------------000706010504030309060903"
+ boundary="------------040602000107080300080308"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------000706010504030309060903
+--------------040602000107080300080308
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+
+Same again but with proper topic
+Sorry for this
+Gutko
+----------
 
 Hello,
 This is patch against 2.4.21-rc2 adding Nvidia Nforce1/Nforce2 AGP 
@@ -37,7 +42,9 @@ belongs to author of this patch
 
 Gutko
 
---------------000706010504030309060903
+
+
+--------------040602000107080300080308
 Content-Type: text/plain;
  name="nforce-agp.diff"
 Content-Transfer-Encoding: 7bit
@@ -447,5 +454,5 @@ diff --unified --recursive --new-file linux/include/linux/agp_backend.h linux-2.
  
  typedef struct _agp_version {
 
---------------000706010504030309060903--
+--------------040602000107080300080308--
 

@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269801AbUJHO1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269991AbUJHObL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269801AbUJHO1L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 10:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269991AbUJHO1L
+	id S269991AbUJHObL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 10:31:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269993AbUJHObK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 10:27:11 -0400
-Received: from jade.aracnet.com ([216.99.193.136]:51105 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S269801AbUJHO1G
+	Fri, 8 Oct 2004 10:31:10 -0400
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:7110 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S269991AbUJHOai
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 10:27:06 -0400
-Date: Fri, 08 Oct 2004 07:26:04 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@hpce.nec.com>, Andrew Morton <akpm@osdl.org>
-cc: pj@sgi.com, Simon.Derr@bull.net, colpatch@us.ibm.com,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       ckrm-tech@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
-       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-ID: <1382520000.1097245562@[10.10.2.4]>
-In-Reply-To: <200410081240.26482.efocht@hpce.nec.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <200410081123.45762.efocht@hpce.nec.com> <20041008025034.3deedac5.akpm@osdl.org> <200410081240.26482.efocht@hpce.nec.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 8 Oct 2004 10:30:38 -0400
+Date: Fri, 8 Oct 2004 16:30:31 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make gcc -align options .config-settable
+In-Reply-To: <200410081710.58766.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.60.0410081618530.10253@alpha.polcom.net>
+References: <2KBq9-2S1-15@gated-at.bofh.it> <m3pt3t9zaj.fsf@averell.firstfloor.org>
+ <200410081710.58766.vda@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anyhow, I'd say we
-> already have a business case here. And instead of pushing ISVs to
-> support the SGI way of doing this, the Bull way and the NEC way, it
-> makes more sense to ask them to support the LINUX way.
+On Fri, 8 Oct 2004, Denis Vlasenko wrote:
 
-Right. But we're trying to work out what the Linux way *is* ;-)
+> On Friday 08 October 2004 12:20, Andi Kleen wrote:
+>> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
+>>> Resend.
+>>>
+>>> With all alignment options set to 1 (minimum alignment),
+>>> I've got 5% smaller vmlinux compared to one built with
+>>> default code alignment.
+>>>
+>>> Rediffed against 2.6.9-rc3.
+>>> Please apply.
+>>
+>> I agree with the basic idea (the big alignments also always annoy
+>> me when I look at disassembly), but I think your CONFIG options
+>> are far too complicated. I don't think anybody will go as far as
+>> to tune loops vs function calls.
+>>
+>> I would just do a single CONFIG_NO_ALIGNMENTS that sets everything to
+>> 1, that should be enough.
+>
+> For me, yes, but there are people which are slightly less obsessed
+> with code size than me.
+>
+> They might want to say "try to align to 16 bytes if
+> it costs less than 5 bytes" etc.
+>
+> Also bencmarking people may do little research on real usefulness of
+> various kinds of alignment.
 
-M.
+I think that removing aligns completly will be very bad. I am Gentoo user 
+and I set my user space CFLAGS for all system to -falign-loops 
+-fno-align-<everything else>. I did not tested it in depth, but my simple 
+tests show that unaligning loops is a very bad idea. Unaligning functions 
+is safer since small and fast functions should be always inlined.
+
+
+Thanks,
+
+Grzegorz Kulewski
 

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319070AbSHMUsg>; Tue, 13 Aug 2002 16:48:36 -0400
+	id <S319036AbSHMUmJ>; Tue, 13 Aug 2002 16:42:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319071AbSHMUsf>; Tue, 13 Aug 2002 16:48:35 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:28613 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S319070AbSHMUs2>;
-	Tue, 13 Aug 2002 16:48:28 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S319037AbSHMUmJ>; Tue, 13 Aug 2002 16:42:09 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:1703 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S319036AbSHMUmI>; Tue, 13 Aug 2002 16:42:08 -0400
+Date: 13 Aug 2002 22:35:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8UmO4N5mw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.44.0208131918360.4369-100000@localhost.localdomain>
+Subject: Re: [patch] clone_startup(), 2.5.31-A0
+X-Mailer: CrossPoint v3.12d.kh10 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15705.29059.306202.720523@napali.hpl.hp.com>
-Date: Tue, 13 Aug 2002 13:52:19 -0700
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] clone_startup(), 2.5.31-A0
-In-Reply-To: <3D596B96.4000305@zytor.com>
-References: <Pine.LNX.4.44.0208131650230.30647-100000@localhost.localdomain>
-	<20020813160924.GA3821@codepoet.org>
-	<20020813171138.A12546@infradead.org>
-	<15705.13490.713278.815154@napali.hpl.hp.com>
-	<ajbo1b$e2a$1@cesium.transmeta.com>
-	<15705.27073.997831.983519@napali.hpl.hp.com>
-	<3D596B96.4000305@zytor.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Organization: Organisation? Me?! Are you kidding?
+References: <20020813160924.GA3821@codepoet.org> <Pine.LNX.4.44.0208131918360.4369-100000@localhost.localdomain>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 13 Aug 2002 13:27:02 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
+mingo@elte.hu (Ingo Molnar)  wrote on 13.08.02 in <Pine.LNX.4.44.0208131918360.4369-100000@localhost.localdomain>:
 
-  >> I was, however, the flaws that you complained of had nothing to
-  >> do with the syscall -- it's all in the syscall wrapper (which is
-  >> required for clone(), like it or not.)
+> On Tue, 13 Aug 2002, Erik Andersen wrote:
+>
+> > > First the name souns horrible.  What about spawn_thread or create_thread
+> > > instead?  it's not our good old clone and not a lookalike, it's some
+> > > pthreadish monster..
+> >
+> > How about "clone2"?
+>
+> ni fact it was sys_clone2() first time around, but Ulrich Drepper
+> requested another name for it because in glibc it collided with ia64 where
+> clone2() is something different. So whatever name there is going to be, it
+> should not be sys_clone2().
 
-The issue is not whether a wrapper is needed or not.
+clone_and_start() or clone_and_go() or something along those lines,  
+perhaps?
 
-My point is that it is cleaner to always describe stack areas as
-memory areas (e.g., as a base/size pair).  Note that this is
-effectively what's happening in the platform-independent part of the
-kernel today.
-
-	--david
+MfG Kai

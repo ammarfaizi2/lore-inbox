@@ -1,80 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316615AbSFZO5b>; Wed, 26 Jun 2002 10:57:31 -0400
+	id <S316619AbSFZPFy>; Wed, 26 Jun 2002 11:05:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316616AbSFZO5a>; Wed, 26 Jun 2002 10:57:30 -0400
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:53254
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S316615AbSFZO53>; Wed, 26 Jun 2002 10:57:29 -0400
-Subject: Re: MCE Error - 2.5.24 - Whats this?
-From: Shawn Starr <spstarr@sh0n.net>
-To: alexander.riesen@synopsys.COM
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020626075027.GA18667@riesen-pc.gr05.synopsys.com>
-References: <1025068858.5090.1.camel@coredump> 
-	<20020626075027.GA18667@riesen-pc.gr05.synopsys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 26 Jun 2002 10:57:37 -0400
-Message-Id: <1025103458.31334.1.camel@unaropia>
-Mime-Version: 1.0
+	id <S316621AbSFZPFx>; Wed, 26 Jun 2002 11:05:53 -0400
+Received: from n218.ols.wavesec.net ([209.151.19.218]:59150 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S316619AbSFZPFw>; Wed, 26 Jun 2002 11:05:52 -0400
+Date: Tue, 25 Jun 2002 23:37:11 -0400
+Message-Id: <200206260337.g5Q3bBN19179@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+Cc: "'akpm@zip.com.au'" <akpm@zip.com.au>, "'drow@false.org'" <drow@false.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'devfs@oss.sgi.com'" <devfs@oss.sgi.com>
+Subject: Re: Inexplicable disk activity trying to load modules on devfs
+In-Reply-To: <6134254DE87BD411908B00A0C99B044F039645EB@mowd019a.mow.siemens.ru>
+References: <6134254DE87BD411908B00A0C99B044F039645EB@mowd019a.mow.siemens.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't understand that decoded result ;) 
+Borsenkow Andrej writes:
+> >> 
+> >> I just booted into 2.4.19-pre10-ac2 for the first time, and noticed 
+> >> something very odd: my disk activity light was flashing at about 
+> >> half-second intervals, very regularly, and I could hear the disk 
+> >> moving. I was only able to track it down to which disk controller, via 
+> >> /proc/interrupts (are there any tools for monitoring VFS activity? 
+> >> They'd be really useful). Eventually I hunted down the program causing 
+> >> it: xmms. 
+> >> 
+> >> The reason turned out to be that I hadn't remembered to build my sound 
+> >> driver for this kernel version. Every half-second xmms tried to open 
+> >> /dev/mixer (and failed, ENOENT). Every time it did that there was 
+> >> actual disk activity. Easily reproducible without xmms. Reproducible 
+> >> on any non-existant device in devfs, but not for nonexisting files on 
+> >> other filesystems. Is something bypassing the normal disk cache 
+> >> mechanisms here? That doesn't seem right at all. 
+> >> 
+> >
+> >
+> >syslog activity from a printk, perhaps? 
+> 
+> No. It is most probably devfsd trying to load sound modules.
+> 
+> This is exactly the reason Mandrake does not enable devfs in
+> kernel-secure.  You can badly hit your system by doing in a loop ls
+> /dev/foo for some device foo that is configured for module
+> autoloading.
+> 
+> It is very fascist decision; the slightly more forgiving way is to
+> disable devfsd module autoloading (or disable devfsd entirely, just
+> run it once after all drivers are loaded to execute actions) but
+> then you lose support for hot plugging and some people do use
+> kernel-secure on desktops.
 
-Is it a phony result or is there a real problem with the CPU itself?
-It's brand new!
+Or you can use the IGNORE action to selectively disable loading of
+some modules (whether or not they exist).
 
+Another option is to write a shared object extension to devfsd which
+has rate-limiting. All the mechanisms you need are there or can be
+built on top of the existing infrastructure.
 
-On Wed, 2002-06-26 at 03:50, Alex Riesen wrote:
-> On Wed, Jun 26, 2002 at 01:20:57AM -0400, Shawn Starr wrote:
-> > I got this message this evening from the syslog:
-> > 
-> > 
-> > MCE: The hardware reports a non fatal, correctable incident occured on
-> > CPU 0.
-> > 
-> > Bank 0: 9409c00000000136
-> > 
-> > 
-> > Is this something I should be worried about?
-> > 
-> > Included is the standard dmesg.
-> 
-> Dave Jones had a small parser for these codes:
-> http://www.codemonkey.org.uk/cruft/parsemce.c
-> 
-> And as it seems the parser lacks a bit of information to completely
-> decode the message:
-> 
-> ~ ./parsemce
-> Status: (4) Machine Check in progress.
-> Restart IP invalid.
-> parsebank(0): 9409c00000000136 @ 0
->         External tag parity error
->         Uncorrectable ECC error
->         CPU state corrupt. Restart not possible
->         MISC register information valid
->         Error not corrected.
->         Error overflow
->         Memory heirarchy error
->         Request: Generic error
->         Transaction type : Data
->         Memory/IO : I/O
-> 
-> > Linux version 2.5.24 (root@unknown) (gcc version 3.1) #1 Sat Jun 22 14:58:48 EDT 2002
-> ...
-> 
-> -alex
-> 
--- 
-Shawn Starr, sh0n.net, <spstarr@sh0n.net>
-Maintainer: -shawn kernel patches: http://xfs.sh0n.net/2.4/
-Developer Support Engineer
-Datawire Communication Networks Inc.
-10 Carlson Court, Suite 300
-Toronto, ON, M9W 6L2
-T: 416.213.2001 ext 179 F: 416.213.2008
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

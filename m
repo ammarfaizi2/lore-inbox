@@ -1,89 +1,528 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263384AbTCUTRs>; Fri, 21 Mar 2003 14:17:48 -0500
+	id <S262726AbTCUTUc>; Fri, 21 Mar 2003 14:20:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263734AbTCUTQ7>; Fri, 21 Mar 2003 14:16:59 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:43396
+	id <S263758AbTCUTUQ>; Fri, 21 Mar 2003 14:20:16 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:46468
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263384AbTCUTPV>; Fri, 21 Mar 2003 14:15:21 -0500
-Date: Fri, 21 Mar 2003 20:30:36 GMT
+	id <S262726AbTCUTSf>; Fri, 21 Mar 2003 14:18:35 -0500
+Date: Fri, 21 Mar 2003 20:33:50 GMT
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303212030.h2LKUa2B026365@hraefn.swansea.linux.org.uk>
+Message-Id: <200303212033.h2LKXotF026389@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: arch pre/post setup for pc9800
+Subject: PATCH: turn the iforce doc from MSDOS into Unix format
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/asm-i386/mach-pc9800/setup_arch_post.h linux-2.5.65-ac2/include/asm-i386/mach-pc9800/setup_arch_post.h
---- linux-2.5.65/include/asm-i386/mach-pc9800/setup_arch_post.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.5.65-ac2/include/asm-i386/mach-pc9800/setup_arch_post.h	2003-02-14 23:00:56.000000000 +0000
-@@ -0,0 +1,29 @@
-+/**
-+ * machine_specific_memory_setup - Hook for machine specific memory setup.
-+ *
-+ * Description:
-+ *	This is included late in kernel/setup.c so that it can make
-+ *	use of all of the static functions.
-+ **/
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/Documentation/input/iforce-protocol.txt linux-2.5.65-ac2/Documentation/input/iforce-protocol.txt
+--- linux-2.5.65/Documentation/input/iforce-protocol.txt	2003-02-10 18:37:58.000000000 +0000
++++ linux-2.5.65-ac2/Documentation/input/iforce-protocol.txt	2003-03-14 00:51:11.000000000 +0000
+@@ -1,254 +1,254 @@
+-** Introduction
+-This document describes what I managed to discover about the protocol used to
+-specify force effects to I-Force 2.0 devices.  None of this information comes
+-from Immerse. That's why you should not trust what is written in this
+-document. This document is intended to help understanding the protocol.
+-This is not a reference. Comments and corrections are welcome.  To contact me,
+-send an email to: deneux@ifrance.com
+-
+-** WARNING **
+-I may not be held responsible for any dammage or harm caused if you try to
+-send data to your I-Force device based on what you read in this document.
+-
+-** Preliminary Notes:
+-All values are hexadecimal with big-endian encoding (msb on the left). Beware,
+-values inside packets are encoded using little-endian.  Bytes whose roles are
+-unknown are marked ???  Information that needs deeper inspection is marked (?)
+-
+-** General form of a packet **
+-This is how packets look when the device uses the rs232 to communicate.
+-2B OP LEN DATA CS
+-CS is the checksum. It is equal to the exclusive or of all bytes.
+-
+-When using USB:
+-OP DATA
+-The 2B, LEN and CS fields have disappeared, probably because USB handles frames and
+-data corruption is handled or unsignificant.
+-
+-First, I describe effects that are sent by the device to the computer
+-
+-** Device input state
+-This packet is used to indicate the state of each button and the value of each
+-axis
+-OP= 01 for a joystick, 03 for a wheel
+-LEN= Varies from device to device
+-00 X-Axis lsb
+-01 X-Axis msb
+-02 Y-Axis lsb, or gas pedal for a wheel
+-03 Y-Axis msb, or brake pedal for a wheel
+-04 Throttle
+-05 Buttons
+-06 Lower 4 bits: Buttons
+-   Upper 4 bits: Hat
+-07 Rudder
+-
+-** Device effects states
+-OP= 02
+-LEN= Varies
+-00 ? Bit 1 (Value 2) is the value of the deadman switch
+-01 Bit 8 is set if the effect is playing. Bits 0 to 7 are the effect id.
+-02 ??
+-03 Address of parameter block changed (lsb)
+-04 Address of parameter block changed (msb)
+-05 Address of second parameter block changed (lsb)
+-... depending on the number of parameter blocks updated
+-
+-** Force effect **
+-OP=  01
+-LEN= 0e
+-00 Channel (when playing several effects at the same time, each must be assigned a channel)
+-01 Wave form
+-	Val 00 Constant
+-	Val 20 Square
+-	Val 21 Triangle
+-	Val 22 Sine
+-	Val 23 Sawtooth up
+-	Val 24 Sawtooth down
+-	Val 40 Spring (Force = f(pos))
+-	Val 41 Friction (Force = f(velocity)) and Inertia (Force = f(acceleration))
+-
+-	
+-02 Axes affected and trigger
+-	Bits 4-7: Val 2 = effect along one axis. Byte 05 indicates direction
+-	          Val 4 = X axis only. Byte 05 must contain 5a
+-	          Val 8 = Y axis only. Byte 05 must contain b4
+-	          Val c = X and Y axes. Bytes 05 must contain 60
+-	Bits 0-3: Val 0 = No trigger
+-	          Val x+1 = Button x triggers the effect
+-	When the whole byte is 0, cancel the previously set trigger
+-
+-03-04 Duration of effect (little endian encoding, in ms)
+-
+-05 Direction of effect, if applicable. Else, see 02 for value to assign.
+-
+-06-07 Minimum time between triggering.
+-
+-08-09 Address of periodicity or magnitude parameters
+-0a-0b Address of attack and fade parameters, or ffff if none.
+-*or*
+-08-09 Address of interactive parameters for X-axis, or ffff if not applicable
+-0a-0b Address of interactive parameters for Y-axis, or ffff if not applicable
+-
+-0c-0d Delay before execution of effect (little endian encoding, in ms)
+-
+-
+-** Time based parameters **
+-
+-*** Attack and fade ***
+-OP=  02
+-LEN= 08
+-00-01 Address where to store the parameteres
+-02-03 Duration of attack (little endian encoding, in ms)
+-04 Level at end of attack. Signed byte.
+-05-06 Duration of fade.
+-07 Level at end of fade.
+-
+-*** Magnitude ***
+-OP=  03
+-LEN= 03
+-00-01 Address
+-02 Level. Signed byte.
+-
+-*** Periodicity ***
+-OP=  04
+-LEN= 07
+-00-01 Address
+-02 Magnitude. Signed byte.
+-03 Offset. Signed byte.
+-04 Phase. Val 00 = 0 deg, Val 40 = 90 degs.
+-05-06 Period (little endian encoding, in ms)
+-
+-** Interactive parameters **
+-OP=  05
+-LEN= 0a
+-00-01 Address
+-02 Positive Coeff
+-03 Negative Coeff
+-04+05 Offset (center)
+-06+07 Dead band (Val 01F4 = 5000 (decimal))
+-08 Positive saturation (Val 0a = 1000 (decimal) Val 64 = 10000 (decimal))
+-09 Negative saturation
+-
+-The encoding is a bit funny here: For coeffs, these are signed values. The
+-maximum value is 64 (100 decimal), the min is 9c.
+-For the offset, the minimum value is FE0C, the maximum value is 01F4.
+-For the deadband, the minimum value is 0, the max is 03E8.
+-
+-** Controls **
+-OP=  41
+-LEN= 03
+-00 Channel
+-01 Start/Stop
+-	Val 00: Stop
+-	Val 01: Start and play once.
+-	Val 41: Start and play n times (See byte 02 below)
+-02 Number of iterations n.
+-
+-** Init **
+-
+-*** Querying features ***
+-OP=  ff
+-Query command. Length varies according to the query type.
+-The general format of this packet is:
+-ff 01 QUERY [INDEX] CHECKSUM
+-reponses are of the same form:
+-FF LEN QUERY VALUE_QUERIED CHECKSUM2
+-where LEN = 1 + length(VALUE_QUERIED)
+-
+-**** Query ram size ****
+-QUERY = 42 ('B'uffer size)
+-The device should reply with the same packet plus two additionnal bytes
+-containing the size of the memory:
+-ff 03 42 03 e8 CS would mean that the device has 1000 bytes of ram available.
+-
+-**** Query number of effects ****
+-QUERY = 4e ('N'umber of effects)
+-The device should respond by sending the number of effects that can be played
+-at the same time (one byte)
+-ff 02 4e 14 CS would stand for 20 effects.
+-
+-**** Vendor's id ****
+-QUERY = 4d ('M'anufacturer)
+-Query the vendors'id (2 bytes)
+-
+-**** Product id *****
+-QUERY = 50 ('P'roduct)
+-Query the product id (2 bytes)
+-
+-**** Open device ****
+-QUERY = 4f ('O'pen) 
+-No data returned.
+-
+-**** Close device *****
+-QUERY = 43 ('C')lose
+-No data returned.
+-
+-**** Query effect ****
+-QUERY = 45 ('E') 
+-Send effect type.
+-Returns nonzero if supported (2 bytes)
+-
+-**** Firmware Version ****
+-QUERY = 56 ('V'ersion)
+-Sends back 3 bytes - major, minor, subminor
+-
+-*** Initialisation of the device ***
+-
+-**** Set Control ****
+-!!! Device dependent, can be different on different models !!!
+-OP=  40 <idx> <val> [<val>]
+-LEN= 2 or 3
+-00 Idx
+-   Idx 00 Set dead zone (0..2048) 
+-   Idx 01 Ignore Deadman sensor (0..1)     
+-   Idx 02 Enable comm watchdog (0..1)     
+-   Idx 03 Set the strength of the spring (0..100)   
+-   Idx 04 Enable or disable the spring (0/1)
+-   Idx 05 Set axis saturation threshold (0..2048) 
+-
+-**** Set Effect State ****
+-OP=  42 <val>
+-LEN= 1
+-00 State
+-   Bit 3 Pause force feedback
+-   Bit 2 Enable force feedback
+-   Bit 0 Stop all effects
+-
+-**** Set overall gain ****
+-OP=  43 <val>
+-LEN= 1
+-00 Gain
+-   Val 00 = 0%
+-   Val 40 = 50%
+-   Val 80 = 100%
+-
+-** Parameter memory **
+-
+-Each device has a certain amount of memory to store parameters of effects.
+-The amount of RAM may vary, I encountered values from 200 to 1000 bytes. Below
+-is the amount of memory apparently needed for every set of parameters:
+- - period : 0c
+- - magnitude : 02
+- - attack and fade : 0e
+- - interactive : 08
+-
+-** Appendix: How to study the protocol ? **
+-
+-1. Generate effects using the force editor provided with the DirectX SDK, or use Immersion Studio (freely available at their web site in the developer section: www.immersion.com)
+-2. Start a soft spying RS232 or USB (depending on where you connected your joystick/wheel). I used ComPortSpy from fCoder (alpha version!)
+-3. Play the effect, and watch what happens on the spy screen.
+-
+-A few words about ComPortSpy:
+-At first glance, this soft seems, hum, well... buggy. In fact, data appear with a few seconds latency. Personnaly, I restart it every time I play an effect.
+-Remember it's free (as in free beer) and alpha!
+-
+-** URLS **
+-Check www.immerse.com for Immersion Studio, and www.fcoder.com for ComPortSpy.
+-
+-** Author of this document **
+-Johann Deneux <deneux@ifrance.com>
+-Home page at http://www.esil.univ-mrs.fr/~jdeneux/projects/ff/
+-
+-Additions by Vojtech Pavlik.
+-
+-I-Force is trademark of Immersion Corp.
++** Introduction
++This document describes what I managed to discover about the protocol used to
++specify force effects to I-Force 2.0 devices.  None of this information comes
++from Immerse. That's why you should not trust what is written in this
++document. This document is intended to help understanding the protocol.
++This is not a reference. Comments and corrections are welcome.  To contact me,
++send an email to: deneux@ifrance.com
 +
-+static inline char * __init machine_specific_memory_setup(void)
-+{
-+	char *who;
-+	unsigned long low_mem_size, lower_high, higher_high;
++** WARNING **
++I may not be held responsible for any dammage or harm caused if you try to
++send data to your I-Force device based on what you read in this document.
++
++** Preliminary Notes:
++All values are hexadecimal with big-endian encoding (msb on the left). Beware,
++values inside packets are encoded using little-endian.  Bytes whose roles are
++unknown are marked ???  Information that needs deeper inspection is marked (?)
++
++** General form of a packet **
++This is how packets look when the device uses the rs232 to communicate.
++2B OP LEN DATA CS
++CS is the checksum. It is equal to the exclusive or of all bytes.
++
++When using USB:
++OP DATA
++The 2B, LEN and CS fields have disappeared, probably because USB handles frames and
++data corruption is handled or unsignificant.
++
++First, I describe effects that are sent by the device to the computer
++
++** Device input state
++This packet is used to indicate the state of each button and the value of each
++axis
++OP= 01 for a joystick, 03 for a wheel
++LEN= Varies from device to device
++00 X-Axis lsb
++01 X-Axis msb
++02 Y-Axis lsb, or gas pedal for a wheel
++03 Y-Axis msb, or brake pedal for a wheel
++04 Throttle
++05 Buttons
++06 Lower 4 bits: Buttons
++   Upper 4 bits: Hat
++07 Rudder
++
++** Device effects states
++OP= 02
++LEN= Varies
++00 ? Bit 1 (Value 2) is the value of the deadman switch
++01 Bit 8 is set if the effect is playing. Bits 0 to 7 are the effect id.
++02 ??
++03 Address of parameter block changed (lsb)
++04 Address of parameter block changed (msb)
++05 Address of second parameter block changed (lsb)
++... depending on the number of parameter blocks updated
++
++** Force effect **
++OP=  01
++LEN= 0e
++00 Channel (when playing several effects at the same time, each must be assigned a channel)
++01 Wave form
++	Val 00 Constant
++	Val 20 Square
++	Val 21 Triangle
++	Val 22 Sine
++	Val 23 Sawtooth up
++	Val 24 Sawtooth down
++	Val 40 Spring (Force = f(pos))
++	Val 41 Friction (Force = f(velocity)) and Inertia (Force = f(acceleration))
++
++	
++02 Axes affected and trigger
++	Bits 4-7: Val 2 = effect along one axis. Byte 05 indicates direction
++	          Val 4 = X axis only. Byte 05 must contain 5a
++	          Val 8 = Y axis only. Byte 05 must contain b4
++	          Val c = X and Y axes. Bytes 05 must contain 60
++	Bits 0-3: Val 0 = No trigger
++	          Val x+1 = Button x triggers the effect
++	When the whole byte is 0, cancel the previously set trigger
++
++03-04 Duration of effect (little endian encoding, in ms)
++
++05 Direction of effect, if applicable. Else, see 02 for value to assign.
++
++06-07 Minimum time between triggering.
++
++08-09 Address of periodicity or magnitude parameters
++0a-0b Address of attack and fade parameters, or ffff if none.
++*or*
++08-09 Address of interactive parameters for X-axis, or ffff if not applicable
++0a-0b Address of interactive parameters for Y-axis, or ffff if not applicable
++
++0c-0d Delay before execution of effect (little endian encoding, in ms)
 +
 +
-+	who = "BIOS (common area)";
++** Time based parameters **
 +
-+	low_mem_size = ((*(unsigned char *)__va(PC9800SCA_BIOS_FLAG) & 7) + 1) << 17;
-+	add_memory_region(0, low_mem_size, 1);
-+	lower_high = (__u32) *(__u8 *) bus_to_virt(PC9800SCA_EXPMMSZ) << 17;
-+	higher_high = (__u32) *(__u16 *) bus_to_virt(PC9800SCA_MMSZ16M) << 20;
-+	if (lower_high != 0x00f00000UL) {
-+		add_memory_region(HIGH_MEMORY, lower_high, 1);
-+		add_memory_region(0x01000000UL, higher_high, 1);
-+	}
-+	else
-+		add_memory_region(HIGH_MEMORY, lower_high + higher_high, 1);
++*** Attack and fade ***
++OP=  02
++LEN= 08
++00-01 Address where to store the parameteres
++02-03 Duration of attack (little endian encoding, in ms)
++04 Level at end of attack. Signed byte.
++05-06 Duration of fade.
++07 Level at end of fade.
 +
-+	return who;
-+}
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/asm-i386/mach-pc9800/setup_arch_pre.h linux-2.5.65-ac2/include/asm-i386/mach-pc9800/setup_arch_pre.h
---- linux-2.5.65/include/asm-i386/mach-pc9800/setup_arch_pre.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.5.65-ac2/include/asm-i386/mach-pc9800/setup_arch_pre.h	2003-03-14 01:21:57.000000000 +0000
-@@ -0,0 +1,36 @@
-+/* Hook to call BIOS initialisation function */
++*** Magnitude ***
++OP=  03
++LEN= 03
++00-01 Address
++02 Level. Signed byte.
 +
-+/* no action for generic */
++*** Periodicity ***
++OP=  04
++LEN= 07
++00-01 Address
++02 Magnitude. Signed byte.
++03 Offset. Signed byte.
++04 Phase. Val 00 = 0 deg, Val 40 = 90 degs.
++05-06 Period (little endian encoding, in ms)
 +
-+#define ARCH_SETUP arch_setup_pc9800();
++** Interactive parameters **
++OP=  05
++LEN= 0a
++00-01 Address
++02 Positive Coeff
++03 Negative Coeff
++04+05 Offset (center)
++06+07 Dead band (Val 01F4 = 5000 (decimal))
++08 Positive saturation (Val 0a = 1000 (decimal) Val 64 = 10000 (decimal))
++09 Negative saturation
 +
-+#include <linux/timex.h>
-+#include <asm/io.h>
-+#include <asm/pc9800.h>
-+#include <asm/pc9800_sca.h>
++The encoding is a bit funny here: For coeffs, these are signed values. The
++maximum value is 64 (100 decimal), the min is 9c.
++For the offset, the minimum value is FE0C, the maximum value is 01F4.
++For the deadband, the minimum value is 0, the max is 03E8.
 +
-+int CLOCK_TICK_RATE;
-+extern unsigned long tick_usec;	/* ACTHZ          period (usec) */
-+extern unsigned long tick_nsec;	/* USER_HZ period (nsec) */
-+unsigned char pc9800_misc_flags;
-+/* (bit 0) 1:High Address Video ram exists 0:otherwise */
++** Controls **
++OP=  41
++LEN= 03
++00 Channel
++01 Start/Stop
++	Val 00: Stop
++	Val 01: Start and play once.
++	Val 41: Start and play n times (See byte 02 below)
++02 Number of iterations n.
 +
-+#ifdef CONFIG_SMP
-+#define MPC_TABLE_SIZE 512
-+#define MPC_TABLE ((char *) (PARAM+0x400))
-+char mpc_table[MPC_TABLE_SIZE];
-+#endif
++** Init **
 +
-+static  inline void arch_setup_pc9800(void)
-+{
-+	CLOCK_TICK_RATE = PC9800_8MHz_P() ? 1996800 : 2457600;
-+	printk(KERN_DEBUG "CLOCK_TICK_RATE = %d\n", CLOCK_TICK_RATE);
-+	tick_usec = TICK_USEC; 		/* ACTHZ          period (usec) */
-+	tick_nsec = TICK_NSEC(TICK_USEC);	/* USER_HZ period (nsec) */
++*** Querying features ***
++OP=  ff
++Query command. Length varies according to the query type.
++The general format of this packet is:
++ff 01 QUERY [INDEX] CHECKSUM
++reponses are of the same form:
++FF LEN QUERY VALUE_QUERIED CHECKSUM2
++where LEN = 1 + length(VALUE_QUERIED)
 +
-+	pc9800_misc_flags = PC9800_MISC_FLAGS;
-+#ifdef CONFIG_SMP
-+	if ((*(u32 *)(MPC_TABLE)) == 0x504d4350)
-+		memcpy(mpc_table, MPC_TABLE, *(u16 *)(MPC_TABLE + 4));
-+#endif /* CONFIG_SMP */
-+}
++**** Query ram size ****
++QUERY = 42 ('B'uffer size)
++The device should reply with the same packet plus two additional bytes
++containing the size of the memory:
++ff 03 42 03 e8 CS would mean that the device has 1000 bytes of ram available.
++
++**** Query number of effects ****
++QUERY = 4e ('N'umber of effects)
++The device should respond by sending the number of effects that can be played
++at the same time (one byte)
++ff 02 4e 14 CS would stand for 20 effects.
++
++**** Vendor's id ****
++QUERY = 4d ('M'anufacturer)
++Query the vendors'id (2 bytes)
++
++**** Product id *****
++QUERY = 50 ('P'roduct)
++Query the product id (2 bytes)
++
++**** Open device ****
++QUERY = 4f ('O'pen) 
++No data returned.
++
++**** Close device *****
++QUERY = 43 ('C')lose
++No data returned.
++
++**** Query effect ****
++QUERY = 45 ('E') 
++Send effect type.
++Returns nonzero if supported (2 bytes)
++
++**** Firmware Version ****
++QUERY = 56 ('V'ersion)
++Sends back 3 bytes - major, minor, subminor
++
++*** Initialisation of the device ***
++
++**** Set Control ****
++!!! Device dependent, can be different on different models !!!
++OP=  40 <idx> <val> [<val>]
++LEN= 2 or 3
++00 Idx
++   Idx 00 Set dead zone (0..2048) 
++   Idx 01 Ignore Deadman sensor (0..1)     
++   Idx 02 Enable comm watchdog (0..1)     
++   Idx 03 Set the strength of the spring (0..100)   
++   Idx 04 Enable or disable the spring (0/1)
++   Idx 05 Set axis saturation threshold (0..2048) 
++
++**** Set Effect State ****
++OP=  42 <val>
++LEN= 1
++00 State
++   Bit 3 Pause force feedback
++   Bit 2 Enable force feedback
++   Bit 0 Stop all effects
++
++**** Set overall gain ****
++OP=  43 <val>
++LEN= 1
++00 Gain
++   Val 00 = 0%
++   Val 40 = 50%
++   Val 80 = 100%
++
++** Parameter memory **
++
++Each device has a certain amount of memory to store parameters of effects.
++The amount of RAM may vary, I encountered values from 200 to 1000 bytes. Below
++is the amount of memory apparently needed for every set of parameters:
++ - period : 0c
++ - magnitude : 02
++ - attack and fade : 0e
++ - interactive : 08
++
++** Appendix: How to study the protocol ? **
++
++1. Generate effects using the force editor provided with the DirectX SDK, or use Immersion Studio (freely available at their web site in the developer section: www.immersion.com)
++2. Start a soft spying RS232 or USB (depending on where you connected your joystick/wheel). I used ComPortSpy from fCoder (alpha version!)
++3. Play the effect, and watch what happens on the spy screen.
++
++A few words about ComPortSpy:
++At first glance, this soft seems, hum, well... buggy. In fact, data appear with a few seconds latency. Personnaly, I restart it every time I play an effect.
++Remember it's free (as in free beer) and alpha!
++
++** URLS **
++Check www.immerse.com for Immersion Studio, and www.fcoder.com for ComPortSpy.
++
++** Author of this document **
++Johann Deneux <deneux@ifrance.com>
++Home page at http://www.esil.univ-mrs.fr/~jdeneux/projects/ff/
++
++Additions by Vojtech Pavlik.
++
++I-Force is trademark of Immersion Corp.

@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267393AbUHJBiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267386AbUHJBpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267393AbUHJBiM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 21:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267386AbUHJBiL
+	id S267386AbUHJBpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 21:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUHJBpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 21:38:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22495 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267394AbUHJBhB (ORCPT
+	Mon, 9 Aug 2004 21:45:09 -0400
+Received: from zero.aec.at ([193.170.194.10]:58372 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S267386AbUHJBo7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 21:37:01 -0400
-Date: Mon, 9 Aug 2004 21:36:55 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp83-102.boston.redhat.com
-To: John Richard Moser <nigelenki@comcast.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Locking scheme to block less
-In-Reply-To: <41181909.3070702@comcast.net>
-Message-ID: <Pine.LNX.4.44.0408092133390.25913-100000@dhcp83-102.boston.redhat.com>
+	Mon, 9 Aug 2004 21:44:59 -0400
+To: Brent Casavant <bcasavan@sgi.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] get_nodes mask miscalculation
+References: <2rr7U-5xT-11@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 10 Aug 2004 03:44:52 +0200
+In-Reply-To: <2rr7U-5xT-11@gated-at.bofh.it> (Brent Casavant's message of
+ "Tue, 10 Aug 2004 00:50:07 +0200")
+Message-ID: <m31xifu5pn.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Aug 2004, John Richard Moser wrote:
+Brent Casavant <bcasavan@sgi.com> writes:
 
-> Currently, the kernel uses only spin_locks,
+The idea behind this is was to make it behave like select.
+And select passes highest valid value + 1. In this case
+valid value is not the highest bit number, but the length
+of the bitmap.
 
-Oh ?   Haven't you seen the read/write locks in
-include/linux/spinlock.h or the lockless synchronisation
-provided by include/linux/rcu.h ?
+For some reason nobody except me seems to get it though,
+probably because the description in the manpages is a bit confusing:
 
-> If the kernel provided a read-write locking semaphore,
+get_mempolicy(2): 
 
-Funny, it does.  You're not looking at a 2.0 kernel, are
-you?
+"maxnode is the maximum bit number plus one that can be stored into
+nodemask."
 
-> spin_read_to_write_lock(spin_rwlock_t *lock);
+I suppose this should be better described. For changing it 
+it is too late unfortunately because the libnuma binaries
+are already out in the wild.
 
-> A read_to_write lock will block two such operations from occuring 
-> concurrently, while still allowing read only operations AND still being 
-> blocked when switched to write mode by both read and write operations.
+> It appears there is a nodemask miscalculation in the get_nodes()
+> function in mm/mempolicy.c.  This bug has two effects:
+>
+> 1. It is impossible to specify a length 1 nodemask.
 
-In fact, two threads trying to upgrade their read lock to a
-write lock simultaneously will block EACH OTHER, FOREVER.
+Sure. You pass 2.
 
-Sounds like an exceedingly bad idea to me ;)
+> 2. It is impossible to specify a nodemask containing the last node.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+you pass number of nodes + 1.
+
+> The following patch against 2.6.8-rc3 has been confirmed to solve
+> both problems.
+
+Problem is that you'll break all existing libnuma binaries 
+which pass NUMA_MAX_NODES + 1. In your scheme the kernel
+will access one bit beyond the bitmap that got passed,
+and depending on its random value you may get a failure or not.
+
+BTW there is a minor problem in the code that there isn't a upper
+limit. When you pass 0 it currently iterates through all your memory
+until it hits an EFAULT, which can be a bit slow. But that's easy to
+fix.
+
+-Andi
+
 

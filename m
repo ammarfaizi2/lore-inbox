@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131025AbRBAQca>; Thu, 1 Feb 2001 11:32:30 -0500
+	id <S130988AbRBAQeU>; Thu, 1 Feb 2001 11:34:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131027AbRBAQcU>; Thu, 1 Feb 2001 11:32:20 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:32013 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S131025AbRBAQcF>; Thu, 1 Feb 2001 11:32:05 -0500
-Date: Thu, 01 Feb 2001 11:31:42 -0500
-From: Chris Mason <mason@suse.com>
-To: Rik van Riel <riel@conectiva.com.br>, David Ford <david@linux.com>
-cc: LKML <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
-Subject: Re: [reiserfs-list] Re: VM brokenness, possibly related to reiserfs
-Message-ID: <377430000.981045102@tiny>
-In-Reply-To: <Pine.LNX.4.21.0102011411540.1321-100000@duckman.distro.conectiva>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
+	id <S131022AbRBAQeK>; Thu, 1 Feb 2001 11:34:10 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63502 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130988AbRBAQeB>; Thu, 1 Feb 2001 11:34:01 -0500
+Subject: Re: 2.4.1 DAC960 driver bug or what's going on?
+To: silviu@delrom.ro (Silviu Marin-Caea)
+Date: Thu, 1 Feb 2001 16:35:07 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010201181233.21076d38.silviu@delrom.ro> from "Silviu Marin-Caea" at Feb 01, 2001 06:12:33 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <E14OMhR-0004ZR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thursday, February 01, 2001 02:16:43 PM -0200 Rik van Riel <riel@conectiva.com.br> wrote:
-
+> On Thu, 1 Feb 2001 15:31:44 +0000 (GMT)
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 > 
-> About the system hanging completely, I wonder if it goes
-> away by pressing sysrq-S (sync all disks). If it does,
-> maybe Reiserfs was blocking all the pages in the inactive
-> list from being written because one of the active pages
-> (not a replacement candidate) needed to be written out
-> first?  Or does the Reiserfs ->writepage() function handle
-> this?
+> > Which compiler out of curiosity
+> Works with kgcc.  Thank you Alan.
 > 
+> I thought RedHat fixed their compiler.
 
-In most cases, the reiserfs writepage func is the same as block_write_full_page.  The only difference should come when a packed tail has been mmap'd.
+Im not yet sure if its the compiler or the DAC960 driver which is at fault
+here. I'm looking at some 'interesting' reports about bitfield behaviour
+which is why I suspected this
 
-Since JOURNAL_MAX_BATCH was at 100, the log should have only pinned 400k.  More blocks could be pinned, but kreiserfsd should be in the process of flushing those.
-
-I've been trying out a few things to send memory pressure down to reiserfs, but they have mostly been based on the code to make fs/buffer.c use writepage for flushing.  I should have done something simple first, I'll start on that now.
-
--chris
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

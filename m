@@ -1,68 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbULCPWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbULCPYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262258AbULCPWe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 10:22:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbULCPWd
+	id S262259AbULCPYa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 10:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbULCPYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 10:22:33 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:43428 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S262258AbULCPWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 10:22:30 -0500
-Date: Fri, 03 Dec 2004 10:22:28 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: wakeup_pmode_return jmp failing?
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <41B084B4.1050402@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
+	Fri, 3 Dec 2004 10:24:30 -0500
+Received: from blanca.radiantdata.com ([64.207.39.196]:39138 "EHLO
+	blanca.peakdata.loc") by vger.kernel.org with ESMTP id S262259AbULCPYU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 10:24:20 -0500
+Message-ID: <41B086DF.6010107@radiantdata.com>
+Date: Fri, 03 Dec 2004 08:31:43 -0700
+From: "Peter W. Morreale" <morreale@radiantdata.com>
+Reply-To: morreale@radiantdata.com
+Organization: Radiant Data Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
 X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+MIME-Version: 1.0
+To: Kiran Kumar Gaitonde <kiran.gaitonde@globaledgesoft.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Thread in Device Driver
+References: <41B03BB2.90802@globaledgesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Dec 2004 15:27:07.0921 (UTC) FILETIME=[8CFAE010:01C4D94C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+You might try adding a "yield()" in the loop, perhaps modulo some number of
+interrupts handled (assuming, of course, your interrupts are queued).
 
-Hello,
+yield() will place the current task at the 'end' of the run list and 
+schedule().  If another task is
+eligible to execute, it will get the slice.  
 
-Not sure who to direct this to.  I've been trying to get acpi s3 to work
-on my pentium M laptop (tecra m2).  Without the nvidia driver loaded, I
-can echo 3 > /proc/acpi/sleep and the machine does indeed suspend (power
-light throbs and all).  However, when I try to wake up the thing, it
-would flash the bios screen and throw me back to grub.
+-PWM
 
-I've been investigating the code at arch/i386/kernel/acpi/wakeup.S, and
-have discovered that if I place a busy wait directory before the ljmpl
-to wakeup_pmode_return, that I indeed do see 'Lin' on the screen instead
-of the bios screen.
 
-The joke is, if I place a busy wait first thing after the
-wakeup_pmode_return label, it never gets executed and I get a regular boot.
 
-It would appear as though the jump from 16bit code into the 32bit code
-is failing and the bios is kicking in with a regular startup.
+Kiran Kumar Gaitonde wrote:
 
-Anybody have any suggestions?
+> Hi all.
+>
+> I am working on a device driver with the device interrupts are 
+> actaully serviced in a kernel thread and not in the interrupt handler 
+> registered with the kernel. The interrupt handler justs wakes up the 
+> kthread when a interrupt occurs. This is done as we need to use 
+> semaphores while performing IO to sync the read and writes.
+> Now I have come across a situation where the kthread is consuming 70% 
+> of CPU time as it is in a loop to service the interrupts happening 
+> very very fast, and it is rearly saying schedule(). The performance of 
+> the application which uses this device to communicate, is not good as 
+> it is not getting CPU at the right time.
+>
+> Can anybody tell me what may be the problem. Also any suggestions to 
+> overcome this issue?
+>
+> Thanks in Advance,
+>
+> Regards,
+> Kiran Gaitonde.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+-- 
+Peter W. Morreale                            email: morreale@radiantdata.com
+Director of Engineering                      Niwot, Colorado, USA
+Radiant Data Corporation                     voice: (303) 652-0870 x108 
+-----------------------------------------------------------------------------
+This transmission may contain information that is privileged, confidential
+and/or exempt from disclosure under applicable law. If you are not the
+intended recipient, you are hereby notified that any disclosure, copying,
+distribution, or use of the information contained herein (including any
+reliance thereon) is STRICTLY PROHIBITED. If you received this transmission
+in error, please immediately contact the sender and destroy the material in
+its entirety, whether in electronic or hard copy format. Thank you.
 
-iD8DBQFBsIS0dQs4kOxk3/MRAjlMAJ9HZus6LJ7oTj/OYpzn+D9nle0fsACghVot
-tpOzjmA3Klxvyig/SIMr+xo=
-=LvHT
------END PGP SIGNATURE-----
+
+

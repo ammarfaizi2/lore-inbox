@@ -1,42 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268299AbUH2Ucl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268301AbUH2Uk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268299AbUH2Ucl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 16:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbUH2Ucl
+	id S268301AbUH2Uk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 16:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268307AbUH2Uk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 16:32:41 -0400
-Received: from box.punkt.pl ([217.8.180.66]:55563 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S268301AbUH2Uck (ORCPT
+	Sun, 29 Aug 2004 16:40:28 -0400
+Received: from ipx10602.ipxserver.de ([80.190.249.152]:34823 "EHLO taytron.net")
+	by vger.kernel.org with ESMTP id S268301AbUH2UkU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 16:32:40 -0400
-From: Mariusz Mazur <mmazur@kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] linux-libc-headers 2.6.8.1
-Date: Sun, 29 Aug 2004 22:32:13 +0200
-User-Agent: KMail/1.6.2
+	Sun, 29 Aug 2004 16:40:20 -0400
+From: Florian Schirmer <jolt@tuxbox.org>
+To: Pekka Pietikainen <pp@ee.oulu.fi>, jgarzik@pobox.com
+Subject: [PATCH][0/4] b44: Cleanup and bcm47xx support
+Date: Sun, 29 Aug 2004 22:17:57 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+Content-Type: multipart/signed;
+  boundary="nextPart2614505.sLF7dPDoeK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408292232.14446.mmazur@kernel.pl>
+Message-Id: <200408292218.00756.jolt@tuxbox.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Available at http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
-Changes:
-- bugfix release, a couple of minor changes here and there
+--nextPart2614505.sLF7dPDoeK
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi,
+
+here is the second try to add bcm47xx support to the b44 driver. Changes si=
+nce=20
+the first version:
+
+=2D Splitted the patch into logical hunks
+=2D Ignore carrier lost errors (buggy hardware)
+=2D Added CAM read support
+=2D Read MAC from CAM instead of hardcoding a dummy MAC into the driver
+=2D Use a special PHY address (0x30) to indicate that there is no PHY (this=
+ is=20
+compatible with the Broadcom et and 4401 driver)
+=2D Added MDIO value calculation based on the backplane speed
+
+Comments welcome!
+
+Regards,
+   Florian
 
 
-Nothing special, really. One bigger change - on archs that have >1 possible 
-page sizes (PAGE_SIZE definition in asm/page.h) we're now using a call to 
-libc's getpagesize(), so don't count on it being static on archs like ia64.
+--nextPart2614505.sLF7dPDoeK
+Content-Type: application/pgp-signature
 
-Enjoy.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
--- 
-In the year eighty five ten
-God is gonna shake his mighty head
-He'll either say,
-"I'm pleased where man has been"
-Or tear it down, and start again
+iD8DBQBBMjn4XRF2vHoIlBsRAqt5AJ0TC4k2iZ+Fp26TqKAiaWX3bE9kKgCfRoar
+zG5U7bJnHBbTiBSnk0f1z2M=
+=kqcU
+-----END PGP SIGNATURE-----
+
+--nextPart2614505.sLF7dPDoeK--

@@ -1,30 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275682AbTHOEvv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 00:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275683AbTHOEvu
+	id S275683AbTHOEwv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 00:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275684AbTHOEwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 00:51:50 -0400
-Received: from zeus.city.tvnet.hu ([195.38.100.182]:31378 "EHLO
-	zeus.city.tvnet.hu") by vger.kernel.org with ESMTP id S275682AbTHOEvu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 00:51:50 -0400
-Subject: any chance to support dvd iso version 3.0 on the kernel level?
-From: Sipos Ferenc <sferi@mail.tvnet.hu>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060923185.18851.2.camel@zeus.city.tvnet.hu>
+	Fri, 15 Aug 2003 00:52:51 -0400
+Received: from storm.he.net ([64.71.150.66]:10665 "HELO storm.he.net")
+	by vger.kernel.org with SMTP id S275683AbTHOEws (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 00:52:48 -0400
+Date: Thu, 14 Aug 2003 21:52:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Ian Molton <spyro@f2s.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [BUG] ipaq USBserial driver
+Message-ID: <20030815045238.GB29502@kroah.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>, Ian Molton <spyro@f2s.com>,
+	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <20030815021401.792fae10.spyro@f2s.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
-Date: Fri, 15 Aug 2003 06:53:05 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030815021401.792fae10.spyro@f2s.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.21-xfs (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Aug 15, 2003 at 02:14:01AM +0100, Ian Molton wrote:
+> Hi.
+> 
+> Havent had time to track this down but the ipaq.c driver seems to have a
+> problem since about 2.5.57 or so.
+> 
+> I get repeatable stiffing of 2.6.0-test3 if I place my toshiba e750 in
+> the cradle while ipaq.ko is loaded. if it isnt loaded the machine is
+> fine. Im using uhci-hcd.
 
-It would be good to be able to mount the above type of isos through the
-loop device. Does anbody know anything about how to treat these isos
-under linux? Thx
+Can you try using the nmi watchdog to see where the kernel is locked up at?
 
-Paco
+> the e750 needs ipaq.c too be modified btw. (its prod id is 0x0409 not
+> 0406 as is the toshiba e740).
+
+Try sending a patch to the author/maintainer of this driver.
+
+thanks,
+
+greg k-h

@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267200AbUFZWXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266499AbUFZWfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267200AbUFZWXb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 18:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267213AbUFZWXb
+	id S266499AbUFZWfT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 18:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266489AbUFZWfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 18:23:31 -0400
-Received: from jupiter.loonybin.net ([208.248.0.98]:32787 "EHLO
-	jupiter.loonybin.net") by vger.kernel.org with ESMTP
-	id S267200AbUFZWX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 18:23:27 -0400
-Date: Sat, 26 Jun 2004 17:23:04 -0500
-From: Zinx Verituse <zinx@epicsol.org>
-To: linux-kernel@vger.kernel.org
-Subject: 8139too in 2.6.x tx timeout
-Message-ID: <20040626222304.GA31195@bliss>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 26 Jun 2004 18:35:19 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:63414 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S266499AbUFZWfN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 18:35:13 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: drivers/block/ub.c
+Date: Sun, 27 Jun 2004 00:36:14 +0200
+User-Agent: KMail/1.6.2
+Cc: zaitcev@redhat.com, greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com,
+       tburke@redhat.com, linux-kernel@vger.kernel.org,
+       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
+       david-b@pacbell.net
+References: <20040626130645.55be13ce@lembas.zaitcev.lan> <200406262356.49275.oliver@neukum.org> <20040626150700.544a4fb4.davem@redhat.com>
+In-Reply-To: <20040626150700.544a4fb4.davem@redhat.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406270036.14716.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This problem appears similar to the thread earlier this year with
-the subject '2.6.3 - 8139too timeout debug info', but I don't think
-it is, since the 2.6.2 driver and patches given in that thread
-don't appear to work.
+Am Sonntag, 27. Juni 2004 00:07 schrieb David S. Miller:
+> On Sat, 26 Jun 2004 23:56:49 +0200
+> Oliver Neukum <oliver@neukum.org> wrote:
+> 
+> > Unless I am mistaken, this structure is transfered as such over the bus,
+> > so IMHO here it is needed.
+> 
+> That is not the only criterious that needs to be met in order for
+> the packed attribute to be required.
+> 
+> It is needed only if the structure elements are such that gcc will
+> not packet them properly on all supported architecutures.  Peter's
+> example in his code will be packed properly without the packed
+> attribute to the best of my knowledge.
 
-I have enabled debug in the stock Linux 2.6.7 8139too.c and posted it at:
-http://zinx.xmms.org/misc/tmp/8139too.debug
-The debug shows init, DHCP request (succeeded), then a ping -f that lasts
-until shortly after it timed out.
+So either it has no effect or it is needed?
+Then why take the risk that gcc is changed or an architecture added that
+needs it? It seems to be cleaner to me to mark data structures that
+must be layed out as specified specially. Safer, too, just in case.
 
-It appears to be losing interrupts, but I don't know the cause, and
-don't know how to work around it.  The BIOS is extremely dumb, and has
-no option for level/edge, or anything even remotely useful.
-
-I can apply patches, twiddle settings, and provide any debug info needed.
-
-Network:
-10mbps half-duplex (detected correctly)
-
-Hardware:
-Thinkpad 600E
-GigaFast EE102-DLX (RTL-8139C chip)
-
-Kernel config:
-ACPI and APIC disabled completely (and the hardware does not support)
-HZ=1000 and HZ=100 (via include/asm-i386/param.h); results seem identical.
-
-Software (working with no timeouts):
-Linux 2.4.24-xfs (knoppix v3.3 2004-02-16)
-
-Software (extremely frequent tx timeouts, even under fairly low loads
-such as only ssh):
-Linux 2.6.7 (vanilla)
-Linux 2.6.7 w/ "8139too-config-napi.patch"
-Linux 2.6.7 + Linux 2.6.2 8139too.c w/ PF_IOTHREAD -> PF_FREEZE
-
--- 
-Zinx Verituse                                    http://zinx.xmms.org/
+	Regards
+		Oliver

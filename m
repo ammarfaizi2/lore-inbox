@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288403AbSADADC>; Thu, 3 Jan 2002 19:03:02 -0500
+	id <S288411AbSADAQc>; Thu, 3 Jan 2002 19:16:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288404AbSADACw>; Thu, 3 Jan 2002 19:02:52 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:20985 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S288403AbSADACr>;
-	Thu, 3 Jan 2002 19:02:47 -0500
-Date: Thu, 3 Jan 2002 17:00:32 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Ville Herva <vherva@niksula.hut.fi>, linux-kernel@vger.kernel.org,
-        sak@iki.fi, phillips@innominate.de, viro@math.psu.edu, tao@acc.umu.se
-Subject: Re: Ext2 groups descriptor corruption in 2.2 - Phillips's patch seems to work
-Message-ID: <20020103170032.H12868@lynx.no>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Ville Herva <vherva@niksula.hut.fi>, linux-kernel@vger.kernel.org,
-	sak@iki.fi, phillips@innominate.de, viro@math.psu.edu,
-	tao@acc.umu.se
-In-Reply-To: <E16LjnL-00010c-00@starship.berlin> <E16LjxJ-0003om-00@the-village.bc.nu>
+	id <S288412AbSADAQV>; Thu, 3 Jan 2002 19:16:21 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:38539
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288411AbSADAQM>; Thu, 3 Jan 2002 19:16:12 -0500
+Date: Thu, 3 Jan 2002 19:02:19 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Joerg Schilling <schilling@fokus.gmd.de>
+Cc: anderson@metrolink.com, hch@caldera.de, lsb-discuss@lists.linuxbase.org,
+        lsb-spec@lists.linuxbase.org, linux-kernel@vger.kernel.org
+Subject: Re: LSB1.1: /proc/cpuinfo
+Message-ID: <20020103190219.B27938@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Joerg Schilling <schilling@fokus.gmd.de>, anderson@metrolink.com,
+	hch@caldera.de, lsb-discuss@lists.linuxbase.org,
+	lsb-spec@lists.linuxbase.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200201032355.g03Ntx911860@burner.fokus.gmd.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E16LjxJ-0003om-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 02, 2002 at 11:53:12AM +0000
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200201032355.g03Ntx911860@burner.fokus.gmd.de>; from schilling@fokus.gmd.de on Fri, Jan 04, 2002 at 12:55:59AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 02, 2002  11:53 +0000, Alan Cox wrote:
-> > Since you have done such a thorough job of documenting the whole thing, why 
-> > not drop the other shoe and submit the patches?
+Joerg Schilling <schilling@fokus.gmd.de>:
+> The way /proc works has been introduced by Plan 9 in the first half
+> of the 80s.  What Linux added as an abuse of the /proc filesytem in
+> principle is a Plan 9 idea too. It makes sense to have something
+> similar, but please please _not_ inside the /proc tree.
 > 
-> He did 8)
-> 
-> I've asked him to run them past Stephen and the other ext2 folks
+> Sun is planning to have /sys with similar backgound in a future
+> version of Solaris so it wouls make sense to talk to the Solaris
+> kernel kackers to have a common way to go for the new /sys tree.
 
-Well, nobody else has spoken up on this, so I might as well.  I remember
-when Daniel originally posted this fix, and at the time it was the right
-thing to do.  Al's patch fixed more than Daniel's did, but I think it is
-too much change to be adding to 2.2, so we should use the minimal fix
-from Daniel, unless there are objections.
+Well, hell.  If the "/proc is a blight on the face of the planet" ranting that
+I've been hearing is just about the *name* /proc, then let's separate the
+name issue from the content issue.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+The kind of non-per-process information that is now in /proc needs to still
+be there for many purposes; autoconfiguration is the one that is bugging 
+me right now, but cluster management is just as important.
 
+If moving /proc/cpuinfo to /sys/cpuinfo means people will stop trying to make
+the cpuinfo information go away, then By all means let's move it.
+
+I want /sys/dmi, too.
+
+I'm willing to write up a proposal for /sys that would migrate the `unclean'
+/proc stuff over to ./sys, and I'm willing to write the kernel patches to
+implement the renaming.
+
+I'm motivated to attack this right now because it touches the work I'm
+doing on kernel autoconfiguration.
+
+(Copied to the linux-kernel mailing list because of a parallel argument
+happening there...)
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+The common argument that crime is caused by poverty is a kind of
+slander on the poor.
+	-- H. L. Mencken

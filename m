@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130502AbQJaWCE>; Tue, 31 Oct 2000 17:02:04 -0500
+	id <S130773AbQJaWCZ>; Tue, 31 Oct 2000 17:02:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130515AbQJaWBy>; Tue, 31 Oct 2000 17:01:54 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:3595 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130502AbQJaWBn>; Tue, 31 Oct 2000 17:01:43 -0500
-Message-ID: <39FF4061.D47E59CF@timpanogas.org>
-Date: Tue, 31 Oct 2000 14:57:53 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: Pavel Machek <pavel@suse.cz>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
+	id <S130772AbQJaWCQ>; Tue, 31 Oct 2000 17:02:16 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:45063 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S130769AbQJaWCF>;
+	Tue, 31 Oct 2000 17:02:05 -0500
+Date: Wed, 1 Nov 2000 00:12:01 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <Pine.LNX.4.21.0010312229030.15159-100000@elte.hu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <39FF3F0B.81A1EE13@timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0011010010380.16674-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Tue, 31 Oct 2000, Jeff V. Merkey wrote:
 
-Ingo Molnar wrote:
+> > > > Excuse me, 857,000,000 instructions executed and 460,000,000
+> > > > context switches a second -- on a PII system at 350 Mhz. [...]
+> > 
+> > > That's more than one context switch per clock. I do not think so.
+> > > Really go and check those numbers.
+> > 
+> > yep, you cannot have 460 million context switches on that system,
+> > unless you have some Clintonesque definition for 'context switch' ;-)
 > 
-> On Tue, 31 Oct 2000, Jeff V. Merkey wrote:
-> 
-> > It relies on an anomoly in the design of Intel's cache controllers,
-> > and with memory based applications, I can get 120% scaling per
-> > procesoor by jugling the working set of executable code cached accros
-> > each processor.  There's sample code with this kernel you can use to
-> > verify....
-> 
-> FYI, this is a very old concept and a scalability FAQ item. It's called
-> "sublinear scaling", and SGI folks have already published articles about
-> it 10 years ago.
+> The numbers don't lie. [...]
 
-Ingo,
+sure ;) I can do infinite context switches! You dont believe? See:
 
-You don't even know what it is enough to comment intelligently.  You can
-write the patent office and obtain a copy.  The patent is currently in
-dispute between Novell and several other companies over S&E ownership,
-and there's a court hearing scheduled to resolve it (lukily I don't have
-to deal with this one).  Nice thing about being an inventor, though, is
-I have rights to it, no matter who ends up with the S&E assignment.
-(dogs fights over a bone ...).
+	#define schedule() do { } while (0)
 
-Jeff
+[there is a small restriction, should only be used in single-task
+systems.]
 
-> 
->         Ingo
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

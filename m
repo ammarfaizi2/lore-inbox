@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbUDOT2n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 15:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUDOT2n
+	id S261292AbUDOTfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 15:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUDOTfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 15:28:43 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:29571 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S262316AbUDOT2e (ORCPT
+	Thu, 15 Apr 2004 15:35:09 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:20900 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261292AbUDOTfD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 15:28:34 -0400
-Subject: Re: IO-APIC on nforce2 [PATCH]
-From: Len Brown <len.brown@intel.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Ross Dickson <ross@datscreative.com.au>, christian.kroener@tu-harburg.de,
+	Thu, 15 Apr 2004 15:35:03 -0400
+Date: Thu, 15 Apr 2004 15:32:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.55.0404141220500.17639@jurand.ds.pg.gda.pl>
-References: <200404131117.31306.ross@datscreative.com.au>
-	 <200404131703.09572.ross@datscreative.com.au>
-	 <1081893978.2251.653.camel@dhcppc4>
-	 <200404141502.14023.ross@datscreative.com.au>
-	 <Pine.LNX.4.55.0404141220500.17639@jurand.ds.pg.gda.pl>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1082057295.24424.149.camel@dhcppc4>
+Subject: Re: SATA support merge in 2.4.27
+Message-ID: <20040415193258.GA28951@havoc.gtf.org>
+References: <1Ljts-1eQ-29@gated-at.bofh.it> <m37jwhqc2u.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 15 Apr 2004 15:28:15 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m37jwhqc2u.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-14 at 06:37, Maciej W. Rozycki wrote:
-> On Wed, 14 Apr 2004, Ross Dickson wrote:
-
-> > The clock skew is an interesting one, I think the clock uses tsc if available
-> > to interpolate between timer ints and if so should it not also be used to 
-> > validate the timer ints in case of noise? Apparently the clock speeds up not
-> > slows down in those cases?
+On Thu, Apr 15, 2004 at 09:24:09PM +0200, Andi Kleen wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
 > 
->  With real hardware perhaps it can be debugged.  The interaction between
-> the 8254, the 8259As and the APICs seems interesting in the chipset.
+> > Jeff Garzik sent me a SATA update to be merged in 2.4.x. 
+> >
+> > A lot of new boxes are shipping with SATA-only disks, and its pretty bad
+> > to not have a "stable" series without such industry-standard support.
+> >
+> > This is the last feature to be merged on 2.4.x, and only because its quite 
+> > necessary.
+> >
+> > Any oppositions?
+> 
+> The big problem is that the SATA code will move some disks from
+> /dev/hdX to /dev/sdX (e.g. most disks in modern intel chipsets) And
+> then the boxes don't boot anymore. It's probably a bad idea to merge
+> it.
 
-> Perhaps the override to INTIN2 is to tell the timer is really unavailable
-> directly?
+This statement is false for the majority of the SATA drivers.
 
-That would be way too subtle for a BIOS writer;-)
+Further, ata_piix is not included in the merge.
 
-> I can't see a way to have an ACPI override that specifies an
-> ISA interrupt is not connected to the I/O APIC (unlike with the MPS).
+	Jeff
 
-I agree.  And I think the existence of this /proc/interrupts
-entry on an ACPI-enabled system should probably go away.
-
-           CPU0       CPU1
-  2:          0          0          XT-PIC  cascade
-
-ACPI also doesn't support sharing more than 1 pin on an IRQ.
-So if you see a construct like this below, it is also a bug:
-
-IRQ to pin mappings:
-IRQ23 -> 0:23-> 0:7
-
-cheers,
--Len
 
 

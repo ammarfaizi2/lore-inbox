@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263169AbUCSTeu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 14:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263170AbUCSTeu
+	id S261154AbUCSTyn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 14:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUCSTyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 14:34:50 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:33152 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263169AbUCSTes (ORCPT
+	Fri, 19 Mar 2004 14:54:43 -0500
+Received: from ns.suse.de ([195.135.220.2]:26010 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261154AbUCSTym (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 14:34:48 -0500
-Date: Fri, 19 Mar 2004 20:36:03 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Peter Williams <peterw@aurema.com>,
-       =?iso-8859-1?B?IkZy6WTpcmljIEwuIFcuIE1ldW5pZXIi?= 
-	<1@pervalidus.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: XFree86 seems to be being wrongly accused of doing the wrong thing
-Message-ID: <20040319193603.GA351@ucw.cz>
-References: <40593015.9090507@aurema.com> <Pine.LNX.4.58.0403180346000.1276@pervalidus.dyndns.org> <40594984.3010001@aurema.com> <Pine.LNX.4.58.0403191236170.10220@innerfire.net> <20040319190355.GA30255@ucw.cz> <Pine.LNX.4.58.0403191424290.12113@innerfire.net>
+	Fri, 19 Mar 2004 14:54:42 -0500
+Subject: Re: True  fsync() in Linux (on IDE)
+From: Chris Mason <mason@suse.com>
+To: reiser@namesys.com
+Cc: Peter Zaitsev <peter@mysql.com>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <405B4BA3.2030205@namesys.com>
+References: <1079572101.2748.711.camel@abyss.local>
+	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
+	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
+	 <1079641026.2447.327.camel@abyss.local>
+	 <1079642001.11057.7.camel@watt.suse.com>
+	 <1079642801.2447.369.camel@abyss.local>
+	 <1079643740.11057.16.camel@watt.suse.com>
+	 <1079644190.2450.405.camel@abyss.local>
+	 <1079644743.11055.26.camel@watt.suse.com>  <405AA9D9.40109@namesys.com>
+	 <1079704347.11057.130.camel@watt.suse.com>  <405B4BA3.2030205@namesys.com>
+Content-Type: text/plain
+Message-Id: <1079726221.11058.174.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0403191424290.12113@innerfire.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 19 Mar 2004 14:57:01 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19, 2004 at 02:26:05PM -0500, Gerhard Mack wrote:
-> On Fri, 19 Mar 2004, Vojtech Pavlik wrote:
-> 
-> > Date: Fri, 19 Mar 2004 20:03:55 +0100
-> > From: Vojtech Pavlik <vojtech@suse.cz>
-> > To: Gerhard Mack <gmack@innerfire.net>
-> > Cc: Peter Williams <peterw@aurema.com>,
-> >      "[iso-8859-1] \"Frédéric L. W. Meunier\"" <1@pervalidus.net>,
-> >      linux-kernel@vger.kernel.org
-> > Subject: Re: XFree86 seems to be being wrongly accused of doing the wrong
-> >     thing
-> >
-> > On Fri, Mar 19, 2004 at 12:37:37PM -0500, Gerhard Mack wrote:
-> > > On Thu, 18 Mar 2004, Peter Williams wrote:
-> > >
-> > > > Frédéric L. W. Meunier wrote:
-> > > > > Wrongly ?
-> > > >
-> > > > Yes, wrongly.  XFree86 wasn't even running when the messages appeared so
-> > > > there's no way that it could be to blame.  Also no keys had been pressed
-> > > > or released.
-> > >
-> > > I have a machine here I see that message on before the init scripts even
-> > > load.
-> >
-> > Quick question: Does it go away if you compile USB support into the
-> > kernel statically?
-> >
-> 
-> I have USB compiled in and it's still there.  I should also note that the
-> keyboard is plugged into the ps/2 port.
+On Fri, 2004-03-19 at 14:36, Hans Reiser wrote:
 
-Yes, if you had the keyboard in USB, then i8042 wouldn't need to be used
-at all.
+> I hope I am totally off-base and not understanding you....  Please help 
+> me here.
 
-> The mouse on the other hand is plugged into the USB port.
+Lets look at actual scope of the problem:
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+filesystem metadata
+filesystem data (fsync, O_SYNC, O_DIRECT)
+block device data (fsync, O_SYNC, O_DIRECT)
+
+Multiply the cases above times each filesystem and also times md and
+device mapper, since the barriers need to aggregate down to all the
+drives.
+
+In other words, just fixing fsync in 2.4 is not enough, and there is
+still considerable development needed in 2.6.  Maybe after all the 2.6
+changes are done and accepted we can consider backporting parts of it to
+2.4.
+
+-chris
+
+

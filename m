@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271150AbTG1VQY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 17:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271153AbTG1VQY
+	id S270824AbTG1VWR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 17:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271047AbTG1VWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 17:16:24 -0400
-Received: from lidskialf.net ([62.3.233.115]:8667 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S271150AbTG1VQD (ORCPT
+	Mon, 28 Jul 2003 17:22:17 -0400
+Received: from pat.uio.no ([129.240.130.16]:1460 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S270824AbTG1VWO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 17:16:03 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: Alexander Rau <al.rau@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ACPI patch which fixes all my IRQ problems on nforce2 -- linux-2.5.75-acpi-irqparams-final4.patch
-Date: Mon, 28 Jul 2003 22:16:01 +0100
-User-Agent: KMail/1.5.2
-References: <200307272305.12412.adq_dvb@lidskialf.net> <3F254E5F.8040700@gmx.de> <3F258E53.3070204@gmx.de>
-In-Reply-To: <3F258E53.3070204@gmx.de>
+	Mon, 28 Jul 2003 17:22:14 -0400
+To: "Kathy Frazier" <kfrazier@mdc-dayton.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Mike Dresser" <mdresser_l@windsormachine.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: DMA not supported with Intel ICH4 I/O controller?
+References: <PMEMILJKPKGMMELCJCIGCEJCCDAA.kfrazier@mdc-dayton.com>
+From: Terje Kvernes <terjekv@math.uio.no>
+Organization: The friends of mr. Tux
+X-URL: http://terje.kvernes.no/
+Date: Mon, 28 Jul 2003 23:21:49 +0200
+In-Reply-To: <PMEMILJKPKGMMELCJCIGCEJCCDAA.kfrazier@mdc-dayton.com> (Kathy
+ Frazier's message of "Mon, 28 Jul 2003 17:02:14 -0500")
+Message-ID: <wxx1xwas5xu.fsf@nommo.uio.no>
+User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307282216.01742.adq_dvb@lidskialf.net>
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Kathy Frazier" <kfrazier@mdc-dayton.com> writes:
 
-> > Sorry, there's still a kernel oops during bootup. I'll provide a kernel
-> > trace when I'm back at home.
-> >
-> > Regards, Al
->
-> I tried to dump the kernel messages onto my printer. Unfortunatly it
-> doesn't print anything, only with acpi=off.
->
-> This is somehow unconventional, but here's a link for a screenshot of
-> the trace. Sorry, one screen is missing but the messages were too fast
-> for my camera :) I can still recognize a lots of ......... on the
-> missing screen.
->
-> http://w3studi.informatik.uni-stuttgart.de/~rauar/IMG_1120.JPG
+> Thanks for your reply!  Later?  Could you be more specific?  What
+> version?  
 
-Thats obviously either a bug in the ACPI parser, or a bug in the AML code of 
-your BIOS. Can you send a copy of your /proc/acpi/dsdt. 
+  as far as I can tell, 2.4.21 doesn't support it, but 2.4.22-pre8
+  mentions the chipset in drivers/ide/pci/piix.h.  try downloading
+  2.4.21 and patch it up to 2.4.22-pre8 and see if it works.  :-)
 
-Oh er, as you can't boot it with ACPI, use 
-http://people.freebsd.org/~takawata/pacpidump.tar.gz to dump it in non-ACPI 
-mode..
+> Management is chomping at the bit here.  
 
+  you have my sympathy, for what it's worth.
+
+  [ ... ]
+
+-- 
+Terje

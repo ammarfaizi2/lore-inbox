@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129828AbQLTS20>; Wed, 20 Dec 2000 13:28:26 -0500
+	id <S130027AbQLTS3G>; Wed, 20 Dec 2000 13:29:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130027AbQLTS2G>; Wed, 20 Dec 2000 13:28:06 -0500
-Received: from ife.ee.ethz.ch ([129.132.29.2]:7926 "EHLO ife.ee.ethz.ch")
-	by vger.kernel.org with ESMTP id <S129828AbQLTS1z>;
-	Wed, 20 Dec 2000 13:27:55 -0500
-Message-ID: <3A40F280.427D8907@ife.ee.ethz.ch>
-Date: Wed, 20 Dec 2000 18:55:12 +0100
-From: Thomas Sailer <sailer@ife.ee.ethz.ch>
-Organization: IfE
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: de,fr,ru
-MIME-Version: 1.0
-To: f5ibh <f5ibh@db0bm.ampr.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19/2.4.0-test and usbdevfs
-In-Reply-To: <200012201309.OAA08128@db0bm.ampr.org>
+	id <S129524AbQLTS24>; Wed, 20 Dec 2000 13:28:56 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:36873 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S130027AbQLTS2l>; Wed, 20 Dec 2000 13:28:41 -0500
+Date: Wed, 20 Dec 2000 18:58:07 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /dev/random: really secure?
+Message-ID: <20001220185807.A22506@pcep-jamie.cern.ch>
+In-Reply-To: <E148a7v-0001Ub-00@calista.inka.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E148a7v-0001Ub-00@calista.inka.de>; from ecki@lina.inka.de on Wed, Dec 20, 2000 at 04:41:15AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> modprobe: modprobe: Can't locate module usbdevfs
-> mount: fs type usbdevfs not supported by kernel
+Bernd Eckenfels wrote:
+> In article <20001218213801.A19903@pcep-jamie.cern.ch> you wrote:
+> > A potential weakness.  The entropy estimator can be manipulated by
+> > feeding data which looks random to the estimator, but which is in fact
+> > not random at all.
+> 
+> That's why feeding randomness is a priveledgedoperation.
 
-Add:
+I was referring to randomness influenced externally, e.g. network
+packet timing, hard disk timing by choice of which http requests, etc.
 
-alias usbdevfs usbcore
-
-to /etc/modules.conf
-
-Tom
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

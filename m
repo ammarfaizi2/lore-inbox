@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267261AbSKPKf7>; Sat, 16 Nov 2002 05:35:59 -0500
+	id <S267263AbSKPKt6>; Sat, 16 Nov 2002 05:49:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267262AbSKPKf7>; Sat, 16 Nov 2002 05:35:59 -0500
-Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:41495
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267261AbSKPKf6>; Sat, 16 Nov 2002 05:35:58 -0500
-Date: Sat, 16 Nov 2002 05:46:10 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Oliver Neukum <oliver@neukum.name>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartmann <greg@kroah.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH][2.5] USB core/urb.c triggers slab bugcheck
-In-Reply-To: <200211161118.55733.oliver@neukum.name>
-Message-ID: <Pine.LNX.4.44.0211160544020.1810-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267264AbSKPKt5>; Sat, 16 Nov 2002 05:49:57 -0500
+Received: from ns.suse.de ([213.95.15.193]:34323 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267263AbSKPKt5>;
+	Sat, 16 Nov 2002 05:49:57 -0500
+Date: Sat, 16 Nov 2002 11:56:52 +0100
+From: Andi Kleen <ak@suse.de>
+To: Akira Tsukamoto <at541@columbia.edu>
+Cc: linux-kernel@vger.kernel.org, Hirokazu Takahashi <taka@valinux.co.jp>,
+       Andrew Morton <akpm@digeo.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [CFT][PATCH]  2.5.47 Athlon/Druon, much faster copy_user function
+Message-ID: <20021116115652.A26519@wotan.suse.de>
+References: <20021115235234.8DE4.AT541@columbia.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021115235234.8DE4.AT541@columbia.edu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Nov 2002, Oliver Neukum wrote:
 
-> Am Samstag, 16. November 2002 10:57 schrieb Zwane Mwaikambo:
-> > This patch is also required to get my box to boot
-> 
-> Why is this needed ? I might be stupid, but it seems as if this patch
-> changes nothing.
+You don't seem to save/restore the FPU state, so it will be likely 
+corrupted after your copy runs.
 
-Au contraire, i'm the idiot, i had debugged all the oopses in one sitting 
-without booting each 'fix', i was pretty certain that bug had been triggered 
-seperately in an earlier boot.
+Also I'm pretty sure that using movntq (= forcing destination out of 
+cache) is not a good strategy for generic copy_from_user(). It may 
+be a win for the copies in write ( user space -> page cache ), but 
+will hurt for all the ioctls and other things that actually need the
+data in cache afterwards. I am afraid it is not enough to do micro benchmarks
+here.
 
-	Zwane
--- 
-function.linuxpower.ca
 
+-Andi

@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTLUNDm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 08:03:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbTLUNDm
+	id S262882AbTLUNf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 08:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbTLUNf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 08:03:42 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:44815 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S262844AbTLUNDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 08:03:40 -0500
-Message-ID: <3FE59BAC.6030003@snapgear.com>
-Date: Sun, 21 Dec 2003 23:10:04 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Sun, 21 Dec 2003 08:35:26 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:41440 "EHLO
+	thoron.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262882AbTLUNfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 08:35:21 -0500
+Date: Sun, 21 Dec 2003 08:35:09 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
+In-Reply-To: <20031221105333.GC3438@mail.shareable.org>
+Message-ID: <Xine.LNX.4.44.0312210833030.3044-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.0-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Sun, 21 Dec 2003, Jamie Lokier wrote:
 
-An update of the uClinux (MMU-less) fixups against 2.6.0.
-No changes over linux-2.6.0-test11-uc0 just generated and tested
-against 2.6.0.
+> Albert Cahalan wrote:
+> > What about the obvious Kconfig option?
+> > 
+> > config PATENT_1234567890
+> >         bool "Patent 1234567890"
+> >         default n
+> >         help
+> >           Say Y here if you have the right to use
+> >           patent 1234567890 (the foo patent). Some
+> >           countries do not recognise this patent, an
+> >           educational or research exemption may apply,
+> >           you may be the patent holder, the patent
+> >           may have expired, or you may have aquired
+> >           rights via licensing. Seek legal help if you
+> >           need advice concerning your rights. If unsure,
+> >           say N.
+> 
+> I expect this was said in jest, but it would be delightful to see this
+> done for real.  To the best of my knowlege it's uncharted territory,
+> so perhaps what you suggest _would_ be upheld in a court of law as
+> permissible?
+> 
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.0-uc0.patch.gz
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
-
-
-
+This approach would turn Linux into proprietary software.
 
 
-
-
-
-
-
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
 

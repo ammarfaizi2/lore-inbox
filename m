@@ -1,89 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268077AbTAJApJ>; Thu, 9 Jan 2003 19:45:09 -0500
+	id <S268076AbTAJAo0>; Thu, 9 Jan 2003 19:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268079AbTAJApI>; Thu, 9 Jan 2003 19:45:08 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:23971 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S268077AbTAJApD>;
-	Thu, 9 Jan 2003 19:45:03 -0500
-Subject: [PATCH] linux-2.5.55_timer-none_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042159743.1046.280.camel@w-jstultz2.beaverton.ibm.com>
+	id <S268077AbTAJAo0>; Thu, 9 Jan 2003 19:44:26 -0500
+Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:51975 "EHLO
+	antichrist") by vger.kernel.org with ESMTP id <S268076AbTAJAoZ>;
+	Thu, 9 Jan 2003 19:44:25 -0500
+Date: Thu, 9 Jan 2003 16:47:57 -0800
+From: carbonated beverage <ramune@net-ronin.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [ramune@net-ronin.org: [PATCH] module-init-tools update]
+Message-ID: <20030110004757.GA19917@net-ronin.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 09 Jan 2003 16:49:04 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, All,
+	Resend, as I didn't see this one show up on l-k.
 
-	Just a re-sync against 2.5.55. This patch creates an empty timer_opt
-structure (timer_none) which is then used as a default initializer to
-the timer pointer. This lets us avoid having to check before
-dereferencing the timer in future code. 
+	Here's a small patch for Documentation/Changes and scripts/ver_linux
+to use depmod instead of rmmod as per Rusty's suggestion.
 
-Please apply.
+	rmmod will exec the old version of the modutils depending on the
+command-line, whereas depmod will give its own version instead.
 
-thanks
--john
+	Please apply.
 
-diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
---- a/arch/i386/kernel/time.c	Thu Jan  9 15:21:21 2003
-+++ b/arch/i386/kernel/time.c	Thu Jan  9 15:21:21 2003
-@@ -78,7 +78,8 @@
- spinlock_t i8253_lock = SPIN_LOCK_UNLOCKED;
- EXPORT_SYMBOL(i8253_lock);
+-- DN
+Daniel
+
+--- Documentation/Changes.old	Thu Jan  9 10:51:36 2003
++++ Documentation/Changes	Thu Jan  9 11:27:54 2003
+@@ -52,7 +52,7 @@
+ o  Gnu make               3.78                    # make --version
+ o  binutils               2.9.5.0.25              # ld -v
+ o  util-linux             2.10o                   # fdformat --version
+-o  module-init-tools      0.9                     # rmmod -V
++o  module-init-tools      0.9                     # depmod -V
+ o  e2fsprogs              1.29                    # tune2fs
+ o  jfsutils               1.0.14                  # fsck.jfs -V
+ o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
+--- scripts/ver_linux.old	Thu Jan  9 10:52:10 2003
++++ scripts/ver_linux		Thu Jan  9 11:27:57 2003
+@@ -28,7 +28,7 @@
  
--struct timer_opts* timer;
-+extern struct timer_opts timer_none;
-+struct timer_opts* timer = &timer_none;
+ mount --version | awk -F\- '{print "mount                 ", $NF}'
  
- /*
-  * This version of gettimeofday has microsecond resolution
-diff -Nru a/arch/i386/kernel/timers/Makefile b/arch/i386/kernel/timers/Makefile
---- a/arch/i386/kernel/timers/Makefile	Thu Jan  9 15:21:21 2003
-+++ b/arch/i386/kernel/timers/Makefile	Thu Jan  9 15:21:21 2003
-@@ -2,6 +2,6 @@
- # Makefile for x86 timers
- #
+-rmmod -V  2>&1 | awk 'NR==1 {print "module-init-tools     ",$NF}'
++depmod -V  2>&1 | awk 'NR==1 {print "module-init-tools     ",$NF}'
  
--obj-y := timer.o timer_tsc.o timer_pit.o
-+obj-y := timer.o timer_none.o timer_tsc.o timer_pit.o
- 
- obj-$(CONFIG_X86_CYCLONE)	+= timer_cyclone.o
-diff -Nru a/arch/i386/kernel/timers/timer_none.c b/arch/i386/kernel/timers/timer_none.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/kernel/timers/timer_none.c	Thu Jan  9 15:21:21 2003
-@@ -0,0 +1,24 @@
-+#include <asm/timer.h>
-+
-+static int init_none(void)
-+{
-+	return 0;
-+}
-+
-+static void mark_offset_none(void)
-+{
-+	/* nothing needed */
-+}
-+
-+static unsigned long get_offset_none(void)
-+{
-+	return 0;
-+}
-+
-+
-+/* tsc timer_opts struct */
-+struct timer_opts timer_none = {
-+	.init =		init_none, 
-+	.mark_offset =	mark_offset_none, 
-+	.get_offset =	get_offset_none,
-+};
-
-
-
+ tune2fs 2>&1 | grep "^tune2fs" | sed 's/,//' |  awk \
+ 'NR==1 {print "e2fsprogs             ", $2}'

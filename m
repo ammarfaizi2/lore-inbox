@@ -1,143 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268276AbTBWKTb>; Sun, 23 Feb 2003 05:19:31 -0500
+	id <S268119AbTBWKqC>; Sun, 23 Feb 2003 05:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268292AbTBWKTa>; Sun, 23 Feb 2003 05:19:30 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:19460 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S268276AbTBWKT2>; Sun, 23 Feb 2003 05:19:28 -0500
-Date: Sun, 23 Feb 2003 10:29:37 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] PC-9800 subarch. support for 2.5.62-AC1 (6/21) FS & partiton
-Message-ID: <20030223102937.A15963@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Osamu Tomita <tomita@cinet.co.jp>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20030223092116.GA1324@yuzuki.cinet.co.jp> <20030223094325.GG1324@yuzuki.cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030223094325.GG1324@yuzuki.cinet.co.jp>; from tomita@cinet.co.jp on Sun, Feb 23, 2003 at 06:43:25PM +0900
+	id <S268123AbTBWKqC>; Sun, 23 Feb 2003 05:46:02 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:34211 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S268119AbTBWKqB>;
+	Sun, 23 Feb 2003 05:46:01 -0500
+Date: Sun, 23 Feb 2003 11:56:00 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcus Meissner <meissner@suse.de>
+cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       engebret@us.ibm.com
+Subject: Re: [PATCH] fixed pcnet32 multicast listen on big endian
+In-Reply-To: <Pine.GSO.4.21.0302231113120.28500-100000@vervain.sonytel.be>
+Message-ID: <Pine.GSO.4.21.0302231154190.28500-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 23, 2003 at 06:43:25PM +0900, Osamu Tomita wrote:
-> -	if (FAT_FIRST_ENT(sb, media) != first) {
-> +	if (FAT_FIRST_ENT(sb, media) != first
-> +	    && (!pc98 || media != 0xf8 || (first & 0xff) != 0xfe))
-> +	{
+On Sun, 23 Feb 2003, Geert Uytterhoeven wrote:
+> On Wed, 5 Feb 2003, Marcus Meissner wrote:
+> > This fixes multicast listen for pcnet32 on at least powerpc and powerpc64
+> > kernels.
+> > 
+> > The mcast_table is in memory referenced by the card and so it needs
+> > to be accessed in little endian mode.
+> > 
+> > Ciao, Marcus
+> > 
+> > --- linux-2.4.19/drivers/net/pcnet32.c.be	2003-02-05 07:59:27.000000000 +0100
+> > +++ linux-2.4.19/drivers/net/pcnet32.c	2003-02-05 08:00:22.000000000 +0100
+> > @@ -1534,7 +1534,9 @@
+> >  	
+> >  	crc = ether_crc_le(6, addrs);
+> >  	crc = crc >> 26;
+> > -	mcast_table [crc >> 4] |= 1 << (crc & 0xf);
+> > +	mcast_table [crc >> 4] = le16_to_cpu(
+>                                  ^^^^^^^^^^^
+> > +		le16_to_cpu(mcast_table [crc >> 4]) | (1 << (crc & 0xf))
+> > +	);
+> 
+> Shouldn't the first conversion be `cpu_to_le16'?
 
-I think this should be made unconditionally.  There's no reason why
-non-pc98 linux machines shouldn't read fat filesystems created on pc98.
+Ugh, a quick grep shows that this driver _always_ uses `le*_to_cpu()' to
+convert from CPU to little endian.
 
-> +/* #ifdef CONFIG_BLK_DEV_IDEDISK */
-> +#include <linux/ide.h>
-> +/* #endif */
-> +
-> +/* #ifdef CONFIG_BLK_DEV_SD */
-> +#include "../../drivers/scsi/scsi.h"
-> +#include "../../drivers/scsi/hosts.h"
-> +#include <scsi/scsicam.h>
-> +/* #endif */
+Gr{oetje,eeting}s,
 
-this is really ugly..
+						Geert
 
-> +	int g_head, g_sect;
-> +	Sector sect;
-> +	const struct nec98_partition *part;
-> +	unsigned char *data;
-> +	int sector_size = bdev_hardsect_size(bdev);
-> +	int major = major(to_kdev_t(bdev->bd_dev));
-> +	int minor = minor(to_kdev_t(bdev->bd_dev));
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-use MAJOR/MINOR here.
-
-> +
-> +	switch (major) {
-> +#if defined CONFIG_BLK_DEV_HD_ONLY
-> +	case HD_MAJOR:
-> +	{
-> +		extern struct hd_i_struct hd_info[2];
-> +
-> +		g_head = hd_info[minor >> 6].head;
-> +		g_sect = hd_info[minor >> 6].sect;
-> +		break;
-> +	}
-> +#endif /* CONFIG_BLK_DEV_HD_ONLY */
-> +#if defined CONFIG_BLK_DEV_SD || defined CONFIG_BLK_DEV_SD_MODULE
-> +	case SCSI_DISK0_MAJOR:
-> +	case SCSI_DISK1_MAJOR:
-> +	case SCSI_DISK2_MAJOR:
-> +	case SCSI_DISK3_MAJOR:
-> +	case SCSI_DISK4_MAJOR:
-> +	case SCSI_DISK5_MAJOR:
-> +	case SCSI_DISK6_MAJOR:
-> +	case SCSI_DISK7_MAJOR:
-> +	{
-> +		int diskinfo[3] = { 0, 0, 0 };
-> +
-> +		pc98_bios_param(bdev, diskinfo);
-> +
-> +		if ((g_head = diskinfo[0]) <= 0)
-> +			g_head = 8;
-> +		if ((g_sect = diskinfo[1]) <= 0)
-> +			g_sect = 17;
-> +		break;
-> +	}
-> +#endif /* CONFIG_BLK_DEV_SD(_MODULE) */
-> +#if defined CONFIG_BLK_DEV_IDEDISK || defined CONFIG_BLK_DEV_IDEDISK_MODULE
-> +	case IDE0_MAJOR:
-> +	case IDE1_MAJOR:
-> +	case IDE2_MAJOR:
-> +	case IDE3_MAJOR:
-> +	case IDE4_MAJOR:
-> +	case IDE5_MAJOR:
-> +	case IDE6_MAJOR:
-> +	case IDE7_MAJOR:
-> +	case IDE8_MAJOR:
-> +	case IDE9_MAJOR:
-> +	{
-> +		ide_drive_t *drive;
-> +		unsigned int	h;
-> +
-> +		for (h = 0; h < MAX_HWIFS; ++h) {
-> +			ide_hwif_t  *hwif = &ide_hwifs[h];
-> +			if (hwif->present && major == hwif->major) {
-> +				unsigned unit = minor >> PARTN_BITS;
-> +				if (unit < MAX_DRIVES) {
-> +					drive = &hwif->drives[unit];
-> +					if (drive->present) {
-> +						g_head = drive->head;
-> +						g_sect = drive->sect;
-> +						goto found;
-> +					}
-> +				}
-> +				break;
-> +			}
-> +		}
-> +	}
-> +#endif /* CONFIG_BLK_DEV_IDEDISK(_MODULE) */
-> +	default:
-> +		printk(" unsupported disk (major = %u)\n", major);
-> +		return 0;
-> +	}
-
-This is horribly ugly.  Just do an inkernel ioctl instead.  Something
-like the following (untested!):
-
-	struct hd_geometry geo;
-	int err;
-
-	err = ioctl_by_bdev(bdev, HDIO_GETGEO, &geo);
-	if (err)
-		return err;
-
-	g_head = geo.heads;
-	g_sect = geo.sectors;
-	
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278275AbRKNW0P>; Wed, 14 Nov 2001 17:26:15 -0500
+	id <S278358AbRKNWdp>; Wed, 14 Nov 2001 17:33:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278358AbRKNW0F>; Wed, 14 Nov 2001 17:26:05 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:11025 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278275AbRKNWZt>;
-	Wed, 14 Nov 2001 17:25:49 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Thomas Dodd <ted@cypress.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Modutils can't handle long kernel names 
-In-Reply-To: Your message of "Wed, 14 Nov 2001 16:04:38 MDT."
-             <3BF2EA76.6010702@cypress.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 15 Nov 2001 09:25:39 +1100
-Message-ID: <28111.1005776739@ocs3.intra.ocs.com.au>
+	id <S278364AbRKNWdf>; Wed, 14 Nov 2001 17:33:35 -0500
+Received: from laird.sea.internap.com ([206.253.215.165]:10587 "EHLO
+	laird.sea.internap.com") by vger.kernel.org with ESMTP
+	id <S278358AbRKNWdV>; Wed, 14 Nov 2001 17:33:21 -0500
+Date: Wed, 14 Nov 2001 14:33:07 -0800 (PST)
+From: Scott Laird <laird@internap.com>
+X-X-Sender: <laird@laird.sea.internap.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: "Peter T. Breuer" <ptb@it.uc3m.es>, <dalecki@evision.ag>,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: blocks or KB? (was: .. current meaning of blk_size array)
+In-Reply-To: <20011114164957.A7587@redhat.com>
+Message-ID: <Pine.LNX.4.33.0111141421070.829-100000@laird.sea.internap.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Nov 2001 16:04:38 -0600, 
-Thomas Dodd <ted@cypress.com> wrote:
->Keith Owens wrote:
->> +uts_len		:= 64
->> +uts_truncate	:= sed -e 's/\(.\{1,$(uts_len)\}\).*/\1/'
->
->Should this be a fixed length of 64?
->Or should it be grabbed form a header somewhere?
->So when/if SYS_NMLN/_UTSNAME_LENGTH is changed
->longer strings can be used? I check and Solaris 8
->defines SYS_NMLN as 257.
->
->Would this break cross-comiling badly?
->Are other libc headers needed in the build?
 
-This is the kernel's idea of uts length, not glibc, it is independent
-of where you are compiling.  It could be extracted from the kernel
-header,
-  uts_len := $(shell sed -ne 's/#define __NEW_UTS_LEN //p' include/linux/utsname.h)
-but why bother?  The value has been fixed at 64 since at least 2.0 and
-is embedded in glibc so it is unlikely to change.  Even if it does
-change, it must be upwards so the worst case is fail safe.
+
+On Wed, 14 Nov 2001, Benjamin LaHaise wrote:
+>
+> On Wed, Nov 14, 2001 at 02:16:39PM -0700, Andreas Dilger wrote:
+> > Well, the rumor is wrong.  There has always been a single-device 1TB/2TB
+> > limit in the kernel (2^31 or 2^32 * 512 byte sector size), and until
+> > recently it has not been a problem.  To remove the problem Jens Axboe
+> > (I think, or Ben LaHaise, can't remember) has a patch to support 64-bit
+> > block counts and has been tested with > 2TB devices.
+>
+> It was tested with a 10TB loopback raid, not a real device.  Strangly,
+> nobody made any effort to test on real physical hardware (or offer any
+> hardware for me to test on ;-).  The patch was against ~2.4.6 and will
+> need to get dusted off again soon.
+>
+
+Interesting.  I have a couple 14x 100GB IDE boxes scheduled to show
+up next week.  If I can get a patch for a reasonably recent kernel, I
+could do a few tests on a ~1.2 GB FS, and maybe on one a bit bigger.
+
+Once 160GB drives start shipping, it should be possible to make a 2TB
+software RAID5 box in a 4U case for around $7k.
+
+Interesting question: does Linux have problems with large NFS imports?
+
+
+Scott
 

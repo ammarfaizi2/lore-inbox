@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVCCL23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVCCLof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbVCCL23 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 06:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVCCLXh
+	id S261625AbVCCLof (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 06:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVCCLkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 06:23:37 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22288 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261637AbVCCLWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 06:22:05 -0500
-Date: Thu, 3 Mar 2005 12:22:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: United States Patent: 6,862,609]
-Message-ID: <20050303112203.GO4608@stusta.de>
-References: <4226781B.7080302@utah-nac.org> <200503022227.40614.gene.heskett@verizon.net> <4226927A.6010107@utah-nac.org> <200503030121.08778.gene.heskett@verizon.net> <1109845895.28560.24.camel@tara.firmix.at>
+	Thu, 3 Mar 2005 06:40:52 -0500
+Received: from fire.osdl.org ([65.172.181.4]:61114 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261625AbVCCLhl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 06:37:41 -0500
+Date: Thu, 3 Mar 2005 03:37:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: jes@trained-monkey.org (Jes Sorensen)
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
+Message-Id: <20050303033704.6fb77a34.akpm@osdl.org>
+In-Reply-To: <16923.193.128608.607599@jaguar.mkp.net>
+References: <16923.193.128608.607599@jaguar.mkp.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1109845895.28560.24.camel@tara.firmix.at>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 11:31:36AM +0100, Bernd Petrovitsch wrote:
-> On Thu, 2005-03-03 at 01:21 -0500, Gene Heskett wrote:
-> [...]
-> > It brings up another sore point with me.  I'm of the opinion that both 
-> > copyright, and patent, should be granted to the author/inventor on a 
-> > non-transferable basis.  He could then sell rights to use it for a 
-> 
-> ACK. This would kill the abuse and do what lots people are claiming -
-> help the actual innovator (and not only help the patent abuse
-> machinery).
-> BTW in Austria and Germany (and probably the rest of continental Europe)
-> the local version of the copyright (in german "Urheberrecht") has this
-> feature since ages.
-> So just move onto here and voila, you there in at least this point.
->...
+jes@trained-monkey.org (Jes Sorensen) wrote:
+>
+> This patch introduces ia64 specific read/write handlers for /dev/mem
+>  access which is needed to avoid uncached pages to be accessed through
+>  the cached kernel window which can lead to random corruption.
 
-At least in Germany, it's not the way you describe it:
+This patch causes hiccups on my ia32e box.
 
-With a few minor limitations, you can transfer exclusive rights on the 
-thing you have the copyright on to someone else.
+linux:/home/akpm#  /usr/sbin/hwscan --isapnp                       
+zsh: 7528 segmentation fault  /usr/sbin/hwscan --isapnp
+linux:/home/akpm#  /usr/sbin/hwscan --pci   
+zsh: 7529 segmentation fault  /usr/sbin/hwscan --pci
+linux:/home/akpm#  /usr/sbin/hwscan --block
+zsh: 7530 segmentation fault  /usr/sbin/hwscan --block
+linux:/home/akpm#  /usr/sbin/hwscan --floppy
+zsh: 7533 segmentation fault  /usr/sbin/hwscan --floppy
 
-The basics of German and US copyright law are different, but the 
-practical consequences aren't.
+strace ends with:
 
-> 	Bernd
+open("/proc/apm", O_RDONLY)             = -1 ENOENT (No such file or directory)
+open("/dev/mem", O_RDONLY)              = 3
+lseek(3, 1024, SEEK_SET)                = 1024
+read(3, 0x50a080, 256)                  = -1 EFAULT (Bad address)
+close(3)                                = 0
+--- SIGSEGV (Segmentation fault) @ 0 (0) ---
++++ killed by SIGSEGV +++
 
-cu
-Adrian
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

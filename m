@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265402AbUEZKHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265405AbUEZKJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265402AbUEZKHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 06:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265405AbUEZKHZ
+	id S265405AbUEZKJp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 06:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265408AbUEZKJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 06:07:25 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:55432 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265402AbUEZKHT (ORCPT
+	Wed, 26 May 2004 06:09:44 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:2953 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265405AbUEZKJT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 06:07:19 -0400
-Date: Wed, 26 May 2004 12:06:15 +0200
+	Wed, 26 May 2004 06:09:19 -0400
+Date: Wed, 26 May 2004 12:08:54 +0200
 From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Matt Mackall <mpm@selenic.com>, arjanv@redhat.com,
        benh@kernel.crashing.org, kronos@kronoz.cjb.net,
        linux-kernel@vger.kernel.org
 Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-ID: <20040526100615.GB12142@wohnheim.fh-wedel.de>
-References: <20040513145640.GA3430@dreamland.darkstar.lan> <1084488901.3021.116.camel@gaston> <20040513182153.1feb488b.akpm@osdl.org> <20040514094923.GB29106@devserv.devel.redhat.com> <20040514114746.GB23863@wohnheim.fh-wedel.de> <20040514151520.65b31f62.akpm@osdl.org> <20040517233515.GR5414@waste.org> <20040517165919.04edcc77.akpm@osdl.org>
+Message-ID: <20040526100854.GA13005@wohnheim.fh-wedel.de>
+References: <20040513145640.GA3430@dreamland.darkstar.lan> <1084488901.3021.116.camel@gaston> <20040513182153.1feb488b.akpm@osdl.org> <20040514094923.GB29106@devserv.devel.redhat.com> <20040514114746.GB23863@wohnheim.fh-wedel.de> <20040514151520.65b31f62.akpm@osdl.org> <20040517233515.GR5414@waste.org> <20040517165919.04edcc77.akpm@osdl.org> <20040526100615.GB12142@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040517165919.04edcc77.akpm@osdl.org>
+In-Reply-To: <20040526100615.GB12142@wohnheim.fh-wedel.de>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 May 2004 16:59:19 -0700, Andrew Morton wrote:
-> Matt Mackall <mpm@selenic.com> wrote:
-> >
-> > I have a cleaned up version of this script in -tiny which is a bit
-> > nicer for adding new arches to and produces simpler output:
-> 
-> OK, thanks.  Joern, could you please own this megaproject?  Send
-> me any needed diffs against -mm3?
-
-Below.  I've picked up some of Matt's ideas, but not his code.  While
-being short and lean, it is wrong.  There may be more than one
-function with the same name, for whatever reason, and Matt's code will
-choke on such things.
-
-Matt, if you can send me a patch that doesn't suffer this problem,
-I'll gladly accept it.  Your perl is nicer than mine, no doubt.
-
-
-Oh, and since Linus RFD sounds good and is *MUCH* nicer than what FSF
-or RedHat want, I'll just accept the certificate.
-
-        Developer's Certificate of Origin 1.0
-
-        By making a contribution to this project, I certify that:
-
-        (a) The contribution was created in whole or in part by me and I
-            have the right to submit it under the open source license
-            indicated in the file; or
-
-        (b) The contribution is based upon previous work that, to the best
-            of my knowledge, is covered under an appropriate open source
-            license and I have the right under that license to submit that
-            work with modifications, whether created in whole or in part
-            by me, under the same open source license (unless I am   
-            permitted to submit under a different license), as indicated
-            in the file; or
-
-        (c) The contribution was provided directly to me by some other
-            person who certified (a), (b) or (c) and I have not modified
-            it.
+Forgot Anton's ppc64 port in the description.
 
 Jörn
 
 -- 
-People will accept your ideas much more readily if you tell them
-that Benjamin Franklin said it first.
--- unknown
+Victory in war is not repetitious.
+-- Sun Tzu
 
 o Fix the misparsing on *.ko noticed by Andrew Morton.
 o Slightly simplify the output format.
 o Slightly simplify the code
+o Added ppc64 architecture (re by Anton Blanchard)
 
 Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
 
@@ -189,4 +150,3 @@ Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
 +		$stack[@stack] = "$intro$size\n";
  	}
  }
- 

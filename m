@@ -1,37 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317431AbSGTQA6>; Sat, 20 Jul 2002 12:00:58 -0400
+	id <S317436AbSGTQXK>; Sat, 20 Jul 2002 12:23:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317432AbSGTQA5>; Sat, 20 Jul 2002 12:00:57 -0400
-Received: from dsl-213-023-022-158.arcor-ip.net ([213.23.22.158]:29323 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317431AbSGTQA5>;
-	Sat, 20 Jul 2002 12:00:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Tomas Szepe <szepe@dragon.cz>
-Subject: Re: [PATCH -ac] Panicking in morse code, v2
-Date: Sat, 20 Jul 2002 18:05:22 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Ville Herva <vherva@niksula.hut.fi>,
-       Thunder from the hill <thunder@ngforever.de>,
-       linux-kernel@vger.kernel.org
-References: <E17Vrwh-0000b5-00@starship> <E17Vv4I-0000kh-00@starship> <20020720145504.GD7333@louise.pinerecords.com>
-In-Reply-To: <20020720145504.GD7333@louise.pinerecords.com>
+	id <S317439AbSGTQXK>; Sat, 20 Jul 2002 12:23:10 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:57338 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S317436AbSGTQXJ>; Sat, 20 Jul 2002 12:23:09 -0400
+Date: Sat, 20 Jul 2002 18:26:07 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Leonardo Gomes Figueira <sabbath@planetarium.com.br>,
+       Christoph Hellwig <hch@infradead.org>
+cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Memory detection problem in 2.4.19-rc2
+In-Reply-To: <3D391A54.4020404@planetarium.com.br>
+Message-ID: <Pine.NEB.4.44.0207201806350.16962-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17VwjT-0000oG-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 July 2002 16:55, Tomas Szepe wrote:
-> Try this on for size:
+On Sat, 20 Jul 2002, Leonardo Gomes Figueira wrote:
 
-Gosh, that's hard to read with all those indents...
+> Hi,
+>
+> i have a Toshiba K6-2 450 notebook with 32MB RAM onboard plus an 256MB chip.
+>
+> I use kernel 2.4.18 with the mem param on the boot (mem=288M) and it
+> works fine. (Without the mem param it only detects 32MB).
+>
+> I've been testing 2.4.19-preX (8,9,10 maybe others before, i don't
+> remember) and 2.4.19-rcX (1,2) but in this releases it don't detect more
+> than 32MB even with the mem param. I didn't test in 2.4.19-rc3 yet but i
+> read the changelog and didn't see any change in this area but i can test
+> if it helps.
+>...
 
-While I realize how painful it would be to ignore the fact that '.' and '-' 
-are adjacent ascii codes, actually '_' makes it look more authentic.
+It seems that the change Christoph introduced (from Red Hat's tree) in the
+lines around 810 (line number in -rc3) in arch/i386/kernel/setup.c didn't
+consider the case that someone want's to _in_crease the size of the memory
+by using the "mem="  parameter.
 
-By the way, you are demented ;-)
+It's the following Changeset:
+
+<--  snip  -->
+
+   Changeset details for 1.383.2.25
+
+   ChangeSet@1.383.2.25  2002-04-15 23:18:40-03:00  hch@infradead.org
+   all diffs
+   [PATCH] mem= command lines fixes.
+   Another patch from Red Hat's tree:
+     mem= command-line adapts itself to existing e820 values.
+     without this patch mem=xxxM ignores bios-reserved areas and uses
+     them as RAM. This patch makes the kernel skip these areas
+   arch/i386/kernel/setup.c@1.38  2001-04-05
+   21:19:09-03:00  hch@infradead.org
+
+<--  snip  -->
+
+> Thanks,
+>
+>     Leo
+>...
+
+cu
+Adrian
 
 -- 
-Daniel
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+
+

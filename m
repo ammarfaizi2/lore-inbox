@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267426AbTALTig>; Sun, 12 Jan 2003 14:38:36 -0500
+	id <S267438AbTALTso>; Sun, 12 Jan 2003 14:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267427AbTALTig>; Sun, 12 Jan 2003 14:38:36 -0500
-Received: from h80ad26bd.async.vt.edu ([128.173.38.189]:7040 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267426AbTALThe>; Sun, 12 Jan 2003 14:37:34 -0500
-Message-Id: <200301121946.h0CJk8WN003802@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel And Kenrel Programming (was: Nvidia is a great company) 
-In-Reply-To: Your message of "Sun, 12 Jan 2003 16:45:24 GMT."
-             <1042389923.15051.1.camel@irongate.swansea.linux.org.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0301112346450.2270-100000@bailey.scraps.org> <1042382565.848.11.camel@RobsPC.RobertWilkens.com>
-            <1042389923.15051.1.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1749349547P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	id <S267439AbTALTsn>; Sun, 12 Jan 2003 14:48:43 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48534
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267438AbTALTsl>; Sun, 12 Jan 2003 14:48:41 -0500
+Subject: Re: any chance of 2.6.0-test*?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Rob Wilkens <robw@optonline.net>, Christoph Hellwig <hch@infradead.org>,
+       Greg KH <greg@kroah.com>, William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030112195347.GJ3515@louise.pinerecords.com>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+	 <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+	 <1042400219.1208.29.camel@RobsPC.RobertWilkens.com>
+	 <20030112195347.GJ3515@louise.pinerecords.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sun, 12 Jan 2003 14:46:08 -0500
+Organization: 
+Message-Id: <1042404264.16288.28.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 12 Jan 2003 20:44:24 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1749349547P
-Content-Type: text/plain; charset=us-ascii
+On Sun, 2003-01-12 at 19:53, Tomas Szepe wrote:
+> > [robw@optonline.net]
+> >
+> > Am I wrong that the above would do the same thing without generating the
+> > sphagetti code that a goto would give you.  Gotos are BAD, very very
+> > bad.
+> 
+> Whom do I pay to have this annoying clueless asshole shot?
+> OH MY GOD, I really can't take any more.
 
-On Sun, 12 Jan 2003 16:45:24 GMT, Alan Cox said:
-> One thing that has been helpful is the microcode update stuff Intel did, we
-> hit  few bugs that up to date microcode kill off
+In evolution its
 
-http://www.urbanmyth.org/microcode/ says that microcode_ctl 1.06 is the
-latest, dated all the way back to 11 Jun 2001.  Is that in fact the most
-recent?  In this industry, I alway worry when "most recent" is 18 months
-old.
+Tools->Create filter from message->Filter on sender
 
-Hopefully it's the most recent because no further errata have been found.;)
+Add action
+	Move to folder  QUAINT
 
--- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
+and then just read it when drunk
 
-
---==_Exmh_1749349547P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+IcX/cC3lWbTT17ARAs/7AKDZSBKk/qis9yBqkuddTeclu2hLwQCgsFGu
-eVH2nJg17Gf9xTV63zbFE/4=
-=NWyV
------END PGP SIGNATURE-----
-
---==_Exmh_1749349547P--

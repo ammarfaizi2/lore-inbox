@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVATRtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVATRyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbVATRtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 12:49:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVATRtP
+	id S261594AbVATRyG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 12:54:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVATRxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 12:49:15 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:49079 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262219AbVATRrP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 12:47:15 -0500
-Date: Thu, 20 Jan 2005 09:47:08 -0800
-From: Greg KH <greg@kroah.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: kobject_uevent.c moved to kernel connector.
-Message-ID: <20050120174708.GA10045@kroah.com>
-References: <20041124222857.GG3584@kroah.com> <1102504677.3363.55.camel@uganda> <20041221204101.GA9831@kroah.com> <1103707272.3432.6.camel@uganda> <20041225180241.38ffb9d8@zanzibar.2ka.mipt.ru> <20050104060211.50c2bf47@zanzibar.2ka.mipt.ru> <20050112190615.GC10885@kroah.com> <20050113011519.6e087fb4@zanzibar.2ka.mipt.ru> <20050119230518.GA5569@kroah.com> <1106210906.5264.46.camel@uganda>
+	Thu, 20 Jan 2005 12:53:55 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:20998 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261490AbVATRwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 12:52:10 -0500
+Message-Id: <200501201751.j0KHpvdQ030760@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: "Marc E. Fiuczynski" <mef@CS.Princeton.EDU>
+Cc: Peter Williams <pwil3058@bigpond.net.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>, Chris Han <xiphux@gmail.com>
+Subject: Re: [ANNOUNCE][RFC] plugsched-2.0 patches ... 
+In-Reply-To: Your message of "Thu, 20 Jan 2005 11:14:48 EST."
+             <NIBBJLJFDHPDIBEEKKLPGELGDHAA.mef@cs.princeton.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <NIBBJLJFDHPDIBEEKKLPGELGDHAA.mef@cs.princeton.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1106210906.5264.46.camel@uganda>
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/signed; boundary="==_Exmh_1106243517_12559P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 20 Jan 2005 12:51:57 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 11:48:26AM +0300, Evgeniy Polyakov wrote:
-> On Wed, 2005-01-19 at 15:05 -0800, Greg KH wrote:
-> > On Thu, Jan 13, 2005 at 01:15:19AM +0300, Evgeniy Polyakov wrote:
-> > > --- include/linux/connector.h~	2005-01-13 00:21:55.000000000 +0300
-> > > +++ include/linux/connector.h	2005-01-13 00:53:21.000000000 +0300
-> > > @@ -24,6 +24,9 @@
-> > >  
-> > >  #include <asm/types.h>
-> > >  
-> > > +#define CONN_IDX_KOBJECT_UEVENT		0xabcd
-> > > +#define CONN_VAL_KOBJECT_UEVENT		0x0000
-> > > +
-> > >  #define CONNECTOR_MAX_MSG_SIZE 	1024
-> > >  
-> > >  struct cb_id
-> > > --- linux-2.6/drivers/connector/connector.c.orig	2005-01-13 00:21:23.000000000 +0300
-> > > +++ linux-2.6/drivers/connector/connector.c	2005-01-13 00:32:48.000000000 +0300
-> > > @@ -46,6 +46,8 @@
-> > >  
-> > >  static struct cn_dev cdev;
-> > >  
-> > > +int cn_already_initialized = 0;
-> > 
-> > <snip>
-> > 
-> > Hm, this patch needs to be rediffed, now that I've accepted the
-> > connector code, right?  The connector.c change seems to already be in
-> > your last connector patch, and the .h change is there with a different
-> > #define spelling, causing the uevent code to need to be changed.
-> > 
-> > Care to redo it?
+--==_Exmh_1106243517_12559P
+Content-Type: text/plain; charset=us-ascii
+
+On Thu, 20 Jan 2005 11:14:48 EST, "Marc E. Fiuczynski" said:
+> Peter, thank you for maintaining Con's plugsched code in light of Linus' and
+> Ingo's prior objections to this idea.  On the one hand, I partially agree
+> with Linus&Ingo's prior views that when there is only one scheduler that the
+> rest of the world + dog will focus on making it better. On the other hand,
+> having a clean framework that lets developers in a clean way plug in new
+> schedulers is quite useful.
 > 
-> Sure. Patch attached. 
+> Linus & Ingo, it would be good to have an indepth discussion on this topic.
+> I'd argue that the Linux kernel NEEDS a clean pluggable scheduling
+> framework.
 
-Applied, thanks.
+Is this something that would benefit from several trips around the -mm series?
 
-greg k-h
+ISTR that we started with one disk elevator, and now we have 3 or 4 that are
+selectable on the fly after some banging around in -mm.  (And yes, I realize that
+the only reason we can change the elevator on the fly is because it can switch
+from the current to the 'stupid FIFO none' elevator and thence to the new one,
+which wouldn't really work for the CPU scheduler....)
+
+All the arguments that support having more than one elevator apply equally
+well to the CPU scheduler....
+
+--==_Exmh_1106243517_12559P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFB7++9cC3lWbTT17ARAsaBAKCh5Te8ZpOBpM7PFUN0ncChoeTcIwCg2L3Y
+0s+K6UTZn5AfLL2P6XA0vls=
+=UfYn
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1106243517_12559P--

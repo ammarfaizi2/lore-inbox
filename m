@@ -1,100 +1,237 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131561AbRCNXg2>; Wed, 14 Mar 2001 18:36:28 -0500
+	id <S131588AbRCOARp>; Wed, 14 Mar 2001 19:17:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131569AbRCNXgJ>; Wed, 14 Mar 2001 18:36:09 -0500
-Received: from ppp32.adsl89.pacific.net.au ([202.7.89.32]:36626 "HELO
-	adsl.mailcall.com.au") by vger.kernel.org with SMTP
-	id <S131561AbRCNXfx>; Wed, 14 Mar 2001 18:35:53 -0500
-Message-Id: <5.0.2.1.2.20010316021553.01c71480@172.17.0.107>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Fri, 16 Mar 2001 02:31:47 +1100
-To: Marko Kreen <marko@l-t.ee>, Dalton Calford <dcalford@distributel.ca>
-From: Omar Kilani <ok@mailcall.com.au>
-Subject: Adaptec/DPT RAID Drivers [Was: Re: DPT Driver Status]
-Cc: Linux kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010314151515.A3954@l-t.ee>
-In-Reply-To: <3AAF1072.A38B2508@distributel.ca>
- <3AAF1072.A38B2508@distributel.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Scanner: exiscan *14dKqN-0001k9-00*4EN5qmZqCPk* http://duncanthrax.net/exiscan/
+	id <S131586AbRCOARf>; Wed, 14 Mar 2001 19:17:35 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:5383
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S131584AbRCOAR0>; Wed, 14 Mar 2001 19:17:26 -0500
+Date: Wed, 14 Mar 2001 16:16:36 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Pozsar Balazs <pozsy@sch.bme.hu>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IDE poweroff -> hangup
+In-Reply-To: <Pine.GSO.4.30.0103150041540.14732-100000@balu>
+Message-ID: <Pine.LNX.4.10.10103141603310.7091-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marko/Dalton/Unfortunate person searching for working DPT drivers,
 
-I too once felt your pain.
-Searched far and wide, etc.
-But then I stumbled upon ftp://ftp.suse.com/pub/people/mantel/next/
-Which has patches for everything you could ever want, all integrated, if 
-you choose them to be.
-Anyway, inside those .tgz's was version 2.0 of the DPT I2O drivers.
-I've separated them from the .tgz, and stuck them up here:
+Balazs....
 
-Kernel 2.2.18:
-http://aurore.net/source/dpt_i2o-2.0-2.2.18.gz
+OH the fun....what do you think you are doing?
+Since you have not issued a power down command nor deregisterd the device,
+because I have not publish hotswap-ata yet....thus you can not do this in
+a pretty way.....<ata> grumbles for Bryce.....
+You are lucky that you have to burned the mainboard.
+The open-collector pull on the channel will destroy the buffers on the
+device.  By pulling the power you can not hold the state of the latches
+derived from the power-ground lines.
 
-Kernel 2.4.2
-http://aurore.net/source/dpt_i2o-2.0-2.4.2.gz
+There is no kernel bug!
 
-Try 'em! :-) Not sure how they compare to Markos' version.
-I exchanged my ASR2100S for a Mylex AcceleRAID 170 - because DAC960 support 
-is so much better ;-) and I loved reading through the DAC960 sources - so 
-clean and easy to understand!
+Does it not occur to you that by dropping the power on the device you
+cause it to revert to the default values from POST?
+You have successfully unsynced the HOST and the DEVICE as the timings for
+the transfer rates.  So it should HANG and DIE!
+
+Just be glad that the kernel will crash and not eat your data.
 
 Regards,
-Omar Kilani
 
-At 03:15 PM 3/14/01 +0200, Marko Kreen wrote:
->On Wed, Mar 14, 2001 at 01:32:18AM -0500, Dalton Calford wrote:
-> > I have searched the archives, hunted through the adaptec site, tried
-> > multiple patches, compilers, revisions.....
->
->Me too...
->
-> >
-> > I have a DPT/Adaptec DPT RAID V century card.  This has been a topic of
-> > much discussion in the past on this list.
-> >
-> > What I have found is that almost every file I find has a patch that is 6
-> > months old at best.
->
->When I last contacted them, couple of months ago, through
->I-dunno-how-many-middle[wo]men they assured that
->"driver is in developement" and "soon we make a release"...
->
-> > I even contacted Deanna Bonds at Adaptec, but she has been unresponsive.
-> >
-> > Does anyone have a working patch for the 2.2.18 kernel?
-> > What is the most stable version of the kernel for the use of the patch?
->
->I have ported the 1.14 version of the driver to 2.2.18.
->Basically converted their idea of patching with cp to
->normal diff and dropped all reverse changes.
->
->   http://www.l-t.ee/marko/linux/dpt114-2.2.18p22.diff.gz
->
->It was for pre22 but applies cleanly to final 2.2.18.
->The other soft was most current in valinux site:
->
->   http://ftp.valinux.com/pub/mirrors/dpt/
->
-> > Has the native i2o driver been updated to handle what the dpt card is
-> > doing?
->
->No, the DPT driver has not been updated to native Linux i2o.
->
->Note: the driver compiles only with gcc 2.7.2.3, (dunno about
->egcs).  2.95.2 makes it acting weird.  I do not know if
->thats gcc or driver problem.
->
->--
->marko
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Andre Hedrick
+Linux ATA Development
+
+
+On Thu, 15 Mar 2001, Pozsar Balazs wrote:
+
+> 
+> Hi all,
+> 
+> I was courious, and I tried what happens if I power down my harddisk (ie
+> manually pull the power plug out), and then power it on again after a few
+> secs (put the plug back).
+> 
+> I do not know if the system should survive happily such an 'accident', but
+> it hadn't:
+> A few secs after the next access to the disc, I got the following on the
+> console:
+> hdg: timeout waiting for DMA
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> and the machine froze the hard way (no respond to sysrq).
+> 
+> Tell me if this shouldn't be honoured by the kernel, but if there's a bug
+> around, here's some info:
+> 
+> Linux version 2.4.2 (root@brefatox.hell) (gcc version 2.95.3 19991030 (prerelease)) #1 SMP Wed Mar 7 22:58:36 CET 2001
+> BIOS-provided physical RAM map:
+>  BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
+>  BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
+>  BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
+>  BIOS-e820: 0000000000001000 @ 00000000fec00000 (reserved)
+>  BIOS-e820: 0000000000001000 @ 00000000fee00000 (reserved)
+>  BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
+>  BIOS-e820: 0000000017ef0000 @ 0000000000100000 (usable)
+>  BIOS-e820: 000000000000d000 @ 0000000017ff3000 (ACPI data)
+>  BIOS-e820: 0000000000003000 @ 0000000017ff0000 (ACPI NVS)
+> Scan SMP from c0000000 for 1024 bytes.
+> Scan SMP from c009fc00 for 1024 bytes.
+> Scan SMP from c00f0000 for 65536 bytes.
+> found SMP MP-table at 000f5770
+> hm, page 000f5000 reserved twice.
+> hm, page 000f6000 reserved twice.
+> hm, page 000f1000 reserved twice.
+> hm, page 000f2000 reserved twice.
+> On node 0 totalpages: 98288
+> zone(0): 4096 pages.
+> zone(1): 94192 pages.
+> zone(2): 0 pages.
+> Intel MultiProcessor Specification v1.1
+>     Virtual Wire compatibility mode.
+> OEM ID: OEM00000 Product ID: PROD00000000 APIC at: 0xFEE00000
+> Processor #0 Pentium(tm) Pro APIC version 17
+>     Floating point unit present.
+>     Machine Exception supported.
+>     64 bit compare & exchange supported.
+>     Internal APIC present.
+>     SEP present.
+>     MTRR  present.
+>     PGE  present.
+>     MCA  present.
+>     CMOV  present.
+>     Bootup CPU
+> Bus #0 is PCI
+> Bus #1 is PCI
+> Bus #2 is ISA
+> I/O APIC #2 Version 17 at 0xFEC00000.
+> Int: type 3, pol 0, trig 0, bus 2, IRQ 00, APIC ID 2, APIC INT 00
+> Int: type 0, pol 0, trig 0, bus 2, IRQ 01, APIC ID 2, APIC INT 01
+> Int: type 0, pol 0, trig 0, bus 2, IRQ 00, APIC ID 2, APIC INT 02
+> Int: type 0, pol 0, trig 0, bus 2, IRQ 03, APIC ID 2, APIC INT 03
+> Int: type 0, pol 0, trig 0, bus 2, IRQ 04, APIC ID 2, APIC INT 04
+> Int: type 0, pol 0, trig 0, bus 2, IRQ 06, APIC ID 2, APIC INT 06
+> Int: type 0, pol 0, trig 0, bus 2, IRQ 07, APIC ID 2, APIC INT 07
+> Int: type 0, pol 1, trig 1, bus 2, IRQ 08, APIC ID 2, APIC INT 08
+> Int: type 0, pol 0, trig 0, bus 2, IRQ 0c, APIC ID 2, APIC INT 0c
+> Int: type 0, pol 0, trig 0, bus 2, IRQ 0d, APIC ID 2, APIC INT 0d
+> Int: type 0, pol 0, trig 0, bus 2, IRQ 0e, APIC ID 2, APIC INT 0e
+> Int: type 0, pol 0, trig 0, bus 2, IRQ 0f, APIC ID 2, APIC INT 0f
+> Int: type 0, pol 3, trig 3, bus 2, IRQ 09, APIC ID 2, APIC INT 09
+> Int: type 0, pol 3, trig 3, bus 2, IRQ 05, APIC ID 2, APIC INT 05
+> Int: type 0, pol 3, trig 3, bus 2, IRQ 0b, APIC ID 2, APIC INT 0b
+> Int: type 0, pol 3, trig 3, bus 2, IRQ 0a, APIC ID 2, APIC INT 0a
+> Lint: type 3, pol 0, trig 0, bus 2, IRQ 00, APIC ID ff, APIC LINT 00
+> Lint: type 1, pol 0, trig 0, bus 2, IRQ 00, APIC ID ff, APIC LINT 01
+> Processors: 1
+> mapped APIC to ffffe000 (fee00000)
+> mapped IOAPIC to ffffd000 (fec00000)
+> Kernel command line: root=/dev/hdg4 apm=power-off noapic mem=393152K
+> Initializing CPU#0
+> Detected 434.815 MHz processor.
+> Console: colour VGA+ 80x25
+> Calibrating delay loop... 865.07 BogoMIPS
+> Memory: 384580k/393152k available (856k kernel code, 8184k reserved, 294k data, 184k init, 0k highmem)
+> Dentry-cache hash table entries: 65536 (order: 7, 524288 bytes)
+> Buffer-cache hash table entries: 32768 (order: 5, 131072 bytes)
+> Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
+> Inode-cache hash table entries: 32768 (order: 6, 262144 bytes)
+> CPU: Before vendor init, caps: 0183fbff 00000000 00000000, vendor = 0
+> CPU: L1 I cache: 16K, L1 D cache: 16K
+> CPU: L2 cache: 128K
+> Intel machine check architecture supported.
+> Intel machine check reporting enabled on CPU#0.
+> CPU: After vendor init, caps: 0183fbff 00000000 00000000 00000000
+> CPU: After generic, caps: 0183fbff 00000000 00000000 00000000
+> CPU: Common caps: 0183fbff 00000000 00000000 00000000
+> Enabling fast FPU save and restore... done.
+> Checking 'hlt' instruction... OK.
+> POSIX conformance testing by UNIFIX
+> mtrr: v1.37 (20001109) Richard Gooch (rgooch@atnf.csiro.au)
+> mtrr: detected mtrr type: Intel
+> CPU: Before vendor init, caps: 0183fbff 00000000 00000000, vendor = 0
+> CPU: L1 I cache: 16K, L1 D cache: 16K
+> CPU: L2 cache: 128K
+> Intel machine check reporting enabled on CPU#0.
+> CPU: After vendor init, caps: 0183fbff 00000000 00000000 00000000
+> CPU: After generic, caps: 0183fbff 00000000 00000000 00000000
+> CPU: Common caps: 0183fbff 00000000 00000000 00000000
+> CPU0: Intel Celeron (Mendocino) stepping 05
+> per-CPU timeslice cutoff: 365.86 usecs.
+> Getting VERSION: 40011
+> Getting VERSION: 40011
+> Getting ID: 0
+> Getting ID: f000000
+> Getting LVT0: 700
+> Getting LVT1: 400
+> enabled ExtINT on CPU#0
+> ESR value before enabling vector: 00000004
+> ESR value after enabling vector: 00000000
+> CPU present map: 1
+> Before bogomips.
+> Error: only one processor found.
+> Boot done.
+> calibrating APIC timer ...
+> ..... CPU clock speed is 434.8114 MHz.
+> ..... host bus clock speed is 66.8940 MHz.
+> cpu: 0, clocks: 668940, slice: 334470
+> CPU0<T0:668928,T1:334448,D:10,S:334470,C:668940>
+> Setting commenced=1, go go go
+> PCI: PCI BIOS revision 2.10 entry at 0xfb3a0, last bus=1
+> PCI: Using configuration type 1
+> PCI: Probing PCI hardware
+> Unknown bridge resource 0: assuming transparent
+> PCI: Using IRQ router VIA [1106/0686] at 00:07.0
+> Linux NET4.0 for Linux 2.4
+> Based upon Swansea University Computer Society NET3.039
+> apm: BIOS version 1.2 Flags 0x07 (Driver version 1.14)
+> Starting kswapd v1.8
+> pty: 256 Unix98 ptys configured
+> block: queued sectors max/low 255296kB/124224kB, 768 slots per queue
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> VP_IDE: IDE controller on PCI bus 00 dev 39
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xc000-0xc007, BIOS settings: hda:pio, hdb:pio
+>     ide1: BM-DMA at 0xc008-0xc00f, BIOS settings: hdc:pio, hdd:pio
+> HPT370: IDE controller on PCI bus 00 dev 70
+> PCI: Found IRQ 11 for device 00:0e.0
+> PCI: The same IRQ used for device 00:0d.0
+> HPT370: chipset revision 3
+> HPT370: not 100% native mode: will probe irqs later
+>     ide2: BM-DMA at 0xec00-0xec07, BIOS settings: hde:pio, hdf:pio
+>     ide3: BM-DMA at 0xec08-0xec0f, BIOS settings: hdg:DMA, hdh:pio
+> hdf: YAMAHA CRW2100E, ATAPI CD/DVD-ROM drive
+> hdg: QUANTUM FIREBALLlct20 20, ATA DISK drive
+> ide2 at 0xdc00-0xdc07,0xe002 on irq 11
+> ide3 at 0xe400-0xe407,0xe802 on irq 11
+> hdg: 39876480 sectors (20417 MB) w/418KiB Cache, CHS=39560/16/63, UDMA(100)
+> Partition check:
+>  /dev/ide/host2/bus1/target0/lun0: p1 p2 p3 p4
+> NET4: Linux TCP/IP 1.0 for NET4.0
+> IP Protocols: ICMP, UDP, TCP, IGMP
+> IP: routing cache hash table of 4096 buckets, 32Kbytes
+> TCP: Hash tables configured (established 32768 bind 32768)
+> devfs: v0.102 (20000622) Richard Gooch (rgooch@atnf.csiro.au)
+> devfs: boot_options: 0x0
+> VFS: Mounted root (ext2 filesystem) readonly.
+> Mounted devfs on /dev
+> Freeing unused kernel memory: 184k freed
+> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+> SCSI subsystem driver Revision: 1.00
+> hdf: ATAPI 40X CD-ROM CD-R/RW drive, 8192kB Cache
+> Uniform CD-ROM driver Revision: 3.12
+> ...
+> 
+> regards,
+> Balazs Pozsar.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

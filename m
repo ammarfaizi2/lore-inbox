@@ -1,157 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbSJLStx>; Sat, 12 Oct 2002 14:49:53 -0400
+	id <S261321AbSJLTHM>; Sat, 12 Oct 2002 15:07:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261319AbSJLStx>; Sat, 12 Oct 2002 14:49:53 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:8280 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261318AbSJLStv>;
-	Sat, 12 Oct 2002 14:49:51 -0400
+	id <S261322AbSJLTHM>; Sat, 12 Oct 2002 15:07:12 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:8727 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261321AbSJLTHK>;
+	Sat, 12 Oct 2002 15:07:10 -0400
 From: <Hell.Surfers@cwctv.net>
-To: romanlenskij@hotmail.com, linux-kernel@vger.kernel.org
-Date: Sat, 12 Oct 2002 19:55:29 +0100
-Subject: RE:Bug on Mdk 9.0
+To: wli@holomorphy.com, phillips@arcor.de, oxymoron@waste.org,
+       giduru@yahoo.com, linux-kernel@vger.kernel.org
+Date: Sat, 12 Oct 2002 20:12:08 +0100
+Subject: Re: T... When you can not lead a dead horse to water, do not try
 MIME-Version: 1.0
 X-Mailer: Liberate TVMail 2.6
 Content-Type: multipart/mixed;
- boundary="1034448929116"
-Message-ID: <0a7d72654180ca2DTVMAIL1@smtp.cwctv.net>
+ boundary="1034449928569"
+Message-ID: <067094310190ca2DTVMAIL12@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1034448929116
+--1034449928569
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-wood u stop tawkin 733t m8.
+give it a rest, you are wasting free bandwidth...
 
 Cheers, Dean.
 
-On 	Sat, 12 Oct 2002 09:32:39 +0000 	"Roman Lenskij" <romanlenskij@hotmail.com> wrote:
+On 	Fri, 11 Oct 2002 21:09:40 -0700 	William Lee Irwin III <wli@holomorphy.com> wrote:
 
---1034448929116
+--1034449928569
 Content-Type: message/rfc822
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
 Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sat, 12 Oct 2002 10:33:08 +0100
+	 Sat, 12 Oct 2002 05:13:49 +0100
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262872AbSJLJ07>; Sat, 12 Oct 2002 05:26:59 -0400
+	id <S262818AbSJLEHS>; Sat, 12 Oct 2002 00:07:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262873AbSJLJ07>; Sat, 12 Oct 2002 05:26:59 -0400
-Received: from f182.law11.hotmail.com ([64.4.17.182]:64521 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S262872AbSJLJ04>;
-	Sat, 12 Oct 2002 05:26:56 -0400
-Received: from mail pickup service by hotmail.com with Microsoft SMTPSVC;
-	 Sat, 12 Oct 2002 02:32:39 -0700
-Received: from 193.219.143.91 by lw11fd.law11.hotmail.msn.com with HTTP;
-	Sat, 12 Oct 2002 09:32:39 GMT
-X-Originating-IP: [193.219.143.91]
-From: "Roman Lenskij" <romanlenskij@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Bug on Mdk 9.0
-Date: Sat, 12 Oct 2002 09:32:39 +0000
+	id <S262820AbSJLEHS>; Sat, 12 Oct 2002 00:07:18 -0400
+Received: from holomorphy.com ([66.224.33.161]:59779 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262818AbSJLEHQ>;
+	Sat, 12 Oct 2002 00:07:16 -0400
+Received: from wli by holomorphy with local (Exim 3.34 #1 (Debian))
+	id 180Dau-0002CA-00; Fri, 11 Oct 2002 21:09:40 -0700
+Date: Fri, 11 Oct 2002 21:09:40 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Oliver Xymoron <oxymoron@waste.org>, Gigi Duru <giduru@yahoo.com>,
+	linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021012040940.GE10722@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Phillips <phillips@arcor.de>,
+	Oliver Xymoron <oxymoron@waste.org>, Gigi Duru <giduru@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20021005193650.17795.qmail@web13202.mail.yahoo.com> <20021005222306.GB9145@waste.org> <E180DTC-0000VA-00@starship>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F182igPasSmz6UuEhjJ000001bb@hotmail.com>
-X-OriginalArrivalTime: 12 Oct 2002 09:32:39.0705 (UTC) FILETIME=[4EB06890:01C271D2]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E180DTC-0000VA-00@starship>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-System AMD Athlon ThunderBird 800mhz
-384 mb-ram
-Nvidia Ge-Force 2 MX (with 3123 nvidia drivers(GLX.RPM & 
-NVIDIA_KERNEL.SRC.rPM)
-Fujitsu HDD - 20GB 7200 RPM
-Linux Mandrake 9.0
-Kernel 2.4.19-16mdk
-KDE 3.0.4
+On Sat, Oct 12, 2002 at 06:01:42AM +0200, Daniel Phillips wrote:
+> It has more to do with the fact that nobody has been using 2.5 until
+> recently, because of bio and ide breakage.  It's a big mistake to
+> dismiss his request as unimportant.  However, I strongly agree with the
+> idea that interested people/companies should put up hard cash to get
+> this work done.
 
-when configuring system ( console mod and X), system starts working like so
-2 sec every thing stops responding, then 1 every thing responds again and so 
-on (i speak about Mouse & Keyboard & Sound)
-i noticed this bug when i first configured my system ( AFTER INSTALL !!!!)
+This hard cash is already being spent, here and now, and it is being
+spent on programmer salaries and the equipment for them to work on.
 
-if u're in console (terminal) mode u can c this messages
+Believe it or not, the businesses shelling out paychecks in our
+directions are not charities and as such the work we do for them must
+be directed to meet their needs. The reality is that the technical
+knowledge programmers have of kernel (and hardware, and app) mechanics
+is relayed in some form, no matter how dumbed down, up the food chain,
+and if concerns are expressed and action taken by those working in the
+field they will either be heeded by the effective organizations or
+dismissed by those doomed to failure.
 
-Oct  9 13:52:14 rll kernel: udf: bad mount option "codepage=850"
-Oct  9 13:53:04 rll kernel: udf: bad mount option "codepage=850"
-Oct  9 13:54:05 rll last message repeated 5 times
-Oct  9 13:56:53 rll last message repeated 3 times
-Oct  9 14:41:42 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct  9 14:41:42 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct  9 14:42:13 rll last message repeated 647 times
-Oct  9 14:43:15 rll last message repeated 1125 times
-Oct 10 18:18:27 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 10 18:18:27 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 10 18:18:59 rll last message repeated 570 times
-Oct 11 12:52:24 rll kernel: udf: bad mount option "codepage=850"
-Oct 11 13:52:05 rll kernel: udf: bad mount option "codepage=850"
-Oct 11 18:46:41 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 11 18:46:41 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 11 18:47:13 rll last message repeated 539 times
-Oct 12 00:31:43 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 12 00:31:43 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 12 00:32:15 rll last message repeated 539 times
-Oct 12 00:54:01 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 12 00:54:01 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 12 00:54:33 rll last message repeated 539 times
-Oct 12 00:57:27 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 12 00:57:27 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 12 01:00:24 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 12 01:00:24 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 12 01:00:56 rll last message repeated 539 times
-Oct 12 01:03:37 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 12 01:03:37 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 12 01:04:09 rll last message repeated 539 times
-Oct 12 09:06:03 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 12 09:06:03 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 12 09:06:35 rll last message repeated 539 times
-Oct 12 09:07:00 rll last message repeated 458 times
-Oct 12 09:07:00 rll kernel: Unable to handle kernel NULL pointer dereference 
-at virtual address 00000003
-Oct 12 09:07:00 rll kernel: *pde = 00000000
-Oct 12 09:07:00 rll kernel: *pde = 00000000
-Oct 12 09:07:00 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 12 09:21:57 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 12 09:21:57 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 12 09:41:03 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 12 09:41:03 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
-Oct 12 10:18:34 rll kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-Oct 12 10:18:34 rll kernel: ide-scsi: Strange, packet command initiated yet 
-DRQ isn't asserted
+This is work, even if we ourselves would play in the same manner. If
+effort, contributions, and visible benefits are not provided,
+demonstrated, and delivered in a timely fashion, you -will- lose out,
+and your own needs and those of your organization will not be addressed.
 
-after that there are a lot of HEX symbols( if i catch em again i'll send u a 
-copy)
-then there's a message Aii!!! (or smth like that) then there's message that 
-kernel is kaput, kirdik, died. then (if ur in X mode) system self restarts, 
-else stops reponding PLZ send me a reply ( i turned off SCSI support in 
-kernel conf, but this happened again)
+Bill
 
-_________________________________________________________________
-MSN Photos is the easiest way to share and print your photos: 
-http://photos.msn.com/support/worldwide.aspx
-
+P.S.: This is not a flame.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
---1034448929116--
+--1034449928569--
 
 

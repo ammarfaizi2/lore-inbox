@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbTEHJqi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 05:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTEHJqi
+	id S261252AbTEHJrT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 05:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbTEHJrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 05:46:38 -0400
-Received: from wsip-68-15-8-100.sd.sd.cox.net ([68.15.8.100]:64390 "EHLO
-	gnuppy") by vger.kernel.org with ESMTP id S261262AbTEHJqg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 05:46:36 -0400
-Date: Thu, 8 May 2003 02:59:11 -0700
-To: Ming Lei <lei.ming@attbi.com>
-Cc: linux-kernel@vger.kernel.org, "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-Subject: Re: linux rt priority  thread corrupt  global variable?
-Message-ID: <20030508095911.GA20934@gnuppy.monkey.org>
-References: <029601c31540$b57f1280$0305a8c0@arch.sel.sony.com> <20030508095238.GA20844@gnuppy.monkey.org>
+	Thu, 8 May 2003 05:47:18 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:47377 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261252AbTEHJrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 05:47:13 -0400
+Date: Thu, 8 May 2003 09:59:43 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       "arjanv@redhat.com" <arjanv@redhat.com>,
+       Steffen Persvold <sp@scali.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <20030508095943.B22255@devserv.devel.redhat.com>
+References: <200305071507_MC3-1-37CF-FE32@compuserve.com> <1052387912.4849.43.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030508095238.GA20844@gnuppy.monkey.org>
-User-Agent: Mutt/1.5.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1052387912.4849.43.camel@pc-16.office.scali.no>; from terje.eggestad@scali.com on Thu, May 08, 2003 at 11:58:33AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 02:52:38AM -0700, Bill Huey wrote:
-> No, it's not a fully preemptive kernel, but spreads preemption points
-> throughout the source tree, both directly and indirectly, instead. Spinlocks
-> are the primary mutex of choice in Linux and create atomic critical sections
-> that can't be preempted with respect to the normal Linux scheduler. Fully
+On Thu, May 08, 2003 at 11:58:33AM +0200, Terje Eggestad wrote:
+> I guess something like this:
+> 
+> typedef int (*syscall_hook_t)(void * arg1, void * arg2, void * arg3,
+> void * arg4, void * arg5, void * arg6);
+> 
+> #define HOOK_IN_FLAG 0x1
+> #define HOOK_OUT_FLAG 0x2
+> 
+> opaquehandle = int register_syscall_hook(int syscall_nr, syscall_hook_t
+> hook_function, int flags);
+> int unregister(int opaquehandle);
+> 
+> I'd make a stab at it if I knew that it stood a chance of getting
+> accepted. 
 
-Geez, this isn't exactly right either, my brain is failing me at the moment.
-
-> preemptive systems tend to use sleepable locks with relaxed preemptability
-> within critical sections and add the possible option of priority inheritance
-> depending on the system.
-
-/me thinks
-
-bill
-
+I dont think it has.

@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287530AbSALVjG>; Sat, 12 Jan 2002 16:39:06 -0500
+	id <S287513AbSALVhp>; Sat, 12 Jan 2002 16:37:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287558AbSALVi7>; Sat, 12 Jan 2002 16:38:59 -0500
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:24583
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S287518AbSALViI>; Sat, 12 Jan 2002 16:38:08 -0500
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200201122111.g0CLBhK00442@www.hockin.org>
-Subject: Re: [PATCH] Rx FIFO Overrun error found
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Sat, 12 Jan 2002 13:11:43 -0800 (PST)
-Cc: thockin@sun.com (Tim Hockin), linux-kernel@vger.kernel.org,
-        jgarzik@mandrakesoft.com
-In-Reply-To: <3C40A6F2.18A8C3E6@colorfullife.com> from "Manfred Spraul" at Jan 12, 2002 10:13:22 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S287545AbSALVhf>; Sat, 12 Jan 2002 16:37:35 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:9413 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S287518AbSALVhU>; Sat, 12 Jan 2002 16:37:20 -0500
+Message-Id: <200201122137.g0CLbDR26750@jupiter.cs.uni-dortmund.de>
+To: timothy.covell@ashavan.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: strange kernel message when hacking the NIC driver 
+In-Reply-To: Message from Timothy Covell <timothy.covell@ashavan.org> 
+   of "Fri, 11 Jan 2002 06:20:42 CST." <200201111224.g0BCOYSr001179@svr3.applink.net> 
+Date: Sat, 12 Jan 2002 22:37:13 +0100
+From: "Prof. Brand " <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  	if (dspcfg != DSPCFG_VAL) {
->  		if (!netif_queue_stopped(dev)) {
-> +			spin_unlock_irq(&np->lock);
->  			printk(KERN_INFO 
->  				"%s: possible phy reset: re-initializing\n",
->  				dev->name);
->  			disable_irq(dev->irq);
->  			spin_lock_irq(&np->lock);
-> +			natsemi_reset(dev);
-> +			reinit_ring(dev);
->  			init_registers(dev);
->  			spin_unlock_irq(&np->lock);
->  			enable_irq(dev->irq);
+Timothy Covell <timothy.covell@ashavan.org> said:
+> On Friday 11 January 2002 06:07, David S. Miller wrote:
+> >    From: Timothy Covell <timothy.covell@ashavan.org>
+> >    Date: Fri, 11 Jan 2002 05:55:20 -0600
+> >
+> >    Let me clarify what I said earlier.  You cannot have
+> >    identical MAC addresses on two different NICs.
+> >
+> > There is nothing illegal about that at all.  As long at
+> > the NICs live on different subnets, it is perfectly fine.
+> > In fact this is pretty common on Sun machines.
+> 
+> True.  I was assuming that the context of the post was
+> that the NICs were on the same network link.
 
-I'm not sure you want or need a natsemi_reset here - I'll need to check my
-notes on this when I get back to work.  Can I ask why this change was made?
-This is a very hard case to reproduce, so I'm not very comfortable changing
-the codepath :)  We've had National looking at this buggy behavior for
-months now, with little result.
+This is not the typical setup...
 
->  		/* enable the WOL interrupt.
->  		 * Could be used to send a netlink message.
->  		 */
-> -		writel(readl(ioaddr + IntrMask) | WOLPkt, ioaddr + IntrMask);
-> +		writel(WOLPkt, ioaddr + IntrMask);
-> +		writel(1, ioaddr + IntrEnable);
+> Solaris _defaults_ to using the MAC address from the 
+> primary (hostname) NIC for the rest of them.
 
-is this intended to blow away the other bits in IntrMask?  Keep in mind
-that Wake-On-Phy requires the PHY interrupt enabled, but I don't know if it
-needs it on in intrmask or just in the Phy intr reg.
+Sun sets the MAC from the machine ID on all network interfaces by
+default. Not Solaris, AFAIU it is done by the PROM.
 
-There are a few changes in here I want to double check, but all my
-test-setup and notes for natsemi are at work - I may have more comments
-next week.
+>                                              IMHO, this 
+> is a really stupid thing to do, and  I disable it tout de suite
+> when given a choice.   Of course, if you like it, then
+> why don't you try to convince Linus to change his mind 
+> about it?
 
-Tim
+Why should DaveM convince Linus to get Sun to change their mind on NIC
+setup?
+
+Especially if it works just fine for 99.95% of Suns, and has the bonus that
+you can track each machine by a _single_ MAC, even if you change NICs or
+add more?
+-- 
+Horst von Brand			     http://counter.li.org # 22616

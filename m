@@ -1,64 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbUJ0GIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbUJ0GIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261689AbUJ0GIy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 02:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbUJ0GIV
+	id S261690AbUJ0GIH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 02:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbUJ0GIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 02:08:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31681 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261679AbUJ0GIA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 02:08:00 -0400
-Date: Wed, 27 Oct 2004 02:07:56 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
+	Wed, 27 Oct 2004 02:08:06 -0400
+Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:15510 "HELO
+	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261662AbUJ0GHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 02:07:34 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.10-rc1-mm1
-In-Reply-To: <20041026213156.682f35ca.akpm@osdl.org>
-Message-ID: <Xine.LNX.4.44.0410270206140.7627-100000@thoron.boston.redhat.com>
+Date: Wed, 27 Oct 2004 01:07:27 -0500
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       dz@debian.org
+References: <20041026213156.682f35ca.akpm@osdl.org> <200410270042.34224.dtor_core@ameritech.net>
+In-Reply-To: <200410270042.34224.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410270107.29737.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think this was the new ACPI video module being loaded, during boot:
+On Wednesday 27 October 2004 12:42 am, Dmitry Torokhov wrote:
+> On Tuesday 26 October 2004 11:31 pm, Andrew Morton wrote: 
+> > +remove-module_parm-from-allyesconfig-almost.patch
+> > 
+> >  Move lots of MODULE_PARMs to module_param()
+> > 
+> 
+> Please consider applying the patch below for parkbd instead of
+> Rusty's changes. I find parameter names in form of parkbd.parkbd
+> and parkbd.parkbd_mode extremely ugly.
+> 
+> The patch is against Linus's -bk.
+> 
 
+And please consider the one below for i8k - it exports "power_status"
+parameter through sysfs.
 
-Unable to handle kernel paging request at virtual address f881e9c0
- printing eip:
-*pde = 1ff81067
-*pte = 00000000
-Oops: 0002 [#1]
-PREEMPT SMP 
-Modules linked in: video ac e1000 3c59x mii
-CPU:    2
-EIP:    0060:[<c026337b>]    Not tainted VLI
-EFLAGS: 00010202   (2.6.10-rc1-mm1) 
-EIP is at acpi_bus_register_driver+0x35/0x50
-eax: f881e9c0   ebx: f8835e20   ecx: 00000001   edx: f79e6000
-esi: f8836380   edi: c03a820c   ebp: f79e6f98   esp: f79e6f94
-ds: 007b   es: 007b   ss: 0068
-Process insmod (pid: 2776, threadinfo=f79e6000 task=f79e0550)
-Stack: c03a8230 f79e6fa0 f881502b f79e6fbc c013409b bffffeb7 00000004 0807a018 
-       00000000 00000000 f79e6000 c0105c9d 0807a018 00004861 0807a008 00000000 
-       00000000 bfffc2b8 00000080 0000007b 0000007b 00000080 ffffe410 00000073 
-Call Trace:
- [<c0106add>] show_stack+0x7a/0x90
- [<c0106c62>] show_registers+0x156/0x1ce
- [<c0106e64>] die+0xfb/0x181
- [<c0114f80>] do_page_fault+0x303/0x62b
- [<c0106779>] error_code+0x2d/0x38
- [<f881502b>] acpi_video_init+0x2b/0x4a [video]
- [<c013409b>] sys_init_module+0x19e/0x295
- [<c0105c9d>] sysenter_past_esp+0x52/0x71
-Code: 53 89 c3 b8 ed ff ff ff 75 39 85 db b0 ea 74 33 b8 08 b5 3e c0 e8 6d ee 0e 00 a1 8c b5 3e c0 c7 03 88 b5 3e c0 89 
-1d 8c b5 3e c0 <89> 18 89 43 04 b8 08 b5 3e c0 e8 0b f1 0e 00 89 d8 5b 5d e9 af
-
-
+Since it is not part of input system I'd rather not put it in my tree...
 
 -- 
-James Morris
-<jmorris@redhat.com>
+Dmitry
 
 
+===================================================================
+
+
+ChangeSet@1.1995, 2004-10-27 01:04:47-05:00, dtor_core@ameritech.net
+  I8K: Switch to using module_param, allow switching 'power_status'
+       through sysfs.
+  
+  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+
+
+ Documentation/kernel-parameters.txt |    8 ++++++++
+ drivers/char/i8k.c                  |   16 +++++++++-------
+ 2 files changed, 17 insertions(+), 7 deletions(-)
+
+
+===================================================================
+
+
+
+diff -Nru a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+--- a/Documentation/kernel-parameters.txt	2004-10-27 01:05:54 -05:00
++++ b/Documentation/kernel-parameters.txt	2004-10-27 01:05:54 -05:00
+@@ -490,6 +490,14 @@
+ 
+ 	i810=		[HW,DRM]
+ 
++	i8k.force	[HW] Activate i8k driver even if SMM BIOS signature
++			does not match list of supported models.
++	i8k.power_status
++			[HW] Report power status in /proc/i8k
++			(disabled by default)
++	i8k.restricted	[HW] Allow controlling fans only if SYS_ADMIN
++			capability is set.
++
+ 	ibmmcascsi=	[HW,MCA,SCSI] IBM MicroChannel SCSI adapter
+ 			See Documentation/mca.txt.
+ 
+diff -Nru a/drivers/char/i8k.c b/drivers/char/i8k.c
+--- a/drivers/char/i8k.c	2004-10-27 01:05:54 -05:00
++++ b/drivers/char/i8k.c	2004-10-27 01:05:54 -05:00
+@@ -65,18 +65,20 @@
+ static char bios_version [4]  = "?";
+ static char serial_number[16] = "?";
+ 
+-static int force = 0;
+-static int restricted = 0;
+-static int power_status = 0;
+-
+ MODULE_AUTHOR("Massimo Dal Zotto (dz@debian.org)");
+ MODULE_DESCRIPTION("Driver for accessing SMM BIOS on Dell laptops");
+ MODULE_LICENSE("GPL");
+-MODULE_PARM(force, "i");
+-MODULE_PARM(restricted, "i");
+-MODULE_PARM(power_status, "i");
++
++static int force;
++module_param(force, bool, 0);
+ MODULE_PARM_DESC(force, "Force loading without checking for supported models");
++
++static int restricted;
++module_param(restricted, bool, 0);
+ MODULE_PARM_DESC(restricted, "Allow fan control if SYS_ADMIN capability set");
++
++static int power_status;
++module_param(power_status, bool, 600);
+ MODULE_PARM_DESC(power_status, "Report power status in /proc/i8k");
+ 
+ static ssize_t i8k_read(struct file *, char __user *, size_t, loff_t *);

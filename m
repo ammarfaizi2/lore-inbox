@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319072AbSHMUyI>; Tue, 13 Aug 2002 16:54:08 -0400
+	id <S319108AbSHMVNd>; Tue, 13 Aug 2002 17:13:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319073AbSHMUyH>; Tue, 13 Aug 2002 16:54:07 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27401 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319072AbSHMUyH>; Tue, 13 Aug 2002 16:54:07 -0400
-Message-ID: <3D5972BE.3020300@zytor.com>
-Date: Tue, 13 Aug 2002 13:57:34 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] clone_startup(), 2.5.31-A0
-References: <Pine.LNX.4.44.0208131650230.30647-100000@localhost.localdomain>	<20020813160924.GA3821@codepoet.org>	<20020813171138.A12546@infradead.org>	<15705.13490.713278.815154@napali.hpl.hp.com>	<ajbo1b$e2a$1@cesium.transmeta.com>	<15705.27073.997831.983519@napali.hpl.hp.com>	<3D596B96.4000305@zytor.com> <15705.29059.306202.720523@napali.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319109AbSHMVNd>; Tue, 13 Aug 2002 17:13:33 -0400
+Received: from mta4.srv.hcvlny.cv.net ([167.206.5.10]:44493 "EHLO
+	mta4.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S319108AbSHMVNc>; Tue, 13 Aug 2002 17:13:32 -0400
+Date: Tue, 13 Aug 2002 16:20:50 -0400
+From: Tom Miller <bsdwiz@optonline.net>
+Subject: [PATCH] IBMMCA 2.5.31
+To: linux-kernel@vger.kernel.org
+Cc: langa2@kph.uni-mainz.de
+Message-id: <0H0S00J0GU1MOY@mta4.srv.hcvlny.cv.net>
+Organization: Trinitor
+MIME-version: 1.0
+X-Mailer: KMail [version 1.3.2]
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
->>>>>>On Tue, 13 Aug 2002 13:27:02 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
->>>>>
-> 
->   >> I was, however, the flaws that you complained of had nothing to
->   >> do with the syscall -- it's all in the syscall wrapper (which is
->   >> required for clone(), like it or not.)
-> 
-> The issue is not whether a wrapper is needed or not.
-> 
-> My point is that it is cleaner to always describe stack areas as
-> memory areas (e.g., as a base/size pair).  Note that this is
-> effectively what's happening in the platform-independent part of the
-> kernel today.
-> 
+This is a very trivial patch, it fixes the two remaining strtok()'s in the Kernel!  I have CC:'d to the maintainer of this driver. 
+I don't use this driver, so despite this patch's simplicity, please provide test info, and if i did everything right. 
 
-Right, but all the stack handling is a matter of the wrapper.  sys_clone
-doesn't affect the stack at all.
+Thanks,
+Tom
+-----------------------------------------
 
-	-hpa
+--- /usr/src/linux-2.5.31/drivers/scsi/ibmmca.c Sat Aug 10 21:41:20 2002
++++ /usr/src/linux/drivers/scsi/ibmmca.c        Mon Aug 12 23:34:30 2002
+@@ -1406,7 +1406,7 @@
+    io_base = 0;
+    id_base = 0;
+    if (str) {
+-      token = strtok(str,",");
++      token = strsep(str,",");
+       j = 0;
+       while (token) {
+         if (!strcmp(token,"activity")) display_mode |= LED_ACTIVITY;
+@@ -1424,7 +1424,7 @@
+              scsi_id[id_base++] = simple_strtoul(token,NULL,0);
+            j++;
+         }
+-        token = strtok(NULL,",");
++        token = strsep(NULL,",");
+       }
+    } else if (ints) {
+       for (i = 0; i < IM_MAX_HOSTS && 2*i+2 < ints[0]; i++) {
 
 

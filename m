@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264722AbTFAUVV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 16:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbTFAUVV
+	id S264723AbTFAUbA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 16:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbTFAUbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 16:21:21 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:23814 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S264722AbTFAUVV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 16:21:21 -0400
-Date: Sun, 01 Jun 2003 14:34:40 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Willy Tarreau <willy@w.ods.org>,
-       Daniel Podlejski <underley@underley.eu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: AIC7xxx problem
-Message-ID: <2859720000.1054499680@aslan.scsiguy.com>
-In-Reply-To: <20030601083656.GI21673@alpha.home.local>
-References: <20030531165945.GA5561@witch.underley.eu.org> <20030601083656.GI21673@alpha.home.local>
-X-Mailer: Mulberry/3.0.3 (Linux/x86)
-MIME-Version: 1.0
+	Sun, 1 Jun 2003 16:31:00 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:4359 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S264723AbTFAUbA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 16:31:00 -0400
+Date: Sun, 1 Jun 2003 22:44:22 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Stig Brautaset <stig@brautaset.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70: scripts/Makefile.build fix
+Message-ID: <20030601204422.GA1021@mars.ravnborg.org>
+Mail-Followup-To: Stig Brautaset <stig@brautaset.org>,
+	linux-kernel@vger.kernel.org
+References: <20030601184335.GA31452@brautaset.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030601184335.GA31452@brautaset.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hmmm that makes quite a difference ! I didn't understand what happened between
-> these two outputs. Also, did you try with Justin's latest version of the driver:
+On Sun, Jun 01, 2003 at 07:43:35PM +0100, Stig Brautaset wrote:
+> Hi, 
 > 
+> This patch seems to fix `make V=0' for me.
 
-My driver can't fix interrupt routing issues which is what Daniel's
-problem turned out to be.  I'm really tempted to add an interrupt
-test to the driver attach so that these kinds of problems are clearly
-flagged and my driver doesn't continue to get blamed for interrupt
-routing it can't control.
+Thanks for the patch.
+I do not see the broken behaviour here. Can you provide me with information
+about your system:
+Make version, shell, architecture, distribution.
 
---
-Justin
+I got one report in private mail about make V=0 was broken, and would like
+to find out what is causing the problem.
 
+	Sam

@@ -1,32 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261980AbUBWSOL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 13:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUBWSOH
+	id S261984AbUBWSQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 13:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUBWSQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 13:14:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57516 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261980AbUBWSNY (ORCPT
+	Mon, 23 Feb 2004 13:16:59 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:3742 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261984AbUBWSPc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 13:13:24 -0500
-Date: Mon, 23 Feb 2004 10:12:31 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: torvalds@osdl.org, marcel@holtmann.org, linux-kernel@vger.kernel.org
-Subject: Re: Please back out the bluetooth sysfs support
-Message-Id: <20040223101231.71be5da2.davem@redhat.com>
-In-Reply-To: <20040223103613.GA5865@lst.de>
-References: <20040223103613.GA5865@lst.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 23 Feb 2004 13:15:32 -0500
+Message-ID: <403A4328.5010302@colorfullife.com>
+Date: Mon, 23 Feb 2004 19:15:04 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: piggin@cyberone.com.au
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org
+Subject: Re: [PATCH] fix shmat
+References: <E1AvBNO-0004QF-00@bkwatch.colorfullife.com>
+In-Reply-To: <E1AvBNO-0004QF-00@bkwatch.colorfullife.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ From the bitkeeper commit message queue:
 
-Ok Christoph, I'm taking to Marcel about what we'll do, and thus
-it'll be resolved within the next day one way or another.
+>	
+>	sys_shmat() need to be declared asmlinkage.  This causes breakage when we
+>	actually get the proper prototypes into caller's scope.
+>  
+>
+Why? sys_shmat is not a system call. Or at least there is a comment just 
+before the implementation that this is not a syscall.
+I think either the asmlinkage or the comment are wrong:
+/*
+ * Fix shmaddr, allocate descriptor, map shm, add attach descriptor to 
+lists.
+ *
+ * NOTE! Despite the name, this is NOT a direct system call entrypoint. The
 
-Thanks for pointing this out.
+>  * "raddr" thing points to kernel space, and there has to be a wrapper around
+>  * this.
+>  */
+>-long sys_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
+>+asmlinkage long sys_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
+> {
+> 	struct shmid_kernel *shp;
+> 	unsigned long addr;
+>
+
+I'd propose to remove the asmlinkage and to move the prototype (without 
+asmlinkage) back from syscalls.h to shm.h - what do you think?
+--
+    Manfred
+

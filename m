@@ -1,40 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbTJNIJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 04:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTJNIJv
+	id S261959AbTJNIKs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 04:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbTJNIKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 04:09:51 -0400
-Received: from imo-d02.mx.aol.com ([205.188.157.34]:3288 "EHLO
-	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S261953AbTJNIJv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 04:09:51 -0400
-Date: Tue, 14 Oct 2003 04:09:47 -0400
-From: jpo234@netscape.net
-To: linux-kernel@vger.kernel.org
-Subject: RE: Silly BK statistics
-MIME-Version: 1.0
-Message-ID: <2E6B33E5.5E9EB3A2.00065BAA@netscape.net>
-X-Mailer: Atlas Mailer 2.0
-X-AOL-IP: 62.96.207.14
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 14 Oct 2003 04:10:48 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:4737 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261959AbTJNIKn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 04:10:43 -0400
+Date: Tue, 14 Oct 2003 09:11:59 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200310140811.h9E8Bxq1000831@81-2-122-30.bradfords.org.uk>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Wes Janzen <superchkn@sbcglobal.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031014074020.GC13117@bitwizard.nl>
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60>
+ <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
+ <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
+ <20031014064925.GA12342@bitwizard.nl>
+ <3F8BA037.9000705@sbcglobal.net>
+ <200310140721.h9E7LmNE000682@81-2-122-30.bradfords.org.uk>
+ <20031014074020.GC13117@bitwizard.nl>
+Subject: Re: Why are bad disk sectors numbered strangely, and what happens to them?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > What that means is that in about a year, you've managed to create 65,337
- > changesets.  That's 179 per day, 7.4/hour, 24x7.  You guys are busy.
+This is my last mail on this subject.
 
-It's still not as exciting as it used to be. In the good old times
-Ross Biro released a new TCP/IP patch every 2 hours...
+> I'm not sure in what cases a drive will remap a sector. Manufacturers
+> are not publishing this.
+> 
+> So if you get a read-error (showing you that some of your data was just
+> lost!), you could just rewrite that sector and hope for the drive to
+> remap it. Well, you just lost some of your data. Maybe it was part of a
+> file you got from a CD. Fine. Easy to replace. Maybe it was part of your
+> CD-collection-backup. Fine. Easy to replace. Maybe it was part of your
+> thesis document. Oops. Difficult to replace.
 
-Regards
-  Joerg
+Sector re-mapping is not a replacement for backing up your data.  It
+merely adds resiliance to the disk.  Infact, it's more or less
+impossible to get away from these days - modern IDE disks error
+correct all the time.  One area of the disk going bad is not an
+unlikely event.
 
-__________________________________________________________________
-McAfee VirusScan Online from the Netscape Network.
-Comprehensive protection for your entire computer. Get your free trial today!
-http://channels.netscape.com/ns/computing/mcafee/index.jsp?promo=393397
+> > The drive is probably full of unusable areas, which are correctly
+> > identified and not used by the firmware.  One more is detected, and
+> > the firmware doesn't cope with it.  Suddenly we are getting
+> > suggestions to work around that in the filesystem.
+> 
+> Right. Support for bad sectors is really easy to build into a
+> filesystem. If Reiserfs doesn't (yet) support it, another reason not 
+> to use Reiserfs. 
 
-Get AOL Instant Messenger 5.1 free of charge.  Download Now!
-http://aim.aol.com/aimnew/Aim/register.adp?promo=380455
+Not at all.  A bad sector map in the filesystem is a pointless feature
+for a filesystem which will only likely be used on fault tollerant
+devices.  It serves no purpose.  The 'it does no harm' argument is
+just as pointless. 
+
+> You create a file called something like ".badblocks" in the root
+> directory. If as a filesystem you get to know of a bad block, just
+> allocate it towards that file. Next it pays to make the file invisble
+> from userspace. (otherwise "tar backups" would try to read it!). 
+
+Doing that kind of thing was quite useful in the 1980s when floppies
+were actually expensive and hard disks usually didn't remap bad
+sectors.  Nowadays, it usually gains nothing, and may well hide real
+faults that could cause data loss later on.
+
+> This is usually done by just allocating an inodenumber for it, and
+> telling  fsck about it, to prevent it being linked into lost+found 
+> on the first fsck.... 
+> 
+> > The drive may well have been developing faults regularly through it's
+> > entire lifetime, and you haven't noticed.  Now you have noticed and
+> > want to work around the problem, but why wouldn't the drive continue
+> > it's 'natural decay', and assuming it does, why would it be able to
+> > re-map future bad blocks, but not this one?
+> 
+> On the other hand, I once bumped my knee against the bottom of the table
+> that my computer was on. That was the exact moment that one of my
+> sectors went bad. So now I know the cause, and want to remap the sector. 
+> No gradual decay. 
+
+Again, you are talking around the problem - there almost certainly
+will be gradual decay with any disk.  You are just not noticing it
+because the firmware is handling it.  If you know that there is a bad
+sector, and the disk is not re-mapping it, _why_ isn't it remapping
+it?
+
+John.

@@ -1,48 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318198AbSHMQFk>; Tue, 13 Aug 2002 12:05:40 -0400
+	id <S318200AbSHMQFo>; Tue, 13 Aug 2002 12:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318203AbSHMQFk>; Tue, 13 Aug 2002 12:05:40 -0400
-Received: from codepoet.org ([166.70.99.138]:49081 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S318198AbSHMQFk>;
-	Tue, 13 Aug 2002 12:05:40 -0400
-Date: Tue, 13 Aug 2002 10:09:24 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] clone_startup(), 2.5.31-A0
-Message-ID: <20020813160924.GA3821@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0208131650230.30647-100000@localhost.localdomain> <20020813164415.A11554@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020813164415.A11554@infradead.org>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S318203AbSHMQFo>; Tue, 13 Aug 2002 12:05:44 -0400
+Received: from c-24-126-73-164.we.client2.attbi.com ([24.126.73.164]:19194
+	"EHLO kegel.com") by vger.kernel.org with ESMTP id <S318200AbSHMQFl>;
+	Tue, 13 Aug 2002 12:05:41 -0400
+Date: Tue, 13 Aug 2002 09:14:13 -0700
+From: dank@kegel.com
+Message-Id: <200208131614.g7DGEDH03569@kegel.com>
+To: linux-kernel@vger.kernel.org
+Subject: [CHECKER] Fix "null-deref" error in khttpd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Aug 13, 2002 at 04:44:15PM +0100, Christoph Hellwig wrote:
-> On Tue, Aug 13, 2002 at 05:09:03PM +0200, Ingo Molnar wrote:
-> > 
-> > the attached patch implements a new syscall on x86, clone_startup().
-> > The parameters are:
-> > 
-> > 	clone_startup(fn, child_stack, flags, tls_desc, pid_addr)
-> 
-> First the name souns horrible.  What about spawn_thread or create_thread
-> instead?  it's not our good old clone and not a lookalike, it's some
-> pthreadish monster..
+I have not tested this, but it's "obviously correct", and it
+should fix a minor error reported by the Stanford checker in khttpd;
+see http://marc.theaimsgroup.com/?l=linux-kernel&m=99601418013486
 
-How about "clone2"?
+It was posted to the khttpd mailing list a week or so ago.
+Comments welcome.
+- Dan
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+--- linux-2.4.19-pre9/net/khttpd/security.c.orig	Tue Aug  6 16:13:21 2002
++++ linux/net/khttpd/security.c	Tue Aug  6 16:33:08 2002
+@@ -83,22 +83,21 @@
+ */
+ struct file *OpenFileForSecurity(char *Filename)
+ {
+-	struct file *filp;
++	struct file *filp = NULL;
+ 	struct DynamicString *List;
+ 	umode_t permission;
+ 	
+-	
+-
+ 	EnterFunction("OpenFileForSecurity");
+ 	if (Filename==NULL)
+-		return NULL;
++		goto out_error;
+ 	
+-	if (strlen(Filename)>=256 ) return NULL;  /* Sanity check */
++	if (strlen(Filename)>=256 )
++		goto out_error;  /* Sanity check */
+ 	
+ 	/* Rule no. 1  -- No "?" characters */
+ #ifndef BENCHMARK	
+ 	if (strchr(Filename,'?')!=NULL)
+-		return NULL;
++		goto out_error;
+ 
+ 	/* Intermediate step: decode all %hex sequences */
+ 	
+@@ -106,9 +105,8 @@
+ 
+ 	/* Rule no. 2  -- Must start with a "/" */
+ 	
+-	
+ 	if (Filename[0]!='/')
+-		return NULL;
++		goto out_error;
+ 		
+ #endif
+ 	/* Rule no. 3 -- Does the file exist ? */
+@@ -116,55 +114,44 @@
+ 	filp = filp_open(Filename, O_RDONLY, 0);
+ 	
+ 	if (IS_ERR(filp))
+-		return NULL;
++		goto out_error;
+ 
+ #ifndef BENCHMARK		
+ 	permission = filp->f_dentry->d_inode->i_mode;
+ 	
+ 	/* Rule no. 4 : must have enough permissions */
+ 	
+-	
+ 	if ((permission & sysctl_khttpd_permreq)==0)
+-	{
+-		if (filp!=NULL)
+-			fput(filp);
+-		filp=NULL;
+-		return NULL;
+-	}
+-		
++		goto out_error_put;	
++
+ 	/* Rule no. 5 : cannot have "forbidden" permission */
+ 	
+-	
+ 	if ((permission & sysctl_khttpd_permforbid)!=0)
+-	{
+-		if (filp!=NULL)
+-			fput(filp);
+-		filp=NULL;
+-		return NULL;
+-	}
++		goto out_error_put;	
+ 		
+ 	/* Rule no. 6 : No string in DynamicList can be a
+ 			substring of the filename */
+-			
+ 	
+ 	List = DynamicList;
+-	
+ 	while (List!=NULL)
+ 	{
+ 		if (strstr(Filename,List->value)!=NULL)
+-		{
+-			if (filp!=NULL)
+-				fput(filp);
+-			filp=NULL;
+-			return NULL;
+-		}
++			goto out_error_put;	
++
+ 		List = List->Next;
+ 	}
+ 	
+ #endif	
+ 	LeaveFunction("OpenFileForSecurity - success");
+-
++out:
+ 	return filp;
++
++out_error_put:
++	fput(filp);
++out_error:
++	filp=NULL;
++	LeaveFunction("OpenFileForSecurity - fail");
++	goto out;
+ }
+ 
+ /* 

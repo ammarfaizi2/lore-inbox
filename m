@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266649AbSLJG2q>; Tue, 10 Dec 2002 01:28:46 -0500
+	id <S266676AbSLJGeE>; Tue, 10 Dec 2002 01:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266652AbSLJG2q>; Tue, 10 Dec 2002 01:28:46 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:6356 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S266649AbSLJG2o>;
-	Tue, 10 Dec 2002 01:28:44 -0500
-Date: Tue, 10 Dec 2002 17:35:30 +1100
+	id <S266682AbSLJGeD>; Tue, 10 Dec 2002 01:34:03 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:35028 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S266676AbSLJGeA>;
+	Tue, 10 Dec 2002 01:34:00 -0500
+Date: Tue, 10 Dec 2002 17:41:36 +1100
 From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-Subject: [PATCH][COMPAT] consolidate sys32_times - architecture independent
-Message-Id: <20021210173530.6ec651d2.sfr@canb.auug.org.au>
+To: ak@muc.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH][COMPAT] consolidate sys32_times - x86_64
+Message-Id: <20021210174136.6443b188.sfr@canb.auug.org.au>
+In-Reply-To: <20021210173530.6ec651d2.sfr@canb.auug.org.au>
+References: <20021210173530.6ec651d2.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -21,111 +21,110 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Hi Andi,
 
-This is the next in the series.  This patch creates compat_sys_times and
-a few more compability types.  Across all the architectures, the
-diffstat looks like this:
-
- arch/ia64/ia32/ia32_entry.S       |    2 +-
- arch/ia64/ia32/sys_ia32.c         |   31 -------------------------------
- arch/mips64/kernel/linux32.c      |   29 -----------------------------
- arch/mips64/kernel/scall_o32.S    |    2 +-
- arch/parisc/kernel/sys_parisc32.c |   26 --------------------------
- arch/ppc64/kernel/misc.S          |    2 +-
- arch/ppc64/kernel/sys_ppc32.c     |   31 -------------------------------
- arch/s390x/kernel/entry.S         |    2 +-
- arch/s390x/kernel/linux32.c       |   30 ------------------------------
- arch/s390x/kernel/linux32.h       |    6 ++----
- arch/s390x/kernel/wrapper32.S     |    8 ++++----
- arch/sparc64/kernel/sys_sparc32.c |   30 ------------------------------
- arch/sparc64/kernel/systbls.S     |    2 +-
- arch/x86_64/ia32/ia32entry.S      |    2 +-
- arch/x86_64/ia32/sys_ia32.c       |   31 -------------------------------
- include/asm-ia64/compat.h         |    3 +++
- include/asm-ia64/ia32.h           |    8 +++-----
- include/asm-mips64/compat.h       |    3 +++
- include/asm-mips64/posix_types.h  |    3 ---
- include/asm-parisc/compat.h       |    3 +++
- include/asm-parisc/posix_types.h  |    3 ---
- include/asm-ppc64/compat.h        |    3 +++
- include/asm-ppc64/ppc32.h         |    6 ++----
- include/asm-s390x/compat.h        |    3 +++
- include/asm-sparc64/compat.h      |    3 +++
- include/asm-sparc64/posix_types.h |    2 --
- include/asm-sparc64/siginfo.h     |    6 ++++--
- include/asm-x86_64/compat.h       |    3 +++
- include/asm-x86_64/ia32.h         |    8 ++++----
- include/linux/compat.h            |   13 +++++++++++--
- kernel/compat.c                   |   20 ++++++++++++++++++++
- 31 files changed, 77 insertions(+), 247 deletions(-)
-
-This is the architecture independent part of the patch.
+The x86_64 patch ...
 -- 
 Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au
 http://www.canb.auug.org.au/~sfr/
 
-diff -ruN 2.5.51-32bit.base/include/linux/compat.h 2.5.51-32bit.1/include/linux/compat.h
---- 2.5.51-32bit.base/include/linux/compat.h	2002-12-10 15:10:40.000000000 +1100
-+++ 2.5.51-32bit.1/include/linux/compat.h	2002-12-10 16:40:20.000000000 +1100
-@@ -1,8 +1,8 @@
- #ifndef _LINUX_COMPAT_H
- #define _LINUX_COMPAT_H
- /*
-- * These are the type definitions for the arhitecure sepcific
-- * compatibility layer.
-+ * These are the type definitions for the architecture specific
-+ * syscall compatibility layer.
-  */
- #include <linux/config.h>
- 
-@@ -10,6 +10,8 @@
- 
- #include <asm/compat.h>
- 
-+#define compat_jiffies_to_clock_t(x)	((x) / (HZ / COMPAT_USER_HZ))
-+
- struct compat_utimbuf {
- 	compat_time_t		actime;
- 	compat_time_t		modtime;
-@@ -20,5 +22,12 @@
- 	struct compat_timeval	it_value;
- };
- 
-+struct compat_tms {
-+	compat_clock_t		tms_utime;
-+	compat_clock_t		tms_stime;
-+	compat_clock_t		tms_cutime;
-+	compat_clock_t		tms_cstime;
-+};
-+
- #endif /* CONFIG_COMPAT */
- #endif /* _LINUX_COMPAT_H */
-diff -ruN 2.5.51-32bit.base/kernel/compat.c 2.5.51-32bit.1/kernel/compat.c
---- 2.5.51-32bit.base/kernel/compat.c	2002-12-10 15:10:41.000000000 +1100
-+++ 2.5.51-32bit.1/kernel/compat.c	2002-12-10 16:45:09.000000000 +1100
-@@ -161,3 +161,23 @@
- 		return -EFAULT;
- 	return 0;
+diff -ruN 2.5.51-32bit.base/arch/x86_64/ia32/ia32entry.S 2.5.51-32bit.1/arch/x86_64/ia32/ia32entry.S
+--- 2.5.51-32bit.base/arch/x86_64/ia32/ia32entry.S	2002-12-10 15:46:42.000000000 +1100
++++ 2.5.51-32bit.1/arch/x86_64/ia32/ia32entry.S	2002-12-10 17:07:24.000000000 +1100
+@@ -164,7 +164,7 @@
+ 	.quad sys_rmdir		/* 40 */
+ 	.quad sys_dup
+ 	.quad sys32_pipe
+-	.quad sys32_times
++	.quad compat_sys_times
+ 	.quad ni_syscall			/* old prof syscall holder */
+ 	.quad sys_brk		/* 45 */
+ 	.quad sys_setgid16
+diff -ruN 2.5.51-32bit.base/arch/x86_64/ia32/sys_ia32.c 2.5.51-32bit.1/arch/x86_64/ia32/sys_ia32.c
+--- 2.5.51-32bit.base/arch/x86_64/ia32/sys_ia32.c	2002-12-10 15:46:42.000000000 +1100
++++ 2.5.51-32bit.1/arch/x86_64/ia32/sys_ia32.c	2002-12-10 17:07:52.000000000 +1100
+@@ -1107,37 +1107,6 @@
+ 	return ret;
  }
+ 
+-struct tms32 {
+-	__kernel_clock_t32 tms_utime;
+-	__kernel_clock_t32 tms_stime;
+-	__kernel_clock_t32 tms_cutime;
+-	__kernel_clock_t32 tms_cstime;
+-};
+-                                
+-extern int sys_times(struct tms *);
+-
+-asmlinkage long
+-sys32_times(struct tms32 *tbuf)
+-{
+-	struct tms t;
+-	long ret;
+-	mm_segment_t old_fs = get_fs ();
+-	
+-	set_fs (KERNEL_DS);
+-	ret = sys_times(tbuf ? &t : NULL);
+-	set_fs (old_fs);
+-	if (tbuf) {
+-		if (verify_area(VERIFY_WRITE, tbuf, sizeof(struct tms32)) ||
+-		    __put_user (t.tms_utime, &tbuf->tms_utime) ||
+-		    __put_user (t.tms_stime, &tbuf->tms_stime) ||
+-		    __put_user (t.tms_cutime, &tbuf->tms_cutime) ||
+-		    __put_user (t.tms_cstime, &tbuf->tms_cstime))
+-			return -EFAULT;
+-	}
+-	return ret;
+-}
+-
+-
+ static inline int get_flock(struct flock *kfl, struct flock32 *ufl)
+ {
+ 	int err;
+diff -ruN 2.5.51-32bit.base/include/asm-x86_64/compat.h 2.5.51-32bit.1/include/asm-x86_64/compat.h
+--- 2.5.51-32bit.base/include/asm-x86_64/compat.h	2002-12-10 15:46:42.000000000 +1100
++++ 2.5.51-32bit.1/include/asm-x86_64/compat.h	2002-12-10 16:38:26.000000000 +1100
+@@ -5,9 +5,12 @@
+  */
+ #include <linux/types.h>
+ 
++#define COMPAT_USER_HZ	100
 +
-+asmlinkage long compat_sys_times(struct compat_tms *tbuf)
-+{
-+	/*
-+	 *	In the SMP world we might just be unlucky and have one of
-+	 *	the times increment as we use it. Since the value is an
-+	 *	atomically safe type this is just fine. Conceptually its
-+	 *	as if the syscall took an instant longer to occur.
-+	 */
-+	if (tbuf) {
-+		struct compat_tms tmp;
-+		tmp.tms_utime = compat_jiffies_to_clock_t(current->utime);
-+		tmp.tms_stime = compat_jiffies_to_clock_t(current->stime);
-+		tmp.tms_cutime = compat_jiffies_to_clock_t(current->cutime);
-+		tmp.tms_cstime = compat_jiffies_to_clock_t(current->cstime);
-+		if (copy_to_user(tbuf, &tmp, sizeof(tmp)))
-+			return -EFAULT;
-+	}
-+	return compat_jiffies_to_clock_t(jiffies);
-+}
+ typedef u32		compat_size_t;
+ typedef s32		compat_ssize_t;
+ typedef s32		compat_time_t;
++typedef s32		compat_clock_t;
+ 
+ struct compat_timespec {
+ 	compat_time_t	tv_sec;
+diff -ruN 2.5.51-32bit.base/include/asm-x86_64/ia32.h 2.5.51-32bit.1/include/asm-x86_64/ia32.h
+--- 2.5.51-32bit.base/include/asm-x86_64/ia32.h	2002-12-10 15:46:42.000000000 +1100
++++ 2.5.51-32bit.1/include/asm-x86_64/ia32.h	2002-12-10 15:44:49.000000000 +1100
+@@ -5,13 +5,13 @@
+ 
+ #ifdef CONFIG_IA32_EMULATION
+ 
++#include <compat.h>
++
+ /*
+  * 32 bit structures for IA32 support.
+  */
+ 
+ /* 32bit compatibility types */
+-typedef int		       __kernel_ptrdiff_t32;
+-typedef int		       __kernel_clock_t32;
+ typedef int		       __kernel_pid_t32;
+ typedef unsigned short	       __kernel_ipc_pid_t32;
+ typedef unsigned short	       __kernel_uid_t32;
+@@ -201,8 +201,8 @@
+ 			unsigned int _pid;	/* which child */
+ 			unsigned int _uid;	/* sender's uid */
+ 			int _status;		/* exit code */
+-			__kernel_clock_t32 _utime;
+-			__kernel_clock_t32 _stime;
++			compat_clock_t _utime;
++			compat_clock_t _stime;
+ 		} _sigchld;
+ 
+ 		/* SIGILL, SIGFPE, SIGSEGV, SIGBUS */

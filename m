@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266072AbUAFGJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 01:09:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266074AbUAFGJQ
+	id S266071AbUAFGHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 01:07:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUAFGHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 01:09:16 -0500
-Received: from k-kdom.nishanet.com ([65.125.12.2]:49928 "EHLO
-	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
-	id S266072AbUAFGJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 01:09:11 -0500
-Message-ID: <3FFA51D1.2000401@nishanet.com>
-Date: Tue, 06 Jan 2004 01:12:33 -0500
-From: Bob <recbo@nishanet.com>
-User-Agent: Mozilla Thunderbird 0.5a (20040102)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux hangs on nVidia nForce2 400 Ultra
-References: <20040104173624.19046.qmail@iname.com> <3FF8558A.2080308@reactivated.net>
-In-Reply-To: <3FF8558A.2080308@reactivated.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 6 Jan 2004 01:07:25 -0500
+Received: from unthought.net ([212.97.129.88]:8415 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S266071AbUAFGHY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 01:07:24 -0500
+Date: Tue, 6 Jan 2004 07:07:22 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Pentium M config option for 2.6
+Message-ID: <20040106060722.GA27889@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Tomas Szepe <szepe@pinerecords.com>,
+	Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <200401041227.i04CReNI004912@harpo.it.uu.se> <20040104123358.GB24913@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040104123358.GB24913@louise.pinerecords.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All correct, and if you have Award bios an update
-may help stability with nforce2.
+On Sun, Jan 04, 2004 at 01:33:58PM +0100, Tomas Szepe wrote:
+> On Jan-04 2004, Sun, 13:27 +0100
+> Mikael Pettersson <mikpe@csd.uu.se> wrote:
+> 
+> > IOW, don't lie to the compiler and pretend P-M == P4
+> > with that -march=pentium4.
+> 
+> What do you recommend to use as march then?  There is
+> no pentiumm subarch support in gcc yet;  I was convinced
+> p4 was the closest match.
 
--Bob D
+Use the same as for P-III.
 
-Daniel Drake wrote:
+The P-M has the same instruction decoder (and execution unit) setup as
+the P-III, which is *very* different from P-IV (which has one decoder
+only, and then a trace cache for the decoded uops).  This is an
+important difference from a code generator point of view.
 
-> Hi,
->
-> Theres been some work done on this issue lately. Originally, my system 
-> only hung when I had IO-APIC and local APIC support compiled into the 
-> kernel. But I think other people had hanging problems even without this.
->
-> You could first try using a 2.6-mm series kernel, as these include 
-> some patches which fix nforce2 problems for most people (but not me).
->
-> The other option is to try Ross Dickinson's patches:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=107199838022614&w=2
->
-> If you use Ross's patches, as well as the -mm fixes, you should revert 
-> out the nforce-disconnect-quirk patch to avoid your CPU getting 
-> needlessly hot.
->
-> Personally, I have stability running 2.6.1-rc1-mm1 with the 
-> disconnect-quirk reverted out, Ross's patches, booting with parameter 
-> apic_tack=2. I have APIC/IOAPIC compiled in and working.
->
-> Daniel.
->
-> Herve Fache wrote:
->
->> Hi chaps!    My system hangs (no oops, nothing) on disk access using 
->> either 2.4.23 or 2.6.0. A rather reliable way for me to  crash it is 
->> to, for example, copy the sources of the Linux kernel.    It hanged 
->> once on CD-ROM access, which could lead to a more IDE-level problem. 
->> Also, the only time it did it in  another operating system (humm...) 
->> was after it crashed in Linux and I pressed reset (no shut down), 
->> which  makes me think it could the IDE controller [driver]'s 
->> fault...    It seems I'm the only one on Earth to have this problem 
->> (according to Google), but if there was a way to track it down I'd be 
->> happy to try.    I have attached my 2.6.0 kernel config for info.    
->> Thanks!  Hervé.  
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+>From reading Intel's optimization guides, it seems to me like the P-M is
+pretty much just a slightly enhanced P-III (more cache AFAIR) which
+happens to get shipped with a good mobile chipset - and that package
+together is called Centrino.
+
+That would also explain why Centrino leaves the P-IV based laptops in
+the dust ;)
+
+Cheers,
+
+ / jakob
 

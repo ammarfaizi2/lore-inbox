@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262563AbTDAOSd>; Tue, 1 Apr 2003 09:18:33 -0500
+	id <S262539AbTDAOO3>; Tue, 1 Apr 2003 09:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262564AbTDAOSc>; Tue, 1 Apr 2003 09:18:32 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:58840 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id <S262563AbTDAOSb>;
-	Tue, 1 Apr 2003 09:18:31 -0500
-Date: Tue, 1 Apr 2003 15:29:45 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linux Memory Management List <linux-mm@kvack.org>
-Subject: Last major update to VM documentation
-Message-ID: <Pine.LNX.4.53.0304011519030.13366@skynet>
+	id <S262546AbTDAOO2>; Tue, 1 Apr 2003 09:14:28 -0500
+Received: from SMTP6.andrew.cmu.edu ([128.2.10.86]:44516 "EHLO
+	smtp6.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S262539AbTDAOO1>; Tue, 1 Apr 2003 09:14:27 -0500
+Date: Tue, 1 Apr 2003 09:25:51 -0500 (EST)
+From: Steinar Hauan <steinhau@andrew.cmu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [trivial] make xconfig for 2.4.21-pre6
+Message-ID: <Pine.LNX.4.53L-031.0304010923300.3945@unix44.andrew.cmu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello,
 
-Yet another release of the VM docs and I hope this is the last major
-update to it. The swapping and page replacement chapters are the two most
-notable changes with the usual cleanups and embellishments elsewhere. I am
-tentatively saying it is now fully accurate now though and the final few
-technical errors should have been shaken out of it. If I'm wrong, feel
-free to point it out and laugh a bit.
+  "make xconfig" fails for recent 2.4.21-preX versions; typo.
 
-Arguably, what is more important is that I've written a set of
-acknowledgments where I tried to compile a list of everyone that gave me
-a hand. Thanks to anyone who sent me technical corrections, grammar
-corrections and the odd word of encouragement, it is much appreciated. If
-I missed anyone, send me an indignant email.
+--- linux-2.4.21-pre6/drivers/net/Config.in.FCS	2003-04-01 09:06:30.000000000 -0500
++++ linux-2.4.21-pre6/drivers/net/Config.in	2003-04-01 09:06:39.000000000 -0500
+@@ -185,7 +185,7 @@
+       dep_tristate '    Davicom DM910x/DM980x support' CONFIG_DM9102 $CONFIG_PCI
+       dep_tristate '    EtherExpressPro/100 support (eepro100, original Becker driver)' CONFIG_EEPRO100 $CONFIG_PCI
+       if [ "$CONFIG_VISWS" = "y" ]; then
+-         define_mbool CONFIG_EEPRO100_PIO y
++         define_bool CONFIG_EEPRO100_PIO y
+       else
+          dep_mbool '      Use PIO instead of MMIO' CONFIG_EEPRO100_PIO $CONFIG_EEPRO100
+       fi
 
-I am aiming to leave this pretty much as it is for the next two weeks and
-if nothing major happens, it'll be rubber stamped, finalised and I'll make
-the TeX source publicly available (hopefully on http://www.linux-mm.org or
-somewhere else that doesn't depend on my website existing) and start
-working on something else
-
-Understanding the Linux Virtual Memory Manager
-PDF:  http://www.csn.ul.ie/%7Emel/projects/vm/guide/pdf/understand.pdf
-HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/understand/
-Text: http://www.csn.ul.ie/%7Emel/projects/vm/guide/text/understand.txt
-
-Code Commentary
-PDF:  http://www.csn.ul.ie/%7Emel/projects/vm/guide/pdf/code.pdf
-HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/code
-Text: http://www.csn.ul.ie/%7Emel/projects/vm/guide/text/code.txt
-
-As usual, comments and feedback welcome
-
--- 
-Mel Gorman
-MSc Student, University of Limerick
-http://www.csn.ul.ie/~mel
+--
+  Steinar Hauan, dept of ChemE  --  hauan@cmu.edu
+  Carnegie Mellon University, Pittsburgh PA, USA

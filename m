@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbVCPOjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262606AbVCPOmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262607AbVCPOjt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 09:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVCPOi4
+	id S262606AbVCPOmM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 09:42:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVCPOku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 09:38:56 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:12956 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262609AbVCPOhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 09:37:07 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: CPU hotplug on i386
-Date: Wed, 16 Mar 2005 15:40:03 +0100
-User-Agent: KMail/1.7.1
-Cc: kernel list <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au
-References: <20050316132151.GA2227@elf.ucw.cz>
-In-Reply-To: <20050316132151.GA2227@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Mar 2005 09:40:50 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:38410 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262605AbVCPOiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 09:38:10 -0500
+Date: Wed, 16 Mar 2005 09:37:45 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Rick Jones <rick.jones2@hp.com>
+Cc: linux-kernel@vger.kernel.org, ctindel@users.sourceforge.net,
+       fubar@us.ibm.com, bonding-devel@lists.sourceforge.net,
+       netdev@oss.sgi.com, jgarzik@pobox.com
+Subject: Re: [patch 2.6.11] bonding: avoid tx balance for IGMP (alb/tlb mode)
+Message-ID: <20050316143743.GC18393@tuxdriver.com>
+Mail-Followup-To: Rick Jones <rick.jones2@hp.com>,
+	linux-kernel@vger.kernel.org, ctindel@users.sourceforge.net,
+	fubar@us.ibm.com, bonding-devel@lists.sourceforge.net,
+	netdev@oss.sgi.com, jgarzik@pobox.com
+References: <20050315215128.GA18262@tuxdriver.com> <4237833E.9080809@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503161540.04480.rjw@sisk.pl>
+In-Reply-To: <4237833E.9080809@hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Mar 15, 2005 at 04:52:14PM -0800, Rick Jones wrote:
+> Is that switch behaviour "normal" or "correct?"  I know next to nothing 
 
-On Wednesday, 16 of March 2005 14:21, Pavel Machek wrote:
-> Hi!
-> 
-> I tried to solve long-standing uglyness in swsusp cmp code by calling
-> cpu hotplug... only to find out that CONFIG_CPU_HOTPLUG is not
-> available on i386. Is there way to enable CPU_HOTPLUG on i386?
+As Jay Vosburgh points-out, this patch only effects ALB and TLB modes.
+These are modes where the link partner is unaware of the bonded
+configuration.  In effect, we are tricking the switch into behaving
+the way we desire.
 
-Heh, that's exactly what I was thinking about.  ;-)
+Since the switch is unaware of our bonded behaviour, I think it makes
+sense to accomodate this quirk related to IGMP snooping.
 
-AFAICS we don't need the full CPU hotplug to do this.  For suspend, we need to
-enable the CPU hotplug-related code in sched.c and cpu.c, and we need to
-implement the functions __cpu_disable() and __cpu_die() (called from within
-cpu.c) on each architecture for which we want swsusp to work on SMP.
-
-If that's acceptable, the CPU hotplug code in sched.c and cpu.c may be
-enabled by changing some #ifdefs there.  For example, we could replace the
-
-#idef CONFIG_CPU_HOTPLUG
-
-with
-
-#if defined(CONFIG_CPU_HOTPLUG) || (defined(CONFIG_SOFTWARE_SUSPEND)
-	&& defined(CONFIG_SMP))
-
-wherever necessary.
-
-The implementation of __cpu_disable() and __cpu_die() may be a bit more
-tricky, however.  In __cpu_disable() we need to save the settings of the local
-APIC of each CPU (on x86-64, at least) etc.  In __cpu_die() we should give the
-"frozen" CPU some "neutral" code to execute, it seems (or "hlt" it?).
-
-I've looked at the ia64 implementation of these functions, but I haven't fully
-understood it yet.
-
-Greets,
-Rafael
-
-
+John
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+John W. Linville
+linville@tuxdriver.com

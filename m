@@ -1,133 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264527AbUAFREU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 12:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbUAFREU
+	id S264546AbUAFRG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 12:06:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbUAFRG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 12:04:20 -0500
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:41677 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S264527AbUAFREP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 12:04:15 -0500
-Date: Tue, 6 Jan 2004 17:04:14 +0000
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
-Cc: Hugo Mills <hugo-lkml@carfax.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: won't work: 2.6.0 && SiI 3112 SATA
-Message-ID: <20040106170414.GF17606@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>,
-	linux-kernel@vger.kernel.org
-References: <20040106135634.A5825@beton.cybernet.src> <20040106132533.GD17606@carfax.org.uk> <20040106174714.B6567@beton.cybernet.src>
+	Tue, 6 Jan 2004 12:06:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52360 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264546AbUAFRGX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 12:06:23 -0500
+Date: Tue, 6 Jan 2004 09:05:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: James.Bottomley@SteelEye.com, johnstultz@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix get_jiffies_64 to work on voyager
+Message-Id: <20040106090545.6e906493.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0401060826570.2653@home.osdl.org>
+References: <1073405053.2047.28.camel@mulgrave>
+	<20040106081947.3d51a1d5.akpm@osdl.org>
+	<Pine.LNX.4.58.0401060826570.2653@home.osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QNDPHrPUIc00TOLW"
-Content-Disposition: inline
-In-Reply-To: <20040106174714.B6567@beton.cybernet.src>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nicks: hugo darksatanic
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> 
+> 
+> On Tue, 6 Jan 2004, Andrew Morton wrote:
+> > 
+> > Hm, OK.  I hit the same deadlock when running with the "don't require TSCs
+> > to be synchronised in sched_clock()" patch from -mm.  The fix for that is
+> > below.  I shall accelerate it.
+> > 
+> > --- 25/arch/i386/kernel/timers/timer_tsc.c~sched_clock-2.6.0-A1-deadlock-fix	2003-12-30 00:45:09.000000000 -0800
+> > +++ 25-akpm/arch/i386/kernel/timers/timer_tsc.c	2003-12-30 00:45:09.000000000 -0800
+> > @@ -140,7 +140,8 @@ unsigned long long sched_clock(void)
+> >  #ifndef CONFIG_NUMA
+> >  	if (!use_tsc)
+> >  #endif
+> > -		return (unsigned long long)get_jiffies_64() * (1000000000 / HZ);
+> > +		/* jiffies might overflow but this is not a big deal here */
+> > +		return (unsigned long long)jiffies * (1000000000 / HZ);
+> 
+> Augh. If you cast it to "unsigned long long" anyway, why not just use the 
+> right value? It's "jiffies_64".
 
---QNDPHrPUIc00TOLW
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sounds sane.
 
-On Tue, Jan 06, 2004 at 05:47:14PM +0100, Karel Kulhav=FD wrote:
-> On Tue, Jan 06, 2004 at 01:25:33PM +0000, Hugo Mills wrote:
-> >    The AAR-1210SA has a BIOS which turns off interrupts unexpectedly.
-> > Jeff Garzik released a patch[1] earlier today that addresses this
-> > problem in the libata driver.
-> >=20
-> >    Hugo.
-> >=20
-> > [1] http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107338181210727&=
-w=3D2
->=20
-> Tried that patch however no remedy. Interesting is maybe the information =
-the
-> controller reports on hde. The patch includes something with interrupts
-> of IDE0 and IDE1.
->=20
-> Tried to "extrapolate" the stuff in sata_sil.c logically (sorry for not k=
-nowing
-> what's going on here) with bitmasks 1<<25, 1<<26 and adding them to the f=
-ew
-> lines that reenable the interrupts, but this also didn't work.
->=20
-> In fact, it doesn't even get into the workaround code at the moment the s=
-ystem
-> freezes temporarily.
->=20
-> I managed (after long wait) to get the system boot up and captured the
-> dmesg:
+> It has other problems, of course, but at least that makes them slightly 
+> less.
 
-[snip]
-> ### THIS IS MY COMMENT Entering __devinit siimage_init_one
-> Adaptec AAR-1210SA: IDE controller at PCI slot 0000:03:02.0
-> PCI: Found IRQ 7 for device 0000:03:02.0
-> PCI: Sharing IRQ 7 with 0000:00:1f.3
-> Adaptec AAR-1210SA: chipset revision 2
-> Adaptec AAR-1210SA: 100% native mode on irq 7
->     ide2: MMIO-DMA at 0xf8848c00-0xf8848c07, BIOS settings: hde:pio, hdf:=
-pio
->     ide3: MMIO-DMA at 0xf8848c08-0xf8848c0f, BIOS settings: hdg:pio, hdh:=
-pio
-> hde: Maxtor 7Y250M0, ATA DISK drive
-> ide2 at 0xf8848c80-0xf8848c87,0xf8848c8a on irq 7
-> hdg: Maxtor 7Y250M0, ATA DISK drive
-> ide3 at 0xf8848cc0-0xf8848cc7,0xf8848cca on irq 7
-> hde: max request size: 7KiB
-> ### Here the first freeze occurs
-> hde: lost interrupt
-> ### Another freeze
-> hde: lost interrupt
-> ### Another freeze... etc.
-> hde: lost interrupt
-> hde: 490234752 sectors (251000 MB) w/7936KiB Cache, CHS=3D30515/255/63
-> hde: lost interrupt
-> hde: lost interrupt
->  /dev/ide/host2/bus0/target0/lun0:<4>hde: dma_timer_expiry: dma status =
-=3D=3D 0x24
-> hde: DMA interrupt recovery
-> hde: lost interrupt
-[snip]
+Yes, it's slightly sleazy.
 
-   It looks like you're using the wrong driver here. Jeff's patch is
-for libata, which is an implementation of SATA drivers in the SCSI
-layer. You'll find the libata driver options under the SCSI menu in
-the kernel config. Try disabling the pure IDE layer driver (in
-"ATA/ATAPI/MFM/RLL support"), and go to the "SCSI low-level drivers"
-menu, and enable "Serial ATA (SATA) support".
+I haven't tested this...
 
-CONFIG_SCSI_SATA=3Dy
-CONFIG_SCSI_SATA_SIL=3Dy
 
-   Hugo.
+From: Ingo Molnar <mingo@elte.hu>
 
---=20
-=3D=3D=3D Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk=
- =3D=3D=3D
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-   --- You can get more with a kind word and a 2"x4" than you can ---   =20
-                         with just a kind word.                         =20
+Voyager is getting odd deadlocks due to the taking of xtime_lock() in
+sched_clock()->get_jiffies_64().
 
---QNDPHrPUIc00TOLW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+I had this patch queued up to fix a different deadlock, which ocurs when we
+relax the requirement that TSC's be synchronised across CPUs.  But it will
+fix James' deadlock too.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQE/+uqNssJ7whwzWGARAmITAKCC1mheBV1CkvlnYqhkSP1HN+YRBACeKyZ6
-Slmw0nIlmBTW9RtfhZBeZmA=
-=LqqB
------END PGP SIGNATURE-----
 
---QNDPHrPUIc00TOLW--
+
+ arch/i386/kernel/timers/timer_tsc.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
+
+diff -puN arch/i386/kernel/timers/timer_tsc.c~sched_clock-2.6.0-A1-deadlock-fix arch/i386/kernel/timers/timer_tsc.c
+--- 25/arch/i386/kernel/timers/timer_tsc.c~sched_clock-2.6.0-A1-deadlock-fix	2004-01-06 08:56:36.000000000 -0800
++++ 25-akpm/arch/i386/kernel/timers/timer_tsc.c	2004-01-06 08:58:37.000000000 -0800
+@@ -140,7 +140,12 @@ unsigned long long sched_clock(void)
+ #ifndef CONFIG_NUMA
+ 	if (!use_tsc)
+ #endif
+-		return (unsigned long long)get_jiffies_64() * (1000000000 / HZ);
++		/*
++		 * Avoid xtime_lock deadlocks by not locking the read of
++		 * jiffies_64.  Can possibly cause glitches on 32-bit rollovers
++		 * but the CPU scheduler will recover OK.
++		 */
++		return jiffies_64 * (1000000000 / HZ);
+ 
+ 	/* Read the Time Stamp Counter */
+ 	rdtscll(this_offset);
+
+_
+

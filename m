@@ -1,120 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbTEAKFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 06:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbTEAKFQ
+	id S261195AbTEAKKz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 06:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbTEAKKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 06:05:16 -0400
-Received: from smtp-out.comcast.net ([24.153.64.113]:11155 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S261192AbTEAKFL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 06:05:11 -0400
-Date: Thu, 01 May 2003 06:13:57 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re: Kernel source tree splitting
-In-reply-to: <32822.4.64.196.31.1051757471.squirrel@www.osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
+	Thu, 1 May 2003 06:10:55 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:11280 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S261195AbTEAKKx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 06:10:53 -0400
+Date: Thu, 1 May 2003 12:22:30 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: hugang <hugang@soulinfo.com>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <200305010613570940.000BF85B@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <200304301946130000.01139CC8@smtp.comcast.net>
- <20030430172102.69e13ce9.rddunlap@osdl.org>
- <200304302044410090.01492640@smtp.comcast.net>
- <32822.4.64.196.31.1051757471.squirrel@www.osdl.org>
+Subject: Re: [RFC][PATCH] Faster generic_fls
+Message-ID: <20030501102230.GA308@pcw.home.local>
+References: <200304300446.24330.dphillips@sistina.com> <20030430135512.6519eb53.akpm@digeo.com> <20030501131605.02066260.hugang@soulinfo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030501131605.02066260.hugang@soulinfo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 01, 2003 at 01:16:05PM +0800, hugang wrote:
+
+> Here is table version of the fls. Yes it fast than other.
+
+Sorry, but this code returns wrong results. Test it with less
+iterations, it doesn't return the same result.
+
+>         unsigned i = 0;
+> 
+>         do {
+>                 i++;
+>         } while (n <= fls_table[i].max && n > fls_table[i].min);
+
+You never even compare with table[0] !
+
+> --test log is here----
+
+I recoded a table based on your idea, and it's clearly faster than others, and
+even faster than yours :
+
+============
+static unsigned tbl[33] = { 2147483648, 1073741824, 536870912, 268435456,
+			    134217728, 67108864, 33554432, 16777216,
+			    8388608, 4194304, 2097152, 1048576,
+			    524288, 262144, 131072, 65536,
+			    32768, 16384, 8192, 4096,
+			    2048, 1024, 512, 256,
+			    128, 64, 32, 16,
+			    8, 4, 2, 1, 0 };
 
 
-*********** REPLY SEPARATOR  ***********
+static inline int fls_tbl_fls(unsigned n)
+{
+        unsigned i = 0;
 
-On 4/30/2003 at 7:51 PM Randy.Dunlap wrote:
+	while (n < tbl[i])
+	    i++;
 
->> On 4/30/2003 at 5:21 PM Randy.Dunlap wrote:
->>
->>>Hi,
->>>
->>>I'm probably misreading this...but,
->>>
->>>Have you tried this yet?  Does it modify/customize all Kconfig
->>>and Makefiles for the selected tree splits?
->>>
->>
->> I didn't try it.  It would require knowledge of all interdependencies
->> between modules (i.e. ide-scsi is part of ide.  ide-scsi depends
->> on scsi), also all source files that belong to each config option
->> would likely need to be understood by the persons working to
->> do this, and also the entire build system semantics would need
->> to be designed to work in pieces.  Assuming this is ever done.
->>
->> It goes like this:
->>
->> make *config reads kernel-tree/options/foo.lod
->> make *config gets to configuration baz in bar.lod
->> make *config sees baz needs foo
->> make *config lists baz.
->> make *config sees biz needs data
->> make *config refuses to show biz
->> make missing-depends shows a list of unselectable options and
->> -----------selecting one tells which kernel option is needed.
->> make bzImage reads through kernel-tree/options/ and finds which
->> -----------makefiles to call (current makes have these embedded)
->> make bzImage builds a kernel.
->> make modules reads through kernel-tree/options/ and finds which
->> -----------makefiles to call.
->> make modules builds a kernel.
->>
->>>A few days ago, in one tree, I rm-ed arch/{all that I don't need} and
->>> drivers/{all that I don't need}.
->>>After that I couldn't run "make *config" because it wants all of
->>>those files, even if I don't want them.
->>>
->>
->> That WILL break something.
->
->or "That does break something"  (when I tried it).
->
->>>So there are many edits that needed to be done in lots of
->>>Kconfig and Makefiles if one selectively pulls or omits certain
->>>sub-directories.
->>>
->>
->> The main Makefile will have to be redone.  So would the kconfig
->> things (make config/menuconfig/xconfig).
->>
->> The extra plus to this is that other people can steal the build
->> system for other projects lol.
->
->I seem to try for simple solutions when possible and feasible.
->
->In this case, if I were doing it, I would try changing (e.g.) in
->arch/i386/kernel/Kconfig, this line:
->source "drivers/eisa/Kconfig"
->to
->optsource "drivers/eisa/Kconfig"
->where optsource means that the file is optional -- if not found,
->ignore it.  And then see what happens, how far it can go,
->what the next problem is....
->
->If this could be made to work, then entire subdirectories/subsystems
->could be optional.
->
+        return 32 - i;
+}
+===========
 
-Yeah but hat about things that came out of nowhere, i.e. a piece of
-hardware compes with a linux driver source?
+it returns the right result. Compiled with gcc 2.95.3 -march=i686 -O3, athlon
+1.533 GHz (1800+) :
 
->~Randy
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+4294967295 iterations of new... checksum = 4294967265
 
+real    1m6.182s
+user    1m6.060s
+sys     0m0.133s
+4294967295 iterations of new2... checksum = 4294967265
 
+real    0m36.504s
+user    0m36.294s
+sys     0m0.202s
+4294967295 iterations of fls_table... checksum = 4294967295
+
+real    0m21.962s
+user    0m21.833s
+sys     0m0.124s
+4294967295 iterations of fls_tbl... checksum = 4294967265
+
+real    0m19.268s
+user    0m19.102s
+sys     0m0.168s
+
+The same compiled with gcc-3.2.3 :
+
+4294967295 iterations of fls_table... checksum = 4294967295
+
+real    0m14.211s
+user    0m14.210s
+sys     0m0.000s
+
+Cheers,
+Willy
 

@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbTGGL1o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 07:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264939AbTGGL1o
+	id S264946AbTGGL35 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 07:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264939AbTGGL35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 07:27:44 -0400
-Received: from dp.samba.org ([66.70.73.150]:10979 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264912AbTGGL1n (ORCPT
+	Mon, 7 Jul 2003 07:29:57 -0400
+Received: from imf.math.ku.dk ([130.225.103.32]:32664 "EHLO imf.math.ku.dk")
+	by vger.kernel.org with ESMTP id S266942AbTGGL3y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 07:27:43 -0400
+	Mon, 7 Jul 2003 07:29:54 -0400
+Date: Mon, 7 Jul 2003 13:44:26 +0200 (CEST)
+From: Peter Berg Larsen <pebl@math.ku.dk>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] Synaptics: support for pass-through port (stick)
+In-Reply-To: <200307062248.24006.dtor_core@ameritech.net>
+Message-ID: <Pine.LNX.4.40.0307071308310.28730-100000@shannon.math.ku.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16137.23193.530130.847522@nanango.paulus.ozlabs.org>
-Date: Mon, 7 Jul 2003 21:33:45 +1000 (EST)
-From: Paul Mackerras <paulus@samba.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: benh@kernel.crashing.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
-In-Reply-To: <20030706101754.GA23341@wohnheim.fh-wedel.de>
-References: <20030703202410.GA32008@wohnheim.fh-wedel.de>
-	<20030704174339.GB22152@wohnheim.fh-wedel.de>
-	<20030704174558.GC22152@wohnheim.fh-wedel.de>
-	<20030704175439.GE22152@wohnheim.fh-wedel.de>
-	<16134.2877.577780.35071@cargo.ozlabs.ibm.com>
-	<20030705073946.GD32363@wohnheim.fh-wedel.de>
-	<16135.57910.936187.611245@cargo.ozlabs.ibm.com>
-	<20030706101754.GA23341@wohnheim.fh-wedel.de>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=?iso-8859-1?Q?J=81=F6rn?= Engel writes:
 
-> A core dump is graceful, a do_exit(SIGSEGV),
-> as it was in the ppc code is not, and an inifite loop is anything but
-> graceful.
+On Sun, 6 Jul 2003, Dmitry Torokhov wrote:
+> On Sunday 06 July 2003 08:23 am, Peter Berg Larsen wrote:
 
-It just occurred to me that the simplest and best fix for the specific
-problem you mention is for you to set the SA_ONESHOT flag when you
-install the SIGSEGV handler.  That way, if you get another
-segmentation violation while you are already in the SIGSEGV handler,
-it will just dump core straight away.
+> > Why did you move the rescan up above the synaptics test? if the synaptics
+> > is out of sync, any byte can be recieved.
 
-Paul.
+> Yes, any byte can be received but it is unlikely that we will receive 0xAA.
+
+Are you sure that it is unlikely for all type >= PSMOUSE_GENPS? How about
+looking for the 0x00 also.
+
+> +	if (psmouse->pktcnt == 1 && psmouse->packet[0] == PSMOUSE_RET_BAT) {
+...
+> +	if (psmouse->type == PSMOUSE_SYNAPTICS) {
+...
+> +	if (psmouse->pktcnt == 3 + (psmouse->type >= PSMOUSE_GENPS)) {
+
+
+> the device gets reset. (What happens on resume for example? I am not sure as
+> I didn't get to play with suspending/resuming my laptop yet.)
+
+The mode byte is cleared to default.
+
+
+> What you think about the patch below? I fixed the client's protocol order,
+> ... and switching to 4-byte protocol for master.
+
+ok.
+
+> button reporting (only left and right as I am not sure to which buttons
+> up/down should be mapped),
+
+hmm. You dont know what the guest protocol, so you can't just | the
+button information. However, reallity is that this will work for nearly
+anybody now.
+
+
+> +	/* adjust the touchpad to child's choice of protocol */
+> +	child = port->private;
+> +	if (child && child->type >= PSMOUSE_GENPS) {
+
+Not type > PSMOUSE_GENPS ?
+
+
+Peter
+
+

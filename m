@@ -1,82 +1,223 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264815AbSKRTwP>; Mon, 18 Nov 2002 14:52:15 -0500
+	id <S264673AbSKRUQV>; Mon, 18 Nov 2002 15:16:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264818AbSKRTwP>; Mon, 18 Nov 2002 14:52:15 -0500
-Received: from tantale.fifi.org ([216.27.190.146]:25221 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id <S264815AbSKRTwM>;
-	Mon, 18 Nov 2002 14:52:12 -0500
-To: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: 2.2.20-pre11: oops in sys_sigsuspend
-From: Philippe Troin <phil@fifi.org>
-Date: 18 Nov 2002 11:59:07 -0800
-Message-ID: <87d6p2wsxg.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S264677AbSKRUQV>; Mon, 18 Nov 2002 15:16:21 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:63177 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S264673AbSKRUQS>; Mon, 18 Nov 2002 15:16:18 -0500
+Date: Mon, 18 Nov 2002 21:23:13 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@transmeta.com>, Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>
+Subject: [2.5 patch] aggregate name -> dev.name patch
+Message-ID: <20021118202313.GL11952@fs.tum.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seen on:
+This patch contains name -> dev.name fixes.
+It includes all patches I've already sent, a bbtv patch by Petr
+Vandrovec plus some more fixes.
 
-Linux tantale 2.4.20-pre11 #1 SMP Tue Oct 15 21:37:01 PDT 2002 i686 unknown
+Please review and apply it if all fixes are correct.
 
-which is a dual-PPro box.
+TIA
+Adrian
 
-ksymoops 2.4.5 on i686 2.4.20-pre11.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.20-pre11/ (default)
-     -m /boot/System.map-2.4.20-pre11 (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Nov 15 16:37:22 tantale kernel: Unable to handle kernel paging request at virtual address fffffffc
-Nov 15 16:37:22 tantale kernel: c01062fb
-Nov 15 16:37:22 tantale kernel: *pde = 00003063
-Nov 15 16:37:22 tantale kernel: Oops: 0002
-Nov 15 16:37:22 tantale kernel: CPU:    1
-Nov 15 16:37:22 tantale kernel: EIP:    0010:[sys_sigsuspend+83/160]    Not tainted
-Nov 15 16:37:22 tantale kernel: EFLAGS: 00010296
-Nov 15 16:37:22 tantale kernel: eax: fffffffc   ebx: c9896000   ecx: 00000010   edx: fffffffc
-Nov 15 16:37:22 tantale kernel: esi: 00000000   edi: 00000000   ebp: bffff00c   esp: c9897fc4
-Nov 15 16:37:22 tantale kernel: ds: 0018   es: 0018   ss: 0018
-Nov 15 16:37:22 tantale kernel: Process ping (pid: 18866, stackpage=c9897000)
-Nov 15 16:37:22 tantale kernel: Stack: 00000011 bfffdf04 000003e8 00000000 00000000 bffff00c 00000066 0000002b 
-Nov 15 16:37:22 tantale kernel:        0000002b 00000066 40102892 00000023 00000293 bfffdf00 0000002b 
-Nov 15 16:37:22 tantale kernel: Call Trace:   
-Nov 15 16:37:22 tantale kernel: Code: 00 00 0b 98 78 06 00 00 0f 95 c2 89 d1 83 e1 01 89 48 08 c6 
-Using defaults from ksymoops -t elf32-i386 -a i386
-
-
->>eax; fffffffc <END_OF_CODE+2f68815d/????>
->>ebx; c9896000 <_end+9582df4/104f0df4>
->>edx; fffffffc <END_OF_CODE+2f68815d/????>
->>ebp; bffff00c Before first symbol
->>esp; c9897fc4 <_end+9584db8/104f0df4>
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   00 00                     add    %al,(%eax)
-Code;  00000002 Before first symbol
-   2:   0b 98 78 06 00 00         or     0x678(%eax),%ebx
-Code;  00000008 Before first symbol
-   8:   0f 95 c2                  setne  %dl
-Code;  0000000b Before first symbol
-   b:   89 d1                     mov    %edx,%ecx
-Code;  0000000d Before first symbol
-   d:   83 e1 01                  and    $0x1,%ecx
-Code;  00000010 Before first symbol
-  10:   89 48 08                  mov    %ecx,0x8(%eax)
-Code;  00000013 Before first symbol
-  13:   c6 00 00                  movb   $0x0,(%eax)
-
-
-1 warning issued.  Results may not be reliable.
+--- linux-2.5.48/drivers/input/gameport/fm801-gp.c.old	2002-11-18 13:39:24.000000000 +0100
++++ linux-2.5.48/drivers/input/gameport/fm801-gp.c	2002-11-18 13:46:45.000000000 +0100
+@@ -116,7 +116,7 @@
+ 	gameport_register_port(&gp->gameport);
+ 
+ 	printk(KERN_INFO "gameport: %s at pci%s speed %d kHz\n",
+-		pci->name, pci->slot_name, gp->gameport.speed);
++		pci->dev.name, pci->slot_name, gp->gameport.speed);
+ 
+ 	return 0;
+ }
+--- linux-2.5.48/drivers/input/gameport/ns558.c.old	2002-11-18 13:48:45.000000000 +0100
++++ linux-2.5.48/drivers/input/gameport/ns558.c	2002-11-18 13:49:06.000000000 +0100
+@@ -236,7 +236,7 @@
+ 	port->gameport.id.version = 0x100;
+ 
+ 	sprintf(port->phys, "isapnp%d.%d/gameport0", PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
+-	sprintf(port->name, "%s", dev->name[0] ? dev->name : "NS558 PnP Gameport");
++	sprintf(port->name, "%s", dev->dev.name[0] ? dev->dev.name : "NS558 PnP Gameport");
+ 
+ 	gameport_register_port(&port->gameport);
+ 
+--- linux-2.5.48/drivers/input/gameport/vortex.c.old	2002-11-18 13:51:06.000000000 +0100
++++ linux-2.5.48/drivers/input/gameport/vortex.c	2002-11-18 13:51:25.000000000 +0100
+@@ -127,7 +127,7 @@
+ 	vortex->gameport.cooked_read = vortex_cooked_read;
+ 	vortex->gameport.open = vortex_open;
+ 
+-	vortex->gameport.name = dev->name;
++	vortex->gameport.name = dev->dev.name;
+ 	vortex->gameport.phys = vortex->phys;
+ 	vortex->gameport.id.bustype = BUS_PCI;
+ 	vortex->gameport.id.vendor = dev->vendor;
+@@ -146,7 +146,7 @@
+ 	gameport_register_port(&vortex->gameport);
+ 	
+ 	printk(KERN_INFO "gameport: %s at pci%s speed %d kHz\n",
+-		dev->name, dev->slot_name, vortex->gameport.speed);
++		dev->dev.name, dev->slot_name, vortex->gameport.speed);
+ 
+ 	return 0;
+ }
+--- linux-2.5.48/drivers/net/arcnet/com20020-pci.c.old	2002-11-18 14:02:51.000000000 +0100
++++ linux-2.5.48/drivers/net/arcnet/com20020-pci.c	2002-11-18 14:03:06.000000000 +0100
+@@ -90,7 +90,7 @@
+ 	dev->base_addr = ioaddr;
+ 	dev->irq = pdev->irq;
+ 	dev->dev_addr[0] = node;
+-	lp->card_name = pdev->name;
++	lp->card_name = pdev->dev.name;
+ 	lp->card_flags = id->driver_data;
+ 	lp->backplane = backplane;
+ 	lp->clockp = clockp & 7;
+--- linux-2.5.48/drivers/net/irda/vlsi_ir.c.old	2002-11-18 14:11:30.000000000 +0100
++++ linux-2.5.48/drivers/net/irda/vlsi_ir.c	2002-11-18 14:13:07.000000000 +0100
+@@ -162,7 +162,7 @@
+ 		return 0;
+ 
+ 	out += sprintf(out, "\n%s (vid/did: %04x/%04x)\n",
+-			pdev->name, (int)pdev->vendor, (int)pdev->device);
++			pdev->dev.name, (int)pdev->vendor, (int)pdev->device);
+ 	out += sprintf(out, "pci-power-state: %u\n", (unsigned) pdev->current_state);
+ 	out += sprintf(out, "resources: irq=%u / io=0x%04x / dma_mask=0x%016Lx\n",
+ 			pdev->irq, (unsigned)pci_resource_start(pdev, 0), (u64)pdev->dma_mask);
+@@ -1517,7 +1517,7 @@
+ 
+ 	if (vlsi_start_hw(idev))
+ 		printk(KERN_CRIT "%s: failed to restart hw - %s(%s) unusable!\n",
+-			__FUNCTION__, idev->pdev->name, ndev->name);
++			__FUNCTION__, idev->pdev->dev.name, ndev->name);
+ 	else
+ 		netif_start_queue(ndev);
+ }
+@@ -1765,7 +1765,7 @@
+ 		pdev->current_state = 0; /* hw must be running now */
+ 
+ 	printk(KERN_INFO "%s: IrDA PCI controller %s detected\n",
+-		drivername, pdev->name);
++		drivername, pdev->dev.name);
+ 
+ 	if ( !pci_resource_start(pdev,0)
+ 	     || !(pci_resource_flags(pdev,0) & IORESOURCE_IO) ) {
+@@ -1863,7 +1863,7 @@
+ 	 * ndev->destructor called (if present) when going to free
+ 	 */
+ 
+-	printk(KERN_INFO "%s: %s removed\n", drivername, pdev->name);
++	printk(KERN_INFO "%s: %s removed\n", drivername, pdev->dev.name);
+ }
+ 
+ #ifdef CONFIG_PM
+@@ -1879,7 +1879,7 @@
+ {
+ 	if (state < 1 || state > 3 ) {
+ 		printk( KERN_ERR "%s - %s: invalid pm state request: %u\n",
+-			__FUNCTION__, pdev->name, state);
++			__FUNCTION__, pdev->dev.name, state);
+ 		return -1;
+ 	}
+ 	return 0;
+@@ -1892,11 +1892,11 @@
+ 
+ 	if (state < 1 || state > 3 ) {
+ 		printk( KERN_ERR "%s - %s: invalid pm state request: %u\n",
+-			__FUNCTION__, pdev->name, state);
++			__FUNCTION__, pdev->dev.name, state);
+ 		return 0;
+ 	}
+ 	if (!ndev) {
+-		printk(KERN_ERR "%s - %s: no netdevice \n", __FUNCTION__, pdev->name);
++		printk(KERN_ERR "%s - %s: no netdevice \n", __FUNCTION__, pdev->dev.name);
+ 		return 0;
+ 	}
+ 	idev = ndev->priv;	
+@@ -1908,7 +1908,7 @@
+ 		}
+ 		else
+ 			printk(KERN_ERR "%s - %s: invalid suspend request %u -> %u\n",
+-				__FUNCTION__, pdev->name, pdev->current_state, state);
++				__FUNCTION__, pdev->dev.name, pdev->current_state, state);
+ 		up(&idev->sem);
+ 		return 0;
+ 	}
+@@ -1935,14 +1935,14 @@
+ 	vlsi_irda_dev_t	*idev;
+ 
+ 	if (!ndev) {
+-		printk(KERN_ERR "%s - %s: no netdevice \n", __FUNCTION__, pdev->name);
++		printk(KERN_ERR "%s - %s: no netdevice \n", __FUNCTION__, pdev->dev.name);
+ 		return 0;
+ 	}
+ 	idev = ndev->priv;	
+ 	down(&idev->sem);
+ 	if (pdev->current_state == 0) {
+ 		up(&idev->sem);
+-		printk(KERN_ERR "%s - %s: already resumed\n", __FUNCTION__, pdev->name);
++		printk(KERN_ERR "%s - %s: already resumed\n", __FUNCTION__, pdev->dev.name);
+ 		return 0;
+ 	}
+ 	
+--- linux-2.5.48/drivers/net/tokenring/olympic.c.old	2002-11-18 14:25:16.000000000 +0100
++++ linux-2.5.48/drivers/net/tokenring/olympic.c	2002-11-18 14:25:29.000000000 +0100
+@@ -231,7 +231,7 @@
+ 	dev->irq=pdev->irq;
+ 	dev->base_addr=pci_resource_start(pdev, 0);
+ 	dev->init=NULL; /* Must be NULL otherwise we get called twice */
+-	olympic_priv->olympic_card_name = (char *)pdev->name ; 
++	olympic_priv->olympic_card_name = (char *)pdev->dev.name ; 
+ 	olympic_priv->olympic_mmio = ioremap(pci_resource_start(pdev,1),256);
+ 	olympic_priv->olympic_lap = ioremap(pci_resource_start(pdev,2),2048);
+ 	olympic_priv->pdev = pdev ; 
+--- linux-2.5.48/drivers/net/tokenring/3c359.c.old	2002-11-18 14:32:27.000000000 +0100
++++ linux-2.5.48/drivers/net/tokenring/3c359.c	2002-11-18 14:32:47.000000000 +0100
+@@ -316,7 +316,7 @@
+ 	dev->irq=pdev->irq;
+ 	dev->base_addr=pci_resource_start(pdev,0) ; 
+ 	dev->init=NULL ; /* Must be null with new api, otherwise get called twice */
+-	xl_priv->xl_card_name = (char *)pdev->name ; 
++	xl_priv->xl_card_name = (char *)pdev->dev.name ; 
+ 	xl_priv->xl_mmio=ioremap(pci_resource_start(pdev,1), XL_IO_SPACE);
+ 	xl_priv->pdev = pdev ; 
+ 		
+--- linux-2.5.48/drivers/scsi/eata_pio.c.old	2002-11-18 15:06:38.000000000 +0100
++++ linux-2.5.48/drivers/scsi/eata_pio.c	2002-11-18 15:07:07.000000000 +0100
+@@ -805,13 +805,13 @@
+ 	u32 base, x;
+ 
+ 	while ((dev = pci_find_device(PCI_VENDOR_ID_DPT, PCI_DEVICE_ID_DPT, dev)) != NULL) {
+-		DBG(DBG_PROBE && DBG_PCI, printk("eata_pio: find_PCI, HBA at %s\n", dev->name));
++		DBG(DBG_PROBE && DBG_PCI, printk("eata_pio: find_PCI, HBA at %s\n", dev->dev.name));
+ 		if (pci_enable_device(dev))
+ 			continue;
+ 		pci_set_master(dev);
+ 		base = pci_resource_flags(dev, 0);
+ 		if (base & IORESOURCE_MEM) {
+-			printk("eata_pio: invalid base address of device %s\n", dev->name);
++			printk("eata_pio: invalid base address of device %s\n", dev->dev.name);
+ 			continue;
+ 		}
+ 		base = pci_resource_start(dev, 0);
+--- linux/drivers/media/video/bttv-cards.c	2002-11-18 13:50:42.000000000 +0000
++++ linux/drivers/media/video/bttv-cards.c	2002-11-18 13:55:51.000000000 +0000
+@@ -2990,7 +2990,7 @@
+ 
+ 	/* print which chipset we have */
+ 	while ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8,dev)))
+-		printk(KERN_INFO "bttv: Host bridge is %s\n",dev->name);
++		printk(KERN_INFO "bttv: Host bridge is %s\n",dev->dev.name);
+ 
+ 	/* print warnings about any quirks found */
+ 	if (triton1)

@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275326AbTHGMj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 08:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275325AbTHGMj2
+	id S275292AbTHGMcj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 08:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275298AbTHGMcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 08:39:28 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40205 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S275324AbTHGMj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 08:39:27 -0400
-Date: Thu, 7 Aug 2003 13:39:23 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Stuart Longland <stuartl@longlandclan.hopto.org>
-Cc: Linux Lernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with Yamaha opl3sa2 under 2.4.20 and ongoing PCMCIA & USB problems on 2.6.0-test2
-Message-ID: <20030807133923.A25908@flint.arm.linux.org.uk>
-Mail-Followup-To: Stuart Longland <stuartl@longlandclan.hopto.org>,
-	Linux Lernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3F32417D.3090000@longlandclan.hopto.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F32417D.3090000@longlandclan.hopto.org>; from stuartl@longlandclan.hopto.org on Thu, Aug 07, 2003 at 10:09:33PM +1000
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Thu, 7 Aug 2003 08:32:39 -0400
+Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:63618
+	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S275292AbTHGMcb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 08:32:31 -0400
+Date: Thu, 7 Aug 2003 08:31:03 -0400
+Subject: Re: 2.6.0-test2: unable to suspend (APM)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
+To: Russell King <rmk@arm.linux.org.uk>
+From: Charles Lepple <clepple@ghz.cc>
+In-Reply-To: <20030807120056.B17690@flint.arm.linux.org.uk>
+Message-Id: <0252E1EB-C8D3-11D7-97B2-003065DC6B50@ghz.cc>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 10:09:33PM +1000, Stuart Longland wrote:
-> Under 2.6.0-test2:
-> 	- PCMCIA locks hard when adding and removing PCMCIA cards, even if I
-> run 'cardctl eject' first.
+On Thursday, August 7, 2003, at 07:00  AM, Russell King wrote:
 
-This may be due to the screwups in the TI cardbus bridge code.
-2.6.0-test2-bk<whatever-last-night-was> should have these problems
-solved.
+> On Thu, Aug 07, 2003 at 08:45:53PM +1000, Stephen Rothwell wrote:
+>> On Wed, 06 Aug 2003 22:46:59 -0400 Charles Lepple <clepple@ghz.cc> 
+>> wrote:
+>>>
+>>> Also saw your post about the 3c59x cardbus adapter. I can't recall 
+>>> ever
+>>> being able to suspend the machine with that card inserted (including
+>>> under 2.4-- I always had to eject the card before suspend or 
+>>> hibernate).
+>>
+>> The IBM Thinkpad documentation mentions this (or used to) you cannot
+>> suspend a Thinkpad (using APM?) while there is a card powered in the
+>> PCMCIA/Cardbus slot.  You could try doing "cardctrl eject" before
+>> suspending - I find that this works for me (Thinkpad T22).
 
-> 	- My combo network card & modem "Xircom RealPort Ethernet 10/100+Modem
-> 56" only partially works.  Network works if I load 8250_cs, but
-> otherwise, the pcmcia-cs utilities try loading serial_cs.
+OK, I didn't realize that powering down the card was a 
+Thinkpad-specific requirement.
 
-It's not clear what's wrong here.  Add into /etc/modprobe.conf an
-alias for serial_cs to 8250_cs and everything should work.
+One thing that had me confused was that some people indicated that it 
+should be possible to do the 'cardctl eject' or 'cardctl suspend' from 
+within the script invoked by apmd-- however, I guess the Thinkpad BIOS 
+doesn't let the APM suspend event propagate that far when there is a 
+card powered up.
+
+>> The message "apm: suspend: Unable to enter requested state" is an
+>> indication of an error from the BIOS.
+>
+> Well, it all works fine with 2.4, even with a 3c59x in the slot (except
+> for the resume problem.)  Even ejecting the card before suspending with
+> 2.6 doesn't fix the problem though.
+
+<aol>Same here</aol> (although I assumed that the problems I was seeing 
+when reinserting the card were due to an older hotplug package that was 
+misinterpreting the insertion events... I'll have to eliminate that 
+possibility.)
+
+Russell, I am curious as to whether any of the early 2.5.x (x <= 31) 
+kernels still work for you, or whether suspend on your machine was 
+broken in a different version.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Charles Lepple <clepple@ghz.cc>
+http://www.ghz.cc/charles/
 

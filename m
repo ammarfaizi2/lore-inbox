@@ -1,32 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289307AbSBXDKy>; Sat, 23 Feb 2002 22:10:54 -0500
+	id <S289366AbSBXDTz>; Sat, 23 Feb 2002 22:19:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289313AbSBXDKo>; Sat, 23 Feb 2002 22:10:44 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:27630
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S289307AbSBXDKk>; Sat, 23 Feb 2002 22:10:40 -0500
-Date: Sat, 23 Feb 2002 19:11:12 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: wolvie_cobain <wolvie@punkass.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compile time problem
-Message-ID: <20020224031112.GS20060@matchmail.com>
-Mail-Followup-To: wolvie_cobain <wolvie@punkass.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.2002221227050.1724-100000@redtalon.wolves.com.br>
+	id <S292789AbSBXDTq>; Sat, 23 Feb 2002 22:19:46 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:28534 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S289366AbSBXDTe>; Sat, 23 Feb 2002 22:19:34 -0500
+Date: Sun, 24 Feb 2002 03:19:47 +0000
+From: Adam Huffman <bloch@verdurin.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Boot problem with PDC20269
+Message-ID: <20020224031947.A1098@bloch.verdurin.priv>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020223205342.C2603@bloch.verdurin.priv> <Pine.LNX.4.30.0202232200290.13755-100000@mustard.heime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.2002221227050.1724-100000@redtalon.wolves.com.br>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.30.0202232200290.13755-100000@mustard.heime.net>; from roy@karlsbakk.net on Sat, Feb 23, 2002 at 22:02:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2020 at 12:28:36PM -0300, wolvie_cobain wrote:
-> i get this on the make bzImage
+On Sat, 23 Feb 2002, Roy Sigurd Karlsbakk wrote:
 
-Try 2.5.5-pre1 (you may need to patch -pre1 further...) or 2.5.5-dj kernels
-for something that compiles.
+> > > er .. I'm running a PDC20269 with a few drives. Is that supposed to be
+> > > impossible?
+> > >
+> > > roy
+> > >
+> >
+> > May I ask which kernel you are running?
+> 
+> linux-2.4.18pre3 + tux + linuxdiskcert.org's ide_2.4.17 patch
+> --
+> Roy Sigurd Karlsbakk, Datavaktmester
+> 
 
-Mike
+I've managed to boot successfully now with 2.4.18-rc2-ac2.
+
+I get the following messages when I mount the IBM 60GXP:
+
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+PDC202XX: Primary channel reset.
+ide2: reset: success
+
+but mounting does proceed.  No such problem with the Maxtor.
+
+Adam

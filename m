@@ -1,313 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265614AbSKAE5J>; Thu, 31 Oct 2002 23:57:09 -0500
+	id <S263956AbSJTKjH>; Sun, 20 Oct 2002 06:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265634AbSKAE5J>; Thu, 31 Oct 2002 23:57:09 -0500
-Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.228]:5267 "EHLO
-	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S265614AbSKAE4y>; Thu, 31 Oct 2002 23:56:54 -0500
-Date: Fri, 1 Nov 2002 00:55:33 -0500 (EST)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@localhost.localdomain
+	id <S263979AbSJTKjH>; Sun, 20 Oct 2002 06:39:07 -0400
+Received: from node-c-3f09.a2000.nl ([62.194.63.9]:51721 "HELO vger.kernel.org")
+	by vger.kernel.org with SMTP id <S263956AbSJTKjG>;
+	Sun, 20 Oct 2002 06:39:06 -0400
+From: "Benson Cisse Traore" <bctraore@netscape.net>
+Date: Sun, 20 Oct 2002 12:44:56
 To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com
-Subject: [PATCH] 2.5.45 : drivers/media/video/saa7185.c (with C99)
-Message-ID: <Pine.LNX.4.44.0211010054130.959-100000@localhost.localdomain>
+Subject: YOUR STRICTEST CONFIDENCE REQUIRED.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20021020103906Z263956-32597+5752@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  Here's the i2c-old --> i2c api conversion for saa7185. Please review.
-Regards,
-Frank
+Hello,
 
---- linux/drivers/media/video/saa7185.c.old	Sat Oct 19 12:04:54 2002
-+++ linux/drivers/media/video/saa7185.c	Fri Nov  1 00:49:09 2002
-@@ -43,7 +43,7 @@
- #include <linux/version.h>
- #include <asm/uaccess.h>
+However strange or surprising this contact might seem to you, I ask that you give due consideration to its importance, as we both stand to benefit immensely. Though we have not met or know each other, this is a criteria I have used to select you, as I wish to cut off all ties with my people for security and safety reasons.
+
+At this point I wish to introduce myself properly to you. My name is Benson Cisse Traore, I am a personal aide to the Late General Robert Guei of blessed memory, former President of Cote de Ivoire (Ivory Coast).
+
+I do not know if you are conversant with the present situation in my country, which has gradually become a civil war. For the sake of what I envisage we achieve together, I wish to give you a general overview.
+
+We have had an undefined polity in my country. Founding president, Felix Houphouet-Boigny ruled us with individual blend of paternalism from independence in 1960 until his death in December 1993. He bowed to pressure for multi-party politics in 1990. In 1993, National Assembly president Henri Konan Bedie won a brief power struggle with Prime Minister Alassane Ouattara to succeed Houphouet-Boigny. The following month, the former single Ruling democratic Party set up by Houphouet-Boigny, then headed by Bedie won an overwhelming majority in the National assembly. 
+
+On December 24, 1999, my mentor Gen. Robert Guei ousted Bedie in a coup de tat. Although this was highly criticized, but it was the right thing to do. In July 2000, Gen. Guei approved a new constitution in referendum with tough eligibility conditions for presidential candidates. In spite of criticism, he registered as a candidate. The Supreme Court intervened, and he was cleared. This was not totally acceptable to the other candidates from the ruling Democratic Party (PDCI-RDA), the country's largest. The only opponent was Socialist candidate Laurent Gbagbo. Admittedly, Gbagbo won the election of October 22, 2000, but his political immaturity, led to Gen. Guei being reluctant to relinquish power. There were allegations of election rigging etc. Ouattara who was previously barred by the referendum to contest election, was excluded from the December 10 parliamentary election because of doubts about his nationality and his supporters announced they would boycott the election. Gbagbo’s Popular Front (FPI) was victorious in the election, and there were demonstrations due to propaganda that Gen. Guei tried to rig the election. Under pressure from international donors, Gbagbo agreed to hold a reconciliation forum to draw a line under the political strife that followed the 1999 coup, but key players including Outtara failed to show up for the opening.
+
+After two years of build up, On September 19, 2002, Gen. Guei led a failed coup de tat against Gbagbo, in a bid to restore political stability. Unfortunately, he was killed. After Gen. Guei’s death, there was turmoil in our camp; this has led to us losing half our strength. Although we still control the north and Central regions of the country. It is now a question of who will give in between us (now referred to as “rebels”) and Gbagbo’s government. There seem to be no chance for peace, as several attempts has been botched by Gbagbo. The US and France has since evacuated their citizens from our country. Destruction is imminent, as ECOWAS (Economy Community of West African States) has been called in to mediate. Their only way of doing this is to bring in ECOMOG (A monitoring group). We witnessed the horror they caused trying to restore peace to Liberia and Sierra Leone during the civil war. Thus I have lost faith and hope in the struggle.
+
+To the point, the essence of my contact with you is to seek your most needed assistance to siphon US$18,500,000 given to me for the purchase of arms and ammunination. Our Armory is seriously depleting, and I was sent on an emissary to make the purchase to strengthen our armory to prosecute the war. I have now decided to abandon the war and use this money for my personal benefit (as well as yours if you accept to be my partner). I see  justification in diverting the money, rather than proceeding with the purchase of weapons for destruction of innocent lives and properties.
+
+This money was moved in cash to my present location in Europe through diplomatic means, and I have since deposited the trunk containing the funds with a private security company. If you accept to offer me your assistance, I will require that you assist me in claiming the box as a gift from me to you from the security company. Be informed that I am confiding in you by disclosing this to you, as it is only me (apparently you now) that have knowledge of this. When the box is claimed, we shall then have the money deposited into an account in your name, as I am being discrete of using my name for now. Then you shall have your own share withdrawn to an account of your choice, and leaving the rest as fixed deposit, for release to me at the appropriate time. 
+
+The importance of prosecuting this in the next few days cannot be overlooked; hence your immediate response will be highly appreciated.
+
+On hearing from you, I shall disclose my location to you, and discuss the share of the money you will be entitled to for offering me your most needed assistance.
+
+In case you are not inclined to render me your assistance, endeavor to respond, so that I may move ahead.
+
+You may click this link http://news.bbc.co.uk/1/hi/world/africa/930254.stm to see me with my mentor Gen. Guei in 1999, so that you may associate this correspondence to my face.
+
+Sincerely,
+
+B. C. Traore.
+
  
--#include <linux/i2c-old.h>
-+#include <linux/i2c.h>
+
  
- #include <linux/video_encoder.h>
- 
-@@ -52,9 +52,10 @@
- /* ----------------------------------------------------------------------- */
- 
- struct saa7185 {
--	struct i2c_bus *bus;
-+	struct i2c_client *client;
- 	int addr;
- 	unsigned char reg[128];
-+	struct semaphore lock;
- 
- 	int norm;
- 	int enable;
-@@ -69,66 +70,25 @@
- #define I2C_DELAY   10
- 
- /* ----------------------------------------------------------------------- */
-+static unsigned short normal_i2c[] = { 34>>1, I2C_CLIENT_END };	
-+static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
-+static unsigned short probe[2] = { I2C_CLIENT_END , I2C_CLIENT_END };
-+static unsigned short probe_range[2] = { I2C_CLIENT_END , I2C_CLIENT_END };
-+static unsigned short ignore[2] = { I2C_CLIENT_END, I2C_CLIENT_END };
-+static unsigned short ignore_range[2] = { I2C_CLIENT_END , I2C_CLIENT_END };
-+static unsigned short force[2] = { I2C_CLIENT_END, I2C_CLIENT_END };
-+
-+static struct i2c_client_address_data addr_data = {
-+	.normal_i2c 		= normal_i2c,
-+	.normal_i2c_range 	= normal_i2c_range,
-+	.probe 			= probe, 
-+	.probe_range 		= probe_range,
-+	.ignore 		= ignore,
-+	.ignore_range 		= ignore_range,
-+	.force 			= force
-+};
- 
--static int saa7185_read(struct saa7185 *dev)
--{
--	int ack;
--
--	LOCK_I2C_BUS(dev->bus);
--
--	i2c_start(dev->bus);
--	i2c_sendbyte(dev->bus, dev->addr | 1, I2C_DELAY);
--	ack = i2c_readbyte(dev->bus, 1);
--	i2c_stop(dev->bus);
--	UNLOCK_I2C_BUS(dev->bus);
--	return ack;
--}
--
--static int saa7185_write(struct saa7185 *dev, unsigned char subaddr,
--			 unsigned char data)
--{
--	int ack;
--
--	DEBUG(printk
--	      (KERN_DEBUG "SAA7185: %02x set to %02x\n", subaddr, data);
--	    )
--	    LOCK_I2C_BUS(dev->bus);
--
--	i2c_start(dev->bus);
--	i2c_sendbyte(dev->bus, dev->addr, I2C_DELAY);
--	i2c_sendbyte(dev->bus, subaddr, I2C_DELAY);
--	ack = i2c_sendbyte(dev->bus, data, I2C_DELAY);
--	dev->reg[subaddr] = data;
--	i2c_stop(dev->bus);
--	UNLOCK_I2C_BUS(dev->bus);
--	return ack;
--}
--
--static int saa7185_write_block(struct saa7185 *dev,
--			       unsigned const char *data, unsigned int len)
--{
--	int ack = -1;
--	unsigned subaddr;
--
--	while (len > 1) {
--		LOCK_I2C_BUS(dev->bus);
--		i2c_start(dev->bus);
--		i2c_sendbyte(dev->bus, dev->addr, I2C_DELAY);
--		ack = i2c_sendbyte(dev->bus, (subaddr = *data++), I2C_DELAY);
--		ack = i2c_sendbyte(dev->bus, (dev->reg[subaddr] = *data++), I2C_DELAY);
--		len -= 2;
--		while (len > 1 && *data == ++subaddr) {
--			data++;
--			ack = i2c_sendbyte(dev->bus, (dev->reg[subaddr] = *data++), I2C_DELAY);
--			len -= 2;
--		}
--		i2c_stop(dev->bus);
--		UNLOCK_I2C_BUS(dev->bus);
--	}
--	return ack;
--}
--
--/* ----------------------------------------------------------------------- */
-+static struct i2c_client client_template;
- 
- static const unsigned char init_common[] = {
- 	0x3a, 0x0f,		/* CBENB=0, V656=0, VY2C=1, YUV2C=1, MY2C=1, MUV2C=1 */
-@@ -222,58 +182,71 @@
- 	0x66, 0x21,		/* FSC3 */
- };
- 
--static int saa7185_attach(struct i2c_device *device)
-+static int saa7185_attach(struct i2c_adapter *adap, int addr, unsigned short flags, int kind)
- {
- 	int i;
- 	struct saa7185 *encoder;
-+	struct i2c_client client;
- 
--	MOD_INC_USE_COUNT;
--	
--	device->data = encoder = kmalloc(sizeof(struct saa7185), GFP_KERNEL);
-+	client = kmalloc(sizeof(*client), GFP_KERNEL);
-+	if (client == NULL)
-+		return -ENOMEM;
-+	client_template.adapter = adap;
-+	client_template.addr = addr;
-+	memcpy(client, &client_template, sizeof(*client));
-+	encoder = kmalloc(sizeof(*decoder), GFP_KERNEL);
- 	if (encoder == NULL) {
--		MOD_DEC_USE_COUNT;
-+		kfree(client);
- 		return -ENOMEM;
- 	}
- 
- 
--	memset(encoder, 0, sizeof(struct saa7185));
--	strcpy(device->name, "saa7185");
--	encoder->bus = device->bus;
--	encoder->addr = device->addr;
-+	memset(encoder, 0, sizeof(*decoder));
-+	strcpy(client->name, "saa7185");
-+	encoder->client = client;
-+	client->data = encoder;
-+	encoder->addr = addr;
- 	encoder->norm = VIDEO_MODE_NTSC;
- 	encoder->enable = 1;
- 
--	i = saa7185_write_block(encoder, init_common, sizeof(init_common));
-+	i = i2c_master_send(client, init_common, sizeof(init_common));
- 	if (i >= 0) {
--		i = saa7185_write_block(encoder, init_ntsc,
-+		i = i2c_master_send(client, init_ntsc,
- 					sizeof(init_ntsc));
- 	}
- 	if (i < 0) {
--		printk(KERN_ERR "%s_attach: init error %d\n", device->name,
-+		printk(KERN_ERR "%s_attach: init error %d\n", client->name,
- 		       i);
- 	} else {
- 		printk(KERN_INFO "%s_attach: chip version %d\n",
--		       device->name, saa7185_read(encoder) >> 5);
-+		       client->name, i2c_smbus_read_byte(client) >> 5);
- 	}
--
-+	init_MUTEX(&decoder->lock);
-+	i2c_attach_client(client);
-+	MOD_INC_USE_COUNT;
- 	return 0;
- }
-+static int saa7185_probe(struct i2c_adapter *adap)
-+{
-+	return i2c_probe(adap, &addr_data, saa7185_attach);
-+}
- 
--
--static int saa7185_detach(struct i2c_device *device)
-+static int saa7185_detach(struct i2c_client *client)
- {
--	struct saa7185 *encoder = device->data;
--	saa7185_write(encoder, 0x61, (encoder->reg[0x61]) | 0x40);	/* SW: output off is active */
--	//saa7185_write(encoder, 0x3a, (encoder->reg[0x3a]) | 0x80); /* SW: color bar */
-+	struct saa7185 *encoder = client->data;
-+	i2c_detach_client(client);
-+	i2c_smbus_write_byte_data(client, 0x61, (encoder->reg[0x61]) | 0x40);	/* SW: output off is active */
-+	//i2c_smbus_write_byte_data(client, 0x3a, (encoder->reg[0x3a]) | 0x80); /* SW: color bar */
- 	kfree(encoder);
-+	kfree(client);
- 	MOD_DEC_USE_COUNT;
- 	return 0;
- }
- 
--static int saa7185_command(struct i2c_device *device, unsigned int cmd,
-+static int saa7185_command(struct i2c_client *client, unsigned int cmd,
- 			   void *arg)
- {
--	struct saa7185 *encoder = device->data;
-+	struct saa7185 *encoder = client->data;
- 
- 	switch (cmd) {
- 
-@@ -297,12 +270,12 @@
- 			switch (*iarg) {
- 
- 			case VIDEO_MODE_NTSC:
--				saa7185_write_block(encoder, init_ntsc,
-+				i2c_master_send(client, init_ntsc,
- 						    sizeof(init_ntsc));
- 				break;
- 
- 			case VIDEO_MODE_PAL:
--				saa7185_write_block(encoder, init_pal,
-+				i2c_master_send(client, init_pal,
- 						    sizeof(init_pal));
- 				break;
- 
-@@ -326,19 +299,19 @@
- 
- 			case 0:
- 				/* Switch RTCE to 1 */
--				saa7185_write(encoder, 0x61,
-+				i2c_smbus_write_byte_data(client, 0x61,
- 					      (encoder->
- 					       reg[0x61] & 0xf7) | 0x08);
--				saa7185_write(encoder, 0x6e, 0x01);
-+				i2c_smbus_write_byte_data(client, 0x6e, 0x01);
- 				break;
- 
- 			case 1:
- 				/* Switch RTCE to 0 */
--				saa7185_write(encoder, 0x61,
-+				i2c_smbus_write_byte_data(client, 0x61,
- 					      (encoder->
- 					       reg[0x61] & 0xf7) | 0x00);
- 				/* SW: a slight sync problem... */
--				saa7185_write(encoder, 0x6e, 0x00);
-+				i2c_smbus_write_byte_data(client, 0x6e, 0x00);
- 				break;
- 
- 			default:
-@@ -364,7 +337,7 @@
- 			int *iarg = arg;
- 
- 			encoder->enable = !!*iarg;
--			saa7185_write(encoder, 0x61,
-+			i2c_smbus_write_byte_data(client, 0x61,
- 				      (encoder->
- 				       reg[0x61] & 0xbf) | (encoder->
- 							    enable ? 0x00 :
-@@ -382,23 +355,28 @@
- /* ----------------------------------------------------------------------- */
- 
- static struct i2c_driver i2c_driver_saa7185 = {
--	"saa7185",		/* name */
--	I2C_DRIVERID_VIDEOENCODER,	/* ID */
--	I2C_SAA7185, I2C_SAA7185 + 1,
--
--	saa7185_attach,
--	saa7185_detach,
--	saa7185_command
-+	.name	 	= "saa7185",		 /* name */
-+	.id 		= I2C_DRIVERID_SAA7185B, /* ID */
-+	.flags 		= I2C_DF_NOTIFY,
-+	.attach_adapter = saa7185_probe,
-+	.detach_client 	= saa7185_detach,
-+	.command	= saa7185_command
-+};
-+
-+static struct i2c_client client_template = {
-+	.name 	= "saa7185_client",
-+	.id 	= -1,
-+	.driver = &i2c_driver_saa7185
- };
- 
- static int saa7185_init(void)
- {
--	return i2c_register_driver(&i2c_driver_saa7185);
-+	return i2c_add_driver(&i2c_driver_saa7185);
- }
- 
- static void saa7185_exit(void)
- {
--	i2c_unregister_driver(&i2c_driver_saa7185);
-+	i2c_del_driver(&i2c_driver_saa7185);
- }
- 
- module_init(saa7185_init);
 

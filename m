@@ -1,132 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272593AbRIMWFm>; Thu, 13 Sep 2001 18:05:42 -0400
+	id <S272710AbRIMWbR>; Thu, 13 Sep 2001 18:31:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272592AbRIMWFe>; Thu, 13 Sep 2001 18:05:34 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:9295 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S272622AbRIMWFW>; Thu, 13 Sep 2001 18:05:22 -0400
-Date: Thu, 13 Sep 2001 18:05:40 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, saw@saw.sw.com.sg
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] cleanup eepro100 indentation
-Message-ID: <20010913180540.D4539@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S272711AbRIMWbH>; Thu, 13 Sep 2001 18:31:07 -0400
+Received: from louie.udel.edu ([128.4.40.12]:35247 "HELO mail.eecis.udel.edu")
+	by vger.kernel.org with SMTP id <S272710AbRIMWay>;
+	Thu, 13 Sep 2001 18:30:54 -0400
+Message-ID: <3BA134F3.FA661E9E@udel.edu>
+Date: Thu, 13 Sep 2001 18:36:35 -0400
+From: "Antonios G. Danalis" <danalis@udel.edu>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: increasing HZ in Linux kernel
+Content-Type: text/plain; charset=iso-8859-7
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is to fix a braindead indentation mess in speedo_start_xmit 
-that someone added when adding the flags variable.  *sigh*.
+Hello,
 
-		-ben
+I want to increase the frequency of the clock interrupt up
+to ~10000 to run some experiments.
 
+In the kernel I'm using (2.4.2-2) I've noticed that
+if you increase HZ above 1536 you get a conflict with
+.../include/linux/timex.h:75-77
+and if you add some lines there, you get a problem with
+.../include/net/tcp.h:377
+when HZ is above 4096.
 
-diff -urN v2.4.9-ac10/drivers/net/eepro100.c foo-v2.4.9-ac10/drivers/net/eepro100.c
---- v2.4.9-ac10/drivers/net/eepro100.c	Mon Sep 10 15:10:59 2001
-+++ foo-v2.4.9-ac10/drivers/net/eepro100.c	Thu Sep 13 18:02:08 2001
-@@ -1313,56 +1313,55 @@
- 	long ioaddr = dev->base_addr;
- 	int entry;
- 
--	{	/* Prevent interrupts from changing the Tx ring from underneath us. */
--		unsigned long flags;
-+	/* Prevent interrupts from changing the Tx ring from underneath us. */
-+	unsigned long flags;
- 
--		spin_lock_irqsave(&sp->lock, flags);
--
--		/* Check if there are enough space. */
--		if ((int)(sp->cur_tx - sp->dirty_tx) >= TX_QUEUE_LIMIT) {
--			printk(KERN_ERR "%s: incorrect tbusy state, fixed.\n", dev->name);
--			netif_stop_queue(dev);
--			sp->tx_full = 1;
--			spin_unlock_irqrestore(&sp->lock, flags);
--			return 1;
--		}
--
--		/* Calculate the Tx descriptor entry. */
--		entry = sp->cur_tx++ % TX_RING_SIZE;
--
--		sp->tx_skbuff[entry] = skb;
--		sp->tx_ring[entry].status =
--			cpu_to_le32(CmdSuspend | CmdTx | CmdTxFlex);
--		if (!(entry & ((TX_RING_SIZE>>2)-1)))
--			sp->tx_ring[entry].status |= cpu_to_le32(CmdIntr);
--		sp->tx_ring[entry].link =
--			cpu_to_le32(TX_RING_ELEM_DMA(sp, sp->cur_tx % TX_RING_SIZE));
--		sp->tx_ring[entry].tx_desc_addr =
--			cpu_to_le32(TX_RING_ELEM_DMA(sp, entry) + TX_DESCR_BUF_OFFSET);
--		/* The data region is always in one buffer descriptor. */
--		sp->tx_ring[entry].count = cpu_to_le32(sp->tx_threshold);
--		sp->tx_ring[entry].tx_buf_addr0 =
--			cpu_to_le32(pci_map_single(sp->pdev, skb->data,
--						   skb->len, PCI_DMA_TODEVICE));
--		sp->tx_ring[entry].tx_buf_size0 = cpu_to_le32(skb->len);
--		/* Trigger the command unit resume. */
--		wait_for_cmd_done(ioaddr + SCBCmd);
--		clear_suspend(sp->last_cmd);
--		/* We want the time window between clearing suspend flag on the previous
--		   command and resuming CU to be as small as possible.
--		   Interrupts in between are very undesired.  --SAW */
--		outb(CUResume, ioaddr + SCBCmd);
--		sp->last_cmd = (struct descriptor *)&sp->tx_ring[entry];
--
--		/* Leave room for set_rx_mode(). If there is no more space than reserved
--		   for multicast filter mark the ring as full. */
--		if ((int)(sp->cur_tx - sp->dirty_tx) >= TX_QUEUE_LIMIT) {
--			netif_stop_queue(dev);
--			sp->tx_full = 1;
--		}
-+	spin_lock_irqsave(&sp->lock, flags);
- 
-+	/* Check if there are enough space. */
-+	if ((int)(sp->cur_tx - sp->dirty_tx) >= TX_QUEUE_LIMIT) {
-+		printk(KERN_ERR "%s: incorrect tbusy state, fixed.\n", dev->name);
-+		netif_stop_queue(dev);
-+		sp->tx_full = 1;
- 		spin_unlock_irqrestore(&sp->lock, flags);
-+		return 1;
- 	}
-+
-+	/* Calculate the Tx descriptor entry. */
-+	entry = sp->cur_tx++ % TX_RING_SIZE;
-+
-+	sp->tx_skbuff[entry] = skb;
-+	sp->tx_ring[entry].status =
-+		cpu_to_le32(CmdSuspend | CmdTx | CmdTxFlex);
-+	if (!(entry & ((TX_RING_SIZE>>2)-1)))
-+		sp->tx_ring[entry].status |= cpu_to_le32(CmdIntr);
-+	sp->tx_ring[entry].link =
-+		cpu_to_le32(TX_RING_ELEM_DMA(sp, sp->cur_tx % TX_RING_SIZE));
-+	sp->tx_ring[entry].tx_desc_addr =
-+		cpu_to_le32(TX_RING_ELEM_DMA(sp, entry) + TX_DESCR_BUF_OFFSET);
-+	/* The data region is always in one buffer descriptor. */
-+	sp->tx_ring[entry].count = cpu_to_le32(sp->tx_threshold);
-+	sp->tx_ring[entry].tx_buf_addr0 =
-+		cpu_to_le32(pci_map_single(sp->pdev, skb->data,
-+					   skb->len, PCI_DMA_TODEVICE));
-+	sp->tx_ring[entry].tx_buf_size0 = cpu_to_le32(skb->len);
-+	/* Trigger the command unit resume. */
-+	wait_for_cmd_done(ioaddr + SCBCmd);
-+	clear_suspend(sp->last_cmd);
-+	/* We want the time window between clearing suspend flag on the previous
-+	   command and resuming CU to be as small as possible.
-+	   Interrupts in between are very undesired.  --SAW */
-+	outb(CUResume, ioaddr + SCBCmd);
-+	sp->last_cmd = (struct descriptor *)&sp->tx_ring[entry];
-+
-+	/* Leave room for set_rx_mode(). If there is no more space than reserved
-+	   for multicast filter mark the ring as full. */
-+	if ((int)(sp->cur_tx - sp->dirty_tx) >= TX_QUEUE_LIMIT) {
-+		netif_stop_queue(dev);
-+		sp->tx_full = 1;
-+	}
-+
-+	spin_unlock_irqrestore(&sp->lock, flags);
- 
- 	dev->trans_start = jiffies;
- 
+Is there an easy way to increase clock interrupt freq, or
+do I have to mess with the whole kernel ?
+
+Thanks in advance.
+Antonios
+

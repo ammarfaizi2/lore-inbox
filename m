@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265942AbTFWFHf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 01:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbTFWFHf
+	id S265946AbTFWFJc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 01:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265951AbTFWFJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 01:07:35 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:62989 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265942AbTFWFHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 01:07:33 -0400
-Date: Mon, 23 Jun 2003 06:21:37 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andries.Brouwer@cwi.nl
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] loop.c - part 1 of many
-Message-ID: <20030623062137.A24311@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <UTC200306230127.h5N1RpE13973.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <UTC200306230127.h5N1RpE13973.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Jun 23, 2003 at 03:27:51AM +0200
+	Mon, 23 Jun 2003 01:09:31 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16645 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S265946AbTFWFJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 01:09:04 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Crusoe's performance on linux?
+Date: 22 Jun 2003 22:22:41 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bd62r1$6vb$1@cesium.transmeta.com>
+References: <3EF1E6CD.4040800@thai.com> <3EF2144D.5060902@thai.com> <20030619221126.B3287@ucw.cz> <3EF67AD4.4040601@thai.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 03:27:51AM +0200, Andries.Brouwer@cwi.nl wrote:
-> -static int figure_loop_size(struct loop_device *lo)
-> +static int
-> +figure_loop_size(struct loop_device *lo)
+Followup to:  <3EF67AD4.4040601@thai.com>
+By author:    Samphan Raruenrom <samphan@thai.com>
+In newsgroup: linux.dev.kernel
+>
+> Vojtech Pavlik wrote:
+> > Could you a test just for me? Take vanilla 2.4.21 and then
+> > make oldconfig; make dep; time make bzImage 
+> > That's basically what I want to know how long will take, since
+> > it's one of the most common time consuming tasks the thing will
+> > have to handle.
+> Done! Here're the results:-
+> 
+> Desktop - Pentium III 1 G Hz 754 MB	->	10.x min.
+> Tablet PC - Crusoe TM5800 1 GHz 731 MB	->	17.x min.
+> 
+>  From freshdiagnos benchmack, the TPC has about 2x faster RAM.
+> I use tmpfs for the whole process so disk speed didn't count.
+> Both test run without X or any foreground process using
+> 2.4.21-ac1 and RedHat kernel.
+> 
+> What do you think?
+> Shouldn't TM5800 with 4-wide VLIW engine and 64 registers,
+> working on a single task, run as fast as a Pentium III?
+> Why it take 70% longer for such small process (make+gcc+as)!
+> There must be something wrong.
+> 
 
-This moves away from Documentation/CondingStyle..
+Which version of gcc are you running on the two machines?
 
->  int loop_register_transfer(struct loop_func_table *funcs)
->  {
-> -	if ((unsigned)funcs->number > MAX_LO_CRYPT || xfer_funcs[funcs->number])
-> +	unsigned int n = funcs->number;
-> +
-> +	if (n >= MAX_LO_CRYPT || xfer_funcs[n])
->  		return -EINVAL;
-> -	xfer_funcs[funcs->number] = funcs;
-> -	return 0; 
-> +	xfer_funcs[n] = funcs;
-> +	return 0;
->  }
-
-Once you start touching loop_{,un}register_transfer please also get
-rid of the array in favour of a linked list..
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

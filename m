@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263662AbTDDNxE (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 08:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTDDNuC (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 08:50:02 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:23424 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263647AbTDDNr0 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 08:47:26 -0500
-MIME-Version: 1.0
+	id S263677AbTDDOBW (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 09:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTDDN6k (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 08:58:40 -0500
+Received: from holomorphy.com ([66.224.33.161]:54416 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263627AbTDDNxl (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 08:53:41 -0500
+Date: Fri, 4 Apr 2003 06:04:47 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Antonio Vargas <wind@cocodriloo.com>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, linux-kernel@vger.kernel.org,
+       Robert Love <rml@tech9.net>
+Subject: Re: fairsched + O(1) process scheduler
+Message-ID: <20030404140447.GC1828@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Antonio Vargas <wind@cocodriloo.com>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
+References: <20030401125159.GA8005@wind.cocodriloo.com> <20030401164126.GA993@holomorphy.com> <20030401221927.GA8904@wind.cocodriloo.com> <200304021144.21924.frankeh@watson.ibm.com> <20030403125355.GA12001@wind.cocodriloo.com> <20030403192241.GB1828@holomorphy.com> <20030404112704.GA15864@wind.cocodriloo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16013.36763.845498.611262@gargle.gargle.HOWL>
-Date: Fri, 4 Apr 2003 15:58:51 +0200
-From: mikpe@csd.uu.se
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.66 x86_64 oops when swapoff via IA32 emulation
-In-Reply-To: <20030403182922.GB2232@wotan.suse.de>
-References: <16012.19359.948383.217572@enequist.it.uu.se>
-	<20030403151642.GB2062@wotan.suse.de>
-	<16012.26449.528594.682130@gargle.gargle.HOWL>
-	<20030403182922.GB2232@wotan.suse.de>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <20030404112704.GA15864@wind.cocodriloo.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > On Thu, Apr 03, 2003 at 06:54:41PM +0200, mikpe@csd.uu.se wrote:
- > > Andi Kleen writes:
- > >  > On Thu, Apr 03, 2003 at 04:56:31PM +0200, mikpe@csd.uu.se wrote:
- > >  > > I got this oops from swapoff when shutting down 2.5.66 on
- > >  > > x86_64 with 32-bit user-space (RH8.0). This was from the first
- > >  > > run with 2.5.66, I wasn't able to reproduce it in later runs.
- > >  > 
- > >  > Is this on the Simulator or on a real Opteron/Athlon64? 
- > > 
- > > Simics.
- > 
- > Don't know what it could be then. Can you reproduce it ? 
+On Thu, Apr 03, 2003 at 11:22:41AM -0800, William Lee Irwin III wrote:
+>> Use spin_lock_irq(&uidhash_lock) or you will deadlock if you hold it
+>> while you take a timer tick, but it's wrong anyway. it's O(N) with
+>> respect to number of users present. An O(1) algorithm could easily
+>> make use of reference counts held by tasks.
+[...]
+>> This isn't right, when expiration happens needs to be tracked by both
+>> user and task. Basically which tasks are penalized when the user
+>> expiration happens? The prediction is the same set of tasks will always
+>> be the target of the penalty.
 
-Eventually I was able to reproduce it. The oops was the same as before,
-from swapoff at shutdown.
+On Fri, Apr 04, 2003 at 01:27:04PM +0200, Antonio Vargas wrote:
+> Just out of experimenting, I've coded something that looks reasonable
+> and would not experience starvation.
+> In the normal scheduler, a non-interactive task will, when used all
+> his timeslice, reset p->time_slice and queue onto the expired array.
+> I'm now reseting p->reserved_time_slice instead and queuing the task
+> onto a per-user pending task queue.
+> A separate kernel thread walks the user list, calculates the user
+> timeslice and distributes it to it's pending tasks. When a task
+> receives timeslices, it's moved from the per-user pending queue to
+> the expired array of the runqueue, thus preparing it to run on the
+> next array-switch.
 
-What I did this time was to boot with mem=32M, and just run a silly
-'cd /; tar cf - . --totals > /dev/null' command.
-/proc/swaps showed no swap usage before shutdown, but apparently
-something bad happended anyway.
+Hmm, priorities getting recalculated by a kernel thread sounds kind of
+scary, but who am I to judge?
 
-(Running under Simics is slow enough that I don't build the kernels
-or anything else on the "box" itself. So it only sees brief boot-and-
-see-if-it-works-then-shutdown usage.)
 
-/Mikael
+On Fri, Apr 04, 2003 at 01:27:04PM +0200, Antonio Vargas wrote:
+> If the user has many timeslices, he can give timeslices to many tasks, thus
+> getting more work done.
+> While the implementation may not be good enough, due to locking problems and
+> the use of a kernel-thread, I think the fundamental algorithm feels right.
+> William, should I take the lock on the uidhash_list when adding a task
+> to a per-user task list?
+
+Possible, though I'd favor a per-user spinlock.
+
+The code looks reasonable now, modulo that race you asked about.
+
+
+-- wli

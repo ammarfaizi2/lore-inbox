@@ -1,117 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268085AbUBRU7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 15:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUBRU7Y
+	id S267236AbUBRRoi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 12:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267639AbUBRRoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 15:59:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59018 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268085AbUBRU7L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 15:59:11 -0500
-Date: Wed, 18 Feb 2004 13:00:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Brandon Low <lostlogic@gentoo.org>
+	Wed, 18 Feb 2004 12:44:38 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:3516 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S267236AbUBRRoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 12:44:34 -0500
+From: Eric <eric@cisu.net>
+To: Zoltan NAGY <nagyz@nefty.hu>
+Subject: Re: v2.6 in vmware?
+Date: Wed, 18 Feb 2004 11:44:14 -0600
+User-Agent: KMail/1.5.94
+References: <634316431.20040218143725@nefty.hu>
+In-Reply-To: <634316431.20040218143725@nefty.hu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm1
-Message-Id: <20040218130023.7cd2fdcb.akpm@osdl.org>
-In-Reply-To: <20040218205206.GD449@lostlogicx.com>
-References: <20040217232130.61667965.akpm@osdl.org>
-	<40338FE8.60809@tmr.com>
-	<20040218200439.GB449@lostlogicx.com>
-	<20040218122216.62bb9e82.akpm@osdl.org>
-	<20040218203325.GC449@lostlogicx.com>
-	<20040218125227.0bf7dc2f.akpm@osdl.org>
-	<20040218205206.GD449@lostlogicx.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402181144.14794.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brandon Low <lostlogic@gentoo.org> wrote:
+On Wednesday 18 February 2004 7:37 am, Zoltan NAGY wrote:
+> Hi!
 >
-> I am just reading up on dm now, but correct me if I am wrong, I will
-> need to do losetup, dmcreate, mount in that order in order to use
-> dmcrypt on loop where with cryptoloop, I could just do "mount"... there
-> must be an easier way to handle this!
+> I've been trying to get 2.6.x working in vmware4, but it drops some
+> oopses during init... I cannot provide details, but I'm sure that it
+> does not just me who are having problems with it..
 
-See Bert's email from eariler today:
+	Right now I am using Vmware 4.something in kernel 2.6.2-rc3 and will upgrade 
+to 2.6.3 and im pretty sure it will work. Make sure you use the appropriate 
+install script. Someone has published their own patches to make VMware more 
+compatible w/ 2.6.
+	Do a google for vmware-any-any-update49.tar.gz or updateXX where XX might be 
+a newer version. I have not had any oopses with this package. The only 
+problem I have is some older versions of the update package wouldnt compile. 
+Perhaps you are insmodding a module built for 2.4 and crashing the kernel?
 
+> Regards,
+>
+> --
+> Zoltan NAGY,
+> Network Administrator
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
-Date: Wed, 18 Feb 2004 13:14:16 +0100
-From: bert hubert <ahu@ds9a.nl>
-
->   People need to test and use this please.  There is documentation at
->   http://www.saout.de/misc/dm-crypt/.
-
-Works amazingly well. Starting from stock 2.6.3 I applied 'dm*' from the
-broken out 2.6.3-mm1, no fuzz or offset, and ran make on the kernel I had
-built this morning.
-
-I then turned on the device mapper and its crypto support and loaded the
-modules, without rebooting.
-
-Downloaded ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper-latest.tgz
-	./configure && make && sudo make install
-	sudo ./scripts/devmap_mknod.sh (to create /dev/mapper)
-Downloaded http://www.stwing.org/~sluskyb/util-linux/hashalot-0.2.0.tar.gz
-	./configure && make && sudo make install	
-Downloaded http://www.saout.de/misc/cryptsetup
-	ran: cryptsetup -h plain create crypted /dev/hdb1
-  		(the -h plain isn't necessary, I didn't have hashalot
-		 earlier, and even with -h plain it wants hashalot)
-		entered a passphrase (already forgotten though)
-	e2fsck /dev/mapper/crypted
-	mount /dev/mapper/crypted /mnt
-
-mke2fs proved to be a significant CPU load (all sy) and took a minute or two
-to run, which could be forgiven, it had to mke2fs 200G.
-
-I then copied the entire Linux build tree to /mnt, ran make clean, make, and
-12 minutes later I had a new kernel. System load was below <10% at all
-times, mostly <5%.
-
-Then I did the whole thing again but then with ext3, which worked too. System
-load appeared slightly higher, the build however took 12 minutes as well.
-
-Kudos!
-
-Suggestions 
------------
-1) Add a reference to the hashalot location to
-   http://www.saout.de/misc/dm-crypt/ and add some units to 'cryptsetup',
-   something like this (probably tab/space damaged):
-
---- cryptsetup  2003-12-26 21:27:08.000000000 +0100
-+++ cryptsetup.ahu      2004-02-18 12:46:18.000000000 +0100
-@@ -229,10 +229,10 @@
-                gettable "$NAME"
-                echo "$DMPATH$NAME is active:"
-                echo "  cipher:  $CIPHER"
--               echo "  keysize: $[${#KEY}/2]"
-+               echo "  keysize: $[${#KEY}/2] bytes"
-                echo "  device:  $DEVICE"
-                echo "  offset:  $SKIPPED"
--               echo "  size:    $SIZE"
-+               echo "  size:    $SIZE sectors"
-                [ $SKIPPED -gt 0 ] && echo "   skipped: $SKIPPED"
-                unset KEY
-        else
-
-  The output can be mighty confusing otherwise.
-
-2) Remove dependence on hashalot for -h plain
-3) Add pointer to hashalot on the main page
-4) make make install of the device mapper userspace run the mknod script
-
->   filesystems.  ie: ext3 on cryptoloop will no longer be crash-proof.
-(...)
->   After that we should remove cryptoloop altogether.
-
-Big fat warnings might be wise in the meantime. I sincerely hope that 
-dm-crypt can be merged sooner rather than later. It feels good and it Just
-Works.
-
+-- 
+-------------------------
+Eric Bambach
+Eric at cisu dot net
+-------------------------

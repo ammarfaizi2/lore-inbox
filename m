@@ -1,42 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUEYTQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUEYTVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265054AbUEYTQO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 15:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265052AbUEYTQO
+	id S265051AbUEYTVr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 15:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265052AbUEYTVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 15:16:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33933 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265051AbUEYTP0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 15:15:26 -0400
-Date: Tue, 25 May 2004 15:15:14 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Phy Prabab <phyprabab@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 4g/4g for 2.6.6
-In-Reply-To: <20040524124834.GB29378@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0405251514490.26157-100000@chimarrao.boston.redhat.com>
+	Tue, 25 May 2004 15:21:47 -0400
+Received: from web41301.mail.yahoo.com ([66.218.93.186]:17253 "HELO
+	web41301.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265051AbUEYTVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 15:21:44 -0400
+Message-ID: <20040525192144.92663.qmail@web41301.mail.yahoo.com>
+Date: Tue, 25 May 2004 12:21:44 -0700 (PDT)
+From: gb <bakerg3@yahoo.com>
+Reply-To: greg@bakers.org
+Subject: 2.4.26 agpgart on Tyan K8W 32bit not working?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 May 2004, Andrea Arcangeli wrote:
-> On Mon, May 24, 2004 at 10:25:22AM +0200, Ingo Molnar wrote:
-> > on how quickly 'x86 with more than 4GB of RAM' and 
+
+...damned yahoo.  Please allow me to finish this
+email...
+
+> I have tried booting with:
 > 
-> s/4GB/32GB/
-> 
-> my usual x86 test box has 48G of ram (though to keep an huge margin of
-> safety we assume 32G is the very safe limit).
+> kernel /vmlinuz-2.4.26-bangalore4-01 ro
+root=/dev/hda2
+> hdc=ide-scsi apm=power-off agp_try_unsupported=1
 
-Just how many 3GB sized processes can you run on that
-system, if each of them have a hundred or so VMAs ?
+but get the same results.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+So the most obvious difference is that lspci returns 
 
+> 04:00.0 Host bridge: Advanced Micro Devices [AMD]
+> AMD-8151 System Controller (rev 13)
+> 04:01.0 PCI bridge: Advanced Micro Devices [AMD]
+> AMD-8151 AGP Bridge (rev 13)
+
+on a 64bit kernel, whereas this is missing on a 32bit
+kernel.  This may have something to do with the
+agpgart messages spit out on the 32bit kernel.
+
+The .config I am using has these two options:
+
+[root@profit root]# grep AGP /usr/src/linux/.config
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_I810=y
+CONFIG_AGP_VIA=y
+CONFIG_AGP_AMD=y
+CONFIG_AGP_AMD_K8=y
+CONFIG_AGP_SIS=y
+CONFIG_AGP_ALI=y
+# CONFIG_AGP_SWORKS is not set
+CONFIG_AGP_NVIDIA=y
+# CONFIG_AGP_ATI is not set
+
+So perusing the agpgart_be.c file appears that this
+should work on a 32bit kernel.  What I am missing?
+
+Please let me know if you have any suggestions or
+comments.
+
+Thanks,
+
+--Greg
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Friends.  Fun.  Try the all-new Yahoo! Messenger.
+http://messenger.yahoo.com/ 

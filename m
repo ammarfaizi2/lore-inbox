@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317765AbSGZPUy>; Fri, 26 Jul 2002 11:20:54 -0400
+	id <S317778AbSGZPZS>; Fri, 26 Jul 2002 11:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317768AbSGZPUx>; Fri, 26 Jul 2002 11:20:53 -0400
-Received: from B5bda.pppool.de ([213.7.91.218]:24592 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S317765AbSGZPUx>; Fri, 26 Jul 2002 11:20:53 -0400
-Subject: Re: [PATCH] SiS IDE ATA 133 support
-From: Daniel Egger <degger@fhm.edu>
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D411EFF.2040205@inet6.fr>
-References: <3D411EFF.2040205@inet6.fr>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-QwltVk4U8a086FsGjF0o"
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 26 Jul 2002 15:58:29 +0200
-Message-Id: <1027691911.20695.1.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S317782AbSGZPZS>; Fri, 26 Jul 2002 11:25:18 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:47890 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317778AbSGZPZR>; Fri, 26 Jul 2002 11:25:17 -0400
+Date: Fri, 26 Jul 2002 12:27:40 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+cc: linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>
+Subject: Re: [RFC] Scalable statistics counters using kmalloc_percpu
+In-Reply-To: <20020726204033.D18570@in.ibm.com>
+Message-ID: <Pine.LNX.4.44L.0207261225160.3086-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 26 Jul 2002, Ravikiran G Thirumalai wrote:
 
---=-QwltVk4U8a086FsGjF0o
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Rik, You were interested in using this.  Does this implementation suit
+> your needs?
 
-Am Fre, 2002-07-26 um 12.05 schrieb Lionel Bouton:
+>From a quick glance it looks like it will.
 
-> People with SiS IDE chips, please test and report any failure/success to =
-me.
+However, it might be more efficient to put the statistics
+in one file in /proc with named fields, or have a way to
+group them in one or multiple files.
 
-Are you asking for tests with any SiS chipset or just the recent ones
-with ATA/133? I could give it a spin on a SiS 735.
-=20
---=20
-Servus,
-       Daniel
+Not sure about that, though ... really depends on how
+expensive stat+open+read+close is compared to parsing a
+file with multiple fields.
 
---=-QwltVk4U8a086FsGjF0o
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+regards,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-iD8DBQA9QVWEchlzsq9KoIYRArsqAJwNltYFZxk7iuJPBL4RK1eH+UykRwCggiUt
-9ZrRvxpgE5/IbEr+bwfSaD4=
-=uypi
------END PGP SIGNATURE-----
-
---=-QwltVk4U8a086FsGjF0o--
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316499AbSGNNGt>; Sun, 14 Jul 2002 09:06:49 -0400
+	id <S316500AbSGNNIL>; Sun, 14 Jul 2002 09:08:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316500AbSGNNGs>; Sun, 14 Jul 2002 09:06:48 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:49914 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S316499AbSGNNGs>; Sun, 14 Jul 2002 09:06:48 -0400
-Date: Sun, 14 Jul 2002 15:08:06 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207141308.g6ED86GK019067@burner.fokus.gmd.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
+	id <S316542AbSGNNIK>; Sun, 14 Jul 2002 09:08:10 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:62003 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S316500AbSGNNIJ>; Sun, 14 Jul 2002 09:08:09 -0400
+Date: Sun, 14 Jul 2002 15:09:12 +0200
+From: Dominik Brodowski <devel@brodo.de>
+To: petero2@telia.com, zwane@linuxpower.ca
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-rc1-ac3
+Message-ID: <20020714150912.A1148@brodo.de>
+References: <1026611437.13885.37.camel@irongate.swansea.linux.org.uk> <m265zj9zxn.fsf@best.localdomain> <6010.1026651788@www53.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <6010.1026651788@www53.gmx.net>; from alan@lxorguk.ukuu.org.uk on Sun, Jul 14, 2002 at 03:03:08PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->H. Peter Anvin wrote:
+On Sun, Jul 14, 2002 at 03:03:08PM +0200, Alan Cox wrote:
+> > 3. The cpu voltage is automatically reduced when the frequency is
+> >    reduced.
+> 
+> True for some x86 processors, either automatically, or on some
+> controlled by us.
 
->hen *please* make a *compatible* interface available to user space. 
->This certainly can be done; the parallel port IDE interface stuff had 
->exactly such an interface (/dev/pg*) -- we could have a /dev/hg* 
->interface presumably.  That is an acceptable solution.
+The p4-clockmod driver you seem to using does not scale the voltage. 
+In case you own a P4-M and a ICH2-M or ICH3-M southbridge: the 
+speedstep.c driver in the 2.5.-cpufreq patchset (backport to 2.4. 
+will be available soon) should do the job and adjust the processor 
+voltage.
 
-I would not call the /dev/pg* nterface a cmpatible interface.
+Dominik
 
-It has advantages to the interface in the ide-cdrom driver in being
-able to talk to different types of drives at the end, but it is
-another incompatible user interface.
-
->Note again that this discussion (and it's a discussion, not a voting 
->session -- technical pros and cons is what applies) apply to ATAPI (SCSI 
->over IDE) only.  Alan has already brought up the fact of non-hard disk 
->non-ATAPI devices, and IMO those devices are explicitly out of scope. 
-
-This is my idea too: CD-ROM drives should be accessed via ATAPI or 
-handled as ATA disk.
-
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

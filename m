@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267631AbUG3HGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267645AbUG3HQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267631AbUG3HGw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 03:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267644AbUG3HF4
+	id S267645AbUG3HQc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 03:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267654AbUG3HQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 03:05:56 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:2470 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S267631AbUG3HFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 03:05:41 -0400
-Message-ID: <4109F38E.8010507@bull.net>
-Date: Fri, 30 Jul 2004 09:06:54 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ajoshi@shell.unixbox.com
-CC: linux-kernel@vger.kernel.org
-Subject: [Patch] fbdev.c: fix a warning "unused variable"
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/07/2004 09:10:01,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/07/2004 09:10:04,
-	Serialize complete at 30/07/2004 09:10:04
-Content-Type: multipart/mixed;
- boundary="------------010901050102050605040508"
+	Fri, 30 Jul 2004 03:16:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6107 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267649AbUG3HQa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 03:16:30 -0400
+Subject: Re: symlinks follow 8 or 5?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Tim Connors <tconnors+linuxkernel1091156355@astro.swin.edu.au>
+Cc: FabF <fabian.frederick@skynet.be>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <slrn-0.9.7.4-22364-14114-200407301259-tc@hexane.ssi.swin.edu.au>
+References: <1091079278.1999.5.camel@localhost.localdomain>
+	 <slrn-0.9.7.4-22364-14114-200407301259-tc@hexane.ssi.swin.edu.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AlrAGt5D/csDTPJyRj1p"
+Organization: Red Hat UK
+Message-Id: <1091171770.2794.4.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 30 Jul 2004 09:16:10 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010901050102050605040508
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello,
-
- When compiling file driver/video/riva/fbdev.c in Linux kernel 
-2.6.8-rc2-mm1, there are warnings:
-
-CC [M]  drivers/video/riva/fbdev.o
-/home/guill/projects/elsa/linux-2.6.8-rc2-mm1/drivers/video/riva/fbdev.c: 
-In function `riva_get_EDID':
-/home/guill/projects/elsa/linux-2.6.8-rc2-mm1/drivers/video/riva/fbdev.c:1867: 
-warning: unused variable `par'
-/home/guill/projects/elsa/linux-2.6.8-rc2-mm1/drivers/video/riva/fbdev.c:1868: 
-warning: unused variable `i'
-
-Here is a trivial patch to remove those warning.
-
-Hope this help
-
-Guillaume
+--=-AlrAGt5D/csDTPJyRj1p
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
---------------010901050102050605040508
-Content-Type: text/plain;
- name="patch-fbdev"
-Content-Disposition: inline;
- filename="patch-fbdev"
-Content-Transfer-Encoding: 7bit
+> Obviously, nothing came about it.=20
 
---- fbdev.c.orig	2004-07-30 08:43:09.017841384 +0200
-+++ fbdev.c	2004-07-30 08:44:00.615997272 +0200
-@@ -1864,8 +1864,10 @@ static void riva_update_default_var(stru
- 
- static void riva_get_EDID(struct fb_info *info, struct pci_dev *pdev)
- {
-+#ifdef CONFIG_FB_RIVA_I2C
- 	struct riva_par *par;
- 	int i;
-+#endif
- 
- 	NVTRACE_ENTER();
- #ifdef CONFIG_PPC_OF
+you haven't been paying attention.... the current 2.6 kernels have a
+patch series that is fixing this for most filesystems already with the
+last few others in progress.
 
---------------010901050102050605040508--
+--=-AlrAGt5D/csDTPJyRj1p
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBCfW6xULwo51rQBIRAl1dAJ9mkGPgoRosFV0xNS48+Aeq5j3twwCeKIwD
+SKERweyFcUyvbT1jvzs8ULg=
+=uWXw
+-----END PGP SIGNATURE-----
+
+--=-AlrAGt5D/csDTPJyRj1p--
+

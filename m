@@ -1,73 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbUKRVSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbUKRVSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbUKRVSs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 16:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbUKRVQ7
+	id S261177AbUKRVSt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 16:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbUKRVQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 16:16:59 -0500
-Received: from news.suse.de ([195.135.220.2]:26046 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261167AbUKRVPc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 16:15:32 -0500
-Date: Thu, 18 Nov 2004 21:01:43 +0100
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Intel thermal monitor for x86_64 (updated)
-Message-ID: <20041118200143.GP17532@wotan.suse.de>
-References: <Pine.LNX.4.61.0411180652330.7187@musoma.fsmlabs.com> <20041118163309.GK17532@wotan.suse.de> <Pine.LNX.4.61.0411181053410.4034@musoma.fsmlabs.com>
+	Thu, 18 Nov 2004 16:16:36 -0500
+Received: from almesberger.net ([63.105.73.238]:52491 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261173AbUKRVP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 16:15:59 -0500
+Date: Thu, 18 Nov 2004 18:15:41 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: 7eggert@gmx.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
+Message-ID: <20041118181540.U28844@almesberger.net>
+References: <fa.ev73q5c.ejcnom@ifi.uio.no> <fa.es1mdq5.76ib8j@ifi.uio.no> <E1CUtCE-0000us-00@be1.7eggert.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411181053410.4034@musoma.fsmlabs.com>
+In-Reply-To: <E1CUtCE-0000us-00@be1.7eggert.dyndns.org>; from 7eggert@gmx.de on Thu, Nov 18, 2004 at 09:48:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 10:58:46AM -0700, Zwane Mwaikambo wrote:
-> > > +	static unsigned long next_check[NR_CPUS];
-> > 
-> > Use per cpu data for this. 
-> 
-> I can do that, doesn't per_cpu do cacheline alignment? I was trying to 
-> avoid allocating more space.
+Bodo Eggert wrote:
+> You'll have some precompiled binaries causing trouble, while other
+> precompiled binaries will be killed while you want them to stay alife.
 
-Not for individual data items, no. It would be completely useless because 
-only the same CPUs are sharing data there.
+That's why you could use a wrapper.
 
-> > > +	if (!cpu_isset(m.cpu, logged_cpus)) {
-> > > +		cpu_set(m.cpu, logged_cpus);
-> > > +		mce_log(&m);
-> > > +	}
-> > 
-> > Does the comment match the code? I guess you mean the following
-> > events after the first can be bogus.
-> > 
-> > It seems a bit bogus to printk but not log for known spurious 
-> > conditions.
-> 
-> Well by spurious i mean that there will be a _lot_ of these events whilst 
-> the TCC attempts to reduce the processor temperature, i don't want to 
-> flood the mce log with the subsequent events.
+> Sometimes you'll have the same binary (e.g. perl or java) running a
+> "notme"-task like watching the log for intrusion while at the same time
+> processing a very large image.
 
+The wrapper could also not be part of the regular execution, and
+you'd only use it if you really need it, much like nice, chroot,
+etc.
 
-Flooding the kmsg is as bad.
+> The best solution I can think of is attaching a kill priority (similar to
+> the nice value). Before killing, this value would be added to lg_2(memsize),
+> and the least desirable process would "win", even if it's sshd running wild.
 
-I think a better strategy is to just increase the minimum check interval
-to avoid this. And then treat printk and mce_log the same.
+I'm extremely sceptical about solutions that require the user to
+quantify things. In the world of QoS, if you give users a knob
+to play with, the'll stare at in confusion, and ask for the
+"faster" button. I don't think the OOM case is much different.
 
-> 
-> > Also the next_check logic should already handle this I guess,
-> > becaumse I assume the temperature dropping won't take
-> > that long.  So I guess it would be best to drop that 
-> > and if it's still a problem use a longer next_check timeout
-> > of several seconds.
-> 
-> The temperature drop can take a while, i've observed 2-3 minutes if the 
-> processor is also loaded and the ambient temperature is low (20C). So you 
-> could lose 12 or so slots in the mce log due to the temperature ping 
-> ponging.
+A "victim" (or a "precious") flag has the advantage that the user
+doesn't need to estimate peak demands, but still doesn't depend
+solely on the verdict of some arcane algorithm working behind
+the scenes.
 
-Ok then perhaps a extremly long check timeout of 5 minutes? 
+> For the trashing problem: I like the idea of sending a signal to stop the
+> process, but it should rather be a request to stop that can be caught by
+> the process.
 
--Andi
+Good idea. That would also help with the problem of browsers
+immediately asking to be brought back to life, so that they can
+spin the banner ads some more.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

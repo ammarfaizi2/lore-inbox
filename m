@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261322AbSL2Sqi>; Sun, 29 Dec 2002 13:46:38 -0500
+	id <S261333AbSL2Sy5>; Sun, 29 Dec 2002 13:54:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261333AbSL2Sqi>; Sun, 29 Dec 2002 13:46:38 -0500
-Received: from [66.190.52.247] ([66.190.52.247]:21234 "EHLO bugs.cybersoft.int")
-	by vger.kernel.org with ESMTP id <S261322AbSL2Sqh>;
-	Sun, 29 Dec 2002 13:46:37 -0500
-Message-ID: <3E0F44EF.6050403@cybsft.com>
-Date: Sun, 29 Dec 2002 12:54:39 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S261346AbSL2Sy5>; Sun, 29 Dec 2002 13:54:57 -0500
+Received: from ermelo.utad.pt ([193.136.40.6]:54411 "EHLO marao.utad.pt")
+	by vger.kernel.org with ESMTP id <S261333AbSL2Sy4>;
+	Sun, 29 Dec 2002 13:54:56 -0500
+Message-ID: <3E0F4526.9030702@alvie.com>
+Date: Sun, 29 Dec 2002 18:55:34 +0000
+From: Alvaro Lopes <alvieboy@alvie.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Hell.Surfers@cwctv.net
+To: Paul Rolland <rol@as2917.net>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: where is the wine development list?
-References: <024e64932181dc2DTVMAIL9@smtp.cwctv.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [2.5.53] So sloowwwww......
+References: <00b701c2af4f$14ea1ec0$2101a8c0@witbe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hell.Surfers@cwctv.net wrote:
-> I cant seem to find it on google...
-> 
-> Regards, Dean.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Paul Rolland wrote:
 
-www.winehq.org?
+>Hello,
+>
+>I'm just playing a little bit with Kernel 2.5.53, and I've been 
+>afraid of finding it quite slow...
+>
+>  
+>
+Just to be sure, have you got DMA enabled on your disks ?
+
+What is the result of:
+
+# hdparm -i /dev/hda
+# hdparm -i /dev/hdb
+
+
+-- 
+
+Álvaro Lopes 
+---------------------
+A .sig is just a .sig
+
 

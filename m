@@ -1,88 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288903AbSANH0r>; Mon, 14 Jan 2002 02:26:47 -0500
+	id <S288925AbSANH2h>; Mon, 14 Jan 2002 02:28:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288890AbSANH0j>; Mon, 14 Jan 2002 02:26:39 -0500
-Received: from mailb.telia.com ([194.22.194.6]:32531 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S288903AbSANH00>;
-	Mon, 14 Jan 2002 02:26:26 -0500
-Message-Id: <200201140725.g0E7PkT22694@mailb.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, arjan@fenrus.demon.nl
-Subject: Re: Alans example against preemtive kernel (Was: Re: [2.4.17/18pre] VM and swap - it's really unusable)
-Date: Mon, 14 Jan 2002 08:22:39 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
-In-Reply-To: <E16PTIR-0002sL-00@the-village.bc.nu>
-In-Reply-To: <E16PTIR-0002sL-00@the-village.bc.nu>
+	id <S288914AbSANH2T>; Mon, 14 Jan 2002 02:28:19 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38466 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S288890AbSANH2G>; Mon, 14 Jan 2002 02:28:06 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Adam Kropelin <akropel1@rochester.rr.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18pre3-ac1
+In-Reply-To: <Pine.LNX.4.33L.0201140409260.32617-100000@imladris.surriel.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Jan 2002 00:25:16 -0700
+In-Reply-To: <Pine.LNX.4.33L.0201140409260.32617-100000@imladris.surriel.com>
+Message-ID: <m1y9j1pf6r.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday den 12 January 2002 19.54, Alan Cox wrote:
-> Another example is in the network drivers. The 8390 core for one example
-> carefully disables an IRQ on the card so that it can avoid spinlocking on
-> uniprocessor boxes.
->
-> So with pre-empt this happens
->
-> 	driver magic
-> 	disable_irq(dev->irq)
-> PRE-EMPT:
-> 	[large periods of time running other code]
-> PRE-EMPT:
-> 	We get back and we've missed 300 packets, the serial port sharing
-> 	the IRQ has dropped our internet connection completely.
->
-> ["Don't do that then" isnt a valid answer here. If I did hold a lock
->  it would be for several milliseconds at a time anyway and would reliably
->  trash performance this time]
->
+Rik van Riel <riel@conectiva.com.br> writes:
 
-./drivers/net/8390.c
-I checked the code ./drivers/net/8390.c - this is how it REALLY looks like...
+> On 13 Jan 2002, Eric W. Biederman wrote:
+> > Rik van Riel <riel@conectiva.com.br> writes:
+> 
+> > Rik while you are looking at your reverse mapping code, I would like
+> > to call to your attention the at least trippling of times for fork.
+> 
+> Dave McCracken has measured this on his system, it seems to vary
+> from between 10% for bash to 400% for a process with 10 MB of memory.
 
-	/* Ugly but a reset can be slow, yet must be protected */
-		
-	disable_irq_nosync(dev->irq);
-	spin_lock(&ei_local->page_lock);
-		
-	/* Try to restart the card.  Perhaps the user has fixed something. */
-	ei_reset_8390(dev);
-	NS8390_init(dev, 1);
-		
-	spin_unlock(&ei_local->page_lock);
-	enable_irq(dev->irq);
+O.k. That sounds about like what I was expecting.
+ 
+> This is a problem which will need to be solved, a number of designs
+> on how to deal with this are ready, implementation needs to be done.
 
-This should be mostly OK for the preemptive kernel. Swapping the irq and spin 
-lock lines should be preferred. But I think that is the case in SMP too...
+ 
+> > I wouldn't be surprised if the reason your rmap vm handles things like
+> > gcc -j better than the stock kernel is simply the reduced number of
+> > processes, due to slower forking.
+> 
+> I really doubt this, since gcc spends so much more time doing
+> real work than forking that the time used in fork can be ignored,
+> even if it gets 3 times slower.
 
-Suppose two processors does the disable_irq_nosync - unlikely but possible...
-One gets the spinlock, the other waits
-The first runs through the code, exits the spin lock, enables irq
-The second starts running the code - without irq disabled!!!
+But for make -j the forking is done by make and it is nearly a
+fork bomb, there is simply a linear increase in the number of processes
+instead of an exponential one.  So I will at least hold this as a candidate
+for the make -j kernel fixes.
 
-This would work in both cases.
-	/* Ugly but a reset can be slow, yet must be protected */
-		
-	spin_lock(&ei_local->page_lock);
-	disable_irq_nosync(dev->irq);
-		
-	/* Try to restart the card.  Perhaps the user has fixed something. */
-	ei_reset_8390(dev);
-	NS8390_init(dev, 1);
-		
-	enable_irq(dev->irq);
-	spin_unlock(&ei_local->page_lock);
+> > Just my 2 cents so we don't forget the caveats of the reverse map
+> > approach.
+> 
+> The main way we can speed up fork easily is by not copying the
+> page tables at all at fork time but filling them in later at page
+> fault time. While this might look like it's just moving the overhead
+> from one place to another, but for the typical fork()+exec() case it
+> means (1) we don't copy the page tables at fork time (2) we don't
+> need to free them at exec time (3) after the exec, the parent can
+> just take back the complete page tables without having to take COW
+> faults on all its pages.
 
-/RogerL
+Which is definitely a win.  Perhaps we could even have paged page tables
+at that point.
 
+There is a second piece that should make things faster as well.  Adopt
+the a BSD style page table allocation where we do an order 1 allocation
+and allocate both the page table and the reverse page tables all in the same
+chunk of memory.  Which means you can jump from one to the other with pointer
+arithmetic.  So you can lose one element of your reverse page table chain
+structure.
 
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
+Eric

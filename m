@@ -1,95 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbTAaWVg>; Fri, 31 Jan 2003 17:21:36 -0500
+	id <S262806AbTAaWZ3>; Fri, 31 Jan 2003 17:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262808AbTAaWVg>; Fri, 31 Jan 2003 17:21:36 -0500
-Received: from mail010.syd.optusnet.com.au ([210.49.20.138]:54756 "EHLO
-	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S262806AbTAaWVd> convert rfc822-to-8bit; Fri, 31 Jan 2003 17:21:33 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 2.5.59-mm7 with contest
-Date: Sat, 1 Feb 2003 09:30:52 +1100
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>
+	id <S262807AbTAaWZ3>; Fri, 31 Jan 2003 17:25:29 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:5390 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262806AbTAaWZ2>; Fri, 31 Jan 2003 17:25:28 -0500
+Date: Fri, 31 Jan 2003 23:33:54 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+       <greg@kroah.com>, <jgarzik@pobox.com>
+Subject: Re: [PATCH] Module alias and device table support.
+In-Reply-To: <Pine.LNX.4.44.0301302351550.15587-100000@chaos.physics.uiowa.edu>
+Message-ID: <Pine.LNX.4.44.0301312045440.9900-100000@serv>
+References: <Pine.LNX.4.44.0301302351550.15587-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200302010930.54538.conman@kolivas.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Here are contest (http://contest.kolivas.net) benchmarks using the osdl 
-(http://www.osdl.org) hardware comparing mm7
+On Fri, 31 Jan 2003, Kai Germaschewski wrote:
 
-no_load:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       79      94.9    0       0.0     1.00
-2.5.59-mm6      1       78      96.2    0       0.0     1.00
-2.5.59-mm7      5       78      96.2    0       0.0     1.00
-cacherun:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       76      98.7    0       0.0     0.96
-2.5.59-mm6      1       76      97.4    0       0.0     0.97
-2.5.59-mm7      5       75      98.7    0       0.0     0.96
-process_load:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       92      81.5    28      16.3    1.16
-2.5.59-mm6      1       92      81.5    25      15.2    1.18
-2.5.59-mm7      4       90      82.2    25      18.3    1.15
-ctar_load:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       98      80.6    2       5.1     1.24
-2.5.59-mm6      3       112     70.5    2       4.5     1.44
-2.5.59-mm7      5       96      80.2    1       3.4     1.23
-xtar_load:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       101     75.2    1       4.0     1.28
-2.5.59-mm6      3       115     66.1    1       4.3     1.47
-2.5.59-mm7      5       96      79.2    0       3.3     1.23
-io_load:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       153     50.3    8       13.7    1.94
-2.5.59-mm6      2       90      83.3    2       6.7     1.15
-2.5.59-mm7      5       110     68.2    2       6.4     1.41
-read_load:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       102     76.5    5       4.9     1.29
-2.5.59-mm6      3       733     10.8    56      6.3     9.40
-2.5.59-mm7      4       90      84.4    1       1.3     1.15
-list_load:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       95      80.0    0       6.3     1.20
-2.5.59-mm6      3       97      79.4    0       6.2     1.24
-2.5.59-mm7      4       94      80.9    0       6.4     1.21
-mem_load:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       97      80.4    56      2.1     1.23
-2.5.59-mm6      3       94      83.0    50      2.1     1.21
-2.5.59-mm7      4       92      82.6    45      1.4     1.18
-dbench_load:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       126     60.3    3       22.2    1.59
-2.5.59-mm6      3       122     61.5    3       25.4    1.56
-2.5.59-mm7      4       121     62.0    2       24.8    1.55
-io_other:
-Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-2.5.59          3       89      84.3    2       5.5     1.13
-2.5.59-mm6      2       90      83.3    2       6.7     1.15
-2.5.59-mm7      3       90      83.3    2       5.6     1.15
+> exactly great. In doing that, I already notice unresolved symbols and warn 
+> about them, which I think is an improvement to the build process, missing 
+> EXPORT_SYMBOL()s tend to go unnoticed quite often otherwise.
 
-Seems the fix for "reads starves everything" works. Affected the tar loads 
-too? 
+The problem here is that we use System.map, it's not that difficult to 
+extract the exported symbols:
+objcopy -j .kstrtab -O binary vmlinux .export.tmp
+tr \\0 \\n < .export.tmp > Export.map
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+> Doing this postprocessing unconditionally would allow to generate the 
+> alias tables at this point as well.
+> 
+> And while we're at it, we could add another section which specifies which 
+> other modules this module depends on (a.k.a which symbols it uses), making 
+> depmod kinda obsolete.
 
-iD8DBQE+OvkcF6dfvkL3i1gRAihPAJ0dYEHFrIf6Ut1j1Kp62JGRkq076QCffpgE
-ztv0SsBWixlwn++QQ0XBuyg=
-=PSRo
------END PGP SIGNATURE-----
+It makes sense to keep depmod close to the linker, as both need the same 
+knowledge about resolving symbols, but I still don't know why that would 
+be a reason to put it into the kernel.
+It doesn't really matter if that information is generated during build or 
+at install, it just has to be at /lib/module/`uname -r` in a way modprobe 
+understands. BTW for my taste modprobe has too much knowledge about the 
+module layout, which actually belongs to the linker.
+
+I finally looked a bit closer at the module alias. The possibility of 
+wildcards is certainly interesting, but besides of this it looks to me as 
+if we exchange one crutch with another. The alias string is too static 
+and cryptic. Adding information to it requires changes at too many places 
+(let alone adding information dynamically).
+What I'd really like to see is a really generic but still simple system to 
+match devices and drivers, e.g. describing properties like this:
+
+bus=usb
+vendor=0x1234
+product=0x4321
+device=1-3,5
+
+Forcing the matching onto modprobe doesn't look like a good idea to me, as 
+IMO it takes too much away from hotplug. The alias string is not usable 
+for hotplug, but above properties can be used to trigger other operations
+beside module loading.
+
+bye, Roman
+

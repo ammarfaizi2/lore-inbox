@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277361AbRJEL6M>; Fri, 5 Oct 2001 07:58:12 -0400
+	id <S277362AbRJEL7b>; Fri, 5 Oct 2001 07:59:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277364AbRJEL6B>; Fri, 5 Oct 2001 07:58:01 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:4877 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S277362AbRJEL5w>;
-	Fri, 5 Oct 2001 07:57:52 -0400
-Date: Fri, 5 Oct 2001 13:58:20 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Problem compiling aic7xxx_old.c in 2.4.11-pre4
-Message-Id: <20011005135820.0ba7d93e.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S277365AbRJEL7W>; Fri, 5 Oct 2001 07:59:22 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:19987 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S277362AbRJEL7G>;
+	Fri, 5 Oct 2001 07:59:06 -0400
+Date: Fri, 5 Oct 2001 08:59:19 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>
+Cc: <linux-xfs@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: %u-order allocation failed
+In-Reply-To: <20011005130722.A6570@main.braxis.co.uk>
+Message-ID: <Pine.LNX.4.33L.0110050857080.4835-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Still the same:
+On Fri, 5 Oct 2001, Krzysztof Rusocki wrote:
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.11-pre4/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=i686    -c -o aic7xxx_old.o aic7xxx_old.c
-aic7xxx_old.c:11966: parse error before string constant
-aic7xxx_old.c:11966: warning: type defaults to `int' in declaration of
-`MODULE_LICENSE'
-aic7xxx_old.c:11966: warning: function declaration isn't a prototype
-aic7xxx_old.c:11966: warning: data definition has no type or storage class
-make[3]: *** [aic7xxx_old.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.11-pre4/drivers/scsi'
+> After simple bash fork bombing (about 200 forks) on my UP Celeron/96MB
+> I get quite a lot %u-allocations failed, but only when swap is turned
+> off.
 
-Regards,
-Stephan
+> I'm not familiar with LinuxVM.. so... is it normal behaviour ? or (if not)
+> what's happening when such messages are printed my kernel ?
+
+This is perfectly normal behaviour:
+
+1) on your system, you have no process limit configured for
+   yourself so you can start processes until all resources
+   (memory, file descriptors, ...) are used
+
+2) when all processes are used, there really is no way the
+   kernel can buy you more hardware on ebay and install it
+   on the fly ... all it can do is start failing allocations
+
+On production systems, good admins setup per-user limits for
+the various resources so no single user is able to run the
+system into the ground.
+
+regards,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

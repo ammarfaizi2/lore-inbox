@@ -1,72 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAIXw7>; Tue, 9 Jan 2001 18:52:59 -0500
+	id <S132579AbRAIXzT>; Tue, 9 Jan 2001 18:55:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132117AbRAIXwt>; Tue, 9 Jan 2001 18:52:49 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:50989 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129431AbRAIXws>; Tue, 9 Jan 2001 18:52:48 -0500
-Date: Wed, 10 Jan 2001 00:52:41 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Christoph Hellwig <hch@caldera.de>,
-        "David S. Miller" <davem@redhat.com>, riel@conectiva.com.br,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+	id <S132415AbRAIXzJ>; Tue, 9 Jan 2001 18:55:09 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:47373 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132117AbRAIXyy>; Tue, 9 Jan 2001 18:54:54 -0500
+Date: Tue, 9 Jan 2001 15:54:20 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Benjamin C.R. LaHaise" <blah@kvack.org>
+cc: Christoph Hellwig <hch@ns.caldera.de>, migo@elte.hu,
+        linux-kernel@vger.kernel.org
 Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Message-ID: <20010110005241.K29904@athlon.random>
-In-Reply-To: <20010109183808.A12128@suse.de> <Pine.LNX.4.30.0101091935461.7155-100000@e2> <20010109205420.H29904@athlon.random> <20010109211204.E12128@suse.de> <20010110002019.I29904@athlon.random> <20010110003435.K12128@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010110003435.K12128@suse.de>; from axboe@suse.de on Wed, Jan 10, 2001 at 12:34:35AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.3.96.1010109175317.7868A-100000@kanga.kvack.org>
+Message-ID: <Pine.LNX.4.10.10101091540130.2815-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 12:34:35AM +0100, Jens Axboe wrote:
-> Ah I see. It would be nice to base the QUEUE_NR_REQUEST on something else
-> than a static number. For example, 3000 per queue translates into 281Kb
-> of request slots per queue. On a typical system with a floppy, hard drive,
-> and CD-ROM it's getting close to 1Mb of RAM used for this alone. On a
-> 32Mb box this is unaccebtable.
 
-Yes of course. Infact 3000 was just the number I choosen when doing the
-benchmarks on a 128Mbox. Things needs to be autotuning and that's not yet
-implemented. I meant 3000 to tell how such number can grow. Right now if you
-use 3000 you will need to lock 1.5G of RAM (more than the normal zone!) before
-you can block with the 512K scsi commands.  This was just to show the rest of
-the blkdev layer was obviously restructured.  On a 8G box 10000 requests
-would probably be a good number.
 
-> Yes I see your point. However memory shortage will fire the queue in due
-> time, it won't make the WRITE block however. In this case it would be
+On Tue, 9 Jan 2001, Benjamin C.R. LaHaise wrote:
 
-That's the performance problem I'm talking about on the lowmem boxes. Infact
-this problem will happen in 2.4.x too, just less biased than with the
-512K scsi commands and by you increasing the number of requests from 256 to 512.
+> On Tue, 9 Jan 2001, Linus Torvalds wrote:
+> 
+> > The _lower-level_ stuff (ie TCP and the drivers) want the "array of
+> > tuples", and again, they do NOT want an array of pages, because if
+> > somebody does two sendfile() calls that fit in one packet, it really needs
+> > an array of tuples.
+> 
+> A kiobuf simply provides that tuple plus the completion callback.  Stick a
+> bunch of them together and you've got a kiovec.  I don't see the advantage
+> of moving to simpler primatives if they don't provide needed
+> functionality.
 
-> bdflush blocking on the WRITE's, which seem exactly what we don't want?
+Ehh.
 
-In 2.4.0 Linus fixed wakeup_bdflush not to wait bdflush anymore as I suggested,
-now it's the task context that sumbits the requests directly to the I/O queue
-so it's the task that must block, not bdflush. And the task will block correctly
-_if_ we unplug at the sane time in ll_rw_block.
+Let's re-state your argument:
 
-> So you imposed a MB limit on how much I/O would be outstanding in
-> blkdev_release_request? Wouldn't it make more sense to move this to at
+ "You could have used the existing, complex and cumbersome primitives that
+  had the wrong semantics. I don't see the advantage of pointing out the
+  fact that those primitives are badly designed for the problem at hand 
+  and moving to simpler and better designed primitives that fit the
+  problem well"
 
-No absolutely. Not in blkdev_release_request. The changes there
-are because you need to somehow do some accounting at I/O completion.
+Would you agree that that is the essense of what you said? And if not,
+then why not?
 
-> get_request time, since with the blkdev_release_request approach you won't
+> Please tell me what you think the right interface is that provides a hook
+> on io completion and is asynchronous.
 
-Yes, only ll_rw_block uplugs, not blkdev_release_request.  Obviously since the
-latter runs from irqs.
+Suggested fix to kiovec's: get rid of them. Immediately. Replace them with
+kiobuf's that can handle scatter-gather pages. kiobuf's have 90% of that
+support already.
 
-Andrea
+Never EVER have a "struct page **" interface. It is never the valid thing
+to do. You should have
+
+	struct fragment {
+		struct page *page;
+		__u16 offset, length;
+	}
+
+and then have "struct fragment **" inside the kiobuf's instead. Rename
+"nr_pages" as "nr_fragments", and get rid of the global offset/length, as
+they don't make any sense. Voila - your kiobuf is suddenly a lot more
+flexible.
+
+Finally, don't embed the static KIO_STATIC_PAGES array in the kiobuf. The
+caller knows when it makes sense, and when it doesn't. Don't embed that
+knowledge in fundamental data structures.
+
+In the meantime, I'm more than happy to make sure that the networking
+infrastructure is sane. Which implies that the networking infrastructure
+does NOT use kiovecs.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

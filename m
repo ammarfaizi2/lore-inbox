@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135659AbRD1WMU>; Sat, 28 Apr 2001 18:12:20 -0400
+	id <S131563AbRD1WTB>; Sat, 28 Apr 2001 18:19:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135660AbRD1WMK>; Sat, 28 Apr 2001 18:12:10 -0400
-Received: from cox.ee.ed.ac.uk ([129.215.80.253]:57776 "EHLO
-	postbox.ee.ed.ac.uk") by vger.kernel.org with ESMTP
-	id <S135659AbRD1WMF>; Sat, 28 Apr 2001 18:12:05 -0400
-X-At: Department of Electrical Engineering, The University of Edinburgh
-Date: Sat, 28 Apr 2001 23:11:51 +0100
-From: Michael F Gordon <Michael.Gordon@ee.ed.ac.uk>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Garett Spencley <gspen@home.com>,
-        Michael F Gordon <Michael.Gordon@ee.ed.ac.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 breaks dhcpcd with Realtek 8139
-Message-ID: <20010428231151.A11841@ee.ed.ac.uk>
-In-Reply-To: <Pine.LNX.4.30.0104281142520.3423-100000@localhost.localdomain> <Pine.LNX.4.33.0104281126570.16046-100000@dlang.diginsite.com>
+	id <S132756AbRD1WSw>; Sat, 28 Apr 2001 18:18:52 -0400
+Received: from pop.gmx.net ([194.221.183.20]:27177 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S135664AbRD1WSe>;
+	Sat, 28 Apr 2001 18:18:34 -0400
+Message-Id: <3.0.6.32.20010429001835.007ad3a0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Sun, 29 Apr 2001 00:18:35 +0200
+To: linux-kernel@vger.kernel.org, linux-parport@torque.net
+From: Felix Odenkirchen <F.Odenkirchen@gmx.net>
+Subject: 2.4.4 broken parport_pc.c as module on non-PCI machine
+Cc: torvalds@transmeta.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.13i
-In-Reply-To: <Pine.LNX.4.33.0104281126570.16046-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Sat, Apr 28, 2001 at 11:29:15AM -0700
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 28, 2001 at 11:29:15AM -0700, David Lang wrote:
-> what sort of switch are you plugged into? some Cisco switches have a
-> 'feature' that ignores all traffic from a port for X seconds after a
-> machine is plugged in / powered on on a port (they claim somehting about
-> preventing loops) it may be that the new kernel now boots up faster then
-> the old one so that the DHCP request is lost in the switch, a few seconds
-> later when you do it by hand the swich has enabled your port and
-> everything works.
+Hi all!
+Compiling plain 2.4.4 kernel on a i486 with_out_ PCI support, I encountered the following error with PC parallel port as a module:
 
-I'm plugged in to a cable modem, with the DHCP server at the ISP.  The
-server requires the MAC address to be registered, so sending the DHCP
-request with a different MAC address could cause the symptoms.  I doubt
-it's a timing problem - replacing the 8139 driver with the 2.4.3 version
-but otherwise using the distributed 2.4.4 makes DHCP work as expected.
+parport_pc.c: In function `parport_pc_find_ports':
+parport_pc.c:2618: too many arguments to function `parport_pc_init_superio'
+make[2]: *** [parport_pc.o] Error 1
+make[1]: *** [_modsubdir_parport] Error 2
+make: *** [_mod_drivers] Error 2
+
+This was caused by a non-pci substitute for __init parport_pc_init_superio which lacked the proper argument definitions. I tried to add those, and it compiled just fine for me.
+Therefor I proposed the appended fix.
+Any comments are welcome and encouraged, please CC me.
+/Felix
 
 
-Michael Gordon
+diff -urN linux.vanilla/drivers/parport/parport_pc.c linux/drivers/parport/parport_pc.c
+--- linux.vanilla/drivers/parport/parport_pc.c  Sat Apr 21 01:23:12 2001
++++ linux/drivers/parport/parport_pc.c  Sat Apr 28 19:27:22 2001
+@@ -2576,7 +2576,7 @@
+ }
+ #else
+ static struct pci_driver parport_pc_pci_driver;
+-static int __init parport_pc_init_superio(void) {return 0;}
++static int __init parport_pc_init_superio (int autoirq, int autodma) {return 0;}
+ #endif /* CONFIG_PCI */
+
+ /* This is called by parport_pc_find_nonpci_ports (in asm/parport.h) */
+
+-- 
++----------------------------------------------------------------------+
+     F.Odenkirchen@gmx.net        http://www.uni-karlsruhe.de/~ugyb
++----------------------------------------------------------------------+

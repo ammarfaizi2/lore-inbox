@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVBELeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbVBELkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbVBELeR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 06:34:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbVBELeR
+	id S262842AbVBELkK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 06:40:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVBELkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 06:34:17 -0500
-Received: from mailhub2.nextra.sk ([195.168.1.110]:12811 "EHLO toe.nextra.sk")
-	by vger.kernel.org with ESMTP id S261811AbVBELeJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 06:34:09 -0500
-Message-ID: <4204AF64.9060201@rainbow-software.org>
-Date: Sat, 05 Feb 2005 12:35:00 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Jon Smirl <jonsmirl@gmail.com>, ncunningham@linuxmail.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Reliable video POSTing on resume
-References: <e796392205020221387d4d8562@mail.gmail.com> <420217DB.709@gmx.net> <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz> <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net> <1107485504.5727.35.camel@desktop.cunninghams> <9e4733910502032318460f2c0c@mail.gmail.com> <20050204074454.GB1086@elf.ucw.cz> <9e473391050204093837bc50d3@mail.gmail.com> <20050205093550.GC1158@elf.ucw.cz>
-In-Reply-To: <20050205093550.GC1158@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 5 Feb 2005 06:40:09 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:7694 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S264912AbVBELiC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 06:38:02 -0500
+Date: Sat, 05 Feb 2005 20:39:00 +0900 (JST)
+Message-Id: <20050205.203900.66065862.yoshfuji@linux-ipv6.org>
+To: andre@tomt.net
+Cc: herbert@gondor.apana.org.au, davem@davemloft.net,
+       mirko.parthey@informatik.tu-chemnitz.de, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, shemminger@osdl.org, yoshfuji@linux-ipv6.org
+Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <4204AA7C.9010509@tomt.net>
+References: <20050204213813.4bd642ad.davem@davemloft.net>
+	<20050205061110.GA18275@gondor.apana.org.au>
+	<4204AA7C.9010509@tomt.net>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>>We already try to do that, but it hangs on 70% of machines. See
->>>Documentation/power/video.txt.
->>
->>We know that all of these ROMs are run at power on so they have to
->>work. This implies that there must be something wrong with the
->>environment the ROM are being run in. Video ROMs make calls into the
->>INT vectors of the system BIOS. If these haven't been set up yet
->>running the VBIOS is sure to hang.  Has someone with ROM source and
->>the appropriate debugging tools tried to debug one of these hangs?
->>Alternatively code could be added to wakeup.S to try and set these up
->>or dump the ones that are there and see if they are sane.
-> 
-> 
-> Rumors say that notebooks no longer have video bios at C000h:0; rumors
-> say that video BIOS on notebooks is simply integrated into main system
-> BIOS. I personaly do not know if rumors are true, but PCs are ugly
-> machines....
+In article <4204AA7C.9010509@tomt.net> (at Sat, 05 Feb 2005 12:14:04 +0100), Andre Tomt <andre@tomt.net> says:
 
-On systems with integrated graphics chips, there is no separate ROM chip 
-for Video BIOS. Instead, it's integrated into system BIOS (this is true 
-for onboard SCSI and pseudo-RAID controllerss too). During early 
-initialization, system BIOS decompresses and initializes these BIOSes 
-(if these is a PCI vendor ID and device ID match). (There is nothing 
-wrong with this - BIOSes on PCI cards should not be run directly from 
-the card's ROM but copied to RAM and executed from there instead 
-according to PCI spec.)
-After the POST is complete, the BIOSes are shadowed in RAM so Video BIOS 
-is at C000:0 - so you can run DOS for example.
+> This patch fixes my problems with hangs when dot1q VLAN interfaces gets 
+> removed when loopback is down, as reported in the thread "2.6.10 
+> ipv6/8021q lockup on vconfig on interface removal".
 
--- 
-Ondrej Zary
+Please tell me, why your lo is down...
+
+Anyway, if we really want to "fix" this,
+we should do in other way.
+
+I think "Make loopback idev stick around" patches
+(for IPv4 and IPv6) could be start of that.
+
+--yoshfuji

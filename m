@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263520AbUJ2WZD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263580AbUJ2Wix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263520AbUJ2WZD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 18:25:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbUJ2WX3
+	id S263580AbUJ2Wix (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 18:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUJ2Wde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 18:23:29 -0400
-Received: from out011pub.verizon.net ([206.46.170.135]:25001 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S263581AbUJ2UwB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:52:01 -0400
-Message-Id: <200410292051.i9TKptOi007283@localhost.localdomain>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4] 
-In-reply-to: Your message of "Fri, 29 Oct 2004 22:33:20 +0200."
-             <20041029203320.GC5186@elte.hu> 
-Date: Fri, 29 Oct 2004 16:51:55 -0400
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [141.151.88.122] at Fri, 29 Oct 2004 15:51:56 -0500
+	Fri, 29 Oct 2004 18:33:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34006 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261446AbUJ2W1U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 18:27:20 -0400
+Date: Fri, 29 Oct 2004 18:26:12 -0400
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove duplicate includes (fwd)
+Message-ID: <20041029222612.GI23841@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+References: <20041029214717.GW6677@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041029214717.GW6677@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  [ I trimmed the CC: line because several people there are on
-    jackit-devel. ]
+On Fri, Oct 29, 2004 at 11:47:17PM +0200, Adrian Bunk wrote:
 
->> compiles and boots fine. no observable change in xrun behaviour though. 
->
->ok, so there's something else going on as well - or i missed an ioctl. 
+ > --- linux-2.6.9-mm1-full/drivers/cpufreq/cpufreq_ondemand.c.old	2004-10-22 21:37:33.000000000 +0200
+ > +++ linux-2.6.9-mm1-full/drivers/cpufreq/cpufreq_ondemand.c	2004-10-22 21:52:35.000000000 +0200
+ > @@ -26,7 +26,6 @@
+ >  #include <linux/kmod.h>
+ >  #include <linux/workqueue.h>
+ >  #include <linux/jiffies.h>
+ > -#include <linux/config.h>
+ >  #include <linux/kernel_stat.h>
+ >  #include <linux/percpu.h>
 
-i really don't think the ioctl's are relevant. 
+Not only was this duplicated, but its also unnecessary as
+there are no CONFIG_ options in that file.
+You may want to add that checking to your script too.
 
-consider what will happen if jackd does make a system call that causes
-a major delay (say, because of the BKL). we will get an xrun, yes, but
-this will cause jackd to stop the audio interface and
-restart. max_delay is not affected by this behaviour.
- 
-as far as i can tell, the number reported by max_delay entirely (or
-almost entirely) represents problems in kernel scheduling, specifically
-with a combination of:
+I've killed them both in cpufreq-bk
 
-     a) handling the audio interface interrupt in time.
-     b) marking the relevant jackd thread runnable
-     c) context switching back to the relevant jackd thread
+thanks,
 
-things that jackd does once its running do not, it appear to me, have
-any impact on max_delay, which is based on the simple observation: 
+		Dave
 
-   "i was just woken, i expect to be awakened again in N usecs or
-   less.
 
---p

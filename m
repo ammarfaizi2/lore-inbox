@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129928AbQKESrq>; Sun, 5 Nov 2000 13:47:46 -0500
+	id <S129431AbQKETij>; Sun, 5 Nov 2000 14:38:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129822AbQKESrg>; Sun, 5 Nov 2000 13:47:36 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:24803 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129928AbQKESr0>; Sun, 5 Nov 2000 13:47:26 -0500
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Jonathan George <Jonathan.George@trcinc.com>,
-        "'matthew@mattshouse.com'" <matthew@mattshouse.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-test10 Sluggish After Load
-In-Reply-To: <Pine.LNX.4.05.10011051433540.9109-100000@humbolt.nl.linux.org>
-From: Christoph Rohland <cr@sap.com>
-Date: 05 Nov 2000 19:49:50 +0100
-Message-ID: <m3ofzufe41.fsf@linux.local>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
+	id <S129453AbQKETia>; Sun, 5 Nov 2000 14:38:30 -0500
+Received: from adsl-63-200-41-38.steelrain.org ([63.200.41.38]:13300 "EHLO
+	vaio.thor.sbay.org") by vger.kernel.org with ESMTP
+	id <S129431AbQKETiW>; Sun, 5 Nov 2000 14:38:22 -0500
+Date: Sun, 5 Nov 2000 11:37:59 -0800 (PST)
+From: Dave Zarzycki <dave@thor.sbay.org>
+To: Alexander Viro <viro@math.psu.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: taskfs and kernfs
+In-Reply-To: <Pine.GSO.4.21.0011051213570.25503-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0011050934080.1045-100000@vaio.thor.sbay.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rik,
+On Sun, 5 Nov 2000, Alexander Viro wrote:
 
-Rik van Riel <riel@conectiva.com.br> writes:
-> On 4 Nov 2000, Christoph Rohland wrote:
-> > I do see two problems here:
-> > 1) shm_swap_core does not handle the failure of prepare_higmem_swapout
-> >    right and basically cannot do so. It gets called zone independant
-> >    and should probably get called per zone. At least it has to react:
-> 
-> AFAIC try_to_swap_out can handle this situation fine, it
-> shouldn't be very difficult to get shm_swap to handle it
-> too...
+> However, kernfs is _not_ procfs \setminus procfs-proper. It's our current
+> /proc/sys.
 
-No I do not think that try_to_swap_out does handle this. It also
-simply fails on this. I have seen lockups after try_to_swap_out
-failing on prepare_higmem_swapout.
+Okay. I didn't realize that's what you had in mind when you wrote
+"kernfs." Mind if I ask why you didn't call it "sysctlfs" or "sysfs?"
 
-> > You see: you only have 5+27+27=59 pages under your control...
-> 
-> Ughhhh. Maybe we need some rebalancing there as well.
-> That's a maximum of 5 pages of executable text mapped
-> into all processes...
+In you earlier e-mail, you suggested that sysctl(2) would use path_walk().
+Would that mean that your kernfs would have to be loaded into the kernel
+and mounted for sysctl(2) to work? Or am I missing something obvious?
 
-Yes, that's reasonable in my test case...
+davez
 
-Greetings
-                Christoph
+-- 
+Dave Zarzycki
+http://thor.sbay.org/~dave/
+
+
+
+
+
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

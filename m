@@ -1,232 +1,168 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312872AbSDOPtc>; Mon, 15 Apr 2002 11:49:32 -0400
+	id <S312889AbSDOP44>; Mon, 15 Apr 2002 11:56:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312885AbSDOPtb>; Mon, 15 Apr 2002 11:49:31 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:4627 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S312872AbSDOPt3>; Mon, 15 Apr 2002 11:49:29 -0400
-Date: Mon, 15 Apr 2002 12:49:07 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] for_each_zone / for_each_pgdat
-Message-ID: <Pine.LNX.4.44L.0204151248350.16531-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S312891AbSDOP4z>; Mon, 15 Apr 2002 11:56:55 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:48536 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S312889AbSDOP4y>; Mon, 15 Apr 2002 11:56:54 -0400
+Date: Mon, 15 Apr 2002 10:56:47 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Corporal Pisang <Corporal_Pisang@Counter-Strike.com.my>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: error compiling 2.5.8
+In-Reply-To: <20020415161601.31430a76.Corporal_Pisang@Counter-Strike.com.my>
+Message-ID: <Pine.LNX.4.44.0204151054240.13828-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-replace slightly obscure while loops with for_each_zone and
-for_each_pgdat macros, this version has the added optimisation
-of skipping empty zones       (thanks to William Lee Irwin)
+On Mon, 15 Apr 2002, Corporal Pisang wrote:
 
--- 
-Hi Linus,                                  [retransmit #1]
+> this error also occured in 2.5.8pre2, 2.5.8pre3, and now 2.5.8final.
 
-this patch cleans up the VM a little bit and has a microoptimisation
-to skip zones of size zero.  You can apply this mail or pull the
-changes from:
+> init/main.o(.text.init+0x675): undefined reference to `setup_per_cpu_areas'
 
-	bk://linuxvm.bkbits.net/linux-2.5-for-linus/
+Some patches I needed to get 2.5.8 to compile are appended. They'll fix 
+the issue above.
 
-please apply,
-
-thanks,
-
-Rik
+--Kai
 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.456   -> 1.457
-#	include/linux/mmzone.h	1.8     -> 1.9
-#	     mm/page_alloc.c	1.44    -> 1.45
-#	         mm/vmscan.c	1.59    -> 1.60
-#	        mm/bootmem.c	1.8     -> 1.9
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/04/11	riel@duckman.distro.conectiva	1.457
-# replace slightly obscure while loops with for_each_zone and
-# for_each_pgdat macros, this version has the added optimisation
-# of skipping empty zones       (thanks to William Lee Irwin)
-# --------------------------------------------
-#
-diff -Nru a/include/linux/mmzone.h b/include/linux/mmzone.h
---- a/include/linux/mmzone.h	Thu Apr 11 21:23:50 2002
-+++ b/include/linux/mmzone.h	Thu Apr 11 21:23:50 2002
-@@ -157,6 +157,62 @@
+Pull from http://linux-isdn.bkbits.net/linux-2.5.misc
 
- extern pg_data_t contig_page_data;
+(Merging changesets omitted for clarity)
 
-+/**
-+ * for_each_pgdat - helper macro to iterate over all nodes
-+ * @pgdat - pg_data_t * variable
-+ *
-+ * Meant to help with common loops of the form
-+ * pgdat = pgdat_list;
-+ * while(pgdat) {
-+ *     ...
-+ *     pgdat = pgdat->node_next;
-+ * }
-+ */
-+#define for_each_pgdat(pgdat) \
-+	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+
-+/*
-+ * next_zone - helper magic for for_each_zone()
-+ * Thanks to William Lee Irwin III for this piece of ingenuity.
-+ */
-+static inline zone_t *next_zone(zone_t *zone)
+-----------------------------------------------------------------------------
+ChangeSet@1.457, 2002-04-14 20:29:44-05:00, kai@tp1.ruhr-uni-bochum.de
+  Fix setup_per_pcu_areas() for UP compile
+  
+  For !CONFIG_SMP we want the empty inline setup_per_cpu_areas().
+  If CONFIG_SMP is set, we never want the empty inline. If we use the
+  generic implementation, we have it here, if not the arch has it somwhere
+  else (hopefully).
+  
+
+ ----------------------------------------------------------------------------
+ main.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+-----------------------------------------------------------------------------
+ChangeSet@1.458, 2002-04-14 20:31:09-05:00, kai@tp1.ruhr-uni-bochum.de
+  Avoid a compile-time warning in bluesmoke.c
+  
+  (intel_thermal_interrupt() defined but not used)
+
+ ----------------------------------------------------------------------------
+ bluesmoke.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+-----------------------------------------------------------------------------
+ChangeSet@1.459, 2002-04-14 20:31:37-05:00, kai@tp1.ruhr-uni-bochum.de
+  Fix neofb.c to use strsep.
+
+ ----------------------------------------------------------------------------
+ neofb.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+
+
+
+=============================================================================
+unified diffs follow for reference
+=============================================================================
+
+-----------------------------------------------------------------------------
+ChangeSet@1.457, 2002-04-14 20:29:44-05:00, kai@tp1.ruhr-uni-bochum.de
+  Fix setup_per_pcu_areas() for UP compile
+  
+  For !CONFIG_SMP we want the empty inline setup_per_cpu_areas().
+  If CONFIG_SMP is set, we never want the empty inline. If we use the
+  generic implementation, we have it here, if not the arch has it somwhere
+  else (hopefully).
+  
+
+  ---------------------------------------------------------------------------
+
+diff -Nru a/init/main.c b/init/main.c
+--- a/init/main.c	Mon Apr 15 10:55:50 2002
++++ b/init/main.c	Mon Apr 15 10:55:50 2002
+@@ -271,6 +271,10 @@
+ #define smp_init()	do { } while (0)
+ #endif
+ 
++static inline void setup_per_cpu_areas(void)
 +{
-+	pg_data_t *pgdat = zone->zone_pgdat;
-+
-+	do {
-+		if (zone - pgdat->node_zones < MAX_NR_ZONES - 1)
-+			zone++;
-+
-+		else if (pgdat->node_next) {
-+			pgdat = pgdat->node_next;
-+			zone = pgdat->node_zones;
-+		} else
-+			zone = NULL;
-+	/* Skip zones of size 0 ... */
-+	} while (zone && !zone->size);
-+
-+	return zone;
 +}
 +
-+/**
-+ * for_each_zone - helper macro to iterate over all memory zones
-+ * @zone - zone_t * variable
-+ *
-+ * The user only needs to declare the zone variable, for_each_zone
-+ * fills it in. This basically means for_each_zone() is an
-+ * easier to read version of this piece of code:
-+ *
-+ * for(pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+ *     for(i = 0; i < MAX_NR_ZONES; ++i) {
-+ *             zone_t * z = pgdat->node_zones + i;
-+ *             ...
-+ *     }
-+ * }
-+ */
-+#define for_each_zone(zone) \
-+	for(zone = pgdat_list->node_zones; zone; zone = next_zone(zone))
-+
-+
- #ifndef CONFIG_DISCONTIGMEM
+ #else
+ 
+ #ifdef __GENERIC_PER_CPU
+@@ -294,10 +298,6 @@
+ 		__per_cpu_offset[i] = ptr - __per_cpu_start;
+ 		memcpy(ptr, __per_cpu_start, size);
+ 	}
+-}
+-#else
+-static inline void setup_per_cpu_areas(void)
+-{
+ }
+ #endif /* !__GENERIC_PER_CPU */
+ 
 
- #define NODE_DATA(nid)		(&contig_page_data)
-diff -Nru a/mm/bootmem.c b/mm/bootmem.c
---- a/mm/bootmem.c	Thu Apr 11 21:23:50 2002
-+++ b/mm/bootmem.c	Thu Apr 11 21:23:50 2002
-@@ -338,12 +338,11 @@
- 	pg_data_t *pgdat = pgdat_list;
- 	void *ptr;
+-----------------------------------------------------------------------------
+ChangeSet@1.458, 2002-04-14 20:31:09-05:00, kai@tp1.ruhr-uni-bochum.de
+  Avoid a compile-time warning in bluesmoke.c
+  
+  (intel_thermal_interrupt() defined but not used)
 
--	while (pgdat) {
-+	for_each_pgdat(pgdat)
- 		if ((ptr = __alloc_bootmem_core(pgdat->bdata, size,
- 						align, goal)))
- 			return(ptr);
--		pgdat = pgdat->node_next;
--	}
-+
- 	/*
- 	 * Whoops, we cannot satisfy the allocation request.
- 	 */
-diff -Nru a/mm/page_alloc.c b/mm/page_alloc.c
---- a/mm/page_alloc.c	Thu Apr 11 21:23:50 2002
-+++ b/mm/page_alloc.c	Thu Apr 11 21:23:50 2002
-@@ -482,14 +482,10 @@
+  ---------------------------------------------------------------------------
+
+diff -Nru a/arch/i386/kernel/bluesmoke.c b/arch/i386/kernel/bluesmoke.c
+--- a/arch/i386/kernel/bluesmoke.c	Mon Apr 15 10:55:51 2002
++++ b/arch/i386/kernel/bluesmoke.c	Mon Apr 15 10:55:51 2002
+@@ -33,9 +33,9 @@
+  *	P4/Xeon Thermal transition interrupt handler
+  */
+ 
++#ifdef CONFIG_X86_LOCAL_APIC
+ static void intel_thermal_interrupt(struct pt_regs *regs)
  {
- 	unsigned int sum;
- 	zone_t *zone;
--	pg_data_t *pgdat = pgdat_list;
-
- 	sum = 0;
--	while (pgdat) {
--		for (zone = pgdat->node_zones; zone < pgdat->node_zones + MAX_NR_ZONES; zone++)
-+	for_each_zone(zone)
- 			sum += zone->free_pages;
--		pgdat = pgdat->node_next;
--	}
- 	return sum;
+-#ifdef CONFIG_X86_LOCAL_APIC
+ 	u32 l, h;
+ 	unsigned int cpu = smp_processor_id();
+ 
+@@ -48,8 +48,8 @@
+ 	} else {
+ 		printk(KERN_INFO "CPU#%d: Temperature/speed normal\n", cpu);
+ 	}
+-#endif
  }
++#endif
+ 
+ static void unexpected_thermal_interrupt(struct pt_regs *regs)
+ {	
 
-@@ -501,7 +497,7 @@
- 	pg_data_t *pgdat = pgdat_list;
- 	unsigned int sum = 0;
+-----------------------------------------------------------------------------
+ChangeSet@1.459, 2002-04-14 20:31:37-05:00, kai@tp1.ruhr-uni-bochum.de
+  Fix neofb.c to use strsep.
 
--	do {
-+	for_each_pgdat(pgdat) {
- 		zonelist_t *zonelist = pgdat->node_zonelists + (GFP_USER & GFP_ZONEMASK);
- 		zone_t **zonep = zonelist->zones;
- 		zone_t *zone;
-@@ -512,9 +508,7 @@
- 			if (size > high)
- 				sum += size - high;
- 		}
--
--		pgdat = pgdat->node_next;
--	} while (pgdat);
-+	}
+  ---------------------------------------------------------------------------
 
- 	return sum;
- }
-@@ -522,13 +516,12 @@
- #if CONFIG_HIGHMEM
- unsigned int nr_free_highpages (void)
- {
--	pg_data_t *pgdat = pgdat_list;
-+	pg_data_t *pgdat;
- 	unsigned int pages = 0;
-
--	while (pgdat) {
-+	for_each_pgdat(pgdat)
- 		pages += pgdat->node_zones[ZONE_HIGHMEM].free_pages;
--		pgdat = pgdat->node_next;
--	}
-+
- 	return pages;
- }
- #endif
-diff -Nru a/mm/vmscan.c b/mm/vmscan.c
---- a/mm/vmscan.c	Thu Apr 11 21:23:50 2002
-+++ b/mm/vmscan.c	Thu Apr 11 21:23:50 2002
-@@ -655,10 +655,8 @@
-
- 	do {
- 		need_more_balance = 0;
--		pgdat = pgdat_list;
--		do
-+		for_each_pgdat(pgdat)
- 			need_more_balance |= kswapd_balance_pgdat(pgdat);
--		while ((pgdat = pgdat->node_next));
- 	} while (need_more_balance);
- }
-
-@@ -681,12 +679,11 @@
- {
- 	pg_data_t * pgdat;
-
--	pgdat = pgdat_list;
--	do {
-+	for_each_pgdat(pgdat) {
- 		if (kswapd_can_sleep_pgdat(pgdat))
- 			continue;
- 		return 0;
--	} while ((pgdat = pgdat->node_next));
-+	}
-
- 	return 1;
- }
+diff -Nru a/drivers/video/neofb.c b/drivers/video/neofb.c
+--- a/drivers/video/neofb.c	Mon Apr 15 10:55:52 2002
++++ b/drivers/video/neofb.c	Mon Apr 15 10:55:52 2002
+@@ -2365,7 +2365,7 @@
+   if (!options || !*options)
+     return 0;
+ 
+-  for (this_opt=strtok(options,","); this_opt; this_opt=strtok(NULL,","))
++  while ((this_opt = strsep(&options,",")) != NULL)
+     {
+       if (!*this_opt) continue;
+ 
 
 

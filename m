@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262099AbREXPSR>; Thu, 24 May 2001 11:18:17 -0400
+	id <S262100AbREXPbJ>; Thu, 24 May 2001 11:31:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262094AbREXPSH>; Thu, 24 May 2001 11:18:07 -0400
-Received: from www.inreko.ee ([195.222.18.2]:952 "EHLO www.inreko.ee")
-	by vger.kernel.org with ESMTP id <S262088AbREXPR6>;
-	Thu, 24 May 2001 11:17:58 -0400
-Date: Thu, 24 May 2001 17:20:27 +0200
-From: Marko Kreen <marko@l-t.ee>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Edgar Toernig <froese@gmx.de>, Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: CHR/BLK needed?   was: Re: Why side-effects on open...
-Message-ID: <20010524172026.A6731@l-t.ee>
-In-Reply-To: <20010524094717.A23722@l-t.ee> <Pine.LNX.4.30.0105240937490.16271-100000@waste.org>
-Mime-Version: 1.0
+	id <S262112AbREXPa7>; Thu, 24 May 2001 11:30:59 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:18450 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S262100AbREXPam>; Thu, 24 May 2001 11:30:42 -0400
+From: rjd@xyzzy.clara.co.uk
+Message-Id: <200105241530.f4OFUdw27786@xyzzy.clara.co.uk>
+Subject: Re: SyncPPP IPCP/LCP loop problem and patch
+To: paulkf@microgate.com (Paul Fulghum)
+Date: Thu, 24 May 2001 16:30:39 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org
+In-Reply-To: <01a801c0e2ea$dfffc5c0$0c00a8c0@diemos> from "Paul Fulghum" at May 22, 2001 06:27:34 
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0105240937490.16271-100000@waste.org>; from oxymoron@waste.org on Thu, May 24, 2001 at 09:39:35AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 24, 2001 at 09:39:35AM -0500, Oliver Xymoron wrote:
-> On Thu, 24 May 2001, Marko Kreen wrote:
-> > IMHO the CHR/BLK is not needed.  Think of /proc.  In the future,
-> > the backup tools will be told to ignore /dev, that's all.
+Paul Fulghum wrote:
 > 
-> The /dev dir should not be special. At least not to the kernel. I have
-> device files in places other than /dev, and you probably do too (hint:
-> anonymous FTP).
+> RFC1661 state table shows a transition to req-sent
+> from opened when a (properly formated with 
+> correct sequence ID) cfg-ack is received.
+> 
+> Syncppp does not do this (from sppp_lcp_input):
+...
+> Maybe adding:
+> 
+>   case LCP_STATE_OPENED:
+>    sppp_lcp_open (sp);
+>    sp->ipcp.state = IPCP_STATE_CLOSED;
+>    sp->lcp.state = LCP_STATE_REQ_SENT;
+>    break;
 
-So?  Do you allow downloading from/to /dev in your chrooted ftp?
+Thanks for the suggestion. I tried it and found that Linux syncppp does not
+have a LCP_STATE_REQ_SENT the nearest alternate being LCP_STATE_CLOSED.
+Looking at the RFC these are by no means compatable. Adding the extra state
+and coding the transitions would not be difficult but as I've looked at it
+I've seen more and more ommissions in the code. The magic number is not
+randomised very well, jiffies is not a great random number :-)  Parameter
+negotiation only takes place for the magic number plus dummys for MRU and
+ACCM, I'm not even sure that enforcing and ACCM of all zeros is required.
+If the remote end sends us a config request without a magic number we end
+up testing an uninitialised variable, and so on.
 
-Ofcourse this is not hard-wired or something.  You tell devfsd
-to put dev's somewhere.  Next moment you edit backup config
-and tell it to igrore that /somewhere.  As I said: like /proc
-currently is.  Or should current /proc converted to CHR devices?
-
-My idea is (well, 'devfs2' - I have the core almost working now)
-that the 'devices' will be VFS only objects - they live
-only in inode cache (on ramfs).  So the CHR/BLK flags are only
-backwards compatibility for supporting major:minors for /dev on
-eg ext2.  Currently I think exposing device inodes as ordinary
-files (or dirs if needed), so they look like any file to
-programs.  Will this break too much?  Another variant would be
-to expose them as S_IFDEV - which probably breaks even more.
-
+Who's the owner for syncppp.c ?  I might be able to put some time in on
+it, but would hate to be sending patches into empty space.
 
 -- 
-marko
-
+        Bob Dunlop                      FarSite Communications
+        rjd@xyzzy.clara.co.uk           bob.dunlop@farsite.co.uk
+        www.xyzzy.clara.co.uk           www.farsite.co.uk

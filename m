@@ -1,75 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292272AbSBTURv>; Wed, 20 Feb 2002 15:17:51 -0500
+	id <S292276AbSBTUUL>; Wed, 20 Feb 2002 15:20:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292281AbSBTURg>; Wed, 20 Feb 2002 15:17:36 -0500
-Received: from tomts15-srv.bellnexxia.net ([209.226.175.3]:47773 "EHLO
-	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S292272AbSBTURS>; Wed, 20 Feb 2002 15:17:18 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [PATCH] struct page, new bk tree
-Date: Wed, 20 Feb 2002 15:17:12 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Larry McVoy <lm@bitmover.com>
-In-Reply-To: <Pine.LNX.4.33L.0202192044140.7820-100000@imladris.surriel.com> <20020219155706.H26350@work.bitmover.com>
-In-Reply-To: <20020219155706.H26350@work.bitmover.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020220201716.45A574E2E@oscar.casa.dyndns.org>
+	id <S292281AbSBTUUC>; Wed, 20 Feb 2002 15:20:02 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:24807 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S292276AbSBTUTq>; Wed, 20 Feb 2002 15:19:46 -0500
+Date: Wed, 20 Feb 2002 13:36:19 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Steffen Persvold <sp@scali.com>
+Cc: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
+        linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2
+Message-ID: <20020220133619.A729@vger.timpanogas.org>
+In-Reply-To: <20020220.093034.112623671.davem@redhat.com> <Pine.LNX.4.30.0202201940480.20082-100000@elin.scali.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0202201940480.20082-100000@elin.scali.no>; from sp@scali.com on Wed, Feb 20, 2002 at 07:44:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my opinion the idea of cset -x (while usefull) is fundamentally
-broken.  The result of this is that ideas like blacklist need to be
-considered.  I would propose instead an undo -x, that would
-generate a cset to reverse the one following the -x.  This might
-lead to conflicts - these would be resolved the normal bk fashion.
-If bk handled ¯bad¯ csets in this manner there would be no need for
-blacklists - it is more robust in that you can always used undo -x.
-
-Comments?
-Ed Tomlinson
-
-On February 19, 2002 06:57 pm, Larry McVoy wrote:
-> On Tue, Feb 19, 2002 at 08:47:17PM -0300, Rik van Riel wrote:
-> > I've removed the old (broken) bitkeeper tree with the
-> > struct page changes and have put a new one in the same
-> > place ... with the struct page changes in one changeset
-> > with ready checkin comment.
+On Wed, Feb 20, 2002 at 07:44:58PM +0100, Steffen Persvold wrote:
+> On Wed, 20 Feb 2002, David S. Miller wrote:
+> 
+> >    From: Jeff Garzik <jgarzik@mandrakesoft.com>
+> >    Date: Wed, 20 Feb 2002 12:26:12 -0500
 > >
-> > You can resync from bk://linuxvm.bkbits.net/linux-2.5-struct_page
-> > and you'll see that the stupid etc/config change is no longer there.
->
-> Since you two are doing the BK dance, here's a question for you:
-> I can imagine that this sort of back and forth will happen quite a bit,
-> someone makes a change, then Linus (or whoever) says "no way", and the
-> developer goes back, cleans up the change, and repeats.  That's fine for
-> Linus & Rik because Linus tosses the changeset and Rik tosses it, but
-> what about the other people who have pulled?  Those changesets are now
-> wandering around in the network, just waiting to pop back into a tree.
->
-> This is at the core of my objections to the "reorder the events" theme
-> which we had a while back.  You can reorder all you want, but if there
-> are other copies of the events floating around out there, they may come
-> back.
->
-> A long time ago, there was some discussion of a changeset blacklist.
-> The idea being that if you want to reorder/rewrite/whatever, and your
-> changes have been pulled/pushed/whatever, then it would be good to be
-> able to state that in the form of some list which may be used to see
-> if you have garbage changesets.
->
-> We could have a --blacklist option to undo which says "undo these
-> changes but remember their "names" in the BitKeeper/etc/blacklist file.
-> The next changeset you make will check in that file.  Note that each
-> changeset has a unique name which is used internally, somewhat like a
-> file has an inode number.  So we can save those names.  Then if you do
-> a pull or someone does a push, the incoming csets can be compared with
-> the blacklist and rejected if found.
->
-> Do you think this would be useful?  Would you use it if we made it?
+> >    type abuse aside, and alpha bugs aside, this looks ok... what is the
+> >    value of as->msize?
+> >
+> > Jeff and Jeff, the problem is one of two things:
+> >
+> > 1) when you have ~2GB of memory the vmalloc pool is very small
+> >    and this it the same place ioremap allocations come from
+> >
+> > 2) the BIOS or Linus is not assigning resources of the device
+> >    properly, or it simple can't because the available PCI MEM space
+> >    with this much memory is too small
+> >
+> > I note that one of the resources of the card is 16MB or so.
+> 
+> Hi guys,
+> 
+> There is actually no need to have all three regions mapped at all times is
+> there Jeff ? In the Scali ICM driver we actually doesn't ioremap() the
+> prefetchable space at all because this is done with the mmap() method to
+> the userspace clients. If you have a kernel space client though ioremap()
+> is used, but only the parts of it that is needed (based on the number of
+> nodes in the cluser and the shared memory size per node).
+> 
+> Regards,
+> 
+
+
+I am not using the adapters in user space, I am using them in kernel 
+space with a distributed RAID agent and file system.  This is a general 
+issue with Hugo's SISCI and IRM drivers and Linux.  They all need to work
+in every configuration.  If it works with less than 1 GB is should work 
+with > 1GB of memory.
+
+I am looking through get_vm_area() since this is where the bug is.  Your
+Scali drivers are not the Dolphin released IRM/SISCI but custom drivers
+you guys sell with **YOUR** software versions, and they are far from
+general purpose.  
+
+Jeff
+ 
+
+
+
+>  --
+>   Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
+>  mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
+> Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
+> Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency

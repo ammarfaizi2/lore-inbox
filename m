@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265944AbUFIT6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264159AbUFIUD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265944AbUFIT6M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 15:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265945AbUFIT6M
+	id S264159AbUFIUD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 16:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265825AbUFIUD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 15:58:12 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:62218 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S265944AbUFIT6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 15:58:11 -0400
-Subject: RE: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Robert White <rwhite@casabyte.com>, "'Ingo Molnar'" <mingo@elte.hu>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Mike McCormack'" <mike@codeweavers.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.56.0406091911340.26677@jjulnx.backbone.dif.dk>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAWUyJbbFwtUuY/ZGbgGI8TwEAAAAA@casabyte.com>
-	 <Pine.LNX.4.56.0406091911340.26677@jjulnx.backbone.dif.dk>
-Content-Type: text/plain
-Date: Wed, 09 Jun 2004 21:58:15 +0200
-Message-Id: <1086811095.1982.5.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Jun 2004 16:03:26 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:51423 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S264159AbUFIUDY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 16:03:24 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: 2.6.7-rc3-mm1
+Date: Wed, 9 Jun 2004 13:03:15 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024055CD5F0@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: 2.6.7-rc3-mm1
+Thread-Index: AcROXMzmTnbX/UarRK6yL6uGiwxhVw==
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Nguyen, Tom L" <tom.l.nguyen@intel.com>, "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 09 Jun 2004 20:03:16.0946 (UTC) FILETIME=[CDC5B320:01C44E5C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-09 at 19:14 +0200, Jesper Juhl wrote:
+On Wednesday, June 09, 2004 10:05 AM, William Lee Irwin III wrote:
 
-> Just having the abillity to turn protection off opens the door. If it is
-> possible to turn it off then a way will be found to do it - either via
-> buggy kernel code or otherwhise. Only safe approach is to have it
-> enabled by default and not be able to turn it off IMHO.
+>On Wed, Jun 09, 2004 at 01:35:15PM -0300, Norberto Bensa wrote:
+>>   CC      drivers/pci/msi.o
+>> drivers/pci/msi.c: In function `msi_address_init':
+>> drivers/pci/msi.c:265: error: invalid operands to binary <<
+>> make[2]: *** [drivers/pci/msi.o] Error 1
+>> make[1]: *** [drivers/pci] Error 2
+>> make: *** [drivers] Error 2
+>> The offending line is:
+>> 
+>>         msi_address->lo_address.value |= (MSI_TARGET_CPU <<
+MSI_TARGET_CPU_SHIFT);
+>
+>The MSI writers have a lot to answer for. Could you test this?
 
-Much like LIDS works... You can configure, at build time, the kernel so
-you can't switch the LIDS protection at all. Moreover, in case you want
-to allow switching LIDS on/off, you can restrict such change to a
-program that is running, at most, at the console, or over a serial line.
+I am looking into it now. 
 
-IMHO, I think that by definition, and programatically, allowing NX/
-ExecShield to be turned on and off is an exploitable way of cracking a
-system. I'd better like the LIDS approach.
-
+Thanks,
+Long

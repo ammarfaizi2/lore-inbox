@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbUJLTFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267536AbUJLTFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267518AbUJLTFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 15:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUJLTFZ
+	id S267536AbUJLTFl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 15:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267561AbUJLTFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 15:05:25 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:744 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267518AbUJLTFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 15:05:18 -0400
-Subject: Re: 2.6.9-rc4-mm1 Oops [2]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Mathieu Segaud <matt@minas-morgul.org>, sboyce@blueyonder.co.uk,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200410121607.i9CG7PsQ001076@turing-police.cc.vt.edu>
-References: <416B9517.7010708@blueyonder.co.uk>
-	 <877jpwi8cg.fsf@barad-dur.crans.org>
-	 <200410121607.i9CG7PsQ001076@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1097607706.1553.79.camel@krustophenia.net>
+	Tue, 12 Oct 2004 15:05:41 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:23767 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267536AbUJLTFe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 15:05:34 -0400
+Message-ID: <c25b25320410121205586f32f4@mail.gmail.com>
+Date: Tue, 12 Oct 2004 12:05:34 -0700
+From: Richard Hubbell <richard.hubbell@gmail.com>
+Reply-To: Richard Hubbell <richard.hubbell@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: sound problems in 2.6.8.1 w/ EMU10K1
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 12 Oct 2004 15:01:46 -0400
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-12 at 12:07, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 12 Oct 2004 11:39:11 +0200, Mathieu Segaud said:
-> > Sid Boyce <sboyce@blueyonder.co.uk> disait dernièrement que :
-> > 
-> > > This one on attempting to start firefox.
-> > > Regards
-> > > Sid.
-> > 
-> > about the 2 reports you made about oopses, try this
-> > cd /path/to/your/kernel/source
-> > wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/
-> 2.6.9-rc4-mm1/nroken-out/optimize-profile-path-slightly.patch
-> > patch -R -p1 -i optimize-profile-path-slightly.patch
-> 
-> I started seeing the same problem on -rc4-mm1, and couldn't figure out why
-> I didn't see it on -rc3-mm3.  Finally figured out that it was because the
-> -rc3-mm3 had a -VP patch on it, and the -rc4-mm1 didn't (because of the
-> UP build problems in -T5).  Ingo's patch also reverts that patch, so I got
-> the fix 'free of charge'....
+I compiled a 2.6.8.1 kernel and something has changed so that sound
+works much differently.
+At first I thought that it wasn't working at all, but with a bunch of
+fiddling around I found I could get sound.  It's not clear to me if
+this is an ALSA problem, kernel problem or both.  The first thing I
+discovered was that with programs like xmms I had to change the device
+to be hw:0,3 instead of the usual default of hw:0,0 .  Let's see if I
+can provide some more context....
 
-I assumed that Ingo added this to the VP patch intentionally so he
-didn't get a zillion bug reports.
+ All the devices look correct in /dev/snd/*, I use no modules but
+rather compile all into the kernel.  Everything in /proc/asound looks
+as it should.  (Of I never really had to look there
+in previous kernels where sound was working).  The EMU10K1 (SBLive)
+appears as card 0 and device 0 (as well as the other devices on that
+card).  My ALSA lib versions match the kernel version.
 
-Lee
+My problems:
 
+1.  default sound isn't working,  to make some apps work I created an
+~/.asound file
+     to specifiy the default to be  hw:0,3  (i.e. card0, device3 or pcmC0D3p)
+
+2.  I can no longer play mono 8000 Hz sounds, attempting to do so hard locks
+     the machine and requires a power cycle to recover.
+
+I can provide more context if you think it will help.  Should this go
+to ALSA instead?
+
+Thanks in advance,
+Richard

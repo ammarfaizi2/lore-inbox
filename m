@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135264AbRADUuB>; Thu, 4 Jan 2001 15:50:01 -0500
+	id <S133104AbRADU7o>; Thu, 4 Jan 2001 15:59:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135292AbRADUtv>; Thu, 4 Jan 2001 15:49:51 -0500
-Received: from dip-32-7.hh1.access.pop.de ([212.79.32.7]:2944 "EHLO
-	gerlin1.hsp-law.de") by vger.kernel.org with ESMTP
-	id <S135264AbRADUto>; Thu, 4 Jan 2001 15:49:44 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Chris Wedgwood <cw@f00f.org>, "Marco d'Itri" <md@Linux.IT>,
-        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <Pine.LNX.4.10.10012252135390.7059-100000@penguin.transmeta.com>
-From: Ralf Gerbig <gerbig@ibm.net>
-Date: 04 Jan 2001 21:44:10 +0100
-In-Reply-To: <Pine.LNX.4.10.10012252135390.7059-100000@penguin.transmeta.com>
-Message-ID: <m0lmsrdp45.fsf-gerbig@ibm.net>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.2 (Notus)
+	id <S135219AbRADU7e>; Thu, 4 Jan 2001 15:59:34 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:56147 "EHLO
+	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S133104AbRADU7S>; Thu, 4 Jan 2001 15:59:18 -0500
+Date: Thu, 4 Jan 2001 23:06:25 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Sven Koch <haegar@cut.de>
+cc: Andre Hedrick <andre@linux-ide.org>,
+        Kernel devel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+In-Reply-To: <Pine.LNX.4.30.0101042139270.28511-100000@space.comunit.de>
+Message-ID: <Pine.LNX.4.21.0101042305230.4116-100000@server.serve.me.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-* "Linus" == Linus Torvalds <torvalds@transmeta.com> writes:
+> I did'nt know something like that even existed :)
+> 
+> Just plugged the drive into the ide controller (single drive on a
+> promise ata100 in a dec alpha) and it worked.
 
-[...]
+Ah.. This is a i386 machine, UDMA33 capable, and the bloody thing won't
+boot with the clipping removed, and with clipping I can use only 32 GB :((
 
-> Almost nothing does that. innd is (sadly) the only regular thing that uses
-> this, which is why it's always innd that breaks, even if everything else
-> works.
+> But I'm booting from SCSI as the machine does not support IDE-drives in
+> the "bios".
 
-> And even innd is often compiled to use "write()" instead of shared
-> mappings (it's a config option), so not even all innd's will break.
+This machine the other way around :)
+ 
 
-just in case nobody else tried, I suffered from the INN problem and it
-works for me now with -prerelease, K6 384MB mostly idle exept a small
-incoming uucp feed.
+	Regards,
 
-Ralf
--- 
- P:     Linus Torvalds			patch-2.2.4
--S:     Buried alive in diapers
-+S:     Buried alive in reporters
+		Igmar
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

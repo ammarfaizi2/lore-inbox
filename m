@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129364AbRCBR6D>; Fri, 2 Mar 2001 12:58:03 -0500
+	id <S129373AbRCBSJQ>; Fri, 2 Mar 2001 13:09:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129372AbRCBR5x>; Fri, 2 Mar 2001 12:57:53 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:41871 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S129364AbRCBR5p>;
-	Fri, 2 Mar 2001 12:57:45 -0500
-Date: Fri, 2 Mar 2001 17:56:58 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac7
-In-Reply-To: <E14Ystf-0001vP-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0103021749240.738-100000@penguin.homenet>
+	id <S129374AbRCBSJH>; Fri, 2 Mar 2001 13:09:07 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:23812 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129373AbRCBSI4>;
+	Fri, 2 Mar 2001 13:08:56 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200103021808.VAA00511@ms2.inr.ac.ru>
+Subject: Re: Another rsync over ssh hang (repeatable, with 2.4.1 on both ends)
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Fri, 2 Mar 2001 21:08:42 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200103021631.QAA01076@raistlin.arm.linux.org.uk> from "Russell King" at Mar 2, 1 04:31:07 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Mar 2001, Alan Cox wrote:
-> 	[24940903.pdf]
-> 	Table 14 in paticular gives the config bits
+Hello!
 
-ok, thank you. Now I understand (maybe) whats' going on. Linux treated
-bits 22,23,24,25 but ignored 27 which it shouldn't have. Now, coupled with
-the fact that the problematic box I have (Celeron) has that bit 27 set 
-suggests that we ought to extend mult[] table appropriately. The values
-for that Celeron do not match anything in the Table 14 so we have to
-extend mult[] emprirically. (so I now come back to the idea of 4bit
-representation of 'bus').
+> same means its not the same bug?
 
-I will stop here/now but I will definitely come back to this interesting
-problem in 24 hours. But if anyone fixes it before then, I won't cry :)
-Of course, before sending anything I will make sure my patch works on
-_all_ my machines without any exceptions.
+It is the same, I think.
 
-Regards,
-Tigran
 
+> If you still insist that it is purely a 2.2.15pre13 bug
+
+I never said this. I said that your strace is _wrong_, how can I be
+sure that tcpdump is not wrong too? You could understand this. 8)
+
+
+> together to put 2.2.18 on this machine.  I can't guarantee when I'll
+> be able to do this though.
+
+You planned to make more accurate strace on Monday, if I remember correctly.
+Now it is not necessary, Scott's one is enough to understand that
+some problem exists and cannot be explained by buggy 2.2.15.
+
+
+> PS, could you please spell my name correctly?
+
+I bring apologies.
+
+Alexey

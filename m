@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291480AbSBSQqH>; Tue, 19 Feb 2002 11:46:07 -0500
+	id <S291477AbSBSQth>; Tue, 19 Feb 2002 11:49:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291492AbSBSQp5>; Tue, 19 Feb 2002 11:45:57 -0500
-Received: from unknown.Level3.net ([64.156.114.22]:59297 "EHLO bish.net")
-	by vger.kernel.org with ESMTP id <S291480AbSBSQpn>;
-	Tue, 19 Feb 2002 11:45:43 -0500
-Date: Tue, 19 Feb 2002 11:33:44 -0500 (EST)
-From: Mark <mark@bish.net>
-To: linux-kernel@vger.kernel.org
-Subject: A7M266-D
-Message-ID: <Pine.LNX.4.43.0202191127140.6387-100000@bish.net>
+	id <S291492AbSBSQtS>; Tue, 19 Feb 2002 11:49:18 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:54914 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S291477AbSBSQtO>; Tue, 19 Feb 2002 11:49:14 -0500
+Date: Tue, 19 Feb 2002 11:51:25 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jakob Kemi <jakob.kemi@telia.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hex <-> int conversion routines.
+In-Reply-To: <02021915240900.00635@jakob>
+Message-ID: <Pine.LNX.3.95.1020219114632.28797A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+You might want this. Code generation is 0x34 bytes for Intel with
+whatever compiler I'm using. It's generic. You could do the conversion
+with no compares on intel, in 18 bytes using assembly, but that would
+not be generic.
 
-I'm going to be receiving this board next week and I'd like to know who to
-contact about development/testing with respect to some of the issues that
-this board is having.  Feel free to contact me off list.
 
-Please note that I'm not currently subscribed to this list so please Cc:
-me personally.
+/*
+ *  Generic routine which returns the value of an arbitrary string
+ *  of hex digits. It handles 'A' thru 'F' as well as 'a' thru 'f'.
+ *  Courtesy of rjohnson@analogic.com
+ */
+int hex2bin(const char *hex)
+{
+    int i, j;
+    j = 0;
+    while(*hex) {
+        j <<= 4; 
+        if((i = (int) *hex++ - '0') > 9)
+            i -= 7;
+        j |= i & 95;
+    }
+    return j;
+}
 
-------------------------------------------------------------------------
-| Mark Bishop  (mark@bish.net)         |             Computer Engineer |
-| 813-253-XXXX                         |             Network Engineer  |
-| http://bish.net                      |          Embedded Programmer  |
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131065AbQKLQDn>; Sun, 12 Nov 2000 11:03:43 -0500
+	id <S129298AbQKLQWk>; Sun, 12 Nov 2000 11:22:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131102AbQKLQDY>; Sun, 12 Nov 2000 11:03:24 -0500
-Received: from quechua.inka.de ([212.227.14.2]:11602 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S131065AbQKLQDO>;
-	Sun, 12 Nov 2000 11:03:14 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Where is it written?
-In-Reply-To: <20001110184031.A2704@munchkin.spectacle-pond.org> <200011110011.eAB0BbF244111@saturn.cs.uml.edu> <20001110192751.A2766@munchkin.spectacle-pond.org> <20001111163204.B6367@inspiron.suse.de> <20001111171749.A32100@wire.cadcamlab.org>
-Organization: private Linux site, southern Germany
-Date: Sun, 12 Nov 2000 16:35:59 +0100
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E13uzAl-0004hs-00@g212.hadiko.de>
+	id <S129370AbQKLQWb>; Sun, 12 Nov 2000 11:22:31 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:31090 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129298AbQKLQWY>; Sun, 12 Nov 2000 11:22:24 -0500
+Date: Sun, 12 Nov 2000 17:22:25 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: Tigran Aivazian <tigran@veritas.com>, Max Inux <maxinux@bigfoot.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+Message-ID: <20001112172225.F4933@athlon.random>
+In-Reply-To: <Pine.LNX.4.21.0011111133050.1029-100000@saturn.homenet> <3A0DA785.C69F1EA1@transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A0DA785.C69F1EA1@transmeta.com>; from hpa@transmeta.com on Sat, Nov 11, 2000 at 12:09:41PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well it's safer if you are lazy about prototyping varargs functions.
-> But of course by doing that you're treading on thin ice anyway, in
-> terms of type promotion and portability.  So I guess it's much better
-> to say "varargs functions MUST be prototyped" and use the registers.
+On Sat, Nov 11, 2000 at 12:09:41PM -0800, H. Peter Anvin wrote:
+> a while), but you're right, for now the limit is 8 MB *uncompressed.*
 
-make -Wmissing-prototypes mandatory :-)
+s/8/7/ (kernel starts at 1M)
 
-Olaf
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

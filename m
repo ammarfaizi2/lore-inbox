@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267341AbUJIT7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267353AbUJIUCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267341AbUJIT7i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 15:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267343AbUJIT7i
+	id S267353AbUJIUCN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUJIUCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 15:59:38 -0400
-Received: from [145.85.127.2] ([145.85.127.2]:28387 "EHLO mail.il.fontys.nl")
-	by vger.kernel.org with ESMTP id S267341AbUJIT7f (ORCPT
+	Sat, 9 Oct 2004 16:02:12 -0400
+Received: from [145.85.127.2] ([145.85.127.2]:21476 "EHLO mail.il.fontys.nl")
+	by vger.kernel.org with ESMTP id S267345AbUJIUB4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 15:59:35 -0400
-Message-ID: <59743.217.121.83.210.1097351968.squirrel@217.121.83.210>
-Date: Sat, 9 Oct 2004 21:59:28 +0200 (CEST)
-Subject: [Patch 2/5] xbox: disable optimization for kernel decompressor
+	Sat, 9 Oct 2004 16:01:56 -0400
+Message-ID: <53754.217.121.83.210.1097352107.squirrel@217.121.83.210>
+Date: Sat, 9 Oct 2004 22:01:47 +0200 (CEST)
+Subject: [Patch 3/5] xbox: block certain PCI devices
 From: "Ed Schouten" <ed@il.fontys.nl>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org
@@ -25,34 +25,42 @@ Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When using the kernel decompressor on a Microsoft Xbox, the system hangs
-because of invalid paging requests. When compiling the decompressor with
--O0, we can safely avoid this problem.
+When probing certain devices or busses on the Xbox, the system may hang.
+Therefore, we need to blacklist certain busses.
 
 You can also download this patch at:
-http://linux.g-rave.nl/patches/patch-xbox-optimization.diff
+http://linux.g-rave.nl/patches/patch-xbox-pci_workaround.diff
 ---
 
- Makefile |    7 +++++++
- 1 files changed, 7 insertions(+)
+ direct.c |   16 ++++++++++++++++
+ 1 files changed, 16 insertions(+)
 
-diff -u -r --new-file linux-2.6.9-rc3/arch/i386/boot/compressed/Makefile
-linux-2.6.9-rc3-ed0/arch/i386/boot/compressed/Makefile
---- linux-2.6.9-rc3/arch/i386/boot/compressed/Makefile	2004-09-30
-05:05:20.000000000 +0200
-+++ linux-2.6.9-rc3-ed0/arch/i386/boot/compressed/Makefile	2004-10-09
-19:38:25.084610000 +0200
-@@ -7,6 +7,13 @@
- targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
- EXTRA_AFLAGS	:= -traditional
+diff -u -r --new-file linux-2.6.9-rc3/arch/i386/pci/direct.c
+linux-2.6.9-rc3-ed0/arch/i386/pci/direct.c
+--- linux-2.6.9-rc3/arch/i386/pci/direct.c	2004-09-30 05:04:23.000000000
++0200
++++ linux-2.6.9-rc3-ed0/arch/i386/pci/direct.c	2004-10-09
+19:49:54.677610000 +0200
+@@ -20,6 +20,22 @@
+ 	if (!value || (bus > 255) || (devfn > 255) || (reg > 255))
+ 		return -EINVAL;
 
-+# Microsoft Xbox workaround:
-+# Xbox v1.1+ crashes while decompressing the kernel when paging is off.
-+# By disabling optimization we can fix this.
-+ifeq ($(CONFIG_X86_XBOX),y)
-+	CFLAGS_misc.o  := -O0
-+endif
++#ifdef CONFIG_X86_XBOX
++	/*
++	 * Workaround for the Microsoft Xbox:
++	 * Prevent it from tampering with some devices.
++	 */
++	if ((bus == 0) && !PCI_SLOT(devfn) &&
++			((PCI_FUNC(devfn) == 1) || (PCI_FUNC(devfn) == 2)))
++		return -EINVAL;
 +
- LDFLAGS_vmlinux := -Ttext $(IMAGE_OFFSET) -e startup_32
++	if ((bus == 1) && (PCI_SLOT(devfn) || PCI_FUNC(devfn)))
++		return -EINVAL;
++
++	if (bus >= 2)
++		return -EINVAL;
++#endif
++
+ 	spin_lock_irqsave(&pci_config_lock, flags);
 
- $(obj)/vmlinux: $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
+ 	outl(PCI_CONF1_ADDRESS(bus, devfn, reg), 0xCF8);

@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267244AbTCEPzv>; Wed, 5 Mar 2003 10:55:51 -0500
+	id <S267545AbTCEQBu>; Wed, 5 Mar 2003 11:01:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267260AbTCEPzv>; Wed, 5 Mar 2003 10:55:51 -0500
-Received: from pechkin.minfin.bg ([212.122.164.10]:41671 "EHLO
-	pechkin.minfin.bg") by vger.kernel.org with ESMTP
-	id <S267244AbTCEPzs>; Wed, 5 Mar 2003 10:55:48 -0500
-Message-ID: <3E66203C.7070504@minfin.bg>
-Date: Wed, 05 Mar 2003 18:05:16 +0200
-From: Kostadin Karaivanov <larry@minfin.bg>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030112
-X-Accept-Language: en-us, en, bg
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ipsec-tools 0.1 + kernel 2.5.64
-References: <3E65E45E.8090401@minfin.bg>
-In-Reply-To: <3E65E45E.8090401@minfin.bg>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267547AbTCEQBu>; Wed, 5 Mar 2003 11:01:50 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:41737 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S267545AbTCEQBs>; Wed, 5 Mar 2003 11:01:48 -0500
+Date: Wed, 5 Mar 2003 17:12:44 +0100
+From: DervishD <raul@pleyades.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unable to boot a raw kernel image :??
+Message-ID: <20030305161244.GB19439@DervishD>
+References: <20021129132126.GA102@DervishD> <3DF08DD0.BA70DA62@gmx.de> <b453er$qo7$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <b453er$qo7$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kostadin Karaivanov wrote:
+    Hi Peter :)
 
->> Hi,
->>
->> both manual keying and automatic keying with racoon (pre-shared secret)
->> are working fine. No need to patch or modify anything. I tried only 
->> ipv4.
->>
->> But: don't "setkey -DP" while racoon is running, it crashes
->> my machine. Sorry, could not get any details.
->
->>
->> Andreas
->
-> BTW "ipsec-tools 0.1" from where ??? 
+ H. Peter Anvin dixit:
+> That, and the 1 MB limitation, is the reason it either needs to get
+> nuked or get some massive surgery.  I am currently trying to get Linus
+> to accept a patch to put it out of its misery.
 
-   If you mention www.sf.net/projects/ipsec-tools
-   they does not compiles for me I cot following error
+    Please, try to convince Marcello and Alan, too. The 2.4 branch
+will be a happier branch (well, assuming that the Linux kernel has
+feelings, of course) without the raw kernel image booting. Anyway, it
+doesn't seem to work for El Torito emulated floppies... I will be the
+first who cry for this ancient code, but I think now it doesn't make
+sense. Anyone uses floppies yet? Here in Spain a floppy is more
+expensive than a 80 min. CD...
 
-grabmyaddr.c:69:1: warning: "HAVE_GETIFADDRS" redefined
-<command line>:1:1: warning: this is the location of the previous definition
-grabmyaddr.c:88: redefinition of `struct ifaddrs'
-grabmyaddr.c:200: warning: static declaration for `getifaddrs' follows 
-non-static
-grabmyaddr.c:254: warning: static declaration for `freeifaddrs' follows 
-non-static
-make[3]: *** [grabmyaddr.o] Error 1
-make[3]: Leaving directory `/usr/src/ipsec-tools-0.1/src/racoon'
-make[2]: *** [all-recursive] Error 1
-make[2]: Leaving directory `/usr/src/ipsec-tools-0.1/src'
-make[1]: *** [all-recursive] Error 1
-make[1]: Leaving directory `/usr/src/ipsec-tools-0.1'
-make: *** [all] Error 2
-
-  I can provide additional info if needed (gcc-3.2.2)
-
->
->
-> wwell Larry
->
->
-
-
+    Raúl

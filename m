@@ -1,89 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267413AbTBLSNe>; Wed, 12 Feb 2003 13:13:34 -0500
+	id <S267386AbTBLSY4>; Wed, 12 Feb 2003 13:24:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267415AbTBLSNd>; Wed, 12 Feb 2003 13:13:33 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:48867 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267413AbTBLSNX>;
-	Wed, 12 Feb 2003 13:13:23 -0500
-Date: Wed, 12 Feb 2003 10:20:22 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: bgerst@didntduck.org, ambx1@neo.rr.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for i8042?
-Message-Id: <20030212102022.0f620cf4.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0302121306340.289-100000@coredump.sh0n.net>
-References: <20030212091916.1989c531.rddunlap@osdl.org>
-	<Pine.LNX.4.44.0302121306340.289-100000@coredump.sh0n.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S267394AbTBLSY4>; Wed, 12 Feb 2003 13:24:56 -0500
+Received: from lri.lri.fr ([129.175.15.1]:53204 "EHLO lri.lri.fr")
+	by vger.kernel.org with ESMTP id <S267386AbTBLSYz>;
+	Wed, 12 Feb 2003 13:24:55 -0500
+Message-ID: <3E4A9C4D.F580576E@lri.fr>
+Date: Wed, 12 Feb 2003 19:11:09 +0000
+From: magniett <Frederic.Magniette@lri.fr>
+X-Mailer: Mozilla 4.75 [fr] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Makan Pourzandi (LMC)" <Makan.Pourzandi@ericsson.ca>
+CC: "'Christoph Hellwig'" <hch@infradead.org>,
+       "Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
+       torvalds@transmeta.com, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+References: <7B2A7784F4B7F0409947481F3F3FEF8305CC954F@eammlex037.lmc.ericsson.se>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How are you out of IRQs now?
-Were you out of IRQs in 2.4.20 and just didn't notice it?
+"Makan Pourzandi (LMC)" a écrit :
 
-~Randy
+> > > > I'm very serious about submitting a patch to Linus to
+> > remove all hooks not
+> > > > used by any intree module once 2.6.0-test.
+> > >
+> > > Any idea on how much time that gives us (to rework SELinux
+> > and submit
+> > > it)?
+> >
+>
+> Further more, I believe that LSM encourages the developers in the community to take initiatives related to security in Linux. This way, it helps developing different security approaches. This at the end, even if we choose to go with only one approach and drop others,  will help the diversity of existing solutions and the possibility of choosing among a set of solutions (hopefully the best one will be chosen). IMHO, to let people be able to come up with different security approaches, we have
+> to let LSM be part of the kernel in order to encourage people to
+> develop their approach.
+>
+> That was my 2 cents.
+>
+> Regards,
+> Makan Pourzandi
 
+Hi,
+I'm the leader of a project, developping a sandbox (processes confinement environment) for Linux based on LSM.
+Our approach is dedicated for peer-to-peer global computing environments. I totally agree with Makan about the
+diversity of developpement : we dont have the same goals than SELinux. The LSM project followed two phases :
+in a first one, everybody was thinking about what could be good to integrate in LSM and now (the second phase),
+a few people think about what they can remove because they dont use it. We need a flexible and reasonably complete
+framework to implement solutions. I recall that it was the original request from Linus : a generic framework to decide
+which kind of security solutions are the best. If LSM fits only one or two policy requirements, the choice does not
+exist. For finishing : PLEASE, stop reducing LSM possibilities : it cost a lot to develop things for a hook and then
+redevelopping it for a classical syscall interposition.
+bests
+Frédéric Magniette (University of Orsay/CNRS)
 
-On Wed, 12 Feb 2003 13:07:00 -0500 (EST)
-Shawn Starr <spstarr@sh0n.net> wrote:
-
-| 
-| hmm, It appears the PS/2 was not on when I built that kernel.
-| 
-| But the fact remains, I'm out of IRQs some how. ;/
-| 
-| Shawn.
-| 
-| On Wed, 12 Feb 2003, Randy.Dunlap wrote:
-| 
-| > (see an answer at bottom)
-| >
-| > On Wed, 12 Feb 2003 11:12:02 -0500 (EST)
-| > Shawn Starr <spstarr@sh0n.net> wrote:
-| >
-| > |
-| > | Right, but this wasn't a problem in 2.4? I had a PS/2 mouse before in 2.4
-| > | and this didnt have the problem.
-| > |
-| > |
-| > | On Wed, 12 Feb 2003, Brian Gerst wrote:
-| > |
-| > | > Shawn Starr wrote:
-| > | > > 2.4:
-| > | > >            CPU0
-| > | > >   0:    2576292          XT-PIC  timer
-| > | > >   1:        661          XT-PIC  keyboard
-| > | > >   2:          0          XT-PIC  cascade
-| > | > >   3:         10          XT-PIC  serial
-| > | > >   5:    1104824          XT-PIC  soundblaster
-| > | > >   8:          1          XT-PIC  rtc
-| > | > >   9:          0          XT-PIC  acpi
-| > | > >  10:          7          XT-PIC  aic7xxx
-| > | > >  11:      15167          XT-PIC  usb-uhci, eth0
-| > | > >  14:       7554          XT-PIC  ide0
-| > | > >  15:          3          XT-PIC  ide1
-| > | > >
-| > | > > 2.5:
-| > | > >
-| > | > >            CPU0
-| > | > >   0:      36281          XT-PIC  timer
-| > | > >   1:         15          XT-PIC  i8042
-| > | > >   2:          0          XT-PIC  cascade
-| > | > >   3:        149          XT-PIC  serial
-| > | > >   5:          0          XT-PIC  soundblaster
-| > | > >   8:          1          XT-PIC  rtc
-| > | > >   9:          0          XT-PIC  acpi
-| > | > >  10:         20          XT-PIC  aic7xxx
-| > | > >  11:        324          XT-PIC  uhci-hcd, eth0
-| > | > >  12:         60          XT-PIC  i8042 <--???
-| > | > >  14:        723          XT-PIC  ide0
-| > | > >  15:          9          XT-PIC  ide1
-| > | > > NMI:          0
-| > | > > LOC:      35547
-| > | > > ERR:          0
-| > | > > MIS:          0

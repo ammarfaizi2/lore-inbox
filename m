@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262503AbRENVZM>; Mon, 14 May 2001 17:25:12 -0400
+	id <S262504AbRENV2c>; Mon, 14 May 2001 17:28:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262504AbRENVZE>; Mon, 14 May 2001 17:25:04 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:9154 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S262503AbRENVYw>;
-	Mon, 14 May 2001 17:24:52 -0400
-Message-ID: <3B004D1D.6E7140C@mandrakesoft.com>
-Date: Mon, 14 May 2001 17:24:45 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
+	id <S262505AbRENV2W>; Mon, 14 May 2001 17:28:22 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4362 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262504AbRENV2E>; Mon, 14 May 2001 17:28:04 -0400
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <3B003EFC.61D9C16A@mandrakesoft.com>
-		<Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com> <15104.17957.253821.765483@notabene.cse.unsw.edu.au>
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Mon, 14 May 2001 22:23:59 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        hpa@transmeta.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        viro@math.psu.edu
+In-Reply-To: <Pine.LNX.4.33.0105141802070.18102-100000@duckman.distro.conectiva> from "Rik van Riel" at May 14, 2001 06:11:50 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14zPot-0001Sa-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> So I need a major number - to give to devfs_register_blkdev at least.
-> You don't want me to have a hardcoded one (which is fine) so I need a
-> dynamically allocated one - yes?
-> 
-> This means that we need some analogue to {get,put}_unnamed_dev that
-> manages a range of dynamically allocated majors.
-> Is there such a beast already, or does someone need to write it?
-> What range(s) should be used for block devices?
+> I've been doubting whether to work on both the -ac kernels
+> and the -linus tree, but this is a pretty good argument for
+> sticking with -ac and just ignoring the -linus tree...
 
-register_blkdev will assign a dynamic major to your block device, if a
-static one is not provided.  This has been true since 2.2, maybe 2.0
-IIRC.
+Time will make that decision. Linus kindly gave us all the power to vote with
+our feet. One thing I absolutely refuse to do is to let a disagreemnt over
+some specific device implementation turn into an excuse for a wider difference
+in the trees.
 
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+So yes -ac might have static majors but the rest of it I intend to keep merging
+with Linus and tracking closely to his tree. Certainly not ignoring the -linus
+tree. 
+
+Alan
+

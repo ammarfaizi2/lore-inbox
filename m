@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316822AbSGHHlq>; Mon, 8 Jul 2002 03:41:46 -0400
+	id <S316820AbSGHHkx>; Mon, 8 Jul 2002 03:40:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316823AbSGHHlp>; Mon, 8 Jul 2002 03:41:45 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:14086 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S316822AbSGHHlo>; Mon, 8 Jul 2002 03:41:44 -0400
-Date: Mon, 8 Jul 2002 09:44:17 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: direct-to-BIO for O_DIRECT
-Message-ID: <20020708094417.B18142@rotuma.informatik.tu-chemnitz.de>
-References: <3D2904C5.53E38ED4@zip.com.au>
+	id <S316821AbSGHHkw>; Mon, 8 Jul 2002 03:40:52 -0400
+Received: from mail12.svr.pol.co.uk ([195.92.193.215]:65308 "EHLO
+	mail12.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S316820AbSGHHkw>; Mon, 8 Jul 2002 03:40:52 -0400
+Date: Mon, 8 Jul 2002 09:43:15 +0100
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.5.25 (and LVM)
+Message-ID: <20020708084315.GA1387@fib011235813.fsnet.co.uk>
+References: <Pine.LNX.4.33.0207051646280.2484-100000@penguin.transmeta.com> <20020706135412.GA19227@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3D2904C5.53E38ED4@zip.com.au>; from akpm@zip.com.au on Sun, Jul 07, 2002 at 08:19:33PM -0700
+Content-Disposition: inline
+In-Reply-To: <20020706135412.GA19227@merlin.emma.line.org>
+User-Agent: Mutt/1.3.28i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 07, 2002 at 08:19:33PM -0700, Andrew Morton wrote:
-> Question is: what do we want to do with this sucker?  These are the
-> remaining users of kiovecs:
+On Sat, Jul 06, 2002 at 03:54:12PM +0200, Matthias Andree wrote:
+> On Fri, 05 Jul 2002, Linus Torvalds wrote:
 > 
-> 	drivers/md/lvm-snap.c
-> 	drivers/media/video/video-buf.c
-> 	drivers/mtd/devices/blkmtd.c
-> 	drivers/scsi/sg.c
+> > More merges all over the map - ppc, scsi, USB, kbuild, input drivers etc.
 > 
-> the video and mtd drivers seems to be fairly easy to de-kiobufize.
-> I'm aware of one proprietary driver which uses kiobufs.  XFS uses
-> kiobufs a little bit - just to map the pages.
+> Did the LVM guys (are you listening?) tell anything if they were about
+> to go fix the current 2.5 LVM breakage? Or does EVMS work on 2.5 instead?
 
-It would be nice if we could just map a set of user pages to a scatterlist.
+I'll say this yet again:
 
-Developers of mass transfer devices (video grabbers, dsp devices, sg and
-many others) would just LOVE you for this ;-)
+Heinz Mauelshagen is maintaining LVM1.0.x on 2.4 kernels.  This is for
+bug fixes only, no new features will be added.
 
-Block devices are the common case worth optimizing for, but character
-devices just need to reimplement most of this, if they want the same 
-optimizations. Some devices need mass transfers and are NOT blockdevices.
+Alasdair Kergon, Patrick Caulfield and myself are working on the more
+generic device-mapper driver for both 2.4/2.5.  Initially we have
+concentrated on 2.4, this driver is now very stable IMO (I would
+certainly trust my data to it in preference to LVM1).
 
-Linux supports only one class of them properly: NICs.
+I will post a URL to the 2.5 patch at some point this week.
 
-Please consider supporting them better for 2.5 in stuff similiar to BIOs
-and DMA to/from user pages.
+There is no intention to maintain the broken design that is LVM1 in
+the 2.5 series - we do not have the spare resources to waste.
 
-Thanks & Regards
-
-Ingo Oeser
+- Joe

@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVALLcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVALLlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbVALLcl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 06:32:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVALLcf
+	id S261157AbVALLlr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 06:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVALLlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 06:32:35 -0500
-Received: from unthought.net ([212.97.129.88]:40075 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S261154AbVALLc0 (ORCPT
+	Wed, 12 Jan 2005 06:41:46 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:33732 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261154AbVALLlh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 06:32:26 -0500
-Date: Wed, 12 Jan 2005 12:32:24 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Valdis.Kletnieks@vt.edu, Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       Anton Blanchard <anton@samba.org>, Phy Prabab <phyprabab@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux NFS vs NetApp
-Message-ID: <20050112113224.GB347@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	"J. Bruce Fields" <bfields@fieldses.org>, Valdis.Kletnieks@vt.edu,
-	Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-	Anton Blanchard <anton@samba.org>, Phy Prabab <phyprabab@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <20050111025401.48311.qmail@web51810.mail.yahoo.com> <20050111035810.GG14239@krispykreme.ozlabs.ibm.com> <Pine.LNX.4.61.0501102321490.25796@twin.uoregon.edu> <200501110920.j0B9JwAL006980@turing-police.cc.vt.edu> <20050111100109.GA347@unthought.net> <20050111144317.GA23849@fieldses.org>
-Mime-Version: 1.0
+	Wed, 12 Jan 2005 06:41:37 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050111144317.GA23849@fieldses.org>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16869.3304.862072.953606@alkaid.it.uu.se>
+Date: Wed, 12 Jan 2005 12:41:28 +0100
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.6.10-mm3] remove bogus perfctr_sample_thread() calls
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 09:43:17AM -0500, J. Bruce Fields wrote:
-> On Tue, Jan 11, 2005 at 11:01:10AM +0100, Jakob Oestergaard wrote:
-> > 3 knfsd will give you stale handles (can be worked around by stat'ing
-> >   all your directories constantly on the server side)
-> 
-> This should be fixed now.  Bug reports to the contrary welcomed.
+Andrew,
 
-Excellent!
+2.6.10-mm3 added perfctr_sample_thread() calls in
+account_{user,system}_time(). I believe these to be bogus:
 
-It seems SGI has merged their XFS kernel up to 2.6.10 - I'll give that a
-try and see what happens.
+1. When they are called from update_process_times(), there
+   will be two perfctr_sample_thread()s per tick, one of
+   which is redundant.
+2. s390's weird timer tick code calls both account_{user,system}_time()
+   directly, bypassing update_process_times(). In this case there
+   also be two perfctr_sample_thread()s per tick.
 
+I believe the proper fix is to remove the new calls and, should
+s390 ever get perfctr support, add _one_ perfctr_sample_thread()
+call in s390's account_user_vtime().
 
-Thanks,
+The patch below removes the extraneous calls. Please apply.
 
--- 
+Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
- / jakob
-
+--- linux-2.6.10-mm3/kernel/sched.c.~1~	2005-01-11 23:35:18.000000000 +0100
++++ linux-2.6.10-mm3/kernel/sched.c	2005-01-12 00:28:58.000000000 +0100
+@@ -2334,7 +2334,6 @@ void account_user_time(struct task_struc
+ 	check_rlimit(p, cputime);
+ 	account_it_virt(p, cputime);
+ 	account_it_prof(p, cputime);
+-	perfctr_sample_thread(&p->thread);
+ 
+ 	/* Add user time to cpustat. */
+ 	tmp = cputime_to_cputime64(cputime);
+@@ -2365,8 +2364,6 @@ void account_system_time(struct task_str
+ 		account_it_prof(p, cputime);
+ 	}
+ 
+-	perfctr_sample_thread(&p->thread);
+-
+ 	/* Add system time to cpustat. */
+ 	tmp = cputime_to_cputime64(cputime);
+ 	if (hardirq_count() - hardirq_offset)

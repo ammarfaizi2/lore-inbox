@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbTIKQWz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 12:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbTIKQWz
+	id S261317AbTIKQhv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 12:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbTIKQhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 12:22:55 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:32992 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261354AbTIKQWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 12:22:53 -0400
-Date: Thu, 11 Sep 2003 18:22:23 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Jakub Jelinek <jakub@redhat.com>,
-       Dan Aloni <da-x@gmx.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [BK PATCH] One strdup() to rule them all
-Message-ID: <20030911162223.GB3989@wohnheim.fh-wedel.de>
-References: <20030825161435.GB8961@callisto.yi.org> <20030825122532.J10720@devserv.devel.redhat.com> <20030825170530.GB7097@gtf.org> <20030825194918.A1052@pclin040.win.tue.nl>
+	Thu, 11 Sep 2003 12:37:51 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:58632
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S261317AbTIKQht
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 12:37:49 -0400
+Subject: Re: Lock EVERYTHING (for testing) [was: Re: Scaling noise]
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: John Bradford <john@grabjohn.com>
+Cc: davem@redhat.com, miller@techsource.com, anton@samba.org,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, lm@bitmover.com,
+       mbligh@aracnet.com, phillips@arcor.de, piggin@cyberone.com.au
+In-Reply-To: <200309101547.h8AFl4Sl002463@81-2-122-30.bradfords.org.uk>
+References: <200309101547.h8AFl4Sl002463@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain
+Message-Id: <1063298266.4412.41.camel@ixodes.goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030825194918.A1052@pclin040.win.tue.nl>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 11 Sep 2003 09:37:46 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 August 2003 19:49:18 +0200, Andries Brouwer wrote:
-> On Mon, Aug 25, 2003 at 01:05:30PM -0400, Jeff Garzik wrote:
+On Wed, 2003-09-10 at 08:47, John Bradford wrote:
+> > The analogy for Linux is this:  At a machine level, we add a check to 
+> > EVERY access.  The check is there to ensure that every memory access is 
+> > properly locked.  So, if some access is made where there isn't a proper 
+> > lock applied, then we can print a warning with the line number or drop 
+> > out into kdb or something of that sort.
+> >
+> > I'm betting there's another solution to this, otherwise, I wouldn't 
+> > suggest such an idea, because of the relative amount of work versus 
+> > benefit.  But it may require massive modifications to GCC to add this 
+> > code in at the machine level.
 > 
-> > > > +char *strdup(const char *s)
-> > > > +{
-> > > > +	char *rv = kmalloc(strlen(s)+1, GFP_KERNEL);
-> > > > +	if (rv)
-> > > > +		strcpy(rv, s);
-> > > > +	return rv;
-> > > > +}
+> Couldn't Valgrind be modified to do this for the kernel?
 > 
-> > Unfortunately Linus doesn't like the strdup cleanup, so I don't see this
-> > patch going in either :)
-> 
-> When seeing this my objection was: it introduces something with
-> a well-known name that uses GFP_KERNEL, so is not suitable everywhere -
-> an invitation to mistakes.
+> http://developer.kde.org/~sewardj/
 
-Andries, would you still object this function?
+I have a UML-under-Valgrind project on the backburner.  Valgrind has an
+instrumentation mode which checks to see every memory access is covered
+by appropriate locks in an MT program.  I'm afraid it will generate a
+lot of noise in the kernel though, since there's a lot of code which
+does unlocked memory access (probably correctly).
 
-char *strdup(const char *s, int flags)
-{
-	char *rv = kmalloc(strlen(s)+1, flags);
-	if (rv)
-		strcpy(rv, s);
-	return rv;
-}
+	J
 
-strdup(foo, GFP_KERNEL) should give most people enough clue to know
-what they are doing.
-
-Jörn
-
--- 
-But this is not to say that the main benefit of Linux and other GPL
-software is lower-cost. Control is the main benefit--cost is secondary.
--- Bruce Perens

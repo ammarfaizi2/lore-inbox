@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130301AbRBZOei>; Mon, 26 Feb 2001 09:34:38 -0500
+	id <S130276AbRBZOeh>; Mon, 26 Feb 2001 09:34:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130239AbRBZObs>; Mon, 26 Feb 2001 09:31:48 -0500
+	id <S130356AbRBZOcB>; Mon, 26 Feb 2001 09:32:01 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130294AbRBZO35>;
-	Mon, 26 Feb 2001 09:29:57 -0500
-Date: Mon, 26 Feb 2001 11:26:00 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marc Lehmann <pcg@goof.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: linux swap freeze STILL in 2.4.x
-In-Reply-To: <20010226094000.A4228@fuji.laendle>
-Message-ID: <Pine.LNX.4.33.0102261110001.1917-100000@mikeg.weiden.de>
+	by vger.kernel.org with ESMTP id <S130299AbRBZOaI>;
+	Mon, 26 Feb 2001 09:30:08 -0500
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 26 Feb 2001 10:36:54 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.2.18: static rtc_lock in nvram.c
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3A9A31C5.22343.9BE580@localhost>
+In-Reply-To: <3A9A0AF9.17727.45317@localhost> from "Ulrich Windl" at Feb 26, 2001 07:51:22 AM
+In-Reply-To: <E14XK2K-0000sY-00@the-village.bc.nu>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Feb 2001, Marc Lehmann wrote:
+On 26 Feb 2001, at 9:33, Alan Cox wrote:
 
-> On Mon, Feb 26, 2001 at 08:11:55AM +0100, Mike Galbraith <mikeg@wen-online.de> wrote:
->
-> > Anyway, it works fine here with virgin 2.4.2, so it seems unlikely it's
-> > a kernel problem.
->
-> > 259   execve("/sbin/losetup", ["losetup", "/dev/loop0", "/dev/hda5"], [/* 47 vars */]) = 0
->
-> The -e switch is causing the memory fault and subsequent breakage:
+> > browsing the sources for some problem I wondered why nvram.c uses a 
+> > static spinlock named rtc_lock, hiding the global one.
+> 
+> It only does that for the atari, where the driver isnt used by other things
 
-No problem here using -e xor. (have no real crypto to try)
+Hmm.. are there different nvram.c drivers? I noticed that SuSE 7.1 
+loads that driver in i386....
 
-> However, I just need to wait until there is a new crypto patch (and, if
-> not, I'll eventually have to hack it myself to gte my data. After all it's
-> source... ...)
+Also doesn't look a lot like Atari:
+ * This driver allows you to access the contents of the non-volatile 
+memory in
+ * the mc146818rtc.h real-time clock. This chip is built into all PCs 
+and into
+ * many Atari machines. In the former it's called "CMOS-RAM", in the 
+latter
+ * "NVRAM" (NV stands for non-volatile).
 
-Probably.
 
-	-Mike
+Regards,
+Ulrich
 

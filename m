@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267928AbUJUFX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270622AbUJUFX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267928AbUJUFX1 (ORCPT <rfc822;willy@w.ods.org>);
+	id S270622AbUJUFX1 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 21 Oct 2004 01:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270621AbUJUFTM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267928AbUJUFTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 01:19:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60051 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267928AbUJUFQf (ORCPT
+	Thu, 21 Oct 2004 01:19:25 -0400
+Received: from fire.osdl.org ([65.172.181.4]:38379 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S270617AbUJUFO5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 01:16:35 -0400
-Date: Wed, 20 Oct 2004 22:16:32 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Chris Wright <chrisw@osdl.org>, mingo@elte.hu, johansen@immunix.com,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+	Thu, 21 Oct 2004 01:14:57 -0400
+Message-ID: <61955.63.170.215.71.1098334933.squirrel@www.osdl.org>
+In-Reply-To: <20041020212912.03ba1b04.akpm@osdl.org>
+References: <20041020010733.GJ12932@bougret.hpl.hp.com><20041020155349.4514de82.akpm@osdl.org><20041020225418.GA26559@bougret.hpl.hp.com><20041020210938.2a8e38d1.davem@davemloft.net>
+    <20041020212912.03ba1b04.akpm@osdl.org>
+Date: Wed, 20 Oct 2004 22:02:13 -0700 (PDT)
+Subject: Re: [PATCH 2.6 IrDA] Stir driver usb reset fix
+From: shemminger@osdl.org
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: "David S. Miller" <davem@davemloft.net>, jt@hpl.hp.com,
+       jt@bougret.hpl.hp.com, shemminger@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] delay rq_lock acquisition in setscheduler
-Message-ID: <20041020221632.V2357@build.pdx.osdl.net>
-References: <20041020183238.U2357@build.pdx.osdl.net> <20041021020022.GB8756@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041021020022.GB8756@dualathlon.random>; from andrea@novell.com on Thu, Oct 21, 2004 at 04:00:22AM +0200
+User-Agent: SquirrelMail/1.4.2-1_osdl_00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrea Arcangeli (andrea@novell.com) wrote:
-> On Wed, Oct 20, 2004 at 06:32:38PM -0700, Chris Wright wrote:
-> > +	rq = task_rq_lock(p, &flags);
-> > +	/* recheck policy now with rq lock held */
-> > +	retval = -EPERM;
-> > +	if (unlikely(oldpolicy != -1 && oldpolicy != p->policy))
-> > +		goto out_unlock_rq;
-> 
-> to be really backwards compatible you should return 0 methinks, the only
-> case when this race can trigger is with non deterministic usage, and the
-> current kernel would never return -EPERM in such a non deterministic
-> usage. However the -EPERM will signal the non deterministic usage, but I
-> doubt it worth to return -EPERM there, since it makes it looks like the
-> other side that didn't get EPERM is safe while it's not, since the other
-> side isn't deterministic either.
+> "David S. Miller" <davem@davemloft.net> wrote:
+>>
+>>  > 	Do you want to take care of that and forward a new patch
+>>  > directly to Andrew ?
+>>
+>>  Andrew/Jeff, I can work on the integration of all of Jean's
+>>  patches and I can also resolve all the conflicts myself.
+>
+> Go wild - there's nothing particularly messy in there.
 
-true.  another alternative is to drop rq_lock and do the checks over.
-i didn't convince myself yet that there's no chance for livelock,
-although it seems unlikely.
+I have one ready for AM tommorrow.

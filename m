@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVBRJJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVBRJYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbVBRJJT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 04:09:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVBRJJS
+	id S261318AbVBRJYF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 04:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVBRJYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 04:09:18 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:34373
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261305AbVBRJJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 04:09:04 -0500
-Date: Fri, 18 Feb 2005 10:09:00 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Tupshin Harper <tupshin@tupshin.com>
-Cc: Patrick McFarland <pmcfarland@downeast.net>, lm@bitmover.com,
-       linux-kernel@vger.kernel.org, darcs-users@darcs.net
-Subject: Re: [darcs-users] Re: [BK] upgrade will be needed
-Message-ID: <20050218090900.GA2071@opteron.random>
-References: <20050214020802.GA3047@bitmover.com> <200502172105.25677.pmcfarland@downeast.net> <421551F5.5090005@tupshin.com>
+	Fri, 18 Feb 2005 04:24:05 -0500
+Received: from run.smurf.noris.de ([192.109.102.41]:26002 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S261305AbVBRJX6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 04:23:58 -0500
+From: "Matthias Urlichs" <smurf@smurf.noris.de>
+Date: Fri, 18 Feb 2005 10:23:41 +0100
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] obey HOSTLOADLIBES_programname for single-file compilation
+Message-ID: <20050218092341.GA12271@kiste>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
 Content-Disposition: inline
-In-Reply-To: <421551F5.5090005@tupshin.com>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.6+20040907i
+X-Smurf-Spam-Score: -2.5 (--)
+X-Smurf-Whitelist: +relay_from_hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 17, 2005 at 06:24:53PM -0800, Tupshin Harper wrote:
-> small to medium sized ones). Last I checked, Arch was still too slow in 
-> some areas, though that might have changed in recent months. Also, many 
 
-IMHO someone needs to rewrite ARCH using the RCS or SCCS format for the
-backend and a single file for the changesets and with sane parameters
-conventions miming SVN. The internal algorithms of arch seems the most
-advanced possible. It's just the interface and the fs backend that's so
-bad and doesn't compress in the backups either.  SVN bsddb doesn't
-compress either by default, but at least the new fsfs compresses pretty
-well, not as good as CVS, but not as badly as bsddb and arch either.
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I may be completely wrong, so take the above just as a humble
-suggestion.
+Single-file HOSTCC calls added the libraries from $(HOSTLOADLIBES),
+but not from $(HOSTLOADLIBES_programname). Multi-file HOSTCC calls do
+both.
 
-darcs scares me a bit because it's in haskell, I don't believe very much
-in functional languages for compute intensive stuff, ram utilization
-skyrockets sometime (I wouldn't like to need >1G of ram to manage the
-tree). Other languages like python or perl are much slower than C/C++
-too but at least ram utilization can be normally dominated to sane
-levels with them and they can be greatly optimized easily with C/C++
-extensions of the performance critical parts.
+This patch fixes that inconsistency.
+
+Signed-Off-By: Matthias Urlichs <smurf@debian.org>
+
+diff -Nru a/scripts/Makefile.host b/scripts/Makefile.host
+--- a/scripts/Makefile.host	2005-02-18 10:19:29 +01:00
++++ b/scripts/Makefile.host	2005-02-18 10:19:29 +01:00
+@@ -98,7 +98,8 @@
+ # Create executable from a single .c file
+ # host-csingle -> Executable
+ quiet_cmd_host-csingle 	=3D HOSTCC  $@
+-      cmd_host-csingle	=3D $(HOSTCC) $(hostc_flags) $(HOST_LOADLIBES) -o $=
+@ $<
++      cmd_host-csingle	=3D $(HOSTCC) $(hostc_flags) -o $@ $< \
++	  	$(HOST_LOADLIBES) $(HOSTLOADLIBES_$(@F))
+ $(host-csingle): %: %.c FORCE
+ 	$(call if_changed_dep,host-csingle)
+=20
+--=20
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCFbQd8+hUANcKr/kRAnKyAJ9udiPuiRTs6LqoWTZ9c+U3HvmDAACgjD5+
+5e15qwaf7ASAbOMum4TRzKc=
+=6bZI
+-----END PGP SIGNATURE-----
+
+--Q68bSM7Ycu6FN28Q--

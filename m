@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264158AbTF0Kws (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 06:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbTF0Kws
+	id S264181AbTF0LPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 07:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264186AbTF0LPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 06:52:48 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:55364 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264158AbTF0Kws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 06:52:48 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200306271107.h5RB72x32196@devserv.devel.redhat.com>
-Subject: Re: O_DIRECT
-To: sct@redhat.com (Stephen C. Tweedie)
-Date: Fri, 27 Jun 2003 07:07:02 -0400 (EDT)
-Cc: alan@redhat.com (Alan Cox), sct@redhat.com (Stephen Tweedie),
-       linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <1056710121.2418.19.camel@sisko.scot.redhat.com> from "Stephen C. Tweedie" at Meh 27, 2003 11:35:21 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Fri, 27 Jun 2003 07:15:09 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:34733 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264181AbTF0LPF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 07:15:05 -0400
+Date: Fri, 27 Jun 2003 13:29:20 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Samium Gromoff <deepfire@ibe.miee.ru>
+Cc: linux-kernel@vger.kernel.org, sct@redhat.com, akpm@digeo.com
+Subject: Re: [BIO] request->flags ambiguity
+Message-ID: <20030627112920.GG821@suse.de>
+References: <20030627134756.4118617e.deepfire@ibe.miee.ru> <20030627104822.GE821@suse.de> <20030627142829.5aea7015.deepfire@ibe.miee.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030627142829.5aea7015.deepfire@ibe.miee.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ouch ouch ouch, there's nasty merge conflict between the O_DIRECT patch
-> and an existing 64-bit rlimit chunk in -ac3.  You really, really want
-> the change below. :-)  Marcelo's tree appears OK, and this is a common
-> code path for all filesystems in -ac, so it matches the failure patterns
-> that far.
+On Fri, Jun 27 2003, Samium Gromoff wrote:
+> On Fri, 27 Jun 2003 12:48:22 +0200
+> Jens Axboe <axboe@suse.de> wrote:
+> -- snip --
+> > > 	Is it ok to have a possibility of a request with conflicting
+> > > 	meanings attached to it?  For example REQ_CMD | REQ_PM_SHUTDOWN
+> > > 	| REQ_SPECIAL.
+> > 
+> > No of course not.
+> -- snip --
+> > > 	Shouldn`t it make more sense to separate request-type-indicator
+> > > 	flags into a separate unambiguous type field, which would take
+> > > 	one of the following values: - read/write request - sense query
+> > > 	- power control - special request
+> > > 
+> > > 	And not a currently possible combination of all of them, which
+> > > 	seem to be the current situation.
+> > 
+> > There has been talk of that before, search the archives.
+> 
+> 	Umm, i`ve tried and failed, couldn`t you share some vague
+> 	pointers about the topic or something?
 
-Ouch indeed - ok thats good, that means its not the O_DIRECT stuff. Thanks
-for figuring it out
+Some pointers here
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105482104321668&w=2
+
+-- 
+Jens Axboe
+

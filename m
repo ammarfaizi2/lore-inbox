@@ -1,92 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbTFYSIN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 14:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbTFYSIM
+	id S264902AbTFYSLS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 14:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbTFYSLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 14:08:12 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:23822 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264912AbTFYSIE (ORCPT
+	Wed, 25 Jun 2003 14:11:17 -0400
+Received: from home.linuxhacker.ru ([194.67.236.68]:22144 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S264902AbTFYSLO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 14:08:04 -0400
-Date: Wed, 25 Jun 2003 20:22:12 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: SOLVED - Testing IDE-TCQ and Taskfile - doesn't work nicely:)
-Message-ID: <20030625182210.GI29233@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-References: <20030624224021.GJ6353@lug-owl.de> <Pine.SOL.4.30.0306250107180.17106-100000@mion.elka.pw.edu.pl>
+	Wed, 25 Jun 2003 14:11:14 -0400
+Date: Wed, 25 Jun 2003 22:23:05 +0400
+From: Oleg Drokin <green@linuxhacker.ru>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [2.4] current bk ipmi build fix
+Message-ID: <20030625182304.GA12492@linuxhacker.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OfrWf2Fun5Ae4m0Y"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0306250107180.17106-100000@mion.elka.pw.edu.pl>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---OfrWf2Fun5Ae4m0Y
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+   Not that I really have the hardware, but it breaks my "allyesconfig" build.
+   So here is this compile fix for ipmi driver in current 2.4 bk tree.
+   (I see that Alan have some similarly named fix in his tree and
+    actually there is whole new version of the driver on the net somewhere,
+    but it is unclear when it is planned to be pushed to 2.4 tree,
+    so I'd better post this now ;) ).
 
-On Wed, 2003-06-25 01:08:13 +0200, Bartlomiej Zolnierkiewicz <B.Zolnierkiew=
-icz@elka.pw.edu.pl>
-wrote in message <Pine.SOL.4.30.0306250107180.17106-100000@mion.elka.pw.edu=
-.pl>:
-> On Wed, 25 Jun 2003, Jan-Benedict Glaw wrote:
-> > On Tue, 2003-06-24 15:44:36 +0200, Bartlomiej Zolnierkiewicz <B.Zolnier=
-kiewicz@elka.pw.edu.pl>
-> > wrote in message <Pine.SOL.4.30.0306241543050.23584-100000@mion.elka.pw=
-.edu.pl>:
-> >
-> > > Corrected patch below...
-> >
-> > Taking this 2nd IDE patch, my boot-up looks as shown below. I still have
->=20
-> Thanks for testing, it looks okay now.
->=20
-> > to test the taskfile thing again, but I cannot find my girlfriends
-> > digital camera right now:)
-
-Found the cam, downloaded any old pics, recompiled with taskfile I/O and
-- nothing. 2.5.73 + your second IDE patch do work flawlessly on my old
-box. The "clack     clack    clack" went away is if had never been
-there...
-
-So - thanks a lot for looking at my problem. Please feed your patch to
-Linus as it seems to actually solve (at least my) problems.
-
-However, allow me to ask why this occured never bevore (for other
-people)? Do they all have only one drive? Does nobody use TCQ? Nobody
-with old hardware (though, your patch hasn't touched the core PIIX
-parts...)?
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
-
---OfrWf2Fun5Ae4m0Y
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE++ehRHb1edYOZ4bsRAs1KAJ9f3MaKtt2J8FoYfezw+MINeCLWuQCfQUfo
-yn20ZbiNP1YkHND13HQhPW0=
-=CZm4
------END PGP SIGNATURE-----
-
---OfrWf2Fun5Ae4m0Y--
+Bye,
+    Oleg
+===== drivers/char/ipmi/ipmi_kcs_intf.c 1.3 vs edited =====
+--- 1.3/drivers/char/ipmi/ipmi_kcs_intf.c	Sat May 24 01:12:48 2003
++++ edited/drivers/char/ipmi/ipmi_kcs_intf.c	Wed Jun 25 22:09:39 2003
+@@ -1032,9 +1032,9 @@
+ 
+ #include <linux/acpi.h>
+ /* A real hack, but everything's not there yet in 2.4. */
+-#define COMPILER_DEPENDENT_UINT64 unsigned long
+-#include <../drivers/acpi/include/acpi.h>
+-#include <../drivers/acpi/include/actypes.h>
++#include <acpi/acpi.h>
++#include <acpi/actypes.h>
++#include <acpi/actbl.h>
+ 
+ struct SPMITable {
+ 	s8	Signature[4];
+@@ -1059,7 +1059,7 @@
+ static unsigned long acpi_find_bmc(void)
+ {
+ 	acpi_status       status;
+-	acpi_table_header *spmi;
++	struct acpi_table_header *spmi;
+ 	static unsigned long io_base = 0;
+ 
+ 	if (io_base != 0)

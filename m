@@ -1,61 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313311AbSDJQgn>; Wed, 10 Apr 2002 12:36:43 -0400
+	id <S313293AbSDJQio>; Wed, 10 Apr 2002 12:38:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313314AbSDJQgm>; Wed, 10 Apr 2002 12:36:42 -0400
-Received: from sendmail.avnet.com ([12.9.139.96]:5988 "EHLO pilsner.avnet.com")
-	by vger.kernel.org with ESMTP id <S313311AbSDJQgm>;
-	Wed, 10 Apr 2002 12:36:42 -0400
-Message-ID: <C08678384BE7D311B4D70004ACA371050B7633A6@amer22.avnet.com>
-From: "Kerl, John" <John.Kerl@Avnet.com>
-To: "'Amol Kumar Lad'" <amolk@ishoni.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Reducing root filesystem
-Date: Wed, 10 Apr 2002 09:36:35 -0700
+	id <S313309AbSDJQin>; Wed, 10 Apr 2002 12:38:43 -0400
+Received: from wb2-a.mail.utexas.edu ([128.83.126.136]:24332 "HELO
+	mail.utexas.edu") by vger.kernel.org with SMTP id <S313293AbSDJQim>;
+	Wed, 10 Apr 2002 12:38:42 -0400
+Date: Wed, 10 Apr 2002 11:43:13 -0500 (CDT)
+From: Brent Cook <busterb@mail.utexas.edu>
+X-X-Sender: busterb@ozma.union.utexas.edu
+To: Oleg Drokin <green@linuxhacker.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Mouse interrupts: the death knell of a VP6
+In-Reply-To: <20020410192339.A22777@namesys.com>
+Message-ID: <20020410112810.L60900-100000@ozma.union.utexas.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For my boards, I have about a 5 MB RAM disk, at least half of
-which is libraries, much of which I know is library routines
-which my embedded system never calls.  If I were tight on space,
-here is where I would trim.
+On Wed, 10 Apr 2002, Oleg Drokin wrote:
 
-I don't know if you're doing PowerPC or some other processor,
-but nonetheless you might check out 
+> Hello!
+>
+> On Wed, Apr 10, 2002 at 09:02:05AM -0500, Brent Cook wrote:
+>
+> > I have an ABIT VP6 motherboard, using the VIA Apollo chipset and 2 700Mhz
+> > PIII's, but please don't hold that against me. The system is running
+> > 2.4.19-pre6. I believe that I either have a system that has trouble
+> > handling a sudden bursts of interrupts, or have found a fault in mouse
+> > handling.
+>
+> Have you tried to change MPS mode to 1.1 from 1.4 (I see addres message timeouts
+> in your log)?
 
-http://penguinppc.org/embedded/howto/PowerPC-Embedded-HOWTO.html
+No, I had not. I will though, and will report if this causes some change.
+Everything looks fine for the first five minutes though.
 
-and especially section 12:
+> > I have already tried removing memory, adding memory, changing processors,
+> > video cards. The only thing that has remained constant is the VP6
+> > motherboard and the hard drive.
+>
+> My VP6 died on me recently with some funny symptoms:
+> it hangs in X when I start netscape and move mouse, or if I do
+> bk clone on kernel tree, it dies with
+> kernel BUG at /usr/src/linux-2.4.18/include/asm/smplock.h:62!
 
-http://penguinppc.org/embedded/howto/library.html
+Very interesting. I could do the same thing, and have a similar lock with
+a PS/2 mouse. I will start looking in smplock.h if the MPS change does not
+help.
 
-for some pointers to small C libraries.
+> BUG in various places pretty soon.
+> (this BUG is only appears if 2 CPUs are present in motherboard).
+> So if your troubles began only recently, you might want to try another
+> motherboard just to be sure.
 
+I received the motherboard used, so I do not know if this is a recent
+development. I have tried several other kernels which all show the same
+locking behavior with PS/2 mice (2.4.17, 2.4.18, 2.5.7-dj3.) The previous
+owner ran Windows XP (developer preview) on the board, and it had a
+tendency to lock often, especially under high IO. I attributed this to
+software issues, though now I wonder why the previous owner _really_ gave
+it to me!
 
------Original Message-----
-From: Amol Kumar Lad [mailto:amolk@ishoni.com]
-Sent: Wednesday, April 10, 2002 7:08 AM
-To: 'linux-kernel@vger.kernel.org'
-Subject: Reducing root filesystem
+I have used a Tyan Tiger 100 with two processors and an Intel BX chipset,
+with great success and no similar locks, so I am 50% certain that a
+hardware difference is the root cause of the problem. Hopefully, someone
+else will have seen similar problems.
 
+> Bye,
+>     Oleg
+>
 
-Hi,
-  I am porting Linux to an embedded system. Currently my rootfilesystem is
-around 2.5 MB (after keeping it to minimal and adding tools like busybox). I
-want to furthur reduce it to say maximum of 1.5 MB. 
-Please suggest some link/references where I can find the details to optimise
-my root filesystem
-
-thanks
-Amol
-
-please CC me
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285117AbRLRUhy>; Tue, 18 Dec 2001 15:37:54 -0500
+	id <S285152AbRLRUnq>; Tue, 18 Dec 2001 15:43:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285126AbRLRUhs>; Tue, 18 Dec 2001 15:37:48 -0500
-Received: from mail.myrio.com ([63.109.146.2]:34041 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S285132AbRLRUgd>;
-	Tue, 18 Dec 2001 15:36:33 -0500
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CB0A@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Grover, Andrew'" <andrew.grover@intel.com>,
-        "'Alexander Viro'" <viro@math.psu.edu>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>
-Subject: RE: Booting a modular kernel through a multiple streams file
-Date: Tue, 18 Dec 2001 12:35:40 -0800
+	id <S285148AbRLRUlh>; Tue, 18 Dec 2001 15:41:37 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:39940
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S285150AbRLRUkv> convert rfc822-to-8bit; Tue, 18 Dec 2001 15:40:51 -0500
+Date: Tue, 18 Dec 2001 12:34:36 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+cc: jlm <jsado@mediaone.net>, linux-kernel@vger.kernel.org
+Subject: Re: Poor performance during disk writes
+In-Reply-To: <20011218183059.L1832-100000@gerard>
+Message-ID: <Pine.LNX.4.10.10112181230570.21250-100000@master.linux-ide.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grover, Andrew wrote:
+On Tue, 18 Dec 2001, Gérard Roudier wrote:
 
-[...]
+> 
+> 
+> On Tue, 18 Dec 2001, Andre Hedrick wrote:
+> 
+> > File './Bonnie.2276', size: 1073741824, volumes: 1
+> > Writing with putc()...  done:  72692 kB/s  83.7 %CPU
+> > Rewriting...            done:  25355 kB/s  12.0 %CPU
+> > Writing intelligently...done: 103022 kB/s  40.5 %CPU
+> > Reading with getc()...  done:  37188 kB/s  67.5 %CPU
+> > Reading intelligently...done:  40809 kB/s  11.4 %CPU
+> > Seeker 2...Seeker 1...Seeker 3...start 'em...done...done...done...
+> >               ---Sequential Output (nosync)--- ---Sequential Input-- --Rnd Seek-
+> >               -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --04k (03)-
+> > Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU   /sec %CPU
+> >        1*1024 72692 83.7 103022 40.5 25355 12.0 37188 67.5 40809 11.4  382.1  2.4
+> >
+> > Maybe this is the kind of performance you want out your ATA subsystem.
+> > Maybe if I could get a patch in to the kernels we could all have stable
+> > and fast IO.
+> 
+> I rather see lots of wasting rather than performance, here. Bonnie says
+> that your subsystem can sustain 103 MB/s write but only 41 MB/s read. This
+> looks about 60% throughput wasted for read.
+> 
+> Note that if you intend to use it only for write-only applications,
+> performance are not that bad, even if just dropping the data on the floor
+> would give you infinite throughput without any difference in
+> functionnality. :-)
 
-> I'm arguing that no matter 
-> how whizzy
-> initrd is, it's still an unnecessary step, and it's one that 
-> other OSs (e.g.
-> FreeBSD) omit in favor of the approach I'm advocating.
+Well sense somebody paid/paying me make write performance go through the
+roof -- that is what I did.  Now if you look closely you could see that in
+writing we are doing a boat load more work than reading.  If somebody want
+me to throttle the reads more then they know how to get it done.
 
-Well, I'm a linux user more than a developer but I disagree.
+Regards,
 
-It isn't hard to make an initrd, and initrd will always be 
-neccessary for some things.  Since we can't get rid of it 
-and don't want to (*), I like the approach of making it better.
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 
-* I network boot (via pxelinux boot loader) a linux kernel and 
-initrd.gz, total size <2 MB, which then proceeds to:
-
-1 - load network drivers, do dhcp
-2 - partition and format the hard disk
-3 - mount the new filesystems
-4 - download (with retry/resume), unpack, cryptographically 
-    verify, and install a complete (~100 mb) embedded linux
-    system.  
-5 - while it does all the above, it shows pretty graphics and
-    "please wait while we setup your system" messages on the
-    attached television set via framebuffer support.
-
-You may be able to get grub to do the first step but the next
-four would be... challenging.  I agree that grub is cool, though.
-
-Torrey Hoffman

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132622AbRDBF1t>; Mon, 2 Apr 2001 01:27:49 -0400
+	id <S132530AbRDBGbB>; Mon, 2 Apr 2001 02:31:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132625AbRDBF1j>; Mon, 2 Apr 2001 01:27:39 -0400
-Received: from finch-post-11.mail.demon.net ([194.217.242.39]:54538 "EHLO
-	finch-post-11.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S132622AbRDBF1Y>; Mon, 2 Apr 2001 01:27:24 -0400
-Subject: Re: bug database braindump from the kernel summit
-From: Richard Russon <kernel@flatcap.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1010401181724.28121i-100000@mandrakesoft.mandrakesoft.com>
-In-Reply-To: <Pine.LNX.3.96.1010401181724.28121i-100000@mandrakesoft.mandrakesoft.com>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10+cvs.2001.04.01.08.06 (Preview Release)
-Date: 02 Apr 2001 06:26:45 +0100
-Message-Id: <986189206.789.0.camel@home.flatcap.org>
-Mime-Version: 1.0
+	id <S132560AbRDBGav>; Mon, 2 Apr 2001 02:30:51 -0400
+Received: from hibernia.clubi.ie ([212.17.32.129]:62853 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S132530AbRDBGam>; Mon, 2 Apr 2001 02:30:42 -0400
+Date: Mon, 2 Apr 2001 07:30:34 +0100 (IST)
+From: Paul Jakma <paul@jakma.org>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+cc: "Trever L. Adams" <trever_Adams@bigfoot.com>,
+   Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+   linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Serial, 115Kbps, 2.2, 2.4
+In-Reply-To: <003001c0bb0e$100149b0$08080808@zeusinc.com>
+Message-ID: <Pine.LNX.4.33.0104020729010.23387-100000@fogarty.jakma.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01 Apr 2001 18:21:29 -0500, Jeff Garzik wrote:
-> Let's hope it's not a flamewar, but here goes :)
-> 
-> We -need- .config, but /proc/config seems like pure bloat.
+On Sun, 1 Apr 2001, Tom Sightler wrote:
 
-Don't ask me for sample code, but...
+> III) I get a fair number of dropped packets at 115Kbps, enough to cause
+> problems and a significant speed decrease.  Simply dropping the serial port
+> rate to 56K seems to solve the problem.
 
-The init code for many drivers is freed up after it's used.
-Could we apply the same technique and compile in .config,
-then printk the entire lot (boot option) and free up the
-space afterwards?
+does the system have IDE disks? (DEC Venturis GL.. should be)
 
-FlatCap (Richard Russon)
-kernel@flatcap.org
+Try hdparm -u on all your IDE disks... should improve things.
+
+> Later,
+> Tom
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+What I want is all of the power and none of the responsibility.
+
 

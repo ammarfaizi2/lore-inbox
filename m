@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAIVQc>; Tue, 9 Jan 2001 16:16:32 -0500
+	id <S131051AbRAIVQx>; Tue, 9 Jan 2001 16:16:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131051AbRAIVQW>; Tue, 9 Jan 2001 16:16:22 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:9746 "EHLO quark.didntduck.org")
-	by vger.kernel.org with ESMTP id <S130092AbRAIVQK>;
-	Tue, 9 Jan 2001 16:16:10 -0500
-Message-ID: <3A5B7F76.ABDFED7A@didntduck.org>
-Date: Tue, 09 Jan 2001 16:15:34 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rob@sysgo.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Anybody got 2.4.0 running on a 386 ?
-In-Reply-To: <01010922090000.02630@rob>
+	id <S131958AbRAIVQc>; Tue, 9 Jan 2001 16:16:32 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:65296 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S130092AbRAIVQ0>;
+	Tue, 9 Jan 2001 16:16:26 -0500
+Date: Tue, 9 Jan 2001 23:16:17 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Tim Hockin <thockin@isunix.it.ilstu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: List down or am I unsubscribed?
+Message-ID: <20010109231617.Q25659@mea-ext.zmailer.org>
+In-Reply-To: <200101092002.OAA01458@isunix.it.ilstu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200101092002.OAA01458@isunix.it.ilstu.edu>; from thockin@isunix.it.ilstu.edu on Tue, Jan 09, 2001 at 02:02:30PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Kaiser wrote:
-> 
-> Hi list,
-> 
-> I can't seem to get the new 2.4.0 kernel running on a 386 CPU.
-> The kernel was built for a 386 Processor, Math emulation has been enabled.
-> I tried three different 386 boards. Execution seems to get as far as
-> pagetable_init() in arch/i386/mm/init.c, then it falls back into the BIOS as
-> if someone had pressed the reset button. The same kernel boots fine on
-> 486 and Pentium Systems.
-> 
-> Any ideas/suggestions ?
+On Tue, Jan 09, 2001 at 02:02:30PM -0600, Tim Hockin wrote:
+> I haven't received messages in a few days at least...
 
+	I kicked your address away few days ago, but damned if
+	I remember what was the trouble then....
 
-is "Checking if this processor honours the WP bit even in supervisor
-mode... " the last thing you see before the reset?
+	One of:
+	 - MX backup failure
+	 - temporary loss of user database
+	    "no such local user"  (YP/NIS/NIS+ glitch)
+	 - vger's IP reverser failure causing indigestion at
+	   your machine making it to yield 500 series error
+	   codes on everything that VGER sends..
 
---
-
-				Brian Gerst
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

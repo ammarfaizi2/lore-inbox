@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbTEPWln (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 18:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263246AbTEPWln
+	id S262703AbTEPWkG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 18:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTEPWkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 18:41:43 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63399
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263062AbTEPWlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 18:41:42 -0400
-Subject: RE: [PATCH] 2.5.68 FUTEX support should be optional
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christopher Hoover <ch@murgatroid.com>, "'Andrew Morton'" <akpm@digeo.com>,
-       "'Perez-Gonzalez, Inaky'" <inaky.perez-gonzalez@intel.com>,
-       hch@infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0305141758070.28007-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0305141758070.28007-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1053122141.5589.45.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 16 May 2003 18:40:06 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:18329 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262703AbTEPWkF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 18:40:05 -0400
+Date: Fri, 16 May 2003 15:54:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Jordan Breeding <jordan.breeding@sbcglobal.net>,
+       linux-kernel@vger.kernel.org, gibbs@scsiguy.com
+Subject: Re: 2.5.69-mm5 errors in dmesg
+Message-ID: <20030516225443.GA16982@kroah.com>
+References: <20030516054141.17385.qmail@web80105.mail.yahoo.com> <20030515231000.48497801.akpm@digeo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 May 2003 22:55:42 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030515231000.48497801.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-05-15 at 02:00, Linus Torvalds wrote:
-> I will strongly argue against making futexes conditional, simply because I 
-> _want_ people to be able to depend on them in modern kernels. I do not 
-> want developers to fall back on SysV semaphores just because it's too 
-> painful for them to use the faster alternatives.
+On Thu, May 15, 2003 at 11:10:00PM -0700, Andrew Morton wrote:
+> Jordan Breeding <jordan.breeding@sbcglobal.net> wrote:
+> >
+> > Hello,
+> > 
+> >   When booting 2.5.69-mm5 I have two errors showing up
+> > in dmesg, the first is the usb irq handler message
+> > below which is listed multiple times at boot:
+> > 
+> > irq 16: nobody cared!
+> > ...
+> > handlers:
+> > [<f03c3162>] (usb_hcd_irq+0x0/0x58)
+> 
+> Well darn.  Surely usb_hcd_irq() is coded correctly.
+> 
+> Maybe there is something fishy going on in the USB state machinery.
 
-In the embedded space being able to chop stuff out makes a lot of sense.
-It also encourages people to get modularity right. These are the same
-people who already turn SYS5 IPC off as well, as as for glibc, well its
-cute but its frequently bigger than the entire flash of the device.
+I hope not :(
 
-There are arguments in some cases for avoiding the selections (notably
-adding a zillion ifdefs to remove something thats utterly trivial) but
-providing most users see only
+I don't seem to get those errors here, is the "handlers:" info a -mm
+only feature?
 
-	Remove kernel features for embedded systems (Y/N)
+thanks,
 
-its no more dangerous/hassle than the kernel debug menu
-
-
+greg k-h

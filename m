@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUGHRMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264255AbUGHRNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264045AbUGHRMd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 13:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbUGHRMd
+	id S264255AbUGHRNi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 13:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264635AbUGHRNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 13:12:33 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:38094 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264045AbUGHRMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 13:12:31 -0400
-Message-ID: <40ED807C.70705@comcast.net>
-Date: Thu, 08 Jul 2004 13:12:28 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
-X-Accept-Language: en-us, en
+	Thu, 8 Jul 2004 13:13:38 -0400
+Received: from p02m170.mxlogic.net ([216.173.230.170]:44442 "HELO
+	p02m170.mxlogic.net") by vger.kernel.org with SMTP id S264255AbUGHRN2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 13:13:28 -0400
+From: Michael Driscoll <fenris@ulfheim.net>
+Organization: FFW/CO
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: [OT] Re: 0xdeadbeef vs 0xdeadbeefL
+Date: Thu, 8 Jul 2004 11:13:13 -0600
+User-Agent: KMail/1.6.2
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+References: <20040707184737.GA25357@infradead.org> <20040708111521.GK12308@parcelfarce.linux.theplanet.co.uk> <20040708164121.GA7496@pclin040.win.tue.nl>
+In-Reply-To: <20040708164121.GA7496@pclin040.win.tue.nl>
 MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Autoregulate swappiness & inactivation
-References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net> <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org> <cone.1089268800.781084.4554.502@pc.kolivas.org> <20040708001027.7fed0bc4.akpm@osdl.org> <cone.1089273505.418287.4554.502@pc.kolivas.org> <20040708010842.2064a706.akpm@osdl.org> <cone.1089275229.304355.4554.502@pc.kolivas.org> <40ED759C.2010009@techsource.com>
-In-Reply-To: <40ED759C.2010009@techsource.com>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407081113.13961.fenris@ulfheim.net>
+X-OriginalArrivalTime: 08 Jul 2004 17:13:23.0779 (UTC) FILETIME=[E0269930:01C4650E]
+X-MX-Spam: exempt
+X-MX-MAIL-FROM: <fenris@ulfheim.net>
+X-MX-SOURCE-IP: [63.78.248.11]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thursday 08 July 2004 10:41, Andries Brouwer wrote:
+> On Thu, Jul 08, 2004, viro@parcelfarce.linux.theplanet.co.uk:
+> > - Dirichlet Principle bites you anyway.
+>
+> Ah, it took me a few seconds to reconstruct what principle
+> you are referring to.
 
+I'm sure that Al meant "Dirichlet's Box Principle" here, as you say.
 
+http://mathworld.wolfram.com/DirichletsBoxPrinciple.html
+vs.
+http://mathworld.wolfram.com/DirichletsPrinciple.html
 
-Timothy Miller wrote:
-|
-|
-| Con Kolivas wrote:
-|
-|> /me hides
-|>
-|> Umm sorry the control systems I look at are physiological and tend to
-|> be exponential, so ignore me.
-|
-|
-| No.  I see no reason to disregard your understanding of biological
-| control systems.  Millions of years of evolution have fine-tuned some
-| very complex and robust control feedback systems.  While I wouldn't
-| suggest that they're the only way to do the job, they're something that
-| we should definately pay attention to.
-|
-| Frankly, I think the cross-pollination that you bring from your
-| background in medicine can do nothing but help us.
-|
-
-Con is a medic?  . . . . shit.  I'm 5 years overdue for my
-measles/mumps/rhubella shot
-
-/me hides *cough*
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA7YB6hDd4aOud5P8RApYOAJ46eBZIWctU6vZ1fJWVGOlX+HvhagCdEp8L
-Ved/y9Wwb+8wJodTkZY4spY=
-=wNu5
------END PGP SIGNATURE-----
+-- 
+Michael Driscoll, fenris@ulfheim.net
+"A noble spirit embiggens the smallest man" -- J. Springfield

@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129948AbQKEUSq>; Sun, 5 Nov 2000 15:18:46 -0500
+	id <S129992AbQKEUUg>; Sun, 5 Nov 2000 15:20:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129946AbQKEUS1>; Sun, 5 Nov 2000 15:18:27 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:260 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129692AbQKEUSI>;
-	Sun, 5 Nov 2000 15:18:08 -0500
-Message-ID: <20001105211126.A146@bug.ucw.cz>
-Date: Sun, 5 Nov 2000 21:11:26 +0100
+	id <S129991AbQKEUU0>; Sun, 5 Nov 2000 15:20:26 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:2820 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129853AbQKEUUK>;
+	Sun, 5 Nov 2000 15:20:10 -0500
+Message-ID: <20001105211413.A155@bug.ucw.cz>
+Date: Sun, 5 Nov 2000 21:14:13 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: >32K possible? Yes - on 1GB machine
+To: Zach Brown <zab@zabbo.net>, Mo McKinlay <mmckinlay@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Maestro3/Allegro: (was ESS device "1998")
+In-Reply-To: <Pine.LNX.4.21.0011021158250.8426-100000@kyle.altai.org> <20001102104401.C16000@tetsuo.zabbo.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
+In-Reply-To: <20001102104401.C16000@tetsuo.zabbo.net>; from Zach Brown on Thu, Nov 02, 2000 at 10:44:01AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-I played with machine with .5GB ram, and was able to spawn 16000
-'sleep forever' processes (compiled statically):
+> *nod*  Its the usual mc97 codec setup that leaves the hard work for the
+> processor.  I'm sure one can play around with the dsp on it as well,
+> but we don't have specs on the dsp's internals.
 
-void main(void)
-{
-	close(0); close(1); close(2); pause();
-}
-
-I belive that on 2GB machine, I'd be able to hit 32K processes
-limit. 1GB machine _could_ hit it too (someone try that).
-
-Strange thing is that machine does not even try to use swap, but
-userland stops working at the end.
-
+And if we had dsp specs, it would not help us. There's no freely
+available v.34 stack, and v.31bis (14k4, I hope I have it right) is
+free but needs port from multithreaded IRIX code.
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

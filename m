@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbVCWXOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVCWXQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbVCWXOe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 18:14:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbVCWXOe
+	id S261479AbVCWXQg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 18:16:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVCWXQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 18:14:34 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:62700 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262441AbVCWXOS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 18:14:18 -0500
-Date: Wed, 23 Mar 2005 15:13:22 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com
-cc: andrea@suse.de, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
-Message-ID: <17250000.1111619602@flay>
-In-Reply-To: <20050323144953.288a5baf.akpm@osdl.org>
-References: <20050315204413.GF20253@csail.mit.edu><20050316003134.GY7699@opteron.random><20050316040435.39533675.akpm@osdl.org><20050316183701.GB21597@opteron.random><1111607584.5786.55.camel@localhost.localdomain> <20050323144953.288a5baf.akpm@osdl.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Wed, 23 Mar 2005 18:16:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58009 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261479AbVCWXQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 18:16:29 -0500
+Message-ID: <4241F8BA.6070108@pobox.com>
+Date: Wed, 23 Mar 2005 18:16:10 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bernard Blackham <bernard@blackham.com.au>
+CC: Matt <matt@signalz.com>, linux-kernel@vger.kernel.org
+Subject: Re: Promise SX8 performance issues and CARM_MAX_Q
+References: <20050323175707.GA10481@blackham.com.au>
+In-Reply-To: <20050323175707.GA10481@blackham.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I run into OOM problem again on 2.6.12-rc1. I run some(20) fsx tests on
->>  2.6.12-rc1 kernel(and 2.6.11-mm4) on ext3 filesystem, after about 10
->>  hours the system hit OOM, and OOM keep killing processes one by one.
+Bernard Blackham wrote:
+> Hi,
 > 
-> I don't have a very good record reading these oom dumps lately, but this
-> one look really weird.  Basically no mapped memory, tons of pagecache on
-> the LRU.
+> Playing with a recently acquired Promise SX8 card, we've found
+> similar performance results to Matt's post to lkml a few months back
+> at http://marc.theaimsgroup.com/?l=linux-kernel&m=110175890323356&w=2
 > 
-> It would be interesting if you could run the same test on 2.6.11.  
+> It appears that the driver is only submitting one command at a time
+> per port, which is at least one cause of the slowdowns. By raising
+> CARM_MAX_Q from 1 to 3 in drivers/block/sx8.c (it was 3 in an
+> earlier pre-merge incarnation of carmel.c), we're getting very
+> notable speed improvements, with no side effects just yet.
+> 
+> Knowing very little about what this change has actually done, I've a
+> few questions: 
+> 
+>  - Should this be considered dangerous?
+>  - Why was it taken from 3 to 1?
+>  - Is CARM_MAX_Q a number defined (or limited) by the hardware?
 
-One thing I'm finding is that it's hard to backtrace who has each page
-in this sort of situation. My plan is to write a debug patch to walk
-mem_map and dump out some info on each page. I would appreciate ideas
-on what info would be useful here. Some things are fairly obvious, like
-we want to know if it's anon / mapped into address space (& which),
-whether it's slab / buffers / pagecache etc ... any other suggestions
-you have would be much appreciated.
+In multi-port stress tests, we couldn't get SX8 to function reliably 
+without locking up or corrupting data, with more than one outstanding 
+command.
 
-I'm suspecting in many cases we don't keep enough info, and it would be
-too slow to keep it in the default case - so I may need to add some
-extra debug fields in struct page as a config option, but let's start
-with what we have.
+Maybe a new firmware has solved this by now.
 
-M.
+	Jeff
+
+
 

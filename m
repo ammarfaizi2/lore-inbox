@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267179AbUGMWes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267185AbUGMWgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267179AbUGMWes (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 18:34:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267188AbUGMWem
+	id S267185AbUGMWgG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 18:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267192AbUGMWgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 18:34:42 -0400
-Received: from smtp2.wanadoo.fr ([193.252.22.29]:55097 "EHLO
-	mwinf0201.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S267179AbUGMWeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 18:34:15 -0400
-Message-ID: <40F4635C.3090003@reolight.net>
-Date: Wed, 14 Jul 2004 00:34:04 +0200
-From: Auzanneau Gregory <greg@reolight.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: fr, fr-fr, en, en-gb, en-us
+	Tue, 13 Jul 2004 18:36:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2472 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267185AbUGMWfu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 18:35:50 -0400
+Message-ID: <40F463B0.1010706@pobox.com>
+Date: Tue, 13 Jul 2004 18:35:28 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.8-rc1 and before: IO-APIC + DRI + RTL8139 = Disabling Ethernet
- IRQ
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: David Balazic <david.balazic@hermes.si>, Dave Jones <davej@redhat.com>,
+       Andries Brouwer <aebr@win.tue.nl>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Weird:  30 sec delay during early boot
+References: <600B91D5E4B8D211A58C00902724252C035F1D0C@piramida.hermes.si> <20040713221623.GA10480@lists.us.dell.com>
+In-Reply-To: <20040713221623.GA10480@lists.us.dell.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matt Domsch wrote:
+> David, Jeff, would you mind trying the patch below on your systems
+> which exhibit the long delays in the EDD real-mode code?
+> 
+> This does a few things:
+> 1) it uses an int13 fn15 "Get Disk Type" command prior to doing the
+> fn02 "Read Sectors" command, to try to determine if there is a disk
+> present or not before reading its signature.
+> 
+> 2) A few registers are more fully zeroed out, in case the BIOS cared
+> about things it shouldn't have.
+> 
+> Crossing my fingers that the delays are gone...
 
-When loading as a module or into kernel, when DRM is loading, I cannot
-use my network.
+Can you attach the patch, or switch mailers?
 
-Here is a part of the dmesg:
+The patch is word-wrapped and otherwise munged :(
 
-[drm] Loading R200 Microcode
-irq 19: nobody cared!
- [<c010732a>] __report_bad_irq+0x2a/0x8b
- [<c0107414>] note_interrupt+0x6f/0x9f
- [<c0107732>] do_IRQ+0x161/0x192
- [<c0105a00>] common_interrupt+0x18/0x20
-handlers:
-[<c0245383>] (rtl8139_interrupt+0x0/0x207)
-Disabling IRQ #19
-
-For the moment I can disabling IO-ACPI, but I'm thinking to change my
-processor with an processor w/HT. So IO-ACPI is enabling by default.
-
-How solve that ?
-
-Thanks in advance,
-
--- 
-Auzanneau Grégory
-GPG 0x99137BEE
+Example:
+> +# Do int13 fn15 first, as BIOS should know if a disk is present or not.
+> +# This avoids long (>30s) delays waiting for the READ_SECTORS to a non-pre=
+> sent disk.
+> +       xor     %eax, %eax

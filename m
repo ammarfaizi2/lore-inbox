@@ -1,95 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265347AbSKARRb>; Fri, 1 Nov 2002 12:17:31 -0500
+	id <S265356AbSKAR3e>; Fri, 1 Nov 2002 12:29:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265356AbSKARRb>; Fri, 1 Nov 2002 12:17:31 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:51725 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S265347AbSKARRa>; Fri, 1 Nov 2002 12:17:30 -0500
-From: Alexander Zarochentcev <zam@namesys.com>
+	id <S265358AbSKAR3e>; Fri, 1 Nov 2002 12:29:34 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:7045 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265356AbSKAR3e>; Fri, 1 Nov 2002 12:29:34 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 1 Nov 2002 09:45:37 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Dan Kegel <dank@kegel.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>, <lse-tech@lists.sourceforge.net>
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+In-Reply-To: <3DC2BCF5.5010607@kegel.com>
+Message-ID: <Pine.LNX.4.44.0211010940010.1715-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15810.46998.714820.519167@crimson.namesys.com>
-Date: Fri, 1 Nov 2002 20:19:18 +0300
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Hans Reiser <reiser@namesys.com>, lkml <linux-kernel@vger.kernel.org>,
-       Oleg Drokin <green@namesys.com>, umka <umka@namesys.com>
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
-In-Reply-To: <20021101102327.GA26306@louise.pinerecords.com>
-References: <3DC19F61.5040007@namesys.com>
-	<200210312334.18146.Dieter.Nuetzel@hamburg.de>
-	<3DC1B2FA.8010809@namesys.com>
-	<3DC1D63A.CCAD78EF@digeo.com>
-	<3DC1D885.6030902@namesys.com>
-	<3DC1D9D0.684326AC@digeo.com>
-	<3DC1DF02.7060307@namesys.com>
-	<20021101102327.GA26306@louise.pinerecords.com>
-X-Mailer: VM 7.00 under Emacs 21.2.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe writes:
- > > The atomic transactions that reiser4 offers are a much higher level of 
- > > data security than data journaling.  Really, you should read the 17 page 
- > > papers I send you URLs to;-).....
- > > (www.namesys.com/v4/fast_reiser4.html).
- > 
- > Am I to assume the following is expected behavior then?
- > 
- > # mkfs.reiser4 /dev/sda2
- > mkfs.reiser4, 0.1.0
- > Information: Reiser4 is going to be created on /dev/sda2.
- > (Yes/No): y
- > Creating reiser4 on /dev/sda2 with default40 profile...done
- > Synchronizing /dev/sda2...done
- > # mount /dev/sda2 /ap
- > # df /ap
- > Filesystem           1k-blocks      Used Available Use% Mounted on
- > /dev/sda2              1490332       136   1490196   1% /ap
- > # (cd /ap && tar xzf /usr/src/linux-2.5.45.tgz)
- > # df /ap
- > Filesystem           1k-blocks      Used Available Use% Mounted on
- > /dev/sda2              1490332    200508   1289824  14% /ap
- > # sync
- > # df /ap
- > Filesystem           1k-blocks      Used Available Use% Mounted on
- > /dev/sda2              1490332    200468   1289864  14% /ap
- > # rm -rf /ap/linux-2.5.45
- > # df /ap
- > Filesystem           1k-blocks      Used Available Use% Mounted on
- > /dev/sda2              1490332    255436   1234896  18% /ap
- > # # wtf is going on here?
- > # sync
- > # df /ap
- > Filesystem           1k-blocks      Used Available Use% Mounted on
- > /dev/sda2              1490332     85848   1404484   6% /ap
- > # umount /ap
- > # mount /dev/sda2 /ap
- > # df /ap
- > Filesystem           1k-blocks      Used Available Use% Mounted on
- > /dev/sda2              1490332     54532   1435800   4% /ap
- > # # and here?
+On Fri, 1 Nov 2002, Dan Kegel wrote:
 
-This should help:
+> Davide Libenzi wrote:
+> >>Do you avoid the cost of epoll_ctl() per new fd?
+> >
+> > Jamie, the cost of epoll_ctl(2) is minimal/zero compared with the average
+> > life of a connection.
+>
+> Depends on the workload.  Where I work, the http client I'm writing
+> has to perform extremely well even on 1 byte files with HTTP 1.0.
+> Minimizing system calls is suprisingly important - even
+> a gettimeofday hurts.
 
-diff -Nru a/txnmgr.c b/txnmgr.c
---- a/txnmgr.c	Wed Oct 30 18:58:09 2002
-+++ b/txnmgr.c	Fri Nov  1 20:13:27 2002
-@@ -1917,7 +1917,7 @@
- 		return;
- 	}
- 
--	if (!jnode_is_unformatted) {
-+	if (jnode_is_znode(node)) {
- 		if ( /**jnode_get_block(node) &&*/
- 			   !blocknr_is_fake(jnode_get_block(node))) {
- 			/* jnode has assigned real disk block. Put it into
+Dan, is it _one_ gettimeofday() or a gettimeofday() inside a loop ?
+gettimeofday() is of the order of few microseconds ... and If your clients
+works with anything alse than a loopback, few microseconds shouldn't weigh
+in much compared to connect/send/recv/close on a network connection. It is
+not much the fact that you transfer one byte, it's the whole TCP handshake
+cost that weighs in.
 
- > 
- > T.
 
-Thank you for report.
 
--- 
-Alex.
+- Davide
+
+

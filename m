@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264329AbRFSPtN>; Tue, 19 Jun 2001 11:49:13 -0400
+	id <S264334AbRFSPtd>; Tue, 19 Jun 2001 11:49:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264330AbRFSPtD>; Tue, 19 Jun 2001 11:49:03 -0400
-Received: from isimail.interactivesi.com ([207.8.4.3]:22536 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S264329AbRFSPs7>; Tue, 19 Jun 2001 11:48:59 -0400
-Date: Tue, 19 Jun 2001 10:48:48 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <635DA093636@vcnet.vc.cvut.cz>
-Subject: Re: gnu asm help...
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <giuPyB.A.JvE.jR3L7@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S264341AbRFSPtX>; Tue, 19 Jun 2001 11:49:23 -0400
+Received: from gene.pbi.nrc.ca ([204.83.147.150]:56328 "EHLO gene.pbi.nrc.ca")
+	by vger.kernel.org with ESMTP id <S264330AbRFSPtQ>;
+	Tue, 19 Jun 2001 11:49:16 -0400
+Date: Tue, 19 Jun 2001 09:44:51 -0600 (CST)
+From: <ognen@gene.pbi.nrc.ca>
+To: Dan Kegel <dank@kegel.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: re: accounting for threads
+In-Reply-To: <3B2F6759.6CF96382@kegel.com>
+Message-ID: <Pine.LNX.4.30.0106190940420.28643-100000@gene.pbi.nrc.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from "Petr Vandrovec" <VANDROVE@vc.cvut.cz> on Tue, 19 Jun
-2001 01:36:26 MET-1
+On an unrelated note:
+
+I noticed the quote below in your message. Is this a true quote or just a
+joke going around? I have tried believing it is just a joke but I am
+scared it is not.
+
+Best regards,
+Ognen
+
+On Tue, 19 Jun 2001, Dan Kegel wrote:
+
+[reply snipped]
+
+>
+>--
+> "A Computer is a state machine.
+>  Threads are for people who can't program state machines."
+>	- Alan Cox
 
 
-> No. Another CPU might increment value between LOCK INCL and
-> fetching v->counter. On ia32 architecture you are almost out of
-> luck. You can either try building atomic_inc around CMPXCHG,
-> using it as conditional store (but CMPXCHG is not available 
-> on i386), or you can just guard your atomic variable with 
-> spinlock - but in that case there is no reason for using atomic_t 
-> at all.
-
-Oh, I see the problem.  You could do something like this:
-
-cli
-mov %0, %%eax
-inc %%eax
-mov %%eax, %0
-sti
-
-and then return eax, but that won't work on SMP (whereas the "lock inc" does).
-Doing a global cli might work, though.
 
 
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
+
+
 

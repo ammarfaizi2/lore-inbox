@@ -1,60 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261642AbSJCRiO>; Thu, 3 Oct 2002 13:38:14 -0400
+	id <S261521AbSJCSaW>; Thu, 3 Oct 2002 14:30:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261669AbSJCRiO>; Thu, 3 Oct 2002 13:38:14 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:48256 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S261642AbSJCRiM>;
-	Thu, 3 Oct 2002 13:38:12 -0400
-Date: Thu, 3 Oct 2002 19:43:42 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: jbradford@dial.pipex.com
-Cc: vojtech@suse.cz (Vojtech Pavlik), tori@ringstrom.mine.nu,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40: AT keyboard input problem
-Message-ID: <20021003174342.GA19783@win.tue.nl>
-References: <20021003144319.A38785@ucw.cz> <200210031320.g93DKnqx000460@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210031320.g93DKnqx000460@darkstar.example.net>
-User-Agent: Mutt/1.3.25i
+	id <S261526AbSJCSaW>; Thu, 3 Oct 2002 14:30:22 -0400
+Received: from relay2.uni-heidelberg.de ([129.206.210.211]:45506 "EHLO
+	relay2.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S261521AbSJCSaV> convert rfc822-to-8bit; Thu, 3 Oct 2002 14:30:21 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Bernd Schubert <bernd.schubert@tc.pci.uni-heidelberg.de>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IDE subsystem issues with 2.4.18/19
+Date: Thu, 3 Oct 2002 20:35:46 +0200
+User-Agent: KMail/1.4.3
+References: <20021004140144.418a8569.Dexter.Filmore@gmx.de>
+In-Reply-To: <20021004140144.418a8569.Dexter.Filmore@gmx.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210032034.02875.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 02:20:48PM +0100, jbradford@dial.pipex.com wrote:
+On Friday 04 October 2002 14:01, Dexter Filmore wrote:
+> Got a motherboard with VIA VT8233 Southbridge (a MSI K7T266 Pro2),
+> Slackware 8.1 with a standard kernel (tried .18 as well as .19) patched
+> with SGI XFS support, two atapi drives attached with /dev/hdc is Pioneer115
+> DVD and /dev/hdd is a Traxdata 24x-writer, both running in scsi emulation.
+> Got VIA-support compiled in.
+>
+> Everythings runs fine: reading DVD, reading CD, writing CD.
+> *Apart from*: CD ripping. When trying to read audio CDs, the system locks
+> up, can't reproduce the exact error msgs right now, need a running system
+> atm. If you like, I'll post them later on.
+>
+> Tried cdparanoia 9.8-III, cdda2wav - nothing works.
+>
+> I contacted Vojtech Pavlik, the author of the via82xxx.c code who advised
+> me to ask Alan Cox or Andre Hedrick about this, so I thought best write to
+> this list.
+> Are there any workarounds/patches/voodoo magic for this problem?
+>
+> Dex
 
-> > Do you by any chance know the names of the unknown keys so that I could
-> > add them to the Set 3 default scancode map?
-> 
-> All I can tell you is a translation of what is written on the scancode 0x87 key
-> on this particular keyboard:
-> 
-> 'Hiragana/Roma_characters'
-> 
-> I can't translate the characters on the other keys.
-> 
-> However, somebody else might be able to - I found this diagram of the keyboard:
-> 
-> http://www.pfu.co.jp/hhkeyboard/kb_collection/ibm5576-002.gif
-> 
-> The legends on the bottom row of keys are exactly the same as on my keyboard,
-> and from left to right, they have the following functions:
-> 
-> Control
-> ALT, (it says, 'Kanji/Katakana/Kanji???', but works as ALT)
-> Scancode 0x85
-> Space bar
-> Scancode 0x86
-> Scancode 0x87, (it says, 'Hiragana/Roma characters')
-> ALT GR
-> Control
 
-For an explanation of the other keys, see
+Hi, 
 
-http://www.win.tue.nl/~aeb/linux/kbd/scancodes-3.html
+I don't know if it is related to this, but there seems to be general bug in 
+the cdrom-ide driver to get the exact size of a CD.
+When reading a CD-image using dd, my system also locks up until I eject the CD 
+with the cdrom-drive-eject button.
 
-(muhenkan / henkan).
+I've already send the following patch to Jens Axboe, but so far he hasn't 
+answered yet:
 
-Andries
+diff -rbBu linux-2.4.19/drivers/ide/ide-cd.c 
+linux-2.4.19_mod/drivers/ide/ide-cd.c
+--- linux-2.4.19/drivers/ide/ide-cd.c   Sat Aug  3 02:39:44 2002
++++ linux-2.4.19_mod/drivers/ide/ide-cd.c       Mon Sep 30 13:43:35 2002
+@@ -1903,7 +1903,7 @@
+
+        stat = cdrom_queue_packet_command(drive, &pc);
+        if (stat == 0)
+-               *capacity = 1 + be32_to_cpu(capbuf.lba);
++               *capacity = be32_to_cpu(capbuf.lba) - 1;
+
+        return stat;
+ }
+
+
+Please note that I got the correct value of *capacity empirically, since I 
+compered several values of the IDE-drive with the ones of my scsi drive. 
+
+Since I don't understand the cdrom_read_capacity() function (would be nice if 
+someone could explain me, where "capbuf.lba" gets its values and 
+what be32_to_cpu() does), I'm not 100% sure that the patch is correct.
+
+
+Bernd
+
+-- 
+Bernd Schubert
+Physikalisch Chemisches Institut
+Abt. Theoretische Chemie
+INF 229, 69120 Heidelberg
+Tel.: 06221/54-5210
+e-mail: 	bernd (dot) schubert (at) pci (dot) uni-heidelberg (dot) de 
 

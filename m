@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUCPSYM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 13:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUCPSYL
+	id S261186AbUCPSba (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 13:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUCPSba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 13:24:11 -0500
-Received: from web80508.mail.yahoo.com ([66.218.79.78]:15990 "HELO
-	web80508.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261159AbUCPSYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 13:24:10 -0500
-Message-ID: <20040316182409.54329.qmail@web80508.mail.yahoo.com>
-Date: Tue, 16 Mar 2004 10:24:09 -0800 (PST)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: RE: [PATCH 24/44] Workaround i8042 chips with broken MUX mode
-To: Vojtech Pavlik <vojtech@suze.cz>, torvalds@osdl.org, vojtech@ucw.cz,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 Mar 2004 13:31:30 -0500
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:9204 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S261186AbUCPSb3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 13:31:29 -0500
+Subject: Problem with atkbd.c
+From: Emmanuel Fleury <fleury@cs.auc.dk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Aalborg University -- Computer Science Dept.
+Message-Id: <1079461752.24676.23.camel@rade7.s.cs.auc.dk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 16 Mar 2004 19:29:12 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> +	
-> +	/* Workaround for broken chips which seem to
-support MUX, but in reality don't. */
-> +	/* They all report version 12.10 */
-> +	if (mux_version == 0xCA)
-> +		return -1;
+Hi,
 
-Hi, 
+I noticed today that I got several time the following error log in my
+/var/log/messages:
 
-I think it should be 0xAC (0xA4 with 4th bit flipped)
-as the version reported is 10.12:
+Mar 16 14:00:59 hermes vmunix: atkbd.c: Unknown key released (translated
+set 2,
+code 0x7a on isa0060/serio0).
+Mar 16 14:00:59 hermes vmunix: atkbd.c: This is an XFree86 bug. It
+shouldn't access hardware directly.
+Mar 16 14:00:59 hermes vmunix: atkbd.c: Unknown key released (translated
+set 2,
+code 0x7a on isa0060/serio0).
+Mar 16 14:00:59 hermes vmunix: atkbd.c: This is an XFree86 bug. It
+shouldn't access hardware directly.
 
-i8042.c: Detected active multiplexing controller, rev
-10.12.
+Is it a known bug ?
 
->From little debug info that I've been sent ThinkPad's
-controllers seem to be flipping 4th bit sometimes, I
-can't quite pinpoint the exact sequence.
+Regards
+-- 
+Emmanuel Fleury
 
-Dmitry
+Computer Science Department, |  Office: B1-201
+Aalborg University,          |  Phone:  +45 96 35 72 23
+Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
+9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
 
-P.S. Sorry for breaking the threading...

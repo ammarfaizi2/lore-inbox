@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262025AbRETPKB>; Sun, 20 May 2001 11:10:01 -0400
+	id <S262030AbRETPUm>; Sun, 20 May 2001 11:20:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262026AbRETPJv>; Sun, 20 May 2001 11:09:51 -0400
-Received: from web13907.mail.yahoo.com ([216.136.175.70]:28939 "HELO
-	web13907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262025AbRETPJq>; Sun, 20 May 2001 11:09:46 -0400
-Message-ID: <20010520150945.66552.qmail@web13907.mail.yahoo.com>
-Date: Sun, 20 May 2001 08:09:45 -0700 (PDT)
-From: szonyi calin <caszonyi@yahoo.com>
-Subject: BUG ? and questions
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S262034AbRETPUc>; Sun, 20 May 2001 11:20:32 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:32782 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S262030AbRETPUS>;
+	Sun, 20 May 2001 11:20:18 -0400
+Date: Sun, 20 May 2001 11:18:56 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: CML2 design philosophy heads-up
+Message-ID: <20010520111856.C3431@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010518114922.C14309@thyrsus.com> <20010518034307.A10784@thyrsus.com> <E150fV9-0006q1-00@the-village.bc.nu> <20010518105353.A13684@thyrsus.com> <3B053B9B.23286E6C@redhat.com> <20010518112625.A14309@thyrsus.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <8485.990357599@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <8485.990357599@redhat.com>; from dwmw2@infradead.org on Sun, May 20, 2001 at 12:19:59PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
-My name is Calin
-I have a Cx 486/66 with 12 Megs of ram AST computer
-gcc 2.95.3, glibc 2.1.3, make 3.79.1 binutils 2.11 ??
-Problems:
-1. When I try to run multiple (2) compilations on a
-2.4.4 kernel usually one
-of them dies -- if it's gcc - signal 11 ,  if it's sh
-or rarely  make -
-segmentation fault.
+David Woodhouse <dwmw2@infradead.org>:
+>                              The dependencies in CML1 are (supposed to
+> be) absolute - the 'advisory' dependencies you're adding are arguably a
+> useful feature, but please don't make it possible to confuse the two, and
+> please do make sure it's possible to disable the latter form.
 
-It is not a hardware problem (with kernel 2.2.x it
-does not do this
-and I have a cooler on my cpu)
+I don't understand this request.  I have no concept of `advisory' dependencies.
+What are you talking about?   Is my documentation horribly unclear?
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-2. I compiled a kernel 2.4.3 with XFS and sound as a
-module (I use alsa
-sound driver), and when I try to insmod soundcore.o it
-says about some
-unresolved symbols (one of them is printk )
-I don't have this problem with any of the originals
-2.4.x kernels
-(downloaded from kernel.org)
-
-Questions:
-1. I  have a vlb system and the kernel does not report
-an IDE controler
-I presume there is one. Is there a way to find out
-what type it is
-because a read about buggy 486 motherboards and I want
-to be sure
-that mine is not (It does not seems to be -- I have my
-system
-from about a year and a half and I have no problems )
-
-2. I saw in .config in the root of kernel tree
-"#CONFIG_BLK_DEV_IDEDISK_SEAGATE
-is not set ";
-the same for IBM, Maxtor etc. If I set this will be
-any performance inprovements ?
-
-3. I noticed that if I compile RTC  in the kernel my
-system runs smootly ?
-Is this just an illusion ?
-
-Sorry for bothering you
-Sorry if the questions are silly
-
-Bye
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/
+"Both oligarch and tyrant mistrust the people, 
+and therefore deprive them of arms."
+	--Aristotle

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282970AbRLDJ2E>; Tue, 4 Dec 2001 04:28:04 -0500
+	id <S282974AbRLDJ2F>; Tue, 4 Dec 2001 04:28:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282983AbRLDJ15>; Tue, 4 Dec 2001 04:27:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45328 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282970AbRLDJ1q>; Tue, 4 Dec 2001 04:27:46 -0500
-Subject: Re: [Linux-ia64] patch to no longer use ia64's software mmu
-To: davidm@hpl.hp.com
-Date: Tue, 4 Dec 2001 09:36:33 +0000 (GMT)
-Cc: arjanv@redhat.com (Arjan van de Ven), linux-kernel@vger.kernel.org,
-        linux-ia64@linuxia64.org, marcelo@conectiva.com.br, davem@redhat.com
-In-Reply-To: <15371.62205.231945.798891@napali.hpl.hp.com> from "David Mosberger" at Dec 03, 2001 01:47:41 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S282961AbRLDJ1t>; Tue, 4 Dec 2001 04:27:49 -0500
+Received: from junk.nocrew.org ([212.73.17.42]:1988 "EHLO junk.nocrew.org")
+	by vger.kernel.org with ESMTP id <S282974AbRLDJ1e>;
+	Tue, 4 Dec 2001 04:27:34 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lm@bitmover.com (Larry McVoy), hps@intermeta.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+In-Reply-To: <E16BBYJ-0001Jz-00@the-village.bc.nu>
+From: Lars Brinkhoff <lars.spam@nocrew.org>
+Organization: nocrew
+Date: 04 Dec 2001 10:27:10 +0100
+In-Reply-To: <E16BBYJ-0001Jz-00@the-village.bc.nu>
+Message-ID: <85elmbl4i9.fsf@junk.nocrew.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16BC09-0001Ql-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Another concern I have is that, fundamentally, I dislike the idea of
-> penalizing all IA-64 platforms due to one chipset that is, shall we
-> say, "lacking" (i.e., doesn't have an I/O TLB).
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> > you could educate me about all those 128 processor Linux boxes in the
+> > world and fill in a hole in my knowledge.  I'm listening...
+> There are at least two sets of people working on NUMA machines of that
+> order, as well as the IBM work on smaller NUMA systems.
 
-Allow me to introduce to you the concept of CONFIG_ options 8) It makes a
-lot of sense to have a generic IA64 kernel, and an IA64 designed by people
-with a brain kernel.
+Are you NUMA people listening?  What do you think of Larry's ideas?
 
-Alan
+-- 
+Lars Brinkhoff          http://lars.nocrew.org/     Linux, GCC, PDP-10
+Brinkhoff Consulting    http://www.brinkhoff.se/    programming

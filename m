@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263603AbTJQTc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 15:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbTJQTc6
+	id S263593AbTJQTew (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 15:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbTJQTew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 15:32:58 -0400
-Received: from mx2.it.wmich.edu ([141.218.1.94]:26366 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S263603AbTJQTc4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 15:32:56 -0400
-Message-ID: <3F9043E7.3070606@wmich.edu>
-Date: Fri, 17 Oct 2003 15:32:55 -0400
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031010 Debian/1.4-6
-X-Accept-Language: en
+	Fri, 17 Oct 2003 15:34:52 -0400
+Received: from web14911.mail.yahoo.com ([216.136.225.249]:23394 "HELO
+	web14911.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263593AbTJQTes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 15:34:48 -0400
+Message-ID: <20031017193447.41865.qmail@web14911.mail.yahoo.com>
+Date: Fri, 17 Oct 2003 12:34:47 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [Linux-fbdev-devel] Re: FBDEV 2.6.0-test7 updates.
+To: James Simmons <jsimmons@infradead.org>, Otto Solares <solca@guug.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Carlo E. Prelz" <fluido@fluido.as>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0310171751200.966-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: Alex Tomas <alex@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] EXT3 extents against 2.6.0-test7
-References: <20031013222747.37f5ee7b.alex@clusterfs.com>	<3F8B1BA1.4020800@wmich.edu> <20031014212359.42243025.alex@clusterfs.com>
-In-Reply-To: <20031014212359.42243025.alex@clusterfs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel BUG at fs/ext3/extents.c:389!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c0198127>]    Not tainted
-EFLAGS: 00010282
-EIP is at ext3_ext_find_extent+0x277/0x570
-eax: 00009ac6   ebx: e5257580   ecx: 00000000   edx: e2184940
-esi: 00000000   edi: 00000000   ebp: 00000000   esp: ca6adddc
-ds: 007b   es: 007b   ss: 0068
-Process find (pid: 10373, threadinfo=ca6ac000 task=ca97b380)
-Stack: 00000030 00000050 e7db0200 00458006 00000400 00000000 e2184940 
-e5257580
-        00000000 00000000 00000000 00000000 e5257614 e5257614 e5257580 
-c0199f02
-        e5257614 00000000 e2184940 e5257580 e5257614 c018fac1 e5257604 
-00000000
-Call Trace:
-  [<c0199f02>] ext3_ext_get_block+0xb2/0x320
-  [<c018fac1>] ext3_read_inode+0x221/0x2d0
-  [<c016b74f>] d_splice_alias+0x4f/0x130
-  [<c018d57d>] ext3_getblk+0x25d/0x2b0
-  [<c018d603>] ext3_bread+0x33/0xb0
-  [<c018a3e1>] ext3_readdir+0x141/0x4e0
-  [<c0165a7a>] vfs_readdir+0x7a/0x80
-  [<c0165db0>] filldir64+0x0/0x140
-  [<c0165f5f>] sys_getdents64+0x6f/0xa9
-  [<c0165db0>] filldir64+0x0/0x140
-  [<c01092e7>] syscall_call+0x7/0xb
+The people writing the AGP driver have added their ID's in the wrong format.
+ATI wants the IDs in the two letter form, not family/chip.  The fbdev patch has
+the ID's in correct form. The AGP driver should be the one that gets changed.
 
-Code: 0f 0b 85 01 51 fe 2e c0 66 85 c0 0f 84 ee 00 00 00 8b 7c 24
+--- James Simmons <jsimmons@infradead.org> wrote:
+> 
+> > - Could I2C be ported to kernel I2C api and separated?, so it use would not
+> > require the fbdev module loaded.
+> 
+> I don't think that can be done. At least not easily.
+>  
+> > - PCI IDs list should be in pci_ids.h as every other drivers, reality is
+> > that adding new IDs to pci_ids.h is not hard so your driver will not be the
+> > exception to the rule.
+> 
+> I agree here. We do need to watch out for the AGP drivers. Changing PCI 
+> Id's can break them. I dicovered that recently.
+> 
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.net email sponsored by: Enterprise Linux Forum Conference & Expo
+> The Event For Linux Datacenter Solutions & Strategies in The Enterprise 
+> Linux in the Boardroom; in the Front Office; & in the Server Room 
+> http://www.enterpriselinuxforum.com
+> _______________________________________________
+> Linux-fbdev-devel mailing list
+> Linux-fbdev-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel
 
 
-I'm not sure why this is happening.  Perhaps due to these ext3 locking 
-fixes that have been going into the kernel or what?
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
-Upon rebooting my last kernel for the first time in a couple of weeks it 
-crashed due to fs errors.  Now i'm getting this.  I only use extents on 
-a couple non-system partitions, so if i lose anything it's not a huge 
-deal but I'd like to find out why these errors are suddenly creeping up 
-so Any other info that's needed just ask and i'll give it.
-
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com

@@ -1,78 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265077AbTAATGv>; Wed, 1 Jan 2003 14:06:51 -0500
+	id <S261312AbTAATNi>; Wed, 1 Jan 2003 14:13:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265093AbTAATGv>; Wed, 1 Jan 2003 14:06:51 -0500
-Received: from alb-24-29-45-178.nycap.rr.com ([24.29.45.178]:5380 "EHLO
-	ender.tmmz.net") by vger.kernel.org with ESMTP id <S265077AbTAATGt>;
-	Wed, 1 Jan 2003 14:06:49 -0500
-Date: Wed, 1 Jan 2003 14:19:54 -0500 (EST)
-From: Matthew Zahorik <matt@albany.net>
-X-X-Sender: matt@ender.tmmz.net
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: sd driver NOT_READY behavior / was Re: How does the disk buffer
- cache work?
-In-Reply-To: <3E10F1C7.258629F6@digeo.com>
-Message-ID: <Pine.BSF.4.43.0301011400060.370-100000@ender.tmmz.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261529AbTAATNh>; Wed, 1 Jan 2003 14:13:37 -0500
+Received: from h-64-105-35-45.SNVACAID.covad.net ([64.105.35.45]:15802 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S261312AbTAATNh>; Wed, 1 Jan 2003 14:13:37 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 1 Jan 2003 11:21:58 -0800
+Message-Id: <200301011921.LAA02354@baldur.yggdrasil.com>
+To: akpm@digeo.com, James.Bottomley@steeleye.com
+Subject: Re: [PATCH] generic device DMA (dma_pool update)
+Cc: david-b@pacbell.net, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Dec 2002, Andrew Morton wrote:
+James Bottomley wrote:
+> void *
+> dma_alloc_coherent(struct device *dev, size_t size,
+>-                            dma_addr_t *dma_handle)
+>+                            dma_addr_t *dma_handle, int flag)
 
-> Matthew Zahorik wrote:
-> >
-> > Earlier I wrote to the list where my SS10 hung on the partition check
-> > if a bad disk was installed.
->
-> lock_page() will sleep until the page is unlocked.  The page is unlocked
-> from end_buffer_io_sync(), which is called from within the context of
-> the disk device driver's interrupt handler.
->
-> This is probably a device driver or interrupt routing problem: the disk
-> controller hardware interrupts are not making it through to the CPU.
+	I thought Andrew Morton's request for a gfp flag was for
+allocating memory from a pool (for example, a "read ahead" will want
+to abort if memory is unavailable rather than wait).
 
-Found the problem, don't know how to fix it.  2.4.20 kernel.
+	The big DMA allocations, however, will always occur during
+initialization, and I think will always have the intermediate policy
+of "I can block, but I should fail rather than block for more than a
+few seconds and potentially deadlock from loading too many drivers on
+a system with very little memory."
 
-The bad drive is returning "NOT READY" to sd.  According to this code in
-scsi_lib.c/scsi_io_completion():
+	Can someone show me or invent an example of two different uses
+of dma_alloc_coherent that really should use different policies on
+whether to block or not?
 
-               if ((SCpnt->sense_buffer[0] & 0x7f) == 0x70) {
-                        /*
-                         * If the device is in the process of becoming ready,
-                         * retry.
-                         */
-                        if (SCpnt->sense_buffer[12] == 0x04 &&
-                            SCpnt->sense_buffer[13] == 0x01) {
-                                scsi_queue_next_request(q, SCpnt);
-                                return;
-                        }
-
-My sense is [0] = 0x70, [2] = 0x2 (not ready) [12] = 4 [13] = 1.
-
-Unfortunately, the drive never becomes ready.  Therefore the request is
-resubmitted, forever.  Therefore the sector read never returns success,
-therefore you hang on read or write of a drive that returns NOT_READY
-forever.  Therefore I'm hanging on the read of the partition table,
-therefore my kernel won't start with a bad drive in the system.
-
-2.2 behavior was different.  A not ready would be labeled as a SCSI error
-and the failure to read was passed up through the layers.
-
-Now, I could put that beahavior back, where a NOT_READY is a fatal error,
-but I'm afraid to screw up other situations where NOT_READY means you
-should wait a little longer. (hot plug, removables, etc?)
-
-What is the correct behavior that I should implement?
-
-a.  if !removable && not ready then error
-b.  if not ready then increase count until threshold then error
-c   if not ready then error
-d.  none of the above
-
-Thanks!
-
-- Matt
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

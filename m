@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280731AbRKGBip>; Tue, 6 Nov 2001 20:38:45 -0500
+	id <S280740AbRKGCLU>; Tue, 6 Nov 2001 21:11:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280738AbRKGBif>; Tue, 6 Nov 2001 20:38:35 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:27619 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S280731AbRKGBi0>;
-	Tue, 6 Nov 2001 20:38:26 -0500
-Date: Tue, 6 Nov 2001 20:38:17 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andi Kleen <ak@suse.de>
-cc: Nathan Scott <nathans@sgi.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, acl-devel@bestbits.at,
-        linux-xfs@oss.sgi.comc
-Subject: Re: [RFC][PATCH] extended attributes
-In-Reply-To: <20011107023218.A4754@wotan.suse.de>
-Message-ID: <Pine.GSO.4.21.0111062037210.29465-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280758AbRKGCLL>; Tue, 6 Nov 2001 21:11:11 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:6668
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S280756AbRKGCLD>; Tue, 6 Nov 2001 21:11:03 -0500
+Date: Tue, 6 Nov 2001 21:18:34 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: ess maestro 2e card has tons of static
+Message-ID: <20011106211834.A3844@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kernel 2.4.4 to 2.4.14 all exibit this problem.  2.4.1 does not
 
+While playing anything through the sound, it will produce intermittent
+static with the sounds being played.
 
-On Wed, 7 Nov 2001, Andi Kleen wrote:
+This is an NEC Versa SX notebook.
 
-> I think it would be better to have a statefull readdir instead.
-> The kernel supports it via the ->private_data field of struct file
-> (not through fork,but that looks like a generic vfs bug) 
+dmesg output
+maestro: Configuring ESS Maestro 2E found at IO 0xEC00 IRQ 5
+maestro:  subvendor id: 0x80581033
+maestro: not attempting power management.
+maestro: AC97 Codec detected: v: 0x414b4d00 caps: 0x0 pwr: 0xf
+maestro: 1 channels configured.
+maestro: version 0.15 time 21:54:00 Nov  6 2001
 
-???  fork() just copies references to struct file.
+lspci -v
+00:04.0 Multimedia audio controller: ESS Technology ES1978 Maestro 2E (rev 10)
+        Subsystem: NEC Corporation ES1978 Maestro-2E Audiodrive
+        Flags: bus master, medium devsel, latency 64, IRQ 5
+        I/O ports at ec00 [size=256]
+        Capabilities: <available only to root>
 
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266594AbUAWQ72 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 11:59:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266595AbUAWQ72
+	id S262795AbUAWQxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 11:53:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbUAWQxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 11:59:28 -0500
-Received: from ulysses.news.tiscali.de ([195.185.185.36]:24845 "EHLO
-	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
-	id S266594AbUAWQ7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 11:59:16 -0500
-To: linux-kernel@vger.kernel.org
-Path: ulysses.tiscali.de!nobody
-From: Peter Matthias <espi@epost.de>
-Newsgroups: linux.kernel
-Subject: Re: [PATCH] rivafb & small 16 bit mode problem
-Date: Fri, 23 Jan 2004 16:05:41 +0100
-Organization: Tiscali Germany
-Message-ID: <58drub.99.ln@ulysses.tiscali.de>
-References: <1gF6W-Np-7@gated-at.bofh.it> <1gNe0-84O-11@gated-at.bofh.it> <1h734-14p-9@gated-at.bofh.it>
-NNTP-Posting-Host: p62.246.100.227.tisdip.tiscali.de
+	Fri, 23 Jan 2004 11:53:16 -0500
+Received: from gprs154-79.eurotel.cz ([160.218.154.79]:896 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262795AbUAWQxP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 11:53:15 -0500
+Date: Fri, 23 Jan 2004 17:53:04 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp vs  pgdir
+Message-ID: <20040123165304.GA257@elf.ucw.cz>
+References: <1074833921.975.197.camel@gaston> <20040123073426.GA211@elf.ucw.cz> <1074843781.878.1.camel@gaston> <20040123075451.GB211@elf.ucw.cz> <Pine.LNX.4.50.0401230759180.11276-100000@monsoon.he.net> <1074874219.835.32.camel@gaston> <Pine.LNX.4.50.0401230839420.11276-100000@monsoon.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: ulysses.news.tiscali.de 1074877155 42425 62.246.100.227 (23 Jan 2004 16:59:15 GMT)
-X-Complaints-To: abuse@tiscali.de
-NNTP-Posting-Date: Fri, 23 Jan 2004 16:59:15 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0401230839420.11276-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Buescher schrieb:
+Hi!
 
-> On Thu, 22 Jan 2004, [iso-8859-2] Pawe? Goleniowski wrote:
+> > Wait... wait... If the whole linear mapping isn't mapped by this flat
+> > pgdir, then we have a problem, since the MMU will have to go down the
+> > kernel pagetables to actually access the pages data when copying them
+> > around... but at this point, we are overriding the boot kernel page
+> > tables with the loader ones, so ...
 > 
->> But I have no idea which options should I send to kernel to get different
->> resolution (video=riva:800x600-16@85 don't work) and I have very ugly
-Linux
->> logo while booting ;)
-> 
-> video=rivafb:800x600-16@85
->           ^^
-> 
-> should work
+> A new pgdir is allocated on resume that does not overlap with any pages
+> being restored. See relocate_pagedir() in the code..
 
-Well, even this does not work on my nforce 2 integrated grafics. Any clues?
+Look again. relocate_pagedir() does not work with hardware page
+directories. Instead, it deals with swsusp data structure telling it
+what to copy where.
 
-Peter
+Okay, it could use some better name...
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

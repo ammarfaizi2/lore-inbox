@@ -1,58 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261326AbTCJPEm>; Mon, 10 Mar 2003 10:04:42 -0500
+	id <S261320AbTCJO53>; Mon, 10 Mar 2003 09:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261328AbTCJPEm>; Mon, 10 Mar 2003 10:04:42 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:47565 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261326AbTCJPEl>; Mon, 10 Mar 2003 10:04:41 -0500
-Date: Mon, 10 Mar 2003 07:14:33 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64bk5: X86_PC + HIGHMEM boot failure
-Message-ID: <1090000.1047309272@[10.10.2.4]>
-In-Reply-To: <200303100846.AAA09348@baldur.yggdrasil.com>
-References: <200303100846.AAA09348@baldur.yggdrasil.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S261325AbTCJO52>; Mon, 10 Mar 2003 09:57:28 -0500
+Received: from pushme.nist.gov ([129.6.16.92]:64687 "EHLO postmark.nist.gov")
+	by vger.kernel.org with ESMTP id <S261320AbTCJO51>;
+	Mon, 10 Mar 2003 09:57:27 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TransMeta longrun control utility maintainer?
+References: <9cfy93s4mbd.fsf@rogue.ncsl.nist.gov>
+	<20030306181829.GA3431@kroah.com>
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: Mon, 10 Mar 2003 10:07:38 -0500
+In-Reply-To: <20030306181829.GA3431@kroah.com> (Greg KH's message of "Thu, 6
+ Mar 2003 10:18:30 -0800")
+Message-ID: <9cfisurs1j9.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i686-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Err, I meant 2.5.64bk4. 
-> 
->> Hmmm ... well I don't see bk4 on ftp.kernel.org,
-> 
-> 	I meant ftp://ftp.kernel.org/pub/liux/kernel/v2.5/linux-2.5.64.tar.gz
-> patched with
-> ftp://ftp.kernel.org/pub/liux/kernel/v2.5/snapshots/patch-2.5.64-bk4.gz.
+Greg KH <greg@kroah.com> writes:
 
-Yeah, I know ... hadn't seemed to have mirrored across when I looked,
-but I grabbed it from somewhere else.
- 
-> 	Oops.  You're right it is possible to deactivate
-> CONFIG_NUMA in this kernel under X86_PC, and that avoids
-> the problem.  I guess there still is the minor issue that
-> either CONFIG_NUMA should work with X86_PC + HIGHMEM (even
-> on machines without high memory) or else CONFIG_NUMA
-> should not be selectable in this case, but that's obviously
-> a bug of much less importance.
+> On Thu, Mar 06, 2003 at 09:11:18AM -0500, Ian Soboroff wrote:
+>> 
+>> I know this isn't the best place to ask, but maybe someone here knows.
+>> 
+>> Who is maintaining the longrun(1) (should probably be longrun(8))
+>> utility?  The author is listed as Daniel Quinlan
+>> <quinlan@transmeta.com>, but mail to that address bounces.
+>> 
+>> The longrun utility frobs the MSR on TransMeta processors to switch
+>> between performance and economy modes.
+>> 
+>> On my laptop, currently running 2.4.21-pre5-ac1, I get the following
+>> error:
+>
+> It works for me just fine on 2.4.21-pre5, have you tried that kernel
+> version?
 
-Right, it *should* work ... Andy wrote the patches to enable that so 
-that distros could use a common kernel. Maybe it ought to depend on 
-CONFIG_SMP + HIGHMEM_64GB as well, which would cut out most of the 
-confusion, but still make it useful for distros. 
+I'm getting the same problem under -pre5, too.
 
-> 	Sorry for my misunderstanding of the CONFIG_NUMA configution
-> options.
+# uname -a
+Linux euphrates 2.4.21-pre5 #1 Thu Mar 6 15:10:53 EST 2003 i686 i686 i386 GNU/Linux
+# longrun -p
+longrun: error reading /dev/cpu/0/cpuid: Invalid argument
+# ls -l /dev/cpu/0
+total 0
+crw-r--r--    1 root     root     203,   0 Aug 30  2002 cpuid
+crw-------    1 root     root      10, 184 Aug 30  2002 microcode
+crw-------    1 root     root     202,   0 Aug 30  2002 msr
+# strace longrun -p
+execve("/usr/local/bin/longrun", ["longrun", "-p"], [/* 33 vars */]) = 0
+uname({sys="Linux", node="euphrates", ...}) = 0
+brk(0)                                  = 0x804ab04
+open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY)      = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=84791, ...}) = 0
+old_mmap(NULL, 84791, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40013000
+close(3)                                = 0
+open("/lib/i686/libc.so.6", O_RDONLY)   = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\220Y\1"..., 1024) = 1024
+fstat64(3, {st_mode=S_IFREG|0755, st_size=1395734, ...}) = 0
+old_mmap(0x42000000, 1239844, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x42000000
+mprotect(0x42126000, 35620, PROT_NONE)  = 0
+old_mmap(0x42126000, 20480, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x126000) = 0x42126000
+old_mmap(0x4212b000, 15140, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4212b000
+close(3)                                = 0
+old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40028000
+munmap(0x40013000, 84791)               = 0
+geteuid32()                             = 0
+open("/dev/cpu/0/cpuid", O_RDWR)        = 3
+open("/dev/cpu/0/msr", O_RDWR)          = 4
+pread(3, 0xbffff890, 16, 18446744071570849792) = -1 EINVAL (Invalid argument)
+write(2, "longrun: ", 9longrun: )                = 9
+write(2, "error reading /dev/cpu/0/cpuid", 30error reading /dev/cpu/0/cpuid) = 30
+write(2, ": Invalid argument\n", 19: Invalid argument
+)    = 19
+_exit(1)                                = ?
 
-No prob ... should probably be made more obvious. Are you by any chance
-doing "yes | make oldconfig"? That's the obvious way to switch it on
-by chance ... if so, can I recommend doing "yes '' | make oldconfig"
-instead? That'll take the defaults, and work much better in general.
+That offset to pread() looks bogus...
 
-M.
+Ian
 

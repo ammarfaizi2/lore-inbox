@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264053AbTIIVQs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTIIVQs
+	id S264655AbTIIVOm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTIIVOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:16:48 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:58897 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S264053AbTIIVQl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:16:41 -0400
-Date: Tue, 9 Sep 2003 23:16:36 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: davidm@hpl.hp.com, Jes Sorensen <jes@wildopensource.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-Subject: Re: [Patch] asm workarounds in generic header files
-Message-ID: <20030909211636.GA4400@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	davidm@hpl.hp.com, Jes Sorensen <jes@wildopensource.com>,
-	"Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-	Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org,
-	"Nakajima, Jun" <jun.nakajima@intel.com>,
-	"Mallick, Asit K" <asit.k.mallick@intel.com>
-References: <16222.14136.21774.211178@napali.hpl.hp.com> <Pine.LNX.4.44.0309091329570.30594-100000@home.osdl.org>
+	Tue, 9 Sep 2003 17:14:42 -0400
+Received: from 24-193-66-245.nyc.rr.com ([24.193.66.245]:14976 "EHLO
+	siri.morinfr.org") by vger.kernel.org with ESMTP id S264655AbTIIVOj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 17:14:39 -0400
+Date: Tue, 9 Sep 2003 17:14:42 -0400
+From: Guillaume Morin <guillaume@morinfr.org>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix cpu_test_and_set() on UP
+Message-ID: <20030909211441.GF1937@siri.morinfr.org>
+Mail-Followup-To: torvalds@osdl.org, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309091329570.30594-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 01:33:51PM -0700, Linus Torvalds wrote:
-> 
-> Then, have a config-time "set the right symbolic link" the same way we do 
-> for "include/asm/", so that we can have a set of _clean_ 
-> compiler-dependent abstractions.
+Hi Linus and Andrew,
 
-I would prefer to have a compiler.h like this:
+cpumask_up.h is broken. It tries to access the "mask" member although
+that cpumask_t is an ulong on UP. This breaks archs which uses cpumask
+functions even on UP such as s390.
 
-#if COMPILER=GCC-2.95
-#include <compiler_gcc295.h
-#endif
 
-#if COMPILER=INTEL
-#include <compiler_intel.h>
-#endif
+--- include/asm-generic/cpumask_up.h    28 Aug 2003 16:23:00 -0000      1.1
++++ include/asm-generic/cpumask_up.h    9 Sep 2003 21:12:21 -0000
+@@ -6,7 +6,7 @@
+ #define cpu_set(cpu, map)              do { (void)(cpu); cpus_coerce(map) = 1UL; } while (0)
+ #define cpu_clear(cpu, map)            do { (void)(cpu); cpus_coerce(map) = 0UL; } while (0)
+ #define cpu_isset(cpu, map)            ((void)(cpu), cpus_coerce(map) != 0UL)
+-#define cpu_test_and_set(cpu, map)     ((void)(cpu), test_and_set_bit(0, (map).mask))
++#define cpu_test_and_set(cpu, map)     ((void)(cpu), test_and_set_bit(0, &(map)))
 
-Better one more indirection in a simple compiler.h file than another symlink.
-Symlinks should be used in rare cases only.
+ #define cpus_and(dst, src1, src2)                                      \
+        do {                                                            \
 
-	Sam
+Please apply.
+
+-- 
+Guillaume Morin <guillaume@morinfr.org>
+
+                    Sometimes I find I need to scream (RHCP)

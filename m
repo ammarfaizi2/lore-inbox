@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265137AbTL2UXo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 15:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265139AbTL2UXj
+	id S263868AbTL2UOH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 15:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTL2UNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 15:23:39 -0500
-Received: from apate.telenet-ops.be ([195.130.132.57]:28086 "EHLO
-	apate.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S265137AbTL2UXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 15:23:32 -0500
-Date: Mon, 29 Dec 2003 21:22:21 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0 - Watchdog patches
-Message-ID: <20031229212221.J30061@infomag.infomag.iguana.be>
-References: <20030906125136.A9266@infomag.infomag.iguana.be> <20031229205246.A32604@infomag.infomag.iguana.be> <Pine.LNX.4.58.0312291209150.2113@home.osdl.org>
+	Mon, 29 Dec 2003 15:13:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29315 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263868AbTL2UN3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 15:13:29 -0500
+Date: Mon, 29 Dec 2003 20:13:28 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Omkhar Arasaratnam <omkhar@rogers.com>
+Cc: axeboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/cdrom/isp16.c check_region() fix
+Message-ID: <20031229201328.GM4176@parcelfarce.linux.theplanet.co.uk>
+References: <20031229194222.GA26019@omkhar.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.58.0312291209150.2113@home.osdl.org>; from torvalds@osdl.org on Mon, Dec 29, 2003 at 12:11:01PM -0800
+In-Reply-To: <20031229194222.GA26019@omkhar.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-
-> This tree has 38 deltas, all just merges.
+On Mon, Dec 29, 2003 at 02:42:23PM -0500, Omkhar Arasaratnam wrote:
+> check_region is depreciated in 2.6, this replaces it with request_region
 > 
-> The end result is a horribly messy revision tree, for a few one-liners.
-> 
-> I'm going to take the patch as a patch instead, and hope that you'll throw 
-> your BK tree away.
+> As this is my first patch to the kernel, please let me know if I did anything wrong
 
-Hmmm, the result of postponing these one-liners until 2.6.0 was out... I'll throw
-it away in a couple of minutes. Thanks for the feedback though!
+It's pointless - the reason why check_region() is bad applies to your code.
+The problem with check_region() is simple - it gives no protection against
+somebody else grabbing the ports in question just as you've got "it's free"
+from check_region().  The same problem exists with your replacement -
+as soon as you've released the region it could've been grabbed by anybody.
 
-Greetings and a happy new-year,
-Wim.
-
+Note that there's another problem - on rmmod we release the region we
+hadn't grabbed.  Proper fix is
+	a) replace check_region with request_region
+	b) check that we don't have any IO on those ports before that
+point (surprisingly many drivers are buggy that way - they do some IO
+and then go "oops, looks like somebody held these ports after all;
+oh, well, let's hope we hadn't screwed them too badly").  AFAICS isp16
+is OK in that repect, though.
+	c) make sure that we release that region on all failure exits
+past that point, so that insmod failure would not leave it grabbed.

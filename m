@@ -1,73 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263482AbTH3JEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 05:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263492AbTH3JEI
+	id S263043AbTH3I7d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 04:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263443AbTH3I7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 05:04:08 -0400
-Received: from tmi.comex.ru ([217.10.33.92]:6044 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S263482AbTH3JEF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 05:04:05 -0400
-X-Comment-To: Ed Sweetman
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [RFC] extents support for EXT3
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: Sat, 30 Aug 2003 13:09:32 +0400
-In-Reply-To: <3F4FAFA2.4080202@wmich.edu> (Ed Sweetman's message of "Fri, 29
- Aug 2003 15:55:14 -0400")
-Message-ID: <m3u17zo6k3.fsf@bzzz.home.net>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
-References: <m33cfm19ar.fsf@bzzz.home.net> <3F4E4605.6040706@wmich.edu>
-	<m3vfshrola.fsf@bzzz.home.net> <3F4F7129.1050506@wmich.edu>
-	<m3vfsgpj8b.fsf@bzzz.home.net> <3F4F76A5.6020000@wmich.edu>
-	<m3r834phqi.fsf@bzzz.home.net> <3F4F7D56.9040107@wmich.edu>
-	<m3isogpgna.fsf@bzzz.home.net> <3F4F923F.9070207@wmich.edu>
-	<m3ad9snxo6.fsf@bzzz.home.net> <3F4FAFA2.4080202@wmich.edu>
-MIME-Version: 1.0
+	Sat, 30 Aug 2003 04:59:33 -0400
+Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:40431
+	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S263043AbTH3I7a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 04:59:30 -0400
+Date: Sat, 30 Aug 2003 08:27:44 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Antonio Vargas <wind@cocodriloo.com>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4] gcc3 warns about type-punned pointers ?
+Message-ID: <20030830062744.GE640@wind.cocodriloo.com>
+References: <20030828223511.GA23528@werewolf.able.es> <20030829152418.GB709@wind.cocodriloo.com> <20030829184847.GA2069@werewolf.able.es> <Pine.LNX.4.53.0308291517001.32044@chaos>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0308291517001.32044@chaos>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 29, 2003 at 03:41:32PM -0400, Richard B. Johnson wrote:
+> On Fri, 29 Aug 2003, J.A. Magallon wrote:
+> 
+> >
+> > On 08.29, Antonio Vargas wrote:
+> > > On Fri, Aug 29, 2003 at 12:35:11AM +0200, J.A. Magallon wrote:
+> > [...]
+> > > >
+> > > > A collateral question: why is the reason for this function ?
+> > > > long long assignments are not atomic in gcc ?
+> > >
+> > > On x86, long long int == 64 bits but the chip is 32 bits wide,
+> > > so it uses 2 separate memory accesses. There are 64bit-wide
+> > > instructions which do bus-locking so that the are atomic,
+> > > but gcc will not use them directly.
+> > >
+> >
+> > I know, my question was why gcc does not generate cmpxchg8b on
+> > a 64 bits assign. Or it should not ?
+> >
+> 
+> It's not an assignment operator. The fact that you 'could' use
+> it as one is not relevant. For instance, using XOR you can
+> exchange the values of two operands. However, you would not
+> really like a 'C' compiler to do that. Instead, you would
+> expect it to stash some invisible temporary variable some-
+> where, hopefully in a register. If you really want to
+> swap values using the ^ operator, then you can code it yourself.
+> 
+> 
+> Wana play?
+> 
+> int main()
+> {
+>     int a, b;
+>     a = 0xaaaaaaaa;
+>     b = 0xbbbbbbbb;
+>    printf("a = %08x b = %08x \n", a, b);
+> // Swap
+>    a ^= b;
+>    b ^= a;
+>    a ^= b;
+>    printf("a = %08x b = %08x \n", a, b);
+>     return 0;
+> }
+> 
+> The generated code is awful:
+> 
+> 	movl -8(%ebp),%edx
+> 	xorl %edx,-4(%ebp)
+> 	movl -4(%ebp),%edx
+> 	xorl %edx,-8(%ebp)
+> 	movl -8(%ebp),%edx
+> 	xorl %edx,-4(%ebp)
+> 	movl -8(%ebp),%eax
+> 
+> gcc doesn't care that some xchg operations are atomic. If there
+> was an 'atomic_t' type that 'C' (generically) knew about, then
+> the code-generator might try to find some strange sequence that
+> would perform 64-bit atomic operations on a 32-bit processor as
+> a side-effect, which is what it is with the compare/exchange-8-bytes
+> opcode.
+> 
 
-yes, you're correct. extents make sense for large files generally speaking.
-having extents, it's simpler to implement delayed allocation, imho. delayed
-allocation makes sense for all files. especially for temporary files (say,
-.S files during make bzImage). this technique allows to avoid block allocation
-at all for such files and make file's placement more contigoues.
+That was my fault for introducing an exchange instruction
+into an assignement discussion, but I don't know of any
+x86 instruction which can load 64bits to memory atomically,
+is there any???
 
-I agree about system fs (/, /boot, /usr, /var), because most of files are
-quite small and change rarely.
-
->>>>> Ed Sweetman (ES) writes:
-
- ES> Well, it appears that you need about 10+ blocks per extent to see any
- ES> noticable performance gain.  The problem is most files are not large
- ES> enough to achieve this.  Most range from a few kB to a couple mB. High
- ES> activity directories like /tmp and /usr deal mostly with numerous
- ES> small files.  Now the reason i bring this up is that extents basically
- ES> make your fs incompatible with any kernel not compiled with the patch,
- ES> which means if something bad happened and you needed to use a bootable
- ES> cdrom with some safety kernel, it wouldn't be that useful.  for such
- ES> small improvements, it doesn't seem worth the risk to make / or
- ES> directories like /tmp,/var,/usr,/boot,/lib etc, with extents.  The
- ES> files just dont get large enough to make performance gains worth more
- ES> than backward compatibility.
-
- ES> Now for media, like music and movies and such, this makes a lot of
- ES> sense. Files get large enough so that the block to extent use is very
- ES> high and the files aren't necessary to use the system.  extents are 5
- ES> seconds faster when md5summing a 622MB file than the same file written
- ES> without extents enabled.
-
-
- ES> I would not recommend using the patch for system directories only
- ES> because it leaves you with no way to rescue the system and does very
- ES> little in the way of performance for those directories. Ext3 is
- ES> backwards compatible with ext2, this patch seemingly breaks
- ES> that. Because of that it doesn't seem to be ext3 anymore, rather a one
- ES> way compatibility with ext3 with a purely large media bias.
-
+Greets, Antonio.
 

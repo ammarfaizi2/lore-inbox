@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265644AbUGHJax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265847AbUGHJcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265644AbUGHJax (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 05:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUGHJax
+	id S265847AbUGHJcm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 05:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265939AbUGHJcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 05:30:53 -0400
-Received: from av4-1-sn3.vrr.skanova.net ([81.228.9.111]:56739 "EHLO
-	av4-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S265644AbUGHJaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 05:30:52 -0400
-Date: Thu, 8 Jul 2004 11:30:45 +0200 (CEST)
-From: Peter Osterlund <petero2@telia.com>
-X-X-Sender: petero@best.localdomain
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Can't make use of swap memory in 2.6.7-bk19
-In-Reply-To: <40ED049B.2020406@yahoo.com.au>
-Message-ID: <Pine.LNX.4.58.0407081126360.3104@telia.com>
-References: <m2brir9t6d.fsf@telia.com> <40ECADF8.7010207@yahoo.com.au>
- <m2fz82hq8c.fsf@telia.com> <20040708012005.6232a781.akpm@osdl.org>
- <40ED049B.2020406@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Jul 2004 05:32:42 -0400
+Received: from rev.193.226.233.85.euroweb.hu ([193.226.233.85]:18325 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S265847AbUGHJci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 05:32:38 -0400
+To: linux-kernel@vger.kernel.org
+Subject: soft deadlock in blk_congestion_wait (2.6.7)
+Message-Id: <E1BiVFa-0003uQ-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 08 Jul 2004 11:31:30 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Jul 2004, Nick Piggin wrote:
+While running LTP tests (more specifically the ftest* testcases) on
+FUSE (http://sourceforge.net/projects/avf), I run into the following
+problem: the process serving the FUSE filesystem requests does some
+debugging write to an ext3 filesystem, and deadlocks in
+blk_congestion_wait:
 
-> Andrew Morton wrote:
-> > Peter Osterlund <petero2@telia.com> wrote:
->
-> >>Doesn't help. My test program still fails in the same way.
-> >
-> > Something odd is happening - I've run that testcase in various shapes and
-> > forms a huge number of times.
-> >
-> > What filesystems are in use?  Is there anything unusual about the setup?
-> > Do earlier 2.6 kernels exhibit the same problem?  Is something wrong with
-> > the disk system?
+fusexmp       D C043E760     0  2130   2125                     (NOTLB)
+c0c99c50 00200082 c09bb3f0 c043e760 00000664 c791f6b0 c043ec08 00000000
+       c0c99c64 c0c99c50 00200246 00000801 f70d3b39 00000664 c09bb598 0066663b
+       c0c99c64 c03ce968 c0c99c8c c033195e c0c99c64 0066663b c0115051 c0443f00
+Call Trace:
+ [<c033195e>] schedule_timeout+0x5e/0xb0
+ [<c03318f1>] io_schedule_timeout+0x11/0x20
+ [<c02275be>] blk_congestion_wait+0x6e/0x90
+ [<c01369ce>] balance_dirty_pages+0xde/0x150
+ [<c01332a4>] generic_file_aio_write_nolock+0x4f4/0xc00
+ [<c0133ac1>] generic_file_aio_write+0x81/0xa0
+ [<c018609f>] ext3_file_write+0x3f/0xd0
+ [<c014eab7>] do_sync_write+0x87/0xc0
+ [<c014eb9a>] vfs_write+0xaa/0x130
+ [<c014ecbf>] sys_write+0x3f/0x60
+ [<c010423b>] syscall_call+0x7/0xb
 
-I use only ext3, the disc system is working fine AFAIK. 2.6.7-bk10 has the
-same problem, 2.6.7-bk2 completes the test case, but it takes 50-70s, and
-the system is completely frozen until the program finishes.
+Some other process performing a read will kick it out of this coma,
+but if left alone it will wait there forever.
 
-> Also, have you changed /proc/sys/vm/swappiness?
+The FUSE request being served is a write, called from
+aops->commit_write().  So my guess is that the kernel does not handle
+this sort of recursive write too well.  
 
-swappiness is set to 60.
+Can someone explain what blk_congestion_wait() is waiting for, and why
+does that event not happen?
 
-However, I realized that I had set /proc/sys/vm/laptop_mode to 1. If I set
-it to 0, 2.6.7-bk10 starts to work.
+I've seen a very similar report for CIFS here:
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108807439504273&w=2
+
+So it's not even FUSE specific, though it could be a bug in the
+filesystems themselves in both cases, or possibly a core kernel bug.
+
+Thanks,
+Miklos

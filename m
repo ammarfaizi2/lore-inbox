@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUCaO5X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 09:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbUCaO5X
+	id S261998AbUCaPDs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 10:03:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbUCaPDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 09:57:23 -0500
-Received: from mail.shareable.org ([81.29.64.88]:27028 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261987AbUCaO5W
+	Wed, 31 Mar 2004 10:03:48 -0500
+Received: from mail.shareable.org ([81.29.64.88]:29844 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261998AbUCaPDr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 09:57:22 -0500
-Date: Wed, 31 Mar 2004 15:57:11 +0100
+	Wed, 31 Mar 2004 10:03:47 -0500
+Date: Wed, 31 Mar 2004 16:02:19 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Jan Kesten <rwe.piller@the-hidden-realm.de>, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.4 and nfs lockd.udpport?
-Message-ID: <20040331145711.GB18990@mail.shareable.org>
-References: <200403290958.i2T9w2fJ029554@mail.bytecamp.net> <1080587948.2410.68.camel@lade.trondhjem.org>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Bill Davidsen <davidsen@tmr.com>, Len Brown <len.brown@intel.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Willy Tarreau <willy@w.ods.org>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
+Message-ID: <20040331150219.GC18990@mail.shareable.org>
+References: <4069A359.7040908@nortelnetworks.com> <1080668673.989.106.camel@dhcppc4> <4069D3D2.2020402@tmr.com> <Pine.LNX.4.55.0403311305000.24584@jurand.ds.pg.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1080587948.2410.68.camel@lade.trondhjem.org>
+In-Reply-To: <Pine.LNX.4.55.0403311305000.24584@jurand.ds.pg.gda.pl>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> > I read the docs and found that the parameters sould be lockd.udpport and 
-> > lockd.tcpport=xxx - but this doesn't work. While booting I got errors that 
-> > both are unknown boot options. 
-> > 
-> > Where is my mistake? 
-> 
-> Someone updated lockd so that it uses a sysctl-based interface instead.
-> Apparently without changing the docs.
+Maciej W. Rozycki wrote:
+>  Well, "cmpxchg", "xadd", etc. can be easily emulated with an aid of a
+> spinlock.  With SMP operation included.
 
-I added the sysctl-based interface, and kept the modules parameters,
-and updated the code in line with the 2.6 module parameter style.
-See the "module_param_call" lines in fs/lockd/svc.c.
+Nope.  Len Brown wrote:
 
-The module parameters "nlm_udpport" and "nlm_tcpport" _do_ work -- I
-use them with my firewall.
+> Linux uses this locking mechanism to coordinate shared access
+> to hardware registers with embedded controllers,
+> which is true also on uniprocessors too.
 
-For some reason, because modules don't need #ifdef MODULE any more, I
-thought module_param*() entries would be automatically available as
-boot parameters.  Silly me, that would be too obvious.
+You can't do that with a spinlock.  The embedded controllers would
+need to know about the spinlock.
 
 -- Jamie

@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264190AbTH1SsH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 14:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTH1Sr4
+	id S264172AbTH1Sry (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 14:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTH1Srx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 14:47:56 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41453 "EHLO
+	Thu, 28 Aug 2003 14:47:53 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40941 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264187AbTH1Srw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S264172AbTH1Srw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 28 Aug 2003 14:47:52 -0400
-Date: Thu, 28 Aug 2003 11:18:33 +0200
+Date: Thu, 28 Aug 2003 11:16:47 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Micha Feigin <michf@post.tau.ac.il>
-Cc: Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: suspend fails under load
-Message-ID: <20030828091832.GC819@openzaurus.ucw.cz>
-References: <1060178056.1390.4.camel@litshi.luna.local> <20030808135037.GE6914@openzaurus.ucw.cz> <1060686223.3777.1.camel@litshi.luna.local>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: isa0060/serio0 - where in sysfs?
+Message-ID: <20030828091647.GB819@openzaurus.ucw.cz>
+References: <E19mVQq-0003st-00.arvidjaar-mail-ru@f7.mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1060686223.3777.1.camel@litshi.luna.local>
+In-Reply-To: <E19mVQq-0003st-00.arvidjaar-mail-ru@f7.mail.ru>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > Under kernel 2.6.0-test2 I get the behaviour that when trying to suspend
-> > > under load, I get all the way to the black screen, after which I am
-> > > supposed to see the writing pages to disk message.
-> > > Instead I see an error message flashing by to fast to read and
-> > 
-> > that's easy: add mdelays to suspend.c :-)
-> 
-> Would like to, but couldn't tell where the message was coming from so
-> that I can put it in the right location ;)
-> If I could read the message then I would be able to know what to grep
-> for, kind of the chicken and the egg.
+> Should character devices appear in sysfs? I cannot see anything
+> resembling the above there. Where does this name come from?
 
-So add mdelays to all messages.
+Input has its own hierarchy. It needs to be modified to work with sysfs.
 -- 
 				Pavel
 Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...

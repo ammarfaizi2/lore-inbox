@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275000AbTHQCSP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 22:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275002AbTHQCSP
+	id S275002AbTHQCkO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 22:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275006AbTHQCkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 22:18:15 -0400
-Received: from holomorphy.com ([66.224.33.161]:22240 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S275000AbTHQCSH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 22:18:07 -0400
-Date: Sat, 16 Aug 2003 19:19:16 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O12.2int for interactivity
-Message-ID: <20030817021916.GO32488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Timothy Miller <miller@techsource.com>,
-	Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <20030814070119.GN32488@holomorphy.com> <3F3BEA65.8080907@techsource.com> <200308160238.05185.kernel@kolivas.org> <3F3D2290.6070804@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F3D2290.6070804@techsource.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sat, 16 Aug 2003 22:40:14 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:19599 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S275002AbTHQCkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 22:40:10 -0400
+Date: Sat, 16 Aug 2003 19:39:43 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Mitch Sako <msako@cadence.com>, linux-kernel@vger.kernel.org
+Subject: Re: 4g-2.6.0-test2-mm2-A5
+Message-ID: <12650000.1061087975@[10.10.2.4]>
+In-Reply-To: <3F3EC09C.7C29CABC@cadence.com>
+References: <3F3EC09C.7C29CABC@cadence.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==========1816999384=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 02:12:32PM -0400, Timothy Miller wrote:
-> Ok, I'm just a little confused, because of this inversion of "high 
-> priority" with "low numbers".
-> First, am I correct in understanding that a lower number means a higher 
-> priority?
-> And for a higher priority, in addition to begin run before all tasks of 
-> lower priority, they also get a longer timeslice?
+--==========1816999384==========
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Yes on both counts.
+> I'm having trouble applying Ingo's 4g-patches to linux-2.6.0-test2.  Is
+> there a how-to or readme on this?  Basic hunk failures when using 'patch
+> -p1' against the kernel source directory.
+
+That's because they're on top of test2-mm2. Best bet is just to grab test3-mm2,
+where they're already integrated, and than slap the attatched fix on top
+(from Manfred).
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm2/2.6.0-test3-mm2.bz2
+
+M.
 
 
--- wli
+
+--==========1816999384==========
+Content-Type: application/octet-stream; name=44_fix
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=44_fix; size=342
+
+Ci0tLSAyLjYuMC10ZXN0My1tbTIvYXJjaC9pMzg2L2tlcm5lbC9lbnRyeS5TLmRpc3QJMjAwMy0w
+OC0xNSAxMzozMzoxMS4wMDAwMDAwMDAgLTA3MDAKKysrIDIuNi4wLXRlc3QzLW1tMi9hcmNoL2kz
+ODYva2VybmVsL2VudHJ5LlMubmV3CTIwMDMtMDgtMTUgMTM6MDg6MTQuMDAwMDAwMDAwIC0wNzAw
+CkBAIC00NTgsNiArNDU4LDcgQEAgd29ya19ub3RpZnlzaWc6CQkJCSMgZGVhbCB3aXRoIHBlbmRp
+bmcgcwogCS8qCiAJICogUmVsb2FkIGRiNyBpZiBuZWNlc3Nhcnk6CiAJICovCisJbW92bCBUSV9m
+bGFncyglZWJwKSwgJWVjeAogCXRlc3RiICRfVElGX0RCNywgJWNsCiAJam56IHdvcmtfZGI3CiAK
+
+--==========1816999384==========--
+

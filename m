@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264342AbTEaOfF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 10:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264343AbTEaOfF
+	id S264405AbTEaOpn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 10:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264413AbTEaOpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 10:35:05 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:30821 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S264342AbTEaOfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 10:35:04 -0400
-Date: Sat, 31 May 2003 10:48:28 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: linux-mm@kvack.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] rmap 15j for 2.4.21-rc6
-In-Reply-To: <Pine.LNX.4.44.0305301315440.4407-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.44.0305311047110.20941-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 31 May 2003 10:45:43 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:40084 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S264405AbTEaOpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 10:45:41 -0400
+Date: Sat, 31 May 2003 16:01:50 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Larry McVoy <lm@work.bitmover.com>, Christoph Hellwig <hch@infradead.org>,
+       Chris Heath <chris@heathens.co.nz>, linux-kernel@vger.kernel.org
+Subject: Re: coding style (was Re: [PATCH][2.5] UTF-8 support in console)
+Message-ID: <20030531150150.GA14829@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Larry McVoy <lm@work.bitmover.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Chris Heath <chris@heathens.co.nz>, linux-kernel@vger.kernel.org
+References: <20030531095521.5576.CHRIS@heathens.co.nz> <20030531152133.A32144@infradead.org> <20030531144323.GA22810@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030531144323.GA22810@work.bitmover.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2003, Rik van Riel wrote:
+On Sat, May 31, 2003 at 07:43:23AM -0700, Larry McVoy wrote:
 
-> The tenth maintenance release of the 15th version of the reverse
-> mapping based VM is now available.
-> This is an attempt at making a more robust and flexible VM
-> subsystem, while cleaning up a lot of code at the same time.
-> The patch is available from:
-> 
->            http://surriel.com/patches/2.4/2.4.21-pre7-rmap15j
-> and        http://linuxvm.bkbits.net/
+ > One other one is the 
+ > 
+ > 	if (!q) return;
+ > 
+ > Chris said two lines, we don't do it that way.  The coding style we use is
+ > a) one line is fine for a single statement.
+ > b) in all other cases there are curly braces
 
-Today I finally merged rmap15j forward to marcelo's latest
-release.  The IO stall fixes should be especially interesting:
+Saving a line over readability is utterly bogus.
+Just look at some of the crap we have in devfs..
 
-http://surriel.com/patches/2.4/2.4.21-rc6-rmap15j
+    if (fs_info->devfsd_task == NULL) return (TRUE);
+    if (devfsd_queue_empty (fs_info) && fs_info->devfsd_sleeping) return TRUE;
+    if ( is_devfsd_or_child (fs_info) ) return (FALSE);
+    set_current_state (TASK_UNINTERRUPTIBLE);
+    add_wait_queue (&fs_info->revalidate_wait_queue, &wait);
+    if (!devfsd_queue_empty (fs_info) || !fs_info->devfsd_sleeping)
+        if (fs_info->devfsd_task) schedule ();
+    remove_wait_queue (&fs_info->revalidate_wait_queue, &wait);
+    __set_current_state (TASK_RUNNING);
+    return (TRUE);
+
+*horror* to my eyes at least.
+
+Parts of the DRI code use similar uglies.  Whitespace is a *good* thing.
+If you want more lines of code per screen, get a larger xterm, change a
+font, whatever, but don't decrease code readability for something so bogus.
+
+		Dave
 

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271289AbRHTPaT>; Mon, 20 Aug 2001 11:30:19 -0400
+	id <S270593AbRHTPfU>; Mon, 20 Aug 2001 11:35:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271310AbRHTP37>; Mon, 20 Aug 2001 11:29:59 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:34066 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S271307AbRHTP3s>; Mon, 20 Aug 2001 11:29:48 -0400
-Message-ID: <3B812CF3.DFE7247D@delusion.de>
-Date: Mon, 20 Aug 2001 17:29:55 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-ac6 i686)
-X-Accept-Language: en, de
+	id <S271283AbRHTPfJ>; Mon, 20 Aug 2001 11:35:09 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:55738 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S270593AbRHTPez>;
+	Mon, 20 Aug 2001 11:34:55 -0400
+Date: Mon, 20 Aug 2001 10:35:04 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Prevent reuse of active thread group id
+Message-ID: <87110000.998321704@baldur>
+X-Mailer: Mulberry/2.1.0b3 (Linux/x86)
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: select() says closed socket readable
-In-Reply-To: <200108181627.UAA19351@ms2.inr.ac.ru>
-		<E15Yq81-0006o8-00@shell2.shore.net> <20010820.080334.68038516.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
->    No, a socket that's never been connected isn't readable, hence
->    select() shouldn't be returning a value of 1 on it.
-> 
-> You may read without blocking, select() returns 1.
-> 
-> Please, fix your app.
 
-Hello,
+The thread group id of a task is initially assigned the value of that 
+task's pid, then is inherited for each child task created with 
+CLONE_THREAD.  This patch makes sure that the thread group id is never 
+re-used as another task's pid as long as there's an active task with that 
+tgid.
 
-While we're at it - are there any plans to fix the other
-select issue which was already discussed in December 2000? The
-original thread can be found at:
+Patch is below.
 
-http://uwsg.iu.edu/hypermail/linux/net/0012.2/0008.html
+Dave McCracken
 
-I realize that the behaviour doesn't violate the standards, but
-as Alexey said - it's still somewhat wrong.
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 
--Udo.
+====================
+
+--- linux-2.4.9/./kernel/fork.c	Tue Jul 17 20:23:28 2001
++++ linux-2.4.9-tgid/./kernel/fork.c	Mon Aug 20 10:28:22 2001
+@@ -101,6 +101,7 @@
+ 		for_each_task(p) {
+ 			if(p->pid == last_pid	||
+ 			   p->pgrp == last_pid	||
++			   p->tgid == last_pid	||
+ 			   p->session == last_pid) {
+ 				if(++last_pid >= next_safe) {
+ 					if(last_pid & 0xffff8000)
+

@@ -1,85 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262748AbULQEND@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262751AbULQENx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262748AbULQEND (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 23:13:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbULQEJp
+	id S262751AbULQENx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 23:13:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbULQENw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 23:09:45 -0500
-Received: from mail.renesas.com ([202.234.163.13]:911 "EHLO
-	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262741AbULQEGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 23:06:49 -0500
-Date: Fri, 17 Dec 2004 13:06:36 +0900 (JST)
-Message-Id: <20041217.130636.52185712.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.10-rc3-mm1] m32r: Clean up
- include/asm-m32r/pgtable-2level.h (3/3)
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20041217.130507.241920387.takata.hirokazu@renesas.com>
-References: <20041217.130507.241920387.takata.hirokazu@renesas.com>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 16 Dec 2004 23:13:52 -0500
+Received: from static64-74.dsl-blr.eth.net ([61.11.64.74]:44037 "EHLO
+	linmail.globaledgesoft.com") by vger.kernel.org with ESMTP
+	id S262491AbULQENQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 23:13:16 -0500
+Message-ID: <41C25BDC.8080404@globaledgesoft.com>
+Date: Fri, 17 Dec 2004 09:39:00 +0530
+From: krishna <krishna.c@globaledgesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Significance of do ... while (0)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 2.6.10-rc3-mm1] m32r: Clean up include/asm-m32r/pgtable-2level.h (3/3)
-- Add #ifdef __KERNEL__
-- Change __inline__ to inline for __KERNEL__ portion.
-- Remove RCS ID string.
+Hi all,
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+    Can any one explain the importance of do  ... while (0)
 
- include/asm-m32r/pgtable-2level.h |   12 +++++++-----
- 1 files changed, 7 insertions(+), 5 deletions(-)
+Regards,
+Krishna Chaitanya
 
-
-diff -ruNp a/include/asm-m32r/pgtable-2level.h b/include/asm-m32r/pgtable-2level.h
---- a/include/asm-m32r/pgtable-2level.h	2004-12-16 16:13:05.000000000 +0900
-+++ b/include/asm-m32r/pgtable-2level.h	2004-12-16 16:13:28.000000000 +0900
-@@ -1,7 +1,7 @@
- #ifndef _ASM_M32R_PGTABLE_2LEVEL_H
- #define _ASM_M32R_PGTABLE_2LEVEL_H
+#define STATS_SET_HIGH(x)       do { if ((x)->num_active > (x)->high_mark) \
+                                        (x)->high_mark = (x)->num_active; \
+                                } while (0)
+#define STATS_INC_ERR(x)        ((x)->errors++)
+#define STATS_SET_FREEABLE(x, i) \
+                                do { if ((x)->max_freeable < i) \
+                                        (x)->max_freeable = i; \
+                                } while (0)
+                                                                                                                              
  
--/* $Id$ */
-+#ifdef __KERNEL__
+#define STATS_INC_ALLOCHIT(x)   atomic_inc(&(x)->allochit)
+#define STATS_INC_ALLOCMISS(x)  atomic_inc(&(x)->allocmiss)
+#define STATS_INC_FREEHIT(x)    atomic_inc(&(x)->freehit)
+#define STATS_INC_FREEMISS(x)   atomic_inc(&(x)->freemiss)
+#else
+#define STATS_INC_ACTIVE(x)     do { } while (0)
+#define STATS_DEC_ACTIVE(x)     do { } while (0)
+#define STATS_INC_ALLOCED(x)    do { } while (0)
+#define STATS_INC_GROWN(x)      do { } while (0)
+#define STATS_INC_REAPED(x)     do { } while (0)
+#define STATS_SET_HIGH(x)       do { } while (0)
+#define STATS_INC_ERR(x)        do { } while (0)
+#define STATS_SET_FREEABLE(x, i) \
+                                do { } while (0)
+                                                                                                                              
  
- #include <linux/config.h>
- 
-@@ -33,9 +33,9 @@
-  * setup: the pgd is never bad, and a pmd always exists (as it's folded
-  * into the pgd entry)
-  */
--static __inline__ int pgd_none(pgd_t pgd)	{ return 0; }
--static __inline__ int pgd_bad(pgd_t pgd)	{ return 0; }
--static __inline__ int pgd_present(pgd_t pgd)	{ return 1; }
-+static inline int pgd_none(pgd_t pgd)	{ return 0; }
-+static inline int pgd_bad(pgd_t pgd)	{ return 0; }
-+static inline int pgd_present(pgd_t pgd)	{ return 1; }
- #define pgd_clear(xp)				do { } while (0)
- 
- /*
-@@ -55,7 +55,7 @@ static __inline__ int pgd_present(pgd_t 
- #define pgd_page(pgd) \
- ((unsigned long) __va(pgd_val(pgd) & PAGE_MASK))
- 
--static __inline__ pmd_t *pmd_offset(pgd_t * dir, unsigned long address)
-+static inline pmd_t *pmd_offset(pgd_t * dir, unsigned long address)
- {
- 	return (pmd_t *) dir;
- }
-@@ -72,4 +72,6 @@ static __inline__ pmd_t *pmd_offset(pgd_
- #define pte_to_pgoff(pte)	(((pte_val(pte) >> 2) & 0xef) | (((pte_val(pte) >> 10)) << 7))
- #define pgoff_to_pte(off)	((pte_t) { (((off) & 0xef) << 2) | (((off) >> 7) << 10) | _PAGE_FILE })
- 
-+#endif /* __KERNEL__ */
-+
- #endif /* _ASM_M32R_PGTABLE_2LEVEL_H */
-
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+#define STATS_INC_ALLOCHIT(x)   do { } while (0)
+#define STATS_INC_ALLOCMISS(x)  do { } while (0)
+#define STATS_INC_FREEHIT(x)    do { } while (0)
+#define STATS_INC_FREEMISS(x)   do { } while (0)
 

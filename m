@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264356AbTLBUKq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:10:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264353AbTLBUKq
+	id S264368AbTLBUS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbTLBUQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:10:46 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:58726 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S264352AbTLBUKi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:10:38 -0500
-Date: Wed, 3 Dec 2003 07:10:06 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: XFS for 2.4
-Message-ID: <20031203071006.B2022202@wobbly.melbourne.sgi.com>
-References: <20031202182746.A27964@infradead.org> <Pine.LNX.4.44.0312021712160.13692-100000@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Dec 2003 15:16:59 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:43464
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S264343AbTLBUNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:13:39 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: linux-kernel@vger.kernel.org
+Subject: Software suspend under -test10.
+Date: Tue, 2 Dec 2003 14:13:14 -0600
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0312021712160.13692-100000@logos.cnet>; from marcelo.tosatti@cyclades.com on Tue, Dec 02, 2003 at 05:12:53PM -0200
+Message-Id: <200312021413.15131.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 05:12:53PM -0200, Marcelo Tosatti wrote:
-> 
-> Ok, Christoph agreed to review the changes. He has a clue about VFS.
-> 
-> If he is OK with them, I'll merge the generic XFS changes.
-> 
+Using the /sys/power/state = disk method, here's what's different:
 
-Thanks Marcelo.  If anything needs clarifying just let me know,
-or if you have specific requests for XFS changes (provided they
-don't compromise "super-maintenance mode" of course).  Christoph
-is also very familiar with XFS now, he might be willing to help
-out reviewing that too.
+During suspend, the power to the screen gets shut off fairly early on so I 
+can't see what suspend is doing.  It does continue and suspend, though.
 
-cheers.
+On resume, I need to call hwclock --hctosys to update the system clock.  I 
+thought that had been fixed, but it's not in.  (Maybe it's in -mm?)
 
-ps: thanks to everyone who chimed in with a kind word for XFS!
-(group hug?)
+If I suspend with ohci and the pegasus ethernet thingy loaded, it suspends 
+fine but freezes on resume.  Unloading the modules makes it happy.
 
--- 
-Nathan
+On resume, my processor is in the C2 ACPI state, which can best be described 
+as "amazingly slow".  I don't know how to get it back to normal.  (Go ahead 
+and eat the batter faster, it's so slow I get less done on a full charge this 
+way anyway!)  Oddly, I have NOT enabled CPU throttling (the manager is 
+"performance"), so this is garbage left over from the quiesce not resuming 
+the CPU power.
+
+This week is insane for me, but I hope to have a little time to thump on it 
+this weekend...
+
+Would trying an -mm kernel be a good idea here?  (I'll upgrade to -test11 in a 
+bit, but I don't think there was any suspend work in here...)
+
+Rob

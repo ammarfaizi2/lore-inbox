@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbUCYPkS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 10:40:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263213AbUCYPkS
+	id S263090AbUCYPw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 10:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263213AbUCYPw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 10:40:18 -0500
-Received: from ns.suse.de ([195.135.220.2]:2016 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263203AbUCYPkO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 10:40:14 -0500
-Date: Thu, 25 Mar 2004 16:40:11 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Andi Kleen <ak@suse.de>, Rick Lindsley <ricklind@us.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>, piggin@cyberone.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
-       mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Message-ID: <20040325154011.GB30175@wotan.suse.de>
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com>
+	Thu, 25 Mar 2004 10:52:59 -0500
+Received: from [203.87.131.249] ([203.87.131.249]:52683 "EHLO
+	donita.maturebrands.com") by vger.kernel.org with ESMTP
+	id S263090AbUCYPw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 10:52:57 -0500
+To: <linux-kernel@vger.kernel.org>
+From: <frontstep@bigfoot.com>
+Subject: Did you know that your website is not optimized for search engines?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Message-Id: <20040325143613.00F905B750@donita.maturebrands.com>
+Date: Thu, 25 Mar 2004 22:36:13 +0800 (PHT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 07:31:37AM -0800, Nakajima, Jun wrote:
-> Andi,
-> 
-> Can you be more specific with "it doesn't load balance threads
-> aggressively enough"? Or what behavior of the base NUMA scheduler is
-> missing in the sched-domain scheduler especially for NUMA?
 
-It doesn't do load balance in wake_up_forked_process()  and is relatively
-non aggressive in balancing later. This leads to the multithreaded OpenMP
-STREAM running its childs first on the same node as the original process
-and allocating memory there. Then later they run on a different node when
-the balancing finally happens, but generate  cross traffic to the old node, 
-instead of using the memory bandwidth of their local nodes.
+Date:    March 16, 2004
+Ref:     Your website is not optimized for Search Engines
 
-The difference is very visible, even the 4 thread STREAM only sees the
-bandwidth of a single node. With a more aggressive scheduler you get
-4 times as much.
+Dear webmaster,
 
-Admittedly it's a bit of a stupid benchmark, but seems to representative
-for a lot of HPC codes.
+ARE YOU AWARE that your site is not listed multiple times on the 1st page (top-10 listings) of the top 20 search engines, like Yahoo, Google, AOL, MSN, and AltaVista where statistically 85% of websites are found. 
 
--Andi
+You must get your website listed on 100's and 1,000's of search terms that your potential customers are typing in daily to find your products and services in order to generate MAXIMUM EXPOSURE.
+
+We are the only known supplier in the world for Search Engine Optimization that delivers UNLIMITED KEYWORDS, and we GUARANTEE to:
+
+* INCREASE YOUR NEW VISITOR TRAFFIC BY 99%
+* GET TOP-10 RANKINGS or 100% MONEY-BACK
+* HAVE THE LOWEST PRICE PER KEYWORD (US$1.80)
+
+CALL US NOW at 1-888-290-8978 and start getting MAXIMUM EXPOSURE by dramatically increasing your search engine visibility by better positioning  your website over your competition. Be one of the successfull minority!
+
+
+             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+             $RETURN CALL RIGHT NOW TOLL FREE!$
+             $>>>>>>>> 1-888-210-8978 <<<<<<<<$
+    	     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+NOTE: This offer is ONLY limited to the first 10 successfull callers, otherwise we would be competiting with our own unique technology to get your website listed on the 1st page of the search engines. Thank you for your understanding.
+
+Regards,
+
+Joseph D. Alleva
+
+USA Global Corporate Office:
+INTERNET CORPORATE BRANDING INC.
+Van Nuys, California 91411
+
+24x7 Service & Technical Support
+Office hours:   M-F, 9AM-5PM EST
+__________________________________________________________
+To be REMOVED, mailto:frontstep@bigfoot.com?Subject=REMOVE

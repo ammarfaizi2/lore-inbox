@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265105AbUELPem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265110AbUELPet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265105AbUELPem (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 11:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbUELPem
+	id S265110AbUELPet (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 11:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbUELPer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 11:34:42 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:60557
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S265105AbUELPeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 11:34:13 -0400
-Message-ID: <40A243C8.401@redhat.com>
-Date: Wed, 12 May 2004 08:33:28 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a) Gecko/20040511
-X-Accept-Language: en-us, en
+	Wed, 12 May 2004 11:34:47 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:26069 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S265110AbUELPej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 11:34:39 -0400
+Message-ID: <40A24458.533E637D@nospam.org>
+Date: Wed, 12 May 2004 17:35:52 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
+Reply-To: Zoltan.Menyhart@bull.net
+Organization: Bull S.A.
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: "Randy.Dunlap" <rddunlap@osdl.org>, fastboot@lists.osdl.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-References: <20040511212625.28ac33ef.rddunlap@osdl.org>	<40A1AF53.3010407@redhat.com> <m13c66qicb.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m13c66qicb.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Who owns those locks ? (3)
+Content-Type: multipart/mixed;
+ boundary="------------E711D0845B24809FA39FCEF3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+This is a multi-part message in MIME format.
+--------------E711D0845B24809FA39FCEF3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+Don't know why I thought that the assembly code of the spin
+lock would be in a single file :-)
+
+Zolt�n
+--------------E711D0845B24809FA39FCEF3
+Content-Type: text/plain; charset=us-ascii;
+ name="n475"
+Content-Disposition: inline;
+ filename="n475"
+Content-Transfer-Encoding: 7bit
+
+--- 2.6.5.ref/arch/ia64/kernel/head.S	Wed Apr 21 16:18:26 2004
++++ 2.6.5.new/arch/ia64/kernel/head.S	Wed May 12 16:31:33 2004
+@@ -917,7 +917,8 @@
+ 	ld4 r30=[r31]		// don't use ld4.bias; if it's contended, we won't write the word
+ 	;;
+ 	cmp4.ne p14,p0=r30,r0
+-	mov r30 = 1
++//	mov r30 = 1
++	shr.u r30 = r13, 12	// Current task pointer
+ (p14)	br.cond.sptk.few .wait
+ 	;;
+ 	cmpxchg4.acq r30=[r31], r30, ar.ccv
 
 
->>  sym = dlsym (RTLD_DEFAULT, "the_symbol_name")
-> [...]
+--------------E711D0845B24809FA39FCEF3--
 
-> 
-> For the momen the only finished port is x86, so we should be able
-> to do that, it would make the kernel patch a little bigger though.
-> Last time I saw that conversation I thought you didn't like symbols in
-> the vdso for syscalls because it slowed things down.
-
-I don't want to  use this in glibc for every syscall.  But for your
-random application in need of a syscall it's fine.
-
-And there is one more thing: the above code is actually not what should
-be used.  The symbol able entries should be position independent.  So
-one will have to compute the final address (which will be fun for archs
-with function descriptors).  I'll have to see how randomization is
-actually implemented.  The __kernel_vsyscall symbol is probably not
-changed, so we need an out-of-band mechanisms to report the load address
-to the userlevel code.
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

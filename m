@@ -1,55 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVAYTsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVAYT5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262097AbVAYTsa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 14:48:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbVAYTsY
+	id S262089AbVAYT5g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 14:57:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVAYT5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 14:48:24 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:55823 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S262108AbVAYTqv (ORCPT
+	Tue, 25 Jan 2005 14:57:36 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:63392 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262089AbVAYTta (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 14:46:51 -0500
-Date: Tue, 25 Jan 2005 20:46:47 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: dtor_core@ameritech.net
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-input@atrey.karlin.mff.cuni.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: i8042 access timings
-Message-ID: <20050125194647.GB3494@pclin040.win.tue.nl>
-References: <200501250241.14695.dtor_core@ameritech.net> <20050125105139.GA3494@pclin040.win.tue.nl> <d120d5000501251117120a738a@mail.gmail.com>
+	Tue, 25 Jan 2005 14:49:30 -0500
+Subject: Re: [patch 1/13] Qsort
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Olaf Kirch <okir@suse.de>, Andi Kleen <ak@muc.de>,
+       Nathan Scott <nathans@sgi.com>,
+       Mike Waychison <Michael.Waychison@sun.com>,
+       Jesper Juhl <juhl-lkml@dif.dk>, Felipe Alfaro Solana <lkml@mac.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Buck Huppmann <buchk@pobox.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>, Tim Hockin <thockin@hockin.org>
+In-Reply-To: <1106681637.11449.101.camel@lade.trondhjem.org>
+References: <20050122203326.402087000@blunzn.suse.de>
+	 <41F570F3.3020306@sun.com> <20050125065157.GA8297@muc.de>
+	 <200501251112.46476.agruen@suse.de> <20050125120023.GA8067@muc.de>
+	 <20050125120507.GH19199@suse.de>
+	 <1106671920.11449.11.camel@lade.trondhjem.org>
+	 <1106672028.9607.33.camel@winden.suse.de>
+	 <1106672637.11449.24.camel@lade.trondhjem.org>
+	 <1106673415.9607.36.camel@winden.suse.de>
+	 <1106674620.11449.43.camel@lade.trondhjem.org>
+	 <1106676722.9607.61.camel@winden.suse.de>
+	 <1106681637.11449.101.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1106682566.9607.73.camel@winden.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000501251117120a738a@mail.gmail.com>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: dmv.com: pastinakel.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 25 Jan 2005 20:49:26 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 02:17:33PM -0500, Dmitry Torokhov wrote:
+On Tue, 2005-01-25 at 20:33, Trond Myklebust wrote:
+> ty den 25.01.2005 Klokka 19:12 (+0100) skreiv Andreas Gruenbacher:
+> 
+> > Ah, I see now what you mean. The setxattr syscall only accepts
+> > well-formed acls (that is, sorted plus a few other restrictions), and
+> > user-space is expected to take care of that. In turn, getxattr returns
+> > only well-formed acls. We could lift that guarantee specifically for
+> > nfs, but I don't think it would be a good idea.
+> 
+> Note that if you really want to add a qsort to the kernel you might as
+> well drop the setxattr sorting requirement too. If the kernel can qsort
+> for getxattr, then might as well do it for the case of setxattr too.
 
-> Still, I wonder if implementing these delays will give IO controller
-> better chances to react to our queries and will get rid of some
-> failures.
+There is no need to sort anything in the kernel for acls except for the
+NFSACL case, so that's where we need it, and nowhere else. What would be
+the point in making setxattr accept unsorted acls? It's just not
+necessary; userspace can do it just as well.
 
-My objection is this: by doing this you create myths that may
-be difficult to dispel later. I recall other situations where
-there were superfluous restrictions and I had a hard time convincing
-others of the fact that the tests weren't there for any good reason,
-that there was no single instance of hardware on earth known to
-work better with the added restrictions.
+> > Entry order in POSIX acls doesn't convey a meaning by the way.
+> 
+> Precisely. Are there really any existing programs out there that are
+> using the raw xattr output and making assumptions about entry order?
 
-So, I would prefer to only insert delays if at least one person
-reports that things improve if you do so. Or if you can point at
-data sheets that state that such delays are needed.
-Or perhaps if you can show that there were delays in 2.4 absent in 2.6.
+I don't know. Anyway, it's a nice feature to have a unique canonical
+form.
 
-Apart from the "not creating myths" reason, there is another:
-as we know, the keyboard/mouse system is in a bad state in 2.6.
-It often happens that 2.6.x works and 2.6.y fails, and we ask a user
-to try intermediate stages to see what change made a difference.
-Applying random meaningless patches to the keyboard system creates
-additional noise and uncertainty.
+> > The server must have sorted lists.
+> 
+> So, I realize that the on-disk format is already defined, but looking at
+> routines like posix_acl_permission(), it looks like the only order the
+> kernel (at least) actually cares about is that of the "e_tag" field.
+> Unless I missed something, nothing there cares about the order of the
+> "e_id" fields.
 
-Andries
+Correct. But posix_acl_valid() does care about the i_id order as well.
+
+> Given that you only have 6 possible values there, it seems a shame in
+> hindsight that we didn't choose to just use a 6 bucket hashtable (the
+> value of e_id being the hash value), and leave the order of the e_id
+> fields undefined. 8-(
+
+Checking for duplicate e_id fields would become expensive. I really
+don't see any benefit.
+
+Cheers,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
+

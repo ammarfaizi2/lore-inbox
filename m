@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291742AbSBXWrc>; Sun, 24 Feb 2002 17:47:32 -0500
+	id <S291729AbSBXWtX>; Sun, 24 Feb 2002 17:49:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291738AbSBXWrW>; Sun, 24 Feb 2002 17:47:22 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:9626 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S291729AbSBXWrH>;
-	Sun, 24 Feb 2002 17:47:07 -0500
-Date: Sun, 24 Feb 2002 14:44:23 -0800 (PST)
-Message-Id: <20020224.144423.104049454.davem@redhat.com>
-To: vojtech@suse.cz
-Cc: paulus@samba.org, hozer@drgw.net, dalecki@evision-ventures.com,
-        torvalds@transmeta.com, andre@linuxdiskcert.org, riel@conectiva.com.br,
-        linux-kernel@vger.kernel.org
+	id <S291741AbSBXWtM>; Sun, 24 Feb 2002 17:49:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19465 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291729AbSBXWtE>; Sun, 24 Feb 2002 17:49:04 -0500
 Subject: Re: Flash Back -- kernel 2.1.111
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020224233937.B2257@ucw.cz>
-In-Reply-To: <20020224231002.B2199@ucw.cz>
-	<15481.26697.420856.1109@argo.ozlabs.ibm.com>
-	<20020224233937.B2257@ucw.cz>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+To: paulus@samba.org
+Date: Sun, 24 Feb 2002 23:01:57 +0000 (GMT)
+Cc: vojtech@suse.cz (Vojtech Pavlik), hozer@drgw.net (Troy Benjegerdes),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        torvalds@transmeta.com (Linus Torvalds),
+        andre@linuxdiskcert.org (Andre Hedrick),
+        riel@conectiva.com.br (Rik van Riel),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <15481.25250.869765.860828@argo.ozlabs.ibm.com> from "Paul Mackerras" at Feb 25, 2002 09:01:06 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16f7eX-0002yO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Vojtech Pavlik <vojtech@suse.cz>
-   Date: Sun, 24 Feb 2002 23:39:37 +0100
-   
-   > > happens if you plug in a 66MHz non-capable card to the 50 MHz bus.
-   > 
-   > The bus speed drops to 33MHz.
-   
-   Interesting. I'd expect 25 myself ... then we'll definitely need two
-   clock values in struct pci_bus - because the hi-speed one isn't always a
-   double the low one - as shown by your example.
+> We have some RS/6000 machines that have two separate PCI buses (two
+> host bridges) that run at 33MHz and 50MHz respectively.  Fortunately
+> we also get a device tree from the firmware that tells us this.
 
-You only need one, the current active one.
-
-If you think that hot-plug is an issue, the arch dependant could would
-need to recalculate the "current bus speed" and all would be fine.
-
-So why do we need two values?
+Ok - thats another argument for stuffing it in the pci_bus struct

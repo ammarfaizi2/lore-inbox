@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265196AbTBEXtY>; Wed, 5 Feb 2003 18:49:24 -0500
+	id <S265197AbTBEXxZ>; Wed, 5 Feb 2003 18:53:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265197AbTBEXtY>; Wed, 5 Feb 2003 18:49:24 -0500
-Received: from smtp4.us.dell.com ([143.166.148.135]:54225 "EHLO
-	smtp4.us.dell.com") by vger.kernel.org with ESMTP
-	id <S265196AbTBEXtW>; Wed, 5 Feb 2003 18:49:22 -0500
-Date: Wed, 5 Feb 2003 17:58:57 -0600 (CST)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: mdomsch@humbolt.us.dell.com
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] EDD fixups for 2.5.x
-Message-ID: <20BF5713E14D5B48AA289F72BD372D6803072879-100000@AUSXMPC122.aus.amer.dell.com>
-X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
-X-GPG-Key: http://domsch.com/mdomsch_pub.asc
+	id <S265198AbTBEXxZ>; Wed, 5 Feb 2003 18:53:25 -0500
+Received: from mako.theneteffect.com ([63.97.58.10]:27153 "EHLO
+	mako.theneteffect.com") by vger.kernel.org with ESMTP
+	id <S265197AbTBEXxY>; Wed, 5 Feb 2003 18:53:24 -0500
+From: Mitch Adair <mitch@theneteffect.com>
+Message-Id: <200302060002.SAA28514@mako.theneteffect.com>
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+To: lm@bitmover.com (Larry McVoy)
+Date: Wed, 5 Feb 2003 18:02:59 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030205235126.GA21064@work.bitmover.com> from "Larry McVoy" at Feb 05, 2003 03:51:26 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please do a
+> On Thu, Feb 06, 2003 at 12:45:55AM +0000, Alan Cox wrote:
+> > On Wed, 2003-02-05 at 23:31, Larry McVoy wrote:
+> > > > (BTW, Larry, the bk binaries segfault on my (glibc 2.3.1) i686 system. Any
+> > > > chance we could see binaries linked against 2.3.x? There's NSS badness between
+> > > > 2.2 and 2.3 that causes even static binaries to segfault ... )
+> > > 
+> > > Yes, NSS in glibc is the world's worst garbage.  Glibc segfaults if there
+> > > is no /etc/nsswitch.conf.  Nice.
+> > 
+> > bugzilla is your friend
+> 
+> Excuse my ignorance but how is that going to help me?  I know the problem
+> and the work around so is there some magic voodoo chant in a bugzilla db
+> someplace which will make glibc not segfault without changing the system?
 
-	bk pull http://mdomsch.bkbits.net/linux-2.5-edd
+Yes!  Say it with me:
 
-This will update the following files:
+"I will let someone know so they can fix it.  Shazam!"
 
- arch/i386/kernel/edd.c   |  298 ++++++++++++++++++++++++-----------------------
- arch/i386/kernel/setup.c |    2 
- include/asm-i386/edd.h   |    2 
- 3 files changed, 155 insertions, 147 deletions
+:))
 
-through these ChangeSets:
-
-<Matt_Domsch@dell.com> (03/01/21 1.952.1.5)
-   EDD: don't over-allocate EDD data block
-   
-   Found by Kevin Lawton.
-
-<Matt_Domsch@dell.com> (03/01/21 1.952.1.4)
-   EDD: until SCSI layer sysfs is fixed, don't use it for raw_data either.
-
-<Matt_Domsch@dell.com> (03/01/16 1.952.1.2)
-   EDD: Until scsi layer is fixed, don't make symlink to scsi disk
-
-<Matt_Domsch@dell.com> (03/01/07 1.879.29.1)
-   EDD: fix raw_data file and edd_has_edd30(), misc cleanups
-   
-   * Update copyright date
-   * s/driverfs/sysfs in comments
-   * bump version
-   * bug fix: raw_data file was always printing device 0's info.
-   * bug fix: edd_has_edd30 was always returning device 0's info.
-   * always print the report info at the end of raw_data
-   * edd_dev_is_type() should return boolean
-   * edd_match_scsidev() should return boolean
-   * remove duplicate calls to pci_find_slot, use edd_get_pci_dev().
-   * attribute tests should return boolean
-   * add edd_release()
-   * work if !CONFIG_SCSI=[ym]
-   * use new find_bus() and bus_for_each_dev() to match SCSI devices
-
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
-
+	M

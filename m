@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263273AbTFILnb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 07:43:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTFILnb
+	id S263915AbTFILsv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 07:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbTFILsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 07:43:31 -0400
-Received: from gate.perex.cz ([194.212.165.105]:53509 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S263273AbTFILna (ORCPT
+	Mon, 9 Jun 2003 07:48:51 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:63419 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263915AbTFILsu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 07:43:30 -0400
-Date: Mon, 9 Jun 2003 13:56:59 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: ALSA development <alsa-devel@alsa-project.org>,
-       <kbuild-devel@lists.sourceforge.net>
-Subject: 2.5 kbuild: use of '-z muldefs' for LD?
-Message-ID: <Pine.LNX.4.44.0306091342400.1323-100000@pnote.perex-int.cz>
+	Mon, 9 Jun 2003 07:48:50 -0400
+Date: Mon, 9 Jun 2003 14:02:11 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sch_ingress.c includes <asm/smp.h>
+In-Reply-To: <1055159413.9884.4.camel@rth.ninka.net>
+Message-ID: <Pine.GSO.4.21.0306091401550.1347-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On 9 Jun 2003, David S. Miller wrote:
+> On Mon, 2003-06-09 at 03:37, Geert Uytterhoeven wrote:
+> > sch_ingress.c includes <asm/smp.h>, causing build failures on UMP-only
+> > architectures
+> 
+> Geert you should know better than anyone else that
+> you should send NET fixes to the NET maintainers.
+> 
+> So why aren't you doing that?
 
-	I am trying to figure the best solution for our problem. We reuse
-one object file for more targets. Example:
+Sorry, forgot about that.
 
-------
-snd-ice1712-objs := ice1712.o delta.o hoontech.o ews.o ak4xxx.o
-snd-ice1724-objs := ice1724.o amp.o revo.o aureon.o ak4xxx.o
+Gr{oetje,eeting}s,
 
-# Toplevel Module Dependency
-obj-$(CONFIG_SND_ICE1712) += snd-ice1712.o
-obj-$(CONFIG_SND_ICE1724) += snd-ice1724.o
-------
+						Geert
 
-The ak4xxx.o module is shared and has defined a few public functions.
-Unfortunately, the default build-in.o rule fails when targets are 
-requested to be included into the solid kernel because the public 
-functions are duplicated in snd-ice1712.o and snd-ice17124.o.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-I can instruct the ld compiler to ignore the multiple definitions using 
-'-z muldefs':
-
-EXTRA_LDFLAGS = -z muldefs
-
-But it seems like a hack for me.
-Does anybody have another idea to solve my problem?
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

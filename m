@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261549AbSJITbz>; Wed, 9 Oct 2002 15:31:55 -0400
+	id <S261572AbSJITbC>; Wed, 9 Oct 2002 15:31:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261527AbSJITby>; Wed, 9 Oct 2002 15:31:54 -0400
-Received: from crack.them.org ([65.125.64.184]:16645 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S261518AbSJITbv>;
-	Wed, 9 Oct 2002 15:31:51 -0400
-Date: Wed, 9 Oct 2002 15:37:38 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: george anzinger <george@mvista.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Linus <torvalds@transmeta.com>,
-       LKML <linux-kernel@vger.kernel.org>, Jeff Dike <jdike@karaya.com>
-Subject: Re: [PATCH] make do_signal static on i386
-Message-ID: <20021009193738.GA15232@nevyn.them.org>
-Mail-Followup-To: george anzinger <george@mvista.com>,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>,
-	Jeff Dike <jdike@karaya.com>
-References: <20021009181003.022da660.sfr@canb.auug.org.au> <3DA46A17.447B2C59@mvista.com>
-Mime-Version: 1.0
+	id <S261855AbSJITbB>; Wed, 9 Oct 2002 15:31:01 -0400
+Received: from vsmtp1.tin.it ([212.216.176.221]:42963 "EHLO smtp1.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S261572AbSJITbB>;
+	Wed, 9 Oct 2002 15:31:01 -0400
+Message-ID: <3DA4852B.7CC89C09@denise.shiny.it>
+Date: Wed, 09 Oct 2002 21:36:11 +0200
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.19 ppc)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mark Mielke <mark@mark.mielke.cc>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+References: <1034104637.29468.1483.camel@phantasy> <XFMail.20021009103325.pochini@shiny.it> <20021009170517.GA5608@mark.mielke.cc>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DA46A17.447B2C59@mvista.com>
-User-Agent: Mutt/1.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 10:40:39AM -0700, george anzinger wrote:
-> This will cause problems for nano_sleep and
-> clock_nanosleep.  These system calls need to call
-> do_signal() in order to meet the POSIX standard which states
-> that they are interrupted only by signals that are delivered
-> to user code.  Other signals are not to interrupt the
-> sleep.  This is why do_signal() returns this information to
-> the caller.
+
+> > Does it drop pages unconditionally ?  What happens if I do a
+> > streaming_cat largedatabase > /dev/null while other processes
+> > are working on it ?  It's not a good thing to remove the whole
+> > cached data other apps are working on.
 > 
-> I suppose one could argue that such functions should be in
-> signal.c, but save for this signal issue the code is
-> common.  Seems a waste to support the same code in N
-> platforms.
+> Anybody could make the cache thrash. I don't see this as an argument against
+> O_STREAMING (whether explicitly activated, or dynamically activated).
 
-IMO, calling the architecture's do_signal function to handle that is
-entirely the wrong way to go.  They don't even all have the same
-arguments, and the wrappers hi-res-timers put around sys_nanosleep are
-hideous.
+In fact it isn't. But I don't undestand why we unconditionally discard a
+page after it has been read. Yes, I told the kernel I will not need it
+anymore, but someone else could need it. I'm not a kernel hacker and I
+don't know if this is possible: when a page is read from disk by a O_STR
+file flag it "kill me first when needed, otherwise leave me in memory",
+and if a page is already cache, just use it and change nothing. This
+will preserve data used by other processes, and the data I've just
+read if there is room. Free memory is wasted momory. Don't drop caches
+if nobody need memory.
 
-All of this should be handled correctly in kernel/signal.c, and things
-like triggering the debugger should be done from there, not duplicated
-in each platform's signal delivery code.
 
-Ideally we should even trigger the debugger without necessarily
-knocking the sleeping process out of sleep.
-
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Bye.

@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262120AbRFGRMP>; Thu, 7 Jun 2001 13:12:15 -0400
+	id <S262058AbRFGRLF>; Thu, 7 Jun 2001 13:11:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262116AbRFGRMF>; Thu, 7 Jun 2001 13:12:05 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19245 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S262094AbRFGRMA>; Thu, 7 Jun 2001 13:12:00 -0400
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Hans Reiser <reiser@namesys.com>,
-        Andrej Borsenkow <Andrej.Borsenkow@mow.siemens.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: NULL characters in file on ReiserFS again.
-In-Reply-To: <000201c0e9c5$7643d540$21c9ca95@mow.siemens.ru>
-	<3B16780F.D5FF04D8@namesys.com> <20010606172209.A3362@redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Jun 2001 11:04:59 -0600
-In-Reply-To: <20010606172209.A3362@redhat.com>
-Message-ID: <m1d78g43wk.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S262094AbRFGRK4>; Thu, 7 Jun 2001 13:10:56 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:4113 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S262058AbRFGRKi>; Thu, 7 Jun 2001 13:10:38 -0400
+Date: Thu, 7 Jun 2001 10:09:30 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Russell King <rmk@arm.linux.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        tytso@mit.edu,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [driver] New life for Serial mice
+In-Reply-To: <20010607082541.A166@suse.cz>
+Message-ID: <Pine.LNX.4.10.10106070915250.10557-100000@transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" <sct@redhat.com> writes:
 
-> Hi,
+> > I ported it over to my tree. I will have to figure out how to incorporate
+> > the input serial stuff without breaking all the input drivers we have. In
+> > CVS we have alot of them. This will make life so much easier since all I
+> > will have to do is change one file for changes I make to the tty layer. I
+> > have improved andrew mortons console patch to work with multiple consoles
+> > and for different types of console devices. Instead of altering all the 
+> > console drivers I'm planning on intergrating the locking into the tty
+> > layer. That patch is needed for serial devices as well as video terminals.
+> > Your work might help speed up devleopement.
 > 
-> On Thu, May 31, 2001 at 09:57:51AM -0700, Hans Reiser wrote:
-> 
-> > > /etc/hosts (or anywhere). As a tesult, startx hung starting X server; it was
-> 
-> > > not possible to switch to alpha console or kill X server. I pressed reset
-> > > and after reboot looked into /var/log/XFree86*log - and there were a bunch
-> > > of ^@ there.
-> 
-> > this is the nature of metadata journaling filesystems.
-> 
-> Umm, no, it isn't.  Ext3 would never allow that to happen in ordered
-> metadata-journaling mode, and Chris Mason is already working to remove
-> that window in reiserfs.  It is by no means a necessary consequence of
-> doing metadata-only journaling.
+> Sounds cute. Where do I find the result of your work?
 
-Hans seemed to be refering to the fact that fsck.reiser returned
-without errors on the partition being looked at.  Which is the nature
-of metadata journalling.  The filesystem doesn't get corrupted though
-the files might. 
+For Russell's work I placed it in the ruby tree under linux/drivers/serial. No
+changes have happened to it. Well at least not yet. What I like to see is:
 
-Eric
+serial_driver -> serial common code -----> serial tty 
+				      |	
+				      |--> serial input
+
+For my one system I have for my only serial device a joystick. Do I really
+need a serial terminal for this device. Termios changes to joystick, give
+me a break. It just another layer of uneeded bloat. A nice clean design
+like this would be really nice. The code is in CVS if you want to play
+with it. 
+
+As for the console lock it is already in CVS as well. Their are a few race
+conditions dealing with printk and register_console to pound out but its
+there and it works well. The basic changes I have made are the functions
+acquire_console_sem and release_console_sem take a struct tty_driver
+argument. This way we can flush one driver that was busy while printk was
+running when the tty code finish doing what it was doing. Now when printk
+gets called it attempts to write data to all the consoles if they already
+not busy. This way it only locks out one console at a time. This way
+serial console doesn't have to be locked waiting for fbcon to finish
+printing to the console. A semaphore in struct tty_driver is shared with
+struct console. The better news is now we can use IRQ/DMA based devices
+for the console system. 
+
+		
+

@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267205AbUHENXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267670AbUHENYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267205AbUHENXP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267670AbUHENXO
+	id S267670AbUHENYj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267674AbUHENYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:23:14 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:4599 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S267205AbUHENXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:23:09 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-References: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>
-	<20040804232123.3906dab6.akpm@osdl.org> <4111DC8C.7050504@redhat.com>
-	<20040805001737.78afb0d6.akpm@osdl.org> <4111E3B5.1070608@redhat.com>
-	<1091704539.5031.42.camel@bach>
-From: Linh Dang <linhd@nortelnetworks.com>
-Organization: Null
-Date: Thu, 05 Aug 2004 09:23:06 -0400
-In-Reply-To: <1091704539.5031.42.camel@bach> (Rusty Russell's message of
- "Thu, 05 Aug 2004 21:48:05 +1000")
-Message-ID: <wn5llgtyb0l.fsf@linhd-2.ca.nortel.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 5 Aug 2004 09:24:38 -0400
+Received: from holomorphy.com ([207.189.100.168]:15299 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267670AbUHENYZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 09:24:25 -0400
+Date: Thu, 5 Aug 2004 06:24:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm1
+Message-ID: <20040805132422.GD14358@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040805031918.08790a82.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040805031918.08790a82.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+On Thu, Aug 05, 2004 at 03:19:18AM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc3/2.6.8-rc3-mm1/
+> - Added David Woodhouse's MTD tree to the "external trees" list
+> - Dropped the staircase scheduler, mainly because the schedstats patch broke
+>   it.
+>   We learned quite a lot from having staircase in there.  Now it's time for
+>   a new scheduler anyway.
 
-> I don't think this is neccessarily true: I think that platforms with
-> 64-bit compare-and-exchange can do the whole thing in userspace.
-> They would set the mutex and stamp in the thread ID simultanously,
-> allowing for "dead thread" detection (ie. I didn't get the lock, and
-> it's a robust mutex: check the holder is still alive).
+Yet another "I forgot to #include <linux/profile.h>" gaffe.
 
-Or for priority-inheritance: try get the lock, if failed raised the
-holder's priority to mine if necessary.
 
->
-> W/o 64-bit compare-and-exchange a 100% robust solution may not be
-> possible though.
-
-PPC arch can do a lot of things in a pseudo-atomic way.
-
->
-> Thoughts?
-> Rusty.
-
--- 
-Linh Dang
+Index: mm1-2.6.8-rc3/arch/sparc/kernel/sun4m_smp.c
+===================================================================
+--- mm1-2.6.8-rc3.orig/arch/sparc/kernel/sun4m_smp.c
++++ mm1-2.6.8-rc3/arch/sparc/kernel/sun4m_smp.c
+@@ -16,6 +16,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/mm.h>
+ #include <linux/swap.h>
++#include <linux/profile.h>
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
+ 
+Index: mm1-2.6.8-rc3/arch/sparc/kernel/sun4d_smp.c
+===================================================================
+--- mm1-2.6.8-rc3.orig/arch/sparc/kernel/sun4d_smp.c
++++ mm1-2.6.8-rc3/arch/sparc/kernel/sun4d_smp.c
+@@ -19,6 +19,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/mm.h>
+ #include <linux/swap.h>
++#include <linux/profile.h>
+ 
+ #include <asm/ptrace.h>
+ #include <asm/atomic.h>

@@ -1,57 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUFJQjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbUFJQqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbUFJQjN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 12:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbUFJQjM
+	id S261993AbUFJQqq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 12:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUFJQqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 12:39:12 -0400
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:60311 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S261951AbUFJQjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 12:39:11 -0400
-Date: Thu, 10 Jun 2004 10:41:35 -0600
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Ed Tomlinson <edt@aei.ca>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: ide errors in 7-rc1-mm1 and later
-Message-ID: <20040610164135.GA2230@bounceswoosh.org>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	"Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-	Jeff Garzik <jgarzik@pobox.com>, Ed Tomlinson <edt@aei.ca>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <1085689455.7831.8.camel@localhost> <20040605092447.GB13641@suse.de> <20040606161827.GC28576@bounceswoosh.org> <200406100238.11857.bzolnier@elka.pw.edu.pl> <20040610061141.GD13836@suse.de>
+	Thu, 10 Jun 2004 12:46:46 -0400
+Received: from mail.kroah.org ([65.200.24.183]:6631 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261993AbUFJQqp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 12:46:45 -0400
+Date: Thu, 10 Jun 2004 09:45:41 -0700
+From: Greg KH <greg@kroah.com>
+To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: 2.6.7-rc3 drivers/usb/core/devio.c: user/kernel pointer bugs
+Message-ID: <20040610164541.GA32577@kroah.com>
+References: <1086820850.14179.104.camel@dooby.cs.berkeley.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040610061141.GD13836@suse.de>
+In-Reply-To: <1086820850.14179.104.camel@dooby.cs.berkeley.edu>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 10 at  8:11, Jens Axboe wrote:
->On Thu, Jun 10 2004, Bartlomiej Zolnierkiewicz wrote:
->> 
->> /me just thinks loudly
->> 
->> 'linear range' FLUSH CACHE seems so easy to implement that I always wondered
->> why FLUSH CACHE command doesn't make any use of LBA address and number
->> of sectors.
->
->Indeed, that would be very helpful as well.
+On Wed, Jun 09, 2004 at 03:40:50PM -0700, Robert T. Johnson wrote:
+> Since ctrl is copied in from userspace, ctrl.data cannot safely be 
+> dereferenced.  Let me know if you have any questions or if I've made
+> a mistake.
 
-Neat idea... so you send us a LBA and a block count, and we return
-good status if that region is flushed.
+Oops, I added this bug, sorry about that, good catch.
 
-Each command can specify a 32MiB region, assuming a device with
-512-byte LBAs.
+I've applied this to my trees, thanks.
 
-Propose an exact implementation and an opcode...
-
--- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
-
+greg k-h

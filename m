@@ -1,69 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273960AbRIRWzF>; Tue, 18 Sep 2001 18:55:05 -0400
+	id <S273929AbRIRWvf>; Tue, 18 Sep 2001 18:51:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273961AbRIRWyz>; Tue, 18 Sep 2001 18:54:55 -0400
-Received: from ash.lnxi.com ([207.88.130.242]:43001 "EHLO DLT.linuxnetworx.com")
-	by vger.kernel.org with ESMTP id <S273960AbRIRWyv>;
-	Tue, 18 Sep 2001 18:54:51 -0400
-To: Ronald G Minnich <rminnich@lanl.gov>
-Cc: <linux-kernel@vger.kernel.org>, <linuxbios@lanl.gov>
-Subject: Re: LinuxBIOS + ASUS CUA + 2.4.5 works; with 2.4.6 locks up
-In-Reply-To: <Pine.LNX.4.33.0109181612380.28482-100000@snaresland.acl.lanl.gov>
-From: ebiederman@lnxi.com (Eric W. Biederman)
-Date: 18 Sep 2001 16:54:59 -0600
-In-Reply-To: <Pine.LNX.4.33.0109181612380.28482-100000@snaresland.acl.lanl.gov>
-Message-ID: <m3u1y0nm7w.fsf@DLT.linuxnetworx.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S273960AbRIRWvZ>; Tue, 18 Sep 2001 18:51:25 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:3386 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S273929AbRIRWvP>; Tue, 18 Sep 2001 18:51:15 -0400
+Subject: Re: Feedback on preemptible kernel patch xfs
+From: Robert Love <rml@tech9.net>
+To: jury gerold <geroldj@grips.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BA72A80.6020706@grips.com>
+In-Reply-To: <1000581501.32705.46.camel@phantasy> 
+	<3BA72A80.6020706@grips.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.17.07.08 (Preview Release)
+Date: 18 Sep 2001 18:52:32 -0400
+Message-Id: <1000853560.19365.13.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronald G Minnich <rminnich@lanl.gov> writes:
+On Tue, 2001-09-18 at 07:05, jury gerold wrote:
+> I used your patch on 2.4.10-pre10-xfs from the SGI cvs tree.
+> 2 files had to be changed
+> fs/xfs_support/atomic.h and fs/xfs_support/mutex.h
+> needed a include sched.h
 
-> Here is the scenario. We have LinuxBIOS working fine with 2.4.5 on an ASUS
-> CUA mainboard (Acer M1631 TNT2 northbridge, m1535d southbridge). It boots
-> to multiuser and works fine. All versions of linux from 2.4.0 to 2.4.5
-> also work.
+Thank you for reporting this.
+
+I just made a diff against xfs-cvs-20010917 with your changes. 
+Obviously I can't merge the changes into the main patch since not
+everyone has XFS, but I will make the patch available.
+
+> rootfilesystem is ext2 everything else is xfs
+> athlon optimisation is switched on
+> chipset is via
+> the nvidia kernel module for OpenGL acceleration is running
+> hisax isdn driver for internet access
+> USB web cam
 > 
-> If we upgrade to 2.4.6 we see the 'Posix compliance by Unifix' (or
-> whatever) message and then ... that's it. The machine appears to lock up.
-> Testing with the ICE shows that it is repeatedly going to address
-> 0xfefe0c0, or similar (it varies). Note that is 7 digits of hex, not 8:
-> it's not going after high PCI or BIOS memory, we think.
-> 
-> It does appear to get through creating the kernel_thread for init, and we
-> think it might be dying when it goes idle, but we're not sure.
+> I have tried heavy filesystem operations (cp -ar x y && rm -rf y)
+> with a big compile job -j2 and some OpenGL programs together with the 
+> web cam
 
-That could happen though it sounds unlikely on a PIII.
- 
-> We sometimes get into the kernel thread for init and can single step it
-> into pci setup. At some point however the machine will again lock up. The
-> last POST code is 97.
-> 
-> THe 0xfefec00 address is suspicious. Is there any APIC (NOT ACPI, I mean
-> IO-APIC) change that came into 2.4.6? 
+Good.  Then we can probably mark XFS as preempt safe (no reason to think
+otherwise).  Those file operations were on the XFS partitions, right?
 
-Yes, according to the changlog.  But apics are generally much higher.
+> on the USB side i had some "_comp parameters have gone AWOL" messages in 
+> the syslog from the cpia driver
+> but i remember them from a no preemtion kernel as well
 
-> Is there any way the kernel could be
-> trying to call the BIOS for some reason (we have APM etc. OFF). Does
-> anyone have a hint at what we could look at? FWIW, we have run this kernel
-> under linuxbios on other boxes. It only fails on the Acer, and only for
-> 2.4.6 and later (we've tested up to 2.4.9).
+Yah, probably from mainline kernel...
 
-It shouldn't be trying to call the BIOS.
+> so far everything is stable
 
-Have you run memtest86?  Seriously knowing that you don't have
-bad memory or a bad memory setup would be rule out all kinds of problems.
+excellent.
 
-Hmm. 0xfefe0c0 is just below 256 megs (I assume that is what you have in your
-machine).  The kernel allocates memory from the top down, at least it did last
-time I looked.  I can't think of a reason it would jump there, but I
-can see it having a variable allocated up there.
+> i like the idea but i have not made any tests on the latency yet
 
-On the other hand an address like: 0xc0e0ef0f (reverse endian) is
-really wacky but completely inside of the kernel address space.
+if you do, please post.
 
-Eric
+thanks for the feedback,
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

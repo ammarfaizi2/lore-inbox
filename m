@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263475AbUEPLAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUEPLNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUEPLAN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 07:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUEPLAM
+	id S263540AbUEPLNy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 07:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUEPLNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 07:00:12 -0400
-Received: from out012pub.verizon.net ([206.46.170.137]:45050 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S263475AbUEPLAJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 07:00:09 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Subject: Re: 2.6.6-mm3
-Date: Sun, 16 May 2004 07:00:07 -0400
-User-Agent: KMail/1.6
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040516025514.3fe93f0c.akpm@osdl.org> <40A7440C.4090305@gmx.de>
-In-Reply-To: <40A7440C.4090305@gmx.de>
+	Sun, 16 May 2004 07:13:54 -0400
+Received: from pop.gmx.de ([213.165.64.20]:49594 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263540AbUEPLNx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 07:13:53 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Daniele Venzano <webvenza@libero.it>
+Subject: Re: problem with sis900
+Date: Sun, 16 May 2004 13:21:49 +0200
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <1084300104.24569.8.camel@datacontrol> <200405151412.09233.dominik.karall@gmx.net> <20040515165641.GA1608@gateway.milesteg.arr>
+In-Reply-To: <20040515165641.GA1608@gateway.milesteg.arr>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405160700.07475.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.10.15] at Sun, 16 May 2004 06:00:08 -0500
+Message-Id: <200405161321.50052.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 May 2004 06:35, Prakash K. Cheemplavam wrote:
->Andrew Morton wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.
->>6/2.6.6-mm3/
+On Saturday 15 May 2004 18:56, Daniele Venzano wrote:
+> On Sat, May 15, 2004 at 02:12:08PM +0200, Dominik Karall wrote:
+> > But the patch did not apply, so I patched it by hand. To be sure that the
+> > file was correctly patched by me, I attached it here.
 >
->Uhm, where's the patch? ;-)
->
->Prakash
+> Applying the patch by hand, you forgot a piece, try to apply the patch
+> to a clean, unmodified 2.6.6 sis900.c.
 
-I'll second that question.
+Same error messages again. I used an unmodified sis900.c from the 2.6.6 kernel 
+and applied the diff successfully. But it does not help.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+> Also, did you try to boot with the network cable plugged in ? The
+> probing code has special case for transciever with link status on.
+> If you want to try this, please use an unpatched kernel.
+
+My network cable is plugged in all the time, connected to a switch.
+
+> Thanks for testing.
+
+Thanks for help!

@@ -1,57 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131051AbQLOU5P>; Fri, 15 Dec 2000 15:57:15 -0500
+	id <S131174AbQLOU5Z>; Fri, 15 Dec 2000 15:57:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131139AbQLOU5F>; Fri, 15 Dec 2000 15:57:05 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56075 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S131051AbQLOU4v>; Fri, 15 Dec 2000 15:56:51 -0500
-Date: Fri, 15 Dec 2000 21:26:01 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Pavel Machek <pavel@suse.cz>, Chris Lattner <sabre@nondot.org>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-Message-ID: <20001215212601.A26758@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20001214210245.B468@bug.ucw.cz> <Pine.LNX.3.96.1001215205918.13941A-100000@artax.karlin.mff.cuni.cz>
+	id <S131139AbQLOU5Q>; Fri, 15 Dec 2000 15:57:16 -0500
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:13576 "EHLO
+	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+	id <S131174AbQLOU5C>; Fri, 15 Dec 2000 15:57:02 -0500
+Date: Fri, 15 Dec 2000 15:31:30 -0500
+From: Michael Meissner <meissner@spectacle-pond.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Mike Black <mblack@csihq.com>,
+        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 signal.h
+Message-ID: <20001215153130.B24830@munchkin.spectacle-pond.org>
+In-Reply-To: <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com> <20001215175632.A17781@inspiron.random> <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com> <20001215184325.B17781@inspiron.random> <4.3.2.7.2.20001215185622.025f8740@mail.lauterbach.com> <20001215195433.G17781@inspiron.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.3.96.1001215205918.13941A-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Fri, Dec 15, 2000 at 09:10:37PM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20001215195433.G17781@inspiron.random>; from andrea@suse.de on Fri, Dec 15, 2000 at 07:54:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Dec 15, 2000 at 07:54:33PM +0100, Andrea Arcangeli wrote:
+> On Fri, Dec 15, 2000 at 06:59:24PM +0100, Franz Sirl wrote:
+> > It's required by ISO C, and since that's the standard now, gcc spits out a 
+> > warning. Just adding a ; is enough and already done for most stuff in 
+> > 2.4.0-test12.
+> 
+> I'm not complaining gcc folks, I just dislike the new behaviour in general,
+> it's inconsistent.
+> 
+> This is wrong:
+> 
+> x()
+> {
+> 
+> 	switch (1) {
+> 	case 0:
+> 	case 1:
+> 	case 2:
+> 	case 3:
+> 	}
+> }
+> 
+> and this is right:
+> 
+> x()
+> {
+> 
+> 	switch (1) {
+> 	case 0:
+> 	case 1:
+> 	case 2:
+> 	case 3:
+> 	;
+> 	}
+> }
+> 
+> Why am I required to put a `;' only in the last case and not in all
+> the previous ones? Or maybe gcc-latest is forgetting to complain about
+> the previous ones ;)
 
-> > > For one of our demos, we ran a file server on a remote linux box (that we 
-> > > just had a user account on), mounted it on a kORBit'ized box, and ran
-> > > programs on SPARC Solaris that accessed the kORBit'ized linux box's file
-> > > syscalls.  If nothing else, it's pretty nifty what you can do in little
-> > > code...
-> > 
-> > Cool!
-> > 
-> > However, can you do one test for me? Do _heavy_ writes on kORBit-ized
-> > box. That might show you some problems.
-> 
-> I guess that when you mmap large files over nfs and write to them, you get
-> similar problems.
-> 
-> > Oh, and try to eat atomic memory by ping -f kORBit-ized box.
-> 
-> When linux is out of atomic memory, it will die anyway.
+Because neither
 
-Why should it die? It is quite easy to make machine run out of atomic
-memory: just bomb it with lots of packets. It should recover, eventually
+	<label>:		(nor)
+	case <expr>:		(nor)
+	default:
 
-> 
-> Mikulas
-> 
-> 
+are statements by themselves.  They are an optional start of a statement.  The
+ebnf looks like:
+
+	statement:
+		  labeled-statement
+		| expression-statem
+		| compoundstatement
+		| selection-statement
+		| iteration-statement
+		| jump-statement
+
+	labeled-statement:
+		  identifier ':' statement
+		| 'case' constant-expression ':' statement
+		| 'default' ':' statement
 
 -- 
-The best software in life is free (not shareware)!		Pavel
-GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
+Michael Meissner, Red Hat, Inc.  (GCC group)
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

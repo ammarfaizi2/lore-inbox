@@ -1,69 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbUKPFus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUKPFyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbUKPFus (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 00:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbUKPFus
+	id S261900AbUKPFyz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 00:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUKPFyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 00:50:48 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:57523 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261893AbUKPFuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 00:50:40 -0500
-Date: Tue, 16 Nov 2004 05:50:18 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrea Arcangeli <andrea@novell.com>
-cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Christoph Rohland <cr@sap.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tmpfs symlink corrupts mempolicy
-In-Reply-To: <20041116021405.GJ4758@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0411160513400.3422-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 16 Nov 2004 00:54:55 -0500
+Received: from HELIOUS.MIT.EDU ([18.238.1.151]:22695 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261900AbUKPFyx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 00:54:53 -0500
+Date: Tue, 16 Nov 2004 00:52:40 -0500
+To: matthieu castet <castet.matthieu@free.fr>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
+       bjorn.helgaas@hp.com, vojtech@suse.cz
+Subject: Re: [PATCH] PNP support for i8042 driver
+Message-ID: <20041116055240.GF29574@neo.rr.com>
+Mail-Followup-To: ambx1@neo.rr.com,
+	matthieu castet <castet.matthieu@free.fr>, dtor_core@ameritech.net,
+	linux-kernel@vger.kernel.org, bjorn.helgaas@hp.com, vojtech@suse.cz
+References: <41960AE9.8090409@free.fr> <200411140148.02811.dtor_core@ameritech.net> <41974DFD.5070603@free.fr> <d120d50004111506416237ff1b@mail.gmail.com> <419908B8.10202@free.fr> <d120d500041115122846b9f0fa@mail.gmail.com> <41993320.3010501@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41993320.3010501@free.fr>
+User-Agent: Mutt/1.5.6+20040722i
+From: ambx1@neo.rr.com (Adam Belay)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004, Andrea Arcangeli wrote:
+On Mon, Nov 15, 2004 at 11:52:16PM +0100, matthieu castet wrote:
+> Hi,
 > 
-> I was wrong about it crashing, but it will not crash only for shmfs,
-> if you want to export that to MAP_SHARED on other fs, you won't be
+> Dmitry Torokhov wrote:
+> >On Mon, 15 Nov 2004 20:51:20 +0100, matthieu castet
+> >>Yes you could do a very ugly hack : set pnp_can_disable(dev) to 0 before
+> >> unregister. With that the device won't be disabled (no resource
+> >>desalocation), but the device will be mark as not active in pnp layer.
+> >>
+> >
+> >
+> > I'd like to release resoures al well (interrupts only really, as 
+> ports are
+> > always reserved by the system even before PNP is initialized).
 
-I've not yet studied the patches which apply NUMA memory policy to
-general page cache, but that's something different.  (I'd like to
-think they could extend and replace the shmem special case mpol,
-but API commitment may turn out to prevent that.)
+They shouldn't be.  PnP detection should occur before the system assumes the
+location of a device.  I realize that it can be difficult given the current
+state of many drivers.  Still, I think assuming information about a device,
+especially if you consider how easy it is to get from ACPI etc., can be
+potentially dangerous.
 
-Of course they won't be able to rely on tmpfs peculiarities, but
-they will surely integrate the mpol with generic inode/mapping,
-not the tmpfs-specfic inode.  I don't know whether they would free
-up the mpol in destroy_inode, or near the truncate_inode_pages.
+> >I think you need to make an effort to make a PCI device use IRQ12
+> >but the idea is that if you don't have a mouse attached (but you do
+> >have i8042) and you are short on free interrupts and your HW can
+> >use IRQ12 for some other stuff let it have it. That is the reqson why
+> >i8042 requests IRQ only when corresponding port is open. No mouse -
+> >IRQ is free.
+> >
+> And what happen if you use irq12 for an other stuff and you plug your 
+> mouse and try to use it. The motherboard hasn't desalocated the irq12 
+> for mouse, so there will be a big conflict...
 
-> allowed anymore to depending on this shmfs speciaility of delete_inode
-> being recalled only during unlink. I don't see how depending on this
-> subtle detail to free the mpol could ever be an improvement instead of
-> doing in destroy_inode where it belongs to.
+I agree.  Disabling the device is fine, but we _really_ should disable the
+device with the BIOS before assuming a resource is free.
 
-But we're talking about tmpfs (shmfs) for now: which has this space-
-saving but nasty oddity that it keeps the short symlinks overwriting
-its filesystem-specific inode structure, but the long symlinks in a
-page allocated according to NUMA memory policy.  By the time you get
-to shmem_destroy_inode, you don't know which was which.  No, I'm
-wrong on that, you can test inode->i_op->truncate to decide
-(I'd have to check whether inode->i_op might be NULL).
-
-Your code is relying on the fact that actually the mpol for a long
-symlink is always the default, and the default doesn't need any memory
-to be freed .  That may well remain the case forever, but Brent has a
-patch to set tmpfs default memory policy by mount option.  That patch
-may go nowhere, or we might override the default for symlinks anyway,
-but potentially it could need mpol freed even in long symlink case.
-
-The place where tmpfs currently deals with regular files and long
-symlinks (those which may allocate pages) versus the rest is in
-shmem_delete_inode, hence I moved the mpol freeing there.  Perhaps
-that whole bank of code could be moved into shmem_destroy_inode,
-but I rather doubt it - shmem_destroy_inode is there to free what
-shmem_alloc_inode allocated, and that doesn't involve mpol at all.
-
-Hugh
-
+Thanks,
+Adam

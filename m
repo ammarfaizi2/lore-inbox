@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129975AbRARAeI>; Wed, 17 Jan 2001 19:34:08 -0500
+	id <S129884AbRARAiS>; Wed, 17 Jan 2001 19:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130077AbRARAd5>; Wed, 17 Jan 2001 19:33:57 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:8208
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129975AbRARAdn>; Wed, 17 Jan 2001 19:33:43 -0500
-Date: Wed, 17 Jan 2001 16:32:44 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Tim Fletcher <tim@parrswood.manchester.sch.uk>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Terrence Martin <tmartin@cal.montage.ca>,
-        linux-kernel@vger.kernel.org
-Subject: Re: File System Corruption with 2.2.18
-In-Reply-To: <Pine.LNX.4.30.0101172356370.26536-100000@pine.parrswood.manchester.sch.uk>
-Message-ID: <Pine.LNX.4.10.10101171630000.19441-100000@master.linux-ide.org>
+	id <S130077AbRARAiJ>; Wed, 17 Jan 2001 19:38:09 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:5615 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S129884AbRARAh7>; Wed, 17 Jan 2001 19:37:59 -0500
+Date: Thu, 18 Jan 2001 08:15:50 +1100 (EST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@localhost.localdomain>
+To: Vlad Bolkhovitine <vladb@sw.com.sg>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: mmap()/VM problem in 2.4.0
+In-Reply-To: <3A5EFB40.6080B6F3@sw.com.sg>
+Message-ID: <Pine.LNX.4.31.0101180814080.31432-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.31.0101180814082.31432@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, Tim Fletcher wrote:
+On Fri, 12 Jan 2001, Vlad Bolkhovitine wrote:
 
-> > > Hi!
-> > >
-> > > Cute. Can it be run on say a swap partition?
-> >
-> > maybe but why?
-> 
-> Because it stores no data, hence the wiping out of it is no problem?
+> You can see, mmap() read performance dropped significantly as
+> well as read() one raised. Plus, "interactivity" of 2.4.0 system
+> was much worse during mmap'ed test, than using read()
+> (everything was quite smooth here). 2.4.0-test7 was badly
+> interactive in both cases.
 
-Well that is useless test them because you can not test things completely.
+Could have to do with page_launder() ... I'm working on
+streaming mmap() performance here and have been working
+on this for a week now (amongst other things).
 
-Andre Hedrick
-Linux ATA Development
+I'll clean up my code soon and will make it available on
+my home page asap. When we're certain it works I'll submit
+some of it to Linus.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

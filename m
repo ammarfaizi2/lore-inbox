@@ -1,511 +1,213 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267377AbUBSQ50 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 11:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267382AbUBSQ50
+	id S267384AbUBSRCy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 12:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUBSRCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 11:57:26 -0500
-Received: from imsmta2.indosat.net.id ([202.155.50.25]:37964 "EHLO
-	imsmta2.indosat.net.id") by vger.kernel.org with ESMTP
-	id S267377AbUBSQ5D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 11:57:03 -0500
-Date: Thu, 19 Feb 2004 23:56:49 +0700
-From: Michel Alexandre Salim <salimma@fastmail.fm>
-Subject: kernels 2.6{1,2,3-rc3}: Prolific PL3507 external HDD enclosure	problems
-To: Firewire MList <linux1394-user@lists.sourceforge.net>,
-       Kernel MList <linux-kernel@vger.kernel.org>
-Message-id: <1077209809.2885.22.camel@bushido.mshome.net>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.5.3 (1.5.3cvs02092004-1)
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary="=-S07GI95oOhl19hcn4u45"
+	Thu, 19 Feb 2004 12:02:54 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:50093 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S267384AbUBSRCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 12:02:47 -0500
+Date: Thu, 19 Feb 2004 18:02:32 +0100
+From: Christophe Saout <christophe@saout.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+Message-ID: <20040219170228.GA10483@leto.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---=-S07GI95oOhl19hcn4u45
-Content-Type: multipart/mixed; boundary="=-411a/O2UiBA56YTZtfz8"
+since some people keep complaining that the IV generation mechanisms
+supplied in cryptoloop (and now dm-crypt) are insecure, which they
+somewhat are, I just hacked a small digest based IV generation mechanism.
 
+It simply hashes the sector number and the key and uses it as IV.
 
---=-411a/O2UiBA56YTZtfz8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+You can specify the encryption mode as "cipher-digest" like aes-md5 or
+serpent-sha1 or some other combination.
 
-Hi,
+Consider this as a proposal, I'm not a crypto expert. Tell me if it
+contains other flaws that should be fixed.
 
-I have this Prolific PL3507 Combo Device that works perfectly fine under
-2.4 kernels (booted with acpi=3Don) but not at all on 2.6 kernels, using
-both USB2 and Firewire interfaces.
-
-I have attached the /proc/bus/ieee1394/devices file from kernel 2.4,
-lspci output and the initial boot log from dmesg for kernel 2.6, so they
-do not get in the way of the sequence of errors I'm narrating below.
-
-The following occured on kernel-2.6.2-1.87 from Fedora's development
-tree (Rawhide), which Dave Jones assured me matches the upstream 2.6.3-
-rc3-bk1 kernel when it comes to ieee1394. Problems occur also under
-vanilla kernels, so it should not be Fedora-specific. Hotplug version is
-2004_01_05, using OHCI.
-
-sbp2 does not get properly initialized when the device is turned on
-during boot (see dmesg output attached), but after rmmod'ing sbp2 and
-ohci1394, then reloading them, I get the following output:
-
-ohci1394: $Rev: 1097 $ Ben Collins <bcollins@debian.org>
-ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=3D[9]  MMIO=3D[d0202000-
-d02027ff]  Max Packet=3D[2048]
-ieee1394: Node added: ID:BUS[0-00:1023]  GUID[005077350710020e]
-ieee1394: Host added: ID:BUS[0-01:1023]  GUID[08004603015ea68f]
-ieee1394: unsolicited response packet received - no tlabel match
-sbp2: $Rev: 1096 $ Ben Collins <bcollins@debian.org>
-scsi2 : SCSI emulation for IEEE-1394 SBP-2 Devices
-ieee1394: sbp2: Logged into SBP-2 device
-ieee1394: sbp2: Node 0-00:1023: Max speed [S400] - Max payload [2048]
-  Vendor: ST312002  Model: 2A                Rev:    =20
-  Type:   Direct-Access                      ANSI SCSI revision: 06
-SCSI device sdb: 234467403 512-byte hdwr sectors (120047 MB)
-sdb: asking for cache data failed
-sdb: assuming drive cache: write through
- sdb:
-
-The cursor is stuck at the end of the last line; subsequent dmesg output
-appears to the right without a line break as would be seen soon.
-
-When trying to mount the JFS partition on /dev/sdb1 this happens:
-
- sdb:<3>ieee1394: sbp2: aborting sbp2 command
-Read (10) 00 0d f9 b0 48 00 00 03 00=20
-ieee1394: sbp2: aborting sbp2 command
-Test Unit Ready 00 00 00 00 00=20
-ieee1394: sbp2: reset requested
-ieee1394: sbp2: Generating sbp2 fetch agent reset
-ieee1394: sbp2: aborting sbp2 command
-Test Unit Ready 00 00 00 00 00=20
-ieee1394: sbp2: reset requested
-ieee1394: sbp2: Generating sbp2 fetch agent reset
-ieee1394: sbp2: aborting sbp2 command
-Test Unit Ready 00 00 00 00 00=20
-ieee1394: sbp2: reset requested
-ieee1394: sbp2: Generating sbp2 fetch agent reset
-ieee1394: sbp2: aborting sbp2 command
-Test Unit Ready 00 00 00 00 00=20
-scsi: Device offlined - not ready after error recovery: host 2 channel 0
-id 0 lun 0
-SCSI error : <2 0 0 0> return code =3D 0x50000
-end_request: I/O error, dev sdb, sector 234467400
-Buffer I/O error on device sdb, logical block 234467400
-Buffer I/O error on device sdb, logical block 234467401
-Buffer I/O error on device sdb, logical block 234467402
-scsi2 (0:0): rejecting I/O to offline device
-Buffer I/O error on device sdb, logical block 234467400
-Buffer I/O error on device sdb, logical block 234467401
-Buffer I/O error on device sdb, logical block 234467402
- unsupported disk (sdb)
- sdb1
-Attached scsi disk sdb at scsi2, channel 0, id 0, lun 0
-Attached scsi generic sg1 at scsi2, channel 0, id 0, lun 0,  type 0
-
-rmmod'ing the module now causes a segmentation fault:
-
-ieee1394: sbp2: Logged out of SBP-2 device
-Unable to handle kernel paging request at virtual address 6b6b6c1f
- printing eip:
-f09512ba
-*pde =3D 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<f09512ba>]    Not tainted
-EFLAGS: 00010246
-EIP is at scsi_device_put+0x5/0x33 [scsi_mod]
-eax: 6b6b6b6b   ebx: e17ba084   ecx: 00000000   edx: e17bba00
-esi: df8bca1c   edi: ef51ae38   ebp: 00000000   esp: dae2df10
-ds: 007b   es: 007b   ss: 0068
-Process rmmod (pid: 2491, threadinfo=3Ddae2c000 task=3Ddb2207a0)
-Stack: ed7f86cc f1f322ec ed7f86cc df8bca1c df8bca1c f1f31bfc ee32cb7c
-f1f36e6c=20
-       f1f36e6c c02205c4 f1f36e6c f1f36ed0 c02205e6 f0abb3cc f0abb380
-c02207b5=20
-       f1f36e74 f1f36e6c c03102a0 c0220a87 f1f37000 00000000 f1f340b0
-c013b37e=20
-Call Trace:
- [<f1f322ec>] sbp2_remove_device+0x2f/0x165 [sbp2]
- [<f1f31bfc>] sbp2_remove+0x36/0x4b [sbp2]
- [<c02205c4>] device_release_driver+0x3c/0x46
- [<c02205e6>] driver_detach+0x18/0x26
- [<c02207b5>] bus_remove_driver+0x37/0x64
- [<c0220a87>] driver_unregister+0xc/0x2a
- [<f1f340b0>] sbp2_module_exit+0xa/0x14 [sbp2]
- [<c013b37e>] sys_delete_module+0x153/0x174
- [<c0154278>] unmap_vma_list+0xe/0x17
- [<c0154278>] unmap_vma_list+0xe/0x17
- [<c015479f>] do_munmap+0x1dc/0x1e6
- [<c010bc57>] syscall_call+0x7/0xb
-
-Code: 8b 80 b4 00 00 00 8b 00 85 c0 74 16 ff 88 00 01 00 00 83 38=20
-=20
-with a similar problem noticed when the device is attached to a USB2
-port:
-
-usb 1-3: new high speed USB device using address 2
-scsi1 : SCSI emulation for USB Mass Storage devices
-updfstab: numerical sysctl 1 23 is obsolete.
-  Vendor: ST312002  Model: 2A                Rev: 3.06
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sdb: 234441649 512-byte hdwr sectors (120034 MB)
-sdb: assuming drive cache: write through
- sdb:<6>
-
-Under Firewire, hotplug takes a long time to complete, likewise with
-mount.
-
-Under USB2, though, attempting to mount the partition results in mount
-immediately returning with an error message that /dev/sdb1 is not a
-valid partition. Hotplug also returns immediately.
-
-The problem appears not to be limited to the ieee1394 tree, as it also
-affects the device under USB, and other people have had no problems with
-Fedora kernels >=3D 2.6.2.
-
-I would be really grateful for suggestions on what to test, etc.
-Apologies for the inconvenience, but please Cc: me if replying to linux-
-kernel; I am not subscribed ATM.
-
-Thanks beforehand,
-
-Michel
+At least the "cryptoloop-exploit" Jari Ruusu posted doesn't work anymore.
 
 
---=-411a/O2UiBA56YTZtfz8
-Content-Description: /proc/bus/ieee1394/devices
-Content-Disposition: attachment; filename=devices
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-Tm9kZVswLTAwOjEwMjNdICBHVUlEWzAwNTA3NzM1MDcxMDAyMGVdOg0KICBWZW5kb3IgSUQ6IGBQ
-cm9saWZpYyBQTDM1MDcgQ29tYm8gRGV2aWNlJyBbMHgwMDUwNzddDQogIENhcGFiaWxpdGllczog
-MHgwMDgzYzANCiAgQnVzIE9wdGlvbnM6DQogICAgSVJNQygwKSBDTUMoMCkgSVNDKDApIEJNQygw
-KSBQTUMoMCkgR0VOKDApDQogICAgTFNQRCgwKSBNQVhfUkVDKDY0KSBDWUNfQ0xLX0FDQygyNTUp
-DQogIFVuaXQgRGlyZWN0b3J5IDA6DQogICAgVmVuZG9yL01vZGVsIElEOiBQcm9saWZpYyBQTDM1
-MDcgQ29tYm8gRGV2aWNlIFswMDUwNzddIC8gKDEzOTQtQVRBUEkgcmV2MS4xMCkgWzAwMDAwMV0N
-CiAgICBTb2Z0d2FyZSBTcGVjaWZpZXIgSUQ6IDAwNjA5ZQ0KICAgIFNvZnR3YXJlIFZlcnNpb246
-IDAxMDQ4Mw0KICAgIERyaXZlcjogU0JQMiBEcml2ZXINCiAgICBMZW5ndGggKGluIHF1YWRzKTog
-OA0KTm9kZVswLTAxOjEwMjNdICBHVUlEWzA4MDA0NjAzMDE1ZWE2OGZdOg0KICBWZW5kb3IgSUQ6
-IGBMaW51eCBPSENJLTEzOTQnIFsweDAwMDAwMF0NCiAgQ2FwYWJpbGl0aWVzOiAweDAwODNjMA0K
-ICBCdXMgT3B0aW9uczoNCiAgICBJUk1DKDEpIENNQygxKSBJU0MoMSkgQk1DKDApIFBNQygwKSBH
-RU4oMCkNCiAgICBMU1BEKDIpIE1BWF9SRUMoMjA0OCkgQ1lDX0NMS19BQ0MoMCkNCiAgSG9zdCBO
-b2RlIFN0YXR1czoNCiAgICBIb3N0IERyaXZlciAgICAgOiBvaGNpMTM5NA0KICAgIE5vZGVzIGNv
-bm5lY3RlZCA6IDINCiAgICBOb2RlcyBhY3RpdmUgICAgOiAyDQogICAgU2VsZklEcyByZWNlaXZl
-ZDogMg0KICAgIElybSBJRCAgICAgICAgICA6IFswLTAxOjEwMjNdDQogICAgQnVzTWdyIElEICAg
-ICAgIDogWzAtNjM6MTAyM10NCiAgICBJbiBCdXMgUmVzZXQgICAgOiBubw0KICAgIFJvb3QgICAg
-ICAgICAgICA6IHllcw0KICAgIEN5Y2xlIE1hc3RlciAgICA6IHllcw0KICAgIElSTSAgICAgICAg
-ICAgICA6IHllcw0KICAgIEJ1cyBNYW5hZ2VyICAgICA6IG5vDQo=
-
-
---=-411a/O2UiBA56YTZtfz8
-Content-Description: 2.6.2-1.87 lspci output
-Content-Disposition: attachment; filename=lspci.txt
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-MDAwMDowMDowMC4wIEhvc3QgYnJpZGdlOiBJbnRlbCBDb3JwLiA4Mjg1NVBNIFByb2Nlc3NvciB0
-byBJL08gQ29udHJvbGxlciAocmV2IDAzKQ0KMDAwMDowMDowMS4wIFBDSSBicmlkZ2U6IEludGVs
-IENvcnAuIDgyODU1UE0gUHJvY2Vzc29yIHRvIEFHUCBDb250cm9sbGVyIChyZXYgMDMpDQowMDAw
-OjAwOjFkLjAgVVNCIENvbnRyb2xsZXI6IEludGVsIENvcnAuIDgyODAxREIgVVNCIChIdWIgIzEp
-IChyZXYgMDMpDQowMDAwOjAwOjFkLjEgVVNCIENvbnRyb2xsZXI6IEludGVsIENvcnAuIDgyODAx
-REIgVVNCIChIdWIgIzIpIChyZXYgMDMpDQowMDAwOjAwOjFkLjIgVVNCIENvbnRyb2xsZXI6IElu
-dGVsIENvcnAuIDgyODAxREIgVVNCIChIdWIgIzMpIChyZXYgMDMpDQowMDAwOjAwOjFkLjcgVVNC
-IENvbnRyb2xsZXI6IEludGVsIENvcnAuIDgyODAxREIgVVNCMiAocmV2IDAzKQ0KMDAwMDowMDox
-ZS4wIFBDSSBicmlkZ2U6IEludGVsIENvcnAuIDgyODAxQkFNL0NBTSBQQ0kgQnJpZGdlIChyZXYg
-ODMpDQowMDAwOjAwOjFmLjAgSVNBIGJyaWRnZTogSW50ZWwgQ29ycC4gODI4MDFEQk0gTFBDIElu
-dGVyZmFjZSBDb250cm9sbGVyIChyZXYgMDMpDQowMDAwOjAwOjFmLjEgSURFIGludGVyZmFjZTog
-SW50ZWwgQ29ycC4gODI4MDFEQk0gVWx0cmEgQVRBIFN0b3JhZ2UgQ29udHJvbGxlciAocmV2IDAz
-KQ0KMDAwMDowMDoxZi4zIFNNQnVzOiBJbnRlbCBDb3JwLiA4MjgwMURCL0RCTSBTTUJ1cyBDb250
-cm9sbGVyIChyZXYgMDMpDQowMDAwOjAwOjFmLjUgTXVsdGltZWRpYSBhdWRpbyBjb250cm9sbGVy
-OiBJbnRlbCBDb3JwLiA4MjgwMURCIEFDJzk3IEF1ZGlvIENvbnRyb2xsZXIgKHJldiAwMykNCjAw
-MDA6MDA6MWYuNiBNb2RlbTogSW50ZWwgQ29ycC4gODI4MDFEQiBBQyc5NyBNb2RlbSBDb250cm9s
-bGVyIChyZXYgMDMpDQowMDAwOjAxOjAwLjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxlcjogQVRJ
-IFRlY2hub2xvZ2llcyBJbmMgUmFkZW9uIE1vYmlsaXR5IE02IExZDQowMDAwOjAyOjA1LjAgQ2Fy
-ZEJ1cyBicmlkZ2U6IFJpY29oIENvIEx0ZCBSTDVjNDc1IChyZXYgYjgpDQowMDAwOjAyOjA1LjEg
-RmlyZVdpcmUgKElFRUUgMTM5NCk6IFJpY29oIENvIEx0ZCBSNUM1NTEgSUVFRSAxMzk0IENvbnRy
-b2xsZXINCjAwMDA6MDI6MDguMCBFdGhlcm5ldCBjb250cm9sbGVyOiBJbnRlbCBDb3JwLiA4Mjgw
-MUJEIFBSTy8xMDAgVkUgKE1PQikgRXRoZXJuZXQgQ29udHJvbGxlciAocmV2IDgzKQ0KMDAwMDow
-MjowYi4wIE5ldHdvcmsgY29udHJvbGxlcjogSW50ZWwgQ29ycC4gUFJPL1dpcmVsZXNzIExBTiAy
-MTAwIDNCIE1pbmkgUENJIEFkYXB0ZXIgKHJldiAwNCkNCg==
-
-
---=-411a/O2UiBA56YTZtfz8
-Content-Description: 2.6.2-1.87 boot dmesg output
-Content-Disposition: attachment; filename=boot.txt
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-TGludXggdmVyc2lvbiAyLjYuMi0xLjg3IChiaGNvbXBpbGVAdHdlZXR5LmRldmVsLnJlZGhhdC5j
-b20pIChnY2MgdmVyc2lvbiAzLjMuMiAyMDA0MDExOSAoUmVkIEhhdCBMaW51eCAzLjMuMi04KSkg
-IzEgTW9uIEZlYiAxNiAyMTozMDoxOSBFU1QgMjAwNA0KQklPUy1wcm92aWRlZCBwaHlzaWNhbCBS
-QU0gbWFwOg0KIEJJT1MtZTgyMDogMDAwMDAwMDAwMDAwMDAwMCAtIDAwMDAwMDAwMDAwOWY4MDAg
-KHVzYWJsZSkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWY4MDAgLSAwMDAwMDAwMDAwMGEwMDAw
-IChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwZDgwMDAgLSAwMDAwMDAwMDAwMGUw
-MDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwZTQwMDAgLSAwMDAwMDAwMDAw
-MTAwMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAxMDAwMDAgLSAwMDAwMDAw
-MDJmZjcwMDAwICh1c2FibGUpDQogQklPUy1lODIwOiAwMDAwMDAwMDJmZjcwMDAwIC0gMDAwMDAw
-MDAyZmY3YzAwMCAoQUNQSSBkYXRhKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDAyZmY3YzAwMCAtIDAw
-MDAwMDAwMmZmODAwMDAgKEFDUEkgTlZTKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDAyZmY4MDAwMCAt
-IDAwMDAwMDAwMzAwMDAwMDAgKHJlc2VydmVkKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDBmZjgwMDAw
-MCAtIDAwMDAwMDAwZmZjMDAwMDAgKHJlc2VydmVkKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDBmZmZm
-ZjAwMCAtIDAwMDAwMDAxMDAwMDAwMDAgKHJlc2VydmVkKQ0KME1CIEhJR0hNRU0gYXZhaWxhYmxl
-Lg0KNzY3TUIgTE9XTUVNIGF2YWlsYWJsZS4NCk9uIG5vZGUgMCB0b3RhbHBhZ2VzOiAxOTY0NjQN
-CiAgRE1BIHpvbmU6IDQwOTYgcGFnZXMsIExJRk8gYmF0Y2g6MQ0KICBOb3JtYWwgem9uZTogMTky
-MzY4IHBhZ2VzLCBMSUZPIGJhdGNoOjE2DQogIEhpZ2hNZW0gem9uZTogMCBwYWdlcywgTElGTyBi
-YXRjaDoxDQpETUkgMi4zIHByZXNlbnQuDQpTb255IFZhaW8gbGFwdG9wIGRldGVjdGVkLg0KQUNQ
-STogUlNEUCAodjAwMCBQVExURCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAp
-IEAgMHgwMDBmNjlkMA0KQUNQSTogUlNEVCAodjAwMSAgIFNPTlkgICAgICAgRzAgMHgyMDAzMDUw
-MiBQVEwgIDB4MDAwMDAwMDApIEAgMHgyZmY3ODA2Yg0KQUNQSTogRkFEVCAodjAwMiAgIFNPTlkg
-ICAgICAgRzAgMHgyMDAzMDUwMiBQVEwgIDB4MDAwMDAwNTApIEAgMHgyZmY3YmVjMg0KQUNQSTog
-Qk9PVCAodjAwMSAgIFNPTlkgICAgICAgRzAgMHgyMDAzMDUwMiBQVEwgIDB4MDAwMDAwMDEpIEAg
-MHgyZmY3YmZkOA0KQUNQSTogU1NEVCAodjAwMSAgIFNPTlkgICAgICAgRzAgMHgyMDAzMDUwMiBQ
-VEwgIDB4MDAwMDAwMDApIEAgMHgyZmY3ODA5Yg0KQUNQSTogRFNEVCAodjAwMSAgIFNPTlkgICAg
-ICAgRzAgMHgyMDAzMDUwMiBQVEwgIDB4MDEwMDAwMGUpIEAgMHgwMDAwMDAwMA0KQnVpbHQgMSB6
-b25lbGlzdHMNCktlcm5lbCBjb21tYW5kIGxpbmU6IHJvIHJvb3Q9TEFCRUw9LzEgYWNwaT1vbiAN
-CkluaXRpYWxpemluZyBDUFUjMA0KUElEIGhhc2ggdGFibGUgZW50cmllczogNDA5NiAob3JkZXIg
-MTI6IDMyNzY4IGJ5dGVzKQ0KRGV0ZWN0ZWQgMTI5MC4xNDEgTUh6IHByb2Nlc3Nvci4NClVzaW5n
-IHRzYyBmb3IgaGlnaC1yZXMgdGltZXNvdXJjZQ0KQ29uc29sZTogY29sb3VyIFZHQSsgODB4MjUN
-Ck1lbW9yeTogNzczOTk2ay83ODU4NTZrIGF2YWlsYWJsZSAoMTgyOGsga2VybmVsIGNvZGUsIDEx
-MDcyayByZXNlcnZlZCwgNzQ1ayBkYXRhLCAyMjRrIGluaXQsIDBrIGhpZ2htZW0pDQpDaGVja2lu
-ZyBpZiB0aGlzIHByb2Nlc3NvciBob25vdXJzIHRoZSBXUCBiaXQgZXZlbiBpbiBzdXBlcnZpc29y
-IG1vZGUuLi4gT2suDQpDYWxpYnJhdGluZyBkZWxheSBsb29wLi4uIDI1NDcuNzEgQm9nb01JUFMN
-ClNlY3VyaXR5IFNjYWZmb2xkIHYxLjAuMCBpbml0aWFsaXplZA0KU0VMaW51eDogIEluaXRpYWxp
-emluZy4NClNFTGludXg6ICBTdGFydGluZyBpbiBwZXJtaXNzaXZlIG1vZGUNClRoZXJlIGlzIGFs
-cmVhZHkgYSBzZWN1cml0eSBmcmFtZXdvcmsgaW5pdGlhbGl6ZWQsIHJlZ2lzdGVyX3NlY3VyaXR5
-IGZhaWxlZC4NCkZhaWx1cmUgcmVnaXN0ZXJpbmcgY2FwYWJpbGl0aWVzIHdpdGggdGhlIGtlcm5l
-bA0Kc2VsaW51eF9yZWdpc3Rlcl9zZWN1cml0eTogIFJlZ2lzdGVyaW5nIHNlY29uZGFyeSBtb2R1
-bGUgY2FwYWJpbGl0eQ0KQ2FwYWJpbGl0eSBMU00gaW5pdGlhbGl6ZWQNCkRlbnRyeSBjYWNoZSBo
-YXNoIHRhYmxlIGVudHJpZXM6IDEzMTA3MiAob3JkZXI6IDcsIDUyNDI4OCBieXRlcykNCklub2Rl
-LWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogNjU1MzYgKG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMp
-DQpNb3VudC1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDUxMiAob3JkZXI6IDAsIDQwOTYgYnl0
-ZXMpDQpjaGVja2luZyBpZiBpbWFnZSBpcyBpbml0cmFtZnMuLi5pdCBpc24ndCAobm8gY3BpbyBt
-YWdpYyk7IGxvb2tzIGxpa2UgYW4gaW5pdHJkDQpGcmVlaW5nIGluaXRyZCBtZW1vcnk6IDE5OGsg
-ZnJlZWQNCkNQVTogICAgIEFmdGVyIGdlbmVyaWMgaWRlbnRpZnksIGNhcHM6IGE3ZTlmOWJmIDAw
-MDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwDQpDUFU6ICAgICBBZnRlciB2ZW5kb3IgaWRlbnRpZnks
-IGNhcHM6IGE3ZTlmOWJmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwDQpDUFU6IEwxIEkgY2Fj
-aGU6IDMySywgTDEgRCBjYWNoZTogMzJLDQpDUFU6IEwyIGNhY2hlOiAxMDI0Sw0KQ1BVOiAgICAg
-QWZ0ZXIgYWxsIGluaXRzLCBjYXBzOiBhN2U5ZjliZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDA0
-MA0KSW50ZWwgbWFjaGluZSBjaGVjayBhcmNoaXRlY3R1cmUgc3VwcG9ydGVkLg0KSW50ZWwgbWFj
-aGluZSBjaGVjayByZXBvcnRpbmcgZW5hYmxlZCBvbiBDUFUjMC4NCkNQVTogSW50ZWwoUikgUGVu
-dGl1bShSKSBNIHByb2Nlc3NvciAxMzAwTUh6IHN0ZXBwaW5nIDA1DQpFbmFibGluZyBmYXN0IEZQ
-VSBzYXZlIGFuZCByZXN0b3JlLi4uIGRvbmUuDQpFbmFibGluZyB1bm1hc2tlZCBTSU1EIEZQVSBl
-eGNlcHRpb24gc3VwcG9ydC4uLiBkb25lLg0KQ2hlY2tpbmcgJ2hsdCcgaW5zdHJ1Y3Rpb24uLi4g
-T0suDQpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0aW5nIGJ5IFVOSUZJWA0KTkVUOiBSZWdpc3RlcmVk
-IHByb3RvY29sIGZhbWlseSAxNg0KRUlTQSBidXMgcmVnaXN0ZXJlZA0KUENJOiBQQ0kgQklPUyBy
-ZXZpc2lvbiAyLjEwIGVudHJ5IGF0IDB4ZmQ5YzMsIGxhc3QgYnVzPTINClBDSTogVXNpbmcgY29u
-ZmlndXJhdGlvbiB0eXBlIDENCm10cnI6IHYyLjAgKDIwMDIwNTE5KQ0KQUNQSTogU3Vic3lzdGVt
-IHJldmlzaW9uIDIwMDQwMTE2DQpBQ1BJOiBJUlE5IFNDSTogTGV2ZWwgVHJpZ2dlci4NCkFDUEk6
-IEludGVycHJldGVyIGVuYWJsZWQNCkFDUEk6IFVzaW5nIFBJQyBmb3IgaW50ZXJydXB0IHJvdXRp
-bmcNCkFDUEk6IFBDSSBSb290IEJyaWRnZSBbUENJMF0gKDAwOjAwKQ0KUENJOiBQcm9iaW5nIFBD
-SSBoYXJkd2FyZSAoYnVzIDAwKQ0KUENJOiBJZ25vcmluZyBCQVIwLTMgb2YgSURFIGNvbnRyb2xs
-ZXIgMDAwMDowMDoxZi4xDQpUcmFuc3BhcmVudCBicmlkZ2UgLSAwMDAwOjAwOjFlLjANCkFDUEk6
-IFBDSSBJbnRlcnJ1cHQgUm91dGluZyBUYWJsZSBbXF9TQl8uUENJMC5fUFJUXQ0KQUNQSTogUENJ
-IEludGVycnVwdCBSb3V0aW5nIFRhYmxlIFtcX1NCXy5QQ0kwLkFHUEIuX1BSVF0NCkFDUEk6IFBD
-SSBJbnRlcnJ1cHQgUm91dGluZyBUYWJsZSBbXF9TQl8uUENJMC5QQ0lCLl9QUlRdDQpBQ1BJOiBQ
-Q0kgSW50ZXJydXB0IExpbmsgW0xOS0FdIChJUlFzICo5KQ0KQUNQSTogUENJIEludGVycnVwdCBM
-aW5rIFtMTktCXSAoSVJRcyA5KQ0KQUNQSTogUENJIEludGVycnVwdCBMaW5rIFtMTktDXSAoSVJR
-cyA5KQ0KQUNQSTogUENJIEludGVycnVwdCBMaW5rIFtMTktEXSAoSVJRcyAqOSkNCkFDUEk6IFBD
-SSBJbnRlcnJ1cHQgTGluayBbTE5LRV0gKElSUXMgKjkpDQpBQ1BJOiBQQ0kgSW50ZXJydXB0IExp
-bmsgW0xOS0ZdIChJUlFzIDkpDQpBQ1BJOiBQQ0kgSW50ZXJydXB0IExpbmsgW0xOS0ddIChJUlFz
-IDkpDQpBQ1BJOiBQQ0kgSW50ZXJydXB0IExpbmsgW0xOS0hdIChJUlFzIDkpDQpBQ1BJOiBFbWJl
-ZGRlZCBDb250cm9sbGVyIFtFQzBdIChncGUgMjgpDQpMaW51eCBQbHVnIGFuZCBQbGF5IFN1cHBv
-cnQgdjAuOTcgKGMpIEFkYW0gQmVsYXkNCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LQV0g
-ZW5hYmxlZCBhdCBJUlEgOQ0KQUNQSTogUENJIEludGVycnVwdCBMaW5rIFtMTktEXSBlbmFibGVk
-IGF0IElSUSA5DQpBQ1BJOiBQQ0kgSW50ZXJydXB0IExpbmsgW0xOS0NdIGVuYWJsZWQgYXQgSVJR
-IDkNCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LSF0gZW5hYmxlZCBhdCBJUlEgOQ0KQUNQ
-STogTm8gSVJRIGtub3duIGZvciBpbnRlcnJ1cHQgcGluIEEgb2YgZGV2aWNlIDAwMDA6MDA6MWYu
-MSAtIHVzaW5nIElSUSAyNTUNCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LQl0gZW5hYmxl
-ZCBhdCBJUlEgOQ0KQUNQSTogUENJIEludGVycnVwdCBMaW5rIFtMTktGXSBlbmFibGVkIGF0IElS
-USAzDQpBQ1BJOiBQQ0kgSW50ZXJydXB0IExpbmsgW0xOS0ddIGVuYWJsZWQgYXQgSVJRIDkNCkFD
-UEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LRV0gZW5hYmxlZCBhdCBJUlEgOQ0KUENJOiBVc2lu
-ZyBBQ1BJIGZvciBJUlEgcm91dGluZw0KUENJOiBpZiB5b3UgZXhwZXJpZW5jZSBwcm9ibGVtcywg
-dHJ5IHVzaW5nIG9wdGlvbiAncGNpPW5vYWNwaScgb3IgZXZlbiAnYWNwaT1vZmYnDQpTQkY6IFNp
-bXBsZSBCb290IEZsYWcgZXh0ZW5zaW9uIGZvdW5kIGFuZCBlbmFibGVkLg0KU0JGOiBTZXR0aW5n
-IGJvb3QgZmxhZ3MgMHgxDQpNYWNoaW5lIGNoZWNrIGV4Y2VwdGlvbiBwb2xsaW5nIHRpbWVyIHN0
-YXJ0ZWQuDQphcG06IEJJT1MgdmVyc2lvbiAxLjIgRmxhZ3MgMHgwMyAoRHJpdmVyIHZlcnNpb24g
-MS4xNmFjKQ0KYXBtOiBvdmVycmlkZGVuIGJ5IEFDUEkuDQpUb3RhbCBIdWdlVExCIG1lbW9yeSBh
-bGxvY2F0ZWQsIDANClZGUzogRGlzayBxdW90YXMgZHF1b3RfNi41LjENClNFTGludXg6ICBSZWdp
-c3RlcmluZyBuZXRmaWx0ZXIgaG9va3MNCkluaXRpYWxpemluZyBDcnlwdG9ncmFwaGljIEFQSQ0K
-cGNpX2hvdHBsdWc6IFBDSSBIb3QgUGx1ZyBQQ0kgQ29yZSB2ZXJzaW9uOiAwLjUNCmlzYXBucDog
-U2Nhbm5pbmcgZm9yIFBuUCBjYXJkcy4uLg0KaXNhcG5wOiBObyBQbHVnICYgUGxheSBkZXZpY2Ug
-Zm91bmQNCnB0eTogMjA0OCBVbml4OTggcHR5cyBjb25maWd1cmVkDQpSZWFsIFRpbWUgQ2xvY2sg
-RHJpdmVyIHYxLjEyDQpMaW51eCBhZ3BnYXJ0IGludGVyZmFjZSB2MC4xMDAgKGMpIERhdmUgSm9u
-ZXMNCmFncGdhcnQ6IERldGVjdGVkIGFuIEludGVsIDg1NVBNIENoaXBzZXQuDQphZ3BnYXJ0OiBN
-YXhpbXVtIG1haW4gbWVtb3J5IHRvIHVzZSBmb3IgYWdwIG1lbW9yeTogNjkwTQ0KYWdwZ2FydDog
-QUdQIGFwZXJ0dXJlIGlzIDI1Nk0gQCAweGUwMDAwMDAwDQpTZXJpYWw6IDgyNTAvMTY1NTAgZHJp
-dmVyICRSZXZpc2lvbjogMS45MCAkIDggcG9ydHMsIElSUSBzaGFyaW5nIGVuYWJsZWQNClJBTURJ
-U0sgZHJpdmVyIGluaXRpYWxpemVkOiAxNiBSQU0gZGlza3Mgb2YgODE5Mksgc2l6ZSAxMDI0IGJs
-b2Nrc2l6ZQ0KZGl2ZXJ0OiBub3QgYWxsb2NhdGluZyBkaXZlcnRfYmxrIGZvciBub24tZXRoZXJu
-ZXQgZGV2aWNlIGxvDQpVbmlmb3JtIE11bHRpLVBsYXRmb3JtIEUtSURFIGRyaXZlciBSZXZpc2lv
-bjogNy4wMGFscGhhMg0KaWRlOiBBc3N1bWluZyAzM01IeiBzeXN0ZW0gYnVzIHNwZWVkIGZvciBQ
-SU8gbW9kZXM7IG92ZXJyaWRlIHdpdGggaWRlYnVzPXh4DQpJQ0g0OiBJREUgY29udHJvbGxlciBh
-dCBQQ0kgc2xvdCAwMDAwOjAwOjFmLjENClBDSTogRW5hYmxpbmcgZGV2aWNlIDAwMDA6MDA6MWYu
-MSAoMDAwNSAtPiAwMDA3KQ0KQUNQSTogTm8gSVJRIGtub3duIGZvciBpbnRlcnJ1cHQgcGluIEEg
-b2YgZGV2aWNlIDAwMDA6MDA6MWYuMSAtIHVzaW5nIElSUSAyNTUNCklDSDQ6IGNoaXBzZXQgcmV2
-aXNpb24gMw0KSUNINDogbm90IDEwMCUgbmF0aXZlIG1vZGU6IHdpbGwgcHJvYmUgaXJxcyBsYXRl
-cg0KICAgIGlkZTA6IEJNLURNQSBhdCAweDE4NjAtMHgxODY3LCBCSU9TIHNldHRpbmdzOiBoZGE6
-cGlvLCBoZGI6cGlvDQogICAgaWRlMTogQk0tRE1BIGF0IDB4MTg2OC0weDE4NmYsIEJJT1Mgc2V0
-dGluZ3M6IGhkYzpwaW8sIGhkZDpwaW8NCmhkYTogSElUQUNISV9ESzIzRUEtNDAsIEFUQSBESVNL
-IGRyaXZlDQpVc2luZyBhbnRpY2lwYXRvcnkgaW8gc2NoZWR1bGVyDQppZGUwIGF0IDB4MWYwLTB4
-MWY3LDB4M2Y2IG9uIGlycSAxNA0KaGRjOiBVSkRBNzQ1IERWRC9DRFJXLCBBVEFQSSBDRC9EVkQt
-Uk9NIGRyaXZlDQppZGUxIGF0IDB4MTcwLTB4MTc3LDB4Mzc2IG9uIGlycSAxNQ0KaGRhOiBtYXgg
-cmVxdWVzdCBzaXplOiAxMjhLaUINCmhkYTogNzgxNDAxNjAgc2VjdG9ycyAoNDAwMDcgTUIpIHcv
-MjA0OEtpQiBDYWNoZSwgQ0hTPTY1NTM1LzE2LzYzLCBVRE1BKDEwMCkNCiBoZGE6IGhkYTEgaGRh
-MiA8IGhkYTUgaGRhNiBoZGE3IGhkYTggaGRhOSBoZGExMCBoZGExMSBoZGExMiBoZGExMyBoZGEx
-NCA+DQppZGUtZmxvcHB5IGRyaXZlciAwLjk5Lm5ld2lkZQ0KbWljZTogUFMvMiBtb3VzZSBkZXZp
-Y2UgY29tbW9uIGZvciBhbGwgbWljZQ0KaTgwNDIuYzogRGV0ZWN0ZWQgYWN0aXZlIG11bHRpcGxl
-eGluZyBjb250cm9sbGVyLCByZXYgMTAuMTIuDQpzZXJpbzogaTgwNDIgQVVYMCBwb3J0IGF0IDB4
-NjAsMHg2NCBpcnEgMTINCnNlcmlvOiBpODA0MiBBVVgxIHBvcnQgYXQgMHg2MCwweDY0IGlycSAx
-Mg0Kc2VyaW86IGk4MDQyIEFVWDIgcG9ydCBhdCAweDYwLDB4NjQgaXJxIDEyDQpzZXJpbzogaTgw
-NDIgQVVYMyBwb3J0IGF0IDB4NjAsMHg2NCBpcnEgMTINCnNlcmlvOiBpODA0MiBLQkQgcG9ydCBh
-dCAweDYwLDB4NjQgaXJxIDENCmlucHV0OiBBVCBUcmFuc2xhdGVkIFNldCAyIGtleWJvYXJkIG9u
-IGlzYTAwNjAvc2VyaW8wDQptZDogbWQgZHJpdmVyIDAuOTAuMCBNQVhfTURfREVWUz0yNTYsIE1E
-X1NCX0RJU0tTPTI3DQpORVQ6IFJlZ2lzdGVyZWQgcHJvdG9jb2wgZmFtaWx5IDINCklQOiByb3V0
-aW5nIGNhY2hlIGhhc2ggdGFibGUgb2YgMjA0OCBidWNrZXRzLCA2NEtieXRlcw0KVENQOiBIYXNo
-IHRhYmxlcyBjb25maWd1cmVkIChlc3RhYmxpc2hlZCAyNjIxNDQgYmluZCAzNzQ0OSkNCkluaXRp
-YWxpemluZyBJUHNlYyBuZXRsaW5rIHNvY2tldA0KTkVUOiBSZWdpc3RlcmVkIHByb3RvY29sIGZh
-bWlseSAxDQpORVQ6IFJlZ2lzdGVyZWQgcHJvdG9jb2wgZmFtaWx5IDE3DQpBQ1BJOiAoc3VwcG9y
-dHMgUzAgUzMgUzQgUzUpDQptZDogQXV0b2RldGVjdGluZyBSQUlEIGFycmF5cy4NCm1kOiBhdXRv
-cnVuIC4uLg0KbWQ6IC4uLiBhdXRvcnVuIERPTkUuDQpSQU1ESVNLOiBDb21wcmVzc2VkIGltYWdl
-IGZvdW5kIGF0IGJsb2NrIDANClZGUzogTW91bnRlZCByb290IChleHQyIGZpbGVzeXN0ZW0pLg0K
-a2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcw0KRVhUMy1mczog
-bW91bnRlZCBmaWxlc3lzdGVtIHdpdGggb3JkZXJlZCBkYXRhIG1vZGUuDQpGcmVlaW5nIHVudXNl
-ZCBrZXJuZWwgbWVtb3J5OiAyMjRrIGZyZWVkDQpBQ1BJOiBBQyBBZGFwdGVyIFtBQ0FEXSAob24t
-bGluZSkNCkFDUEk6IEJhdHRlcnkgU2xvdCBbQkFUMV0gKGJhdHRlcnkgYWJzZW50KQ0KQUNQSTog
-TGlkIFN3aXRjaCBbTElEMF0NCkFDUEk6IFBvd2VyIEJ1dHRvbiAoQ00pIFtQV1JCXQ0KQUNQSTog
-UHJvY2Vzc29yIFtDUFUwXSAoc3VwcG9ydHMgQzEgQzIsIDggdGhyb3R0bGluZyBzdGF0ZXMpDQpB
-Q1BJOiBUaGVybWFsIFpvbmUgW0FURjBdICg1MiBDKQ0KZHJpdmVycy91c2IvY29yZS91c2IuYzog
-cmVnaXN0ZXJlZCBuZXcgZHJpdmVyIHVzYmZzDQpkcml2ZXJzL3VzYi9jb3JlL3VzYi5jOiByZWdp
-c3RlcmVkIG5ldyBkcml2ZXIgaHViDQplaGNpX2hjZCAwMDAwOjAwOjFkLjc6IEVIQ0kgSG9zdCBD
-b250cm9sbGVyDQpQQ0k6IFNldHRpbmcgbGF0ZW5jeSB0aW1lciBvZiBkZXZpY2UgMDAwMDowMDox
-ZC43IHRvIDY0DQplaGNpX2hjZCAwMDAwOjAwOjFkLjc6IGlycSA5LCBwY2kgbWVtIGYwODc2MDAw
-DQplaGNpX2hjZCAwMDAwOjAwOjFkLjc6IG5ldyBVU0IgYnVzIHJlZ2lzdGVyZWQsIGFzc2lnbmVk
-IGJ1cyBudW1iZXIgMQ0KUENJOiBjYWNoZSBsaW5lIHNpemUgb2YgMzIgaXMgbm90IHN1cHBvcnRl
-ZCBieSBkZXZpY2UgMDAwMDowMDoxZC43DQplaGNpX2hjZCAwMDAwOjAwOjFkLjc6IFVTQiAyLjAg
-ZW5hYmxlZCwgRUhDSSAxLjAwLCBkcml2ZXIgMjAwMy1EZWMtMjkNCmh1YiAxLTA6MS4wOiBVU0Ig
-aHViIGZvdW5kDQpodWIgMS0wOjEuMDogNiBwb3J0cyBkZXRlY3RlZA0KZHJpdmVycy91c2IvaG9z
-dC91aGNpLWhjZC5jOiBVU0IgVW5pdmVyc2FsIEhvc3QgQ29udHJvbGxlciBJbnRlcmZhY2UgZHJp
-dmVyIHYyLjENCnVoY2lfaGNkIDAwMDA6MDA6MWQuMDogVUhDSSBIb3N0IENvbnRyb2xsZXINClBD
-STogU2V0dGluZyBsYXRlbmN5IHRpbWVyIG9mIGRldmljZSAwMDAwOjAwOjFkLjAgdG8gNjQNCnVo
-Y2lfaGNkIDAwMDA6MDA6MWQuMDogaXJxIDksIGlvIGJhc2UgMDAwMDE4MDANCnVoY2lfaGNkIDAw
-MDA6MDA6MWQuMDogbmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwgYXNzaWduZWQgYnVzIG51bWJlciAy
-DQpodWIgMi0wOjEuMDogVVNCIGh1YiBmb3VuZA0KaHViIDItMDoxLjA6IDIgcG9ydHMgZGV0ZWN0
-ZWQNCnVoY2lfaGNkIDAwMDA6MDA6MWQuMTogVUhDSSBIb3N0IENvbnRyb2xsZXINClBDSTogU2V0
-dGluZyBsYXRlbmN5IHRpbWVyIG9mIGRldmljZSAwMDAwOjAwOjFkLjEgdG8gNjQNCnVoY2lfaGNk
-IDAwMDA6MDA6MWQuMTogaXJxIDksIGlvIGJhc2UgMDAwMDE4MjANCnVoY2lfaGNkIDAwMDA6MDA6
-MWQuMTogbmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwgYXNzaWduZWQgYnVzIG51bWJlciAzDQpodWIg
-My0wOjEuMDogVVNCIGh1YiBmb3VuZA0KaHViIDMtMDoxLjA6IDIgcG9ydHMgZGV0ZWN0ZWQNCnVo
-Y2lfaGNkIDAwMDA6MDA6MWQuMjogVUhDSSBIb3N0IENvbnRyb2xsZXINClBDSTogU2V0dGluZyBs
-YXRlbmN5IHRpbWVyIG9mIGRldmljZSAwMDAwOjAwOjFkLjIgdG8gNjQNCnVoY2lfaGNkIDAwMDA6
-MDA6MWQuMjogaXJxIDksIGlvIGJhc2UgMDAwMDE4NDANCnVoY2lfaGNkIDAwMDA6MDA6MWQuMjog
-bmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwgYXNzaWduZWQgYnVzIG51bWJlciA0DQpodWIgNC0wOjEu
-MDogVVNCIGh1YiBmb3VuZA0KaHViIDQtMDoxLjA6IDIgcG9ydHMgZGV0ZWN0ZWQNCnVzYiAyLTE6
-IG5ldyBsb3cgc3BlZWQgVVNCIGRldmljZSB1c2luZyBhZGRyZXNzIDINCmRyaXZlcnMvdXNiL2Nv
-cmUvdXNiLmM6IHJlZ2lzdGVyZWQgbmV3IGRyaXZlciBoaWRkZXYNCmRyaXZlcnMvdXNiL2lucHV0
-L2hpZC1mZi5jOiBoaWRfZmZfaW5pdCBjb3VsZCBub3QgZmluZCBpbml0aWFsaXplcg0KaW5wdXQ6
-IFVTQiBISUQgdjEuMTAgTW91c2UgW0IxNl9iXzAyIFVTQi1QUy8yIE9wdGljYWwgTW91c2VdIG9u
-IHVzYi0wMDAwOjAwOjFkLjAtMQ0KZHJpdmVycy91c2IvY29yZS91c2IuYzogcmVnaXN0ZXJlZCBu
-ZXcgZHJpdmVyIGhpZA0KZHJpdmVycy91c2IvaW5wdXQvaGlkLWNvcmUuYzogdjIuMDpVU0IgSElE
-IGNvcmUgZHJpdmVyDQp1c2IgNC0xOiBuZXcgZnVsbCBzcGVlZCBVU0IgZGV2aWNlIHVzaW5nIGFk
-ZHJlc3MgMg0KU0NTSSBzdWJzeXN0ZW0gaW5pdGlhbGl6ZWQNCkluaXRpYWxpemluZyBVU0IgTWFz
-cyBTdG9yYWdlIGRyaXZlci4uLg0Kc2NzaTAgOiBTQ1NJIGVtdWxhdGlvbiBmb3IgVVNCIE1hc3Mg
-U3RvcmFnZSBkZXZpY2VzDQogIFZlbmRvcjogU29ueSAgICAgIE1vZGVsOiBNU0MtVTAzICAgICAg
-ICAgICBSZXY6IDIuMDANCiAgVHlwZTogICBEaXJlY3QtQWNjZXNzICAgICAgICAgICAgICAgICAg
-ICAgIEFOU0kgU0NTSSByZXZpc2lvbjogMDINCldBUk5JTkc6IFVTQiBNYXNzIFN0b3JhZ2UgZGF0
-YSBpbnRlZ3JpdHkgbm90IGFzc3VyZWQNClVTQiBNYXNzIFN0b3JhZ2UgZGV2aWNlIGZvdW5kIGF0
-IDINCmRyaXZlcnMvdXNiL2NvcmUvdXNiLmM6IHJlZ2lzdGVyZWQgbmV3IGRyaXZlciB1c2Itc3Rv
-cmFnZQ0KVVNCIE1hc3MgU3RvcmFnZSBzdXBwb3J0IHJlZ2lzdGVyZWQuDQpBdHRhY2hlZCBzY3Np
-IHJlbW92YWJsZSBkaXNrIHNkYSBhdCBzY3NpMCwgY2hhbm5lbCAwLCBpZCAwLCBsdW4gMA0KRVhU
-MyBGUyBvbiBoZGE5LCBpbnRlcm5hbCBqb3VybmFsDQpBZGRpbmcgMTU3NDMyOGsgc3dhcCBvbiAv
-ZGV2L2hkYTEyLiAgUHJpb3JpdHk6LTEgZXh0ZW50czoxDQpram91cm5hbGQgc3RhcnRpbmcuICBD
-b21taXQgaW50ZXJ2YWwgNSBzZWNvbmRzDQpFWFQzIEZTIG9uIGhkYTYsIGludGVybmFsIGpvdXJu
-YWwNCkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLg0K
-a2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcw0KRVhUMyBGUyBv
-biBoZGExMSwgaW50ZXJuYWwgam91cm5hbA0KRVhUMy1mczogbW91bnRlZCBmaWxlc3lzdGVtIHdp
-dGggb3JkZXJlZCBkYXRhIG1vZGUuDQpram91cm5hbGQgc3RhcnRpbmcuICBDb21taXQgaW50ZXJ2
-YWwgNSBzZWNvbmRzDQpFWFQzIEZTIG9uIGhkYTcsIGludGVybmFsIGpvdXJuYWwNCkVYVDMtZnM6
-IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLg0Ka2pvdXJuYWxkIHN0
-YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcw0KRVhUMyBGUyBvbiBoZGE4LCBpbnRl
-cm5hbCBqb3VybmFsDQpFWFQzLWZzOiBtb3VudGVkIGZpbGVzeXN0ZW0gd2l0aCBvcmRlcmVkIGRh
-dGEgbW9kZS4NCnF1b3Rhb246IG51bWVyaWNhbCBzeXNjdGwgNSAxNiA4IGlzIG9ic29sZXRlLg0K
-b2hjaTEzOTQ6ICRSZXY6IDEwOTcgJCBCZW4gQ29sbGlucyA8YmNvbGxpbnNAZGViaWFuLm9yZz4N
-Cm9oY2kxMzk0OiBmdy1ob3N0MDogT0hDSS0xMzk0IDEuMCAoUENJKTogSVJRPVs5XSAgTU1JTz1b
-ZDAyMDIwMDAtZDAyMDI3ZmZdICBNYXggUGFja2V0PVsyMDQ4XQ0KaWVlZTEzOTQ6IE5vZGUgYWRk
-ZWQ6IElEOkJVU1swLTAwOjEwMjNdICBHVUlEWzAwNTA3NzM1MDcxMDAyMGVdDQppZWVlMTM5NDog
-SG9zdCBhZGRlZDogSUQ6QlVTWzAtMDE6MTAyM10gIEdVSURbMDgwMDQ2MDMwMTVlYTY4Zl0NCmll
-ZWUxMzk0OiB1bnNvbGljaXRlZCByZXNwb25zZSBwYWNrZXQgcmVjZWl2ZWQgLSBubyB0bGFiZWwg
-bWF0Y2gNCnNicDI6ICRSZXY6IDEwOTYgJCBCZW4gQ29sbGlucyA8YmNvbGxpbnNAZGViaWFuLm9y
-Zz4NCnNjc2kxIDogU0NTSSBlbXVsYXRpb24gZm9yIElFRUUtMTM5NCBTQlAtMiBEZXZpY2VzDQpJ
-QS0zMiBNaWNyb2NvZGUgVXBkYXRlIERyaXZlcjogdjEuMTMgPHRpZ3JhbkB2ZXJpdGFzLmNvbT4N
-Cm1pY3JvY29kZTogTm8gc3VpdGFibGUgZGF0YSBmb3IgY3B1IDANCnNwZWVkc3RlcC1jZW50cmlu
-bzogZm91bmQgIkludGVsKFIpIFBlbnRpdW0oUikgTSBwcm9jZXNzb3IgMTMwME1IeiI6IG1heCBm
-cmVxdWVuY3k6IDEzMDAwMDBrSHoNCmllZWUxMzk0OiBzYnAyOiBFcnJvciBsb2dnaW5nIGludG8g
-U0JQLTIgZGV2aWNlIC0gbG9naW4gZmFpbGVkDQprdWR6dTogbnVtZXJpY2FsIHN5c2N0bCAxIDIz
-IGlzIG9ic29sZXRlLg0KRGV2aWNlIG5vdCByZWFkeS4gIE1ha2Ugc3VyZSB0aGVyZSBpcyBhIGRp
-c2MgaW4gdGhlIGRyaXZlLg0KRGV2aWNlIG5vdCByZWFkeS4gIE1ha2Ugc3VyZSB0aGVyZSBpcyBh
-IGRpc2MgaW4gdGhlIGRyaXZlLg0KQXR0YWNoZWQgc2NzaSBnZW5lcmljIHNnMCBhdCBzY3NpMCwg
-Y2hhbm5lbCAwLCBpZCAwLCBsdW4gMCwgIHR5cGUgMA0KaW5zZXJ0aW5nIGZsb3BweSBkcml2ZXIg
-Zm9yIDIuNi4yLTEuODcNCmZsb3BweTA6IG5vIGZsb3BweSBjb250cm9sbGVycyBmb3VuZA0KaW5z
-ZXJ0aW5nIGZsb3BweSBkcml2ZXIgZm9yIDIuNi4yLTEuODcNCmZsb3BweTA6IG5vIGZsb3BweSBj
-b250cm9sbGVycyBmb3VuZA0Ka3VkenU6IG51bWVyaWNhbCBzeXNjdGwgMSA0OSBpcyBvYnNvbGV0
-ZS4NCkludGVsKFIpIFBSTy8xMDAgTmV0d29yayBEcml2ZXIgLSB2ZXJzaW9uIDIuMy4zNi1rMQ0K
-Q29weXJpZ2h0IChjKSAyMDAzIEludGVsIENvcnBvcmF0aW9uDQoNCmRpdmVydDogYWxsb2NhdGlu
-ZyBkaXZlcnRfYmxrIGZvciBldGgwDQplMTAwOiBzZWxmdGVzdCBPSy4NCmUxMDA6IGV0aDA6IElu
-dGVsKFIpIFBSTy8xMDAgTmV0d29yayBDb25uZWN0aW9uDQogIEhhcmR3YXJlIHJlY2VpdmUgY2hl
-Y2tzdW1zIGVuYWJsZWQNCg0Ka3VkenU6IG51bWVyaWNhbCBzeXNjdGwgMSA0OSBpcyBvYnNvbGV0
-ZS4NCmlwX3RhYmxlczogKEMpIDIwMDAtMjAwMiBOZXRmaWx0ZXIgY29yZSB0ZWFtDQppcF9jb25u
-dHJhY2sgdmVyc2lvbiAyLjEgKDYxMzkgYnVja2V0cywgNDkxMTIgbWF4KSAtIDMyNCBieXRlcyBw
-ZXIgY29ubnRyYWNrDQpMaW51eCBLZXJuZWwgQ2FyZCBTZXJ2aWNlcw0KICBvcHRpb25zOiAgW3Bj
-aV0gW2NhcmRidXNdIFtwbV0NClllbnRhOiBDYXJkQnVzIGJyaWRnZSBmb3VuZCBhdCAwMDAwOjAy
-OjA1LjAgWzEwNGQ6ODE0MF0NClllbnRhOiBJU0EgSVJRIG1hc2sgMHgwY2IwLCBQQ0kgaXJxIDMN
-ClNvY2tldCBzdGF0dXM6IDMwMDAwNDExDQpjczogSU8gcG9ydCBwcm9iZSAweDBjMDAtMHgwY2Zm
-OiBjbGVhbi4NCmNzOiBJTyBwb3J0IHByb2JlIDB4MDEwMC0weDA0ZmY6IGV4Y2x1ZGluZyAweDNj
-MC0weDNkZiAweDRkMC0weDRkNw0KY3M6IElPIHBvcnQgcHJvYmUgMHgwYTAwLTB4MGFmZjogY2xl
-YW4uDQpjczogbWVtb3J5IHByb2JlIDB4YTAwMDAwMDAtMHhhMGZmZmZmZjogY2xlYW4uDQpvcmlu
-b2NvLmMgMC4xM2UgKERhdmlkIEdpYnNvbiA8aGVybWVzQGdpYnNvbi5kcm9wYmVhci5pZC5hdT4g
-YW5kIG90aGVycykNCm9yaW5vY29fY3MuYyAwLjEzZSAoRGF2aWQgR2lic29uIDxoZXJtZXNAZ2li
-c29uLmRyb3BiZWFyLmlkLmF1PiBhbmQgb3RoZXJzKQ0KZGl2ZXJ0OiBhbGxvY2F0aW5nIGRpdmVy
-dF9ibGsgZm9yIGV0aDENCmV0aDE6IFN0YXRpb24gaWRlbnRpdHkgMDAxZjowMDAxOjAwMDY6MDAx
-MA0KZXRoMTogTG9va3MgbGlrZSBhIEx1Y2VudC9BZ2VyZSBmaXJtd2FyZSB2ZXJzaW9uIDYuMTYN
-CmV0aDE6IEFkLWhvYyBkZW1vIG1vZGUgc3VwcG9ydGVkDQpldGgxOiBJRUVFIHN0YW5kYXJkIElC
-U1MgYWQtaG9jIG1vZGUgc3VwcG9ydGVkDQpldGgxOiBXRVAgc3VwcG9ydGVkLCAxMDQtYml0IGtl
-eQ0KZXRoMTogTUFDIGFkZHJlc3MgMDA6MDI6MkQ6Mjc6QkQ6QzkNCmV0aDE6IFN0YXRpb24gbmFt
-ZSAiSEVSTUVTIEkiDQpldGgxOiByZWFkeQ0KZXRoMTogaW5kZXggMHgwMTogVmNjIDUuMCwgaXJx
-IDUsIGlvIDB4MDEwMC0weDAxM2YNCmV0aDE6IE5ldyBsaW5rIHN0YXR1czogQ29ubmVjdGVkICgw
-MDAxKQ0KbHA6IGRyaXZlciBsb2FkZWQgYnV0IG5vIGRldmljZXMgZm91bmQNCk5FVDogUmVnaXN0
-ZXJlZCBwcm90b2NvbCBmYW1pbHkgMTANCkRpc2FibGVkIFByaXZhY3kgRXh0ZW5zaW9ucyBvbiBk
-ZXZpY2UgYzAzNGMwYTAobG8pDQpJUHY2IG92ZXIgSVB2NCB0dW5uZWxpbmcgZHJpdmVyDQpkaXZl
-cnQ6IG5vdCBhbGxvY2F0aW5nIGRpdmVydF9ibGsgZm9yIG5vbi1ldGhlcm5ldCBkZXZpY2Ugc2l0
-MA0KZXRoMTogbm8gSVB2NiByb3V0ZXJzIHByZXNlbnQNCltkcm1dIEluaXRpYWxpemVkIHJhZGVv
-biAxLjkuMCAyMDAyMDgyOCBvbiBtaW5vciAwDQphZ3BnYXJ0OiBGb3VuZCBhbiBBR1AgMi4wIGNv
-bXBsaWFudCBkZXZpY2UgYXQgMDAwMDowMDowMC4wLg0KYWdwZ2FydDogUHV0dGluZyBBR1AgVjIg
-ZGV2aWNlIGF0IDAwMDA6MDA6MDAuMCBpbnRvIDF4IG1vZGUNCmFncGdhcnQ6IFB1dHRpbmcgQUdQ
-IFYyIGRldmljZSBhdCAwMDAwOjAxOjAwLjAgaW50byAxeCBtb2RlDQphdGtiZC5jOiBVbmtub3du
-IGtleSByZWxlYXNlZCAodHJhbnNsYXRlZCBzZXQgMiwgY29kZSAweDdhIG9uIGlzYTAwNjAvc2Vy
-aW8wKS4NCmF0a2JkLmM6IFRoaXMgaXMgYW4gWEZyZWU4NiBidWcuIEl0IHNob3VsZG4ndCBhY2Nl
-c3MgaGFyZHdhcmUgZGlyZWN0bHkuDQphdGtiZC5jOiBVbmtub3duIGtleSByZWxlYXNlZCAodHJh
-bnNsYXRlZCBzZXQgMiwgY29kZSAweDdhIG9uIGlzYTAwNjAvc2VyaW8wKS4NCmF0a2JkLmM6IFRo
-aXMgaXMgYW4gWEZyZWU4NiBidWcuIEl0IHNob3VsZG4ndCBhY2Nlc3MgaGFyZHdhcmUgZGlyZWN0
-bHkuDQo=
-
-
---=-411a/O2UiBA56YTZtfz8--
-
---=-S07GI95oOhl19hcn4u45
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQBANOrRWt0J3fd+7ZARAlf9AJ0SYPwrMEHoSvIeC9vUxbkAv/gT5QCfSwh9
-tIxsyGcqT8PAecCFOHPce6o=
-=cf1m
------END PGP SIGNATURE-----
-
---=-S07GI95oOhl19hcn4u45--
-
+--- linux-2.6.3-mm1.orig/drivers/md/dm-crypt.c	2004-02-19 17:43:53.213856776 +0100
++++ linux-2.6.3-mm1/drivers/md/dm-crypt.c	2004-02-19 17:43:59.404915592 +0100
+@@ -61,11 +61,13 @@
+ 	/*
+ 	 * crypto related data
+ 	 */
+-	struct crypto_tfm *tfm;
++	struct crypto_tfm *cipher;
++	struct crypto_tfm *digest;
+ 	sector_t iv_offset;
+ 	int (*iv_generator)(struct crypt_config *cc, u8 *iv, sector_t sector);
+ 	int iv_size;
+ 	int key_size;
++	int digest_size;
+ 	u8 key[0];
+ };
+ 
+@@ -102,6 +104,35 @@
+ 	return 0;
+ }
+ 
++static int crypt_iv_digest(struct crypt_config *cc, u8 *iv, sector_t sector)
++{
++	static DECLARE_MUTEX(tfm_mutex);
++	struct scatterlist sg[2] = {
++		{
++			.page = virt_to_page(iv),
++			.offset = offset_in_page(iv),
++			.length = sizeof(u64) / sizeof(u8)
++		}, {
++			.page = virt_to_page(cc->key),
++			.offset = offset_in_page(cc->key),
++			.length = cc->key_size
++		}
++	};
++	int i;
++
++	*(u64 *)iv = cpu_to_le64((u64)sector);
++
++	/* digests use the context in the tfm, sigh */
++	down(&tfm_mutex);
++	crypto_digest_digest(cc->digest, sg, 2, iv);
++	up(&tfm_mutex);
++
++	for(i = cc->digest_size; i < cc->iv_size; i += cc->digest_size)
++		memcpy(iv + i, iv, min(cc->digest_size, cc->iv_size - i));
++
++	return 0;
++}
++
+ static inline int
+ crypt_convert_scatterlist(struct crypt_config *cc, struct scatterlist *out,
+                           struct scatterlist *in, unsigned int length,
+@@ -116,14 +147,14 @@
+ 			return r;
+ 
+ 		if (write)
+-			r = crypto_cipher_encrypt_iv(cc->tfm, out, in, length, iv);
++			r = crypto_cipher_encrypt_iv(cc->cipher, out, in, length, iv);
+ 		else
+-			r = crypto_cipher_decrypt_iv(cc->tfm, out, in, length, iv);
++			r = crypto_cipher_decrypt_iv(cc->cipher, out, in, length, iv);
+ 	} else {
+ 		if (write)
+-			r = crypto_cipher_encrypt(cc->tfm, out, in, length);
++			r = crypto_cipher_encrypt(cc->cipher, out, in, length);
+ 		else
+-			r = crypto_cipher_decrypt(cc->tfm, out, in, length);
++			r = crypto_cipher_decrypt(cc->cipher, out, in, length);
+ 	}
+ 
+ 	return r;
+@@ -436,13 +467,26 @@
+ 		return -ENOMEM;
+ 	}
+ 
++	cc->digest_size = 0;
++	cc->digest = NULL;
+ 	if (!mode || strcmp(mode, "plain") == 0)
+ 		cc->iv_generator = crypt_iv_plain;
+ 	else if (strcmp(mode, "ecb") == 0)
+ 		cc->iv_generator = NULL;
+ 	else {
+-		ti->error = "dm-crypt: Invalid chaining mode";
+-		goto bad1;
++		tfm = crypto_alloc_tfm(mode, 0);
++		if (!tfm) {
++			ti->error = "dm-crypt: Error allocating digest tfm";
++			goto bad1;
++		}
++		if (crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_DIGEST) {
++			ti->error = "dm-crypt: Expected digest algorithm";
++			goto bad1;
++		}
++
++		cc->digest = tfm;
++		cc->digest_size = crypto_tfm_alg_digestsize(tfm);
++		cc->iv_generator = crypt_iv_digest;
+ 	}
+ 
+ 	if (cc->iv_generator)
+@@ -455,12 +499,18 @@
+ 		ti->error = "dm-crypt: Error allocating crypto tfm";
+ 		goto bad1;
+ 	}
++	if (crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_CIPHER) {
++		ti->error = "dm-crypt: Expected cipher algorithm";
++		goto bad1;
++	}
+ 
+-	if (tfm->crt_u.cipher.cit_decrypt_iv && tfm->crt_u.cipher.cit_encrypt_iv)
+-		/* at least a 32 bit sector number should fit in our buffer */
++	if (tfm->crt_u.cipher.cit_decrypt_iv &&
++	    tfm->crt_u.cipher.cit_encrypt_iv) {
++		/* at least a sector number should fit in our buffer */
+ 		cc->iv_size = max(crypto_tfm_alg_ivsize(tfm), 
+-		                  (unsigned int)(sizeof(u32) / sizeof(u8)));
+-	else {
++		                  (unsigned int)(sizeof(u64) / sizeof(u8)));
++		cc->iv_size = max(cc->iv_size, cc->digest_size);
++	} else {
+ 		cc->iv_size = 0;
+ 		if (cc->iv_generator) {
+ 			DMWARN("dm-crypt: Selected cipher does not support IVs");
+@@ -482,7 +532,7 @@
+ 		goto bad3;
+ 	}
+ 
+-	cc->tfm = tfm;
++	cc->cipher = tfm;
+ 	cc->key_size = key_size;
+ 	if ((key_size == 0 && strcmp(argv[1], "-") != 0)
+ 	    || crypt_decode_key(cc->key, argv[1], key_size) < 0) {
+@@ -521,6 +571,8 @@
+ bad2:
+ 	crypto_free_tfm(tfm);
+ bad1:
++	if (cc->digest)
++		crypto_free_tfm(cc->digest);
+ 	kfree(cc);
+ 	return -EINVAL;
+ }
+@@ -532,7 +584,10 @@
+ 	mempool_destroy(cc->page_pool);
+ 	mempool_destroy(cc->io_pool);
+ 
+-	crypto_free_tfm(cc->tfm);
++	crypto_free_tfm(cc->cipher);
++	if (cc->digest)
++		crypto_free_tfm(cc->digest);
++
+ 	dm_put_device(ti, cc->dev);
+ 	kfree(cc);
+ }
+@@ -680,11 +735,14 @@
+ 		break;
+ 
+ 	case STATUSTYPE_TABLE:
+-		cipher = crypto_tfm_alg_name(cc->tfm);
++		cipher = crypto_tfm_alg_name(cc->cipher);
+ 
+-		switch(cc->tfm->crt_u.cipher.cit_mode) {
++		switch(cc->cipher->crt_u.cipher.cit_mode) {
+ 		case CRYPTO_TFM_MODE_CBC:
+-			mode = "plain";
++			if (cc->digest)
++				mode = crypto_tfm_alg_name(cc->digest);
++			else
++				mode = "plain";
+ 			break;
+ 		case CRYPTO_TFM_MODE_ECB:
+ 			mode = "ecb";

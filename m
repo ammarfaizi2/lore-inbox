@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292593AbSBUAFn>; Wed, 20 Feb 2002 19:05:43 -0500
+	id <S291970AbSBUAHY>; Wed, 20 Feb 2002 19:07:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291970AbSBUAFd>; Wed, 20 Feb 2002 19:05:33 -0500
-Received: from bitmover.com ([192.132.92.2]:56789 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S292593AbSBUAFP>;
-	Wed, 20 Feb 2002 19:05:15 -0500
-Date: Wed, 20 Feb 2002 16:05:14 -0800
+	id <S292599AbSBUAHD>; Wed, 20 Feb 2002 19:07:03 -0500
+Received: from bitmover.com ([192.132.92.2]:58581 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S292598AbSBUAG2>;
+	Wed, 20 Feb 2002 19:06:28 -0500
+Date: Wed, 20 Feb 2002 16:06:26 -0800
 From: Larry McVoy <lm@bitmover.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+        ssharma@us.ibm.com
 Subject: Re: socket API extensions workgroup at OpenGroup needs HELP
-Message-ID: <20020220160514.T27423@work.bitmover.com>
+Message-ID: <20020220160626.U27423@work.bitmover.com>
 Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alexander Viro <viro@math.psu.edu>,
-	Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020220233307.GA9133@ravel.coda.cs.cmu.edu> <Pine.GSO.4.21.0202201854310.14928-100000@weyl.math.psu.edu>
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+	ssharma@us.ibm.com
+In-Reply-To: <200202202257.g1KMv4c04306@devserv.devel.redhat.com> <E16dgPr-000595-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0202201854310.14928-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Feb 20, 2002 at 07:00:08PM -0500
+In-Reply-To: <E16dgPr-000595-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 20, 2002 at 11:44:51PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 20, 2002 at 07:00:08PM -0500, Alexander Viro wrote:
-> 
-> 
-> On Wed, 20 Feb 2002, Jan Harkes wrote:
-> 
-> > On Wed, Feb 20, 2002 at 06:21:11PM -0500, Alexander Viro wrote:
-> > > Is that, by any chance, the same crowd that stands behind DAFS?
-> > > If it _is_ the same crowd - send them to hell, they are beyond hope.
-> > 
-> > I almost thought that was directed at me, as Coda is kind of like a
-> > Distributed version of AFS.
-> > 
-> > phew, luckily DAFS it isn't related to AFS or Coda ;)
-> 
-> 	DAFS isn't a filesystem - it's software equivalent of Freddy Kruger:
-> 85 madmen^Wcompanies, one naive nurse^Widea, nightmares-inflicting monster
-> conceived as the result of weeks of clusterfuck...
+> The existing socket API supports zero copy. SGI proved this a long time back
+> (Im sure Larry McVoy can give dates). 
 
-Yeah.  No kidding.  Anyone who thinks this is a good idea really hasn't
-thought about it clearly.  It's nice marketing, sounds good, and is
-a crock.  If you want this sort of thing, that's what kiobufs are for,
-and if kiobufs don't work right, that's a bug.  Phooey on hacks.
+Vernon was there long before I was and it worked long before I got there,
+all I did was hook up the networking plumbing to the file system plumbing
+so that you could move data without copying it.
 -- 
 ---
 Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

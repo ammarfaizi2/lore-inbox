@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264930AbSJVSYh>; Tue, 22 Oct 2002 14:24:37 -0400
+	id <S264916AbSJVSRw>; Tue, 22 Oct 2002 14:17:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264931AbSJVSYh>; Tue, 22 Oct 2002 14:24:37 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:58304 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S264930AbSJVSYf>; Tue, 22 Oct 2002 14:24:35 -0400
-Subject: Re: Linux 2.5.44-ac1
-From: Steven Cole <elenstev@mesatop.com>
-To: Alan Cox <alan@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Hans Reiser <reiser@namesys.com>
-In-Reply-To: <200210221727.g9MHR6128999@devserv.devel.redhat.com>
-References: <200210221727.g9MHR6128999@devserv.devel.redhat.com>
-Content-Type: text/plain
+	id <S264838AbSJVSCw>; Tue, 22 Oct 2002 14:02:52 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:27408 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S264813AbSJVSCX>;
+	Tue, 22 Oct 2002 14:02:23 -0400
+Message-ID: <3DB59431.2090807@mvista.com>
+Date: Tue, 22 Oct 2002 13:08:49 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI request/release
+References: <3DB4AABF.9020400@mvista.com>	<20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com>	<20021022025346.GC41678@compsoc.man.ac.uk>  <3DB54C53.9010603@mvista.com> <1035307430.1008.1476.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 22 Oct 2002 12:29:50 -0600
-Message-Id: <1035311390.13140.201.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-22 at 11:27, Alan Cox wrote:
-[snip]
->    This one builds, its not yet had any measurable testing
-> 
-> Linux 2.5.44-ac1
-> -	Resync with Linus 2.5.43/44
-[snip]
-> o	Move BUG() into asm/bug.h			(Russell King)
+Robert Love wrote:
 
-I got this error building with CONFIG_REISERFS_FS=y:
+>On Tue, 2002-10-22 at 09:02, Corey Minyard wrote:
+>
+>  
+>
+>>I looked, and the rcu code relys on turning off interrupts to avoid 
+>>preemption.  So it won't work.
+>>    
+>>
+>
+>At least on the variant of RCU that is in 2.5, the RCU code does the
+>read side by disabling preemption.  Nothing else.
+>
+In 2.5.44, stock from kernel.org, rcu_process_callbacks() calls 
+local_irq_disable().  Is that just preemption disabling, now?
 
-fs/built-in.o: In function `keyed_hash':
-fs/built-in.o(.text+0x84d56): undefined reference to `BUG'
-fs/built-in.o(.text+0x84e08): undefined reference to `BUG'
-fs/built-in.o(.text+0x84ea4): undefined reference to `BUG'
-fs/built-in.o(.text+0x84f0e): undefined reference to `BUG'
-make: *** [.tmp_vmlinux1] Error 1
+>The write side is the same with or without preemption - wait until all
+>readers are quiescent, change the copy, etc.
+>
+>But anyhow, disabling interrupts should not affect NMIs, no?
+>
+You are correct.  disabling preemption or interrupts has no effect on NMIs.
 
-The following patch allows 2.5.44-ac1 to build with reiserfs.
-
-Steven
-
---- linux-2.5.44-ac1/fs/reiserfs/hashes.c.orig	Tue Oct 22 12:16:52 2002
-+++ linux-2.5.44-ac1/fs/reiserfs/hashes.c	Tue Oct 22 12:17:15 2002
-@@ -20,6 +20,7 @@
- 
- #include <asm/types.h>
- #include <asm/page.h>
-+#include <asm/bug.h>
- 
-
-
-
-
+-Corey
 

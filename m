@@ -1,45 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273358AbRISMHe>; Wed, 19 Sep 2001 08:07:34 -0400
+	id <S272212AbRISMgT>; Wed, 19 Sep 2001 08:36:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274040AbRISMHY>; Wed, 19 Sep 2001 08:07:24 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:34537 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S273358AbRISMHH>;
-	Wed, 19 Sep 2001 08:07:07 -0400
-Date: Wed, 19 Sep 2001 08:07:30 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10pre11aa1
-In-Reply-To: <Pine.GSO.4.21.0109190420510.28824-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0109190800590.28824-100000@weyl.math.psu.edu>
+	id <S273968AbRISMgJ>; Wed, 19 Sep 2001 08:36:09 -0400
+Received: from [24.254.60.15] ([24.254.60.15]:59591 "EHLO
+	femail25.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S272212AbRISMgA>; Wed, 19 Sep 2001 08:36:00 -0400
+Message-ID: <3BA8903D.2643D20D@didntduck.org>
+Date: Wed, 19 Sep 2001 08:31:57 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Woodhouse <dwmw2@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: Direct PCI access broken in 2.4.10-pre
+In-Reply-To: <30185.1000900519@redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------B8122056FB5B8AEA2B0FE8D5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------B8122056FB5B8AEA2B0FE8D5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-
-> I can add one more into the mix: what the hell had happened in rd.c?
+David Woodhouse wrote:
 > 
-> a) you reintroduced the crap with rd_inodes[]
-> b) just try to call ioctl(fd, BLKFLSBUF) twice. Oops...
-> c) WTF with acrobatics around initrd_bd_op?  FWIW, initrd has no business
-> being a block device and both old and new variants are ugly, but what's
-> the point of adding extra tricks?
-> d) call ioctl(fd, BLKFLSBUF) and open the thing one more time before
-> closing fd.  Watch what happens.  It's broken by design.
+> 2.4.10-pre3 and later fail to boot on my Compaq XL box. It claims that PCI
+> isn't supported. This board doesn't use the PCI BIOS because the entry
+> point is in high memory.
 > 
-> I realize that you had that file modified in your tree, but bloody hell,
-> it doesn't mean "ignore any changes that happened in mainline kernel
-> without even looking at them".  As for the BLKFLSBUF...  How was it supposed
-> to work?
+> 'cvs up -r v2_4_10-pre2 arch/i386/boot/pci-pc.c' fixes it.
+> 
+> A happy boot with the old pci-pc.c:
+> PCI: BIOS32 entry (0xc00fa000) in high memory, cannot use.
+> PCI: Using configuration type 2
+> PCI: Probing PCI hardware
+> 
+> An unhappy boot with the new one:
+> PCI: BIOS32 entry (0xc00fa000) in high memory, cannot use.
+> PCI: System does not support PCI
 
+Patch attached that fixes typecasting problems with PCI Type 2 accesses.
 
-BTW, what's to stop shrink_cache() from picking a page out of ramdisk
-pagecache and calling ->writepage() on it?  The thing will immediately
-get dirtied again, AFAICS (blkdev_writepage() -> submit_bh() -> ... ->
-rd_make_request() -> rd_blkdev_pagecache(WRITE,...) -> SetPageDirty()).
+-- 
 
-If you get a lot of stuff in ramdisks, things can get rather insteresting...
+						Brian Gerst
+--------------B8122056FB5B8AEA2B0FE8D5
+Content-Type: text/plain; charset=us-ascii;
+ name="diff-pcipc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-pcipc"
+
+diff -urN linux-2.4.10-pre10/arch/i386/kernel/pci-pc.c linux/arch/i386/kernel/pci-pc.c
+--- linux-2.4.10-pre10/arch/i386/kernel/pci-pc.c	Mon Sep 17 13:20:14 2001
++++ linux/arch/i386/kernel/pci-pc.c	Wed Sep 19 08:07:29 2001
+@@ -261,18 +261,14 @@
+ 	u32 data;
+ 	result = pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
+ 		PCI_FUNC(dev->devfn), where, 2, &data);
+-	*value = (u8)data;
++	*value = (u16)data;
+ 	return result;
+ }
+ 
+ static int pci_conf2_read_config_dword(struct pci_dev *dev, int where, u32 *value)
+ {
+-	int result; 
+-	u32 data;
+-	result = pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
+-		PCI_FUNC(dev->devfn), where, 4, &data);
+-	*value = (u8)data;
+-	return result;
++	return pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
++		PCI_FUNC(dev->devfn), where, 4, value);
+ }
+ 
+ static int pci_conf2_write_config_byte(struct pci_dev *dev, int where, u8 value)
+
+--------------B8122056FB5B8AEA2B0FE8D5--
 

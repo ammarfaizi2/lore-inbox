@@ -1,81 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263972AbUEMIGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263939AbUEMIQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263972AbUEMIGd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 04:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263928AbUEMIGI
+	id S263939AbUEMIQq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 04:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbUEMIQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 04:06:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41151 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263939AbUEMIFu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 04:05:50 -0400
-Date: Thu, 13 May 2004 01:04:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: ebiederm@xmission.com, rddunlap@osdl.org, davidm@hpl.hp.com,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       drepper@redhat.com
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-Message-Id: <20040513010427.0e4fe22c.akpm@osdl.org>
-In-Reply-To: <20040513084931.A6858@infradead.org>
-References: <m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
-	<20040512143233.0ee0405a.rddunlap@osdl.org>
-	<16546.41076.572371.307153@napali.hpl.hp.com>
-	<20040512152815.76280eac.akpm@osdl.org>
-	<16546.42537.765495.231960@napali.hpl.hp.com>
-	<20040512161603.44c50cec.akpm@osdl.org>
-	<20040513053051.A5286@infradead.org>
-	<m1lljwsvxr.fsf@ebiederm.dsl.xmission.com>
-	<20040513083306.A6631@infradead.org>
-	<20040513003727.4026699a.akpm@osdl.org>
-	<20040513084931.A6858@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 13 May 2004 04:16:46 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:49836 "EHLO
+	smtp1.actcom.co.il") by vger.kernel.org with ESMTP id S263939AbUEMIQn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 04:16:43 -0400
+Date: Thu, 13 May 2004 11:05:17 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       David Gibson <david@gibson.dropbear.id.au>,
+       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Adam Litke <agl@us.ibm.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>
+Subject: Re: More convenient way to grab hugepage memory
+Message-ID: <20040513080517.GA13972@mulix.org>
+References: <20040513055520.GF27403@zax> <20040513060549.GA12695@mulix.org> <20040513065912.GR1397@holomorphy.com> <1084432141.13731.99.camel@gaston> <20040513071359.GU1397@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Disposition: inline
+In-Reply-To: <20040513071359.GU1397@holomorphy.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Thu, May 13, 2004 at 12:37:27AM -0700, Andrew Morton wrote:
-> > The (old) kexec patch I have here implements the API which is described at
-> > http://lwn.net/Articles/15468/.  I doubt if it changed?
-> 
-> That API looks sane to me.
 
-yup.  Here's the syscall itself, btw:
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-+/*
-+ * Exec Kernel system call: for obvious reasons only root may call it.
-+ * 
-+ * This call breaks up into three pieces.  
-+ * - A generic part which loads the new kernel from the current
-+ *   address space, and very carefully places the data in the
-+ *   allocated pages.
-+ *
-+ * - A generic part that interacts with the kernel and tells all of
-+ *   the devices to shut down.  Preventing on-going dmas, and placing
-+ *   the devices in a consistent state so a later kernel can
-+ *   reinitialize them.
-+ *
-+ * - A machine specific part that includes the syscall number
-+ *   and the copies the image to it's final destination.  And
-+ *   jumps into the image at entry.
-+ *
-+ * kexec does not sync, or unmount filesystems so if you need
-+ * that to happen you need to do that yourself.
-+ */
-+struct kimage *kexec_image = 0;
-+
-+asmlinkage long sys_kexec_load(unsigned long entry, unsigned long nr_segments, 
-+	struct kexec_segment *segments, unsigned long flags)
-+{
+On Thu, May 13, 2004 at 12:13:59AM -0700, William Lee Irwin III wrote:
+> On Thu, 2004-05-13 at 16:59, William Lee Irwin III wrote:
+> >> Atop my other patch to nuke the unused global variables, here is a pat=
+ch
+> >> to manually inline __do_mmap_pgoff(), removing the inline usage. Untes=
+ted.
+> >> Are you sure you want this? #ifdef'ing out the hugetlb case is somewhat
+> >> more digestible with the inline in place, e.g.:
+>=20
+> On Thu, May 13, 2004 at 05:09:01PM +1000, Benjamin Herrenschmidt wrote:
+> > Well, I did the breakup in 2 pieces in the first place for 2 reasons:
+> >  - the original patch had some subtle issues with accounting
+> >  - do_mmap_pgoff is already such a mess, let's not make it worse
+> > I mean, it's awful to get anything right in this function, especially
+> > the cleanup/exit path, which is why I think it's more maintainable
+> > cut in 2.
+>=20
+> Well, writing it vaguely convinced me that it wasn't a great idea; I
+> suppose now that Muli can look at the result he'll be convinced
+> likewise.
 
-+struct kexec_segment {
-+	void *buf;
-+	size_t bufsz;
-+	void *mem;
-+	size_t memsz;
-+};
+No need to convince me; my comment was strictly with regards to
+inlining the function (as opposed to just leaving it static), not with
+regards to splitting up the messy horror that is do_mmap_pgoff, which
+I am very much in favor of.
 
+Cheers,=20
+Muli=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
+
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAoyw9KRs727/VN8sRAshdAJ9ExrqKHuH4ll5d5mPQJmRhgt5DTQCgrd3U
+UdDyOTMOXrswLM2Rfn+bGzw=
+=vMlm
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--

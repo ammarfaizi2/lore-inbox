@@ -1,32 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263375AbTEVWNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 18:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbTEVWNZ
+	id S263333AbTEVWSN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 18:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263317AbTEVWSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 18:13:25 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:44498 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263364AbTEVWNX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 18:13:23 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 23 May 2003 00:26:25 +0200 (MEST)
-Message-Id: <UTC200305222226.h4MMQP519152.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: [patch] isa_writeb args interchanged
+	Thu, 22 May 2003 18:18:12 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:16647 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S263373AbTEVWSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 18:18:09 -0400
+Date: Fri, 23 May 2003 08:30:38 +1000
+To: davem@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Zero the reserved bytes of sadb_prob in af_key.c
+Message-ID: <20030522223038.GA31759@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/g_NCR5380.h b/drivers/scsi/g_NCR5380.h
---- a/drivers/scsi/g_NCR5380.h	Thu May 22 13:17:01 2003
-+++ b/drivers/scsi/g_NCR5380.h	Fri May 23 01:23:21 2003
-@@ -102,7 +102,7 @@
- #define NCR5380_region_size 0x3a00
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+According to RFC2367, all reserved bytes must be set to zero.  This patch
+does just that for the sadb_prop messages.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: net/key/af_key.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/net/key/af_key.c,v
+retrieving revision 1.1.1.6
+diff -u -r1.1.1.6 af_key.c
+--- net/key/af_key.c	4 May 2003 23:53:08 -0000	1.1.1.6
++++ net/key/af_key.c	22 May 2003 09:58:45 -0000
+@@ -2245,6 +2245,9 @@
+ 	p->sadb_prop_len = sizeof(struct sadb_prop)/8;
+ 	p->sadb_prop_exttype = SADB_EXT_PROPOSAL;
+ 	p->sadb_prop_replay = 32;
++	p->sadb_prop_reserved[0] = 0;
++	p->sadb_prop_reserved[1] = 0;
++	p->sadb_prop_reserved[2] = 0;
  
- #define NCR5380_read(reg) isa_readb(NCR5380_map_name + NCR53C400_mem_base + (reg))
--#define NCR5380_write(reg, value) isa_writeb(NCR5380_map_name + NCR53C400_mem_base + (reg), value)
-+#define NCR5380_write(reg, value) isa_writeb(value, NCR5380_map_name + NCR53C400_mem_base + (reg))
- #endif
+ 	for (i = 0; ; i++) {
+ 		struct xfrm_algo_desc *aalg = xfrm_aalg_get_byidx(i);
+@@ -2276,6 +2279,9 @@
+ 	p->sadb_prop_len = sizeof(struct sadb_prop)/8;
+ 	p->sadb_prop_exttype = SADB_EXT_PROPOSAL;
+ 	p->sadb_prop_replay = 32;
++	p->sadb_prop_reserved[0] = 0;
++	p->sadb_prop_reserved[1] = 0;
++	p->sadb_prop_reserved[2] = 0;
  
- #define NCR5380_implementation_fields \
+ 	for (i=0; ; i++) {
+ 		struct xfrm_algo_desc *ealg = xfrm_ealg_get_byidx(i);
+
+--Dxnq1zWXvFF0Q93v--

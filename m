@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288561AbSADJ3v>; Fri, 4 Jan 2002 04:29:51 -0500
+	id <S288568AbSADJbV>; Fri, 4 Jan 2002 04:31:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288562AbSADJ3p>; Fri, 4 Jan 2002 04:29:45 -0500
-Received: from dark.pcgames.pl ([195.205.62.2]:20917 "EHLO dark.pcgames.pl")
-	by vger.kernel.org with ESMTP id <S288561AbSADJ3h>;
-	Fri, 4 Jan 2002 04:29:37 -0500
-Date: Fri, 4 Jan 2002 10:28:18 +0100 (CET)
-From: Krzysztof Oledzki <ole@ans.pl>
-X-X-Sender: <ole@dark.pcgames.pl>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Two hdds on one channel - why so slow?
-In-Reply-To: <Pine.LNX.4.33.0201021452120.8693-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.33.0201041017570.12882-100000@dark.pcgames.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288567AbSADJbR>; Fri, 4 Jan 2002 04:31:17 -0500
+Received: from relativity.phy.olemiss.edu ([130.74.16.250]:44224 "EHLO
+	relativity.phy.olemiss.edu") by vger.kernel.org with ESMTP
+	id <S288568AbSADJbF>; Fri, 4 Jan 2002 04:31:05 -0500
+Date: Fri, 4 Jan 2002 01:31:04 -0800
+From: Chris Lawrence <quango@watervalley.net>
+To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: Who uses hdx=bswap or hdx=swapdata?
+Message-ID: <20020104093104.GB522@phy.olemiss.edu>
+Mail-Followup-To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	Linux/m68k <linux-m68k@lists.linux-m68k.org>
+In-Reply-To: <E16MGPf-0001I3-00@the-village.bc.nu> <Pine.GSO.4.21.0201041009000.12102-100000@vervain.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0201041009000.12102-100000@vervain.sonytel.be>
+User-Agent: Mutt/1.3.24i
+Organization: The University of Mississippi (Standard Disclaimer Applies)
+X-Operating-System: Linux/i686 2.4.12-ac3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Jan 04, Geert Uytterhoeven wrote:
+> On Thu, 3 Jan 2002, Alan Cox wrote:
+> > > Is the hdx=bswap or hdx=swapdata option actually in use?
+> > > When is it needed?
+> > 
+> > Certain M68K machines
+> > 
+> > > The current implementation can cause data corruptions on SMP with PIO 
+> > > transfers:
+> > > 
+> > > Is it possible to remove the option entirely, or should it be fixed?
+> > 
+> > Show me an SMP Atari ST 8)
+> 
+> IIRC it's used to access non-Atari IDE disks on Atari (which has a byte-swapped
+> IDE interface) and vice-versa.
+> 
+> So yes, you can use it on SMP machines, to access disks that were used before
+> on Atari.
+
+The byteswapping flags are also used by people hacking TiVos; the
+non-MIPS models have byte-swapped IDE interfaces, and so the bswap
+flag is needed to mount a TiVo disk on a PC.
 
 
-On Wed, 2 Jan 2002, Mark Hahn wrote:
+Chris
+-- 
+Chris Lawrence <cnlawren@olemiss.edu> - http://www.lordsutch.com/chris/
 
->
-> yes, I know what he said.  it's true that there's no concurrency,
-> but he's wrong about expecting half (due to readahead/writebehind),
-> and there's no real overhead in switching.
-So why my disks work with ~12MB/sec per device (~24 per channel) when
-both HDDs are accessed on the sime time?
-
-> in short, master-slave concurrency is not common (but definitely
-> supported by the standard and some disks), but this has less
-> effect than you'd think.  especially since most people just
-> treat ide as a single-drive ptp link.  which works fine, since
-> ide channels cost $15 or less, and ide disks are *so* much cheaper
-> than scsi.
-
-Yes. IDE as a PtP device works nice. But this means that in most cases
-it is possible to connect only half of expected devices. What a pity :(
-
-
-Best regards,
-
-
-				Krzysztof Oldzki
-
+Instructor and Ph.D. Candidate, Political Science, Univ. of Mississippi
+208 Deupree Hall - 662-915-5765

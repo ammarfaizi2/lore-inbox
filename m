@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275208AbRJAQUv>; Mon, 1 Oct 2001 12:20:51 -0400
+	id <S275203AbRJAQTv>; Mon, 1 Oct 2001 12:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275210AbRJAQUl>; Mon, 1 Oct 2001 12:20:41 -0400
-Received: from t2.redhat.com ([199.183.24.243]:22771 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S275208AbRJAQUY>; Mon, 1 Oct 2001 12:20:24 -0400
-Message-ID: <3BB897DB.C34A28B9@redhat.com>
-Date: Mon, 01 Oct 2001 17:20:43 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10smp i686)
-X-Accept-Language: en
+	id <S275208AbRJAQTl>; Mon, 1 Oct 2001 12:19:41 -0400
+Received: from oe30.law11.hotmail.com ([64.4.16.87]:53259 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S275203AbRJAQT3>;
+	Mon, 1 Oct 2001 12:19:29 -0400
+X-Originating-IP: [12.19.166.64]
+From: "Dan Mann" <daniel_b_mann@hotmail.com>
+To: "Kernel List" <linux-kernel@vger.kernel.org>
+Subject: QNX Scheduler patch
+Date: Mon, 1 Oct 2001 12:19:50 -0400
 MIME-Version: 1.0
-To: Pozsar Balazs <pozsy@sch.bme.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ethX <-> module matching from userspace?
-In-Reply-To: <Pine.GSO.4.30.0110011121080.7669-100000@balu>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-ID: <OE309IcVux1Zcn8TtEv00006b70@hotmail.com>
+X-OriginalArrivalTime: 01 Oct 2001 16:19:52.0659 (UTC) FILETIME=[E68B5230:01C14A94]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pozsar Balazs wrote:
-> 
-> Hi all,
-> 
-> Is there a way that i could get which module registered which ethX
-> interface, from userspace? I would really like to see it.
->
+Can anyone tell me about experience with the QNX scheduler patch done way
+back for kernel 2.0.31?  I've been wanting to try it on a 2.4 series kernel
+(I'm looking for best possible interactive performance under X), and I want
+to know if it is worth porting to the 2.4 line.
 
-ethtool -i eth0
+Thanks,
+
+Dan

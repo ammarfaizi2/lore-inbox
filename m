@@ -1,78 +1,320 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUEDBw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264194AbUEDCdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263735AbUEDBw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 21:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263748AbUEDBw2
+	id S264194AbUEDCdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 22:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264200AbUEDCdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 21:52:28 -0400
-Received: from fed1rmmtao10.cox.net ([68.230.241.29]:41364 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S263735AbUEDBw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 21:52:26 -0400
-Date: Mon, 3 May 2004 18:52:18 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: olh@suse.de, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Fix booting some PPC32 machines
-Message-ID: <20040504015217.GB6254@smtp.west.cox.net>
-References: <20040503180945.GL26773@smtp.west.cox.net> <16534.58651.788709.350751@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16534.58651.788709.350751@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 3 May 2004 22:33:25 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:43488 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264194AbUEDCdO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 22:33:14 -0400
+Date: Tue, 4 May 2004 04:33:01 +0200 (MEST)
+Message-Id: <200405040233.i442X1GO025270@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: linux-kernel@vger.kernel.org, oprofile-list@lists.sourceforge.net
+Subject: [PATCH] allow drivers to claim the lapic NMI watchdog HW
+Cc: torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 04, 2004 at 10:34:35AM +1000, Paul Mackerras wrote:
+This patch implements a simple ownership-tracking API
+in the NMI watchdog on i386 and x86_64. Its purpose is
+to allow other drivers (oprofile, perfctr, perhaps vtune)
+to safely claim and use the performance counters and local
+APIC LVTPC without conflicts. Of course, only one driver
+can use the hardware at any given point in time.
 
-> Tom Rini writes:
-> 
-> > Hello.  The following patch fixes booting on some PPC32 machines with
-> > OpenFirmware, when booted without the aid of an additional bootloader.
-> > The problem is that the linker script for the 'zImage' type targets was
-> > put into the list of dependancies which objcopy would parse as a list of
-> > files to copy into the resulting image.  The fix is to make the phony
-> > zImage targets depend on the linker script.
-> 
-> I don't like this part of the fix:
-> 
-> >  $(images)/vmlinux.initrd.elf-pmac: $(obj)/image.initrd.o $(NEWWORLDOBJS) \
-> > -				   $(LIBS) $(obj)/note $(boot)/ld.script
-> > +				   $(LIBS) $(obj)/note
-> >  	$(call cmd,gen-elf-pmac)
-> 
-> because the linking process (gen-elf-pmac) really does depend on
-> ld.script.  Since gen-elf-pmac uses $<, not $^, it should be OK with
-> the ld.script in the dependencies.  Did you verify that there was a
-> problem with this rule or did you just rip out all of the ld.script
-> dependencies?
+The present situation is that no such API exists,
+so these drivers directly access the hardware after
+disabling the NMI watchdog. However, this is unsafe
+if more than one driver needs the hardware.
 
-I did just remove all of the previous dependancies and place them on the
-zImage target (we don't mention that you can do 'make
-arch/ppc/boot/images/foo.image, and I don't know if that would work, so
-I don't think that'd be a problem).
+This patch has been successfully tested in 2.6.6-rc3 with
+the NMI watchdog, oprofile, and the perfctr drivers all
+present: when oprofile is active, perfctr cannot claim
+the hardware, and vice versa. Also, when the hardware is
+released after having been reassigned to a different driver,
+the NMI watchdog automatically restarts.
 
-> Similarly we need the ld.script dependency in here:
-> 
-> > -$(images)/zImage.chrp: $(CHRPOBJS) $(obj)/image.o $(LIBS) $(boot)/ld.script
-> > +$(images)/zImage.chrp: $(CHRPOBJS) $(obj)/image.o $(LIBS)
-> >  	$(call cmd,gen-chrp)
-> > -$(images)/zImage.initrd.chrp: $(CHRPOBJS) $(obj)/image.initrd.o $(LIBS) $(boot)/ld.script
-> > +$(images)/zImage.initrd.chrp: $(CHRPOBJS) $(obj)/image.initrd.o $(LIBS)
-> >  	$(call cmd,gen-chrp)
-> 
-> Here, gen-chrp does have a problem because it uses $^, but it looks to
-> me that with a minor change it could just use $< and avoid the
-> problem.
+Please consider merging this in 2.6.
 
-IIRC, changing to $< means we have to compilcate the rules a bit more,
-or thinking a bit harder, re-arrange the dependancies s.t.
-$(obj)/image*.o is first, and gen-chrp (and gen-pmac) both know to use
-$(CHRPOBJS) and $(LIBS).
+/Mikael
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+diff -ruN linux-2.6.6-rc3/arch/i386/kernel/nmi.c linux-2.6.6-rc3.lapic_nmi_owner/arch/i386/kernel/nmi.c
+--- linux-2.6.6-rc3/arch/i386/kernel/nmi.c	2004-05-03 20:43:29.000000000 +0200
++++ linux-2.6.6-rc3.lapic_nmi_owner/arch/i386/kernel/nmi.c	2004-05-03 20:48:15.000000000 +0200
+@@ -36,6 +36,20 @@
+ unsigned int nmi_perfctr_msr;	/* the MSR to reset in NMI handler */
+ extern void show_registers(struct pt_regs *regs);
+ 
++/* lapic_nmi_owner:
++ * +1: the lapic NMI hardware is assigned to the lapic NMI watchdog
++ *  0: the lapic NMI hardware is unassigned
++ * -1: the lapic NMI hardware is assigned to a different driver;
++ *     on release it is reassigned to the lapic NMI watchdog
++ * -2: the lapic NMI hardware is assigned to a different driver;
++ *     on release it is marked unassigned
++ *
++ * This is maintained separately from nmi_active because the NMI
++ * watchdog may also be driven from the I/O APIC timer.
++ */
++static spinlock_t lapic_nmi_owner_lock = SPIN_LOCK_UNLOCKED;
++static int lapic_nmi_owner;
++
+ /* nmi_active:
+  * +1: the lapic NMI watchdog is active, but can be disabled
+  *  0: the lapic NMI watchdog has not been set up, and cannot
+@@ -102,6 +116,8 @@
+ 		if (nmi_count(cpu) - prev_nmi_count[cpu] <= 5) {
+ 			printk("CPU#%d: NMI appears to be stuck!\n", cpu);
+ 			nmi_active = 0;
++			if (lapic_nmi_owner > 0)
++				lapic_nmi_owner = 0;
+ 			return -1;
+ 		}
+ 	}
+@@ -151,7 +167,7 @@
+ 
+ __setup("nmi_watchdog=", setup_nmi_watchdog);
+ 
+-void disable_lapic_nmi_watchdog(void)
++static void disable_lapic_nmi_watchdog(void)
+ {
+ 	if (nmi_active <= 0)
+ 		return;
+@@ -182,7 +198,7 @@
+ 	nmi_watchdog = 0;
+ }
+ 
+-void enable_lapic_nmi_watchdog(void)
++static void enable_lapic_nmi_watchdog(void)
+ {
+ 	if (nmi_active < 0) {
+ 		nmi_watchdog = NMI_LOCAL_APIC;
+@@ -190,6 +206,33 @@
+ 	}
+ }
+ 
++int reassign_lapic_nmi_watchdog(void)
++{
++	int old_owner;
++
++	spin_lock(&lapic_nmi_owner_lock);
++	old_owner = lapic_nmi_owner;
++	if (old_owner >= 0)
++		lapic_nmi_owner -= 2; /* +1 -> -1, 0 -> -2 */
++	spin_unlock(&lapic_nmi_owner_lock);
++	if (old_owner < 0)
++		return -EBUSY;
++	if (old_owner > 0)
++		disable_lapic_nmi_watchdog();
++	return 0;
++}
++
++void release_lapic_nmi_watchdog(void)
++{
++	int new_owner;
++
++	spin_lock(&lapic_nmi_owner_lock);
++	lapic_nmi_owner = new_owner = lapic_nmi_owner + 2; /* -2 -> 0, -1 -> +1 */
++	spin_unlock(&lapic_nmi_owner_lock);
++	if (new_owner > 0)
++		enable_lapic_nmi_watchdog();
++}
++
+ void disable_timer_nmi_watchdog(void)
+ {
+ 	if ((nmi_watchdog != NMI_IO_APIC) || (nmi_active <= 0))
+@@ -243,7 +286,7 @@
+ {
+ 	int error;
+ 
+-	if (nmi_active == 0)
++	if (nmi_active == 0 || nmi_watchdog != NMI_LOCAL_APIC)
+ 		return 0;
+ 
+ 	error = sysdev_class_register(&nmi_sysclass);
+@@ -373,6 +416,7 @@
+ 	default:
+ 		return;
+ 	}
++	lapic_nmi_owner = 1;
+ 	nmi_active = 1;
+ }
+ 
+@@ -470,7 +514,7 @@
+ 
+ EXPORT_SYMBOL(nmi_active);
+ EXPORT_SYMBOL(nmi_watchdog);
+-EXPORT_SYMBOL(disable_lapic_nmi_watchdog);
+-EXPORT_SYMBOL(enable_lapic_nmi_watchdog);
++EXPORT_SYMBOL(reassign_lapic_nmi_watchdog);
++EXPORT_SYMBOL(release_lapic_nmi_watchdog);
+ EXPORT_SYMBOL(disable_timer_nmi_watchdog);
+ EXPORT_SYMBOL(enable_timer_nmi_watchdog);
+diff -ruN linux-2.6.6-rc3/arch/i386/oprofile/nmi_int.c linux-2.6.6-rc3.lapic_nmi_owner/arch/i386/oprofile/nmi_int.c
+--- linux-2.6.6-rc3/arch/i386/oprofile/nmi_int.c	2004-03-11 14:01:25.000000000 +0100
++++ linux-2.6.6-rc3.lapic_nmi_owner/arch/i386/oprofile/nmi_int.c	2004-05-03 20:47:06.000000000 +0200
+@@ -183,7 +183,10 @@
+ 	 * without actually triggering any NMIs as this will
+ 	 * break the core code horrifically.
+ 	 */
+-	disable_lapic_nmi_watchdog();
++	if (reassign_lapic_nmi_watchdog() < 0) {
++		free_msrs();
++		return -EBUSY;
++	}
+ 	/* We need to serialize save and setup for HT because the subset
+ 	 * of msrs are distinct for save and setup operations
+ 	 */
+@@ -241,7 +244,7 @@
+ 	nmi_enabled = 0;
+ 	on_each_cpu(nmi_cpu_shutdown, NULL, 0, 1);
+ 	unset_nmi_callback();
+-	enable_lapic_nmi_watchdog();
++	release_lapic_nmi_watchdog();
+ 	free_msrs();
+ }
+ 
+diff -ruN linux-2.6.6-rc3/arch/x86_64/kernel/nmi.c linux-2.6.6-rc3.lapic_nmi_owner/arch/x86_64/kernel/nmi.c
+--- linux-2.6.6-rc3/arch/x86_64/kernel/nmi.c	2004-03-11 14:01:27.000000000 +0100
++++ linux-2.6.6-rc3.lapic_nmi_owner/arch/x86_64/kernel/nmi.c	2004-05-03 20:49:54.000000000 +0200
+@@ -33,6 +33,20 @@
+ #include <asm/proto.h>
+ #include <asm/kdebug.h>
+ 
++/* lapic_nmi_owner:
++ * +1: the lapic NMI hardware is assigned to the lapic NMI watchdog
++ *  0: the lapic NMI hardware is unassigned
++ * -1: the lapic NMI hardware is assigned to a different driver;
++ *     on release it is reassigned to the lapic NMI watchdog
++ * -2: the lapic NMI hardware is assigned to a different driver;
++ *     on release it is marked unassigned
++ *
++ * This is maintained separately from nmi_active because the NMI
++ * watchdog may also be driven from the I/O APIC timer.
++ */
++static spinlock_t lapic_nmi_owner_lock = SPIN_LOCK_UNLOCKED;
++static int lapic_nmi_owner;
++
+ /* nmi_active:
+  * +1: the lapic NMI watchdog is active, but can be disabled
+  *  0: the lapic NMI watchdog has not been set up, and cannot
+@@ -122,6 +136,8 @@
+ 			       cpu,
+ 			       cpu_pda[cpu].__nmi_count);
+ 			nmi_active = 0;
++			if (lapic_nmi_owner > 0)
++				lapic_nmi_owner = 0;
+ 			return -1;
+ 		}
+ 	}
+@@ -157,7 +173,7 @@
+ 
+ __setup("nmi_watchdog=", setup_nmi_watchdog);
+ 
+-void disable_lapic_nmi_watchdog(void)
++static void disable_lapic_nmi_watchdog(void)
+ {
+ 	if (nmi_active <= 0)
+ 		return;
+@@ -174,7 +190,7 @@
+ 	nmi_watchdog = 0;
+ }
+ 
+-void enable_lapic_nmi_watchdog(void)
++static void enable_lapic_nmi_watchdog(void)
+ {
+ 	if (nmi_active < 0) {
+ 		nmi_watchdog = NMI_LOCAL_APIC;
+@@ -182,6 +198,33 @@
+ 	}
+ }
+ 
++int reassign_lapic_nmi_watchdog(void)
++{
++	int old_owner;
++
++	spin_lock(&lapic_nmi_owner_lock);
++	old_owner = lapic_nmi_owner;
++	if (old_owner >= 0)
++		lapic_nmi_owner -= 2; /* +1 -> -1, 0 -> -2 */
++	spin_unlock(&lapic_nmi_owner_lock);
++	if (old_owner < 0)
++		return -EBUSY;
++	if (old_owner > 0)
++		disable_lapic_nmi_watchdog();
++	return 0;
++}
++
++void release_lapic_nmi_watchdog(void)
++{
++	int new_owner;
++
++	spin_lock(&lapic_nmi_owner_lock);
++	lapic_nmi_owner = new_owner = lapic_nmi_owner + 2; /* -2 -> 0, -1 -> +1 */
++	spin_unlock(&lapic_nmi_owner_lock);
++	if (new_owner > 0)
++		enable_lapic_nmi_watchdog();
++}
++
+ void disable_timer_nmi_watchdog(void)
+ {
+ 	if ((nmi_watchdog != NMI_IO_APIC) || (nmi_active <= 0))
+@@ -236,7 +279,7 @@
+ {
+ 	int error;
+ 
+-	if (nmi_active == 0)
++	if (nmi_active == 0 || nmi_watchdog != NMI_LOCAL_APIC)
+ 		return 0;
+ 
+ 	error = sysdev_class_register(&nmi_sysclass);
+@@ -298,6 +341,7 @@
+ 	default:
+ 		return;
+ 	}
++	lapic_nmi_owner = 1;
+ 	nmi_active = 1;
+ }
+ 
+@@ -405,8 +449,8 @@
+ 
+ EXPORT_SYMBOL(nmi_active);
+ EXPORT_SYMBOL(nmi_watchdog);
+-EXPORT_SYMBOL(disable_lapic_nmi_watchdog);
+-EXPORT_SYMBOL(enable_lapic_nmi_watchdog);
++EXPORT_SYMBOL(reassign_lapic_nmi_watchdog);
++EXPORT_SYMBOL(release_lapic_nmi_watchdog);
+ EXPORT_SYMBOL(disable_timer_nmi_watchdog);
+ EXPORT_SYMBOL(enable_timer_nmi_watchdog);
+ EXPORT_SYMBOL(touch_nmi_watchdog);
+diff -ruN linux-2.6.6-rc3/include/asm-i386/apic.h linux-2.6.6-rc3.lapic_nmi_owner/include/asm-i386/apic.h
+--- linux-2.6.6-rc3/include/asm-i386/apic.h	2004-02-18 11:09:53.000000000 +0100
++++ linux-2.6.6-rc3.lapic_nmi_owner/include/asm-i386/apic.h	2004-05-03 20:45:58.000000000 +0200
+@@ -81,8 +81,8 @@
+ extern void setup_boot_APIC_clock (void);
+ extern void setup_secondary_APIC_clock (void);
+ extern void setup_apic_nmi_watchdog (void);
+-extern void disable_lapic_nmi_watchdog(void);
+-extern void enable_lapic_nmi_watchdog(void);
++extern int reassign_lapic_nmi_watchdog(void);
++extern void release_lapic_nmi_watchdog(void);
+ extern void disable_timer_nmi_watchdog(void);
+ extern void enable_timer_nmi_watchdog(void);
+ extern void nmi_watchdog_tick (struct pt_regs * regs);
+diff -ruN linux-2.6.6-rc3/include/asm-x86_64/apic.h linux-2.6.6-rc3.lapic_nmi_owner/include/asm-x86_64/apic.h
+--- linux-2.6.6-rc3/include/asm-x86_64/apic.h	2004-03-11 14:01:30.000000000 +0100
++++ linux-2.6.6-rc3.lapic_nmi_owner/include/asm-x86_64/apic.h	2004-05-03 20:46:36.000000000 +0200
+@@ -75,8 +75,8 @@
+ extern void setup_boot_APIC_clock (void);
+ extern void setup_secondary_APIC_clock (void);
+ extern void setup_apic_nmi_watchdog (void);
+-extern void disable_lapic_nmi_watchdog(void);
+-extern void enable_lapic_nmi_watchdog(void);
++extern int reassign_lapic_nmi_watchdog(void);
++extern void release_lapic_nmi_watchdog(void);
+ extern void disable_timer_nmi_watchdog(void);
+ extern void enable_timer_nmi_watchdog(void);
+ extern void nmi_watchdog_tick (struct pt_regs * regs, unsigned reason);

@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311502AbSCNEsl>; Wed, 13 Mar 2002 23:48:41 -0500
+	id <S311504AbSCNFGe>; Thu, 14 Mar 2002 00:06:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311503AbSCNEsb>; Wed, 13 Mar 2002 23:48:31 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:59920 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S311502AbSCNEsN>; Wed, 13 Mar 2002 23:48:13 -0500
-Date: Thu, 14 Mar 2002 15:50:49 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@suse.de>
-Cc: davids@webmaster.com, ak@suse.de, brad@linuxcanada.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Multi-threading
-Message-Id: <20020314155049.310d9402.rusty@rustcorp.com.au>
-In-Reply-To: <20020313092306.A5570@wotan.suse.de>
-In-Reply-To: <20020312081002.A14745@wotan.suse.de>
-	<20020313075135.AAA25107@shell.webmaster.com@whenever>
-	<20020313092306.A5570@wotan.suse.de>
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S311505AbSCNFGY>; Thu, 14 Mar 2002 00:06:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13839 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311504AbSCNFGO>;
+	Thu, 14 Mar 2002 00:06:14 -0500
+Message-ID: <3C902FA5.5010208@mandrakesoft.com>
+Date: Thu, 14 Mar 2002 00:05:41 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        rth@twiddle.net
+Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas
+In-Reply-To: <E16lMzi-0002bb-00@wagner.rustcorp.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Mar 2002 09:23:06 +0100
-Andi Kleen <ak@suse.de> wrote:
+Rusty Russell wrote:
 
-> On Tue, Mar 12, 2002 at 11:51:29PM -0800, David Schwartz wrote:
-> > 
-> > >Just it might change immediately afterwards if you don't remove the
-> > >object from public view first.
-> > 
-> > 	If it was in public view, whatever held it in public view would be
-> > 	using it, and hence its use count could not drop to zero.
+>In message <15504.7958.677592.908691@napali.hpl.hp.com> you write:
+>
+>>OK, I see this.  Unfortunately, HIDE_RELOC() causes me problems
+>>because it prevents me from taking the address of a per-CPU variable.
+>>This is useful when you have a per-CPU structure (e.g., cpu_info).
+>>Perhaps there should/could be a version of HIDE_RELOC() that doesn't
+>>dereference the resulting address?
+>>
+>
+>Yep, valid point.  Patch below: please play.
+>
+>diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.7-pre1/include/linux/compiler.h working-2.5.7-pre1-nfarp/include/linux/compiler.h
+>--- linux-2.5.7-pre1/include/linux/compiler.h	Fri Mar  8 14:49:29 2002
+>+++ working-2.5.7-pre1-nfarp/include/linux/compiler.h	Thu Mar 14 15:32:38 2002
+>@@ -13,10 +13,4 @@
+> #define likely(x)	__builtin_expect((x),1)
+> #define unlikely(x)	__builtin_expect((x),0)
 > 
-> That's not correct at least in the usual linux kernel pattern of using
-> reference counts for objects. Hash tables don't hold reference counts,
-> only users do. If you think about it a hash table or global list holding
-> a reference count doesn't make too much sense.
+>-/* This macro obfuscates arithmetic on a variable address so that gcc
+>-   shouldn't recognize the original var, and make assumptions about it */
+>-#define RELOC_HIDE(var, off)					\
+>-  ({ __typeof__(&(var)) __ptr;					\
+>-    __asm__ ("" : "=g"(__ptr) : "0"((void *)&(var) + (off)));	\
+>-    *__ptr; })
+> #endif /* __LINUX_COMPILER_H */
+>diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.7-pre1/include/linux/percpu.h working-2.5.7-pre1-nfarp/include/linux/percpu.h
+>--- linux-2.5.7-pre1/include/linux/percpu.h	Thu Jan  1 10:00:00 1970
+>+++ working-2.5.7-pre1-nfarp/include/linux/percpu.h	Thu Mar 14 15:32:44 2002
+>@@ -0,0 +1,28 @@
+>+#ifndef __LINUX_PERCPU_H
+>+#define __LINUX_PERCPU_H
+>+
+>+/* This macro obfuscates arithmetic on a variable address so that gcc
+>+   shouldn't recognize the original var, and make assumptions about it */
+>+#define RELOC_HIDE(ptr, off)					\
+>+  ({ __typeof__(ptr) __ptr;					\
+>+    __asm__ ("" : "=g"(__ptr) : "0"((void *)(ptr) + (off)));	\
+>+    __ptr; })
+>
+Your other changes look good, but RELOC_HIDE really does belong in 
+compiler.h... and percpu.h is a particularly poor choice of destination. 
+ Why not satisfy DavidM's objection by creating (or stating you allow 
+the creation of) __RELOC_HIDE or similar.  Or perhaps call your version 
+__RELOC_HIDE, if yours is not the normal case?
 
-Depends where you are talking.  In the conntrack code (and I thought the
-rest of the networking code), 0 means "free me now, NOONE has a pointer",
-ie. the hash table holds 1.
+It really shouldn't be moved from where it belongs, linux/compiler.h...
 
-dcache holds zero-count entries because their semantic requirements are
-different, hence the "atomic_dec_and_lock()" stuff.
+    Jeff
 
-Cheers!
-Rusty.
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+

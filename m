@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbUKWVEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbUKWTSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261560AbUKWVEy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 16:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUKWVDE
+	id S261431AbUKWTSW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 14:18:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUKWTQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 16:03:04 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:55467 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261560AbUKWVCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 16:02:19 -0500
-Message-Id: <200411232102.iANL2H5T025781@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: Bruce Korb <bkorb@veritas.com>
+	Tue, 23 Nov 2004 14:16:05 -0500
+Received: from farley.sventech.com ([69.36.241.87]:28106 "EHLO
+	farley.sventech.com") by vger.kernel.org with ESMTP id S261446AbUKWTNj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 14:13:39 -0500
+Date: Tue, 23 Nov 2004 11:13:37 -0800
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: missing build functionality? 
-In-Reply-To: Your message of "Tue, 23 Nov 2004 12:33:39 PST."
-             <41A39EA3.B8AD9C13@veritas.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <41A39EA3.B8AD9C13@veritas.com>
+Subject: Re: [openib-general] Re: [PATCH][RFC/v1][4/12] Add InfiniBand SA (Subnet Administration) query support
+Message-ID: <20041123191337.GJ27658@sventech.com>
+References: <20041122713.SDrx8l5Z4XR5FsjB@topspin.com> <20041122713.g6bh6aqdXIN4RJYR@topspin.com> <20041122222507.GB15634@kroah.com> <527jodbgqo.fsf@topspin.com> <20041123064120.GB22493@kroah.com> <52hdnh83jy.fsf@topspin.com> <20041123072944.GA22786@kroah.com> <20041123175246.GD4217@sventech.com> <20041123183813.GA31068@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_741560600P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 23 Nov 2004 16:02:17 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041123183813.GA31068@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_741560600P
-Content-Type: text/plain; charset=us-ascii
-
-On Tue, 23 Nov 2004 12:33:39 PST, Bruce Korb said:
-
-> Anyway, I do not see an obvious way to construct an object archive library
-> that I wish to use for multiple drivers.  There are two problems.  This:
+On Tue, Nov 23, 2004, Greg KH <greg@kroah.com> wrote:
+> On Tue, Nov 23, 2004 at 09:52:46AM -0800, Johannes Erdfelt wrote:
+> > On Mon, Nov 22, 2004, Greg KH <greg@kroah.com> wrote:
+> > > To be straightforward, either drop the RCU code completely, or change
+> > > the license of your code.  
+> > 
+> > Or compile against non-GPL RCU code, right?
 > 
-> > ifeq ($(ARCH),ia64) 
-> > 	CFLAGS_KERNEL = 
-> > endif
+> No.  RCU is covered by a patent that only allows for it to be
+> implemented in GPL licensed code.  If you want to use RCU in non-GPL
+> code, you need to sign a license agreement with the holder of the RCU
+> patent.
 > 
-> because I am making the archive for a loadable driver. 
+> This was all covered a few years ago when the RCU code first went into
+> the kernel tree.  See the lkml archives for details.
+> 
+> So the very usage of RCU in the code is the issue here, not the fact
+> that it is being linked against a GPL licensed header file.
+> 
+> This isn't a GPL interpretation here, but a patent license agreement
+> issue.  Sorry for not being clearer the first time around, I thought
+> everyone was aware of this issue by now.
 
-The usual solution for 2 modules that share an archive would be to create
-*three* modules driver-a, driver-b, and driver-core - and then have the
-appropriate depmod magic so a 'modprobe driver-a' does an insmode driver-core,
-as does a 'modprobe driver-b'.
+Ahh, I missed that and it wasn't mentioned anywhere in the header file
+atleast.
 
-Otherwise, you're just loading the entire library into memory twice,
-once for each driver...
+Thanks for clearing that up.
 
---==_Exmh_741560600P
-Content-Type: application/pgp-signature
+JE
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBo6VYcC3lWbTT17ARAjbIAKDCzVTCAsR6npT8rUNtic9fImxPhgCfRoAz
-cQDFrVEZw5GI/W3NhwgMOi4=
-=Waiy
------END PGP SIGNATURE-----
-
---==_Exmh_741560600P--

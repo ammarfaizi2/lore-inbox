@@ -1,72 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292800AbSCNPTa>; Thu, 14 Mar 2002 10:19:30 -0500
+	id <S311454AbSCNP2K>; Thu, 14 Mar 2002 10:28:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311148AbSCNPTV>; Thu, 14 Mar 2002 10:19:21 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:43242 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S292800AbSCNPTR>;
-	Thu, 14 Mar 2002 10:19:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: futex and timeouts
-Date: Thu, 14 Mar 2002 10:19:48 -0500
+	id <S311148AbSCNP2B>; Thu, 14 Mar 2002 10:28:01 -0500
+Received: from netmail.netcologne.de ([194.8.194.109]:5461 "EHLO
+	netmail.netcologne.de") by vger.kernel.org with ESMTP
+	id <S311475AbSCNP1s>; Thu, 14 Mar 2002 10:27:48 -0500
+Message-Id: <200203141527.AUR63833@netmail.netcologne.de>
+From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@gmx.de>
+Reply-To: joergprante@gmx.de
+Organization: Linux jungle 2.4.19-pre2-jp7 #1 Fre =?iso8859-15?q?M=E4r=208=2021=3A37=3A18=20CET=202002=20i686?= unknown
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ALSA and IrDA workaround for Dell Inspiron
+Date: Thu, 14 Mar 2002 16:27:01 +0100
 X-Mailer: KMail [version 1.3.1]
-Cc: matthew@hairy.beasts.org, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-In-Reply-To: <E16lMef-00022r-00@wagner.rustcorp.com.au>
-In-Reply-To: <E16lMef-00022r-00@wagner.rustcorp.com.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020314151846.EDCBF3FE07@smtp.linux.ibm.com>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_1XYYFDIKD1XZBLEIBOKG"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 March 2002 11:15 pm, Rusty Russell wrote:
-> In message <20020313182552.945523FE06@smtp.linux.ibm.com> you write:
-> > Ulrich, it seems to me that absolute timeouts are the easiest to do.
-> >
-> > (a) expand by additional parameter (0) means no timeout desired
-> > (b) differentiate the schedule call in futex_down..
-> >
-> > Question is whether the granularity of jiffies (10ms) is sufficiently
-> > small for timeouts.....
->
-> 1) You must not export jiffies to userspace.
->
-> 2) They are not a time, they are a counter, and they do wrap.
->
-> 3) This does not handle the settimeofday case: you need to check in
->    userspace for that anyway.
->
-> So, since you need to check if you're trying to sleep for longer than
-> (say) 49 days, AND you need to check if you are after the given
-> abstime in userspace anyway (settimeofday backwards), you might as
-> well convert to relative in userspace.
->
-> Sorry,
-> Rusty.
 
-3) I think one of us is misunderstanding (its probably me)
+--------------Boundary-00=_1XYYFDIKD1XZBLEIBOKG
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 
-What I was proposing was a relative wall clock time, vs application virtual 
-time. 
 
-interface would be to always specify in futex how long to wait (relative) and 
-not until when to wait (absolute).
-What I propose is not to export jiffies (ofcourse not), but either usecs or 
-msecs and whether one should state what the minimum wait time is.
-Right now we know it can't be less then 10ms (x86) unless we busywait and
-above that the granularity will be in 10ms increments.
+Here is a patch to solve an IrDA lockup when ALSA OSS is used with IrDA on 
+Dell Inspiron 8100. Maybe some other laptops are concerned, too. Please test 
+if other machines can use this patch.
 
-So from the previous post of code example, one has to add the conversion from
-timeout to timeout_jiffies.
-Also we need to determine the best API for this. Somebody (Rusty ?) suggest to
-pass a pointer to (struct timeval) vs a single counter. Only disadvantage is 
-an additional copy_from_user, but it gives much bigger timeouts.
+The ALSA OSS initialization code performs a hard reset on the IrDA port of a 
+Dell Inspiron. No more data can be sent or received via the infrared port 
+until a cold restart of the system (power down). The lockup will always 
+happen when ALSA is started after IrDA which is normally the case. 
 
-I think its a good idea to add it.
--- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+I found the ALSA OSS AC97 modem probe is the reason. This patch enables a 
+workaround by a kernel option CONFIG_SOUND_NO_MODEM_PROBE which 
+disables the modem probe if the option is enabled.
+
+The patch will be included in my upcoming kernel patch set -jp8.
+
+Please reply with CC since I am not subscribed to the Linux kernel mailing 
+list.
+
+Cheers,
+
+Jörg Prante <joerg@infolinux.de>
+
+--------------Boundary-00=_1XYYFDIKD1XZBLEIBOKG
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="alsa-irda-no-modem-probe.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="alsa-irda-no-modem-probe.patch"
+
+LS0tIGxpbnV4L3NvdW5kL29zcy9hYzk3X2NvZGVjLmMJRnJpIE1hciAgOCAwMzoxODoxMyAyMDAy
+CisrKyBsaW51eC1qcDgvc291bmQvb3NzL2FjOTdfY29kZWMuYwlUaHUgTWFyIDE0IDE1OjQ4OjM5
+IDIwMDIKQEAgLTMxLDYgKzMxLDggQEAKICAqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKgogICoKICAqIEhpc3Rv
+cnkKKyAqIHYwLjRhIE1hciAxMiAyMDAyIEr2cmcgUHJhbnRlIDxqb2VyZ0BpbmZvbGludXguZGU+
+CisgKiAgbWlub3IgZml4OiBkbyBub3QgcHJvYmUgZm9yIG1vZGVtIGNvZGVjCiAgKiB2MC40IE1h
+ciAxNSAyMDAwIE9sbGllIExobwogICoJZHVhbCBjb2RlY3Mgc3VwcG9ydCB2ZXJpZmllZCB3aXRo
+IDQgY2hhbm5lbHMgb3V0cHV0CiAgKiB2MC4zIEZlYiAyMiAyMDAwIE9sbGllIExobwpAQCAtNjkx
+LDggKzY5MywxNSBAQAogCX0KIAogCS8qIHByb2JlIGZvciBNb2RlbSBDb2RlYyAqLworI2lmIENP
+TkZJR19TT1VORF9OT19NT0RFTV9QUk9CRQorCS8qIERvIG5vdCBwcm9iZSBmb3IgTW9kZW0gQ29k
+ZWMuIAorCSAgIFRoaXMgcHJldmVudHMgSXJEQSBsb2NrdXBzIG9uIHNvbWUgbGFwdG9wcyAoRGVs
+bCBJbnNwaXJvbikKKyAgICAgICB3aGVuIHNvdW5kIGlzIGluaXRpYWxpemVkIGFmdGVyIElyREEg
+aW5pdC4gLWpwcmFudGUgKi8KKwltb2RlbSA9IDA7IAorI2Vsc2UKIAljb2RlYy0+Y29kZWNfd3Jp
+dGUoY29kZWMsIEFDOTdfRVhURU5ERURfTU9ERU1fSUQsIDBMKTsKIAltb2RlbSA9IGNvZGVjLT5j
+b2RlY19yZWFkKGNvZGVjLCBBQzk3X0VYVEVOREVEX01PREVNX0lEKTsKKyNlbmRpZgogCiAJY29k
+ZWMtPm5hbWUgPSBOVUxMOwogCWNvZGVjLT5jb2RlY19vcHMgPSAmbnVsbF9vcHM7Ci0tLSBsaW51
+eC9zb3VuZC9vc3MvQ29uZmlnLmluCVRodSBNYXIgMTQgMDA6NDI6NDggMjAwMgorKysgbGludXgt
+anA4L3NvdW5kL29zcy9Db25maWcuaW4JVGh1IE1hciAxNCAxNTo1MzozMiAyMDAyCkBAIC00LDYg
+KzQsMTEgQEAKICMgTW9yZSBoYWNraW5nIGZvciBtb2R1bGFyaXNhdGlvbi4KICMKIAorIyBEbyBu
+b3QgcHJvYmUgZm9yIG1vZGVtIGNvZGVjIG9wdGlvbi4gVGhpcyBpcyBhIHdvcmthcm91bmQgdG8g
+cHJldmVudCAKKyMgaGFyZCBJckRBIGxvY2t1cHMgb24gc29tZSBsYXB0b3BzIChEZWxsIEluc3Bp
+cm9uKS4gLWpwcmFudGUKKworYm9vbCAnRG8gbm90IHByb2JlIGZvciBBQzk3IE1vZGVtIENvZGVj
+IChwcmV2ZW50IElyREEgbG9ja3VwKScgQ09ORklHX1NPVU5EX05PX01PREVNX1BST0JFCisKICMg
+UHJvbXB0IHVzZXIgZm9yIHByaW1hcnkgZHJpdmVycy4KIAogZGVwX3RyaXN0YXRlICcgIEJUODc4
+IGF1ZGlvIGRtYScgQ09ORklHX1NPVU5EX0JUODc4ICRDT05GSUdfU09VTkQK
+
+--------------Boundary-00=_1XYYFDIKD1XZBLEIBOKG--

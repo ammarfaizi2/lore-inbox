@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265271AbUFOCaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUFODoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265271AbUFOCaa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 22:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbUFOCaa
+	id S264763AbUFODoj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 23:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264948AbUFODoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 22:30:30 -0400
-Received: from click.bur.st ([203.34.17.217]:15910 "EHLO click.bur.st")
-	by vger.kernel.org with ESMTP id S265271AbUFOCa1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 22:30:27 -0400
-Date: Tue, 15 Jun 2004 10:30:23 +0800
-From: Trent Lloyd <lathiat@bur.st>
-To: Bernd Eckenfels <be-mail2004@lina.inka.de>, linux-kernel@vger.kernel.org
-Cc: 253590@bugs.debian.org
-Subject: Re: How to turn off IPV6 (link local)
-Message-ID: <20040615023022.GB24269@thump.bur.st>
-References: <20040614233215.GA10547@lina.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040614233215.GA10547@lina.inka.de>
-User-Agent: Mutt/1.3.28i
-X-Random-Number: 1.34714140758818e+161
+	Mon, 14 Jun 2004 23:44:39 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:12012 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264763AbUFODoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 23:44:37 -0400
+Message-ID: <40CE70A3.7040800@mvista.com>
+Date: Mon, 14 Jun 2004 22:44:35 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+Cc: minyard@mvista.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: 2.6.7-rc3 drivers/char/ipmi/ipmi_devintf.c: user/kernel
+ pointer typo
+References: <1086822299.32056.134.camel@dooby.cs.berkeley.edu>
+In-Reply-To: <1086822299.32056.134.camel@dooby.cs.berkeley.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bernd,
+You are obviously right, and it looks like the fix is in the newest 
+release candidate.  Thanks for finding this.
 
-CCd: debian bug, read down to the explanation of why this is occuring
-and why this is not a bug.
+-Corey
 
-> While solving the debian bug #253590 against net-tools, I discovered, that
-> it is not possible to turn off the link local ipv6 addresses.
+Robert T. Johnson wrote:
 
-Indeed.
-
+>Judging from context, I think there's a misplaced "&" in this code that
+>can cause stack overflows and other nasty problems.  Perhaps it's left 
+>over from when msgdata was an array instead of a pointer?  Let me know 
+>if you have any questions or I made a mistake.
+>
+>Best,
+>Rob
+>
+>
+>--- linux-2.6.7-rc3-full/drivers/char/ipmi/ipmi_devintf.c.orig	Wed Jun  9 12:08:23 2004
+>+++ linux-2.6.7-rc3-full/drivers/char/ipmi/ipmi_devintf.c	Wed Jun  9 12:07:09 2004
+>@@ -199,7 +199,7 @@ static int handle_send_req(ipmi_user_t  
+> 			goto out;
+> 		}
 > 
-> net.ipv6.conf.default.autoconf does work for the received prefixes, but does
-> not avoid the link local configuration. (this is btw a documentation error)
+>-		if (copy_from_user(&msgdata,
+>+		if (copy_from_user(msgdata,
+> 				   req->msg.data,
+> 				   req->msg.data_len))
+> 		{
+>
+>
+>
+>  
+>
 
-autoconf defines whether it will auto-configure an address if a router
-advertises the IPv6 prefix for the network to it.
 
-> 
-> I would not mind the link local address much, if there wont be some
-> applications (like mozilla) trying to actually use that address to reach
-> internet site.
-> 
-> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=253590
-
-The issue is not having the link local address, because there is no
-default route and hence the connection should fail.
-
-The problem, in the case of thi sbug, is that he has IPv6 configured,
-but it is not working, 2001: is a real IPv6 address (so he has a tunnel
-configured with a router to advertise) and the 2002:: is a '6ot4'
-address, which something on the system has configured, and obviously
-that is not working either, probably because he has a router preventing
-the 6to4 packets from passsing, or the default route for the 2001:
-address has a higher metric and thats still broken.
-
-Link-local address start with fe80:: and never have a default route so
-they will not be a problem.
-
-> So my question is, how can one prevent linux kernel with build in ipv6 from
-> adding the link local prefix, and are the prerequisites of an ipv6 enabled
-> application to not prefer link local prefix to ipv4?
-
-You can't, but it is not the issue here, you could however not load the
-module.
-
-Cheers,
-Trent
-Sixlabs
-
--- 
-Trent Lloyd <lathiat@bur.st>
-Bur.st Networking Inc.

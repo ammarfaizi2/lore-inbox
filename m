@@ -1,57 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264126AbTDWRYx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 13:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTDWRYw
+	id S264143AbTDWRZV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 13:25:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTDWRZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 13:24:52 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:54429 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264126AbTDWRYv
+	Wed, 23 Apr 2003 13:25:20 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:18824 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264143AbTDWRZQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 13:24:51 -0400
-Date: Wed, 23 Apr 2003 10:39:03 -0700
-From: Greg KH <greg@kroah.com>
-To: David van Hoose <davidvh@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21-rc1] USB Trackball broken
-Message-ID: <20030423173903.GA11725@kroah.com>
-References: <3EA6C558.5040004@cox.net> <20030423172135.GA11572@kroah.com> <3EA6CDB0.8050905@cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA6CDB0.8050905@cox.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Apr 2003 13:25:16 -0400
+Date: Wed, 23 Apr 2003 13:39:55 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Andrew Kirilenko <icedank@gmx.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Searching for string problems
+In-Reply-To: <200304231958.43235.icedank@gmx.net>
+Message-ID: <Pine.LNX.4.53.0304231311460.25222@chaos>
+References: <200304231958.43235.icedank@gmx.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 23, 2003 at 12:30:24PM -0500, David van Hoose wrote:
-> Greg KH wrote:
-> >On Wed, Apr 23, 2003 at 11:54:48AM -0500, David van Hoose wrote:
-> >
-> >>I am running RedHat 9. Trackball is detected and works when using the 
-> >>stock 2.4.20-9 kernel that RedHat provided.
-> >>
-> >>With 2.4.21-rc1, I have included the USB and input devices in the 
-> >>kernel, as modules, and as various combinations in between. My USB 
-> >>Logitech Trackball shows up as being detected and setup, but it doesn't 
-> >>work. Attached is my config and a trimmed down dmesg. (ppa is messed up 
-> >>and floods me with messages)
-> >>I have USB vebose debugging turned on. That may help. Please let me know 
-> >>what information you might need in addition.
-> >
-> >
-> >Is this trackball plugged into a USB 2.0 hub or controller?
-> >
-> >If you cat /dev/input/mice and move the trackball around, do you get
-> >data?
-> 
-> Under the RedHat kernel, I get data.
-> Under the 2.4.21-rc1 kernel, I get nothing.
+On Wed, 23 Apr 2003, Andrew Kirilenko wrote:
 
-Again, is this device plugged into a hub?  Or directly into the
-controller's root hub?  It looks like the device keeps getting
-disconnected and reconnected, based on the kernel log you posted.
+> Hello!
+>
+> OK. I've solved my problems with storing data (problem was with improper DS
+> setup - thanks to all, pointed me to this). And now I should perform a search
+> in the BIOS are for particular string (version of BIOS ). Here is my code
+> (it's located in the setup.S, so executes in the real mode, not ptotected).
+>
+> -->
+> start_of_setup:
+> 	jmp cl_start
+> cl_id_str:      .string "BIOS 0.1"
+> cl_start:
+>         movb    $0, %al
+>         movw    $0xe000, %bx
+> cl_compare:
+>         incw    %bx
+>         movw    %bx, %si
+>         cmpw    $0xefff, %si
+>         je      cl_compare_done
+>         movw    $cl_id_str, %di
+> cl_compare_inner:
+>         movb    (%di), %ah
+>         cmpb    $0, %ah
+>         je      cl_compare_done_good
+>         cmpb    (%si), %ah
+>         jne     cl_compare
+>         incw    %si
+>         incw    %di
+>         jmp     cl_compare_inner
+> cl_compare_done_good:
+>         movb    $1, %al
+> cl_compare_done:
+> <--
+>
+> This code don't work... I'm sure, that's because of inproper registers setup
+> (or maybe address range is wrong). Please help me.
+>
 
-thanks,
+Hmm, maybe you should just learn assembly off-line.
 
-greg k-h
+cl_id_str:      .string "BIOS 0.1"
+cl_id_end:
+
+scan:	movw	%cs, %ax	# Get code-segment
+	movw	%ax, %ds	# Set into data segment
+	movw	%ax, %es	# Set into extra segment CS=ES=DS
+	cld			# Compare forwards
+	movw	$cl_id_str, %si	# String to compare
+	movw	$were_in_the_bios_you_expect_to_find_it, %di
+	movw	$cl_id_end, %cx	# Offset to this label
+	subw	%si, %cx	# CX = length of string
+	decw	%cx		# Don't compare \0
+	repz	cmpsb		# Continue as long as they compare
+	jz	found		# String was found
+				# Not found here
+found:
+
+If you need to search the whole BIOS for that string, you need to
+set up an outer loop using an unused register which starts at
+the offset of the BIOS and increments by one byte everytime
+you can't find the string. This value gets put into %di, instead
+of the absolute number specified above.
+
+Like:
+
+scan:	movw	%cs, %ax
+	movw	%ax, %ds
+	movw	%ax, %es
+	movw	$where_in_BIOS_to_start, %bx
+	cld
+1:	movw	$cl_id_str, %si		# Offset of search string
+	movw	$cl_id_end, %cx		# Offset of string end + 1
+	subw	%si, %cx		# String length
+	decw	%cx			# Don't look for the \0
+	movw	%bx, %di		# ES:DI = where to look
+	repz	cmpsb			# Loop while the same
+	jz	found			# Found the string
+	incb	%bx			# Next starting offset
+	cmpb	$_BIOS_END, %bx		# Check for limit
+	jb	1b			# Continue
+never_found_anywhere:
+
+found:
+
+
+Note that the `gas` .string macro puts in a '\0', assuming it's
+a 'C' string. You don't want to put that in the comparison. That's
+why you search one-less than the allocation length. There are
+predefined macros available for 'len', also.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

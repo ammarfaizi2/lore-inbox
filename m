@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263056AbTDBQYK>; Wed, 2 Apr 2003 11:24:10 -0500
+	id <S263051AbTDBQ33>; Wed, 2 Apr 2003 11:29:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263059AbTDBQYK>; Wed, 2 Apr 2003 11:24:10 -0500
-Received: from holomorphy.com ([66.224.33.161]:49798 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S263056AbTDBQYI>;
-	Wed, 2 Apr 2003 11:24:08 -0500
-Date: Wed, 2 Apr 2003 08:35:12 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Antonio Vargas <wind@cocodriloo.com>
-Cc: linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
-Subject: Re: fairsched + O(1) process scheduler
-Message-ID: <20030402163512.GC993@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Antonio Vargas <wind@cocodriloo.com>, linux-kernel@vger.kernel.org,
-	Robert Love <rml@tech9.net>
-References: <20030401125159.GA8005@wind.cocodriloo.com> <20030401164126.GA993@holomorphy.com> <20030401221927.GA8904@wind.cocodriloo.com> <20030402124643.GA13168@wind.cocodriloo.com>
+	id <S263055AbTDBQ33>; Wed, 2 Apr 2003 11:29:29 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:23269 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S263051AbTDBQ31>; Wed, 2 Apr 2003 11:29:27 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 2 Apr 2003 18:51:16 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Kernel List <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Frank Davis <fdavis@si.rr.com>
+Subject: [patch] add i2c_clientname()
+Message-ID: <20030402165116.GA24766@bytesex.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030402124643.GA13168@wind.cocodriloo.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 02, 2003 at 02:46:43PM +0200, Antonio Vargas wrote:
-+static inline void update_user_timeslices(void)
-...
-+	list_for_each(entry, &user_list) {
-+		user = list_entry(entry, struct user_struct, uid_list);
+  Hi,
+
+This patch just adds a #define and a inline function to hide the
+"i2c_client->name" => "i2c_client->dev.name" move introduced by
+the recent i2c updates.  That makes it easier to build i2c drivers
+on both 2.4 and 2.5 kernels.
+
+  Gerd
+
+diff -u linux-2.5.66/include/linux/i2c.h linux/include/linux/i2c.h
+--- linux-2.5.66/include/linux/i2c.h	2003-04-02 11:42:19.455041606 +0200
++++ linux/include/linux/i2c.h	2003-04-02 11:49:36.479533709 +0200
+@@ -182,6 +182,13 @@
+ 	return dev_set_drvdata (&dev->dev, data);
+ }
+ 
++#define I2C_DEVNAME(str)   .dev = { .name = str }
 +
-+		if(!user) continue;
++static inline char *i2c_clientname(struct i2c_client *c)
++{
++	return c->dev.name;
++}
 +
-+		if(0){
-+			user_time_slice = user->time_slice;
+ /*
+  * The following structs are for those who like to implement new bus drivers:
+  * i2c_algorithm is the interface to a class of hardware solutions which can
 
-Hmm, this looks very O(n)... BTW, doesn't uidhash_lock lock user_list?
-
-
-On Wed, Apr 02, 2003 at 02:46:43PM +0200, Antonio Vargas wrote:
-> @@ -39,10 +42,12 @@ struct user_struct root_user = {
->  static inline void uid_hash_insert(struct user_struct *up, struct list_head *hashent)
->  {
->  	list_add(&up->uidhash_list, hashent);
-> +	list_add(&up->uid_list, &user_list);
->  }
-
-Okay, there are three or four problems:
-
-(1) uidhash_lock can't be taken in interrupt context
-(2) you aren't taking uidhash_lock at all in update_user_timeslices()
-(3) you're not actually handing out user timeslices due to an if (0)
-(4) walking user_list is O(n)
-
-
--- wli
+-- 
+Michael Moore for president!

@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318313AbSGRTUR>; Thu, 18 Jul 2002 15:20:17 -0400
+	id <S318333AbSGRTUz>; Thu, 18 Jul 2002 15:20:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318316AbSGRTUR>; Thu, 18 Jul 2002 15:20:17 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:49401 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S318313AbSGRTUQ>; Thu, 18 Jul 2002 15:20:16 -0400
-Subject: Re: [PATCH] strict VM overcommit for stock 2.4
-From: Robert Love <rml@tech9.net>
-To: root@chaos.analogic.com
-Cc: Szakacsits Szabolcs <szaka@sienet.hu>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1020718150735.1373A-100000@chaos.analogic.com>
-References: <Pine.LNX.3.95.1020718150735.1373A-100000@chaos.analogic.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Jul 2002 12:22:59 -0700
-Message-Id: <1027020179.1085.150.camel@sinai>
+	id <S318334AbSGRTUz>; Thu, 18 Jul 2002 15:20:55 -0400
+Received: from swisscheese.stickdog.net ([209.246.42.230]:27150 "EHLO
+	swisscheese.stickdog.net") by vger.kernel.org with ESMTP
+	id <S318333AbSGRTUx> convert rfc822-to-8bit; Thu, 18 Jul 2002 15:20:53 -0400
+Date: Thu, 18 Jul 2002 15:10:31 -0400
+From: Nathan Walp <faceprint@faceprint.com>
+To: Allen McIntosh <mcintosh@research.telcordia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 and 19-rc1 IDE lockup on Dell Latitude
+Message-ID: <20020718191031.GA17575@faceprint.com>
+Reply-To: faceprint@faceprint.com
+References: <200207181744.NAA24845@mc-pc.research.telcordia.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <200207181744.NAA24845@mc-pc.research.telcordia.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-07-18 at 12:19, Richard B. Johnson wrote:
+On Thu, Jul 18, 2002 at 01:44:07PM -0400, Allen McIntosh wrote:
+> 2.4.18 and 2.4.19-rc1 lock up after a suspend/resume on my Dell Latitude
+> CPi D300XT.
+> 
+> To recreate:  Suspend (using the suspend key, by closing the top, or
+> using the apm command), then hit the power button for resume.  When the
+> system wakes up some IDE I/O occurs (with flashing disk light and
+> audible head motion), then the disk light comes on and stays on.
+> Switching consoles is possible, and typed characters echo, but
+> no commands run.  The system can be powered down by holding the power
+> button down for 10 seconds, but that's about it.
+> 
+> The system seems stable otherwise.  It stayed up all last weekend, for
+> example.
+> 
+> If you wait in the locked state long enough, the 2.4.14 and 2.4.18 kernels
+> usually (but not always) output the following to the console:
+> 
+> hda: timeout waiting for DMA
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> 
+> Kernel versions I've tried this on:
+> 
+> 2.4.14, 2.4.18 (vanilla), 2.4.18-3 (RedHat), 2.4.19-rc1, 2.4.19-rc1-ac5
 
-> Okay then. When would it be useful? I read that it would be useful
-> in embedded systems, but everything that will ever run on embedded
-> systems is known at compile time, or is uploaded by something written
-> by an intelligent developer, so I don't think it's useful there. I
-> 'do' embedded systems and have never encountered OOM.
+I've had similar problems with my Inspiron 4100.  If I leave it idle 
+long enough (i think) and come back to it, it can work, but anything 
+dealing with the disk just doesn't work.  Running any command results in
+some sort of IO error.  I don't have it with me, so I don't have any of 
+the details handy.  I was begining to suspect hardware failure on the 
+part of the drive.  
 
-I work for an embedded systems company and our customers do have OOM
-problems.  The problem is not so much that they _do_ OOM but that they
-_can_ - killing a random process is the last thing they want.
+However, suspending doesn't trigger the behavior.  I regularly suspend
+it with no adverse effects.  
 
-Same issue with HA etc... its not preventing OOM so much as being
-prepared for it, by pushing the failures into the allocation routines
-and out from the page access.
+I believe I'm currently running one of the later 2.4.19-preX releases,
+been meaning to upgrate it to a -rc kernel.
 
-Certainly Alan and RedHat found a need for it, too.  It should be pretty
-clear why this is an issue...
+Hope someone can figure this out.
 
-> I keep seeing the same thing about protecting root against fork and
-> malloc bombs and I get rather "malloc()" about it. All distributions
-> I have seen, so far, come with `gcc` and `make`. The kiddies can
-> crap all over their kernels at their heart's content. I don't think
-> Linux should be reduced to the lowest common denominator.
 
-This is the argument I was making before -- I do not think strict
-overcommit should solve this problem (nor can it fully).  This is a
-problem to be solved by per-user resource limits.
-
-It is not an issue I care much for either, but this is more than just a
-"kiddies" issue.  Unbounded memory growth can happen without evil
-intentions and in places e.g. like a university shell server it is
-important to protect against.
-
-	Robert Love
-
+-- 
+Nathan Walp             || faceprint@faceprint.com
+GPG Fingerprint:        ||   http://faceprint.com/
+5509 6EF3 928B 2363 9B2B  DA17 3E46 2CDC 492D DB7E
 

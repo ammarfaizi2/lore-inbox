@@ -1,106 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268171AbUHKTdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268187AbUHKTlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268171AbUHKTdb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 15:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268053AbUHKTdb
+	id S268187AbUHKTlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 15:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268189AbUHKTlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 15:33:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10417 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268012AbUHKTdV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 15:33:21 -0400
-Message-ID: <411A7472.9010606@pobox.com>
-Date: Wed, 11 Aug 2004 15:33:06 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Doug Maxey <dwm@austin.ibm.com>
-CC: Linux IDE Mailing List <linux-ide@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] IDE/ATA/SATA controller hotplug
-References: <200407272018.i6RKIiYB028210@falcon10.austin.ibm.com>
-In-Reply-To: <200407272018.i6RKIiYB028210@falcon10.austin.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Aug 2004 15:41:16 -0400
+Received: from mx2.valuehost.ru ([62.118.251.7]:22276 "HELO mx2.valuehost.ru")
+	by vger.kernel.org with SMTP id S268187AbUHKTlK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 15:41:10 -0400
+Date: Wed, 11 Aug 2004 21:40:18 +0200
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Nick Palmer <nick@sluggardy.net>, netdev@oss.sgi.com
+Subject: Re: select implementation not POSIX compliant?
+Message-ID: <20040811194018.GA3971@steel.home>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Nick Palmer <nick@sluggardy.net>, netdev@oss.sgi.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <37062.66.93.180.209.1092243659.squirrel@66.93.180.209>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Maxey wrote:
-> On Tue, 27 Jul 2004 11:31:15 EDT, Jeff Garzik wrote:
->>>  What I would like is input on the general strategy that should be
->>>  taken to modify the controller/adapter and device stack to:
->>>
->>>  1) be first class modules, where all controllers/adapters are
->>>     capable of being loaded and unloaded.  This is directed mostly at
->>>     IDE/Southbridge controller/adapter devices.
->>
->>this is already the case in IDE and libata
-> 
-> 
-> I would have to differ with you here.  From conversations and fairly
-> (2 or 3 months ago) experience, the IDE core is not capable of being
-> unloaded.
+On linux-kernel, Nick Palmer wrote:
+> I am working on porting some software from Solaris to Linux 2.6.7. I
+> have run into a problem with the interaction of select and/or
+> recvmsg and close in our multi-threaded application. The application
+> expects that a close call on a socket that another thread is
+> blocking in select and/or recvmsg on will cause select and/or
+> recvmsg to return with an error. Linux does not seem to do this. (I
+> also verified that the same issue exists in Linux 2.4.25, just to be
+> sure it wasn't introduced in 2.6 in case you were wondering.)
 
-As long as the low-level driver can be unloaded, that's sufficient for 
-hardware- and device-hotplug.
+It works always for stream sockets and does not at all (even with
+shutdown, even using poll(2) or read(2) instead of select) for dgram
+sockets.
 
+What domain (inet, local) are your sockets in?
+What type (stream, dgram)?
 
->>>  2) extend that support to all child devices; disk, optical,
->>>     and tape.
->>
->>this is already the case in IDE and SCSI
-> 
-> 
-> Educational question, what would I be looking for when grokking code
-> to see this is in place?
+There will probably be a problem anyway with changing the behaviour:
+there surely is lots of code, which start complaining about select and
+poll finishing "unexpectedly".
 
-Just general refcounting / module support code.
+I used this to check:
 
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <netinet/in.h>
+#include <fcntl.h>
 
->>>  3) be part of mainline.
->>
->>this is already the case
-> 
-> 
-> Yes, the drivers are in the mainline.  Just not sure of how many
-> platforms will have non-pluggable controllers that need to have them
-> hot-plugged. :-)
-
-The PCI API is a hotplug API.  Whether the underlying controller is 
-hotpluggable or not is largely irrelevant to low-level drivers.
-
-
->>>  The items I perceive at the top of the issue list are:
->>>
->>>  - The primary platforms for IDE/ATA devices are x86 based, and
->>>    certainly do not care about having this capability.
->>
->>incorrect
-> 
-> 
-> Ok, please delineate.  Working off the assumption that 95+% of the
-> systems that run Linux are x86 based, and have a single partition for
-> the system. In other words, no virtual processors, where each is
-> totally separate from the other.
-
-That's completely irrelevant.  libata and the IDE core work without 
-change on x86 and non-x86 systems.
-
-
->>>  - Where should this capability go?  Fork a subset of IDE
->>>    controllers, and put them under the arch specific dir?
->>>    Or include all devices?
->>
->>there is nothing arch-specific about this
-> 
-> 
-> Again, going back to my original premise, that is, which platforms do
-> you foresee needing this capability?  I know that all should have
-> eventually.
-
-All platforms should be considered hotplug.
-
-	Jeff
-
+int main(int argc, char* argv[])
+{
+    int status;
+    int fds[2];
+    fd_set set;
+#if 0
+    puts("stream");
+    if (  socketpair(PF_LOCAL, SOCK_STREAM, 0, fds) < 0 )
+#else
+    puts("dgram");
+    if (  socketpair(PF_LOCAL, SOCK_DGRAM, 0, fds) < 0 )
+#endif
+    {
+	perror("socketpair");
+	exit(1);
+    }
+    fcntl(fds[0], F_SETFL, fcntl(fds[0], F_GETFL) | O_NONBLOCK);
+    fcntl(fds[1], F_SETFL, fcntl(fds[1], F_GETFL) | O_NONBLOCK);
+    switch ( fork() )
+    {
+    case 0:
+	sleep(1);
+	close(fds[0]);
+	shutdown(fds[1], SHUT_RD);
+	close(fds[1]);
+	exit(0);
+	break;
+    case -1:
+	perror("fork");
+	exit(1);
+    }
+    close(fds[1]);
+    FD_ZERO(&set);
+    FD_SET(fds[0], &set);
+    select(fds[0] + 1, &set, NULL, NULL, 0);
+    wait(&status);
+    return 0;
+}
 

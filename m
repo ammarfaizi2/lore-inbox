@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264844AbTIDULv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 16:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264845AbTIDULv
+	id S264902AbTIDUM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 16:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265035AbTIDUM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 16:11:51 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:62348 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264844AbTIDULt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 16:11:49 -0400
-Date: Thu, 4 Sep 2003 21:11:33 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 2] Little fixes to previous futex patch
-Message-ID: <20030904201133.GC31590@mail.jlokier.co.uk>
-References: <20030904175939.GD30394@mail.jlokier.co.uk> <Pine.LNX.4.44.0309041924070.4300-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Sep 2003 16:12:26 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:34469 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S264902AbTIDUMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 16:12:24 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>
+Subject: Re: precise characterization of ext3 atomicity
+Date: Thu, 4 Sep 2003 22:16:04 +0200
+User-Agent: KMail/1.5.3
+Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+References: <3F574A49.7040900@namesys.com> <20030904085537.78c251b3.akpm@osdl.org>
+In-Reply-To: <20030904085537.78c251b3.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309041924070.4300-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200309042216.04121.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> > I don't see why you can't clear the flag: the call to ->populate will
-> > change every page and pte_file to correspond with the linear page
-> > offsets, which is all that !VM_NONLINEAR indicates.
-> 
-> You're assuming that one call to sys_remap_file_pages precisely populates
-> a whole vma: no, it's quite likely it'll just do a single page of the vma.
+On Thursday 04 September 2003 17:55, Andrew Morton wrote:
+> Hans Reiser <reiser@namesys.com> wrote:
+> > Is it correct to say of ext3 that it guarantees and only guarantees
+> > atomicity of writes that do not cross page boundaries?
+>
+> Yes.
 
-What are you talking about?  The condition for clearing VM_NONLINEAR
-is an explicit check to see if the range to be populated covers the
-whole vma.
+Is that just happenstance, or does Posix or similar mandate it?
 
-> > The important things are that the futex is queued prior to checking
-> > curval, the requested page won't change (it's protected by mmap_sem),
-> > and any parallel waker changes the word prior to waking us.
-> 
-> Ah, that may well be so, it's beyond me,
-> just so long as Rusty is happy with it.
+Regards,
 
-If that condition isn't enough, then async futexes are in trouble,
-because the curval check equivalent is done in userspace for async
-futexes...
+Daniel
 
-> (I don't think you mean "the requested page won't change" - the
-> down_read on mmap_sem does not prevent it from being swapped out
-> before the get_user, but nor does it prevent a replacement page
-> being faulted back in by get_user, and we no longer have any
-> dependence on those being the same physical page.)
-
-I mean it prevents the futex key corresponding to the userspace word
-from changing before we read the word.  For all reasonable uses this
-doesn't matter anyway.
-
--- Jamie

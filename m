@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318539AbSH1CQ5>; Tue, 27 Aug 2002 22:16:57 -0400
+	id <S318542AbSH1CVE>; Tue, 27 Aug 2002 22:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318541AbSH1CQ5>; Tue, 27 Aug 2002 22:16:57 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:11670 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S318539AbSH1CQ4>;
-	Tue, 27 Aug 2002 22:16:56 -0400
-Date: Tue, 27 Aug 2002 22:21:12 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.32
-In-Reply-To: <Pine.LNX.4.10.10208271814490.24156-100000@master.linux-ide.org>
-Message-ID: <Pine.GSO.4.21.0208272219310.6084-100000@weyl.math.psu.edu>
+	id <S318561AbSH1CVE>; Tue, 27 Aug 2002 22:21:04 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:37373 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S318542AbSH1CVD>; Tue, 27 Aug 2002 22:21:03 -0400
+Message-ID: <3D6C34D6.9070601@snapgear.com>
+Date: Wed, 28 Aug 2002 12:26:30 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.32uc0 (MMU-less support)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi All,
 
-On Tue, 27 Aug 2002, Andre Hedrick wrote:
+A new uClinux (MMU-less) patch, linux-2.5.32uc0.
+You can get it at:
 
-> 
-> Yep, that has been verified and there are more extentions needed to bring
-> up support for all archs.  I will send them to Al and Alan first and post
-> them here too shortly I hope.
+   http://www.uclinux.org/pub/uClinux/uClinux-2.5.x
 
-Please, do.  BTW, could you post the fix for idescsi_setup() messing with
-->busy? (separately from "add the missing inlines/defines" patch, that is)
+No new features or fixes, just updated against 2.5.32.
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 

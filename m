@@ -1,88 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbTIUSeM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 14:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbTIUSeM
+	id S262508AbTIUSly (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 14:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTIUSly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 14:34:12 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:965 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S262494AbTIUSeK
+	Sun, 21 Sep 2003 14:41:54 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:8685 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S262508AbTIUSlw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 14:34:10 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Process in D state (was Re: 2.6.0-test5-mm2)
-Date: Sun, 21 Sep 2003 14:30:50 -0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030914234843.20cea5b3.akpm@osdl.org> <200309201534.36362.rob@landley.net> <20030920144902.47c2c7c4.akpm@osdl.org>
-In-Reply-To: <20030920144902.47c2c7c4.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Sep 2003 14:41:52 -0400
+Date: Sun, 21 Sep 2003 14:41:49 -0400
+From: Yaroslav Halchenko <kernel@onerussian.com>
+To: linux-kernel@vger.kernel.org
+Cc: kernel@onerussian.com
+Subject: USB problem. 'irq 9: nobody cared!'
+Message-ID: <20030921184149.GA12274@washoe.rutgers.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309211430.51367.rob@landley.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 September 2003 17:49, Andrew Morton wrote:
-> Rob Landley <rob@landley.net> wrote:
-> > But, twice in a row now I've made this happen:
-> >
-> >   1391 pts/1    S      0:00 /bin/bash
-> >   1419 pts/1    S      0:00 /bin/sh ./build.sh
-> >   1423 pts/1    S      0:00 /bin/bash
-> >  /home/landley/pending/newfirmware/make-stat
-> >   1447 pts/1    D      0:04 tar xvjf
-> >  /home/landley/pending/newfirmware/base/linux
-> >   1448 pts/1    S      0:37 bzip2 -d
-> >
-> >  All I have to do is run my script, it tries to extract the kernel
-> > tarball, and tar hangs in D state.
-> >
-> >  How do I debug this?  (Is there some way to get the output of Ctrl-ScrLk
-> > to go to the log instead of just the console?  My system isn't currently
-> > hung, it's just got a process that is.  This process being hung prevents
-> > my partitions from being unmounted on shutdown, which is annoying.)
->
-> sysrq-T followed by `dmesg -s 1000000 > foo' should capture it.
+Dear Gurus,
 
-I'll give it a try...
+Since one of the bk versions in -test4- USB problem persist. On boot I'm
+getting next dump. More information about my system and configuration is at
 
-Okay, I reproduced the hang.  Now...  It's beeping at me?
+http://www.onerussian.com/Linux/bug.USB/
 
-It helps to have magic sysrq selected in menuconfig.  I'll get back to this...
+Please help to get rid of the problem cause USB doesn't work now for me :-(
 
-> >  Other miscelanous bugs: cut and paste only works some of the time (it
-> > pastes blanks other times, dunno if this was -test5 or -mm2; it worked
-> > fine in -test4).
->
-> vgacon? fbcon? X11?
+drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface
+driver v2.1
+uhci-hcd 0000:00:1f.2: UHCI Host Controller
+irq 9: nobody cared!
+Call Trace:
+ [<c010b70a>] __report_bad_irq+0x2a/0x90
+ [<c010b800>] note_interrupt+0x70/0xb0
+ [<c010bad0>] do_IRQ+0x120/0x130
+ [<c0109d88>] common_interrupt+0x18/0x20
+ [<c0124b6e>] do_softirq+0x3e/0xa0
+ [<c010baab>] do_IRQ+0xfb/0x130
+ [<c0109d88>] common_interrupt+0x18/0x20
+ [<c01f3c60>] pci_bus_write_config_word+0x60/0x90
+ [<c02f6331>] uhci_reset+0x41/0x60
+ [<c02e5b44>] usb_hcd_pci_probe+0x194/0x4a0
+ [<c016b3a1>] dput+0x31/0x220
+ [<c01f7bc2>] pci_device_probe_static+0x52/0x70
+ [<c01f7c1c>] __pci_device_probe+0x3c/0x50
+ [<c01f7c5c>] pci_device_probe+0x2c/0x50
+ [<c025accf>] bus_match+0x3f/0x70
+ [<c025ae1f>] driver_attach+0x6f/0xb0
+ [<c025b0e3>] bus_add_driver+0x93/0xb0
+ [<c025b51f>] driver_register+0x2f/0x40
+ [<c01f7e50>] pci_register_driver+0x60/0x90
+ [<c053207d>] uhci_hcd_init+0xbd/0x150
+ [<c05167ab>] do_initcalls+0x2b/0xa0
+ [<c01305bf>] init_workqueues+0xf/0x30
+ [<c01050a4>] init+0x34/0x1d0
+ [<c0105070>] init+0x0/0x1d0
+ [<c01072a5>] kernel_thread_helper+0x5/0x10
 
-X11.  At first I thought it was only between certain apps, but now I thin it's 
-just plain intermittent.  Smells like a race or uninitialized variable or 
-something.  (For all I know, the bug could be in kde, although I'm using 
-RH9's binaries.  I've seen it cutting and pasting between kmail, konsole, and 
-konqueror.  Sorry, can't reproduce this one at will...
+handlers:
+[<c02015cf>] (acpi_irq+0x0/0x16)
+[<c02bb040>] (ohci_irq_handler+0x0/0x7e0)
+[<c02d9240>] (yenta_interrupt+0x0/0x40)
+Disabling IRQ #9
 
-> >  The key repeat problem is still there, although still highly
-> > intermittent.
->
-> I think Andries says that some keyboards just forget to send up codes.
-> We'll probably need some kernel boot parameter to support these, using the
-> keyboard's silly native autorepeat.
-
-I'd rather not have any autorepeat at all than have it go intermittently nuts 
-on me...
-
-> >  The boot hung enabling swap space once.  I don't know why.  (Init was
-> > already running and everything...)
->
-> Probably the O_DIRECT locking bug: I had `rpmv' getting stuck on boot for a
-> while.  mm3 fixed that.
-
-I'll upgrade after I get you your sysrq-t.
-
-Rob
+Sincerely
+                                  .-.
+=------------------------------   /v\  ----------------------------=
+Keep in touch                    // \\     (yoh@|www.)onerussian.com
+Yaroslav Halchenko              /(   )\               ICQ#: 60653192
+                   Linux User    ^^-^^    [175555]

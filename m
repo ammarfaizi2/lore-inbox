@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268674AbTGIWiv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 18:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268673AbTGIWiv
+	id S268694AbTGIWoM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 18:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268695AbTGIWoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 18:38:51 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41350 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268644AbTGIWiI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 18:38:08 -0400
-Message-ID: <3F0C9CB3.8050802@pobox.com>
-Date: Wed, 09 Jul 2003 18:52:35 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Wed, 9 Jul 2003 18:44:11 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:17371 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S268694AbTGIWoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 18:44:07 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Jamie Lokier <jamie@shareable.org>
+Subject: Re: 2.5.74-mm1
+Date: Thu, 10 Jul 2003 00:59:57 +0200
+User-Agent: KMail/1.5.2
+Cc: Davide Libenzi <davidel@xmailserver.org>, Mel Gorman <mel@csn.ul.ie>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+References: <20030703023714.55d13934.akpm@osdl.org> <200307082027.13857.phillips@arcor.de> <20030709222426.GA24923@mail.jlokier.co.uk>
+In-Reply-To: <20030709222426.GA24923@mail.jlokier.co.uk>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: Fix IDE initialization when we don't probe for interrupts.
-References: <Pine.LNX.4.44.0307091520570.16947-100000@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0307091520570.16947-100000@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307100059.57398.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Thursday 10 July 2003 00:24, Jamie Lokier wrote:
+> Daniel Phillips wrote:
+> > We've got something better than we've had before, even though it doesn't
+> > go as far as making true realtime processing available to normal users.
+>
+> Indeed.  But maybe true (bounded CPU) realtime, reliable, would more
+> accurately reflect what the user actually wants for some apps?
 
-Thanks.
+No doubt about it.  Other OSes have it:
 
+   http://www.chemie.fu-berlin.de/cgi-bin/man/sgi_irix?realtime+5
 
-> (Obviously it must be zero for some architecture, though, or those
-> conditionals woulnd't make sense. Alan?  Bartlomiej? What kind of sick
-> pseudo-IDE controller doesn't have a control register?).
+Hopefully in the next cycle, we will too.
 
-I asked Andre or Russell King or somebody this a while ago... IIRC it is 
-some obscure ATARI IDE controller, or somesuch.
+I like your idea of allowing normal users to set SCHED_RR, but automatically 
+placing some bound on cpu usage.  It's guaranteed not to break any existing 
+programs.
 
-	Jeff
+Regards,
 
-
+Daniel
 

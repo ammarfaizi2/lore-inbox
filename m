@@ -1,72 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUBVXmR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 18:42:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbUBVXmR
+	id S261240AbUBWAHk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 19:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbUBWAHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 18:42:17 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:45009 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S261236AbUBVXmP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 18:42:15 -0500
-Date: Mon, 23 Feb 2004 10:41:17 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: R Dicaire <rdicair@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.25 and xfs compile errors
-Message-ID: <20040222234117.GB3213@frodo>
-References: <1077423230.1589.8.camel@ws.rdb.linux-help.org>
+	Sun, 22 Feb 2004 19:07:40 -0500
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:4100 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261240AbUBWAHi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 19:07:38 -0500
+Message-Id: <200402202146.i1KLkdfu002972@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Anton Blanchard <anton@samba.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       paulmck@us.ibm.com, arjanv@redhat.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, torvalds@osdl.org
+Subject: Re: Non-GPL export of invalidate_mmap_range 
+In-Reply-To: Your message of "Fri, 20 Feb 2004 14:17:51 +1100."
+             <20040220031751.GA20022@krispykreme> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org> <20040218230055.A14889@infradead.org> <20040218153234.3956af3a.akpm@osdl.org> <20040219123237.B22406@infradead.org> <20040219105608.30d2c51e.akpm@osdl.org> <20040219190141.A26888@infradead.org>
+            <20040220031751.GA20022@krispykreme>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1077423230.1589.8.camel@ws.rdb.linux-help.org>
-User-Agent: Mutt/1.5.3i
+Content-Type: multipart/signed; boundary="==_Exmh_-2136242002P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 20 Feb 2004 16:46:39 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 21, 2004 at 11:13:50PM -0500, R Dicaire wrote:
-> While trying to compile 2.4.25, I get the following:
+--==_Exmh_-2136242002P
+Content-Type: text/plain; charset=us-ascii
+
+On Fri, 20 Feb 2004 14:17:51 +1100, Anton Blanchard <anton@samba.org>  said:
+>  
+> > You've probably not seen the AIX VM architecture.  Good for you as it's
+> > not good for your stomache.  I did when I still was SCAldera and although
+> > my NDAs don't allow me to go into details I can tell you that the AIX
+> > VM architecture is deeply tied into the segment architecture of the Power
+> > CPU and signicicantly different from any other UNIX variant.
 > 
-> ld -m elf_i386 -T /usr/src/linux-2.4.25/arch/i386/vmlinux.lds -e stext
-> arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-> init/version.o init/do_mounts.o \
->         --start-group \
->         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-> mm/mm.o fs/fs.o ipc/ipc.o \
->          drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
-> drivers/net/net.o drivers/ide/idedriver.o drivers/cdrom/driver.o
-> drivers/pci/driver.o drivers/video/video.o drivers/media/media.o
-> drivers/md/mddev.o \
->         net/network.o \
->         /usr/src/linux-2.4.25/arch/i386/lib/lib.a
-> /usr/src/linux-2.4.25/lib/lib.a
-> /usr/src/linux-2.4.25/arch/i386/lib/lib.a \
->         --end-group \
->         -o vmlinux
-> fs/fs.o(.text+0x6fa94): In function `xfs_bmap_add_attrfork_local':
-> : undefined reference to `__constant_c_and_count_memset'
-> fs/fs.o(.text+0x72d2b): In function `xfs_bmap_alloc':
-> : undefined reference to `xfs_do_div'
-> ...
-> fs/fs.o(.text+0x78afe): In function `xfs_getbmap':
-> : undefined reference to `__constant_copy_to_user'
-> make: *** [vmlinux] Error 1
+> Interesting, what version of AIX did you get access to? And how can you
+> be sure thats still the case?
 
-> gcc -v
-> Reading specs from /usr/lib/gcc-lib/i486-slackware-linux/3.2.3/specs
-> Configured with: ../gcc-3.2.3/configure --prefix=/usr --enable-shared
-> --enable-threads=posix --enable-__cxa_atexit --disable-checking
-> --with-gnu-ld --verbose --target=i486-slackware-linux
-> --host=i486-slackware-linux
-> Thread model: posix
-> gcc version 3.2.3
-> 
+You don't need access to AIX source.  Reading the IBM Redbook on writing a
+device driver for AIX is sufficient proof. Or even reading up on how to get
+more heap space than the usual number of segment registers using the 'ld'
+command (yes, it's userspace visible).
 
-Looks like your compiler is getting confused by routines
-that have been declared "static inline" in a header - you
-probably need to upgrade/downgrade your compiler.
+And Christoph isn't pulling your leg -  it's pretty bizzare...
 
-cheers.
 
--- 
-Nathan
+--==_Exmh_-2136242002P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFANoA/cC3lWbTT17ARAoA/AKCdBGBaBLuAG17SxD65Wy8oLSRXwACg10eB
+j+L2bUYIGht679TIpX2GytM=
+=4KoB
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-2136242002P--

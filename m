@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268520AbUJJV5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268529AbUJJWA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268520AbUJJV5j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 17:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUJJV5j
+	id S268529AbUJJWA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 18:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268532AbUJJWA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 17:57:39 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:46292 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268520AbUJJV5e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 17:57:34 -0400
-Date: Sun, 10 Oct 2004 23:59:06 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dwalker@mvista.com, sdietrich@mvista.com, linux-kernel@vger.kernel.org,
-       abatyrshin@ru.mvista.com, amakarov@ru.mvista.com, emints@ru.mvista.com,
-       ext-rt-dev@mvista.com, hzhang@ch.mvista.com, yyang@ch.mvista.com
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-Message-ID: <20041010215906.GA19497@elte.hu>
-References: <41677E4D.1030403@mvista.com> <20041010084633.GA13391@elte.hu> <1097437314.17309.136.camel@dhcp153.mvista.com> <20041010142000.667ec673.akpm@osdl.org>
+	Sun, 10 Oct 2004 18:00:59 -0400
+Received: from goliath.sylaba.poznan.pl ([193.151.36.3]:51216 "EHLO
+	goliath.sylaba.poznan.pl") by vger.kernel.org with ESMTP
+	id S268529AbUJJWA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 18:00:57 -0400
+Subject: Re: How to umount a busy filesystem?
+From: Olaf =?iso-8859-2?Q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
+To: Matthias Schniedermeyer <ms@citd.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041010211208.GA6986@citd.de>
+References: <1097441558.2235.9.camel@venus>  <20041010211208.GA6986@citd.de>
+Content-Type: text/plain
+Message-Id: <1097445655.2235.18.camel@venus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041010142000.667ec673.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 11 Oct 2004 00:00:55 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2004-10-10 at 23:12, Matthias Schniedermeyer wrote:
+> On 10.10.2004 22:52, Olaf Fr?czyk wrote:
+> > Hi,
+> > 
+> > Why I cannot umount filesystem if it is being accessed?
+> > I tried MNT_FORCE option but it doesn't work.
+> > 
+> > Killing all processes that access a filesystem is not an option. They
+> > should just get an error when accessing filesystem that is umounted.
+> > 
+> > Any idea how to do it?
+> 
+> umount -l
+> 
+> removes the mount in "lazy"-mode, this way the mount-point "vanishes"
+> for all programs whose working-dirs aren't "within" that mount-point.
+> After all files are closed the filesystem is unmounted totally.
+> You can "reuse" the mount-point immediatly.
+> 
+Thank you.
+But this:
+1. Does not let the user to remove the media (eg. cdrom).
+2. Does not flush buffers etc. so the media cannot be safely removed
+even if it were physically possible (eg. cdrom with unlocked tray or
+USB-key).
 
-* Andrew Morton <akpm@osdl.org> wrote:
+I have read that the MNT_FORCE is currently limited to NFS mounts.
+Does somebody have any idea why it is limited? 
+Or is the functionality planned for other filesystems too?
 
-> Lockmeter gets in the way of all this activity in a big way.  I'll
-> drop it.
+Regards,
 
-great. Daniel, would you mind to merge your patchkit against the
-following base:
+Olaf
 
-	-mm3, minus lockmeter, plus the -T3 patch
-
-? To make this easier i've uploaded a combined undo-lockmeter patch to:
-
-  http://redhat.com/~mingo/voluntary-preempt/undo-lockmeter-2.6.9-rc3-mm3-A1
-
-which you should apply to vanilla -mm3, then apply the -T3 patch:
-
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
-
-this will apply cleanly with some minor fuzz. The resulting kernel
-builds & boots fine with my .config.
-
-	Ingo

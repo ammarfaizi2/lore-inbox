@@ -1,34 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129388AbRCJNZv>; Sat, 10 Mar 2001 08:25:51 -0500
+	id <S130038AbRCJOJg>; Sat, 10 Mar 2001 09:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129468AbRCJNZl>; Sat, 10 Mar 2001 08:25:41 -0500
-Received: from s057.dhcp212-109.cybercable.fr ([212.198.109.57]:54788 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129388AbRCJNZb>; Sat, 10 Mar 2001 08:25:31 -0500
-Message-ID: <3AAA2ADE.E8FF41E3@baretta.com>
-Date: Sat, 10 Mar 2001 14:23:42 +0100
-From: Alex Baretta <alex@baretta.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: it, en
+	id <S130253AbRCJOJ0>; Sat, 10 Mar 2001 09:09:26 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:36346 "HELO
+	burns.conectiva") by vger.kernel.org with SMTP id <S130038AbRCJOJH>;
+	Sat, 10 Mar 2001 09:09:07 -0500
+Date: Sat, 10 Mar 2001 01:56:41 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
+        Oswald Buddenhagen <ob6@inf.tu-dresden.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: static scheduling - SCHED_IDLE?
+In-Reply-To: <20010309210913.F13320@pcep-jamie.cern.ch>
+Message-ID: <Pine.LNX.4.33.0103100154310.2283-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Possible bug with poll syscall
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using poll with the POLLIN flag to wait for connection
-requests on a set of listening sockets in a server process.
-Although clients attempt to connect to those sockets, poll does
-returns zero after the expiration of the timeout. I believe this
-might be a bug. As far as I understand poll should be woken up by
-connection requests and should signal them with a POLLIN. But,
-then again, I might have misunderstood the specification.
+On Fri, 9 Mar 2001, Jamie Lokier wrote:
+> Rik van Riel wrote:
+> > > Just raise the priority whenever the task's in kernel mode.  Problem
+> > > solved.
+> >
+> > Remember that a task schedules itself out at the timer interrupt,
+> > in kernel/sched.c::schedule() ... which is kernel mode ;)
+>
+> Even nicer.  On x86 change this:
+>
+> reschedule:
+> 	call SYMBOL_NAME(schedule)    # test
+> 	jmp ret_from_sys_call
+>
+> to this:
+>
+> reschedule:
+> 	orl $PF_HONOUR_LOW_PRIORITY,flags(%ebx)
+> 	call SYMBOL_NAME(schedule)    # test
+> 	andl $~PF_HONOUR_LOW_PRIORITY,flags(%ebx)
+> 	jmp ret_from_sys_call
 
-Would anyone please shed some light on this issue?
+Wonderful !
 
-Thank you very much.
+I think we'll want to use this, since we can use it for:
 
-Alex Baretta
+1. SCHED_IDLE
+2. load control, when the VM starts thrashing we can just
+   suspend a few processes to make sure the system as a
+   whole won't thrash to death
+3. ... ?
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

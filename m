@@ -1,45 +1,206 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268044AbTBWQFY>; Sun, 23 Feb 2003 11:05:24 -0500
+	id <S268051AbTBWQHF>; Sun, 23 Feb 2003 11:07:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268051AbTBWQFY>; Sun, 23 Feb 2003 11:05:24 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:1436 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268044AbTBWQFY>; Sun, 23 Feb 2003 11:05:24 -0500
-Date: Sun, 23 Feb 2003 08:14:56 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: lse-tech@lists.sf.et, linux-kernel@vger.kernel.org, haveblue@us.ibm.com,
-       dmccr@us.ibm.com
-Subject: object-based rmap and pte-highmem
-Message-ID: <11090000.1046016895@[10.10.2.4]>
-In-Reply-To: <20030222192424.6ba7e859.akpm@digeo.com>
-References: <96700000.1045871294@w-hlinder> <20030222192424.6ba7e859.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S268509AbTBWQHF>; Sun, 23 Feb 2003 11:07:05 -0500
+Received: from ANantes-106-1-22-9.abo.wanadoo.fr ([81.50.3.9]:52608 "EHLO
+	osiris") by vger.kernel.org with ESMTP id <S268051AbTBWQG5>;
+	Sun, 23 Feb 2003 11:06:57 -0500
+From: Benoit Plessis <benoit.plessis@tuxfamily.org>
+From: Benoit Plessis <benoit.plessis@tuxfamily.org>
+To: linux-kernel@vger.kernel.org
+Subject: Weird thing happening with kernel 2.5
+References: <E18mxqQ-0000ci-00@osiris>
+Date: Sun, 23 Feb 2003 17:17:07 +0100
+In-Reply-To: <E18mxqQ-0000ci-00@osiris> (Mail Delivery System's message of
+ "Sun, 23 Feb 2003 16:15:10 +0100")
+Message-ID: <87lm077z0c.fsf@maverick.eu.org>
+User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So whole stole the remaining 1.85 seconds?   Looks like pte_highmem.
 
-I have a plan for that (UKVA) ... we reserve a per-process area with 
-kernel type protections (either at the top of user space, changing
-permissions appropriately, or inside kernel space, changing per-process
-vs global appropriately). 
+Hello,
+I wanted to check on the kernel 2.5 last day and something weird
+happens with every version i have checked (2.5.60 61 and 62).
 
-This area is permanently mapped into each process, so that there's no
-kmap_atomic / tlb_flush_one overhead ... it's highmem backed still.
-In order to do fork efficiently, we may need space for 2 sets of 
-pagetables (12Mb on PAE).
+I use grub to start the kernel, he wrote the correct size etc for the
+boot image and then said Loading Kernel...
+after that i only show disk activity on my systems led and no messages
+from the kernel.
+But if i reboot under a stable kernel (2.4.20-ac2) and that i look on
+the /var/log/messages i can read the previous boot process of the 2.5
+kernel, the only erroneous message i show is the 'Warning: unable to
+open an initial console.' followed by modules loading messages and
+EXT3-FS mounting lines.
+The vga=ask option work as he should but after switching mode nothing
+more appears.
+I have tried with and without the RADEON_FB.
 
-Dave McCracken had an earlier implementation of that, but we never saw
-an improvement (quite possibly because the fork double-space wasn't
-there) - Dave Hansen is now trying to get something work with current
-kernels ... will let you know.
+best regards,
+Benoit Plessis
 
-M.
+Ps:
+.config:
+CONFIG_FB=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_RADEON=y
 
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
 
+Let see a sample boot sequence: (sorry for the size, i striped it a
+max.)
+kernel: klogd 1.4.1#11, log source = /proc/kmsg started.
+kernel: Inspecting /boot/System.map-2.5.62
+kernel: Loaded 24152 symbols from /boot/System.map-2.5.62.
+kernel: Symbols match kernel version 2.5.62.
+kernel: No module symbols loaded - kernel modules not enabled. 
+kernel: Linux version 2.5.62 (root@osiris) (version gcc 3.2.3 20030210 (Debian prerelease)) #1 Sun Feb 23 14:31:09 CET 2003
+kernel: Video mode to be used for restore is f00
+kernel: BIOS-provided physical RAM map:
+
+.. BIOS lines
+
+kernel: 511MB LOWMEM available.
+... Memory things ..
+... ACPI things ..
+kernel: Enabling APIC mode:  Flat.  Using 1 I/O APICs
+...
+
+kernel: Kernel command line: rw panicblink=2 3
+kernel: Initializing CPU#0
+kernel: PID hash table entries: 2048 (order 11: 16384 bytes)
+kernel: Detected 1733.229 MHz processor.
+kernel: Calibrating delay loop... 3416.06 BogoMIPS
+kernel: Memory: 515944k/524272k available (1552k kernel code, 7592k reserved, 515k data, 120k init, 0k highmem)
+kernel: Dentry cache hash table entries: 65536 (order: 7, 524288 bytes)
+kernel: Inode-cache hash table entries: 32768 (order: 6, 262144 bytes)
+kernel: Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+kernel: -/dev
+kernel: -/dev/console
+kernel: -/root
+kernel: CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+kernel: CPU: L2 Cache: 256K (64 bytes/line)
+kernel: Intel machine check architecture supported.
+kernel: Intel machine check reporting enabled on CPU#0.
+kernel: CPU: AMD Athlon(TM) XP 2100+ stepping 02
+kernel: Enabling fast FPU save and restore... done.
+kernel: Enabling unmasked SIMD FPU exception support... done.
+kernel: Checking 'hlt' instruction... OK.
+kernel: POSIX conformance testing by UNIFIX
+kernel: enabled ExtINT on CPU#0
+kernel: ESR value before enabling vector: 00000000
+kernel: ESR value after enabling vector: 00000000
+
+.. IO-APIC initialisation (it doesn't know my APIC btw (it's a VIA
+KT400 based mainboard: Asus A7V8x) ..
+
+kernel: ..... CPU clock speed is 1733.0172 MHz.
+kernel: ..... host bus clock speed is 266.0641 MHz.
+kernel: Linux NET4.0 for Linux 2.4
+kernel: Based upon Swansea University Computer Society NET3.039
+kernel: Initializing RT netlink socket
+kernel: mtrr: v2.0 (20020519)
+kernel: PCI: PCI BIOS revision 2.10 entry at 0xf1720, last bus=1
+kernel: PCI: Using configuration type 1
+kernel: BIO: pool of 256 setup, 14Kb (56 bytes/bio)
+
+... biovec tables ...
+
+kernel: ACPI: Subsystem revision 20030122
+kernel:     ACPI-0262: *** Info: GPE Block0 defined as GPE0 to GPE15
+kernel: ACPI: Interpreter enabled
+kernel: ACPI: Using IOAPIC for interrupt routing
+
+... ACPI Irq Lings ..
+
+kernel: ACPI: PCI Root Bridge [PCI0] (00:00)
+kernel: PCI: Probing PCI hardware (bus 00)
+kernel: block request queues:
+kernel:  128 requests per read queue
+kernel:  128 requests per write queue
+kernel:  8 requests per batch
+kernel:  enter congestion at 15
+kernel:  exit congestion at 17
+kernel: ACPI: PCI Interrupt Link [LNKF] enabled at IRQ 0
+kernel: ACPI: No IRQ known for interrupt pin A of device 00:11.1 - using IRQ 255
+kernel: PCI: Using ACPI for IRQ routing
+kernel: PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
+kernel: SBF: Simple Boot Flag extension found and enabled.
+kernel: SBF: Setting boot flags 0x1
+kernel: Enabling SEP on CPU 0
+kernel: aio_setup: sizeof(struct page) = 40
+kernel: VFS: Disk quotas dquot_6.5.1
+kernel: Journalled Block Device driver loaded
+kernel: devfs: v1.22 (20021013) Richard Gooch (rgooch@atnf.csiro.au)
+kernel: devfs: boot_options: 0x1
+kernel: ACPI: Power Button (FF) [PWRF]
+kernel: pty: 256 Unix98 ptys configured
+kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+kernel: VP_IDE: IDE controller at PCI slot 00:11.1
+kernel: ACPI: No IRQ known for interrupt pin A of device 00:11.1 - using IRQ 255
+kernel: VP_IDE: chipset revision 6
+kernel: VP_IDE: not 100%% native mode: will probe irqs later
+kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+kernel: VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci00:11.1
+kernel:     ide0: BM-DMA at 0x8400-0x8407, BIOS settings: hda:DMA, hdb:DMA
+kernel:     ide1: BM-DMA at 0x8408-0x840f, BIOS settings: hdc:DMA, hdd:pio
+kernel: hda: WDC WD800BB-75CAA0, ATA DISK drive
+kernel: hdb: IC35L040AVER07-0, ATA DISK drive
+kernel: hda: DMA disabled
+kernel: hdb: DMA disabled
+kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+kernel: hdc: CREATIVE DVD-ROM DVD6240E, ATAPI CD/DVD-ROM drive
+kernel: hdc: DMA disabled
+kernel: ide1 at 0x170-0x177,0x376 on irq 15
+kernel: hda: host protected area =1
+kernel: hda: setmax LBA 156301488, native  156250000
+kernel: hda: 156250000 sectors (80000 MB) w/2048KiB Cache, CHS=155009/16/63, UDMA(100)
+kernel:  /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 < p5 p6 p7 p8 >
+kernel: hdb: host protected area =1
+kernel: hdb: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=79780/16/63, UDMA(100)
+kernel:  /dev/ide/host0/bus0/target1/lun0: p1 p2 p3 p4
+kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
+kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+kernel: NET4: Linux TCP/IP 1.0 for NET4.0
+kernel: IP: routing cache hash table of 4096 buckets, 32Kbytes
+kernel: TCP: Hash tables configured (established 32768 bind 65536)
+kernel: Linux IP multicast router 0.06 plus PIM-SM
+kernel: NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+kernel: kjournald starting.  Commit interval 5 seconds
+kernel: EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,1), internal journal
+kernel: EXT3-fs: mounted filesystem with ordered data mode.
+kernel: VFS: Mounted root (ext3 filesystem).
+kernel: Mounted devfs on /dev
+kernel: Freeing unused kernel memory: 120k freed
+
+.. the big warning: 
+kernel: Warning: unable to open an initial console.
+.; but it continue; 
+kernel: Adding 1052216k swap on /dev/hdb1.  Priority:-1 extents:1
+kernel: EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,1), internal journal
+kernel: Linux video capture interface: v1.00
+... bttv module init ...
+kernel: kjournald starting.  Commit interval 5 seconds
+kernel: EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,5), internal journal
+kernel: EXT3-fs: mounted filesystem with ordered data mode.
+kernel: kjournald starting.  Commit interval 5 seconds
+kernel: EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,7), internal journal
+kernel: EXT3-fs: mounted filesystem with ordered data mode.
+kernel: drivers/usb/core/usb.c: registered new driver usbfs
+kernel: drivers/usb/core/usb.c: registered new driver hub
+kernel: Please use the 'usbfs' filetype instead, the 'usbdevfs' name is deprecated.
+
+-- 
+Benoit Plessis					+33 6 77 42 78 32
+<benoit.plessis@tuxfamily.org>
+1024D/B4D74B76 B9A7 3697 661D 25FB A609  E69E 92CA FFAB B4D7 4B76

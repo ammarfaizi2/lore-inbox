@@ -1,31 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272148AbVBEXIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266382AbVBEXOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272148AbVBEXIx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 18:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbVBEXIx
+	id S266382AbVBEXOs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 18:14:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266112AbVBEXOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 18:08:53 -0500
-Received: from gprs215-88.eurotel.cz ([160.218.215.88]:18394 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S272221AbVBEXIF (ORCPT
+	Sat, 5 Feb 2005 18:14:48 -0500
+Received: from gprs215-88.eurotel.cz ([160.218.215.88]:4796 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266269AbVBEXOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 18:08:05 -0500
-Date: Sun, 6 Feb 2005 00:00:17 +0100
+	Sat, 5 Feb 2005 18:14:41 -0500
+Date: Sun, 6 Feb 2005 00:14:28 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick, version 050127-1
-Message-ID: <20050205230017.GA1070@elf.ucw.cz>
-References: <20050127212902.GF15274@atomide.com> <20050201110006.GA1338@elf.ucw.cz> <20050201204008.GD14274@atomide.com> <20050201212542.GA3691@openzaurus.ucw.cz> <20050201230357.GH14274@atomide.com> <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com> <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com> <20050204051929.GO14325@atomide.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.11-rc[23]: swsusp & usb regression
+Message-ID: <20050205231428.GA1098@elf.ucw.cz>
+References: <20050204231649.GA1057@elf.ucw.cz> <Pine.LNX.4.44L0.0502051006150.31778-100000@netrider.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050204051929.GO14325@atomide.com>
+In-Reply-To: <Pine.LNX.4.44L0.0502051006150.31778-100000@netrider.rowland.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,39 +28,34 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > It could also be that the reprogamming of PIT timer does not work on
-> > > > your machine. I chopped off the udelays there... Can you try
-> > > > something like this:
-> > > 
-> > > I added the udelays, but behaviour did not change.
+> > In 2.6.11-rc[23], I get problems after swsusp resume:
 > > 
-> > Yeah, and if the first patch was working better, that means the PIT
-> > interrupts work. I'll do another version of the patch where PIT
-> > interrupts work again without local APIC needed, let's see what
-> > happens with that.
+> > Feb  4 23:54:39 amd kernel: Restarting tasks...<3>hub 3-0:1.0:
+> > over-current change on port 1
+> > Feb  4 23:54:39 amd kernel:  done
+> > Feb  4 23:54:39 amd kernel: hub 3-0:1.0: connect-debounce failed, port
+> > 1 disabled
+> > Feb  4 23:54:39 amd kernel: hub 3-0:1.0: over-current change on port 2
+> > Feb  4 23:54:39 amd kernel: usb 3-2: USB disconnect, address 2
+> > 
+> > After unplugging usb bluetooth key, machine hung. Sysrq still
+> > responded with help but I could not get any usefull output.
 > 
-> I think something broke TSC timer after the first patch, but I could
-> not figure out yet what. So the bad combo might be local APIC + TSC.
-> At least I'm seeing similar problems with local APIC + TSC timer.
-> 
-> Attached is a slightly improved patch, but the patch does not fix
-> the TSC problem. It just fixes compile without local APIC, and
-> booting SMP kernel on uniprocessor machine.
-> 
-> Currently the suggested combo is local APIC + ACPI PM timer...
+> Your logs don't indicate which host controller driver is bound to each of 
+> your hubs.  /proc/bus/usb/devices will contain that information.  Without 
+> it, it's hard to diagnose what happened.
 
-Ok, works slightly better: time no longer runs 2x too fast. When TSC
-is used, I get same behaviour  as before ("sleepy machine"). With
-"notsc", machine seems to work okay, but I still get 1000 timer
-interrupts a second.
+I do not think I have any hubs... no external hubs anyway. And I do
+not have /proc/bus/usb/devices file :-(. There's something in
+/sys/bus/usb/devices/.
 
-> And if that works, changing the I8042_POLL_PERIOD from HZ/20 in
-> drivers/input/serio/i8042.h to something like HZ increases the
-> sleep interval quite a bit. I think I had lots of polling also in
-> CONFIG_NETFILTER, but I haven't verified that.
+> As things stand now, however, there's likely to be lots of problems in the 
+> coordination of suspend/resume activities among the HCDs, the glue layer, 
+> and the hub driver.  One thing you could try is to turn on 
+> CONFIG_USB_SUSPEND.  It's likely to change things, although not 
+> necessarily for the better.  :-)
 
-Okay, I set POLL_PERIOD to 5*HZ, and disabled USB. Perhaps it will
-sleep better now?
+:-).
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

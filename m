@@ -1,60 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316390AbSGLN23>; Fri, 12 Jul 2002 09:28:29 -0400
+	id <S316339AbSGLN1B>; Fri, 12 Jul 2002 09:27:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316408AbSGLN22>; Fri, 12 Jul 2002 09:28:28 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:13583 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S316390AbSGLN20>;
-	Fri, 12 Jul 2002 09:28:26 -0400
-Date: Fri, 12 Jul 2002 09:24:42 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Christian Ludwig <cl81@gmx.net>
-Cc: Daniel Phillips <phillips@arcor.de>, Ville Herva <vherva@niksula.hut.fi>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: bzip2 support against 2.4.18
-Message-ID: <20020712092442.A26797@mark.mielke.cc>
-References: <003d01c22819$ba1818b0$1c6fa8c0@hyper> <20020711062832.GU1548@niksula.cs.hut.fi> <002601c228ab$86b235e0$1c6fa8c0@hyper> <E17SheA-0002Uh-00@starship> <000901c2296e$7cab2ed0$1c6fa8c0@hyper>
+	id <S316390AbSGLN1B>; Fri, 12 Jul 2002 09:27:01 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:11271 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S316339AbSGLN07>;
+	Fri, 12 Jul 2002 09:26:59 -0400
+Date: Fri, 12 Jul 2002 17:27:49 +0400
+From: Andrey Panin <pazke@orbita1.ru>
+To: trivial@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] missing static in lib/vsprinf.c
+Message-ID: <20020712132749.GA312@pazke.ipt>
+Mail-Followup-To: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PmA2V3Z32TCmWXqI"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <000901c2296e$7cab2ed0$1c6fa8c0@hyper>; from cl81@gmx.net on Fri, Jul 12, 2002 at 08:36:41AM +0200
+User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.5.21
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 12, 2002 at 08:36:41AM +0200, Christian Ludwig wrote:
-> On 11.07.2001 - 19:21 Daniel Phillips wrote:
-> > How about bz2Image, or, more natural in my mind, bz2linux.
-> bzImage stands for "big zipped Image". Zipped, in this case, means that it
-> is gzipped. Perhaps Linus never wants to support other compression formats
-> for the kernel.
 
-> Sure "bz2bzImage" is a bit ugly. I personally would prefer bzImage.bz2,
-> although it is some kind of self-extracting executable, thus *.bz2 is also
-> not correct. But it would imply better which sort of compression you are
-> using. But that also means that the standard kernel has to be called
-> "bzImage.gz". I did not want to mess up the standard names...
+--PmA2V3Z32TCmWXqI
+Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
+Content-Disposition: inline
 
-I would suggest keeping bzImage as the actual kernel name, and the
-compression format to be a CONFIG parameter. This leaves all the
-installation notes correct. As the executable is self-extracting,
-there is no need for the type to be specified outside of the image.
 
-> But the question is: who is responsible for all those naming conventions?
-> Does anyone has an idea?
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Not me... probably Linus... :-)
+Hi all,
 
-mark
+attached patch adds missing static modifiers for small_digits[] and=20
+large_digits[] arrays in the number() function from lib/vsprintf.c
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+Patch against 2.5.25, should apply to 2.4.x.
+Please consider applying.
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-vsprintf
+Content-Transfer-Encoding: quoted-printable
 
-                           http://mark.mielke.cc/
+diff -urN -X /usr/share/dontdiff linux.vanilla/lib/vsprintf.c linux/lib/vsp=
+rintf.c
+--- linux.vanilla/lib/vsprintf.c	Thu Jun 20 12:55:58 2002
++++ linux/lib/vsprintf.c	Fri Jul 12 13:25:11 2002
+@@ -131,8 +131,8 @@
+ {
+ 	char c,sign,tmp[66];
+ 	const char *digits;
+-	const char small_digits[] =3D "0123456789abcdefghijklmnopqrstuvwxyz";
+-	const char large_digits[] =3D "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
++	static const char small_digits[] =3D "0123456789abcdefghijklmnopqrstuvwxy=
+z";
++	static const char large_digits[] =3D "0123456789ABCDEFGHIJKLMNOPQRSTUVWXY=
+Z";
+ 	int i;
+=20
+ 	digits =3D (type & LARGE) ? large_digits : small_digits;
 
+--ZGiS0Q5IWpPtfppv--
+
+--PmA2V3Z32TCmWXqI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9LtlVBm4rlNOo3YgRAq+mAKCEEMfeYqb5AmBE4Pyq2CNU8Fy7VQCghjoC
+63FIxTeJOc3E3rCFpA/E7co=
+=lsIK
+-----END PGP SIGNATURE-----
+
+--PmA2V3Z32TCmWXqI--

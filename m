@@ -1,75 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267852AbTAMRtI>; Mon, 13 Jan 2003 12:49:08 -0500
+	id <S267978AbTAMR56>; Mon, 13 Jan 2003 12:57:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267884AbTAMRtI>; Mon, 13 Jan 2003 12:49:08 -0500
-Received: from atlas.inria.fr ([138.96.66.22]:47287 "EHLO atlas.inria.fr")
-	by vger.kernel.org with ESMTP id <S267852AbTAMRtH>;
-	Mon, 13 Jan 2003 12:49:07 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
-Organization: SEMIR - INRIA Sophia Antipolis
-To: linux-kernel@vger.kernel.org
-Subject: Bug report : i810_audio, compaq evo 410c, 2.4.20
-Date: Mon, 13 Jan 2003 18:57:56 +0100
-User-Agent: KMail/1.4.3
+	id <S267981AbTAMR55>; Mon, 13 Jan 2003 12:57:57 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:36032 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id <S267978AbTAMR5u>;
+	Mon, 13 Jan 2003 12:57:50 -0500
+Date: Mon, 13 Jan 2003 11:06:40 -0700 (MST)
+From: Dax Kelson <dax@gurulabs.com>
+X-X-Sender: dkelson@mooru.gurulabs.com
+To: Paul Jakma <paulj@alphyra.ie>
+Cc: trond.myklebust@fys.uio.no, Linux Kernel <linux-kernel@vger.kernel.org>,
+       NFS maillist <nfs@lists.sourceforge.net>
+Subject: Re: [PATCH] Secure user authentication for NFS using RPCSEC_GSS
+ [0/6]
+In-Reply-To: <Pine.LNX.4.44.0301130745510.26185-100000@dunlop.admin.ie.alphyra.com>
+Message-ID: <Pine.LNX.4.44.0301131052440.20523-100000@mooru.gurulabs.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200301131857.57093.Nicolas.Turro@sophia.inria.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 13 Jan 2003, Paul Jakma wrote:
 
+> On 12 Jan 2003, Dax Kelson wrote:
+> 
+> > Standard NFS security/authentication sucks rocks. Without this NFS home
+> > directory servers are just waiting to be ransacked by a rouge (or
+> > compromised) root user on a client machine.
+> 
+> AIUI, A root user still can. The users krbv5 credentials will
+> generally have been cached to storage. (though i suppose one could
+> mount that storage via NFS and use root_squash, but that's little 
+> protection.).
 
-I have laptops here (compaq evo 410c) that freeze completely while playing 
-sound (using mpg123, for example). The crash is random, it may freeze as soon
-as playback start of after a few minutes.
+Well, I was trying to keep my email short. Yes, if you login to a 
+compromised machine, and then obtain krbv5 credentails the evil root user 
+can access/delete/modify your files stored on a RPSEC_GSS NFS server.
 
-lspci :
+With RPSEC_GSS, a compromised machine, on it's own (no logged in users
+except evil root), can not access/delete/modify files stored on the NFS
+home directory server, which is quite different than the normal case. This 
+helps when the exploit-of-the-day hits at 4am Saturday morning.
 
-00:00.0 Host bridge: Intel Corp. 82830 830 Chipset Host Bridge (rev 04)
-00:01.0 PCI bridge: Intel Corp. 82830 830 Chipset AGP Bridge (rev 04)
-00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 42)
-00:1f.0 ISA bridge: Intel Corp. 82801CAM ISA Bridge (LPC) (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 02)
-00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio (rev 
-02)
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY
-02:02.0 USB Controller: NEC Corporation USB (rev 41)
-02:02.1 USB Controller: NEC Corporation USB (rev 41)
-02:02.2 USB Controller: NEC Corporation USB 2.0 (rev 02)
-02:03.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller 
-(rev 02)
-02:04.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 09)
-02:04.1 Serial controller: Lucent Microelectronics: Unknown device 045c
+As a matter of practice you shouldn't leave cached credentials lying
+around when you not logged in. Unless you have a very strong reason not
+to, kill your ssh-agent and run kdestory on logout (.bash_logout and 
+friends).
 
-tail of /var/log/messages after modprobing i810_audio :
+Dax
 
-Jan 13 18:49:39 sirius kernel: i810: Intel ICH3 found at IO 0x4400 and 0x4000, 
-IRQ 5
-Jan 13 18:49:39 sirius kernel: i810_audio: Audio Controller supports 6 
-channels.
-Jan 13 18:49:39 sirius kernel: ac97_codec: AC97 Audio codec, id: ADS99(Analog 
-Devices AD1886A)
-Jan 13 18:49:39 sirius kernel: i810_audio: AC'97 codec 0 Unable to map 
-surround DAC's (or DAC's not present), total channels = 2
-Jan 13 18:49:39 sirius kernel: i810_audio: setting clocking to 41319
-
-kernel 2.4.20 + minor patch in ac97_codec.c (    { 0x41445363 ,"Analog Devices 
-AD1886A", &null_ops },  added to   ac97_codec_ids ).
-
-
-any help ?
-
-N. Turro
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+Iv4kty/HpgyBIboRAoeXAKCITzfNHrluCeSHwX0pLWLxGRCYlgCbBiIu
-leDU2N4tq6+LY4cvg2bj0xk=
-=Wm73
------END PGP SIGNATURE-----

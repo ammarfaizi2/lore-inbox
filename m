@@ -1,89 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275973AbRJKKQi>; Thu, 11 Oct 2001 06:16:38 -0400
+	id <S275980AbRJKKaX>; Thu, 11 Oct 2001 06:30:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275980AbRJKKQ3>; Thu, 11 Oct 2001 06:16:29 -0400
-Received: from oe50.law9.hotmail.com ([64.4.8.22]:27919 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S275973AbRJKKQS>;
-	Thu, 11 Oct 2001 06:16:18 -0400
-X-Originating-IP: [66.108.21.174]
-From: "T. A." <tkhoadfdsaf@hotmail.com>
-To: "Tim Waugh" <twaugh@redhat.com>, "Linus Torvalds" <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110110058550.1198-100000@penguin.transmeta.com> <9q3lbs$16o$1@penguin.transmeta.com> <20011011094118.M10562@redhat.com>
-Subject: Re: Uhhuh.. 2.4.12
-Date: Thu, 11 Oct 2001 06:14:41 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <OE50W0kKIBXEHt3V5g200000461@hotmail.com>
-X-OriginalArrivalTime: 11 Oct 2001 10:16:44.0522 (UTC) FILETIME=[D3EEF4A0:01C1523D]
+	id <S275981AbRJKKaN>; Thu, 11 Oct 2001 06:30:13 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:42475 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S275980AbRJKKaA>;
+	Thu, 11 Oct 2001 06:30:00 -0400
+Date: Thu, 11 Oct 2001 16:04:29 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: davem@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
+Message-ID: <20011011160429.A23161@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps a quick update to the posted 2.4.12 kernel source tarball before
-everyone downloads the bad one?
+In article <20011010.164628.39155290.davem@redhat.com> David S. Miller wrote:
+>    From: Victor Yodaiken <yodaiken@fsmlabs.com>
+>    Date: Wed, 10 Oct 2001 16:24:19 -0600
+>    
+>    In general you're right, and always its better to 
+>    reduce contention than to come up with silly algorithms for 
+>    reducing the cost of contention,
 
-Or if its too late for that, 2.4.12a or 2.4.13?  :-)  (A new kernel version
-out in only about an hour or so might beat the previous record.)
+> I want to second this and remind people that the "cost" of spinlocks
+> is mostly not "spinning idly waiting for lock", rather the big cost
+> is shuffling the dirty cacheline ownership between the processors.
 
------ Original Message -----
-From: "Tim Waugh" <twaugh@redhat.com>
-To: "Linus Torvalds" <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, October 11, 2001 4:41 AM
-Subject: Re: Uhhuh.. 2.4.12
+Absolutely. Even reader-writer locks with read-mostly situations
+can result in painful degradation because of the dirty cacheline
+bouncing around.
 
 
-> On Thu, Oct 11, 2001 at 08:30:52AM +0000, Linus Torvalds wrote:
->
-> > In article
-<Pine.LNX.4.33.0110110058550.1198-100000@penguin.transmeta.com>,
-> > Linus Torvalds  <torvalds@transmeta.com> wrote:
-> > >
-> > >So I made a 2.4.12, and renamed away the sorry excuse for a kernel that
-> > >2.4.11 was.
-> > >
-> > > - Tim Waugh: parport update
-> >
-> > .. which is broken.
-> >
-> > Not a good week.
->
-> Here is the fix:
->
-> --- linux/drivers/parport/ieee1284_ops.c.orig Thu Oct 11 09:40:39 2001
-> +++ linux/drivers/parport/ieee1284_ops.c Thu Oct 11 09:40:42 2001
-> @@ -362,7 +362,7 @@
->   } else {
->   DPRINTK (KERN_DEBUG "%s: ECP direction: failed to reverse\n",
->   port->name);
-> - port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
-> + port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
->   }
->
->   return retval;
-> @@ -394,7 +394,7 @@
->   DPRINTK (KERN_DEBUG
->   "%s: ECP direction: failed to switch forward\n",
->   port->name);
-> - port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
-> + port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
->   }
->
->
-> Sorry guys. *blush*
->
-> Tim.
-> */
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Any scheme involving shared data which is written (the read counts
+> in the various "lockless" schemes are examples) have the same "cost"
+> assosciated with them.
+> In short, I see no performance gain from the lockless algorithms
+> even in the places where they can be applied.
+
+I think it depends on the lockless algorithm. If it requires you
+to write to cachelines with same level of sharing as earlier
+locking algorithm, it is no good. On the other hand, if you
+use schemes that minimizes or ideally has no writes to shared 
+data for maintaining readers, it should result in performance gains.
+
+
+> I spent some time oogling over lockless algorithms a few years ago,
+> but I stopped once I realized where the true costs were.  In my view,
+> the lockless algorithms perhaps are a win in parallel processing
+> environments (in fact, the supercomputing field is where a lot of the
+> lockless algorithm research comes from) but not in the kinds of places
+> and with the kinds of data structure usage the Linux kernel has.
+
+I would agree to the extent that lockless algorithms cannot be used as 
+a wholesale replacement for spin-waiting locks. However in key areas where
+performance is critical, lockless techniques can be applied provided
+they don't come with the same problems as locking.
+
+I would point to Read-Copy Update as a lockless mutual exclusion
+where you don't have to maintain global reader counts and other
+shared cachelines. We have been experimenting with a few
+places in the linux kernel where lookups can be speeded up
+by not having any writes to shared cachelines.
+
+Thanks
+Dipankar
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

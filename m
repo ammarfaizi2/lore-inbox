@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281239AbRKRIiR>; Sun, 18 Nov 2001 03:38:17 -0500
+	id <S281418AbRKRJAo>; Sun, 18 Nov 2001 04:00:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281298AbRKRIiG>; Sun, 18 Nov 2001 03:38:06 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:28940 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S281239AbRKRIh6>; Sun, 18 Nov 2001 03:37:58 -0500
-Date: Sun, 18 Nov 2001 08:51:52 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: VM-related Oops: 2.4.15pre1
-Message-ID: <20011118085152.D25232@athlon.random>
-In-Reply-To: <20011118051023.A25232@athlon.random> <Pine.LNX.4.33.0111172220300.1290-100000@penguin.transmeta.com> <20011118073730.C25232@athlon.random> <200111180731.fAI7VFa01371@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200111180731.fAI7VFa01371@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 17, 2001 at 11:31:15PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S281454AbRKRJAf>; Sun, 18 Nov 2001 04:00:35 -0500
+Received: from mail.delfi.lt ([213.197.128.86]:58121 "HELO
+	mx-outgoing.delfi.lt") by vger.kernel.org with SMTP
+	id <S281418AbRKRJA0>; Sun, 18 Nov 2001 04:00:26 -0500
+Date: Sun, 18 Nov 2001 10:57:31 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re[2]: Microsoft IE6 is crashing with Linux 2.4.X
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+In-Reply-To: <002501c16e0c$d3800550$f5976dcf@nwfs> <1005854832.2730.1.camel@heat> <000001c16e6c$c29061d0$f5976dcf@nwfs> <20011116014528.A22819@vger.timpanogas.org> <20011117230021.70DE68FB31@mail.delfi.lt>
+ <20011117170454.A8815@vger.timpanogas.org>
+In-Reply-To: <20011117170454.A8815@vger.timpanogas.org>
+X-Mailer: Mahogany, 0.64.1 'Sparc', compiled for Linux 2.4.14 i686
+Message-Id: <20011118090025.863BB8FC16@mail.delfi.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 17, 2001 at 11:31:15PM -0800, Linus Torvalds wrote:
-> No. It would be a _gcc_ bug if gcc did things to "page->flags" that the
-> code did not ask it to do. And that is _regardless_ of any notions of
-> "strictly conforming C code". The fact is, that if gcc were to clear a
-> bit that the code never clears, that is a HUGE AND GAPING GCC BUG.
+On Sat, 17 Nov 2001 17:04:54 -0700 "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> wrote:
 
-I see what you mean of course (the usual problem is that we never know
-if gcc could make such decision for whatever subtle optimization, asm
-optimizations are all but intuitional). But I just giveup also about the
-other thing of reading from C variables that can change under us. So I'm ok
-assuming gcc does what we expect here too, even if I'd prefer not to.
+JVM> > JVM> methods for smmsp:smmsp.  I used tcpdump and determined that IE6 will 
+JVM> > JVM> send "hidden" emails to addresses at msn.com (they appeared random).  I 
+JVM> > JVM> have no idea why it is doing this, but these emails appeared to contain 
+JVM> > JVM> system level information.  There was also obvious (and very nasty) packet 
+JVM> > JVM> corruption from IE6 that sendmail 8.11.X does not handle very well at all
+JVM> > JVM> whe it gets these corrupted packets.  
+JVM> > 
+JVM> > Just to be sure - do you have latest antivirus updates?
+JVM> 
+JVM> Snicker, Snicker, Snicker ..... In all the time I've run Linux servers
+JVM> for my business (about 4 years) I have never once installed a 
+JVM> "Linux anti-virus" update.  No, I have not installed any W2K virus
+JVM> software.  
 
-> The fact is, if we write code that leaves a certain bit unmodified, gcc
-> MUST NOT modify that bit. If gcc generated code that temporarily
-> modifies the bit, I can show user-level code that would break with
-> signals. See "sig_atomic_t" and friends - the compiler simply _has_ to
-> guarantee that the semantics you write in C code are actually upheld.
+I do not talk about "Linux anti-virus". But Windows viruses (or virii ;) are
+known to send emails. So I'd suggest to install some W2K antivirus software.
+Anyway, it's becoming OT. It has nothing to do with kernel 2.4.x.
 
-There should be proper macros to handle those userspace sig_atomic_t
-because of that. Anyways I certainly believe there is code playing with
-those types from C by hand :).
+Regards,
+Nerijus
 
-Andrea

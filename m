@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318376AbSHELYK>; Mon, 5 Aug 2002 07:24:10 -0400
+	id <S318379AbSHEL2s>; Mon, 5 Aug 2002 07:28:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318379AbSHELYK>; Mon, 5 Aug 2002 07:24:10 -0400
-Received: from mail-fe71.tele2.ee ([212.107.32.235]:12421 "HELO everyday.com")
-	by vger.kernel.org with SMTP id <S318376AbSHELYK> convert rfc822-to-8bit;
-	Mon, 5 Aug 2002 07:24:10 -0400
-Date: Mon, 5 Aug 2002 13:27:42 +0200
-Message-Id: <200208051127.g75BRgX27554@eday-fe5.tele2.ee>
-From: "Thomas Munck Steenholdt" <tmus@get2net.dk>
+	id <S318381AbSHEL2s>; Mon, 5 Aug 2002 07:28:48 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:34029 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318379AbSHEL2r> convert rfc822-to-8bit; Mon, 5 Aug 2002 07:28:47 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
 To: linux-kernel@vger.kernel.org
-Subject: i810 sound broken...
+Subject: 2.4.19' drivers/block/ll_rw_blk.c
+Date: Mon, 5 Aug 2002 12:23:29 +0200
+X-Mailer: KMail [version 1.4]
+Organization: Linux-Systeme GmbH
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Adrian Bunk <bunk@fs.tum.de>
+X-PRIORITY: 2 (High)
 MIME-Version: 1.0
-X-EdMessageId: 1841550a5e5051664b5c45124c4b194b4551494b54514b1e5b5f5811561f5a555b97
-Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+Message-Id: <200208051223.29329.mcp@linux-systeme.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed some writing on lkml on how i810(AC97) sound was broken. Aparantly a couple of fixes have been posted, but I couldn't see where(if at all) those patches have gone... 2.4.19 still does not work and 2.4.19-ac3 won't even load the i810 module.
+Hi there,
 
-Does anybody know if the known i810 sound issue has, in fact, been fixed, and if so - in what kernel/patch?
+could you please consider changing those very slow behaviour in 
+"drivers/block/ll_rw_blk.c"? ... Benchmarked against 2.4.18 this is horribly 
+slower ... Doing some heavy disk i/o, want to start another thing, system 
+freeze for some seconds ... Opening a xterm , Ctrl-D to leave, this takes 
+about 5 seconds and somewhat is doing flushing to the disk.
 
-rgds, Thomas
+Maybe req_finished_io ?
 
--- Send gratis SMS og brug gratis e-mail på Everyday.com -- 
+Adrian, could this be the problem you've experienced?
 
+Afaik this was changed for 2.4.19-pre7 and above.
+
+-- 
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/408B2D54947750EC
+Fingerprint: 8602 69E0 A9C2 A509 8661 2B0B 408B 2D54 9477 50EC
+Key available at www.keyserver.net. Encrypted e-mail preferred.

@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264461AbTLCBXt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 20:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264468AbTLCBXt
+	id S264392AbTLCCCm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 21:02:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTLCCCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 20:23:49 -0500
-Received: from mail.netzentry.com ([157.22.10.66]:48651 "EHLO netzentry.com")
-	by vger.kernel.org with ESMTP id S264461AbTLCBXq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 20:23:46 -0500
-Message-ID: <3FCD3B0F.6060700@netzentry.com>
-Date: Tue, 02 Dec 2003 17:23:27 -0800
-From: "b@netzentry.com" <b@netzentry.com>
-Reply-To: b@netzentry.com
-Organization: b@netzentry.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: pomac@vapor.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Dec 2003 21:02:42 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:49537 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264392AbTLCCCl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 21:02:41 -0500
+Date: Wed, 3 Dec 2003 02:02:40 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/locks.c fcntl_setlease did not check if a file was opened for writing before granting a read lease
+Message-ID: <20031203020240.GC27306@mail.shareable.org>
+References: <000301c3b504$689afbf0$0201a8c0@joe> <20031127165043.GA19669@mail.shareable.org> <6uwu9flcdq.fsf@zork.zork.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6uwu9flcdq.fsf@zork.zork.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How is the performance of the generic IDE driver?
+Sean Neakums wrote:
+> > 	if ((arg == F_RDLCK)
+> > 	    && ((atomic_read(&inode->i_writer_count) != 0)))
+> >
+> > You'll also need to modify all the places where that needs to be
+> > maintained.
+> 
+> Looking at 2.6.0-test11, it seems that its struct inode has such a
+> field, albeit named i_writecount.  Commentary from fs/namei.c:
 
-My experience that it was almost unusable (kernel 2.4.22,
-2.4.23) (fsck taking hours, etc)
+Cool.  At a glance, it looks like deny_write_access() can be used to
+handle the F_RDLCK case.
 
- >>>On Wed, 2003-12-03 at 01:58, Allen Martin wrote: -----Original
- >>>Message----- From: Ian Kumlien [mailto:pomac@vapor.com] Sent:
- >>>Tuesday, December 02, 2003 4:47 PM
- >>>
- >>>Well, IDE is what i'd blame. My original experience about lost
- >>>interrupts leads me to ide. Since i never loose interrupts
- >>>without io-apic.
- >>
- >>Can someone who has a system showing this problem try booting
- >>from  a PCI IDE card to see if it makes any difference? I'd try
- >>the experiment here, but I can't reproduce the hanging that's
- >>being reported.
+(It would also be nice to have some way of blocking until the lease can
+be taken, but even the F_WRLCK case doesn't offer that at the moment).
 
- >Or just to verify boot a kernel without the nvidia/amd ide driver
- >and io-apic enabled.
- >
- > -- Ian Kumlien
-
-
-
-
-
+-- Jamie

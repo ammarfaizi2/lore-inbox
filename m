@@ -1,60 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265094AbSKNRf6>; Thu, 14 Nov 2002 12:35:58 -0500
+	id <S265063AbSKNRdd>; Thu, 14 Nov 2002 12:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265095AbSKNRf6>; Thu, 14 Nov 2002 12:35:58 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:35085 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S265094AbSKNRfz>;
-	Thu, 14 Nov 2002 12:35:55 -0500
-Date: Thu, 14 Nov 2002 18:42:47 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
-       Sam Ravnborg <sam@ravnborg.org>, Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: make distclean and make dep??
-Message-ID: <20021114174246.GB10723@mars.ravnborg.org>
-Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
-	Sam Ravnborg <sam@ravnborg.org>, Bill Davidsen <davidsen@tmr.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0211131628010.16858-100000@xanadu.home> <Pine.LNX.4.44.0211140933150.5313-100000@chaos.physics.uiowa.edu>
+	id <S265065AbSKNRdd>; Thu, 14 Nov 2002 12:33:33 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:18321 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265063AbSKNRdc>;
+	Thu, 14 Nov 2002 12:33:32 -0500
+Date: Thu, 14 Nov 2002 09:40:06 -0800
+From: Dave Olien <dmo@osdl.org>
+To: Adam Voigt <adam@cryptocomm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.47 "DAC960" Compile Error
+Message-ID: <20021114094005.A22605@acpi.pdx.osdl.net>
+References: <1037293958.16834.12.camel@beowulf.cryptocomm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211140933150.5313-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1037293958.16834.12.camel@beowulf.cryptocomm.com>; from adam@cryptocomm.com on Thu, Nov 14, 2002 at 12:12:38PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 09:35:53AM -0600, Kai Germaschewski wrote:
-> I think there's good reasons for both distclean and mrproper, distclean is
-> the standard target which most projects use, and mrproper is the
-> traditional Linux kernel target. So I would vote for keeping them both
-> (and share a common help entry).
+
+You can get a working DAC960 driver at
+
+	http://www.osdl.org/archive/dmo
+
+There are patches here for numerous versions of Linux.
+
+On Thu, Nov 14, 2002 at 12:12:38PM -0500, Adam Voigt wrote:
+> Kernel being Compiled: 2.5.47
+> Distro: Redhat 8
+> GCC: 3.2-7
 > 
-> What I don't see is why we would need different semantics, though, 
-> anybody?
-How about the following:
-clean	Delete all intermidiate files, including symlinks and modversions
-mrproper	clean + deletes .config and .config.old
-distclean	mrproper + all editor backup, patch backup files
+> 2.5.47 Compile with mostly default options, stops compiling in the
+> make phase with:
+> 
+> gcc -Wp,-MD,drivers/block/.DAC960.o.d -D__KERNEL__ -Iinclude -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
+> -DMODULE -include include/linux/modversions.h  
+> -DKBUILD_BASENAME=DAC960   -c -o drivers/block/DAC960.o
+> drivers/block/DAC960.c
+> In file included from drivers/block/DAC960.c:49:
+> drivers/block/DAC960.h:2572:2: #error I am a non-portable driver, please
+> convert me to use the Documentation/DMA-mapping.txt interfaces
+> In file included from drivers/block/DAC960.c:49:
+> drivers/block/DAC960.h: In function `DAC960_BA_WriteHardwareMailbox':
+> drivers/block/DAC960.h:2846: warning: implicit declaration of function
+> `Virtual_to_Bus32'
+> drivers/block/DAC960.c: In function `DAC960_V2_GeneralInfo':
+> drivers/block/DAC960.c:656: warning: implicit declaration of function
+> `Virtual_to_Bus64'
+> drivers/block/DAC960.c: In function `DAC960_V1_ProcessCompletedCommand':
+> drivers/block/DAC960.c:3102: warning: implicit declaration of function
+> `Bus32_to_Virtual'
+> drivers/block/DAC960.c:3102: warning: passing arg 2 of
+> `__constant_memcpy' makes pointer from integer without a cast
+> drivers/block/DAC960.c:3102: warning: passing arg 2 of `__memcpy' makes
+> pointer
+> from integer without a cast
+> drivers/block/DAC960.c:3107: warning: passing arg 2 of
+> `__constant_memcpy' makes pointer from integer without a cast
+> drivers/block/DAC960.c:3107: warning: passing arg 2 of `__memcpy' makes
+> pointer
+> from integer without a cast
+> drivers/block/DAC960.c: In function `DAC960_P_InterruptHandler':
+> drivers/block/DAC960.c:5038: warning: passing arg 1 of
+> `DAC960_P_To_PD_TranslateEnquiry' makes pointer from integer without a
+> cast
+> drivers/block/DAC960.c:5044: warning: passing arg 1 of
+> `DAC960_P_To_PD_TranslateDeviceState' makes pointer from integer without
+> a cast
+> make[2]: *** [drivers/block/DAC960.o] Error 1
+> make[1]: *** [drivers/block] Error 2
+> make: *** [drivers] Error 2
+> 
+> -- 
+> Adam Voigt (adam@cryptocomm.com)
+> The Cryptocomm Group
+> My GPG Key: http://64.238.252.49:8080/adam_at_cryptocomm.asc
 
-In other words a more powerfull clean compared to today.
-The difference between clean and mrproper is then _only_ the configuration
-files. That easy to explain, and thats easy to understand. Today only
-very few people know the difference, and simply save their config,
-and do make mrproper.
 
-I have many times seen people do something like:
-cp .config xxx
-make mrproper
-mv xxx .config
-
-No need for that, when make clean deletes enough.
-
-Only caveat is that people are forced to wait for the modversion stuff,
-but to my understanding Rusty is making that step obsolete soon.
-Did I miss something obvious?
-
-	Sam

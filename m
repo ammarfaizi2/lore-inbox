@@ -1,213 +1,197 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274683AbRJNHfU>; Sun, 14 Oct 2001 03:35:20 -0400
+	id <S274681AbRJNHhA>; Sun, 14 Oct 2001 03:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274681AbRJNHfN>; Sun, 14 Oct 2001 03:35:13 -0400
-Received: from robin.mail.pas.earthlink.net ([207.217.120.65]:58706 "EHLO
-	robin.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S274683AbRJNHe7>; Sun, 14 Oct 2001 03:34:59 -0400
-From: rwhron@earthlink.net
-Date: Sun, 14 Oct 2001 03:37:26 -0400
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
-Subject: VM test on 2.4.12aa1 and 2.4.13-pre2aa1
-Message-ID: <20011014033726.A299@earthlink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S274666AbRJNHgv>; Sun, 14 Oct 2001 03:36:51 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:51678 "EHLO softhome.net")
+	by vger.kernel.org with ESMTP id <S274749AbRJNHgd>;
+	Sun, 14 Oct 2001 03:36:33 -0400
+From: "John L. Males" <jlmales@softhome.net>
+Organization: Toronto, Ontario, Canada
+To: Andrea Arcangeli <andrea@suse.de>
+Date: Sun, 14 Oct 2001 03:36:55 -0500
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re[08]: [CFT][PATCH] smoother VM for -ac
+Reply-to: jlmales@softhome.net
+CC: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Robert Love <rml@tech9.net>
+Message-ID: <3BC90857.20424.67CBFF@localhost>
+In-Reply-To: <20011012075429.N714@athlon.random>
+In-Reply-To: <3BC64882.27834.2D200B0@localhost>; from jlmales@softhome.net on Fri, Oct 12, 2001 at 01:33:54AM -0500
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Andrea,
+
+***** FYI, I am not on the kernel mailing list *****
+
+I had a had a chance to do some testing with the unofficial SuSE
+2.4.12 Kernel that I believe is based on your 2.4.12aa1.  
+
+I used:
+
+ftp://ftp.suse.com/pub/people/mantel/next/RPM/k_i386-2.4.12-0.i386.rpm
+
+I have an AMD K6-2-500 and find that the Pentium or "default" SuSE
+kernels hang using the AMD K6-2.  I was unable to compile the kernel
+from the souce using:
+
+ftp://ftp.suse.com/pub/people/mantel/next/linux-2.4.12.SuSE-0.tar.bz2
+
+due some unknow technical problems.  One was "make xconfig" would not
+build, and using "make oldconfig" and the usual make commands to
+build a kernel caused a error with a module a ways down.  The kernel
+image compiled fine.
+
+Ok, enough of those side issues.  The meat of the testing results is
+that the k_i386-2.4.12-0.i386.rpm kernel seems to fair very well with
+the testing I have done.  The tests take about 20 minutes to complete
+with the k_i386-2.4.12-0.i386.rpm kernel.  The test mix is a bit
+interesting, so I will only suggest it might be nice to shorten the
+lapsed time of the test, but may not be possible due to I/O being the
+bottleneck.
+
+With respect to comparing the same test but using the 2.4.10-ac12
+kernel that appears to have the both of Rik van Riel's patches:
+
+http://lwn.net/2001/1011/a/cache-reclaim.php3
+http://lwn.net/2001/1011/a/smooth.php3
+
+The results were not great.  The "exact" same test takes a little
+over 3 hours to complete. 
+
+The part of the test that seems to cause problems with the
+2.4.10-ac12 involves a 300MB working set.  This 300MB working set was
+on top of a basic 60MB (combined System, shared, cache and buffer)
+after the initial system start up.  The system used for testing has
+256MB RAM and 256MB Swap file.  It seems the 2.4.10-ac12 ends up with
+extra memory (overhead??) allocated during this part of the test to
+basically have next to nil shared+cache+buffer whilst having both RAM
+and the cache full to the brim.  If that is not enough the
+2.4.10-ac12 seems to vary at times back and forth +-25MB while the
+working set is still trying to be processed by the kernel.  Along the
+way the the 2.4.10-ac12 kernel also tends to kill or cause a signal 9
+to some of the working set applications, but despite this the system
+seems to churn on this 300MB working set for just about 3 hours
+(other part of test brings total to just over 3 hours).
+
+By comparison the k_i386-2.4.12-0.i386.rpm test during this same
+300MB workig set showed little extra overhead.  Hence 300 + 60 did
+cause RAM to fill up and next to nil of share+cache+buffer, but the
+swap file too the balance in a more expected manner, i.e about 120 MB
+into the swap file.  Hence the swap file was never pressured to it
+full limit as would be expected.
+
+In terms of workstation responsiveness, it was not great with the
+k_i386-2.4.12-0.i386.rpm kernel, but was extremely, extremely to
+ignoring workstation activity or taking in the order of 5+ minutes to
+respond to simple things like launching qps, or changing directories
+with kruiser and many big time problems getting into the screen saver
+to unlock the workstation.
+
+I do need to refine my tests a bit.  One thing I am going to do is
+move the detailed system information I am trying to log during the
+test to a different physical drive than where the swap files are
+located.  I suspect this should ease the contention that may be
+ensuing between the system's need to page to the swap file and the
+need to keep logging the metric information.
+
+I also need to find a way to collect certain metric information
+during the test.  Not being a developer (I am a QA/Testing Person) it
+may take me a bit of effort to cut and carve what I need from qps and
+xosview to get the metric information that is lacking for these
+tests.  I suspect I will not be able to look into the cutting and
+carving of code until next weekend.  I may try this test on the
+2.4.9-ac18, maybe even the 2.2.19 for a feel if they are greatly
+different in results to the two kernels tested earlier today.
 
 
->> Test:
->>
->> Run loop of 10 iterations of Linux Test Project's "mtest01 -p80 -w"
->> This test attempts to allocate 80% of virtual memory and write to
->> each page.  Simulataneously listen to mp3blaster.
->>
-> You should try out 2.4.13pre2.aa1.. 
+Regards,
 
-Elapsed (wall clock) time in seconds is much better in 2.4.13-pre2aa1:
-
-2.4.12aa1
-
-Averages for 10 mtest01 runs
-bytes allocated:                    1253362892.8
-User time (seconds):                2.099
-System time (seconds):              2.823
-Elapsed (wall clock) time:          64.109
-Percent of CPU this job got:        7.5%
-Major (requiring I/O) page faults:  135.2
-Minor (reclaiming a frame) faults:  306779.8
-
-2.4.13-pre2aa1
-
-Averages for 10 mtest01 runs
-bytes allocated:                    1245184000
-User time (seconds):                2.050
-System time (seconds):              2.874
-Elapsed (wall clock) time:          49.513
-Percent of CPU this job got:        9.7%
-Major (requiring I/O) page faults:  115.6
-Minor (reclaiming a frame) faults:  304781.9
+John L. Males
+Willowdale, Ontario
+Canada
+14 October 2001 03:36
+mailto:jlmales@softhome.net
 
 
-Note on mp3blaster audio performance:
+Date sent:      	Fri, 12 Oct 2001 07:54:29 +0200
+From:           	Andrea Arcangeli <andrea@suse.de>
+To:             	"John L. Males" <jlmales@softhome.net>
+Copies to:      	Rik van Riel <riel@conectiva.com.br>,
+linux-mm@kvack.org,
+       	linux-kernel@vger.kernel.org, Alan Cox
+<alan@lxorguk.ukuu.org.uk>
+Subject:        	Re: [CFT][PATCH] smoother VM for -ac
 
-2.4.12aa1 got smooth at a lower swpd number than 2.4.13-pre2aa1.
-2.4.12aa1 became smooth when swpd hit around 130000-140000 (and above).
-2.4.13-pre2aa1 became smooth when swpd hit around 280000-300000 (and above).
-
-2.4.13-pre2aa1 vmstat 1 output.  This is an example from one of the 10 iterations.
-At the point the vmstat output starts, mp3blaster has been playing smoothly for
-about 20 seconds.
-
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 2  2  1 554920   1564   1188   2312  44 10092   432 10188  498   719   3   7  91
- 0  3  1 565652   2288   1192   2400  16 10248   388 10248  423   604   4   9  87
- 2  1  1 574848   1628   1196   2388  48 9780   488  9780  449   650   2   5  93
- 2  1  1 586608   1780   1188   2320  56 10704   400 10704  498   682   2   6  92
- 2  1  1 603504   1784   1184   2316   0 17536   300 17536  457   626   2  10  88
- 1  2  1 621424   2552   1180   2316   0 18152    64 18192  463   632   3  14  83
- 0  2  1 640880   2556   1184   2316   0 18340    72 18340  484   687   2   9  89
- 1  2  1 660848   2036   1180   2316   0 20156    60 20156  487   657   6   8  86
- 3  0  1 678768   1788   1184   2320   0 17356    76 17356  488   696   3  13  84
- 0  2  1 696176   2540   1176   2324   0 19416    60 19416  472   667   4   8  89
- 2  2  1 716144   1656   1172   2324   0 18060    68 18084  481   678   2  13  85
- 0  2  1 738160   2172   1176   2316  12 23544    88 23544  566   772   6   7  88
- 3  0  0  14700 316844   1236   2640 284 2048   656  2048  415   728  24  37  39
-
- Around here, mp3blaster begins to stutter.
-
- 2  0  0  14696  51576   1236   2768  64   0   192     0  278   579  49  51   0
- 1  3  1  26728   3384   1188   2024 612 16232   732 16272  675   710   7  13  80
- 0  3  1  39312   2512   1196   2076 248 13516   428 13520  414   487   4   2  94
- 3  1  1  50420   1912   1176   2016 216 11800   356 11800  389   397   4   2  95
- 1  2  0  66564   2568   1184   2008 288 13844   432 13844  458   484   4   4  92
- 1  2  1  80204   2036   1180   2000 196 16296   256 16320  509   494   2   7  91
- 1  1  1  97400   1784   1184   2000 236 16848   308 16848  509   464   2   7  92
- 1  2  1 116720   1904   1180   2000 120 19076   176 19076  508   429   6   5  88
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 0  2  1 134488   3060   1188   2000 152 17124   212 17124  485   411   7   4  89
- 0  3  1 151236   3056   1184   2000 148 17716   196 17716  411   360   3   8  89
- 0  3  1 168032   2560   1176   2008 100 15928   160 15952  443   371   4   6  91
- 2  1  1 187324   1784   1180   2000 164 20480   460 20480  516   421   6   7  87
- 2  1  1 200484   1784   1184   2004 152 14752   212 14752  475   372   1   8  91
- 0  3  1 220224   3432   1184   2000 228 18560   288 18560  483   437   4   8  89
- 2  0  2 236512   1640   1200   2000 116 16384   160 16396  437   392   5   7  88
- 0  3  1 253836   3188   1184   2000  84 15284   132 15316  373   343   2   5  93
- 1  1  1 270624   2052   1176   2000 104 19536   160 19536  508   581   4   8  88
-
- At this point, mp3blaster is smooth again.
-
- 2  1  1 294176   1628   1176   2004   0 23420    68 23420  544   741   5   8  87
- 2  2  1 317728   3572   1184   2000   0 23588    60 23588  532   740   3   7  90
- 0  2  1 335136   3584   1180   2000   0 18080    68 18104  482   669   4   7  90
- 0  2  1 356128   2040   1176   2004   0 20244    68 20244  511   702   5   8  87
- 0  2  1 373024   1656   1184   2004   0 17960    72 17960  521   695   3   8  89
- 0  2  1 394528   1660   1180   2000   0 19900   300 19900  480   655   6   9  86
- 1  2  1 413984   2056   1184   2000   0 19924    56 19924  480   678   6   8  87
- 0  1  0 433952   3620   1172   2004   0 20488    60 20512  498   696   7   5  88
- 1  2  1 458528   1628   1176   2000   0 24100    72 24100  559   766   5   7  88
- 2  0  1 478496   3072   1172   1996   0 21288    68 21288  498   692   7  10  82
- 0  2  1 499132   1852   1176   1124   0 20172    76 20172  514   696   5  10  84
- 0  3  2 520632   1648   1208   1120   4 20524    72 20536  505   691   5   9  86
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 0  4  1 531272   2792   1212   1164 216 11492   548 11504  574   896   3   3  94
- 1  3  1 539920   2144   1208   1320  52 7864   444  7864  411   624   1   6  93
- 0  3  1 556728   1664   1180   1188 104 18012   180 18012  518   736   5  12  82
- 3  0  1 573612   1784   1188   1296  32 17096   452 17096  500   698   4   9  88
- 1  1  1 590508   1784   1176   1212   0 16380    68 16404  473   675   4   6  90
- 2  1  1 610988   1912   1184   1212   0 20820    84 20820  529   723   2  11  87
- 1  1  1 629420   2412   1172   1216   0 18148    72 18148  474   660   2  10  88
- 2  1  1 650924   1744   1180   1220   0 21452    72 21452  544   786   5   9  86
- 0  2  1 669868   1600   1180   1216   0 19388    64 19388  468   650   3  10  88
- 1  2  1 688300   2552   1180   1216   0 16476    64 16512  462   646   4  11  85
- 0  2  1 706220   3032   1184   1216   0 19212    72 19212  487   682   7   8  86
- 0  2  1 728748   2548   1176   1220   0 23644    64 23644  530   712   2  15  84
- 2  0  0  13904 460316   1228   2292 220 6784  1364  6784  508   765   4  20  76
- 2  0  0  13904 196080   1244   2292   0   0     0    36  282   559  42  58   0
- 1  3  1  20304   2796   1184   1392 116 10740   152 10740  568   716  21  32  48
- 4  0  1  37960   1784   1176   1392 276 17428   348 17428  551   470   4   9  87
- 0  2  1  53588   2208   1176   1388 248 15076   308 15076  469   439   4   4  93
+> On Fri, Oct 12, 2001 at 01:33:54AM -0500, John L. Males wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > - -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > Andrea,
+> > 
+> > I can do.  I see this is a VM is of keen interest.  Question for
+> > you.
+> >  To really compare apples to apples I could spider a web site or
+> > two just find.  Then the challenge is to replay the "test" on the
+> > gui, say KDE for example.  Do you know of any good tools that
+> > would alow me to do a GUI record/playback?  I can then do an A vs
+> > B comparison. 
+> 
+> For testing the repsonsiveness I usually check the startup time of
+> applications like netscape with cold cache, later I just start an
+> high vm load on my desktop and I see how long can I keep working
+> without being too hurted. the first is certainly a measurable test,
+> the second isn't reliable since it doesn't generate raw numbers and
+> it's too much in function of the human feeling but it shows very
+> well any
+> patological problem of the code. But they may not be the best
+> tests.  
+> 
+> > Also, remind me, can I find your kernel to test on the SuSE FTP
+> > site or via kernel.org.  I had tried a few of the SuSE 2.4
+> > kernels a few levels back and I recall I was going to the people
+> > directory of the FTP site and getting them from mantel I seem to
+> > recollect.
+> 
+> That's still fine procedure, only make sure to pick the latest
+> 2.4.12 one based on 2.4.12aa1 before running the tests. thanks,
+> 
+> > I will search about on internet to see if I can find a
+> > record/playback too to get some sort of good A vs B comparison.
+> > 
+> > 
+> > Regards,
+> > 
+> > John L. Males
+> > Willowdale, Ontario
+> > Canada
+> > 12 October 2001 01:33
+> > mailto:jlmales@softhome.net
+> 
+> Andrea
 
 
- Each iteration behaves consistantly.
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.5.8 for non-commercial use 
+<http://www.pgp.com>
+Comment: .
+
+iQA/AwUBO8lOiuAqzTDdanI2EQLfrgCfTPXHDyEEoAWfTdWC28UaMzv1EAQAoKKT
+PjOOkmCNggHekWz35GZugJnt
+=FfXm
+-----END PGP SIGNATURE-----
 
 
-Scripty for summarizing mmtest output:
 
-
-#!/usr/bin/perl -w
-# chkmmt - check mmtest output (/usr/bin/time -v and mtest01) 
-
-# variables for interesting information
-my ($allocated, $utime, $stime, $pct_cpu, $w_min, $w_secs, $maj_faults, $min_faults);
-my ($tot_allocated, $tot_utime, $tot_stime, $tot_pct_cpu, $tot_w_secs, 
-	$tot_maj_faults, $tot_min_faults);
-
-my $count_runs;
-
-# junk
-my ($p, $d, $b, $a, $u, $t, $s);
-
-#PASS ... 1244659712 bytes allocated.
-#	User time (seconds): 2.01
-#	System time (seconds): 2.84
-#	Percent of CPU this job got: 8%
-#	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:59.02
-#	Major (requiring I/O) page faults: 108
-#	Minor (reclaiming a frame) page faults: 304655
-
-# read a logfile from mmtest script  (stdin)
-while (<>) {
-	if (/allocated/o) {
-		($p, $d, $allocated, $b, $a) = split;
-		$tot_allocated += $allocated;
-		$count_runs++;
-	} elsif (/User/o) {
-		($u, $t, $p, $utime) = split;
-		$tot_utime += $utime;
-	} elsif (/System/o) {
-		($s, $t, $p, $stime) = split;
-		$tot_stime += $stime;
-	} elsif (/Percent/o) {
-		s/.* (\d+)%/$1/;
-		$percent = $_;
-		$tot_pct_cpu += $percent;
-	} elsif (/Elapsed/o) {
-		s/.*\): //o;
-		($w_min, $w_secs) = split ':';
-		$tot_w_secs += ($w_min * 60);
-		$tot_w_secs += $w_secs;
-	} elsif (/Major/o) {
-		s/.*: //o;
-		$maj_faults = $_;
-		$tot_maj_faults += $maj_faults;
-	} elsif (/Minor/o) {
-		s/.*: //o;
-		$min_faults = $_;
-		$tot_min_faults += $min_faults;
-	}
-}
-
-# print summary:
-
-print  "Averages for $count_runs mtest01 runs\n";
-print  "bytes allocated:                    ", $tot_allocated / $count_runs, "\n";
-printf "User time (seconds):                %.3f\n", $tot_utime / $count_runs;
-printf "System time (seconds):              %.3f\n", $tot_stime / $count_runs;
-printf "Elapsed (wall clock) time:          %.3f\n", $tot_w_secs / $count_runs;
-print  "Percent of CPU this job got:        ", $tot_pct_cpu / $count_runs, "%\n";
-print  "Major (requiring I/O) page faults:  ", $tot_maj_faults / $count_runs, "\n";
-print  "Minor (reclaiming a frame) faults:  ", $tot_min_faults / $count_runs, "\n";
-
-# end of script
-
-
--- 
-Randy Hron
-
+"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 - February/2000

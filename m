@@ -1,113 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317619AbSG2T46>; Mon, 29 Jul 2002 15:56:58 -0400
+	id <S317623AbSG2T5n>; Mon, 29 Jul 2002 15:57:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317623AbSG2T46>; Mon, 29 Jul 2002 15:56:58 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41049 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S317619AbSG2T4u>; Mon, 29 Jul 2002 15:56:50 -0400
-To: Hans Reiser <reiser@namesys.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Federico Ferreres <fferreres@ojf.com>,
-       Daniel Mose <imcol@unicyclist.com>, Larry McVoy <lm@work.bitmover.com>,
-       Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org, openpatentfunds@home.se
-Subject: Re: Funding GPL projects or funding the GPL?
-References: <Pine.GSO.4.21.0207280601260.27010-100000@weyl.math.psu.edu>
-	<3D44F136.8060202@namesys.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 29 Jul 2002 13:47:51 -0600
-In-Reply-To: <3D44F136.8060202@namesys.com>
-Message-ID: <m165yygvtk.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317627AbSG2T5n>; Mon, 29 Jul 2002 15:57:43 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:58324 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317623AbSG2T5k>; Mon, 29 Jul 2002 15:57:40 -0400
+Subject: [PATCH] Linux-2.5 fix for get_pid() hang
+From: Paul Larson <plars@austin.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 Jul 2002 14:57:46 -0500
+Message-Id: <1027972670.7699.210.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> writes:
+This is a fix for the problem where get_pid will hang the machine if you
+request a new pid when all available pids are in use.  This also adds
+the appropriate checking for p->tgid in get_pid that was somehow
+overlooked before.  This patch has been in 2.4 since 2.4.19-pre9.
 
-> Alexander Viro wrote:
-> 
-> >On 28 Jul 2002, Federico Ferreres wrote:
-> >
-> >
-> >>I stated a simple idea aimed at solving a real world issue. And you
-> >>haven't proved it wrong. It may not be what you or the kernel hackers
-> >>need/want (which is FINE). But it would solve ALL the funding problems
-> >>at least.
-> >>
-> >
-> >You don't get it.  So far the only guy who had been charitable was Larry, who
-> >felt that problem was real but had serious doubts about viability of your
-> >idea.  I don't feel charitable and I've no reason to hesitate telling that
-> >you guys _are_ waste of time.  No maybes about it.  It's that simple...
-> >
-> >
-> >
-> Viro is abusive to everyone (by email, he is likable in person oddly enough),
-> usually without understanding what he is talking about at a level of depth any
-> deeper than it is new therefor wrong (see devfs thread where he rejects devfs on
-> 
-> the basis of endless details without understanding that the basic idea had any
-> merit).
+Please apply.
 
-There are a couple of interesting points raised in this thread.  
-1) That a substantial part of the work of software is not building it, but
-   is maintaining it.
-2) That several people feel that it is hard to make a business plan with
-   open source software.
-3) Many successful software companies, have made money with a hardware tax.
-   And open source could feasibly get part of that action, all you have to do
-   is to demand that Linux be pre-installed.  And the distributions should
-   get involved to help the hardware manufacturers.
-4) Raising money is conceptually very simple.  But practically hard.
-5) How society perceives the solution is a very important part of any solution.
+Paul Larson
+Linux Test Project
+http://ltp.sourceforge.net
 
-A lot of economics is modeling and finding a system where the greedy
-algorithm, can be used to optimize the system.  As all decisions are local
-with the greedy algorithm it scales very well.  Most forms of central
-planning, distribution whatever fall down because they are not built
-on algorithms that scale.
+diff -Nru a/kernel/fork.c b/kernel/fork.c
+--- a/kernel/fork.c	Mon Jul 29 15:15:36 2002
++++ b/kernel/fork.c	Mon Jul 29 15:15:36 2002
+@@ -26,6 +26,7 @@
+ #include <linux/mman.h>
+ #include <linux/fs.h>
+ #include <linux/security.h>
++#include <linux/compiler.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -136,12 +137,13 @@
+ {
+ 	static int next_safe = PID_MAX;
+ 	struct task_struct *p;
+-	int pid;
++	int pid, beginpid;
+ 
+ 	if (flags & CLONE_IDLETASK)
+ 		return 0;
+ 
+ 	spin_lock(&lastpid_lock);
++	beginpid = last_pid;
+ 	if((++last_pid) & 0xffff8000) {
+ 		last_pid = 300;		/* Skip daemons etc. */
+ 		goto inside;
+@@ -161,12 +163,16 @@
+ 						last_pid = 300;
+ 					next_safe = PID_MAX;
+ 				}
++				if(unlikely(last_pid == beginpid))
++					goto nomorepids;
+ 				goto repeat;
+ 			}
+ 			if(p->pid > last_pid && next_safe > p->pid)
+ 				next_safe = p->pid;
+ 			if(p->pgrp > last_pid && next_safe > p->pgrp)
+ 				next_safe = p->pgrp;
++			if(p->tgid > last_pid && next_safe > p->tgid)
++				next_safe = p->tgid;
+ 			if(p->session > last_pid && next_safe > p->session)
+ 				next_safe = p->session;
+ 		}
+@@ -176,6 +182,11 @@
+ 	spin_unlock(&lastpid_lock);
+ 
+ 	return pid;
++
++nomorepids:
++	read_unlock(&tasklist_lock);
++	spin_unlock(&lastpid_lock);
++	return 0;
+ }
+ 
+ static inline int dup_mmap(struct mm_struct * mm)
+@@ -677,6 +688,8 @@
+ 
+ 	copy_flags(clone_flags, p);
+ 	p->pid = get_pid(clone_flags);
++	if (p->pid == 0 && !(clone_flags & CLONE_IDLETASK))
++		goto bad_fork_cleanup;
+ 	p->proc_dentry = NULL;
+ 
+ 	INIT_LIST_HEAD(&p->run_list);
 
-The basic economic model of supply and demand with competition works
-fairly well.  But it has problems when you have either an external
-cost (Pollution) or an external benefit (Free Software).  With some
-small amount of government regulation it is theoretically possible to
-introduce these external costs, into the direct costs normally dealt
-with.  The best scheme I have seen proposed is to sell permits to
-pollute, with the maximum number of permits limited by the maximum
-amount of pollution you wish to allow.  It might be possible adapt
-this to free-software by allowing having permits to sell non-free
-software.  But that requires a large shift in how this are
-accomplished.
-
-But the assertion made by Al Viro that software maintenance is where
-the bulk of the work is, is interesting.  Long term this is trivially
-true because the all of the code has been written, and there is no new
-development to do.  Services like distributions and device driver
-writers, and kernel maintainers appear to be in the area where
-maintenance is important.  Maintenance can be handled by
-maintenance/support contracts, making the economic model with closed
-source and open source the same, except with open source it is easier
-for multiple maintainers to cooperate.  And in the areas where the
-work is primarily maintenance is where open source has been observed
-to be well funded so this appears to work in practice.
-
-Given that software maintenance is the primary problem, it is only
-the creators of innovative open source programs whose costs are
-external to the economic model, that making business plans harder to
-deal with.  So the question becomes how in the open source community
-do we encourage true innovation, while not encouraging it so much we
-fail to weed out the dumb ideas.  Innovation always has a large share
-of external benefit so the problem of how to encourage and compensate
-innovators is not new, but the open source landscape is.
-
-The only idea that spring to my mind to encourage true innovation are
-obligating the distributors to pay the innovators something for the
-programs they distribute.  Or having universities and other research
-institutions pay the salaries of the researchers.  Off the top of my
-head I cannot think of anything that takes advantage of the potential
-to bypass an old guard of maintainers, and universities and go
-directly to the consumer.
-
-Eric

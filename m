@@ -1,76 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbUAGXPE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 18:15:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbUAGXPE
+	id S262746AbUAGXXe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 18:23:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbUAGXXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 18:15:04 -0500
-Received: from simba.math.ucla.edu ([128.97.4.125]:6787 "EHLO
-	simba.math.ucla.edu") by vger.kernel.org with ESMTP id S261879AbUAGXO7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 18:14:59 -0500
-Date: Wed, 7 Jan 2004 15:14:58 -0800 (PST)
-From: Jim Carter <jimc@math.ucla.edu>
-To: "Ogden, Aaron A." <aogden@unocal.com>
-Cc: thockin@sun.com, "H. Peter Anvin" <hpa@zytor.com>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       Mike Waychison <Michael.Waychison@sun.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: [autofs] [RFC] Towards a Modern Autofs
-In-Reply-To: <6AB920CC10586340BE1674976E0A991D0C6BE4@slexch2.sugarland.unocal.com>
-Message-ID: <Pine.LNX.4.53.0401071440090.21436@simba.math.ucla.edu>
-References: <6AB920CC10586340BE1674976E0A991D0C6BE4@slexch2.sugarland.unocal.com>
+	Wed, 7 Jan 2004 18:23:34 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:23313 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S262746AbUAGXX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 18:23:29 -0500
+Date: Thu, 8 Jan 2004 00:20:44 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+cc: Ingo Molnar <mingo@redhat.com>
+Subject: [PATCH][RFC] variable size and signedness issues in ldt.c - potential
+ problem?
+Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC074AFBC9@difpst1a.dif.dk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jan 2004, Ogden, Aaron A. wrote:
-> If you've read this far, what I'm trying to say is that having userspace
-> related code remain in userland is a good thing since you can restart
-> the daemon if something goes wrong.
 
-Hear, hear.  But...
+Hi,
 
-> If you move all of this to
-> kernel-space you can't do anything about it if there is a problem.  In
-> Solaris there is a command called 'automount' that tells the kernel to
-> re-read the automount maps, perhaps it resets the autofs subsystem in
-> the kernel as well.  If linux autofs had the same capability we might
-> not need the daemon, but until then, having the daemon in userland is a
-> good thing.
+I'm hunting the kernel source for any potential problem I can find (and
+hopefully fix), and I've come across something that looks like a possible
+problem in arch/i386/kernel/ldt.c
 
-To my mind the ideal design goes something like this:
+First thing that looks suspicious is this bit in read_ldt() :
 
-1.  you can mount a synthetic autofs filesystem on lots of directories,
-including subdirs of other autofs filesystems.
+        for (i = 0; i < size; i += PAGE_SIZE) {
+		...
+	}
 
-2.  Whenever anything tries to access one of those directories (for a
-direct map) or one of its subdirs whether visible or not (indirect map), if
-nothing is mounted on it [and it hasn't been told by a special flag that
-it's non-mountable, see the /home/user/server{A,B} example], the autofs
-kernel module runs a script in user space (in the namespace context of the
-originally requesting process).  Upon exit, if something is now mounted on
-the subdir, fine.  Otherwise, ENOENT.  The module is not required to know
-anything about autofs maps that the userspace helper may or may not
-consult.
+'i' is a plain int while 'size' is an 'unsigned long' leaving the
+possibility that if size contains a value greater than what a signed int
+can hold then this code won't do the right thing, either 'i' will wrap
+around to zero and the loop will never exit or something "unknown" will
+happen (as far as I know, what happens when an int overflows is
+implementation defined).
+The easy fix for this is to simply make 'i' an 'unsigned long' which
+prevents the posibility that 'i' will be too small and also prevents a
+signed vs unsigned comparison.
 
-3.  Periodically the module should check if mounted filesystems are
-potentially unmountable (this seems to be inexpensive), and if so it should
-run the userspace helper to unmount them.  If the unmount fails, the helper
-(not the kernel) should try to distinguish a race condition from a dead NFS
-server, and whether the mount will be viable once the server comes back. If
-not, it should be more aggressive than the present daemon in unmounting. At
-present the module carefully keeps up-to-date a last_used field and a
-timeout potentially different for each mount, but it's probably sufficient
-to merely poll all the mount points periodically all at once, perhaps with
-a one-time exemption when something is first mounted.
+The second thing is that in the body of the 'for' loop there is this
+comparison :
 
-And that's *all* the complexity that should be in the kernel.  That's quite
-complex enough in my opinion.  If the userspace helper needs state, it can
-lock and read/write a file.  I don't really see the need for the autofs
-system to have state beyond "it's mounted".
+if (bytes > PAGE_SIZE)
 
-James F. Carter          Voice 310 825 2897    FAX 310 206 6673
-UCLA-Mathnet;  6115 MSA; 405 Hilgard Ave.; Los Angeles, CA, USA  90095-1555
-Email: jimc@math.ucla.edu    http://www.math.ucla.edu/~jimc (q.v. for PGP key)
+'bytes' is 'int', and from looking at include/asm-i386/page.h I see that
+
+#define PAGE_SHIFT      12
+#define PAGE_SIZE       (1UL << PAGE_SHIFT)
+
+so PAGE_SIZE is an 'unsigned long' utilizing 13 bits.
+
+This looks like another instance of the signed int in the comparison
+potentially being at risk of overflowing.  Yes, I'm aware that the default
+sizeof(int) on most i386 platforms is 32bits and that C requires it to
+be at least 16bits and thus that there should never be a real issue, but
+Changing it to be an 'unsigned long' type just like what it's compared
+against guarantees that there definately is no issue, and also again
+avoids a comparison between signed and unsigned values.
+This also harmonizes well with the fact that bytes is initialized by
+bytes = size - i;   and both 'size' and 'i' being 'unsigned long' values
+(assuming the change suggested above is made).
+
+
+Assuming the above analysis and conclusion makes sense, here's a patch to
+implement the conclusion (against 2.6.1-rc1-mm2) - at the very least it
+kills some warnings from gcc about signed vs unsigned comparisons when
+compiling with "-W -Wall" but I'd like to know if it also fixes a real
+potential problem :
+
+
+--- linux-2.6.1-rc1-mm2-orig/arch/i386/kernel/ldt.c	2004-01-06 01:33:04.000000000 +0100
++++ linux-2.6.1-rc1-mm2/arch/i386/kernel/ldt.c	2004-01-07 23:28:38.000000000 +0100
+@@ -120,7 +120,8 @@ void destroy_context(struct mm_struct *m
+
+ static int read_ldt(void __user * ptr, unsigned long bytecount)
+ {
+-	int err, i;
++	int err;
++	unsigned long i;
+ 	unsigned long size;
+ 	struct mm_struct * mm = current->mm;
+
+@@ -144,7 +145,8 @@ static int read_ldt(void __user * ptr, u
+ 	__flush_tlb_global();
+
+ 	for (i = 0; i < size; i += PAGE_SIZE) {
+-		int nr = i / PAGE_SIZE, bytes;
++		int nr = i / PAGE_SIZE;
++		unsigned long bytes;
+ 		char *kaddr = kmap(mm->context.ldt_pages[nr]);
+
+ 		bytes = size - i;
+
+
+
+In order to "take my own medicine" and give the above patch a minimum
+amount of testing, I applied it to my own 2.6.1-rc1-mm2 tree, build the
+kernel (nothing blew up), installed the kernel and I'm currently running
+that kernel (and nothing has blown up yet).
+I realize that to test it properly I should ofcourse create a small
+program that calls modify_ldt() and exercises it a bit, but I haven't done
+so yet since I'd like some feedback first to find out if I'm off on a
+wild goose chase here...?
+
+
+there are a few other things in arch/i386/kernel/ldt.c that puzzle me.
+
+I know that the only user of read_ldt() and write_ldt() is
+sys_modify_ldt() , and the arguments for read_ldt and write_ldt thus have
+to match sys_modify_ldt, but why is the 'bytecount' argument for
+sys_modify_ldt an 'unsigned long' and the return type an 'int' ?
+The signedness of the return type makes sense given that it't supposed to
+return -1 on error. But on success, in the case where it calls read_ldt,
+it's supposed to return the actual number of bytes read. But if the
+number of bytes to read is given as an unsigned long, and the number
+actually read exceeds the size of a signed int then the return value will
+get truncated upon return - how can that be right?  And if the return
+value can never exceed what a signed int can hold, then why is it possible
+to request an unsigned long amount of bytes to read in the first place?
+
+and finally a purely style related thing (sure, call me pedantic); in both
+read_ldt() and write_ldt() 'mm' is declared as
+
+struct mm_struct * mm = current->mm;
+
+looking at the rest of ldt.c (and the kernel source in general) it seems
+to me that
+
+struct mm_struct *mm = current->mm;
+
+would be more in line with the general style... If this seems resonable
+I'll create a patch to change it - let me know.
+
+
+As you can probably deduce from the above I don't completely understand
+what's going on here, so I'd really appreciate being enlightened a bit.
+
+
+Kind regards,
+
+Jesper Juhl
+

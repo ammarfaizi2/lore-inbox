@@ -1,69 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264023AbTGFWjN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 18:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266747AbTGFWjN
+	id S264061AbTGFWoo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 18:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTGFWon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 18:39:13 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:36517 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S264023AbTGFWjM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 18:39:12 -0400
-Date: Mon, 7 Jul 2003 00:53:25 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: orinoco USB driver
-Message-ID: <20030706225325.GA16186@ranty.pantax.net>
-Reply-To: ranty@debian.org
-References: <20030706001601.GA8592@triplehelix.org>
+	Sun, 6 Jul 2003 18:44:43 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:6028 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S264061AbTGFWon (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 18:44:43 -0400
+Date: Sun, 6 Jul 2003 23:59:14 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Diego Calleja =?iso-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
+Cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm1
+Message-ID: <20030706225914.GA6123@mail.jlokier.co.uk>
+References: <20030703023714.55d13934.akpm@osdl.org> <200307052309.12680.phillips@arcor.de> <20030706001136.3a423b29.diegocg@teleline.es> <200307060131.02051.phillips@arcor.de> <20030706022325.4ef87afc.diegocg@teleline.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030706001601.GA8592@triplehelix.org>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030706022325.4ef87afc.diegocg@teleline.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 05, 2003 at 05:16:01PM -0700, Joshua Kwan wrote:
-> I'm currently trying to get my Avaya Wireless 'Silver' USB device to
-> work with the orinoco_usb driver v0.2.1.
+Diego Calleja García wrote:
+> It'll do if you're running oracle at the same time.
 > 
-> Firstly, it is not 'supported.' So I had to use force_unsupported=1.
-> But the firmware you download is from Avaya's site, so it seems to me
-> like it should work!
-> 
-> Here's what i get:
-> 
-> firesong:/usr/src/orinoco-usb-0.2.1# modprobe orinoco_usb debug=1 force_unsupported=1
-> /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c: Device is not supported (you may want to set force_unsupported=1)
-> /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c: Trying to handle device anyway as requested
-> /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c:bridge_probe: ENTER
-> /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c: No firmware to download
-> /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c:bridge_remove_in_urb: no urb to remove
-> /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c:bridge_delete: ENTER
-> unregister_netdevice: device wlan%d/cf4f3000 never was registered
-> /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c:bridge_delete: EXIT
-> /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c:bridge_probe: EXIT
-> drivers/usb/core/usb.c: registered new driver Orinoco USB
-> orinoco_usb.c v0.2.1 (Manuel Estrada Sainz <ranty@debian.org>)
-> 
-> The light does not come on and I don't get any device. I notice that the
-> firmware is loaded from a .SYS file and installed into the hotplug
-> /usr/lib directory. When is this loaded?
-> 
-> Do you have any pointers? It would be really nice to get the card to
-> work!
+> Desktop users shouldn't notice skips.
 
- You need a working hotplug package for the new driver to work.
+Fwiw, sometimes desktop users run Oracle.
 
-	Manuel
-
-
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.
+-- Jamie

@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136704AbREGXHN>; Mon, 7 May 2001 19:07:13 -0400
+	id <S136705AbREGXFd>; Mon, 7 May 2001 19:05:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136708AbREGXG7>; Mon, 7 May 2001 19:06:59 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:47018 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136704AbREGXFo>;
-	Mon, 7 May 2001 19:05:44 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S136704AbREGXFX>; Mon, 7 May 2001 19:05:23 -0400
+Received: from pobox.sibyte.com ([208.12.96.20]:63749 "HELO pobox.sibyte.com")
+	by vger.kernel.org with SMTP id <S136705AbREGXFP>;
+	Mon, 7 May 2001 19:05:15 -0400
+From: Justin Carlson <carlson@sibyte.com>
+Reply-To: carlson@sibyte.com
+Organization: Sibyte
+To: linux-kernel@vger.kernel.org
+Subject: SMP bug revealed by networking?
+Date: Mon, 7 May 2001 15:54:14 -0700
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15095.10822.456452.929992@pizda.ninka.net>
-Date: Mon, 7 May 2001 16:05:42 -0700 (PDT)
-To: "Manfred Spraul" <manfred@colorfullife.com>
-Cc: "Ben LaHaise" <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] zero^H^H^H^Hsingle copy pipe
-In-Reply-To: <001601c0d713$d60a17b0$5517fea9@local>
-In-Reply-To: <mailman.989055541.17259.linux-kernel2news@redhat.com>
-	<3AF6CA1B.9849CE6A@redhat.com>
-	<001601c0d713$d60a17b0$5517fea9@local>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-Id: <0105071604481H.00781@plugh.sibyte.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Manfred Spraul writes:
- > If I understand the BSD direct-pipe code correctly
- > it has a swap file based backing store. I think that's insane. And
- > limiting the direct copy buffers to a few kB defeats the purpose of
- > direct copy.
+I'm working on a new SMP mips port, and tripped over a strange
+bug.  Am not quite sure how to attack it.
 
-Last time I studied that FreeBSD pipe code, it used a global limit for
-locked memory.
+I'm running 2.4.2 from oss.sgi.com's cvs repositry, booting with
+the root filesystem being over NFS with two cores active in
+the system.  The port is actually fairly stable at the moment, but
+just once, while trying to exec init during a boot, it locked up.
 
-Later,
-David S. Miller
-davem@redhat.com
+Since I'm running in simulation (fun consequence of not porting to something
+for which silicon doesn't yet exist), I took a peek and
+saw this:
+
+CPU0 was in ip_defrag() trying to aquire the ipq spinlock
+CPU1 was idle.
+
+ip_defrag() being an exceedingly unlikely source of bugs at this moment,
+especially in terms of that simple locking, I'm thinking I must have a bug
+in the SMP handling; however, I don't see any likely candidates there either.
+I can't reproduce this bug, either; it seems to have been dependent on
+timing from the network.
+
+Has anyone run into anything remotely like this before?  Any suggestions
+on where to look for bug or how to make this reproducable in order to track it
+down?
+
+Thanks,
+  Justin

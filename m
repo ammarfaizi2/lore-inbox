@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288998AbSAIUGe>; Wed, 9 Jan 2002 15:06:34 -0500
+	id <S289000AbSAIUGg>; Wed, 9 Jan 2002 15:06:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289000AbSAIUGS>; Wed, 9 Jan 2002 15:06:18 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:34035 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S289011AbSAIUE5>;
-	Wed, 9 Jan 2002 15:04:57 -0500
-Date: Wed, 9 Jan 2002 12:04:53 -0800
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	id <S289002AbSAIUGY>; Wed, 9 Jan 2002 15:06:24 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:29939 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S288985AbSAIUEM>;
+	Wed, 9 Jan 2002 15:04:12 -0500
+Date: Wed, 9 Jan 2002 12:04:07 -0800
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         linux-irda@pasta.cs.uit.no
-Subject: [PATCH] : ir248_config-3.diff
-Message-ID: <20020109120453.F12039@bougret.hpl.hp.com>
+Subject: [PATCH] : ir247_drv_region-2.diff
+Message-ID: <20020109120407.E12039@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,42 +25,95 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir248_config-3.diff :
--------------------
-	<Already in 2.5.1, for 2.4.18 only>
-	o [FEATURE] Remove useless and confusing config option
+ir247_drv_region-2.diff :
+-----------------------
+	<Patch from Steven>
+	o [CORRECT] Cleanup check_region()/request_region() in various drivers
 
-diff -u -p linux/net/irda/Config.d3.in linux/net/irda/Config.in
---- linux/net/irda/Config.d3.in	Wed Nov 28 14:57:18 2001
-+++ linux/net/irda/Config.in	Wed Nov 28 15:31:14 2001
-@@ -14,13 +14,10 @@ if [ "$CONFIG_NET" != "n" ]; then
-       source net/irda/irnet/Config.in
-       source net/irda/ircomm/Config.in
-       bool '  Ultra (connectionless) protocol' CONFIG_IRDA_ULTRA
--      bool '  IrDA protocol options' CONFIG_IRDA_OPTIONS
--      if [ "$CONFIG_IRDA_OPTIONS" != "n" ]; then
--	 comment '  IrDA options'
--	 bool '    Cache last LSAP' CONFIG_IRDA_CACHE_LAST_LSAP
--	 bool '    Fast RRs' CONFIG_IRDA_FAST_RR
--	 bool '    Debug information' CONFIG_IRDA_DEBUG
--      fi
-+      comment 'IrDA options'
-+      bool '  Cache last LSAP' CONFIG_IRDA_CACHE_LAST_LSAP
-+      bool '  Fast RRs (low latency)' CONFIG_IRDA_FAST_RR
-+      bool '  Debug information' CONFIG_IRDA_DEBUG
-    fi
+diff -u -p linux/drivers/net/irda/w83977af_ir.d8.c linux/drivers/net/irda/w83977af_ir.c
+--- linux/drivers/net/irda/w83977af_ir.d8.c	Tue Jan  8 15:21:46 2002
++++ linux/drivers/net/irda/w83977af_ir.c	Tue Jan  8 16:03:00 2002
+@@ -160,7 +160,7 @@ int w83977af_open(int i, unsigned int io
+ {
+ 	struct net_device *dev;
+         struct w83977af_ir *self;
+-	int ret;
++	void *ret;
+ 	int err;
  
-    if [ "$CONFIG_IRDA" != "n" ]; then
-diff -u -p linux/arch/i386/defconfig.d3 linux/arch/i386/defconfig
---- linux/arch/i386/defconfig.d3	Tue Jan  8 17:09:27 2002
-+++ linux/arch/i386/defconfig	Tue Jan  8 17:09:40 2002
-@@ -496,6 +496,9 @@ CONFIG_PCMCIA_RAYCS=y
- # IrDA (infrared) support
- #
- # CONFIG_IRDA is not set
-+CONFIG_IRDA_CACHE_LAST_LSAP=y
-+CONFIG_IRDA_FAST_RR=y
-+CONFIG_IRDA_DEBUG=y
+ 	IRDA_DEBUG(0, __FUNCTION__ "()\n");
+@@ -190,14 +190,13 @@ int w83977af_open(int i, unsigned int io
+         self->io.fifo_size = 32;
  
- #
- # ISDN subsystem
+ 	/* Lock the port that we need */
+-	ret = check_region(self->io.fir_base, self->io.fir_ext);
+-	if (ret < 0) { 
++	ret = request_region(self->io.fir_base, self->io.fir_ext, driver_name);
++	if (!ret) { 
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), can't get iobase of 0x%03x\n",
+ 		      self->io.fir_base);
+ 		/* w83977af_cleanup( self);  */
+ 		return -ENODEV;
+ 	}
+-	request_region(self->io.fir_base, self->io.fir_ext, driver_name);
+ 
+ 	/* Initialize QoS for this device */
+ 	irda_init_max_qos_capabilies(&self->qos);
+diff -u -p linux/drivers/net/irda/nsc-ircc.d8.c linux/drivers/net/irda/nsc-ircc.c
+--- linux/drivers/net/irda/nsc-ircc.d8.c	Tue Jan  8 15:21:36 2002
++++ linux/drivers/net/irda/nsc-ircc.c	Tue Jan  8 16:04:07 2002
+@@ -246,7 +246,7 @@ static int nsc_ircc_open(int i, chipio_t
+ 	struct net_device *dev;
+ 	struct nsc_ircc_cb *self;
+         struct pm_dev *pmdev;
+-	int ret;
++	void *ret;
+ 	int err;
+ 
+ 	IRDA_DEBUG(2, __FUNCTION__ "()\n");
+@@ -282,15 +282,14 @@ static int nsc_ircc_open(int i, chipio_t
+         self->io.fifo_size = 32;
+ 	
+ 	/* Reserve the ioports that we need */
+-	ret = check_region(self->io.fir_base, self->io.fir_ext);
+-	if (ret < 0) { 
++	ret = request_region(self->io.fir_base, self->io.fir_ext, driver_name);
++	if (!ret) {
+ 		WARNING(__FUNCTION__ "(), can't get iobase of 0x%03x\n",
+ 			self->io.fir_base);
+ 		dev_self[i] = NULL;
+ 		kfree(self);
+ 		return -ENODEV;
+ 	}
+-	request_region(self->io.fir_base, self->io.fir_ext, driver_name);
+ 
+ 	/* Initialize QoS for this device */
+ 	irda_init_max_qos_capabilies(&self->qos);
+diff -u -p linux/drivers/net/irda/irport.d8.c linux/drivers/net/irda/irport.c
+--- linux/drivers/net/irda/irport.d8.c	Tue Jan  8 15:21:54 2002
++++ linux/drivers/net/irda/irport.c	Tue Jan  8 16:02:51 2002
+@@ -140,7 +140,7 @@ irport_open(int i, unsigned int iobase, 
+ {
+ 	struct net_device *dev;
+ 	struct irport_cb *self;
+-	int ret;
++	void *ret;
+ 	int err;
+ 
+ 	IRDA_DEBUG(0, __FUNCTION__ "()\n");
+@@ -169,13 +169,12 @@ irport_open(int i, unsigned int iobase, 
+         self->io.fifo_size = 16;
+ 
+ 	/* Lock the port that we need */
+-	ret = check_region(self->io.sir_base, self->io.sir_ext);
+-	if (ret < 0) { 
++	ret = request_region(self->io.sir_base, self->io.sir_ext, driver_name);
++	if (!ret) { 
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), can't get iobase of 0x%03x\n",
+ 			   self->io.sir_base);
+ 		return NULL;
+ 	}
+-	request_region(self->io.sir_base, self->io.sir_ext, driver_name);
+ 
+ 	/* Initialize QoS for this device */
+ 	irda_init_max_qos_capabilies(&self->qos);

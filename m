@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265711AbSLJUKT>; Tue, 10 Dec 2002 15:10:19 -0500
+	id <S266377AbSLJUPH>; Tue, 10 Dec 2002 15:15:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265713AbSLJUKT>; Tue, 10 Dec 2002 15:10:19 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:26850 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S265711AbSLJUKS>;
-	Tue, 10 Dec 2002 15:10:18 -0500
-Date: Tue, 10 Dec 2002 15:17:58 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-Message-ID: <20021210201758.GB28712@gtf.org>
-References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw> <20021210055215.GA9124@suse.de> <1039504941.30881.10.camel@sonja> <1039539080.14302.29.camel@irongate.swansea.linux.org.uk> <1039549178.7224.7.camel@sonja>
+	id <S266409AbSLJUPH>; Tue, 10 Dec 2002 15:15:07 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:29081 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S266377AbSLJUPF>;
+	Tue, 10 Dec 2002 15:15:05 -0500
+Date: Tue, 10 Dec 2002 12:19:08 -0800 (PST)
+Message-Id: <20021210.121908.00373632.davem@redhat.com>
+To: linux-kernel@vger.kernel.org
+CC: marcelo@conectiva.com.br, raul@pleyades.net
+Subject: Re: [BK-2.4] [PATCH] Small do_mmap_pgoff correction
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200212101931.gBAJV1K10639@hera.kernel.org>
+References: <200212101931.gBAJV1K10639@hera.kernel.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039549178.7224.7.camel@sonja>
-User-Agent: Mutt/1.3.28i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 08:39:38PM +0100, Daniel Egger wrote:
-> Am Die, 2002-12-10 um 17.51 schrieb Alan Cox:
-> 
-> > Well if you optimise for ppro it won't actually always work. 
-> 
-> Yeah, I had to learn earlier that it seems to support certain 
-> kind of cmovs but certainly not all of them and some other
-> instructions seem also to be missing.
+   From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+   Date: Tue, 10 Dec 2002 15:51:07 +0000
 
-Yes.
+   +
+   +/*
+   + *	NOTE: in this function we rely on TASK_SIZE being lower than
+   + *	SIZE_MAX-PAGE_SIZE at least. I'm pretty sure that it is.
+   + */
+   +
 
+This assumption is wrong.  It is totally possible for TASK_SIZE
+to be the entire 64-bit address space on sparc64 and thus larger
+than SIZE_MAX - PAGE_SIZE, and I definitely plan on supporting
+that.
 
-> > Also thescheduling seems to be best with 486.
-> > Remember the C3 is a single issue risc processor.
-> 
-> Do you have pointers to some optimisation manual or whatever?
-> gcc currently defines the c3 as 486+mmx+3dnow however I doubt 
-> that this model is entirely correct and as such leaves some 
-> space for improvements.
+User processes live entirely in their very own address space seperate
+from the kernel, so kernel stuff does not take up any part of the user
+virtual addresses.
 
-Definitely.  Read my email message that went along with that commit for
-more details ;-)  (finding it isn't hard, it's probably one of the few
-gcc-patches mails I have ever sent)
-
+Please revert this change, it adds absolutely nothing.

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263366AbSJVQ1x>; Tue, 22 Oct 2002 12:27:53 -0400
+	id <S264614AbSJVQfE>; Tue, 22 Oct 2002 12:35:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264614AbSJVQ1x>; Tue, 22 Oct 2002 12:27:53 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39614 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S263366AbSJVQ1x>; Tue, 22 Oct 2002 12:27:53 -0400
-Date: Tue, 22 Oct 2002 14:33:48 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Andrew Morton <akpm@digeo.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>
-Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
-In-Reply-To: <3DB4855F.D5DA002E@digeo.com>
-Message-ID: <Pine.LNX.4.44L.0210221428060.1648-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S264649AbSJVQfE>; Tue, 22 Oct 2002 12:35:04 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:40260 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S264614AbSJVQfD>; Tue, 22 Oct 2002 12:35:03 -0400
+Date: Tue, 22 Oct 2002 09:49:20 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Christoph Hellwig <hch@sgi.com>
+cc: Piet Delaney <piet@www.piet.net>, <linux-kernel@vger.kernel.org>,
+       Keith Owens <kaos@ocs.com.au>, <steiner@sgi.com>,
+       <jeremy@classic.engr.sgi.com>
+Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files
+In-Reply-To: <20021022144745.A7367@sgi.com>
+Message-ID: <Pine.LNX.4.44.0210220943290.24156-100000@nakedeye.aparity.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Oct 2002, Andrew Morton wrote:
+On Tue, 22 Oct 2002, Christoph Hellwig wrote:
+|>On Mon, Oct 21, 2002 at 03:06:59PM -0700, Piet Delaney wrote:
+|>> > Shouldn't much of this be static? again volatile is seldomly a good idea.
+|>> 
+|>> I suppose  with 'bio_complete' being an int changing it's value is
+|>> atomic as long as it's treated a a volatile.Using a spinlock might
+|>> be cleaner.
+|>
+|>an atomic_t or set_bit/test_bit/etc is used to be atomic in the kernel
+|>if you don't want a lock.  And in this case a lock looks like overkill.
 
-> He had 3 million dentries and only 100k pages on the LRU,
-> so we should have been reclaiming 60 dentries per scanned
-> page.
->
-> Conceivably the multiply in shrink_slab() overflowed, where
-> we calculate local variable `delta'.  But doubtful.
+All of the volatile/atomic, C99, typedef, data format, return format,
+u64/32/16/etc, are all addressed and fixed in the latest patches.  The
+dump_bp() is removed for now, to be considered later if/when it makes
+sense.
 
-What if there were no pages left to scan for shrink_caches ?
+We'd want to keep the ioctl() interface, given the number of programs
+using it across multiple platforms (and is being considered for
+multiple OSes).  DUMP_MAJOR has changed to CRASH_DUMP_MAJOR and is
+now standard in major.h.  Finally, the MAINTAINERS and Config.help
+files are updated.
 
-Could it be possible that for some strange reason the machine
-ended up scanning 0 slab objects ?
+We're correcting a few more issues with the mem_map[], page_is_ram(),
+etc., usage, but those shouldn't take long.
 
-60 * 0 is still 0, after all ;)
+If anyone needs a preliminary patch this morning, let me know.
 
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
+--Matt
 
-http://www.surriel.com/		http://distro.conectiva.com/
+P.S.  Pete, we can go through the dump_bp() stuff on the mailing list.
 

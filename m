@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274460AbRITNY5>; Thu, 20 Sep 2001 09:24:57 -0400
+	id <S274477AbRITN3h>; Thu, 20 Sep 2001 09:29:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274477AbRITNYr>; Thu, 20 Sep 2001 09:24:47 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:53255 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S274460AbRITNYn>; Thu, 20 Sep 2001 09:24:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jan Harkes <jaharkes@cs.cmu.edu>, Rik van Riel <riel@conectiva.com.br>
+	id <S274479AbRITN31>; Thu, 20 Sep 2001 09:29:27 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:24845 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S274477AbRITN3K>;
+	Thu, 20 Sep 2001 09:29:10 -0400
+Date: Thu, 20 Sep 2001 10:29:15 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>, <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] fix page aging (2.4.9-ac12)
-Date: Thu, 20 Sep 2001 15:32:26 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0109191454570.8191-100000@imladris.rielhome.conectiva> <20010919143958.A1466@cs.cmu.edu>
-In-Reply-To: <20010919143958.A1466@cs.cmu.edu>
+In-Reply-To: <20010920132504Z16271-2758+295@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33L.0109201028121.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010920132504Z16271-2758+295@humbolt.nl.linux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 19, 2001 08:40 pm, Jan Harkes wrote:
-> On Wed, Sep 19, 2001 at 03:25:29PM -0300, Rik van Riel wrote:
-> > No more mr. overcareful, obviously that doesn't work ;)
-> 
-> Finally ;)
-> 
-> >  static inline void age_page_down(struct page *page)
-> >  {
-> ...
-> > +	unsigned long age = page->age;
-> > +	if (age > 0)
-> > +		age -= PAGE_AGE_DECL;
-> > +	page->age = age;
-> >  }
-> 
-> Perhaps the following would be better, just in case anyone sets
-> PAGE_AGE_DECL to something other than 1.
-> 
->     static inline void age_page_down(struct page *page)
->     {
-> 	unsigned long age = page->age;
-> 	if (age > PAGE_AGE_DECL)
-> 		age -= PAGE_AGE_DECL;
-> 	else
-> 		age = 0;
-> 	page->age = age;
->     }
+On Thu, 20 Sep 2001, Daniel Phillips wrote:
 
+>      static inline void age_page_down(struct page *page)
+>      {
+>  	page->age = max((int) (age - PAGE_AGE_DECL), 0);
+>      }
 
-     static inline void age_page_down(struct page *page)
-     {
- 	page->age = max((int) (age - PAGE_AGE_DECL), 0);
-     }
+While we're at it:   ;)
 
-;-)
+static inline void age_page_down(struct page * page)
+{
+	page->age -= min (PAGE_AGE_DECL, page->age);
+}
 
---
-Daniel
+cheers,
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265013AbTFYUPW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 16:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265025AbTFYUPW
+	id S265025AbTFYUQx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 16:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265030AbTFYUQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 16:15:22 -0400
-Received: from mailhost3.tudelft.nl ([130.161.180.83]:19150 "EHLO
-	mailhost3.tudelft.nl") by vger.kernel.org with ESMTP
-	id S265013AbTFYUPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 16:15:16 -0400
-Message-ID: <3EFA0626.3060104@balpol.tudelft.nl>
-Date: Wed, 25 Jun 2003 22:29:26 +0200
-From: Thijs <thijs@balpol.tudelft.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030612
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-ac3
-References: <2ltx.Us.17@gated-at.bofh.it>
-In-Reply-To: <2ltx.Us.17@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Jun 2003 16:16:53 -0400
+Received: from imap.gmx.net ([213.165.64.20]:12258 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265025AbTFYUPc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 16:15:32 -0400
+Message-Id: <5.2.0.9.2.20030625222455.00cf33f0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Wed, 25 Jun 2003 22:33:58 +0200
+To: Daniel Gryniewicz <dang@fprintf.net>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: patch O1int for 2.5.73 - interactivity work
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <1056569692.1594.30.camel@athena.fprintf.net>
+References: <5.2.0.9.2.20030625204242.00ceda90@pop.gmx.net>
+ <5.2.0.9.2.20030625204242.00ceda90@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 03:34 PM 6/25/2003 -0400, Daniel Gryniewicz wrote:
+>On Wed, 2003-06-25 at 15:00, Mike Galbraith wrote:
+> > At 02:09 AM 6/26/2003 +1000, Con Kolivas wrote:
+> >
+> > >I'm still working on something for the "xmms stalls if started during very
+> > >heavy load" as a different corner case.
+> >
+><snip scheduler suggestion>
+> > Just a couple random thoughts, both of which I can see problems with ;-)
+> >
+>
+>At least on 2.4 (I use 21-ck3), it appears to be I/O starvation that
+>gets xmms, not scheduler starvation.  When xmms skips for me, there's
+>load, but there's also usually some idle time.  The common thread seems
+>to be heavy I/O on the drive xmms is using, possibly combined with a
+>(formerly?) interactive process (evolution rebuilding my LKML index, for
+>example) doing the disk I/O.  Because of the assorted I/O scheduler
+>changes in 2.5, this is unlikley to be the problem there.
 
-Since 2.4.21-ac2 i'm experiencing problems with Postfix on Debian 
-Stable. Messages get corrupted while being handled by Postfix.
+Ahah.  I thought Con was referring to the delay at new song, new task 
+starting at priority 20 while things higher are using the cpu.  Yeah, your 
+skips sound like xmms is just running out of buffered data.
 
-Vanilla 2.4.21 and 2.4.21-ac1 are fine, but 2.4.21-ac2/3 causes 
-problems. Going back to ac1 resolves the issue. I tried kernels on 
-several Debian servers, but all have the same problem. Could be it's 
-something in postfix that emerges with this specific patch, but it's at 
-least curious. I'm not too familiar with this matter unfortunately.
-
-The only logentries i see are:
-
-postfix/qmgr[399]: warning: active/0/4/04E5B17E3F: too many length bits, 
-record type 255
-postfix/qmgr[399]: warning: 04E5B17E3F: envelope records out of order
-postfix/qmgr[399]: warning: saving corrupt file "04E5B17E3F" from queue 
-"active" to queue "corrupt"
-...or just...
-postfix/smtp[536]: warning: corrupted queue file: active/C/7/C7AC317E3F
-
-Tested on: Intel PPro, Intel Celeron, AMD Duron
-Tested on: ext2 and ext3
-
-All other programms seem to work fine, no other strange messages 
-whatsoever...
-
-Regards,
-
---Thijs Welman
-Delft University of Technology, the Netherlands
-
+         -Mike 
 

@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbULFQmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbULFQqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261560AbULFQmy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 11:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbULFQmy
+	id S261561AbULFQqH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 11:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbULFQqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 11:42:54 -0500
-Received: from main.gmane.org ([80.91.229.2]:22411 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261560AbULFQmu (ORCPT
+	Mon, 6 Dec 2004 11:46:07 -0500
+Received: from main.gmane.org ([80.91.229.2]:7564 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261561AbULFQp2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 11:42:50 -0500
+	Mon, 6 Dec 2004 11:45:28 -0500
 X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Subject: Re: [BUG] null-pointer deref (perhaps reiserfs3)
-Date: Mon, 06 Dec 2004 17:44:20 +0100
-Message-ID: <cp2265$pmp$1@sea.gmane.org>
-References: <cp02a6$57j$1@sea.gmane.org> <cp21l0$mve$1@sea.gmane.org>
+From: Ed L Cashin <ecashin@coraid.com>
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
+Date: Mon, 06 Dec 2004 11:45:27 -0500
+Message-ID: <87sm6jpe8o.fsf@coraid.com>
+References: <87acsrqval.fsf@coraid.com>
+	<Pine.LNX.4.58.0412061027510.2173@gradall.private.brainfood.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: p5484bc1b.dip.t-dialin.net
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8a4) Gecko/20040927
-X-Accept-Language: de, en
-In-Reply-To: <cp21l0$mve$1@sea.gmane.org>
+X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:KAV+JO2vrQ2Bf6BAXthf5vpMYk8=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> dd if=/dev/zero of=image bs=1M count=40
-> mkreiserfs -f image
-> mount -o loop image /mnt/test
-> cp -r /etc/ /mnt/test
-> 
-> The kernel will Oops, and cp will segfault.
+Adam Heath <doogie@debian.org> writes:
 
-Well, this won't make sense to you, if don't tell you, that "cp -r /etc/ 
-/mnt/test" copies more, than the reiserfs can take. In other words:
-reiserfs crashes if there's no more free diskspace.
+> On Mon, 6 Dec 2004, Ed L Cashin wrote:
+>
+>> The included patch allows the Linux kernel to use the ATA over
+>> Ethernet (AoE) network protocol to communicate with any block device
+>> that handles the AoE protocol.  The Coraid EtherDrive (R) Storage
+>> Blade is the first hardware using AoE.
+>>
+>> AoE devices on the LAN are accessable as block devices and can be used
+>> with filesystems, Software RAID, LVM, etc.
+>>
+>> Like IP, AoE is an ethernet-level network protocol, registered with
+>> the IEEE.  Unlike IP, AoE is not routable.
+>>
+>> This patch is released under the terms of the GPL.
+>>
+>> (We also have an AoE driver for the 2.4 kernel that we plan to release
+>> soon.)
+>
+> Is there a free server for this?
+
+Are you asking whether anybody has written software that allows a
+network host to export block storage using AoE?  Not yet, as far as I
+know.
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>
 

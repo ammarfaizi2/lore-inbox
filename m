@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261359AbSIWUXG>; Mon, 23 Sep 2002 16:23:06 -0400
+	id <S261369AbSIWUmB>; Mon, 23 Sep 2002 16:42:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbSIWUXG>; Mon, 23 Sep 2002 16:23:06 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:19634 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261359AbSIWUXG>;
-	Mon, 23 Sep 2002 16:23:06 -0400
-Date: Mon, 23 Sep 2002 22:36:28 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Peter Waechtler <pwaechtler@mac.com>
-Cc: Larry McVoy <lm@bitmover.com>, Bill Davidsen <davidsen@tmr.com>,
-       <linux-kernel@vger.kernel.org>, ingo Molnar <mingo@redhat.com>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <F425930C-CF2E-11D6-8873-00039387C942@mac.com>
-Message-ID: <Pine.LNX.4.44.0209232233250.2343-100000@localhost.localdomain>
+	id <S261374AbSIWUmB>; Mon, 23 Sep 2002 16:42:01 -0400
+Received: from dsl-213-023-022-250.arcor-ip.net ([213.23.22.250]:28598 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S261369AbSIWUmA>;
+	Mon, 23 Sep 2002 16:42:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
+       Dave Olien <dmo@osdl.org>
+Subject: Re: DAC960 in 2.5.38, with new changes
+Date: Mon, 23 Sep 2002 22:44:08 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: axboe@suse.de, _deepfire@mail.ru, linux-kernel@vger.kernel.org
+References: <20020923120400.A15452@acpi.pdx.osdl.net> <15759.26918.381273.951266@napali.hpl.hp.com>
+In-Reply-To: <15759.26918.381273.951266@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ta3t-0003bj-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 23 September 2002 21:19, David Mosberger wrote:
+> Hi Dave,
+> 
+> >>>>> On Mon, 23 Sep 2002 12:04:00 -0700, Dave Olien <dmo@osdl.org> said:
+> 
+>   Dave> #ifdef __ia64__
+>   Dave> -  writeq(Virtual_to_Bus64(CommandMailbox),
+>   Dave> +  writeq(CommandMailboxDMA,
+>   Dave> ControllerBaseAddress + DAC960_LP_CommandMailboxBusAddressOffset);
+>   Dave> #else
+>   Dave> -  writel(Virtual_to_Bus32(CommandMailbox),
+>   Dave> +  writel(CommandMailboxDMA,
+>   Dave> ControllerBaseAddress + DAC960_LP_CommandMailboxBusAddressOffset);
+>   Dave> #endif
+> 
+> This looks like a porting-nightmare in the making.  There's got to be a
+> better way to determine whether you need a writeq() vs. a writel().
 
-On Mon, 23 Sep 2002, Peter Waechtler wrote:
+Even if an #ifdef is necessary here (and we are in trouble if it is) it
+should not trigger on __ia64__, it should trigger on the size of (long).
 
-> Getting into kernel is not the same as a context switch. Return EAGAIN
-> or EWOULDBLOCK is definetly _not_ causing a context switch.
-
-this is a common misunderstanding. When switching from thread to thread in
-the 1:1 model, most of the cost comes from entering/exiting the kernel. So
-*once* we are in the kernel the cheapest way is not to piggyback to
-userspace to do some userspace context-switch - but to do it right in the
-kernel.
-
-in the kernel we can do much higher quality scheduling decisions than in
-userspace. SMP affinity, various statistics are right available in
-kernel-space - userspace does not have any of that. Not to talk about
-preemption.
-
-	Ingo
-
+-- 
+Daniel

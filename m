@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbVBUOFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVBUOUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261980AbVBUOFv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 09:05:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVBUOFv
+	id S261983AbVBUOUX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 09:20:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVBUOUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 09:05:51 -0500
-Received: from aveo.vortech.net ([206.183.8.5]:29379 "EHLO aveo.vortech.net")
-	by vger.kernel.org with ESMTP id S261980AbVBUOFq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 09:05:46 -0500
-From: Joshua Jackson <jjackson@vortech.net>
-Organization: Vortech Consulting
-To: linux-kernel@vger.kernel.org
-Subject: Promise sx6000 patch help
-Date: Mon, 21 Feb 2005 09:04:39 -0500
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502210904.39298.jjackson@vortech.net>
+	Mon, 21 Feb 2005 09:20:23 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:20416 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261983AbVBUOUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 09:20:19 -0500
+From: kernel-stuff@comcast.net (Parag Warudkar)
+To: Martin =?ISO-8859-1?Q?=20MOKREJ=A9?= 
+	<mmokrejs@ribosome.natur.cuni.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: memory management weirdness
+Date: Mon, 21 Feb 2005 14:20:17 +0000
+Message-Id: <022120051420.20884.4219EE21000C6C9400005194220588448400009A9B9CD3040A029D0A05@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
+X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have spent a bit of time to try to port the Linux 2.4 based Promise SX6000 
-ATA RAID controller driver to the 2.6 kernels but have gotten myself stuck.
+> Hi,
+>   I have received no answer to my former question
+> (see http://marc.theaimsgroup.com/?l=linux-kernel&m=110827143716215&w=2).
+> I've spent some more time on that problem and have more or less confirmed
+> it's because of buggy bios. However, the linux kernel doesn't handle properly
+> such case. I've tested 2.4.30-pre1 kernel and latest 2.6.11-rc4 kernel.
+> The conclusion is, that once the machine has physically installed 4x1GB
+> DDR400 DIMM's (bios detects only 3556 or less memory as some buffers
+> are allocated by the Intel 875P chipset and AGP card), the linux 2.6.11*
+> runs up-to 18x slower than when only 2x1GB + 2x 512MB DDR memory is installed.
+> 
+Can you enable profiling and then post the profile info for various cases - slow and fast? Check out Documentation/basic_profiling.txt in the kernel source for understanding how to do this. This might help narrow down the issue.
 
-I know very little about writing Linux SCSI drivers and have obviously done 
-something very wrong. The drive compiles, loads, detects the controller and 
-even the arrays attached to the controller but hangs the system (hard - no 
-keyboard, mouse, etc response) 5-10 seconds after loading.
+Parag
 
-I am quite suspicious of the scatter gather mappings (again, something I have 
-no experience with). The original driver also uses kmalloc to allocate its 
-DMA buffers. I have read a bit about pci_allocate_consistent, but do not know 
-how to properly use the virtual and physical addresses returned.
 
-The following patch is against a stock 2.6.10 kernel. All of the files 
-associated with the driver get placed in drivers/scsi/sx6000/
 
-http://www.vortech.net/~jjackson/pti-sx6000.patch.gz
-
-Any help in getting this driver functioning would be greatly appreciated. 
-
--- 
-Joshua Jackson
-Vortech Consulting
-http://www.vortech.net

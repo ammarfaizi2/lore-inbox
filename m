@@ -1,65 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135304AbRDLUBo>; Thu, 12 Apr 2001 16:01:44 -0400
+	id <S135305AbRDLUFO>; Thu, 12 Apr 2001 16:05:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135305AbRDLUBZ>; Thu, 12 Apr 2001 16:01:25 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46607 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S135304AbRDLUBN>; Thu, 12 Apr 2001 16:01:13 -0400
-Date: Thu, 12 Apr 2001 15:19:14 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: generic_osync_inode() broken?
-In-Reply-To: <Pine.LNX.4.21.0104121451180.3059-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0104121517360.3110-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135306AbRDLUEy>; Thu, 12 Apr 2001 16:04:54 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:45712 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S135305AbRDLUEw>; Thu, 12 Apr 2001 16:04:52 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 12 Apr 2001 13:04:51 -0700
+Message-Id: <200104122004.NAA00308@baldur.yggdrasil.com>
+To: jgarzik@mandrakesoft.com
+Subject: Re: List of all-zero .data variables in linux-2.4.3 available
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Thanks, but Andrey Panin did you one better -- he produced a patch which
+>fixes up a good number of these.  You should follow lkml more closely :)
 
+I missed that patch and have been unable to find it on google/dejanews.
+However, my point is to provide an exhaustive list with sizes (and the tool
+for generating it), to make it easier to spot and prioritize ones that
+may have been missed.
 
-On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
+Anyhow, thanks for the tip.  Perhaps I should run this program and
+post results again on a subsequent kernel release (presumably
+with Andrey's patch), although anyone else can run this program
+just as easily.
 
-> 
-> On Thu, 12 Apr 2001, Linus Torvalds wrote:
-> 
-> > On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
-> > >
-> > > Comments?
-> > >
-> > > --- fs/inode.c~	Thu Mar 22 16:04:13 2001
-> > > +++ fs/inode.c	Thu Apr 12 15:18:22 2001
-> > > @@ -347,6 +347,11 @@
-> > >  #endif
-> > >
-> > >  	spin_lock(&inode_lock);
-> > > +	while (inode->i_state & I_LOCK) {
-> > > +		spin_unlock(&inode_lock);
-> > > +		__wait_on_inode(inode);
-> > > +		spin_lock(&inode_lock);
-> > > +	}
-> > >  	if (!(inode->i_state & I_DIRTY))
-> > >  		goto out;
-> > >  	if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
-> > 
-> > Ehh.
-> > 
-> > Why not just lock the inode around the thing?
-> > 
-> > The above looks rather ugly.
-> 
-> You mean writing a function called "lock_inode()" or whatever to basically
-> do what I did ? 
-
-Oh well, its still bad.
-
-We drop the inode_lock before calling write_inode_now() (which is broken,
-too :)), which means someone can set I_LOCK under us.
-
-I'll send you a patch to fix that one (and other callers of
-write_inode_now()) later.
-
-
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

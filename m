@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbTHURj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 13:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262880AbTHURjR
+	id S262844AbTHURjN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 13:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262836AbTHURbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 13:39:17 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:25304 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262872AbTHURis
+	Thu, 21 Aug 2003 13:31:10 -0400
+Received: from mail.kroah.org ([65.200.24.183]:11974 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262844AbTHURa7 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 13:38:48 -0400
-Date: Thu, 21 Aug 2003 19:31:49 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-Cc: linux-atm-general@lists.sourceforge.net, netdev@oss.sgi.com,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.0-test3-bk8][ATM] fix ambassador.c
-Message-ID: <20030821193149.A18920@electric-eye.fr.zoreil.com>
-References: <1061478906.1069.23.camel@lima.royalchallenge.com>
+	Thu, 21 Aug 2003 13:30:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10614870682543@kroah.com>
+Subject: Re: [PATCH] PCI fixes for 2.6.0-test3
+In-Reply-To: <10614870683797@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 21 Aug 2003 10:31:08 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1061478906.1069.23.camel@lima.royalchallenge.com>; from vinay-rc@naturesoft.net on Thu, Aug 21, 2003 at 08:45:05PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vinay K Nallamothu <vinay-rc@naturesoft.net> :
-[...]
-> drivers/atm/ambassador.c: 
-> This patch cleans up sti/cli usage as well as minor timer cleanups.
-[...]
+ChangeSet 1.1123.21.2, 2003/08/13 17:42:56-07:00, janiceg@us.ibm.com
 
-The "dont_panic" function which uses cli/sti is only called from code
-belonging to a "#if 0" section since revision 1.1 according to bk.
+[PATCH] PCI: testing for probe errors in pci-driver.c
 
-Remove it, everybody should feel better.
+Currently if __pci_device_probe locates the correct
+device driver, but receives an error from the static
+drv->probe function, this error is not reported.
 
---
-Ueimor
+The attached patch reports the above error condition
+to the caller.  Only when a match for the device in
+the static tables is not found, is the dynamic driver
+table searched.
+
+
+ drivers/pci/pci-driver.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+--- a/drivers/pci/pci-driver.c	Thu Aug 21 10:22:52 2003
++++ b/drivers/pci/pci-driver.c	Thu Aug 21 10:22:52 2003
+@@ -122,10 +122,8 @@
+ 
+ 	if (!pci_dev->driver && drv->probe) {
+ 		error = pci_device_probe_static(drv, pci_dev);
+-		if (error >= 0)
+-			return error;
+-
+-		error = pci_device_probe_dynamic(drv, pci_dev);
++		if (error == -ENODEV)
++			error = pci_device_probe_dynamic(drv, pci_dev);
+ 	}
+ 	return error;
+ }
+

@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263370AbSJIAet>; Tue, 8 Oct 2002 20:34:49 -0400
+	id <S263395AbSJIAfb>; Tue, 8 Oct 2002 20:35:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263395AbSJIAet>; Tue, 8 Oct 2002 20:34:49 -0400
-Received: from gw.openss7.com ([142.179.199.224]:9488 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id <S263370AbSJIAes>;
-	Tue, 8 Oct 2002 20:34:48 -0400
-Date: Tue, 8 Oct 2002 18:40:29 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: export of sys_call_table
-Message-ID: <20021008184029.B17517@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <20021004131547.B2369@openss7.org> <20021004.152116.116611188.davem@redhat.com> <20021004164151.D2962@openss7.org> <20021004.153804.94857396.davem@redhat.com> <mailman.1034119380.19047.linux-kernel2news@redhat.com> <200210090030.g990UTe08202@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210090030.g990UTe08202@devserv.devel.redhat.com>; from zaitcev@redhat.com on Tue, Oct 08, 2002 at 08:30:29PM -0400
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+	id <S263403AbSJIAfb>; Tue, 8 Oct 2002 20:35:31 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:17415 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263395AbSJIAf2>; Tue, 8 Oct 2002 20:35:28 -0400
+Message-ID: <3DA37B0B.59BA4AEF@linux-m68k.org>
+Date: Wed, 09 Oct 2002 02:40:43 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: linux kernel conf 0.8
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete,
+Hi,
 
-Sorry, wrong patch.  See correct patch re-posted on this thread.
+At http://www.xs4all.nl/~zippel/lc/ you can find the latest version of
+the new config system.
 
-BTW no other symbols in ksyms are exported with EXPORT_SYMBOL_GPL
-in 2.4.19.
+As already mentioned before lkc is pretty much ready (except for kbuild
+integration).
+Linus, do you have any interest in merging it in the near future? If
+not, what's missing?
+The 2.5.40 release showed again, how bad three different parsers are, so
+I think it's important to fix this finally for 2.6.
 
---brian
+Changes this time:
+- update to 2.5.41
+- better error handling
+- I introduced a few automaticly defined symbols (currently ARCH,
+KERNELRELEASE, UNAME_RELEASE), which are currently only used for the
+default location of the default config (e.g.
+"/boot/config-$UNAME_RELEASE" or "arch/$ARCH/defconfig"), which are
+currently still hardcoded, but could later be moved into Build.conf.
+- more fine tuning
+- I had to use my own Makefile again (Rules.make is slowly driving me
+insane).
 
-On Tue, 08 Oct 2002, Pete Zaitcev wrote:
-
-> > Following is a tested patch for i386 architecture for registration
-> > of putpmsg and getpmsg system calls.  This version (courtesy of
-> > Dave Grothe at GCOM) uses up/down semaphore instead of read/write
-> > spinlocks.  The patch is against 2.4.19 but should apply up and
-> > down a ways as well.
-> 
-> > +EXPORT_SYMBOL(register_streams_calls);
-> > +EXPORT_SYMBOL(unregister_streams_calls);
-> 
-> EXPORT_SYMBOL_GPL perhaps? Otherwise it's just a disguised hook,
-> just like nVidia's shell driver.
->  
-> > +static rwlock_t streams_call_lock = RW_LOCK_UNLOCKED;
-> 
-> Does not look like a semaphore to me...
-> 
-> -- Pete
-
--- 
-Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
-bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
-http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
-                        ¦ Therefore  all  progress  depends on the ¦
-                        ¦ unreasonable man. -- George Bernard Shaw ¦
+bye, Roman

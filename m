@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266066AbRGCXou>; Tue, 3 Jul 2001 19:44:50 -0400
+	id <S266069AbRGDARv>; Tue, 3 Jul 2001 20:17:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266068AbRGCXok>; Tue, 3 Jul 2001 19:44:40 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:56850 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S266066AbRGCXod>;
-	Tue, 3 Jul 2001 19:44:33 -0400
-Date: Tue, 3 Jul 2001 20:44:22 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: "Ph. Marek" <marek@bmlv.gv.at>
-Cc: <linux-kernel@vger.kernel.org>, <phillips@bonn-fries.net>
-Subject: Re: Ideas for TUX2
-In-Reply-To: <3.0.6.32.20010703082513.0091f900@pop3.bmlv.gv.at>
-Message-ID: <Pine.LNX.4.33L.0107032042220.28737-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S266074AbRGDARm>; Tue, 3 Jul 2001 20:17:42 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:33946 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S266069AbRGDARb>; Tue, 3 Jul 2001 20:17:31 -0400
+Message-ID: <3B42610F.29D004FF@idcomm.com>
+Date: Tue, 03 Jul 2001 18:19:27 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kernel-list <linux-kernel@vger.kernel.org>
+Subject: page reserved twice
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jul 2001, Ph. Marek wrote:
+I'm curious if there is any significance to this, which occurs at each
+reboot on an SMP system running noapic (sometimes Netscape manages to
+produce a hard lockup on the system, sometimes a core dump indicates NS
+had signal 7, bus error, in cases where it doesn't lock the system),
+2.4.6-pre1 with XFS patches:
 
-> If a file's data has been changed, it suffices to update the inode and the
-> of free blocks bitmap (fbb).
-> But updating them in one go is not possible
+ kernel: BIOS-provided physical RAM map:
+ kernel:  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ kernel:  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ kernel:  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ kernel:  BIOS-e820: 0000000000100000 - 000000000ffe0000 (usable)
+ kernel:  BIOS-e820: 000000000ffe0000 - 000000000fff8000 (ACPI data)
+ kernel:  BIOS-e820: 000000000fff8000 - 0000000010000000 (ACPI NVS)
+ kernel: Scan SMP from c0000000 for 1024 bytes.
+ kernel: Scan SMP from c009fc00 for 1024 bytes.
+ kernel: Scan SMP from c00f0000 for 65536 bytes.
+ kernel: found SMP MP-table at 000faf50
+ kernel: hm, page 000fa000 reserved twice.
+ kernel: hm, page 000fb000 reserved twice.
+ kernel: hm, page 000f4000 reserved twice.
+ thanteros kernel: hm, page 000f5000 reserved twice.
+ thanteros kernel: On node 0 totalpages: 65504
+ thanteros kernel: zone(0): 4096 pages.
+ kernel: zone(1): 61408 pages.
+ kernel: zone(2): 0 pages.
+ kernel: Intel MultiProcessor Specification v1.1
+ kernel:     Virtual Wire compatibility mode.
+ kernel: OEM ID: _AMI_    Product ID: 840_CARMEL__ APIC at: 0xFEE00000
 
-You seem to have missed some fundamental understanding of
-exactly how phase tree works; the wohle point of phase
-tree is to make atomic updates like this possible!
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Very similar messages seem to occur on a different machine with RH's
+2.4.2 kernel, BX chipset, and IO-APIC enabled. The machine this is from
+has had this message on earlier kernels as well, none of which had XFS
+patches. What is the significance (or consequence) of pages reserved
+twice?
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+D. Stimits, stimits@idcomm.com

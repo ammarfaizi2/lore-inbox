@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265527AbSJSGbo>; Sat, 19 Oct 2002 02:31:44 -0400
+	id <S265525AbSJSGA3>; Sat, 19 Oct 2002 02:00:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265532AbSJSGbo>; Sat, 19 Oct 2002 02:31:44 -0400
-Received: from holomorphy.com ([66.224.33.161]:16300 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265527AbSJSGbn>;
-	Sat, 19 Oct 2002 02:31:43 -0400
-Date: Fri, 18 Oct 2002 23:32:30 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Voyager subarchitecture for 2.5.44
-Message-ID: <20021019063230.GE23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	James Bottomley <James.Bottomley@HansenPartnership.com>,
-	linux-kernel@vger.kernel.org
-References: <200210190612.g9J6Cqu11812@localhost.localdomain>
+	id <S265526AbSJSGA3>; Sat, 19 Oct 2002 02:00:29 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:15823 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265525AbSJSGA3>;
+	Sat, 19 Oct 2002 02:00:29 -0400
+Date: Fri, 18 Oct 2002 22:58:48 -0700 (PDT)
+Message-Id: <20021018.225848.25861067.davem@redhat.com>
+To: atai@atai.org, lichengtai@yahoo.com
+Cc: linux-kernel@vger.kernel.org, greearb@candelatech.com
+Subject: Re: Tigon3 driver problem with raw socket on 2.4.20-pre10-ac2
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021019060221.92006.qmail@web10504.mail.yahoo.com>
+References: <20021017.231249.14334285.davem@redhat.com>
+	<20021019060221.92006.qmail@web10504.mail.yahoo.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210190612.g9J6Cqu11812@localhost.localdomain>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19, 2002 at 01:12:52AM -0500, James Bottomley wrote:
-> This patch adds SMP (and UP) support for voyager which is an (up to 32 way) 
-> SMP microchannel non-PC architecture.
-> The current patch includes a swap around of the timer code defines (available 
-> separately at http://linux-voyager.bkbits.net/timer-2.5) and a new 
-> CONFIG_X86_TRAMPOLINE config option to avoid the trampoline vpath.
-> The patch (156k) is available here:
-> http://www.hansenpartnership.com/voyager/files/voyager-2.5.44.diff
-> And also via bitkeeper at
-> http://linux-voyager.bkbits.net/voyager-2.5
+   From: Andy Tai <lichengtai@yahoo.com>
+   Date: Fri, 18 Oct 2002 23:02:21 -0700 (PDT)
 
-This is a very interesting architecture. Could you describe vaguely (for
-someone starved enough for time he might have trouble finding time to
-examine your tree) how cpu wakeup with the VIC proceeds?
+   Thanks for your sugestion.  With Linux 2.4.19, the
+   problem goes away.  So something is wrong with the
+   2.4.20-pre kernels as related to the AMD Athlon...
+   
+To be honest, I have had a few relaibly reocurring lockups of my
+Athlon at night.
 
-Also, I'd like to say this patch is impressively isolated from generic
-i386 code. Although I've not tested, it seems very clear from the form
-of the code that it will have no impact on UP i386 or other subarches.
-
-
-Thanks,
-Bill
+I tend not to mention them however, because this machine has an AGP
+graphics card where I've removed the brace that keep it in the AGP
+slot, so it tends to slide out when it gets warm due to lots of 3d
+rendering.... :-)

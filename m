@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVC1Sze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVC1S5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbVC1Sze (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 13:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVC1Sze
+	id S262008AbVC1S5G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 13:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVC1S5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 13:55:34 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:42642 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262000AbVC1SzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 13:55:25 -0500
-Subject: Re: Collecting NX information
-From: Arjan van de Ven <arjan@infradead.org>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org, ubuntu-hardened@lists.ubuntu.com
-In-Reply-To: <4248520E.1070602@comcast.net>
-References: <42484B13.4060408@comcast.net>
-	 <1112035059.6003.44.camel@laptopd505.fenrus.org>
-	 <4248520E.1070602@comcast.net>
+	Mon, 28 Mar 2005 13:57:06 -0500
+Received: from smtp8.wanadoo.fr ([193.252.22.23]:31879 "EHLO smtp8.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262008AbVC1S4l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 13:56:41 -0500
+X-ME-UUID: 20050328185638659.A0F9C1C003F5@mwinf0804.wanadoo.fr
+Subject: Various issues after rebooting
+From: Olivier Fourdan <fourdan@xfce.org>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Mon, 28 Mar 2005 20:55:20 +0200
-Message-Id: <1112036121.6003.46.camel@laptopd505.fenrus.org>
+Organization: http://www.xfce.org
+Date: Mon, 28 Mar 2005 21:56:39 +0200
+Message-Id: <1112039799.6106.16.camel@shuttle>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-28 at 13:50 -0500, John Richard Moser wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> 
-> 
-> Arjan van de Ven wrote:
-> >>As I understand, PT_GNU_STACK uses a single marking to control whether a
-> >>task gets an executable stack and whether ASLR is applied to the
-> >>executable.
-> > 
-> > 
-> > you understand wrongly.
-> > 
-> > PT_GNU_STACK just sets the exec permission for the stack (and the heap
-> > now mirrors the stack). Nothing more nothing less.
-> > 
-> 
-> So then this would be slightly more useful than I had previously
-> thought, bringing control over the randomization as well?
+Hi all,
 
-actually Linus was really against adding non-related things to this
-flag. And I think he is right...
+I'm facing some various odd issues with a AMD64 based laptop (Compaq
+R3480EA) I bought recently.
 
-Now.. do you have any examples of when you want a binary marked for no-
-randomisation ?? (eg something the setarch flag won't fix/won't be good
-enough for)
+On first boot, everything is all right. The laptop runs flawlessly. But
+if I shutdown the laptop and restart it, I can see all kind of strange
+things happening.
+
+1) the system clock runs 3 times faster,
+2) the system is unable to mount cdroms,
+3) modprobing nidswrapper cause a whole system freeze with the following
+message:
+
+CPU 0: Machine Check Exception: 0000000000000004
+Bank 4: b200000000070f0f
+Kernel panic - not syncing: CPU context corrupt
+
+I've tried with various kernels and distributions in 32bit and 64bit
+modes but that make no differences.
+
+I also tried disable ACPI, setting clock=[tsc|pmtmr|pti], diabling APIC,
+etc. No luck. No matter how many reboots I do, the problem remains. The
+only way to fix the problem is to keep the laptop off for a couple of
+hours.
+
+I thought of a hardware issue, but in WinXP, everything is fine. And in
+the case of a hardware issue, I guess the problem would always show, not
+just in Linux after a reboot. 
+
+My guess is that the BIOS doesn't re-initialize the hardware correctly
+in case of a quick shutdown/reboot but WinXP might be initializing the
+things by itself (it's a guess, I'm probably completely wrong).
+
+Does that make any sense so someone? How could I help tracking down this
+issue?
+
+Thanks in advance,
+
+Best regards,
+Olivier.
+
 

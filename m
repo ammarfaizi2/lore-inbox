@@ -1,67 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264646AbTA0Xvd>; Mon, 27 Jan 2003 18:51:33 -0500
+	id <S264697AbTA0X6h>; Mon, 27 Jan 2003 18:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264688AbTA0Xvd>; Mon, 27 Jan 2003 18:51:33 -0500
-Received: from holomorphy.com ([66.224.33.161]:24487 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264646AbTA0Xvc>;
-	Mon, 27 Jan 2003 18:51:32 -0500
-Date: Mon, 27 Jan 2003 15:59:39 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Andrew Morton <akpm@digeo.com>, green@namesys.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hch@lst.de,
-       jack@suse.cz, mason@suse.com
-Subject: Re: ext2 FS corruption with 2.5.59.
-Message-ID: <20030127235939.GC780@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	Andrew Morton <akpm@digeo.com>, green@namesys.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	hch@lst.de, jack@suse.cz, mason@suse.com
-References: <20030124023213.63d93156.akpm@digeo.com> <20030124153929.A894@namesys.com> <20030124225320.5d387993.akpm@digeo.com> <20030125153607.A10590@namesys.com> <20030125190410.7c91e640.akpm@digeo.com> <20030126032815.GA780@holomorphy.com> <20030125194648.6c417699.akpm@digeo.com> <20030126041426.GB780@holomorphy.com> <20030125211003.082cb92c.akpm@digeo.com> <1043708361.10153.151.camel@dell_ss3.pdx.osdl.net>
+	id <S264729AbTA0X6h>; Mon, 27 Jan 2003 18:58:37 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:7173
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S264697AbTA0X6g>; Mon, 27 Jan 2003 18:58:36 -0500
+Date: Mon, 27 Jan 2003 16:07:49 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Oops on 2.4.19
+Message-ID: <20030128000749.GA6024@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1043708361.10153.151.camel@dell_ss3.pdx.osdl.net>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->>>>> Ticket locks need atomic fetch and increment. These don't look right.
+ksymoops 2.4.6 on i686 2.4.19-klips196.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19-klips196/ (default)
+     -m /boot/System.map-2.4.19-klips196 (default)
 
-On Mon, Jan 27, 2003 at 02:59:21PM -0800, Stephen Hemminger wrote:
-> Atomic fetch/increment is not necessary since it is assumed that
-> only a single writer is doing the increment at a time, either with a
-> lock or a semaphore.  The fr_write_lock primitive incorporates the
-> spinlock and the sequence number. 
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-Ticket locks still need atomic fetch and increment. You don't because
-not only are you not implementing a ticket lock, you've got an outright
-spinlock around the fetch and increment.
-
-
-William Lee Irwin III <wli@holomorphy.com> wrote:
->>> 	(1) increment ->pre_sequence
->>> 	(2) wmb()
->>> 	(3) get inode->i_size
->>> 	(4) wmb() 
->>> 	(5) increment ->post_sequence
->>> 	(6) wmb()
->>> Supposing the overall scheme is sound, one of the wmb()'s is unnecessary;
-
-On Mon, Jan 27, 2003 at 02:59:21PM -0800, Stephen Hemminger wrote:
-> Each wmb() has a purpose. (2) is to make sure the first increment
-> happens before the update. (4) makes sure the update happens before the
-> second increment.  
-> The last wmb is unnecessary. Also on many architectures, the wmb()
-> disappears since writes are never reordered.
-
-This is apparently based on some misunderstanding wrt. thinking the
-sequence of events above described a read. Obviously converting (3)
-to "modify inode->i_size" makes the (4) wmb() necessary.
+oops: 0000
+cpu: 0
+eip: 0010:[<c014da00>] not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+eflags: 00010203
+eax: dff28c30 ebx: fffffff0 ecx: 00000010 edx: 416d3207
+esi: 00000000 edi: d567dfa4 ebp: 00000000 esp: d567df18
+ds: 0018 es 0018 ss: 0018
+process find (pid: 21850, stackpage=d567d000)
+stack: 0567df74 00000000 d567dfa4 00000008 dff28c30 ddd06000 416d3207 00000008
+    c0143c30 d38ed190 d567df74 d567df74 c01445b5 d38ed190 d567df74 00000000
+    ddd06000 00000000 d567dfa4 00000008 00000008 ddd06008 00000000 dd06000
+call trace: [<c0143c30>] [<c01445b5>] [<c014489a>] [<c0144d55>] [<c01415b9>]
+  [<c0139f92>] [<c0108b13>]
+code: 8b 6d 00 8b 54 24 18 39 53 44 0f 85 80 00 00 00 8b 44 24 24
 
 
--- wli
+>>EIP; c014da00 <d_lookup+70/120>   <=====
+
+>>eax; dff28c30 <_end+1fb6d044/20490474>
+>>edi; d567dfa4 <_end+152c23b8/20490474>
+>>esp; d567df18 <_end+152c232c/20490474>
+
+Trace; c0143c30 <cached_lookup+10/60>
+Trace; c01445b5 <link_path_walk+6e5/9b0>
+Trace; c014489a <path_walk+1a/20>
+Trace; c0144d55 <__user_walk+35/50>
+Trace; c01415b9 <sys_lstat64+19/70>
+Trace; c0139f92 <sys_write+102/110>
+Trace; c0108b13 <system_call+33/40>
+
+Code;  c014da00 <d_lookup+70/120>
+00000000 <_EIP>:
+Code;  c014da00 <d_lookup+70/120>   <=====
+   0:   8b 6d 00                  mov    0x0(%ebp),%ebp   <=====
+Code;  c014da03 <d_lookup+73/120>
+   3:   8b 54 24 18               mov    0x18(%esp,1),%edx
+Code;  c014da07 <d_lookup+77/120>
+   7:   39 53 44                  cmp    %edx,0x44(%ebx)
+Code;  c014da0a <d_lookup+7a/120>
+   a:   0f 85 80 00 00 00         jne    90 <_EIP+0x90> c014da90 <d_lookup+100/120>
+Code;  c014da10 <d_lookup+80/120>
+  10:   8b 44 24 24               mov    0x24(%esp,1),%eax
+
+
+1 warning issued.  Results may not be reliable.
+
+This is a dell poweredge 2400 dual/667 P3s with 512MB ram.
+
+It is using software raid5 instead of the built in hardware raid (because sw
+raid is faster...), with a small raid1 to boot off of.
+
+All filesystems are ext3, and it was up 144 days before it oopsed.
+
+This kernel is patched with freeswan 1.96, but I don't suspect it since
+there weren't any traces of networking in the oops...
+
+Anymore information needed, just let me know.
+
+Mike

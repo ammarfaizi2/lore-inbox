@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271892AbTHHUnu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 16:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271898AbTHHUnu
+	id S271934AbTHHU6k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 16:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271939AbTHHU6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 16:43:50 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:10981 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S271892AbTHHUns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 16:43:48 -0400
-Message-ID: <3F340B7F.6000505@mrs.umn.edu>
-Date: Fri, 08 Aug 2003 15:43:43 -0500
-From: Grant Miner <mine0057@mrs.umn.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: reiserfs-list@namesys.com
-Subject: Filesystem Benchmarking script w ext2
-Content-Type: multipart/mixed;
- boundary="------------030304090906070400060603"
+	Fri, 8 Aug 2003 16:58:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23972 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271934AbTHHU6i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 16:58:38 -0400
+Message-Id: <200308082058.h78KwV300335@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Con Kolivas <kernel@kolivas.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm3 osdl-aim-7 regression 
+In-Reply-To: Message from Con Kolivas <kernel@kolivas.org> 
+   of "Thu, 07 Aug 2003 12:40:54 +1000." <200308071240.54863.kernel@kolivas.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 08 Aug 2003 13:58:31 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030304090906070400060603
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> On Thu, 7 Aug 2003 05:10, Cliff White wrote:
+> > > Binary searching (insert gratuitous rant about benchmarks that take more
+> > > than two minutes to complete) reveals that the slowdown is due to
+> > > sched-2.6.0-test2-mm2-A3.
+> 
+> This is most likely the round robinning of tasks every 25ms. The extra 
+> overhead of nanosecond timing I doubt could make that size difference (but I 
+> could be wrong). There is some tweaking of this round robinning in my code 
+> which may help this, but it won't bring it back up to original performance I 
+> believe. Two things to try are add my patches up to O12.3int first to see how 
+> much (if at all!) it helps, and change TIMESLICE_GRANULARITY in sched.c to 
+> (MAX_TIMESLICE) which basically disables it completely. If there is still  a 
+> drop in performance with this, the remainder is the extra locking/overhead in 
+> nanosecond timing.
+> 
+> Con
+> 
+Added your patches to PLM, from your web site. We've had other issues slowing 
+up the
+4-cpu queue, but the two CPU tests ran. On these smaller platforms, not seeing 
+big
+difference between the patches.
 
-Some people asked about ext2 so it is in this sample results.
+STP id PLM# Kernel Name         Workfile   MaxJPM  MaxUser Host     %Change
+ 277231 2042 CK-O13-O13.1int-1  new_dbase  1333.60  22     stp2-002 0.00
+ 277230 2041 CK-O12.3-O13int-1  new_dbase  1344.23  24     stp2-003 0.80
+ 277228 2040 CK-012.2-O12.3int-1 new_dbase 1328.86  22     stp2-002 -0.36
+All are a bit better than stock:
+276572 2020 linux-2.6.0-test2    new_dbase  1320.68 22	   stp2-000 -0.96
+---- 
+Code location:
+bk://developer.osdl.org/osdl-aim-7
+More results:
+http://developer.osdl.org/cliffw/reaim/index.html
 
-It seemes like there was some interest in the filesystem benchmarks, so 
-I have written a better testing script.  Take it from 
-http://umn.edu/~mine0057/bench .
-(You will need scsh to use it.)
+Run parameters: 
 
-It makes it easy to select which filesytems to benchmark, and you get a 
-tab-delimited output (so you can import into Excel :).  Also, you can 
-customize the list of tests with whatever commands you wish.  If anyone 
-finds it useful, let me know so that I continue to work on it.  Attached 
-is a sample output.
+./reaim -s2 -x -t -i2 -f workfile.new_dbase -r3 -b -l./stp.config
 
---------------030304090906070400060603
-Content-Type: text/plain;
- name="results2.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="results2.txt"
+cliffw
 
-fs	bigdir	cpu 	cp	cpu 	cp2	cpu 	cp3	cpu 	cp4	cpu 	cp5	cpu 	rm	cpu 	rm2	cpu 	rm3	cpu 	sync	cpu 	total	avg
-ext2	33.01	0.235989	37.82	0.149656	43.81	0.128281	44.14	0.127096	46.09	0.121284	49.75	0.115779	15.95	0.0376176	7.66	0.0861619	15.2	0.0427632	0.43	0.	293.86	0.129109
-ext3	38.47	0.248505	94.42	0.0775259	61.35	0.119478	62.64	0.117976	62.58	0.119367	64.7	0.117156	25.14	0.0640414	7.86	0.194656	13.17	0.118451	4.94	0.00202429	435.27	0.117996
-reiser4	32.95	0.32868	33.27	0.326721	32.31	0.341071	34.48	0.327726	33.88	0.332054	31.	0.36871	17.51	0.262707	7.74	0.527132	12.97	0.341557	0.55	0.	236.66	0.337235
-
---------------030304090906070400060603--
 

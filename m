@@ -1,87 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268324AbUHFV67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268314AbUHFWBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268324AbUHFV67 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 17:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268314AbUHFV67
+	id S268314AbUHFWBM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 18:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUHFWBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 17:58:59 -0400
-Received: from s124.mittwaldmedien.de ([62.216.178.24]:40091 "EHLO
-	s124.mittwaldmedien.de") by vger.kernel.org with ESMTP
-	id S268324AbUHFV6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 17:58:40 -0400
-Message-ID: <4113FF09.6050806@vcd-berlin.de>
-Date: Fri, 06 Aug 2004 23:58:33 +0200
-From: Elmar Hinz <elmar.hinz@vcd-berlin.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+	Fri, 6 Aug 2004 18:01:11 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34976 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S268229AbUHFWAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 18:00:09 -0400
+Message-ID: <4113FFF9.3010609@sgi.com>
+Date: Fri, 06 Aug 2004 17:02:33 -0500
+From: Josh Aas <josha@sgi.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Add support for IT8212 IDE controllers
-References: <2obsK-5Ni-13@gated-at.bofh.it> <4110ECBF.9070000@vcd-berlin.de> <20040805104700.GB11584@devserv.devel.redhat.com>
-In-Reply-To: <20040805104700.GB11584@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] improve speed of freeing bootmem
+References: <4113DB63.9020706@sgi.com> <20040806125216.30405230.akpm@osdl.org>
+In-Reply-To: <20040806125216.30405230.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------050603030907020403010400"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Wed, Aug 04, 2004 at 04:03:43PM +0200, Elmar Hinz wrote:
-> 
->>When I set in the bios RAID 1 there comes an message similar
->>INVALID GEOMETRY: 0 PHYSICAL HEADS?
->>and booting stops.
-> 
-> 
-> At which point
-> 
-> 
->>but booting continous and I can use the disks.
->>hdparm => 15.70 MB/sec
-> 
-> 
-> A bit slow.. thanks
-> 
-> 
+This is a multi-part message in MIME format.
+--------------050603030907020403010400
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I am sorry. I can't test the card in the RAID mode anymore, because it
-is in use meanwhile with NORMAL mode an a software raid. Maybe the
-output of dmesg in NORMAL mode is usefull for you.
+New patch is attached.
 
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Josh Aas <josha@sgi.com>
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-IT8212: IDE controller at PCI slot 0000:00:09.0
-PCI: Found IRQ 10 for device 0000:00:09.0
-PCI: Sharing IRQ 10 with 0000:00:01.2
+-- 
+Josh Aas
+Silicon Graphics, Inc. (SGI)
+Linux System Software
+651-683-3068
 
-(Changing the slots IRQ by bios alters both devices 0000:00:01.2 and 
-0000:00:09.0, so they seem to belong both to the card/disks)
+Andrew Morton wrote:
+> Josh Aas <josha@sgi.com> wrote:
+> 
+>>Attached is a patch that greatly improves the speed of freeing boot 
+>>memory.
+> 
+> 
+> hm, OK.  I have a vague feeling that Bill Irwin had patches to fix this up
+> ages ago.
+> 
+> 
+> A few nits:
+> 
+> 
+>>--- a/mm/bootmem.c	2004-08-05 15:33:39.000000000 -0500
+>>+++ b/mm/bootmem.c	2004-08-06 13:42:33.000000000 -0500
+>>@@ -259,6 +259,7 @@ static unsigned long __init free_all_boo
+>> 	unsigned long i, count, total = 0;
+>> 	unsigned long idx;
+>> 	unsigned long *map; 
+>>+	int gofast = 0;
+>> 
+>> 	BUG_ON(!bdata->node_bootmem_map);
+>> 
+>>@@ -267,14 +268,32 @@ static unsigned long __init free_all_boo
+>> 	page = virt_to_page(phys_to_virt(bdata->node_boot_start));
+>> 	idx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
+>> 	map = bdata->node_bootmem_map;
+>>+	if (bdata->node_boot_start == 0 ||
+>>+	    ffs(bdata->node_boot_start) - PAGE_SHIFT > ffs(BITS_PER_LONG))
+>>+		gofast = 1;
+> 
+> 
+> A comment describing the above reasoning would be nice.
+> 
+> 
+>> 	for (i = 0; i < idx; ) {
+>> 		unsigned long v = ~map[i / BITS_PER_LONG];
+>>-		if (v) {
+>>+		if (gofast && v == ~0UL) {
+>>+			int j;
+>>+
+>>+			count += BITS_PER_LONG;
+>>+			ClearPageReservedNoAtomic(page);
+>>+			set_page_count(page, 1);
+>>+			for (j = 1; j < BITS_PER_LONG; j++) {
+>>+				if (j + 16 < BITS_PER_LONG) {
+>>+                      			prefetchw(page + j + 16);
+>>+                                }
+> 
+> 
+> The whitespace/tabbing has gone funny here.
+> 
+> 
+>>+#define ClearPageReservedNoAtomic(page)	(page)->flags &= ~(1UL << PG_reserved)
+> 
+> 
+> The naming convention we used in 2.4 for the nonatomic operation was
+> __ClearPageReserved(), so can we please stick with that?
+> 
+> And this macro can use __clear_bit() rather than open-coding it.
 
-IT8212: chipset revision 17
-IT8212: 100% native mode on irq 10
-     ide2: BM-DMA at 0xb000-0xb007, BIOS settings: hde:DMA, hdf:pio
-it8212: controller in smart mode.
-it8212: BIOS seleted a 66MHz clock.
-     ide3: BM-DMA at 0xb008-0xb00f, BIOS settings: hdg:DMA, hdh:pio
-it8212: BIOS seleted a 66MHz clock.
-hde: WDC WD800JB-00FMA0, ATA DISK drive
-ide2 at 0xd400-0xd407,0xd002 on irq 10
-hdg: WDC WD800JB-00FMA0, ATA DISK drive
-ide3 at 0xb800-0xb807,0xb402 on irq 10
-hdc: ATAPI CDROM, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hde: max request size: 128KiB
-hde: recal_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: recal_intr: error=0x04 { DriveStatusError }
-hde: 156301488 sectors (80026 MB) w/8192KiB Cache, CHS=65535/16/63, UDMA(33)
-hde: irq timeout: status=0xd0 { Busy }
+--------------050603030907020403010400
+Content-Type: text/x-patch;
+ name="bootmem5.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bootmem5.patch"
 
-  /dev/ide/host2/bus0/target0/lun0: p1 < p5 p6 p7 p8 >
-hdg: max request size: 128KiB
-hdg: recal_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: recal_intr: error=0x04 { DriveStatusError }
-hdg: 156301488 sectors (80026 MB) w/8192KiB Cache, CHS=65535/16/63, UDMA(33)
-hdg: irq timeout: status=0xd0 { Busy }
+--- mm/bootmem.c.orig	2004-08-05 15:33:39.000000000 -0500
++++ mm/bootmem.c	2004-08-06 16:52:41.000000000 -0500
+@@ -259,6 +259,7 @@ static unsigned long __init free_all_boo
+ 	unsigned long i, count, total = 0;
+ 	unsigned long idx;
+ 	unsigned long *map; 
++	int gofast = 0;
+ 
+ 	BUG_ON(!bdata->node_bootmem_map);
+ 
+@@ -267,14 +268,33 @@ static unsigned long __init free_all_boo
+ 	page = virt_to_page(phys_to_virt(bdata->node_boot_start));
+ 	idx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
+ 	map = bdata->node_bootmem_map;
++	/* Check physaddr is O(LOG2(BITS_PER_LONG)) page aligned */
++	if (bdata->node_boot_start == 0 ||
++	    ffs(bdata->node_boot_start) - PAGE_SHIFT > ffs(BITS_PER_LONG))
++		gofast = 1;
+ 	for (i = 0; i < idx; ) {
+ 		unsigned long v = ~map[i / BITS_PER_LONG];
+-		if (v) {
++		if (gofast && v == ~0UL) {
++			int j;
++
++			count += BITS_PER_LONG;
++			__ClearPageReserved(page);
++			set_page_count(page, 1);
++			for (j = 1; j < BITS_PER_LONG; j++) {
++				if (j + 16 < BITS_PER_LONG) {
++					prefetchw(page + j + 16);
++				}
++				__ClearPageReserved(page + j);
++			}
++			__free_pages(page, ffs(BITS_PER_LONG)-1);
++			i += BITS_PER_LONG;
++			page += BITS_PER_LONG;
++		} else if (v) {
+ 			unsigned long m;
+ 			for (m = 1; m && i < idx; m<<=1, page++, i++) {
+ 				if (v & m) {
+ 					count++;
+-					ClearPageReserved(page);
++					__ClearPageReserved(page);
+ 					set_page_count(page, 1);
+ 					__free_page(page);
+ 				}
+@@ -294,7 +314,7 @@ static unsigned long __init free_all_boo
+ 	count = 0;
+ 	for (i = 0; i < ((bdata->node_low_pfn-(bdata->node_boot_start >> PAGE_SHIFT))/8 + PAGE_SIZE-1)/PAGE_SIZE; i++,page++) {
+ 		count++;
+-		ClearPageReserved(page);
++		__ClearPageReserved(page);
+ 		set_page_count(page, 1);
+ 		__free_page(page);
+ 	}
+--- include/linux/page-flags.h.orig	2004-08-06 13:43:36.000000000 -0500
++++ include/linux/page-flags.h	2004-08-06 15:16:29.000000000 -0500
+@@ -236,6 +236,7 @@ extern unsigned long __read_page_state(u
+ #define PageReserved(page)	test_bit(PG_reserved, &(page)->flags)
+ #define SetPageReserved(page)	set_bit(PG_reserved, &(page)->flags)
+ #define ClearPageReserved(page)	clear_bit(PG_reserved, &(page)->flags)
++#define __ClearPageReserved(page)	__clear_bit(PG_reserved, &(page)->flags)
+ 
+ #define SetPagePrivate(page)	set_bit(PG_private, &(page)->flags)
+ #define ClearPagePrivate(page)	clear_bit(PG_private, &(page)->flags)
 
-  /dev/ide/host2/bus1/target0/lun0: p1 < p5 p6 p7 p8 >
+--------------050603030907020403010400--

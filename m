@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266970AbTAULXk>; Tue, 21 Jan 2003 06:23:40 -0500
+	id <S267022AbTAUL2h>; Tue, 21 Jan 2003 06:28:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266976AbTAULXk>; Tue, 21 Jan 2003 06:23:40 -0500
-Received: from gold.muskoka.com ([216.123.107.5]:58632 "EHLO gold.muskoka.com")
-	by vger.kernel.org with ESMTP id <S266970AbTAULXj>;
-	Tue, 21 Jan 2003 06:23:39 -0500
-Message-ID: <3E2D2BEA.2AC873DE@yahoo.com>
-Date: Tue, 21 Jan 2003 06:15:54 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 4.51 [en] (X11; I; Linux 2.2.23 i586)
-X-Accept-Language: en
+	id <S266976AbTAUL2h>; Tue, 21 Jan 2003 06:28:37 -0500
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:3968 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S267022AbTAUL2g>; Tue, 21 Jan 2003 06:28:36 -0500
+Message-ID: <3E2D30F8.722D58C2@cinet.co.jp>
+Date: Tue, 21 Jan 2003 20:37:28 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.59-pc98smp i686)
+X-Accept-Language: ja
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-pre3-ac4 [PATCH]
-References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii
+To: Takashi Iwai <tiwai@suse.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] PC-9800 sub-arch (3/29) alsa
+References: <20030119051043.GA2662@yuzuki.cinet.co.jp>
+		<20030119063422.GB2965@yuzuki.cinet.co.jp> <s5hof6a4vz3.wl@alsa2.suse.de>
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+Takashi Iwai wrote:
+> 
+> Hi,
+> 
+> At Sun, 19 Jan 2003 15:34:22 +0900,
+> Osamu Tomita wrote:
+> >
+> > This is patchset to support NEC PC-9800 subarchitecture
+> > against 2.5.59 (3/29).
+> >
+> > ALSA sound drivers for PC98
+> > Fix bug in 2.5.59 and additional driver.
+> 
+> are there any essential changes except for the replacement of
+> CONFIG_PC9800 with CONFIG_X86_PC9800 ?
+Only one change below.
 
-Your compiler must really like you, seeing as it would barf on any 
-significant I/O here.  Somewhere along the line, somebody removed
-the INIT_LIST_HEAD for current->local_pages from fork.c and didn't
-put it back somewhere else (like INIT_TASK or whatever was in mind.)
+diff -Nru linux/sound/drivers/mpu401/mpu401.c linux98/sound/drivers/mpu401/mpu40
+1.c
+--- linux/sound/drivers/mpu401/mpu401.c 2002-12-24 14:20:59.000000000 +0900
++++ linux98/sound/drivers/mpu401/mpu401.c       2003-01-04 14:05:38.000000000 +0
+900
+@@ -154,6 +154,9 @@
+        (void)(get_option(&str,&enable[nr_dev]) == 2 &&
+               get_option(&str,&index[nr_dev]) == 2 &&
+               get_id(&str,&id[nr_dev]) == 2 &&
++#ifdef CONFIG_X86_PC9800
++              get_option(&str,&pc98ii[nr_dev]) == 2 &&
++#endif
+               get_option(&str,(int *)&port[nr_dev]) == 2 &&
+               get_option(&str,&irq[nr_dev]) == 2);
+        nr_dev++;
 
-I just put it back where it was for now, not knowing what the 
-original intention was.  As long as it is put somewhere...  :-)
-
-Paul.
-
---- kernel/fork.c~	Mon Jan  6 14:26:50 2003
-+++ kernel/fork.c	Tue Jan 21 05:30:17 2003
-@@ -688,6 +688,8 @@
- 	p->lock_depth = -1;		/* -1 = no lock */
- 	p->start_time = jiffies;
- 
-+	INIT_LIST_HEAD(&p->local_pages);
-+
- 	retval = -ENOMEM;
- 	/* copy all the process information */
- 	if (copy_files(clone_flags, p))
-
-
-
-
+Thanks,
+Osamu Tomita

@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293705AbSCAUQs>; Fri, 1 Mar 2002 15:16:48 -0500
+	id <S293712AbSCAUVj>; Fri, 1 Mar 2002 15:21:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293709AbSCAUQi>; Fri, 1 Mar 2002 15:16:38 -0500
-Received: from 216-42-72-159.ppp.netsville.net ([216.42.72.159]:8068 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S293705AbSCAUQZ>; Fri, 1 Mar 2002 15:16:25 -0500
-Date: Fri, 01 Mar 2002 15:15:59 -0500
-From: Chris Mason <mason@suse.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>,
-        Wayne Whitney <whitney@math.berkeley.edu>
-cc: LKML <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
-Subject: Re: [OOPS 2.5.5-dj2] ext3 BUG in do_get_write_access()
-Message-ID: <259120000.1015013734@tiny>
-In-Reply-To: <20020301194155.H2682@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0202281703130.4893-100000@mf1.private> <20020301194155.H2682@redhat.com>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S293713AbSCAUV2>; Fri, 1 Mar 2002 15:21:28 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:5106 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S293712AbSCAUVW>; Fri, 1 Mar 2002 15:21:22 -0500
+Date: Fri, 1 Mar 2002 21:21:09 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Joe Korty <joe.korty@ccur.com>
+cc: Ingo Molnar <mingo@chiara.elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] irq0 affinity broke on some i386 boxes
+In-Reply-To: <200203011951.TAA12018@rudolph.ccur.com>
+Message-ID: <Pine.GSO.3.96.1020301210300.10687A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 1 Mar 2002, Joe Korty wrote:
 
+> PS: My original dmesg logs may now be found at
+> http://www.mindspring.com/~jakorty/irq0.bugreport.orig.
 
-On Friday, March 01, 2002 07:41:55 PM +0000 "Stephen C. Tweedie" <sct@redhat.com> wrote:
+ If you only have a line similar to this one:
 
-> In this particular case, I think I'll just have to relax the assertion
-> and cause it to printk instead of BUG()ing, because I don't want to
-> lose the protection of this test entirely.  
-> 
-> I'd really like to be able to detect such direct buffered-io
-> "interference" from user-space, though, so that I could preserve the
-> BUG() in cases where ext3 is getting this wrong internally.  I'll look
-> at that --- I may be able to achieve it through ext3's existing
-> metadata flags.
+..TIMER: vector=0x31 pin1=2 pin2=0
 
-Do I misunderstand the assertion?  It seems to be saying:
+then a normal I/O APIC interrupt (pin1) is used and the patch is
+irrelevant. 
 
-'this buffer has been written out of order.  If we were to crash 
-now, it will result in FS corruption'.
-BUG()
+ If you have lines like these:
 
-If so, a printk alone might be better, since it would give the FS
-the chance to put the correct data there anyway.
+..TIMER: vector=0x31 pin1=-1 pin2=0
+...trying to set up timer (IRQ0) through the 8259A ...
+..... (found pin 0) ...works.
 
--chris
+then IRQ 0 is not registered so far (pin1 is -1) and add_pin_to_irq() 
+(added by your patch) is invoked ordinarily for pin2 like for other
+interrupts.
 
+ But if you have lines like these:
 
+..TIMER: vector=0x31 pin1=2 pin2=0
+..MP-BIOS bug: 8254 timer not connected to IO-APIC
+...trying to set up timer (IRQ0) through the 8259A ...
+..... (found pin 0) ...works.
+
+then IRQ 0 needs to be rerouted from pin1 to pin2 and replace_pin_at_irq() 
+is intended to do so.  I'd be pleased to hear from someone with such a
+system (they are quite common surprisingly); I'll simulate such a
+configuration with my development system anyway.
+
+ Other timer configurations (they are two more, sigh) don't matter as they
+don't route IRQ 0 via an I/O APIC.  They are very rare as well.
+
+  Maciej
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

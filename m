@@ -1,45 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281467AbRKHIL2>; Thu, 8 Nov 2001 03:11:28 -0500
+	id <S281468AbRKHIO6>; Thu, 8 Nov 2001 03:14:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281468AbRKHILT>; Thu, 8 Nov 2001 03:11:19 -0500
-Received: from [208.48.139.185] ([208.48.139.185]:50392 "HELO
-	forty.greenhydrant.com") by vger.kernel.org with SMTP
-	id <S281467AbRKHILA>; Thu, 8 Nov 2001 03:11:00 -0500
-Date: Thu, 8 Nov 2001 00:10:54 -0800
-From: David Rees <dbr@greenhydrant.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Suspected bug - System slowdown under unexplained excessive disk I/O - 2.4.13
-Message-ID: <20011108001054.A10029@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011107221148.A7828@greenhydrant.com> <Pine.LNX.4.40.0111080841130.12597-100000@omega.hbh.net>
-Mime-Version: 1.0
+	id <S281482AbRKHIOs>; Thu, 8 Nov 2001 03:14:48 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:9743 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S281468AbRKHIOk>;
+	Thu, 8 Nov 2001 03:14:40 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200111080814.fA88EXn157226@saturn.cs.uml.edu>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+To: indigoid@higherplane.net (john slee)
+Date: Thu, 8 Nov 2001 03:14:32 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
+In-Reply-To: <20011108171947.G2430@higherplane.net> from "john slee" at Nov 08, 2001 05:19:47 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.40.0111080841130.12597-100000@omega.hbh.net>; from oktay.akbal@s-tec.de on Thu, Nov 08, 2001 at 08:45:12AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08, 2001 at 08:45:12AM +0100, Oktay Akbal wrote:
-> On Wed, 7 Nov 2001, David Rees wrote:
-> 
-> > >
-> > > Keywords:
-> > >
-> > > vm, ReiserFS, heavy disk I/O,
-> >
-> > Let me guess, IDE disks?  Anyway, this is a FAQ.  Go www.namesys.com, click
-> > on the FAQ, and look at #15.
-> 
-> To bad I did not see the Reiserfs-Keyword before asking...
-> In my case this happened on scsi-disks on a adaptec 2940.
-> I read the faq-entry, but I do not understand why this should only apply
-> to IDE. Maybe my old-scsi disks suffer the same problem ?
+john slee writes:
+> On Wed, Nov 07, 2001 at 07:22:16PM -0500, Albert D. Cahalan wrote:
 
-It could affect certain SCSI disks/controllers just as well.  You might want
-to ask this question on the reiserfs list to see if they have any
-solutions...
+>> Splitting /proc can be done. Start by mounting procfs twice.
+>> Make non-process stuff in /proc invisible, but still available.
+>> Then in /kernel the process stuff can be disabled. The proc fs
+>> code can even register two filesystem types, with different
+>                         ^^^^^^^^^^^^^^^^^^^^
+>                         ||||||||||||||||||||
+>
+> this is the key part.  two filesystems and union mount should
+> satisfy backward compatibility needs while lspci and friends
+> are migrating to /kern.
+>
+> this makes it a distribution issue, not a kernel issue, and
+> there is no need for special backwards-compatibility stuff in
+> either kernfs or procfs.
 
--Dave
+No, not a union mount. We didn't have that last time I looked,
+and I have some doubts that it would work all that well. Even
+if it does work, it doesn't provide drop-in kernel compatibility
+and doesn't help encourage transition.
+
+It is possible for a single filesystem driver to register more
+than one name. For example, once ext3 is fully trusted it could
+register an "ext2" type so that we don't need an ext2 driver or
+admin headaches. The sysv filesystem driver does in fact register
+itself under several different names for compatibility reasons.
+
+So the code in fs/proc could register both "proc" and "kern".
+This lets us keep the code intact while preparing for a future
+split into separate drivers.
+
+It would be reasonable to have a proc filesystem that could
+hide or disable half of the content -- either process files
+or the misc junk.
+
+Let's have a filesystem mounted as type "proc" hide everything
+but the process directories by default. You can still read
+/proc/cpuinfo, but you can't see it when you do "ls /proc".
+Let's have  a filesystem mounted as type "kern" disable the
+process directories by default.
+
+During transition, you could specify options to get:
+
+1. today's /proc, with perfect compatibility
+2. the above, except "ls /proc" won't show misc junk
+3. the above, plus a warning when non-process stuff is touched
+4. only the process directories
+5. misc junk alone, w/o the process directories
+
+The only difference between "proc" and "kern" is the default.
+These would be the same:
+
+mount -t proc -o misc-only /mnt/foo
+mount -t kern /mnt/foo
+
+After a while the "proc" default changes to #3, then to #4.
+Then a while later support for #1, #2, and #3 dies as today's
+proc filesystem is finally split in half. Transition done!
+

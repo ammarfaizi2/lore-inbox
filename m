@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288953AbSAXTX1>; Thu, 24 Jan 2002 14:23:27 -0500
+	id <S288958AbSAXT31>; Thu, 24 Jan 2002 14:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288862AbSAXTXS>; Thu, 24 Jan 2002 14:23:18 -0500
-Received: from dpc6682034030.direcpc.com ([66.82.34.30]:260 "EHLO
-	oscar.hatestheinter.net") by vger.kernel.org with ESMTP
-	id <S288955AbSAXTXE>; Thu, 24 Jan 2002 14:23:04 -0500
-Subject: Re: [right one][patch] amd athlon cooling on kt266/266a chipset
-From: Disconnect <lkml@sigkill.net>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0201221817410.11025-200000@infcip10.uni-trier.de>
-In-Reply-To: <Pine.LNX.4.40.0201221817410.11025-200000@infcip10.uni-trier.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 24 Jan 2002 14:19:35 -0500
-Message-Id: <1011899975.2029.9.camel@oscar>
-Mime-Version: 1.0
+	id <S288955AbSAXT3I>; Thu, 24 Jan 2002 14:29:08 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25104 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288862AbSAXT2z>; Thu, 24 Jan 2002 14:28:55 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: RFC: booleans and the kernel
+Date: 24 Jan 2002 11:28:46 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a2pn9e$mt5$1@cesium.transmeta.com>
+In-Reply-To: <3C5047A2.1AB65595@mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-22 at 12:21, Daniel Nofftz wrote:
-> if you want to test this patch:
-> 1. first apply the patch
-> 2. enable generel-setup -> acpi , acpi-bus-maager , prozessor
->    in the kernel config
-> 3. add to the "append" line in /etc/lilo.conf the "amd_disconnect=yes"
-> statemand (or after reboot enter at the kernel-boot-prompt
-> "amd_disconnect=yes")
-> 4. build a knew kernel
-> 5. report to me, whether you have problems ...
+Followup to:  <3C5047A2.1AB65595@mandrakesoft.com>
+By author:    Jeff Garzik <jgarzik@mandrakesoft.com>
+In newsgroup: linux.dev.kernel
+>
+> A small issue... 
+> 
+> C99 introduced _Bool as a builtin type.  The gcc patch for it went into
+> cvs around Dec 2000.  Any objections to propagating this type and usage
+> of 'true' and 'false' around the kernel?
+> 
+> Where variables are truly boolean use of a bool type makes the
+> intentions of the code more clear.  And it also gives the compiler a
+> slightly better chance to optimize code [I suspect].
+> 
+> Actually I prefer 'bool' to '_Bool', if this becomes a kernel standard.
+> 
 
-I just finished testing the patch, and it shows huge temperature savings
-(10 to 15C when idle).  The problem is, it screws up v4l (bttv), usb
-keyboard under X becomes effectively unusable, etc.
+Noone is actually meant to use _Bool, except perhaps in header files.
 
-V4l - using xinerama, xvideo, v4l under X4.1.0.1 - the picture gets
-jagged lines through it (offset scanlines maybe?) and tends to be jumpy.
+#include <stdbool.h>
 
-usb keyboard - its slightly bad under X anyway (sticky keys, modifiers,
-etc) but with this patch I had to log in from another system just to
-shut down - even ctrl-alt-delete wouldn't work. In about 15 mins of
-arguing with it I probably got 20 keystrokes into the xserver. (mouse
-continued to work fine however.)
+... then use "bool", "true", "false".
 
-Seems like a great idea, if these problems can be solved. I'd love to
-get my cpu back down to 30C on a regular basis ;)
+This is fine with me as long our version of stdbool.h contain the
+appropriate ifdefs.
 
-(Currently running the same kernel w/o amd_disconnect=yes and it isn't
-showing any problems at all.)
-
-Motherboard is an Iwill kk266 (kt133) w/ a 1.2G tbird, 512M ram, 2
-aic7xxx (one pcb w/ pci bridge)
-Primary video: nvidia geforce2 mx (yah yah but it works ;) ..)
-Second/Third video: matrox mga g100 (4port card, 2 ports in use)
-
-Also, I noticed an odd problem w/ ACPI. dmesg shows:
-ACPI: Power Button (FF) found
-ACPI: Multiple power buttons detected, ignoring fixed-feature
-ACPI: Power Button (CM) found
-..and:
- ls -l /proc/acpi/button/
-total 0
-dr-xr-xr-x    2 root     root            0 Jan 24 14:19 power/
-dr-xr-xr-x    2 root     root            0 Jan 24 14:19 power/
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

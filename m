@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267960AbTBVXrw>; Sat, 22 Feb 2003 18:47:52 -0500
+	id <S267965AbTBVXyd>; Sat, 22 Feb 2003 18:54:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267965AbTBVXrw>; Sat, 22 Feb 2003 18:47:52 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:57539 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S267960AbTBVXrv>;
-	Sat, 22 Feb 2003 18:47:51 -0500
-Date: Sat, 22 Feb 2003 18:57:56 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Larry McVoy <lm@work.bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Larry McVoy <lm@bitmover.com>, Mark Hahn <hahn@physics.mcmaster.ca>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030222235756.GA8699@gtf.org>
-References: <Pine.LNX.4.44.0302221417120.2686-100000@coffee.psychology.mcmaster.ca> <1510000.1045942974@[10.10.2.4]> <20030222195642.GI1407@work.bitmover.com> <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com>
+	id <S267980AbTBVXyd>; Sat, 22 Feb 2003 18:54:33 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:5595 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267965AbTBVXyc>;
+	Sat, 22 Feb 2003 18:54:32 -0500
+Date: Sat, 22 Feb 2003 15:47:53 -0800 (PST)
+Message-Id: <20030222.154753.133994666.davem@redhat.com>
+To: yoshfuji@linux-ipv6.org
+Cc: kazunori@miyazawa.org, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, usagi@linux-ipv6.org, kunihiro@ipinfusion.com
+Subject: Re: [PATCH] IPv6 IPSEC support
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030222.214935.134101784.yoshfuji@linux-ipv6.org>
+References: <20030222202623.38d41d8a.kazunori@miyazawa.org>
+	<20030222.031326.103246837.davem@redhat.com>
+	<20030222.214935.134101784.yoshfuji@linux-ipv6.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030222231552.GA31268@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 03:15:52PM -0800, Larry McVoy wrote:
-> or rackmount cases.  I fail to see how there are better margins on the
-> same hardware in a rackmount box for $800 when the desktop costs $750.
-> Those rack mount power supplies and cases are not as cheap as the desktop
-> ones, so I see no difference in the margins.
+   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
+   Date: Sat, 22 Feb 2003 21:49:35 +0900 (JST)
+   
+   xfrm_policy.c:xfrm6_bundle_create() seems to depend on ip6_route_output()
+   as xfrm_bundle_create() depends on __ip_route_output_key().
+   How do we solve this dependency? inter-module?
 
-Oh, it's definitely different hardware.  Maybe the 16550-related portion
-of the ASIC is the same :) but just do an lspci to see huge differences in
-motherboard chipsets, on-board parts, more complicated BIOS, remote
-management bells and whistles, etc.  Even the low-end rackmounts.
+Good question.
 
-But the better margins come simply from the mentality, IMO.  Desktops
-just aren't "as important" to a business compared to servers, so IT
-shops are willing to spend more money to not only get better hardware,
-but also the support services that accompany it.  Selling servers
-to enterprise data centers means bigger, more concentrated cash pool.
+Maybe we can pass around a structure to xfrm_lookup() which contains
+information on how to lookup routes for tunnels.  It can just be
+a function pointer right now.
 
-	Jeff
+It may be possible to generalize this technique even more, making
+more xfrm_*() routines address-family independant.
 
+One example, xfrm_lookup() gets this xfrm_afinfo pointer, and it can
+use it to learn how to compare addresses.  The xfrm_afinfo pointer
+is also passed to xfrm_bundle_create() which uses it to learn how
+to lookup tunnel routes.
 
+A small net/ipv6/xfrm_ipv6.c module is created, which registers
+a xfrm_afinfo structure to the generic xfrm engine, it teaches
+how to do these operations for AF_INET6 xfrm objects.
 
+Do you think this can work?
+
+We have several conflicting desires, all of them arise from capability
+to make many things as modules.  The only reliable aspect is that
+ipv4 cannot be modular.  Because of this we can allow xfrm_user and
+af_key to be either modular or non-modular.

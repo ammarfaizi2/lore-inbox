@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267518AbRGUBvp>; Fri, 20 Jul 2001 21:51:45 -0400
+	id <S267564AbRGUD6p>; Fri, 20 Jul 2001 23:58:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267526AbRGUBvf>; Fri, 20 Jul 2001 21:51:35 -0400
-Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:45732 "EHLO
-	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S267518AbRGUBvc>; Fri, 20 Jul 2001 21:51:32 -0400
-Message-ID: <3B58D19A.9080509@earthlink.net>
-Date: Fri, 20 Jul 2001 20:49:30 -0400
-From: Brad Chapman <kakadu@earthlink.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i586; en-US; C-UPD: MaxLinux0301) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Strange behavior with 2.4.x on a Celeron
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267571AbRGUD6Z>; Fri, 20 Jul 2001 23:58:25 -0400
+Received: from ohiper1-16.apex.net ([209.250.47.31]:55680 "EHLO
+	jacana.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S267564AbRGUD6X>; Fri, 20 Jul 2001 23:58:23 -0400
+Date: Fri, 20 Jul 2001 22:58:04 -0500
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Please suggest me
+Message-ID: <20010720225804.A2613@jacana.dyn.dhs.org>
+In-Reply-To: <3B5874AC.43D2E698@monmouth.com> <Pine.LNX.3.95.1010720151621.6191A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1010720151621.6191A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Fri, Jul 20, 2001 at 03:18:44PM -0400
+From: Aaron Smith <yoda_2002@yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello,
+On Fri, Jul 20, 2001 at 03:18:44PM -0400, Richard B. Johnson wrote:
+> On Fri, 20 Jul 2001, Dipak Biswas wrote:
+> 
+> > Hi All,
+> >     I'm quite new to linux world. I've a very awkard question for you.
+> > That is: I'm writting an user process, where I need all outgoing
+> > IP packets to be blocked and captured. First, is it really possible? If
+> > yes, how? I don't want to make any kernel source code changes. A wild
+> > guess: by configuration changes, is it possible to make IP process write
+> > on to a particular FD which I can read when I require?
+> > 
+> > Thanks,
+> > dipak
+> > 
+> 
+> Get the source-code of `tcpdump` and see how packet capturing is done.
+> You can also look at `ipchains` to see how to block packets.
+> 
+> Cheers,
+> Dick Johnson
+> 
+> Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+> 
+>     I was going to compile a list of innovations that could be
+>     attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+>     was handled in the BIOS, I found that there aren't any.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-   I have a Celeron 400MHz/66MHz with 256MB of RAM, a 6.4GB Quantum Fireball
-and an onboard SiS AGP chipset. I am currently running 2.4.5. I have 
-noticed
-that when I unpack large tar files on my system, it will sometimes lock up
-the hard disk, and I would also guess the filesystem code with it. When 
-I try
-to switch to another VC to kill the tar process, it hangs when I run ps ax.
-When I try to run ANY command which accesses the hard disk, it also hangs.
-Accessing /proc or /dev (I use devfs) doesn't cause any problems. Anyone 
-have
-any ideas?
+I would suggest using IPTables, personally, that's what I use for all of my firewall-type needs.
 
-Thanks,
+-- 
+-Aaron
 
-Brad
-
+Don't hate yourself in the morning, sleep till noon

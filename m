@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVALQyo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVALQ6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVALQyo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 11:54:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVALQyo
+	id S261255AbVALQ6G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 11:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVALQ6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 11:54:44 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60434 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261251AbVALQyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 11:54:41 -0500
-Date: Wed, 12 Jan 2005 17:54:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Stephen Pollei <stephen_pollei@comcast.net>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
-Message-ID: <20050112165431.GK29578@stusta.de>
-References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl> <20050107170712.GK29176@logos.cnet> <1105136446.7628.11.camel@localhost.localdomain> <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org> <20050107221255.GA8749@logos.cnet> <Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org> <20050111225127.GD4378@ip68-4-98-123.oc.oc.cox.net> <20050111235907.GG2760@pclin040.win.tue.nl> <20050112021246.GE4325@ip68-4-98-123.oc.oc.cox.net> <1105506703.977.19.camel@fury>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105506703.977.19.camel@fury>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 12 Jan 2005 11:58:05 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:26028 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261255AbVALQ6B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 11:58:01 -0500
+Message-ID: <41E557BC.9010405@tmr.com>
+Date: Wed, 12 Jan 2005 12:00:44 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Sanders <sandersn@btinternet.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Unable to burn DVDs
+References: <1105474144.15542.1.camel@zeus.city.tvnet.hu><1105474144.15542.1.camel@zeus.city.tvnet.hu> <200501112151.13351.sandersn@btinternet.com>
+In-Reply-To: <200501112151.13351.sandersn@btinternet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 09:11:40PM -0800, Stephen Pollei wrote:
-> On Tue, 2005-01-11 at 18:12, Barry K. Nathan wrote:
-> > > There are more ancient system calls, like old_stat and oldolduname.
-> > > Do we want separate options for each system call that is obsoleted?
+Nick Sanders wrote:
+> On Tuesday 11 January 2005 20:09, Sipos Ferenc wrote:
 > 
-> > A config option for each one would be a bit much, I'll agree. However,
-> > I think having a single config option for the whole bunch would be a
-> > good idea. 
->  
-> > less controversial than trying to do all of the old syscalls now.
-> Well the most controversial one-stop option could be a by date option.
-> CONFIG_OBSOLETE_TIME could default to 199201 or whatever
+>>Hi!
+>>
+>>For me, dvd writing works only when I run growisofs with root
+>>permissions (using 2.6.10 kernel, /dev/hdc without ide-scsi)
+>>
 > 
-> then you could then make things obsolete by wrapping them with
-> #if CONFIG_OBSOLETE_TIME <= 199805
->  /* old stat stuff */
-> #endif
-> #if CONFIG_OBSOLETE_TIME <= 200211
-> /* old uname stuff */
-> #endif
-> #if CONFIG_OBSOLETE_TIME <= 200501
->   /* uselib */
-> #endif
 > 
-> Then people could select with one option just to what extent they want
-> to support old crufty stuff. So one person could go super lean and mean
-> by choosing 200502 , while another could choose 200000 just to have
-> things from this century. Most people could just leave it alone.
+> For me when running growisofs  with user permissions on 2.6.10 (ide-cd) it 
+> works perfectly 1st time but 2nd time fails with the error below. It works 
+> fine when run as root.
+> 
+> :-( unable to PREVENT MEDIA REMOVAL: Operation not permitted
+> 
+> As an aside audio cd burning with cdrecord works as long as the '-text' option 
+> isn't used, if it is the process hangs.
 
-I don't see much value in this proposal - it would only cause confusion 
-for users.
+I reported a similar thing with cdrecord, writing a first session 
+successfully using the -multi flag, but not being able to append to it 
+or read the size with the "-msinfo" flag. I was totally blown off and 
+told I didn't have permissions on the device, even though I was able to 
+write to it.
 
-Except for some obscure cases, every application compiled with any libc6 
-version is expected to work with even the most recent libc6.
-
-OTOH, libc4/libc5 <-> libc6 is a natural border since support for older 
-libc's anyways requires extra support by the distribution.
-
-cu
-Adrian
+I believe the true answer is that the SCSI command filter is blocking a 
+command needed to perform the operation, probably a command to lock the 
+door of the drive. In my case I have permissions to write the CD, just 
+not to read the info needed to write additional sessions.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,28 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274471AbRITMtm>; Thu, 20 Sep 2001 08:49:42 -0400
+	id <S274472AbRITMwc>; Thu, 20 Sep 2001 08:52:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274472AbRITMtW>; Thu, 20 Sep 2001 08:49:22 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20746 "EHLO
+	id <S274473AbRITMwW>; Thu, 20 Sep 2001 08:52:22 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23562 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274471AbRITMtN>; Thu, 20 Sep 2001 08:49:13 -0400
-Subject: Re: [PATCH] Make kernel build numbers work again (was: Re: Cannot compile 2.4.10pre12aa1 with 2.95.2 on Debian)
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Thu, 20 Sep 2001 13:54:27 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <20010920112419.F1577@flint.arm.linux.org.uk> from "Russell King" at Sep 20, 2001 11:24:19 AM
+	id <S274472AbRITMwR>; Thu, 20 Sep 2001 08:52:17 -0400
+Subject: Re: broken VM in 2.4.10-pre9
+To: phillips@bonn-fries.net (Daniel Phillips)
+Date: Thu, 20 Sep 2001 13:57:02 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        ebiederm@xmission.com (Eric W. Biederman),
+        rfuller@nsisoftware.com (Rob Fuller), linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+In-Reply-To: <20010920112110Z16256-2757+869@humbolt.nl.linux.org> from "Daniel Phillips" at Sep 20, 2001 01:28:31 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15k3LX-0005FC-00@the-village.bc.nu>
+Message-Id: <E15k3O2-0005Fr-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Note that as illustrated by the previous poster, -linus now has the problem,
-> and -ac also has the same.  The following patch was generated against
-> 2.4.9-ac10, but should apply to both trees without problem.
+> On September 20, 2001 12:04 am, Alan Cox wrote:
+> > Reverse mappings make linear aging easier to do but are not critical (we
+> > can walk all physical pages via the page map array). 
+> 
+> But you can't pick up the referenced bit that way, so no up aging, only
+> down.
 
-Looks right to me
+#1 If you really wanted to you could update a referenced bit in the page
+struct in the fault handling path.
+
+#2 If a page is referenced multiple times by different processes is the
+behaviour of multiple upward aging actually wrong.
+
+Alan

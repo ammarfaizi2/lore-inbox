@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262191AbSJNVmU>; Mon, 14 Oct 2002 17:42:20 -0400
+	id <S262192AbSJNVqD>; Mon, 14 Oct 2002 17:46:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262193AbSJNVmU>; Mon, 14 Oct 2002 17:42:20 -0400
-Received: from msp-65-29-16-62.mn.rr.com ([65.29.16.62]:17849 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262191AbSJNVmT>; Mon, 14 Oct 2002 17:42:19 -0400
-Date: Mon, 14 Oct 2002 16:47:30 -0500
-From: Shawn <core@enodev.com>
-To: Christoph Hellwig <hch@infradead.org>, Shawn <core@enodev.com>,
-       Michael Clark <michael@metaparadigm.com>,
-       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: Linux v2.5.42
-Message-ID: <20021014164730.B28737@q.mn.rr.com>
-References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com> <3DA969F0.1060109@metaparadigm.com> <20021013144926.B16668@infradead.org> <3DA98E48.9000001@metaparadigm.com> <20021013163551.A18184@infradead.org> <20021014092048.A27417@q.mn.rr.com> <20021014172137.D19897@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021014172137.D19897@infradead.org>; from hch@infradead.org on Mon, Oct 14, 2002 at 05:21:37PM +0100
+	id <S262193AbSJNVqD>; Mon, 14 Oct 2002 17:46:03 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:37026 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S262192AbSJNVqB>; Mon, 14 Oct 2002 17:46:01 -0400
+Message-Id: <200210142151.g9ELpiLG101376@pimout1-ext.prodigy.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA)) (fwd)
+Date: Mon, 14 Oct 2002 12:41:28 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Nick LeRoy <nleroy@cs.wisc.edu>, Hans Reiser <reiser@namesys.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.21.0210132107020.9247-100000@steklov.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0210132107020.9247-100000@steklov.math.psu.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/14, Christoph Hellwig said something like:
-> On Mon, Oct 14, 2002 at 09:20:48AM -0500, Shawn wrote:
-> > Having said all that, given that your premises are true regarding the
-> > code design problems you have with EVMS, you have a valid point about
-> > including it in mainline. The question is, is this good enough to ignore
-> > having a logical device management system?!?
-> 
-> It is not good enough to ignore it.  It is good enough to postpone
-> integration for 2.7.
+On Sunday 13 October 2002 09:09 pm, Alexander Viro wrote:
+> > Logically, the second /var mount should be "mount --move /initrd/var
+> > /var", followed by "umount /initrd" to free up the initrd memory.  Right
+> > now it's doing "mount -n --bind /initrd/var /var", because /etc is a
+> > symlink into /var (has to remain editable, you see), and this way the
+> > information about which partition var actually is can be kept in one
+> > place.  (This is an implementation detail: I could have used volume
+> > labels instead.)
+> >
+> > The point is, right now I can't free the initial ramdisk because it has
+> > an active mount point under it..
+>
+> umount -l
+> mount --move
 
-I just wish logical volume management in general had not been so
-abandoned in mainline in the first place. I'm not saying Linus unfairly
-excluded patches, and I'm not saying patches weren't available. I'm just
-saying the dynamics of Linus and the maintainers did not allow for a
-healthy LVM in mainline, resulting in decay.
+Cool.  Thanks.
 
-If LVM1's destiny was to die during 2.5, then I wish there would have
-been a replacement ready during 2.5's lifecycle. Otherwise, keep
-creaking along with what's there, and fix it.
+Rob
 
-The larger question of volume management should have been addressed
-before this whole mess happened. It really was, but LVM1 maintenance was
-somewhat abandoned in favor of device mapper, and now it's broken, and
-the holy wars are upon us again because many are in fear of losing
-functionality important to them (at least the ubiquitous nature of the
-functonality), and there is panic.
+(Serves me right for still having Red Hat 7.2 on my laptop.  Old man pages.  
+Now I've got to find a new project to force myelf to learn VFS internals.  Oh 
+well... :)
 
-> Now that Al has sorted out lots of the block device mess in 2.5
-> I will work together with whoever is interested in it (i.e. the EVMS
-> folks) to integrate proper higher-level volume-management into
-> the kernel once the next unstable series opens.
-
-I look forward to it. In spite of my personal goals on this, I do
-appreciate your pickiness.
-
-> Coing up with lots of code just before feature freeze is just not the way
-> infrastructure work is done Linux.
-
-I just wish there were less veto-esque ways to handle EVMS in *-stable.
-
---
-Shawn Leas
-core@enodev.com
-
-I put my air conditioner in backwards.  It got cold outside.
-The weatherman on TV was confused.  "It was supposed to be hot
-today."
-						-- Stephen Wright
+(Nit-pick:  the man page description of umount -l doesn't look like it'd help 
+with the removable media problem, I.E. "umount --gimme_my_cd_back_NOW", but 
+the code may disagree, and the discussion's already turned up a 2.4 patch 
+from Tirgran via Hugh Dickens, so I'll shut up now. :)

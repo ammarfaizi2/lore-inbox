@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132706AbQL3G00>; Sat, 30 Dec 2000 01:26:26 -0500
+	id <S132993AbQL3Gkf>; Sat, 30 Dec 2000 01:40:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132999AbQL3G0Q>; Sat, 30 Dec 2000 01:26:16 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:29457 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132706AbQL3G0G>;
-	Sat, 30 Dec 2000 01:26:06 -0500
-Date: Sat, 30 Dec 2000 06:55:36 +0100
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Byron Stanoszek <gandalf@winds.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>, "Marco d'Itri" <md@Linux.IT>,
-        Jeff Lightfoot <jeffml@pobox.com>, Dan Aloni <karrde@callisto.yi.org>,
-        Anton Blanchard <anton@linuxcare.com.au>
-Subject: Re: test13-pre6 (Fork Bug with Athlons? Temporary Fix)
-Message-ID: <20001230065536.A10221@gruyere.muc.suse.de>
-In-Reply-To: <Pine.LNX.4.21.0012292156200.11714-200000@winds.org> <Pine.LNX.4.10.10012291929250.1722-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S132996AbQL3GkY>; Sat, 30 Dec 2000 01:40:24 -0500
+Received: from smtp10.atl.mindspring.net ([207.69.200.246]:32006 "EHLO
+	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
+	id <S132993AbQL3GkU>; Sat, 30 Dec 2000 01:40:20 -0500
+Message-ID: <3A4D7D32.20A9DC87@atlanta.com>
+Date: Sat, 30 Dec 2000 01:14:10 -0500
+From: Raymond Carney <rayc@atlanta.com>
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en,pdf
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: New info -- HPT370 RAID support now possible? (was New possibilities for 
+ HPT370 RAID support?)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10012291929250.1722-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 29, 2000 at 07:36:21PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 29, 2000 at 07:36:21PM -0800, Linus Torvalds wrote:
-> Maybe your libc is different on the different machines? Normal programs
-> shouldn't use segments at all, so I really do not see how this patch could
-> matter in the least, even if it was completely and utterly buggy (which is
-> not obvious at first glance).
-> 
-> I wonder why you seem to have an LDT at all..
+I've read everything that I can find regarding support of the Highpoint
+controllers RAID functionality under Linux, and I understand what the issues
+have been. The one promising bit of information that I dug up in this process is
+that the 'pseudo' RAID functionality of the Highpoint and Promise IDE RAID
+controllers is now supported in FreeBSD (4.2-RELEASE and 5.0-CURRENT). My
+question is, can the new BSD code be leveraged to add support for these
+controllers to the Linux kernel, and could we reasonably expect to see such
+support in the near future?
 
-glibc 2.2 linuxthreads sets up an LDT to use %gs as thread local data base 
-pointer.
+(I think that most all of the relevant/important bits are in ata-raid.c and/or
+ata-raid.h. In
+any event, the IDE/ATA guy over on the FreeBSD side is Soren Schmidt
+(sos@freebsd.org), and he
+wrote all of the stuff for this. It is my understanding that he got all of the
+info on how Highpoint lays out the geometry of the array directly from
+Highpoint, and that they were "very forthcoming" with whatever information that
+the FreeBSD team asked for. 
+
+There are also indications of support in OpenBSD and NetBSD's pciide driver,
+based on work done by Chris Cappuccio (chris@dqc.org) and Manuel Bouyer
+(bouyer@netbsd.org))
 
 
--Andi
+Please CC: me directly on any replies, and Thanks very much in advance.
+-- 
+    ______________________________________________________________________ 
+/***   ________________________________________________________________   ***\
+ Raymond Carney       <> Discovery consists of seeing what everybody 
+ rayc@atlanta.com     <> has seen and thinking what nobody has thought. 
+ 860.774.1939         <>                     - Albert Von Szent-Gyorgyi 
+       ________________________________________________________________ 
+\***______________________________________________________________________***/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

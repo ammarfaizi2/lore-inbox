@@ -1,128 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262888AbUKRS4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262894AbUKRTIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbUKRS4M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 13:56:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbUKRSyW
+	id S262894AbUKRTIO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 14:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbUKRTG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:54:22 -0500
-Received: from colino.net ([213.41.131.56]:58870 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S261155AbUKRSvt (ORCPT
+	Thu, 18 Nov 2004 14:06:58 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:60810 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262896AbUKRTEO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:51:49 -0500
-Date: Thu, 18 Nov 2004 19:51:29 +0100
-From: Colin Leroy <colin@colino.net>
-To: linux-kernel@vger.kernel.org
-Cc: hirofumi@mail.parknet.co.jp
-Subject: [PATCH] let vfat handle MS_SYNCHRONOUS flag
-Message-ID: <20041118195129.432f4110.colin@colino.net>
-In-Reply-To: <20041118194959.3f1a3c8e.colin@colino.net>
-References: <20041118194959.3f1a3c8e.colin@colino.net>
-X-Mailer: Sylpheed-Claws 0.9.12cvs142.2 (GTK+ 2.4.9; powerpc-unknown-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
+	Thu, 18 Nov 2004 14:04:14 -0500
+Date: Thu, 18 Nov 2004 21:06:03 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Christian Meder <chris@onestepahead.de>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.28-1
+Message-ID: <20041118200603.GC25938@elte.hu>
+References: <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <1100791410.3397.15.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1100791410.3397.15.camel@localhost>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Nov 2004 at 19h11, Colin Leroy wrote:
 
-Hi, 
-Same patch for vfat.
+* Christian Meder <chris@onestepahead.de> wrote:
 
-Signed-off-by: Colin Leroy <colin@colino.net>
---- a/fs/vfat/namei.c	2004-10-18 23:54:37.000000000 +0200
-+++ b/fs/vfat/namei.c	2004-11-18 18:41:52.000000000 +0100
-@@ -743,6 +743,8 @@
- 	(*de)->adate = (*de)->cdate = (*de)->date;
- 
- 	mark_buffer_dirty(*bh);
-+	if (dir->i_sb->s_flags & MS_SYNCHRONOUS)
-+		sync_dirty_buffer(*bh);
- 
- 	/* slots can't be less than 1 */
- 	sinfo_out->long_slots = slots - 1;
-@@ -844,7 +846,6 @@
- 	if (res < 0)
- 		goto out;
- 	inode = fat_build_inode(sb, de, sinfo.i_pos, &res);
--	brelse(bh);
- 	if (!inode)
- 		goto out;
- 	res = 0;
-@@ -854,7 +855,10 @@
- 	dir->i_version++;
- 	dentry->d_time = dentry->d_parent->d_inode->i_version;
- 	d_instantiate(dentry,inode);
-+	if (sb->s_flags & MS_SYNCHRONOUS)
-+		sync_dirty_buffer(bh);
- out:
-+	brelse(bh);
- 	unlock_kernel();
- 	return res;
- }
-@@ -871,6 +875,7 @@
- 	mark_inode_dirty(dir);
- 	de->name[0] = DELETED_FLAG;
- 	mark_buffer_dirty(bh);
-+
- 	/* remove the longname */
- 	offset = sinfo->longname_offset; de = NULL;
- 	for (i = sinfo->long_slots; i > 0; --i) {
-@@ -880,6 +885,9 @@
- 		de->attr = ATTR_NONE;
- 		mark_buffer_dirty(bh);
- 	}
-+	if (dir->i_sb->s_flags & MS_SYNCHRONOUS)
-+		sync_dirty_buffer(bh);
-+
- 	brelse(bh);
- }
- 
-@@ -903,7 +911,7 @@
- 	dentry->d_inode->i_mtime = dentry->d_inode->i_atime = CURRENT_TIME;
- 	fat_detach(dentry->d_inode);
- 	mark_inode_dirty(dentry->d_inode);
--	/* releases bh */
-+	/* releases bh and syncs it if necessary */
- 	vfat_remove_entry(dir,&sinfo,bh,de);
- 	dir->i_nlink--;
- out:
-@@ -926,7 +934,7 @@
- 	dentry->d_inode->i_mtime = dentry->d_inode->i_atime = CURRENT_TIME;
- 	fat_detach(dentry->d_inode);
- 	mark_inode_dirty(dentry->d_inode);
--	/* releases bh */
-+	/* releases bh and syncs it if necessary */
- 	vfat_remove_entry(dir,&sinfo,bh,de);
- out:
- 	unlock_kernel();
-@@ -956,6 +964,10 @@
- 	dir->i_version++;
- 	dir->i_nlink++;
- 	inode->i_nlink = 2; /* no need to mark them dirty */
-+
-+	if (sb->s_flags & MS_SYNCHRONOUS)
-+		sync_dirty_buffer(bh);
-+	
- 	res = fat_new_dir(inode, dir, 1);
- 	if (res < 0)
- 		goto mkdir_failed;
-@@ -972,7 +984,7 @@
- 	inode->i_mtime = inode->i_atime = CURRENT_TIME;
- 	fat_detach(inode);
- 	mark_inode_dirty(inode);
--	/* releases bh */
-+	/* releases bh ands syncs if necessary */
- 	vfat_remove_entry(dir,&sinfo,bh,de);
- 	iput(inode);
- 	dir->i_nlink--;
-@@ -1057,6 +1069,8 @@
- 			new_dir->i_nlink++;
- 			mark_inode_dirty(new_dir);
- 		}
-+		if (new_dir->i_sb->s_flags & MS_SYNCHRONOUS)
-+			sync_dirty_buffer(dotdot_bh);
- 	}
- 
- rename_done:
+> I've got one of those 'my box just locked up'. I can reproduce it with
+> 0.7.25-1, 0.7.28-0 and 0.7.28-1 by starting the Jetty servlet
+> container with our inhouse java project under a Blackdown 1.4 jdk.
+> Within a minute the laptop just locks up: no mouse, no ping, console
+> switching sysrq-t or anything. The peculiar thing is that I was
+> running 0.7.25-1 for two or three days before and it was rocksolid. It
+> was just when I started to work with the jvm that things fell apart.
+> 
+> Any chance to get any interesting and helpful data in this setup ?
+
+best would be to have a reproducer. Can you trigger it over the network,
+using a remote session? If yes then you might want to try this: let the
+box boot in, switch it to a text console and dont touch the keyboard
+after that. Do this over the remote session:
+
+	echo 1 > /proc/sys/kernel/debug_direct_keyboard
+
+this activates a direct interrupt line for the keyboard only. Keep the
+box on the text-console, and try to reproduce the hang over the network. 
+Once it triggers, try SysRq - does it work? (leds wont work, but normal
+keys should work.)
+
+if the keyboard still doesnt work then you could try nmi_watchdog=1 or
+nmi_watchdog=2 (the latter on IO-APIC-less systems), and serial logging,
+to capture a dump of the hard-lockup.
+
+	Ingo

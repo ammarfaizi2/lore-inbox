@@ -1,83 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135968AbRDTQg5>; Fri, 20 Apr 2001 12:36:57 -0400
+	id <S135966AbRDTQlH>; Fri, 20 Apr 2001 12:41:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135966AbRDTQgr>; Fri, 20 Apr 2001 12:36:47 -0400
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:39920
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S135968AbRDTQgd>; Fri, 20 Apr 2001 12:36:33 -0400
-Date: Fri, 20 Apr 2001 12:35:12 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: <nico@xanadu.home>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Matthew Wilcox <willy@ldl.fc.hp.com>,
-        james rich <james.rich@m.cc.utah.edu>,
-        lkml <linux-kernel@vger.kernel.org>, <parisc-linux@parisc-linux.org>
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is
- anyone paying attention?
-In-Reply-To: <20010420085148.V13403@opus.bloom.county>
-Message-ID: <Pine.LNX.4.33.0104201206250.12186-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135970AbRDTQk7>; Fri, 20 Apr 2001 12:40:59 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:47120 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S135969AbRDTQkn>; Fri, 20 Apr 2001 12:40:43 -0400
+Date: Fri, 20 Apr 2001 13:28:19 -0300
+From: Harald Welte <laforge@gnumonks.org>
+To: "Manfred Bartz" <md-linux-kernel@logi.cc>
+Cc: linux-kernel@vger.kernel.org
+Subject: [Counters] Re: IP Acounting Idea for 2.5
+Message-ID: <20010420132819.C2461@tatooine.laforge.distro.conectiva>
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA3150446D9FF@berkeley.gci.com> <20010417011320.7149.qmail@logi.cc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+In-Reply-To: <20010417011320.7149.qmail@logi.cc>; from md-linux-kernel@logi.cc on Tue, Apr 17, 2001 at 11:13:19AM +1000
+X-Operating-System: Linux tatooine.laforge.distro.conectiva 2.4.2-ac20
+X-Date: Today is Setting Orange, the 37th day of Discord in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 17, 2001 at 11:13:19AM +1000, Manfred Bartz wrote:
+
+> I had a brief look at MRTG.  It seems to be a well written app and
+> while it can handle counter reset (with potential loss of an unknown 
+> amount of data), it does not actively reset counters.  It also doesn't
+> use iptables.
+
+Yes, that's the whole point. If you want to have some kind of per-ip / 
+per-network accounting, I'd rather recommend using something else
+(i.e. an accounting module attaching to the netfilter hook itself,
+something using the ULOG target to do the logging in userspace, ...)
+
+Just reading out the per-rule counters always introduces problems as soon
+as your ruleset changes. And when do you have a really static ruleset?
+There are always new services/... to configure.
+
+> Agreed too.  Counters should not arbitrarily be equipped with a reset
+> capability, there is hardly any benefit in that and it causes nothing
+> but problems.
+
+so what about iptables-save at shutdown time and iptables-restore at 
+bootup time? Then you can have your counters persist even after kernel
+upgrades / reboots / crashes / ... 
+
+> As far as I can see, the counters in /proc/net/snmp don't have a
+> reset, same with /proc/net/dev and possibly other counters elsewhere.
+
+Yes, because it is per network device, not per some arbitrarily inserted
+rule which can be changed all the time. As I've stated more than once
+in this thread, and as you just continue to say: just delete and re-insert
+the rule, and you have your counter reset.
+
+> Ideally iptables would fall in line with that.  Rules can still be
+> unloaded and reloaded, also causing counter reset and loss of data,
+> but since that is a lot more involved, application authors would have
+> an incentive to handle counters properly.
+
+I don't think that the iptables kernel part should remove some feature
+just because there are application programmers wrongly designing their
+applications.
 
 
-On Fri, 20 Apr 2001, Tom Rini wrote:
+> Manfred Bartz
 
-> On Fri, Apr 20, 2001 at 10:59:34AM -0400, Eric S. Raymond wrote:
-> > Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > > > well, though.  One is the kind I'm bumping into right now, where
-> > > > somebody legitimately needs to make small (almost trivial) changes
-> > > > scattered all through the tree.
-> > >
-> > > Yep. But such changes are rare. Or should be.
-> >
-> > Knowing that doesn't help me much, since I'm trying to fix up a global
-> > namespace that touches everybody :-(.
->
-> Which does boil down to having to work with trees other than Linus or
-> Alans.  Remember, the official tree is not always the up-to-date tree,
-> or in the case of other arches, the most relevant tree.  But if you send
-> something off to a maintainer, there's a good chance (if they're still active)
-> they'll do what you ask, and it'll get to Linus/Alan the next time they sync.
-> As long as the problem gets fixed, it shouldn't be as important if it's fixed
-> in everyones tree right now, or in a release or two.  If it's some sort of
-> huge bug it just might get fixed sooner.
-
-Guys,
-
-There is kind of a ridiculous situation here where people want to withhold
-their own changes in their own trees for all good reasons until it is mature
-and stable enough to be fed upstream in the appropriate way, while insisting
-for Linus' tree to remain incomplete and inconsistent.  And we're not
-talking about deep architectural changes here -- only about configure
-symbols and help text.
-
-Why not having everybody's tree consistent with themselves and have whatever
-CONFIGURE_* symbols and help text be merged along with the very code it
-refers to?  It's worthless to have config symbols be merged into Linus' or
-Alan's tree if the code isn't there (yet).  It simply makes no sense.
-
-This might shift some of the namespace consistency work to architecture
-maintainers (which is a good thing IMHO) and establish the basis for yet a
-more sanitized kernel.org tree at all times for before and after any
-further patches are merged.
-
-I'm myself maintainer of a subarchitecture and removing currently
-unreferenced SA1100 config symbols from the official Linux tree would
-probably give me a one-time effort to bring them back in my tree but this is
-certainly for a saner code/namespace distribution in general.  Why should
-the symbols I maintain remain there if I'm not ready yet to sync up the code
-they refer to?
-
-Hey this is only CONFIG_ symbols after all.  If they get removed now, they
-will only reappear _with_ the code they refer to eventually when it'll get
-merged.
-
-
-Nicolas
-
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org                http://www.gnumonks.org
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
+V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271619AbRIOAaA>; Fri, 14 Sep 2001 20:30:00 -0400
+	id <S271627AbRIOAzF>; Fri, 14 Sep 2001 20:55:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271620AbRIOA3v>; Fri, 14 Sep 2001 20:29:51 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:2821 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S271619AbRIOA3p>;
-	Fri, 14 Sep 2001 20:29:45 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200109150029.f8F0Tig479554@saturn.cs.uml.edu>
-Subject: Re: Purpose of the mm/slab.c changes
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Fri, 14 Sep 2001 20:29:43 -0400 (EDT)
-Cc: manfred@colorfullife.com (Manfred Spraul),
-        andrea@suse.de (Andrea Arcangeli), linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.33.0109090925080.14365-100000@penguin.transmeta.com> from "Linus Torvalds" at Sep 09, 2001 09:25:29 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S271669AbRIOAyq>; Fri, 14 Sep 2001 20:54:46 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19984 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271627AbRIOAyg>; Fri, 14 Sep 2001 20:54:36 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: ISOFS corrupt filesizes
+Date: 14 Sep 2001 17:54:55 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9nu8sv$fnj$1@cesium.transmeta.com>
+In-Reply-To: <20010914145352.A9952@stud.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-> On Sun, 9 Sep 2001, Manfred Spraul wrote:
-
->>> it provides lifo allocations from both partial and unused slabs.
->>
->> lifo/fifo for unused slabs is obviously superflous - free is free, it
->> doesn't matter which free page is used first/last.
+Followup to:  <20010914145352.A9952@stud.tu-muenchen.de>
+By author:    Matthias Kramm <matthias.kramm@stud.tu-muenchen.de>
+In newsgroup: linux.dev.kernel
+> According to the (2.4.9) MAINTAINERS-File,  ISOFS doesn't have a maintainer,
+> so this probably best fits in this list.
+> 
+> I came across a (commercial) DVD with an ISOFS Filesystem on it and filesizes
+> bigger than 1M.
 >
-> You're full of crap.
->
-> LIFO is obviously superior due to cache re-use.
 
-I think a bit of arch-specific code could do better.
+1 GB (not MB) you mean...
 
-Since I happen to have the MPC7400 manual at hand, I'll use that
-for my example. This is the PowerPC "G4" chip.
+> My personal guess would be that the assumption that iso files can't be
+> bigger than 1M unless the CD-ROM is defective is wrong.
+> (I don't know where the 1M comes from. 2M sounds more logical to me,
+>  however)
 
-The L1 cache is 8-way, 32 bytes/block, and has 128 sets. The L1
-cache block replacement algorithm will select an invalid block
-whenever possible. If an invalid block isn't available, then a
-dirty block must go out to L2. The L2 cache is 2-way, as large
-as 2 MB, and has FIFO replacement.
+1 GB comes from the fact that some old CD's actually put garbage in
+the upper byte of the file size, so the test triggers if the size is
+larger than any CD can be.  Unfortunately, DVDs are a lot bigger than
+CDs and that assumption is no longer correct.
 
-Now, considering that allocator:
+> After removing the "indode->i_size > 1073741824" test, I got the correct
+> output for ls. Also was I able to cat (css-cat, actually) the whole 1201278976 
+> bytes without an error, which may lead to the assumption the file
+> is actually that big.
+> If I'm wrong and the dvd is actually broken, however, I'd like to 
+> suggest making the automatic cruft mount optional.
 
-The LIFO way: likely to suck up memory/L2 bandwidth writing
-out dirty data that we don't care about, plus you risk stalling
-the CPU to do this while in need of a free cache block.
+The automatic cruft mount option should probably be conditionalized
+not on a fixed size, but on the actual size of the filesystem.
 
-The alternative: invalidate the cache line. This takes just
-one instruction per cache line, and causes an address-only
-bus operation at worst. Completely unrelated code may run
-faster due to the availability of invalid cache lines.
+	-hpa
 
-
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

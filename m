@@ -1,71 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267447AbUJON1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267526AbUJON2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267447AbUJON1K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 09:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUJON1K
+	id S267526AbUJON2T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 09:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUJON2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 09:27:10 -0400
-Received: from ns2.gabswave.net ([193.219.214.10]:62417 "EHLO gabswave.net")
-	by vger.kernel.org with ESMTP id S267447AbUJON1D (ORCPT
+	Fri, 15 Oct 2004 09:28:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30649 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267526AbUJON1w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 09:27:03 -0400
-Message-ID: <002c01c4b2ba$a7d5bbc0$0200060a@STEPHANFCN56VN>
-From: "Stephan" <support@bbi.co.bw>
-To: <linux-kernel@vger.kernel.org>
-Subject: Fw: ERROR: /bin/insmod exited abnormally!
-Date: Fri, 15 Oct 2004 15:26:32 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Fri, 15 Oct 2004 09:27:52 -0400
+Subject: Ext3 -mm reservations code: is this fix really correct?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Mingming Cao <cmm@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-gabswave.net-MailScanner-Information: Please contact the ISP for more information
-X-gabswave.net-MailScanner: Found to be clean
-X-MailScanner-From: support@bbi.co.bw
+Organization: 
+Message-Id: <1097846833.1968.88.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Oct 2004 14:27:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Hi,
 
-System Configuration...
-LSI Megaraid 320-1 SCSI Card
-Redhat ES 3 , build 3
-Boot loader : lilo
+In ext3-reservations-window-allocation-fix.patch from -mm, we try to
+make sure that we always search for a new reservation from the goal
+forwards, not just from the previous window forwards.  I'm assuming this
+is done to optimise random writes.
 
-I'm running Redhat ES 3 release and after much struggle finally  succeeded 
-in compiling the kernel successfully.... I hope :). I'm getting the 
-following problems after I've rebooted the system on the newly installed 
-kernel.
+I'm still not convinced we get it right.  In alloc_new_reservation(), we
+do:
 
-Now I've done some reading on google about this and the only thing I could 
-find was that I should try to change (append="root=LABEL=/") to the actual 
-device name where root can be found. I got the same affect.....
+		if ((my_rsv->rsv_start <= group_end_block) &&
+				(my_rsv->rsv_end > group_end_block))
+			return -1;
 
-Any ideas would be apreciated.
+We get into alloc_new_reservation in the first place either when the
+goal is outside the window, or we could not allocate inside the window.
 
-<------------------------------error----------------------------------->
-ERROR: /bin/insmod exited abnormally!
-Loading sd_mod.ko module
-insmod QM_MODULES:
+Now, in the latter case, the check is correct --- if the window spans
+two block groups and we couldn't allocate in the first block group, then
+we should continue in the next one.
 
-ERROR: /bin/insmod exited abnormally!
-Loading megaraid.ko module
-insmod QM_MODULES:
+But what if the goal was in the current block group, but was *prior* to
+the window?  The goal is outside the window, yet the above check may
+still be true, and we'll incorrectly decide to avoid the current block
+group entirely.
 
-ERROR: /bin/insmod exited abnormally!
-Loading ext3.ko module
-insmod QM_MODULES:
+I think we need an "&& start_block >= my_rsv->rsv_start" to deal with
+this.
 
-ERROR: /bin/insmod exited abnormally!
-Mounting /proc filesystem
-Creating block devices
-VFS: Cannot open root device or unknown-block(0,0)
-Please append a correct "root=" boot option
-Kernel Panic: VFS: Unable to mount root fs or unknown -block(0,0) 
+If we get past that test --- the reservation window is all entirely
+inside one group --- then we have the following chunk in
+xt3-reservations-window-allocation-fix.patch:
 
+-		/* remember where we are before we discard the old one */
+-		if (my_rsv->rsv_end + 1 > start_block)
+-			start_block = my_rsv->rsv_end + 1;
+-		search_head = my_rsv;
++		search_head = search_reserve_window(&my_rsv->rsv_node, start_block);
+
+which I'm assuming is trying to pin the search start to the goal block. 
+But that's wrong --- search_reserve_window does a downwards-traversing
+tree search, and needs to be given the root of the tree in order to find
+a given block.  Giving it the current reservation node as the search
+start point is not going to allow it to find the right node in all
+cases.
+
+Have I misunderstood something?
+
+Fortunately, none of the above should affect the normal hot path of
+sequential allocation, but it may well penalise random writes.
+
+Cheers,
+ Stephen
 

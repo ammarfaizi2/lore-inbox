@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261288AbSJUUDk>; Mon, 21 Oct 2002 16:03:40 -0400
+	id <S261606AbSJUUER>; Mon, 21 Oct 2002 16:04:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261606AbSJUUDj>; Mon, 21 Oct 2002 16:03:39 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:43416 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S261288AbSJUUDj>; Mon, 21 Oct 2002 16:03:39 -0400
-Date: Mon, 21 Oct 2002 21:10:39 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: mingming cao <cmm@us.ibm.com>, <linux-kernel@vger.kernel.org>
+	id <S261609AbSJUUEQ>; Mon, 21 Oct 2002 16:04:16 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:62172 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261606AbSJUUEO>;
+	Mon, 21 Oct 2002 16:04:14 -0400
+Date: Tue, 22 Oct 2002 01:44:51 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: mingming cao <cmm@us.ibm.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH]IPC locks breaking down with RCU
-In-Reply-To: <3DB4544B.806@colorfullife.com>
-Message-ID: <Pine.LNX.4.44.0210212056390.17270-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Message-ID: <20021022014451.A11502@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <Pine.LNX.4.44.0210201809490.2106-100000@localhost.localdomain> <3DB44343.701B7EFD@us.ibm.com> <20021022004806.A10573@in.ibm.com> <3DB45886.3DDE1CC8@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DB45886.3DDE1CC8@us.ibm.com>; from cmm@us.ibm.com on Mon, Oct 21, 2002 at 12:41:58PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Oct 2002, Manfred Spraul wrote:
+On Mon, Oct 21, 2002 at 12:41:58PM -0700, mingming cao wrote:
+> > I took a quick look at the original ipc code and I don't understand
+> > something - it seems to me the ipc_ids structs are protected by the semaphore
+> > inside for all operations, so why do we need the spinlock in the
+> > first place ? Am I missing something here ?
 > 
-> Probably the best approach is to add a "deleted" flag into the ipc_id 
-> structure, and to check that flag after acquiring the spinlock. And 
-> perform the actual free operations for the ipc element in a rcu callback.
+> The semaphore is used to protect the fields in ipc_ids structure, while
+> the spinlock is used to protect IPC ids. For the current implementation,
+> there is one spinlock for all IPC ids of the same type(i.e. for all
+> messages queues).  The patch is intend to breaks down the global
 
-Yes, that's what I was proposing.
+Well, if the semaphore is grabbed then the critical section is serialized
+including accessing of IPC ids, so there would be no need to have
+a separate spinlock for the IPC ids. Hugh pointed out the right reason,
+semaphore IPCs use the spinlock for serialization in many paths,
+not the semaphore in ipc_ids. 
 
-> At which context do the rcu callbacks run? The semaphore sets are 
-> allocated with vmalloc for large sets, and that function is only 
-> permitted from process context, not from bh or irq context. According to 
-> a comment in rcupdate.c, rcu_process_callbacks runs in a tasklet, i.e. 
-> at bh context.
+Hugh's point is right - you have two data structures to protect - ipc_id
+arrays and the kern_ipc_perms attached to it. I would use a single
+spinlock in ipc_ids to serialize all the updates and use RCU for both
+to implement safe lockfree lookups. For the second, you would probably
+want to add a rcu_head to struct kern_ipc_perms and an RCU callback
+to free it.
 
-Hah!  Very good point.  Seems we need to think again.
-
-> For example, should a spinlock and the data it protects be in the same 
-> cacheline, or in different cachelines?
-> I guess that "same cacheline" means that only one cacheline is 
-> transfered if a cpu acquires the spinlock and touches the data.
-> But OTHO a spinning cpu would probably force the cacheline into shared 
-> state, and that'll slow down the data access for the cpu that owns the 
-> spinlock.
-
-Well, yes, but that's not the issue as I understand it.  There you're
-thinking of contention on the spinlock, and its effect spreading to
-the data protected by that lock.  Whereas the more pernicious effect
-of cacheline bouncing is when there is no particular contention on
-a spinlock, but data is (mis)distributed in such a way that mods to
-the same cacheline are likely to occur from different cpus at at about
-the same time.
-
-In the original design, Mingming nicely split up the locks (greatly
-reducing contention), but had them in an array (causing lots of bounce,
-I believe): I'm resisting a return to that design.
-
-Hugh
-
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

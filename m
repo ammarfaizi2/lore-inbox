@@ -1,55 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136037AbRBFAHV>; Mon, 5 Feb 2001 19:07:21 -0500
+	id <S129451AbRBFALl>; Mon, 5 Feb 2001 19:11:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136096AbRBFAHL>; Mon, 5 Feb 2001 19:07:11 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:9226 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S136090AbRBFAHA>; Mon, 5 Feb 2001 19:07:00 -0500
-Date: Mon, 5 Feb 2001 18:06:46 -0600
-To: "Michael D. Crawford" <crawford@goingware.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OK to mount multiple FS in one dir?
-Message-ID: <20010205180646.B32155@cadcamlab.org>
-In-Reply-To: <3A7E1942.5090903@goingware.com>
+	id <S129611AbRBFALb>; Mon, 5 Feb 2001 19:11:31 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:25536 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129451AbRBFALU>;
+	Mon, 5 Feb 2001 19:11:20 -0500
+Date: Tue, 6 Feb 2001 00:07:04 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
+        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+Message-ID: <20010206000704.F1167@redhat.com>
+In-Reply-To: <E14Pr8G-0003zV-00@the-village.bc.nu> <Pine.LNX.4.10.10102051118210.31206-100000@penguin.transmeta.com> <20010205205429.V1167@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A7E1942.5090903@goingware.com>; from crawford@goingware.com on Mon, Feb 05, 2001 at 03:08:50AM +0000
-From: Peter Samuelson <peter@cadcamlab.org>
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010205205429.V1167@redhat.com>; from sct@redhat.com on Mon, Feb 05, 2001 at 08:54:29PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-[Michael D. Crawford]
-> I found I could mount three partitions on /mnt
+OK, if we take a step back what does this look like:
 
-Yes.  New feature, appeared in the 2.4.0test series, or shortly before.
+On Mon, Feb 05, 2001 at 08:54:29PM +0000, Stephen C. Tweedie wrote:
+> 
+> If we are doing readahead, we want completion callbacks raised as soon
+> as possible on IO completions, no matter how many other IOs have been
+> merged with the current one.  More importantly though, when we are
+> merging multiple page or buffer_head IOs in a request, we want to know
+> exactly which buffer/page contents are valid and which are not once
+> the IO completes.
 
-> and they'd all show up as mounted at /mnt in the "mount" command, but
-> if I unmounted one of them (only tried with the currently visible
-> one), then it appeared that there were no filesystems mounted there,
-> but I could continue umounting until the other two were gone.
+This is the current situation.  If the page cache submits a 64K IO to
+the block layer, it does so in pieces, and then expects to be told on
+return exactly which pages succeeded and which failed.
 
-util-linux gets rather confused by this feature.  They say newer
-versions fix this.
+That's where the mess of having multiple completion objects in a
+single IO request comes from.  Can we just forbid this case?
 
-> But I had the 2.10r util-linux sources on my machine and installed
-> mount and umount from it, and I find that it gets it right mostly
-> when I mount and unmount multiple things, with the exception that if
-> /dev/sda5 was mounted before /dev/sda1, then if I give the command
-> "umount /dev/sda5", sda1 is the one that gets unmounted rather than
-> sda5, so it takes the most recently mounted filesystem rather than
-> the one you specify.
+That's the short cut that SGI's kiobuf block dev patches do when they
+get kiobufs: they currently deal with either buffer_heads or kiobufs
+in struct requests, but they don't merge kiobuf requests.  (XFS
+already clusters the IOs for them in that case.)
 
-I think this is a kernel limitation.  'umount' takes '/dev/sda5' and
-turns it into '/mnt/test' and calls umount("/mnt/test").  The kernel
-then unmounts whatever is on "top" of /mnt/test.
+Is that a realistic basis for a cleaned-up ll_rw_blk.c?
 
-I don't think there's anything umount can do about this behavior.
+It implies that the caller has to do IO merging.  For read, that's not
+much pain, as the most important case --- readahead --- is already
+done in a generic way which could submit larger IOs relatively easily.
+It would be harder for writes, but high-level write clustering code
+has already been started.
 
-Peter
+It implies that for any IO, on IO failure you don't get told which
+part of the IO failed.  That adds code to the caller: the page cache
+would have to retry per-page to work out which pages are readable and
+which are not.  It means that for soft raid, you don't get told which
+blocks are bad if a stripe has an error anywhere.  Ingo, is that a
+potential problem?
+
+But it gives very, very simple semantics to the request layer: single
+IOs go in (with a completion callback and a single scatter-gather
+list), and results go back with success or failure.
+
+With that change, it becomes _much_ more natural to push a simple sg
+list down through the disk layers.
+
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

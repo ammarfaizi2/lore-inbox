@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131439AbRATX2A>; Sat, 20 Jan 2001 18:28:00 -0500
+	id <S130138AbRATX2A>; Sat, 20 Jan 2001 18:28:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131441AbRATX1t>; Sat, 20 Jan 2001 18:27:49 -0500
-Received: from [203.36.158.121] ([203.36.158.121]:49284 "EHLO kabuki.eyep.net")
-	by vger.kernel.org with ESMTP id <S131439AbRATX1h>;
-	Sat, 20 Jan 2001 18:27:37 -0500
-Subject: Re: 2.4 and ipmasq modules
-From: Daniel Stone <daniel@kabuki.eyep.net>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010120144616.A16843@vitelus.com>
-Content-Type: text/plain
-X-Mailer: Evolution (0.8 - Preview Release)
-Date: 21 Jan 2001 10:32:15 +1100
-Mime-Version: 1.0
-Message-Id: <E14K7UY-0004hB-00@kabuki.eyep.net>
+	id <S131439AbRATX1u>; Sat, 20 Jan 2001 18:27:50 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:56735 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130138AbRATX1e>; Sat, 20 Jan 2001 18:27:34 -0500
+Date: Sat, 20 Jan 2001 23:27:35 +0000 (GMT)
+From: James Sutherland <mandrake@cam.ac.uk>
+To: Lincoln Dale <ltd@cisco.com>
+cc: Kai Henningsen <kaih@khms.westfalen.de>, <linux-kernel@vger.kernel.org>,
+        dean gaudet <dean-list-linux-kernel@arctic.org>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+In-Reply-To: <4.3.2.7.2.20010121100103.02820730@171.69.63.141>
+Message-ID: <Pine.LNX.4.30.0101202325210.8238-100000@dax.joh.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FTP is under Connection Tracking support, FTP connection tracking. Does
-the same stuff as ip_masq_ftp. IRC is located in patch-o-matic -
-download iptables 1.2 and do a make patch-o-matic, there is also RPC and
-eggdrop support in there. I'm half in the middle of porting ip_masq_icq,
-but it's one hideously ugly kludge after another. Such is life.
+On Sun, 21 Jan 2001, Lincoln Dale wrote:
 
-d
+> hi,
+>
+> At 04:56 PM 20/01/2001 +0200, Kai Henningsen wrote:
+> >dean-list-linux-kernel@arctic.org (dean gaudet)  wrote on 18.01.01 in
+> ><Pine.LNX.4.30.0101181840380.16292-100000@twinlark.arctic.org>:
+> > > i'm pretty sure the actual use of pipelining is pretty disappointing.
+> > > the work i did in apache preceded the widespread use of HTTP/1.1 and we
+> >
+> >What widespread use of HTTP/1.1?
+>
+> this is probably digressing significantly from linux-kernel related issues,
+> but i owuld say that HTTP/1.1 usage is more widespread than your probably
+> think.
+>
+> from the statistics of a beta site running a commercial transparent caching
+> software:
+>          <cache># show statistics http requests
+>                                        Statistics - Requests
+>                                         Total       %
+>                                  ---------------------------
+>          ...
+>                     HTTP 0.9 Requests:      41907     0.0
+>                     HTTP 1.0 Requests:   37563201    24.1
+>                     HTTP 1.1 Requests:  118282092    75.9
+>                 HTTP Unknown Requests:          1     0.0
 
+IIRC, the discrepancy is because some browsers (IE, not sure about
+Netscape) default to speaking HTTP/1.0 to a proxy if they are configured
+to use one - a chicken and egg situation, AFAICS: proxies are assumed to
+be HTTP 1.0 only, so browsers only send HTTP 1.0 requests - so people look
+at the logs and think 90% of their users are HTTP/1.0 only anyway, so
+there's no point in supporting 1.1 yet...
 
-On 20 Jan 2001 14:46:16 -0800, Aaron Lehmann wrote:
-> It was great to see that 2.4.0 reintroduced ipfwadm support! I had no
-> need for ipchains and ended up using the wrapper around it that
-> emulated ipfwadm. However, 2.[02].x used to have "special IP
-> masquerading modules" such as ip_masq_ftp.o, ip_masq_quake.o, etc. I
-> can't find these in 2.4.0. Where have they gone? Without important
-> modules such as ip_masq_ftp.o I cannot use non-passive ftp from behind
-> the masquerading firewall.
-> 
-> Thanks,
-> Aaron Lehmann
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Also something to do with HTTP 1.1 being much harder to support properly
+in proxies due to the new cache control features etc.??
 
-
-
--- 
-Daniel Stone
-Linux Kernel Developer
-daniel@kabuki.eyep.net
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-G!>CS d s++:- a---- C++ ULS++++$>B P---- L+++>++++ E+(joe)>+++ W++ N->++ !o
-K? w++(--) O---- M- V-- PS+++ PE- Y PGP>++ t--- 5-- X- R- tv-(!) b+++ DI+++ 
-D+ G e->++ h!(+) r+(%) y? UF++
-------END GEEK CODE BLOCK------
-
-
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

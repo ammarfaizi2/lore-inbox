@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVAXGkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVAXGfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbVAXGkK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 01:40:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVAXGhH
+	id S261471AbVAXGfr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 01:35:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVAXGdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 01:37:07 -0500
-Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:26281 "EHLO
-	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261452AbVAXGeu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 01:34:50 -0500
-Message-ID: <41F49735.5000400@kolivas.org>
-Date: Mon, 24 Jan 2005 17:35:33 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jack O'Quin" <joq@io.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
+	Mon, 24 Jan 2005 01:33:08 -0500
+Received: from mail.joq.us ([67.65.12.105]:37592 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261471AbVAXG3G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 01:29:06 -0500
+To: Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
        linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
        CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
        Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
        Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
-References: <200501201542.j0KFgOwo019109@localhost.localdomain>	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>	<87pszvlvma.fsf@sulphur.joq.us> <41F42BD2.4000709@kolivas.org>	<877jm3ljo9.fsf@sulphur.joq.us> <41F44AC2.1080609@kolivas.org>	<87hdl7v3ik.fsf@sulphur.joq.us> <87651nv356.fsf@sulphur.joq.us> <87ekgbqr2a.fsf@sulphur.joq.us>
-In-Reply-To: <87ekgbqr2a.fsf@sulphur.joq.us>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
+ scheduling
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>
+	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Mon, 24 Jan 2005 00:30:48 -0600
+In-Reply-To: <20050120172506.GA20295@elte.hu> (Ingo Molnar's message of
+ "Thu, 20 Jan 2005 18:25:06 +0100")
+Message-ID: <877jm3qqxz.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jack O'Quin wrote:
-> I'll try building a SCHED_RR version of JACK.  I still don't think it
-> will make any difference.  But my intuition isn't working very well
-> right now, so I need more data.
+Ingo Molnar <mingo@elte.hu> writes:
 
-Could be that despite what it appears, FIFO behaviour may be desirable 
-to RR. Also the RR in SCHED_ISO is pretty fast at 10ms. However with 
-nothing else really running it just shouldn't matter...
+> just finished a short testrun with nice--20 compared to SCHED_FIFO, on a
+> relatively slow 466 MHz box:
 
-> I still wonder if some coding error might occasionally be letting a
-> lower priority process continue running after an interrupt when it
-> ought to be preempted.
+Has anyone done this kind of realtime testing on an SMP system?  I'd
+love to know how they compare.  Unfortunately, I don't have access to
+one at the moment.  Are they generally better or worse for this kind
+of work?  I'm not asking about partitioning or processor affinity, but
+actually using the entire SMP complex as a realtime machine.
 
-That's one distinct possiblity. Preempt code is a particular problem.
-You are not running into the cpu limits of SCHED_ISO so something else 
-must be responsible. If we are higher priority than everything else and 
-do no expire in any way there is no reason we shouldn't perform as well 
-as SCHED_FIFO.
-
-There is some sort of privileged memory handling when jackd is running 
-as root as well, so I don't know how that features here. I can't imagine 
-it's a real issue though.
-
-Con
-
-
+Our current jack_test scripts wouldn't exercise a multiprocessor very
+well.  But, even those results would be interesting to know.  Then, I
+think we could modify them to start muliple JACK servers.  That will
+probably require using the dummy backend driver, which would need a
+more accurate timer source than its current usleep() call to provide
+reliable low latency results.  (We currently drive the audio cycle
+from ALSA driver interrupts, but each JACK server requires a dedicated
+sound card for that.)
+-- 
+  joq

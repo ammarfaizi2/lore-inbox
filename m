@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVAMThT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVAMTnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVAMThT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:37:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVAMTgZ
+	id S261444AbVAMTnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:43:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVAMTm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:36:25 -0500
-Received: from village.ehouse.ru ([193.111.92.18]:4877 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S261365AbVAMTec (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:34:32 -0500
-From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+	Thu, 13 Jan 2005 14:42:58 -0500
+Received: from moutng.kundenserver.de ([212.227.126.190]:13554 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261444AbVAMTmh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:42:37 -0500
+From: Christian Borntraeger <cborntra@de.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: module's parameters could not be set via sysfs in 2.6.11-rc1?
-Date: Thu, 13 Jan 2005 22:34:30 +0300
-User-Agent: KMail/1.7.2
+Subject: [PATCH] reintroduce EXPORT_SYMBOL(task_nice) for binfmt_elf32
+Date: Thu, 13 Jan 2005 20:42:30 +0100
+User-Agent: KMail/1.7.1
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200501132234.30762.rathamahata@ehouse.ru>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501132042.31215.cborntra@de.ibm.com>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Building an s390x kernel with binfmt_elf32 as a module, I get the following 
+errors: 
+*** Warning: "task_nice" [arch/s390/kernel/binfmt_elf32.ko] undefined!
+*** Warning: "arch_pick_mmap_layout" [arch/s390/kernel/binfmt_elf32.ko] 
+undefined!
 
-It looks like module parameters are not setable via sysfs in 2.6.11-rc1
 
-E.g.
-arise parameters # echo -en Y > /sys/module/usbcore/parameters/old_scheme_first
--bash: /sys/module/usbcore/parameters/old_scheme_first: Permission denied
-arise parameters # id
-uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel),11(floppy),20(dialout),26(tape),27(video)
-arise parameters # 
-arise parameters # ls -la /sys/module/usbcore/parameters/old_scheme_first
--rw-r--r--  1 root root 0 Jan 13 22:22 /sys/module/usbcore/parameters/old_scheme_first
-arise parameters # 
+IIRC 2.6.8 did not show this problem. Therefore I suggest to revert the 
+removal of the EXPORT_SYMBOL(task_nice). The rationale for removing the 
+export was the fact, that binfmt_elf is no longer modular. Unfortunately 
+that is not true in the emulation case on s390 and (untested) sparc64. 
 
-This is sad because it seems that my usb flash stick (transcebd jetflash)
-doesn't like new USB device initialization scheme introduced in 2.6.10.
+If there are no objections, please apply. 
 
--- 
-Sergey S. Kostyliov <rathamahata@ehouse.ru>
-Jabber ID: rathamahata@jabber.org
+--- a/kernel/sched.c	2005-01-12 01:42:35 +01:00
++++ b/kernel/sched.c	2005-01-12 23:25:22 +01:00
+@@ -3187,6 +3187,8 @@
+ 	return TASK_NICE(p);
+ }
+ 
++EXPORT_SYMBOL(task_nice);
++
+ /**
+  * idle_cpu - is a given cpu idle currently?
+  * @cpu: the processor in question.

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262739AbSJGUKm>; Mon, 7 Oct 2002 16:10:42 -0400
+	id <S262732AbSJGUKn>; Mon, 7 Oct 2002 16:10:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262672AbSJGUJj>; Mon, 7 Oct 2002 16:09:39 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:14088 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262734AbSJGUJB>; Mon, 7 Oct 2002 16:09:01 -0400
-Date: Mon, 7 Oct 2002 22:14:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "David S. Miller" <davem@redhat.com>, pavel@ucw.cz, bcollins@debian.org,
-       lm@bitmover.com,
+	id <S262728AbSJGUJ3>; Mon, 7 Oct 2002 16:09:29 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:20212 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262732AbSJGUHP>; Mon, 7 Oct 2002 16:07:15 -0400
+Subject: Re: The end of embedded Linux?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: simon@baydel.com
+Cc: "David S. Miller" <davem@redhat.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BK is *evil* corporate software
-Message-ID: <20021007201438.GA7428@atrey.karlin.mff.cuni.cz>
-References: <20021005175437.GK585@phunnypharm.org> <20021005112552.A9032@work.bitmover.com> <20021007001137.A6352@elf.ucw.cz> <20021007.114936.51301887.davem@redhat.com> <1034021533.26502.15.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <3DA1CF36.19659.13D4209@localhost>
+References: <3DA16A9B.7624.4B0397@localhost> 
+	<3DA1CF36.19659.13D4209@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Oct 2002 21:22:38 +0100
+Message-Id: <1034022158.26550.28.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1034021533.26502.15.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 2002-10-07 at 18:15, simon@baydel.com wrote:
+> a serial port and an interupt controller. What I was trying to explain 
+> was that I would not mind making my code available for these 
+> kernel changes. Although I don't understand why anyone would 
+> want it. Apart from API changes, why do this ? The kernel is not 
+> easily or frequently changed on this type of system. It would bloat 
+> the kernel and I would expect to have to address problems of this 
+> nature myself.  However I would not like to make code available for 
+> the more specialised hardware. 
 
-> >    (as it stands you want $5000 for any bk-using developer inside
-> >    RedHat and SuSE).
-> > 
-> > Stop spreading crap and fud.  I, and nobody else at Red Hat, give or
-> > need to give Larry one dime to use BK for kernel work.
+That depends how specialized the hardware actually is. I think I've see
+six different non free implementations of 68360 sync serial code around
+all proprietary for example.
 
-> We do fix cvs things. Oh wait Larry has publically said CVS is no
-> competition 8)
+Also my original comments were much more aimed at the core stuff. People
+who made existing and especially core stuff smaller could send the stuff
+out. Several of us want to compile a CONFIG_TINY option, and suprisingly
+enough small is good on high end boxes. My L1 cache is 8 times faster
+than my L2 cache is 7 times faster than my memory. Or to put it another
+way, going to main memory costs me maybe 100 instructions.
 
-And what happens when you will want to include subversion in
-distribution? You'll surely want to do some fixing before including
-it... 
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+My Athlon thinks small is good too!
+

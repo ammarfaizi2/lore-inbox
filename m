@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRABPvZ>; Tue, 2 Jan 2001 10:51:25 -0500
+	id <S129383AbRABPxp>; Tue, 2 Jan 2001 10:53:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129573AbRABPvQ>; Tue, 2 Jan 2001 10:51:16 -0500
-Received: from mx7.sac.fedex.com ([199.81.194.38]:59657 "EHLO
-	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S129572AbRABPvD>; Tue, 2 Jan 2001 10:51:03 -0500
-Date: Tue, 2 Jan 2001 23:16:33 +0800
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Message-Id: <200101021516.f02FGX802457@silk.corp.fedex.com>
-To: Alan.Cox@linux.org, jchua@fedex.com, lermen@fgan.de,
-        linus@silk.corp.fedex.com, linux-kernel@silk.corp.fedex.com
-Subject: can't boot 2.2.x
+	id <S129572AbRABPxf>; Tue, 2 Jan 2001 10:53:35 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:31497 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129383AbRABPx1>;
+	Tue, 2 Jan 2001 10:53:27 -0500
+Message-ID: <3A51F1B0.3AD38F9F@innominate.de>
+Date: Tue, 02 Jan 2001 16:20:16 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-prerelease i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Vedran Rodic <vedran@renata.irb.hr>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-prerelease problems (it corrupted my ext2 filesystem)
+In-Reply-To: <20010102131507.A7573@renata.irb.hr> <3A51D9BF.23C42DFE@innominate.de> <20010102152409.A10863@renata.irb.hr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vedran Rodic wrote:
+> On Tue, Jan 02, 2001 at 02:38:07PM +0100, Daniel Phillips wrote:
+> > Could you provide details of your configuration?
+> 
+> I put the complete kernel log of that session at http://quark.fsb.hr/~vrodic/kern.log
+> 
+> I scanned my swap device several times today with badblocks -w, and
+> it didn't show any errors. I also did some RAM tests with memtest86,
+> again with no errors.
+> 
+> If you need more details, just ask.
 
-Got problem booting on Celeron or when initrd filesystem>4MB.
+Are you still running 2.4.0-pre?  Can you reproduce the problem?  Does
+the problem occur only with v4l?  Did you back up your files?
 
-Environment:
-        Linux 2.2.19pre3 or any 2.2.x
-        Linux 2.4.0-prerelease or any 2.4.x
-        Gcc 2.95.2
-        Glib 2.1.3
-        loadlin 1.6b
+BTW, while spelunking the swap code I noticed this oddity:
 
-1) Pentium3
-        When the initrd ramdisk is greater than 4MB
-                linux 2.2.x failed
-                2.4.x still boot up
+  pte_t pte_mkdirty(pte_t pte) { (pte).pte_low |= _PAGE_DIRTY; return
+pte; }
 
-2) Celeron
-        When the initrd ramdisk is greater than 4MB
-                linux 2.2.x failed
-                linux 2.4.x failed
+and similarly for 10 or so other functions - these functions just return
+the passed pte, and reassign it to the pte orginally passed.  :-/ This
+dates from version 1.2.13.
 
-Message on console:
-
-        Less than 4MB of memory.
-
-        -- System halted
-
-
-No problem booting when initrd ramdisk <4MB
-
-I don't know where the problem is.
-
-Jeff
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271375AbTGWW6S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 18:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271377AbTGWW6S
+	id S271376AbTGWW6m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 18:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271377AbTGWW6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 18:58:18 -0400
-Received: from corky.net ([212.150.53.130]:36583 "EHLO marcellos.corky.net")
-	by vger.kernel.org with ESMTP id S271375AbTGWW6P (ORCPT
+	Wed, 23 Jul 2003 18:58:42 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:1285 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S271376AbTGWW6j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 18:58:15 -0400
-Date: Thu, 24 Jul 2003 02:13:20 +0300 (IDT)
-From: Yoav Weiss <ml-lkml@unpatched.org>
-X-X-Sender: yoavw@marcellos.corky.net
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: KERN_ERR "ide: late registration of driver."
-In-Reply-To: <1058999419.6891.14.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0307240210050.17172-100000@marcellos.corky.net>
+	Wed, 23 Jul 2003 18:58:39 -0400
+Date: Thu, 24 Jul 2003 01:13:06 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Larry McVoy <lm@bitmover.com>
+cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Martin Diehl <lists@mdiehl.de>, Adrian Bunk <bunk@fs.tum.de>,
+       "Adam J. Richter" <adam@yggdrasil.com>, <andersen@codepoet.org>,
+       <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATA driver GPL'd
+In-Reply-To: <20030723224625.GA1511@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0307240102540.714-100000@serv>
+References: <Pine.LNX.4.44.0307232234350.717-100000@serv>
+ <Pine.LNX.4.10.10307231528070.14556-100000@master.linux-ide.org>
+ <20030723224625.GA1511@work.bitmover.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Therefore, I don't see why the late registration is an error.  Am I
-> > missing something ?
->
-> It may change drive ordering. I've not decided if its an error yet but
-> its on my todo list to fix it one way or the other. I have a hack fix I
-> can give marcelo for 2.4.22 so its not critical path
->
+Hi,
 
-ok, I'll look into it some more.  Could you please send your hack fix for
-this ?
+On Wed, 23 Jul 2003, Larry McVoy wrote:
 
-btw, isn't it a persistent problem for all cases ?  As far as I can see,
-registration will always be late, at least for machines that boot from
-ide.
+> Roman forgets that he doesn't speak for everyone, he makes statements like
+> "the GPL is all about ..." as if he was elected the leader of the free
+> software world and everyone agrees with him.
 
-	Yoav Weiss
+I voiced my opinion like everyone else, where you get this idea is 
+completely unclear to me.
 
+>  Some people people agree with
+> him but a lot of people don't.  Unfortunately, in these sorts of discussions,
+> the sane people tend to stay out of it and the fruitcakes come crawling out
+> of the woodwork to tell you that you are doing it wrong and that you just
+> don't get it.
+
+I can give this compliment back to you.
+
+bye, Roman
 

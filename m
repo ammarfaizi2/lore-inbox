@@ -1,67 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbTKCTL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 14:11:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbTKCTL6
+	id S262161AbTKCTGm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 14:06:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbTKCTGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 14:11:58 -0500
-Received: from [81.199.84.107] ([81.199.84.107]:27409 "HELO user.me")
-	by vger.kernel.org with SMTP id S262838AbTKCTL4 (ORCPT
+	Mon, 3 Nov 2003 14:06:42 -0500
+Received: from mail.broadpark.no ([217.13.4.2]:58592 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S262161AbTKCTGl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 14:11:56 -0500
-From: "Simon Oliver" <oli_sim@katamail.com>
-Subject: Hello
-To: linux-kernel@vger.kernel.org
+	Mon, 3 Nov 2003 14:06:41 -0500
+To: sankar <san_madhav@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: pthread mutex question
+References: <Sea2-DAV35RuMrzpeSK0000db71@hotmail.com> <oprxxqjgqeq1sf88@mail.broadpark.no> <Sea2-DAV50kJcj3CRIn0000c736@hotmail.com>
+Message-ID: <oprx2sn6x1q1sf88@mail.broadpark.no>
+From: Arve Knudsen <aknuds-1@broadpark.no>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Reply-To: oli_sim@katamail.com
-Date: Mon, 3 Nov 2003 20:11:52 +0100
-Message-Id: <S262838AbTKCTL4/20031103191156Z+26904@vger.kernel.org>
+Date: Mon, 03 Nov 2003 20:05:56 +0100
+In-Reply-To: <Sea2-DAV50kJcj3CRIn0000c736@hotmail.com>
+User-Agent: Opera7.21/Linux M2 build 480
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+You're probably looking at the abstract model. Download the source and 
+look at timed_mutex::do_timedlock, in mutex.cpp.
 
-URGENT NEED.
+Regards
 
+Arve Knudsen
 
-Warm greetings to you and your family.
-I am Simon Oliver, an Aide of Ex President 
-Charles Taylor. 
+On Mon, 3 Nov 2003 09:07:47 -0800, sankar <san_madhav@hotmail.com> wrote:
 
-As you may know he has recently stepped 
-down from power and is presently in asylum in
-Calabar.
-
-The purpose of my letter is to ask if you can 
-render the assistance requested and to bring 
-to bear my present position and the very need
-for true and solicited help with respect to 
-Ex President Taylor. 
-
-Your assistance is needed in the sense that
-some funds derived from Diamond sales during his 
-tenure needs to be transferred/moved from its 
-present location to a place or an account that 
-you may hopefully provide or arrange.
-
-The reason for this is that plans are underway 
-to confiscate not only his known fixed assets 
-but also liquid assets.
-
-I have been mandated to seek and find a relaible 
-person, based overseas, that is disposed in 
-helping to secure some or all of the funds in 
-question.
-
-If you are that person, do respond to this letter. 
-Otherwise no offence meant. 
-
-Sincerely yours,
-
-Simon Oliver.
-Alternative email: oli_sim@fsmail.net
-
-Please provide your telephone for immediate contact.
-
+> Thx for the info...I lookd in boost.org..It does not have the source code
+> for timed mutex.It just says how it shd work..Pls let me know if I am
+> missing something  here..
+> ----- Original Message -----
+> From: "Arve Knudsen" <aknuds-1@broadpark.no>
+> To: "sankar" <san_madhav@hotmail.com>; <linux-kernel@vger.kernel.org>
+> Sent: Friday, October 31, 2003 5:31 PM
+> Subject: Re: pthread mutex question
+>
+>
+>> Its C++, but you could have a look at the boost::thread::timed_mutex
+>> (www.boost.org) implementation, which makes use of 
+>> pthread_cond_timedwait.
+>>
+>> Regards
+>>
+>> Arve Knudsen
+>>
+>> On Fri, 31 Oct 2003 16:43:14 -0800, sankar <san_madhav@hotmail.com> 
+>> wrote:
+>>
+>> > Hi,
+>> > I am looking for an idea as to how to implement timed mutex using
+> pthread
+>> > libraries on linux.
+>> > Basically I want to associate a timeout value with the wait function 
+>> i,e
+>> > pthread_mutex_lock() which returns once the timeout expires instaed of
+>> > waiting for ever.
+>> > Pls help
+>> >
+>> > thx..
+>> >
+>> > Sankarshana M
+>>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

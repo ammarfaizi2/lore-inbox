@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316934AbSEWQLW>; Thu, 23 May 2002 12:11:22 -0400
+	id <S316935AbSEWQMW>; Thu, 23 May 2002 12:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316935AbSEWQLV>; Thu, 23 May 2002 12:11:21 -0400
-Received: from mail.gmx.net ([213.165.64.20]:55849 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316934AbSEWQLU>;
-	Thu, 23 May 2002 12:11:20 -0400
-Date: Thu, 23 May 2002 18:11:04 +0200
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: torvalds@transmeta.com
+	id <S316936AbSEWQMV>; Thu, 23 May 2002 12:12:21 -0400
+Received: from relay2.zonnet.nl ([62.58.50.38]:53491 "EHLO relay2.zonnet.nl")
+	by vger.kernel.org with ESMTP id <S316935AbSEWQMR>;
+	Thu, 23 May 2002 12:12:17 -0400
+Subject: Re: kernel 2.4.19-pre8 reboots instead of halt and 3com messages
+From: Hilbert Barelds <hilbert@hjb-design.com>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.4.17-cset1.656] patch to compile ext2 as module
-Message-Id: <20020523181104.1896d674.sebastian.droege@gmx.de>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+In-Reply-To: <Pine.LNX.4.44.0205231345400.23578-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 23 May 2002 18:10:54 +0200
+Message-Id: <1022170254.1806.0.camel@calvin.hjblocal.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.D5uOyg8)22DjM4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.D5uOyg8)22DjM4
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Thu, 2002-05-23 at 13:48, Zwane Mwaikambo wrote:
+> On Thu, 23 May 2002 hilbert@hjb-design.com wrote:
+> 
+> > PS The 3com card complains about a "transpoder" x times.
+> 
+> Can you get the exact error message? Is the driver modular?
 
-Hi,
-this trivial patch was necessary to compile ext2 as module (unresolved symbol write_mapping_buffers)... the problem exists since 2.5.16 I think
+The exact error message is:
+PCI: Found IRQ 12 for device 00:0a.0
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+00:0a.0: 3Com PCI 3c900 Boomerang 10Mbps Combo at 0xdc00. Vers LK1.1.17
+phy=0, phyx=24, mii_status=0xffff
+phy=1, phyx=0, mii_status=0xffff
+phy=2, phyx=1, mii_status=0xffff
+phy=3, phyx=2, mii_status=0xffff
+phy=4, phyx=3, mii_status=0xffff
+phy=5, phyx=4, mii_status=0xffff
+phy=6, phyx=5, mii_status=0xffff
+phy=7, phyx=6, mii_status=0xffff
+phy=8, phyx=7, mii_status=0xffff
+phy=9, phyx=8, mii_status=0xffff
+phy=10, phyx=9, mii_status=0xffff
+phy=11, phyx=10, mii_status=0xffff
+phy=12, phyx=11, mii_status=0xffff
+phy=13, phyx=12, mii_status=0xffff
+phy=14, phyx=13, mii_status=0xffff
+phy=15, phyx=14, mii_status=0xffff
+phy=16, phyx=15, mii_status=0xffff
+phy=17, phyx=16, mii_status=0xffff
+phy=18, phyx=17, mii_status=0xffff
+phy=19, phyx=18, mii_status=0xffff
+phy=20, phyx=19, mii_status=0xffff
+phy=21, phyx=20, mii_status=0xffff
+phy=22, phyx=21, mii_status=0xffff
+phy=23, phyx=22, mii_status=0xffff
+phy=24, phyx=23, mii_status=0xffff
+phy=25, phyx=25, mii_status=0xffff
+phy=26, phyx=26, mii_status=0xffff
+phy=27, phyx=27, mii_status=0xffff
+phy=28, phyx=28, mii_status=0xffff
+phy=29, phyx=29, mii_status=0xffff
+phy=30, phyx=30, mii_status=0xffff
+phy=31, phyx=31, mii_status=0xffff
+  ***WARNING*** No MII transceivers found!
 
-Bye
+Reguards,
 
-diff -Nur test/linux-2.5.17/kernel/ksyms.c linux-2.5.17/kernel/ksyms.c
---- test/linux-2.5.17/kernel/ksyms.c    Thu May 23 17:51:37 2002
-+++ linux-2.5.17/kernel/ksyms.c Thu May 23 17:59:39 2002
-@@ -48,6 +48,7 @@
- #include <linux/seq_file.h>
- #include <linux/binfmts.h>
- #include <linux/namei.h>
-+#include <linux/buffer_head.h>
- #include <asm/checksum.h>
- 
- #if defined(CONFIG_PROC_FS)
-@@ -594,3 +595,4 @@
- 
- EXPORT_SYMBOL(tasklist_lock);
- EXPORT_SYMBOL(pidhash);
-+EXPORT_SYMBOL(write_mapping_buffers);
-
---=.D5uOyg8)22DjM4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE87RSde9FFpVVDScsRAo0fAJ4gv4uuFzArwBa3yUsQD+H7JoO4lQCfYmZE
-mXEwpF3aNdBuY+ZR2sAZQPw=
-=RAek
------END PGP SIGNATURE-----
-
---=.D5uOyg8)22DjM4--
+Hilbert
 

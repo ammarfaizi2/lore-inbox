@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275803AbRJBEsH>; Tue, 2 Oct 2001 00:48:07 -0400
+	id <S275798AbRJBEqr>; Tue, 2 Oct 2001 00:46:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275805AbRJBEr5>; Tue, 2 Oct 2001 00:47:57 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:50704 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S275803AbRJBErl>; Tue, 2 Oct 2001 00:47:41 -0400
-Date: Mon, 1 Oct 2001 21:47:53 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: New Input PS/2 driver 
-Message-ID: <Pine.LNX.4.10.10110012137390.23031-100000@transvirtual.com>
+	id <S275806AbRJBEqi>; Tue, 2 Oct 2001 00:46:38 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:39440 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S275798AbRJBEqV>; Tue, 2 Oct 2001 00:46:21 -0400
+Message-ID: <3BB946B4.C7479C16@zip.com.au>
+Date: Mon, 01 Oct 2001 21:46:44 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert Love <rml@tech9.net>
+CC: sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: ext3 0.9.10 for Alan's tree
+In-Reply-To: <1001989916.2780.61.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert Love wrote:
+> 
+> Stephen, Andrew:
+> 
+> Alan has said recently that he would merge a newer ext3 soon as the
+> maintainer sends him such a patch, but no sooner.  That was in response
+> to a few users asking why ext3 was "outdated" in his tree.
 
-Okay. It is not that new since I have been using it for several months now
-with now problems. I just ported from console project CVS to 2.4.10.
-Basically this patch address the issues people have been having with the
-current PS/2 driver. Plus it has the bonus of using the universal input
-api. It even allows for unpluging the keyboard with no problem and you can
-have two keybaord plugged in at the same time with no problems. NOTE:
-don't have both keyboard plugged in at boot time. It confusses them. 
-The olnly thing which I haven't had time to do is support PS/2 based
-keybards that don't use the standard IRQ and port ranges. Several mips
-devices have this issue. The patch is 60 K so I posted a link. To use the 
-keyboard driver you need to 
+Yes, sorry.  It's turning out to be a lot of work keeping the master
+ext3 tree in sync with two (rather different) kernels, and running around
+after all the changes which are happening in (ahem) one of them.
 
-1) enable the input core and keyboard support in the input menu. 
+We prefer to test a lot before releasing, and the one time I skipped
+that step was for 2.4.10, and it was the one which is broken. Sigh.
 
-2) In the character menu select PS/2 port support and i8042 aux+kbd
-   controller. Their are hooks for other types of PS/2 "clones" on other
-   platforms.
+> Attached is a patch against 2.4.10-ac3 of ext-0.9.9 + Ted's directory
+> speedup.  Bringing 0.9.10 inline with Alan will take some VM work, but
+> this is a start.
 
-3) You have 3 different devices to select from. I don't think I have to
-   explain them.
+Rob, I've added this patch to the download site for interested parties
+to use.  http://www.uow.edu.au/~andrewm/linux/ext3/
 
-   XT keyboard.
-   AT and PS/2 keyboards
-   PS/2 mouse
-   
-Here is the diff.
+But for a merge with Alan we do have a few more changes backed up,
+and some more testing must be done.  I'll try to prepare 0.9.11
+for -ac this week.  I'm inclined to down-tools on Linus kernels
+for a while, wait for things to settle down there.
 
-http://www.transvirtual.com/~jsimmons/input-ps2.diff
+Thanks!
 
-P.S
-  For assumment I have a funny movie clip in the same area(dancemonkeyboy.mpeg).
-
+-

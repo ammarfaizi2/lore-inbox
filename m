@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261927AbTDANQX>; Tue, 1 Apr 2003 08:16:23 -0500
+	id <S262513AbTDAN1M>; Tue, 1 Apr 2003 08:27:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261941AbTDANQW>; Tue, 1 Apr 2003 08:16:22 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2054 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261927AbTDANQW>; Tue, 1 Apr 2003 08:16:22 -0500
-Date: Tue, 1 Apr 2003 14:27:43 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Peter Oberparleiter <Peter.Oberparleiter@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Partition check order in fs/partition/check.c?
-Message-ID: <20030401142743.C30470@flint.arm.linux.org.uk>
-Mail-Followup-To: Peter Oberparleiter <Peter.Oberparleiter@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <200304010934.h319Y5TR270722@d06relay02.portsmouth.uk.ibm.com> <20030401113503.A30470@flint.arm.linux.org.uk> <200304011316.h31DFwTR039380@d06relay02.portsmouth.uk.ibm.com>
-Mime-Version: 1.0
+	id <S262526AbTDAN1M>; Tue, 1 Apr 2003 08:27:12 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:60097 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S262513AbTDAN1L>; Tue, 1 Apr 2003 08:27:11 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+To: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
+Reply-To: tomlins@cam.org
+Date: Tue, 01 Apr 2003 08:38:32 -0500
+References: <fa.eagpkml.m3elbd@ifi.uio.no>
+Organization: me
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200304011316.h31DFwTR039380@d06relay02.portsmouth.uk.ibm.com>; from Peter.Oberparleiter@gmx.de on Tue, Apr 01, 2003 at 03:14:56PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20030401133833.6C71DF3D@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 03:14:56PM +0200, Peter Oberparleiter wrote:
-> Hm, what do you think of these additional checks:
+CaT wrote:
+
+> I believe the patch below will apply to both the above (I know it does
+> to 2.5.66 and 2.4.20-pre2 mm/shmem.c does not look any different so it
+> should be fine. :)
 > 
-> 1. Check for overlap of partitions
+> Anyways, what this patch does is allow you to specify the max amount of
+> memory tmpfs can use as a percentage of available real ram. This (in my
+> eyes) is useful so that you do not have to remember to change the
+> setting if you want something other then 50% and some of your ram does
+> (and you can't replacew it immediately).
+> 
+> Usage of this option is as follows:
+> 
+> tmpfs      /dev/shm tmpfs  rw,size=63%,noauto            0 0
+> 
+> This is taken from my working system and sets the tmpfs size to 63% of
+> my real RAM (256MB). The end result is:
+> 
+> Filesystem           1k-blocks      Used Available Use% Mounted on
+> /dev/shm/tmp            160868      6776    154092   5% /tmp
+> 
+> I've also tested remounting to silly values (and sane ones) and it all
+> works fine with no oopses or freezes and the correct values appearing
+> in df.
+> 
+> All up I feel safer using this then a hard value.
 
-That's something which should be done for any partitioning method imho.
-I have heard of some situations where, on x86 machines, the DOS and
-ext2 filesystems overlapped, but somehow managed to keep working for
-a considerable period of time.  Then when it all goes wrong, the user
-blamed Linux for screwing their DOS/Windows partition.
+What does tmpfs have to do with ram size?  Its swappable.  This _might_ be
+useful for ramfs but for tmpfs, IMHO, its not a good idea.
 
-This might be an acceptable way out of this problem.
-
-> 2. Check for number of recognized partitions (i.e. size != 0) > 0 
-
-If the checksum seems to be correct and you mis-parse an x86 bios
-partition table as powertec, chances are that you'll have a non-zero
-size word somewhere in that sector.
-
-> 3. Check for struct ptec_partition.unused1, unused2, unused5 == 0
-> (assuming they default to zero)
-
-Unfortunately they don't default to zero.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Ed Tomlinson
 

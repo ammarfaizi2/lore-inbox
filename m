@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUHBUlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbUHBUmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUHBUlL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 16:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUHBUlL
+	id S263204AbUHBUmU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 16:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUHBUmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 16:41:11 -0400
-Received: from mail.tmr.com ([216.238.38.203]:264 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S263100AbUHBUlG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 16:41:06 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: ide-cd problems
-Date: Mon, 02 Aug 2004 16:44:18 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cem8ic$hoj$1@gatekeeper.tmr.com>
-References: <axboe@suse.de> <200408020320.i723KG9E007500@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1091478924 18195 192.168.12.100 (2 Aug 2004 20:35:24 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en
-In-Reply-To: <200408020320.i723KG9E007500@localhost.localdomain>
+	Mon, 2 Aug 2004 16:42:20 -0400
+Received: from web14926.mail.yahoo.com ([216.136.225.84]:61599 "HELO
+	web14926.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263204AbUHBUmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 16:42:08 -0400
+Message-ID: <20040802204204.88994.qmail@web14926.mail.yahoo.com>
+Date: Mon, 2 Aug 2004 13:42:04 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: DRM code reorganization
+To: Ian Romanick <idr@us.ibm.com>, Dave Jones <davej@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "DRI developer's list" <dri-devel@lists.sourceforge.net>
+In-Reply-To: <410E9FEE.60108@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> Jens Axboe <axboe@suse.de> said:
-> 
->>On Sun, Aug 01 2004, Alexander E. Patrakov wrote:
-> 
-> 
-> [...]
-> 
-> 
->>>Remember that it is still possible to write CDs through ide-cd in 2.4.x 
->>>using some pre-alpha code in cdrecord:
->>>
->>>cdrecord dev=ATAPI:1,1,0 image.iso
-> 
-> 
-> [...]
-> 
-> 
->>Don't ever use that interface, period.
-> 
-> 
-> Great! So I won't be able to use any of the CD burners I have now.
-> 
-> 
->>                                       It's not just the cdrecord code
->>that may be alpha (I doubt it matters, it's easy to use), the interface
->>it uses is not worth the lines of code it occupies.
-> 
-> 
-> What do you suggest then? ide-scsi is gone, so AFAIK this is the only way
-> to burn CDs right now on 2.6.x
+We are really short handed for kernel level DRM developers; most 3D
+developers work in user space. The main person that wrote it, Gareth
+Hughes, doesn't seem to work on it any more. Right now there are three
+to four, non-paid people working part-time on DRM. 
 
-Actually ide-scsi isn't gone, and what you want is ATA: not ATAPI: here. 
-But if ATAPI: works for you, it's slow and grotty, but I think it does 
-work. I've been using ide-scsi on 2.4 and don't plan to stop while it 
-works, but ATAPI: is the one of choice for 2.6, particularly for burning 
-audio.
+How about you kernel developers working in other areas giving us a hand
+with reorganizing the DRM code? You don't need to know anything about
+3D you would just be reworking the code without changing how it
+functions.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+It would seem to me like companies counting on desktop Linux might want
+to spend a few dollars on getting a better graphics sub-system.
+
+=====
+Jon Smirl
+jonsmirl@yahoo.com
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail Address AutoComplete - You start. We finish.
+http://promotions.yahoo.com/new_mail 

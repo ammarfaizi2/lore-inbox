@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261689AbTJDBJH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 21:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTJDBJH
+	id S261696AbTJDBkY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 21:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTJDBkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 21:09:07 -0400
-Received: from main.gmane.org ([80.91.224.249]:63937 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261689AbTJDBI6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 21:08:58 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [BUG] Alpha (EV56), lseek64, and /dev/kmem
-Date: Sat, 04 Oct 2003 03:08:55 +0200
-Message-ID: <yw1x7k3lajx4.fsf@users.sourceforge.net>
-References: <200310031942.50234.kelledin+LKML@skarpsey.dyndns.org>
+	Fri, 3 Oct 2003 21:40:24 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:57028 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S261696AbTJDBkV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 21:40:21 -0400
+Date: Fri, 3 Oct 2003 21:43:39 -0400
+To: andrea@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23pre6aa1: XFS compile fix
+Message-ID: <20031004014338.GA16745@rushmore>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:YkdfabV3JzWYUBuCJJOEWsEULMU=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kelledin <kelledin+LKML@skarpsey.dyndns.org> writes:
+fs/xfs/support/Makefile lost a line between 2.4.22aa1 and 2.4.23pre6aa1.
 
-> I just found that on my Alpha box, lseek64() has a bit of 
-> difficulty seeking through /dev/kmem to extremely high 
-> values--specifically, any value >=0x8000000000000000 (the 64th 
-> bit set).  Whenever it's supposed to seek to (and return) such a 
-> value, lseek64() returns -1 instead and sets errno to a 
-> seemingly random garbage value.  Userspace has no real choice 
-> except to interpret this as an error.
->
-> So far it's doing this on both xfs and ext2/3, so I'm betting 
+make says:
 
-/dev/kmem hasn't anything to do with filesystems, right?
+fs/fs.o: In function `xfs_attr_shortform_list':
+fs/fs.o(.text+0xad95a): undefined reference to `qsort'
+fs/fs.o: In function `xfs_dir2_sf_to_block':
+fs/fs.o(.text+0xc76ee): undefined reference to `qsort'
+fs/fs.o: In function `xfs_dir_shortform_getdents':
+fs/fs.o(.text+0xceb41): undefined reference to `qsort'
+make: *** [vmlinux] Error 1
 
-> it's fs-independent.  I suppose it could be the kmem driver 
-> itself deciding to be quirky?  I have no way of knowing if 
-> lseek64() will stumble like this on a real file, as I'd probably 
-> need more drive space than God to test that!
 
-You could create a sparse file, but I don't think any filesystem
-support that big files.
+--- linux-2.4.23pre6aa1/fs/xfs/support/Makefile	Fri Oct  3 21:50:36 2003
++++ linux/fs/xfs/support/Makefile	Fri Oct  3 21:47:56 2003
+@@ -48,6 +48,7 @@
+ 				   ktrace.o \
+ 				   move.o \
+ 				   mrlock.o \
++				   qsort.o \
+ 				   uuid.o
+ 
+ include $(TOPDIR)/Rules.make
+
 
 -- 
-Måns Rullgård
-mru@users.sf.net
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

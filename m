@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314340AbSFTNHt>; Thu, 20 Jun 2002 09:07:49 -0400
+	id <S314381AbSFTNJl>; Thu, 20 Jun 2002 09:09:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314381AbSFTNHs>; Thu, 20 Jun 2002 09:07:48 -0400
-Received: from draco.netpower.no ([212.33.133.34]:40197 "EHLO
-	draco.netpower.no") by vger.kernel.org with ESMTP
-	id <S314340AbSFTNHr>; Thu, 20 Jun 2002 09:07:47 -0400
-Date: Thu, 20 Jun 2002 15:07:30 +0200
-From: Erlend Aasland <erlend-a@innova.no>
-To: Felipe Alfaro Solana <falfaro@borak.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.23 won't compile
-Message-ID: <20020620150730.A12658@innova.no>
-References: <3D11CDED.4070106@borak.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3D11CDED.4070106@borak.es>; from falfaro@borak.es on Thu, Jun 20, 2002 at 02:43:25PM +0200
+	id <S314395AbSFTNJk>; Thu, 20 Jun 2002 09:09:40 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:26781 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S314381AbSFTNJj>; Thu, 20 Jun 2002 09:09:39 -0400
+Date: Thu, 20 Jun 2002 15:10:08 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The buggy APIC of the Abit BP6
+In-Reply-To: <3D11C8BC.5A14379C@aitel.hist.no>
+Message-ID: <Pine.GSO.3.96.1020620144211.18164B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20, 2002 at 02:43:25PM +0200, Felipe Alfaro Solana wrote:
->     sched.c: In function `sys_sched_getaffinity':
->     sched.c:1391: `cpu_online_map' undeclared (first use in this function)
+On Thu, 20 Jun 2002, Helge Hafting wrote:
 
-This was fixed by Linus with this patch (it is in Linus' BK repository):
+> Yes, the hardware is at fault.  I don't have money for 
+> other hardware though, so working around it seems a good idea.  
 
---- a/include/linux/smp.h       Wed Jun 19 00:00:41 2002
-+++ b/include/linux/smp.h       Wed Jun 19 00:00:41 2002
-@@ -86,6 +86,7 @@
- #define smp_call_function(func,info,retry,wait)        ({ 0; })
- static inline void smp_send_reschedule(int cpu) { }
- static inline void smp_send_reschedule_all(void) { }
- +#define cpu_online_map                        1
- #define cpu_online(cpu)                                1
- #define num_online_cpus()                      1
- #define __per_cpu_data
+ What's the problem with using a privately patched kernel then?  I do that
+all the time for various stuff.
 
+> We could simplify the IDE driver a lot by dropping support for
+> all the broken controllers too. Or tell
+> people to not use DMA on them.
 
- Mvh Erlend Aasland
+ It depends on how intrusive and reliable the workarounds are.  If merely
+slowing down or using PIO is sufficient, then they may be OK to include.
 
- P.S. BTW, this has already been asked twice on this list:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102447447725526&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102445697313894&w=2
- The linux-kernel archives at http://marc.theaimsgroup.com/?l=linux-kernel
- is a nice place to check if somebody already has asked a question.
+> The safe solution is NOAPIC, this fix simply makes it work
+> for a longer time using the bad apic.
+
+ Well, consider it *the* workaround, then.
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

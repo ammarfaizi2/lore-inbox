@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291306AbSBGU7O>; Thu, 7 Feb 2002 15:59:14 -0500
+	id <S291298AbSBGVBY>; Thu, 7 Feb 2002 16:01:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291298AbSBGU6z>; Thu, 7 Feb 2002 15:58:55 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:33364 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S291308AbSBGU6f>; Thu, 7 Feb 2002 15:58:35 -0500
-Date: Thu, 7 Feb 2002 21:58:55 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, "David S. Miller" <davem@redhat.com>,
-        akpm@zip.com.au, bcrl@redhat.com, Hugh Dickins <hugh@lrel.veritas.com>,
-        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __free_pages_ok oops
-Message-ID: <20020207215854.P1743@athlon.random>
-In-Reply-To: <Pine.LNX.4.33L.0202071120160.17850-100000@imladris.surriel.com> <Pine.LNX.4.21.0202071355450.1149-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0202071355450.1149-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S291305AbSBGVBH>; Thu, 7 Feb 2002 16:01:07 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:36533 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S291308AbSBGU7w>;
+	Thu, 7 Feb 2002 15:59:52 -0500
+Date: Thu, 7 Feb 2002 12:59:50 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] read() from driverfs files can read more bytes 
+In-Reply-To: <Pine.GSO.4.21.0202071526080.25715-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0202071252010.25114-100000@segfault.osdlab.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 02:28:44PM +0000, Hugh Dickins wrote:
-> On Thu, 7 Feb 2002, Rik van Riel wrote:
-> > On Thu, 7 Feb 2002, Hugh Dickins wrote:
-> > >
-> > > If this were a common case where many pages end up, yes, we'd
-> > > need a separate special list; but it's a very rare case
-> > 
-> > Think of a web or ftp server doing nothing but sendfile()
+
+On Thu, 7 Feb 2002, Alexander Viro wrote:
+
 > 
-> Aren't the sendfile() pages in the page cache, and normally taken
-> off LRU at the same time as removed from page cache, in shrink_cache?
-> The exception being when the file is truncated while it is being sent,
-> and buffers busy, so left behind on LRU by truncate_complete_page?
+> 
+> On Thu, 7 Feb 2002, Patrick Mochel wrote:
+> 
+> > It is really nice, but it's too much for the common case. The goal is to 
+> > have each file export one and only one value. Setting up an iterator is 
+> > overkill for one value.
+> 
+> You don't have to use the iterator side of that.
 
-the buffers will hold a reference on the page. So the pagecache is
-either in the LRU with refcount > 1, or the refcount is 1 and the page
-is not in the lru.
+Well, I'll be...
 
-In short Ben's patch was useless but it was faster and cleaner than what
-we had before with the special page_cache_release, and so it was good.
+I like the seq_ stuff, and the ->read() side of things take care of the 
+issues discussed in this thread. What's even nicer is that if I convert to 
+that, driver callbacks become something like either:
 
-Said it in another manner: we'll never effectively free a page that is
-in the LRU, unless it's an anonymous page (no brainer for
-sendpage/sendfile).
+int driver_show(struct device * dev, struct seq_file * m)
 
-Hugh's patch is definitely valid and it's a nice bugcheck to have, it
-should be merged IMHO (it's in a slow path), but there's no bug to fix I
-think, the bugcheck is paranoid-in-slow-path kind of thing.
+or 
 
-Andrea
+int driver_show(struct device * dev, char * buf)
+
+
+Have you considered doing write()?
+
+	-pat
+

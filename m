@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbTESQta (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 12:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbTESQta
+	id S262270AbTESQxH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 12:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTESQxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 12:49:30 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:44040 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S262157AbTESQt3 (ORCPT
+	Mon, 19 May 2003 12:53:07 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:17123 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id S262270AbTESQxG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 12:49:29 -0400
-Date: Mon, 19 May 2003 19:02:26 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Brian Gerst <bgerst@quark.didntduck.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Update fs Makefiles
-Message-ID: <20030519170226.GB983@mars.ravnborg.org>
-Mail-Followup-To: Brian Gerst <bgerst@quark.didntduck.org>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <3EC82A7D.5090105@quark.didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EC82A7D.5090105@quark.didntduck.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 19 May 2003 12:53:06 -0400
+Date: Mon, 19 May 2003 19:02:38 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched-cleanup-2.5.69-A0
+In-Reply-To: <20030519135144.A1432@almesberger.net>
+Message-ID: <Pine.LNX.4.44.0305191900400.14615-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 18, 2003 at 08:51:09PM -0400, Brian Gerst wrote:
-> Convert foo-objs to newer-style foo-y.
 
-The paths looks correct.
-But do we really want to go that far, and deprecate the -objs syntax?
+On Mon, 19 May 2003, Werner Almesberger wrote:
 
-> -adfs-objs := dir.o dir_f.o dir_fplus.o file.o inode.o map.o super.o
-> +adfs-y := dir.o dir_f.o dir_fplus.o file.o inode.o map.o super.o
+> I could make it yield if anything else is runnable (I already check for
+> this, but just to panic). I suppose if I just set p->static_prio to
+> MAX_PRIO-1, this thread that would give me only very few activations
+> while other processes are runnable ?
 
-The patch contains a lot of changes like the above - and they
-are only relevant if we deprecate the -objs syntax.
+so you really want to run every time there's idle time, but you also want
+to sleep until the event that causes some other thread to run, right?
 
-Opinions anyone?
+	Ingo
 
-	Sam

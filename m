@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266283AbUA3BIo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 20:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUA3BIo
+	id S266279AbUA3BLz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 20:11:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUA3BLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 20:08:44 -0500
-Received: from mail.broadpark.no ([217.13.4.2]:43722 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S266283AbUA3BIl (ORCPT
+	Thu, 29 Jan 2004 20:11:55 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:8723 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S266279AbUA3BLx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 20:08:41 -0500
-Date: Fri, 30 Jan 2004 02:08:39 +0100
-From: Daniel Andersen <kernel-list@majorstua.net>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc2-mm1 (Breakage?)
-Message-Id: <20040130020839.0775de2e.kernel-list@majorstua.net>
-In-Reply-To: <87r7xiba2k.fsf@lapper.ihatent.com>
-References: <20040127233402.6f5d3497.akpm@osdl.org>
-	<200401281313.03790.ender@debian.org>
-	<200401281225.37234.s0348365@sms.ed.ac.uk>
-	<87r7xiba2k.fsf@lapper.ihatent.com>
-Reply-To: daniel@majorstua.net
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 29 Jan 2004 20:11:53 -0500
+Date: Fri, 30 Jan 2004 01:30:42 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Frodo Looijaard <frodol@dds.nl>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+       linux-7110-psion@lists.sourceforge.net
+Subject: Re: PATCH to access old-style FAT fs
+Message-ID: <20040130013042.A19516@pclin040.win.tue.nl>
+References: <20040126173949.GA788@frodo.local> <bv3qb3$4lh$1@terminus.zytor.com> <87n0898sah.fsf@devron.myhome.or.jp> <4016B316.4060304@zytor.com> <87ad4987ti.fsf@devron.myhome.or.jp> <20040128115655.GA696@arda.frodo.local> <87y8rr7s5b.fsf@devron.myhome.or.jp> <20040128202443.GA9246@frodo.local> <87bron7ppd.fsf@devron.myhome.or.jp> <20040129223944.GA673@frodo.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040129223944.GA673@frodo.local>; from frodol@dds.nl on Thu, Jan 29, 2004 at 11:39:44PM +0100
+X-Spam-DCC: MessageCare: kweetal.tue.nl 1108; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > 	Hello, Andrew, I've switched from 2.6.2-rc1-mm1 to 2.6.2-rc1-mm1, and I've
-> > > encountered this:
-> > >
-> > [snip]
-> > 
-> > Decided to build my first kernel with preempt since the early 2.5 days. I'm 
-> > seeing the same warnings in 2.6.2-rc2-mm1.
-> > 
-> > gkrellm 0 waking gkrellm: 897 1485
-> > Badness in try_to_wake_up at kernel/sched.c:722
-> > Call Trace:
-> >  [<c011a6a7>] try_to_wake_up+0x97/0x1d0
-> >  [<c011b0b0>] __wake_up_common+0x30/0x60
-> >  [<c011b109>] __wake_up+0x29/0x50
-> >  [<c0131f1b>] wake_futex+0x2b/0x70
-> >  [<c013259a>] do_futex+0x3fa/0x6e0
-> >  [<c011d9d0>] copy_process+0x7b0/0x10a0
-> >  [<c011e3a9>] do_fork+0xe9/0x179
-> >  [<c011a142>] schedule+0x1d2/0x640
-> >  [<c0132988>] sys_futex+0x108/0x130
-> >  [<c03e1b9e>] sysenter_past_esp+0x43/0x65
-> > 
-> > Every five seconds. This is when it reads the sensor information from /sys, I 
-> > think. And during boot, similar messages to those already reported (from 
-> > kern.log this time).
-> > 
+On Thu, Jan 29, 2004 at 11:39:44PM +0100, Frodo Looijaard wrote:
 
-As Zephaniah E. Hull suggested earlier, the message will disappear by reverting this patch:
+> I have attached a newer, better behaving version of my patch:
+>   * Implements new mount option oldfat for FAT-derived filesystems.
+>   * Stops scanning dirs when DIR_Name[0] = 0 when oldfat is set
+>   * Writes a 0 to the next entry DIR_Name[0] when overwriting an entry
+>     which has DIR_Name[0] = 0 when oldfat is set
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc2/2.6.2-rc2-mm1/broken-out/futex-wakeup-debug.patch
+Just amused myself checking all data I can find about such stuff.
+And read the replies by Hirofumi and hpa.
+I completely agree with them.
 
-Daniel Andersen
+The DOS situation is not so much that 0 is an end-of-dir marker.
+It marks that this entry, and all following entries, has never
+been used.
+
+For the time being there is no justification for "oldfat".
+The only place where this behaviour has been reported (not only by you,
+I saw several references) is on Psion PDAs. So "psion" would be a more
+obvious name, if a mount option is needed.
+
+And maybe no mount option is needed.
+Your 2nd and 3rd points can be done always, I think, unless our FAT code
+should mimic the DOS FAT behaviour (on non-DOS filesystems).
+
+Andries
+

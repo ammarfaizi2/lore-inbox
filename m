@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261721AbSJQRJt>; Thu, 17 Oct 2002 13:09:49 -0400
+	id <S261677AbSJQRIP>; Thu, 17 Oct 2002 13:08:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261725AbSJQRJt>; Thu, 17 Oct 2002 13:09:49 -0400
-Received: from s383.jpl.nasa.gov ([137.78.170.215]:971 "EHLO s383.jpl.nasa.gov")
-	by vger.kernel.org with ESMTP id <S261721AbSJQRJr>;
-	Thu, 17 Oct 2002 13:09:47 -0400
-Date: Thu, 17 Oct 2002 10:15:26 -0700 (PDT)
-From: Bryan B Whitehead <driver@huey.jpl.nasa.gov>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Bryan Whitehead <driver@jpl.nasa.gov>, Mark Cuss <mcuss@cdlsystems.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel reports 4 CPUS instead of 2...
-In-Reply-To: <Pine.LNX.3.95.1021017085043.5202A-100000@chaos.analogic.com>
-Message-ID: <Pine.GSO.4.21.0210171012540.18710-100000@s383.jpl.nasa.gov>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261688AbSJQRIO>; Thu, 17 Oct 2002 13:08:14 -0400
+Received: from h-64-105-136-233.SNVACAID.covad.net ([64.105.136.233]:39848
+	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S261677AbSJQRIN>; Thu, 17 Oct 2002 13:08:13 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 17 Oct 2002 10:14:03 -0700
+Message-Id: <200210171714.KAA02527@baldur.yggdrasil.com>
+To: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][TRIVIAL] de2104x.c missing __devexit_p in 2.5.43
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Oct 2002, Richard B. Johnson wrote:
+Jeff Garzik wrote:
+>Andrey Panin wrote:
+>> diff -urN -X /usr/share/dontdiff linux-vanilla/drivers/net/tulip/de2104x.c \
+>>                 linux/drivers/net/tulip/de2104x.c
+>> --- linux-vanilla/drivers/net/tulip/de2104x.c Sun Sep  1 02:04:53 2002
+>> +++ linux/drivers/net/tulip/de2104x.c Thu Oct 17 04:10:19 2002
+>> @@ -2216,7 +2216,7 @@
+>>       .name           = DRV_NAME,
+>>       .id_table       = de_pci_tbl,
+>>       .probe          = de_init_one,
+>> -     .remove         = de_remove_one,
+>> +     .remove         = __devexit_p(de_remove_one),
+>> #ifdef CONFIG_PM
+>>       .suspend        = de_suspend,
+>>       .resume         = de_resume,
+>
+>
+>alas, it is incorrect, as no one hotplugs this hardware.
 
-> On Wed, 16 Oct 2002, Bryan Whitehead wrote:
-> 
-> > My /proc/cpuinfo says I have ht CPU's... but i only see 2 CPU's... (Yet 
-> > I have 2 1.7Ghz XEONs in the box so shouldn't I see 4?)
-> > 
-> > It's a Dell Precisions 530 workstation.
-> > 
-> > Does intel have ht CPU's that are messed up? and I'm one of the "lucky 
-> > ones". ?
-> > 
-> > Building a kernel myself did not help... Any idea's?
-> > 
-> > pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
->                                                    ^____ hyperstuff
-> 
-> 
-> Your CPU purports to "support" HT, but It doesn't "do" HT!
-> Maybe somebody from Intel can explain, but I heard that they
-> added the HT bit before they implimented hyper-threading.
-> Anyways, maybe you can "turn something on" in the BIOS?
-> If not, it's just one of those wanabees that didn't graduate
-> from HT School.
+	I believe that there are motherboards that use a chipset from
+Compaq that allows hot plugging and unplugging of ordinary PCI cards,
+supported by drivers in linux-2.5.43/drivers/hotplug/cpq*.[ch].  At a
+trade show, I saw a demo of a motherboard with such a capability (not
+running Linux, but I think from Compaq).
 
-FWIW, I don't have a HT option in my bios. i just updated the bios to the
-latest version from Dell and still no option.
+	So, I believe that all ordinary PCI cards (as opposed to
+devices soldered onto motherboards, for example) are now hot plug
+capable, although their Linux drivers may not yet be.
 
-Maybe they put the wrong CPU's into my workstation that is classified to
-not have HT XEON Cpus?
+	Do I misunderstand the situation?
 
-If that's the case, can I tweak something to ignore the bios and turn on
-HT?
+	As a side note, I also either do not agree or somehow
+misunderstand Jeff Garzik's opposition to devexit_p in non-hotplug
+drivers, but that issue will irrelevant in the case of de2104.c if it
+is indeed possible for all ordinary PCI form factor cards to be
+deployed with the hot plug motherboard chipset that I described.
 
-Anyway, I'm sure it's an Intel thing.... 1-bit never made me feel so
-ripped off... ;)
-
-> 
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-> The US military has given us many words, FUBAR, SNAFU, now ENRON.
-> Yes, top management were graduates of West Point and Annapolis.
-> 
-
---
-Bryan Whitehead
-SysAdmin - JPL - Interferometry Systems and Technology
-Phone: 818 354 2903
-driver@jpl.nasa.gov
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

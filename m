@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267500AbRGMQ0W>; Fri, 13 Jul 2001 12:26:22 -0400
+	id <S267503AbRGMQid>; Fri, 13 Jul 2001 12:38:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267501AbRGMQ0O>; Fri, 13 Jul 2001 12:26:14 -0400
-Received: from mehl.gfz-potsdam.de ([139.17.1.100]:6048 "EHLO
-	mehl.gfz-potsdam.de") by vger.kernel.org with ESMTP
-	id <S267500AbRGMQ0B> convert rfc822-to-8bit; Fri, 13 Jul 2001 12:26:01 -0400
-Date: Fri, 13 Jul 2001 18:26:01 +0200
-From: Steffen Grunewald <steffen@gfz-potsdam.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs error message
-Message-ID: <20010713182600.B29470@dss19>
-In-Reply-To: <20010712133544.R10669@dss19> <630460000.995033868@tiny>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <630460000.995033868@tiny>; from mason@suse.com on Fri, Jul 13, 2001 at 10:17:49AM -0400
-X-Disclaimer: I don't speak for no one else. And vice versa
-X-Operating-System: SunOS
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by dss19.gfz-potsdam.de id SAA29700
+	id <S267504AbRGMQiY>; Fri, 13 Jul 2001 12:38:24 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:65259 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S267503AbRGMQiU>;
+	Fri, 13 Jul 2001 12:38:20 -0400
+Message-ID: <XFMail.20010713094144.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20010712173641.C11719@work.bitmover.com>
+Date: Fri, 13 Jul 2001 09:41:44 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Larry McVoy <lm@bitmover.com>
+Subject: Re: CPU affinity & IPI latency
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+        lse-tech@lists.sourceforge.net, Mike Kravetz <mkravetz@sequent.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 2001-07-13 (10:17), Chris Mason wrote:
+
+On 13-Jul-2001 Larry McVoy wrote:
+> Be careful tuning for LMbench (says the author :-)
 > 
+> Especially this benchmark.  It's certainly possible to get dramatically
+> better
+> SMP numbers by pinning all the lat_ctx processes to a single CPU, because 
+> the benchmark is single threaded.  In other words, if we have 5 processes,
+> call them A, B, C, D, and E, then the benchmark is passing a token from
+> A to B to C to D to E and around again.  
 > 
-> On Thursday, July 12, 2001 01:35:44 PM +0200 Steffen Grunewald
-> <steffen@gfz-potsdam.de> wrote:
+> If the amount of data/instructions needed by all 5 processes fits in the 
+> cache and you pin all the processes to the same CPU you'll get much 
+> better performance than simply letting them float.
 > 
-> > Should I worry about
-> > 
-> > kernel: vs-13048: reiserfs_iget: key in inode [62743 393750 0 0] and key
-> > 	in entry [62444 393750 0 0] do not match
-> > 
-> > ? This is SuSE 7.1 kernel 2.2.18, with automatic FTP updates.
-> > 
+> But making the system do that naively is a bad idea.
+
+Agree.
+
+
 > 
-> This is due to two files sharing the same inode number, which isn't supposed
-> to happen.  You can find the two files by doing a find -inum 393750 on the
-> filesystem.  You probably want to grab the latest reiserfsck from
-> ftp.namesys.com/pub/reiserfsprogs/pre and check the entire FS.
+> This is a really hard area to get right but you can take a page from all
+> the failed process migration efforts.  In general, moving stuff is a bad
+> idea, it's much better to leave it where it is.  Everything scales better
+> if there is a process queue per CPU and the default is that you leave the
+> processes on the queue on which they last run.  However, if the load average
+> for a queue starts going up and there is another queue with a substantially
+> lower load average, then and ONLY then, should you move the process.
 
-Unfortunately I now have to guess which FS is affected.
+I personally think that a standard scheduler/cpu is the way to go for SMP.
+I saw the one IBM guys did and I think that the wrong catch there is trying
+always to grab the best task to run over all CPUs.
+I think that this concept could be relaxed introducing less chains between each
+CPU scheduler.
+A cheap load balancer should run, "time to time"(tm), to move tasks when a
+certain level of unbalancing has been reached.
+This will give each scheduler more independence and will make it more scalable,
+IMVHO.
 
-I'll look for an upgrade from SuSE.
 
-> The only known way to trigger this problems involves running an older version
-> of reiserfsck --rebuild-tree.  Have you done that?
+> This is an area in which I've done a pile of work and I'd be interested
+> in keeping a finger in any efforts to fix up the scheduler.
 
-No. But perhaps the system did it when I changed from 7.0 to 7.1?
+We've, somehow, understood it :)
 
-Steffen
--- 
- Steffen Grunewald | GFZ | PB 2.2 | Telegrafenberg E3 | D-14473 Potsdam
- » email: steffen(at)gfz-potsdam.de | fax/fon: +49-331-288-1266/-1245 «
-       Success is a journey, not a destination. So stop running.
-                                             --- www.despair.com
+
+
+- Davide
+

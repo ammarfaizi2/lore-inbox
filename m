@@ -1,442 +1,682 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbSJQMEm>; Thu, 17 Oct 2002 08:04:42 -0400
+	id <S261398AbSJQLxP>; Thu, 17 Oct 2002 07:53:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261529AbSJQMDy>; Thu, 17 Oct 2002 08:03:54 -0400
-Received: from mta05bw.bigpond.com ([139.134.6.95]:10468 "EHLO
-	mta05bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S261364AbSJQLuV> convert rfc822-to-8bit; Thu, 17 Oct 2002 07:50:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.20pre11aa1
-Date: Thu, 17 Oct 2002 22:04:50 +1000
-User-Agent: KMail/1.4.3
-References: <20021016165155.GE30254@dualathlon.random>
-In-Reply-To: <20021016165155.GE30254@dualathlon.random>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210172204.50297.harisri@bigpond.com>
+	id <S261452AbSJQLwU>; Thu, 17 Oct 2002 07:52:20 -0400
+Received: from precia.cinet.co.jp ([210.166.75.133]:8576 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S261398AbSJQLe7>; Thu, 17 Oct 2002 07:34:59 -0400
+Date: Thu, 17 Oct 2002 20:40:11 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH][RFC] add support for PC-9800 architecture (18/26) RTC
+Message-ID: <20021017204011.A1253@precia.cinet.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrea,
+This is part 18/26 of patchset for add support NEC PC-9800 architecture,
+against 2.5.43.
 
-> Srihari, I would like if you could try to reproduce with this new one
-> with CONFIG_SOUND=n.  Thanks!
+Summary:
+ PC-9800 standard real time clock driver.(add new files)
 
-No worries!
+diffstat:
+ drivers/char/upd4990a.c     |  438 ++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/upd4990a.h |   58 +++++
+ include/linux/upd4990a.h    |  140 ++++++++++++++
+ 3 files changed, 636 insertions(+)
 
-I tried it without sound and unfortunately it crashed few times. The good news 
-is that it is very stable without agpgart and radeon (module or not) support.
-
-These are the three oops with agpgart and radeon as modules:
-------------------------------------------------------------------------------------------
-ksymoops 2.4.5 on i686 2.4.20-pre11aa1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.20-pre11aa1/ (default)
-     -m /boot/System.map-2.4.20-pre11aa1 (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Oct 17 20:27:24 localhost kernel: Unable to handle kernel paging request at 
-virtual address c68b8008
-Oct 17 20:27:24 localhost kernel: c01180ae
-Oct 17 20:27:24 localhost kernel: *pde = 068001e3
-Oct 17 20:27:24 localhost kernel: Oops: 0000 2.4.20-pre11aa1 #3 Thu Oct 17 
-20:18:58 EST 2002
-Oct 17 20:27:24 localhost kernel: CPU:    0
-Oct 17 20:27:24 localhost kernel: EIP:    0010:[<c01180ae>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Oct 17 20:27:24 localhost kernel: EFLAGS: 00013206
-Oct 17 20:27:24 localhost kernel: eax: bfffec7c   ebx: c68b8000   ecx: 
-c020de0c   edx: 00000018
-Oct 17 20:27:24 localhost kernel: esi: 00000100   edi: bfffec7c   ebp: 
-ffffffff   esp: c58f5f78
-Oct 17 20:27:24 localhost kernel: ds: 0018   es: 0018   ss: 0018
-Oct 17 20:27:24 localhost kernel: Process modprobe (pid: 888, 
-stackpage=c58f5000)
-Oct 17 20:27:24 localhost kernel: Stack: dff82e04 00000000 00001000 00000000 
-00000000 ffffffea c020dda0 bfffec7c 
-Oct 17 20:27:24 localhost kernel:        080640e8 c01188a4 080640e8 00000100 
-bfffec7c 00000004 c58f4000 00000100 
-Oct 17 20:27:24 localhost kernel:        bfffec7c bfffeca8 c01074ff 00000000 
-00000001 080640e8 00000100 bfffec7c 
-Oct 17 20:27:24 localhost kernel: Call Trace:    [<c01188a4>] [<c01074ff>]
-Oct 17 20:27:24 localhost kernel: Code: 8b 7b 08 89 e9 31 c0 f2 ae f7 d1 49 8d 
-79 01 39 f7 77 7f 8b 
-
-
->>EIP; c01180ae <qm_modules+2e/140>   <=====
-
->>eax; bfffec7c Before first symbol
->>ebx; c68b8000 <[agpgart].bss.end+2c031e5/1c0a3265>
->>ecx; c020de0c <modlist_lock+0/0>
->>edi; bfffec7c Before first symbol
->>ebp; ffffffff <END_OF_CODE+202a3a58/????>
->>esp; c58f5f78 <[agpgart].bss.end+1c4115d/1c0a3265>
-
-Trace; c01188a4 <sys_query_module+d4/1b0>
-Trace; c01074ff <system_call+33/38>
-
-Code;  c01180ae <qm_modules+2e/140>
-00000000 <_EIP>:
-Code;  c01180ae <qm_modules+2e/140>   <=====
-   0:   8b 7b 08                  mov    0x8(%ebx),%edi   <=====
-Code;  c01180b1 <qm_modules+31/140>
-   3:   89 e9                     mov    %ebp,%ecx
-Code;  c01180b3 <qm_modules+33/140>
-   5:   31 c0                     xor    %eax,%eax
-Code;  c01180b5 <qm_modules+35/140>
-   7:   f2 ae                     repnz scas %es:(%edi),%al
-Code;  c01180b7 <qm_modules+37/140>
-   9:   f7 d1                     not    %ecx
-Code;  c01180b9 <qm_modules+39/140>
-   b:   49                        dec    %ecx
-Code;  c01180ba <qm_modules+3a/140>
-   c:   8d 79 01                  lea    0x1(%ecx),%edi
-Code;  c01180bd <qm_modules+3d/140>
-   f:   39 f7                     cmp    %esi,%edi
-Code;  c01180bf <qm_modules+3f/140>
-  11:   77 7f                     ja     92 <_EIP+0x92>
-Code;  c01180c1 <qm_modules+41/140>
-  13:   8b 00                     mov    (%eax),%eax
-
-Oct 17 20:27:24 localhost kernel:  <1>Unable to handle kernel paging request 
-at virtual address c56ac098
-Oct 17 20:27:24 localhost kernel: c0119dd0
-Oct 17 20:27:24 localhost kernel: *pde = 054001e3
-Oct 17 20:27:24 localhost kernel: Oops: 0000 2.4.20-pre11aa1 #3 Thu Oct 17 
-20:18:58 EST 2002
-Oct 17 20:27:24 localhost kernel: CPU:    0
-Oct 17 20:27:24 localhost kernel: EIP:    0010:[<c0119dd0>]    Not tainted
-Oct 17 20:27:24 localhost kernel: EFLAGS: 00013206
-Oct 17 20:27:24 localhost kernel: eax: 00000000   ebx: c56ac000   ecx: 
-c4ad9000   edx: 00000000
-Oct 17 20:27:24 localhost kernel: esi: c58f4000   edi: 000000b8   ebp: 
-0000000b   esp: c58f5e2c
-Oct 17 20:27:24 localhost kernel: ds: 0018   es: 0018   ss: 0018
-Oct 17 20:27:24 localhost kernel: Process modprobe (pid: 888, 
-stackpage=c58f5000)
-Oct 17 20:27:24 localhost kernel: Stack: c1587bb8 c4ad9ac0 c58f4000 00000000 
-c58f4000 000000b8 0000000b c011a2c0 
-Oct 17 20:27:24 localhost kernel:        c58f4000 c16f1880 c58f5f44 00000000 
-000000b8 c58f4000 c0107bef 0000000b 
-Oct 17 20:27:24 localhost kernel:        c01f1e2a 00000000 00000000 c01125a4 
-c01f1e2a c58f5f44 00000000 dff82e00 
-Oct 17 20:27:24 localhost kernel: Call Trace:    [<c011a2c0>] [<c0107bef>] 
-[<c01125a4>] [<c0126aaa>] [<c01314e5>]
-Oct 17 20:27:24 localhost kernel:   [<c0126dde>] [<c011244a>] [<c01276dc>] 
-[<c01122a0>] [<c01075f0>] [<c01180ae>]
-Oct 17 20:27:24 localhost kernel:   [<c01188a4>] [<c01074ff>]
-Oct 17 20:27:24 localhost kernel: Code: 39 b3 98 00 00 00 0f 84 85 02 00 00 8b 
-5b 50 81 fb 00 a0 21 
-
-
->>EIP; c0119dd0 <exit_notify+20/300>   <=====
-
->>ebx; c56ac000 <[agpgart].bss.end+19f71e5/1c0a3265>
->>ecx; c4ad9000 <[agpgart].bss.end+e241e5/1c0a3265>
->>esi; c58f4000 <[agpgart].bss.end+1c3f1e5/1c0a3265>
->>esp; c58f5e2c <[agpgart].bss.end+1c41011/1c0a3265>
-
-Trace; c011a2c0 <do_exit+210/260>
-Trace; c0107bef <die+7f/80>
-Trace; c01125a4 <do_page_fault+304/5a0>
-Trace; c0126aaa <do_no_page+8a/1c0>
-Trace; c01314e5 <lru_cache_add+65/70>
-Trace; c0126dde <handle_mm_fault+8e/160>
-Trace; c011244a <do_page_fault+1aa/5a0>
-Trace; c01276dc <zap_pmd_range+7c/80>
-Trace; c01122a0 <do_page_fault+0/5a0>
-Trace; c01075f0 <error_code+34/3c>
-Trace; c01180ae <qm_modules+2e/140>
-Trace; c01188a4 <sys_query_module+d4/1b0>
-Trace; c01074ff <system_call+33/38>
-
-Code;  c0119dd0 <exit_notify+20/300>
-00000000 <_EIP>:
-Code;  c0119dd0 <exit_notify+20/300>   <=====
-   0:   39 b3 98 00 00 00         cmp    %esi,0x98(%ebx)   <=====
-Code;  c0119dd6 <exit_notify+26/300>
-   6:   0f 84 85 02 00 00         je     291 <_EIP+0x291>
-Code;  c0119ddc <exit_notify+2c/300>
-   c:   8b 5b 50                  mov    0x50(%ebx),%ebx
-Code;  c0119ddf <exit_notify+2f/300>
-   f:   81 fb 00 a0 21 00         cmp    $0x21a000,%ebx
-
-Oct 17 20:27:24 localhost kernel:  <1>Unable to handle kernel paging request 
-at virtual address c4db8098
-Oct 17 20:27:24 localhost kernel: c0119dd0
-Oct 17 20:27:24 localhost kernel: *pde = 04c001e3
-Oct 17 20:27:24 localhost kernel: Oops: 0000 2.4.20-pre11aa1 #3 Thu Oct 17 
-20:18:58 EST 2002
-Oct 17 20:27:24 localhost kernel: CPU:    0
-Oct 17 20:27:24 localhost kernel: EIP:    0010:[<c0119dd0>]    Not tainted
-Oct 17 20:27:24 localhost kernel: EFLAGS: 00013206
-Oct 17 20:27:24 localhost kernel: eax: 00000000   ebx: c4db8000   ecx: 
-00000000   edx: 00000000
-Oct 17 20:27:24 localhost kernel: esi: c58f4000   edi: 000002ac   ebp: 
-0000000b   esp: c58f5ce0
-Oct 17 20:27:24 localhost kernel: ds: 0018   es: 0018   ss: 0018
-Oct 17 20:27:24 localhost kernel: Process modprobe (pid: 888, 
-stackpage=c58f5000)
-Oct 17 20:27:24 localhost kernel: Stack: 00000020 00000400 c58f4000 00000000 
-c58f4000 000002ac 0000000b c011a2c0 
-Oct 17 20:27:24 localhost kernel:        c58f4000 00000000 c58f5df8 00000000 
-000002ac c58f4000 c0107bef 0000000b 
-Oct 17 20:27:24 localhost kernel:        c01f1e2a 00000000 00000000 c01125a4 
-c01f1e2a c58f5df8 00000000 33323130 
-Oct 17 20:27:24 localhost kernel: Call Trace:    [<c011a2c0>] [<c0107bef>] 
-[<c01125a4>] [<c0131577>] [<c01278e8>]
-Oct 17 20:27:24 localhost kernel:   [<c01122a0>] [<c01276dc>] [<c01122a0>] 
-[<c01075f0>] [<c0119dd0>] [<c011a2c0>]
-Oct 17 20:27:24 localhost kernel:   [<c0107bef>] [<c01125a4>] [<c0126aaa>] 
-[<c01314e5>] [<c0126dde>] [<c011244a>]
-Oct 17 20:27:24 localhost kernel:   [<c01276dc>] [<c01122a0>] [<c01075f0>] 
-[<c01180ae>] [<c01188a4>] [<c01074ff>]
-Oct 17 20:27:24 localhost kernel: Code: 39 b3 98 00 00 00 0f 84 85 02 00 00 8b 
-5b 50 81 fb 00 a0 21 
-
-
->>EIP; c0119dd0 <exit_notify+20/300>   <=====
-
->>ebx; c4db8000 <[agpgart].bss.end+11031e5/1c0a3265>
->>esi; c58f4000 <[agpgart].bss.end+1c3f1e5/1c0a3265>
->>esp; c58f5ce0 <[agpgart].bss.end+1c40ec5/1c0a3265>
-
-Trace; c011a2c0 <do_exit+210/260>
-Trace; c0107bef <die+7f/80>
-Trace; c01125a4 <do_page_fault+304/5a0>
-Trace; c0131577 <__lru_cache_del+87/90>
-Trace; c01278e8 <zap_pte_range+f8/150>
-Trace; c01122a0 <do_page_fault+0/5a0>
-Trace; c01276dc <zap_pmd_range+7c/80>
-Trace; c01122a0 <do_page_fault+0/5a0>
-Trace; c01075f0 <error_code+34/3c>
-Trace; c0119dd0 <exit_notify+20/300>
-Trace; c011a2c0 <do_exit+210/260>
-Trace; c0107bef <die+7f/80>
-Trace; c01125a4 <do_page_fault+304/5a0>
-Trace; c0126aaa <do_no_page+8a/1c0>
-Trace; c01314e5 <lru_cache_add+65/70>
-Trace; c0126dde <handle_mm_fault+8e/160>
-Trace; c011244a <do_page_fault+1aa/5a0>
-Trace; c01276dc <zap_pmd_range+7c/80>
-Trace; c01122a0 <do_page_fault+0/5a0>
-Trace; c01075f0 <error_code+34/3c>
-Trace; c01180ae <qm_modules+2e/140>
-Trace; c01188a4 <sys_query_module+d4/1b0>
-Trace; c01074ff <system_call+33/38>
-
-Code;  c0119dd0 <exit_notify+20/300>
-00000000 <_EIP>:
-Code;  c0119dd0 <exit_notify+20/300>   <=====
-   0:   39 b3 98 00 00 00         cmp    %esi,0x98(%ebx)   <=====
-Code;  c0119dd6 <exit_notify+26/300>
-   6:   0f 84 85 02 00 00         je     291 <_EIP+0x291>
-Code;  c0119ddc <exit_notify+2c/300>
-   c:   8b 5b 50                  mov    0x50(%ebx),%ebx
-Code;  c0119ddf <exit_notify+2f/300>
-   f:   81 fb 00 a0 21 00         cmp    $0x21a000,%ebx
-
-
-1 warning issued.  Results may not be reliable.
-
-These are the two oops with agpgart and radeon built-in the kernel:
-------------------------------------------------------------------------------------------------
-ksymoops 2.4.5 on i686 2.4.20-pre11aa1-agpdrm.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.20-pre11aa1-agpdrm/ (default)
-     -m /boot/System.map-2.4.20-pre11aa1-agpdrm (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Oct 17 21:22:29 localhost kernel: Unable to handle kernel paging request at 
-virtual address c72b4034
-Oct 17 21:22:29 localhost kernel: c0112b57
-Oct 17 21:22:29 localhost kernel: *pde = 070001e3
-Oct 17 21:22:29 localhost kernel: Oops: 0000 2.4.20-pre11aa1-agpdrm #6 Thu Oct 
-17 21:11:50 EST 2002
-Oct 17 21:22:29 localhost kernel: CPU:    0
-Oct 17 21:22:29 localhost kernel: EIP:    0010:[<c0112b57>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Oct 17 21:22:29 localhost kernel: EFLAGS: 00013086
-Oct 17 21:22:29 localhost kernel: eax: 00000000   ebx: c8aaa000   ecx: 
-c72b4000   edx: c8aabe78
-Oct 17 21:22:29 localhost kernel: esi: 00000002   edi: c01f5f22   ebp: 
-00003246   esp: c8aabd9c
-Oct 17 21:22:29 localhost kernel: ds: 0018   es: 0018   ss: 0018
-Oct 17 21:22:29 localhost kernel: Process modprobe (pid: 1036, 
-stackpage=c8aab000)
-Oct 17 21:22:29 localhost kernel: Stack: c8aaa000 00000002 c6e3c000 c8aaa000 
-c01124c2 c01f5f22 c8aaa000 00000000 
-Oct 17 21:22:29 localhost kernel:        c6270f8e c110eb5c c8aaa000 c8aabfc4 
-0001ff9d c022326f c6270000 c110eb5c 
-Oct 17 21:22:29 localhost kernel:        c2d94000 00000000 c0223360 c8aabfc8 
-c0141c50 c8aabdfc c8aabf6c c8aabdfc 
-Oct 17 21:22:29 localhost kernel: Call Trace:    [<c01124c2>] [<c01f5f22>] 
-[<c0141c50>] [<c01122a0>] [<c01075f0>]
-Oct 17 21:22:29 localhost kernel:   [<c01f5f22>] [<c01269b2>] [<c0126dde>] 
-[<c011244a>] [<c01286df>] [<c0128a37>]
-Oct 17 21:22:29 localhost kernel:   [<c0128ab4>] [<c01122a0>] [<c01075f0>]
-Oct 17 21:22:29 localhost kernel: Code: 8b 51 34 85 d2 74 3f f7 41 14 41 00 00 
-00 74 36 8b 71 38 89 
-
-
->>EIP; c0112b57 <search_exception_table+17/80>   <=====
-
->>ebx; c8aaa000 <[sr_mod].bss.end+1da61a9/1902c229>
->>ecx; c72b4000 <[sr_mod].bss.end+5b01a9/1902c229>
->>edx; c8aabe78 <[sr_mod].bss.end+1da8021/1902c229>
->>edi; c01f5f22 <fast_clear_page+12/50>
->>ebp; 00003246 Before first symbol
->>esp; c8aabd9c <[sr_mod].bss.end+1da7f45/1902c229>
-
-Trace; c01124c2 <do_page_fault+222/5a0>
-Trace; c01f5f22 <fast_clear_page+12/50>
-Trace; c0141c50 <do_execve+180/220>
-Trace; c01122a0 <do_page_fault+0/5a0>
-Trace; c01075f0 <error_code+34/3c>
-Trace; c01f5f22 <fast_clear_page+12/50>
-Trace; c01269b2 <do_anonymous_page+a2/110>
-Trace; c0126dde <handle_mm_fault+8e/160>
-Trace; c011244a <do_page_fault+1aa/5a0>
-Trace; c01286df <unmap_fixup+12f/140>
-Trace; c0128a37 <do_munmap+297/2d0>
-Trace; c0128ab4 <sys_munmap+44/80>
-Trace; c01122a0 <do_page_fault+0/5a0>
-Trace; c01075f0 <error_code+34/3c>
-
-Code;  c0112b57 <search_exception_table+17/80>
-00000000 <_EIP>:
-Code;  c0112b57 <search_exception_table+17/80>   <=====
-   0:   8b 51 34                  mov    0x34(%ecx),%edx   <=====
-Code;  c0112b5a <search_exception_table+1a/80>
-   3:   85 d2                     test   %edx,%edx
-Code;  c0112b5c <search_exception_table+1c/80>
-   5:   74 3f                     je     46 <_EIP+0x46>
-Code;  c0112b5e <search_exception_table+1e/80>
-   7:   f7 41 14 41 00 00 00      testl  $0x41,0x14(%ecx)
-Code;  c0112b65 <search_exception_table+25/80>
-   e:   74 36                     je     46 <_EIP+0x46>
-Code;  c0112b67 <search_exception_table+27/80>
-  10:   8b 71 38                  mov    0x38(%ecx),%esi
-Code;  c0112b6a <search_exception_table+2a/80>
-  13:   89 00                     mov    %eax,(%eax)
-
-Oct 17 21:22:29 localhost kernel:  <1>Unable to handle kernel paging request 
-at virtual address c77340c4
-Oct 17 21:22:29 localhost kernel: c0139b5e
-Oct 17 21:22:29 localhost kernel: *pde = 07769163
-Oct 17 21:22:29 localhost kernel: Oops: 0003 2.4.20-pre11aa1-agpdrm #6 Thu Oct 
-17 21:11:50 EST 2002
-Oct 17 21:22:29 localhost kernel: CPU:    0
-Oct 17 21:22:29 localhost kernel: EIP:    0010:[<c0139b5e>]    Not tainted
-Oct 17 21:22:29 localhost kernel: EFLAGS: 00013246
-Oct 17 21:22:29 localhost kernel: eax: c27e7340   ebx: c779cdc0   ecx: 
-00000000   edx: c77340c0
-Oct 17 21:22:29 localhost kernel: esi: c158e380   edi: c1689dc0   ebp: 
-c1ac8540   esp: c8aabc20
-Oct 17 21:22:29 localhost kernel: ds: 0018   es: 0018   ss: 0018
-Oct 17 21:22:29 localhost kernel: Process modprobe (pid: 1036, 
-stackpage=c8aab000)
-Oct 17 21:22:29 localhost kernel: Stack: c1689dc0 c779cdc0 c1c338c0 00001000 
-dfe572c0 08060000 c0128e85 dfe572c0 
-Oct 17 21:22:29 localhost kernel:        08060000 00001000 c1c33940 dfe572c0 
-c8aaa000 000002b4 0000000b c0115076 
-Oct 17 21:22:29 localhost kernel:        dfe572c0 00003202 dfe572c0 c011a137 
-dfe572c0 00000000 c8aabd68 00000000 
-Oct 17 21:22:29 localhost kernel: Call Trace:    [<c0128e85>] [<c0115076>] 
-[<c011a137>] [<c0107bef>] [<c01125a4>]
-Oct 17 21:22:29 localhost kernel:   [<c014322b>] [<c01122a0>] [<c01075f0>] 
-[<c01f5f22>] [<c0112b57>] [<c01124c2>]
-Oct 17 21:22:29 localhost kernel:   [<c01f5f22>] [<c0141c50>] [<c01122a0>] 
-[<c01075f0>] [<c01f5f22>] [<c01269b2>]
-Oct 17 21:22:29 localhost kernel:   [<c0126dde>] [<c011244a>] [<c01286df>] 
-[<c0128a37>] [<c0128ab4>] [<c01122a0>]
-Oct 17 21:22:29 localhost kernel:   [<c01075f0>]
-Oct 17 21:22:29 localhost kernel: Code: 89 42 04 c7 03 00 00 00 00 a1 b4 3e 22 
-c0 89 58 04 89 03 89 
-
-
->>EIP; c0139b5e <fput+9e/120>   <=====
-
->>eax; c27e7340 <[floppy].bss.end+599905/4ab2645>
->>ebx; c779cdc0 <[sr_mod].bss.end+a98f69/1902c229>
->>edx; c77340c0 <[sr_mod].bss.end+a30269/1902c229>
->>esi; c158e380 <_end+12f1d10/15aaa10>
->>edi; c1689dc0 <_end+13ed750/15aaa10>
->>ebp; c1ac8540 <[md].bss.end+25a861/3123a1>
->>esp; c8aabc20 <[sr_mod].bss.end+1da7dc9/1902c229>
-
-Trace; c0128e85 <exit_mmap+125/140>
-Trace; c0115076 <mmput+56/d0>
-Trace; c011a137 <do_exit+87/260>
-Trace; c0107bef <die+7f/80>
-Trace; c01125a4 <do_page_fault+304/5a0>
-Trace; c014322b <cached_lookup+1b/70>
-Trace; c01122a0 <do_page_fault+0/5a0>
-Trace; c01075f0 <error_code+34/3c>
-Trace; c01f5f22 <fast_clear_page+12/50>
-Trace; c0112b57 <search_exception_table+17/80>
-Trace; c01124c2 <do_page_fault+222/5a0>
-Trace; c01f5f22 <fast_clear_page+12/50>
-Trace; c0141c50 <do_execve+180/220>
-Trace; c01122a0 <do_page_fault+0/5a0>
-Trace; c01075f0 <error_code+34/3c>
-Trace; c01f5f22 <fast_clear_page+12/50>
-Trace; c01269b2 <do_anonymous_page+a2/110>
-Trace; c0126dde <handle_mm_fault+8e/160>
-Trace; c011244a <do_page_fault+1aa/5a0>
-Trace; c01286df <unmap_fixup+12f/140>
-Trace; c0128a37 <do_munmap+297/2d0>
-Trace; c0128ab4 <sys_munmap+44/80>
-Trace; c01122a0 <do_page_fault+0/5a0>
-Trace; c01075f0 <error_code+34/3c>
-
-Code;  c0139b5e <fput+9e/120>
-00000000 <_EIP>:
-Code;  c0139b5e <fput+9e/120>   <=====
-   0:   89 42 04                  mov    %eax,0x4(%edx)   <=====
-Code;  c0139b61 <fput+a1/120>
-   3:   c7 03 00 00 00 00         movl   $0x0,(%ebx)
-Code;  c0139b67 <fput+a7/120>
-   9:   a1 b4 3e 22 c0            mov    0xc0223eb4,%eax
-Code;  c0139b6c <fput+ac/120>
-   e:   89 58 04                  mov    %ebx,0x4(%eax)
-Code;  c0139b6f <fput+af/120>
-  11:   89 03                     mov    %eax,(%ebx)
-Code;  c0139b71 <fput+b1/120>
-  13:   89 00                     mov    %eax,(%eax)
-
-
-1 warning issued.  Results may not be reliable.
-
-The mainline (2.4.20-pre11) is fine with agpgart and radeon as modules. I 
-haven't tested it with agpgart and radeon built-in the kernel.
-
-I am trying to find if any of my friends have a different Radeon card (mine is 
-Radeon VE QY) or any video card that has DRM support on the official kernel 
-tree. If I find one I will try and see if --aa works fine with that.
-
-Thanks for your help. 
--- 
-Hari
-harisri@bigpond.com
-
+patch:
+diff -urN linux/drivers/char/upd4990a.c linux98/drivers/char/upd4990a.c
+--- linux/drivers/char/upd4990a.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/char/upd4990a.c	Fri Aug 17 21:50:17 2001
+@@ -0,0 +1,438 @@
++/*
++ * NEC PC-9800 Real Time Clock interface for Linux	
++ *
++ * Copyright (C) 1997-2001  Linux/98 project,
++ *			    Kyoto University Microcomputer Club.
++ *
++ * Based on:
++ *	drivers/char/rtc.c by Paul Gortmaker
++ *
++ * Changes:
++ *  2001-02-09	Call check_region on rtc_init and do not request I/O 0033h.
++ *		Call del_timer and release_region on rtc_exit. -- tak
++ *  2001-07-14	Rewrite <linux/upd4990a.h> and split to <linux/upd4990a.h>
++ *		and <asm-i386/upd4990a.h>.
++ *		Introduce a lot of spin_lock/unlock (&rtc_lock).
++ */
++
++#define RTC98_VERSION	"1.2"
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/miscdevice.h>
++#include <linux/ioport.h>
++#include <linux/fcntl.h>
++#include <linux/rtc.h>
++#include <linux/upd4990a.h>
++#include <linux/init.h>
++#include <linux/poll.h>
++#include <linux/proc_fs.h>
++#include <linux/spinlock.h>
++
++#include <asm/io.h>
++#include <asm/uaccess.h>
++#include <asm/system.h>
++
++#define BCD_TO_BINARY(val)	(((val) >> 4) * 10 + ((val) & 0xF))
++#define BINARY_TO_BCD(val)	((((val) / 10) << 4) | ((val) % 10))
++
++/*
++ *	We sponge a minor off of the misc major. No need slurping
++ *	up another valuable major dev number for this. If you add
++ *	an ioctl, make sure you don't conflict with SPARC's RTC
++ *	ioctls.
++ */
++
++static struct fasync_struct *rtc_async_queue;
++
++static DECLARE_WAIT_QUEUE_HEAD(rtc_wait);
++
++static struct timer_list rtc_uie_timer;
++static u8 old_refclk;
++
++static long long rtc_llseek(struct file *file, loff_t offset, int origin);
++
++static int rtc_ioctl(struct inode *inode, struct file *file,
++			unsigned int cmd, unsigned long arg);
++
++static int rtc_read_proc(char *page, char **start, off_t off,
++			  int count, int *eof, void *data);
++
++/*
++ *	Bits in rtc_status. (5 bits of room for future expansion)
++ */
++
++#define RTC_IS_OPEN		0x01	/* means /dev/rtc is in use	*/
++#define RTC_TIMER_ON            0x02    /* not used */
++#define RTC_UIE_TIMER_ON        0x04	/* UIE emulation timer is active */
++
++/*
++ * rtc_status is never changed by rtc_interrupt, and ioctl/open/close is
++ * protected by the big kernel lock. However, ioctl can still disable the timer
++ * in rtc_status and then with del_timer after the interrupt has read
++ * rtc_status but before mod_timer is called, which would then reenable the
++ * timer (but you would need to have an awful timing before you'd trip on it)
++ */
++static unsigned char rtc_status;	/* bitmapped status byte.	*/
++static unsigned long rtc_irq_data;	/* our output to the world	*/
++
++static const unsigned char days_in_mo[] = 
++{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
++
++extern spinlock_t rtc_lock;	/* defined in arch/i386/kernel/time.c */
++
++static void rtc_uie_intr(unsigned long data)
++{
++	u8 refclk, tmp;
++
++	/* Kernel timer does del_timer internally before calling
++	   each timer entry, so this is unnecessary.
++	   del_timer(&rtc_uie_timer);  */
++	spin_lock(&rtc_lock);
++
++	/* Detect rising edge of 1Hz reference clock.  */
++	refclk = UPD4990A_READ_DATA();
++	tmp = old_refclk & refclk;
++	old_refclk = ~refclk;
++	if (!(tmp & 1))
++		rtc_irq_data += 0x100;
++
++	spin_unlock(&rtc_lock);
++
++	if (!(tmp & 1)) {
++		/* Now do the rest of the actions */
++		wake_up_interruptible(&rtc_wait);
++		kill_fasync(&rtc_async_queue, SIGIO, POLL_IN);
++	}
++
++	rtc_uie_timer.expires = jiffies + 1;
++	add_timer(&rtc_uie_timer);
++}
++
++/*
++ *	Now all the various file operations that we export.
++ */
++
++static long long rtc_llseek(struct file *file, loff_t offset, int origin)
++{
++	return -ESPIPE;
++}
++
++static ssize_t rtc_read(struct file *file, char *buf,
++			size_t count, loff_t *ppos)
++{
++	DECLARE_WAITQUEUE(wait, current);
++	unsigned long data;
++	ssize_t retval = 0;
++	
++	if (count < sizeof(unsigned long))
++		return -EINVAL;
++
++	add_wait_queue(&rtc_wait, &wait);
++
++	set_current_state(TASK_INTERRUPTIBLE);
++
++	do {
++		/* First make it right. Then make it fast. Putting this whole
++		 * block within the parentheses of a while would be too
++		 * confusing. And no, xchg() is not the answer. */
++		spin_lock_irq(&rtc_lock);
++		data = rtc_irq_data;
++		rtc_irq_data = 0;
++		spin_unlock_irq(&rtc_lock);
++
++		if (data != 0)
++			break;
++
++		if (file->f_flags & O_NONBLOCK) {
++			retval = -EAGAIN;
++			goto out;
++		}
++		if (signal_pending(current)) {
++			retval = -ERESTARTSYS;
++			goto out;
++		}
++		schedule();
++	} while (1);
++
++	retval = put_user(data, (unsigned long *)buf);
++	if (!retval)
++		retval = sizeof(unsigned long); 
++ out:
++	set_current_state(TASK_RUNNING);
++	remove_wait_queue(&rtc_wait, &wait);
++
++	return retval;
++}
++
++static int rtc_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
++		     unsigned long arg)
++{
++	struct rtc_time wtime; 
++	struct upd4990a_raw_data raw;
++
++	switch (cmd) {
++	case RTC_UIE_OFF:	/* Mask ints from RTC updates.	*/
++		spin_lock_irq(&rtc_lock);
++		if (rtc_status & RTC_UIE_TIMER_ON) {
++			rtc_status &= ~RTC_UIE_TIMER_ON;
++			del_timer(&rtc_uie_timer);
++		}
++		spin_unlock_irq(&rtc_lock);
++		return 0;
++
++	case RTC_UIE_ON:	/* Allow ints for RTC updates.	*/
++		spin_lock_irq(&rtc_lock);
++		rtc_irq_data = 0;
++		if (!(rtc_status & RTC_UIE_TIMER_ON)){
++			rtc_status |= RTC_UIE_TIMER_ON;
++			rtc_uie_timer.expires = jiffies + 1;
++			add_timer(&rtc_uie_timer);
++		}
++		/* Just in case... */
++		upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++		old_refclk = ~UPD4990A_READ_DATA();
++		spin_unlock_irq(&rtc_lock);
++		return 0;
++
++	case RTC_RD_TIME:	/* Read the time/date from RTC	*/
++		spin_lock_irq(&rtc_lock);
++		upd4990a_get_time(&raw, 0);
++		spin_unlock_irq(&rtc_lock);
++
++		wtime.tm_sec	= BCD_TO_BINARY(raw.sec);
++		wtime.tm_min	= BCD_TO_BINARY(raw.min);
++		wtime.tm_hour	= BCD_TO_BINARY(raw.hour);
++		wtime.tm_mday	= BCD_TO_BINARY(raw.mday);
++		wtime.tm_mon	= raw.mon - 1; /* convert to 0-base */
++		wtime.tm_wday	= raw.wday;
++
++		/*
++		 * Account for differences between how the RTC uses the values
++		 * and how they are defined in a struct rtc_time;
++		 */
++		if ((wtime.tm_year = BCD_TO_BINARY(raw.year)) < 95)
++			wtime.tm_year += 100;
++
++		wtime.tm_isdst = 0;
++		break;
++
++	case RTC_SET_TIME:	/* Set the RTC */
++	{
++		int leap_yr;
++
++		if (!capable(CAP_SYS_TIME))
++			return -EACCES;
++
++		if (copy_from_user(&wtime, (struct rtc_time *) arg,
++				    sizeof (struct rtc_time)))
++			return -EFAULT;
++
++		/* Valid year is 1995 - 2094, inclusive.  */
++		if (wtime.tm_year < 95 || wtime.tm_year > 194)
++			return -EINVAL;
++
++		if (wtime.tm_mon > 11 || wtime.tm_mday == 0)
++			return -EINVAL;
++
++		/* For acceptable year domain (1995 - 2094),
++		   this IS sufficient.  */
++		leap_yr = !(wtime.tm_year % 4);
++
++		if (wtime.tm_mday > (days_in_mo[wtime.tm_mon]
++				     + (wtime.tm_mon == 2 && leap_yr)))
++			return -EINVAL;
++			
++		if (wtime.tm_hour >= 24
++		    || wtime.tm_min >= 60 || wtime.tm_sec >= 60)
++			return -EINVAL;
++
++		if (wtime.tm_wday > 6)
++			return -EINVAL;
++
++		raw.sec  = BINARY_TO_BCD(wtime.tm_sec);
++		raw.min  = BINARY_TO_BCD(wtime.tm_min);
++		raw.hour = BINARY_TO_BCD(wtime.tm_hour);
++		raw.mday = BINARY_TO_BCD(wtime.tm_mday);
++		raw.mon  = wtime.tm_mon + 1;
++		raw.wday = wtime.tm_wday;
++		raw.year = BINARY_TO_BCD(wtime.tm_year % 100);
++
++		spin_lock_irq(&rtc_lock);
++		upd4990a_set_time(&raw, 0);
++		spin_unlock_irq(&rtc_lock);
++
++		return 0;
++	}
++	default:
++		return -EINVAL;
++	}
++	return copy_to_user((void *)arg, &wtime, sizeof wtime) ? -EFAULT : 0;
++}
++
++/*
++ *	We enforce only one user at a time here with the open/close.
++ *	Also clear the previous interrupt data on an open, and clean
++ *	up things on a close.
++ */
++
++static int rtc_open(struct inode *inode, struct file *file)
++{
++	spin_lock_irq(&rtc_lock);
++
++	if(rtc_status & RTC_IS_OPEN)
++		goto out_busy;
++
++	rtc_status |= RTC_IS_OPEN;
++
++	rtc_irq_data = 0;
++	spin_unlock_irq(&rtc_lock);
++	return 0;
++
++ out_busy:
++	spin_unlock_irq(&rtc_lock);
++	return -EBUSY;
++}
++
++static int rtc_fasync(int fd, struct file *filp, int on)
++{
++	return fasync_helper(fd, filp, on, &rtc_async_queue);
++}
++
++static int rtc_release(struct inode *inode, struct file *file)
++{
++	del_timer(&rtc_uie_timer);
++
++	if (file->f_flags & FASYNC)
++		rtc_fasync(-1, file, 0);
++
++	rtc_irq_data = 0;
++
++	/* No need for locking -- nobody else can do anything until this rmw is
++	 * committed, and no timer is running. */
++	rtc_status &= ~(RTC_IS_OPEN | RTC_UIE_TIMER_ON);
++	return 0;
++}
++
++static unsigned int rtc_poll(struct file *file, poll_table *wait)
++{
++	unsigned long l;
++
++	poll_wait(file, &rtc_wait, wait);
++
++	spin_lock_irq(&rtc_lock);
++	l = rtc_irq_data;
++	spin_unlock_irq(&rtc_lock);
++
++	if (l != 0)
++		return POLLIN | POLLRDNORM;
++	return 0;
++}
++
++/*
++ *	The various file operations we support.
++ */
++
++static struct file_operations rtc_fops = {
++	owner:		THIS_MODULE,
++	llseek:		rtc_llseek,
++	read:		rtc_read,
++	poll:		rtc_poll,
++	ioctl:		rtc_ioctl,
++	open:		rtc_open,
++	release:	rtc_release,
++	fasync:		rtc_fasync,
++};
++
++static struct miscdevice rtc_dev=
++{
++	RTC_MINOR,
++	"rtc",
++	&rtc_fops
++};
++
++static int __init rtc_init(void)
++{
++	if (!request_region(UPD4990A_IO, 1, "rtc")) {
++		printk(KERN_ERR "upd4990a: could not acquire I/O port %#x\n",
++			UPD4990A_IO);
++		return -EBUSY;
++	}
++
++#if 0
++	printk(KERN_INFO "\xB6\xDA\xDD\xC0\xDE \xC4\xDE\xB9\xB2 Driver\n");  /* Calender Clock Driver */
++#else
++	printk(KERN_INFO
++	       "Real Time Clock driver for NEC PC-9800 v" RTC98_VERSION "\n");
++#endif
++	misc_register(&rtc_dev);
++	create_proc_read_entry("driver/rtc", 0, NULL, rtc_read_proc, NULL);
++
++	init_timer(&rtc_uie_timer);
++	rtc_uie_timer.function = rtc_uie_intr;
++
++	return 0;
++}
++
++module_init (rtc_init);
++
++#ifdef MODULE
++static void __exit rtc_exit(void)
++{
++	del_timer(&rtc_uie_timer);
++	release_region(UPD4990A_IO, 1);
++	remove_proc_entry("driver/rtc", NULL);
++	misc_deregister(&rtc_dev);
++}
++
++module_exit (rtc_exit);
++#endif
++
++EXPORT_NO_SYMBOLS;
++
++/*
++ *	Info exported via "/proc/driver/rtc".
++ */
++
++static inline int rtc_get_status(char *buf)
++{
++	char *p;
++	unsigned int year;
++	struct upd4990a_raw_data data;
++
++	p = buf;
++
++	upd4990a_get_time(&data, 0);
++
++	/*
++	 * There is no way to tell if the luser has the RTC set for local
++	 * time or for Universal Standard Time (GMT). Probably local though.
++	 */
++	if ((year = BCD_TO_BINARY(data.year) + 1900) < 1995)
++		year += 100;
++	p += sprintf(p,
++		     "rtc_time\t: %02d:%02d:%02d\n"
++		     "rtc_date\t: %04d-%02d-%02d\n",
++		     BCD_TO_BINARY(data.hour), BCD_TO_BINARY(data.min),
++		     BCD_TO_BINARY(data.sec),
++		     year, data.mon, BCD_TO_BINARY(data.mday));
++
++	return  p - buf;
++}
++
++static int rtc_read_proc(char *page, char **start, off_t off,
++			 int count, int *eof, void *data)
++{
++	int len = rtc_get_status(page);
++
++	if (len <= off + count)
++		*eof = 1;
++	*start = page + off;
++	len -= off;
++	if (len > count)
++		len = count;
++	if (len < 0)
++		len = 0;
++	return len;
++}
+diff -urN linux/include/asm-i386/upd4990a.h linux98/include/asm-i386/upd4990a.h
+--- linux/include/asm-i386/upd4990a.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/asm-i386/upd4990a.h	Fri Aug 17 22:15:17 2001
+@@ -0,0 +1,58 @@
++/*
++ *  Architecture dependent definitions
++ *  for NEC uPD4990A serial I/O real-time clock.
++ *
++ *  Copyright 2001  TAKAI Kousuke <tak@kmc.kyoto-u.ac.jp>
++ *		    Kyoto University Microcomputer Club (KMC).
++ *
++ *  References:
++ *	uPD4990A serial I/O real-time clock users' manual (Japanese)
++ *	No. S12828JJ4V0UM00 (4th revision), NEC Corporation, 1999.
++ */
++
++#ifndef _ASM_I386_uPD4990A_H
++#define _ASM_I386_uPD4990A_H
++
++#include <linux/config.h>
++
++#ifdef CONFIG_PC9800
++
++#include <asm/io.h>
++
++#define UPD4990A_IO		(0x0020)
++#define UPD4990A_IO_DATAOUT	(0x0033)
++
++#define UPD4990A_OUTPUT_DATA_CLK(data, clk)		\
++	outb((((data) & 1) << 5) | (((clk) & 1) << 4)	\
++	      | UPD4990A_PAR_SERIAL_MODE, UPD4990A_IO)
++
++#define UPD4990A_OUTPUT_CLK(clk)	UPD4990A_OUTPUT_DATA_CLK(0, (clk))
++
++#define UPD4990A_OUTPUT_STROBE(stb) \
++	outb(((stb) << 3) | UPD4990A_PAR_SERIAL_MODE, UPD4990A_IO)
++
++/*
++ * Note: udelay() is *not* usable for UPD4990A_DELAY because
++ *	 the Linux kernel reads uPD4990A to set up system clock
++ *	 before calibrating delay...
++ */
++#define UPD4990A_DELAY(usec)						\
++	do {								\
++		if (__builtin_constant_p((usec)) && (usec) < 5)	\
++			__asm__ (".rept %c1\n\toutb %%al,%0\n\t.endr"	\
++				 : : "N" (0x5F),			\
++				     "i" (((usec) * 10 + 5) / 6));	\
++		else {							\
++			int _count = ((usec) * 10 + 5) / 6;		\
++			__asm__ volatile ("1: outb %%al,%1\n\tloop 1b"	\
++					  : "=c" (_count)		\
++					  : "N" (0x5F), "0" (_count));	\
++		}							\
++	} while (0)
++
++/* Caller should ignore all bits except bit0 */
++#define UPD4990A_READ_DATA()	inb(UPD4990A_IO_DATAOUT)
++
++#endif /* CONFIG_PC9800 */
++
++#endif
+diff -urN linux/include/linux/upd4990a.h linux98/include/linux/upd4990a.h
+--- linux/include/linux/upd4990a.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/linux/upd4990a.h	Fri Aug 17 22:15:48 2001
+@@ -0,0 +1,140 @@
++/*
++ *  Constant and architecture independent procedures
++ *  for NEC uPD4990A serial I/O real-time clock.
++ *
++ *  Copyright 2001  TAKAI Kousuke <tak@kmc.kyoto-u.ac.jp>
++ *		    Kyoto University Microcomputer Club (KMC).
++ *
++ *  References:
++ *	uPD4990A serial I/O real-time clock users' manual (Japanese)
++ *	No. S12828JJ4V0UM00 (4th revision), NEC Corporation, 1999.
++ */
++
++#ifndef _LINUX_uPD4990A_H
++#define _LINUX_uPD4990A_H
++
++#include <asm/byteorder.h>
++
++#include <asm/upd4990a.h>
++
++/* Serial commands (4 bits) */
++#define UPD4990A_REGISTER_HOLD			(0x0)
++#define UPD4990A_REGISTER_SHIFT			(0x1)
++#define UPD4990A_TIME_SET_AND_COUNTER_HOLD	(0x2)
++#define UPD4990A_TIME_READ			(0x3)
++#define UPD4990A_TP_64HZ			(0x4)
++#define UPD4990A_TP_256HZ			(0x5)
++#define UPD4990A_TP_2048HZ			(0x6)
++#define UPD4990A_TP_4096HZ			(0x7)
++#define UPD4990A_TP_1S				(0x8)
++#define UPD4990A_TP_10S				(0x9)
++#define UPD4990A_TP_30S				(0xA)
++#define UPD4990A_TP_60S				(0xB)
++#define UPD4990A_INTERRUPT_RESET		(0xC)
++#define UPD4990A_INTERRUPT_TIMER_START		(0xD)
++#define UPD4990A_INTERRUPT_TIMER_STOP		(0xE)
++#define UPD4990A_TEST_MODE_SET			(0xF)
++
++/* Parallel commands (3 bits)
++   0-6 are same with serial commands.  */
++#define UPD4990A_PAR_SERIAL_MODE		7
++
++#ifndef UPD4990A_DELAY
++# include <linux/delay.h>
++# define UPD4990A_DELAY(usec)	udelay((usec))
++#endif
++#ifndef UPD4990A_OUTPUT_DATA
++# define UPD4990A_OUTPUT_DATA(bit)			\
++	do {						\
++		UPD4990A_OUTPUT_DATA_CLK((bit), 0);	\
++		UPD4990A_DELAY(1); /* t-DSU */		\
++		UPD4990A_OUTPUT_DATA_CLK((bit), 1);	\
++		UPD4990A_DELAY(1); /* t-DHLD */	\
++	} while (0)
++#endif
++
++static __inline__ void upd4990a_serial_command(int command)
++{
++	UPD4990A_OUTPUT_DATA(command >> 0);
++	UPD4990A_OUTPUT_DATA(command >> 1);
++	UPD4990A_OUTPUT_DATA(command >> 2);
++	UPD4990A_OUTPUT_DATA(command >> 3);
++	UPD4990A_DELAY(1);	/* t-HLD */
++	UPD4990A_OUTPUT_STROBE(1);
++	UPD4990A_DELAY(1);	/* t-STB & t-d1 */
++	UPD4990A_OUTPUT_STROBE(0);
++	/* 19 microseconds extra delay is needed
++	   iff previous mode is TIME READ command  */
++}
++
++struct upd4990a_raw_data {
++	u8	sec;		/* BCD */
++	u8	min;		/* BCD */
++	u8	hour;		/* BCD */
++	u8	mday;		/* BCD */
++#if   defined __LITTLE_ENDIAN_BITFIELD
++	unsigned wday :4;	/* 0-6 */
++	unsigned mon :4;	/* 1-based */
++#elif defined __BIG_ENDIAN_BITFIELD
++	unsigned mon :4;	/* 1-based */
++	unsigned wday :4;	/* 0-6 */
++#else
++# error Unknown bitfield endian!
++#endif
++	u8	year;		/* BCD */
++};
++
++static __inline__ void upd4990a_get_time(struct upd4990a_raw_data *buf,
++					  int leave_register_hold)
++{
++	int byte;
++
++	upd4990a_serial_command(UPD4990A_TIME_READ);
++	upd4990a_serial_command(UPD4990A_REGISTER_SHIFT);
++	UPD4990A_DELAY(19);	/* t-d2 - t-d1 */
++
++	for (byte = 0; byte < 6; byte++) {
++		u8 tmp;
++		int bit;
++
++		for (tmp = 0, bit = 0; bit < 8; bit++) {
++			tmp = (tmp | (UPD4990A_READ_DATA() << 8)) >> 1;
++			UPD4990A_OUTPUT_CLK(1);
++			UPD4990A_DELAY(1);
++			UPD4990A_OUTPUT_CLK(0);
++			UPD4990A_DELAY(1);
++		}
++		((u8 *) buf)[byte] = tmp;
++	}
++
++	/* The uPD4990A users' manual says that we should issue `Register
++	   Hold' command after each data retrieval, or next `Time Read'
++	   command may not work correctly.  */
++	if (!leave_register_hold)
++		upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++}
++
++static __inline__ void upd4990a_set_time(const struct upd4990a_raw_data *data,
++					  int time_set_only)
++{
++	int byte;
++
++	if (!time_set_only)
++		upd4990a_serial_command(UPD4990A_REGISTER_SHIFT);
++
++	for (byte = 0; byte < 6; byte++) {
++		int bit;
++		u8 tmp = ((const u8 *) data)[byte];
++
++		for (bit = 0; bit < 8; bit++, tmp >>= 1)
++			UPD4990A_OUTPUT_DATA(tmp);
++	}
++
++	upd4990a_serial_command(UPD4990A_TIME_SET_AND_COUNTER_HOLD);
++
++	/* Release counter hold and start the clock.  */
++	if (!time_set_only)
++		upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++}
++
++#endif /* _LINUX_uPD4990A_H */

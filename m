@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268577AbRHFPqS>; Mon, 6 Aug 2001 11:46:18 -0400
+	id <S268675AbRHFP6I>; Mon, 6 Aug 2001 11:58:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268674AbRHFPqH>; Mon, 6 Aug 2001 11:46:07 -0400
-Received: from [64.38.173.150] ([64.38.173.150]:37641 "EHLO chicago.cheek.com")
-	by vger.kernel.org with ESMTP id <S268577AbRHFPp6>;
-	Mon, 6 Aug 2001 11:45:58 -0400
-Date: Mon, 6 Aug 2001 08:48:22 -0700 (PDT)
-From: Joseph Cheek <joseph@cheek.com>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-cc: Colin Walters <walters@cis.ohio-state.edu>, linux-kernel@vger.kernel.org
-Subject: Re: eepro100 (PCI ID 82820) lockups/failure
-In-Reply-To: <20010806022727.A25793@saw.sw.com.sg>
-Message-ID: <Pine.LNX.4.10.10108060846230.14815-100000@chicago.cheek.com>
+	id <S268823AbRHFP56>; Mon, 6 Aug 2001 11:57:58 -0400
+Received: from [145.254.148.252] ([145.254.148.252]:1028 "HELO
+	ozean.schottelius.org") by vger.kernel.org with SMTP
+	id <S268675AbRHFP5u>; Mon, 6 Aug 2001 11:57:50 -0400
+Message-ID: <3B6EBDAE.F5D619EB@pcsystems.de>
+Date: Mon, 06 Aug 2001 17:54:22 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: safemode <safemode@speakeasy.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 3c509: broken(verified)
+In-Reply-To: <E15TNpL-0007rV-00@the-village.bc.nu> <3B6D56C5.1AA10E84@pcsystems.de> <20010805160035Z269969-28344+1638@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i applied the usleep(1) patch and i still get lockups on 2.4.7-ac5.  not
-sure how i could get you the info you need, but i would certainly be
-willing to help.
+> i was just using a 3c509 in my friend's old 486 and it was working fine with
+> 2.4.7.   Just modprobed it and set up the ips and it was able to ping and be
+> pinged.
 
-my machine locks hard before anything gets to syslog.
+Did you use twisted pair or coax (bnc) ?
 
-thanks!
+This problems occurs (at least ) when trying to use TP.
 
-joe
+Nico
 
---
-Joseph Cheek, CTO, Redmond Linux Corp.
-joseph@redmondlinux.org, www.redmondlinux.org
-Redmond Linux.  Linux is for everyone.
-
-On Mon, 6 Aug 2001, Andrey Savochkin wrote:
-
-> Someone who experiences such timeouts needs to figure out how much time it
-> really can take before a command is accepted.
-> Some time ago the timeout was increased by the factor of 10, and now the
-> current timeout looks being insufficient.
-> It might be a problem with the time of specific commands or specific chip
-> revisions.
-> Or some hardware is too clever and somehow optimizes those repeated read
-> operations, so that they no longer take a fixed number of bus cycles.
-> 
-> In short, that patch isn't a real solution.
-> If someone provides me with the information which commands times-out and how
-> much time they really need, we could have a real solution.
+ps: Alan, do you have an solution ?
 

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264516AbTEPR5j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 13:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264517AbTEPR5j
+	id S264508AbTEPR4H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 13:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264511AbTEPR4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 13:57:39 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:16958 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S264516AbTEPR5i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 13:57:38 -0400
-Subject: Re: Test Patch: 2.5.69 Interrupt Latency
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       johannes@erdfelt.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44L0.0305161045270.738-100000@ida.rowland.org>
-References: <Pine.LNX.4.44L0.0305161045270.738-100000@ida.rowland.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053108615.2606.35.camel@toshiba>
+	Fri, 16 May 2003 13:56:07 -0400
+Received: from holomorphy.com ([66.224.33.161]:16855 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264508AbTEPR4G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 13:56:06 -0400
+Date: Fri, 16 May 2003 11:08:48 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [OOPS] 2.5.69-mm6
+Message-ID: <20030516180848.GW8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alexander Hoogerhuis <alexh@ihatent.com>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030516015407.2768b570.akpm@digeo.com> <87fznfku8z.fsf@lapper.ihatent.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 16 May 2003 13:10:15 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87fznfku8z.fsf@lapper.ihatent.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-16 at 10:33, Alan Stern wrote:
-> Paul:
-> 
-> On 15 May 2003, Paul Fulghum wrote:
-> > Con: you would be generating a lot of spurious interrupts
-> > as the global USBSTS_RD is set (incorrectly) by the OC ports.
-> > Even though you would not actually do the wake, you still
-> > burn cycles servicing the false interrupts.
-> 
-> I'm not sure about that.  For ports in a permanent OC state, the RD bit 
-> would get set just once, so a single interrupt would be generated.  When 
-> the host clears the Resume Detect bit in the USBSTS register, it shouldn't 
-> get set again (not until a different port signals a resume).  Otherwise a 
-> properly working system would generate continuous interrupts during the 
-> global resume sequence.
+On Fri, May 16, 2003 at 01:26:20PM +0200, Alexander Hoogerhuis wrote:
+> This one goes in -mm5 as well, machine runs fine for a while in X, but
+> trying to switch to a vty send the machine into the tall weeds...
 
-Your interpretation checks out. The global RD interrupt does not
-reoccur once the individual RD bit is set. So we get a max of
-once extra interrupt per OC port.
+Could you run with the radeon driver non-modular and kernel debugging
+on? Then when it oopses could you use addr2line(1) to resolve this to
+a line number?
 
--- 
-Paul Fulghum
-paulkf@microgate.com
+I'm at something of a loss with respect to dealing with DRM in general.
 
+
+Thanks.
+
+
+-- wli

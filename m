@@ -1,63 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129382AbRBLKKb>; Mon, 12 Feb 2001 05:10:31 -0500
+	id <S130392AbRBLKPL>; Mon, 12 Feb 2001 05:15:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129146AbRBLKKV>; Mon, 12 Feb 2001 05:10:21 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:7696 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129305AbRBLKKH>;
-	Mon, 12 Feb 2001 05:10:07 -0500
-Date: Mon, 12 Feb 2001 11:07:38 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        Ben LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010212110738.B21533@pcep-jamie.cern.ch>
-In-Reply-To: <20010207012710.N1167@redhat.com> <Pine.LNX.4.10.10102061729470.2193-100000@penguin.transmeta.com>
+	id <S129146AbRBLKPC>; Mon, 12 Feb 2001 05:15:02 -0500
+Received: from ns.suse.de ([213.95.15.193]:17163 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129282AbRBLKOt>;
+	Mon, 12 Feb 2001 05:14:49 -0500
+Date: Mon, 12 Feb 2001 11:14:48 +0100
+From: Olaf Hering <olh@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>, autofs@linux.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: race in autofs / nfs
+Message-ID: <20010212111448.A28932@suse.de>
+In-Reply-To: <20010211211701.A7592@suse.de> <3A86F6AA.1416F479@transmeta.com> <shsbss8i8iq.fsf@charged.uio.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10102061729470.2193-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Feb 06, 2001 at 05:40:41PM -0800
+In-Reply-To: <shsbss8i8iq.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Mon, Feb 12, 2001 at 09:57:01AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Absolutely. This is exactly what I mean by saying that low-level drivers
-> may not actually be able to handle new cases that they've never been asked
-> to do before - they just never saw anything like a 64kB request before or
-> something that crossed its own alignment.
+On Mon, Feb 12, Trond Myklebust wrote:
+
+> >>>>> " " == H Peter Anvin <hpa@transmeta.com> writes:
 > 
-> But the _higher_ levels are there. And there's absolutely nothing in the
-> design that is a real problem. But there's no question that you might need
-> to fix up more than one or two low-level drivers.
+>      > Olaf Hering wrote:
+>     >>
+>     >> Hi,
+>     >>
+>     >> there is a race in 2.4.1 and 2.4.2-pre3 in autofs/nfs.  When
+>     >> the cwd is on the nfs mounted server (== busy) and you try to
+>     >> reboot the shutdown hangs in "rcautofs stop". I can reproduce
+>     >> it everytime.
+>     >>
 > 
-> (The only drivers I know better are the IDE ones, and as far as I can tell
-> they'd have no trouble at all with any of this. Most other normal drivers
-> are likely to be in this same situation. But because I've not had a reason
-> to test, I certainly won't guarantee even that).
+>      > Sounds like an NFS bug in umount.
+> 
+> Or a dcache bug: the above points to a corruption of the mnt_count
+> which is supposed to be > 0 if the partition is in use. I'm seeing a
+> similar leak for ext2 partitions (not involving autofs or NFS).
 
-PCI has dma_mask, which distinguishes different device capabilities.
-This nice interface handles 64-bit capable devices, 32-bit ones, ISA
-limitations (the old 16MB limit) and some other strange devices.
+Some more updates:
 
-This mask appears in block devices one way or another so that bounce
-buffers are used for high addresses.
+This machines run the upcoming 7.1-ppc with autofs-4.0.0pre9.
+When I install 7.0-ppc it runs rocksolid with the same kernel binary.
+7.0 came with autofs-4.0.0pre7:
 
-How about a mask for block devices which indicates the kinds of
-alignment and lengths that the driver can handle?  For old drivers that
-can't be thoroughly tested, we assume the worst.  Some devices have
-hardware limitations.  Newer, tested drivers can relax the limits.
+Linux plum 2.4.1 #1 Sun Feb 11 11:56:01 GMT 2001 ppc unknown
+Kernel modules         2.4.1
+Gnu C                  2.95.3
+Binutils               2.9.5.0.24
+Linux C Library        x   1 root     root      4209204 Oct  4 21:42
+/lib/libc.so.6
+Dynamic linker         ldd (GNU libc) 2.1.3
+Procps                 2.0.6
+Mount                  2.10m
+Net-tools              1.56
+Kbd                    0.99
+Sh-utils               2.0
+Modules Loaded         snd-card-awacs snd-pcm snd-timer snd-mixer snd
+soundcore ipv6 netlink_dev nfsd autofs bmac pcmcia_core
 
-It's probably not difficult to say, "this 64k request can't be handled
-so split it into 1k requests".  It integrates naturally with the
-decision to use bounce buffers -- alignment restrictions cause copying
-just as high addresses causes copying.
+(hmm, it loads autofs and not autofs4 on 7.0?)
 
--- Jamie
+
+It hangs again after a while, in this case:
+cc1plus  19126   181495  2903920        4 u01783c18 c44ca000   1 current
+automoun 19129   183289  2932624       54 u0176a368 c42ca000   0 current
+_spin_lock(c021b754) CPU#1 NIP c0 072f18 holder: cpu 0 pc C0057A18
+
+
+I will try the older autofs package now.
+
+
+
+
+Gruss Olaf
+
+-- 
+ $ man clone
+
+BUGS
+       Main feature not yet implemented...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

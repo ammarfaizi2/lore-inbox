@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbUDASbb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 13:31:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbUDASbb
+	id S263037AbUDASei (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 13:34:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbUDASei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 13:31:31 -0500
-Received: from math.ut.ee ([193.40.5.125]:914 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262257AbUDASaf (ORCPT
+	Thu, 1 Apr 2004 13:34:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:33696 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263037AbUDASec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 13:30:35 -0500
-Date: Thu, 1 Apr 2004 21:30:33 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [2.4 IDE PATCH] only use set_max when it is present
-Message-ID: <Pine.GSO.4.44.0404012126180.15708-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Apr 2004 13:34:32 -0500
+Date: Thu, 1 Apr 2004 10:34:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: disable-cap-mlock
+Message-Id: <20040401103425.03ba8aff.akpm@osdl.org>
+In-Reply-To: <20040401171625.GE791@holomorphy.com>
+References: <20040401135920.GF18585@dualathlon.random>
+	<20040401164825.GD791@holomorphy.com>
+	<20040401165952.GM18585@dualathlon.random>
+	<20040401171625.GE791@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Credits to Kaupo Arulo: he debugged why he got ide errors about aborted
-commands during disk detection (SanDisk flash) and found that
-idedisk_read_native_max_address() is done regardless of whether the
-drive supports it. This patch (by him) changes ide-disk.c to only try
-set_max when the disk supports host protected area. Tested in 2.4.22 and
-compile tested on 2.4.26-rc1.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> On Thu, Apr 01, 2004 at 08:48:25AM -0800, William Lee Irwin III wrote:
+> >> Something like this would have the minor advantage of zero core impact.
+> >> Testbooted only. vs. 2.6.5-rc3-mm4
+> 
+> On Thu, Apr 01, 2004 at 06:59:52PM +0200, Andrea Arcangeli wrote:
+> > I certainly like this too (despite it's more complicated but it might
+> > avoid us to have to add further sysctl in the future), Andrew what do
+> > you prefer to merge? I don't mind either ways.
 
-===== drivers/ide/ide-disk.c 1.15 vs edited =====
---- 1.15/drivers/ide/ide-disk.c	Thu Aug 14 00:14:34 2003
-+++ edited/drivers/ide/ide-disk.c	Thu Apr  1 21:14:22 2004
-@@ -1161,14 +1161,14 @@
- {
- 	struct hd_driveid *id = drive->id;
- 	unsigned long capacity = drive->cyl * drive->head * drive->sect;
--	unsigned long set_max = idedisk_read_native_max_address(drive);
-+	int have_setmax = idedisk_supports_host_protected_area(drive);
-+	unsigned long set_max =
-+		(have_setmax ? idedisk_read_native_max_address(drive) : 0);
- 	unsigned long long capacity_2 = capacity;
- 	unsigned long long set_max_ext;
+What is the Oracle requirement in detail?
 
- 	drive->capacity48 = 0;
- 	drive->select.b.lba = 0;
--
--	(void) idedisk_supports_host_protected_area(drive);
+If it's for access to hugetlbfs then there are the uid= and gid= mount
+options.
 
- 	if (id->cfs_enable_2 & 0x0400) {
- 		capacity_2 = id->lba_capacity_2;
+If it's for access to SHM_HUGETLB then there was some discussion about
+extending the uid= thing to shm, but nothing happened.  This could be
+resurrected.
 
--- 
-Meelis Roos (mroos@linux.ee)
+If it's just generally for the ability to mlock lots of memory then
+RLIMIT_MEMLOCK would be preferable.  I don't see why we'd need the sysctl
+when `ulimit -m' is available?  (Where is that patch btw?)
 
+> There are a couple of off-by-ones in there I've got fixes for below.
+
+Using the security framework is neat.  There are currently large spinlock
+contention problems in avc_has_perm_noaudit() which I suspect will make
+SELinux problematic in some server environments.  But I trust it is
+possible to disable SELinux in config while using Bill's security module?
+
+
+I guess we could live with sysctl which simply nukes CAP_IPC_LOCK, but it
+has to be the when-all-else-failed option, yes?

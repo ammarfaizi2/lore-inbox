@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbTD2SMD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 14:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbTD2SMC
+	id S262121AbTD2SSb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 14:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTD2SSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 14:12:02 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:28138 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262118AbTD2SMC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 14:12:02 -0400
-Date: Tue, 29 Apr 2003 20:24:14 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [FLAME]: Log and console pollution: ip_tables: (C) 2000-2002
- Netfilter core team
-In-Reply-To: <200304300136.30478.mflt1@micrologica.com.hk>
-Message-ID: <Pine.LNX.4.51.0304292016140.28027@dns.toxicfilms.tv>
-References: <200304300136.30478.mflt1@micrologica.com.hk>
+	Tue, 29 Apr 2003 14:18:30 -0400
+Received: from mail.libertysurf.net ([213.36.80.91]:26286 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id S262121AbTD2SSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 14:18:30 -0400
+Message-ID: <3EAEC4BE.1040702@paulbristow.net>
+Date: Tue, 29 Apr 2003 20:30:22 +0200
+From: Paul Bristow <paul@paulbristow.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Gregoire Favre <greg@ulima.unil.ch>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: no ZIP (250) with 2.4.21-rc1-ac3...
+References: <20030429164913.GA10060@ulima.unil.ch>
+In-Reply-To: <20030429164913.GA10060@ulima.unil.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Gregoire Favre wrote:
 
-> Gladly, most humble authors refrain from this bloat.
-Strange, i though we are coding for fame and glory ? :)
+>Hello,
+>
+>I have first tried to boot it with the ZIP in the drive, but without
+>sucess :-(
+>Now, I have booted without a disk in the drive, and only got those
+>errors:
+>  
+>
+You could use the ide-floppy driver instead of the ide-scsi driver.  
+This should work.
 
-But seriously...
-You see these messages only when you load the module. On a
-non-testbed-machine it is once a boot. I would not call that polluting
-the logs.
+>	Grégoire
+>________________________________________________________________
+>  
+>
 
-On the other hand on a testbed-machine you see these messages when you
-load and reload the modules. I treat these messages as debug messages.
-When I develop a module i put versioning info there, and i know if I
-loaded the correct module or some previous version.
 
-Regards,
-Maciej Soltysiak
+-- 
 
------BEGIN GEEK CODE BLOCK-----
-VERSION: 3.1
-GIT/MU d-- s:- a-- C++ UL++++$ P L++++ E- W- N- K- w--- O! M- V- PS+ PE++
-Y+ PGP- t+ 5-- X+ R tv- b DI+ D---- G e++>+++ h! y?
------END GEEK CODE BLOCK-----
+Paul
+
+Email:	paul@paulbristow.net
+Web:	http://paulbristow.net
+ICQ:	11965223
+
+

@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129725AbRCCTxK>; Sat, 3 Mar 2001 14:53:10 -0500
+	id <S129727AbRCCT6V>; Sat, 3 Mar 2001 14:58:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129730AbRCCTxB>; Sat, 3 Mar 2001 14:53:01 -0500
-Received: from adsl-64-164-47-8.dsl.scrm01.pacbell.net ([64.164.47.8]:24310
-	"EHLO satan.diablo.localnet") by vger.kernel.org with ESMTP
-	id <S129725AbRCCTwp>; Sat, 3 Mar 2001 14:52:45 -0500
-Date: Sat, 3 Mar 2001 11:52:22 -0800
-To: linux-kernel@vger.kernel.org
-Subject: my first post to the list - newbie alert
-Message-ID: <20010303115222.A2820@dirac.org>
+	id <S129730AbRCCT6L>; Sat, 3 Mar 2001 14:58:11 -0500
+Received: from 25dyn104.com21.casema.net ([213.17.95.104]:56582 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S129727AbRCCT5x>;
+	Sat, 3 Mar 2001 14:57:53 -0500
+Date: Sat, 3 Mar 2001 20:57:30 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Peter Jay Salzman <p@dirac.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: my first post to the list - newbie alert
+Message-ID: <20010303205729.A1472@home.ds9a.nl>
+Mail-Followup-To: Peter Jay Salzman <p@dirac.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010303115222.A2820@dirac.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-From: Peter Jay Salzman <p@dirac.org>
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <20010303115222.A2820@dirac.org>; from p@dirac.org on Sat, Mar 03, 2001 at 11:52:22AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 03, 2001 at 11:52:22AM -0800, Peter Jay Salzman wrote:
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> is there a more suitable mailing list for me to sign up for?  debian has a
+> mailing list both for package maintainers and those who are trying to learn
+> how to be package maintainers.
+> 
+> is there a similar thing with the kernel mailing list?
 
-dear all,
+If you ask the right questions and take care to have RTFM'd, as you already
+appear to be doing reading the book you mentioned, people here are generally
+very friendly. 
 
-i'm in the process of learning how to write modules.  i've read the first 4
-chapters of alessandro rubini's o'reilly book "writing linux device drivers=
-".
-looking through modern drivers, i see a lot has changed.
+Another great place to ask questions is on irc, see
+http://www.kernelnewbies.org
 
-for the next few months, i'll prolly have a lot of really newbie questions.
-i realize that this list is for serious kernel development. =20
+> since i haven't signed on yet, can you please cc me the reply.  if it turns
+> out this is the correct list, i'll sign on pronto.
 
-is there a more suitable mailing list for me to sign up for?  debian has a
-mailing list both for package maintainers and those who are trying to learn
-how to be package maintainers.
+For serious questions, this is definitely the place. For 'I can't be
+bothered to read the source and find out how it works'-questions, you should
+hire somebody :-)
 
-is there a similar thing with the kernel mailing list?
+Regards,
 
-since i haven't signed on yet, can you please cc me the reply.  if it turns
-out this is the correct list, i'll sign on pronto.
+bert
 
-much thanks!
-pete
-
-ps- you have a great FAQ.  i now know how to avoid the APIC errors that get
-printed on all my consoles.  thank you!
-
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjqhS3YACgkQo7kZRWfqlR0rkgCfUcoyMaVF2tez8X64grGml1FM
-4aIAn2zhGjKaaVyNJ0kjmOqfoA+4Hxlj
-=ZYpZ
------END PGP SIGNATURE-----
-
---DocE+STaALJfprDB--
+-- 
+http://www.PowerDNS.com      Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

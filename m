@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264823AbRFSWqG>; Tue, 19 Jun 2001 18:46:06 -0400
+	id <S264825AbRFSWu4>; Tue, 19 Jun 2001 18:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264827AbRFSWp4>; Tue, 19 Jun 2001 18:45:56 -0400
-Received: from fw.gurulabs.com ([209.140.75.26]:26361 "HELO mail.gurulabs.com")
-	by vger.kernel.org with SMTP id <S264823AbRFSWpv>;
-	Tue, 19 Jun 2001 18:45:51 -0400
-Date: Tue, 19 Jun 2001 16:45:49 -0600 (MDT)
-From: Dax Kelson <dkelson@gurulabs.com>
-To: Ben Greear <greearb@candelatech.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Holger Kiehl <Holger.Kiehl@dwd.de>,
-        "David S. Miller" <davem@redhat.com>,
-        VLAN Mailing List <vlan@Scry.WANfear.com>,
-        "vlan-devel (other)" <vlan-devel@lists.sourceforge.net>,
-        Lennert <buytenh@gnu.org>, Gleb Natapov <gleb@nbase.co.il>
-Subject: Re: Should VLANs be devices or something else?
-In-Reply-To: <3B2FCE0C.67715139@candelatech.com>
-Message-ID: <Pine.LNX.4.33.0106191641150.17061-100000@duely.gurulabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264826AbRFSWuq>; Tue, 19 Jun 2001 18:50:46 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:37052 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S264825AbRFSWuc>; Tue, 19 Jun 2001 18:50:32 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Alan Cox quote?
+Date: Tue, 19 Jun 2001 22:50:30 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9gokvm$ilf$1@forge.intermeta.de>
+In-Reply-To: <3B2F769C.DCDB790E@kegel.com> <200106192112.f5JLC1T16528@vindaloo.ras.ucalgary.ca>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 992991030 12156 212.34.181.4 (19 Jun 2001 22:50:30 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 19 Jun 2001 22:50:30 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Jun 2001, Ben Greear wrote:
+Richard Gooch <rgooch@ras.ucalgary.ca> writes:
 
-> I have had a good discussion with Dave Miller today, and there
-> is one outstanding issue to clear up before my 802.1Q VLAN patch may
-> be considered for acceptance into the kernel:
->
-> Should VLANs be devices or some other thing?
+>New FAQ entry: http://www.tux.org/lkml/#s7-21
 
-I would vote that VLANs be devices.
+>Yeah, it's probably a bit harsh :-)
 
-Conceptually, VLANs as network devices is a no brainer.
+While I basically agree, there is still the fact that a popular real
+world programming language uses [native] threads on a regular base and
+it would be nice if the Linux platform would at least support a
+moderate number of threads, even if it is not too popular or even
+considered stupid by the kernel developers.
 
-Dax
+In the end, the kernel should try to support the user space. And if
+the user space applications want to use threads, well... :-)
 
+No, I don't want to program the kernel in Java. But I don't want to
+program my user space in C#, either.
+
+	Regards
+		Henning
+
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

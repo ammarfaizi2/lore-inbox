@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317648AbSFRWCZ>; Tue, 18 Jun 2002 18:02:25 -0400
+	id <S317656AbSFRWDg>; Tue, 18 Jun 2002 18:03:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317651AbSFRWCY>; Tue, 18 Jun 2002 18:02:24 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:11251 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317648AbSFRWCF>;
-	Tue, 18 Jun 2002 18:02:05 -0400
-Date: Tue, 18 Jun 2002 15:02:06 -0700
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.5.22 broke kernel modular Pcmcia ?
-Message-ID: <20020618150206.A7868@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S317655AbSFRWDg>; Tue, 18 Jun 2002 18:03:36 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:36245 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S317654AbSFRWDd> convert rfc822-to-8bit; Tue, 18 Jun 2002 18:03:33 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <mgix@mgix.com>, <rusty@rustcorp.com.au>
+CC: <linux-kernel@vger.kernel.org>, <mingo@redhat.com>
+X-Mailer: PocoMail 2.61 (1025) - Licensed Version
+Date: Tue, 18 Jun 2002 15:03:31 -0700
+In-Reply-To: <AMEKICHCJFIFEDIBLGOBEEELCBAA.mgix@mgix.com>
+Subject: RE: Question about sched_yield()
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20020618220332.AAA14486@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
 
-	I had a quick look in the archive and didn't find a report of
-this problem :
---------------------------------
-Starting PCMCIA services: /lib/modules/2.5.22/kernel/drivers/pcmcia/pcmcia_core.o: unresolved symbol pci_bus_type
---------------------------------
-	Sorry if it's a duplicate...
+>    3. A CPU hog at best when running on an SMP boxes: the spinning
+>thread gobbles up a whole 100% of a CPU.
 
-	Jean
+	For the few hundred cycles some other thread holds the lock.
+
+>"Smart" spinlocks basically try and do it this way:
+>
+>    int spinLoops= GetNumberOfProcsICanRunOn() > 1 ? someBigNumber : 1;
+>    while(1)
+>    {
+>        int n= spinLoops;
+>        while(n--) tryAndGetTheSpinLock();
+>        if(gotIt) break;
+>        sched_yield();
+>    }
+>
+>These seem to have all the qualities I want:
+
+	Almost.
+
+>2. On an SMP box, the thread will bang on the spinlock a large
+>number of times, hoping to get it before it gets taskswitched away.
+>If it does, great: no time lost.
+>If it doesn't, we're out of luck, yield the CPU and try again next time.
+
+	You should limit how many times you spin in this loop. If it gets to be too 
+many, you should block.
+
+	You can either block by sleeping for a few milliseconds. If you don't like 
+the idea that one thread will release the lock and the other will waste time 
+sleeping, then associate a kernel lock with the spinlock when a thread gives 
+up waiting, have your unlock function check for an associated kernel lock and 
+if there is one, unlock it.
+
+	DS
+
+

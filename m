@@ -1,73 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbTLWQLz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 11:11:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTLWQLz
+	id S261875AbTLWQKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 11:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbTLWQKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 11:11:55 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:29577 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261892AbTLWQLv
+	Tue, 23 Dec 2003 11:10:30 -0500
+Received: from bay8-dav35.bay8.hotmail.com ([64.4.26.92]:58124 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261875AbTLWQKK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 11:11:51 -0500
-Date: Tue, 23 Dec 2003 16:07:04 +0100
-From: Arnaud Fontaine <dsdebian@free.fr>
-To: Xose Vazquez Perez <xose@wanadoo.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops with 2.4.23
-Message-ID: <20031223150704.GA19243@scrappy>
-References: <3FE732A7.60402@wanadoo.es>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
-Content-Disposition: inline
-In-Reply-To: <3FE732A7.60402@wanadoo.es>
-User-Agent: Mutt/1.3.28i
+	Tue, 23 Dec 2003 11:10:10 -0500
+X-Originating-IP: [194.236.130.199]
+X-Originating-Email: [nikomail@hotmail.com]
+From: "Nicklas Bondesson" <nikomail@hotmail.com>
+To: "'Walt H'" <waltabbyh@comcast.net>
+Cc: <linux-kernel@vger.kernel.org>, "'Andre Hedrick'" <andre@linux-ide.org>
+Subject: RE: Error mounting root fs on 72:01 using Promise FastTrak TX2000 (PDC20271)
+Date: Tue, 23 Dec 2003 17:10:09 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <3FE859C6.3070804@comcast.net>
+Thread-Index: AcPJZoh5zNKq2LEIRf+B6JHwQ+90ZwACIMHg
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Message-ID: <BAY8-DAV35gCkxRhjns000118f9@hotmail.com>
+X-OriginalArrivalTime: 23 Dec 2003 16:10:08.0673 (UTC) FILETIME=[3C4CE110:01C3C96F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks for the info, but yet I had to go with your patch to get it up and
+running. I think the patch should be included in the official kernel
+release.
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Who should we send this to?
 
-On Mon, Dec 22, 2003 at 07:06:31PM +0100, Xose Vazquez Perez wrote:
-> > Sorry, i forgot to tell if i had error. So after 11 pass, i have had no
-> > error. I have also test with cpuburn which printed nothing after 30
-> > minutes.
->=20
-> disable the SWAP, and run three burnMMX for 30 minutes:
->=20
-> # swapoff -a
-> $ ./burnMMX P || echo $? &
+/Nicke
 
-Hello,
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Walt H
+Sent: den 23 december 2003 16:06
+To: Nicklas Bondesson
+Cc: linux-kernel@vger.kernel.org; 'Andre Hedrick'
+Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
+(PDC20271)
 
-Do i ran burnMMX during more than 30 minutes and nothing reported. Do
-you have an other idea ?
+Nicklas Bondesson wrote:
+> The fix for me was to disable all "Power Management" in the kernel and 
+> re-compile it. Works like a charm now :)
+> 
+> Hope this can help anyone else with the same problem as me. But again, 
+> I think someone should take a look at it cos I think this is a bug for
+sure.
+> 
+> /Nicke
+> 
 
-Thanks for your help.
-Arnaud
+Nicke,
 
---=20
-Arnaud Fontaine <arnaud@andesi.org> - http://www.andesi.org/
-GnuPG Public Key available on pgp.mit.edu
-Fingerprint: D792 B8A5 A567 B001 C342 2613 BDF2 A220 5E36 19D3
+Glad to hear you got it working. Check out http://acpi.sourceforge.net for
+acpi related information. If you can get it working with acpi=off and it
+doesn't when you don't pass that flag, I'd say that there's at least
+something fishy happening with acpi on your machine.
 
---
-Make sure input cannot violate the limits of the program.
-            - The Elements of Programming Style (Kernighan & Plaugher)
+As for getting it running on 2.6 with dm, the only way I know of is to
+create a custom initrd file by hand. You have to compile the lvm-dm tools
+statically and create mappings first. Then in the linuxrc script, you need
+run dmsetup and point it at the config files to create the devices. Until
+this is handled better it's not really recommended. Good luck,
 
---y0ulUmNC+osPPQO6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-Walt
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/6FoYvfKiIF42GdMRAsZEAKCgqsJopSNOwOVra3dRsx94ecbo3QCeJrMf
-iOD4PXHpdGDFs4dT4J5t6tA=
-=d9hI
------END PGP SIGNATURE-----
-
---y0ulUmNC+osPPQO6--
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org More majordomo info at
+http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

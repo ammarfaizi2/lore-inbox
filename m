@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263487AbTGATHr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 15:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTGATHr
+	id S263451AbTGATJo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 15:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTGATJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 15:07:47 -0400
-Received: from dsl2.external.hp.com ([192.25.206.7]:39688 "EHLO
-	dsl2.external.hp.com") by vger.kernel.org with ESMTP
-	id S263487AbTGATHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 15:07:46 -0400
-Date: Tue, 1 Jul 2003 13:22:09 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Andi Kleen <ak@suse.de>
-Cc: James Bottomley <James.Bottomley@steeleye.com>, axboe@suse.de,
-       grundler@parisc-linux.org, davem@redhat.com, suparna@in.ibm.com,
-       linux-kernel@vger.kernel.org, alex_williamson@hp.com,
-       bjorn_helgaas@hp.com
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode
-Message-ID: <20030701192209.GG14683@dsl2.external.hp.com>
-References: <1057077975.2135.54.camel@mulgrave> <20030701190938.2332f0a8.ak@suse.de> <1057080529.2003.62.camel@mulgrave> <20030701194241.368a6a9c.ak@suse.de>
+	Tue, 1 Jul 2003 15:09:44 -0400
+Received: from slimnet.xs4all.nl ([194.109.194.192]:7553 "EHLO gatekeeper.slim")
+	by vger.kernel.org with ESMTP id S263451AbTGATJi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 15:09:38 -0400
+Subject: ICH5 SATA causes high interrupt/system load?
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1057087443.3373.4.camel@paragon.slim>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030701194241.368a6a9c.ak@suse.de>
-User-Agent: Mutt/1.3.28i
-X-Home-Page: http://www.parisc-linux.org/
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-1) 
+Date: 01 Jul 2003 21:24:04 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 01, 2003 at 07:42:41PM +0200, Andi Kleen wrote:
-> K8 doesn't have a real IOMMU. Instead it extended the AGP aperture to work
-> for PCI devices too.
+Hi,
 
-*gag*...sounds like exactly the opposite HP ZX1 workstations do.
-They used part of the SBA IOMMU for AGP GART.
+After reading about problems with ICH5 SATA (Intel 875P) I've
+set my BIOS back to normal mode for the SATA controller. So now the SATA
+drive appears as hdc instead of hde.
 
-thanks,
-grant
+The SATA drive was working in both situations (enhanced/normal) the only
+difference is that with normal mode there no high system load caused by
+the SATA controller (As I reported in a previous mail).
+
+What's causing the high interrupt count in 'enhanced' mode?
+
+Nb I have seen this on both 2.4.21 and 2.5.73.
+
+Cheers,
+
+Jurgen
 

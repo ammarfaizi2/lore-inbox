@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265431AbUBIX6w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 18:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265434AbUBIX4E
+	id S265595AbUBJAPS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 19:15:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265718AbUBJALi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 18:56:04 -0500
-Received: from mail.kroah.org ([65.200.24.183]:61372 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265431AbUBIXWh convert rfc822-to-8bit
+	Mon, 9 Feb 2004 19:11:38 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32222 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265540AbUBJAE7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 18:22:37 -0500
-Subject: Re: [PATCH] PCI Update for 2.6.3-rc1
-In-Reply-To: <1076368940408@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 9 Feb 2004 15:22:20 -0800
-Message-Id: <1076368940145@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Mon, 9 Feb 2004 19:04:59 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Willy Tarreau <willy@w.ods.org>, Athol Mullen <athol_SPIT_SPAM@idl.net.au>
+Subject: Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three()
+Date: Tue, 10 Feb 2004 01:10:26 +0100
+User-Agent: KMail/1.5.3
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1mtPj-7oQ-3@gated-at.bofh.it> <200402081145.19027.athol_SPIT_SPAM@idl.net.au> <20040208073151.GC29363@alpha.home.local>
+In-Reply-To: <20040208073151.GC29363@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402100110.26513.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1500.11.13, 2004/02/03 16:49:05-08:00, eike-hotplug@sf-tec.de
+On Sunday 08 of February 2004 08:31, Willy Tarreau wrote:
+> On Sun, Feb 08, 2004 at 11:45:18AM +1100, Athol Mullen wrote:
+> > Before I modified eighty_ninty_three(), it returning 0 caused the
+> > _indicated_ mode to drop to UDMA33.  Check in /proc/ide/piix to see what
+> > mode the driver tells you.  IIRC (could be wrong), dmesg and hdparm both
+> > believe it to be in UDMA33 while the init code and /proc/ide/piix both
+> > showed it as UDMA5.
 
-[PATCH] PCI Hotplug: Coding style fixes for drivers/pci/hotplug.c
+So host recognizes 80-wires cable correctly, but drive doesn't.
+eighty_ninty_three() is for checking _drive_ side.
 
+> I captured dmesg and /proc/ide/piix, but forgot to post them. They're at
+> work now. But I did the change, by commenting out the call to
+> eighty_ninety_three() in piix.c, and my disks came back to 54 MB/s each,
+> and 64 MB/s cumulated. dmesg showed UDMA33 before and now displays UDMA100
+> again. But I obviously cannot let it like that because if I install this
+> kernel in a 40-pin machine, I will get some surprizes !
 
- drivers/pci/hotplug.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+This is eighty_ninty_three() in 2.6.x (except #if 0 (...) #endif code):
 
+u8 eighty_ninty_three (ide_drive_t *drive)
+{
+	return ((u8) ((HWIF(drive)->udma_four) &&
+#ifndef CONFIG_IDEDMA_IVB
+			(drive->id->hw_config & 0x4000) &&
+#endif /* CONFIG_IDEDMA_IVB */
+			(drive->id->hw_config & 0x6000)) ? 1 : 0);
+#endif
+}
 
-diff -Nru a/drivers/pci/hotplug.c b/drivers/pci/hotplug.c
---- a/drivers/pci/hotplug.c	Mon Feb  9 14:58:56 2004
-+++ b/drivers/pci/hotplug.c	Mon Feb  9 14:58:56 2004
-@@ -116,7 +116,7 @@
- 	}
- 
- 	bus = wrapped_dev->dev->subordinate;
--	if(bus) {
-+	if (bus) {
- 		memset(&wrapped_bus, 0, sizeof(struct pci_bus_wrapped));
- 		wrapped_bus.bus = bus;
- 
-@@ -130,8 +130,8 @@
-  * Every bus and every function is presented to a custom
-  * function that can act upon it.
-  */
--int pci_visit_dev (struct pci_visit *fn, struct pci_dev_wrapped *wrapped_dev,
--		   struct pci_bus_wrapped *wrapped_parent)
-+int pci_visit_dev(struct pci_visit *fn, struct pci_dev_wrapped *wrapped_dev,
-+		  struct pci_bus_wrapped *wrapped_parent)
- {
- 	struct pci_dev* dev = wrapped_dev ? wrapped_dev->dev : NULL;
- 	int result = 0;
+Maybe you have accidentally enabled CONFIG_IDEDMA_IVB?
+If not please send me copy of /proc/ide/hdX/identify for your drives.
+
+--bart
 

@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbUKRSB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262831AbUKRSXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbUKRSB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 13:01:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262836AbUKRSBZ
+	id S262831AbUKRSXW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 13:23:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbUKRSV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:01:25 -0500
-Received: from pop.gmx.de ([213.165.64.20]:26056 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262830AbUKRSAz (ORCPT
+	Thu, 18 Nov 2004 13:21:29 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:58050 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S262838AbUKRSBh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:00:55 -0500
-X-Authenticated: #8922711
-From: "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel thoughts of a Linux user
-Date: Thu, 18 Nov 2004 18:59:27 +0100
-User-Agent: KMail/1.6.82
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200411181859.27722.gjwucherpfennig@gmx.net>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Nov 2004 13:01:37 -0500
+Subject: Re: local packets not in prerouting
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0411181729350.12660@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.53.0411181729350.12660@yvahk01.tjqt.qr>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-weAwhoLL0GtxXRMecYtO"
+Message-Id: <1100800891.20185.59.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 18 Nov 2004 19:01:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- setting up kernel boot parameters with graphical tools is unreliable, 
-because the system doesn't know which bootloader entry was chosen.
-One solution to this issue is to create a new kernel parameter "loaderhint"
-where the bootloader will be able to set the number of the chosen boot entry.
-In the configuration file of the bootloader this will have to be explicitly 
-remarked e.g. ... loaderhint=%selection% ... . Unfortunately this could be
-circumvented, because it isn't mandatory and could be manipulated in the boot 
-loader configuration. (Other/better suggestions are welcome)
 
--speed up the booting process and make the system more reliable and
-secure by skipping to autoprobe all devices. Instead initialize only the
-devices which were set up at the last system startup. The data can be given
-by kernel parameters or there could be established a more convenient
-mechanism. This data will be stored automatically when the system startup
-is completed (by some shell script etc.) There will be a kernel mechanism to
-tell userspace about available, but unconfigured, unprobed devices (sysfs?)
-and a mechanism to set up each device separately. There has to be a fallback
-mechanism which lets the kernel boot with full probing like it is done today,
-of course. (Other/better suggestions are welcome).
+--=-weAwhoLL0GtxXRMecYtO
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-- The above mentioned ideas will pave the way to some sort of device manager
-which can enable/disable devices, initialize new devices and store all those
-settings across system reboots as it has never been possible in the UNIX/Linux
-world before
+On Thu, 2004-11-18 at 17:37, Jan Engelhardt wrote:
+> Hi,
 
-- Make sysfs optional and enable to publish kernel <-> userspace data
-especially the kernel's KObject data across the kernel's netlink interface as
-it has been summarized on www.kerneltrap.org. This will avoid the
-deadlocks sysfs does introduce when some userspace app holds an open file
-handle of an sysfs object (KObject) which is to be removed. An importrant side 
-effect for embedded systems will be that the RAM overhead introduced by sysfs
-will vaporize.
+Hi
 
-- Replace DRI with sth. slimmer and intoduce real kernel drivers
-and introduce real kernel drivers which handel all the initialization and 
-interrupt handling (only minimal hardware abstraction). One goal is to
-remove X.org's PCI magic. Ultimately this shall give framebuffer and X
-the same basis. This was summarized on kerneltrap.org.
+> I have been observing that locally generated packets with a local destina=
+tion
+> have they don't pop up in the nat/PREROUTING chain.
+> Anybody know why this is done? (If not, it's a bug.)
 
+It's not a bug. All locally generated packets go through nat/OUTPUT ,
+not nat/PREROUTING.
 
-I hope this thoughts will be helpful to someone and may lead to a discussion
-which will lead to code which resolves some deficiencies of Linux systems
-(compared to features of some other prominent operating system).
+--=20
+/Martin
+
+--=-weAwhoLL0GtxXRMecYtO
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBnON7Wm2vlfa207ERAiFDAJ97tVd401TixL7kSsfxHpW54QKzawCfa/aE
+St52jyd1mapNuyZz6uGbvsw=
+=ebn0
+-----END PGP SIGNATURE-----
+
+--=-weAwhoLL0GtxXRMecYtO--

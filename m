@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUIMAGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUIMA0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbUIMAGj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 20:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUIMAGj
+	id S264346AbUIMA0w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 20:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUIMA0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 20:06:39 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:25247
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S264299AbUIMAGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 20:06:34 -0400
-Date: Sun, 12 Sep 2004 17:05:05 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Paul P Komkoff Jr <i@stingr.net>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [RFC] Support for wccp version 1 and 2 in ip_gre.c
-Message-Id: <20040912170505.62916147.davem@davemloft.net>
-In-Reply-To: <20040911194108.GS28258@stingr.sgu.ru>
-References: <20040911194108.GS28258@stingr.sgu.ru>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 12 Sep 2004 20:26:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6558 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264346AbUIMA0v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 20:26:51 -0400
+Message-ID: <4144E93E.5030404@pobox.com>
+Date: Sun, 12 Sep 2004 20:26:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Add sparse "__iomem" infrastructure to check PCI address usage
+References: <200409110726.i8B7QTGn009468@hera.kernel.org>
+In-Reply-To: <200409110726.i8B7QTGn009468@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Sep 2004 23:41:08 +0400
-Paul P Komkoff Jr <i@stingr.net> wrote:
+Linux Kernel Mailing List wrote:
+> --- a/include/linux/compiler.h	2004-09-11 00:26:40 -07:00
+> +++ b/include/linux/compiler.h	2004-09-11 00:26:40 -07:00
+> @@ -6,13 +6,17 @@
+>  # define __kernel	/* default address space */
+>  # define __safe		__attribute__((safe))
+>  # define __force	__attribute__((force))
+> +# define __iomem	__attribute__((noderef, address_space(2)))
 
-> Some time ago I posted the following patch.
-> It indeed adds support for wccp version 1 and 2 decapsulation in
-> ip_gre.c. But there is an open question.
-> I surrounded all decapsulation stuff in if (1).
-> Which knob I should use instead of that 1 to make this change
-> acceptable into mainline kernel?
+Dumb gcc attribute questions:
 
-What are the rules for IP_GRE in general for when
-to apply this transformation?
+1) what does force do? it doesn't appear to be in gcc 3.3.3 docs.
 
-Please do me a favor also, and redo your patch by putting
-ETH_P_WCCP into include/linux/if_ether.h where it belongs.
+2) is "volatile ... __force" redundant?
 
-Thanks.
+3) can we use 'malloc' attribute on kmalloc?
+

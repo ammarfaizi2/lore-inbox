@@ -1,63 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269801AbUJSQp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269997AbUJVHdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269801AbUJSQp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 12:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269760AbUJSQgh
+	id S269997AbUJVHdq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 03:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269800AbUJVHdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 12:36:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11983 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269719AbUJSQdT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 12:33:19 -0400
-Date: Tue, 19 Oct 2004 09:32:37 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       zaitcev@redhat.com
-Subject: Re: Patch to add RAID autostart to IBM partitions
-Message-ID: <20041019093237.291b7ab8@lembas.zaitcev.lan>
-In-Reply-To: <16756.29638.846336.56357@cse.unsw.edu.au>
-References: <20041015224822.7d980a9e@lembas.zaitcev.lan>
-	<20041016110939.GB30336@infradead.org>
-	<20041016082937.62c15e6c@lembas.zaitcev.lan>
-	<16756.29638.846336.56357@cse.unsw.edu.au>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.7; i386-redhat-linux-gnu)
+	Fri, 22 Oct 2004 03:33:21 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:6562
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S269832AbUJSQrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:47:41 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041019162611.GA13232@elte.hu>
+References: <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+	 <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+	 <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
+	 <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
+	 <20041019144642.GA6512@elte.hu> <1098200916.12223.929.camel@thomas>
+	 <20041019162611.GA13232@elte.hu>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1098203978.12223.985.camel@thomas>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 19 Oct 2004 18:39:38 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Oct 2004 11:54:14 +1000, Neil Brown <neilb@cse.unsw.edu.au> wrote:
+On Tue, 2004-10-19 at 18:26, Ingo Molnar wrote:
+> thanks, i've applied your patch to my tree. Find below an untested
+> implementation of wait_for_completion_timeout().
 
-Dear Neil,
+Will give it a try.
 
-thank you for your patient reply. It makes things a lot clearer.
+Found another exterm ugly one. In scsi_error_handler a mutex is
+initialized locked and then it is acquired again with
+down_interruptible()
 
-> Yes, you haven't told it what defines "/dev/md0", so it assumes the
-> first device listed will define it, but /dev/dasda doesn't so....
+I have no fix yet. Somebody else ?
 
-> You have to tell mdadm how to recognise /dev/md0.  Possibly by UUID.
-> Possibly by "minor number".
-> e.g.
-> 
->  DEVICE partitions
->  ARRAY /dev/md0 super-minor=0
-> 
-> which means "if you find any devices listed in /proc/partitions which
-> contains an MD superblock which has a "md_minor" field of "0", then
-> use those to assemble /dev/md0.
+tglx
 
-I see now. I'm sorry that I was unable to deduce it from the manual.
-One last question, if the -As worked, would it do the same?
 
-> This will often be what you want, but might not always.  e.g. if you
-> have plugged in a drive that was part of /dev/md0 in another machine,
-> then mdadm will have no way of knowing which drive is the "right" one.
+PCI: Found IRQ 10 for device 0000:00:02.0
+sym0: <875> rev 0x4 at pci 0000:00:02.0 irq 10
+BUG: semaphore recursion deadlock detected!
+.. current task scsi_eh_0/730 is already holding cfed3ed8.
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+       00000000 c025a590 00000000 c0104115 cfed7800 00000000 00000000
+Call Trace:
+ [<c025a590>] scsi_error_handler+0x0/0x100
+ [<c0104115>] kernel_thread_helper+0x5/0x10
+------------[ cut here ]------------
+kernel BUG at lib/rwsem-generic.c:472!
+invalid operand: 0000 [#1]
+PREEMPT
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c0307bb5>]    Not tainted VLI
+EFLAGS: 00010046   (2.6.9-rc4-mm1-RT-U6)
+EIP is at __down_write_interruptible+0xd5/0x296
+eax: 00000001   ebx: 00000000   ecx: c036222c   edx: 00000001
+esi: cfed3ed8   edi: cfd04070   ebp: 00000001   esp: cfed3e8c
+ds: 007b   es: 007b   ss: 0068   preempt: 00000003
+Process scsi_eh_0 (pid: 730, threadinfo=cfed2000 task=cfd04070)
+Stack: cfed3ed8 00000000 00000000 cfed3edc cfed3edc cfd04070 00000002
+cfed2000
+       cfed3ed8 cfed3ed8 00000000 c01c6ae4 cfed3ed8 cfd04070 cfed7800
+00000000
+       c025a617 c032a106 00000000 ffffffff cfed3e98 cfed3e98 00000001
+cfd04070
+Call Trace:
+ [<c01c6ae4>] down_write_interruptible+0x44/0x70
+ [<c025a617>] scsi_error_handler+0x87/0x100
+ [<c025a590>] scsi_error_handler+0x0/0x100
+ [<c0104115>] kernel_thread_helper+0x5/0x10
+Code: 08 89 44 24 10 89 34 24 e8 29 e7 eb ff 89 34 24 e8 d1 e7 eb ff 85
+c0 74 1a 8b 2d 20 b6 36 c0 85 ed 74 10 31 db 89 1d 2
+ <6>note: scsi_eh_0[730] exited with preempt_count 2
 
-I guess there's nothing we can do about possible conflicts, except warn
-the operator at installation time. What is the recommended way to ask
-mdadm to list all conflicts, or simply all found array devices, for the
-benefit of an installation program reading a pipe?
 
--- Pete

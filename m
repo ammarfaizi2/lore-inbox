@@ -1,79 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbTEFJwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 05:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTEFJwQ
+	id S262494AbTEFJ5G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 05:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbTEFJ5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 05:52:16 -0400
-Received: from us02smtp1.synopsys.com ([198.182.60.75]:6395 "HELO
-	vaxjo.synopsys.com") by vger.kernel.org with SMTP id S262429AbTEFJwP
+	Tue, 6 May 2003 05:57:06 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37188 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S262494AbTEFJ5D
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 05:52:15 -0400
-Date: Tue, 6 May 2003 12:04:35 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org, Eric Lammerts <eric@lammerts.org>
-Subject: Fwd: allow rename to "--bind"-mounted filesystem
-Message-ID: <20030506100435.GH890@riesen-pc.gr05.synopsys.com>
-Reply-To: alexander.riesen@synopsys.COM
-Mime-Version: 1.0
+	Tue, 6 May 2003 05:57:03 -0400
+To: Thomas Horsten <thomas@horsten.com>
+Cc: Adam Sulmicki <adam@cfar.umd.edu>,
+       Halil Demirezen <nitrium@bilmuh.ege.edu.tr>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: about bios
+References: <Pine.LNX.4.40.0305060946450.8287-100000@jehova.dsm.dk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 06 May 2003 04:06:01 -0600
+In-Reply-To: <Pine.LNX.4.40.0305060946450.8287-100000@jehova.dsm.dk>
+Message-ID: <m1u1c89ypi.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-i just came over this patch, and wondered why is it missing
-in both 2.4 and 2.5 (the code in do_rename is identical in both
-kernels).
+Thomas Horsten <thomas@horsten.com> writes:
 
-Are such renames really not allowed, or was it just fixed differently?
+> On Mon, 5 May 2003, Adam Sulmicki wrote:
+> 
+> > 'was working'? The project is alive and well.
+> 
+> Sorry, didn't mean it as "the project is now dead", just "been a while
+> since I checked its status" :-)
+> 
+> >[..]
+> > By the way. Yes you can burn the linux kernel into flash (together with
+> > linuxBIOS) and boot it this way. But given that many motherboards limit
+> > your flash size to 256KiB you probably want to put the kernel on the
+> > CompactFlash over ide nevertheless. Interestingly enough if not this size
+> > limit we might have ended up using Linux Kernel as hardware initalizator
+> > to some degree.
+> 
+> A couple of years ago I was doing a Linux port to a MIPS based embedded
+> system, and while we did set up the SDRAM controller, chip select timings
+> etc. in the flash bootloader, most of these were settings overwritten
+> again by the kernel (that way, a kernel would work with any version of the
+> bootloader, and the bootloader would not have to be updated if something
+> had to be changed or a timing improved for performance).
 
--alex
+In LinuxBIOS this is true for things like IDE timings.  We just allocate
+the resources and enable the IDE device.  Our bootloader uses pio mode
+and the kernel can setup what is reasonable for an optimized IDE timing.
+3MB/s is generally fast enough to load a kernel without a noticeable delay.
 
------ Forwarded message from Eric Lammerts <eric@lammerts.org> -----
+> This approach seems to me to make sense, and it would be interesting if
+> the kernel would include direct support for various chipsets and
+> (optional?) code to set them up from scratch (or almost, e.g. SDRAM
+> working but not much else), that way a truly minimal BIOS stub could be
+> used and the kernel could provide interfaces to tune the chipsets in
+> various ways.
 
-Date: 	Sun, 19 Jan 2003 00:34:59 +0100
-Subject: [PATCH] allow rename to "--bind"-mounted filesystem 
-From: Eric Lammerts <eric@lammerts.org>
-To: linux-kernel@vger.kernel.org
-Message-ID: <20030118233459.GA18011@ally.lammerts.org>
-X-Mailing-List: 	linux-kernel@vger.kernel.org
+In essence that is what LinuxBIOS is.  Though we are slowly developing
+several interesting bootloaders that can do interesting things.  ADLO
+uses a derivative of the bochs BIOS to look like a normal BIOS.  etherboot
+provides super small drivers for lots of hardware.
 
+In addition things like DRAM timing cannot be changed as that is generally
+an operation you can only perform once after reset on most chipsets.
+ 
+> That would probably mean the limit on kernel command line length would
+> have to be dropped (if it hasn't already) to allow for things like
+> "sis_enable_fdc=1"  (to get back to the original question), but it would
+> certainly be flexible on the chipsets that were supported.
 
-Hi,
-I just discovered that rename(2) does not allow you to rename a file within
-the same filesystem if there is a "--bind" in the way. For example:
+There is a major difference between Linux on embedded systems and linux
+on general purpose commodity hardware.
 
-# mkdir mydir
-# mount --bind . mydir
-# touch myfile
-# strace -erename perl -e 'rename "myfile", "mydir/myfile2"'
-rename("myfile", "mydir/myfile2") = -1 EXDEV (Invalid cross-device link)
+On general purpose commodity hardware the kernel makes the assumption
+that if it does not know what is going the BIOS set things up properly.  So
+for handling resource conflicts and such the pci bridges the assumptions
+are dramatically different. 
 
-IMHO it should be possible to do a rename in this situation.
+But beyond that the big service LinuxBIOS provides is that it has hard coded
+information on what all of the non enumerable devices on the motherboard are.
+Things like a winbond superio chips, and i2c clock controllers.
 
-I propose to remove the check in do_rename() altogether. It shouldn't be
-necessary, since there's also a check for a cross-device rename in
-vfs_rename_dir() and vfs_rename_other().
-
-Patch below has been tested.
+I am in the middle of a major revision and I hope to yield a code base that
+is clean enough that I can reliably generate a table of the onboard devices.
+Until that or something equivalent is done the kernel simply does not have
+enough information to work with.  Probing devices that don't have
+a standardized enumeration method is simply too unreliable.
 
 Eric
-
-
---- linux-2.4.21-pre3/fs/namei.c.orig	2003-01-18 23:56:46.000000000 +0100
-+++ linux-2.4.21-pre3/fs/namei.c	2003-01-18 23:57:30.000000000 +0100
-@@ -1860,10 +1860,6 @@
- 	if (error)
- 		goto exit1;
- 
--	error = -EXDEV;
--	if (oldnd.mnt != newnd.mnt)
--		goto exit2;
--
- 	old_dir = oldnd.dentry;
- 	error = -EBUSY;
- 	if (oldnd.last_type != LAST_NORM)

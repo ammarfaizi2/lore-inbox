@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbUJXUSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbUJXUVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbUJXUSU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 16:18:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbUJXUST
+	id S261642AbUJXUVX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 16:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbUJXUVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 16:18:19 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:656 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261632AbUJXUSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 16:18:06 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1: NForce3 problem (update)
-Date: Sun, 24 Oct 2004 22:19:56 +0200
-User-Agent: KMail/1.6.2
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@osdl.org>
-References: <200410222354.44563.rjw@sisk.pl> <200410231955.22819.rjw@sisk.pl> <Pine.LNX.4.61.0410241936110.3001@musoma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.61.0410241936110.3001@musoma.fsmlabs.com>
+	Sun, 24 Oct 2004 16:21:22 -0400
+Received: from mail.gmx.net ([213.165.64.20]:60397 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261643AbUJXUUO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 16:20:14 -0400
+Date: Sun, 24 Oct 2004 22:20:13 +0200 (MEST)
+From: "Daniel Blueman" <daniel.blueman@gmx.net>
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+Subject: [2.6.9] unhandled OHCI IRQs...
+X-Priority: 3 (Normal)
+X-Authenticated: #8973862
+Message-ID: <16118.1098649213@www5.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410242219.56368.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 of October 2004 18:36, Zwane Mwaikambo wrote:
-> On Sat, 23 Oct 2004, Rafael J. Wysocki wrote:
-> 
-> > It happened again, on 2.6.9-mm1, and this time the network adapter stopped 
-> > working along with the USB (like on 2.6.10-rc1).  I unloaded the ohci-hcd, 
-> > ehci-hcd and sk98lin modules and loaded them again, and this apparently 
-_did_ 
-> > help.
-> > 
-> > I'm attaching the "fresh" output of dmesg (the "IRQ INTR_SF lossage" 
-message 
-> > from ohci_hcd looks suspiciously to me).
-> 
-> Can you please send me /var/log/dmesg the logs you're sending aren't 
-> complete.
+When plugging in an Epson C62 USB 1.1 printer to my nForce 2 OHCI + EHCI USB
+controllers, the IRQ doesn't seem to get handled [1]. Tried both with
+acpi=noirq and without, printer support and full USB support enabled. Kernel
+is 2.6.9.
 
-Er, I have no /var/log/dmesg (SuSE 9.1 x86_64).  I just do "dmesg > file" and 
-that's what I'm sending.  Can you tell me, please, what exactly is missing 
-from the logs and what I shoud do to make it be there?
+Any ideas?
 
-Greets,
-RJW
+--- [1]
+
+irq 7: nobody cared!
+ [<c01063d4>] __report_bad_irq+0x24/0x80
+ [<c01064b1>] note_interrupt+0x61/0x90
+ [<c010637b>] handle_IRQ_event+0x2b/0x60
+ [<c010676a>] do_IRQ+0x11a/0x130
+ [<c010479c>] common_interrupt+0x18/0x20
+ [<c0119f30>] __do_softirq+0x30/0x90
+ [<c0119fb6>] do_softirq+0x26/0x30
+ [<c010674b>] do_IRQ+0xfb/0x130
+ [<c010479c>] common_interrupt+0x18/0x20
+ [<c0101df0>] default_idle+0x0/0x30
+ [<c0101e13>] default_idle+0x23/0x30
+ [<c0101e8a>] cpu_idle+0x3a/0x60
+ [<c035c8e1>] start_kernel+0x141/0x160
+ [<c035c530>] unknown_bootoption+0x0/0x160
+handlers:
+[<c022dcd0>] (usb_hcd_irq+0x0/0x60)
+Disabling IRQ #7
+spurious 8259A interrupt: IRQ7.
+
+--- [2]
+
+# grep hcd /proc/interrupts 
+  5:          0          XT-PIC  ohci_hcd
+  7:     164004          XT-PIC  ohci_hcd
+ 12:          2          XT-PIC  ehci_hcd
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Daniel J Blueman
+
++++ GMX DSL Premiumtarife 3 Monate gratis* + WLAN-Router 0,- EUR* +++
+Clevere DSL-Nutzer wechseln jetzt zu GMX: http://www.gmx.net/de/go/dsl
+

@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265816AbUAKJh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 04:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUAKJh5
+	id S265835AbUAKJwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 04:52:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265836AbUAKJwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 04:37:57 -0500
-Received: from smtp2.fre.skanova.net ([195.67.227.95]:36593 "EHLO
-	smtp2.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S265816AbUAKJhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 04:37:45 -0500
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Increase recursive symlink limit from 5 to 8
-References: <E1AeMqJ-00022k-00@minerva.hungry.com>
-	<2flllofnvp6.fsf@saruman.uio.no>
-	<microsoft-free.87isjj0y1e.fsf@eicq.dnsalias.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 11 Jan 2004 10:37:42 +0100
-In-Reply-To: <microsoft-free.87isjj0y1e.fsf@eicq.dnsalias.org>
-Message-ID: <m27jzyrfkp.fsf@p4.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 11 Jan 2004 04:52:25 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:38528 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265835AbUAKJwR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 04:52:17 -0500
+Subject: Re: 2.6.1 and irq balancing
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
+       Ethan Weinstein <lists@stinkfoot.org>
+In-Reply-To: <4000C544.1040301@cyberone.com.au>
+References: <40008745.4070109@stinkfoot.org> <200401102139.09883.edt@aei.ca>
+	 <4000C544.1040301@cyberone.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-suq98Fk1xB7eNwXQN0Tf"
+Organization: Red Hat, Inc.
+Message-Id: <1073814722.4431.7.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 11 Jan 2004 10:52:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Youngs <sryoungs@bigpond.net.au> writes:
 
-> * Petter Reinholdtsen <pere@hungry.com> writes:
-> 
->   >   Linux:         Symlink limit seem to be 6 path entities.
->   >   AIX:           Symlink limit seem to be 21 path entities.
->   >   HP-UX:         Symlink limit seem to be 21 path entities.
->   >   Solaris:       Symlink limit seem to be 21 path entities.
->   >   Irix:          Symlink limit seem to be 31 path entities.
->   >   Mac OS X:      Symlink limit seem to be 33 path entities.
->   >   Tru64 Unix:    Symlink limit seem to be 65 path entities.
-> 
->   > I really think this limit should be increased in Linux.  Not sure
->   > how high it should go, but from 5 to somewhere between 20 and 64
->   > seem like a good idea to me.
-> 
-> 6 does seem pretty low.  What was the reason for setting it there?  Is
-> there a downside to increasing it?
+--=-suq98Fk1xB7eNwXQN0Tf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Search the archives for "symlink recursion":
+On Sun, 2004-01-11 at 04:38, Nick Piggin wrote:
+> Ed Tomlinson wrote:
+>=20
+> >Hi,
+> >
+> >What is the load on the box when this is happening?  If its low think
+> >this is optimal (for cache reasons).
+> > =20
+> >
+>=20
+> I'd rather see different interrupt sources run on different CPUs
+> initially, which would help fairness a little bit, and should be
+> more optimal with big interrupt loads.
+>=20
+>=20
+> 0:      xxx1     0      0      0
+> 1:      0     xxx2      0      0
+> 2:      0        0   xxx3      0
+> 3:      0        0      0   xxx4
+>=20
+> This would delay the need for interrupt balancing in the case where
+> 2 or more interrupts are heavily used.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&w=2&r=1&s=symlink+recursion&q=b
+this is what irqbalanced will do (but more inteligent than just using
+the irq number as round robin seed).
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+
+--=-suq98Fk1xB7eNwXQN0Tf
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAARzCxULwo51rQBIRAqr7AJoDcSG9NZR2EOzkQWY3TAMilpcbhQCeInk5
+M+m4wBbON3NxBOs09zEEK2s=
+=hoYt
+-----END PGP SIGNATURE-----
+
+--=-suq98Fk1xB7eNwXQN0Tf--

@@ -1,87 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271112AbRINVJT>; Fri, 14 Sep 2001 17:09:19 -0400
+	id <S271246AbRINVi5>; Fri, 14 Sep 2001 17:38:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271106AbRINVJJ>; Fri, 14 Sep 2001 17:09:09 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:14085 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S270958AbRINVIu>; Fri, 14 Sep 2001 17:08:50 -0400
-Date: Fri, 14 Sep 2001 16:44:30 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
-In-Reply-To: <Pine.LNX.4.21.0109141456410.4708-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0109141644160.4708-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271226AbRINVir>; Fri, 14 Sep 2001 17:38:47 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:31732 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S271246AbRINVig>; Fri, 14 Sep 2001 17:38:36 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 14 Sep 2001 15:38:48 -0600
+To: Otto Wyss <otto.wyss@bluewin.ch>
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: How errorproof is ext2 fs?
+Message-ID: <20010914153848.C1541@turbolinux.com>
+Mail-Followup-To: Otto Wyss <otto.wyss@bluewin.ch>,
+	Mark Hahn <hahn@physics.mcmaster.ca>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10109140953100.24181-100000@coffee.psychology.mcmaster.ca> <3BA26CFA.E3859A7A@bluewin.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BA26CFA.E3859A7A@bluewin.ch>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 14, 2001  22:47 +0200, Otto Wyss wrote:
+> > there's no reason you can't configure your boot scripts to automatically
+> > fix such problems.  and by "manually", I hope you meant that "fsck -y"
+> > took 15 minutes to run.
+> > ...
+> What's this "-y" meaning, "man fsck" does not show it. Could this mean answer
+> any question with "yes"? The 15 minutes I needed to answer about the first
+> hundreds of questions with "y", afterwards I simply pressed "y" until the fsck
+> was finished.
 
+Well, the "best" way of running e2fsck is with the "-p" option, so that it
+will pick y/n as appropriate.  In almost all cases "-p" and "-y" behave
+the same, but in a few rare cases they do not.
 
-On Fri, 14 Sep 2001, Marcelo Tosatti wrote:
+In general, if you are manually fsck'ing a filesystem, it is better to
+run fsck.<fstype> directly (and read its man page) instead of the "fsck"
+wrapper program.
 
-> 
-> 
-> On Fri, 14 Sep 2001, Hugh Dickins wrote:
-> 
-> > On Thu, 13 Sep 2001, Marcelo Tosatti wrote:
-> > > > > 
-> > > > > CPU0			CPU1			CPU2
-> > > > > do_swap_page()		try_to_swap_out()	swapin_readahead()
-> > .....
-> > > > > BOOM.
-> > > > > 
-> > > > > Now, if we get additional references at valid_swaphandles() the above race
-> > > > > is NOT possible: we're guaranteed that any get_swap_page() will not find
-> > > > 
-> > > > Err I mean _will_ find the swap map entry used and not use it, then.
-> > > > 
-> > > > > the swap map entry used. See?
-> > 
-> > Yes, I see it now: had trouble with the line wrap!
-> > 
-> > Sure, that's one of the scenarios we were talking about, and getting
-> > additional references in valid_swaphandles will stop that particular
-> > race.
-> > 
-> > It won't stop the race with "bare" read_swap_cache_async (which can
-> > happen with swapoff, or with vm_swap_full deletion if multithreaded),
-> 
-> Could you please make a diagram of such a race ? 
-> 
-> > and won't stop the race when valid_swaphandles->swap_duplicate comes
-> > all between try_to_swap_out's get_swap_page and add_to_swap_cache.
-> 
-> Oh I see:
-> 
-> CPU0			CPU1
-> 
-> try_to_swap_out()	swapin readahead
-> 
-> get_swap_page()
-> 			valid_swaphandles()
-> 			swapduplicate()
-> add_to_swap_cache()
-> 			add_to_swap_cache()
-> 
-> BOOM.
-> 
-> Is that what you mean ?
-> 
-> > The first of those is significantly less likely than swapin_readahead
-> > instance.  The second requires interrupt at the wrong moment: can
-> > certainly happen, but again less likely.
-> > 
-> > Adding back reference bumping in valid_swaphandles would reduce the
-> > likelihood of malign read_swap_cache_async/try_to_swap_out races,
-> > but please don't imagine it's the final fix.
-> 
-> Right. Now I see that the diagram I just wrote (thanks for making me
-> understand it :)) has been there forever. Ugh. 
+In some rare cases, fsck cannot decide what is the right thing to do, so
+you need to run it in manual mode, which appears to be what happened to you.
 
-I mean the race has been there forever.
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

@@ -1,40 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275822AbTHSQVm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 12:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275834AbTHSQVl
+	id S272268AbTHSQPU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 12:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270858AbTHSQPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 12:21:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32138 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S275822AbTHSQVf (ORCPT
+	Tue, 19 Aug 2003 12:15:15 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:53499 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S270995AbTHSQN2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:21:35 -0400
-Date: Tue, 19 Aug 2003 09:14:14 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: willy@w.ods.org, richard@aspectgroup.co.uk, alan@lxorguk.ukuu.org.uk,
-       skraw@ithnet.com, carlosev@newipnet.com, lamont@scriptkiddie.org,
-       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819091414.512d80c4.davem@redhat.com>
-In-Reply-To: <Pine.LNX.3.96.1030819114722.6826F-100000@gatekeeper.tmr.com>
-References: <20030819145403.GA3407@alpha.home.local>
-	<Pine.LNX.3.96.1030819114722.6826F-100000@gatekeeper.tmr.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Tue, 19 Aug 2003 12:13:28 -0400
+Subject: Re: weird pcmcia problem
+From: Sven Dowideit <svenud@ozemail.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Narayan Desai <desai@mcs.anl.gov>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030819124547.B18205@flint.arm.linux.org.uk>
+References: <87u18efpsc.fsf@mcs.anl.gov>
+	 <20030819124547.B18205@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1061336141.593.5.camel@sven>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 20 Aug 2003 09:35:42 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003 11:53:29 -0400 (EDT)
-Bill Davidsen <davidsen@tmr.com> wrote:
+On Tue, 2003-08-19 at 21:45, Russell King wrote:
+> - make/model of machine
+IBM thinkpad t21
+> - type of cardbus bridge (from lspci)
+00:02.0 CardBus bridge: Texas Instruments PCI1450 (rev 03)
+        Subsystem: IBM: Unknown device 0130
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 168, cache line size 08
+        Interrupt: pin A routed to IRQ 9
+        Region 0: Memory at 50000000 (32-bit, non-prefetchable)
+[size=4K]
+        Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
+        Memory window 0: 20000000-203ff000 (prefetchable)
+        Memory window 1: 20400000-207ff000
+        I/O window 0: 00001400-000014ff
+        I/O window 1: 00002400-000024ff
+        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+
+PostWrite+
+        16-bit legacy interface ports at 0001
 
-> I wonder if a change to add a flag preventing *any* packet from being sent
-> on a NIC which doesn't have the proper source address would be politically
-> acceptable.
+00:02.1 CardBus bridge: Texas Instruments PCI1450 (rev 03)
+        Subsystem: IBM: Unknown device 0130
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 168, cache line size 08
+        Interrupt: pin B routed to IRQ 9
+        Region 0: Memory at 50100000 (32-bit, non-prefetchable)
+[size=4K]
+        Bus: primary=00, secondary=06, subordinate=09, sec-latency=176
+        Memory window 0: 20800000-20bff000 (prefetchable)
+        Memory window 1: 20c00000-20fff000
+        I/O window 0: 00002800-000028ff
+        I/O window 1: 00002c00-00002cff
+        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+
+PostWrite+
+        16-bit legacy interface ports at 0001
 
-This would disable things like MSG_DONTROUTE and many valid
-uses of RAW sockets.
+> - type of card (pcmcia or cardbus)
+
+> - make/model of card
+cisco aironet 340
+> - full kernel dmesg (including yenta, card services messages)
+
+> - cardmgr messages from system log
+

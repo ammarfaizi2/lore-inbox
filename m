@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317571AbSGJRkO>; Wed, 10 Jul 2002 13:40:14 -0400
+	id <S317547AbSGJRnw>; Wed, 10 Jul 2002 13:43:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317572AbSGJRkN>; Wed, 10 Jul 2002 13:40:13 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:59143 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S317571AbSGJRkM>; Wed, 10 Jul 2002 13:40:12 -0400
-Date: Wed, 10 Jul 2002 14:42:34 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Guillaume Boissiere <boissiere@adiglobal.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  July 10, 2002
-Message-ID: <20020710174234.GG1816@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Guillaume Boissiere <boissiere@adiglobal.com>,
-	linux-kernel@vger.kernel.org
-References: <3D2B89AC.25661.91896FEB@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D2B89AC.25661.91896FEB@localhost>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S317576AbSGJRnv>; Wed, 10 Jul 2002 13:43:51 -0400
+Received: from mushroom.netcomsystems.com ([12.9.24.195]:22732 "EHLO
+	exch-connector.netcomsystems.com") by vger.kernel.org with ESMTP
+	id <S317547AbSGJRnu>; Wed, 10 Jul 2002 13:43:50 -0400
+Message-ID: <629E717C12A8694A88FAA6BEF9FFCD440540BD@brigadoon.spirentcom.com>
+From: "Perches, Joe" <joe.perches@spirentcom.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, thunder@ngforever.de
+Cc: bunk@fs.tum.de, boissiere@adiglobal.com, linux-kernel@vger.kernel.org,
+       "'Larry Kessler'" <kessler@us.ibm.com>,
+       "'Martin.Bligh@us.ibm.com'" <Martin.Bligh@us.ibm.com>
+Subject: RE: [STATUS 2.5]  July 10, 2002
+Date: Wed, 10 Jul 2002 10:46:28 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Jul 10, 2002 at 01:11:08AM -0400, Guillaume Boissiere escreveu:
-> o in -ac      More complete NetBEUI stack  (Arnaldo Carvalho de Melo,
->					      from Procom donated code)
+While I understand the possible value, are printk translations
+really important enough to justify?
 
-Not really, still not submitted.
+Do we really need to have the equivalent of:
+	printk(tr("Context string %s: %d"),tr("some string"),value);
+translate/lookups?  Why?  If so, is this facility supposed to be
+run-time or compile-time?
 
-- Arnaldo
+Unfortunately, I missed the RAS BOF at OLS, so I don't know
+what was discussed.  Some of these were audio recorded.
+Anyone know of the audio repository location?  Can't find any of
+the 2001 or 2002 sessions on the symposium website.
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+The real issue is not breaking syslog parsers but to get 
+
+-	Translations
+etc
+
+done in a way that doesnt make the kernel ugly. Thats non trivial. I need
+to schedule a discussion with some IBM folks about part of this 

@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268122AbSIRUMf>; Wed, 18 Sep 2002 16:12:35 -0400
+	id <S268129AbSIRU2R>; Wed, 18 Sep 2002 16:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268123AbSIRUMe>; Wed, 18 Sep 2002 16:12:34 -0400
-Received: from packet.digeo.com ([12.110.80.53]:15352 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268122AbSIRUMe>;
-	Wed, 18 Sep 2002 16:12:34 -0400
-Message-ID: <3D88DF5A.68E41C6B@digeo.com>
-Date: Wed, 18 Sep 2002 13:17:30 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mm gang: you goofed!
-References: <Pine.LNX.4.44.0209182006530.5607-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
+	id <S268149AbSIRU2R>; Wed, 18 Sep 2002 16:28:17 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:35213 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268129AbSIRU2Q>;
+	Wed, 18 Sep 2002 16:28:16 -0400
+Date: Wed, 18 Sep 2002 13:23:34 -0700 (PDT)
+Message-Id: <20020918.132334.102949210.davem@redhat.com>
+To: ebiederm@xmission.com
+Cc: hadi@cyberus.ca, akpm@digeo.com, manfred@colorfullife.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Info: NAPI performance at "low" loads
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <m1hegnky2h.fsf@frodo.biederman.org>
+References: <Pine.GSO.4.30.0209172053360.3686-100000@shell.cyberus.ca>
+	<20020917.180014.07882539.davem@redhat.com>
+	<m1hegnky2h.fsf@frodo.biederman.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Sep 2002 20:17:30.0148 (UTC) FILETIME=[6A137E40:01C25F50]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> 
-> ...
-> It seems that __lookup() can easily return 0, even though there's
-> more to find, if it starts partway into a RADIX_TREE_MAP_SIZE
-> array, in which the only occupied slots are before it starts.
+   From: ebiederm@xmission.com (Eric W. Biederman)
+   Date: 18 Sep 2002 11:27:34 -0600
 
-erk.  That sounds right.
+   "David S. Miller" <davem@redhat.com> writes:
+   
+   > {in,out}{b,w,l}() operations have a fixed timing, therefore his
+   > results doesn't sound that far off.
+   ????
+   
+   I don't see why they should be.  If it is a pci device the cost should
+   the same as a pci memory I/O.  The bus packets are the same.  So things like
+   increasing the pci bus speed should make it take less time.
 
-I don't think the max_index test matters much - if we ever
-hit that index then something has gone horridly wrong, because
-it's out-of-bounds for the tree height.  But whatever.
-
-> Patch below seems to fix it
-
-But your patch only fixes the symptoms of the bug.  You should
-fix the real bug.  But to do that you'd need to find me, so this
-will have to do for now.
-
-> but I bet you can improve upon it.
-
-Well the colour scheme is a bit gaudy.
- 
-> Might this relate to Trond/Chuck's NFS invalidation woes?
-
-Nope; this code is only in the mm crash-test-dummy tree at present.
-And it's currently at the "wow, it worked first time" stage.  I need
-to get down and write some special test code for it, and to run
-fsx-linux.  Possibly fsx-linux has sufficient coverage.
-
-> It's certainly the main contributor to my tmpfs problems.
-
-Sorry about that.
- 
-> I look forward to your "erk" - or will you delight us with
-> some other exclamation?!
-
-gack?
+The x86 processor has a well defined timing for executing inb
+etc. instructions, the timing is fixed and is independant of the
+speed of the PCI bus the device is on.

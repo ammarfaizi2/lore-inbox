@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVA2Wu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVA2WxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVA2Wu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 17:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVA2Wu4
+	id S261581AbVA2WxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 17:53:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVA2WxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 17:50:56 -0500
-Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:14772 "HELO
-	smtp817.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261579AbVA2Wuw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 17:50:52 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 6/8] Kconfig: cleanup input menu
-Date: Sat, 29 Jan 2005 17:50:50 -0500
-User-Agent: KMail/1.7.2
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0501292320090.7662@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0501292320090.7662@scrub.home>
+	Sat, 29 Jan 2005 17:53:15 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:42666 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261581AbVA2Wwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 17:52:50 -0500
+Message-ID: <41FC13A3.6080407@ens-lyon.fr>
+Date: Sat, 29 Jan 2005 23:52:19 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+Reply-To: Brice.Goglin@ens-lyon.org
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200501291750.50886.dtor_core@ameritech.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, benoit.boissinot@ens-lyon.org
+Subject: Re: 2.6.11-rc2-mm2
+References: <20050129131134.75dacb41.akpm@osdl.org>
+In-Reply-To: <20050129131134.75dacb41.akpm@osdl.org>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Report: *  1.1 NO_DNS_FOR_FROM Domain in From header has no MX or A DNS records
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 January 2005 17:20, Roman Zippel wrote:
-> --- linux-2.6.11.orig/drivers/input/serio/Kconfig       2005-01-29 22:50:43.404946203 +0100
-> +++ linux-2.6.11/drivers/input/serio/Kconfig    2005-01-29 22:56:42.549085439 +0100
-> @@ -3,6 +3,7 @@
->  #
->  config SERIO
->         tristate "Serial i/o support" if EMBEDDED || !X86
-> +       depends on INPUT
+Andrew Morton a écrit :
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm2/
+> 
+> Changes since 2.6.11-rc2-mm1:
+> +fix-kallsyms-insmod-rmmod-race.patch
+> +fix-kallsyms-insmod-rmmod-race-fix.patch
+> +fix-kallsyms-insmod-rmmod-race-fix-fix.patch
+> 
+>  fix a modules race
 
-????
+Hi Andrew,
 
-serio_raw works fine without INPUT.
+CONFIG_STOP_MACHINE is not defined on my laptop. This breaks module loading.
+The reason is that stop_machine_run does nothing, especially
+it does not call the function that is passed as a parameter.
 
--- 
-Dmitry
+Looks like -fix needs another fix :)
+
+What about a patch like this one ?
+
+Regards,
+Brice
+
+
+Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
+
+--- linux-mm/include/linux/stop_machine.h.orig	2005-01-29 23:37:11.000000000 +0100
++++ linux-mm/include/linux/stop_machine.h	2005-01-29 23:37:31.000000000 +0100
+@@ -57,7 +57,7 @@
+  static inline int stop_machine_run(int (*fn)(void *), void *data,
+  				   unsigned int cpu)
+  {
+-	return 0;
++	return fn(data);
+  }
+
+  #endif	/* CONFIG_STOP_MACHINE */

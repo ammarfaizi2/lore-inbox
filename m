@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbUB1DWb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 22:22:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbUB1DWb
+	id S263116AbUB1DjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 22:39:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbUB1DjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 22:22:31 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:53393
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263114AbUB1DWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 22:22:30 -0500
-Date: Sat, 28 Feb 2004 04:22:30 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040228032230.GN8834@dualathlon.random>
-References: <20040227122936.4c1be1fd.akpm@osdl.org> <Pine.LNX.4.44.0402271544520.1747-100000@chimarrao.boston.redhat.com> <20040227212844.GJ8834@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040227212844.GJ8834@dualathlon.random>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Fri, 27 Feb 2004 22:39:25 -0500
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:45975 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S263116AbUB1DjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 22:39:23 -0500
+Message-ID: <40400D6B.4050003@backtobasicsmgmt.com>
+Date: Fri, 27 Feb 2004 20:39:23 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back To Basics Network Management
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Robbins <drobbins@gentoo.org>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-bk9 QA testing: firewire good, USB printing dead
+References: <1077933682.14653.23.camel@wave.gentoo.org>	 <20040228021040.GA14836@kroah.com> <1077937052.14653.40.camel@wave.gentoo.org>
+In-Reply-To: <1077937052.14653.40.camel@wave.gentoo.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 27, 2004 at 10:28:44PM +0100, Andrea Arcangeli wrote:
-> on the 64G boxes. I wanted to do page clustering but there are too many
+Daniel Robbins wrote:
 
-for the record with page clustering above I meant the patch developed
-originally by Hugh for 2.4.7 and then developed and currently maintained
-by William on kernel.org.
+> Feb 27 10:52:44 [kernel] drivers/usb/class/usblp.c: usblp0: error -71 reading printer status
+>                 - Last output repeated 1140 times -
+
+I have this identical problem using a 2.6.3-bk snapshot from a few days 
+ago. My hardware is a Samsung ML-2150 printer (USB 2 High Speed) 
+connected to a VIA EHCI embedded in my VIA KT-600 chipset.
+
+I sent a four page print job through CUPS; during page 4, the printer 
+timed out, and the CUPS "usb" process was hung and would not respond to 
+any signals (not even -9). When I unplugged the printer's USB cable, the 
+"usb" process died, and my syslog reported these error messages (but not 
+before I unplugged the cable). In my case I had 3,458 of them.
+
+Plugging the printer back in, usblp re-registered it, so I tried sending 
+a job again, but could not get any data to flow to the printer without 
+restarting the Linux system.

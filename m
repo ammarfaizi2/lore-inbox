@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbTIXOSK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 10:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbTIXOSK
+	id S261380AbTIXOPW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 10:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbTIXOPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 10:18:10 -0400
-Received: from aloggw.analogic.com ([204.178.40.2]:62728 "EHLO
-	aloggw.analogic.com") by vger.kernel.org with ESMTP id S261376AbTIXOSF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 10:18:05 -0400
-From: "Richard B. Johnson" <johnson@quark.analogic.com>
-Reply-To: "Johnson, Richard" <rjohnson@analogic.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Johnson, Richard" <rjohnson@analogic.com>, linux-kernel@vger.kernel.org
-Date: Wed, 24 Sep 2003 10:18:52 -0400 (EDT)
-Subject: Re: Horiffic SPAM
-In-Reply-To: <20030923183648.GE1269@velociraptor.random>
-Message-ID: <Pine.LNX.4.53.0309241006500.30216@quark.analogic.com>
-References: <Pine.LNX.4.53.0309231408260.28457@quark.analogic.com>
- <20030923183648.GE1269@velociraptor.random>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Sep 2003 10:15:22 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:262 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261380AbTIXOPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 10:15:19 -0400
+Subject: Re: [PATCH] ide-io.c, kernel 2.4.22 Fix for IO stats in
+	/proc/partitions, was Re: sard/iostat disk I/O statistics/accounting for
+	2.5.8-pre3
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Chad Talbott <ctalbott@google.com>, ".A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20030924092418.A28838@devserv.devel.redhat.com>
+References: <20030924092418.A28838@devserv.devel.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1064412912.21892.19.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Sep 2003 15:15:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Sep 2003, Andrea Arcangeli wrote:
+Hi,
 
-> On Tue, Sep 23, 2003 at 02:11:59PM -0400, Richard B. Johnson wrote:
-> > Hello all,
-> >
-> > I took root@chaos.analogic.com off the linux-kernel list
-> > for a few days so I can trap the spammers and write their
-> > addresses to `ipchains`. I have been getting approximately
-> > 12,000 email messages per day on that system, making it
-> > impossible to use. It's all about the servers spreading
-> > the M$ email virus with the phony message to update to the
->
-> the baesyan algorithm learnt about them pretty quickly, so they don't
-> hurt me anymore (besides some wasted bandwidth).
->
-> I doubt answerning those messages will do any good besides generating
-> more traffic, but I don't know the detail of the virus so I could be
-> wrong.
->
+On Wed, 2003-09-24, Chad Talbott wrote:
 
-Well it seems that fire-walling the SPAM servers is *not* a good idea.
-They are persistant, gang up, and will not give up until they are
-able to deliver the mail! When I firewall them, my network traffic
-ends up being continuous SYN floods as every spam-server in the
-country tries to connect. It doesn't do any good to set `ipchains` to
-REJECT instead of DENY. They just keep on banging on the door.
 
-This morning, there was too much traffic on our T3 link to use
-a Web crawler, so I had to un-firewall my machine to get about
-100,000 (maybe more) mail messages delivered and thrown away.
-Procmail is throwing away everything as fast as it can. The
-hard-disk LEDs are on continuously, and it takes about 20
-seconds to log in. The machine has been eating SPAM mail since
-7:00 this morning and it's now 10:15. Maybe, eventually, I
-will be able to use my machine again.
+> Here's the one that I compiled and tested. It makes /proc/partitions
+> report correctly.
 
-To give you a hint of the size of the problem, my /var/log/messages
-which logs sendmail activity is about 12 Gb in length. I truncated
-it to zero this morning.
+Looks OK, but I'd defer to an IDE expert on the question of whether this
+is the best fix or not.
 
-Richard B. Johnson
-Project Engineer
-Analogic Corporation
-Penguin : Linux version 2.2.20 on an i586 machine (330.14 BogoMips).
+Basically, you need to pair accounting start points with accounting end
+points.  This patch removes the end point from the IDE special-command
+postprocessing, but only by manually replacing end_that_request_last()
+with a variant which doesn't do accounting.
+
+I'd really rather see a patch which accounted for the start of the
+special command in the first place (via "req_new_io()" when the special
+request is first queued), as I suspect that might be a more robust way
+of doing things.  But as I said, it would take somebody more familiar
+with the IDE code to know whether that's really going to be better or
+not.
+
+Cheers,
+ Stephen
+

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315219AbSEFWPW>; Mon, 6 May 2002 18:15:22 -0400
+	id <S315232AbSEFWZm>; Mon, 6 May 2002 18:25:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315220AbSEFWPV>; Mon, 6 May 2002 18:15:21 -0400
-Received: from relay1.pair.com ([209.68.1.20]:22022 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S315219AbSEFWPU>;
-	Mon, 6 May 2002 18:15:20 -0400
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3CD7012B.DAED7694@kegel.com>
-Date: Mon, 06 May 2002 15:18:19 -0700
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Thunder from the hill <thunder@ngforever.de>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: khttpd patch [was: gzip vs. bzip2 (mainly 
- de-)compression"benchmark"]
-In-Reply-To: <Pine.LNX.4.44.0205061607470.4189-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315233AbSEFWZl>; Mon, 6 May 2002 18:25:41 -0400
+Received: from jalon.able.es ([212.97.163.2]:5067 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315232AbSEFWZk>;
+	Mon, 6 May 2002 18:25:40 -0400
+Date: Tue, 7 May 2002 00:25:32 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Plan for e100-e1000 in mainline
+Message-ID: <20020506222532.GA3019@werewolf.able.es>
+In-Reply-To: <20020501010828.GA1753@werewolf.able.es> <3CCF796C.5090401@mandrakesoft.com> <20020506111950.A1956@kushida.apsleyroad.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thunder from the hill wrote:
-> On Mon, 6 May 2002, Dan Kegel wrote:
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=102068445316516&w=2
-> 
-> I just stumbled upon the old Mandrake kernel on some backup. Do you want
-> me to dig it out and check khttpd against it? I could do if you can be
-> supported likewise, and I have sufficient number of workstations standing
-> around to check it on one of them...
 
-No, that's ok, don't go to any trouble to check khttpd on an old kernel.
+On 2002.05.06 Jamie Lokier wrote:
+>Jeff Garzik wrote:
+>> You can easily copy drivers/net/e100[0] into a 2.4.x kernel, it likely 
+>> compiles without modification.
+>
+>It does, except that you need to
+>  #define cpu_relax() rep_nop()
+>or something very similar.
+>
 
-Thanks,
-Dan
+It is already defined in processor.h (2.4.19-pre8). They build fine for me.
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre8-jam1 #1 SMP dom may 5 23:46:04 CEST 2002 i686

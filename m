@@ -1,121 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbUDZPyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262909AbUDZPz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbUDZPyY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 11:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbUDZPyY
+	id S262909AbUDZPz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 11:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbUDZPz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 11:54:24 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:54791 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262648AbUDZPyU
+	Mon, 26 Apr 2004 11:55:57 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:23790 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262766AbUDZPy5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 11:54:20 -0400
-To: David Johnson <dj@david-web.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 8139too not working in 2.6
-References: <opr62ahdvlpsnffn@mail.mcaserta.com>
-	<200404261241.41818.dj@david-web.co.uk>
-	<200404261526.00971.dj@david-web.co.uk>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 27 Apr 2004 00:53:39 +0900
-In-Reply-To: <200404261526.00971.dj@david-web.co.uk>
-Message-ID: <873c6qrb0c.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 26 Apr 2004 11:54:57 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Subject: Re: [PATCH] prevent module unloading for legacy IDE chipset drivers
+Date: Mon, 26 Apr 2004 17:54:27 +0200
+User-Agent: KMail/1.5.3
+Cc: andersen@codepoet.org, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <200404212219.24622.bzolnier@elka.pw.edu.pl> <200404261650.40801.bzolnier@elka.pw.edu.pl> <20040426152345.GE14074@harddisk-recovery.com>
+In-Reply-To: <20040426152345.GE14074@harddisk-recovery.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404261754.27823.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Monday 26 of April 2004 17:23, Erik Mouw wrote:
+> On Mon, Apr 26, 2004 at 04:50:40PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > BTW I think there is a common misunderstanding about libata:
+> >     it will not replace IDE drivers any time soon.
+> >
+> > I want to rewrite+merge current IDE code with libata during 2.7
+> > (and yes, legacy naming and ordering will be preserved!).
+> >
+> > I hope nobody starts rewriting existing IDE drivers for libata and
+> > pushing them upstream -> it will mean maintenance problems much bigger
+> > than OSS+ALSA.
+>
+> I don't think it's bad to have two drivers for the same hardware. We've
+> seen that with the USB UHCI host controller, RTL 8139, Intel e100,
 
-David Johnson <dj@david-web.co.uk> writes:
+USB and networks drivers are _actively_ developed by _many_ people
+(in comparison to IDE).
 
-> Attached is my dmesg, lspci and the output of dump_pirq.pl.
-> This was when running 2.6.6-rc1.
+> Adaptec aic7xxx, NCR/Symbios sym53c8x. Having two drivers makes it easy
+> for people to switch. The difference with OSS+ALSA is that the drivers
 
-Looks like 8139too still isn't loaded. Could you apply the attached
-patch, and send the output of dmesg after the problem was happened?
+It is much easier to pull out network driver from kernel than IDE driver
+and some people just won't switch until old driver works.
 
-I'd like to see the debugging message of rtl8139_tx_timeout().
+Just think how much effort it took to make people use ide_cd not ide_scsi
+for CD writing and it's nothing compared to make them switch from
+(ordered) /dev/hdX to (random) /dev/sdX.
 
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Please remember about device ordering issues and hardcoded 'root=/'.
 
+Not to even mention problems like that SCSI emulation won't some support
+some devices supported by ide_floppy and ide_cd etc.
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment;
-  filename=8139too-useful-txtimeout.patch
+> I just mentioned have been "developed" in the tree, while ALSA was
+> developed outside the tree.
 
+No, the biggest difference is that subsystem core was also changed in ALSA.
+-> OSS emulation in ALSA etc.
 
-[PATCH] 8139too: more useful debug info for tx_timeout
+> > However writing _new_ libata driver for 'exotic' PATA hardware is OK.
+>
+> Is AMD 760/762 (amd74xx driver) considered "exotic"? ;-)
 
-	/* disable Tx ASAP, if not already */
-	tmp8 = RTL_R8 (ChipCmd);
-	if (tmp8 & CmdTxEnb)
-		RTL_W8 (ChipCmd, CmdRxEnb);
+NO! 8)
 
-The above will clear the Tx Descs. So, this prints the debugging info
-before rtl8139_tx_timeout() does it. And IntrStatus etc. also prints
-anytime for the debug.
+The main problem is that even with well tested amd74xx driver for libata
+it won't be possible to remove old amd74xx driver so we'll have to maintain
+both for really long time and it won't be funny et all.
 
+Bartlomiej
 
----
-
- drivers/net/8139too.c |   26 +++++++++++---------------
- 1 files changed, 11 insertions(+), 15 deletions(-)
-
-diff -puN drivers/net/8139too.c~8139too-useful-txtimeout drivers/net/8139too.c
---- linux-2.6.6-rc2/drivers/net/8139too.c~8139too-useful-txtimeout	2004-04-22 02:14:42.000000000 +0900
-+++ linux-2.6.6-rc2-hirofumi/drivers/net/8139too.c	2004-04-22 02:14:42.000000000 +0900
-@@ -1677,11 +1677,17 @@ static void rtl8139_tx_timeout (struct n
- 	u8 tmp8;
- 	unsigned long flags;
- 
--	DPRINTK ("%s: Transmit timeout, status %2.2x %4.4x "
--		 "media %2.2x.\n", dev->name,
--		 RTL_R8 (ChipCmd),
--		 RTL_R16 (IntrStatus),
--		 RTL_R8 (MediaStatus));
-+	printk (KERN_DEBUG "%s: Transmit timeout, status %2.2x %4.4x %4.4x "
-+		"media %2.2x.\n", dev->name, RTL_R8 (ChipCmd),
-+		RTL_R16(IntrStatus), RTL_R16(IntrMask), RTL_R8(MediaStatus));
-+	/* Emit info to figure out what went wrong. */
-+	printk (KERN_DEBUG "%s: Tx queue start entry %ld  dirty entry %ld.\n",
-+		dev->name, tp->cur_tx, tp->dirty_tx);
-+	for (i = 0; i < NUM_TX_DESC; i++)
-+		printk (KERN_DEBUG "%s:  Tx descriptor %d is %8.8lx.%s\n",
-+			dev->name, i, RTL_R32 (TxStatus0 + (i * 4)),
-+			i == tp->dirty_tx % NUM_TX_DESC ?
-+				" (queue head)" : "");
- 
- 	tp->xstats.tx_timeouts++;
- 
-@@ -1694,15 +1700,6 @@ static void rtl8139_tx_timeout (struct n
- 	/* Disable interrupts by clearing the interrupt mask. */
- 	RTL_W16 (IntrMask, 0x0000);
- 
--	/* Emit info to figure out what went wrong. */
--	printk (KERN_DEBUG "%s: Tx queue start entry %ld  dirty entry %ld.\n",
--		dev->name, tp->cur_tx, tp->dirty_tx);
--	for (i = 0; i < NUM_TX_DESC; i++)
--		printk (KERN_DEBUG "%s:  Tx descriptor %d is %8.8lx.%s\n",
--			dev->name, i, RTL_R32 (TxStatus0 + (i * 4)),
--			i == tp->dirty_tx % NUM_TX_DESC ?
--				" (queue head)" : "");
--
- 	/* Stop a shared interrupt from scavenging while we are. */
- 	spin_lock_irqsave (&tp->lock, flags);
- 	rtl8139_tx_clear (tp);
-@@ -1714,7 +1711,6 @@ static void rtl8139_tx_timeout (struct n
- 		netif_wake_queue (dev);
- 	}
- 	spin_unlock(&tp->rx_lock);
--	
- }
- 
- 
-
-_
-
---=-=-=--

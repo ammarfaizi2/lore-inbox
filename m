@@ -1,86 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267291AbUIJInY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267294AbUIJIqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267291AbUIJInY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 04:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUIJInY
+	id S267294AbUIJIqq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 04:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267303AbUIJIqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 04:43:24 -0400
-Received: from asplinux.ru ([195.133.213.194]:46348 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S267291AbUIJInV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 04:43:21 -0400
-Message-ID: <41416BCA.3020005@sw.ru>
-Date: Fri, 10 Sep 2004 12:54:34 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Fri, 10 Sep 2004 04:46:46 -0400
+Received: from gizmo06bw.bigpond.com ([144.140.70.41]:42125 "HELO
+	gizmo06bw.bigpond.com") by vger.kernel.org with SMTP
+	id S267294AbUIJIqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 04:46:43 -0400
+Message-ID: <414169F0.1040202@bigpond.net.au>
+Date: Fri, 10 Sep 2004 18:46:40 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-CC: William Lee Irwin III <wli@holomorphy.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] adding per sb inode list to make invalidate_inodes()
- faster
-References: <4140791F.8050207@sw.ru>	<Pine.LNX.4.58.0409090844410.5912@ppc970.osdl.org>	<20040909171927.GU3106@holomorphy.com>	<20040909110622.78028ae6.akpm@osdl.org>	<20040909181818.GF3106@holomorphy.com> <20040909120818.7f127d14.akpm@osdl.org>
-In-Reply-To: <20040909120818.7f127d14.akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.9-rc1-bk14 Oops] In groups_search()
+References: <413FA9AE.90304@bigpond.net.au> <20040909010610.28ca50e1.akpm@osdl.org> <4140EE3E.5040602@bigpond.net.au> <20040909171450.6546ee7a.akpm@osdl.org> <4141092B.2090608@bigpond.net.au> <20040909200650.787001fc.akpm@osdl.org> <41413F64.40504@bigpond.net.au> <20040909231858.770ab381.akpm@osdl.org> <414149A0.1050006@bigpond.net.au> <20040909235217.5a170840.akpm@osdl.org> <41415B15.1050402@bigpond.net.au> <20040910005454.23bbf9fb.akpm@osdl.org> <4141621D.7020301@bigpond.net.au>
+In-Reply-To: <4141621D.7020301@bigpond.net.au>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
-> William Lee Irwin III <wli@holomorphy.com> wrote:
->>On Thu, Sep 09, 2004 at 11:06:22AM -0700, Andrew Morton wrote:
->> > Yes.
->> > I have not merged it up because it seems rather dopey to add eight bytes to
->> > the inode to speed up something as rare as umount.
->> > Is there a convincing reason for proceeding with the change?
->>
->> The only motive I'm aware of is for latency in the presence of things
->> such as autofs. It's also worth noting that in the presence of things
->> such as removable media umount is also much more common. I personally
->> find this sufficiently compelling. Kirill may have additional ammunition.
-
-> Well.  That's why I'm keeping the patch alive-but-unmerged.  Waiting to see
-> who wants it.
-
-> There are people who have large machines which are automounting hundreds of
-> different NFS servers.  I'd certainly expect such a machine to experience
-> ongoing umount glitches.  But no reports have yet been sighted by this
-> little black duck.
-I think It's not always evident where the problem is. For many people 
-waiting 2 seconds is ok and they pay no much attention to this small 
-little hangs.
-
-1. I saw the bug in bugzilla from NFS people you pointed to me last time 
-yourself where the same problem was detected.
-
-2. We come across this problem accidentally. After we started using 4GB 
-split in production systems we faced small hangs of umount and quota 
-on/off. We have hundreds of super blocks in the systems and do 
-mount/umount, quota on/off quite often, so it was quite a noticable 
-hangs for us though unfatal.
-
-We extracted the problem in the test case and resolved the issue. The 
-patch I posted here a year ago (for 2.4 kernels) was used by us about 
-for a year in ALL our production systems.
-
-Well for sure this bug can be triggered only on really big servers with
-a huge amount of memory and cache size.
-It's up to you whether to apply it or not. I understand your position 
-about 8 bytes, but probably it's just a question of using kernel, 
-whether it's a user or server system.
-Probably we can introduce some config option which would trigger 
-features such as this one for enterprise systems.
-
->> Also, the additional sizeof(struct list_head) is only a requirement
->> while the global inode LRU is maintained. I believed it would have
->> been beneficial to have localized the LRU to the sb also, which would
->> have maintained sizeof(struct inode0 at parity with current mainline.
+Peter Williams wrote:
+> Andrew Morton wrote:
 > 
-> Could be.  We would give each superblock its own shrinker callback and
-> everything should balance out nicely (hah).
-heh, and how do you plan to make per-sb LRU to be fair?
+>>
+>> Could you see if this patch fixes the above crash?
+>>
+>> --- 25/fs/isofs/rock.c~rock-kludge    2004-09-10 00:52:30.394468656 -0700
+>> +++ 25-akpm/fs/isofs/rock.c    2004-09-10 00:53:14.544756792 -0700
+>> @@ -62,7 +62,7 @@
+>>  }                                      
+>>  #define MAYBE_CONTINUE(LABEL,DEV) \
+>> -  {if (buffer) kfree(buffer); \
+>> +  {if (buffer) { kfree(buffer); buffer = NULL; } \
+>>    if (cont_extent){ \
+>>      int block, offset, offset1; \
+>>      struct buffer_head * pbh; \
+>> _
+>>
+>>
+>> I sure hope it does, so I don't have to look at rock.c again.
+> 
+> 
+> It does and no sign of the oops or scheduling while atomic messages.
 
-Kirill
+I was mistaken about the schedule while atomic messages.  They showed up 
+again when I did the "make install".
+
+>  I 
+> still have the original four patches applied.  I'll try again with an 
+> unpatched bk16 and let you know the results shortly.
+> 
+
+With out of the box bk16 plus your rock.c patch and with 
+CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC selected I get no oops in 
+in_groupse_p() or kfree() but I still get the scheduling while atomic 
+messages when I do "make install".
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
 

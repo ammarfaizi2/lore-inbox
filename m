@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265124AbUELQwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265128AbUELQxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265124AbUELQwN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 12:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbUELQwN
+	id S265128AbUELQxe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 12:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265126AbUELQxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 12:52:13 -0400
-Received: from smtp4.poczta.onet.pl ([213.180.130.28]:63407 "EHLO
-	smtp4.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S265124AbUELQwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 12:52:09 -0400
-From: Marcin Garski <garski@poczta.onet.pl>
-Reply-To: garski@poczta.onet.pl
-To: linux-kernel@vger.kernel.org
-Subject: Re: SiI3112 Serial ATA - no response on boot
-Date: Wed, 12 May 2004 18:51:42 +0200
-User-Agent: KMail/1.6.2
-References: <200405112052.44979.garski@poczta.onet.pl> <40A12409.40808@dotnetitalia.it>
-In-Reply-To: <40A12409.40808@dotnetitalia.it>
-MIME-Version: 1.0
+	Wed, 12 May 2004 12:53:33 -0400
+Received: from linuxhacker.ru ([217.76.32.60]:12756 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S265128AbUELQxZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 12:53:25 -0400
+Date: Wed, 12 May 2004 19:50:38 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org, mason@suse.com,
+       reiserfs-dev@namesys.com
+Subject: [PATCH] [2.6] Make reiserfs not to crash on oom
+Message-ID: <20040512165038.GA72981@linuxhacker.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405121851.42401.garski@poczta.onet.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Please CC me on replies, I am not subscribed to the list, thanks]
+Hello!
 
-Marco Adurno wrote:
-> I've got the same problem some time ago.
-> You have just to appen the string
-> hdg=none
-> in your boot loader config file
+  Thanks to Standford guys, a case where reiserfs can dereference NULL pointer
+  if memory allocation fail during mount was identified.
 
-Thanks, that's working.
-But isn't that a workaround for problem with probe (on NON SATA HDD 
-probe don't generate such errors) that should be fixed somehow?
+  Here's 2.6 version of patch.
 
-> Marcin Garski wrote:
-> > 
-> > Hi,
-> >
-> > I have a Abit NF7-S V2.0 mainboard (nForce2 chipset + SiI3112
-> > SATA), with Seagate S-ATA connected to Sil3112.
-> >
-> > During boot i get following messages:
-> > SiI3112 Serial ATA: IDE controller at PCI slot 0000:01:0b.0
-> > SiI3112 Serial ATA: chipset revision 2
-> > SiI3112 Serial ATA: 100% native mode on irq 11
-> >     ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
-> >     ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
-> > hde: ST380013AS, ATA DISK drive
-> > ide2 at 0xe083c080-0xe083c087,0xe083c08a on irq 11
-> > hdg: no response (status = 0xfe)
-> > hdg: no response (status = 0xfe), resetting drive
-> > hdg: no response (status = 0xfe)
-> >
-> > Each "no response" message delays booting about 20 seconds.
-> > I don't have any device connected to hdg.
-> > I was wondering how to speed up booting, because this "hdg: no
-> > response (status = 0xfe), resetting drive" info is little
-> > irritating? I'm running on 2.6.6 kernel (on 2.6.4 this "no
-> > response" messages also appear).
+Bye,
+    Oleg
 
--- 
-Best Regards
-Marcin Garski
+===== fs/reiserfs/journal.c 1.91 vs edited =====
+--- 1.91/fs/reiserfs/journal.c	Mon May 10 14:25:42 2004
++++ edited/fs/reiserfs/journal.c	Wed May 12 19:28:18 2004
+@@ -2260,8 +2260,10 @@
+     INIT_LIST_HEAD (&SB_JOURNAL(p_s_sb)->j_prealloc_list);
+     INIT_LIST_HEAD(&SB_JOURNAL(p_s_sb)->j_working_list);
+     INIT_LIST_HEAD(&SB_JOURNAL(p_s_sb)->j_journal_list);
+-    reiserfs_allocate_list_bitmaps(p_s_sb, SB_JOURNAL(p_s_sb)->j_list_bitmap, 
+- 				   SB_BMAP_NR(p_s_sb)) ;
++    if (reiserfs_allocate_list_bitmaps(p_s_sb,
++				       SB_JOURNAL(p_s_sb)->j_list_bitmap, 
++ 				       SB_BMAP_NR(p_s_sb)))
++	goto free_and_return ;
+     allocate_bitmap_nodes(p_s_sb) ;
+ 
+     /* reserved for journal area support */

@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267348AbVBEQ34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269952AbVBEQph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267348AbVBEQ34 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 11:29:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267422AbVBEQ34
+	id S269952AbVBEQph (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 11:45:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265417AbVBEQpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 11:29:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:49055 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S267522AbVBEQ3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 11:29:49 -0500
-Date: Sat, 5 Feb 2005 16:29:45 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Laurent Riffard <laurent.riffard@free.fr>, linux-kernel@vger.kernel.org,
-       "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: 2.6.11-rc3-mm1 : can't insmod dm-mod
-Message-ID: <20050205162945.GA3928@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Laurent Riffard <laurent.riffard@free.fr>,
-	linux-kernel@vger.kernel.org,
-	"viro@parcelfarce.linux.theplanet.co.uk" <viro@parcelfarce.linux.theplanet.co.uk>,
-	Matt Mackall <mpm@selenic.com>
-References: <20050204103350.241a907a.akpm@osdl.org> <4204880A.3010703@free.fr> <20050205032605.764eedac.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 5 Feb 2005 11:45:34 -0500
+Received: from imap.gmx.net ([213.165.64.20]:5270 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S269734AbVBEQpZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 11:45:25 -0500
+X-Authenticated: #14776911
+From: Stefan =?iso-8859-1?q?D=F6singer?= <stefandoesinger@gmx.at>
+To: acpi-devel@lists.sourceforge.net, Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [ACPI] Re: [RFC] Reliable video POSTing on resume
+Date: Sat, 5 Feb 2005 17:48:43 +0100
+User-Agent: KMail/1.7.2
+Cc: Ondrej Zary <linux@rainbow-software.org>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@ucw.cz>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ncunningham@linuxmail.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050122134205.GA9354@wsc-gmbh.de> <4204B3C1.80706@rainbow-software.org> <9e473391050205074769e4f10@mail.gmail.com>
+In-Reply-To: <9e473391050205074769e4f10@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050205032605.764eedac.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200502051748.43547.stefandoesinger@gmx.at>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 05, 2005 at 03:26:05AM -0800, Andrew Morton wrote:
-> You've enabled CONFIG_BASE_SMALL and so the major_names[] hashtable has
-> just one element.  device-mapper uses dynamic major allocation, the range
-> of which is limited to the size of the top-level major_names[] array.  You
-> ran out of slots and register_blkdev() failed.
-> 
-> So for now I guess we must drop base-small-shrink-major_names-hash.patch.
-> 
-> Al, that code looks rather crappy.  Shouldn't we be using an idr tree or
-> something?
+Am Samstag, 5. Februar 2005 16:47 schrieb Jon Smirl:
+> On Sat, 05 Feb 2005 12:53:37 +0100, Ondrej Zary
+>
+> <linux@rainbow-software.org> wrote:
+> > I wonder how this can work:
+> > a motherboard with i815 chipset (integrated VGA), Video BIOS is
+> > integrated into system BIOS
+> > a PCI card inserted into one of the PCI slots, configured as primary in
+> > system BIOS
+>
+> The info needed to initialize Intel chips is public. The info needed
+> to initialize most Nvidia and ATI chips is not.
+DID someone ask ATI or Nvidia for this? I have the impression that everyone 
+says ati doesn't help, but no one tried to get help so far.
 
-It'd be nice to see major_names just gone completely.  It's only used
-for /proc/devices output, and with the infrastucture for easily sharing
-majors that one is completely misleading..
+The reset code of radeon card seems to be easy to reverse engineer. I have 
+started an attempt and I have 50-60% of my radeon M9 reset code implemented 
+in a 32 bit C program. I had to stop due to school reasons.
 
+My radeonreset kernel module turns the backlight off and seems to reset the 
+card's memory. I consider it dangerous because I don't know what it really 
+does because I don't have the card's specs. A owner of an radeon M6 card 
+tried my code too and it worked in the same way as on my M9 card, so I think 
+the reset procedure is the same on all radeon cards. I think with some 
+comparison of the reset code and the specs that the DRI/X.org/XFree 
+developers have we can write a working reset code for radeon cards.
+This won't help users of non-radeon cards of course :-(
+
+ATI is aware of suspend/resume problems with their fglrx driver(see 
+http://www.ati.com/support/infobase/4746.html). I've written a few notes to 
+them, but I haven't got a reply so far(But they also told me not to expect 
+one). The power management code in radeon_pm.c seems to be written by ATI. 
+Alltogether I'd not call the situation hopeless.
+
+Cheers,
+Stefan

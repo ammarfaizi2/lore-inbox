@@ -1,44 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132895AbRDSTVU>; Thu, 19 Apr 2001 15:21:20 -0400
+	id <S132898AbRDSTYS>; Thu, 19 Apr 2001 15:24:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132898AbRDSTVI>; Thu, 19 Apr 2001 15:21:08 -0400
-Received: from tux.mkp.net ([130.225.60.11]:6666 "EHLO tux.mkp.net")
-	by vger.kernel.org with ESMTP id <S132895AbRDSTVD>;
-	Thu, 19 Apr 2001 15:21:03 -0400
-To: AJ Lewis <lewis@sistina.com>
+	id <S133005AbRDSTYI>; Thu, 19 Apr 2001 15:24:08 -0400
+Received: from hermes.sistina.com ([208.210.145.141]:14867 "HELO sistina.com")
+	by vger.kernel.org with SMTP id <S132898AbRDSTXz>;
+	Thu, 19 Apr 2001 15:23:55 -0400
+Date: Thu, 19 Apr 2001 14:24:00 -0500
+From: AJ Lewis <lewis@sistina.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Jes Sorensen <jes@linuxcare.com>, linux-kernel@vger.kernel.org,
         linux-openlvm@nl.linux.org, Arjan van de Ven <arjanv@redhat.com>,
-        Jens Axboe <axboe@suse.de>, riel@conectiva.com.br,
-        linux-lvm@sistina.com
+        Jens Axboe <axboe@suse.de>, Martin Kasper Petersen <mkp@linuxcare.com>,
+        riel@conectiva.com.br, linux-lvm@sistina.com
 Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
-In-Reply-To: <d37l0gvkuf.fsf@lxplus015.cern.ch>
-	<20010419132927.D10345@sistina.com>
-From: "Martin K. Petersen" <mkp@mkp.net>
-Organization: mkp.net
-Date: 19 Apr 2001 15:19:37 -0400
-In-Reply-To: <20010419132927.D10345@sistina.com>
-Message-ID: <yq1ae5cn1di.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.2 (Urania)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <20010419142400.E10345@sistina.com>
+In-Reply-To: <20010419132927.D10345@sistina.com> <E14qJhd-0007oR-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tMbDGjvJuJijemkf"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <E14qJhd-0007oR-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Apr 19, 2001 at 08:02:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "AJ" == AJ Lewis <lewis@sistina.com> writes:
 
-AJ> It is unfortunate that this could not have been resolved in a more
-AJ> mature manner.  
+--tMbDGjvJuJijemkf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Personally, I find it exceedingly immature that my postings get
-moderated to the bitbucket every time I report a bug in your code.
+On Thu, Apr 19, 2001 at 08:02:50PM +0100, Alan Cox wrote:
+> Well their approach to patches that fix bugs is to reject emails. They've=
+ done
+> that to stuff I've reported any many others. So there is a problem. And i=
+ts
+> kind of hard to discuss a problem when you are being moderated out of exi=
+stance.
 
-This is simply not the way we are working in the Linux community, and
-you guys will either have to change your closed development model or
-deal with a fork of the LVM tree...
+Hmm...i guess there is a communication issue here.  It sounds like the
+message that our ML server was sending was misleading.  We were not
+rejecting mail because of content.  The ML server was rejecting it because
+the address was not subscribed.  Our idea was that we don't want spam.=20
+If it's completely unmoderated, then we will get a *lot* of spam.
 
--- 
-Martin K. Petersen, Principal Linux Consultant, Linuxcare, Inc.
-mkp@linuxcare.com, http://www.linuxcare.com/
-SGI XFS for Linux Developer, http://oss.sgi.com/projects/xfs/
+Did anyone bother to e-mail the list admins?  Perhaps it was too difficult
+to figure out who to mail about this, but I know for a fact that Rik van
+Riel and Jens Axboe could post to linux-lvm@sistina.com.  It would have been
+nice if they had mentioned something to us.
 
+> The openlvm list is open to existing LVM hackers too..
+
+True, but it seems silly to duplicate the load if it's not necessary.
+
+Regards,
+--=20
+AJ Lewis
+Sistina Software Inc.                  Voice:  612-379-3951
+1313 5th St SE, Suite 111              Fax:    612-379-3952
+Minneapolis, MN 55414                  E-Mail: lewis@sistina.com
+http://www.sistina.com
+
+Current GPG fingerprint =3D 3B5F 6011 5216 76A5 2F6B  52A0 941E 1261 0029 2=
+648
+Get my key at: http://www.sistina.com/~lewis/gpgkey
+ (Unfortunately, the PKS-type keyservers do not work with multiple sub-keys)
+
+-----Begin Obligatory Humorous Quote----------------------------------------
+Sometimes I have a difficult time handling myself in social situations.
+I just start scampering around neurotically, frantically jumping all
+over guests. I think it all goes back to when I was raised in the wild
+by miniature schnauzers.
+-----End Obligatory Humorous Quote------------------------------------------
+
+--tMbDGjvJuJijemkf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE63ztQpE6/iGtdjLERAinvAJ4urN6/tQyEfUB2sCRuwhRJuv7m/gCfXlKP
+tidskjA851qXF8RG/HUK42s=
+=lek6
+-----END PGP SIGNATURE-----
+
+--tMbDGjvJuJijemkf--

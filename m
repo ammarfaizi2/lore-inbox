@@ -1,54 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265465AbTFMR56 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 13:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265457AbTFMR56
+	id S265467AbTFMSA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 14:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265466AbTFMSA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 13:57:58 -0400
-Received: from hermes.cicese.mx ([158.97.1.34]:11433 "EHLO hermes.cicese.mx")
-	by vger.kernel.org with ESMTP id S265465AbTFMR4p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 13:56:45 -0400
-Message-ID: <3EEA1393.E7B1BEBD@cicese.mx>
-Date: Fri, 13 Jun 2003 11:10:27 -0700
-From: Serguei Miridonov <mirsev@cicese.mx>
-Reply-To: mirsev@cicese.mx
-Organization: CICESE Research Center, Ensenada, B.C., Mexico
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: ru, en
+	Fri, 13 Jun 2003 14:00:59 -0400
+Received: from windsormachine.com ([206.48.122.28]:52490 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S265471AbTFMR7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 13:59:55 -0400
+Date: Fri, 13 Jun 2003 14:13:41 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 3ware and two drive hardware raid1
+In-Reply-To: <20030613193309.2d538c31.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.33.0306131413060.32584-100000@router.windsormachine.com>
 MIME-Version: 1.0
-To: Damian Kolkowski <deimos@deimos.one.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.21 released
-References: <200306131453.h5DErX47015940@hera.kernel.org> <20030613165628.GE28609@in-ws-001.cid-net.de> <20030613165625.GA573@deimos.one.pl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you don't like it, just disable it. For lots of other people with new laptops
-the latest ACPI is mandatory.
+On Fri, 13 Jun 2003, Stephan von Krawczynski wrote:
 
-Damian Kolkowski wrote:
+> I can confirm that the 3dm daemon is very handy. Especially the media scan is
+> highly recommended, as it finds problems on areas where there is no production
+> data yet. So there always is a good chance for replacement before actual failure.
 
-> On Fri, Jun 13, 2003 at 06:56:28PM +0200, Stefan Foerster wrote:
-> > Can we expect the latest ACPI and aic7xxx stuff in 2.4.22-pre?
->
-> What for..?
->
-> For me acpid is not workin well. When I use acpid on ECS_L7VTA-00-C (BIOS-1.6)
-> the network card (integrated with main borad) is not working, DHCPd client is
-> time outing and there is no routing via that hardware ;-)
->
-> --
-> # Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The tw_cli has a similar function, in that you can maint verify c# u#
 
---
-Serguei Miridonov
-
+Mike
 

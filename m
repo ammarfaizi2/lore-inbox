@@ -1,85 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131724AbQLNCqB>; Wed, 13 Dec 2000 21:46:01 -0500
+	id <S132147AbQLNDAN>; Wed, 13 Dec 2000 22:00:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132148AbQLNCpw>; Wed, 13 Dec 2000 21:45:52 -0500
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:28702 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S132147AbQLNCpf>; Wed, 13 Dec 2000 21:45:35 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: Pthreads, linux, gdb, oh my! (and ptrace must die!)
-Date: 14 Dec 2000 02:14:01 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <919ad9$cjl$1@abraham.cs.berkeley.edu>
-In-Reply-To: <Pine.BSI.4.02.10012081445290.26743-100000@frogger.telerama.com> <s3ilmtka14t.fsf@debye.wins.uva.nl> <87zohzoqsb.fsf_-_@subterfugue.org>
-Reply-To: daw@cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S132148AbQLNDAC>; Wed, 13 Dec 2000 22:00:02 -0500
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:9159 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S132147AbQLNC7w>; Wed, 13 Dec 2000 21:59:52 -0500
+To: jmerkey@vger.timpanogas.org
+Cc: dominik.kubla@uni-mainz.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18-25 DELL Laptop Video Problems
+X-URL: http://www.fi.muni.cz/~pekon/
+From: Petr Konecny <pekon@informatics.muni.cz>
+Date: 14 Dec 2000 03:29:11 +0100
+Message-ID: <qww1yvbivm0.fsf@decibel.fi.muni.cz>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Peisino,Ak(B)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Coleman  wrote:
->My limited mental abilities notwithstanding, I think this is one more reason
->to ditch ptrace for a better method of process tracing/control.  It's served
->up to this point, but ptrace has a fundamental flaw, which is that it tries to
->do a lot of interprocess signalling and interlocking in an in-band way, doing
->process reparenting to try to take advantage of existing code.  In the end
->this seems to be resulting in an inscrutable, flaky mess.
+On Wed, Dec 13, 2000 at 01:34:46AM +0100, Dominik Kubla wrote:
+> On Mon, Dec 11, 2000 at 11:11:41AM -0700, Jeff V. Merkey wrote:
+> ...
+> > Then this is the vga=271 stuff?
+> >
+> > Jeff
+>
+> No, that's just selecting the VGA resolution. I am referring to the
+> video parameter:
+>
+> video=<driver>:<option>[,<option>,...]
+>
+> Look at linux/Dokumentation/fb/modedb.txt.
+>
+It's not in my tree (2.2.18), the only documentation I could find was
+the source code. Anyway, it seems that atyfb gets a precendence over
+vesafb and screws up the LCD. Right now I use the following kernel params:
+video=atyfb:off video=vesa:mtrr vga=795
 
-Yes!  Overloading signals and the process parent tree is a kludgy hack
-with many unanticipated, painful effects (like this bug mentioned here,
-or the way ptrace breaks the semantics of wait(), etc.). 
+For reference this is Dell Inspiron 5000, lspci -vv says this:
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage P/M Mobility AGP 2x (rev 64) (prog-if 00 [VGA])
+        Subsystem: Dell Computer Corporation: Unknown device 009f
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 66 (2000ns min), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at fd000000 (32-bit, non-prefetchable)
+        Region 1: I/O ports at 2000
+        Region 2: Memory at fc000000 (32-bit, non-prefetchable)
+        Capabilities: [50] AGP version 1.0
+                Status: RQ=255 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+        Capabilities: [5c] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
->What would a better process tracing facility be like?
 
-Like the Solaris /proc tracing facility.  Take a look at it -- I think
-it would make an excellent starting point.  It is truly well done, at
-least in every way that has ever affected my use of tracing (my experience
-is in the area of sandboxing for security).
-
-/proc is transparent.  It doesn't overload some existing mechanism, so
-it doesn't have all the pain of changing the semantics of various corner
-cases.  /proc uses fd's as the mechanism for communicating events from
-the kernel to user-land, which gives a cleaner architecture.
-
-/proc allows to trap on both syscalls and syscall-exits, and to specify
-which events the user-land process is interested in (greatly lowers the
-cost of tracing, if you only care about some subset of the events).
-ptrace() doesn't let you specify (more than one bit of) per-process
-tracing state, which makes this very difficult to do.
-
-/proc is extensible: whenever it allows one tracer, it allows many
-tracers.  /proc allows any-to-any tracing.  ptrace() only allows a
-traced app to have at most one tracer at any time.  This limitation
-of ptrace() makes it hard to securely (atomically) hand off tracing
-of an app from one tracer to another.  /proc fixes this.
-
-/proc handles fork() more cleanly.  In /proc, the tracer receives a
-tracing event when the fork returns in the newly created child process,
-as well as when it returns in the parent; in ptrace(), you only see an
-event when the fork() returns in the parent, which makes it harder to
-follow the process tree while tracing apps that call fork().
-Go read strace code to see how it works around this problem, and you'll
-see what a disgusting hack strace is forced to use (blech!).
-
-Much of the ptrace() code in the kernel isn't architecture-independent.
-I find this amazing.  IMHO, it would be much cleaner to have all syscalls
-immediately call some arch-independent function with the appropriate
-arguments, and interpose on the set of arch-independent functions.
-
-I'm not saying you should duplicate the Solaris /proc facility, but it
-would be very useful to learn from what Solaris got right and ptrace()
-got wrong.
-
-An even better process tracing facility might allow interposition on
-other interfaces in the kernel: Rather than just receiving events on
-syscalls and signals, how about on the VFS filesystem interface or
-the network layer interface?  Just a thought.
+                                                Regards, Petr
+-- 
+Snow Day -- stay home.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

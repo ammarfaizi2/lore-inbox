@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270017AbUJNJ63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270020AbUJNKAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270017AbUJNJ63 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 05:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270019AbUJNJ63
+	id S270020AbUJNKAv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 06:00:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270019AbUJNKAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 05:58:29 -0400
-Received: from defender.easycracker.org ([217.160.180.132]:26317 "HELO
-	s-und-t-linnich.de") by vger.kernel.org with SMTP id S270017AbUJNJ61
+	Thu, 14 Oct 2004 06:00:51 -0400
+Received: from defender.easycracker.org ([217.160.180.132]:35277 "HELO
+	s-und-t-linnich.de") by vger.kernel.org with SMTP id S270020AbUJNKAj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 05:58:27 -0400
-Date: Thu, 14 Oct 2004 13:59:46 +0200
+	Thu, 14 Oct 2004 06:00:39 -0400
+Date: Thu, 14 Oct 2004 14:02:01 +0200
 From: "mobil@wodkahexe.de" <mobil@wodkahexe.de>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Wil Reichert <wil.reichert@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4 No local APIC present or hardware disabled
-Message-Id: <20041014135946.1de129f0.mobil@wodkahexe.de>
-In-Reply-To: <Pine.LNX.4.58L.0410132311190.17462@blysk.ds.pg.gda.pl>
-References: <20041012195448.2eaabcea.mobil@wodkahexe.de>
-	<Pine.LNX.4.58L.0410132311190.17462@blysk.ds.pg.gda.pl>
+Subject: Re: 2.6.9-rc4 Wrong processor speed
+Message-Id: <20041014140201.12830c5a.mobil@wodkahexe.de>
+In-Reply-To: <7a329d9104101211077e97ee33@mail.gmail.com>
+References: <20041012200402.765b2231.mobil@wodkahexe.de>
+	<7a329d9104101211077e97ee33@mail.gmail.com>
 X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,50 +25,42 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Oct 2004 00:59:13 +0100 (BST)
-"Maciej W. Rozycki" <macro@linux-mips.org> wrote:
+On Tue, 12 Oct 2004 18:07:09 +0000
+Wil Reichert <wil.reichert@gmail.com> wrote:
 
-> On Tue, 12 Oct 2004, mobil@wodkahexe.de wrote:
+> Just the current speed its running at, M's can drop the CPU to 600MHz
+> to save power.  Were the boots with the machine plugged or unplugged? 
+> I've noticed they'll start at the slower speed unplugged.  Something
+> like cpudyn makes boot speed irrelevant anyway.
 > 
-> > after upgrading to 2.6.9-rc4 I'm getting the following message in
-> > dmesg:
+> Wil
+> 
+> On Tue, 12 Oct 2004 20:04:02 +0200, mobil@wodkahexe.de
+> <mobil@wodkahexe.de> wrote:
+> > Hi,
 > > 
-> > No local APIC present or hardware disabled
+> > there seems to be some problem with detecting/displaying processor
+> > speed.
 > > 
-> > 2.6.9-rc3 and older kernels did not show this message. They showed:
-> >  Local APIC disabled by BIOS -- reenabling.
-> >  Found and enabled local APIC!
+> > 2.6.8.1: Detected 1399.199 MHz processor
+> > 2.6.9-rc3: Detected 599.541 MHz processor
+> > 2.6.9-rc4: Detected 599.542 MHz processor
+> > 
+> > Machine is an Acer Travelmate 291lci laptop. (Pentium M - centrino - speedstep)
+> > This machine is running at 600Mhz, if it does not need more power.
+> > But it should display the real clockspeed at bootup, shouldn't it ?
+> > 
+> > Regards, Sebastian
+> > 
+> > 
+> >
 > 
->  As you've already been told, the local APIC is not being enabled by
-> default anymore.  I think this change may be unfortunate for users, so
-> I've proposed the change to be applied for systems using ACPI and then
-> verbosely, so that the reason for the APIC being kept disabled is
-> clear.  Unfortunately I have no system available for testing that uses
-> ACPI, so I'm asking whether you could participate in testing of the
-> following patch.  With the patch applied, you should either get a
-> warning or the local APIC running (e.g. if you disable ACPI by
-> specifying "noacpi").  Does the patch work for you?  For anyone else?
-> 
->   Maciej
-> 
-> patch-2.6.9-rc4-lapic-5
->
-> <snip patch>
 
 Hi,
 
-i tested your patch, but it did not apply correctly to a clean 2.6.9-rc4
-tree for me. (patch -Np1 -i ../patch-2.6.9-rc4-lapic-5)
+when booting with ac adapter plugged in, i get "1399.199 MHz", when unplugged "599.541 MHz".
+Seems, you're right.
 
-I applyed it manually, and when rebooting, i get the following:
- Local APIC won't be reenabled, ...
- You can...
+So it's just an cosmetic issue.
 
-When booting with 'pci=noacpi':
- Local APIC won't be reenabled, ...
- You can...
-
-When booting with 'acpi=off':
- no output when running dmesg|grep -i apic
- 
 Regards, Sebastian

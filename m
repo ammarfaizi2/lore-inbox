@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265226AbSJWUjW>; Wed, 23 Oct 2002 16:39:22 -0400
+	id <S265224AbSJWUiX>; Wed, 23 Oct 2002 16:38:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265227AbSJWUjW>; Wed, 23 Oct 2002 16:39:22 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:61932 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S265226AbSJWUjV>; Wed, 23 Oct 2002 16:39:21 -0400
-Message-ID: <3DB70D4C.4070802@kegel.com>
-Date: Wed, 23 Oct 2002 13:57:48 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: de-de, en
+	id <S265225AbSJWUiW>; Wed, 23 Oct 2002 16:38:22 -0400
+Received: from packet.digeo.com ([12.110.80.53]:3053 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265224AbSJWUiV>;
+	Wed, 23 Oct 2002 16:38:21 -0400
+Message-ID: <3DB70A2A.A09270A9@digeo.com>
+Date: Wed, 23 Oct 2002 13:44:26 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: John Myers <jgmyers@netscape.com>
-CC: linux-aio <linux-aio@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: async poll
-References: <Pine.LNX.4.44.0210231102480.1581-100000@blue1.dev.mcafeelabs.com> <3DB7083E.5030206@netscape.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Steven Cole <elenstev@mesatop.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.5.44-[mm3, ac2] time to tar zxf kernel tarball comparedforvarious  
+ fs.
+References: <3DB6FF24.9B50A7C0@digeo.com> <1035405140.13083.268.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Oct 2002 20:44:26.0458 (UTC) FILETIME=[F9EE13A0:01C27AD4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Myers wrote:
-> Davide Libenzi wrote:
+Steven Cole wrote:
 > 
->> Maybe my understanding of AIO on Linux is limited but how would you do
->> async accept/connect ? Will you be using std poll/select for that, and
->> then you'll switch to AIO for read/write requests ?
->>
-> If a connection is likely to be idle, one would want to use an async 
-> read poll instead of an async read in order to avoid having to allocate 
-> input buffers to idle connections.  (What one really wants is a variant 
-> of async read that allocates an input buffer to an fd at completion 
-> time, not submission time).
+> ...
+> OK, here is the ext2 data.  This was done on my /tmp partition.
+> 
+> For ext2, the variation between runs was as much as between
+> mm3 and ac2.  This data is from the first of 4 runs as before.
+> 
+> Steven
+> 
+> ext2
+> tar zxf linux-2.5.44.tar.gz     2.5.44-mm3      2.5.44-ac2
+> user                            4.17            4.16
+> system                          2.76            2.7
+> elapsed                         00:08.39        00:08.05
+> % CPU                           82              85
+> 
 
-In that situation, why not just add the fd to an epoll, and have the
-epoll deliver events through Ben's interface?  That way you'd get
-notified of changes in readability, and wouldn't have to issue
-the read poll call over and over.
+OK, so I assume what's happening here is that the entire uncompressed
+kernel fits into 40% of your memory.
 
-- Dan
+So we see 4 seconds user time from doing the gzip decompression
+and three seconds system time; a little from reading the
+tarball and most of it is creating a ton of dirty pagecache.
 
+But most of the real cost has not been measured: getting that
+dirty pagecache onto disk.  It has to happen sometime...
+
+If you include a "sync" in the timing then you'll see the
+benefit from the Orlov allocator.  You'll get that kernel
+tree onto disk in half the time.

@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274965AbRIXUkl>; Mon, 24 Sep 2001 16:40:41 -0400
+	id <S274966AbRIXUk7>; Mon, 24 Sep 2001 16:40:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274960AbRIXUke>; Mon, 24 Sep 2001 16:40:34 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:33525 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S274952AbRIXUkS>; Mon, 24 Sep 2001 16:40:18 -0400
-Date: Mon, 24 Sep 2001 21:40:43 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Stephen Tweedie <sct@redhat.com>
-Subject: Re: Linux-2.4.10 + ext3
-Message-ID: <20010924214043.C13817@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <1001280620.3540.33.camel@gromit.house> <9om4ed$1hv$1@penguin.transmeta.com>, <9om4ed$1hv$1@penguin.transmeta.com> <20010923193008.A13982@vitelus.com> <3BAEAC52.677C064C@zip.com.au> <20010924143501.A19387@bg77.anu.edu.au>
-Mime-Version: 1.0
+	id <S274952AbRIXUkl>; Mon, 24 Sep 2001 16:40:41 -0400
+Received: from rj.sgi.com ([204.94.215.100]:43139 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S274962AbRIXUkc>;
+	Mon, 24 Sep 2001 16:40:32 -0400
+Message-ID: <3BAF9A38.46AA9E6@sgi.com>
+Date: Mon, 24 Sep 2001 13:40:24 -0700
+From: Casey Schaufler <casey@sgi.com>
+Organization: Silicon Graphics
+X-Mailer: Mozilla 4.78C-SGI [en] (X11; U; IRIX 6.5-ALPHA-1277639620 IP32)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Binary only module overview
+In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <20010924101710.C7311@kroah.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010924143501.A19387@bg77.anu.edu.au>; from simon@bg77.anu.edu.au on Mon, Sep 24, 2001 at 02:35:01PM +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 24, 2001 at 02:35:01PM +1000, Simon Fowler wrote:
+Greg KH wrote:
 > 
-> Speaking of ext3 and 2.4.10, do you have an idea when you could
-> get an updated ext3 patch for 2.4.10?
+> On Mon, Sep 24, 2001 at 12:40:44PM -0400, Arjan van de Ven wrote:
+> > Highlevel drivers
+> ...
+> > SGI           - High level security modules (LSM)
 
-It's already online.
+License terms and release scheme for this work
+have not been finalized. 
 
---Stephen
+-- 
+
+Casey Schaufler				Manager, Trust Technology, SGI
+casey@sgi.com				voice: 650.933.1634
+casey_p@pager.sgi.com			Pager: 888.220.0607

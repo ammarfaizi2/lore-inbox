@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272576AbTHKNbn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 09:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272577AbTHKNbn
+	id S272591AbTHKNf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 09:35:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272592AbTHKNf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 09:31:43 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:55308 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S272576AbTHKNbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 09:31:39 -0400
-Date: Mon, 11 Aug 2003 23:31:18 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Pascal Brisset <pascal.brisset-ml@wanadoo.fr>
-cc: Fruhwirth Clemens <clemens-dated-1061346967.29a4@endorphin.org>,
-       <linux-kernel@vger.kernel.org>, <mbligh@aracnet.com>,
-       <kernel@gozer.org>, <axboe@suse.de>
-Subject: Re: [PATCH] loop: fixing cryptoloop troubles.
-In-Reply-To: <20030811083634.B5817340013E@mwinf0601.wanadoo.fr>
-Message-ID: <Mutt.LNX.4.44.0308112328500.10934-100000@excalibur.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Aug 2003 09:35:26 -0400
+Received: from main.gmane.org ([80.91.224.249]:49309 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S272591AbTHKNfQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 09:35:16 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Kconfig -- kill "if you want to read about modules, see" crap?
+Date: Mon, 11 Aug 2003 15:35:12 +0200
+Message-ID: <yw1xekzsqpv3.fsf@users.sourceforge.net>
+References: <20030811132127.GA2596@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:XdrD8Hq1yFiWaro2yIdNEUyCIqs=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Aug 2003, Pascal Brisset wrote:
+Pavel Machek <pavel@ucw.cz> writes:
 
->  > Ok, please take into account the case where src == dst.
-> 
-> OK, looks like there is a tricky interplay between algorithms and
-> transforms.  Cipher implementors will need documentation here, e.g.
-> "cia_encrypt and cia_decrypt are always called with src==dst UNLESS
-> we are running in CBC mode AND cia_ivsize!=0" (Please confirm...)
+> Each and every input driver (and other drivers are not better)
+> contains this
+>
+> 	  This driver is also available as a module ( = code which can be
+> 	  inserted in and removed from the running kernel whenever you want).
+> 	  The module will be called input. If you want to compile it as a
+> 	  module, say M here and read <file:Documentation/modules.txt>.
+>
+> text. Perhaps having 1000 copies of same help test is bad idea? Maybe
+> CONFIG_MODULE can explain users what modules are, and we can have help
+> texts that are actually usefull?
 
-All implementors need to know at that level is that src may equal dst.
+I agree, but it would be nice to show the name of the module in the
+help text.  These are not always obvious.
 
-
-- James
 -- 
-James Morris
-<jmorris@intercode.com.au>
+Måns Rullgård
+mru@users.sf.net
 

@@ -1,65 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262400AbSJEQLy>; Sat, 5 Oct 2002 12:11:54 -0400
+	id <S262398AbSJEQOF>; Sat, 5 Oct 2002 12:14:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262401AbSJEQLy>; Sat, 5 Oct 2002 12:11:54 -0400
-Received: from traven.uol.com.br ([200.221.4.39]:4493 "EHLO traven.uol.com.br")
-	by vger.kernel.org with ESMTP id <S262400AbSJEQLw>;
-	Sat, 5 Oct 2002 12:11:52 -0400
-Date: Sat, 5 Oct 2002 13:18:23 -0200
-From: Andre Costa <brblueser@uol.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE subsystem issues with 2.4.1[89] [REVISITED]
-Message-Id: <20021005131823.676c1bcc.brblueser@uol.com.br>
-In-Reply-To: <1033833579.4103.2.camel@irongate.swansea.linux.org.uk>
-References: <20021005114725.3af9c194.brblueser@uol.com.br>
-	<1033833579.4103.2.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262401AbSJEQOE>; Sat, 5 Oct 2002 12:14:04 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:3583 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S262398AbSJEQOC>; Sat, 5 Oct 2002 12:14:02 -0400
+Message-ID: <3D9F114E.30709@quark.didntduck.org>
+Date: Sat, 05 Oct 2002 12:20:30 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] struct super_block cleanup - ext3
+Content-Type: multipart/mixed;
+ boundary="------------050704060305000107010604"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan, thks for replying.
+This is a multi-part message in MIME format.
+--------------050704060305000107010604
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-So, this basically means 2.4.20 final will contain all improvements on
-the -ac branch plus the critical backports from 2.5.x? Will this be the
-cure to all my probls? ;)
+Removes the last member of the union, ext3.
 
-Seriously speaking: do you have confirmartion that the IDE updates on
-the -ac branch fix the cd audio ripping timeouts? Do you want me to try
-it out? <newbie>If so, can I simply apply the 2.4.20-pre8-ac3 on top of
-my vanilla 2.4.19 source code or is any other patch required?</newbie>
+--
+				Brian Gerst
 
-Again, thks for looking into this.
+--------------050704060305000107010604
+Content-Type: text/plain;
+ name="sb-ext3-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sb-ext3-1"
 
-Best,
+diff -urN linux/include/linux/ext3_fs.h linux2/include/linux/ext3_fs.h
+--- linux/include/linux/ext3_fs.h	Wed Sep 18 00:06:55 2002
++++ linux2/include/linux/ext3_fs.h	Sat Oct  5 11:46:42 2002
+@@ -17,6 +17,7 @@
+ #define _LINUX_EXT3_FS_H
+ 
+ #include <linux/types.h>
++#include <linux/ext3_fs_sb.h>
+ 
+ /*
+  * The second extended filesystem constants/structures
+diff -urN linux/include/linux/fs.h linux2/include/linux/fs.h
+--- linux/include/linux/fs.h	Sat Oct  5 01:30:14 2002
++++ linux2/include/linux/fs.h	Sat Oct  5 11:45:06 2002
+@@ -627,8 +627,6 @@
+ #define MNT_FORCE	0x00000001	/* Attempt to forcibily umount */
+ #define MNT_DETACH	0x00000002	/* Just detach from the tree */
+ 
+-#include <linux/ext3_fs_sb.h>
+-
+ extern struct list_head super_blocks;
+ extern spinlock_t sb_lock;
+ 
+@@ -669,7 +667,6 @@
+ 	char s_id[32];				/* Informational name */
+ 
+ 	union {
+-		struct ext3_sb_info	ext3_sb;
+ 		void			*generic_sbp;
+ 	} u;
+ 	/*
 
-Andre
+--------------050704060305000107010604--
 
-On 05 Oct 2002 16:59:39 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> On Sat, 2002-10-05 at 14:47, Andre Costa wrote:
-> > I know this is a known issue, and you guys are working on it; I also
-> > know many changes to IDE subsystem have been backported from 2.5.x
-> > series, and 2.4.20pre* already reflect some (all?) of them. I don't
-> > want to rush things, I was just curious to know the current status
-> > regarding these IDE issues.
-> 
-> 2.5 has most but not all of the IDE updates in 2.4-ac. 2.4 vanilla has
-> basically old IDE code but with some small PCI layer fixes backported
-> that deal with all the i845G bios mess
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
--- 
-Andre Oliveira da Costa

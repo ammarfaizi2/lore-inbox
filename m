@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVBJTJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVBJTJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVBJTJB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 14:09:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVBJTHp
+	id S261347AbVBJTJO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 14:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVBJTJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 14:07:45 -0500
-Received: from smtp07.web.de ([217.72.192.225]:52408 "EHLO smtp07.web.de")
-	by vger.kernel.org with ESMTP id S261342AbVBJTHg (ORCPT
+	Thu, 10 Feb 2005 14:09:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32735 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261349AbVBJTHu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 14:07:36 -0500
-Message-ID: <420BB0F6.8030405@web.de>
-Date: Thu, 10 Feb 2005 20:07:34 +0100
-From: Michael Renzmann <mrenzmann@web.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050205)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to retrieve version from kernel source (the right way)?
-References: <4209C71F.9040102@web.de> <35297.194.237.142.7.1107985448.squirrel@194.237.142.7> <420B07FA.7050309@web.de> <20050210184218.GA9338@mars.ravnborg.org>
-In-Reply-To: <20050210184218.GA9338@mars.ravnborg.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Feb 2005 14:07:50 -0500
+Date: Thu, 10 Feb 2005 11:07:46 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix ALPS sync loss
+Message-ID: <20050210110746.1c779ffd@localhost.localdomain>
+In-Reply-To: <mailman.1107906420.26313.linux-kernel2news@redhat.com>
+References: <mailman.1107906420.26313.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, 8 Feb 2005 18:40:12 -0500, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
 
-Sam Ravnborg wrote:
->>otaku@gimli linux-2.6.10 $ make kernelrelease
->>make: *** No rule to make target `kernelrelease'.  Stop.
-> I works with the 2.6 kernel.
+> Here is the promised patch. It turns out protocol validation code was
+> a bit (or rather a byte ;) ) off.
 
-As Andreas Gruenbacher pointed out, this feature has been implemented 
-just about 8 weeks ago. He also gave the following snippet as a backward 
-compatible solution:
+> +++ b/drivers/input/mouse/alps.c	2005-02-08 18:16:27 -05:00
+> @@ -198,8 +198,8 @@
+>  		return PSMOUSE_BAD_DATA;
+>  
+>  	/* Bytes 2 - 6 should have 0 in the highest bit */
+> -	if (psmouse->pktcnt > 1 && psmouse->pktcnt <= 6 &&
+> -	    (psmouse->packet[psmouse->pktcnt] & 0x80))
+> +	if (psmouse->pktcnt >= 2 && psmouse->pktcnt <= 6 &&
+> +	    (psmouse->packet[psmouse->pktcnt - 1] & 0x80))
+>  		return PSMOUSE_BAD_DATA;
 
-=== cut ===
-echo -e 'foo:\n\t@echo $(KERNELRELEASE)\ninclude Makefile' \
-     | make -f-
-=== cut ===
+This seems to work here, no more dead pad.
 
-This works fine.
-
-Thanks to everyone for your tips and answers.
-
-Bye, Mike
+-- Pete

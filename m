@@ -1,70 +1,157 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281831AbRKRACJ>; Sat, 17 Nov 2001 19:02:09 -0500
+	id <S281828AbRKQXwJ>; Sat, 17 Nov 2001 18:52:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281832AbRKRACA>; Sat, 17 Nov 2001 19:02:00 -0500
-Received: from holomorphy.com ([216.36.33.161]:39307 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S281831AbRKRABy>;
-	Sat, 17 Nov 2001 19:01:54 -0500
-Date: Sat, 17 Nov 2001 16:01:34 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Martin Mares <mj@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] tree-based bootmem
-Message-ID: <20011117160134.A11913@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Martin Mares <mj@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011117011415.B1180@holomorphy.com> <20011118001657.A467@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20011118001657.A467@ucw.cz>; from mj@ucw.cz on Sun, Nov 18, 2001 at 12:16:57AM +0100
-Organization: The Domain of Holomorphy
+	id <S281832AbRKQXwA>; Sat, 17 Nov 2001 18:52:00 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:60145 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S281828AbRKQXvo>;
+	Sat, 17 Nov 2001 18:51:44 -0500
+Date: Sat, 17 Nov 2001 18:51:42 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, wwcopt@optonline.net,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH][CFT] seq_file and lseek()
+In-Reply-To: <Pine.GSO.4.21.0111171322090.11475-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0111171850340.11475-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 18, 2001 at 12:16:57AM +0100, Martin Mares wrote:
-> I don't understand why does it use segment trees instead of a simple
-> linked list. Bootmem allocations are obviously not going to be time
-> critical and shaving off a couple of ms during the boot process is
-> not worth the extra complexity involved.
+On Sat, 17 Nov 2001, Alexander Viro wrote:
+
+> On Sat, 17 Nov 2001, Alan Cox wrote:
 > 
-> (Nevertheless, treaps are a very nice structure...)
+> > (d) - when someone seeks in the file do the seek, and document that they
+> > lose their guarantees. So they fall back to existing 1.0->2.4 behaviour.
+> > You just run the iterator either on or back from scratch to the seek point.
 > 
-> 				Have a nice fortnight
+> Umm...  In principle doable, but then we are losing anything resembling
+> sane behaviour on seek to remembered position.  OTOH, it's weak anyway
+> and saying that it's FIFO and trying to squeeze something from lseek()
+> is not too attractive.
+> 
+> I'll do that variant - it will be local to file/seq_file.c.  I'll give it
+> some beating and send it - hopefully in an hour or two.
 
-Thanks for your comments.
+OK, it seems to be working.  Now what used to be ->f_pos is m->index and
+->f_pos is counted in bytes.  IOW, read() works exactly as it used to,
+but lseek() anywhere other than current position walks through the
+thing doing show() and counting bytes.
 
-Your opinions are valid and worthwhile, and I hope you don't mind if I
-Cc: the Linux kernel mailing list in my reply.
+It's pretty straightforward and seems to be working here.  Help with
+testing and review would be very welcome.
 
-The trees are largely there out of a personal distaste for exhaustive
-search when not strictly necessary. My approach to this was to research
-what data structures were appropriate for the search problem I found,
-and to use that in preference to exhaustive search.
+diff -urN S15-pre5/fs/seq_file.c S15-pre5-proc/fs/seq_file.c
+--- S15-pre5/fs/seq_file.c	Thu Nov 15 23:43:07 2001
++++ S15-pre5-proc/fs/seq_file.c	Sat Nov 17 18:25:42 2001
+@@ -73,13 +73,13 @@
+ 		buf += n;
+ 		copied += n;
+ 		if (!m->count)
+-			(*ppos)++;
++			m->index++;
+ 		if (!size)
+ 			goto Done;
+ 	}
+ 	/* we need at least one record in buffer */
+ 	while (1) {
+-		pos = *ppos;
++		pos = m->index;
+ 		p = m->op->start(m, &pos);
+ 		err = PTR_ERR(p);
+ 		if (!p || IS_ERR(p))
+@@ -125,10 +125,12 @@
+ 		m->from = n;
+ 	else
+ 		pos++;
+-	*ppos = pos;
++	m->index = pos;
+ Done:
+ 	if (!copied)
+ 		copied = err;
++	else
++		*ppos += copied;
+ 	up(&m->sem);
+ 	return copied;
+ Enomem:
+@@ -139,6 +141,54 @@
+ 	goto Done;
+ }
+ 
++static int traverse(struct seq_file *m, loff_t offset)
++{
++	loff_t pos = 0;
++	int error = 0;
++	void *p;
++
++	m->index = 0;
++	m->count = m->from = 0;
++	if (!offset)
++		return 0;
++	if (!m->buf) {
++		m->buf = kmalloc(m->size = PAGE_SIZE, GFP_KERNEL);
++		if (!m->buf)
++			return -ENOMEM;
++	}
++	p = m->op->start(m, &m->index);
++	while (p) {
++		error = PTR_ERR(p);
++		if (IS_ERR(p))
++			break;
++		error = m->op->show(m, p);
++		if (error)
++			break;
++		if (m->count == m->size)
++			goto Eoverflow;
++		if (pos + m->count > offset) {
++			m->from = offset - pos;
++			m->count -= m->from;
++			break;
++		}
++		pos += m->count;
++		m->count = 0;
++		if (pos == offset) {
++			m->index++;
++			break;
++		}
++		p = m->op->next(m, p, &m->index);
++	}
++	m->op->stop(m, p);
++	return error;
++
++Eoverflow:
++	m->op->stop(m, p);
++	kfree(m->buf);
++	m->buf = kmalloc(m->size <<= 1, GFP_KERNEL);
++	return !m->buf ? -ENOMEM : -EAGAIN;
++}
++
+ /**
+  *	seq_lseek -	->llseek() method for sequential files.
+  *	@file, @offset, @origin: see file_operations method
+@@ -157,11 +207,19 @@
+ 		case 0:
+ 			if (offset < 0)
+ 				break;
++			retval = offset;
+ 			if (offset != file->f_pos) {
+-				file->f_pos = offset;
+-				m->count = 0;
++				while ((retval=traverse(m, offset)) == -EAGAIN)
++					;
++				if (retval) {
++					/* with extreme perjudice... */
++					file->f_pos = 0;
++					m->index = 0;
++					m->count = 0;
++				} else {
++					retval = file->f_pos = offset;
++				}
+ 			}
+-			retval = offset;
+ 	}
+ 	up(&m->sem);
+ 	return retval;
 
-Some profiling by Jack Steiner prior to the initial post of this patch
-to lkml revealed that it is a very rare system that has any issues with
-the performance of the bitmap-based bootmem, and it's even less likely
-there will be a noticeable difference in absolute terms between a search
-tree structure and a linked list of ranges. While there were some
-performance concerns motivating this, the primary concern was
-interfacing with the callers and requiring less work to set up; that is,
-making it easier to say "This memory belongs to this node." I had hoped
-that in addition to suggestions regarding the mechanics, some suggestions
-about how to make life easier for those who have to call bootmem
-functions might arise from discussions about this.
-
-Part of the motivation for the RFC is to solicit commentary like this
-regarding the design, and in my responses, to adjust, alter, or even
-entirely rewrite this patch in order to produce something useful and
-desirable to the largest number of people. If linked lists are wanted,
-then they can be used instead.
-
-Is there a more general consensus regarding this aspect of the design?
-
-
-Thanks,
-Bill

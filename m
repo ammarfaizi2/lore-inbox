@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbUD2VLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264644AbUD2VIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbUD2VLM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264751AbUD2VIP
+	id S264644AbUD2VIA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264751AbUD2Uqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 17:08:15 -0400
-Received: from smtp-out5.xs4all.nl ([194.109.24.6]:46094 "EHLO
-	smtp-out5.xs4all.nl") by vger.kernel.org with ESMTP id S264870AbUD2VBE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 17:01:04 -0400
-In-Reply-To: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-5--261440957"
-Message-Id: <4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net>
+	Thu, 29 Apr 2004 16:46:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10704 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264644AbUD2UnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 16:43:21 -0400
+Date: Thu, 29 Apr 2004 13:45:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc2-mm2
+Message-Id: <20040429134546.5e9515d8.akpm@osdl.org>
+In-Reply-To: <20040429184126.GB783@holomorphy.com>
+References: <20040426013944.49a105a8.akpm@osdl.org>
+	<20040429184126.GB783@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       David Gibson <david@gibson.dropbear.id.au>,
-       Marc Boucher <marc@linuxant.com>,
-       Timothy Miller <miller@techsource.com>
-From: Paul Wagland <paul@wagland.net>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Date: Thu, 29 Apr 2004 23:00:57 +0200
-To: Rik van Riel <riel@redhat.com>
-X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
-X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Apple-Mail-5--261440957
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-
-
-On Apr 29, 2004, at 17:14, Rik van Riel wrote:
-
-> On Thu, 29 Apr 2004, Timothy Miller wrote:
+William Lee Irwin III <wli@holomorphy.com> wrote:
 >
->>> "Due to $MOD_FOO's license ($BLAH), the Linux kernel community
->>> cannot resolve problems you may encounter. Please contact
->>> $MODULE_VENDOR for support issues."
->>
->> Sounds very "politically correct", but certainly more descriptive and
->> less alarming.
->
-> More importantly, it directs the support burden to where
-> it, IMHO, belongs.
+> On Mon, Apr 26, 2004 at 01:39:44AM -0700, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6-rc2/2.6.6-rc2-mm2/
+> > - Largeish reiserfs feature update.  The biggest change is probably the new
+> >   block allocation algorithm.  See the changelog inside
+> >   reiserfs-group-alloc-9.patch for details.
+> > - Added the ia64 CPU hotplug support patch
+> > - More work against the ext3 block allocator.
+> > - Several more framebuffer driver update, some quite substantial.
+> > - Lots of fixes, mostly minor.
+> 
+> I missed -mm1; both this and -mm1 appear to be unable to detect Adaptec
+> 39160 HBA's. I'm in the midst of bisecting this. Thus far I have the
+> last known-working as virgin 2.6.6-rc2, and first known broken is patch
+> #36 out of 308 i.e. it's probably in one of the external bk trees or
+> linus.patch, though linus.patch doesn't seem to have anything related.
 
-Just to throw in my two cents at the end of this long debate... :-)
-
-I heartily endorse (for what little that is worth ;-) the change in 
-text. It adds clarity, it provides more information as to where to go 
-for information. It is hard to misconstrue as a message of impending 
-doom, consider that a good synonym for tainted is corrupted, and a 
-corrupted kernel is a bad thing :-).
-
-Cheers,
-Paul
-
---Apple-Mail-5--261440957
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iD8DBQFAkW0Jtch0EvEFvxURAhRQAJ9X7ILuEPEzeZwjuAhsNUiFOr9vlgCfaJuP
-pGomy6dMBUCs82eUeGoMWnM=
-=b4Fw
------END PGP SIGNATURE-----
-
---Apple-Mail-5--261440957--
-
+bk-scsi.patch will be the one to try.

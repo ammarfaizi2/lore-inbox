@@ -1,83 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131339AbQLNDFd>; Wed, 13 Dec 2000 22:05:33 -0500
+	id <S131532AbQLNDMg>; Wed, 13 Dec 2000 22:12:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131532AbQLNDFY>; Wed, 13 Dec 2000 22:05:24 -0500
-Received: from adsl-63-194-20-32.dsl.lsan03.pacbell.net ([63.194.20.32]:32261
-	"EHLO symonds.net") by vger.kernel.org with ESMTP
-	id <S131339AbQLNDFT>; Wed, 13 Dec 2000 22:05:19 -0500
-Message-ID: <079301c06576$b303f060$0301a8c0@symonds.net>
-From: "Mark Symonds" <mark@symonds.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: VM problems still in 2.2.18
-Date: Wed, 13 Dec 2000 18:36:44 -0800
+	id <S131909AbQLNDM0>; Wed, 13 Dec 2000 22:12:26 -0500
+Received: from ip252.uni-com.net ([205.198.252.252]:63237 "HELO www.nondot.org")
+	by vger.kernel.org with SMTP id <S131532AbQLNDMT>;
+	Wed, 13 Dec 2000 22:12:19 -0500
+Date: Wed, 13 Dec 2000 20:42:22 -0600 (CST)
+From: Chris Lattner <sabre@nondot.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        Alexander Viro <viro@math.psu.edu>,
+        "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
+        linux-kernel@vger.kernel.org, orbit-list@gnome.org,
+        korbit-cvs@lists.sourceforge.net
+Subject: Re: [Korbit-cvs] Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <E146Mvx-0003Zj-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0012132025310.24483-100000@www.nondot.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi, 
+> > Don't worry about kORBit.  Like most open source projects, it will simply
+> > die out after a while, because people don't find it interesting and there
+> > is really no place for it.  If it becomes useful, mature, and refined,
+> > however, it could be a very powerful tool for a large class of problems
+> > (like moving code OUT of the kernel).
+> 
+> I do have one sensible question. Given that corba is while flexible a 
+> relatively expensive encoding system, wouldn't it be better to keep corba
+> out of kernel space and talk something which is a simple and cleaner encoding
 
-I upgraded from 2.2.14 to 2.2.16 after the security
-bug was discovered.  Ever since, I have two boxes here
-that keep falling over.  Box A will randomly lock without 
-warning and box B will die and start printing this message 
-repeatedly on the screen until I physically hit reset:
+Very good point.  I think this distills down to common misconception of
+CORBA: that it must be slow.  Actually, a LOT of research has been done
+to improve CORBA performance, but you have to keep in mind one very
+IMPORTANT THING:
 
-VM: do_try_to_free_pages failed for cron...
+CORBA does NOT dictate a transport or data format for the data going out
+"over the wire".
 
-...or something similar (could be apache etc.)
+CORBA does specify one "standard" used for interoperability: GIOP.  It
+also specifies one important incarnation of GIOP: IIOP (GIOP over
+IP).  kORBit currently uses this to communicate from user space to kernel
+space... obviously this is not ideal.  :)
 
-I tried upgrading to 2.2.17 for a week and the problem 
-didn't go away, installed 2.2.18 last night and the problem 
-is still there.  Don't know what to do since anything 
-> 2.2.14 is very unstable on these machines, and anything
-< 2.2.14 has the security bug.
+There is absolutely NOTHING that prevents us from defining our own "data
+marshalling" protocol/algorithm that is lighter weight than IIOP.  In
+fact, we had planned to implement that for our project, but of course, ran
+out of time.  It would be relatively straight forward to define this
+extension in the ORBit code base, and in fact "ORBit 2" is striving to
+make this much much easier than it is now (basically sorting out IIOP
+specific code from the main code base better, and generally cleaning
+things up).  Currently, ORBit supports IIOP and its own proprietary (as
+far as I know) Unix domain socket protocol (obviously only works
+intramachine).
 
-Both machines have lots of these in the logs, just as others
-have reported it happens in spurts:
+There is a large perception of CORBA being slow, but for the most part it
+is unjustified.  I believe that the act of _designing_ a completely new
+protocol, standardizing it, and making it actually work would be a huge
+process that would basically reinvent CORBA (obviously some of the design
+decisions could be made differently, but all the same issues would have be
+dealt with).
 
-Dec 13 08:00:12 symonds kernel: VM: do_try_to_free_pages failed for kupdate...
-Dec 13 08:00:12 symonds kernel: VM: do_try_to_free_pages failed for eggdrop...
-Dec 13 08:00:12 symonds kernel: VM: do_try_to_free_pages failed for mysqld...
-Dec 13 08:00:12 symonds kernel: VM: do_try_to_free_pages failed for apache...
-Dec 13 08:00:12 symonds kernel: VM: do_try_to_free_pages failed for eggdrop...
-Dec 13 08:00:12 symonds kernel: VM: do_try_to_free_pages failed for klogd...
-Dec 13 08:00:12 symonds kernel: VM: do_try_to_free_pages failed for eggdrop...
-Dec 13 08:00:12 symonds kernel: VM: do_try_to_free_pages failed for init...
-Dec 13 08:00:12 symonds kernel: VM: do_try_to_free_pages failed for traceroute...
+CORBA, today, gives us superior interoperability (through IIOP), with
+extensibility for the future.  As Alexander Viro mentions, 9P may be a
+better protocol for local communications... so CORBA gives us a framework
+to try that out with.  Even IIOP is smart enough to, for example, only do
+endian swapping of data if the two machines actually differ... so at least
+it doesn't specify a "network" byte order. 
 
-...etc.
+CORBA isn't ideal for all applications, it certainly isn't the ideal IPC
+or RPC mechanism (the L4 designers would have a laughing fit if you tried
+to use it for _general_ IPC), but it is very useful for a lot of
+things.  kORBit is very pre-alpha code, it works, but has lots of room for
+enhancements, experiementation, and toying around with.  
 
-Sometimes this will happen 10 minutes after a reboot,
-or 45 mins, but neither machine will stay up for more 
-than 30 hours or so (usually *much* less).  
+That's what makes it cool.  :)
 
-Something else I noticed is that the Load average 
-is usually around 0.08, but when I let it idle for a 
-few mins, just tapping the spacebar in a terminal will 
-cause it to stop responding for 10 or so seconds with 
-the load average skyrocketing to over 6.  After that the 
-system sometimes recovers and starts responding normally, 
-other times it will die.
+-Chris
 
-Is there a patch out there that I can apply to 2.2.14
-against the security bug?  The machines were very stable
-on that kernel.
+http://www.nondot.org/~sabre/os/
+http://www.nondot.org/MagicStats/
+http://korbit.sourceforge.net/
 
-Anything I can do from userland to help, let me know.
-
---
-Mark
-
-grep me no patterns and I'll tell you no lines.
 
 
 -

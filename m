@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317404AbSIHRfs>; Sun, 8 Sep 2002 13:35:48 -0400
+	id <S318107AbSIHRn5>; Sun, 8 Sep 2002 13:43:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318107AbSIHRfs>; Sun, 8 Sep 2002 13:35:48 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:29446 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S317404AbSIHRfr>; Sun, 8 Sep 2002 13:35:47 -0400
-Date: Mon, 9 Sep 2002 03:40:22 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Performance issue in 2.5.32+
-In-Reply-To: <200209081545.g88FjQZ10714@penguin.transmeta.com>
-Message-ID: <Mutt.LNX.4.44.0209090326100.21359-100000@blackbird.intercode.com.au>
+	id <S318121AbSIHRn5>; Sun, 8 Sep 2002 13:43:57 -0400
+Received: from mta2n.bluewin.ch ([195.186.4.220]:32702 "EHLO mta2n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S318107AbSIHRn5>;
+	Sun, 8 Sep 2002 13:43:57 -0400
+Message-ID: <3D7BA992.113333E@bluewin.ch>
+Date: Sun, 08 Sep 2002 19:48:34 +0000
+From: Mario Vanoni <vanonim@bluewin.ch>
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-pre5aa1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: 2.4-pre5[{-}xyz]: 4 machines, feedback only
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Sep 2002, Linus Torvalds wrote:
+gr4: UP PIII550 1GB mem SCSI only, 4 HD's
+gr5: UP Celeron996 512MB mem IDE. 2 HD's
+va1: dual SMP PIII550 1GB mem SCSI only, 4 HD's
+va3: dual SMP PIII1266 2GB mem,
+     SCSI HD's (4), IDE DVD + burner
 
-> That "something else" may be some process that is constantly running one
-> one CPU or something.
-> 
-> Maybe something got confused by the kernel change, and is now getting
-> stuck in the background? 
+2.4.20-pre5: all machines OK >24h
 
-Not as far as I can tell.  The system is RH 7.3 with errata, and I've run
-the tests again after shutting down everything except console login with
-no change.  No processes seem to be running abnormally.
+2.4.20-pre5aa1: gr4 network 10Mbits/BNC _dead_,
+                gr5, va1 and va3 OK >24h
 
-I guess it could be an existing hardware problem which has been triggered 
-by some innocuous change.
+2.4.20-pre5-ac4: gr4 & va1 OK, >24h
+                 gr5 & va3 _not_ compilable,
+                 at ide/idedriver.o stop
 
+All kernels _without_ modules, pure static,
+and no other patches.
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+Regards
 
+Mario, _not_ in lmkl
 
+PS gr4 is a production machine,
+   touchable maybe on weekends !!!

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289457AbSAJOPE>; Thu, 10 Jan 2002 09:15:04 -0500
+	id <S289461AbSAJOWy>; Thu, 10 Jan 2002 09:22:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289461AbSAJOOy>; Thu, 10 Jan 2002 09:14:54 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:58606 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S289457AbSAJOOi>; Thu, 10 Jan 2002 09:14:38 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <25006.1010627525@kao2.melbourne.sgi.com> 
-In-Reply-To: <25006.1010627525@kao2.melbourne.sgi.com> 
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Corey Minyard <minyard@acm.org>, linux-kernel@vger.kernel.org
-Subject: Re: Moving zlib so that others may use it 
+	id <S289464AbSAJOWo>; Thu, 10 Jan 2002 09:22:44 -0500
+Received: from spaans.ds9a.nl ([213.244.168.214]:5102 "HELO spaans.ds9a.nl")
+	by vger.kernel.org with SMTP id <S289461AbSAJOWe>;
+	Thu, 10 Jan 2002 09:22:34 -0500
+Date: Thu, 10 Jan 2002 15:22:46 +0100
+From: Jasper Spaans <j@sp3r.net>
+To: David Balazic <david.balazic@uni-mb.si>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Simple local DOS
+Message-ID: <20020110142246.GB19345@spaans.ds9a.nl>
+In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si> <1010671055.26821.4.camel@bip> <3C3D9F55.8C617D80@uni-mb.si>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 10 Jan 2002 14:13:58 +0000
-Message-ID: <25702.1010672038@redhat.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <3C3D9F55.8C617D80@uni-mb.si>
+User-Agent: Mutt/1.3.25i
+Organization: http://www.insultant.nl/
+X-Copyright: Copyright 2002 C. Jasper Spaans - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 10, 2002 at 03:04:05PM +0100, David Balazic wrote:
+> > > how do I start chvt if I have a locked up console system ?
+> > Ctrl-Alt-F1 ?
+> Which part of "locked up console system" you don't understand ? :-)
 
-kaos@ocs.com.au said:
->  I am assuming that you can satisfy hpa's concerns about using a
-> single version of zlib for everybody.  Also note that arch/ppc/boot/
-> lib has its own version of zlib which is quite different to the
-> others.  First make sure that you can build one version of zlib that
-> works for everybody. 
+In that case, log in through telnet, become root, and type 'chvt 1'.
 
-I can confirm that the JFFS2 and PPP zlib are compatible - differing in 
-cosmetics only. Moving it to lib/zlib would be a good thing.
+Works like a charm here.
 
-We can verify compatibility for other zlib users as an when those other
-users are converted to use lib/zlib instead of their own private copy.
-
-
-> The best option is to build zlib.o for the kernel (not module) and
-> store it in lib.a.  Compile zlib.o if any consumer of zlib has been
-> selected and add a dummy reference to zlib code in vmlinux to ensure
-> that zlib is pulled from the archive if anybody needs it, even if all
-> the consumers are in modules. 
-
-AUIU you've since decided this isn't necessary - which is good. Making the
-static kernel image differ according to which modules happened to be
-compiled at the time is not a good thing. Sometimes we do it, but we should
-avoid it when we can.
-
-If zlib.o is used in modules only, compile it as a module. Don't put it 
-into the kernel.
-
---
-dwmw2
-
-
+Regards,
+-- 
+Jasper Spaans
+http://jsp.ds9a.nl/contact/
+Tel/Fax: +31-84-8749842
+``Got no clue? Too bad for you.''

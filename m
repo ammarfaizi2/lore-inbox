@@ -1,93 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317018AbSFFRFe>; Thu, 6 Jun 2002 13:05:34 -0400
+	id <S317020AbSFFRG1>; Thu, 6 Jun 2002 13:06:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317020AbSFFRFd>; Thu, 6 Jun 2002 13:05:33 -0400
-Received: from murphys.services.quay.plus.net ([212.159.14.225]:388 "HELO
-	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S317018AbSFFRFc>; Thu, 6 Jun 2002 13:05:32 -0400
-Message-ID: <004d01c20d7c$1205a1e0$0501a8c0@Stev.org>
-From: "James Stevenson" <mistral@stev.org>
-To: "Greg Donald" <greg@destiney.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206061121020.23180-100000@destiney.com>
-Subject: Re: list serv help
-Date: Thu, 6 Jun 2002 18:02:49 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S317021AbSFFRGZ>; Thu, 6 Jun 2002 13:06:25 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:42664
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S317020AbSFFRGV>; Thu, 6 Jun 2002 13:06:21 -0400
+Date: Thu, 6 Jun 2002 10:05:03 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Robert Love <rml@tech9.net>
+Cc: "David S. Miller" <davem@redhat.com>, akpm@zip.com.au,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] CONFIG_NR_CPUS
+Message-ID: <20020606170503.GA14252@opus.bloom.county>
+In-Reply-To: <3CFF3504.1DCD24E7@zip.com.au> <20020606.031520.08940800.davem@redhat.com> <1023377213.13787.2.camel@sinai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, Jun 06, 2002 at 08:26:52AM -0700, Robert Love wrote:
 
-yeah you dont have any mx records
+> On Thu, 2002-06-06 at 03:15, David S. Miller wrote:
+>  
+> > Nice.  While you're at it can you fix the value on 64-bit
+> > platforms when CONFIG_NR_CPUS is not specified?  (it should
+> > be 64, not 32)
+> 
+> I agree, this is good.  I often am toying with some debugging aid that
+> is an array of NR_CPUS and waste a lot of memory with NR_CPUS stuck at
+> 32... no reason my kernels should not be set to 2 or whatever I need.
+> 
+> I have attached a patch that is Andrew's + your request, Dave.  Since
+> what really determines the maximum number of CPUs is the size of
+> unsigned long, I used that.  Cool?
 
-[6 james@beast ~]$ host mail.destiney.com
-Host mail.destiney.com. not found: 2(SERVFAIL)
+Here's a (compile) tested version for PPC.  arch/ppc/kernel/smp.c makes
+much less use of max_cpus, so this should be all that's needed. BTW, on
+x86 max_cpus could become __initdata if someone cares..
 
-[7 james@beast ~]$ host mail.destiney.com
-Host mail.destiney.com. not found: 2(SERVFAIL)
-
-[8 james@beast ~]$ host -tMX mail.destiney.com
-Host mail.destiney.com. not found: 2(SERVFAIL)
-
-[9 james@beast ~]$ host -tMX destiney.com
-Host destiney.com. not found: 2(SERVFAIL)
-
-[10 james@beast ~]$ host -tA destiney.com
-destiney.com. has address 207.65.176.133
-
-
-
------ Original Message -----
-From: "Greg Donald" <greg@destiney.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, June 06, 2002 5:42 PM
-Subject: list serv help
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
 
->
-> My server lost dns for several hours a couple of weeks back.  Since then
-> I have made several unsuccessful attempts at getting back on the
-> linux-kernel list serv.  As far as I can tell I was unsubscribed durign
-> my dns outage.
->
-> I started reading the available FAQs and came across the MX record
-> verfication form at http://vger.kernel.org/mxverify.html:
->
-> The results seem incorrect:
->
-http://vger.kernel.org/cgi-bin/mxverify-cgi?DOMAIN=greg@destiney.com&SUBMIT=
-Submit+to+VGER.KERNEL.ORG
->
-> Testing MX server: mail.destiney.com
->
-> --- sorry, address lookup for ``mail.destiney.com'' failed;
-> code = Temporary failure in name resolution
->
->
-> But when I try my domain from any other server I have no issues:
->
-> firewall:~$ nslookup mail.destiney.com
-> Server:  sun00bna.bna.bellsouth.net
-> Address:  205.152.150.254
->
-> Non-authoritative answer:
-> Name:    destiney.com
-> Address:  207.65.176.133
-> Aliases:  mail.destiney.com
->
->
-> +-(destiney@gateway)
-> +-(~)> nslookup mail.destiney.com
-> Server:         68.52.0.5
-> Address:        68.52.0.5#53
->
-> Non-authoritative answer:
-> mail.destiney.com       canonical name = destiney.com.
-> Name:   destiney.com
-> Address: 207.65.176.133
-
-
-
+===== arch/ppc/config.in 1.36 vs edited =====
+--- 1.36/arch/ppc/config.in	Fri May 24 04:15:43 2002
++++ edited/arch/ppc/config.in	Thu Jun  6 09:30:39 2002
+@@ -172,6 +172,7 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ if [ "$CONFIG_SMP" = "y" ]; then
+    bool '  Distribute interrupts on all CPUs by default' CONFIG_IRQ_ALL_CPUS
++   int  '  Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+ fi
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Preemptible Kernel' CONFIG_PREEMPT
+===== arch/ppc/Config.help 1.10 vs edited =====
+--- 1.10/arch/ppc/Config.help	Fri May 24 03:38:05 2002
++++ edited/arch/ppc/Config.help	Thu Jun  6 09:31:04 2002
+@@ -14,6 +14,14 @@
+ 
+   If you don't know what to do here, say N.
+ 
++CONFIG_NR_CPUS
++  This allows you to specify the maximum number of CPUs which this
++  kernel will support.  The maximum supported value is 32 and the
++  mimimum value which makes sense is 2.
++
++  This is purely to save memory - each supported CPU adds
++  approximately eight kilobytes to the kernel image.
++
+ CONFIG_PREEMPT
+   This option reduces the latency of the kernel when reacting to
+   real-time or interactive events by allowing a low priority process to

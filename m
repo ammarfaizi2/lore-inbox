@@ -1,212 +1,666 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbULOBic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbULOBnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261792AbULOBic (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 20:38:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbULOBhY
+	id S261854AbULOBnn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 20:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbULOBm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 20:37:24 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:54542 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261834AbULOB15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 20:27:57 -0500
-Date: Wed, 15 Dec 2004 02:27:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/sched/: possible cleanups
-Message-ID: <20041215012754.GH12937@stusta.de>
+	Tue, 14 Dec 2004 20:42:57 -0500
+Received: from ns1.digitalpath.net ([65.164.104.5]:47316 "HELO
+	mail.digitalpath.net") by vger.kernel.org with SMTP id S261850AbULOBdM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 20:33:12 -0500
+Date: Tue, 14 Dec 2004 17:32:28 -0800
+From: Ray Van Dolson <rayvd@digitalpath.net>
+To: linux-kernel@vger.kernel.org
+Subject: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Message-ID: <20041215013228.GA3390@digitalpath.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below contans the following possible cleanups:
-- make some needlessly global code static
-- sch_htb.c: #undef HTB_DEBUG
+Hoping someone can shed some light on this, or help me out in narrowing the
+problem down.
+
+Our servers exhibit these error messages (at bottom) off and on and
+eventually appears to lead to system instability.  I guess the three
+possibilities are that this is either a) a hardware problem, b) a problem
+with poptop, pppd or the mppe modules, or c) a problem with the kernel
+
+This happens on every single one of our DL140's, so if it's a hardware
+problem, then it is widespread on this platform.
+
+If it's a problem with poptop, pppd or mppe modules I'd at least like to be
+able to give some evidence to that effect...
+
+If it's c, I'm hoping someone here can give some suggestions on how to
+resolve this. :-)  Please let me know if I can provide further information.
+I have a box on which this happens fairly regularly, so I can reproduce it
+pretty easily.
+
+Thanks in advance!
+
+System Specs:
+HP DL140
+Dual 2.4GHz P4 Xeon w/ Hyperthreading
+Fedora Core 2
+2.6.9 kernel (static compile, downloaded from ftp.kernel.org with the
+              following patches):
+ - http://marc.theaimsgroup.com/?l=linux-kernel&m=109926628920398
+   This fixes an oops I was getting in mm/prio_tree.c
+ - http://mdomsch.bkbits.net:8080/linux-2.6-mppe
+   This provides MPPE support for clients connecting via PoPToP 1.2.1.
+
+Intel E100 Pro Dual Port NIC (Using built-in e100 driver).
+Onboard Broadcom BCM5700 Gigabit NIC's are *not* in use (no driver support
+ compiled in)
+
+Software:
+Poptop 1.2.1
+PPP 2.4.3
+
+Kernel config:
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_AUDIT=y
+CONFIG_AUDITSYSCALL=y
+CONFIG_LOG_BUF_SHIFT=17
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_KALLSYMS_EXTRA_PASS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_SHMEM=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_GENERIC=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=8
+CONFIG_SCHED_SMT=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_HIGHPTE=y
+CONFIG_MTRR=y
+CONFIG_IRQBALANCE=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_ASUS=y
+CONFIG_ACPI_TOSHIBA=y
+CONFIG_ACPI_BLACKLIST_YEAR=2001
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_CRYPTOLOOP=y
+CONFIG_BLK_DEV_NBD=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=16384
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_LBD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_SVWKS=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_SPI_ATTRS=y
+CONFIG_SCSI_FC_ATTRS=y
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_I2O=y
+CONFIG_I2O_CONFIG=y
+CONFIG_I2O_BLOCK=y
+CONFIG_I2O_SCSI=y
+CONFIG_I2O_PROC=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_NET_IPIP=y
+CONFIG_NET_IPGRE=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_INET_IPCOMP=y
+CONFIG_INET_TUNNEL=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_CT_ACCT=y
+CONFIG_IP_NF_CT_PROTO_SCTP=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IRC=y
+CONFIG_IP_NF_TFTP=y
+CONFIG_IP_NF_AMANDA=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_CONNTRACK=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_MATCH_ADDRTYPE=y
+CONFIG_IP_NF_MATCH_REALM=y
+CONFIG_IP_NF_MATCH_SCTP=y
+CONFIG_IP_NF_MATCH_COMMENT=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_TARGET_NETMAP=y
+CONFIG_IP_NF_TARGET_SAME=y
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=y
+CONFIG_IP_NF_NAT_IRC=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_NAT_TFTP=y
+CONFIG_IP_NF_NAT_AMANDA=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_CLASSIFY=y
+CONFIG_IP_NF_RAW=y
+CONFIG_IP_NF_TARGET_NOTRACK=y
+CONFIG_IP_NF_ARPTABLES=y
+CONFIG_IP_NF_ARPFILTER=y
+CONFIG_IP_NF_ARP_MANGLE=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=y
+CONFIG_NET_DIVERT=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CLK_JIFFIES=y
+CONFIG_NET_SCH_CBQ=y
+CONFIG_NET_SCH_HTB=y
+CONFIG_NET_SCH_HFSC=y
+CONFIG_NET_SCH_PRIO=y
+CONFIG_NET_SCH_RED=y
+CONFIG_NET_SCH_SFQ=y
+CONFIG_NET_SCH_TEQL=y
+CONFIG_NET_SCH_TBF=y
+CONFIG_NET_SCH_GRED=y
+CONFIG_NET_SCH_DSMARK=y
+CONFIG_NET_SCH_NETEM=y
+CONFIG_NET_SCH_INGRESS=y
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=y
+CONFIG_NET_CLS_ROUTE4=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=y
+CONFIG_NET_CLS_U32=y
+CONFIG_CLS_U32_PERF=y
+CONFIG_NET_CLS_IND=y
+CONFIG_NET_CLS_RSVP=y
+CONFIG_NET_CLS_RSVP6=y
+CONFIG_NET_CLS_POLICE=y
+CONFIG_NETPOLL=y
+CONFIG_NET_POLL_CONTROLLER=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+CONFIG_PPP=y
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_SYNC_TTY=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_PPP_MPPE=y
+CONFIG_NETCONSOLE=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_MOUSE_SERIAL=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_INPUT_UINPUT=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=1024
+CONFIG_SERIAL_8250_EXTENDED=y
+CONFIG_SERIAL_8250_SHARE_IRQ=y
+CONFIG_SERIAL_8250_DETECT_IRQ=y
+CONFIG_SERIAL_8250_MULTIPORT=y
+CONFIG_SERIAL_8250_RSA=y
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_IPMI_HANDLER=y
+CONFIG_IPMI_DEVICE_INTERFACE=y
+CONFIG_IPMI_SI=y
+CONFIG_IPMI_WATCHDOG=y
+CONFIG_IPMI_POWEROFF=y
+CONFIG_HW_RANDOM=y
+CONFIG_NVRAM=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_ATI=y
+CONFIG_AGP_INTEL=y
+CONFIG_HANGCHECK_TIMER=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_ALGOBIT=y
+CONFIG_I2C_ALGOPCF=y
+CONFIG_I2C_ALGOPCA=y
+CONFIG_I2C_I801=y
+CONFIG_I2C_I810=y
+CONFIG_I2C_ISA=y
+CONFIG_I2C_PIIX4=y
+CONFIG_I2C_SENSOR=y
+CONFIG_SENSORS_ADM1021=y
+CONFIG_SENSORS_ADM1025=y
+CONFIG_SENSORS_ADM1031=y
+CONFIG_SENSORS_ASB100=y
+CONFIG_SENSORS_DS1621=y
+CONFIG_SENSORS_FSCHER=y
+CONFIG_SENSORS_GL518SM=y
+CONFIG_SENSORS_IT87=y
+CONFIG_SENSORS_LM75=y
+CONFIG_SENSORS_LM77=y
+CONFIG_SENSORS_LM78=y
+CONFIG_SENSORS_LM80=y
+CONFIG_SENSORS_LM83=y
+CONFIG_SENSORS_LM85=y
+CONFIG_SENSORS_LM90=y
+CONFIG_SENSORS_MAX1619=y
+CONFIG_SENSORS_SMSC47M1=y
+CONFIG_SENSORS_VIA686A=y
+CONFIG_SENSORS_W83781D=y
+CONFIG_SENSORS_W83L785TS=y
+CONFIG_SENSORS_W83627HF=y
+CONFIG_SENSORS_EEPROM=y
+CONFIG_SENSORS_PCF8574=y
+CONFIG_SENSORS_PCF8591=y
+CONFIG_SENSORS_RTC8564=y
+CONFIG_VIDEO_DEV=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_ROMFS_FS=y
+CONFIG_AUTOFS_FS=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=y
+CONFIG_UDF_FS=y
+CONFIG_UDF_NLS=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFS_V4=y
+CONFIG_NFS_DIRECTIO=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_V4=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_SUNRPC_GSS=y
+CONFIG_RPCSEC_GSS_KRB5=y
+CONFIG_SMB_FS=y
+CONFIG_CIFS=y
+CONFIG_CIFS_XATTR=y
+CONFIG_CIFS_POSIX=y
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_OSF_PARTITION=y
+CONFIG_MAC_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_BSD_DISKLABEL=y
+CONFIG_MINIX_SUBPARTITION=y
+CONFIG_SOLARIS_X86_PARTITION=y
+CONFIG_UNIXWARE_DISKLABEL=y
+CONFIG_SGI_PARTITION=y
+CONFIG_SUN_PARTITION=y
+CONFIG_EFI_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="utf8"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_737=y
+CONFIG_NLS_CODEPAGE_775=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_CODEPAGE_852=y
+CONFIG_NLS_CODEPAGE_855=y
+CONFIG_NLS_CODEPAGE_857=y
+CONFIG_NLS_CODEPAGE_860=y
+CONFIG_NLS_CODEPAGE_861=y
+CONFIG_NLS_CODEPAGE_862=y
+CONFIG_NLS_CODEPAGE_863=y
+CONFIG_NLS_CODEPAGE_864=y
+CONFIG_NLS_CODEPAGE_865=y
+CONFIG_NLS_CODEPAGE_866=y
+CONFIG_NLS_CODEPAGE_869=y
+CONFIG_NLS_CODEPAGE_936=y
+CONFIG_NLS_CODEPAGE_950=y
+CONFIG_NLS_CODEPAGE_932=y
+CONFIG_NLS_CODEPAGE_949=y
+CONFIG_NLS_CODEPAGE_874=y
+CONFIG_NLS_ISO8859_8=y
+CONFIG_NLS_CODEPAGE_1250=y
+CONFIG_NLS_CODEPAGE_1251=y
+CONFIG_NLS_ASCII=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_2=y
+CONFIG_NLS_ISO8859_3=y
+CONFIG_NLS_ISO8859_4=y
+CONFIG_NLS_ISO8859_5=y
+CONFIG_NLS_ISO8859_6=y
+CONFIG_NLS_ISO8859_7=y
+CONFIG_NLS_ISO8859_9=y
+CONFIG_NLS_ISO8859_13=y
+CONFIG_NLS_ISO8859_14=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_KOI8_R=y
+CONFIG_NLS_KOI8_U=y
+CONFIG_NLS_UTF8=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_DEBUG_STACK_USAGE=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=y
+CONFIG_CRYPTO_MD4=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=y
+CONFIG_CRYPTO_SHA512=y
+CONFIG_CRYPTO_WP512=y
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=y
+CONFIG_CRYPTO_TWOFISH=y
+CONFIG_CRYPTO_SERPENT=y
+CONFIG_CRYPTO_AES_586=y
+CONFIG_CRYPTO_CAST5=y
+CONFIG_CRYPTO_CAST6=y
+CONFIG_CRYPTO_TEA=y
+CONFIG_CRYPTO_ARC4=y
+CONFIG_CRYPTO_KHAZAD=y
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRYPTO_MICHAEL_MIC=y
+CONFIG_CRYPTO_CRC32C=y
+CONFIG_CRC_CCITT=y
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y
+
+lspci output:
+
+00:00.0 Host bridge: ServerWorks GCNB-LE Host Bridge (rev 32)
+00:00.1 Host bridge: ServerWorks GCNB-LE Host Bridge
+00:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+00:0f.0 ISA bridge: ServerWorks CSB6 South Bridge (rev a0)
+00:0f.1 IDE interface: ServerWorks CSB6 RAID/IDE Controller (rev a0)
+00:0f.2 USB Controller: ServerWorks CSB6 OHCI USB Controller (rev 05)
+00:0f.3 Host bridge: ServerWorks GCLE-2 Host Bridge
+00:10.0 Host bridge: ServerWorks CIOB-E I/O Bridge with Gigabit Ethernet (rev 12)
+00:10.2 Host bridge: ServerWorks CIOB-E I/O Bridge with Gigabit Ethernet (rev 12)
+01:06.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
+02:04.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 05)
+02:05.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 05)
+03:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethernet (rev 02)
+03:00.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethernet (rev 02)
+
+ksymoops output of problem:
+
+ksymoops 2.4.9 on i686 2.6.9.  Options used
+     -V (default)
+     -K (specified)
+     -l /proc/modules (default)
+     -O (specified)
+     -m /boot/System.map (specified)
+
+No ksyms, skipping lsmod
+Unable to handle kernel NULL pointer dereference<7>divert: not allocating divert_blk for non-ethernet device ppp440
+00000000
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    2
+EIP:    0060:[<00000000>]    Not tainted VLI
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286   (2.6.9) 
+eax: ed13b000   ebx: d1d0a000   ecx: c029e9de   edx: f795ef40
+esi: d1d0a000   edi: 00000000   ebp: e2f30080   esp: d2b0dea0
+ds: 007b   es: 007b   ss: 0068
+Stack: c02a205a ed13b000 00000000 c02a122c d1d0a000 13208a2e c040956f d1d0a000 
+       d1d0a00c e2f30080 00000000 c029cda9 d1d0a000 e2f30080 00000000 c01552cd 
+       e2f30080 00000010 00000004 00000004 c0166aa0 e2f30080 00000000 00000000 
+Call Trace:
+ [<c02a205a>] pty_chars_in_buffer+0x2c/0x49
+ [<c02a122c>] normal_poll+0xed/0x150
+ [<c040956f>] schedule_timeout+0x75/0xbf
+ [<c029cda9>] tty_poll+0xa0/0xb0
+ [<c01552cd>] fget+0x49/0x5e
+ [<c0166aa0>] do_select+0x269/0x2c6
+ [<c0166691>] __pollwait+0x0/0xc7
+ [<c0166dd5>] sys_select+0x2b3/0x4c6
+ [<c0105971>] sysenter_past_esp+0x52/0x71
+Code:  Bad EIP value.
 
 
-diffstat output:
- include/net/act_api.h   |    3 ---
- net/sched/gact.c        |    2 +-
- net/sched/police.c      |    8 ++++----
- net/sched/sch_api.c     |   11 ++++++-----
- net/sched/sch_dsmark.c  |    2 +-
- net/sched/sch_generic.c |    4 ++--
- net/sched/sch_htb.c     |    2 +-
- net/sched/sch_ingress.c |    2 +-
- net/sched/sch_prio.c    |    3 ++-
- 9 files changed, 18 insertions(+), 19 deletions(-)
+>>EIP; 00000000 Before first symbol
+
+>>eax; ed13b000 <pg0+2ca80000/3f943400>
+>>ebx; d1d0a000 <pg0+1164f000/3f943400>
+>>ecx; c029e9de <n_tty_chars_in_buffer+0/78>
+>>edx; f795ef40 <pg0+372a3f40/3f943400>
+>>esi; d1d0a000 <pg0+1164f000/3f943400>
+>>ebp; e2f30080 <pg0+22875080/3f943400>
+>>esp; d2b0dea0 <pg0+12452ea0/3f943400>
+
+Trace; c02a205a <pty_chars_in_buffer+2c/49>
+Trace; c02a122c <normal_poll+ed/150>
+Trace; c040956f <schedule_timeout+75/bf>
+Trace; c029cda9 <tty_poll+a0/b0>
+Trace; c01552cd <fget+49/5e>
+Trace; c0166aa0 <do_select+269/2c6>
+Trace; c0166691 <__pollwait+0/c7>
+Trace; c0166dd5 <sys_select+2b3/4c6>
+Trace; c0105971 <sysenter_past_esp+52/71>
+
+Yet another ksymoops output:
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+ksymoops 2.4.9 on i686 2.6.9.  Options used
+     -V (default)
+     -K (specified)
+     -l /proc/modules (default)
+     -O (specified)
+     -m /boot/System.map (specified)
 
---- linux-2.6.10-rc3-mm1-full/net/sched/gact.c.old	2004-12-14 22:32:34.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/sched/gact.c	2004-12-14 22:32:42.000000000 +0100
-@@ -68,7 +68,7 @@
- }
- 
- 
--g_rand gact_rand[MAX_RAND]= { NULL,gact_net_rand, gact_determ};
-+static g_rand gact_rand[MAX_RAND]= { NULL,gact_net_rand, gact_determ};
- 
- #endif
- static int
---- linux-2.6.10-rc3-mm1-full/include/net/act_api.h.old	2004-12-14 22:33:02.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/include/net/act_api.h	2004-12-14 22:33:14.000000000 +0100
-@@ -82,9 +82,6 @@
- extern int tcf_action_dump_old(struct sk_buff *skb, struct tc_action *a, int, int);
- extern int tcf_action_dump_1(struct sk_buff *skb, struct tc_action *a, int, int);
- extern int tcf_action_copy_stats (struct sk_buff *,struct tc_action *);
--extern int tcf_act_police_locate(struct rtattr *rta, struct rtattr *est,struct tc_action *,int , int );
--extern int tcf_act_police_dump(struct sk_buff *, struct tc_action *, int, int);
--extern int tcf_act_police(struct sk_buff **skb, struct tc_action *a);
- #endif /* CONFIG_NET_CLS_ACT */
- 
- extern int tcf_police(struct sk_buff *skb, struct tcf_police *p);
---- linux-2.6.10-rc3-mm1-full/net/sched/police.c.old	2004-12-14 22:33:22.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/sched/police.c	2004-12-14 22:33:39.000000000 +0100
-@@ -163,7 +163,7 @@
- }
- 
- #ifdef CONFIG_NET_CLS_ACT
--int tcf_act_police_locate(struct rtattr *rta, struct rtattr *est,struct tc_action *a, int ovr, int bind)
-+static int tcf_act_police_locate(struct rtattr *rta, struct rtattr *est,struct tc_action *a, int ovr, int bind)
- {
- 	unsigned h;
- 	int ret = 0;
-@@ -265,7 +265,7 @@
- 	return -1;
- }
- 
--int tcf_act_police_cleanup(struct tc_action *a, int bind)
-+static int tcf_act_police_cleanup(struct tc_action *a, int bind)
- {
- 	struct tcf_police *p;
- 	p = PRIV(a);
-@@ -275,7 +275,7 @@
- 	return 0;
- }
- 
--int tcf_act_police(struct sk_buff **pskb, struct tc_action *a)
-+static int tcf_act_police(struct sk_buff **pskb, struct tc_action *a)
- {
- 	psched_time_t now;
- 	struct sk_buff *skb = *pskb;
-@@ -338,7 +338,7 @@
- 	return p->action;
- }
- 
--int tcf_act_police_dump(struct sk_buff *skb, struct tc_action *a, int bind, int ref)
-+static int tcf_act_police_dump(struct sk_buff *skb, struct tc_action *a, int bind, int ref)
- {
- 	unsigned char	 *b = skb->tail;
- 	struct tc_police opt;
---- linux-2.6.10-rc3-mm1-full/net/sched/sch_api.c.old	2004-12-14 22:36:33.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/sched/sch_api.c	2004-12-14 22:39:03.000000000 +0100
-@@ -207,7 +207,7 @@
- 	return NULL;
- }
- 
--struct Qdisc *qdisc_leaf(struct Qdisc *p, u32 classid)
-+static struct Qdisc *qdisc_leaf(struct Qdisc *p, u32 classid)
- {
- 	unsigned long cl;
- 	struct Qdisc *leaf;
-@@ -226,7 +226,7 @@
- 
- /* Find queueing discipline by name */
- 
--struct Qdisc_ops *qdisc_lookup_ops(struct rtattr *kind)
-+static struct Qdisc_ops *qdisc_lookup_ops(struct rtattr *kind)
- {
- 	struct Qdisc_ops *q = NULL;
- 
-@@ -290,7 +290,7 @@
- 
- /* Allocate an unique handle from space managed by kernel */
- 
--u32 qdisc_alloc_handle(struct net_device *dev)
-+static u32 qdisc_alloc_handle(struct net_device *dev)
- {
- 	int i = 0x10000;
- 	static u32 autohandle = TC_H_MAKE(0x80000000U, 0);
-@@ -356,8 +356,9 @@
-    Old qdisc is not destroyed but returned in *old.
-  */
- 
--int qdisc_graft(struct net_device *dev, struct Qdisc *parent, u32 classid,
--		struct Qdisc *new, struct Qdisc **old)
-+static int qdisc_graft(struct net_device *dev, struct Qdisc *parent,
-+		       u32 classid,
-+		       struct Qdisc *new, struct Qdisc **old)
- {
- 	int err = 0;
- 	struct Qdisc *q = *old;
---- linux-2.6.10-rc3-mm1-full/net/sched/sch_dsmark.c.old	2004-12-14 22:39:16.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/sched/sch_dsmark.c	2004-12-14 22:39:24.000000000 +0100
-@@ -320,7 +320,7 @@
- }
- 
- 
--int dsmark_init(struct Qdisc *sch,struct rtattr *opt)
-+static int dsmark_init(struct Qdisc *sch,struct rtattr *opt)
- {
- 	struct dsmark_qdisc_data *p = PRIV(sch);
- 	struct rtattr *tb[TCA_DSMARK_MAX];
---- linux-2.6.10-rc3-mm1-full/net/sched/sch_generic.c.old	2004-12-14 22:39:41.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/sched/sch_generic.c	2004-12-14 22:40:00.000000000 +0100
-@@ -283,7 +283,7 @@
- 	.list		=	LIST_HEAD_INIT(noop_qdisc.list),
- };
- 
--struct Qdisc_ops noqueue_qdisc_ops = {
-+static struct Qdisc_ops noqueue_qdisc_ops = {
- 	.next		=	NULL,
- 	.cl_ops		=	NULL,
- 	.id		=	"noqueue",
-@@ -294,7 +294,7 @@
- 	.owner		=	THIS_MODULE,
- };
- 
--struct Qdisc noqueue_qdisc = {
-+static struct Qdisc noqueue_qdisc = {
- 	.enqueue	=	NULL,
- 	.dequeue	=	noop_dequeue,
- 	.flags		=	TCQ_F_BUILTIN,
---- linux-2.6.10-rc3-mm1-full/net/sched/sch_ingress.c.old	2004-12-14 22:40:25.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/sched/sch_ingress.c	2004-12-14 22:40:34.000000000 +0100
-@@ -274,7 +274,7 @@
- #endif
- #endif
- 
--int ingress_init(struct Qdisc *sch,struct rtattr *opt)
-+static int ingress_init(struct Qdisc *sch,struct rtattr *opt)
- {
- 	struct ingress_qdisc_data *p = PRIV(sch);
- 
---- linux-2.6.10-rc3-mm1-full/net/sched/sch_prio.c.old	2004-12-14 22:40:49.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/sched/sch_prio.c	2004-12-14 22:41:03.000000000 +0100
-@@ -47,7 +47,8 @@
- };
- 
- 
--struct Qdisc *prio_classify(struct sk_buff *skb, struct Qdisc *sch,int *r)
-+static struct Qdisc *prio_classify(struct sk_buff *skb,
-+				   struct Qdisc *sch, int *r)
- {
- 	struct prio_sched_data *q = qdisc_priv(sch);
- 	u32 band = skb->priority;
---- linux-2.6.10-rc3-mm1-full/net/sched/sch_htb.c.old	2004-12-14 22:41:56.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/sched/sch_htb.c	2004-12-14 23:46:12.000000000 +0100
-@@ -71,7 +71,7 @@
- 
- #define HTB_HSIZE 16	/* classid hash size */
- #define HTB_EWMAC 2	/* rate average over HTB_EWMAC*HTB_HSIZE sec */
--#define HTB_DEBUG 1	/* compile debugging support (activated by tc tool) */
-+#undef HTB_DEBUG	/* compile debugging support (activated by tc tool) */
- #define HTB_RATECM 1    /* whether to use rate computer */
- #define HTB_HYSTERESIS 1/* whether to use mode hysteresis for speedup */
- #define HTB_QLOCK(S) spin_lock_bh(&(S)->dev->queue_lock)
+No ksyms, skipping lsmod
+Unable to handle kernel NULL pointer dereference<7>divert: not allocating divert_blk for non-ethernet device ppp504
+00000000
+*pde = 00000000
+Oops: 0000 [#2]
+CPU:    2
+EIP:    0060:[<00000000>]    Not tainted VLI
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286   (2.6.9) 
+eax: cc8ae000   ebx: d46ca000   ecx: c029e9de   edx: f7801880
+esi: d46ca000   edi: 00000000   ebp: e16a1d80   esp: d2907ea0
+ds: 007b   es: 007b   ss: 0068
+Stack: c02a205a cc8ae000 00000000 c02a122c d46ca000 1da86df5 c040956f d46ca000 
+       d46ca00c e16a1d80 00000000 c029cda9 d46ca000 e16a1d80 00000000 c01552cd 
+       e16a1d80 00000010 00000004 00000004 c0166aa0 e16a1d80 00000000 00000000 
+Call Trace:
+ [<c02a205a>] pty_chars_in_buffer+0x2c/0x49
+ [<c02a122c>] normal_poll+0xed/0x150
+ [<c040956f>] schedule_timeout+0x75/0xbf
+ [<c029cda9>] tty_poll+0xa0/0xb0
+ [<c01552cd>] fget+0x49/0x5e
+ [<c0166aa0>] do_select+0x269/0x2c6
+ [<c0166691>] __pollwait+0x0/0xc7
+ [<c0166dd5>] sys_select+0x2b3/0x4c6
+ [<c0105971>] sysenter_past_esp+0x52/0x71
+Code:  Bad EIP value.
 
+
+>>EIP; 00000000 Before first symbol
+
+>>eax; cc8ae000 <pg0+c1f3000/3f943400>
+>>ebx; d46ca000 <pg0+1400f000/3f943400>
+>>ecx; c029e9de <n_tty_chars_in_buffer+0/78>
+>>edx; f7801880 <pg0+37146880/3f943400>
+>>esi; d46ca000 <pg0+1400f000/3f943400>
+>>ebp; e16a1d80 <pg0+20fe6d80/3f943400>
+>>esp; d2907ea0 <pg0+1224cea0/3f943400>
+
+Trace; c02a205a <pty_chars_in_buffer+2c/49>
+Trace; c02a122c <normal_poll+ed/150>
+Trace; c040956f <schedule_timeout+75/bf>
+Trace; c029cda9 <tty_poll+a0/b0>
+Trace; c01552cd <fget+49/5e>
+Trace; c0166aa0 <do_select+269/2c6>
+Trace; c0166691 <__pollwait+0/c7>
+Trace; c0166dd5 <sys_select+2b3/4c6>
+Trace; c0105971 <sysenter_past_esp+52/71>

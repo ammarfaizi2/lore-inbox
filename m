@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292612AbSBPXiK>; Sat, 16 Feb 2002 18:38:10 -0500
+	id <S292807AbSBQGxS>; Sun, 17 Feb 2002 01:53:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292613AbSBPXiA>; Sat, 16 Feb 2002 18:38:00 -0500
-Received: from holomorphy.com ([216.36.33.161]:18818 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S292612AbSBPXht>;
-	Sat, 16 Feb 2002 18:37:49 -0500
-Date: Sat, 16 Feb 2002 15:37:39 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] shrink struct page for 2.5
-Message-ID: <20020216233739.GA3511@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.33L.0202161804330.1930-100000@imladris.surriel.com>
-Mime-Version: 1.0
+	id <S292808AbSBQGxI>; Sun, 17 Feb 2002 01:53:08 -0500
+Received: from smtp.alacritech.com ([209.10.208.82]:18316 "EHLO
+	smtp.alacritech.com") by vger.kernel.org with ESMTP
+	id <S292807AbSBQGw6>; Sun, 17 Feb 2002 01:52:58 -0500
+Message-ID: <3C6F51CB.D4D8F328@alacritech.com>
+Date: Sat, 16 Feb 2002 22:46:35 -0800
+From: "Matt D. Robinson" <yakker@alacritech.com>
+Organization: Alacritech, Inc.
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Disgusted with kbuild developers
+In-Reply-To: <Pine.LNX.4.44.0202161156350.16872-100000@xanadu.home>
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0202161804330.1930-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 16, 2002 at 06:15:03PM -0200, Rik van Riel wrote:
-> Unfortunately I haven't managed to make 2.5.5-pre2 to boot on
-> my machine, so I haven't been able to test this port of the
-> patch to 2.5. The code has been running stably in 2.4 for the
-> last 2 months though, so if you can boot 2.5, please help test
-> this thing.
+[ everything deleted ]
 
-I tested current 2.5.5-pre bk on a diskless Pentium 200 MMX with 192MB
-of RAM loading with PXELINUX and with nfsroot enabled.
+Wow, I'm amazed at the amount of time spent on this thread,
+when people could have actually been doing real work, or
+maybe just enjoying family, friends, life ...
 
-The result was a triplefault (i.e. reboot) before console_init(),
-which clearly isn't our code failing.
+I hope it comes to some useful resolutions,
 
-It was literally early enough I'm inclined to suspect bootloader
-protocol issues.
-
-
-Cheers,
-Bill
+--Matt

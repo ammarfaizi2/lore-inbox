@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbTKNUXu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 15:23:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbTKNUXu
+	id S264442AbTKNUZM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 15:25:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTKNUZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 15:23:50 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:63748 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S264288AbTKNUXr (ORCPT
+	Fri, 14 Nov 2003 15:25:11 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:60683 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S264339AbTKNUZE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 15:23:47 -0500
-Date: Fri, 14 Nov 2003 21:23:39 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: "Patrick Beard" <patrick@scotcomms.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9 VFAT problem
-Message-ID: <20031114202339.GB18107@win.tue.nl>
-References: <20031114113224.GR21265@home.bofhlet.net> <bp2mab$sts$1@sea.gmane.org> <200311140945.36537.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311140945.36537.gene.heskett@verizon.net>
-User-Agent: Mutt/1.3.25i
+	Fri, 14 Nov 2003 15:25:04 -0500
+Date: Fri, 14 Nov 2003 21:24:11 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Solar Designer <solar@openwall.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-pre9 ide+XFree+ptrace=Complete hang
+In-Reply-To: <Pine.LNX.4.44.0311122319580.18399-100000@gaia.cela.pl>
+Message-ID: <Pine.LNX.4.44.0311142109590.14447-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 14, 2003 at 09:45:36AM -0500, Gene Heskett wrote:
+> As I've said it doesn't respond to pings.  As far as I can tell the 
+> processor might as well be doing a cli hlt.  As for X - I've had X crash 
+> (many) times and never in an unrestorable way - usually you can login from 
+> the network or hit my hotkey Fn+\ for bios vm86 int 10 screen reset...
 
-> Nov 14 09:19:51 coyote kernel: hub 3-2:1.0: new USB device on port 3, assigned address 9
-> Nov 14 09:19:51 coyote kernel: scsi4 : SCSI emulation for USB Mass Storage devices
-> Nov 14 09:19:52 coyote kernel:   Vendor: OLYMPUS   Model: C-3020ZOOM(U)     Rev: 1.00
-> Nov 14 09:19:52 coyote kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-> Nov 14 09:19:52 coyote kernel: SCSI device sda: 128000 512-byte hdwr sectors (66 MB)
-> Nov 14 09:19:52 coyote kernel: sda: assuming drive cache: write through
-> Nov 14 09:19:52 coyote kernel:  sda: sda1
-> Nov 14 09:20:34 coyote kernel: FAT: Filesystem panic (dev sda1)
-> Nov 14 09:20:34 coyote kernel:     fat_free: deleting beyond EOF (i_pos 0)
-> Nov 14 09:20:34 coyote kernel:     File system has been set read-only
-> 
-> Comments?  Screwed up kernel .config? Is mount "-t vfat" the 
-> correct filesystem?
+Well, I've just had the machine crash another two times, the first time I 
+thought it might have been a different bug, but looking back it was the 
+same issue.  This time the lockup happened during an ssh session in an 
+xterm under X - ie. no disk access, no strace/ptrace.  Again it happened 
+during screen update (half a character line on screen, the other half 
+still containing the old chars) - obviously this is an Xserver 
+Cyber9525DVD issue.  It would seem though that strace and ide access 
+greatly increase the probability of a hang happening.  I'm wondering if 
+there is any way to get the Xserver running without iopl(3) but using 
+ioperm instead - I know that the io bitmap is only 0x400 ports, could this 
+possibly be changed to encompass all 0x10000 ports and then redirect 
+iopl(n) to ioperm(0,0x10000,n==3), plus patch sigsegv handler to ignore 
+cli/sti, thus forcing interrupts to always remain enabled.  Cause that's 
+where the problem seems to live.  This would probably allow at least a 
+trace via serial console, etc...
 
-It would have been interesting to see the filesystem after this error message.
-Can you reproduce the error?
+Any ideas on how to trace this down (no nmi watchdog available)?
 
-(vfat? I don't know - most cameras just use msdos, but vfat doesnt harm,
-I suppose)
+Cheers,
+MaZe.
 
-The error message means that the fatfs followed a chain of clusters in order
-to delete them all and found a free cluster before finding an end-of-file mark.
 

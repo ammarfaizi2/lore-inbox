@@ -1,80 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268672AbTBZHWO>; Wed, 26 Feb 2003 02:22:14 -0500
+	id <S268673AbTBZH2a>; Wed, 26 Feb 2003 02:28:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268673AbTBZHWO>; Wed, 26 Feb 2003 02:22:14 -0500
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:60087 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S268672AbTBZHWN>; Wed, 26 Feb 2003 02:22:13 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Oliver Neukum <oliver@neukum.name>, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] USB speedtouch: better proc info
-Date: Wed, 26 Feb 2003 08:31:57 +0100
-User-Agent: KMail/1.5
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       chas williams <chas@locutus.cmf.nrl.navy.mil>
-References: <200302241058.52073.baldrick@wanadoo.fr> <200302250922.35971.baldrick@wanadoo.fr> <200302252154.44628.oliver@neukum.name>
-In-Reply-To: <200302252154.44628.oliver@neukum.name>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302260831.58094.baldrick@wanadoo.fr>
+	id <S268674AbTBZH2a>; Wed, 26 Feb 2003 02:28:30 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:14043 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S268673AbTBZH23>; Wed, 26 Feb 2003 02:28:29 -0500
+Date: Wed, 26 Feb 2003 18:45:42 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Software Suspend Functionality in 2.5
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1046238339.1699.65.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Oliver,
+Hi Linus.
 
-On Tuesday 25 February 2003 21:54, Oliver Neukum wrote:
-> > Hi Oliver, thanks for your comments.  While I agree with you in
-> > principle, I disagree in practice.  The driver exports the following
-> > information in /proc/net/atm/speedtch:
-> >
-> > (1) name and location of the USB device
-> > (2) MAC address (serial number)
-> > (3) AAL5 transmission statistics
-> > (4) Line status
-> > (5) Modem status
-> >
-> > (1) is needed in order to work out which modem corresponds to
-> > which ATM device.  This should be dealt with using sysfs, however
-> > the ATM layer has not yet been ported to sysfs.  Until it is, this
-> > seems like the best way to export this information.
->
-> For the time being I agree.
->
-> > (2) and (3) are redundant - they are published by the ATM layer
-> > in other proc files.  I thought about removing them, but decided
-> > against it because (a) it can be convenient having everything in
-> > one proc file, and (b) it is backwards compatible with the 2.4
-> > out-of-kernel driver.  They could go.
->
-> As long as you have a proc file at all, you may as well print them, IMHO.
->
-> > You suggested (in a private mail) using netif_carrier_on/off to
-> > export (4).  The ATM layer already has a method for reporting this,
-> > and I use it: set the ATM_PHY_SIG_FOUND/LOST bits in
-> > atm_dev->signal.  The problem is that the ATM layer doesn't do
-> > anything with this info (like export it to user space).  So I think
-> > it is fair enough to export it in the proc file while waiting for the
-> > ATM layer to be fixed.
->
-> Yes, but I think that you should notify the network layer too.
-> I see no reason any network driver shouldn't report this directly.
-> There's nothing specific to ATM in losing signal.
-> It's purely physical thing low level drivers should deal with.
+Pavel and I have been discussing what functionality should be in
+software suspend, and I wanted to ask your opinion since you're the
+final decision maker anyway.
 
-I can't notify the network layer because there is no net_device I can
-get hold of.
+Under 2.4, I've added a lot functionality which has recently been merged
+by Florent (swsusp beta 18). This functionality brings us as close as I
+can get to the point where what you have in memory when you initiate the
+suspend is very close to what you have when you finish resuming.
+Settings on the proc interface and the amount of swap available do mean 
+the degree to which this is true varies - you can set a soft limit on
+the image size, for example - but that's the gist of the changes. I
+implemented all the changes because as a user, I wanted the system to be
+as responsive as possible upon resume - I didn't want a ton of thrashing
+and an unresponsive system while processes tried to get back whatever
+had been discarded or forced to swap. Performance with the changes does
+not seem to be degraded, even though pages are currently write
+synchronously (batching of requests is in the pipeline).
 
-> > As for (5), this could be exported using sysfs.  Since it is a
-> > USB matter, I guess I could do this now.  So this could also go.
->
-> Yes.
+Where the rubber hits the road, I guess, is that the process is a bit
+more complicated than the one in the kernel at the moment:
+- Rather than freeing memory until no more can be freed, memory is freed
+until the image fits in available swap, will be able to be saved and
+reloaded and meets the user's size limit. (The limit can be disabled by
+setting it to zero. If we can't reduce the image size to the requested
+amount (eg the user requests a 1MB image), we continue anyway - hence
+the description of 'soft limit' above.
+- Pages to be saved are put into two categories - those we definitely
+won't need during suspend and those that might/will be needed (simple
+algorithm). The two sets of pages are saved separately - those not
+needed are saved directly to disk, those needed are later copied and
+then the copy is saved (as per current algorithm).
+- Since we're saving more pages, we need more pages for the pagedir
+(index). Unlike now, we probably won't be able to allocate (say) a
+hundred contiguous set of pages, so we need to be able to have a
+scattered (discontiguous) pagedir.
+- We also need to be careful to free buffers & swap cache generated
+during the save/resume process, so as to not corrupt the image.
 
-Shall I ask Greg to apply the patch?
+Naturally there are other changes, but perhaps the simplest comparison
+is to say that the 2.5.62 suspend.c is 34549 bytes (suspend.o 25132),
+whereas beta18 is 77945 bytes (suspend.o 53756 with all the debugging
+code turned off).
 
-All the best,
+So can we please get your thoughts? Would you be willing to accept these
+additions when they're ready?
 
-Duncan.
+Regards,
+
+Nigel
+

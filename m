@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269417AbRHRXm6>; Sat, 18 Aug 2001 19:42:58 -0400
+	id <S268970AbRHRXlj>; Sat, 18 Aug 2001 19:41:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269455AbRHRXmq>; Sat, 18 Aug 2001 19:42:46 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:8196 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S269417AbRHRXmG>;
-	Sat, 18 Aug 2001 19:42:06 -0400
-Message-Id: <200108181720.f7IHK8tr016948@sleipnir.valparaiso.cl>
-To: jlnance@intrex.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: more kernel .01 
-In-Reply-To: Message from jlnance@intrex.net 
-   of "Fri, 17 Aug 2001 23:09:01 -0400." <20010817230901.A15033@bessie.localdomain> 
-Date: Sat, 18 Aug 2001 13:20:08 -0400
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S269395AbRHRXl2>; Sat, 18 Aug 2001 19:41:28 -0400
+Received: from waste.org ([209.173.204.2]:35088 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S269491AbRHRXlR>;
+	Sat, 18 Aug 2001 19:41:17 -0400
+Date: Sat, 18 Aug 2001 18:41:30 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Robert Love <rml@tech9.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
+In-Reply-To: <998156714.2184.55.camel@phantasy>
+Message-ID: <Pine.LNX.4.30.0108181839130.31188-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jlnance@intrex.net said:
+On 18 Aug 2001, Robert Love wrote:
 
-[...]
+> obviously some people fear NICs feeding entropy provides a hazard.  for
+> those who dont, or are increadibly low on entropy, enable the
+> configuration option.
 
-> Long long ago, before Red Hat or any other distributions, people installed
-> Linux using a pair of floppies called the boot disk and the root disk.  This
-> was how I first installed Linux, using the 0.11 or 0.12 kernel.  It was
-> pretty easy to install a minimal self hosting Linux system using these disks.
-> If you can find someone with a set of these disk images for 0.11 and the
-> associated gcc disks, you can probably get a very early linux system up
-> fairly quickly.  I dont know who might have a set laying around, but I
-> hope this mail generates some comments from people who do.
+Why don't those who aren't worried about whether they _really_ have enough
+entropy simply use /dev/urandom?
 
-Machines have changed a lot since then, unless you get a vintage machine
-(with original disk, etc) I very much doubt this will work.
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-Besides, I don't think learning about a *very* old, severely broken kernel
-will help in any way. Yes, the current kernel is huge, but most of that is
-drivers for all sort of exotic hardware.
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

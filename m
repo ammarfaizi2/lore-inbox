@@ -1,55 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbTE3RTn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 13:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbTE3RTn
+	id S263812AbTE3RTb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 13:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTE3RTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 13:19:43 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:34035 "EHLO
-	orion.mvista.com") by vger.kernel.org with ESMTP id S263823AbTE3RTf
+	Fri, 30 May 2003 13:19:31 -0400
+Received: from pusa.informat.uv.es ([147.156.10.98]:64677 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP id S263812AbTE3RT2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 13:19:35 -0400
-Date: Fri, 30 May 2003 10:32:54 -0700
-From: Jun Sun <jsun@mvista.com>
+	Fri, 30 May 2003 13:19:28 -0400
+Date: Fri, 30 May 2003 19:32:42 +0200
 To: linux-kernel@vger.kernel.org
-Cc: jsun@mvista.com, Ralf Baechle <ralf@linux-mips.org>
-Subject: Properly implement flush_dcache_page in 2.4?  (Or is it possible?)
-Message-ID: <20030530103254.B1669@mvista.com>
+Subject: Re: readcd supossed to suport 2.5.x IDE interface?
+Message-ID: <20030530173242.GA2679@pusa.informat.uv.es>
+References: <20030530172036.GA1636@pusa.informat.uv.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030530172036.GA1636@pusa.informat.uv.es>
+User-Agent: Mutt/1.3.28i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-My understanding is that if a page is mapped in both user space
-and kernel space flush_dcache_page() is used to ensure those mappings
-are consistent to each other.
+Hi again,
 
-In other words, if the page is modified in user space, kernel needs
-to call flush_dcache_page() in order to see the change properly. 
-Vice versa.
+I'm sorry I did not tell I was using 2.5.68 vanilla, also I just saw the new
+patches. I will report about it later
 
-One immediate problem we have is that given the struct page
-pointer argument to this function we have no way of knowing the user 
-space virture address of that page (without searching through the whole
-page table).  And worse, we might have multiple mappings of the same
-page to different user processes at the different virtual addresses.
+	Ulisses
 
-If a MIPS cpu has a virtually-indexed dcache and has cache aliasing 
-problem, we need to know those user space vritual addresses
-to flush this page properly.  I suspect some other CPU architectures 
-should have this problem too.  True?
+On Fri, May 30, 2003 at 07:20:36PM +0200, uaca@alumni.uv.es wrote:
+> Hi all
+> 
+> I'm recording CD-R/W media with cdrecord using dev=<ide device> without
+> problems but I tried to use readcd in order to read media in raw mode 
+> and doesn't work:
+> 
+> agapito:/home/ulisses# readcd dev=/dev/hdc f=/dev/null
+> Read  speed:  8450 kB/s (CD  48x, DVD  6x).
+> Write speed:  7056 kB/s (CD  40x, DVD  5x).
+> Capacity: 359819 Blocks = 719638 kBytes = 702 MBytes = 736 prMB
+> Sectorsize: 2048 Bytes
+> Copy from SCSI (0,0,0) disk to file '/dev/null'
+> end:    359819
+> readcd: Operation not permitted. Cannot send SCSI cmd via ioctl
+> agapito:/home/ulisses# readcd dev=/dev/hdc f=/dev/null
+> 
+> the error message comes from:
+> 
+> ioctl(3, 0x2285, 0xbffff570)            = -1 ENOTTY (Inappropriate ioctl for device)
+> 
+> where the file descriptor is the IDE device
+> 
+> I would like to help if this is a kernel flaw
+> 
+> I was not sure were I should post this because Joerg Schilling doesn't
+> support it's tools for IDE devices (not SCSI emulated) on Linux
+> 
+> Thanks all
+> 
+> 	Ulisses
+> 
+> PD: I had a crazy idea, there are a lot of Install Parties, why not "Bug
+> hunting fests/sessions" before 2.6 reach the street?
+> 
+>                 Debian GNU/Linux: a dream come true
+> -----------------------------------------------------------------------------
+> "Computers are useless. They can only give answers."            Pablo Picasso
+> 
+> --->	Visita http://www.valux.org/ para saber acerca de la	<---
+> --->	Asociación Valenciana de Usuarios de Linux		<---
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-So my question is: how other CPU arches with the same problem
-implement flush_dcache_page()?  Flushing the whole cache? Or
-have a broken implementation and pretend it is OK?  :)
+-- 
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
 
-BTW, I assume this is not a big problem in 2.5 as we have reverse page
-mapping.
-
-Cheers.
-
-Jun
-
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
+ 

@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261659AbSJJR3T>; Thu, 10 Oct 2002 13:29:19 -0400
+	id <S261702AbSJJRe1>; Thu, 10 Oct 2002 13:34:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261744AbSJJR3T>; Thu, 10 Oct 2002 13:29:19 -0400
-Received: from www.sgg.ru ([217.23.135.2]:39432 "EHLO mail.sgg.ru")
-	by vger.kernel.org with ESMTP id <S261659AbSJJR3T>;
-	Thu, 10 Oct 2002 13:29:19 -0400
-Message-ID: <3DA5BBB2.67435F2D@tv-sign.ru>
-Date: Thu, 10 Oct 2002 21:41:06 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	id <S261744AbSJJRe1>; Thu, 10 Oct 2002 13:34:27 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18959 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261702AbSJJRe0>; Thu, 10 Oct 2002 13:34:26 -0400
+Date: Thu, 10 Oct 2002 13:32:20 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.40-mm2 with contest
+In-Reply-To: <3DA233EC.1119CD7B@digeo.com>
+Message-ID: <Pine.LNX.3.96.1021010131852.17862A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Ingo Molnar <mingo@elte.hu>
-Subject: BUG: de_thread()
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Mon, 7 Oct 2002, Andrew Morton wrote:
 
-Suppose process P in thread group was cloned _without_
-CLONE_DETACHED flag. Then another thread, group_leader
-for simplicity, does exec and calls de_thread(). It kills
-P via _broadcast_thread_group(). While doing do_exit(),
-P skips release_task(), because its exit_signal != -1,
-and becomes TASK_ZOMBIE.
+> Problem is, users have said they don't want that.  They say that they
+> want to copy ISO images about all day and not swap.  I think.
+> 
+> It worries me.  It means that we'll be really slow to react to sudden
+> load swings, and it increases the complexity of the analysis and
+> testing.  And I really do want to give the user a single knob,
+> which has understandable semantics and for which I can feasibly test
+> all operating regions.
+> 
+> I really, really, really, really don't want to get too fancy in there.
 
-Then leader calls schedule() with TASK_UNINTERRUPTIBLE
-in while(oldsig->count > 1) {...} and sleeps forever,
-because nobody can do wake_up_process(sig->group_exit_task).
+It is really desirable to improve write intense performance in 2.5. My
+response benchmark shows that 2.5.xx is seriously worse under heavy write
+load than 2.4. And in 2.4 it is desirable to do tuning of bdflush for
+write loads, to keep performance up in -aa kernels. Andrea was kind enough
+to provide me some general hints in this area.
 
-Sorry if i missed something, i have no machine to test
-development kernel, so i can only speculate looking at
-source.
+Here's what I think is happening.
 
-Oleg.
+1 - the kernel is buffering too much data in the hope that it will
+possibly be reread. This is fine, but it results in swapping a lot of
+programs to make room, and finally a big cleanup to disk, which
+triggers...
+
+2 - without the io scheduler having a bunch of writes has a very bad
+effect on read performance, including swap-in. While it's hard to be sure,
+I think I see a program getting a fault to page in a data page (while
+massive write load is present) and while blocked some of the code pages
+are released.
+
+I think there's room for improving the performance, as the "swappiness"
+patch shows. I played with trying to block a process after it had a
+certain amount of data buffered for write, but it didn't do what I wanted.
+I think the total buffered data in the system needs to be considered as
+well.
+
+I believe one of the people who actually works on this stuff regularly has
+mentioned this, I don't find the post quickly.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

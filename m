@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269002AbRHGQvY>; Tue, 7 Aug 2001 12:51:24 -0400
+	id <S269221AbRHGQue>; Tue, 7 Aug 2001 12:50:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269001AbRHGQvO>; Tue, 7 Aug 2001 12:51:14 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:52842 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S269002AbRHGQvD>; Tue, 7 Aug 2001 12:51:03 -0400
-Date: Tue, 7 Aug 2001 12:51:05 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@touchme.toronto.redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-In-Reply-To: <Pine.LNX.4.31.0108070920440.31117-100000@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0108071245250.30280-100000@touchme.toronto.redhat.com>
+	id <S269001AbRHGQuZ>; Tue, 7 Aug 2001 12:50:25 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:39165 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S269234AbRHGQuP>; Tue, 7 Aug 2001 12:50:15 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200108071650.f77Go9Qj015650@webber.adilger.int>
+Subject: Re: CAP_LINUX_IMMUTABLE question
+In-Reply-To: <20010807120850.A18750@dev.sportingbet.com> "from Sean Hunter at
+ Aug 7, 2001 12:08:50 pm"
+To: Sean Hunter <sean@dev.sportingbet.com>
+Date: Tue, 7 Aug 2001 10:50:09 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Aug 2001, Linus Torvalds wrote:
+Sean Hunter writes:
+> I now want to drop CAP_LINUX_IMMUTABLE, and have (I think) done that.
+> However, it seems to make no difference to my ability to set or clear
+> the immutable attribute.  I tried this on ext2 and ext3 filesystems
+> just to be on the safe side.
+> 
+> [root@henry /boot]# lcap CAP_LINUX_IMMUTABLE
+> [root@henry /boot]# lsattr ./vmlinux-2.4.2-2smp
+> ---i--------- ./vmlinux-2.4.2-2smp
+> [root@henry /boot]# chattr -i ./vmlinux-2.4.2-2smp
+> [root@henry /boot]# lsattr ./vmlinux-2.4.2-2smp
+> ------------- ./vmlinux-2.4.2-2smp
+> [root@henry /boot]# chattr +i ./vmlinux-2.4.2-2smp
+> [root@henry /boot]# lsattr ./vmlinux-2.4.2-2smp
+> ---i--------- ./vmlinux-2.4.2-2smp
 
-> Try pre4.
+The code that _should_ check this is fs/ext[23]/ioctl.c:EXT[23]_IOC_SETFLAGS,
+so you may want to add some debugging there, to see:
+1) if you really have dropped CAP_LINUX_IMMUTABLE
+2) the logic of the checking is correct
 
-It's similarly awful (what did you expect -- there are no meaningful
-changes between the two!).  io throughput to a 12 disk array is humming
-along at a whopping 40MB/s (can do 80) that's very spotty and jerky,
-mostly being driven by syncs.  vmscan gets delayed occasionally, and small
-interactive program loading varies from not to long (3s) to way too long
-(> 30s).
-
-		-ben
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

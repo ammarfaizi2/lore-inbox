@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266687AbUH0RMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266708AbUH0RPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266687AbUH0RMY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 13:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266695AbUH0RMY
+	id S266708AbUH0RPn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 13:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266705AbUH0RPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 13:12:24 -0400
-Received: from gl177a.glassen.ac ([82.182.223.101]:35591 "HELO findus.dhs.org")
-	by vger.kernel.org with SMTP id S266687AbUH0RMV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 13:12:21 -0400
-Message-ID: <412F6B74.5090806@findus.dhs.org>
-Date: Fri, 27 Aug 2004 19:12:20 +0200
-From: =?ISO-8859-1?Q?Petter_Sundl=F6f?= <petter.sundlof@findus.dhs.org>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040825)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Voluntary Preempt P9 againstclean  2.6.8.1 -- on AMD64, compile failure
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Aug 2004 13:15:43 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:2571 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266704AbUH0RPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 13:15:40 -0400
+Date: Fri, 27 Aug 2004 18:15:38 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Latest Altix I/O code reorganization code
+Message-ID: <20040827181538.A1173@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Patrick Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org> <411AAABB.8070707@sgi.com> <412F4EC9.7050003@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <412F4EC9.7050003@sgi.com>; from pfg@sgi.com on Fri, Aug 27, 2004 at 10:10:01AM -0500
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Debian-AMD64
-Applied
-http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P9
-to a clean 2.6.8.1 (simply copied over my old .config). Patching went
-fine. Using gcc 3.3.4.
+On Fri, Aug 27, 2004 at 10:10:01AM -0500, Patrick Gefre wrote:
+> 
+> This is an update to our last set of patches. I've added some comments from the
+> last review and another synopsis of the patches. The individual patches will
+> follow this email.
 
-   CC      kernel/hardirq.o
-kernel/hardirq.c: In function `recalculate_desc_flags':
-kernel/hardirq.c:309: error: `SA_NODELAY' undeclared (first use in this
-function)
-kernel/hardirq.c:309: error: (Each undeclared identifier is reported
-only once
-kernel/hardirq.c:309: error: for each function it appears in.)
-kernel/hardirq.c: In function `generic_setup_irq':
-kernel/hardirq.c:339: error: `SA_NODELAY' undeclared (first use in this
-function)
-kernel/hardirq.c: In function `threaded_read_proc':
-kernel/hardirq.c:641: error: `SA_NODELAY' undeclared (first use in this
-function)
-kernel/hardirq.c: In function `threaded_write_proc':
-kernel/hardirq.c:659: error: `SA_NODELAY' undeclared (first use in this
-function)
-make[2]: *** [kernel/hardirq.o] Error 1
-make[1]: *** [kernel] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.6.8.1'
-make: *** [stamp-build] Error 2
-
-Clean 2.6.8.1, patched with 2.6.8.1
-
-Had to set CONFIG_VOLUNTARY_PREEMPT=y / CONFIG_PREEMPT_VOLUNTARY=y
-manually in .config. I talked to a guy who said it was there in his
-"menuconfig". For me the option didn't appear.
-
-Here's my .config: http://findus.dhs.org/~odd/.config
-
-Any idea?
-
-gcc 3.3.4
-
-Cheers.
-
-
-
+The header changes in your patchkit are still rather strange, you're e.g.
+adding a pfn_t or clusterid_t but never using it.  As suggested in a previous
+mail please also provide a clean set of headers in addition to the clean set
+of source files.  There's lots of dead wood in thos and with all the code
+gone youshould be able to kill off all the IRIX-compat gunk, etc..
 

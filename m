@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317952AbSGPTmu>; Tue, 16 Jul 2002 15:42:50 -0400
+	id <S317956AbSGPTt3>; Tue, 16 Jul 2002 15:49:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317953AbSGPTmt>; Tue, 16 Jul 2002 15:42:49 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:27910 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S317952AbSGPTms>; Tue, 16 Jul 2002 15:42:48 -0400
-Date: Tue, 16 Jul 2002 21:45:42 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Cc: Stelian Pop <stelian.pop@fr.alcove.com>,
-       Gerhard Mack <gmack@innerfire.net>,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>
+	id <S317957AbSGPTt2>; Tue, 16 Jul 2002 15:49:28 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:52464 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S317956AbSGPTt1>; Tue, 16 Jul 2002 15:49:27 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 16 Jul 2002 13:49:29 -0600
+To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Stelian Pop <stelian.pop@fr.alcove.com>, Sam Vilain <sam@vilain.net>,
+       dax@gurulabs.com
 Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020716194542.GD22053@merlin.emma.line.org>
+Message-ID: <20020716194929.GS442@clusterfs.com>
 Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>,
 	Stelian Pop <stelian.pop@fr.alcove.com>,
-	Gerhard Mack <gmack@innerfire.net>,
-	Mathieu Chouquet-Stringer <mathieu@newview.com>
-References: <20020716124956.GK7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net> <20020716153926.GR7955@tahoe.alcove-fr>
+	Sam Vilain <sam@vilain.net>, dax@gurulabs.com
+References: <1026736251.13885.108.camel@irongate.swansea.linux.org.uk> <E17U4YE-0000TL-00@hofmann> <20020715160357.GD442@clusterfs.com> <E17U9x9-0001Dc-00@hofmann> <20020716081531.GD7955@tahoe.alcove-fr> <20020716122756.GD4576@merlin.emma.line.org> <20020716124331.GJ7955@tahoe.alcove-fr> <20020716125301.GI4576@merlin.emma.line.org> <20020716140549.A11780@infradead.org> <20020716193831.GC22053@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020716153926.GR7955@tahoe.alcove-fr>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20020716193831.GC22053@merlin.emma.line.org>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jul 2002, Stelian Pop wrote:
-
-> On Tue, Jul 16, 2002 at 11:11:20AM -0400, Gerhard Mack wrote:
+On Jul 16, 2002  21:38 +0200, Matthias Andree wrote:
+> On Tue, 16 Jul 2002, Christoph Hellwig wrote:
+> > On Tue, Jul 16, 2002 at 02:53:01PM +0200, Matthias Andree wrote:
+> > > Not if some day somebody implements file system level snapshots for
+> > > Linux. Until then, better have garbled file contents constrained to a
+> > > file than random data as on-disk layout changes with hefty directory
+> > > updates.
+> > 
+> > or the blockdevice-level snapshots already implemented in Linux..
 > 
-> > In other words you have a backup system that works some of the time or
-> > even most of the time... brilliant!
+> That would require three atomic steps:
 > 
-> Dump is a backup system that works 100% of the time when used as 
-> it was designed to: on unmounted filesystems (or mounted R/O).
+> 1. mount read-only, flushing all pending updates
+> 2. take snapshot
+> 3. mount read-write
+> 
+> and then backup the snapshot. A snapshots of a live file system won't
+> do, it can be as inconsistent as it desires -- if your corrupt target is
+> moving or not, dumping it is not of much use.
 
-Practical question: how do I get a file system mounted R/O for backup
-with dump without putting that system into single-user mode?
-Particularly when running automated backups, this is an issue. I cannot
-kill all writers (syslog, Postfix, INN, CVS server, ...) on my
-production machines just for the sake of taking a backup.
+Luckily, there is already an interface which does this -
+sync_supers_lockfs(), which the LVM code will use if it is patched in.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
+

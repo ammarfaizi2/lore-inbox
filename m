@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264245AbTLOWou (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 17:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTLOWot
+	id S264286AbTLOW4S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 17:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264288AbTLOW4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 17:44:49 -0500
-Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:13956
-	"EHLO bastard") by vger.kernel.org with ESMTP id S264245AbTLOWoq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 17:44:46 -0500
-Message-ID: <3FDE3956.1070308@tupshin.com>
-Date: Mon, 15 Dec 2003 14:44:38 -0800
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Mon, 15 Dec 2003 17:56:18 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:52680 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S264286AbTLOW4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 17:56:12 -0500
+From: Christian Borntraeger <kernel@borntraeger.net>
+To: root@chaos.analogic.com, Felix von Leitner <felix-kernel@fefe.de>
+Subject: Re: request: capabilities that allow users to drop privileges further
+Date: Mon, 15 Dec 2003 23:55:41 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <20031215213912.GA29281@codeblau.de> <Pine.LNX.4.53.0312151700320.15531@chaos>
+In-Reply-To: <Pine.LNX.4.53.0312151700320.15531@chaos>
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: RFC - tarball/patch server in BitKeeper
-References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]> <20031215151126.3fe6e97a.vsu@altlinux.ru> <20031215132720.GX7308@phunnypharm.org> <20031215192402.528ce066.vsu@altlinux.ru> <20031215183138.GJ6730@dualathlon.random> <20031215185839.GA8130@work.bitmover.com> <20031215194057.GL6730@dualathlon.random> <20031215214452.GB8130@work.bitmover.com> <20031215220257.GM6730@dualathlon.random> <20031215221410.GC8130@work.bitmover.com>
-In-Reply-To: <20031215221410.GC8130@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312152355.41980.kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+Richard B. Johnson wrote:
+> On Mon, 15 Dec 2003, Felix von Leitner wrote:
+> > I would like to be able to drop capabilities that every normal user
+[...]
+> > security problems further.  For example, I want my non-cgi web server
+[...]
+> >   * fork
+> >   * execve
+> >   * ptrace
+[...]
+> So you expect kernel support?  Normally, real people write or
+> modify applications to provide for specific exceptions to
+> the standards. They don't expect an operating system to
+> modify itself to unique situations. That's not what
+> operating systems have generally done in the past.
+[...]
 
->You can grab all the patches you want from bkbits.net until you start
->using those patches to populate another SCM system because at that point
->you are using BK in violation of the BK license.
->  
->
-NO!!! In this case, you are not using bk, you are accessing information 
-that is placed in a public place. If your argument were to hold any 
-water, then people constrained from using bk due to any clause of the 
-bkl could not access any information on bkbits.net. The mere act of 
-pointing their browser there would be a violation. Since these people 
-are not able to agree to the bkl, they are not constrained by the 
-restrictions of the bkl. The only effect is that they can *never* use bk.
+I dont agree. Policy is userspace but enforcing the policy very often needs 
+kernel support.
 
-Either browsing bkbits.net is a use of bk and non-licensed people can't 
-use it, or it is is not a use of bk and none of the bkl restrictions 
-apply. Can't have it both ways.
+Having ACL in 2.6 is an example where operating system already adopted to 
+special needs. Furthermore, the kernel is already able to drop special 
+capabilites, like module loading.  Having a generalised capabilites model 
+is a good idea and there are already some more or less usable security 
+modules.
 
--Tupshin
+cheers
+
+Christian
+

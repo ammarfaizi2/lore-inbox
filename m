@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261433AbSLHRkg>; Sun, 8 Dec 2002 12:40:36 -0500
+	id <S261495AbSLHSSh>; Sun, 8 Dec 2002 13:18:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261446AbSLHRkg>; Sun, 8 Dec 2002 12:40:36 -0500
-Received: from port-212-202-202-214.reverse.qdsl-home.de ([212.202.202.214]:8454
-	"EHLO el-zoido.localnet") by vger.kernel.org with ESMTP
-	id <S261433AbSLHRke>; Sun, 8 Dec 2002 12:40:34 -0500
-Message-ID: <3DF385D0.6040908@trash.net>
-Date: Sun, 08 Dec 2002 18:48:00 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021204 Debian/1.2.1-1
-X-Accept-Language: en
+	id <S261506AbSLHSSh>; Sun, 8 Dec 2002 13:18:37 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:34486 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S261495AbSLHSSh>;
+	Sun, 8 Dec 2002 13:18:37 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/pci deprecation?
+References: <Pine.LNX.4.33.0212061601550.1010-100000@localhost.localdomain>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 07 Dec 2002 17:23:13 +0100
+In-Reply-To: <Pine.LNX.4.33.0212061601550.1010-100000@localhost.localdomain>
+Message-ID: <m34r9pkdce.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: alan@redhat.com
-Subject: [PATCH] 2.5.50-ac1 trival compile fix
-Content-Type: multipart/mixed;
- boundary="------------010408020306040005080405"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010408020306040005080405
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Patrick Mochel <mochel@osdl.org> writes:
 
-The patch adds missing declaration of sis_apic_bug in drivers/pci/quirks.c.
+> IMO, yes, since those tools provide the summary, and exist almost purely 
+> in userspace. I forgot to mention in the orginal email that we could 
+> also drop the PCI names database, right? This would save a considerable 
+> amount in the kernel image alone..
 
-Bye,
-Patrick
+I think so.
 
---------------010408020306040005080405
-Content-Type: text/plain;
- name="linux-2.5.50-ac1-quirks.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.5.50-ac1-quirks.diff"
+BTW: the /proc/pci doesn't show names of CardBus adapters, even if they're
+inserted at boot time - cat /proc/pci | tail:
 
---- linux-2.5.50/drivers/pci/quirks.c.orig	2002-12-08 18:25:53.000000000 +0100
-+++ linux-2.5.50/drivers/pci/quirks.c	2002-12-08 18:43:25.000000000 +0100
-@@ -302,6 +302,7 @@
- 
- #ifdef CONFIG_X86_IO_APIC 
- extern int nr_ioapics;
-+extern int sis_apic_bug;
- 
- /*
-  * VIA 686A/B: If an IO-APIC is active, we need to route all on-chip
-
---------------010408020306040005080405--
-
+    VGA compatible controller: Silicon Motion, Inc. SM720 Lynx3DM (rev 177).
+      IRQ 10.
+      Master Capable.  Latency=64.  
+      Non-prefetchable 32 bit memory at 0xf8000000 [0xfbffffff].
+  Bus  2, device   0, function  0:
+    Ethernet controller: PCI device 1011:0019 (rev 65).
+      IRQ 10.
+      Master Capable.  Latency=64.  Min Gnt=20.Max Lat=40.
+      I/O at 0x4000 [0x407f].
+      Non-prefetchable 32 bit memory at 0x10800000 [0x108003ff].
+-- 
+Krzysztof Halasa
+Network Administrator

@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264820AbUEYJGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264819AbUEYJRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264820AbUEYJGk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 05:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264816AbUEYJGk
+	id S264819AbUEYJRX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 05:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264824AbUEYJRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 05:06:40 -0400
-Received: from denise.shiny.it ([194.20.232.1]:26016 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id S264820AbUEYJGj (ORCPT
+	Tue, 25 May 2004 05:17:23 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:36487 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264819AbUEYJRW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 05:06:39 -0400
-Date: Tue, 25 May 2004 11:05:57 +0200 (CEST)
-From: Giuliano Pochini <pochini@denise.shiny.it>
-To: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-cc: Tom Vier <tmv@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel 2.6.6 IDE shutdown problems.
-In-Reply-To: <20040524171656.GA19026@bounceswoosh.org>
-Message-ID: <Pine.LNX.4.58.0405251101240.1197@denise.shiny.it>
-References: <BAY18-F105X7rz6AvEm0002622f@hotmail.com>
- <200405151506.20765.bzolnier@elka.pw.edu.pl> <c8bdqv$lib$1@gatekeeper.tmr.com>
- <20040524024136.GB2502@zero> <20040524171656.GA19026@bounceswoosh.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 May 2004 05:17:22 -0400
+Date: Tue, 25 May 2004 13:18:41 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christian Meder <chris@onestepahead.de>
+Subject: [patch] sched.h comment typo fix, BK-curr
+Message-ID: <20040525111841.GA6001@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+sched.h typo fix from Christian Meder.
 
-On Mon, 24 May 2004, Eric D. Mudama wrote:
+	Ingo
 
-> Picture a nice fast drive doing 100 writes/second to the media... if
-> you give it over 200 writes at a time, it'll occupy your 2 seconds.
-> Newer drives with 8MB or larger buffers are certainly capable of
-> caching a lot more than 200 writes...
+Signed-off-by: Christian Meder <chris@onestepahead.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Quite unlikely. Usually disks have a big cache but it can hold a very
-limited number of blocks. 8MB of cache is probably divided in 8 blocks
-of 1MB each.
-
-
---
-Giuliano.
+--- linux/include/linux/sched.h.orig
++++ linux/include/linux/sched.h
+@@ -301,7 +301,7 @@
+  * in the range MAX_RT_PRIO..MAX_PRIO-1. Priority values
+  * are inverted: lower p->prio value means higher priority.
+  *
+- * The MAX_RT_USER_PRIO value allows the actual maximum
++ * The MAX_USER_RT_PRIO value allows the actual maximum
+  * RT priority to be separate from the value exported to
+  * user-space.  This allows kernel threads to set their
+  * priority to a value higher than any user task. Note:

@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289813AbSBUI4y>; Thu, 21 Feb 2002 03:56:54 -0500
+	id <S290120AbSBUJNr>; Thu, 21 Feb 2002 04:13:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290587AbSBUI4n>; Thu, 21 Feb 2002 03:56:43 -0500
-Received: from vaak.stack.nl ([131.155.140.140]:62479 "HELO mailhost.stack.nl")
-	by vger.kernel.org with SMTP id <S289813AbSBUI4c>;
-	Thu, 21 Feb 2002 03:56:32 -0500
-Date: Thu, 21 Feb 2002 09:56:30 +0100 (CET)
-From: Jos Hulzink <josh@stack.nl>
-To: peter@hoeg.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: misdetection of pentium2 - very strange
-In-Reply-To: <1014276172.3c74a04c7565e@www.hoeg.home>
-Message-ID: <20020221094949.A86349-100000@toad.stack.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290587AbSBUJNg>; Thu, 21 Feb 2002 04:13:36 -0500
+Received: from adsl-62-128-214-206.iomart.com ([62.128.214.206]:43657 "EHLO
+	server1.i-a.co.uk") by vger.kernel.org with ESMTP
+	id <S290120AbSBUJN0>; Thu, 21 Feb 2002 04:13:26 -0500
+Date: Thu, 21 Feb 2002 09:13:19 +0000
+From: Andy Jeffries <lkml@andyjeffries.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: HPT372 on KR7A-RAID
+Message-Id: <20020221091319.37e74cba.lkml@andyjeffries.co.uk>
+Organization: Scramdisk Linux
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 21 Feb 2002 peter@hoeg.com wrote:
+Hi there,
 
-> dmesg:
->
-> Linux version 2.4.18-rc2 (peter@asilog-linux2) (gcc version 2.95.4 (Debian
-> prerelease)) #3 Thu Feb 21 19:21:37 SGT 2002
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
->  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
->  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 000000000c000000 (usable)
->  BIOS-e820: 00000000fffc0000 - 0000000100000000 (reserved)
-> On node 0 totalpages: 49152
-> zone(0): 4096 pages.
-> zone(1): 45056 pages.
-> zone(2): 0 pages.
-> Kernel command line: auto BOOT_IMAGE=linux ro root=301 devfs=mount
-> video=atyfb:1024x768@8
-> Initializing CPU#0
-> Detected 133.225 MHz processor.
-> Console: colour VGA+ 132x44
-> Calibrating delay loop... 265.42 BogoMIPS
+The HPT chipset on the KR7A-RAID is not detected.  It comes through with a
+revision 5, which crashes the Kernel (panic) on 2.4.16.  The patch below
+adds the revision for the HPT372 chipset which is the relevant one,
+however this will break again when a new revision comes out.  I would like
+to be able to print a warning if the revision is higher than the one in
+the array and if it is allow a parameter to fake the chipset as being a
+lower one (at the users risk), but quite frankly my Kernel programming is
+not that good!!
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+I don't know if this has been fixed in 2.4.17/18, if it has...sorry! :-)
 
-It seems your CPU is actually running at 133 MHz. If I am right, the
-bogomips value should be about 2x the clock frequency on this CPU and
-kernel. Is the bogomips calculation influenced by the detected CPU speed ?
-Can't check now.
+--- linux-2.4.16/drivers/ide/hpt366.c	Wed Feb 20 10:35:25 2002
++++ linux/drivers/ide/hpt366.c	Wed Feb 20 10:37:37 2002
+@@ -207,7 +207,7 @@
+ 	char *p		= buffer;
+ 	u32 bibma	= bmide_dev->resource[4].start;
+ 	u32 bibma2 	= bmide2_dev->resource[4].start;
+-	char *chipset_names[] = {"HPT366", "HPT366", "HPT368", "HPT370", "HPT370A"};
++	char *chipset_names[] = {"HPT366", "HPT366", "HPT368", "HPT370", "HPT370A", "HPT372"};
+ 	u8  c0 = 0, c1 = 0;
+ 	u32 class_rev;
+ 
+--- linux-2.4.16/drivers/ide/ide-pci.c	Wed Feb 20 10:35:25 2002
++++ linux/drivers/ide/ide-pci.c	Wed Feb 20 10:37:22 2002
+@@ -828,7 +828,7 @@
+ 	ide_pci_device_t *d2;
+ 	unsigned char pin1 = 0, pin2 = 0;
+ 	unsigned int class_rev;
+-	char *chipset_names[] = {"HPT366", "HPT366", "HPT368", "HPT370", "HPT370A"};
++	char *chipset_names[] = {"HPT366", "HPT366", "HPT368", "HPT370", "HPT370A", "HPT372"};
+ 
+ 	if (PCI_FUNC(dev->devfn) & 1)
+ 		return;
 
-Can it be your system runs in a low-power mode, or that the linux kernel
-triggers a low-power mode ?
 
-Jos
 
+-- 
+Andy Jeffries
+Linux/PHP Programmer
+
+- Windows Crash HOWTO: compile the code below in VC++ and run it!
+main (){for(;;){printf("Hung up\t\b\b\b\b\b\b");}}

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317683AbSGUOrI>; Sun, 21 Jul 2002 10:47:08 -0400
+	id <S315278AbSGUPSk>; Sun, 21 Jul 2002 11:18:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317687AbSGUOrI>; Sun, 21 Jul 2002 10:47:08 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:37133 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317683AbSGUOrH>; Sun, 21 Jul 2002 10:47:07 -0400
-Date: Sun, 21 Jul 2002 11:50:06 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Rodland <arodland@noln.com>
-cc: Martin Josefsson <gandalf@wlug.westbo.se>, <mru@users.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
+	id <S317638AbSGUPSk>; Sun, 21 Jul 2002 11:18:40 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:64245 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315278AbSGUPSk>; Sun, 21 Jul 2002 11:18:40 -0400
 Subject: Re: memory leak?
-In-Reply-To: <20020722102658.731a2200.arodland@noln.com>
-Message-ID: <Pine.LNX.4.44L.0207211149460.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <yw1xwurptb1x.fsf@gladiusit.e.kth.se>
+References: <Pine.LNX.4.44L.0207211118241.12241-100000@imladris.surriel.com> 
+	<yw1xwurptb1x.fsf@gladiusit.e.kth.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 21 Jul 2002 17:33:44 +0100
+Message-Id: <1027269224.17234.101.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jul 2002, Andrew Rodland wrote:
-> On 21 Jul 2002 16:20:39 +0200
-> Martin Josefsson <gandalf@wlug.westbo.se> wrote:
->
-> > free don't know about slabcaches. take a look in /proc/slabinfo and
-> > see what's using that memory. it's not a leak, the memory will be
-> > free'd when the machine is under enough memory pressure.
->
-> Yeah... look at that. looks like I've got quite a bit of memory
-> invested in inode_cache and dentry_cache. There's no way to have them
-> reported as "cache" memory anymore?
+> > This memory will be reclaimed when the system needs it.
+> 
+> Does this mean that free and /proc/meminfo are incorrect?
 
-Submit patches for procps to make free examine /proc/slabinfo ;)
+By its own definition proc/meminfo is correct. top could go rummaging in
+/proc/slabinfo but its questionable if it is meaningful to do so. The
+actually "out of memory" case for a virtual memory system is not "no
+memory pages free" nor "no memory or swap free" its closer to "working
+set plus i/o buffers exceeds memory size".
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+That isnt something as easy to visualise or compute as "free"
 

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276631AbRJGTcC>; Sun, 7 Oct 2001 15:32:02 -0400
+	id <S276627AbRJGTke>; Sun, 7 Oct 2001 15:40:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276622AbRJGTbm>; Sun, 7 Oct 2001 15:31:42 -0400
-Received: from quattro-eth.sventech.com ([205.252.89.20]:9742 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S276616AbRJGTbg>; Sun, 7 Oct 2001 15:31:36 -0400
-Date: Sun, 7 Oct 2001 15:34:33 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Simon Kirby <sim@netnation.com>
-Cc: Greg KH <greg@kroah.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.11-pre5
-Message-ID: <20011007153433.G14479@sventech.com>
-In-Reply-To: <Pine.LNX.4.33.0110071148380.7382-100000@penguin.transmeta.com> <20011007121851.A1137@netnation.com>
+	id <S276622AbRJGTkZ>; Sun, 7 Oct 2001 15:40:25 -0400
+Received: from femail2.sdc1.sfba.home.com ([24.0.95.82]:64243 "EHLO
+	femail2.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S276627AbRJGTkP>; Sun, 7 Oct 2001 15:40:15 -0400
+Date: Sun, 7 Oct 2001 15:39:42 -0400
+From: Willem Riede <wriede@home.com>
+To: Steven Walter <srwalter@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Tyan Tiger MP AMD760 chipset support
+Message-ID: <20011007153942.C1424@linnie.riede.org>
+In-Reply-To: <20011007132349.A1424@linnie.riede.org> <20011007141205.B4000@hapablap.dyn.dhs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011007121851.A1137@netnation.com>; from sim@netnation.com on Sun, Oct 07, 2001 at 12:18:51PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20011007141205.B4000@hapablap.dyn.dhs.org>; from srwalter@yahoo.com on Sun, Oct 07, 2001 at 15:12:05 -0400
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 07, 2001, Simon Kirby <sim@netnation.com> wrote:
-> On Sun, Oct 07, 2001 at 11:49:46AM -0700, Linus Torvalds wrote:
+That's not the issue, I'm not that ignorant. sensors-detect
+just doesn't find anything!
+
+Willem Riede.
+-------------
+On 2001.10.07 15:12 Steven Walter wrote:
+> On Sun, Oct 07, 2001 at 01:23:49PM -0400, Willem Riede wrote:
+> > with reference to AMD760 (IDE?) support on a Tyan K7 Thunder,
+> > I was somewhat surprised to find the chipset:
+> > 
+> >  	AMD-762 North bridge & AMD-766 South bridge
+> > 	Winbond W83627HF Super I/O ASIC
+> >  	Winbond W83782D hardware monitoring ASIC
+> > 
+> > only partly recognized by my 2.4.9ac18 based kernel. 
+> > One problem is that the temperature sensors are not detected 
+> > (I'm reluctant to torture my system if I can't watch out for 
+> > it overheating).
+> > 
+> > Does anyone know the AMD760 support status? Any pointers
+> > for (experimental) patches?
 > 
-> > pre5:
-> >  - Greg KH: USB update
+> Look into the lm_sensors patch; it supports many such hardware
+> monitoring chips, and I believe that yours is one of them.
+> -- 
+> -Steven
+
 > 
-> This appears to break my Logitech optical mouse with uhci.  usb-uhci
-> works fine.
-> 
-> hub.c: USB new device connect on bus1/2, assigned device number 2
-> usb_control/bulk_msg: timeout
-> usb.c: USB device not accepting new address=2 (error=-110)
-
-Could you give me the output of /proc/interrupts?
-
-Do you see any other messages in dmesg?
-
-What UHCI controller is this? (lspci -v)
-
-JE
-

@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbUBUDJy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 22:09:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbUBUDJx
+	id S261490AbUBUDIp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 22:08:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbUBUDIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 22:09:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44165 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261491AbUBUDJv (ORCPT
+	Fri, 20 Feb 2004 22:08:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37509 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261490AbUBUDIo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 22:09:51 -0500
-Date: Fri, 20 Feb 2004 19:15:07 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: brown wrap <gramos@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: v2.6.3 blows up on compile
-In-Reply-To: <20040221013853.8034.qmail@web11507.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.58.0402201914210.3301@ppc970.osdl.org>
-References: <20040221013853.8034.qmail@web11507.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Feb 2004 22:08:44 -0500
+Date: Fri, 20 Feb 2004 19:08:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ron Peterson <rpeterso@MtHolyoke.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: network / performance problems
+Message-Id: <20040220190859.67442592.akpm@osdl.org>
+In-Reply-To: <Pine.OSF.4.21.0402202128320.394202-100000@mhc.mtholyoke.edu>
+References: <Pine.OSF.4.21.0402202128320.394202-100000@mhc.mtholyoke.edu>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ron Peterson <rpeterso@MtHolyoke.edu> wrote:
+>
+>  http://depot.mtholyoke.edu:8080/tmp/
 
+Could you chmod user.log and vmstat.log for us?
 
-On Fri, 20 Feb 2004, brown wrap wrote:
-> 
-> In trying to build a kernel, it always aborts in this
-> area:
+There are a few things you should try - you probably already have:
 
-You have a broken compiler.
+- Stop all applications, restart them
 
-There are patches to work around it, but basically we don't want to apply 
-them, because a broken compiler is scary enough that it's better if you 
-upgrade that instead.
+- Unload net driver module, reload and reconfigure it.
 
-		Linus
+If either of those (or similar operations) are found to bring the latency
+back to normal then that would be a big hint.  ie: we need to find
+something which brings the performance back apart from a complete reboot.
+
+Also, look out for consistent increases in either urer or system CPU time.
+

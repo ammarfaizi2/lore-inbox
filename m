@@ -1,67 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbUL2FQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbUL2F0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbUL2FQc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 00:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbUL2FQc
+	id S261322AbUL2F0k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 00:26:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbUL2F0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 00:16:32 -0500
-Received: from lakermmtao06.cox.net ([68.230.240.33]:3472 "EHLO
-	lakermmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S261318AbUL2FQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 00:16:27 -0500
-In-Reply-To: <Pine.GSO.4.33.0412280925010.6921-100000@sweetums.bluetronic.net>
-References: <Pine.GSO.4.33.0412280925010.6921-100000@sweetums.bluetronic.net>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <C8A13912-5958-11D9-AA77-000393ACC76E@mac.com>
+	Wed, 29 Dec 2004 00:26:39 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:13633 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261322AbUL2F0g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 00:26:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
+        b=umu3N9LnfWKczUx7I3a/CFaR4gp9oFtoZl12/EYp1FROx2AnhheMg++RXFadwlQkWONco2CbzKni3F0wxHur8qoTSJdTZrHEhTBI54NvkTqzDIR/+Qjno/XXrzE1eZ7M6gOPXUIMIy3viPZip3V/RNTlyPVPzn5olIhocPMf1+s=
+Message-ID: <9dda349204122821262f71e375@mail.gmail.com>
+Date: Wed, 29 Dec 2004 00:26:36 -0500
+From: Paul Blazejowski <diffie@gmail.com>
+Reply-To: Paul Blazejowski <diffie@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: 2.6.10 - IT8212 IDE
+Cc: LKML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Martin Dalecki <martin@dalecki.de>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [BK] disconnected operation
-Date: Wed, 29 Dec 2004 00:16:24 -0500
-To: Ricky Beam <jfbeam@bluetronic.net>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 28, 2004, at 09:33, Ricky Beam wrote:
-> On Sun, 26 Dec 2004, Martin Dalecki wrote:
->> A hostname simply isn't a fixed attribute of a host anymore.
->
-> It is on properly setup and maintained machines.
->
-> The problem are all those people writing programs that think they are 
-> doing
-> the world a favor by screwing with the hostname and various other 
-> settings
-> for us... there's no reason for dhcp to change my hostname.  At least 
-> on
-> linux, no dhcp implementation touches /etc/hosts. (Solaris has screwed 
-> up
-> the hosts file for years.)
->
-> These are the same machines that don't have FQDN's as the first name 
-> per
-> entry in /etc/hosts (which pisses off many incarnations of glibc.) 
-> *grin*
+Alan,
 
-So what would happen to somebody who put their BK files on a portable
-drive and carried it from home to work.  That's a perfectly reasonable 
-thing to
-do, both for security and for speed reasons, but it would appear to 
-cause
-problems.
+This patch works here but the performance is very poor. When i set DMA
+and 32bit I/O thru hdparm, performance is comparable to the ITE pseudo
+SCSI driver.
 
-Cheers,
-Kyle Moffett
+I get some errors on dmesg when using hdparm:
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+IT8212: IDE controller at PCI slot 0000:01:0c.0
+ACPI: PCI Interrupt Link [APC2] enabled at IRQ 17
+ACPI: PCI interrupt 0000:01:0c.0[A] -> GSI 17 (level, high) -> IRQ 17
+IT8212: chipset revision 16
+IT8212: 100% native mode on irq 17
+    ide2: BM-DMA at 0x9800-0x9807, BIOS settings: hde:DMA, hdf:pio
+it8212: controller in smart mode.
+    ide3: BM-DMA at 0x9808-0x980f, BIOS settings: hdg:pio, hdh:pio
+Probing IDE interface ide2...
+hde: Integrated Technology Express Inc, ATA DISK drive
+hde: IT8212 RAID 0 volume(64K stripe).
+ide2 at 0x8810-0x8817,0x8c02 on irq 17
+Probing IDE interface ide3...
+Probing IDE interface ide3...
+Probing IDE interface ide4...
+ide4: Wait for ready failed before probe !
+Probing IDE interface ide5...
+ide5: Wait for ready failed before probe !
+hde: max request size: 128KiB
+hde: 468883200 sectors (240068 MB), CHS=29186/255/63
+hde: cache flushes not supported
+hde: hde1
 
+XFS mounting filesystem hde1
+Ending clean XFS mount for filesystem: hde1
+hde: task_in_intr: status=0xd0 { Busy }
 
+ide: failed opcode was: unknown
+ide2: reset: master: error (0x00?)
+
+hdparm
+/dev/hde:
+ Timing cached reads:   2012 MB in  2.00 seconds = 1005.65 MB/sec
+ Timing buffered disk reads:    6 MB in  3.32 seconds =   1.81 MB/sec
+
+hdparm -c1 -d1 -k1
+/dev/hde:
+ setting 32-bit IO_support flag to 1
+ setting using_dma to 1 (on)
+ setting keep_settings to 1 (on)
+ IO_support   =  1 (32-bit)
+ using_dma    =  1 (on)
+ keepsettings =  1 (on)
+/dev/hde:
+ Timing cached reads:   2028 MB in  2.00 seconds = 1013.14 MB/sec
+ Timing buffered disk reads:  150 MB in  3.01 seconds =  49.84 MB/sec
+
+Regards,
+
+Paul B.
+
+-- 
+FreeBSD the Power to Serve!

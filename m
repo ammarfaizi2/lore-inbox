@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264037AbTFHXLR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 19:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264039AbTFHXLR
+	id S264060AbTFHXKw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 19:10:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264063AbTFHXKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 19:11:17 -0400
-Received: from dsl081-085-006.lax1.dsl.speakeasy.net ([64.81.85.6]:26764 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id S264037AbTFHXLP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 19:11:15 -0400
-Message-ID: <3EE3C5C4.70405@tmsusa.com>
-Date: Sun, 08 Jun 2003 16:24:52 -0700
-From: Joe <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Sun, 8 Jun 2003 19:10:52 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:25654 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S264060AbTFHXKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 19:10:44 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200306082324.h58NOHI18294@devserv.devel.redhat.com>
+Subject: Re: [PATCH][RFC] Add support for Adaptec 1210SA (was: Re: SiI3112 (Adaptec 1210SA): no devices)
+To: hugo-lkml@carfax.org.uk (Hugo Mills)
+Date: Sun, 8 Jun 2003 19:24:17 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox), sflory@rackable.com (Samuel Flory),
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       andre@linux-ide.org
+In-Reply-To: <20030608214504.GA5754@carfax.org.uk> from "Hugo Mills" at Meh 08, 2003 10:45:04 
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.70-mm6
-References: <20030607151440.6982d8c6.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All in all -mm6 seems fine here but for two small
-problems, one of which is the continuing issue with
-gdm which first surfaced in -mm5 IIRC -
+> > Its clearly clos in that it works in PIO although DMA is failing
+> 
+>    Given that there appear to be problems with DMA in the plain SiI
+> driver, would it be worth my while waiting until those are sorted out
+> before continuing?
 
-Jun  7 18:32:01 jyro kernel: ip_tables: (C) 2000-2002 Netfilter core team
-Jun  7 18:32:01 jyro kernel: ip_conntrack version 2.1 (4086 buckets, 
-32688 max)
-- 324 bytes per conntrack
-Jun  7 18:32:06 jyro gdm[1282]: gdm_slave_xioerror_handler: Fatal X 
-error - Restarting :0
-Jun  7 18:32:07 jyro gdm[1293]: gdm_slave_xioerror_handler: Fatal X 
-error - Restarting :0
-Jun  7 18:32:12 jyro gdm[1305]: gdm_slave_xioerror_handler: Fatal X 
-error - Restarting :0
-Jun  7 18:32:16 jyro gdm[1311]: gdm_slave_xioerror_handler: Fatal X 
-error - Restarting :0
-Jun  7 18:32:16 jyro gdm[1237]: deal_with_x_crashes: Running the 
-XKeepsCrashing script
-Jun  7 18:32:54 jyro gdm[1237]: Failed to start X server several times 
-in a short time period; disabling display :0
+I'll fold the patch in anyway, maybe set to pio by default
 
+>    What would be the next steps in getting this thing working?  Should
+> I try to obtain the board/chip specifications from Adaptec? Or start
+> poking stuff into arbitrary registers? :)
 
-
-
+Given it seems its an SI chip I suspect SI are the right people here
+if we need to bug someone. I would be very suprised if this is anything
+but an SI3112. Its expensive to fab a chip so you dont fab special ones
+for people. You might print a different logo or change the PCI ID in
+the external serial eeprom but no more.

@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263731AbTEYUQV (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 25 May 2003 16:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263737AbTEYUQV
+	id S263742AbTEYUSa (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 25 May 2003 16:18:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTEYUSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 16:16:21 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46058 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263731AbTEYUQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 16:16:18 -0400
-Date: Sun, 25 May 2003 22:29:21 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Ed Sweetman <ed.sweetman@wmich.edu>, linux-kernel@vger.kernel.org,
-   linux-mm@kvack.org
-Subject: Re: 2.5.69-mm9
-Message-ID: <20030525202920.GE16791@fs.tum.de>
-References: <20030525042759.6edacd62.akpm@digeo.com> <200305251456.39404.rudmer@legolas.dynup.net> <3ED0CE0E.4080403@wmich.edu> <20030525130601.5a105fa8.akpm@digeo.com>
+	Sun, 25 May 2003 16:18:30 -0400
+Received: from holomorphy.com ([66.224.33.161]:22687 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263742AbTEYUS1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 16:18:27 -0400
+Date: Sun, 25 May 2003 13:31:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Mika Penttil? <mika.penttila@kolumbus.fi>,
+   Zwane Mwaikambo <zwane@linuxpower.ca>, Ingo Molnar <mingo@elte.hu>,
+   Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH][2.5] Possible race in wait_task_zombie and finish_task_switch
+Message-ID: <20030525203115.GB8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Mika Penttil? <mika.penttila@kolumbus.fi>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>, Ingo Molnar <mingo@elte.hu>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0305251226170.25774-100000@localhost.localdomain> <Pine.LNX.4.50.0305250625050.19617-100000@montezuma.mastecende.com> <3ED0A248.10308@kolumbus.fi> <3ED0A7CF.9040803@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030525130601.5a105fa8.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3ED0A7CF.9040803@colorfullife.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 25, 2003 at 01:06:01PM -0700, Andrew Morton wrote:
-> Ed Sweetman <ed.sweetman@wmich.edu> wrote:
-> >
-> > got this with my current config. Along with other misc gcc 3 warnings.
-> > 
-> >  Compiling with gcc (GCC) 3.3 (Debian)
-> > 
-> >            ld -m elf_i386  -T arch/i386/vmlinux.lds.s
-> >  arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o
-> >  --start-group  usr/built-in.o  arch/i386/kernel/built-in.o
-> >  arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o
-> >  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o
-> >  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a
-> >  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o
-> >  net/built-in.o --end-group  -o vmlinux
-> >  kernel/built-in.o(.text+0x1708e): In function `free_module':
-> >  : undefined reference to `percpu_modfree'
-> >  kernel/built-in.o(.text+0x17873): In function `load_module':
-> >  : undefined reference to `find_pcpusec'
-> >  kernel/built-in.o(.text+0x179a9): In function `load_module':
-> >  : undefined reference to `percpu_modalloc'
-> >  kernel/built-in.o(.text+0x17c52): In function `load_module':
-> >  : undefined reference to `percpu_modcopy'
-> >  kernel/built-in.o(.text+0x17d3d): In function `load_module':
-> >  : undefined reference to `percpu_modfree'
-> 
-> Well that is strange.  The functions are there, inlined, in the right
-> place.
->...
+On Sun, May 25, 2003 at 01:23:59PM +0200, Manfred Spraul wrote:
+> Hmm. What is schedule.c:746? There is no BUG in that area in the bk tree.
+> Zwane, is it easy to reproduce the crash? I could write a patch that 
+> adds 4 refcounters, then we could find out in which area we must look.
 
-Note that in Ed's .config CONFIG_MODULE_UNLOAD is not set and the
-missing functions are inside a big #ifdef CONFIG_MODULE_UNLOAD block...
+There's a check in -mm that reads an otherwise unused chunk of the task_t
+and checks to see if it's slab poison.
 
-cu
-Adrian
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-- wli

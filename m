@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263843AbUEXCon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUEXCsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263843AbUEXCon (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 22:44:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUEXCon
+	id S263769AbUEXCsX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 22:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbUEXCsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 22:44:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31428 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263843AbUEXCoa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 22:44:30 -0400
-Date: Sun, 23 May 2004 19:43:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Phy Prabab <phyprabab@yahoo.com>
-Cc: wli@holomorphy.com, jakob@unthought.net, linux-kernel@vger.kernel.org
-Subject: Re: Help understanding slow down
-Message-Id: <20040523194352.4468da09.akpm@osdl.org>
-In-Reply-To: <20040524015153.32010.qmail@web90003.mail.scd.yahoo.com>
-References: <20040524012828.GK1833@holomorphy.com>
-	<20040524015153.32010.qmail@web90003.mail.scd.yahoo.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 23 May 2004 22:48:22 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:19469 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S263769AbUEXCsV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 22:48:21 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: bgerst@didntduck.org (Brian Gerst)
+Subject: Re: i486 emu in mainline?
+Cc: willy@w.ods.org, arjanv@redhat.com, hch@lst.de, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <40B0DB49.3090308@quark.didntduck.org>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.25-1-686-smp (i686))
+Message-Id: <E1BS5V8-0006d6-00@gondolin.me.apana.org.au>
+Date: Mon, 24 May 2004 12:47:42 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phy Prabab <phyprabab@yahoo.com> wrote:
+Brian Gerst <bgerst@didntduck.org> wrote:
 >
-> Okay, so ran the test with vmstat running.  I ran it
->  capturing every 1 sec.  Here is an excert:
+>> It was intentional for speed purpose. The areas are checked once with
+>> verify_area() when we need to access memory, then data is copied directly
+>> from/to memory. I don't think there's any risk, but I can be wrong.
+> 
+> Which will break with 4G/4G.  You must use at least __get_user().
 
-That was horridly wordwrapped.
-
-procs                      memory      swap         io     system         cpu
- r  b   swpd   free   buff  cache   si   so    bi   bo   in    cs us sy id wa
- 1  0      0 8153848  17000  82348    0    0     0    0 4568  4028  6 16 78  0
- 0  1      0 8154168  17008  82340    0    0     0  160 4596  4079  7 17 76  1
- 1  0      0 8153848  17008  82340    0    0     0    0 4511  3998  7 16 76  0
- 1  0      0 8153912  17008  82340    0    0     0    0 4460  3952  7 14 79  0
- 1  0      0 8153784  17016  82332    0    0     0    0 4437  3962  7 16 77  0
- 1  0      0 8153528  17016  82332    0    0     0    0 4444  3927  7 14 78  0
- 1  1      0 8153784  17024  82392    0    0     0  144 4399  3895  7 15 77  1
- 0  0      0 8153592  17024  82392    0    0     0    0 4367  3821  7 15 78  0
- 1  0      0 8153848  17024  82392    0    0     0    0 4393  3926  6 16 78  0
- 1  0      0 8153528  17024  82460    0    0     0    0 4438  3960  8 14 78  0
- 1  0      0 8154040  17024  82460    0    0     0    0 4415  3912  6 15 78  0
- 1  1      0 8153720  17032  82452    0    0     0  140 4457  3953  7 15 77  1
- 1  0      0 8153784  17032  82452    0    0     0    0 4437  3889  7 14 79  0
- 0  0      0 8153784  17040  82444    0    0     0    0 4398  3903  8 15 77  0
- 1  0      0 8153464  17040  82444    0    0     0    0 4398  3902  7 14 79  0
- 0  0      0 8153528  17040  82444    0    0     0    0 4447  3922  6 17 77  0
- 0  1      0 8153720  17052  82432    0    0     0  144 4490  3960  6 16 77  1
- 0  0      0 8153656  17056  82428    0    0     0    0 4449  3954  7 15 78  0
-
-This is a single-CPU machine, yes?
-
-Your application is spending most of the time in an explicit sleep of some
-form.  Suggest you run strace against it and see what it's up to.
+A 386 with a 4G/4G split, I'd like to see that.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

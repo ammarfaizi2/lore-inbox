@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUELS37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265166AbUELSb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUELS37 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 14:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbUELS37
+	id S265166AbUELSb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 14:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265165AbUELSb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 14:29:59 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:41352 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S265161AbUELS35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 14:29:57 -0400
-Date: Wed, 12 May 2004 11:29:51 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: richard.coe@med.ge.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: finding floating point use in the kernel
-Message-ID: <20040512182951.GA4796@taniwha.stupidest.org>
-References: <200405121802.NAA26824@neo.gso.med.ge.com>
+	Wed, 12 May 2004 14:31:57 -0400
+Received: from ns.suse.de ([195.135.220.2]:52656 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265162AbUELSbw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 14:31:52 -0400
+Subject: Re: [PATCH] [2.6] Make reiserfs not to crash on oom
+From: Chris Mason <mason@suse.com>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+In-Reply-To: <20040512165038.GA72981@linuxhacker.ru>
+References: <20040512165038.GA72981@linuxhacker.ru>
+Content-Type: text/plain
+Message-Id: <1084386693.2583.241.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405121802.NAA26824@neo.gso.med.ge.com>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 12 May 2004 14:31:33 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 01:02:45PM -0500, richard.coe@med.ge.com wrote:
+On Wed, 2004-05-12 at 12:50, Oleg Drokin wrote:
+> Hello!
+> 
+>   Thanks to Standford guys, a case where reiserfs can dereference NULL pointer
+>   if memory allocation fail during mount was identified.
+> 
+>   Here's 2.6 version of patch.
 
-> While trying to track down a problem with some floating point
-> calculations, I wrote the following script.  Perhaps someone can add
-> it to the kernel Makefile to run when the Platform is I386.
+Thanks Oleg, this looks right.
 
-As was just pointed out to me, this finds instructions which are never
-executed (they are just part of alignment/padding) and decodes them
-resulting in false positives.
-
-Christoph pointed out -mm has -msoft-float which I think should be
-sufficient to catch anything bad going on by accident.
+-chris
 
 
-  --cw

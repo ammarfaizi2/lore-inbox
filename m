@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268390AbTGIPmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 11:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268396AbTGIPmJ
+	id S268396AbTGIPu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 11:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268397AbTGIPu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 11:42:09 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:469 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268390AbTGIPll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 11:41:41 -0400
-Message-ID: <3F0C3F32.40301@kegel.com>
-Date: Wed, 09 Jul 2003 09:13:38 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: "Luck, Tony" <tony.luck@intel.com>
-CC: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org
-Subject: Re: Redundant memset in AIO read_events
-References: <DD755978BA8283409FB0087C39132BD101B00F79@fmsmsx404.fm.intel.com>
-In-Reply-To: <DD755978BA8283409FB0087C39132BD101B00F79@fmsmsx404.fm.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Jul 2003 11:50:27 -0400
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:3309 "EHLO
+	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S268396AbTGIPuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 11:50:24 -0400
+Date: Wed, 9 Jul 2003 12:04:45 -0400
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Andreas Schwab <schwab@suse.de>
+Cc: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: modutils-2.3.15 'insmod'
+Message-ID: <20030709160445.GE21969@ti19>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Andreas Schwab <schwab@suse.de>, root@chaos.analogic.com,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0307091119450.470@chaos> <jer84zln59.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jer84zln59.fsf@sykes.suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luck, Tony wrote:
-> That is true, but here's the definition of the io_event strcuture:
+On Wed, Jul 09, 2003 at 05:45:22PM +0200, Andreas Schwab wrote:
+> "Richard B. Johnson" <root@chaos.analogic.com> writes:
 > 
-> struct io_event {
->         __u64           data;
->         __u64           obj;
->         __s64           res;
->         __s64           res2;
-> };
+> |> It is likely that malloc(0) returning a valid pointer is a bug
+> |> that has prevented this problem from being observed.
 > 
-> In the words of the comment, C may be "fun", but I've
-> having trouble envisioning an architecture where a structure
-> that consists of four equal sized objects has some padding!
+> It's not a bug, it's a behaviour explicitly allowed by the C standard.
+ 
+... and has long been used to generate unique cookies of pointer type.
 
-<newbie>
-There might be some architecture that requires 16 byte alignment...
-how about surrounding the memcpy with if (sizeof(struct io_event) != 4 * sizeof(__u64)) ?
-</newbie>
+Regards,
 
--- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
-
+	Bill Rugolsky

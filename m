@@ -1,75 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266796AbTAUBWP>; Mon, 20 Jan 2003 20:22:15 -0500
+	id <S266944AbTAUBfC>; Mon, 20 Jan 2003 20:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264867AbTAUBWP>; Mon, 20 Jan 2003 20:22:15 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:11780
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266796AbTAUBWO>; Mon, 20 Jan 2003 20:22:14 -0500
-Date: Mon, 20 Jan 2003 17:27:06 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Andrew Grover <andrew.grover@intel.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: Ask devices to powerdown before S3 sleep
-In-Reply-To: <20030119214642.GA27885@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10301201714120.16070-100000@master.linux-ide.org>
+	id <S266953AbTAUBfB>; Mon, 20 Jan 2003 20:35:01 -0500
+Received: from mail1.cornernet.com ([207.195.212.6]:27880 "EHLO
+	mail1.cornernet.com") by vger.kernel.org with ESMTP
+	id <S266944AbTAUBfA>; Mon, 20 Jan 2003 20:35:00 -0500
+Date: Mon, 20 Jan 2003 19:43:54 -0600 (CST)
+From: Coax <coax@cornernet.com>
+To: "David D. Hagood" <wowbagger@sktc.net>
+cc: AnonimoVeneziano <voloterreno@tin.it>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Spurious 8259A interrupt: IRQ7 ????
+In-Reply-To: <3E2C9623.60709@sktc.net>
+Message-ID: <Pine.LNX.4.30.0301201943290.4362-100000@shell1.cornernet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Have seen this problem with a motherboard with a bad PCI slot, too.
+happened with a pci network card in the slot...
 
-Hi! Pavel,
+Chad Schwartz
+CornerNet System Administration
 
-Could you do me just one tiny favor?
-Please consider attempting an error recovery level path, maybe ...
+On Mon, 20 Jan 2003, David D. Hagood wrote:
 
-Every patch I have glanced at has 'panic("blah blah");'
-
-If you do not have enough hardware to generate an accurate path for
-recovery, then please do not force the kernel into panic.  Would you
-consider failing the request making it jump back to S1 ?  This at least
-allows it crash like a power failure.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-
-On Sun, 19 Jan 2003, Pavel Machek wrote:
-
-> Hi!
-> 
-> SUSPEND_RESUME phase is needed for turning off IO-APIC. [I believe
-> SUSPEND_DISABLE should be so simple that errors just should not be
-> there, and besides we would not know how to safely enable devices from
-> such weird state, anyway]. Please apply,
-> 
-> 								Pavel
-> 
-> --- clean/drivers/acpi/sleep.c	2003-01-05 22:58:25.000000000 +0100
-> +++ linux-swsusp/drivers/acpi/sleep.c	2003-01-19 21:27:00.000000000 +0100
-> @@ -143,6 +143,10 @@
->  			return error;
->  		}
->  
-> +		error = device_suspend(state, SUSPEND_DISABLE);
-> +		if (error)
-> +			panic("Sorry, devices really should know how to disable\n");
-> +
->  		/* flush caches */
->  		ACPI_FLUSH_CPU_CACHE();
-> 
-> -- 
-> Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-> What goes next? Inserting advertisment *into* email?
+> AnonimoVeneziano wrote:
+> > What does it mean this message?
+> >
+> > Of what problem is the signal?
+>
+> It is most likely a hardware problem.
+>
+> When a device signals an interrupt, it asserts its interrupt pin. When
+> the CPU asks the interrupt controller what device generated the
+> interrupt, the interrupt controller tells the CPU.
+>
+> But if the interrupt line "goes away" before the CPU fetches the vector,
+> then the interrupt controller doesn't "know" what IRQ caused the
+> interrupt. So the interrupt controller sends an IRQ #7 to the CPU, along
+> with setting a bit in the interrupt controller's status register that
+> says in effect "this isn't really an IRQ 7, but I have no idea what it
+> was. Sorry."
+>
+> If you have ISA cards in your system, remove them from the system and
+> re-insert them (with the power off, of course) - they may have developed
+> some oxidization on the card edge connector. You can also try scrubbing
+> the card edge with some plain paper (a US dollar bill works even better,
+> but you might not have access to dead presidents in Italy.)
+>
+> Ditto with PCI cards - remove them, polish the connector, then re-insert
+> them.
+>
+>
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>
 

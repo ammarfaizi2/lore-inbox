@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267839AbUIPISd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267840AbUIPIXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267839AbUIPISd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 04:18:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUIPISd
+	id S267840AbUIPIXU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 04:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUIPIXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 04:18:33 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:47885 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S267839AbUIPIS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 04:18:26 -0400
-Message-ID: <41494D6D.2090704@hist.no>
-Date: Thu, 16 Sep 2004 10:23:09 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
+	Thu, 16 Sep 2004 04:23:20 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:12994 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S267840AbUIPIXS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 04:23:18 -0400
+Date: Thu, 16 Sep 2004 10:23:08 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Debian GNU/Linux m68k <debian-68k@lists.debian.org>,
+       uClinux list <uclinux-dev@uclinux.org>,
+       GNU Libc Maintainers <debian-glibc@lists.debian.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: `new' syscalls for m68k
+In-Reply-To: <Pine.LNX.4.58.0409102250300.24607@anakin>
+Message-ID: <Pine.GSO.4.58.0409161016400.23693@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0409102250300.24607@anakin>
 MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
-       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Alexander Zarochentcev <zam@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl> <41352279.7020307@slaphack.com> <41356321.4030307@namesys.com> <Pine.LNX.4.58.0408312259180.2295@ppc970.osdl.org> <413578C9.8020305@namesys.com> <414876AD.6060404@techsource.com>
-In-Reply-To: <414876AD.6060404@techsource.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
+On Fri, 10 Sep 2004, Geert Uytterhoeven wrote:
+> I'm updating the syscall table for m68k...
+>
+> Below is a patch that adds all syscalls that m68k is currently lacking
+> (compared to ia32). However, I'm wondering whether we need all of them:
+>   - Are sys_sched_[gs]etaffinity() needed for non-SMP?
+>   - I disabled [sg]et_thread_area() since sys_[gs]et_thread_area() are
+>     missing. Do we have to implement them, or should we use some other
+>     method for Thread Local Storage?
+>   - What about sys_vserver()?
+>   - What about sys_kexec_load()?
+>   - Any others we can/should drop?
 
-> I'm probably not the first to suggest this idea, and it's probably not 
-> a very good idea, but here's my idea anyhow:
->
-> You have a file "/usr/bin/emacs"
-> with a metadata property in the overlaid namespace 
-> "/usr/bin/emacs/[[..]metas/]icon"
->
-> According to some, this could cause some confusion.  Howabout instead:
->
-> You have a file "/usr/bin/emacs"
-> with a metadata property in a slightly separated namespace 
-> "/metas/usr/bin/emacs/icon"
->
-And the problem with such a "solution" is
-mv /usr/bin/emacs /usr/bin/old-emacs
-Do this with an ordinary fs, and the /metas/usr/bin/emacs/icon
-won't move with it.  Now metas might might not be an ordinary fs,
-so perhaps the move happens automatically there, but if so
-it will be unexpected. 
+My conclusion (so far). I will:
+  - drop sys_sched_[gs]etaffinity() (no SMP on m68k), and sys_kexec_load()
+  - reserve an entry for sys_vserver()
+  - add waitid() (2.6.9-rc2)
+  - rename p{read,write}64() to p{read,write} (cfr. m68knommu in 2.6.8.1-uc0)
 
-> This has the advantage of still having the metadata in the filesystem 
-> namespace but without the confusion of having files-as-directories, 
-> ambiguity of filename, backup issues, etc.  This is the reverse of 
-> having the namespaces overlaid with a "/nometas" view which is separate.
->
-> Furthermore, you can split things further like this:
->
-> You have a file "/usr/bin/emacs"
-> with an automatically-generated metadata property that you don't want 
-> to back up in "/autometas/usr/bin/emacs/modification_date"
-> and a manually generated metadata property that you MAY want to backup 
-> in "/staticmetas/usr/bin/emacs/icon".
->
-> This is inelegant, I know.  But if we do this, we can add the extra 
-> features of reiser4 without confusing existing apps or having to 
-> modify them to support the new functionality.
->
-> Furthermore, you can easily hide the extra features by not mounting 
-> the meta top-level directories (assuming they're mounted like separate 
-> filesystems, rather than just magically appearing there, which is okay 
-> too).
+Which leaves us with [sg]et_thread_area(): what do the glibc hackers have in
+mind for TLS on m68k?
 
-Having to go up to root and then down a similar but different path to 
-reach a
-file's metadata seems very counterintuitive to me.  And you have to 
-update all
-tools to do this automatically, or it'll be hopeless to actually use.
+Thanks!
 
-Helge Hafting
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265470AbTANXGA>; Tue, 14 Jan 2003 18:06:00 -0500
+	id <S265469AbTANXEv>; Tue, 14 Jan 2003 18:04:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265484AbTANXGA>; Tue, 14 Jan 2003 18:06:00 -0500
-Received: from packet.digeo.com ([12.110.80.53]:38786 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265470AbTANXF7> convert rfc822-to-8bit;
-	Tue, 14 Jan 2003 18:05:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Morton <akpm@digeo.com>
-To: Brian Kelly <bkelly@sulaco.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to setup a buffer_head in a driver
-Date: Tue, 14 Jan 2003 15:14:35 -0800
-User-Agent: KMail/1.4.1
-References: <200301142235.RAA23806@temetra.com>
-In-Reply-To: <200301142235.RAA23806@temetra.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301141514.35825.akpm@digeo.com>
-X-OriginalArrivalTime: 14 Jan 2003 23:14:25.0851 (UTC) FILETIME=[AE45B8B0:01C2BC22]
+	id <S265470AbTANXEv>; Tue, 14 Jan 2003 18:04:51 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11784 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265469AbTANXEu>; Tue, 14 Jan 2003 18:04:50 -0500
+Date: Tue, 14 Jan 2003 23:13:41 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: TTY subsystem maintainership
+Message-ID: <20030114231341.D4077@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 January 2003 02:35 pm, Brian Kelly wrote:
->
-> Hi,
-> I'm writing a device driver that among other things needs to write data,
-> manufactured by the driver itself, to a block device.
-> 
-> I have this data in block sized kmalloc()'d chunks. So what I'm doing is
-> allocating a struct buffer_head, initialising it, fill out it's various
-> fields and send it to generic_make_request().
+Before anyone gets any smart ideas, I'd like to make the following point
+completely crystal clear.
 
-It's probably better to use submit_bh().  Set the BH_Lock and BH_Mapped bits,
-also set up b_end_io.  Then do a wait_on_buffer(), wait for the IO to
-complete.  There's some similar code in
-fs/jbd/journal.c:journal_write_metadata_buffer().
+I am _not_ repeat _not_ going to take over maintainership for the TTY
+subsystem.  I have too much other stuff to look after to take on that
+job.
 
-However, what you're doing is an odd thing.  If there is already pagecache
-against that block device then the kernel doesn't know that you've changed
-the bytes on-disk and will cheerfully proceed to use (and write out) the
-cached data.  You'll lose your modifications..
+However, I will review patches to the TTY layer from time to time,
+and provide (hopefully) useful feedback.  The patches I review will
+be decided by myself, and will depend on what they touch, how complex
+they are and how busy I am.
 
-It would be better to use sb_getblk() or bread(), to lock the returned
-buffer_head, then copy your data into it and to then write it back with
-submit_bh() or ll_rw_block().  Or just leave it dirty and let the kernel
-write it out in due course.
+And, just for completeness of the message, please do not send TTY layer,
+TTY line discipline layer, nor random TTY driver patches to me either.
 
+Thanks.
 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264923AbSJPGim>; Wed, 16 Oct 2002 02:38:42 -0400
+	id <S264929AbSJPGm6>; Wed, 16 Oct 2002 02:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264914AbSJPGim>; Wed, 16 Oct 2002 02:38:42 -0400
-Received: from tantale.fifi.org ([216.27.190.146]:17792 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id <S264923AbSJPGil>;
-	Wed, 16 Oct 2002 02:38:41 -0400
-To: ebuddington@wesleyan.edu
-Cc: linux-kernel@vger.kernel.org
-Reply-To: linux-kernel@vger.kernel.org
-Subject: Re: can chroot be made safe for non-root?
-References: <20021016015106.E30836@ma-northadams1b-3.bur.adelphia.net>
-From: Philippe Troin <phil@fifi.org>
-Date: 15 Oct 2002 23:44:32 -0700
-In-Reply-To: <20021016015106.E30836@ma-northadams1b-3.bur.adelphia.net>
-Message-ID: <87n0pevq5r.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264932AbSJPGm6>; Wed, 16 Oct 2002 02:42:58 -0400
+Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:29829
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S264929AbSJPGm5>; Wed, 16 Oct 2002 02:42:57 -0400
+Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
+From: GrandMasterLee <masterlee@digitalroadkill.net>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: J Sloan <joe@tmsusa.com>, Simon Roscic <simon.roscic@chello.at>,
+       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3DAD09E3.2050602@metaparadigm.com>
+References: <200210152120.13666.simon.roscic@chello.at>
+	 <1034710299.1654.4.camel@localhost.localdomain>
+	 <200210152153.08603.simon.roscic@chello.at>
+	 <3DACD41F.2050405@metaparadigm.com> <1034740592.29313.0.camel@localhost>
+	 <3DACEB6E.6050700@metaparadigm.com>  <3DACEC85.3020208@tmsusa.com>
+	 <1034743416.29307.11.camel@localhost>  <3DAD0118.80807@metaparadigm.com>
+	 <1034749907.2045.15.camel@localhost>  <3DAD09E3.2050602@metaparadigm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Digitalroadkill.net
+Message-Id: <1034750930.2045.35.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
+Date: 16 Oct 2002 01:48:53 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Buddington <eric@ma-northadams1b-3.bur.adelphia.net> writes:
+On Wed, 2002-10-16 at 01:40, Michael Clark wrote:
+...
+> > Should I remove LVM all together, or just not use it? In your opinion.
+> 
+> I just didn't load the module after migrating my volumes. If the problem
+> is a stack problem, then its probably not necessarily a bug in LVM
+> - just the combination of it, ext3 and the qlogic driver don't mix well
+> - so if its not being used, then it won't be increasing the stack footprint.
+> 
+> ~mc
+> 
 
-> I am eager to be able to sandbox my processes on a system without the
-> help of suid-root programs (as I prefer to have none of these on my
-> system).
+Not to be dense, but it's compiled into my kernel, that's why I ask. We
+try not to use modules where we can help it. So I'm thinking, if no VG
+are actively used, then LVM won't affect the stack much. I just don't
+know if that's true or not. 
 
-Probably an impossible task...
-
-> Would it be reasonable to allow non-root processes to chroot(), if the
-> chroot syscall also changed the cwd for non-root processes?
-
-No.
-
-  fd = open("/", O_RDONLY);
-  chroot("/tmp");
-  fchdir(fd);
-
-and you're out of the chroot.
-
-> Is there a reason besides standards compliance that chroot() does not
-> already change directory to the chroot'd directory for root processes?
-> Would it actually break existing apps if it did change the directory?
-
-Probably not. Make that: change the directory to chroot'd directory if
-the current working directory is outside the chroot. That is, leave
-the cwd alone if it is already inside the chroot.
-
-Phil.
+ --The GrandMaster

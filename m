@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVAOB41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVAOBsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbVAOB41 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 20:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVAOBsa
+	id S262135AbVAOBsS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 20:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVAOBl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 20:48:30 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:58345 "EHLO
+	Fri, 14 Jan 2005 20:41:26 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:43497 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262137AbVAOBpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 20:45:14 -0500
-Subject: Re: thoughts on kernel security issues
+	id S262115AbVAOBif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 20:38:35 -0500
+Subject: Re: vgacon fixes to help font restauration in X11
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501140731450.2310@ppc970.osdl.org>
-References: <200501141239.j0ECdaRj005677@laptop11.inf.utfsm.cl>
-	 <Pine.LNX.4.58.0501140731450.2310@ppc970.osdl.org>
+To: Egbert Eich <eich@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <16867.58009.828782.164427@xf14.fra.suse.de>
+References: <16867.58009.828782.164427@xf14.fra.suse.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105745175.9222.49.camel@localhost.localdomain>
+Message-Id: <1105745463.9839.55.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 15 Jan 2005 00:33:36 +0000
+Date: Sat, 15 Jan 2005 00:33:44 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-01-14 at 15:45, Linus Torvalds wrote:
-> On Fri, 14 Jan 2005, Horst von Brand wrote:
-> > 
-> > But you can trivially run an executable via e.g.:
-> > 
-> >     /lib/ld-2.3.4.so some-nice-proggie
-> 
-> I thought we fixed this, and modern ld-so's will fail on this if 
-> "some-nice-proggie" cannot be mapped executably. Which is exactly what 
-> we'd do.
+On Maw, 2005-01-11 at 14:28, Egbert Eich wrote:
+> I'm fully aware that in the long run we will need to look into a new 
+> driver model for graphics where no two instances fight over who gets
+> register access. However such a model won't be created nor will we get 
+> the majority of the drivers ported over night.
+> Therefore we need to find an interim solution for the most pressing 
+> problems.
 
-And I can still write it in perl forget MAP_EXEC and work on almost ever
-processor in use today because NX is very recent. Rewriting qemu in perl
-might be a bit extreme but its possible 8)
+This doesn't appear to work as a solution because the functionality
+changes won't be in all the existing kernel, and also because the kernel
+font save has a couple of bugs reported against it with regards to
+saving the right data that might need looking at anyway.
+
+It seems it would be neccessary for X to have a way to know whether the
+feature is present.
 

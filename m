@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318196AbSIOTkn>; Sun, 15 Sep 2002 15:40:43 -0400
+	id <S318222AbSIOTso>; Sun, 15 Sep 2002 15:48:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318209AbSIOTkn>; Sun, 15 Sep 2002 15:40:43 -0400
-Received: from dsl-213-023-020-240.arcor-ip.net ([213.23.20.240]:33664 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318196AbSIOTkm>;
-	Sun, 15 Sep 2002 15:40:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@digeo.com>, Daniel Jacobowitz <dan@debian.org>
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Date: Sun, 15 Sep 2002 21:43:39 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-References: <E17qRfU-0001qz-00@starship> <20020915190435.GA19821@nevyn.them.org> <3D84E2DB.6B189E7A@digeo.com>
-In-Reply-To: <3D84E2DB.6B189E7A@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17qfIx-00008h-00@starship>
+	id <S318230AbSIOTso>; Sun, 15 Sep 2002 15:48:44 -0400
+Received: from [209.173.6.49] ([209.173.6.49]:2952 "EHLO comet.linuxguru.net")
+	by vger.kernel.org with ESMTP id <S318222AbSIOTsn>;
+	Sun, 15 Sep 2002 15:48:43 -0400
+Date: Sun, 15 Sep 2002 15:53:28 -0400
+To: linux-kernel@vger.kernel.org
+Cc: hch@infradead.org, jonathan@buzzard.org.uk, pavel@ucw.cz
+Subject: Re: [PATCH] IRQ patch for Toshiba Char Driver in 2.5.34
+Message-ID: <20020915195328.GA60517@comet>
+References: <20020909115956.GA23290@comet> <20020911112938.A25726@infradead.org> <20020915154248.GA3647@elf.ucw.cz> <20020915213009.A53847@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020915213009.A53847@ucw.cz>
+User-Agent: Mutt/1.4i
+From: James Blackwell <jblack@linuxguru.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 September 2002 21:43, Andrew Morton wrote:
-> I suspect the example which you give is not a very typical one.  Generally
-> people use kgdb for poking around looking at kernel state.  I almost never
-> single-step.  I set breakpoints so that I can inspect state within a
-> particular context, and for coverage testing ("is this path being executed").
+On Sun, Sep 15, 2002 at 09:30:09PM +0200, Vojtech Pavlik wrote:
+> On Sun, Sep 15, 2002 at 05:42:48PM +0200, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > You've just made the driver horribly racy on SMP or preempt
+> > > systems..
+> > 
+> > Well, as long as toshiba does not make SMP notebooks, we are safe ;-).
+> 
+> ... or preempt. Which doesn't really depend on Toshiba.
+> 
 
-Right, I almost never single-step either.  Probably, my favorite technique
-is to replace BUG() with asm("int3").
+Does that mean my very first kernel patch, insignificant as it is, is
+probably acceptable?
 
-> Also as a replacement for printk/rebuild/reboot.
+Should I resubmit it? I haven't tried 2.5.34 yet, and 2.5.33 had keyboard
+problems that prevented me from using it.
 
-Yup.  I still use a lot of printks, but they are mostly for tracing, not
-triangulation.
-
-> Also for inspecting ad-hoc instrumentation: just add `some_global_int++;'
-> and then take a look at its value - much quicker than exposing it via /proc.
-
-Yep, I noticed you doing that, very useful, I picked up that technique
-from you.  Then I made a little all-purpose proc interface for myself
-to make it easy to export my stats structures, which is kind of nice too,
-because then you can put a patch out with the hooks still in it, making
-it easier for others to participate in the analysis.
-
-> It's also very good to have kgdb on hand when you happen to hit a
-> really rare bug - I hit a weirdo request queue corruption thing the
-> other day, an hour into a `dbench 1024' run.  Was able to get a
-> decent amount of information.  Heaven knows how long it would take
-> to make that bug trigger a second time...
-
-Yes, this last one applies equally to kdb, but since I'm not relying
-on kdb at the moment, best to leave the lid on that can of flamable
-material.
 
 -- 
-Daniel
+GnuPG fingerprint AAE4 8C76 58DA 5902 761D  247A 8A55 DA73 0635 7400
+James Blackwell  --  Director http://www.linuxguru.net

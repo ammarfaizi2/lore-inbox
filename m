@@ -1,115 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVAYVTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVAYVYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262141AbVAYVTi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 16:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVAYVRP
+	id S262163AbVAYVYE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 16:24:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVAYVM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 16:17:15 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:16944 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262145AbVAYVNT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 16:13:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=mNddc/r9iqKMaLSmVfBsBHdkTnQ7/TqD6EeK3q/4Ttal5iNTqumZmwh7F2Jh0BqUdNQa6qdsfxjRsS4wTXi3EKIaM8fJCla0wA1BWJ9M4wuQWz3xSWb+AcejIfxvPflK1lpargO6PEK0w4cWoC/wLg9G0SX9GrH+wxQ4yJfjCjQ=
-Message-ID: <3f250c7105012513136ae2587e@mail.gmail.com>
-Date: Tue, 25 Jan 2005 17:13:15 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: User space out of memory approach
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Edjard Souza Mota <edjard@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050122033219.GG11112@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 Jan 2005 16:12:56 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:25872 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262151AbVAYVHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 16:07:35 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [PATCH 6/12] random pt4: Replace SHA with faster version
+Date: Tue, 25 Jan 2005 23:07:21 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <7.314297600@selenic.com>
+In-Reply-To: <7.314297600@selenic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-References: <3f250c71050110134337c08ef0@mail.gmail.com>
-	 <20050110192012.GA18531@logos.cnet>
-	 <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <20050110200514.GA18796@logos.cnet>
-	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-	 <20050111083837.GE26799@dualathlon.random>
-	 <3f250c71050121132713a145e3@mail.gmail.com>
-	 <3f250c7105012113455e986ca8@mail.gmail.com>
-	 <20050122033219.GG11112@dualathlon.random>
+Content-Disposition: inline
+Message-Id: <200501252307.21993.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
+On Friday 21 January 2005 23:41, Matt Mackall wrote:
+> - * @W:      80 words of workspace
+> + * @W:      80 words of workspace, caller should clear
 
-Your OOM Killer patch was tested and a strange behaviour was found.
-Basically as normal user we started some applications as openoffice,
-mozilla and emacs.
-And as a root (in another tty) we started a simple program that uses
-malloc in a forever loop as below:
+Why?
 
-int main (void)
-{
-  int * mem;
-  for (;;)
-        mem = (int *) malloc(sizeof(int));
-  return 0;
-}
+>   *
+>   * This function generates a SHA1 digest for a single. Be warned, it
+>   * does not handle padding and message digest, do not confuse it with
+>   * the full FIPS 180-1 digest algorithm for variable length messages.
+>   */
+> -void sha_transform(__u32 *digest, const char *data, __u32 *W)
+> +void sha_transform(__u32 *digest, const char *in, __u32 *W)
+>  {
+> -	__u32 A, B, C, D, E;
+> -	__u32 TEMP;
+> -	int i;
+> +	__u32 a, b, c, d, e, t, i;
+>  
+> -	memset(W, 0, sizeof(W));
+>  	for (i = 0; i < 16; i++)
+> -		W[i] = be32_to_cpu(((const __u32 *)data)[i]);
+> -	/*
+> -	 * Do the preliminary expansion of 16 to 80 words.  Doing it
+> -	 * out-of-line line this is faster than doing it in-line on
+> -	 * register-starved machines like the x86, and not really any
+> -	 * slower on real processors.
+> -	 */
+> -	for (i = 0; i < 64; i++) {
+> -		TEMP = W[i] ^ W[i+2] ^ W[i+8] ^ W[i+13];
+> -		W[i+16] = rol32(TEMP, 1);
+> +		W[i] = be32_to_cpu(((const __u32 *)in)[i]);
+> +
+> +	for (i = 0; i < 64; i++)
+> +		W[i+16] = rol32(W[i+13] ^ W[i+8] ^ W[i+2] ^ W[i], 1);
+--
+vda
 
-
-Using the original OOM Killer, malloc is the first killed application
-and the sytem is restored in a useful state. After applying your patch
-and accomplish the same experiment, the OOM Killer it does not kill
-malloc program and it enters in a kind of forever loop as below:
-
-1) out_of_memory is invoked;
-2) select_bad_process is invoked;
-3) the following condition is fullfied;
-if ((unlikely(test_tsk_thread_flag(p, TIF_MEMDIE)) || (p->flags &
-PF_EXITING)) &&
-			    !(p->flags & PF_DEAD))
-				return ERR_PTR(-1UL);
-4) step 1, 2 ,3 above is executed again;
-
-This loop (step 1 until step 4) lasts during a long time (and nothing
-is killed) until I give up and reboot the system after waiting for
-some minutes.
-
-Any comments? What do you think about our test case? Could you
-accomplish the same test case using malloc program as root and other
-graphical applications as normal user?
-
-Let me know about your ideas.
-
-BR,
-
-Mauricio Lin.
-
-On Sat, 22 Jan 2005 04:32:19 +0100, Andrea Arcangeli <andrea@suse.de> wrote:
-> On Fri, Jan 21, 2005 at 05:45:13PM -0400, Mauricio Lin wrote:
-> > Hi Andrew,
-> >
-> > I have another question. You included an oom_adj entry in /proc for
-> > each process. This was the approach you used in order to allow someone
-> > or something to interfere the ranking algorithm from userland, right?
-> > So if i have an another ranking algorithm in user space, I can use it
-> > to complement the kernel decision as necessary. Was it your idea?
-> 
-> Yes, you should use your userspace algorithm to tune the oom killer via
-> the oom_adj and you can check the effect of your changes with oom_score.
-> I posted a one liner ugly script to do that a few days ago on l-k.
-> 
-> The oom_adj has this effect on the badness() code:
-> 
->         /*
->          * Adjust the score by oomkilladj.
->          */
->         if (p->oomkilladj) {
->                 if (p->oomkilladj > 0)
->                         points <<= p->oomkilladj;
->                 else
->                         points >>= -(p->oomkilladj);
->         }
-> 
-> The biggest the points become, the more likely the task will be choosen
-> by the oom killer.
->

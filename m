@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbTJXWmA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 18:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTJXWmA
+	id S261973AbTJXWrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 18:47:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJXWp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 18:42:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64910 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261680AbTJXWl6 (ORCPT
+	Fri, 24 Oct 2003 18:45:59 -0400
+Received: from main.gmane.org ([80.91.224.249]:48273 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261973AbTJXWpN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 18:41:58 -0400
-Date: Fri, 24 Oct 2003 15:42:51 -0700
-From: Dave Olien <dmo@osdl.org>
-To: kernel@kolivas.org, piggin@cyberone.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] linux 2.6.0-test8 reaim tests (attachment URL)
-Message-ID: <20031024224251.GA15399@osdl.org>
-References: <20031024220821.GA15231@osdl.org>
+	Fri, 24 Oct 2003 18:45:13 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
+Date: Sat, 25 Oct 2003 00:45:08 +0200
+Message-ID: <yw1xbrs6p85n.fsf@kth.se>
+References: <20031020141512.GA30157@hell.org.pl> <yw1x8yngj7xg.fsf@users.sourceforge.net>
+ <20031020184750.GA26154@hell.org.pl> <yw1xekx7afrz.fsf@kth.se>
+ <20031023082534.GD643@openzaurus.ucw.cz> <yw1xr813f1a3.fsf@kth.se>
+ <3F98FDDF.1040905@cyberone.com.au> <yw1xbrs6652m.fsf@kth.se>
+ <20031024222347.GB728@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031024220821.GA15231@osdl.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:8eVCkvgOte/j7d1pqSf7/K5vj8o=
+Cc: acpi-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek <pavel@ucw.cz> writes:
 
-My attachment was too big to send directly to lkml.
-You can find it at:
+> Try it completely without modules. I'm not sure how it should work
+> with modules which means it probably does not work at all.
 
-	http://developer.osdl.org/dmo/REAIM/typescript_stp8-002
+Are you saying it doesn't work with any modules?  What about all the
+people who have reported success with suspend-to-disk?  I thought
+everyone used at least some modules.
 
-On Fri, Oct 24, 2003 at 03:08:21PM -0700, Dave Olien wrote:
-> 
-> I've observed in the last two days, linux 2.6.0-test8 and I think
-> linux 2.6.0-test8-mm1.  The reaim test workload fails to exit.
-> All of the reaim tasks are blocked in sys_wait4().  But non of
-> them seem to have any obvious child processes.
-> 
-> There are also lots of sync() processes.  Many of those seem to be
-> blocked somewhere scheduling IO.  These kernels were all with the
-> as-isoched IO scheduler.  I may retry with deadline scheduler, just
-> to rule out IO scheduler. Is there any link between the sync()
-> processes and the reaim waiting for children?
-> 
-> Could there be a problem with IO not completing for the sync()
-> tasks that causes the reaim tasks to not complete?
-> 
-> Attached is a console output from a system hung in this state.
-> Included (towards the bottom) is a sysrq t output.
-> 
-> I'm hoping to investigate this more closely over the week end.
+-- 
+Måns Rullgård
+mru@kth.se
+

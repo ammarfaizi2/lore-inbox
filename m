@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129050AbQKMMQ6>; Mon, 13 Nov 2000 07:16:58 -0500
+	id <S129481AbQKMMfo>; Mon, 13 Nov 2000 07:35:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129178AbQKMMQs>; Mon, 13 Nov 2000 07:16:48 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:49682 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S129050AbQKMMQh>; Mon, 13 Nov 2000 07:16:37 -0500
-From: aprasad@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Message-ID: <CA256996.004352F8.00@d73mta05.au.ibm.com>
-Date: Mon, 13 Nov 2000 17:29:48 +0530
-Subject: reliability of linux-vm subsystem
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S129541AbQKMMfe>; Mon, 13 Nov 2000 07:35:34 -0500
+Received: from ns2.Deuroconsult.ro ([193.226.167.164]:270 "EHLO
+	marte.Deuroconsult.ro") by vger.kernel.org with ESMTP
+	id <S129481AbQKMMfW>; Mon, 13 Nov 2000 07:35:22 -0500
+Date: Mon, 13 Nov 2000 14:35:06 +0200 (EET)
+From: Catalin BOIE <util@deuroconsult.ro>
+To: "Magnus Naeslund(b)" <mag@bahnhof.se>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Tracing files that opens.
+In-Reply-To: <00c901c04c06$82834690$020a0a0a@totalmef>
+Message-ID: <Pine.LNX.4.20.0011131433490.24209-100000@marte.Deuroconsult.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 11 Nov 2000, Magnus Naeslund(b) wrote:
 
-When i run following code many times.
-System becomes useless till all of the instance of this programming are
-killed by vmm.
-Till that time linux doesn't accept any command though it switches from one
-VT to another but its useless.
-The above programme is run as normal user previleges.
-Theoretically load should increase but system should services other users
-too.
-but this is not behaving in that way.
-___________________________________________________________________
-main()
-{
-     char *x[1000];
-     int count=1000,i=0;
-     for(i=0; i <count; i++)
-          x[i] = (char*)malloc(1024*1024*10); /*10MB each time*/
+> Is there a nice way to trap on file open() and stat() ?
+> That way i could have nice file statistics.
 
-}
-_______________________________________________________________________
-If i run above programm for 10 times , then system is useless for around
-5-7minutes on PIII/128MB.
+Look for a kernel module that replace the open syscall.
+I don't have an url right now but search for my name in the lk archives.
+I put a question like this.
 
-regards,
-Anil
+> 
+> Magnus
+> 
+> -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+>  Programmer/Networker [|] Magnus Naeslund
+>  PGP Key: http://www.genline.nu/mag_pgp.txt
+> -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro
+A new Linux distribution: http://l13plus.deuroconsult.ro
+http://www2.deuroconsult.ro/~catab
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,100 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267798AbUIJUya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267810AbUIJU4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267798AbUIJUya (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 16:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUIJUya
+	id S267810AbUIJU4n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 16:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUIJU4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 16:54:30 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:56803 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S267798AbUIJUxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 16:53:54 -0400
-Subject: Re: [Linux-cluster] New virtual synchrony API for the kernel: was
-	Re: [Openais] New API in openais
-From: Steven Dake <sdake@mvista.com>
-Reply-To: sdake@mvista.com
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Discussion of clustering software components including
-	 GFS <linux-cluster@redhat.com>,
-       Daniel Phillips <phillips@redhat.com>, openais@lists.osdl.org,
-       linux-ha-dev@lists.linux-ha.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040910175129.GT7359@marowsky-bree.de>
-References: <1093941076.3613.14.camel@persist.az.mvista.com>
-	 <1093973757.5933.56.camel@cherrybomb.pdx.osdl.net>
-	 <1093981842.3613.42.camel@persist.az.mvista.com>
-	 <200409011115.45780.phillips@redhat.com>
-	 <1094104992.5515.47.camel@persist.az.mvista.com>
-	 <20040910175129.GT7359@marowsky-bree.de>
-Content-Type: text/plain; charset=UTF-8
-Organization: MontaVista Software, Inc.
-Message-Id: <1094849594.23862.184.camel@persist.az.mvista.com>
+	Fri, 10 Sep 2004 16:56:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24514 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267810AbUIJUyi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 16:54:38 -0400
+Date: Fri, 10 Sep 2004 13:53:57 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Brian Somers <brian.somers@sun.com>
+Cc: Michael.Waychison@sun.com, linux-kernel@vger.kernel.org
+Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
+Message-Id: <20040910135357.393f7737.davem@redhat.com>
+In-Reply-To: <41419F82.10109@sun.com>
+References: <20040816110000.1120.31256.Mailman@lists.us.dell.com>
+	<200408162049.FFF09413.8592816B@anet.ne.jp>
+	<20040816143824.15238e42.davem@redhat.com>
+	<412CD101.4050406@sun.com>
+	<20040825120831.55a20c57.davem@redhat.com>
+	<412CF0E9.2010903@sun.com>
+	<20040825175805.6807014c.davem@redhat.com>
+	<412DC055.4070401@sun.com>
+	<20040826123730.375ce5d2.davem@redhat.com>
+	<41419F82.10109@sun.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 10 Sep 2004 13:53:15 -0700
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-10 at 10:51, Lars Marowsky-Bree wrote:
-> On 2004-09-01T23:03:12,
->    Steven Dake <sdake@mvista.com> said:
-> 
-> I've been pretty busy the last couple of days, so please bear with me
-> for my late reply.
-> 
-> A virtual synchrony group messaging component would certainly be
-> immensely helpful. As it pretty strongly ties to membership events (as
-> you very correctly point out), I do think we need to review the APIs
-> here.
-> 
-> Could you post some sample code and how / where you'd propose to merge
-> it in?
-> 
+On Fri, 10 Sep 2004 13:35:14 +0100
+Brian Somers <brian.somers@sun.com> wrote:
 
-The virtual synchrony APIs I propose we start with can be reviewed at:
+> The problem seems to be that autoneg is disabled on the IBM switches.
+> After disabling autoneg on the Sun shelf switches, I see the problem.
+> This patch fixes things by reverting to sw autoneg which defaults to
+> a 1000Mbps/full-duplex link but with no flow control when it fails
+> (IBM should really have autoneg enabled!) - I'd appreciate it if
+> someone could test this against an IBM blade.
 
-http://developer.osdl.org/dev/openais/htmldocs/index.html
+Did you see the fix I posted the other day and have
+already merged upstream?
 
-There is a sample program using these interfaces at:
+The real problem was the MAC_STATUS register checking in
+tg3_timer() that we use to determine if we should call
+the PHY code.  Specifically, we were failing to test
+MAC_STATUS_SIGNAL_DET being set, which when trying to
+bring the link up means we should call tg3_setup_phy().
 
-http://developer.osdl.org/dev/openais/src/test/testevs.c
+There are still some nagging problems with certain blades even
+with my current code.  Brian, if you want to help I'd really
+appreciate it if you worked with current tg3 sources as I rewrote
+the 5704 hw autoneg support from scratch since it was missing
+a hw bug workaround and had other issues as well.
 
-> Also, again, I'm not sure this needs to be in the kernel. Do you have
-> upper bounds of the memory consumption? Would the speed really benefit
-> from being in the kernel?
-> 
-Right now, the entire openais project with all the services it provides
-consumes 2MB of ram at idle.  I'd expect under load its about 3MB.  The
-group messaging protocol portion of that uses perhaps 1 MB of ram.  It
-will reject new messages if its buffers are full, so it cannot grow
-wildly.
-
-Your definately correct; a virtual syncrhony protocol doesn't absolutely
-have to be in the kernel.  In fact, it is implemented today completely
-in userland with 8.5MB/sec throughput to large groups with encryption
-and authentication.
-
-You could gain some network performance by ridding UDP from the IP
-header, but this is only 8 bytes.
-
-There is little performance gain in using the kernel (as basically, a
-kernel thread/process would have to be created to operate the protocol).
-
-The only point of a kernel virtual syncrhony API is to standardize on
-one set of messaging APIs for the kernel projects that require messaging
-(and at a higher level, distributed locks, fencing, etc).
-
-We want to avoid is two seperate messaging protocols operating at the
-same time (performance drain).
-
-We also want to choose wisely the messaging model and protocol we use. 
-If we don't, we could have problems later.
-
-> OTOH, all other networking protocols such as TCP, SCTP or even IP/Sec
-> live in kernel space, so clearly there's prior evidence of this being a
-> reasonable idea.
-> 
-> 
-> Sincerely,
->     Lars Marowsky-Brée <lmb@suse.de>
-
+Thanks.

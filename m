@@ -1,137 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290716AbSARPO3>; Fri, 18 Jan 2002 10:14:29 -0500
+	id <S290718AbSARPYu>; Fri, 18 Jan 2002 10:24:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290719AbSARPOU>; Fri, 18 Jan 2002 10:14:20 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:17421 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S290716AbSARPOH>; Fri, 18 Jan 2002 10:14:07 -0500
-Message-ID: <3C483ADB.6080308@namesys.com>
-Date: Fri, 18 Jan 2002 18:10:19 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S290720AbSARPYj>; Fri, 18 Jan 2002 10:24:39 -0500
+Received: from pat.uio.no ([129.240.130.16]:37612 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S290718AbSARPYY>;
+	Fri, 18 Jan 2002 10:24:24 -0500
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com
-Subject: [PATCH] rename bug patch for 2.4 --- my mangling undone
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15432.15891.937634.771191@charged.uio.no>
+Date: Fri, 18 Jan 2002 16:24:03 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.3-pre1] Fix NFS dentry lookup behaviour
+In-Reply-To: <Pine.LNX.4.33.0201171414220.3114-100000@penguin.transmeta.com>
+In-Reply-To: <15430.14576.445228.537714@charged.uio.no>
+	<Pine.LNX.4.33.0201171414220.3114-100000@penguin.transmeta.com>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just discovered how not to cut and paste a patch, sorry.  This one is correct, the other sent this morning will not work due to extra carriage returns getting into it.
+>>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
 
-Credit Oleg, his explanation is below, it is tested by several Namesys internal testers, and reviewed.
+     > What's wrong with using the existing "revalidate" approach? I
+     > hate the notion of adding a special VFS layer call for
+     > something like this.
 
-Hans
-*****************************************************************************************************************
+The following patch to path_walk() is the alternative that I presented
+to Linux Fsdevel last summer as part of the first draft patch. It uses
+the standard d_revalidate() & friends.
 
-Hello!
+As I said, the reaction at the time was not too positive, but perhaps
+opinions have changed?
 
-     A-rename_stale_item_bug-1.diff
-     This patch fixes 2 bugs in reiserfs_rename(). First one being attempt to access item before verifying it was
-     not moved since last access. Second is a window, where old filename may be written to disk with 'visible'
-     flag unset without these changes be journaled.
+Cheers,
+   Trond
 
-Bye,
-     Oleg
-
---- linux/fs/reiserfs/namei.c.orig	Thu Jan 17 14:05:11 2002
-+++ linux/fs/reiserfs/namei.c	Thu Jan 17 17:09:23 2002
-@@ -1057,7 +1057,7 @@
-      INITIALIZE_PATH (old_entry_path);
-      INITIALIZE_PATH (new_entry_path);
-      INITIALIZE_PATH (dot_dot_entry_path);
--    struct item_head new_entry_ih, old_entry_ih ;
-+    struct item_head new_entry_ih, old_entry_ih, dot_dot_ih ;
-      struct reiserfs_dir_entry old_de, new_de, dot_dot_de;
-      struct inode * old_inode, * new_inode;
-      int windex ;
-@@ -1151,6 +1151,8 @@
-
-  	copy_item_head(&old_entry_ih, get_ih(&old_entry_path)) ;
-
-+ 
-reiserfs_prepare_for_journal(old_inode->i_sb, old_de.de_bh, 1) ;
-+
-  	// look for new name by reiserfs_find_entry
-  	new_de.de_gen_number_bit_string = 0;
-  	retval = reiserfs_find_entry (new_dir, new_dentry->d_name.name, new_dentry->d_name.len,
-@@ -1167,6 +1169,7 @@
-  	if (S_ISDIR(old_inode->i_mode)) {
-  	    if (search_by_entry_key (new_dir->i_sb, &dot_dot_de.de_entry_key, &dot_dot_entry_path, &dot_dot_de) != NAME_FOUND)
-  		BUG ();
-+ 
-     copy_item_head(&dot_dot_ih, get_ih(&dot_dot_entry_path)) ;
-  	    // node containing ".." gets into transaction
-  	    reiserfs_prepare_for_journal(old_inode->i_sb, dot_dot_de.de_bh, 1) ;
-  	}
-@@ -1183,23 +1186,33 @@
-  	** of the above checks could have scheduled.  We have to be
-  	** sure our items haven't been shifted by another process.
-  	*/
-- 
-if (!entry_points_to_object(new_dentry->d_name.name,
-+ 
-if (item_moved(&new_entry_ih, &new_entry_path) ||
-+ 
-     !entry_points_to_object(new_dentry->d_name.name,
-  	                            new_dentry->d_name.len,
-  	 
-		    &new_de, new_inode) ||
-- 
-     item_moved(&new_entry_ih, &new_entry_path) ||
-  	    item_moved(&old_entry_ih, &old_entry_path) ||
-  	    !entry_points_to_object (old_dentry->d_name.name,
-  	                             old_dentry->d_name.len,
-  	 
-		     &old_de, old_inode)) {
-  	    reiserfs_restore_prepared_buffer (old_inode->i_sb, new_de.de_bh);
-+ 
-     reiserfs_restore_prepared_buffer (old_inode->i_sb, old_de.de_bh);
-  	    if (S_ISDIR(old_inode->i_mode))
-  		reiserfs_restore_prepared_buffer (old_inode->i_sb, dot_dot_de.de_bh);
-  	    continue;
-  	}
-+ 
-if (S_ISDIR(old_inode->i_mode)) {
-+ 
-     if ( item_moved(&dot_dot_ih, &dot_dot_entry_path) ||
-+ 
-	 !entry_points_to_object ( "..", 2, &dot_dot_de, old_dir) ) {
-+ 
-	reiserfs_restore_prepared_buffer (old_inode->i_sb, old_de.de_bh);
-+ 
-	reiserfs_restore_prepared_buffer (old_inode->i_sb, new_de.de_bh);
-+ 
-	reiserfs_restore_prepared_buffer (old_inode->i_sb, dot_dot_de.de_bh);
-+ 
-	continue;
-+ 
-     }
-+ 
-}
-+
-
-  	RFALSE( S_ISDIR(old_inode->i_mode) &&
-- 
-	(!entry_points_to_object ("..", 2, &dot_dot_de, old_dir) ||
-- 
-	 !reiserfs_buffer_prepared(dot_dot_de.de_bh)), "" );
-+ 
-	!reiserfs_buffer_prepared(dot_dot_de.de_bh), "" );
-
-  	break;
-      }
-@@ -1212,6 +1225,7 @@
-      journal_mark_dirty (&th, old_dir->i_sb, new_de.de_bh);
-
-      mark_de_hidden (old_de.de_deh + old_de.de_entry_num);
-+    journal_mark_dirty (&th, old_dir->i_sb, old_de.de_bh);
-      old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
-      new_dir->i_ctime = new_dir->i_mtime = CURRENT_TIME;
-
-
-
-
+diff -u --recursive --new-file linux-2.5.3-pre1/fs/namei.c linux-2.5.3-cto/fs/namei.c
+--- linux-2.5.3-pre1/fs/namei.c	Mon Jan 14 18:41:57 2002
++++ linux-2.5.3-cto/fs/namei.c	Fri Jan 18 15:13:00 2002
+@@ -457,7 +457,7 @@
+ 	while (*name=='/')
+ 		name++;
+ 	if (!*name)
+-		goto return_base;
++		goto return_reval;
+ 
+ 	inode = nd->dentry->d_inode;
+ 	if (current->link_count)
+@@ -576,7 +576,7 @@
+ 				inode = nd->dentry->d_inode;
+ 				/* fallthrough */
+ 			case 1:
+-				goto return_base;
++				goto return_reval;
+ 		}
+ 		if (nd->dentry->d_op && nd->dentry->d_op->d_hash) {
+ 			err = nd->dentry->d_op->d_hash(nd->dentry, &this);
+@@ -627,6 +627,19 @@
+ 			nd->last_type = LAST_DOT;
+ 		else if (this.len == 2 && this.name[1] == '.')
+ 			nd->last_type = LAST_DOTDOT;
++return_reval:
++		/*
++		 * We bypassed the ordinary revalidation routines.
++		 * Check the cached dentry for staleness.
++		 */
++		dentry = nd->dentry;
++		if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
++			err = -ESTALE;
++			if (!dentry->d_op->d_revalidate(dentry, 0)) {
++				d_invalidate(dentry);
++				break;
++			}
++		}
+ return_base:
+ 		return 0;
+ out_dput:

@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266049AbUFJAlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266065AbUFJAsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266049AbUFJAlw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 20:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUFJAlv
+	id S266065AbUFJAsx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 20:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266067AbUFJAsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 20:41:51 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:10949 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266049AbUFJAlu
+	Wed, 9 Jun 2004 20:48:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53722 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266065AbUFJAsw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 20:41:50 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andrew Morton <akpm@osdl.org>, Chris Mason <mason@suse.com>
-Subject: Re: ide errors in 7-rc1-mm1 and later
-Date: Thu, 10 Jun 2004 02:45:33 +0200
-User-Agent: KMail/1.5.3
-Cc: axboe@suse.de, edt@aei.ca, linux-kernel@vger.kernel.org
-References: <1085689455.7831.8.camel@localhost> <1086827287.10973.305.camel@watt.suse.com> <20040609173856.4463e36f.akpm@osdl.org>
-In-Reply-To: <20040609173856.4463e36f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Jun 2004 20:48:52 -0400
+Date: Wed, 9 Jun 2004 21:49:33 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: cbjohns@mn.rr.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kswapd excessive CPU time
+Message-ID: <20040610004933.GB6924@logos.cnet>
+References: <6feb8721a0.721a06feb8@rdc-kc.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200406100245.33513.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <6feb8721a0.721a06feb8@rdc-kc.rr.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 of June 2004 02:38, Andrew Morton wrote:
-> Chris Mason <mason@suse.com> wrote:
-> > On Wed, 2004-06-09 at 19:50, Andrew Morton wrote:
-> > > Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
-> > > > Does journal has checksum or some other protection against failure
-> > > > during writing journal to a disk?  If not than it still can be
-> > > > screwed even with ordered writes if we are unfortunate enough.  ;-)
-> > >
-> > > A transaction is written to disk as two synchronous operations: write
-> > > all the data, wait on it, write the single commit block, wait on that.
-> > >
-> > > If the commit block were to hit disk before the data then we have a
-> > > window in which poweroff+recovery would replay garbage into the
-> > > filesystem.
-> > >
-> > > So I think we have a bug in the current ext3 barrier implementation -
-> > > we need a blk_issue_flush() before submitting the buffer_ordered commit
-> > > block.
-> >
-> > The IDE barriers are both a pre and post flush.  If the commit block is
-> > ordered, before the commit block hits the disk we know all the blocks
-> > previously submitted are also on disk.
->
-> Oh, OK.  Will the same apply to (for example) scsi?
+On Wed, Jun 09, 2004 at 02:23:58PM -0500, cbjohns@mn.rr.com wrote:
+> > Recent 2.4 VM should fix this, but you better of use 2.6.
+> > 
+> 
+> Thanks Marcelo. Do you know of specific patches that have
+> gone into 2.4 that might fix this? I may be able to just apply them
+> rather than try a whole new kernel release.
 
-Not OK.  Chris, pre and post flushes are for the same device.
-Journal may be on different device than filesystem!
+The -aa VM merge during 2.4.23, most notable 2.4.23-pre4:
+
+  o aa VM merge: Per-zone watermark changes, add lower_zone_reserve_ratio
+  o aa VM merge: page reclaiming logic changes: Kills oom killer
+  o aa VM merge: Page accounting helpers changes
+  o aa VM merge: tunables
+  o aa VM merge: Kill PF_MEMDIE
+  o aa VM merge: Fixup page reclaiming changes patch
+
+That plus a few merge mistakes fixed during later 2.4.23-pre.
 
 

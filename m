@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266643AbSKLRft>; Tue, 12 Nov 2002 12:35:49 -0500
+	id <S266627AbSKLRde>; Tue, 12 Nov 2002 12:33:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266645AbSKLRft>; Tue, 12 Nov 2002 12:35:49 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:9988 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266643AbSKLRfr>;
-	Tue, 12 Nov 2002 12:35:47 -0500
-Date: Tue, 12 Nov 2002 18:42:08 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Heusden van, FJJ   (Folkert)" <F.J.J.Heusden@rn.rabobank.nl>,
-       Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: random PID patch
-Message-ID: <20021112174207.GB187@elf.ucw.cz>
-References: <11D18E6D1073547-1319@_rabobank.nl_> <1037020203.2919.26.camel@irongate.swansea.linux.org.uk>
+	id <S266628AbSKLRde>; Tue, 12 Nov 2002 12:33:34 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:43225 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S266627AbSKLRdd>;
+	Tue, 12 Nov 2002 12:33:33 -0500
+Date: Tue, 12 Nov 2002 17:40:11 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       "'Mark Mielke'" <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
+Subject: Re: Users locking memory using futexes
+Message-ID: <20021112174011.GB14034@bjl1.asuk.net>
+References: <20021112052113.GA12452@bjl1.asuk.net> <Pine.LNX.4.44.0211121000280.5877-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1037020203.2919.26.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0211121000280.5877-100000@localhost.localdomain>
 User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Sometimes, (well; frequently) programs that create temporary
-> > files let the filename depend on their PID. A hacker could use
-> > that knowledge. So if you know that the application that
+Ingo Molnar wrote:
+> > It would be nice if the futex waitqueues could be re-hashed against swap
+> > entries when pages are swapped out, somehow, but this sounds hard.
 > 
-> Still can if its random. The attacker can be the one who exec's the
-> vulnerable app. The attacker can use dnotify
-> 
-> > things it's not supposed to. Like forcing suid apps to create
-> > a file in the startup-scripts dir. or something.
-> 
-> Just use namespaces and give every login their own /tmp
+> yes it sounds hard (and somewhat expensive). The simple solution would be
+> to hash against the pte address, which is an invariant over swapout - but
+> that breaks inter-process futexes. The hard way would be to rehash the
+> futex at the pte address upon swapout, and rehash it with the new physical
+> page upon swapin. The pte chain case has to be careful, and rehashing
+> should only be done when the physical page is truly unmapped even in the
+> last process context.
 
-Use namespaces? I thought export TMPDIR= was the solution ;-).
+Can't it be hashed against (address space, offset) for shared
+mappings, and against (mm, pte address) for private mappings?
 
-							Pavel
--- 
-When do you have heart between your knees?
+-- Jamie

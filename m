@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319274AbSIKSsP>; Wed, 11 Sep 2002 14:48:15 -0400
+	id <S319273AbSIKSk7>; Wed, 11 Sep 2002 14:40:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319275AbSIKSsO>; Wed, 11 Sep 2002 14:48:14 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:58639
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S319274AbSIKSsO>; Wed, 11 Sep 2002 14:48:14 -0400
-Subject: Re: [PATCH] Read-Copy Update 2.5.34
-From: Robert Love <rml@tech9.net>
-To: dipankar@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Paul McKenney <paul.mckenney@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020911195939.E28198@in.ibm.com>
-References: <20020911164940.C28198@in.ibm.com>
-	<Pine.LNX.4.44.0209111323360.12332-100000@localhost.localdomain>
-	<20020911175011.D28198@in.ibm.com> <1031753011.950.106.camel@phantasy> 
-	<20020911195939.E28198@in.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 11 Sep 2002 14:52:46 -0400
-Message-Id: <1031770371.4693.113.camel@phantasy>
+	id <S319274AbSIKSk7>; Wed, 11 Sep 2002 14:40:59 -0400
+Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:62865 "EHLO
+	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S319273AbSIKSk5>; Wed, 11 Sep 2002 14:40:57 -0400
+Date: Wed, 11 Sep 2002 20:45:00 +0200
+From: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+To: Austin Gonyou <austin@coremetrics.com>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: 2.4.20pre5aa2
+Message-ID: <20020911204500.E13655@pc9391.uni-regensburg.de>
+References: <20020911202801.C13655@pc9391.uni-regensburg.de> <1031769317.24629.28.camel@UberGeek.coremetrics.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1031769317.24629.28.camel@UberGeek.coremetrics.com>; from austin@coremetrics.com on Mit, Sep 11, 2002 at 20:35:18 +0200
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-11 at 10:29, Dipankar Sarma wrote:
-
-> Sorry, I should have been more careful labelling them - those are 2.5.34-preempt
-> vs 2.5.34-preempt-rcu numbers. I did them first because rcu-poll-preempt
-> kernel has a conditinal branch in fast path and hence more interesting. 
-> I will publish the vanilla vs rcu_poll reflex numbers in a few minutes 
-> from now.
-
-Ahh OK.  Results are OK, then - thanks :-)
-
-
-> Our OLS paper and presentation too deals with preemption -
+Am 11 Sep 2002 20:35:18 schrieb(en) Austin Gonyou:
+> Ahh..I see now. So, before the machine reboots, what do you get in
+> dmesg?
 > 
-> http://www.rdrop.com/users/paulmck/rclock/rcu.2002.07.08.pdf
-> http://www.rdrop.com/users/paulmck/rclock/rclock.OLS.2002.07.08a.pdf
+> Anything, an oops maybe? maybe do dmesg > ~/somefile so you can keep
+> them around after the reboot?
+> 
+> 
 
-Yep.  Was there, saw the talk, got the t-shirt.
+Have to correct my first statement. The Machine crashes in both cases, HT 
+enabled or not...
+But I didn't find any Output in dmesg.
 
-	Robert Love
+I'll now try Andrea's patches...
+
+thank you :)
+Christian
 

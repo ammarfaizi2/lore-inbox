@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261842AbSLMKCp>; Fri, 13 Dec 2002 05:02:45 -0500
+	id <S261857AbSLMKI7>; Fri, 13 Dec 2002 05:08:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261857AbSLMKCp>; Fri, 13 Dec 2002 05:02:45 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:25582 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S261842AbSLMKCo>; Fri, 13 Dec 2002 05:02:44 -0500
-Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions)
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200212122247.gBCMlHgY011021@turing-police.cc.vt.edu>
-References: <200212122247.gBCMlHgY011021@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Dec 2002 11:10:24 +0100
-Message-Id: <1039774224.1449.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
+	id <S261861AbSLMKI7>; Fri, 13 Dec 2002 05:08:59 -0500
+Received: from fw1.afb.de ([195.30.9.122]:35548 "EHLO fw1.afb.de")
+	by vger.kernel.org with ESMTP id <S261857AbSLMKI6> convert rfc822-to-8bit;
+	Fri, 13 Dec 2002 05:08:58 -0500
+Message-ID: <2F4E8F809920D611B0B300508BDE95FE294452@AFB91>
+From: BoehmeSilvio <Boehme.Silvio@afb.de>
+To: "'Dave Jones'" <davej@codemonkey.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-ac1 KT400 AGP support
+Date: Fri, 13 Dec 2002 11:18:39 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Scanner: exiscan *18Mmrw-0003Er-00*CqwdDSBlwls* on Astaro Security Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-12 at 23:47, Valdis.Kletnieks@vt.edu wrote:
+Hi !
 
-> Been there. Done that. Does the attached patch help? It did for me.
-> 
-> /Valdis
-> 
-> 
-> ----
-> 
+I don't need the AGP 8X mode, but is it possible,
+to get this setup running in whatever agp mode ?
 
-> --- drivers/pcmcia/cardbus.c.dist	2002-12-03 01:49:29.000000000 -0500
-> +++ drivers/pcmcia/cardbus.c	2002-12-03 01:50:23.000000000 -0500
-> @@ -283,8 +283,6 @@
->  		dev->hdr_type = hdr & 0x7f;
->  
->  		pci_setup_device(dev);
-> -		if (pci_enable_device(dev))
-> -			continue;
->  
->  		strcpy(dev->dev.bus_id, dev->slot_name);
->  
-> @@ -302,6 +300,8 @@
->  			pci_writeb(dev, PCI_INTERRUPT_LINE, irq);
->  		}
->  
-> +		if (pci_enable_device(dev))
-> +			continue;
->  		device_register(&dev->dev);
->  		pci_insert_device(dev, bus);
->  	}
+Currently it is only possible to start X with VESA support,
+because all other drivers need agpgart.
 
-interesting. BUT aren't we writing to the device 3 lines before where
-you add the pci_enable_device()? That sounds like a bad plan to me ;(
+By
+
+Silvio
+
+
+-----Ursprüngliche Nachricht-----
+Von: Dave Jones [mailto:davej@codemonkey.org.uk]
+Gesendet: Donnerstag, 12. Dezember 2002 20:21
+An: BoehmeSilvio
+Cc: linux-kernel@vger.kernel.org
+Betreff: Re: 2.4.20-ac1 KT400 AGP support
+
+
+On Thu, Dec 12, 2002 at 07:04:02PM +0100, BoehmeSilvio wrote:
+ > Hi !
+ > 
+ > Hopefully I'm right here.....
+ > 
+ > I have some trouble to get agpgart working in kernel 2.4.20-ac1.
+ > 
+ > My setup:
+ > - ASUS A7V8X with VIA KT400 Chip (AGP 8X)
+ > - ATI Radeon 9700 PRO (also AGP 8X)
+ > 
+ > The original 2.4.20 kernel doesn't know this chipset, so I tried the
+ > 2.4.20-ac1, which has some patches for the KT400.
+ > 
+ > With 2.4.20-ac1 I get the following error:
+ > 
+ > agpgart: Maximum main memory to use for agp memory: 690M
+ > agpgart: Detected Via Apollo KT-400 chipset
+ > agpgart: unable to determine aperture size
+
+Currently AGPGART doesn't support AGP 3.0 (which is needed for X8 mode)
+
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

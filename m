@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267295AbRGPLaD>; Mon, 16 Jul 2001 07:30:03 -0400
+	id <S267303AbRGPLjj>; Mon, 16 Jul 2001 07:39:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267297AbRGPL3x>; Mon, 16 Jul 2001 07:29:53 -0400
-Received: from [212.141.54.101] ([212.141.54.101]:7062 "EHLO
-	mailrelay1.inwind.it") by vger.kernel.org with ESMTP
-	id <S267295AbRGPL3g>; Mon, 16 Jul 2001 07:29:36 -0400
-Date: Mon, 16 Jul 2001 13:29:33 +0200
-From: Gianluca Anzolin <g.anzolin@inwind.it>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.7-pre6 can't complete e2fsck
-Message-ID: <20010716132933.A216@fourier.home.intranet>
-Mime-Version: 1.0
+	id <S267305AbRGPLj2>; Mon, 16 Jul 2001 07:39:28 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49672 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267303AbRGPLjR>; Mon, 16 Jul 2001 07:39:17 -0400
+Subject: Re: 4.1.0 DRM (was Re: Linux 2.4.6-ac3)
+To: johnc@damncats.org (John Cavan)
+Date: Mon, 16 Jul 2001 12:39:54 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B52CEAF.12281126@damncats.org> from "John Cavan" at Jul 16, 2001 07:23:27 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15M6jC-0005PK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've upgraded to 2.4.7-pre6aa1 and I'm seeing a strange behaviour:
+> Why not do something similar to the aic7xxx driver? Place the old DRM in
+> code in a pre-X4.1.0 subdirectory, with a warning that it will become
+> obsolete as of 2.5, and bring in the new code. When you build the
+> kernel, you can then choose which DRM version you want and everybody is
+> happy.
 
-e2fsck /dev/hda3 never finishes: I can't even stop the process with
-CTRL+C. Alt+SysRQ works and it tells me that the number of inactive dirty
-pages increases, while the active and free pages decrease.
+Thats certainly possible, Ideally you would want both module sets to 
+co-exist. That way the user can build all of DRM and get the right ones loading
+via modprobe
 
-Alt+SYSRQ+P says the kernel loops mainly in page_launder
+Alan
 
-Is there a patch to solve this problem?
-
-Gianluca Anzolin

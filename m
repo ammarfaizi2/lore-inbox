@@ -1,73 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbTLUOTY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 09:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTLUOTY
+	id S261719AbTLUObL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 09:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTLUObK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 09:19:24 -0500
-Received: from cpr.sovintel.ru ([213.221.51.82]:39432 "EHLO cpr.sovintel.ru")
-	by vger.kernel.org with ESMTP id S263166AbTLUOTW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 09:19:22 -0500
-From: aal@evidence-cpr.com (Alexey Lobanov)
-Organization: Evidence CPR
-To: linux-kernel@vger.kernel.org
-Date: Sun, 21 Dec 2003 17:18:50 +0300
-MIME-Version: 1.0
-Subject: PROBLEM: pptp client crashes 2.4 kernel
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-Message-Id: <20031221141850.96CFF5D841@office.cpr.spb.ru>
-X-Sanitizer: This message has been sanitized!
+	Sun, 21 Dec 2003 09:31:10 -0500
+Received: from mail.shareable.org ([81.29.64.88]:48263 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261719AbTLUObG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 09:31:06 -0500
+Date: Sun, 21 Dec 2003 14:30:43 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
+Message-ID: <20031221143043.GJ3438@mail.shareable.org>
+References: <20031221105333.GC3438@mail.shareable.org> <Xine.LNX.4.44.0312210833030.3044-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0312210833030.3044-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+James Morris wrote:
+> This approach would turn Linux into proprietary software.
 
-To folks related to PPP and PPtP in Linux.
+You're saying a Linux kernel with _more_ capabilities that I and
+everyone else outside the USA can use, learn from, modify and
+distribute freely is proprietary, whereas denying me access to those
+capabilities is more free?
 
-This is neither a question nor proper bugreport. Just a preliminary alert. No explicit 
-advice assumed. If the problem seems to be interesting, please request any additional 
-information via personal mail.
+I guess it is more free for people living within the patented economic
+zones, and less free for people outside them.
 
-The essence of problem: Linux box with kernel 2.4.23 is crashed to kernel oops by PPtP 
-connection to Alcatel ADSL modem. Not instantly but "upon load", after few minutes to few 
-hours of real networking. Same box is rock stable for months with old 2.2.19 kernel. 
-Complete hardware replace and complete replace of all(?) the related user-space software 
-(pppd daemon, pptp-linux daemon) changes nothing. So, the problem seems to be related to 
-either ppp or virtual terminal driver in latest 2.4 kernel.
+To put it into perspective: I'd love for Mandrake or SuSE or Polish or
+Red Flag Linux to come with a full suite of modem, DSL and wireless
+drivers, and support for VFAT and Longhorn filesystems.
 
-  Details.
+There's two ways to go about it:
 
-The very basic (without crypto) PPtP-over-Ethernet tunnel is used by some ADSL providers, 
-mostly in Europe. Client machine has 10.0.0.1 at Ethernet card, modem has something like 
-10.0.0.138. PPP connection is authorized via plain PAP and uses no any MS extensions (no 
-mppe, ms-chap-*, etc), no any compression. 
+    1. First way is we develop a common Linux kernel which everyone in
+       the USA may use, even if it contains things like encryption
+       which are not so legal in some other parts of the world.
 
-The problem appeared while production router upgrade from 2.2 kernel to 2.4 kernel. 
-System works fine during some time (minutes to hours), then crashes with "Null pointer 
-dereference..." in different points: several times it was "swapper", then something else. 
-Downgrade to 2.2.19 kernel restores stability. Hardware problems are excluded: the 
-hardware was replaced completely during tests, including netcard model.
+       This is obviously how it's done right now.
 
-  User-level software versions.
+       Mandrake, SuSE, Polish, Red Flag and everyone else outside the
+       USA must apply the Big Linux Patch to build kernels which
+       support all the extra devices and filesystems.
 
-ppp daemon: either 2.4.1 from Debian 3.0r2 or self-compiled 2.4.2b3. No difference.
+    2. Second way is to include all those extra wireless drivers
+       etc. in the common kernel, but disable them somehow for USA
+       users.  Note that the USA users have not lost anything.
 
-pptp-linux client daemon: either 1.1.0 from Debian 3.0r2 or self-compiled 1.3.1. No 
-difference.
+       Distributing the code in disabled form _may_ not be legal in
+       practice, I simply do not know, so maybe the second way is not
+       permissible.  But if there is a chance it is permissible, don't
+       you think it should be explored?
 
-  Kernel patches: Openwall OW1 security patch.
-
-Some raw ideas obtained from Internet search: (1) conflicts with ipchains netfilter; (2) 
-conflicts in mtu/mss size. No probes without ipchains.o were done.
-
-Please do not ask me for any test in next weeks: this exotic pptp configuration works in 
-an unattended production box 750 km away from my normal location. Not the best guinea-
-pig. However, tests will be possible in January, after our Christmas (which is 7 Jan).
-
-Regards,
-Alexey
-
+-- Jamie

@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUKETkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbUKETlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUKETkx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 14:40:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbUKETiE
+	id S261186AbUKETlb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 14:41:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbUKETlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 14:38:04 -0500
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:38294 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261163AbUKETga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 14:36:30 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
-Subject: Synchronization primitives in UML (was: Re: [uml-devel] Re: [patch 09/20] uml: use SIG_IGN for empty sighandler)
-Date: Fri, 5 Nov 2004 20:36:55 +0100
-User-Agent: KMail/1.7.1
-Cc: user-mode-linux-devel@lists.sourceforge.net, akpm@osdl.org, cw@f00f.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411052036.55541.blaisorblade_spam@yahoo.it>
+	Fri, 5 Nov 2004 14:41:22 -0500
+Received: from [61.48.52.143] ([61.48.52.143]:34796 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S261190AbUKETkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 14:40:16 -0500
+Date: Fri, 5 Nov 2004 10:31:50 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200411051831.iA5IVo928353@adam.yggdrasil.com>
+To: vonbrand@inf.utfsm.cl
+Subject: Re: Possible GPL infringement in Broadcom-based routers
+Cc: davids@webmaster.com, jp@enix.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 November 2004 06:48, Jeff Dike wrote:
-> blaisorblade_spam@yahoo.it said:
-> > I had a doubt on this, but I was not getting much feedback from you...
+Horst H. von Brand wrote:
+>"Adam J. Richter" <adam@yggdrasil.com> said:
 
-> Yeah, sorry.
-Jeff, please read this one - I have a number of important things in it. Also, 
-I'd like comments from everyone else interested.
+>[...]
 
-I can understand you, so I'll try to reduce my mails to you to increase the 
-signal/noise ratio.
+>> 	I think you're missing the idea that that such drivers are
+>> _contributory_ infringement to the direct infringement that occurs when
+>> the user loads the module.  In other words, even for a driver that has
+>> not a byte of code derived from the kernel, if all its uses involve it
+>> being loaded into a GPL'ed kernel to form an infringing derivative
+>> work in RAM by the user committing direct copyright infringement against
+>> numerous GPL'ed kernel components, then it fails the test of having
+>> a substantial non-infringing use, as established in the Betamax decision,
+>> and distributing it is contributory infringement of those GPL'ed
+>> components of the kernel.
 
-I'll still send what needed to the list, but CC you just when requesting your 
-attention (not for trivial fixlet, yes for things as this one, which smelt 
-like being an hack done on purpose).
+>This is nonsense: If so, I'd be commiting a crime each time I fire up emacs
+>on Solaris (linking (GPLed) emacs to (propietary) libc in RAM). [Yes, just
+>an example; haven't done so for the best part of 5 years now...]
 
-> > Also, if you reject this, I'd require a comment-only patch for it: "as
-> > soon as I remember why" makes me think back to my yesterday's class,
-> > when  the teacher said "put comments in your code or you'll soon
-> > forget what it  does!" 8-O (yes, 1st year University student :-( ).
+	It is based precisely on the idea that that is enforceable
+that the FSF created an LGPL distinct from the GPL and also why it makes
+a special exception for your type of use toward the end of section 3:
 
-> The thing is, you often don't realize what's going to be mysterious until
-> it actually is, and then it's too late for the comment :-)
+| However, as a
+| special exception, the source code distributed need not include
+| anything that is normally distributed (in either source or binary
+| form) with the major components (compiler, kernel, and so on) of the
+| operating system on which the executable runs, unless that component
+| itself accompanies the executable.
 
-> In this case, it wants to be bounced out
-You mean it failing with EINTR, right?
-> of sigprocmask when a SIGWINCH 
-> arrives.
-Also, why shouldn't sigprocmask be restartable with the -ERESTART* mechanism? 
-Wouldn't your kludge break?
+>Besides, Linus has _explicitly_ said that binary (closed source) modules
+>are OK (under certain conditions). And AFAIU there was legitimate
+>discussion wether this particular excemption was required at al.
 
-Also, a nicer way to code this could be to have an explicit sighandler setting 
-a flag (to get the syscall interrupted if the signal arrives before being 
-blocked) and to call sigpending() (to test if the signal arrived just after 
-setting it). After the syscall, that could become SIG_IGN.
+	I've seen messages that say quite the opposite.  Besides,
+Linus is not the only copyright holder.  It only takes one copyright
+for someone to be infringing.
 
-Also, (optional answer), why is this needed? A comment about such issues would 
-be better than an answer email.
+	Again, I'm not a lawyer, so please don't take this as legal
+advice.
 
-> In order to do so, it must have a handler registered, even if 
-> it does nothing.
-
-Ok. However, I have a general question about all this whole code: why do you 
-use pipes as synchronization primitives? Did you avoid semaphores for 
-portability issues, or for persistency ones? Both can be solved (with the os_ 
-layer and the IPC_PRIVATE key).
-
-This would especially help during context switching, I think. I have just a 
-rough idea of what switch_pipe is for, but calling the network layer (what 
-you call os_pipe() is actually socketpair(), which is very confusing) to rely 
-on the semaphores / wait queues it uses seems suboptimal and ugly.
-
-What are your ideas about this?
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264535AbUFNWJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264513AbUFNWJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264535AbUFNWJA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 18:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUFNWJA
+	id S264513AbUFNWJu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 18:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbUFNWJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 18:09:00 -0400
-Received: from gate.firmix.at ([80.109.18.208]:62910 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S264535AbUFNWI6 (ORCPT
+	Mon, 14 Jun 2004 18:09:50 -0400
+Received: from pdbn-d9bb9e93.pool.mediaWays.net ([217.187.158.147]:9733 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id S264513AbUFNWJq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 18:08:58 -0400
-Subject: Re: upcalls from kernel code to user space daemons
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Oliver Neukum <oliver@neukum.org>, Steve French <smfltc@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <40CE1F42.1020407@nortelnetworks.com>
-References: <200406142341.13340.oliver@neukum.org>
-	 <40CE1F42.1020407@nortelnetworks.com>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Message-Id: <1087250925.8828.3.camel@gimli.at.home>
+	Mon, 14 Jun 2004 18:09:46 -0400
+Date: Tue, 15 Jun 2004 00:09:17 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Alexandre Oliva <aoliva@redhat.com>
+Cc: Cesar Eduardo Barros <cesarb@nitnet.com.br>, linux-kernel@vger.kernel.org,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] O_NOATIME support
+Message-ID: <20040614220917.GA18941@citd.de>
+References: <20040612011129.GD1967@flower.home.cesarb.net> <orpt81sv1g.fsf@free.redhat.lsd.ic.unicamp.br>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 15 Jun 2004 00:08:45 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <orpt81sv1g.fsf@free.redhat.lsd.ic.unicamp.br>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-14 at 23:57, Chris Friesen wrote:
-> Oliver Neukum wrote:
+On Mon, Jun 14, 2004 at 06:12:59PM -0300, Alexandre Oliva wrote:
+> On Jun 11, 2004, Cesar Eduardo Barros <cesarb@nitnet.com.br> wrote:
 > 
-> >  > userspace daemon loops on ioctl()
-> >  > kernel portion of ioctl call goes to sleep until something to do
-> >  > when needed, fill in data and return to userspace
-> >  > userspace does stuff, then passes data back down via ioctl()
-> >  > ioctl() puts userspace back to sleep and continues on with other work
-> > 
-> > You could just as well implement an ordinary read()
+> > int O_NOATIME  	Macro
+> >   If this bit is set, read will not update the access time of the file.
+> >   See File Times. This is used by programs that do backups, so that
+> >   backing a file up does not count as reading it. Only the owner of the
+> >   file or the superuser may use this bit.
 > 
-> Not quite.  The userspace is passing data down as well.  I don't know how you'd 
-> do that with read().
+> IMHO it's a bad idea to enable the owner of the file to avoid changing
+> the atime of their files.  I've heard more than once about the atime
+> bit being used to as proof that a user had actually seen the contents
+> of a file although s/he claimed s/he hadn't.  If it was root-only,
+> atime could still be used for the same purpose, and would enable
+> backups with tools that accessed the filesystem through the FS layer,
+> as opposed to though the block layer, to keep such proof unchanged.
 
-For this you use write().
+man mount
+/noatime
+-> You can disable updating the atime for the whole filesystem.
 
-	Bernd
+man utimes/touch -a
+-> You can modify "at will" the atime & mtime of a file.
+
+
+Or in other words, nothing you can't already manipulate at will today.
+
+
+
+Bis denn
+
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 

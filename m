@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264998AbRGAPeE>; Sun, 1 Jul 2001 11:34:04 -0400
+	id <S265183AbRGAPvC>; Sun, 1 Jul 2001 11:51:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265183AbRGAPdy>; Sun, 1 Jul 2001 11:33:54 -0400
-Received: from rillanon.amristar.com.au ([202.181.77.23]:6157 "HELO
-	amristar.com.au") by vger.kernel.org with SMTP id <S265179AbRGAPdn>;
-	Sun, 1 Jul 2001 11:33:43 -0400
-From: "Daniel Harvey" <daniel@amristar.com.au>
-To: <linux-laptop@mobilix.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: Linux SLOW on Compaq Armada 110 PIII Speedstep
-Date: Sun, 1 Jul 2001 23:36:51 +0800
-Message-ID: <NEBBJDBLILDEDGICHAGAEENECFAA.daniel@amristar.com.au>
+	id <S265193AbRGAPuv>; Sun, 1 Jul 2001 11:50:51 -0400
+Received: from smarty.smart.net ([207.176.80.102]:16389 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S265183AbRGAPuq>;
+	Sun, 1 Jul 2001 11:50:46 -0400
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200107011602.MAA01357@smarty.smart.net>
+Subject: Re: Uncle Sam Wants YOU!
+To: jroland@roland.net (Jim Roland)
+Date: Sun, 1 Jul 2001 12:02:54 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <002001c10216$500e3910$bb1cfa18@JimWS> from "Jim Roland" at Jul 01, 2001 05:12:19 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Compaq Armada doesn't appear to have a BIOS setting for the power
-settings.
+> 
+> Pardon me, but what does this have to do with Linux or the Linux Kernel?!?!
+> Post this on the usenet under advocacy, but please don't litter up the
+> kernel listserver with this.
 
-I still don't get the fact that one kernel will run fast, while the rest do
-the real SLOW thing.
+What this has to do with Linux is that throughout the whole process
+Microsoft has been putting Linux in the news, on the front page, and now
+is the opportunity for the people who have been damaged by Microsoft, the
+people that have very good reasons to be massively dissatisfied with
+Windows, a set of people that the readers of this list exemplifies, have
+an opportunity to speak on the matter in a helpful and substantive way
+that will be of more benefit than any work directly on Linux itself can
+be, to the computer world generally and to Linux.
 
-Thanks,
---
-Daniel Harvey <daniel@amristar.com.au> Phone/Fax +61 8 9389 7844/33
-Director, Amristar Pty Ltd; www.amristar.com.au Mobile +61 41 444 8136
 
-
-
-> -----Original Message-----
-> From: jgarzik@havoc.gtf.org [mailto:jgarzik@havoc.gtf.org]On Behalf Of
-> Jeff Garzik
-> Sent: Sunday, 1 July 2001 10:56 PM
-> To: Daniel Harvey
-> Cc: linux-laptop@mobilix.org; linux-kernel@vger.kernel.org
-> Subject: Re: Linux SLOW on Compaq Armada 110 PIII Speedstep
->
->
-> Daniel Harvey wrote:
-> > [1.] Linux SLOW on Compaq Armada 110 PIII Speedstep
->
-> Intel will not release docs for SpeedStep, so we cannot do anything
-> about this except annoy Intel (or buy competing, documented processors).
->
-> I have a Toshiba P-III laptop with SpeedStep.  It was similarly slow
-> until I got into the BIOS setup screen and cranked up the BIOS settings
-> from "max saving" to "max performance."
->
-> (BTW, most laptops -do- have a BIOS setup... it's just that many
-> manufacturers hide the normal PC boot screen, where RAM is checked, IDE
-> drives scanned, etc)
->
-> --
-> Jeff Garzik      | The LSB is a bunch of crap.
-> Building 1024    | E-mail for details.
-> MandrakeSoft     |
->
-
+Rick Hohensee
+:; cLIeNUX /dev/tty3  11:09:49   /
+:;d
+ABOUT        Linux        boot         floppy       mounts       temp
+ABOUT.Linux  NetBSD       command      guest        owner
+Cintpos      README       configure    help         source
+GPL          RIGHTS       dev          incoming     subroutine
+LGPL         VVT.tar      device       log          suite
+:; cLIeNUX /dev/tty3  11:29:59   /
+:;
+ 

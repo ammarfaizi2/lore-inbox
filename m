@@ -1,79 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbVCJCEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVCJCKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262653AbVCJCEr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 21:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVCJCCO
+	id S261699AbVCJCKj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 21:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVCJCJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 21:02:14 -0500
-Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:9556 "HELO
-	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262607AbVCJCA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 21:00:58 -0500
-Subject: Exuberant ctags can tag files names too
-From: John Kacur <jkacur@rogers.com>
-Reply-To: jkacur@rogers.com
-To: sam@ravnborg.org, kai.germaschewski@unh.edu
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1110420068.5526.39.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 09 Mar 2005 21:01:08 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Mar 2005 21:09:12 -0500
+Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:9919 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261676AbVCJCIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 21:08:55 -0500
+Date: Wed, 9 Mar 2005 19:09:08 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: linux-os <linux-os@analogic.com>
+cc: Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       blaisorblade@yahoo.it, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, domen@coderock.org,
+       amitg@calsoftinc.com, gud@eth.net
+Subject: Re: [patch 1/1] unified spinlock initialization arch/um/drivers/port_kern.c
+In-Reply-To: <Pine.LNX.4.61.0503091840210.22633@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0503091908040.2903@montezuma.fsmlabs.com>
+References: <20050309094234.8FC0C6477@zion> <20050309171231.H25398@flint.arm.linux.org.uk>
+ <200503092052.24803.blaisorblade@yahoo.it> <20050309224259.J25398@flint.arm.linux.org.uk>
+ <20050309145044.764bc056.akpm@osdl.org> <Pine.LNX.4.61.0503091840210.22633@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Exuberant ctags can tag file names too. I find this extremely useful
-when browsing kernel source, and so would like to share it with
-everyone. (You can now type ":tag oprof.c" for example, and jump to the
-file with that name.)
+On Wed, 9 Mar 2005, linux-os wrote:
 
-I previously sent a patch which naively just appended an "--extra=+f" to
-the ctags line. Here's a much smarter patch that works by first
-querrying if ctags is exuberant, and if so, whether the --extra
-functionality is available before adding the line. Please apply.
-Signed-off-by: John Kacur jkacur@rogers.com
+> We need to retain the spin_lock_init(&lock) because not all spin-locks
+> are allocated at compile-time. They might be allocated from kmalloc()
+> on startup, probably in a structure, along with other so-called
+> global data.
 
---- Makefile.orig	2005-03-08 23:34:16.000000000 -0500
-+++ Makefile	2005-03-09 20:25:06.710159432 -0500
-@@ -1167,12 +1167,13 @@
- cmd_TAGS = $(all-sources) | etags -
- 
- # 	Exuberant ctags works better with -I
--
-+#	Exuberant ctags can tag file names with --extra=+f
- quiet_cmd_tags = MAKE   $@
- define cmd_tags
- 	rm -f $@; \
--	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "-I
-__initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_GPL"`; \
--	$(all-sources) | xargs ctags $$CTAGSF -a
-+	CTAGSF=`ctags --version | grep -iq exuberant && echo "-I
-__initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_GPL"`; \
-+	CTAGSF_EXTRA=`ctags --version | grep -iq exuberant && ctags --help |
-grep -q "\--extra" && echo "--extra=+f"`; \
-+	$(all-sources) | xargs ctags $$CTAGSF -a $$CTAGSF_EXTRA
- endef
- 
- TAGS: FORCE
-
-This second patch is a trivial spelling correction. Please apply
-Signed-off-by: John Kacur jkacur@rogers.com
-
---- Makefile.orig	2005-03-08 23:34:16.000000000 -0500
-+++ Makefile	2005-03-09 20:26:29.063639800 -0500
-@@ -18,7 +18,7 @@
- #
- # Most importantly: sub-Makefiles should only ever modify files in
- # their own directory. If in some directory we have a dependency on
--# a file in another dir (which doesn't happen often, but it's of
-+# a file in another dir (which doesn't happen often, but it's often
- # unavoidable when linking the built-in.o targets which finally
- # turn into vmlinux), we will call a sub make in that other dir, and
- # after that we are sure that everything which is in that other dir
-
-
-Kai, your e-mail address which I found in the list is different than the
-one listed in the MAINTAINERS file.
-
-
+Not to worry my good man, it's not going anywhere.

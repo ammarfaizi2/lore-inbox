@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269423AbTCDRGT>; Tue, 4 Mar 2003 12:06:19 -0500
+	id <S269030AbTCDRQD>; Tue, 4 Mar 2003 12:16:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269424AbTCDRGT>; Tue, 4 Mar 2003 12:06:19 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:34750 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id <S269423AbTCDRGS>;
-	Tue, 4 Mar 2003 12:06:18 -0500
-Date: Tue, 4 Mar 2003 09:16:40 -0800
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com, jt@hpl.hp.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       mika.penttila@kolumbus.fi
-Subject: Re: [PATCH] pcmcia: get initialization ordering right [Was: [PATCH 2.5] : i82365 & platform_bus_type]
-Message-ID: <20030304171640.GA16366@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20030304095447.GA1408@brodo.de> <Pine.LNX.4.33.0303040831120.992-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0303040831120.992-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S269430AbTCDRQD>; Tue, 4 Mar 2003 12:16:03 -0500
+Received: from cnq0-9.cablevision.qc.ca ([24.212.0.9]:42245 "EHLO
+	cnqnt02.Cablevision.qc.ca") by vger.kernel.org with ESMTP
+	id <S269030AbTCDRQC>; Tue, 4 Mar 2003 12:16:02 -0500
+Message-ID: <3E64E1C8.9040309@securinet.qc.ca>
+Date: Tue, 04 Mar 2003 12:26:32 -0500
+From: =?ISO-8859-1?Q?David_Lagani=E8re?= <spanska@securinet.qc.ca>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: A suggestion for the netfilter part of the sources
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 04, 2003 at 08:35:05AM -0600, Patrick Mochel wrote:
-> 
-> This patch is completley untested, but it should work. 
+Hi!
 
-	I think you are hitting the nail on the head, various people
-are doing many "obvious" changes all over the place without bothering
-to check them, resulting in non functional code.
-	That's not the way I want to work, and that's why I won't
-commit the new Wireless Extensions stuff until I can really test it.
+Since a couple of new kernel versions already, I use to modify two files 
+related to the netfilter part to be able to add more
+ports for the IRC NAT module. I was wondering if you could definitively 
+apply those modifications to the kernel sources.
+Here are my two modifications:
 
-> 	-pat
+In /usr/src/linux-2.4.20/net/ipv4/netfilter:
+I change "#define MAX_PORTS 8" to "#define MAX_PORTS 15" in both 
+"ip_conntrack_irc.c" and "ip_nat_irc.c".
 
-	Thanks.
+I make those modifications to be able to add more ports than only 8 when 
+loading the modules as there are actually
+a lot more IRC ports than 8 (ex: 6660-6669, 7000, that's already 11).
 
-	Jean
+I'd greatly appreciate a reply even though my suggestion is not a good one.
+
+Thanks.
+
+David Laganière
+Network/System Administrator
+Securinet Systems
+

@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265379AbRGGSWl>; Sat, 7 Jul 2001 14:22:41 -0400
+	id <S266519AbRGGS4D>; Sat, 7 Jul 2001 14:56:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266519AbRGGSWc>; Sat, 7 Jul 2001 14:22:32 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6412 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S265379AbRGGSWZ>; Sat, 7 Jul 2001 14:22:25 -0400
-Date: Sat, 7 Jul 2001 15:22:23 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [RFC-PATCH] split cache and swapcache statistics
-Message-ID: <Pine.LNX.4.33L.0107071521240.17825-100000@duckman.distro.conectiva>
+	id <S266525AbRGGSzx>; Sat, 7 Jul 2001 14:55:53 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:20755 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266519AbRGGSzd>; Sat, 7 Jul 2001 14:55:33 -0400
+Date: Sat, 7 Jul 2001 11:54:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Mike Galbraith <mikeg@wen-online.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <Pine.LNX.4.33L.0107071542420.17825-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0107071146320.31249-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-maybe we'll want to end the confusion and split the cached
-and swap-cached statistics ...
+On Sat, 7 Jul 2001, Rik van Riel wrote:
+>
+> Not at all. Note that try_to_swap_out() will happily
+> create swap cache pages with a very high page->age,
+> pages which are in absolutely no danger of being
+> evicted from memory...
 
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
+That seems to be a bug in "add_to_swap_cache()".
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+In fact, I do not see any part of the whole path that sets the page age at
+all, so we're basically using a completely uninitialized field here (it's
+been initialized way back when the page was allocated, but because it
+hasn't been part of the normal aging scheme it has only been aged up,
+never down, so the value is pretty much random by the time we actually add
+it to the swap cache pool).
 
+Suggested fix:
 
+	--- v2.4.6/linux/mm/swap_state.c        Tue Jul  3 17:08:22 2001
+	+++ linux/mm/swap_state.c       Sat Jul  7 11:49:13 2001
+	@@ -81,6 +81,7 @@
+	                BUG();
+	        flags = page->flags & ~((1 << PG_error) | (1 << PG_arch_1));
+	        page->flags = flags | (1 << PG_uptodate);
+	+       page->age = PAGE_AGE_START;
+	        add_to_page_cache_locked(page, &swapper_space, entry.val);
+	 }
 
---- linux-2.4.6/fs/proc/proc_misc.c.orig	Sat Jul  7 15:17:42 2001
-+++ linux-2.4.6/fs/proc/proc_misc.c	Sat Jul  7 15:19:31 2001
-@@ -165,7 +165,8 @@
-                 "MemFree:      %8lu kB\n"
-                 "MemShared:    %8lu kB\n"
-                 "Buffers:      %8lu kB\n"
--                "Cached:       %8u kB\n"
-+                "Cached:       %8lu kB\n"
-+		"SwapCached:   %8lu kB\n"
- 		"Active:       %8u kB\n"
- 		"Inact_dirty:  %8u kB\n"
- 		"Inact_clean:  %8u kB\n"
-@@ -180,7 +181,8 @@
-                 K(i.freeram),
-                 K(i.sharedram),
-                 K(i.bufferram),
--                K(atomic_read(&page_cache_size)),
-+                K(atomic_read(&page_cache_size) - swapper_space.nrpages),
-+		K(swapper_space.nrpages),
- 		K(nr_active_pages),
- 		K(nr_inactive_dirty_pages),
- 		K(nr_inactive_clean_pages()),
+Does that make a difference for people?
+
+That would certainly help explain why aging doesn't work for some people.
+
+		Linus
 

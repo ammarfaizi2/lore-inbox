@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261523AbTB0HaI>; Thu, 27 Feb 2003 02:30:08 -0500
+	id <S261689AbTB0ICU>; Thu, 27 Feb 2003 03:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261660AbTB0HaI>; Thu, 27 Feb 2003 02:30:08 -0500
-Received: from angband.namesys.com ([212.16.7.85]:27027 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S261523AbTB0HaH>; Thu, 27 Feb 2003 02:30:07 -0500
-Date: Thu, 27 Feb 2003 10:40:17 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Jeff Dike <jdike@karaya.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: uml-patch-2.5.62-1
-Message-ID: <20030227104017.A29863@namesys.com>
-References: <200302261905.h1QJ5m221192@uml.karaya.com> <20030226225413.ACF29EAF62@mx12.arcor-online.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030226225413.ACF29EAF62@mx12.arcor-online.net>
-User-Agent: Mutt/1.3.22.1i
+	id <S261701AbTB0ICU>; Thu, 27 Feb 2003 03:02:20 -0500
+Received: from daimi.au.dk ([130.225.16.1]:54185 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S261689AbTB0ICT>;
+	Thu, 27 Feb 2003 03:02:19 -0500
+Message-ID: <3E5DC86C.93AFA6CB@daimi.au.dk>
+Date: Thu, 27 Feb 2003 09:12:28 +0100
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dominik Kubla <dominik@kubla.de>
+CC: Miles Bader <miles@gnu.org>, DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: About /etc/mtab and /proc/mounts
+References: <20030219112111.GD130@DervishD> <buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DB2CA.32539D41@daimi.au.dk> <200302270808.21035.dominik@kubla.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Dominik Kubla wrote:
+> 
+> I would recommend to replace /etc/mtab with a pseudo-FS like Sun did
+> for /etc/mnttab:
+> 
+> # uname -rs
+> SunOS 5.8
+> # mount -p
+> ...
+> mnttab - /etc/mnttab mntfs - no dev=39c0000
+> ...
 
-On Thu, Feb 27, 2003 at 06:45:27AM +0100, Daniel Phillips wrote:
-> > This patch updates UML to 2.5.63...
-> Built and booted.  However, without CONFIG_MODULES=y it doesn't build:
-> gcc -Wp,-MD,arch/um/sys-i386/.module.o.d -D__KERNEL__ -Iinclude -Wall 
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
-> -U__i386__ -Ui386 -g -D__arch_um__ -DSUBARCH=\"i386\" -D_LARGEFILE64_SOURCE 
-> -Iarch/um/include -Derrno=kernel_errno -Dsigprocmask=kernel_sigprocmask 
-> -I/m/src/uml.2.5.63/arch/um/kernel/tt/include 
-> -I/m/src/uml.2.5.63/arch/um/kernel/skas/include -nostdinc -iwithprefix 
-> include    -DKBUILD_BASENAME=module -DKBUILD_MODNAME=module -c -o 
-> arch/um/sys-i386/module.o arch/um/sys-i386/module.c
-> arch/um/sys-i386/module.c: In function `apply_relocate':
-> arch/um/sys-i386/module.c:89: dereferencing pointer to incomplete type
-> arch/um/sys-i386/module.c: In function `apply_relocate_add':
-> arch/um/sys-i386/module.c:103: dereferencing pointer to incomplete type
-> make[1]: *** [arch/um/sys-i386/module.o] Error 1
-> make: *** [arch/um/sys-i386] Error 2
-> Native 2.5.63 (i386) is ok with or without CONFIG_MODULES=y.
+How does that thing behave? I have considered a /proc/mtab implementation,
+that might be slightly similar. It would have to be like /proc/mounts, but
+differ in a few fields. The mountpoint and filesystem fields should be
+exactly like /proc/mounts, while the device and options fields should be
+strings initialized with the same values as /proc/mounts, but otherwise
+writable from userspace.
 
-Patch below (that Jeff have not picked up yet) fixes that.
+Every line written to /proc/mtab should be parsed into the fields, and
+the mountpoints should be searched for a match, if a match is found, the
+device and options fields are updated, otherwise the write is simply
+ignored.
 
-Bye,
-    Oleg
+How does people like this idea? Should something more be done about the
+options field? Should they be checked for obvious inconsistencies, or
+should a write attempt to remount the filesystem with the new options?
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.949   -> 1.950  
-#	arch/um/sys-i386/Makefile	1.15    -> 1.16   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/02/13	green@angband.namesys.com	1.950
-# Only build module.c if we have modules support selected
-# --------------------------------------------
-#
-diff -Nru a/arch/um/sys-i386/Makefile b/arch/um/sys-i386/Makefile
---- a/arch/um/sys-i386/Makefile	Thu Feb 27 10:38:20 2003
-+++ b/arch/um/sys-i386/Makefile	Thu Feb 27 10:38:20 2003
-@@ -1,7 +1,8 @@
--obj-y = bugs.o checksum.o extable.o fault.o ksyms.o ldt.o module.o \
-+obj-y = bugs.o checksum.o extable.o fault.o ksyms.o ldt.o \
- 	ptrace.o ptrace_user.o semaphore.o sigcontext.o syscalls.o sysrq.o
- 
- obj-$(CONFIG_HIGHMEM) += highmem.o
-+obj-$(CONFIG_MODULES) += module.o
- 
- USER_OBJS := bugs.o ptrace_user.o sigcontext.o fault.o
- USER_OBJS := $(foreach file,$(USER_OBJS),$(obj)/$(file))
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:aaarep@daimi.au.dk
+for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);

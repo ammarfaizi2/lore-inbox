@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVAHPjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVAHPli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVAHPjc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 10:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVAHPjc
+	id S261197AbVAHPli (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 10:41:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVAHPlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 10:39:32 -0500
-Received: from FW-30-241.go.retevision.es ([62.174.241.30]:18175 "EHLO
-	puil.ghetto") by vger.kernel.org with ESMTP id S261190AbVAHPjY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 10:39:24 -0500
-Date: Sat, 8 Jan 2005 16:37:57 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE 0/4][RFC] Genetic Algorithm Library
-Message-ID: <20050108153757.GA5972@larroy.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050106100844.53a762a0@localhost>
+	Sat, 8 Jan 2005 10:41:37 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:57840 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261191AbVAHPlP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 10:41:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=IH2LYyeLi1XH8N5B35oOBmb0LjuVEPmkkAs6cmFrPT7y7y/fk+quGzzMaWmSY9VIZNIXmg1+lNBB7KZ6VpFjGVf+zMYEL8dfNGGUHduKw8xfMD/103lDV4FmAwosWwDW9cJjokmRvtK4J+51VPcmu9+VyTGCPhAav6A09TCVKxo=
+Message-ID: <40f323d0050108074112ae4ac7@mail.gmail.com>
+Date: Sat, 8 Jan 2005 16:41:14 +0100
+From: Benoit Boissinot <bboissin@gmail.com>
+Reply-To: Benoit Boissinot <bboissin@gmail.com>
+To: Dave Airlie <airlied@gmail.com>
+Subject: Re: 2.6.10-mm2
+Cc: Andrew Morton <akpm@osdl.org>, Mike Werner <werner@sgi.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <21d7e99705010805487322533e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050106100844.53a762a0@localhost>
-User-Agent: Mutt/1.5.6+20040907i
-From: piotr@larroy.com (Pedro Larroy)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050106002240.00ac4611.akpm@osdl.org>
+	 <40f323d005010701395a2f8d00@mail.gmail.com>
+	 <21d7e99705010718435695f837@mail.gmail.com>
+	 <40f323d00501080427f881c68@mail.gmail.com>
+	 <21d7e99705010805487322533e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Sun, 9 Jan 2005 00:48:56 +1100, Dave Airlie <airlied@gmail.com> wrote:
+> >
+> > if you look at the .config, agp and agp_via are not build as modules.
+> >
+> 
+> can you also try a build with vesafb turned off? I'm just wondering is
+> there maybe a resource conflict or something like that going on ...
+> 
+> Dave.
+> 
 
->From a quick look I've seen your algorithm tends to converge to a global
-optimum, but also as William Lee Irwin III has commentend on irc, it
-might miss "special points" since there's no warranty of the function to
-minize to be continuous.
+Removing the framebuffer from the boot command line solved it... (with
+the patch that Mike Werner posted ; without it, it oopsed).
 
-I think it's a good idea to introduce this techniques to tune the
-kernel, but perhaps userland would be the right place for them, to be
-able to switch them off when in need or have more controll over them.
-But it's a nice initiative in my opinion.
-
-Regards.
-
--- 
-Pedro Larroy Tovar | Linux & Network consultant |  pedro%larroy.com 
-Make debian mirrors with debian-multimirror: http://pedro.larroy.com/deb_mm/
-	* Las patentes de programación son nocivas para la innovación * 
-				http://proinnova.hispalinux.es/
+Benoit.

@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264678AbUDVVP1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264681AbUDVVRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264678AbUDVVP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 17:15:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264680AbUDVVP1
+	id S264681AbUDVVRw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 17:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbUDVVRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 17:15:27 -0400
-Received: from mail.enyo.de ([212.9.189.167]:38409 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S264678AbUDVVP0 (ORCPT
+	Thu, 22 Apr 2004 17:17:52 -0400
+Received: from maxipes.logix.cz ([81.0.234.97]:9681 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S264681AbUDVVRu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 17:15:26 -0400
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: tcp vulnerability? haven't seen anything on it here...
-References: <200404221738.i3MHcg7J005234@eeyore.valparaiso.cl>
-From: Florian Weimer <fw@deneb.enyo.de>
-Date: Thu, 22 Apr 2004 23:15:21 +0200
-In-Reply-To: <200404221738.i3MHcg7J005234@eeyore.valparaiso.cl> (Horst von
- Brand's message of "Thu, 22 Apr 2004 13:38:42 -0400")
-Message-ID: <87r7ufu32u.fsf@deneb.enyo.de>
+	Thu, 22 Apr 2004 17:17:50 -0400
+Message-ID: <40883663.5020506@suse.cz>
+Date: Thu, 22 Apr 2004 23:17:23 +0200
+From: Michal Ludvig <mludvig@suse.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: cs, cz, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "David S. Miller" <davem@redhat.com>, James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] crypto_null autoload
+Content-Type: multipart/mixed;
+ boundary="------------020105070708060603050508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <vonbrand@inf.utfsm.cl> writes:
+This is a multi-part message in MIME format.
+--------------020105070708060603050508
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> If everybody (or at least the bigger knots) filters spoofed traffic,
-> this ceases to be a problem. And that solves a shipload of other
-> problems, so...
+Hi,
 
-There isn't much incentive to deploy filters so that other people
-don't suffer.  So it takes a long time until it's almost universally
-implemented.  (We catch less backscatter from DDoS attacks than a few
-years ago, so the situation may actually be improving.)
+the attached patch enables autoload of crypto_null module. Please apply.
 
+Michal Ludvig
 -- 
-Current mail filters: many dial-up/DSL/cable modem hosts, and the
-following domains: atlas.cz, bigpond.com, postino.it, tiscali.co.uk,
-tiscali.cz, tiscali.it, voila.fr.
+SUSE Labs                    mludvig@suse.cz
+(+420) 296.545.373        http://www.suse.cz
+Personal homepage http://www.logix.cz/michal
+
+--------------020105070708060603050508
+Content-Type: text/plain;
+ name="kernel-cryptonull.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kernel-cryptonull.diff"
+
+--- linux-2.6.5.orig/crypto/crypto_null.c	2004-04-04 05:36:58.000000000 +0200
++++ linux-2.6.5/crypto/crypto_null.c	2004-04-22 22:47:22.323413336 +0200
+@@ -94,6 +94,10 @@
+ 	.cia_decrypt		=	null_decrypt } }
+ };
+ 
++MODULE_ALIAS("compress_null");
++MODULE_ALIAS("digest_null");
++MODULE_ALIAS("cipher_null");
++
+ static int __init init(void)
+ {
+ 	int ret = 0;
+
+--------------020105070708060603050508--

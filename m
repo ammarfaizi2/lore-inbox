@@ -1,91 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261330AbTA1V1K>; Tue, 28 Jan 2003 16:27:10 -0500
+	id <S261368AbTA1Vam>; Tue, 28 Jan 2003 16:30:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261337AbTA1V1K>; Tue, 28 Jan 2003 16:27:10 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:15330 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261330AbTA1V1J>;
-	Tue, 28 Jan 2003 16:27:09 -0500
-Date: Tue, 28 Jan 2003 21:36:21 +0000
+	id <S261370AbTA1Vam>; Tue, 28 Jan 2003 16:30:42 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:17122 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261368AbTA1Val>;
+	Tue, 28 Jan 2003 16:30:41 -0500
+Date: Tue, 28 Jan 2003 21:39:54 +0000
 From: Jamie Lokier <jamie@shareable.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
-       Davide Libenzi <davidel@xmailserver.org>, linux-kernel@vger.kernel.org
-Subject: Re: {sys_,/dev/}epoll waiting timeout
-Message-ID: <20030128213621.GA29036@bjl1.asuk.net>
-References: <20030122080322.GB3466@bjl1.asuk.net> <Pine.LNX.4.33L2.0301281139570.30636-100000@dragon.pdx.osdl.net>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bug in select() (was Re: {sys_,/dev/}epoll waiting timeout)
+Message-ID: <20030128213954.GB29036@bjl1.asuk.net>
+References: <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com> <20030123154304.GA7665@bjl1.asuk.net> <20030123172734.GA2490@mark.mielke.cc> <20030123182831.GA8184@bjl1.asuk.net> <20030123204056.GC2490@mark.mielke.cc> <20030123221858.GA8581@bjl1.asuk.net> <20030127162717.A1283@ti19> <Pine.LNX.4.50.0301271427320.1930-100000@blue1.dev.mcafeelabs.com> <20030128094500.GA26202@bjl1.asuk.net> <20030128105201.GA1243@mark.mielke.cc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0301281139570.30636-100000@dragon.pdx.osdl.net>
+In-Reply-To: <20030128105201.GA1243@mark.mielke.cc>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Wed, 22 Jan 2003, Jamie Lokier wrote:
+Mark Mielke wrote:
+> On Tue, Jan 28, 2003 at 09:45:00AM +0000, Jamie Lokier wrote:
+> > Davide Libenzi wrote:
+> > > ( if Tms > 0 )
+> > Which is unfortunate, because that doesn't allow for a value of Tms ==
+> > 0 which is needed when you want to sleep and wake up on every jiffie
+> > on systems where HZ >= 1000.  Tms == 0 is taken already, to mean do
+> > not wait at all.
 > 
-> | ps.  sys_* system-call functions should never return "int".  They
-> | should always return "long" or a pointer - even if the user-space
-> | equivalent returns "int".  Take a look at sys_open() for an example.
-> | Technical requirement of the system call return path on 64-bit targets.
-> 
-> Is this a blanket truism?  For all architectures?
+> To some degree, isn't this the equivalent of yield()?
 
-I believe so, for all architecture-independent syscall functions.
-(And architecture-dependent on those that need it -- see end of this
-message).
+No.  If you want a process to wake every HZ tick, do a little work and
+then sleep again, yield() won't do that.
 
-Linus mentioned it in passing in the recent x86 vsyscall threads.  I
-have never seen it mentioned before.  I always assumed that returned
-longs were due to sloppy programming :)
+If HZ >= 1000, you simply can't use Linux poll() to do that; you have
+to use select().  (Or epoll_wait()).
 
-If you look at the syscall return paths on the 64-bit architectures,
-some of them always check the 64-bit return value register to see if
-it is negative.  If so, they set an error flag, which is what
-userspace uses to decide whether to return -1, rather than checking if
-the return value is >= -4096 (or >= -125, architecture implementations vary).
-
-This convoluted ABI allows those architectures to return full 64-bit
-values as legitimate values, which is needed for... ptrace(), only on
-those architecture of course.
-
-The question is therefore are "int" values returned from C functions
-sign-extended to 64 bits?  I don't know, maybe it varies between
-architectures -- for all I know it happens to work on all the
-supported 64-bit architectures -- but I believe this is the reason why
-"long" (or equivalent, e.g. "ssize_t") and pointer types are
-_supposed_ to be the only permitted return types from syscall
-functions.
-
-> Should current (older/all) syscalls be modified, or should only new ones
-> (like epoll) be corrected?
-
-All of them.
-
-Here's a partial list of functions which return int from 2.5.49, based
-on parsing Alpha, ARM, CRIS, IA64 and x86_64 trees:
-
-	sys_set_tid_address
-	sys_futex
-	sys_sched_setaffinity
-	sys_sched_getaffinity
-	sys_remap_file_pages
-	sys_epoll_create
-	sys_epoll_ctl
-	sys_epoll_wait
-	sys_lookup_dcookie
-	sys_pause
-
-As far as I can guess from reading the GCC sources, 32-bit return
-values aren't sign extended on x86_64 and IA64, but they are on all
-the other Linux-supported 64-bit architectures (I could be mistaken
-about this).  Of x86_64 and IA64, only the IA64 syscall return path
-tests if the return value register is negative.
-
-Which suggests that all the architectures are fine with all these
-"int" returns, except IA64.
-
-Curiously, IA64's own sys_perfmonctl() returns int.
+Even if select() is changed to do double-rounding-up like poll(), it
+will still do this because select() times have microsecond
+granularity.
 
 -- Jamie
+

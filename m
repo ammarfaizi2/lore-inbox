@@ -1,97 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261309AbRFQPxJ>; Sun, 17 Jun 2001 11:53:09 -0400
+	id <S261347AbRFQPy3>; Sun, 17 Jun 2001 11:54:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261347AbRFQPw6>; Sun, 17 Jun 2001 11:52:58 -0400
-Received: from mx7.sac.fedex.com ([199.81.194.38]:14867 "EHLO
-	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S261309AbRFQPwv>; Sun, 17 Jun 2001 11:52:51 -0400
-Message-ID: <003e01c0f745$3e0cbc40$a35812bc@corp.fedex.com>
-From: "Jeff Chua" <jeffchua@silk.corp.fedex.com>
-To: "Christian Robottom Reis" <kiko@async.com.br>, <eepro100@scyld.com>
-Cc: <saw@saw.sw.com.sg>, <linux-kernel@vger.kernel.org>,
-        "Jeff Chua" <jchua@fedex.com>
-In-Reply-To: <Pine.LNX.4.32.0106162339280.191-100000@blackjesus.async.com.br>
-Subject: Re: eepro100 problems with 2.2.19 _and_ 2.4.0
-Date: Sun, 17 Jun 2001 23:49:41 +0800
+	id <S261502AbRFQPyT>; Sun, 17 Jun 2001 11:54:19 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:5598 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S261347AbRFQPyJ>;
+	Sun, 17 Jun 2001 11:54:09 -0400
+Message-ID: <3B2CD29E.948D6BF2@mandrakesoft.com>
+Date: Sun, 17 Jun 2001 11:54:06 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: David Flynn <Dave@keston.u-net.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, rjd@xyzzy.clara.co.uk,
+        Bill Pringlemeir <bpringle@sympatico.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Newbie idiotic questions.
+In-Reply-To: <200106171227.f5HCRZu10829@xyzzy.clara.co.uk> <0106171701100P.00879@starship> <3B2CC7DC.EEAF3253@mandrakesoft.com> <00c301c0f743$9da4d9f0$1901a8c0@node0.idium.eu.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try to add "options eepro100 options=0" to your /etc/modules.conf
-to default the speed to 10Mbps if you're using 10BaseT.
+David Flynn wrote:
+> 
+> > Daniel Phillips wrote:
+> > > Yep, the only thing left to resolve is whether Jeff had coffee or not.
+> ;-)
+> > >
+> > > -       if ((card->mpuout = kmalloc(sizeof(struct emu10k1_mpuout),
+> GFP_KERNEL))
+> > > +       if ((card->mpuout = kmalloc(sizeof(*card->mpuout), GFP_KERNEL))
+> >
+> > Yeah, this is fine.  The original posted omitted the '*' which was not
+> > fine :)
+> 
+> The only other thing left to ask, is which is easier to read when glancing
+> through the code, and which is easier to read when maintaining the code.
+> imho, ist the former for reading the code, i dont know about maintaing the
+> code since i dont do that, however in my own projects i prefere the former
+> when maintaing the code.
 
-add to /etc/modules.conf ...
-# options=0x30 100mbps full duplex
-# options=0x20 100mbps half duplex
-# options=0     10mbps half duplex
-options eepro100 options=0
+It's the preference of the maintainer.  It's a tossup:  using the type
+in the kmalloc makes the type being allocated obvious.  But using
+sizeof(*var) is a tiny bit more resistant to change.
 
-then run "depmod -a"
+Neither one sufficiently affects long term maintenance AFAICS, so it's
+personal preference, not any sort of kernel standard one way or the
+other...
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
------ Original Message ----- 
-From: "Christian Robottom Reis" <kiko@async.com.br>
-To: <eepro100@scyld.com>
-Cc: <saw@saw.sw.com.sg>; <linux-kernel@vger.kernel.org>
-Sent: Sunday, June 17, 2001 10:43 AM
-Subject: Re: eepro100 problems with 2.2.19 _and_ 2.4.0
-
-
-
-Just noticed:
-
-On Sat, 16 Jun 2001, Christian Robottom Reis wrote:
-
-> Steps to reproduce problem:
->
-> * Run large ( > 2MB works ) ftp transfer in box.
-> * ssh in from another box and attempt an ls -lR /
-
-Note below:
-
-> * 2.2.19 with Donald's eepro100.c scyld:network/
-> Hard lock (seems to take longer to hang) - it also creates
-> 8 devices eth0-eth7!
->
-> * 2.2.19 with Donald's eepro100.c fromscyld:network/test/
-> Hard lock (pretty fast) - no multiple creation bugs
-
-Actually, they don't hang _immediately_. They report:
-
-eth0: Transmit timed out: status 0050  0000 at 6022/6034 commands 000c0000
-000c0000 000c0000
-Command 0000 was not immediately accepted, 10001 ticks!
-
-And the ssh connection stalls but does on trying (it eventually hangs, but
-not after a lot of errors are reported on the problem-box's console)
-
-And then the box hard locks. Interesting to see that only when I run the
-ssh ls -lR is that any error at all is produced. The lockups I was seeing
-were all interactive use and I never really noticed if errors were showing
-up or not; I just assumed they weren'.
-
-Any help you can provide is very much appreciated. I'm about to try
-Intel's drivers to see how they do.
-
-Take care,
---
-/\/\ Christian Reis, Senior Engineer, Async Open Source, Brazil
-~\/~ http://async.com.br/~kiko/ | [+55 16] 274 4311
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+	Jeff
 
 
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

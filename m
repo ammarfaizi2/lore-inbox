@@ -1,39 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265483AbUGGUw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265509AbUGGU4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265483AbUGGUw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 16:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265474AbUGGUwM
+	id S265509AbUGGU4h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 16:56:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265490AbUGGUzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 16:52:12 -0400
-Received: from verein.lst.de ([212.34.189.10]:7356 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S265477AbUGGUv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 16:51:29 -0400
-Date: Wed, 7 Jul 2004 22:51:26 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] modular swim3
-Message-ID: <20040707205126.GA19308@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <20040707203934.GA19145@lst.de> <1089233317.2026.37.camel@gaston>
+	Wed, 7 Jul 2004 16:55:25 -0400
+Received: from fmr11.intel.com ([192.55.52.31]:38559 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S265489AbUGGUxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 16:53:36 -0400
+Subject: Re: problems getting SMP to work with vanilla 2.4.26
+From: Len Brown <len.brown@intel.com>
+To: Zack Brown <zbrown@tumblerings.org>
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FF683@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FF683@hdsmsx403.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1089233605.15653.498.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1089233317.2026.37.camel@gaston>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 07 Jul 2004 16:53:25 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 07, 2004 at 03:48:38PM -0500, Benjamin Herrenschmidt wrote:
-> On Wed, 2004-07-07 at 15:39, Christoph Hellwig wrote:
-> > Needs one magic mediabay symbol exported.  I've also moved the Kconfig
-> > entry to where it belongs.
-> 
-> Hrm... I wouldn't recommend anybody to try to rmmod it though ...
+On Sat, 2004-07-03 at 22:05, Zack Brown wrote:
 
-it's doesn't have a module_exit() entry point, so it's unloadable anyway
+How about if you increase this to 4?
+
+> CONFIG_NR_CPUS=2
+
 

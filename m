@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317066AbSGNUPj>; Sun, 14 Jul 2002 16:15:39 -0400
+	id <S317073AbSGNURJ>; Sun, 14 Jul 2002 16:17:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317072AbSGNUPj>; Sun, 14 Jul 2002 16:15:39 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1087 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S317066AbSGNUPg>; Sun, 14 Jul 2002 16:15:36 -0400
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Removal of pci_find_* in 2.5
-References: <20020713003601.GA12118@kroah.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 14 Jul 2002 14:07:01 -0600
-In-Reply-To: <20020713003601.GA12118@kroah.com>
-Message-ID: <m1znwuoyze.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317081AbSGNURI>; Sun, 14 Jul 2002 16:17:08 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:42485 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S317073AbSGNURG>; Sun, 14 Jul 2002 16:17:06 -0400
+Date: Sun, 14 Jul 2002 22:18:22 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207142018.g6EKIMUu019448@burner.fokus.gmd.de>
+To: schilling@fokus.gmd.de, szepe@pinerecords.com
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
+>From: Tomas Szepe <szepe@pinerecords.com>
 
-> Hi all,
-> 
-> Well, I've been trying to figure out a way to remove the existing
-> pci_find_device(), and other pci_find_* functions from the 2.5 kernel
-> without hurting to many things (well, things that people care about.)
-> 
-> Turns out these are very useful functions, outside of the "old" pci
-> framework, and I can't really justify removing them, so they are staying
-> for now (or until someone else can think of a replacement...)
-> 
-> The main reason for wanting to do this, is that any PCI driver that
-> relies on using pci_find_* to locate a device to control, will not work
-> with the existing PCI hotplug code.  Moving forward, those drivers will
-> also not work with the driverfs, struct driver, or the device naming
-> code.
-> 
-> So if you own a PCI driver that does not conform to the "new" PCI api
-> (using pci_register_driver() and friends) consider yourself warned.
-> Your driver will NOT inherit any of the upcoming changes to the drivers
-> tree, which might cause them to break.  Also remember, all of the people
-> that are buying hotplug PCI systems for their datacenters will not buy
-> your cards :)
+>> >Umm, let's see if I can fish out the install media from somewhere...
+>> >jup, Solaris 2.6 5/98.
+>> 
+>> So did you compare Solaris performance with a 4 year old Linux?
 
-I do but it only doesn't use pci_register_driver because that doesn't
-work.  
+>No, but you did the comparison with the most recent version of Solaris for
+>me, only it was on IA-32. And the result is still the same, Linux wins hands
+>down.
 
-The driver is a mtd map driver.  It knows there is a rom chip behind 
-a pci->isa bridge.  And it needs to find the pci->isa bridge to
-properly set it up to access the rom chip (enable writes and the
-like).  
 
-It isn't a driver for the pci->isa bridge, (I'm not even certain we
-have a good model for that).  So it does not use pci_register_driver.
+The differences are not big enough to prove this. I did use a slow old IDE
+disk. As you see from my timings, the Solaris test results have been mainly 
+caused by disk speed. 
 
-If you can give me a good proposal for how to accomplish that kind of
-functionality I would be happy to use the appropriate
-xxx_register_driver.
+Jörg
 
-Eric
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

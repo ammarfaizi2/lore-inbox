@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268884AbUIHGza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268896AbUIHG5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268884AbUIHGza (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 02:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268889AbUIHGza
+	id S268896AbUIHG5w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 02:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268899AbUIHG5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 02:55:30 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:24897 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268884AbUIHGzT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 02:55:19 -0400
-Message-ID: <9e47339104090723554eb021e4@mail.gmail.com>
-Date: Wed, 8 Sep 2004 02:55:15 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Subject: Re: multi-domain PCI and sysfs
-Cc: "David S. Miller" <davem@davemloft.net>, willy@debian.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200409072125.41153.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 8 Sep 2004 02:57:51 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:42645 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S268896AbUIHG44
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 02:56:56 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH] netpoll endian fixes
+Date: Wed, 8 Sep 2004 08:56:55 +0200
+User-Agent: KMail/1.6.2
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <200409080124.43530.baldrick@free.fr> <20040907232927.GB31237@waste.org>
+In-Reply-To: <20040907232927.GB31237@waste.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-References: <9e4733910409041300139dabe0@mail.gmail.com>
-	 <200409072115.09856.jbarnes@engr.sgi.com>
-	 <20040907211637.20de06f4.davem@davemloft.net>
-	 <200409072125.41153.jbarnes@engr.sgi.com>
+Message-Id: <200409080856.56568.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another part I don't understand... PCI VGA hardware is designed to
-respond to IN/OUT instructions to port space. ppc64/ia64 don't have
-IN/OUT port instructions. Is there some special hardware on ppc64/ia64
-that declares part of the PCI IO space "legacy space" and turns
-read/writes there into IN/OUT port cycles on the PCI bus so that the
-legacy hardware can see the accesses?
+On Wednesday 08 September 2004 01:29, Matt Mackall wrote:
+> On Wed, Sep 08, 2004 at 01:24:43AM +0200, Duncan Sands wrote:
+> > The big-endians took their revenge in netpoll.c: on i386,
+> > the ip header length / version nibbles need to be the other
+> > way round; and the htonl leaves only zeros in tot_len...
+> 
+> I'm completely baffled as to how length / version nibbles could be
+> swapped. Endianness here should be a matter of _bytes_.
 
-On machines without this "legacy space" translation hardware (ie all
-32b x86 bit machines) I can only have a single VGA adapter active
-since there is only a single legacy space and inb/outb are real
-instructions.
+I also don't understand it.  The definition of struct iphdr contains:
 
-On machines with "legacy space" translation I can have one active VGA
-card per translator. How do I know how many translators there are? Is
-only one per domain/segment allowed?
+#if defined(__LITTLE_ENDIAN_BITFIELD)
+        __u8    ihl:4,
+                version:4;
+#elif defined (__BIG_ENDIAN_BITFIELD)
+        __u8    version:4,
+                ihl:4;
 
-How does ppc32 handle VGA port instructions, is the "legacy
-translation" space at the bottom of the PCI address space?
+What does it mean?
 
-I looked at io.h on IA64, how do apps select which legacy IO space
-they are using? Now I see add_io_space() and related code.
+All the best,
 
-Maybe it's not a good idea to have a 32b x86 person writing this
-driver. Is there a cross platform structure that corresponds to IO
-spaces?
-
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Duncan.

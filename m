@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267958AbUHEUqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267965AbUHEUsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267958AbUHEUqt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 16:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267953AbUHEUqs
+	id S267965AbUHEUsK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 16:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267964AbUHEUrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 16:46:48 -0400
-Received: from web14921.mail.yahoo.com ([216.136.225.5]:64175 "HELO
-	web14921.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267945AbUHEUpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 16:45:19 -0400
-Message-ID: <20040805204518.21243.qmail@web14921.mail.yahoo.com>
-Date: Thu, 5 Aug 2004 13:45:18 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Martin Mares <mj@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-In-Reply-To: <200408050925.16695.jbarnes@engr.sgi.com>
-MIME-Version: 1.0
+	Thu, 5 Aug 2004 16:47:16 -0400
+Received: from holomorphy.com ([207.189.100.168]:3270 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267967AbUHEUqS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 16:46:18 -0400
+Date: Thu, 5 Aug 2004 13:46:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Mr. Berkley Shands" <berkley@cse.wustl.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Severe I/O performance regression 2.6.6 to 2.6.7 or 2.6.8-rc3
+Message-ID: <20040805204615.GJ17188@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Mr. Berkley Shands" <berkley@cse.wustl.edu>,
+	linux-kernel@vger.kernel.org
+References: <41126811.7020607@dssimail.com> <20040805172531.GC17188@holomorphy.com> <4112917A.3080003@cse.wustl.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4112917A.3080003@cse.wustl.edu>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-> pci_assign_resource is mucking with the values in 
-> pci_dev->resource[PCI_ROM_RESOURCE].  If I remove the call to 
-> pci_assign_resource, things work for me.  Is that call really
-> necessary?  
-> Don't we just need ioremap?
+William Lee Irwin III wrote:
+>> By any chance could you do binary search on the bk snapshots between
+>> 2.6.6 and 2.6.7?
 
-/* assign the ROM an address if it doesn't have one */
-if (res->parent == NULL)
-	pci_assign_resource(dev, PCI_ROM_RESOURCE);
+On Thu, Aug 05, 2004 at 02:58:50PM -0500, Mr. Berkley Shands wrote:
+> the problem does not exist using 2.6.6-bk6, but exists on 2.6.6-bk7. 
+> -bk8 and -bk9 faile to build.
+> these are from patches-2.6.6-bk6 off snapshots/old and applied to a 
+> vanilla 2.6.6 kernel.
 
-It is protected by the (res->parent == NULL). Looking at the code in
-kernel/resource.c this is the correct check to see if the resource does
-not have an address assigned. If (res->parent != NULL) then it is
-supposed to muck with the addresses.
+This is the closest it appears to be possible to narrow down where the
+regression happened.
 
-If you follow the code path of pci_assign_resource() it will program
-the ROM to appear at the newly assigned address in
-pci_update_resource(). I'd check these code paths and see if they are
-64 bit broken. This process does work on ia32.
+Some form of changelogging to enumerate what the contents of the
+2.6.6-bk6 -> 2.6.6-bk7 delta are and to reconstruct intermediate points
+between 2.6.6-bk6 and 2.6.6-bk7 is needed.
 
-If you can read the ROM without a resource assigned it is just luck
-that everything is still in the same place as boot. If you start
-hotpluging the original ROM address could get used by another card
-since is is not actively assigned.
-
-I didn't check the error code from pci_assign_resource(). If it can't
-match the PREFETCH type it will fail. That may be what is happening.
-I'll add a check.
+I have already tried to carry out various procedures to accomplish this
+for several other problem reports and/or issues and come have come away
+from the effort highly discouraged (having made zero progress) each time.
 
 
-
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 
+-- wli

@@ -1,63 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317814AbSGVVTk>; Mon, 22 Jul 2002 17:19:40 -0400
+	id <S317808AbSGVVPI>; Mon, 22 Jul 2002 17:15:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317815AbSGVVTk>; Mon, 22 Jul 2002 17:19:40 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:57526 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S317814AbSGVVTi>; Mon, 22 Jul 2002 17:19:38 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Roe Peterson <roe@liveglobalbid.com>
-Date: Tue, 23 Jul 2002 07:22:44 +1000 (EST)
+	id <S317833AbSGVVPI>; Mon, 22 Jul 2002 17:15:08 -0400
+Received: from www.sgg.ru ([217.23.135.2]:10259 "EHLO mail.sgg.ru")
+	by vger.kernel.org with ESMTP id <S317808AbSGVVPG>;
+	Mon, 22 Jul 2002 17:15:06 -0400
+Message-ID: <3D3C76F0.307C6C3@tv-sign.ru>
+Date: Tue, 23 Jul 2002 01:19:44 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Ingo Molnar <mingo@elte.hu>, george anzinger <george@mvista.com>
+Subject: Re: [patch] big IRQ lock removal, 2.5.27-D9
+References: <Pine.LNX.4.44.0207221650140.11103-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15676.30628.139373.965937@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.27 raid1 bug...
-In-Reply-To: message from Roe Peterson on Monday July 22
-References: <3D3C4DA7.5DC4550C@liveglobalbid.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday July 22, roe@liveglobalbid.com wrote:
-> 
-> Okay, I've isolated a problem with raid1/md under 2.5.27...
-> 
-> Scenario:
-> 
->     /dev/hda2 and /dev/hdb2 are unused partitions.
-> 
-> /etc/raidtab:
-> raiddev  /dev/md0
-> raid-level 1
-> nr-raid-disks 2
-> chunk-size 64k
-> persistent-superblock 1
-> nr-spare-disks 0
->  device /dev/hda2
->  raid-disk 0
->  device /dev/hdb2
->  raid-disk 1
-> 
-> mkraid /dev/md0
-> 
-> Fails with a kernel panic.  A bit of searching finds that this chunk of
-> code (md.c, about line 850):
->      rdev = list_entry(&mddev->disks.next, mdk_rdev_t, same_set);
-                         ^
->      sb = rdev->sb;
-> 
->      memset(sb, 0, sizeof(*sb));
-> 
-> Is failing.  sb is == 1 !!
-> 
-> Anyone got any ideas?
+Hello.
 
-Yep, that '&' is wrong.  Remove and it will work.
+George Anzinger wrote:
+>
+> > then preempt_stop (cli) can be killed in entry.S:ret_from_intr()
+>
+> Also at least some of the trap code returns with interrupts enabled.
 
-NeilBrown
+Then linux already have a bug - ret_from_exception: bypasses
+ret_from_intr:. But as far as i can see, it does not - all users of
+ret_from_exception: do preempt_stop. And so it can be shifted to
+ret_from_exception.
+
+I beleive none of the traps need current_thread_info() in regs->ebx,
+so GET_THREAD_INFO(%ebx) can be killed in error_code:,
+common_interrupt:,
+and BUILD_INTERRUPT().
+
+Not sure it is right time to such minor cleanups, but...
+Patch on top of remove-irqlock-2.5.27-E0:
+
+--- arch/i386/kernel/entry.S.orig	Mon Jul 22 23:44:41 2002
++++ arch/i386/kernel/entry.S	Tue Jul 23 00:04:02 2002
+@@ -185,8 +185,10 @@
+ 
+ 	# userspace resumption stub bypassing syscall exit tracing
+ 	ALIGN
+-ret_from_intr:
+ ret_from_exception:
++	preempt_stop
++ret_from_intr:
++	GET_THREAD_INFO(%ebx)
+ 	movl EFLAGS(%esp), %eax		# mix EFLAGS and CS
+ 	movb CS(%esp), %al
+ 	testl $(VM_MASK | 3), %eax
+@@ -333,14 +335,12 @@
+ common_interrupt:
+ 	SAVE_ALL
+ 	call do_IRQ
+-	GET_THREAD_INFO(%ebx)
+ 	jmp ret_from_intr
+ 
+ #define BUILD_INTERRUPT(name, nr)	\
+ ENTRY(name)				\
+ 	pushl $nr-256;			\
+ 	SAVE_ALL			\
+-	GET_THREAD_INFO(%ebx);		\
+ 	call smp_/**/name;	\
+ 	jmp ret_from_intr;
+ 
+@@ -400,10 +400,8 @@
+ 	movl $(__KERNEL_DS), %edx
+ 	movl %edx, %ds
+ 	movl %edx, %es
+-	GET_THREAD_INFO(%ebx)
+ 	call *%edi
+ 	addl $8, %esp
+-	preempt_stop
+ 	jmp ret_from_exception
+ 
+ ENTRY(coprocessor_error)
+@@ -430,7 +428,6 @@
+ 	pushl $0			# temporary storage for ORIG_EIP
+ 	call math_emulate
+ 	addl $4, %esp
+-	preempt_stop
+ 	jmp ret_from_exception
+ 
+ ENTRY(debug)
+
+Oleg.

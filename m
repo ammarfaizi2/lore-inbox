@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbUCRMmU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 07:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbUCRMmU
+	id S262592AbUCRMpU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 07:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbUCRMpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 07:42:20 -0500
-Received: from main.gmane.org ([80.91.224.249]:36754 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262589AbUCRMmT (ORCPT
+	Thu, 18 Mar 2004 07:45:20 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:30706 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262592AbUCRMpP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 07:42:19 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Patrick Beard" <patrick@scotcomms.co.uk>
-Subject: Kernel 2.6.3 i810fb Grub Boot Loader
-Date: Thu, 18 Mar 2004 12:42:14 -0000
-Message-ID: <c3c5f7$19a$1@sea.gmane.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: gateway.scotcomms.co.uk
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Thu, 18 Mar 2004 07:45:15 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16473.39381.452618.398385@alkaid.it.uu.se>
+Date: Thu, 18 Mar 2004 13:45:09 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tulip (pnic) errors in 2.6.5-rc1
+In-Reply-To: <40597E68.7090908@pobox.com>
+References: <16473.28514.341276.209224@alkaid.it.uu.se>
+	<40597123.8020903@pobox.com>
+	<405971B3.3080700@pobox.com>
+	<16473.32039.160055.63522@alkaid.it.uu.se>
+	<40597E68.7090908@pobox.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Not sure if this is a i810fb issue or not (appologies if its not)
+Jeff Garzik writes:
+ > Mikael Pettersson wrote:
+ > > Jeff Garzik writes:
+ > >  > er, oops... lemme find the right patch...
+ > > 
+ > > No change, still a flood of those tulip_rx() interrupt messages.
+ > 
+ > hmmm.  Well, it is something unrelated to tulip driver, then.
+ > 
+ > Did you recently change module options, or forget to disable tulip_debug 
+ > in modprobe.conf or modules.conf ?
+ > 
+ >          if (tulip_debug > 4)
+ >                  printk(KERN_DEBUG "%s: exiting interrupt, csr5=%#4.4x.\n",
+ >                             dev->name, inl(ioaddr + CSR5));
+ > 
+ > Those messages only appear if a non-default verbosity has been selected.
 
-I've been using the i810fb in kernel 2.6.x with no problems on Debian
-sarge.
-Below is the append line I used in Lilo;
-video=i810fb:vram:2,xres:1024,yres:768,bpp:16,hsync1:30,hsync2:55,vsync1
-:50,vsync2:85,accel,mtrr
-(note: The hsync and vsync are not the actual values. I'm not at my
-system and can't remember what they are.)
+I had the same .config and kernel boot parameters as for 2.6.4,
+except I disabled modules and everything non-essential, and
+didn't apply my private patches.
 
-Last night I switched from using lilo to grub. everything went ok. I
-added the above to my grub config and rebooted. The console is fine
-except for one thing. I get what appears to be a block cursor in the
-middle of the screen. When I log in, the cursor stays in the middle of
-the screen until I hit enter, it then jumps to the bottom left. From
-then on it sort of follows what I type but not quite, it remains
-somewhat out of sync with where the cursor should actually be. I tried
-using 'hwcur' on the above but this didn't do anything.
-
-I'm using the same parameters that I used with lilo, yet I never had
-this issue.
-
-Apart from switching back to lilo, is there anything I can try to
-resolve this?
-
-TIA
-
-Paddy
-
-
-
+440BX chipset, no I/O-APIC, no ACPI, no PREEMPT, direct PCI access,
+two FA310TXs (eth0 idle, eth1 had light traffic).

@@ -1,107 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266930AbTGGJQM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 05:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266932AbTGGJQM
+	id S266925AbTGGJWB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 05:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266920AbTGGJWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 05:16:12 -0400
-Received: from [213.39.233.138] ([213.39.233.138]:21484 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S266930AbTGGJQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 05:16:06 -0400
-Date: Mon, 7 Jul 2003 11:30:25 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.74] Signal stack safety #2 i386 specific
-Message-ID: <20030707093025.GA2598@wohnheim.fh-wedel.de>
-References: <20030705104428.GA19311@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0307051013140.5900-100000@home.osdl.org> <20030706125103.GB23341@wohnheim.fh-wedel.de>
+	Mon, 7 Jul 2003 05:22:01 -0400
+Received: from imap.gmx.net ([213.165.64.20]:34255 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266932AbTGGJV5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 05:21:57 -0400
+Message-Id: <5.2.1.1.2.20030707110403.02843af0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Mon, 07 Jul 2003 11:40:49 +0200
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200307071319.57511.kernel@kolivas.org>
+References: <1057516609.818.4.camel@teapot.felipe-alfaro.com>
+ <200307070317.11246.kernel@kolivas.org>
+ <1057516609.818.4.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030706125103.GB23341@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 July 2003 14:51:03 +0200, Jörn Engel wrote:
-> 
-> My current best idea is to check, whether the stack pointer is valid
-> before going to the signal stack.  As long as it points to memory that
-> is writable for the current process, things are not completely
-> hopeless.  When the stack is totally broken, kill that cancer cell.
+At 01:19 PM 7/7/2003 +1000, Con Kolivas wrote:
+>On Mon, 7 Jul 2003 04:36, Felipe Alfaro Solana wrote:
+> > On Sun, 2003-07-06 at 19:16, Con Kolivas wrote:
+> > > -----BEGIN PGP SIGNED MESSAGE-----
+> > > Hash: SHA1
+> > >
+> > > Attached is an incremental patch against 2.5.74-mm2 with more
+> > > interactivity work. Audio should be quite resistant to skips with this,
+> > > and it should not induce further unfairness.
+> > >
+> > > Changes:
+> > > The sleep_avg buffer was not needed with the improved semantics in O2int
+> > > so it has been removed entirely as it created regressions in O2int.
+> > >
+> > > A small change to the idle detection code to only make tasks with enough
+> > > accumulated sleep_avg become idle.
+> > >
+> > > Minor cleanups and clarified code.
+> > >
+> > >
+> > > Other issues:
+> > > Jerky mouse with heavy page rendering in web browsers remains. This is a
+> > > different issue to the audio and will need some more thought.
+> > >
+> > > The patch is also available for download here:
+> > > http://kernel.kolivas.org/2.5
+> > >
+> > > Note for those who wish to get smooth X desktop feel now for their own
+> > > use, the granularity patch on that website will do wonders on top of
+> > > O3int, but a different approach will be needed for mainstream
+> > > consumption.
+> >
+> > I'm seeing extreme X starvation with this patch under 2.5.74-mm2 when
+> > starting a CPU hogger:
+> >
+> > 1. Start a KDE session.
+> > 2. Launch a Konsole
+> > 3. Launch Konqueror
+> > 4. Launch XMMS
+> > 5. Make XMMS play an MP3 file
+> > 6. On the Konsole terminal, run "while true; do a=2; done"
+> >
+> > When the "while..." is run, X starves completely for ~5 seconds (e.g.
+> > the mouse cursor doesn't respond to my input events). After those 5
+> > seconds, the mouse cursor goes jerky for a while (~2 seconds) and then
+> > the system gets responsive.
+>
+>Aha!
+>
+>Thanks to Felipe who picked this up I was able to find the one bug causing me
+>grief. The idle detection code was allowing the sleep_avg to get to
+>ridiculously high levels. This is corrected in the following replacement
+>O3int patch. Note this fixes the mozilla issue too. Kick arse!!
 
-Also stupid.  People use a segfault handler on a signal stack,
-*because* the previous stack may be broken.
+I took this out for a spin in stock 74.  If I do while true; do sh -c 'ps l 
+$$'; date; sleep 1; done, the shell is running at priority 22.  In the face 
+of any load, that leads to quite long response times.  With a make -j5 
+bzImage running, I frequently saw response times of over a second.  In X, 
+with a make -j2 bzImage running, opening a new shell takes too long, and X 
+loses interactive status considerably quicker than stock when doing window 
+wiggle.  Init is at 20, and kernel threads bounce around between 15 and 20 
+depending on how active they are (doesn't seem good considering they're 
+using practically no cpu).
 
-Since any trick we try appears to (possibly) break some existing
-software, the next idea is to add yet another flag to signal.h.  With
-this, the user can decide whether he want to get extra safety or not.
+Thud is still dead, but maybe _too_ dead ;-)  I never saw it get above the 
+lowest priority, which is very unfair considering the amount of sleeping it 
+does.
 
-Comments?
+         -Mike 
 
-Jörn
-
--- 
-The only real mistake is the one from which we learn nothing.
--- John Powell
-
---- linux-2.5.74/arch/i386/kernel/signal.c~ss_i386	2003-07-07 10:30:30.000000000 +0200
-+++ linux-2.5.74/arch/i386/kernel/signal.c	2003-07-07 10:31:09.000000000 +0200
-@@ -181,6 +181,9 @@
- 		}
- 	}
- 
-+	if (sas_ss_flags(regs->esp) == 0)
-+		current->flags &= ~PF_SS_ACTIVE;
-+
- 	err |= __get_user(*peax, &sc->eax);
- 	return err;
- 
-@@ -317,9 +320,23 @@
- 	esp = regs->esp;
- 
- 	/* This is the X/Open sanctioned signal stack switching.  */
--	if (ka->sa.sa_flags & SA_ONSTACK) {
--		if (sas_ss_flags(esp) == 0)
--			esp = current->sas_ss_sp + current->sas_ss_size;
-+	if ((ka->sa.sa_flags & SA_ONSTACK) && (sas_ss_flags(esp) == 0)) {
-+		/* If we have switches to the signal stack before,
-+		 * something bad has happened to it, asking for a
-+		 * segmentation fault.
-+		 * If not, remember it for the next time
-+		 */
-+		if ((ka->sa.sa_flags & SA_KERNEL_RET) &&
-+				(current->flags & PF_SS_ACTIVE)) {
-+			ka->sa.sa_handler = SIG_DFL;
-+			force_sig(SIGSEGV, current);
-+			/* XXX would it be simpler to return some broken
-+			 * value like NULL and have the calling function
-+			 * signal the segv?
-+			 */
-+		}
-+		current->flags |= PF_SS_ACTIVE;
-+		esp = current->sas_ss_sp + current->sas_ss_size;
- 	}
- 
- 	/* This is the legacy signal stack switching. */
---- linux-2.5.74/include/asm-i386/signal.h~ss_i386	2003-07-07 10:30:30.000000000 +0200
-+++ linux-2.5.74/include/asm-i386/signal.h	2003-07-07 11:29:42.000000000 +0200
-@@ -76,6 +76,8 @@
-  * SA_FLAGS values:
-  *
-  * SA_ONSTACK indicates that a registered stack_t will be used.
-+ * SA_KERNEL_RET indices that the handler returns through the kernel, not
-+ *               with longjmp or similar.
-  * SA_INTERRUPT is a no-op, but left due to historical reasons. Use the
-  * SA_RESTART flag to get restarting signals (which were the default long ago)
-  * SA_NOCLDSTOP flag to turn off SIGCHLD when children stop.
-@@ -89,6 +91,7 @@
- #define SA_NOCLDSTOP	0x00000001u
- #define SA_NOCLDWAIT	0x00000002u
- #define SA_SIGINFO	0x00000004u
-+#define SA_KERNEL_RET	0x01000000u
- #define SA_ONSTACK	0x08000000u
- #define SA_RESTART	0x10000000u
- #define SA_NODEFER	0x40000000u

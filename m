@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265279AbUAPF7p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 00:59:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUAPF7p
+	id S265288AbUAPGFt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 01:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbUAPGFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 00:59:45 -0500
-Received: from mcgroarty.net ([64.81.147.195]:2945 "EHLO pinkbits.internal")
-	by vger.kernel.org with ESMTP id S265279AbUAPF7n (ORCPT
+	Fri, 16 Jan 2004 01:05:49 -0500
+Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:14720
+	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S265288AbUAPGFr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 00:59:43 -0500
-Date: Thu, 15 Jan 2004 23:59:41 -0600
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB KVM breaks under 2.6.0
-Message-ID: <20040116055941.GB2174@mcgroarty.net>
-References: <20040114064032.GA3247@mcgroarty.net> <20040116005041.GG23253@kroah.com>
+	Fri, 16 Jan 2004 01:05:47 -0500
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040116054449.GH1748@srv-lnx2600.matchmail.com>
+References: <Pine.LNX.4.44.0401101143280.2363-100000@poirot.grange>
+	 <1073745028.1146.13.camel@nidelv.trondhjem.org>
+	 <btt971$3p8$1@gatekeeper.tmr.com>
+	 <1073917652.1639.21.camel@nidelv.trondhjem.org>
+	 <1073920323.1639.28.camel@nidelv.trondhjem.org>
+	 <20040116054449.GH1748@srv-lnx2600.matchmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1074233145.1996.19.camel@nidelv.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-Content-Disposition: inline
-In-Reply-To: <20040116005041.GG23253@kroah.com>
-X-Debian-GNU-Linux: Rocks
-From: Brian McGroarty <brian@mcgroarty.net>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 16 Jan 2004 01:05:45 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+På fr , 16/01/2004 klokka 00:44, skreiv Mike Fedyk:
+> Does the RPC max size limit change with memory or filesystem?
+> 
+> I have one system (K7 2200, 1.5GB, ext3) where it uses 32K RPCs, and another
+> (P2 300, 168MB, reiserfs3) and it uses 8k RPCs, even if I request larger max
+> sizes, and they're both running 2.6.1-bk2.
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The maximum allowable size is set by the server. If the server is
+running 2.6.1, then it should normally support 32k reads and writes
+(unless there is a bug somewhere).
 
-On Thu, Jan 15, 2004 at 04:50:41PM -0800, Greg KH wrote:
-> On Wed, Jan 14, 2004 at 12:40:32AM -0600, Brian McGroarty wrote:
-> > I have a Belkin Omniview SE 4, a four port KVM, with keyboard and
-> > mouse provided to a Linux box via USB.
-> >=20
-> > Under 2.4.23, the device works well. The keyboard and mouse are
-> > detected.
-> >=20
-> > Under 2.6.0 (Debian build), the keyboard is not recognized.
->=20
-> NEVER use the usbkbd driver, unless you _really_ know what you are
-> doing.  Please read the config help entry for that item.
-
-I had two problems. Once the second problem was resolved, pulling
-usbkbd from the picture made operation more consistent between
-directly-plugged and KVM-switched keyboards.
-
-For the second problem, the uhci driver changed names from 2.4 to
-2.6. If others google(v) for this problem and find this post, you want
-the module "uhci_hcd" and not "usb-uhci" when going from 2.4 to 2.6
-
-The original USB loader daemon I was using recognized the change, but
-the second I had tried and was still using did not. I've sent notes to
-ask Documentation/input/input.txt to be updated, and I've filed a bug
-against the second daemon.
-
-
-Thanks for the help!
-
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAB33N2PBacobwYH4RAmL4AJ9qnM+K+RBBFa/HXbNQpJLZGpfOfwCeKLqg
-rvprx8YDYLh/3Ca0IJywqU4=
-=f8Po
------END PGP SIGNATURE-----
-
---Qxx1br4bt0+wmkIi--
+Cheers,
+  Trond

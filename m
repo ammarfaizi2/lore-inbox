@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAYBnh>; Wed, 24 Jan 2001 20:43:37 -0500
+	id <S135328AbRAYCD4>; Wed, 24 Jan 2001 21:03:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135328AbRAYBn2>; Wed, 24 Jan 2001 20:43:28 -0500
-Received: from SMTP3.ANDREW.CMU.EDU ([128.2.10.83]:29376 "EHLO
-	smtp3.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id <S129401AbRAYBnU>; Wed, 24 Jan 2001 20:43:20 -0500
-Date: Wed, 24 Jan 2001 20:43:19 -0500 (EST)
-From: Ari Heitner <aheitner@andrew.cmu.edu>
-To: Robert Dale <rdale@digital-mission.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SpeedStep,MHz,BogoMIPS,timing..
-In-Reply-To: <Pine.LNX.4.10.10101241903540.20959-100000@vs-01.digipath.net>
-Message-ID: <Pine.GSO.4.21L.0101242037210.24591-100000@unix13.andrew.cmu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135349AbRAYCDq>; Wed, 24 Jan 2001 21:03:46 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:53218 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S135328AbRAYCDk>; Wed, 24 Jan 2001 21:03:40 -0500
+Message-Id: <5.0.2.1.2.20010125015343.00a8fe10@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Thu, 25 Jan 2001 02:04:06 +0000
+To: "Sergey Kubushin" <ksi@cyberbills.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Linux 2.4.0ac11
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31ksi3.0101241721470.605-100000@nomad.cyberbill
+ s.com>
+In-Reply-To: <E14LOAm-0006z0-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jan 2001, Robert Dale wrote:
+As I don't use initrd at all I am a bit out of my depth here but according 
+to Documentation/Changes you need a new mkinitrd and the version suggested 
+seems to be 2.8-1. Checking my up-to-date RedHat 7.0 workstation it has 
+mkinitrd version 2.6-1, so this might be your problem?
 
-> 
-> I bought a laptop which uses an Intel CPU with SpeedStep.  Sometimes when
-> I boot the kernel recognizes the full MHz, and other times it is much less.
-> And of course the BogoMIPS reflect this we well.
-> 
-> I'm wondering if this has any sort of side-effect on the kernel?  Will
-> it disrupt timing loops and such? (I have no idea what I'm talking about ;)
+Best regards,
 
-My tp 600X has speedstep as well. When running on ac, the CPU goes full speed
-(500MHz). On battery, it goes 1/4 speed (133Mhz) to save juice (must work, i
-can run for 7 hours or so with an extra battery in the ultrabay).
+         Anton
 
-linux seems happy with the switch -- the timing loops are close to right
-(they're supposed to be order-of-magnitude). obviously if you boot the thing
-then plug it in, the exact MHz count in /proc/cpuinfo will be wrong. But it's
-never seemed a big idea.
-
-You can get the same effect on an old 386 or 486 which still has a
-"Turbo" switch.
-
-> 
-> Since Linus works at Transmeta, the kings of power saving, I'm guessing this
-> has no effect.
-> 
-
-Quite the opposite :) SpeedStep is Intel's rather pathetic answer to Crusoe's
-continuously variable powersaving (it's like having a two-speed car in
-comparison to a slick continously variable transmission like Honda has been
-working on iirc).
-
-I love my 600X, and it blazes on wall power. But it took me 30 minutes t
-compile the 8k lines Python-Visual today in class running on battery (g++ 2.95
-with the optimizer on ... painful) :)
+At 01:39 25/01/2001, Sergey Kubushin wrote:
+>On Wed, 24 Jan 2001, Alan Cox wrote:
+>
+>Modules don't load. I do usually compile heavily modular kernels, with ide
+>and ext2fs being also modular. When trying to load them from initrd, I have
+>the following output:
+>
+>=== Cut ===
+>ide-mod.o: Can't handle sections of type 32131
+>ide-probe-mod.o: Can't handle sections of type 256950710
+>ext2.o: Can't handle sections of type 688840897
+>=== Cut ===
+>
+>I suspect that all modules are affected, but can't check it because kernel
+>is unable to mount root filesystem.
+>
+>All of ac9-ac11 behave the same. ac4, vanilla 2.4.0 and a whole bunch of
+>pre's are fine, so it looks like something was broken between ac4 and ac9 (I
+>didn't compile anything inbetween).
+>
+>I use gcc-2.95.2, binutils-2.10.1.0.4, modutils-2.4.2, glibc-2.2.1. The
+>initrd image is romfs. I don't think something was broken in romfs, 'coz
+>all the programs run just fine outta the image (static ash, static insmod).
+>
+>Config is available and can be sent on request. Please let me know if I can
+>help to find out what causes such a bug.
+[snip]
 
 
-
-ari
-
+-- 
+    "Programmers never die. They do a GOSUB without RETURN." - Unknown source
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

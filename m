@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315334AbSEAH5B>; Wed, 1 May 2002 03:57:01 -0400
+	id <S315335AbSEAIEE>; Wed, 1 May 2002 04:04:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315335AbSEAH5A>; Wed, 1 May 2002 03:57:00 -0400
-Received: from AMontpellier-201-1-4-206.abo.wanadoo.fr ([217.128.205.206]:57094
-	"EHLO microsoft.com") by vger.kernel.org with ESMTP
-	id <S315334AbSEAH47> convert rfc822-to-8bit; Wed, 1 May 2002 03:56:59 -0400
-Subject: Re: ide <-> via VT82C693A/694x problems?
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Erik Steffl <steffl@bigfoot.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CCF4BFD.6C7F67EB@bigfoot.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.4 
-Date: 01 May 2002 09:56:34 +0200
-Message-Id: <1020239797.10097.68.camel@nomade>
-Mime-Version: 1.0
+	id <S315343AbSEAIED>; Wed, 1 May 2002 04:04:03 -0400
+Received: from melancholia.rimspace.net ([210.23.138.19]:11793 "EHLO
+	melancholia.danann.net") by vger.kernel.org with ESMTP
+	id <S315335AbSEAIEC>; Wed, 1 May 2002 04:04:02 -0400
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] missing checks in exec_permission_light()
+In-Reply-To: <Pine.GSO.4.21.0204302340340.10523-100000@weyl.math.psu.edu>
+From: Daniel Pittman <daniel@rimspace.net>
+Organization: Not today, thank you, Mother.
+Date: Wed, 01 May 2002 18:03:56 +1000
+Message-ID: <87elgwcn0z.fsf@enki.rimspace.net>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.5 (bamboo,
+ i686-pc-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mer 01/05/2002 à 03:59, Erik Steffl a écrit :
->   the MB uses via chips so I included via82cxxx driver (as a module). is
-> that correct?
+On Tue, 30 Apr 2002, Alexander Viro wrote:
+> 	Missing checks added...
 > 
->   however, I just checked and via82cxxx is NOT loaded. What do I need to
-> do to make ide driver is using via82cxxx module?
+> diff -urN C12-0/fs/namei.c C12-current/fs/namei.c
+> --- C12-0/fs/namei.c	Tue Apr 30 20:23:38 2002
+> +++ C12-current/fs/namei.c	Tue Apr 30 23:37:15 2002
+> @@ -324,6 +324,12 @@
+>  	if (mode & MAY_EXEC)
+>  		return 0;
 > 
->   I have ide driver compiled in (booting from ide hd), does via82cxxx
-> have to be compiled in?
+> +	if ((inode->i_mode & S_IXUGO) && capable(CAP_DAC_OVERRIDE))
+> +		return 0;
+> +
+> +	if (S_ISDIR(inode->i_mode) && capable(CAP_DAC_READ_SEARCH))
+> +		return 0;
+> +
+>  	return -EACCES;
+>  }
 
-You mean the ide module is on the ide drive ? And you want it to be
-loaded before any ide access ?
+Looking at this it seems that it would explain the odd set of errors I
+got reported during bootup under 2.5.12 -- a set of "permission denied"
+errors from find(1) where, under 2.5.6, none had occurred.
 
+These were on directories that are not owner by root, with the process
+running as root.
 
+I can look deeper into the problem, though, if you don't think that this
+is the cause of it.
+
+Regards,
+        Daniel
+
+-- 
+It is easier to build strong children than to repair broken men.
+        -- Frederick Douglas

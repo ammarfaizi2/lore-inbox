@@ -1,45 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131631AbRDNJpl>; Sat, 14 Apr 2001 05:45:41 -0400
+	id <S131832AbRDNK1D>; Sat, 14 Apr 2001 06:27:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131742AbRDNJpV>; Sat, 14 Apr 2001 05:45:21 -0400
-Received: from binky.de.uu.net ([192.76.144.28]:37675 "EHLO binky.de.uu.net")
-	by vger.kernel.org with ESMTP id <S131631AbRDNJpR>;
-	Sat, 14 Apr 2001 05:45:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Detlev Offenbach <detlev@offenbach.fs.uunet.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: MO-Drive under 2.4.3
-Date: Sat, 14 Apr 2001 11:45:13 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E14o3Jb-0002q9-00@the-village.bc.nu>
-In-Reply-To: <E14o3Jb-0002q9-00@the-village.bc.nu>
-MIME-Version: 1.0
-Message-Id: <01041411451300.01534@majestix>
-Content-Transfer-Encoding: 7BIT
+	id <S131949AbRDNK0x>; Sat, 14 Apr 2001 06:26:53 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:37824 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S131832AbRDNK0l>;
+	Sat, 14 Apr 2001 06:26:41 -0400
+Date: Sat, 14 Apr 2001 12:26:40 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200104141026.MAA22602@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: module load/unload race protection?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+Does the kernel's module loader (kernel/module.c, not kmod)
+protect adequately against concurrent load/load or load/unload
+requests? The question applies to both 2.2 and 2.4 kernels.
 
-thanks for the reply.
+I'm trying to track down a problem where a user using a
+RedHat 2.2.17-14 SMP kernel managed to trigger a situation where
+a driver module had been unloaded while still being in use
+(as in "the kernel has pointers into it", not USE_COUNT != 0).
+I'm reviewing the driver's internal INC/DEC_USE_COUNT usage,
+but so far I've not found any obvious errors.
 
-Am Freitag, 13. April 2001 15:08 schrieb Alan Cox:
-> > I have a problem using my MO-Drive under kernel 2.4.3. I have several
-> > disks formated with a VFAT filesystem. Under kernel 2.2.19 everything
-> > works fine. Under kernel 2.4.3 I cannot write anything to the disk
-> > without hanging the complete system so that I have to use the reset
-> > button. For disks with an ext2 filesystem it works okay.
->
-> This is a bug in the scsi layer. linux-scsi@vger.kernel.org, not that any
-> of the scsi maintainers seem to care about it right now.
-
-Does this mean I can forget about using kernel 2.4.x? :-(( Can you give me a 
-hint where to look. Maybe I can fix it myself.
-
-Regards
-Detlev
--- 
-Detlev Offenbach
-detlev@offenbach.fs.uunet.de
+/Mikael

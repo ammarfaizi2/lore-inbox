@@ -1,45 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbUEAQ0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUEAQbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262311AbUEAQ0r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 12:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUEAQ0q
+	id S261156AbUEAQbR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 12:31:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUEAQbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 12:26:46 -0400
-Received: from [12.177.129.25] ([12.177.129.25]:48323 "EHLO
-	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S262311AbUEAQ0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 12:26:45 -0400
-Date: Sat, 1 May 2004 13:09:05 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@sourceforge.net
-Subject: [PATCH] UML/x86_64
-Message-ID: <20040501170905.GA7655@ccure.user-mode-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Sat, 1 May 2004 12:31:17 -0400
+Received: from pop.gmx.de ([213.165.64.20]:55760 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261156AbUEAQbO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 12:31:14 -0400
+X-Authenticated: #7370606
+Message-ID: <4093D0C8.5010905@gmx.at>
+Date: Sat, 01 May 2004 18:31:04 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+CC: Thomas Horsten <thomas@horsten.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       medley@lists.infowares.com, linux-hotplug-devel@lists.sourceforge.net,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [RFC] [DRAFT] [udev PATCH] First attempt at vendor RAID support
+ in 2.6
+References: <Pine.LNX.4.40.0404151458450.30892-100000@jehova.dsm.dk> <40803C61.503@gmx.net>
+In-Reply-To: <40803C61.503@gmx.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UML has been ported to x86_64.  The patch for 2.6.4 is available at
-	http://www.user-mode-linux.org/mirror/uml-patch-x86-64-2.6.4.bz2
+Hi,
 
-Note that this is separate from the 2.6.4 UML patch, and must be
-applied to a 2.6.4 + uml-patch-2.6.4 tree.  It will remain separate
-until I get it all merged cleanly into my tree.  At that point, the
-separate x86_64 patch will disappear.
+I just returned from my vacation and checked my emails. That's why the 
+response is so late.
 
-This patch is fairly nasty in places, and the build is also fairly
-unclean, so avert your eyes if you are squeamish.  This will get
-better as I merge it into my pool.
+Carl-Daniel Hailfinger wrote:
+>>>- People checking the numerous FIXMEs
+> 
+> 
+> I now have the following FIXMEs (aka "I have no idea about it"):
+> - 5 FIXMEs in the Medley RAID code. Thomas, could you comment once you're
+> back?
+> - 3 FIXMEs in the Highpoint RAID code. Wilfried, could you please take a
+> look at them?
 
-The nastiness aside, it does build and you do get a robust UML.
+1) FIXME: Does "no array defined" correspond to HPT_T_SINGLEDISK?
+I have to check this but I believe it is so.
 
-My thanks go to PathScale (pathscale.com) for sponsoring this work and
-providing access to hardware to make it possible.
+2) FIXME: Is HPT_T_RAID_01_RAID_1 a value that can ever be found?
+I think this is the new style raid-10 format that is supported by hpt374 
+and upwards. I do not have such a controller so I cannot verify this.
 
-Finally, as I do the merge (and afterwards), I need access to an
-Opteron to make sure I don't break this port.  So, if anyone has such
-a box that I can have access to, let me know.
+3) FIXME: what does HPT_MAGIC_BAD mean?
+You get this if you pull one disk out of a raid-0 array for example. The 
+HPT-BIOS detects that the raid is not operational and marks the array as 
+bad (writes the HPT_MAGIC_BAD to the remaining disks).
 
-				Jeff
+[snip]
+
+>>>- More data about Medley/Highpoint vendor superblocks (can I check for
+>>>bogus values?)
+> 
+> 
+> Wilfried, is there any consistency check I can add for Highpoint?
+
+I have not found any crc or so. But since HPT marks any disks that is 
+not in an array as HPT_T_SINGLEDISK or HPT_MAGIC_BAD we should be fine 
+unless someone writes some garbage to the superblock.
+
+> 
+> 
+> 
+>>>- Help with sorting out who owns which copyrights
+> 
+> 
+> This is still a _big issue_.
+
+The HPT copyrights look fine.
+
+I am looking forward to see the part that writes the dm configuration so 
+that I can integrate it into the evms plugin.
+
+bye,
+wilfried
+
+PS: add_disk_to_raidlists() does never return retval!

@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268914AbTBZUft>; Wed, 26 Feb 2003 15:35:49 -0500
+	id <S268928AbTBZUiA>; Wed, 26 Feb 2003 15:38:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268921AbTBZUft>; Wed, 26 Feb 2003 15:35:49 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:21224 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268914AbTBZUfs>; Wed, 26 Feb 2003 15:35:48 -0500
-Message-ID: <3E5D2787.9020209@vnet.ibm.com>
-Date: Wed, 26 Feb 2003 14:45:59 -0600
-From: Peter Bergner <bergner@vnet.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Todd Inglett <tinglett@vnet.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: zImage now holds vmlinux, System.map and config in sections.
- (fwd)
-References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE84C@mailse01.axis.se>	<20030225092520.A9257@flint.arm.linux.org.uk>	<20030225110704.GD159052@niksula.cs.hut.fi>	<20030225113557.C9257@flint.arm.linux.org.uk>	<20030225083811.797fbce6.rddunlap@osdl.org> 	<20030225175204.B21014@flint.arm.linux.org.uk> <1046289675.21297.11.camel@q.rchland.ibm.com>
-In-Reply-To: <1046289675.21297.11.camel@q.rchland.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268929AbTBZUiA>; Wed, 26 Feb 2003 15:38:00 -0500
+Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:19464 "EHLO
+	badula.org") by vger.kernel.org with ESMTP id <S268928AbTBZUh7>;
+	Wed, 26 Feb 2003 15:37:59 -0500
+Date: Wed, 26 Feb 2003 15:47:38 -0500
+Message-Id: <200302262047.h1QKlcPt015577@buggy.badula.org>
+From: Ion Badulescu <ionut@badula.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, mingo@redhat.com,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [BUG] 2.5.63: ESR killed my box!
+In-Reply-To: <20030226072327.7936B2C04B@lists.samba.org>
+User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.20 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Todd Inglett wrote:
-> These sections don't have to be thrown away after boot either.  While
-> the sections should be marked as no-load, it may be useful to actually
-> load them and have the kernel explicitly toss them if it finds no use
-> for them.  Real uses would including exporting to /proc/config.gz (if
-> you like that kind of thing), or providing the System.map to kdb if kdb
-> is enabled.
+On Wed, 26 Feb 2003 18:14:42 +1100, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> In message <9530000.1046238665@[10.10.2.4]> you write:
+>> > SMP box, compiled for UP with CONFIG_LOCAL_APIC=y freezes on boot with
+>> > last lines:
+>> > 
+>> >     POSIX conformance testing by UNIFIX
+>> >     masked ExtINT on CPU#0
+>> >     ESR value before enabling vector: 00000008
+>> >     [ Freeze here ]
 
-To be precise, these sections _are_ part of a PT_LOAD segment in the
-zImage bootloader.  The kernel/vmlinux is then passed info via birecs
-on where those sections are in memory.  As you say, we can then decide
-in the kernel whether we want to keep or toss them.
+I suspect the ESR is a red herring. The problem is that the kernel 
+assumes that the boot CPU is always CPU#0, and it also misprograms the 
+boot CPU's APIC.
 
-Peter
+What kind of SMP box is it (Intel/AMD)?
 
+>> I put an esr_disable flag in there a while back ... does that workaround it?
+> 
+> Yes.  Hmm.  Wonder if that helps my SMP wierness, too.
 
+Does this patch (from Mikael) help? It fixed my problem on a dual AMD
+box running a UP + local APIC kernel.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+--------------------------
+
+--- linux-2.4.21-pre4/arch/i386/kernel/apic.c.~1~	2003-02-23 15:55:31.000000000 +0100
++++ linux-2.4.21-pre4/arch/i386/kernel/apic.c	2003-02-23 16:03:50.000000000 +0100
+@@ -649,7 +649,7 @@
+ 	}
+ 	set_bit(X86_FEATURE_APIC, &boot_cpu_data.x86_capability);
+ 	mp_lapic_addr = APIC_DEFAULT_PHYS_BASE;
+-	boot_cpu_physical_apicid = 0;
++	boot_cpu_physical_apicid = -1U;
+ 	if (nmi_watchdog != NMI_NONE)
+ 		nmi_watchdog = NMI_LOCAL_APIC;
+ 
+@@ -1169,8 +1169,8 @@
+ 
+ 	connect_bsp_APIC();
+ 
+-	phys_cpu_present_map = 1;
+-	apic_write_around(APIC_ID, boot_cpu_physical_apicid);
++	BUG_ON(boot_cpu_physical_apicid != GET_APIC_ID(apic_read(APIC_ID)));
++	phys_cpu_present_map = 1 << boot_cpu_physical_apicid;
+ 
+ 	apic_pm_init2();
+ 

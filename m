@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268425AbUJTGxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270094AbUJTGsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268425AbUJTGxy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 02:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270084AbUJTGs0
+	id S270094AbUJTGsW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 02:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270084AbUJSXKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 02:48:26 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:55220 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268425AbUJTGpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 02:45:32 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] Fw: X is killed when trying to suspend with USB Mouse plugged in
-Date: Wed, 20 Oct 2004 01:45:27 -0500
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Nils Rennebarth <Nils.Rennebarth@web.de>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0410191134090.1023-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0410191134090.1023-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410200145.27952.dtor_core@ameritech.net>
+	Tue, 19 Oct 2004 19:10:24 -0400
+Received: from mail.kroah.org ([69.55.234.183]:58505 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269614AbUJSWqR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 18:46:17 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.9
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <10982257394160@kroah.com>
+Date: Tue, 19 Oct 2004 15:42:19 -0700
+Message-Id: <10982257393394@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 October 2004 10:35 am, Alan Stern wrote:
-> On Mon, 18 Oct 2004, Dmitry Torokhov wrote:
-> 
-> > > I don't know about /dev/input/mouse1.  But the oops isn't a bug... it's a 
-> > > weakness in the way Linux implements loadable kernel modules.
-> > > 
-> > 
-> > Ugh, it is not module implementation weakness, it looks like refcounting
-> > problem in USB.
-> 
-> Could you explain that more fully?  Are you talking about a particular 
-> refcounting problem in the usbhid subsystem or do you mean a more 
-> pervasive problem in the whole USB system?  And why do you say it's a 
-> refcounting problem in the first place?
-> 
+ChangeSet 1.1997.37.58, 2004/10/06 14:00:18-07:00, greg@kroah.com
 
-I am not sure it it is HID-specific problem or a wider one but it looks
-like usbhid can be unloaded while there are references to objects produced
-by this module - hence refcounting problem. You either have to disallow
-unloading while there are references (but this path leads to potential
-deadlocks) or have a generic release function registered with the core that
-pretty much always stays there. Then you can free all device-specific data
-at unload time and mark the object as a zombie so anything that tries to
-touch it releases it quickly and then the core routine will free skeleton
-data at last.
+[PATCH] PCI: remove all usages of pci_dma_sync_sg as it's obsolete.
 
-The patch that I sent should hide the problem somewhat as at disconnect
-time it will unregister corresponsing class devices thus dropping the
-reference that was pinning usbhid structures.
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
--- 
-Dmitry
+
+ drivers/scsi/megaraid/megaraid_mbox.c |    4 ++--
+ include/linux/pci.h                   |    1 -
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+
+diff -Nru a/drivers/scsi/megaraid/megaraid_mbox.c b/drivers/scsi/megaraid/megaraid_mbox.c
+--- a/drivers/scsi/megaraid/megaraid_mbox.c	2004-10-19 15:22:22 -07:00
++++ b/drivers/scsi/megaraid/megaraid_mbox.c	2004-10-19 15:22:22 -07:00
+@@ -1559,7 +1559,7 @@
+ 					PCI_DMA_TODEVICE);
+ 		}
+ 		else {
+-			pci_dma_sync_sg(adapter->pdev, scb->scp->request_buffer,
++			pci_dma_sync_sg_for_cpu(adapter->pdev, scb->scp->request_buffer,
+ 				scb->scp->use_sg, PCI_DMA_TODEVICE);
+ 		}
+ 	}
+@@ -2345,7 +2345,7 @@
+ 
+ 	case MRAID_DMA_WSG:
+ 		if (scb->dma_direction == PCI_DMA_FROMDEVICE) {
+-			pci_dma_sync_sg(adapter->pdev,
++			pci_dma_sync_sg_for_cpu(adapter->pdev,
+ 					scb->scp->request_buffer,
+ 					scb->scp->use_sg, PCI_DMA_FROMDEVICE);
+ 		}
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	2004-10-19 15:22:22 -07:00
++++ b/include/linux/pci.h	2004-10-19 15:22:22 -07:00
+@@ -860,7 +860,6 @@
+ 
+ /* Backwards compat, remove in 2.7.x */
+ #define pci_dma_sync_single	pci_dma_sync_single_for_cpu
+-#define pci_dma_sync_sg		pci_dma_sync_sg_for_cpu
+ 
+ /*
+  *  If the system does not have PCI, clearly these return errors.  Define
+

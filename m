@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265681AbSLBIIO>; Mon, 2 Dec 2002 03:08:14 -0500
+	id <S265677AbSLBIRI>; Mon, 2 Dec 2002 03:17:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265683AbSLBIIN>; Mon, 2 Dec 2002 03:08:13 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:20424 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265681AbSLBIIN>;
-	Mon, 2 Dec 2002 03:08:13 -0500
-Date: Mon, 2 Dec 2002 09:15:24 +0100
+	id <S265683AbSLBIRI>; Mon, 2 Dec 2002 03:17:08 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:13769 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265677AbSLBIRH>;
+	Mon, 2 Dec 2002 03:17:07 -0500
+Date: Mon, 2 Dec 2002 09:24:16 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel@vger.kernel.org, Con Kolivas <conman@kolivas.net>
-Subject: Re: [PATCH] 2.4.20-rmap15a
-Message-ID: <20021202081524.GQ16942@suse.de>
-References: <200212012155.30534.m.c.p@wolk-project.de> <Pine.LNX.4.44L.0212011921420.15981-200000@imladris.surriel.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Srihari Vijayaraghavan <harisri@bigpond.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>, Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: 2.5.49: kernel BUG at drivers/block/ll_rw_blk.c:1950!
+Message-ID: <20021202082416.GT16942@suse.de>
+References: <200211262203.20088.harisri@bigpond.com> <3DE3D1D1.BE5B30ED@digeo.com> <15843.54741.609413.371274@notabene.cse.unsw.edu.au> <200211271912.05131.harisri@bigpond.com> <20021127082931.GD19903@suse.de> <15850.40983.669484.665564@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0212011921420.15981-200000@imladris.surriel.com>
+In-Reply-To: <15850.40983.669484.665564@notabene.cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 01 2002, Rik van Riel wrote:
-> > So, here my patch proposal. Ontop of 2.4.20-rmap15a.
+On Mon, Dec 02 2002, Neil Brown wrote:
+> On Wednesday November 27, axboe@suse.de wrote:
+> > On Wed, Nov 27 2002, Srihari Vijayaraghavan wrote:
+> > > Hello Neil,
+> > > 
+> > > On Wednesday 27 November 2002 07:13, Neil Brown wrote:
+> > > > Srihari, could you possibly try with the following patch please to see
+> > > > if it gives more useful information.
+> > > 
+> > > No worries. That did the trick.
+> > > 
+> > > The following message appears just before the first oops:
+> > > Nov 27 18:56:32 localhost kernel: bio_add_page: want to add 4096 at 17658 but 
+> > > only allowed 3072 - prepare to oops...
+> > 
+> > Neil, this is the problem. Currently a driver _must_ be able to accept a
+> > page worth of data at any location...
 > 
-> Looks good, now lets test it.  If the patch is as needed as you
-> say we should push it to marcelo ;)
+> so raid0 (and linear) need to be able to split a bio .... I think
+> we've been here before.  Did you say you have plans for some generic
+> helper code that could do this?
 
-Yes lets for heavens sake not fix the problem, merge the hack.
+I'm afraid so... I'll come up with a splitter helper today/tomorrow.
 
 -- 
 Jens Axboe

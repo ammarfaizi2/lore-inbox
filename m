@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263025AbTGFRcl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 13:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266253AbTGFRcl
+	id S266253AbTGFRiE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 13:38:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbTGFRiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 13:32:41 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:55002 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S263025AbTGFRck
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 13:32:40 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: James Morris <jmorris@intercode.com.au>
-Subject: Re: crypto API and IBM z990 hardware support
-Date: Sun, 6 Jul 2003 19:46:41 +0200
-User-Agent: KMail/1.5.1
-Cc: Thomas Spatzier <TSPAT@de.ibm.com>, <linux-kernel@vger.kernel.org>
-References: <Mutt.LNX.4.44.0307062353420.548-100000@excalibur.intercode.com.au>
-In-Reply-To: <Mutt.LNX.4.44.0307062353420.548-100000@excalibur.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 6 Jul 2003 13:38:04 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26531
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S266253AbTGFRiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 13:38:03 -0400
+Subject: Re: 2.4.21 ServerWorks DMA Bugs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Tomas Szepe <szepe@pinerecords.com>, Ryan Mack <lists@mackman.net>,
+       Markus Plail <linux-kernel@gitteundmarkus.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030706184242.A20851@ucw.cz>
+References: <Pine.LNX.4.53.0307042325430.3837@mackman.net>
+	 <87fzllh21i.fsf@gitteundmarkus.de>
+	 <Pine.LNX.4.53.0307050956060.2029@mackman.net>
+	 <1057477237.700.6.camel@dhcp22.swansea.linux.org.uk>
+	 <20030706090656.GA4739@louise.pinerecords.com>
+	 <1057482631.705.15.camel@dhcp22.swansea.linux.org.uk>
+	 <20030706111015.GA303@louise.pinerecords.com>
+	 <1057491491.1032.0.camel@dhcp22.swansea.linux.org.uk>
+	 <20030706184242.A20851@ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307061946.41991.arnd@arndb.de>
+Organization: 
+Message-Id: <1057513783.1032.2.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 Jul 2003 18:49:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 July 2003 16:08, James Morris wrote:
+On Sul, 2003-07-06 at 17:42, Vojtech Pavlik wrote:
+> IMO the driver should do that in that case. There are way too many
+> broken BIOSes to make following what they decided to set up worthwhile.
 
-> While this looks like it will work fine for the z990, it is a special case
-> which does not address other requirements for hardware support (some
-> initial requirements are listed at
-> http://www.intercode.com.au/jamesm/crypto/hardware_notes.txt).
->
-> I'm not enthusiastic about adding infrastructure which is really just a
-> hack for some quaint hardware, and probably does not work towards
-> addressing more common hardware requirements.
+It is required in the serverworks case. In the Compaq case there is also
+a pending fix to do the basic same stuff for OSB4.
 
-Ok, then I guess the module will simply have to declare MODULE_ALIAS("aes")
-and live in arch/s390/crypto/, which means that the common code
-is not touched at all, but building both the z990 assembler as well
-as the C implementation as modules requires editing /etc/modprobe.conf
-to get the right one.
 
-As soon as you have the new API for crypto cards, we can move to that
-for autoprobing the CPU features and reliably using the right 
-implementation.
-
-Maybe you can add to your list something like the following items:
-
-Requirements:
-- Support for CPU specific optimized algorithms:
-  - autodetection of CPU features (e.g. Pentium MMX or z990 crypto)
-  - selection of different implementations. A high priority job
-    probably wants to use the CPU while another job offloads crypto
-    to an asynchronous add-on card.
-
-Hardware Documentation status:
-- IBM zSeries cryptographic instructions:
-  http://publibfp.boulder.ibm.com/cgi-bin/bookmgr/BOOKS/dz9zr002/7.5.25
-
-GPL Driver status:
-- IBM PCICC and PCICA cards (incompatible API):
-  Robert Burroughs <burrough@us.ibm.com>
-  http://oss.software.ibm.com/developerworks/opensource/linux390/june2003_recommended.shtml	
-- IBM zSeries cryptographic instructions:
-  Thomas Spatzier (work in progress)
-
-	Arnd <><

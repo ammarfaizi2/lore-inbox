@@ -1,57 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263607AbUACRig (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 12:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbUACRif
+	id S263618AbUACR4a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 12:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbUACR4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 12:38:35 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:62615 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263607AbUACRie (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 12:38:34 -0500
-Date: Sat, 3 Jan 2004 18:38:25 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/7] psmouse option parsing
-Message-ID: <20040103173825.GA22082@ucw.cz>
-References: <200401030350.43437.dtor_core@ameritech.net> <200401030400.55755.dtor_core@ameritech.net> <20040103100739.GB499@ucw.cz> <200401031229.25315.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401031229.25315.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.4i
+	Sat, 3 Jan 2004 12:56:30 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:37267
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S263618AbUACR41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 12:56:27 -0500
+Message-ID: <3FF70241.1030307@tmr.com>
+Date: Sat, 03 Jan 2004 12:56:17 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Nick Piggin <piggin@cyberone.com.au>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: HT schedulers' performance on single HT processor
+References: <200312130157.36843.kernel@kolivas.org>
+In-Reply-To: <200312130157.36843.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 12:29:23PM -0500, Dmitry Torokhov wrote:
+Con Kolivas wrote:
+> I set out to find how the hyper-thread schedulers would affect the all 
+> important kernel compile benchmark on machines that most of us are likely to 
+> encounter soon. The single processor HT machine.
+> 
+> Usual benchmark precautions taken; best of five runs (curiously the fastest 
+> was almost always the second run). Although for confirmation I really did 
+> this twice.
+> 
+> Tested a kernel compile with make vmlinux, make -j2 and make -j8. 
+> 
+> make vmlinux - tests to ensure the sequential single threaded make doesn't 
+> suffer as a result of these tweaks
+> 
+> make -j2 vmlinux - tests to see how well wasted idle time is avoided
+> 
+> make -j8 vmlinux - maximum throughput test (4x nr_cpus seems to be ceiling for 
+> this).
+> 
+> Hardware: P4 HT 3.066
+> 
+> Legend:
+> UP - Uniprocessor 2.6.0-test11 kernel
+> SMP - SMP kernel
+> C1 - With Ingo's C1 hyperthread patch
+> w26 - With Nick's w26 sched-rollup (hyperthread included)
+> 
+> make vmlinux
+> kernel	time
+> UP	65.96
+> SMP	65.80
+> C1	66.54
+> w26	66.25
+> 
+> I was concerned this might happen and indeed the sequential single threaded 
+> compile is slightly worse on both HT schedulers. (1)
+> 
+> make -j2 vmlinux
+> kernel	time
+> UP	65.17
+> SMP	57.77
+> C1	66.01
+> w26	57.94
+> 
+> Shows the smp kernel nicely utilises HT whereas the UP kernel doesn't. The C1 
+> result was very repeatable and I was unable to get it lower than this.(2)
+> 
+> make -j8 vmlinux
+> kernel	time
+> UP	65.00
+> SMP	57.85
+> C1	58.25
+> w26	57.94
 
-> On Saturday 03 January 2004 05:07 am, Vojtech Pavlik wrote:
-> > On Sat, Jan 03, 2004 at 04:00:54AM -0500, Dmitry Torokhov wrote:
-> > > +			[HW,MOUSE] Controls Logitech smartscroll autoreteat,
-> > > +			0 = disabled, 1 = enabled (default).
-> >
-> > Ha, a typo. :)
-> 
-> Darn! :)
-> 
-> Sorry about that. I uploaded hand-corrected patch to 
-> 
-> http://www.geocities.co/dt_or/input/2_6_0-rc1/ 
-> 
-> and also sending it here for your reference.
-> 
-> Dmitry
+If you could make one more test, do the compile with -pipe set in the 
+top level Makefile. I don't have play access to a HT uni, the only 
+machines available to me at the moment are SMP and production at that.
 
-Patch is OK now. The first (i8042 reset) patch is also OK, I misread it
-when I thought I've found problems there.
+I did try it just for grins on a non-HT uni and saw this:
 
-Andrew, please apply these patches to your tree and/or
-schedule them for inclusion into mainline.
+opt		real	user	sys	idle
+-j1		406.2	308.1	19.0	79.1
+-j1 -pipe	398.6	308.2	19.0	71.4
+-j3		391.6	308.3	19.0	64.3
+-j3 -pipe	388.7	308.4	19.0	61.3
 
-Good work, Dmitry!
+P4-2.4MHz, 256MB, compiling 2.5.47-ac6 with just "make." Using -pipe 
+*may* allow both siblings to cooperate better.
+
+I assume that CPU affinity should apply to all siblings in a package?
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289762AbSBJVaF>; Sun, 10 Feb 2002 16:30:05 -0500
+	id <S289768AbSBJVgS>; Sun, 10 Feb 2002 16:36:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289761AbSBJV3z>; Sun, 10 Feb 2002 16:29:55 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:56329 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S289767AbSBJV3v>;
-	Sun, 10 Feb 2002 16:29:51 -0500
-Date: Sun, 10 Feb 2002 22:05:38 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kthread abstraction, take two
-Message-ID: <20020210210536.GB239@elf.ucw.cz>
-In-Reply-To: <20020209180305.A11717@caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020209180305.A11717@caldera.de>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S289767AbSBJVfb>; Sun, 10 Feb 2002 16:35:31 -0500
+Received: from ns.suse.de ([213.95.15.193]:31752 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289793AbSBJVdx>;
+	Sun, 10 Feb 2002 16:33:53 -0500
+Date: Sun, 10 Feb 2002 22:33:49 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Alex Riesen <fork0@users.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18-pre8-K2: Kernel panic: CPU context corrupt
+In-Reply-To: <20020209222358.GA1589@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0202102232510.29486-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 9 Feb 2002, Pavel Machek wrote:
 
-> This is a new version of the ktread abstraction which incorporates
-> suggestions by Andi Kleen, Jeff Garzik and Andrew Morton.
+> >  > Feb  7 23:45:31 steel kernel: CPU 0: Machine Check Exception: 0000000000000004
+> >  > Feb  7 23:45:31 steel kernel: Bank 4: b200000000040151
+> >  > Feb  7 23:45:31 steel kernel: Kernel panic: CPU context corrupt
+> >  Machine checks are indicative of hardware fault.
+> >  Overclocking, inadequate cooling and bad memory are the usual
+> > causes.
+> Maybe you should print something like
+> Machine Check Exception: .... (hardware problem!)
+> so that we get less reports like this?
 
-Could you convert some kernel thread to the new interface to show how
-it simplifies things?
-								Pavel
+When I get around to finishing the diagnosis tool, I'll add
+something like "Feed to decodemca for more info".
+
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264199AbUD0RPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264205AbUD0RYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264199AbUD0RPm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 13:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264205AbUD0RPm
+	id S264205AbUD0RYN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 13:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264210AbUD0RYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 13:15:42 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:40497 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S264199AbUD0RPl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 13:15:41 -0400
-Date: Tue, 27 Apr 2004 19:17:37 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Marco Cavallini <arm.linux@koansoftware.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: Problem with CONFIG_USB_SL811HS
-Message-ID: <20040427171737.GB2465@mars.ravnborg.org>
-Mail-Followup-To: Marco Cavallini <arm.linux@koansoftware.com>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <005c01c42b82$60d82f60$0200a8c0@arrakis> <20040426185612.GB28530@kroah.com> <003501c42c24$06e87940$0200a8c0@arrakis>
+	Tue, 27 Apr 2004 13:24:13 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:48259 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S264205AbUD0RYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 13:24:10 -0400
+Subject: Re: status of Linux on Alpha?
+From: Eric Sandeen <sandeen@sgi.com>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-xfs@oss.sgi.com,
+       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040427185124.134073cd@vaio.gigerstyle.ch>
+References: <yw1xsmftnons.fsf@ford.guide>
+	 <20040328201719.A14868@jurassic.park.msu.ru> <yw1xoeqhndvl.fsf@ford.guide>
+	 <20040328204308.C14868@jurassic.park.msu.ru>
+	 <20040328221806.7fa20502@vaio.gigerstyle.ch> <yw1xr7vcn1z2.fsf@ford.guide>
+	 <20040329205233.5b7905aa@vaio.gigerstyle.ch>
+	 <20040404121032.7bb42b35@vaio.gigerstyle.ch>
+	 <20040409134534.67805dfd@vaio.gigerstyle.ch>
+	 <20040409134828.0e2984e5@vaio.gigerstyle.ch>
+	 <20040409230651.A727@den.park.msu.ru>
+	 <20040413194907.7ce8ceb7@vaio.gigerstyle.ch>
+	 <20040427185124.134073cd@vaio.gigerstyle.ch>
+Content-Type: text/plain
+Organization: Eric Conspiracy Secret Labs
+Message-Id: <1083086601.14273.45.camel@stout.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003501c42c24$06e87940$0200a8c0@arrakis>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Apr 2004 12:23:22 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 08:51:09AM +0200, Marco Cavallini wrote:
-> > > I am facing to a problem using linux-2.4.25-vrs2 and/or 2.4.26-vrs1 (ARM
-> > > porting).
-> > > I think this problem come from the linux kernel and not from ARM patch.
-> > > Seems that there is a problem building SL811 USB hosts because if I
-> enable
-> > > CONFIG_USB_SL811HS option
-> > > the driver seems to be not build and is not running.
-> >
-> > What is the build errors you get when trying to build this driver?
-> >
+Marc, do you have a patch associated with the changeset you found to be
+the culprit?
+
+I don't know how to get from that changeset number to a diff.
+
+Thanks,
+
+-Eric
+
+On Tue, 2004-04-27 at 11:51, Marc Giger wrote:
+> Hi,
 > 
-> There is no file.o in drivers/usb/host
-> and there is no SL811 host in the kernel,
-> the hc_sl811 is not build although I enable CONFIG_USB_SL811HS option.
+> What's the current status of the problem? Is nobody interested to fix
+> it, or am I just impatient? Did I provide not enough information?
+> I'm running 2.6.5 with the reverted patch for 2 weeks now without any
+> problems.
+> 
+> Regards
+> 
+> Marc
+> 
 
-Did you enable this option using menuconfig?
-Please grep for this option in your .config. If it is listed here,
-and hc_sl811 is not built then there is a bug in the build system.
-But this is so basic so the eror is probarly somewhere else.
+-- 
+Eric Sandeen      [C]XFS for Linux   http://oss.sgi.com/projects/xfs
+sandeen@sgi.com   SGI, Inc.          651-683-3102
 
-	Sam

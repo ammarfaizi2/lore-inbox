@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317990AbSGPUzd>; Tue, 16 Jul 2002 16:55:33 -0400
+	id <S317985AbSGPUzc>; Tue, 16 Jul 2002 16:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317984AbSGPUzB>; Tue, 16 Jul 2002 16:55:01 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:53464 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317985AbSGPUyN>;
-	Tue, 16 Jul 2002 16:54:13 -0400
-Date: Tue, 16 Jul 2002 13:57:09 -0700
+	id <S317986AbSGPUyu>; Tue, 16 Jul 2002 16:54:50 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:40151 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317982AbSGPUxM>;
+	Tue, 16 Jul 2002 16:53:12 -0400
+Date: Tue, 16 Jul 2002 13:56:08 -0700
 To: Jeff Garzik <jgarzik@mandrakesoft.com>, irda-users@lists.sourceforge.net,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] : ir255_comments.diff
-Message-ID: <20020716135709.G28412@bougret.hpl.hp.com>
+Subject: [PATCH] : ir255_checker.diff-2
+Message-ID: <20020716135608.E28412@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,55 +23,95 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir255_comments.diff :
--------------------
-	o [FEATURE] Update MAINTAINERS file
-	o [FEATURE] Update OHCI comment in irda-usb
+ir255_checker.diff-2 :
+--------------------
+	o [CORRECT] Fix two bugs found by the Stanford checker
 
 
-diff -u -p linux/MAINTAINERS.d2 linux/MAINTAINERS
---- linux/MAINTAINERS.d2	Tue Jul 16 10:27:15 2002
-+++ linux/MAINTAINERS	Tue Jul 16 10:34:34 2002
-@@ -834,8 +834,15 @@ S:	Maintained
- IRDA SUBSYSTEM
- P:	Dag Brattli
- M:	Dag Brattli <dag@brattli.net>
--L:	linux-irda@pasta.cs.uit.no
-+L:	irda-users@lists.sourceforge.net
- W:	http://irda.sourceforge.net/
-+S:	Orphan
-+
-+IRDA CORE STACK + IRNET (Excluding other IrDA drivers/protocols)
-+P:	Jean Tourrilhes
-+M:	jt@hpl.hp.com
-+L:	irda-users@lists.sourceforge.net
-+W:	http://www.hpl.hp.com/personal/Jean_Tourrilhes/IrDA/
- S:	Maintained
+diff -u -p -r linux/net/irda/irlap.d2.c linux/net/irda/irlap.c
+--- linux/net/irda/irlap.d2.c	Tue Jul 16 13:36:28 2002
++++ linux/net/irda/irlap.c	Tue Jul 16 13:36:51 2002
+@@ -1091,8 +1091,8 @@ int irlap_proc_read(char *buf, char **st
  
- ISAPNP
-diff -u -p linux/drivers/net/irda/irda-usb.d2.c linux/drivers/net/irda/irda-usb.c
---- linux/drivers/net/irda/irda-usb.d2.c	Tue Jul 16 10:02:27 2002
-+++ linux/drivers/net/irda/irda-usb.c	Tue Jul 16 10:37:13 2002
-@@ -30,19 +30,15 @@
-  *			    IMPORTANT NOTE
-  *			    --------------
-  *
-- * As of kernel 2.5.20, this is the state of compliance and testing of
-+ * As of kernel 2.5.26, this is the state of compliance and testing of
-  * this driver (irda-usb) with regards to the USB low level drivers...
-  *
-  * This driver has been tested SUCCESSFULLY with the following drivers :
-- *	o usb-uhci-hcd	(For Intel/Via USB controllers)
-- *	o uhci-hcd	(Alternate/JE driver for Intel/Via USB controllers)
-+ *	o uhci-hcd	(For Intel/Via USB controllers)
-+ *	o ohci-hcd	(For other USB controllers)
-  *
-  * This driver has NOT been tested with the following drivers :
-  *	o ehci-hcd	(USB 2.0 controllers)
-- *
-- * This driver DOESN'T SEEM TO WORK with the following drivers :
-- *	o ohci-hcd	(For other USB controllers)
-- * The first outgoing URB never calls its completion/failure callback.
-  *
-  * Note that all HCD drivers do USB_ZERO_PACKET and timeout properly,
-  * so we don't have to worry about that anymore.
+ 	self = (struct irlap_cb *) hashbin_get_first(irlap);
+ 	while (self != NULL) {
+-		ASSERT(self != NULL, return -ENODEV;);
+-		ASSERT(self->magic == LAP_MAGIC, return -EBADR;);
++		ASSERT(self != NULL, break;);
++		ASSERT(self->magic == LAP_MAGIC, break;);
+ 
+ 		len += sprintf(buf+len, "irlap%d ", i++);
+ 		len += sprintf(buf+len, "state: %s\n",
+diff -u -p -r linux/net/irda/irlmp.d2.c linux/net/irda/irlmp.c
+--- linux/net/irda/irlmp.d2.c	Tue Jul 16 13:36:34 2002
++++ linux/net/irda/irlmp.c	Tue Jul 16 13:36:51 2002
+@@ -1735,7 +1735,7 @@ int irlmp_proc_read(char *buf, char **st
+ 	len += sprintf( buf+len, "Unconnected LSAPs:\n");
+ 	self = (struct lsap_cb *) hashbin_get_first( irlmp->unconnected_lsaps);
+ 	while (self != NULL) {
+-		ASSERT(self->magic == LMP_LSAP_MAGIC, return 0;);
++		ASSERT(self->magic == LMP_LSAP_MAGIC, break;);
+ 		len += sprintf(buf+len, "lsap state: %s, ",
+ 			       irlsap_state[ self->lsap_state]);
+ 		len += sprintf(buf+len,
+@@ -1764,7 +1764,7 @@ int irlmp_proc_read(char *buf, char **st
+ 		len += sprintf(buf+len, "\n  Connected LSAPs:\n");
+ 		self = (struct lsap_cb *) hashbin_get_first(lap->lsaps);
+ 		while (self != NULL) {
+-			ASSERT(self->magic == LMP_LSAP_MAGIC, return 0;);
++			ASSERT(self->magic == LMP_LSAP_MAGIC, break;);
+ 			len += sprintf(buf+len, "  lsap state: %s, ",
+ 				       irlsap_state[ self->lsap_state]);
+ 			len += sprintf(buf+len,
+diff -u -p linux/drivers/net/irda/ali-ircc.d2.c  linux/drivers/net/irda/ali-ircc.c
+--- linux/drivers/net/irda/ali-ircc.d2.c	Tue Jul 16 13:36:48 2002
++++ linux/drivers/net/irda/ali-ircc.c	Tue Jul 16 13:36:51 2002
+@@ -2028,22 +2028,20 @@ static int ali_ircc_net_ioctl(struct net
+ 
+ 	IRDA_DEBUG(2, __FUNCTION__ "(), %s, (cmd=0x%X)\n", dev->name, cmd);
+ 	
+-	/* Disable interrupts & save flags */
+-	save_flags(flags);
+-	cli();	
+ 	
+ 	switch (cmd) {
+ 	case SIOCSBANDWIDTH: /* Set bandwidth */
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), SIOCSBANDWIDTH\n");
+-		/*
+-		 * This function will also be used by IrLAP to change the
+-		 * speed, so we still must allow for speed change within
+-		 * interrupt context.
+-		 */
+-		if (!in_interrupt() && !capable(CAP_NET_ADMIN))
++		/* Root only */
++		if (!capable(CAP_NET_ADMIN))
+ 			return -EPERM;
+ 		
++		/* Is it really needed ? And what about spinlock ? */
++		save_flags(flags);
++		cli();	
++
+ 		ali_ircc_change_speed(self, irq->ifr_baudrate);		
++		restore_flags(flags);
+ 		break;
+ 	case SIOCSMEDIABUSY: /* Set media busy */
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), SIOCSMEDIABUSY\n");
+@@ -2053,13 +2051,16 @@ static int ali_ircc_net_ioctl(struct net
+ 		break;
+ 	case SIOCGRECEIVING: /* Check if we are receiving right now */
+ 		IRDA_DEBUG(2, __FUNCTION__ "(), SIOCGRECEIVING\n");
++		/* Is it really needed ? And what about spinlock ? */
++		save_flags(flags);
++		cli();	
++
+ 		irq->ifr_receiving = ali_ircc_is_receiving(self);
++		restore_flags(flags);
+ 		break;
+ 	default:
+ 		ret = -EOPNOTSUPP;
+ 	}
+-	
+-	restore_flags(flags);
+ 	
+ 	IRDA_DEBUG(2, __FUNCTION__ "(), ----------------- End ------------------\n");	
+ 	

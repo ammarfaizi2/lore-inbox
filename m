@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278739AbRJVLsJ>; Mon, 22 Oct 2001 07:48:09 -0400
+	id <S278735AbRJVLwt>; Mon, 22 Oct 2001 07:52:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278736AbRJVLsA>; Mon, 22 Oct 2001 07:48:00 -0400
-Received: from t2.redhat.com ([199.183.24.243]:12279 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S278735AbRJVLrs>; Mon, 22 Oct 2001 07:47:48 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <hwHwJtbLMA17Ew7i@wookie.demon.co.uk> 
-In-Reply-To: <hwHwJtbLMA17Ew7i@wookie.demon.co.uk>  <NPHLGxZPH$07EwlQ@wookie.demon.co.uk> <4947.1003748210@redhat.com> 
-To: John Beardmore <wookie@wookie.demon.co.uk>
+	id <S278744AbRJVLwj>; Mon, 22 Oct 2001 07:52:39 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:12560 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S278735AbRJVLw2>;
+	Mon, 22 Oct 2001 07:52:28 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Alexander Viro <viro@math.psu.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ISDN cards and SMP 
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
+In-Reply-To: Your message of "Mon, 22 Oct 2001 07:33:37 -0400."
+             <Pine.GSO.4.21.0110220724120.2294-100000@weyl.math.psu.edu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 22 Oct 2001 12:48:04 +0100
-Message-ID: <11288.1003751284@redhat.com>
+Date: Mon, 22 Oct 2001 21:52:49 +1000
+Message-ID: <26057.1003751569@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 22 Oct 2001 07:33:37 -0400 (EDT), 
+Alexander Viro <viro@math.psu.edu> wrote:
+>I suspect that in this case s/2.5/2.4-ac/ might be a possibility.  Since
+>we are talking about defaults, nothing is going to break if file simply
+>doesn't exist.  So teaching modprobe to handle it if it's there would
+>be a compatible change and would allow testing the kernel side of that
+>stuff.  Alan?
 
-
-wookie@wookie.demon.co.uk said:
->  This is hisax.  What version are you using ?  Maybe it's been sorted
-> in  the last year or so ? 
-
-I've used the 2.2 kernels shipped with Red Hat 7.0 and 7.1, briefly. This 
-box has been running various 2.4 kernels since 2.4.0-test10, and is now 
-running the Red Hat 7.2 release kernel. None of them have had any ISDN 
-problems.
-
->  I've built it from the sources that shipped with RH 6.2 using the GUI
->  tool to specify SMP support.  I think it's installed properly in as
-> far  as all three CPUs get used once its installed.  Very cute !  Roll
-> over  NT etc !
-
-Why rebuild? An SMP kernel is shipped, with matching modules etc.
-
-> > If you're building your own, rebuild it and the modules.
-> I can do, but I'd like to know what to do differently first. 
-
-Difficult to say, without actually having seen the error you're getting. 
-Try turning CONFIG_MODVERSIONS off and rebuilding both kernel and modules, 
-for a start.
-
---
-dwmw2
-
+Do you really want modules exhibiting different behaviour in Linus and
+-ac kernels?  And have that behaviour depending on which version of
+modutils the user installed?  Not in 2.4, modutils strives for
+stability in production kernels, it is an important interface between
+the kernel and user space.
 

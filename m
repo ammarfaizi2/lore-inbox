@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289571AbSBXPAm>; Sun, 24 Feb 2002 10:00:42 -0500
+	id <S289670AbSBXPno>; Sun, 24 Feb 2002 10:43:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289581AbSBXPAc>; Sun, 24 Feb 2002 10:00:32 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:46892 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S289571AbSBXPAT>; Sun, 24 Feb 2002 10:00:19 -0500
-Subject: list moved or dead
-From: "Trever L. Adams" <trever_adams@myrealbox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-AbqJepXdM854IesJgH5l"
-X-Mailer: Evolution/1.0.2 
-Date: 24 Feb 2002 10:00:51 -0500
-Message-Id: <1014562853.1186.2.camel@aurora>
-Mime-Version: 1.0
+	id <S289757AbSBXPne>; Sun, 24 Feb 2002 10:43:34 -0500
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:22473 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S289670AbSBXPnZ>; Sun, 24 Feb 2002 10:43:25 -0500
+Date: Sun, 24 Feb 2002 16:43:20 +0100 (MET)
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+X-X-Sender: sithglan@faui02.informatik.uni-erlangen.de
+To: "Trever L. Adams" <trever_adams@myrealbox.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: list moved or dead
+In-Reply-To: <1014562853.1186.2.camel@aurora>
+Message-ID: <Pine.GSO.4.44.0202241642130.21919-100000@faui02.informatik.uni-erlangen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nope. It is working fine. But I had some problemes while subscribing: It took
+about 2 days to get the answer from majordomo.
 
---=-AbqJepXdM854IesJgH5l
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Greetings,
+		Thomas
 
-I am just wondering if this list is dead, moving, or just having
-problems.
+On 24 Feb 2002, Trever L. Adams wrote:
 
+> I am just wondering if this list is dead, moving, or just having
+> problems.
 
-
-
-
---=-AbqJepXdM854IesJgH5l
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8eQAjycpY5BNi5WkRAi+TAJ433WD7foL9Tj2owDkscAETdvaH0ACfXXzl
-gT3PIvfAn+B0FscsI3DVEs0=
-=CW0S
------END PGP SIGNATURE-----
-
---=-AbqJepXdM854IesJgH5l--
+--
+Thomas Glanzmann            +49 1212 5 269 38 260
+Rathsbergerstrasse 28 D-91054 Erlangen / Burgberg
 

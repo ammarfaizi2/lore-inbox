@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265111AbRFUTEA>; Thu, 21 Jun 2001 15:04:00 -0400
+	id <S265117AbRFUTEu>; Thu, 21 Jun 2001 15:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265116AbRFUTDu>; Thu, 21 Jun 2001 15:03:50 -0400
-Received: from isimail.interactivesi.com ([207.8.4.3]:9994 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S265111AbRFUTDk>; Thu, 21 Jun 2001 15:03:40 -0400
-Date: Thu, 21 Jun 2001 14:03:32 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
+	id <S265118AbRFUTEp>; Thu, 21 Jun 2001 15:04:45 -0400
+Received: from web9604.mail.yahoo.com ([216.136.129.183]:5640 "HELO
+	web9604.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265116AbRFUTEg>; Thu, 21 Jun 2001 15:04:36 -0400
+Message-ID: <20010621190434.82955.qmail@web9604.mail.yahoo.com>
+Date: Thu, 21 Jun 2001 12:04:34 -0700 (PDT)
+From: abc abc <netlogin_99@yahoo.com>
+Subject: rename problem on vfat file systems
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <993153729.7844.3.camel@Monet>
-In-Reply-To: <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com> <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com>
-Subject: Re: Controversy over dynamic linking -- how to end the panic
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <Y0SvmB.A.0g.FUkM7@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from Wei Weng <wweng@kencast.com> on 21 Jun 2001 16:01:58
--0400
+Hi,
 
+I have been having problems using rename system call
+on vfat file systems. I have looked at the kernel code
+and tried everything I could do to figure out what
+might be going wrong. As a last resort I thought you
+might be able to help me.
 
-> Hell, why does the linux community need to care about other *greedy*
-> people who don't want to GPL their work anyway? If you want to protect
-> GPL as the principle in Linux, well, screw the device driver makers!
+The /etc/fstab entry for the drive that I mount looks
+like this
 
-Unfortunately, your position will result in reduce hardware support.  There are
-companies out there that will not release the source code to their drivers.  By
-preventing binary-only drivers, you're basically telling those companies, "I
-don't care who needs your hardware to work under Linux, I won't let you ship
-your drivers." 
+/dev/sdc1 /mnt/sns-c vfat noauto,sync,user 0 0
 
-Besides, your opinion on this matter is irrelevant.  Linus has already decided
-to allow binary-only drivers.  The question is not WHETHER it is allowed, but
-HOW it will be allowed.  Please stay on topic.
+here's the code snippet of what I am trying to do
 
-> What is the difference between including kernel header file and
-> including GPLed header file?
+int copy_seg_file(char *segFile)
+{
+  char command[128];
+  sprintf(command, "cp %s /mnt/sns-c/tmp/segfile",
+          *segFile);
+  system(command);
+  sync();
+  rename("/mnt/sns-c/tmp/segfile",
+         "/mnt/sns-c/segments/segfile");
+  printf("file copied\n");
+}
 
-None, as far as I know, and that's the problem.  By Linus saying, "including
-kernel header files doesn't make your driver a derivative work", he is
-effectively _weakening_ a provision in the GPL _as a whole_ (assuming that you
-believe including header files makes your work a derivative, which I don't).
+initially the file is copied to the temporary
+directory to deal with the power outage during the
+file copy. Once the file is completely copied, it will
+be renamed to the final destination.
 
+If I reboot the machine just after the rename() call
+is completed, when the machine comes up the file
+/mnt/sns-c/segments/segfile has zero bytes and there
+is no file in the tmp directory. Effectively the file
+is lost some where. Running fsck recovers the file,
+but it doesn't help me much because I would be copying
+hundreds of files and its difficult to match the
+files.
 
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
+Can you think of any thing that might be causing this.
+Any help is highly appreciated.
 
+Thanks,
+Kumar
+
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130022AbRAFKWC>; Sat, 6 Jan 2001 05:22:02 -0500
+	id <S130392AbRAFKac>; Sat, 6 Jan 2001 05:30:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130133AbRAFKVx>; Sat, 6 Jan 2001 05:21:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25618 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130022AbRAFKVh>;
-	Sat, 6 Jan 2001 05:21:37 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101060946.f069kbv18455@flint.arm.linux.org.uk>
-Subject: Re: Even slower NFS mounting with 2.4.0
-To: chris@chrullrich.de (Christian Ullrich)
-Date: Sat, 6 Jan 2001 09:46:37 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010106002531.A490@christian.chrullrich.de> from "Christian Ullrich" at Jan 06, 2001 12:25:31 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130427AbRAFKaV>; Sat, 6 Jan 2001 05:30:21 -0500
+Received: from gnu.in-berlin.de ([192.109.42.4]:11792 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S130392AbRAFKaE>;
+	Sat, 6 Jan 2001 05:30:04 -0500
+X-Envelope-From: news@goldbach.in-berlin.de
+To: linux-kernel@vger.kernel.org
+Path: kraxel
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: [PATCH] VESA framebuffer w/ MTRR locks 2.4.0 on init
+Date: 6 Jan 2001 09:47:45 GMT
+Organization: Strusel 007
+Message-ID: <slrn95dqe1.ne.kraxel@bogomips.masq.in-berlin.de>
+In-Reply-To: <E14EZMf-0007vp-00@the-village.bc.nu> <3A55F6DB.24041B4C@rochester.rr.com>
+NNTP-Posting-Host: bogomips.masq.in-berlin.de
+X-Trace: goldbach.masq.in-berlin.de 978774465 7287 192.168.69.77 (6 Jan 2001 09:47:45 GMT)
+X-Complaints-To: news@goldbach.in-berlin.de
+NNTP-Posting-Date: 6 Jan 2001 09:47:45 GMT
+User-Agent: slrn/0.9.6.3 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Ullrich writes:
-> About three weeks ago, I complained loudly about very slow NFS mounts
-> involving a 2.2.17 server and a 2.2.18 client.
-> 
-> Today, I complain loudly about *extremely* slow NFS mounts
-> with the very same server and the same client now running 2.4.0.
+> last 2 lines in dmesg output:
+> mtrr: 0xd8000000,0x2000000 overlaps existing 0xd8000000,0x1000000
+> mtrr: 0xd8000000,0x2000000 overlaps existing 0xd8000000,0x1000000
 
-In all cases, you need to either:
+both *fb fbcon drivers and xfree 4 try to setup mtrr ranges, which
+are the same for the video card => mtrr complains because the entry
+is already there.
 
-1. Provide the option "nolock" to turn of NFS file locking (which means
-   that things like elm can't lock mailboxes and will get upset if the
-   mailboxes are on a NFS partition).
+  Gerd
 
-2. before running the mount command:
-   a) make sure the loopback interface is up and running
-   b) ensure that the portmapper (called portmap or rpc.portmap) is
-      running.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+-- 
+Get back there in front of the computer NOW. Christmas can wait.
+	-- Linus "the Grinch" Torvalds,  24 Dec 2000 on linux-kernel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

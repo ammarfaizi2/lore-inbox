@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264264AbRFFXoU>; Wed, 6 Jun 2001 19:44:20 -0400
+	id <S262722AbRFGAAh>; Wed, 6 Jun 2001 20:00:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264263AbRFFXoK>; Wed, 6 Jun 2001 19:44:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54923 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261482AbRFFXn6>;
-	Wed, 6 Jun 2001 19:43:58 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S262448AbRFGAA1>; Wed, 6 Jun 2001 20:00:27 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:30728 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S262722AbRFGAAO>; Wed, 6 Jun 2001 20:00:14 -0400
+Date: Thu, 7 Jun 2001 11:59:56 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to know HZ from userspace?
+Message-ID: <20010607115956.B27031@metastasis.f00f.org>
+In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva> <9fm5cp$431$1@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15134.49211.159673.522020@pizda.ninka.net>
-Date: Wed, 6 Jun 2001 16:43:55 -0700 (PDT)
-To: Ben Greear <greearb@candelatech.com>
-Cc: "La Monte H.P. Yarroll" <piggy@em.cig.mot.com>,
-        "Matt D. Robinson" <yakker@alacritech.com>,
-        linux-kernel@vger.kernel.org, sctp-developers-list@cig.mot.com
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
-In-Reply-To: <3B1EC74D.6C720537@candelatech.com>
-In-Reply-To: <200106051659.LAA20094@em.cig.mot.com>
-	<3B1E5CC1.553B4EF1@alacritech.com>
-	<15134.42714.3365.32233@theor.em.cig.mot.com>
-	<15134.43914.98253.998655@pizda.ninka.net>
-	<3B1EC74D.6C720537@candelatech.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9fm5cp$431$1@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Jun 06, 2001 at 01:55:53PM -0700
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 06, 2001 at 01:55:53PM -0700, Linus Torvalds wrote:
 
-Ben Greear writes:
- > Then again, maybe someone has a reason to use a different
- > TCP stack, ie to support something like a high-availiblity stack
- > between two different machines...
+    In 2.4.x, you'll get it on the stack as one of the ELF auxilliary
+    entries (AT_CLKTCK). 
+    
+    Strictly speaking that's the "frequency at which 'times()' counts", ie
+    the kernel CLOCKS_PER_SEC, not HZ. But from a user perspective the two
+    should hopefully always be the same (if any of the /proc fields etc
+    should really use CLOCKS_PER_SEC, not HZ).
 
-Feel free to implement this and send me patches :-)
+I would hope nobody actually uses the above.  Since I run kernels
+with HZ==2048 and started having to hack various userland tools to
+make them happy I too was after this information.
 
- > Why would you be scared of a proprietary  TCP stack?  If Open Source
- > is so much better (and I believe it is), then there would be nothing
- > to lose.  And if the new stack helped a small subset of people who would
- > otherwise have an even sorrier life implementing it on some other
- > platform, then that is better, right?
+However, it was pointed out that eliminated HZ completely might be a
+better idea, and then just exporting all values to userspace as
+nanoseconds or similiar... a radically different approach to what we
+have now but something that struck me as a really good idea.
 
-It's not an issue of scared or not scared.  It's an issue of what
-Linus chooses to allow people to do with his kernel.  This is one of
-the main reasons many of us even began to work on the Linux kernel,
-because we knew our work could not be compromised in such a way.
+Fodder for 2.5.x perhaps?
 
-And my current understanding is that allowing proprietary
-reimplementations of the VM, VFS, and core networking, is not one of
-the things which is allowed.
 
-Later,
-David S. Miller
-davem@redhat.com
+
+  --cw

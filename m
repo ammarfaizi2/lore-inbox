@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbUCDIKo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 03:10:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbUCDIKo
+	id S261537AbUCDIVn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 03:21:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUCDIVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 03:10:44 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:12690
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S261541AbUCDIKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 03:10:12 -0500
-Message-ID: <4046E455.4010605@redhat.com>
-Date: Thu, 04 Mar 2004 00:09:57 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040303
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.4-pre1_vsyscall-gtod_B3-part3 (3/3)
-References: <1078359081.10076.191.camel@cog.beaverton.ibm.com>	 <1078359137.10076.193.camel@cog.beaverton.ibm.com>	 <1078359191.10076.195.camel@cog.beaverton.ibm.com>	 <1078359248.10076.197.camel@cog.beaverton.ibm.com>	 <20040304005542.GZ4922@dualathlon.random>  <40469194.5080506@redhat.com> <1078368197.10076.252.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1078368197.10076.252.camel@cog.beaverton.ibm.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 4 Mar 2004 03:21:43 -0500
+Received: from styx.suse.cz ([82.208.2.94]:6272 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S261537AbUCDIVm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 03:21:42 -0500
+Date: Thu, 4 Mar 2004 09:21:40 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: John Fremlin <john@fremlin.de>
+Cc: Ben Collins <bcollins@debian.org>, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: Using physical extents instead of logical ones for NEC USB HID gamepads
+Message-ID: <20040304082140.GC489@ucw.cz>
+References: <86y8vcygar.fsf@notus.ireton.fremlin.de> <20031023001850.GB9808@phunnypharm.org> <87ptgolq69.fsf@bayu.ireton.fremlin.de> <87y8qo4u9h.fsf_-_@bayu.ireton.fremlin.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87y8qo4u9h.fsf_-_@bayu.ireton.fremlin.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Feb 27, 2004 at 11:49:30AM +0000, John Fremlin wrote:
 
-john stultz wrote:
+> This patch for 2.4.22 (which applied cleanly to 2.4.25-pre) adds the
+> ID 073e:0301 NEC, Inc. Game Pad to the list of quirky USB joypads which
+> mix up logical and physical extents.
+> 
+> Please apply as the joypad obviously does not work without it. I've
+> tested it.
 
-> Before we start up this larger debate again, might there be some short
-> term solution for my patch that would satisfy both of you?
+Applied to 2.6, for 2.4 please send it to Greg KH, and tell him I agree
+with the patch.
 
-I suggest the following:
-
-~ define a symbol __kernel_gettimeofday_offset in the vdso's symbol
-table.  This should be an absolute symbol containing the offset of the
-gettimeofday implementation from the beginning of the vdso (the address
-passed up in the auxiliary vector)
-
-~ glibc can then use the equivalent of
-dlsym("__kernel_gettimeofday_offset").  If the symbol is not defined,
-it's not used (doh).  If it is defined, the final function address is
-computed by adding the offset to the vdso address.
-
-
-This ensures a direct jump and it still keeps the vdso relocatable
-without modifying the symbol table.
-
-- -- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD4DBQFARuRa2ijCOnn/RHQRAnITAKCeS30ShpbeadFA5n/TlaTOXYNzygCVG3tg
-2HCPVqo5DRtQfUoKwLY6vQ==
-=ST37
------END PGP SIGNATURE-----
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

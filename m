@@ -1,84 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129755AbQLEGzb>; Tue, 5 Dec 2000 01:55:31 -0500
+	id <S129707AbQLEH1h>; Tue, 5 Dec 2000 02:27:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129875AbQLEGzV>; Tue, 5 Dec 2000 01:55:21 -0500
-Received: from stellar.cso.uiuc.edu ([130.126.112.47]:26828 "EHLO
-	stellar.cso.uiuc.edu") by vger.kernel.org with ESMTP
-	id <S129755AbQLEGzO>; Tue, 5 Dec 2000 01:55:14 -0500
-Date: Tue, 5 Dec 2000 00:24:46 -0600 (CST)
-From: Andrew Reitz <areitz@uiuc.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Assistance requested in demystifying wait queues.
-Message-ID: <Pine.SOL.4.30.0012042358270.19766-100000@stellar.cso.uiuc.edu>
+	id <S129799AbQLEH11>; Tue, 5 Dec 2000 02:27:27 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:784 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129707AbQLEH1O>; Tue, 5 Dec 2000 02:27:14 -0500
+Date: Mon, 4 Dec 2000 23:19:28 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+To: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with Athlon CPU
+In-Reply-To: <Pine.LNX.4.30.0012050205570.2065-100000@lt.wsisiz.edu.pl>
+Message-ID: <Pine.LNX.4.30.0012042315410.620-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 5 Dec 2000, Lukasz Trabinski wrote:
 
-I'm absolutely green when it comes to Linux kernel development, and so
-working on a school project to port a TCP/IP-based service into the kernel
-has been quite challenging (but also intesting)! Currently, I'm absolutely
-mystified regarding how the "wait queue" subsystem works. I've been
-reading the code, and usually that combined with an example is enough,
-but not this time.
+>Date: Tue, 5 Dec 2000 02:19:55 +0100 (CET)
+>From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+>To: linux-kernel@vger.kernel.org
+>Cc: jakub@redhat.com
+>Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+>Subject: Problems with Athlon CPU
+>
+>Hello
+>
+>There is probably not a kernel bug, but bug in gcc, but... :)
 
-I searched the linux-kernel archives, and found a message from Mr. Timur
-Tabi (ttabi@interactivesi.com). In October, he asked for an explanation of
-'wait_queue_head_t' vs. 'wait_queue_t'. I'm confused on this (as well as
-several other points), but unfortunately, I didn't see any response to Mr.
-Tabi. So, I thought I'd try fashioning my own message.
+It is a kernel bug.
 
-The kHTTPd source is in many ways similar to what we are trying to
-accomplish. Basically, we are trying to implement select() in the kernel
--- we have a bunch of sockets, and we want to return when one of them has
-data. We have code that performs all of the necessary checks, but the
-whole "going to sleep until data arrives" aspect is the stumper.
+[SNIP]
 
-I have managed to draw the following skeleton from the kHTTPd source
-(main.c):
+>gcc version 2.96 20000731 (Red Hat Linux 7.0)
+ ^^^^^^^^^^^^^^^^
 
+You can't build a kernel with that compiler.  You _must_ use gcc
+2.91.66 or another compiler that can compile the kernel.  Red Hat
+ships gcc 2.91.66 packaged as "kgcc" for kernel builds as do
+other major vendors.
 
-	wait_queue_head_t dummyWQ;
-	init_waitqueue_head (&dummyWQ);
+You must edit the top level makefile appropriately first before
+building.
 
-	DECLARE_WAITQUEUE (local_wait);
+>[lukasz@beer lukasz]$ rpm -q glibc
+>glibc-2.2-5
 
-	add_wait_queue_exclusive (socket->sk->sleep, &local_wait);
-	set_current_state (TASK_INTERRUPTIBLE|TASK_EXCLUSIVE);
+The kernel doesn't use any libc so it doesn't matter.
 
-	while (we don't need to stop) {
-		if nothing on socket
-			interruptible_sleep_on_timeout (&dummyWQ, timeout);
-		else
-			handle socket data
-		}
+>Any sugestions? On others machines with AMD-K6 or Petnium-III/II and
+>with the same version of glibc and gcc that problems does not exists!
 
-	remove_wait_queue (sock->sk->sleep, &local_wait);
+No, you must have a different gcc on the other machines.  You
+can't build a kernel with gcc 2.96 as the kernel is buggy.
 
 
->From the structure of the kHTTPd code, it appears as if the call to
-'interruptible_sleep_on_timeout()' will return when either data arrives on
-one of the sockets that kHTTPd controls, or if the timeout transpires.
-However, I cannot see how this can be so. It appears as if the 'dummyWQ'
-and 'local_wait' queue are entirely *separate*. I can see how the socket
-is tied to the 'local_wait' (via add_wait_queue_exclusive()), but I do not
-comprehend how 'interruptible_sleep_on_timeout() knows anything about any
-sockets.
+----------------------------------------------------------------------
+      Mike A. Harris  -  Linux advocate  -  Open source advocate
+          This message is copyright 2000, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
 
-Any assistance that could be provided (explaining the wait_queue function
-calls, a pointer to some documentation, etc.) would be *sincerely*
-appreciated. Please CC: all responses to me directly, since I am not
-subscribed to the list.
-
-TIA,
-	--Andy Reitz.
-
---
-Andy Reitz <areitz@uiuc.edu>                                  (217) 244-3862
-Research Assistant, CCSO                   http://www.uiuc.edu/ph/www/areitz
+If you think C++ is not overly complicated, just what is a protected
+abstract virtual base pure virtual private destructor, and when
+was the last time you needed one?
+  -- Tom Cargill, C++ Journal, Fall 1990.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbTFKVX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 17:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbTFKVX1
+	id S264447AbTFKVdD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 17:33:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTFKVdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 17:23:27 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:57729
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S264372AbTFKVXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 17:23:15 -0400
-Date: Wed, 11 Jun 2003 17:25:40 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Artemio <artemio@artemio.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SMP question
-In-Reply-To: <200306112252.40979.artemio@artemio.net>
-Message-ID: <Pine.LNX.4.50.0306111721220.19137-100000@montezuma.mastecende.com>
-References: <200306112043.11923.artemio@artemio.net> <3EE7852C.2050605@rackable.com>
- <200306112252.40979.artemio@artemio.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 11 Jun 2003 17:33:03 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:58327 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264447AbTFKVdB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 17:33:01 -0400
+Subject: Re: [PATCH] New x86_64 time code for 2.5.70
+From: john stultz <johnstul@us.ibm.com>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: Andi Kleen <ak@suse.de>, vojtech@suse.cz, discuss@x86-64.org,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1055367412.17154.100.camel@serpentine.internal.keyresearch.com>
+References: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
+	 <20030611191815.GA30411@wotan.suse.de>
+	 <1055361411.17154.83.camel@serpentine.internal.keyresearch.com>
+	 <1055362249.17154.86.camel@serpentine.internal.keyresearch.com>
+	 <1055366609.18643.63.camel@w-jstultz2.beaverton.ibm.com>
+	 <1055367412.17154.100.camel@serpentine.internal.keyresearch.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055367690.18644.69.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 11 Jun 2003 14:41:31 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jun 2003, Artemio wrote:
-
-> I'm building a hard real-time Linux (RTLinux) system on a 2x Xeon machine. If 
-> I compile and run a 2.4.18 kernel with SMP support, rtlinux hangs the 
-> machine. However, with SMP disabled, rtlinux and all it's hard-realtime 
-> applications runs okay.
-
-Sounds like an RTLinux bug, perhaps you should elaborate on that on the 
-RTLinux mailing list.
-
-> So, I have to deside between these two:
+On Wed, 2003-06-11 at 14:36, Bryan O'Sullivan wrote:
+> On Wed, 2003-06-11 at 14:23, john stultz wrote:
 > 
->  - Run rtlinux and hard-realtime applications on a kernel without SMP support. 
-> How much performance will I loose this way? Is SMP *THAT* critical? 
+> > Hmmm. Thats likely part to blame for the lost-ticks code not working. I
+> > believe tick_usec is calculated USER_HZ rather then HZ, so you'll be off
+> > by an order of magnitude. I ran into the exact same problem. 
+> 
+> Unlikely.  On my systems, the offset values are off by three orders of
+> magnitude, and are always negative.  There's a more basic error
+> somewhere before that test.
 
-Depending on your load it could make a very significant difference.
+Ok, that was just the first thing I noticed. Let me dig in and see what
+I can find. 
 
->  - Run all tasks in a usual way, no hard realtime, but with SMP support.
 
-If you have that option you didn't need hard realtime in the first place.
+> The actual impact of lost jiffies is pretty low, though.  I've beaten
+> vigorously on my systems with the time patch, and they don't lose timer
+> interrupts.
 
-> Also, if I turn hyperthreading off, how will it influence the system with SMP 
-> support? Without SMP support?
+Hmm. In my (very quick) testing I'm seeing very frequent 10,000us
+inconsistencies. This is w/ and w/o the vsyscall code enabled, so I'm
+not sure whats causing it yet. I'll let you know if I trip over
+anything.
 
-HT w/ SMP = You'll have to do your own tests with your applications
-HT w/o SMP = Normal UP
+thanks
+-john
 
-	Zwane
--- 
-function.linuxpower.ca

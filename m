@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267477AbUBSS7A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 13:59:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267492AbUBSS5N
+	id S267481AbUBSS5B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 13:57:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUBSSzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 13:57:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59621 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267477AbUBSS4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 13:56:33 -0500
-Date: Thu, 19 Feb 2004 10:56:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: hch@infradead.org, paulmck@us.ibm.com, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, torvalds@osdl.org
-Subject: Re: Non-GPL export of invalidate_mmap_range
-Message-Id: <20040219105608.30d2c51e.akpm@osdl.org>
-In-Reply-To: <20040219123237.B22406@infradead.org>
-References: <20040217124001.GA1267@us.ibm.com>
-	<20040217161929.7e6b2a61.akpm@osdl.org>
-	<1077108694.4479.4.camel@laptop.fenrus.com>
-	<20040218140021.GB1269@us.ibm.com>
-	<20040218211035.A13866@infradead.org>
-	<20040218150607.GE1269@us.ibm.com>
-	<20040218222138.A14585@infradead.org>
-	<20040218145132.460214b5.akpm@osdl.org>
-	<20040218230055.A14889@infradead.org>
-	<20040218153234.3956af3a.akpm@osdl.org>
-	<20040219123237.B22406@infradead.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 19 Feb 2004 13:55:41 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:15366 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S267481AbUBSSzC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 13:55:02 -0500
+Date: Thu, 19 Feb 2004 20:08:08 +0100
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jamie Lokier <jamie@shareable.org>, tridge@samba.org,
+       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+Message-ID: <20040219190808.GB32480@hh.idb.hist.no>
+References: <Pine.LNX.4.58.0402181422180.2686@home.osdl.org> <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Wed, Feb 18, 2004 at 03:32:34PM -0800, Andrew Morton wrote:
-> > > Yes.  We've traditionally not exported symbols unless we had an intree user,
-> > > and especially not if it's for a module that's not GPL licensed.
-> > 
-> > That's certainly a good rule of thumb and we (and I) have used it before.
-> > 
-> > What is the reasoning behind it?
+On Thu, Feb 19, 2004 at 08:54:51AM -0800, Linus Torvalds wrote:
 > 
-> The reason is that someone who wants to distribute a binary only module
-> has to show it's module is not a derived work, and someone who needs new
-> core in the kernel and new exports pretty much shows his work is deeply
-> integrated with the kernel.
+> 
+> On Thu, 19 Feb 2004, Jamie Lokier wrote:
+> > Linus Torvalds wrote:
+> > > For example, the rule can be that _any_ regular dentry create will 
+> > > invalidate all the "case-insensitive" dentries. Just to be simple about 
+> > > it.
+> > 
+> > If that's the rule, then with exactly the same algorithmic efficiency,
+> > readdir+dnotify can be used to maintain the cache in userspace
+> > instead.  There is nothing gained by using the helper module in that case.
+> 
+> Wrong.
+> 
+> Because the dnotify would trigger EVEN FOR SAMBA OPERATIONS.
+> 
+> Think about it. Think about samba doing a "rename()" within the directory.
 
-Needing access to invalidate_mmap_range() is surely not an indication of a
-derived work.  It is an indication of a need for a reliable way to achieve
-inter-node cache consistency.  Other distributed filesystems will need this
-and probably AIX already provides it.
+Avoiding its own operations is a nice one.  Could dnotify pass
+some information, such as the inode number involved to samba?
+samba could then look up the filename in its cache and take a
+closer look at that file only.  That would avoid loosing the cache,
+even in case of other processes intruding.
 
+Helge Hafting

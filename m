@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbTKJKtS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 05:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbTKJKtS
+	id S263137AbTKJK4y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 05:56:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbTKJK4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 05:49:18 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:36746 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262888AbTKJKtR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 05:49:17 -0500
-Date: Mon, 10 Nov 2003 08:46:38 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Shane Wegner <shane-dated-1071003928.b2036e@cm.nu>
+	Mon, 10 Nov 2003 05:56:54 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:62725 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S263137AbTKJK4w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 05:56:52 -0500
+Date: Mon, 10 Nov 2003 11:56:50 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Konstantin Kletschke <konsti@ludenkalle.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23 crash on Intel SDS2
-In-Reply-To: <20031109210527.GA1936@cm.nu>
-Message-ID: <Pine.LNX.4.44.0311100846070.16790-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Weird partititon recocnising problem in 2.6.0-testX
+Message-ID: <20031110105650.GA15743@win.tue.nl>
+References: <20031110102444.GA8552@synertronixx3>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031110102444.GA8552@synertronixx3>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 9 Nov 2003, Shane Wegner wrote:
-
-> Hi,
+On Mon, Nov 10, 2003 at 11:24:44AM +0100, Konstantin Kletschke wrote:
+> We have a new boot log at
 > 
-> I posted some weeks ago regarding a crash I was
-> experiencing with 2.4.23-pre4.  I am just writing to
-> confirm that 2.4.23-pre9 is still unable to run relyably on
-> this machine.  In my earlier post, I thought acpi might be
-> the culprit as I had it enabled due to a bios bug.  Intel
-> since fixed that so I was able to boot 2.4.23-pre9 with
-> acpi totally disabled in make config.
+> http://ludenkalle.de/ide_change_kernel.txt
+> 
+> With CONFIG_BLK_DEV_IDEDISK=y but unset CONFIG_BLK_DEV_HD_IDE and the
+> inserted (and no used) printk stuff.
 
-Shane,
+Good. Now it really does partition reading.
+At some later time we must come back and find out what is
+wrong with hd.c. You call the printk stuff unused, but
+it was used and printed
 
-Tracking down which -pre this started to happen would help a lot.
+partition start 63 size 4096512 type 85 p1
+partition start 4096575 size 15904350 type 85 p2
+partition start 0 size 0 type 0
+partition start 0 size 0 type 0                          
+
+Let us compare with your data from earlier:
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hda1   *         1       365   2931831   83  Linux
+/dev/hda2           366      1245   7068600    5  Extended
+/dev/hda5           366       487    979933+  83  Linux
+/dev/hda6          1185      1245    489951   82  Linux swap
+
+Clearly, you have EZDrive installed, the table below is what
+is found in sector 1, the data printed above is what is in
+sector 0. The tables differ - fdisk was used after installation
+of EZDrive.
+
+I suppose that booting with boot parameter "hda=remap" should work.
+At some later time we must worry about how to get rid of EZDrive.
+
+Andries
 

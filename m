@@ -1,95 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287596AbSA3Axx>; Tue, 29 Jan 2002 19:53:53 -0500
+	id <S287552AbSA3AyN>; Tue, 29 Jan 2002 19:54:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287565AbSA3Axe>; Tue, 29 Jan 2002 19:53:34 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:36360 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287552AbSA3AxZ>;
-	Tue, 29 Jan 2002 19:53:25 -0500
-Date: Tue, 29 Jan 2002 22:52:59 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rob Landley <landley@trommello.org>, Skip Ford <skip.ford@verizon.net>,
-        <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33.0201291610020.1747-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0201292245000.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S287633AbSA3AyE>; Tue, 29 Jan 2002 19:54:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47624 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287552AbSA3Axr>; Tue, 29 Jan 2002 19:53:47 -0500
+Date: Tue, 29 Jan 2002 16:52:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Love <rml@tech9.net>
+cc: <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5: push BKL out of llseek
+In-Reply-To: <1012351309.813.56.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0201291647310.1747-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Linus Torvalds wrote:
-> On Tue, 29 Jan 2002, Rik van Riel wrote:
-> >
-> > That's fine with me, but _who_ do I send VM patches to if
-> > I can't send them to you ?
+
+On 29 Jan 2002, Robert Love wrote:
 >
-> The VM stuff right now seems to be Andrea, Dave or you yourself (right
-> now I just wish you would split up your patches like Andrea does, that
-> way I can cherry-pick).
+> Another gain from pushing the locks into each method is that we can pick
+> and choose as-needed.  If it turns out inode semaphore is a global
+> solution, the following patch is sufficient.  Otherwise, we could
+> replace the lock_kernel in each caller with the inode semaphore, as
+> appropriate.  Oh Al ??
 
-I will.  It's not split up at the moment because I'd like to
-work a bit more on -rmap before submitting it for inclusion
-and bitkeeper is a really nice tool to help me carry the patch
-from version to version.
+Doing it in the low-level filesystem would match how we now do it inside
+generic_file_write() - ie the locking is done by the low-level filesystem,
+but most low-level filesystems choose to use a generic helper function.
 
-If -rmap makes it into the kernel I'll work with small patches
-in the same style as Andrea, that's just the easiest way to
-work.
+And I think your patch is slightly wrong:
 
-I'll also take some of rusty's scripts to automatically check
-if a patch (1) has been applied to the latest kernel or
-(2) if it still applies cleanly.
+> +	down(&file->f_dentry->d_inode->i_sem);
 
-Basically I'm looking for a way to minimise the work of
-carrying the -rmap VM across kernel versions, so I can spend
-my time doing development and cleaning up the code further.
+That should really be:
 
-> The VM is a big issue, of course. And that one isn't likely to go away
-> anytime soon as a point of contention. And it's not easy to modularize,
-> apart from the obvious pieces (ie "filemap.c" vs the rest).
+	file->f_dentry->d_inode->i_mapping->host->i_sem
 
-Actually some stuff can be modularised somewhat. Christoph
-Hellwig for example has a nice patch which replaces all
-knowledge of page->wait with wake_up_page().
+to get the hosted filesystem case right (ie coda).
 
-This makes the fact of whether we're using per-page waitqueues
-or hashed waitqueues completely invisible to the rest of the
-kernel.
-
-Similar things are possible for other areas of the code.
-
-> You may not believe me when I say so, but I personally _really_ hope your
-> rmap patches will work out. I may not have believed in your patches in a
-> 2.4.x kind of timeframe, but for 2.6.x I'm more optimistic. As to how to
-> actually modularize it better to make points of contention smaller, I
-> don't know how.
-
-One thing William Irwin (and others, myself too) have been
-looking at is making the pagemap_lru_lock per-zone.
-
-This would allow us to "split up" memory in zones and have
-each CPU start the allocation chain at its own zone.
-
-This works out in practice because the reverse mapping code
-allows us to scan and free memory by physical address,
-meaning that reclaim_page() becomes a per-CPU local thing
-under light memory loads.
-
-Of course the current problem with that code is truncate
-and the lock ordering between the pagemap_lru_lock and the
-page_cache_lock ... something to look at later.
-
-kind regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+		Linus
 

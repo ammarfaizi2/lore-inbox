@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVBLOtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVBLOtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbVBLOtK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 09:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVBLOtK
+	id S261408AbVBLOtE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 09:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVBLOtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 09:49:10 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:17093 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261409AbVBLOtF (ORCPT
+	Sat, 12 Feb 2005 09:49:04 -0500
+Received: from mail.suse.de ([195.135.220.2]:55175 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261408AbVBLOtB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 09:49:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=ZzMNjyfW8UIAOWe171RKIYsGxSF5aIswt3pGUZOHlUFEp7Adj2NbH6Qdwdv3fRFxhKqksFa6AOxusZJNKOxC5xIEC9VFJFPowD9W0HFiBiyrLHunYWqvvya8FlBtxKwoIgc8ZtECo+jKDJi4s/kmLOwRb29o8XJ/jkho1f8FCPc=
-Message-ID: <5a4c581d0502120649423a2504@mail.gmail.com>
-Date: Sat, 12 Feb 2005 15:49:05 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.11-rc3-bk9 hangs hard my laptop
+	Sat, 12 Feb 2005 09:49:01 -0500
+Date: Sat, 12 Feb 2005 15:48:35 +0100
+From: Andi Kleen <ak@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Ray Bryant <raybry@sgi.com>, Hirokazu Takahashi <taka@valinux.co.jp>,
+       Hugh DIckins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Marcello Tosatti <marcello@cyclades.com>,
+       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration -- sys_page_migrate
+Message-ID: <20050212144835.GC16075@wotan.suse.de>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <20050212032620.18524.15178.29731@tomahawk.engr.sgi.com> <1108211672.4056.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1108211672.4056.10.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dell Latitude C640, PIV @1.8Ghz, 1GB RAM, uptodate FC2
+On Sat, Feb 12, 2005 at 07:34:32AM -0500, Arjan van de Ven wrote:
+> On Fri, 2005-02-11 at 19:26 -0800, Ray Bryant wrote:
+> > This patch introduces the sys_page_migrate() system call:
+> > 
+> > sys_page_migrate(pid, va_start, va_end, count, old_nodes, new_nodes);
+> 
+> are you really sure you want to expose nodes to userspace via an ABI
+> this solid and never changing? To me that feels somewhat like too much
+> of an internal thing to expose that will mean that those internals are
+> now set in stone due to the interface...
 
--bk7 (which I currently rebooted in) is okay.
--bk9 at first try got me to the login prompt, logged in, ran startx...
- frozen with the black background before seeing anything.
+They're already exposed through mbind/set_mempolicy/get_mempolicy and sysfs
+of course.
 
-Second try hung well before, at the point where it switches the
- radeonfb on.
-
-Only cure is to keep the power button pressed for 10".
-
-Will try building -bk8 (which is currently running on my
- old desktop K7-800) and report...
-
---alessandro
-
-  "There is no distance that I don't see
-  I do have a will - No limit to my reach"
-  
-    (Wallflowers, "Empire In My Mind")
+-Andi

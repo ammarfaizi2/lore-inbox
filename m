@@ -1,39 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUFPSGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUFPSJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUFPSGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 14:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbUFPSGQ
+	id S264389AbUFPSJY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 14:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUFPSGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 14:06:16 -0400
-Received: from werewolf.schneelocke.net ([62.8.212.6]:54825 "EHLO
-	werewolf.schneelocke.net") by vger.kernel.org with ESMTP
-	id S264377AbUFPSDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 14:03:31 -0400
-Date: Wed, 16 Jun 2004 19:59:02 +0200
-From: lkml@gl00on.net
-To: Phy Prabab <phyprabab@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Programtically tell diff between HT and real
-Message-ID: <20040616175902.GC12094@werewolf.schneelocke.net>
-References: <20040616174646.70010.qmail@web51805.mail.yahoo.com>
+	Wed, 16 Jun 2004 14:06:39 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:19359 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S264375AbUFPSDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 14:03:17 -0400
+Date: Wed, 16 Jun 2004 13:02:08 -0500
+From: Dimitri Sivanich <sivanich@sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech <lse-tech@lists.sourceforge.net>,
+       linux-mm@kvack.org
+Subject: Re: [PATCH]: Option to run cache reap in thread mode
+Message-ID: <20040616180208.GD6069@sgi.com>
+References: <40D08225.6060900@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040616174646.70010.qmail@web51805.mail.yahoo.com>
-X-Face: "/lf:;F?1M2u`>bt]h&FhSRZ"hM>a_b!7A;I1Lc!rWw'INc+S-NYk<I%I(qa022%$mEk'8v2DDinL*7g_?Z`d+cnKut<JfZ,TYTI&KrBTM-?({z<=M221B=!b@'PI5~nv:%F7xeFxBBY!6l5b+Gu:NX&7@.k474ZfXn*|?j^6s"E]&7nRc0M}X92&=8FXi)#'<uUij+4#S:c]>|&?>I2.KiJMku(vOc0|'VK#FGE5:F~+BwY$Ddi)?fp[&xy/89jGCVnS/[aN-[Z0bGuM./UD}3*c5AbucK=l!8(&^4=\qH}_(M]r`t3:_OjYFu
+In-Reply-To: <40D08225.6060900@colorfullife.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there a way to tell the difference between normal
-> processors and HT enabled processors?  That is, does
-> the linux kernel know the difference and is there a
-> way to to know the difference.
+On Wed, Jun 16, 2004 at 07:23:49PM +0200, Manfred Spraul wrote:
+> Dimitri wrote:
+> 
+> >In the process of testing per/cpu interrupt response times and CPU 
+> >availability,
+> >I've found that running cache_reap() as a timer as is done currently 
+> >results
+> >in some fairly long CPU holdoffs.
+> >
+> What is fairly long?
+Into the 100's of usec.  I consider anything over 30 usec too long.
+I've seen this take longer than 30usec on a small (8p) system.
 
-Execute the CPUID instruction with EAX=00000001h. I think HT-enabled cpus
-should have bit 28 of the value returned in EDX set.
+> If cache_reap() is slow than the caches are too large.
+> Could you limit cachep->free_limit and check if that helps? It's right 
+> now scaled by num_online_cpus() - that's probably too much. It's 
+> unlikely that all 500 cpus will try to refill their cpu arrays at the 
+> same time. Something like a logarithmic increase should be sufficient.
 
--- 
- 7:57PM  up 134 days,  5:11, 1 user, load averages: 0.16, 0.18, 0.16
+I haven't tried this yet, but I'm even seeing this on 4 cpu systems.
 
-Every non-empty totally disconnected perfect compact metric space is
-homeomorphic to the Cantor set.
+> Do you use the default batchcount values or have you increased the values?
+
+Default.
+
+> I think the sgi ia64 system do not work with slab debugging, but please 
+> check that debugging is off. Debug enabled is slow.
+
+# CONFIG_DEBUG_SLAB is not set
+
+> 
+> --
+>    Manfred
+
+Dimitri Sivanich <sivanich@sgi.com>

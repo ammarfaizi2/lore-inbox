@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318008AbSHPCVw>; Thu, 15 Aug 2002 22:21:52 -0400
+	id <S318076AbSHPC3p>; Thu, 15 Aug 2002 22:29:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318032AbSHPCVw>; Thu, 15 Aug 2002 22:21:52 -0400
-Received: from [156.26.20.182] ([156.26.20.182]:42641 "EHLO surf.cadcamlab.org")
-	by vger.kernel.org with ESMTP id <S318008AbSHPCVv>;
-	Thu, 15 Aug 2002 22:21:51 -0400
-Date: Thu, 15 Aug 2002 21:24:47 -0500
-To: John Alvord <jalvo@mbay.net>
-Cc: Greg Banks <gnb@alphalink.com.au>, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
-Message-ID: <20020816022447.GO17969@cadcamlab.org>
-References: <Pine.LNX.4.44.0208141242280.8911-100000@serv> <3D5B0970.13CE831A@alphalink.com.au> <as7mlucq38obgsecg8kbh3vqjqiiic35bl@4ax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <as7mlucq38obgsecg8kbh3vqjqiiic35bl@4ax.com>
-User-Agent: Mutt/1.4i
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S318078AbSHPC3p>; Thu, 15 Aug 2002 22:29:45 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:53775 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318076AbSHPC3o>; Thu, 15 Aug 2002 22:29:44 -0400
+Date: Thu, 15 Aug 2002 23:32:55 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Benjamin LaHaise <bcrl@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Pavel Machek <pavel@elf.ucw.cz>, <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>
+Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re:
+ async-io API registration for 2.5.29)]
+In-Reply-To: <Pine.LNX.4.44.0208151905500.1271-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44L.0208152331480.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 15 Aug 2002, Linus Torvalds wrote:
+> On Thu, 15 Aug 2002, Benjamin LaHaise wrote:
+> >
+> > A 4G/4G split flushes the TLB on every syscall.
+>
+> This is just not going to happen. It will have to continue being a 3/1G
+> split, and we'll just either find a way to move stuff to highmem and
+> shrink the "struct page", or we'll just say "screw those 16GB+ machines
+> on x86".
 
-[John Alvord]
-> I've been puzzling about this problem and the CML2 trainwreck.
-> 
-> Maybe we can used advanced tools to remove the many bugs and
-> inconsistancies and then switch to a better config tool.
+I don't like a 4G/4G split at all, either.
 
-That's exactly what we're trying to do.  Greg has the advanced
-consistency checking, and I've been trying to remove ambiguities and
-warts in the current rule corpus, and simultaneously come up with some
-extensions to the current language that will let us remove *more*
-warts.  The extensions are designed to completely supplant certain
-existing constructs which I consider ugly and difficult to parse.
+But on the other hand, I don't hate it as much as all the
+kludges that are being pushed into the kernel to support
+these large machines right now ...
 
-To paraphrase Orwell: it was intended that when Newspeak had been
-adopted once and for all and Oldspeak forgotten, a buggy parser should
-be literally unimplementable, at least so far as implementation is
-dependent on clear syntax and reasonable semantics.
+As long as it's just these huge machines that suffer, and
+not the sane systems ;)
 
-Peter
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

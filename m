@@ -1,70 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265258AbSJaRIu>; Thu, 31 Oct 2002 12:08:50 -0500
+	id <S265247AbSJaRFK>; Thu, 31 Oct 2002 12:05:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265259AbSJaRIu>; Thu, 31 Oct 2002 12:08:50 -0500
-Received: from [216.239.30.242] ([216.239.30.242]:3846 "EHLO wind.enjellic.com")
-	by vger.kernel.org with ESMTP id <S265258AbSJaRIr>;
-	Thu, 31 Oct 2002 12:08:47 -0500
-Message-Id: <200210311715.g9VHFBjt024840@wind.enjellic.com>
-From: greg@wind.enjellic.com (Dr. Greg Wettstein)
-Date: Thu, 31 Oct 2002 11:15:11 -0600
-In-Reply-To: Dax Kelson <dax@gurulabs.com>
-       "Flawed Ziff Davis eWeek 2.6 kernel article" (Oct 30, 11:52pm)
-Reply-To: greg@enjellic.com
-X-Mailer: Mail User's Shell (7.2.5 10/14/92)
-To: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: Flawed Ziff Davis eWeek 2.6 kernel article
+	id <S265248AbSJaRFJ>; Thu, 31 Oct 2002 12:05:09 -0500
+Received: from relay.snowman.net ([63.80.4.38]:36357 "EHLO relay.snowman.net")
+	by vger.kernel.org with ESMTP id <S265247AbSJaRFC>;
+	Thu, 31 Oct 2002 12:05:02 -0500
+Date: Thu, 31 Oct 2002 12:11:15 -0500
+From: Stephen Frost <sfrost@snowman.net>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Stephen Wille Padnos <stephen.willepadnos@verizon.net>,
+       Dax Kelson <dax@gurulabs.com>, Chris Wedgwood <cw@f00f.org>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: What's left over.
+Message-ID: <20021031171115.GT15886@ns>
+Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
+	Stephen Wille Padnos <stephen.willepadnos@verizon.net>,
+	Dax Kelson <dax@gurulabs.com>, Chris Wedgwood <cw@f00f.org>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+References: <3DC15931.9030601@verizon.net> <Pine.GSO.4.21.0210311126450.16688-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yoeRfslQKq6hDqSj"
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0210311126450.16688-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.4i
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 12:06:51 up 88 days, 19:42, 12 users,  load average: 0.01, 0.04, 0.06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 30, 11:52pm, Dax Kelson wrote:
-} Subject: Flawed Ziff Davis eWeek 2.6 kernel article
 
-> http://www.eweek.com/article2/0,3959,652846,00.asp
-> 
-> My favorite part:
->
-> In addition, Linux is still too dependent on local user
-> lists. Universal LDAP support and systemwide LDAP integration, not
-> scheduled for 2.6, need to be built in. On the server, this isn't a
-> big deal, but deploying desktops without comprehensive support for a
-> global user directory can be a nightmare.
+--yoeRfslQKq6hDqSj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-To be sure this doesn't belong in the kernel as it is a userspace issue.
+* Alexander Viro (viro@math.psu.edu) wrote:
+> On Thu, 31 Oct 2002, Stephen Wille Padnos wrote:
+> > Unless I'm missing something, that only works if all the users need=20
+> > *exactly* the same permissions to all files, which isn't a good assumpt=
+ion.
+>=20
+> That's the point.  In practice shared writable access to a directory can =
+be
+> easily elevated to full control of each others' accounts, since most of
+> userland code is written in implicit assumption that nothing bad happens =
+with
+> directory structure under it.  And there is nothing kernel can do about t=
+hat -
+> attacker does action you had explicitly allowed and your program goes bon=
+kers
+> since it can't cope with that.  Mechanism used to allow that action doesn=
+'t
+> enter the picture - be it ACLs, groups or something else.
 
-That being said the issue is fundamentally and profoundly important to
-the future of Linux penetrating the enterprise, from both the server
-and the desktop perspective.  I started talking about this around 3-4
-years ago but unfortunately even the major Linux vendors don't seem to
-understand the ramifications of all this.
+So you're not really arguing against ACLs, you're complaining that
+userspace is broken when there's shared write access.  That's fine,
+userspace should be fixed, inclusion of ACLs into the kernel shouldn't
+be denied because of this.  ACLs should be optional, of course, and if
+you want them some really noisy warnings about the problems of shared
+writeable area with current userspace tools.  Of course, that same
+warning should probably be included in 'groupadd'.
 
-I have learned from reasonably harsh experience that the future of the
-enterprise involves the ability to control access through the desktop.
-The infrastructure needed to support this on an enterprise scale is
-significant and in most cases core to the entire IT strategy of the
-organization.  In the future anything that does not play within the
-constraints and confines of the chosen user/identity management
-environment simply isn't going to see the light of day in most
-organizations.
+	Stephen
 
-So while the issue is not technically correct from the kernel
-perspective it is an important issue.  One that, unfortunately, does
-not seem to be well understood by many.
+--yoeRfslQKq6hDqSj
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Greg
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-}-- End of excerpt from Dax Kelson
+iD8DBQE9wWQyrzgMPqB3kigRAq8WAJ9vekJgZ9HL87pm7j+VWsE70gNP9gCffZZj
+G1sZLSUr25RjUngTru7Le8k=
+=zS9h
+-----END PGP SIGNATURE-----
 
-As always,
-Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
-4206 N. 19th Ave.           Specializing in information infra-structure
-Fargo, ND  58102            development.
-PH: 701-281-4950            
-FAX: 701-281-3949           EMAIL: greg@enjellic.com
-------------------------------------------------------------------------------
-"Follow the path of the unsafe, independent thinker. Expose your ideas
-to the dangers of controversy. Speak your mind, and fear less the label
-of `crackpot' than the stigma of conformity. And on issues that seem
-important to you, stand up and be counted at any cost."
-                                -- Thomas J. Watson, founder of IBM
+--yoeRfslQKq6hDqSj--

@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262595AbUKXKcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbUKXKcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262595AbUKXKcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 05:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbUKXKcJ
+	id S262599AbUKXKcz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 05:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbUKXKcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 05:32:09 -0500
-Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:61319 "EHLO
-	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S262595AbUKXKcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 05:32:06 -0500
-Date: Wed, 24 Nov 2004 11:21:51 +0100
-From: Guido Guenther <agx@sigxcpu.org>
-To: hugang@soulinfo.com
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: [PATH] swsusp update 3/3
-Message-ID: <20041124102150.GC15009@bogon.ms20.nix>
-References: <20041119194007.GA1650@hugang.soulinfo.com> <20041120003010.GG1594@elf.ucw.cz> <20041120081219.GA2866@hugang.soulinfo.com> <20041120224937.GA979@elf.ucw.cz> <20041122072215.GA13874@hugang.soulinfo.com> <20041122102612.GA1063@elf.ucw.cz> <20041122103240.GA11323@hugang.soulinfo.com> <20041122110247.GB1063@elf.ucw.cz> <20041122165858.GC10609@hugang.soulinfo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041122165858.GC10609@hugang.soulinfo.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 24 Nov 2004 05:32:15 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:35342 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S262599AbUKXKcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 05:32:07 -0500
+Message-ID: <41A4632D.4060608@hist.no>
+Date: Wed, 24 Nov 2004 11:32:13 +0100
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Amit Gud <amitgud1@gmail.com>
+CC: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: file as a directory
+References: <2c59f00304112205546349e88e@mail.gmail.com>	 <41A1FFFC.70507@hist.no> <2c59f003041122222038834d7e@mail.gmail.com>
+In-Reply-To: <2c59f003041122222038834d7e@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 12:58:58AM +0800, hugang@soulinfo.com wrote:
-> --- linux-2.6.9-ppc-g4-peval/drivers/video/aty/radeon_pm.c	2004-10-20 15:55:34.000000000 +0800
-> +++ linux-2.6.9-ppc-g4-peval-hg/drivers/video/aty/radeon_pm.c	2004-11-22 17:16:58.000000000 +0800
-> @@ -859,6 +859,10 @@
->  	 * know we'll be rebooted, ...
->  	 */
+Amit Gud wrote:
+
+>On Mon, 22 Nov 2004 16:04:28 +0100, Helge Hafting <helge.hafting@hist.no> wrote:
+>
 >  
-> +#if 0	/* this breaks suspend to ram until the dust settles... */
-> +	if (state != PM_SUSPEND_MEM)
-> +#endif
-> +		return 0;
->  	printk(KERN_DEBUG "radeonfb: suspending to state: %d...\n", state);
->  	
->  	acquire_console_sem();
-Please don't. I only added this to my ppc swsusp patches as a temporary
-hack. It should use "flags = SUSPEND_TO_RAM" from Pavel's bigdiff.
-I submitted other parts to BenH a while ago, I'm currently working on
-cleaning some parts up and make it work with suspend-to-ram.
- -- Guido
+>
+>>You won't get .tar or .tar.gz support in the VFS, for a few simple reasons:
+>>1. .tar and .tar.gz are complicated formats, and are therefore better
+>>   left to userland.  
+>>    
+>>
+>
+>Agreed that .tar.gz is a complicated format, but zlib is already in
+>the kernel. It _should_ simplify inflate and deflate of files. And as
+>compared to .gz format, .tar is much simpler, I guess.
+>
+>  
+>
+>>   It is hard to make a guaranteed bug-free decompressor that
+>>   is efficient and works with a finite amount of memory.  The kernel
+>>   needs all that - userland doesn't.
+>>    
+>>
+>
+>I think, finite amount of memory is the concern of worry, not the rest
+>... if we could rely on zlib.
+> 
+>  
+>
+>>2. Both .tar and .gz  file formats may improve with time.  Getting a new
+>>    version of tar og gunzip is easy enough - getting another compression
+>>    algorithm into the kernel won't be that easy.
+>>    
+>>
+>
+>Doesn't zlib in the kernel gets updated as the formats change? If not,
+>.tar formats would be worth trying first as proof of concept.
+>
+This is not so easy, as you have to audit the new version for
+correctness.  It is not the end of the world if tar or gzip
+occationally crashes on some corner case.   The kernel
+must not do that though.
+
+And then there is the much more complicated issues when
+writing into such an archive.  You skipped that part, or
+are you looking for a read-only solution only?
+
+Helge Hafting

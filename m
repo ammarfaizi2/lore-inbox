@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311255AbSCQCmS>; Sat, 16 Mar 2002 21:42:18 -0500
+	id <S311267AbSCQCus>; Sat, 16 Mar 2002 21:50:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311262AbSCQCmH>; Sat, 16 Mar 2002 21:42:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36625 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S311255AbSCQCl5>; Sat, 16 Mar 2002 21:41:57 -0500
-Date: Sat, 16 Mar 2002 18:40:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 7.52 second kernel compile
-In-Reply-To: <15507.63649.587641.538009@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.33.0203161834250.1591-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311268AbSCQCui>; Sat, 16 Mar 2002 21:50:38 -0500
+Received: from tapu.f00f.org ([66.60.186.129]:5285 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S311263AbSCQCuS>;
+	Sat, 16 Mar 2002 21:50:18 -0500
+Date: Sat, 16 Mar 2002 18:50:04 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Andi Kleen <ak@suse.de>
+Cc: yodaiken@fsmlabs.com, Paul Mackerras <paulus@samba.org>,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+Message-ID: <20020317025004.GA13644@tapu.f00f.org>
+In-Reply-To: <20020316113536.A19495@hq.fsmlabs.com.suse.lists.linux.kernel> <Pine.LNX.4.33.0203161037160.31913-100000@penguin.transmeta.com.suse.lists.linux.kernel> <20020316115726.B19495@hq.fsmlabs.com.suse.lists.linux.kernel> <p73g0301f79.fsf@oldwotan.suse.de> <20020316125711.B20436@hq.fsmlabs.com> <20020316210504.A24097@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020316210504.A24097@wotan.suse.de>
+User-Agent: Mutt/1.3.27i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 16, 2002 at 09:05:04PM +0100, Andi Kleen wrote:
 
-On Sun, 17 Mar 2002, Paul Mackerras wrote:
-> 
-> But this is all a bit academic, the real question is how do we deal
-> most efficiently with the real hardware that is out there.  And if you
-> want a 7.5 second kernel compile the only option currently available
-> is a machine whose MMU uses a hash table. :)
+    On Sat, Mar 16, 2002 at 12:57:11PM -0700, yodaiken@fsmlabs.com
+    wrote:
 
-Yeah, at a cost of $2M+, if I'm not mistaken. I think I'll settle for my 2
-minute time that is actually available to mere mortals at a small fraction
-of one percent of that ;)
+    >
+    > What about 2M pages?
 
-		Linus
+    They are not supported for user space, but used in private
+    mappings for kernel text and direct memory mappings. Generic code
+    never sees them.
 
+Is there any reason we couldn't use them for mapping large
+frame-buffers and similar?
+
+
+
+  --cw

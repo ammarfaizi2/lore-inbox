@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVCYW7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVCYW7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbVCYW7f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 17:59:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVCYW71
+	id S261848AbVCYW7k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 17:59:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVCYW7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 17:59:27 -0500
-Received: from fire.osdl.org ([65.172.181.4]:40377 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261873AbVCYW6o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 17:58:44 -0500
-Date: Fri, 25 Mar 2005 14:58:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: <jason@stdbev.com>
-Cc: linux-kernel@vger.kernel.org, elenstev@mesatop.com
-Subject: Re: 2.6.12-rc1-mm3 (cannot read cd-rom, 2.6.12-rc1 is OK)
-Message-Id: <20050325145849.046d0b67.akpm@osdl.org>
-In-Reply-To: <f2efeeee48c1ed6eb1438b103c5a5559@stdbev.com>
-References: <20050325002154.335c6b0b.akpm@osdl.org>
-	<42446B86.7080403@mesatop.com>
-	<424471CB.3060006@mesatop.com>
-	<20050325122433.12469909.akpm@osdl.org>
-	<4244812C.3070402@mesatop.com>
-	<761c884705af2ea412c083d849598ca7@stdbev.com>
-	<20050325140654.430714e2.akpm@osdl.org>
-	<20050325142336.12687e09.akpm@osdl.org>
-	<f2efeeee48c1ed6eb1438b103c5a5559@stdbev.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Mar 2005 17:59:33 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:65009 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S261871AbVCYW6l convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 17:58:41 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.12-rc1 breaks dosemu
+Date: Fri, 25 Mar 2005 23:54:51 +0100
+User-Agent: KMail/1.7.1
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       linux-msdos@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+References: <20050320021141.GA4449@stusta.de> <200503251952.33558.arnd@arndb.de> <1111778074.6312.87.camel@laptopd505.fenrus.org>
+In-Reply-To: <1111778074.6312.87.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200503252354.53154.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jason Munro" <jason@stdbev.com> wrote:
-> 
-> This fixes it here.
-> 
+On Freedag 25 März 2005 20:14, Arjan van de Ven wrote:
 
-Steven Cole <elenstev@mesatop.com> wrote:
->
-> The patch fixed it for me.  Wheee.
-> 
+> the randomisation patches came in a series of 8 patches (where several
+> were general infrastructure); could you try to disable the individual
+> randomisations one at a time to see which one causes this effect?
 
-OK, thanks guys.  You're the best.
+It's caused by top-of-stack-randomization.patch.
+
+ Arnd <><

@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264613AbSJWK1b>; Wed, 23 Oct 2002 06:27:31 -0400
+	id <S264146AbSJWK0Q>; Wed, 23 Oct 2002 06:26:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264615AbSJWK1b>; Wed, 23 Oct 2002 06:27:31 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:56794 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264613AbSJWK13>; Wed, 23 Oct 2002 06:27:29 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: 2.5.44: How to decode call trace
-References: <87elai82xb.fsf@goat.bogus.local.suse.lists.linux.kernel>
-	<p73isztstim.fsf@oldwotan.suse.de>
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Date: Wed, 23 Oct 2002 12:33:25 +0200
-Message-ID: <878z0p1m2y.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
+	id <S264612AbSJWK0Q>; Wed, 23 Oct 2002 06:26:16 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:8580 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264146AbSJWK0Q>;
+	Wed, 23 Oct 2002 06:26:16 -0400
+Date: Wed, 23 Oct 2002 16:08:28 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: sparc64 read_barrier_depends
+Message-ID: <20021023160828.B9933@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+Hi Andrew,
 
-> Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de> writes:
->> and this is the code:
->> static int __fscap_lookup(struct vfsmount *mnt, struct nameidata *nd)
->> {
->> 	static char name[] = ".capabilities";
->> 	nd->mnt = mntget(mnt);
->> 	nd->dentry = dget(mnt->mnt_sb->s_root);
->> 	nd->flags = 0;
->> 	return path_walk(name, nd);
->> }
->> 
->> What does .text.lock.namei and name.810 mean?
->
-> .text.lock.namei means that it hung in the slow path of a spinlock that
-> is referenced from namei.c
+I missed sparc64 when I broke up read_barrier_depends in -mm
+and sent to Linus. Please apply this to your tree until Linus is back
+and I can fix it.
 
-I guess this is what __down_failed means.
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
 
-> name.810 is a static data variable, probably the static char name[]
-> shown above. Remember the kernel backtrace is not exact and can print
-> random stack junk that looks like return addresses too. You always have 
-> to sanity check each entry.
 
-Ok, I'll keep that in mind.
 
->> Is there a way to get the line number out of these hex values?
->
-> addr2line -e vmlinux ... does this when you compile the kernel with -g 
-
-Great! This is what I was searching for.
-
-When I build with "make -k EXTRA_CFLAGS=-g EXTRA_LDFLAGS=-g bzImage",
-I get a ton of error messages from drivers/acpi/include/actypes.h and
-other acpi related stuff, starting with: #error ACPI_MACHINE_WIDTH not
-defined. Maybe this is not the usual way to build with -g, but I don't
-get these errors with "make -k bzImage". Maybe someone is interested
-in this.
-
-Anyway, I come around this by first building with "EXTRA_CFLAGS=-g
-EXTRA_LDFLAGS=-g", ignoring the error messages and then a second try
-with only EXTRA_LDFLAGS=-g.
-
-Regards, Olaf.
+diff -urN linux-2.5.44-base/include/asm-sparc64/system.h linux-2.5.44-rbd/include/asm-sparc64/system.h
+--- linux-2.5.44-base/include/asm-sparc64/system.h	Sat Oct 19 09:31:07 2002
++++ linux-2.5.44-rbd/include/asm-sparc64/system.h	Mon Oct 21 15:03:19 2002
+@@ -84,6 +84,7 @@
+ 	membar("#LoadLoad | #LoadStore | #StoreStore | #StoreLoad");
+ #define rmb()		membar("#LoadLoad")
+ #define wmb()		membar("#StoreStore")
++#define read_barrier_depends()		do { } while(0)
+ #define set_mb(__var, __value) \
+ 	do { __var = __value; membar("#StoreLoad | #StoreStore"); } while(0)
+ #define set_wmb(__var, __value) \
+@@ -93,10 +94,12 @@
+ #define smp_mb()	mb()
+ #define smp_rmb()	rmb()
+ #define smp_wmb()	wmb()
++#define smp_read_barrier_depends()	read_barrier_depends()
+ #else
+ #define smp_mb()	__asm__ __volatile__("":::"memory");
+ #define smp_rmb()	__asm__ __volatile__("":::"memory");
+ #define smp_wmb()	__asm__ __volatile__("":::"memory");
++#define smp_read_barrier_depends()	do { } while(0)
+ #endif
+ 
+ #define flushi(addr)	__asm__ __volatile__ ("flush %0" : : "r" (addr) : "memory")

@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291794AbSBTLvE>; Wed, 20 Feb 2002 06:51:04 -0500
+	id <S291806AbSBTMPk>; Wed, 20 Feb 2002 07:15:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291795AbSBTLup>; Wed, 20 Feb 2002 06:50:45 -0500
-Received: from mailf.telia.com ([194.22.194.25]:43988 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S291794AbSBTLuX>;
-	Wed, 20 Feb 2002 06:50:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jakob Kemi <jakob.kemi@telia.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] Typo in md.c
-Date: Wed, 20 Feb 2002 12:48:53 +0100
-X-Mailer: KMail [version 1.2]
-Cc: <linux-kernel@vger.kernel.org>
+	id <S291812AbSBTMPa>; Wed, 20 Feb 2002 07:15:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37636 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291806AbSBTMPQ>;
+	Wed, 20 Feb 2002 07:15:16 -0500
+Message-ID: <3C739351.20C03FDA@mandrakesoft.com>
+Date: Wed, 20 Feb 2002 07:15:13 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <02022012485300.00631@jakob>
-Content-Transfer-Encoding: 7BIT
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org,
+        khc@pm.waw.pl, davem@redhat.com
+Subject: Re: [PATCH] HDLC patch for 2.5.5 (0/3)
+In-Reply-To: <Pine.LNX.4.33.0202191732320.1443-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo.
+Linus Torvalds wrote:
+> 
+> On Sun, 17 Feb 2002, Jeff Garzik wrote:
+> > Francois Romieu wrote:
+> > > [0/3]:
+> > > - SIOCDEVICE -> SIOCWANDEV conversion
+> > > - hdlc_proto -> raw_hdlc_proto
+> >
+> > patch looks ok to me.
+> 
+> Jeff, are yu willing to merge these things?
 
-There's a small typo in drivers/md/md.c where detected_devices[] which should
-be of the type kdev_t is wrongly typed as an int.
+Sure.
 
-These are the only two references to detected_devices[]:
+FWIW it looks like Krzysztof Halasa has some good points, so a "[BK
+PATCH]" may be delayed a day or two before coming to you, I'm betting...
 
-void md_autodetect_dev(kdev_t dev)
-{
-	if (dev_cnt >= 0 && dev_cnt < 127)
-		detected_devices[dev_cnt++] = dev;
-}
-
-static void autostart_arrays(void)
-{
-	...
-
-	for (i = 0; i < dev_cnt; i++) {
-		kdev_t dev = detected_devices[i];
-
-	...
-}
+	Jeff
 
 
-Patch is included, please apply.
-
-Regards,
-	Jakob Kemi
-
-
---- md.c.orig	Tue Feb 19 14:08:15 2002
-+++ md.c	Wed Feb 20 12:38:58 2002
-@@ -3708,7 +3708,7 @@
-  * Searches all registered partitions for autorun RAID arrays
-  * at boot time.
-  */
--static int detected_devices[128];
-+static kdev_t detected_devices[128];
- static int dev_cnt;
-
- void md_autodetect_dev(kdev_t dev)
+-- 
+Jeff Garzik      | "Why is it that attractive girls like you
+Building 1024    |  always seem to have a boyfriend?"
+MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
+                 |             - BBC TV show "Coupling"

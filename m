@@ -1,110 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268014AbUHPXBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268019AbUHPXOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268014AbUHPXBo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 19:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266451AbUHPXAo
+	id S268019AbUHPXOf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 19:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268023AbUHPXOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 19:00:44 -0400
-Received: from fujitsu2.fujitsu.com ([192.240.0.2]:13967 "EHLO
-	fujitsu2.fujitsu.com") by vger.kernel.org with ESMTP
-	id S268016AbUHPW6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:58:11 -0400
-Date: Mon, 16 Aug 2004 15:57:50 -0700
-From: Yasunori Goto <ygoto@us.fujitsu.com>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Fw: [Lhms-devel] Making hotremovable attribute with memory section[3/4]
-Cc: mbligh@aracnet.com
-Message-Id: <20040816155258.E6FD.YGOTO@us.fujitsu.com>
+	Mon, 16 Aug 2004 19:14:09 -0400
+Received: from [139.30.44.16] ([139.30.44.16]:50091 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S268019AbUHPXMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 19:12:31 -0400
+Date: Tue, 17 Aug 2004 01:08:10 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, albert@users.sourceforge.net,
+       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
+       nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi, george@mvista.com,
+       johnstul@us.ibm.com, david+powerix@blue-labs.org
+Subject: Re: boot time, process start time, and NOW time
+In-Reply-To: <20040816124136.27646d14.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0408170055180.14122@gockel.physik3.uni-rostock.de>
+References: <1087948634.9831.1154.camel@cube> <87smcf5zx7.fsf@devron.myhome.or.jp>
+ <20040816124136.27646d14.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.07.02
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Aug 2004, Andrew Morton wrote:
 
-Forwarded by Yasunori Goto <ygoto@us.fujitsu.com>
------------------------ Original Message -----------------------
- From:    Yasunori Goto <ygoto@us.fujitsu.com>
- To:      lhms-devel@lists.sourceforge.net
- Date:    Mon, 16 Aug 2004 14:37:05 -0700
- Subject: [Lhms-devel] Making hotremovable attribute with memory section[3/4]
-----
+> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+> >
+> > Albert Cahalan <albert@users.sf.net> writes:
+> > 
+> > > Even with the 2.6.7 kernel, I'm still getting reports of process
+> > > start times wandering. Here is an example:
+> > > 
+> > >    "About 12 hours since reboot to 2.6.7 there was already a
+> > >    difference of about 7 seconds between the real start time
+> > >    and the start time reported by ps. Now, 24 hours since reboot
+> > >    the difference is 10 seconds."
+> > > 
+> > > The calculation used is:
+> > > 
+> > >    now - uptime + time_from_boot_to_process_start
+> > 
+> > Start-time and uptime is using different source. Looks like the
+> > jiffies was added bogus lost counts.
+> > 
+> > quick hack. Does this change the behavior?
+> 
+> Where did this all end up?  Complaints about wandering start times are
+> persistent, and it'd be nice to get some fix in place...
 
 
-This patch is define __GFP_HOTREMOVABLE attribute.
-Kernel can select attribute removable/un-removable section and allocate 
-the pages by it.
 
-Note:
-  The value of __ GFP_HOTREMOVABLE was 0x03 in the definition before.
- This was used to make new hot-removable zone_list for same purpose.
- This zone_list method had the advantage that the number of steps 
- of main routes did not increase. 
-  However, all section's removable attributes in a node have to be
- same in this method. So, this is meaningless on SMP machine.
+The trouble seems to be due to the patch below, part of a larger cleanup
+(http://linus.bkbits.net:8080/linux-2.5/cset%403ef4851dGg0fxX58R9Zv8SIq9fzNmQ?nav=index.html|src/.|src/fs|src/fs/proc|related/fs/proc/proc_misc.c)
+by George.
+
+Quoting from the changelog entry:
+
+"Changes the uptime code to use the posix_clock_monotonic notion of 
+uptime instead of the jiffies.  This time will track NTP changes and so should 
+be better than your standard wristwatch (if your using ntp)."
+
+George is absolutely right that it's more precise. However, it's also 
+inconsistent with the process start times which use plain uncorrected 
+jiffies. ps stumbles over this inconsistency.
+
+Simple fix: revert the patch below.
+Complicated fix: correct process start times in fork.c (no patch provided, 
+too complicated for me to do).
+
+George?
+
+
+
+
+diff -Nru a/fs/proc/proc_misc.c b/fs/proc/proc_misc.c
+--- a/fs/proc/proc_misc.c	2004-08-16 15:48:44 -07:00
++++ b/fs/proc/proc_misc.c	2004-08-16 15:48:44 -07:00
+@@ -137,36 +137,19 @@
+ static int uptime_read_proc(char *page, char **start, off_t off,
+ 				 int count, int *eof, void *data)
+ {
+-	u64 uptime;
+-	unsigned long uptime_remainder;
++	struct timespec uptime;
++	struct timespec idle;
+ 	int len;
++	u64 idle_jiffies = init_task.utime + init_task.stime;
  
- Dividing free_area is to be more general way for localized allocation.
-
----
-
- hotremovable-goto/include/linux/gfp.h |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
-
-diff -puN include/linux/gfp.h~gfp_hotremovable include/linux/gfp.h
---- hotremovable/include/linux/gfp.h~gfp_hotremovable	Fri Aug 13 16:24:38 2004
-+++ hotremovable-goto/include/linux/gfp.h	Fri Aug 13 16:24:38 2004
-@@ -14,7 +14,6 @@ struct vm_area_struct;
- /* Zone modifiers in GFP_ZONEMASK (see linux/mmzone.h - low two bits) */
- #define __GFP_DMA	0x01
- #define __GFP_HIGHMEM	0x02
+-	uptime = get_jiffies_64() - INITIAL_JIFFIES;
+-	uptime_remainder = (unsigned long) do_div(uptime, HZ);
++	do_posix_clock_monotonic_gettime(&uptime);
++	jiffies_to_timespec(idle_jiffies, &idle);
++	len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
++			(unsigned long) uptime.tv_sec,
++			(uptime.tv_nsec / (NSEC_PER_SEC / 100)),
++			(unsigned long) idle.tv_sec,
++			(idle.tv_nsec / (NSEC_PER_SEC / 100)));
+ 
+-#if HZ!=100
+-	{
+-		u64 idle = init_task.utime + init_task.stime;
+-		unsigned long idle_remainder;
 -
- /*
-  * Action modifiers - doesn't change the zoning
-  *
-@@ -38,6 +37,12 @@ struct vm_area_struct;
- #define __GFP_NO_GROW	0x2000	/* Slab internal usage */
- #define __GFP_COMP	0x4000	/* Add compound page metadata */
- 
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+#define __GFP_HOTREMOVABLE 0x8000 /* off: Un-hotremovable, on:Hotremovable */
-+#else
-+#define __GFP_HOTREMOVABLE 0
-+#endif
-+
- #define __GFP_BITS_SHIFT 16	/* Room for 16 __GFP_FOO bits */
- #define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
- 
-@@ -51,7 +56,7 @@ struct vm_area_struct;
- #define GFP_NOFS	(__GFP_WAIT | __GFP_IO)
- #define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
- #define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS)
--#define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM)
-+#define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM | __GFP_HOTREMOVABLE)
- 
- /* Flag - indicates that the buffer will be suitable for DMA.  Ignored on some
-    platforms, used as appropriate on others */
-_
-
--- 
-Yasunori Goto <ygoto at us.fujitsu.com>
-
-
-
-
--------------------------------------------------------
-SF.Net email is sponsored by Shop4tech.com-Lowest price on Blank Media
-100pk Sonic DVD-R 4x for only $29 -100pk Sonic DVD+R for only $33
-Save 50% off Retail on Ink & Toner - Free Shipping and Free Gift.
-http://www.shop4tech.com/z/Inkjet_Cartridges/9_108_r285
-_______________________________________________
-Lhms-devel mailing list
-Lhms-devel@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/lhms-devel
-
---------------------- Original Message Ends --------------------
-
--- 
-Yasunori Goto <ygoto at us.fujitsu.com>
-
+-		idle_remainder = (unsigned long) do_div(idle, HZ);
+-		len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
+-			(unsigned long) uptime,
+-			(uptime_remainder * 100) / HZ,
+-			(unsigned long) idle,
+-			(idle_remainder * 100) / HZ);
+-	}
+-#else
+-	{
+-		unsigned long idle = init_task.utime + init_task.stime;
+-
+-		len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
+-			(unsigned long) uptime,
+-			uptime_remainder,
+-			idle / HZ,
+-			idle % HZ);
+-	}
+-#endif
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ }
 

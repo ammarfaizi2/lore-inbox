@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261718AbSJCQP4>; Thu, 3 Oct 2002 12:15:56 -0400
+	id <S261461AbSJCQY4>; Thu, 3 Oct 2002 12:24:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261719AbSJCQP4>; Thu, 3 Oct 2002 12:15:56 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45841 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261718AbSJCQPz>; Thu, 3 Oct 2002 12:15:55 -0400
-Date: Thu, 3 Oct 2002 09:22:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Michael Clark <michael@metaparadigm.com>, Kevin Corry <corryk@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>, <evms-devel@lists.sourceforge.net>
-Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 2/4: evms.h
-In-Reply-To: <20021003161405.A20832@infradead.org>
-Message-ID: <Pine.LNX.4.44.0210030918250.2067-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261475AbSJCQY4>; Thu, 3 Oct 2002 12:24:56 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:8434 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261461AbSJCQYz>; Thu, 3 Oct 2002 12:24:55 -0400
+Subject: Re: [OT] 2.6 not 3.0 - (WAS Re: [PATCH-RFC] 4 of 4 - New problem
+	logging macros, SCSI RAIDdevice)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: jbradford@dial.pipex.com, jgarzik@pobox.com, kessler@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       saw@saw.sw.com.sg, rusty@rustcorp.com.au, richardj_moore@uk.ibm.com
+In-Reply-To: <Pine.LNX.4.44.0210030852330.2066-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0210030852330.2066-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Oct 2002 17:37:58 +0100
+Message-Id: <1033663078.28850.19.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 3 Oct 2002, Christoph Hellwig wrote:
+On Thu, 2002-10-03 at 16:57, Linus Torvalds wrote:
 > 
-> root device should be in do_mount.c and not in obscure headers.
+> On Thu, 3 Oct 2002 jbradford@dial.pipex.com wrote:
+> > 
+> > I think we should stick to incrementing the major number when binary
+> > compatibility is broken.
+> 
+> "Stick to"? We've never had that as any criteria for major numbers in the
+> kernel. Binary compatibility has _never_ been broken as a release policy,
+> only as a "that code is old, and we've given people 5 years to migrate to
+> the new system calls, the old ones are TOAST".
 
-No, they should _not_ be in do_mount.c either. They should be in the 
-driver registration, and do_mount.c should not have a random list of 
-devices. 
-
-I'm not accepting do_mount.c expansion here, simply because I don't want 
-to help a horribly broken interface. You can always use a hex number 
-(which is what things like lilo will install anyway, I believe, rather 
-than using the "root=/dev/xxx" command line), and if people get too tired 
-about remembering numbers, maybe somebody who cares will step up to the 
-plate and write a reverse of "__bdevname()" and do it right.
-
-Hint: see __bdevname in fs/block_dev.c, and realize that it does the 
-"kdev->name" translation without _any_ tables at all. Think about doing 
-the same the other way, by just walking the registered block devices.
-
-		Linus
+We've generally done better than that. Libc 2.2.2 stil works
 

@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265236AbSKNVPZ>; Thu, 14 Nov 2002 16:15:25 -0500
+	id <S265270AbSKNV3L>; Thu, 14 Nov 2002 16:29:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265238AbSKNVPZ>; Thu, 14 Nov 2002 16:15:25 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:37870 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S265236AbSKNVPZ>;
-	Thu, 14 Nov 2002 16:15:25 -0500
-Date: Thu, 14 Nov 2002 22:22:18 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: torvalds@transmeta.com, zippel@linux-m68k.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [TRIVIAL] [kconfig] Merge error of singlemenu mconf patch
-Message-ID: <20021114212218.GG2644@pasky.ji.cz>
-Mail-Followup-To: torvalds@transmeta.com, zippel@linux-m68k.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	id <S265275AbSKNV3L>; Thu, 14 Nov 2002 16:29:11 -0500
+Received: from gzp11.gzp.hu ([212.40.96.53]:46863 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id <S265270AbSKNV3L>;
+	Thu, 14 Nov 2002 16:29:11 -0500
+To: linux-kernel@vger.kernel.org
+From: "Gabor Z. Papp" <gzp@myhost.mynet>
+Subject: 2.4.20-rc1 RPC svc_write_space: some sleeping on dfae1ba0
+Organization: Who, me?
+User-Agent: tin/1.5.15-20021023 ("Soil") (UNIX) (Linux/2.4.20-rc1 (i686))
+Message-ID: <48f5.3dd41741.9929f@gzp1.gzp.hu>
+Date: Thu, 14 Nov 2002 21:36:01 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+I'm getting hundred of such messages in the kernel log with
+2.4.20-rc1 and 2.4.20-rc1-ac2
 
-  this patch (against 2.5.47) fixes apparent merge error of my menuconfig
-singlemenu patch, accepted before 2.5.47 release. In that patch, following
-modification to lxdialog was needed - without this change, the highlighting of
-the menu items' hotkey is broken (the first '+' is highlighted).
+Root is on nfs, and ide raid5 exported via nfs to the clients.
 
-  Please apply.
+When any further details needed, let me know.
 
- scripts/lxdialog/util.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+$ dmesg
+RPC svc_write_space: some sleeping on dfae1ba0
+RPC svc_write_space: some sleeping on dfae1ba0
+RPC svc_write_space: some sleeping on dfae1ba0
+[...]
 
-  Kind regards,
-                                Petr Baudis
-
-diff -ru linux/scripts/lxdialog/util.c linux+pasky/scripts/lxdialog/util.c
---- linux/scripts/lxdialog/util.c	Wed Nov  6 21:50:00 2002
-+++ linux+pasky/scripts/lxdialog/util.c	Thu Nov 14 22:15:55 2002
-@@ -348,7 +348,7 @@
- 		c = tolower(string[i]);
- 
- 		if (strchr("<[(", c)) ++in_paren;
--		if (strchr(">])", c)) --in_paren;
-+		if (strchr(">])", c) && in_paren > 0) --in_paren;
- 
- 		if ((! in_paren) && isalpha(c) && 
- 		     strchr(exempt, c) == 0)

@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265424AbUFHX4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265418AbUFHX74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265424AbUFHX4a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 19:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbUFHX43
+	id S265418AbUFHX74 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 19:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265429AbUFHX74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 19:56:29 -0400
-Received: from gizmo01bw.bigpond.com ([144.140.70.11]:51426 "HELO
-	gizmo01bw.bigpond.com") by vger.kernel.org with SMTP
-	id S265424AbUFHX42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 19:56:28 -0400
-Message-ID: <40C65227.7030301@bigpond.net.au>
-Date: Wed, 09 Jun 2004 09:56:23 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Tue, 8 Jun 2004 19:59:56 -0400
+Received: from smtp4.cwidc.net ([154.33.63.114]:31995 "EHLO smtp4.cwidc.net")
+	by vger.kernel.org with ESMTP id S265418AbUFHX7y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 19:59:54 -0400
+Message-ID: <40C652F3.1060404@tequila.co.jp>
+Date: Wed, 09 Jun 2004 08:59:47 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\ Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH] staircase scheduler v6.4 for 2.6.7-rc3
-References: <200406090023.54421.kernel@kolivas.org> <40C645F7.6070704@bigpond.net.au> <20040608233610.GC1444@holomorphy.com>
-In-Reply-To: <20040608233610.GC1444@holomorphy.com>
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APM realy sucks on 2.6.x
+References: <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de> <20040607140511.GA1467@elf.ucw.cz> <40C47B94.6040408@scienion.de> <20040607144841.GD1467@elf.ucw.cz> <40C53D80.2080603@tequila.co.jp> <20040608085814.GA1269@elf.ucw.cz> <40C580BE.1030802@tequila.co.jp> <20040608091709.GC2569@elf.ucw.cz> <40C58BD2.8040001@tequila.co.jp> <20040608095546.GA19578@elf.ucw.cz>
+In-Reply-To: <20040608095546.GA19578@elf.ucw.cz>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Wed, Jun 09, 2004 at 09:04:23AM +1000, Peter Williams wrote:
-> 
->>There was no need to add the extra overhead of a flag to indicate that a 
->>task was queued for scheduling.  Testing whether run_list is empty 
->>achieves the same thing as reliably as the old array == NULL test did.
-> 
-> 
-> Overhead? Doubtful. Also, that requires the use of list_del_init()
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Yes, that's true.
+Pavel Machek wrote:
 
-> while dequeueing, which is not in place now. Please do back the claim
-> with measurements. It should be easy enough to nop out set_task_queued(),
-> implement task_queued() via !list_empty(), and clear_task_queued() via
-> INIT_LIST_HEAD() for a quick performance comparison. But I'd say to
-> merge it even if there's no difference, as it's more self-contained.
-> 
+|>Well I wouldn't put PCMCIA into the same part as ISA and Pentium I,
+|>because my 2 year old Sonylaptop with a Pentium-M 4 1.5Ghz has PCMCIA
+|>slots ... So its not like it is found only on stone old Laptops.
+|
+|
+| That's cardbus, I believe. Its backwards compatible to PCMCIA.
 
-Since the principle use of testing array for NULL or not was to find out 
-if the task was on a run list it seems silly to have a flag to determine 
-this.  All it does is provide an opportunity for the flag to not 
-accurately reflect whether the task is really on a list or not.
+well thats something I have to checkout ... I really rarerly use it, so
+I can't say for sure what it is ...
 
-It caused the number of files touched by the staircase patch to increase 
-  by a factor of five which is another good reason to use the alternative.
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.co.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Peter
--- 
-Dr Peter Williams                                pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
+iD8DBQFAxlLzjBz/yQjBxz8RAmIGAJ9ZDl6HjJOR9+9LytOKeEYcsn7xSwCgnQ7R
+kQF43IjDvepnhxW1E+UHmLc=
+=Dnp3
+-----END PGP SIGNATURE-----

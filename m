@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270035AbRHQKEY>; Fri, 17 Aug 2001 06:04:24 -0400
+	id <S270036AbRHQKGO>; Fri, 17 Aug 2001 06:06:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270036AbRHQKEP>; Fri, 17 Aug 2001 06:04:15 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:46859 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S270035AbRHQKEH>; Fri, 17 Aug 2001 06:04:07 -0400
-Message-ID: <3B7CEBD2.D3ED4D56@idb.hist.no>
-Date: Fri, 17 Aug 2001 12:02:58 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre8 i686)
-X-Accept-Language: no, en
+	id <S270042AbRHQKGE>; Fri, 17 Aug 2001 06:06:04 -0400
+Received: from camus.xss.co.at ([194.152.162.19]:55058 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id <S270036AbRHQKFu>;
+	Fri, 17 Aug 2001 06:05:50 -0400
+Message-ID: <3B7CEC89.642FB425@xss.co.at>
+Date: Fri, 17 Aug 2001 12:06:01 +0200
+From: Daniel Wagner <daniel.wagner@xss.co.at>
+Organization: xS+S
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Chris Schanzle <chris.schanzle@jhuapl.edu>, linux-kernel@vger.kernel.org
-Subject: Re: I/O causes performance problem with 2.4.8-ac3
-In-Reply-To: <3B7C08D4.9070303@jhuapl.edu>
+To: linux-kernel@vger.kernel.org
+Subject: initrd: couldn't umount
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Schanzle wrote:
-> 
-> This probably belongs in the "use-once" thread...
-> 
-> I ran into a significant (lack of) performance situation with 2.4.8-ac3
-> that does not exist with 2.4.8.  Perhaps someone can shed some light on
-> what happened and how to avoid it in the future.
-[...]
-> In other words, system had
-> cached a bunch of buffers.
-> 
-> Performance was excellent until I decided to "dd bs=1024k </dev/cdrom
->  >somefile" a 600+MB cdrom while a kernel build was going on.  It took
-[...]
-Such a big copy operation is exactly what "use-once" does well.
-2.4.8 has use-once, 2.4.8ac3 don't have use-once. 
+hi.
 
-One can construct scenarios where use-once performs worse too,
-I believe this is why Alan Cox didn't want it yet.  
+we try to setup an initrd for diskless nodes, which allows us a
+modular kernelconfiguration (especially the net-drivers). it work
+quite well, but ...
 
-A big copy without use-once will push everything else out of
-cache, and push a lot of programs into swap in order to cache
-a lot of the big copy.  That's bad if the big
-copy is done once and you don't really need the stuff again.
-Then you want the "other" stuff to stay in cache instead.
+the problem is that a "rpciod" kernel-thread references the initrd,
+and so umounting and freeing it, isn't possible.
 
-Use-once may perform worse if stuff falls out of cache
-and has to be re-read from disk.
+has anybody an idea how to fix this problem, cause it would be nice,
+to free the initrd ram on a diskless node.
 
-Helge Hafting
+this is what comes after processing the initrd:
+
+---
+Looking up port of RPC 100003/2 on 192.168.162.201
+Looking up port of RPC 100005/1 on 192.168.162.201
+VFS: Mounted root (NFS filesystem).
+change_root: old root has d_count=3
+Mounted devfs on /dev
+Trying to unmount old root ... <3>error -16
+Change root to /initrd: error -2
+Freeing unused kernel memory: 56k
+freed                                                                                                    
+---
+
+Regards,
+  Daniel
+
+-- 
+Daniel Wagner                      | mailto:daniel@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71

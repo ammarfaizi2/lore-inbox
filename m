@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbTEDSs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 14:48:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTEDSs3
+	id S261580AbTEDTHO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 15:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbTEDTHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 14:48:29 -0400
-Received: from pat.uio.no ([129.240.130.16]:56015 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261561AbTEDSs2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 14:48:28 -0400
+	Sun, 4 May 2003 15:07:14 -0400
+Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:29133 "EHLO
+	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
+	id S261580AbTEDTHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 15:07:13 -0400
+Date: Sun, 4 May 2003 21:21:01 +0200
+Message-ID: <vines.sxdD+RUKhyA@SZKOM.BFS.DE>
+X-Priority: 3 (Normal)
+To: <linux-kernel@vger.kernel.org>
+From: <WHarms@bfs.de> (Walter Harms)
+Reply-To: <WHarms@bfs.de>
+Subject: update: fix for pid_t (not-) usage in 2.4.20 
+X-Incognito-SN: 25185
+X-Incognito-Version: 5.1.0.84
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16053.25445.434038.90945@charged.uio.no>
-Date: Sun, 4 May 2003 21:00:53 +0200
-To: Christoph Hellwig <hch@lst.de>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove useless MOD_{INC,DEC}_USE_COUNT from sunrpc
-In-Reply-To: <20030504205306.A11647@lst.de>
-References: <20030504191447.C10659@lst.de>
-	<16053.20430.903508.188812@charged.uio.no>
-	<20030504203655.A11574@lst.de>
-	<16053.24599.277205.64363@charged.uio.no>
-	<20030504205306.A11647@lst.de>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christoph Hellwig <hch@lst.de> writes:
+hi list,
+here is an update for the pid_t patches more functions
+that requiere/use pid_t that needed a quick fix. the 
+patches dont change functionality just use the correct type.
+why is this important ?
+diffrent architectures use different values for pid_t.
 
-     > Previously you incremented the usecount and now we're waiting
-     > for the thread to finish in module_exit().
+download: www.getenv.de/~walter
+contact: danielebellucci@libero.it 
 
-Fair enough...
-
-Cheers,
-  Trond
+	walter

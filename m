@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288288AbSAVQRX>; Tue, 22 Jan 2002 11:17:23 -0500
+	id <S288284AbSAVQWx>; Tue, 22 Jan 2002 11:22:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288566AbSAVQRO>; Tue, 22 Jan 2002 11:17:14 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:65471 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S288288AbSAVQRA>;
-	Tue, 22 Jan 2002 11:17:00 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2AB7@ottonexc1.ottawa.loran.com>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "'Amit Gupta'" <amit.gupta@amd.com>,
-        "'Luigi Genoni'" <kernel@Expansa.sns.it>
-Cc: linux-kernel@vger.kernel.org,
-        "Linux-Net (E-mail)" <linux-net@vger.kernel.org>
-Subject: arpx source code released under GPL
-Date: Tue, 22 Jan 2002 08:16:52 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S288767AbSAVQWo>; Tue, 22 Jan 2002 11:22:44 -0500
+Received: from p50859276.dip.t-dialin.net ([80.133.146.118]:40139 "EHLO
+	minerva.local.lan") by vger.kernel.org with ESMTP
+	id <S288284AbSAVQW2>; Tue, 22 Jan 2002 11:22:28 -0500
+From: Martin Loschwitz <madkiss@madkiss.de>
+Date: Tue, 22 Jan 2002 17:22:25 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-pre4: undefined reference to `local symbols in discarded section .text.exit'
+Message-ID: <20020122162225.GA7356@madkiss.de>
+In-Reply-To: <20020122160603.GA7182@madkiss.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020122160603.GA7182@madkiss.de>
+User-Agent: Mutt/1.3.26i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FINALLY I have permission to make this available :
+I forgot to tell you some things that could be important:
 
-Note that I'm not the original author, but I am
-maintaining it, so please let me know about any
-comments, complaints, patches, flames, whatever.
+Debian Version: 3.0/Sid
+Version of binutils: 2.11.92.0.12.3
+Version of gcc: 2.95.4
 
-This is an arpd-replacement daemon that runs under
-kernel 2.4.9 without any problems.  I have successfully
-had over 2000 entries in the arp cache (from /proc)
-with this daemon running.
+After downgrading the binutils-package to version 2.11.92.0.10,
+it works just fine.
 
-I haven't done any work on making it good code or work
-properly or making sure that it's working the 'right'
-way, but it does work and I haven't had any problems
-(yet) so feel free to download it, try it out, and
-check back to the web page to see any updates as they
-become available.
-
-http://home.loran.com/~dlacoste/
+-- 
+-- Martin Loschwitz ---------------- hobbit.NeverAgain.DE --
+-- Koernerstrasse 58 ---------- mail <madkiss@madkiss-de> --
+-- 41747 Viersen ------------ http http://www.madkiss.de/ -- 
+-- Germany ------------------------ irc Madkiss (IRC-Net) --

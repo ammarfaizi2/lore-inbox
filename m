@@ -1,77 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264150AbTDWSBF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 14:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264166AbTDWSBF
+	id S264173AbTDWSDe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 14:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbTDWSDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 14:01:05 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:23176 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264150AbTDWSBE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 14:01:04 -0400
-Date: Wed, 23 Apr 2003 14:15:55 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Andrew Kirilenko <icedank@gmx.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Searching for string problems
-In-Reply-To: <200304232105.38722.icedank@gmx.net>
-Message-ID: <Pine.LNX.4.53.0304231412450.25545@chaos>
-References: <200304231958.43235.icedank@gmx.net> <Pine.LNX.4.53.0304231311460.25222@chaos>
- <200304232105.38722.icedank@gmx.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Apr 2003 14:03:33 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:14228 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S264173AbTDWSDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 14:03:30 -0400
+Date: Wed, 23 Apr 2003 14:15:30 -0400
+To: Yours Lovingly <ylovingly@yahoo.co.in>
+Cc: Bryan Henderson <hbryan@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Qn: Queer "Unable to handle kernel NULL pointer dereference at ..." error in kernel
+Message-ID: <20030423181530.GA8584@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Yours Lovingly <ylovingly@yahoo.co.in>,
+	Bryan Henderson <hbryan@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <OFAFB946CE.4BD085AE-ON87256D10.006801CE-88256D10.00683E0D@us.ibm.com> <20030423175333.7272.qmail@web8005.mail.in.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030423175333.7272.qmail@web8005.mail.in.yahoo.com>
+User-Agent: Mutt/1.5.3i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Apr 2003, Andrew Kirilenko wrote:
+On Wed, Apr 23, 2003 at 06:53:33PM +0100, Yours Lovingly wrote:
+> i am sorry for that useless information. i am
+> attaching  a ksymoops output of that problem (focus on
+> the register operation (that ksymoops identifies as
+> the fault triggering instruction) in the "code"
+> section at the end of the ksymoops output)
+...
+> 		inode_parent = parent->d_inode;
+> 		inode = d->d_inode;
+> 		p = (void *)inode_parent;
+> 		me = (void *)inode;
+> // Till here things work just fine. I am DEAD SURE of that as i put printk()
+> // followed by return here and there and checked.
+> 
+> 		if( p - me != 0 ) {
+> 			//nfs_print_path(parent);
+> 			printk("return 3\n");
+> 			return;
+> 		}
 
-> Hello!
->
-> > If you need to search the whole BIOS for that string, you need to
-> > set up an outer loop using an unused register which starts at
-> > the offset of the BIOS and increments by one byte everytime
-> > you can't find the string. This value gets put into %di, instead
-> > of the absolute number specified above.
-> >
-> > Like:
-> >
-> > scan:	movw	%cs, %ax
-> > 	movw	%ax, %ds
-> > 	movw	%ax, %es
-> > 	movw	$where_in_BIOS_to_start, %bx
-> > 	cld
-> > 1:	movw	$cl_id_str, %si		# Offset of search string
-> > 	movw	$cl_id_end, %cx		# Offset of string end + 1
-> > 	subw	%si, %cx		# String length
-> > 	decw	%cx			# Don't look for the \0
-> > 	movw	%bx, %di		# ES:DI = where to look
-> > 	repz	cmpsb			# Loop while the same
-> > 	jz	found			# Found the string
-> > 	incb	%bx			# Next starting offset
-> > 	cmpb	$_BIOS_END, %bx		# Check for limit
-> > 	jb	1b			# Continue
-> > never_found_anywhere:
-> >
-> > found:
->
-> I've written something similar to this before - and it wont' work, so I've
-> reimplemented it. The problem is, that I don't know how to set ES properly. I
-> only know, that BIOS data (and code) is located in 0xe000..0xf000 (real
-> address).
->
+What I typically do in these cases is,
 
-Yeah. So. I set ES and DS to be exactly where CS is. This means that
-if your &!)(^$&_ code executes it will work. So, instead of trying
-it, you just blindly ignore it and state that it won't work.
+- remove the object file where the oops occurs
+- rerun make
+- copy the gcc line that is responsible for compiling the object
+- run the same gcc line again, but add a '-g' flag
 
-Bullshit. I do this for a living and I gave you some valuable time
-which you rejected out-of-hand. Have fun.
+Now we have an object with debugging symbols, and can use 'objdump
+--source <file>.o | less' and get something that has both the source
+lines and the related assembly code. In this case the faulting
+instruction is about 0x2e bytes past the beginning of nfs_print_path.
 
+But I can get pretty far just from reading the oops and it is probably
+the test you added. Ok, it looks like -O2 is actually optimizing away
+some of those intermediate variables for you.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+> Code;  c88b6956 <[nfs]nfs_print_path+2e/58> <=====
+>    0:   39 42 08                  cmp   %eax,0x8(%edx)   <=====
+>    3:   74 0d                     je     12 <_EIP+0x12>
+
+Ok, so we're comparing the contents of %eax to something that is 8 bytes
+offset from the address stored in %edx. and then jump out if they are
+equal.
+
+So this is something like and if (eax != edx->bar) { } construct. And in
+fact the test you added was
+
+    if ( p - me != 0 )
+    if ( p != me )
+    if ( inode_parent != inode )
+    if ( parent->d_inode != d->d_inode )
+
+So the contents of either parent->d_inode or d->d_inode was stored in
+register eax, and we're dereferencing the other pointer during the test
+operation.
+
+Why does it crash, because the pointer we are dereferencing is 0x7, not
+really a valid address, in fact it already looks like an inode number.
+
+> eax: 00000006   ebx: c6675024   ecx: 00000001   edx: 00000007
+
+And eax looks pretty suspicious as well. These are not pointers to inode
+structures, but possibly the i_ino numbers.
+
+Jan
 

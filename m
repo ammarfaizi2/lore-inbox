@@ -1,202 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVBATGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVBATEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbVBATGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 14:06:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVBATGJ
+	id S262097AbVBATEn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 14:04:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVBATE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 14:06:09 -0500
-Received: from alog0273.analogic.com ([208.224.222.49]:4992 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262093AbVBATEa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 14:04:30 -0500
-Date: Tue, 1 Feb 2005 14:04:15 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Andreas Gruenbacher <agruen@suse.de>
-cc: Paulo Marques <pmarques@grupopie.com>, Matt Mackall <mpm@selenic.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
-In-Reply-To: <Pine.LNX.4.61.0502011303350.7089@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0502011355140.7990@chaos.analogic.com>
-References: <2.416337461@selenic.com>  <1107191783.21706.124.camel@winden.suse.de>
- <41FE6B42.7010807@grupopie.com> <1107280438.12050.118.camel@winden.suse.de>
- <Pine.LNX.4.61.0502011303350.7089@chaos.analogic.com>
+	Tue, 1 Feb 2005 14:04:29 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:5591 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262093AbVBATCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 14:02:18 -0500
+Date: Tue, 1 Feb 2005 11:01:55 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: Re: page fault scalability patch V16 [3/4]: Drop page_table_lock in
+ handle_mm_fault
+In-Reply-To: <41FF00CE.8060904@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0502011047330.3205@schroedinger.engr.sgi.com>
+References: <41E5B7AD.40304@yahoo.com.au> <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
+ <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
+ <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+ <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
+ <20050114043944.GB41559@muc.de> <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
+ <20050114170140.GB4634@muc.de> <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com>
+ <41FF00CE.8060904@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Feb 2005, linux-os wrote:
+On Tue, 1 Feb 2005, Nick Piggin wrote:
 
-> On Tue, 1 Feb 2005, Andreas Gruenbacher wrote:
+> >  	pte_unmap(page_table);
+> > +	page_table_atomic_stop(mm);
+> >
+> >  	/*
+> >  	 * Ok, we need to copy. Oh, well..
+> >  	 */
+> >  	if (!PageReserved(old_page))
+> >  		page_cache_get(old_page);
+> > -	spin_unlock(&mm->page_table_lock);
+> >
 >
->> On Mon, 2005-01-31 at 18:30, Paulo Marques wrote:
->>> Andreas Gruenbacher wrote:
->>>> [...]
->>>> 
->>>> static inline void swap(void *a, void *b, int size)
->>>> {
->>>>         if (size % sizeof(long)) {
->>>>                 char t;
->>>>                 do {
->>>>                         t = *(char *)a;
->>>>                         *(char *)a++ = *(char *)b;
->>>>                         *(char *)b++ = t;
->>>>                 } while (--size > 0);
->>>>         } else {
->>>>                 long t;
->>>>                 do {
->>>>                         t = *(long *)a;
->>>>                         *(long *)a = *(long *)b;
->>>>                         *(long *)b = t;
->>>>                         size -= sizeof(long);
->>>>                 } while (size > sizeof(long));
->>> 
->>> You forgot to increment a and b, and this should be "while (size);", no?
->> 
->> Correct, yes.
->> 
->>> Or better yet,
->>> 
->>> static inline void swap(void *a, void *b, int size)
->>> {
->>> 	long tl;
->>>          char t;
->>> 
->>> 	while (size >= sizeof(long)) {
->>>                  tl = *(long *)a;
->>>                  *(long *)a = *(long *)b;
->>>                  *(long *)b = tl;
->>> 		a += sizeof(long);
->>> 		b += sizeof(long);
->>>                  size -= sizeof(long);
->>> 	}
->>> 	while (size) {
->>>                  t = *(char *)a;
->>>                  *(char *)a++ = *(char *)b;
->>>                  *(char *)b++ = t;
->>> 		size--;
->>>          }
->>> }
->>> 
->>> This works better if the size is not a multiple of sizeof(long), but is
->>> bigger than a long.
->> 
->> In case size is not a multiple of sizeof(long) here, you'll have
->> unaligned memory accesses most of the time anyway, so it probably
->> doesn't really matter.
->> 
->> Thanks,
->> -- 
->> Andreas Gruenbacher <agruen@suse.de>
->> SUSE Labs, SUSE LINUX GMBH
+> I don't think you can do this unless you have done something funky that I
+> missed. And that kind of shoots down your lockless COW too, although it
+> looks like you can safely have the second part of do_wp_page without the
+> lock. Basically - your lockless COW patch itself seems like it should be
+> OK, but this hunk does not.
+
+See my comment at the end of this message.
+
+> I would be very interested if you are seeing performance gains with your
+> lockless COW patches, BTW.
+
+So far I have not had time to focus on benchmarking that.
+
+> Basically, getting a reference on a struct page was the only thing I found
+> I wasn't able to do lockless with pte cmpxchg. Because it can race with
+> unmapping in rmap.c and reclaim and reuse, which probably isn't too good.
+> That means: the only operations you are able to do lockless is when there
+> is no backing page (ie. the anonymous unpopulated->populated case).
 >
-> This uses an GNU-ISM where you are doing pointer arithmetic
-> on a pointer-to-void. NotGood(tm) this is an example of
-> where there is absolutely no rationale whatsoever for
-> writing such code.
->
+> A per-pte lock is sufficient for this case, of course, which is why the
+> pte-locked system is completely free of the page table lock.
 
-Here is swap with no games. Plus it handles the case where
-sizeof(long) is not the same as sizeof(int).
+Introducing pte locking would allow us to go further with parallelizing
+this but its another invasive procedure. I think parallelizing COW is only
+possible to do reliable with some pte locking scheme. But then the
+question is if the pte locking is really faster than obtaining a spinlock.
+I suspect this may not be the case.
 
+> Although I may have some fact fundamentally wrong?
 
-void swap(void *a, void *b, size_t len)
-{
-     while(len >= sizeof(long))
-     {
-         long one, two;
-         long *p0 = a;
-         long *p1 = b;
-         one = *p0;
-         two = *p1;
-         *p1++ = one;
-         *p0++ = two;
-         len -= sizeof(long);
-     }
-     while(len >= sizeof(int))	// Compiler may even ignore
-     {
-         int one, two;
-         int *p0 = a;
-         int *p1 = b;
-         one = *p0;
-         two = *p1;
-         *p1++ = one;
-         *p0++ = two;
-         len -= sizeof(int);
-     }
-     while(len--)
-     {
-         char one, two;
-         char *p0 = a;
-         char *p1 = b;
-         one = *p0;
-         two = *p1;
-         *p1++ = one;
-         *p0++ = two;
-     }
-}
+The unmapping in rmap.c would change the pte. This would be discovered
+after acquiring the spinlock later in do_wp_page. Which would then lead to
+the operation being abandoned.
 
-//----------------------------------------------
-
-
-And here is the output. You can make it in-line of you want,
-but you really need to make in ANSI first.
-
-
- 	.file	"xxx.c"
- 	.text
- 	.p2align 2,,3
-.globl swap
- 	.type	swap, @function
-swap:
- 	pushl	%ebp
- 	movl	%esp, %ebp
- 	movl	16(%ebp), %ecx
- 	pushl	%esi
- 	cmpl	$3, %ecx
- 	pushl	%ebx
- 	movl	8(%ebp), %esi
- 	movl	12(%ebp), %ebx
- 	jbe	.L17
- 	.p2align 2,,3
-.L5:
- 	subl	$4, %ecx
- 	movl	(%esi), %eax
- 	movl	(%ebx), %edx
- 	cmpl	$3, %ecx
- 	movl	%eax, (%ebx)
- 	movl	%edx, (%esi)
- 	ja	.L5
-.L17:
- 	decl	%ecx
- 	cmpl	$-1, %ecx
- 	je	.L19
- 	.p2align 2,,3
-.L13:
- 	decl	%ecx
- 	movb	(%esi), %al
- 	movb	(%ebx), %dl
- 	cmpl	$-1, %ecx
- 	movb	%al, (%ebx)
- 	movb	%dl, (%esi)
- 	jne	.L13
-.L19:
- 	popl	%ebx
- 	popl	%esi
- 	leave
- 	ret
- 	.size	swap, .-swap
- 	.section	.note.GNU-stack,"",@progbits
- 	.ident	"GCC: (GNU) 3.3.3 20040412 (Red Hat Linux 3.3.3-7)"
-
-A lot of folks don't realilize that adding a new program-unit
-after a conditional expression doesn't necessarily add any code.
-In this case, it simply tells the compiler what we want to do.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

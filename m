@@ -1,55 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277094AbRKJH1J>; Sat, 10 Nov 2001 02:27:09 -0500
+	id <S275552AbRKJHfA>; Sat, 10 Nov 2001 02:35:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279505AbRKJH07>; Sat, 10 Nov 2001 02:26:59 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:14345 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S277094AbRKJH0v>;
-	Sat, 10 Nov 2001 02:26:51 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: speed difference between using hard-linked and modular drives? 
-In-Reply-To: Your message of "Sat, 10 Nov 2001 14:35:58 +1100."
-             <20011110143557.A767@krispykreme> 
-Mime-Version: 1.0
+	id <S276709AbRKJHel>; Sat, 10 Nov 2001 02:34:41 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:42507 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S275552AbRKJHed>; Sat, 10 Nov 2001 02:34:33 -0500
+Message-ID: <3BECD87F.F53234B2@zip.com.au>
+Date: Fri, 09 Nov 2001 23:34:23 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: scsi BLKGETSIZE breakage in -pre2
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 10 Nov 2001 18:26:38 +1100
-Message-ID: <14470.1005377198@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Nov 2001 14:35:58 +1100, 
-Anton Blanchard <anton@samba.org> wrote:
->Yep all indirect function calls require save and reload of the TOC
->(which is r2):
->
->When calling a function in the kernel from within the kernel (eg printk),
->we dont have to save and reload the TOC:
+sd_ioctl() was changed to pass BLKGETSIZE off to blk_ioctl(),
+but blk_ioctl() doesn't implement it.
 
-Same on IA64, indirect function calls have to save R1, load R1 for the
-target function from the function descriptor, call the function,
-restore R1.  Incidentally that makes a function descriptor on IA64
-_two_ words, you cannot save an IA64 function pointer in a long or even
-a void * variable.
+So `cfdisk /dev/sda' is failing.
 
->Alan Modra tells me the linker does the fixup of nop -> r2 reload. So
->in this case it isnt needed.
+Simply copying the -ac version of blkpg.c across fixes
+it for me.
 
-IA64 kernels are compiled with -mconstant-gp which tells gcc that
-direct calls do not require R1 save/reload, gcc does not even generate
-a nop.  However indirect function calls from one part of the kernel to
-another still require save and reload code, gcc cannot tell if the call
-is local or not.
 
->However when we do the same printk from a module, the nop is replaced
->with an r2 reload:
-
-Same on IA64, calls from a module into the kernel require R1 save and
-reload, even if the call is direct.  So there is some code overhead
-when making direct function calls from modules to kernel on IA64, that
-overhead disappears when code is linked into the kernel.  Indirect
-functions calls always have the overhead, whether in kernel or in
-module.
-
+--- linux-2.4.15-pre2/drivers/block/blkpg.c	Mon Oct 15 13:27:42 2001
++++ linux-akpm/drivers/block/blkpg.c	Fri Nov  9 23:14:23 2001
+@@ -195,8 +195,13 @@ int blkpg_ioctl(kdev_t dev, struct blkpg
+ 
+ int blk_ioctl(kdev_t dev, unsigned int cmd, unsigned long arg)
+ {
++	struct gendisk *g;
++	u64 ullval = 0;
+ 	int intval;
+ 
++	if (!dev)
++		return -EINVAL;
++
+ 	switch (cmd) {
+ 		case BLKROSET:
+ 			if (!capable(CAP_SYS_ADMIN))
+@@ -212,7 +217,7 @@ int blk_ioctl(kdev_t dev, unsigned int c
+ 		case BLKRASET:
+ 			if(!capable(CAP_SYS_ADMIN))
+ 				return -EACCES;
+-			if(!dev || arg > 0xff)
++			if(arg > 0xff)
+ 				return -EINVAL;
+ 			read_ahead[MAJOR(dev)] = arg;
+ 			return 0;
+@@ -224,8 +229,6 @@ int blk_ioctl(kdev_t dev, unsigned int c
+ 		case BLKFLSBUF:
+ 			if(!capable(CAP_SYS_ADMIN))
+ 				return -EACCES;
+-			if (!dev)
+-				return -EINVAL;
+ 			fsync_dev(dev);
+ 			invalidate_buffers(dev);
+ 			return 0;
+@@ -235,18 +238,16 @@ int blk_ioctl(kdev_t dev, unsigned int c
+ 			intval = get_hardsect_size(dev);
+ 			return put_user(intval, (int *) arg);
+ 
+-#if 0
+ 		case BLKGETSIZE:
+-			/* Today get_gendisk() requires a linear scan;
+-			   add this when dev has pointer type. */
+-			/* add BLKGETSIZE64 too */
++		case BLKGETSIZE64:
+ 			g = get_gendisk(dev);
+-			if (!g)
+-				ulongval = 0;
++			if (g)
++				ullval = g->part[MINOR(dev)].nr_sects;
++
++			if (cmd == BLKGETSIZE)
++				return put_user((unsigned long)ullval, (unsigned long *)arg);
+ 			else
+-				ulongval = g->part[MINOR(dev)].nr_sects;
+-			return put_user(ulongval, (unsigned long *) arg);
+-#endif
++				return put_user(ullval, (u64 *)arg);
+ #if 0
+ 		case BLKRRPART: /* Re-read partition tables */
+ 			if (!capable(CAP_SYS_ADMIN))

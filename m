@@ -1,35 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131036AbQLJUqB>; Sun, 10 Dec 2000 15:46:01 -0500
+	id <S131337AbQLJUrv>; Sun, 10 Dec 2000 15:47:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131337AbQLJUpw>; Sun, 10 Dec 2000 15:45:52 -0500
-Received: from ghost.btnet.cz ([62.80.85.74]:23557 "HELO ghost.btnet.cz")
-	by vger.kernel.org with SMTP id <S131036AbQLJUpm>;
-	Sun, 10 Dec 2000 15:45:42 -0500
-Message-ID: <20001210211445.00733@ghost.btnet.cz>
-Date: Sun, 10 Dec 2000 21:14:45 +0100
-From: clock@ghost.btnet.cz
-To: linux-kernel@vger.kernel.org
-Subject: Dropping chars on 16550
-Reply-To: clock@atrey.karlin.mff.cuni.cz
+	id <S131540AbQLJUrl>; Sun, 10 Dec 2000 15:47:41 -0500
+Received: from smtp2.volny.cz ([212.20.96.11]:62983 "EHLO smtp2.volny.cz")
+	by vger.kernel.org with ESMTP id <S131337AbQLJUr0>;
+	Sun, 10 Dec 2000 15:47:26 -0500
+Date: Sun, 10 Dec 2000 21:03:52 +0100
+From: Miloslav Trmac <mitr@volny.cz>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] truncate () doesn't clear partial pages
+Message-ID: <20001210210352.A764@linux.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.84
-X-Depechemlon: GRU Aquarium Khodinka Vatutinki KGB CIA Putin Suvorov Ladygin FBI NSA IRS whitewater arkanside MOSSAD MI5 ONI CID AK47 M16 C4 wackenhut terrorist task force 160 atomic nuclear Lybia plutonium fission uranium deuterium H-bomb
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks
+Hi,
+vmtruncate () in test11 doesn't clear ends of partial pages. Patch is attached
+below.
+HOWEVER, it doesn't fix everything: partial_clear () contains
+        if (!pte_present(pte))
+                return;
+so swapped-out pages don't get truncated (so the patch seems to break things:
+truncate () behaves differently under memory pressure).
+To reproduce:
+------tst.c:
+int
+main (int argc, char *argv[])
+{
+  int fd;
+  volatile char *base, *p;
+  unsigned i, len;
 
-What should I do, when I run cdda2wav | gogo (riping CD from a ATAPI
-CD thru mp3 encoder) and get a continuous dropping of characters, on a 16550-
-enhanced serial port, without handshake, with full-duplex load of 115200 bps?
-About 1 of 320 bytes is miscommunicated.
+  fd = open (argv[1], O_RDWR);
+  len = atoi (argv[2]) * 1048576;
+  base = mmap (NULL, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+  p = base;
+  base[49] = 1;
+  base[50] = 2;
+  for (i = len / 4096; i != 0; i--)
+    { /* Touch all pages to eat memory and force swapping the 1st page out */
+      *p = 1;
+      p += 4096;
+    }
+  ftruncate (fd, 50);
+  printf ("%u,%u\n", base[49], base[50]);
+  return 0;
+}
+------
+$ dd bs=1M count=$MEGS </dev/zero >tmp
+$ ./tst tmp $MEGS
+Plain test11 prints always 1,2 (i.e. partial page unaffected), patched
+prints 1,0 if $MEGS is low enough, 1,2 if the first page was swapped out
+($MEGS >= your RAM size).
+The swap case should probably be handled as in ptrace.c: access_one_page()
+(fault_in_page), but I don't understand the kernel well enough.
+	Mirek Trmac
 
-The kernel is 2.2.12.
-
-Clock
-
+--- mm/memory.c.orig	Sun Dec 10 19:51:01 2000
++++ mm/memory.c	Sun Dec 10 20:17:45 2000
+@@ -935,7 +935,7 @@
+ 		unsigned long diff;
+ 
+ 		/* mapping wholly truncated? */
+-		if (mpnt->vm_pgoff >= pgoff) {
++		if (mpnt->vm_pgoff > pgoff) {
+ 			flush_cache_range(mm, start, end);
+ 			zap_page_range(mm, start, len);
+ 			flush_tlb_range(mm, start, end);
+@@ -951,13 +951,16 @@
+ 		/* Ok, partially affected.. */
+ 		start += diff << PAGE_SHIFT;
+ 		len = (len - diff) << PAGE_SHIFT;
+-		if (start & ~PAGE_MASK) {
+-			partial_clear(mpnt, start);
+-			start = (start + ~PAGE_MASK) & PAGE_MASK;
++		if (partial) {
++			partial_clear(mpnt, start + partial);
++			start += PAGE_SIZE;
++			len -= PAGE_SIZE;
++		}
++		if (len) {
++			flush_cache_range(mm, start, end);
++			zap_page_range(mm, start, len);
++			flush_tlb_range(mm, start, end);
+ 		}
+-		flush_cache_range(mm, start, end);
+-		zap_page_range(mm, start, len);
+-		flush_tlb_range(mm, start, end);
+ 	} while ((mpnt = mpnt->vm_next_share) != NULL);
+ }
+ 			      
+@@ -984,7 +987,7 @@
+ 	if (!mapping->i_mmap && !mapping->i_mmap_shared)
+ 		goto out_unlock;
+ 
+-	pgoff = (offset + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
++	pgoff = offset >> PAGE_CACHE_SHIFT;
+ 	partial = (unsigned long)offset & (PAGE_CACHE_SIZE - 1);
+ 
+ 	if (mapping->i_mmap != NULL)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

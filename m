@@ -1,106 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262581AbRFCASW>; Sat, 2 Jun 2001 20:18:22 -0400
+	id <S262632AbRFCAUM>; Sat, 2 Jun 2001 20:20:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262606AbRFCASM>; Sat, 2 Jun 2001 20:18:12 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:27397 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S262581AbRFCARz>; Sat, 2 Jun 2001 20:17:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andreas Dilger <adilger@turbolinux.com>
-Subject: Re: [Ext2-devel] [UPDATE] Directory index for ext2
-Date: Sun, 3 Jun 2001 02:19:50 +0200
-X-Mailer: KMail [version 1.2]
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200105311944.f4VJiIrK016421@webber.adilger.int>
-In-Reply-To: <200105311944.f4VJiIrK016421@webber.adilger.int>
+	id <S262606AbRFCAUC>; Sat, 2 Jun 2001 20:20:02 -0400
+Received: from spruce.he.net ([216.218.159.210]:10503 "EHLO spruce.he.net")
+	by vger.kernel.org with ESMTP id <S262632AbRFCATs>;
+	Sat, 2 Jun 2001 20:19:48 -0400
+Message-ID: <3B19807C.EF764456@BitWagon.com>
+Date: Sat, 02 Jun 2001 17:10:36 -0700
+From: John Reiser <jreiser@BitWagon.com>
+Organization: -
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.5-15 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01060302195004.07058@starship>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: bug in load_elf_binary  [PATCH]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 May 2001 21:44, Andreas Dilger wrote:
-> I noticed something interesting when running "mongo" with debugging
-> on. It is adding filenames which are only sequential numbers, and the
-> hash code is basically adding to only two blocks until those blocks
-> are full, at which point (I guess) the blocks split and we add to two
-> other blocks.
->
-> I haven't looked at it closely, but for _example_ it something like:
->
-> 65531 to block 113
-> 65532 to block 51
-> 65533 to block 51
-> 65534 to block 113
-> 65535 to block 113
-> (repeats)
-> 65600 to block 21
-> 65601 to block 96
-> 65602 to block 96
-> 65603 to block 21
-> 65604 to block 21
-> (repeats)
->
-> I will have to recompile and run with debugging on again to get
-> actual output.
->
-> To me this would _seem_ bad, as it indicates the hash is not
-> uniformly distributing the files across the hash space.  However,
-> skewed hashing may not necessarily be the bad for performance.  It
-> may even be that because we never have to rebalance the hash index
-> structure that as long as we don't get large numbers of identical
-> hashes it is just fine if similar filenames produce similar hash
-> values.  We just keep splitting the leaf blocks until the hash moves
-> over to a different "range".  For a balanced tree-based structure a
-> skewed hash would be bad, because you would have to do full-tree
-> rebalancing very often then.
+In kernel 2.4.3 and 2.2.18, there is a bug in fs/binfmt_elf.c function
+load_elf_binary().  An ET_DYN file that asks for a PT_INTERP, and whose
+first PT_LOAD is not at 0, gets AT_PHDR that is (load_bias + 2 * p_vaddr),
+instead of the correct (load_bias + p_vaddr).  The patch for 2.4.3 is
 
-A skewed hash doesn't hurt the fixed-depth tree in the obvious way - it 
-just tends to leave a lot of half-full buckets around, which wastes 
-about 1/3 of the leaf space.  The reason for this behaviour is, when 
-you create a lot of sequentially-related names a skewed hash will tend 
-to dump a lot them into a tiny sliver of the hash space, and after 
-splitting the little sliver it's quite unlikely that later entries will 
-hit the same small range.  The only good protection against this is to 
-make the hash function vary wildly if even one bit in the string 
-changes.  This is what crc does, and that's why I'm interested in it.
+--- fs/OLDbinfmt_elf.c  Mon Mar 19 17:05:16 2001
++++ fs/binfmt_elf.c     Sat Jun  2 16:20:54 2001
+@@ -632,5 +632,5 @@
+                                load_bias += error -
+                                             ELF_PAGESTART(load_bias + vaddr);
+-                               load_addr += error;
++                               load_addr += load_bias;
+                        }
+                }
+=====
+Please cc: me if appropriate; I'm not subscribed.
 
-I've rehabilitated the hack_show_dir code, which is enabled by 
-#defining DX_HACK.  To kprint a dump of hash buckets and statistics do:
+To demonstrate the problem on i386:
+cat >foo.s <<EOF
+	.section ".interp"
+	.asciz "/tmp/ld-linux.so.2"
+	.text
+_start:	.weak _start
+main:	.weak main
+foo:
+	jmp foo
+EOF
 
-    cat /test_partition/indexed_dir
+gcc -nostartfiles -o foo.so foo.s      
+# Now, binary edit foo.so to change Elf32_Ehdr.e_type from ET_EXEC to ET_DYN.
+# The 'short' at file offset 0x10 goes from 2 to 3.
 
-This dump is extremely helpful in judging the effectiveness of hash 
-functions, just take a look at how the range of hash values that gets 
-mapped into each leaf block.  Ideally, there should not be too much 
-variance.
+cp  /lib/ld-linux.so.2  /tmp
+# Now, binary edit /tmp/ld-linux.so.2 so that it begins with an infinite loop.
+# "objdump -f" gives the entry address.  (short)0xfeeb is an infinite loop.
 
-The format of the dump is:
+nice ldd foo.so &  # Here is the failure.  Start in background at low priority.
 
-   bucketnumber:blocknumber hashstart/range (entrycount)
+cat /proc/<pid_of_foo.so>/maps  # I see  pid_of_foo.so = 2 + pid_of_nice
+# output:
+# 88048000-88049000 r-xp 00000000 03:07 2207  foo.so  # load_bias is 0x80000000
+# 88049000-8804a000 rw-p 00000000 03:07 2207  foo.so
 
-Yusuf Goolamabbas sent me a pointer to some new work on hash functions:
+gdb foo.so <pid_of_foo.so>  # Attach to process, and look at its memory.
+x/64x $esp  # and continue until seeing the AT_* on the stack.  I see
 
-   http://www.isthe.com/chongo/tech/comp/fnv/
+# 0xbffffa90:     0xbfffffe8      0x00000000      0x00000003      0x90090034
+# 0xbffffaa0:     0x00000004      0x00000020      0x00000005      0x00000005
+# 0xbffffab0:     0x00000006      0x00001000      0x00000007      0x40000000
+# 0xbffffac0:     0x00000008      0x00000000      0x00000009      0x88048114
 
-I coded up the fnv_hash and included it in today's patch - there is a 
-define to select which to use; dx_hack_hash is still the default.
+# which shows AT_PHDR at 0xbffffa9c of 0x90090034
+#                  which is too big by 0x08048000  [p_vaddr of first PT_LOAD]
+#         because the correct value is 0x88048034.
+# Note that  AT_ENTRY at 0xbffffacc is 0x88048114  which is correct.
 
-fnv_hash is only a little wose than dx_hack_hash, which still produces 
-the most uniform distribution of all the hash functions I've tested.   
-But I can see from the dumps that it's still not optimal, it's just 
-that all the others are worse.
-
-I still have quite a few leads to follow up on the hashing question.
-Next week I hope I'll get time to try crc32 as a hashing function.  I 
-hope it doesn't win because I'll need a 1K table to evaluate it, and 
-that would be 20% of the whole code size.
-
-The patch:
-
-    http://nl.linux.org/~phillips/htree/dx.pcache-2.4.5-2
-
---
-Daniel
+-- 
+John Reiser, jreiser@BitWagon.com

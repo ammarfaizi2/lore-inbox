@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264477AbTLLEtu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 23:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264480AbTLLEtu
+	id S264480AbTLLF2O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 00:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264489AbTLLF2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 23:49:50 -0500
-Received: from joel.ist.utl.pt ([193.136.198.171]:6098 "EHLO joel.ist.utl.pt")
-	by vger.kernel.org with ESMTP id S264477AbTLLEtt (ORCPT
+	Fri, 12 Dec 2003 00:28:14 -0500
+Received: from dp.samba.org ([66.70.73.150]:33222 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264480AbTLLF2N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 23:49:49 -0500
-Date: Fri, 12 Dec 2003 04:49:46 +0000 (WET)
-From: Rui Saraiva <rmps@joel.ist.utl.pt>
-To: linux-kernel@vger.kernel.org
-Subject: sparse/TSCT BitKeeper repository
-Message-ID: <Pine.LNX.4.58.0312120414360.8280@joel.ist.utl.pt>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Dec 2003 00:28:13 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
+Subject: Re: [CFT][RFC] HT scheduler 
+In-reply-to: Your message of "Thu, 11 Dec 2003 15:25:29 +1100."
+             <3FD7F1B9.5080100@cyberone.com.au> 
+Date: Fri, 12 Dec 2003 13:24:12 +1100
+Message-Id: <20031212052812.E016B2C072@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <3FD7F1B9.5080100@cyberone.com.au> you write:
+> http://www.kerneltrap.org/~npiggin/w26/
+> Against 2.6.0-test11
+> 
+> This includes the SMT description for P4. Initial results shows comparable
+> performance to Ingo's shared runqueue's patch on a dual P4 Xeon.
 
-Where is the sparse BK repository that used to be
-bk://kernel.bkbits.net/torvalds/sparse ?
-It seems there is an older version at bk://linux-dj.bkbits.net/sparse
+I'm still not convinced.  Sharing runqueues is simple, and in fact
+exactly what you want for HT: you want to balance *runqueues*, not
+CPUs.  In fact, it can be done without a CONFIG_SCHED_SMT addition.
 
-Also in the subject, I got lots of "attribute 'alias': unknown attribute"
-warnings in the kernel source in lines with module_init(), module_exit()
-and others. A simple fix might be
+Your patch is more general, more complex, but doesn't actually seem to
+buy anything.  It puts a general domain structure inside the
+scheduler, without putting it anywhere else which wants it (eg. slab
+cache balancing).  My opinion is either (1) produce a general NUMA
+topology which can then be used by the scheduler, or (2) do the
+minimal change in the scheduler which makes HT work well.
 
-	if (match_string_ident(attribute, "alias"))
-		return NULL;
+Note: some of your changes I really like, it's just that I think this
+is overkill.
 
-near the end of handle_attribute() in parse.c
+I'll produce a patch so we can have something solid to talk about.
 
-
-Regards,
-	Rui Saraiva
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,42 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129172AbRBNShI>; Wed, 14 Feb 2001 13:37:08 -0500
+	id <S130735AbRBNSkI>; Wed, 14 Feb 2001 13:40:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129445AbRBNSg6>; Wed, 14 Feb 2001 13:36:58 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:16908 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129172AbRBNSgp>;
-	Wed, 14 Feb 2001 13:36:45 -0500
-Date: Wed, 14 Feb 2001 19:36:35 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Mordechai Ovits <movits@ovits.net>
-Cc: Yoann Vandoorselaere <yoann@mandrakesoft.com>,
-        "Mohammad A. Haque" <mhaque@haque.net>,
-        Rick Hohensee <humbubba@smarty.smart.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Reason (was: Re: dropcopyright script)
-Message-ID: <20010214193635.A29579@pcep-jamie.cern.ch>
-In-Reply-To: <200102140647.BAA24740@smarty.smart.net> <3A8A86ED.F8397F69@haque.net> <20010214093336.A8748@ovits.net> <m366iduycv.fsf@localhost.localdomain> <20010214094401.A8845@ovits.net>
-Mime-Version: 1.0
+	id <S130736AbRBNSj6>; Wed, 14 Feb 2001 13:39:58 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:2533 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S130735AbRBNSjw>; Wed, 14 Feb 2001 13:39:52 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org,
+        "Andreas J. Koenig" <andreas.koenig@anima.de>
+Subject: [Patch] make file times work in tmpfs
+Organisation: SAP LinuxLab
+Message-ID: <m3hf1x16ed.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010214094401.A8845@ovits.net>; from movits@ovits.net on Wed, Feb 14, 2001 at 09:44:01AM -0500
+Date: 14 Feb 2001 19:45:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mordechai Ovits wrote:
-> > > In newer file managers, the icon of a C file is a tiny image of the first
-> > > few lines of text.  If all files startt with a copyright, it's not much
-> > > good.  So running this on a local, personal, tree can be a good thing.
-> > 
-> > Modifying the file manager to take care of that would
-> > be a proper solution I think... 
-> 
-> hard to imagine that working for any general solution.  Better to let people
-> mess with their own files using a script like the one posted.
+Hi Alan,
 
-According to GNU standards <;-)> all files should begin with a short
-description of the contents of the file, 1 or 2 lines long.  The
-copyright notice comes next.  Surely that's enough to identify an icon?
+here is a patch that makes the different file timestamps work on
+tmpfs.
 
--- Jamie
+Greetings
+		Christoph
+
+--- mac10/mm/shmem.c.orig	Wed Feb 14 14:39:46 2001
++++ mac10/mm/shmem.c	Wed Feb 14 15:30:09 2001
+@@ -160,6 +160,7 @@
+ 	swp_entry_t **base, **ptr, **last;
+ 	struct shmem_inode_info * info = &inode->u.shmem_i;
+ 
++	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
+ 	spin_lock (&info->lock);
+ 	index = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+ 	if (index > info->max_index)
+@@ -734,6 +735,7 @@
+ 	struct inode * inode = shmem_get_inode(dir->i_sb, mode, dev);
+ 	int error = -ENOSPC;
+ 
++	dir->i_ctime = dir->i_mtime = CURRENT_TIME;
+ 	if (inode) {
+ 		d_instantiate(dentry, inode);
+ 		dget(dentry); /* Extra count - pin the dentry in core */
+@@ -767,6 +769,7 @@
+ 	if (S_ISDIR(inode->i_mode))
+ 		return -EPERM;
+ 
++	inode->i_ctime = dir->i_ctime = dir->i_mtime = CURRENT_TIME;
+ 	inode->i_nlink++;
+ 	atomic_inc(&inode->i_count);	/* New dentry reference */
+ 	dget(dentry);		/* Extra pinning count for the created dentry */
+@@ -809,7 +812,9 @@
+ 
+ static int shmem_unlink(struct inode * dir, struct dentry *dentry)
+ {
+-	dentry->d_inode->i_nlink--;
++	struct inode *inode = dentry->d_inode;
++	inode->i_ctime = dir->i_ctime = dir->i_mtime = CURRENT_TIME;
++	inode->i_nlink--;
+ 	dput(dentry);	/* Undo the count from "create" - this does all the work */
+ 	return 0;
+ }
+@@ -836,10 +841,12 @@
+ 	if (shmem_empty(new_dentry)) {
+ 		struct inode *inode = new_dentry->d_inode;
+ 		if (inode) {
++			inode->i_ctime = CURRENT_TIME;
+ 			inode->i_nlink--;
+ 			dput(new_dentry);
+ 		}
+ 		error = 0;
++		old_dentry->d_inode->i_ctime = old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
+ 	}
+ 	return error;
+ }
+@@ -873,6 +880,7 @@
+ 	UnlockPage(page);
+ 	page_cache_release(page);
+ 	up(&inode->i_sem);
++	dir->i_ctime = dir->i_mtime = CURRENT_TIME;
+ 	return 0;
+ fail:
+ 	up(&inode->i_sem);
+

@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264208AbTFKIwb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 04:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264242AbTFKIwb
+	id S264235AbTFKItC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 04:49:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTFKItB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 04:52:31 -0400
-Received: from smtp02.web.de ([217.72.192.151]:10002 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S264208AbTFKIw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 04:52:29 -0400
-Subject: can a process modify these proc filesystem informations?
-From: Martin MAURER <martin.maurer@email.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iAXw5gZQTnpBuuEu1jRS"
-Organization: 
-Message-Id: <1055322395.830.11.camel@z439-033-17.raab-heim.uni-linz.ac.at>
+	Wed, 11 Jun 2003 04:49:01 -0400
+Received: from smithers.nildram.co.uk ([195.112.4.34]:7442 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S264235AbTFKItA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 04:49:00 -0400
+Date: Wed, 11 Jun 2003 10:00:01 +0100
+From: Joe Thornber <thornber@sistina.com>
+To: Christophe Saout <christophe@saout.de>
+Cc: Shane Shrybman <shrybman@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.70-mm7
+Message-ID: <20030611090001.GB2499@fib011235813.fsnet.co.uk>
+References: <1055286765.2371.4.camel@mars.goatskin.org> <1055288033.27439.4.camel@chtephan.cs.pocnet.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 11 Jun 2003 11:06:35 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1055288033.27439.4.camel@chtephan.cs.pocnet.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christophe,
 
---=-iAXw5gZQTnpBuuEu1jRS
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jun 11, 2003 at 01:33:53AM +0200, Christophe Saout wrote:
+> Ok, I think I found the problem.
 
-Hi all,
+You are quite right.  I am an idiot.  I think the simplest way to fix
+this is stop trying to overload the 'minor' argument to dm_create, and
+instead have a seperate dm_create_with_minor function call.
 
-Please CC me in your replies. (not subscribed to the list)
+ie.
 
-I am developping a firewall application[1], that filters connections
-(besides other informations) on the process which is sending/receiving
-the packets. To get the corresponding process name I use the following
-method:
-1.) i get the ip/port from ip_queue
-2.) i search for the inode in /proc/sys/tcp[udp]
-3.) i search in /proc/xxx/fd/ for the inode
-4.) i get the executeable name by examining /proc/xxx/fd/exe
-xxx being all pids in /proc
+int dm_create(struct dm_table *table, struct mapped_device **md);
+int dm_create_with_minor(unsigned int minor, struct dm_table *table,
+			 struct mapped_device **md);
 
+I'm testing a patch for this now (with LVM this time, not just
+dmsetup), and will post to the list in the next hour.
 
-I just wanted to know if it is possible for a non-root process to
-modify:=20
-- /proc/PID/exe
-- /proc/PID/fd
-- /proc/sys/tcp
+Sorry for the inconvenience,
 
-ie: Is the infomation I get this way reliable or can it be faked.
-
-greetings
-Martin Maurer
-
-[1] http://fireflier.sf.net
-
---=-iAXw5gZQTnpBuuEu1jRS
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP MESSAGE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+5vEbXHsqb5Up6wURApd6AJ4piqmottbaIrLAQoVqzgy93jhlxQCgg4YX
-jwxojWbl1xTGGljSAa29+oI=
-=aU2b
------END PGP MESSAGE-----
-
---=-iAXw5gZQTnpBuuEu1jRS--
-
+- Joe

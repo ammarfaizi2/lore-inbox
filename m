@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266885AbUHCVkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266895AbUHCVlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266885AbUHCVkb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 17:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUHCVkb
+	id S266895AbUHCVlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 17:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUHCVlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 17:40:31 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:39617 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S266890AbUHCVkJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 17:40:09 -0400
-Date: Tue, 3 Aug 2004 23:39:42 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch] mlock-as-nonroot revisted
-Message-ID: <20040803213942.GL2241@dualathlon.random>
-References: <20040803212231.GJ2241@dualathlon.random> <Pine.LNX.4.44.0408031729100.5948-100000@dhcp83-102.boston.redhat.com>
+	Tue, 3 Aug 2004 17:41:00 -0400
+Received: from albireo.ucw.cz ([81.27.203.89]:21380 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S266887AbUHCVjU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 17:39:20 -0400
+Date: Tue, 3 Aug 2004 23:39:21 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Message-ID: <20040803213921.GA4585@ucw.cz>
+References: <20040803213121.GA4410@ucw.cz> <20040803213624.46232.qmail@web14930.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0408031729100.5948-100000@dhcp83-102.boston.redhat.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040803213624.46232.qmail@web14930.mail.yahoo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 05:31:08PM -0400, Rik van Riel wrote:
-> If root wants to screw over a user, there's nothing we
-> can do.  I am not worried about the scenario you describe
-> because hugetlbfs seems to be used only by Oracle anyway,
-> so you won't run into issues like you describe.
+> lspci -b would be great but it doesn't seem to have implemented dumping
+> the ROM location. It dumps everything else.
 
-hugetlbfs isn't only used by oracle. Anyways if you were right then why
-is there a IPC_CAP_LOCK in hugetlbfs in the first place? If Oracle is
-the only user then just drop such check and stop binding rlimits to
-persistent fs objects.
+Ah well, I see the problem -- it doesn't display disabled ROMs.
 
-> It would be different for a general purpose filesystem,
-> but I'd like to see a usage case for your scenario before
-> making the code overly complex.
+The following quick hack should cure it:
 
-if calling chown on hugetlbfs makes no sense then why is chown available
-in the first place?
+--- orig/lib/generic.c
++++ mod/lib/generic.c
+@@ -160,7 +160,9 @@
+       if (reg)
+ 	{
+ 	  u32 a = pci_read_long(d, reg);
++#if 0
+ 	  if (a & PCI_ROM_ADDRESS_ENABLE)
++#endif
+ 	    d->rom_base_addr = a;
+ 	}
+     }
+
+
+
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+A student who changes the course of history is probably taking an exam.

@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130582AbRAZVMl>; Fri, 26 Jan 2001 16:12:41 -0500
+	id <S130147AbRAZVON>; Fri, 26 Jan 2001 16:14:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130320AbRAZVMW>; Fri, 26 Jan 2001 16:12:22 -0500
-Received: from [63.95.13.242] ([63.95.13.242]:20320 "EHLO
-	zso-powerapp-01.zeusinc.com") by vger.kernel.org with ESMTP
-	id <S130147AbRAZVMQ>; Fri, 26 Jan 2001 16:12:16 -0500
-Message-ID: <006d01c087dc$7dd7e670$1a040a0a@zeusinc.com>
-From: "Tom Sightler" <ttsig@tuxyturvy.com>
-To: <barryn@pobox.com>, "Michael B. Trausch" <fd0man@crosswinds.net>
-Cc: "Georg Nikodym" <georgn@somanetworks.com>, <linux-kernel@vger.kernel.org>,
-        "Alan Cox" <alan@redhat.com>, "Zack Brown" <zab@redhat.com>
-In-Reply-To: <200101262057.MAA02372@cx518206-b.irvn1.occa.home.com>
-Subject: Re: Possible Bug:  drivers/sound/maestro.c
-Date: Fri, 26 Jan 2001 16:11:01 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S130320AbRAZVOC>; Fri, 26 Jan 2001 16:14:02 -0500
+Received: from kleopatra.acc.umu.se ([130.239.18.150]:4814 "EHLO
+	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
+	id <S130147AbRAZVNx>; Fri, 26 Jan 2001 16:13:53 -0500
+Date: Fri, 26 Jan 2001 22:13:36 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Stefani Seibold <stefani@seibold.net>
+Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: patch for 2.4.0 disable printk
+Message-ID: <20010126221336.A9040@khan.acc.umu.se>
+In-Reply-To: <01012621460200.01354@deepthought.seibold.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <01012621460200.01354@deepthought.seibold.net>; from stefani@seibold.net on Fri, Jan 26, 2001 at 09:46:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I haven't done any sound stuff with 2.4 on my Dell Inspiron 5000e, but I
-> have this problem (or a similar one, anyway -- sometimes the sound becomes
-> distorted or comes only through one speaker) under both Linux 2.2 and
-> Win2K. If it was just Linux, I'd assume it was a driver problem, but the
-> fact that I'm getting very similar misbehavior from both Linux and Win2K
+On Fri, Jan 26, 2001 at 09:46:02PM +0100, Stefani Seibold wrote:
+> Hi Linus,
+> Hi Alan,
+> Hi everybody,
+> 
+> this kernel patch allows to disable all printk messages, by
+> overloading the printk function with a dummy printk macro.
+> 
+> This patch is usefull for embedded systems, where the hardware never
+> changes and normaly no textconsole is attachted nor any user will see
+> the boot messages. Also, it is nice for rescue disks.
+> 
+> On my system this saves about 10% of disk- and ramspace.
+> 
+> For example: My standart desktop kernel is 994834 bytes, without
+> printk messages it is only 899664 bytes long. The basic kernel ram
+> usage is also 10% less than the same kernel with printk messages.
 
-Just to add a note, my Dell Inspiron 5000e also exhibits this problem under
-both Linux and W2K.  I've never heard it happen under Win98 but I spend very
-little time actually running that OS (I occasionally boot it to troubleshoot
-client issues that are still running on Win95/98) compared to the others so
-that probably doesn't mean a lot.
-
-I've also tried the ALSA drivers on this machine but have never has success
-in even getting their Maestro driver to work on this machine.  I do have
-ALSA drivers working on several desktop machines at home and have always had
-good success with them, but they fail miserably for me on this laptop.  I
-haven't tried the absolute latest version released earlier this week though,
-maybe over the weekend.
-
-> (I don't have Win98 or ME on the machine, so I can't test that) makes me
-> really wonder...
-
-It makes me wonder as well, maybe I'll try to force myself to use Win98 for
-a while and see if I can force the problem to occur there as well.
-
-Later,
-Tom
+This could probably be a useful hack, but I suggest you move the
+config-option to the "Kernel hacking"-section.
 
 
-
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

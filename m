@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264910AbTAESZ0>; Sun, 5 Jan 2003 13:25:26 -0500
+	id <S264972AbTAESc2>; Sun, 5 Jan 2003 13:32:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264945AbTAESZ0>; Sun, 5 Jan 2003 13:25:26 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:4512 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S264910AbTAESZ0>; Sun, 5 Jan 2003 13:25:26 -0500
-From: Richard Stallman <rms@gnu.org>
-To: lm@bitmover.com
-CC: linux-kernel@vger.kernel.org, mark@mark.mielke.cc, billh@gnuppy.monkey.org,
-       paul@clubi.ie, riel@conectiva.com.br, Hell.Surfers@cwctv.net
-In-reply-to: <20030104222330.GA1386@work.bitmover.com> (message from Larry
-	McVoy on Sat, 4 Jan 2003 14:23:30 -0800)
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Reply-to: rms@gnu.org
-References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com>
-Message-Id: <E18VFaz-0008S0-00@fencepost.gnu.org>
-Date: Sun, 05 Jan 2003 13:34:01 -0500
+	id <S264975AbTAESc2>; Sun, 5 Jan 2003 13:32:28 -0500
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:63422 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S264972AbTAESc1>; Sun, 5 Jan 2003 13:32:27 -0500
+Date: Sun, 5 Jan 2003 13:23:54 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] acpi_os_queue_for_execution()
+Message-ID: <20030105132354.G628@nightmaster.csn.tu-chemnitz.de>
+References: <F760B14C9561B941B89469F59BA3A84725A107@orsmsx401.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A107@orsmsx401.jf.intel.com>; from andrew.grover@intel.com on Fri, Jan 03, 2003 at 11:00:04AM -0800
+X-Spam-Score: -2.9 (--)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18VFhj-0003VN-00*LJZe4pkPijc*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Linux is a copy of Unix.  There is very little new stuff in Linux.
+Hi Andrew,
 
-This is no coincidence.  GNU/Linux parallels Unix because I chose that
-design in 1983.  It is foolish to focus on innovation when you are
-starting a race with a multi-year handicap.  The first task is to
-catch up.
+On Fri, Jan 03, 2003 at 11:00:04AM -0800, Grover, Andrew wrote:
+> > From: Pavel Machek [mailto:pavel@ucw.cz] 
+> > Acpi seems to create short-lived kernel threads, and I don't quite
+> > understand why. 
+[...]
+> > and acpi_thermal_run creates kernel therad that runs
+> > acpi_thermal_check. Why is not acpi_thermal_check called directly? I
+> > don't like idea of thread being created every time thermal zone needs
+> > to be polled...
+> 
+> Are we allowed to block in a timer callback? One of the things
+> thermal_check does is call a control method, which in turn can be very
+> slow, sleep, etc., so I'd guess that's why the code tries to execute
+> things in its own thread.
 
-The primary purpose of GNU is the freedom to cooperate.  Innovation is
-nice, but secondary.  We followed the design of Unix because that was
-the most reliable way to produce a working portable system.  We made
-it compatible with Unix so that many users could easily switch to it.
-We deliberately avoided innovative approaches in many cases--the
-noteworthy exception being the GNU Hurd.  (Perhaps that exception was
-a bad decision.)
+No you just have to switch completely to schedule_work() as you
+do for calls from interrupts. The limitations you mention in
+osl.c for this function are lifted (look at linux/kernel/workqueue.c) and
+we have per CPU workqueues now.
 
-Although innovation is not our primary focus, there is a fair amount
-of innovation in GNU packages.  GNU Emacs is better than any previous
-Emacs.  (The first Emacs was another innovation in our community.)
-GCC was the first portable truly optimizing compiler, and the first
-optimizing compiler that supported debugging.  Autoconf was an
-innovation in portability technology.  Looking elsewhere in our
-community, Perl and Python seem to be innovative; the X Window System
-was too.  There are surely more examples that I don't know of.
+So no need for this uglification and less code to maintain for
+you ;-)
 
-    You get the idea.  Sun makes more in 2 days than Red Hat makes all year.
+The short lived threads are not necessary anymore. If this
+thermal check will happen often an extra permanent thread for
+this, which is kicked by a timer might be more apropriate here.
 
-This is very significant if money is your main goal.  Both GNU and
-Linux exist because of people who have different priorities.
+That thread could be started, once the thermal control is loaded.
 
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

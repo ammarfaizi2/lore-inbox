@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263752AbTFALRp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 07:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbTFALRo
+	id S264536AbTFALcE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 07:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTFALcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 07:17:44 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:56988 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S263752AbTFALRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 07:17:44 -0400
-Date: Sun, 1 Jun 2003 13:30:50 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Taral <taral@taral.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Modular IDE completely broken
-Message-ID: <20030601113050.GE27692@louise.pinerecords.com>
-References: <20030601055414.GA11218@taral.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030601055414.GA11218@taral.net>
-User-Agent: Mutt/1.4.1i
+	Sun, 1 Jun 2003 07:32:04 -0400
+Received: from ep09.kernel.pl ([212.87.11.162]:63592 "EHLO ep09.kernel.pl")
+	by vger.kernel.org with ESMTP id S264536AbTFALcD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 07:32:03 -0400
+Date: Sun, 1 Jun 2003 13:45:24 +0200 (CEST)
+From: Krzysiek Taraszka <dzimi@pld.org.pl>
+X-X-Sender: dzimi@ep09.kernel.pl
+To: Alan Cox <alan@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21rc6-ac1
+In-Reply-To: <200305311153.h4VBrNi21640@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.50L.0306011336270.1596-100000@ep09.kernel.pl>
+References: <200305311153.h4VBrNi21640@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [taral@taral.net]
-> 
-> I've submitted this patch before, but I think it got ignored. This makes
-> modular IDE at least compile and removes the circular dependencies.
-> 
-> If there's a reason this patch isn't being applied (it's crappy, someone
-> else is working on this problem already, etc.), _please_ tell me!
+On Sat, 31 May 2003, Alan Cox wrote:
+> o	First cut at making modular IDE happy again	(me)
 
-Alan Cox is working on the problem ATM, check 2.4.21-rc6-ac1.
+hm, seems to ide stil broken ..
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.21-rc6-ac1/kernel/drivers/ide                                            
+/ide-core.o
+depmod:         init_cmd640_vlb
+
+hmm, but now init_cmd640_vlb is unresolved, not cmd640_vlb witch was a 
+variable, now init_cmd640_vlb is function.
+Hmm ... im going to read ide code again and maybe fix it (if i could ;))
+
+--
+Krzysiek Taraszka			(dzimi@pld.org.pl)
+http://cyborg.kernel.pl/~dzimi/
+

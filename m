@@ -1,94 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbTFXLB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 07:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTFXLB3
+	id S261932AbTFXLG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 07:06:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTFXLG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 07:01:29 -0400
-Received: from [66.155.158.133] ([66.155.158.133]:16768 "EHLO
-	ns.waumbecmill.com") by vger.kernel.org with ESMTP id S261876AbTFXLBX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 07:01:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: joe briggs <jbriggs@briggsmedia.com>
-Organization: BMS
-To: Stewart Smith <stewart@linux.org.au>, Hans Reiser <reiser@namesys.com>
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM] (sorry)
-Date: Tue, 24 Jun 2003 08:13:20 -0400
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <200306231945.34245.gallir@uib.es> <3EF7E9A1.4020801@namesys.com> <20030624104727.GA8052@cancer>
-In-Reply-To: <20030624104727.GA8052@cancer>
+	Tue, 24 Jun 2003 07:06:27 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:25094 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261932AbTFXLG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 07:06:26 -0400
+From: vanstadentenbrink@ahcfaust.nl
+To: linux-kernel@vger.kernel.org
+Date: Tue, 24 Jun 2003 13:20:36 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200306240813.20632.jbriggs@briggsmedia.com>
+Subject: RE: GPL violations by wireless manufacturers
+Message-ID: <3EF85024.4477.78EB14@localhost>
+In-reply-to: <MDEHLPKNGKAHNMBLJOLKKEEDDOAA.davids@webmaster.com>
+References: <3EF83FAF.24578.38A16F@localhost>
+X-mailer: Pegasus Mail for Windows (v4.11)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans - 
-Here's a thought to chew on.  I _value_ your software and use it extensively 
-(along with other linux software).  Out of necessity I painfully roll my own 
-Debian distro/kernel and flinch _every_ time I use apt to update my boxes 
-(wondering if some damn PAM module is going to hose me).  Anyway, the point 
-is, I build video servers that I sell for a profit - it is how I make my 
-living.  I am also aware that in reality I am making a living off of the 
-backs of you (ala reiserfs) and others like you.  The reason that I use linux 
-is not because its free, but because it takes much less time to develop and 
-maintain my video applications under linux than windows,  because I can 
-remotely service and maintain the boxes that I sell, and because linux has 
-proven to be more reliable than the windows os that I used to base my product 
-on.  You see, the price is not the issue, its features, performance, and 
-reliability are.  So, consider this:  YOU roll a DEB-REISER distribution 
-targeted toward system builders such as me, that more smoothly incorporates 
-reisefs than does the woody cd's (and a lot less generic), and then support 
-the reiser-related issues, and I will happily pay you $100  per machine. It 
-is well worth it to me to keep you in business (not that my volume alone 
-would do it, but I am sure that there are a lot of others like me).  Don't 
-worry about putting in a licensing agent - honesty really works here.  I used 
-to base my product on RedHat and I purchased a copy of the OS for every box I 
-sold - not that a customer would ever look under the hood or even read the 
-docs, but it was my way of supporting the suppliers.  I don't use RedHat now 
-because I can't keep up with their release-to-release changes, and I need a 
-distro more turned toward enterprise servers.  The point is, I am not alone.
+[ Please CC replies as I am not subscribed ]
 
-Just a thought.
+In response to DS:
 
-Joe
+> So is a Linux distribution "a whole which is a work based on the" Linux
+> kernel? Would you argue that RedHat can't include proprietary software on
+> the same CD as the Linux kernel? All the software on the CD, assuming it's
+> Linux software, likewise extends the kernel through a well-defined boundary.
 
-On Tuesday 24 June 2003 06:47 am, Stewart Smith wrote:
-> On Tue, Jun 24, 2003 at 10:03:13AM +0400, Hans Reiser wrote:
-> > Umh, I would not mind something coming along to help me make it past
-> > October when my cash runs out.  Being able to afford a house is too much
-> > to ask but making payroll would be nice....  Government money has done a
-> > lot to keep me from going bankrupt.
->
-> May I suggest whacking an icon up with "Donate to ReiserFS" up there?
->
-> Samba and GNOME are two projects which do this and at least get a bit
-> of funding for it. Check out the samba one, tridge says it does okay
-> with the updating list of who's donated money - makes it into a bit
-> of a fun game for donators :)
->
-> You've probably already got the credit card processing infrastructure
-> around, so it could be minimal effort - with only possible gain.
->
-> I'm sure happy reiser users would be willing to chuck a couple of
-> bucks your way to ensure further development.
->
-> ----
-> Stewart Smith
-> Vice President, Linux Australia
-> http://www.linux.org.au (personal: http://www.flamingspork.com)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+No, definitely not. If that were the case, SuSE and Lindows etc. etc. 
+would not be able to distribute proprietary software together with 
+GPL'ed software. The GPL calls this 'mere aggregation':
 
--- 
-Joe Briggs
-Briggs Media Systems
-105 Burnsen Ave.
-Manchester NH 01304 USA
-TEL 603-232-3115 FAX 603-625-5809 MOBILE 603-493-2386
-www.briggsmedia.com
+"In addition, mere aggregation of another work not based on the 
+Program with the Program (or with a work based on the Program) on a 
+volume of a storage or distribution medium does not bring the other 
+work under the scope of this License."
+
+These wireless products are different. The user doesn't have a choice 
+to use or not to use the non-gpl'ed kernel module. He can not prevent 
+the module from loading, he can not remove it from the running kernel 
+and the device doesn't operate without the module. The module and the 
+embedded Linux OS on the device are so interconnected that they can 
+not be considered 'seperate works' under the GPL. Therefore the 
+kernel module actually is GPL software itself.
+
+Buffalo Technology's response indicates that they agree with me (or 
+perhaps they just don't want any trouble).
+
+In response to Zack Gilburd:
+
+> ...But where are the downloads? :-\
+
+They don't have to offer the source as a download under the GPL. They 
+just have to enable you to get to the source. As soon as Buffalo puts 
+on the their website that they use GPL'ed software (they said they 
+would do that within 48 hours) you should be able to request and 
+receive the source code of the embedded Linux OS as well as the 
+source code of the kernel module.
+
+
+Richard Ten Brink

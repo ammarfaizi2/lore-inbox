@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262560AbREZCuT>; Fri, 25 May 2001 22:50:19 -0400
+	id <S262575AbREZDMu>; Fri, 25 May 2001 23:12:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262557AbREZCuJ>; Fri, 25 May 2001 22:50:09 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:38510 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S262554AbREZCuA>; Fri, 25 May 2001 22:50:00 -0400
-Date: Fri, 25 May 2001 22:49:38 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
+	id <S262586AbREZDMl>; Fri, 25 May 2001 23:12:41 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:21562 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262575AbREZDM3>; Fri, 25 May 2001 23:12:29 -0400
+Date: Sat, 26 May 2001 05:11:56 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
 Subject: Re: Linux-2.4.5
-In-Reply-To: <20010526043835.R9634@athlon.random>
-Message-ID: <Pine.LNX.4.33.0105252243570.3806-100000@toomuch.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010526051156.S9634@athlon.random>
+In-Reply-To: <20010526043835.R9634@athlon.random> <Pine.LNX.4.33.0105252243570.3806-100000@toomuch.toronto.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0105252243570.3806-100000@toomuch.toronto.redhat.com>; from bcrl@redhat.com on Fri, May 25, 2001 at 10:49:38PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, Andrea Arcangeli wrote:
+On Fri, May 25, 2001 at 10:49:38PM -0400, Ben LaHaise wrote:
+> Highmem.  0 free pages in ZONE_NORMAL.  Now try to allocate a buffer_head.
 
-> Allocating a buffer head during out of memory is always been deadlock
-> prone, 2.2 always had the same problem too. I'm not sure why you are
-> telling me this, I didn't changed anything that happens to be in the
-> swapout path (besides removing the deadlock in create_bounces with
-> evolution of first Ingo's patch but that is not specific to the
-> swapout). I only changed the getblk path (which is not used by the
-> swapout, at least unless you swapout on a file not on a blkdev, but even
-> in that case the change is fine).
+That's a longstanding deadlock, it was there the first time I read
+fs/buffer.c, nothing related to highmem, we have it in 2.2 too. Also
+getblk is deadlock prone in a smiliar manner.
 
-Highmem.  0 free pages in ZONE_NORMAL.  Now try to allocate a buffer_head.
-Running under heavy load runs into this even after there is a highmem
-bounce buffer pool.
+Can you try to simply change NR_RESERVED to say 200*MAX_BUF_PER_PAGE and
+see if it makes a difference? The unused_list logic doesn't give a
+guarantee either and it's one of the "hiding" logics, but it was working
+pretty well usually, maybe something changed that needs more than 2
+pages (16 bh) reserved?
 
-> btw in the below patch __GFP_FAIL is a noop.
-
-<shrug>  merge that patch from -ac then.
-
-		-ben
-
+Andrea

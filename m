@@ -1,43 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbVCDUpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263026AbVCDUWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbVCDUpg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 15:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbVCDUl6
+	id S263026AbVCDUWM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 15:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263046AbVCDUSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 15:41:58 -0500
-Received: from CYRUS.andrew.cmu.edu ([128.2.10.173]:32718 "EHLO
-	mail-fe3.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S263003AbVCDUha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:37:30 -0500
-Message-ID: <4228C6FD.5000409@andrew.cmu.edu>
-Date: Fri, 04 Mar 2005 15:37:17 -0500
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gerd Knorr <kraxel@bytesex.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Potentially dead bttv cards from 2.6.10
-References: <422001CD.7020806@andrew.cmu.edu> <20050228134410.GA7499@bytesex>	<42232DFC.6090000@andrew.cmu.edu> <87mzto3c78.fsf@bytesex.org>	<42240EB3.6040504@andrew.cmu.edu> <87is4b21s5.fsf@bytesex.org>
-In-Reply-To: <87is4b21s5.fsf@bytesex.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Mar 2005 15:18:07 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19113 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263109AbVCDUJ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:09:27 -0500
+Date: Fri, 4 Mar 2005 21:09:03 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@zip.com.au>, Hu Gang <hugang@soulinfo.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][0/3] swsusp: use non-contiguous memory
+Message-ID: <20050304200903.GA2385@elf.ucw.cz>
+References: <200503042049.36873.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503042049.36873.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a final update, I added the third card to another machine and that 
-doesn't work either.  So after trying 3 kernels on two machines with 
-either one or two cards, and trying the ~120 different card options for 
-bttv to no avail, I'll just guess this card isn't actually supported 
-right now.
+Hi!
 
-The strange thing is that it ever worked in the first place, and 
-amazingly that it worked the first time I tried it with no extra effort, 
-yet never again after a reboot, nor on any other machines.
+> The following set of patches is designed to fix a problem in the current
+> implementation of swsusp in mainline kernels.  Namely, swsusp uses
+> an array of page backup entries (aka pagedir) to store pointers to memory
+> pages that must be saved during suspend and restored during resume.
+> 
+> Unfortunately, the pagedir has to be located in a contiguous chunk of memory
+> and it sometimes turns out that an 8-order or even 9-order allocation is needed
+> for this purpose.  It sometimes is impossible to get such an allocation and
+> swsusp may fail during either suspend or resume due to the lack of memory,
+> although theoretically there is enough free memory for it to succeed.
+> 
+> Moreover, swsusp is more likely to fail for this reason during resume, which
+> means that it may fail during resume after a successful suspend
+> (this actually has happened for some people, including me :-)) and this,
+> potentially, may lead to the loss of data.
+> 
+> The problem is fixed by replacing the pagedir with a linklist so that
+> high-order memory allocations are avoided (the patches make swsusp use only
+> 0-order allocations).  Unfortunately this means that it's necessary to change
+> assembly routines used to restore the image after it's been loaded from
+> swap so that they walk the list instead of walking the array.
+> 
+> The patches are organized in the following way:
+> 
+> [1] suspend part
+> 	This patch makes swsusp allocate only individual pages during suspend.
+> 	It does not require any changes to assembly routines and is
+> 	architecture-independent.
+> 	It has been present in the -mm kernels for some time.
+> 	It contains some additional clean-ups and fixes from Pavel Machek
+> 	and Adrian Bunk.
+> 
+> [2] main resume part (core, i386, x86-64)
+> 	This patch makes swsusp allocate only individual pages during resume.
+> 	It contains the necessary changes to the assembly routines etc. for i386
+> 	and x86-64.
+> 	It depends on the suspend part.
+> 
+> [3] resume part - ppc support
+> 	This patch contains the necessary changes to the assembly routines
+> 	etc. for ppc.
+> 	It depends on the main resume part.
+> 	It's a Hu Gang's patch.
+> 
+> The patches are against 2.6.11.
+> 
+> Well, I hope I did it right. ;-)  Please consider for applying.
 
-I'll take this discussion to the video for linux mailing list and try to 
-find out how to add support for this card.  Once it works, I'll see if 
-my test program can still lock up the machine from userspace; If so 
-that'll be a separate issue to debug.  Thanks for the help.
-
-   Jim Bruce
+Wow, very nice summary. ACK on all 3 patches...
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

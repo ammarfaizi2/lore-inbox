@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVAENwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262426AbVAENyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbVAENwT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 08:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAENwT
+	id S262426AbVAENyL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 08:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVAENyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 08:52:19 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:51336 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262423AbVAENwQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 08:52:16 -0500
-Date: Wed, 5 Jan 2005 14:51:55 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: David Howells <dhowells@redhat.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] FRV: Fujitsu FR-V CPU arch implementation part 4
-In-Reply-To: <200501050712.j057CSTU032672@hera.kernel.org>
-Message-ID: <Pine.GSO.4.61.0501051450040.26733@waterleaf.sonytel.be>
-References: <200501050712.j057CSTU032672@hera.kernel.org>
+	Wed, 5 Jan 2005 08:54:11 -0500
+Received: from pcsbom.patni.com ([203.124.139.208]:44455 "EHLO
+	pcsbom.patni.com") by vger.kernel.org with ESMTP id S262426AbVAENxu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 08:53:50 -0500
+Reply-To: <sujeet.kumar@patni.com>
+From: "Sujeet Kumar" <sujeet.kumar@patni.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: data rescue
+Date: Wed, 5 Jan 2005 19:29:14 +0530
+Message-ID: <00e801c4f32e$bde1e600$7861a8c0@pcp40702>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="----------=_1104933705-24057-258"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jan 2005, Linux Kernel Mailing List wrote:
-> ChangeSet 1.2030, 2005/01/04 21:16:47-08:00, dhowells@redhat.com
-> 
-> 	[PATCH] FRV: Fujitsu FR-V CPU arch implementation part 4
-> 	
-> 	The attached patches provides part 4 of an architecture implementation
-> 	for the Fujitsu FR-V CPU series, configurably as Linux or uClinux.
+This is a multi-part message in MIME format...
 
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/arch/frv/kernel/process.c	2005-01-04 23:12:39 -08:00
-> @@ -0,0 +1,384 @@
-> +/*
-> + *  linux/arch/m68k/kernel/process.c
-                  ^^^^
-Can you please fix up these (there exist a few more) bogus file names? Thanks!
+------------=_1104933705-24057-258
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Gr{oetje,eeting}s,
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+I ran
+blockdev -v --rereadpt ....
+on my harddisk .
+It gave re-read partition succeded. Then after rebooting the machine it
+shows no partitions.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I tried running linux-rescue from bootable disk and it shows no valid
+partition table.
+How do i rescue my data . Tell me what rereadpt basically does
+
+
+
+
+
+
+
+
+
+
+
+
+
+http://www.patni.com
+World-Wide Partnerships. World-Class Solutions.
+_____________________________________________________________________
+
+This e-mail message may contain proprietary, confidential or legally
+privileged information for the sole use of the person or entity to
+whom this message was originally addressed. Any review, e-transmission
+dissemination or other use of or taking of any action in reliance upon
+this information by persons or entities other than the intended
+recipient is prohibited. If you have received this e-mail in error
+kindly delete  this e-mail from your records. If it appears that this
+mail has been forwarded to you without proper authority, please notify
+us immediately at netadmin@patni.com and delete this mail. 
+_____________________________________________________________________
+
+------------=_1104933705-24057-258--

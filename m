@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbTJ3NzN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 08:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTJ3NzN
+	id S262522AbTJ3NuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 08:50:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTJ3NuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 08:55:13 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:36529 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id S262407AbTJ3NzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 08:55:08 -0500
-Message-ID: <00c701c39eed$3aae3900$7708720a@wipro.com>
-From: "Anju" <anju.premachandran@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: SMP / HIGHMEM64 affects LKCD
-Date: Thu, 30 Oct 2003 19:23:42 +0530
+	Thu, 30 Oct 2003 08:50:16 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:47503 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262522AbTJ3NuM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 08:50:12 -0500
+Date: Thu, 30 Oct 2003 08:51:49 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Sreeram Kumar Ravinoothala <sreeram.ravinoothala@wipro.com>
+cc: "Magnus Naeslund(t)" <mag@fbab.net>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Question on SIGFPE
+In-Reply-To: <94F20261551DC141B6B559DC4910867217764F@blr-m3-msg.wipro.com>
+Message-ID: <Pine.LNX.4.53.0310300843320.6138@chaos>
+References: <94F20261551DC141B6B559DC4910867217764F@blr-m3-msg.wipro.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-X-OriginalArrivalTime: 30 Oct 2003 13:53:42.0468 (UTC) FILETIME=[3AA2A040:01C39EED]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+On Thu, 30 Oct 2003, Sreeram Kumar Ravinoothala wrote:
 
-I am facing some problems with lkcd in 2.4.19 kernel
-when SMP and HIGHMEM64 are enabled.
+>
+> Hi Mr Johnson,
+> 	Thanks for the mail and sorry for pestering you. Actually the
+> call __setfpucw is not visible anywhere. Should I use
+>  _FPU_SETCW(cw) instead of that?
+>
+> Thanks and Regards
+> SReeram
 
-When CONFIG_SMP is set to Y
-and when CONFIG_HIGHMEM64 is set,
-an invalid dump is produced.
+Yes. I just looked on a RH-9 system. The stuff I referenced
+was probably before there was a Red Hat!
 
-But I get proper dump for all other combinations.
-                                      TC1          TC2    TC3   TC4   TC5   TC6 
-CONFIG_SMP                Y               Y          Y        N        N       N
-CONFIG_HIGHMEM     64              4G    OFF    64G    4G    OFF 
+I don't like that MACRO. Hopefully it works. It accesses memory
+that may not exist if you do _FPU_SETCW(_FPU_DEFAULT).
 
-TC1 fails while TC2, TC3, TC4,TC5 and TC6 work!
+For safety do:
 
-Following is the behaviour of TC1.
-The current system tasks are displayed with "zeros"
-in all entries which is the output of 'ps' command.
-00000000       0       0       0 0x00 0x00000000     0:0
-00000000       0       0       0 0x00 0x00000000     0:0
-00000000       0       0       0 0x00 0x00000000     0:0
+fpu_control_t cw = _FPU_DEFAULT;
+_FPU_SETCW(cw);
 
-while no output is shown when given the 'trace command'.
-But i can see the output of the 'page' command.
 
-Any suggestions would be of great help
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Thanks,
-Anju    
 

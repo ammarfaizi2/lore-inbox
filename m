@@ -1,64 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284246AbRLPFff>; Sun, 16 Dec 2001 00:35:35 -0500
+	id <S284248AbRLPFkF>; Sun, 16 Dec 2001 00:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284248AbRLPFfZ>; Sun, 16 Dec 2001 00:35:25 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:8198 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S284246AbRLPFfO>; Sun, 16 Dec 2001 00:35:14 -0500
-Message-ID: <3C1C3252.EFA44817@zip.com.au>
-Date: Sat, 15 Dec 2001 21:34:10 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Patrick Mau <mau@oscar.prima.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops with 2.4.16-pre1 (nfs related)
-In-Reply-To: <20011216015622.GA913@oscar.dorf.de>
-Content-Type: text/plain; charset=us-ascii
+	id <S284253AbRLPFjz>; Sun, 16 Dec 2001 00:39:55 -0500
+Received: from sphere.open-net.org ([64.53.98.77]:3300 "HELO open-net.org")
+	by vger.kernel.org with SMTP id <S284248AbRLPFjr>;
+	Sun, 16 Dec 2001 00:39:47 -0500
+Date: Sun, 16 Dec 2001 00:33:56 -0500
+From: Robert Jameson <rj@open-net.org>
+To: linux-kernel@vger.kernel.org
+Subject: 8139too fails to compile
+Message-Id: <20011216003356.5abcc2ac.rj@open-net.org>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; @host_alias@)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mau wrote:
-> 
-> Hi all,
-> 
-> today I had the following oops which makes the machine hang.
-> Lots of processes where in D state and I had no keyboard so
-> I pushed the Big Button and rebooted.
-> 
-> The kernel runs without modules and uses ext3.
-> Hardware is an old AMD K6-2, 384MB RAM, IDE Disks
-> VIA chipset ... what else is important ?
-
-Old.
-
-Was this just a once-off?
-
-> ...
-> 
-> >>EIP; c0129cf8 <__insert_into_lru_list+1c/5c>   <=====
-> Trace; c012a5f0 <__refile_buffer+48/50>
-> Trace; c012a600 <refile_buffer+8/10>
-> Trace; c014dca4 <journal_dirty_data+168/19c>
-> Trace; c0146ab8 <journal_dirty_sync_data+14/58>
-> Trace; c0146922 <walk_page_buffers+56/7c>
-> Trace; c0146ccc <ext3_commit_write+104/1b4>
-> Trace; c0146aa4 <journal_dirty_sync_data+0/58>
-> Trace; c0120834 <generic_file_write+498/640>
-> Trace; c0144a06 <ext3_file_write+42/4c>
-> Trace; c0173638 <nfsd_write+120/29c>
-> Trace; c01782f2 <nfsd3_proc_write+ea/108>
-> Trace; c0170032 <nfsd_dispatch+d2/1a0>
-> Trace; c0215604 <svc_process+28c/4d8>
-> Trace; c016fe2a <nfsd+1b2/2e8>
-
-If anything, that would be an ext3 bug.  But that particular code
-path has been trodden so many times by so many machines that
-I'd be suspecting your RAM.  There are a couple of pointers
-in the buffer_head which should be zero, and one of them is not.
+Hello, I was trying to compile 2.4.17-rc1 with no luck, It looks like a GCC error.
 
 
--
+
+---
+
+Gcc:
+(root@pbx)(/usr/src/linux) -> gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-slackware-linux/3.0.2/specs
+Configured with: ../gcc-3.0.2/configure --prefix=/usr --enable-shared --with-gnu-ld --enable-threads --verbose --target=i386-slackware-linux --host=i386-slackware-linux
+Thread model: posix
+gcc version 3.0.2
+(root@pbx)(/usr/src/linux) -> 
+
+Error:
+
+8139too.c:2295: Unrecognizable insn:
+(insn/i 612 1054 1051 (parallel[ 
+            (set (reg:SI 6 ebp)
+                (asm_operands:SI ("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; sbbl $0,%0") ("=&r") 0[ 
+                        (reg/v:SI 1 edx [166])
+                        (mem:SI (plus:SI (reg/f:SI 6 ebp)
+                                (const_int -352 [0xfffffea0])) 0)
+                        (mem/s:SI (plus:SI (reg:SI 0 eax [174])
+                                (const_int 12 [0xc])) 0)
+                    ] 
+                    [ 
+                        (asm_input:SI ("1"))
+                        (asm_input:SI ("g"))
+                        (asm_input:SI ("g"))
+                    ]  ("/usr/src/linux/include/asm/uaccess.h") 558))
+            (set (reg/v:SI 1 edx [166])
+                (asm_operands:SI ("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; sbbl $0,%0") ("=r") 1[ 
+                        (reg/v:SI 1 edx [166])
+                        (mem:SI (plus:SI (reg/f:SI 6 ebp)
+                                (const_int -352 [0xfffffea0])) 0)
+                        (mem/s:SI (plus:SI (reg:SI 0 eax [174])
+                                (const_int 12 [0xc])) 0)
+                    ] 
+                    [ 
+                        (asm_input:SI ("1"))
+                        (asm_input:SI ("g"))
+                        (asm_input:SI ("g"))
+                    ]  ("/usr/src/linux/include/asm/uaccess.h") 558))
+            (clobber (reg:QI 19 dirflag))
+            (clobber (reg:QI 18 fpsr))
+            (clobber (reg:QI 17 flags))
+        ] ) -1 (insn_list 598 (insn_list 605 (nil)))
+    (nil))
+8139too.c:2295: Internal compiler error in reload_cse_simplify_operands, at reload1.c:8364
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
+make[3]: *** [8139too.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/net'
+make[2]: *** [first_rule] Error 2
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/net'
+make[1]: *** [_subdir_net] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
+
+
+-- 
+
+I'm praying for rain and I'm praying for tidal waves I wanna see the ground give way. 
+I wanna watch it all go down - tool.

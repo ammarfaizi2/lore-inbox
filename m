@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276702AbRJQNlt>; Wed, 17 Oct 2001 09:41:49 -0400
+	id <S276766AbRJQNqj>; Wed, 17 Oct 2001 09:46:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276766AbRJQNlk>; Wed, 17 Oct 2001 09:41:40 -0400
-Received: from sushi.toad.net ([162.33.130.105]:3998 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S276682AbRJQNl0> convert rfc822-to-8bit;
-	Wed, 17 Oct 2001 09:41:26 -0400
-Subject: Re: [PATCH] PnP BIOS patch against 2.4.12-ac2
-From: Thomas Hood <jdthood@mail.com>
-To: =?ISO-8859-1?Q?J=F6rg?= Ziuber <ziuber@ict.uni-karlsruhe.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BCD2510.9633D2BD@ict.uni-karlsruhe.de>
-In-Reply-To: <E15t6nz-000205-00@the-village.bc.nu>
-	<1003202856.12542.57.camel@thanatos> 
-	<3BCBE89C.ADD98E21@ict.uni-karlsruhe.de>
-	<1003268655.12542.67.camel@thanatos> 
-	<3BCD2510.9633D2BD@ict.uni-karlsruhe.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 17 Oct 2001 09:41:07 -0400
-Message-Id: <1003326069.14282.171.camel@thanatos>
-Mime-Version: 1.0
+	id <S276720AbRJQNqa>; Wed, 17 Oct 2001 09:46:30 -0400
+Received: from fe030.worldonline.dk ([212.54.64.197]:42762 "HELO
+	fe030.worldonline.dk") by vger.kernel.org with SMTP
+	id <S276682AbRJQNqR>; Wed, 17 Oct 2001 09:46:17 -0400
+Message-ID: <3BCD89FA.6050209@eisenstein.dk>
+Date: Wed, 17 Oct 2001 15:39:06 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+Organization: Eisenstein
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+Subject: Re: console_loglevel is broken on ia64
+In-Reply-To: <2784.1003325102@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-10-17 at 02:28, Jörg Ziuber wrote:
-> Thomas Hood wrote:
-> > Is this problem related to the PnP BIOS patch?  That is,
-> > do you have the same problem with a kernel that lacks the
-> > patch?
+Keith Owens wrote:
+
+> kernel/printk.c has this abomination.
 > 
-> Maybe it is related.
-> This is at least a Sony Vaio problem, because attaching the same USB
-> device to other PCs with the same (kernel)installation works without
-> problems.
-> It was checked to be USB-device-independent with the Vaio (same problem
-> with any device).
-> Because USB even works on the Vaio under Windows, the USB developers
-> (uhci) told me to look in linux-kernel for the PCI/IRQ programmers due
-> to a potentially broken BIOS ("IRQ routing problem")- that's where I am
-> now (?).
+> /* Keep together for sysctl support */
+> int console_loglevel = DEFAULT_CONSOLE_LOGLEVEL;
+> int default_message_loglevel = DEFAULT_MESSAGE_LOGLEVEL;
+> int minimum_console_loglevel = MINIMUM_CONSOLE_LOGLEVEL;
+> int default_console_loglevel = DEFAULT_CONSOLE_LOGLEVEL;
 > 
-> A kernel without the patch results in the same non-recognition
-> (non-USB-number-assignment) of the USB device, but when booting I get
-> errors concerning a multiple reservation of IRQ9. With the patch there
-> are no errors of that kind (see last mail).
+> sysctl assumes that the 4 variables occupy contiguous storage.  They
+> don't on ia64, console_loglevel is separate from the other variables.
+> 
+>   echo 6 4 1 7 > /proc/sys/kernel/printk
+>   
+> on ia64 overwrites console_loglevel and the next 3 integers, whatever
+> they happen to be.  On 2.4.12 it corrupts console_sem, other ia64
+> kernels will corrupt different data.
+> 
+> Does anybody fancy a small project to clean up these variables?
 
-That puzzles me.  I'm not sure how my patch could affect
-IRQ handling.  Could you please try the version of the
-patch that I submitted last night under the title
-"[PATCH] PnP BIOS -- new"?  Let me know whether you do
-or you do not get the error messages concerning multiple
-reservations of IRQ9.
+I would like to give it a try. Seems like a good little project for one 
+who is trying to learn his way around the kernel :)  It will probably 
+take me a lot longer than one of the experienced kernel hackers and 
+would probably not be perfect on the first try, but I'm willing to 
+invest some time in it.
 
-> And the "feature", that USB
-> works when the shared interrupt is busy (same effect with unpatched
-> kernel), makes me feel that there is a IRQ problem, specific to Sony
-> Vaio. So, the PnP-BIOS-patch is my hope because it cares about Sony Vaio
-> (BIOS/IRQ?) specials.
 
-I wouldn't hope too strongly that my patch will help you.
-
-Just to be clear.  IIUC you are saying that my patch isn't
-the cause of your problem; it's just that it doesn't solve
-your problem.  Is that right?
-
---
-Thomas
-
+Best regards,
+Jesper Juhl
 
 
 

@@ -1,86 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136394AbREIM6f>; Wed, 9 May 2001 08:58:35 -0400
+	id <S136462AbREIOCf>; Wed, 9 May 2001 10:02:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136398AbREIM60>; Wed, 9 May 2001 08:58:26 -0400
-Received: from ns.heidelberg.com ([193.158.227.197]:1758 "EHLO
-	wiens011.heidelberg.com") by vger.kernel.org with ESMTP
-	id <S136394AbREIM6P>; Wed, 9 May 2001 08:58:15 -0400
-Date: Wed, 9 May 2001 14:58:13 +0200 (CEST)
-From: Roman Fietze <fietze@swec.muh.de.heidelberg.com>
-Reply-To: Roman Fietze <roman.fietze@de.heidelberg.com>
-To: Avery Pennarun <apenwarr@worldvisions.ca>, <linux-kernel@vger.kernel.org>
-cc: Javier Lipiz DDF-T SWEC ESW <Javier.Lipiz@de.heidelberg.com>
-Subject: Arcnet, com20020, com20020-pci in 2.4.4 (and earlier)
-Message-ID: <Pine.LNX.4.33.0105091411500.27996-100000@kagcpd05.muh.de.heidelberg.com>
+	id <S136464AbREIOC0>; Wed, 9 May 2001 10:02:26 -0400
+Received: from bugs.unl.edu.ar ([168.96.132.208]:45735 "HELO bugs.unl.edu.ar")
+	by vger.kernel.org with SMTP id <S136462AbREIOCJ>;
+	Wed, 9 May 2001 10:02:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: =?iso-8859-1?q?Mart=EDn=20Marqu=E9s?= <martin@bugs.unl.edu.ar>
+To: linux-kernel@vger.kernel.org
+Subject: reiserfs, xfs, ext2, ext3
+Date: Wed, 9 May 2001 10:38:14 +0300
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01050910381407.26653@bugs>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-We had problems getting a Contemporary Controls PCI22 Arcnet Device to
-work. In the case of compilation as modules check_region returned "already
-in use" and in neither case the driver worked (arc0 never showed up).
+We are waiting for a server with dual PIII, RAID 1,0 and 5 18Gb scsi disks to 
+come so we can change our proxy server, that will run on Linux with Squid. 
+One disk will go inside (I think?) and the other 4 on a tower conected to the 
+RAID, which will be have the cache of the squid server.
 
-We did some source code reading and came up with the changes below. The
-first change (com20020.c) was to test the return value of request_region
-properly, and this routine returns 0 on failure. The second change is to
-leave out the check_region call in the pci version (com20020-pci.c). Here
-we still do not know why this does not work. Some enlightenment from
-others would be fine.
+One of my partners thinks that we should use reiserfs on all the server (the 
+partitions of the Linux distro, and the cache partitions), and I found out 
+that reiserfs has had lots of bugs, and is marked as experimental in kernel 
+2.4.4. Not to mention that the people of RH discourage there users from using 
+it.
 
-Please use and test with care, as usual :)
+There has also been lots of talks about reiserfs being the cause of some data 
+lose and performance lose (not sure about this last one).
 
+So what I want is to know which is the status of this 3 journaling FS. Which 
+is the one we should look for?
 
---- ./linux-2.4.4/drivers/net/arcnet/com20020.c Tue Feb 13 22:15:05 2001
-+++ ./linux-2.4.4-updated/drivers/net/arcnet/com20020.c Wed May  9
-13:55:38 2001
-@@ -202,7 +202,7 @@
-                return -ENODEV;
-        }
-        /* reserve the I/O region */
--       if (request_region(ioaddr, ARCNET_TOTAL_SIZE, "arcnet (COM20020)")) {
-+       if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "arcnet (COM20020)")) {
-                free_irq(dev->irq, dev);
-                return -EBUSY;
-        }
+I think that the data lose is not significant in a proxy cache, if the FS is 
+really fast, as is said reiserfs is.
 
-
---- ./linux-2.4.4/drivers/net/arcnet/com20020-pci.c     Wed Apr 18
-23:40:05 2001
-+++ ./linux-2.4.4-updated/drivers/net/arcnet/com20020-pci.c     Wed May  9
-13:55:11 2001
-@@ -97,12 +97,15 @@
-        lp->timeout = timeout;
-        lp->hw.open_close_ll = com20020pci_open_close;
-
-+       /*
-        if (check_region(ioaddr, ARCNET_TOTAL_SIZE)) {
-                BUGMSG(D_INIT, "IO region %xh-%xh already allocated.\n",
-                       ioaddr, ioaddr + ARCNET_TOTAL_SIZE - 1);
-                err = -EBUSY;
-                goto out_priv;
-        }
-+       */
-+
-        if (ASTATUS() == 0xFF) {
-                BUGMSG(D_NORMAL, "IO address %Xh was reported by PCI BIOS, "
-                       "but seems empty!\n", ioaddr);
-
-
-
-
-Roman
+Saludos... :-)
 
 -- 
-Roman Fietze (Mail Code 6)     roman.fietze@de.heidelberg.com
-Heidelberg Digital Finishing GmbH, Germany     DDF-T SWEC ESW
-
-
-
-
-
-
-
+El mejor sistema operativo es aquel que te da de comer.
+Cuida tu dieta.
+-----------------------------------------------------------------
+Martin Marques                  |        mmarques@unl.edu.ar
+Programador, Administrador      |       Centro de Telematica
+                       Universidad Nacional
+                            del Litoral
+-----------------------------------------------------------------

@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVARGgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVARGo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVARGgL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 01:36:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVARGgL
+	id S261237AbVARGo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 01:44:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVARGo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 01:36:11 -0500
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:17900
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S261249AbVARGgG (ORCPT
+	Tue, 18 Jan 2005 01:44:27 -0500
+Received: from mail.kroah.org ([69.55.234.183]:20453 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261237AbVARGoX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 01:36:06 -0500
-Message-ID: <41ECAE55.8090605@bio.ifi.lmu.de>
-Date: Tue, 18 Jan 2005 07:36:05 +0100
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Andres Salomon <dilinger@voxel.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-as1
-References: <1105605448.7316.13.camel@localhost>	 <41E7F44C.5010702@bio.ifi.lmu.de>  <41E8565A.4050707@gentoo.org> <1105737963.7677.6.camel@localhost> <41E882C8.9060208@gentoo.org>
-In-Reply-To: <41E882C8.9060208@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jan 2005 01:44:23 -0500
+Date: Mon, 17 Jan 2005 22:44:01 -0800
+From: Greg KH <greg@kroah.com>
+To: Luca Falavigna <dktrkranz@gmail.com>
+Cc: vamsi_krishna@in.ibm.com, prasanna@in.ibm.com,
+       Nathan Lynch <nathanl@austin.ibm.com>, suparna@in.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>,
+       Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH] Kprobes /proc entry
+Message-ID: <20050118064401.GA9529@kroah.com>
+References: <41E2AC82.8020909@gmail.com> <20050110181445.GA31209@kroah.com> <1105479077.17592.8.camel@pants.austin.ibm.com> <20050111213400.GB18422@kroah.com> <41E70234.50900@gmail.com> <20050113233446.GA2710@kroah.com> <41EBEE98.7090207@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41EBEE98.7090207@gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andres, hi Daniel,
+On Mon, Jan 17, 2005 at 05:58:00PM +0100, Luca Falavigna wrote:
+> +static ssize_t kprobes_read(struct file *file, char __user *buf,
+> +			 size_t size, loff_t *off)
+> +{
+> +	int i;
+> +	char *data = "";
+> +	ssize_t len = 0;
+> +	struct hlist_node *node;
+> +	struct kprobe *k;
+> +	
+> +	spin_lock(&kprobe_lock);
+> +	for(i = 0; i < KPROBE_TABLE_SIZE; i++) {
+> +		hlist_for_each_entry(k, node, &kprobe_table[i], hlist) {
+> +			if(k) {
+> +				kprobes_list_info(k, data + len);
+> +				len += strlen(data);
+> +			}
+> +		}
+> +	}
+> +	spin_unlock(&kprobe_lock);
+> +	return simple_read_from_buffer(buf, size, off, data, len);
 
-sorry for the delayed reply, but I was ill for a few days.
+Am I missing where you allocate the space for the data to be put into?
 
-Daniel Drake wrote
+Also, why not use the seqfile interface for this, to prevent overflowing
+the read buffer?
 
-> Hi Andres, Frank,
-> 
-> Andres Salomon wrote:
->>Odd.  I'll have to try Frank's .config and see if I can reproduce it (it
->>doesn't happen w/ mine).
-> 
-> Here is the patch that fixes it for me:
-> 	http://linux.bkbits.net:8080/linux-2.6/cset@1.2273.1.9
-> Needs to be applied alongside the rlimit and stack expansion fixes.
+thanks,
 
-yes, this one fixes it for me, too. vgchange and "mount -o loop" work again!
-I saw it was included in as2, too. I will test as2 during the next days.
-
-
-> 
-> Andres, I have not tried the patch you suggested, since I found that the above 
-> one fixes it. However, judging by the description of the one you mailed me, I 
-> don't think it will make any difference (I do not use highmem).
-
-The highmem patch doesn't fix it here, but anyway, I've included it
-in my patchset because we use CONFIG_4G on all out SMP hosts who have
-a few GB of memory.
-
-Thanks for your help!
-cu,
-Frank
-
-
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *
+greg k-h

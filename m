@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267912AbRHFLAm>; Mon, 6 Aug 2001 07:00:42 -0400
+	id <S267923AbRHFLDw>; Mon, 6 Aug 2001 07:03:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267923AbRHFLAc>; Mon, 6 Aug 2001 07:00:32 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:31494 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S267912AbRHFLAQ>;
-	Mon, 6 Aug 2001 07:00:16 -0400
-Message-Id: <200108051606.f75G6onM009519@sleipnir.valparaiso.cl>
-To: rich+ml@lclogic.com, linux-kernel@vger.kernel.org
-Subject: Re: module unresolved symbols 
-In-Reply-To: Message from Keith Owens <kaos@ocs.com.au> 
-   of "Sun, 05 Aug 2001 11:48:45 +1000." <2261.996976125@ocs3.ocs-net> 
-Date: Sun, 05 Aug 2001 12:06:50 -0400
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S267933AbRHFLDn>; Mon, 6 Aug 2001 07:03:43 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25947 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S267923AbRHFLDa>; Mon, 6 Aug 2001 07:03:30 -0400
+To: Abraham vd Merwe <abraham@2d3d.co.za>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Felix von Leitner <leitner@fefe.de>
+Subject: Re: kernel headers & userland
+In-Reply-To: <20010806095638.A5638@crystal.2d3d.co.za>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 06 Aug 2001 04:56:49 -0600
+In-Reply-To: <20010806095638.A5638@crystal.2d3d.co.za>
+Message-ID: <m166c1wj66.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> said:
-> On Sat, 4 Aug 2001 17:39:17 -0700 (PDT), 
-> <rich+ml@lclogic.com> wrote:
-> >Starting with a stock RH 7.0 install, I changed a single kernel config
-> >item and recompiled with 'make defs clean bzImage modules
-> >modules_install'.
+Abraham vd Merwe <abraham@2d3d.co.za> writes:
 
-> >Booted on the new kernel and depmod complains that dozens of modules
-> >contain unresolved symbols. Back to the original kernel, now it also
-> >complains of unresolved symbols (not the same set of modules, and modules
-> >that were previously OK).
+> Hi!
+> 
+> Apparently Linus told Felix von Leitner (the author of dietlibc - a small,
+> no nonsense glibc replacement C library) a while ago _not_ to include any
+> linux kernel headers in userland (i.e. the C library headers in this case).
+> 
+> This imho is obviously wrong since there are definitely a need for including
+> kernel headers on a linux platform.
 
-> Broken kernel makefiles when module symbols are turned on.
-> http://www.tux.org/lkml/#s8-8
+???  Necessity no.  Are there practical benefits yes.
 
-Or leftover modules from the stock install.
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+The policy of the kernel developers in general is that if your apps
+includes kernel headers and it breaks, it is a kernel problem.
+
+As for ioctl it is a giant mess that needs to be taken out and shot.
+
+And yes there are places where even the mighty glibc is in the wrong.
+
+Eric

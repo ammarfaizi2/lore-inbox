@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280766AbRKYI7v>; Sun, 25 Nov 2001 03:59:51 -0500
+	id <S280764AbRKYJDV>; Sun, 25 Nov 2001 04:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280764AbRKYI7l>; Sun, 25 Nov 2001 03:59:41 -0500
-Received: from cpe-66-1-134-68.ca.sprintbbd.net ([66.1.134.68]:43980 "HELO
+	id <S280769AbRKYJDM>; Sun, 25 Nov 2001 04:03:12 -0500
+Received: from cpe-66-1-134-68.ca.sprintbbd.net ([66.1.134.68]:46284 "HELO
 	core.sitedirection.com") by vger.kernel.org with SMTP
-	id <S280762AbRKYI7b>; Sun, 25 Nov 2001 03:59:31 -0500
-Message-ID: <000b01c17590$88f0d6f0$0f00a8c0@minniemouse>
+	id <S280764AbRKYJC4>; Sun, 25 Nov 2001 04:02:56 -0500
+Message-ID: <001501c17591$036b5cc0$0f00a8c0@minniemouse>
 From: "Jon" <marsaro@interearth.com>
 To: <linux-kernel@vger.kernel.org>
 In-Reply-To: <87zo5bgsk6.fsf@toboggan.in.ibm.com><039d01c1758e$51a15d20$0f00a8c0@minniemouse> <87itbzi65e.fsf@toboggan.in.ibm.com>
 Subject: Re: eepro100 Driver Problems ( wait
-Date: Sun, 25 Nov 2001 01:06:57 -0800
+Date: Sun, 25 Nov 2001 01:10:23 -0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -23,12 +23,13 @@ X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://support.intel.com/support/network/adapter/ans/linux/linansoverview.ht
-m
+bad link first time, sorry:
+http://appsr.intel.com/scripts-df/File_Filter.asp?FileName=e100
 
 Regards,
 
 Jon
+
 ----- Original Message -----
 From: "Sid Carter" <sidcarter@symonds.net>
 To: <linux-kernel@vger.kernel.org>

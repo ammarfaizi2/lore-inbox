@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132535AbRACRMi>; Wed, 3 Jan 2001 12:12:38 -0500
+	id <S132507AbRACRNA>; Wed, 3 Jan 2001 12:13:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132507AbRACRM3>; Wed, 3 Jan 2001 12:12:29 -0500
-Received: from dsl-206.169.4.82.wenet.com ([206.169.4.82]:46865 "EHLO
-	phobos.illtel.denver.co.us") by vger.kernel.org with ESMTP
-	id <S132558AbRACRMK>; Wed, 3 Jan 2001 12:12:10 -0500
-Date: Wed, 3 Jan 2001 08:42:24 -0800 (PST)
-From: Alex Belits <abelits@phobos.illtel.denver.co.us>
-To: Daniel Phillips <phillips@innominate.de>
-cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-In-Reply-To: <3A5352ED.A263672D@innominate.de>
-Message-ID: <Pine.LNX.4.20.0101030838350.13243-100000@phobos.illtel.denver.co.us>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132587AbRACRMv>; Wed, 3 Jan 2001 12:12:51 -0500
+Received: from mail-4.tiscalinet.it ([195.130.225.150]:52579 "EHLO
+	mail.tiscalinet.it") by vger.kernel.org with ESMTP
+	id <S132507AbRACRMk>; Wed, 3 Jan 2001 12:12:40 -0500
+Message-Id: <3.0.6.32.20010103174545.00b76100@pop.tiscalinet.it>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Wed, 03 Jan 2001 17:45:45 +0100
+To: linux-kernel@vger.kernel.org
+From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
+Subject: swapoff and 2.4.0-prerelease
+Cc: torvalds@transmeta.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001, Daniel Phillips wrote:
 
-> I don't doubt that if the 'power switch' method of shutdown becomes
-> popular we will discover some applications that have windows where they
-> can be hurt by sudden shutdown, even will full filesystem data state
-> being preserved.  Such applications are arguably broken because they
-> will behave badly in the event of accidental shutdown anyway, and we
-> should fix them.  Well-designed applications are explicitly 'serially
-> reuseable', in other words, you can interrupt at any point and start
-> again from the beginning with valid and expected results.
+I run 'swapoff -a' in the middle of 'make j10 bzImage'
+with 32M (by lilo) and got this:
 
-  I strongly disagree. All valid ways to shut down the system involve
-sending SIGTERM to running applications -- only broken ones would
-live long enough after that to be killed by subsequent SIGKILL.
+Jan  3 17:30:07 lenstra kernel: VM: Undead swap entry 000f3100
+Jan  3 17:30:07 lenstra kernel: VM: Bad swap entry 000f3100
+Jan  3 17:30:07 lenstra kernel: VM: Bad swap entry 000f3100
+Jan  3 17:30:07 lenstra kernel: Unused swap offset entry in swap_count
+000f3100
+Jan  3 17:30:07 lenstra kernel: VM: Bad swap entry 000f3100
 
-  A lot of applications always rely on their file i/o being done in some
-manner that has atomic (from the application's point of view) operations
-other than system calls -- heck, even make(1) does that.
+I that moment the swap was about 20-25M.
+(ok, maybe swapoff by root is rather "unfair" but.. :-)
 
--- 
-Alex
-
-----------------------------------------------------------------------
- Excellent.. now give users the option to cut your hair you hippie!
-                                                  -- Anonymous Coward
-
+--
+Lorenzo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262089AbTA1X5n>; Tue, 28 Jan 2003 18:57:43 -0500
+	id <S261934AbTA1Xx7>; Tue, 28 Jan 2003 18:53:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262190AbTA1X5n>; Tue, 28 Jan 2003 18:57:43 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:16012 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262089AbTA1X5m>;
-	Tue, 28 Jan 2003 18:57:42 -0500
-Subject: Re: 2.5.59-dcl2
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1043794298.10153.241.camel@dell_ss3.pdx.osdl.net>
-References: <1043794298.10153.241.camel@dell_ss3.pdx.osdl.net>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1043798822.10150.318.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 28 Jan 2003 16:07:02 -0800
-Content-Transfer-Encoding: 7bit
+	id <S261963AbTA1Xx7>; Tue, 28 Jan 2003 18:53:59 -0500
+Received: from sex.inr.ac.ru ([193.233.7.165]:12707 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S261934AbTA1Xx7>;
+	Tue, 28 Jan 2003 18:53:59 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200301290002.DAA30327@sex.inr.ac.ru>
+Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x,
+To: davem@redhat.com (David S. Miller)
+Date: Wed, 29 Jan 2003 03:02:53 +0300 (MSK)
+Cc: benoit-lists@fb12.de, dada1@cosmosbay.com, cgf@redhat.com, andersg@0x63.nu,
+       lkernel2003@tuxers.net, linux-kernel@vger.kernel.org, tobi@tobi.nu
+In-Reply-To: <20030128.152102.12708956.davem@redhat.com> from "David S. Miller" at Jan 28, 3 03:21:02 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Missed one item in the credits.
+Hello!
 
-Also, added the Nick Piggin's anticipaatory i/o scheduler (via -mm5)
-to 2.5.59-dcl2 to evaluate the performance impact under different loads.
+> BTW, how come tcp_trim_head() can just set skb->ip_summed
+> blindly to CHECKSUM_HW and not setup skb->csum?
 
+When skb->ip_summed is CHECKSUM_HW skb->csum is ignored and
+initialized at the moment when segment is transmitted in
+tcp_v*_send_check().
 
-> 2.5.59-osdl2:
-> . Dac960 error retry                    (Dave Olien)
-> 
-> 2.5.59-dcl2:
-> . Lost timer tick compensation          (John Stultz)
-> . Improved boot time TSC synchronization (Jim Houston)
-> . Lockless gettimeofday                 (Andi Kleen, me)
-> . Performance monitoring counters for x86 (Mikael Pettersson)
-> 
-> 2.5.59-osdl1:
-> . Bug fix for vmlinux.ld.S		(Kai Germaschewski)
-> . Update to LKCD for multiple schemes   (Bharata B Rao)
-> . Bug fixes for LKCD locking            (me)
-> . Improved i386 fatal event notifiers   (me)
-> . Kprobe using notify_die               (me)
-> 
-> 2.5.59-dcl1:
-> .  RCU statistics                   (Dipankar Sarma)
-> .  Scheduler tunables               (Robert Love)
-
-
+Alexey

@@ -1,133 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314422AbSGCCuI>; Tue, 2 Jul 2002 22:50:08 -0400
+	id <S314553AbSGCCzS>; Tue, 2 Jul 2002 22:55:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314446AbSGCCuH>; Tue, 2 Jul 2002 22:50:07 -0400
-Received: from mtiwmhc21.worldnet.att.net ([204.127.131.46]:19374 "EHLO
-	mtiwmhc21.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S314422AbSGCCuG>; Tue, 2 Jul 2002 22:50:06 -0400
-Date: Tue, 2 Jul 2002 22:57:22 -0400
-To: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: sync slowness. ext3 on VIA vt82c686b
-Message-ID: <20020703025722.GA2848@lnuxlab.ath.cx>
-References: <20020703022051.GA2669@lnuxlab.ath.cx>
+	id <S314548AbSGCCzR>; Tue, 2 Jul 2002 22:55:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56080 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314446AbSGCCzP>;
+	Tue, 2 Jul 2002 22:55:15 -0400
+Date: Wed, 3 Jul 2002 03:57:44 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Paul Menage <pmenage@ensim.com>
+Cc: viro@math.psu.edu, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Shift BKL into ->statfs()
+Message-ID: <20020703035744.K27706@parcelfarce.linux.theplanet.co.uk>
+References: <E17PYtv-0004Fd-00@pmenage-dt.ensim.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020703022051.GA2669@lnuxlab.ath.cx>
-User-Agent: Mutt/1.3.28i
-From: khromy@lnuxlab.ath.cx (khromy)
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17PYtv-0004Fd-00@pmenage-dt.ensim.com>; from pmenage@ensim.com on Tue, Jul 02, 2002 at 06:25:47PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is the `vmstat 1` output while sync is running after copying the
-file to /tmp/.
+On Tue, Jul 02, 2002 at 06:25:47PM -0700, Paul Menage wrote:
+> This patch removes BKL protection from the invocation of the
+> super_operations ->statfs() method, and shifts it into the filesystems
+> where necessary. Any out-of-tree filesystems may need to take the BKL in
+> their statfs() methods if they were relying on it for synchronisation.
 
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 1  1  1      0  71128  86792 190688   0   0     5     4  110   274   3   1  95
- 1  1  1      0  71064  86792 190692   0   0     0     0  225   320   0   2  98
- 0  1  1      0  71064  86792 190692   0   0     0   249  222   302   0   0 100
- 1  1  1      0  71064  86792 190692   0   0     0     0  221   292   0   0 100
- 1  1  2      0  71060  86792 190692   0   0     0   253  223   304   0   1  99
- 2  1  2      0  71060  86792 190692   0   0     0     0  223   296   0   0 100
- 0  1  2      0  71060  86792 190692   0   0     0   257  222   302   0   1  99
- 1  1  2      0  71060  86792 190692   0   0     0     0  221   290   0   0 100
- 1  1  2      0  71060  86792 190692   0   0     0   248  226   320   0   4  96
- 0  1  2      0  71060  86792 190692   0   0     0     0  233   324   1   0  99
- 1  1  2      0  71060  86792 190692   0   0     0   248  224   329   0   1  99
- 1  1  2      0  71060  86792 190692   0   0     0     0  220   299   0   1  99
- 1  1  2      0  71060  86792 190692   0   0     0   250  223   314   0   1  99
- 1  1  3      0  71060  86792 190692   0   0     0     0  221   307   0   1  99
- 1  1  2      0  71060  86792 190692   0   0     0   250  222   320   0   0 100
- 0  1  2      0  71060  86792 190692   0   0     0     0  221   291   0   0 100
- 2  1  2      0  71060  86792 190692   0   0     0   249  230   306   0   1  99
- 1  1  2      0  71060  86792 190692   0   0     0     0  220   303   0   1  99
- 1  1  2      0  71060  86792 190692   0   0     0   249  224   317   0   0 100
- 0  1  3      0  71060  86792 190692   0   0     0    59  221   300   0   0 100
- 2  1  3      0  71060  86792 190692   0   0     0   249  230   302   0   2  98
- 1  1  3      0  71060  86792 190692   0   0     0     0  221   314   0   0 100
- 1  1  3      0  71060  86792 190692   0   0     0     0  223   330   0   0 100
- 1  1  3      0  71060  86792 190692   0   0     0   271  222   304   0   1  99
- 1  1  3      0  71060  86792 190692   0   0     0     0  222   315   0   0 100
- 0  1  3      0  71060  86792 190692   0   0     0   249  220   305   0   0 100
- 2  1  3      0  71060  86792 190692   0   0     0     0  223   295   0   0 100
- 0  1  3      0  71060  86792 190692   0   0     0   252  229   306   0   0 100
- 1  1  3      0  71060  86792 190692   0   0     0     0  241   302   0   0 100
- 0  1  3      0  71060  86792 190692   0   0     0   249  288   490   0   1  99
- 0  1  3      0  71060  86792 190692   0   0     0     0  316  3453  49   5  47
- 2  1  3      0  71060  86792 190692   0   0     0   249  282   439   0   1  99
- 1  1  3      0  71060  86792 190692   0   0     0     0  272   407   0   2  98
- 1  1  3      0  71056  86792 190692   0   0     0   258  308  3808  35  13  52
- 1  1  3      0  71052  86792 190692   0   0     0     0  326  1893  18   2  80
- 1  1  3      0  71052  86792 190692   0   0     0   249  318   916   7   4  89
- 0  1  3      0  71052  86792 190692   0   0     0     0  276   435   0   0 100
- 1  1  3      0  71052  86792 190692   0   0     0   259  273   441   0   0 100
- 1  1  3      0  71060  86792 190692   0   0     0     0  223   878   8   0  92
- 0  1  3      0  71056  86792 190692   0   0     0   249  295   481   0   1  99
- 1  1  3      0  71056  86792 190692   0   0     0     0  229   291   0   0 100
- 1  1  3      0  71056  86792 190692   0   0     0   249  225   290   0   0 100
- 2  1  3      0  71056  86792 190692   0   0     0     0  229   291   0   1  99
- 0  1  3      0  71056  86792 190692   0   0     0   249  229   285   0   0 100
- 1  1  3      0  71056  86792 190692   0   0     0     0  223   289   0   0 100
- 0  1  3      0  71056  86792 190692   0   0     0   249  221   282   0   0 100
- 1  1  3      0  71052  86792 190696   0   0     0     0  230   280   0   0 100
- 0  1  3      0  71052  86792 190696   0   0     0   272  226   300   0   1  99
- 2  1  3      0  71052  86792 190696   0   0     0     0  233   315   0   0 100
- 1  1  3      0  71052  86792 190696   0   0     0   429  222   304   0   1  99
- 1  1  3      0  71048  86792 190696   0   0     0     0  240   273   0   0 100
- 2  1  3      0  71048  86792 190696   0   0     0   252  222   294   0   0 100
- 1  1  3      0  71048  86792 190696   0   0     0     0  222   279   0   3  97
- 0  1  3      0  71048  86792 190696   0   0     0   248  223   290   0   1  99
- 1  1  3      0  71048  86792 190696   0   0     0     0  229   280   0   2  98
- 0  1  3      0  71048  86792 190696   0   0     0   250  221   284   0   2  98
- 1  1  3      0  71048  86792 190696   0   0     0     0  221   284   0   3  97
- 0  1  3      0  71048  86792 190696   0   0     0   249  221   283   0   0 100
- 1  1  3      0  71048  86792 190696   0   0     0     0  225   286   0   0 100
- 0  1  3      0  71048  86792 190696   0   0     0   281  232   302   0   2  98
- 1  1  3      0  71048  86792 190696   0   0     0     0  273   335   5   1  94
- 1  1  3      0  71048  86792 190696   0   0     0   249  245   305   1   0  99
- 1  1  3      0  71048  86792 190696   0   0     0     0  224   307   1   1  98
- 1  1  3      0  71044  86792 190696   0   0     0   249  224   300   0   0 100
- 1  1  3      0  71044  86792 190696   0   0     0     0  223   288   0   3  97
- 0  1  3      0  71044  86792 190696   0   0     0   249  229   291   0   2  98
- 1  1  3      0  71044  86792 190696   0   0     0     0  224   290   0   1  99
- 0  1  3      0  71044  86792 190696   0   0     0   249  220   286   0   1  99
- 1  1  3      0  71044  86792 190696   0   0     0     0  224   292   1   1  98
- 0  1  3      0  71044  86792 190696   0   0     0   287  221   300   0   1  99
- 1  1  3      0  71044  86792 190696   0   0     0     0  223   286   0   0 100
- 2  1  3      0  71044  86792 190696   0   0     0   249  231   287   0   1  99
- 1  1  3      0  71044  86792 190696   0   0     0     0  221   277   0   0 100
- 0  1  3      0  71044  86792 190696   0   0     0   249  227   296   0   0 100
- 1  1  3      0  71044  86792 190696   0   0     0     0  221   273   0   0 100
- 0  1  3      0  71044  86792 190696   0   0     0   249  221   290   0   1  99
- 1  1  3      0  71044  86792 190696   0   0     0     0  221   274   0   0 100
- 0  1  3      0  71044  86792 190696   0   0     0   249  220   283   0   1  99
- 1  1  3      0  71044  86792 190696   0   0     0     0  223   295   0   0 100
- 0  1  3      0  71044  86792 190696   0   0     0   249  222   285   0   1  99
- 1  1  3      0  71044  86792 190696   0   0     0     0  220   276   0   0 100
- 1  1  3      0  71044  86792 190696   0   0     0   249  221   284   0   3  97
- 1  1  3      0  71044  86792 190696   0   0     0     0  221   274   0   0 100
- 0  1  3      0  71044  86792 190696   0   0     0   249  228   297   0   1  99
- 2  1  3      0  71044  86792 190696   0   0     0     0  220   273   0   0 100
- 0  1  3      0  71044  86792 190696   0   0     0   249  234   309   0   0 100
- 1  1  3      0  71044  86792 190696   0   0     0     0  221   281   0   1  99
- 0  1  3      0  71044  86792 190696   0   0     0   275  221   285   0   1  99
- 1  1  3      0  71044  86792 190696   0   0     0     0  222   275   0   0 100
- 0  1  2      0  71044  86792 190696   0   0     0    20  237   310   0   1  99
-<sync finally returns around here>
- 2  0  2      0  71044  86792 190696   0   0     0     4  236   455   0   0 100
- 2  0  0      0  71116  86800 190696   0   0     0    99  207   497   0   0 100
- 1  0  0      0  71116  86800 190696   0   0     0     0  101   279   0   0 100
- 0  0  0      0  71112  86800 190700   0   0     0     0  105   301   0   0 100
- 2  0  0      0  71112  86800 190700   0   0     0   110  171   282   0   0 100
- 0  0  0      0  71112  86800 190700   0   0     0     0  101   282   0   0 100
- 1  0  0      0  71112  86800 190700   0   0     0     0  103   289   0   0 100
- 0  0  0      0  71112  86800 190700   0   0     0     0  101   277   0   0 100
- 1  0  0      0  71112  86800 190700   0   0     0     0  101   273   0   0 100
- 0  0  0      0  71112  86800 190700   0   0     0    16  104   289   0   0 100
- 2  0  0      0  71112  86800 190700   0   0     0     0  103   290   0   0 100
- 1  0  0      0  71112  86800 190700   0   0     0     0  103   289   0   0 100
+Sure, makes sense to do.  For real credit though, let's see how much we
+need the BKL.  In ext2's statfs, we reference:
+
+sbi->s_groups_count (not modified)
+sbi->s_itb_per_group (not modified)
+sbi->s_es->s_first_data_block (not modified)
+sbi->s_es->s_blocks_count (not modified)
+sbi->s_es->s_free_blocks_count (lock_super)
+sbi->s_es->s_r_blocks_count (not modified)
+sbi->s_es->s_inodes_count (not modified)
+sbi->s_es->s_free_inodes_count (lock_super)
+sb->s_blocksize (modified many places ... but we all know you don't do it
+	to a mounted fs).
+sb->s_mount_opt (NOT LOCKED)
+
+s_mount_opt doesn't actually need to be locked due to how it is
+modified & used.  So it _looks_ like we only need to lock_super(sb); /
+unlock_super(sb); in ext2.  Anyone more familiar with ext2 locking care
+to comment?
+
+I bet most other filesystems can handle lock_super / unlock_super
+for themselves.  See if some kerneljanitors are willing to help audit,
+perhaps?
 
 -- 
-L1:	khromy		;khromy(at)lnuxlab.ath.cx
+Revolutions do not require corporate support.

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318060AbSHKH2j>; Sun, 11 Aug 2002 03:28:39 -0400
+	id <S318117AbSHKHbb>; Sun, 11 Aug 2002 03:31:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317947AbSHKH2U>; Sun, 11 Aug 2002 03:28:20 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37638 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318060AbSHKHZr>;
-	Sun, 11 Aug 2002 03:25:47 -0400
-Message-ID: <3D5614AD.4F3EA16C@zip.com.au>
-Date: Sun, 11 Aug 2002 00:39:25 -0700
+	id <S318111AbSHKHbF>; Sun, 11 Aug 2002 03:31:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44806 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318155AbSHKH0e>;
+	Sun, 11 Aug 2002 03:26:34 -0400
+Message-ID: <3D5614DC.635ED602@zip.com.au>
+Date: Sun, 11 Aug 2002 00:40:12 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 12/21] wrapup of LRU locking changes
+Subject: [patch 19/21] introduce L1_CACHE_SHIFT_MAX
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,207 +22,222 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Some fallout from the pagemap_lru_lock changes:
+zone->lock and zone->lru_lock are two of the hottest locks in the
+kernel.  Their usage patterns are quite independent.  And they have
+just been put into the same structure.  It is essential that they not
+fall into the same cacheline.
 
-- lru_cache_del() is no longer used.  Kill it.
+That could be fixed by padding with L1_CACHE_BYTES.  But the problem
+with this is that a kernel which was configured for (say) a PIII will
+perform poorly on SMP PIV.  This will cause problems for kernel
+vendors.  For example, RH currently ship PII and Athlon binaries.  To
+get best SMP performance they will end up needing to ship a lot of
+differently configured kernels.
 
-- page_cache_release() almost never actually frees pages.  So inline
-  page_cache_release() and move its rarely-called slow path into (the
-  misnamed) mm/swap.c
+To solve this we need to know, at compile time, the maximum L1 size
+which this kernel will ever run on.
 
-- update the locking comment in filemap.c.  pagemap_lru_lock used to
-  be one of the outermost locks in the VM locking hierarchy.  Now, we
-  never take any other locks while holding pagemap_lru_lock.  So it
-  doesn't have any relationship with anything.
+This patch adds L1_CACHE_SHIFT_MAX to every architecture's cache.h.
 
-- put_page() now removes pages from the LRU on the final put.  The
-  lock is interrupt save.
+Of course it'll break when newer chips come out with increased
+cacheline sizes.   Better suggestions are welcome.
 
 
 
+ asm-alpha/cache.h   |    1 +
+ asm-arm/cache.h     |    2 ++
+ asm-cris/cache.h    |    2 ++
+ asm-i386/cache.h    |    2 ++
+ asm-ia64/cache.h    |    2 ++
+ asm-m68k/cache.h    |    2 ++
+ asm-mips/cache.h    |    1 +
+ asm-mips64/cache.h  |    1 +
+ asm-parisc/cache.h  |    1 +
+ asm-ppc/cache.h     |    1 +
+ asm-ppc64/cache.h   |    1 +
+ asm-s390/cache.h    |    1 +
+ asm-s390x/cache.h   |    1 +
+ asm-sh/cache.h      |    2 ++
+ asm-sparc/cache.h   |    1 +
+ asm-sparc64/cache.h |    1 +
+ asm-x86_64/cache.h  |    1 +
+ linux/cache.h       |    9 +++++++++
+ 18 files changed, 32 insertions(+)
 
- include/linux/mm.h      |    7 ++++++-
- include/linux/pagemap.h |    8 ++++++--
- include/linux/swap.h    |    2 --
- kernel/ksyms.c          |    2 +-
- mm/filemap.c            |    1 -
- mm/page_alloc.c         |   20 +-------------------
- mm/swap.c               |   31 ++++++++++++-------------------
- mm/vmscan.c             |    6 ++++++
- 8 files changed, 32 insertions(+), 45 deletions(-)
-
---- 2.5.31/mm/swap.c~lru-mopup	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/mm/swap.c	Sun Aug 11 00:21:01 2002
-@@ -60,32 +60,25 @@ void lru_cache_add(struct page * page)
- 	}
- }
+--- 2.5.31/include/linux/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/linux/cache.h	Sun Aug 11 00:20:35 2002
+@@ -44,4 +44,13 @@
+ #endif /* CONFIG_SMP */
+ #endif
  
--/**
-- * __lru_cache_del: remove a page from the page lists
-- * @page: the page to add
-- *
-- * This function is for when the caller already holds
-- * the pagemap_lru_lock.
-+/*
-+ * This path almost never happens - pages are normally freed via pagevecs.
-  */
--void __lru_cache_del(struct page * page)
-+void __page_cache_release(struct page *page)
- {
--	if (TestClearPageLRU(page)) {
-+	BUG_ON(page_count(page) != 0);
-+	if (PageLRU(page)) {
-+		unsigned long flags;
++#if !defined(____cacheline_maxaligned_in_smp)
++#if defined(CONFIG_SMP)
++#define ____cacheline_maxaligned_in_smp \
++	__attribute__((__aligned__(1 << (L1_CACHE_SHIFT_MAX))))
++#else
++#define ____cacheline_maxaligned_in_smp
++#endif
++#endif
 +
-+		spin_lock_irqsave(&_pagemap_lru_lock, flags);
-+		if (!TestClearPageLRU(page))
-+			BUG();
- 		if (PageActive(page))
- 			del_page_from_active_list(page);
- 		else
- 			del_page_from_inactive_list(page);
-+		spin_unlock_irqrestore(&_pagemap_lru_lock, flags);
- 	}
--}
--
--/**
-- * lru_cache_del: remove a page from the page lists
-- * @page: the page to remove
-- */
--void lru_cache_del(struct page * page)
--{
--	spin_lock_irq(&_pagemap_lru_lock);
--	__lru_cache_del(page);
--	spin_unlock_irq(&_pagemap_lru_lock);
-+	__free_page(page);
- }
+ #endif /* __LINUX_CACHE_H */
+--- 2.5.31/include/asm-alpha/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-alpha/cache.h	Sun Aug 11 00:20:35 2002
+@@ -20,5 +20,6 @@
  
- /*
---- 2.5.31/include/linux/swap.h~lru-mopup	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/linux/swap.h	Sun Aug 11 00:21:01 2002
-@@ -157,8 +157,6 @@ extern int FASTCALL(page_over_rsslimit(s
+ #define L1_CACHE_ALIGN(x)  (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
+ #define SMP_CACHE_BYTES    L1_CACHE_BYTES
++#define L1_CACHE_SHIFT_MAX 6	/* largest L1 which this arch supports */
  
- /* linux/mm/swap.c */
- extern void FASTCALL(lru_cache_add(struct page *));
--extern void FASTCALL(__lru_cache_del(struct page *));
--extern void FASTCALL(lru_cache_del(struct page *));
+ #endif
+--- 2.5.31/include/asm-arm/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-arm/cache.h	Sun Aug 11 00:20:35 2002
+@@ -16,4 +16,6 @@
+ 		 __section__(".data.cacheline_aligned")))
+ #endif
  
- extern void FASTCALL(activate_page(struct page *));
- 
---- 2.5.31/mm/page_alloc.c~lru-mopup	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/mm/page_alloc.c	Sun Aug 11 00:21:01 2002
-@@ -90,6 +90,7 @@ static void __free_pages_ok (struct page
- 
- 	KERNEL_STAT_ADD(pgfree, 1<<order);
- 
-+	BUG_ON(PageLRU(page));
- 	BUG_ON(PagePrivate(page));
- 	BUG_ON(page->mapping != NULL);
- 	BUG_ON(PageLocked(page));
-@@ -450,25 +451,6 @@ unsigned long get_zeroed_page(unsigned i
- 	return 0;
- }
- 
--void page_cache_release(struct page *page)
--{
--	/*
--	 * FIXME: this PageReserved test is really expensive
--	 */
--	if (!PageReserved(page) && put_page_testzero(page)) {
--		/*
--		 * This path almost never happens - pages are normally freed
--		 * via pagevecs.
--		 */
--		struct pagevec pvec;
--
--		page_cache_get(page);
--		pvec.nr = 1;
--		pvec.pages[0] = page;
--		__pagevec_release(&pvec);
--	}
--}
--
- void __pagevec_free(struct pagevec *pvec)
- {
- 	int i = pagevec_count(pvec);
---- 2.5.31/include/linux/pagemap.h~lru-mopup	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/linux/pagemap.h	Sun Aug 11 00:20:33 2002
-@@ -23,14 +23,18 @@
- #define PAGE_CACHE_ALIGN(addr)	(((addr)+PAGE_CACHE_SIZE-1)&PAGE_CACHE_MASK)
- 
- #define page_cache_get(x)	get_page(x)
--extern void FASTCALL(page_cache_release(struct page *));
++#define L1_CACHE_SHIFT_MAX 5	/* largest L1 which this arch supports */
 +
-+static inline void page_cache_release(struct page *page)
-+{
-+	if (!PageReserved(page) && put_page_testzero(page))
-+		__page_cache_release(page);
-+}
+ #endif
+--- 2.5.31/include/asm-cris/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-cris/cache.h	Sun Aug 11 00:20:35 2002
+@@ -7,4 +7,6 @@
  
- static inline struct page *page_cache_alloc(struct address_space *x)
- {
- 	return alloc_pages(x->gfp_mask, 0);
- }
+ #define L1_CACHE_BYTES 32
  
--
- typedef int filler_t(void *, struct page *);
++#define L1_CACHE_SHIFT_MAX 5	/* largest L1 which this arch supports */
++
+ #endif /* _ASM_CACHE_H */
+--- 2.5.31/include/asm-i386/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-i386/cache.h	Sun Aug 11 00:20:35 2002
+@@ -10,4 +10,6 @@
+ #define L1_CACHE_SHIFT	(CONFIG_X86_L1_CACHE_SHIFT)
+ #define L1_CACHE_BYTES	(1 << L1_CACHE_SHIFT)
  
- extern struct page * find_get_page(struct address_space *mapping,
---- 2.5.31/kernel/ksyms.c~lru-mopup	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/kernel/ksyms.c	Sun Aug 11 00:20:33 2002
-@@ -92,7 +92,7 @@ EXPORT_SYMBOL(__alloc_pages);
- EXPORT_SYMBOL(alloc_pages_node);
- EXPORT_SYMBOL(__get_free_pages);
- EXPORT_SYMBOL(get_zeroed_page);
--EXPORT_SYMBOL(page_cache_release);
-+EXPORT_SYMBOL(__page_cache_release);
- EXPORT_SYMBOL(__free_pages);
- EXPORT_SYMBOL(free_pages);
- EXPORT_SYMBOL(num_physpages);
---- 2.5.31/mm/filemap.c~lru-mopup	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/mm/filemap.c	Sun Aug 11 00:21:01 2002
-@@ -53,7 +53,6 @@
- /*
-  * Lock ordering:
-  *
-- *  pagemap_lru_lock
-  *  ->i_shared_lock		(vmtruncate)
-  *    ->private_lock		(__free_pte->__set_page_dirty_buffers)
-  *      ->swap_list_lock
---- 2.5.31/include/linux/mm.h~lru-mopup	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/linux/mm.h	Sun Aug 11 00:21:01 2002
-@@ -194,11 +194,16 @@ struct page {
-  * routine so they can be sure the page doesn't go away from under them.
-  */
- #define get_page(p)		atomic_inc(&(p)->count)
--#define put_page(p)		__free_page(p)
- #define __put_page(p)		atomic_dec(&(p)->count)
- #define put_page_testzero(p) 	atomic_dec_and_test(&(p)->count)
- #define page_count(p)		atomic_read(&(p)->count)
- #define set_page_count(p,v) 	atomic_set(&(p)->count, v)
-+extern void FASTCALL(__page_cache_release(struct page *));
-+#define put_page(p)					\
-+	do {						\
-+		if (put_page_testzero(p))		\
-+			__page_cache_release(p);	\
-+	} while (0)
++#define L1_CACHE_SHIFT_MAX 7	/* largest L1 which this arch supports */
++
+ #endif
+--- 2.5.31/include/asm-ia64/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-ia64/cache.h	Sun Aug 11 00:20:35 2002
+@@ -12,6 +12,8 @@
+ #define L1_CACHE_SHIFT		CONFIG_IA64_L1_CACHE_SHIFT
+ #define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
  
- /*
-  * Multiple processes may "see" the same page. E.g. for untouched
---- 2.5.31/mm/vmscan.c~lru-mopup	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/mm/vmscan.c	Sun Aug 11 00:21:01 2002
-@@ -165,6 +165,12 @@ shrink_list(struct list_head *page_list,
- 		pte_chain_unlock(page);
- 		mapping = page->mapping;
++#define L1_CACHE_SHIFT_MAX 7	/* largest L1 which this arch supports */
++
+ #ifdef CONFIG_SMP
+ # define SMP_CACHE_SHIFT	L1_CACHE_SHIFT
+ # define SMP_CACHE_BYTES	L1_CACHE_BYTES
+--- 2.5.31/include/asm-m68k/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-m68k/cache.h	Sun Aug 11 00:20:35 2002
+@@ -8,4 +8,6 @@
+ #define        L1_CACHE_SHIFT  4
+ #define        L1_CACHE_BYTES  (1<< L1_CACHE_SHIFT)
  
-+		/*
-+		 * FIXME: this is CPU-inefficient for shared mappings.
-+		 * try_to_unmap() will set the page dirty and ->vm_writeback
-+		 * will write it.  So we're back to page-at-a-time writepage
-+		 * in LRU order.
-+		 */
- 		if (PageDirty(page) && is_page_cache_freeable(page) &&
- 					mapping && may_enter_fs) {
- 			int (*writeback)(struct page *, int *);
++#define L1_CACHE_SHIFT_MAX 4	/* largest L1 which this arch supports */
++
+ #endif
+--- 2.5.31/include/asm-mips/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-mips/cache.h	Sun Aug 11 00:20:35 2002
+@@ -35,5 +35,6 @@ struct cache_desc {
+ #endif
+ 
+ #define SMP_CACHE_BYTES		L1_CACHE_BYTES
++#define L1_CACHE_SHIFT_MAX 5	/* largest L1 which this arch supports */
+ 
+ #endif /* _ASM_CACHE_H */
+--- 2.5.31/include/asm-mips64/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-mips64/cache.h	Sun Aug 11 00:20:35 2002
+@@ -11,5 +11,6 @@
+ 
+ /* bytes per L1 cache line */
+ #define L1_CACHE_BYTES		(1 << CONFIG_L1_CACHE_SHIFT)
++#define L1_CACHE_SHIFT_MAX 7	/* largest L1 which this arch supports */
+ 
+ #endif /* _ASM_CACHE_H */
+--- 2.5.31/include/asm-parisc/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-parisc/cache.h	Sun Aug 11 00:20:35 2002
+@@ -34,6 +34,7 @@
+ #define L1_CACHE_ALIGN(x)       (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
+ 
+ #define SMP_CACHE_BYTES L1_CACHE_BYTES
++#define L1_CACHE_SHIFT_MAX 5	/* largest L1 which this arch supports */
+ 
+ #define __cacheline_aligned __attribute__((__aligned__(L1_CACHE_BYTES)))
+ 
+--- 2.5.31/include/asm-ppc/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-ppc/cache.h	Sun Aug 11 00:20:35 2002
+@@ -28,6 +28,7 @@
+ 
+ #define	L1_CACHE_BYTES L1_CACHE_LINE_SIZE
+ #define	SMP_CACHE_BYTES L1_CACHE_BYTES
++#define L1_CACHE_SHIFT_MAX 7	/* largest L1 which this arch supports */
+ 
+ #define	L1_CACHE_ALIGN(x)       (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
+ #define	L1_CACHE_PAGES		8
+--- 2.5.31/include/asm-ppc64/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-ppc64/cache.h	Sun Aug 11 00:20:35 2002
+@@ -12,5 +12,6 @@
+ #define L1_CACHE_BYTES	(1 << L1_CACHE_SHIFT)
+ 
+ #define SMP_CACHE_BYTES L1_CACHE_BYTES
++#define L1_CACHE_SHIFT_MAX 7	/* largest L1 which this arch supports */
+ 
+ #endif
+--- 2.5.31/include/asm-s390/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-s390/cache.h	Sun Aug 11 00:20:35 2002
+@@ -13,5 +13,6 @@
+ 
+ #define L1_CACHE_BYTES     256
+ #define L1_CACHE_SHIFT     8
++#define L1_CACHE_SHIFT_MAX 8	/* largest L1 which this arch supports */
+ 
+ #endif
+--- 2.5.31/include/asm-s390x/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-s390x/cache.h	Sun Aug 11 00:20:35 2002
+@@ -13,5 +13,6 @@
+ 
+ #define L1_CACHE_BYTES     256
+ #define L1_CACHE_SHIFT     8
++#define L1_CACHE_SHIFT_MAX 8	/* largest L1 which this arch supports */
+ 
+ #endif
+--- 2.5.31/include/asm-sh/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-sh/cache.h	Sun Aug 11 00:20:35 2002
+@@ -14,4 +14,6 @@
+ #define        L1_CACHE_BYTES  32
+ #endif
+ 
++#define L1_CACHE_SHIFT_MAX 5	/* largest L1 which this arch supports */
++
+ #endif /* __ASM_SH_CACHE_H */
+--- 2.5.31/include/asm-sparc/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-sparc/cache.h	Sun Aug 11 00:20:35 2002
+@@ -13,6 +13,7 @@
+ #define L1_CACHE_SHIFT 5
+ #define L1_CACHE_BYTES 32
+ #define L1_CACHE_ALIGN(x) ((((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1)))
++#define L1_CACHE_SHIFT_MAX 5	/* largest L1 which this arch supports */
+ 
+ #define SMP_CACHE_BYTES 32
+ 
+--- 2.5.31/include/asm-sparc64/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-sparc64/cache.h	Sun Aug 11 00:20:35 2002
+@@ -9,6 +9,7 @@
+ #define        L1_CACHE_BYTES	32 /* Two 16-byte sub-blocks per line. */
+ 
+ #define        L1_CACHE_ALIGN(x)       (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
++#define		L1_CACHE_SHIFT_MAX 5	/* largest L1 which this arch supports */
+ 
+ #define        SMP_CACHE_BYTES_SHIFT	6
+ #define        SMP_CACHE_BYTES		(1 << SMP_CACHE_BYTES_SHIFT) /* L2 cache line size. */
+--- 2.5.31/include/asm-x86_64/cache.h~l1-max-size	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/asm-x86_64/cache.h	Sun Aug 11 00:20:35 2002
+@@ -9,5 +9,6 @@
+ /* L1 cache line size */
+ #define L1_CACHE_SHIFT	(CONFIG_X86_L1_CACHE_SHIFT)
+ #define L1_CACHE_BYTES	(1 << L1_CACHE_SHIFT)
++#define L1_CACHE_SHIFT_MAX 6	/* largest L1 which this arch supports */
+ 
+ #endif
 
 .

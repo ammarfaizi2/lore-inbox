@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266278AbUAWRXc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 12:23:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUAWRXc
+	id S266608AbUAWRif (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 12:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUAWRif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 12:23:32 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:14210 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S266278AbUAWRXb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 12:23:31 -0500
-Date: Fri, 23 Jan 2004 18:23:29 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6] local APIC LVTT init bug
-In-Reply-To: <Pine.LNX.4.58.0401230748080.2151@home.osdl.org>
-Message-ID: <Pine.LNX.4.55.0401231815300.3223@jurand.ds.pg.gda.pl>
-References: <16400.9569.745184.16182@alkaid.it.uu.se>
- <Pine.LNX.4.55.0401231250310.3223@jurand.ds.pg.gda.pl>
- <16401.6720.115695.872847@alkaid.it.uu.se> <Pine.LNX.4.55.0401231419460.3223@jurand.ds.pg.gda.pl>
- <Pine.LNX.4.58.0401230748080.2151@home.osdl.org>
-Organization: Technical University of Gdansk
+	Fri, 23 Jan 2004 12:38:35 -0500
+Received: from jik.kamens.brookline.ma.us ([66.92.77.120]:56448 "EHLO
+	jik.kamens.brookline.ma.us") by vger.kernel.org with ESMTP
+	id S266608AbUAWRh5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 12:37:57 -0500
+From: Jonathan Kamens <jik@kamens.brookline.ma.us>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16401.23536.363448.1368@jik.kamens.brookline.ma.us>
+Date: Fri, 23 Jan 2004 12:37:52 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Hard lock-ups with 2.6.1-rc1; plus is there an "ac" equivalent for 2.6.x?
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-Bogosity: No, tests=bogofilter
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jan 2004, Linus Torvalds wrote:
+I switched from 2.4.22-ac4 to 2.6.1-rc1 in the hope that perhaps if I
+could reproduce the hangs my SIIG SIi680 Ultra ATA 133 controller is
+causing in a 2.6.x kernel, the people on this list might be more
+forthcoming in suggestions for debugging them (I've received no
+responses at all to my request for help debugging the hangs with
+2.4.22-ac4).
 
-> It's entirely possible that the bug isn't in the integrated APIC per se, 
-> but migth be in ACPI/SMM getting confused when it reads the LVTT value and
-> tries to do something with it. And since the system vendors don't tend
-> to test with Linux (or test only with a few standard kernels that may not 
-> even have APIC enabled) the code might never have been tested with that 
-> behaviour.
+I've had to switch back to 2.4.22-ac4 because 2.6.1-rc1 regularly,
+reliably locks up on me under heavy load.  I don't think this is
+related to the IDE controller lockups I'm seeing occasionally under
+2.4.22-ac4, because it happens reliably under heavy load and the
+lockups under 2.4.22-ac4 weren't nearly as reliable.
 
- Hmm, but are the timer base selection bits actually flippable in any
-integrated APICs?  I've never seen them set to anything but "00" in my P5
-APICs despite our initialization code.
+Furthermore, even before it looks up, I find that the performance
+under heavy load is much slower than 2.4.22-ac4's performance.
 
-> Now quite honestly, I don't know _why_ it would read the value, so that 
-> theory is a pretty weak one, but the point being that it's not absolutely 
-> necessary that the hardware itself be broken. This is the reason we see
-> most SMM/BIOS bugs - the code just assumes certain states.
+I understood how to get the ac kernel patches to make a 2.4.x kernel
+into something useful, but I don't know if perhaps there's something
+equivalent for 2.6.x kernels which I'm not doing but should be.  Alan
+doesn't seem to be putting out patch-sets for recent kernels.  I see
+the "mm" kernel mentioned regularly on this list, but I don't know if
+that's something I should be using instead of the plain kernel, and if
+so, how to get it (for the ac patches, I have looked in
+ftp://ftp.kernel.org/pub/linux/kernel/people/alan).
 
- It constantly amazes me what imaginative ways to trigger failures the
-designers of PC firmware find -- given no coupling of OSes to hardware
-vendors one cannot assume any particular state of the hardware.  This is
-especially true with the SMM, which may often get entered at any moment,
-beyond control of the OS.
+I'd appreciate any help and/or suggestions you can provide.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Thanks,
+
+  jik

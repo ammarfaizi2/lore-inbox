@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261593AbTADWGT>; Sat, 4 Jan 2003 17:06:19 -0500
+	id <S261545AbTADWDR>; Sat, 4 Jan 2003 17:03:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbTADWGS>; Sat, 4 Jan 2003 17:06:18 -0500
-Received: from daimi.au.dk ([130.225.16.1]:56788 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S261593AbTADWGR>;
-	Sat, 4 Jan 2003 17:06:17 -0500
-Message-ID: <3E175CD3.B4B69961@daimi.au.dk>
-Date: Sat, 04 Jan 2003 23:14:43 +0100
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-17.7.xsmp i686)
-X-Accept-Language: en
+	id <S261561AbTADWDR>; Sat, 4 Jan 2003 17:03:17 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:13309 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S261545AbTADWDQ>;
+	Sat, 4 Jan 2003 17:03:16 -0500
+Date: Sat, 4 Jan 2003 23:11:04 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: [PATCHSET] Multiarch kconfig cleanup
+In-Reply-To: <1041719964.2555.3.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0301042310210.10296-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.54
-References: <20030104181459.28017.qmail@linuxmail.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ciarrocchi wrote:
+On 4 Jan 2003, Alan Cox wrote:
+> On Sat, 2003-01-04 at 20:24, Geert Uytterhoeven wrote:
+> > > If I had my druthers, I would s/pcnet_cs/ne2k_cs/ too...  hmmmmmm  :)
+> > 
+> > And I guess you want to rename mac8390 (which just got renamed from daynaport
+> > :-) to ne2k-nubus, too?
 > 
-> From: Kasper Dupont <kasperd@daimi.au.dk>
-> [...]
-> > Could the compiler somehow be using headers from the
-> > wrong location? (Just a wild guess)
-> I somehow downloaded an incomplete pathset.
-> Reverted/downloaded the new one and compiled, everything is ok
+> 8390 is the better name. ne2000 and ne/2 are specific product names.
 
-I always verify the GPG signature before I use sources/patches
-I have downloaded.
+So zorro8390 would be better than ne2k-zorro?
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264982AbUELGVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265027AbUELGXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264982AbUELGVq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 02:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbUELGVq
+	id S265027AbUELGXh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 02:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbUELGW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 02:21:46 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8342 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264982AbUELGP2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 02:15:28 -0400
-Date: Wed, 12 May 2004 09:05:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Cache queue_congestion_on/off_threshold
-Message-ID: <20040512070543.GC1803@suse.de>
-References: <20040510143024.GF14403@suse.de> <200405120532.i4C5WCF25908@unix-os.sc.intel.com>
-Mime-Version: 1.0
+	Wed, 12 May 2004 02:22:58 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39068 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S264995AbUELGTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 02:19:33 -0400
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, fastboot@lists.osdl.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
+References: <20040511212625.28ac33ef.rddunlap@osdl.org>
+	<40A1AF53.3010407@redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 12 May 2004 00:18:12 -0600
+In-Reply-To: <40A1AF53.3010407@redhat.com>
+Message-ID: <m13c66qicb.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405120532.i4C5WCF25908@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11 2004, Chen, Kenneth W wrote:
-> >>>> Jens Axboe wrote on Monday, May 10, 2004 7:30 AM
-> > > >
-> > > > Actually, with the good working batching we might get away with killing
-> > > > freereq completely. Have you tested that (if not, could you?)
-> > >
-> > > Sorry, I'm clueless on "good working batching".  If you could please give
-> > > me some pointers, I will definitely test it.
-> >
-> > Something like this.
-> >
-> > --- linux-2.6.6/drivers/block/ll_rw_blk.c~	2004-05-10 16:23:45.684726955 +0200
-> > +++ linux-2.6.6/drivers/block/ll_rw_blk.c	2004-05-10 16:29:04.333792268 +0200
-> > @@ -2138,8 +2138,8 @@
-> >
-> >  static int __make_request(request_queue_t *q, struct bio *bio)
-> >  {
-> > -	struct request *req, *freereq = NULL;
-> >  	int el_ret, rw, nr_sectors, cur_nr_sectors, barrier, ra;
-> > +	struct request *req;
-> >  	sector_t sector;
-> >
-> >
-> > [snip] ...
+Ulrich Drepper <drepper@redhat.com> writes:
+
+> Randy.Dunlap wrote:
 > 
-> I'm still working on this.  With this patch, several processes stuck
-> in "D" state and never finish.  Suspect it's the barrier thing, it
-> jumps through blk_plug_device() and might goof up the queue afterwards.
+> > And if anyone has suggestions for handling a variable/moving
+> > syscall number (target), I'm interested in hearing them.
+> 
+> If all architectures would finally get a vdso implementation you could
+> just add the necessary stub in the vdso, add a symbol in the symbol
+> table of the vdso, and use in the userlevel code
+> 
+>   sym = dlsym (RTLD_DEFAULT, "the_symbol_name")
+> 
+> If the returned value is not NULL the symbol exists.
+> 
+> I've described this many times as one of the huge advantages of vdsos,
+> hopefully this time it clicks.
 
-I'll do a quick test run (and review) of the patch, it wasn't even
-compiled here. So the chance of a slip-up is non-zero.
+For the momen the only finished port is x86, so we should be able
+to do that, it would make the kernel patch a little bigger though.
+Last time I saw that conversation I thought you didn't like symbols in
+the vdso for syscalls because it slowed things down.
 
--- 
-Jens Axboe
+If no one is opposed that sounds like a fairly sane idea.
 
+Eric

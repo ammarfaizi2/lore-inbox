@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278390AbRJMUMM>; Sat, 13 Oct 2001 16:12:12 -0400
+	id <S278389AbRJMUOX>; Sat, 13 Oct 2001 16:14:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278391AbRJMUME>; Sat, 13 Oct 2001 16:12:04 -0400
-Received: from august.V-LO.krakow.pl ([62.121.131.17]:47115 "EHLO
-	august.V-LO.krakow.pl") by vger.kernel.org with ESMTP
-	id <S278389AbRJMULs>; Sat, 13 Oct 2001 16:11:48 -0400
-Date: Sat, 13 Oct 2001 22:12:46 +0200 (CEST)
-From: "[solid]" <solid@V-LO.krakow.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Which is better at vm, and why? 2.2 or 2.4
-In-Reply-To: <02ca01c1541d$391c5f30$c800000a@Artifact>
-Message-ID: <Pine.LNX.4.33.0110132203010.6290-100000@august.V-LO.krakow.pl>
+	id <S278394AbRJMUOQ>; Sat, 13 Oct 2001 16:14:16 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:29501 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S278389AbRJMUMM>; Sat, 13 Oct 2001 16:12:12 -0400
+Message-ID: <3BC8A04A.5090108@blue-labs.org>
+Date: Sat, 13 Oct 2001 16:12:58 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011010
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Tcpdump filters, problem with UDP and 2.4.x
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-froma  completely non-developer point of view:
-to me it seems that th overall speed of 2.4 kernels is much faster,
-even on machines like p133 16 mb ram. it may sound silly, but software
-justs tends to do its work faster while using the 2.4 series.
-especially operations like mounting a big filesystem(<5GB) which
-happen almost immediatly, comparing to 5-10second times of mounting
-10GB under 2.2. i even managed to work on a 386 20 mhz/4mb ram laptop
-witch 8mb swap on a very slow disk, and it was quite workable,
-although it had very few kernel options compiled in(well, there was
-networking!:) and when i added plip it was just to big...but i thing
-that the days of computers with 4 megs of ram are over now, and these
-200-400KB difference in kernel image size doesn't make such a big
-difference. the scary fact is, that the next kernel series(the stable
-one after 2.5) might not fit on a floppy! :)
-but for now...to me 2.4 seems the best choice for any kind of linux
-box.
+I see a lot of "UDP: bad checksum. ..." between two of my servers.  I 
+haven't attached a tcpdump output of the packets because a) the packets 
+between machine A and B travel through a GRE tunnel and b) does anyone 
+have tcpdump filters or know how to finagle tcpdump into dumping the 
+embedded packet instead of the GRE header'd packet?
 
-[solid]
-Registered Linux user number 212159
+If not, I'll supply tcpdump output of the traffic.
+
+David
 
 

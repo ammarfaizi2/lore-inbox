@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129774AbRAIVfp>; Tue, 9 Jan 2001 16:35:45 -0500
+	id <S130231AbRAIVgR>; Tue, 9 Jan 2001 16:36:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130231AbRAIVfg>; Tue, 9 Jan 2001 16:35:36 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:43142 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129774AbRAIVfY>;
-	Tue, 9 Jan 2001 16:35:24 -0500
-Date: Tue, 9 Jan 2001 13:18:06 -0800
-Message-Id: <200101092118.NAA05606@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: sct@redhat.com
-CC: mingo@elte.hu, sct@redhat.com, riel@conectiva.com.br, hch@caldera.de,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010109151725.D9321@redhat.com> (sct@redhat.com)
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <20010109141806.F4284@redhat.com> <Pine.LNX.4.30.0101091532150.4368-100000@e2> <20010109151725.D9321@redhat.com>
+	id <S131810AbRAIVgK>; Tue, 9 Jan 2001 16:36:10 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:65294 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130231AbRAIVf6>; Tue, 9 Jan 2001 16:35:58 -0500
+Subject: Re: Floppy disk strange behavior
+To: viro@math.psu.edu (Alexander Viro)
+Date: Tue, 9 Jan 2001 21:37:07 +0000 (GMT)
+Cc: mchouque@e-steel.com (Mathieu Chouquet-Stringer),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0101091540330.9953-100000@weyl.math.psu.edu> from "Alexander Viro" at Jan 09, 2001 04:22:27 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14G6S5-0007UK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Tue, 9 Jan 2001 15:17:25 +0000
-   From: "Stephen C. Tweedie" <sct@redhat.com>
+> dd bug. It tries to ftruncate() the output file and gets all upset when
+> kernel refuses to truncate a block device (surprise, surprise).
 
-   Jes has also got hard numbers for the performance advantages of
-   jumbograms on some of the networks he's been using, and you ain't
-   going to get udp jumbograms through a page-by-page API, ever.
+Standards compliant but unexpected. 
 
-Again, see MSG_MORE in the patches.  It is possible and our UDP
-implementation could make it easily.
+> Basically, dd(1) expects kernel to fake success for ftruncate() on the
+> things that can't be truncated. Bad idea. 2.2 didn't bother to report
 
-Later,
-David S. Miller
-davem@redhat.com
+Actually its explicitly mentioned by the spec that truncate _may_ extend
+a file but need not do so. 
+
+> Try to build GNU dd on other Unices and you will be able to trigger that
+> bug on quite a few of them.
+
+I think not
+
+> ftruncate(2) is _not_ supposed to succeed on anything other than regular
+> files. I.e. dd(1) should not call it and expect success if file is not
+> regular. Plain and simple...
+
+2.2 is least suprise 2.4 is most information, but misleading errno IMHO
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbUB0MNo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 07:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbUB0MNo
+	id S261811AbUB0MT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 07:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUB0MT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 07:13:44 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:51972 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261806AbUB0MNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 07:13:42 -0500
-Date: Fri, 27 Feb 2004 12:13:00 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Christoph Hellwig <hch@infradead.org>, hch@lst.de, akpm@osdl.org,
-       linus@osdl.org, anton@samba.org, paulus@samba.org, axboe@suse.de,
-       piggin@cyberone.com.au, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] iSeries virtual disk
-Message-ID: <20040227121300.B31544@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Stephen Rothwell <sfr@canb.auug.org.au>, hch@lst.de, akpm@osdl.org,
-	linus@osdl.org, anton@samba.org, paulus@samba.org, axboe@suse.de,
-	piggin@cyberone.com.au, viro@parcelfarce.linux.theplanet.co.uk,
-	linux-kernel@vger.kernel.org
-References: <20040123163504.36582570.sfr@canb.auug.org.au> <20040122221136.174550c3.akpm@osdl.org> <20040226172325.3a139f73.sfr@canb.auug.org.au> <20040226095156.GA25423@lst.de> <20040227120451.0e3c43bd.sfr@canb.auug.org.au> <20040227113202.A31176@infradead.org> <20040227225716.5b29c690.sfr@canb.auug.org.au>
+	Fri, 27 Feb 2004 07:19:57 -0500
+Received: from gate.crashing.org ([63.228.1.57]:46522 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261811AbUB0MTz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 07:19:55 -0500
+Subject: [PATCH] ppc64 iommu rewrite part 2/5
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1077883862.22213.365.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040227225716.5b29c690.sfr@canb.auug.org.au>; from sfr@canb.auug.org.au on Fri, Feb 27, 2004 at 10:57:16PM +1100
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 27 Feb 2004 23:11:02 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In theory you can hot add virtual disks to an iSeries partition (up to 64
-> disks per partition).  We used to support that by registering all 32 disks
-> with Linux and then probing the hypervisor when any disk was opened at
-> which point the hypervisor lets us know that the value of viod_max_disk
-> should be increased.  I took that code out in the name of simplicity and
-> in the hope of getting the driver accepted.  (In fact it was your comments
-> that made me do it.)
+Fix /dev/mem idea of what is memory on ppc64
 
-Sure - above comments still stand in a hot-add enviroment.  ->open can't
-happen before gendisk is registered, hot-add or not.  And the module_init
-loop is bogus hot-add or not. 
+This add a hack to /dev/mem (along with the other ones
+already there) to prevent mapping cacheable of the IO hole.
 
-> I will investigate your suggestion of using
-> blk_register_region for the disks that don't exist yet over the next while
-> at which point (assuming I can figure out how to do it) the value of
-> viodasd_max_disk may again rise over time.
+Without this, XFree blows up on machines with enough memory
+to go past the IO hole. It also tries to prevent memory from
+beeing mapped uncached. Cache paradoxes are evil and can
+kill the CPU. 
 
-But this doesn't make the current code any better.  With hot-adding disks
-you would actually need a variable like viodasd_max_disk that replaces the
-current i loop iteractor in module_init with a file-wide variable, but that's
-it basically.
+The necessary page_is_ram() call was added by the previous
+patch doing the proper IO hole accounting.
 
-> It doesn't break out of the loop when probe_disk fails because it is
-> possible to have gaps in the list if disks (e.g. I have have disks 1 2 4 7
-> and viodasd_max_disk will be 7 but probe_disk will "fail" for the other
-> disks).
+Ben.
 
-That's not how I read your code.  But to actually understand what it's
-doing we need to know what open_data.max_disk actually is.
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/02/27 22:24:36+11:00 benh@kernel.crashing.org 
+#   Fix /dev/mem mmap'ing choice of cacheable attribute on ppc64
+#   (Fixes XFree on machines with an IO hole)
+# 
+# drivers/char/mem.c
+#   2004/02/27 22:24:24+11:00 benh@kernel.crashing.org +8 -0
+#   Fix /dev/mem mmap'ing choice of cacheable attribute on ppc64
+#   (Fixes XFree on machines with an IO hole)
+# 
+diff -Nru a/drivers/char/mem.c b/drivers/char/mem.c
+--- a/drivers/char/mem.c	Fri Feb 27 22:44:02 2004
++++ b/drivers/char/mem.c	Fri Feb 27 22:44:02 2004
+@@ -67,6 +67,14 @@
+ 	 * On ia64, we ignore O_SYNC because we cannot tolerate memory attribute aliases.
+ 	 */
+ 	return !(efi_mem_attributes(addr) & EFI_MEMORY_WB);
++#elif defined(CONFIG_PPC64)
++	/* On PPC64, we always do non-cacheable access to the IO hole and
++	 * cacheable elsewhere. Cache paradox can checkstop the CPU and
++	 * the high_memory heuristic below is wrong on machines with memory
++	 * above the IO hole... Ah, and of course, XFree86 doesn't pass
++	 * O_SYNC when mapping us to tap IO space. Surprised ?
++	 */
++	return !page_is_ram(addr);
+ #else
+ 	/*
+ 	 * Accessing memory above the top the kernel knows about or through a file pointer
 
-is this the maximum number of disks currently configured (if so the
-interface would be absolutely braindead, but the current code would
-match your above description although beein rather confusing).
 
-Or does it return the currently opened disks index?

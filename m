@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289277AbSAVWTm>; Tue, 22 Jan 2002 17:19:42 -0500
+	id <S289490AbSAVWWl>; Tue, 22 Jan 2002 17:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288121AbSAVWTg>; Tue, 22 Jan 2002 17:19:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28947 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289490AbSAVWTQ>; Tue, 22 Jan 2002 17:19:16 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.4.18-pre5
-Date: 22 Jan 2002 14:18:58 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a2kogi$mpt$1@cesium.transmeta.com>
-In-Reply-To: <200201221849.g0MInD012825@vindaloo.ras.ucalgary.ca>
+	id <S289491AbSAVWWc>; Tue, 22 Jan 2002 17:22:32 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:21264 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289490AbSAVWWS>;
+	Tue, 22 Jan 2002 17:22:18 -0500
+Date: Tue, 22 Jan 2002 20:21:57 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Chris Mason <mason@suse.com>, Andreas Dilger <adilger@turbolabs.com>,
+        Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>,
+        <ext2-devel@lists.sourceforge.net>
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <3C4DE22D.4090904@namesys.com>
+Message-ID: <Pine.LNX.4.33L.0201222014370.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200201221849.g0MInD012825@vindaloo.ras.ucalgary.ca>
-By author:    Richard Gooch <rgooch@ras.ucalgary.ca>
-In newsgroup: linux.dev.kernel
+On Wed, 23 Jan 2002, Hans Reiser wrote:
+
+> Yes, it should get twice as much pressure, but that does not mean it
+> should free twice as many pages, it means it should age twice as many
+> pages, and then the accesses will un-age them.
 >
->   Hi, Marcelo. patch-2.4.18-pre5.gz is in fact an incremental diff
-> between 2.4.18-pre4 -> 2.4.18-pre5, rather than a diff against 2.4.17.
-> This in turn appears to have broken the script that puts incremental
-> diffs into testing/incr.
-> 
+> Make more sense now?
 
-Indeed it did... I think I've cleaned up the resulting mess now.
+So basically you are saying that each filesystem should
+implement the code to age all pages equally and react
+equally to memory pressure ...
 
-	-hpa
+... essentially duplicating what the current VM already
+does!
+
+regads,
+
+Rik
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

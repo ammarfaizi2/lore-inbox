@@ -1,82 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314242AbSD0PGH>; Sat, 27 Apr 2002 11:06:07 -0400
+	id <S314244AbSD0PH4>; Sat, 27 Apr 2002 11:07:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314241AbSD0PGF>; Sat, 27 Apr 2002 11:06:05 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:52031 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S314243AbSD0PFe>; Sat, 27 Apr 2002 11:05:34 -0400
-Message-Id: <5.1.0.14.2.20020427153130.03ea8b30@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 27 Apr 2002 16:02:54 +0100
-To: "Kevin Krieser" <kkrieser_list@footballmail.com>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: RE: 48-bit IDE [Re: 160gb disk showing up as 137gb]
-Cc: <linux-kernel@vger.kernel.org>, Martin Bene <martin.bene@icomedias.com>,
-        Andre Hedrick <andre@linux-ide.org>
-In-Reply-To: <NDBBLFLJADKDMBPPNBALAEHKIEAA.kkrieser_list@footballmail.co
- m>
+	id <S314243AbSD0PHz>; Sat, 27 Apr 2002 11:07:55 -0400
+Received: from holomorphy.com ([66.224.33.161]:15810 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S314241AbSD0PHx>;
+	Sat, 27 Apr 2002 11:07:53 -0400
+Date: Sat, 27 Apr 2002 08:06:43 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] linux-2.4.19-pre7-rmap13
+Message-ID: <20020427150643.GP21206@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Teodor Iacob <Teodor.Iacob@astral.kappa.ro>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020427085425.GA5573@linux.kappa.ro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:51 27/04/02, Kevin Krieser wrote:
->You need an IDE controller that supports ATA133.  For most existing
->computers, that is going to require a new card.
+On Sat, Apr 27, 2002 at 11:54:25AM +0300, Teodor Iacob wrote:
+> I got today this: kernel BUG at page_alloc.c:110!
+> and then I got this OOPS on a games server running 4 servers of
+> hlds/counter-strike:
 
-Rubbish! The drives are backwards compatible with all ATA standards (do a 
-hparm -i on the drive and you will see). I certainly don't have an ATA133 
-controller and use one of the new Maxtor ATA133 drives just fine on it.
+Any chance you could send me your .config?
 
-For LBA48 support I am not too sure whether you need a special controller 
-(for what it's worth I use a Promise ATA100 controller and it works fine on 
-my Maxtor 120G, LBA48, ATA133 disk but the disk is possibly not big enough 
-for any problems to manifest).
+Also, was the system running after the first BUG when you got this oops
+or is this the oops corresponding to the BUG?
 
-Perhaps Andre (cc-ed) could shed some light on this?
 
-Best regards,
-
-Anton
-
->-----Original Message-----
->
->
->From: linux-kernel-owner@vger.kernel.org
->[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Ville Herva
->Sent: Saturday, April 27, 2002 7:56 AM
->To: Martin Bene; linux-kernel@vger.kernel.org
->Subject: 48-bit IDE [Re: 160gb disk showing up as 137gb]
->
->
->On Sat, Apr 27, 2002 at 12:16:06PM +0200, you [Martin Bene] wrote:
-> >
-> > IDE: The kernel IDE driver needs to support 48-bit addresseing to support
-> > 160GB.
-> >
-> > (...) however, you can do something about the linux ATA driver: code
-> > is in the 2.4.19-pre tree, it went in with 2.4.19-pre3.
->
->But which IDE controllers support 48-bit addressing? Not all of them? Does
->linux IDE driver support 48-bit for all of them? Do they require BIOS
->upgrade in order to operate 48-bit?
->
->Or can I just grab a 160GB Maxtor and 2.4.19-preX, stick them into whatever
->box I have and be done with it?
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+Thanks,
+Bill

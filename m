@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271606AbTHDJq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 05:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271691AbTHDJq5
+	id S271691AbTHDJxM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 05:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271692AbTHDJxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 05:46:57 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:55485 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S271606AbTHDJq4 (ORCPT
+	Mon, 4 Aug 2003 05:53:12 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:55055 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S271691AbTHDJxL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 05:46:56 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 4 Aug 2003 11:46:52 +0200 (MEST)
-Message-Id: <UTC200308040946.h749kqm25083.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, akpm@osdl.org
-Subject: Re: do_div considered harmful
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+	Mon, 4 Aug 2003 05:53:11 -0400
+Date: Mon, 4 Aug 2003 11:53:10 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: adri <adriano.archetti@tiscali.it>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1/2 won't let me use keyboard
+Message-ID: <20030804095310.GA4420@win.tue.nl>
+References: <20030728214523.GA485@inwind.it> <20030729142025.GA2180@win.tue.nl> <20030730072708.GA893@inwind.it> <20030802223740.GA655@inwind.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030802223740.GA655@inwind.it>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sometimes the slash-star operator comes in handy.
+On Sun, Aug 03, 2003 at 12:37:40AM +0200, adri wrote:
 
-Certainly an improvement. Maybe it will help a little.
+> but here the problem is the same: when i press a key it seems that i
+> press this keys for almost 4 time (eg. i press "a", and it give me
+> "aaaa")
+> when i try to stop my system, i pressed alt+sysrq, +s, for sync, +u for
+> mounting read only, and i mistake and pressed alt+sysrq+i, so i killed
+> every task.
+> well, i noticed here, with debug still on, that when i pressed a key, it
+> received only one pressure:
+> drivers/input/serio/i8042.c: 0c <- i8042 (interrupt, kbd, 1) [168545]
+> but it write to standard output for characters.
 
-But really, do_div is not a C function, it has very
-nonintuitive behaviour.
-The two bugs are: (i) the name is wrong, it returns a
-remainder but the name only talks about dividing, and
-(ii) worst of all, it changes its first argument.
+Yes, thanks for confirming. The new input code generates the repeat
+synthetically, by setting a timer, and that code must be buggy.
 
-> + * uint32_t do_div(uint64_t *n, uint32_t base)
-
-And the comment that you added, copied from elsewhere,
-is confusing too. The first parameter is not uint64_t *.
-This thing cannot be described in C.
-
-I would still like to replace do_div by DO_DIV_AND_REM
-as a big fat warning - this is a macro, read the definition.
-And the common case, where no remainder is used, by DO_DIV
-#define DO_DIV(a,b)	(void) DO_DIV_AND_REM(a,b)
-
-Andries
-
-[Perhaps DO_DIV64, to also indicate a type.]
-
-[The same problem happens with sector_div. I recall having
-to fix sector_div calls in scsi code. These functions are
-bugs waiting to happen. Nobody expects that after
-	res = func(a,b);
-the value of a has changed.]

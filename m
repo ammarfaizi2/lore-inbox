@@ -1,106 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263662AbVBCSMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263663AbVBCSFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263662AbVBCSMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 13:12:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbVBCSMB
+	id S263663AbVBCSFa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 13:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbVBCR5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 13:12:01 -0500
-Received: from netblock-66-218-40-30.dslextreme.com ([66.218.40.30]:51404 "EHLO
-	mail.lowrydigital.com") by vger.kernel.org with ESMTP
-	id S263662AbVBCSIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 13:08:21 -0500
-Mime-Version: 1.0 (Apple Message framework v619.2)
-In-Reply-To: <42026207.4090007@vgertech.com>
-References: <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com> <42026207.4090007@vgertech.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <ef0635f8b4257d18fad10882a2c79f64@lowrydigital.com>
-Content-Transfer-Encoding: 7bit
-From: Ian Godin <Ian.Godin@lowrydigital.com>
-Subject: Re: Drive performance bottleneck
-Date: Thu, 3 Feb 2005 10:08:24 -0800
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.619.2)
+	Thu, 3 Feb 2005 12:57:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:52647 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263620AbVBCRky convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 12:40:54 -0500
+Cc: kay.sievers@vrfy.org
+Subject: [PATCH] PCI: memset rom attribute before using it
+In-Reply-To: <11074524211780@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 3 Feb 2005 09:40:21 -0800
+Message-Id: <11074524213464@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.2043, 2005/02/03 00:40:37-08:00, kay.sievers@vrfy.org
 
-On Feb 3, 2005, at 9:40 AM, Nuno Silva wrote:
+[PATCH] PCI: memset rom attribute before using it
 
-> Ian Godin wrote:
->>   I am trying to get very fast disk drive performance and I am seeing 
->> some interesting bottlenecks.  We are trying to get 800 MB/sec or 
->> more (yes, that is megabytes per second).  We are currently using 
->> PCI-Express with a 16 drive raid card (SATA drives).  We have 
->> achieved that speed, but only through the SG (SCSI generic) driver.  
->> This is running the stock 2.6.10 kernel.  And the device is not 
->> mounted as a file system.  I also set the read ahead size on the 
->> device to 16KB (which speeds things up a lot):
->
-> I was trying to reproduce but got distracted by this:
-> (use page down, if you just want to see the odd result)
->
-> puma:/tmp/dd# sg_map
-> /dev/sg0  /dev/sda
-> /dev/sg1  /dev/sdb
-> /dev/sg2  /dev/scd0
-> /dev/sg3  /dev/sdc
-> puma:/tmp/dd# time sg_dd if=/dev/sg1 of=/tmp/dd/sg1 bs=64k count=1000
-> Reducing read to 64 blocks per loop
-> 1000+0 records in
-> 1000+0 records out
->
-> real    0m0.187s
-> user    0m0.001s
-> sys     0m0.141s
-> puma:/tmp/dd# time dd if=/dev/sdb of=/tmp/dd/sdb bs=64k count=1000
-> 1000+0 records in
-> 1000+0 records out
-> 65536000 bytes transferred in 1.203468 seconds (54455956 bytes/sec)
->
-> real    0m1.219s
-> user    0m0.001s
-> sys     0m0.138s
-> puma:/tmp/dd# ls -l
-> total 128000
-> -rw-r--r--  1 root root 65536000 Feb  3 17:16 sdb
-> -rw-r--r--  1 root root 65536000 Feb  3 17:16 sg1
-> puma:/tmp/dd# md5sum *
-> ec31224970ddd3fb74501c8e68327e7b  sdb
-> 60d4689227d60e6122f1ffe0ec1b2ad7  sg1
-> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->
-> See? dd from sdb is not the same as sg1! Is this supposed to happen?
->
-> About the 900MB/sec:
-> This same sg1 (= sdb, which is a single hitachi sata hdd) performes 
-> like this:
->
-> puma:/tmp/dd# time sg_dd if=/dev/sg1 of=/dev/null bs=64k count=1000000 
-> time=1
-> Reducing read to 64 blocks per loop
-> time to transfer data was 69.784784 secs, 939.12 MB/sec
-> 1000000+0 records in
-> 1000000+0 records out
->
-> real    1m9.787s
-> user    0m0.063s
-> sys     0m58.115s
->
-> I can assure you that this drive can't do more than 60MB/sec sustained.
->
-> My only conclusion is that sg (or sg_dd) is broken? ;)
->
-> Peace,
-> Nuno Silva
->
+Initialize the allocated bin_attribute structure, otherwise unused fields
+are pointing to random places.
 
-   Definitely have been able to repeat that here, so the SG driver 
-definitely appears to be broken.  At least I'm glad I am not going 
-insane, I was starting to wonder :)
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-   I'll run some more tests with O_DIRECT and such things, see if I can 
-figure out what the REAL max speed is.
 
-  Thanks for the help everyone,
-    Ian.
+ drivers/pci/pci-sysfs.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+
+diff -Nru a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+--- a/drivers/pci/pci-sysfs.c	2005-02-03 09:28:46 -08:00
++++ b/drivers/pci/pci-sysfs.c	2005-02-03 09:28:46 -08:00
+@@ -436,6 +436,7 @@
+ 		
+ 		rom_attr = kmalloc(sizeof(*rom_attr), GFP_ATOMIC);
+ 		if (rom_attr) {
++			memset(rom_attr, 0x00, sizeof(*rom_attr));
+ 			pdev->rom_attr = rom_attr;
+ 			rom_attr->size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
+ 			rom_attr->attr.name = "rom";
 

@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130451AbQKQRRW>; Fri, 17 Nov 2000 12:17:22 -0500
+	id <S130645AbQKQRSW>; Fri, 17 Nov 2000 12:18:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130576AbQKQRRM>; Fri, 17 Nov 2000 12:17:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65296 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130451AbQKQRQ6>;
-	Fri, 17 Nov 2000 12:16:58 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011171646.QAA01224@raistlin.arm.linux.org.uk>
-Subject: Re: VGA PCI IO port reservations
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Fri, 17 Nov 2000 16:46:44 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, mj@suse.cz
-In-Reply-To: <3A155E8C.7D345649@mandrakesoft.com> from "Jeff Garzik" at Nov 17, 2000 11:36:28 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130643AbQKQRSM>; Fri, 17 Nov 2000 12:18:12 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:18954 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130640AbQKQRR6>; Fri, 17 Nov 2000 12:17:58 -0500
+Date: Fri, 17 Nov 2000 08:47:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: David Woodhouse <dwmw2@infradead.org>, Russell King <rmk@arm.linux.org.uk>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, David Hinds <dhinds@valinux.com>,
+        tytso@valinux.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+In-Reply-To: <3A155F6A.28783D4A@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.10.10011170843050.2272-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-> > For example, S3 cards typically use:
+
+
+On Fri, 17 Nov 2000, Jeff Garzik wrote:
 > > 
-> >  0x0102,  0x42e8,  0x46e8,  0x4ae8,  0x8180 - 0x8200,  0x82e8,  0x86e8,
-> >  0x8ae8,  0x8ee8,  0x92e8,  0x96e8,  0x9ae8,  0x9ee8,  0xa2e8,  0xa6e8,
-> >  0xaae8,  0xaee8,  0xb2e8,  0xb6e8,  0xbae8,  0xbee8,  0xe2e8,
-> >  0xff00 - 0xff44
-      ^^^^ PCI IO addresses
+> > 2. Even when I specify cs_irq=27, it resorts to polling:
+> > 
+> >         Intel PCIC probe:
+> >           Intel i82365sl DF ISA-to-PCMCIA at port 0x8400 ofs 0x00, 2 sockets
+> >             host opts [0]: none
+> >             host opts [1]: none
+> >             ISA irqs (default) = none! polling interval = 1000 ms
+> >           Intel i82365sl DF ISA-to-PCMCIA at port 0x8400 ofs 0x80, 2 sockets
+> >             host opts [2]: none
+> >             host opts [3]: none
+> >             ISA irqs (default) = none! polling interval = 1000 ms
+> 
+> For these two, it sounds to me like you need to be doing a PCI probe,
+> and getting the irq and I/O port info from pci_dev.  And calling
+> pci_enable_device, which may or may not be a showstopper here...
 
-> I tried to push this through when I was hacking heavily on fbdev
-> drivers, especially S3, and it didn't fly.  On x86's, those addresses
-> are already reserved:
+The i82365 stuff actually used to do much of this, but it was so
+intimately intertwined with the cardbus handling that I pruned it out for
+my sanity.
 
-No they're not.
+It should be possible to do the same thing with a nice simple concentrated
+PCI probe, instead of having stuff quite as spread out as it used to be.
 
-> [jgarzik@rum linux_2_4]$ cat /proc/iomem
-> 00000000-0009efff : System RAM
-> 000a0000-000bffff : Video RAM area
-> 000c0000-000c7fff : Video ROM
-> 000f0000-000fffff : System ROM
-> [...]
+As to why it doesn't show any ISA interrupts, who knows... Some of the PCI
+PCMCIA bridges need to be initialized.
 
-   ^^^^^^^^^^^^^ PCI memory addresses.
+		Linus
 
-> Another alternative I thought of is freeing the resource if it is
-> allocated by the system, and having the driver allocate its own
-> resource.  When the driver unloads, it frees its resources and allocates
-> the whole region back to the system.  I look at this as the fbdev
-> driver's "clarifying the picture" of the hardware resource usage. 
-
-If the driver isn't loaded, the port is still used by the hardware.  Therefore,
-it should be reserved independent of whether we have the driver loaded/in kernel
-or not.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbULLWxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbULLWyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262160AbULLWxN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 17:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbULLWxN
+	id S262166AbULLWyb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 17:54:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbULLWy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 17:53:13 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:36362 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262160AbULLWxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 17:53:11 -0500
-Date: Sun, 12 Dec 2004 23:37:40 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: how to detect a 32 bit process on 64 bit kernel
-Message-ID: <20041212223740.GF17946@alpha.home.local>
-References: <20040901072245.GF13749@mellanox.co.il> <20040903080058.GB2402@wotan.suse.de> <20040907104017.GB10096@mellanox.co.il> <20040907121418.GC25051@wotan.suse.de> <20041212215110.GA11451@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041212215110.GA11451@mellanox.co.il>
-User-Agent: Mutt/1.4i
+	Sun, 12 Dec 2004 17:54:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56029 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262162AbULLWyU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 17:54:20 -0500
+Date: Sun, 12 Dec 2004 17:53:09 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Adrian Bunk <bunk@stusta.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mm/thrash.c: make a variable static
+In-Reply-To: <20041212200339.GR22324@stusta.de>
+Message-ID: <Pine.LNX.4.61.0412121752440.27482@chimarrao.boston.redhat.com>
+References: <20041212200339.GR22324@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 12, 2004 at 11:51:10PM +0200, Michael S. Tsirkin wrote:
-> Hello!
-> Is there a reliable way e.g. on x86-64 (or ia64, or any other
-> 64-bit system), from the char device driver,
-> to find out that I am running an operation in the context of a 32-bit
-> task?
+On Sun, 12 Dec 2004, Adrian Bunk wrote:
 
-aren't there informations in /proc/$$/maps or other things which will
-change their format or contents in 32 or 64 bits addressing, which would
-help you detect the mode you're currently running ?
+> --- linux-2.6.10-rc2-mm4-full/mm/thrash.c.old	2004-12-12 04:00:18.000000000 +0100
+> +++ linux-2.6.10-rc2-mm4-full/mm/thrash.c	2004-12-12 04:00:25.000000000 +0100
 
-Willy
+> -unsigned long swap_token_check;
+> +static unsigned long swap_token_check;
 
+Looks good to me.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264481AbTICVOH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 17:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264485AbTICVOH
+	id S264488AbTICUiT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 16:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTICUiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 17:14:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60382 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264481AbTICVOE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 17:14:04 -0400
-Date: Wed, 3 Sep 2003 14:14:41 -0700
-From: Dave Olien <dmo@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, maryedie@osdl.org
-Subject: Re: FYI: dbt testing on 2.6.0-test4-mm4 fails
-Message-ID: <20030903211441.GA23932@osdl.org>
-References: <20030903170716.GA23487@osdl.org> <20030903102042.52020776.akpm@osdl.org>
+	Wed, 3 Sep 2003 16:38:19 -0400
+Received: from law11-f71.law11.hotmail.com ([64.4.17.71]:54537 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264488AbTICUiR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 16:38:17 -0400
+X-Originating-IP: [144.92.164.196]
+X-Originating-Email: [muthian_s@hotmail.com]
+From: "Muthian S" <muthian_s@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Remote SCSI Emulation 
+Date: Wed, 03 Sep 2003 20:38:14 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030903102042.52020776.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; format=flowed
+Message-ID: <LAW11-F717fcGuKeddZ000021c9@hotmail.com>
+X-OriginalArrivalTime: 03 Sep 2003 20:38:15.0108 (UTC) FILETIME=[4CB5D040:01C3725B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Right now, we're looking over older test runs and tracking down exactly
-which patch set seems to have caused a break.  We THINK we MIGHT have
-a difference in behavior between mm3 and mm3-1.
+Certain SCSI adapters like the Adaptec AHA 29160 are reportedly capable of
+acting as a target and can receive SCSI commands from initiators.  Such an
+adapter can be used to facilitate remote SCSI emulation by a PC.
+For instance, if two PCs have the adapter, the two adapters can be
+directly connected by a SCSI bus and the second PC can in effect serve as
+an "emulated SCSI disk".  Such a setup is extremely helpful in various
+scenarios.
 
-We'll follow this path for a bit and see where it gets us.
+However, for this to work, the OS on the second PC (which serves as the
+emulated scsi disk) should be capable of handling incoming SCSI requests and
+directing them to an appropriate software layer.  Apparently, the CAM
+subsystem of FreeBSD has this capability.  I was wondering if there is a
+similar mechanism in linux.
 
-But following that, yes we can put some prink's in and see where
-that leads.
+It would be really helpful if people have comments on whether such a setup 
+is
+possible in linux, and if yes, are there specific adapters that are known
+to work in this fashion.
 
-On Wed, Sep 03, 2003 at 10:20:42AM -0700, Andrew Morton wrote:
-> Dave Olien <dmo@osdl.org> wrote:
-> >
-> > I'm just mailing you this to keep you informed, Daniel McNeil and
-> > I are investigating a failure of the dbt database workload test on
-> > 2.6.0-test4-mm4.
-> 
-> hmm, the direct-io code hasn't changed significantly since February(!).
-> 
-> Which filesystem are you using?
-> 
-> One possibility is that some lower-level error occured in the filesystem or
-> the device driver but the error code was not correctly propagated back. 
-> Could you sprinkle error-path printk's in the direct-io code?
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+thanks,
+Muthian.
+
+_________________________________________________________________
+Get MSN 8 and enjoy automatic e-mail virus protection.  
+http://join.msn.com/?page=features/virus
+

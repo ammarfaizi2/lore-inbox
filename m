@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVDEIFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVDEIKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVDEIFI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 04:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVDEH66
+	id S261655AbVDEIKK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 04:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVDEIHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 03:58:58 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:3482
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261619AbVDEHo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 03:44:59 -0400
-Date: Tue, 5 Apr 2005 00:43:46 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: [PATCH]: Fix get_compat_sigevent()
-Message-Id: <20050405004346.17b39bd1.davem@davemloft.net>
-In-Reply-To: <20050405173724.120631d7.sfr@canb.auug.org.au>
-References: <20050404224409.1a34e732.davem@davemloft.net>
-	<20050405173724.120631d7.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 5 Apr 2005 04:07:12 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:10630 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261619AbVDEH73 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 03:59:29 -0400
+Date: Tue, 5 Apr 2005 09:59:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050405075901.GA26401@elte.hu>
+References: <20050405000524.592fc125.akpm@osdl.org> <42523F5D.7020201@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42523F5D.7020201@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Apr 2005 17:37:24 +1000
-Stephen Rothwell <sfr@canb.auug.org.au> wrote:
 
-> On Mon, 4 Apr 2005 22:44:09 -0700 "David S. Miller" <davem@davemloft.net> wrote:
-> >
-> > I have no idea how a bug like this lasted so long.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+> Andrew Morton wrote:
 > 
-> Probably because very few programs pass sigevents into the kernel ...
+> >+sched-remove-unnecessary-sched-domains.patch
+> >+sched-improve-pinned-task-handling-again.patch
+> [snip]
+> >
+> > CPU scheduler updates
+> >
+> 
+> It is no problem that you picked these up for testing. But
+> don't merge them yet, please.
 
-Perhaps, but this triggered an OOPS the first time I tried to
-run the glibc testsuite on a compat platform.
+almost all current scheduler patches in -mm are post-2.6.12 items and
+are conditional on testing feedback from the big boxes, but otherwise
+have my conceptual ack. The only trivial one that would be fine for
+2.6.12 is sched-uninline-task_timeslice.patch.
 
-Something for the LTP folks to add I guess.  :) I do run that all
-the time.
+	Ingo

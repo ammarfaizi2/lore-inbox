@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132773AbRDOSQa>; Sun, 15 Apr 2001 14:16:30 -0400
+	id <S132742AbRDOSTV>; Sun, 15 Apr 2001 14:19:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132776AbRDOSQU>; Sun, 15 Apr 2001 14:16:20 -0400
-Received: from 13dyn209.delft.casema.net ([212.64.76.209]:59148 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S132773AbRDOSQL>; Sun, 15 Apr 2001 14:16:11 -0400
-Message-Id: <200104151816.UAA22871@cave.bitwizard.nl>
-Subject: Re: [PATCH] NTFS comment expanded, small fix.
-In-Reply-To: <Pine.SOL.3.96.1010415173424.19123A-100000@libra.cus.cam.ac.uk>
- from Anton Altaparmakov at "Apr 15, 2001 06:11:08 pm"
-To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-Date: Sun, 15 Apr 2001 20:16:02 +0200 (MEST)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <Linus.Torvalds@Helsinki.FI>,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S132776AbRDOSTL>; Sun, 15 Apr 2001 14:19:11 -0400
+Received: from linas.org ([207.170.121.1]:35062 "HELO backlot.linas.org")
+	by vger.kernel.org with SMTP id <S132742AbRDOSTD>;
+	Sun, 15 Apr 2001 14:19:03 -0400
+To: jakob@ostenfeld.dk, linux-kernel@vger.kernel.org, miku@iki.fi,
+        neilb@cse.unsw.edu.au
+Subject: fsck, raid reconstruction & bad bad 2.4.3
+Message-Id: <20010415181825.40FBB1BA03@backlot.linas.org>
+Date: Sun, 15 Apr 2001 13:18:25 -0500 (CDT)
+From: linas@backlot.linas.org (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> >Also, the "start" value that is read from the record, could be much 
-> larger than expected, which could lead to accessing random data. The
-> fixup should fail then, and this is also patched below.
-> 
-> No it can't (in theory). The volume would be corrupt if it was. That kind
-> of check belongs in ntfs fsck utility but not in kernel code.
-> 
-> In any case, the correct check, if you want one, would be:
-> 
-> if (start + (count * 2) > size)
-> 	return 0;
 
-Hi Anton, 
+Hi,
+I want to report a trio of raid-related problems.  The third one is 
+very serious, and effectively prevents 2.4.3 from being usable (by me).
 
-Of course this is the better check. I was being sloppy. 
+First problem:  In kernel-2.4.2 and earlier, if the machine is not cleanly
+shut down, then upon reboot, RAID reconstruction is automatically started.
+(For RAID-1, this more-or-less ammounts to copying the entire contents
+of one disk partition on one disk to another).   The reconstruction
+code seems to be clever: it will try to use the full bandwidth when
+the system is idle, and it will throttle back when busy.  It will
+only throttle back so far: it tries to maintain at least a minimum amount
+of work going, in order to gaurentee forward progress even on a busy system.
 
-I disagree with your "this belongs in an fsck-program". If this
-condition triggers, then indeed, the filesystem is corrupt. But if the
-"start" pointer is dereferenced, the kernel could be accessing an area
-that you don't want touched (e.g. if the buffer happens to be near 
-enough to the "end-of-memory", you could "Ooops" .
+The problem:  this dramatically slows fsck after an unclean shut-down.
+You can hear the drives machine-gunning.  I haven't stop-watch timed it,
+but its on the order of 5x slower to fsck a raid partition when there's
+reconstruction going on, then when the raid thinks its clean.  This
+makes unclean reboots quite painful.
 
-The kernel should validate all user-input as much as possible, and an
-ntfs-formatted-floppy should count as such. 
+(There is no config file to disable/alter this .. no work-around that I
+know of ..)
 
-The "fixup" routine has a bunch of "return 0" conditions. These are
-similar to mine: If they trigger, the filesystem must be corrupt.
-It's a sanity check, which is neccesary to keep Linux stable.
+--------
+The second problem: oparallelizing fsck doesn't realize that different
+/dev/md raid volumes are on the same physical disks, and thus tries
+to parallelize .... again slowing things down.   There is a work-around,
+modify /etc/fstab to set the rder of fsck's. However, I doubt the HOWTO
+really gets into this ....  it would be nice to get fsck to 'do the
+right thing'.
 
-				Roger. 
+----------
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Third problem:
+
+I just tried boot 2.4.3 today.  (after an unclean shutdown)  fsck runs 
+at a crawl on my RAID-1 volume.  It would take all day (!! literally) 
+to fsck.  The disk-drive activity light flashes about once a second,
+maybe once every two seconds.  (with a corresponding click from the
+drive).    
+
+On 2.4.2 kernels, the disk activity light is constantly on... and the
+fsck proceeds apace. 
+
+Whatever it is that changed in 2.4.3, it makes unclean reboots
+impossible ...
+
+
+--linas
+
+
+
+

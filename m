@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264745AbSL0Ch3>; Thu, 26 Dec 2002 21:37:29 -0500
+	id <S264743AbSL0Ceu>; Thu, 26 Dec 2002 21:34:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264748AbSL0Ch3>; Thu, 26 Dec 2002 21:37:29 -0500
-Received: from p008.as-l031.contactel.cz ([212.65.234.200]:28288 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S264745AbSL0Ch2>;
-	Thu, 26 Dec 2002 21:37:28 -0500
-Date: Fri, 27 Dec 2002 03:44:17 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: "Paulo Andre'" <fscked@netvisao.pt>
-Cc: thunder7@xs4all.nl, linux-kernel@vger.kernel.org
-Subject: Re: also frustrated with the framebuffer and your matrox-card in 2.5.53? hack/patch available!
-Message-ID: <20021227024417.GD1412@ppc.vc.cvut.cz>
-References: <20021226142032.GA7852@middle.of.nowhere> <20021226191510.63802d2d.fscked@netvisao.pt>
+	id <S264745AbSL0Ceu>; Thu, 26 Dec 2002 21:34:50 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:34566 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264743AbSL0Cet>;
+	Thu, 26 Dec 2002 21:34:49 -0500
+Date: Thu, 26 Dec 2002 18:38:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PROBLEM][2.5.52/53][USB] USB Device unusable
+Message-ID: <20021227023852.GD9549@kroah.com>
+References: <200212241533.21347.spstarr@sh0n.net> <200212241725.15439.spstarr@sh0n.net> <20021226175137.GC8229@kroah.com> <200212261433.16060.spstarr@sh0n.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021226191510.63802d2d.fscked@netvisao.pt>
+In-Reply-To: <200212261433.16060.spstarr@sh0n.net>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 26, 2002 at 07:15:10PM +0000, Paulo Andre' wrote:
-> On Thu, 26 Dec 2002 15:20:32 +0100
-> Jurriaan <thunder7@xs4all.nl> wrote:
+On Thu, Dec 26, 2002 at 02:33:15PM -0500, Shawn Starr wrote:
+> Well, libgphoto2 reports that my camera is supported. It supports JamCam 
+> versions 2.0 and 3.0.
 > 
-> > This is a patch to downgrade the framebuffer files in linux-2.5.53 back
-> > to 2.5.50, where the matrox-framebuffer worked perfectly.
-> 
-> Would be nice if the radeonfb worked too. Is this driver ever going to be fixed
-> in 2.5?
+> I haven't tried it in any other Linux machine.
 
-With Jurriaan's hack ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/radeon.tgz
-should work - it is 2.4.18 version of driver ported to 2.5.50. Only thing I can
-say about it is that it works on my Compaq notebook in 1600x1200, with 
-2.5.51-bkSomething.
+As there are no visible usb subsystem errors or failures here, I would
+take it up with the gphoto people :)
 
-I did not talked to Ani Joshi about it yet, as it does not work in latest 2.5.x
-kernels, so as is patch is of no use for anyone using 2.5.52+.
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
+Good luck,
+
+greg k-h

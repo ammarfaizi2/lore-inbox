@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVBLAYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVBLAjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbVBLAYl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 19:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbVBLAYl
+	id S262316AbVBLAjN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 19:39:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbVBLAjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 19:24:41 -0500
-Received: from waste.org ([216.27.176.166]:12489 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262360AbVBLAYf (ORCPT
+	Fri, 11 Feb 2005 19:39:13 -0500
+Received: from relay.axxeo.de ([213.239.199.237]:8931 "EHLO relay.axxeo.de")
+	by vger.kernel.org with ESMTP id S262316AbVBLAjK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 19:24:35 -0500
-Date: Fri, 11 Feb 2005 16:24:02 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Fruhwirth Clemens <clemens@endorphin.org>
-Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org, michal@logix.cz, davem@davemloft.net,
-       adam@yggdrasil.com
-Subject: Re: [PATCH 01/04] Adding cipher mode context information to crypto_tfm
-Message-ID: <20050212002402.GD2474@waste.org>
-References: <Xine.LNX.4.44.0502091859540.6222-100000@thoron.boston.redhat.com> <1107997358.7645.24.camel@ghanima> <20050209171943.05e9816e.akpm@osdl.org> <1108028923.14335.44.camel@ghanima> <20050210023344.390fb358.akpm@osdl.org> <1108034244.14335.59.camel@ghanima>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Feb 2005 19:39:10 -0500
+From: Ingo Oeser <ioe-lkml@axxeo.de>
+To: Rik van Riel <riel@redhat.com>
+Subject: Re: 2.6.11-rc3: Kylix application no longer works?
+Date: Sat, 12 Feb 2005 01:39:01 +0100
+User-Agent: KMail/1.7.1
+Cc: Daniel Jacobowitz <dan@debian.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@ucw.cz>
+References: <20050207221107.GA1369@elf.ucw.cz> <20050209153441.GA8809@nevyn.them.org> <Pine.LNX.4.61.0502091512430.2108@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0502091512430.2108@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1108034244.14335.59.camel@ghanima>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200502120139.01964.ioe-lkml@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 12:17:24PM +0100, Fruhwirth Clemens wrote:
-> On Thu, 2005-02-10 at 02:33 -0800, Andrew Morton wrote:
-> > Fruhwirth Clemens <clemens@endorphin.org> wrote:
-> > >
-> > > On Wed, 2005-02-09 at 17:19 -0800, Andrew Morton wrote:
-> > > > Fruhwirth Clemens <clemens@endorphin.org> wrote:
-> > > > Adding a few more fixmap slots wouldn't hurt anyone.  But if you want an
-> > > > arbitrarily large number of them then no, we cannot do that.
-> > > 
-> > > What magnitude is "few more"? 2, 10, 100?
-> > 
-> > Not 100.  10 would seem excessive.
-> 
-> Out of curiosity: Where does this limitation even come from? What
-> prevents kmap_atomic from adding slots dynamically?
+Hi,
 
-There's a single page of PTEs for mapping high memory and the atomic
-slots are a small subset of that. They're fixed in number for
-complexity reasons - we don't want to have an allocator here:
+Rik van Riel wrote:
+> On Wed, 9 Feb 2005, Daniel Jacobowitz wrote:
+> > On Tue, Feb 08, 2005 at 06:10:18PM -0800, Andrew Morton wrote:
+> > It's asking for a lot of unwritable zeroed space.  See this:
+> >>   LOAD           0x000000 0x08048000 0x08048000 0xb7354 0x1b7354 R E
+> >> 0x1000 LOAD           0x0b7354 0x08200354 0x08200354 0x1e3e4 0x1f648 RW 
+> >> 0x1000
+> >
+> > clear_user's probably not the right way to provide the extra zeroing.
+>
+> Indeed, clear_user() refuses to zero data when it's not writable
+> to the user process ...
 
-/*
- * kmap_atomic/kunmap_atomic is significantly faster than kmap/kunmap because
- * no global lock is needed and because the kmap code must perform a global TLB
- * invalidation when the kmap pool wraps.
- *
+So if the application wants an read only range of zeroed pages, why
+not just map the ZERO_PAGE() multiple times there?
 
--- 
-Mathematics is the supreme nostalgia of our time.
+I can imagine _valid_ uses for that (templates for zero intitialized data),
+although there are _better_ ways to do that.
+
+
+Regards
+
+Ingo Oeser
+

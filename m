@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbUK3EIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbUK3EOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbUK3EIc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 23:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbUK3EIb
+	id S261973AbUK3EOo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 23:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUK3EOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 23:08:31 -0500
-Received: from mail.kroah.org ([69.55.234.183]:42416 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261972AbUK3EIS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 23:08:18 -0500
-Date: Mon, 29 Nov 2004 20:07:53 -0800
-From: Greg KH <greg@kroah.com>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [PATCH] CKRM: 0/10 Class Based Kernel Resource Management
-Message-ID: <20041130040753.GA8376@kroah.com>
-References: <20041130024321.GA6317@kroah.com> <E1CYy3v-0005JM-00@w-gerrit.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CYy3v-0005JM-00@w-gerrit.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 29 Nov 2004 23:14:44 -0500
+Received: from lakermmtao07.cox.net ([68.230.240.32]:33754 "EHLO
+	lakermmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S261973AbUK3EOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 23:14:42 -0500
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEFPACAB.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKAEFPACAB.davids@webmaster.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <5AC4B64A-4286-11D9-8639-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: jonathan@jonmasters.org, Bernard Normier <bernard@zeroc.com>,
+       linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Concurrent access to /dev/urandom
+Date: Mon, 29 Nov 2004 23:14:40 -0500
+To: davids@webmaster.com
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2004 at 06:48:19PM -0800, Gerrit Huizenga wrote:
-> 
-> On Mon, 29 Nov 2004 18:43:21 PST, Greg KH wrote:
-> > On Mon, Nov 29, 2004 at 10:44:49AM -0800, Gerrit Huizenga wrote:
-> > > 09-diff_rbce
-> > > 	A very basic rules based classification engine for automatically
-> > > 	adding tasks to classes.  Also includes an enhanced rules based
-> > > 	classification engine with better per-process delay data and
-> > > 	ability to better monitor class related activities.
-> > 
-> > This one didn't look like it made it to lkml.
-> > 
-> > Oh, and I stopped reviewing the other patches in the series, as the same
-> > comments pretty much applied to them :(
-> 
-> Yeah, I checked marc earlier and didn't see it there.  I'm making
-> the suggested changes now, will resend the whole set when I apply
-> and test a bit.
+On Nov 29, 2004, at 21:31, David Schwartz wrote:
+>> Especially when used on a box without any effective entropy source - 
+>> like
+>> praktically most cheap servers stashed away into some rack.
+> 	Assuming most of your cheap servers are running some version of the 
+> Intel
+> Pentium or comparable, they have wonderful entropy sources. Nobody can
+> predict the oscillator offset between the crystals in the network 
+> cards on
+> both ends and the TSC. This entropy source is mined by the kernel.
 
-And the questions that I and others had about portions of the code?
-Please address them in responses to the messages and don't expect us to
-try to pick out if they are still present in the next round of patches
-:)
+Even timer interrupts are incredibly unpredictable.  Instructions can 
+take
+variable times to complete, and all instructions plus some indeterminate
+cache operations and queue flushing must occur before the CPU can
+even begin to service an interrupt.  Also of note, there are small 
+critical
+sections with interrupts disabled scattered all over the kernel and 
+scheduler,
+in addition to varying memory latencies, etc. (NOTE: I am not an arch 
+expert
+so this is all just a very general overview of the way most kinds of 
+CPUs
+handle interrupts).  In general these unpredictable instabilities have a
+randomization effect on the low bits of the TSC at each timer interrupt,
+(or arch equivalent).  The same thing goes for most other such events.  
+I
+suspect that the computational power necessary to provide a useful model
+of such a system would be so tremendous you would have an easier job
+just trying all the possible cryptographic keys. :-D
 
-thanks,
+Cheers,
+Kyle Moffett
 
-greg k-h
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
+

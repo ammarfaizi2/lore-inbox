@@ -1,58 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266317AbRGPTNq>; Mon, 16 Jul 2001 15:13:46 -0400
+	id <S267676AbRGPTRH>; Mon, 16 Jul 2001 15:17:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267043AbRGPTNg>; Mon, 16 Jul 2001 15:13:36 -0400
-Received: from stine.vestdata.no ([195.204.68.10]:35084 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP
-	id <S266317AbRGPTNZ>; Mon, 16 Jul 2001 15:13:25 -0400
-Date: Mon, 16 Jul 2001 21:13:08 +0200
-From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: Paul Jakma <paulj@alphyra.ie>
-Cc: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 64 bit scsi read/write
-Message-ID: <20010716211308.C14564@vestdata.no>
-In-Reply-To: <Pine.LNX.4.33.0107141325460.1063-100000@rossi.itg.ie> <200107161853.f6GIrxdQ002885@webber.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5i
-In-Reply-To: <200107161853.f6GIrxdQ002885@webber.adilger.int>; from Andreas Dilger on Mon, Jul 16, 2001 at 12:53:59PM -0600
+	id <S267677AbRGPTQ5>; Mon, 16 Jul 2001 15:16:57 -0400
+Received: from sloth.wcug.wwu.edu ([140.160.176.172]:3878 "HELO
+	sloth.wcug.wwu.edu") by vger.kernel.org with SMTP
+	id <S267676AbRGPTQq>; Mon, 16 Jul 2001 15:16:46 -0400
+Date: Mon, 16 Jul 2001 12:16:49 -0700 (PDT)
+From: Josh Logan <josh@wcug.wwu.edu>
+To: Andrea Arcangeli <andrea@suse.de>, alan@lxorguk.ukuu.org.uk
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        Klaus Dittrich <kladit@t-online.de>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7p6 hang
+In-Reply-To: <Pine.BSO.4.21.0107111217490.30480-100000@sloth.wcug.wwu.edu>
+Message-ID: <Pine.BSO.4.21.0107161214160.11198-100000@sloth.wcug.wwu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Cheers, Andreas
-> ---------------
-> *) For ext3, you need enough extra space for the superblock, group descriptors,
->    one block and inode bitmap, the first inode table, (and lost+found if
->    you don't want to do extra work deleting lost+found before creating the
->    journal, and re-creating it afterwards).  The output from "dumpe2fs"
->    will tell you the number of inode blocks and group descriptor blocks.
->    For reiserfs it is hard to tell exactly where the file will go, but if
->    you had, say, a 64MB NVRAM device and a new filesystem, you could expect
->    the journal to be put entirely on the NVRAM device.
 
-You can use the LVM tools to see what extents are written the most times
-- I'm sure that after having used the filesystem a little bit it will be
-clear wich extents hold the journal. (and then you can move them to
-NVRAM).
+I just tried 2.4.6-ac5 and I had the same problem.  I'll go try 2.4.7-pre4
+next.
 
-For reiserfs, I believe you can no specify a seperate device for your
-journal and don't need lvm. Not sure if this code entered the kernel yet
-though - maybe you need a patch.
+							Later, JOSH
 
 
-When doing you testing, you should be aware that the results will be
-very much dependent on the device you use for the filesystem. One thing
-is that if you use a slow ide-drive, then the NVRAM/disk performance
-will be higher than if you used a fast scsi-drive. But more importantly,
-if you use a highend RAID, it will include NVRAM of it's own. So if you
-really want to know if seperate NVRAM makes sense for you highend
-server - don't test this on a regular disk and assume the results will
-be the same.
+On Wed, 11 Jul 2001, Josh Logan wrote:
+
+> 
+> 
+> On Wed, 11 Jul 2001, Andrea Arcangeli wrote:
+> 
+> > On Wed, Jul 11, 2001 at 11:33:40AM -0700, Josh Logan wrote:
+> > > 
+> > > I'm having a hang right after the floppy is initialised with pre5 and pre6
+> > > (2.4.3 works fine)  I tried this patch, but it did not make any
+> > 
+> > is the problem introduced in pre5? Can you reproduce under 2.4.7pre4?
+> 
+> I'll have to go try it...
+> 
+> > 
+> > > improvments.  The machine still has SysRq commands available.  Please let
+> > > me know what other information you would like to debug this problem.
+> > 
+> > SYSRQ+T
+> 
+> Floppy Drives(s): fd0 is 1.44M
+> FDC 0 is a post-1991 82077
+> SysRq: Show State
+> 
+>   task		     PC    stack    pid father child younger older
+> swapper		D C03EDEC0  4980      1      0     7               (L-TLB)
+> keventd		S C1234560  6624      2      1             3       (L-TLB)
+> ksoftirqd_CPU   S C1232000  6468      3      1             4     2 (L-TLB)
+> kswapd		S C1231FA8  6588      4      1             5     3 (L-TLB)
+> kreclaimd	S 00000286  6656      5      1             6     4 (L-TLB)
+> bdflush		S 00000286  6652      6      1             7     5 (L-TLB)
+> kupdated	S C7F9BFC8  6620      7      1                   6 (L-TLB)
+> 
+> I can add Call Traces if needed, this is done by hand.
+> 
+> > 
+> > > BTW, I also tried to disable the floppy in the BIOS and got:
+> > > ...
+> > > Floppy OK
+> > > task queue still active
+> > > <HANG>
+> > 
+> > I'll soon have a look at this message.
+> > 
+> > Andrea
+> > 
+> 
+> 							Later, JOSH
+> 
+> 
+> 
 
 
-
-
--- 
-Ragnar Kjorstad
-Big Storage

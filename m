@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268970AbRHRXlj>; Sat, 18 Aug 2001 19:41:39 -0400
+	id <S269593AbRHRXp2>; Sat, 18 Aug 2001 19:45:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269395AbRHRXl2>; Sat, 18 Aug 2001 19:41:28 -0400
-Received: from waste.org ([209.173.204.2]:35088 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S269491AbRHRXlR>;
-	Sat, 18 Aug 2001 19:41:17 -0400
-Date: Sat, 18 Aug 2001 18:41:30 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Robert Love <rml@tech9.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-In-Reply-To: <998156714.2184.55.camel@phantasy>
-Message-ID: <Pine.LNX.4.30.0108181839130.31188-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269491AbRHRXpS>; Sat, 18 Aug 2001 19:45:18 -0400
+Received: from maila.telia.com ([194.22.194.231]:21501 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S269432AbRHRXpK>;
+	Sat, 18 Aug 2001 19:45:10 -0400
+Date: Sun, 19 Aug 2001 01:43:49 +0200
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 'make dep' produces lots of errors with this .config
+Message-ID: <20010819014349.A554@telia.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <alex.buell@tahallah.demon.co.uk> <Pine.LNX.4.33.0108172344000.14197-100000@tahallah.demon.co.uk> <200108181659.f7IGx7gg016843@sleipnir.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200108181659.f7IGx7gg016843@sleipnir.valparaiso.cl>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Aug 2001, Robert Love wrote:
+Horst von Brand <vonbrand@sleipnir.valparaiso.cl> wrote:
 
-> obviously some people fear NICs feeding entropy provides a hazard.  for
-> those who dont, or are increadibly low on entropy, enable the
-> configuration option.
+> There are lots of sparc64 _without_ PCI around (I happen to run two)
 
-Why don't those who aren't worried about whether they _really_ have enough
-entropy simply use /dev/urandom?
+I got lost in the discussions of Sparc here. Are these messages anything to
+worry about for non-sparc users?
+-- 
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+André Dahlqvist <andre.dahlqvist@telia.com>

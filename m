@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262983AbUKUANS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbUKUAPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbUKUANS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 19:13:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbUKUALh
+	id S261679AbUKUAPG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 19:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbUKUAOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 19:11:37 -0500
-Received: from gate.crashing.org ([63.228.1.57]:59290 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263195AbUKUAHh (ORCPT
+	Sat, 20 Nov 2004 19:14:11 -0500
+Received: from the.earth.li ([193.201.200.66]:62629 "EHLO the.earth.li")
+	by vger.kernel.org with ESMTP id S261679AbUKUALm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 19:07:37 -0500
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Brian King <brking@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <419FD58A.3010309@us.ibm.com>
-References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
-	 <1100917635.9398.12.camel@localhost.localdomain>
-	 <1100934567.3669.12.camel@gaston>
-	 <1100954543.11822.8.camel@localhost.localdomain>
-	 <419FD58A.3010309@us.ibm.com>
-Content-Type: text/plain
-Date: Sun, 21 Nov 2004 11:06:56 +1100
-Message-Id: <1100995616.27157.44.camel@gaston>
+	Sat, 20 Nov 2004 19:11:42 -0500
+Date: Sun, 21 Nov 2004 00:11:38 +0000
+From: Jonathan McDowell <noodles@earth.li>
+To: Chris Bainbridge <C.J.Bainbridge@ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: (yet another) probable GPL violation [inexq]
+Message-ID: <20041121001138.GP10285@earth.li>
+References: <200404221142.57990.C.J.Bainbridge@ed.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404221142.57990.C.J.Bainbridge@ed.ac.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-11-20 at 17:38 -0600, Brian King wrote:
-> Alan Cox wrote:
-> > Some of the Intel CPU's are very bad at lock handling so it is an issue.
-> > Also most PCI config accesses nowdays go to onboard devices whose
-> > behaviour may well be quite different to PCI anyway. PCI has become a
-> > device management API.
+On Thu, Apr 22, 2004 at 11:42:57AM +0100, Chris Bainbridge wrote:
+> The Inexq ISW054t is a 802.11g broadband router with 4 port switch. It's 
+> getting quite popular due to its low price. I suspect that it runs linux, yet 
+> comes with no mention of the GPL. I've emailed Inexq (the company formerly 
+> known as Unex) but they haven't replied. 
 > 
-> Does this following patch address your issues with this patch, Alan?
+> You can download the firmware from : ftp://ftp.inexq.com/Drivers/ISW054t.zip
 > 
-> It still doesn't address Greg's issue about making this apply to the
-> pci_bus_* functions as well, but I'm not sure of a good way to do that
-> due to the reasons given earlier.
+> The zip contains a file 
+> ISW054t-S1-200712T3.img which `file` identies as "PPCBoot image"
+> 
+> strings shows:
+> Uncompressing Linux...
+> Ok, booting the kernel.
+> UNEX-GISL-T-L2-200712T3_U.bin
+> 
+> Theres a gzip image at offset 0x2048 which unpacks to 1.8MB : 
+> dd if=ISW054t-S1-200712T3.img bs=8264 skip=1 |zcat > 
+> UNEX-GISL-T-L2-200712T3_U.bin
+> 
+> I've searched for the usual magic numbers but can't find the root fs. Any 
+> pointers would be appreciated. 
 
-Looks good to me, I don't sure we actually have to deal with pci_bus_*
-functions, do we ? When are they called ?
+Did you ever get anywhere with this? The ISW054u (like the t but with a
+USB port AFAICT) looks pretty much like the sort of hardware I want to
+play with, but without source it wouldn't be much use to me (I need
+IPv6 and Speedtouch USB support added).
 
-> +void pci_block_config_access(struct pci_dev *dev)
-> +{
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&pci_lock, flags);
-> +	dev->block_cfg_access = 1;
-> +	spin_unlock_irqrestore(&pci_lock, flags);
-> +}
+J.
 
-Shouldn't we save the config space here ?
-
-Ben.
-
-
+-- 
+Revd. Jonathan McDowell, ULC | noodles is used in pad thai

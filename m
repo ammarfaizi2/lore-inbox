@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbTKDUU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 15:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTKDUU5
+	id S262131AbTKDUWU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 15:22:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbTKDUWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 15:20:57 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:24293 "EHLO
-	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S261950AbTKDUUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 15:20:55 -0500
-Date: Tue, 4 Nov 2003 15:20:37 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paul Venezia <pvenezia@jpj.net>, linux-kernel@vger.kernel.org
-Subject: Re: ext3 performance inconsistencies, 2.4/2.6
-Message-ID: <20031104202037.GB30612@ti19.telemetry-investments.com>
-Reply-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Linus Torvalds <torvalds@osdl.org>, Paul Venezia <pvenezia@jpj.net>,
-	linux-kernel@vger.kernel.org
-References: <1067973024.23788.24.camel@d8000> <Pine.LNX.4.44.0311041130480.20373-100000@home.osdl.org>
+	Tue, 4 Nov 2003 15:22:20 -0500
+Received: from smtp-4.hut.fi ([130.233.228.94]:55183 "EHLO smtp-4.hut.fi")
+	by vger.kernel.org with ESMTP id S262131AbTKDUWS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 15:22:18 -0500
+Date: Tue, 4 Nov 2003 22:21:05 +0200
+From: Pasi Savolainen <pasi.savolainen@hut.fi>
+To: Tony Lindgren <tony@atomide.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       clepple@ghz.cc
+Subject: Re: [PATCH] amd76x_pm on 2.6.0-test9 cleanup
+Message-ID: <20031104202104.GA408936@kosh.hut.fi>
+References: <20031104002243.GC1281@atomide.com> <1067971295.11436.66.camel@cog.beaverton.ibm.com> <20031104191504.GB1042@atomide.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311041130480.20373-100000@home.osdl.org>
+In-Reply-To: <20031104191504.GB1042@atomide.com>
 User-Agent: Mutt/1.4i
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (smtp-4.hut.fi)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 04, 2003 at 11:36:55AM -0800, Linus Torvalds wrote:
-> > I've been running bonnie++ filesystems testing on an IBM x335 server
-> > recently. This box uses the MPT RAID controller, but I've disabled the
-> > RAID and am addressing the disks individually. I'm getting wildly
-> > different results between 2.4.20-20-9 (RedHat mod), 2.4.22 (stock), and
-> > 2.6.0-test9.
+* Tony Lindgren <tony@atomide.com> [031104 21:24]:
+> * john stultz <johnstul@us.ibm.com> [031104 10:43]:
+> > On Mon, 2003-11-03 at 16:22, Tony Lindgren wrote:
+> > > After a year of not having access to my dual athlon box I finally ran
+> > > apt-get dist-upgrade on it :)
+> > > 
+> > > I also did some cleanup on the amd76x_pm to make the amd76x_pm to load as 
+> > > module, and to remove some unnecessary PCI code.
+> > 
+> > I've received some reports that this patch causes time problems.
+> > 
+> > Have those issues been looked into further, or addressed? 
 > 
-> Interesting. The 2.4.22 sequential "per char" results are totally out of
-> line with anything else.
-> 
-> The thing is, the overhead for the per-char stuff really should be almost 
-> all in user space unless I'm mistaken. It's just using getch/putch, no?
+> I've heard of timing problems if it's compiled in, but supposedly they don't
+> happen when loaded as module.
 
-Unless bonnie++ is using the _unlocked() variants, it might be an issue of
-the mutex overhead from NPTL v. LinuxThreads.  Red Hat 9 has its share
-of NPTL bugs.
+Not happening since 2.6.0-test9. Don't know what really fixed it, but
+they're just not there anymore.
+ 
+> Then the 2.4 version does not load if i2c-amd756 is loaded, but this may
+> have been already fixed by this patch, I have not verified it yet though.
 
-It is probably worth rerunning the tests with LD_ASSUME_KERNEL=2.4.1 on
-the Red Hat kernel.
+Most probably caused by the same thing that prevented it loading under
+amd_k7_agp, that is indeed sorted out.
 
-Regards,
-	
-	Bill Rugolsky
+> I have problem where my S2460 goes into sleep for a while if compiled in, 
+> but this does not happen when loaded as module.
+
+Could you have some AMD_76X -define left over? I skimmed through MP &
+MPX AMD documents, but found nothing incriminating.
+Could it be ACPI doing it's things with S -states? (it does check for
+SMP, but does report S -states as supported). And if ACPI isn't
+enabled, could you toggle it on, or vice-versa.
+
+
+-- 
+Psi -- <http://www.iki.fi/pasi.savolainen>

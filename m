@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277585AbRJLIez>; Fri, 12 Oct 2001 04:34:55 -0400
+	id <S277591AbRJLIkt>; Fri, 12 Oct 2001 04:40:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277588AbRJLIes>; Fri, 12 Oct 2001 04:34:48 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:56328 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S277585AbRJLIed>;
-	Fri, 12 Oct 2001 04:34:33 -0400
-Date: Fri, 12 Oct 2001 10:34:33 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.13-pre1: sonypi.c compile error
-Message-ID: <20011012103433.A2137@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <3BC62542.CDEAAE@eyal.emu.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3BC62542.CDEAAE@eyal.emu.id.au>
-User-Agent: Mutt/1.3.20i
+	id <S277592AbRJLIkh>; Fri, 12 Oct 2001 04:40:37 -0400
+Received: from radium.jvb.tudelft.nl ([130.161.76.91]:33541 "HELO
+	radium.jvb.tudelft.nl") by vger.kernel.org with SMTP
+	id <S277591AbRJLIk1>; Fri, 12 Oct 2001 04:40:27 -0400
+Date: Fri, 12 Oct 2001 10:41:53 +0200 (CEST)
+From: Robbert Kouprie <robbert@radium.jvb.tudelft.nl>
+To: ionut@cs.columbia.edu
+Cc: poptix@techmonkeys.org, linux-kernel@vger.kernel.org
+Subject: Re: eepro100.c bug on 10Mbit half duplex (kernels 2.4.5 / 2.4.10 /
+ 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
+Message-ID: <Pine.LNX.4.21.0110121025001.26282-100000@radium.jvb.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 09:03:30AM +1000, Eyal Lebedinsky wrote:
 
-> gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> -march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include
-> /data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h  
-> -DEXPORT_SYMTAB -c sonypi.c
-> sonypi.c: In function `sonypi_init_module':
-> sonypi.c:702: `is_sony_vaio_laptop_R7462d5e4' undeclared (first use in
-> this function)
 
-Just add a
-	extern int is_sony_vaio_laptop; /* set in DMI table parse routines */
-line somewhere at the beginning of the file drivers/char/sonypi.c
+> >  Bus  2, device   4, function  0:
+> >    Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 5).
+> >                                           ^^^^
+>
+> Umm, no, that's actually an 82558 rev B. pci.ids should be updated to 
+> have "Intel Corporation 8255[7-9]" for this id, because Intel can't make 
+> up their minds to change the PCI id when they release a new product.
+> rev 1-3 are 82557, rev 4-5 are 82558, rev 6-8 are 82559.
 
-Looks like the driver sync between Linus and Alan was incomplete
-this time (Linus took the sonypi driver changes but not the dmi_scan
-routine changes).
+Mine says rev 9 :)
 
-I won't submit a patch to Linus for now, I'm pretty sure that
-Alan will take care of this for -pre2.
+radium:/# lspci -v -d 8086:1229
+00:0d.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
+(rev 09)
+        Subsystem: Intel Corporation: Unknown device 0011
+        Flags: bus master, medium devsel, latency 32, IRQ 17
+        Memory at da020000 (32-bit, non-prefetchable) [size=4K]
+        I/O ports at c800 [size=64]
+        Memory at da000000 (32-bit, non-prefetchable) [size=128K]
+        Expansion ROM at <unassigned> [disabled] [size=1M]
+        Capabilities: [dc] Power Management version 2
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+radium:/# lspci -nv -d 8086:1229
+00:0d.0 Class 0200: 8086:1229 (rev 09)
+        Subsystem: 8086:0011
+        Flags: bus master, medium devsel, latency 32, IRQ 17
+        Memory at da020000 (32-bit, non-prefetchable) [size=4K]
+        I/O ports at c800 [size=64]
+        Memory at da000000 (32-bit, non-prefetchable) [size=128K]
+        Expansion ROM at <unassigned> [disabled] [size=1M]
+        Capabilities: [dc] Power Management version 2
+
+
+> > eth0: OEM i82557/i82558 10/100 Ethernet, DE:AD:BA:BE:CA:FE, IRQ 10.
+> >  Receiver lock-up bug exists -- enabling work-around.
+> >  ^^^^^^^^^^^^^^^^^^^^
+> The OEM probably forgot to initialized the eeprom correctly, because 
+> 82558 rev B and higher don't have this bug. Anyway, the workaround is 
+> pretty harmless.
+
+My card DOES NOT have the receiver lock-up bug and also DOES NOT have the
+10 Mbit half duplex bug, which was the one I was referring to. The device 
+detection for the workaround for the latter bug turned out to be
+wrong.
+
+- Robbert
+

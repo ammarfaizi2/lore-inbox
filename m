@@ -1,63 +1,142 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286209AbRLaDaT>; Sun, 30 Dec 2001 22:30:19 -0500
+	id <S286215AbRLaDbx>; Sun, 30 Dec 2001 22:31:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286206AbRLaDaK>; Sun, 30 Dec 2001 22:30:10 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:30610 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S286209AbRLaD37>; Sun, 30 Dec 2001 22:29:59 -0500
-Date: Mon, 31 Dec 2001 03:32:20 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Subject: [patch] Prefetching file_read_actor()
-Message-ID: <20011231033220.A1686@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Manfred Spraul <manfred@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S286187AbRLaDbd>; Sun, 30 Dec 2001 22:31:33 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:40403 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S286206AbRLaDbM>;
+	Sun, 30 Dec 2001 22:31:12 -0500
+Message-ID: <3C2FDBFB.3030201@candelatech.com>
+Date: Sun, 30 Dec 2001 20:31:07 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "Ryan C. Bonham" <Ryan@srfarms.com>
+CC: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: Tyan Tomcat i815T(S2080) LAN problems
+In-Reply-To: <19AB8F9FA07FB0409732402B4817D75A1251C3@FILESERVER.SRF.srfarms.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After noticing file_read_actor() showing up in profiles quite
-a bit, I grepped old l-k messages, and turned up a post by
-Manfred Spraul in which he posted a patch using inline asm
-to prefetch read data.  This was x86 specific in generic code,
-so was a little hackish..
-Now that we have the prefetch macros, I decided to play with
-this a little tonight, and came up with this patch..
+I sort of got it working by using the e100 driver from Intel, and then
+forcefully setting the MAC address to something other than 0xFF...FF
 
+Neither Becker, I, nor someone at Intel could figure out why
+the MAC (EEPROM) was all FFs.  The best guess was that the BIOS
+was screwed up somehow (that's what the Intel guy said...)
 
-diff -urN --exclude-from=/home/davej/.exclude linux-2.5.2-pre5/mm/filemap.c linux-2.5/mm/filemap.c
---- linux-2.5.2-pre5/mm/filemap.c	Sun Dec 16 23:21:24 2001
-+++ linux-2.5/mm/filemap.c	Mon Dec 31 03:22:51 2001
-@@ -1570,6 +1570,15 @@
- 		size = count;
- 
- 	kaddr = kmap(page);
-+
-+	if (size > 128) {
-+		int i;
-+		for(i=0; i<size; i+=64) {
-+			prefetch (kaddr+offset);
-+			prefetch (kaddr+offset+(L1_CACHE_BYTES*2));
-+		}
-+	}
-+
- 	left = __copy_to_user(desc->buf, kaddr + offset, size);
- 	kunmap(page);
- 	
-The results are an earth shaking 5 seconds off a make dep bzImage
-on my P3, I've not benched an Athlon (or other prefetch aware
-architecture) yet, but I expect to see similar speed ups..
+I'd be interested if you get it working...I have two of these marginal
+boards gathering dust!!
 
-Comments ?
+Ben
 
-Dave.
+Ryan C. Bonham wrote:
+
+> Hi,
+> 
+> I installed kernel 2.4.17 and this problem still exists. I have attached the important stuff from demesg and from eepro100-diag. 
+> 
+> 
+>>Has anyone gotten the Dual built-in LAN cards to work on the 
+>>Tyan S2080 Motherboard?  I am running a Redhat kernel 
+>>2.4.9-13.. I haven't tried the latest kernel yet.. I saw some 
+>>talk about this board in the archives but I found no 
+>>solutions. It says it has a Intel 82559 LAN controller and a 
+>>ICH2 LAN Controller. I am only seeing one NIC when I boot up. 
+>>And dmesg is showing
+>>eth0: Invalid EEPROM checksum 0xFF00, check setting before 
+>>activating this device!
+>>
+>>
+> 
+> Thanks,
+> 
+> 
+> eepro100.c:v1.09j-t 9/29/99 Donald Becker http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+> eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
+> PCI: Found IRQ 11 for device 01:08.0
+> eth0: Invalid EEPROM checksum 0xff00, check settings before activating this device!
+> eth0: OEM i82557/i82558 10/100 Ethernet, FF:FF:FF:FF:FF:FF, IRQ 11.
+>   Board assembly ffffff-255, Physical connectors present: RJ45 BNC AUI MII
+>   Primary interface chip unknown-15 PHY #31.
+>     Secondary interface chip i82555.
+>   General self-test: passed.
+>   Serial sub-system self-test: passed.
+>   Internal registers self-test: passed.
+>   ROM checksum self-test: passed (0x04f4518b).
+> 
+> ----------------------------------  eerpro100-diag -aaeef
+> 
+> eepro100-diag.c:v2.06 12/10/2001 Donald Becker (becker@scyld.com)
+>  http://www.scyld.com/diag/index.html
+> Index #1: Found a Intel i82562 Pro/100 V adapter at 0xc800.
+> i82557 chip registers at 0xc800:
+>   0c000050 07036000 00000000 00080002 3fe1ffff 00000600
+>   No interrupt sources are pending.
+>    The transmit unit state is 'Suspended'.
+>    The receive unit state is 'Ready'.
+>   This status is normal for an activated but idle interface.
+>  The Command register has an unprocessed command 0c00(?!).
+> EEPROM contents, size 256x16:
+>     00: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x08: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x10: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x18: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x20: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x28: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x30: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x38: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x40: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x48: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x50: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x58: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x60: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x68: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x70: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x78: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x80: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x88: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x90: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0x98: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xa0: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xa8: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xb0: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xb8: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xc0: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xc8: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xd0: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xd8: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xe0: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xe8: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xf0: ffff ffff ffff ffff ffff ffff ffff ffff
+>   0xf8: ffff ffff ffff ffff ffff ffff ffff ffff
+>  *****  The EEPROM checksum is INCORRECT!  *****
+>   The checksum is 0xFF00, it should be 0xBABA!
+> Intel EtherExpress Pro 10/100 EEPROM contents:
+>   Station address FF:FF:FF:FF:FF:FF.
+>   Board assembly ffffff-255, Physical connectors present: RJ45 BNC AUI MII
+>   Primary interface chip i82555 PHY #-1.
+>     Secondary interface chip i82555, PHY -1.
+>    Sleep mode is enabled.  This is not recommended.
+>    Under high load the card may not respond to
+>    PCI requests, and thus cause a master abort.
+>    To clear sleep mode use the '-G 0 -w -w -f' options..
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
 
 -- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268926AbRI0GdV>; Thu, 27 Sep 2001 02:33:21 -0400
+	id <S270774AbRI0GlL>; Thu, 27 Sep 2001 02:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268133AbRI0GdM>; Thu, 27 Sep 2001 02:33:12 -0400
-Received: from qn-212-127-144-62.quicknet.nl ([212.127.144.62]:19973 "HELO
-	smcc.demon.nl") by vger.kernel.org with SMTP id <S266488AbRI0GdF>;
-	Thu, 27 Sep 2001 02:33:05 -0400
-Message-ID: <XFMail.010927083327.nemosoft@smcc.demon.nl>
-X-Mailer: XFMail 1.3 [p0] on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S270645AbRI0GlC>; Thu, 27 Sep 2001 02:41:02 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:2829 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S270229AbRI0Gkv>;
+	Thu, 27 Sep 2001 02:40:51 -0400
+Date: Thu, 27 Sep 2001 08:38:51 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
+        <netdev@oss.sgi.com>, Andreas Dilger <adilger@turbolabs.com>
+Subject: [patch] netconsole-2.4.10-B1
+In-Reply-To: <Pine.LNX.4.21.0109261635190.957-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0109270746150.1679-100000@localhost.localdomain>
 MIME-Version: 1.0
-In-Reply-To: <20010926191123.A30545@cs.cmu.edu>
-Date: Thu, 27 Sep 2001 08:33:27 +0200 (MEST)
-Organization: I'm not organized
-From: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-Subject: RE: [PATCH -R] Re: 2.4.10 is toxic to my system when I use my US
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, webcam@smcc.demon.nl,
-        "Eloy A.Paris" <eloy.paris@usa.net>,
-        linux-usb-devel@lists.sourceforge.net
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
 
-On 26-Sep-01 Jan Harkes wrote:
-> On Wed, Sep 26, 2001 at 10:43:54AM -0400, Eloy A. Paris wrote:
->> I have been doing some tests to determine where the problems is. The
-[snip]
+On Wed, 26 Sep 2001, Marcelo Tosatti wrote:
 
-> It hit me as well and I found the culprit, the crash happens in
-> usb-uhci.c:process_iso, where the following code used to be 'safe'
-> 
->       for (i = 0; p != &urb_priv->desc_list; i++) {
-> ...
->           list_del (p);
->           p = p->next;
->           delete_desc (s, desc);
->       }
-> 
-> However, some infidel sneaked the following change into 2.4.10, late in
-> the testcycle, which is deadly. This patch needs to be reverted. If the
-> behaviour is wanted all uses of list_del in the kernel need to be looked
-> at very closely.
+> Don't you think it would be useful to have some reserved memory for
+> the netconsole use ?
+> It would be nice to have a guarantee that messages are sent over
+> network even if the system is under real OOM.
 
-Personally, I say the above piece of code is faulty. Refering to a
-pointer after you appearently deleted it, is just very bad programming
-practice. 
+yep, that is very useful indeed.
 
-I´d say, fix the usb-uhci file, and do a quick run on all other instances
-of list_del. I think most programmers got it right, or 2.4.10 kernels would
-be coming down all over the planet.
+i've implemented a private emergency pool of 32 packets that we try to
+keep filled as much as possible, and which one we use only if GFP_ATOMIC
+fails. The new patch can downloaded from:
 
- - Nemosoft
+   http://redhat.com/~mingo/netconsole-patches/netconsole-2.4.10-B1
 
------------------------------------------------------------------------------
-Try SorceryNet!   One of the best IRC-networks around!   irc.sorcery.net:9000
-URL: never        IRC: nemosoft      IscaBBS (bbs.isca.uiowa.edu): Nemosoft
-                        >> Never mind the daylight << 
+the patch also includes Andrew Morton's suggestion to add the
+HAVE_POLL_CONTROLLER define for easier network-driver integration. The
+eepro100.c changes now use this define.
+
+the new utilities-tarball is at:
+
+   http://redhat.com/~mingo/netconsole-patches/netconsole-client-20010927.tar.gz
+
+this includes Andreas Dilger's netconsole-server script. (i've done a
+minor modification to the script, it insmods the netconsole module with
+the parameters.)
+
+there is one more thing we could do: we could also allocate the skb on
+stack in extreme cases. This adds noticeable latency though, since the skb
+xmit has to be polled for completion as well [this can be done with the
+current ->poll_controller() method], but this way the netconsole could be
+self-sufficient and would be completely independent of the VM.
+
+reports, suggestions, comments welcome,
+
+	Ingo
+

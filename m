@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265975AbRGHW3t>; Sun, 8 Jul 2001 18:29:49 -0400
+	id <S266907AbRGHW32>; Sun, 8 Jul 2001 18:29:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266031AbRGHW3i>; Sun, 8 Jul 2001 18:29:38 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:12928 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265975AbRGHW3X>;
-	Sun, 8 Jul 2001 18:29:23 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S266031AbRGHW3S>; Sun, 8 Jul 2001 18:29:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13573 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265975AbRGHW3E>; Sun, 8 Jul 2001 18:29:04 -0400
+Subject: Re: Why Plan 9 C compilers don't have asm("")
+To: yodaiken@fsmlabs.com (Victor Yodaiken)
+Date: Sun, 8 Jul 2001 23:28:59 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20010708155518.A23324@hq2> from "Victor Yodaiken" at Jul 08, 2001 03:55:18 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15176.57025.611441.820947@pizda.ninka.net>
-Date: Sun, 8 Jul 2001 15:29:21 -0700 (PDT)
-To: Victor Yodaiken <yodaiken@fsmlabs.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-In-Reply-To: <20010708155518.A23324@hq2>
-In-Reply-To: <9i50uf$tla$1@penguin.transmeta.com>
-	<20010708155518.A23324@hq2>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-Id: <E15JN2x-0000kq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> That seems amazingly dumb. You'd think a new processor design would
+> optimize parallel computation over calls, but what do I know?
 
-Victor Yodaiken writes:
- > This is something I don't get: I never understood why 32bit risc designers
- > were so damn obstinate about "every instruction fits in 32 bits"
- > and refused to have "call 32 bit immediate given in next word" not
- > to mention a "load 32bit immediate given in next word".
+They try to. Take a look at the trace cache on the Pentium IV. They certainly
+seem to have badly screwed the chip design up elsewhere but the trace cache
+has some very clever ideas in it
 
-Sparc has such an instruction, in fact the instruction and the 32-bit
-immediate fit in a single 32-bit instruction (since the immediate is
-guarenteed to be modulo 4 you have some extra bits for the instruction
-opcode itself).
+> were so damn obstinate about "every instruction fits in 32 bits"
+> and refused to have "call 32 bit immediate given in next word" not
+> to mention a "load 32bit immediate given in next word".
+> Note, the superior x86 instruction set has a 5 byte call immediate.
 
-Later,
-David S. Miller
-davem@redhat.com
+Some do. After all there is nothing unrisc about
+
+	call [ip]++
+
+Maybe the idea died with the PDP-11 designers 8)
+
+Alan
 

@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUG1TTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbUG1TVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbUG1TTn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 15:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUG1TTm
+	id S262450AbUG1TVf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 15:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUG1TVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 15:19:42 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:50675 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262391AbUG1TTi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 15:19:38 -0400
-Subject: Re: [announce][draft3] HVCS for inclusion in 2.6 tree
-From: Ryan Arnold <rsa@us.ibm.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <20040727155011.77897e68.rddunlap@osdl.org>
-References: <1089819720.3385.66.camel@localhost>
-	 <16633.55727.513217.364467@cargo.ozlabs.ibm.com>
-	 <1090528007.3161.7.camel@localhost> <20040722191637.52ab515a.akpm@osdl.org>
-	 <1090958938.14771.35.camel@localhost>
-	 <20040727155011.77897e68.rddunlap@osdl.org>
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1091034031.14771.292.camel@localhost>
+	Wed, 28 Jul 2004 15:21:34 -0400
+Received: from main.gmane.org ([80.91.224.249]:6059 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262450AbUG1TVO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 15:21:14 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Tristan Wibberley <tristan@maihem.org>
+Subject: Re: Interesting race condition...
+Date: Wed, 28 Jul 2004 18:08:15 +0100
+Message-ID: <pan.2004.07.28.17.08.14.967215@maihem.org>
+References: <200407222204.46799.rob@landley.net> <20040728010546.3b7933d5.pj@sgi.com> <200407281142.37194.rob@landley.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Jul 2004 12:00:31 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host217-43-27-25.range217-43.btcentralplus.com
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-27 at 17:50, Randy.Dunlap wrote:
-> +int hvcs_convert(long to_convert)
-> +{
-> +	switch (to_convert) {
-> +		case H_Success:
-> +			return 0;
-> +		case H_Parameter:
-> +			return -EINVAL;
-> +		case H_Hardware:
-> +			return -EIO;
-> +		case H_Busy:
+On Wed, 28 Jul 2004 11:42:37 -0500, Rob Landley wrote:
+
+> On Wednesday 28 July 2004 03:05, Paul Jackson wrote:
+>> Rob wrote:
+>> > I just saw a funky thing.  Here's the cut and past from the xterm...
+>>
+>> Can you reproduce this by cat'ing /proc/<pid>/cmdline?  Can you get a
+>> dump of the proc cmdline file to leak the environment sometimes?
 > 
-> Can these H_values be converted from that coding style?
+> I saw it exactly once, I'm afraid.  Somebody else said they also saw it...  
+> once.  It smelled to me like a race condition, with the process 
+> starting/exiting right as ps looked at it, but I haven't seen it again.  (I 
+> could run the command in a loop overnight...)
 
-Randy, if you mean you'd like to see H_SUCCESS, H_PARAMETER, etc, I'd
-like to point out that all of the documentation I worked from uses the
-convention you see in my code.  Additionally, all of these hcall return
-codes already exist in include/asm-pp64/hvcall.h and have for some time.
+I think I have seen this exactly once. I ran helixplayer from a bash
+command line and it quit, immediately spouting something about how it
+couldn't find a file whose name looked remarkably similar to
+some environment variables. I had put it down to screwed terminal settings
+so I couldn't see I had pasted something in, and I immediately issued a
+reset, so I have no more information I'm afraid.
 
-Ryan S. Arnold
-IBM Linux Technology Center
+-- 
+I have a little sig...
+
 

@@ -1,64 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133117AbRDZGW3>; Thu, 26 Apr 2001 02:22:29 -0400
+	id <S135172AbRDZGwI>; Thu, 26 Apr 2001 02:52:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133120AbRDZGWS>; Thu, 26 Apr 2001 02:22:18 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:32263 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S133117AbRDZGWL>; Thu, 26 Apr 2001 02:22:11 -0400
-Date: Thu, 26 Apr 2001 00:15:39 -0600
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Feng Xian <fxian@fxian.jukie.net>
-Cc: linux-kernel@vger.kernel.org, Feng Xian <fxian@chrysalis-its.com>
-Subject: Re: __alloc_pages: 4-order allocation failed
-Message-ID: <20010426001539.A14115@vger.timpanogas.org>
-In-Reply-To: <Pine.LNX.4.30.0104252059430.5253-100000@tiger>
-Mime-Version: 1.0
+	id <S135170AbRDZGvt>; Thu, 26 Apr 2001 02:51:49 -0400
+Received: from wb3-a.mail.utexas.edu ([128.83.126.138]:59910 "HELO
+	mail.utexas.edu") by vger.kernel.org with SMTP id <S133120AbRDZGvo>;
+	Thu, 26 Apr 2001 02:51:44 -0400
+Message-ID: <3AE71CE9.3A164F75@mail.utexas.edu>
+Date: Thu, 26 Apr 2001 00:52:25 +0600
+From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
+Organization: (I do not speak for) The University of Texas at Austin (nor they for 
+ me).
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac9 i686)
+X-Accept-Language: en,fr,de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: Athlon-optimized 2.4.4pre7 still won't boot.
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.30.0104252059430.5253-100000@tiger>; from fxian@fxian.jukie.net on Wed, Apr 25, 2001 at 09:09:57PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have an Athlon + VIA system that would never boot an Athlon-optimized
+2.4.3[-ac*], and just FYI, it will not boot an Athlon-optimized
+2.4.4pre7 either.
+
+It does compile without errors, and an otherwise identical i686 kernel
+boots and appears to run fine.
+
+With the Athlon kernel I get a flood of boot-time error messages that
+streams off the screen, so I do not know exactly what the trigger is; it
+ultimately hangs without completing the boot.
+
+I have tried a couple of times with different compilers, and I notice
+that sometimes it gets past the point of mounting the disks, and other
+times it does not get that far.
+
+The tail of the message on my most recent try is:
+
+    Kernel panic: Aiee, killing interrupt handler!
+    In interrupt handler - not syncing
+
+The most basic poop follows.  If this is news, I'll be happy to provide
+however much more detail you require.
+
+Thanks,
+
+Bobby Bryant
+Austin, Texas
 
 
-I am seeing this as well on 2.4.3 with both _get_free_pages() and 
-kmalloc().  In the kmalloc case, the modules hang waiting
-for memory.
+% cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 1202.732
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
+cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2398.61
 
-Jeff
+% cat /proc/pci
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev
+3).
+      Master Capable.  Latency=8.
+      Prefetchable 32 bit memory at 0xd0000000 [0xd3ffffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+(rev 0).
+      Master Capable.  No bursts.  Min Gnt=4.
+  Bus  0, device   7, function  0:
+    ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+(rev 64).
+  Bus  0, device   7, function  1:
+    IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 6).
+      Master Capable.  Latency=32.
+      I/O at 0xe000 [0xe00f].
+  Bus  0, device   7, function  2:
+    USB Controller: VIA Technologies, Inc. UHCI USB (rev 22).
+      IRQ 9.
+      Master Capable.  Latency=32.
+      I/O at 0xe400 [0xe41f].
+  Bus  0, device   7, function  4:
+    Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev
+64).
+  Bus  0, device   8, function  0:
+    VGA compatible controller: Matrox Graphics, Inc. MGA 2064W
+[Millennium] (rev 1).
+      IRQ 10.
+      Non-prefetchable 32 bit memory at 0xd4000000 [0xd4003fff].
+      Prefetchable 32 bit memory at 0xd5000000 [0xd57fffff].
+  Bus  0, device  12, function  0:
+    Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev
+16).
+      IRQ 11.
+      Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
+      I/O at 0xec00 [0xecff].
+      Non-prefetchable 32 bit memory at 0xd7000000 [0xd70000ff].
 
-On Wed, Apr 25, 2001 at 09:09:57PM -0400, Feng Xian wrote:
-> Hi,
-> 
-> I am running linux-2.4.3 on a Dell dual PIII machine with 128M memory.
-> After the machine runs a while, dmesg shows,
-> 
-> __alloc_pages: 4-order allocation failed.
-> __alloc_pages: 3-order allocation failed.
-> __alloc_pages: 4-order allocation failed.
-> __alloc_pages: 4-order allocation failed.
-> __alloc_pages: 4-order allocation failed.
-> __alloc_pages: 4-order allocation failed.
-> 
-> 
-> and sometime the system will crash. I looked into the memory info,
-> there still has some free physical memory (20M) left and swap space is
-> almost not in use. (250M swap)
-> 
-> I didn't have this problem when I ran 2.4.0 (I even didn't see it on
-> 2.4.2) could anybody tell me what's wrong or where should I look into this
-> problem?
-> 
-> Thanks,
-> 
-> Alex
-> 
-> -- 
-> Feng Xian
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+% gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+gcc version 2.96 20000731 (Red Hat Linux 7.0)
+ =
+% rpm -q gcc
+gcc-2.96-71
+
+(That's from a Red Hat "Rawhide" RPM of a few weeks back.)
+
+Also, the "kgcc" hack gives the same result:
+
+%  kgcc -v
+Reading specs from
+/usr/lib/gcc-lib/i386-glibc21-linux/egcs-2.91.66/specs
+gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+
+

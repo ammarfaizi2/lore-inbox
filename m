@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292852AbSCGLJc>; Thu, 7 Mar 2002 06:09:32 -0500
+	id <S293508AbSCGLNN>; Thu, 7 Mar 2002 06:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293487AbSCGLJX>; Thu, 7 Mar 2002 06:09:23 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:38827 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S292852AbSCGLJG>;
-	Thu, 7 Mar 2002 06:09:06 -0500
-Date: Thu, 7 Mar 2002 06:09:04 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Voluspa <voluspa@bigfoot.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.6-pre3 Kernel panic: VFS: Unable to mount root fs on 03:02
-In-Reply-To: <20020307114845.530abcfa.voluspa@bigfoot.com>
-Message-ID: <Pine.GSO.4.21.0203070601100.26116-100000@weyl.math.psu.edu>
+	id <S310285AbSCGLNE>; Thu, 7 Mar 2002 06:13:04 -0500
+Received: from idefix.linkvest.com ([194.209.53.99]:48657 "EHLO
+	idefix.linkvest.com") by vger.kernel.org with ESMTP
+	id <S293508AbSCGLMp>; Thu, 7 Mar 2002 06:12:45 -0500
+Message-ID: <3C874B24.606@linkvest.com>
+Date: Thu, 07 Mar 2002 12:12:36 +0100
+From: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dominik Kubla <kubla@sciobyte.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Rework of /proc/stat
+In-Reply-To: <3C864F07.8050806@linkvest.com> <20020306194826.GB26866@duron.intern.kubla.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Mar 2002 11:12:37.0144 (UTC) FILETIME=[FCF9B980:01C1C5C8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+>>+        len += sprintf( page + len, "(%u,%u):(%u,%u,%u,%u,%u) ",
+>>+                        stat->major, stat->minor,
+>>+                        stat->io,
+>>+                        stat->rio,
+>>+                        stat->wio,
+>>+                        stat->rblk,
+>>+                        stat->wblk );
+>>+    }
+>>
+>You are changing the order of the fields in /proc/stat. That breaks
+>compatibility.
+>
+Thanks, you are right.
+I'll change that.
+-jec
 
-On Thu, 7 Mar 2002, Voluspa wrote:
-
-> only show enforced differences, I could boot into 2.5.6-pre2 tonight (about 6 hours from now) and dump whatever info you need - if it is deemed necessary. Otherwise I'll just enjoy the -ac series until a -preX turns up that is bootable.
-
-Very interesting...
-
-It boots fine from ext2 on IDE here.  Do you have any oddities in
-.config? (e.g. something silly enabled - CONFIG_PREEMPT, etc.)
-
-Bug looks very odd.  -EFAULT from mount(2) done by a thread that
-runs with equivalent of set_fs(KERNEL_DS)...
-
-.config might be really useful.  Or not - it may boil down to checking
-which path it actually takes and where does -EFAULT come from.
 

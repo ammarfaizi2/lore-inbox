@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262938AbTJUJij (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 05:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTJUJiY
+	id S262873AbTJUJiT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 05:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTJUJhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 05:38:24 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:33687 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S262938AbTJUJiN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 05:38:13 -0400
-Date: Tue, 21 Oct 2003 11:36:01 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] must fix lists
-Message-ID: <20031021093601.GH26189@marowsky-bree.de>
-References: <3F94C833.8040204@cyberone.com.au>
+	Tue, 21 Oct 2003 05:37:09 -0400
+Received: from mail.convergence.de ([212.84.236.4]:34495 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S262873AbTJUJgz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 05:36:55 -0400
+Subject: [PATCH 2/3] Fix bug in saa7146 analog tv i2c-handling
+In-Reply-To: <10667290141444@convergence.de>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Tue, 21 Oct 2003 11:36:54 +0200
+Message-Id: <1066729014790@convergence.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3F94C833.8040204@cyberone.com.au>
-User-Agent: Mutt/1.4.1i
-X-Ctuhulu: HASTUR
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Michael Hunold <hunold@linuxtv.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-10-21T15:46:27,
-   Nick Piggin <piggin@cyberone.com.au> said:
-
-The multipath module will be (outcome of KS) implemented as a
-device-mapper personality, which Sistina / Joe are developing. So,
-luckily, I'm sort of out of the loop of the "must fix" list, but I'll
-hopefully have some of the issues on my "will fix" list anyway ;-)
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
+- [V4L] remove cruft, add I2C_ADAP_CLASS_TV_ANALOG identifier for analog tv i2c handler
+diff -ura xx-linux-2.6.0-test8/drivers/media/common/saa7146_i2c.c linux-2.6.0-test8-p/drivers/media/common/saa7146_i2c.c
+--- xx-linux-2.6.0-test8/drivers/media/common/saa7146_i2c.c	2003-10-09 10:39:08.000000000 +0200
++++ linux-2.6.0-test8-p/drivers/media/common/saa7146_i2c.c	2003-10-21 11:21:36.000000000 +0200
+@@ -409,11 +409,8 @@
+ 	if( NULL != i2c_adapter ) {
+ 		memset(i2c_adapter,0,sizeof(struct i2c_adapter));
+ 		strcpy(i2c_adapter->name, dev->name);	
+-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0))
+-		i2c_adapter->data = dev;
+-#else
+ 		i2c_set_adapdata(i2c_adapter,dev);
+-#endif
++		i2c_adapter->class	   = I2C_ADAP_CLASS_TV_ANALOG;
+ 		i2c_adapter->algo	   = &saa7146_algo;
+ 		i2c_adapter->algo_data     = NULL;
+ 		i2c_adapter->id 	   = I2C_ALGO_SAA7146;
 

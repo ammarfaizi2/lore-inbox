@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262653AbSJOPPt>; Tue, 15 Oct 2002 11:15:49 -0400
+	id <S262924AbSJOPQW>; Tue, 15 Oct 2002 11:16:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262924AbSJOPPt>; Tue, 15 Oct 2002 11:15:49 -0400
-Received: from mnh-1-21.mv.com ([207.22.10.53]:47364 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S262653AbSJOPPs>;
-	Tue, 15 Oct 2002 11:15:48 -0400
-Message-Id: <200210151625.LAA02738@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Oleg Drokin <green@namesys.com>
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: uml-patch-2.5.42-1 
-In-Reply-To: Your message of "Tue, 15 Oct 2002 16:00:59 +0400."
-             <20021015160059.A6187@namesys.com> 
+	id <S263137AbSJOPQU>; Tue, 15 Oct 2002 11:16:20 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:43531 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S262924AbSJOPQR>;
+	Tue, 15 Oct 2002 11:16:17 -0400
+Date: Tue, 15 Oct 2002 17:22:01 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, kai.germaschewski@gmx.de,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.5.42 broke ARM zImage/Image
+Message-ID: <20021015172201.A1406@mars.ravnborg.org>
+Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org, kai.germaschewski@gmx.de,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <20021012123256.C12955@flint.arm.linux.org.uk> <20021012233818.A9394@mars.ravnborg.org> <20021015002243.F2902@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 15 Oct 2002 11:25:30 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021015002243.F2902@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Tue, Oct 15, 2002 at 12:22:43AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-green@namesys.com said:
-> Below is quotes from the patch, and at the very end of the message
-> there is a my proposed patch to fix all uncovered problems, patch was
-> tested as in "compiles and runs ok for me". 
+On Tue, Oct 15, 2002 at 12:22:43AM +0100, Russell King wrote:
+> Sam & Kai, lkml and others who join us on this happy day.
+> 
+> So, basically, I'm screwed at the moment, unless someone has anything
+> else to suggest.
+How about a simple workaround for now:
 
-Correct on all counts.  Nice spotting.
+$(obj)/vmlinux: $(obj)/$(HEAD) $(obj)/piggy.o $(obj)/vmlinux.lds \
+                $(addprefix $(obj)/, $(OBJS))
+	cp $(obj)/piggy.o .
+        $(call if_changed,ld)
+	rm piggy.o
 
-> Also there are number "32" is hardcoded into arch/um/kernel/
-> trap_user.c in some arrays, taht you probably actually want to make
-> dependent on CONFIG_NR_CPUS 
+I onther words just make a temporary copy of piggy.o in current directory.
+No changes needed in .lds file.
 
-The problem is that trap_user.c is a userspace file and has no access to
-config.h.  The hardcoded 32 is nasty and needs fixing, but I haven't decided
-how to do that yet.
+Untested!
 
-				Jeff
+I do not know the linker command language, but I assume there is some
+way to do this even with piggy.o located somewhere else than current
+directory.
 
+My suggestion is a simple workaround to make the arm kernel compile, not
+something I would like to see as a permanent solution.
+
+	Sam

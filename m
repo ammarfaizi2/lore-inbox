@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263577AbTJQTVV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 15:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbTJQTVV
+	id S263603AbTJQTc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 15:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbTJQTc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 15:21:21 -0400
-Received: from zeke.inet.com ([199.171.211.198]:47592 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id S263577AbTJQTVU (ORCPT
+	Fri, 17 Oct 2003 15:32:58 -0400
+Received: from mx2.it.wmich.edu ([141.218.1.94]:26366 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S263603AbTJQTc4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 15:21:20 -0400
-Message-ID: <3F900115.5090009@inet.com>
-Date: Fri, 17 Oct 2003 09:47:49 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030708
-X-Accept-Language: en-us, en
+	Fri, 17 Oct 2003 15:32:56 -0400
+Message-ID: <3F9043E7.3070606@wmich.edu>
+Date: Fri, 17 Oct 2003 15:32:55 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031010 Debian/1.4-6
+X-Accept-Language: en
 MIME-Version: 1.0
-To: jw schultz <jw@pegasys.ws>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016232020.GC29279@pegasys.ws>
+To: Alex Tomas <alex@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] EXT3 extents against 2.6.0-test7
+References: <20031013222747.37f5ee7b.alex@clusterfs.com>	<3F8B1BA1.4020800@wmich.edu> <20031014212359.42243025.alex@clusterfs.com>
+In-Reply-To: <20031014212359.42243025.alex@clusterfs.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jw schultz wrote:
-[snip]
-> Now detecting files that are duplicates and linking them in
-> some way might be a useful in a low-priority daemon.  But
-> the links created would have to be sure to preserve them as
-> seperate inodes so that overwrites break the loose link but
-> not the user-created hardlink.
+kernel BUG at fs/ext3/extents.c:389!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c0198127>]    Not tainted
+EFLAGS: 00010282
+EIP is at ext3_ext_find_extent+0x277/0x570
+eax: 00009ac6   ebx: e5257580   ecx: 00000000   edx: e2184940
+esi: 00000000   edi: 00000000   ebp: 00000000   esp: ca6adddc
+ds: 007b   es: 007b   ss: 0068
+Process find (pid: 10373, threadinfo=ca6ac000 task=ca97b380)
+Stack: 00000030 00000050 e7db0200 00458006 00000400 00000000 e2184940 
+e5257580
+        00000000 00000000 00000000 00000000 e5257614 e5257614 e5257580 
+c0199f02
+        e5257614 00000000 e2184940 e5257580 e5257614 c018fac1 e5257604 
+00000000
+Call Trace:
+  [<c0199f02>] ext3_ext_get_block+0xb2/0x320
+  [<c018fac1>] ext3_read_inode+0x221/0x2d0
+  [<c016b74f>] d_splice_alias+0x4f/0x130
+  [<c018d57d>] ext3_getblk+0x25d/0x2b0
+  [<c018d603>] ext3_bread+0x33/0xb0
+  [<c018a3e1>] ext3_readdir+0x141/0x4e0
+  [<c0165a7a>] vfs_readdir+0x7a/0x80
+  [<c0165db0>] filldir64+0x0/0x140
+  [<c0165f5f>] sys_getdents64+0x6f/0xa9
+  [<c0165db0>] filldir64+0x0/0x140
+  [<c01092e7>] syscall_call+0x7/0xb
 
-This would be very useful even in other situations...  particularly the 
-'cp -lR linux-2.4.22 linux-2.4.22-work' trick.  Not having to worry 
-about modifying the original version would be nice.  (Note that chmod -w 
-can help with this, but it isn't automatic.)
+Code: 0f 0b 85 01 51 fe 2e c0 66 85 c0 0f 84 ee 00 00 00 8b 7c 24
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+
+I'm not sure why this is happening.  Perhaps due to these ext3 locking 
+fixes that have been going into the kernel or what?
+
+Upon rebooting my last kernel for the first time in a couple of weeks it 
+crashed due to fs errors.  Now i'm getting this.  I only use extents on 
+a couple non-system partitions, so if i lose anything it's not a huge 
+deal but I'd like to find out why these errors are suddenly creeping up 
+so Any other info that's needed just ask and i'll give it.
 

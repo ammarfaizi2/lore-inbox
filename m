@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbTEEQnu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 12:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263657AbTEEQYk
+	id S263754AbTEERGi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 13:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263746AbTEERFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 12:24:40 -0400
-Received: from are.twiddle.net ([64.81.246.98]:22932 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S263620AbTEEQWP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 12:22:15 -0400
-Date: Mon, 5 May 2003 09:34:44 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: David.Mosberger@acm.org
+	Mon, 5 May 2003 13:05:47 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:32645 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S263754AbTEEREx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 13:04:53 -0400
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Ezra Nugroho <ezran@goshen.edu>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+Subject: Re: partitions in meta devices
+Date: Mon, 5 May 2003 19:17:17 +0200
+User-Agent: KMail/1.5.1
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix vsyscall unwind information
-Message-ID: <20030505163444.GB9342@twiddle.net>
-Mail-Followup-To: David.Mosberger@acm.org, linux-kernel@vger.kernel.org
-References: <20030502004014$08e2@gated-at.bofh.it> <20030503210015$292c@gated-at.bofh.it> <20030504063010$279f@gated-at.bofh.it> <ugade16g78.fsf@panda.mostang.com> <20030505074248.GA7812@twiddle.net> <16054.32214.804891.702812@panda.mostang.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <1052153060.29588.196.camel@ezran.goshen.edu> <3EB693B1.9020505@gmx.net> <1052153834.29676.219.camel@ezran.goshen.edu>
+In-Reply-To: <1052153834.29676.219.camel@ezran.goshen.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <16054.32214.804891.702812@panda.mostang.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200305051917.17366.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 08:05:58AM -0700, David Mosberger-Tang wrote:
->   Richard> Why?  Certainly it isn't needed for x86.
-> 
-> Certain applications (such as debuggers) want to know.  Sure, you can
-> do symbol matching (if you have the symbol table) or code-reading
-> (assuming you know the exact sigreturn sequence), but having a marker
-> would be more reliable and faster.
+On Monday 05 May 2003 18:57, Ezra Nugroho wrote:
+> On Mon, 2003-05-05 at 11:39, Carl-Daniel Hailfinger wrote:
+> > Ezra Nugroho wrote:
+> > > I am curious if partitioning meta devices is allowed or not.
+> > >
+> > > I just created a software raid array, md0 with 240G logical size.
+> > > I want to partition that into two, 100G and the rest.
+> > >
 
-Eh.  The whole point was to *eliminate* the special cases.
+Hi,
 
-If the debugger does nothing special now, it'll see the symbol
-from the VDSO in the backtrace and print __kernel_sigreturn.
-Isn't this sufficient for the user to recognize what's going on?
-Does it really need to print <signal frame>?
+this is a question for linux-raid@vger.kernel.org. Regarding to a thread about 
+a recent thread of this topic (I currently don't have the time to search it), 
+partitioning of md-devices is not possible. You have to use LVM if you want 
+to do something like this.
 
-
-
-r~
+Bernd

@@ -1,70 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290289AbSFJLfG>; Mon, 10 Jun 2002 07:35:06 -0400
+	id <S293203AbSFJLnb>; Mon, 10 Jun 2002 07:43:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293203AbSFJLfB>; Mon, 10 Jun 2002 07:35:01 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:8631 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S290289AbSFJLfB>; Mon, 10 Jun 2002 07:35:01 -0400
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: External compilation
-Date: 10 Jun 2002 11:15:49 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrnag92j5.90a.kraxel@bytesex.org>
-In-Reply-To: <20020609142602.GA77496@compsoc.man.ac.uk>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1023707749 9227 127.0.0.1 (10 Jun 2002 11:15:49 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S311025AbSFJLna>; Mon, 10 Jun 2002 07:43:30 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:7174 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S293203AbSFJLna>;
+	Mon, 10 Jun 2002 07:43:30 -0400
+Message-ID: <3D04831D.2060207@evision-ventures.com>
+Date: Mon, 10 Jun 2002 12:44:45 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Miles Lane <miles@megapathdsl.net>
+CC: linux-kernel@vger.kernel.org, Gert Vervoort <Gert.Vervoort@wxs.nl>
+Subject: Re: 2.5.21: "ata_task_file: unknown command 50"
+In-Reply-To: <3D0382B7.20306@megapathdsl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon wrote:
->  
->  Is there any good example code for compiling a kernel module
->  externally, that works for modversions etc. on 2.2, 2.4, and 2.5,
->  and does the right thing (including Rules.make) ?
->  
->  I'm having an awful time working out the exact incantations.
+Miles Lane wrote:
+> Gert wrote:
+>  > kernel 2.5.21 hangs with repeating the message "ata_task_file: 
+> unknown command 50" forever.
 
-Here is a stripped down version of what I use for bttv currently.
 
-  Gerd
+IDE 86 should fix it.
 
-==============================[ Makefile ]==============================
-# where the kernel sources are located
-KDIR := /lib/modules/$(shell uname -r)/build
-#KDIR := /work/bk/2.5/build
-
-# kernel version
-KVER := $(shell ./uts-release $(KDIR))
-MDIR := /lib/modules/$(KVER)/kernel/drivers/media/video
-
-export-objs	:= bttv-if.o video-buf.o
-list-multi	:= bttv.o
-bttv-objs	:= bttv-driver.o bttv-cards.o bttv-risc.o bttv-if.o bttv-vbi.o
-
-obj-m		:= video-buf.o bttv.o
-
-multi-m		:= $(filter $(list-multi), $(obj-m))
-int-m		:= $(sort $(foreach m, $(multi-m), $($(basename $(m))-objs)))
-
-EXTRA_CFLAGS=-g -Wmissing-prototypes -Wstrict-prototypes
-
-here:
-	DIR=`pwd`; (cd $(KDIR); make SUBDIRS=$$DIR modules)
-
-include $(KDIR)/Rules.make
-
-bttv.o: $(bttv-objs)
-	$(LD) -r -o $@ $(bttv-objs)
-
-==============================[ uts-release ]==============================
-#! /bin/sh
-cat <<-EOF | cpp -P -I$1/include | grep '"' | cut -d'"' -f2
-	#include <linux/version.h>
-	UTS_RELEASE
-EOF

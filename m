@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263591AbRFAQB2>; Fri, 1 Jun 2001 12:01:28 -0400
+	id <S263329AbRFAQFH>; Fri, 1 Jun 2001 12:05:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263574AbRFAQBS>; Fri, 1 Jun 2001 12:01:18 -0400
-Received: from [130.207.47.194] ([130.207.47.194]:11423 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S263584AbRFAQBC>;
-	Fri, 1 Jun 2001 12:01:02 -0400
-Message-ID: <3B17BBB9.D8245FFF@mandrakesoft.com>
-Date: Fri, 01 Jun 2001 11:58:49 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+	id <S263313AbRFAQE5>; Fri, 1 Jun 2001 12:04:57 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:46734 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S263574AbRFAQEr>; Fri, 1 Jun 2001 12:04:47 -0400
+Message-ID: <3B17BD33.F2DC6372@idcomm.com>
+Date: Fri, 01 Jun 2001 10:05:07 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac5-1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Danny ter Haar <dth@trinity.hoho.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ethernet still quits
-In-Reply-To: <20010601151705.A526@grobbebol.xs4all.nl> <3B17B506.B773B998@mandrakesoft.com> <9f8dba$m5h$1@voyager.cistron.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: missing sysrq
+In-Reply-To: <200106010338.VAA13405@totalrecall.idcomm.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danny ter Haar wrote:
+Dieter Nützel wrote:
 > 
-> Jeff Garzik  <jgarzik@mandrakesoft.com> wrote:
-> >Working on the problem.  You'll need to downgrade the 8139too driver to
-> >the current 'ac' patches or a previous version on
-> >http://sf.net/projects/gkernel/ temporarily.
+> > D. Stimits wrote:
+> >
+> > > Bernd Eckenfels wrote:
+> > > >
+> > > In article <3B15EF16.89B18D@idcomm.com> you wrote:
+> > > > However, if I go to /proc/sys/kernel/sysrq does not exist.
+> > >
+> > > It is a compile time option, so the person who compiled your kernel
+> > > left it out.
+> >
+> > I compiled it, and the sysrq is definitely in the config. No doubt at
+> > all. I also use make mrproper and config again before dep and actual
+> > compile. Maybe it is just a quirk/oddball.
+> >
+> > D. Stimits, stimits@idcomm.com
 > 
-> also on :
-> www.bzimage.org/kernel-patches/v2.4/alan/v2.4.5/
+> Have you tried "echo 1 > /proc/sys/kernel/sysrq"?
+> You need both, compiled in and activation.
+
+It is compiled in, but the echo is summarily rejected. Root is not
+allowed to write to that file, which doesn't exist. I'm going to just
+wipe out everything from that kernel and redo the whole thing.
+
+D. Stimits, stimits@idcomm.com
+
 > 
-> 8139_too_work.c (62kB)
-
-That's fine, it is a previous version (0.9.15c).  Note that the current
-(broken) 8139too works for some people where earlier versions don't, so
-obviously you should not downgrade unless you are having problems.
-
-> And also there:
+> Regards,
+>         Dieter
+> --
+> Dieter Nützel
+> Graduate Student, Computer Science
 > 
-> patch-2.4.5-ac6-crypto.bz2 (268kB)
-
-What's that?
-
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+> email: nuetzel@kogs.informatik.uni-hamburg.de
+> @home: Dieter.Nuetzel@hamburg.de

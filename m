@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317980AbSGLEAe>; Fri, 12 Jul 2002 00:00:34 -0400
+	id <S317981AbSGLEKb>; Fri, 12 Jul 2002 00:10:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317981AbSGLEAd>; Fri, 12 Jul 2002 00:00:33 -0400
-Received: from [218.13.253.2] ([218.13.253.2]:61949 "EHLO today-4eyxfk706")
-	by vger.kernel.org with ESMTP id <S317980AbSGLEAd>;
-	Fri, 12 Jul 2002 00:00:33 -0400
-Message-Id: <1026446595.313@0.0.1>
-Date: Fri, 12 Jul 2002 12:03:15 0800
-To: linux-kernel@vger.kernel.org
-From: "sanry" <sanry@21cn.com>
-Subject: =?ISO-8859-1?Q?Re:=C7=EB=B8=F8=CE=D2=B7=A2=B7=DD=B9=F3=CB=BE=B5=C4=BD=E9=C9=DC?=
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"; format=flowed
-X-OriginalArrivalTime: 12 Jul 2002 04:03:15.0323 (UTC) FILETIME=[0C320CB0:01C22959]
+	id <S317982AbSGLEKa>; Fri, 12 Jul 2002 00:10:30 -0400
+Received: from codepoet.org ([166.70.99.138]:38843 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S317981AbSGLEKa>;
+	Fri, 12 Jul 2002 00:10:30 -0400
+Date: Thu, 11 Jul 2002 22:13:21 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+Message-ID: <20020712041320.GA2046@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <agl7ov$p91$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <agl7ov$p91$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re:请给我发份贵司的介绍
-    您好，我们是珠海天互科技有限公司，总公司位于沿海经济特区珠海，
-是由中国互联网信息中心直接授权的、专门为客户提供带次级域名的国
-内、国际中英文域名注册服务商；虚拟主机全面支持JSP、PHP、ASP、
-Asp.net等，免费送100M邮箱，免费试用；高性能企业邮件系统及大型邮
-件系统，以自己域名为后缀，宣传自己的品牌；代理新浪、搜狐、百度网
-站登录9折优惠，实施网站推广让潜在的客户最先找到您。
-我们提供的虚拟主机专业、快速、可靠，双证认可，绝对可靠，适合更专业的你！
-更多详情请见：Today's Network http://www.now.net.cn
-QQ在线咨询：107929341 108786612
-TEL:0756-2125583 2125593 2125594 2125563
-FAX:0756-2229669
-E-MAIL:support@now.net.cn
-周一至周日我们天天为您服务！！
+On Thu Jul 11, 2002 at 05:27:11PM -0700, H. Peter Anvin wrote:
+> Okay, I have suggested this before, and I haven't quite looked at this
+> in detail, but I would again like to consider the following,
+> especially given the changes in 2.5:
+> 
+> Please consider deprecating or removing ide-floppy/ide-tape/ide-cdrom
+> and treat all ATAPI devices as what they really are -- SCSI over IDE.
+> It is a source of no ending confusion that a Linux system will not
+> write CDs to an IDE CD-writer out of the box, for the simple reason
+> that cdrecord needs access to the generic packet interface, which is
+> only available in the nonstandard ide-scsi configuration.
 
+cdrecord should use the CDROM_SEND_PACKET ioctl, then it would
+work regardless,
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

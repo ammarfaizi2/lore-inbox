@@ -1,78 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264300AbUAVBpv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 20:45:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUAVBpv
+	id S266167AbUAVCWN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 21:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUAVCWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 20:45:51 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:29945 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S264300AbUAVBpt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 20:45:49 -0500
-Date: Thu, 22 Jan 2004 14:45:08 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: swusp acpi
-In-reply-to: <20040122003212.GC300@elf.ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074735908.1405.85.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-cX/+Iz5+isAdi6Ch0tqi";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <200401211143.51585.tuxakka@yahoo.co.uk>
- <20040122003212.GC300@elf.ucw.cz>
+	Wed, 21 Jan 2004 21:22:13 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:40894 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S266167AbUAVCWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 21:22:10 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andrew Morton <akpm@osdl.org>
+Date: Thu, 22 Jan 2004 13:22:04 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16399.13260.882442.103487@notabene.cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH - 2.6.2-pre] Make naming of parititions in sysfs match /proc/partitions.
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-cX/+Iz5+isAdi6Ch0tqi
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Howdy.
+In fs/partitions/check.c  there are two pieces of code that add a 
+partition number to a block-device name:
 
-It looks like PM support for serial ports is also broken; a serial
-console is unusable after resuming.
+  - the 'disk_name' function 
+  - a snprintf in add_partitions.
 
-Regards,
+'disk_name' inserts a 'p' before the partition number if the device
+name ends with a digit.  The snprintf in add_partitions doesn't.
 
-Nigel
+This patch rectifies this anomily so that names in sysfs can be
+parsed more reliably.
 
-On Thu, 2004-01-22 at 13:32, Pavel Machek wrote:
-> Hi!
->=20
-> > And with pressing power button everything else comes back exept
-> > usb.
-> > This behaviour is kind of "little light nap" and system comes back fast=
-.
-> > And I have also noticed that I cannot use bios passwd with
-> > # echo 3 > /proc/acpi/sleep   cause even it doesn't reboot it goes
-> > somehow to bios and bios passwd prompted but it doesn't accept it?
-> > But after disabled bios passwd it works exept usb.
-> >=20
-> > Can somebody give me any wise what I'm doing wrong or point
-> > me to some documentation about this matter?
->=20
-> Seems like USB suspend/resume support is not yet working... Talk to
-> usb maintainers and offer them some testing...
-> 								Pavel
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
 
---=-cX/+Iz5+isAdi6Ch0tqi
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+ ----------- Diffstat output ------------
+ ./fs/partitions/check.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD4DBQBADyskVfpQGcyBBWkRAngPAJjjYpU793aamdE/gJ2rhEm95uqiAKCNp7L8
-T7mwr7uz3KDdI76HGiBvQA==
-=cF8K
------END PGP SIGNATURE-----
-
---=-cX/+Iz5+isAdi6Ch0tqi--
-
+diff ./fs/partitions/check.c~current~ ./fs/partitions/check.c
+--- ./fs/partitions/check.c~current~	2004-01-22 08:57:32.000000000 +1100
++++ ./fs/partitions/check.c	2004-01-22 08:58:37.000000000 +1100
+@@ -315,7 +315,10 @@ void add_partition(struct gendisk *disk,
+ 			S_IFBLK|S_IRUSR|S_IWUSR,
+ 			"%s/part%d", disk->devfs_name, part);
+ 
+-	snprintf(p->kobj.name,KOBJ_NAME_LEN,"%s%d",disk->kobj.name,part);
++	if (isdigit(disk->kobj.name[strlen(disk->kobj.name)-1]))
++		snprintf(p->kobj.name,KOBJ_NAME_LEN,"%sp%d",disk->kobj.name,part);
++	else
++		snprintf(p->kobj.name,KOBJ_NAME_LEN,"%s%d",disk->kobj.name,part);
+ 	p->kobj.parent = &disk->kobj;
+ 	p->kobj.ktype = &ktype_part;
+ 	kobject_register(&p->kobj);

@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264332AbUDOPdn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 11:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264343AbUDOPdn
+	id S264322AbUDOPlO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 11:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264321AbUDOPlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 11:33:43 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:13802 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264332AbUDOPdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 11:33:41 -0400
-Subject: Re: [PATCH] fix 4k irqstacks on x86 (and add voyager support)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0404151126090.10471@montezuma.fsmlabs.com>
-References: <1082042268.2166.2.camel@mulgrave> 
-	<Pine.LNX.4.58.0404151126090.10471@montezuma.fsmlabs.com>
-Content-Type: text/plain
+	Thu, 15 Apr 2004 11:41:13 -0400
+Received: from citrine.spiritone.com ([216.99.193.133]:40098 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S264319AbUDOPlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 11:41:04 -0400
+Date: Thu, 15 Apr 2004 08:40:50 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+Message-ID: <41380000.1082043649@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0404151122190.6954-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0404151122190.6954-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 15 Apr 2004 10:33:25 -0500
-Message-Id: <1082043207.1804.4.camel@mulgrave>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-15 at 10:29, Zwane Mwaikambo wrote:
-> > There's a bug in the x86 code in that it sets the boot CPU to zero.
-> > This isn't correct since some subarch's use physically indexed CPUs.
-> > However, subarchs have either set the boot cpu before irq_INIT() (or
-> > just inherited the default zero from INIT_THREAD_INFO()), so it's safe
-> > to believe current_thread_info()->cpu about the boot cpu.
+>> FYI, even without prio-tree, I get a 12% boost from converting i_shared_sem
+>> into a spinlock. I'll try doing the same on top of prio-tree next.
 > 
-> There is also smp_boot_cpus() which sets it to zero yet again later on =)
+> Good news, though not a surprise.
+> 
+> Any ideas how we might handle latency from vmtruncate (and
+> try_to_unmap) if using prio_tree with i_shared_lock spinlock?
 
-That's PC specific, not subarch generic, so it doesn't matter to me.
+I've been thinking about that. My rough plan is to go wild, naked and lockless.
+If we arrange things in the correct order, new entries onto the list would
+pick up the truncated image of the file (so they'd be OK). Entries removed
+from the list don't matter anyway. We just need to make sure that everything
+that was on the list when we start does get truncated.
 
-James
+Basically there are two sets of operations ... ones that map and unmap
+the file object (address_space) and ones that alter it - we should be
+able to proceed with inserts and deletes whilst truncating, though we
+probably need to protect against the alterations. The two op types could
+go under separate locking.
 
+But I need to think on it some more - would not suprise me to come to the
+conclusion that I'm full of shit ;-) The opinions of others would be
+very welcome ...
 
+M.

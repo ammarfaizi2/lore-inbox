@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270749AbTG0Lld (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 07:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270750AbTG0Lld
+	id S270750AbTG0LrR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 07:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270751AbTG0LrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 07:41:33 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:39876 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S270749AbTG0Llc (ORCPT
+	Sun, 27 Jul 2003 07:47:17 -0400
+Received: from lidskialf.net ([62.3.233.115]:30919 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S270750AbTG0LrQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 07:41:32 -0400
-Message-ID: <3F23BE18.5000600@softhome.net>
-Date: Sun, 27 Jul 2003 13:57:12 +0200
-From: "Ihar \"Philips\" Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Sun, 27 Jul 2003 07:47:16 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Rahul Karnik <rahul@genebrew.com>
+Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
+Date: Sun, 27 Jul 2003 13:02:30 +0100
+User-Agent: KMail/1.5.2
+Cc: Marcelo Penna Guerra <eu@marcelopenna.org>,
+       lkml <linux-kernel@vger.kernel.org>, Laurens <masterpe@xs4all.nl>,
+       Jeff Garzik <jgarzik@pobox.com>
+References: <200307262309.20074.adq_dvb@lidskialf.net> <200307271222.13649.adq_dvb@lidskialf.net> <3F23BC1D.7070804@genebrew.com>
+In-Reply-To: <3F23BC1D.7070804@genebrew.com>
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OT: Vanilla not for embedded?! Re: Kernel 2.6 size increase -
- get_current()?
-References: <dbTZ.5Z5.19@gated-at.bofh.it> <3F214EC3.9010804@softhome.net> <20030725204613.GB1686@matchmail.com>
-In-Reply-To: <20030725204613.GB1686@matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Message-Id: <200307271301.41660.adq_dvb@lidskialf.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-> 
-> Vanilla will be what people put into it.  And I have seen more messages from
-> embedded people complaining, than actually doing and submitting patches for
-> merging.
-> 
-> So the embedded trees are a deep fork huh?  Did you or anyone else do
-> anything to merge during 2.5?!
-> 
-> And now you see why there is a "deep" fork...
-> 
+On Sunday 27 July 2003 12:48, Rahul Karnik wrote:
+> Andrew de Quincey wrote:
+> > Ah, so THATS who they licensed it from. I didn't think nividia would go
+> > to the bother of designing their own ethernet hardware.
+>
+> Actually, this is not certain, but it is one of the guesses. So far,
+> Nforce2 = AMD IDE + Intel sound + <unknown> ethernet.
 
-   Real-time stuff is a must - something like RTAI.
-   Things like Linux Trace Toolkit - soone or later you have to start 
-using them to tune performace.
-   Patches to remove mandatory (for 2.2/2.0) PCI/IDE support were pretty 
-common too.
-   Patch to shrink network hashes - norm of life.
-   Patch to kill PCI names database.
-   And this is only things I was using personally (and I remember about) 
-in my short 4 years carrier.
+Hmm, the MAC address is in a different place on the nvidia hardware.
 
-   CONFIG_TINY - http://lwn.net/Articles/14186/ - got something like 
-this merged? - so I'm the first guy in the download queue on ftp.kernel.org!
-
-   Kernel heavily tuned for servers and workstations (read - modern PCs).
-
-   At my previous position company was using kernel prepared by Karim 
-Yaghmour and right now we using kernels from MontaVista.
-   Far from vanillas.
-
- > embedded people complaining
-
-   Sure complaining.
-   For some reasons all "improvements" to kernel had lead to increase of 
-kernel size, not decrease. Strange, isn't it?
-
+I've just dumped the mmapped IO space on mine. The MAC address shows up at 
+offset 0xa8, but the amd8111e driver is looking for it at 0x160 (there's just 
+loads of 0x00 there).
 

@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265292AbUFTIDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264358AbUFTIPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265292AbUFTIDH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 04:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265308AbUFTIDG
+	id S264358AbUFTIPY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 04:15:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265308AbUFTIPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 04:03:06 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:5899 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S265292AbUFTIDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 04:03:04 -0400
-Date: Sun, 20 Jun 2004 09:56:50 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, frankvm@xs4all.nl, sdake@mvista.com,
-       liste@jordet.nu, linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: [2.4] page->buffers vanished in journal_try_to_free_buffers()
-Message-ID: <20040620075650.GH29808@alpha.home.local>
-References: <1075832813.5421.53.camel@chevrolet.hybel> <Pine.LNX.4.58L.0402052139420.16422@logos.cnet> <1078225389.931.3.camel@buick.jordet> <1087232825.28043.4.camel@persist.az.mvista.com> <20040615131650.GA13697@logos.cnet> <1087322198.8117.10.camel@persist.az.mvista.com> <20040617131600.GB3029@logos.cnet> <20040617200859.7fada9fe.akpm@osdl.org> <20040619194849.GA2843@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040619194849.GA2843@logos.cnet>
-User-Agent: Mutt/1.4i
+	Sun, 20 Jun 2004 04:15:24 -0400
+Received: from gate.perex.cz ([82.113.61.162]:40585 "EHLO mail.perex.cz")
+	by vger.kernel.org with ESMTP id S264358AbUFTIPX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 04:15:23 -0400
+Date: Sun, 20 Jun 2004 10:13:01 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Ryan Anderson <ryan@michonline.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Stop the Linux kernel madness
+In-Reply-To: <20040620052836.GC28363@michonline.com>
+Message-ID: <Pine.LNX.4.58.0406201010360.3528@pnote.perex-int.cz>
+References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk>
+ <40D23EBD.50600@opensound.com> <20040618102523.GA7103@merlin.emma.line.org>
+ <20040620052836.GC28363@michonline.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Sun, 20 Jun 2004, Ryan Anderson wrote:
 
-On Sat, Jun 19, 2004 at 04:48:49PM -0300, Marcelo Tosatti wrote:
- 
-> +		if (!unlikely(tmp)) {
+> > What do I need commercial OSS for after all when Alsa works well for me?
+> 
+> Well, for what it's worth, there are a few devices out there for which
+> there is no open source driver:
+> 0000:02:02.0 Multimedia audio controller: Creative Labs [SB Live! Value]
+> EMU10k1X
+> (Dell Dimension 2100, *I think* - it's at work right, and I'm not)
+> 
+> I believe 4Front provides the only driver for that specific device (it's
+> a crippled EMU10k1, probably what could be called a "WinSoundchip")
 
-I think you meant "if (unlikely(!tmp))" here. Howver this does not make
-a big difference.
+We have an alpha driver in our CVS tree for this chip as well.
 
-Regards,
-willy
+						Jaroslav
 
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129418AbQJaP7h>; Tue, 31 Oct 2000 10:59:37 -0500
+	id <S129258AbQJaQBH>; Tue, 31 Oct 2000 11:01:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129517AbQJaP7R>; Tue, 31 Oct 2000 10:59:17 -0500
-Received: from kanga.kvack.org ([209.82.47.3]:57104 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id <S129418AbQJaP7K>;
-	Tue, 31 Oct 2000 10:59:10 -0500
-Date: Tue, 31 Oct 2000 10:57:51 -0500 (EST)
-From: <kernel@kvack.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Brian Gerst <bgerst@didntduck.org>, Andi Kleen <ak@suse.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: kmalloc() allocation.
-In-Reply-To: <E13qcv6-0007yy-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1001031101815.27969D-100000@kanga.kvack.org>
+	id <S129517AbQJaQA5>; Tue, 31 Oct 2000 11:00:57 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:51978 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129258AbQJaQAo>; Tue, 31 Oct 2000 11:00:44 -0500
+Date: Tue, 31 Oct 2000 12:02:03 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Geoff Winkless <geoff@farmline.com>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.2.17 & VM: do_try_to_free_pages failed / eepro100
+In-Reply-To: <06e301c04351$2eadd4d0$1400000a@farmline.com>
+Message-ID: <Pine.LNX.4.21.0010311158490.1475-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2000, Alan Cox wrote:
 
-> > The code for vmalloc allocates the pages at vmalloc time, not after.  The
-> > TLB is populated lazily, but most definately not the page tables.
+
+On Tue, 31 Oct 2000, Geoff Winkless wrote:
+
+> "Alan Cox" <alan@lxorguk.ukuu.org.uk> writes:
+> [about what I wrote]
+> > > > VM: do_try_to_free_pages failed for httpd...
+> > > > VM: do_try_to_free_pages failed for httpd...
+> >
+> > These if they are odd ones and the box continues are fine, if you get
+> masses
+> > of them then probably not
 > 
-> Is the lazy tlb population interrupt safe or do I need to change any driver
-> using vmalloced memory from an IRQ ?
+> What's it actually doing when this happens? Would it help to allocate more
+> VM?
 
-It should be safe since it's just copying pgd/pmd pointers into the
-per-process page tables; the pte's are still shared.
+This means try_to_free_pages() function (obviously this function tries to
+free pages :)) failed to free any page. 
 
-That said, reading vmalloc.c leads to the discovery that
-vmalloc_area_pages will currently race on SMP (the pmd/pte allocation
-routines are not SMP safe).  Untested/obvious patch below.  Ultimately
-we'll have to move the locking into pmd_alloc/pte_alloc, but I'm not sure 
-if that's appropriate so close to 2.4.
-
-		-ben
-
-
---- v2.4.0-test10-pre7/mm/vmalloc.c	Mon Oct 30 16:02:27 2000
-+++ test-10-7/mm/vmalloc.c	Tue Oct 31 10:58:47 2000
-@@ -121,7 +121,11 @@
- 	if (end > PGDIR_SIZE)
- 		end = PGDIR_SIZE;
- 	do {
--		pte_t * pte = pte_alloc_kernel(pmd, address);
-+		pte_t * pte;
-+
-+		lock_kernel();
-+		pte = pte_alloc_kernel(pmd, address);
-+		unlock_kernel();
- 		if (!pte)
- 			return -ENOMEM;
- 		if (alloc_area_pte(pte, address, end - address, gfp_mask, prot))
-@@ -142,8 +146,10 @@
- 	flush_cache_all();
- 	do {
- 		pmd_t *pmd;
--		
-+
-+		lock_kernel();
- 		pmd = pmd_alloc_kernel(dir, address);
-+		unlock_kernel();
- 		if (!pmd)
- 			return -ENOMEM;
- 
+The process will probably free pages (or found free pages around) on the
+next run(s) of try_to_free_pages. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

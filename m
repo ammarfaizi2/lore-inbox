@@ -1,134 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268082AbUIGOQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUIGOTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268082AbUIGOQj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 10:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268080AbUIGOQj
+	id S268080AbUIGOTu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 10:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUIGOTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:16:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62871 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268095AbUIGOPl (ORCPT
+	Tue, 7 Sep 2004 10:19:50 -0400
+Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:21986 "EHLO
+	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S268080AbUIGOTp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:15:41 -0400
-Date: Tue, 7 Sep 2004 16:15:31 +0200
-From: Heinz Mauelshagen <mauelshagen@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: *** Announcement: dmraid 1.0.0-rc4 ***
-Message-ID: <20040907141531.GA13871@redhat.com>
-Reply-To: mauelshagen@redhat.com
+	Tue, 7 Sep 2004 10:19:45 -0400
+Subject: Re: [PATCH 4/4] copyfile: copyfile
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Steve French <smfltc@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.58.0409070656150.2299@ppc970.osdl.org>
+References: <20040907120908.GB26630@wohnheim.fh-wedel.de>
+	 <20040907121118.GA27297@wohnheim.fh-wedel.de>
+	 <20040907121235.GB27297@wohnheim.fh-wedel.de>
+	 <20040907121520.GC27297@wohnheim.fh-wedel.de>
+	 <Pine.LNX.4.58.0409070656150.2299@ppc970.osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Organization: University of Cambridge Computing Service, UK
+Message-Id: <1094566775.25420.13.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 07 Sep 2004 15:19:36 +0100
+Content-Transfer-Encoding: 8BIT
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-09-07 at 15:06, Linus Torvalds wrote:
+> On Tue, 7 Sep 2004, Jörn Engel wrote:
+> >
+> > Again, the syscall itself may be a stupid idea, but Steve indicated
+> > interest for cifs.  I'll hide behind his back and let him fight for
+> > it. ;)
+> 
+> Well, this isn't useful for cifs.
+> 
+> For cifs to be able to use it, the "copyfile()" interface needs to
+> basically just be a pathname operation (ie a "dir->i_op->copy()"), not a
+> "struct file" operation.  It's more like the VFS "->rename()" or "->link"
+> operations, in other words. And it should return -EXDEV the same way
+> rename returns EXDEV if the files aren't on the same filesystem.
 
-               *** Announcement: dmraid 1.0.0-rc4 ***
+Indeed.  A pathname based operation would be useful for any fs with
+"added features".  For example, on NTFS it could be used to preserve
+named streams and extended attributes which would otherwise be lost. 
+Mind you, the current NTFS driver cannot create files yet so it will be
+a while until such a "copyfile()" is useful there...
 
-dmraid 1.0.0-rc4 is available at
-http://people.redhat.com:/~heinzm/sw/dmraid/ in source, source rpm and i386 rpm.
+> Then you could (and should) make a "generic_file_copy()" function that
+> takes that pathname format, and then uses sendfile() to do the copy for
+> regular disk-based filesystems.
+> 
+> I think you should be able to copy the "sys_link()" code for almost all of 
+> the top-level stuff. The only real difference being
+> 
+> -	error = dir->i_op->link(old_dentry, dir, new_dentry);
+> +	error = dir->i_op->copy(old_dentry, dir, new_dentry);
+> 
+> or something.
+> 
+> And no, I don't know how to handle interruptability. I think the right
+> answer may be that filesystems that don't support this as a "native op"  
+> and can't do it quickly should just return an error, and then users can
+> copy their multi-gigabyte files by hand, like they used to.
+> 
+> So if we do this, we do this _right_. We also make sure that we error out 
+> "too much" rather than "too little", so that people don't start depending 
+> on behaviour that we don't want them to depend on. 
 
-dmraid (Device-Mapper Raid tool) discovers, [de]activates and displays
-properties of software RAID sets (ie. ATARAID) and contained DOS
-partitions using the device-mapper runtime of the 2.6 kernel.
+Best regards,
 
-The following ATARAID types are supported on Linux 2.6:
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 
-Highpoint HPT37X
-Highpoint HPT45X
-Intel Software RAID
-Promise FastTrack
-Silicon Image Medley
-
-This ATARAID type is only basically supported in this version (I need
-better metadata format specs; please help):
-LSI Logic MegaRAID
-
-Please provide insight to support those metadata formats completely.
-
-Thanks.
-
-See files README and CHANGELOG, which come with the source tarball for
-prerequisites to run this software, further instructions on installing
-and using dmraid!
-
-CHANGELOG is contained below for your convenience as well.
-
-
-Call for testers:
------------------
-
-I need testers with the above ATARAID types, to check that the mapping
-created by this tool is correct (see options "-t -ay") and access to the ATARAID
-data is proper.
-
-In case you have a different ATARAID solution from those listed above,
-please feel free to contact me about supporting it in dmraid.
-
-You can activate your ATARAID sets without danger of overwriting
-your metadata, because dmraid accesses it read-only unless you use
-option -E with -r in order to erase ATARAID metadata (see 'man dmraid')!
-
-This is a release candidate version so you want to have backups of your valuable
-data *and* you want to test accessing your data read-only first in order to
-make sure that the mapping is correct before you go for read-write access.
-
-
-The author is reachable at <Mauelshagen@RedHat.com>.
-
-For test results, mapping information, discussions, questions, patches,
-enhancement requests and the like, please subscribe and mail
-to <ataraid@redhat.com>.
-
---
-
-Regards,
-Heinz    -- The LVM Guy --
-
-
-CHANGELOG:
----------
-
-
-Changelog from dmraid 1.0.0-rc3 to 1.0.0-rc4		2004.09.07
-
-FIXES:
-------
-o get_dm_serial fix for trailing blanks
-o infinite loop bug in makefile
-o unified RAID #defines
-o RAID disk erase size
-o avoided unnecessary read in isw_read()
-o segfault in build_set() on RAID set group failure
-o activation of partitions on Intel Software RAID
-o allow display if tables for active RAID sets (-t -ay)
-o discovering no RAID disks shouldn't return an error
-o free_set would have segfaulted on virgin RAID set structures
-o deep DOS partition chains (Paul Moore)
-o "dmraid -sa" displayed group RAID set with Intel Software RAID
-  when it shouldn't
-o return RAID super set pointer from hpt45x_group() and sil_group()
-  rether than sub set pointer
-
-
-FEATURES:
----------
-
-o added offset output to all native metadata logs
-o started defining metadata format handler event method needed for
-  write updates to native metadata (eg, for mirror failure)
-o [de]activation of a single raid sets below a group one (isw)
-o support for multiple -c options (see "man dmraid"):
-  "dmraid -b -c{0,2}"
-  "dmraid -r -c{0,2}"
-  "dmraid -s -c{0,3}"
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Red Hat GmbH
-Consulting Development Engineer                   Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@RedHat.com                            +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

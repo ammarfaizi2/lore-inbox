@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbTIGXVt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 19:21:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbTIGXVt
+	id S261720AbTIGXrX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 19:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTIGXrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 19:21:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23519 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261700AbTIGXVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 19:21:48 -0400
-Date: Sun, 7 Sep 2003 16:21:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arnd Bergmann <arnd@arndb.de>
-cc: Andreas Schwab <schwab@suse.de>, <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>
-Subject: Re: [PATCH] use size_t for the broken ioctl numbers
-In-Reply-To: <Pine.LNX.4.44.0309071613560.21192-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0309071617380.21192-100000@home.osdl.org>
+	Sun, 7 Sep 2003 19:47:23 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2403 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261720AbTIGXrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 19:47:22 -0400
+To: Larry McVoy <lm@bitmover.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Brown, Len" <len.brown@intel.com>,
+       Giuliano Pochini <pochini@shiny.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scaling noise
+References: <20030903181550.GR4306@holomorphy.com>
+	<1062613931.19982.26.camel@dhcp23.swansea.linux.org.uk>
+	<20030903194658.GC1715@holomorphy.com> <105370000.1062622139@flay>
+	<20030903212119.GX4306@holomorphy.com> <115070000.1062624541@flay>
+	<20030903215135.GY4306@holomorphy.com> <116940000.1062625566@flay>
+	<20030904010653.GD5227@work.bitmover.com>
+	<m11xusnvqc.fsf@ebiederm.dsl.xmission.com>
+	<20030907230729.GA19380@work.bitmover.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Sep 2003 17:47:04 -0600
+In-Reply-To: <20030907230729.GA19380@work.bitmover.com>
+Message-ID: <m1wuckma9z.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy <lm@bitmover.com> writes:
 
-On Sun, 7 Sep 2003, Linus Torvalds wrote:
-> 
-> On Sun, 7 Sep 2003, Arnd Bergmann wrote:
+> On Sun, Sep 07, 2003 at 03:18:19PM -0600, Eric W. Biederman wrote:
+> > Larry McVoy <lm@bitmover.com> writes:
 > > 
-> > How about changing (sizeof(x)) to (sizeof(x[1]))?
-> > It will result in "parse error before `['" when x is not
-> > a type or an array type.
+> > > Here's a thought.  Maybe the next kernel summit needs to have a CC cluster
+> > > BOF or whatever.  I'd be happy to show up, describe what it is that I see
+> > > and have you all try and poke holes in it.  If the net result was that you
+> > > walked away with the same picture in your head that I have that would be
+> > > cool.  Heck, I'll sponser it and buy beer and food if you like.
+> > 
+> > Larry CC clusters are an idiotic development target.
 > 
-> That sounds like a clever thing to do. Have you tested it with a full 
-> configuration?
+> What a nice way to start a technical conversation.
+> 
+> *PLONK* on two counts: you're wrong and you're rude.  Next contestant please.
 
-In fact, what you'd want to do is not just verify that it compiles, but 
-also verify that the object code matches.
+Ok. I will keep building clusters and the code that makes them work, and you can dream.
 
-Because there _is_ one case where adding the [1] will still compile, but
-generate wrong code: if the "size" argument to the _IOx() was not a type,
-but a real actual array.
+I backed up my assertion, and can do even better. 
 
-Now, that would have been a bug (or at least a misfeature) before too, but 
-the point of this whole thread was that some people used the _IOx() macros 
-incorrectly, so maybe such broken usage actually exists..
+I have already built a 2304 cpu machine and am working on a 2900+ cpu
+machine.  
 
-			Linus
+The software stack and that part of the idea are reasonable but your
+target hardware is just plain rare, and expensive.  
 
+If you don't get the commodity OS on commodity hardware thing, I'm sorry.
+
+The thing is for all of your talk of Dell, Dell doesn't make the hardware you
+need for a CC cluster.  And because the cc NUMA interface requires a
+manufacturer to make chips, and boards, I have a hard time seeing 
+cc NUMA hardware being a commodity any time soon.
+
+Eric

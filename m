@@ -1,48 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbUB0GU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 01:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbUB0GU4
+	id S261705AbUB0G0l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 01:26:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUB0G0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 01:20:56 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:26887 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261692AbUB0GUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 01:20:53 -0500
-Date: Fri, 27 Feb 2004 07:12:20 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: MP M <mageshmp2003@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: help in TCP checksum offload , TSO and zero copy
-Message-ID: <20040227061220.GC7785@alpha.home.local>
-References: <20040226185219.70474.qmail@web21407.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040226185219.70474.qmail@web21407.mail.yahoo.com>
-User-Agent: Mutt/1.4i
+	Fri, 27 Feb 2004 01:26:41 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:30627 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S261707AbUB0G0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 01:26:39 -0500
+Date: Fri, 27 Feb 2004 14:26:31 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Grover, Andrew" <andrew.grover@intel.com>
+Subject: Re: Why no interrupt priorities?
+Cc: "Mark Gross" <mgross@linux.co.intel.com>, arjanv@redhat.com,
+       "Tim Bird" <tim.bird@am.sony.com>, root@chaos.analogic.com,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com> <1077859968.22213.163.camel@gaston>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr30muhyf4evsfm@smtp.pacific.net.th>
+In-Reply-To: <1077859968.22213.163.camel@gaston>
+User-Agent: Opera M2/7.50 (Linux, build 600)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 10:52:19AM -0800, MP M wrote:
-> ttcp-t: 216442880 bytes in 299.34 real seconds =
-> 706.13 KB/sec +++
-^^^^^^^^^
+On Fri, 27 Feb 2004 16:32:48 +1100, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-It's obvious that you have other problems, because lack of hardware
-checksum won't lead to such abysmal performance. You should start
-with *real* traffic, and not with I/O bound tools such as tar.
-For instance, you'd better use "dd if=/dev/zero bs=64k count=4000"
-(or use /dev/urandom) to generate some data if you absolutely need
-some. But here, I'm fairly certain that your disk is *THE* problem.
-I could easily reach the Gb/s with a P3/1G on a crappy dl2k, so I
-don't see why you could not to it on better hardware.
+>
+>> Is the assumption that hardirq handlers are superfast also the reason
+>> why Linux calls all handlers on a shared interrupt, even if the first
+>> handler reports it was for its device?
+>
+> With level irqs only, it would be possible to return at this
+> point. But with edge irqs, we could miss it completely if another
+> device had an irq at the same time
 
-Oh, and BTW, check your cable (netstat -i) to see if you get drops
-or errors. You can also have poor wires which lead to frequent
-retransmits. GigE uses all 4 pairs (8 wires), so a cable which
-works well on FastEth is not necessarily OK on GigE.
+Is this to imply that edge triggered shared interrupts are used anywhere?
 
-Cheers,
-Willy
+Never occured to me to use shared IRQ's edge triggered as this mode
+_cannot_ work reliably for HW limitations.
 
+Consider this scenario:
+
+Two devices A) having it's IRQa and B) with it's IRQB.
+Both devices "ored" on IRQBUS.
+
+For simplicity lets assume these timings:
+	IRQa,IRQB > IRQBUS: 		10ns
+	IRQx transition time 		10ns
+	PIC IRQ latch recovery time	10ns
+	  This is the time IRQBUS input must be passive
+	  for another edge on it to be detected
+
+Here, by murphy IRQb arrives at the same time IRQa is reset.
+
+Lets say one step (hyphen) is 5 ns
+~ is a break in time
+^ is a instable state glitch
+
+           /-------~--------\	
+IRQa  ---/                  \-------~------
+
+                             /-------~------
+IRQb  ------------~--------/
+
+             /-----~--------^^-------~------
+IRQBUS-----/
+
+
+So, as you can see, IRQb gets lost as the PIC IRQ latch recovery
+time is violated.
+
+A work around would be to poll the _entire_ chain once more before
+exiting the ISR - this would be rather clumsy though.
+
+Regards
+Michael

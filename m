@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132668AbRC2EIZ>; Wed, 28 Mar 2001 23:08:25 -0500
+	id <S132660AbRC2DzG>; Wed, 28 Mar 2001 22:55:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132672AbRC2EIP>; Wed, 28 Mar 2001 23:08:15 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25613 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132668AbRC2EII>; Wed, 28 Mar 2001 23:08:08 -0500
-Subject: Re: Hangs under 2.4.2-ac{18,19,24} that do not happen under -ac12.
-To: pwc@sgi.com (Paul Cassella)
-Date: Thu, 29 Mar 2001 05:10:05 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SGI.3.96.1010328165432.10707A-100000@fsgi626.americas.sgi.com> from "Paul Cassella" at Mar 28, 2001 05:08:36 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132662AbRC2Dy4>; Wed, 28 Mar 2001 22:54:56 -0500
+Received: from falcon.prod.itd.earthlink.net ([207.217.120.74]:51619 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S132660AbRC2Dyp>; Wed, 28 Mar 2001 22:54:45 -0500
+Date: Wed, 28 Mar 2001 19:54:25 -0800 (PST)
+From: James Simmons <jsimmons@linux-fbdev.org>
+X-X-Sender: <jsimmons@linux.local>
+To: Pavel Machek <pavel@suse.cz>
+cc: Russell King <rmk@arm.linux.org.uk>,
+   Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+   Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: fbcon slowness [was NTP on 2.4.2?]
+Message-ID: <Pine.LNX.4.31.0103281948200.1748-100000@linux.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14iTlA-000747-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have had hangs under 2.4.2-ac18, -ac19, and -ac24, after uptimes of
-> 36 hours, 12 hours, and 10 hours, respectively.  -ac12 has twice run
-> for a week without crashing.  I didn't see anything in the later -ac
-> changelogs that looks responsible, but I haven't actually tried them.
 
-Was anything between 12 and 18 stable ?
+>Are you using fbcon? If so, and if it goes away after starting X, then it
+>is the "fbcon kills interrupt latency" problem.
 
-> A few lines earlier in this function, inode->i_op->truncate() is called
-> without lock_kernel().  Should it also have a lock_kernel(), or is it not
-> needed there? 
+Ug!!! This is getting bad. Give me some time. I plan on releasing a new
+vesafb using MMX to help speed up the drawing routines. It will help alot
+with the latency issues. I also know using ARM assembly we can greatly
+reduce the latency issues.
 
-Absolutely correct. The lock is missing. Bizarrely Al Viro just noticed this
-about 15 minutes ago
+MS: (n) 1. A debilitating and surprisingly widespread affliction that
+renders the sufferer barely able to perform the simplest task. 2. A disease.
 
+James Simmons  [jsimmons@linux-fbdev.org]               ____/|
+fbdev/console/gfx developer                             \ o.O|
+http://www.linux-fbdev.org                               =(_)=
+http://linuxgfx.sourceforge.net                            U
+http://linuxconsole.sourceforge.net
 

@@ -1,28 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135682AbRD2Grk>; Sun, 29 Apr 2001 02:47:40 -0400
+	id <S135684AbRD2HOo>; Sun, 29 Apr 2001 03:14:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135680AbRD2GrV>; Sun, 29 Apr 2001 02:47:21 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:50189 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S135571AbRD2GrJ>;
-	Sun, 29 Apr 2001 02:47:09 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.3-ac*, 2.4.4, tc/lk201 files missing
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 29 Apr 2001 16:47:02 +1000
-Message-ID: <32737.988526822@ocs3.ocs-net>
+	id <S135687AbRD2HOe>; Sun, 29 Apr 2001 03:14:34 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:27076 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S135684AbRD2HO3>; Sun, 29 Apr 2001 03:14:29 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 29 Apr 2001 00:14:09 -0700
+Message-Id: <200104290714.AAA03758@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org, mhaque@haque.net,
+        peter.osterlund@mailbox.swipnet.se
+Subject: Re: 2.4.4 sluggish under fork load
+Cc: torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Both 2.4.3-ac* and 2.4.4 have this in drivers/tc/Makefile
+Peter Osterlund wrote:
+> Another thing is that the bash loop "while true ; do /bin/true ; done" is
+> not possible to interrupt with ctrl-c.
 
-obj-$(CONFIG_VT) += lk201.o lk201-map.o lk201-remap.o
-lk201-map.c: lk201-map.map
-        loadkeys --mktable lk201-map.map > lk201-map.c
+	I have reproduced this on a uniprocessor machine and determined
+that it is a bash bug.  I will submit a bash bug report and sample
+patch that fixes the problem (but may be incorrect in other ways), and
+will cc it to linux-kernel.  Look for the subject "Patch(?): bash-2.05/jobs.c
+loses interrupts."
 
-None of lk201.c, lk201-remap.c, lk201-map.map are in the kernel tree.
-Where are these missing files?
+	I have not yet investigated the other report of "sluggish" behavior.
 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

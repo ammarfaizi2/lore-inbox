@@ -1,76 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbUAJGOt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 01:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbUAJGOt
+	id S265141AbUAJH2U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 02:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265150AbUAJH2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 01:14:49 -0500
-Received: from mail.intercable.net ([207.248.32.22]:27916 "EHLO
-	macross.intercable.net") by vger.kernel.org with ESMTP
-	id S265053AbUAJGOr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 01:14:47 -0500
-Message-ID: <3FFF970D.9000200@intercable.net>
-Date: Sat, 10 Jan 2004 00:09:17 -0600
-From: "Pablo E. Limon Garcia Viesca" <plimon@intercable.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-2
-X-Accept-Language: en
+	Sat, 10 Jan 2004 02:28:20 -0500
+Received: from smtpq1.home.nl ([213.51.128.196]:21898 "EHLO smtpq1.home.nl")
+	by vger.kernel.org with ESMTP id S265141AbUAJH2S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 02:28:18 -0500
+Message-ID: <3FFFA8C3.6040609@keyaccess.nl>
+Date: Sat, 10 Jan 2004 08:24:51 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031029
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: bootup kernel panic 2.6.x
-X-Enigmail-Version: 0.82.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Santiago Garcia Mantinan <manty@manty.net>
+CC: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: ALSA in 2.6 failing to find the OPL chip of the sb cards
+References: <20040107212916.GA978@man.manty.net> <s5hy8sixsor.wl@alsa2.suse.de> <20040109171715.GA933@man.manty.net> <s5hn08xgh06.wl@alsa2.suse.de> <20040109201423.GA1677@man.manty.net>
+In-Reply-To: <20040109201423.GA1677@man.manty.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Santiago Garcia Mantinan wrote:
 
-Good night,
-yesterday I got 2.6.0, configured it and compiled it, when I restarted
-my computer, I got the following error:
-VFS: Cannot open root device "305" or hda5
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on hda5
+>>then it fails in the reset sequence of opl chip, namely, 
+>>what happens if you replace the line 441
+>>	opl3->command = &snd_opl2_command;
+>>with
+>>	opl3->command = &snd_opl3_command;
+> 
+> 
+> Looks exactly the same thing to me:
+> 
+> pnp: Device 00:01.00 activated.
+> ALSA sound/isa/sb/sb16.c:313: pnp SB16: port=0x220, mpu port=0x330, fm port=0x388
+> ALSA sound/isa/sb/sb16.c:315: pnp SB16: dma1=1, dma2=5, irq=10
+> ALSA sound/isa/sb/sb_common.c:133: SB [0x220]: DSP chip found, version = 4.13
+> ALSA sound/drivers/opl3/opl3_lib.c:133: OPL3: stat1 = 0xff
+> ALSA sound/drivers/opl3/opl3_lib.c:444: OPL2/3 chip not detected at 0x388/0x38a
+> ALSA sound/isa/sb/sb16.c:484: sb16: no OPL device at 0x388-0x38a
+> 
+> I think I have already said that in 2.4 it works, and I have tested both
+> alsa in the kernel plus alsa sources downloaded from alsa-project, this last
+> one works in 2.4 but doesn't work in 2.6.
 
-Hda5 IS the root partition, and it is an ext3 fs. The ext3 is compiled
-within the kernel (not as a module). The chipset is correct (PIIXn) and
-at boot time I can see that the Hard Disk is correctly recogniced.
+I'm seeing the same behaviour with a Sound Blaster AWE64 Gold. It seems 
+it's not an ALSA problem though, but ISA-PnP. Enabling the card from 
+userspace with the old isapnp tool makes the OPL chip appear:
 
-Then, today, I downladed, configured and compiled kernel 2.6.1 but I got
-the same problem.
+root@7ixe4:~# dmesg -n8
+root@7ixe4:~# modprobe snd-sbawe
+pnp: the driver 'sb16' has been registered
+pnp: match found with the PnP device '01:01.00' and the driver 'sb16'
+pnp: match found with the PnP device '01:01.02' and the driver 'sb16'
+pnp: Device 01:01.00 activated.
+pnp: Device 01:01.02 activated.
+ALSA sound/isa/sb/sb16.c:484: sbawe: no OPL device at 0x388-0x38a
+root@7ixe4:~# modprobe -r snd-sbawe
+pnp: Device 01:01.00 disabled.
+pnp: Device 01:01.02 disabled.
+pnp: the driver 'sb16' has been unregistered
+root@7ixe4:~# isapnp awe64g
+Board 1 has Identity 43 0f f1 94 5c 9e 00 8c 0e:  CTL009e Serial No 
+267490396 [checksum 43]
+Board 2 has Identity 2c 00 0f e4 18 02 00 94 16:  ETT0002 Serial No 
+1041432 [checksum 2c]
+root@7ixe4:~# modprobe snd-sbawe
+pnp: the driver 'sb16' has been registered
+pnp: match found with the PnP device '01:01.00' and the driver 'sb16'
+pnp: match found with the PnP device '01:01.02' and the driver 'sb16'
+pnp: Device 01:01.00 activated.
+pnp: Device 01:01.02 activated.
+root@7ixe4:~#
 
-In the machine Im talking about, (a Pentium 133) I have Debian with
-kernel 2.4.18, and it boots well, but I cant make 2.6.x to work, so the
-partition is well configured (it is hda5).
+("awe64g" is just "pnpdump >awe64g", with preffered config uncommented)
 
-Something I noticed, is that when I boot with 2.4, after Hard Drive
-recognition, this message appears:
+That is, the driver doesn't complain anymore. Still didn't see the OPL 
+appear in /proc/ioports though (loading with fm_port=0x388 doesn't 
+change that). Haven't investigated further yet, will do.
 
-Partition check:
-~ hda: [DM6:DD0] [remap +63] [2480/255/63] hda1 hd
-a2 < hda5 hda6 hda7 hda8 hda9 hda10 hda11 hda12 >
+Rene.
 
-But, in 2.6.x, exactly after recognition of the ide chanels (hda and hdc
-that is a cdrom) the kernel panic happens.
-
-I entered to an irc channel about kernel discusion, and I so someone
-else having a similar problem, when I got out, no one could help us.
-
-If you need any other info. (logs, or screen messages) pleas tell me
-wich archive you need and Ill send it to you.
-
-Thanks in advance
-~  Pablo E. Limon
-~  plimon@intercable.net
-~  al279930@mail.mty.itesm.mx
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
-
-iD8DBQE//5cNOGkG8a1Mf+oRAjcMAKCgPkD+tfmdOm+mZvyt6bVld7gKrACeITDp
-qp1qD8KQg25HvQzglywA2ec=
-=o0fT
------END PGP SIGNATURE-----
 

@@ -1,35 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263130AbUDTPHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbUDTPIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263130AbUDTPHG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 11:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUDTPHG
+	id S263101AbUDTPIu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 11:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbUDTPIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 11:07:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10140 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263130AbUDTPHE (ORCPT
+	Tue, 20 Apr 2004 11:08:49 -0400
+Received: from mail.dsa-ac.de ([62.112.80.99]:4616 "EHLO k2.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S263101AbUDTPIs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 11:07:04 -0400
-Date: Tue, 20 Apr 2004 11:06:58 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc1-mm1
-In-Reply-To: <20040418230131.285aa8ae.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0404201106150.32228-100000@chimarrao.boston.redhat.com>
+	Tue, 20 Apr 2004 11:08:48 -0400
+Date: Tue, 20 Apr 2004 17:08:45 +0200 (CEST)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [somewhat OT] binary modules agaaaain
+In-Reply-To: <200404201611.07832.bzolnier@elka.pw.edu.pl>
+Message-ID: <Pine.LNX.4.33.0404201705510.1869-100000@pcgl.dsa-ac.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Apr 2004, Andrew Morton wrote:
+On Tue, 20 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
 
-> - All of the anonmm rmap work is now merged up.  No pte chains.
+> > A binary module is "considered good" if
+>
+> This is a false assumption IMO no binary only modules can be "good".
 
-Wonderful!
+I agree! That was just an idea to make Linux life easier __if__ it
+__must__ live with binary modules.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany
 

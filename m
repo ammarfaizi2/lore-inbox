@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311752AbSE1C5P>; Mon, 27 May 2002 22:57:15 -0400
+	id <S312254AbSE1DYk>; Mon, 27 May 2002 23:24:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311871AbSE1C5O>; Mon, 27 May 2002 22:57:14 -0400
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:1987 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S311752AbSE1C5O>; Mon, 27 May 2002 22:57:14 -0400
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] PentiumPro/II split in x86 config
-In-Reply-To: <3937.1022552654@kao2.melbourne.sgi.com>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 28 May 2002 11:55:47 +0900
-Message-ID: <buo3cwdf0b0.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	id <S312279AbSE1DYj>; Mon, 27 May 2002 23:24:39 -0400
+Received: from relay1.pair.com ([209.68.1.20]:5389 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S312254AbSE1DYj>;
+	Mon, 27 May 2002 23:24:39 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <3CF2F897.EF17FB0E@kegel.com>
+Date: Mon, 27 May 2002 20:25:11 -0700
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Aaron Sethman <androsyn@ratbox.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        pwaechtler@loewe-komp.de, austin@digitalroadkill.net
+Subject: Re: RT Sigio broken on 2.4.19-pre8
+In-Reply-To: <3CF2D86C.8745D791@kegel.com> <3CF2DCDE.CCBB499F@kegel.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> writes:
-> The kernel can only be compiled with gcc, but some bits of the build
-> are compiled and run on the host, using the host compiler.  Avoid using
-> gccisms where there is a standard way of doing it.
+Aaron Sethman wrote:
+> > > > > > Using the Dan Kegel's Poller_bench utility I noticed that RT SIGIO is not
+> > > > > > working on 2.4.19-pre8.  Basically sigtimedwait() is always returning
+> > > > > > SIGIO.  Note that 2.4.18 works fine.
+> > > > > > ... It seems rtsig-nr keeping rising slowly as the system runs.
+> > >
+> > > That sounds like the way I'm clearing the signal queue is not working.
+> > > Here's a minimal test case for clearing the signal queue.  Could
+> > > you try it and tell me what it says?
+>
+> Just tried the corrected version, still passed.
 
-That particular gccism completely infests the kernel, so there seems
-little point in avoiding it in favor of the uglier standard syntax.
+I can't reproduce the problem here.  
 
--Miles
--- 
-I have seen the enemy, and he is us.  -- Pogo
+What version of dkftpbench are you using?  What parameters?
+Can you send me your kernel .config file?
+
+I did notice and fix an embarassing problem in Poller_bench of 
+dkftpbench-0.42; it aborted when Poller_sigio sent its initial readiness
+notification (it's spurious, but programs are supposed to
+be able to handle that).  Fix is at 
+http://www.kegel.com/dkftpbench/pb.patch
+
+Thanks,
+Dan

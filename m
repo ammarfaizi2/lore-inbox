@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbTJRUYw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 16:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTJRUYw
+	id S261782AbTJRU2l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 16:28:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTJRU2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 16:24:52 -0400
-Received: from pop.gmx.de ([213.165.64.20]:55427 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261786AbTJRUYv (ORCPT
+	Sat, 18 Oct 2003 16:28:41 -0400
+Received: from neveragain.de ([217.69.76.1]:56983 "EHLO hobbit.neveragain.de")
+	by vger.kernel.org with ESMTP id S261782AbTJRU2j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 16:24:51 -0400
-X-Authenticated: #295886
-From: "Howard The Duck" <h.t.d@gmx.de>
-Organization: privat
-To: linux-kernel@vger.kernel.org
-Date: Sat, 18 Oct 2003 22:25:03 +0200
-MIME-Version: 1.0
-Subject: "Disabling IRQ #18" when mounting cdrom with SATA on 2.6.0beta7/8?
-Message-ID: <3F91BDBF.14789.17CDF8A@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Sat, 18 Oct 2003 16:28:39 -0400
+Date: Sat, 18 Oct 2003 22:28:20 +0200
+From: Martin Loschwitz <madkiss@madkiss.org>
+To: Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PARTIAL success with ACPI S3 suspend to ram on Acer TravelMate 800LCi
+Message-ID: <20031018202820.GA9737@minerva.local.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-I had troubles with the 2.6 series using devfs and my SATA drive, i got the "Disabling 
-irq #18" message on boot. I removed devfs support and the machine worked flawless, 
-until i mounted a cdrom. I very seldom need to access cdroms or dvds that's why i 
-never saw this happening within the last few month of kernel installing (starting with 
-2.5.74 in June because 2.4.21 and 2.4.22 wouldn't boot at all).
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-When i do not mount cdroms or enable devfs support in the kernel the system is 
-running very stable and fast. My troubles with devfs are described here 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0310.1/0874.html
+Hello Pavel, hello Patrick, hi folks,
 
-My current setup has no devfs support, but i get the  "Disabling IRQ #18" message 
-right after the moment i mounted a cdrom/dvd with my dvd-drive or a cdrom with the 
-cd-writer. Accessing the PATA harddrives seems to have no negative effect, although i 
-can only test them by reading data because they are NTFS partitions and mounted 
-read-only. Even when i unmount the CDrom the "Disabling IRQ #18" message keeps 
-on appearing. It slows down my system to unusable speed (e.g.: it takes approx 4 
-minutes to shut the system down).
+The saga ([0] and [1]) continues, here are the latest facts about ACPI S3
+suspend to ram mode with the Acer TravelMate 800LCi notebook.
 
-I think the devfs thingy triggers the "Disabling IRQ #18" problem when it tests for 
-"existing" optical media drives on boot. I think so because the same message appears 
-when i access cdroms manually.
+With Linux 2.6.0-test8, there is some kind of partial success: After doing
+"echo -n mem > /sys/power/state" the box suspends and after pressing a key
+on the keyboard the box resumes. The box reacts to input afterwards, for
+example one can do "reboot" as root and even pressing the power key does
+what it is supposed to do. Unfortunately there is one big disadvantage:
+The panel of the notebook stays completely black. I tried booting with
+"acpi_sleep=3Ds3_{mode,boot}" but in both cases, the box apparently hangs
+while trying to resume (no [blind] keyboard input possible, pressing the
+power button has no effect)
 
-I have no access to a second system with SATA support to verify or reproduce that 
-behaviour, can anybody else do that on another machine? Also i'd be interested in how 
-this problem could be tracked down to its root. I reproduced that with 2.6.0beta7 and 
-beta8, the only kernels currently left on my machine ;)
+Any ideas where the problem might be and if so how to fix it?
 
-thanks in advance for any hints
- HTD
+[0] http://lkml.org/lkml/2003/8/18/44
+[1] http://lkml.org/lkml/2003/9/20/34
 
-p.s.: i'm not subscribed to lkml, please send me a CC when answering.
+--=20
+  .''`.   Martin Loschwitz           Debian GNU/Linux developer
+ : :'  :  madkiss@madkiss.org        madkiss@debian.org
+ `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
+   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
 
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/kaJkHPo+jNcUXjARAimIAJ4i6mPEtMbww+ZTdgQMJ0wbyNbjEgCghTU3
+sJHtC32AbXfyIG8mezPZa7c=
+=dhEv
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--

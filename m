@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276628AbRJ2SJM>; Mon, 29 Oct 2001 13:09:12 -0500
+	id <S276639AbRJ2SNW>; Mon, 29 Oct 2001 13:13:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276639AbRJ2SJD>; Mon, 29 Oct 2001 13:09:03 -0500
-Received: from [193.78.30.180] ([193.78.30.180]:17487 "EHLO
-	rotterdam.jasongeo.com") by vger.kernel.org with ESMTP
-	id <S276628AbRJ2SIy>; Mon, 29 Oct 2001 13:08:54 -0500
-Message-ID: <7141CF666EB1D411AF4A004854550BBC088DBE@dexter.jason.nl>
-From: Wouter van Bommel <WvanBommel@jasongeo.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: SMP machine with 2GB ram hangs without any clue
-Date: Mon, 29 Oct 2001 19:10:16 +0100
+	id <S276646AbRJ2SNC>; Mon, 29 Oct 2001 13:13:02 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:62730 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S276639AbRJ2SM7>; Mon, 29 Oct 2001 13:12:59 -0500
+Date: Mon, 29 Oct 2001 19:13:25 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Martin Eriksson <nitrax@giron.wox.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: via-rhine and MMIO
+In-Reply-To: <04b801c1607a$947dbef0$0201a8c0@HOMER>
+Message-ID: <Pine.LNX.4.30.0110291847420.21339-100000@cola.teststation.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, 29 Oct 2001, Martin Eriksson wrote:
 
-I am hoping someone can help me with picking the right (read stable) kernel for the following hardware configuration:
-2x 1Ghz PIII fitted on a serverworks chipset, and 2GB ram.
-Video Card is an Geforce MX-400 twinview setup (no agp, several Geforce cards tried)
-Network is an intergrated intel ether express (eepro100 driver)
+> I have done some changes to the via-rhine driver in 2.4.13 to be able to run
+> with MMIO. I know it isn't really needed but I do it mainly for fun &
+> learning.
 
-For some reason it is not possible to get the above configuration. Tried several versions of the 2.4.x kernel series (include the Suse ones, as 7.2 is the suse version installed)
-Also tried various versions of the NVidia driver and all versions of XFree between 4.02 and 4.1
+Any measurable performance difference?
 
-None of the combinations would give a stable system (that is hanging the kernel afther 1/2 - 60 minutes)
-The system would crash so badly that even ping responsed stayed out. (No numlock either)
+Any important changes from the driver that used to be on
+    http://www.cs.umu.se/~c97men/linux ?
+(I have a copy of "v1.03a ME1.0 3/12/00")
 
-The machine is some sort of stable if the kernel is a 2.4.4 one compiled for only 1 cpu. (Booting with nosmp would hang the system)
 
-Does anyone else have simular experience (or knows how to solve this).
-If more information is required I will provide it.
+> /* Reload the station address from the EEPROM. */
+> writeb(0x20, ioaddr + MACRegEEcsr);
+> /* Typically 2 cycles to reload. */
+> for (i = 0; i < 150; i++)
+>     if (! (readb(ioaddr + MACRegEEcsr) & 0x20))
+>         break;
+> ...
+> 
+> If I run this code when I'm using MMIO, I get a hardware adress of
+> "ff:ff:ff:ff:ff:ff" instead of the right one (and everything craps up). But
+> when I comment out this part all is fine. So what's it needed for anyway?
 
-Waiting for a solving answer,
+It is needed on some cards when rebooting from some other OSes that power
+down the card (eg vt6102 chips on win98). The writeb causes the chip
+itself to reload the hardware address from eeprom. Perhaps it no longer
+finds the eeprom and just reads 0xff from some unmapped memory space.
 
-Wouter van Bommel
+Does it work to enable MMIO after the reset code?
+
+/Urban
+

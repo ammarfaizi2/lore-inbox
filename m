@@ -1,93 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271217AbUJVLbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271231AbUJVLfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271217AbUJVLbw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 07:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271219AbUJVL3J
+	id S271231AbUJVLfl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 07:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271221AbUJVLfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 07:29:09 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:44681 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S271229AbUJVL14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 07:27:56 -0400
-From: margitsw@t-online.de (Margit Schubert-While)
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1 linux-2.4.28-pre4] Add prism54 to MAINTAINERS
-Date: Fri, 22 Oct 2004 11:42:15 +0200
-User-Agent: KMail/1.5.4
-Cc: prism54-devel@prism54.org, marcelo.tosatti@cyclades.com
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_3XNeBhZ6luo/sXm"
-Message-Id: <200410221142.15056.margitsw@t-online.de>
-X-ID: bN-0ggZUoervGmBDt1AXsYyOtqYL9vyqBvt2uG6j6HLPKEHmVCODUK
-X-TOI-MSGID: f702f010-8756-4f75-bfcf-029bed214d93
+	Fri, 22 Oct 2004 07:35:40 -0400
+Received: from gprs213-171.eurotel.cz ([160.218.213.171]:1408 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S271231AbUJVLel (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 07:34:41 -0400
+Date: Fri, 22 Oct 2004 12:28:29 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Rate of change
+Message-ID: <20041022102828.GA982@elf.ucw.cz>
+References: <41758410.2020200@pobox.com> <20041019213758.GE22334@redhat.com> <20041019213932.GA7383@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041019213932.GA7383@havoc.gtf.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---Boundary-00=_3XNeBhZ6luo/sXm
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> >  > 850 changesets and 3383 revisions since 2.6.9 was released,
+> >  > a little over 24 hours ago.
+> >  > 
+> >  > That's pretty impressive.
+> > 
+> > Given a lot of these are backlogs from folks being
+> > conservative whilst we were in -rc, perhaps this is an
+> > indication we need shorter -rc periods ?
+> 
+> 
+> Actually, we need longer non-rc periods :)
 
-Resend - ignore previous 2.4.28 mail
+Or perhaps we need 2.7? It would probably make sense to keep 2.7
+shorter than usual...
 
-2004-10-22 Margit Schubert-While <margitsw@t-online.de>
-
-* Add prism54 to MAINTAINERS
-
-Eeek, wrong attachment - Sorry
-Now we have the right one.
-
-Margit
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---Boundary-00=_3XNeBhZ6luo/sXm
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="maintainer24.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="maintainer24.patch"
-
-diff -Naur linux-2.4.8-pre4/MAINTAINERS linux-2.4.8-pre4msw/MAINTAINERS
---- linux-2.4.8-pre4/MAINTAINERS	2004-10-22 11:31:48.000000000 +0200
-+++ linux-2.4.8-pre4msw/MAINTAINERS	2004-10-22 11:32:38.000000000 +0200
-@@ -1536,6 +1536,13 @@
- M:	mostrows@styx.uwaterloo.ca
- S:	Maintained
- 
-+PRISM54 WIRELESS DRIVER
-+P:	Prism54 Development Team
-+M:	prism54-private@prism54.org
-+L:	netdev@oss.sgi.com
-+W:	http://prism54.org
-+S:	Maintained
-+
- PROMISE DC4030 CACHING DISK CONTROLLER DRIVER
- P:	Peter Denison
- M:	promise@pnd-pc.demon.co.uk
-
---Boundary-00=_3XNeBhZ6luo/sXm--
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

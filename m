@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275843AbRKSIxs>; Mon, 19 Nov 2001 03:53:48 -0500
+	id <S275693AbRKSIxS>; Mon, 19 Nov 2001 03:53:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276094AbRKSIxj>; Mon, 19 Nov 2001 03:53:39 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:29686 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S276249AbRKSIx3>;
-	Mon, 19 Nov 2001 03:53:29 -0500
-Date: Mon, 19 Nov 2001 01:52:42 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Devlinks.  Code.  (Dcache abuse?)
-Message-ID: <20011119015242.B1308@lynx.no>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <15348.58752.207182.488419@notabene.cse.unsw.edu.au> <E164gCQ-0003YZ-00@the-village.bc.nu> <15352.32969.717938.153375@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
+	id <S276094AbRKSIxI>; Mon, 19 Nov 2001 03:53:08 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:23048 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S275693AbRKSIwu>;
+	Mon, 19 Nov 2001 03:52:50 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200111190852.fAJ8qel110464@saturn.cs.uml.edu>
+Subject: Re: [PATCH] NTFS sparc compile fix
+To: aia21@cus.cam.ac.uk (Anton Altaparmakov)
+Date: Mon, 19 Nov 2001 03:52:40 -0500 (EST)
+Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E1607WV-0001xb-00@libra.cus.cam.ac.uk> from "Anton Altaparmakov" at Nov 03, 2001 08:36:11 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <15352.32969.717938.153375@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Mon, Nov 19, 2001 at 02:47:21PM +1100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 19, 2001  14:47 +1100, Neil Brown wrote:
->  - devfs puts a lot of miscellaneous stuff in the top level.
->    I would want to group them into one namespace. e.g.:
->        misc/memory/mem
->        misc/memory/kmem
->        misc/memory/zero
->        misc/memory/null
->        misc/random/random
->        misc/random/urandom
+> Please apply below patchlet for your next releases (applies cleanly to
+> any recent kernel). It fixes compilation of NTFS driver on Sparc.
+...
+> +	ATTR_IS_ENCRYPTED       = __constant_cpu_to_le16(0x4000),
+> +	ATTR_IS_SPARSE          = __constant_cpu_to_le16(0x8000),
 
-Erm, what about the millions+ of scripts/apps that reference /dev/zero
-or /dev/null?
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+Can't SPARC be fixed with something like __builtin_constant_p() ?
+It sure looks ugly to need __constant_cpu_to_le16() in a driver.

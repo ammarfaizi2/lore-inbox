@@ -1,96 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbTLVB5T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 20:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbTLVB5T
+	id S263639AbTLVCFi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 21:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTLVCFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 20:57:19 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:37130 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S264299AbTLVB5N (ORCPT
+	Sun, 21 Dec 2003 21:05:38 -0500
+Received: from alhya.freenux.org ([213.41.137.38]:5504 "EHLO moria.freenux.org")
+	by vger.kernel.org with ESMTP id S263639AbTLVCFf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 20:57:13 -0500
-Date: Sun, 21 Dec 2003 18:00:44 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>
-Subject: [PATCH] another minor bit of cpumask cleanup
-Message-Id: <20031221180044.0f27eca1.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Dec 2003 21:05:35 -0500
+From: Mickael Marchand <marchand@kde.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] adaptec 1210sa
+Date: Mon, 22 Dec 2003 03:05:28 +0100
+User-Agent: KMail/1.5.94
+Cc: Jeff Garzik <jgarzik@pobox.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_oFl5/UXITMcRaYH"
+Message-Id: <200312220305.29955.marchand@kde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser pointed out to me in private email that one of the cpumask
-macros was broken - the macro for for_each_online_cpu() starts its loop
-with _any_ cpu from the provided mask, and only worries about restricting
-itself to _online_ cpus when looping to the next cpu:
 
-include/linux/cpumask.h:
-> #define for_each_online_cpu(cpu, map)                                   \
->         for (cpu = first_cpu_const(mk_cpumask_const(map));              \
->                 cpu < NR_CPUS;                                          \
->                 cpu = next_online_cpu(cpu,map))
+--Boundary-00=_oFl5/UXITMcRaYH
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Looking further, I see this macro is never used, and its subordinate
-inline macro next_online_cpu() used no where else.  What's more, it's
-redundant.  Calling it with a map of "cpu_online_map" (which you have to
-do, given it's broken thus) is just as good as calling the macro right
-above, "for_each_cpu()", with that same "cpu_online_map". Indeed the
-only uses of "for_each_cpu()", in arch/i386/mach-voyager/voyager_smp.c,
-do pass "cpu_online_map" explicitly, in 5 of 6 calls there from.
+=2D----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-So, having found a piece of code that is broken, redundant and unused,
-I hereby off the following patch to remove it.
+Hi,
 
-Thank-you, Ingo.
+reading linux-scsi I found a suggestion by Justin to make adaptec's 1210 sa=
+=20
+working. I made the corresponding patch for libata, and it actually works :)
 
+it needs  some redesign to only apply to aar1210 (as standard sil3112 does =
+not=20
+need it) and I guess some testing before inclusion.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1497  -> 1.1498 
-#	include/linux/cpumask.h	1.2     -> 1.3    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/12/21	pj@sgi.com	1.1498
-# Remove a couple unused, redundant, confused macros
-# --------------------------------------------
-#
-diff -Nru a/include/linux/cpumask.h b/include/linux/cpumask.h
---- a/include/linux/cpumask.h	Sun Dec 21 17:37:14 2003
-+++ b/include/linux/cpumask.h	Sun Dec 21 17:37:14 2003
-@@ -17,22 +17,9 @@
- #define cpu_online(cpu)			({ BUG_ON((cpu) != 0); 1; })
- #endif
+the idea suggested by Justin was to clear bits 6 and 7 at 0x8a of pci=20
+configuration space. (which I hope did fine :)
+
+Thanks Justin :)
+
+Cheers,
+Mik
+=2D----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/5lFoyOYzc4nQ8j0RAo9LAJ90CMeKb8wcE9ZgGULpUmep2wScdQCfYQ7B
+fjiz1d2FE1+HTxFXSG2Pc6s=3D
+=3Daott
+=2D----END PGP SIGNATURE-----
+
+--Boundary-00=_oFl5/UXITMcRaYH
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="aar1210sa.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="aar1210sa.patch"
+
+--- /usr/src/linux-2.6.0/drivers/scsi/sata_sil.c	2003-12-21 13:30:58.000000000 +0100
++++ linux-2.6.0/drivers/scsi/sata_sil.c	2003-12-22 02:46:32.000000000 +0100
+@@ -276,6 +276,16 @@
+ 		goto err_out_regions;
+ 	}
  
--static inline int next_online_cpu(int cpu, cpumask_t map)
--{
--	do
--		cpu = next_cpu_const(cpu, map);
--	while (cpu < NR_CPUS && !cpu_online(cpu));
--	return cpu;
--}
--
- #define for_each_cpu(cpu, map)						\
- 	for (cpu = first_cpu_const(map);				\
- 		cpu < NR_CPUS;						\
- 		cpu = next_cpu_const(cpu,map))
--
--#define for_each_online_cpu(cpu, map)					\
--	for (cpu = first_cpu_const(map);				\
--		cpu < NR_CPUS;						\
--		cpu = next_online_cpu(cpu,map))
- 
- #endif /* __LINUX_CPUMASK_H */
++	//let's have fun
++	u8 v; 
++	pci_read_config_byte(pdev, 0x8a, &v);
++	int mask = 0x3f; //clear 6 and 7 bits
++	if (v & ~mask) {
++		printk("Reenabling interrupts because Adaptec's BIOS disables them\n" );
++		v &= mask;
++		pci_write_config_byte(pdev, 0x8a, v);
++	}
++
+ 	memset(probe_ent, 0, sizeof(*probe_ent));
+ 	INIT_LIST_HEAD(&probe_ent->node);
+ 	probe_ent->pdev = pdev;
 
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--Boundary-00=_oFl5/UXITMcRaYH--

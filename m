@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278275AbRJVIdP>; Mon, 22 Oct 2001 04:33:15 -0400
+	id <S278410AbRJVIfZ>; Mon, 22 Oct 2001 04:35:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278086AbRJVIdF>; Mon, 22 Oct 2001 04:33:05 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:33232 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S278062AbRJVIcy>;
-	Mon, 22 Oct 2001 04:32:54 -0400
-Date: Mon, 22 Oct 2001 04:33:27 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
-In-Reply-To: <23837.1003738907@kao2.melbourne.sgi.com>
-Message-ID: <Pine.GSO.4.21.0110220423230.2294-100000@weyl.math.psu.edu>
+	id <S278344AbRJVIfG>; Mon, 22 Oct 2001 04:35:06 -0400
+Received: from fe170.worldonline.dk ([212.54.64.199]:47117 "HELO
+	fe170.worldonline.dk") by vger.kernel.org with SMTP
+	id <S278281AbRJVIe4>; Mon, 22 Oct 2001 04:34:56 -0400
+Message-ID: <3BD3D867.4000907@eisenstein.dk>
+Date: Mon, 22 Oct 2001 10:27:19 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+Organization: Eisenstein
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] updated preempt-kernel
+In-Reply-To: <1003562833.862.65.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert Love wrote:
+
+> Testers Wanted:
+
+So I tested it :)
+
+> patches to enable a fully preemptible kernel are available at:
+> 	http://tech9.net/rml/linux
+> for kernels 2.4.10, 2.4.12, 2.4.12-ac3, and 2.4.13-pre5.
+
+I tried out your patch yesterday with 2.4.13-pre6 (it applies cleanly to 
+-pre6 although made for -pre5). I've been running with it for about a 
+day now and I have not seen any ill effects yet.
+
+The system does seem slightly more responsive when stressed, but I don't 
+see (or feel) huge improvements like some other people - maybe I just 
+run a set of apps that don't benefit much from the preempt patches, or 
+my workload is not significant enough to notice.. I usually run things 
+like KDE2, XMMS, Nedit, x-cd-roast, Opera, Sylpheed and a lot of console 
+windows.
+This is on a 1.4Ghz Athlon Thunderbird with 512MB RAM.
+
+Are there any tests you'd like me to try out on this box?
 
 
-On Mon, 22 Oct 2001, Keith Owens wrote:
-
-> When the post-install and pre-remove entries for module binfmt_misc are
-> hard coded into modprobe, there is no syntax in modules.conf to prevent
-> modprobe from always issuing those commands.  The next time somebody
-> decides that binfmt_misc needs different commands, everybody using the
-> old modutils on the new kernel will break.  I don't want the hassle,
-> put it in modules.conf where it can easily be changed.
-> 
-> If I can get an iron clad guarantee that binfmt_misc will never, ever
-> change again then I might consider hard coding the entries in modprobe.
-> BTW, I will need a signature in blood that says I can kill you if
-> binfmt_misc is ever changed :).
-
-Wait a second.  Who says anything about hardcoding that into modprobe?
-There is such thing as skeleton stuff for modules.conf, right?
+- Jesper Juhl - juhl@eisenstein.dk
 

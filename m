@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265448AbSJSBec>; Fri, 18 Oct 2002 21:34:32 -0400
+	id <S265451AbSJSBjw>; Fri, 18 Oct 2002 21:39:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265452AbSJSBec>; Fri, 18 Oct 2002 21:34:32 -0400
-Received: from bitchcake.off.net ([216.138.242.5]:41195 "EHLO mail.off.net")
-	by vger.kernel.org with ESMTP id <S265448AbSJSBea>;
-	Fri, 18 Oct 2002 21:34:30 -0400
-Date: Fri, 18 Oct 2002 21:40:31 -0400
-From: Zach Brown <zab@zabbo.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: sandy@storm.ca, mk@linux-ipv6.org, linux-kernel@vger.kernel.org,
-       design@lists.freeswan.org, usagi@linux-ipv6.org
-Subject: Re: [Design] [PATCH] USAGI IPsec
-Message-ID: <20021018214031.D22727@bitchcake.off.net>
-References: <m3k7kpjt7c.wl@karaba.org> <3DA857AB.2010504@storm.ca> <20021011.192750.85684324.davem@redhat.com>
+	id <S265453AbSJSBjw>; Fri, 18 Oct 2002 21:39:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:57804 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265451AbSJSBjw>;
+	Fri, 18 Oct 2002 21:39:52 -0400
+Date: Fri, 18 Oct 2002 18:38:11 -0700 (PDT)
+Message-Id: <20021018.183811.124466701.davem@redhat.com>
+To: dipankar@in.ibm.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lockfree rtcache using RCU
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021019065210.A26806@in.ibm.com>
+References: <20021019065210.A26806@in.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021011.192750.85684324.davem@redhat.com>; from davem@redhat.com on Fri, Oct 11, 2002 at 07:27:50PM -0700
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's fine for testing purposes, leave it in.
 
-absolutely.  it could also be needed for interoperability, or many other
-valid uses that might not depend on its sheer strength as a cipher.
+Dipankar, I had to revert this patch.
 
-"but you shouldn't be interoperating with things that are insecure!"
-
-blah blah blah.  that is not the kernel's decision to make.  meaningful
-security is defined by much more than context-free assertions.  warn
-against its naive use, avoid it being a default, but allow the clued to
-use it easily when it makes sense.
-
-- z
+Where is read_barrier_depends() defined?
+I do not see it in current 2.5.x sources.

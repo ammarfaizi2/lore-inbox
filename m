@@ -1,74 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265474AbTF1Xh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 19:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265483AbTF1Xh3
+	id S265335AbTF1Xme (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 19:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265472AbTF1Xme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 19:37:29 -0400
-Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:641
-	"EHLO efix.biz") by vger.kernel.org with ESMTP id S265474AbTF1XhX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 19:37:23 -0400
-Subject: Re: Linux 2.4.22-pre2 and AthlonMP
-From: Edward Tandi <ed@efix.biz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1056842271.6753.19.camel@dhcp22.swansea.linux.org.uk>
-References: <1056833424.30265.39.camel@wires.home.biz>
-	 <1056837060.6778.2.camel@dhcp22.swansea.linux.org.uk>
-	 <1056840603.30264.45.camel@wires.home.biz>
-	 <1056842271.6753.19.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1056844328.2315.22.camel@wires.home.biz>
+	Sat, 28 Jun 2003 19:42:34 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:50589 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265335AbTF1Xmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 19:42:33 -0400
+Date: Sat, 28 Jun 2003 16:56:50 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Olivier NICOLAS <olivn@trollprod.org>
+Cc: green@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.7x: processes in D state
+Message-Id: <20030628165650.3e2353a5.akpm@digeo.com>
+In-Reply-To: <3EFDA6C4.3090906@trollprod.org>
+References: <3EF0CBCB.4010202@trollprod.org>
+	<20030619060217.GA23774@namesys.com>
+	<3EFDA6C4.3090906@trollprod.org>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 29 Jun 2003 00:52:08 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Jun 2003 23:56:50.0575 (UTC) FILETIME=[F13489F0:01C33DD0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-06-29 at 00:17, Alan Cox wrote:
-> On Sad, 2003-06-28 at 23:50, Edward Tandi wrote:
-> > > > using option 'pci=noacpi' or even 'acpi=off'
-> > > > Jun 28 18:27:46 machine kernel: BIOS failed to enable PCI standards
-> > > > compliance, fixing this error.
-> > > 
-> > > Start by upgrading to their current BIOS
-> > 
-> > Believe or not, it _is_ the latest bios for that board
-> > (Tyan S2460 BIOS v1.05, 2nd Jan 2003).
+Olivier NICOLAS <olivn@trollprod.org> wrote:
+>
+> It still hapen in 2.5.73-bk5
 > 
-> Then I guess you have a problem. We try and fix up BIOS problems but there
-> is a limit to what we can do, and if it has problems like the one that is
-> logged I'd be worried what else it might do - eg I suspect Nvidia 4x AGP cards
-> aren't too solid on it.
+>  See Sys-Rq T output in attached file
 
-It does have an AGP NVidia card in it. I'm using the standard XFree
-drivers with it at the moment but I have played UT on it for hours
-before (using NVidia drivers) without problems. It might be an AGP x2
-card though. The computer is now mostly a back-end server and I haven't
-really pushed it on the graphics side recently.
+This is the offending process:
 
-Could the problem be caused by some BIOS setting? I could spend some
-time looking at them.
+pdflush       D 00000001 4294957500    10      1            11     9 (L-TLB)
+dfdd5d28 00000046 c039d540 00000001 00000003 c02450f3 d4cc7a44 dfdd5d18 
+       dfdd5d18 dfda16a0 dfdd5d1c c03d7380 dfdd7980 00000283 00000246 ce311a0c 
+       c039d540 c03d7a00 dfdd5d64 dfdd5d34 c011ddb4 ce16a888 dfdd5d90 c0160ad9 
+Call Trace:
+ [<c02450f3>] generic_unplug_device+0x83/0xc0
+ [<c011ddb4>] io_schedule+0x24/0x30
+ [<c0160ad9>] __wait_on_buffer+0x99/0xd0
+ [<c011f210>] autoremove_wake_function+0x0/0x50
+ [<c011f210>] autoremove_wake_function+0x0/0x50
+ [<c01e57dd>] flush_commit_list+0x34d/0x440
+ [<c01e9f8c>] do_journal_end+0x71c/0xbe0
+ [<c01e911d>] flush_old_commits+0x12d/0x1c0
+ [<c01b5521>] __log_start_commit+0x31/0x40
+ [<c01d6c48>] reiserfs_write_super+0xa8/0xf0
+ [<c0166784>] sync_supers+0x164/0x180
+ [<c01434d8>] wb_kupdate+0x48/0x190
+ [<c011c2e4>] schedule+0x114/0x5e0
+ [<c0143d32>] __pdflush+0x162/0x350
+ [<c0143f20>] pdflush+0x0/0x20
+ [<c0143f31>] pdflush+0x11/0x20
+ [<c0143490>] wb_kupdate+0x0/0x190
+ [<c01073b9>] kernel_thread_helper+0x5/0xc
 
-> The APIC errors also suggest something isn't happy at all at the hardware
-> layer. Are you using MP processors ?
+It looks like some IO got submitted and then was simply lost.
 
-Yes, MP processors. This is not a new machine, It has been running quite
-nicely for nearly two years. There have been some kernel releases in the
-past that have shown some instability, but I can usually find a fairly
-recent version and tweak the kernel-build settings so that it becomes
-stable.
+I can see you're using SMP.  Preempt or not?
 
-The version running prior to this one was 2.4.21-rc3. This version
-allowed me to specify noapic.
-
-Ed-T.
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+What disk controller hardware are you using? And which device drivers
+for that hardware?

@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261692AbSIXPCy>; Tue, 24 Sep 2002 11:02:54 -0400
+	id <S261689AbSIXPI6>; Tue, 24 Sep 2002 11:08:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261693AbSIXPCy>; Tue, 24 Sep 2002 11:02:54 -0400
-Received: from line106-15.adsl.actcom.co.il ([192.117.106.15]:41360 "EHLO
-	www.veltzer.org") by vger.kernel.org with ESMTP id <S261692AbSIXPCx>;
-	Tue, 24 Sep 2002 11:02:53 -0400
-Message-Id: <200209241519.g8OFJcB26734@www.veltzer.org>
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Veltzer <mark@veltzer.org>
-Organization: Meta Ltd.
-To: Peter Svensson <petersv@psv.nu>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Offtopic: (was Re: [ANNOUNCE] Native POSIX Thread Library 0.1)
-Date: Tue, 24 Sep 2002 18:19:35 +0300
-X-Mailer: KMail [version 1.3.2]
-References: <Pine.LNX.4.44.0209241646170.2383-100000@cheetah.psv.nu>
-In-Reply-To: <Pine.LNX.4.44.0209241646170.2383-100000@cheetah.psv.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S261691AbSIXPI6>; Tue, 24 Sep 2002 11:08:58 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:58281
+	"EHLO Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S261689AbSIXPI5>; Tue, 24 Sep 2002 11:08:57 -0400
+Date: Tue, 24 Sep 2002 08:13:51 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kbuild-devel@lists.sourceforge.net
+Subject: [PATCH 2.5] Make scripts/Configure follow the definition of 'int'
+Message-ID: <20020924151351.GA788@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Currently, scripts/Configure has code for the 'int' verb to take a
+min/max.  This violates the spec described in
+Documentation/kbuild/config-language.txt.  It also requires that if a
+default is outside of +/- 10,000,000 that defaults be provided, or
+'config' and 'oldconfig' will get stuck.  The following removes the
+support for a min/max from scripts/Configure.
 
-On Tuesday 24 September 2002 17:50, Peter Svensson wrote:
-> Either you need to educate your users and trust them to
-> behave, or you need per user scheduling.
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
-It is obvious that in high end systems you MUST have per user scheduling 
-since users will rob each other of cycles.... If Linux is to be a general 
-purpose operation system it MUST have this feature (otherwise it will only be 
-considered fit for lower end systems) and trusting your users at this no 
-better than trusting your users when they promise you they will not seg fault 
-or peek into memory pages which are not theirs. It simply isn't done. 
-Besides, using the CPU in an abusive manner could happen as a result of a bug 
-as much as a result of malicious intent (exactly like a segfault).
-
-Ok. Here's an idea. Why not have both ?!?
-
-There is no real reason why I should have per user scheduling on my machine 
-at home (I don't really need a just devision of labour between the root user 
-and myself which are almost the only users to use my system). Why not have 
-the deault compilation of the kernel be without per user scheduling and 
-enable it for high end systems (like a university machine where all the 
-students are at each others throats for a few CPU cycles...) ? So how about 
-making this a compile option and let the users decide what they like ?
-
-Mark
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9kIKHxlxDIcceXTgRAjGTAJ9bj1t2QV3zaDheO3GQpvJxxjDSIQCggESi
-yqE29XtjTL3VDBu15VTQ0Qc=
-=oueS
------END PGP SIGNATURE-----
+===== scripts/Configure 1.6 vs edited =====
+--- 1.6/scripts/Configure	Wed Jun  5 17:40:52 2002
++++ edited/scripts/Configure	Tue Sep 24 07:58:59 2002
+@@ -415,25 +415,15 @@
+ #
+ # int processes an integer argument with optional limits
+ #
+-#	int question define default [min max]
++#	int question define default
+ #
+ function int () {
+ 	old=$(eval echo "\${$2}")
+ 	def=${old:-$3}
+-	if [ $# -gt 3 ]; then
+-	  min=$4
+-	else
+-	  min=-10000000    # !!
+-	fi
+-	if [ $# -gt 4 ]; then
+-	  max=$5
+-	else
+-	  max=10000000     # !!
+-	fi
+ 	rndval $2
+ 	while :; do
+ 	  readln "$1 ($2) [$def] " "$def" "$old"
+-	  if expr \( \( $ans + 0 \) \>= $min \) \& \( $ans \<= $max \) >/dev/null 2>&1 ; then
++	  if expr "$ans" : '[0-9]*$' > /dev/null; then
+             define_int "$2" "$ans"
+ 	    break
+           else

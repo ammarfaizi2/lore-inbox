@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263075AbTCWOXw>; Sun, 23 Mar 2003 09:23:52 -0500
+	id <S263077AbTCWOVa>; Sun, 23 Mar 2003 09:21:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263086AbTCWOXw>; Sun, 23 Mar 2003 09:23:52 -0500
-Received: from smtp3.wanadoo.fr ([193.252.22.27]:63616 "EHLO
-	mwinf0403.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S263075AbTCWOXv>; Sun, 23 Mar 2003 09:23:51 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>, alan@redhat.com
-Subject: Re: 2.5 BK boot hang after ide
-Date: Sun, 23 Mar 2003 15:34:50 +0100
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <20030323143108.30109.qmail@linuxmail.org>
-In-Reply-To: <20030323143108.30109.qmail@linuxmail.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S263078AbTCWOV2>; Sun, 23 Mar 2003 09:21:28 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45474
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263077AbTCWOVS>; Sun, 23 Mar 2003 09:21:18 -0500
+Subject: Re: PATCH: redo the n_tty fix
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303221909590.768-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0303221909590.768-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303231534.50634.baldrick@wanadoo.fr>
+Organization: 
+Message-Id: <1048434292.10729.25.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Mar 2003 15:44:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm experiencing exactly the same as you: 2.5 won't
-> continue past IDE. I've tried 2.5.65-ac3, 2.5.65-bk3
-> and 2.5.65-mm4. All of them fail at the same point.
-> I've tried using ACPI, APM, disabling preempt, TCQ,
-> enabling SysRq support, but had no luck.
->
-> The machine is a Pentium 4 2.0Gz, with a QDI
-> PlatiniX 2D/533-A (i845E), 2 UDMA100 disks
-> (Seagate ST380021A 80GB and IBM-DTLA-307030
-> 20GB), a Pioneer DVD-ROM and Sony CRX185E3).
+On Sun, 2003-03-23 at 03:11, Linus Torvalds wrote:
+> On Sat, 22 Mar 2003, Alan Cox wrote:
+> > 
+> > I think this way of doing it is right but it could do with further
+> > review
+> 
+> Alan, please stop doing whitespace changes that are WRONG.
 
-2.5 BK worked for me two days ago, i.e. before Alan's
-latest IDE changes went in.  Did any previous version
-work for you?
+If you stopped merging broken patches I wouldn't have to redo them ;)
 
-Duncan.
+I missed that one when fixing the other stuff up to Torvalds style.
+
+

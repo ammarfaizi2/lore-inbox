@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274653AbRJYQrO>; Thu, 25 Oct 2001 12:47:14 -0400
+	id <S275270AbRJYQsO>; Thu, 25 Oct 2001 12:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275424AbRJYQrF>; Thu, 25 Oct 2001 12:47:05 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:59425 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S274653AbRJYQq7>; Thu, 25 Oct 2001 12:46:59 -0400
-Date: Thu, 25 Oct 2001 12:47:32 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Hawkes <hawkes@oss.sgi.com>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] gcc 3.0.1 warnings about multi-line literals
-Message-ID: <20011025124732.A23000@redhat.com>
-In-Reply-To: <20011022161527.K23213@redhat.com> <E15vlx2-0003HO-00@the-village.bc.nu> <20011022165157.M23213@redhat.com> <20011025001150.A8776@twiddle.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011025001150.A8776@twiddle.net>; from rth@twiddle.net on Thu, Oct 25, 2001 at 12:11:50AM -0700
+	id <S275278AbRJYQr4>; Thu, 25 Oct 2001 12:47:56 -0400
+Received: from kitkat.hotpop.com ([204.57.55.30]:29202 "HELO kitkat.hotpop.com")
+	by vger.kernel.org with SMTP id <S275270AbRJYQrn>;
+	Thu, 25 Oct 2001 12:47:43 -0400
+Message-ID: <3BD841B7.5060405@toughguy.net>
+Date: Thu, 25 Oct 2001 11:45:43 -0500
+From: Lost Logic <lostlogic@toughguy.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel compiler
+In-Reply-To: <E15wmgp-0005E8-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 25, 2001 at 12:11:50AM -0700, Richard Henderson wrote:
-> On Mon, Oct 22, 2001 at 04:51:57PM -0400, Benjamin LaHaise wrote:
-> > Which of the following is more readable:
-> [...]
-> 
-> Or (4):
-> 
-> 	"btsl $0, %0		\n\
+GCC 3.0 Produces slower code, eh?  I was of the understanding that it 
+contained many more optimizations than previous versions...???
 
-Is this a long term supported format?  It's certainly much better than 
-the string per line, and if it's going to say around, then I'm willing 
-to switch.
+Any way, I've been able to run my system based entirely on a fairly 
+recent GCC CVS-3.02 snapshot, including kernels, and everything EXCEPT 
+for glibc which is specifically incompatible according to the GNU folks.  
 
-		-ben
+By way of information however, neither of the GCC 3.0 releases (3.0.0 or 
+3.0.1) work at all on my system, and I cannot get a kernel to function 
+at better than -O2 (not that I could get that to work in 2.95.* or 
+2.96.* either).
+
+--Lost Logic (Brandon Low)
+
+Alan Cox wrote:
+
+>>>At the moment, gcc3 doesn't work too well with the kernel, and you won't
+>>>get any large benefit.
+>>>
+>>I use gcc3 to compile anything and everything I need.  With the
+>>exception of "multi-line literal complaints", my kernel compiles fine.
+>>
+>>Is there anything that I should know?
+>>
+>
+>Mostly that gcc 3.0 generally produces slower code. I've had a couple of 
+>noticed glitches with -ac but those have workarounds in the tree now
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+
+
+
+

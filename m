@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268928AbRHPWe0>; Thu, 16 Aug 2001 18:34:26 -0400
+	id <S268933AbRHPWhG>; Thu, 16 Aug 2001 18:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268933AbRHPWeQ>; Thu, 16 Aug 2001 18:34:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:8576 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S268928AbRHPWd6>;
-	Thu, 16 Aug 2001 18:33:58 -0400
-Date: Thu, 16 Aug 2001 15:31:51 -0700 (PDT)
-Message-Id: <20010816.153151.74749641.davem@redhat.com>
-To: tpepper@vato.org
-Cc: f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9 does not compile [PATCH]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010816144109.A5094@cb.vato.org>
-In-Reply-To: <200108162111.XAA07177@db0bm.ampr.org>
-	<20010816144109.A5094@cb.vato.org>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S268934AbRHPWg4>; Thu, 16 Aug 2001 18:36:56 -0400
+Received: from node-196.lofgren.sh ([212.214.21.196]:20230 "EHLO
+	vic20.blipp.com") by vger.kernel.org with ESMTP id <S268933AbRHPWgr>;
+	Thu, 16 Aug 2001 18:36:47 -0400
+Date: Fri, 17 Aug 2001 00:36:29 +0200 (CEST)
+From: Patrik Wallstrom <pawal@blipp.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Red Hat precompiled kernels and the BreezeNet-driver
+Message-ID: <Pine.LNX.4.33.0108170028100.5950-100000@vic20.blipp.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: tpepper@vato.org
-   Date: Thu, 16 Aug 2001 14:41:09 -0700
 
-   Confirmed here.  Looks like a pretty obvious goof to me.  Does the following
-   fix it for you?
+I have forever tried to compile this BreezeNet SA-PCR/D PRO.11. I have had
+Red Had 7.1 installed with a stock Red Hat kernel, and tried all the
+rawhide kernels as it has been updated. The pcmcia-cs driver has always
+crashed on me, and I couldn't understand why since I had reports of others
+using it. Today I compiled 2.4.9 myself and right after installed the
+driver, and it immediately!
 
-The args and semantics of min/max changed to take
-a type first argument, the problem with this ntfs file is that it
-fails to include linux/kernel.h
+What exactly differs the Red Hat kernels from any original compiled
+kernel, and so much that this driver crashes the system?
 
-Later,
-David S. Miller
-davem@redhat.com
+The driver is found here:
+ http://www.alvarion.com/Support_10010.asp?tNodeParam=35
+
+/pawal
+

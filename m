@@ -1,96 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVAOXsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVAOXzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262370AbVAOXsh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 18:48:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVAOXsh
+	id S262368AbVAOXzh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 18:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVAOXzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 18:48:37 -0500
-Received: from mail.joq.us ([67.65.12.105]:65410 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262368AbVAOXri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 18:47:38 -0500
-To: Mike Galbraith <efault@gmx.de>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       Chris Wright <chrisw@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
-       Matt Mackall <mpm@selenic.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <5.2.1.1.2.20050114171907.00c05e38@pop.gmx.net>
-	<20050113214320.GB22208@devserv.devel.redhat.com>
-	<20050111214152.GA17943@devserv.devel.redhat.com>
-	<200501112251.j0BMp9iZ006964@localhost.localdomain>
-	<20050111150556.S10567@build.pdx.osdl.net>
-	<87y8ezzake.fsf@sulphur.joq.us>
-	<20050112074906.GB5735@devserv.devel.redhat.com>
-	<87oefuma3c.fsf@sulphur.joq.us>
-	<20050113072802.GB13195@devserv.devel.redhat.com>
-	<878y6x9h2d.fsf@sulphur.joq.us>
-	<20050113210750.GA22208@devserv.devel.redhat.com>
-	<1105651508.3457.31.camel@krustophenia.net>
-	<20050113214320.GB22208@devserv.devel.redhat.com>
-	<5.2.1.1.2.20050114171907.00c05e38@pop.gmx.net>
-	<5.2.1.1.2.20050115080420.00bf2c90@pop.gmx.net>
-From: "Jack O'Quin" <joq@io.com>
-Date: Sat, 15 Jan 2005 17:48:20 -0600
-In-Reply-To: <5.2.1.1.2.20050115080420.00bf2c90@pop.gmx.net> (Mike
- Galbraith's message of "Sat, 15 Jan 2005 09:06:14 +0100")
-Message-ID: <87r7kmtfsr.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Sat, 15 Jan 2005 18:55:37 -0500
+Received: from smtp816.mail.sc5.yahoo.com ([66.163.170.2]:58730 "HELO
+	smtp816.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262368AbVAOXz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 18:55:29 -0500
+Message-ID: <41E9AE73.6020200@sbcglobal.net>
+Date: Sat, 15 Jan 2005 15:59:47 -0800
+From: Steve <s.egbert@sbcglobal.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050109)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Daniel Drake <dsd@gentoo.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-r1 MTRR bug (
+References: <41E595E9.8040805@sbcglobal.net> <20050112230553.683a813b.akpm@osdl.org> <41E84729.1090209@gentoo.org>
+In-Reply-To: <41E84729.1090209@gentoo.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith <efault@gmx.de> writes:
+Daniel Drake wrote:
 
-> At 07:14 PM 1/14/2005 -0600, Jack O'Quin wrote:
->>Mike Galbraith <efault@gmx.de> writes:
->>
->> > At 05:31 PM 1/13/2005 -0600, Jack O'Quin wrote:
->> >>Yes.  However, my tests have so far shown a need for "actual FIFO as
->> >>long as the task behaves itself."
->> >
->> > I for one wonder why that appears to be so.  What happens if you use
->> > SCHED_RR instead of SCHED_FIFO?
->> >
->> > (ie is the problem just one of running out of slice at a bad time, or
->> > is it the dynamic priority adjustment)
->>
->>I have no quick and easy test for that.
->>
->>If it's important, I can modify a version of JACK to use SCHED_RR,
->>instead.
+> Hi Andrew,
 >
-> I think the problem you're seeing is strange enough to consider trying
-> the (possibly odd sounding) test.  I haven't seen an explanation of
-> why nice -20 doesn't work for you.
-
-The simplest explanation that makes any sense to me is that the
-non-realtime threads are interfering with the realtime ones.  These
-threads don't do much in this test, although they would in a real
-audio application.  Still, there are enough things going on before and
-after the sleep() in the main thread to possibly generate the number
-of xruns we're seeing.
-
-This is why I don't think nice is an appropriate solution for the
-problem we're trying to solve.  It's too blunt an instrument for audio
-work.
-
->>I very much doubt it would make any difference, since we normally only
->>run one realtime thread at a time.  Each client taps the next on the
->>shoulder when it is time for it to run, so there is essentially no
->>concurrency among them.
+> Andrew Morton wrote:
 >
-> It may not make any difference.  Seeing that would at least be an
-> additional datapoint.  The only significant difference I see between a
-> gaggle of SCHED_FIFO tasks and one of nice -20 tasks, who are alone in
-> their top-of-the-heap queue, and who are not cpu hogs, is the
-> timeslice.  I don't recall there being any wakeup/preempt logic
-> differences, ergo the SCHED_RR suggestion.
+>> Steve <s.egbert@sbcglobal.net> wrote:
+>>
+>>> For the Athlon 2100, I get the following outputs and then the VGA 
+>>> console is frozen from further output (but it doesn't prevent the 
+>>> full bootup into X windows session of which I am able to resume 
+>>> normal Linux/X session, but not able to regain any virtual console 
+>>> session.)
+>>
+>
+>>> mtrr: size and base must be multiples of 4kiB  (<<-- this line is 
+>>> repeated 20 times).
+>>
+>>
+>>
+>> Could you add this so we can track down the culprit?
+>
+>
+> I got another user who reported the same problem to test the patch, 
+> the result is:
+> http://bugs.gentoo.org/attachment.cgi?id=48451
+> (original bug http://bugs.gentoo.org/77674)
+>
+> I will confirm whether or not this is a gentoo-specific problem or not 
+> and let you know.
+>
+> Daniel
+>
+Patched + removed VESAFB from config.
 
-I think you're missing the fact that SCHED_FIFO is per-thread while
-nice() is per-process.
--- 
-  joq
+The mtrr patch in http://bugs.gentoo.org/show_bug.cgi?id=77674 appears 
+to fixes the problem.  No further mtrr debug outputs occurred.   Clean 
+boot output now for 2.6.10-r4 + mtrr-debug.patch.
+
+Will try again with VESAFB re-enabled and post further results @ 
+bugs.gentoo.org (if any).
+
+THX!
+
+Steve
+

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288787AbSAXSC2>; Thu, 24 Jan 2002 13:02:28 -0500
+	id <S288830AbSAXST5>; Thu, 24 Jan 2002 13:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288800AbSAXSCJ>; Thu, 24 Jan 2002 13:02:09 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:64713 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288787AbSAXSBu>;
-	Thu, 24 Jan 2002 13:01:50 -0500
-Date: Thu, 24 Jan 2002 20:59:18 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Ingo's O(1) scheduler vs. wait_init_idle
-In-Reply-To: <154900000.1011894435@flay>
-Message-ID: <Pine.LNX.4.33.0201242058170.5795-100000@localhost.localdomain>
+	id <S288801AbSAXSTy>; Thu, 24 Jan 2002 13:19:54 -0500
+Received: from dsl-213-023-043-085.arcor-ip.net ([213.23.43.85]:26531 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288800AbSAXSSX>;
+	Thu, 24 Jan 2002 13:18:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: vda@port.imtp.ilyichevsk.odessa.ua, info@global-digicom.com
+Subject: Re: White Paper on the Linux kernel VM?
+Date: Thu, 24 Jan 2002 19:21:19 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020124033618.20653.cpmta@c001.snv.cp.net> <200201241206.g0OC66E10502@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200201241206.g0OC66E10502@Port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16ToWW-0002mj-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On January 24, 2002 05:06 pm, Denis Vlasenko wrote:
+> Writing docs wastes developer's time: they will write how they want VM to 
+> operate or how they think it operates (while some bug can make actual VM 
+> operate differently) instead of improving/debugging current VM code.
 
-On Thu, 24 Jan 2002, Martin J. Bligh wrote:
+No you're wrong.  Not writing docs wastes the time of other developers.  It 
+sends the message 'my time is more important than yours'.  In the case of 
+Linus, that may be true, but it's very definitely not true for any other core 
+developer.
 
-> tecpu 1 has don0 init idl0, do246>c u_idot tai 0idle
-> ee doin0000u_idle().
-> 00cpu 09  s done idat i0   edoinf cau_00
+It is the responsibility of each developer to prepare at least minimal - but 
+sufficient - documentation for the work they do.  Others who specialize in 
+preparing documentation can then use that material as a starting point for 
+preparing clearer, more extensive documentation.  But if core developers shirk 
+their responsibility in this area, we will continue to suffer from a chronic 
+shortage of good, current kernel documentation.
 
-just take out the TSC initialization messages from smpboot.c, that should
-ungarble the output. And/or add this to printk.c:
-
-	if (smp_processor_id())
-		return;
-
-this way you'll only see a single CPU's printk messages.
-
-	Ingo
+--
+Daniel
 

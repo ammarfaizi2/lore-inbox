@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264855AbUAYR3I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 12:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264941AbUAYR3I
+	id S264566AbUAYRXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 12:23:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264591AbUAYRXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 12:29:08 -0500
-Received: from smtp06.auna.com ([62.81.186.16]:44970 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S264855AbUAYR3G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 12:29:06 -0500
-Date: Sun, 25 Jan 2004 18:29:04 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: mpspec.h, mach_mpspec.h
-Message-ID: <20040125172904.GA3195@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 25 Jan 2004 12:23:25 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:63897 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S264566AbUAYRXY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 12:23:24 -0500
+From: Marco Rebsamen <mrebsamen@swissonline.ch>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Troubles Compiling 2.6.1 on SuSE 9
+Date: Sun, 25 Jan 2004 18:27:23 +0100
+User-Agent: KMail/1.5.4
+References: <200401242137.34881.mrebsamen@swissonline.ch> <200401251427.02975.mrebsamen@swissonline.ch> <20040125153610.GA3123@mars.ravnborg.org>
+In-Reply-To: <20040125153610.GA3123@mars.ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.16
+Message-Id: <200401251827.23510.mrebsamen@swissonline.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+Am Sonntag, 25. Januar 2004 16:36 schrieben Sie:
+> > arch/i386/boot/compressed/vmlinux.bin
+> > Ungültiger Maschinenbefehl (in english, invalid machinecommand i guess)
+>
+> Either objcopy is missing or the executable is damaged.
+> try 'which objcopy'
+>
+> From my suse 9.0 box:
+>
+> sam@mars:~> which objcopy
+> /usr/bin/objcopy
+> sam@mars:~> ll /usr/bin/objcopy
+> -rwxr-xr-x    1 root     root       248064 2003-09-23 17:34
+> /usr/bin/objcopy sam@mars:~> md5sum /usr/bin/objcopy
+> 4aa1f3b8bc18dfdfdd7ae733804b0f1c  /usr/bin/objcopy
+>
+> IIRC objcopy is part of binutils - which I may have installed by hand
+> after normal installation.
+>
+> 	Sam
 
-I am trying to build sensors 2.8.3 and it fails with:
 
-make: *** No rule to make target `mach_mpspec.h', needed by `kernel/chips/vt1211.d'.  Stop.
+that was it.... the MD5 sum was something like 2.... so i reinstalled binutils 
+and it worked.... but now i got problems (like everytime) with the modules.
+I get many messages:
+modprobe: modprobe: Can't open dependencies file /lib/
+modules/2.4.21-99-default/modules.dep (no such file or dir.)
 
-There is no mach_mpspec.h in include/linux nor include/linux/asm in the kernel
-tree (I use 2.6.2-rc1-mm3). It is not included directly by sensors, but for
-example, mpspec.h reads:
+i did make modules_install. Where's my fault ?
 
-werewolf:/usr/src/linux/include/asm# grep mach_mpspec.h *
-mpspec.h:#include <mach_mpspec.h>
+thanks very much for the help....
 
-all mach_mpspec.h are inside subarch dirs in include/asm (for example, 
-include/asm/mach-default/). 
-
-Workaround is to add -I/usr/src/linux/include/asm/mach-default.
-
-But should not the contents be symlinked for the proper subarch ? IE
-
-/usr/src/linux/include/asm/mach_mpspec.h -> mach-default/mach_mpspec.h
-
-TIA
-
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.2-rc1-jam3 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))

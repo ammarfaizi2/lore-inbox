@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265529AbUAIDnX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 22:43:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265564AbUAIDnW
+	id S261659AbUAIDiW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 22:38:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUAIDiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 22:43:22 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:46856 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S265529AbUAIDnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 22:43:17 -0500
-Date: Fri, 9 Jan 2004 04:40:21 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Valdis.Kletnieks@vt.edu
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] invalid ELF binaries can execute - better sanity
- checking 
-In-Reply-To: <200401090336.i093aBxB004312@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.56.0401090437060.11276@jju_lnx.backbone.dif.dk>
-References: <200401090336.i093aBxB004312@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Jan 2004 22:38:22 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:63158 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S261659AbUAIDhy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 22:37:54 -0500
+Date: Thu, 8 Jan 2004 19:36:55 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+Message-ID: <20040109033655.GK11065@ca-server1.us.oracle.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	linux-hotplug-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com> <Pine.LNX.4.58.0401071036560.12602@home.osdl.org> <20040107185656.GB31827@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040107185656.GB31827@kroah.com>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 07, 2004 at 10:57:00AM -0800, Greg KH wrote:
+> Hm, that would work, but what about a user program that just polls on
+> the device, as the rest of this thread discusses?  As removable devices
+> are not the "norm" it would seem a bit of overkill to create 16
+> partitions for every block device, if they need them or not.
 
-On Fri, 9 Jan 2004 Valdis.Kletnieks@vt.edu wrote:
+	Um, adding all 16 partitions for a block device that has 5
+defined is opposite of the intention of udev, no?  While I'd prefer the
+partition code in-kernel provide hotplug events for each partition, if
+it is instead scanned by udev, udev should indeed scan the partition
+table.  Remember, udev should be able to give the appropriate
+system-defined names for the partition, not just 'sda1'.
 
-> On Thu, 08 Jan 2004 19:20:21 PST, Andrew Morton said:
-> > I've always had little confidence in the elf loader.  The problem is
-> > complex, the code quality is not high and the consequences of an error
-> are
-> > severe.
->
-> You might want to read this very interesting dissection of the ELF
-> format
-> for fun and non-profit.
->
-> http://www.muppetlabs.com/~breadbox/software/tiny/teensy.html
->
-> All I can say is - although it's insanely creative, this is *NOT* how I
-> want my ELF loader to work. ;)
->
-I know of the document, but thank you for pointing it out, it's quite an
-interresting read. Actually, reading that exact document ages ago was what
-initially caused me to start reading the ELF loading code (thinking
-"there's got to be something wrong here").
-I've actually been planning to use some of the crazy stunts he pulls
-with that code as validity checks of the code I want to implement (in
-adition to specially tailored test-cases ofcourse).
+Joel
 
+-- 
 
--- Jesper Juhl
+"Gone to plant a weeping willow
+ On the bank's green edge it will roll, roll, roll.
+ Sing a lulaby beside the waters.
+ Lovers come and go, the river roll, roll, rolls."
 
-
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

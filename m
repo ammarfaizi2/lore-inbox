@@ -1,58 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVBOO4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVBOPFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbVBOO4j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 09:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVBOO4j
+	id S261745AbVBOPFr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 10:05:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVBOPFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 09:56:39 -0500
-Received: from 11.ylenurme.ee ([193.40.6.11]:1198 "EHLO linking.ee")
-	by vger.kernel.org with ESMTP id S261743AbVBOO4d (ORCPT
+	Tue, 15 Feb 2005 10:05:47 -0500
+Received: from styx.suse.cz ([82.119.242.94]:25230 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261745AbVBOPFZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 09:56:33 -0500
-Message-ID: <42120009.705@ylenurme.ee>
-Date: Tue, 15 Feb 2005 15:58:33 +0200
-From: Elmer Joandi <elmer@ylenurme.ee>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ACPI lockup 2.6.10
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Feb 2005 10:05:25 -0500
+Date: Tue, 15 Feb 2005 16:06:06 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: InputML <linux-input@atrey.karlin.mff.cuni.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RCF/RFT] Fix race timer race in gameport-based joystick drivers
+Message-ID: <20050215150606.GA8560@ucw.cz>
+References: <200502150042.32564.dtor_core@ameritech.net> <20050215140501.GF7250@ucw.cz> <d120d500050215065115706773@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d500050215065115706773@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My laptop, intel Centrino M based, all intel chips except graphics.
+On Tue, Feb 15, 2005 at 09:51:52AM -0500, Dmitry Torokhov wrote:
+> On Tue, 15 Feb 2005 15:05:01 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > On Tue, Feb 15, 2005 at 12:42:31AM -0500, Dmitry Torokhov wrote:
+> > > Hi,
+> > >
+> > > There seems to be a race WRT to timer handling in all gameport-based
+> > > joystick drivers. open() and close() methods are used to start and
+> > > stop polling timers on demand but counter and the timer itself is not
+> > > protected in any way so if several clients will try to open/close
+> > > corresponding input device node they could up with timer not running
+> > > at all or running while nobody has the node open. Plus it is possible
+> > > that disconnect will run and free driver structure while timer is running
+> > > on other CPU.
+> > >
+> > > I have moved timer and counter down into gameport structure (I think it
+> > > is ok because on the one hand joysticks are the only users of gameport
+> > > and on the other hand polling timer can be useful to other clients if
+> > > ever writen), and added helper functions to manipulate it:
+> > >
+> > >       - gameport_start_polling(gameport)
+> > >       - gameport_stop_polling(gameport)
+> > >       - gameport_set_poll_handler(gameoirt, handler)
+> > >       - gameport_set_poll_interval(gameport, msecs)
+> > >
+> > > gameport_{start|stop}_poll handler are using spinlock to guarantee that
+> > > timer updated properly. Also, gameport_close deletes (synchronously) timer
+> > > to make sure there is no surprises since gameport_stop_poling does del_timer
+> > > and thus may leave timer scheduled. Timer routine also checks the counter
+> > > and does not restart it if there are no users.
+> > >
+> > > Please let me know what you think.
+> > 
+> > I'm not really sure if I really want to move the polling into the
+> > gameport layer. It's useful, but without it, gameport is considered
+> > strictly a passive device which can't generate callbacks (other than
+> > open/close/connect/disconnect).
+> > 
+> > The new polling interface isn't much simpler than what Linux timers
+> > offer, only it provides additional locking.
+> 
+> Yes, that was the goal. I looked over the drivers and it was either
+> writing the exactly same code 10 times or moving it down.
 
-After opening laptop, I have to push power button, then it goes:
+> > Probably protecting open/close calls in gameport.c with a spinlock would
+> > allow to work without explicit locking in the drivers.
+> 
+> Hmm, you got me a bit confused here - open and close in gameport are
+> already (indirectly) serialized with gameport_sem. It is input device
+> open and close in joystick drivers that needs treatment - these are
+> initiated from userspace and weren't hitting gameport code at all. And
+> they need to be protected otherwise the counter and timer will get out
+> of whack.
 
-Back to C!
-Debug: sleeping function called from invalid context at mm/slab.c:2055
-in_atomic():0,irqs_disabled():1
-__might_sleep
-__kmalloc
-acpi_os_allocate
-acpi_ut_callocate
-acpi_ut_initialize_buffer
-acpi_rc_create_byte_stream
-acpi_rs_set_srs_method_data
-acpi_pci_link_set
-irqrouter_resume
-sysdev_resume
-device_power_up
-suspend_enter
-enter_state
-acpi_suspend
-copy_from_user
-acpi_system_write_sleep
-vfs_write
-strncpy_from_user
-sys_write
-sysenter_past_esp
-PM: Finishing up.
+Sorry, I was indeed a bit confused - the input open serialization would
+be needed, but still the timer could race.
 
-and there it is , every day :)
+Thinking more about it I agree with your change. 
 
-
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,121 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135211AbRDZIrP>; Thu, 26 Apr 2001 04:47:15 -0400
+	id <S135215AbRDZIsz>; Thu, 26 Apr 2001 04:48:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135215AbRDZIrG>; Thu, 26 Apr 2001 04:47:06 -0400
-Received: from www.wen-online.de ([212.223.88.39]:33803 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S135211AbRDZIqx>;
-	Thu, 26 Apr 2001 04:46:53 -0400
-Date: Thu, 26 Apr 2001 10:46:20 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.21.0104252352430.1101-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0104261043330.292-100000@mikeg.weiden.de>
+	id <S135216AbRDZIsv>; Thu, 26 Apr 2001 04:48:51 -0400
+Received: from relay01.valueweb.net ([216.219.253.235]:48653 "EHLO
+	relay01.valueweb.net") by vger.kernel.org with ESMTP
+	id <S135215AbRDZIsi>; Thu, 26 Apr 2001 04:48:38 -0400
+Message-ID: <3AE7E25B.6E81783E@opersys.com>
+Date: Thu, 26 Apr 2001 04:54:51 -0400
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: george anzinger <george@mvista.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Event tools, do they exist
+In-Reply-To: <3AE61FF2.DF9849BB@mvista.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Marcelo Tosatti wrote:
 
-> > (I can get it to under 9 with MUCH extremely ugly tinkering.  I've done
-> > this enough to know that I _should_ be able to do 8 1/2 minutes ~easily)
->
-> Which kind of changes you're doing to get better performance on this test?
+Hellor George,
 
-:)
+As others have suggested, you can do what you are asking for using LTT
+(http://www.opersys.com/LTT).
 
-2.4.4.pre7.virgin
-real    11m33.589s
-user    7m57.790s
-sys     0m38.730s
+Specifically, you may want to use the event allocation capabilities.
+This will enable you to add your own events and view these as part
+of the trace.
 
-2.4.4.pre7.sillyness
-real    9m30.336s
-user    7m55.270s
-sys     0m38.510s
+By the way, there are mailing lists for LTT if you're interested to
+make a contribution.
 
---- mm/vmscan.c.org	Thu Apr 26 06:35:19 2001
-+++ mm/vmscan.c	Thu Apr 26 08:25:52 2001
-@@ -72,8 +72,7 @@
- 		set_pte(page_table, swp_entry_to_pte(entry));
- drop_pte:
- 		mm->rss--;
--		if (!page->age)
--			deactivate_page(page);
-+		age_page_down(page);
- 		UnlockPage(page);
- 		page_cache_release(page);
- 		return;
-@@ -282,7 +281,7 @@
+Cheers,
 
- 	/* Always start by trying to penalize the process that is allocating memory */
- 	if (mm)
--		retval = swap_out_mm(mm, swap_amount(mm));
-+		return swap_out_mm(mm, swap_amount(mm));
+Karim
 
- 	/* Then, look at the other mm's */
- 	counter = mmlist_nr >> priority;
-@@ -642,6 +641,10 @@
- 	struct page * page;
- 	int maxscan, page_active = 0;
- 	int ret = 0;
-+	static unsigned long lastscan;
-+
-+	if (lastscan == jiffies)
-+		return 0;
+george anzinger wrote:
+> 
+> This is an attempt to look in the wheel locker.
+> 
+> I need a simple event sub system for use in the kernel.  I envision at
+> least two types of events: the history event and the timing event.
+> 
+> The timing event would keep track of start/stop times by class.  If, for
+> example, I wanted to know how much time the kernel spends doing the
+> recalc in schedule() I would put and event start in front of it and an
+> end at the other end.  The sub system would note the first event time
+> and the cumulative time between all starts and stops on the same event.
+> When reported by /proc/ it would give the total event time, the elapsed
+> time and the % of processor time for each of the possibly several
+> classes.
+> 
+> The history event would record each events time, location, data1,
+> data2.  It would keep N of these (the last N) and report M (M=<N) via
+> /proc/.  This list should also be kept in a format that a simple
+> debugger can easily examine.
+> 
+> Somebody must have written these routines and have them in their
+> library.  Sure would help if I could have a peek.
+> 
+> George
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
- 	/* Take the lock while messing with the list... */
- 	spin_lock(&pagemap_lru_lock);
-@@ -695,6 +698,7 @@
- 				break;
- 		}
- 	}
-+	lastscan = jiffies;
- 	spin_unlock(&pagemap_lru_lock);
-
- 	return ret;
-@@ -791,35 +795,13 @@
- #define DEF_PRIORITY (6)
- static int refill_inactive(unsigned int gfp_mask, int user)
- {
--	int count, start_count, maxtry;
--
--	count = inactive_shortage() + free_shortage();
--	if (user)
--		count = (1 << page_cluster);
--	start_count = count;
--
--	maxtry = 6;
--	do {
--		if (current->need_resched) {
--			__set_current_state(TASK_RUNNING);
--			schedule();
--		}
--
--		while (refill_inactive_scan(DEF_PRIORITY, 1)) {
--			if (--count <= 0)
--				goto done;
--		}
-+	int shortage = inactive_shortage();
-
-+	if (refill_inactive_scan(DEF_PRIORITY, 0) < shortage)
- 		/* If refill_inactive_scan failed, try to page stuff out.. */
- 		swap_out(DEF_PRIORITY, gfp_mask);
-
--		if (--maxtry <= 0)
--				return 0;
--
--	} while (inactive_shortage());
--
--done:
--	return (count < start_count);
-+	return 0;
- }
-
- static int do_try_to_free_pages(unsigned int gfp_mask, int user)
-
+-- 
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

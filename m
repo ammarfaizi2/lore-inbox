@@ -1,72 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317508AbSH3Uri>; Fri, 30 Aug 2002 16:47:38 -0400
+	id <S317498AbSH3Upx>; Fri, 30 Aug 2002 16:45:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317512AbSH3Urh>; Fri, 30 Aug 2002 16:47:37 -0400
-Received: from dexter.citi.umich.edu ([141.211.133.33]:640 "EHLO
-	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
-	id <S317508AbSH3Urg>; Fri, 30 Aug 2002 16:47:36 -0400
-Date: Fri, 30 Aug 2002 16:51:57 -0400 (EDT)
-From: Chuck Lever <cel@citi.umich.edu>
-To: marcelo@plucky.distro.conectiva
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux NFS List <nfs@lists.sourceforge.net>
-Subject: [PATCH] sock_writeable not appropriate for TCP sockets, for 2.4.20
-Message-ID: <Pine.LNX.4.44.0208301648230.1645-100000@dexter.citi.umich.edu>
+	id <S317506AbSH3Upw>; Fri, 30 Aug 2002 16:45:52 -0400
+Received: from web10501.mail.yahoo.com ([216.136.130.151]:11653 "HELO
+	web10501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317498AbSH3Upv>; Fri, 30 Aug 2002 16:45:51 -0400
+Message-ID: <20020830205006.80088.qmail@web10501.mail.yahoo.com>
+Date: Fri, 30 Aug 2002 13:50:06 -0700 (PDT)
+From: Andy Tai <lichengtai@yahoo.com>
+Reply-To: atai@atai.org
+Subject: Re: file locking (fcntl) bug in 2.4.19
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020830132521.Y28676@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi marcelo-
+Mr. Wilcox, thanks for the reply.  I checked the
+source of the stock 2.4.19 kernel and it seems to have
+part of the patch incorporated.  I checked to make
+sure the patch is fully applied and recompiled the
+kernel, and the bug still shows up (less frequently,
+but the test program lockbug.c can still trigger the
+bug). It seems the problem is not totally gone yet.
 
-sock_writeable determines whether there is space in a socket's output
-buffer.  socket write_space callbacks use it to determine whether to wake
-up those that are waiting for more output buffer space.
+Thanks for any help.
 
-however, sock_writeable is not appropriate for TCP sockets.  because the
-RPC layer's write_space callback uses it for TCP sockets, the RPC layer
-hammers on sock_sendmsg with dozens of write requests that are only a few
-hundred bytes long when it is trying to send a large write RPC request.
-this patch adds logic to the RPC layer's write_space callback that 
-properly handles TCP sockets.
+Andy  
+--- Matthew Wilcox <willy@debian.org> wrote:
+> 
+> Yep, 2.4 & 2.5 are broken.  Here's a patch which
+> both marcelo and alan
+> refuse to apply, but fixes the problem.
+> 
+> diff -urNX dontdiff linux-2418/fs/locks.c
+> linux-2418-acct/fs/locks.c
+> --- linux-2418/fs/locks.c	Thu Oct 11 08:52:18 2001
+> +++ linux-2418-acct/fs/locks.c	Mon Jul  1 16:23:36
+> 2002
+> @@ -134,15 +134,9 @@
+>  static kmem_cache_t *filelock_cache;
+>  
+>  /* Allocate an empty lock structure. */
+> -static struct file_lock *locks_alloc_lock(int
+> account)
+> +static struct file_lock *locks_alloc_lock(void)
+>  {
+> -	struct file_lock *fl;
+> -	if (account && current->locks >=
+> current->rlim[RLIMIT_LOCKS].rlim_cur)
+> -		return NULL;
+> -	fl = kmem_cache_alloc(filelock_cache,
+> SLAB_KERNEL);
+> -	if (fl)
+> -		current->locks++;
+> -	return fl;
+> +	return kmem_cache_alloc(filelock_cache,
+> SLAB_KERNEL);
+>  }
+>  
+>  /* Free a lock which is not in use. */
+> @@ -152,7 +146,6 @@
+>  		BUG();
+>  		return;
+>  	}
+> -	current->locks--;
+>  	if (waitqueue_active(&fl->fl_wait))
+>  		panic("Attempting to free lock with active wait
+> queue");
+>  
+> @@ -219,7 +212,7 @@
+>  /* Fill in a file_lock structure with an
+> appropriate FLOCK lock. */
+>  static struct file_lock *flock_make_lock(struct
+> file *filp, unsigned int type)
+>  {
+> -	struct file_lock *fl = locks_alloc_lock(1);
+> +	struct file_lock *fl = locks_alloc_lock();
+>  	if (fl == NULL)
+>  		return NULL;
+>  
+> @@ -348,7 +341,7 @@
+>  /* Allocate a file_lock initialised to this type of
+> lease */
+>  static int lease_alloc(struct file *filp, int type,
+> struct file_lock **flp)
+>  {
+> -	struct file_lock *fl = locks_alloc_lock(1);
+> +	struct file_lock *fl = locks_alloc_lock();
+>  	if (fl == NULL)
+>  		return -ENOMEM;
+>  
+> @@ -712,7 +705,7 @@
+>  			 size_t count)
+>  {
+>  	struct file_lock *fl;
+> -	struct file_lock *new_fl = locks_alloc_lock(0);
+> +	struct file_lock *new_fl = locks_alloc_lock();
+>  	int error;
+>  
+>  	if (new_fl == NULL)
+> @@ -872,8 +865,8 @@
+>  	 * We may need two file_lock structures for this
+> operation,
+>  	 * so we get them in advance to avoid races.
+>  	 */
+> -	new_fl = locks_alloc_lock(0);
+> -	new_fl2 = locks_alloc_lock(0);
+> +	new_fl = locks_alloc_lock();
+> +	new_fl2 = locks_alloc_lock();
+>  	error = -ENOLCK; /* "no luck" */
+>  	if (!(new_fl && new_fl2))
+>  		goto out_nolock;
+> @@ -1426,7 +1419,7 @@
+>  int fcntl_setlk(unsigned int fd, unsigned int cmd,
+> struct flock *l)
+>  {
+>  	struct file *filp;
+> -	struct file_lock *file_lock = locks_alloc_lock(0);
+> +	struct file_lock *file_lock = locks_alloc_lock();
+>  	struct flock flock;
+>  	struct inode *inode;
+>  	int error;
+> @@ -1582,7 +1575,7 @@
+>  int fcntl_setlk64(unsigned int fd, unsigned int
+> cmd, struct flock64 *l)
+>  {
+>  	struct file *filp;
+> -	struct file_lock *file_lock = locks_alloc_lock(0);
+> +	struct file_lock *file_lock = locks_alloc_lock();
+>  	struct flock64 flock;
+>  	struct inode *inode;
+>  	int error;
+> 
+> -- 
+> Revolutions do not require corporate support.
 
-patch reviewed by Trond and Alexey.  patch already sent to linus for 2.5.
 
-
---- 2.4.20-pre5/net/sunrpc/xprt.c.orig	Fri Aug 30 15:49:28 2002
-+++ 2.4.20-pre5/net/sunrpc/xprt.c	Fri Aug 30 15:52:55 2002
-@@ -950,6 +950,8 @@
- 
- /*
-- * The following 2 routines allow a task to sleep while socket memory is
-- * low.
-+ * Called when more output buffer space is available for this socket.
-+ * We try not to wake our writers until they can make "significant"
-+ * progress, otherwise we'll waste resources thrashing sock_sendmsg
-+ * with a bunch of small requests.
-  */
- static void
-@@ -965,6 +967,13 @@
- 
- 	/* Wait until we have enough socket memory */
--	if (!sock_writeable(sk))
--		return;
-+	if (xprt->stream) {
-+		/* from net/ipv4/tcp.c:tcp_write_space */
-+		if (tcp_wspace(sk) < tcp_min_write_space(sk))
-+			return;
-+	} else {
-+		/* from net/core/sock.c:sock_def_write_space */
-+		if (!sock_writeable(sk))
-+			return;
-+	}
- 
- 	if (!test_and_clear_bit(SOCK_NOSPACE, &sock->flags))
-
--- 
-
-corporate:	<cel at netapp dot com>
-personal:	<chucklever at bigfoot dot com>
-
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Finance - Get real-time stock quotes
+http://finance.yahoo.com

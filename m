@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135353AbRDLVxc>; Thu, 12 Apr 2001 17:53:32 -0400
+	id <S135354AbRDLV6V>; Thu, 12 Apr 2001 17:58:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135354AbRDLVxV>; Thu, 12 Apr 2001 17:53:21 -0400
-Received: from dfmail.f-secure.com ([194.252.6.39]:27330 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S135353AbRDLVxO>; Thu, 12 Apr 2001 17:53:14 -0400
-Date: Fri, 13 Apr 2001 01:02:21 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-        <Valdis.Kletnieks@vt.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: scheduler went mad?
-In-Reply-To: <Pine.LNX.4.21.0104121632330.18260-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.30.0104130009350.19377-100000@fs131-224.f-secure.com>
+	id <S135357AbRDLV6L>; Thu, 12 Apr 2001 17:58:11 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:33287 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S135354AbRDLV6D>; Thu, 12 Apr 2001 17:58:03 -0400
+To: Daniel Podlejski <underley@underley.eu.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Incorect signal handling ?
+In-Reply-To: <20010412223128.A11625@witch.underley.eu.org>
+From: Doug McNaught <doug@wireboard.com>
+Date: 12 Apr 2001 17:56:37 -0400
+In-Reply-To: Daniel Podlejski's message of "Thu, 12 Apr 2001 22:31:28 +0200"
+Message-ID: <m3r8yxrdd6.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Podlejski <underley@underley.eu.org> writes:
 
-On Thu, 12 Apr 2001, Rik van Riel wrote:
-> On Thu, 12 Apr 2001, Szabolcs Szakacsits wrote:
-> > You mean without dropping out_of_memory() test in kswapd and calling
-> > oom_kill() in page fault [i.e. without additional patch]?
-> No.  I think it's ok for __alloc_pages() to call oom_kill()
-> IF we turn out to be out of memory, but that should not even
-> be needed.
+> Hi,
+> 
+> there is litlle programm:
+> 
+> 	signal (SIGALRM, empty);
+> 	alarm (1);
+> 
+>         a = read(fd, buf, 511);
+> 
+>         while (a && a != -1) a = read(fd, buf, 511);
 
-Not __alloc_pages() calls oom_kill() however do_page_fault(). Not the
-same. After the system tried *really* hard to get *one* free page and
-couldn't managed why loop forever? To eat CPU and waiting for
-out_of_memory() to *guess* when system is in OOM? I don't think so, if
-processes can't progress because system can't page in any of their
-pages, somebody must go.
+> I open /tmp/nic and run compiled program.
+> There should be error EINTR in read, but isn't.
 
-> Also, when a task in __alloc_pages() is OOM-killed, it will
-> have PF_MEMALLOC set and will immediately break out of the
-> loop. The rest of the system will spin around in the loop
-> until the victim has exited and then their allocations will
-> succeed.
+"Fast" system calls (eg reads from disk) are generally
+uninterruptible; thus the signal will be deferred until the read()
+returns.
 
-Yes, I think this is a problem. In page fault if OOM, "bad" process
-selected, scheduled, killed and everybody runs happily even without to
-notice system is low on memory. Fast and gracious process killing
-instead of slow, painful death IF out_of_memory() correctly detects OOM.
-
-	Szaka
-
+-Doug

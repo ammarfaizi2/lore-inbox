@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282046AbRLKRWw>; Tue, 11 Dec 2001 12:22:52 -0500
+	id <S282413AbRLKR1W>; Tue, 11 Dec 2001 12:27:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282064AbRLKRWn>; Tue, 11 Dec 2001 12:22:43 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:26378 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S282046AbRLKRWf>; Tue, 11 Dec 2001 12:22:35 -0500
-Date: Tue, 11 Dec 2001 15:22:17 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <hps@intermeta.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.16 & OOM killer screw up (fwd)
-In-Reply-To: <E16DqhI-0005vG-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0112111520560.1352-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S282481AbRLKR1D>; Tue, 11 Dec 2001 12:27:03 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50183 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282413AbRLKR0m>; Tue, 11 Dec 2001 12:26:42 -0500
+Date: Tue, 11 Dec 2001 09:26:09 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: GOTO Masanori <gotom@debian.org>
+cc: <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <andrea@suse.de>
+Subject: Re: [PATCH] direct IO breaks root filesystem
+In-Reply-To: <w534rmynn77.wl@megaela.fe.dis.titech.ac.jp>
+Message-ID: <Pine.LNX.4.33.0112110923290.8613-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Dec 2001, Alan Cox wrote:
 
-> > > I'm not happy about your usage of magic numbers, either. So it is
-> > > still running on solid 2.2.19 until further notice (or until Rik loses
-> > > his patience. ;-) )
-> >
-> > I've lost patience and have decided to move development away
-> > from the main tree.  http://linuxvm.bkbits.net/   ;)
->
-> Are your patches available in a format that is accessible using free
-> software ?
+On Tue, 11 Dec 2001, GOTO Masanori wrote:
+> I, however, found another problem.
+> Accessing with inode size unit (== 4096 byte) is ok, but if I accessed
+> with block size unit, generic_direct_IO() returns error.  The reason
+> is that blocksize is designated as inode->i_blkbits, and its value is
+> not disk minimal block size (512), but inode's unit size (4096).
 
-Yes, I'm making patches available on my home page:
+That is not a bug, but a feature.
 
-	http://surriel.com/patches/
+We _always_ have to do the IO in "inode size" chunks, and if you want to
+change it, you have to change it at a higher level (ie you should set the
+blocksize with the "BLKBSZSET" ioctl.)
 
-Note that development isn't too fast due to the fact
-that I try to clean up all code I touch instead of
-just making the changes needed for the functionality.
-
-kind regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
+		Linus
 

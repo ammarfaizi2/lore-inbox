@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317430AbSGXRjC>; Wed, 24 Jul 2002 13:39:02 -0400
+	id <S317440AbSGXRkb>; Wed, 24 Jul 2002 13:40:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317435AbSGXRjB>; Wed, 24 Jul 2002 13:39:01 -0400
-Received: from trained-monkey.org ([209.217.122.11]:40202 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S317430AbSGXRjB>; Wed, 24 Jul 2002 13:39:01 -0400
-To: kwijibo@zianet.com
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: 3com 3c996b-t support?
-References: <Pine.LNX.4.33.0207241314550.30282-100000@coffee.psychology.mcmaster.ca> <3D3EE4B1.3000809@zianet.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 24 Jul 2002 13:42:11 -0400
-In-Reply-To: kwijibo@zianet.com's message of "Wed, 24 Jul 2002 11:32:33 -0600"
-Message-ID: <m3adohja4s.fsf@trained-monkey.org>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S317443AbSGXRka>; Wed, 24 Jul 2002 13:40:30 -0400
+Received: from pD9E23DCB.dip.t-dialin.net ([217.226.61.203]:23425 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317440AbSGXRka>; Wed, 24 Jul 2002 13:40:30 -0400
+Date: Wed, 24 Jul 2002 11:43:35 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Diego Calleja <diegocg@teleline.es>
+cc: Thunder from the hill <thunder@ngforever.de>, <nicos-mutt@pcsystems.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.27 floppy driver
+In-Reply-To: <20020724193513.4bc2bd9e.diegocg@teleline.es>
+Message-ID: <Pine.LNX.4.44.0207241143070.3347-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Steve" == kwijibo  <kwijibo@zianet.com> writes:
+Hi,
 
-Steve> http://www.cs.uni.edu/~gray/gig-over-copper/
+On Wed, 24 Jul 2002, Diego Calleja wrote:
+> The latest vfs updates i've found are the ones in the 2.5.22
+> changelog...
 
-Steve> The 3com drivers are open-source though, which makes me less
-Steve> hesitent.  And the tigon3 drivers lack of documentation kind of
-Steve> irks me.  I would however like to stick with a mainstream
-Steve> kernel driver cause the support is there if it is needed.  I
-Steve> guess I will give both versions a whirl.  From just glancing at
-Steve> the source of both, it seems that both versions support jumbo
-Steve> frames which is really what I am after.
+Yes, the floppy driver is broken for quite a while now. It's a well-known 
+problem.
 
-Well did you look at the code? It's the infamous Broadcom bcm5700
-driver which is probably the worst driver code we have seen in the
-Linux community for the last 5 years. Sure you can run it, but don't
-come back and complain when you run into trouble. You will be a lot
-better off using the tg3 driver, or better yet, getting a NIC thats
-less buggy.
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
-Cheers,
-Jes

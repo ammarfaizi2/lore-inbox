@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267770AbTAIVCQ>; Thu, 9 Jan 2003 16:02:16 -0500
+	id <S267996AbTAIVEX>; Thu, 9 Jan 2003 16:04:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267772AbTAIVCQ>; Thu, 9 Jan 2003 16:02:16 -0500
-Received: from CPE-203-51-25-222.nsw.bigpond.net.au ([203.51.25.222]:59133
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S267770AbTAIVCP>; Thu, 9 Jan 2003 16:02:15 -0500
-Message-ID: <3E1DE55F.81DE9324@eyal.emu.id.au>
-Date: Fri, 10 Jan 2003 08:10:55 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.21-pre2-aa2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: list linux-kernel <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.4.21pre3-ac2 - some trivial patches
-References: <200301090139.h091d9G26412@devserv.devel.redhat.com>
-		 <3E1D5BF9.D537AA23@eyal.emu.id.au> <1042134064.27796.18.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
+	id <S267997AbTAIVEW>; Thu, 9 Jan 2003 16:04:22 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:63884 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267996AbTAIVEV>; Thu, 9 Jan 2003 16:04:21 -0500
+Message-Id: <200301092112.h09LCxpQ010633@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "Mother" == "computer-illiterate" 
+In-Reply-To: Your message of "Thu, 09 Jan 2003 12:46:30 PST."
+             <Pine.LNX.4.33L2.0301091245540.9978-100000@dragon.pdx.osdl.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.33L2.0301091245540.9978-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1280067701P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 09 Jan 2003 16:12:59 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> On Thu, 2003-01-09 at 11:24, Eyal Lebedinsky wrote:
-> > A few small patches that I needed to finish a build on Debian 3.0.
-> 
-> >
-> > ______________________________________________________________________
-> The ehci one you didnt provide in diff -u but seems to be a compiler problem.
-> If so the fix is to make ehci_warn/info safe for ancient gcc.
+--==_Exmh_1280067701P
+Content-Type: text/plain; charset=us-ascii
 
-Yes, Debian still has an old compiler
-	gcc version 2.95.4 20011002 (Debian prerelease)
-and my reported problems should simply show the difficulties
-it encounters.
+On Thu, 09 Jan 2003 12:46:30 PST, "Randy.Dunlap" said:
+> (ugh, COBOL)
 
-So what is the proper workaround for this specific compiler bug?
-I guess "args..." requires at least one arg or it errors.
+Go back and research the alternatives available at the time.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Then ask yourself which you'd prefer to do maintenance programming on.
+
+
+
+--==_Exmh_1280067701P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+HeXbcC3lWbTT17ARAoKAAJ97mzKeUr7FIYkh5H+0oN29lfwOFwCgkTgA
+BMFqHJxkWmaAq/Vh0vzT0+4=
+=J4av
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1280067701P--

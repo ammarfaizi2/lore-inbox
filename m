@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261911AbTCaX3L>; Mon, 31 Mar 2003 18:29:11 -0500
+	id <S261910AbTCaX2r>; Mon, 31 Mar 2003 18:28:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261916AbTCaX3L>; Mon, 31 Mar 2003 18:29:11 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:28616 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261911AbTCaX3K>; Mon, 31 Mar 2003 18:29:10 -0500
-Date: Mon, 31 Mar 2003 17:40:27 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: akpm@zip.com.au, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Put all functions in kallsyms
-In-Reply-To: <20030331224033.489DD2C04B@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0303311736440.10623-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261911AbTCaX2r>; Mon, 31 Mar 2003 18:28:47 -0500
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:50335 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S261910AbTCaX2r>;
+	Mon, 31 Mar 2003 18:28:47 -0500
+Date: Mon, 31 Mar 2003 16:27:47 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TIOCTTYGSTRUCT
+Message-ID: <20030331212747.GA1840@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Andries.Brouwer@cwi.nl,
+	linux-kernel@vger.kernel.org
+References: <UTC200303281549.h2SFnkw05009.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <UTC200303281549.h2SFnkw05009.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Mar 2003, Rusty Russell wrote:
+On Fri, Mar 28, 2003 at 04:49:46PM +0100, Andries.Brouwer@cwi.nl wrote:
+> Hi Ted,
+> 
+> Would you mind if I removed TIOCTTYGSTRUCT?
+> 
+> I suppose you don't need it any longer, and otherwise
+> could easily add some debugging stuff again when needed.
+> This ioctl exports lots of kernel-internal stuff that
+> userspace has no business looking at.
 
-> 	Simple, untested patch.  Any objections?
+Sure, go ahead; I'm pretty sure no one has used it for at least 6-7
+years...
 
-No objection, but you need to adapt the test in
-kernel/kallsyms.c:
-
-	if (addr >= (unsigned long)_stext && addr <= (unsigned long)_etext) {
-
-and in kernel/extable.c:
-
-	if (addr >= (unsigned long)_stext &&
-	    addr <= (unsigned long)_etext)
-
-Otherwise, you'd just add bloat with no gain at all ;)
-
---Kai
-
-
+						- Ted

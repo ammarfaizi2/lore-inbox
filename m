@@ -1,77 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271390AbTG2KmV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 06:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271393AbTG2KmU
+	id S271388AbTG2Kjl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 06:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271390AbTG2Kjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 06:42:20 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27074 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S271390AbTG2KmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 06:42:15 -0400
-Date: Tue, 29 Jul 2003 12:42:10 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: jcwren@jcwren.com, linux-kernel@vger.kernel.org
-Subject: Re: Assorted 2.6.0-test2 build warnings
-Message-ID: <20030729104209.GL28767@fs.tum.de>
-References: <Pine.LNX.4.53.0307272239570.2743@vialle.bloemsaat.com> <20030727165831.05904792.davem@redhat.com> <200307280211590888.10957DD9@192.168.128.16> <200307272057.31859.jcwren@jcwren.com> <20030728151104.300ae225.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030728151104.300ae225.rddunlap@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 29 Jul 2003 06:39:41 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:29372 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S271388AbTG2Kjj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 06:39:39 -0400
+Date: Tue, 29 Jul 2003 12:39:36 +0200 (MEST)
+Message-Id: <200307291039.h6TAda0x026973@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: cowboy@vnet.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: ACPI failure (2.6.0-test<x> and 2.4.22-pre<x>)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 03:11:04PM -0700, Randy.Dunlap wrote:
-> On Sun, 27 Jul 2003 20:57:31 -0400 "J.C. Wren" <jcwren@jcwren.com> wrote:
-> 
-> | Assorted warnings building 2.6.0-test2, on an Athlon:
-> | 
-> |   CC      fs/ntfs/super.o
-> | fs/ntfs/super.c: In function `is_boot_sector_ntfs':
-> | fs/ntfs/super.c:375: warning: integer constant is too large for "long" type
-> 
-> Please see if the patch below fixes this one.
->...
-> ~Randy
-> 
-> 
-> patch_name:	ntfs_ulong.patch
-> patch_version:	2003-07-28.14:29:57
-> author:		Randy.Dunlap <rddunlap@osdl.org>
-> description:	make a constant be UL;
-> product:	Linux
-> product_versions: 2.6.0-test2
-> maintainer:	Anton Altaparmakov <aia21@cantab.net>
-> diffstat:	=
->  fs/ntfs/layout.h |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> 
-> diff -Naurp ./fs/ntfs/layout.h~type ./fs/ntfs/layout.h
-> --- ./fs/ntfs/layout.h~type	2003-07-27 10:02:48.000000000 -0700
-> +++ ./fs/ntfs/layout.h	2003-07-28 14:05:20.000000000 -0700
-> @@ -43,7 +43,7 @@
->  #define const_cpu_to_le64(x)	__constant_cpu_to_le64(x)
->  
->  /* The NTFS oem_id */
-> -#define magicNTFS	const_cpu_to_le64(0x202020205346544e) /* "NTFS    " */
-> +#define magicNTFS	const_cpu_to_le64(0x202020205346544eUL) /* "NTFS    " */
->...
+On Mon, 28 Jul 2003 14:09:40 -0400 (EDT), Richard A Nelson wrote:
+>IBM T30 Laptop:
+>IBM machine detected. Enabling interrupts during APM calls.
+>IBM machine detected. Disabling SMBus accesses.  <- 2.6 only
+>No local APIC present or hardware disabled       <- 2.4 only
+>Local APIC disabled by BIOS -- reenabling.       <- 2.6 only
+>Found and enabled local APIC!                    <- 2.6 only
 
-s/UL/ULL/ (your patch fixed only 64 bit architectures)
+This is the 2.5.74 patch for P4 kicking in. Without it
+you wouldn't have access to the local APIC.
 
-The fix is already in Rusty's trivial patch.
+>On either 2.6, or 2.4, booting with ACPI enabled gets as far as
+>parsing the ACPI EC table - at which point it oops with bad pointer
+>and halts the system.  Sorry at this point I don't have the register
+>contents; it took a while to narrow it this far - and have the
+>screen in such a state that I can see any relevant information other
+>than the the trying to kill init message :)
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Since 2.4 also oopses it can't be the local APIC. I'm saying
+this because ACPI + local APIC doesn't work with some BIOSen.

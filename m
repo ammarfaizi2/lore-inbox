@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVCNPxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVCNPx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVCNPxt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 10:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVCNPxt
+	id S261556AbVCNPx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 10:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVCNPx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 10:53:49 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:52050 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S261555AbVCNPxQ (ORCPT
+	Mon, 14 Mar 2005 10:53:28 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:37136 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261553AbVCNPxO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 10:53:16 -0500
-Message-ID: <4235B367.3000506@tls.msk.ru>
-Date: Mon, 14 Mar 2005 18:53:11 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mouse&keyboard with 2.6.10+
-References: <4235683E.1020403@tls.msk.ru> <42357AE0.4050805@tls.msk.ru> <20050314142847.GA4001@ucw.cz>
-In-Reply-To: <20050314142847.GA4001@ucw.cz>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Mar 2005 10:53:14 -0500
+Date: Mon, 14 Mar 2005 10:52:55 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Greg Stark <gsstark@mit.edu>
+Cc: Andrew Morton <akpm@osdl.org>, s0348365@sms.ed.ac.uk,
+       linux-kernel@vger.kernel.org, pmcfarland@downeast.net
+Subject: Re: OSS Audio borked between 2.6.6 and 2.6.10
+Message-ID: <20050314155253.GA8197@tuxdriver.com>
+Mail-Followup-To: Greg Stark <gsstark@mit.edu>,
+	Andrew Morton <akpm@osdl.org>, s0348365@sms.ed.ac.uk,
+	linux-kernel@vger.kernel.org, pmcfarland@downeast.net
+References: <200503130152.52342.pmcfarland@downeast.net> <874qff89ob.fsf@stark.xeocode.com> <200503140103.55354.s0348365@sms.ed.ac.uk> <87sm2y7uon.fsf@stark.xeocode.com> <20050313200753.20411bdb.akpm@osdl.org> <87br9m7s8h.fsf@stark.xeocode.com> <87zmx66b2b.fsf@stark.xeocode.com> <87u0nevc11.fsf@stark.xeocode.com> <20050314015321.5e944d84.akpm@osdl.org> <87is3uutg4.fsf@stark.xeocode.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87is3uutg4.fsf@stark.xeocode.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Mon, Mar 14, 2005 at 02:52:00PM +0300, Michael Tokarev wrote:
->  
+On Mon, Mar 14, 2005 at 10:40:27AM -0500, Greg Stark wrote:
+> Andrew Morton <akpm@osdl.org> writes:
 > 
->>After plugging in USB keyboard and loading uhci-hcd and
->>usbhid, the keyboard un-freeze, but mouse still didn't
->>work.  So I tried re-loading psmouse module, and
->>surprizingly, mouse started working again, but now dmesg
->>says:
->>
->> input: PS2++ Logitech Wheel Mouse on isa0060/serio1
->>
->>(normally it's
->> input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
->>)
->>
->>and the mouse is moving very fast now.  Previously
->>I either didn't able to make it work at all after such
->>freeze, or it worked automatically after loading usbhid.
->>
->>BTW, it's 2.6.10, I can't made it work with 2.6.11 at all.
+> > Herbert tells me that this might be fixed in 2.6.11.  Did you try that?
+> 
+> Nope. I'll try that. 
 > 
 > 
-> Can you try 'usb-handoff' on the kernel command line?
+> (Though I'm skeptical. It went from 2.6.6 to 2.6.10 without being noticed but
+> now it's fixed without any reports?)
 
-The problem has nothing to do with USB per se, as far as
-I can see.  PS2 keyboard and mouse does not work when
-the USB subsystem (incl. usbcore) is not loaded.  And the
-problem is with PS2 keyboard/mouse, not with USB one which
-works just fine.
+(Presuming that the Quake3 problem is the same as the Wolfenstein:
+ET problem...)
 
-/mjt
+It was reported as a problem with RHEL3.  When I discovered the fix,
+I pushed it to the OSS drivers in 2.6.x as well.
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

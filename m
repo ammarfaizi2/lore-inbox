@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316199AbSH0Nv0>; Tue, 27 Aug 2002 09:51:26 -0400
+	id <S316070AbSH0NtO>; Tue, 27 Aug 2002 09:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316204AbSH0Nv0>; Tue, 27 Aug 2002 09:51:26 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:6868 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316199AbSH0NvZ>;
-	Tue, 27 Aug 2002 09:51:25 -0400
-Date: Tue, 27 Aug 2002 19:28:55 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, davej@suse.de, andrea@suse.de,
-       paul.mckenney@us.ibm.com
-Subject: Re: [BKPATCH] Read-Copy Update 2.5
-Message-ID: <20020827192855.A2391@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20020827022239.C31269@in.ibm.com> <20020826193708.0C64C2C07B@lists.samba.org> <20020827114152.A2072@in.ibm.com> <20020826.231157.10296323.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020826.231157.10296323.davem@redhat.com>; from davem@redhat.com on Mon, Aug 26, 2002 at 11:11:57PM -0700
+	id <S316089AbSH0NtO>; Tue, 27 Aug 2002 09:49:14 -0400
+Received: from h-64-105-35-65.SNVACAID.covad.net ([64.105.35.65]:12196 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S316070AbSH0NtN>; Tue, 27 Aug 2002 09:49:13 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 27 Aug 2002 06:53:19 -0700
+Message-Id: <200208271353.GAA04875@adam.yggdrasil.com>
+To: hch@infradead.org
+Subject: Re: Loop devices under NTFS
+Cc: aia21@cantab.net, kernel@bonin.ca, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 11:11:57PM -0700, David S. Miller wrote:
-> 
-> I think it gets both static and non-static wrong.
+On Tue, 27 Aug 2002, Christoph Hellwig:
+>Yes.  Anything but the filesystem itself and the generic read/write path
+>is not supposed to use address space operations directly.
 
-Is this problem specific to certain versions of 2.95 gcc ?
+	Why?
 
-For "static DEFINE_PER_CPU(atomic_t, fake_struct);", I get this
-with gcc 2.95.4 -
+	According to linux-2.5.31/Documentation/Locking,
+"->prepare_write(), ->commit_write(), ->sync_page() and ->readpage()
+may be called from the request handler (/dev/loop)."
 
-.section        .percpu
-        .align 4
-        .type    fake_struct__per_cpu,@object
-        .size    fake_struct__per_cpu,4
-fake_struct__per_cpu:
-        .zero   4
-        .ident  "GCC: (GNU) 2.95.4 20011002 (Debian prerelease)"
+	Using the page cache in loop.c saves a copy when there is a
+data transformation (such as encryption) involved, and that can be
+important for reducing the cost of privacy.
 
-It seems to be in .percpu section. I can't go back to the gcc that gave 
-us problems at the moment.
+>> >Note that there is a more severe bug in loop.c:  it's abuse of
+>> >do_generic_file_read.  
+>> 
+>> 	Could you please elaborate on this and give an example where
+>> it return incorrect data, deadlock, generate a kernel oops, etc.?
 
-> 
-> Why don't we just specify that DEFINE_PER_CPU()'s must
-> have explicit initializers then we never need to think
-> about this ever again.
+>Depending on the filesystem implementation _anything_ may happen.
+>With current intree filesystems the only real life problem is that
+>it doesn't work on certain filesystems.
 
-Like DEFINE_PER_CPU(type, var, initializer) ?
-For now, I will remain paranoic and keep the initializers.
+	Sorry for repeating myself here: If you're referring to the
+stock loop.c not working with tmpfs because tmpfs lacks
+{prepare,commit}_write which my patch works around (based on Jari's
+patch before mine, and a patch by Andrew Morton as well).  I have yet
+to hear a clear reason why any writable plain file on any given file
+system could not have {prepare,commit}_write operations available.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+>I think at least the network
+>filesystems might be oopsable with some preparation.
+
+	Please come up with a clear example.  I'm not asking you for a
+test case that can produce it, just some narrative of the problem
+occurring.
+
+	I am aware that you can get races if someone mounts a loop
+device while accessing the underlying file by some other mechanism,
+but I believe that the only case where that would be done in practice
+is to change the encryption of a device, and, because of the read and
+write patterns involved in that, it should not be a problem.
+   
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+

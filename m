@@ -1,84 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265244AbTLFUMz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 15:12:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265246AbTLFUMz
+	id S265239AbTLFUIj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 15:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265242AbTLFUIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 15:12:55 -0500
-Received: from rly-ip05.mx.aol.com ([64.12.138.9]:36066 "EHLO
-	rly-ip05.mx.aol.com") by vger.kernel.org with ESMTP id S265244AbTLFUMv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 15:12:51 -0500
-Date: Sat, 6 Dec 2003 12:56:04 -0700
-Subject: Re: partially encrypted filesystem
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v553)
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       willy@debian.org, ezk@cs.sunysb.edu, joern@wohnheim.fh-wedel.de,
-       phillip@lougher.demon.co.uk, kbiswas@neoscale.com
-To: maze@cela.pl, valdis.kletnieks@vt.edu
-From: Pat LaVarre <p.lavarre@ieee.org>
-Content-Transfer-Encoding: 7bit
-Message-Id: <39B8D78E-2826-11D8-8D5E-000393A22C62@ieee.org>
-X-Mailer: Apple Mail (2.553)
-X-Apparently-From: PPAATT@aol.com
-X-AOL-IP: 198.81.18.131
+	Sat, 6 Dec 2003 15:08:39 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:61853
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S265239AbTLFUIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 15:08:37 -0500
+Message-ID: <3FD23706.7050700@redhat.com>
+Date: Sat, 06 Dec 2003 12:07:34 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031121 Thunderbird/0.4a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jon Smirl <jonsmirl@yahoo.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] FIx  'noexec' behavior
+References: <20031206200322.86264.qmail@web14902.mail.yahoo.com>
+In-Reply-To: <20031206200322.86264.qmail@web14902.mail.yahoo.com>
+X-Enigmail-Version: 0.82.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > > Suppose we wish to encrypt the files on a
- > > disc or disk or drive that we carry from one
- > > computer to another.
- > >
- > > Where else can the encryption go, if not
- > > "down to the file system"?
- >
- > From: ...maze...
- > ... sparse feature... of the filesystem ...
- > ways for which it likely wasn't designed,
- > thus ... likely ... problems ... slowdowns ...
- > sparse .... seldom used ... mostly ... static ...
- > later write access ... better or worse .... fragmentations ...
- > may ... required ... significant ... making ... work _well_
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Agreed.
+Jon Smirl wrote:
+ = 0
+> 9292  old_mmap(0xbfe0f000, 12288, PROT_READ|PROT_WRITE|PROT_EXEC,
+> MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0[jonsmirl@smirl jonsmirl]$
 
- > some other method ....
- > less likely to cause massive disk fragmentation.
+Add "file && " to the beginning of the new conditional and it should work.
 
-Such as?
+- -- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
- > From: ...valdis...
- > ... Other ... theoretically ... if not totally workable.
-
-Aye personally I focus on workable application of theory.
-
- > above ... a la PGP ...
-
-Aye I see "compressed folders" arriving on desktops, and I see 
-commercial encryption using that same approach.
-
- > below ... a la encrypted loopback ....
-
-I'm guessing encryption raises many/all the same issues as compression.
-
-Frustratingly, I find I can't quite lay hold of why people haven't more 
-widely adopted compression/ encryption in random-access storage.
-
-Personally I mostly ignored storage until 1994, then I dug in, then I 
-felt most shocked to discover nothing like modem compression deployed, 
-not even compression for each concentric track of an HDD.  Conceptually 
-I like e.g. Usenix talk re garbage-collected log-structured 
-filesystems, but nobody's made those real, I'm not yet clear why.
-
-I want compression to trade away time for space, to mess with the 
-phenomenon of people living all life at 95% of quota, and to contradict 
-the theory that no fs works well when more than 50% full.
-
-Pat LaVarre
-
-P.S. Maybe my second deepest culture shock was finding max bytes/cdb 
-choked off near zero e.g. 64 KiB in many places, 128 KiB now rumoured 
-for parts of lk 2.6.  I'm not sure how often quantitative measurements 
-of algorithms wrongly show no improvement because swamped by that limit.
-
+iD8DBQE/0jcH2ijCOnn/RHQRAgs4AJ9xSCtZ27lM2hgmDJhW24atTPDHbgCcDWHQ
+jfa75LhA4JGRuwBodslzB3A=
+=A0T0
+-----END PGP SIGNATURE-----

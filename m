@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129933AbRAKLlF>; Thu, 11 Jan 2001 06:41:05 -0500
+	id <S131096AbRAKLlz>; Thu, 11 Jan 2001 06:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129878AbRAKLkz>; Thu, 11 Jan 2001 06:40:55 -0500
-Received: from mail.sun.ac.za ([146.232.128.1]:47109 "EHLO mail.sun.ac.za")
-	by vger.kernel.org with ESMTP id <S130026AbRAKLkm>;
-	Thu, 11 Jan 2001 06:40:42 -0500
-Date: Thu, 11 Jan 2001 13:40:30 +0200 (SAST)
-From: Hans Grobler <grobh@sun.ac.za>
-To: Darryl Miles <darryl@netbauds.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0: Small observation in /proc/sys/net/unix/
-In-Reply-To: <3A5D9A82.2568646B@netbauds.net>
-Message-ID: <Pine.LNX.4.30.0101111339370.30013-100000@prime.sun.ac.za>
+	id <S131045AbRAKLlp>; Thu, 11 Jan 2001 06:41:45 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:58893 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S130892AbRAKLlh>;
+	Thu, 11 Jan 2001 06:41:37 -0500
+Date: Thu, 11 Jan 2001 12:41:12 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+        Nathan Walp <faceprint@faceprint.com>, Hans Grobler <grobh@sun.ac.za>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Oops in 2.4.0-ac5 
+In-Reply-To: <1605.979211755@redhat.com>
+Message-ID: <Pine.LNX.4.30.0101111238190.6227-100000@e2>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jan 2001, Darryl Miles wrote:
-> # ls -il /proc/sys/net/unix/
-> total 24
->    4446 -rw-------   1 root     root            0 Jan 11 11:06
-> max_dgram_qlen
->    4446 -rw-------   1 root     root            0 Jan 11 11:06
-> max_dgram_qlen
->
-> Identical filenames, nothing bad appears to be happening it just looks
-> weird.
 
-This has been fixed in Alan's patches.
+On Thu, 11 Jan 2001, David Woodhouse wrote:
 
--- Hans
+> The bug here seems to be that we're using the same bit
+> (X86_FEATURE_APIC) to report two _different_ features.
+
+i think that the AMD APIC is truly 'compatible', but we are trying to
+enable the APIC and program performance counters in an Intel-way. The MSRs
+can be incompatible between steppings of the same CPU, so we should not
+mark something 'incompatible' on that basis.
+
+so the correct statement is: the UP-P6-specific way of enabling APICs does
+not work on Athlons. It doesnt work on P5's either.
+
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

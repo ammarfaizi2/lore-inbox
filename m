@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263632AbUELMmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264931AbUELMtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbUELMmn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 08:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbUELMmn
+	id S264931AbUELMtn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 08:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbUELMtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 08:42:43 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:45219 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263632AbUELMmm (ORCPT
+	Wed, 12 May 2004 08:49:42 -0400
+Received: from zork.zork.net ([64.81.246.102]:23239 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S264931AbUELMtl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 08:42:42 -0400
-Date: Wed, 12 May 2004 14:38:59 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: Chris Wedgwood <cw@f00f.org>, nautilus-list@gnome.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
-Message-ID: <20040512123859.GA13066@wohnheim.fh-wedel.de>
-References: <1084152941.22837.21.camel@vertex> <20040510021141.GA10760@taniwha.stupidest.org> <1084227460.28663.8.camel@vertex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1084227460.28663.8.camel@vertex>
-User-Agent: Mutt/1.3.28i
+	Wed, 12 May 2004 08:49:41 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm1
+References: <20040510024506.1a9023b6.akpm@osdl.org>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, vojtech@suse.cz,
+ linux-kernel@vger.kernel.org
+Date: Wed, 12 May 2004 13:49:36 +0100
+In-Reply-To: <20040510024506.1a9023b6.akpm@osdl.org> (Andrew Morton's
+ message of "Mon, 10 May 2004 02:45:06 -0700")
+Message-ID: <6ufza5yfmn.fsf@zork.zork.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 May 2004 18:17:40 -0400, John McCutchan wrote:
-> 
-> I now use ino_t and dev_t , though in struct inode, i_no is unsigned
-> long?
+Andrew Morton <akpm@osdl.org> writes:
 
-Correct.  That definition should be changed as well, I just didn't
-care enough to submit a patch yet.  Anyway, old mistakes never justify
-new mistakes.
+> psmouse-fix-mouse-hotplugging.patch
+>   psmouse: fix mouse hotplugging
 
-Jörn
+This change seems to cause psmouse.proto=bare to no longer work as a
+way of disabling the passthrough port on my laptop's Synaptics touchpad.
+However, the effect is not the same as omitting it entirely; I don't
+see a separate entry for the trackpoint[1] in /proc/bus/input/devices.
 
--- 
-People will accept your ideas much more readily if you tell them
-that Benjamin Franklin said it first.
--- unknown
+
+[1] Faulty trackpoint, in my case.
+

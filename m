@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262985AbTIAQPl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 12:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbTIAQPk
+	id S263003AbTIAQNI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 12:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262997AbTIAQNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 12:15:40 -0400
-Received: from hauptpostamt.charite.de ([193.175.66.220]:23727 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S263019AbTIAQP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 12:15:28 -0400
-Date: Mon, 1 Sep 2003 18:01:25 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Re:Re: Linux 2.6.0-test4
-Message-ID: <20030901160125.GL22127@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030831120605.08D6.CHRIS@heathens.co.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030831120605.08D6.CHRIS@heathens.co.nz>
-User-Agent: Mutt/1.5.4i
+	Mon, 1 Sep 2003 12:13:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64166 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263003AbTIAQNB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 12:13:01 -0400
+Message-ID: <3F537001.7070304@pobox.com>
+Date: Mon, 01 Sep 2003 12:12:49 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tigran Aivazian <tigran@veritas.com>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       tigran@aivazian.fsnet.co.uk
+Subject: Re: dontdiff for 2.6.0-test4
+References: <Pine.GSO.4.44.0309010848040.18476-100000@north.veritas.com>
+In-Reply-To: <Pine.GSO.4.44.0309010848040.18476-100000@north.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Heath <chris@heathens.co.nz>:
-> > Aug 27 18:53:41 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-> > Aug 27 19:15:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
-> > Aug 27 19:42:50 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-> > Aug 28 10:14:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-> > 
-> > Basically, CTRL was stuck. Even when I switched to X11.
+Tigran Aivazian wrote:
+>>On Mon, Sep 01, 2003 at 07:57:27AM -0700, Tigran Aivazian wrote:
+>>
+>>>I have updated dontdiff in the usual place:
+>>>
+>>>  http://www.moses.uklinux.net/patches/dontdiff
+>>>
+>>>for the 2.6 kernels. Obviously this was only tested on my configuration(s)
+>>>so any additions are welcome. Just email them to me and I will add them.
+>>>
+>>>For those who don't know what "dontdiff" is --- grep the file:
+>>>
+>>>/usr/src/linux/Documentation/SubmittingPatches
+>>
+>>Btw, what about putting this somewhere in the kernel tree?
 > 
-> Well, this completely baffles me.  I thought X11 maintains its own
-> keydown array.
 > 
-> Anyway, I've included a patch that should hopefully give us better
-> debugging information.  When you get an unknown key error, it will also
-> dump the last 16 bytes that were sent from the keyboard.  Be careful
-> with this one.  If you post any errors to the list, make sure it doesn't
-> contain any sensitive passwords. :-)
+> Probably a good idea, because I hesitated whether to call this
+> "dontdiff-2.6" and leave the existing dontdiff for 2.4 or just switch to
+> 2.6 (assuming it is applicable to 2.4 as well). But if it is in the kernel
+> tree then no need to worry about which dontdiff matches which kernel.
 
-I applied your patch, and alas:
 
-Sep  1 16:12:19 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
-Sep  1 16:12:19 hummus2 kernel: i8042 history: ae 9d e0 48 e0 c8 e0 38 56 d6 e0 b8 e0 b8 39 b9
+I'll throw it into 2.6.  I use dontdiff all the time :)
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-AIM: ralfpostfix
+FWIW I use the same dontdiff for 2.4 and 2.6...
+
+	Jeff
+
+

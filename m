@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266292AbUAVTYf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 14:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266298AbUAVTYf
+	id S266412AbUAVStN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 13:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266413AbUAVStN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 14:24:35 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4333 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266292AbUAVTYJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 14:24:09 -0500
-Date: Thu, 22 Jan 2004 20:24:01 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Maciej Zenczykowski <maze@cela.pl>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Valdis.Kletnieks@vt.edu,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] invalid ELF binaries can execute - better sanitychecking
-Message-ID: <20040122192401.GM6441@fs.tum.de>
-References: <Pine.LNX.4.56.0401090437060.11276@jju_lnx.backbone.dif.dk> <Pine.LNX.4.44.0401092105070.1739-100000@gaia.cela.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401092105070.1739-100000@gaia.cela.pl>
-User-Agent: Mutt/1.4.1i
+	Thu, 22 Jan 2004 13:49:13 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:31680 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S266412AbUAVStJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 13:49:09 -0500
+Message-ID: <40101B1E.3030908@blue-labs.org>
+Date: Thu, 22 Jan 2004 13:49:02 -0500
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040121
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Lang <david.lang@digitalinsight.com>
+CC: Jes Sorensen <jes@wildopensource.com>, Zan Lynx <zlynx@acm.org>,
+       Andreas Jellinghaus <aj@dungeon.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed
+ to public posts
+References: <ecartis-01212004203954.14209.1@mail.convergence2.de> <20040121194315.GE9327@redhat.com> <Pine.LNX.4.58.0401211155300.2123@home.osdl.org> <1074717499.18964.9.camel@localhost.localdomain> <20040121211550.GK9327@redhat.com> <20040121213027.GN23765@srv-lnx2600.matchmail.com> <pan.2004.01.21.23.40.00.181984@dungeon.inka.de> <1074731162.25704.10.camel@localhost.localdomain> <yq0hdyo15gt.fsf@wildopensource.com> <401000C1.9010901@blue-labs.org> <Pine.LNX.4.58.0401221034090.4548@dlang.diginsite.com>
+In-Reply-To: <Pine.LNX.4.58.0401221034090.4548@dlang.diginsite.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 09, 2004 at 09:20:53PM +0100, Maciej Zenczykowski wrote:
-> > I know of the document, but thank you for pointing it out, it's quite an
-> > interresting read. Actually, reading that exact document ages ago was what
-> > initially caused me to start reading the ELF loading code (thinking
-> > "there's got to be something wrong here").
-> > I've actually been planning to use some of the crazy stunts he pulls
-> > with that code as validity checks of the code I want to implement (in
-> > adition to specially tailored test-cases ofcourse).
-> 
-> I think this points to an 'issue', if we're going to increase the checks
-> in the ELF-loader (and thus increase the size of the minimal valid ELF
-> file we can load, thus effectively 'bloating' (lol) some programs) we
-> should probably allow some sort of direct binary executable files [i.e.
-> header 'XBIN386\0' followed by Read/Execute binary code to execute by
-> mapping as RX at any offset and jumping to offset 8] to allow writing
-> minimal executables.  Minimalizing executables is useful for embedded
-> systems, portable devices, floppy distributions and ramdisk/initrd
-> situations.  Sure many of these solve this problem by UPX compressing
-> busybox/crunchbox one-file-many-executables files, but it would still be
-> nice to be able to dump all the extra crud in some cases.  Some of these
-> distributions already contain non-standards conforming ELF files. I have a
-> 933 byte less and a 305 byte strings command on my initrd (taken from some
->...
+I've been amusing myself once or twice a week by studying some of these 
+emails.  Due to the use of common words just like your email below, 
+bayesian score is far too low (granting it a negative point value in SA).
 
-The best non-standards conforming ELF program I know is e3 [1] - a
-10 kB Editor that supports Emacs-, Vi-, Pico-, Nedit- and Wordstar-like 
-key bindings. Additionally, it includes a numeric calculator.
+The problem is that properly trained is too fluid.  It'd be far more 
+achievable if I only talked geek..  Or if I only talked automotive.  Or 
+that I only talked medical.  However, my "vocabulary" is far to varied 
+to train a bayesian filter that the use of medical terms, computer 
+terms, or a given topic, is taboo.
 
-> Cheers,
-> MaZe.
+It cuts the gray area far to close to the middle of the road and thus 
+makes marking the email as probable spam useless.  All I'm doing now is 
+wasting CPU because in the end I'm doing the job of dealing with the 
+spam myself.
 
-cu
-Adrian
+Yes, I did see this.  I'm not so spiteful and actively pay attention to 
+my queue when having this type of correspondence.
 
-[1] http://www.sax.de/~adlibit/
+David
 
--- 
+David Lang wrote:
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+>On Thu, 22 Jan 2004, David Ford wrote:
+>  
+>
+>>Considering that Bayesian filters are useless against the new spam that
+>>is proliferating these days, that's laughable.  Spam now comes with a
+>>good 5-10K of random dictionary words.
+>>    
+>>
+>so we need to extend the Bayesian filters to deal with multi-word combos,
+>how many legit mail has those dictionary words in them? properly traind
+>their presence should help identify the spam.
+>
+>not that you will ever see this (other then through the list) as I won't
+>respond to your confirmation message.
+>
+>David Lang
+>  
+>

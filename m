@@ -1,100 +1,270 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264535AbTFQEWV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 00:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbTFQEWV
+	id S264540AbTFQEV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 00:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264535AbTFQEVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 00:22:21 -0400
-Received: from dp.samba.org ([66.70.73.150]:11728 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264535AbTFQEWF (ORCPT
+	Tue, 17 Jun 2003 00:21:52 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7182 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264540AbTFQEVk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 00:22:05 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Cc: Martin Diehl <lists@mdiehl.de>
-Cc: Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] Add module_kernel_thread for threads that live in modules. 
-In-reply-to: Your message of "Tue, 17 Jun 2003 09:10:48 +1000."
-             <16110.20088.351260.156860@gargle.gargle.HOWL> 
-Date: Tue, 17 Jun 2003 14:25:45 +1000
-Message-Id: <20030617043558.82FAD2C7B6@lists.samba.org>
+	Tue, 17 Jun 2003 00:21:40 -0400
+Date: Mon, 16 Jun 2003 21:35:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux v2.5.72 and a move to OSDL
+Message-ID: <Pine.LNX.4.44.0306162131350.1644-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id h5H4Z9B19152
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <16110.20088.351260.156860@gargle.gargle.HOWL> you write:
-> On Monday June 16, rusty@rustcorp.com.au wrote:
-> > Hi Neil,
-> 
-> Hi Rusty.  Thanks for the comments... I probably should have Cc:ed you
-> in the first place....
 
-Yeah, that does tend to get faster response, but I know some hackers
-consider it completely optional 8(
+Ok, I waited too long for 2.5.71, so here's a more timely 2.5.72
+release. 
 
-> > 	There are several problems with this patch.  Ignoring the fact
-> > that you use __module_get.  Firstly, you bump the module count
-> > permentantly while the thread is running: how does it ever get
-> > unloaded?  Secondly, modprobe becomes your parent.
-> 
-> We seem to have very different views of the problem, as you seem to be
-> calling into question aspects that I thought were obviously correct.
-> 
-> __module_get:
->    In all the cases I am interested in (nfsd, lockd,
->    lockd-helper-thread), the thread is started by code running
->    inside the module and so there will be a reference held on the
->    module while the thread is being started, thus __module_get is the
->    correct thing to do as "we know we already have a refcount"...
+It's extra timely largely because the hash list poisoning found some
+problems in the RPC code, making NFS break.  Trond found and fixed the
+breakage, so 2.5.72 should work fine in an NFS environment too.  Let's
+see if the list poisoning shows any other dodgy list users.  Knock wood. 
 
-But do you wait for it?  Theoretically the init code could have
-finished, and someone done rmmod, before this thread gets as far as
-__module_get, no?
+Also, Arnaldo has cleaned up a lot of the networking code to use the
+generic hash lists, instead of the old ad-hoc net-specific list walking
+code.  That code has been tested pretty well, but please holler if you
+see something. 
 
-> module count bumped permananelt while thread is running:
->    well ofcourse, the thread runs code in the module which can only
->    be done safely while we have a ref-count.
+Changelog for other details appended.
 
-For future reference: this isn't quite true.  If a function/thread is
-synchronously stopped by the exit code/failed init code then they
-don't need to hold a reference count: it still *can* hold a reference
-count, which really depends on whether the module should be considered
-"in use" by the thread... cf. timers.
+The other big news - well, for me personally, anyway - is that I've
+decided to take a leave-of-absense after 6+ years at Transmeta to
+actually work full-time on the kernel. 
 
->    The threads I am thinking of aren't running "whenever the module is
->    loaded".  They are running "whenever their service is needed".
+Transmeta has always been very good at letting me spend even an
+inordinate amount of time on Linux, but as a result I've been feeling a
+little guilty at just how little "real work" I got done lately.  To fix
+that, I'll instead be working at OSDL, finally actually doing Linux as
+my main job. 
 
-My bad: I wasn't sure given my (admittedly brief) glance at the code.
-Thanks for clarifing!
+[ I do not expect a huge amount of change as a result, testament to just
+  /how/ freely Transmeta has let me do Linux work.  My email address will
+  change to "torvalds@osdl.org" effective July 1st, but everybody is
+  trying to make the transfer as smooth as possible, so we'll make sure
+  that there will be sufficient address overlap etc to not cause any
+  problems ]
 
-> modprobe becomes your parent:
->    No, modprobe has nothing to do with it in my case. rpc.nfsd, or 
->    mount_nfs or lockd might be the parent.  I thought reparent_to_init
->    handled all that.  Apparently there are question marks over that
->    which I wasn't aware of.
+OSDL and Transmeta will have a joint official (read: "boring".  You
+should have seen the bio - that didn't make it - that I suggested for
+myself for it ;) press-release about this tomorrow morning, but I just
+wanted to say thanks to Transmeta.  It has been a special place to work
+for, and hello to OSDL that I hope will be the same. 
 
-Andrew has been trying to kill it, and I think he's right.  In
-practical terms, it's much easier to start from a clean environment
-than to clean up an unknown one, and keep that cleanup code uptodate.
+Snif.  I'm actually all teary-eyed. 
 
-> I don't want to have to call "cleanup_thread" or de-allocate the
-> "struct kthread".  I want to be able to SIGKILL a process and have it
-> go away and release everything, including possibly the last refernce
-> to the module.
-> 
-> In short, it really feels like we are trying to solve different
-> problems :-)
 
-Agreed: threads under their own control are much simpler than ones
-under external control.
+			Linus
 
-> I will have a look at keventd and see if it's services can be of
-> assistance to solve my problem.
+----
 
-I will think, which usually seems to help me when presented with new
-information 8)
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Summary of changes from v2.5.71 to v2.5.72
+============================================
+
+Alexey Kuznetsov:
+  o [IPV4]: More sane rtcache behavior
+
+Andi Kleen:
+  o Fix typo in timing changes + support for x86-64
+  o Fix compilation of 32bit ioctl emulation on x86-64
+  o Minor 32bit compatibility fix for /dev/rtc
+  o x86-64 merge
+  o Fix over-alignment problem on x86-64
+
+Andrew Morton:
+  o fix deadlock over proc_lock
+  o NUMA fixes
+  o compat_ioctl fixes
+  o Unisys ES7000 platform subarch 1/2: generic bits
+  o Unisys ES7000 2/2: platform subarch
+  o pcips2.c compile fix
+  o Some clean up of the time code
+  o More time clean up stuff
+  o fix architecture do_settimeofday() for new API
+  o arcnet oops fix
+  o remove anon_hash_chain
+  o tmpfs: revert license to 2.4 version
+  o dm: Repair persistent minors
+  o make pid_max readable
+  o Fix sign handling bugs in various drivers
+  o Parenthesisation fix in drivers
+  o efs typo fix
+  o new eepro100 PDI ID
+
+Anton Blanchard:
+  o fix compat_sys_getrusage
+
+Arnaldo Carvalho de Melo:
+  o [NET]: net/core/flow.c needs linux/cpu.h
+  o list.h: implement hlist_for_each_entry_{from,continue}
+  o net: use hlist for struct sock hash lists
+  o tcp: convert struct tcp_bind_bucket to hlist
+  o tcp: convert tcp_tw_bucket->tw_death* to hlist
+  o af_unix: remove typedef unix_socket, use plain struct sock
+
+Bartlomiej Zolnierkiewicz:
+  o ide: bring non-taskfile code back
+  o ide: Power Management
+  o ide: move "config IDE" to drivers/ide/Kconfig
+
+Brian Gerst:
+  o small cleanup for powernow-k7
+
+Christoph Hellwig:
+  o [NET]: Move iph5526_probe to initcalls
+
+Daniel Ritz:
+  o [PCMCIA] fix yenta unload oops
+
+David S. Miller:
+  o [BLUETOOTH]: Remove unused local var in rfcomm/tty.c
+  o [TCP]: Make sure tcp_tw_bucket tw_daddr is aligned properly
+  o [TCP]: Use proper time_*() comparisons on jiffies
+  o [DECNET]: Fix bogus pointer cast to int
+  o [SPARC64]: Update sys32_settimeofday for do_settimeofday() changes
+  o [SPARC64]: Update defconfig
+  o [SPARC64]: Merge sysinfo32 corrections from ppc64 port
+
+Dominik Brodowski:
+  o [PCMCIA] Remove stale structure definition
+  o [PCMCIA] Fix class device name
+  o [PCMCIA] Move socket /proc to sysfs
+  o [PCMCIA] move creation of /proc/pccard to ds.c
+  o [PCMCIA] Remove inquire_socket
+
+François Romieu:
+  o resync of dscc4 driver with 2.4.x version
+
+Greg Ungerer:
+  o DragonEngine board name change
+  o conditional ROMfs copy for M5206eLITE board
+  o remove 68328 arch specific irq init
+  o ColdFire serial driver fixups
+
+Helge Deller:
+  o input: Turn on the NumLock ON by default on PARISC HP-HIL machines
+
+Hideaki Yoshifuji:
+  o [IPSEC]: Fix xfrm_alloc_spi() always selecting minspi
+
+Hiroshi Miura:
+  o input: Add default mapping for the hiragana/katakana key
+
+Ivan Kokshaysky:
+  o [ALPHA] Fix Jensen PCI domains warning
+  o alpha osf_settimeofday fix
+
+Kazunori Miyazawa:
+  o [IPV6]: Fix ipv6 header handling of AH input
+
+Linus Torvalds:
+  o Fix up missing header files
+
+Matthew Dharm:
+  o unusual_devs fixups
+
+Matthew Wilcox:
+  o [NET]: Kill extraneous CONFIG_{NET,KMOD} in net/socket.c
+  o parisc arch update
+
+Mikael Pettersson:
+  o local APIC blacklist rules updates
+  o local APIC driver model cleanups
+
+Paul Mackerras:
+  o PPC32: Fix pci_domain_nr()
+  o PPC32: only define cond_syscall if it isn't already defined
+  o PPC32: Update the defconfigs
+  o PPC32: vmlinux.lds.S cleanup + discard .exitcall.exit sections
+  o fix weird kmalloc bug
+  o [NET]: Use unregister_netdev() in ppp
+
+Paul Mundt:
+  o Fix PCI hotplug path for SH
+  o Add mach-type generation for SH
+
+Peter Chubb:
+  o input: The appended fix is needed on I2000 machines, to map the
+    legacy ISA interrupt onto the actual interrupt provided.  Otherwise
+    the mouse and keyboard won't work.  Patch against 2.5.70.
+
+Peter Osterlund:
+  o input: fix some minor errors found in the input-programming.txt
+    file
+  o input: Add Synaptics touchpad absolute mode support
+
+Ravikiran G. Thirumalai:
+  o [DECNET]: Fix signedness error in dm_ioctl()
+  o [TUN]: Fix signedness error in tun_get_user()
+
+Richard Henderson:
+  o [ALPHA] Update Jensen call to ide_register_hw
+
+Rik van Riel:
+  o [NET]: Fix error message when registering IGMP
+
+Robert Olsson:
+  o [IPV4]: Add rtcache hash lookup statistics to rtstat
+  o [IPV4]: In rt_intern_hash, reinit all state vars on branch to
+    "restart"
+
+Roman Zippel:
+  o Clean up kernel parameter array declaration
+
+Russell King:
+  o input: PCI PS/2 keyboard and mouse controller (Mobility Docking
+    station)
+  o [PCMCIA] Remove inquire_socket method from sa11xx_core.c
+  o [PCMCIA] Prevent class_device related oops
+
+Rusty Russell:
+  o clean up overzealous deprecated warning
+
+Samuel Thibault:
+  o Fix ma600.c compile
+
+Sergey Vlasov:
+  o hid: fix HID feature/output report writing to devices. This should
+    fix most problems with UPS shutdown.
+  o hid: Add missing 'return 0's in hiddev ioctl handler
+
+Stelian Pop:
+  o sonypi driver update
+  o meye driver update
+
+Stephen Hemminger:
+  o [NET]: Convert SLIP driver to alloc_netdev
+  o [NET]: Network hotplug via class_device/kobject
+  o [NET]: Fix spurious kfree and missed initialization in TUN driver
+
+Trond Myklebust:
+  o Fix rpc dentry list usage
+
+Ville Nuorvala:
+  o [IPV6]: Fix refcount leaks in udpv6_connect()
+
+Vojtech Pavlik:
+  o input: fix sunkbd to properly set its bitfields up to key #127
+  o input: Add key definitions for HP-HIL keyboards
+  o input: Change input/misc/pcspkr.c to use CLOCK_TICK_RATE instead of
+    a fixed value of 1193182. And change CLOCK_TICK_RATE and several
+    usages of a fixed value 1193180 to a slightly more correct value
+
+Zephaniah E. Hull:
+  o input: Implement input device grabbing so that it is possible to
+    steal an input device from other handlers and have an exclusive
+    access to events.
+  o input: Implement a HID quirk for 2-wheel A4Tech mice
+
+

@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbTIKPde (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 11:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbTIKPde
+	id S261325AbTIKP5U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 11:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbTIKP5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 11:33:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13491 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261377AbTIKPdW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 11:33:22 -0400
-Message-ID: <3F6095B5.9010100@pobox.com>
-Date: Thu, 11 Sep 2003 11:33:09 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Thu, 11 Sep 2003 11:57:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26588 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261325AbTIKP5S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 11:57:18 -0400
+Date: Thu, 11 Sep 2003 08:54:31 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Claas Langbehn <claas@rootdir.de>
+cc: <linux-kernel@vger.kernel.org>, Andrew de Quincey <adq@lidskialf.net>,
+       <acpi-devel@lists.sourceforge.net>
+Subject: Re: [2.6.0-test5-mm1] Suspend to RAM problems
+In-Reply-To: <20030911124530.GA7695@rootdir.de>
+Message-ID: <Pine.LNX.4.33.0309110852020.984-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Jari Ruusu <jari.ruusu@pp.inet.fi>
-CC: linux-kernel@vger.kernel.org, cryptoapi-devel@kerneli.org
-Subject: Re: [PATCH] AES i586-asm optimized
-References: <20030910153859.GA17919@leto2.endorphin.org> <20030910161738.GA29990@gtf.org> <3F5F5A22.956A72A6@pp.inet.fi>
-In-Reply-To: <3F5F5A22.956A72A6@pp.inet.fi>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jari Ruusu wrote:
-> Jeff Garzik wrote:
+
+> [...]
+>   CC      drivers/acpi/sleep/proc.o
+>   drivers/acpi/sleep/proc.c: In function `acpi_system_write_sleep':
+>   drivers/acpi/sleep/proc.c:72: error: void value not ignored as it
+>   ought to be
+>   make[3]: *** [drivers/acpi/sleep/proc.o] Error 1
+>   make[2]: *** [drivers/acpi/sleep] Error 2
+>   make[1]: *** [drivers/acpi] Error 2
+>   make: *** [drivers] Error 2
 > 
->>On Wed, Sep 10, 2003 at 05:38:59PM +0200, Fruhwirth Clemens wrote:
->>
->>>As tested by hvr[2] this implemention is significantly faster than the C
->>>version.
->>
->>Tested on what processors?  With what kernel config?
->>
->>I would be surprised if a 586-optimized asm was useful on P4.
 > 
-> 
-> It uses classic Pentium instruction set. Speed optimized for my 300 MHz
-> Pentium-2 test box. Original Gladman version that I started with was pretty
-> fast but I was able to improve performance about 7% over original version.
-> 
-> On my same 300 MHz P2 test box, assembler implementation is about twice as
-> fast as the mainline kernel C implementation.
+> Is there an incremental patch from -pm1 to -pm2?
+> I would apply it to -test5-mm1 then
+
+Patch below. Sorry about that.
 
 
-Neat.  Consider me surprised, then  ;-)
+	Pat
 
-Don't take my message as objection to the merge.  I dunno what DaveM or 
-JamesM thinks, but I definitely support merging patches like this.  It 
-provides a great example, if nothing else.
-
-Eventually I bet there will be issues about automatic algorithm 
-selection:  like the RAID5 code, which benchmarks all available 
-algorithms, and selects the fastest one.
-
-	Jeff
-
-
+diff -Nru a/drivers/acpi/sleep/proc.c b/drivers/acpi/sleep/proc.c
+--- a/drivers/acpi/sleep/proc.c	Thu Sep 11 08:54:01 2003
++++ b/drivers/acpi/sleep/proc.c	Thu Sep 11 08:54:01 2003
+@@ -69,7 +69,7 @@
+ 	state = simple_strtoul(str, NULL, 0);
+ #ifdef CONFIG_SOFTWARE_SUSPEND
+ 	if (state == 4) {
+-		error = software_suspend();
++		software_suspend();
+ 		goto Done;
+ 	}
+ #endif
 

@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130738AbRBWXHJ>; Fri, 23 Feb 2001 18:07:09 -0500
+	id <S130811AbRBWXNB>; Fri, 23 Feb 2001 18:13:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130772AbRBWXG7>; Fri, 23 Feb 2001 18:06:59 -0500
-Received: from comunit.de ([195.21.213.33]:39754 "HELO comunit.de")
-	by vger.kernel.org with SMTP id <S130768AbRBWXGq>;
-	Fri, 23 Feb 2001 18:06:46 -0500
-Date: Sat, 24 Feb 2001 00:06:44 +0100 (CET)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: <haegar@space.comunit.de>
-To: <Linux-kernel@vger.kernel.org>
-Subject: Alpha compile error on 2.4.2-ac3 (irq_err_count)
-Message-ID: <Pine.LNX.4.32.0102232354060.722-100000@space.comunit.de>
+	id <S130814AbRBWXMw>; Fri, 23 Feb 2001 18:12:52 -0500
+Received: from eax.student.umd.edu ([129.2.228.67]:21000 "EHLO
+	eax.student.umd.edu") by vger.kernel.org with ESMTP
+	id <S130811AbRBWXMg>; Fri, 23 Feb 2001 18:12:36 -0500
+Date: Fri, 23 Feb 2001 19:14:43 -0500 (EST)
+From: Adam <adam@eax.com>
+X-X-Sender: <adam@eax.student.umd.edu>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux-2.4.2 && Minix SP
+In-Reply-To: <Pine.LNX.4.10.10102211811430.1005-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0102231912260.2064-100000@eax.student.umd.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi...
 
-Machine: DEC-Alpha XL300 (Alcor/XLT)
-Kernel: 2.4.2-ac3
+are those MINIX_SUBPARITIONS in 2.4.2 actually supposed to copile?
+in fs/partitions/msdos.c it refers to some MINIX defines which do not
+seems to be included in that path.
 
-Compile-Error:
-make[1]: Entering directory `/usr/src/linux-2.4.2-ac3/arch/alpha/kernel'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.2-ac3/include -Wall
+---------------------------------
+gcc -D__KERNEL__ -I/usr/src/Linux/24/linux/include -Wall
 -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
--mno-fp-regs -ffixed-8 -Wa,-mev6    -c -o irq_alpha.o irq_alpha.c
-irq_alpha.c: In function `dummy_perf':
-irq_alpha.c:33: `irq_err_count' undeclared (first use in this function)
-irq_alpha.c:33: (Each undeclared identifier is reported only once
-irq_alpha.c:33: for each function it appears in.)
-irq_alpha.c: In function `do_entInt':
-irq_alpha.c:54: `irq_err_count' undeclared (first use in this function)
-irq_alpha.c: In function `process_mcheck_info':
-irq_alpha.c:152: warning: unused variable `cpu'
-make[1]: *** [irq_alpha.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.2-ac3/arch/alpha/kernel'
-make: *** [_dir_arch/alpha/kernel] Error 2
+-march=i686    -c -o msdos.o msdos.c
+msdos.c: In function `minix_partition':
+msdos.c:403: `MINIX_PARTITION' undeclared (first use in this function)
+msdos.c:403: (Each undeclared identifier is reported only once
+msdos.c:403: for each function it appears in.)
+msdos.c:406: `MINIX_NR_SUBPARTITIONS' undeclared (first use in this
+function)
+msdos.c: In function `msdos_partition':
+msdos.c:571: `MINIX_PARTITION' undeclared (first use in this function)
+make[3]: *** [msdos.o] Error 1
+make[3]: Leaving directory `/usr/src/Linux/24/linux/fs/partitions'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/Linux/24/linux/fs/partitions'
+make[1]: *** [_subdir_partitions] Error 2
+make[1]: Leaving directory `/usr/src/Linux/24/linux/fs'
+make: *** [_dir_fs] Error 2
+---------------------------------
 
-
-Temporary fix to get it compiling again:
---- linux/include/asm-alpha/hw_irq.h~	Fri Feb 23 23:45:39 2001
-+++ linux/include/asm-alpha/hw_irq.h	Fri Feb 23 23:59:51 2001
-@@ -5,6 +5,8 @@
-
- static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i) {}
-
-+extern volatile unsigned long irq_err_count;
-+
- #ifdef CONFIG_ALPHA_GENERIC
- #define ACTUAL_NR_IRQS	alpha_mv.nr_irqs
- #else
-
-
-But the real bug seems to be that the changes to irq_err_count ("atomic_t"
-instead of "volatile unsigned long", and moving it from linux/irq.h to
-asm/hw_irq.h are done for i386 but not for the other architectures.
-
-
-c'ya
-sven
 
 -- 
+Adam
+http://www.eax.com      The Supreme Headquarters of the 32 bit registers
 
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
 

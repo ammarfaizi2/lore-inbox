@@ -1,77 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266270AbUAGQdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 11:33:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUAGQdJ
+	id S266275AbUAGQd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 11:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUAGQd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 11:33:09 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26498 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266270AbUAGQdF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 11:33:05 -0500
-Date: Wed, 7 Jan 2004 08:32:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Andi Kleen <ak@colin2.muc.de>, Mika Penttil? <mika.penttila@kolumbus.fi>,
-       Andi Kleen <ak@muc.de>, David Hinds <dhinds@sonic.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-In-Reply-To: <m1smirlppt.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.58.0401070803320.12602@home.osdl.org>
-References: <1aJdi-7TH-25@gated-at.bofh.it> <m37k054uqu.fsf@averell.firstfloor.org>
- <Pine.LNX.4.58.0401051937510.2653@home.osdl.org> <20040106040546.GA77287@colin2.muc.de>
- <Pine.LNX.4.58.0401052100380.2653@home.osdl.org> <20040106081203.GA44540@colin2.muc.de>
- <3FFA7BB9.1030803@kolumbus.fi> <20040106094442.GB44540@colin2.muc.de>
- <Pine.LNX.4.58.0401060726450.2653@home.osdl.org> <20040106153706.GA63471@colin2.muc.de>
- <m1brpgn1c3.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.58.0401061554010.9166@home.osdl.org>
- <m13casmk28.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.58.0401062116230.12602@home.osdl.org>
- <m1smirlppt.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jan 2004 11:33:28 -0500
+Received: from cliff.cse.wustl.edu ([128.252.166.5]:41150 "EHLO
+	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP id S266272AbUAGQdX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 11:33:23 -0500
+From: Berkley Shands <berkley@cs.wustl.edu>
+Date: Wed, 7 Jan 2004 10:33:08 -0600 (CST)
+Message-Id: <200401071633.i07GX8U0000021336@mudpuddle.cs.wustl.edu>
+To: berkley@cs.wustl.edu, davem@redhat.com
+Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple map/unmaps
+Cc: gibbs@scsiguy.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Here is a somewhat more robust (and trivial) fix for the sg iommu
+problem on the x86_64. Still does not correct the sg list modification logic though :-)
 
-On Wed, 7 Jan 2004, Eric W. Biederman wrote:
-> 
-> However insert_resource does not quite match what I think needs to
-> happen.  After a pci quirk applies insert_resource I will get
-> something like:
-> 
-> fff0000-ffffffff : BIOS ROM Window
->   ffff0000-ffffffff : reserved
-> 
-> With the reserved region still present and marked as BUSY.
+--- /raid0/kernels/linux/arch/x86_64/kernel/pci-gart.c  2004-01-05 10:16:11.000000000 -0600
++++ pci-gart.c  2004-01-07 10:14:47.000000000 -0600
+@@ -446,6 +446,16 @@
+                return 0;
+        out = 0;
+        start = 0;
++
++       /* see if we are recovering from an error */
++
++       if (sg[0].oldlength) {
++               printk(KERN_WARNING "Recovering sg list for %s\n", dev->slot_name);
++               for (i = 0; i < nents; i++) {
++                       sg[i].length = sg[i].oldlength;
++                       }
++               }
++
+        for (i = 0; i < nents; i++) {
+                struct scatterlist *s = &sg[i];
+                dma_addr_t addr = page_to_phys(s->page) + s->offset;
+@@ -453,6 +463,7 @@
+                BUG_ON(s->length == 0); 
+ 
+                size += s->length; 
++               s->oldlength = s->length;
+ 
+                /* Handle the previous not yet processed entries */
+                if (i > start) {
 
-I would suggest ignoring it. Not only because being overly complicated is 
-bad, but simply because nobody should care. 
+--- /raid0/kernels/linux/include/asm-x86_64/scatterlist.h       2003-12-17 20:59:39.000000000 -0600
++++ scatterlist.h       2004-01-07 10:01:06.000000000 -0600
+@@ -5,6 +5,7 @@
+     struct page                *page;
+     unsigned int       offset;
+     unsigned int       length;
++    unsigned int       oldlength;
+     dma_addr_t         dma_address;
+ };
 
-At some point adding extra regions is _purely_ for "documentation" 
-reasons, and while that may be nice, it's not worth worrying about. The 
-only thing you really want from a _correctness_ standpoint is to make sure 
-that nobody else will try to allocate their stuff in that area, and your 
-"BIOS ROM Window" resource should do that already. 
 
-> Would it be reasonable to write a variant of request_resource that just
-> drops BIOS resources.
-
-It would not be impossible to just have a "force_resource()" that would
-simply override _any_ existing resource, but quite frankly, I'd be more
-nervous about that.
-
-We could also mark the e820 non-RAM resources with some special
-IORESOURCE_TENTATIVE flag, and allow just overriding those. 
-
-But even the simple "insert_resource()" has some potential problems: if 
-the BIOS has allocated the minimal window for itself (64kB at 0xffff0000), 
-and has allocated some _other_ chip at 0xfffe0000 that the kernel doesn't 
-know about yet, your insert_resource() would do the wrong thing and claim 
-the whole area for the BIOS writing. 
-
-Maybe that doesn't happen, but it's something to think about.
-
-At some point, the _correct_ answer may be: don't do complex things, and
-write a bootable floppy (without any OS at all, or a really minimal one)  
-to do BIOS rom updates.
-
-		Linus
+berkley

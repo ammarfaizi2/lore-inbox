@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131390AbQK2NN6>; Wed, 29 Nov 2000 08:13:58 -0500
+        id <S131355AbQK2NbL>; Wed, 29 Nov 2000 08:31:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131415AbQK2NNs>; Wed, 29 Nov 2000 08:13:48 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:54757 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S131390AbQK2NNb>;
-        Wed, 29 Nov 2000 08:13:31 -0500
-Date: Wed, 29 Nov 2000 07:43:04 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: schwidefsky@de.ibm.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11 ext2 fs corruption
-In-Reply-To: <C12569A6.00448FBB.00@d12mta07.de.ibm.com>
-Message-ID: <Pine.GSO.4.21.0011290740100.14112-100000@weyl.math.psu.edu>
+        id <S131384AbQK2NbB>; Wed, 29 Nov 2000 08:31:01 -0500
+Received: from chia.umiacs.umd.edu ([128.8.120.111]:28843 "EHLO
+        chia.umiacs.umd.edu") by vger.kernel.org with ESMTP
+        id <S131355AbQK2Nav>; Wed, 29 Nov 2000 08:30:51 -0500
+Date: Wed, 29 Nov 2000 08:00:19 -0500 (EST)
+From: Adam <adam@cfar.umd.edu>
+To: linux-kernel@vger.kernel.org
+Subject: 'holey files' not holey enough.
+Message-ID: <Pine.GSO.4.21.0011290755570.2862-100000@chia.umiacs.umd.edu>
+X-WEB: http://www.eax.com
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Is this feature or bug?
 
-On Wed, 29 Nov 2000 schwidefsky@de.ibm.com wrote:
+First a test on 'stable' 2.2.x kernel:
 
-> 
-> 
-> >--- drivers/block/ll_rw_blk.c~  Wed Nov 29 01:30:22 2000
-> >+++ drivers/block/ll_rw_blk.c   Wed Nov 29 01:33:00 2000
-> >@@ -684,7 +684,7 @@
-> >        int max_segments = MAX_SEGMENTS;
-> >        struct request * req = NULL, *freereq = NULL;
-> >        int rw_ahead, max_sectors, el_ret;
-> >-       struct list_head *head = &q->queue_head;
-> >+       struct list_head *head;
-> >        int latency;
-> >        elevator_t *elevator = &q->elevator;
-> 
-> head = &q->queue_head is a simple offset calculation in the request
-> queue structure. Moving this into the spinlock won't change anything,
-> since q->queue_head isn't a pointer that can change.
+	eax /tmp % uname -a
+	Linux eax 2.2.17pre15 #1 Sat Aug 5 14:31:19 EDT 2000 i586 unknown
 
-That's fine, but head is _re_assigned later. Grep for 'head =' and 'again'
-in __make_request().
+	eax /tmp % dd if=/dev/zero of=holed.file bs=1000 seek=5000 count=1000
+	1000+0 records in
+	1000+0 records out
+
+	eax /tmp % ls -l holed.file 
+	-rw-rw-r--    1 adam     adam      6000000 Nov 29 08:57 holed.file
+
+	eax /tmp % du -sh holed.file 
+	983k	holed.file
+
+Above holey file is as expected aproximately 1mb. 
+However, when I try on 'development' 2.4.x kernel
+
+	[adam@pepsi /tmp]$ uname -a
+	Linux pepsi 2.4.0-test7-packet #24 SMP Fri Sep 8 20:26:35 EDT 2000 i686
+
+	[adam@pepsi /tmp]$  dd if=/dev/zero of=holed.file bs=1000 seek=5000 count=1000
+	1000+0 records in
+	1000+0 records out
+
+	[adam@pepsi /tmp]$ ls -l holed.file 
+	-rw-rw-r--    1 adam     adam      6000000 Nov 29 08:52 holed.file
+
+	[adam@pepsi /tmp]$ du -sh holed.file 
+	1.9M    holed.file
+
+The holey file is twice as big, 
+
+at almost 2mb instead of expected 1mb.
+
+-- 
+Adam
+http://www.eax.com	The Supreme Headquarters of the 32 bit registers
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129107AbRBPCZC>; Thu, 15 Feb 2001 21:25:02 -0500
+	id <S129159AbRBPCaW>; Thu, 15 Feb 2001 21:30:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129138AbRBPCYx>; Thu, 15 Feb 2001 21:24:53 -0500
-Received: from HSE-Montreal-ppp103309.qc.sympatico.ca ([64.230.176.130]:11027
-	"EHLO mx1.lcis.net") by vger.kernel.org with ESMTP
-	id <S129107AbRBPCYg>; Thu, 15 Feb 2001 21:24:36 -0500
-Date: Thu, 15 Feb 2001 21:24:10 -0500 (EST)
-From: "Gord R. Lamb" <glamb@lcis.dyndns.org>
-X-X-Sender: <glamb@localhost.localdomain>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Samba performance / zero-copy network I/O
-In-Reply-To: <982190431.3a8b095f4b3c4@eargle.com>
-Message-ID: <Pine.LNX.4.32.0102152111210.1074-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129808AbRBPCaN>; Thu, 15 Feb 2001 21:30:13 -0500
+Received: from zen.via.ecp.fr ([138.195.130.71]:60430 "HELO zen.via.ecp.fr")
+	by vger.kernel.org with SMTP id <S129159AbRBPC37>;
+	Thu, 15 Feb 2001 21:29:59 -0500
+Date: Fri, 16 Feb 2001 03:29:56 +0100
+From: Stéphane Borel <stef@via.ecp.fr>
+To: linux-kernel@vger.kernel.org
+Subject: ServeRaid 4M with IBM netfinity and kernel 2.4.x
+Message-ID: <20010216032956.B11267@via.ecp.fr>
+Mail-Followup-To: Stéphane Borel <stef@via.ecp.fr>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Feb 2001, Tom Sightler wrote:
+We have a problem here that make the filesystem crash during big files
+transfer (>1M). It only happens with kernel 2.4.x ; with 2.2.18, it is
+very stable and fast.
 
-> Quoting "Gord R. Lamb" <glamb@lcis.dyndns.org>:
->
-> > On Wed, 14 Feb 2001, Jeremy Jackson wrote:
-> >
-> > > "Gord R. Lamb" wrote:
-> > > > in etherchannel bond, running
-> > linux-2.4.1+smptimers+zero-copy+lowlatency)
->
-> Not related to network, but why would you have lowlatency patches on
-> this box?
+I have seen a thread some time ago concerning such problem but is there
+a solution against it now ?
 
-Well, I figured it might reduce deadweight time between the different
-operations (disk reads, cache operations, network I/O) at the expense of a
-little throughput.  It was just a hunch and I don't fully understand the
-internals (of any of this, really).  Since I wasn't saturating the disk or
-network controller, I thought the gain from quicker response time (for
-packet acknowledgement, etc.) would outweigh the loss of individual
-throughputs.  Again, I could be misunderstanding this completely. :)
+I should add that the behaviour of serveraid under 2.4 is somehow
+strange : during fsck for instance, it seems to get stuck and won't go
+further if we don't strike a key on the keyboard.
 
-> My testing showed that the lowlatency patches abosolutely destroy a
-> system thoughput under heavy disk IO.  Sure, the box stays nice and
-> responsive, but something has to give.  On a file server I'll trade
-> console responsivness for IO performance any day (might choose the
-> opposite on my laptop).
-
-Well, I backed out that particular patch, and it didn't seem to make much
-of a difference either way.  I'll look at it in more detail tomorrow
-though.
-
-Cya.
-
-> My testing wasn't very complete, but heavy dbench and multiple
-> simultaneous file copies both showed significantly lower performance
-> with lowlatency enabled, and returned to normal when disabled.
->
-> Of course you may have had lowlatency disabled via sysctl but I was
-> mainly curious if your results were different.
->
-> Later,
-> Tom
->
-
+-- 
+Stef

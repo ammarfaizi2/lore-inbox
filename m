@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280531AbRKSSS0>; Mon, 19 Nov 2001 13:18:26 -0500
+	id <S275990AbRKSSW4>; Mon, 19 Nov 2001 13:22:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275990AbRKSSSR>; Mon, 19 Nov 2001 13:18:17 -0500
-Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:46211 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S280531AbRKSSSE>;
-	Mon, 19 Nov 2001 13:18:04 -0500
-Date: Mon, 19 Nov 2001 10:18:03 -0800
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
-Message-ID: <20011119101803.A25117@netnation.com>
-In-Reply-To: <200111141243.fAEChS915731@neosilicon.transmeta.com> <Pine.LNX.4.33.0111140821120.17217-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S276424AbRKSSWr>; Mon, 19 Nov 2001 13:22:47 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59494 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S275990AbRKSSWa>; Mon, 19 Nov 2001 13:22:30 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM-related Oops: 2.4.15pre1
+In-Reply-To: <Pine.LNX.4.33.0111190833440.8103-100000@penguin.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Nov 2001 11:03:20 -0700
+In-Reply-To: <Pine.LNX.4.33.0111190833440.8103-100000@penguin.transmeta.com>
+Message-ID: <m1wv0m7i53.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0111140821120.17217-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 14, 2001 at 08:34:12AM -0800, Linus Torvalds wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-> That's normal and usually good. It's supposed to swap stuff out if it
-> really isn't needed, and that improves performance. Cache _is_ more
-> important than swap if the cache is active.
+> That's fine - if you have two threads modifying the same variable at the
+> same time, you need to lock it.
+> 
+> That's not the case under discussion.
+> 
+> The case under discussion is gcc writing back values to a variable that
+> NEVER HAD ANY VALIDITY, even in the single-threaded case. And it _is_
+> single-threaded at that point, you only have other users that test the
+> value, not change it.
+> 
+> That's not an optimization, that's just plain broken. It breaks even
+> user-level applications that use sigatomic_t.
+> 
+> And note how gcc doesn't actually do it. I'm not saying that gcc is broken
+> - I' saying that gcc is NOT broken, and we depend on it being not broken.
 
-We have to remember that swap can be much slower to read back in than
-rereading data from files, though.  I guess this is because files tend to
-be more often read sequentially.  A freshly-booted box loads up things it
-hasn't seen before much faster than a heavily-swapped-out box swaps the
-things it needs back in...window managers and X desktop backgrounds, for
-example, are awfully slow.  I would prefer if it never swapped them out.
+Linus I agree that gcc works.  And even if page->flags is written
+to, with two separate write operations page->flags & PG_locked should
+still be true.
 
-This is an annoying situation, though, because I would like some of my
-unused daemons to be swapped out.  mlocking random stuff would be worse,
-though.
+However this case seems to violate code clarity.  If you can have
+other users testing PG_locked it is non-intuitive that you can still
+normally assign to page->flags.
 
-> HOWEVER, there's probably something in your system that triggers this too
-> easily. Heavy NFS usage will do that, for example - as mentioned in
-> another thread on linux-kernel, the VM doesn't really understand
-> writebacks and asynchronous reads from filesystems that don't use buffers,
-> and so sometimes the heuristics get confused simply because NFS activity
-> can _look_ like page mapping to the VM.
+Would it make sense to add a set_bits macro that is a just an
+assignment except on extremely weird architectures or to work
+around compiler bugs?  I'm just thinking it would make sense
+to document that we depend on the compiler not writing some
+strange intermediate values into the variable.
 
-I've been copying about 40 GB of stuff back and forth over NFS over
-switched 100Mbit Ethernet lately, so I can say I'm definitely seeing
-this. :)  It also seems to happen when I "pull" over NFS rather than
-"push" (eg: I ssh to a remote machine and "cp" with the source being an
-NFS mount of the local machine)...the 2.4.15pre1 local machine tends to
-swap out while this happens as well.
+I can't imagine why a compiler ever would but it is remotely possible
+a compiler but generate an instruction sequence like:
+xorl flags, $0xFFFFFFFF
+xorl flags, $0xFFFFFFFe
 
-Simon-
+To flip the low bit.  I would be terribly surprised, and it would
+certainly break sigatomic_t if it was a plain typedef, but stranger
+things have happened.
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+Eric
+

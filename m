@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272050AbTHMXyy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 19:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272059AbTHMXyy
+	id S272063AbTHMX5K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 19:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272059AbTHMXzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 19:54:54 -0400
-Received: from mail.kroah.org ([65.200.24.183]:21131 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272050AbTHMXyw (ORCPT
+	Wed, 13 Aug 2003 19:55:42 -0400
+Received: from mail.kroah.org ([65.200.24.183]:22411 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272053AbTHMXy6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 19:54:52 -0400
-Date: Wed, 13 Aug 2003 16:42:21 -0700
+	Wed, 13 Aug 2003 19:54:58 -0400
+Date: Wed, 13 Aug 2003 16:53:18 -0700
 From: Greg KH <greg@kroah.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test3-mm2: Badness in class_dev_release at drivers/base/class.c
-Message-ID: <20030813234220.GB7863@kroah.com>
-References: <1060803513.1221.2.camel@teapot.felipe-alfaro.com>
+To: reg@dwf.com
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, reg@orion.dwf.com
+Subject: Re: Linux 2.6.0-test3: USB still broken.
+Message-ID: <20030813235318.GD7863@kroah.com>
+References: <torvalds@osdl.org> <Pine.LNX.4.44.0308082228470.1852-100000@home.osdl.org> <200308090749.h797n15Y001167@orion.dwf.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1060803513.1221.2.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <200308090749.h797n15Y001167@orion.dwf.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 09:38:34PM +0200, Felipe Alfaro Solana wrote:
-> Hi!
+On Sat, Aug 09, 2003 at 01:49:01AM -0600, reg@dwf.com wrote:
 > 
-> I've seen the following oops when I was unplugging my HP Deskjet 970Cxi
-> USB printer from its USB socket:
+> The USB subsystem is still broken in test3.
+
+Works for me :)
+
+> everything seems to build w/o errors, but late in the boot the screen
+> is filled with the line
 > 
-> usb 1-1: USB disconnect, address 2
-> Device class 'lp0' does not have a release() function, it is broken and
-> must be fixed.
-> Badness in class_dev_release at drivers/base/class.c:201
+> 	drivers/usb/input/hid-core.c: control queue full
+> 
+> which repeats a a high rate and is VERY hard to break free from.
+> Not good.
 
-I have a fix for this in my tree, it will get sent to Linus in a few
-days.
+Can you tell the people on the linux-usb-devel mailing list about this,
+and file a bug at bugzilla.kernel.org for it?
 
-thanks for the report.
+thanks,
 
 greg k-h

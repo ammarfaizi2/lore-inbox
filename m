@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318395AbSGRXoj>; Thu, 18 Jul 2002 19:44:39 -0400
+	id <S318368AbSGRXwD>; Thu, 18 Jul 2002 19:52:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318396AbSGRXoi>; Thu, 18 Jul 2002 19:44:38 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:29708 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S318395AbSGRXoi>;
-	Thu, 18 Jul 2002 19:44:38 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207182347.g6INlcl47289@saturn.cs.uml.edu>
+	id <S318396AbSGRXwD>; Thu, 18 Jul 2002 19:52:03 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60180 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S318368AbSGRXwD>; Thu, 18 Jul 2002 19:52:03 -0400
+Date: Thu, 18 Jul 2002 19:55:01 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Hildo.Biersma@morganstanley.com
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
 Subject: Re: close return value
-To: patl@curl.com (Patrick J. LoPresti)
-Date: Thu, 18 Jul 2002 19:47:38 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <s5gadop9jxq.fsf@egghead.curl.com> from "Patrick J. LoPresti" at Jul 18, 2002 10:42:25 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+Message-ID: <20020718195501.A21027@devserv.devel.redhat.com>
+References: <1026867782.1688.108.camel@irongate.swansea.linux.org.uk> <20020716.165241.123987278.davem@redhat.com> <1026869741.2119.112.camel@irongate.swansea.linux.org.uk> <20020716.172026.55847426.davem@redhat.com> <mailman.1026868201.10433.linux-kernel2news@redhat.com> <200207180001.g6I015f02681@devserv.devel.redhat.com> <15671.8335.526673.92376@axolotl.ms.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15671.8335.526673.92376@axolotl.ms.com>; from Hildo.Biersma@morganstanley.com on Thu, Jul 18, 2002 at 04:09:51PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick J. LoPrest writes:
+> Date: Thu, 18 Jul 2002 16:09:51 -0400 (EDT)
+> From: Hildo.Biersma@morganstanley.com
 
-> Failures happen.  They can happen on write(), they can happen on
-> close(), and they can happen on any system call for which the API
-> allows it.  There is no difference!  Your application either deals
-> with them and is correct or fails to deal with them and is broken.
+> Pete> The problem with errors from close() is that NOTHING SMART can be
+> Pete> done by the application when it receives it. And application can:
 > 
-> If the API allows an error return, you *must* check for it, period.
-> This includes "impossible" errors.  You may think it is impossible for
-> gettimeofday() to return an error in some case, but if it ever did,
-> you should darn well want to know about it right away.
+> Pete>  a) print a message "Your data are lost, have a nice day\n".
+> Pete>  b) loop retrying close() until it works.
+> Pete>  c) do (a) then (b).
 > 
-> If you are that convinced that close() can not return an error in your
-> particular application (e.g., because you "know" you are using a local
-> disk, or the file descriptor is read-only), then treat such errors
-> like assertion failures.  Because that is what they are.
-> 
-> Checking system calls for errors, always, is fundamental to writing
-> reliable code.  Failing to check them is shoddy and amateurish
-> programming.  It is amazing that so many people would argue this
-> point.  Then again, maybe not, given how bad most software is...
+> I must disagree with you.  We run the Andrew File System (AFS), which
+> has client-side caching with write-on-close semantics.  If an error
+> occurs goes wrong at close() time, a well-written application can
+> actually do something useful - such as sending an alert, or letting
+> the user know the action failed.
 
-You check printf() and fprintf() then? Like this?
+The above is an example of an application covering up for
+a filesystem that breaks the general expactions for the
+operating environment. Remember your precursor with a broken
+driver who received his beating a couple of months ago.
+He also had an appliction which processed his errors from
+close just fine. A workaround can be done in every specific
+instance, but it does not make this practice any smarter.
 
-///////////////////////////////////////////
-void err_print(int err){
-  const char *msg;
-  int rc;
+What AFS designers should have done if they had a brain larger
+than a pea was:
 
-  msg = strerror(err);
-  if(!msg) err_print(errno);
+ 1. Make close to block indefinitely, retrying writes.
+    Allow overlapping writes, let clients to sort it out.
+ 2. Provide an ioctl to flush writes before close() or
+    make fsync() work right. Your "smart" applications have had
+    to use that, so that no ambiguity existed between tearing down
+    the descriptor and writing out the data.
 
-  do{
-    rc = fprintf(stderr,"Problem: %s\n",msg);
-  }while(rc<0 && errno==EINTR);
-  if(rc<0) err_print(errno);
-}
-///////////////////////////////////////////
+This way, naive applications such as cat and cc would
+continue to work. There is no reason to penalize them just
+because some application _could_ possibly post idiotic alerts
+(Abort, Retry, Fail).
 
-Get off your high horse.
+-- Pete

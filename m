@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVBYQrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbVBYQr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbVBYQrL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 11:47:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbVBYQrL
+	id S262739AbVBYQr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 11:47:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbVBYQr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 11:47:11 -0500
-Received: from web51509.mail.yahoo.com ([206.190.38.201]:62399 "HELO
-	web51509.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262737AbVBYQrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 11:47:10 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=5dy2EKAs7Zy6Uhd7hmWy0+V67ZgyyL4QiV12omPsOlZexXf/nIW2OlxQhgPqmSHymfXMPNU1TkRtQm93TfYFfTQw+7KX8UoiPzhJ5NSaMGI54g8OY7mJau7pTjgSFOu30Osn4SYZzmWYT1SMBg7m4ao7H+7TDXzCHMus4ZE8VyA=  ;
-Message-ID: <20050225164709.66998.qmail@web51509.mail.yahoo.com>
-Date: Fri, 25 Feb 2005 08:47:09 -0800 (PST)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Are there any explanation for struct flowi?
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Feb 2005 11:47:28 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:6791 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262739AbVBYQrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 11:47:25 -0500
+Subject: Re: linux-2.6.8.1 to linux-2.6.10: Kernel Patching Issues.
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Fortescue <mark@mtfhpc.demon.co.uk>
+Cc: davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
+       jmorris@redhat.com, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10502251550520.26208-100000@mtfhpc.demon.co.uk>
+References: <Pine.LNX.4.10.10502251550520.26208-100000@mtfhpc.demon.co.uk>
+Content-Type: text/plain
+Date: Fri, 25 Feb 2005 11:47:23 -0500
+Message-Id: <1109350044.9681.26.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   I'm now learning the net stack of Linux. 
-   Would you please tell whether there are any
-explanation for struct flowi? What it is used for?
+On Fri, 2005-02-25 at 16:40 +0000, Mark Fortescue wrote:
+> Hi all,
+> 
+> I am not sure exactly where to send this email. A have chosen the
+> ip4/ip6 networking as the issues are in this area of the kernel.
+>  
+> The kernel patch files patch-2.6.9 and patch-2.6.10 do not apear to be
+> correct.
 
-Thank you.
+No, you're doing it wrong.  2.6.8.1 was a bugfix release.  The correct
+patching order is 2.6.8 -> 2.6.9 -> 2.6.10. 
 
+Lee
 
-=====
-Best Regards,
-Park Lee
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

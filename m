@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266802AbRGKV7f>; Wed, 11 Jul 2001 17:59:35 -0400
+	id <S266808AbRGKWFf>; Wed, 11 Jul 2001 18:05:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266806AbRGKV7Z>; Wed, 11 Jul 2001 17:59:25 -0400
-Received: from [199.26.153.10] ([199.26.153.10]:14089 "HELO fourelle.com")
-	by vger.kernel.org with SMTP id <S266802AbRGKV7V>;
-	Wed, 11 Jul 2001 17:59:21 -0400
-Message-ID: <3B4CCBB5.21FC36AE@fourelle.com>
-Date: Wed, 11 Jul 2001 14:57:09 -0700
-From: "Adam D. Scislowicz" <adams@fourelle.com>
-Organization: Fourelle Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac17 i686)
-X-Accept-Language: en
+	id <S266812AbRGKWF0>; Wed, 11 Jul 2001 18:05:26 -0400
+Received: from hibernia.clubi.ie ([212.17.32.129]:50050 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S266808AbRGKWFN>; Wed, 11 Jul 2001 18:05:13 -0400
+Date: Wed, 11 Jul 2001 23:12:12 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: <paul@fogarty.jakma.org>
+To: Helge Hafting <helgehaf@idb.hist.no>
+cc: "C. Slater" <cslater@wcnet.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Switching Kernels without Rebooting?
+In-Reply-To: <3B4C180E.D3AE1960@idb.hist.no>
+Message-ID: <Pine.LNX.4.33.0107112310590.962-100000@fogarty.jakma.org>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+X-Dumb-Filters: aryan marijuiana cocaine heroin hardcore cum pussy porn teen tit sex lesbian group
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: IDE0(Primary)/Slave Detection Problem
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While looking through ide-probe.c I came across the following code:
-        /*
-         * Prevent long system lockup probing later for non-existant
-         * slave drive if the hwif is actually a flash memory card of
-some variety:
-         */
-        if (drive_is_flashcard(drive)) {
-                ide_drive_t *mate =
-&HWIF(drive)->drives[1^drive->select.b.unit];
-                if (!mate->ata_flash) {
-                        mate->present = 0;
-                        mate->noprobe = 1;
-                }
-        }
+On Wed, 11 Jul 2001, Helge Hafting wrote:
 
-In my case I am using a flash card with a normal harddrive as the slave,
-but
-this code does not allow for that combination. Their must be a better
-way to
-handle this, or it should at least print, "Flash Disk Detected, Ignoring
-Slave"...
+> That seems completely out of question.  The structures a 2.4.7
+> kernel understands might be insufficient to express the setup
+> a future 2.6.9 kernel is using to do its stuff better.
 
- -Adam Scislowicz <adams@fourelle.com>
+however, it might be handy if say you needed to upgrade a stable
+kernel due to a bug fix or security update.
+
+no?
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+I found Rome a city of bricks and left it a city of marble.
+		-- Augustus Caesar
 

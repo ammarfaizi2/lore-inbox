@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbUBZX0S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbUBZXXl
+	id S261241AbUBZX3o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:29:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUBZX2C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:23:41 -0500
-Received: from colo.khms.westfalen.de ([213.239.196.208]:43683 "EHLO
-	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
-	id S261234AbUBZXXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:23:08 -0500
-Date: 26 Feb 2004 23:39:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <93cTCGAXw-B@khms.westfalen.de>
-In-Reply-To: <20040224212823.GA23551@redhat.com>
-Subject: Re: Intel vs AMD x86-64
-X-Mailer: CrossPoint v3.12d.kh13 R/C435
-MIME-Version: 1.0
+	Thu, 26 Feb 2004 18:28:02 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8665 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261300AbUBZX1J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 18:27:09 -0500
+Date: Thu, 26 Feb 2004 15:27:07 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Jochen Roemling <jochen@roemling.net>, linux-kernel@vger.kernel.org
+Subject: Re: shmget with SHM_HUGETLB flag: Operation not permitted
+Message-ID: <20040226152707.L22989@build.pdx.osdl.net>
+References: <403E74D3.4000305@roemling.net> <20040226225214.GP693@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <8D4D7D09D4DA5F41BF3905582CF84ACB5D7068@tbanausc3a.dynextechnologies.com> <403BC2A9.4040107@techsource.com> <Pine.LNX.4.58.0402241330250.1095@ppc970.osdl.org> <Pine.LNX.4.58.0402241330250.1095@ppc970.osdl.org> <20040224212823.GA23551@redhat
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040226225214.GP693@holomorphy.com>; from wli@holomorphy.com on Thu, Feb 26, 2004 at 02:52:14PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davej@redhat.com (Dave Jones)  wrote on 24.02.04 in <20040224212823.GA23551@redhat.com>:
+* William Lee Irwin III (wli@holomorphy.com) wrote:
+> On Thu, Feb 26, 2004 at 11:36:03PM +0100, Jochen Roemling wrote:
+> > How can I grant the permission to use HUGETLB to ordinary users?
+> 
+> (a) use the fs which uses fs permissions to grant users permission to
+> 	fiddle with hugetlb
+> (b) man 2 capset
 
-> On Tue, Feb 24, 2004 at 01:31:26PM -0800, Linus Torvalds wrote:
->
->  > > Fortunately, Linus is very antithetical to many other cult figures in
->  > > that he is very much NOT a psychopath.  :)
->  >
->  > I'm happy you put it that way, because otherwise I'd have had to take out
->  > my chain saw and run around naked trying to kill you.
->
-> If you listen carefully, you'll hear the sound of thousands of Linux hackers
-> trying to scratch out their minds-eyes at that image.  8-)
+In case that part wasn't clear, it would be CAP_IPC_LOCK capability.
 
-Why? That's the Linus we know and love. (Preferrably with a good sauce.)
-
-MfG Kai
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbUKHRMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbUKHRPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbUKHRMN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 12:12:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUKHRIu
+	id S261863AbUKHRPy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 12:15:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbUKHRPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 12:08:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53165 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261939AbUKHQi4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 11:38:56 -0500
-Date: Mon, 8 Nov 2004 16:38:55 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, "Li, Shaohua" <shaohua.li@intel.com>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>,
-       Greg <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [ACPI] [PATCH/RFC 0/4]Bind physical devices with ACPI devices
-Message-ID: <20041108163855.GC32374@parcelfarce.linux.theplanet.co.uk>
-References: <3ACA40606221794F80A5670F0AF15F84041AC033@pdsmsx403>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F84041AC033@pdsmsx403>
-User-Agent: Mutt/1.4.1i
+	Mon, 8 Nov 2004 12:15:36 -0500
+Received: from fire.osdl.org ([65.172.181.4]:54424 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261863AbUKHQ6a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 11:58:30 -0500
+Message-ID: <418FA2F1.2090003@osdl.org>
+Date: Mon, 08 Nov 2004 08:46:41 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Antonino Sergi <Antonino.Sergi@roma1.infn.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: isa memory address
+References: <1099901664.2718.92.camel@delphi.roma1.infn.it>
+In-Reply-To: <1099901664.2718.92.camel@delphi.roma1.infn.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 12:08:03AM +0800, Yu, Luming wrote:
-> >On Mon, Nov 08, 2004 at 10:46:30PM +0800, Yu, Luming wrote:
-> >> >All we need is an acpi_get_gendev_handle that takes a 
-> >struct device and
-> >> >returns the acpi_handle for it.  Now, maybe that'd be best 
-> >> >done by placing
-> >> >a pointer in the struct device, but I bet it'd be just as 
-> >good to walk
-> >> >the namespace looking for the corresponding device.
+Antonino Sergi wrote:
+> Hi,
 > 
->   We need not only able to locate acpi object IDE0
-> but also we need to locate object PRIM underneath
-> IDE0,  and MSTR underneath PRIM. Thus, IDE driver 
-> can fully take advantage from ACPI, in terms of 
-> configuration and power management.
+> I'm working with an old data acquisition system that uses an 8-bit card
+> in an ISA slot (address 0xd0000), by a simple driver I ported from
+> kernel 1.1.x to 2.2.24.
 > 
->   Maybe we need to invent a method called
-> map_device_addr_to_acpi_handle to be  generic solution.
+> It works fine, but I'd like to have features by newer kernels (2.4 or
+> even 2.6), like new filesystems support.
+> 
+> On kernels >=2.4.0 check_region returns -EBUSY for that address,
+> but it is not actually used; I tried to understand if something has been
+> changed/removed, because of obsolescence of devices, in IO management,
+> but I couldn't.
+> 
+> Does anybody have any explanation/suggestion?
 
-I think we're saying the same thing in different words here ...
+Please post contents of /proc/iomem .
+I'm guessing that it will show something like:
+000e0000-000effff : Extension ROM
+(but for address 000d0000).
+So then the question becomes how to assign/allocate it for your
+driver.
 
-Note that an acpi_get_gendev_handle() or map_device_addr_to_acpi_handle()
-function doesn't *preclude* putting a void * in struct device.  It does
-let us choose whether or not to do so.
+You might have to dummy up a call to release_resource() first,
+then use request_resource() to acquire it.
+Or just use the addresses anyway.... even though check_region() says
+-EBUSY.  BTW, check_region() is deprecated in 2.6.x, so if your
+driver could just use request_region() and release_region(), that
+would be better.
+
+> Thank you
+> 
+> Best Regards,
+> 
+> Antonino Sergi
+> 
+> PS:As I'm not subscribed, please CC me your answers.
+
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+~Randy

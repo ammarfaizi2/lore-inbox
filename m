@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263548AbUJ2Uwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263601AbUJ2V5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263548AbUJ2Uwf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 16:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbUJ2UvK
+	id S263601AbUJ2V5t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263610AbUJ2Vy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 16:51:10 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50182 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263549AbUJ2Ug0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:36:26 -0400
-Date: Fri, 29 Oct 2004 21:36:23 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] 8390.c: Use mdelay(10) rather than udelay(10*1000)
-Message-ID: <20041029213623.J31627@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
+	Fri, 29 Oct 2004 17:54:29 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28938 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263595AbUJ2VsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 17:48:01 -0400
+Date: Fri, 29 Oct 2004 23:47:23 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>
+Subject: [PATCH] uninline __sigqueue_alloc (fwd)
+Message-ID: <20041029214723.GX6677@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ARM udelay can't cope with >2ms delays.
 
-Signed-off-by: Russell King <rmk@arm.linux.org.uk>
+The patch forwarded below still applies against 2.6.10-rc1-mm2.
 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/drivers/net/8390.c linux/drivers/net/8390.c
---- orig/drivers/net/8390.c	Sat Oct 23 11:38:21 2004
-+++ linux/drivers/net/8390.c	Sat Oct 23 11:36:34 2004
-@@ -813,7 +813,7 @@ static void ei_rx_overrun(struct net_dev
- 	 * We wait at least 10ms.
- 	 */
+Was there any specific reason why it wasn't applied?
+
+
+----- Forwarded message from Chris Wright <chrisw@osdl.org> -----
+
+Date:	Fri, 22 Oct 2004 14:35:51 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] uninline __sigqueue_alloc
+
+Christoph suggests letting the compiler choose.  No real compelling reason
+to inline anyhow.  I had some vmlinux size numbers suggesting inline was
+better, but re-running them on newer kernel is giving different results,
+favoring uninline.  Best let compiler choose.  Un-inline __sigqueue_alloc.
+
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+
+===== kernel/signal.c 1.140 vs edited =====
+--- 1.140/kernel/signal.c	2004-10-21 13:46:54 -07:00
++++ edited/kernel/signal.c	2004-10-22 14:00:00 -07:00
+@@ -265,7 +265,7 @@
+ 	return sig;
+ }
  
--	udelay(10*1000);
-+	mdelay(10);
+-static inline struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags)
++static struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags)
+ {
+ 	struct sigqueue *q = NULL;
  
- 	/*
- 	 * Reset RBCR[01] back to zero as per magic incantation.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+----- End forwarded message -----
+

@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUJ3WrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbUJ3Wsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUJ3WrB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 18:47:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbUJ3WrA
+	id S261394AbUJ3Wsg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 18:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbUJ3Wsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 18:47:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15002 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261375AbUJ3Wqy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 18:46:54 -0400
-Date: Sat, 30 Oct 2004 18:46:45 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Hamie <hamish@travellingkiwi.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Continual panics... Kernel 2.6.9  - VP6 motherboard dual 866MHz
- PIII
-In-Reply-To: <41840F35.9000700@travellingkiwi.com>
-Message-ID: <Pine.LNX.4.44.0410301846000.8844-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 30 Oct 2004 18:48:35 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:24513 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261394AbUJ3Wrb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 18:47:31 -0400
+Subject: [patch 8/8]  serial/icom: remove custom 	msleep()
+To: rmk+lkml@arm.linux.org.uk
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, janitor@sternwelten.at,
+       nacc@us.ibm.com
+From: janitor@sternwelten.at
+Date: Sun, 31 Oct 2004 00:47:22 +0200
+Message-ID: <E1CO20I-0003Gv-Rq@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Oct 2004, Hamie wrote:
 
-> The main crashes log the following information
-> 
-> Oct 24 22:17:00 damned REISERFS: panic (device hdb6): journal_begin 
-> called without kernel lock held
 
-Looks like a reiserfs bug.  It really should be holding
-the kernel lock in journal_begin.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Any comments would be appreciated.
 
+Description: Remove custom msleep() to guarantee
+the task delays as expected.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+---
+
+ linux-2.6.10-rc1-max/drivers/serial/icom.c |    6 ------
+ 1 files changed, 6 deletions(-)
+
+diff -puN drivers/serial/icom.c~remove-custom-msleep-drivers_serial_icom drivers/serial/icom.c
+--- linux-2.6.10-rc1/drivers/serial/icom.c~remove-custom-msleep-drivers_serial_icom	2004-10-24 17:05:49.000000000 +0200
++++ linux-2.6.10-rc1-max/drivers/serial/icom.c	2004-10-24 17:05:49.000000000 +0200
+@@ -140,12 +140,6 @@ static inline void trace(struct icom_por
+ static inline void trace(struct icom_port *icom_port, char *trace_pt, unsigned long trace_data) {};
+ #endif
+ 
+-static void msleep(unsigned long msecs)
+-{
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+-	schedule_timeout(MSECS_TO_JIFFIES(msecs));
+-}
+-
+ static void free_port_memory(struct icom_port *icom_port)
+ {
+ 	struct pci_dev *dev = icom_port->adapter->pci_dev;
+_

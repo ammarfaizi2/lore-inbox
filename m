@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266916AbSLDFCv>; Wed, 4 Dec 2002 00:02:51 -0500
+	id <S266917AbSLDFVW>; Wed, 4 Dec 2002 00:21:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266915AbSLDFCu>; Wed, 4 Dec 2002 00:02:50 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:49881 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S266911AbSLDFCu> convert rfc822-to-8bit; Wed, 4 Dec 2002 00:02:50 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <andrew@erlenstar.demon.co.uk>
-CC: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Tue, 3 Dec 2002 21:10:20 -0800
-In-Reply-To: <871y4yidx3.fsf@erlenstar.demon.co.uk>
-Subject: Re: bincancels in linux.kernel
+	id <S266924AbSLDFVW>; Wed, 4 Dec 2002 00:21:22 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:10965 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S266917AbSLDFVW>; Wed, 4 Dec 2002 00:21:22 -0500
+Date: Tue, 3 Dec 2002 21:24:03 -0800
+From: Ben Fennema <bfennema@attbi.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Erlend Aasland <erlend-a@ux.his.no>, bfennema@falcon.csc.calpoly.edu,
+       dave@trylinux.com, linux_udf@hpesjro.fc.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL PATCH 2.5] get rid of CONFIG_UDF_RW (i386)
+Message-ID: <20021203212403.B19780@attbi.com>
+References: <20021203125120.GA2417@johanna5.ux.his.no> <20021203233744.AA03F2C29E@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="euc-kr"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20021204051021.AAA23886@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021203233744.AA03F2C29E@lists.samba.org>; from rusty@rustcorp.com.au on Wed, Dec 04, 2002 at 10:37:04AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 04, 2002 at 10:37:04AM +1100, Rusty Russell wrote:
+> In message <20021203125120.GA2417@johanna5.ux.his.no> you write:
+> > I noticed that CONFIG_UDF_RW is not used anywhere, so I removed it from all
+> > the defconfigs.
+> 
+> But it's used in 2.4.20.  It *looks* like it's on by default in 2.5,
+> but I just want the authors to confirm that the option isn't coming
+> back.
+> 
+> Ben, Dave?
 
-On 04 Dec 2002 04:52:24 +0000, Andrew Gierth wrote:
->>>>>> "David" == David Schwartz <davids@webmaster.com> writes:
+Yup.. It's gone for good.
 
->David>         Spam is bad, but suppressing useful legitimate content
->David> because of unsophisticated spam-checking algorithms
-
->this is nothing to do with spam; that's not the only form of abuse that
->exists.
-
-	My arguments apply equal well to all forms of abuse.
-
->Perhaps you also missed the point from my first message that a) I don't
->intentionally receive the linux.* groups and therefore had not previously
->needed to consider whether they were getting binaries and b) that I stopped
->as soon as this was drawn to my attention. (I did already have in place
->exemptions for all the generally-known binaries hierarchies.)
-
-	No, I caught those points. However, you cut the comments I was responding to 
-and then pretended that I was responding to your actions. You said:
-
->well, I would have to disagree (even if you don't think that binaries
->coming via the mailing list would be a problem, there is still the
->question of binaries posted via news - and the recent levels of abuse
->in comp.binaries.*.d, rec.*, vmsnet.* etc. suggests that there are
->plenty of people who are happy to post binaries anywhere they can
->regardless of the real purpose of a group)
-
-	And *that* is what I was responding to.
-
-	DS
-
-
+Ben

@@ -1,58 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLOSrA>; Fri, 15 Dec 2000 13:47:00 -0500
+	id <S129340AbQLOSra>; Fri, 15 Dec 2000 13:47:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129340AbQLOSqu>; Fri, 15 Dec 2000 13:46:50 -0500
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:1028
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S129183AbQLOSqf>; Fri, 15 Dec 2000 13:46:35 -0500
-Date: Fri, 15 Dec 2000 10:16:06 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Igmar Palsenberg <maillist@chello.nl>
-Cc: David Weinehall <tao@acc.umu.se>, Rob Landley <telomerase@yahoo.com>,
-        maddog@valinux.com, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Is there a Linux trademark issue with sun?
-Message-ID: <20001215101606.B23721@work.bitmover.com>
-Mail-Followup-To: Igmar Palsenberg <maillist@chello.nl>,
-	David Weinehall <tao@acc.umu.se>,
-	Rob Landley <telomerase@yahoo.com>, maddog@valinux.com,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20001215152640.D28783@khan.acc.umu.se> <Pine.LNX.4.21.0012152014190.4303-100000@server.serve.me.nl>
+	id <S129908AbQLOSrZ>; Fri, 15 Dec 2000 13:47:25 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:44006 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S129797AbQLOSrO>; Fri, 15 Dec 2000 13:47:14 -0500
+Date: Fri, 15 Dec 2000 20:16:08 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: e.jokisch@u-code.de, linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: test12 lockups -- need feedback
+Message-ID: <20001215201608.M829@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20001215194735.K829@nightmaster.csn.tu-chemnitz.de> <1368.195.67.189.102.976902742.squirrel@www.zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <Pine.LNX.4.21.0012152014190.4303-100000@server.serve.me.nl>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <1368.195.67.189.102.976902742.squirrel@www.zytor.com>; from hpa@zytor.com on Fri, Dec 15, 2000 at 09:52:22AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2000 at 08:15:41PM +0100, Igmar Palsenberg wrote:
+On Fri, Dec 15, 2000 at 09:52:22AM -0800, H. Peter Anvin wrote:
+> > This was on Cyrix III.
 > 
-> > On Fri, Dec 15, 2000 at 12:54:21PM +0100, Igmar Palsenberg wrote:
-> > > 
-> > > > Heads up everybody.  Scott McNealy has apparently been
-> > > > calling Solaris Sun's implementation of Linux. 
-> > > > Trademark violation time.
-> > > 
-> > > It's probably a marketing guy that has no idea about what he is talking
-> > > about. I've seen good Linux related stuff come from Sun and I hardly can
-> > > imagine that such a person would make this statement.
-> > 
-> > Ehrm. If I'm not all wrong, Scott McNealy is the CEO of Sun...
-> 
-> Yes, someone also noted that to me. His words sound like those of some
-> marketing guy, or some politican (for the Dutch guys : Kok :-))
+> Please include the oops information, as well as the /proc/cpuinfo output.
 
-Yup, that's Scooter (all the Sun old timers call him Scooter, I dunno where
-it came from, I wasn't enough of an old timer).  And, yeah, he does a lot 
-of marketing.  But in many respects, he's the perfect CEO.  He's always
-out in public, pushing the message, and he tends to leave the day to day
-stuff to the other folks.  I'll take him over Gates any day of the week.
+processor       : 0
+vendor_id       : CentaurHauls
+cpu family      : 6
+model           : 6
+model name      : WinChip ??
+stepping        : 0
+cpu MHz         : 501.000148
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu de tsc msr mce cx8 mtrr pge mmx
+bogomips        : 999.42
+processor       : 0
+vendor_id       : CentaurHauls
+cpu family      : 6
+model           : 6
+model name      : WinChip ??
+stepping        : 0
+cpu MHz         : 501.000148
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu de tsc msr mce cx8 mtrr pge mmx
+bogomips        : 999.42
 
-Scott's only big sin was to dump SunOS for Slowaris.
+Oops not available, because this machine is in a frozen state (in
+project management context) running a specially patched test9.
+
+It oopsed after this message:
+CPU: Before vendor init, caps: <the actual caps>
+
+The only symbols on stack where "empty_bad_page" and "L6" without
+any offset.
+
+I'll get access to a clone of this machine on monday and oops it
+again ;-)
+
+But perhaps this is helpful in any matter.
+
+Regards & Thanks
+
+Ingo Oeser
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbULCVvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbULCV7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbULCVvN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 16:51:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbULCVvM
+	id S262385AbULCV7O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 16:59:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbULCV7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 16:51:12 -0500
-Received: from fire.osdl.org ([65.172.181.4]:47288 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262380AbULCVvG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 16:51:06 -0500
-Message-ID: <41B0DC46.7050906@osdl.org>
-Date: Fri, 03 Dec 2004 13:36:06 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+	Fri, 3 Dec 2004 16:59:14 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:58578 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262385AbULCV7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 16:59:10 -0500
+Message-ID: <41B0E18C.2060801@nortelnetworks.com>
+Date: Fri, 03 Dec 2004 15:58:36 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: rf@q-leap.de
-CC: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-Subject: Re: Trouble with swiotlb
-References: <16816.30598.368287.762457@gargle.gargle.HOWL>
-In-Reply-To: <16816.30598.368287.762457@gargle.gargle.HOWL>
-Content-Type: multipart/mixed;
- boundary="------------040709030402050206040308"
+To: Linux kernel <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org
+Subject: looking for help, attempting to debug high latency in 2.4 kernel
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040709030402050206040308
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Roland Fehrenbacher wrote:
-> Hi,
-> 
-> when building 2.4.28 or 2.4.27 on x86_64 with IOMMU and SWIOTLB support
-> enabled I get unresolved symbol for 3 modules:
-> 
-> depmod: *** Unresolved symbols in /lib/modules/2.4.28/kernel/drivers/net/e1000/e1000.o
-> depmod: *** Unresolved symbols in /lib/modules/2.4.28/kernel/drivers/usb/host/uhci.o
-> depmod: *** Unresolved symbols in /lib/modules/2.4.28/kernel/drivers/usb/host/usb-uhci.o
-> 
-> When modprobing any of the modules I get:
-> unresolved symbol swiotlb
-> 
-> The kernel boots fine on Opterons and EM64T Xeons otherwise.
-> 
-> Any ideas.
+Hi guys,
 
-Looks like it just needs 'swiotlb' exported (as in 2.6.x).
-Can you test the attached patch?
-I don't have 2.4.x booting on x8-64 yet.
+I'm running 2.4.22 on ppc32.  Embedded system, just 74xx cpu, dual tulip network 
+links and fiberchannel card.  Card has 1.5GB of memory, rootfs is tmpfs, system 
+has some NFS mounts.
 
--- 
-~Randy
+We're seeing userspace delayed for almost a second every so often.  No idea 
+what's causing it.
 
+We've got scheduler instrumentation showing a usespace task starting to run, 
+then a bunch of tasks being put on the runqueue, and finally we wake up and 
+start running normally again almost a full second later.  The timing is not 
+exactly the same in each case, but it's usually close to a second of delay.
 
---------------040709030402050206040308
-Content-Type: text/x-patch;
- name="swiotlb_2428.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="swiotlb_2428.patch"
+I'm looking for some tips on how to go about tracking this down.
 
-linux-2428-work
-<description>
+Where are my delays likely to be coming from? Long-running code paths?  Long 
+periods with interrupts off?  I dunno where to start.
 
-Signed-off-by: Your Name <email@domain.tld>
+Would porting lockmeter be a good idea?  Is there anyone who's already done this 
+for ppc?
 
-diffstat:=
- arch/x86_64/kernel/setup.c |    1 +
- 1 files changed, 1 insertion(+)
+I appreciate any help.
 
-diff -Naurp ./arch/x86_64/kernel/setup.c~swiotlb ./arch/x86_64/kernel/setup.c
---- ./arch/x86_64/kernel/setup.c~swiotlb	2004-08-07 16:26:04.000000000 -0700
-+++ ./arch/x86_64/kernel/setup.c	2004-12-03 11:54:07.000000000 -0800
-@@ -52,6 +52,7 @@ int acpi_disabled;
- EXPORT_SYMBOL(acpi_disabled);
- 
- int swiotlb;
-+EXPORT_SYMBOL(swiotlb);
- 
- extern	int phys_proc_id[NR_CPUS];
- 
+Thanks,
 
---------------040709030402050206040308--
+Chris

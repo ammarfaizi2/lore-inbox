@@ -1,59 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVBGUh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVBGTqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVBGUh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 15:37:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVBGUga
+	id S261262AbVBGTqL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 14:46:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVBGTpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 15:36:30 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:32710 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261269AbVBGTrE convert rfc822-to-8bit (ORCPT
+	Mon, 7 Feb 2005 14:45:38 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:30375 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261262AbVBGTdP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 14:47:04 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH][i386] HPET setup, duplicate HPET_T0_CMP needed for some platforms
-Date: Mon, 7 Feb 2005 11:47:00 -0800
-Message-ID: <88056F38E9E48644A0F562A38C64FB6003F3456F@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][i386] HPET setup, duplicate HPET_T0_CMP needed for some platforms
-Thread-Index: AcUMZSKN9Y4IQRrKSWGe3ctZh6p69AA5/8/g
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Giuseppe Bilotta" <bilotta78@hotpop.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Feb 2005 19:47:01.0829 (UTC) FILETIME=[CAEFE750:01C50D4D]
+	Mon, 7 Feb 2005 14:33:15 -0500
+Date: Mon, 7 Feb 2005 13:32:48 -0600
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Michael Halcrow <mhalcrow@us.ibm.com>
+Subject: [PATCH] BSD Secure Levels: memory alloc failure check, 2.6.11-rc2-mm1 (4/8)
+Message-ID: <20050207193248.GC834@halcrow.us>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20050207192108.GA776@halcrow.us>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="uXxzq0nDebZQVNAZ"
+Content-Disposition: inline
+In-Reply-To: <20050207192108.GA776@halcrow.us>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
->Giuseppe Bilotta
->Sent: Sunday, February 06, 2005 7:59 AM
->To: linux-kernel@vger.kernel.org
->Subject: Re: [PATCH][i386] HPET setup, duplicate HPET_T0_CMP 
->needed for some platforms
->
->Venkatesh Pallipadi wrote:
->> +	/* 
->> +	 * Some systems seems to need two writes to HPET_T0_CMP, 
->> +	 * to get interrupts working
->> +	 */
->> +	hpet_writel(tick, HPET_T0_CMP);
->>  	hpet_writel(tick, HPET_T0_CMP);
->
->Is it known which platforms require two, and which ones require 
->one write? Is it cost-effective to #if CONFIG_ the second 
->write?
+--uXxzq0nDebZQVNAZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Additional write should not be performace critical, as this code is
-called
-only once, during boot up (and again during system suspend-resume).
+This is the fourth in a series of eight patches to the BSD Secure
+Levels LSM.  It adds a check for a memory allocation failure
+condition.  Thanks to Vesa-Matti J Kari for pointing out this problem.
 
-Thanks,
-Venki
+Signed off by: Michael Halcrow <mhalcrow@us.ibm.com>
+
+--uXxzq0nDebZQVNAZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="seclvl_mem_alloc_check.patch"
+
+Index: linux-2.6.11-rc2-mm1-modules/security/seclvl.c
+===================================================================
+--- linux-2.6.11-rc2-mm1-modules.orig/security/seclvl.c	2005-02-03 15:37:26.231252048 -0600
++++ linux-2.6.11-rc2-mm1-modules/security/seclvl.c	2005-02-03 15:39:35.786556648 -0600
+@@ -310,7 +310,7 @@
+ static int
+ plaintext_to_sha1(unsigned char *hash, const char *plaintext, int len)
+ {
+-	char *pgVirtAddr;
++	char *pg_virt_addr;
+ 	struct crypto_tfm *tfm;
+ 	struct scatterlist sg[1];
+ 	if (len > PAGE_SIZE) {
+@@ -327,16 +327,20 @@
+ 	}
+ 	// Just get a new page; don't play around with page boundaries
+ 	// and scatterlists.
+-	pgVirtAddr = (char *)__get_free_page(GFP_KERNEL);
+-	sg[0].page = virt_to_page(pgVirtAddr);
++	pg_virt_addr = (char *)__get_free_page(GFP_KERNEL);
++	if (!pg_virt_addr) {
++		seclvl_printk(0, KERN_ERR "%s: Out of memory\n", __FUNCTION__);
++		return -ENOMEM;
++	}	
++	sg[0].page = virt_to_page(pg_virt_addr);
+ 	sg[0].offset = 0;
+ 	sg[0].length = len;
+-	strncpy(pgVirtAddr, plaintext, len);
++	strncpy(pg_virt_addr, plaintext, len);
+ 	crypto_digest_init(tfm);
+ 	crypto_digest_update(tfm, sg, 1);
+ 	crypto_digest_final(tfm, hash);
+ 	crypto_free_tfm(tfm);
+-	free_page((unsigned long)pgVirtAddr);
++	free_page((unsigned long)pg_virt_addr);
+ 	return 0;
+ }
+ 
+
+--uXxzq0nDebZQVNAZ--

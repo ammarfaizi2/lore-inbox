@@ -1,76 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268275AbTALLv4>; Sun, 12 Jan 2003 06:51:56 -0500
+	id <S268281AbTALL62>; Sun, 12 Jan 2003 06:58:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268274AbTALLv4>; Sun, 12 Jan 2003 06:51:56 -0500
-Received: from tag.witbe.net ([81.88.96.48]:7940 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S267423AbTALLvx>;
-	Sun, 12 Jan 2003 06:51:53 -0500
-From: "Paul Rolland" <rol@witbe.net>
-To: <linux-kernel@vger.kernel.org>, <Perex@suze.cz>
-Cc: <rol@as2917.net>
-Subject: [PATCH 2.5.56] Sound core not compiling without /proc support
-Date: Sun, 12 Jan 2003 13:00:40 +0100
-Organization: Witbe.net
-Message-ID: <008f01c2ba32$3aab6f40$2101a8c0@witbe>
+	id <S268282AbTALL62>; Sun, 12 Jan 2003 06:58:28 -0500
+Received: from [210.82.244.135] ([210.82.244.135]:43533 "HELO msn.com")
+	by vger.kernel.org with SMTP id <S268281AbTALL60>;
+	Sun, 12 Jan 2003 06:58:26 -0500
+Message-ID: <000210a7ab75$eae67431$34588482@ouvhsfd.iyf>
+From: <maxav@msn.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Lose 32 pounds by February
+Date: Sun, 12 Jan 2003 16:49:16 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 1
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
 Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-Here is a quick patch to allow sound support to compile correctly
-when not using /proc support.
+If you're like me, you've tried EVERYTHING to lose
+weight.  I know how you feel - the special diets,
+miracle pills, and fancy exercise equipment never helped
+me lose a pound either.  It seemed like the harder I tried,
+the bigger I got, until I heard about a product called
+Power Diet Plus.
 
-Regards,
-Paul Rolland, rol@as2917.net
+You're probably thinking to yourself, "Oh geez, not another
+miracle diet pill!"  Like you, I was skeptical at first, but 
+my sister swore it helped her lose 23 pounds in just two weeks, 
+so I told her I'd give it a shot.  I mean, there was nothing 
+to lose except a lot of weight!  Let me tell you, it was
+the best decision I've ever made. Period.  Six months later,
+as I'm writing this message to you, I've gone from 355 pounds
+to 210 pounds, and I haven't changed my exercise routine or diet
+at all.  Yes, I still eat pizza, and lots of it!
 
-15 [12:53] rol@donald:/kernels> diff -uN linux-2.5.56/sound/core/init.c
-linux-2.5.56-work/sound/core/init.c 
---- linux-2.5.56/sound/core/init.c      2003-01-10 21:11:28.000000000
-+0100
-+++ linux-2.5.56-work/sound/core/init.c 2003-01-12 12:52:13.000000000
-+0100
-@@ -115,16 +115,20 @@
-                snd_printd("unable to register control minors\n");
-                goto __error;
-        }
-+#ifdef CONFIG_PROC_FS
-        if ((err = snd_info_card_create(card)) < 0) {
-                snd_printd("unable to create card info\n");
-                goto __error_ctl;
-        }
-+#endif
-        if (extra_size > 0)
-                card->private_data = (char *)card + sizeof(snd_card_t);
-        return card;
- 
-+#ifdef CONFIG_PROC_FS
-       __error_ctl:
-        snd_ctl_unregister(card);
-+#endif
-       __error:
-        kfree(card);
-        return NULL;
-@@ -273,10 +277,12 @@
-        if (card->private_free)
-                card->private_free(card);
-        snd_info_free_entry(card->proc_id);
-+#ifdef CONFIG_PROC_FS
-        if (snd_info_card_free(card) < 0) {
-                snd_printk(KERN_WARNING "unable to free card info\n");
-                /* Not fatal error */
-        }
-+#endif
-        while (card->s_f_ops) {
-                s_f_ops = card->s_f_ops;
-                card->s_f_ops = s_f_ops->next;
+I was so happy with the results that I contacted the manufacturer
+and got permission to resell it - at a BIG discount.  I want
+to help other people lose weight like I did, because it
+does so much for your self-esteem, not to mention your health.
+I give you my personal pledge that Power Diet Plus
+absolutely WILL WORK FOR YOU.  If it doesn't, you can return it
+any time for a full refund.    
 
+If you are frustrated with trying other products, not having 
+any success, and just not getting the results you were promised,
+then I recommend the only product that worked for me - POWER DIET
+PLUS.
+
+You're probably asking yourself, "Ok, so how does this stuff
+actually work?"
+
+Power Diet Plus contains Lipotropic fat burners which are 
+scientifically proven to increase metabolism and cause rapid 
+weight loss. No "hocus pocus" in these pills - just RESULTS, RESULTS, 
+RESULTS!! 
+
+Here is the bottom line ...
+
+I can help you lose 10-15 pounds per week naturally, without
+exercising and without having to eat rice cakes all day.  
+Just try it for one month - there's nothing to lose, and everything 
+to gain.  You will lose weight fast - GUARANTEED.  That is my
+pledge to you.  
+
+To order Power Diet Plus on our secure server, just click
+on the link below:
+
+http://www.discountshaven.com/powerorder.htm
+
+To see what some of our customers have said about this product, 
+visit http://www.discountshaven.com/testimonials.htm
+
+To see a list of ingredients and for more information
+on test studies and how it will help you lose weight, visit 
+http://www.discountshaven.com/howitworks.htm
+
+9990KZyK0-724WCWl15

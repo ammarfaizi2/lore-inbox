@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279897AbRJ3JLr>; Tue, 30 Oct 2001 04:11:47 -0500
+	id <S279884AbRJ3JPh>; Tue, 30 Oct 2001 04:15:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279822AbRJ3JLi>; Tue, 30 Oct 2001 04:11:38 -0500
-Received: from mail.esiee.fr ([147.215.1.3]:37637 "HELO mail.esiee.fr")
-	by vger.kernel.org with SMTP id <S279896AbRJ3JLY>;
-	Tue, 30 Oct 2001 04:11:24 -0500
-Message-ID: <3BDE6ED9.7070401@esiee.fr>
-Date: Tue, 30 Oct 2001 10:11:53 +0100
-From: Matthieu Delahaye <delahaym@esiee.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011019
-X-Accept-Language: en, fr
-MIME-Version: 1.0
-To: Sureshkumar Kamalanathan <skk@sasken.com>
+	id <S279898AbRJ3JP2>; Tue, 30 Oct 2001 04:15:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10513 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279886AbRJ3JPS>; Tue, 30 Oct 2001 04:15:18 -0500
+Subject: Re: Module Licensing?
+To: kwooten@home.com (Kevin D. Wooten)
+Date: Tue, 30 Oct 2001 09:22:33 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to write System calls?
-In-Reply-To: <3BDD3AA1.18FCC633@sasken.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <01102920463500.03524@newton.cevio.com> from "Kevin D. Wooten" at Oct 29, 2001 08:46:35 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15yV6P-0005sD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> After reading the posts about the MODULE_LICENSE macro, I am in disbelief. I 
+> was under the impression that one could write a "closed-source" module and 
+> distribute it in binary form, and be in compliance. Please tell me I am 
 
-First, I propose you to have a look on "Linux Kernel 2.4 Internals" from 
-Tigran Aivazian. You can read it from the LDP at exact URL: 
-http://www.linuxdoc.org/LDP/lki/index.html
-In this, you'll probably see that syscalls are hardcoded (file 
-arch/xxx/kernel/entry.S  on your kernel tree).
-This means, AFAIK, you cannot implements a syscall function in a module ;-)
-One other way is using  your modules to implements char drivers and use 
-ioctl() as if it was yours syscalls. This method is generally 
-recommended to users who wants to implement new sayscalls.
+Providing your work constitutes a seperate work that isn't a derivative
+work. Thats a lawyer definition and one for lawyers
 
+> wrong? We use Linux as a platform for some data acquisition, and we are 
+> currently distributing ( in very limited quantity to people who would already 
+> have signed an NDA ) modules that currently have no official license as yet.
+> We are researching which license to use, but according to these post's we 
+> have almost no choice, Open Source or not at all!
 
-Am I wrong?
+The tag is purely so we can tell free stuff apart. If you tag a module
 
-Regards,
-Matthieu
+MODULE_LICENSE("(c) Copyright EvilCorp, All rights wronged");
 
-Sureshkumar Kamalanathan wrote:
+it will still load but the user will be advised not to report bugs to the
+kernel lists and the like. The oops data will similarly be marked "tainted"
+so that we can discard it.
 
->Hi All,
->  Good day!
->  I have 2.4.4 kernel.  I have to write some system calls for
->interaction with the kernel from the userland.  Can any of you tell me
->where I can get the information regarding this?  
->  I have the Linux Kernel Internals by Beck and others.  But it gives
->the procedure only for 2.2.x.
->  Moreover I need to implement these system calls as Loadable modules.
->  Any pointers in this regard will be highly appreciated and I'll very
->grateful!!
->
->  Thanks in advance,
->
->Regards,
->Suresh.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
-
+It's a filter so we don't have to handle bugs in your driver, nothing more.

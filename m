@@ -1,81 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbTLUKva (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 05:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTLUKv3
+	id S262694AbTLUKzH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 05:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTLUKzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 05:51:29 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:26629 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262566AbTLUKv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 05:51:28 -0500
-Date: Sun, 21 Dec 2003 11:51:10 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] O_DIRECTORY|O_CREAT handling
-Message-ID: <20031221105110.GA1323@alpha.home.local>
-References: <3FE56A97.3060901@redhat.com>
+	Sun, 21 Dec 2003 05:55:07 -0500
+Received: from slimnet.xs4all.nl ([194.109.194.192]:14236 "EHLO slimnas.slim")
+	by vger.kernel.org with ESMTP id S262694AbTLUKy7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 05:54:59 -0500
+Subject: 2.6.0: SBP2 trouble (cont'd)
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1072004166.11257.15.camel@paragon.slim>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FE56A97.3060901@redhat.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 21 Dec 2003 11:56:06 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ulrich,
+I reported SBP-2 problems with 2.6.0-test11 (somewhere around 28
+November). With 2.6.0 the problem still persists. I just tried it again
+with the latest IEEE1394 drivers (r1088 / SBP2 r1085) but I still get
+logging time out errors on my CD-RW drive.
 
-On Sun, Dec 21, 2003 at 01:40:39AM -0800, Ulrich Drepper wrote:
-> 
-> Some programs create temporary directory which they afterward use as the
-> working directory or changed root.  I.e., we have code like this:
-> 
->   mkdir ("/some/dirRANDOM");
->   chdir ("/some/dirRANDOM");
-> 
-> or
-> 
->   mkdir ("/some/dirRANDOM");
->   fd = open ("/some/dirRANDOM", O_DIRECTORY);
->   fchdir (fd);
-> 
-> or
-> 
->   mkdir ("/some/dirRANDOM");
->   chroot ("/some/dirRANDOM");
-> 
-> All these pieces of code have an obvious flaw, a race.  There is no
-> atomic way to do what we want.
+With 2.4 it just works as it should and I get both my CD-RW drive and my
+MO drive.
 
-Although I agree on the race, I fail to see in what case it matters.
-In my programs, I often use mkdir() to get temporary directories instead
-of temporary files, just because of the atomicity of the test-and-set which
-mkdir() provides. Basically, I do :
+Under 2.6 SBP2 just somehow does not want to play ball with my CD-RW
+drive.
+ 
+Jurgen
 
-  base_dir="/tmp/tmpdir"; 
-  do {
-     rnd=random();
-     sprintf(dir, "%s%d", base_dir, rnd);
-  } while (!mkdir(dir, 0700);
-  /* now I'm guaranteed that I'm the first to get this dir, */
-  /* and only my UID can work in it */
-  chdir(dir);
-  
-So the only race would be someone working with the same UID (or root) removing
-the directory and replacing it with another one (or a symlink or anything)
-between mkdir() and chdir(). But don't see any use or consequence to this.
+Dec 21 11:29:42 paragon kernel: ohci1394: fw-host0: OHCI-1394 1.0 (PCI):
+IRQ=[20]  MMIO=[feaff800-feafffff]  Max Packet=[2048]
+Dec 21 11:29:42 paragon kernel: ohci1394: fw-host1: OHCI-1394 1.1 (PCI):
+IRQ=[20]  MMIO=[feaff000-feaff7ff]  Max Packet=[2048]
+Dec 21 11:29:42 paragon kernel: sbp2: $Rev: 1085 $ Ben Collins
+<bcollins@debian.org>
+Dec 21 11:29:42 paragon kernel: scsi2 : SCSI emulation for IEEE-1394
+SBP-2 Devices
 
-> Now combine these two problems.  How about making this work?
-> 
->   fd = open ("/some/dirRANDOM", O_RDONLY|O_CREAT|O_DIRECTORY|O_EXCL, 0700);
->   fchdir (fd);
+The missing drive (from 2.4):
 
-It would be interesting, of course, but is it portable to other systems ? If
-it is not, very few people will use it, unfortunately. But if others already
-do it right, then why not include it ?
+Dec 21 11:36:28 paragon kernel: scsi singledevice 2 0 0 0
+Dec 21 11:36:28 paragon kernel:   Vendor: PLEXTOR   Model: CD-R  
+PX-W2410A  Rev: 1.04
+Dec 21 11:36:28 paragon kernel:   Type:  
+CD-ROM                             ANSI SCSI revision: 02
 
-Cheers,
-Willy
 

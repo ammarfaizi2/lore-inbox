@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264397AbRFTIBG>; Wed, 20 Jun 2001 04:01:06 -0400
+	id <S264674AbRFTITT>; Wed, 20 Jun 2001 04:19:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264674AbRFTIAz>; Wed, 20 Jun 2001 04:00:55 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:25606 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S264397AbRFTIAk>; Wed, 20 Jun 2001 04:00:40 -0400
-Message-ID: <3B3057BE.4374D4B2@idb.hist.no>
-Date: Wed, 20 Jun 2001 09:58:54 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: "McHarry, John" <john.mcharry@gemplex.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to compile on one machine and install on another?
-In-Reply-To: <A5F553757C933442ADE9B31AF50A273B028DB4@corp-p1.gemplex.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264853AbRFTITJ>; Wed, 20 Jun 2001 04:19:09 -0400
+Received: from gateway.sequent.com ([192.148.1.10]:4164 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S264674AbRFTITG>; Wed, 20 Jun 2001 04:19:06 -0400
+Message-Id: <200106200818.BAA27120@eng4.sequent.com>
+To: linux-kernel@vger.kernel.org
+Subject: Locking document available for general review
+Date: Wed, 20 Jun 2001 01:18:54 -0700
+From: Rick Lindsley <nevdull@sequent.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"McHarry, John" wrote:
-> 
-> I am trying to compile the 2.2.19 kernel one one machine for  installation
-> on another.  I believe I need to do more than just copy over  bzImage and
-> modify lilo.conf, but I don't know what.  Is there documentation somewhere
-> on how to do this?  Thanks.
+So long as what locks are used for, and when to use them remains a
+black art, tuning for large system scalability will be limited to
+people with the time to puzzle out if a lock is truly being used
+correctly or they are, in fact, staring at a bug.
 
-This is enough if you don't use modules.  If you use modules you
-need to copy them too, which is trickier.  Several good methods
-have been demonstrated, here is another if you can't use the nfs
-approach:
+In an effort to assist both scalability and kernel-janitor efforts, I
+have produced a reference document which describes (I believe) all of
+the current global spin locks in use in the 2.4.5 kernel.
 
-1. If you are running the same kernel revision on the compile machine,
-   temporarily rename /lib/modules/<version> to something else.
-   Yes - this could be dangerous but tend to work well on a "home
-machine"
-2. Do the "make modules_install" on the compile machine.
-3. Rename the /lib/modules/<version> to something else, and
-   rename your proper module directory back to what it should be.
-4. Transfer the installed module tree to the target machine along with
-   the bzImage.
+I am not so vain as to believe that after a couple of months of study
+that I am now suddenly experts on all varieties and usages of locks.  I
+have refrained from saying, in most cases, that a lock is "used
+wrongly" or "completely unnecessary".  Instead, I encourage you, the
+community to inspect the document, and correct or enhance it where
+appropriate. It has already been reviewed by some people in the
+community and on the lse-tech sourceforge list (thank you for your
+feedback!) but I know there are more knowledgable people out there.
 
-The "dangerous part" happens if the kernel on the compile machine
-tries to load a module between step 1 and step 3.
-This can be avoided in a number of ways, such as:
+This is not a paper on "how" to do locking.  There is a document in the
+Documentation directory that already gives a brief tutorial on that,
+and I intend to inspect it next and update it if appropriate. This is
+more of a reference document; hopefully useful but no doubt, dry
+reading.
 
-* Make sure the target and compile machines run different kernel
-revisions.
-  If you're upgrading both, compile for the target machine first.
-  Or edit the makefile, append something like "target" to the
-"extraversion",
-  you will then get the modules installed in
-/lib/modules/<version>target
-  which is different from what your compile machine uses.
+I'll take comments and feedback until July 8, after which I'll propose
+the updated document be made part of usr/src/linux/Documentation.
 
-* Use "chroot" so make modules_install will install somewhere else.
-  info|man chroot for details.
- 
-Helge Hafting
+The document does not cover static spin locks, nor spin locks declared
+within structures.  While these can be key understandings, they are
+typically less obfuscated in their usage simply by their declaration:
+barring unusual constructs, statics are limited to the file in which
+they are declared, and spin locks in a structure usually guard the
+structure or some element in it.
+
+The document can be found through the LSE project:
+
+	    http://sourceforge.net/projects/lse
+
+or directly through
+
+	    http://lse.sourceforge.net/lockhier/global-spin-lock
+
+Comments to me, or the list if they are of a general nature.
+
+thanks,
+Rick

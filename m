@@ -1,595 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbUKXNgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbUKXNkD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262710AbUKXNgd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 08:36:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbUKXNfX
+	id S262711AbUKXNkD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 08:40:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbUKXNhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 08:35:23 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:8086 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262680AbUKXNMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 08:12:42 -0500
-Subject: Suspend 2 merge: 47/51: GZIP support.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-Content-Type: text/plain
-Message-Id: <1101300182.5805.383.camel@desktop.cunninghams>
+	Wed, 24 Nov 2004 08:37:37 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:32989 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262678AbUKXNMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 08:12:18 -0500
+Date: Wed, 24 Nov 2004 13:12:18 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 10/51: Exports for suspend built as modules.
+Message-ID: <20041124131218.GA12868@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Nigel Cunningham <ncunningham@linuxmail.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101294252.5805.228.camel@desktop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 00:02:19 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101294252.5805.228.camel@desktop.cunninghams>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The original compressor. Slow. I've tried to drop it, but for reasons I
-simply don't understand, some users still want it.
+>  /*
+>   * Platforms implementing 32 bit compatibility ioctl handlers in
+> - * modules need this exported
+> + * modules need this exported. So does Suspend2 (when made as
+> + * modules), so the export_symbol is now unconditional.
+>   */
+> -#ifdef CONFIG_COMPAT
+>  EXPORT_SYMBOL(sys_ioctl);
+> -#endif
 
-diff -ruN 853-gzip-old/kernel/power/suspend_gzip.c 853-gzip-new/kernel/power/suspend_gzip.c
---- 853-gzip-old/kernel/power/suspend_gzip.c	1970-01-01 10:00:00.000000000 +1000
-+++ 853-gzip-new/kernel/power/suspend_gzip.c	2004-11-11 08:46:25.000000000 +1100
-@@ -0,0 +1,560 @@
-+/*
-+ * kernel/power/gzip_compression.c
-+ *
-+ * Copyright (C) 2003,2004 Nigel Cunningham <ncunningham@linuxmail.org>
-+ *
-+ * This file is released under the GPLv2.
-+ *
-+ * This file contains data compression routines for suspend.
-+ * Compression is implemented using the zlib library.
-+ *
-+ */
-+
-+#include <linux/suspend.h>
-+#include <linux/module.h>
-+#include <linux/highmem.h>
-+#include <linux/zlib.h>
-+
-+#include "plugins.h"
-+#include "proc.h"
-+#include "suspend.h"
-+
-+/* Forward declaration for the ops structure we export */
-+struct suspend_plugin_ops gzip_compression_ops;
-+
-+/* The next driver in the pipeline */
-+static struct suspend_plugin_ops * next_driver;
-+
-+/* Zlib routines we use to compress/decompress the data */
-+extern int zlib_compress(unsigned char *data_in, unsigned char *cpage_out,
-+		u32 *sourcelen, u32 *dstlen);
-+extern void zlib_decompress(unsigned char *data_in, unsigned char *cpage_out,
-+	       u32 srclen, u32 destlen);
-+
-+/* Buffers */
-+static void *compression_workspace = NULL;
-+static char *local_buffer = NULL;
-+
-+/* Configuration data we pass to zlib */
-+static z_stream strm;
-+
-+/* Stats we save */
-+static __nosavedata unsigned long bytes_in = 0, bytes_out = 0;
-+
-+/* Expected compression is used to reduce the amount of storage allocated */
-+static int expected_gzip_compression = 0;
-+
-+/* ---- Zlib memory management ---- */
-+
-+/* allocate_zlib_compression_space
-+ *
-+ * Description:	Allocate space for zlib to use in compressing our data.
-+ *		Each call must have a matching call to free_zlib_memory.
-+ * Returns:	Int: Zero if successful, -ENONEM otherwise.
-+ */
-+static inline int allocate_zlib_compression_space(void)
-+{
-+	BUG_ON(compression_workspace);
-+
-+	compression_workspace = vmalloc_32(zlib_deflate_workspacesize());
-+	if (!compression_workspace) {
-+		printk(KERN_WARNING
-+			"Failed to allocate %d bytes for deflate workspace\n",
-+			zlib_deflate_workspacesize());
-+		return -ENOMEM;
-+	}
-+	
-+	return 0;
-+}
-+
-+/* allocate_zlib_decompression_space
-+ *
-+ * Description:	Allocate space for zlib to use in decompressing our data.
-+ *		Each call must have a matching call to free_zlib_memory.
-+ * Returns:	Int: Zero if successful, -ENONEM otherwise.
-+ */
-+static inline int allocate_zlib_decompression_space(void)
-+{
-+	BUG_ON(compression_workspace);
-+
-+	compression_workspace = vmalloc_32(zlib_inflate_workspacesize());
-+	if (!compression_workspace) {
-+		printk(KERN_WARNING
-+			"Failed to allocate %d bytes for inflate workspace\n",
-+			zlib_inflate_workspacesize());
-+		return -ENOMEM;
-+	}
-+	
-+	return 0;
-+}
-+
-+/* free_zlib_memory
-+ *
-+ * Description:	Frees memory allocated by either allocation routine (above).
-+ */
-+static inline void free_zlib_memory(void)
-+{
-+	if (!compression_workspace)
-+		return;
-+
-+	vfree(compression_workspace);
-+	compression_workspace = NULL;
-+}
-+
-+/* ---- Local buffer management ---- */
-+
-+/* allocate_local_buffer
-+ *
-+ * Description:	Allocates a page of memory for buffering output.
-+ * Returns:	Int: Zero if successful, -ENONEM otherwise.
-+ */
-+static int allocate_local_buffer(void)
-+{
-+	if (local_buffer)
-+		return 0;
-+
-+	local_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	
-+	if (!local_buffer) {
-+		printk(KERN_ERR
-+			"Failed to allocate a page for compression "
-+			"driver's buffer.\n");
-+		return -ENOMEM;
-+	}
-+
-+	return 0;
-+}
-+
-+/* free_local_buffer
-+ *
-+ * Description:	Frees memory allocated for buffering output.
-+ */
-+static inline void free_local_buffer(void)
-+{
-+	if (local_buffer)
-+		free_pages((unsigned long) local_buffer, 0);
-+	local_buffer = NULL;
-+}
-+
-+/* ---- Functions exported via operations struct ---- */
-+
-+/* gzip_write_init
-+ *
-+ * Description:	Allocate buffers and prepares zlib for deflating a new stream
-+ * 		of data.
-+ * Arguments:	Stream_number:	Ignored.
-+ * Returns: 	Int. Zero if successful, otherwise an appropriate error number.
-+ */
-+
-+static int gzip_write_init(int stream_number)
-+{
-+	int result;
-+	
-+	next_driver = get_next_filter(&gzip_compression_ops);
-+
-+	if (!next_driver) {
-+		printk("GZip Compression Driver: Argh! No one wants my output!");
-+		return -ECHILD;
-+	}
-+
-+	if ((result = allocate_zlib_compression_space()))
-+		return result;
-+	
-+	if ((result = allocate_local_buffer()))
-+		return result;
-+
-+	strm.total_in = 0;
-+	strm.total_out = 0;
-+	strm.workspace = compression_workspace;
-+	strm.next_out = (char *) local_buffer;
-+	strm.avail_out = PAGE_SIZE;
-+	result = zlib_deflateInit(&strm, Z_BEST_SPEED);
-+		
-+	if (Z_OK != result) {
-+		printk(KERN_ERR name_suspend "Failed to initialise zlib.\n");
-+		return -EPERM;
-+	}
-+
-+	/* 
-+	 * Reset the statistics iif we are about to write the first part of
-+	 * the image
-+	 */
-+	if (stream_number == 2)
-+		bytes_in = bytes_out = 0;
-+
-+	return 0;
-+}
-+
-+/* gzip_write_chunk()
-+ *
-+ * Description:	Compress a page of data, buffering output and passing on
-+ * 		filled pages to the next plugin in the pipeline.
-+ * Arguments:	Buffer_start:	Pointer to a buffer of size PAGE_SIZE, 
-+ * 				containing data to be compressed.
-+ * Returns:	0 on success. Otherwise the error is that returned by later
-+ * 		plugins, -ECHILD if we have a broken pipeline or -EPERM if
-+ * 		zlib errs.
-+ */
-+
-+static int gzip_write_chunk(struct page * buffer_page)
-+{
-+	int ret; 
-+	char * buffer_start = kmap(buffer_page);
-+	
-+	/* Work to do */
-+	strm.next_in = buffer_start;
-+	strm.avail_in = PAGE_SIZE;
-+	while (strm.avail_in) {
-+		ret = zlib_deflate(&strm, Z_PARTIAL_FLUSH);
-+		if (ret != Z_OK) {
-+			printk("Zlib failed to compress our data. "
-+				"Result code was %d.\n", ret);
-+			kunmap(buffer_page);
-+			return -EPERM;
-+		}
-+
-+		if (!strm.avail_out) {
-+
-+			if ((ret = next_driver->ops.filter.write_chunk(
-+					virt_to_page(local_buffer)))) {
-+				kunmap(buffer_page);
-+				return ret;
-+			}
-+			strm.next_out = local_buffer;
-+			strm.avail_out = PAGE_SIZE;
-+		}
-+	}
-+	kunmap(buffer_page);
-+
-+	return 0;
-+}
-+
-+/* gzip_write_cleanup()
-+ *
-+ * Description:	Flush remaining data, update statistics and free allocated
-+ * 		space.
-+ * Returns:	Zero. Never fails. Okay. Zlib might fail... but it shouldn't.
-+ */
-+
-+static int gzip_write_cleanup(void)
-+{
-+	int ret = 0, finished = 0;
-+	
-+	while (!finished) {
-+		if (strm.avail_out) {
-+			ret = zlib_deflate(&strm, Z_FINISH);
-+
-+			if (ret == Z_STREAM_END) {
-+				ret = zlib_deflateEnd(&strm);
-+				finished = 1;
-+			}
-+
-+			if ((ret != Z_OK) && (ret != Z_STREAM_END)) {
-+				zlib_deflateEnd(&strm);
-+				printk("Failed to finish compressing data. "
-+					"Result %d received.\n", ret);
-+				return -EPERM;
-+			}
-+		}
-+
-+		if ((!strm.avail_out) || (finished)) {
-+			if ((ret = next_driver->ops.filter.write_chunk(
-+					virt_to_page(local_buffer))))
-+				return ret;
-+			strm.next_out = local_buffer;
-+			strm.avail_out = PAGE_SIZE;
-+		}
-+	}
-+
-+	bytes_in+= strm.total_in;
-+	bytes_out+= strm.total_out;
-+
-+	free_zlib_memory();
-+	free_local_buffer();
-+
-+	return 0;
-+}
-+
-+/* gzip_read_init
-+ *
-+ * Description:	Prepare to read a new stream of data.
-+ * Arguments:	Stream_number:	Not used.
-+ * Returns: 	Int. Zero if successful, otherwise an appropriate error number.
-+ */
-+
-+static int gzip_read_init(int stream_number)
-+{
-+	int result;
-+
-+	next_driver = get_next_filter(&gzip_compression_ops);
-+
-+	if (!next_driver) {
-+		printk("GZip Compression Driver: Argh! "
-+			"No one wants to feed me data!");
-+		return -ECHILD;
-+	}
-+	
-+	if ((result = allocate_zlib_decompression_space()))
-+		return result;
-+	
-+	if ((result = allocate_local_buffer()))
-+		return result;
-+
-+	strm.total_in = 0;
-+	strm.total_out = 0;
-+	strm.workspace = compression_workspace;
-+	strm.avail_in = 0;
-+	if ((result = zlib_inflateInit(&strm)) != Z_OK) {
-+		printk(KERN_ERR name_suspend "Failed to initialise zlib.\n");
-+		return -EPERM;
-+	}
-+
-+	return 0;
-+}
-+
-+/* gzip_read_chunk()
-+ *
-+ * Description:	Retrieve data from later plugins and decompress it until the
-+ * 		input buffer is filled.
-+ * Arguments:	Buffer_start: 	Pointer to a buffer of size PAGE_SIZE.
-+ * 		Sync:		Whether the previous plugin (or core) wants its
-+ * 				data synchronously.
-+ * Returns:	Zero if successful. Error condition from me or from downstream
-+ * 		on failure.
-+ */
-+
-+static int gzip_read_chunk(struct page * buffer_page, int sync)
-+{
-+	int ret; 
-+	char * buffer_start = kmap(buffer_page);
-+
-+	/* 
-+	 * All our reads must be synchronous - we can't decompress
-+	 * data that hasn't been read yet.
-+	 */
-+
-+	/* Work to do */
-+	strm.next_out = buffer_start;
-+	strm.avail_out = PAGE_SIZE;
-+	while (strm.avail_out) {
-+		if (!strm.avail_in) {
-+			if ((ret = next_driver->ops.filter.read_chunk(
-+					virt_to_page(local_buffer), 
-+					SUSPEND_SYNC)) < 0) {
-+				kunmap(buffer_page);
-+				return ret;
-+			}
-+			strm.next_in = local_buffer;
-+			strm.avail_in = PAGE_SIZE;
-+		}
-+			
-+		ret = zlib_inflate(&strm, Z_PARTIAL_FLUSH);
-+
-+		if ((ret == Z_BUF_ERROR) && (!strm.avail_in)) {
-+			continue;
-+		}
-+			
-+		if ((ret != Z_OK) && (ret != Z_STREAM_END)) {
-+			printk("Zlib failed to decompress our data. "
-+					"Result code was %d.\n", ret);
-+			kunmap(buffer_page);
-+			return -EPERM;
-+		}
-+	}
-+	kunmap(buffer_page);
-+
-+	return 0;
-+}
-+
-+/* read_cleanup()
-+ *
-+ * Description:	Clean up after reading part or all of a stream of data.
-+ * Returns:	int: Always zero. Never fails.
-+ */
-+
-+static int gzip_read_cleanup(void)
-+{
-+	zlib_inflateEnd(&strm);
-+	
-+	free_zlib_memory();
-+	free_local_buffer();
-+	return 0;
-+}
-+
-+/* gzip_print_debug_stats
-+ *
-+ * Description:	Print information to be recorded for debugging purposes into a
-+ * 		buffer.
-+ * Arguments:	buffer: Pointer to a buffer into which the debug info will be
-+ * 			printed.
-+ * 		size:	Size of the buffer.
-+ * Returns:	Number of characters written to the buffer.
-+ */
-+
-+static int gzip_print_debug_stats(char * buffer, int size)
-+{
-+	int pages_in = bytes_in >> PAGE_SHIFT;
-+	int pages_out = bytes_out >> PAGE_SHIFT;
-+	int len;
-+	
-+	//Output the compression ratio achieved.
-+	len = suspend_snprintf(buffer, size, "- GZIP compressor enabled.\n");
-+	if (pages_in)
-+		len+= suspend_snprintf(buffer+len, size - len,
-+		  "  Compressed %ld bytes into %ld.\n  "
-+		  "Image compressed by %d percent.\n",
-+		  bytes_in, bytes_out, (pages_in - pages_out) * 100 / pages_in);
-+	return len;
-+}
-+
-+/* compression_memory_needed
-+ *
-+ * Description:	Tell the caller how much memory we need to operate during
-+ * 		suspend/resume.
-+ * Returns:	Unsigned long. Maximum number of bytes of memory required for
-+ * 		operation.
-+ */
-+
-+static unsigned long gzip_memory_needed(void)
-+{
-+	return PAGE_SIZE + max( zlib_deflate_workspacesize(),
-+				zlib_inflate_workspacesize());
-+}
-+
-+static unsigned long gzip_storage_needed(void)
-+{
-+	return 2 * sizeof(unsigned long);
-+}
-+
-+/* gzip_save_config_info
-+ *
-+ * Description:	Save information needed when reloading the image at resume time.
-+ * Arguments:	Buffer:		Pointer to a buffer of size PAGE_SIZE.
-+ * Returns:	Number of bytes used for saving our data.
-+ */
-+
-+static int gzip_save_config_info(char * buffer)
-+{
-+	*((unsigned long *) buffer) = bytes_in;
-+	*((unsigned long *) (buffer + sizeof(unsigned long))) = bytes_out;
-+	*((int *) (buffer + 2 * sizeof(unsigned long))) = expected_gzip_compression;
-+	return 2 * sizeof(unsigned long) + sizeof(int);
-+}
-+
-+/* gzip_load_config_info
-+ *
-+ * Description:	Reload information needed for decompressing the image at 
-+ * 		resume time.
-+ * Arguments:	Buffer:		Pointer to the start of the data.
-+ *		Size:		Number of bytes that were saved.
-+ */
-+
-+static void gzip_load_config_info(char * buffer, int size)
-+{
-+	if(size == 2 * sizeof(unsigned long) + sizeof(int)) {
-+		bytes_in = *((unsigned long *) buffer);
-+		bytes_out = *((unsigned long *) (buffer + sizeof(unsigned long)));
-+		expected_gzip_compression = *((int *) (buffer + 2 * sizeof(unsigned long)));
-+	} else
-+		printk("Suspend GZIP config info size mismatch: settings ignored.\n");
-+	return;
-+}
-+
-+/* gzip_get_expected_compression
-+ * 
-+ * Description:	Returns the expected ratio between data passed into this plugin
-+ * 		and the amount of data output when writing.
-+ * Returns:	The value set by the user via our proc entry.
-+ */
-+
-+static int gzip_get_expected_compression(void)
-+{
-+	return 100 - expected_gzip_compression;
-+}
-+
-+/*
-+ * data for our proc entries.
-+ */
-+
-+struct suspend_proc_data expected_compression_proc_data = {
-+	.filename			= "expected_gzip_compression",
-+	.permissions			= PROC_RW,
-+	.type				= SUSPEND_PROC_DATA_INTEGER,
-+	.data = {
-+		.integer = {
-+			.variable	= &expected_gzip_compression,
-+			.minimum	= 0,
-+			.maximum	= 99,
-+		}
-+	}
-+};
-+
-+struct suspend_proc_data disable_compression_proc_data = {
-+	.filename			= "disable_gzip_compression",
-+	.permissions			= PROC_RW,
-+	.type				= SUSPEND_PROC_DATA_INTEGER,
-+	.data = {
-+		.integer = {
-+			.variable	= &gzip_compression_ops.disabled,
-+			.minimum	= 0,
-+			.maximum	= 1,
-+		}
-+	}
-+};
-+
-+/*
-+ * Ops structure.
-+ */
-+
-+struct suspend_plugin_ops gzip_compression_ops = {
-+	.type			= FILTER_PLUGIN,
-+	.name			= "Zlib Page Compressor",
-+	.memory_needed 		= gzip_memory_needed,
-+	.print_debug_info	= gzip_print_debug_stats,
-+	.save_config_info	= gzip_save_config_info,
-+	.load_config_info	= gzip_load_config_info,
-+	.storage_needed		= gzip_storage_needed,
-+	.ops = {
-+		.filter = {
-+		 .write_init		= gzip_write_init,
-+		 .write_chunk		= gzip_write_chunk,
-+		 .write_cleanup		= gzip_write_cleanup,
-+		 .read_init		= gzip_read_init,
-+		 .read_chunk		= gzip_read_chunk,
-+		 .read_cleanup		= gzip_read_cleanup,
-+		 .expected_compression	= gzip_get_expected_compression,
-+		}
-+	}
-+};
-+
-+/* ---- Registration ---- */
-+
-+static __init int gzip_load(void)
-+{
-+	int result;
-+
-+	if (!(result = suspend_register_plugin(&gzip_compression_ops))) {
-+		printk("Software Suspend Gzip Compression Driver registered.\n");
-+		suspend_register_procfile(&expected_compression_proc_data);
-+		suspend_register_procfile(&disable_compression_proc_data);
-+	}
-+	return result;
-+}
-+
-+#ifdef MODULE
-+static __exit void gzip_unload(void)
-+{
-+	printk("Software Suspend Gzip Compression Driver unloading.\n");
-+	suspend_unregister_procfile(&expected_compression_proc_data);
-+	suspend_unregister_procfile(&disable_compression_proc_data);
-+	suspend_unregister_plugin(&gzip_compression_ops);
-+}
-+
-+module_init(gzip_load);
-+module_exit(gzip_unload);
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Nigel Cunningham");
-+MODULE_DESCRIPTION("Gzip Compression support for Suspend2");
-+#else
-+late_initcall(gzip_load);
-+#endif
+This is definitly the wrong interface for whatever you want to do.
 
+> diff -ruN 400-exports-old/fs/namei.c 400-exports-new/fs/namei.c
+> --- 400-exports-old/fs/namei.c	2004-11-03 21:53:11.000000000 +1100
+> +++ 400-exports-new/fs/namei.c	2004-11-04 16:27:40.000000000 +1100
+> @@ -1649,6 +1649,8 @@
+>  	return error;
+>  }
+>  
+> +EXPORT_SYMBOL(sys_mkdir);
 
+Dito
+
+>   * We try to drop the dentry early: we should have
+>   * a usage count of 2 if we're the only user of this
+> diff -ruN 400-exports-old/fs/namespace.c 400-exports-new/fs/namespace.c
+> --- 400-exports-old/fs/namespace.c	2004-11-03 21:54:15.000000000 +1100
+> +++ 400-exports-new/fs/namespace.c	2004-11-04 16:27:40.000000000 +1100
+> @@ -490,6 +490,8 @@
+>  	return retval;
+>  }
+>  
+> +EXPORT_SYMBOL(sys_umount);
+
+Dito
+
+> +EXPORT_SYMBOL(sys_mount);
+
+Dito.
+
+> +EXPORT_SYMBOL(proc_match);
+
+Also nothing anything outside of procfs internals should do.
+
+> +EXPORT_SYMBOL(sys_write);
+
+wrong aswell.
+
+> +EXPORT_SYMBOL(sys_reboot);
+
+Dito
+
+>  unsigned long avenrun[3];
+> +EXPORT_SYMBOL(avenrun);
+
+Nothing you should poke into.
+
+> +/* Exported for Software Suspend 2 */
+> +EXPORT_SYMBOL(nr_free_highpages);
+> +EXPORT_SYMBOL(pgdat_list);
+
+Dito.
+
+> +EXPORT_SYMBOL(swap_free);
+> +EXPORT_SYMBOL(swap_info);
+> +EXPORT_SYMBOL(sys_swapoff);
+> +EXPORT_SYMBOL(sys_swapon);
+> +EXPORT_SYMBOL(si_swapinfo);
+> +EXPORT_SYMBOL(map_swap_page);
+> +EXPORT_SYMBOL(get_swap_page);
+> +EXPORT_SYMBOL(get_swap_info_struct);
+
+Dito.  Lowlevel swapdevice access isn't something modules should poke
+into.
+
+Nigel, why do I have this strange feeling that exactly the same patch
+was rejected already but you resubmitted it again?
+
+If you want anything merged drop the modular swsusp bits, I doubt it'll
+ever be merged.

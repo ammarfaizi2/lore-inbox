@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261886AbRETNfw>; Sun, 20 May 2001 09:35:52 -0400
+	id <S261924AbRETNlm>; Sun, 20 May 2001 09:41:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261918AbRETNfm>; Sun, 20 May 2001 09:35:42 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:50441 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261886AbRETNfd>; Sun, 20 May 2001 09:35:33 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200105201335.PAA03927@green.mif.pg.gda.pl>
-Subject: Re: [PATCH] 2.4.4-ac11 network drivers cleaning
-To: kaos@ocs.com.au (Keith Owens)
-Date: Sun, 20 May 2001 15:35:35 +0200 (CEST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <12098.990324222@ocs3.ocs-net> from "Keith Owens" at May 20, 2001 12:03:42 PM
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S261925AbRETNlc>; Sun, 20 May 2001 09:41:32 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:14456 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S261924AbRETNl0>; Sun, 20 May 2001 09:41:26 -0400
+Date: Sun, 20 May 2001 15:40:44 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010520154044.C18119@athlon.random>
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010519155502.A16482@athlon.random> <20010519231131.A2840@jurassic.park.msu.ru> <20010520044013.A18119@athlon.random> <20010520161234.B8223@jurassic.park.msu.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010520161234.B8223@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Sun, May 20, 2001 at 04:12:34PM +0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 20, 2001 at 04:12:34PM +0400, Ivan Kokshaysky wrote:
+> On Sun, May 20, 2001 at 04:40:13AM +0200, Andrea Arcangeli wrote:
+> > I was only talking about when you get the "pci_map_sg failed" because
+> > you have not 3 but 300 scsi disks connected to your system and you are
+> > writing to all them at the same time allocating zillons of pte, and one
+> > of your drivers (possibly not even a storage driver) is actually not
+> > checking the reval of the pci_map_* functions. You don't need a pte
+> > memleak to trigger it, even regardless of the fact I grown the dynamic
+> > window to 1G which makes it 8 times harder to trigger than in mainline.
 > 
-> On Sat, 19 May 2001 17:58:49 -0400, 
-> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
-> >Finally, I don't know if I mentioned this earlier, but to be complete
-> >and optimal, version strings should be a single variable 'version', such
-> >that it can be passed directly to printk like
-> >
-> >	printk(version);
-> 
-> Nit pick.  That has random side effects if version contains any '%'
-> characters.  Make it
+> I think you're too pessimistic. Don't mix "disks" and "controllers" --
 
-It should not. I see no reason for a literal % in the version string.
+I'm not pessimistic, I'm fairly relaxed also with a 512Mbyte dynamic window
+(that's why I did the change in first place) and I agree that it should
+take care of hiding all those bugs on 99% of hardware configurations,
+but OTOH I don't want things to work by luck and I'd prefer if the real
+bugs gets fixed as well eventually.
 
-> 
-> 	printk("%s\n", version);
-> 
-> Not quite as optimal but safer.
+> SCSI adapter with 10 drives attached is a single DMA agent, not 10 agents.
 
-It is simpler to remove the %s from version. I don't think any of them
-require it. If one add a % he should know what he is doing.
+you can do simultaneous I/O to all the disks, so you will keep those dma
+entries for the SG for each disk in-use at the same time.
 
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  tel.  (0-58) 347 14 61
-Wydz.Fizyki Technicznej i Matematyki Stosowanej Politechniki Gdanskiej
+> If you're so concerned about Big Iron, go ahead and implement 64-bit PCI
+> support, it would be right long-term solution. I'm pretty sure that
+> high-end servers use mostly this kind of hardware.
+
+Certainly 64bit pci is supported but that doesn't change the fact you
+can as well have 32bit devices on those boxes. 
+
+> Oh, well. This doesn't mean that I'm disagreed with what you said. :-)
+> Driver writers must realize that pci mappings are limited resources.
+
+Exactly.
+
+Andrea

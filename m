@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267413AbUBSWZw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 17:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267579AbUBSWXE
+	id S267397AbUBSWcL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 17:32:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267393AbUBSWcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 17:23:04 -0500
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:41370 "HELO
-	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S267583AbUBSWWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 17:22:34 -0500
-X-Analyze: Velop Mail Shield v0.0.3
-Date: Thu, 19 Feb 2004 19:22:30 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: HOWTO use udev to manage /dev
-In-Reply-To: <20040219191636.GC10527@kroah.com>
-Message-ID: <Pine.LNX.4.58.0402191918440.688@pervalidus.dyndns.org>
-References: <20040219185932.GA10527@kroah.com> <20040219191636.GC10527@kroah.com>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Feb 2004 17:32:10 -0500
+Received: from eik.ii.uib.no ([129.177.16.3]:9353 "EHLO eik.ii.uib.no")
+	by vger.kernel.org with ESMTP id S267397AbUBSWb6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 17:31:58 -0500
+Subject: Deadlocks and Machine Check Exception on Athlon64
+From: "Ronny V. Vindenes" <s864@ii.uib.no>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1077229909.2828.22.camel@terminal124.gozu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
+Date: Thu, 19 Feb 2004 23:31:50 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Feb 2004, Greg KH wrote:
+My machine has been locking up [1] every now and then the last couple of
+weeks and yesterday it locked during boot and I managed to copy this
+message:
 
->  - modify the rc.sysinit script to call the start_udev script as one of
->    the first things that it does, but after /proc and /sys are mounted.
->    I did this with the latest Fedora startup scripts with the patch at
->    the end of this file.
->
->  - make sure the /etc/udev/udev.conf file lists the udev_root as /dev.
->    It should contain the following line in order to work properly.
-> 	udev_root="/dev/"
->
->  - reboot into a 2.6 kernel and watch udev create all of the initial
->    device nodes in /dev
->
->
-> If anyone has any problems with this, please let me, and the
-> linux-hotplug-devel@lists.sourceforge.net mailing list know.
+CPU 0: Machine Check Exception : 0000000000000004
+Bank 4: b200000000070f0f
+kernel panic: CPU context corrupt
+In interrupt handler - not syncing
 
-Unless I'm missing something, it doesn't seem to work if you
-don't have /dev/null before it gets mounted.
+I tried to decode it with davej's parsemce, but it didn't produce any
+usable output.
 
-I got
+The machine is an MSI K8T Neo-FIS2R (flashed with 1.2 bios), with
+Athlon64 3200+ and 2x512MB PC3200 DDR RAM, running 32bit 2.6.3-rc3-mm1
+kernel. Any suggestions on what could be wrong?
 
-Creating initial udev device nodes:
-/etc/rc.d/start_udev: line 90: cannot redirect standard input from /dev/null: No such file or directory.
-
-and it didn't boot.
-
-My first rc.S lines have:
-
-mount -vn -t proc proc /proc # Needed for LABEL= in /etc/fstab
-
-mount -vn -t sysfs sysfs /sys
-
-/etc/rc.d/start_udev
+[1] The lock-ups mostly happen during browsing with epiphany, I compile
+a lot of big projects almost every day so it appears that cpu load or
+memory use has no influence on the lock-ups.
 
 -- 
-http://www.pervalidus.net/contact.html
+Ronny V. Vindenes <s864@ii.uib.no>
+

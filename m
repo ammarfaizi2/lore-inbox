@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315439AbSEBVkN>; Thu, 2 May 2002 17:40:13 -0400
+	id <S315441AbSEBVl4>; Thu, 2 May 2002 17:41:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315441AbSEBVkM>; Thu, 2 May 2002 17:40:12 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:21901 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S315439AbSEBVkL>;
-	Thu, 2 May 2002 17:40:11 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 2 May 2002 23:40:08 +0200 (MEST)
-Message-Id: <UTC200205022140.g42Le8N14139.aeb@smtp.cwi.nl>
-To: akpm@zip.com.au, daniel@rimspace.net
-Subject: Re: 2.5.12 severe ext3 filesystem corruption warning!
-Cc: linux-kernel@vger.kernel.org
+	id <S315442AbSEBVlz>; Thu, 2 May 2002 17:41:55 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:3769 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315441AbSEBVlx>;
+	Thu, 2 May 2002 17:41:53 -0400
+Date: Thu, 02 May 2002 15:39:54 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <150570000.1020379194@flay>
+In-Reply-To: <20020502205741.O11414@dualathlon.random>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 2.5.12, serious ext3 filesystem corrupting behavior
+> The difference is that if you use discontigmem you don't clobber the
+> common code in any way, there is no "logical/ordinal" abstraction,
+> there is no special table, it's all hidden in the arch section, and the
+> pgdat you need them anyways to allocate from affine memory with numa.
 
-I have had problems with 2.5.10 (first few blocks of the root
-filesystem overwritten) and then went back to 2.5.8 that I had
-used for a while already, but then also noticed corruption there.
-Back at 2.4.17 today..
+I *want* the logical / ordinal abstraction. That's not a negative thing -
+it reduces the number of complicated things I have to think about,
+allowing me to think more clearly, and write correct code ;-)
 
-In my case the problem was almost certainly the IDE code.
-More in particular, the 2.5.8 corruption happened on four
-different occasions, on two different disks, hanging off
-an HPT366 that is without problems on 2.4*. Three of the
-four times there were messages like
+Not having a multitude of zones to balance in the normal discontigmem
+case also seems like a powerful argument to me ...
 
-Apr 29 15:26:00 kernel: hde: task_out_intr: status=0x51 { DriveReady SeekComplete Error }
-Apr 29 15:26:00 kernel: hde: task_out_intr: error=0x04 { DriveStatusError }
+M.
 
-May  2 01:21:23 kernel: hdf: status error: status=0x50 { DriveReady SeekComplete }
-May  2 01:21:23 kernel: hdf: no DRQ after issuing WRITE
-May  2 01:21:37 kernel: hdf: task_out_intr: status=0x51 { DriveReady SeekComplete Error }
-May  2 01:21:37 kernel: hdf: task_out_intr: error=0x04 { DriveStatusError }
-
-Each time some data was written at a wrong address on disk.
-Now these are ext2 filesystems, so I noticed.
-Elsewhere I have ext3 and reiserfs, but journalling does not
-protect against IDE drivers that write stuff to the wrong disk block.
-
-Andries

@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290223AbSBSHSl>; Tue, 19 Feb 2002 02:18:41 -0500
+	id <S290109AbSBSHrg>; Tue, 19 Feb 2002 02:47:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290120AbSBSHSb>; Tue, 19 Feb 2002 02:18:31 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:63239 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S289850AbSBSHSS>; Tue, 19 Feb 2002 02:18:18 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: davem@redhat.com, kuznet@ms2.inr.ac.ru, sfr@canb.auug.org.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Moving fasync_struct into struct file?
-Date: Tue, 19 Feb 2002 18:18:12 +1100
-Message-Id: <E16d4XU-0003VI-00@wagner.rustcorp.com.au>
+	id <S290232AbSBSHr1>; Tue, 19 Feb 2002 02:47:27 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:29100 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S290109AbSBSHrW>;
+	Tue, 19 Feb 2002 02:47:22 -0500
+Date: Tue, 19 Feb 2002 02:47:17 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Nakayama Shintaro <nakayama@tritech.co.jp>
+cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        linux-fsdevel@vger.kernel.org, shojima@tritech.co.jp,
+        torvalds@transmeta.com
+Subject: Re: BKL removal from VFS
+In-Reply-To: <20020219161752B.nakayama@tritech.co.jp>
+Message-ID: <Pine.GSO.4.21.0202190220290.8070-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
 
-	Stephen Rothwell pointed out that if you set up SIGIO from an
-fd, fork, and exit, and PIDs wrap, the new process may be clobbered by
-the SIGIO.  IMVHO the best way to clean this up is to check the
-fasync_list in sys_close, and if pid == filp->f_owner.pid and fd ==
-fasync_list->fa_fd, unregister the SIGIO.
 
-	This means we need a move the "struct fasync_struct
-fasync_list" into struct file (up from all the subsystems which use
-it, eg. struct socket).
+On Tue, 19 Feb 2002, Nakayama Shintaro wrote:
 
-See any problems with this?
-Rusty. 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> I've found great BKL contention when running multiple postmark
+> benchmarks. Here is the postmark results with lock contention
+> sampled by lockmeter.
+
+Conflicts with (and massively duplicates) patches that already went
+into 2.5.  Absolutely useless wrt mount() locking changes (except for
+remount they can't race with filesystem code even in principle and
+definitely don't need system-wide exclusion among themselves).  Has
+a nice DoS potential (on OOM).  Too large and changes too many things
+to be acceptable at one chunk even if none of the above would apply.
+Consider it vetoed.
+
+Seriously, just watching the changelogs would show that it has no chance
+to be applied.
+
+I hadn't checked for races, but e.g. ext2_readdir() losing BKL without
+corresponding changes to lseek() looks very suspicious.  I'm more than
+sure that there's more - after doing that BKL-shifting in recent 2.5.
+E.g. I'm pretty sure that you are screwing ->i_nlink checks.
+

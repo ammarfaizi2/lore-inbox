@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132363AbRBKLXo>; Sun, 11 Feb 2001 06:23:44 -0500
+	id <S132176AbRBKLik>; Sun, 11 Feb 2001 06:38:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132364AbRBKLXZ>; Sun, 11 Feb 2001 06:23:25 -0500
-Received: from smtp1.xs4all.nl ([194.109.127.131]:19717 "EHLO smtp1.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S132363AbRBKLXP>;
-	Sun, 11 Feb 2001 06:23:15 -0500
-Date: Sun, 11 Feb 2001 11:22:18 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: john slee <indigoid@higherplane.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: hard lockup (no oops) on vanilla 2.4.2-pre3 with /dev/dsp
-Message-ID: <20010211112218.A918@grobbebol.xs4all.nl>
-In-Reply-To: <20010211053145.A748@higherplane.net> <E14RfmM-0002Ao-00@the-village.bc.nu> <20010211222032.A975@higherplane.net>
-Mime-Version: 1.0
+	id <S130392AbRBKLib>; Sun, 11 Feb 2001 06:38:31 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:63912 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129992AbRBKLi0>; Sun, 11 Feb 2001 06:38:26 -0500
+Message-ID: <3A867BDD.54C0FF49@uow.edu.au>
+Date: Sun, 11 Feb 2001 22:47:41 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Hacksaw <hacksaw@hacksaw.org>,
+        Tom Eastep <teastep@seattlefirewall.dyndns.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] Major Clock Drift
+In-Reply-To: <Pine.LNX.4.30.0102040908320.877-100000@wookie.seattlefirewall.dyndns.org> <200102041804.f14I4br22433@habitrail.home.fools-errant.com> <3A7EA9B3.3507DC8D@uow.edu.au>, <3A7EA9B3.3507DC8D@uow.edu.au>; <20010210225851.G7877@bug.ucw.cz> <3A8671FF.C390FDCC@uow.edu.au>,
+		<3A8671FF.C390FDCC@uow.edu.au>; from andrewm@uow.edu.au on Sun, Feb 11, 2001 at 10:05:35PM +1100 <20010211120614.E23048@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010211222032.A975@higherplane.net>; from indigoid@higherplane.net on Sun, Feb 11, 2001 at 10:20:33PM +1100
-X-OS: Linux grobbebol 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 11, 2001 at 10:20:33PM +1100, john slee wrote:
-> i'm fairly sure its not ram at fault, since nothing else is acting
-> strangely, and it only crops up when i use /dev/dsp.
+Pavel Machek wrote:
 > 
-> anything else i can try to narrow it down?  this is just a home
-> workstation, so i can try practically anything if necessary.
+> > > Vesafb is happy to block interrupts for half a second.
+> >
+> > And has this been observed to cause clock drift?
+> 
+> YEs. I've seen time running 3 times slower. Just do cat /etc/termcap
+> with loaded PCI bus. Yesterday I lost 20 minutes during 2 hours -- I
+> have been using USB (load PCI) and framebuffer.
 
+That's not good.  Very not good.
 
-I missed this thread a bit but I also am experiencing problems when
-using sound (playing mp3's) -- hard crashes. I am not sure wether it's X
-related (xmms/X v4.0x), sound related (opensound drivers), hardware
-related (dual BP6, non OC with apic patches).
+James Simmons has been looking into using something other
+than spin_lock_irq(console_lock) to provide the
+serialisation which these drivers need.  Apparently
+it got messy.  I'm interested in getting involved
+with this problem as well.  Sounds like it may not be
+2.4 stuff though.
 
-could you mail privately what the issues are ? maybe I have the same
-problems.
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,188 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285426AbRLSTlN>; Wed, 19 Dec 2001 14:41:13 -0500
+	id <S285440AbRLSUGa>; Wed, 19 Dec 2001 15:06:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285428AbRLSTlD>; Wed, 19 Dec 2001 14:41:03 -0500
-Received: from fw.aub.dk ([195.24.1.194]:35712 "EHLO Princess")
-	by vger.kernel.org with ESMTP id <S285426AbRLSTkq>;
-	Wed, 19 Dec 2001 14:40:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Allan Sandfeld <linux@sneulv.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
-Date: Wed, 19 Dec 2001 20:38:41 +0100
+	id <S285449AbRLSUGW>; Wed, 19 Dec 2001 15:06:22 -0500
+Received: from mta23-acc.tin.it ([212.216.176.76]:60339 "EHLO fep23-svc.tin.it")
+	by vger.kernel.org with ESMTP id <S285438AbRLSUGI>;
+	Wed, 19 Dec 2001 15:06:08 -0500
+From: Flavio Stanchina <flavio.stanchina@tin.it>
+Organization: not at all
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.17-rc2 oopses when unloading hid.o
+Date: Wed, 19 Dec 2001 21:06:05 +0100
 X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011219175616.GD19236@0xd6.org> <x88itb3njfr.fsf@rpppc1.hns.com>
-In-Reply-To: <x88itb3njfr.fsf@rpppc1.hns.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16GmY5-0000F5-00@Princess>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_56XL65TB7WG6PC9SEKLS"
+Message-Id: <20011219200605.ISMI15319.fep23-svc.tin.it@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 December 2001 19:39, nbecker@fred.net wrote:
-> >>>>> "M" == M R Brown <mrbrown@0xd6.org> writes:
->
->     M> Curious, what happens when you compile using gcc 3.0.1 against
->     M> -march=athlon?
->
-> Is it safe to use gcc-3.0.2 to compile the kernel?
->
-If it compiles.. Otherwise use gcc-3.0.3(prerelease), it has fixes that makes 
-the _current_ kernel compile. 
-<sarcasm> 
-Obviously it's still full of bugs, it wouldn't really be gcc if it wasn't.
-</sarcasm>
 
-I am currently running a linux-2.4.16-gcc3, where the only changed part is 
-the use of the gcc-3.0 compiler, and a -foptimize-siblings-calls flag. It's 
-running smoothly, although I havn't done any performance test yet.
+--------------Boundary-00=_56XL65TB7WG6PC9SEKLS
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Btw. I havent found anything that compiles with gcc-3.1 yet.
+Please CC me, I'm currently not on the list due to lack of time.
+
+I've got two oopses when I unloaded the drivers/usb/hid.o module
+('rmmod hid'). Here's the first:
+
+Dec 19 20:28:50 athlon kernel: invalid operand: 0000
+Dec 19 20:28:50 athlon kernel: CPU:    0
+Dec 19 20:28:50 athlon kernel: EIP:    0010:[devfs_put+48/224]    Tainted: PF
+Dec 19 20:28:50 athlon kernel: EFLAGS: 00010282
+Dec 19 20:28:50 athlon kernel: eax: 0000000d   ebx: dd74b5c0   ecx: dd840000   edx: 00000001
+Dec 19 20:28:50 athlon kernel: esi: 00000030   edi: 00000000   ebp: dffa1800   esp: df9bbf2c
+Dec 19 20:28:50 athlon kernel: ds: 0018   es: 0018   ss: 0018
+Dec 19 20:28:50 athlon kernel: Process devfsd (pid: 81, stackpage=df9bb000)
+Dec 19 20:28:50 athlon kernel: Stack: c0296f85 c0296f60 c0296f40 dd74b5c0 dd9456c0 c0168a43 dd74b5c0 dfbfe4c0
+Dec 19 20:28:50 athlon kernel:        ffffffea 00000000 00000420 c02e01e0 df68b2c0 dd74b5c0 00000030 00000000
+Dec 19 20:28:50 athlon kernel:        000003f0 00000000 00000000 00000001 00000000 df9ba000 00000000 00000000
+Dec 19 20:28:50 athlon kernel: Call Trace: [devfsd_read+819/944] [sys_read+150/208] [system_call+51/56]
+Dec 19 20:28:50 athlon kernel: Code: 0f 0b 83 c4 10 ff 4b 04 0f 94 c0 84 c0 0f 84 92 00 00 00 3b
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   0f 0b                     ud2a
+Code;  00000002 Before first symbol
+   2:   83 c4 10                  add    $0x10,%esp
+Code;  00000004 Before first symbol
+   5:   ff 4b 04                  decl   0x4(%ebx)
+Code;  00000008 Before first symbol
+   8:   0f 94 c0                  sete   %al
+Code;  0000000a Before first symbol
+   b:   84 c0                     test   %al,%al
+Code;  0000000c Before first symbol
+   d:   0f 84 92 00 00 00         je     a5 <_EIP+0xa5> 000000a4 Before first symbol
+Code;  00000012 Before first symbol
+  13:   3b 00                     cmp    (%eax),%eax
+
+This was a few minutes later, after a reboot:
+
+Dec 19 20:47:29 athlon kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000004
+Dec 19 20:47:29 athlon kernel: c022c9dd
+Dec 19 20:47:29 athlon kernel: *pde = 00000000
+Dec 19 20:47:29 athlon kernel: Oops: 0002
+Dec 19 20:47:29 athlon kernel: CPU:    0
+Dec 19 20:47:29 athlon kernel: EIP:    0010:[usb_deregister+61/144]    Not tainted
+Dec 19 20:47:29 athlon kernel: EFLAGS: 00010216
+Dec 19 20:47:29 athlon kernel: eax: 00000000   ebx: e0aff000   ecx: d8a2e000   edx: 00000000
+Dec 19 20:47:29 athlon kernel: esi: e0b03b20   edi: e0aff000   ebp: bfffea4c   esp: d8a2ff78
+Dec 19 20:47:29 athlon kernel: ds: 0018   es: 0018   ss: 0018
+Dec 19 20:47:29 athlon kernel: Process rmmod (pid: 1158, stackpage=d8a2f000)
+Dec 19 20:47:29 athlon kernel: Stack: e0aff000 fffffff0 e0aff000 e0b02fc5 e0b03b20 de6f86c0 e0b00dc5 c0116da7
+Dec 19 20:47:29 athlon kernel:        e0aff000 fffffff0 d865a000 bfffea4c c0116137 e0aff000 00000000 d8a2e000
+Dec 19 20:47:29 athlon kernel:        00000001 bfffea4c c0106c4b bffffbe8 bffffaf4 bfffea4c 00000001 bfffea4c
+Dec 19 20:47:29 athlon kernel: Call Trace: [hid:hiddev_exit+21/368] [hid:hid_blacklist+588/652] [hid:hid_init_reports+1509/4160] [free_module+23/160] [sys_delete_module+247/448]
+Dec 19 20:47:29 athlon kernel: Code: 89 50 04 89 02 b9 c0 30 36 c0 ff 0d c0 30 36 c0 0f 88 83 8b
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   89 50 04                  mov    %edx,0x4(%eax)
+Code;  00000002 Before first symbol
+   3:   89 02                     mov    %eax,(%edx)
+Code;  00000004 Before first symbol
+   5:   b9 c0 30 36 c0            mov    $0xc03630c0,%ecx
+Code;  0000000a Before first symbol
+   a:   ff 0d c0 30 36 c0         decl   0xc03630c0
+Code;  00000010 Before first symbol
+  10:   0f 88 83 8b 00 00         js     8b99 <_EIP+0x8b99> 00008b98 Before first symbol
+
+Configuration is attached. Relevant things:
+devfs, usb-uhci + usb core built-in, hid as a module.
+
+-- 
+Ciao,
+    Flavio Stanchina
+    Trento - Italy
+
+"The best defense against logic is ignorance."
+http://spazioweb.inwind.it/fstanchina/
+
+--------------Boundary-00=_56XL65TB7WG6PC9SEKLS
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="config"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="config"
+
+Q09ORklHX1g4Nj15CkNPTkZJR19JU0E9eQpDT05GSUdfVUlEMTY9eQpDT05GSUdfRVhQRVJJTUVO
+VEFMPXkKQ09ORklHX01PRFVMRVM9eQpDT05GSUdfS01PRD15CkNPTkZJR19NSzc9eQpDT05GSUdf
+WDg2X1dQX1dPUktTX09LPXkKQ09ORklHX1g4Nl9JTlZMUEc9eQpDT05GSUdfWDg2X0NNUFhDSEc9
+eQpDT05GSUdfWDg2X1hBREQ9eQpDT05GSUdfWDg2X0JTV0FQPXkKQ09ORklHX1g4Nl9QT1BBRF9P
+Sz15CkNPTkZJR19SV1NFTV9YQ0hHQUREX0FMR09SSVRITT15CkNPTkZJR19YODZfTDFfQ0FDSEVf
+U0hJRlQ9NgpDT05GSUdfWDg2X1RTQz15CkNPTkZJR19YODZfR09PRF9BUElDPXkKQ09ORklHX1g4
+Nl9VU0VfM0ROT1c9eQpDT05GSUdfWDg2X1BHRT15CkNPTkZJR19YODZfVVNFX1BQUk9fQ0hFQ0tT
+VU09eQpDT05GSUdfWDg2X0NQVUlEPXkKQ09ORklHX05PSElHSE1FTT15CkNPTkZJR19NVFJSPXkK
+Q09ORklHX05FVD15CkNPTkZJR19QQ0k9eQpDT05GSUdfUENJX0dPQU5ZPXkKQ09ORklHX1BDSV9C
+SU9TPXkKQ09ORklHX1BDSV9ESVJFQ1Q9eQpDT05GSUdfUENJX05BTUVTPXkKQ09ORklHX0hPVFBM
+VUc9eQpDT05GSUdfU1lTVklQQz15CkNPTkZJR19CU0RfUFJPQ0VTU19BQ0NUPXkKQ09ORklHX1NZ
+U0NUTD15CkNPTkZJR19LQ09SRV9FTEY9eQpDT05GSUdfQklORk1UX0VMRj15CkNPTkZJR19CSU5G
+TVRfTUlTQz15CkNPTkZJR19QTT15CkNPTkZJR19BUE09eQpDT05GSUdfQVBNX0NQVV9JRExFPXkK
+Q09ORklHX1BBUlBPUlQ9bQpDT05GSUdfUEFSUE9SVF9QQz1tCkNPTkZJR19QQVJQT1JUX1BDX0NN
+TDE9bQpDT05GSUdfUEFSUE9SVF9QQ19GSUZPPXkKQ09ORklHX1BBUlBPUlRfMTI4ND15CkNPTkZJ
+R19QTlA9eQpDT05GSUdfSVNBUE5QPXkKQ09ORklHX0JMS19ERVZfRkQ9eQpDT05GSUdfQkxLX0RF
+Vl9MT09QPXkKQ09ORklHX0JMS19ERVZfTkJEPW0KQ09ORklHX1BBQ0tFVD15CkNPTkZJR19ORVRG
+SUxURVI9eQpDT05GSUdfVU5JWD15CkNPTkZJR19JTkVUPXkKQ09ORklHX1NZTl9DT09LSUVTPXkK
+Q09ORklHX0lQX05GX0NPTk5UUkFDSz15CkNPTkZJR19JUF9ORl9GVFA9eQpDT05GSUdfSVBfTkZf
+SVJDPXkKQ09ORklHX0lQX05GX0lQVEFCTEVTPXkKQ09ORklHX0lQX05GX01BVENIX0xJTUlUPXkK
+Q09ORklHX0lQX05GX01BVENIX01VTFRJUE9SVD15CkNPTkZJR19JUF9ORl9NQVRDSF9UT1M9eQpD
+T05GSUdfSVBfTkZfTUFUQ0hfVENQTVNTPXkKQ09ORklHX0lQX05GX01BVENIX1NUQVRFPXkKQ09O
+RklHX0lQX05GX0ZJTFRFUj15CkNPTkZJR19JUF9ORl9UQVJHRVRfUkVKRUNUPXkKQ09ORklHX0lQ
+X05GX05BVD15CkNPTkZJR19JUF9ORl9OQVRfTkVFREVEPXkKQ09ORklHX0lQX05GX1RBUkdFVF9N
+QVNRVUVSQURFPXkKQ09ORklHX0lQX05GX1RBUkdFVF9SRURJUkVDVD15CkNPTkZJR19JUF9ORl9O
+QVRfSVJDPXkKQ09ORklHX0lQX05GX05BVF9GVFA9eQpDT05GSUdfSVBfTkZfTUFOR0xFPXkKQ09O
+RklHX0lQX05GX1RBUkdFVF9UT1M9eQpDT05GSUdfSVBfTkZfVEFSR0VUX0xPRz15CkNPTkZJR19J
+UF9ORl9UQVJHRVRfVENQTVNTPXkKQ09ORklHX0lERT15CkNPTkZJR19CTEtfREVWX0lERT15CkNP
+TkZJR19CTEtfREVWX0lERURJU0s9eQpDT05GSUdfSURFRElTS19NVUxUSV9NT0RFPXkKQ09ORklH
+X0JMS19ERVZfSURFQ0Q9eQpDT05GSUdfQkxLX0RFVl9JREVQQ0k9eQpDT05GSUdfSURFUENJX1NI
+QVJFX0lSUT15CkNPTkZJR19CTEtfREVWX0lERURNQV9QQ0k9eQpDT05GSUdfQkxLX0RFVl9BRE1B
+PXkKQ09ORklHX0JMS19ERVZfT0ZGQk9BUkQ9eQpDT05GSUdfSURFRE1BX1BDSV9BVVRPPXkKQ09O
+RklHX0JMS19ERVZfSURFRE1BPXkKQ09ORklHX0JMS19ERVZfSFBUMzY2PXkKQ09ORklHX0JMS19E
+RVZfVklBODJDWFhYPXkKQ09ORklHX0lERURNQV9BVVRPPXkKQ09ORklHX0JMS19ERVZfSURFX01P
+REVTPXkKQ09ORklHX1NDU0k9eQpDT05GSUdfQkxLX0RFVl9TRD15CkNPTkZJR19TRF9FWFRSQV9E
+RVZTPTgKQ09ORklHX0NIUl9ERVZfU1Q9eQpDT05GSUdfQkxLX0RFVl9TUj15CkNPTkZJR19TUl9F
+WFRSQV9ERVZTPTIKQ09ORklHX0NIUl9ERVZfU0c9eQpDT05GSUdfU0NTSV9DT05TVEFOVFM9eQpD
+T05GSUdfU0NTSV9BSUM3WFhYPXkKQ09ORklHX0FJQzdYWFhfQ01EU19QRVJfREVWSUNFPTI1MwpD
+T05GSUdfQUlDN1hYWF9SRVNFVF9ERUxBWV9NUz01MDAwCkNPTkZJR19ORVRERVZJQ0VTPXkKQ09O
+RklHX0RVTU1ZPW0KQ09ORklHX05FVF9FVEhFUk5FVD15CkNPTkZJR19ORVRfVkVORE9SXzNDT009
+eQpDT05GSUdfVk9SVEVYPXkKQ09ORklHX05FVF9QQ0k9eQpDT05GSUdfTkUyS19QQ0k9eQpDT05G
+SUdfVklBX1JISU5FPXkKQ09ORklHX1BQUD15CkNPTkZJR19QUFBfQVNZTkM9eQpDT05GSUdfUFBQ
+X1NZTkNfVFRZPXkKQ09ORklHX1BQUE9FPXkKQ09ORklHX0lOUFVUPXkKQ09ORklHX0lOUFVUX0tF
+WUJERVY9eQpDT05GSUdfSU5QVVRfTU9VU0VERVY9eQpDT05GSUdfSU5QVVRfTU9VU0VERVZfU0NS
+RUVOX1g9MTAyNApDT05GSUdfSU5QVVRfTU9VU0VERVZfU0NSRUVOX1k9NzY4CkNPTkZJR19JTlBV
+VF9KT1lERVY9bQpDT05GSUdfVlQ9eQpDT05GSUdfVlRfQ09OU09MRT15CkNPTkZJR19TRVJJQUw9
+eQpDT05GSUdfVU5JWDk4X1BUWVM9eQpDT05GSUdfVU5JWDk4X1BUWV9DT1VOVD0yNTYKQ09ORklH
+X1BSSU5URVI9bQpDT05GSUdfSTJDPW0KQ09ORklHX0kyQ19BTEdPQklUPW0KQ09ORklHX0kyQ19Q
+SElMSVBTUEFSPW0KQ09ORklHX0kyQ19FTFY9bQpDT05GSUdfSTJDX1ZFTExFTUFOPW0KQ09ORklH
+X0kyQ19BTEdPUENGPW0KQ09ORklHX0kyQ19FTEVLVE9SPW0KQ09ORklHX0kyQ19DSEFSREVWPW0K
+Q09ORklHX0kyQ19QUk9DPW0KQ09ORklHX01PVVNFPXkKQ09ORklHX1BTTU9VU0U9eQpDT05GSUdf
+SU5QVVRfR0FNRVBPUlQ9bQpDT05GSUdfSU5QVVRfTlM1NTg9bQpDT05GSUdfSU5QVVRfQU5BTE9H
+PW0KQ09ORklHX1JUQz15CkNPTkZJR19BR1A9eQpDT05GSUdfQUdQX1ZJQT15CkNPTkZJR19EUk09
+eQpDT05GSUdfRFJNX01HQT15CkNPTkZJR19SRUlTRVJGU19GUz15CkNPTkZJR19BRkZTX0ZTPW0K
+Q09ORklHX0hGU19GUz1tCkNPTkZJR19FWFQzX0ZTPXkKQ09ORklHX0pCRD15CkNPTkZJR19GQVRf
+RlM9bQpDT05GSUdfTVNET1NfRlM9bQpDT05GSUdfVkZBVF9GUz1tCkNPTkZJR19UTVBGUz15CkNP
+TkZJR19JU085NjYwX0ZTPXkKQ09ORklHX0pPTElFVD15CkNPTkZJR19OVEZTX0ZTPW0KQ09ORklH
+X1BST0NfRlM9eQpDT05GSUdfREVWRlNfRlM9eQpDT05GSUdfREVWRlNfTU9VTlQ9eQpDT05GSUdf
+RVhUMl9GUz15CkNPTkZJR19VREZfRlM9eQpDT05GSUdfQ09EQV9GUz1tCkNPTkZJR19ORlNfRlM9
+bQpDT05GSUdfTkZTX1YzPXkKQ09ORklHX05GU0Q9bQpDT05GSUdfTkZTRF9WMz15CkNPTkZJR19T
+VU5SUEM9bQpDT05GSUdfTE9DS0Q9bQpDT05GSUdfTE9DS0RfVjQ9eQpDT05GSUdfU01CX0ZTPW0K
+Q09ORklHX01TRE9TX1BBUlRJVElPTj15CkNPTkZJR19TTUJfTkxTPXkKQ09ORklHX05MUz15CkNP
+TkZJR19OTFNfREVGQVVMVD0iaXNvODg1OS0xIgpDT05GSUdfTkxTX0NPREVQQUdFXzQzNz15CkNP
+TkZJR19OTFNfQ09ERVBBR0VfODUwPXkKQ09ORklHX05MU19JU084ODU5XzE9eQpDT05GSUdfTkxT
+X0lTTzg4NTlfMj15CkNPTkZJR19OTFNfSVNPODg1OV8xNT15CkNPTkZJR19OTFNfVVRGOD15CkNP
+TkZJR19WR0FfQ09OU09MRT15CkNPTkZJR19WSURFT19TRUxFQ1Q9eQpDT05GSUdfU09VTkQ9eQpD
+T05GSUdfU09VTkRfT1NTPXkKQ09ORklHX1NPVU5EX0RNQVA9eQpDT05GSUdfU09VTkRfU0I9bQpD
+T05GSUdfVVNCPXkKQ09ORklHX1VTQl9ERVZJQ0VGUz15CkNPTkZJR19VU0JfVUhDST15CkNPTkZJ
+R19VU0JfQVVESU89bQpDT05GSUdfVVNCX1NUT1JBR0U9bQpDT05GSUdfVVNCX1NUT1JBR0VfREVC
+VUc9eQpDT05GSUdfVVNCX0FDTT1tCkNPTkZJR19VU0JfUFJJTlRFUj1tCkNPTkZJR19VU0JfSElE
+PW0KQ09ORklHX1VTQl9ISURERVY9eQpDT05GSUdfVVNCX1NDQU5ORVI9bQpDT05GSUdfVVNCX1VT
+Qk5FVD1tCg==
+
+--------------Boundary-00=_56XL65TB7WG6PC9SEKLS--

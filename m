@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263425AbUDUQ0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbUDUQch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263425AbUDUQ0n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 12:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263450AbUDUQ0n
+	id S261186AbUDUQch (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 12:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbUDUQch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 12:26:43 -0400
-Received: from mail.cyclades.com ([64.186.161.6]:39127 "EHLO mail.cyclades.com")
-	by vger.kernel.org with ESMTP id S263425AbUDUQ0j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 12:26:39 -0400
-Date: Wed, 21 Apr 2004 13:27:16 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Jason Brian Friedrich <jf@domainbox.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Kernel 2.4.26] Booting from Adaptec PCI-X 133 29320 Rev C
-Message-ID: <20040421162716.GE15950@logos.cnet>
-References: <40865DFD.9000405@domainbox.de>
+	Wed, 21 Apr 2004 12:32:37 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:56840 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261186AbUDUQcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 12:32:36 -0400
+Date: Wed, 21 Apr 2004 17:32:33 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 (9/9): no timer interrupts in idle.
+Message-ID: <20040421173233.A8176@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <OF5F328943.611CF55B-ONC1256E7D.005A1D57-C1256E7D.005ABDDC@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40865DFD.9000405@domainbox.de>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OF5F328943.611CF55B-ONC1256E7D.005A1D57-C1256E7D.005ABDDC@de.ibm.com>; from schwidefsky@de.ibm.com on Wed, Apr 21, 2004 at 06:31:08PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 21, 2004 at 01:41:49PM +0200, Jason Brian Friedrich wrote:
-> Hello everyone,
+On Wed, Apr 21, 2004 at 06:31:08PM +0200, Martin Schwidefsky wrote:
+> > This is a bit ugly.  What about inlining the CONFIG_NO_IDLE_HZ case
+> > of this function in it's only caller and define idle_cpu_mask to
+> > an empty cpu mask for all other arches?
 > 
-> we can not boot from an "Adaptec PCI-X 133 29320 Rev C" device when 
-> using 2.4.26. We get a kernel panic and that the kernel could not 
-> mount root (VFS: Unable to mount root fs on 08:03). With 2.4.25 
-> everything works properly (its the same config) but we need the 
-> security patches included in 2.4.26.
-> 
-> I have not found any entries in the changelog about changes in the 
-> scsi drivers.
+> This would mean that all other arches need to do the above three
+> statements in rcu_start_batch. If this is acceptable we certainly
+> can introduce a global idle_cpu_mask. Where? sched.c?
 
-Jason, can you please save the boot messages from both 2.4.25 and 2.4.26? 
+My hope was gcc would actually optimize it away if it was a CPP constant
+instead of a variable.
 
-Maybe you have a serial console around or at least you copy the relevant 
-parts (the card detection success with 2.4.25 and the card detection failure 
-with 2.4.26), plus the config files for both cases, and send us?
-
-That would be helpful. There are no aic7xxx changes in 2.4.26. Are you using ACPI?

@@ -1,75 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266771AbUFRTaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266590AbUFRTaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266771AbUFRTaK (ORCPT <rfc822;willy@w.ods.org>);
+	id S266590AbUFRTaK (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 18 Jun 2004 15:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266587AbUFRT0H
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266771AbUFRT05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:26:07 -0400
-Received: from crl-mail.crl.dec.com ([192.58.206.9]:39143 "EHLO
-	crl-mailb.crl.dec.com") by vger.kernel.org with ESMTP
-	id S266570AbUFRTYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:24:14 -0400
-Message-ID: <40D340FB.3080309@hp.com>
-Date: Fri, 18 Jun 2004 15:22:35 -0400
-From: Jamey Hicks <jamey.hicks@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Fri, 18 Jun 2004 15:26:57 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:37638 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266578AbUFRTZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 15:25:38 -0400
+Message-ID: <40D345D5.9020006@techsource.com>
+Date: Fri, 18 Jun 2004 15:43:17 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@steeleye.com>
-CC: Ian Molton <spyro@f2s.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       greg@kroah.com, tony@atomide.com, david-b@pacbell.net,
-       joshua@joshuawise.com
-Subject: Re: DMA API issues
-References: <1087582845.1752.107.camel@mulgrave> 	<20040618193544.48b88771.spyro@f2s.com> <1087584769.2134.119.camel@mulgrave>
-In-Reply-To: <1087584769.2134.119.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: 4Front Technologies <dev@opensound.com>
+CC: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay>	 <40D23701.1030302@opensound.com> <1087573691.19400.116.camel@winden.suse.de> <40D32C1D.80309@opensound.com> <40D33464.6030403@techsource.com> <40D33338.6050001@opensound.com>
+In-Reply-To: <40D33338.6050001@opensound.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-HPLC-MailScanner-Information: Please contact the ISP for more information
-X-HPLC-MailScanner: Found to be clean
-X-HPLC-MailScanner-SpamCheck: not spam (whitelisted),
-	SpamAssassin (score=-4.9, required 5, BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
 
->You still haven't explained what you want to do though.  Apart from the
->occasional brush with usbstorage, I don't have a good knowledge of the
->layout of the USB drivers.  I assume you simply want to persuade the
->ohci driver to use your memory area somehow, but what do you actually
->want the ohci driver to do with it?  And how much leeway do you get to
->customise the driver.
->
->  
->
-It's really not a question of laziness.  The ASICs we are interested in 
-implement OHCI, so I think the core OHCI driver should work unmodified.  
-OHCI driver allocates dma_pools for managing endpoint descriptors (ED) 
-and transaction descriptors (TD).  I expect that the driver wrapper that 
-initializes the OHCI controller driver will create dma_pools drawing 
-from the ASIC's private SRAM.  The OHCI driver uses 
-dma_{alloc,free}_coherent to manage the space used for the top level 
-control structure shared between the driver and the controller 
-hardware.  This also needs to be allocated in the SRAM.  Finally, in 
-drivers/usb/core/usb.c, the USB drivers call dma_map_single and 
-dma_unmap_single given pointers to transfer buffers allocated by the USB 
-device drivers.  If the USB device is a network device (as it is on the 
-iPAQ), the transfer buffers are allocated via dev_alloc_skb. 
 
->The reason I'm asking is beause it's still unclear whether this is a DMA
->API issue or an ohci one.  I could solve my Q720 issue simply by
->exporting an interface from the ncr driver to supply alternative memory
->allocation use and descriptors.
->
->  
->
-I really think this is a DMA API implementation issue.  The problem 
-touches more than the USB drivers.  I say implementation because the DMA 
-API already takes struct device, so the public interface would not have 
-to change or would not have to change much.  However, we would like to 
-be able to provide device-specific implementations of the dma 
-operations.  One way to implement this would be a pointer to 
-dma_operations from struct device.
+4Front Technologies wrote:
+> Timothy Miller wrote:
+> 
+>>
+>>
+>> 4Front Technologies wrote:
+>>
+>>> Thanks for the perfect explanation to our problems. The question then 
+>>> arises as
+>>> to why does SUSE do KBUILDS in this way and the vanilla kernels or 
+>>> Redhat/Fedora/Mandrake/Debian
+>>> kernels use another way?. What I'd like to see is at least some 
+>>> standard.
+>>
+>>
+>>
+>>
+>> Sounds like you're making a demand.  Who are you and why are we 
+>> interested in your demands?
+>>
+>>
+>>
+> 
+> Timothy,
+> 
+> Who are you to revoke my request to SuSE and other distributors and 
+> others who share
+> my views on LKML?
 
-Jamey
+_I_ am not revoking anything.  I don't have the right to do that.  _I_ 
+am simply asking a rhetorical question.
+
+> 
+> What is wrong with making a demand for standardization?. It's high time
+> that things got a bit more organized. And where do you see a demand....I 
+> just
+> said "like to see". Which is more of a request the way I understand 
+> English.
+
+Tell you what.  You donate some money OSDL with some strings attached, 
+and IF they agree to that, THEN you can make some demands.
+
+I don't believe English is the issue here.  I believe your attitude, 
+which is a demanding one, is apparent from everything you write.
+
+My observation is that kernel developers HATE demands but LOVE to answer 
+polite questions.  This is, in part, because NO ONE is in a position to 
+DEMAND ANYTHING from kernel developers.  Many of them do it as a hobby 
+on their own time for the fun of it.  Demands are un-fun.
+
+> 
+> It's high time people like me spoke up for standardization and some 
+> sense of
+> organization. 
+
+People have been speaking up about that for a LONG time, and the 
+question has been answered ad nauseaum.  Making suggestions for 
+standardization, particularly specific well-thought-out suggestions is a 
+welcome exercise.  DEMANDING it is not welcome.
+
+I am not telling you how _I_ feel about this.  I'm telling you what my 
+observations are about the people who would be the ones to do the work 
+were you to convince them to do it.  Vinegar is not the way to get them 
+to do what you want.
+
+> If the majority doesn't want to listen fine, it's a free 
+> world,
+> but you have no right to silence me for airing my views.
+
+I cannot and will not silence you.  To be honest, I find this whole 
+discussion amusing because yet another whiner has some onto LKML trying 
+to tell people how to think and what to do, and they're just going to 
+get laughed at like everyone else who does it.
+
+However, I am informing you that you might want to silence yourself 
+and/or modify your approach, because your approach, so far, has only 
+polarized people against you.  This is my observation.  You don't have 
+to believe me.
+
+Let me tell you how _I_ would get something I want from kernel 
+developers.  There are various things I would try, and more than one of 
+them maybe applicable:
+
+1) Ask if the thing I want already exists and if I'm just too stupid to 
+find it.
+2) Beg and plead really hard for people to take the time to address my 
+insignificant little needs.
+3) Explain how my need is a wonderful idea and many people would benefit 
+from it, pointing out that my idea may be stupid and short-sighted, but 
+I won't know until I ask.
+4) Start a discussion which gets people excited about the idea.
+5) Describe my problem, describe my need, and ask for suggestions on how 
+to meet my need through some entirely different means than how I THINK I 
+should do it, because if something seems broken, it's probably because 
+my thinking is broken.
+6) Go without.
+7) Pay money to OSDL so that I can be somewhat in a better position to 
+"request" things.
+
+
+A keyword to learn here is "humility".  I am nobody.  You are nobody. 
+Even Linus isn't really in a position to DEMAND that anyone do anything. 
+  Lots of people disagree with Linus and that is one of the reasons for 
+distro vendors forking the kernel.  Linux is like a democracy or an 
+anarchy where everyone gets to decide for themselves if they want to 
+comply with anyone else's opinions.
+
+
+Most people who make requests on LKML seem to implicitly understand 
+this.  But you are not the only one who doesn't.  I can't force you to 
+understand, but I can tell you that if you don't, people will be VERY 
+unwilling to listen to you.
+
+
+
+Oh, and BTW, while I don't use SuSE on the desktop personally, we use it 
+plenty where I work.  We think it's GREAT.  We also think lots of other 
+distros are great too.  But that's just our opinion.  :)
 

@@ -1,127 +1,922 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbULBPjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbULBPnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbULBPjt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 10:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbULBPjs
+	id S261649AbULBPnM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 10:43:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbULBPnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 10:39:48 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:9426 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261648AbULBPjn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 10:39:43 -0500
-Date: Thu, 2 Dec 2004 16:39:25 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.29-pre1] radeonfb: don't try to ioreamp the entire
- VRAM [was: Re: [Linux-fbdev-devel] why does radeonfb work fine in 2.6, but
- not in 2.4.29-pre1?]
-In-Reply-To: <20041202152801.GA8868@dreamland.darkstar.lan>
-Message-ID: <Pine.GSO.4.61.0412021634540.11183@waterleaf.sonytel.be>
-References: <20041128184606.GA2537@middle.of.nowhere>
- <20041201161455.GA14817@dreamland.darkstar.lan>
- <Pine.GSO.4.61.0412011724010.26820@waterleaf.sonytel.be>
- <20041201203711.GA21008@dreamland.darkstar.lan>
- <Pine.GSO.4.61.0412012221420.2595@waterleaf.sonytel.be>
- <20041202152801.GA8868@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Dec 2004 10:43:11 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:57538 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261649AbULBPkQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 10:40:16 -0500
+Subject: [PATCH 1/6] Regenerate SELinux module headers
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1102001720.26015.94.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 02 Dec 2004 10:35:20 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Dec 2004, Kronos wrote:
-> Il Wed, Dec 01, 2004 at 10:25:38PM +0100, Geert Uytterhoeven ha scritto: 
-> > On Wed, 1 Dec 2004, Kronos wrote:
-> > > Il Wed, Dec 01, 2004 at 05:25:52PM +0100, Geert Uytterhoeven ha scritto: 
-> > > > > Make fb layer aware of the difference between the ioremap()'ed VRAM and
-> > > > > total available VRAM.
-> > > > > smem_len in struct fb_fix_screeninfo still contains the amount of
-> > > > > physical VRAM (reported to userspace via FBIOGET_FSCREENINFO ioctl) and
-> > > > > the new field mapped_vram contains the amount of VRAM actually
-> > > > > ioremap()'ed by drivers (used in read/write/mmap operations).
-> > > > > Since there was unused padding at the end of struct fb_fix_screeninfo
-> > > > > binary compatibility with userspace utilities is retained.
-> > > > > If mapped_vram is not set it's assumed that the entire framebuffer is
-> > > > > mapped, thus other drivers are unaffected by this patch.
-> > > > > 
-> > > > > The patch has been tested by Jurriaan <thunder7@xs4all.nl>.
-> > > > > 
-> > > > > Signed-off-by: Luca Tettamanti <kronos@people.it>
-> > > > > 
-> > > > > --- a/include/linux/fb.h	2004-11-30 18:30:08.000000000 +0100
-> > > > > +++ b/include/linux/fb.h	2004-11-30 18:33:00.000000000 +0100
-> > > > > @@ -126,7 +126,8 @@
-> > > > >  					/* (physical address) */
-> > > > >  	__u32 mmio_len;			/* Length of Memory Mapped I/O  */
-> > > > >  	__u32 accel;			/* Type of acceleration available */
-> > > > > -	__u16 reserved[3];		/* Reserved for future compatibility */
-> > > > > +	__u32 mapped_vram;		/* Amount of ioremap()'ed VRAM */
-> > > > > +	__u16 reserved[1];		/* Reserved for future compatibility */
-> > > > >  };
-> > > > 
-> > > > I don't really like this patch. mapped_vram doesn't matter for user space at
-> > > > all, so it does not belong to fb_fix_screeninfo.
-> > > 
-> > > Hmm, it looked sensible to me since it's the max amount of data that
-> > > userspace can read (or write) from /dev/fb%d.
-> > 
-> > That's not really a user space limitation, but a kernel `bug'.
-> > 
-> > I.e. it could be solved in the kernel if larger ioremap()s would be allowed, or
-> > if some sliding window mapping would be used. User space shouldn't need to know
-> > about this.
-> 
-> I see you point, but users see that their video board does not work if
-> the system has 1GB (or more) of RAM and they aren't happy.
-> With current VM split (ie. 1GB/3GB) and with that much RAM there's no
-> space left to map the entire FB. And AFAIK VM hacking in 2.4 is not
-> doable (not that I would be able to do it ;)
-> 
-> > > Putting mapped_vram in fb_info would be acceptable?
-> > 
-> > That would make sure this stays in-kernel, but my other reasoning stays the
-> > same: it's some kind of kernel bug.
-> 
-> What about this one:
-> 
-> 
-> Make fb layer aware of the difference between the ioremap()'ed VRAM and
-> total available VRAM.
-> smem_len in struct fb_fix_screeninfo contains the amount of physical
-> VRAM (reported to userspace via FBIOGET_FSCREENINFO ioctl) while the new
-> field mapped_vram in struct fb_info contains the amount of VRAM actually
-> ioremap()'ed by drivers (used in read/write/mmap operations).
-> If mapped_vram is not set it's assumed that the entire framebuffer is
-> mapped, thus other drivers are unaffected by this patch.
+This patch for 2.6.10-rc2-mm4 regenerates the SELinux module headers to use a new format
+and updates their use by the AVC.  Please apply.
 
-Looks OK at first sight.
+Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
+Signed-off-by:  James Morris <jmorris@redhat.com>
 
-> --- a/include/linux/fb.h	2004-11-30 18:30:08.000000000 +0100
-> +++ b/include/linux/fb.h	2004-12-02 14:20:50.000000000 +0100
-> @@ -323,6 +323,7 @@
->     struct fb_cmap cmap;                 /* Current cmap */
->     struct fb_ops *fbops;
->     char *screen_base;                   /* Virtual address */
-> +   unsigned int mapped_vram;		/* ioremap()'ed VRAM */
+ security/selinux/avc.c                           |   37 +
+ security/selinux/include/av_inherit.h            |   72 +--
+ security/selinux/include/av_perm_to_string.h     |  447 +++++++++++------------
+ security/selinux/include/av_permissions.h        |   17 
+ security/selinux/include/class_to_string.h       |  110 ++---
+ security/selinux/include/common_perm_to_string.h |  115 ++---
+ security/selinux/include/flask.h                 |    2 
+ 7 files changed, 409 insertions(+), 391 deletions(-)
 
-But perhaps you want to make this unsigned long? I don't think it'll take long
-before we'll see graphics cards with 4 GiB or more memory, and it would be good
-if 64-bit platforms could take advantage of them.
+diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm3/security/selinux/avc.c linux-2.6/security/selinux/avc.c
+--- linux-2.6.10-rc2-mm3/security/selinux/avc.c	2004-11-22 08:30:49.000000000 -0500
++++ linux-2.6/security/selinux/avc.c	2004-11-22 11:47:13.000000000 -0500
+@@ -31,13 +31,44 @@
+ #include <net/ipv6.h>
+ #include "avc.h"
+ #include "avc_ss.h"
++
++static const struct av_perm_to_string
++{
++  u16 tclass;
++  u32 value;
++  const char *name;
++} av_perm_to_string[] = {
++#define S_(c, v, s) { c, v, s },
++#include "av_perm_to_string.h"
++#undef S_
++};
++
+ #ifdef CONFIG_AUDIT
++static const char *class_to_string[] = {
++#define S_(s) s,
+ #include "class_to_string.h"
++#undef S_
++};
+ #endif
++
++#define TB_(s) static const char * s [] = {
++#define TE_(s) };
++#define S_(s) s,
+ #include "common_perm_to_string.h"
++#undef TB_
++#undef TE_
++#undef S_
++
++static const struct av_inherit
++{
++    u16 tclass;
++    const char **common_pts;
++    u32 common_base;
++} av_inherit[] = {
++#define S_(c, i, b) { c, common_##i##_perm_to_string, b },
+ #include "av_inherit.h"
+-#include "av_perm_to_string.h"
+-#include "objsec.h"
++#undef S_
++};
+ 
+ #define AVC_CACHE_SLOTS			512
+ #define AVC_DEF_CACHE_THRESHOLD		512
+@@ -110,7 +141,7 @@ static inline int avc_hash(u32 ssid, u32
+  */
+ void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+ {
+-	char **common_pts = NULL;
++	const char **common_pts = NULL;
+ 	u32 common_base = 0;
+ 	int i, i2, perm;
+ 
+diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm3/security/selinux/include/av_inherit.h linux-2.6/security/selinux/include/av_inherit.h
+--- linux-2.6.10-rc2-mm3/security/selinux/include/av_inherit.h	2004-10-18 17:54:32.000000000 -0400
++++ linux-2.6/security/selinux/include/av_inherit.h	2004-11-22 11:47:57.000000000 -0500
+@@ -1,44 +1,30 @@
+ /* This file is automatically generated.  Do not edit. */
+-/* FLASK */
+-
+-struct av_inherit
+-{
+-    u16 tclass;
+-    char **common_pts;
+-    u32 common_base;
+-};
+-
+-static struct av_inherit av_inherit[] = {
+-   { SECCLASS_DIR, common_file_perm_to_string, 0x00020000UL },
+-   { SECCLASS_FILE, common_file_perm_to_string, 0x00020000UL },
+-   { SECCLASS_LNK_FILE, common_file_perm_to_string, 0x00020000UL },
+-   { SECCLASS_CHR_FILE, common_file_perm_to_string, 0x00020000UL },
+-   { SECCLASS_BLK_FILE, common_file_perm_to_string, 0x00020000UL },
+-   { SECCLASS_SOCK_FILE, common_file_perm_to_string, 0x00020000UL },
+-   { SECCLASS_FIFO_FILE, common_file_perm_to_string, 0x00020000UL },
+-   { SECCLASS_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_TCP_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_UDP_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_RAWIP_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_NETLINK_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_PACKET_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_KEY_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_UNIX_STREAM_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_UNIX_DGRAM_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_IPC, common_ipc_perm_to_string, 0x00000200UL },
+-   { SECCLASS_SEM, common_ipc_perm_to_string, 0x00000200UL },
+-   { SECCLASS_MSGQ, common_ipc_perm_to_string, 0x00000200UL },
+-   { SECCLASS_SHM, common_ipc_perm_to_string, 0x00000200UL },
+-   { SECCLASS_NETLINK_ROUTE_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_NETLINK_FIREWALL_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_NETLINK_TCPDIAG_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_NETLINK_NFLOG_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_NETLINK_XFRM_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_NETLINK_SELINUX_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_NETLINK_AUDIT_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_NETLINK_IP6FW_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-   { SECCLASS_NETLINK_DNRT_SOCKET, common_socket_perm_to_string, 0x00400000UL },
+-};
+-
+-
+-/* FLASK */
++   S_(SECCLASS_DIR, file, 0x00020000UL)
++   S_(SECCLASS_FILE, file, 0x00020000UL)
++   S_(SECCLASS_LNK_FILE, file, 0x00020000UL)
++   S_(SECCLASS_CHR_FILE, file, 0x00020000UL)
++   S_(SECCLASS_BLK_FILE, file, 0x00020000UL)
++   S_(SECCLASS_SOCK_FILE, file, 0x00020000UL)
++   S_(SECCLASS_FIFO_FILE, file, 0x00020000UL)
++   S_(SECCLASS_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_TCP_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_UDP_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_RAWIP_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_NETLINK_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_PACKET_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_KEY_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_UNIX_STREAM_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_UNIX_DGRAM_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_IPC, ipc, 0x00000200UL)
++   S_(SECCLASS_SEM, ipc, 0x00000200UL)
++   S_(SECCLASS_MSGQ, ipc, 0x00000200UL)
++   S_(SECCLASS_SHM, ipc, 0x00000200UL)
++   S_(SECCLASS_NETLINK_ROUTE_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_NETLINK_FIREWALL_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_NETLINK_TCPDIAG_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_NETLINK_NFLOG_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_NETLINK_XFRM_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_NETLINK_SELINUX_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_NETLINK_AUDIT_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_NETLINK_IP6FW_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_NETLINK_DNRT_SOCKET, socket, 0x00400000UL)
+diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm3/security/selinux/include/av_permissions.h linux-2.6/security/selinux/include/av_permissions.h
+--- linux-2.6.10-rc2-mm3/security/selinux/include/av_permissions.h	2004-11-22 08:30:49.000000000 -0500
++++ linux-2.6/security/selinux/include/av_permissions.h	2004-11-22 11:47:57.000000000 -0500
+@@ -1,6 +1,4 @@
+ /* This file is automatically generated.  Do not edit. */
+-/* FLASK */
+-
+ #define COMMON_FILE__IOCTL                               0x00000001UL
+ #define COMMON_FILE__READ                                0x00000002UL
+ #define COMMON_FILE__WRITE                               0x00000004UL
+@@ -556,6 +554,7 @@
+ #define PASSWD__CHFN                              0x00000002UL
+ #define PASSWD__CHSH                              0x00000004UL
+ #define PASSWD__ROOTOK                            0x00000008UL
++#define PASSWD__CRONTAB                           0x00000010UL
+ 
+ #define DRAWABLE__CREATE                          0x00000001UL
+ #define DRAWABLE__DESTROY                         0x00000002UL
+@@ -877,5 +876,17 @@
+ #define NETLINK_DNRT_SOCKET__SENDTO               0x00040000UL
+ #define NETLINK_DNRT_SOCKET__RECV_MSG             0x00080000UL
+ #define NETLINK_DNRT_SOCKET__SEND_MSG             0x00100000UL
++#define NETLINK_DNRT_SOCKET__NAME_BIND            0x00200000UL
++
++#define DBUS__ACQUIRE_SVC                         0x00000001UL
++#define DBUS__SEND_MSG                            0x00000002UL
++
++#define NSCD__GETPWD                              0x00000001UL
++#define NSCD__GETGRP                              0x00000002UL
++#define NSCD__GETHOST                             0x00000004UL
++#define NSCD__GETSTAT                             0x00000008UL
++#define NSCD__ADMIN                               0x00000010UL
++#define NSCD__SHMEMPWD                            0x00000020UL
++#define NSCD__SHMEMGRP                            0x00000040UL
++#define NSCD__SHMEMHOST                           0x00000080UL
+ 
+-/* FLASK */
+diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm3/security/selinux/include/av_perm_to_string.h linux-2.6/security/selinux/include/av_perm_to_string.h
+--- linux-2.6.10-rc2-mm3/security/selinux/include/av_perm_to_string.h	2004-11-22 08:30:49.000000000 -0500
++++ linux-2.6/security/selinux/include/av_perm_to_string.h	2004-11-22 11:47:57.000000000 -0500
+@@ -1,226 +1,223 @@
+ /* This file is automatically generated.  Do not edit. */
+-/* FLASK */
+-
+-struct av_perm_to_string
+-{
+-    u16 tclass;
+-    u32 value;
+-    char *name;
+-};
+-
+-static struct av_perm_to_string av_perm_to_string[] = {
+-   { SECCLASS_FILESYSTEM, FILESYSTEM__MOUNT, "mount" },
+-   { SECCLASS_FILESYSTEM, FILESYSTEM__REMOUNT, "remount" },
+-   { SECCLASS_FILESYSTEM, FILESYSTEM__UNMOUNT, "unmount" },
+-   { SECCLASS_FILESYSTEM, FILESYSTEM__GETATTR, "getattr" },
+-   { SECCLASS_FILESYSTEM, FILESYSTEM__RELABELFROM, "relabelfrom" },
+-   { SECCLASS_FILESYSTEM, FILESYSTEM__RELABELTO, "relabelto" },
+-   { SECCLASS_FILESYSTEM, FILESYSTEM__TRANSITION, "transition" },
+-   { SECCLASS_FILESYSTEM, FILESYSTEM__ASSOCIATE, "associate" },
+-   { SECCLASS_FILESYSTEM, FILESYSTEM__QUOTAMOD, "quotamod" },
+-   { SECCLASS_FILESYSTEM, FILESYSTEM__QUOTAGET, "quotaget" },
+-   { SECCLASS_DIR, DIR__ADD_NAME, "add_name" },
+-   { SECCLASS_DIR, DIR__REMOVE_NAME, "remove_name" },
+-   { SECCLASS_DIR, DIR__REPARENT, "reparent" },
+-   { SECCLASS_DIR, DIR__SEARCH, "search" },
+-   { SECCLASS_DIR, DIR__RMDIR, "rmdir" },
+-   { SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, "execute_no_trans" },
+-   { SECCLASS_FILE, FILE__ENTRYPOINT, "entrypoint" },
+-   { SECCLASS_FD, FD__USE, "use" },
+-   { SECCLASS_TCP_SOCKET, TCP_SOCKET__CONNECTTO, "connectto" },
+-   { SECCLASS_TCP_SOCKET, TCP_SOCKET__NEWCONN, "newconn" },
+-   { SECCLASS_TCP_SOCKET, TCP_SOCKET__ACCEPTFROM, "acceptfrom" },
+-   { SECCLASS_TCP_SOCKET, TCP_SOCKET__NODE_BIND, "node_bind" },
+-   { SECCLASS_UDP_SOCKET, UDP_SOCKET__NODE_BIND, "node_bind" },
+-   { SECCLASS_RAWIP_SOCKET, RAWIP_SOCKET__NODE_BIND, "node_bind" },
+-   { SECCLASS_NODE, NODE__TCP_RECV, "tcp_recv" },
+-   { SECCLASS_NODE, NODE__TCP_SEND, "tcp_send" },
+-   { SECCLASS_NODE, NODE__UDP_RECV, "udp_recv" },
+-   { SECCLASS_NODE, NODE__UDP_SEND, "udp_send" },
+-   { SECCLASS_NODE, NODE__RAWIP_RECV, "rawip_recv" },
+-   { SECCLASS_NODE, NODE__RAWIP_SEND, "rawip_send" },
+-   { SECCLASS_NODE, NODE__ENFORCE_DEST, "enforce_dest" },
+-   { SECCLASS_NETIF, NETIF__TCP_RECV, "tcp_recv" },
+-   { SECCLASS_NETIF, NETIF__TCP_SEND, "tcp_send" },
+-   { SECCLASS_NETIF, NETIF__UDP_RECV, "udp_recv" },
+-   { SECCLASS_NETIF, NETIF__UDP_SEND, "udp_send" },
+-   { SECCLASS_NETIF, NETIF__RAWIP_RECV, "rawip_recv" },
+-   { SECCLASS_NETIF, NETIF__RAWIP_SEND, "rawip_send" },
+-   { SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__CONNECTTO, "connectto" },
+-   { SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__NEWCONN, "newconn" },
+-   { SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__ACCEPTFROM, "acceptfrom" },
+-   { SECCLASS_PROCESS, PROCESS__FORK, "fork" },
+-   { SECCLASS_PROCESS, PROCESS__TRANSITION, "transition" },
+-   { SECCLASS_PROCESS, PROCESS__SIGCHLD, "sigchld" },
+-   { SECCLASS_PROCESS, PROCESS__SIGKILL, "sigkill" },
+-   { SECCLASS_PROCESS, PROCESS__SIGSTOP, "sigstop" },
+-   { SECCLASS_PROCESS, PROCESS__SIGNULL, "signull" },
+-   { SECCLASS_PROCESS, PROCESS__SIGNAL, "signal" },
+-   { SECCLASS_PROCESS, PROCESS__PTRACE, "ptrace" },
+-   { SECCLASS_PROCESS, PROCESS__GETSCHED, "getsched" },
+-   { SECCLASS_PROCESS, PROCESS__SETSCHED, "setsched" },
+-   { SECCLASS_PROCESS, PROCESS__GETSESSION, "getsession" },
+-   { SECCLASS_PROCESS, PROCESS__GETPGID, "getpgid" },
+-   { SECCLASS_PROCESS, PROCESS__SETPGID, "setpgid" },
+-   { SECCLASS_PROCESS, PROCESS__GETCAP, "getcap" },
+-   { SECCLASS_PROCESS, PROCESS__SETCAP, "setcap" },
+-   { SECCLASS_PROCESS, PROCESS__SHARE, "share" },
+-   { SECCLASS_PROCESS, PROCESS__GETATTR, "getattr" },
+-   { SECCLASS_PROCESS, PROCESS__SETEXEC, "setexec" },
+-   { SECCLASS_PROCESS, PROCESS__SETFSCREATE, "setfscreate" },
+-   { SECCLASS_PROCESS, PROCESS__NOATSECURE, "noatsecure" },
+-   { SECCLASS_PROCESS, PROCESS__SIGINH, "siginh" },
+-   { SECCLASS_PROCESS, PROCESS__SETRLIMIT, "setrlimit" },
+-   { SECCLASS_PROCESS, PROCESS__RLIMITINH, "rlimitinh" },
+-   { SECCLASS_MSGQ, MSGQ__ENQUEUE, "enqueue" },
+-   { SECCLASS_MSG, MSG__SEND, "send" },
+-   { SECCLASS_MSG, MSG__RECEIVE, "receive" },
+-   { SECCLASS_SHM, SHM__LOCK, "lock" },
+-   { SECCLASS_SECURITY, SECURITY__COMPUTE_AV, "compute_av" },
+-   { SECCLASS_SECURITY, SECURITY__COMPUTE_CREATE, "compute_create" },
+-   { SECCLASS_SECURITY, SECURITY__COMPUTE_MEMBER, "compute_member" },
+-   { SECCLASS_SECURITY, SECURITY__CHECK_CONTEXT, "check_context" },
+-   { SECCLASS_SECURITY, SECURITY__LOAD_POLICY, "load_policy" },
+-   { SECCLASS_SECURITY, SECURITY__COMPUTE_RELABEL, "compute_relabel" },
+-   { SECCLASS_SECURITY, SECURITY__COMPUTE_USER, "compute_user" },
+-   { SECCLASS_SECURITY, SECURITY__SETENFORCE, "setenforce" },
+-   { SECCLASS_SECURITY, SECURITY__SETBOOL, "setbool" },
+-   { SECCLASS_SECURITY, SECURITY__SETSECPARAM, "setsecparam" },
+-   { SECCLASS_SYSTEM, SYSTEM__IPC_INFO, "ipc_info" },
+-   { SECCLASS_SYSTEM, SYSTEM__SYSLOG_READ, "syslog_read" },
+-   { SECCLASS_SYSTEM, SYSTEM__SYSLOG_MOD, "syslog_mod" },
+-   { SECCLASS_SYSTEM, SYSTEM__SYSLOG_CONSOLE, "syslog_console" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__CHOWN, "chown" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__DAC_OVERRIDE, "dac_override" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__DAC_READ_SEARCH, "dac_read_search" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__FOWNER, "fowner" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__FSETID, "fsetid" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__KILL, "kill" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SETGID, "setgid" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SETUID, "setuid" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SETPCAP, "setpcap" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__LINUX_IMMUTABLE, "linux_immutable" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__NET_BIND_SERVICE, "net_bind_service" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__NET_BROADCAST, "net_broadcast" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__NET_ADMIN, "net_admin" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__NET_RAW, "net_raw" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__IPC_LOCK, "ipc_lock" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__IPC_OWNER, "ipc_owner" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_MODULE, "sys_module" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_RAWIO, "sys_rawio" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_CHROOT, "sys_chroot" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_PTRACE, "sys_ptrace" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_PACCT, "sys_pacct" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_ADMIN, "sys_admin" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_BOOT, "sys_boot" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_NICE, "sys_nice" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_RESOURCE, "sys_resource" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_TIME, "sys_time" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__SYS_TTY_CONFIG, "sys_tty_config" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__MKNOD, "mknod" },
+-   { SECCLASS_CAPABILITY, CAPABILITY__LEASE, "lease" },
+-   { SECCLASS_PASSWD, PASSWD__PASSWD, "passwd" },
+-   { SECCLASS_PASSWD, PASSWD__CHFN, "chfn" },
+-   { SECCLASS_PASSWD, PASSWD__CHSH, "chsh" },
+-   { SECCLASS_PASSWD, PASSWD__ROOTOK, "rootok" },
+-   { SECCLASS_DRAWABLE, DRAWABLE__CREATE, "create" },
+-   { SECCLASS_DRAWABLE, DRAWABLE__DESTROY, "destroy" },
+-   { SECCLASS_DRAWABLE, DRAWABLE__DRAW, "draw" },
+-   { SECCLASS_DRAWABLE, DRAWABLE__COPY, "copy" },
+-   { SECCLASS_DRAWABLE, DRAWABLE__GETATTR, "getattr" },
+-   { SECCLASS_GC, GC__CREATE, "create" },
+-   { SECCLASS_GC, GC__FREE, "free" },
+-   { SECCLASS_GC, GC__GETATTR, "getattr" },
+-   { SECCLASS_GC, GC__SETATTR, "setattr" },
+-   { SECCLASS_WINDOW, WINDOW__ADDCHILD, "addchild" },
+-   { SECCLASS_WINDOW, WINDOW__CREATE, "create" },
+-   { SECCLASS_WINDOW, WINDOW__DESTROY, "destroy" },
+-   { SECCLASS_WINDOW, WINDOW__MAP, "map" },
+-   { SECCLASS_WINDOW, WINDOW__UNMAP, "unmap" },
+-   { SECCLASS_WINDOW, WINDOW__CHSTACK, "chstack" },
+-   { SECCLASS_WINDOW, WINDOW__CHPROPLIST, "chproplist" },
+-   { SECCLASS_WINDOW, WINDOW__CHPROP, "chprop" },
+-   { SECCLASS_WINDOW, WINDOW__LISTPROP, "listprop" },
+-   { SECCLASS_WINDOW, WINDOW__GETATTR, "getattr" },
+-   { SECCLASS_WINDOW, WINDOW__SETATTR, "setattr" },
+-   { SECCLASS_WINDOW, WINDOW__SETFOCUS, "setfocus" },
+-   { SECCLASS_WINDOW, WINDOW__MOVE, "move" },
+-   { SECCLASS_WINDOW, WINDOW__CHSELECTION, "chselection" },
+-   { SECCLASS_WINDOW, WINDOW__CHPARENT, "chparent" },
+-   { SECCLASS_WINDOW, WINDOW__CTRLLIFE, "ctrllife" },
+-   { SECCLASS_WINDOW, WINDOW__ENUMERATE, "enumerate" },
+-   { SECCLASS_WINDOW, WINDOW__TRANSPARENT, "transparent" },
+-   { SECCLASS_WINDOW, WINDOW__MOUSEMOTION, "mousemotion" },
+-   { SECCLASS_WINDOW, WINDOW__CLIENTCOMEVENT, "clientcomevent" },
+-   { SECCLASS_WINDOW, WINDOW__INPUTEVENT, "inputevent" },
+-   { SECCLASS_WINDOW, WINDOW__DRAWEVENT, "drawevent" },
+-   { SECCLASS_WINDOW, WINDOW__WINDOWCHANGEEVENT, "windowchangeevent" },
+-   { SECCLASS_WINDOW, WINDOW__WINDOWCHANGEREQUEST, "windowchangerequest" },
+-   { SECCLASS_WINDOW, WINDOW__SERVERCHANGEEVENT, "serverchangeevent" },
+-   { SECCLASS_WINDOW, WINDOW__EXTENSIONEVENT, "extensionevent" },
+-   { SECCLASS_FONT, FONT__LOAD, "load" },
+-   { SECCLASS_FONT, FONT__FREE, "free" },
+-   { SECCLASS_FONT, FONT__GETATTR, "getattr" },
+-   { SECCLASS_FONT, FONT__USE, "use" },
+-   { SECCLASS_COLORMAP, COLORMAP__CREATE, "create" },
+-   { SECCLASS_COLORMAP, COLORMAP__FREE, "free" },
+-   { SECCLASS_COLORMAP, COLORMAP__INSTALL, "install" },
+-   { SECCLASS_COLORMAP, COLORMAP__UNINSTALL, "uninstall" },
+-   { SECCLASS_COLORMAP, COLORMAP__LIST, "list" },
+-   { SECCLASS_COLORMAP, COLORMAP__READ, "read" },
+-   { SECCLASS_COLORMAP, COLORMAP__STORE, "store" },
+-   { SECCLASS_COLORMAP, COLORMAP__GETATTR, "getattr" },
+-   { SECCLASS_COLORMAP, COLORMAP__SETATTR, "setattr" },
+-   { SECCLASS_PROPERTY, PROPERTY__CREATE, "create" },
+-   { SECCLASS_PROPERTY, PROPERTY__FREE, "free" },
+-   { SECCLASS_PROPERTY, PROPERTY__READ, "read" },
+-   { SECCLASS_PROPERTY, PROPERTY__WRITE, "write" },
+-   { SECCLASS_CURSOR, CURSOR__CREATE, "create" },
+-   { SECCLASS_CURSOR, CURSOR__CREATEGLYPH, "createglyph" },
+-   { SECCLASS_CURSOR, CURSOR__FREE, "free" },
+-   { SECCLASS_CURSOR, CURSOR__ASSIGN, "assign" },
+-   { SECCLASS_CURSOR, CURSOR__SETATTR, "setattr" },
+-   { SECCLASS_XCLIENT, XCLIENT__KILL, "kill" },
+-   { SECCLASS_XINPUT, XINPUT__LOOKUP, "lookup" },
+-   { SECCLASS_XINPUT, XINPUT__GETATTR, "getattr" },
+-   { SECCLASS_XINPUT, XINPUT__SETATTR, "setattr" },
+-   { SECCLASS_XINPUT, XINPUT__SETFOCUS, "setfocus" },
+-   { SECCLASS_XINPUT, XINPUT__WARPPOINTER, "warppointer" },
+-   { SECCLASS_XINPUT, XINPUT__ACTIVEGRAB, "activegrab" },
+-   { SECCLASS_XINPUT, XINPUT__PASSIVEGRAB, "passivegrab" },
+-   { SECCLASS_XINPUT, XINPUT__UNGRAB, "ungrab" },
+-   { SECCLASS_XINPUT, XINPUT__BELL, "bell" },
+-   { SECCLASS_XINPUT, XINPUT__MOUSEMOTION, "mousemotion" },
+-   { SECCLASS_XINPUT, XINPUT__RELABELINPUT, "relabelinput" },
+-   { SECCLASS_XSERVER, XSERVER__SCREENSAVER, "screensaver" },
+-   { SECCLASS_XSERVER, XSERVER__GETHOSTLIST, "gethostlist" },
+-   { SECCLASS_XSERVER, XSERVER__SETHOSTLIST, "sethostlist" },
+-   { SECCLASS_XSERVER, XSERVER__GETFONTPATH, "getfontpath" },
+-   { SECCLASS_XSERVER, XSERVER__SETFONTPATH, "setfontpath" },
+-   { SECCLASS_XSERVER, XSERVER__GETATTR, "getattr" },
+-   { SECCLASS_XSERVER, XSERVER__GRAB, "grab" },
+-   { SECCLASS_XSERVER, XSERVER__UNGRAB, "ungrab" },
+-   { SECCLASS_XEXTENSION, XEXTENSION__QUERY, "query" },
+-   { SECCLASS_XEXTENSION, XEXTENSION__USE, "use" },
+-   { SECCLASS_PAX, PAX__PAGEEXEC, "pageexec" },
+-   { SECCLASS_PAX, PAX__EMUTRAMP, "emutramp" },
+-   { SECCLASS_PAX, PAX__MPROTECT, "mprotect" },
+-   { SECCLASS_PAX, PAX__RANDMMAP, "randmmap" },
+-   { SECCLASS_PAX, PAX__RANDEXEC, "randexec" },
+-   { SECCLASS_PAX, PAX__SEGMEXEC, "segmexec" },
+-   { SECCLASS_NETLINK_ROUTE_SOCKET, NETLINK_ROUTE_SOCKET__NLMSG_READ, "nlmsg_read" },
+-   { SECCLASS_NETLINK_ROUTE_SOCKET, NETLINK_ROUTE_SOCKET__NLMSG_WRITE, "nlmsg_write" },
+-   { SECCLASS_NETLINK_FIREWALL_SOCKET, NETLINK_FIREWALL_SOCKET__NLMSG_READ, "nlmsg_read" },
+-   { SECCLASS_NETLINK_FIREWALL_SOCKET, NETLINK_FIREWALL_SOCKET__NLMSG_WRITE, "nlmsg_write" },
+-   { SECCLASS_NETLINK_TCPDIAG_SOCKET, NETLINK_TCPDIAG_SOCKET__NLMSG_READ, "nlmsg_read" },
+-   { SECCLASS_NETLINK_TCPDIAG_SOCKET, NETLINK_TCPDIAG_SOCKET__NLMSG_WRITE, "nlmsg_write" },
+-   { SECCLASS_NETLINK_XFRM_SOCKET, NETLINK_XFRM_SOCKET__NLMSG_READ, "nlmsg_read" },
+-   { SECCLASS_NETLINK_XFRM_SOCKET, NETLINK_XFRM_SOCKET__NLMSG_WRITE, "nlmsg_write" },
+-   { SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_READ, "nlmsg_read" },
+-   { SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_WRITE, "nlmsg_write" },
+-   { SECCLASS_NETLINK_IP6FW_SOCKET, NETLINK_IP6FW_SOCKET__NLMSG_READ, "nlmsg_read" },
+-   { SECCLASS_NETLINK_IP6FW_SOCKET, NETLINK_IP6FW_SOCKET__NLMSG_WRITE, "nlmsg_write" },
+-};
+-
+-
+-/* FLASK */
++   S_(SECCLASS_FILESYSTEM, FILESYSTEM__MOUNT, "mount")
++   S_(SECCLASS_FILESYSTEM, FILESYSTEM__REMOUNT, "remount")
++   S_(SECCLASS_FILESYSTEM, FILESYSTEM__UNMOUNT, "unmount")
++   S_(SECCLASS_FILESYSTEM, FILESYSTEM__GETATTR, "getattr")
++   S_(SECCLASS_FILESYSTEM, FILESYSTEM__RELABELFROM, "relabelfrom")
++   S_(SECCLASS_FILESYSTEM, FILESYSTEM__RELABELTO, "relabelto")
++   S_(SECCLASS_FILESYSTEM, FILESYSTEM__TRANSITION, "transition")
++   S_(SECCLASS_FILESYSTEM, FILESYSTEM__ASSOCIATE, "associate")
++   S_(SECCLASS_FILESYSTEM, FILESYSTEM__QUOTAMOD, "quotamod")
++   S_(SECCLASS_FILESYSTEM, FILESYSTEM__QUOTAGET, "quotaget")
++   S_(SECCLASS_DIR, DIR__ADD_NAME, "add_name")
++   S_(SECCLASS_DIR, DIR__REMOVE_NAME, "remove_name")
++   S_(SECCLASS_DIR, DIR__REPARENT, "reparent")
++   S_(SECCLASS_DIR, DIR__SEARCH, "search")
++   S_(SECCLASS_DIR, DIR__RMDIR, "rmdir")
++   S_(SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, "execute_no_trans")
++   S_(SECCLASS_FILE, FILE__ENTRYPOINT, "entrypoint")
++   S_(SECCLASS_FD, FD__USE, "use")
++   S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__CONNECTTO, "connectto")
++   S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__NEWCONN, "newconn")
++   S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__ACCEPTFROM, "acceptfrom")
++   S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__NODE_BIND, "node_bind")
++   S_(SECCLASS_UDP_SOCKET, UDP_SOCKET__NODE_BIND, "node_bind")
++   S_(SECCLASS_RAWIP_SOCKET, RAWIP_SOCKET__NODE_BIND, "node_bind")
++   S_(SECCLASS_NODE, NODE__TCP_RECV, "tcp_recv")
++   S_(SECCLASS_NODE, NODE__TCP_SEND, "tcp_send")
++   S_(SECCLASS_NODE, NODE__UDP_RECV, "udp_recv")
++   S_(SECCLASS_NODE, NODE__UDP_SEND, "udp_send")
++   S_(SECCLASS_NODE, NODE__RAWIP_RECV, "rawip_recv")
++   S_(SECCLASS_NODE, NODE__RAWIP_SEND, "rawip_send")
++   S_(SECCLASS_NODE, NODE__ENFORCE_DEST, "enforce_dest")
++   S_(SECCLASS_NETIF, NETIF__TCP_RECV, "tcp_recv")
++   S_(SECCLASS_NETIF, NETIF__TCP_SEND, "tcp_send")
++   S_(SECCLASS_NETIF, NETIF__UDP_RECV, "udp_recv")
++   S_(SECCLASS_NETIF, NETIF__UDP_SEND, "udp_send")
++   S_(SECCLASS_NETIF, NETIF__RAWIP_RECV, "rawip_recv")
++   S_(SECCLASS_NETIF, NETIF__RAWIP_SEND, "rawip_send")
++   S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__CONNECTTO, "connectto")
++   S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__NEWCONN, "newconn")
++   S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__ACCEPTFROM, "acceptfrom")
++   S_(SECCLASS_PROCESS, PROCESS__FORK, "fork")
++   S_(SECCLASS_PROCESS, PROCESS__TRANSITION, "transition")
++   S_(SECCLASS_PROCESS, PROCESS__SIGCHLD, "sigchld")
++   S_(SECCLASS_PROCESS, PROCESS__SIGKILL, "sigkill")
++   S_(SECCLASS_PROCESS, PROCESS__SIGSTOP, "sigstop")
++   S_(SECCLASS_PROCESS, PROCESS__SIGNULL, "signull")
++   S_(SECCLASS_PROCESS, PROCESS__SIGNAL, "signal")
++   S_(SECCLASS_PROCESS, PROCESS__PTRACE, "ptrace")
++   S_(SECCLASS_PROCESS, PROCESS__GETSCHED, "getsched")
++   S_(SECCLASS_PROCESS, PROCESS__SETSCHED, "setsched")
++   S_(SECCLASS_PROCESS, PROCESS__GETSESSION, "getsession")
++   S_(SECCLASS_PROCESS, PROCESS__GETPGID, "getpgid")
++   S_(SECCLASS_PROCESS, PROCESS__SETPGID, "setpgid")
++   S_(SECCLASS_PROCESS, PROCESS__GETCAP, "getcap")
++   S_(SECCLASS_PROCESS, PROCESS__SETCAP, "setcap")
++   S_(SECCLASS_PROCESS, PROCESS__SHARE, "share")
++   S_(SECCLASS_PROCESS, PROCESS__GETATTR, "getattr")
++   S_(SECCLASS_PROCESS, PROCESS__SETEXEC, "setexec")
++   S_(SECCLASS_PROCESS, PROCESS__SETFSCREATE, "setfscreate")
++   S_(SECCLASS_PROCESS, PROCESS__NOATSECURE, "noatsecure")
++   S_(SECCLASS_PROCESS, PROCESS__SIGINH, "siginh")
++   S_(SECCLASS_PROCESS, PROCESS__SETRLIMIT, "setrlimit")
++   S_(SECCLASS_PROCESS, PROCESS__RLIMITINH, "rlimitinh")
++   S_(SECCLASS_MSGQ, MSGQ__ENQUEUE, "enqueue")
++   S_(SECCLASS_MSG, MSG__SEND, "send")
++   S_(SECCLASS_MSG, MSG__RECEIVE, "receive")
++   S_(SECCLASS_SHM, SHM__LOCK, "lock")
++   S_(SECCLASS_SECURITY, SECURITY__COMPUTE_AV, "compute_av")
++   S_(SECCLASS_SECURITY, SECURITY__COMPUTE_CREATE, "compute_create")
++   S_(SECCLASS_SECURITY, SECURITY__COMPUTE_MEMBER, "compute_member")
++   S_(SECCLASS_SECURITY, SECURITY__CHECK_CONTEXT, "check_context")
++   S_(SECCLASS_SECURITY, SECURITY__LOAD_POLICY, "load_policy")
++   S_(SECCLASS_SECURITY, SECURITY__COMPUTE_RELABEL, "compute_relabel")
++   S_(SECCLASS_SECURITY, SECURITY__COMPUTE_USER, "compute_user")
++   S_(SECCLASS_SECURITY, SECURITY__SETENFORCE, "setenforce")
++   S_(SECCLASS_SECURITY, SECURITY__SETBOOL, "setbool")
++   S_(SECCLASS_SECURITY, SECURITY__SETSECPARAM, "setsecparam")
++   S_(SECCLASS_SYSTEM, SYSTEM__IPC_INFO, "ipc_info")
++   S_(SECCLASS_SYSTEM, SYSTEM__SYSLOG_READ, "syslog_read")
++   S_(SECCLASS_SYSTEM, SYSTEM__SYSLOG_MOD, "syslog_mod")
++   S_(SECCLASS_SYSTEM, SYSTEM__SYSLOG_CONSOLE, "syslog_console")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__CHOWN, "chown")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__DAC_OVERRIDE, "dac_override")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__DAC_READ_SEARCH, "dac_read_search")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__FOWNER, "fowner")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__FSETID, "fsetid")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__KILL, "kill")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SETGID, "setgid")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SETUID, "setuid")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SETPCAP, "setpcap")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__LINUX_IMMUTABLE, "linux_immutable")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__NET_BIND_SERVICE, "net_bind_service")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__NET_BROADCAST, "net_broadcast")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__NET_ADMIN, "net_admin")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__NET_RAW, "net_raw")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__IPC_LOCK, "ipc_lock")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__IPC_OWNER, "ipc_owner")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_MODULE, "sys_module")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_RAWIO, "sys_rawio")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_CHROOT, "sys_chroot")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_PTRACE, "sys_ptrace")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_PACCT, "sys_pacct")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_ADMIN, "sys_admin")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_BOOT, "sys_boot")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_NICE, "sys_nice")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_RESOURCE, "sys_resource")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_TIME, "sys_time")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_TTY_CONFIG, "sys_tty_config")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__MKNOD, "mknod")
++   S_(SECCLASS_CAPABILITY, CAPABILITY__LEASE, "lease")
++   S_(SECCLASS_PASSWD, PASSWD__PASSWD, "passwd")
++   S_(SECCLASS_PASSWD, PASSWD__CHFN, "chfn")
++   S_(SECCLASS_PASSWD, PASSWD__CHSH, "chsh")
++   S_(SECCLASS_PASSWD, PASSWD__ROOTOK, "rootok")
++   S_(SECCLASS_PASSWD, PASSWD__CRONTAB, "crontab")
++   S_(SECCLASS_DRAWABLE, DRAWABLE__CREATE, "create")
++   S_(SECCLASS_DRAWABLE, DRAWABLE__DESTROY, "destroy")
++   S_(SECCLASS_DRAWABLE, DRAWABLE__DRAW, "draw")
++   S_(SECCLASS_DRAWABLE, DRAWABLE__COPY, "copy")
++   S_(SECCLASS_DRAWABLE, DRAWABLE__GETATTR, "getattr")
++   S_(SECCLASS_GC, GC__CREATE, "create")
++   S_(SECCLASS_GC, GC__FREE, "free")
++   S_(SECCLASS_GC, GC__GETATTR, "getattr")
++   S_(SECCLASS_GC, GC__SETATTR, "setattr")
++   S_(SECCLASS_WINDOW, WINDOW__ADDCHILD, "addchild")
++   S_(SECCLASS_WINDOW, WINDOW__CREATE, "create")
++   S_(SECCLASS_WINDOW, WINDOW__DESTROY, "destroy")
++   S_(SECCLASS_WINDOW, WINDOW__MAP, "map")
++   S_(SECCLASS_WINDOW, WINDOW__UNMAP, "unmap")
++   S_(SECCLASS_WINDOW, WINDOW__CHSTACK, "chstack")
++   S_(SECCLASS_WINDOW, WINDOW__CHPROPLIST, "chproplist")
++   S_(SECCLASS_WINDOW, WINDOW__CHPROP, "chprop")
++   S_(SECCLASS_WINDOW, WINDOW__LISTPROP, "listprop")
++   S_(SECCLASS_WINDOW, WINDOW__GETATTR, "getattr")
++   S_(SECCLASS_WINDOW, WINDOW__SETATTR, "setattr")
++   S_(SECCLASS_WINDOW, WINDOW__SETFOCUS, "setfocus")
++   S_(SECCLASS_WINDOW, WINDOW__MOVE, "move")
++   S_(SECCLASS_WINDOW, WINDOW__CHSELECTION, "chselection")
++   S_(SECCLASS_WINDOW, WINDOW__CHPARENT, "chparent")
++   S_(SECCLASS_WINDOW, WINDOW__CTRLLIFE, "ctrllife")
++   S_(SECCLASS_WINDOW, WINDOW__ENUMERATE, "enumerate")
++   S_(SECCLASS_WINDOW, WINDOW__TRANSPARENT, "transparent")
++   S_(SECCLASS_WINDOW, WINDOW__MOUSEMOTION, "mousemotion")
++   S_(SECCLASS_WINDOW, WINDOW__CLIENTCOMEVENT, "clientcomevent")
++   S_(SECCLASS_WINDOW, WINDOW__INPUTEVENT, "inputevent")
++   S_(SECCLASS_WINDOW, WINDOW__DRAWEVENT, "drawevent")
++   S_(SECCLASS_WINDOW, WINDOW__WINDOWCHANGEEVENT, "windowchangeevent")
++   S_(SECCLASS_WINDOW, WINDOW__WINDOWCHANGEREQUEST, "windowchangerequest")
++   S_(SECCLASS_WINDOW, WINDOW__SERVERCHANGEEVENT, "serverchangeevent")
++   S_(SECCLASS_WINDOW, WINDOW__EXTENSIONEVENT, "extensionevent")
++   S_(SECCLASS_FONT, FONT__LOAD, "load")
++   S_(SECCLASS_FONT, FONT__FREE, "free")
++   S_(SECCLASS_FONT, FONT__GETATTR, "getattr")
++   S_(SECCLASS_FONT, FONT__USE, "use")
++   S_(SECCLASS_COLORMAP, COLORMAP__CREATE, "create")
++   S_(SECCLASS_COLORMAP, COLORMAP__FREE, "free")
++   S_(SECCLASS_COLORMAP, COLORMAP__INSTALL, "install")
++   S_(SECCLASS_COLORMAP, COLORMAP__UNINSTALL, "uninstall")
++   S_(SECCLASS_COLORMAP, COLORMAP__LIST, "list")
++   S_(SECCLASS_COLORMAP, COLORMAP__READ, "read")
++   S_(SECCLASS_COLORMAP, COLORMAP__STORE, "store")
++   S_(SECCLASS_COLORMAP, COLORMAP__GETATTR, "getattr")
++   S_(SECCLASS_COLORMAP, COLORMAP__SETATTR, "setattr")
++   S_(SECCLASS_PROPERTY, PROPERTY__CREATE, "create")
++   S_(SECCLASS_PROPERTY, PROPERTY__FREE, "free")
++   S_(SECCLASS_PROPERTY, PROPERTY__READ, "read")
++   S_(SECCLASS_PROPERTY, PROPERTY__WRITE, "write")
++   S_(SECCLASS_CURSOR, CURSOR__CREATE, "create")
++   S_(SECCLASS_CURSOR, CURSOR__CREATEGLYPH, "createglyph")
++   S_(SECCLASS_CURSOR, CURSOR__FREE, "free")
++   S_(SECCLASS_CURSOR, CURSOR__ASSIGN, "assign")
++   S_(SECCLASS_CURSOR, CURSOR__SETATTR, "setattr")
++   S_(SECCLASS_XCLIENT, XCLIENT__KILL, "kill")
++   S_(SECCLASS_XINPUT, XINPUT__LOOKUP, "lookup")
++   S_(SECCLASS_XINPUT, XINPUT__GETATTR, "getattr")
++   S_(SECCLASS_XINPUT, XINPUT__SETATTR, "setattr")
++   S_(SECCLASS_XINPUT, XINPUT__SETFOCUS, "setfocus")
++   S_(SECCLASS_XINPUT, XINPUT__WARPPOINTER, "warppointer")
++   S_(SECCLASS_XINPUT, XINPUT__ACTIVEGRAB, "activegrab")
++   S_(SECCLASS_XINPUT, XINPUT__PASSIVEGRAB, "passivegrab")
++   S_(SECCLASS_XINPUT, XINPUT__UNGRAB, "ungrab")
++   S_(SECCLASS_XINPUT, XINPUT__BELL, "bell")
++   S_(SECCLASS_XINPUT, XINPUT__MOUSEMOTION, "mousemotion")
++   S_(SECCLASS_XINPUT, XINPUT__RELABELINPUT, "relabelinput")
++   S_(SECCLASS_XSERVER, XSERVER__SCREENSAVER, "screensaver")
++   S_(SECCLASS_XSERVER, XSERVER__GETHOSTLIST, "gethostlist")
++   S_(SECCLASS_XSERVER, XSERVER__SETHOSTLIST, "sethostlist")
++   S_(SECCLASS_XSERVER, XSERVER__GETFONTPATH, "getfontpath")
++   S_(SECCLASS_XSERVER, XSERVER__SETFONTPATH, "setfontpath")
++   S_(SECCLASS_XSERVER, XSERVER__GETATTR, "getattr")
++   S_(SECCLASS_XSERVER, XSERVER__GRAB, "grab")
++   S_(SECCLASS_XSERVER, XSERVER__UNGRAB, "ungrab")
++   S_(SECCLASS_XEXTENSION, XEXTENSION__QUERY, "query")
++   S_(SECCLASS_XEXTENSION, XEXTENSION__USE, "use")
++   S_(SECCLASS_PAX, PAX__PAGEEXEC, "pageexec")
++   S_(SECCLASS_PAX, PAX__EMUTRAMP, "emutramp")
++   S_(SECCLASS_PAX, PAX__MPROTECT, "mprotect")
++   S_(SECCLASS_PAX, PAX__RANDMMAP, "randmmap")
++   S_(SECCLASS_PAX, PAX__RANDEXEC, "randexec")
++   S_(SECCLASS_PAX, PAX__SEGMEXEC, "segmexec")
++   S_(SECCLASS_NETLINK_ROUTE_SOCKET, NETLINK_ROUTE_SOCKET__NLMSG_READ, "nlmsg_read")
++   S_(SECCLASS_NETLINK_ROUTE_SOCKET, NETLINK_ROUTE_SOCKET__NLMSG_WRITE, "nlmsg_write")
++   S_(SECCLASS_NETLINK_FIREWALL_SOCKET, NETLINK_FIREWALL_SOCKET__NLMSG_READ, "nlmsg_read")
++   S_(SECCLASS_NETLINK_FIREWALL_SOCKET, NETLINK_FIREWALL_SOCKET__NLMSG_WRITE, "nlmsg_write")
++   S_(SECCLASS_NETLINK_TCPDIAG_SOCKET, NETLINK_TCPDIAG_SOCKET__NLMSG_READ, "nlmsg_read")
++   S_(SECCLASS_NETLINK_TCPDIAG_SOCKET, NETLINK_TCPDIAG_SOCKET__NLMSG_WRITE, "nlmsg_write")
++   S_(SECCLASS_NETLINK_XFRM_SOCKET, NETLINK_XFRM_SOCKET__NLMSG_READ, "nlmsg_read")
++   S_(SECCLASS_NETLINK_XFRM_SOCKET, NETLINK_XFRM_SOCKET__NLMSG_WRITE, "nlmsg_write")
++   S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_READ, "nlmsg_read")
++   S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_WRITE, "nlmsg_write")
++   S_(SECCLASS_NETLINK_IP6FW_SOCKET, NETLINK_IP6FW_SOCKET__NLMSG_READ, "nlmsg_read")
++   S_(SECCLASS_NETLINK_IP6FW_SOCKET, NETLINK_IP6FW_SOCKET__NLMSG_WRITE, "nlmsg_write")
++   S_(SECCLASS_DBUS, DBUS__ACQUIRE_SVC, "acquire_svc")
++   S_(SECCLASS_DBUS, DBUS__SEND_MSG, "send_msg")
++   S_(SECCLASS_NSCD, NSCD__GETPWD, "getpwd")
++   S_(SECCLASS_NSCD, NSCD__GETGRP, "getgrp")
++   S_(SECCLASS_NSCD, NSCD__GETHOST, "gethost")
++   S_(SECCLASS_NSCD, NSCD__GETSTAT, "getstat")
++   S_(SECCLASS_NSCD, NSCD__ADMIN, "admin")
++   S_(SECCLASS_NSCD, NSCD__SHMEMPWD, "shmempwd")
++   S_(SECCLASS_NSCD, NSCD__SHMEMGRP, "shmemgrp")
++   S_(SECCLASS_NSCD, NSCD__SHMEMHOST, "shmemhost")
+diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm3/security/selinux/include/class_to_string.h linux-2.6/security/selinux/include/class_to_string.h
+--- linux-2.6.10-rc2-mm3/security/selinux/include/class_to_string.h	2004-10-18 17:55:36.000000000 -0400
++++ linux-2.6/security/selinux/include/class_to_string.h	2004-11-22 11:47:57.000000000 -0500
+@@ -2,59 +2,57 @@
+ /*
+  * Security object class definitions
+  */
+-static char *class_to_string[] =
+-{
+-    "null",
+-    "security",
+-    "process",
+-    "system",
+-    "capability",
+-    "filesystem",
+-    "file",
+-    "dir",
+-    "fd",
+-    "lnk_file",
+-    "chr_file",
+-    "blk_file",
+-    "sock_file",
+-    "fifo_file",
+-    "socket",
+-    "tcp_socket",
+-    "udp_socket",
+-    "rawip_socket",
+-    "node",
+-    "netif",
+-    "netlink_socket",
+-    "packet_socket",
+-    "key_socket",
+-    "unix_stream_socket",
+-    "unix_dgram_socket",
+-    "sem",
+-    "msg",
+-    "msgq",
+-    "shm",
+-    "ipc",
+-    "passwd",
+-    "drawable",
+-    "window",
+-    "gc",
+-    "font",
+-    "colormap",
+-    "property",
+-    "cursor",
+-    "xclient",
+-    "xinput",
+-    "xserver",
+-    "xextension",
+-    "pax",
+-    "netlink_route_socket",
+-    "netlink_firewall_socket",
+-    "netlink_tcpdiag_socket",
+-    "netlink_nflog_socket",
+-    "netlink_xfrm_socket",
+-    "netlink_selinux_socket",
+-    "netlink_audit_socket",
+-    "netlink_ip6fw_socket",
+-    "netlink_dnrt_socket",
+-};
+-
++    S_("null")
++    S_("security")
++    S_("process")
++    S_("system")
++    S_("capability")
++    S_("filesystem")
++    S_("file")
++    S_("dir")
++    S_("fd")
++    S_("lnk_file")
++    S_("chr_file")
++    S_("blk_file")
++    S_("sock_file")
++    S_("fifo_file")
++    S_("socket")
++    S_("tcp_socket")
++    S_("udp_socket")
++    S_("rawip_socket")
++    S_("node")
++    S_("netif")
++    S_("netlink_socket")
++    S_("packet_socket")
++    S_("key_socket")
++    S_("unix_stream_socket")
++    S_("unix_dgram_socket")
++    S_("sem")
++    S_("msg")
++    S_("msgq")
++    S_("shm")
++    S_("ipc")
++    S_("passwd")
++    S_("drawable")
++    S_("window")
++    S_("gc")
++    S_("font")
++    S_("colormap")
++    S_("property")
++    S_("cursor")
++    S_("xclient")
++    S_("xinput")
++    S_("xserver")
++    S_("xextension")
++    S_("pax")
++    S_("netlink_route_socket")
++    S_("netlink_firewall_socket")
++    S_("netlink_tcpdiag_socket")
++    S_("netlink_nflog_socket")
++    S_("netlink_xfrm_socket")
++    S_("netlink_selinux_socket")
++    S_("netlink_audit_socket")
++    S_("netlink_ip6fw_socket")
++    S_("netlink_dnrt_socket")
++    S_("dbus")
++    S_("nscd")
+diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm3/security/selinux/include/common_perm_to_string.h linux-2.6/security/selinux/include/common_perm_to_string.h
+--- linux-2.6.10-rc2-mm3/security/selinux/include/common_perm_to_string.h	2004-10-18 17:53:50.000000000 -0400
++++ linux-2.6/security/selinux/include/common_perm_to_string.h	2004-11-22 11:47:57.000000000 -0500
+@@ -1,65 +1,58 @@
+ /* This file is automatically generated.  Do not edit. */
+-/* FLASK */
++TB_(common_file_perm_to_string)
++    S_("ioctl")
++    S_("read")
++    S_("write")
++    S_("create")
++    S_("getattr")
++    S_("setattr")
++    S_("lock")
++    S_("relabelfrom")
++    S_("relabelto")
++    S_("append")
++    S_("unlink")
++    S_("link")
++    S_("rename")
++    S_("execute")
++    S_("swapon")
++    S_("quotaon")
++    S_("mounton")
++TE_(common_file_perm_to_string)
+ 
+-static char *common_file_perm_to_string[] =
+-{
+-    "ioctl",
+-    "read",
+-    "write",
+-    "create",
+-    "getattr",
+-    "setattr",
+-    "lock",
+-    "relabelfrom",
+-    "relabelto",
+-    "append",
+-    "unlink",
+-    "link",
+-    "rename",
+-    "execute",
+-    "swapon",
+-    "quotaon",
+-    "mounton",
+-};
++TB_(common_socket_perm_to_string)
++    S_("ioctl")
++    S_("read")
++    S_("write")
++    S_("create")
++    S_("getattr")
++    S_("setattr")
++    S_("lock")
++    S_("relabelfrom")
++    S_("relabelto")
++    S_("append")
++    S_("bind")
++    S_("connect")
++    S_("listen")
++    S_("accept")
++    S_("getopt")
++    S_("setopt")
++    S_("shutdown")
++    S_("recvfrom")
++    S_("sendto")
++    S_("recv_msg")
++    S_("send_msg")
++    S_("name_bind")
++TE_(common_socket_perm_to_string)
+ 
+-static char *common_socket_perm_to_string[] =
+-{
+-    "ioctl",
+-    "read",
+-    "write",
+-    "create",
+-    "getattr",
+-    "setattr",
+-    "lock",
+-    "relabelfrom",
+-    "relabelto",
+-    "append",
+-    "bind",
+-    "connect",
+-    "listen",
+-    "accept",
+-    "getopt",
+-    "setopt",
+-    "shutdown",
+-    "recvfrom",
+-    "sendto",
+-    "recv_msg",
+-    "send_msg",
+-    "name_bind",
+-};
++TB_(common_ipc_perm_to_string)
++    S_("create")
++    S_("destroy")
++    S_("getattr")
++    S_("setattr")
++    S_("read")
++    S_("write")
++    S_("associate")
++    S_("unix_read")
++    S_("unix_write")
++TE_(common_ipc_perm_to_string)
+ 
+-static char *common_ipc_perm_to_string[] =
+-{
+-    "create",
+-    "destroy",
+-    "getattr",
+-    "setattr",
+-    "read",
+-    "write",
+-    "associate",
+-    "unix_read",
+-    "unix_write",
+-};
+-
+-
+-/* FLASK */
+diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm3/security/selinux/include/flask.h linux-2.6/security/selinux/include/flask.h
+--- linux-2.6.10-rc2-mm3/security/selinux/include/flask.h	2004-10-18 17:54:38.000000000 -0400
++++ linux-2.6/security/selinux/include/flask.h	2004-11-22 11:47:57.000000000 -0500
+@@ -56,6 +56,8 @@
+ #define SECCLASS_NETLINK_AUDIT_SOCKET                    49
+ #define SECCLASS_NETLINK_IP6FW_SOCKET                    50
+ #define SECCLASS_NETLINK_DNRT_SOCKET                     51
++#define SECCLASS_DBUS                                    52
++#define SECCLASS_NSCD                                    53
+ 
+ /*
+  * Security identifier indices for initial entities
 
-Oh no, we already have __u32 smem_len in struct fb_fix_screeninfo :-(
-So you can forget my comment about 64-bit above...
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Hence, you best make it `u32' (this is kernel internal) for consistency.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

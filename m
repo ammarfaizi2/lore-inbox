@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266992AbRGIJLF>; Mon, 9 Jul 2001 05:11:05 -0400
+	id <S266550AbRGIJgJ>; Mon, 9 Jul 2001 05:36:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266995AbRGIJK4>; Mon, 9 Jul 2001 05:10:56 -0400
-Received: from mail.necsom.com ([195.197.180.67]:33401 "EHLO
-	mail.services.necsom.com") by vger.kernel.org with ESMTP
-	id <S266992AbRGIJKt>; Mon, 9 Jul 2001 05:10:49 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Ville Nummela <ville.nummela@mail.necsom.com>,
-        linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: tasklets in 2.4.6
-In-Reply-To: <7an16iy2wa.fsf@necsom.com> <3B4563D5.89A1ACA3@mandrakesoft.com>
-	<3B45760D.6F99149C@mandrakesoft.com>
-X-Face: "Df%<nszNB6]!2E>ff/A[8\G2b3+^!5to-ud=~>-GK'R3S00Csb"a2XD}:"E8Y(ZS4|d#5d!]Y];+I+8(L;jzZM`?M5$QkA>C@"?Y5@&^):)@<_S|q_*v$dgZYh%-Kw<_g,9pmme24Zr|d;dvwK}}.1,K!uP)/mX\=1IhOn7Lvr=k$">br]sxlslZ8m%g,v'y/l`X5oObnS)C^q<:DTgvV^|&`QuPHF]YZJ8`q|z^mkeP,.['pv1eMZzflI4RE|1}t&{Pp'c-M;t~@T2L$$YtuFzM$`P~aN48_ohw:KbSYPvx]:IBS`\g
-From: Ville Nummela <ville.nummela@mail.necsom.com>
-Date: 09 Jul 2001 12:09:44 +0300
-In-Reply-To: <3B45760D.6F99149C@mandrakesoft.com> (Jeff Garzik's message of "Fri, 06 Jul 2001 04:25:49 -0400")
-Message-ID: <7aelrqxycn.fsf@necsom.com>
-User-Agent: Gnus/5.090002 (Oort Gnus v0.02) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266998AbRGIJf6>; Mon, 9 Jul 2001 05:35:58 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:26633 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S266997AbRGIJfm>;
+	Mon, 9 Jul 2001 05:35:42 -0400
+To: rjd@xyzzy.clara.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: linux-2.4.7-pre3/drivers/char/sonypi.c would hang some non-Sony notebooks
+In-Reply-To: <20010708174639.A7477@xyzzy.clara.co.uk>
+In-Reply-To: <200107081026.DAA22119@baldur.yggdrasil.com> <20010708174639.A7477@xyzzy.clara.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-Id: <E15JXRa-0001Xb-00@come.alcove-fr>
+From: Stelian Pop <stelian@alcove.fr>
+Date: Mon, 09 Jul 2001 11:35:06 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+In alcove.lists.linux.kernel, you wrote:
 
-> Jeff Garzik wrote:
-> > The only thing that appears fishy is that if the tasklet constantly
-> > reschedules itself, it will never leave the loop AFAICS.  This affects
-> > tasklet_hi_action as well as tasklet_action.
-> As I hacked around to fix this, I noticed Andrea's ksoftirq patch
-> already fixed this.  So, I decided to look over his patch instead.
+> > 	Yes, although that is a task that is never complete.  So, I
+> > would recommend that we adopt a simple test that should work into the
+> > stock kernels with the expectation that the test will probably be
+> > refined in the future.  Perhaps we could check the Cardbus bridge.
+> > Does "lspci -v" on your Sony Vaio indicate that its cardbus bridge
+> > have a subsystem vendor ID of Sony?
+> 
+> OK. lspic -v shows
+> 
+>   CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
+>   Subsystem: Sony Corporation: Unknown device 8082
+> 
+> Class 0x0607, vendor 0x1180, dev 0x0x0475, subv 0x104D, subd 0x8082
+> 
+> I guess that's a pretty safe signature if the other VAIO lap and
+> palmtops have it.
 
-I tried that patch too, but with not so good results: The code LOOKS good to
-mee too, but for some reason it still seems to stuck in looping the tasklet
-code only. btw. I'm trying this on PPC, it might have something to do with
-that.. :)
+Except for the subsystem's device ID. My C1VE shows for the cardbus
+bridge:
+	Class 0607: 1180:0475 (rev 80)
+	Subsystem: 104d:80b1
 
-I'll try to hack this out :-/
+I guess we'd better test for (class,vendor,dev,subsys vendor,ANY).
 
+A much better solution would be using the DMI tables, but the 
+implementation is not so immediate due to design problems (IMHO). See
+my other post below.
+
+Stelian.
 -- 
- |   ville.nummela@necsom.com tel: +358-40-8480344               
- |   So Linus, what are we doing tonight?                             
- |   The same thing we every night Tux. Try to take over the world!   
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

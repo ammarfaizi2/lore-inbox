@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312896AbSD2Q5C>; Mon, 29 Apr 2002 12:57:02 -0400
+	id <S312917AbSD2RAZ>; Mon, 29 Apr 2002 13:00:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312901AbSD2Q5B>; Mon, 29 Apr 2002 12:57:01 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:27611 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S312896AbSD2Q5B>; Mon, 29 Apr 2002 12:57:01 -0400
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7DEC@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Stelian Pop'" <stelian.pop@fr.alcove.com>,
-        Stephan Maciej <stephan@maciej.muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Sony Vaio Laptop problems
-Date: Mon, 29 Apr 2002 09:56:42 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	id <S312920AbSD2RAY>; Mon, 29 Apr 2002 13:00:24 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:9186 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S312917AbSD2RAX>;
+	Mon, 29 Apr 2002 13:00:23 -0400
+Subject: Re: The tainted message
+From: Brian Beattie <alchemy@us.ibm.com>
+To: Robert Love <rml@tech9.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Richard Thrapp <rthrapp@sbcglobal.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1019926629.2045.698.camel@phantasy>
 Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 29 Apr 2002 09:59:40 -0700
+Message-Id: <1020099580.5131.14.camel@w-beattie1>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Stelian Pop [mailto:stelian.pop@fr.alcove.com] 
-
-> > > 2) Apply the latest ACPI patch.
-> > 
-> > I'll try. Is anyone interested in getting positive feedback? You?
+On Sat, 2002-04-27 at 09:57, Robert Love wrote:
+> On Sat, 2002-04-27 at 11:20, Alan Cox wrote:
 > 
-> Probably the acpi mailing list.
+> > How about
+> > 
+> > Warning: The module you have loaded (%s) does not seem to have an open
+> > 	 source license. Please send any kernel problem reports to the
+> > 	 author of this module, or duplicate them from a boot without
+> > 	 ever loading this module before reporting them to the community
+> > 	 or your Linux vendor
+> 
+> Perfect.  A little long, but otherwise nails it.
+> 
+Warning: The module (%s) does not seem to have a compatible license.
+         Please contact the supplier of this module regarding any
+         problems, or reproduce the problem after rebooting without
+         ever loading this module.
 
-...which is acpi-devel@lists.sourceforge.net, if you were wondering.
+shorter?
 
-;-)
+> Maybe we want to s/open source/GPL-compatible/ though?
+> 
+> 	Robert Love
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Regards -- Andy
+

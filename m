@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315709AbSETCDH>; Sun, 19 May 2002 22:03:07 -0400
+	id <S315695AbSETCJe>; Sun, 19 May 2002 22:09:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315711AbSETCDG>; Sun, 19 May 2002 22:03:06 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:51979 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315709AbSETCDG>; Sun, 19 May 2002 22:03:06 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: AUDIT: copy_from_user is a deathtrap. 
-In-Reply-To: Your message of "Sun, 19 May 2002 11:29:06 MST."
-             <Pine.LNX.4.44.0205191125120.3104-100000@home.transmeta.com> 
-Date: Mon, 20 May 2002 12:06:07 +1000
-Message-Id: <E179cYq-0004I3-00@wagner.rustcorp.com.au>
+	id <S315708AbSETCJd>; Sun, 19 May 2002 22:09:33 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:8951 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S315695AbSETCJc>; Sun, 19 May 2002 22:09:32 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15592.23251.419179.408509@wombat.chubb.wattle.id.au>
+Date: Mon, 20 May 2002 12:09:23 +1000
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: Andrew Morton <akpm@zip.com.au>, Andreas Dilger <adilger@clusterfs.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/15] larger b_size, and misc fixlets
+In-Reply-To: <368842013@toto.iv>
+X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0205191125120.3104-100000@home.transmeta.com> you wri
-te:
-> 
-> 
-> On Sat, 18 May 2002, Benjamin Herrenschmidt wrote:
-> >
-> > Looking at generic_file_write(), it ignore the count returned by
-> > copy_from_user and always commit a write for the whole requested
-> > count, regardless of how much could actually be read from userland.
-> > The result of copy_from_user is only used as an error condition.
-> 
-> And this is exactly what makes it re-startable.
+>>>>> "Anton" == Anton Altaparmakov <aia21@cantab.net> writes:
 
-If read always returns the amount read (ignoring any copy_to_user
-errors), then you can repeat it by seeking backwards[1] and redoing the
-read.
+>> > Not that I'm a 64-bit system user/developer, but it is my
+>> understanding > that u64 == long on a 64-bit platform, so your cast
+>> to u64 does not > actually change the type of b_blocknr as far as
+>> printk is concerned.  > You would need to cast it to unsigned long
+>> long instead.
+>> 
+>> Yes, I suppose so.  That more closely matches what "%L" does.
 
-So copy_to_user can simply deliver a SIGSEGV and return "success", and
-everything will work (except sockets, pipes, etc).
+Anton> /me can't help it: Didn't I say earlier on that one has to use
+Anton> (unsigned) long long and not u64? (-; But noone would listen...
 
-Is this satisfactory?  I'd really like to get rid of 5,500 code paths
-in the kernel...
+The current C standard guarantees that long long is *at least* 64
+bits.
 
-BTW, SuSv3/POSIX.1.2001 says it's OK,
-Rusty.
-[1] No, this won't work on pipes & sockets, but the whole idea won't
-work on many devices anyway...
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+So you're right.  Can we introduce a new pair of types, ull_t and ll_t
+to reduce typing?  (unsigned long long) tends to make lines overflow
+the 80-char boundary bit much, but (ull_t) is a lot shorter.
+
+Peter C
+

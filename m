@@ -1,26 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289202AbSANLh1>; Mon, 14 Jan 2002 06:37:27 -0500
+	id <S288696AbSANLk1>; Mon, 14 Jan 2002 06:40:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288638AbSANLhU>; Mon, 14 Jan 2002 06:37:20 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42513 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289202AbSANLhH>; Mon, 14 Jan 2002 06:37:07 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: zippel@linux-m68k.org (Roman Zippel)
-Date: Mon, 14 Jan 2002 11:47:39 +0000 (GMT)
-Cc: yodaiken@fsmlabs.com, phillips@bonn-fries.net (Daniel Phillips),
-        arjan@fenrus.demon.nl (Arjan van de Ven), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201141201040.28881-100000@serv> from "Roman Zippel" at Jan 14, 2002 12:14:47 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S289209AbSANLkK>; Mon, 14 Jan 2002 06:40:10 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:54283 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S288696AbSANLhZ>; Mon, 14 Jan 2002 06:37:25 -0500
+Date: Mon, 14 Jan 2002 14:36:50 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org,
+        ewald.peiszer@gmx.at, matthias.andree@stud.uni-dortmund.de
+Subject: Re: [reiserfs-list] Boot failure: msdos pushes in front of reiserfs
+Message-ID: <20020114143650.D828@namesys.com>
+In-Reply-To: <20020113223803.GA28085@emma1.emma.line.org> <20020114095013.A4760@namesys.com> <3C42BE0E.2090902@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Q5aV-0001Uv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <3C42BE0E.2090902@namesys.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> More of other FUD deleted, Victor, could you please stop this?
+Hello!
 
-Insulting people won't make problems go away Roman.
+On Mon, Jan 14, 2002 at 02:16:30PM +0300, Hans Reiser wrote:
+
+> So what solution should we use, zeroing or fixing msdos to not try 
+> something reiserfs can find, or both or what?
+
+We can use both:
+     destroy MSDOS superblock (if any) at mkreiserfs (or don't touch 1st block of the device if there is no
+     msdos superblock).
+     And link reiserfs code into the kernel earlier than msdos code is linked in.
+
+This second way is for those poor souls who ran mkreiserfs on top of their FAT partitions before
+we released new mkreiserfs that can destroy FAT superblocks.
+
+> I want the solution to also fixes the error messages from msdos that it 
+> issues when it sees reiserfs that are confusing for users.
+Changing of linking order will fix that, too.
+
+Bye,
+    Oleg

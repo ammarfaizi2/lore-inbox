@@ -1,60 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVDBSGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVDBSFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbVDBSGi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 13:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVDBSGh
+	id S261733AbVDBSFe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 13:05:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVDBSEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 13:06:37 -0500
-Received: from ida.rowland.org ([192.131.102.52]:19460 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S261718AbVDBSGR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 13:06:17 -0500
-Date: Sat, 2 Apr 2005 13:06:12 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Patrick Mochel <mochel@digitalimplant.org>
-cc: David Brownell <david-b@pacbell.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: klists and struct device semaphores
-In-Reply-To: <Pine.LNX.4.50.0503280856210.28120-100000@monsoon.he.net>
-Message-ID: <Pine.LNX.4.44L0.0504021227440.1311-100000@ida.rowland.org>
+	Sat, 2 Apr 2005 13:04:32 -0500
+Received: from lx09-hrz.uni-duisburg.de ([134.91.4.50]:20611 "EHLO
+	lx09-hrz.uni-duisburg.de") by vger.kernel.org with ESMTP
+	id S261718AbVDBSEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 13:04:16 -0500
+Message-ID: <424EDE92.7000609@folkwang-hochschule.de>
+Date: Sat, 02 Apr 2005 20:04:02 +0200
+From: Joern Nettingsmeier <nettings@folkwang-hochschule.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, mingo@redhat.com
+CC: nettings@folkwang-hochschule.de
+Subject: can't compile 2.6.12-rc1-RT-V0.7.43-06 on amd64
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pat:
+hi ingo, hi everyone!
 
-I looked through the new driver model code a bit more.  There appears to 
-be a few problems (unless I'm using out-of-date code).
 
-First, there's a race between adding a new device and registering a new 
-driver.  The bus_add_device() routine contains these lines:
+no luck w/ latest realtime-preempt on amd64:
 
-	pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
-	device_attach(dev);
-	klist_add_tail(&bus->klist_devices, &dev->knode_bus);
+nettings@kleineronkel:/local/build/linux> make
+   CHK     include/linux/version.h
+make[1]: `arch/x86_64/kernel/asm-offsets.s' is up to date.
+   CC      init/main.o
+In file included from include/linux/rwsem.h:38,
+                  from include/linux/kobject.h:24,
+                  from include/linux/module.h:19,
+                  from init/main.c:16:
+include/asm/rwsem.h:55: error: redefinition of `struct rw_semaphore'
+In file included from include/linux/rwsem.h:38,
+                  from include/linux/kobject.h:24,
+                  from include/linux/module.h:19,
+                  from init/main.c:16:
+include/asm/rwsem.h:79:1: warning: "__RWSEM_INITIALIZER" redefined
+In file included from include/linux/spinlock.h:16,
+                  from include/linux/capability.h:45,
+                  from include/linux/sched.h:7,
+                  from include/linux/module.h:10,
+                  from init/main.c:16:
+include/linux/rt_lock.h:285:1: warning: this is the location of the
+previous definition
+In file included from include/linux/rwsem.h:38,
+                  from include/linux/kobject.h:24,
+                  from include/linux/module.h:19,
+                  from init/main.c:16:
+include/asm/rwsem.h:83:1: warning: "DECLARE_RWSEM" redefined
+In file included from include/linux/spinlock.h:16,
+                  from include/linux/capability.h:45,
+                  from include/linux/sched.h:7,
+                  from include/linux/module.h:10,
+                  from init/main.c:16:
+include/linux/rt_lock.h:288:1: warning: this is the location of the
+previous definition
+include/asm/rwsem.h:86: error: parse error before "do"
+In file included from include/linux/kobject.h:24,
+                  from include/linux/module.h:19,
+                  from init/main.c:16:
+include/linux/rwsem.h: In function `compat_down_read':
+include/linux/rwsem.h:56: warning: passing arg 1 of `__down_read' from
+incompatible pointer type
+include/linux/rwsem.h: In function `compat_down_read_trylock':
+include/linux/rwsem.h:67: warning: passing arg 1 of
+`__down_read_trylock' from incompatible pointer type
+include/linux/rwsem.h: In function `compat_down_write':
+include/linux/rwsem.h:79: warning: passing arg 1 of `__down_write' from
+incompatible pointer type
+include/linux/rwsem.h: In function `compat_down_write_trylock':
+include/linux/rwsem.h:90: warning: passing arg 1 of
+`__down_write_trylock' from incompatible pointer type
+include/linux/rwsem.h: In function `compat_up_read':
+include/linux/rwsem.h:101: warning: passing arg 1 of `__up_read' from
+incompatible pointer type
+include/linux/rwsem.h: In function `compat_up_write':
+include/linux/rwsem.h:111: warning: passing arg 1 of `__up_write' from
+incompatible pointer type
+include/linux/rwsem.h: In function `compat_downgrade_write':
+include/linux/rwsem.h:121: warning: passing arg 1 of `__downgrade_write'
+from incompatible pointer type
+In file included from include/linux/proc_fs.h:6,
+                  from init/main.c:17:
+include/linux/fs.h: In function `lock_super':
+include/linux/fs.h:829: warning: implicit declaration of function
+`compat_down'
+include/linux/fs.h: In function `unlock_super':
+include/linux/fs.h:834: warning: implicit declaration of function
+`compat_up'
+make[1]: *** [init/main.o] Error 1
+make: *** [init] Error 2
 
-Suppose device_attach() doesn't find a suitable driver, but a new driver 
-is registered before the klist_add_tail() executes.  Then the new driver 
-won't see the device either, and the device won't be bound at all.  The 
-last two lines above should be in the opposite order.
+configuration is here:
+http://spunk.dnsalias.org/download/2.6.12-rc1-RT-V0.7.43-0.config
 
-Second, there's no check in driver_probe_device() or higher up to prevent
-probing a device that's already bound to another driver.  Such a check
-needs to be synchronized with assignments to dev->driver, so it should be
-made while holding dev->sem.
 
-Third, why does device_release_driver() call klist_del() instead of 
-klist_remove() for dev->knode_driver?  Is that just a simple mistake?
-The klist_node doesn't seem to get unlinked anywhere.
+any hints appreciated.
 
-Fourth, in device_release_driver() why isn't most of the work done under
-the protection of dev->sem?  If a driver is unregistered at the same time
-as a device is removed, two threads could end up executing that routine at
-the same time.  Then the question would be which thread calls
-klist_remove() -- not to mention the danger that both of them might.  I 
-guess the answer is to call klist_remove() after releasing dev->sem.
 
-Alan Stern
+best,
+
+jörn
+
 

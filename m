@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265507AbUABKvp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 05:51:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265510AbUABKvp
+	id S265503AbUABLTn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 06:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUABLTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 05:51:45 -0500
-Received: from smtp5.hy.skanova.net ([195.67.199.134]:33007 "EHLO
-	smtp5.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S265507AbUABKvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 05:51:43 -0500
-To: arjanv@redhat.com
-Cc: Andrew Morton <akpm@osdl.org>, axboe@suse.de, packet-writing@suse.com,
+	Fri, 2 Jan 2004 06:19:43 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:26563 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S265503AbUABLTl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 06:19:41 -0500
+Date: Fri, 2 Jan 2004 17:02:34 +0800
+From: Hugang <hugang@soulinfo.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Bart Samwel <bart@samwel.tk>, Andrew Morton <akpm@osdl.org>,
+       smackinlay@mail.com, Bartek Kania <mrbk@gnarf.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: ext2 on a CD-RW
-References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com>
-	<20040101162427.4c6c020b.akpm@osdl.org> <m2llorkuhn.fsf@telia.com>
-	<1073034412.4429.1.camel@laptop.fenrus.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 02 Jan 2004 11:51:24 +0100
-In-Reply-To: <1073034412.4429.1.camel@laptop.fenrus.com>
-Message-ID: <m2k74a8vyr.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] laptop-mode-2.6.0 version 5
+Message-Id: <20040102170234.66d6811d@localhost>
+In-Reply-To: <20040101183545.GD5523@suse.de>
+References: <20031231210756.315.qmail@mail.com>	<3FF3887C.90404@samwel.tk>	<20031231184830.1168b8ff.akpm@osdl.org>	<3FF43BAF.7040704@samwel.tk>
+	<3FF457C0.2040303@samwel.tk>
+	<20040101183545.GD5523@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com> writes:
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> On Fri, 2004-01-02 at 02:30, Peter Osterlund wrote:
+On Thu, 1 Jan 2004 19:35:45 +0100
+Jens Axboe <axboe@suse.de> wrote:
+
+> Patch is obviously bogus, just look at the comm definition in sched.h:
 > 
-> > The packet writing code has the restriction that a bio must not span a
-> > packet boundary. (A packet is 32*2048 bytes.) If the page when mapped
-> > to disk starts 2kb before a packet boundary, merge_bvec_fn therefore
-> > returns 2048, which is less than len, which is 4096 if the whole page
-> > is mapped, so the bio_add_page() call fails.
+> 	char comm[16];
 > 
-> devicemapper has similar restrictions for raid0 format; in that case
-> it's device-mappers job to split the page/bio. Just as it is UDF's task
-> to do the same I suspect...
+> IO submission must happen in process context, so we also know that
+> current is valid.
 
-Old versions of the packet writing code did just that, but Jens told
-me that bio splitting was evil, so when the merge_bvec_fn
-functionality was added to the kernel, I started to use it.
+You are right. But why add this patch, My laptop not crash when I enable block dump, So I try to find where is the Bug. Final, The bug is in sector_t, I was enable CONFIG_LBD, So sector_t is u64, So We have to change the code when enable CONFIG_LBD.
 
-        http://lists.suse.com/archive/packet-writing/2002-Aug/0044.html
+I'd like the 2.4 style so add count number into printf.
 
-If merge_bvec_fn is not supposed to be able to handle the need of the
-packet writing code, I can certainly resurrect my bio splitting code.
+Here is the patch fix it
++
++   if (unlikely(block_dump)) {
++       char b[BDEVNAME_SIZE];
++       printk("%s(%d): %s block %llu/%u on %s\n",
++           current->comm, current->pid,
++           (rw & WRITE) ? "WRITE" : (rw == READA ? "READA" : "READ"),
++           (u64)bio->bi_sector, count, bdevname(bio->bi_bdev,b));
++   }
++
 
-Btw, for some reason, this bug is not triggered when using the UDF
-filesystem on a CDRW. I've only seen it with the ext2 filesystem.
+
+I think, also have this bug in 2.4.23, here is the patch for it, Hope can helpful.
+Index: linux-2.4.23/drivers/block/ll_rw_blk.c
+===================================================================
+--- linux-2.4.23/drivers/block/ll_rw_blk.c      (revision 4)
++++ linux-2.4.23/drivers/block/ll_rw_blk.c      (working copy)
+@@ -1298,7 +1298,7 @@
+                wake_up(&bh->b_wait);
+ 
+        if (block_dump)
+-               printk(KERN_DEBUG "%s: %s block %lu/%u on %s\n", current->comm, rw == WRITE ? "WRITE" : "READ", bh->b_rsector, count, kdevname(bh->b_rdev));
++               printk(KERN_DEBUG "%s: %s block %llu/%u on %s\n", current->comm, rw == WRITE ? "WRITE" : "READ", (u64)bh->b_rsector, count, kdevname(bh->b_rdev));
+ 
+        put_bh(bh);
+        switch (rw) {
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Hu Gang / Steve
+RLU#          : 204016 [1999] (Registered Linux user)
+GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262632AbUCWP2e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 10:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbUCWP2d
+	id S262608AbUCWPbs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 10:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbUCWPbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 10:28:33 -0500
-Received: from goliath.sylaba.poznan.pl ([213.17.226.43]:11786 "EHLO
+	Tue, 23 Mar 2004 10:31:48 -0500
+Received: from goliath.sylaba.poznan.pl ([213.17.226.43]:46090 "EHLO
 	goliath.sylaba.poznan.pl") by vger.kernel.org with ESMTP
-	id S262632AbUCWP16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 10:27:58 -0500
+	id S262608AbUCWPbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 10:31:42 -0500
 Subject: Re: 2.6.3 BUG - can't write DVD-RAM - reported as write-protected
 From: Olaf =?iso-8859-2?Q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
 To: Jens Axboe <axboe@suse.de>
 Cc: linux-kernel@vger.kernel.org, td@linuxgang.com
-In-Reply-To: <1080053402.1473.0.camel@venus.local.navi.pl>
+In-Reply-To: <20040323152339.GI1481@suse.de>
 References: <1078434953.1961.13.camel@venus.local.navi.pl>
 	 <20040305082350.GO31750@suse.de>
 	 <1078487159.3300.23.camel@venus.local.navi.pl>
@@ -23,174 +23,90 @@ References: <1078434953.1961.13.camel@venus.local.navi.pl>
 	 <1079263025.1428.4.camel@venus.local.navi.pl>
 	 <20040314112208.GH6955@suse.de>
 	 <1080053402.1473.0.camel@venus.local.navi.pl>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1080055962.1473.11.camel@venus.local.navi.pl>
+	 <20040323152339.GI1481@suse.de>
+Content-Type: text/plain
+Message-Id: <1080056187.1473.15.camel@venus.local.navi.pl>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 23 Mar 2004 16:32:42 +0100
-Content-Transfer-Encoding: 8bit
+Date: Tue, 23 Mar 2004 16:36:27 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-23 at 15:50, Olaf Frączyk wrote:
-> On Sun, 2004-03-14 at 12:22, Jens Axboe wrote:
-> > On Sun, Mar 14 2004, Olaf Fr?czyk wrote:
-> > > On Tue, 2004-03-09 at 10:12, Jens Axboe wrote: 
-> > > > On Tue, Mar 09 2004, Olaf Fr?czyk wrote:
-> > > > > On Sun, 2004-03-07 at 11:59, Jens Axboe wrote:
-> > > > > > On Fri, Mar 05 2004, Olaf Fr?czyk wrote:
-> > > > > > > On Fri, 2004-03-05 at 09:23, Jens Axboe wrote:
-> > > > > > > > On Thu, Mar 04 2004, Olaf Fr?czyk wrote:
-> > > > > > > > > Hi,
-> > > > > > > > > I switched to 2.6.3 from 2.4.x serie.
-> > > > > > > > > When I mount DVD-RAM it is mounted read-only:
-> > > > > > > > > 
-> > > > > > > > > [root@venus olaf]# mount /dev/dvdram /mnt/dvdram
-> > > > > > > > > mount: block device /dev/dvdram is write-protected, mounting read-only
-> > > > > > > > > [root@venus olaf]#
-> > > > > > > > > 
-> > > > > > > > > In 2.4 it is mounted correctly as read-write.
-> > > > > > > > > 
-> > > > > > > > > Drive: Panasonic LF-201, reported in Linux as:
-> > > > > > > > > MATSHITA        DVD-RAM LF-D200         A120
-> > > > > > > > > 
-> > > > > > > > > SCSI controller: Adaptec 2940U2W
-> > > > > > > > 
-> > > > > > > > What does cat /proc/sys/dev/cdrom/info say? Do you get any kernel
-> > > > > > > > messages in dmesg when the rw mount fails?
-> > > > > > > 
-> > > > > > > I get nothing in /var/log/dmesg and in /var/log/messages
-> > > > > > > In /proc/sys/dev/cdrom/info I get:
-> > > > > > > [olaf@venus olaf]$ cat /proc/sys/dev/cdrom/info
-> > > > > > > CD-ROM information, Id: cdrom.c 3.20 2003/12/17
-> > > > > > >  
-> > > > > > > drive name:             sr1     sr0     hdc
-> > > > > > > drive speed:            0       16      44
-> > > > > > > drive # of slots:       1       1       1
-> > > > > > > Can close tray:         1       1       1
-> > > > > > > Can open tray:          1       1       1
-> > > > > > > Can lock tray:          1       1       1
-> > > > > > > Can change speed:       1       1       1
-> > > > > > > Can select disk:        0       0       0
-> > > > > > > Can read multisession:  1       1       1
-> > > > > > > Can read MCN:           1       1       1
-> > > > > > > Reports media changed:  1       1       1
-> > > > > > > Can play audio:         1       1       1
-> > > > > > > Can write CD-R:         0       1       1
-> > > > > > > Can write CD-RW:        0       1       1
-> > > > > > > Can read DVD:           1       0       0
-> > > > > > > Can write DVD-R:        0       0       0
-> > > > > > > Can write DVD-RAM:      1       0       0
-> > > > > > > Can read MRW:           0       0       1
-> > > > > > > Can write MRW:          0       0       1
-> > > > > > > 
-> > > > > > > The one I'm mounting is /dev/scd1.
-> > > > > > > As there is capablity to write-protect DVD-RAM disk (like a 1.44"
-> > > > > > > Floppy), I think that the linux kernel interprets some message from
-> > > > > > > device in wrong way.
-> > > > > > 
-> > > > > > Please repeat with this patch applied and send back the results, thanks.
-> > > > > > 
-> > > > > > ===== drivers/cdrom/cdrom.c 1.48 vs edited =====
-> > > > > > -- 1.48/drivers/cdrom/cdrom.c	Mon Feb  9 21:58:21 2004
-> > > > > > +++ edited/drivers/cdrom/cdrom.c	Sun Mar  7 11:58:40 2004
-> > > > > > @@ -645,9 +645,12 @@
-> > > > > >  {
-> > > > > >  	disc_information di;
-> > > > > >  
-> > > > > > -	if (cdrom_get_disc_info(cdi, &di))
-> > > > > > +	if (cdrom_get_disc_info(cdi, &di)) {
-> > > > > > +		printk("cdrom: read di failed\n");
-> > > > > >  		return 0;
-> > > > > > +	}
-> > > > > >  
-> > > > > > +	printk("cdrom: erasable: %d\n", di.erasable);
-> > > > > >  	return di.erasable;
-> > > > > >  }
-> > > > > >  
-> > > > > I get:
-> > > > > cdrom: read di failed
-> > > > 
-> > > > Can you try to instrument drivers/cdrom/cdrom.c:cdrom_get_disc_info()
-> > > > and find out where it fails? Change the cgc.quiet = 1 to a = 0 in there
-> > > > as well (that alone might be enough to pin point the problem).
-> > > Sorry for the delay. I couldn't take tha machine down.
-> > > After setting cgc.quiet=0 I get no additional messages from kernel.
-> > > cdrom_get_disc_info returns after FIRST:
-> > > cdo->generic_packet(cdi, &cgc).
-> > 
-> > Ok, at least that's a little clue... Maybe your drive is buggy (I think
-> > we already established that, question is what the bug is) and doesn't
-> > like to return just two bytes, please try with attached patch.
-> > 
-> > > BTW, I suppose return codes are interpreted not well:
-> > > In cdrom_get_disc_info we return after first (cdo->generic_packet) if it
-> > > returns not 0. (Success?) And we return with not 0 value.
-> > > And in cdrom_media_erasable we assume that not 0 is error, not success.
-> > > So probably in cdrom_get_disc_info we should have:
-> > >         if (!(ret = cdo->generic_packet(cdi, &cgc)))
-> > >                 return ret;
-> > 
-> > No, you are not reading the code correctly. ->generic_packet() returns 0
-> > on success, or the error (standard kernel practice).
-> > cdrom_media_erasable() returns a bool, and if cdrom_get_disc_info()
-> > fails then we return it's not erasable.
-> > 
-> > > I tried it, but it changed nothing regarding to the problem.
-> > > It returns then after second cdo->generic_packet, but I still get: 
-> > > read di failed.
-> > 
-> > You broke it, the first check simply returns the header so .erasable
-> > must be 0 because we cleared the buffer first.
-> > 
-> > ===== drivers/cdrom/cdrom.c 1.49 vs edited =====
-> > --- 1.49/drivers/cdrom/cdrom.c	Thu Mar 11 13:31:15 2004
-> > +++ edited/drivers/cdrom/cdrom.c	Sun Mar 14 12:21:44 2004
-> > @@ -2658,11 +2658,13 @@
-> >  	/* set up command and get the disc info */
-> >  	init_cdrom_command(&cgc, di, sizeof(*di), CGC_DATA_READ);
-> >  	cgc.cmd[0] = GPCMD_READ_DISC_INFO;
-> > -	cgc.cmd[8] = cgc.buflen = 2;
-> > -	cgc.quiet = 1;
-> > +	cgc.cmd[8] = cgc.buflen = 8;
-> > +	cgc.quiet = 0;
-> >  
-> > -	if ((ret = cdo->generic_packet(cdi, &cgc)))
-> > +	if ((ret = cdo->generic_packet(cdi, &cgc))) {
-> > +		printk("cdrom: read_di failed, %d\n", ret);
-> >  		return ret;
-> > +	}
-> >  
-> >  	/* not all drives have the same disc_info length, so requeue
-> >  	 * packet with the length the drive tells us it can supply
-> > @@ -2673,6 +2675,7 @@
-> >  	if (cgc.buflen > sizeof(disc_information))
-> >  		cgc.buflen = sizeof(disc_information);
-> >  
-> > +	printk("cdrom: re-reading di, len=%d\n", cgc.buflen);
-> >  	cgc.cmd[8] = cgc.buflen;
-> >  	return cdo->generic_packet(cdi, &cgc);
-> >  }
-> On 2.6.4 with your patch I get:
-> Mar 23 15:46:03 venus kernel: cdrom: read_di failed, -95
-I have found, that I can't mount CD in my Yamaha 6416S now. It worked
-with 2.6.3. So we have two problems now. Should I start separate thread
-or continue here?
-
-When I try to mount CD I get in command line:
-[root@venus scsi]#  mount /dev/scd0 /mnt/cdrom
-/dev/scd0: Invalid argument
-mount: block device /dev/scd0 is write-protected, mounting read-only
-/dev/scd0: Invalid argument
-mount: /dev/scd0: can't read superblock
-
-And in /var/log/messages:
-Mar 23 16:23:08 venus kernel: end_request: I/O error, dev sr0, sector 0
-Mar 23 16:23:08 venus kernel: FAT: unable to read boot sector
-
+On Tue, 2004-03-23 at 16:23, Jens Axboe wrote:
+> On Tue, Mar 23 2004, Olaf Fr?czyk wrote:
+> > > You broke it, the first check simply returns the header so .erasable
+> > > must be 0 because we cleared the buffer first.
+> > > 
+> > > ===== drivers/cdrom/cdrom.c 1.49 vs edited =====
+> > > --- 1.49/drivers/cdrom/cdrom.c	Thu Mar 11 13:31:15 2004
+> > > +++ edited/drivers/cdrom/cdrom.c	Sun Mar 14 12:21:44 2004
+> > > @@ -2658,11 +2658,13 @@
+> > >  	/* set up command and get the disc info */
+> > >  	init_cdrom_command(&cgc, di, sizeof(*di), CGC_DATA_READ);
+> > >  	cgc.cmd[0] = GPCMD_READ_DISC_INFO;
+> > > -	cgc.cmd[8] = cgc.buflen = 2;
+> > > -	cgc.quiet = 1;
+> > > +	cgc.cmd[8] = cgc.buflen = 8;
+> > > +	cgc.quiet = 0;
+> > >  
+> > > -	if ((ret = cdo->generic_packet(cdi, &cgc)))
+> > > +	if ((ret = cdo->generic_packet(cdi, &cgc))) {
+> > > +		printk("cdrom: read_di failed, %d\n", ret);
+> > >  		return ret;
+> > > +	}
+> > >  
+> > >  	/* not all drives have the same disc_info length, so requeue
+> > >  	 * packet with the length the drive tells us it can supply
+> > > @@ -2673,6 +2675,7 @@
+> > >  	if (cgc.buflen > sizeof(disc_information))
+> > >  		cgc.buflen = sizeof(disc_information);
+> > >  
+> > > +	printk("cdrom: re-reading di, len=%d\n", cgc.buflen);
+> > >  	cgc.cmd[8] = cgc.buflen;
+> > >  	return cdo->generic_packet(cdi, &cgc);
+> > >  }
+> > On 2.6.4 with your patch I get:
+> > Mar 23 15:46:03 venus kernel: cdrom: read_di failed, -95
+> 
+> Ok, so your drive doesn't support GPCMD_READ_DISC_INFO at all. Probably
+> the best bet is simply to allow writable open if cdrom_get_disc_info()
+> fails after all, even though I hate doing stuff like that.
+> 
+> ===== drivers/cdrom/cdrom.c 1.50 vs edited =====
+> --- 1.50/drivers/cdrom/cdrom.c	Tue Mar 16 09:41:01 2004
+> +++ edited/drivers/cdrom/cdrom.c	Tue Mar 23 16:23:07 2004
+> @@ -725,7 +725,7 @@
+>  	disc_information di;
+>  
+>  	if (cdrom_get_disc_info(cdi, &di))
+> -		return 0;
+> +		return -1;
+>  
+>  	return di.erasable;
+>  }
+> @@ -735,7 +735,16 @@
+>   */
+>  static int cdrom_dvdram_open_write(struct cdrom_device_info *cdi)
+>  {
+> -	return !cdrom_media_erasable(cdi);
+> +	int ret = cdrom_media_erasable(cdi);
+> +
+> +	/*
+> +	 * allow writable open if media info read worked and media is
+> +	 * erasable, _or_ if it fails since not all drives support it
+> +	 */
+> +	if (!ret)
+> +		return 1;
+> +
+> +	return 0;
+>  }
+>  
+>  static int cdrom_mrw_open_write(struct cdrom_device_info *cdi)
+Just to be sure. In 2.4 it was not checked?
+Will your patch go in 2.6.5/2.6.6 or I'll have to patch it manually till
+end of my life ? :)
 Regards,
 
 Olaf
-
-
 

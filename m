@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315856AbSEZIdC>; Sun, 26 May 2002 04:33:02 -0400
+	id <S315860AbSEZIlo>; Sun, 26 May 2002 04:41:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315860AbSEZIdB>; Sun, 26 May 2002 04:33:01 -0400
-Received: from h-64-105-34-58.SNVACAID.covad.net ([64.105.34.58]:994 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S315856AbSEZIdB>; Sun, 26 May 2002 04:33:01 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 26 May 2002 01:32:50 -0700
-Message-Id: <200205260832.BAA01132@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.5.18: DRM + cmpxchg issues
+	id <S315862AbSEZIln>; Sun, 26 May 2002 04:41:43 -0400
+Received: from dsl-213-023-040-043.arcor-ip.net ([213.23.40.43]:22999 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315860AbSEZIln>;
+	Sun, 26 May 2002 04:41:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Stephen C. Tweedie" <sct@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: Thoughts on using fs/jbd from drivers/md
+Date: Sun, 26 May 2002 10:41:22 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15587.18828.934431.941516@notabene.cse.unsw.edu.au> <20020516161749.D2410@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Btad-0003sq-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Under linux-2.5.18, several drivers for Direct Render Manager
-(drivers/char/drm) call cmpxchg(), which is not defined for many
-architectures including base i386 (i.e., if you want a kernel that runs
-across the whole x86 processor line).
+On Thursday 16 May 2002 17:17, Stephen C. Tweedie wrote:
+> Most applications are not all that bound by write latency.
 
-	2.5.18 also removed the cmpxchg() implementation for alpha that
-was buried in drivers/char/drm, which I suspect was an incomplete patch
-which was supposed to move the definition to somewhere in include/asm-alpha/.
+But some are.  Transaction processing applications, where each transaction 
+has to be safely on disk before it can be acknowledged, care about write 
+latency a lot, since it translates more or less directly into throughput.
 
-	Here is the list of the effected DRM drivers;
+> They
+> typically care more about read latency and/or write throughput, and
+> any fancy games which try to minimise write latency at the expense of
+> correctness feel wrong to me.
 
-	gamma.o
-	i810.o		-- Pentium III chipset, requires AGP bus support
-	i830.o		-- Pentium III chipset, requires AGP bus support
-	mga.o		-- requires AGP bus
-	r128.o
-	radeon.o	-- requires AGP bus
-	tdfx.o
+I doubt you'll have trouble convincing anyone that correctness is not 
+negotiable.
 
-	For, i830 and i830, I can define CONFIG_X86_CMPXCHG and use
-the optimized cmpxchg(), because I know the code is running on a
-Pentium III, regardless of the kernel compilation options.  The question
-is what to do with the other drivers.  I guess my choices are:
-
-	   1. Define CONFIG_X86_CMPXCHG in these drivers and have them abort
-	      under x86 if a runtime check shows that the processor lacks
-	      cmpxchg.  (It looks like 2.5.17 generated code that uesd
-	      the cmpxchg without checking the processor type).
-
-	   2. Write a generic cmpxchg routine (or find one in old
-	      kernel sources) and use that in everything except i810.o
-	      and i830.o.
-
-	   3. Try to rewrite these drivers without cmpxchg.
-
-	Any advice would be appreciated.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+-- 
+Daniel

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278579AbRKFHgS>; Tue, 6 Nov 2001 02:36:18 -0500
+	id <S278592AbRKFHto>; Tue, 6 Nov 2001 02:49:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278587AbRKFHgH>; Tue, 6 Nov 2001 02:36:07 -0500
-Received: from marine.sonic.net ([208.201.224.37]:21825 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S278579AbRKFHfz>;
-	Tue, 6 Nov 2001 02:35:55 -0500
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Mon, 5 Nov 2001 23:34:52 -0800
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] disk throughput
-Message-ID: <20011105233452.C8276@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BE77599.9CFB5CA9@zip.com.au> <Pine.LNX.4.33.0111052141100.1480-100000@penguin.transmeta.com>
+	id <S278617AbRKFHtf>; Tue, 6 Nov 2001 02:49:35 -0500
+Received: from zero.tech9.net ([209.61.188.187]:33039 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S278592AbRKFHt2>;
+	Tue, 6 Nov 2001 02:49:28 -0500
+Subject: Re: floppy driver multithreaded!!
+From: Robert Love <rml@tech9.net>
+To: Rajiv Malik <rmalik@noida.hcltech.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E04CF3F88ACBD5119EFE00508BBB212154F513@exch-01.noida.hcltech.com>
+In-Reply-To: <E04CF3F88ACBD5119EFE00508BBB212154F513@exch-01.noida.hcltech.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.100+cvs.2001.11.05.15.31 (Preview Release)
+Date: 06 Nov 2001 02:48:51 -0500
+Message-Id: <1005032932.812.0.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0111052141100.1480-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 05, 2001 at 09:48:40PM -0800, Linus Torvalds wrote:
-> I'm not saying it's a bad heuristic - it's probably a fine (and certainly
-> simple) one. But the thought that when the NFS server has problems, a
-> straight "cp -a" of the same tree results in different layout just because
-> the server was moved over from one network to another makes me go "Ewww.."
+On Tue, 2001-11-06 at 02:31, Rajiv Malik wrote:
+> i was looking at the code of Floppy Driver by Linus, i was wondering the way
+> it has been coded !! even Linus has accepted that it can be further improved
+> a lot. i am thinking of making it more multithreaded, trying to find out the
+> details. any help on it would be highly appreciated.
 
-The layout is most likely going to be different anyway, isn't it?  We don't
-know what has gone on in the past to get the FS into the current state.
+Uhm, it already is multithreaded.  Kind Of.  That is how a monolithic
+kernel ends up working -- the exported floppy interface is threaded to
+each running process that uses it.  So each user space thread runs the
+the kernel code in its context and you get a result of the floppy driver
+being multithreaded.
 
-But now we have more information than we did when the file system was
-originally built.
+Then you have the backend...the block and VM layers that obviously
+aren't all in the context of a user space application.  The system will
+scale fine to your one floppy drive and multiple CPUs.
 
-We don't have an extent based interface do we?  So we can't say "I know
-this file is going to be X bytes in size."  But if we accomplish nearly the
-same thing by a quick copy like this, what's the harm?
+	Robert Love
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

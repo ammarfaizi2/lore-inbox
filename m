@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268253AbTBYTZi>; Tue, 25 Feb 2003 14:25:38 -0500
+	id <S268277AbTBYTdX>; Tue, 25 Feb 2003 14:33:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268255AbTBYTZi>; Tue, 25 Feb 2003 14:25:38 -0500
-Received: from h-64-105-35-241.SNVACAID.covad.net ([64.105.35.241]:37866 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S268253AbTBYTZb>; Tue, 25 Feb 2003 14:25:31 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 25 Feb 2003 11:26:57 -0800
-Message-Id: <200302251926.LAA02142@adam.yggdrasil.com>
-To: kai@tp1.ruhr-uni-bochum.de
-Subject: Re: Replacement for "make SUBDIRS=...." in 2.5.63?
+	id <S268281AbTBYTdX>; Tue, 25 Feb 2003 14:33:23 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:36303 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S268277AbTBYTdW>;
+	Tue, 25 Feb 2003 14:33:22 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A8471380CA@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: daveman@bellatlantic.net, Jerry Cooperstein <coop@axian.com>
 Cc: linux-kernel@vger.kernel.org
+Subject: RE: Thinkpad Keyboard nuttiness since 2.5.60 with power managemen
+	t
+Date: Tue, 25 Feb 2003 11:43:26 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Feb 2003, Kai Germaschewski wrote;
->On Mon, 24 Feb 2003, Adam J. Richter wrote:
+> From: daveman@bellatlantic.net [mailto:daveman@bellatlantic.net] 
+> I am seeing a strange keyboard related issue as well on a 
+> Thinkpad A20M. It seems if I walk away for say, 20 minutes, 
+> come back and try to input a password to KDE's screen saver, 
+> the FIRST keystroke I make is not recognized at all. All 
+> keystrokes after the first one register perfectly fine. This 
+> is on the laptop's built-in keyboard. I too am using ACPI. If 
+> I don't wait long enough it doesn't happen, so I do believe 
+> it has something to do with power management. I first noticed 
+> it in 2.5.61(first 2.5 kernel that would boot for me) and am 
+> currently running 2.5.63, where I still see it. I am not 
+> using modules.
+> 
+> If anyone would like more info on this, please let me know.
 
->> 	I see that if I do something like "make SUBDIRS=net/ipv4 modules",
->> I get warnings like:
->> 
->> *** Warning: Overriding SUBDIRS on the command line can cause inconsistencies
->> *** Uh-oh, you have stale module entries. You messed with SUBDIRS
+I am seeing the same behavior under Windows on an IBM T20. This makes me
+think it is not something the kernel is to blame for.
 
->The first warning only explicitly states a fact which has always been 
->true: If you hide information from kbuild by not letting it descend into 
->all subdirectories (but only the ones you specified on the command line), 
->you do not get a guarantee that everything is properly up-to-date.
-
-[...]
-
->As I said, the warning only states what was always true. However, the
->reason it was added now is that the module postprocessing step needs a
->list of all modules to get symbol versioning right (and it needs to be
->sure that all those modules are up-to-date w.r.t the current .config etc).
-
-	In the past, one could rebuild symbol versions with the faster
-step of "make depend".  It's fine if you want to combine code
-generation and generating symbol information in one step when all of
-the .o's are being built, but it would be nice to still have the
-ability to just update the symbol information.  I'm not necessarily
-volunteering to add this (but who knows), but I'd like to know if
-there is some reason why this couldn't be added to the current kbuild.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Regards -- Andy

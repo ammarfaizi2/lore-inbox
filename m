@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbULLUKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbULLUOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbULLUKB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 15:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbULLUH7
+	id S262120AbULLUOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 15:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbULLUHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 15:07:59 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:51986 "HELO
+	Sun, 12 Dec 2004 15:07:06 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:42514 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262124AbULLUGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 15:06:14 -0500
-Date: Sun, 12 Dec 2004 21:06:00 +0100
+	id S262116AbULLUC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 15:02:57 -0500
+Date: Sun, 12 Dec 2004 21:02:47 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kernel/time.c: possible cleanups
-Message-ID: <20041212200600.GS22324@stusta.de>
+Subject: [2.6 patch] kernel/sysctl.c: make some code static
+Message-ID: <20041212200247.GQ22324@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,94 +21,174 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below contains some possible cleanups.
-
-I don't claim it's correct, but since all these variables are never 
-changed it doesn't make a difference.
+The patch below makes some needlessly global code static and removes the 
+unneeded EXPORT_SYMBOL(proc_doulonglongvec_minmax).
 
 
 diffstat output:
- include/linux/timex.h |    8 --------
- kernel/time.c         |   23 ++++++-----------------
- 2 files changed, 6 insertions(+), 25 deletions(-)
+ include/linux/sysctl.h |    7 --
+ kernel/sysctl.c        |   96 ++++++++++++++++++++---------------------
+ 2 files changed, 49 insertions(+), 54 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc2-mm4-full/include/linux/timex.h.old	2004-12-12 03:27:38.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/include/linux/timex.h	2004-12-12 03:28:09.000000000 +0100
-@@ -249,19 +249,11 @@
- extern long time_next_adjust;	/* Value for time_adjust at next tick */
+--- linux-2.6.10-rc2-mm4-full/include/linux/sysctl.h.old	2004-12-12 03:19:59.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/include/linux/sysctl.h	2004-12-12 03:21:40.000000000 +0100
+@@ -787,8 +787,6 @@
+ 			 void __user *, size_t *, loff_t *);
+ extern int proc_dointvec(ctl_table *, int, struct file *,
+ 			 void __user *, size_t *, loff_t *);
+-extern int proc_dointvec_bset(ctl_table *, int, struct file *,
+-			      void __user *, size_t *, loff_t *);
+ extern int proc_dointvec_minmax(ctl_table *, int, struct file *,
+ 				void __user *, size_t *, loff_t *);
+ extern int proc_dointvec_jiffies(ctl_table *, int, struct file *,
+@@ -806,11 +804,6 @@
+ 		      void __user *oldval, size_t __user *oldlenp,
+ 		      void __user *newval, size_t newlen);
  
- /* interface variables pps->timer interrupt */
--extern long pps_offset;		/* pps time offset (us) */
- extern long pps_jitter;		/* time dispersion (jitter) (us) */
- extern long pps_freq;		/* frequency offset (scaled ppm) */
- extern long pps_stabil;		/* frequency dispersion (scaled ppm) */
- extern long pps_valid;		/* pps signal watchdog counter */
- 
--/* interface variables pps->adjtimex */
--extern int pps_shift;		/* interval duration (s) (shift) */
--extern long pps_jitcnt;		/* jitter limit exceeded */
--extern long pps_calcnt;		/* calibration intervals */
--extern long pps_errcnt;		/* calibration errors */
--extern long pps_stbcnt;		/* stability limit exceeded */
+-extern int do_sysctl_strategy (ctl_table *table, 
+-			       int __user *name, int nlen,
+-			       void __user *oldval, size_t __user *oldlenp,
+-			       void __user *newval, size_t newlen, void ** context);
 -
- #ifdef CONFIG_TIME_INTERPOLATION
+ extern ctl_handler sysctl_string;
+ extern ctl_handler sysctl_intvec;
+ extern ctl_handler sysctl_jiffies;
+--- linux-2.6.10-rc2-mm4-full/kernel/sysctl.c.old	2004-12-12 03:20:14.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/kernel/sysctl.c	2004-12-12 03:24:58.000000000 +0100
+@@ -157,8 +157,10 @@
+ static ssize_t proc_readsys(struct file *, char __user *, size_t, loff_t *);
+ static ssize_t proc_writesys(struct file *, const char __user *, size_t, loff_t *);
+ static int proc_opensys(struct inode *, struct file *);
++static int proc_dointvec_bset(ctl_table *table, int write, struct file *filp,
++			      void __user *buffer, size_t *lenp, loff_t *ppos);
  
- #define TIME_SOURCE_CPU 0
---- linux-2.6.10-rc2-mm4-full/kernel/time.c.old	2004-12-12 03:25:37.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/kernel/time.c	2004-12-12 03:31:41.000000000 +0100
-@@ -197,7 +197,6 @@
- 	return do_sys_settimeofday(tv ? &new_ts : NULL, tz ? &new_tz : NULL);
+-struct file_operations proc_sys_file_operations = {
++static struct file_operations proc_sys_file_operations = {
+ 	.open		= proc_opensys,
+ 	.read		= proc_readsys,
+ 	.write		= proc_writesys,
+@@ -1030,50 +1032,12 @@
+ 	return test_perm(table->mode, op);
  }
  
--long pps_offset;		/* pps time offset (us) */
- long pps_jitter = MAXTIME;	/* time dispersion (jitter) (us) */
- 
- long pps_freq;			/* frequency offset (scaled ppm) */
-@@ -205,16 +204,6 @@
- 
- long pps_valid = PPS_VALID;	/* pps signal watchdog counter */
- 
--int pps_shift = PPS_SHIFT;	/* interval duration (s) (shift) */
+-static int parse_table(int __user *name, int nlen,
+-		       void __user *oldval, size_t __user *oldlenp,
+-		       void __user *newval, size_t newlen,
+-		       ctl_table *table, void **context)
+-{
+-	int n;
+-repeat:
+-	if (!nlen)
+-		return -ENOTDIR;
+-	if (get_user(n, name))
+-		return -EFAULT;
+-	for ( ; table->ctl_name; table++) {
+-		if (n == table->ctl_name || table->ctl_name == CTL_ANY) {
+-			int error;
+-			if (table->child) {
+-				if (ctl_perm(table, 001))
+-					return -EPERM;
+-				if (table->strategy) {
+-					error = table->strategy(
+-						table, name, nlen,
+-						oldval, oldlenp,
+-						newval, newlen, context);
+-					if (error)
+-						return error;
+-				}
+-				name++;
+-				nlen--;
+-				table = table->child;
+-				goto repeat;
+-			}
+-			error = do_sysctl_strategy(table, name, nlen,
+-						   oldval, oldlenp,
+-						   newval, newlen, context);
+-			return error;
+-		}
+-	}
+-	return -ENOTDIR;
+-}
 -
--long pps_jitcnt;		/* jitter limit exceeded */
--long pps_calcnt;		/* calibration intervals */
--long pps_errcnt;		/* calibration errors */
--long pps_stbcnt;		/* stability limit exceeded */
--
--/* hook for a loadable hardpps kernel module */
--void (*hardpps_ptr)(struct timeval *);
--
- /* adjtimex mainly allows reading (and writing, if superuser) of
-  * kernel time-keeping variables. used by xntpd.
+ /* Perform the actual read/write of a sysctl table entry. */
+-int do_sysctl_strategy (ctl_table *table, 
+-			int __user *name, int nlen,
+-			void __user *oldval, size_t __user *oldlenp,
+-			void __user *newval, size_t newlen, void **context)
++static int do_sysctl_strategy (ctl_table *table, 
++			       int __user *name, int nlen,
++			       void __user *oldval, size_t __user *oldlenp,
++			       void __user *newval, size_t newlen,
++			       void **context)
+ {
+ 	int op = 0, rc;
+ 	size_t len;
+@@ -1120,6 +1084,45 @@
+ 	return 0;
+ }
+ 
++static int parse_table(int __user *name, int nlen,
++		       void __user *oldval, size_t __user *oldlenp,
++		       void __user *newval, size_t newlen,
++		       ctl_table *table, void **context)
++{
++	int n;
++repeat:
++	if (!nlen)
++		return -ENOTDIR;
++	if (get_user(n, name))
++		return -EFAULT;
++	for ( ; table->ctl_name; table++) {
++		if (n == table->ctl_name || table->ctl_name == CTL_ANY) {
++			int error;
++			if (table->child) {
++				if (ctl_perm(table, 001))
++					return -EPERM;
++				if (table->strategy) {
++					error = table->strategy(
++						table, name, nlen,
++						oldval, oldlenp,
++						newval, newlen, context);
++					if (error)
++						return error;
++				}
++				name++;
++				nlen--;
++				table = table->child;
++				goto repeat;
++			}
++			error = do_sysctl_strategy(table, name, nlen,
++						   oldval, oldlenp,
++						   newval, newlen, context);
++			return error;
++		}
++	}
++	return -ENOTDIR;
++}
++
+ /**
+  * register_sysctl_table - register a sysctl hierarchy
+  * @table: the top-level table structure
+@@ -1637,8 +1640,8 @@
+  *	init may raise the set.
   */
-@@ -302,7 +291,7 @@
- 		else if ( time_status & (STA_PLL | STA_PPSTIME) ) {
- 		    ltemp = (time_status & (STA_PPSTIME | STA_PPSSIGNAL)) ==
- 		            (STA_PPSTIME | STA_PPSSIGNAL) ?
--		            pps_offset : txc->offset;
-+		            0 : txc->offset;
+  
+-int proc_dointvec_bset(ctl_table *table, int write, struct file *filp,
+-			void __user *buffer, size_t *lenp, loff_t *ppos)
++static int proc_dointvec_bset(ctl_table *table, int write, struct file *filp,
++			      void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+ 	int op;
  
- 		    /*
- 		     * Scale the phase adjustment and
-@@ -390,12 +379,12 @@
- 	txc->tick	   = tick_usec;
- 	txc->ppsfreq	   = pps_freq;
- 	txc->jitter	   = pps_jitter >> PPS_AVG;
--	txc->shift	   = pps_shift;
-+	txc->shift	   = PPS_SHIFT;
- 	txc->stabil	   = pps_stabil;
--	txc->jitcnt	   = pps_jitcnt;
--	txc->calcnt	   = pps_calcnt;
--	txc->errcnt	   = pps_errcnt;
--	txc->stbcnt	   = pps_stbcnt;
-+	txc->jitcnt	   = 0;
-+	txc->calcnt	   = 0;
-+	txc->errcnt	   = 0;
-+	txc->stbcnt	   = 0;
- 	write_sequnlock_irq(&xtime_lock);
- 	do_gettimeofday(&txc->time);
- 	return(result);
+@@ -2349,7 +2352,6 @@
+ EXPORT_SYMBOL(proc_dointvec_userhz_jiffies);
+ EXPORT_SYMBOL(proc_dostring);
+ EXPORT_SYMBOL(proc_doulongvec_minmax);
+-EXPORT_SYMBOL(proc_doulonglongvec_minmax);
+ EXPORT_SYMBOL(proc_doulongvec_ms_jiffies_minmax);
+ EXPORT_SYMBOL(register_sysctl_table);
+ EXPORT_SYMBOL(sysctl_intvec);
 

@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263819AbUDPVaU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 17:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263829AbUDPV3m
+	id S263834AbUDPVfa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 17:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUDPVdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 17:29:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19607 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263819AbUDPV2b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 17:28:31 -0400
-Date: Fri, 16 Apr 2004 14:30:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Clay <pete@azuro.com>
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: NFS oops with 2.6.4 server / Solaris 2.8 client
-Message-Id: <20040416143008.1b775f97.akpm@osdl.org>
-In-Reply-To: <20040416141016.GA27316@platinum.azuro.com>
-References: <20040416141016.GA27316@platinum.azuro.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 16 Apr 2004 17:33:25 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33545 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263829AbUDPVct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 17:32:49 -0400
+Date: Fri, 16 Apr 2004 22:32:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Dave Jones <davej@redhat.com>, trond.myklebust@fys.uio.no,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS thinko
+Message-ID: <20040416223244.G29820@flint.arm.linux.org.uk>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, trond.myklebust@fys.uio.no,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040416211628.GM20937@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040416211628.GM20937@redhat.com>; from davej@redhat.com on Fri, Apr 16, 2004 at 10:16:28PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Clay <pete@azuro.com> wrote:
->
-> I have this oops with the situation described in the subject, using the Solaris
-> automounter in /net to access the Linux server. This is repeatable. It doesn't
-> always crash the machine, but fairly soon after I end up with all the nfsd
-> processes stuck in 'D' state. What other debugging information would help find
-> this problem?
-> 
-> (output of dmesg follows)
-> 
-> ...
-> nfs warning: mount version older than kernel
-> RPC request reserved 0 but used 112
-> Unable to handle kernel NULL pointer dereference at virtual address 00000004
->  printing eip:
-> c02a91c0
-> *pde = 00000000
-> Oops: 0002 [#1]
-> CPU:    0
-> EIP:    0060:[<c02a91c0>]    Not tainted
-> EFLAGS: 00010287
-> EIP is at do_tcp_sendpages+0x660/0xbf0
-> eax: 00000000   ebx: ddc5cb80   ecx: 00000008   edx: 00000000
-> esi: 00000001   edi: cfd0d9c8   ebp: d0632100   esp: dd0dbe34
-> ds: 007b   es: 007b   ss: 0068
-> Process nfsd (pid: 1366, threadinfo=dd0da000 task=dd100d40)
-> Stack: 000000b0 000000d0 c014d61a dd19670c dd0dbe70 c01c7efd d0632110 00000000
->        00000008 00000000 00000000 00000000 000005b4 00007530 00000000 cfd0d800
->        00000008 00000000 c02a97d9 cfd0d800 dd0dbeac 00000000 00000008 00000000
-> Call Trace:
->  [<c014d61a>] close_private_file+0x2a/0x30
->  [<c01c7efd>] nfsd_close+0x1d/0x40
->  [<c02a97d9>] tcp_sendpage+0x89/0xa0
->  [<c02e8343>] svc_sendto+0x173/0x2b0
->  [<c01d0e28>] encode_post_op_attr+0x1c8/0x260
->  [<c02e941c>] svc_tcp_sendto+0x6c/0xc0
->  [<c02e9bbc>] svc_send+0xbc/0x100
->  [<c02eb828>] svcauth_unix_release+0x58/0x60
->  [<c02e7858>] svc_process+0x1b8/0x640
->  [<c01c43b0>] nfsd+0x190/0x300
+On Fri, Apr 16, 2004 at 10:16:28PM +0100, Dave Jones wrote:
+> Dereferencing 'exp' before the check for NULL.
 
-2.6.4 is a bit old, and knfsd fixes have been applied since then.  Are you in
-a position to test 2.6.6-rc1?
+Hmm.  If we're referencing 'ek' to get at exp, 'ek' isn't an error,
+so it shouldn't be passed into PTR_ERR().
+
+> --- linux-2.6.5/include/linux/nfsd/export.h~	2004-04-16 22:13:28.000000000 +0100
+> +++ linux-2.6.5/include/linux/nfsd/export.h	2004-04-16 22:14:21.000000000 +0100
+> @@ -118,13 +118,15 @@
+>  	if (ek && !IS_ERR(ek)) {
+>  		struct svc_export *exp = ek->ek_export;
+>  		int err;
+> +		if (!exp)
+> +			goto out;
+>  		cache_get(&exp->h);
+>  		expkey_put(&ek->h, &svc_expkey_cache);
+> -		if (exp &&
+> -		    (err = cache_check(&svc_export_cache, &exp->h, reqp)))
+> +		if (err = cache_check(&svc_export_cache, &exp->h, reqp))
+>  			exp = ERR_PTR(err);
+>  		return exp;
+>  	} else
+> +out:
+>  		return ERR_PTR(PTR_ERR(ek));
+>  }
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

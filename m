@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbTFLXIX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 19:08:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265067AbTFLXIV
+	id S265058AbTFLXEn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 19:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTFLXEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 19:08:21 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:2052 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S265062AbTFLXG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 19:06:56 -0400
-Date: Thu, 12 Jun 2003 16:20:35 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: John T Copeland <johnc@neto.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linuxkernel <linux-kernel@vger.kernel.org>
-Subject: Re: siimage driver
-In-Reply-To: <3EE9070A.4040403@neto.com>
-Message-ID: <Pine.LNX.4.10.10306121618270.806-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 12 Jun 2003 19:04:39 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:41879 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S265058AbTFLXDp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 19:03:45 -0400
+Date: Fri, 13 Jun 2003 11:20:34 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: The disappearing sys_call_table export.
+In-reply-to: <Pine.LNX.4.44.0305140234110.32259-100000@marcellos.corky.net>
+To: Yoav Weiss <ml-lkml@unpatched.org>
+Cc: Ahmed Masud <masud@googgun.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1055459980.2388.14.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <Pine.LNX.4.44.0305140234110.32259-100000@marcellos.corky.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Until the device ordering can be sorted out, your pain will be the
-following:
+On Wed, 2003-05-14 at 11:58, Yoav Weiss wrote:
+> Actually, I forgot that swsusp is now included.  I haven't tried it in a
+> while.  Anyone knows if its stable enough to start playing with encrypting
+> it ?
 
-ide0=0x1f0,0x3f6,14 ide1=0x170,0x376,15
+Sorry for the slow response - I guess Pavel didn't notice your question
+either. In it's current form in the 2.5 kernel, swsusp is stable enough
+to try encrypting the data. However you might want to wait as the 2.4
+version is nearly at its 1.0 release, and the plan is for me to then
+start submitting a whole swag of patches that will make the code much
+more feature complete. The 2.4 code includes support for compressing the
+image; I guess we'd want to hook encryption in at the same point (it
+will use BIO calls, not the swap read/write routines).
 
-Cheers,
+Regards,
 
-Andre Hedrick
-LAD Storage Consulting Group
+Nigel
 
-On Thu, 12 Jun 2003, John T Copeland wrote:
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
-> Alan,
-> A couple of questions if you please.
-> 
-> 1)  When I compile the siimage driver into the kernel, the ide buses are 
-> scanned in the following order:
->   IDE0 - SATA primary - hda, hdb
->   IDE1 - SATA secondary - hdc, hdd
->   IDE2 - ATA tertiary - hde, hdf
->   IDE3 - ATA quandrary hdg, hdh
-> I want the ATA to be IDE0/1  and SATA to be IDE2/3.  I have noticed from 
-> some of the posts about the siimage driver on the ASUS nforce2 mobo this 
-> is the apparent order scanned.  My mobo is an Abit NF7-S nforce2.  Is 
-> there someway of controlling the order of scannin the IDE buses?  I 
-> tried append="ide=reverse" to no avail.
-> 
-> 2) To try and get the nforce2 IDE buses scanned first, I compiled 
-> siimage as a module, but when I did an "insmod siimage" I get an 
-> unresolved external, "noautodma", in siimage.
-> 
-> I'd appreciate any help you can offer.
-> 
-> Thanks,
-> John Copeland
->  
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

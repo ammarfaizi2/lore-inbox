@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132805AbRDYWNJ>; Wed, 25 Apr 2001 18:13:09 -0400
+	id <S132881AbRDYWOM>; Wed, 25 Apr 2001 18:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132881AbRDYWM7>; Wed, 25 Apr 2001 18:12:59 -0400
-Received: from china.patternbook.com ([216.254.75.60]:24829 "EHLO
-	free.transpect.com") by vger.kernel.org with ESMTP
-	id <S132805AbRDYWMu>; Wed, 25 Apr 2001 18:12:50 -0400
-Date: Wed, 25 Apr 2001 18:12:38 -0500
-From: Whit Blauvelt <whit@transpect.com>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Dave Mielke <dave@mielke.cc>, Tim Moore <timothymoore@bigfoot.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19 Realaudio masq problem
-Message-ID: <20010425181238.A1616@free.transpect.com>
-In-Reply-To: <Pine.LNX.4.30.0104251450550.1012-100000@dave.private.mielke.cc> <988232207.32641.4.camel@nomade>
+	id <S132886AbRDYWOA>; Wed, 25 Apr 2001 18:14:00 -0400
+Received: from theseus.mathematik.uni-ulm.de ([134.60.166.2]:41920 "HELO
+	theseus.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
+	id <S132881AbRDYWNt>; Wed, 25 Apr 2001 18:13:49 -0400
+Message-ID: <20010425221347.532.qmail@theseus.mathematik.uni-ulm.de>
+From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
+Date: Thu, 26 Apr 2001 00:13:47 +0200
+To: linux-kernel@vger.kernel.org
+Cc: alan@redhat.com
+Subject: Re: Long standing bug in alternate stack handling
+In-Reply-To: <20010221220217.29816.qmail@theseus.mathematik.uni-ulm.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <988232207.32641.4.camel@nomade>; from xavier.bestel@free.fr on Wed, Apr 25, 2001 at 10:56:11PM +0200
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010221220217.29816.qmail@theseus.mathematik.uni-ulm.de>; from ehrhardt@mathematik.uni-ulm.de on Wed, Feb 21, 2001 at 11:02:17PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 25, 2001 at 10:56:11PM +0200, Xavier Bestel wrote:
-> Le 25 Apr 2001 14:52:56 -0400, Dave Mielke a écrit :
+On Wed, Feb 21, 2001 at 11:02:17PM +0100, Christian Ehrhardt wrote:
 
-> > strace writes to standard error, not standard output, by default. Better yet,
-> > though, use the -o option of strace to direct its output to a file, which
-> > leaves the standard output streams alone for the aplication being traced.
+Hi,
 
-Okay, so being unfamiliar with strace, I should be able to invoke something
-like "strace -o log realplay some-realaudio-url"? And this should mean
-something to me?
+[ Sorry for the follow up on my own post ]
 
-> I didn't follow this thread at all (just caught this last mail), but I
-> use realplayer8 here, and I actually had to *rmmod* the realaudio
-> masquerading module to make it stream audio from the internet on a
-> masqueraded machine. The server is a debian with kernel 2.2.19, does
-> NAT.
+> If a signal handler is registered with the SA_ONSTACK flag the
+> kernel will try to execute the signal handler on the alternate
+> stack even if no such stack is registered.
 
-Thanks for reasuring me there's something broken in the module. Xavier, do
-you happen to know what transport mode your realplay is using then? That
-would show under View | Preferences | Transport. And if you hit the
-Autoconfigure button therer, does it succeed? It doesn't for me either with
-or without the module loaded, and it used to with a 2.2.17 kernel plus
-realplay 7 rather than 8.
+Here's a simple patch for i386. Please consider it for inclusion.
+Posix explicitly requires the behaviour implemented by this patch.
 
-Of course, the masq module is only to handle udp - if real goes to tcp it
-doesn't need it, so I suspect what Xavier's seeing is it working via tcp -
-but perhaps some servers today refuse to do anything but udp connections?
 
-Whit
+--- arch/i386/kernel/signal.c.old	Mon Sep 25 22:10:28 2000
++++ arch/i386/kernel/signal.c	Sun Apr 22 16:04:47 2001
+@@ -371,7 +371,7 @@
+ 
+ 	/* This is the X/Open sanctioned signal stack switching.  */
+ 	if (ka->sa.sa_flags & SA_ONSTACK) {
+-		if (! on_sig_stack(esp))
++		if (sas_ss_flags(esp) == 0)
+ 			esp = current->sas_ss_sp + current->sas_ss_size;
+ 	}
+ 
+NOTE: As far as I can tell all archs are affected by this bug.
 
-PS: Please cc me, I'm not on the list.
+   best regards   Christian Ehrhardt
+
+-- 
+THAT'S ALL FOLKS!

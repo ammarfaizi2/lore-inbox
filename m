@@ -1,51 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288896AbSCCUMW>; Sun, 3 Mar 2002 15:12:22 -0500
+	id <S288919AbSCCUPl>; Sun, 3 Mar 2002 15:15:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288914AbSCCUML>; Sun, 3 Mar 2002 15:12:11 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:32744 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S288896AbSCCUME>;
-	Sun, 3 Mar 2002 15:12:04 -0500
-Message-ID: <3C828393.7030501@candelatech.com>
-Date: Sun, 03 Mar 2002 13:12:03 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S288921AbSCCUP1>; Sun, 3 Mar 2002 15:15:27 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:15030 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S288919AbSCCUPF>;
+	Sun, 3 Mar 2002 15:15:05 -0500
+Date: Sun, 3 Mar 2002 22:16:39 +0200 (EET)
+From: Teodor Iacob <theo@astral.kappa.ro>
+X-X-Sender: <theo@linux.kappa.ro>
+Reply-To: <Teodor.Iacob@astral.kappa.ro>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Various 802.1Q VLAN driver patches.
+In-Reply-To: <3C7FD9E7.BD26CABD@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.31.0203032215030.10883-100000@linux.kappa.ro>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: latency & real-time-ness.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been doing some tests with 2.4.19-pre2-ac2 with
-regard to network latency.  When running a steady stream of
-138byte UDP packets at 115 packets per second, I see about
-.1% of the packets take more than 5 miliseconds to go from
-user-space to user-space on a 1Ghz PIII machine.
+On Fri, 1 Mar 2002, Jeff Garzik wrote:
 
-At 50Mbps (bi directional), I see a much wider latency spread,
-with some packets taking up to 300ms or higher to get from A
-to B.  The CPU load ranges from about 30% to 80% utilization
-at this speed...
+> Patrick Schaaf wrote:
+> > > Ben Greear wrote:
+> > > > --- linux-2.4.16/drivers/net/eepro100.c Mon Nov 12 18:47:18 2001
+> > > > +++ linux/drivers/net/eepro100.c        Tue Dec 18 11:36:11 2001
+> > > > @@ -510,12 +510,12 @@
+> > > >   static const char i82557_config_cmd[CONFIG_DATA_SIZE] = {
+> > > >          22, 0x08, 0, 0,  0, 0, 0x32, 0x03,  1, /* 1=Use MII  0=Use AUI */
+> > > >          0, 0x2E, 0,  0x60, 0,
+> > > > -       0xf2, 0x48,   0, 0x40, 0xf2, 0x80,              /* 0x40=Force full-duplex */
+> > > > +       0xf2, 0x48,   0, 0x40, 0xfa, 0x80,              /* 0x40=Force full-duplex */
+> > > >          0x3f, 0x05, };
+> > > >   static const char i82558_config_cmd[CONFIG_DATA_SIZE] = {
+> > > >          22, 0x08, 0, 1,  0, 0, 0x22, 0x03,  1, /* 1=Use MII  0=Use AUI */
+> > > >          0, 0x2E, 0,  0x60, 0x08, 0x88,
+> > > > -       0x68, 0, 0x40, 0xf2, 0x84,              /* Disable FC */
+> > > > +       0x68, 0, 0x40, 0xfa, 0x84,              /* Disable FC */
+> > > >          0x31, 0x05, };
+>
+> > This patch, from all I know using it, does exactly one thing: it permits
+> > receiving (and sending) slightly larger frames, for setting the MTU on the
+> > base interface to 1504, so the VLAN interfaces themselves can run the
+> > normal 1500 byte MTU.
+>
+> Thanks.
+>
+> Can you be more specific?
+> Does this (a) set eepro100 h/w max mtu to 1504, or (b) enable h/w vlan
+> de-tagging, or (c) enable h/w support for non-standard frame sizes?
+> Any idea what the max h/w frame size is?
 
-I'm running the program at nice -18.
+ Someone told me it disables something like: drop oversized frames. But
+anyway I was wondering if this could be user changable, since for example
+I use 3 eepro100 and only one uses vlan 802.1q, and since I connect the
+others on WANs, I would like the card to still discard the "oversized
+frames" could this be possible?
 
-So, what kind of things can I do to decrease the latency?
 
-Would the low-latency patch help me?
-
-Are there any scheduling tricks I can use to tell the kernel
-that my program should get to run as soon as it wants to?
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+ >
+> --
+> Jeff Garzik      |
+> Building 1024    |
+> MandrakeSoft     | Choose life.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

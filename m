@@ -1,90 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266837AbTADKvF>; Sat, 4 Jan 2003 05:51:05 -0500
+	id <S266840AbTADLDV>; Sat, 4 Jan 2003 06:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266810AbTADKvF>; Sat, 4 Jan 2003 05:51:05 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:41820 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266837AbTADKvE>;
-	Sat, 4 Jan 2003 05:51:04 -0500
-From: <Hell.Surfers@cwctv.net>
-To: andrew@indranet.co.nz, andre@linux-ide.org, ryan@michonline.com,
-       linux-kernel@vger.kernel.org
-Date: Sat, 4 Jan 2003 10:57:47 +0000
-Subject: RE: Gauntlet Set NOW!
+	id <S266795AbTADLDV>; Sat, 4 Jan 2003 06:03:21 -0500
+Received: from packet.digeo.com ([12.110.80.53]:34985 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266840AbTADLDU>;
+	Sat, 4 Jan 2003 06:03:20 -0500
+Message-ID: <3E16C171.BFEA45AE@digeo.com>
+Date: Sat, 04 Jan 2003 03:11:45 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041677867957"
-Message-ID: <09e7e4754100413DTVMAIL7@smtp.cwctv.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-
---1041677867957
+To: Joe Korty <joe.korty@ccur.com>
+CC: sct@redhat.com, adilger@clusterfs.com, rusty@rustcorp.com.au,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org, hch@sgi.com
+Subject: Re: 2.4.21-pre2 stalls out when running unixbench
+References: <3E15F2F5.356A933D@digeo.com> from "Andrew Morton" at Jan 03, 2003 12:30:45 PM <200301040111.BAA00401@rudolph.ccur.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-
-you cant hear this, but if I was a troll, I woulda been happy, im not im off to write a decent license, that allows binaries and true free use, its not about the hardware, I wanna use a os thats just _legal_ so im gonna piss off and do that, oh and Im a elec engineer and physicist, bye.
-
-Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
-
-On 	Sat, 04 Jan 2003 23:42:37 +1300 	Andrew McGregor <andrew@indranet.co.nz> wrote:
-
---1041677867957
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sat, 4 Jan 2003 10:42:16 +0000
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266809AbTADKfV>; Sat, 4 Jan 2003 05:35:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266810AbTADKfV>; Sat, 4 Jan 2003 05:35:21 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:44757 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S266809AbTADKfU>; Sat, 4 Jan 2003 05:35:20 -0500
-Received: from localhost.localdomain (enso.acheron.indranet.co.nz [192.168.1.1])
-	by mail.acheron.indranet.co.nz (8.11.2/8.11.2) with ESMTP id h04AflQ21860;
-	Sat, 4 Jan 2003 23:41:47 +1300
-Date: Sat, 04 Jan 2003 23:42:37 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Hell.Surfers@cwctv.net, andre@linux-ide.org, ryan@michonline.com,
-	linux-kernel@vger.kernel.org
-Subject: RE: Gauntlet Set NOW!
-Message-ID: <143640000.1041676957@localhost.localdomain>
-In-Reply-To: <0258a1111100413DTVMAIL11@smtp.cwctv.net>
-References: <0258a1111100413DTVMAIL11@smtp.cwctv.net>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 04 Jan 2003 11:11:46.0172 (UTC) FILETIME=[11C243C0:01C2B3E2]
 Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-Welcome to the kill file, Mr Troll.
+Joe Korty wrote:
+> 
+> > In the previous episode of "travails of a geriatric kernel jock",
+> > Andrew Morton wrote:
+> > >
+> > >  Unpatched 2.4.20 does the same thing.
+> > >
+> >
+> > No it doesn't.
+> >
+> > Good news is that 2.4.20 plus recent ext3 fixes doesn't lock up
+> > either.
+> 
+> Hi Andrew,
+> I have continued to play with the problem, and have gathered more evidence.
+> 
+> Everything works (kinda) when I back out the attached 2.4.20-pre1
+> patches.  I am not sure how to uniquely identify patches in the BK
+> tree, so I have enclosed the full text of each at the end of this
+> letter.
+> 
+> A remaining problem are long stallouts not present in 2.4.20.  The
+> stallouts are of uniform duration, 20 seconds, triggered aperiodically.
 
-For your edification, it *is* done.  Frequently.  Probably even in the 
-settop box you're posting with.
+This is because of differences in how sync() is handled between 2.4.20's
+ext3 and 2.4.21-pre2's.
 
---On Saturday, January 04, 2003 10:12:49 +0000 Hell.Surfers@cwctv.net wrote:
+2.4.20:
 
-> Sounds like a jumped up PIC chip, cant think why isnt done yet.
->
-> Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
->
-> On Sat, 4 Jan 2003 02:07:27 -0800 (PST) Andre Hedrick
-> <andre@linux-ide.org> wrote:
+  sync() will _start_ a commit, but will not wait on it.  This was done
+  to fix a throughput problem with kupdate periodic writeback, which
+  used to use the same code as sync.
+
+  Not waiting on the writeout is OK by the letter of the POSIX spec,
+  but is not traditional Linux behaviour, and is undesirable IMO.
+
+2.4.21-pre2:
+
+  sync() will start the commit, and will wait on it.  So you know that
+  when it returns, everything which was dirty is now tight on disk.
+
+So yes, running a looping sync while someone else is writing stuff
+will take much longer in 2.4.21-pre2, because that kernel actually
+waits on the writeout.
 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1041677867957--
+With respect to the lockup problem: it is due to a non-atomic __set_bit()
+in the new buffer_attached() implementation.
+
+Sure, we don't need atomic semantics for the BH_Attached bit because
+it is always read and modified under a global spinlock.  But *other*
+users of buffer_head.b_state do not run under that lock so the nonatomic
+RMW will stomp on their changes.   2.4.20 does not have this bug.
+
+Here is a patch:
 
 
+--- 24/include/linux/fs.h~buffer_attached-fix	Sat Jan  4 03:09:13 2003
++++ 24-akpm/include/linux/fs.h	Sat Jan  4 03:09:16 2003
+@@ -1202,7 +1202,7 @@ static inline void mark_buffer_async(str
+ 
+ static inline void set_buffer_attached(struct buffer_head *bh)
+ {
+-	__set_bit(BH_Attached, &bh->b_state);
++	set_bit(BH_Attached, &bh->b_state);
+ }
+ 
+ static inline void clear_buffer_attached(struct buffer_head *bh)
+
+_

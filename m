@@ -1,161 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbUBYPzX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 10:55:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUBYPzX
+	id S261375AbUBYP6i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 10:58:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUBYP6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 10:55:23 -0500
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:37267 "EHLO
-	quickman.certainkey.com") by vger.kernel.org with ESMTP
-	id S261383AbUBYPy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 10:54:57 -0500
-Date: Wed, 25 Feb 2004 10:44:53 -0500
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: Christophe Saout <christophe@saout.de>
-Cc: Andrew Morton <akpm@osdl.org>, jmorris@intercode.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: cryptoapi highmem bug
-Message-ID: <20040225154453.GB4218@certainkey.com>
-References: <1077655754.14858.0.camel@leto.cs.pocnet.net> <20040224223425.GA32286@certainkey.com> <1077663682.6493.1.camel@leto.cs.pocnet.net> <20040225043209.GA1179@certainkey.com> <20040224220030.13160197.akpm@osdl.org> <20040225153126.GA7395@leto.cs.pocnet.net> <20040225155121.GA7148@leto.cs.pocnet.net>
+	Wed, 25 Feb 2004 10:58:37 -0500
+Received: from fed1mtao02.cox.net ([68.6.19.243]:49403 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S261375AbUBYP60
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 10:58:26 -0500
+Date: Wed, 25 Feb 2004 08:58:23 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Split kgdb into "lite" and "normal" parts
+Message-ID: <20040225155823.GP1052@smtp.west.cox.net>
+References: <20040218225010.GH321@elf.ucw.cz> <20040224232703.GC9209@elf.ucw.cz> <20040224233809.GK1052@smtp.west.cox.net> <200402251249.28519.amitkale@emsyssoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040225155121.GA7148@leto.cs.pocnet.net>
+In-Reply-To: <200402251249.28519.amitkale@emsyssoft.com>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not to be annoying...
-
-Could you make this change against my patch at:
-  http://jlcooke.ca/lkml/crypto_28feb2004.patch
-
-I moved all the scatterwalk stuff into a scatterwalk.c file.
-
-JLC
-
-On Wed, Feb 25, 2004 at 04:51:22PM +0100, Christophe Saout wrote:
-> On Wed, Feb 25, 2004 at 04:31:26PM +0100, Christophe Saout wrote:
+On Wed, Feb 25, 2004 at 12:49:28PM +0530, Amit S. Kale wrote:
+> On Wednesday 25 Feb 2004 5:08 am, Tom Rini wrote:
+> > On Wed, Feb 25, 2004 at 12:27:03AM +0100, Pavel Machek wrote:
+> > > > > > > Tested (core-lite.patch + i386-lite.patch + 8250.patch)
+> > > > > > > combination. Looks good.
+> > > > > > >
+> > > > > > > Let's first check this in and then do more cleanups.
+> > > > > > > Tom, does it sound ok?
+> > > > > >
+> > > > > > This sounds fine to me.  Pavel, I'm guessing you did this with
+> > > > > > quilt, could you provide some pointers on how to replicate this in
+> > > > > > the future?
+> > > > >
+> > > > > Unfortunately, I done it by hand :-(. But if -lite parts are not
+> > > > > merged, soon, I'll be forced to start using quilt. Doing stuff by
+> > > > > hand is quite painfull...
+> > > >
+> > > > There's still a whole bunch of bogons in the -lite patch still, so I
+> > > > don't think it should be merged yet.
+> > >
+> > > Well, it seems to contains a *lot* less bogons than what currently is
+> > > in -mm series.
+> > >
+> > > What big problems do you see? It does not yet use weak symbols, but I
+> > > do not think that's a serious problem. What else?
+> >
+> > The first two big ones are:
+> > - Doesn't like gdb 6.0 (You cannot assume the first packet is Hc...)
 > 
-> > It's just a proof of concept though, it would be less complicated if we
-> > would just pass the other walk struct to the functions that take one
-> > and let them do the checking (no need to disable preemption and use
-> > per cpu variables). Hmm.
+> Can you tell me more about this?
+
+You make an assumption that the first packet is $Hc..., which you cannot
+do.  gdb 6's first packet is $qOffsets.  I'll post the patch for this
+shortly.
+
+> > - Wierdities with kgdb_killed_or_detached / kgdb_might_be_resumed
+> >   (both can die).
 > 
-> Ok, this also works. It makes copy_chunks and crypt responsible for
-> tracking the walk struct which might contain a page to reuse:
+> Yes. These have to be thought over again. I don't think a perfect solution 
+> exists for all problems related to gdb kill/die followed by a reattach. We 
+> should attempt a proper design describing different scenarios.
+
+I don't see the problem to be delt with.  GDB reconnecting is not a
+special case.
+
+> > - All of the function pointer games (of which the weak symbols, but not
+> >   all of them) are a part of.
+> > - Issues w/ handling 'D' and 'k' packets cleaner (and I think there was
+> >   a correctness fix in there, too, but it was a while ago).
 > 
+> Is this wrt kgdb_killed.., kgdb_might..., remove breakpoints?
+
+This will be part of the patch I hope to post today:
+http://ppc.bkbits.net:8080/linux-2.6-kgdb/patch@1.1500.2.19?nav=index.html|ChangeSet@-4w|cset@1.1500.2.19
+
+> > - Don't ACK packets sitting on the line
 > 
-> --- linux-2.6.3/crypto/cipher.c	2004-02-25 13:49:53.000000000 +0100
-> +++ linux-2.6.3.test/crypto/cipher.c	2004-02-25 16:46:58.430294600 +0100
-> @@ -29,6 +29,7 @@
->  struct scatter_walk {
->  	struct scatterlist	*sg;
->  	struct page		*page;
-> +	int			out;
->  	void			*data;
->  	unsigned int		len_this_page;
->  	unsigned int		len_this_segment;
-> @@ -64,7 +65,7 @@
->  	return sg + 1;
->  }
->  
-> -void *which_buf(struct scatter_walk *walk, unsigned int nbytes, void *scratch)
-> +static void *which_buf(struct scatter_walk *walk, unsigned int nbytes, void *scratch)
->  {
->  	if (nbytes <= walk->len_this_page &&
->  	    (((unsigned long)walk->data) & (PAGE_CACHE_SIZE - 1)) + nbytes <=
-> @@ -96,9 +97,23 @@
->  	walk->offset = sg->offset;
->  }
->  
-> -static void scatterwalk_map(struct scatter_walk *walk, int out)
-> +static void scatterwalk_map(struct scatter_walk *walk,
-> +			    struct scatter_walk *other, int out)
->  {
-> -	walk->data = crypto_kmap(walk->page, out) + walk->offset;
-> +	if (other && other->page == walk->page) {
-> +		walk->data = (other->data - other->offset) + walk->offset;
-> +		walk->out = other->out;
-> +	} else {
-> +		walk->data = crypto_kmap(walk->page, out) + walk->offset;
-> +		walk->out = out;
-> +	}
-> +}
-> +
-> +static void scatterwalk_unmap(struct scatter_walk *walk,
-> +			      struct scatter_walk *other, int out)
-> +{
-> +	if (!other || other->page != walk->page)
-> +		crypto_kunmap(walk->data, walk->out);
->  }
->  
->  static void scatter_page_done(struct scatter_walk *walk, int out,
-> @@ -125,9 +140,10 @@
->  	}
->  }
->  
-> -static void scatter_done(struct scatter_walk *walk, int out, int more)
-> +static void scatter_done(struct scatter_walk *walk,
-> +			 struct scatter_walk *other, int out, int more)
->  {
-> -	crypto_kunmap(walk->data, out);
-> +	scatterwalk_unmap(walk, other, out);
->  	if (walk->len_this_page == 0 || !more)
->  		scatter_page_done(walk, out, more);
->  }
-> @@ -137,7 +153,7 @@
->   * has been verified as multiple of the block size.
->   */
->  static int copy_chunks(void *buf, struct scatter_walk *walk,
-> -			size_t nbytes, int out)
-> +		       struct scatter_walk *other, size_t nbytes, int out)
->  {
->  	if (buf != walk->data) {
->  		while (nbytes > walk->len_this_page) {
-> @@ -145,9 +161,9 @@
->  			buf += walk->len_this_page;
->  			nbytes -= walk->len_this_page;
->  
-> -			crypto_kunmap(walk->data, out);
-> +			scatterwalk_unmap(walk, other, out);
->  			scatter_page_done(walk, out, 1);
-> -			scatterwalk_map(walk, out);
-> +			scatterwalk_map(walk, other, out);
->  		}
->  
->  		memcpy_dir(buf, walk->data, nbytes, out);
-> @@ -189,21 +205,21 @@
->  	for(;;) {
->  		u8 *src_p, *dst_p;
->  
-> -		scatterwalk_map(&walk_in, 0);
-> -		scatterwalk_map(&walk_out, 1);
-> +		scatterwalk_map(&walk_in, NULL, 0);
-> +		scatterwalk_map(&walk_out, &walk_in, 1);
->  		src_p = which_buf(&walk_in, bsize, tmp_src);
->  		dst_p = which_buf(&walk_out, bsize, tmp_dst);
->  
->  		nbytes -= bsize;
->  
-> -		copy_chunks(src_p, &walk_in, bsize, 0);
-> +		copy_chunks(src_p, &walk_in, &walk_out, bsize, 0);
->  
->  		prfn(tfm, dst_p, src_p, crfn, enc, info);
->  
-> -		scatter_done(&walk_in, 0, nbytes);
-> +		scatter_done(&walk_in, &walk_out, 0, nbytes);
->  
-> -		copy_chunks(dst_p, &walk_out, bsize, 1);
-> -		scatter_done(&walk_out, 1, nbytes);
-> +		copy_chunks(dst_p, &walk_out, NULL, bsize, 1);
-> +		scatter_done(&walk_out, NULL, 1, nbytes);
->  
->  		if (!nbytes)
->  			return 0;
+> More info please.
+
+I see you've already taken this bit:
+http://ppc.bkbits.net:8080/linux-2.6-kgdb/patch@1.1500.2.16?nav=index.html|ChangeSet@-4w|cset@1.1500.2.16
 
 -- 
-http://www.certainkey.com
-Suite 4560 CTTC
-1125 Colonel By Dr.
-Ottawa ON, K1S 5B6
+Tom Rini
+http://gate.crashing.org/~trini/

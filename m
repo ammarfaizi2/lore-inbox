@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVAJRi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVAJRi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbVAJRi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 12:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVAJRgR
+	id S262347AbVAJRi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 12:38:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVAJRfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 12:36:17 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:20443 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262365AbVAJRVI convert rfc822-to-8bit
+	Mon, 10 Jan 2005 12:35:46 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:39313 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262364AbVAJRVI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 10 Jan 2005 12:21:08 -0500
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI patches for 2.6.10
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <110537765824@kroah.com>
-Date: Mon, 10 Jan 2005 09:20:59 -0800
-Message-Id: <11053776592895@kroah.com>
+In-Reply-To: <11053776585@kroah.com>
+Date: Mon, 10 Jan 2005 09:20:58 -0800
+Message-Id: <11053776582129@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,76 +23,100 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.447.16, 2004/12/21 16:48:08-08:00, rddunlap@osdl.org
+ChangeSet 1.1938.447.14, 2004/12/21 16:21:25-08:00, pavel@suse.cz
 
-[PATCH] cpqphp: reduce stack usage
+[PATCH] PCI: clean up state usage in pci core
 
-Reduce local stack usage in cpqhp_set_irq()
-from 1028 bytes to 12 bytes (on x86-32).
+> Now, care to send patches to fix up all of the new sparse warnings in
+> the drivers/pci/* directory?
 
-This was the 16th largest offender according to my
-recent 'make checkstack' run (and 2 other patches
-for large ones have recently been submitted).
+This should reduce number of warnings in pci.c. It will still warn on
+comparison (because we are using __bitwise, but in fact we want
+something like "this is unique but arithmetic is still ok"), but that
+probably needs to be fixed in sparse.
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+Also killed "function does not return anything" warning.
+
+
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/pci/hotplug/cpqphp_pci.c |   30 +++++++++++++++++++++---------
- 1 files changed, 21 insertions(+), 9 deletions(-)
+ drivers/pci/pci.c |   23 ++++++++++++++---------
+ 1 files changed, 14 insertions(+), 9 deletions(-)
 
 
-diff -Nru a/drivers/pci/hotplug/cpqphp_pci.c b/drivers/pci/hotplug/cpqphp_pci.c
---- a/drivers/pci/hotplug/cpqphp_pci.c	2005-01-10 09:00:02 -08:00
-+++ b/drivers/pci/hotplug/cpqphp_pci.c	2005-01-10 09:00:02 -08:00
-@@ -151,18 +151,29 @@
-  */
- int cpqhp_set_irq (u8 bus_num, u8 dev_num, u8 int_pin, u8 irq_num)
- {
--	int rc;
--	u16 temp_word;
--	struct pci_dev fakedev;
--	struct pci_bus fakebus;
-+	int rc = 0;
+diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c	2005-01-10 09:00:25 -08:00
++++ b/drivers/pci/pci.c	2005-01-10 09:00:25 -08:00
+@@ -248,13 +248,14 @@
+ 	u16 pmcsr, pmc;
  
- 	if (cpqhp_legacy_mode) {
--		fakedev.devfn = dev_num << 3;
--		fakedev.bus = &fakebus;
--		fakebus.number = bus_num;
-+		struct pci_dev *fakedev;
-+		struct pci_bus *fakebus;
-+		u16 temp_word;
-+
-+		fakedev = kmalloc(sizeof(*fakedev), GFP_KERNEL);
-+		fakebus = kmalloc(sizeof(*fakebus), GFP_KERNEL);
-+		if (!fakedev || !fakebus) {
-+			kfree(fakedev);
-+			kfree(fakebus);
-+			return -ENOMEM;
-+		}
-+
-+		fakedev->devfn = dev_num << 3;
-+		fakedev->bus = fakebus;
-+		fakebus->number = bus_num;
- 		dbg("%s: dev %d, bus %d, pin %d, num %d\n",
- 		    __FUNCTION__, dev_num, bus_num, int_pin, irq_num);
--		rc = pcibios_set_irq_routing(&fakedev, int_pin - 0x0a, irq_num);
-+		rc = pcibios_set_irq_routing(fakedev, int_pin - 0x0a, irq_num);
-+		kfree(fakedev);
-+		kfree(fakebus);
- 		dbg("%s: rc %d\n", __FUNCTION__, rc);
- 		if (!rc)
- 			return !rc;
-@@ -176,9 +187,10 @@
- 		// This should only be for x86 as it sets the Edge Level Control Register
- 		outb((u8) (temp_word & 0xFF), 0x4d0);
- 		outb((u8) ((temp_word & 0xFF00) >> 8), 0x4d1);
-+		rc = 0;
+ 	/* bound the state we're entering */
+-	if (state > 3) state = 3;
++	if (state > PCI_D3hot)
++		state = PCI_D3hot;
+ 
+ 	/* Validate current state:
+ 	 * Can enter D0 from any state, but if we can only go deeper 
+ 	 * to sleep if we're already in a low power state
+ 	 */
+-	if (state > 0 && dev->current_state > state)
++	if (state != PCI_D0 && dev->current_state > state)
+ 		return -EINVAL;
+ 	else if (dev->current_state == state) 
+ 		return 0;        /* we're already there */
+@@ -263,7 +264,8 @@
+ 	pm = pci_find_capability(dev, PCI_CAP_ID_PM);
+ 	
+ 	/* abort if the device doesn't support PM capabilities */
+-	if (!pm) return -EIO; 
++	if (!pm)
++		return -EIO; 
+ 
+ 	pci_read_config_word(dev,pm + PCI_PM_PMC,&pmc);
+ 	if ((pmc & PCI_PM_CAP_VER_MASK) != 2) {
+@@ -274,16 +276,18 @@
  	}
  
--	return 0;
-+	return rc;
+ 	/* check if this device supports the desired state */
+-	if (state == 1 || state == 2) {
+-		if (state == 1 && !(pmc & PCI_PM_CAP_D1)) return -EIO;
+-		else if (state == 2 && !(pmc & PCI_PM_CAP_D2)) return -EIO;
++	if (state == PCI_D1 || state == PCI_D2) {
++		if (state == PCI_D1 && !(pmc & PCI_PM_CAP_D1))
++			return -EIO;
++		else if (state == PCI_D2 && !(pmc & PCI_PM_CAP_D2))
++			return -EIO;
+ 	}
+ 
+ 	/* If we're in D3, force entire word to 0.
+ 	 * This doesn't affect PME_Status, disables PME_En, and
+ 	 * sets PowerState to 0.
+ 	 */
+-	if (dev->current_state >= 3)
++	if (dev->current_state >= PCI_D3hot)
+ 		pmcsr = 0;
+ 	else {
+ 		pci_read_config_word(dev, pm + PCI_PM_CTRL, &pmcsr);
+@@ -296,9 +300,9 @@
+ 
+ 	/* Mandatory power management transition delays */
+ 	/* see PCI PM 1.1 5.6.1 table 18 */
+-	if(state == 3 || dev->current_state == 3)
++	if (state == PCI_D3hot || dev->current_state == PCI_D3hot)
+ 		msleep(10);
+-	else if(state == 2 || dev->current_state == 2)
++	else if (state == PCI_D2 || dev->current_state == PCI_D2)
+ 		udelay(200);
+ 	dev->current_state = state;
+ 
+@@ -325,6 +329,7 @@
+ 	case 3: return PCI_D3hot;
+ 	default: BUG();
+ 	}
++	return PCI_D0;
  }
  
- 
+ EXPORT_SYMBOL(pci_choose_state);
 

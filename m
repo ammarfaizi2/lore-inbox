@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287996AbSABX2g>; Wed, 2 Jan 2002 18:28:36 -0500
+	id <S288012AbSABXaR>; Wed, 2 Jan 2002 18:30:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287981AbSABX1T>; Wed, 2 Jan 2002 18:27:19 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:17284
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S287972AbSABX0V>; Wed, 2 Jan 2002 18:26:21 -0500
-Date: Wed, 2 Jan 2002 16:26:18 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020102232618.GP1803@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <15411.37817.753683.914033@argo.ozlabs.ibm.com>
+	id <S287999AbSABX2m>; Wed, 2 Jan 2002 18:28:42 -0500
+Received: from smtp-out.Austria.eu.net ([193.154.160.116]:1961 "EHLO
+	relay12.austria.eu.net") by vger.kernel.org with ESMTP
+	id <S287169AbSABX12>; Wed, 2 Jan 2002 18:27:28 -0500
+Subject: [Patch] sysrq-show-output, kernel 2.4.17
+From: Harald Holzer <harald.holzer@eunet.at>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-2jZRuEVLB/+yuggsaJgx"
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 03 Jan 2002 00:25:06 +0100
+Message-Id: <1010013906.15492.17.camel@hh2.hhhome.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15411.37817.753683.914033@argo.ozlabs.ibm.com>
-User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 03, 2002 at 10:11:53AM +1100, Paul Mackerras wrote:
-> Tom Rini writes:
-> 
-> > Okay, here's a summary of all of the options we have:
-> > 1) Change this particular strcpy to a memcpy
-> > 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
-> > optimization comes back on with this flag later on, it would be a
-> > compiler bug, yes?)
-> > 3) Modify the RELOC() marco in such a way that GCC won't attempt to
-> > optimize anything which touches it [1]. (Franz, again by Jakub)
-> > 4) Introduce a function to do the calculations [2]. (Corey Minyard)
-> > 5) 'Properly' set things up so that we don't need the RELOC() macros
-> > (-mrelocatable or so?), and forget this mess altogether.
-> 
-> I would add:
-> 
-> 6) change strcpy to string_copy so gcc doesn't think it knows what the
->    function does
-> 7) code RELOC etc. in assembly, which would let us get rid of the
-> 	offset = reloc_offset();
->    at the beginning of each function which uses RELOC.
 
-I think 7 sounds good for 2.4 at least, and maybe we can convince Franz
-to look into 5 for 2.5 (since that would make things look a bit more
-clean)..
+--=-2jZRuEVLB/+yuggsaJgx
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Sysrq-m didnt show memory information on the serial console.
+
+This patch sets the console_loglevel to 7 before it calls show_mem,
+show_regs and show_state, to get the output.
+
+Harald Holzer
+
+
+--=-2jZRuEVLB/+yuggsaJgx
+Content-Disposition: attachment; filename=sysrq-show-output.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+
+--- linux-2.4.17/drivers/char/sysrq.c	Fri Dec 21 18:41:54 2001
++++ linux/drivers/char/sysrq.c	Tue Jan  1 21:18:24 2002
+@@ -246,8 +246,14 @@
+=20
+ static void sysrq_handle_showregs(int key, struct pt_regs *pt_regs,
+ 		struct kbd_struct *kbd, struct tty_struct *tty) {
++	int orig_loglevel;
++
+ 	if (pt_regs)
++		orig_loglevel =3D console_loglevel;
++		console_loglevel =3D 7;
+ 		show_regs(pt_regs);
++		console_loglevel =3D orig_loglevel;
++
+ }
+ static struct sysrq_key_op sysrq_showregs_op =3D {
+ 	handler:	sysrq_handle_showregs,
+@@ -258,7 +264,12 @@
+=20
+ static void sysrq_handle_showstate(int key, struct pt_regs *pt_regs,
+ 		struct kbd_struct *kbd, struct tty_struct *tty) {
++	int orig_loglevel;
++
++	orig_loglevel =3D console_loglevel;
++	console_loglevel =3D 7;
+ 	show_state();
++	console_loglevel =3D orig_loglevel;
+ }
+ static struct sysrq_key_op sysrq_showstate_op =3D {
+ 	handler:	sysrq_handle_showstate,
+@@ -269,7 +280,12 @@
+=20
+ static void sysrq_handle_showmem(int key, struct pt_regs *pt_regs,
+ 		struct kbd_struct *kbd, struct tty_struct *tty) {
++	int orig_loglevel;
++
++	orig_loglevel =3D console_loglevel;
++	console_loglevel =3D 7;
+ 	show_mem();
++	console_loglevel =3D orig_loglevel;
+ }
+ static struct sysrq_key_op sysrq_showmem_op =3D {
+ 	handler:	sysrq_handle_showmem,
+
+--=-2jZRuEVLB/+yuggsaJgx--

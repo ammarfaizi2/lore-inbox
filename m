@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbTHaUX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 16:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbTHaUX1
+	id S262661AbTHaU27 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 16:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbTHaU26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 16:23:27 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11323 "EHLO
+	Sun, 31 Aug 2003 16:28:58 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13115 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262666AbTHaUXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 16:23:25 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matt Tolentino <metolent@snoqualmie.dp.intel.com>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       matthew.e.tolentino@intel.com
-Subject: Re: [UPDATED PATCH] EFI support for ia32 kernels
-References: <200308292019.h7TKJ6FK000649@snoqualmie.dp.intel.com>
-	<20030829152939.2692ef14.akpm@osdl.org>
+	id S262661AbTHaU25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 16:28:57 -0400
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Ed Sweetman <ed.sweetman@wmich.edu>, Alex Tomas <bzzz@tmi.comex.ru>,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: [RFC] extents support for EXT3
+References: <m3vfsgpj8b.fsf@bzzz.home.net> <3F4F76A5.6020000@wmich.edu>
+	<m3r834phqi.fsf@bzzz.home.net> <3F4F7D56.9040107@wmich.edu>
+	<m3isogpgna.fsf@bzzz.home.net> <3F4F923F.9070207@wmich.edu>
+	<m3ad9snxo6.fsf@bzzz.home.net> <3F4FAFA2.4080202@wmich.edu>
+	<20030829213940.GC3846@matchmail.com> <3F4FD2BE.1020505@wmich.edu>
+	<20030829231726.GE3846@matchmail.com>
 From: ebiederm@xmission.com (Eric W. Biederman)
-In-Reply-To: <20030829152939.2692ef14.akpm@osdl.org>
+In-Reply-To: <20030829231726.GE3846@matchmail.com>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-Date: 31 Aug 2003 14:24:07 -0600
-Message-ID: <m1bru5r2xk.fsf@ebiederm.dsl.xmission.com>
+Date: 31 Aug 2003 14:25:49 -0600
+Message-ID: <m18yp9r2uq.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Mike Fedyk <mfedyk@matchmail.com> writes:
 
-> Matt Tolentino <metolent@snoqualmie.dp.intel.com> wrote:
-> >
-> > 
-> > Attached is an updated patch against 2.6.0-test4 that enables Extensible
-> Firmware
+> On Fri, Aug 29, 2003 at 06:25:02PM -0400, Ed Sweetman wrote:
+> > you get no real slowdown as far as rough benchmarks are concerned, 
+> > perhaps with a microbenchmark you would see one and also, doesn't it 
+> > take up more space to save the extent info and such? Either way, all of 
+> > it's real benefits occur on large files.
 > 
-> > Interface (EFI) awareness in ia32 Linux kernels.
-> 
-> Just for my edification: why does EFI exist?  
+> IIRC, if your blocks are contiguous, you can save as soon as soon as the
+> file size goes above one block (witout extents, the first 12 blocks are
+> pointed to by what?  I forget... :-/ )
 
-As I have heard the story.
+They are pointed to directly from the inode.
 
-The guys at Intel were having problems getting a traditional
-PC style BIOS to run on the first Itaniums, realized they
-had a opportunity to come up with a cleaner firmware interface
-and came up with EFI.  Open Firmware was considered but dropped
-because it was not compatible with ACPI, and they did not want to
-dilute the momentum that had built up for ACPI.
+In light of other concerns how reasonable is a switch to e2fsck that
+will remove extents so people can downgrade filesystems?
 
-And now since Intel has something moderately portable, they intend
-to back port it to x86 and start using/shipping it sometime early next
-year.
-
-What I find interesting is that I don't see it addressed how the 16bit
-BIOS calls in setup.S can be bypassed on x86.  And currently while it
-works to enter at the kernels 32bit entry point if you know what you
-are doing it is still officially not supported. 
+Also given the incompatibility on the file format any chance of this
+being developed as ext4?
 
 Eric

@@ -1,61 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263336AbUCTK0s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263339AbUCTK0H
+	id S263321AbUCTKaM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:30:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263332AbUCTKaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:26:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:50313 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263336AbUCTKYG (ORCPT
+	Sat, 20 Mar 2004 05:30:12 -0500
+Received: from ozlabs.org ([203.10.76.45]:1686 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263321AbUCTKaB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:24:06 -0500
-Date: Sat, 20 Mar 2004 11:22:41 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Peter Williams <peterw@aurema.com>
-Cc: Micha Feigin <michf@post.tau.ac.il>, John Reiser <jreiser@BitWagon.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-Message-ID: <20040320102241.GK2803@devserv.devel.redhat.com>
-References: <20040311141703.GE3053@luna.mooo.com> <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com> <20040313193852.GC12292@devserv.devel.redhat.com> <40564A22.5000504@aurema.com> <20040316063331.GB23988@devserv.devel.redhat.com> <40578FDB.9060000@aurema.com>
+	Sat, 20 Mar 2004 05:30:01 -0500
+Subject: Re: Fw: Re: OOPS when force unloading sctp with CONFIG_DEBUG_SLAB
+	enabled
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Sridhar Samudrala <sri@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040319160236.1271dd3c.akpm@osdl.org>
+References: <20040319160236.1271dd3c.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1079778517.18641.17.camel@bach>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dxRQSzdsN/lOP445"
-Content-Disposition: inline
-In-Reply-To: <40578FDB.9060000@aurema.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 20 Mar 2004 21:28:40 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2004-03-20 at 11:02, Andrew Morton wrote:
+> Some advice on this please?
 
---dxRQSzdsN/lOP445
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This patch just went to Linus.  Summary, there is a problem, their
+patch makes it worse, but original problem only happens with rmmod
+--wait.
+
+BTW, "forced unloading of xxx causes yyy" reports pretty much have
+to be ignored.
+
+Cheers,
+Rusty.
+>From rusty@rustcorp.com.au
+From: rusty@rustcorp.com.au
+To: torvalds@osdl.org
+Subject: [PATCH 1] Set mod->waiter Before Calling stop_machine
+
+Name: Set mod->waiter Before Calling stop_machine
+Status: Tested on 2.6.5-rc1-bk4
+
+mod->waiter needs to be set before we try to stop the module: setting
+it in __try_stop_module means it gets set to the kthread, not rmmod.
+
+Spotted by someone else, but I can't find the mail... 8(
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .30682-linux-2.6.5-rc1-bk4/kernel/module.c .30682-linux-2.6.5-rc1-bk4.updated/kernel/module.c
+--- .30682-linux-2.6.5-rc1-bk4/kernel/module.c	2004-03-20 09:46:01.000000000 +1100
++++ .30682-linux-2.6.5-rc1-bk4.updated/kernel/module.c	2004-03-20 10:06:26.000000000 +1100
+@@ -493,7 +493,6 @@ static inline int __try_stop_module(void
+ 	}
+ 
+ 	/* Mark it as dying. */
+-	sref->mod->waiter = current;
+ 	sref->mod->state = MODULE_STATE_GOING;
+ 	return 0;
+ }
+@@ -588,6 +587,9 @@ sys_delete_module(const char __user *nam
+ 		}
+ 	}
+ 
++	/* Set this up before setting mod->state */
++	mod->waiter = current;
++
+ 	/* Stop the machine so refcounts can't move and disable module. */
+ 	ret = try_stop_module(mod, flags, &forced);
+ 
 
 
-On Wed, Mar 17, 2004 at 10:38:03AM +1100, Peter Williams wrote:
-> >there is one. Nothing uses it
-> >(sysconf() provides this info)
-> 
-> Seems to me that it would be fairly trivial to modify those programs 
-> (that should use this mechanism but don't) to use it?  So why should 
-> they be allowed to dictate kernel behaviour?
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
-quality of implementation; for example shell scripts that want to do
-echo 500 > /proc/sys/foo/bar/something_in_HZ
-...
-or /etc/sysctl.conf or ...
-
-
---dxRQSzdsN/lOP445
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAXBtwxULwo51rQBIRAhstAKCpWVGajadToIP8LeUEfwix1ArN5gCeI3h8
-a7Y/6WfrgblxT0qdhHe7uII=
-=Y/Ag
------END PGP SIGNATURE-----
-
---dxRQSzdsN/lOP445--

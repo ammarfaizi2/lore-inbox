@@ -1,48 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130451AbQKJCXZ>; Thu, 9 Nov 2000 21:23:25 -0500
+	id <S130806AbQKJC1Z>; Thu, 9 Nov 2000 21:27:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130819AbQKJCXQ>; Thu, 9 Nov 2000 21:23:16 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:36100 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S130601AbQKJCW5>; Thu, 9 Nov 2000 21:22:57 -0500
-Message-Id: <200011100222.eAA2MoJ10471@wattle.linuxcare.com.au>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] obvious change to apm.c
+	id <S130819AbQKJC1Q>; Thu, 9 Nov 2000 21:27:16 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:35340 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130806AbQKJC1H>; Thu, 9 Nov 2000 21:27:07 -0500
+Message-ID: <3A0B5C0F.D7C23116@timpanogas.org>
+Date: Thu, 09 Nov 2000 19:23:11 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <10468.973822969.1@linuxcare.com.au>
-Date: Fri, 10 Nov 2000 13:22:49 +1100
-From: Stephen Rothwell <sfr@linuxcare.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test11-pre2
+In-Reply-To: <Pine.LNX.4.10.10011091748300.2316-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-Obvious patch since daemonize() now does this stuff.
 
-Cheers,
-Stephen
--- 
-Stephen Rothwell, Open Source Researcher, Linuxcare, Inc.
-+61-2-62628990 tel, +61-2-62628991 fax 
-sfr@linuxcare.com, http://www.linuxcare.com/ 
-Linuxcare. Support for the revolution.
+Linus Torvalds wrote:
+> 
+> Nothing stands out as affecting most people here. Security fix for /proc,
+> and various cleanups. Alpha and sparc fixes. If you use RAID or ramdisk,
+> upgrade.
+> 
+>                 Linus
+> 
 
-diff -ruN 2.4.0-test11pre2/arch/i386/kernel/apm.c 2.4.0-test11pre2-sfr/arch/i386/kernel/apm.c
---- 2.4.0-test11pre2/arch/i386/kernel/apm.c	Wed Nov  1 09:36:12 2000
-+++ 2.4.0-test11pre2-sfr/arch/i386/kernel/apm.c	Fri Nov 10 13:20:28 2000
-@@ -1422,9 +1422,6 @@
- 
- 	kapmd_running = 1;
- 
--	exit_files(current);	/* daemonize doesn't do exit_files */
--	current->files = init_task.files;
--	atomic_inc(&current->files->count);
- 	daemonize();
- 
- 	strcpy(current->comm, "kapm-idled");
+Only four level I's.  Pretty good.  PCMCIA problems fixed too.....
+
+Jeff
+
+> -----
+> 
+>  - pre2:
+>     - Stephen Rothwell: directory notify could return with the lock held
+Level I
+>     - Richard Henderson: CLOCKS_PER_SEC on alpha.
+>     - Jeff Garzik: ramfs and highmem: kmap() the page to clear it
+>     - Asit Mallick: enable the APIC in the official order
+Level I
+
+>     - Neil Brown: avoid rd deadlock on io_request_lock by using a
+>       private rd-request function. This also avoids unnecessary
+>       request merging at this level.
+Level I
+
+>     - Ben LaHaise: vmalloc threadign and overflow fix
+Level I
+
+>     - Randy Dunlap: USB updates (plusb driver). PCI cacheline size.
+>     - Neil Brown: fix a raid1 on top of lvm bug that crept in in pre1
+>     - Alan Cox: various (Athlon mmx copy, NULL ptr checks for
+>       scsi_register etc).
+>     - Al Viro: fix /proc permission check security hole.
+>     - Can-Ru Yeou: SiS301 fbcon driver
+>     - Andrew Morton: NMI oopser and kernel page fault punch through
+>       both console_lock and timerlist_lock to make sure it prints out..
+>     - Jeff Garzik: clean up "kmap()" return type (it returns a kernel
+>       virtual address, ie a "void *").
+>     - Jeff Garzik: network driver docs, various one-liners.
+>     - David Miller: add generic "special" flag to page flags, to be
+>       used by architectures as they see fit. Like keeping track of
+>       cache coherency issues.
+>     - David Miller: sparc64 updates, make sparc32 boot again
+>     - Davdi Millner: spel "synchronous" correctly
+Spell "David Miller" correctly.  8).
+
+>     - David Miller: networking - fix some bridge issues, and correct
+>       IPv6 sysctl entries.
+>     - Dan Aloni: make fork.c use proper macro rather than doing
+>       get_exec_domain() by hand.
+> 
+>  - pre1:
+>     - me: make PCMCIA work even in the absense of PCI irq's
+>     - me: add irq mapping capabilities for Cyrix southbridges
+>     - me: make IBMMCA compile right as a module
+>     - me: uhhuh. Major atomic-PTE SMP race boo-boo. Fixed.
+>     - Andrea Arkangeli: don't allow people to set security-conscious
+>       bits in mxcsr through ptrace SETFPXREGS.
+>     - Jürgen Fischer: aha152x update
+>     - Andrew Morton, Trond Myklebust: file locking fixes
+>     - me: TLB invalidate race with highmem
+>     - Paul Fulghum: synclink/n_hdlc driver updates
+>     - David Miller: export sysctl_jiffies, and have the proper no-sysctl
+>       version handy
+>     - Neil Brown: RAID driver deadlock and nsfd read access to
+>       execute-only files fix
+>     - Keith Owens: clean up module information passing, remove
+>       "get_module_symbol()".
+>     - Jeff Garzik: network (and other) driver fixes and cleanups
+>     - Andrea Arkangeli: scheduler cleanup.
+>     - Ching-Ling Li: fix ALi sound driver memory leak
+>     - Anton Altaparmakov: upcase fix for NTFS
+>     - Thomas Woller: CS4281 audio update
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

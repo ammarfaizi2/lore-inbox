@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319553AbSH3LtY>; Fri, 30 Aug 2002 07:49:24 -0400
+	id <S317258AbSH3MOK>; Fri, 30 Aug 2002 08:14:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319560AbSH3LtY>; Fri, 30 Aug 2002 07:49:24 -0400
-Received: from ns.suse.de ([213.95.15.193]:2569 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S319553AbSH3LtY>;
-	Fri, 30 Aug 2002 07:49:24 -0400
-Date: Fri, 30 Aug 2002 13:53:47 +0200
-From: Dave Jones <davej@suse.de>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: "Pering, Trevor" <trevor.pering@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-Message-ID: <20020830135347.A26909@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	"Pering, Trevor" <trevor.pering@intel.com>,
-	linux-kernel@vger.kernel.org
-References: <C81D8E612E5DD6119653009027AE9D3EE091D0@FMSMSX36> <3D6F2704.A78F0A0@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3D6F2704.A78F0A0@aitel.hist.no>; from helgehaf@aitel.hist.no on Fri, Aug 30, 2002 at 10:04:20AM +0200
+	id <S319554AbSH3MOK>; Fri, 30 Aug 2002 08:14:10 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:57984 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S317258AbSH3MOK>; Fri, 30 Aug 2002 08:14:10 -0400
+Date: Fri, 30 Aug 2002 09:18:17 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: nfs & "Warning - running *really* short on DMA buffers"
+In-Reply-To: <3D6F7650.32578.A1B755@localhost>
+Message-ID: <Pine.LNX.4.44L.0208300916580.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 30, 2002 at 10:04:20AM +0200, Helge Hafting wrote:
- > An MHz carries more meaning - it is a measurable frequency.
+On Fri, 30 Aug 2002, Pedro M. Rodrigues wrote:
 
-It's equally meaningless (in fact, less meaningful).
-- By your definition my 900MHz VIA C3 is faster than my 800MHz Athlon.
-  (Clue: It isn't).
-- With trickery like AMD's quantispeed ratings, MHz really is a totally
-  meaningless number when relating to performance of a CPU.
-- A MHz rating is only meaningful across the same vendor/family of CPUs.
+>    I do wan't to tune the vm settings, these warnings may not be
+> fatal but it's not pretty to have hundreds of those in the console
+> and log files. Bear with me on this one, but i remember doing exactly
+> that in the past, tuning  /proc/sys/vm/freepages. How does one
+> acomplish that nowadays? I looked at the kernel source documentation
+> and still found references to freepages, but vm/freepages doesn't
+> exist anymore. Kernel is 2.4.18-10 from Redhat.
 
-Getting cpufreq's policy interface into something CPU agnostic therefore
-precludes MHz ratings AFAICS.
+For fundamental reasons it's always possible for non-sleeping
+allocations to fail.  I think this warning just needs to be
+rate-limited, if it isn't already ...
 
-        Dave
+OTOH, failed allocations could serve as a hint for kswapd to
+try to keep more memory free. I should look into that for some
+next version.
 
+regards,
+
+Rik
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbUAIQrF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 11:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbUAIQrF
+	id S262794AbUAIQnx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 11:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbUAIQnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 11:47:05 -0500
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:60352 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262055AbUAIQrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 11:47:02 -0500
-From: lkml@nitwit.de
-To: linux-kernel@vger.kernel.org
-Subject: 2.6: The hardware reports a non fatal, correctable incident occured on CPU 0.
-Date: Fri, 9 Jan 2004 17:48:10 +0100
-User-Agent: KMail/1.5.4
+	Fri, 9 Jan 2004 11:43:53 -0500
+Received: from columba.eur.3com.com ([161.71.171.238]:18616 "EHLO
+	columba.www.eur.3com.com") by vger.kernel.org with ESMTP
+	id S262794AbUAIQnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 11:43:52 -0500
+Message-ID: <3FFEDA46.8080708@jburgess.uklinux.net>
+Date: Fri, 09 Jan 2004 16:43:50 +0000
+From: Jon Burgess <lkml@jburgess.uklinux.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-gb, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401091748.10859.lkml@nitwit.de>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem - 2.6.0 Kernel and irq 18: nobody cared!
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Jan-Christian Treusch  wrote:
+ > Mainboard is an Asus P4P800 Deluxe (Intel i865PE Chipset)
 
-I did have some very scary issues today playing with 2.6. The system was 
-booted and ran several times today, the longtest uptime was approximately 
-about an hour.
+This looks like the same problem which Raphaël RIGO mentioned recently.
+There seems to be a problem with the handling of the IDE controller when 
+it is in native mode.
+The workaround provided by Matthias Hentges was as follows:
 
-But then shortly after having booted 2.6 I got syslog messages: 
+ > The trick for me was to configure "Enhanced Mode, SATA only" in
+ > the BIOS.
+ > See http://www.hentges.net/howtos/p4p800_SATA.html for details.
 
-The hardware reports a non fatal, correctable incident occured on CPU 0.
 
-I shut down the machine. After this my Athlon XP 2200+ showed up as 1050MHz in 
-BIOS an indeed the bus frequency was set to 100 instead of 133 MHz (how can 
-an OS change the BIOS?!) - nevertheless the CPU should have shown up as 
-1500MHz. I set it back to 133 MHz - which resulted in the machine did not 
-even reach the BIOS no more but was rebooting automatically prior to it. I 
-turned off the machine for some seconds - no change. I turned it off for a 
-few minutes and the BIOS showed up again - with 1050MHz. So I had to set the 
-freq back to 133 MHz a second time. I booted my 2.4.21 kernel which seems to 
-run.
+    Jon
 
-What the fuck is going on here?? As far as I figured out this has something to 
-do with MCE (CONFIG_X86_MCE=y, CONFIG_X86_MCE_NONFATAL=y) (?).
-
-TIA
-Timo
 

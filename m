@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264922AbUE0SJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUE0SLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbUE0SJH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 14:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUE0SJH
+	id S264915AbUE0SLG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 14:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUE0SLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 14:09:07 -0400
-Received: from ool-44c1e325.dyn.optonline.net ([68.193.227.37]:51861 "HELO
-	dyn.galis.org") by vger.kernel.org with SMTP id S264908AbUE0SJE
+	Thu, 27 May 2004 14:11:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28638 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264915AbUE0SLD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 14:09:04 -0400
-MBOX-Line: From george@galis.org  Thu May 27 14:09:03 2004
-Date: Thu, 27 May 2004 14:09:03 -0400
-From: George Georgalis <george@galis.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6 problem, cd and hd on second ide channel
-Message-ID: <20040527180903.GC13890@trot.local>
-References: <20040527171325.GA13890@trot.local> <200405271945.38976.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405271945.38976.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.5.6i
-Internet-Time: @797
+	Thu, 27 May 2004 14:11:03 -0400
+Message-ID: <40B62F29.6090101@pobox.com>
+Date: Thu, 27 May 2004 14:10:49 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Luis R. Rodriguez" <mcgrof@ruslug.rutgers.edu>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, prism54-devel@prism54.org
+Subject: Re: [PATCH 0/14] prism54: bring up to sync with prism54.org cvs rep
+References: <20040524083003.GA3330@ruslug.rutgers.edu> <20040524085727.GR3330@ruslug.rutgers.edu>
+In-Reply-To: <20040524085727.GR3330@ruslug.rutgers.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 27, 2004 at 07:45:38PM +0200, Bartlomiej Zolnierkiewicz wrote:
->
->There is ACPI bug in 2.6.6 related to IRQ routing.  Try 2.6.7-rc1.
->
->http://bugme.osdl.org/show_bug.cgi?id=2665
+Luis R. Rodriguez wrote:
+> BTW we can supply a 2.4 prism54 patch (as new driver). Would that be
+> wanted?
 
+No objections here.
 
-Thanks for the both the on list and off responses!
+2.4.x is vaguely closed, though, so Marcelo may not be interested in new 
+drivers.
 
-2.6.7-rc1 seems to work fine. :-)
+	Jeff
 
-Please respond if there is a compelling reason to use 2.6.5 instead.
-
-Thanks again,
-
-// George
-
-
--- 
-George Georgalis, Architect and administrator, Linux services. IXOYE
-http://galis.org/george/  cell:646-331-2027  mailto:george@galis.org
-Key fingerprint = 5415 2738 61CF 6AE1 E9A7  9EF0 0186 503B 9831 1631
 

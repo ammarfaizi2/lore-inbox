@@ -1,33 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317634AbSGFMGv>; Sat, 6 Jul 2002 08:06:51 -0400
+	id <S317635AbSGFMNf>; Sat, 6 Jul 2002 08:13:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317635AbSGFMGu>; Sat, 6 Jul 2002 08:06:50 -0400
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:53198 "EHLO gagarin")
-	by vger.kernel.org with ESMTP id <S317634AbSGFMGt>;
-	Sat, 6 Jul 2002 08:06:49 -0400
-Date: Sat, 6 Jul 2002 14:09:24 +0200
-To: linux-kernel@vger.kernel.org
-Cc: davej@suse.de
-Subject: [BK] LVM for 2.5
-Message-ID: <20020706120924.GA24848@h55p111.delphi.afb.lu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Anders Gustafsson <andersg@0x63.nu>
+	id <S317637AbSGFMNe>; Sat, 6 Jul 2002 08:13:34 -0400
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:11297 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S317635AbSGFMNe>; Sat, 6 Jul 2002 08:13:34 -0400
+Message-ID: <61DB42B180EAB34E9D28346C11535A783A7B0B@nocmail101.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'Witek Krecicki'" <adasi@kernel.pl>, linux-kernel@vger.kernel.org
+Subject: RE: [OT] /proc/cpuinfo output from some arch
+Date: Sat, 6 Jul 2002 07:15:25 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My work on making lvm useable in 2.5 is available by doing:
-bk pull bk://0x63.nu/lvm-2.5
+Not sure if you needed Sparc64, so here it is if you want it..
 
-But snapshots doesn't work, extending/reducing doesn't work. Actually
-the only things I know that the work is mounting lv's and
-vgdisplaying. Running /home and /var on lvm on the machine I'm writing
-this mail.
-(wish i had uml for 2.5)
+> cat /proc/cpuinfo 
+cpu             : TI UltraSparc IIi
+fpu             : UltraSparc IIi integrated FPU
+promlib         : Version 3 Revision 19
+prom            : 3.19.4
+type            : sun4u
+ncpus probed    : 1
+ncpus active    : 1
+Cpu0Bogo        : 719.25
+Cpu0ClkTck      : 0000000015752a00
+MMU Type        : Spitfire
 
--- 
+B.
 
-//anders/g
+> -----Original Message-----
+> From: Witek Krecicki [mailto:adasi@kernel.pl]
+> Sent: Saturday, July 06, 2002 5:17 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: [OT] /proc/cpuinfo output from some arch
+> 
+> 
+> I'm looking for /proc/cpuinfo output from following 
+> architectures: arm m68k
+> mips s390 sparc.
+> I need it but I don't have access to any of them :/
+> TIA
+> Witek Krecicki
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

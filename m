@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136963AbRAHL5x>; Mon, 8 Jan 2001 06:57:53 -0500
+	id <S136759AbRAHL7N>; Mon, 8 Jan 2001 06:59:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137140AbRAHL5n>; Mon, 8 Jan 2001 06:57:43 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31251 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136963AbRAHL5b>; Mon, 8 Jan 2001 06:57:31 -0500
-Subject: Re: postgres/shm problem
-To: narancs1@externet.hu (Narancs 1)
-Date: Mon, 8 Jan 2001 11:58:51 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.02.10101081110001.1837-100000@prins.externet.hu> from "Narancs 1" at Jan 08, 2001 11:10:45 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S137067AbRAHL6x>; Mon, 8 Jan 2001 06:58:53 -0500
+Received: from csa.iisc.ernet.in ([144.16.67.8]:32017 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S136759AbRAHL6l>;
+	Mon, 8 Jan 2001 06:58:41 -0500
+Date: Mon, 8 Jan 2001 17:27:07 +0530 (IST)
+From: Sourav Sen <sourav@csa.iisc.ernet.in>
+Reply-To: Sourav Sen <sourav@csa.iisc.ernet.in>
+To: lkml <linux-kernel@vger.kernel.org>, kernelnewbies@humbolt.nl.linux.org
+Subject: Module
+Message-ID: <Pine.SOL.3.96.1010108151925.4960A-100000@kohinoor.csa.iisc.ernet.in>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Faww-0004Oa-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any other solution than recompiling programs?
-> all of the program which need shm/ipc will turn blue?
 
-Congratulations you are running an old version of powertweak. Remvoe that
-and it should recover (its setting shm limits to 0)
+Hi,
+	I am facing problems in loading a module under 2.2.16. The actual
+kernel is 2.2.14 and it loads in it without any trouble, but when I run my 
+unmodified kernel 2.2.16(I only patched the kdb patch with it and
+configured with all kernel hacking options on) and try to do a insmod, it
+says that it could not find the kernel the module was compiled for. I put
+the CONFIG_MODVERSIONS on(ie, included modversions.h) also included the
+specific version.h file. (I declared the __NO_VERSION__ before including
+module.h so that it does not  include version.h). But still it does not
+work. Any idea whats going wrong?
+
+-sourav    
+--------------------------------------------------------------------------------
+SOURAV SEN    MSc(Engg.) CSA IISc BANGALORE URL : www2.csa.iisc.ernet.in/~sourav 
+ROOM NO : N-78      TEL :(080)309-2454(HOSTEL)          (080)309-2906 (COMP LAB) 
+--------------------------------------------------------------------------------
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

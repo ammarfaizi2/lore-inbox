@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266307AbTAPKeG>; Thu, 16 Jan 2003 05:34:06 -0500
+	id <S266095AbTAPKdC>; Thu, 16 Jan 2003 05:33:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266320AbTAPKeG>; Thu, 16 Jan 2003 05:34:06 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:64210 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S266307AbTAPKeE>; Thu, 16 Jan 2003 05:34:04 -0500
-Date: Thu, 16 Jan 2003 08:42:40 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Dean McEwan <dean.mcewan@eudoramail.com>,
-       "" <linux-kernel@vger.kernel.org>, "" <abramo.bagnara@libero.it>,
-       Richard Stallman <rms@gnu.org>
-Subject: Re: [OFFTOPIC] RMS and reactions to him (YAWN)
-In-Reply-To: <Pine.LNX.4.10.10301150548030.23438-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.50L.0301160839570.6044-100000@imladris.surriel.com>
-References: <Pine.LNX.4.10.10301150548030.23438-100000@master.linux-ide.org>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266200AbTAPKdC>; Thu, 16 Jan 2003 05:33:02 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:32273 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S266095AbTAPKdB>; Thu, 16 Jan 2003 05:33:01 -0500
+Date: Thu, 16 Jan 2003 02:41:54 -0800
+From: jw schultz <jw@pegasys.ws>
+To: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: any brand recomendation for a linux laptop ?
+Message-ID: <20030116104154.GL25246@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Nicolas Turro <Nicolas.Turro@sophia.inria.fr>,
+	linux-kernel@vger.kernel.org
+References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Jan 2003, Andre Hedrick wrote:
+On Thu, Jan 16, 2003 at 11:00:45AM +0100, Nicolas Turro wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> Hi, 
+> I am software engineer at a french research institute, in charge of the linux 
+> support on about 600 computers. I am looking for laptops whith linux
+> support/certification. I couln't find any recent laptop model on your
+> certification page. Would you recomend me any brand of computer ?
+> We curently buy Compaq Evos laptops, but enabling linux on those laptops
+> is terrible :
+> - - power management seems to be ACPI only (which linux barely supports)
+> - - sound is hard or impossible to setup correctly.
+> 
+> Any help/advice would be apreciated.
 
-> Have you ever pondered the question why some of the new code in 2.5 is
-> coming up with a dual-license of OSL/GPL ?  Is it because OSL has some
-> meaningful terms understood by the courts?  Is it because the folks at OSI
-> understand a bigger picture?
+You will get almost as many different answers as responses
+to this question.  Frankly, given the way things are i'm not
+sure it is safe to recommend any brand per se.  For a given
+brand the hardware will be different in each model and may
+even differ between production runs of the same model.
 
-For the people who haven't found it yet, the OSL can be
-found here:
+I've been happy with my Sony Vaio F160 but some people have
+reported problems with the F series.  Most major brands have
+at least one model that has caused problems.  Dell and
+Compaq are notorious and yet there are many people have
+gotten them to work.
 
-http://www.opensource.org/licenses/osl.php
+The best thing i can recommend is to go to
+http://www.linux-on-laptops.com/, Read the HOWTOs, and
+finally find some models you like and check to see how
+others have fared with them.
 
-I like this license a lot; to my untrained eye it seems
-to give much more protection than the GPL.
+Alternatively you could buy a laptop with linux already
+installed.  Unfortunately that is often more expensive than
+buying one with MS-flavor-of-the-month installed and
+reformatting.
 
-> 	Richard, is there a way to make OSL and GPL compatable ?
-> 	Richard, will you allow OSL and GPL to coexist ?
-> 	Richard, can OSL superceed GPL ?
-> 	Richard, can you agree there may be a better license than GPL ?
-> 	Richard, if people want to develop under OSL, what are the results
-> 		of the combined work?
-> 	Richard, if GPL can be improved by the adoption of OSL ideas,
-> 		what benefits are there to you idea to holding onto the
-> 		past?
-
-Interesting questions, I hope Richard will answer them.
-
-regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

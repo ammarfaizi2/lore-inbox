@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbTLWTsl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 14:48:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTLWTsl
+	id S262131AbTLWTvz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 14:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTLWTvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 14:48:41 -0500
-Received: from web60508.mail.yahoo.com ([216.109.116.129]:6515 "HELO
-	web60508.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261881AbTLWTsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 14:48:38 -0500
-Message-ID: <20031223194838.17465.qmail@web60508.mail.yahoo.com>
-Date: Tue, 23 Dec 2003 11:48:38 -0800 (PST)
-From: Raj Mansa <mansa_dev@yahoo.com>
-Subject: bridge netfilter question
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 23 Dec 2003 14:51:55 -0500
+Received: from amber.ccs.neu.edu ([129.10.116.51]:45011 "EHLO
+	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S262131AbTLWTvy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 14:51:54 -0500
+Subject: Found original libc-222 sources
+From: Stan Bubrouski <stan@ccs.neu.edu>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1072209112.2947.70.camel@duergar>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 23 Dec 2003 14:51:53 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-can someone help me and explain what this block of
-code does exactly in the bridge code?
+Hey guys,
 
-(This block is taken from br_dev_queue_xmit() @
-br_forward.c, after applying 'netfilter' patch)
-2.4.21 kernel
+Some good news, I found the original libc-222 sources lying around,
+looks like the real deal.  The user owning the files in the archive is
+hlu so looks to be untouched, latest modification dates in the archive
+are from late June 1992.  You can find it at:
 
-#ifdef CONFIG_NETFILTER
-	if (skb->nf_bridge)
-		memcpy(skb->data - 16, skb->nf_bridge->hh, 16);
-#endif
+http://www.ccs.neu.edu/~stan/linux/libc-222.taz
 
-1. What is 16 bytes here...? Ethernet hdr is 14 bytes
-2. Why the ethernet hdr .. is being overwritten with
-nf_bridge->hh? what is there in nf_bridge->hh?
-3. If I remember correctly 'if' <condition> Fails for
-ARP protocol
+(In case anyone has forgotten .taz is .tgz file)
 
-I wud appreciate if someone can help me.
+Enjoy,
 
--Raj
+Stan Bubrouski
 
-__________________________________
-Do you Yahoo!?
-Protect your identity with Yahoo! Mail AddressGuard
-http://antispam.yahoo.com/whatsnewfree

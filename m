@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbTEZSix (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 14:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTEZSix
+	id S262108AbTEZSkv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 14:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbTEZSkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 14:38:53 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:50646 "EHLO
+	Mon, 26 May 2003 14:40:51 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:41175 "EHLO
 	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S262036AbTEZSiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 14:38:51 -0400
-Date: Mon, 26 May 2003 15:50:03 -0300 (BRT)
+	id S262108AbTEZSku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 14:40:50 -0400
+Date: Mon, 26 May 2003 15:51:59 -0300 (BRT)
 From: Marcelo Tosatti <marcelo@conectiva.com.br>
 X-X-Sender: marcelo@freak.distro.conectiva
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-       Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch to add SysRq handling to 3270 console
-In-Reply-To: <20030523103740.A15552@infradead.org>
-Message-ID: <Pine.LNX.4.55L.0305261546570.21011@freak.distro.conectiva>
-References: <OF52A877A4.CB4F43A8-ONC1256D2F.00336EBB@de.ibm.com>
- <20030523103740.A15552@infradead.org>
+To: Scott McDermott <vaxerdec@frontiernet.net>
+Cc: Oliver Pitzeier <o.pitzeier@uptime.at>,
+       "'Marc-Christian Petersen'" <m.c.p@wolk-project.de>,
+       "'Sven Krohlas'" <darkshadow@web.de>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+In-Reply-To: <20030523185835.F1334@newbox.localdomain>
+Message-ID: <Pine.LNX.4.55L.0305261551420.21011@freak.distro.conectiva>
+References: <20030522173318.B1342@newbox.localdomain>
+ <002b01c32107$b5686030$020b10ac@pitzeier.priv.at> <20030523185835.F1334@newbox.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Fri, 23 May 2003, Scott McDermott wrote:
 
-On Fri, 23 May 2003, Christoph Hellwig wrote:
-
-> On Fri, May 23, 2003 at 11:30:38AM +0200, Martin Schwidefsky wrote:
-> > code drop contains the changes & new features for the new machine. The
-> > IBM process forces us to publish the new features patches on developer
-> > works first before we can think about integration into the mainline.
-> > You may not like it but this is a restriction we as the s390 team at
-> > IBM have to live with.
+> Oliver Pitzeier on Fri 23/05 10:45 +0200:
+> > > Why isn't this in mainline again? It seems everyone and
+> > > their grandmother needs it for their machine not to fall
+> > > apart.
+> >
+> > Thanks for this information. Now it would be great to get
+> > a statement from Marcelo, wouldn't it?  Why did you
+> > release the -rc3 without this? I believe there are more
+> > people like me, that have such problems and do not even
+> > know about it.
 >
-> *sigh*  what about at least posting patches vs a current kernel? :)
+> To be fair, I think it used to be in either a late -pre or
+> an early -rc but was withdrawn my Marcelo when it broke some
+> people.  But, I think it had been said that those bugs are
+> fixed now.
 >
-> > > Btw, what's the state of 2.4.21-rc3 vs s390(x)?
-> > No too good. It basically works but there is a big bunch of patches
-> > missing. I sent them to Marcelo for integration a few weeks ago but
-> > to me Marcelo is a black hole.
+> We'll just hope for 2.4.22-pre
 
-:/
-
-> Never heard anything about it, not
-> > even a "no". I sent Alan a copy of the patches adapted to his -ac
-> > tree. He accepted most of it into rc2-ac2.
->
-> Marcelo, what's the state of the s390 updates?
-
-I considered the updates to be too late for 2.4.21.
-
-2.4.21 should be out soon, -rc4 is going out today and -rc5 is only going
-to happen if something REALLY bad happens.
-
-
+Again, it will be included in 2.4.22-pre1.

@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262395AbSK0MLu>; Wed, 27 Nov 2002 07:11:50 -0500
+	id <S262442AbSK0MRd>; Wed, 27 Nov 2002 07:17:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262415AbSK0MLu>; Wed, 27 Nov 2002 07:11:50 -0500
-Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:55097
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262395AbSK0MLr>; Wed, 27 Nov 2002 07:11:47 -0500
-Date: Wed, 27 Nov 2002 07:18:54 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Andika Triwidada <andika@research.indocisc.com>,
-       Kernel Janitors <kernel-janitor-discuss@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "" <linux-net@vger.kernel.org>
-Subject: Re: [PATCH] drivers/net/Makefile
-In-Reply-To: <20021126212532.GC21307@fs.tum.de>
-Message-ID: <Pine.LNX.4.50.0211270716580.1462-100000@montezuma.mastecende.com>
-References: <20021103053017.GB29448@research.indocisc.com>
- <20021126212532.GC21307@fs.tum.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262446AbSK0MRd>; Wed, 27 Nov 2002 07:17:33 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:61076 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262442AbSK0MRc>; Wed, 27 Nov 2002 07:17:32 -0500
+Subject: Re: PROBLEM  RedHat Linux 6.2 / kernel 2.2.22-6.2.3
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Charles Bibber <cab3@tfn.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DE43F4B.EABBA93@tfn.net>
+References: <3DE43F4B.EABBA93@tfn.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Nov 2002 12:56:15 +0000
+Message-Id: <1038401775.6390.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Nov 2002, Adrian Bunk wrote:
+On Wed, 2002-11-27 at 03:43, Charles Bibber wrote:
+> Problem involves RedHat Linux 6.2 / kernel 2.2.22-6.2.3 PCMCIA fails
+> after upgrade from kernel version 2.2.19-6.2.16. Message log on startup
+> is in attachment tempfile attached to this e-mail. The only resolution I
+> have found is to reboot the old kernel. I had installed kernel
+> 2.2.22-6.2.2 and the same problem existed. Please advise
 
-> It has definitely nothing to do with CONFIG_PCMCIA_PCNET.
->
-> The following (untested) patch should be correct:
->
-> --- linux-2.5.49/drivers/net/Makefile.old	2002-11-26 22:20:27.000000000 +0100
-> +++ linux-2.5.49/drivers/net/Makefile	2002-11-26 22:21:34.000000000 +0100
-> @@ -79,6 +79,7 @@
->  obj-$(CONFIG_MAC8390) += mac8390.o 8390.o
->  obj-$(CONFIG_APNE) += apne.o 8390.o
->  obj-$(CONFIG_PCMCIA_PCNET) += 8390.o
-> +obj-$(CONFIG_PCMCIA_SMC91C92) += mii.o
->  obj-$(CONFIG_SHAPER) += shaper.o
->  obj-$(CONFIG_SK_G16) += sk_g16.o
->  obj-$(CONFIG_HP100) += hp100.o
+https://bugzilla.redhat.com/bugzilla for Red Hat specific errors. That
+will make sure it hits the right people
 
-That looks correct, i probably broke that when i added stuff from mii.c
-without modifying the Makefile
-
-Thanks,
-	Zwane
--- 
-function.linuxpower.ca

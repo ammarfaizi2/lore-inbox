@@ -1,102 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUHOO5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266751AbUHOO7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266758AbUHOO5m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 10:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266753AbUHOO5j
+	id S266751AbUHOO7l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 10:59:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266753AbUHOO7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 10:57:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18396 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266758AbUHOO4H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 10:56:07 -0400
-Date: Sun, 15 Aug 2004 10:55:15 -0400
-From: Alan Cox <alan@redhat.com>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: header updates for IDE changes
-Message-ID: <20040815145515.GA9993@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sun, 15 Aug 2004 10:59:41 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:62177 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266751AbUHOO7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 10:59:21 -0400
+Date: Sun, 15 Aug 2004 11:03:16 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, lhcs-devel@lists.sourceforge.net
+Subject: Re: [lhcs-devel] Re: [PATCH][2.6-mm] i386 Hotplug CPU
+In-Reply-To: <20040815144655.GA784@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0408151056380.22078@montezuma.fsmlabs.com>
+References: <1090870667.22306.40.camel@pants.austin.ibm.com>
+ <20040726170157.7f4b414c.akpm@osdl.org> <Pine.LNX.4.58.0407270137510.25781@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0407270440200.23985@montezuma.fsmlabs.com>
+ <20040811135019.GC1120@openzaurus.ucw.cz> <Pine.LNX.4.58.0408112043100.2544@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0408142313450.22078@montezuma.fsmlabs.com>
+ <20040815144655.GA784@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a "key" (generation) field to the ide taks object so that we can fix
-the crash when you unload a pcmcia ide device (and later other pci hotplug 
-devices etc) while having a proc file accessed
+On Sun, 15 Aug 2004, Pavel Machek wrote:
 
-Add a remove function to be called on unload by later patches
-Add a raw_taskfile function to allow drives to do command filters
-Add configured bit so that we can differentiate currently ambigious interface
-	states when unloading.
-Add a prototype for ide_diag_taskfile (for raw_taskfile users)
-Add prototypes for the ide key functions (code changes in next patch)
+> > > Yeah i recall you mentioning this earlier, i'll look into adding the
+> > > necessary bits so that you have enough state to resume from. Your
+> > > mentioning this was one of the reasons i wanted this in.
+> >
+> > Pavel, considering that the processor is in a quiescent state when it's in
+> > the idle thread, can't we simply restart them all when we do the final
+> > sleep? So on the resume, we steer the APs straight into the offline cpu
+> > spin and manually bring them up again when the BSP has resumed? I
+> > reckon
+>
+> Sorry, I do not understand what AP and BSP means in this context.
 
+My mistake, Application and Bootstrap Processors.
 
+> Yes, we can just shut those cpus down on suspend and completely boot
+> them from real mode during resume... that should work. And we will
+> need to do that during suspend-to-ram.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.8-rc3/include/linux/ide.h linux-2.6.8-rc3/include/linux/ide.h
---- linux.vanilla-2.6.8-rc3/include/linux/ide.h	2004-08-09 15:50:59.000000000 +0100
-+++ linux-2.6.8-rc3/include/linux/ide.h	2004-08-12 16:45:17.000000000 +0100
-@@ -849,12 +849,14 @@
- #define IDE_CHIPSET_IS_PCI(c)	((IDE_CHIPSET_PCI_MASK >> (c)) & 1)
- 
- struct ide_pci_device_s;
-+struct ide_task_s;
- 
- typedef struct hwif_s {
- 	struct hwif_s *next;		/* for linked-list in ide_hwgroup_t */
- 	struct hwif_s *mate;		/* other hwif from same PCI chip */
- 	struct hwgroup_s *hwgroup;	/* actually (ide_hwgroup_t *) */
- 	struct proc_dir_entry *proc;	/* /proc/ide/ directory entry */
-+	u16		key;		/* /proc persistent keying */
- 
- 	char name[6];			/* name of interface, eg. "ide0" */
- 
-@@ -909,10 +911,10 @@
- 	int	(*quirkproc)(ide_drive_t *);
- 	/* driver soft-power interface */
- 	int	(*busproc)(ide_drive_t *, int);
--//	/* host rate limiter */
--//	u8	(*ratemask)(ide_drive_t *);
--//	/* device rate limiter */
--//	u8	(*ratefilter)(ide_drive_t *, u8);
-+	/* hwif remove hook, called on unload/pci remove paths*/
-+	void	(*remove)(struct hwif_s *);
-+	/* allow command filter/control */
-+	int	(*raw_taskfile)(ide_drive_t *, struct ide_task_s *, u8 *);
- #endif
- 
- #if 0
-@@ -980,7 +982,8 @@
- 	unsigned long	select_data;	/* for use by chipset-specific code */
- 
- 	unsigned	noprobe    : 1;	/* don't probe for this interface */
--	unsigned	present    : 1;	/* this interface exists */
-+	unsigned	present    : 1;	/* this interface exists logically (ie users) */
-+	unsigned	configured : 1;	/* this hwif exists and is set up (may not be "present") */
- 	unsigned	hold       : 1; /* this interface is always present */
- 	unsigned	serialized : 1;	/* serialized all channel operation */
- 	unsigned	sharing_irq: 1;	/* 1 = sharing irq with another hwif */
-@@ -1082,6 +1085,9 @@
- extern int ide_write_setting(ide_drive_t *drive, ide_settings_t *setting, int val);
- extern void ide_add_generic_settings(ide_drive_t *drive);
- 
-+extern void *ide_drive_to_key(ide_drive_t *drive);
-+extern ide_drive_t *ide_drive_from_key(void *);
-+
- /*
-  * /proc/ide interface
-  */
-@@ -1452,8 +1458,8 @@
- extern ide_startstop_t pre_task_mulout_intr(ide_drive_t *, struct request *);
- extern ide_startstop_t task_mulout_intr(ide_drive_t *);
- 
-+extern int ide_diag_taskfile(ide_drive_t *, ide_task_t *, unsigned long, u8 *);
- extern int ide_raw_taskfile(ide_drive_t *, ide_task_t *, u8 *);
--
- int ide_taskfile_ioctl(ide_drive_t *, unsigned int, unsigned long);
- int ide_cmd_ioctl(ide_drive_t *, unsigned int, unsigned long);
- int ide_task_ioctl(ide_drive_t *, unsigned int, unsigned long);
-
-Signed-off-by: Alan Cox <alan@redhat.com>
+Thanks i just wanted to run that by you first.
 

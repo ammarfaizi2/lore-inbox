@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271051AbTG1VrY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 17:47:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271064AbTG1VrY
+	id S271107AbTG1VqH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 17:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271117AbTG1VqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 17:47:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52382 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271051AbTG1VrW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 17:47:22 -0400
-Date: Mon, 28 Jul 2003 14:35:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Johoho <johoho@hojo-net.de>
-Cc: wodecki@gmx.de, Valdis.Kletnieks@vt.edu, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] O10int for interactivity
-Message-Id: <20030728143545.1d989946.akpm@osdl.org>
-In-Reply-To: <20030728212939.GB6798@gmx.de>
-References: <200307280112.16043.kernel@kolivas.org>
-	<200307281808.h6SI8C5k004439@turing-police.cc.vt.edu>
-	<20030728114041.2c8ce156.akpm@osdl.org>
-	<20030728212939.GB6798@gmx.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Jul 2003 17:46:07 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:12806 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271107AbTG1VqE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 17:46:04 -0400
+Date: Mon, 28 Jul 2003 17:38:16 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
+In-Reply-To: <Pine.LNX.4.44.0307280921360.3537-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.3.96.1030728173045.19757A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wiktor Wodecki <wodecki@gmx.de> wrote:
->
-> On Mon, Jul 28, 2003 at 11:40:41AM -0700, Andrew Morton wrote:
-> > Valdis.Kletnieks@vt.edu wrote:
-> > >
-> > > I am, however, able to get 'xmms' to skip.  The reason is that the CPU is being
-> > >  scheduled quite adequately, but I/O is *NOT*.
-> > > 
-> > > ...
-> > >  I'm guessing that the anticipatory scheduler is the culprit here.  Soon as I figure
-> > >  out the incantations to use the deadline scheduler, I'll report back....
-> > 
-> > Try decreasing the expiry times in /sys/block/hda/queue/iosched:
-> > 
-> > read_batch_expire
-> > read_expire
-> > write_batch_expire
-> > write_expire
+On Mon, 28 Jul 2003, Ingo Molnar wrote:
+
 > 
-> I noticed that when bringing a huge application out of swap (mozilla,
-> openoffice, also tested the gimp with 50 images open) that dividing
-> everything by 2 in those 4 files I get a decent process fork. Without
-> this tuning the fork (xterm) waits till the application is back up.
+> On Mon, 28 Jul 2003, Con Kolivas wrote:
+> 
+> > On Sun, 27 Jul 2003 23:40, Ingo Molnar wrote:
+> > >  - further increase timeslice granularity
+> > 
+> > For a while now I've been running a 1000Hz 2.4 O(1) kernel tree that
+> > uses timeslice granularity set to MIN_TIMESLICE which has stark
+> > smoothness improvements in X. I've avoided promoting this idea because
+> > of the theoretical drop in throughput this might cause. I've not been
+> > able to see any detriment in my basic testing of this small granularity,
+> > so I was curious to see what you throught was a reasonable lower limit?
+> 
+> it's a hard question. The 25 msecs in -G6 is probably too low.
 
-Interesting.  What we have there is pretty much a straight tradeoff between
-latency and throughput.  It could be that the defaults are not centered in
-the right spot.
+It would seem to me that the lower limit for a given CPU is a function of
+CPU speed and cache size. One reason for longer slices is to preserve the
+cache, but the real time to get good use from the cache is not a constant,
+and you just can't pick any one number which won't be too short on a slow
+cpu or unproductively long on a fast CPU. Hyperthreading shrinks the
+effective cache size as well, but certainly not by 2:1 or anything nice.
 
-It will need some careful characterisation.  Maybe we can persuade Nick to
-generate the mystical Documentation/as-iosched.txt?
+Perhaps this should be a tunable set by a bit of hardware discovery at
+boot and diddled at your own risk. Sure one factor in why people can't
+agree on HZ and all to get best results.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVA0WnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVA0Wnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbVA0WnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 17:43:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVA0WnJ
+	id S261257AbVA0Wnj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 17:43:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVA0Wnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 17:43:09 -0500
-Received: from falcon30.maxeymade.com ([24.173.215.190]:33453 "EHLO
-	falcon30.maxeymade.com") by vger.kernel.org with ESMTP
-	id S261256AbVA0WnF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 17:43:05 -0500
-Message-Id: <200501272242.j0RMgoP5016154@falcon30.maxeymade.com>
-X-Mailer: exmh version 2.7.2.1 01/17/2005 with nmh-1.1
-In-reply-to: <20050127120244.GO2751@suse.de> 
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] scsi/sata write barrier support 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 27 Jan 2005 16:42:50 -0600
-From: Doug Maxey <dwm@maxeymade.com>
+	Thu, 27 Jan 2005 17:43:39 -0500
+Received: from web52302.mail.yahoo.com ([206.190.39.97]:52641 "HELO
+	web52302.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261257AbVA0Wne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 17:43:34 -0500
+Message-ID: <20050127224334.31954.qmail@web52302.mail.yahoo.com>
+Date: Thu, 27 Jan 2005 23:43:34 +0100 (CET)
+From: Albert Herranz <albert_herranz@yahoo.es>
+Subject: Re: 2.6.11-rc2-mm1: kernel bad access while booting diskless client
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050127142333.0ba81907.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ --- Andrew Morton <akpm@osdl.org> escribió: 
+> Can you tell us which filesystem is being bad?  Add
+> this:
+> 
+> 	if (!inode->i_op)
+> 		printk("%s is naughty\n", inode->i_sb->s_id);
+> 
+> It's probably NFS - there has been some work done in
+> there in -mm.
 
-On Thu, 27 Jan 2005 13:02:48 +0100, Jens Axboe wrote:
->Hi,
->
->For the longest time, only the old PATA drivers supported barrier writes
->with journalled file systems. This patch adds support for the same type
->of cache flushing barriers that PATA uses for SCSI, to be utilized with
->libata. 
+0:a is naughty
 
-What, if any mechanism supports changing the underlying write cache?  
-
-That is, assuming this is common across PATA and SCSI drives, and it is 
-possible to turn the cache off on the IDE drives, would switching the 
-cache underneath require completing the inflight IO?
-
-++doug
+Cheers,
+Albert
 
 
 
+		
+______________________________________________ 
+Renovamos el Correo Yahoo!: ¡250 MB GRATIS! 
+Nuevos servicios, más seguridad 
+http://correo.yahoo.es

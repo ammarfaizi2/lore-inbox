@@ -1,97 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275291AbRJARBb>; Mon, 1 Oct 2001 13:01:31 -0400
+	id <S275288AbRJARAC>; Mon, 1 Oct 2001 13:00:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275290AbRJARBR>; Mon, 1 Oct 2001 13:01:17 -0400
-Received: from air-1.osdlab.org ([65.201.151.5]:54794 "EHLO
-	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S275289AbRJARA5>; Mon, 1 Oct 2001 13:00:57 -0400
-Message-ID: <3BB8A09F.DAFE41B3@osdlab.org>
-Date: Mon, 01 Oct 2001 09:58:07 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [patch] netconsole-2.4.10-B1
-In-Reply-To: <Pine.LNX.4.21.0109261635190.957-100000@freak.distro.conectiva> <Pine.LNX.4.33.0109270746150.1679-100000@localhost.localdomain> <20010928010819.A434@turbolinux.com>
-Content-Type: multipart/mixed;
- boundary="------------00741BC33BCD832C57A99F68"
+	id <S275289AbRJAQ7w>; Mon, 1 Oct 2001 12:59:52 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:46586 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S275288AbRJAQ7o>; Mon, 1 Oct 2001 12:59:44 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Mon, 1 Oct 2001 10:59:27 -0600
+To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Cc: linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>
+Subject: /dev/random entropy calculations broken?
+Message-ID: <20011001105927.A22795@turbolinux.com>
+Mail-Followup-To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>,
+	linux-kernel@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>
+In-Reply-To: <1001461026.9352.156.camel@phantasy> <9or70g$i59$1@abraham.cs.berkeley.edu> <tgadzbr8kq.fsf@mercury.rus.uni-stuttgart.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <tgadzbr8kq.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------00741BC33BCD832C57A99F68
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Andreas Dilger wrote:
+On Oct 01, 2001  11:52 +0200, Florian Weimer wrote:
+> daw@mozart.cs.berkeley.edu (David Wagner) writes:
+> > Incrementing the entropy counter based on externally observable
+> > values is dangerous.
 > 
-> A few minor changes to the code, after testing it a bit locally (note that I
-> am using kernel patch C1):
-> 
-> First, a patch to change the MAC address kernel parameter to be in the
-> standard XX:XX:XX:XX:XX:XX form, instead of separate bytes.  It also
-> fixes the output of the IP addresses to be unsigned ints.  Isn't there
-> a function in the kernel to format IP addresses for output already?
+> How do you want to collect any entropy with such a requirement in
+> place?  Computers tend to send out a lot of information on the air.
+>
+> BTW, I still think that the entropy estimate for mouse movements is
+> much too high.  And the compression function used probably doesn't
+> have the intended property.
 
-Not quite for formatting, but NIPQUAD(ipaddr) passes 4 octets of IP
-address to <anywhere>.
+Has anyone even checked whether the current entropy estimates even work
+properly?  I was testing this, and it appears something is terribly wrong.
+Check /proc/sys/kernel/random/entropy_avail.  On a system that has been
+running any length of time, it should be 4096 (512 bytes * 8 bits of
+entropy for a full pool).
 
-Here's a patch/replacement for the IP address printing in the
-netconsole
-kernel module, using NIPQUAD().  Against netconsole version C2.
+Now, "dd if=/dev/random bs=16 count=1 | wc -c" and check entropy_avail
+again.  It "loses" thousands of bits of entropy for generating 16 bytes
+(128 bits) of random data.  Same thing happens with /dev/urandom consuming
+the available entropy.
 
-BTW, in linux/include/linux/kernel.h, isn't HIPQUAD() totally useless
-(and also unused)?  It looks very little-endian-specific.
-Well, it can be used on little-endian systems if the ipaddr is
-in host-order.
+Now if you do the above test on /dev/random several times in a row, you see
+that you really HAVE used up the entropy, because it will return a number
+of bytes less than what you requested.  At this point, however, it is at
+least consistent, returning a number of bytes = entropy_avail/8.
 
-~Randy
---------------00741BC33BCD832C57A99F68
-Content-Type: text/plain; charset=us-ascii;
- name="netcon-ipaddr.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="netcon-ipaddr.patch"
+Ted, any ideas about this?  I'm just looking through the code to see where
+the entropy is counted, and where it goes.  It _may_ be a bug with the
+entropy_avail value itself, but then why the short reads?  The output values
+are at least consistent in that they grow slowly only when kb/mouse/disk
+activity happens, and are constant otherwise.
 
---- linux/drivers/net/netconsole.c.save	Mon Oct  1 07:43:31 2001
-+++ linux/drivers/net/netconsole.c	Mon Oct  1 09:28:57 2001
-@@ -263,25 +263,20 @@
- 		printk(KERN_ERR "netconsole: network device %s is not an IP protocol device, aborting.\n", dev);
- 		return -1;
- 	}
--	source_ip = ntohl(in_dev->ifa_list->ifa_local);
-+	source_ip = in_dev->ifa_list->ifa_local;
- 	if (!source_ip) {
- 		printk(KERN_ERR "netconsole: network device %s has no local address, aborting.\n", dev);
- 		return -1;
- 	}
--#define IP(x) ((char *)&source_ip)[x]
--	printk(KERN_INFO "netconsole: using source IP %i.%i.%i.%i\n",
--		IP(3), IP(2), IP(1), IP(0));
--#undef IP
--	source_ip = htonl(source_ip);
-+	printk(KERN_INFO "netconsole: using source IP %u.%u.%u.%u\n", NIPQUAD(source_ip));
-+
-+	target_ip = htonl(target_ip);
- 	if (!target_ip) {
- 		printk(KERN_ERR "netconsole: target_ip parameter not specified, aborting.\n");
- 		return -1;
- 	}
--#define IP(x) ((char *)&target_ip)[x]
--	printk(KERN_INFO "netconsole: using target IP %i.%i.%i.%i\n",
--		IP(3), IP(2), IP(1), IP(0));
--#undef IP
--	target_ip = htonl(target_ip);
-+	printk(KERN_INFO "netconsole: using target IP %u.%u.%u.%u\n", NIPQUAD(target_ip));
-+
- 	if (!source_port) {
- 		printk(KERN_ERR "netconsole: source_port parameter not specified, aborting.\n");
- 		return -1;
+This may be a major source of problems for entropy-poor environments, since
+you will basically only be able to read a single random value from /dev/random
+before the pool "dries up", regardless of the pool size (I tried with a
+4096-byte pool, and the same problem happens).  Hence, in such systems there
+would be more of a desire to use the "less secure" network interrupts for
+entropy.
 
---------------00741BC33BCD832C57A99F68--
+Cheers, Andreas
+
+PS - For systems which have _some_ entropy, but just not very much, it is
+     possible to increase the size of the pool (if it actually worked ;-)
+     so that you can save entropy for periods of high demand.  You can do
+     this by "echo 4096 > /proc/sys/kernel/random/poolsize" (or some other
+     larger power-of-two size).
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

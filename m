@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264925AbTA2G5Y>; Wed, 29 Jan 2003 01:57:24 -0500
+	id <S264903AbTA2Gza>; Wed, 29 Jan 2003 01:55:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264920AbTA2G5Y>; Wed, 29 Jan 2003 01:57:24 -0500
-Received: from are.twiddle.net ([64.81.246.98]:28549 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S264925AbTA2G5X>;
-	Wed, 29 Jan 2003 01:57:23 -0500
-Date: Tue, 28 Jan 2003 23:06:39 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-       Andrew Morton <akpm@digeo.com>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (1/4) 2.5.59 fast reader/writer lock for gettimeofday
-Message-ID: <20030128230639.A17385@twiddle.net>
-Mail-Followup-To: Stephen Hemminger <shemminger@osdl.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
-	Andi Kleen <ak@suse.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1043797341.10150.300.camel@dell_ss3.pdx.osdl.net>
+	id <S264920AbTA2Gza>; Wed, 29 Jan 2003 01:55:30 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:28316 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264903AbTA2Gz3>;
+	Wed, 29 Jan 2003 01:55:29 -0500
+Date: Tue, 28 Jan 2003 22:52:06 -0800 (PST)
+Message-Id: <20030128.225206.127297614.davem@redhat.com>
+To: kuznet@ms2.inr.ac.ru
+Cc: benoit-lists@fb12.de, dada1@cosmosbay.com, cgf@redhat.com, andersg@0x63.nu,
+       lkernel2003@tuxers.net, linux-kernel@vger.kernel.org, tobi@tobi.nu
+Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x,
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200301290009.DAA30355@sex.inr.ac.ru>
+References: <20030128.152102.12708956.davem@redhat.com>
+	<200301290009.DAA30355@sex.inr.ac.ru>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1043797341.10150.300.camel@dell_ss3.pdx.osdl.net>; from shemminger@osdl.org on Tue, Jan 28, 2003 at 03:42:21PM -0800
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 03:42:21PM -0800, Stephen Hemminger wrote:
-> +static inline void fr_write_begin(frlock_t *rw)
-> +{
-> +	preempt_disable();
-> +	rw->pre_sequence++;
-> +	wmb();
-> +}
-> +
-> +static inline void fr_write_end(frlock_t *rw)
-> +{
-> +	wmb();
-> +	rw->post_sequence++;
+   From: kuznet@ms2.inr.ac.ru
+   Date: Wed, 29 Jan 2003 03:09:21 +0300 (MSK)
 
-These need to be mb(), not wmb(), if you want the bits in between
-to actually happen in between, as with your xtime example.  At
-present there's nothing stoping xtime from being *read* before
-your read from pre_sequence happens.
+   The proposed fix is enclosed. Please, check.
 
+Installed locally and I will propagate everywhere as soon
+as possible.
 
-r~
+Thanks a lot Alexey.

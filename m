@@ -1,33 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135179AbRAZR4N>; Fri, 26 Jan 2001 12:56:13 -0500
+	id <S132688AbRAZR6x>; Fri, 26 Jan 2001 12:58:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136066AbRAZR4D>; Fri, 26 Jan 2001 12:56:03 -0500
-Received: from oxmail2.ox.ac.uk ([163.1.2.1]:48091 "EHLO oxmail.ox.ac.uk")
-	by vger.kernel.org with ESMTP id <S135179AbRAZRzn>;
-	Fri, 26 Jan 2001 12:55:43 -0500
-Date: Fri, 26 Jan 2001 17:54:33 +0000
-From: David Welch <david.welch@st-edmund-hall.oxford.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux Post codes during runtime, possibly OT
-Message-ID: <20010126175433.A2268@whitehall1-5.seh.ox.ac.uk>
-In-Reply-To: <Pine.LNX.3.95.1010126085110.265A-100000@chaos.analogic.com> <3A71A3AE.DE587EEE@transmeta.com>
-Mime-Version: 1.0
+	id <S135373AbRAZR6n>; Fri, 26 Jan 2001 12:58:43 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:5907 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132688AbRAZR6c>; Fri, 26 Jan 2001 12:58:32 -0500
+Message-ID: <3A71BA7F.9A3E7B03@transmeta.com>
+Date: Fri, 26 Jan 2001 09:57:19 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <200101261753.JAA11559@adam.yggdrasil.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A71A3AE.DE587EEE@transmeta.com>; from hpa@transmeta.com on Fri, Jan 26, 2001 at 08:19:58AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 26, 2001 at 08:19:58AM -0800, H. Peter Anvin wrote:
+"Adam J. Richter" wrote:
 > 
-> A better idea might be to find out what port, if any, Windows uses.  If
-> Windows does it, it is usually safe.
+>         I am surprised that anyone is seriously considering denying
+> service to sites that do not implement an _experimental_ facility
+> and have firewalls that try to play things safe by dropping packets
+> which have 1's in bit positions that in the RFC "must be zero."
 > 
-Windows NT 4 Service Pack 6 doesn't use any delay however 
-READ/WRITE_PORT_* are implemented as indirect function calls so they may
-be slowed down enough.
+>         If Microsoft were to do this with their favorite experimental
+> network extensions for msnbc.com, how do you think the non-Microsoft
+> world would feel and react?  Well, that's about how the rest of
+> the world is likely to view this.
+> 
+>         That said, I wonder if some tweak to the Linux networking
+> stack is possible whereby it would automatically disable ECN and retry
+> on per socket basis if the connection establishment otherwise seems to
+> be timing out.  This may be tricky given that the purpose of this
+> facility is congestion notification, but, if someone is smart enough
+> to be able to implement this, it would provide a much less disruptive
+> migration path for adoption across firewalls that drop these packets.
+> Far more sites could then safely activate this feature without limiting
+> the hosts that they can reach.
+> 
+> Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+> adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
+> +1 408 261-6630         | g g d r a s i l   United States of America
+> fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+Ummm... we already went over this.  The fundamental problem is that they
+aren't dropping the packets, they are sending RST.
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,219 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266860AbUAXC3M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 21:29:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266858AbUAXC2u
+	id S265549AbUAXDAq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 22:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266647AbUAXDAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 21:28:50 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:64714 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S266854AbUAXCZr (ORCPT
+	Fri, 23 Jan 2004 22:00:46 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:41437 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S265549AbUAXDAh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 21:25:47 -0500
-Date: Fri, 23 Jan 2004 18:25:45 -0800
-To: "David S. Miller" <davem@redhat.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] 11/11: Kconfig/Makefile changes for #5-10
-Message-ID: <20040124022545.GL22410@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
+	Fri, 23 Jan 2004 22:00:37 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16401.57298.175645.749468@napali.hpl.hp.com>
+Date: Fri, 23 Jan 2004 19:00:34 -0800
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jes Sorensen <jes@trained-monkey.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, paulus@samba.org
+Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for
+ ia64
+In-Reply-To: <20040120090004.48995f2a.akpm@osdl.org>
+References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
+	<20040120090004.48995f2a.akpm@osdl.org>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir262_dongles-11_makefile-2.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<apply after all other patches>
-		<Patch from Martin Diehl>
-* include build information for new dongle drivers (5->10)
+>>>>> On Tue, 20 Jan 2004 09:00:04 -0800, Andrew Morton <akpm@osdl.org> said:
 
+  Andrew> Jes Sorensen <jes@trained-monkey.org> wrote:
+  >>  The new sort_extable and shares search_extable code doesn't work
+  >> on ia64.
 
-diff -u -p linux/drivers/net/irda.d6/Kconfig  linux/drivers/net/irda/Kconfig
---- linux/drivers/net/irda.d6/Kconfig	Wed Dec 17 18:59:16 2003
-+++ linux/drivers/net/irda/Kconfig	Thu Jan 22 16:43:56 2004
-@@ -65,6 +65,75 @@ config TEKRAM_DONGLE
- 	  dongles you will have to start irattach like this:
- 	  "irattach -d tekram".
+  Andrew> hm, OK.  It would be nice if ia64 could use the generic code
+  Andrew> at some stage, of course.
+
+How about something along these lines?  If you want to standardize on
+a single instruction-address format, I'd strongly favor using the
+location-relative addresses used on Alpha and ia64 (it makes no sense
+to uses a full 64-bit address for those members).
+
+	--david
+
+===== lib/extable.c 1.3 vs edited =====
+--- 1.3/lib/extable.c	Tue Jan 20 17:58:55 2004
++++ edited/lib/extable.c	Fri Jan 23 18:10:10 2004
+@@ -19,6 +19,12 @@
+ extern struct exception_table_entry __stop___ex_table[];
  
-+config LITELINK_DONGLE
-+	tristate "Parallax LiteLink dongle"
-+	depends on DONGLE && IRDA
-+	help
-+	  Say Y here if you want to build support for the Parallax Litelink
-+	  dongle.  To compile it as a module, choose M here.  The Parallax
-+	  dongle attaches to the normal 9-pin serial port connector, and can
-+	  currently only be used by IrTTY.  To activate support for Parallax
-+	  dongles you will have to start irattach like this:
-+	  "irattach -d litelink".
+ #ifndef ARCH_HAS_SORT_EXTABLE
 +
-+config MA600_DONGLE
-+	tristate "Mobile Action MA600 dongle"
-+	depends on DONGLE && IRDA && EXPERIMENTAL
-+	help
-+	  Say Y here if you want to build support for the Mobile Action MA600
-+	  dongle.  To compile it as a module, choose M here. The MA600 dongle
-+	  attaches to the normal 9-pin serial port connector, and can
-+	  currently only be used by IrTTY.  The driver should also support
-+	  the MA620 USB version of the dongle, if the integrated USB-to-RS232
-+	  converter is supported by usbserial. To activate support for
-+	  MA600 dongle you will have to start irattach like this:
-+	  "irattach -d ma600".
++# ifndef exception_table_entry_insn
++   /* Return the instruction address to which exception tabl entry E applies.  */
++#  define exception_table_entry_insn(e)	((e)->insn)
++# endif
 +
-+config GIRBIL_DONGLE
-+	tristate "Greenwich GIrBIL dongle"
-+	depends on DONGLE && IRDA && EXPERIMENTAL
-+	help
-+	  Say Y here if you want to build support for the Greenwich GIrBIL
-+	  dongle.  If you want to compile it as a module, choose M here.
-+	  The Greenwich dongle attaches to the normal 9-pin serial port
-+	  connector, and can currently only be used by IrTTY.  To activate
-+	  support for Greenwich dongles you will have to start irattach
-+	  like this: "irattach -d girbil".
+ /*
+  * The exception table needs to be sorted so that the binary
+  * search that we use to find entries in it works properly.
+@@ -33,7 +39,7 @@
+ 	/* insertion sort */
+ 	for (p = start + 1; p < finish; ++p) {
+ 		/* start .. p-1 is sorted */
+-		if (p[0].insn < p[-1].insn) {
++		if (exception_table_entry_insn(&p[0]) < exception_table_entry_insn(&p[-1])) {
+ 			/* move element p down to its right place */
+ 			el = *p;
+ 			q = p;
+@@ -41,7 +47,8 @@
+ 				/* el comes before q[-1], move q[-1] up one */
+ 				q[0] = q[-1];
+ 				--q;
+-			} while (q > start && el.insn < q[-1].insn);
++			} while (q > start && (exception_table_entry_insn(&el)
++					       < exception_table_entry_insn(&q[-1])));
+ 			*q = el;
+ 		}
+ 	}
+===== include/asm-ia64/uaccess.h 1.16 vs edited =====
+--- 1.16/include/asm-ia64/uaccess.h	Fri Jan 23 16:43:32 2004
++++ edited/include/asm-ia64/uaccess.h	Fri Jan 23 18:06:38 2004
+@@ -283,13 +283,18 @@
+ 	__su_ret;						\
+ })
+ 
+-#define ARCH_HAS_SORT_EXTABLE
+ #define ARCH_HAS_SEARCH_EXTABLE
+ 
+ struct exception_table_entry {
+-	int addr;	/* gp-relative address of insn this fixup is for */
+-	int cont;	/* gp-relative continuation address; if bit 2 is set, r9 is set to 0 */
++	int addr;	/* loc-relative address of insn this fixup is for */
++	int cont;	/* loc-relative continuation address; if bit 2 is set, r9 is set to 0 */
+ };
 +
-+config MCP2120_DONGLE
-+	tristate "Microchip MCP2120"
-+	depends on DONGLE && IRDA && EXPERIMENTAL
-+	help
-+	  Say Y here if you want to build support for the Microchip MCP2120
-+	  dongle.  If you want to compile it as a module, choose M here.
-+	  The MCP2120 dongle attaches to the normal 9-pin serial port
-+	  connector, and can currently only be used by IrTTY.  To activate
-+	  support for MCP2120 dongles you will have to start irattach
-+	  like this: "irattach -d mcp2120".
-+
-+	  You must build this dongle yourself.  For more information see:
-+	  <http://www.eyetap.org/~tangf/irda_sir_linux.html>
-+
-+config OLD_BELKIN_DONGLE
-+	tristate "Old Belkin dongle"
-+	depends on DONGLE && IRDA && EXPERIMENTAL
-+	help
-+	  Say Y here if you want to build support for the Adaptec Airport 1000
-+	  and 2000 dongles.  If you want to compile it as a module, choose
-+	  M here. Some information is contained in the comments
-+	  at the top of <file:drivers/net/irda/old_belkin.c>.
-+
-+config ACT200L_DONGLE
-+	tristate "ACTiSYS IR-200L dongle"
-+	depends on DONGLE && IRDA && EXPERIMENTAL
-+	help
-+	  Say Y here if you want to build support for the ACTiSYS IR-200L
-+	  dongle. If you want to compile it as a module, choose M here.
-+	  The ACTiSYS IR-200L dongle attaches to the normal 9-pin serial
-+	  port connector, and can currently only be used by IrTTY.
-+	  To activate support for ACTiSYS IR-200L dongle you will have to
-+	  start irattach like this: "irattach -d act200l".
-+
- comment "Old SIR device drivers"
++#define exception_table_entry_insn(e)				\
++({								\
++	const struct exception_table_entry *_etei_e = (e);	\
++	(u64) &(_etei_e)->addr + (_etei_e)->addr;		\
++})
  
- config IRPORT_SIR
-@@ -130,7 +199,7 @@ config TEKRAM_DONGLE_OLD
- 	  dongles you will have to start irattach like this:
- 	  "irattach -d tekram".
- 
--config GIRBIL_DONGLE
-+config GIRBIL_DONGLE_OLD
- 	tristate "Greenwich GIrBIL dongle"
- 	depends on DONGLE_OLD && IRDA
- 	help
-@@ -141,7 +210,7 @@ config GIRBIL_DONGLE
- 	  dongles you will have to insert "irattach -d girbil" in the
- 	  /etc/irda/drivers script.
- 
--config LITELINK_DONGLE
-+config LITELINK_DONGLE_OLD
- 	tristate "Parallax LiteLink dongle"
- 	depends on DONGLE_OLD && IRDA
- 	help
-@@ -152,7 +221,7 @@ config LITELINK_DONGLE
- 	  dongles you will have to start irattach like this:
- 	  "irattach -d litelink".
- 
--config MCP2120_DONGLE
-+config MCP2120_DONGLE_OLD
- 	tristate "Microchip MCP2120"
- 	depends on DONGLE_OLD && IRDA
- 	help
-@@ -166,7 +235,7 @@ config MCP2120_DONGLE
- 	  You must build this dongle yourself.  For more information see:
- 	  <http://www.eyetap.org/~tangf/irda_sir_linux.html>
- 
--config OLD_BELKIN_DONGLE
-+config OLD_BELKIN_DONGLE_OLD
- 	tristate "Old Belkin dongle"
- 	depends on DONGLE_OLD && IRDA
- 	help
-@@ -175,11 +244,7 @@ config OLD_BELKIN_DONGLE
- 	  will be called old_belkin.  Some information is contained in the
- 	  comments at the top of <file:drivers/net/irda/old_belkin.c>.
- 
--config EP7211_IR
--	tristate "EP7211 I/R support"
--	depends on DONGLE_OLD && ARCH_EP7211 && IRDA
--
--config ACT200L_DONGLE
-+config ACT200L_DONGLE_OLD
- 	tristate "ACTiSYS IR-200L dongle (EXPERIMENTAL)"
- 	depends on DONGLE_OLD && EXPERIMENTAL && IRDA
- 	help
-@@ -190,7 +255,7 @@ config ACT200L_DONGLE
- 	  ACTiSYS IR-200L dongles you will have to start irattach like this:
- 	  "irattach -d act200l".
- 
--config MA600_DONGLE
-+config MA600_DONGLE_OLD
- 	tristate "Mobile Action MA600 dongle (EXPERIMENTAL)"
- 	depends on DONGLE_OLD && EXPERIMENTAL && IRDA
- 	---help---
-@@ -205,6 +270,10 @@ config MA600_DONGLE
- 
- 	  There is a pre-compiled module on
- 	  <http://engsvr.ust.hk/~eetwl95/download/ma600-2.4.x.tar.gz>
-+
-+config EP7211_IR
-+	tristate "EP7211 I/R support"
-+	depends on DONGLE_OLD && ARCH_EP7211 && IRDA
- 
- comment "FIR device drivers"
- 
-diff -u -p linux/drivers/net/irda.d6/Makefile  linux/drivers/net/irda/Makefile
---- linux/drivers/net/irda.d6/Makefile	Wed Dec 17 18:58:48 2003
-+++ linux/drivers/net/irda/Makefile	Thu Jan 22 16:43:56 2004
-@@ -21,20 +21,26 @@ obj-$(CONFIG_VIA_FIR)		+= via-ircc.o
- obj-$(CONFIG_ESI_DONGLE_OLD)		+= esi.o
- obj-$(CONFIG_TEKRAM_DONGLE_OLD)	+= tekram.o
- obj-$(CONFIG_ACTISYS_DONGLE_OLD)	+= actisys.o
--obj-$(CONFIG_GIRBIL_DONGLE)	+= girbil.o
--obj-$(CONFIG_LITELINK_DONGLE)	+= litelink.o
--obj-$(CONFIG_OLD_BELKIN_DONGLE)	+= old_belkin.o
-+obj-$(CONFIG_GIRBIL_DONGLE_OLD)	+= girbil.o
-+obj-$(CONFIG_LITELINK_DONGLE_OLD)	+= litelink.o
-+obj-$(CONFIG_OLD_BELKIN_DONGLE_OLD)	+= old_belkin.o
-+obj-$(CONFIG_MCP2120_DONGLE_OLD)	+= mcp2120.o
-+obj-$(CONFIG_ACT200L_DONGLE_OLD)	+= act200l.o
-+obj-$(CONFIG_MA600_DONGLE_OLD)	+= ma600.o
- obj-$(CONFIG_EP7211_IR)		+= ep7211_ir.o
--obj-$(CONFIG_MCP2120_DONGLE)	+= mcp2120.o
- obj-$(CONFIG_AU1000_FIR)	+= au1k_ir.o
--obj-$(CONFIG_ACT200L_DONGLE)	+= act200l.o
--obj-$(CONFIG_MA600_DONGLE)	+= ma600.o
- # New SIR drivers
- obj-$(CONFIG_IRTTY_SIR)		+= irtty-sir.o	sir-dev.o
- # New dongles drivers for new SIR drivers
- obj-$(CONFIG_ESI_DONGLE)	+= esi-sir.o
- obj-$(CONFIG_TEKRAM_DONGLE)	+= tekram-sir.o
- obj-$(CONFIG_ACTISYS_DONGLE)	+= actisys-sir.o
-+obj-$(CONFIG_LITELINK_DONGLE)	+= litelink-sir.o
-+obj-$(CONFIG_GIRBIL_DONGLE)	+= girbil-sir.o
-+obj-$(CONFIG_OLD_BELKIN_DONGLE)	+= old_belkin-sir.o
-+obj-$(CONFIG_MCP2120_DONGLE)	+= mcp2120-sir.o
-+obj-$(CONFIG_ACT200L_DONGLE)	+= act200l-sir.o
-+obj-$(CONFIG_MA600_DONGLE)	+= ma600-sir.o
- 
- # The SIR helper module
- sir-dev-objs := sir_core.o sir_dev.o sir_dongle.o sir_kthread.o
+ extern void handle_exception (struct pt_regs *regs, const struct exception_table_entry *e);
+ extern const struct exception_table_entry *search_exception_tables (unsigned long addr);

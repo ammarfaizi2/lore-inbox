@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284218AbSAGRxi>; Mon, 7 Jan 2002 12:53:38 -0500
+	id <S284220AbSAGRyS>; Mon, 7 Jan 2002 12:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284220AbSAGRx2>; Mon, 7 Jan 2002 12:53:28 -0500
-Received: from [209.250.53.152] ([209.250.53.152]:51726 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S284218AbSAGRxN>; Mon, 7 Jan 2002 12:53:13 -0500
-Date: Mon, 7 Jan 2002 11:32:27 -0600
-From: Steven Walter <srwalter@yahoo.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "APIC error on CPUx" - what does this mean?
-Message-ID: <20020107113227.A31231@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <E37DB7922B4@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E37DB7922B4@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Mon, Jan 07, 2002 at 02:16:28PM +0100
-X-Uptime: 11:13am  up 42 days, 18:00,  1 user,  load average: 1.14, 1.08, 1.02
+	id <S284280AbSAGRyJ>; Mon, 7 Jan 2002 12:54:09 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:28290 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S284220AbSAGRyD>;
+	Mon, 7 Jan 2002 12:54:03 -0500
+Date: Mon, 7 Jan 2002 09:55:08 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Paul Jakma <paulj@alphyra.ie>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
+In-Reply-To: <Pine.LNX.4.33.0201051659040.15928-100000@dunlop.dub.ie.alphyra.com>
+Message-ID: <Pine.LNX.4.33.0201070942310.867-100000@segfault.osdlab.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 02:16:28PM +0100, Petr Vandrovec wrote:
-> Nope. Probably when CPU is in local APIC mode, it acknowledges interrupts
-> to chipset with different timming, and from time to time CPU still
-> sees IRQ pending, so it asks for vector, but as chipset has no
-> interrupt pending, it answers with IRQ7. I did no analysis to find
-> whether IRQ7 happens directly when we send confirmation to 8259,
-> or whether it happens due to some noise on IRQ line.
-> 
-> AFAIK it happens only on VIA based boards, and only if (AMD) CPU is using 
-> APIC.
 
-My system is based on AMD's own 750 Irongate chipset, and it produces
-both the initial spurious IRQ7 message and plentiful "ERR" interrupts:
+On Sat, 5 Jan 2002, Paul Jakma wrote:
 
-srwalter@hapablap:~$ uptime
- 11:31am  up 42 days, 18:19,  1 user,  load average: 1.04, 1.02, 1.00
-srwalter@hapablap:~$ cat /proc/interrupts | grep ERR
-ERR:      67169
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
-He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
-Well, who's mad now?
-			-- Montgomery C. Burns
+> On Fri, 4 Jan 2002, Dave Jones wrote:
+>
+> >  When devicefs is ready (or more to the point, the drivers become
+> >  devicefs aware), something to the effect of ls -R /devices
+> >  should be possible.
+>
+> how does devicefs differ from devfs? eg, on some of my systems i mount
+> devfs on /devfs and an ls -l of it shows all the devices that
+> currently have drivers that registered them.
+
+It's actually driverfs ;). (I know it's confusing, I wanted devfs, but it
+was already taken.)
+
+It exports devices based on their locality. On my test box, I have this
+output:
+
+sh-2.05# find pci0/ -type d
+pci0/
+pci0/00:1f.4
+pci0/00:1f.3
+pci0/00:1f.2
+pci0/00:1f.1
+pci0/00:1f.0
+pci0/00:02.0
+pci0/00:00.0
+
+Nodes are added by the bus driver as it enumerates the bus, before
+device-specific drivers are loaded.
+
+devfs groups devices based on device class (video, net, disk, etc). Adding
+primitive support for this should be pretty easy to driverfs, though there
+are many nasty details to work out.
+
+Basically, each device already has a directory. When it registers with its
+class subsystem (like networking), the subsystem creates a symlink:
+
+class/net/1 -> pci0/00:02.0
+
+(or something like that). It doesn't seem that there needs to be any
+explicit devfs_register() in the driver. I could be wrong, but that's my
+initial impression...
+
+	-pat
+

@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273936AbRIRV0L>; Tue, 18 Sep 2001 17:26:11 -0400
+	id <S273946AbRIRV2l>; Tue, 18 Sep 2001 17:28:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273938AbRIRV0B>; Tue, 18 Sep 2001 17:26:01 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26408 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S273936AbRIRVZx>; Tue, 18 Sep 2001 17:25:53 -0400
-Date: Tue, 18 Sep 2001 23:26:07 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        akpm@zip.com.au
-Subject: Re: 2.4.10pre11 vm rewrite fixes for mainline inclusion and testing
-Message-ID: <20010918232607.K720@athlon.random>
-In-Reply-To: <Pine.LNX.4.21.0109181627340.7836-100000@freak.distro.conectiva> <Pine.LNX.4.21.0109181636200.7836-100000@freak.distro.conectiva> <20010918231150.H720@athlon.random>
+	id <S273944AbRIRV2c>; Tue, 18 Sep 2001 17:28:32 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:43178 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S273939AbRIRV2Z>; Tue, 18 Sep 2001 17:28:25 -0400
+Date: Tue, 18 Sep 2001 14:22:44 -0700
+From: Brian Beattie <bbeattie@sequent.com>
+To: Ingo Molnar <mingo@elte.hu>, linux-raid@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] multipath RAID personality, 2.4.10-pre9
+Message-ID: <20010918142241.A2866@dyn9-47-16-223.des.beaverton.ibm.com>
+In-Reply-To: <20010916150806.E1541@turbolinux.com> <Pine.LNX.4.33.0109170113010.3960-100000@localhost.localdomain> <20010918203946.A12814@wyvern>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010918231150.H720@athlon.random>; from andrea@suse.de on Tue, Sep 18, 2001 at 11:11:50PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010918203946.A12814@wyvern>; from adrian.bridgett@iname.com on Tue, Sep 18, 2001 at 08:39:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 11:11:50PM +0200, Andrea Arcangeli wrote:
-> do it after 2.4.11 (possibly in 2.4.x, it doesn't sound a showstopper).
-				  ^^^ typo, I meant 2.5 :), sorry
+On Tue, Sep 18, 2001 at 08:39:46PM +0100, Adrian Bridgett wrote:
+> On Mon, Sep 17, 2001 at 01:16:56 +0200 (+0000), Ingo Molnar wrote:
+> [snip]
+> > > [...] Also, it is my understanding that with some multipath hardware,
+> > > if you read from the "backup" path it will kill access to the primary
+> > > path (this can be used when more than one system access shared disk
+> > > for failover).  As a result, we should always read from the "primary"
+> > > path for each disk unless there is an error.
+> > 
+> > yes, and this is being done currently, only the primary path is used.
+> 
+> Do you have plans to change this?  I know that the SDD software for AIX load
+> balances between paths (and I think EMC's Powerpaths do for AIX too), DMP
+> (from Veritas) for Solaris doesn't.
+> 
 
-Andrea
+I have been working with the version of this code included in RH 7.1.
+I have code that does round robin routing.  I'm working on cleaning it
+up and plan to post shortly.
+
+-- 
+Brian Beattie
+IBM Linux Technology Center - MPIO/SAN
+bbeattie@sequent.com
+503.578.5899  Des2-3C-5

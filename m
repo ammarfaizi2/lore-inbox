@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288748AbSBYVUi>; Mon, 25 Feb 2002 16:20:38 -0500
+	id <S292229AbSBYVVJ>; Mon, 25 Feb 2002 16:21:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292229AbSBYVU3>; Mon, 25 Feb 2002 16:20:29 -0500
-Received: from adsl-217-220.38-151.net24.it ([151.38.220.217]:32184 "EHLO
-	valeria.casa") by vger.kernel.org with ESMTP id <S288748AbSBYVUK>;
-	Mon, 25 Feb 2002 16:20:10 -0500
-Date: Mon, 25 Feb 2002 22:16:49 +0100 (CET)
-From: marco <marco@tux.dynu.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: suparna@in.ibm.com, linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Kernel support of socket async I/O
-In-Reply-To: <20020225142013.E11675@redhat.com>
-Message-ID: <Pine.LNX.4.21.0202252215210.1159-100000@valeria.casa>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292275AbSBYVU6>; Mon, 25 Feb 2002 16:20:58 -0500
+Received: from ns.suse.de ([213.95.15.193]:38923 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S292229AbSBYVUp>;
+	Mon, 25 Feb 2002 16:20:45 -0500
+Date: Mon, 25 Feb 2002 22:20:43 +0100
+From: Dave Jones <davej@suse.de>
+To: Justin Piszcz <war@starband.net>
+Cc: Daniel Quinlan <quinlan@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18 - Fixed?
+Message-ID: <20020225222043.B27081@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Justin Piszcz <war@starband.net>,
+	Daniel Quinlan <quinlan@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0202251537080.31438-100000@freak.distro.conectiva> <Pine.LNX.4.21.0202251556140.31438-100000@freak.distro.conectiva> <6ypu2twaz3.fsf@sodium.transmeta.com> <3C7AA8F1.3F93EFB4@starband.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C7AA8F1.3F93EFB4@starband.net>; from war@starband.net on Mon, Feb 25, 2002 at 04:13:21PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Where can I find the latest network aio stuff? Just to start having a look
-at it ....
+On Mon, Feb 25, 2002 at 04:13:21PM -0500, Justin Piszcz wrote:
+ > Looks like its fixed.
+ > 
+ > [root@war root]# cd /usr/src/linux-2.4.18
+ > [root@war linux-2.4.18]# patch -p1 < ../linux-2.4.18
+ > linux-2.4.18          linux-2.4.18.tar.bz2
+ > [root@war linux-2.4.18]# patch -p1 < ../patch-2.4.18-rc4
+ > patching file CREDITS
+ > Reversed (or previously applied) patch detected!  Assume -R? [n]
 
-marco
+ Only 1 chunk got dropped, not all of rc4.
+ Check the rc4-final diff in testing/incr/ and apply with -R
 
-
-On Mon, 25 Feb 2002, Benjamin LaHaise wrote:
-
-> On Mon, Feb 25, 2002 at 05:05:41PM +0100, marco wrote:
-> > Hello Benjamin and all of the guys on the lists,
-> > I'm pretty much interested in socket async I/O for a project at work. I
-> > read the document at 
-> ...
-> > I also searched linux-kernel archives for some status information, but
-> > couldn't gain much info (other than a couple of discussion threads back in
-> > late 1999).
-> > What we need is a standard aio/thread-pool-in-sigwaitinfo architecture and
-> > we wouldn't like to use select/poll.
-> ...
-> 
-> Recent development activity was mostly geared at raw block device and 
-> filesystem aio (as that's what the testers are using).  I did post patches 
-> for network aio, but dropped them due to time constraints.  Now that the 
-> most recent flurry of fixes to the aio core is complete (it's looking 
-> very good now), I need to get the core bits updated for 2.5 and see how 
-> much can be merged.  As for help, the network bits need polish and testing 
-> to get to the near-release quality of the rest of the code.
-> 
-> 		-ben
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
----------------------------------------------------
-
-      ~
-     . .
-     /V\     Computers are like air conditioners.
-    // \\   They stop working when you open Windows.
-   /(   )\
-    ^`~'^
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

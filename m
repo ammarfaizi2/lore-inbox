@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129359AbRCRD2A>; Sat, 17 Mar 2001 22:28:00 -0500
+	id <S129344AbRCRDHI>; Sat, 17 Mar 2001 22:07:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129381AbRCRD1v>; Sat, 17 Mar 2001 22:27:51 -0500
-Received: from dfw-smtpout3.email.verio.net ([129.250.36.43]:30659 "EHLO
-	dfw-smtpout3.email.verio.net") by vger.kernel.org with ESMTP
-	id <S129359AbRCRD1e>; Sat, 17 Mar 2001 22:27:34 -0500
-Message-ID: <3AB42AFA.A38BD693@bigfoot.com>
-Date: Sat, 17 Mar 2001 19:26:50 -0800
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19pre17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
-Subject: Re: [PATCH] /proc/uptime on SMP machines
-In-Reply-To: <15027.62364.751528.388435@siemens.ikp.physik.tu-darmstadt.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129359AbRCRDGs>; Sat, 17 Mar 2001 22:06:48 -0500
+Received: from mailout1-100bt.midsouth.rr.com ([24.92.68.6]:17552 "EHLO
+	mailout1-100bt.midsouth.rr.com") by vger.kernel.org with ESMTP
+	id <S129344AbRCRDGi>; Sat, 17 Mar 2001 22:06:38 -0500
+Message-Id: <200103180305.f2I35pL29485@mailout1-100bt.midsouth.rr.com>
+Subject: Re: IP Alias with 2.2.18?
+From: Stephen "M." Williams <rootusr@midsouth.rr.com>
+To: Marco Calistri <ik5bcu@tin.it>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <XFMail.20010317220644.ik5bcu@tin.it>
+Content-Type: text/plain
+X-Mailer: Evolution (0.9/+cvs.2001.03.15.09.00 - Preview Release)
+Date: 17 Mar 2001 21:03:31 -0600
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At present the idle value in /proc/uptime is only the idle time for the first
-> processor. With 2.4, processes seam "stickier" for my, and e.g "yes
-> >/dev/null" on an otherwise idle machine can stay for a long time on one
-> processor of my (intel) SMP machine. That way, the present output of
-> /proc/uptime can lead to a wrong conclusion.
+Marco,
 
-Same for 2.2.19p17
-
-[tim@smp ~]# cat /proc/uptime
-19262.25 18487.44
-[tim@smp ~]# cat /proc/stat | grep cpu
-cpu  108661 0 24741 3719438
-cpu0 65697 0 11814 1848909
-cpu1 42964 0 12927 1870529
-
---- 2.2.19pre17/fs/proc/array.c Fri Mar 16 04:09:41 2001
-+++ 2.2.19pre17/fs/proc/array.c.idle    Sat Mar 17 19:20:22 2001
-@@ -339,9 +339,16 @@
- {
-        unsigned long uptime;
-        unsigned long idle;
-+       int i;
- 
-        uptime = jiffies;
-+#ifdef CONFIG_SMP
-+       for (idle =0,i = 0; i < smp_num_cpus; i++)
-+       idle += (init_tasks[i]->times.tms_utime +
-+               init_tasks[i]->times.tms_stime)/smp_num_cpus;
-+#else
-        idle = task[0]->times.tms_utime + task[0]->times.tms_stime;
-+#endif
- 
-        /* The formula for the fraction parts really is ((t * 100) / HZ)
-% 100, but
-           that would overflow about every five days at HZ == 100.
+    Recompile your kernel and select IP: aliasing support under
+    Networking Options
 
 
---
+Steve
+
+
+On 17 Mar 2001 22:06:44 +0100, Marco Calistri wrote:
+> My first post on the "top of mailing-list"...
+> 
+> Is there same IP aliasing support with kernel 2.2.18?
+> 
+> My eth0:0 doesn't works anymore.
+> 
+> Thanks!
+> 
+> -- 
+> Regards,: Marco Calistri <ik5bcu@tin.it>
+> gpg key available on http://www.qsl.net/ik5bcu
+> Xfmail 1.4.7p2 on linux RedHat 6.2
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

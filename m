@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268844AbUIHQkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269045AbUIHQs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268844AbUIHQkh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 12:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269045AbUIHQkh
+	id S269045AbUIHQs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 12:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269060AbUIHQs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 12:40:37 -0400
-Received: from eh3.com ([66.220.5.62]:24778 "HELO eh3.com")
-	by vger.kernel.org with SMTP id S268844AbUIHQkf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 12:40:35 -0400
-Subject: 3ware 9500 ("3w-9xxx") w/ dual Opteron (Tyan 2885)
-From: Ed Hill <ed@eh3.com>
+	Wed, 8 Sep 2004 12:48:59 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:62342 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S269045AbUIHQs4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 12:48:56 -0400
+From: jmerkey@comcast.net
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1094661631.13662.2808.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 08 Sep 2004 12:40:31 -0400
-Content-Transfer-Encoding: 7bit
+Cc: jmerkey@drdos.com
+Subject: 2.6.8.1 mempool subsystem sickness
+Date: Wed, 08 Sep 2004 16:48:54 +0000
+Message-Id: <090820041648.7817.413F37F600049F4800001E892200762302970A059D0A0306@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
+X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On a system with 4GB of memory, and without 
+the user space patch that spilts user space
+just a stock kernel, I am seeing memory 
+allocation failures with X server and simple
+apps on a machine with a Pentium 4 
+processor and 500MB of memory.  
 
-Hi folks,
+If you load large apps and do a lot of 
+skb traffic, the mempool abd slab 
+caches start gobbling up pages
+and don't seem to balance them 
+very well, resulting in memory 
+allocation failures over time if
+the system stays up for a week 
+or more.  
 
-Has anyone managed to get a 3ware 9500-series RAID controller working
-stably on an SMP Opteron system?  Especially with a Tyan 2885 MB?  If
-so, would you be willing to share your kernel configuration info?
+I am also seeing the same behavior 
+on another system which has been
+running for almost 30 days with 
+an skb based traffic regeneration 
+test calling and sending skb's
+in kernel between two interfaces.
 
-I'm trying to get a 3ware 9500 8-port card working on a Tyan 2885
-motherboard (dual Opterons) and have been experiencing numerous oopses:
+The pages over time get stuck 
+in the slab allocator and user
+space apps start to fail on alloc
+requests.  
 
-  - 2.6.[78] w/ the included 3w-9xxx driver and ext3 FS:
-    Results in kernel oops after 1--2 hours of writing to the 
-    RAID array (happened four times).  The oops appears to be 
-    in ext3.
+Rebooting the system clears
+the problem, which slowly over time
+comes back.  I am seeing this with
+stock kernels from kernel.org 
+and on kernels I have patched,
+so the problem seems to be
+in the base code.  I have spent
+the last two weeks observing 
+the problem to verify I can
+reproduce it and it keeps 
+happening.  
 
-  - 2.6.8.1 w/ latest 3w-9xxx driver from 3ware and XFS FS:
-    Results in "Bad page state at prep_new_page" kernel errors
-
-When not using the 3ware RAID array (that is, the array is mounted but
-no reads or writes are done to it), the machine is very stable--even
-under heavy CPU loads and lots of IO to local (non-RAID) IDE drives.
-
-Any help/suggestions appreciated!
-
-Ed
-
--- 
-Edward H. Hill III, PhD
-office:  MIT Dept. of EAPS;  Rm 54-1424;  77 Massachusetts Ave.
-             Cambridge, MA 02139-4307
-emails:  eh3@mit.edu                ed@eh3.com
-URLs:    http://web.mit.edu/eh3/    http://eh3.com/
-phone:   617-253-0098
-fax:     617-253-4464
+Jeff
 

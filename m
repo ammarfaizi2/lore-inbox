@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272576AbTHPD2o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 23:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272577AbTHPD2o
+	id S272577AbTHPEJl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 00:09:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272586AbTHPEJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 23:28:44 -0400
-Received: from mail.kroah.org ([65.200.24.183]:28299 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272576AbTHPD2n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 23:28:43 -0400
-Date: Fri, 15 Aug 2003 20:28:33 -0700
-From: Greg KH <greg@kroah.com>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Driver Core fixes for 2.6.0-test3
-Message-ID: <20030816032833.GA6680@kroah.com>
-References: <20030815182459.GA3755@kroah.com> <20030815215459.Y639@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030815215459.Y639@nightmaster.csn.tu-chemnitz.de>
-User-Agent: Mutt/1.4.1i
+	Sat, 16 Aug 2003 00:09:41 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:12995 "EHLO
+	VL-MO-MR004.ip.videotron.ca") by vger.kernel.org with ESMTP
+	id S272577AbTHPEJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 00:09:40 -0400
+Date: Sat, 16 Aug 2003 00:01:02 -0400
+From: Stephane Ouellette <ouellettes@videotron.ca>
+Subject: [PATCH 2.4][TRIVIAL][RESEND]   Fix warning in arch/i386/kernel/setup.c
+To: davej@suse.de
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <3F3DAC7E.204@videotron.ca>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_kbYT149qAHTAkqGaDVNm+w)"
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 09:54:59PM +0200, Ingo Oeser wrote:
-> Hi Greg,
+This is a multi-part message in MIME format.
 
-Hi, I've brought this back to lkml as I'm getting tired of private email
-threads about this topic.  Hope you don't mind.
+--Boundary_(ID_kbYT149qAHTAkqGaDVNm+w)
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
 
-> On Fri, Aug 15, 2003 at 11:25:00AM -0700, Greg KH wrote:
-> > Here's some driver core changes that do the following things:
-> > 	- remove struct device.name field and fix up remaining
-> > 	  subsystems
-> 
-> Could you point me to the rationale about this?
-> 
-> I for one considered "everything should have a name" policy very
-> useful and extendible.
+Dave,
 
-The main problem is that we don't want to be putting name databases in
-the kernel, like PCI, PnP, and USB were starting to do.  People were
-starting to complain that the PCI and USB names were not the "proper"
-name, as we didn't have enough room for the "full" name.
+   the following patch fixes a warning if CONFIG_SMP is not defined.
 
-Naming databases belong in userspace.  For PCI, PnP, and USB we can
-determine the name ourselves from userspace using lspci, lspnp, and
-lsusb.  Getting rid of the name field prevents us from relying on kernel
-code when we shouldn't be.
+   The patch applies to 2.4.22-rc1-ac1.
 
-> Not that I would like to change that back, just like to know why
-> this is done, why so late and why after introducing it into all
-> drivers in core?
+Stephane Ouellette
 
-We messed up, and we're now fixing that before people start to rely on
-it :)
 
-Now some subsystems still want to export a "name" as there is no other
-way to determine the type of the device (no vendor or product ids.)  For
-them, a name field is just fine to have.  For example, I moved the name
-field back into the i2c_client and i2c_adapter structures for this very
-reason.
+--Boundary_(ID_kbYT149qAHTAkqGaDVNm+w)
+Content-type: text/plain; name=setup.c-2.4.22-rc1-ac1.diff; CHARSET=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=setup.c-2.4.22-rc1-ac1.diff
 
-Hey, we're saving kernel memory, and this is a problem?  :)
+--- linux-2.4.22-rc1-ac1-orig/arch/i386/kernel/setup.c	Fri Aug  8 22:34:38 2003
++++ linux-2.4.22-rc1-ac1-fixed/arch/i386/kernel/setup.c	Sat Aug  9 00:41:01 2003
+@@ -2978,7 +2978,9 @@
+ 	 * applications want to get the raw CPUID data, they should access
+ 	 * /dev/cpu/<cpu_nr>/cpuid instead.
+ 	 */
++#ifdef CONFIG_SMP
+ 	extern	int phys_proc_id[NR_CPUS];
++#endif
+ 	static char *x86_cap_flags[] = {
+ 		/* Intel-defined */
+ 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
 
-Hope this helps explain things.
-
-greg k-h
+--Boundary_(ID_kbYT149qAHTAkqGaDVNm+w)--

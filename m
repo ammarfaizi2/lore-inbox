@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263041AbUDYTQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbUDYTNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263041AbUDYTQD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 15:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbUDYTQD
+	id S261947AbUDYTNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 15:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbUDYTNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 15:16:03 -0400
-Received: from waste.org ([209.173.204.2]:13967 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263041AbUDYTQA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 15:16:00 -0400
-Date: Sun, 25 Apr 2004 14:15:43 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netconsole hangs w/ alt-sysrq-t
-Message-ID: <20040425191543.GV28459@waste.org>
-References: <16519.58589.773562.492935@segfault.boston.redhat.com>
+	Sun, 25 Apr 2004 15:13:25 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:12425 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261947AbUDYTNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Apr 2004 15:13:24 -0400
+Subject: Re: [Linux-fbdev-devel] vesafb and *fb
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.58.0404251511320.13613@waterleaf.sonytel.be>
+References: <Pine.LNX.4.44.0404240031030.5826-100000@phoenix.infradead.org>
+	 <Pine.GSO.4.58.0404251511320.13613@waterleaf.sonytel.be>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1082906968.28039.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16519.58589.773562.492935@segfault.boston.redhat.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
+Date: Sun, 25 Apr 2004 16:29:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 22, 2004 at 11:29:33AM -0400, Jeff Moyer wrote:
-> If netconsole is enabled, and you hit Alt-Sysrq-t, then it will print a
-> small amount of output to the console(s) and then hang the system.  In this
-> case, I'm using the e100 driver, and we end up exhausting the available
-> cbs.  Since we are in interrupt context, the driver's poll routine is never
-> run, and we loop infinitely waiting for resources to free up that never
-> will.  Kernel version is 2.6.5.
+On Sul, 2004-04-25 at 14:13, Geert Uytterhoeven wrote:
+> > >     if (!request_mem_region(vesafb_fix.smem_start, vesafb_fix.smem_len, "vesafb")) {
+> > > 	    printk(KERN_WARNING
+> > > 		   "vesafb: abort, cannot reserve video memory at 0x%lx\n",
+> > > 		    vesafb_fix.smem_start);
+> > > 	    /* We cannot make this fatal. Sometimes this comes from magic
+> > > 	       spaces our resource handlers simply don't know about */
 
-Can you try 2.6.6-rc2? It has a fix to congestion handling that should
-address this.
+Various built-in video systems broke on that test because we didnt
+have resources for them so the resources couldnt be allocated. Probably
+if vesafb is enabled we should skip any primary video device (ie the one
+with VGA_EN at boot)
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting

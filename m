@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265211AbTBFAXT>; Wed, 5 Feb 2003 19:23:19 -0500
+	id <S265222AbTBFA3E>; Wed, 5 Feb 2003 19:29:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265222AbTBFAXT>; Wed, 5 Feb 2003 19:23:19 -0500
-Received: from packet.digeo.com ([12.110.80.53]:30376 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265211AbTBFAXS>;
-	Wed, 5 Feb 2003 19:23:18 -0500
-Date: Wed, 5 Feb 2003 16:32:43 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: scott-kernel@thomasons.org
-Cc: linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai-germaschewski@uiowa.edu>
-Subject: Re: soundcard bug in 2.5.59-mm8
-Message-Id: <20030205163243.3b63e810.akpm@digeo.com>
-In-Reply-To: <200302051819.27136.scott-kernel@thomasons.org>
-References: <200302051819.27136.scott-kernel@thomasons.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S265238AbTBFA3E>; Wed, 5 Feb 2003 19:29:04 -0500
+Received: from mailgate.bridgetrading.com ([62.49.201.178]:64954 "EHLO
+	directcommunications.net") by vger.kernel.org with ESMTP
+	id <S265222AbTBFA3E>; Wed, 5 Feb 2003 19:29:04 -0500
+Message-ID: <3E41AE60.1060106@Funderburg.com>
+Date: Thu, 06 Feb 2003 00:37:52 +0000
+From: "Chris Funderburg (at home)" <Chris@Funderburg.com>
+Organization: DCi (Europe)
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-gb, en, en-us
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: Matt Reppert <arashi@yomerashi.yi.org>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com> <20030205184535.GG19678@dualathlon.random> <20030205114353.6591f4c8.akpm@digeo.com> <20030205141104.6ae9e439.arashi@yomerashi.yi.org> <20030205233115.GB14131@work.bitmover.com>
+In-Reply-To: <20030205233115.GB14131@work.bitmover.com>
+X-Enigmail-Version: 0.72.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Feb 2003 00:32:48.0144 (UTC) FILETIME=[46253100:01C2CD77]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-scott thomason <scott-kernel@thomasons.org> wrote:
->
-> There's an error in the link process when trying to use the 
-> ES1968 driver. I haven't ever tried it on previous kernels, but 
-> when this one blew, I checked it against vanilla 2.5.59, and it 
-> finished fine there. Output and config options below. Let me 
-> know if you need more.
-> ---scott
-> 
-> make -f scripts/Makefile.build obj=arch/i386/lib
-> echo '  Generating build number'
->   Generating build number
-> . ./scripts/mkversion > .tmp_version
-> mv -f .tmp_version .version
-> make -f scripts/Makefile.build obj=init
->   Generating include/linux/compile.h (updated)
->   gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall 
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
-> -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon 
-> -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc 
-> -iwithprefix include    -DKBUILD_BASENAME=version 
-> -DKBUILD_MODNAME=version -c -o init/version.o init/version.c
->    ld -m elf_i386  -r -o init/built-in.o init/main.o 
-> init/version.o init/do_mounts.o init/initramfs.o
->   	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s 
-> arch/i386/kernel/head.o arch/i386/kernel/init_task.o   
-> init/built-in.o --start-group  usr/built-in.o  
-> arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  
-> arch/i386/mach-default/built-in.o  kernel/built-in.o  
-> mm/built-in.o  fs/built-in.o  ipc/built-in.o  
-> security/built-in.o  crypto/built-in.o  lib/lib.a  
-> arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  
-> arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
-> sound/built-in.o(.text+0x3750b): In function 
-> `snd_opl3_synth_event_input':
-> : undefined reference to `snd_seq_instr_event'
+On 2/5/2003 11:31 PM, Larry McVoy wrote:
+ >>(BTW, Larry, the bk binaries segfault on my (glibc 2.3.1) i686 
+system. Any
+ >>chance we could see binaries linked against 2.3.x? There's NSS 
+badness between
+ >>2.2 and 2.3 that causes even static binaries to segfault ... )
+ >
+ >
+ > Yes, NSS in glibc is the world's worst garbage.  Glibc segfaults if there
+ > is no /etc/nsswitch.conf.  Nice.
+ >
+ > We can go buy another machine for glibc2.3, I just need to know what 
+redhat
+ > release uses that.  If there isn't one, what distro uses that?
 
-The -mm patches include the lates from Linus's repository.  There is a large
-change to sound/core/seq/Makefile there.  Seems that Kai was there ;)
+Matt,
+
+I _think_ the RedHat glibc2.3 has the NSS patch to avoid this problem.
+If you're into rolling your own you can find some info here:
+
+http://www.linuxfromscratch.org/view/cvs/chapter06/glibc.html
+
+I wanted to to run the newest version of glibc on my LFS machine, and
+had to start from scratch (again) because of this.
 
 

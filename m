@@ -1,71 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288321AbSAHUu0>; Tue, 8 Jan 2002 15:50:26 -0500
+	id <S288325AbSAHUxq>; Tue, 8 Jan 2002 15:53:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288322AbSAHUuQ>; Tue, 8 Jan 2002 15:50:16 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:30848 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S288321AbSAHUuK>; Tue, 8 Jan 2002 15:50:10 -0500
-Date: Tue, 8 Jan 2002 15:51:24 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Mike Castle <dalgoda@ix.netcom.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: "shutdown -r now" (lilo, win98) (fwd)
-In-Reply-To: <20020108202358.GO22948@thune.mrc-home.com>
-Message-ID: <Pine.LNX.3.95.1020108153345.3179A-100000@chaos.analogic.com>
+	id <S288323AbSAHUxg>; Tue, 8 Jan 2002 15:53:36 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:59153 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S288322AbSAHUxa>; Tue, 8 Jan 2002 15:53:30 -0500
+Message-ID: <3C3B59D8.9D4DD1B1@zip.com.au>
+Date: Tue, 08 Jan 2002 12:43:04 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rene Rebe <rene.rebe@gmx.net>
+CC: andre@linux-ide.org, matthew@infodancer.org, linux-kernel@vger.kernel.org
+Subject: Re: IDE Patch (fwd)
+In-Reply-To: <Pine.LNX.4.10.10201080709060.991-100000@master.linux-ide.org>,
+		<20020108150346.GA24479@infodancer.org>
+		<Pine.LNX.4.10.10201080709060.991-100000@master.linux-ide.org> <20020108.170512.884013252.rene.rebe@gmx.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jan 2002, Mike Castle wrote:
-
-> On Tue, Jan 08, 2002 at 08:15:07PM +0000, Alan Cox wrote:
-> > Some windows driver is assuming things that the BIOS has not cleared up
-> > on reset and whichit probably shouldn't. Its not uncommon to have to 
-> > powercycle a box between OS's. Sometimes you see it with windows hanging
-> > sometimes with Linux
+Rene Rebe wrote:
 > 
-> I thought that Linux forced a cold-restart upon a reboot to solve this very
-> issue.  At least wrt the BIOS.
-> 
-> Perhaps a physical component needs that power cycle to do a reset?
-> 
+> I also vote for inclusion in 2.4.
 
-You can force a processor-reset in the simplist way, with an Intel
-paged executive....
+I spent a couple of hours beating the crap out of it,
+and none actually came out.  I'd vote for prompt inclusion
+in 2.5, and inclusion in 2.4.x-pre1 when it's shown to be
+stable.
 
-make a module that has open() only. Call it a character device with
-some unused major number. Make a 'device', /dev/reboot with that
-major number. 
-
-Install it. When you want to re-boot, execute cat</dev/reboot
-from your scripts after file-systems have been umounted.
-
-The simple code in open() is:
-
-   __asm__ __volatile__("movl $0, %%eax\n movl %%eax, %%cr0\n");
-
-Actually, all you have to do is reset the paging-bit when executing
-from an area in which there is not a 1:1 correspondence between
-physical and virtual (like in the module).
-
-This has worked on every system in which I have found the normal
-shut-down code resulted in some strange start-up or a failure to
-shut down.
-
-This processor-reset starts execution at 0xffff0000, where the
-BIOS ROM exists before it's shadowed, just like power-on.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+-

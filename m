@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318738AbSG0LiC>; Sat, 27 Jul 2002 07:38:02 -0400
+	id <S318739AbSG0MAj>; Sat, 27 Jul 2002 08:00:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318739AbSG0LiB>; Sat, 27 Jul 2002 07:38:01 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:9557 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S318738AbSG0LiA>; Sat, 27 Jul 2002 07:38:00 -0400
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Erik Andersen <andersen@codepoet.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Andreas Dilger <adilger@clusterfs.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Header files and the kernel ABI
-References: <Pine.LNX.4.44.0207251455460.17906-100000@waste.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 27 Jul 2002 05:29:09 -0600
-In-Reply-To: <Pine.LNX.4.44.0207251455460.17906-100000@waste.org>
-Message-ID: <m1adodif3u.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S318741AbSG0MAj>; Sat, 27 Jul 2002 08:00:39 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:36801 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S318739AbSG0MAj>; Sat, 27 Jul 2002 08:00:39 -0400
+Date: Sat, 27 Jul 2002 14:21:36 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>,
+       Ravikiran G Thirumalai <kiran@in.ibm.com>,
+       <linux-kernel@vger.kernel.org>, lse <lse-tech@lists.sourceforge.net>,
+       <riel@conectiva.com.br>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [Lse-tech] Re: [RFC] Scalable statistics counters using
+ kmalloc_percpu
+In-Reply-To: <20020726201526.GZ2907@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0207271345320.20701-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron <oxymoron@waste.org> writes:
+On Fri, 26 Jul 2002, William Lee Irwin III wrote:
+
+> On Fri, Jul 26, 2002 at 12:50:12PM -0700, Robert Love wrote:
+> > In current 2.5?  I thought Andrew and I fixed all those issues and
+> > pushed them to Linus...
+> > The `configurable NR_CPUS' patch works fine for me.  I always boot with
+> > NR_CPUS=2.
 > 
-> The idea of maintaining them separately is that people won't be able to
-> touch the ABI without explicitly going through a gatekeeper whose job is
-> to minimize breakage. Linus usually catches ABI changes but not always.
+> No idea who it works for, it sure doesn't work here. Behold:
+> ...changing IO-APIC physical APIC ID to 14 ... ok.
+> BIOS bug, IO-APIC#11 ID 0 is already used!...
+> Kernel panic: Max APIC ID exceeded!
 > 
-> I explicitly did _not_ suggest making it the job of libc maintainers. And
-> the whole point of the exercise is to avoid ABI of the day anyway. The ABI
-> should change less frequently than the kernel or libc. It's more analogous
-> to something like modutils.
+> In idle task - not syncing
 
-Except for ioctls.  Until we can get those under control the abi headers
-need to remain part of the kernel.  Gatekeeping on the ioctls is something
-we need.
+hmm
 
-And even if the code is part of the kernel, Linus can still delegate
-the work of verifying it he wants.
+Since you can only have 4 bits for your IOAPIC ID, you need to stuff them 
+all into the 4 bit address space, looking at the IDs there should be 
+plenty space for 8 IOAPICs in the 4 bit region. Another funny, is how come 
+it tries to reassign IDs for 12 IOAPICs? unless it picked up more from the 
+proprietory vendor section of mp tables seeing as it only picked up 8 at 
+boot, i think that code might need a once over.
 
-Eric
+Another strange check is the following;
+
+if (phys_id_present_map & (1 << mp_ioapics[apic].mpc_apicid))
+
+and earlier...
+
+if (clustered_apic_mode)
+	/* We don't have a good way to do this yet - hack */
+	phys_id_present_map = (u_long) 0xf;
+
+urgh...
+
+Overrall i think arch/i386/kernel/io_apic.c needs a looking over.
+
+Cheers,
+	Zwane
+-- 
+function.linuxpower.ca
+
+
+
+
+
+
+
+
+

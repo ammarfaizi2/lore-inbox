@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265277AbTLaW6z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 17:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265279AbTLaW6y
+	id S265283AbTLaXIO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 18:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbTLaXIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 17:58:54 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:50905 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S265277AbTLaW6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 17:58:53 -0500
-Subject: [PATCH] MSI broke voyager build
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       long <tlnguyen@snoqualmie.dp.intel.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	Wed, 31 Dec 2003 18:08:14 -0500
+Received: from kiy.wanderer.org ([195.218.87.138]:15885 "EHLO kiy.wanderer.org")
+	by vger.kernel.org with ESMTP id S265283AbTLaXIL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 18:08:11 -0500
+Message-ID: <3FF3436A.7050503@tv.debian.net>
+Date: Wed, 31 Dec 2003 23:45:14 +0200
+From: Tommi Virtanen <tv@tv.debian.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rob Love <rml@ximian.com>
+Cc: Nathan Conrad <lk@bungled.net>, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <E1AbWgJ-0000aT-00@neptune.local>	 <20031231192306.GG25389@kroah.com> <1072901961.11003.14.camel@fur>	 <20031231220107.GC11032@bungled.net> <1072909218.11003.24.camel@fur>
+In-Reply-To: <1072909218.11003.24.camel@fur>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 31 Dec 2003 16:58:41 -0600
-Message-Id: <1072911523.1892.30.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The author made the arch/i386 compile depend on NR_VECTORS being
-defined.
+Rob Love wrote:
+>>One thing that I'm confused about with respect to device files is how
+>>kernel arguments are supposed to work. Now, we _seem_ to have a
+>>mish-mash of different ways to tell the kernel which device to open as
+>>a console, which device to use as a suspend device, etc.... Now, all
+>>of the device names are being migrated to userland. How is the kernel
+>>supposed to determine which device to use when it is told use
+>>/dev/hda3 or /dev/ide/host0/something/part3 as the suspend partition?
+>>The kernel no longer knows to which device this string this device is
+>>connected.
+...
 
-This symbol, however, was put only into mach-default/irq_vectors.h
+> The kernel uses the device number to understand what device user-space
+> is trying to access.  The kernel associates the device with a device
+> number.  Normally that number is static, and known a priori, so we just
+> create a huge /dev directory with all possible devices and their
+> assigned numbers (you can see these numbers with ls -la).
 
-The attached patch adds it to voyager; visws and pc9800 however, are
-still broken.
+Let me try to rephrase Nathan's question more explicitly.
 
-The code that breaks is this (in arch/i386/kernel/i8259.c):
-
- 	 * us. (some of these will be overridden and become
- 	 * 'special' SMP interrupts)
- 	 */
--	for (i = 0; i < NR_IRQS; i++) {
-+	for (i = 0; i < (NR_VECTORS - FIRST_EXTERNAL_VECTOR); i++) {
- 		int vector = FIRST_EXTERNAL_VECTOR + i;
-+		if (i >= NR_IRQS)
-+			break;
- 		if (vector != SYSCALL_VECTOR) 
- 			set_intr_gate(vector, interrupt[i]);
-
-as far as I can see, with NR_VECTORS set at 256, FIRST_EXTERNAL_VECTOR
-at 32 and NR_IRQS set at 224 the two forms of the loop are identical. 
-The only case it would make a difference would be for NR_IRQ >
-NR_VECTORS + FIRST_EXTERNAL_VECTOR which doesn't seem to make any
-sense.  Perhaps just backing this change out of i8259.c would be
-better?  NR_VECTORS seems to have no other defined use in the MSI code.
-
-James
-
-
-===== include/asm-i386/mach-voyager/irq_vectors.h 1.4 vs edited =====
---- 1.4/include/asm-i386/mach-voyager/irq_vectors.h	Wed Oct 22 11:34:51 2003
-+++ edited/include/asm-i386/mach-voyager/irq_vectors.h	Wed Dec 31 16:30:15 2003
-@@ -55,6 +55,7 @@
- #define VIC_CPU_BOOT_CPI		VIC_CPI_LEVEL0
- #define VIC_CPU_BOOT_ERRATA_CPI		(VIC_CPI_LEVEL0 + 8)
- 
-+#define NR_VECTORS 256
- #define NR_IRQS 224
- #define NR_IRQ_VECTORS NR_IRQS
- 
+If user policy decides all naming, how does the kernel parse e.g. 
+root=/dev/foo arguments? Or the swap partition to use for swsuspend?
 

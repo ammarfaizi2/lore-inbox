@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTEMUD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 16:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTEMUD1
+	id S261874AbTEMUCF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 16:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTEMUCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 16:03:27 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:47881 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261916AbTEMUDZ
+	Tue, 13 May 2003 16:02:05 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:44263 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261874AbTEMUCC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 16:03:25 -0400
-Date: Tue, 13 May 2003 16:08:54 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Felix von Leitner <felix-kernel@fefe.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69: VIA IDE still broken
-In-Reply-To: <20030508220910.GA1070@codeblau.de>
-Message-ID: <Pine.LNX.3.96.1030513160559.18019B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 May 2003 16:02:02 -0400
+Date: Tue, 13 May 2003 13:09:53 -0700
+From: Greg KH <greg@kroah.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-bk7: multiple definition of `usb_gadget_get_string'
+Message-ID: <20030513200953.GC11540@kroah.com>
+References: <20030512205848.GU1107@fs.tum.de> <20030512211159.GA29716@kroah.com> <3EC03705.8040100@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EC03705.8040100@pacbell.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 May 2003, Felix von Leitner wrote:
-
-> I can't believe this still isn't fixed!
+On Mon, May 12, 2003 at 05:06:29PM -0700, David Brownell wrote:
+> Greg KH wrote:
+> >On Mon, May 12, 2003 at 10:58:48PM +0200, Adrian Bunk wrote:
+> >>`usb_gadget_get_string':
+> >>: multiple definition of `usb_gadget_get_string'
+> >>drivers/usb/gadget/g_zero.o(.text+0x0): first defined here
+> >>make[2]: *** [drivers/usb/gadget/built-in.o] Error 1
+> >
+> >
+> >I don't think that g_zero and g_ether are allowed to be built into the
+> >kernel at the same time.  David, want to send a patch to fix the Kconfig
+> >file to prevent this?
 > 
->  hda: dma_timer_expiry: dma status == 0x24
->  hda: lost interrupt
->  hda: dma_intr: bad DMA status (dma_stat=30)
->  hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+> Yes, just one: there's only one upstream USB connector,
+> it can only have one driver.  Patch attached.
 > 
->  hda: dma_timer_expiry: dma status == 0x24
->  hda: lost interrupt
->  hda: dma_intr: bad DMA status (dma_stat=30)
->  hda: dma_intr: status=0x50 { DriveReady SeekComplete }
-> 
-> My hda is in perfect health and this does not happen on the same
-> hardware with 2.4.* or 2.5.63.
+> Seems like the xconfig/menuconfig coredumps I previously
+> saw with tristate choice/endchoice are now gone ... or at
+> least they don't show up with this many choices!
 
-That seems to reduce the chances of hardware problems. At the least later
-kernels tickle the problem if there is one.
+Applied, thanks.
 
-> hardware with 2.4.* or 2.5.63.  I reported this before and got the
-> answer that to fix this, recent changes in the IDE code would have to be
-> reverted.  Apparently I was unreasonably hasty in assuming that that
-> would be done now that the need to do it has been established.
-> 
-> I would appreciate it if the fix would be integrated into 2.5.70.
-
-I wouldn't assume that the fix is known and as simple as you seem to
-think. Other people aren't having the problem. Doesn't mean there isn't
-one, but the changes you want reverted were made for a reason.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+greg k-h

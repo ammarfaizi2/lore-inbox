@@ -1,141 +1,498 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265182AbUE0UPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265199AbUE0UVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265182AbUE0UPw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 16:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbUE0UPw
+	id S265199AbUE0UVs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 16:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265187AbUE0UVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 16:15:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26796 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265182AbUE0UPr (ORCPT
+	Thu, 27 May 2004 16:21:48 -0400
+Received: from hqemgate02.nvidia.com ([216.228.112.145]:33540 "EHLO
+	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
+	id S265195AbUE0UVO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 16:15:47 -0400
-Date: Thu, 27 May 2004 22:15:41 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Carsten Aulbert <carsten@welcomes-you.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI S3 fails to re-init NIC on Asus A7V
-Message-ID: <20040527201541.GA601@devserv.devel.redhat.com>
-References: <40B6480D.60905@welcomes-you.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40B6480D.60905@welcomes-you.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 27 May 2004 16:21:14 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] add new nForce IDE/SATA device IDs
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Date: Thu, 27 May 2004 13:21:03 -0700
+Message-ID: <C064BF1617D93B4B83714E38C4653A6E0AF48249@mail-sc-10.nvidia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] add new nForce IDE/SATA device IDs
+Thread-Index: AcREIjL24UsD0IYVQbiwHNTMbkLXygAAuvCw
+From: "Brian Lazara" <blazara@nvidia.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+Cc: <linux-ide@vger.kernel.org>,
+       "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry about that. Patches added below as plain text:
 
-On Thu, May 27, 2004 at 10:14:50PM +0200, Carsten Aulbert wrote:
-> Hi all,
+> 3) Normally we want to add SATA support to libata not
+> drivers/ide.  Do 
+> the nVidia SATA chips support SATA SCRs or anything like 
+> that?  Why not 
+> use libata?
+
+We do plan on moving our SATA support to libata.
+
+Patches for 2.4.27-pre2 and 2.6.6 to add device IDs for new nForce IDE
+and SATA controllers. Rename some of the existing controller names to
+correctly match released product names. 
+
+diff -uprN -X dontdiff linux-2.6.6/drivers/ide/pci/amd74xx.c
+linux-2.6.6-nforce-ck804-ide/drivers/ide/pci/amd74xx.c
+--- linux-2.6.6/drivers/ide/pci/amd74xx.c	2004-05-09
+19:33:21.000000000 -0700
++++ linux-2.6.6-nforce-ck804-ide/drivers/ide/pci/amd74xx.c
+2004-05-17 15:03:08.000000000 -0700
+@@ -1,7 +1,8 @@
+ /*
+  * Version 2.13
+  *
+- * AMD 755/756/766/8111 and nVidia nForce/2/2s/3/3s IDE driver for
+Linux.
++ * AMD 755/756/766/8111 and nVidia nForce/2/2s/3/3s/CK804/MCP04
++ * IDE driver for Linux.
+  *
+  * Copyright (c) 2000-2002 Vojtech Pavlik
+  *
+@@ -68,6 +69,12 @@ static struct amd_ide_chip {
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2,	0x50, AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_IDE,	0x50,
+AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA,	0x50,
+AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2,	0x50,
+AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	0x50,
+AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA,	0x50,
+AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2,	0x50,
+AMD_UDMA_133 },
+ 	{ 0 }
+ };
+ 
+@@ -465,6 +472,12 @@ static struct pci_device_id amd74xx_pci_
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 10 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 11 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 12 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_IDE,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 13 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2,
+
++PCI_ANY_ID, PCI_ANY_ID, 0, 0, 18 },
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, amd74xx_pci_tbl);
+diff -uprN -X dontdiff linux-2.6.6/drivers/ide/pci/amd74xx.h
+linux-2.6.6-nforce-ck804-ide/drivers/ide/pci/amd74xx.h
+--- linux-2.6.6/drivers/ide/pci/amd74xx.h	2004-05-09
+19:31:59.000000000 -0700
++++ linux-2.6.6-nforce-ck804-ide/drivers/ide/pci/amd74xx.h
+2004-05-17 15:03:08.000000000 -0700
+@@ -94,7 +94,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 7 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE,
+-		.name		= "NFORCE2S",
++		.name		= "NFORCE2-U400R",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+@@ -105,7 +105,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 8 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA,
+-		.name		= "NFORCE2S-SATA",
++		.name		= "NFORCE2-U400R-SATA",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+@@ -116,7 +116,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 9 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE,
+-		.name		= "NFORCE3",
++		.name		= "NFORCE3-150",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+@@ -127,7 +127,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 10 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE,
+-		.name		= "NFORCE3S",
++		.name		= "NFORCE3-250",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+@@ -138,7 +138,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 11 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA,
+-		.name		= "NFORCE3S-SATA",
++		.name		= "NFORCE3-250-SATA",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+@@ -149,7 +149,73 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 12 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2,
+-		.name		= "NFORCE3S-SATA2",
++		.name		= "NFORCE3-250-SATA2",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 13 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_IDE,
++		.name		= "NFORCE-CK804",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 14 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		=
+PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA,
++		.name		= "NFORCE-CK804-SATA",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 15 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		=
+PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2,
++		.name		= "NFORCE-CK804-SATA2",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 16 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,
++		.name		= "NFORCE-MCP04",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 17 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		=
+PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA,
++		.name		= "NFORCE-MCP04-SATA",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 18 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		=
+PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2,
++		.name		= "NFORCE-MCP04-SATA2",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+diff -uprN -X dontdiff linux-2.6.6/include/linux/pci_ids.h
+linux-2.6.6-nforce-ck804-ide/include/linux/pci_ids.h
+--- linux-2.6.6/include/linux/pci_ids.h	2004-05-09 19:32:28.000000000
+-0700
++++ linux-2.6.6-nforce-ck804-ide/include/linux/pci_ids.h
+2004-05-17 15:03:08.000000000 -0700
+@@ -1054,6 +1054,12 @@
+ #define PCI_DEVICE_ID_NVIDIA_UTNT2		0x0029
+ #define PCI_DEVICE_ID_NVIDIA_VTNT2		0x002C
+ #define PCI_DEVICE_ID_NVIDIA_UVTNT2		0x002D
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE	0x0035
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA	0x0036
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2	0x003e
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_IDE	0x0053
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA	0x0054
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2	0x0055
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE	0x0065
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE	0x0085
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA	0x008e
+
+
+diff -uprN -X dontdiff linux-2.4.27-pre2/drivers/ide/pci/amd74xx.c
+linux-2.4.27-pre2-nforce-ck804-ide/drivers/ide/pci/amd74xx.c
+--- linux-2.4.27-pre2/drivers/ide/pci/amd74xx.c	2004-04-14
+06:05:29.000000000 -0700
++++ linux-2.4.27-pre2-nforce-ck804-ide/drivers/ide/pci/amd74xx.c
+2004-05-17 13:27:31.000000000 -0700
+@@ -1,7 +1,8 @@
+ /*
+  * Version 2.13
+  *
+- * AMD 755/756/766/8111 and nVidia nForce/2/2s/3/3s IDE driver for
+Linux.
++ * AMD 755/756/766/8111 and nVidia nForce/2/2s/3/3s/CK804/MCP04
++ * IDE driver for Linux.
+  *
+  * Copyright (c) 2000-2002 Vojtech Pavlik
+  *
+@@ -68,6 +69,12 @@ static struct amd_ide_chip {
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2,	0x50, AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_IDE,	0x50,
+AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA,	0x50,
+AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2,	0x50,
+AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	0x50,
+AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA,	0x50,
+AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2,	0x50,
+AMD_UDMA_133 },
+ 	{ 0 }
+ };
+ 
+@@ -464,6 +471,12 @@ static struct pci_device_id amd74xx_pci_
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 10 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 11 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 12 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_IDE,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 13 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2,
+
++PCI_ANY_ID, PCI_ANY_ID, 0, 0, 18 },
+ 	{ 0, },
+ };
+ 
+diff -uprN -X dontdiff linux-2.4.27-pre2/drivers/ide/pci/amd74xx.h
+linux-2.4.27-pre2-nforce-ck804-ide/drivers/ide/pci/amd74xx.h
+--- linux-2.4.27-pre2/drivers/ide/pci/amd74xx.h	2004-04-14
+06:05:29.000000000 -0700
++++ linux-2.4.27-pre2-nforce-ck804-ide/drivers/ide/pci/amd74xx.h
+2004-05-17 12:08:04.000000000 -0700
+@@ -112,7 +112,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 7 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE,
+-		.name		= "NFORCE2S",
++		.name		= "NFORCE2-U400R",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+@@ -123,7 +123,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 8 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA,
+-		.name		= "NFORCE2S-SATA",
++		.name		= "NFORCE2-U400R-SATA",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+@@ -134,7 +134,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 9 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE,
+-		.name		= "NFORCE3",
++		.name		= "NFORCE3-150",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+@@ -145,7 +145,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 10 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE,
+-		.name		= "NFORCE3S",
++		.name		= "NFORCE3-250",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+@@ -156,7 +156,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 11 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA,
+-		.name		= "NFORCE3S-SATA",
++		.name		= "NFORCE3-250-SATA",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+@@ -167,7 +167,73 @@ static ide_pci_device_t amd74xx_chipsets
+ 	{	/* 12 */
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2,
+-		.name		= "NFORCE3S-SATA2",
++		.name		= "NFORCE3-250-SATA2",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 13 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_IDE,
++		.name		= "NFORCE-CK804",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 14 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		=
+PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA,
++		.name		= "NFORCE-CK804-SATA",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 15 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		=
+PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2,
++		.name		= "NFORCE-CK804-SATA2",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 16 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,
++		.name		= "NFORCE-MCP04",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 17 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		=
+PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA,
++		.name		= "NFORCE-MCP04-SATA",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
++		.bootable	= ON_BOARD,
++	},
++	{	/* 18 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		=
+PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2,
++		.name		= "NFORCE-MCP04-SATA2",
+ 		.init_chipset	= init_chipset_amd74xx,
+ 		.init_hwif	= init_hwif_amd74xx,
+ 		.channels	= 2,
+diff -uprN -X dontdiff linux-2.4.27-pre2/include/linux/pci_ids.h
+linux-2.4.27-pre2-nforce-ck804-ide/include/linux/pci_ids.h
+--- linux-2.4.27-pre2/include/linux/pci_ids.h	2004-05-17
+11:46:29.000000000 -0700
++++ linux-2.4.27-pre2-nforce-ck804-ide/include/linux/pci_ids.h
+2004-05-17 12:04:30.000000000 -0700
+@@ -977,6 +977,12 @@
+ #define PCI_DEVICE_ID_NVIDIA_UTNT2		0x0029
+ #define PCI_DEVICE_ID_NVIDIA_VTNT2		0x002C
+ #define PCI_DEVICE_ID_NVIDIA_UVTNT2		0x002D
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE	0x0035
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA	0x0036
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2	0x003e
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_IDE	0x0053
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA	0x0054
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2	0x0055
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE	0x0065
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE	0x0085
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA	0x008e
+
+
+
+> -----Original Message-----
+> From: Jeff Garzik [mailto:jgarzik@pobox.com]
+> Sent: Thursday, May 27, 2004 12:38 PM
+> To: Brian Lazara
+> Cc: linux-kernel@vger.kernel.org; linux-ide@vger.kernel.org; 
+> Bartlomiej Zolnierkiewicz
+> Subject: Re: [PATCH] add new nForce IDE/SATA device IDs
 > 
-> Please consider the following problem:
 > 
-> Home Server (daisy):
+> Brian Lazara wrote:
+> > Patches to add device IDs for new nForce IDE and SATA controllers.
+> > Rename some of the existing controller names to correctly match 
+> > released product names.
+> > 
+> > Patches against 2.4.27-pre2 and 2.6.6
 > 
-> Asus A7V board
-> Duron 650 MHz
-> Debian sarge (not 100% up2date right now - from March 22nd)
-> SiS900 (also tried 3Com 3c509-TX-M without a change)
+> It is difficult to review patches that look like the following...
+> please include the patches include, or attach them as plaintext.
 > 
-> Kernels tried:
-> 2.4.22 (IIRC), 2.6.4, 2.6.4 with acpi-patch 20040311, 2.6.6
+> Three other comments:
 > 
-> Suspending to S3 works fine, resume also (except with the 
-> onboard-Promise chip, but that's not a big issue), however, trying to 
-> use the network after resume gives
-> NETDEV WATCHDOG: eth0: transmit timed out
-
-
-
-please try this patch:
-
-
-diff -urNp linux-1100/drivers/pci/pci.c linux-1110/drivers/pci/pci.c
---- linux-1100/drivers/pci/pci.c
-+++ linux-1110/drivers/pci/pci.c
-@@ -385,6 +385,7 @@ pci_enable_device_bars(struct pci_dev *d
- int
- pci_enable_device(struct pci_dev *dev)
- {
-+	dev->is_enabled = 1;
- 	return pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
- }
- 
-@@ -399,6 +400,9 @@ void
- pci_disable_device(struct pci_dev *dev)
- {
- 	u16 pci_command;
-+	
-+	dev->is_enabled = 0;
-+	dev->is_busmaster = 0;
- 
- 	pci_read_config_word(dev, PCI_COMMAND, &pci_command);
- 	if (pci_command & PCI_COMMAND_MASTER) {
-@@ -601,6 +605,7 @@ pci_set_master(struct pci_dev *dev)
- 		cmd |= PCI_COMMAND_MASTER;
- 		pci_write_config_word(dev, PCI_COMMAND, cmd);
- 	}
-+	dev->is_busmaster = 1;
- 	pcibios_set_master(dev);
- }
- 
-diff -urNp linux-1100/drivers/pci/pci-driver.c linux-1110/drivers/pci/pci-driver.c
---- linux-1100/drivers/pci/pci-driver.c
-+++ linux-1110/drivers/pci/pci-driver.c
-@@ -299,10 +299,30 @@ static int pci_device_suspend(struct dev
- {
- 	struct pci_dev * pci_dev = to_pci_dev(dev);
- 	struct pci_driver * drv = pci_dev->driver;
-+	int i = 0;
- 
- 	if (drv && drv->suspend)
--		return drv->suspend(pci_dev,state);
--	return 0;
-+		i = drv->suspend(pci_dev,state);
-+		
-+	pci_save_state(pci_dev, pci_dev->saved_config_space);
-+	return i;
-+}
-+
-+
-+/* 
-+ * Default resume method for devices that have no driver provided resume,
-+ * or not even a driver at all.
-+ */
-+static void pci_default_resume(struct pci_dev *pci_dev)
-+{
-+	/* restore the PCI config space */
-+	pci_restore_state(pci_dev, pci_dev->saved_config_space);
-+	/* if the device was enabled before suspend, reenable */
-+	if (pci_dev->is_enabled)
-+		pci_enable_device(pci_dev);
-+	/* if the device was busmaster before the suspend, make it busmaster again */
-+	if (pci_dev->is_busmaster)
-+		pci_set_master(pci_dev);
- }
- 
- static int pci_device_resume(struct device * dev)
-@@ -312,6 +332,8 @@ static int pci_device_resume(struct devi
- 
- 	if (drv && drv->resume)
- 		drv->resume(pci_dev);
-+	else
-+		pci_default_resume(pci_dev);
- 	return 0;
- }
- 
-diff -urNp linux-1100/include/linux/pci.h linux-1110/include/linux/pci.h
---- linux-1100/include/linux/pci.h
-+++ linux-1110/include/linux/pci.h
-@@ -488,6 +488,11 @@ struct pci_dev {
- 	/* These fields are used by common fixups */
- 	unsigned int	transparent:1;	/* Transparent PCI bridge */
- 	unsigned int	multifunction:1;/* Part of multi-function device */
-+	/* keep track of device state */
-+	unsigned int	is_enabled:1;	/* pci_enable_device has been called */
-+	unsigned int	is_busmaster:1; /* device is busmaster */
-+	
-+	unsigned int 	saved_config_space[16]; /* config space saved at suspend time */
- #ifdef CONFIG_PCI_NAMES
- #define PCI_NAME_SIZE	96
- #define PCI_NAME_HALF	__stringify(43)	/* less than half to handle slop */
+> 1) please CC linux-ide@vger.kernel.org on all IDE/SATA-related patches
+> 2) Please To: or CC: Bartlomiej (cc'd on this email) on all
+> drivers/ide 
+> patches, as he is the IDE maintainer.
+> 3) Normally we want to add SATA support to libata not 
+> drivers/ide.  Do 
+> the nVidia SATA chips support SATA SCRs or anything like 
+> that?  Why not 
+> use libata?
+> 

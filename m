@@ -1,133 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTIPRza (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 13:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTIPRza
+	id S261982AbTIPR43 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 13:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbTIPR43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 13:55:30 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:53699 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261965AbTIPRz1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 13:55:27 -0400
-Date: Tue, 16 Sep 2003 08:50:24 -0700
-From: Dely Sy <dlsy@snoqualmie.dp.intel.com>
-Message-Id: <200309161550.h8GFoO2X003176@snoqualmie.dp.intel.com>
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
-       greg@kroah.com
-Subject: Patch to get cpqphp working with IOAPIC (2.6.0-test5)
-Cc: dely.l.sy@intel.com, tony.luck@intel.com
+	Tue, 16 Sep 2003 13:56:29 -0400
+Received: from mail.kroah.org ([65.200.24.183]:45000 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261982AbTIPR4W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 13:56:22 -0400
+Date: Tue, 16 Sep 2003 10:41:19 -0700
+From: Greg KH <greg@kroah.com>
+To: felipe_alfaro@linuxmail.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 1227] New: Oops with SynCE and Compaq iPAQ 3600
+Message-ID: <20030916174119.GB3893@kroah.com>
+References: <1504610000.1063637215@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1504610000.1063637215@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Sep 15, 2003 at 07:46:55AM -0700, Martin J. Bligh wrote:
+> http://bugme.osdl.org/show_bug.cgi?id=1227
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 0000010c
+>  printing eip:
+> e08794d4
+> *pde = 00000000
+> Oops: 0000 [#1]
+> PREEMPT
+> CPU:    0
+> EIP:    0060:[<e08794d4>]     Not tainted VLI
+> EFLAGS: 00010297
+> EIP is at ipaq_read_bulk_callback+0xca/0x282 [ipaq]
+> eax: 00000006   ebx: 00000000   ecx: de7cd600   edx: 00000006
+> esi: de9fc200   edi: df4f9600   ebp: 00000000   esp: c038dee0
+> ds: 007b   es: 007b   ss:0068
+> Process swapper (pid: 0, threadinfo=c038c000 task=c03169c0)
+> Stack: 00000046 00000086 de9fc200 de9fc200 00000006 dd273000 de7cd600 de9fc200
+>        c038dfa4 de9fc200 df765c00 e08421ea de9fc200 c038dfa4 c038c000 00000286
+>        e082ed9a df765c00 de9fc200 c038dfa4 df765df8 c038dfa4 df765c00 00000001
+> Call Trace:
+>  [<e08421ea>] usb_hcd_giveback_urb+0x25/0x39 [usbcore]
+>  [<e082ed9a>] uhci_finish_completion+0x6a/0xac [uhci_hcd]
+>  [<e0842234>] usb_hcd_irq+0x36/0x5f [usbcore]
+>  [<c010c633>] handle_IRQ_event+0x3a/0x64
+>  [<c010c999>] do_IRQ+0x94/0x135
+>  [<c0107000>] _stext+0x0/0x5d
+>  [<c02d404c>] common_interrupt+0x18/0x20
+>  [<c0107000>] _stext+0x0/0x5d
+>  [<c012007b>] __wake_up_common+0x31/0x50
+>  [<c0109041>] default_idle+0x23/0x26
+>  [<c010909f>] cpu_idle+0x2c/0x35
+>  [<c038e6cc>] start_kernel+0x17d/0x1ab
+>  [<c038e426>] unknown_bootoption+0x0/0xfd
 
-Here is a patch for 2.6.0-test5 to get cpqphp working with IOAPIC. 
-My earlier statement that a kernel patch is not needed for 2.6 is 
-true only when ACPI is enabled.  A similar patch is needed in 
-pcibios_enable_irq() for 2.4 kernel and I will send it out 
-later.
+Does the following patch solve this oops?
 
-The fix is in pirq_enable_irq().  This function is called indirectly
-by pci_enable_device().  For device present during boot up, it should 
-get the proper dev->irq for pcibios_fixup_irqs() has been called to 
-get the dev->irq from MP table. If the value is still zero, then 
-this is properly caused by "buggy MP table".  For hot-plug device, 
-its dev->irq is 0 when the pci_enable_device() is called for it hasn't 
-gone through the fixup.  Therefore, the code (similiar to the code 
-in pcibios_fixup_irqs) is needed here.
+thanks,
 
-Thanks,
-Dely          
+greg k-h
 
 
-diff -Naur linux-2.6.0-test5/arch/i386/pci/irq.c linux-2.6.0-test5php/arch/i386/pci/irq.c
---- linux-2.6.0-test5/arch/i386/pci/irq.c	2003-09-08 12:50:43.000000000 -0700
-+++ linux-2.6.0-test5php/arch/i386/pci/irq.c	2003-09-16 01:00:13.000000000 -0700
-@@ -812,9 +812,36 @@
- 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
- 	if (pin && !pcibios_lookup_irq(dev, 1) && !dev->irq) {
- 		char *msg;
--		if (io_apic_assign_pci_irqs)
--			msg = " Probably buggy MP table.";
--		else if (pci_probe & PCI_BIOS_IRQ_SCAN)
-+		if (io_apic_assign_pci_irqs) {
-+			int irq;
-+			
-+			pin--;		/* interrupt pins are numbered starting from 1 */
-+			irq = IO_APIC_get_PCI_irq_vector(dev->bus->number, PCI_SLOT(dev->devfn), pin);
-+			/*
-+			 * Busses behind bridges are typically not listed in the MP-table.
-+			 * In this case we have to look up the IRQ based on the parent bus,
-+			 * parent slot, and pin number. The SMP code detects such bridged
-+			 * busses itself so we should get into this branch reliably.
-+			 */
-+			if (irq < 0 && dev->bus->parent) { /* go back to the bridge */
-+				struct pci_dev * bridge = dev->bus->self;
-+
-+				pin = (pin + PCI_SLOT(dev->devfn)) % 4;
-+				irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
-+						PCI_SLOT(bridge->devfn), pin);
-+				if (irq >= 0) {
-+					printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
-+						bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
-+				}	
-+			}
-+			if (irq >= 0) {
-+				printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",
-+					dev->bus->number, PCI_SLOT(dev->devfn), pin, irq);
-+				dev->irq = irq;
-+				return 0;
-+			} else
-+				msg = " Probably buggy MP table.";
-+		} else if (pci_probe & PCI_BIOS_IRQ_SCAN)
- 			msg = "";
- 		else
- 			msg = " Please try using pci=biosirq.";
-diff -Naur linux-2.6.0-test5/drivers/pci/hotplug/cpqphp_ctrl.c linux-2.6.0-test5php/drivers/pci/hotplug/cpqphp_ctrl.c
---- linux-2.6.0-test5/drivers/pci/hotplug/cpqphp_ctrl.c	2003-09-08 12:50:01.000000000 -0700
-+++ linux-2.6.0-test5php/drivers/pci/hotplug/cpqphp_ctrl.c	2003-09-15 14:37:41.000000000 -0700
-@@ -2446,7 +2446,7 @@
- 				   u8 behind_bridge, struct resource_lists * resources)
- {
- 	int cloop;
--	u8 IRQ;
-+	u8 IRQ = 0;
- 	u8 temp_byte;
- 	u8 device;
- 	u8 class_code;
-@@ -3021,6 +3021,7 @@
- 			}
- 		}		// End of base register loop
+--- a/drivers/usb/serial/ipaq.c	Wed Sep  3 08:47:21 2003
++++ b/drivers/usb/serial/ipaq.c	Tue Sep 16 10:34:30 2003
+@@ -341,7 +341,7 @@
+ 	usb_serial_debug_data (__FILE__, __FUNCTION__, urb->actual_length, data);
  
-+#if !defined(CONFIG_X86_IO_APIC)
- 		// Figure out which interrupt pin this function uses
- 		rc = pci_bus_read_config_byte (pci_bus, devfn, PCI_INTERRUPT_PIN, &temp_byte);
- 
-@@ -3045,6 +3046,7 @@
- 
- 		// IRQ Line
- 		rc = pci_bus_write_config_byte (pci_bus, devfn, PCI_INTERRUPT_LINE, IRQ);
-+#endif
- 
- 		if (!behind_bridge) {
- 			rc = cpqhp_set_irq(func->bus, func->device, temp_byte + 0x09, IRQ);
-diff -Naur linux-2.6.0-test5/drivers/pci/hotplug/cpqphp_pci.c linux-2.6.0-test5php/drivers/pci/hotplug/cpqphp_pci.c
---- linux-2.6.0-test5/drivers/pci/hotplug/cpqphp_pci.c	2003-09-08 12:50:29.000000000 -0700
-+++ linux-2.6.0-test5php/drivers/pci/hotplug/cpqphp_pci.c	2003-09-15 14:38:27.000000000 -0700
-@@ -151,6 +151,7 @@
-  */
- int cpqhp_set_irq (u8 bus_num, u8 dev_num, u8 int_pin, u8 irq_num)
- {
-+#if !defined(CONFIG_X86_IO_APIC)	
- 	int rc;
- 	u16 temp_word;
- 	struct pci_dev fakedev;
-@@ -175,6 +176,7 @@
- 	// This should only be for x86 as it sets the Edge Level Control Register
- 	outb((u8) (temp_word & 0xFF), 0x4d0);
- 	outb((u8) ((temp_word & 0xFF00) >> 8), 0x4d1);
-+#endif
- 
- 	return 0;
- }
-
+ 	tty = port->tty;
+-	if (urb->actual_length) {
++	if (tty && urb->actual_length) {
+ 		for (i = 0; i < urb->actual_length ; ++i) {
+ 			/* if we insert more than TTY_FLIPBUF_SIZE characters, we drop them. */
+ 			if(tty->flip.count >= TTY_FLIPBUF_SIZE) {

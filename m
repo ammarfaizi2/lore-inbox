@@ -1,53 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317680AbSGZMGD>; Fri, 26 Jul 2002 08:06:03 -0400
+	id <S317691AbSGZMIE>; Fri, 26 Jul 2002 08:08:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317681AbSGZMGD>; Fri, 26 Jul 2002 08:06:03 -0400
-Received: from reload.namesys.com ([212.16.7.75]:54942 "EHLO
-	reload.namesys.com") by vger.kernel.org with ESMTP
-	id <S317680AbSGZMGD>; Fri, 26 Jul 2002 08:06:03 -0400
-Date: Fri, 26 Jul 2002 16:09:18 +0400
-From: Joshua MacDonald <jmacd@namesys.com>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lock assertion macros for 2.5.28
-Message-ID: <20020726120918.GA22049@reload.namesys.com>
-Mail-Followup-To: Jesse Barnes <jbarnes@sgi.com>,
-	linux-kernel@vger.kernel.org
-References: <20020725233047.GA782991@sgi.com>
+	id <S317693AbSGZMIE>; Fri, 26 Jul 2002 08:08:04 -0400
+Received: from fysh.org ([212.47.68.126]:31123 "EHLO bowl.fysh.org")
+	by vger.kernel.org with ESMTP id <S317691AbSGZMID>;
+	Fri, 26 Jul 2002 08:08:03 -0400
+Date: Fri, 26 Jul 2002 13:11:09 +0100
+From: Athanasius <link@gurus.tf>
+To: Rudmer van Dijk <rvandijk@science.uva.nl>
+Cc: Bruce Cran <bruce@cran.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: wrong mtu value in /proc/net/route
+Message-ID: <20020726121109.GA8043@miggy.org.uk>
+Mail-Followup-To: Athanasius <link@gurus.tf>,
+	Rudmer van Dijk <rvandijk@science.uva.nl>,
+	Bruce Cran <bruce@cran.org.uk>, linux-kernel@vger.kernel.org
+References: <20020725223410.A18965@steely.transient> <20020725220557Z316579-685+18235@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Content-Disposition: inline
-In-Reply-To: <20020725233047.GA782991@sgi.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20020725220557Z316579-685+18235@vger.kernel.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 25, 2002 at 04:30:47PM -0700, Jesse Barnes wrote:
-> Here's the lastest version of the lockassert patch.  It includes:
->   o MUST_HOLD for all architectures
->   o MUST_HOLD_RW for architectures implementing rwlock_is_locked (only
->     ia64 at the moment, as part of this patch)
->   o MUST_HOLD_RWSEM for arcitectures that use rwsem-spinlock.h
->   o MUST_HOLD_SEM for ia64
->   o a call to MUST_HOLD(&inode_lock) in inode.c:__iget().
-> 
-> I'd be happy to take patches that implement the above routines for
-> other architectures and/or patches that sprinkle the macros where
-> they're needed.
-> 
-> Thanks,
-> Jesse
-> 
 
-Jesse,
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In reiser4 we are looking forward to having a MUST_NOT_HOLD (i.e.,
-spin_is_not_locked) assertion for kernel spinlocks.  Do you know if any
-progress has been made in that direction?
+On Fri, Jul 26, 2002 at 12:14:30AM +0200, Rudmer van Dijk wrote:
+> On Thursday 25 July 2002 23:34, Bruce Cran wrote:
+> > I've found something strange going on in 2.4 kernels - when I run
+> > 'netstat -r' I get the routing table from /proc/net/route.   The MSS
+> > value reported is only 40 bytes, and when I run 'cat
+> > /proc/net/route I'm told that the _MTU_ is 40 bytes.   I thought the MSS
+[snip]
+>=20
+> I see the same values on 2.4.19-rc3-ac3 with two Winbond Electronics Corp=
+=20
+> W89C940 NIC's. no idea what is causing it.
 
-We have implemented a user-level testing framework for our file system and we
-are already using a spin_is_not_locked() method, but these assertions are
-disabled when compiled into the kernel.
+  Same here with:
 
--josh
+Kernel 2.4.18-pre8
+eth0: NE2000 found at 0x240, using IRQ 10.
+eth1: 3c5x9 at 0x320, 10baseT port, address  00 60 97 ad 3f 84, IRQ 5.
+eth2: RealTek RTL8139 Fast Ethernet at 0xd8855000, 00:50:bf:ea:0f:41, IRQ 9
+
+Kernel 2.4.18
+Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink]
+
+Kernel 2.4.19-rc1
+eth0: RealTek RTL8139 Fast Ethernet at 0xe0863f00, 00:20:ed:1d:fe:2a, IRQ 5
+
+  Again, ifconfig on both machines shows the correct values.
+
+  I've not gotten around to trying 2.4.19-rc3 yet.
+
+-Ath
+--=20
+- Athanasius =3D Athanasius(at)miggy.org.uk / http://www.clan-lovely.org/~a=
+than/
+                  Finger athan(at)fysh.org for PGP key
+	   "And it's me who is my enemy. Me who beats me up.
+Me who makes the monsters. Me who strips my confidence." Paula Cole - ME
+
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAj1BPF0ACgkQzbc+I5XfxKfzDwCeK8WnI6GCAaCYL/qJ7+YWjWyl
+eBIAoI0+lrOFhlMHemxKdB0O2G5c4C9k
+=IUja
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--

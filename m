@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268791AbUILTDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268794AbUILTDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268791AbUILTDm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 15:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268794AbUILTDm
+	id S268794AbUILTDs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 15:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268799AbUILTDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 15:03:42 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:28341 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268791AbUILTDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 15:03:40 -0400
-Subject: RE: Linux 2.4.27 SECURITY BUG - TCP Local and
-	REMOTE(verified)Denial of Service Attack
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wolfpaw - Dale Corse <admin@wolfpaw.net>
-Cc: peter@mysql.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-In-Reply-To: <002501c498f8$0a4ebc20$0200a8c0@wolf>
-References: <002501c498f8$0a4ebc20$0200a8c0@wolf>
+	Sun, 12 Sep 2004 15:03:47 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:58594 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268794AbUILTDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 15:03:43 -0400
+Subject: Re: [PATCH] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, joq@io.com, torbenh@gmx.de
+In-Reply-To: <Xine.LNX.4.44.0409120956150.16684-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0409120956150.16684-100000@thoron.boston.redhat.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095012081.11745.26.camel@localhost.localdomain>
+Message-Id: <1095015830.1306.640.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 12 Sep 2004 19:01:23 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 12 Sep 2004 15:03:50 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-09-12 at 19:40, Wolfpaw - Dale Corse wrote:
-> This bug also exists with Apache, the default config of SSH,
-> and anything controlled by inetd. This is the vast majority of
-> popular services on a regular internet server.. That is bad, no?
+On Sun, 2004-09-12 at 09:58, James Morris wrote:
+> On Sun, 12 Sep 2004, Lee Revell wrote:
+> 
+> > +config SECURITY_REALTIME
+> > +	tristate "Realtime Capabilities"
+> > +	depends on SECURITY && SECURITY_CAPABILITIES!=y
+> > +	default n
+> > +	help
+> > +	  Answer M to build realtime support as a Linux Security
+> > +	  Module.  Answering Y to build realtime capabilities into the
+> > +	  kernel makes no sense.
+> 
+> Why not just make it a bool then?
+> 
 
-I'm unable to duplicate any such problems with xinetd, or with thttpd,
-or with apache. Apache will wait a short time then timeout connections
-if you've configured it right. If you can continue making millions of
-connections a second you can DoS the server the other end, not exactly
-new news. The alternative is that you have an infinite number of running
-services and you run out of memory instead.
+Good idea.
 
-Thats a high level property of any protocol which allows commitment of
-resource without being able to do the security authentication first. Its
-very hard to create ones that don't however, thus most devices in life
-(eg your telephone) have this form or DoS attack.
+> I wonder if it might be better to specify configuration via 
+> /proc/<pid>/attr rather than module parameters.
+> 
 
-My sshd also doesn't show this problem and the manual page indicates it
-has a 120 second grace timeout for authentication.
+This would not work for several reasons.  How would you decide who is
+allowed to run RT processes?  Root would have to set the above value,
+which defeats the purpose of the realtime-lsm module which is to
+selectively allow non-root users to run RT tasks.
 
-The sshd manual page says:
+Here is a good summary of the security issues that have been raised:
 
-     Gives the grace time for clients to authenticate themselves
-             (default 120 seconds).
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=269661
 
+Realtime-lsm solves all of these problems.
+
+Lee
 

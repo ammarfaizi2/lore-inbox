@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbVAPV61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbVAPWHS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262619AbVAPV61 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 16:58:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVAPV61
+	id S262623AbVAPWHS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 17:07:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVAPWHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 16:58:27 -0500
-Received: from [217.112.240.26] ([217.112.240.26]:17804 "EHLO mail.tnnet.fi")
-	by vger.kernel.org with ESMTP id S262619AbVAPV6W (ORCPT
+	Sun, 16 Jan 2005 17:07:18 -0500
+Received: from colin2.muc.de ([193.149.48.15]:23816 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262624AbVAPWHP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 16:58:22 -0500
-Message-ID: <41EAE36F.35354DDF@users.sourceforge.net>
-Date: Sun, 16 Jan 2005 23:58:07 +0200
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-crypto@nl.linux.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce loop-AES-v3.0b file/swap crypto package
+	Sun, 16 Jan 2005 17:07:15 -0500
+Date: 16 Jan 2005 23:07:14 +0100
+Date: Sun, 16 Jan 2005 23:07:14 +0100
+From: Andi Kleen <ak@muc.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, brking@us.ibm.com,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
+Message-ID: <20050116220714.GA76666@muc.de>
+References: <1105645491.4624.114.camel@localhost.localdomain> <20050113215044.GA1504@muc.de> <1105743914.9222.31.camel@localhost.localdomain> <20050115014440.GA1308@muc.de> <1105750898.9222.101.camel@localhost.localdomain> <1105770012.27411.72.camel@gaston> <1105829883.15835.6.camel@localhost.localdomain> <1105848104.27436.97.camel@gaston> <20050116044823.GA55143@muc.de> <1105908798.27436.102.camel@gaston>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1105908798.27436.102.camel@gaston>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-loop-AES changes since previous release:
-- Fixed externally compiled module version multi-key-v3 ioctl
-  incompatibility with boxes running 64 bit kernel and 32 bit userland.
-  Kernel patch versions were not affected (2.4 and 2.6 kernels).
-- Fixed bug that made v3 on-disk format always use file backed code path on
-  some 2.6 kernels that did not have LO_FLAGS_DO_BMAP defined. No data loss,
-  but file backed code path is not journaled file system safe. Same bug also
-  had cosmetic side effect of "losetup -a" status query always displaying
-  file backed v2 on-disk format as v3 on-disk format.
+> What is complex in there ? I agree it's not convenient to do this from
+> the very low level ones that don't take the pci_dev * as an argument,
+> but from the higher level ones that does, the overhead is basically to
+> test a flag in the pci_dev, I doubt it will be significant in any way
+> performance wise, especially compared to the cost of a config space
+> access...
 
-bzip2 compressed tarball is here:
+For once you cannot block in them.  There are even setups that
+need to (have to) do config space accesses in interrupt handlers.
+The operations done there should be rather light weight.
 
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.0b.tar.bz2
-    md5sum b295ff982cd4503603b38fdc54e604cc
-
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.0b.tar.bz2.sign
-
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+-Andi

@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbUJZLtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbUJZL4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbUJZLtH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 07:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbUJZLtH
+	id S262239AbUJZL4X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 07:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbUJZL4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 07:49:07 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:30984 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S262124AbUJZLtD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 07:49:03 -0400
-Message-ID: <417E39AE.5020209@arcom.com>
-Date: Tue, 26 Oct 2004 12:49:02 +0100
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+	Tue, 26 Oct 2004 07:56:23 -0400
+Received: from a.mx.polytechnique.org ([129.104.30.34]:38854 "EHLO
+	a.mx.polytechnique.org") by vger.kernel.org with ESMTP
+	id S262239AbUJZL4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 07:56:20 -0400
+Message-ID: <417E3B62.1000701@bellard.org>
+Date: Tue, 26 Oct 2004 13:56:18 +0200
+From: Fabrice Bellard <lkml@bellard.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ryan Anderson <ryan@michonline.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Len Brown <len.brown@intel.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Versioning of tree
-References: <1098254970.3223.6.camel@gaston> <1098256951.26595.4296.camel@d845pe> <Pine.LNX.4.58.0410200728040.2317@ppc970.osdl.org> <20041025234736.GF10638@michonline.com>
-In-Reply-To: <20041025234736.GF10638@michonline.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: TCCBOOT: compile and boot Linux with TinyCC
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Oct 2004 11:49:28.0890 (UTC) FILETIME=[D97E61A0:01C4BB51]
+X-Spam-Flag: No, tests=bogofilter, spamicity=0.000000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Anderson wrote:
-> 
-> Well, here's a patch that adds -BKxxxxxxxx to LOCALVERSION when a
-> top-level BitKeeper tree is detected.
-> [...]
->  LOCALVERSION = $(subst $(space),, \
->  	       $(shell cat /dev/null $(localversion-files)) \
-> +	       $(subst ",,$(localversion-bk)) \
+Hi,
 
-Surely there's no need for this?  Can't the script spit out an 
-appropriate localversion* file instead?
+Just to announce that it is now possible to compile and start booting 
+Linux with the TCCBOOT boot loader 
+(http://bellard.org/tcc/tccboot.html). It takes less than 15 seconds on 
+a 2.4 GHz Pentium 4 to compile and boot Linux :-)
 
-Tools like Debian's make-kpkg have to work out the kernel version (for 
-use in the package name etc.) and it would be preferable if the method 
-for generating the version didn't change too often.
+TCCBOOT contains the latest release of the TinyCC C compiler, assembler 
+and linker, which is able to compile most of the Linux kernel with only 
+tiny patches. Of course there are still a few bugs in the generated 
+kernel, and the code quality is far from the one of GCC, but it shows 
+what it is possible to do with a 110 KB C compiler !
 
-David Vrabel
--- 
-David Vrabel, Design Engineer
-
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
+Fabrice.

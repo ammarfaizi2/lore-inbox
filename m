@@ -1,42 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266547AbUIOQO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUIOQSx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266547AbUIOQO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 12:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266725AbUIOQN4
+	id S266758AbUIOQSx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 12:18:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266756AbUIOQSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 12:13:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20145 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266547AbUIOQLg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 12:11:36 -0400
-Message-ID: <414869AB.5070307@pobox.com>
-Date: Wed, 15 Sep 2004 12:11:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ricky Beam <jfbeam@bluetronic.net>,
-       Zilvinas Valinskas <zilvinas@gemtek.lt>,
-       Erik Tews <erik@debian.franken.de>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9 rc2 freezing
-References: <Pine.GSO.4.33.0409151047560.10693-100000@sweetums.bluetronic.net>	 <1095263296.2406.141.camel@krustophenia.net>  <41486691.3080202@pobox.com> <1095264408.2406.148.camel@krustophenia.net>
-In-Reply-To: <1095264408.2406.148.camel@krustophenia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Sep 2004 12:18:40 -0400
+Received: from mail.kroah.org ([69.55.234.183]:1956 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266758AbUIOQQu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 12:16:50 -0400
+Date: Wed, 15 Sep 2004 09:09:30 -0700
+From: Greg KH <greg@kroah.com>
+To: "Giacomo A. Catenazzi" <cate@debian.org>
+Cc: "Marco d'Itri" <md@Linux.IT>, linux-kernel@vger.kernel.org
+Subject: Re: udev is too slow creating devices
+Message-ID: <20040915160930.GA21971@kroah.com>
+References: <41473972.8010104@debian.org> <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <414849CE.8080708@debian.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <414849CE.8080708@debian.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> Anyway, if you are running anything on your server that breaks under
-> PREEMPT, it will break anyway as soon as you add another processor.
+On Wed, Sep 15, 2004 at 03:55:26PM +0200, Giacomo A. Catenazzi wrote:
+> 
+> Real case: distribution boot script.
+> It should work with non udev kernel, udev non modular kernel and
+> udev very modular kernel.
 
-Incorrect.  The spinlock behavior is very different.
+That's a lot to ask for a simple script :)
 
-That's why we had net stack problems in the past under preempt but not 
-under SMP.
+Why not just pick one of those options and go with it?
 
-	Jeff
+> The script load (directly or not) a module
+> and need the device impelmented by module.
 
+Then do the 'sit and spin' method.  That works for all of the above
+options, right?
 
+> Old behaviour (modprobe "waits" for the creation of device):
+> normal init.d script, with normal boot priorities.
+
+Please realize that this "behaviour" is not guaranteed at all.  And in
+fact will be changing in the future so that it is _not_ the way it will
+work.
+
+> New behaviour (dev.d). What I should do?
+> My init.d script is loaded with priority XX, so
+> I require that dev.d on my device is executed after
+> boot priority XX (else I don't have the needed
+> functionalities), also in case of non-udev or non modular kernel.
+> How should I implement script in dev.d/?
+
+dev.d is called by the kernel, not your script.  You don't have to set a
+priority of when dev.d runs at all, it's not necessary.
+
+> I see some design problems in dev.d/, or am I wrong?
+
+What problems?
+
+> PS: - What are the best (on topic) mailing list?
+
+linux-hotplug-devel
+
+>     - What do other distributions?
+
+What do they do?  They just work :)
+
+thanks,
+
+greg k-h

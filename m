@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290386AbSBKUzl>; Mon, 11 Feb 2002 15:55:41 -0500
+	id <S290448AbSBKU7V>; Mon, 11 Feb 2002 15:59:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290377AbSBKUzc>; Mon, 11 Feb 2002 15:55:32 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:56326 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S290386AbSBKUzV>; Mon, 11 Feb 2002 15:55:21 -0500
-Date: Mon, 11 Feb 2002 21:55:18 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Hal Duston <hald@sound.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Input w/2.5.3-dj3
-Message-ID: <20020211215518.A12817@suse.cz>
-In-Reply-To: <Pine.GSO.4.10.10202111430440.12270-100000@sound.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.10.10202111430440.12270-100000@sound.net>; from hald@sound.net on Mon, Feb 11, 2002 at 02:39:47PM -0600
+	id <S290445AbSBKU7M>; Mon, 11 Feb 2002 15:59:12 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:22038 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S290421AbSBKU66>; Mon, 11 Feb 2002 15:58:58 -0500
+Date: Mon, 11 Feb 2002 15:57:49 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200202112057.g1BKvnE03302@devserv.devel.redhat.com>
+To: jh@sgi.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+Subject: Re: driver location for platform-specific drivers
+In-Reply-To: <mailman.1013455503.17805.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.1013455503.17805.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 11, 2002 at 02:39:47PM -0600, Hal Duston wrote:
+> For SGI's upcoming Linux platform (nicknamed Scalable Node, or SN),
+> we have some platform specific device drivers.  Where should these go?
 
-> I've got CONFIG_INPUT_KEYBDEV=y in my .config so I am assuming yes.
-> The keypresses don't generate the correct characters.  I.e. as far as
-> I can tell, the 'm' key is Caps Lock, the '9' key is ScrLk, the '0'
-> key is NumLk, the 'q' key is 'y', the 'w' key is Ctrl, the 'e' key is 
-> 'j' the 'r' key is 'x'.  Etc.  I hope you don't need a complete list!
+>     1) Integrate in drivers/*.
 
-This is very interesting. Can you pass i8042_direct=1 to the kernel
-command line if it fixes anything? Also atkbd_set=3 might help. Anyway,
-please send me the log (dmesg) of the bootup in this case. Thanks.
- 
+I'd do this, unless you have dozens of them.
+E.g. drivers/net/sunhme.c.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+>     2) Company (sgi) directory.
+
+That's nonsense, IMHO.
+
+>     3) New platform directory.
+>        Create a platform directory for SN, probably drivers/sn.
+>        There is precedence for this with the drivers/macintosh
+>        and drivers/s390.
+
+I think this is only done if API is different. Often these
+directories cannot be processed by a build process on other
+architectures, so they are kept outside to have Makefiles smaller.
+See also drivers/sbus, which could be called "drivers/sun" just
+as well. But really, it's separate because of sparc_alloc_io().
+
+I appreciate a lot that drivers/acpi is so easy to exclude
+from builds - it breaks on anything but Intel stuff.
+
+>     4) New architecture directory.
+>        Another suggestion is to create an architecture directory,
+>        in this case drivers/ia64/{char,net,etc.}/.
+
+See #3. The ia64 uses standard APIs.
+
+> I'm happy with whatever you'll accept.
+
+Yeah, lessee what penguins say, and also I think DaveM may
+lend some good expirience here.
+
+-- Pete

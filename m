@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263512AbSIQC6e>; Mon, 16 Sep 2002 22:58:34 -0400
+	id <S263524AbSIQC7T>; Mon, 16 Sep 2002 22:59:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263524AbSIQC6d>; Mon, 16 Sep 2002 22:58:33 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:19933 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S263512AbSIQC6d>;
-	Mon, 16 Sep 2002 22:58:33 -0400
-Date: Tue, 17 Sep 2002 05:10:16 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about CLONE_CLEARTID and thread group leader
-In-Reply-To: <20020917034625.A22892@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.4.44.0209170457530.2299-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263530AbSIQC7T>; Mon, 16 Sep 2002 22:59:19 -0400
+Received: from dp.samba.org ([66.70.73.150]:908 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263524AbSIQC7S>;
+	Mon, 16 Sep 2002 22:59:18 -0400
+Date: Tue, 17 Sep 2002 12:59:08 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Lev Makhlis <mlev@despammed.com>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, riel@conectiva.com.br
+Subject: Re: [RFC] [PATCH] [2.5.35] Run Queue Statistics
+Message-ID: <20020917025907.GB15189@krispykreme>
+References: <200209161820.44702.mlev@despammed.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209161820.44702.mlev@despammed.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 17 Sep 2002, Jamie Lokier wrote:
+Hi,
 
-> One question has been bothering me for a while: what about the thread
-> group leader's stack?  These days, isn't it the case that the group
-> leader is supposed to be equivalent to the other threads?  If so, how
-> does it exit and release its own stack -- or do we understand that the
-> group leader, as a one-off exception, has to block signals before
-> exiting?
+> This patch adds two counters, runque and runocc, similar to those
+> in traditional UNIX systems, to measure the run queue occupancy.
+> Every second, 'runque' is incremented by the run queue size, and
+> 'runocc' is incremented by one if the run queue is not empty.
+> 
+> I am not comfortable about putting the calculation in the same function
+> as the load average calculation, but I didn't want to call
+> count_active_tasks() twice. Comments are welcome.
 
-good question. We might need a new mechanism (new syscall) for a thread to
-set its own ->user_tid after it has started up. I'll code it up. The
-fastest thread-startup method is still to also have this mechanism
-provided by clone() as well - but oviously at exec() time we cannot know
-about such issues.
+On a semi related note, vmstat wants to know the number of running,
+blocked and swapped processes. strace vmstat one day and you will see it
+currently opens /proc/*/stat (ie one open for each process) just to get
+these stats.  Yet another place where the monitoring utilities disturb
+the system way too much.
 
-	Ingo
+Can we get some things in /proc/stat to give us these numbers? Does
+"swapped" make any sense on Linux?
 
+Anton

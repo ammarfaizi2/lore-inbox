@@ -1,83 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266257AbSLOE0h>; Sat, 14 Dec 2002 23:26:37 -0500
+	id <S266259AbSLOFVb>; Sun, 15 Dec 2002 00:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266259AbSLOE0h>; Sat, 14 Dec 2002 23:26:37 -0500
-Received: from smtp3.ihug.com.au ([203.109.250.76]:64016 "EHLO
-	smtp3.ihug.com.au") by vger.kernel.org with ESMTP
-	id <S266257AbSLOE0g>; Sat, 14 Dec 2002 23:26:36 -0500
-Message-ID: <3DFC064F.10708@postgresql.org>
-Date: Sun, 15 Dec 2002 15:34:23 +1100
-From: Justin Clift <justin@postgresql.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-au, en-gb, en-us, en
-MIME-Version: 1.0
-To: James Morris <jmorris@intercode.com.au>
-CC: Andrew McGregor <andrew@indranet.co.nz>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@redhat.com>,
-       cryptoapi-devel <cryptoapi-devel@kerneli.org>
-Subject: Re: [CryptoAPI-devel] Re: [RFC] Hardware support notes for the kernel
- crypto API (2.5+)
-References: <Mutt.LNX.4.44.0212151210450.30004-100000@blackbird.intercode.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266274AbSLOFVb>; Sun, 15 Dec 2002 00:21:31 -0500
+Received: from wsip68-15-17-90.sd.sd.cox.net ([68.15.17.90]:42236 "HELO
+	ultraviolet.org") by vger.kernel.org with SMTP id <S266259AbSLOFVa>;
+	Sun, 15 Dec 2002 00:21:30 -0500
+Date: Sat, 14 Dec 2002 21:29:14 -0800
+From: Tracy R Reed <treed@ultraviolet.org>
+To: Tupshin Harper <tupshin@tupshin.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: is KERNEL developement finished, yet ??? (ACLs)
+Message-ID: <20021214212914.A8682@ultraviolet.org>
+Mail-Followup-To: Tracy R Reed <treed@ultraviolet.org>,
+	Tupshin Harper <tupshin@tupshin.com>, linux-kernel@vger.kernel.org
+References: <200212051224.50317.shanehelms@eircom.net> <000901c29c5d$6d194760$2e833841@joe> <aso4kq$2ka$1@penguin.transmeta.com> <3DEFB275.9000807@tupshin.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3DEFB275.9000807@tupshin.com>; from tupshin@tupshin.com on Thu, Dec 05, 2002 at 12:09:25PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
-> On Sun, 15 Dec 2002, Andrew McGregor wrote:
-> 
-> 
->>But OpenBSD has drivers, and they say that Broadcom were very good to deal 
->>with.  I suggest writing the OpenBSD driver maintainer and asking who to 
->>contact.
-> 
-> 
-> The OpenBSD developer said he's given up talking to Broadcom and declined
-> to provide the email address of his contact.
-> 
-> Although I'm sure we can work something out if we can actually find the
-> right person to talk to.
 
+--9amGYk9869ThD9tj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ok, just filled out a request form on their site, asking them who the best person for us to contact is.
+On Thu, Dec 05, 2002 at 12:09:25PM -0800, Tupshin Harper spake thusly:
+> I'm not at all opposed to capabilities, but I don't believe they come=20
+> close to obviating ACLs. It also doesn't seem ACLs and capabilities are=
+=20
+> in any kind of conflict. Why could we not have both?
 
-***********
+SE Linux seems to give you both.
 
-Hello,
+--=20
+Tracy Reed      http://www.ultraviolet.org
 
-Is Broadcom interested in having support for their encryption acceleration products (not just the one given in the 
-product number above) officially added to Linux?
+--9amGYk9869ThD9tj
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-The Linux "CryptoAPI" project is trying to find out the best person at Broadcom to contect, as we are adding support for 
-encryption hardware to the Linux kernel and are wondering you guys would like your products included.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-:-)
+iEYEARECAAYFAj38EyoACgkQ9PIYKZYVAq1z0QCgj4RKX3/UZ19Uvj0G9j9GA91I
+RM0AnjbItf0FLJ5yjf9/UfW60gRnrDzo
+=oQdb
+-----END PGP SIGNATURE-----
 
-Regards and best wishes,
-
-Justin Clift
-
-***********
-
-Reckon we should probably hear something back within 3-4 days.  It's worded clearly enough for pretty much anyone there 
-to understand, and gives them a solid "reason to contact us" back.
-
-:-)
-
-Does it sound ok?
-
-Regards and best wishes,
-
-Justin Clift
-
-
-> - James
-
-
--- 
-"My grandfather once told me that there are two kinds of people: those
-who work and those who take the credit. He told me to try to be in the
-first group; there was less competition there."
-- Indira Gandhi
-
+--9amGYk9869ThD9tj--

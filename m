@@ -1,55 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280736AbRKGBfp>; Tue, 6 Nov 2001 20:35:45 -0500
+	id <S280731AbRKGBip>; Tue, 6 Nov 2001 20:38:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280731AbRKGBff>; Tue, 6 Nov 2001 20:35:35 -0500
-Received: from netsrvr.ami.com.au ([203.55.31.38]:31762 "EHLO
-	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
-	id <S280644AbRKGBf1>; Tue, 6 Nov 2001 20:35:27 -0500
-Message-Id: <200111070133.fA71XPh11123@numbat.os2.ami.com.au>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: root <g.anzolin@inwind.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Olivetti hangs in PCI initialisation 
-In-Reply-To: Your message of "Tue, 06 Nov 2001 20:48:26 +0100."
-             <20011106204826.A15663@fourier.home.intranet> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 07 Nov 2001 09:33:25 +0800
-From: John Summerfield <summer@os2.ami.com.au>
+	id <S280738AbRKGBif>; Tue, 6 Nov 2001 20:38:35 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:27619 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S280731AbRKGBi0>;
+	Tue, 6 Nov 2001 20:38:26 -0500
+Date: Tue, 6 Nov 2001 20:38:17 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andi Kleen <ak@suse.de>
+cc: Nathan Scott <nathans@sgi.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, acl-devel@bestbits.at,
+        linux-xfs@oss.sgi.comc
+Subject: Re: [RFC][PATCH] extended attributes
+In-Reply-To: <20011107023218.A4754@wotan.suse.de>
+Message-ID: <Pine.GSO.4.21.0111062037210.29465-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> --9amGYk9869ThD9tj
-> Content-Type: text/plain; charset=us-ascii
-> Content-Disposition: inline
-> 
-> Hello,
-> 
-> I've just read your messages on linux-kernel about your problems with an
-> Olivetti PC. I had similar problems with my PC (which is an Olivetti
-> Modulo): it hanged on boot and the screen got black (this part is different).
->  
-> Then it died.
-> 
-> I've found that my problem was caused by some lines in setup.S. Given
-> that your problem has the same cause I'm attaching a patch which worked
-> for me.
->
-
-It was worth a try, but it had no effect that I could see.
-
->From other efforts it seems the problem may actually be connected with scrolling and it happens to be in the PCI detection code at the time the need arises.
 
 
--- 
-Cheers
-John Summerfield
+On Wed, 7 Nov 2001, Andi Kleen wrote:
 
-Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
+> I think it would be better to have a statefull readdir instead.
+> The kernel supports it via the ->private_data field of struct file
+> (not through fork,but that looks like a generic vfs bug) 
 
-Note: mail delivered to me is deemed to be intended for me, for my disposition.
-
-
+???  fork() just copies references to struct file.
 

@@ -1,62 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVBISSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVBISVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbVBISSP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 13:18:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVBISSO
+	id S261885AbVBISVb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 13:21:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVBISVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 13:18:14 -0500
-Received: from mail.kroah.org ([69.55.234.183]:48839 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261886AbVBISRs (ORCPT
+	Wed, 9 Feb 2005 13:21:31 -0500
+Received: from mail.xor.at ([62.99.218.147]:7114 "EHLO merkur.xor.at")
+	by vger.kernel.org with ESMTP id S261882AbVBISUt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 13:17:48 -0500
-Date: Wed, 9 Feb 2005 10:17:37 -0800
-From: Greg KH <greg@kroah.com>
-To: Kylene Hall <kjhall@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Emily Ratliff <emilyr@us.ibm.com>,
-       Tom Lendacky <toml@us.ibm.com>, tpmdd-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/1] tpm: update tpm sysfs file ownership
-Message-ID: <20050209181736.GA23422@kroah.com>
-References: <Pine.LNX.4.58.0501181621200.2473@jo.austin.ibm.com> <Pine.LNX.4.58.0501181735110.13908@jo.austin.ibm.com> <Pine.LNX.4.58.0501281539340.6360@jo.austin.ibm.com> <Pine.LNX.4.58.0501311322380.9872@jo.austin.ibm.com> <Pine.LNX.4.58.0502031034290.18135@jo.austin.ibm.com> <Pine.LNX.4.58.0502041405230.22211@jo.austin.ibm.com> <20050204205226.GA26780@kroah.com> <1107553040.22140.30.camel@jo.austin.ibm.com> <20050204215134.GA27433@kroah.com> <Pine.LNX.4.58.0502091201110.3969@jo.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0502091201110.3969@jo.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 9 Feb 2005 13:20:49 -0500
+Message-ID: <420A547A.4000008@xor.at>
+Date: Wed, 09 Feb 2005 19:20:42 +0100
+From: Johannes Resch <jr@xor.at>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Problem on SATA-disk with Promise SATAII 150 TX4 ("DriveReady SeekComplete
+ Error")
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.16; AVE: 6.29.0.11; VDF: 6.29.0.114; host: mail.xor.at)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 12:05:42PM -0600, Kylene Hall wrote:
-> @@ -539,9 +551,8 @@ void tpm_remove_hardware(struct device *
->  	dev_set_drvdata(dev, NULL);
->  	misc_deregister(&chip->vendor->miscdev);
->  
-> -	device_remove_file(dev, &dev_attr_pubek);
-> -	device_remove_file(dev, &dev_attr_pcrs);
-> -	device_remove_file(dev, &dev_attr_caps);
-> +	for ( i = 0; i < TPM_ATTRS; i++ ) 
-> +		device_remove_file(dev, &chip->attr[i]);
->  
->  	dev_mask[chip->dev_num / 32] &= !(1 << (chip->dev_num % 32));
->  
+Hi,
 
-This code works?
+[please CC me on replies]
 
-> @@ -608,6 +619,11 @@ int tpm_register_hardware(struct device 
->  	struct tpm_chip *chip;
->  	int i, j;
->  
-> +	DEVICE_ATTR(pcrs, S_IRUGO, show_pcrs, NULL);
-> +	DEVICE_ATTR(pubek, S_IRUGO, show_pubek, NULL);
-> +	DEVICE_ATTR(caps, S_IRUGO, show_caps, NULL);
-> +	DEVICE_ATTR(cancel, S_IWUSR | S_IWGRP, NULL, store_cancel);
-> +
->  	/* Driver specific per-device data */
->  	chip = kmalloc(sizeof(*chip), GFP_KERNEL);
->  	if (chip == NULL)
+I've got a box running 2.6.10 (with the patch[0] needed to support the 
+Promise SATAII 150 TX4 controller).
+This box has three software raid1 partitions mirrored on a SATA disk on 
+the Promise controller and a disk on the mainboard IDE controller (VIA 
+vt8235).
 
-You do realize you just created those attributes on the stack?  And then
-you try to remove them from within a different scope above?
+Within 4 days running the raid1, I got those three errors pasted below, 
+each marking the SATA-raidmember as faulty. After "raidhotremove" and 
+"raidhotadd" the SATA-raidmember syncs again fine and works at least a 
+day until it is marked as faulty again.
 
-thanks,
+Any pointers where I could look at to resolve this problem?
+The SATA drive is a new Seagate ST3250823AS.
 
-greg k-h
+Feb  6 04:49:04 mars kernel: ata4: status=0x51 { DriveReady SeekComplete 
+Error }
+Feb  6 04:49:04 mars kernel: SCSI error : <3 0 0 0> return code = 0x8000002
+Feb  6 04:49:04 mars kernel: FMK Current sda: sense = 70 88
+Feb  6 04:49:04 mars kernel: ASC=40 ASCQ=c0
+Feb  6 04:49:04 mars kernel: end_request: I/O error, dev sda, sector 
+311900096
+Feb  6 04:49:04 mars kernel: raid1: Disk failure on sda2, disabling device.
+Feb  6 04:49:04 mars kernel: ^IOperation continuing on 1 devices
+Feb  6 04:49:04 mars kernel: raid1: sda2: rescheduling sector 302518136
+Feb  6 04:49:04 mars kernel: RAID1 conf printout:
+Feb  6 04:49:04 mars kernel:  --- wd:1 rd:2
+Feb  6 04:49:04 mars kernel:  disk 0, wo:1, o:0, dev:sda2
+Feb  6 04:49:04 mars kernel:  disk 1, wo:0, o:1, dev:hda2
+Feb  6 04:49:04 mars kernel: RAID1 conf printout:
+Feb  6 04:49:05 mars kernel:  --- wd:1 rd:2
+Feb  6 04:49:05 mars kernel:  disk 1, wo:0, o:1, dev:hda2
+Feb  6 04:49:05 mars kernel: raid1: hda2: redirecting sector 302518136 
+to another mirror
+
+Feb  7 06:25:18 mars kernel: ata4: status=0x51 { DriveReady SeekComplete 
+Error }
+Feb  7 06:25:18 mars kernel: SCSI error : <3 0 0 0> return code = 0x8000002
+Feb  7 06:25:18 mars kernel: FMK Current sda: sense = 70 88
+Feb  7 06:25:18 mars kernel: ASC=40 ASCQ=c0
+Feb  7 06:25:18 mars kernel: end_request: I/O error, dev sda, sector 
+364654755
+Feb  7 06:25:18 mars kernel: raid1: Disk failure on sda5, disabling device.
+Feb  7 06:25:18 mars kernel: ^IOperation continuing on 1 devices
+Feb  7 06:25:18 mars kernel: raid1: sda5: rescheduling sector 3706272
+Feb  7 06:25:18 mars kernel: RAID1 conf printout:
+Feb  7 06:25:18 mars kernel:  --- wd:1 rd:2
+Feb  7 06:25:18 mars kernel:  disk 0, wo:1, o:0, dev:sda5
+Feb  7 06:25:18 mars kernel:  disk 1, wo:0, o:1, dev:hda5
+Feb  7 06:25:18 mars kernel: RAID1 conf printout:
+Feb  7 06:25:18 mars kernel:  --- wd:1 rd:2
+Feb  7 06:25:18 mars kernel:  disk 1, wo:0, o:1, dev:hda5
+Feb  7 06:25:18 mars kernel: raid1: hda5: redirecting sector 3706272 to 
+another mirror
+
+Feb  9 06:25:02 mars kernel: ata4: status=0x51 { DriveReady SeekComplete 
+Error }
+Feb  9 06:25:02 mars kernel: SCSI error : <3 0 0 0> return code = 0x8000002
+Feb  9 06:25:02 mars kernel: FMK Current sda: sense = 70 88
+Feb  9 06:25:02 mars kernel: ASC=40 ASCQ=c0
+Feb  9 06:25:02 mars kernel: end_request: I/O error, dev sda, sector 
+310063304
+Feb  9 06:25:02 mars kernel: raid1: Disk failure on sda2, disabling device.
+Feb  9 06:25:02 mars kernel: ^IOperation continuing on 1 devices
+Feb  9 06:25:02 mars kernel: raid1: sda2: rescheduling sector 300681344
+Feb  9 06:25:02 mars kernel: RAID1 conf printout:
+Feb  9 06:25:02 mars kernel:  --- wd:1 rd:2
+Feb  9 06:25:02 mars kernel:  disk 0, wo:1, o:0, dev:sda2
+Feb  9 06:25:02 mars kernel:  disk 1, wo:0, o:1, dev:hda2
+Feb  9 06:25:02 mars kernel: RAID1 conf printout:
+Feb  9 06:25:02 mars kernel:  --- wd:1 rd:2
+Feb  9 06:25:02 mars kernel:  disk 1, wo:0, o:1, dev:hda2
+Feb  9 06:25:02 mars kernel: raid1: hda2: redirecting sector 300681344 
+to another mirror
+
+
+[0] http://marc.theaimsgroup.com/?l=linux-ide&m=110426005503319&q=raw
+
+
+Best regards,
+-jr
+

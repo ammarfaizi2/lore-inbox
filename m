@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265806AbTBKCeZ>; Mon, 10 Feb 2003 21:34:25 -0500
+	id <S265798AbTBKCdh>; Mon, 10 Feb 2003 21:33:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265815AbTBKCeY>; Mon, 10 Feb 2003 21:34:24 -0500
-Received: from clem.clem-digital.net ([68.16.168.10]:15377 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id <S265806AbTBKCeX>; Mon, 10 Feb 2003 21:34:23 -0500
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200302110244.VAA24252@clem.clem-digital.net>
-Subject: Re: 2.5.60 fails compile -- net/Space.c -- 3c509
-In-Reply-To: <20030210173555.2c60eca2.akpm@digeo.com> from Andrew Morton at "Feb 10, 2003  5:35:55 pm"
-To: akpm@digeo.com (Andrew Morton)
-Date: Mon, 10 Feb 2003 21:42:46 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel)
-X-Mailer: ELM [version 2.4ME+ PL48 (25)]
+	id <S265806AbTBKCdh>; Mon, 10 Feb 2003 21:33:37 -0500
+Received: from mta02ps.bigpond.com ([144.135.25.134]:8918 "EHLO
+	wmailout2.bigpond.com") by vger.kernel.org with ESMTP
+	id <S265798AbTBKCdg>; Mon, 10 Feb 2003 21:33:36 -0500
+From: Srihari Vijayaraghavan <harisri@telstra.com>
+To: linux-kernel@vger.kernel.org
+Cc: harisri@bigpond.com
+Message-ID: <14122914808b.14808b141229@bigpond.com>
+Date: Tue, 11 Feb 2003 13:43:17 +1100
+X-Mailer: Netscape Webmail
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Language: en
+Subject: 2.5.60 - xscreensaver no go.
+X-Accept-Language: en
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andrew Morton
-  > 
-  > Do you have a 3c509?  If so, can you test this?
-  > 
-Yes on the 3c509. Applied, compiles, boots and appears
-happy. (not running as a module)
+Hello,
 
--- 
-Pete Clements 
-clem@clem.clem-digital.net
+While I can lock the screen fine (in GNOME that is), I can't unlock the 
+screen (xscreen saver says my password is wrong, while it isn't). I had 
+to terminate XFree86 to get back my desktop (bit of a trouble if I had 
+any unsaved work on the desktop I guess).
+
+The same functionality works fine under 2.5.59 and 2.4.latest.
+
+I have:
+XFree86 4.2.0 (the one in RH 8.0) - s3virge driver
+xscreensaver-4.05-6 (the one in RH 8.0)
+
+I can give other details such as XF86Config, dmesg etc.. on request. 
+Later today I can verify this behaviour on 2 different computers (one 
+using i810 driver and other using vesa driver, and may be another one 
+using radeon driver).
+
+Sorry if this is a known problem, please cc me if you can.
+
+Thanks
+Hari
+harisri@bigpond.com
+
+ 
+

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132416AbREBIwe>; Wed, 2 May 2001 04:52:34 -0400
+	id <S132422AbREBIzy>; Wed, 2 May 2001 04:55:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132422AbREBIwY>; Wed, 2 May 2001 04:52:24 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:49673 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132416AbREBIwQ>;
-	Wed, 2 May 2001 04:52:16 -0400
-Date: Wed, 2 May 2001 10:50:38 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Fabio Riccardi <fabio@chromium.com>
-Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
-        "Timothy D. Witham" <wookie@osdlab.org>, <David_J_Morse@Dell.com>
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-In-Reply-To: <3AEC8562.887CFA72@chromium.com>
-Message-ID: <Pine.LNX.4.33.0105021047040.3642-100000@localhost.localdomain>
+	id <S132482AbREBIzq>; Wed, 2 May 2001 04:55:46 -0400
+Received: from www.teaparty.net ([216.235.253.180]:27410 "EHLO
+	www.teaparty.net") by vger.kernel.org with ESMTP id <S132479AbREBIzf>;
+	Wed, 2 May 2001 04:55:35 -0400
+Date: Wed, 2 May 2001 09:55:33 +0100 (BST)
+From: Vivek Dasmohapatra <vivek@etla.org>
+To: Russ Dill <Russ.Dill@asu.edu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Breakage of opl3sax cards since 2.4.3 (at least)
+In-Reply-To: <200105020850.BAA03703@smtp.asu.edu>
+Message-ID: <Pine.LNX.4.10.10105020953020.18977-100000@www.teaparty.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2 May 2001, Russ Dill wrote:
 
-On Sun, 29 Apr 2001, Fabio Riccardi wrote:
+> On 02 May 2001 09:30:03 +0100, Vivek Dasmohapatra wrote:
+> 
+> > I have an isapnp opl3sax system [2.4.3-ac5] - the sound card
+> > initialises
+[cut] 
+> not quite, you seem to have a YMH0802, while I have a YMH0802, what
+> error were you originally getting?
 
-> TUX has definitively been my performance yardstick for the development
-> of X15, but I had many sources of inspiration for the X15
-> architecture. Maybe the most relevant are the Flash Web Server (Pai,
-> Druschel, Zwaenepoel), several Linus observations on this list about
-> (web) server architecture and kernnel services, and the reading of the
-> Hennessy & Patterson architecture books. [...]
+ad1848/cs4248 codec driver Copyright (C) by Hannu Savolainen 1993-1996
+opl3sa2: Activated ISA PnP card 0 (active=1)
+opl3sa2: chipset version = 0x4
+opl3sa2: Found OPL3-SA3 (YMF715E or YMF719E)
+<OPL3-SA3> at 0x100
+<MS Sound System (CS4231)> at 0xe84 irq 5 dma 1,3
+<MPU-401 0.0  Midi interface #1> at 0x300 irq 5
+opl3sa2: Search for a card at 0x904.
+opl3sa2: Control I/O port 0x388 is not a YMF7xx chipset!
+opl3sa2: There was a problem probing one  of the ISA PNP cards, continuing
+opl3sa2: Control I/O port 0x388 is not a YMF7xx chipset!
+opl3sa2: There was a problem probing one  of the ISA PNP cards, continuing
+opl3sa2: Control I/O port 0x388 is not a YMF7xx chipset!
+opl3sa2: There was a problem probing one  of the ISA PNP cards, continuing
+YM3812 and OPL-3 driver Copyright (C) by Hannu Savolainen, Rob Hooft 1993-1996
 
-i think Zach's phhttpd is an important milestone as well, it's the first
-userspace webserver that shows how to use event-based, sigio-based async
-networking IO and sendfile() under Linux. (I believe it had some
-performance problems related to sigio queue overflow, these issues might
-be solved in the latest kernels.) The zerocopy enhancements should help
-phhttpd as well.
-
-	Ingo
+-- 
+If voting could change things, it would be illegal.
 

@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261706AbSJMT61>; Sun, 13 Oct 2002 15:58:27 -0400
+	id <S261670AbSJMT4q>; Sun, 13 Oct 2002 15:56:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261711AbSJMT61>; Sun, 13 Oct 2002 15:58:27 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:18367 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261706AbSJMT6Z>; Sun, 13 Oct 2002 15:58:25 -0400
-Date: Sun, 13 Oct 2002 18:04:02 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.42-mm2
-In-Reply-To: <20021013195236.GC27878@holomorphy.com>
-Message-ID: <Pine.LNX.4.44L.0210131803400.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261672AbSJMT4q>; Sun, 13 Oct 2002 15:56:46 -0400
+Received: from f123.law8.hotmail.com ([216.33.241.123]:33547 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S261670AbSJMT4p>;
+	Sun, 13 Oct 2002 15:56:45 -0400
+X-Originating-IP: [24.44.249.150]
+From: "sean darcy" <seandarcy@hotmail.com>
+To: acme@conectiva.com.br
+Cc: hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
+Subject: Re: VIA KT400 & VT8235 support
+Date: Sun, 13 Oct 2002 16:02:31 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F123pst98dt23gQH9Jw00017349@hotmail.com>
+X-OriginalArrivalTime: 13 Oct 2002 20:02:31.0975 (UTC) FILETIME=[770CEB70:01C272F3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Oct 2002, William Lee Irwin III wrote:
+OK. From lspic:
 
-> (1) It's embedded in struct zone, hence bootmem allocated, hence
-> 	already zeroed.
+00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 3189
+00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device b168
 
-The struct zone doesn't get automatically zeroed on all architectures.
+from lspci -n:
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+00:00.0 Class 0600: 1106:3189
+00:01.0 Class 0604: 1106:b168
+
+So I take 1106:3189 and 1106:b168  and stick them where?
+
+jay
+
+>From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+.............
+>Em Sat, Oct 12, 2002 at 10:11:05PM -0400, sean darcy escreveu:
+> > Do you mean I can just stick a PCI id (where do I find it?) in some 
+>table
+> > (filename?)? How?
+>
+>lspci
+>lspci -n
+>
+>- Arnaldo
+
+
+
+
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
 

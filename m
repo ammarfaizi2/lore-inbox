@@ -1,104 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUIOUtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267431AbUIOUvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267385AbUIOUtj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 16:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUIOUse
+	id S267431AbUIOUvv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 16:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267476AbUIOUuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 16:48:34 -0400
-Received: from outmx001.isp.belgacom.be ([195.238.3.51]:26775 "EHLO
-	outmx001.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S267385AbUIOUpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:45:39 -0400
-Message-ID: <4148AA34.3000003@246tNt.com>
-Date: Wed, 15 Sep 2004 22:46:44 +0200
-From: Sylvain Munaut <tnt@246tNt.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040816)
-X-Accept-Language: en-us, en
+	Wed, 15 Sep 2004 16:50:14 -0400
+Received: from fep19-0.kolumbus.fi ([193.229.0.45]:6845 "EHLO
+	fep19-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S267429AbUIOUt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 16:49:27 -0400
+Date: Wed, 15 Sep 2004 23:49:21 +0300 (EEST)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Peter Jones <pjones@redhat.com>
+cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allow root to modify raw scsi command permissions list
+In-Reply-To: <1095277740.20046.23.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0409152306160.1972@kai.makisara.local>
+References: <1095173470.5728.3.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0409152151190.1972@kai.makisara.local>
+ <1095277740.20046.23.camel@localhost.localdomain>
 MIME-Version: 1.0
-Cc: Linux PPC Dev <linuxppc-dev@ozlabs.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>
-Subject: [PATCH 10/9] Small updates for Freescale MPC52xx - Late one ...
-References: <4146D833.8040703@246tNt.com>
-In-Reply-To: <4146D833.8040703@246tNt.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Wed, 15 Sep 2004, Peter Jones wrote:
 
-Sorry for this late one, I just got it and it belongs with the others.
-I've added it to the bk tree I sent earlier ( 
-bk://bkbits.246tNt.com/linux-2.5-mpc52xx-pending )
-so please pull from that tree.
+> On Wed, 2004-09-15 at 22:14 +0300, Kai Makisara wrote:
+...
+> My patch leaves the defaults as what are currently in the kernel.  
+> 
+Yes but what I wanted to say the filter currently in the kernel is not 
+safe for all devices.
 
-The unified diff along with the patch description is below.
+> > I have already commented on MODE SELECT. I still think it is dangerous. 
+> 
+> It's only marked as being allowed if you have write access; /dev/hda
+> usually isn't a+w, last I checked.
+> 
+I am thinking about other devices than disks. Tapes are what I know best 
+but there are also other device types (all that support SG_IO).
 
-Thanks,
+For tapes it is fairly common to allow users read/write permissions for 
+reading/writing tapes. MODE SELECT allows a user to mess up the drive 
+parameters so that the next user thinks it is broken. This is not the 
+purpose of giving read/write permissions in this case.
 
-    Sylvain
+> I'd actually say that this isn't suitable for CD drives.  To do CDDA
+> reads in many cases you need MODE_SELECT.  As such, CD drives should
+> have MODE_SELECT in the list of things allowed to read.  But the point
+> is that this gives control of the policy to the userland, where it
+> belongs.
+> 
+This is why I like your approach.
 
+...
+> My intent with the patch isn't really to take any stance on which
+> commands should and shouldn't be allowed.  In fact, it's quite the
+> opposite -- this allows initscripts/hotplug to install an appropriate
+> list of commands for each device.
+> 
+If you are not taking a stance, then the default list should be empty.
+The starting point must be safe and it can be relaxed. I am just trying to 
+have a safe enough starting point.
 
+In an ideal world the initscripts/hotplug scripts would be updated 
+instantaneously and the empty default would not be a problem. In the real 
+world this does not happen and we have decide how far we want to relax the 
+default security. I think this is why Linus added the filter: he wanted 
+to allow users to burn CDs without special permissions. This is why I 
+suggested that the default filter should allow the current default for 
+CDs. It is a compromise.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/09/15 22:03:38+02:00 tnt@246tNt.com
-#   ppc: Fix output of low-level serial debug on Freescale MPC52xx
-#  
-#   Thanks to Roger Blofeld for pointing that out.
-#  
-#   Signed-off-by: Sylvain Munaut <tnt@246tNt.com>
-#
-# arch/ppc/syslib/mpc52xx_setup.c
-#   2004/09/15 22:02:23+02:00 tnt@246tNt.com +14 -10
-#   ppc: Fix output of low-level serial debug on Freescale MPC52xx
-#
-diff -Nru a/arch/ppc/syslib/mpc52xx_setup.c 
-b/arch/ppc/syslib/mpc52xx_setup.c
---- a/arch/ppc/syslib/mpc52xx_setup.c   2004-09-15 22:36:07 +02:00
-+++ b/arch/ppc/syslib/mpc52xx_setup.c   2004-09-15 22:36:07 +02:00
-@@ -100,24 +100,28 @@
- #error "mpc52xx PSC for console not selected"
- #endif
+...
+> > This could also be done in your approach. One possibility would be to 
+> > start with empty filter and call from CD/DVD registering a function that 
+> > sets the filter you currently have as default. This would be both flexible 
+> > and safe.
+> 
+> I don't want to do an empty filter, because that'll mean existing users
+> of SG_IO and such break for no real reason.  The approach my patch takes
+> is not to change *any* of the existing policy, but to enable distros to
+> change it to their hearts' content.  It's *dead* simple to make
+> initscripts and hotplug pick "correct" lists for each device.
+> 
+I don't know any other SG_IO users than CD/DVD software that try to use 
+passthrough without CAP_RAWIO. This is probably politically incorrect, but 
+no sane software developer expects to be able to send raw commands without 
+proper permissions. If this kind of security hole is present, it will be 
+plugged sooner or later.
 
-+static void
-+mpc52xx_psc_putc(struct mpc52xx_psc * psc, unsigned char c)
-+{
-+       while (!(in_be16(&psc->mpc52xx_psc_status) &
-+                MPC52xx_PSC_SR_TXRDY));
-+       out_8(&psc->mpc52xx_psc_buffer_8, c);
-+}
-+
- void
- mpc52xx_progress(char *s, unsigned short hex)
- {
-        struct mpc52xx_psc *psc = (struct mpc52xx_psc *)MPC52xx_CONSOLE;
-        char c;
-
--               /* Don't we need to disable serial interrupts ? */
--      
-        while ((c = *s++) != 0) {
--               if (c == '\n') {
--                       while (!(in_be16(&psc->mpc52xx_psc_status) &
--                                MPC52xx_PSC_SR_TXRDY)) ;
--                       out_8(&psc->mpc52xx_psc_buffer_8, '\r');
--               }
--               while (!(in_be16(&psc->mpc52xx_psc_status) &
--                        MPC52xx_PSC_SR_TXRDY)) ;
--               out_8(&psc->mpc52xx_psc_buffer_8, c);
-+               if (c == '\n')
-+                       mpc52xx_psc_putc(psc, '\r');
-+               mpc52xx_psc_putc(psc, c);
-        }
-+
-+       mpc52xx_psc_putc(psc, '\r');
-+       mpc52xx_psc_putc(psc, '\n');
- }
-
- #endif  /* CONFIG_SERIAL_TEXT_DEBUG */
-
+-- 
+Kai

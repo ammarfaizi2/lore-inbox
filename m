@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266684AbUBGHl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 02:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUBGHl7
+	id S266677AbUBGHf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 02:35:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266681AbUBGHf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 02:41:59 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:28820 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S266684AbUBGHl6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 02:41:58 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: FATAL: Kernel too old
-Date: Sat, 7 Feb 2004 07:41:56 +0000
-User-Agent: KMail/1.5.4
-References: <Pine.LNX.4.53.0402061550440.681@chaos>
-In-Reply-To: <Pine.LNX.4.53.0402061550440.681@chaos>
+	Sat, 7 Feb 2004 02:35:58 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:35043 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S266677AbUBGHf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 02:35:57 -0500
+Date: Fri, 06 Feb 2004 23:35:49 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, anton@samba.org
+Subject: Re: Manfreds patch to distribute boot allocations across nodes
+Message-ID: <34340000.1076139348@[10.10.2.4]>
+In-Reply-To: <p734qu3lahj.fsf@verdi.suse.de>
+References: <20040207042559.GP19011@krispykreme.suse.lists.linux.kernel><20040206210428.17ee63db.akpm@osdl.org.suse.lists.linux.kernel> <p734qu3lahj.fsf@verdi.suse.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200402070741.56848.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have seen this message when trying to use a glibc configured with
-        --enable-kernel=2.4.20
-on a machine running a 2.4.19 kernel.
+>> > +#ifdef CONFIG_NUMA
+>> 
+>> Is this a thing which all NUMA machines want to be doing?
+> 
+> Should be ok yes. The free_pages in zone check should catch the 
+> 32bit NUMAs which only have lowmem in node 0.
 
-You haven't either upgraded glibc or started using an older kernel, have you?
+Doesn't matter much either way - alloc_pages_node for anything should
+point us to node 0.
 
-Andrew
+M.
 

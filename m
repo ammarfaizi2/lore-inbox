@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbULPRSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbULPROX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261948AbULPRSh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 12:18:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbULPRPV
+	id S261943AbULPROX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 12:14:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbULPRLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 12:15:21 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:11436 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S261941AbULPRLu (ORCPT
+	Thu, 16 Dec 2004 12:11:13 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34725 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261946AbULPRE7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 12:11:50 -0500
-Date: Thu, 16 Dec 2004 18:10:52 +0100
-From: Michelle Konzack <linux4michelle@freenet.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 3TB disk hassles
-Message-ID: <20041216171052.GC3854@freenet.de>
-References: <20041216145229.29167.qmail@web26502.mail.ukl.yahoo.com> <200412161537.02804.m.watts@eris.qinetiq.com> <20041216155216.GA3854@freenet.de> <Pine.LNX.4.61.0412161703290.30336@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="36+Jv5wzUORg1Ut4"
+	Thu, 16 Dec 2004 12:04:59 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] add legacy I/O port & memory APIs to /proc/bus/pci
+Date: Thu, 16 Dec 2004 09:04:46 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, willy@debian.org
+References: <200412160850.20223.jbarnes@engr.sgi.com> <20041216165602.GA10560@infradead.org>
+In-Reply-To: <20041216165602.GA10560@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0412161703290.30336@yvahk01.tjqt.qr>
-X-Message-Flag: Improper configuration of Outlook is a breeding ground for viruses. Please take care your Client is configured correctly. Greetings Michelle.
-X-Disclaimer-DE: Eine weitere Verwendung oder die Veroeffentlichung dieser Mail oder dieser Mailadresse ist nur mit der Einwilligung des Autors gestattet.
-Organisation: Michelle's Selbstgebrautes
-X-Operating-System: Linux samba3.private 2.4.27-1-386
-X-Uptime: 18:10:10 up 3 days, 21:42,  4 users,  load average: 0.69, 0.32, 0.21
-X-Homepage: http://www.debian.tamay-dogan.homelinux.net/
-User-Agent: Mutt/1.5.6+20040907i
-X-Warning: freenet.de is listed at abuse.rfc-ignorant.org
+Message-Id: <200412160904.46665.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday, December 16, 2004 8:56 am, Christoph Hellwig wrote:
+> On Thu, Dec 16, 2004 at 08:50:19AM -0800, Jesse Barnes wrote:
+> > This patch documents the /proc/bus/pci interface and adds some optional
+> > architecture specific APIs for accessing legacy I/O port and memory
+> > space. This is necessary on platforms where legacy I/O port space doesn't
+> > 'soft fail' like it does on PCs, and is useful for systems that can route
+> > legacy space to different PCI busses.
+>
+> Please don't add more interfaces to procfs.  And ioctl() on procfs is even
+> more evil.
 
---36+Jv5wzUORg1Ut4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Oh come on, there's already an API there, and now it's documented even!  The 
+additions are straightforward and there's no where else to put them...  /sys 
+doesn't seem like a good place either, would you prefer a device driver?
 
-Hello Jan,=20
+I really don't see what the problem is though.  /proc/bus/pci is a commonly 
+used API and I don't see it going away.  These extensions just make it a 
+little more usable on platforms like sn2 and ppc.
 
-Am 2004-12-16 17:03:55, schrieb Jan Engelhardt:
-
-> Maybe some LVM trickery can aggregate ungrowable hardware raids together =
-to a=20
-> single block device.
-
-Yes, thats right.
-
-> Jan Engelhardt
-
-Greetings
-Michelle
-
---=20
-Linux-User #280138 with the Linux Counter, http://counter.li.org/=20
-Michelle Konzack   Apt. 917                  ICQ #328449886
-                   50, rue de Soultz         MSM LinuxMichi
-0033/3/88452356    67100 Strasbourg/France   IRC #Debian (irc.icq.com)
-
---36+Jv5wzUORg1Ut4
-Content-Type: application/pgp-signature; name="signature.pgp"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBwcGcC0FPBMSS+BIRAj/GAKDQNOASL7onBSRQI8lPS2N3WH9JOwCfdX25
-BQmo111EOde4ilq4sVGOlwM=
-=iKAU
------END PGP SIGNATURE-----
-
---36+Jv5wzUORg1Ut4--
+Jesse

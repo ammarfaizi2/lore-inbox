@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287711AbSAVGkb>; Tue, 22 Jan 2002 01:40:31 -0500
+	id <S280588AbSAVGil>; Tue, 22 Jan 2002 01:38:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287874AbSAVGkV>; Tue, 22 Jan 2002 01:40:21 -0500
-Received: from dial-10-193-apx-01.btvt.together.net ([209.91.3.193]:39298 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S287711AbSAVGkJ>; Tue, 22 Jan 2002 01:40:09 -0500
-Date: Tue, 22 Jan 2002 01:39:28 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: <wstearns@sparrow.websense.net>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Paul Gortmaker <p_gortmaker@yahoo.com>, Dave Jones <davej@suse.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Calling EISA experts
-In-Reply-To: <20020122005210.A18883@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0201220138230.2904-100000@sparrow.websense.net>
+	id <S287711AbSAVGic>; Tue, 22 Jan 2002 01:38:32 -0500
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:30307 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S280588AbSAVGi2>; Tue, 22 Jan 2002 01:38:28 -0500
+Message-ID: <3C4D0784.40802696@randomlogic.com>
+Date: Mon, 21 Jan 2002 22:32:36 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Random Logic
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Athlon PSE/AGP Bug
+In-Reply-To: <E16SkGH-0000Ut-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, Eric,
-
-On Tue, 22 Jan 2002, Eric S. Raymond wrote:
-
-> Jeff Garzik <jgarzik@mandrakesoft.com>:
-> > > Minimal approach: Register motherboard EISA ID (i.e. slot zero) ports in
-> > > /proc/ioports.  Works on all kernel versions.  See $0.02 patch below.
-> > > 
-> > > This is probably the least intrusive way to get what you want.  It doesn't
-> > > add Yet Another Proc File, and costs zero bloat to the 99.9% of us who
-> > > have a better chance of meeting Aunt Tillie than an EISA box.
-> > > 
-> > > Possible alternative: Create something like /proc/bus/eisa/devices which
-> > > lists the EISA ID (e.g. abc0123) found in each EISA slot.   This might
-> > > have been worthwhile some 8 years ago, but now? ....
-> > 
-> > Actually, "lsescd" should list the EISA (and ISAPNP) configuration data,
-> > which includes EISA id, etc.
+Alan Cox wrote:
 > 
-> I do not find this command on my RH7.2 system.  Can you tell me more about it?
+> > That errata lists all Athlon Thunderbirds as affected and all Athlon
+> > Palominos except for stepping A5.
+> >
+> > Regardless of specific errata listings, will future workarounds be
+> > enabled based on cpuid or via a test for the bug itself?
 > 
-> I like the /proc/ioports approach and agree that /proc/bus/eisa/ seems like
-> overkill at this late date.
+> That problem shouldnt be hitting Linux x86. I don't know about the
+> Nvidia module but the base kernel shouldnt hit an invlpg on 4Mb pages
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-	http://www.uwsg.iu.edu/hypermail/linux/kernel/0107.1/0052.html
-	http://home.t-online.de/home/gunther.mayer/lsescd-0.10.tar.bz2 
-	Cheers,
-	- Bill
+See my post on /. regarding the bug.
 
----------------------------------------------------------------------------
-        "Anyone can be a critic, its rather harder and much more
-valuable to be a critic that actually has positive impacts on what you
-criticize"
-        -- Alan Cox <alan@lxorguk.ukuu.org.uk>
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
+In summary, I have 2 Thunderbird systems - a dual 1.4GHz Thunderbird on
+Tyan Thunder K7 and a single 1.4GHz Thunderbird on Asus A7V133 - with
+NVIDIA cards and the latest 2313 NVIDIA driver. The single runs RH 7.2
+and this one (the dual) an up2date RH 7.1 with kernel 2.4.17. I have no
+problems unless I boot a system into Win98. There are many other issues,
+as you all know (and many dorks on /. apparently do not), that can and
+will cause a system to hang. I run AGP4x, SBA, FSAA, and Anisotropic
+filtering on most all games. I compile often many different things. The
+ONLY times I have compile issues are when I compile some things (Torque
+game engine and Quake II) with -march at anything over pentium, at which
+point either the internal compiler bugs rear their ugly heads or I get
+strange graphics in a game.
 
+But since kernel 2.4.14, never a system lock.
 
+PGA
+-- 
+Paul G. Allen
+Owner, Sr. Engineer, Security Specialist
+Random Logic/Dream Park
+www.randomlogic.com

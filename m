@@ -1,196 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272112AbRHVUZl>; Wed, 22 Aug 2001 16:25:41 -0400
+	id <S272110AbRHVUdw>; Wed, 22 Aug 2001 16:33:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272110AbRHVUZc>; Wed, 22 Aug 2001 16:25:32 -0400
-Received: from abasin.nj.nec.com ([138.15.150.16]:3851 "HELO abasin.nj.nec.com")
-	by vger.kernel.org with SMTP id <S272112AbRHVUZR>;
-	Wed, 22 Aug 2001 16:25:17 -0400
-From: Sven Heinicke <sven@research.nj.nec.com>
+	id <S272113AbRHVUdn>; Wed, 22 Aug 2001 16:33:43 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:18181 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S272110AbRHVUdd>; Wed, 22 Aug 2001 16:33:33 -0400
+Date: Wed, 22 Aug 2001 16:05:21 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: tommy@teatime.com.tw, Linux Kernel <linux-kernel@vger.kernel.org>,
+        Ben LaHaise <bcrl@redhat.com>
+Subject: Re: Memory Problem in 2.4.9 ?
+In-Reply-To: <20010822192559Z16191-32383+888@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.21.0108221604300.2685-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15236.5429.958675.175951@abasin.nj.nec.com>
-Date: Wed, 22 Aug 2001 16:25:25 -0400 (EDT)
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P)
-In-Reply-To: <Pine.LNX.4.21.0108221241040.2202-100000@freak.distro.conectiva>
-In-Reply-To: <15235.55592.699783.338199@abasin.nj.nec.com>
-	<Pine.LNX.4.21.0108221241040.2202-100000@freak.distro.conectiva>
-X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-cool, it now compiles, runs and doesn't crash while running bonnie++
-like it did before.  I've told my users to beat at it.  if it crashes
-or continues to get bad disk performance i'm sure the list will hear
-from me.  Hopefully I'll be able to test more changes if they need
-testing.
 
-	Sven
+On Wed, 22 Aug 2001, Daniel Phillips wrote:
 
-Marcelo Tosatti writes:
- > 
- > Sven,
- > 
- > There is another mistake on the patch I sent you.
- > 
- > On buffer.c, instead 
- > 
- > "page->zone == &pgdat_list->node_zones[ZONE_HIGHMEM]"
- >             ^^
- > you should use
- > 
- > "page->zone != &pgdat_list->node_zones[ZONE_HIGHMEM]"
- > 	    ^^ 
- > 
- > Ok? 
- > 
- > On Wed, 22 Aug 2001, Sven Heinicke wrote:
- > 
- > > 
- > > I tried you patch below, to compile I had to edit like 2451 of
- > > buffer.c, after the patch to be "page->zone" instead of "page-zone".
- > > After that the build want great.  But part of the way through running
- > > bonnie++ the system crashed in a way that it didn't write anything to
- > > the sylog.  The terminal was spewing:
- > > 
- > > APIC error on CPU0: 0c(0c)
- > > APIC error on CPU1: 0c(0c)
- > > 
- > > I've really gotta put that system back into production.  As it seems
- > > much better off before the I started this thread with the 2.4.8-ac8
- > > kernel.
- > > 
- > > 	Sven
- > > 
- > > Marcelo Tosatti writes:
- > >  > 
- > >  > 
- > >  > On Tue, 21 Aug 2001, Sven Heinicke wrote:
- > >  > 
- > >  > > 
- > >  > > Forgive the sin of replying to my own message but Daniel Phillips
- > >  > > replied to a different message with a patch to somebody getting a
- > >  > > similar error to mine.  Here is the result:
- > >  > > 
- > >  > > Aug 20 15:10:33 ps1 kernel: cation failed (gfp=0x30/1). 
- > >  > > Aug 20 15:10:33 ps1 kernel: __alloc_pages: 0-order allocation failed
- > >  > > (gfp=0x30/1). 
- > >  > > Aug 20 15:10:46 ps1 last message repeated 327 times 
- > >  > > Aug 20 15:10:47 ps1 kernel: cation failed (gfp=0x30/1). 
- > >  > > Aug 20 15:10:47 ps1 kernel: __alloc_pages: 0-order allocation failed
- > >  > > (gfp=0x30/1). 
- > >  > > Aug 20 15:10:56 ps1 last message repeated 294 times 
- > >  > > 
- > >  > > 
- > >  > > Sven Heinicke writes:
- > >  > >  > 
- > >  > >  > It's always a blessing and a curse when people seem to be haveing
- > >  > >  > problems with the same drivers as you.  I started looking into this
- > >  > >  > when I user complained about disk access time.  I think this is
- > >  > >  > related to the running aic7xxx topics.
- > >  > >  > 
- > >  > >  > From my tests, I got a Dell 4400 who's Adaptec 7899P, according to
- > >  > >  > bonnie++, was writing slower then some of my my IDE drives on a
- > >  > >  > different system.  I tried Red Hat's 2.4.3-12smp kernel and got a
- > >  > >  > little improvement.  I then built 2.4.9 and started running bonnie++
- > >  > >  > again and my syslog gets filled up with such errors:
- > >  > >  > 
- > >  > >  > Aug 20 14:23:33 ps1 kernel: __alloc_pages: 0-order all
- > >  > >  > Aug 20 14:23:36 ps1 last message repeated 376 times
- > >  > >  > Aug 20 14:23:36 ps1 kernel: ed.
- > >  > >  > Aug 20 14:23:36 ps1 kernel: __alloc_pages: 0-order all
- > >  > >  > Aug 20 14:23:44 ps1 last message repeated 376 times
- > >  > >  > Aug 20 14:23:44 ps1 kernel: ed.
- > >  > >  > Aug 20 14:23:44 ps1 kernel: __alloc_pages: 0-order all
- > >  > >  > Aug 20 14:23:44 ps1 last message repeated 363 times
- > >  > >  > 
- > >  > >  > With slow access time.  Please request more info if you think it might
- > >  > >  > help.
- > >  > 
- > >  > Sven,
- > >  > 
- > >  > Could you please try the following patch on top of 2.4.9? 
- > >  > 
- > >  > diff -Nur --exclude-from=exclude linux.orig/fs/buffer.c linux/fs/buffer.c
- > >  > --- linux.orig/fs/buffer.c	Wed Aug 15 18:25:49 2001
- > >  > +++ linux/fs/buffer.c	Tue Aug 21 04:54:01 2001
- > >  > @@ -2447,7 +2447,8 @@
- > >  >  	spin_unlock(&free_list[index].lock);
- > >  >  	write_unlock(&hash_table_lock);
- > >  >  	spin_unlock(&lru_list_lock);
- > >  > -	if (gfp_mask & __GFP_IO) {
- > >  > +	if (gfp_mask & __GFP_IO || (gfp_mask & __GFP_NOBOUNCE) 
- > >  > +			&& page-zone == &pgdat_list->node_zones[ZONE_HIGHMEM]) {
- > >  >  		sync_page_buffers(bh, gfp_mask);
- > >  >  		/* We waited synchronously, so we can free the buffers. */
- > >  >  		if (gfp_mask & __GFP_WAIT) {
- > >  > diff -Nur --exclude-from=exclude linux.orig/include/linux/mm.h linux/include/linux/mm.h
- > >  > --- linux.orig/include/linux/mm.h	Wed Aug 15 18:21:11 2001
- > >  > +++ linux/include/linux/mm.h	Tue Aug 21 04:52:08 2001
- > >  > @@ -538,6 +538,8 @@
- > >  >  #define __GFP_HIGH	0x20	/* Should access emergency pools? */
- > >  >  #define __GFP_IO	0x40	/* Can start physical IO? */
- > >  >  #define __GFP_FS	0x80	/* Can call down to low-level FS? */
- > >  > +#define __GFP_NOBOUNCE	0x100	/* Don't do any IO operation which may
- > >  > +				   result in IO bouncing */
- > >  >  
- > >  >  #define GFP_NOIO	(__GFP_HIGH | __GFP_WAIT)
- > >  >  #define GFP_NOFS	(__GFP_HIGH | __GFP_WAIT | __GFP_IO)
- > >  > diff -Nur --exclude-from=exclude linux.orig/include/linux/slab.h linux/include/linux/slab.h
- > >  > --- linux.orig/include/linux/slab.h	Wed Aug 15 18:21:13 2001
- > >  > +++ linux/include/linux/slab.h	Tue Aug 21 04:51:20 2001
- > >  > @@ -23,7 +23,7 @@
- > >  >  #define	SLAB_NFS		GFP_NFS
- > >  >  #define	SLAB_DMA		GFP_DMA
- > >  >  
- > >  > -#define SLAB_LEVEL_MASK		(__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS)
- > >  > +#define SLAB_LEVEL_MASK		(__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS|__GFP_NOBOUNCE)
- > >  >  #define	SLAB_NO_GROW		0x00001000UL	/* don't grow a cache */
- > >  >  
- > >  >  /* flags to pass to kmem_cache_create().
- > >  > diff -Nur --exclude-from=exclude linux.orig/mm/highmem.c linux/mm/highmem.c
- > >  > --- linux.orig/mm/highmem.c	Thu Aug 16 13:42:45 2001
- > >  > +++ linux/mm/highmem.c	Tue Aug 21 04:50:08 2001
- > >  > @@ -321,7 +321,7 @@
- > >  >  	struct page *page;
- > >  >  
- > >  >  repeat_alloc:
- > >  > -	page = alloc_page(GFP_NOIO);
- > >  > +	page = alloc_page(GFP_NOIO|__GFP_NOBOUNCE);
- > >  >  	if (page)
- > >  >  		return page;
- > >  >  	/*
- > >  > @@ -359,7 +359,7 @@
- > >  >  	struct buffer_head *bh;
- > >  >  
- > >  >  repeat_alloc:
- > >  > -	bh = kmem_cache_alloc(bh_cachep, SLAB_NOIO);
- > >  > +	bh = kmem_cache_alloc(bh_cachep, SLAB_NOIO|__GFP_NOBOUNCE);
- > >  >  	if (bh)
- > >  >  		return bh;
- > >  >  	/*
- > >  > diff -Nur --exclude-from=exclude linux.orig/mm/page_alloc.c linux/mm/page_alloc.c
- > >  > --- linux.orig/mm/page_alloc.c	Thu Aug 16 13:43:02 2001
- > >  > +++ linux/mm/page_alloc.c	Tue Aug 21 04:51:03 2001
- > >  > @@ -398,7 +398,8 @@
- > >  >  	 * - we're /really/ tight on memory
- > >  >  	 * 	--> try to free pages ourselves with page_launder
- > >  >  	 */
- > >  > -	if (!(current->flags & PF_MEMALLOC)) {
- > >  > +	if (!(current->flags & PF_MEMALLOC) 
- > >  > +			|| ((gfp_mask & __GFP_NOBOUNCE) && !order)) {
- > >  >  		/*
- > >  >  		 * Are we dealing with a higher order allocation?
- > >  >  		 *
- > >  > 
- > > -
- > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
- > > the body of a message to majordomo@vger.kernel.org
- > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > > Please read the FAQ at  http://www.tux.org/lkml/
- > > 
- > 
+> On August 22, 2001 06:47 am, Tommy Wu wrote:
+> >    I've tried the patch in the kernel list. Got the result as following...
+> >    This message for command: 
+> >    dd if=/dev/zero of=test.dmp bs=1000k count=2500
+> >    on a PIII 1G SMP box with 1G RAM (HIGHMEM enabled)
+> >    kernel 2.4.9 with XFS filesystem patch.
+> >
+> > Aug 22 11:51:04 standby kernel: __alloc_pages: 0-order allocation failed
+> > (gfp=0x30/1).
+> > Aug 22 11:51:11 standby last message repeated 111 times
+> 
+> OK, this is a straight-up design bug.  Although this can also happen with 
+> normal memory, it's much more likely to happen with highmem because of heavy 
+> demand for bounce buffers while a process is in PF_MEMALLOC state.  You can 
+> just turn off highmem and these messages will go away, or become so rare that 
+> you are unlikely to ever see one.
+> 
+> Now lets chase the real problem.  The gfp=0x30 tells us the requestor is 
+> willing to wait (0x10) and that it is not allowed to do any io (0x40) or call 
+> ->writepage (0x80).  (By process of elimination, it's a bounce buffer.) 
+> Furthermore, this is a recursive memory request (/1) so __alloc_pages won't 
+> call page_launder because that could hit another allocation request resulting 
+> in a fatal infinite recursion (note to self: why couldn't we call 
+> page_launder here, with NOIO?).
+> 
+> There are probably dirty pages in flight and __alloc_pages is allowed to wait 
+> for them, but it doesn't - it trys reclaim_page once (in 
+> __alloc_pages_limit), falls the rest of the way through __alloc_pages and 
+> gives up with NULL.  This is clearly a bad thing because whoever wanted the 
+> page needs it to do writeout.  Memory users are supposed to be able to 
+> tolerate alloc failure, but in a case like this, there isn't much choice 
+> other than to spin.
+> 
+> So what could we do better here?  Well, obviously when there are writeout 
+> pages in flight, __alloc_pages should wait and not give up.  Secondly, we 
+> should be sure that when writeout does complete, the newly freeable page is 
+> given to a PF_MEMALLOC waiter in preference to a normal user.  We don't have 
+> mechanisms in place for doing either of those things right now, although some 
+> preliminary design ideas have been discussed.  This gets way outside the 
+> bound of what we should be doing in 2.4, we will need such things as 
+> reservations (which Ben has done some work on) and orderly prioritization of 
+> requests in __alloc_pages, with explicit blocking for low priority requests.  
+> 
+> What can we do right now?  We could always just comment out the alloc failed 
+> message.  The result will be a lot of busy waiting on dirty page writeout 
+> which will work but it will keep us from focussing on the question: how did 
+> we get so short of bounce buffers?  Well, maybe we are submitting too much IO 
+> without intelligent throttling (/me waves at Ben).  That sounds like the 
+> place to attack first.
+
+We can just wait on the writeout of lowmem buffers at page_launder()
+(which will not cause IO buffering since we are doing lowmem IO, duh), and
+then we are done.
+
+Take a look at the patch I posted before (__GFP_NOBOUNCE). 
+

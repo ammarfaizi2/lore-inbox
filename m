@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261666AbRFLPCu>; Tue, 12 Jun 2001 11:02:50 -0400
+	id <S261679AbRFLPDU>; Tue, 12 Jun 2001 11:03:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261679AbRFLPCk>; Tue, 12 Jun 2001 11:02:40 -0400
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:65262 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S261666AbRFLPCZ>; Tue, 12 Jun 2001 11:02:25 -0400
-Date: Tue, 12 Jun 2001 16:01:49 +0100 (BST)
-From: Jeremy Sanders <jss@ast.cam.ac.uk>
-To: "David S. Miller" <davem@redhat.com>
-cc: Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: rsync hangs on RedHat 2.4.2 or stock 2.4.4
-In-Reply-To: <15142.11907.782662.581523@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.33.0106121601270.10732-100000@xpc1.ast.cam.ac.uk>
+	id <S261771AbRFLPDL>; Tue, 12 Jun 2001 11:03:11 -0400
+Received: from smtpde01.sap-ag.de ([194.39.131.52]:34449 "EHLO
+	smtpde01.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S261679AbRFLPDD>; Tue, 12 Jun 2001 11:03:03 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Peter Niemayer <niemayer.viag@isg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: unused shared memory is written into core dump - bug or feature?
+In-Reply-To: <3B262158.29EFC01A@isg.de>
+Organisation: SAP LinuxLab
+Date: 12 Jun 2001 16:56:29 +0200
+In-Reply-To: Peter Niemayer's message of "Tue, 12 Jun 2001 16:04:08 +0200"
+Message-ID: <m3ae3d7nmq.fsf@linux.local>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jun 2001, David S. Miller wrote:
+Hi Peter,
 
->
-> Russell King writes:
->  > At the time I suggested it was because of a missing wakeup in 2.4.2 kernels,
->  > but I was shouted down for using 2.2.15pre13.  Since then I've seen these
->  > reports appear on lkml several times, each time without a solution nor
->  > explaination.
->  >
->  > Oh, and yes, we're still using the same setup here at work, and its running
->  > fine now - no rsync lockups.  I'm not sure why that is. ;(
->
-> Look everyone, it was determined to be a deadlock because of some
-> interaction between how rsync sets up it's communication channels
-> with the ssh subprocess, readas: userland bug.
+On Tue, 12 Jun 2001, Peter Niemayer wrote:
+> I just noticed that when I attach some SYSV shared memory segments
+> to my process and then that process dies from a SIGSEGV that _all_
+> the shared memory is dumped into the core file, even if it was never
+> used and therefore didn't show up in any of the memory statistics.
 
-I'm not using ssh! This is from local disk to local disk!
+Fixed in recent kernel versions (2.2 and 2.4). It will create sparse
+files and not touch the unused address space.
 
-Jeremy
+Greetings
+		Christoph
 
--- 
-Jeremy Sanders <jss@ast.cam.ac.uk>  http://www-xray.ast.cam.ac.uk/~jss/
-Pembroke College, Cambridge. UK   Institute of Astronomy, Cambridge. UK
 

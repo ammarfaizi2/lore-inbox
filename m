@@ -1,114 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310416AbSCBSYv>; Sat, 2 Mar 2002 13:24:51 -0500
+	id <S310418AbSCBS0L>; Sat, 2 Mar 2002 13:26:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310417AbSCBSYm>; Sat, 2 Mar 2002 13:24:42 -0500
-Received: from zero.tech9.net ([209.61.188.187]:11021 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S310416AbSCBSYd>;
-	Sat, 2 Mar 2002 13:24:33 -0500
-Subject: Re: NOW have 'D-state' processes in 2.4.17 !!!
-From: Robert Love <rml@tech9.net>
-To: Chris Rankin <cj.rankin@ntlworld.com>
-Cc: andrea@suse.de, rgooch@vindaloo.ras.ucalgary.ca,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200203021818.g22IIo27021932@twopit.underworld>
-In-Reply-To: <200203021818.g22IIo27021932@twopit.underworld>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 02 Mar 2002 13:24:27 -0500
-Message-Id: <1015093468.14000.1.camel@phantasy>
-Mime-Version: 1.0
+	id <S310417AbSCBSZz>; Sat, 2 Mar 2002 13:25:55 -0500
+Received: from [208.179.59.195] ([208.179.59.195]:9783 "EHLO
+	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
+	id <S310418AbSCBSZl>; Sat, 2 Mar 2002 13:25:41 -0500
+Message-ID: <3C8118CA.5030404@blue-labs.org>
+Date: Sat, 02 Mar 2002 13:24:10 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020226
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Dennis, Jim" <jdennis@snapserver.com>
+CC: "'Stephen Degler'" <sdegler@degler.net>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Congrats Marcelo,
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153ADF@cdserv.meridian-data.com>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms080208040304010509020702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-03-02 at 13:18, Chris Rankin wrote:
+This is a cryptographically signed message in MIME format.
 
-> [Linux 2.4.17, SMP, devfs, 1.2 GB memory, compiled with gcc-2.95.3,
-> root partition using EXT3]
-> 
-> I upgraded to 2.4.18 a few days ago, but immediately downgraded
-> because I suddenly had lots of 'D-state' processes. Well I have now
-> produced a suspiciously-similar-looking D-state process using 2.4.17,
-> and I strongly suspect that either EXT3 or ALSA is somehow involved
-> because mounting my root partition as EXT3 and adding the latest CVS
-> ALSA modules are the only changes that I have made from my previous
-> reliable 2.4.17 setup.
-> 
-> The trace of the misbehaving process looks almost exactly like the
-> last trace from 2.4.18, except this time I have run it through
-> ksymoops:
+--------------ms080208040304010509020702
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Pretty clear from these traces it is ALSA - the tasks are going to sleep
-on some ALSA method and are not waking up.  Bug the ALSA people.
+In regards to crypto code in the kernel, read the legal advise given to 
+Debian: http://www.debian.org/legal/cryptoinmain
 
-A good test would be to not use ALSA and see if it goes away.
+Sounds pretty simple and basically we are free to put crypto into code 
+released from the US, we just need to make the proper notification.
 
-> Proc;  wine
-> >>EIP; f6b2c780 <_end+36829cb4/38556534>   <=====
-> Trace; c0105af4 <__down+6c/c8>
-> Trace; c0105c90 <__down_failed+8/c>
-> Trace; fb3297c6 <[snd-pcm].text.end+238/612>
-> Trace; fb323c0c <[snd-pcm]snd_pcm_playback_ioctl1+6c/340>
-> Trace; c0143474 <kill_fasync+2c/48>
-> Trace; c015a710 <ext3_get_block_handle+bc/2a8>
-> Trace; c015a710 <ext3_get_block_handle+bc/2a8>
-> Trace; c012eeae <__alloc_pages+32/164>
-> Trace; fb326214 <[snd-pcm]snd_pcm_hw_constraint_minmax+34/40>
-> Trace; fb3230d8 <[snd-pcm]snd_pcm_hw_constraints_complete+138/160>
-> Trace; fb3e72a0 <[snd-pcm-oss]snd_pcm_oss_open_file+100/220>
-> Trace; fb3e751e <[snd-pcm-oss]snd_pcm_oss_open+15e/270>
-> Trace; fb3e7540 <[snd-pcm-oss]snd_pcm_oss_open+180/270>
-> Trace; c013f600 <link_path_walk+6c0/850>
-> Trace; c013ead0 <vfs_permission+74/f0>
-> Trace; c0170b08 <devfs_open+b8/168>
-> Trace; fb324284 <[snd-pcm]snd_pcm_kernel_playback_ioctl+34/40>
-> Trace; fb3e6388 <[snd-pcm-oss]snd_pcm_oss_reset+18/50>
-> Trace; c01437a6 <sys_ioctl+1ba/214>
-> Trace; c0106dba <system_call+32/38>
-> 
-> Even more interestingly, this process was freed when I killed the
-> second wine process. This second process's trace looks like this:
-> 
-> Proc;  wine
-> >>EIP; e0ce3c58 <_end+209e118c/38556534>   <=====
-> Trace; c011388a <schedule_timeout+7a/9c>
-> Trace; c01137b0 <process_timeout+0/60>
-> Trace; fb3222b2 <[snd-pcm]snd_pcm_playback_drain+162/280>
-> Trace; fb323c5c <[snd-pcm]snd_pcm_playback_ioctl1+bc/340>
-> Trace; fb3304f2 <[snd-emu10k1]snd_emu10k1_capture_prepare+52/130>
-> Trace; fb330590 <[snd-emu10k1]snd_emu10k1_capture_prepare+f0/130>
-> Trace; fb322010 <[snd-pcm]snd_pcm_prepare+e0/1b0>
-> Trace; c01ffdd6 <__delay+12/28>
-> Trace; c01ffe44 <__const_udelay+28/34>
-> Trace; f88da65a <[eepro100]speedo_start_xmit+162/1f0>
-> Trace; c0162a5e <do_get_write_access+5f6/61c>
-> Trace; c0163d64 <__journal_file_buffer+e4/21c>
-> Trace; c016312c <journal_dirty_metadata+1a4/1cc>
-> Trace; c015cb9e <ext3_do_update_inode+2fa/398>
-> Trace; c015cc06 <ext3_do_update_inode+362/398>
-> Trace; c015d00e <ext3_mark_iloc_dirty+22/48>
-> Trace; c015d01e <ext3_mark_iloc_dirty+32/48>
-> Trace; c015d108 <ext3_mark_inode_dirty+28/34>
-> Trace; c015d1c2 <ext3_dirty_inode+ae/118>
-> Trace; c0148c12 <__mark_inode_dirty+2e/98>
-> Trace; c01577e8 <ext3_free_blocks+5a0/5ac>
-> Trace; c011fa74 <wake_up_parent+1c/30>
-> Trace; c011fb3a <do_notify_parent+b2/bc>
-> Trace; c0128984 <filemap_nopage+bc/1f8>
-> Trace; c01137a6 <reschedule_idle+25e/268>
-> Trace; fb324284 <[snd-pcm]snd_pcm_kernel_playback_ioctl+34/40>
-> Trace; c01c53ae <sock_def_wakeup+32/40>
-> Trace; fb3e64a6 <[snd-pcm-oss]snd_pcm_oss_sync+e6/180>
-> Trace; fb3e7648 <[snd-pcm-oss]snd_pcm_oss_release+18/80>
-> Trace; c01362b4 <fput+4c/e8>
-> Trace; c013514a <filp_close+aa/b4>
-> Trace; c01191f8 <put_files_struct+58/c0>
-> Trace; c01199ce <do_exit+12e/27c>
-> Trace; c0119b42 <sys_exit+e/10>
-> Trace; c0106dba <system_call+32/38>
-> 
-> Is any of this useful to anybody?
+Same steps that were taken last year for the LK mirrors, all of which 
+should post a summary statement to this effect.
 
-	Robert Love
+David
+
+
+--------------ms080208040304010509020702
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+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
+ARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0wMjA4
+MjkyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYD
+VQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUg
+U2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAwgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7SbngnZ4HF2ogZgpcO40QpimM1
+Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWaNRqdknWoJ67Ycvm6
+AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFpAgMBAAGjTjBM
+MCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNVHRMBAf8E
+CDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQBzG28mZYv/FTRLWWKK
+7US+ScfoDbuPuQ1qJipihB+4h2N0HG23zxpTkUvhzeY42e1Q9DpsNJKs5pKcbsEjAcIJp+9L
+rnLdBmf1UG8uWLi2C8FQV7XsHNfvF7bViJu3ooga7TlbOX00/LaWGCVNavSdxcORL6mWuAU8
+Uvzd6WIDSDGCAycwggMjAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVy
+biBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMU
+Q2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAy
+MDAwLjguMzACAwZepDAJBgUrDgMCGgUAoIIBYTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcB
+MBwGCSqGSIb3DQEJBTEPFw0wMjAzMDIxODI0MTBaMCMGCSqGSIb3DQEJBDEWBBQKJmVBsKsR
+KfAiqKsXB4FeUghLgDBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMC
+AgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBrQYLKoZIhvcN
+AQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQ
+BgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0
+ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4zMAID
+Bl6kMA0GCSqGSIb3DQEBAQUABIIBAAmpf9AWaDt7qyGoQLG3HdAIDSEJgxjkQS/PSbjYn4q8
+9pWRq8gAT/SDWPFiWLM4O7NYp5G516hDhMBpZ9Sn8qy++6poEk9GY8nrxkWkqRywuavJQplt
+3YLgRFRJRdKM973QlP5+w7FVchSW39j5HQCOMbqa7U1p0lTYsnWdJ5XzTEZ7jEMudO6t4aTN
+L7dkdKGWnvRlXFf7h66zrVlvoEB2x9mo7poyGftE90hiHpwXOEZDnjnZWNmHhS0kXdoqo88A
+QjzqqwU6w0ZJ4/TXSwrKX2zQMB9mAKLij17+GmWh6QgzGaxLZYTrrdMAA67Fj0JbLEIRY1yf
+edWaEW1/ZEEAAAAAAAA=
+--------------ms080208040304010509020702--
 

@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270175AbRHGKVE>; Tue, 7 Aug 2001 06:21:04 -0400
+	id <S270173AbRHGK3p>; Tue, 7 Aug 2001 06:29:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270173AbRHGKUy>; Tue, 7 Aug 2001 06:20:54 -0400
-Received: from spruce.woods.net ([166.70.175.33]:49368 "HELO a.smtp.woods.net")
-	by vger.kernel.org with SMTP id <S270168AbRHGKUj>;
-	Tue, 7 Aug 2001 06:20:39 -0400
-Date: Tue, 7 Aug 2001 04:10:54 -0600 (MDT)
-From: "Christopher E. Brown" <cbrown@woods.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Encrypted Swap
-In-Reply-To: <01080619280108.04153@localhost.localdomain>
-Message-ID: <Pine.LNX.4.31.0108070403480.30491-100000@spruce.woods.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270178AbRHGK3f>; Tue, 7 Aug 2001 06:29:35 -0400
+Received: from customers.imt.ru ([212.16.0.33]:33342 "HELO smtp.direct.ru")
+	by vger.kernel.org with SMTP id <S270173AbRHGK3R>;
+	Tue, 7 Aug 2001 06:29:17 -0400
+Message-ID: <20010807032443.A10193@saw.sw.com.sg>
+Date: Tue, 7 Aug 2001 03:24:43 -0700
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: root@chaos.analogic.com
+Cc: Colin Walters <walters@cis.ohio-state.edu>, linux-kernel@vger.kernel.org
+Subject: Re: eepro100 (PCI ID 82820) lockups/failure
+In-Reply-To: <873d75janh.church.of.emacs@space-ghost.verbum.org> <Pine.LNX.3.95.1010806144632.8686A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <Pine.LNX.3.95.1010806144632.8686A-100000@chaos.analogic.com>; from "Richard B. Johnson" on Mon, Aug 06, 2001 at 03:00:07PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Mon, Aug 06, 2001 at 03:00:07PM -0400, Richard B. Johnson wrote:
+[snip]
+> This may not be a timing problem, but rather a problem that was
+> attempted to be fixed with some timing change.
+> 
+> Possible problem (and solution). Given:
+> 
+> 	writel(value, pci_reg);
+> 	status = readl(pci_reg);
+> 
+> The second readl() may (read will) complete before the writel().
+> This is because writes to the PCI bus may be posted (queued). The
+> first read will force all writes to complete, however the value
+> read may be something that was not yet affected by the write.
+> 
+> 	writel(value, pci_reg);
+> 	status = readl(pci_reg);
+> 	status = readl(pci_reg);
 
-On Mon, 6 Aug 2001, Rob Landley wrote:
->
-> I can think of scenarios where "must" doesn't apply here.  I've never
-> personally been that paranoid, but the feds pay people to be clinically
-> certifiable 24/7.  (Okay, find people who are clinically certifiable and then
-> hire them to do something nominally productive with it...)
+Thanks for the note, I'll keep it in mind.
 
+However, for this particular case I'm interested about a loop like
+	while((a = readb(reg)) && --count >= 0);
+I wonder if there are circumstances in which the repeated read's can return
+"cached" values or whatever, so that the loop will result in significantly less
+number of bus cycles than it's supposed?
+My understanding is that there shouldn't be such.
 
-	But sir I had to hit the scram button and set off the thermite
-charges in order to preserve data security.  The purple spiders and
-the dust bunnies were in league, and offing a fiendish infiltration
-plot against the United Protectorate, gOD, and the CPU!  If I had not
-we would have an army of cutefuzzycyberdustbunnies rampaging down the
-information superhighways in a yellow steam locomotive!
-
+Best regards
+		Andrey

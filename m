@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261224AbTCNWwp>; Fri, 14 Mar 2003 17:52:45 -0500
+	id <S261211AbTCNW6v>; Fri, 14 Mar 2003 17:58:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261263AbTCNWwp>; Fri, 14 Mar 2003 17:52:45 -0500
-Received: from APastourelles-108-2-1-3.abo.wanadoo.fr ([80.14.139.3]:12228
-	"EHLO mail.two-towers.net") by vger.kernel.org with ESMTP
-	id <S261224AbTCNWwo>; Fri, 14 Mar 2003 17:52:44 -0500
-Message-ID: <3E725DA5.4070108@free.fr>
-Date: Fri, 14 Mar 2003 23:54:29 +0100
-From: Philip Dodd <smpcomputing@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+	id <S261223AbTCNW6v>; Fri, 14 Mar 2003 17:58:51 -0500
+Received: from mx01.nexgo.de ([151.189.8.96]:49583 "EHLO mx01.nexgo.de")
+	by vger.kernel.org with ESMTP id <S261211AbTCNW6u>;
+	Fri, 14 Mar 2003 17:58:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Matthias Andree <matthias.andree@gmx.de>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+Date: Sat, 15 Mar 2003 00:13:30 +0100
+X-Mailer: KMail [version 1.3.2]
+References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314120604.GE3020@merlin.emma.line.org>
+In-Reply-To: <20030314120604.GE3020@merlin.emma.line.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: SCSI errors in logs
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030314230939.6EBAB3BF45@mx01.nexgo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri 14 Mar 03 13:06, Matthias Andree wrote:
+> However, you're not getting anywhere with publishing private mail
+> without prior permission. That's betrayal of secrets and privacy, and if
+> Larry jumps on you for this, he'll rightfully do so.
 
-Running debian testing with 2.4.20 + preempt + bttv kernel patches with 
-1GB of RAM - high memory enabled, I get big bunches of the following in 
-/var/log/messages.
+Sorry, but that's just plain wrong.  Whatever you email to someone, you'd
+better be prepared to have appear in public, just as if you had said it to
+them.
 
+If you want some other arrangment, get a signed contract from them before
+you email to them.  Or be nice to people, that's another way to get them
+to respect your wishes.
 
-Mar 14 20:41:08 gandalf kernel: scsi0: Transceiver State Has Changed to 
-SE mode
-Mar 14 20:41:08 gandalf kernel: scsi0: Transceiver State Has Changed to 
-LVD mode
-Mar 14 20:41:08 gandalf kernel: scsi0: Transceiver State Has Changed to 
-SE mode
-Mar 14 20:41:27 gandalf kernel: scsi0: Transceiver State Has Changed to 
-LVD mode
+Regards,
 
-On several occasions my logs have been filled with theses messages. 
-Adaptec driver is compiled in the kernel, and scsi0 is unused (scsi1 is 
-the other channel on my adaptec 39160, scsi2 is ide-scsi).  Nothing is 
-physically plugged in to this channel (yet!).
-
-I'd be grateful for any ideas - is this hardware?
-
-Thanks,
-
-Philip
-
+Daniel

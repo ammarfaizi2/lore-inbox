@@ -1,79 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277270AbRJJPUp>; Wed, 10 Oct 2001 11:20:45 -0400
+	id <S277265AbRJJP2S>; Wed, 10 Oct 2001 11:28:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277266AbRJJPUf>; Wed, 10 Oct 2001 11:20:35 -0400
-Received: from mercury.lss.emc.com ([168.159.40.77]:14087 "EHLO
-	mercury.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S277270AbRJJPUY>; Wed, 10 Oct 2001 11:20:24 -0400
-Message-ID: <FA2F59D0E55B4B4892EA076FF8704F550792AB@srgraham.eng.emc.com>
-From: "conway, heather" <conway_heather@emc.com>
-To: "'Andre Margis '" <andre@sam.com.br>,
-        "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
-Subject: RE: EMC SYMMETRIX multiple LUN's
-Date: Wed, 10 Oct 2001 11:20:50 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S277272AbRJJP17>; Wed, 10 Oct 2001 11:27:59 -0400
+Received: from hq2.fsmlabs.com ([209.155.42.199]:28935 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S277271AbRJJP1s>;
+	Wed, 10 Oct 2001 11:27:48 -0400
+Date: Wed, 10 Oct 2001 09:23:00 -0600
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: BALBIR SINGH <balbir.singh@wipro.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
+Message-ID: <20011010092300.A8389@hq2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BC3E424.1070901@wipro.com>
+User-Agent: Mutt/1.3.18i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre,
-I would recommend that you check out the patch posted by Mike Brown.  The
-name of the thread is [PATCH] Fix: bug in scan_scsis_single()? for 2.4.10
-(PASS 2) and it applies to v2.4.10.  I would recommend that you apply the
-patch and reload your driver.  That should work.
-Thanks.
-Heather
+On Wed, Oct 10, 2001 at 11:31:08AM +0530, BALBIR SINGH wrote:
+> Linus Torvalds wrote:
+> >I can't think of many lists like that. The PCI lists certainly are both
+> >add/remove: cardbus bridges and hotplug-PCI means that they are not just
+> >purely "enumerate at bootup".
+> >
+> 
+> I agree, I just thought of one case quickly. Assume that somebody did a cat /proc/pci.
+> Meanwhile somebody is adding a new pci device (hotplug PCI) simultaneously (which is very rare).
+> I would not care if the new device showed up in the output of /proc/pci this time. It would
+> definitely show up next time. Meanwhile locking the list (just in case it changes) is an
+> overhead in the case above. I was referring to these cases in my earlier mail.
 
------Original Message-----
-From: conway, heather 
-Sent: Tuesday, October 09, 2001 3:16 PM
-To: 'Andre Margis '; 'linux-kernel@vger.kernel.org '
-Subject: RE: EMC SYMMETRIX multiple LUN's
-
-
-Andre,
-There is a problem in the SCSI scanning code in v2.4.7 and up.  As of right
-now, I have not found a patch or fix that will work to correct the problem
-of scanning properly with or without the Symmetrix.  In v2.4.7, the SCSI
-scanning code was changed.  That coupled with the fact that sequentail
-scanning is used instead of a REPORT_LUNs and the fact that the SCSI
-midlayer will scan indefinitely for LUNs can cause a panic or can cause the
-host to scan indefinitely.
-There have been a couple of patches posted, but none have fixed the problem
-yet.  
-Heather 
-
------Original Message-----
-From: Andre Margis
-To: linux-kernel@vger.kernel.org
-Sent: 10/8/01 9:50 AM
-Subject: EMC SYMMETRIX multiple LUN's
-
-I testing DELL 8450 under Linux, and kernel probe only two LUN's from
-EMC, 0 
-and 1, but I have 2 and 254, if  I use scsi add-single-device to this
-other 
-LUN's, works perfect. I try to set max_scsi_luns, has the same results.
-
-I test with kernel 2.4.9, 2.4.10-ac7, both have the same problem.
-
-With Conectiva Linux Kernel 2.4.5-9cl, he show all LUNS, work fine!
-
-Any Help?
-
-
-Thank's
+So you make the data structure and algorithms more complex and hard to maintain in
+order to get an undetectable improvement in the speed of something that almost
+never happens and and that is not even in the same neighborhood as being a 
+bottleneck?
 
 
 
-
-Andre
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

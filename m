@@ -1,124 +1,159 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279997AbRLDCz6>; Mon, 3 Dec 2001 21:55:58 -0500
+	id <S279317AbRLDC43>; Mon, 3 Dec 2001 21:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281657AbRLCXsh>; Mon, 3 Dec 2001 18:48:37 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:63504 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S285121AbRLCUjG>; Mon, 3 Dec 2001 15:39:06 -0500
-Date: Mon, 3 Dec 2001 17:22:16 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Jason Holmes <jholmes@psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IO degradation in 2.4.17-pre2 vs. 2.4.16
-In-Reply-To: <3C092CAB.4D1541F4@psu.edu>
-Message-ID: <Pine.LNX.4.21.0112031717020.19010-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281856AbRLCXr5>; Mon, 3 Dec 2001 18:47:57 -0500
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:37769 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S284623AbRLCOnv>; Mon, 3 Dec 2001 09:43:51 -0500
+Date: Mon, 3 Dec 2001 15:43:41 +0100
+From: Kurt Roeckx <Q@ping.be>
+To: linux-kernel@vger.kernel.org
+Subject: OOPS in prune_dcache with 2.4.16 and ext3 corruption
+Message-ID: <20011203154341.A217@ping.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just had an oops while running mkisofs using 2.4.16.  After the
+OOPS I tried to reboot and got an other OOPS + segfault during
+umount.
+
+I ran e2fsck on the partition where I was writing the ISO and got
+this:
+
+e2fsck 1.25 (20-Sep-2001)
+Pass 1: Checking inodes, blocks, and sizes
+Inode 505859, i_blocks is 4, should be 2.  Fix<y>? no
+
+Inode 505861, i_blocks is 2430, should be 32.  Fix<y>? no
+
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+
+/dev/hdb4: ********** WARNING: Filesystem still has errors
+**********
+
+/dev/hdb4: 74774/2299904 files (16.8% non-contiguous),
+8604048/9192424 blocks
+
+The last fsck on that partition was from 26 November, and I have
+been using 2.4.16 since then.
+
+The inodes don't have anything to do with the ISO and were both
+last written about 12 hours before the crash.
+
+PS: It's not the first time I report an OOPS with prune_*cache
+
+Oops:
+Unable to handle kernel NULL pointer dereference at virtual
+address 00000000
+c0139a58
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0139a58>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: c09abb94   ebx: c09abb7c   ecx: 00000000   edx: c195ddd0
+esi: c09abb64   edi: c2b52aa0   ebp: 000001ca   esp: c3fcff60
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 5, stackpage=c3fcf000)
+Stack: 0000000a 000001d0 00000020 00000006 c0139d3b 000005ed
+c0125191 00000006
+       000001d0 00000006 000001d0 c02b6cc8 00000000 c02b6cc8
+c01251cc 00000020
+       c02b6cc8 00000001 c3fce000 c0125263 c02b6c20 00000000
+c3fce249 0008e000
+Call Trace: [<c0139d3b>] [<c0125191>] [<c01251cc>] [<c0125263>]
+[<c01252be>]
+   [<c01253cd>] [<c010546c>]
+Code: 89 11 89 46 30 89 40 04 8b 46 4c 85 c0 74 10 8b 40 14 85 c0
+
+>>EIP; c0139a58 <prune_dcache+98/128>   <=====
+Trace; c0139d3a <shrink_dcache_memory+1a/34>
+Trace; c0125190 <shrink_caches+6c/84>
+Trace; c01251cc <try_to_free_pages+24/44>
+Trace; c0125262 <kswapd_balance_pgdat+42/8c>
+Trace; c01252be <kswapd_balance+12/28>
+Trace; c01253cc <kswapd+98/bc>
+Trace; c010546c <kernel_thread+28/38>
+Code;  c0139a58 <prune_dcache+98/128>
+00000000 <_EIP>:
+Code;  c0139a58 <prune_dcache+98/128>   <=====
+   0:   89 11                     mov    %edx,(%ecx)   <=====
+Code;  c0139a5a <prune_dcache+9a/128>
+   2:   89 46 30                  mov    %eax,0x30(%esi)
+Code;  c0139a5c <prune_dcache+9c/128>
+   5:   89 40 04                  mov    %eax,0x4(%eax)
+Code;  c0139a60 <prune_dcache+a0/128>
+   8:   8b 46 4c                  mov    0x4c(%esi),%eax
+Code;  c0139a62 <prune_dcache+a2/128>
+   b:   85 c0                     test   %eax,%eax
+Code;  c0139a64 <prune_dcache+a4/128>
+Code;  c0139a64 <prune_dcache+a4/128>
+   d:   74 10                     je     1f <_EIP+0x1f> c0139a76
+<prune_dcache+b6/128>
+Code;  c0139a66 <prune_dcache+a6/128>
+   f:   8b 40 14                  mov    0x14(%eax),%eax
+Code;  c0139a6a <prune_dcache+aa/128>
+  12:   85 c0                     test   %eax,%eax
+
+ invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0139a1d>]    Not tainted
+EFLAGS: 00010282
+eax: c2a57820   ebx: c23e09e0   ecx: 00000006   edx: c09abb80
+esi: c23e09c8   edi: 00000020   ebp: 0000053c   esp: c16a9ea4
+ds: 0018   es: 0018   ss: 0018
+Process mkisofs (pid: 4362, stackpage=c16a9000)
+Stack: 0000000a 000001d2 00000020 00000006 c0139d3b 0000053c
+c0125191 00000006
+       000001d2 00000006 000001d2 c02b6cc8 c02b6cc8 c02b6cc8
+c01251cc 00000020
+       c16a8000 00000080 00000000 c01259e2 c02b6e44 00000080
+00000000 c02b6cc8
+Call Trace: [<c0139d3b>] [<c0125191>] [<c01251cc>] [<c01259e2>]
+[<c0125bfa>]
+   [<c0121c5f>] [<c0125992>] [<c0121c7c>] [<c0148757>]
+[<c012abda>] [<c0106b23>]
+Code: 0f 0b 8d 46 10 8b 48 04 8b 53 f8 89 4a 04 89 11 89 43 f8 89
+
+>>EIP; c0139a1c <prune_dcache+5c/128>   <=====
+Trace; c0139d3a <shrink_dcache_memory+1a/34>
+Trace; c0125190 <shrink_caches+6c/84>
+Trace; c01251cc <try_to_free_pages+24/44>
+Trace; c01259e2 <balance_classzone+4e/168>
+Trace; c0125bfa <__alloc_pages+fe/160>
+Trace; c0121c5e <generic_file_write+3d2/640>
+Trace; c0125992 <_alloc_pages+16/18>
+Trace; c0121c7c <generic_file_write+3f0/640>
+Trace; c0148756 <ext3_file_write+42/4c>
+Trace; c012abda <sys_write+8e/c4>
+Trace; c0106b22 <system_call+32/40>
+Code;  c0139a1c <prune_dcache+5c/128>
+00000000 <_EIP>:
+Code;  c0139a1c <prune_dcache+5c/128>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0139a1e <prune_dcache+5e/128>
+   2:   8d 46 10                  lea    0x10(%esi),%eax
+Code;  c0139a20 <prune_dcache+60/128>
+   5:   8b 48 04                  mov    0x4(%eax),%ecx
+Code;  c0139a24 <prune_dcache+64/128>
+   8:   8b 53 f8                  mov    0xfffffff8(%ebx),%edx
+Code;  c0139a26 <prune_dcache+66/128>
+   b:   89 4a 04                  mov    %ecx,0x4(%edx)
+Code;  c0139a2a <prune_dcache+6a/128>
+   e:   89 11                     mov    %edx,(%ecx)
+Code;  c0139a2c <prune_dcache+6c/128>
+  10:   89 43 f8                  mov    %eax,0xfffffff8(%ebx)
+Code;  c0139a2e <prune_dcache+6e/128>
+  13:   89 00                     mov    %eax,(%eax)
 
 
-Jason,
-
-Yes, throughtput-only tests will have their numbers degradated with the
-change applied on 2.4.16-pre2.
-
-The whole thing is just about tradeoffs: Interactivity vs throughtput.
-
-I'm not going to destroy interactivity for end users to get beatiful
-dbench numbers.
-
-And about your clients: Don't you think they want some kind of
-decent latency on their side? 
-
-Anyway, thanks for your report! 
-
-On Sat, 1 Dec 2001, Jason Holmes wrote:
-
-> I saw in a previous thread that the interactivity improvements in
-> 2.4.17-pre2 had some adverse effect on IO throughput and since I was
-> already evaluating 2.4.16 for a somewhat large fileserving project, I
-> threw 2.4.17-pre2 on to see what has changed.  Throughput while serving
-> a large number of clients is important to me, so my tests have included
-> using dbench to try to see how things scale as clients increase.
-> 
-> 2.4.16:
-> 
-> Throughput 116.098 MB/sec (NB=145.123 MB/sec  1160.98 MBit/sec)  1 procs
-> Throughput 206.604 MB/sec (NB=258.255 MB/sec  2066.04 MBit/sec)  2 procs
-> Throughput 210.364 MB/sec (NB=262.955 MB/sec  2103.64 MBit/sec)  4 procs
-> Throughput 213.397 MB/sec (NB=266.747 MB/sec  2133.97 MBit/sec)  8 procs
-> Throughput 210.989 MB/sec (NB=263.736 MB/sec  2109.89 MBit/sec)  16
-> procs
-> Throughput 138.713 MB/sec (NB=173.391 MB/sec  1387.13 MBit/sec)  32
-> procs
-> Throughput 117.729 MB/sec (NB=147.162 MB/sec  1177.29 MBit/sec)  64
-> procs
-> Throughput 66.7354 MB/sec (NB=83.4193 MB/sec  667.354 MBit/sec)  128
-> procs
-> 
-> 2.4.17-pre2:
-> 
-> Throughput 96.2302 MB/sec (NB=120.288 MB/sec  962.302 MBit/sec)  1 procs
-> Throughput 226.679 MB/sec (NB=283.349 MB/sec  2266.79 MBit/sec)  2 procs
-> Throughput 223.955 MB/sec (NB=279.944 MB/sec  2239.55 MBit/sec)  4 procs
-> Throughput 224.533 MB/sec (NB=280.666 MB/sec  2245.33 MBit/sec)  8 procs
-> Throughput 153.672 MB/sec (NB=192.09 MB/sec  1536.72 MBit/sec)  16 procs
-> Throughput 91.3464 MB/sec (NB=114.183 MB/sec  913.464 MBit/sec)  32
-> procs
-> Throughput 64.876 MB/sec (NB=81.095 MB/sec  648.76 MBit/sec)  64 procs
-> Throughput 54.9774 MB/sec (NB=68.7217 MB/sec  549.774 MBit/sec)  128
-> procs
-> 
-> Throughput 136.522 MB/sec (NB=170.652 MB/sec  1365.22 MBit/sec)  1 procs
-> Throughput 223.682 MB/sec (NB=279.603 MB/sec  2236.82 MBit/sec)  2 procs
-> Throughput 222.806 MB/sec (NB=278.507 MB/sec  2228.06 MBit/sec)  4 procs
-> Throughput 224.427 MB/sec (NB=280.534 MB/sec  2244.27 MBit/sec)  8 procs
-> Throughput 152.286 MB/sec (NB=190.358 MB/sec  1522.86 MBit/sec)  16
-> procs
-> Throughput 92.044 MB/sec (NB=115.055 MB/sec  920.44 MBit/sec)  32 procs
-> Throughput 78.0881 MB/sec (NB=97.6101 MB/sec  780.881 MBit/sec)  64
-> procs
-> Throughput 66.1573 MB/sec (NB=82.6966 MB/sec  661.573 MBit/sec)  128
-> procs
-> 
-> Throughput 117.95 MB/sec (NB=147.438 MB/sec  1179.5 MBit/sec)  1 procs
-> Throughput 212.469 MB/sec (NB=265.586 MB/sec  2124.69 MBit/sec)  2 procs
-> Throughput 214.763 MB/sec (NB=268.453 MB/sec  2147.63 MBit/sec)  4 procs
-> Throughput 214.007 MB/sec (NB=267.509 MB/sec  2140.07 MBit/sec)  8 procs
-> Throughput 96.6572 MB/sec (NB=120.821 MB/sec  966.572 MBit/sec)  16
-> procs
-> Throughput 48.1342 MB/sec (NB=60.1677 MB/sec  481.342 MBit/sec)  32
-> procs
-> Throughput 71.3444 MB/sec (NB=89.1806 MB/sec  713.444 MBit/sec)  64
-> procs
-> Throughput 59.258 MB/sec (NB=74.0724 MB/sec  592.58 MBit/sec)  128 procs
-> 
-> I have included three runs for 2.4.17-pre2 to show how inconsistent its
-> results are; 2.4.16 didn't have this problem to this extent.  bonnie++
-> numbers seem largely unchanged between kernels, coming in around:
-> 
->       ------Sequential Output------ --Sequential Input- --Random-
->       -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
->  Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-> 2512M 14348  81 49495  26 24438  16 16040  96 55006  15 373.7   1
->       ------Sequential Create------ --------Random Create--------
->       -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-> files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
->    16  3087  99 +++++ +++ +++++ +++  3175 100 +++++ +++ 11042 100
-> 
-> The test machine is an IBM 342 with 2 1.26 GHz P3 processors and 1.25 GB
-> of RAM.  The above numbers were generated off of 1 10K RPM SCSI disk
-> hanging off of an Adaptec aix7899 controller.
-> 
-> --
-> Jason Holmes
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

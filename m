@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288273AbSACS7B>; Thu, 3 Jan 2002 13:59:01 -0500
+	id <S288289AbSACTEl>; Thu, 3 Jan 2002 14:04:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288289AbSACS6v>; Thu, 3 Jan 2002 13:58:51 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:19216 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288273AbSACS6m>;
-	Thu, 3 Jan 2002 13:58:42 -0500
-Date: Thu, 3 Jan 2002 10:57:30 -0800
-From: Greg KH <greg@kroah.com>
-To: Roger Leblanc <r_leblanc@videotron.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Deadlock in kernel on USB shutdown
-Message-ID: <20020103185730.GA11356@kroah.com>
-In-Reply-To: <3C33A22F.40906@videotron.ca> <20020103001816.GB4162@kroah.com> <3C33A4EC.1040300@videotron.ca> <20020103002827.GA4462@kroah.com> <3C33AF4F.7000703@videotron.ca> <20020103013231.GA4952@kroah.com> <3C33BD88.3010903@videotron.ca> <20020103030356.GA5313@kroah.com> <3C33CF71.4060202@videotron.ca>
-Mime-Version: 1.0
+	id <S288258AbSACTEb>; Thu, 3 Jan 2002 14:04:31 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:44039 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S287303AbSACTE0>; Thu, 3 Jan 2002 14:04:26 -0500
+Message-ID: <3C34AA0B.3D4B2891@zip.com.au>
+Date: Thu, 03 Jan 2002 10:59:23 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "M. Edward Borasky" <znmeb@aracnet.com>, Art Hays <art@lsr.nei.nih.gov>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kswapd etc hogging machine
+In-Reply-To: <3C33E8EA.FAF8E337@zip.com.au> from "Andrew Morton" at Jan 02, 2002 09:15:22 PM <E16M72b-0008B8-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C33CF71.4060202@videotron.ca>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Thu, 06 Dec 2001 16:22:39 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 10:26:41PM -0500, Roger Leblanc wrote:
-> Oops? I know about cores but I don't know about oopses. I'm only a C++, 
-> hight level, OO developer. Sorry ;-). Can you explain please?
+Alan Cox wrote:
+> 
+> > But Art's kernel (what kernel is in RH7.2 anyway?  2.4.9 with vendor
+> > hacks^Wfixes, I think) is nowhere near that stage.
+> 
+> 7.2 is 2.4.7-ac ish, 7.2 + errata is 2.4.9-ac ish
 
-When the seg-fault happens, I am guessing that an oops message is sent
-to the kernel log.  Look at 'dmesg'.  Run that oops through ksymoops.
-See Documentation/oops-tracing.txt for more info on oopses and how to
-get info from them.
+OK, thanks.
 
-thanks,
+> > The good news is that 2.4.17 has pretty much slain this dragon.  The
+> > -aa patches are better still, and 2.4.18 will be even better than
+> > that.
+> 
+> Bollocks. I get regular mails from large numbers of people who are stuck
+> at 2.4.12/13-ac and are hoping I'll do an update because their machines
+> die in hours or run 25-50% slower with 2.4.1x.
 
-greg k-h
+I was referring to the swap and evict in the presence of heavy write
+traffic.
+
+> 2.4.1x VM code is performing better under light loads but its absolutely
+> and completely hopeless under a real paging load. 2.4.17-aa is somewhat
+> better interestingly.
+> 
+
+s/interestingly/frustratingly/.  -aa has some interesting changes to
+the write scheduling as well.  I just wish I knew what problem they're
+solving.
+
+-

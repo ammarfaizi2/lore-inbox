@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261892AbTCGXo4>; Fri, 7 Mar 2003 18:44:56 -0500
+	id <S261922AbTCGXqs>; Fri, 7 Mar 2003 18:46:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261891AbTCGXo4>; Fri, 7 Mar 2003 18:44:56 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:59328 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S261892AbTCGXoh>; Fri, 7 Mar 2003 18:44:37 -0500
-Date: Fri, 7 Mar 2003 23:52:47 -0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Those ruddy punctuation fixes
-Message-ID: <20030308005241.GA24077@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3E684737.7080704@kegel.com> <20030307121723.B3204@redhat.com> <1047078959.23697.12.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047078959.23697.12.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.3i
+	id <S261927AbTCGXqq>; Fri, 7 Mar 2003 18:46:46 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15889 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261922AbTCGXpe>; Fri, 7 Mar 2003 18:45:34 -0500
+Date: Fri, 7 Mar 2003 15:53:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
+In-Reply-To: <20030307233653.GD21315@kroah.com>
+Message-ID: <Pine.LNX.4.44.0303071551410.1496-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 11:15:59PM +0000, Alan Cox wrote:
 
- > > Spelling fixes are annoying ways to break patches that provide no 
- > > user visible value.  It also detracts from the character of the 
- > > code: who wants "drain brammage" to be replaced with "brain dammage"?
- > People are actually *doing* things, give them a break.
+On Fri, 7 Mar 2003, Greg KH wrote:
+> 
+> I know it's late, sorry.
 
-There's a shitload of patches in the 2.4 commit archives that
-mostly still apply. With each iteration of spelling fixes,
-it becomes more and more work to weed through these to find
-out if things are really applied or not.  In the beginning I
-used Rusty's 'isapplied' script. Its now pretty much useless,
-requiring manual inspection of code on every diff.
+Not a huge problem, since I don't think klibc itself is a stability issue. 
+However, as you say:
 
-Spelling fixes aren't going to get us to 2.6.0 any faster.
-There are _dozens_ of known problems, and I'll take patches
-fixing real problems over spelling fixes any day.
+> But a lot of code that will need klibc, has not been converted to need
+> it yet, due to it not being there :)
 
-		Dave
+Yes. But that's not an argument that flies with me. I really want to see 
+people actually using it, for real issues (even if they are potentially 
+_small_ real issues).
+
+I feel that people who want to work on early stuff can easily merge it 
+themselves (especially if they use BK), and show it to be useful. I don't 
+have the slightest feeling that work can't be done unless _I_ merge it.
+
+		Linus
 

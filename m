@@ -1,54 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281532AbRKMF5s>; Tue, 13 Nov 2001 00:57:48 -0500
+	id <S281530AbRKMF6I>; Tue, 13 Nov 2001 00:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281530AbRKMF5i>; Tue, 13 Nov 2001 00:57:38 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:58249 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S281504AbRKMF51>; Tue, 13 Nov 2001 00:57:27 -0500
-Date: Mon, 12 Nov 2001 22:56:49 -0700
-Message-Id: <200111130556.fAD5unp19024@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: andersen@codepoet.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPLONLY kernel symbols???
-In-Reply-To: <20011112224412.A6606@codepoet.org>
-In-Reply-To: <200111130324.fAD3OE916102@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0111122249160.22925-100000@weyl.math.psu.edu>
-	<200111130358.fAD3wgb16617@vindaloo.ras.ucalgary.ca>
-	<3BF09E44.58D138A6@mandrakesoft.com>
-	<200111130437.fAD4b2j17329@vindaloo.ras.ucalgary.ca>
-	<3BF0A788.8CCBC91@mandrakesoft.com>
-	<200111130500.fAD50Wi17879@vindaloo.ras.ucalgary.ca>
-	<3BF0AC47.221B6CD6@mandrakesoft.com>
-	<200111130523.fAD5NRK18457@vindaloo.ras.ucalgary.ca>
-	<20011112224412.A6606@codepoet.org>
+	id <S281533AbRKMF56>; Tue, 13 Nov 2001 00:57:58 -0500
+Received: from [210.96.145.130] ([210.96.145.130]:37789 "EHLO mx.cintel.co.kr")
+	by vger.kernel.org with ESMTP id <S281530AbRKMF5v>;
+	Tue, 13 Nov 2001 00:57:51 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="euc-kr"
+content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+Date: Tue, 13 Nov 2001 14:57:40 +0900
+Message-ID: <AC4A939489924C4DA55396DC6FD30C682DCD78@mx.cintel.co.kr>
+Thread-Index: AcFsCBltEPcvW3JtQLuAw3+TAB+XMQ==
+From: =?euc-kr?B?wvfH9sH4?= <hjcha@cintel.co.kr>
+To: =?euc-kr?B?uK60qr26IMS/s84gKEUtbWFpbCk=?= 
+	<linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id RAA13161
 
-Erik Andersen writes:
-> On Mon Nov 12, 2001 at 10:23:27PM -0700, Richard Gooch wrote:
-> > 
-> > A few days ago I was thinking about this, and I thought how cool it
-> > would be to have a reliable utility that could convert between the two
-> > coding styles. If I had that (and it was bulletproof) then it could be
-> > used with some kind of userfs to give me two views of the kernel: the
-> > underlying one "raw" one, to which I'd apply patches and generate them
-> > from, and a "sanitised" one, that I would read and edit.
-> 
-> If you look in scripts/Lindent you will see it calls:
->     indent -kr -i8 -ts8 -sob -l80 -ss -bs -psl
-> 
-> The GNU indent utility has tons of options to accomodate every
-> sort of perverse coding style.  I imagine some time with the
-> indent man page will produce a working solution for you in short
-> order,
-
-I'll look at this. Later. Right now I'm focussing on getting the new
-devfs core up to snuff.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+unsubscribe linux-kernel
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i

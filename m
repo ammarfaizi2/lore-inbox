@@ -1,87 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVCBQsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262365AbVCBQwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbVCBQsM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 11:48:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbVCBQpv
+	id S262365AbVCBQwq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 11:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVCBQvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 11:45:51 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:61148 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262353AbVCBQpF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 11:45:05 -0500
-Date: Wed, 2 Mar 2005 17:45:04 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 3/9] s390: key management.
-Message-ID: <20050302164504.GC27829@mschwid3.boeblingen.de.ibm.com>
+	Wed, 2 Mar 2005 11:51:04 -0500
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:38273 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262364AbVCBQsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 11:48:04 -0500
+Date: Wed, 2 Mar 2005 17:47:59 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.11
+Message-ID: <20050302164759.GA30505@merlin.emma.line.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org> <20050302103158.GA13485@merlin.emma.line.org> <Pine.LNX.4.58.0503020738300.25732@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0503020738300.25732@ppc970.osdl.org>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 3/9] s390: key management.
+On Wed, 02 Mar 2005, Linus Torvalds wrote:
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> On Wed, 2 Mar 2005, Matthias Andree wrote:
+> > 
+> > ftp.kernel.org:/pub/linux/kernel/v2.6 doesn't seem to carry a crypto
+> > signature for the patch, patch-2.6.11.gz.sign
+> 
+> It's there now (along with the ChangeLog).
 
-Add key management system calls.
+> The signatures are automatically generated at the master site, and the 
+> mirroring out to the public sites is a separate event, so sometimes (if 
+> you check early) you may miss the signatures for a while until the next 
+> time the scripts run.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Is the master side a hidden host rather than ftp.kernel.org?
 
-diffstat:
- arch/s390/kernel/compat_wrapper.S |   17 +++++++++++++++++
- arch/s390/kernel/syscalls.S       |    3 +++
- include/asm-s390/unistd.h         |    5 ++++-
- 3 files changed, 24 insertions(+), 1 deletion(-)
+> (In contrast the full ChangeLog was missing because the generation script
+> I use is not exactly the smart way, so it's O(slow(n)), where slow is n**3 
+> or worse, so the log from the last -rc release is fast, but going back all 
+> the way to 2.6.10 took long long enough that I didn't wait for it).
 
-diff -urN linux-2.6/arch/s390/kernel/compat_wrapper.S linux-2.6-patched/arch/s390/kernel/compat_wrapper.S
---- linux-2.6/arch/s390/kernel/compat_wrapper.S	2005-03-02 08:38:33.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/compat_wrapper.S	2005-03-02 17:00:08.000000000 +0100
-@@ -1406,3 +1406,20 @@
- 	llgtr	%r3,%r3			# struct compat_mq_attr *
- 	llgtr	%r4,%r4			# struct compat_mq_attr *
- 	jg	compat_sys_mq_getsetattr
-+
-+	.globl	compat_sys_add_key
-+compat_sys_add_key:
-+	llgtr	%r2,%r2			# const char *
-+	llgtr	%r3,%r3			# const char *
-+	llgtr	%r4,%r4			# const void *
-+	llgfr	%r5,%r5			# size_t
-+	llgfr	%r6,%r6			# (key_serial_t) u32
-+	jg	sys_add_key
-+
-+	.globl	compat_sys_request_key
-+compat_sys_request_key:
-+	llgtr	%r2,%r2			# const char *
-+	llgtr	%r3,%r3			# const char *
-+	llgtr	%r4,%r4			# const void *
-+	llgfr	%r5,%r5			# (key_serial_t) u32
-+	jg	sys_request_key
-diff -urN linux-2.6/arch/s390/kernel/syscalls.S linux-2.6-patched/arch/s390/kernel/syscalls.S
---- linux-2.6/arch/s390/kernel/syscalls.S	2005-03-02 08:37:48.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/syscalls.S	2005-03-02 17:00:10.000000000 +0100
-@@ -286,3 +286,6 @@
- SYSCALL(sys_mq_notify,sys_mq_notify,compat_sys_mq_notify_wrapper) /* 275 */
- SYSCALL(sys_mq_getsetattr,sys_mq_getsetattr,compat_sys_mq_getsetattr_wrapper)
- NI_SYSCALL							/* reserved for kexec */
-+SYSCALL(sys_add_key,sys_add_key,compat_sys_add_key)
-+SYSCALL(sys_request_key,sys_request_key,compat_sys_request_key)
-+SYSCALL(sys_keyctl,sys_keyctl,compat_sys_keyctl)		/* 280 */
-diff -urN linux-2.6/include/asm-s390/unistd.h linux-2.6-patched/include/asm-s390/unistd.h
---- linux-2.6/include/asm-s390/unistd.h	2005-03-02 08:38:38.000000000 +0100
-+++ linux-2.6-patched/include/asm-s390/unistd.h	2005-03-02 17:00:10.000000000 +0100
-@@ -270,8 +270,11 @@
- #define __NR_mq_notify		275
- #define __NR_mq_getsetattr	276
- /* Number 277 is reserved for new sys_kexec_load */
-+#define __NR_add_key		278
-+#define __NR_request_key	279
-+#define __NR_keyctl		280
- 
--#define NR_syscalls 278
-+#define NR_syscalls 281
- 
- /* 
-  * There are some system calls that are not present on 64 bit, some
+If that is an issue with the shortlog script or its integration with BK,
+contact me off-list so we can resolve the issue.
+
+Thanks,
+
+-- 
+Matthias Andree

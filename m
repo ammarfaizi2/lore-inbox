@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281873AbRK1IfR>; Wed, 28 Nov 2001 03:35:17 -0500
+	id <S281815AbRK1I6x>; Wed, 28 Nov 2001 03:58:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281815AbRK1IfH>; Wed, 28 Nov 2001 03:35:07 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:56848 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S281873AbRK1Ie6>;
-	Wed, 28 Nov 2001 03:34:58 -0500
-Date: Wed, 28 Nov 2001 09:34:35 +0100
-From: Jens Axboe <axboe@suse.de>
-To: David Dyck <dcd@tc.fluke.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops in 2.5.1-pre2
-Message-ID: <20011128093435.N23858@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0111271708020.4053-100000@dd.tc.fluke.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0111271708020.4053-100000@dd.tc.fluke.com>
+	id <S282081AbRK1I6n>; Wed, 28 Nov 2001 03:58:43 -0500
+Received: from web13105.mail.yahoo.com ([216.136.174.150]:18438 "HELO
+	web13105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S281815AbRK1I6h>; Wed, 28 Nov 2001 03:58:37 -0500
+Message-ID: <20011128085835.40289.qmail@web13105.mail.yahoo.com>
+Date: Wed, 28 Nov 2001 03:58:35 -0500 (EST)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Re: 'spurious 8259A interrupt: IRQ7'
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111280054110.1609-100000@eduard.t-online.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27 2001, David Dyck wrote:
-> 
-> 
-> while booting 2.5.1-pre2 I got the following oops
+Hi
+Cx 486,  no pci, no network card, same message.
+>From my experience in PC hardware i know that irq 7 is
+usually asigned to the parallel port.
+I know a windoze box which didn't print until i set up
+in bios that paralel port has irq7.
 
-[snip]
+Bye
 
-please apply
+=====
+*********************************************************
+                Désolé, un problème s'est produit : 
+                 *  votre signature ne peut pas comporter 
+                 plus de 600 caractères ni occuper plus de 
+                 sept lignes. 
+Another way to say: Welcome to Yahoo! ^^^
+**********************************************************
 
-kernel.org/pub/linux/kernel/people/axboe/patches/v2.5/2.5.1-pre2/bio-pre2.bz2
-
-and see if that doesn't fix it, thanks.
-
--- 
-Jens Axboe
-
+__________________________________________________________
+Obtenez votre adresse @yahoo.ca gratuite et en français !
+courriel.yahoo.ca

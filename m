@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262616AbRFCKlE>; Sun, 3 Jun 2001 06:41:04 -0400
+	id <S262823AbRFCKyK>; Sun, 3 Jun 2001 06:54:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262657AbRFCKky>; Sun, 3 Jun 2001 06:40:54 -0400
-Received: from lenka.ph.ipex.cz ([212.71.128.11]:29792 "EHLO lenka.ph.ipex.cz")
-	by vger.kernel.org with ESMTP id <S262616AbRFCKki>;
-	Sun, 3 Jun 2001 06:40:38 -0400
-Date: Sun, 3 Jun 2001 12:39:45 +0200
-From: Robert Vojta <vojta@ipex.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S262842AbRFCKyA>; Sun, 3 Jun 2001 06:54:00 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:58277 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262823AbRFCKxp>;
+	Sun, 3 Jun 2001 06:53:45 -0400
+Date: Sun, 3 Jun 2001 12:53:11 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106031053.MAA185287.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
+Subject: Re: symlink_prefix
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [bug] at slab.c ...
-Message-ID: <20010603123945.D771@ipex.cz>
-In-Reply-To: <E156EFq-0001ts-00@the-village.bc.nu> <20010602183718.A2310@ipex.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lMM8JwqTlfDpEaS6"
-Content-Disposition: inline
-In-Reply-To: <20010602183718.A2310@ipex.cz>
-User-Agent: Mutt/1.3.18i
-X-Telephone: +420 603 167 911
-X-Company: IPEX, s.r.o.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    From viro@math.psu.edu Sun Jun  3 02:49:08 2001
 
---lMM8JwqTlfDpEaS6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+    On Sun, 3 Jun 2001 Andries.Brouwer@cwi.nl wrote:
+
+    > This evening I needed to work on a filesystem of a non-Linux OS,
+    > full of absolute symlinks. After mounting the fs on /mnt, each
+    > symlink pointing to /foo/bar in that filesystem should be
+    > regarded as pointing to /mnt/foo/bar.
+    > 
+    > Since doing ls -ld on every component of every pathname was
+    > far too slow, I made a small kernel wart, where a mount option
+    > -o symlink_prefix=/pathname would cause /pathname to be prepended
+    > in front of every absolute symlink in the given filesystem
+    > (when the symlink is followed). That works satisfactorily.
+
+    Absolute symlinks... Dunno. _If_ we want that at all, we probably
+    want it on per-mountpoint basis. However, that opens a door to
+    _really_ ugly feature requests. E.g. "if symlink starts with
+    /foo - replace it with /mnt/bar, but if it starts with /foo/baz -
+    replace with /mnt/splat instead".
+
+Suppose I have devices /dev/a, /dev/b, /dev/c that contain the
+/, /usr and /usr/spool filesystems for FOO OS. Now
+	mount /dev/a /mnt -o symlink_prefix=/mnt
+	mount /dev/b /mnt/usr -o symlink_prefix=/mnt
+	mount /dev/c /mnt/usr/spool -o symlink_prefix=/mnt
+suffice.
+I do not immediately see a realistic use for changing symlink
+contents halfway.
+
+    I can see how to implement per-mountpoint variant. However, I'm
+    less than enthusiastic about the API side of that and about the
+    ugliness it will lead to. It smells like a wrong approach. And
+    no, I don't see a good one right now.
+
+    As for the API... How would you pass that option? Yet another
+    mount(2) argument?
+
+What I did was: add a field  `char *mnt_symlink_prefix;'  to the
+struct vfsmount, fill it in super.c:add_vfsmnt(), use it in
+namei.c:vfs_follow_link(). Pick the value up by recognizing
+in super.c:do_mount() the option "symlink_prefix=" before
+giving the options to the separate filesystems.
+
+[One could start a subdiscussion about that part. The mount(2)
+system call needs to transport vfs information and per-fs information.
+So far, the vfs information used flag bits only, but sooner or later
+we'll want to have strings, and need a vfs_parse_mount_options().
+Indeed, many filesystems today have uid= and gid= and umask= options
+that might be removed from the individual filesystems and put into vfs.
+After all, such options are also useful for (foreign) ext2 filesystems.]
 
 
-  ... and yesterday my box completely lockups and magic keys didn't work too
-for me ... no messages in logs ...
-
-Best regards,
-  .R.V.
-
---=20
-   _
-  |-|  __      Robert Vojta <vojta-at-ipex.cz>          -=3D Oo.oO =3D-
-  |=3D| [Ll]     IPEX, s.r.o.
-  "^" =3D=3D=3D=3D`o
-
---lMM8JwqTlfDpEaS6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjsaE/EACgkQInNB3KDLeVMvpwCgiFAqZKTwPvuDufECkDl5T4Kw
-UncAoIz2s0RlTxkXGAMticlNMb18d4MJ
-=jA+m
------END PGP SIGNATURE-----
-
---lMM8JwqTlfDpEaS6--
+Andries

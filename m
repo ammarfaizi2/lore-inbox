@@ -1,183 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265778AbUA1BTf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 20:19:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265797AbUA1BTf
+	id S265748AbUA1BkM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 20:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265801AbUA1BkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 20:19:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19085 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265778AbUA1BT3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 20:19:29 -0500
-Date: Tue, 27 Jan 2004 17:14:27 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: kjo <kernel-janitors@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [announce] 2.6.2-rc2-kj1 patchset
-Message-Id: <20040127171427.24f62515.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jan 2004 20:40:12 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:24053 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265748AbUA1BkA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 20:40:00 -0500
+Message-ID: <401712C2.9060602@mvista.com>
+Date: Tue, 27 Jan 2004 17:39:14 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: 2.6.1: process start times by procps
+References: <20040127150850.4f231875.akpm@osdl.org>
+In-Reply-To: <20040127150850.4f231875.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------000700080005090504090800"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-(fairly small this time, several patches recently merged,
-and I'm still reviewing others.)
+This is a multi-part message in MIME format.
+--------------000700080005090504090800
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Andrew Morton wrote:
+> Does this look right to you??
 
-patch is at:
-http://developer.osdl.org/rddunlap/kj-patches/2.6.2-rc2/2.6.2-rc2-kj1.patch.bz2  [2004-01-27]
+At first blush, no.  If it is supposed to be the time of boot then it should be 
+the same as -wall_to_monotonic.... see below.
+> 
+> Thanks.
+> 
+> Begin forwarded message:
+> 
+> Date: Tue, 27 Jan 2004 17:52:54 +0200
+> From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: 2.6.1: process start times by procps
+> 
+> 
+> On Sun, Jan 25, 2004 at 01:08:47PM +0200, I wrote:
+> 
+>>On Fri, Jan 23, 2004 at 09:47:14PM +0200, I wrote:
+>>
+>>>For example, I started this bash process really at 21:24 (date showed 21:24
+>>>then):
+>>>
+>>>kaukasoi 22108  0.0  0.2  4452 1532 pts/4    R    21:28   0:00 /bin/bash
+>>
+>>OK, I would like to make my bug report more accurate: the problem seems to
+>>be that the value of btime in /proc/stat is not correct.
+> 
+> 
+> btime in /proc/stat does not stay constant but decreases at a rate of 15
+> secs/day. (So I thought that that's why there is that four minute error in
+> ps output after uptime of a couple of weeks.) Maybe this has something to do
+> with the fact that the 'timer' line in /proc/interrupts does not seem to
+> increase at an exact rate of 1000 steps per second but about 1000.18 steps
+> per second, instead. (The relative error is the same: 0.18 divided by 1000
+> is equal to 15 seconds divided by 24 hours).
+> 
+> I made an experiment shown below. I know nothing about kernel programming,
+> so this is probably not correct, but at least btime seemed to stay constant.
+> (I don't believe this fixes procps, though. If HZ if off by 180 ppm then I
+> guess ps can't possibly get its calculations involving HZ right. But at
+> least the bootup time reported by procinfo stays constant.)
+> 
+> 
+> --- linux-2.6.1/fs/proc/proc_misc.c.orig	2004-01-09 08:59:09.000000000 +0200
+> +++ linux-2.6.1/fs/proc/proc_misc.c	2004-01-27 14:39:04.000000000 +0200
+> @@ -363,19 +363,13 @@
+>  	u64 jif;
+>  	unsigned int sum = 0, user = 0, nice = 0, system = 0, idle = 0, iowait = 0, irq = 0, softirq = 0;
+>  	struct timeval now; 
+> -	unsigned long seq;
+> -
+> -	/* Atomically read jiffies and time of day */ 
+> -	do {
+> -		seq = read_seqbegin(&xtime_lock);
+> -
+> -		jif = get_jiffies_64();
+> -		do_gettimeofday(&now);
+> -	} while (read_seqretry(&xtime_lock, seq));
+> +	struct timespec uptime;
+>  
+> +	do_gettimeofday(&now);
+> +	do_posix_clock_monotonic_gettime(&uptime);
+>  	/* calc # of seconds since boot time */
+> -	jif -= INITIAL_JIFFIES;
+> -	jif = ((u64)now.tv_sec * HZ) + (now.tv_usec/(1000000/HZ)) - jif;
+This conversion is the problem.  The time.h function timespec_to_jiffies is the 
+correct way to do this conversion.  Still, wall_to_monotonic is defined such that:
+	posix_clock_monotonic = wall_clock - wall_to_monotonic
 
-M: merged at kernel.org;   mm: in -mm;   tx: sent;   mntr: maintainer merged;
+	This means that - wall_to_monotonic is the value you want and that is, for the 
+most part a constant, and all that is needed is the second part..
 
-This patch applies to linux-2.6.2-rc2.
+Try the attached.
 
-new (for 2.6.2-rc2):  [2004-01-27]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-add/	ide_pci_triflex_not_procfs.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+> +	jif = ((u64)now.tv_sec * HZ) + (now.tv_usec/(1000000/HZ)) \
+> +            - ((u64)uptime.tv_sec * HZ) - (uptime.tv_nsec/(NSEC_PER_SEC/HZ));
+>  	do_div(jif, HZ);
+>  
+>  	for (i = 0; i < NR_CPUS; i++) {
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-add/	ps2esdi_typos.patch
-	From: Timmy Yee <shoujun@masterofpi.org>
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-add/	fbcmap_kmalloc.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
+--------------000700080005090504090800
+Content-Type: text/plain;
+ name="proc_misc-2.6.1-1.0.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="proc_misc-2.6.1-1.0.patch"
 
-add	vga16fb_audit.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
+--- linux-2.6.1-org/fs/proc/proc_misc.c	2004-01-26 14:45:25.000000000 -0800
++++ linux/fs/proc/proc_misc.c	2004-01-27 17:32:42.000000000 -0800
+@@ -360,23 +360,12 @@
+ {
+ 	int i;
+ 	extern unsigned long total_forks;
+-	u64 jif;
++	unsigned long jif;
+ 	unsigned int sum = 0, user = 0, nice = 0, system = 0, idle = 0, iowait = 0, irq = 0, softirq = 0;
+-	struct timeval now; 
+-	unsigned long seq;
+ 
+-	/* Atomically read jiffies and time of day */ 
+-	do {
+-		seq = read_seqbegin(&xtime_lock);
+-
+-		jif = get_jiffies_64();
+-		do_gettimeofday(&now);
+-	} while (read_seqretry(&xtime_lock, seq));
+-
+-	/* calc # of seconds since boot time */
+-	jif -= INITIAL_JIFFIES;
+-	jif = ((u64)now.tv_sec * HZ) + (now.tv_usec/(1000000/HZ)) - jif;
+-	do_div(jif, HZ);
++	jif = - wall_to_monotonic.tv_sec;
++	if (wall_to_monotonic.tv_nsec)
++		--jif;
+ 
+ 	for (i = 0; i < NR_CPUS; i++) {
+ 		int j;
 
-previous (for 2.6.2-rc1):  [2004-01-23] [not announced]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-tx/	errno_numbers_assembly.patch
-	From: Danilo Piazzalunga <danilopiazza@libero.it>
-	to akpm: 2004.0126;
+--------------000700080005090504090800--
 
-drop/	ide_tape_kmalloc_fail.patch
-	From: Eugene Teo <eugene.teo@eugeneteo.net>
-	looks wrong:  can't just return without doing work;
-
-mm/	linux_sound_c99_init.patch
-	From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-	to akpm/perex: 2004.0124;
-
-drop/	parameter_typos.patch
-	From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-	don't worry about spellos in comments;
-
-previous (for 2.6.1-bk6):  [2004-01-21]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-tx/	aha1542_kmalloc_type.patch
-	From: Timmy Yee <shoujun@masterofpi.org>
-	to linux-scsi 2004.0124;
-
-tx/	aha1542_qcommand_return.patch
-	From: Timmy Yee <shoujun@masterofpi.org>
-	to linux-scsi 2004.0124;
-
-mm/	char_dz_vrfy_area.patch
-	From: Domen Puncer <domen@coderock.org>
-	to akpm: 2004.0124;
-
-mm/	config_sysrq.patch
-	From: Domen Puncer <domen@coderock.org>
-	to akpm: 2004.0124;
-
-mntr/	mcfserial_remove_casts_args.patch
-	From: Domen Puncer <domen@coderock.org>
-	to gerg@snapgear.com 2004.0124;
-
-mntr/	netdev_get_stats.patch
-	From: Domen Puncer <domen@coderock.org>
-	to netdev/davem: 2004.0124;
-
-tx/	scsi_config_doc.patch
-	From: Jean Delvare <khali@linux-fr.org>
-	to linux-scsi 2004.0124;
-
-mntr/	saa7146_hlp_min_max.patch
-	From: Eugene Teo <eugene.teo@eugeneteo.net>
-	to maint: 2004.0124;
-
-previous (for 2.6.1-bk4):  [2004-01-16]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-mntr/	config_ledman_rm.patch
-	From: Domen Puncer <domen@coderock.org>
-	to gerg@snapgear.com 2004.0124;
-
-mntr/	ipt_register_target_retval.patch
-	From: Daniele Bellucci <bellucda@tiscali.it>
-	to netdev/davem: 2004.0124;
-
-drop/	kconfig_cleanups_v1.patch
-	From: Matthew Wilcox <willy@debian.org>
-  drop	drivers/block/Kconfig: merge conflicts
-  drop	drivers/video/console/Kconfig: merge conflicts
-  drop	drivers/i2c/*/Kconfig: already merged
-  	Willy to handle with akpm.
-
-add?	kswapd_init_fail.patch
-	From: Eugene Teo <eugene.teo@eugeneteo.net>
-
-add/	lmc_proto_raw_h_rm.patch
-	From: Domen Puncer <domen@coderock.org>
-
-mntr/	netdev_rm_casts.patch
-	From: Carlo Perassi <carlo@linux.it>
-	to netdev/jgarzik: 2004.0124;
-
-mntr/	s390_net_ctctty_putuser.patch
-	From: Domen Puncer <domen@coderock.org>
-	(rediffed)
-	sent to s390 mntr: 2004.0124;
-
-add/	setup_bootmem_fail.patch
-	From: Eugene Teo <eugene.teo@eugeneteo.net>
-
-?add	skfddi_regions_pciupdate.patch
-	From: Matthew Wilcox <willy@debian.org>
-
-drop/	acpi_boot_message_typo.patch
-	From: Simon Richard Grint <rgrint@mrtall.compsoc.man.ac.uk>
-	no longer applicable: function was removed;
-
-mntr/	cpcihp_zt5550_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-	to gregkh: 2004.0124;
-
-mntr/	mfcserial_vrfyarea.patch
-	From: Domen Puncer <domen@coderock.org>
-	to gerg@snapgear.com 2004.0124;
-
-tx/	vga16fb.c_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-	to akpm/mntr: 2004.0126;
-
-tx/	vgastate.c_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-	to akpm/mntr: 2004.0126;
-
-drop/	tc35815.c_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-	sent to jgarzik/netdev: 2004.0118;
-	already in netdev patchset;
-
-drop/	depca_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-	already in netdev patchset;
-
-tx/	dgrs_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-	sent to jgarzik/netdev: 2004.0118;
-
-###
-
-
---
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/

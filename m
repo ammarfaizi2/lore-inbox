@@ -1,38 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129992AbQLSKCG>; Tue, 19 Dec 2000 05:02:06 -0500
+	id <S129828AbQLSKDq>; Tue, 19 Dec 2000 05:03:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129999AbQLSKB4>; Tue, 19 Dec 2000 05:01:56 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:16474 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129761AbQLSKBt>; Tue, 19 Dec 2000 05:01:49 -0500
-Date: Tue, 19 Dec 2000 10:30:30 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Pavel Machek <pavel@suse.cz>, Chris Lattner <sabre@nondot.org>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-Message-ID: <20001219103030.A29228@athlon.random>
-In-Reply-To: <20001219012714.B26127@athlon.random> <Pine.LNX.3.96.1001219092835.20423A-100000@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	id <S129761AbQLSKDg>; Tue, 19 Dec 2000 05:03:36 -0500
+Received: from pD9040345.dip.t-dialin.net ([217.4.3.69]:49163 "HELO
+	grumbeer.hjb.de") by vger.kernel.org with SMTP id <S129828AbQLSKDb>;
+	Tue, 19 Dec 2000 05:03:31 -0500
+Subject: 2.2.18: Thread problem with smbfs
+To: linux-kernel@vger.kernel.org
+Date: Tue, 19 Dec 2000 10:33:41 +0100 (CET)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1001219092835.20423A-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Tue, Dec 19, 2000 at 09:42:05AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <20001219093341.E10DC3ED844@grumbeer.hjb.de>
+From: hjb@pro-linux.de (Hans-Joachim Baader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2000 at 09:42:05AM +0100, Mikulas Patocka wrote:
-> Failing getblk would likely introduce filesystem corruption. Look at
-> getblk in 2.0 - when allocating new page fails it tries to reuse existing
-> clean buffers or wakes up bdflush and waits until it writes them. This is
-> the right thing to do. 
+Hi,
 
-wrong.
+I hava a strange problem with smbfs. My application creates threads
+that copy files from a mounted SMB share to the local disk. When
+I run the application normally, there's no problem. However when
+I run it in gdb 4.18 or 5.0, one of the threads goes into the D state
+(not always), and the whole program including gdb hangs.
 
-Andrea
+With strace, these are the last lines of output I get:
+
+1854  sched_get_priority_max(0)         = 0
+1854  sched_get_priority_min(0)         = 0
+1854  brk(0x80ca000)                    = 0x80ca000
+1854  pipe([9, 10])                     = 0
+1854  clone()                           = 1856
+1854  write(10, "\300\357\215@\5\0\0\0\24\364\377\277\256^\204@\370\377\215@\240\353\215@\276\271w@Q\270w@\274Dx@\240\353\215@Q\270w@\274Dx@\240\353\215@\260\357\215@\304\357\215@H\364\377\277\300\357\215@\370\377\215@\240\353\215@d\364\377\277\276\271w@\274Dx@\260\357\215@\256^\204@\370\377\215@\276\271w@\274Dx@\260\357\215@\2\0\0\0T\365\377\277G\200\0@>[w@\324Vf@D:\1@`R\216@\3\0\0\0p\365\377\277", 148) = 148
+1854  rt_sigprocmask(SIG_SETMASK, NULL, [RT_0], 8) = 0
+1854  write(10, "\0!x@\0\0\0\0\360\365\377\277\0 q@\340`\f\10\0\0\0\200\0\0\0\0\f\0\0\0P\357\22@\f\0\0\0l\365\377\277\\.d@\204\342\22@\354\215\371\7\234\365\377\277\"@f@\314\233\315\4\250\365\377\277\\.d@\240\365\377\277A\245\0@X\340\22@@R\216@\7\0\0\0\216\244\0@\370\227v@\340`\f\10P\234\v\10|\263d@H\236v@D;w@\24\366\377\277\360\246\0@\0 q@2\0\0\0p\232w@x\340\22@", 148) = 148
+1854  rt_sigprocmask(SIG_SETMASK, NULL, [RT_0], 8) = 0
+1854  rt_sigsuspend([] <unfinished ...>
+
+In the syslog I find the following:
+
+Dec 18 19:07:58 George kernel: smb_get_length: recv error = 512
+Dec 18 19:07:58 George kernel: smb_trans2_request: result=-512, setting invalid
+Dec 18 19:07:59 George kernel: smb_retry: sucessful, new pid=16002, generation=38
+Dec 18 19:07:59 George kernel: smb_get_length: recv error = 512
+Dec 18 19:07:59 George kernel: smb_trans2_request: result=-512, setting invalid
+Dec 18 19:07:59 George kernel: smb_retry: sucessful, new pid=16002, generation=39
+Dec 18 19:07:59 George kernel: smb_get_length: recv error = 512
+Dec 18 19:07:59 George kernel: smb_trans2_request: result=-512, setting invalid
+Dec 18 19:08:00 George kernel: smb_retry: sucessful, new pid=16002, generation=40
+
+and so on, endlessly. So, AFAIK,  smbfs thinks it has lost connection and
+tells smbmount to re-establish it, which succeeds (at least smbmount
+thinks so). This happens several times per second.
+
+However, with processes instead of threads, without the debugger, or
+when reading from a local filesystem instead of a SMB filesystem, there
+is no problem.
+
+Kernel 2.2.18, smbfs as a module. I can provide more info if necessary.
+
+Regards,
+hjb
+-- 
+http://www.pro-linux.de/ - Germany's largest volunteer Linux support site
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

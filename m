@@ -1,139 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264368AbTKUQfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 11:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264370AbTKUQfZ
+	id S264369AbTKURAk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 12:00:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264370AbTKURAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 11:35:25 -0500
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:14578 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S264368AbTKUQfM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 11:35:12 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Maciej Zenczykowski <maze@cela.pl>
-Subject: Re: OT: why no file copy() libc/syscall ??
-Date: Fri, 21 Nov 2003 10:34:25 -0600
-X-Mailer: KMail [version 1.2]
-Cc: Florian Weimer <fw@deneb.enyo.de>, <Valdis.Kletnieks@vt.edu>,
-       Daniel Gryniewicz <dang@fprintf.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0311202206530.10515-100000@gaia.cela.pl>
-In-Reply-To: <Pine.LNX.4.44.0311202206530.10515-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Message-Id: <03112110342501.29137@tabby>
-Content-Transfer-Encoding: 8bit
+	Fri, 21 Nov 2003 12:00:40 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:44994 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S264369AbTKURAi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 12:00:38 -0500
+Subject: Re: Nick's scheduler v19a
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Timothy Miller <miller@techsource.com>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FBE3B0D.8030501@techsource.com>
+References: <3FB62608.4010708@cyberone.com.au>
+	 <1069361130.13479.12.camel@midux> <3FBD4F6E.3030906@cyberone.com.au>
+	 <1069395102.16807.11.camel@midux> <3FBDAE99.9050902@cyberone.com.au>
+	 <1069405566.18362.5.camel@midux> <3FBDD790.5060401@cyberone.com.au>
+	 <1069407179.18505.11.camel@midux>  <yw1xy8uaujv0.fsf@kth.se>
+	 <1069410094.18790.2.camel@midux>  <3FBE3B0D.8030501@techsource.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-etCsHel23ZXd4F5mGxfr"
+Message-Id: <1069434035.21039.5.camel@midux>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 21 Nov 2003 19:00:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 November 2003 15:48, Maciej Zenczykowski wrote:
-> Assume 'fast'copy(int fd_in, int fd_out) where fd_in and fd_out reference
-> files.  fd_in is opened for read and fd_out is opened for write.  Ignore
-> filepos locations in both fd's.  fd_out must reference an empty/truncated
-> file (if not then fail).  Usually you'd call copy on fd_out straight out
-> of a creat call (and thus this would be a non-issue).
->
-> > 1. what happens if the copy is aborted?
->
-> I'd say the copy operation should be 'atomic', either it succeeds (full
-> copy) or fails (no changes to filesystems except for the truncate).  An
-> abort would obviously usually result in a failure (thus a possible revert,
-> which is rather easy since it's likely just an truncate of whatever has
-> already been copied) or if we've just finished and than a successful
-> result.
 
-Really? what happens if the abort is local to the system making the request?
-what happens if the abort is on the remote server?
+--=-etCsHel23ZXd4F5mGxfr
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-> > 2. what happens if the network drops while the remote server continues?
->
-> If the remote server has enough data to perform the operation then it does
-> complete it otherwise there ain't enough info anyway (afterall the
-> entire idea of this is to fit the entire copy into a single copy
-> instruction thus a single packet/command whatever, no extra data is
-> passed)...
+Yes, but how could I know if the bug is in XFree86? in kernel? in the
+nvidia driver module? and no, I can't even hope to try to reproduce bugs
+without nvidia module, because no X =3D> no bugs. If you tell me what I
+need to add to kernel configuration to get some info while something
+happens, I'll probably try to reproduce bugs when test10 is out with
+vanilla kernel.
 
-And back to aborts?
+And yes, I'm intrested in the performance of other's computers too, but
+if this is new then it's new, and I can't by my self know where the bug
+(maybe) is.
 
-> > 3. what about buffer synchronization?
->
-> If this is happening remotely then I don't see what requires sync???
+Regards,
+Markus
 
-Multiple hosts remote to the server that have afile open. Though this
-already happens with NFS.
+On Fri, 2003-11-21 at 18:19, Timothy Miller wrote:
+> Markus H=E4stbacka wrote:
+> > That may be true, but why should I complain anymore? Nick made a really
+> > great patch that makes things working for me.
+> >=20
+>=20
+>=20
+> Are you interested only in the performance of your own computer, or do=20
+> you have any interest in the performance of other people's computers as=20
+> well?
+>=20
+> If there's a bug, there's a bug, and you've identified it.  Contrary to=20
+> the attitude of our friends in Redmond, the open source community tends=20
+> to see bugs as being really evil.  If you've found a bug, we want to=20
+> investigate it and fix it.
+--=20
+"Software is like sex, it's better when it's free."
+Markus H=E4stbacka <midian at ihme.org>
 
-> > 4. what errors should be reported ?
->
-> This is tougher:
->
-> Tests first performed locally (if they can be) than request forwarded to
-> remote end and tests performed remotely - return either error or
-> ACCEPTED, at which point local end tells it to go ahead, (at this
-> point the operation is effectively performed (unless an abort is
-> signalled) regardless of network connectivity).  On completion remote end
-> will return info on completion or error code.
->
-> a) operation not supported by kernel :) - ENOSYS
-> b) fd_in/fd_out invalid file descriptor - EBADF
-> c) fd_in/fd_out is directory - EISDIR
-> d) can't read/write from/to fd_in/fd_out - EINVAL
-> e) an error if fd_out ain't empty - ENOTEMPTY
-> f) operation not supported by this combination of devices - EOPNOTSUPP
->    [so you need to do it via usual loop]
-> g) input file bigger then output file can be - EFBIG
->    [ie copy of 5GB file from remote filesystem which supports it to
->    another filesystem on the same server with 2GB max file size]
-> h) low-level IO error - EIO - serious problems (i.e. HDD read/write error)
-> i) out of disk space during copy - ENOSPC
-> j) out of memory during copy - ENOMEM (unlikely, needed?)
-> k) lost network connection - ENETRESET (unknown whether succeeded)
->    or ENOLINK ?
-> l) operation was aborted - EINTR [probably should be some other error
->    code, not sure]
-> m) success - either return 0 or the number of bytes copied
->   [probably best to return the # of bytes copied, even if (for now?) we
->    only accept full copies]
->
-> Did I miss anything?  What about non-blocking call? Basically as above but
-> return INPROGRESS as soon as we tell remote end to go ahead... or perhaps
-> don't support non-blocking call?
->
-> > 5. what happens when the syscall is interupted? Especially if the remote
-> >    copy may take a while (I've seen some require an hour or more - worst
-> >    case: days due to a media error (completed after the disk was
-> > replaced)).
->
-> Well, if it's interrupted by a SIGINT or the like then return EINTR and
-> the copy was not performed (ie we backed the copy out, unless net failure
-> detected during abort then ENOLINK/ENETRESET).
+--=-etCsHel23ZXd4F5mGxfr
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Ooop - the copy is being done on the remote server.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-> If it's a more normal signal than it should behave like any normal kernel
-> restartable syscall (i.e. via ERESTARTNOHAND or something like that).
+iD8DBQA/vkSz3+NhIWS1JHARAomeAJ9zOmB69kJ7v7la97/gRxoU1+ZHsgCgr6Uo
+ib5JkFmqj+R6cPhIcGNXRfA=
+=37yV
+-----END PGP SIGNATURE-----
 
-Again, the copy may be being made on the remote server.
+--=-etCsHel23ZXd4F5mGxfr--
 
-> > 6. what about a client opening the copy before it is finished copying?
->
-> The file copy is atomic and thus the file doesn't per se exist until the
-> copy operation completes (or the file exists with zero size and is locked
-> and can't be opened).
-
-It does under all other methods of copying.
-
-> Perhaps in the future we could support partial copies and restarting an
-> interrupted copy, but let's first agree (or not) on the above.
->
-> I think a copy syscall would be very useful.  What I'd really like to see
-> is some sort of block-hashed-space-compression with copy-on-write
-> semantics file system for linux (for my 500 CD collection which probably
-> has a 10-12 data duplicity factor).
-
-It could be usefull. What you describe now is a migrating filesystem on a 
-server. And note that your COW is going from two different filesystems (hmm
-or maybe a custom union mount?)...
-
-Which is where the migrating filesystem. The served filesystem should already
-know how to transfer a file from the archive.

@@ -1,258 +1,298 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSLPWiY>; Mon, 16 Dec 2002 17:38:24 -0500
+	id <S261908AbSLPWpK>; Mon, 16 Dec 2002 17:45:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbSLPWiY>; Mon, 16 Dec 2002 17:38:24 -0500
-Received: from mail.michigannet.com ([208.49.116.30]:51730 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S261934AbSLPWiR>; Mon, 16 Dec 2002 17:38:17 -0500
-Date: Mon, 16 Dec 2002 17:46:08 -0500
-From: Paul <set@pobox.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Oops 2.5.51] PnPBIOS: cat /proc/bus/pnp/escd
-Message-ID: <20021216224608.GA29852@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	Dave Jones <davej@codemonkey.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021215230344.GE1432@squish.home.loc> <20021216135813.GD11616@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261973AbSLPWpJ>; Mon, 16 Dec 2002 17:45:09 -0500
+Received: from 205-158-62-131.outblaze.com ([205.158.62.131]:55197 "HELO
+	ws5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S261908AbSLPWpG>; Mon, 16 Dec 2002 17:45:06 -0500
+Message-ID: <20021216225257.5871.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20021216135813.GD11616@suse.de>
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@digeo.com
+Date: Tue, 17 Dec 2002 06:52:57 +0800
+Subject: [Benchmark] AIM9 results
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@codemonkey.org.uk>, on Mon Dec 16, 2002 [01:58:13 PM] said:
->  > 	'cat /proc/bus/pnp/escd' consistantly produces this:
-> 
->  > EIP:    0088:[<00007b74>]    Not tainted
-> 
-> You blew up in BIOS code. Your BIOS has a crap PNPBIOS implementation.
-> Send the output of dmidecode[1] and it can get added to the blacklist.
-> 
-> [1] http://people.redhat.com/arjanv/dmidecode.c
-> 
-> 		Dave
-> 
+Hi all,
+hw is an Omnibook 6000 (laptop)
+fs is Reiserfs
 
-	Hi;
+format:
+2.4.19
+2.5.51
+2.5.52
 
-DMI 2.0 present.
-29 structures occupying 946 bytes.
-DMI table at 0x000F545A.
-Handle 0x0000
-	DMI type 0, 18 bytes.
-	BIOS Information Block
-		Vendor: Award Software, Inc.
-		Version: ASUS P5A-B ACPI BIOS Revision 1004 
-		Release: 10/14/98
-		BIOS base: 0xF0000
-		ROM size: 64K
-		Capabilities:
-			Flags: 0x000000007FDBDE90
-Handle 0x0001
-	DMI type 1, 8 bytes.
-	System Information Block
-		Vendor: System Manufacturer
-		Product: System Name
-		Version: System Version
-		Serial Number: SYS-1234567890
-Handle 0x0002
-	DMI type 2, 8 bytes.
-	Board Information Block
-		Vendor: ASUSTeK Computer INC.
-		Product: P5A-B
-		Version: REV 1.XX
-		Serial Number: MB-1234567890
-Handle 0x0003
-	DMI type 3, 9 bytes.
-	Chassis Information Block
-		Vendor: Chassis Manufacture
-		Chassis Type: Unknown
-		Version: Chassis Version
-		Serial Number: Chassis Serial Number
-		Asset Tag: Asset-1234567890
-Handle 0x0004
-	DMI type 4, 26 bytes.
-	Processor
-		Socket Designation: SOCKET 7
-		Processor Type: Central Processor
-		Processor Family: K5 Family
-		Processor Manufacturer: AMD
-		Processor Version: AMD K6-2
-Handle 0x0005
-	DMI type 5, 27 bytes.
-	Memory Controller
-Handle 0x0007
-	DMI type 6, 12 bytes.
-	Memory Bank
-		Socket: DIMM1-2  
-		Banks: 0 1
-		Speed: 70nS
-		Type: EDO DIMM 
-		Installed Size: Not Installed
-		Enabled Size: Not Installed
-Handle 0x0008
-	DMI type 6, 12 bytes.
-	Memory Bank
-		Socket: DIMM2-1  
-		Banks: 2 3
-		Speed: 70nS
-		Type: OTHER DIMM 
-		Installed Size: 64Mbyte
-		Enabled Size: 64Mbyte
-Handle 0x0009
-	DMI type 6, 12 bytes.
-	Memory Bank
-		Socket: DIMM2-2  
-		Banks: 2 3
-		Speed: 70nS
-		Type: EDO DIMM 
-		Installed Size: Not Installed
-		Enabled Size: Not Installed
-Handle 0x000A
-	DMI type 6, 12 bytes.
-	Memory Bank
-		Socket: DIMM3-1  
-		Banks: 4 5
-		Speed: 70nS
-		Type: EDO DIMM 
-		Installed Size: Not Installed
-		Enabled Size: Not Installed
-Handle 0x000B
-	DMI type 6, 12 bytes.
-	Memory Bank
-		Socket: DIMM3-2  
-		Banks: 4 5
-		Speed: 70nS
-		Type: EDO DIMM 
-		Installed Size: Not Installed
-		Enabled Size: Not Installed
-Handle 0x000C
-	DMI type 7, 15 bytes.
-	Cache
-		Socket: L1 Cache
-		L1 Internal Cache: write-back
-		L1 Cache Size: 64K
-		L1 Cache Maximum: 64K
-		L1 Cache Type: 
-Handle 0x000D
-	DMI type 7, 15 bytes.
-	Cache
-		Socket: L2 Cache
-		L2 External Cache: write-back
-		L2 Cache Size: 1024K
-		L2 Cache Maximum: 0K
-		L2 Cache Type: Pipeline burst 
-Handle 0x000E
-	DMI type 8, 9 bytes.
-	Port Connector
-		Internal Designator: COM1
-		Internal Connector Type: 9 Pin Dual Inline (pin 10 cut)
-		External Designator: COM A
-		External Connector Type: DB-9 pin male
-		Port Type: Serial Port 16650A Compatible
-Handle 0x000F
-	DMI type 8, 9 bytes.
-	Port Connector
-		Internal Designator: COM2
-		Internal Connector Type: 9 Pin Dual Inline (pin 10 cut)
-		External Designator: COM B
-		External Connector Type: DB-25 pin male
-		Port Type: Serial Port 16650A Compatible
-Handle 0x0010
-	DMI type 8, 9 bytes.
-	Port Connector
-		Internal Designator: PRINTER
-		Internal Connector Type: 25 Pin Dual Inline (pin 26 cut)
-		External Designator: LPT
-		External Connector Type: DB-25 pin female
-		Port Type: Parallel Port ECP/EPP
-Handle 0x0011
-	DMI type 8, 9 bytes.
-	Port Connector
-		Internal Designator: KEY
-		Internal Connector Type: None
-		External Designator: KEYBOARD
-		External Connector Type: Micro-DIN
-		Port Type: Keyboard Port
-Handle 0x0012
-	DMI type 8, 9 bytes.
-	Port Connector
-		Internal Designator: PRIMARY IDE
-		Internal Connector Type: On Board IDE
-		External Designator: IDE-1
-		External Connector Type: None
-		Port Type: None
-Handle 0x0013
-	DMI type 8, 9 bytes.
-	Port Connector
-		Internal Designator: SECONDARY IDE
-		Internal Connector Type: On Board IDE
-		External Designator: IDE-2
-		External Connector Type: None
-		Port Type: None
-Handle 0x0014
-	DMI type 8, 9 bytes.
-	Port Connector
-		Internal Designator: FLOPPY
-		Internal Connector Type: On Board Floppy
-		External Designator: FLOPPY
-		External Connector Type: None
-		Port Type: None
-Handle 0x0015
-	DMI type 9, 12 bytes.
-	Card Slot
-		Slot: PCI Slot1
-		Type: 32bit PCI 
-		Status: In use.
-		Slot Features: 5v 
-Handle 0x0016
-	DMI type 9, 12 bytes.
-	Card Slot
-		Slot: PCI Slot2
-		Type: 32bit PCI 
-		Status: Available.
-		Slot Features: 5v 
-Handle 0x0017
-	DMI type 9, 12 bytes.
-	Card Slot
-		Slot: PCI Slot3
-		Type: 32bit PCI 
-		Status: Available.
-		Slot Features: 5v Shared 
-Handle 0x0018
-	DMI type 9, 12 bytes.
-	Card Slot
-		Slot: ISA Slot1
-		Type: 16bit ISA 
-		Slot Features: 5v Shared 
-Handle 0x0019
-	DMI type 9, 12 bytes.
-	Card Slot
-		Slot: ISA Slot2
-		Type: 16bit ISA 
-		Slot Features: 5v 
-Handle 0x001A
-	DMI type 11, 5 bytes.
-	OEM Data
-		OEM String
-Handle 0x001B
-	DMI type 12, 5 bytes.
-	Configuration Information
-		System String
-Handle 0x001C
-	DMI type 13, 22 bytes.
-	BIOS Language Information
-Handle 0x0C49
-	DMI type 0, 0 bytes.
-	BIOS Information Block
-		Vendor: 
-		Version: 
-		Release: 
-		BIOS base: 0x00000
-		ROM size: 0K
-		Capabilities:
-			Flags: 0x0000000000000000
-	
+add_double 10030 23.9282       430707.88 Thousand Double Precision Additions/second
+add_double 10030 23.7288       427118.64 Thousand Double Precision Additions/second
+add_double 10030 23.7288       427118.64 Thousand Double Precision Additions/second
+
+add_float 10000 35.9       430800.00 Thousand Single Precision Additions/second
+add_float 10010 35.5644       426773.23 Thousand Single Precision Additions/second
+add_float 10010 35.5644       426773.23 Thousand Single Precision Additions/second
+
+add_long 10010 22.1778      1330669.33 Thousand Long Integer Additions/second
+add_long 10020 21.9561      1317365.27 Thousand Long Integer Additions/second
+add_long 10020 21.9561      1317365.27 Thousand Long Integer Additions/second
+
+add_int 10020 22.0559      1323353.29 Thousand Integer Additions/second
+add_int 10020 21.8563      1311377.25 Thousand Integer Additions/second
+add_int 10020 21.8563      1311377.25 Thousand Integer Additions/second
+
+add_short 10000 55.4      1329600.00 Thousand Short Integer Additions/second
+add_short 10000 54.9      1317600.00 Thousand Short Integer Additions/second
+add_short 10000 54.9      1317600.00 Thousand Short Integer Additions/second
+
+creat-clo 10040 19.4223        19422.31 File Creations and Closes/second
+creat-clo 10010 87.2128        87212.79 File Creations and Closes/second
+creat-clo 10000 75.3        75300.00 File Creations and Closes/second
+^^^Here 2.5.* is _a lot_ faster than 2.4.19 but 2.5.52 is slower then 2.5.51
+
+page_test 10000 123.9       210630.00 System Allocations & Pages/second
+page_test 10000 105.7       179690.00 System Allocations & Pages/second
+page_test 10010 105.095       178661.34 System Allocations & Pages/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+brk_test 10010 48.951       832167.83 System Memory Allocations/second
+brk_test 10020 44.6108       758383.23 System Memory Allocations/second
+brk_test 10010 43.8561       745554.45 System Memory Allocations/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+jmp_test 10000 4313.7      4313700.00 Non-local gotos/second
+jmp_test 10000 4273.2      4273200.00 Non-local gotos/second
+jmp_test 10000 4273.1      4273100.00 Non-local gotos/second
+
+signal_test 10000 166.1       166100.00 Signal Traps/second
+signal_test 10000 157.4       157400.00 Signal Traps/second
+signal_test 10000 159.6       159600.00 Signal Traps/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+exec_test 10000 13.8           69.00 Program Loads/second
+exec_test 10020 12.9741           64.87 Program Loads/second
+exec_test 10030 12.9611           64.81 Program Loads/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+fork_test 10000 44.8         4480.00 Task Creations/second
+fork_test 10020 23.9521         2395.21 Task Creations/second
+fork_test 10020 29.0419         2904.19 Task Creations/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+link_test 10000 155.3         9783.90 Link/Unlink Pairs/second
+link_test 10000 147.7         9305.10 Link/Unlink Pairs/second
+link_test 10010 140.959         8880.42 Link/Unlink Pairs/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+disk_rr 10050 6.96517        35661.69 Random Disk Reads (K)/second
+disk_rr 10110 7.51731        38488.63 Random Disk Reads (K)/second
+disk_rr 10050 7.46269        38208.96 Random Disk Reads (K)/second
+^^^^ 2.5.5* is faster then 2.4.19
+
+disk_rw 10060 5.666        29009.94 Random Disk Writes (K)/second
+disk_rw 10000 6.8        34816.00 Random Disk Writes (K)/second
+disk_rw 10090 6.73935        34505.45 Random Disk Writes (K)/second
+^^^^ 2.5.5* is faster then 2.4.19
+
+disk_rd 10010 38.1618       195388.61 Sequential Disk Reads (K)/second
+disk_rd 10020 38.024       194682.63 Sequential Disk Reads (K)/second
+disk_rd 10010 38.0619       194877.12 Sequential Disk Reads (K)/second
+
+disk_wrt 10100 8.51485        43596.04 Sequential Disk Writes (K)/second
+disk_wrt 10070 9.43396        48301.89 Sequential Disk Writes (K)/second
+disk_wrt 10080 9.3254        47746.03 Sequential Disk Writes (K)/second
+^^^^ 2.5.5* is faster then 2.4.19
+
+disk_cp 10120 7.31225        37438.74 Disk Copies (K)/second
+disk_cp 10010 7.69231        39384.62 Disk Copies (K)/second
+disk_cp 10090 7.63132        39072.35 Disk Copies (K)/second
+^^^^ 2.5.5* is faster then 2.4.19
+
+sync_disk_rw 16020 0.062422          159.80 Sync Random Disk Writes (K)/second
+sync_disk_rw 18790 0.0532198          136.24 Sync Random Disk Writes (K)/second
+sync_disk_rw 14570 0.0686342          175.70 Sync Random Disk Writes (K)/second
+^^^^ 2.5.5* is faster then 2.4.19
+
+sync_disk_wrt 11220 0.0891266          228.16 Sync Sequential Disk Writes (K)/second
+sync_disk_wrt 10150 0.0985222          252.22 Sync Sequential Disk Writes (K)/second
+sync_disk_wrt 10130 0.0987167          252.71 Sync Sequential Disk Writes (K)/second
+^^^^ 2.5.5* is faster then 2.4.19
+
+sync_disk_cp 10870 0.0919963          235.51 Sync Disk Copies (K)/second
+sync_disk_cp 19580 0.102145          261.49 Sync Disk Copies (K)/second
+sync_disk_cp 10050 0.0995025          254.73 Sync Disk Copies (K)/second
+^^^^ 2.5.5* is faster then 2.4.19
+
+disk_src 10000 118.2         8865.00 Directory Searches/second
+disk_src 10010 110.889         8316.68 Directory Searches/second
+disk_src 10010 123.477         9260.74 Directory Searches/second
+^^^^ 2.5.5* is faster then 2.4.19 and 2.5.52 is faster then 2.5.51
+
+div_double 10000 24.4        73200.00 Thousand Double Precision Divides/second
+div_double 10020 24.1517        72455.09 Thousand Double Precision Divides/second
+div_double 10010 24.1758        72527.47 Thousand Double Precision Divides/second
+
+div_float 10010 24.3756        73126.87 Thousand Single Precision Divides/second
+div_float 10010 24.1758        72527.47 Thousand Single Precision Divides/second
+div_float 10010 24.1758        72527.47 Thousand Single Precision Divides/second
+
+div_long 10020 19.9601        17964.07 Thousand Long Integer Divides/second
+div_long 10020 19.7605        17784.43 Thousand Long Integer Divides/second
+div_long 10010 19.7802        17802.20 Thousand Long Integer Divides/second
+
+div_int 10020 19.9601        17964.07 Thousand Integer Divides/second
+div_int 10010 19.7802        17802.20 Thousand Integer Divides/second
+div_int 10020 19.7605        17784.43 Thousand Integer Divides/second
+
+div_short 10030 19.9402        17946.16 Thousand Short Integer Divides/second
+div_short 10020 19.7605        17784.43 Thousand Short Integer Divides/second
+div_short 10010 19.7802        17802.20 Thousand Short Integer Divides/second
+
+fun_cal 10000 62.5     32000000.00 Function Calls (no arguments)/second
+fun_cal 10000 61.9     31692800.00 Function Calls (no arguments)/second
+fun_cal 10000 61.9     31692800.00 Function Calls (no arguments)/second
+
+fun_cal1 10000 170.4     87244800.00 Function Calls (1 argument)/second
+fun_cal1 10010 168.831     86441558.44 Function Calls (1 argument)/second
+fun_cal1 10010 168.831     86441558.44 Function Calls (1 argument)/second
+
+fun_cal2 10000 112.5     57600000.00 Function Calls (2 arguments)/second
+fun_cal2 10000 111.5     57088000.00 Function Calls (2 arguments)/second
+fun_cal2 10010 111.389     57030969.03 Function Calls (2 arguments)/second
+
+fun_cal15 10010 34.0659     17441758.24 Function Calls (15 arguments)/second
+fun_cal15 10010 33.7662     17288311.69 Function Calls (15 arguments)/second
+fun_cal15 10010 33.7662     17288311.69 Function Calls (15 arguments)/second
+
+sieve 10450 0.861244            4.31 Integer Sieves/second
+sieve 10600 0.849057            4.25 Integer Sieves/second
+sieve 10600 0.849057            4.25 Integer Sieves/second
+
+mul_double 10020 21.5569       258682.63 Thousand Double Precision Multiplies/second
+mul_double 10020 21.3573       256287.43 Thousand Double Precision Multiplies/second
+mul_double 10030 21.336       256031.90 Thousand Double Precision Multiplies/second
+
+mul_float 10030 21.5354       258424.73 Thousand Single Precision Multiplies/second
+mul_float 10030 21.336       256031.90 Thousand Single Precision Multiplies/second
+mul_float 10020 21.3573       256287.43 Thousand Single Precision Multiplies/second
+
+mul_long 10000 947.7       227448.00 Thousand Long Integer Multiplies/second
+mul_long 10000 939.6       225504.00 Thousand Long Integer Multiplies/second
+mul_long 10000 939.8       225552.00 Thousand Long Integer Multiplies/second
+
+mul_int 10000 951.9       228456.00 Thousand Integer Multiplies/second
+mul_int 10000 943.2       226368.00 Thousand Integer Multiplies/second
+mul_int 10000 943.3       226392.00 Thousand Integer Multiplies/second
+
+mul_short 10000 759.1       227730.00 Thousand Short Integer Multiplies/second
+mul_short 10000 753.4       226020.00 Thousand Short Integer Multiplies/second
+mul_short 10000 753.4       226020.00 Thousand Short Integer Multiplies/second
+
+num_rtns_1 10000 467.2        46720.00 Numeric Functions/second
+num_rtns_1 10000 463.8        46380.00 Numeric Functions/second
+num_rtns_1 10000 463.9        46390.00 Numeric Functions/second
+
+trig_rtns 10010 28.6713       286713.29 Trigonometric Functions/second
+trig_rtns 10020 28.3433       283433.13 Trigonometric Functions/second
+trig_rtns 10000 28.4       284000.00 Trigonometric Functions/second
+
+matrix_rtns 10000 5964.3       596430.00 Point Transformations/second
+matrix_rtns 10000 5906.8       590680.00 Point Transformations/second
+matrix_rtns 10000 5906.6       590660.00 Point Transformations/second
+
+array_rtns 10010 13.6863          273.73 Linear Systems Solved/second
+array_rtns 10010 13.2867          265.73 Linear Systems Solved/second
+array_rtns 10050 13.5323          270.65 Linear Systems Solved/second
+
+string_rtns 10060 9.04573          904.57 String Manipulations/second
+string_rtns 10050 8.95522          895.52 String Manipulations/second
+string_rtns 10060 8.94632          894.63 String Manipulations/second
+
+mem_rtns_1 10000 27.7       831000.00 Dynamic Memory Operations/second
+mem_rtns_1 10010 24.975       749250.75 Dynamic Memory Operations/second
+mem_rtns_1 10030 24.327       729810.57 Dynamic Memory Operations/second
+
+mem_rtns_2 10000 1632.5       163250.00 Block Memory Operations/second
+mem_rtns_2 10000 1631.8       163180.00 Block Memory Operations/second
+mem_rtns_2 10000 1618       161800.00 Block Memory Operations/second
+
+sort_rtns_1 10020 33.6327          336.33 Sort Operations/second
+sort_rtns_1 10010 33.0669          330.67 Sort Operations/second
+sort_rtns_1 10000 33.1          331.00 Sort Operations/second
+
+misc_rtns_1 10000 782.2         7822.00 Auxiliary Loops/second
+misc_rtns_1 10000 738         7380.00 Auxiliary Loops/second
+misc_rtns_1 10000 732.1         7321.00 Auxiliary Loops/second
+
+dir_rtns_1 10000 85.8       858000.00 Directory Operations/second
+dir_rtns_1 10000 96.9       969000.00 Directory Operations/second
+dir_rtns_1 10000 96.9       969000.00 Directory Operations/second
+
+shell_rtns_1 10020 25.9481           25.95 Shell Scripts/second
+shell_rtns_1 10030 24.1276           24.13 Shell Scripts/second
+shell_rtns_1 10030 23.9282           23.93 Shell Scripts/second
+
+shell_rtns_2 10010 26.0739           26.07 Shell Scripts/second
+shell_rtns_2 10000 24.1           24.10 Shell Scripts/second
+shell_rtns_2 10030 24.0279           24.03 Shell Scripts/second
+
+shell_rtns_3 10010 26.0739           26.07 Shell Scripts/second
+shell_rtns_3 10000 24.1           24.10 Shell Scripts/second
+shell_rtns_3 10030 24.0279           24.03 Shell Scripts/second
+
+series_1 10000 31924.9      3192490.00 Series Evaluations/second
+series_1 10000 31651.5      3165150.00 Series Evaluations/second
+series_1 10000 31649.9      3164990.00 Series Evaluations/second
+
+shared_memory 10000 2227.4       222740.00 Shared Memory Operations/second
+shared_memory 10000 1987.5       198750.00 Shared Memory Operations/second
+shared_memory 10000 1994.7       199470.00 Shared Memory Operations/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+tcp_test 10000 661.7        59553.00 TCP/IP Messages/second
+tcp_test 10000 558.7        50283.00 TCP/IP Messages/second
+tcp_test 10000 541.8        48762.00 TCP/IP Messages/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+udp_test 10000 1182.7       118270.00 UDP/IP DataGrams/second
+udp_test 10000 972.3        97230.00 UDP/IP DataGrams/second
+udp_test 10000 988.1        98810.00 UDP/IP DataGrams/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+fifo_test 10000 1207       120700.00 FIFO Messages/second
+fifo_test 10000 1052.3       105230.00 FIFO Messages/second
+fifo_test 10000 1083.1       108310.00 FIFO Messages/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+stream_pipe 10000 2418.6       241860.00 Stream Pipe Messages/second
+stream_pipe 10000 2281.5       228150.00 Stream Pipe Messages/second
+stream_pipe 10000 2258.8       225880.00 Stream Pipe Messages/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+dgram_pipe 10000 2357.8       235780.00 DataGram Pipe Messages/second
+dgram_pipe 10000 2112.2       211220.00 DataGram Pipe Messages/second
+dgram_pipe 10000 2039.6       203960.00 DataGram Pipe Messages/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+pipe_cpy 10000 3918       391800.00 Pipe Messages/second
+pipe_cpy 10000 3139       313900.00 Pipe Messages/second
+pipe_cpy 10000 3139.3       313930.00 Pipe Messages/second
+^^^^ 2.5.5* is still slower then 2.4.19
+
+ram_copy 10000 19338.7    483854274.00 Memory to Memory Copy/second
+ram_copy 10000 19160.9    479405718.00 Memory to Memory Copy/second
+ram_copy 10000 19155    479258100.00 Memory to Memory Copy/second
+
+
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
+
+Powered by Outblaze

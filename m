@@ -1,76 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264868AbTFEUtA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 16:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265135AbTFEUry
+	id S265152AbTFEVKG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 17:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265145AbTFEVJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:47:54 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:3766 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265133AbTFEUrV convert rfc822-to-8bit
+	Thu, 5 Jun 2003 17:09:00 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:130 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S265140AbTFEVB6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:47:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10548468772648@kroah.com>
-Subject: Re: [PATCH] More PCI fixes for 2.5.70
-In-Reply-To: <10548468774019@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 5 Jun 2003 14:01:17 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+	Thu, 5 Jun 2003 17:01:58 -0400
+Date: Thu, 5 Jun 2003 22:15:26 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Samuel Flory <sflory@rackable.com>
+Cc: Hugo Mills <hugo-lkml@carfax.org.uk>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, andre@linux-ide.org, alan@redhat.com
+Subject: Re: SiI3112 (Adaptec 1210SA): no devices
+Message-ID: <20030605211526.GE1542@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org,
+	linux-ide@vger.kernel.org, andre@linux-ide.org, alan@redhat.com
+References: <20030605193514.GB1542@carfax.org.uk> <3EDFAC88.4040609@rackable.com>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nHwqXXcoX0o6fKCv"
+Content-Disposition: inline
+In-Reply-To: <3EDFAC88.4040609@rackable.com>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1312, 2003/06/05 12:03:40-07:00, greg@kroah.com
 
-[PATCH] PCI: remove direct access of pci_devices from drivers/macintosh/via-pmu68k.c
+--nHwqXXcoX0o6fKCv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Yeah, this is commented out code, but just trying to be complete...
+On Thu, Jun 05, 2003 at 01:48:08PM -0700, Samuel Flory wrote:
+> Hugo Mills wrote:
+> 
+> >  I've just taken delivery of a shiny new Adaptec 1210SA Serial-ATA
+> >adapter and a 120Gb Seagate Barracuda native SATA drive. Problem is,
+> >the kernel driver doesn't seem to notice this device on boot --
+> >nothing at all appears relating to this device in the boot messages.
+> >Can you help me?
+> >
+> >  (The card is configured in its on-board BIOS with a single disk as
+> >JBOD).
+> 
+>  The card is a serial ata controller with what adaptec refers to as 
+> "hostraid".  (Meaning the raid is done in the driver.)  There are binary 
+> drivers for it on adptec's site, but no open source drivers.  The binary 
+> drivers are fairly good, but they are binary drivers.  (Which brings the 
+> headaches that binary drivers entail.)
 
+   I'm only after the JBOD function of the card, not the RAID bits. I
+just couldn't find _any_ other SiI3112 SATA card on the market in this
+country. I don't run Red Hat or SuSE, and particularly not their
+kernels -- (I normally run Alan's kernels). Does this mean that I've
+bought a pig in a poke?
 
- drivers/macintosh/via-pmu68k.c |   11 ++++++-----
- 1 files changed, 6 insertions(+), 5 deletions(-)
+   Hugo.
 
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+        --- Great oxymorons of the world, no. 2: Common Sense ---        
 
-diff -Nru a/drivers/macintosh/via-pmu68k.c b/drivers/macintosh/via-pmu68k.c
---- a/drivers/macintosh/via-pmu68k.c	Thu Jun  5 13:53:06 2003
-+++ b/drivers/macintosh/via-pmu68k.c	Thu Jun  5 13:53:06 2003
-@@ -839,11 +839,11 @@
- pbook_pci_save(void)
- {
- 	int npci;
--	struct pci_dev *pd;
-+	struct pci_dev *pd = NULL;
- 	struct pci_save *ps;
- 
- 	npci = 0;
--	for (pd = pci_devices; pd != NULL; pd = pd->next)
-+	while ((pd = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pd)) != NULL)
- 		++npci;
- 	n_pbook_pci_saves = npci;
- 	if (npci == 0)
-@@ -853,7 +853,8 @@
- 	if (ps == NULL)
- 		return;
- 
--	for (pd = pci_devices; pd != NULL && npci != 0; pd = pd->next) {
-+	pd = NULL;
-+	while ((pd = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pd)) != NULL) {
- 		pci_read_config_word(pd, PCI_COMMAND, &ps->command);
- 		pci_read_config_word(pd, PCI_CACHE_LINE_SIZE, &ps->cache_lat);
- 		pci_read_config_word(pd, PCI_INTERRUPT_LINE, &ps->intr);
-@@ -867,10 +868,10 @@
- {
- 	u16 cmd;
- 	struct pci_save *ps = pbook_pci_saves;
--	struct pci_dev *pd;
-+	struct pci_dev *pd = NULL;
- 	int j;
- 
--	for (pd = pci_devices; pd != NULL; pd = pd->next, ++ps) {
-+	while ((pd = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pd)) != NULL) {
- 		if (ps->command == 0)
- 			continue;
- 		pci_read_config_word(pd, PCI_COMMAND, &cmd);
+--nHwqXXcoX0o6fKCv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+37LtssJ7whwzWGARAt2WAJ0TzuRtNzjJ775VeB6KXCje+F+idgCgk0Re
+Jc1BtAHCM4n7ffL3Fd56p9Q=
+=oL5z
+-----END PGP SIGNATURE-----
+
+--nHwqXXcoX0o6fKCv--

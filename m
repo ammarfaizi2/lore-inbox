@@ -1,83 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265579AbSKACdO>; Thu, 31 Oct 2002 21:33:14 -0500
+	id <S265602AbSKACbw>; Thu, 31 Oct 2002 21:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265650AbSKACdO>; Thu, 31 Oct 2002 21:33:14 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:31977 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S265579AbSKACdG>; Thu, 31 Oct 2002 21:33:06 -0500
-Message-ID: <72B3FD82E303D611BD0100508BB29735046DFF6C@orsmsx102.jf.intel.com>
-From: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-To: "'Greg KH'" <greg@kroah.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: RFC: bare pci configuration access functions ?
-Date: Thu, 31 Oct 2002 18:39:26 -0800
+	id <S265606AbSKACbw>; Thu, 31 Oct 2002 21:31:52 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:32491 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265602AbSKACbv>; Thu, 31 Oct 2002 21:31:51 -0500
+Date: Thu, 31 Oct 2002 18:35:06 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+cc: mingo@elte.hu, Erich Focht <efocht@ess.nec.de>
+Subject: Re: [PATCH 2.5.45] NUMA Scheduler  (1/2)
+Message-ID: <3481414249.1036089305@[10.10.2.3]>
+In-Reply-To: <1010470000.1036108344@flay>
+References: <1010470000.1036108344@flay>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: multipart/mixed; boundary="==========3481431698=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+--==========3481431698==========
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> > > > Will it be desirable to have bare global pci config access
-> > > > functions as seen in i386/ia64 pci codes ? It's clean and needs
-> > > > just what it takes - seg, bus, dev, func, where, value, 
-> and size.
-> > > 
-> > > No, I do not think so.  I think the way 2.5 does this is 
-> the correct
-> > > way.  
-> > 
-> > From PCI's own context, it's perfectly right since this way 
-> encapsulate
-> > access method to the object(pci, pci-express, ...) ala 
-> we're in that object
-> > context.
-> > But with the same object concept, mandating pci_bus struct 
-> for any pci
-> > config access seems cruel, because others could be affected 
-> on changes in
-> > pci objects as we are seeing between 2.4 and 2.5.
-> 
-> Almost no-one in the kernel should be directly accessing pci config
-> space without having a pci_bus structure at the minimum.The 
-> exceptions
-> are the pci core, and the pci hotplug code.  Now, if we move the
-> majority of the pci hotplug resource code into the pci core, then only
-> one place would need it.  Then there would not be a need to have these
-> types of functions exported at all.  ACPI is a arch specific way of
-> setting up the pci space, so it too needs to be able to do 
-> this a little
-> bit (not a lot, like it currently does.)
+Hum. A last minute change broke UP compilation.
+Attatched ... should come out as text/plain so you can read 
+it, but if it all goes wrong, it just removes:
 
-Platform management, early console access, acpi, hotplug io-node w/ root,...
-pci_bus based access is useless before pci driver is initialized.
-All exceptions will be forced to use fake structs...
-Sounds we need to be ready to live with all exceptions here too :)
-Or just to make them all happy with that simple bare functions.
+       if (cache_decay_ticks)
+               cache_decay_ticks=1;
 
-> 
-> So yes, it is cruel to not have this ability, but it is cruel for a
-> reason :)
-> 
-> > > We could just force every arch to export the same 
-> functions that i386
-> > > and ia64 does, that shouldn't be a big deal.  
-> > 
-> > Right. It becomes just a matter of unifying APIs if other 
-> architecture have
-> > own low level bare pci config access functions.
-> 
-> Ok, mind trying to make up a patch for 2.4 that does this to see how
-> feasible it really is?
+from sched_init.
 
-OK, if simple and pure pci config access is not possible in Linux land,
-let pci driver fake itself, not everyone else :)
-Just export the two APIs like pci_config_{read|write}(s,b,d,f,s,v),
-or the ones in acpi driver. Hide the fake pci_bus manipulation in them. 
-This way is way better than having everyone fake pci driver ;-)
+M.
 
-Thanks,
-J.I.
+--==========3481431698==========
+Content-Type: text/plain; charset=us-ascii; name=numaschedfix
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=numaschedfix; size=357
+
+--- 2.5.45-numasched/kernel/sched.c.old	2002-10-31 17:48:41.000000000 -0800
++++ 2.5.45-numasched/kernel/sched.c	2002-10-31 17:51:43.000000000 -0800
+@@ -2331,8 +2331,7 @@
+ 			__set_bit(MAX_PRIO, array->bitmap);
+ 		}
+ 	}
+-	if (cache_decay_ticks)
+-		cache_decay_ticks=1;
++
+ 	/*
+ 	 * We have to do a little magic to get the first
+ 	 * thread right in SMP mode.
+
+--==========3481431698==========--
+

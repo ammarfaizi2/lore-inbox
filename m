@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277719AbRJLOwa>; Fri, 12 Oct 2001 10:52:30 -0400
+	id <S277723AbRJLO4A>; Fri, 12 Oct 2001 10:56:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277721AbRJLOwV>; Fri, 12 Oct 2001 10:52:21 -0400
-Received: from web11903.mail.yahoo.com ([216.136.172.187]:60422 "HELO
-	web11903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277719AbRJLOwQ>; Fri, 12 Oct 2001 10:52:16 -0400
-Message-ID: <20011012145247.62082.qmail@web11903.mail.yahoo.com>
-Date: Fri, 12 Oct 2001 07:52:47 -0700 (PDT)
-From: Kirill Ratkin <kratkin@yahoo.com>
-Subject: I can loop dev_base only once. Why?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277722AbRJLOzu>; Fri, 12 Oct 2001 10:55:50 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:8604 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S277721AbRJLOzh>; Fri, 12 Oct 2001 10:55:37 -0400
+Date: Fri, 12 Oct 2001 08:56:05 -0600
+Message-Id: <200110121456.f9CEu5j15440@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Cc: Matt Domsch <mdomsch@Dell.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] EFI GUID Partition Tables
+In-Reply-To: <Pine.LNX.4.33.0110121026430.9327-100000@biker.pdb.fsc.net>
+In-Reply-To: <200110091725.f99HPZ530405@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.33.0110121026430.9327-100000@biker.pdb.fsc.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. I have a problem.
+Martin Wilck writes:
+> Richard,
+> 
+> > You've put the devfs_unregister_slave() inside an #ifdef. Yuk! It
+> > shouldn't be conditional.
+> 
+> I did that because I didn't want to pollute your code. The function
+> was only needed for the UUID patch.
+> 
+> > And I'm not really sure that I like this
+> > function in the first place, but that's not something I want to get
+> > into right now.
+> 
+> I did not see a possibility to cleanly remove a slave that was
+> registered before. Did I oversee something? Do you thing that
+> functionality is superfluous?
 
-I write module which scans network device list. 
-I made:
+The whole slave mechanism is a hack, created because of the badly
+structured genhd layer. It's a convenience for lazy programmers (like
+me, when I was hacking the genhd layer:-). I'd prefer to see it used
+very sparingly.
 
-int init(void)
-{
-  struct net_device *dev, **dp;
+				Regards,
 
-  printk("<1>Ok\n");
-  while ((dev = *dp) != NULL) {
-    printk("<1>Searching ...\n"); 
-    write_lock_bh(&dev_base_lock);
-
-    /* ... here I change one fileld ... */
-
-    *dp = dev->next;
-    write_unlock_bh(&dev_base_lock);
-  }
-  return 0;
-}
-
-void cleanup(void)
-{
-  while ((dev = *dp) != NULL) {
-    write_lock_bh(&dev_base_lock);
-
-    /* ... here turn change back  ... */
-
-   *dp = dev->next;
-   write_unlock_bh(&dev_base_lock);
- }
-}
-
-The problem:
-This code works only once. Then I remove module and
-start it again I see only 'Ok' string. Could you
-explain me where is problem?
-
-Regards,
-Kirill.
-
-__________________________________________________
-Do You Yahoo!?
-Make a great connection at Yahoo! Personals.
-http://personals.yahoo.com
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

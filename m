@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130105AbRAIM31>; Tue, 9 Jan 2001 07:29:27 -0500
+	id <S129692AbRAIM5H>; Tue, 9 Jan 2001 07:57:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130138AbRAIM3R>; Tue, 9 Jan 2001 07:29:17 -0500
-Received: from magla.iskon.hr ([213.191.128.32]:33797 "EHLO magla.iskon.hr")
-	by vger.kernel.org with ESMTP id <S130105AbRAIM3H>;
-	Tue, 9 Jan 2001 07:29:07 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-In-Reply-To: <Pine.LNX.4.10.10101082322030.1222-100000@penguin.transmeta.com>
-Reply-To: zlatko@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko@iskon.hr>
-Date: 09 Jan 2001 13:29:00 +0100
-In-Reply-To: Linus Torvalds's message of "Mon, 8 Jan 2001 23:27:15 -0800 (PST)"
-Message-ID: <dnbstgewoj.fsf@magla.iskon.hr>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Notus)
+	id <S129710AbRAIM44>; Tue, 9 Jan 2001 07:56:56 -0500
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:49605 "EHLO
+	smtprelay1.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S129692AbRAIM4m>; Tue, 9 Jan 2001 07:56:42 -0500
+Date: Tue, 9 Jan 2001 08:57:15 -0500 (EST)
+From: "Steven N. Hirsch" <shirsch@adelphia.net>
+To: Helge Hafting <helgehaf@idb.hist.no>
+cc: Nicolas Noble <Pixel@the-babel-tower.nobis.phear.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel network problem ?
+In-Reply-To: <3A5ADBC7.D297CFDB@idb.hist.no>
+Message-ID: <Pine.LNX.4.21.0101090853250.27322-100000@pii.fast.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+On Tue, 9 Jan 2001, Helge Hafting wrote:
 
-> On 8 Jan 2001, Eric W. Biederman wrote:
+> Nicolas Noble wrote:
+> [...]
+> As others have told already, this is the ECN problem.
 > 
-> > Zlatko Calusic <zlatko@iskon.hr> writes:> 
-> > > 
-> > > Yes, but a lot more data on the swap also means degraded performance,
-> > > because the disk head has to seek around in the much bigger area. Are
-> > > you sure this is all OK?
-> > 
-> > I don't think we have more data on the swap, just more data has an
-> > allocated home on the swap.
+> > I noticed the same bug. This is very weired, I can send a list of sites
+> > which I can't connect anymore. 
 > 
-> I think Zlatko's point is that because of the extra allocations, we will
-> have worse locality (more seeks etc).
+> You have a list?  Send all of them a message stating that they ought
+> to upgrade their firewalls which cause this problem.  Or they
+> will loose customers/visitors.  Cisco already have an upgrade for them,
+> so fixing is dead easy, and they can then boast compatibility with
+> the latest internet standards.  
+> 
+> If they don't care about linux users, tell them that windows eventually
+> will use ECN too.  They definitely don't want to have a ECN problem when
+> that happens.
 
-Yes that was my concern.
+After upgrading to kernel 2.4.0, I found myself unable to retrieve mail
+from Adelphia's (2-way cable ISP) POP server.  It took several days to
+figure out that _one_ of their routers was configured to block ECN.  After
+bringing this to the attention of their network engineers, I was informed
+that their policy prohibits making any router changes on the basis of one
+trouble report.  The person I spoke with did NOT try to defend their
+setup, but it was made clear that they'll do nothing until Windows breaks.
 
-But in the end I'm not sure. I made two simple tests and haven't found
-any problems with 2.4.0 mm logic (opposed to 2.2.17). In fact, the new
-kernel was faster in the more interesting (make -j32) test.
+If I were packaging a Linux distribution, I'd be sure to have ECN disabled
+by default, FWIW.
 
-Also I have found that new kernel allocates 4 times more swap space
-under some circumstances. That may or may not be alarming, it remains
-to be seen.
+Steve
 
--- 
-Zlatko
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

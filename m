@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281196AbRKEP54>; Mon, 5 Nov 2001 10:57:56 -0500
+	id <S281198AbRKEP7e>; Mon, 5 Nov 2001 10:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281198AbRKEP5p>; Mon, 5 Nov 2001 10:57:45 -0500
-Received: from mail010.mail.bellsouth.net ([205.152.58.30]:52203 "EHLO
-	imf10bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281196AbRKEP5e>; Mon, 5 Nov 2001 10:57:34 -0500
-Message-ID: <3BE6B6E3.9A9176DA@mandrakesoft.com>
-Date: Mon, 05 Nov 2001 10:57:23 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-2mdksmp i686)
-X-Accept-Language: en
+	id <S281199AbRKEP7Y>; Mon, 5 Nov 2001 10:59:24 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:42938 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S281198AbRKEP7K>;
+	Mon, 5 Nov 2001 10:59:10 -0500
+Date: Mon, 5 Nov 2001 10:58:58 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: dalecki@evision.ag
+cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
+        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+In-Reply-To: <3BE676AB.D777C9A0@evision-ventures.com>
+Message-ID: <Pine.GSO.4.21.0111051058070.24894-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: szgyurko@mail.inno.hu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: drivers/net/fealnx.c error
-In-Reply-To: <20011105155137.B28689@morpheus>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Szabolcs Gyurko wrote:
-> 
-> Hi,
-> 
-> there are an error in the 2.4.13 (i think the newest) kernel at the
-> drivers/net/fealnx.c file at the 1818 line. The original line:
-> 
-> static struct pci_device_id fealnx_pci_tbl[] = __devinitdata {
-> 
-> and the fixed line:
-> 
-> static struct pci_device_id fealnx_pci_tbl[] __devinitdata = {
 
-I have this change locally, it will go to Linus when he starts taking
-patches again...
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+On Mon, 5 Nov 2001, Martin Dalecki wrote:
+
+> "Albert D. Cahalan" wrote:
+> 
+> Every BASTARD out there telling the world, that parsing ASCII formatted
+> files
+
+What was your username, again?
 

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269155AbRHLNL4>; Sun, 12 Aug 2001 09:11:56 -0400
+	id <S269154AbRHLNIq>; Sun, 12 Aug 2001 09:08:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269158AbRHLNLg>; Sun, 12 Aug 2001 09:11:36 -0400
-Received: from hera.omc.net ([212.98.78.18]:53000 "EHLO hera.omc.net")
-	by vger.kernel.org with ESMTP id <S269155AbRHLNLa>;
-	Sun, 12 Aug 2001 09:11:30 -0400
-From: "Max Schattauer" <smax@smaximum.de>
-To: linux-kernel@vger.kernel.org
-Date: Sun, 12 Aug 2001 15:11:32 +0200
+	id <S269155AbRHLNIg>; Sun, 12 Aug 2001 09:08:36 -0400
+Received: from druid.if.uj.edu.pl ([149.156.64.221]:5124 "HELO
+	druid.if.uj.edu.pl") by vger.kernel.org with SMTP
+	id <S269154AbRHLNI1>; Sun, 12 Aug 2001 09:08:27 -0400
+Date: Sun, 12 Aug 2001 15:09:21 +0200 (CEST)
+From: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: David Ford <david@blue-labs.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM nuisance
+In-Reply-To: <Pine.LNX.4.33L.0108102347050.3530-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0108121506100.18332-100000@druid.if.uj.edu.pl>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: tun device: File descriptor in bad state(77)
-Message-ID: <3B769CA4.11035.A9DFE2@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
+> No.  The problem is that whenever I change something to
+> the OOM killer I get flamed.
+>
+> Both by the people for whom the OOM killer kicks in too
+> early and by the people for whom the OOM killer now doesn't
+> kick in.
+>
+> I haven't got the faintest idea how to come up with an OOM
+> killer which does the right thing for everybody.
 
-I graded up from kernel 2.4.5 to 2.4.8 and now have trouble with 
-vtund 2.5b1 and tun 1.1. 
+How about adding some sort of per-process priority (i.e. a la nice) which
+would determine the order in which they would be OOMed? Then we could
+safely run X with a kigh KillMe and Netscape with an even higher KillMe
+and we would probably avoid the something useing too much memory let's
+kill root's shell...
 
-vtund[532]: Session st_sm[217.230.44.100:1577] opened
-vtund[532]: Can't allocate tun device. File descriptor in bad state(77)
-vtund[532]: Session st_sm closed
+[i.e. if a lower KillMe proc runs out of memory we kill off the process
+with the highest KillMe using most mem and can safely give this mem to the
+proc which just ran out]
 
-Also
+MaZe.
 
-root:~# cat /dev/net/tun
-cat: /dev/net/tun: File descriptor in bad state
-
-Tried to recompile both packages and created a new device but 
-without effect.
-
-Best regards,
-
-Max

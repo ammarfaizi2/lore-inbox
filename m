@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbTEIQdg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 12:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbTEIQdf
+	id S263323AbTEIQhY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 12:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263327AbTEIQhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 12:33:35 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:63383 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263310AbTEIQde (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 12:33:34 -0400
-Date: Fri, 9 May 2003 01:08:08 -0700
-From: Greg KH <greg@kroah.com>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030509080808.GA6254@kroah.com>
-References: <200305071507_MC3-1-37CF-FE32@compuserve.com> <1052387912.4849.43.camel@pc-16.office.scali.no> <20030508095943.B22255@devserv.devel.redhat.com> <1052398474.4849.57.camel@pc-16.office.scali.no> <20030508135839.A6698@infradead.org> <3EBAAB9D.5000508@shemesh.biz> <20030508201509.A19496@infradead.org> <20030509074208.GA14991@actcom.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030509074208.GA14991@actcom.co.il>
-User-Agent: Mutt/1.4.1i
+	Fri, 9 May 2003 12:37:23 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4368 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263323AbTEIQfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 12:35:41 -0400
+Date: Fri, 9 May 2003 09:48:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Jamie Lokier <jamie@shareable.org>, Roland McGrath <roland@redhat.com>,
+       Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 uaccess to fixmap pages
+In-Reply-To: <3EBBD982.9070006@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0305090944420.9705-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 10:42:08AM +0300, Muli Ben-Yehuda wrote:
+
+On Fri, 9 May 2003, Dave Hansen wrote:
 > 
-> For example, a rogue process is calling settimeofday() on your router
-> once a month(!). How are you going to find it? There's no LSM hook for
-> settimeofday()
+> We've been playing with patches in the -mjb tree which make PAGE_OFFSET
+> and TASK_SIZE move to some weird values.  I have it to the point where I
+> could do a 3.875:0.125 user:kernel split.
 
-Yes there is.  Check the capable hook for CAP_SYS_TIME.  LSM modules can
-get that info quite easily.
+That's still not "weird" in the current sense.
 
-thanks,
+We've always (well, for a long time) been able to handle a TASK_SIZE that 
+has a 111..00000 pattern - and in fact we used to _depend_ on that kind of 
+pattern, because macros like "virt_to_phys()" were simple bitwise-and 
+operations. There may be some code in the kernel that still depends on 
+that kind of bitwise operation with TASK_SIZE.
 
-greg k-h
+Your 3.875:0.125 split still fits that pattern, and thus doesn't create 
+any new cases.
+
+In contrast, a TASK_SIZE of 0xc1000000 can no longer just "mask off" the 
+kernel address bits. And _that_ is what I meant with "strange value".
+
+		Linus
+

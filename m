@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282122AbRKWLYv>; Fri, 23 Nov 2001 06:24:51 -0500
+	id <S282121AbRKWL1B>; Fri, 23 Nov 2001 06:27:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282121AbRKWLYl>; Fri, 23 Nov 2001 06:24:41 -0500
-Received: from mail.mbi-berlin.de ([194.95.11.12]:12008 "EHLO
-	mail.mbi-berlin.de") by vger.kernel.org with ESMTP
-	id <S282127AbRKWLY2>; Fri, 23 Nov 2001 06:24:28 -0500
-Date: Fri, 23 Nov 2001 12:24:27 +0100
-From: Viktor Rosenfeld <rosenfel@informatik.hu-berlin.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15-greased-turkey ???
-Message-ID: <20011123122427.A1441@bart>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E167C3O-00028a-00@lttit>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
-Content-Disposition: inline
-In-Reply-To: <E167C3O-00028a-00@lttit>
-User-Agent: Mutt/1.3.22i
-X-GPG-Key: http://www.informatik.hu-berlin.de/~rosenfel/public_key.asc
+	id <S282127AbRKWL0w>; Fri, 23 Nov 2001 06:26:52 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:35542 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S282121AbRKWL0k>; Fri, 23 Nov 2001 06:26:40 -0500
+From: 520047054719-0001@t-online.de (Oliver Neukum)
+To: Christoph Hellwig <hch@ns.caldera.de>
+Subject: Re: [PATCH] Remove needless BKL from release functions
+Date: Fri, 23 Nov 2001 12:24:32 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Rick Lindsley <ricklind@us.ibm.com>
+In-Reply-To: <200111231047.fANAlA105874@ns.caldera.de>
+In-Reply-To: <200111231047.fANAlA105874@ns.caldera.de>
+MIME-Version: 1.0
+Message-Id: <01112312243201.00804@argo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Freitag 23 November 2001 11:47 schrieb Christoph Hellwig:
+> In article <Pine.SOL.4.33.0111231106530.7403-100000@sun3.lrz-muenchen.de> 
+you wrote:
+> > While this is doubtlessly true, please don't do things like removing the
+> > lock from interfaces like the call to open() in the input subsystem.
+> > People may depend on the lock being held there. Having open() under BKL
+> > simplifies writing USB device drivers.
+>
+> Beeing completly single-threaded also simplifies writing unclean drivers..
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is true. However USB drivers have to cope with devices becoming 
+unplugged at all times. The races this produces are not nice.
 
-Tim Tassonis wrote:
+> BTW, I've attached a patch that fixes the largest input races (against
+> 2.4.6), I don't see how to change the total lack of locking for other data
+> structures without an API change, though.
 
-> #define UTS_RELEASE "2.4.15-greased-turkey"
->=20
-> What's this all about??
+This looks very good. Could you get this to the maintainer ?
 
-A Thanksgiving joke?
+	Regards
+		Oliver
 
-Viktor
---=20
-Viktor Rosenfeld
-WWW: http://www.informatik.hu-berlin.de/~rosenfel/
-
---sdtB3X0nJg68CQEu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7/jHrkWI06CMxQ0ARAthjAJ9SUMagOCp30D8ivUCb4e9KBKsjxQCfWFwk
-WAp5jbkod2DHK7nzrdFtjdk=
-=oGl4
------END PGP SIGNATURE-----
-
---sdtB3X0nJg68CQEu--

@@ -1,53 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130163AbQLIAbe>; Fri, 8 Dec 2000 19:31:34 -0500
+	id <S131231AbQLIAcE>; Fri, 8 Dec 2000 19:32:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131560AbQLIAbZ>; Fri, 8 Dec 2000 19:31:25 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33043 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130163AbQLIAbG>; Fri, 8 Dec 2000 19:31:06 -0500
-Subject: Re: Pthreads, linux, gdb, oh my! (fwd)
-To: peterb@telerama.com (Peter Berger)
-Date: Sat, 9 Dec 2000 00:02:18 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.BSI.4.02.10012081344430.26743-100000@frogger.telerama.com> from "Peter Berger" at Dec 08, 2000 02:43:30 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130471AbQLIAb6>; Fri, 8 Dec 2000 19:31:58 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:40714 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131560AbQLIAbm>; Fri, 8 Dec 2000 19:31:42 -0500
+Date: Fri, 8 Dec 2000 17:56:48 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Mark Vojkovich <mvojkovich@valinux.com>, Andi Kleen <ak@suse.de>,
+        Rainer Mager <rmager@vgkk.com>, linux-kernel@vger.kernel.org
+Subject: Re: Signal 11
+Message-ID: <20001208175648.A6588@vger.timpanogas.org>
+In-Reply-To: <20001208161645.A6075@vger.timpanogas.org> <Pine.LNX.4.30.0012082224110.1210-100000@imladris.demon.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E144XT2-0004fH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.30.0012082224110.1210-100000@imladris.demon.co.uk>; from dwmw2@infradead.org on Fri, Dec 08, 2000 at 10:24:55PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So you're saying that you got this to work?  Because I certainly couldn't
-> get it working with a higher version either.  I would really love a
-
-I read straight down it anf realised you referenced obsolete versions of
-tg->created and thus broadcast incorrectly
-
-> I apologize for my ignorance -- I frankly don't know the intricicies of
-> linux kernel development; all I know is I wrote what might be the simplest
-> of all possible concurrency tests and it is failing.  If someone could
-> point me to a version or combination of linux and glibc where it doesn't
-> fail, I'd be happy.
-
-The way it works on the Linux side for threads is
 
 
-Kernel provides
-		Shared resources
-		clone() - fork with sharing of files/memory etc
+I'll try.
 
-glibc provides
-		POSIX semantics
-		pthreads API
-		thread locking on top of its own spin locks and kernel locks
+Jeff
 
 
-
-Alan
-
+On Fri, Dec 08, 2000 at 10:24:55PM +0000, David Woodhouse wrote:
+> On Fri, 8 Dec 2000, Jeff V. Merkey wrote:
+> 
+> > I have not seen it on UP systems either.  I only see it on SMP systems.
+> > After trying very hard last night, I was able to get my 4 x PPro system to
+> > do it with 2.4.0-12.  It seems related to loading in some way.  If you
+> > have more than two processors, the loading is less since there's more
+> > processors, and for whatever reason, it makes it harder to produce
+> > whatever race condition is causing it.  I can get it to happen
+> > pretty easily on a 2 x PII system.
+> 
+> Can you reproduce it with bcrl's patch below:
+> 
+> Index: mm/memory.c
+> ===================================================================
+> RCS file: /net/passion/inst/cvs/linux/mm/memory.c,v
+> retrieving revision 1.2.2.40
+> diff -u -r1.2.2.40 memory.c
+> --- mm/memory.c	2000/12/05 13:33:39	1.2.2.40
+> +++ mm/memory.c	2000/12/08 22:24:09
+> @@ -860,6 +860,7 @@
+>  	/*
+>  	 * Ok, we need to copy. Oh, well..
+>  	 */
+> +	set_pte(page_table, pte);
+>  	spin_unlock(&mm->page_table_lock);
+>  	new_page = page_cache_alloc();
+>  	if (!new_page)
+> @@ -870,6 +871,12 @@
+>  	 * Re-check the pte - we dropped the lock
+>  	 */
+>  	if (pte_same(*page_table, pte)) {
+> +		/* We are changing the pte, so get rid of the old
+> +		 * one to avoid races with the hardware, this really
+> +		 * only affects the accessed bit here.
+> +		 */
+> +		pte = ptep_get_and_clear(page_table);
+> +
+>  		if (PageReserved(old_page))
+>  			++mm->rss;
+>  		break_cow(vma, old_page, new_page, address, page_table);
+> @@ -1216,12 +1223,14 @@
+>  		return do_swap_page(mm, vma, address, pte,
+> pte_to_swp_entry(entry), write_access);
+>  	}
+> 
+> +	entry = ptep_get_and_clear(pte);
+>  	if (write_access) {
+>  		if (!pte_write(entry))
+>  			return do_wp_page(mm, vma, address, pte, entry);
+> 
+>  		entry = pte_mkdirty(entry);
+>  	}
+> +
+>  	entry = pte_mkyoung(entry);
+>  	establish_pte(vma, address, pte, entry);
+>  	spin_unlock(&mm->page_table_lock);
+> 
+> 
+> -- 
+> dwmw2
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

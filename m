@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265100AbUEYVbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265101AbUEYVcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265100AbUEYVbi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 17:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUEYVbi
+	id S265101AbUEYVcM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 17:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUEYVcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 17:31:38 -0400
-Received: from mail.ccur.com ([208.248.32.212]:20491 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S265100AbUEYVb3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 17:31:29 -0400
-Date: Tue, 25 May 2004 17:31:28 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: markh@compro.net, linux-kernel@vger.kernel.org
-Subject: Re: mlockall and mmap of IO devices don't mix
-Message-ID: <20040525213128.GA26323@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20040525124715.5f7e61b6.akpm@osdl.org>
+	Tue, 25 May 2004 17:32:12 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:12807 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S265101AbUEYVcI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 17:32:08 -0400
+Date: Tue, 25 May 2004 23:32:05 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bad X-performance on 2.6.6 & 2.6.7-rc1 on x86-64
+Message-ID: <20040525213205.GB28395@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1ZqbC-5Gl-13@gated-at.bofh.it> <m3r7t9d3li.fsf@averell.firstfloor.org> <20040525122659.395783f4@highlander.Home.LAN> <20040525123636.GA13817@colin2.muc.de> <1085520021.1393.4168.camel@duergar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20040525124715.5f7e61b6.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1085520021.1393.4168.camel@duergar>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2004 at 03:47:15PM -0400, Andrew Morton wrote:
+On Tue, May 25, 2004 at 05:20:22PM -0400, Stan Bubrouski wrote:
+> I can confirm that xine with alsa-mmap option set does cuase strange
+> behaviour, though I notice it mostly as audio and video getting out of
+> sync when playing videos.  I've noticed this behaviour since I started
+> doing weekly xine CVS builds.  I've never bothered reporting it however,
+> I just turned off the option... which leads me to my question, what is
+> the advantage of using alsa-mmap in an app if it is used correctly?
 
->>>>> 2.6.0-test6: the use of mlockall(2) in a process that has mmap(2)ed
->>>>> the registers of an IO device will hang that process uninterruptibly.
->>>>> The task runs in an infinite loop in get_user_pages(), invoking
->>>>> follow_page() forever.
-
->>>> I know this is an old thread but can anyone tell me if this problem is
->>>> resolved in the current 2.6.6 kernel? 
-
->>> There's an utterly ancient patch in -mm which might fix this.
-
-> That patch had its first birthday last week.  I wrote it in response to
-> some long-forgotten problem, failed to changelog it at the time then forgot
-> why I wrote it.  I kept it in the hope that I'd remember why I wrote it.  I
-> subsequently wrote a best-effort changelog but am unconvinced by it.  Ho
-> hum.
-> 
-> Let me genuflect a bit.  I guess we can be reasonably confident it won't
-> break anything.
-
-How about this for a ChangeLog (also created from memory and from some
-of your inlined comments):
-
-    Do not follow pagetables for VM_IO regions, they might
-    not have pageframes.
-
-    Discovered when an mlockall'ed program tried to mmap
-    some device's registers (using /dev/mem); the program
-    hangs on the mmap, looping forever in get_user_pages(),
-    trying to do a follow_page() that never succeeds.
+ Could for completness test mplayer with alsa-mmap, too? 
+Its '-ao alsa:mmap' option.
 
 -- 
-Joe
-"Money can buy bandwidth, but latency is forever" -- John Mashey
+Tomasz Torcz                        To co nierealne - tutaj jest normalne.
+zdzichu@irc.-nie.spam-.pl          Ziomale na ¿ycie maj± tu patenty specjalne.
+

@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261333AbSJULwE>; Mon, 21 Oct 2002 07:52:04 -0400
+	id <S261344AbSJUL5y>; Mon, 21 Oct 2002 07:57:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261335AbSJULwE>; Mon, 21 Oct 2002 07:52:04 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:55219 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261333AbSJULwD>; Mon, 21 Oct 2002 07:52:03 -0400
-Subject: Re: [PATCH] work around duff ABIs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Alexander Viro <viro@math.psu.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk>
-References: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 13:13:39 +0100
-Message-Id: <1035202419.27318.60.camel@irongate.swansea.linux.org.uk>
+	id <S261345AbSJUL5x>; Mon, 21 Oct 2002 07:57:53 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:2038 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S261344AbSJUL5x>;
+	Mon, 21 Oct 2002 07:57:53 -0400
+Date: Mon, 21 Oct 2002 08:03:55 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: eepro100 -- Sending a multicast list set command from a timer routine
+Message-ID: <20021021120355.GA4065@www.kroptech.com>
+References: <buo4rbgw4os.fsf@mcspd15.ucom.lsi.nec.co.jp>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <buo4rbgw4os.fsf@mcspd15.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-20 at 05:31, Matthew Wilcox wrote:
+On Mon, Oct 21, 2002 at 05:56:35PM +0900, Miles Bader wrote:
+> Starting with 2.5.44 I'm getting tons of messages like the following
+> printed on the console:
 > 
-> *sigh*.  i hate this kind of bullshit.  please, don't anyone ever try
-> to pass 64-bit args through the syscall interface again.
+>    eth0: Sending a multicast list set command from a timer routine, m=0, j=50143, l=49360.
 
-Please bury this crap in arch/hppa/
+Same here... 
 
+--Adam
 

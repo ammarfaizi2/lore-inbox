@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265548AbUGGWdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265574AbUGGWfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265548AbUGGWdY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 18:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265590AbUGGWdY
+	id S265574AbUGGWfg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 18:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265590AbUGGWfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 18:33:24 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:27293 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S265548AbUGGWdX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 18:33:23 -0400
-Date: Wed, 7 Jul 2004 18:33:03 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6-bk] aio not returning error code(?)
-Message-ID: <20040707223302.GA6513@kvack.org>
-References: <Pine.LNX.4.60.0407071430170.28653@hermes-1.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Jul 2004 18:35:36 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49536 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265574AbUGGWf1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 18:35:27 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "John W. Ross" <programming@johnwross.com>
+Subject: Re: Increasing IDE Channels
+Date: Thu, 8 Jul 2004 00:41:07 +0200
+User-Agent: KMail/1.5.3
+References: <001801c46470$94116820$0a01a8c0@jwrdesktop>
+In-Reply-To: <001801c46470$94116820$0a01a8c0@jwrdesktop>
+Cc: <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0407071430170.28653@hermes-1.csi.cam.ac.uk>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200407080041.07508.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 07, 2004 at 02:42:44PM +0100, Anton Altaparmakov wrote:
-> --- bklinux-2.6/fs/aio.c	2004-07-01 11:19:35.000000000 +0100
-> +++ bklinux-2.6/fs/aio.c.new	2004-07-07 14:26:19.445631304 +0100
-> @@ -1086,7 +1086,7 @@ int fastcall io_submit_one(struct kioctx
->  	if (likely(-EIOCBQUEUED == ret))
->  		return 0;
->  	aio_complete(req, ret, 0);	/* will drop i/o ref to req */
-> -	return 0;
-> +	return ret;
 
-That's wrong: you now get 2 results for the same operation -- an error on 
-the submit, and an event with a return code.  In order for the user code 
-to do the right thing, you must only get one or the other.  If io_submit 
-fails for a particular iocb, there must be no event returned.
+[ next time please use/cc linux-ide ML ]
 
-		-ben
--- 
-"Time is what keeps everything from happening all at once." -- John Wheeler
+On Thursday 08 of July 2004 00:20, John W. Ross wrote:
+> Greetings,
+
+Hi,
+
+> Changed ide.h:
+>
+> IDE_NR_PORTS  (10)
+> to
+> IDE_NR_PORTS  (12)
+
+You've changed the wrong define.  Bump MAX_HWIFS in <asm/ide.h> instead.
+
+> 1.) Could someone please explain why there is a limit of 10 interfaces (is
+> this something that I shouldn't even try)?
+
+- there are no more major numbers assigned for IDE
+- for majority people of people it is enough
+- IDE driver uses static data structures so higher number of interfaces
+  means more memory wasted (if you don't use all of them of course)
+- nobody cared
+
+> 2.)What did I miss on moving to 12?
+
+It should work with MAX_HWIFS corrected.
+
+> 3.) I could understand a limit of 12, as hda, hdb, hdc... hdw, hdx, would
+> only allow a possible 13th interface, but at 14 you would totally exhaust
+> the alphabet, but is that still relevant with the newer method of
+> enumerating partitions?
+
+What newer method are you talking about?
+
+Regards,
+Bartlomiej
+

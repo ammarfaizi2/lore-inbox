@@ -1,30 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289191AbSBJCDy>; Sat, 9 Feb 2002 21:03:54 -0500
+	id <S289172AbSBJCSA>; Sat, 9 Feb 2002 21:18:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289185AbSBJCDf>; Sat, 9 Feb 2002 21:03:35 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:50009 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S289172AbSBJCDa>; Sat, 9 Feb 2002 21:03:30 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200202100203.g1A23To32387@devserv.devel.redhat.com>
-Subject: Re: [V4L] [PATCH/RFC] videodev.[ch] redesign
-To: video4linux-list@redhat.com
-Date: Sat, 9 Feb 2002 21:03:29 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org (Kernel List)
-In-Reply-To: <20020209194602.A23061@bytesex.org> from "Gerd Knorr" at Feb 09, 2002 07:46:02 PM
+	id <S289198AbSBJCRt>; Sat, 9 Feb 2002 21:17:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62222 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289172AbSBJCRc>; Sat, 9 Feb 2002 21:17:32 -0500
+Subject: Re: ALI 15X3 DMA Freeze
+To: kernel@iggy.triode.net.au (Linux Kernel Mailing List)
+Date: Sun, 10 Feb 2002 02:30:59 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020210124207.C5191@iggy.triode.net.au> from "Linux Kernel Mailing List" at Feb 10, 2002 12:42:07 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16Zjlb-0000Bh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It also provides a ioctl wrapper function which handles copying the
-> ioctl args from/to userspace, so we have this at one place can drop all
-> the copy_from/to_user calls within the v4l device driver ioctl handlers.
-> 
-> Comments?
+> I'm using kernel 2.4.18-pre9, which has a problem when I switch DMA on 
+> the IDE hard drive. With DMA enabled, I cannot complete a kernel
+> compile without the machine locking up. The motherboard is an
 
-I'm not sure 2.4 should change but for 2.5 this is absolutely bang on
-perfect
+Start by picking up the ide updates either from the -ac kernel or from
+Andre's web site. 

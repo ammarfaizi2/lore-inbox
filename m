@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262675AbUKLXlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbUKLXlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262675AbUKLXlx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 18:41:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbUKLXlR
+	id S262687AbUKLXlw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 18:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbUKLXdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 18:41:17 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:10115 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262709AbUKLXWy convert rfc822-to-8bit
+	Fri, 12 Nov 2004 18:33:31 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:28045 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262674AbUKLXWi convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 18:22:54 -0500
+	Fri, 12 Nov 2004 18:22:38 -0500
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI fixes for 2.6.10-rc1
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <11003017202596@kroah.com>
+In-Reply-To: <11003017202524@kroah.com>
 Date: Fri, 12 Nov 2004 15:22:00 -0800
-Message-Id: <11003017203241@kroah.com>
+Message-Id: <1100301720853@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,51 +23,39 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2091.1.21, 2004/11/12 14:11:07-08:00, hannal@us.ibm.com
+ChangeSet 1.2091.1.19, 2004/11/12 14:10:24-08:00, hannal@us.ibm.com
 
-[PATCH] mcpn765.c: replace pci_find_device with pci_get_device
+[PATCH] sandpoint.c: replace pci_find_device with pci_get_device
 
-As pci_find_device is going away I've replaced it with pci_get_device
-and pci_dev_put.
+As pci_find_device is going away I've replaced it with pci_get_device.
 
 
 Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- arch/ppc/platforms/mcpn765.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+ arch/ppc/platforms/sandpoint.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
 
-diff -Nru a/arch/ppc/platforms/mcpn765.c b/arch/ppc/platforms/mcpn765.c
---- a/arch/ppc/platforms/mcpn765.c	2004-11-12 15:09:26 -08:00
-+++ b/arch/ppc/platforms/mcpn765.c	2004-11-12 15:09:27 -08:00
-@@ -185,7 +185,7 @@
- 	struct pci_dev	*dev;
- 	u_char		c;
+diff -Nru a/arch/ppc/platforms/sandpoint.c b/arch/ppc/platforms/sandpoint.c
+--- a/arch/ppc/platforms/sandpoint.c	2004-11-12 15:09:42 -08:00
++++ b/arch/ppc/platforms/sandpoint.c	2004-11-12 15:09:42 -08:00
+@@ -575,7 +575,7 @@
+ static void
+ sandpoint_ide_probe(void)
+ {
+-	struct pci_dev *pdev = pci_find_device(PCI_VENDOR_ID_WINBOND,
++	struct pci_dev *pdev = pci_get_device(PCI_VENDOR_ID_WINBOND,
+ 			PCI_DEVICE_ID_WINBOND_82C105, NULL);
  
--	if ((dev = pci_find_device(PCI_VENDOR_ID_VIA,
-+	if ((dev = pci_get_device(PCI_VENDOR_ID_VIA,
- 				   PCI_DEVICE_ID_VIA_82C586_0,
- 				   NULL)) == NULL) {
- 		printk("No VIA ISA bridge found\n");
-@@ -209,8 +209,8 @@
- 	pci_write_config_dword(dev, 0x54, 0);
- 	pci_write_config_byte(dev, 0x58, 0);
+ 	if (pdev) {
+@@ -584,6 +584,7 @@
+ 		sandpoint_ide_ctl_regbase[0]=pdev->resource[1].start;
+ 		sandpoint_ide_ctl_regbase[1]=pdev->resource[3].start;
+ 		sandpoint_idedma_regbase=pdev->resource[4].start;
++		pci_dev_put(dev);
+ 	}
  
--
--	if ((dev = pci_find_device(PCI_VENDOR_ID_VIA,
-+	pci_dev_put(dev);
-+	if ((dev = pci_get_device(PCI_VENDOR_ID_VIA,
- 				   PCI_DEVICE_ID_VIA_82C586_1,
- 				   NULL)) == NULL) {
- 		printk("No VIA ISA bridge found\n");
-@@ -225,6 +225,7 @@
- 	pci_read_config_byte(dev, 0x40, &c);
- 	c |= 0x03;
- 	pci_write_config_byte(dev, 0x40, c);
-+	pci_dev_put(dev);
- 
- 	return;
- }
+ 	sandpoint_ide_ports_known = 1;
 

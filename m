@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264836AbSLBSuU>; Mon, 2 Dec 2002 13:50:20 -0500
+	id <S264844AbSLBSwQ>; Mon, 2 Dec 2002 13:52:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264839AbSLBSuU>; Mon, 2 Dec 2002 13:50:20 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:48135
+	id <S264848AbSLBSwQ>; Mon, 2 Dec 2002 13:52:16 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:54535
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264836AbSLBSuT>; Mon, 2 Dec 2002 13:50:19 -0500
+	with ESMTP id <S264844AbSLBSwP>; Mon, 2 Dec 2002 13:52:15 -0500
 Subject: Re: [PATCH] set_cpus_allowed() for 2.4
 From: Robert Love <rml@tech9.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Christoph Hellwig <hch@sgi.com>, marcelo@connectiva.com.br.munich.sgi.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3DEB9761.50503@pobox.com>
-References: <20021202192652.A25938@sgi.com>  <3DEB9761.50503@pobox.com>
+To: Christoph Hellwig <hch@sgi.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       marcelo@connectiva.com.br.munich.sgi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20021202201101.A26164@sgi.com>
+References: <20021202192652.A25938@sgi.com>
+	 <1919608311.1038822649@[10.10.2.3]>  <20021202201101.A26164@sgi.com>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1038855468.860.12.camel@phantasy>
+Message-Id: <1038855585.895.16.camel@phantasy>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.0 
-Date: 02 Dec 2002 13:57:48 -0500
+Date: 02 Dec 2002 13:59:45 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-02 at 12:24, Jeff Garzik wrote:
+On Mon, 2002-12-02 at 20:11, Christoph Hellwig wrote:
 
-> Adding to that, it is also used for backporting Ingo's workqueue stuff, 
-> which is useful and completely separate from the O(1) scheduler.
+> > Marcelo, what are the chances of getting this merged into mainline
+> > in the 2.4.20 timeframe?
+> 
+> Ingo vetoed it.
 
-That is why I back-ported it - hch and you mentioned it was needed for
-workqueues :)
+I did too.  I know the distributors (including the one I work for) want
+it, but its a big change and very much a 2.5 thing.
 
-It also simplifies the processor affinity syscalls (same code I did for
-2.5, in fact), which I plan on submitting to Marcelo soon.
+I would not be against tuning the 2.4 scheduler, though.  But the 
+changes to architecture-dependent code mean it may not even work on one
+or two architectures (i.e. cris, maybe?) and so I am against the whole
+O(1) scheduler and all of that supporting code for 2.4 proper.
 
 	Robert Love
 

@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312357AbSDSMZQ>; Fri, 19 Apr 2002 08:25:16 -0400
+	id <S312358AbSDSNDe>; Fri, 19 Apr 2002 09:03:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312411AbSDSMZQ>; Fri, 19 Apr 2002 08:25:16 -0400
-Received: from pat.uio.no ([129.240.130.16]:5813 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S312357AbSDSMZP>;
-	Fri, 19 Apr 2002 08:25:15 -0400
+	id <S312465AbSDSNDb>; Fri, 19 Apr 2002 09:03:31 -0400
+Received: from 127.141.hh1.ip.foni.net ([212.7.141.127]:2308 "HELO
+	debian.heim.lan") by vger.kernel.org with SMTP id <S312460AbSDSNCT>;
+	Fri, 19 Apr 2002 09:02:19 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo
-To: "Jehanzeb Hameed" <u990056@giki.edu.pk>
-Subject: Re: regarding NFS
-Date: Fri, 19 Apr 2002 14:24:57 +0200
+From: Christian Schoenebeck <christian.schoenebeck@epost.de>
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
+Subject: Re: power off (again)
+Date: Fri, 19 Apr 2002 14:58:21 +0200
 X-Mailer: KMail [version 1.3.2]
-Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0204181338050.19147-100000@penguin.transmeta.com> <shs7kn4m3mk.fsf@charged.uio.no> <004801c1e740$3edb09b0$e53ca8c0@hostel6.resnet.giki.edu.pk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020418201220.C6D6247B1@debian.heim.lan> <1019163766.6743.8.camel@aurora>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16yXRh-0005k9-00@charged.uio.no>
+Message-Id: <20020419123026.A802D47B4@debian.heim.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19. April 2002 03:19, Jehanzeb Hameed wrote:
-> In inode.c inside code for NFS says :
->  inode->i_data.a_ops = &nfs_file_aops;
->
-> it's still not  "inode->i_mapping->a_ops "!!!!!!
->
->  it should, somewhere, assign something to  inode->i_mapping->a_ops ?????
+Am Donnerstag, 18. April 2002 23:02 schrieb Trever L. Adams:
+> Just out of curiosity, have you changed your power off scripts to
+> reflect: "halt -p". 
 
-No. inode->i_mapping is initialized by the VFS, not the NFS client 
-filesystem. (see linux/fs/inode.c:clean_inode())
-
-Cheers,
-  Trond
+Yes, this is not the problem

@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262596AbTJIVrl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 17:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTJIVrl
+	id S262600AbTJIVrp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 17:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTJIVrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 17:47:41 -0400
-Received: from ns.schottelius.org ([213.146.113.242]:1408 "HELO
+	Thu, 9 Oct 2003 17:47:45 -0400
+Received: from ns.schottelius.org ([213.146.113.242]:1664 "HELO
 	flapp.schottelius.org") by vger.kernel.org with SMTP
-	id S262596AbTJIVrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262600AbTJIVrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 9 Oct 2003 17:47:39 -0400
-Date: Thu, 9 Oct 2003 20:16:17 +0200
+Date: Thu, 9 Oct 2003 19:27:10 +0200
 From: Nico Schottelius <nico-kernel@schottelius.org>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Memory Issues (2.6 and later)
-Message-ID: <20031009181617.GB7591@schottelius.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: keyboard rate changed in 2.6.0test5/6 - why / how?
+Message-ID: <20031009172710.GA7591@schottelius.org>
 Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	linux-kernel@vger.kernel.org
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
 Content-Disposition: inline
 X-MSMail-Priority: gibbet nicht.
 X-Mailer: cat << EOF | netcat mailhost 110
@@ -30,31 +30,36 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---TRYliJ5NKNqkz5bu
+--+QahgC5+KEYLbs62
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hello!
 
-Once again I have to report: Linux 2.6 seems to have problems managing
-memory.
-After working on a laptop system (with Mozilla, X 4.3.99, Opera, 4xterms)
-for some hours the system becomes very slow.
-It looks like the system has no memery left, partly programs get
-killed (Out of Memory) although there is plenty memory left.
+There is a difference (subjective) feeling between 2.6.0test4 kernels
+and 2.6.0test6 kernels:
 
-I tried to kill processes to see whether one processes has a memory leak,
-but that's not the case.
+When I press one key and wait how fast it repeats printing it differs
+between those kernels.
 
-I even tried to kill all processes and restart everything (with sysrg+k)
-but this didn't show any success.
+test4:
+   very fast, very smooth. I like that. it's like it latter 2.5 series
 
-Any ideas where the problem is?
+test6:
+   more or less fast; like in 2.4 series.
+
+Can you tell me what you changed and howto regain this smooth handling from
+test4?
+
+I don't think kbdrate will be the right tools, as the difference was seen/
+recognizable on console and under X.
+
+Have a nice day,
 
 Nico
 
-ps: please CC me again, not subscribed.
+ps: please CC me, I am not subscribed to the lkml.
 
 --=20
 quote:   there are two time a day you should do nothing: before 12 and afte=
@@ -65,16 +70,16 @@ pgp:     new id: 0x8D0E27A4 | ftp.schottelius.org/pub/family/nico/pgp-key.n=
 ew
 url:     http://nerd-hosting.net - domains for nerds (from a nerd)
 
---TRYliJ5NKNqkz5bu
+--+QahgC5+KEYLbs62
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/haXxzGnTqo0OJ6QRAm+FAKDgT0GShxau3XRysV+I7u6gqf/gggCg1rWw
-jxMjG9XgBoU7Z94LVkACLCw=
-=hM11
+iD8DBQE/hZpuzGnTqo0OJ6QRArxmAJ0SQBRhjwE9+1X885gZhaFe0pdPNACfVEXb
+onnwyz1N679za1TbwRzB968=
+=WSzP
 -----END PGP SIGNATURE-----
 
---TRYliJ5NKNqkz5bu--
+--+QahgC5+KEYLbs62--

@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263099AbSIPVm4>; Mon, 16 Sep 2002 17:42:56 -0400
+	id <S263143AbSIPVw1>; Mon, 16 Sep 2002 17:52:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263113AbSIPVmz>; Mon, 16 Sep 2002 17:42:55 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:6163 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id <S263099AbSIPVmz>; Mon, 16 Sep 2002 17:42:55 -0400
-Date: Mon, 16 Sep 2002 23:51:29 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-To: "David S. Miller" <davem@redhat.com>
-cc: akropel1@rochester.rr.com, linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: Streaming DMA mapping question
-In-Reply-To: <20020916.135606.107746701.davem@redhat.com>
-Message-ID: <Pine.LNX.4.21.0209162342480.16996-100000@notebook.diehl.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263145AbSIPVw1>; Mon, 16 Sep 2002 17:52:27 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:9229 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S263143AbSIPVw1>;
+	Mon, 16 Sep 2002 17:52:27 -0400
+Message-Id: <200209162157.g8GLvPO21115@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+cc: cliffw@osdl.org
+Subject: Re: contest v0.30 
+In-Reply-To: Message from Con Kolivas <conman@kolivas.net> 
+   of "Tue, 17 Sep 2002 00:46:03 +1000." <1032187563.3d85eeabbdf77@kolivas.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 16 Sep 2002 14:57:25 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Sep 2002, David S. Miller wrote:
-
->    From: Martin Diehl <lists@mdiehl.de>
->    Date: Mon, 16 Sep 2002 23:06:35 +0200 (CEST)
->    
->    Wasn't there a patch submitted which suggested to add pci_dma_prep_*()
->    calls in order to sync the cpu-driven changes back to the bus? I'm asking
->    because I'm dealing with a driver that needs to reuse streaming pci maps.
->    
-> Yes, basically this is what must happen.
 > 
-> If someone would code up a patch that includes the MIPS
-> implementation, adds NOP implementations to every other asm/pci.h file
-> and updates the Documentation/DMA-mapping.txt file appropriately,
-> I'll probably just apply the patch and merge it upstream immediately.
+> 
+> I've updated the "contest" responsiveness benchmark with many code cleanups by
+> Rik Van Riel, and a more comprehensive readme. The actual benchmarks have not
+> changed from v0.22 onwards. Previous versions were all slightly different
+> because of bugs in the code. You can compare like with like from now on. Please
+> don't use this to compare different hardware; it is unhelpful and the results
+> will only confuse. Use it to compare kernels on the same hardware. I guess it
+> could be used to compare filesystems (eg ext3 v reiser) with respect to the
+> system maintaining responsiveness, but noone's attempted that yet. If anyone's
+> got any other novel uses I'd love to hear them.
+> 
+> It now has a homepage:
+> http://contest.kolivas.net
+> 
+> Please feel free to send me any comments, questions, suggestions
+> Con Kolivas
+> -
 
-Ok, thanks. The MIPS thing is far beyond my coverage anyway. Seems I just 
-gonna stay with the my dummy __pci_dma_prep_single() simply to remind me
-of the missing api call. The driver is i86-only, so it's a non-issue...
+It looks neat, and i'd like to add it to the STP tests. 
+I noticed you have hardcoded the '-j 4' 
+Wouldn't it make more sense to adjust that to say, number_of_cpus * 2
+or something?
+cliffw
 
-Martin
+
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
 

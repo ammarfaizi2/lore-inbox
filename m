@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264218AbTICSXe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264216AbTICSWn
+	id S264353AbTICSns (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 14:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbTICSmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:22:43 -0400
-Received: from 24-193-66-245.nyc.rr.com ([24.193.66.245]:32131 "EHLO
-	siri.morinfr.org") by vger.kernel.org with ESMTP id S264218AbTICSWP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:22:15 -0400
-Date: Wed, 3 Sep 2003 14:23:17 -0400
-From: Guillaume Morin <guillaume@morinfr.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: James Clark <jimwclark@ntlworld.com>, linux-kernel@vger.kernel.org
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-Message-ID: <20030903182316.GH905@siri.morinfr.org>
-Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
-	James Clark <jimwclark@ntlworld.com>, linux-kernel@vger.kernel.org
-References: <200309031850.14925.jimwclark@ntlworld.com> <Pine.LNX.4.10.10309031043410.13722-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 3 Sep 2003 14:42:44 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:27329 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264234AbTICS3X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 14:29:23 -0400
+Date: Wed, 03 Sep 2003 11:17:56 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Larry McVoy <lm@bitmover.com>, "Brown, Len" <len.brown@intel.com>
+cc: Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+Message-ID: <89360000.1062613076@flay>
+In-Reply-To: <20030903173213.GC5769@work.bitmover.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.10.10309031043410.13722-100000@master.linux-ide.org>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dans un message du 03 Sep à 10:49, Andre Hedrick écrivait :
-> The only solution is to created a GPL pre-loading module with all the
-> GPL_ONLY needed extentions re-exported or externed as to bypass the
-> horse sh*t.
+>> Back to the original off-topic...
+>> An OEM can spin their motivation to focus on smaller systems in 3 ways:
+>> 
+>> 1. large server sales are a small % of industry units
+>> 2. large server sales are a small % of industry revenue
+>> 3. large server sales are a small % of industry profits
+>> 
+>> Only 1 is true.
+> 
+> How about some data to back up that statement?
+> 
+> Sun: ~11B/year and losing money, heavily server based
+> Dell: ~38B/year and making money, 99% small box based
+> 
+> If you were gambling with _your_ money, would you invest in Sun or Dell?
 
-If you do that, you 
+Errm, IBM is gambling with _their_ money, as are others such as HP,
+and they're making big iron.
 
--- 
-Guillaume Morin <guillaume@morinfr.org>
+So do you believe they're all just completely stupid, and unable to read
+their own sales figures? Or is it just a vast conspiracy to promote large 
+SMP / NUMA boxes because of ... something?
 
-      If you cause problems that only you can fix, you'll never be fired.
-                            http://www.copyleft.net/
+Sun is not loosing money because they're "server based". It's because
+they're locked into Solaris and SPARC, and customers by and large 
+don't want that. Their machines are probably rather overpriced vs using
+ia32 hardware as well. Your 1 dimensional extension of logic is ... 
+unimpressive.
+
+M.
+

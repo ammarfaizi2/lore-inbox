@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268496AbUIQEUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268399AbUIQEQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268496AbUIQEUR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 00:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268406AbUIQEUD
+	id S268399AbUIQEQG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 00:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268401AbUIQEOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 00:20:03 -0400
-Received: from [12.177.129.25] ([12.177.129.25]:7620 "EHLO
+	Fri, 17 Sep 2004 00:14:15 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:7108 "EHLO
 	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S268396AbUIQETN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 00:19:13 -0400
-Message-Id: <200409170523.i8H5NZ2J005424@ccure.user-mode-linux.org>
+	id S268406AbUIQENG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 00:13:06 -0400
+Message-Id: <200409170517.i8H5HQ2J005372@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Pete Zaitcev <zaitcev@redhat.com>
+To: akpm@osdl.org
 cc: linux-kernel@vger.kernel.org
-Subject: Re: ub vs. ubd 
-In-Reply-To: Your message of "Thu, 16 Sep 2004 10:34:54 PDT."
-             <20040916103454.46936a28@lembas.zaitcev.lan> 
-References: <1340.1095332981@www10.gmx.net> <20040916084118.2441c38a@lembas.zaitcev.lan> <200409161753.i8GHrM2J003175@ccure.user-mode-linux.org>  <20040916103454.46936a28@lembas.zaitcev.lan> 
+Subject: [PATCH] UML - Restrict tlb flushing
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 17 Sep 2004 01:23:35 -0400
+Date: Fri, 17 Sep 2004 01:17:26 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-zaitcev@redhat.com said:
-> Can you send me your /proc/partitions from a guest with a few UBDs
-> configured? 
+One of UML's tlb flushing routines was ignoring the address range passed in
+by its callers.  This patch fixes that.
 
-usermode:~# more /proc/partitions 
-major minor  #blocks  name
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-  98     0    1049600 ubda
-  98    16    1049600 ubdb
-  98    32     204801 ubdc
-
-				Jeff
+Index: 2.6.9-rc2/arch/um/kernel/skas/tlb.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/kernel/skas/tlb.c	2004-09-16 22:59:06.000000000 -0400
++++ 2.6.9-rc2/arch/um/kernel/skas/tlb.c	2004-09-16 23:09:24.000000000 -0400
+@@ -77,7 +77,7 @@
+ 	int updated = 0, err;
+ 
+ 	mm = &init_mm;
+-	for(addr = start_vm; addr < end_vm;){
++	for(addr = start; addr < end;){
+ 		pgd = pgd_offset(mm, addr);
+ 		pmd = pmd_offset(pgd, addr);
+ 		if(pmd_present(*pmd)){
 

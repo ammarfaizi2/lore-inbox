@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265335AbRFVFLE>; Fri, 22 Jun 2001 01:11:04 -0400
+	id <S265333AbRFVFBE>; Fri, 22 Jun 2001 01:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265337AbRFVFKy>; Fri, 22 Jun 2001 01:10:54 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:12036 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S265335AbRFVFKk>; Fri, 22 Jun 2001 01:10:40 -0400
-Date: Fri, 22 Jun 2001 17:10:37 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        netdev@oss.sgi.com, "David S. Miller" <davem@redhat.com>
-Subject: Re: PATCH: ethtool MII helpers
-Message-ID: <20010622171037.D2576@metastasis.f00f.org>
-In-Reply-To: <3B23AFC3.71CE2FD2@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B23AFC3.71CE2FD2@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sun, Jun 10, 2001 at 01:34:59PM -0400
-X-No-Archive: Yes
+	id <S265334AbRFVFAz>; Fri, 22 Jun 2001 01:00:55 -0400
+Received: from inpbox.inp.nsk.su ([193.124.167.24]:31708 "EHLO
+	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP
+	id <S265333AbRFVFAo>; Fri, 22 Jun 2001 01:00:44 -0400
+Date: Fri, 22 Jun 2001 11:19:50 +0700
+From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Reply-To: D.A.Fedorov@inp.nsk.su
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+cc: Balbir Singh <balbir_soni@yahoo.com>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Is it useful to support user level drivers
+In-Reply-To: <01062117190601.02209@idun>
+Message-ID: <Pine.SGI.4.10.10106221043470.3059659-100000@Sky.inp.nsk.su>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 10, 2001 at 01:34:59PM -0400, Jeff Garzik wrote:
+On Thu, 21 Jun 2001, Oliver Neukum wrote:
 
-    Initial draft of a helper which uses generic elements present in several
-    net drivers to implement ethtool ioctl support in a minimum amount of
-    code.
-    
-    I have included a sample implementation in the epic100 driver, to
-    illustrate how these helpers may be used.  This should make it easier to
-    implement support across 10/100 hardware which uses primarily an MII
-    phy.
-    
-    Comments appreciated.
+> > > In addition, how do you handle shared interrupts ?
+> >
+> > It is impossible, see my another message.
+> 
+> Which IMHO makes the concept pretty much useless.
+> Interrupt sharing is pretty much the norm today. And there is no evidence for 
+> this to change in the near future. Rather the opposite seems to happen in 
+> fact.
+> 
+> Which devices were you thinking of, that need a hardware IRQ and no kernel 
+> driver ?
 
-Can someone explain to me why we have ethtool and mii-tool? Can we
-not extend ethtool for the mii-tool stuff, even if only at userland?
+An ISA cards, mostly for data acquisition - edge triggered interrupts,
+no ack required immediately from interrupt handler. Rest of hardware
+handling can be deferred to user space.
+IRQ sharing is possible there in spite of some hardware hacking.
 
+Yes, it is very limited range of hardware today but it exists
+and /dev/irq kernel module provide one of generic mechanisms for user
+space driver implementation.
 
-
-  --cw

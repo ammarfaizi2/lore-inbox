@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277798AbRJLRdg>; Fri, 12 Oct 2001 13:33:36 -0400
+	id <S277792AbRJLR2Z>; Fri, 12 Oct 2001 13:28:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277799AbRJLRd0>; Fri, 12 Oct 2001 13:33:26 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:44535 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S277798AbRJLRdO>; Fri, 12 Oct 2001 13:33:14 -0400
-Message-ID: <3BC729B0.577C352E@nortelnetworks.com>
-Date: Fri, 12 Oct 2001 13:34:40 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S277798AbRJLR2Q>; Fri, 12 Oct 2001 13:28:16 -0400
+Received: from [134.122.1.73] ([134.122.1.73]:35849 "EHLO scl-ims.phoenix.com")
+	by vger.kernel.org with ESMTP id <S277792AbRJLR2L>;
+	Fri, 12 Oct 2001 13:28:11 -0400
+Message-ID: <D973CF70008ED411B273009027893BA401BE6C34@irv-exch.phoenix.com>
+From: David Christensen <David_Christensen@Phoenix.com>
+To: "'hanhbkernel'" <hanhbkernel@yahoo.com.cn>, linux-kernel@vger.kernel.org
+Subject: RE: initrd problem of 2.4.10
+Date: Fri, 12 Oct 2001 10:02:48 -0700
 MIME-Version: 1.0
-To: steveb@unix.lancs.ac.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel not booting when configured for Athlon
-In-Reply-To: <200110121547.f9CFlXx11575@wing0.lancs.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="gb2312"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-steveb@unix.lancs.ac.uk wrote:
+> There is no problem using the initial RAM disk
+> (initrd) with kernel 2.4.9
+> But with kernel 2.4.10 system reports the following
+> messages:
 > 
-> I've just replace my Pentium-III system with an Athlon-based one, I rebuilt
-> the kernel with 'processor Family' changed from 'Pentium III' to Athlon/Duron/K7, and it failed to boot - it goes as far as "OK, booting the kernel" and hangs.
+> RAMDISK: compressed image found at block 0
+> Freeing initrd memory: 1153k freed
+> VFS: Mounted root (ext2 filesystem)
+> Freeing unused kernel (memory: 224k freed)
+> Kernel panic: No init found. Try passing init=option
+> to kernel
 > 
-> I can boot a kernel supposedly built for Pentium-III without any apparent problems.
+> When I compile the 2.4.10 The following option is
+> supported:
+> <*> RAM disk support(128000)   Default RAM disk size  
 
+This is an unusually large size (128MB).  Is your ramdisk
+really that large?  Try reducing this to a more sane value
+(say 4096) and add the "ramdisk=" line to your /etc/lilo.conf
+if your ramdisk goes above 4MB.
 
-Check the archives.  Apparently there is an issue with the highly optimized
-Athlon specific memory access/clearing routines that leads to instability on
-some motherboards/BIOS revisions.
-
-There is a fix available that seems to clear this up, but it hasn't made it into
-the mainstream kernel yet.
-
-The only real difference between Athlon and PIII kernels are some
-Athlon-specific optimized assembly-code.  The PIII versions still run, just not
-quite as fast.
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+>                            
+> [*]   Initial RAM disk (initrd) support   
+> 
+> The version of lilo is 21.6. My lilo.conf is as this:
+> boot=/dev/hda
+> map=/boot/map
+> install=/boot/boot.b
+> prompt
+> timeout=50
+> message=/boot/message
+> linear
+> default=CapitelFW-2.4.9
+> image=/hda2/boot/linux-2.4.91
+> 	label=CapitelFW-2.4.9
+> 	initrd=/hda2/root/initrd.gz
+> 	append="root=/dev/ram0 init=linuxrc rw"
+> image=/hda2/boot/linux-2.4.10-ac
+> 	label=CapitelFW-ac12
+> 	initrd=/hda2/root/initrd.gz
+> 	append="root=/dev/ram0 init=linuxrc rw"

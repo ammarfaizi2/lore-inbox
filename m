@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbTKBHRn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 02:17:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbTKBHRn
+	id S261492AbTKBHLk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 02:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbTKBHLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 02:17:43 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:60165 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S261509AbTKBHRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 02:17:42 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: akpm@osdl.org (Andrew Morton), Oleg Drokin <green@linuxhacker.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test9 Reiserfs boot time "buffer layer error at fs/buffer.c:431"
-Organization: Core
-In-Reply-To: <20031029141931.6c4ebdb5.akpm@osdl.org>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.2-20031002 ("Berneray") (UNIX) (Linux/2.4.22-1-686-smp (i686))
-Message-Id: <E1AGCUJ-00016g-00@gondolin.me.apana.org.au>
-Date: Sun, 02 Nov 2003 18:17:27 +1100
+	Sun, 2 Nov 2003 02:11:40 -0500
+Received: from adsl-64-175-243-181.dsl.sntc01.pacbell.net ([64.175.243.181]:22800
+	"EHLO top.worldcontrol.com") by vger.kernel.org with ESMTP
+	id S261492AbTKBHLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 02:11:39 -0500
+From: brian@worldcontrol.com
+Date: Sat, 1 Nov 2003 23:23:23 -0800
+To: linux-kernel@vger.kernel.org
+Subject: C3 compiled 2.4.20 kernel blows up on EPIA M
+Message-ID: <20031102072323.GA7910@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-No-Archive: yes
+X-Noarchive: yes
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
-> 
->> (These buffers are there because reiserfs first reads that offset (in bytes)
->> with whatever current blocksize is, except they should have been invalidated of
->> course).
->> Even if invalidate_bdev() -> invalidate_inode_pages() have not cleaned
->> everything, truncate_inode_pages() should have done this.
-> 
-> yup.
 
-The person who had the problem is actually using the Debian tree which
-carried over a patch from 2.4 that removed the truncate_inode_pages
-call in set_blocksize.  So I appologise for the noise.
+I have a VIA EPIA M motherboard.
 
-However, may I ask what is preventing us from achieving the goal that
-the page cache backed buffer heads can be resized without throwing away
-the pages?
+http://www.viavpsd.com/product/epia_m_spec.jsp?motherboardId=81
 
-In particular, aside from the buffer_error() call, is there any problems
-with not throwing the pages away upon a resize?
+A 2.4.20 gentoo-sources kernel compiled with
+CONFIG_MCYRIXIII blows up during boot.  Basically just after
+hitting return on grub the screen turns to all blue 'V's and
+then the acts like someone pushed the reset button.
 
-Cheers,
+386 and 586 kernels work fine.
+
+I'm running gcc 3.2.3
+
+
+
+
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Brian Litzinger

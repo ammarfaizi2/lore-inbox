@@ -1,60 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVA1Xvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262824AbVA1X5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVA1Xvc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 18:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVA1Xvc
+	id S262824AbVA1X5S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 18:57:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbVA1X5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 18:51:32 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:16754 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261386AbVA1Xva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 18:51:30 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Adam Belay <abelay@novell.com>
-Subject: Re: [RFC][PATCH] add driver matching priorities
-Date: Fri, 28 Jan 2005 18:51:28 -0500
-User-Agent: KMail/1.7.2
-Cc: greg@kroah.com, rml@novell.com, linux-kernel@vger.kernel.org
-References: <1106951404.29709.20.camel@localhost.localdomain> <200501281823.27132.dtor_core@ameritech.net> <1106955187.29709.24.camel@localhost.localdomain>
-In-Reply-To: <1106955187.29709.24.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Fri, 28 Jan 2005 18:57:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47287 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262822AbVA1X5M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 18:57:12 -0500
+Date: Fri, 28 Jan 2005 15:57:13 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Martin Josefsson <gandalf@wlug.westbo.se>, linux-kernel@vger.kernel.org,
+       "Trever L. Adams" <tadams-lists@myrealbox.com>
+Subject: Re: [Bug 4081] New: OpenOffice crashes while starting due to a  
+ threading error
+Message-ID: <20050128155713.6f3ef6d8@dxpl.pdx.osdl.net>
+In-Reply-To: <41FACEC5.6070703@comcast.net>
+References: <217740000.1106412985@[10.10.2.4]>
+	<41F30E0A.9000100@osdl.org>
+	<1106482954.1256.2.camel@tux.rsn.bth.se>
+	<20050126132504.3295e07d@dxpl.pdx.osdl.net>
+	<41F97E07.2040709@comcast.net>
+	<20050128093104.61a7a387@dxpl.pdx.osdl.net>
+	<1106954493.3051.8.camel@krustophenia.net>
+	<41FACEC5.6070703@comcast.net>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501281851.28475.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 January 2005 18:33, Adam Belay wrote:
-> On Fri, 2005-01-28 at 18:23 -0500, Dmitry Torokhov wrote:
-> > On Friday 28 January 2005 17:30, Adam Belay wrote:
-> > > Of course this patch is not going to be effective alone.  We also need
-> > > to change the init order.  If a driver is registered early but isn't the
-> > > best available, it will be bound to the device prematurely.  This would
-> > > be a problem for carbus (yenta) bridges.
-> > > 
-> > > I think we may have to load all in kernel drivers first, and then begin
-> > > matching them to hardware.  Do you agree?  If so, I'd be happy to make a
-> > > patch for that too.
-> > > 
-> > 
-> > I disagree. The driver core should automatically unbind generic driver
-> > from a device when native driver gets loaded. I think the only change is
-> > that we can no longer skip devices that are bound to a driver and match
-> > them all over again when a new driver is loaded.  
-> > 
-> 
-> That's another option.  My concern is that if a generic driver pokes
-> around with hardware, it may fail to initialize properly when the actual
-> driver is loaded.  There are other problems too.  If the system were to
-> be suspended while the generic driver was loaded, the restore_state code
-> may be incorrect, also rendering the device unusable.
-> 
+On Fri, 28 Jan 2005 18:46:13 -0500
+Parag Warudkar <kernel-stuff@comcast.net> wrote:
 
-If generic driver binds to a device that is has no idea how to drive
-_at all_ then I will argue that the generic driver is broken. It should
-not bind to begin with.
+> Lee Revell wrote:
+> 
+> >  
+> >
+> >>munmap(0x955838, 8192)                  = -1 EINVAL (Invalid argument)
+> >>munmap(0x80d7ff0, 3221222108)           = -1 EINVAL (Invalid argument)
+> >>--- SIGSEGV (Segmentation fault) @ 0 (0) ---
+> >>    
+> >>
+> >
+> >No, it really looks like OO tried to munmap() something incorrectly.
+> >3,221,222,108 bytes at offset 0x80d7ff0?
+> >
+> >Lee
+> >
+> >  
+> >
+> May be that's another OO.o bug which gets triggered by failure to open 
+> /dev/dri? Actually Stephen had OO working fine with earlier kernels, 
+> where possibly /dev/dri/* permissions were appropriate and it was able 
+> to open it - With new kernel the permissions seem to be improper which 
+> is confirmed by strace --
+> 
+> open("/dev/dri/card0", O_RDWR)          = -1 EACCES (Permission denied)
+> 
+> Should be filed as a bug with OO.org - it shouldnt segfault due to DRI permissions..
+> 
+> Parag
+
+Note: on 2.6.10
+	/dev/dri/card0	crw-rw-rw-
+on 2.6.11-rc2
+	/dev/dri/card0	crw-rw----
+	/dev/dri/card1	crw-rw----
+
+Changing permissions seems to fix (it for startup), will try more and see
+if udev remembers not to turn them back.
 
 -- 
-Dmitry
+Stephen Hemminger	<shemminger@osdl.org>

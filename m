@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315468AbSFCUFD>; Mon, 3 Jun 2002 16:05:03 -0400
+	id <S315469AbSFCUGa>; Mon, 3 Jun 2002 16:06:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315469AbSFCUFC>; Mon, 3 Jun 2002 16:05:02 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:54918 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S315468AbSFCUFB>; Mon, 3 Jun 2002 16:05:01 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 3 Jun 2002 13:16:39 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: please kindly get back to me
-In-Reply-To: <adghab$20m$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0206031313320.961-100000@blue1.dev.mcafeelabs.com>
+	id <S315463AbSFCUG3>; Mon, 3 Jun 2002 16:06:29 -0400
+Received: from pD952AF1C.dip.t-dialin.net ([217.82.175.28]:35462 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315469AbSFCUG2>; Mon, 3 Jun 2002 16:06:28 -0400
+Date: Mon, 3 Jun 2002 14:06:22 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Thomas Duffy <tduffy@directvinternet.com>
+cc: Thunder from the hill <thunder@ngforever.de>,
+        Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, release 3.0 is
+ available
+In-Reply-To: <1023134315.25501.13.camel@tduffy-lnx.afara.com>
+Message-ID: <Pine.LNX.4.44.0206031405081.3833-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Jun 2002, H. Peter Anvin wrote:
+Hi,
 
-> Followup to:  <20020603120653.C4940@work.bitmover.com>
-> By author:    Larry McVoy <lm@bitmover.com>
-> In newsgroup: linux.dev.kernel
-> >
-> > On Mon, Jun 03, 2002 at 10:00:46PM +0300, Matti Aarnio wrote:
-> > >   Anti-spam technology really needs constant evolution, as those
-> > >   spammers do evolve themselves...
-> >
-> > If ever there was something which was screaming for an open source project,
-> > it's spam filtering.  It seems like every major mailing list has someone
-> > like Matti, working really hard on a thankless task, but losing out under
-> > the tide of new spam every day.  Seems to me if there was a public repository
-> > (sourceforge, bkbits, whatever) with a collection of procmail filters which
-> > have been shown to work correctly, that would be a win.
-> >
->
-> The biggest problem is that you're bound to get sued, so you have to
-> worry about legal defence...
+On 3 Jun 2002, Thomas Duffy wrote:
+> > Did you apply the sparc64 patch? Yet it's there.
+> 
+> this is failing in the db code, my guess.
 
-... the other problem with this kind of filters is that all emails coming
-from marketing/biz ppl inside companies will result as spam ...
-( that is actually true :-) )
+Gee, you're right!
 
+> > You might even try the upcoming -ct1
+> 
+> ok, I will give it a go, but I think this is a problem in core-15
+> (kbuild v3.0)
 
+Could you please try the core-14 beforehand? (Yes, beat me, Keith, but if 
+it works, we'll have a stepping stone!)
 
-- Davide
-
+Regards,
+Thunder
+-- 
+ship is leaving right on time	|	Thunder from the hill at ngforever
+empty harbour, wave goodbye	|
+evacuation of the isle		|	free inhabitant not directly
+caveman's paintings drowning	|	belonging anywhere
 

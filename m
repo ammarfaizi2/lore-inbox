@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVC2VEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVC2VHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVC2VEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 16:04:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVC2VEP
+	id S261439AbVC2VHV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 16:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVC2VHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 16:04:15 -0500
-Received: from main.gmane.org ([80.91.229.2]:13741 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261428AbVC2VEJ (ORCPT
+	Tue, 29 Mar 2005 16:07:20 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:51523 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261433AbVC2VHD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 16:04:09 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: [PATCH] embarassing typo
-Date: Tue, 29 Mar 2005 23:02:21 +0200
-Message-ID: <yw1xd5ti17z6.fsf@ford.inprovide.com>
-References: <1112128584.25954.6.camel@tux.lan>
+	Tue, 29 Mar 2005 16:07:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=SgWjeKh4Zr+rgkD3nOYBzQYCCWqS1KE3k+GQrOR6C2w3RY8T7EU54LbO09ulh5je0gXNoO9o52CL6jQeUUXwg2tPZOCTeQKqQKuvk39xJLXRVUn1YPdnrHmPxeYIwkUdYcqm7L4sZVufzz3RjvRKdpXpBlUO8ifNoHtCo/advn4=
+Message-ID: <d120d500050329130714e1daaf@mail.gmail.com>
+Date: Tue, 29 Mar 2005 16:07:01 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Cc: Stefan Seyfried <seife@suse.de>, Andy Isaacson <adi@hexapodia.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+In-Reply-To: <20050329205225.GF8125@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:uAfr4ReCL00vdslLPuGaNg9qCGU=
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <4242CE43.1020806@suse.de> <4243252D.6090206@suse.de>
+	 <20050324235439.GA27902@hexapodia.org> <4243D854.2010506@suse.de>
+	 <d120d50005032908183b2f622e@mail.gmail.com>
+	 <20050329181831.GB8125@elf.ucw.cz>
+	 <d120d50005032911114fd2ea32@mail.gmail.com>
+	 <20050329192339.GE8125@elf.ucw.cz>
+	 <d120d50005032912051fee6e91@mail.gmail.com>
+	 <20050329205225.GF8125@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ronald S. Bultje" <rbultje@ronald.bitfreak.net> writes:
+On Tue, 29 Mar 2005 22:52:25 +0200, Pavel Machek <pavel@suse.cz> wrote:
+> I don't really want us to try execve during resume... Could we simply
+> artifically fail that execve with something if (in_suspend()) return
+> -EINVAL; [except that in_suspend() just is not there, but there were
+> some proposals to add it].
+> 
+> Or just avoid calling hotplug at all in resume case? And then do
+> coldplug-like scan when userspace is ready...
+> 
 
-> --- linux-2.6.5/drivers/media/video/zr36050.c.old	16 Sep 2004 22:53:27 -0000	1.2
-> +++ linux-2.6.5/drivers/media/video/zr36050.c	29 Mar 2005 20:30:23 -0000
-> @@ -419,7 +419,7 @@
->  	dri_data[2] = 0x00;
->  	dri_data[3] = 0x04;
->  	dri_data[4] = ptr->dri >> 8;
-> -	dri_data[5] = ptr->dri * 0xff;
-> +	dri_data[5] = ptr->dri & 0xff;
-
-Hey, that's a nice obfuscation of a simple negation.
-
-BTW, when assigning to a char type, is the masking really necessary at
-all?  I can't see that it should make a difference.  Am I missing
-something subtle?
+I am leaning towards calling disable_usermodehelper (not writtent yet)
+after swsusp completes snapshotting memory. We really don't care about
+hotplug events in this case and this will allow keeping "normal"
+resume in drivers as is. What do you think?
 
 -- 
-Måns Rullgård
-mru@inprovide.com
-
+Dmitry

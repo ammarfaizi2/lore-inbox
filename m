@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264148AbTIIOuX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 10:50:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbTIIOuX
+	id S264203AbTIIPOM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 11:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264214AbTIIPOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 10:50:23 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:16654 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S264148AbTIIOuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 10:50:16 -0400
-Message-ID: <3F5DEDBD.5090808@techsource.com>
-Date: Tue, 09 Sep 2003 11:11:57 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rick Lindsley <ricklind@us.ibm.com>
-CC: Mike Fedyk <mfedyk@matchmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Use of AI for process scheduling
-References: <200309090119.h891JS307266@owlet.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 11:14:12 -0400
+Received: from postal.usc.edu ([128.125.253.6]:60664 "EHLO postal.usc.edu")
+	by vger.kernel.org with ESMTP id S264203AbTIIPOI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 11:14:08 -0400
+Date: Tue, 09 Sep 2003 08:13:39 -0700
+From: Phil Dibowitz <phil@ipom.com>
+Subject: Re: Linux IDE bug in 2.4.21 and 2.4.22 ?
+In-reply-to: <200309091701.48993.bzolnier@elka.pw.edu.pl>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3F5DEE23.6020106@ipom.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827
+ Debian/1.4-3
+References: <20030908225107.GE17108@earthlink.net>
+ <200309091448.36231.bzolnier@elka.pw.edu.pl> <3F5DE49E.50500@ipom.com>
+ <200309091701.48993.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Rick Lindsley wrote:
->     Yeah, I didn't think his comment was very helpful since I thought it was 
->     clear that I was working on a draft of an IDEA.
+Bartlomiej Zolnierkiewicz wrote:
+>>But, what about the case when I built in the generic driver, but made
+>>the CMD649 driver a module, and loaded it after boot. That shouldn't
+>>have *changed* what ide0 and ide1 are, right? I had ide0 and ide1
+>>assigned, did a modprobe, and CMD649 changed what ide0 adn ide1 where,
+>>and then forgot about the previous ones.. like all of a sudden it told
+>>the generic driver "no, no, you were wrong, there's no VIA chipset here,
+>>go back to sleep."
 > 
-> How complex is your thinking where *ideas* need drafts? :)
-
-It wasn't so much complex as it was _vague_.  :)
-
-[snip]
-> However, once we characterize "what we want" we might be able to
-> communicate it (and code it) to the kernel.  To that end, here's an
-> update on scheduler statistics code.  In testing, it's proved fairly
-> non-intrusive and may provide some answers to "what we want".  If it
-> doesn't, it's fairly extensible if done carefully.
 > 
->     http://eaglet.rain.com/rick/linux/schedstat/
+> Hmm. please send me dmesg.
 > 
-> This patch (against 2.6.0-test4 or 2.6.0-test5) collects data about
-> scheduler decisions, which may allow us, with 20/20 hindsight, to
-> determine which specific decisions we don't like and perhaps how to
-> modify them.
 
+I'm happy to. Assumably you want both a Dmesg of my new working kernel, 
+and a dmesg of above described kernel? Note that the dmesg from the 
+later kernel be before loading the CMD64X modules, because when I do 
+that, I loose my hard drive. Therefore it'll look mostly like my working 
+one, except with no ide2 and ide3.
 
-Now, THIS is the kind of thing I wanted to see!  Very cool.  My thought 
-then is that it might be helpful to have some tools to help analyze this 
-  raw data.  I'm sure you thought of that already.  :)
+I've gone ahead and posted the current working dmesg here:
+http://www.phildev.net/dmesg-working
+
+I'll have to do the non-working kernel when I get back from work. I'll 
+drop a line when I get that posted.
+
+Thanks,
+-- 
+Phil Dibowitz                             phil@ipom.com
+Freeware and Technical Pages              Insanity Palace of Metallica
+http://www.phildev.net/                   http://www.ipom.com/
+
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."
+  - Benjamin Franklin, 1759
+
 

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267579AbRGSO67>; Thu, 19 Jul 2001 10:58:59 -0400
+	id <S267578AbRGSOx6>; Thu, 19 Jul 2001 10:53:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267582AbRGSO6t>; Thu, 19 Jul 2001 10:58:49 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:25352 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S267581AbRGSO6n>; Thu, 19 Jul 2001 10:58:43 -0400
-From: jdassen@cistron.nl (J.H.M. Dassen (Ray))
-Subject: Re: 1GB system working with 64MB
-Date: Thu, 19 Jul 2001 14:58:47 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <slrn9ldtd7.fcj.jdassen@odin.cistron-office.nl>
+	id <S267579AbRGSOxt>; Thu, 19 Jul 2001 10:53:49 -0400
+Received: from [207.198.61.36] ([207.198.61.36]:36480 "EHLO
+	va.flyingbuttmonkeys.com") by vger.kernel.org with ESMTP
+	id <S267578AbRGSOxe>; Thu, 19 Jul 2001 10:53:34 -0400
+Message-ID: <007a01c11062$799a0160$c2d487d1@cartman>
+From: "Michael Rothwell" <rothwell@flyingbuttmonkeys.com>
+To: "Edouard Soriano" <e_soriano@dapsys.com>, <linux-kernel@vger.kernel.org>
 In-Reply-To: <20010719.14393700@dap21.dapsys.ch>
-X-Trace: ncc1701.cistron.net 995554727 9561 195.64.65.236 (19 Jul 2001 14:58:47 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+Subject: Re: 1GB system working with 64MB
+Date: Thu, 19 Jul 2001 10:52:43 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Edouard Soriano <e_soriano@dapsys.com> wrote:
-> I remember there is a solution to turn around this problem forcing LILO to
-> configure 1GB saying, I think but not sure:
-> 
-> append='memory=1024'
-> 
-> I searched in the lilo doc for memory parameter definition, but as being
-> coverd by append parameter I found nothing.
+Add this:
 
-"mem=" is documented in the kernel documentation
-(...linux/Documentation/i386/boot.txt):
+append="mem=1024M"
 
-  mem=<size>
-        <size> is an integer in C notation optionally followed by K, M
-        or G (meaning << 10, << 20 or << 30).  This specifies to the
-        kernel the memory size.
-  [snip]
+to your lilo boot profiles.
 
-HTH,
-Ray
--- 
-Does Kibo SEE the FNORDS?
+... 2.4 correctly detects memory size more often than 2.2.16 ...
+
+
+----- Original Message ----- 
+From: "Edouard Soriano" <e_soriano@dapsys.com>
+Subject: 1GB system working with 64MB
+
+
+> Hello Folks,
+> Environment: linux 2.2.16smp
+> RedHat 7.0
+>
+> My problem are the 63892K
+
 

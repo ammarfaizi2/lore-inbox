@@ -1,79 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130777AbRCTUfO>; Tue, 20 Mar 2001 15:35:14 -0500
+	id <S130779AbRCTVCh>; Tue, 20 Mar 2001 16:02:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130902AbRCTUfF>; Tue, 20 Mar 2001 15:35:05 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:62661 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130777AbRCTUew> convert rfc822-to-8bit;
-	Tue, 20 Mar 2001 15:34:52 -0500
-Date: Tue, 20 Mar 2001 14:29:47 -0600 (CST)
-From: Josh Grebe <squash@primary.net>
-To: Jakob Østergaard <jakob@unthought.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about memory usage in 2.4 vs 2.2
-In-Reply-To: <20010320183238.B1508@unthought.net>
-Message-ID: <Pine.LNX.4.21.0103201156070.2405-100000@scarface.primary.net>
+	id <S130791AbRCTVC2>; Tue, 20 Mar 2001 16:02:28 -0500
+Received: from brauhaus.paderlinx.de ([194.122.103.4]:3778 "EHLO
+	imail.paderlinx.de") by vger.kernel.org with ESMTP
+	id <S130779AbRCTVCR>; Tue, 20 Mar 2001 16:02:17 -0500
+Date: Tue, 20 Mar 2001 22:01:21 +0100 (MET)
+From: Matthias Schniedermeyer <ms@citd.de>
+To: linux-kernel@vger.kernel.org
+Subject: Memory leak in 2.4.2 (+loop-6-patch)???
+Message-ID: <Pine.LNX.4.20.0103202155030.3879-100000@citd.owl.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As far as performance goes, I can only say that my max load is slightly
-lower on the 2.4 box then on the 2.2 boxes. Our average load for yesterday
-on 2.4 was .23, with a max of 1.11. In comparison, my averages for the
-other machines are .27, .27, .23, and .23. The maxes are 1.85, 1.33, 2.06,
-1.47.
+#Include <hallo.h>
 
-As far as speed goes, I am not able to measure any real difference (only
-testing pop3) between 2.2 and 2.4. I would blame this on the NAS device, a
-NetApp Filer F760 being only able to push about 110mbit sustained on the
-gig-e network.
 
-Thanks,
+After some days of uptime, i just stopped (nearly) all programs, unmounted
+all unnecessary devices.
 
-Josh
----
-Josh Grebe
-Senior Unix Systems Administrator
-Primary Network, an MPower Company
-http://www.primary.net
+But top & free say that 1/3 of my RAM is still "used"
 
-On Tue, 20 Mar 2001, [iso-8859-1] Jakob Østergaard wrote:
 
-> On Tue, Mar 20, 2001 at 11:01:52AM -0600, Josh Grebe wrote:
-> > Greetings,
-> ...
-> > Doing the math, the 2.4 machine is using 44% of available memory, while
-> > the 2.2 is using only about 14%.
-> 
-> How is the performance difference ?
-> 
-> ...
-> > These machines are dual P2-400's, with 512M ECC ram, adaptec 2940, and
-> > dual intel etherexpress pro 100 cards.
-> > 
-> > I also tried 2.4.2-ac20 with similar results.
-> > 
-> > Am I missing something here? I'd really like to move the farm back up to
-> > 2.4 series.
-> 
-> Free memory is wasted memory.   It seemed like 2.4 wasted a lot less memory
-> than 2.2 on your workload.
-> 
-> Could you do some performance measurements (eg. average latency on IMAP
-> connection or something like that)   ?    It would be great to know wheter
-> 2.4 is better or worse than 2.2  (it's most likely better, since it probably
-> uses the memory better, but it would be nice to know)
-> 
-> -- 
-> ................................................................
-> :   jakob@unthought.net   : And I see the elder races,         :
-> :.........................: putrid forms of man                :
-> :   Jakob Østergaard      : See him rise and claim the earth,  :
-> :        OZ9ABN           : his downfall is at hand.           :
-> :.........................:............{Konkhra}...............:
-> 
+Here is what top means:
 
+(Swap is 0K because i don't use Swap at all. Should i use swap?)
+
+  9:54pm  up 11 days, 23 min,  4 users,  load average: 0.00, 0.22, 0.52
+30 processes: 29 sleeping, 1 running, 0 zombie, 0 stopped
+CPU0 states:  0.1% user,  0.0% system,  0.0% nice, 99.4% idle
+CPU1 states:  0.0% user,  0.2% system,  0.0% nice, 99.3% idle
+Mem:  1028648K av,  334624K used,  694024K free,       0K shrd,    3556K buff
+Swap:       0K av,       0K used,       0K free                   55136K cached
+
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+    1 root       4   0   100  100    60 S     0.0  0.0   0:17 init
+    2 root       9   0     0    0     0 SW    0.0  0.0   0:00 keventd
+    3 root       9   0     0    0     0 SW    0.0  0.0   0:53 kswapd
+    4 root       9   0     0    0     0 SW    0.0  0.0   0:00 kreclaimd
+    5 root       9   0     0    0     0 SW    0.0  0.0   6:21 bdflush
+    6 root       9   0     0    0     0 SW    0.0  0.0   0:34 kupdate
+    7 root       9   0     0    0     0 SW    0.0  0.0   0:00 khubd
+  294 root       8   0   164  164    72 S     0.0  0.0   0:01 cron
+  373 root       9   0   508  508   144 S     0.0  0.0   0:00 login
+  374 root       9   0   508  508   144 S     0.0  0.0   0:00 login
+  375 root       9   0   508  508   144 S     0.0  0.0   0:00 login
+  380 root       9   0    84   84     0 S     0.0  0.0   0:00 mingetty
+  385 root       9   0   508  508   144 S     0.0  0.0   0:00 login
+  386 root       9   0    84   84     0 S     0.0  0.0   0:00 mingetty
+  389 ms         8   0  1072 1072   736 S     0.0  0.1   0:00 bash
+  396 root       0   0  1264 1264   896 S     0.0  0.1   0:01 bash
+  404 root      11   0  1132 1132   732 S     0.0  0.1   0:01 bash
+  463 citd       8   0  1192 1192   852 S     0.0  0.1   0:00 bash
+ 6520 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
+ 6521 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
+ 6522 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
+ 6523 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
+ 6524 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
+ 6525 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
+ 6526 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
+ 6527 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
+ 6528 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
+ 6529 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
+ 6652 root      12   0  1008 1008   804 R     0.0  0.0   0:00 top
+ 6663 root      17   0   544  544   468 S     0.0  0.0   0:00 gpm
+
+uname -a
+Linux leeloo 2.4.2 #18 SMP Fri Feb 23 19:31:03 CET 2001 i686 unknown
+
+gcc --version
+2.95.2
+
+
+
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 
 

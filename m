@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264815AbTAJK1n>; Fri, 10 Jan 2003 05:27:43 -0500
+	id <S264818AbTAJKh0>; Fri, 10 Jan 2003 05:37:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264818AbTAJK1n>; Fri, 10 Jan 2003 05:27:43 -0500
-Received: from adsl-66-112-90-25-rb.spt.centurytel.net ([66.112.90.25]:21888
-	"EHLO carthage") by vger.kernel.org with ESMTP id <S264815AbTAJK1m>;
-	Fri, 10 Jan 2003 05:27:42 -0500
-Date: Fri, 10 Jan 2003 04:33:09 -0600
-From: James Curbo <phoenix@sandwich.net>
-To: Manish Lachwani <manish@Zambeel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DMA timeouts on Promise 20267 IDE card
-Message-ID: <20030110103309.GA412@carthage>
-Reply-To: James Curbo <phoenix@sandwich.net>
-References: <233C89823A37714D95B1A891DE3BCE5202AB1B7A@xch-a.win.zambeel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB1B7A@xch-a.win.zambeel.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Debian GNU/Linux
+	id <S264836AbTAJKh0>; Fri, 10 Jan 2003 05:37:26 -0500
+Received: from mail.hometree.net ([212.34.181.120]:37853 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S264818AbTAJKh0>; Fri, 10 Jan 2003 05:37:26 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: UnitedLinux violating GPL?
+Date: Fri, 10 Jan 2003 10:46:10 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <avm89i$k8r$1@forge.intermeta.de>
+References: <20030109222748.GA3993@gtf.org> <20030110083409.GH30114@suse.de>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1042195570 1376 212.34.181.4 (10 Jan 2003 10:46:10 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 10 Jan 2003 10:46:10 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 09, Manish Lachwani wrote:
+Hubert Mantel <mantel@suse.de> writes:
 
-> You should change the drive hda and also the cable. Then try again. 
-> 
+>ftp.suse.com:/pub/unitedlinux/1.0/src/kernel-source-2.4.19.SuSE-82.nosrc.rpm
+                   ^^^^^^^^^^^^^^^                          ^^^^^^^
 
-Oops! One of my IDE cables wasn't seated properly. Thanks for the help!
-At least it wasn't a kernel bug :)
+Revealing...
+
+	Regards
+		Henning
 
 -- 
-James Curbo <hannibal@adtrw.org> <phoenix@sandwich.net>
-http://www.adtrw.org/blogs/hannibal/
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310175AbSCABFm>; Thu, 28 Feb 2002 20:05:42 -0500
+	id <S293233AbSCAAqj>; Thu, 28 Feb 2002 19:46:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310122AbSCABD4>; Thu, 28 Feb 2002 20:03:56 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:43226 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S310276AbSCAA6b>; Thu, 28 Feb 2002 19:58:31 -0500
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: nfs-devel@linux.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5: compile error in fs/filesystems.c
-In-Reply-To: <87vgchi2v8.fsf@tigram.bogus.local>
-	<15486.50159.606621.827886@notabene.cse.unsw.edu.au>
-From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-Date: Fri, 01 Mar 2002 01:58:03 +0100
-Message-ID: <87bse9hzok.fsf@tigram.bogus.local>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Artificial
- Intelligence, i386-debian-linux)
+	id <S293416AbSCAAk1>; Thu, 28 Feb 2002 19:40:27 -0500
+Received: from h24-80-72-10.vn.shawcable.net ([24.80.72.10]:62724 "EHLO
+	linisoft.localdomain") by vger.kernel.org with ESMTP
+	id <S310285AbSCAAfn>; Thu, 28 Feb 2002 19:35:43 -0500
+Message-ID: <3C7ECE99.E5B56663@linisoft.com>
+Date: Thu, 28 Feb 2002 16:43:05 -0800
+From: Reza Roboubi <reza@linisoft.com>
+Organization: Linisoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Masoud Sharbiani <masouds@oeone.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Async IO using threads
+In-Reply-To: <3C7CBB39.A6FC444@linisoft.com> <3C7D1964.2060903@oeone.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Neil,
+Btw, I mentioned that I rewrote the test to do the "useful work" using
+fifos, and that gave 0.45% of the CPU back during the read() operation.
 
-Neil Brown <neilb@cse.unsw.edu.au> writes:
+Just in case anyone wants that test, it is on the web site with the
+other test:
 
-> 2.5.6-pre2 already has a patch for this.
-
-The compile error is gone, *but* ... :-)
-With 2.5.6-pre2 you get nfsd support, wether you want it or
-not. Consider this:
-
-#undef CONFIG_NFSD
-#undef CONFIG_NFSD_MODULE
-#define CONFIG_MODULES
-
-Now, this part is compiled into the kernel, although you haven't
-requested it:
-
-#if defined(CONFIG_MODULES)
-	lock_kernel();
-
-	if (nfsd_linkage ||
-	    (request_module ("nfsd") == 0 && nfsd_linkage)) {
-		__MOD_INC_USE_COUNT(nfsd_linkage->owner);
-		unlock_kernel();
-		ret = nfsd_linkage->do_nfsservctl(cmd, argp, resp);
-		__MOD_DEC_USE_COUNT(nfsd_linkage->owner);
-	} else
-		unlock_kernel();
-#endif
-
-Did I miss something?
-
-Regards, Olaf.
+http://www.linisoft.com/test/asyncf.c  //async using fifo
+http://www.linisoft.com/test/async.c  //async using __asm__(lock)
+-- 
+Reza

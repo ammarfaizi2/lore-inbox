@@ -1,78 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbTJGI2W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 04:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTJGI2W
+	id S261885AbTJGIa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 04:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbTJGIa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 04:28:22 -0400
-Received: from mail9.speakeasy.net ([216.254.0.209]:42666 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S261891AbTJGI2S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 04:28:18 -0400
-Date: Tue, 7 Oct 2003 01:28:15 -0700
-Message-Id: <200310070828.h978SFQO028412@magilla.sf.frob.com>
-From: Roland McGrath <roland@redhat.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] dump read-only anonymous memory in core files
-X-Fcc: ~/Mail/linus
-X-Antipastobozoticataclysm: Bariumenemanilow
+	Tue, 7 Oct 2003 04:30:26 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:10398 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261885AbTJGIaS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 04:30:18 -0400
+Date: Tue, 7 Oct 2003 14:00:13 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       Christian Borntraeger <CBORNTRA@de.ibm.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+Message-ID: <20031007083012.GE9036@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <OF6873DDE8.877C0EE8-ONC1256DB7.005F0935-C1256DB7.0060DEDC@de.ibm.com> <20031006174128.GA4460@kroah.com> <3F81ADC8.3090403@backtobasicsmgmt.com> <20031006181134.GA4657@kroah.com> <3F81B339.6040201@backtobasicsmgmt.com> <20031006183056.GA4714@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031006183056.GA4714@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently core dumps omit all pages that are read-only at the time of the
-dump.  I think that anonymous pages should be included even if read-only.
-This patch makes that change.  Take for example this program:
+On Mon, Oct 06, 2003 at 06:42:29PM +0000, Greg KH wrote:
+> On Mon, Oct 06, 2003 at 11:23:53AM -0700, Kevin P. Fleming wrote:
+> > Greg KH wrote:
+> > 
+> > >The hotplug event points to the sysfs location of the kobject, that's
+> > >all.  libsysfs then takes that kobject location and sucks up all of the
+> > >attribute information for that kobject, which udev then uses to
+> > >determine what it should do.
+> > 
+> > This sounds like a very different issue than what I thought you said 
+> > originally. Your other message said a "find over the sysfs tree", 
+> > implying some sort of tree-wide search for relevant information. In 
+> > fact, the "find" is only for attributes in the directory owned by the 
+> > kobject, right? Once they have been "found", they will age out of the 
+> > dentry/inode cache just like any other search results.
+> 
+> They might, depending on the patch implementation.  And no, the issue
+> isn't different, as we have to show the memory usage after all kobjects
+> are accessed in sysfs from userspace, not just before, like some of the
+> measurements are, in order to try to compare apples to apples.
+> 
 
-	#include <sys/mman.h>
-	#include <string.h>
-	#include <unistd.h>
+Well Greg, the aim of the patch is to save memory when the kobject is not
+in use. I don't think it is a good idea to buy the same thing in  
+600 bytes of RAM which is available for just 100 bytes.
 
-	int main ()
-	{
-	  const size_t pagesz = sysconf (_SC_PAGE_SIZE);
-	  void *page = mmap (0, pagesz, PROT_READ|PROT_WRITE,
-			     MAP_ANON|MAP_PRIVATE, -1, 0);
-	  memset (page, 0x17, pagesz);
-	  mprotect (page, pagesz, PROT_READ);
-	  printf ("pid %d address %p size %x\n", getpid (),
-		  page, (unsigned int) pagesz);
-	  abort ();
-	}
+I trying one more version which should not put any or minimum load on kobject 
+when it is not in sysfs.
 
-Without this change, the core dump will not include the `page' page--when
-examining the dump, there will be no way to know it contains 0x17.  This is
-obviously a contrived and useless example.  But such cases do exist in the
-real world, e.g. garbage collectors that temporarily mprotect some pages to
-read-only--in a core dump of such a process, knowing the contents of these
-pages could be important.  With my change, that page appears in the dump.
-
-
-Thanks,
-Roland
-
-
-Index: linux-2.6/fs/binfmt_elf.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/fs/binfmt_elf.c,v
-retrieving revision 1.57
-diff -u -b -p -r1.57 binfmt_elf.c
---- linux-2.6/fs/binfmt_elf.c 3 Oct 2003 15:35:40 -0000 1.57
-+++ linux-2.6/fs/binfmt_elf.c 7 Oct 2003 06:35:06 -0000
-@@ -960,12 +960,13 @@ static int maydump(struct vm_area_struct
- 	/* Do not dump I/O mapped devices! -DaveM */
- 	if (vma->vm_flags & VM_IO)
- 		return 0;
--#if 1
-+	/* Dump anything writable.  */
- 	if (vma->vm_flags & (VM_WRITE|VM_GROWSUP|VM_GROWSDOWN))
- 		return 1;
--	if (vma->vm_flags & (VM_READ|VM_EXEC|VM_EXECUTABLE|VM_SHARED))
-+	/* Don't dump unwritable segments mapped from files.  */
-+	if (vma->vm_file != NULL)
- 		return 0;
--#endif
-+	/* Dump everything else.  */
- 	return 1;
- }
- 
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-5044999 Fax: 91-80-5268553
+T/L : 9243696

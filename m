@@ -1,34 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315942AbSFJT71>; Mon, 10 Jun 2002 15:59:27 -0400
+	id <S315943AbSFJUBz>; Mon, 10 Jun 2002 16:01:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315943AbSFJT70>; Mon, 10 Jun 2002 15:59:26 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:50439 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S315942AbSFJT7Z>;
-	Mon, 10 Jun 2002 15:59:25 -0400
-Date: Mon, 10 Jun 2002 12:55:46 -0700
-From: Greg KH <greg@kroah.com>
-To: Andre Bonin <kernel@bonin.ca>
-Cc: Roberto Nibali <ratz@drugphish.ch>, root@chaos.analogic.com,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Firewire Disks. (fwd)
-Message-ID: <20020610195545.GA3508@kroah.com>
-In-Reply-To: <Pine.LNX.3.95.1020610141042.17451B-100000@chaos.analogic.com> <3D04EDC1.8010402@drugphish.ch> <3D04F704.5090202@bonin.ca>
-Mime-Version: 1.0
+	id <S315946AbSFJUBy>; Mon, 10 Jun 2002 16:01:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37645 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315943AbSFJUBx>;
+	Mon, 10 Jun 2002 16:01:53 -0400
+Message-ID: <3D050559.749D93AF@zip.com.au>
+Date: Mon, 10 Jun 2002 13:00:25 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Thunder from the hill <thunder@ngforever.de>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
+In-Reply-To: <3D04FE64.B92706E8@zip.com.au> <Pine.LNX.4.44.0206101344170.6159-100000@hawkeye.luckynet.adm>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 13 May 2002 18:01:41 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 10, 2002 at 02:59:16PM -0400, Andre Bonin wrote:
+Thunder from the hill wrote:
 > 
-> Does the SCSI layer via sbp2 provide functionality for USB 2.0 (EHCI) 
-> disks?
+> Hi,
+> 
+> On Mon, 10 Jun 2002, Andrew Morton wrote:
+> > __func__ does *not* work on egcs-1.1.2 and so cannot be used in Linux.
+> >
+> > `struct blah = { .open = driver_open };' *does* work in egcs-1.1.2
+> > and is OK to use.
+> 
+> Gee. I guess we need a special host gcc to support our needs - on
+> sparc(|64). We might have a patch that easily renames it in the sources of
+> egcs...
 
-Yes, but it's supported by the usb-storage driver, not the ieee1394
-driver :)
+?
 
-greg k-h
+> Anyway, what is the problem about new gcc on old sparc? It works at least
+> on my sparc64, I can't complain.
+
+I don't know - we need to find a davem to answer that question.
+
+egcs-1.1.2 has a problem with the percpu infrastructure - it
+fails to put the right things in the right sections.  The
+workaround for that is to ensure that the percpu data structures
+are always initialised at the definition site:
+
+	/* Some compilers disobey section attribute on statics when not
+	   initialized -- RR */
+	static struct tasklet_head tasklet_vec __per_cpu_data = { NULL };
+	static struct tasklet_head tasklet_hi_vec __per_cpu_data = { NULL };
+
+Note the (otherwise unneeded) `= { NULL }'.  The result of getting
+this wrong is a nasty and subtly-dead kernel.
+
+It's not a very happy state of affairs.   I'll be using
+2.91.66 on x86 from now on, so any problems (in the stuff
+which I build and test) will be picked up.
+
+-

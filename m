@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274239AbRIXXIg>; Mon, 24 Sep 2001 19:08:36 -0400
+	id <S274041AbRIXXQj>; Mon, 24 Sep 2001 19:16:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274235AbRIXXI1>; Mon, 24 Sep 2001 19:08:27 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22032 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S274121AbRIXXIM>; Mon, 24 Sep 2001 19:08:12 -0400
-Date: Mon, 24 Sep 2001 16:06:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Bob Matthews <bmatthews@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Preliminary testing results for 2.4.10
-In-Reply-To: <3BAFB108.22D81127@redhat.com>
-Message-ID: <Pine.LNX.4.33.0109241605080.13605-100000@penguin.transmeta.com>
+	id <S274235AbRIXXQ3>; Mon, 24 Sep 2001 19:16:29 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:35456 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S274041AbRIXXQT>;
+	Mon, 24 Sep 2001 19:16:19 -0400
+Message-ID: <3BAFC01D.20FA8240@randomlogic.com>
+Date: Mon, 24 Sep 2001 16:22:05 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in prison
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 24 Sep 2001, Bob Matthews wrote:
->
-> machine test1:  2xPIII, 2G RAM/4G Swap.  Appears to be in a memory
-> related deadlock.  All test related processes save one are in D state.
-> Vmstat indicates no swapping activity.  Top says both processors are
-> ~95% idle.  The exception is the TTCP test, which has a very small
-> memory footprint and is running normally.
-
-Can you check what "ctrl + ScrollLock" says?
-
-That will give you a nice list of all processes, along with their
-backtraces. Very useful indeed for finding deadlocks..
-
-		Linus
-
+"Paul G. Allen" wrote:
+> 
+> If this passes, everyone working in computer security can be arrested and thrown in prison for life. In addition, people such as Kevin Mitnick can be thrown
+> back in prison even though they have already paid for their crime (double jeopardy?).
+> 
+> http://www.securityfocus.com/news/257
+> 
+> PGA
+> 
+> --
+> Paul G. Allen
+> UNIX Admin II/Programmer
+> Akamai Technologies, Inc.
+> www.akamai.com
+> Work: (858)909-3630
+> Cell: (858)395-5043
+> 
+>         
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

@@ -1,70 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbTCOUck>; Sat, 15 Mar 2003 15:32:40 -0500
+	id <S261535AbTCOU3V>; Sat, 15 Mar 2003 15:29:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261539AbTCOUck>; Sat, 15 Mar 2003 15:32:40 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:15075 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S261530AbTCOUci>; Sat, 15 Mar 2003 15:32:38 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andrew Morton <akpm@digeo.com>
-Date: Sun, 16 Mar 2003 07:42:34 +1100
-MIME-Version: 1.0
+	id <S261539AbTCOU3V>; Sat, 15 Mar 2003 15:29:21 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:35577 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S261535AbTCOU3U>;
+	Sat, 15 Mar 2003 15:29:20 -0500
+Date: Sat, 15 Mar 2003 21:40:09 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][kconfig][i386] Fix help entry for processor type choice
+Message-ID: <20030315204009.GB31875@pasky.ji.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15987.36922.848433.245061@notabene.cse.unsw.edu.au>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.64-mm7 - dies on smp with raid
-In-Reply-To: message from Andrew Morton on Saturday March 15
-References: <20030315011758.7098b006.akpm@digeo.com>
-	<3E736505.2000106@aitel.hist.no>
-	<20030315120343.71faf732.akpm@digeo.com>
-X-Mailer: VM 7.08 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday March 15, akpm@digeo.com wrote:
-> 
-> A lot of md updates went into Linus's tree overnight.  Can you get some more
-> details for Neil?
-> 
-> Here is a wild guess:
-> 
-> diff -puN drivers/md/md.c~a drivers/md/md.c
-> --- 25/drivers/md/md.c~a	2003-03-15 12:02:04.000000000 -0800
-> +++ 25-akpm/drivers/md/md.c	2003-03-15 12:02:14.000000000 -0800
-> @@ -2818,6 +2818,8 @@ int md_thread(void * arg)
->  
->  void md_wakeup_thread(mdk_thread_t *thread)
->  {
-> +	if (!thread)
-> +		return;
->  	dprintk("md: waking up MD thread %p.\n", thread);
->  	set_bit(THREAD_WAKEUP, &thread->flags);
->  	wake_up(&thread->wqueue);
-> 
+  Hello,
 
-Looks like a good guess to me.
+  this patch (against 2.5.64) moves the generic help of the "Processor family"
+choice from the CONFIG_M386 option, adding some specific information about i386
+processors to it instead.
 
-I hadn't considered raid0/linear properly in that last change suite.
-They don't have a thread so there is nothing to wake up.
+  Please consider applying.
 
-There are two places where the wrong thing will happen:
-  do_md_run where it also calls md_update_sb which doesn't
-    hurt but isn't really needed (there is never any point
-    updating the superblock metadata for raid0/linear).
-  restart_array where we switch back to read/write and wakeup
-    the thread to see if there is anything to do.
+ arch/i386/Kconfig |   17 ++++++++++++-----
+ 1 files changed, 12 insertions(+), 5 deletions(-)
 
-We either need this "if(!thread)" test inside md_wakeup_thread
-or at those two call sites, in which case we can avoid md_update_sb
-as well.
+  Kind regards,
+				Petr Baudis
 
-I send one to Linus later...
-
-Thanks,
-NeilBrown
+--- linux+pasky/arch/i386/Kconfig	Thu Mar  6 20:38:49 2003
++++ linux/arch/i386/Kconfig	Sat Mar 15 21:34:16 2003
+@@ -110,10 +110,7 @@
+ choice
+ 	prompt "Processor family"
+ 	default M686
+-
+-config M386
+-	bool "386"
+-	---help---
++	help
+ 	  This is the processor type of your CPU. This information is used for
+ 	  optimizing purposes. In order to compile a kernel that can run on
+ 	  all x86 CPU types (albeit not optimally fast), you can specify
+@@ -148,10 +145,20 @@
+ 
+ 	  If you don't know what to do, choose "386".
+ 
++config M386
++	bool "386"
++	help
++	  Select this for an x386 processor, that is AMD/Cyrix/Intel
++	  386DX/DXL/SL/SLC/SX, Cyrix/TI 486DLC/DLC2, UMC 486SX-S and NexGen
++	  Nx586. Kernel compiled for this processor will also run on any newer
++	  processor of this architecture, although not optimally fast.
++
++	  If you don't know what processor to choose, choose this one.
++
+ config M486
+ 	bool "486"
+ 	help
+-	  Select this for a x486 processor, ether Intel or one of the
++	  Select this for an x486 processor, either Intel or one of the
+ 	  compatible processors from AMD, Cyrix, IBM, or Intel.  Includes DX,
+ 	  DX2, and DX4 variants; also SL/SLC/SLC2/SLC3/SX/SX2 and UMC U5D or
+ 	  U5S.

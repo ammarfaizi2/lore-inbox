@@ -1,107 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbUDMKWn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 06:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263483AbUDMKWn
+	id S263548AbUDMLE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 07:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUDMLEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 06:22:43 -0400
-Received: from hellhawk.shadowen.org ([212.13.208.175]:48913 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S263159AbUDMKWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 06:22:36 -0400
-Date: Tue, 13 Apr 2004 11:20:47 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: kenneth.w.chen@intel.com, raybry@sgi.com, mbligh@aracnet.com,
-       linux-kernel@vger.kernel.org, anton@samba.org, sds@epoch.ncsc.mil,
-       ak@suse.de, lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org
-Subject: Re: HUGETLB commit handling.
-Message-ID: <6480000.1081851647@[192.168.100.2]>
-In-Reply-To: <20040408154742.3faf7141.akpm@osdl.org>
-References: <15037082.1081445730@42.150.104.212.access.eclipse.net.uk> <20040408154742.3faf7141.akpm@osdl.org>
-X-Mailer: Mulberry/3.1.2 (Linux/x86)
+	Tue, 13 Apr 2004 07:04:25 -0400
+Received: from matrix.roma2.infn.it ([141.108.255.2]:42671 "EHLO
+	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
+	id S263551AbUDMLEX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 07:04:23 -0400
+From: "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
+Reply-To: AlberT@SuperAlberT.it
+Organization: SuperAlberT.it
+To: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL PATCH] make Documentation
+Date: Tue, 13 Apr 2004 13:02:17 +0200
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404131304.21080.AlberT@SuperAlberT.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Thursday, April 08, 2004 15:47:42 -0700 Andrew Morton <akpm@osdl.org> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Andy Whitcroft <apw@shadowen.org> wrote:
->>
->> We have been looking at the HUGETLB page commit issue (offlist) and are
->> close a final merged patch.
->
-> Be aware that I've merged a patch from Bill which does all the hugetlb code
-> unduplication.  A thousand lines gone:
->
->  25-akpm/arch/i386/mm/hugetlbpage.c    |  264 ----------------------------------
->  25-akpm/arch/ia64/mm/hugetlbpage.c    |  251 --------------------------------
->  25-akpm/arch/ppc64/mm/hugetlbpage.c   |  257 ---------------------------------
->  25-akpm/arch/sh/mm/hugetlbpage.c      |  258 ---------------------------------
->  25-akpm/arch/sparc64/mm/hugetlbpage.c |  259 ---------------------------------
->  25-akpm/fs/hugetlbfs/inode.c          |    2
->  25-akpm/include/linux/hugetlb.h       |    7
->  25-akpm/kernel/sysctl.c               |    6
->  25-akpm/mm/Makefile                   |    1
->  25-akpm/mm/hugetlb.c                  |  245 +++++++++++++++++++++++++++++++
->  10 files changed, 263 insertions(+), 1287 deletions(-)
->
-> Of course, this buggers up everyone else's patches, but I do think this
-> work has to come first.
->
-> I still need to test this on ppc64 and ia64.  I've dropped a rollup against
-> 2.6.5 at http://www.zip.com.au/~akpm/linux/patches/stuff/mc3.bz2 which you
-> should work against until I get -mc3 out for real.
+makeing docs raise this error:
 
-After bashing my poor bruised head against the screen for a
-considerable period I've discovered that memset'ing your IO space
-to zero is a very good way to stop your machine dead, silently.
-Anyhow, here is a patch against -mc4 to make HUGETLB support actually
-work in the presence of memory in ZONE_HIGHMEM.
-
--apw
-
-=== 8< ===
-When clearing a large page allocation ensure we use a page clear function
-which will correctly clear a ZONE_HIGHMEM page.
-
----
- hugetlb.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
-
-diff -upN reference/mm/hugetlb.c current/mm/hugetlb.c
---- reference/mm/hugetlb.c	2004-04-13 12:10:56.000000000 +0100
-+++ current/mm/hugetlb.c	2004-04-13 12:12:20.000000000 +0100
-@@ -9,6 +9,7 @@
- #include <linux/mm.h>
- #include <linux/hugetlb.h>
- #include <linux/sysctl.h>
-+#include <linux/highmem.h>
-
- const unsigned long hugetlb_zero = 0, hugetlb_infinity = ~0UL;
- static unsigned long nr_huge_pages, free_huge_pages;
-@@ -66,6 +67,7 @@ void free_huge_page(struct page *page)
- struct page *alloc_huge_page(void)
- {
- 	struct page *page;
-+	int i;
-
- 	spin_lock(&hugetlb_lock);
- 	page = dequeue_huge_page();
-@@ -77,7 +79,8 @@ struct page *alloc_huge_page(void)
- 	spin_unlock(&hugetlb_lock);
- 	set_page_count(page, 1);
- 	page->lru.prev = (void *)free_huge_page;
--	memset(page_address(page), 0, HPAGE_SIZE);
-+	for (i = 0; i < (HPAGE_SIZE/PAGE_SIZE); ++i)
-+		clear_highpage(&page[i]);
- 	return page;
- }
+Using stylesheet: /usr/share/sgml/docbook/utils-0.6.13/docbook-utils.dsl#html
+Working on: /usr/src/linux-2.6.5/Documentation/DocBook/parportbook.sgml
+openjade:/usr/src/linux-2.6.5/Documentation/DocBook/parportbook.sgml:4059:2:E: 
+invalid comment declaration: found character "!" outside comment but inside 
+comment declaration
+openjade:/usr/src/linux-2.6.5/Documentation/DocBook/parportbook.sgml:4058:0: 
+comment declaration started here
+openjade:/usr/src/linux-2.6.5/Documentation/DocBook/parportbook.sgml:4059:4:E: 
+character data is not allowed here
+make[3]: *** [Documentation/DocBook/parportbook.html] Error 8
+make[2]: *** [htmldocs] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.6.5'
+make[1]: *** [real_stamp_doc] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.6.5'
+make: *** [stamp-doc] Error 2
 
 
+this trivial patch solves the problem, plz apply:
 
+#####################################################
 
+- --- /usr/src/linux-2.6.5/Documentation/DocBook/parportbook.sgml.orig    
+2004-04-13 12:59:21.000000000 +0200
++++ /usr/src/linux-2.6.5/Documentation/DocBook/parportbook.sgml 2004-04-13 
+12:59:50.000000000 +0200
+@@ -4056,7 +4056,7 @@
 
+ </book>
+ <!-- Additional function to be documented:
+- ---! Ddrivers/parport/init.c (this file doesn't exist any more)
++   drivers/parport/init.c (this file doesn't exist any more)
+ -->
+ <!-- Local Variables: -->
+ <!-- sgml-indent-step: 1 -->
+
+#####################################################
+
+- -- 
+<?php echo '       Emiliano `AlberT` Gabrielli       '."\n".
+           '  E-Mail: AlberT_AT_SuperAlberT_it  '."\n".
+           '  Web:    http://SuperAlberT.it  '."\n".
+'  IRC:    #php,#AES azzurra.com '."\n".'ICQ: 158591185'; ?>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAe8jFF4boRkzPHocRAvPmAKCAmMvZbQfZWYE5hWnwAI/pL8PCfgCgiJ5C
+8t2eXfAqfILvuBNwJGzumj8=
+=RfVI
+-----END PGP SIGNATURE-----

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132091AbRAPWyU>; Tue, 16 Jan 2001 17:54:20 -0500
+	id <S131528AbRAPW7U>; Tue, 16 Jan 2001 17:59:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132645AbRAPWyK>; Tue, 16 Jan 2001 17:54:10 -0500
-Received: from cx518206-a.irvn1.occa.home.com ([24.21.107.122]:34798 "EHLO
-	pobox.com") by vger.kernel.org with ESMTP id <S132091AbRAPWyC>;
-	Tue, 16 Jan 2001 17:54:02 -0500
-From: "Barry K. Nathan" <barryn@pobox.com>
-Message-Id: <200101162253.f0GMrvU01248@pobox.com>
-Subject: Re: lance.c @ 100Mbit
-To: eli.carter@inet.com (Eli Carter)
-Date: Tue, 16 Jan 2001 14:53:57 -0800 (PST)
+	id <S132131AbRAPW7K>; Tue, 16 Jan 2001 17:59:10 -0500
+Received: from mail2.megatrends.com ([155.229.80.11]:10756 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S131528AbRAPW7A>; Tue, 16 Jan 2001 17:59:00 -0500
+Message-ID: <1355693A51C0D211B55A00105ACCFE64E9519D@ATL_MS1>
+From: Venkatesh Ramamurthy <Venkateshr@ami.com>
+To: "'Peter Samuelson'" <peter@cadcamlab.org>,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A64CADF.17C9B9A3@inet.com> from "Eli Carter" at Jan 16, 2001 04:27:43 PM
-X-Mailer: ELM [version 2.5 PL3]
+Subject: RE: Linux not adhering to BIOS Drive boot order?
+Date: Tue, 16 Jan 2001 17:54:36 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Quick question:  has anyone used the lance.c driver for a 100BaseT
-> network PCI device?  If so, what successes/failures did you run into?
 
-Never used lance.c for 100BaseT (can it do that?). I've used the pcnet32.c
-driver, however.
+> You seem to be full of things that "we" can implement.  So I just have
+> to wonder: do you by any chance have some prototype code somewhere to
+> figure out, reliably, which SCSI cards have BIOS extensions enabled,
+> and the order they hook in?
+> 
+	[Venkat] It would be a very bad idea for the linux kernel to look
+into the card to see whether the BIOS for that card has been enabled to make
+it determine the scsi drive order. If you had followed the earlier threads,
+the correct way to proceed would be to use labels to make things node
+independent. I think Andreas is working on patch for 2.2.18 and 2.4.0
+kernel. 
 
-> (I'm working with an Am79C973 chip.)
-
-In my case, Am79C971. Works great for me, under both 2.2 and 2.4. (I don't
-have any SMP systems, FWIW.)
-
--Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

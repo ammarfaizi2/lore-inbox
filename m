@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313906AbSDUWIE>; Sun, 21 Apr 2002 18:08:04 -0400
+	id <S313914AbSDUWU2>; Sun, 21 Apr 2002 18:20:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313911AbSDUWID>; Sun, 21 Apr 2002 18:08:03 -0400
-Received: from bnathan.remote.ics.uci.edu ([128.195.36.163]:21238 "HELO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
-	id <S313906AbSDUWID>; Sun, 21 Apr 2002 18:08:03 -0400
-Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Sun, 21 Apr 2002 15:08:59 -0700 (PDT)
-Cc: lm@bitmover.com (Larry McVoy), cat@zip.com.au (CaT),
-        aia21@cantab.net (Anton Altaparmakov), linux-kernel@vger.kernel.org
-In-Reply-To: <E16yz02-0000lC-00@starship> from "Daniel Phillips" at Apr 20, 2002 07:50:14 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20020421220859.D39E389579@cx518206-b.irvn1.occa.home.com>
-From: barryn@pobox.com (Barry K. Nathan)
+	id <S313916AbSDUWU1>; Sun, 21 Apr 2002 18:20:27 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.247.199]:39946 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
+	id <S313914AbSDUWU1>; Sun, 21 Apr 2002 18:20:27 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: SSE related security hole
+Date: 21 Apr 2002 22:11:13 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <a9vde1$285$1@abraham.cs.berkeley.edu>
+In-Reply-To: <20020418183639.20946.qmail@science.horizon.com> <Pine.LNX.3.95.1020418144215.30908A-100000@chaos.analogic.com>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1019427073 2309 128.32.45.153 (21 Apr 2002 22:11:13 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 21 Apr 2002 22:11:13 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> Horse, barn.  We need a solution that works before the patch gets applied.
+Richard B. Johnson wrote:
+>Well, if what's on the internal stack of the FPU can actually leak
+>information, I think the notion of "leak" has expanded just a bit
+>too much.
 
-Horse, barn... but horse (patch) is under 24/7 surveillance by one or two
-GPS-locator-equipped robots that the horse can't escape from (e-mail
-discussion and/or BK changelog entry) so who cares whether it's in the
-barn or not? We can find the horse and bring it back to the barn either
-way.
-
-Or, to drop the metaphor: We do not *need* a solution that works before
-the patch gets applied. It could be desirable, but it's not *necessary*.
-Once a BK patch is applied, the code itself is not set in stone; the patch
-can be discussed on the list, modified, or reverted (i.e., rejected after
-all) just like a patch that was posted to the mailing list and discussed
-first.
-
--Barry K. Nathan <barryn@pobox.com>
+Note that some crypto implemenations use the FPU heavily to speed up
+the encryption process.  Thus, if FPU data can leak, secret keys are
+at risk.  I don't know about you, but that doesn't sound good to me.

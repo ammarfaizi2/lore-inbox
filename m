@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268127AbUHFNHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268128AbUHFNJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268127AbUHFNHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 09:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268128AbUHFNHY
+	id S268128AbUHFNJx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 09:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268129AbUHFNJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 09:07:24 -0400
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:63933 "EHLO
-	certainkey.com") by vger.kernel.org with ESMTP id S268127AbUHFNHX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 09:07:23 -0400
-Date: Fri, 6 Aug 2004 09:03:03 -0400
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Michael Halcrow <lkml@halcrow.us>, James Morris <jmorris@redhat.com>,
-       "David S. Miller" <davem@redhat.com>, cryptoapi@lists.logix.cz,
-       Michal Ludvig <mludvig@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]
-Message-ID: <20040806130303.GF23994@certainkey.com>
-References: <20040805194914.GC23994@certainkey.com> <Xine.LNX.4.44.0408052245380.20516-100000@dhcp83-76.boston.redhat.com> <20040806020313.GA21309@halcrow.us> <Pine.LNX.4.58.0408052155180.24588@ppc970.osdl.org>
+	Fri, 6 Aug 2004 09:09:52 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:19627 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S268128AbUHFNJv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 09:09:51 -0400
+Date: Fri, 6 Aug 2004 15:09:42 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: qeth performance.
+Message-ID: <20040806130942.GB2065@wohnheim.fh-wedel.de>
+References: <20040806124941.GA2065@wohnheim.fh-wedel.de> <OFECABF5A6.F2037B97-ON42256EE8.00472EEA-42256EE8.0047790E@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408052155180.24588@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <OFECABF5A6.F2037B97-ON42256EE8.00472EEA-42256EE8.0047790E@de.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 09:58:58PM -0700, Linus Torvalds wrote:
-> So I'd strongly suggest against doing any "raw crypto access". Zero-copy
-> is often just a complicated way of doing things slowly, all in the name of
-> some benchmark performance.
+On Fri, 6 August 2004 15:00:40 +0200, Martin Schwidefsky wrote:
+> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote on 06/08/2004 02:49:41 PM:
+> >
+> > After 50% of the patch I grew tired of it.  Martin, since when do you
+> > like excessive use of #ifdef?
+> 
+> Well, it isn't so bad. Only 35 #ifdef CONFIG_QDIO_DEBUG.
 
-I hear you, these are all desirable things and I hate trying to be the black
-sheep - but would random.c make sense in being the exception since the
-outward looking interfaces (random_write for example) all use const char*
-type as arguments?
+Maybe our definitions of "isn't so bad" don't match. ;)
+Anyway, it's a first step.  No new code was added, the old debugging
+mess is explicitly marked as such now.  Next step would be to either
+completely get rid of it or replace it with something less ugly.
 
-Keeping the existing random.c interface and using crypto-api's scatter-gather
-interface are kind of contradictory ... or and I really missing something
-important (likely)?
+Jörn
 
-JLC
+-- 
+Beware of bugs in the above code; I have only proved it correct, but
+not tried it.
+-- Donald Knuth

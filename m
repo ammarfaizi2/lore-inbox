@@ -1,79 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263060AbRFFHH1>; Wed, 6 Jun 2001 03:07:27 -0400
+	id <S263083AbRFFHSS>; Wed, 6 Jun 2001 03:18:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262997AbRFFHHR>; Wed, 6 Jun 2001 03:07:17 -0400
-Received: from mail.muc.eurocyber.net ([195.143.108.5]:2295 "EHLO
-	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
-	id <S263060AbRFFHHD>; Wed, 6 Jun 2001 03:07:03 -0400
-Message-ID: <3B1DD68A.17C8FD52@TeraPort.de>
-Date: Wed, 06 Jun 2001 09:06:50 +0200
-From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac8 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.5 VM
-In-Reply-To: <E157KV1-00077L-00@the-village.bc.nu>
-Content-Type: multipart/mixed;
- boundary="------------D2D1E0DB5F820C9EBBE5C428"
+	id <S263086AbRFFHSI>; Wed, 6 Jun 2001 03:18:08 -0400
+Received: from sportingbet.gw.dircon.net ([195.157.147.30]:55044 "HELO
+	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
+	id <S263083AbRFFHRu>; Wed, 6 Jun 2001 03:17:50 -0400
+Date: Wed, 6 Jun 2001 08:14:16 +0100
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: Russell Leighton <russell.leighton@247media.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+Message-ID: <20010606081416.B15199@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	Russell Leighton <russell.leighton@247media.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com> <3B1D8A82.63FA138C@247media.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B1D8A82.63FA138C@247media.com>; from russell.leighton@247media.com on Tue, Jun 05, 2001 at 09:42:26PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------D2D1E0DB5F820C9EBBE5C428
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Alan Cox wrote:
+On Tue, Jun 05, 2001 at 09:42:26PM -0400, Russell Leighton wrote:
 > 
-> >  Just let me add my observation. The VM behaviour of 2.4.5 (started with
-> > some 2.4.4-ac kernel) is definitely less than an improvement for *my*
+> I also need some 2.4 features and can't really goto 2.2.
+> I would have to agree that the VM is too broken for production...looking
+> forward to the work that (hopefully) will be in 2.4.6 to resolve these issues.
 > 
-> 2.4.5 and 2.4.4-ac are unrelated VM setups. 2.4.5-ac is probably much better
-> for a lot of loads as it has the 2.4.5 general behaviour but gets the aging
-> a lot more sane
 
- OK. Maybe my wording was implying a nonexisting relation. In any case,
-the behaviour I described started with some of the later (-ac12)
-versions of 2.4.4-ac and continues with 2.4.5-ac.
+Boring to do a "me too", but "me too".  We have four big production oracle
+servers that could use 2.4 .  However, the test server we have put 2.4 on has
+no end of ridiculous VM and OOM problems.
 
- On a side question: does Linux support swap-files in addition to
-sawp-partitions? Even if that has a performance penalty, when the system
-is swapping performance is dead anyway.
+It seems bizarre that a 4GB machine with a working set _far_ lower than that
+should be dying from OOM and swapping itself to death, but that's life in 2.4
+land.
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
---------------D2D1E0DB5F820C9EBBE5C428
-Content-Type: text/x-vcard; charset=us-ascii;
- name="Martin.Knoblauch.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Martin.Knoblauch
-Content-Disposition: attachment;
- filename="Martin.Knoblauch.vcf"
 
-begin:vcard 
-n:Knoblauch;Martin
-tel;cell:+49-170-4904759
-tel;fax:+49-89-510857-111
-tel;work:+49-89-510857-309
-x-mozilla-html:FALSE
-url:http://www.teraport.de
-org:TeraPort GmbH;C+ITS
-adr:;;Garmischer Straße 4;München;Bayern;D-80339;Germany
-version:2.1
-email;internet:Martin.Knoblauch@TeraPort.de
-title:Senior System Engineer
-x-mozilla-cpt:;-7008
-fn:Martin Knoblauch
-end:vcard
-
---------------D2D1E0DB5F820C9EBBE5C428--
-
+Sean

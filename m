@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136884AbREJSjD>; Thu, 10 May 2001 14:39:03 -0400
+	id <S136892AbREJSyI>; Thu, 10 May 2001 14:54:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136885AbREJSix>; Thu, 10 May 2001 14:38:53 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:17165 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S136884AbREJSik>; Thu, 10 May 2001 14:38:40 -0400
-Date: Thu, 10 May 2001 19:38:37 +0100 (BST)
-From: John Levon <moz@compsoc.man.ac.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: [PATCH] Small kernel-api addition 
-In-Reply-To: <18661.989517905@redhat.com>
-Message-ID: <Pine.LNX.4.21.0105101937490.12998-100000@mrbusy.compsoc.man.ac.uk>
+	id <S136891AbREJSx7>; Thu, 10 May 2001 14:53:59 -0400
+Received: from bugs.unl.edu.ar ([168.96.132.208]:35497 "HELO bugs.unl.edu.ar")
+	by vger.kernel.org with SMTP id <S136889AbREJSxn>;
+	Thu, 10 May 2001 14:53:43 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: =?iso-8859-1?q?Mart=EDn=20Marqu=E9s?= <martin@bugs.unl.edu.ar>
+To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+Subject: Re: reiserfs, xfs, ext2, ext3
+Date: Thu, 10 May 2001 15:54:11 +0300
+X-Mailer: KMail [version 1.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0105091115390.10249-100000@twin.uoregon.edu>
+In-Reply-To: <Pine.LNX.4.33.0105091115390.10249-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01051015541100.02231@bugs>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 May 2001, David Woodhouse wrote:
+On Mié 09 May 2001 21:32, Joel Jaeggli wrote:
+> I have a proxy server that's been running 2.4.3pre4 with reiserfs for the
+> partitions on the cache disks. it has an uptime of 43 days at this point.
+> it wasn't very stable at all (two crashes in one week) with 2.4.2. I'll be
+> building 2.4.4 something when I get back from ghana to the US, but I don't
+> want to reboot it onto a fresh kernel while I'm 11,000 miles away, serial
+> console notwithstanding.
+>
+> Overall I'm of the belief that reiserfs is robust enough for mainstream
+> use, and it's significantly faster than ext2 for the squid box, you do as
+> usal need to be a bit selective about what kernel you choose to run.
 
-> I'd suggest s/that may be/that are expected to be/
+Could you give un information on the hardware you're using for that proxy?
 
-thanks, how about this :
+Saludos... :-)
 
---- Documentation/DocBook/kernel-api.tmpl.old	Thu May 10 18:02:05 2001
-+++ Documentation/DocBook/kernel-api.tmpl	Thu May 10 18:02:57 2001
-@@ -41,8 +41,9 @@
- !Iinclude/linux/init.h
-      </sect1>
- 
--     <sect1><title>Atomics</title>
-+     <sect1><title>Atomic and pointer manipulation</title>
- !Iinclude/asm-i386/atomic.h
-+!Iinclude/asm-i386/unaligned.h
-      </sect1>
- 
-      <sect1><title>Delaying, scheduling, and timer routines</title>
---- include/asm-i386/unaligned.h.old	Thu May 10 17:54:28 2001
-+++ include/asm-i386/unaligned.h	Thu May 10 19:38:55 2001
-@@ -9,8 +9,29 @@
-  * architectures where unaligned accesses aren't as simple.
-  */
- 
-+/**
-+ * get_unaligned - get value from possibly mis-aligned location
-+ * @ptr: pointer to value
-+ *
-+ * This macro should be used for accessing values larger in size than 
-+ * single bytes at locations that are expected to be improperly aligned, 
-+ * e.g. retrieving a u16 value from a location not u16-aligned.
-+ *
-+ * Note that unaligned accesses can be very expensive on some architectures.
-+ */
- #define get_unaligned(ptr) (*(ptr))
- 
-+/**
-+ * put_unaligned - put value to a possibly mis-aligned location
-+ * @val: value to place
-+ * @ptr: pointer to location
-+ *
-+ * This macro should be used for placing values larger in size than 
-+ * single bytes at locations that are expected to be improperly aligned, 
-+ * e.g. writing a u16 value to a location not u16-aligned.
-+ *
-+ * Note that unaligned accesses can be very expensive on some architectures.
-+ */
- #define put_unaligned(val, ptr) ((void)( *(ptr) = (val) ))
- 
- #endif
-
+-- 
+El mejor sistema operativo es aquel que te da de comer.
+Cuida tu dieta.
+-----------------------------------------------------------------
+Martin Marques                  |        mmarques@unl.edu.ar
+Programador, Administrador      |       Centro de Telematica
+                       Universidad Nacional
+                            del Litoral
+-----------------------------------------------------------------

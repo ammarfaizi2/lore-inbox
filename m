@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129381AbRCWBqo>; Thu, 22 Mar 2001 20:46:44 -0500
+	id <S129292AbRCWBoO>; Thu, 22 Mar 2001 20:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129346AbRCWBq1>; Thu, 22 Mar 2001 20:46:27 -0500
-Received: from enhanced.ppp.eticomm.net ([206.228.183.5]:21749 "EHLO
-	intech19.enhanced.com") by vger.kernel.org with ESMTP
-	id <S129321AbRCWBoY>; Thu, 22 Mar 2001 20:44:24 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org, nfs-devel@linux.kernel.org
-Subject: Re: PROBLEM: 2.2.18 oops leaves umount hung in disk sleep
-In-Reply-To: <E14g8eP-0006k5-00@intech19.enhanced.com> <shs1yrpabky.fsf@charged.uio.no> <54hf0l8ug1.fsf@intech19.enhanced.com> <shspuf98nhy.fsf@charged.uio.no>
-From: Camm Maguire <camm@enhanced.com>
-Date: 22 Mar 2001 20:43:33 -0500
-In-Reply-To: Trond Myklebust's message of "22 Mar 2001 23:09:13 +0100"
-Message-ID: <541yrpgsze.fsf@intech19.enhanced.com>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S129321AbRCWBn5>; Thu, 22 Mar 2001 20:43:57 -0500
+Received: from monza.monza.org ([209.102.105.34]:1290 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S129292AbRCWBnn>;
+	Thu, 22 Mar 2001 20:43:43 -0500
+Date: Thu, 22 Mar 2001 17:42:33 -0800
+From: Tim Wright <timw@splhi.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Woller, Thomas" <twoller@crystal.cirrus.com>, andrew.grover@intel.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Incorrect mdelay() results on Power Managed Machines x86
+Message-ID: <20010322174233.A1651@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Woller, Thomas" <twoller@crystal.cirrus.com>,
+	andrew.grover@intel.com, linux-kernel@vger.kernel.org
+In-Reply-To: <973C11FE0E3ED41183B200508BC7774C0124F077@csexchange.crystal.cirrus.com> <E14gEeH-0003Z4-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14gEeH-0003Z4-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Mar 22, 2001 at 11:37:43PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings!  Here are the contiguous lines from kern.log:
+If it's a 500MHz Thinkpad, then I'm guessing it's something like a 600X.
+That doesn't have Speedstep. The speed changes are done by some circuitry
+in the laptop. I can try to find out more if this would help.
+The newer machines are using Speedstep.
 
-Mar 21 01:14:47 intech9 kernel: eth0: bogus packet: status=0x80 nxpg=0x57 size=1270
-Mar 21 01:14:49 intech9 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Mar 21 01:14:49 intech9 kernel: current->tss.cr3 = 02872000, %%cr3 = 02872000
-Mar 21 01:14:49 intech9 kernel: *pde = 00000000
-Mar 21 01:14:49 intech9 kernel: Oops: 0000
-Mar 21 01:14:49 intech9 kernel: CPU:    0
-Mar 22 12:30:08 intech9 kernel: klogd 1.3-3#33.1, log source = /proc/kmsg started.
+Tim
 
-Why would this have not been included, would you happen to know?  In
-any case, I understand that its pretty much impossible to debug now,
-right?  dmesg wrapped around by the time I got to it (I seem to be
-having a lot of ethernet bogus packet messages, as shown above.  I've
-chalked this up to the heavy traffic during the amanda backup, but
-maybe something is wrong here too/instead?)
-
-Thanks again!
-
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
-
-> >>>>> " " == Camm Maguire <camm@enhanced.com> writes:
+On Thu, Mar 22, 2001 at 11:37:43PM +0000, Alan Cox wrote:
+> > 	thanks, i just tested the "notsc" option (.config has CONFIG_X86_TSC
+> > enabled=y, but CONFIG_M586TSC is not enabled.. if that's ok), but this time
+> ...
+> > boot and stay on battery power exclusively.  did anyone else expect this
+> > behaviour?  
 > 
->      > I'd be happy to generate one if I could.  I've got the system
->      > map.  The defaults reported by ksymoops are all correct.  Don't
->      > know why it didn't give me more info.  Normally, the info is
->      > reported by klogd anyway, but not here.  I've sent you all I
->      > currently have.  If you can suggest how I can get more, would
->      > be glad to do so.
+> Errmm no.. 
 > 
-> 
-> Unless you happen to have a dump from 'dmesg', there's probably not
-> much you can do to recover the rest of the Oops...
-> 
-> We need at least the line 'EIP:' if we're to find out where the fault
-> occurred. Are you certain that it can't be found in the syslog?
-> 
->      > I thought I was running v3.  Can't seem to find anything now
->      > which indicates the protocol version in use, but was under the
->      > impression that v4 was only an option in 2.4.x, no?
-> 
-> 
-> Mar 21 01:14:49 intech9 automount[305]: using kernel protocol version 3 on reawaken
-> 
-> Sorry, the above message fooled me.
-> 
-> 
-> Cheers,
->   Trond
-> 
-> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Camm Maguire			     			camm@enhanced.com
-==========================================================================
-"The earth is but one country, and mankind its citizens."  --  Baha'u'llah
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

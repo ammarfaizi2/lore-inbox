@@ -1,82 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262263AbTERXFx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 19:05:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTERXFx
+	id S262256AbTERXCb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 19:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbTERXCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 19:05:53 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:40122
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262263AbTERXFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 19:05:49 -0400
-Date: Mon, 19 May 2003 01:18:25 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: David Schwartz <davids@webmaster.com>
-Cc: Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Scheduling problem with 2.4?
-Message-ID: <20030518231825.GG1429@dualathlon.random>
-References: <5.2.0.9.2.20030518103757.00ce93e8@pop.gmx.net> <MDEHLPKNGKAHNMBLJOLKEEPADAAA.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEPADAAA.davids@webmaster.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	Sun, 18 May 2003 19:02:31 -0400
+Received: from smtp03.uc3m.es ([163.117.136.123]:50700 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id S262256AbTERXC0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 19:02:26 -0400
+Date: Mon, 19 May 2003 01:15:16 +0200
+Message-Id: <200305182315.h4INFG428386@oboe.it.uc3m.es>
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: recursive spinlocks. Shoot.
+X-Newsgroups: linux.kernel
+In-Reply-To: <20030518202013$5297@gated-at.bofh.it>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 18, 2003 at 10:46:24AM -0700, David Schwartz wrote:
-> 
-> > Is there any down-side to not preempting quite as often?  It seems like
-> > there should be a bandwidth gain.
-> >
-> >          -Mike
-> 
-> 	The theoretical down-side is that interactivity might suffer a bit because
-> a process isn't scheduled quite as quickly. Yes, the less-often you preempt
-> a process, the faster the system will go in the sense of work done per unit
-> time. But those pesky users want their characters to echo quickly and the
-> mouse pointer to track their physical motions.
-> 
-> 	Obviously, we must preempt when a process with a higher static priority
+In article <20030518202013$5297@gated-at.bofh.it> you wrote:
+>>
+>> > #define nestlock_lock(snl) \
+>> > 	do { \
+>> > 		if ((snl)->uniq == current) { \
+>>
+>> That would be able to read uniq while it is being written by something
+>> else (which it can, according to the code below). It needs protection.
 
-the static priority is the same for all tasks in the system unless you
-use nice. I believe linux should do well without forcing the user to set
-the GUI at high prio etc..
+> No it does not, look better.
 
-> becomes ready to run. However, preempting based on dynamic priorities
-> has
-> permitted time slices to be even longer, permitting a reduction in context
+I'm afraid I only see that it does!
 
-the dyn prio doesn't change the timeslice size, it only chooses if to
-wakeup a task immediatly or not, timeslices are calculated in function
-of the static priority, not the dyn prio. Those interactive tasks uses
-nearly zero of their timeslice anyways, the size of the timeslice has
-little meaning for interactive tasks, what matters is "when" they run
-and that's controlled by the dyn prio.
+>> > 			atomic_inc(&(snl)->count); \
+>> > 		} else { \
+>> > 			spin_lock(&(snl)->lock); \
+>> > 			atomic_inc(&(snl)->count); \
+>> > 			(snl)->uniq = current; \
+>>
+>> Hmm .. else we wait for the lock, and then set count and uniq, while
+>> somebody else may have entered and be reading it :-). You exit with
 
-> switches without sacrificing interactivity.
-> 
-> 	I still believe, however, that a process should be 'guaranteed' some slice
-> of time every time it's scheduled unless circumstances make it impossible to
-> allow the process to continue running. IMO, the pendulum has swung too far
-> in favor of interactivity. Obviously, if the process faults, blocks, or a
-> process with higher static priority becomes ready to run, then we must
+> Nope, think about a case were it breaks. False negatives are not possible
+> because it is set by the same task and false positives either.
 
-if the static priority is much higher the immediate switch already
-happens. But if we choose to guarantee a min_timeslice to tasks to avoid
-the ctx switch flood for your testcase, then also the higher static prio
-tasks will have to wait for this min_timeslice. The issue is no
-different with higher static prio, or you will complain next time that
-you get a ctx switch flood from a dd bs=1 writing into a pty connected
-to an xterm running at -20 prio.
+No. This is not true. Imagine two threads, timed as follows ...
 
-> terminate the process' time slice early.
-> 
-> 	DS
-> 
-> 
+    .
+    .
+    .
+    .
+if ((snl)->uniq == current) {
+atomic_inc(&(snl)->count); 		.
+} else { 				.
+spin_lock(&(snl)->lock);		.
+atomic_inc(&(snl)->count);		.
+(snl)->uniq = current; 	  <->	if ((snl)->uniq == current) {
+				atomic_inc(&(snl)->count); 
+				} else { 		
+				spin_lock(&(snl)->lock);
+				atomic_inc(&(snl)->count);
+				(snl)->uniq = current; 	
 
 
-Andrea
+There you are. One hits the read exactly at the time the other does a
+write. Bang.
+
+
+>> Well, it's not assembler either, but at least it's easily comparable
+>> with the nonrecursive version. It's essentially got an extra if and
+>> an inc in the lock. That's all.
+
+> Well, there's a little difference. In case of contention, you loop with
+> your custom try lock while I used the optimized asm code inside spin_lock.
+> But again, I believe we didn't lose anything with the removal of this code
+> (nested/recursive locks) from the kernel.
+
+We lose hours of programmers time, looking for deadlocks caused by
+accidently taking the same spinlock twice and not knowing it.
+
+A question in my mind is whether a fault in a third thread, like
+sleeping with a spinlock held, can make a recursive spinlock into
+a fault causer ... no, I don't see any way.
+
+Peter

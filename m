@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264379AbTICTWu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 15:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTICTVr
+	id S264346AbTICTMl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 15:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTICTGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 15:21:47 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:6160
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264195AbTICTTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 15:19:30 -0400
-Date: Wed, 3 Sep 2003 12:19:46 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH]O20int
-Message-ID: <20030903191946.GB16361@matchmail.com>
-Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <200309040053.22155.kernel@kolivas.org>
+	Wed, 3 Sep 2003 15:06:54 -0400
+Received: from 64.221.211.208.ptr.us.xo.net ([64.221.211.208]:58349 "HELO
+	mail.keyresearch.com") by vger.kernel.org with SMTP id S263938AbTICTGE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 15:06:04 -0400
+Subject: Re: devfs to be obsloted by udev?
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Greg KH <greg@kroah.com>
+Cc: Justin Cormack <justin@street-vision.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Ed Sweetman <ed.sweetman@wmich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030903184140.GA1651@kroah.com>
+References: <3F54A4AC.1020709@wmich.edu>
+	 <200309022219.02549.bzolnier@elka.pw.edu.pl>
+	 <1062581929.30060.197.camel@lotte.street-vision.com>
+	 <20030903184140.GA1651@kroah.com>
+Content-Type: text/plain
+Message-Id: <1062615962.30752.86.camel@serpentine.internal.keyresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309040053.22155.kernel@kolivas.org>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 03 Sep 2003 12:06:02 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 12:53:10AM +1000, Con Kolivas wrote:
-> Smaller timeslice granularity for most interactive tasks and larger for less 
-> interactive. Smaller for each extra cpu.
+On Wed, 2003-09-03 at 11:41, Greg KH wrote:
 
-> +#ifdef CONFIG_SMP
-> +#define TIMESLICE_GRANULARITY(p) \
-> +	(MIN_TIMESLICE * (1 << (MAX_BONUS - CURRENT_BONUS(p))) * \
-> +		num_online_cpus())
-> +#else
-> +#define TIMESLICE_GRANULARITY(p) \
-> +	(MIN_TIMESLICE * (1 << (MAX_BONUS - CURRENT_BONUS(p))))
-> +#endif
-> +
+> What has been postponed to 2.7 is the moving of some of the boot code to
+> use it some more.  But that's really just a matter of someone doing the
+> work (and adding it to the build process properly.)  There are a few
+> patches floating around somewhere that do this with the exception of
+> intregrating into the build.
 
-Don't you want to put a max(10,TIMESLICE_GRANULARITY) in there so that the
-time slice won't go below 1ms for large proc servers?  I'm not sure if it
-was you, or someone else but they did some testing to see how the
-timeslice length affected the cache warmth, and the major improvements
-stopped after 7ms, so 10 might be a good default mimimum.
+Actually, much of the work is both done and integrated into the build
+already.
 
-Mike
+See http://klibc.bkbits.net/2.5-klibc for a kernel that has this stuff
+in place.
+
+	<b
+

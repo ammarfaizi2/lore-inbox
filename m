@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263974AbTDJAqf (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 20:46:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263973AbTDJAqf (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 20:46:35 -0400
-Received: from pop.gmx.net ([213.165.65.60]:20319 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263974AbTDJAqe (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 20:46:34 -0400
-From: "Oliver S." <Follow.Me@gmx.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: WG: questions regarding Journalling-FSes and w-cache reordering
-Date: Thu, 10 Apr 2003 02:58:15 +0200
-Message-ID: <001001c2fefc$44ed47d0$0200000a@kimba>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	id S263973AbTDJBJ0 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 21:09:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263975AbTDJBJ0 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 21:09:26 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:15056 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263973AbTDJBJ0 (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 21:09:26 -0400
+Date: Wed, 9 Apr 2003 21:21:05 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200304100121.h3A1L5E29440@devserv.devel.redhat.com>
+To: davidm@hpl.hp.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] add module_arch_cleanup() and improve module debugging output
+In-Reply-To: <mailman.1049925502.12924.linux-kernel2news@redhat.com>
+References: <mailman.1049925502.12924.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd like to build a reliable ~1 TB RAID 5 from IDE drives. I will
-> gladly give up performance for high reliability and low cost.
+> --- a/arch/sparc/kernel/module.c	Wed Apr  9 14:49:48 2003
+> +++ b/arch/sparc/kernel/module.c	Wed Apr  9 14:49:48 2003
+> @@ -145,3 +145,7 @@
+>  {
+>  	return 0;
+>  }
+> +
+> +void module_arch_cleanup(struct module *mod)
+> +{
+> +}
 
- Most ATA-RAIDs disable write-caching, and that's not really a performance
--disadvantage with a decent drive-scheduler (afaik most OSes implement a
-cyclical-scan and not elevator-schedulers) when the HD has a linear mapping;
-and today's ATA-HDs all have linear mappings. Only with back-to-back writes
-can cause the HD to have a lap of honour.
+Why not to do #define module_arch_cleanup(mod)  /* */  ?
 
+-- Pete

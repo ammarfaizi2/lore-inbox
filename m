@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131947AbRA0JQs>; Sat, 27 Jan 2001 04:16:48 -0500
+	id <S132166AbRA0JeW>; Sat, 27 Jan 2001 04:34:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132166AbRA0JQi>; Sat, 27 Jan 2001 04:16:38 -0500
-Received: from gw-enternet.enternet.se ([193.13.79.17]:8329 "HELO
-	mail.ornskoldsvik.com") by vger.kernel.org with SMTP
-	id <S131947AbRA0JQX>; Sat, 27 Jan 2001 04:16:23 -0500
-Message-ID: <3A72921C.D013F074@sorliden.ornskoldsvik.com>
-Date: Sat, 27 Jan 2001 10:17:17 +0100
-From: Matti Långvall 
-	<matti.langvall@sorliden.ornskoldsvik.com>
-Reply-To: matti.langvall@sorliden.ornskoldsvik.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac11 i686)
-X-Accept-Language: sv, en
+	id <S132307AbRA0JeM>; Sat, 27 Jan 2001 04:34:12 -0500
+Received: from femail1.rdc1.on.home.com ([24.2.9.88]:22494 "EHLO
+	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S132166AbRA0JeF>; Sat, 27 Jan 2001 04:34:05 -0500
+Message-ID: <3A7295F6.621BBEC4@Home.com>
+Date: Sat, 27 Jan 2001 04:33:42 -0500
+From: Shawn Starr <Shawn.Starr@Home.com>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Running 2.4.0-ac11
-In-Reply-To: <3A720485.58D656A4@sorliden.ornskoldsvik.com> <20010127015122.E23160@suse.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: David Ford <david@linux.com>
+CC: J Sloan <jjs@pobox.com>, Aaron Lehmann <aaronl@vitelus.com>,
+        John Sheahan <john@reptechnic.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: ps hang in 241-pre10
+In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <20010126204324.B10046@vitelus.com> <3A72817E.CFCF0D52@pobox.com> <3A7285D4.9409E63A@linux.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+Yes, I have ReiserFS as well...hrm...
 
-> On Sat, Jan 27 2001, Matti Långvall wrote:
-> > Best developers,
-> >
-> > I was told to send you these lines by Mr. Marcelo Tosatti, they appear
-> > even though there is no CD in any drive.
-> > System:    P3 733, VIA chips, 2 HD IDE drives, DVD and CD-R
-> >
-> > Jan 26 23:44:16 h-10-26-17-2 last message repeated 25 times
-> > Jan 26 23:44:47 h-10-26-17-2 kernel: scsi : aborting command due to
-> > timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x03 00 00 00 40 00
-> > Jan 26 23:44:55 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
-> > Jan 26 23:44:55 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
-> > Jan 26 23:44:55 h-10-26-17-2 kernel: attempt to access beyond end of
-> > device
-> > Jan 26 23:44:55 h-10-26-17-2 kernel: 0b:01: rw=0, want=34, limit=2
-> > Jan 26 23:44:55 h-10-26-17-2 kernel: isofs_read_super: bread failed,
-> > dev=0b:01, iso_blknum=16, block=16
-> > Jan 26 23:44:57 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
-> > Jan 26 23:45:29 h-10-26-17-2 last message repeated 32 times
-> > Jan 26 23:46:31 h-10-26-17-2 last message repeated 62 times
-> > Jan 26 23:47:32 h-10-26-17-2 last message repeated 60 times
-> > Jan 26 23:48:34 h-10-26-17-2 last message repeated 62 times
-> > Jan 26 23:49:36 h-10-26-17-2 last message repeated 62 times
+David Ford wrote:
+
+> I can quickly and easily duplicate it on my notebook by playing music or
+> mpegs in xmms.  It may take a few minutes but it's guaranteed.
 >
-> Running magicdev by any chance?
+> xmms stalls flat on it's face and anything accessing /proc stalls.  If I get
+> the time to do it, I'll take a gander at it with kdb.
 >
-> rpm -e magicdev
+> I have no patches applied to p10, I have reiserfs onboard but I highly doubt
+> it's reiserfs.
+>
+> -d
+>
+> J Sloan wrote:
+>
+> > OK, It's official now, I didn't know if it was some
+> > weird hardware fluke or something, but one of
+> > the computers here exhibited the same problem -
 >
 > --
-> * Jens Axboe <axboe@suse.de>
-> * SuSE Labs
-
-YES
-
-magicdev -0.2.7-1
-
-That's it?
-
-Matti Långvall
-
+>   There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+>   The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbTDVNTR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 09:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263138AbTDVNTR
+	id S263132AbTDVNV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 09:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263133AbTDVNV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 09:19:17 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:49415 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263131AbTDVNTQ (ORCPT
+	Tue, 22 Apr 2003 09:21:57 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:14785 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263132AbTDVNV4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 09:19:16 -0400
-Date: Tue, 22 Apr 2003 15:31:13 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: war <war@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20 + SiS + Adaptec AHA-7850
-Message-Id: <20030422153113.18ecc6fb.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.55.0304220927580.12913@p300>
-References: <Pine.LNX.4.55.0304212236380.12135@p300>
-	<20030422123852.63c5d763.skraw@ithnet.com>
-	<Pine.LNX.4.55.0304220927580.12913@p300>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Apr 2003 09:21:56 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16037.17599.400349.292447@gargle.gargle.HOWL>
+Date: Tue, 22 Apr 2003 15:33:51 +0200
+From: mikpe@csd.uu.se
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-rc1 doesn't build on ppc (6xx/pmac)
+CC: linuxppc-dev@lists.linuxppc.org
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Apr 2003 09:28:09 -0400 (EDT)
-war <war@lucidpixels.com> wrote:
+2.4.21-pre7 built and ran Ok on my PowerMac 4400 with
+CONFIG_6xx=y and CONFIG_ALL_PPC=y.
+2.4.21-rc1 fails at the end of the build with:
 
-> will this patch be included for 2.4.21 or 22?
+ld -T arch/ppc/vmlinux.lds -Ttext 0xc0000000 -Bstatic arch/ppc/kernel/head.o arch/ppc/kernel/idle_6xx.o init/main.o init/version.o init/do_mounts.o \
+	--start-group \
+	arch/ppc/kernel/kernel.o arch/ppc/platforms/platform.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+	 drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/macintosh/macintosh.o drivers/video/video.o drivers/usb/usbdrv.o drivers/media/media.o drivers/input/inputdrv.o \
+	net/network.o \
+	/tmp/linux-2.4.21-rc1/lib/lib.a \
+	--end-group \
+	-o vmlinux
+arch/ppc/kernel/head.o(__ftr_fixup+0x60): undefined reference to `CPU_FTR_HAS_HIGH_BATS'
+arch/ppc/kernel/head.o(__ftr_fixup+0x64): undefined reference to `CPU_FTR_HAS_HIGH_BATS'
+arch/ppc/kernel/kernel.o: In function `sys_call_table':
+arch/ppc/kernel/kernel.o(.data+0x330c): undefined reference to `__setup_cpu_7450'
+arch/ppc/kernel/kernel.o(.data+0x332c): undefined reference to `__setup_cpu_7450'
+arch/ppc/kernel/kernel.o(.data+0x334c): undefined reference to `__setup_cpu_7450'
+arch/ppc/kernel/kernel.o(.data+0x336c): undefined reference to `__setup_cpu_7455'
+arch/ppc/kernel/kernel.o(.data+0x338c): undefined reference to `__setup_cpu_7455'
+arch/ppc/kernel/kernel.o(.data+0x33ac): undefined reference to `__setup_cpu_7455'
+make: *** [vmlinux] Error 1
 
-Very unlikely I guess, though I cannot comment on the reasons. At least I can
-find no stability issues. But it looks very invasive...
-
-But you should not have problems patching 2.4.20. It runs quite straight forward.
-URL: http://acpi.sourceforge.net/download.html
-
-
-> 
-> 
-> On Tue, 22 Apr 2003, Stephan von Krawczynski wrote:
-> 
-> > Can be you are running into some problems with irq-routing and SIS chipset.
-> > Try acpi-patch from sf. It worked for me.
-> >
-> > Regards,
-> > Stephan
-> >
-> >
-> > On Mon, 21 Apr 2003 22:38:23 -0400 (EDT)
-> > war <war@lucidpixels.com> wrote:
-> >
-> > > Does not work...
-> > > Boots up, probes each ID, fails, takes 15-20 sec per timeout for each ID,
-> > > then actually does boot after (15-20sec)*7ID for that board.
-> > >
-> > > I used same exact (SCSI-CONFIG) for VIA board, worked fine, guess there
-> > > are problems with IRQs or something?
-> > >
-> > > I'd send log/more information but don't feel like writing 10 pages of
-> > > text down to send to lkml.
-> > >
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > > in the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
+/Mikael

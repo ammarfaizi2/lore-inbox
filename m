@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272085AbRHVSzI>; Wed, 22 Aug 2001 14:55:08 -0400
+	id <S272082AbRHVTAI>; Wed, 22 Aug 2001 15:00:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272082AbRHVSy6>; Wed, 22 Aug 2001 14:54:58 -0400
-Received: from zeke.inet.com ([199.171.211.198]:37541 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S272084AbRHVSyz>;
-	Wed, 22 Aug 2001 14:54:55 -0400
-Message-ID: <3B840002.60D13CEF@inet.com>
-Date: Wed, 22 Aug 2001 13:54:58 -0500
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
-X-Accept-Language: en
+	id <S272084AbRHVS77>; Wed, 22 Aug 2001 14:59:59 -0400
+Received: from mail2.svr.pol.co.uk ([195.92.193.210]:47464 "EHLO
+	mail2.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S272082AbRHVS7s>; Wed, 22 Aug 2001 14:59:48 -0400
+Message-ID: <3B84012D.1010303@humboldt.co.uk>
+Date: Wed, 22 Aug 2001 19:59:57 +0100
+From: Adrian Cox <adrian@humboldt.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@zip.com.au>
 CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] typo in comment
-Content-Type: multipart/mixed;
- boundary="------------E02CAA7164C869D73AA63F83"
+Subject: Re: Filling holes in ext2
+In-Reply-To: <3B83E9FD.6020801@humboldt.co.uk> <3B83FB3F.A0BDC056@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------E02CAA7164C869D73AA63F83
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Andrew Morton wrote:
+> Adrian Cox wrote:
 
-Alan, (& etc.)
+>>Can this actually be exploited?  I assume the test on __copy_from_user()
+>>is there in case another thread changes memory mappings while
+>>generic_file_write() is running. My attempts to do this haven't yet
+>>succeeded.
+> I'd expect it to occur if you simply pass an unmapped address
+> to write()?
 
-No, it's not terribly important, but in studying the networking code, I
-noticed it, so here's a patch against 2.2.19.  Please apply.  (It's
-attached to avoid possible mangling problems.)
+No, because the first thing generic_file_write does is an access_ok() 
+check. It can only happen if the permissions change during the function. 
+That's why it's hard to exploit for real.
 
-Comments, questions, complaints?
-
-Eli 
---------------------.     Real Users find the one combination of bizarre
-Eli Carter           \ input values that shuts down the system for days.
-eli.carter(a)inet.com `-------------------------------------------------
---------------E02CAA7164C869D73AA63F83
-Content-Type: text/plain; charset=us-ascii;
- name="spelling.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="spelling.patch"
-
-Index: linux/net/ipv4/route.c
-===================================================================
-RCS file: /opt/eli_depot/kernelCVS/linux/net/ipv4/route.c,v
-retrieving revision 1.1.1.9
-diff -u -r1.1.1.9 route.c
---- linux/net/ipv4/route.c	2001/01/20 11:03:27	1.1.1.9
-+++ linux/net/ipv4/route.c	2001/08/22 18:47:59
-@@ -1346,7 +1346,7 @@
- #ifdef CONFIG_IP_ROUTE_VERBOSE
- 	if (IN_DEV_LOG_MARTIANS(in_dev) && net_ratelimit()) {
- 		/*
--		 *	RFC1812 recommenadtion, if source is martian,
-+		 *	RFC1812 recommendation, if source is martian,
- 		 *	the only hint is MAC header.
- 		 */
- 		printk(KERN_WARNING "martian source %08x for %08x, dev %s\n", saddr, daddr, dev->name);
-
---------------E02CAA7164C869D73AA63F83--
+-- 
+Adrian Cox   http://www.humboldt.co.uk/
 

@@ -1,35 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbULFRgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbULFRgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbULFRgq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 12:36:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbULFRgb
+	id S261588AbULFRgr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 12:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbULFRgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 12:36:31 -0500
-Received: from bay17-f5.bay17.hotmail.com ([64.4.43.55]:32441 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261537AbULFRfG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 12:35:06 -0500
-Message-ID: <BAY17-F523A0B2C3BD1F99F9FE23B7B40@phx.gbl>
-X-Originating-IP: [61.2.200.238]
-X-Originating-Email: [moptiva@hotmail.com]
-From: "Anoop T" <moptiva@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: System.map
-Date: Mon, 06 Dec 2004 23:04:06 +0530
+	Mon, 6 Dec 2004 12:36:23 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:36811 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261582AbULFReJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 12:34:09 -0500
+Subject: PATCH: Intel/Cyrix typo
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1102350635.14472.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 06 Dec 2004 17:35:03.0715 (UTC) FILETIME=[EB595730:01C4DBB9]
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 06 Dec 2004 16:30:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Self explanatory:
 
-	In one of the kernel build tutorials I found that I have to link the 
-System.map file in /boot to the newly built System.map. But I find that it 
-is automatically done at start up depending on which kernel version I chose 
-to boot. Could anyone please tell who actually does it. I mean is it done by 
-the kernel itself or by some start up scripts ?
+Signed-off-by: Alan Cox <alan@redhat.com>
+Based on a report on l/k
 
-_________________________________________________________________
-Searching for your soulmate? Zero in on the perfect choice. 
-http://www.astroyogi.com/newmsn/astrodate/ Try MSN Astrodate now!
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9/arch/i386/Kconfig linux-2.6.9/arch/i386/Kconfig
+--- linux.vanilla-2.6.9/arch/i386/Kconfig	2004-10-20 23:16:38.000000000 +0100
++++ linux-2.6.9/arch/i386/Kconfig	2004-11-25 23:06:10.000000000 +0000
+@@ -199,7 +199,7 @@
+ 	bool "586/K5/5x86/6x86/6x86MX"
+ 	help
+ 	  Select this for an 586 or 686 series processor such as the AMD K5,
+-	  the Intel 5x86 or 6x86, or the Intel 6x86MX.  This choice does not
++	  the Cyrix 5x86, 6x86 and 6x86MX.  This choice does not
+ 	  assume the RDTSC (Read Time Stamp Counter) instruction.
+ 
+ config M586TSC
 

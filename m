@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbVAEUKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVAEUK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262596AbVAEUKO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 15:10:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVAEUKN
+	id S262597AbVAEUK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 15:10:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVAEUK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 15:10:13 -0500
-Received: from moutng.kundenserver.de ([212.227.126.189]:39127 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262596AbVAEUJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 15:09:50 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, ast@domdv.de, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, joq@io.com
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <1104374603.9732.32.camel@krustophenia.net>
-	<20050103140359.GA19976@infradead.org>
-	<1104862614.8255.1.camel@krustophenia.net>
-	<20050104182010.GA15254@infradead.org>
-	<1104865034.8346.4.camel@krustophenia.net> <41DB4476.8080400@domdv.de>
-	<1104898693.24187.162.camel@localhost.localdomain>
-	<20050104215010.7f32590e.akpm@osdl.org>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Wed, 05 Jan 2005 21:09:18 +0100
-Message-ID: <87ekgzwscx.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
+	Wed, 5 Jan 2005 15:10:28 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:40123 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262597AbVAEUJv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 15:09:51 -0500
+Date: Wed, 5 Jan 2005 20:04:40 +0100
+From: Jurriaan on adsl-gate <thunder7@xs4all.nl>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-rc3-bk15 hanged under high load (i386)
+Message-ID: <20050105190440.GA479@gates.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <20050105183947.GA5601@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
+Content-Disposition: inline
+In-Reply-To: <20050105183947.GA5601@localhost>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Wed, Jan 05, 2005 at 07:39:48PM +0100, Jose Luis Domingo Lopez wrote:
+> Hi all:
+> 
+> 2.6.10-rc3-bk15
+>   
+>   Dec 29 20:41:38 dardhal kernel: swap_free: Bad swap offset entry 003f0000
+> 
+Did you have memtest86 run some loops over your memory?
 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->>
->>  Can we use capabilities
->
-> capabilities don't work :(
->
-> 	http://www.uwsg.iu.edu/hypermail/linux/kernel/0404.0/0502.html
+HTH,
+Jurriaan
 
-Capabilities don't work, because of missing filesystem
-capabilities. If you have them, it's a question of setting the
-appropriate permitted, inheritable and effective capability sets.
-
-I didn't follow the whole thread. But if you want to grant
-capabilities on a per user/group basis, may I suggest accessfs user
-based capabilities, for example? :-)
-
-Regards, Olaf.

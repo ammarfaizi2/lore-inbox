@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274198AbRI3VkA>; Sun, 30 Sep 2001 17:40:00 -0400
+	id <S274228AbRI3VrB>; Sun, 30 Sep 2001 17:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274221AbRI3Vju>; Sun, 30 Sep 2001 17:39:50 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29448 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274198AbRI3Vjd>; Sun, 30 Sep 2001 17:39:33 -0400
-Subject: Re: DMA problem (?) w/2.4.6-xfs and ServerWorks OSB4 Chipset
-To: mjustice@austin.rr.com
-Date: Sun, 30 Sep 2001 22:45:00 +0100 (BST)
+	id <S274226AbRI3Vqn>; Sun, 30 Sep 2001 17:46:43 -0400
+Received: from femail9.sdc1.sfba.home.com ([24.0.95.89]:17593 "EHLO
+	femail9.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S274224AbRI3Vqa>; Sun, 30 Sep 2001 17:46:30 -0400
+Date: Sun, 30 Sep 2001 17:50:53 -0400
+From: Tom Vier <tmv5@home.com>
+To: Wolly <wwolly@gmx.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01093016084007.00965@bozo> from "Marvin Justice" at Sep 30, 2001 04:08:40 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Subject: Re: Huge disk performance degradation STILL IN 2.4.10
+Message-ID: <20010930175053.A15091@zero>
+In-Reply-To: <200109211723.TAA00638@enigma.deepspace.net> <200109241505.RAA12224@enigma.deepspace.net> <1001344775.069479.26256.nullmailer@bozar.algorithm.com.au> <200109251000.MAA00463@enigma.deepspace.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15noOS-0007gw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200109251000.MAA00463@enigma.deepspace.net>; from wwolly@gmx.net on Tue, Sep 25, 2001 at 12:00:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alright. Until the situation clarifies you might tell RH turn off OSB4 by 
-> default in future releases. It caused us no end of grief with 2.4.3-12.
+i noticed it in 2.4.7-ac3 -> ac4, iirc.
 
-Blacklisting seagate drives on the OSB4 is already on the todo list - its
-taken a long time to figure out what was going on - it was only because
-someone had > 100 boxes and knew they all did this that we got anywhere
+On Tue, Sep 25, 2001 at 12:00:00PM +0200, Wolly wrote:
+> Okay, as just a few people on the list seem to worry about the issue, 
+> I spent an hour online and downloaded kernel 2.4.6 + patches for 
+> 2.4.[789] again to see exactly where the problem begins. 
+
+-- 
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

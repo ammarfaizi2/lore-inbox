@@ -1,458 +1,343 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVA1ScD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVA1SbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261513AbVA1ScD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 13:32:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVA1ScD
+	id S261504AbVA1SbR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 13:31:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVA1SbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 13:32:03 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:8365 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261513AbVA1SbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 13:31:02 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] swsusp: do not use higher order memory allocations on suspend
-Date: Fri, 28 Jan 2005 19:31:10 +0100
-User-Agent: KMail/1.7.1
-References: <200501281454.23167.rjw@sisk.pl> <20050128172451.GD7551@elf.ucw.cz>
-In-Reply-To: <20050128172451.GD7551@elf.ucw.cz>
-MIME-Version: 1.0
+	Fri, 28 Jan 2005 13:31:17 -0500
+Received: from gprs213-105.eurotel.cz ([160.218.213.105]:17026 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261504AbVA1Sa3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 13:30:29 -0500
+Date: Fri, 28 Jan 2005 19:29:56 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, linux-pm@osdl.org,
+       Andrew Morton <akpm@zip.com.au>
+Subject: driver-model: Type-checking for more drivers
+Message-ID: <20050128182956.GA9100@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501281931.10614.rjw@sisk.pl>
-Cc: hugang@soulinfo.com, Nigel Cunningham <ncunningham@linuxmail.org>
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 28 of January 2005 18:24, you wrote:
-> Hi!
-> 
-[-- snip --]
-> 
-> I'll do some testing later.
-> 
-> > diff -Nru linux-2.6.11-rc2-orig/include/linux/suspend.h linux-2.6.11-rc2/include/linux/suspend.h
-> > --- linux-2.6.11-rc2-orig/include/linux/suspend.h	2005-01-28 14:23:42.000000000 +0100
-> > +++ linux-2.6.11-rc2/include/linux/suspend.h	2005-01-28 13:53:36.000000000 +0100
-> > @@ -16,11 +16,20 @@
-> >  	unsigned long address;		/* address of the copy */
-> >  	unsigned long orig_address;	/* original address of page */
-> >  	swp_entry_t swap_address;	
-> > -	swp_entry_t dummy;		/* we need scratch space at 
-> > -					 * end of page (see link, diskpage)
-> > -					 */
-> > +
-> > +	struct pbe *next;
-> 
-> It is still used as a scratch space at end of page, please leave the
-> comment.
+Hi!
 
-OK (I've changed it a bit, so it's clear that this is not only scratch).
+This corrects type-checking into more drivers. No code changes, apart
+from pci_choose_state() which should not matter because we are only
+ever passing 0 or 3 to suspend method. With this, and after fixing
+sound, we should be able to switch pm_message_t into struct in early
+2.6.12 (and solve long-term problems). Please apply,
 
+From: Bernard Blackham <bernard@blackham.com.au>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+								Pavel
 
-> >  	printk( "Writing data to swap (%d pages)...     ", nr_copy_pages );
-> > -	for (i = 0; i < nr_copy_pages && !error; i++) {
-> > +	for_each_pbe(p, pagedir_nosave) {
-> >  		if (!(i%mod))
-> >  			printk( "\b\b\b\b%3d%%", i / mod );
-> > -		error = write_page((pagedir_nosave+i)->address,
-> > -					  &((pagedir_nosave+i)->swap_address));
-> > +		error = write_page(p->address, &(p->swap_address));
-> > +		if (error)
-> > +			goto Exit;
-> 
-> Can you do return error instead? Goto is ugly. Or just break. Same in
-> next chunks.
-
-Sure.
-
-  
-> > -
-> > -static void calc_order(void)
-> > +static int calc_nr(int nr_copy)
-> >  {
-> > -	int diff = 0;
-> > -	int order = 0;
-> > +	int extra = 0;
-> > +	int mod = (nr_copy % PBES_PER_PAGE) ? 1 : 0;
-> 
-> !!( ) is usually used for this.
-
-OK
-
-Additionally, I fixed a bug in alloc_pagedir() which might have been
-triggered if get_zereod_page() failed (unlikely, but still).  Corrected patch follows.
-
-Greets,
-RJW
-
-
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-
-diff -Nru linux-2.6.11-rc2-orig/include/linux/suspend.h linux-2.6.11-rc2/include/linux/suspend.h
---- linux-2.6.11-rc2-orig/include/linux/suspend.h	2005-01-28 14:23:42.000000000 +0100
-+++ linux-2.6.11-rc2/include/linux/suspend.h	2005-01-28 19:07:03.000000000 +0100
-@@ -16,11 +16,22 @@
- 	unsigned long address;		/* address of the copy */
- 	unsigned long orig_address;	/* original address of page */
- 	swp_entry_t swap_address;	
--	swp_entry_t dummy;		/* we need scratch space at 
--					 * end of page (see link, diskpage)
--					 */
-+
-+	struct pbe *next;	/* also used as scratch space at
-+				 * end of page (see link, diskpage)
-+				 */
- } suspend_pagedir_t;
+--- linux-2.6.11-rc2-pm-changes/drivers/media/video/bttv-driver.c	2005-01-22 14:20:56.000000000 +0800
++++ linux-2.6.11/drivers/media/video/bttv-driver.c	2005-01-28 22:39:28.000000000 +0800
+@@ -3914,7 +3914,7 @@
+         return;
+ }
  
-+#define for_each_pbe(pbe, pblist) \
-+	for (pbe = pblist ; pbe ; pbe = pbe->next)
-+
-+#define PBES_PER_PAGE      (PAGE_SIZE/sizeof(struct pbe))
-+#define PB_PAGE_SKIP       (PBES_PER_PAGE-1)
-+
-+#define for_each_pb_page(pbe, pblist) \
-+	for (pbe = pblist ; pbe ; pbe = (pbe+PB_PAGE_SKIP)->next)
-+
-+
- #define SWAP_FILENAME_MAXLENGTH	32
- 
- 
-diff -Nru linux-2.6.11-rc2-orig/kernel/power/swsusp.c linux-2.6.11-rc2/kernel/power/swsusp.c
---- linux-2.6.11-rc2-orig/kernel/power/swsusp.c	2005-01-28 14:23:42.000000000 +0100
-+++ linux-2.6.11-rc2/kernel/power/swsusp.c	2005-01-28 19:07:22.000000000 +0100
-@@ -76,7 +76,6 @@
- extern const void __nosave_begin, __nosave_end;
- 
- /* Variables to be preserved over suspend */
--static int pagedir_order_check;
- static int nr_copy_pages_check;
- 
- extern char resume_file[];
-@@ -292,20 +291,25 @@
- static int data_write(void)
+-static int bttv_suspend(struct pci_dev *pci_dev, u32 state)
++static int bttv_suspend(struct pci_dev *pci_dev, pm_message_t state)
  {
- 	int error = 0;
--	int i;
-+	int i = 0;
- 	unsigned int mod = nr_copy_pages / 100;
-+	struct pbe *p;
+         struct bttv *btv = pci_get_drvdata(pci_dev);
+ 	struct bttv_buffer_set idle;
+--- linux-2.6.11-rc2-pm-changes/drivers/net/3c59x.c	2005-01-28 22:45:28.000000000 +0800
++++ linux-2.6.11/drivers/net/3c59x.c	2005-01-28 22:45:35.000000000 +0800
+@@ -962,7 +962,7 @@
  
- 	if (!mod)
- 		mod = 1;
+ #ifdef CONFIG_PM
  
- 	printk( "Writing data to swap (%d pages)...     ", nr_copy_pages );
--	for (i = 0; i < nr_copy_pages && !error; i++) {
-+	for_each_pbe(p, pagedir_nosave) {
- 		if (!(i%mod))
- 			printk( "\b\b\b\b%3d%%", i / mod );
--		error = write_page((pagedir_nosave+i)->address,
--					  &((pagedir_nosave+i)->swap_address));
-+		error = write_page(p->address, &(p->swap_address));
-+		if (error)
-+			return error;
-+
-+		i++;
- 	}
- 	printk("\b\b\b\bdone\n");
-+
- 	return error;
- }
- 
-@@ -334,7 +338,6 @@
- 	swsusp_info.suspend_pagedir = pagedir_nosave;
- 	swsusp_info.cpus = num_online_cpus();
- 	swsusp_info.image_pages = nr_copy_pages;
--	dump_info();
- }
- 
- static int close_swap(void)
-@@ -342,6 +345,7 @@
- 	swp_entry_t entry;
- 	int error;
- 
-+	dump_info();
- 	error = write_page((unsigned long)&swsusp_info,&entry);
- 	if (!error) { 
- 		printk( "S" );
-@@ -373,15 +377,22 @@
- 
- static int write_pagedir(void)
+-static int vortex_suspend (struct pci_dev *pdev, u32 state)
++static int vortex_suspend (struct pci_dev *pdev, pm_message_t state)
  {
--	unsigned long addr = (unsigned long)pagedir_nosave;
- 	int error = 0;
--	int n = SUSPEND_PD_PAGES(nr_copy_pages);
--	int i;
-+	unsigned n = 0;
-+	struct pbe * pbe;
-+
-+	printk( "Writing pagedir ...");
-+
-+	for_each_pb_page(pbe, pagedir_nosave) {
-+		error = write_page((unsigned long)pbe, &swsusp_info.pagedir[n++]);
-+		if (error)
-+			return error;
-+	}
+ 	struct net_device *dev = pci_get_drvdata(pdev);
  
- 	swsusp_info.pagedir_pages = n;
--	printk( "Writing pagedir (%d pages)\n", n);
--	for (i = 0; i < n && !error; i++, addr += PAGE_SIZE)
--		error = write_page(addr, &swsusp_info.pagedir[i]);
-+
-+	printk("\b\b\bdone (%u pages)\n", n);
-+
- 	return error;
+--- linux-2.6.11-rc2-pm-changes/drivers/net/e100.c	2005-01-22 14:20:56.000000000 +0800
++++ linux-2.6.11/drivers/net/e100.c	2005-01-28 22:57:31.000000000 +0800
+@@ -2309,7 +2309,7 @@
  }
  
-@@ -536,7 +547,7 @@
- 	if (PageNosave(page))
- 		return 0;
- 	if (PageReserved(page) && pfn_is_nosave(pfn)) {
--		pr_debug("[nosave pfn 0x%lx]", pfn);
-+		pr_debug("[nosave pfn 0x%lx]\n", pfn);
- 		return 0;
- 	}
- 	if (PageNosaveFree(page))
-@@ -567,8 +578,8 @@
- 	struct zone *zone;
- 	unsigned long zone_pfn;
- 	struct pbe * pbe = pagedir_nosave;
--	int to_copy = nr_copy_pages;
- 	
-+	pr_debug("copy_data_pages(): pages to copy: %d\n", nr_copy_pages);
- 	for_each_zone(zone) {
- 		if (is_highmem(zone))
- 			continue;
-@@ -577,78 +588,98 @@
- 			if (saveable(zone, &zone_pfn)) {
- 				struct page * page;
- 				page = pfn_to_page(zone_pfn + zone->zone_start_pfn);
-+				BUG_ON(!pbe);
- 				pbe->orig_address = (long) page_address(page);
- 				/* copy_page is not usable for copying task structs. */
- 				memcpy((void *)pbe->address, (void *)pbe->orig_address, PAGE_SIZE);
--				pbe++;
--				to_copy--;
-+				pbe = pbe->next;
- 			}
- 		}
- 	}
--	BUG_ON(to_copy);
-+	BUG_ON(pbe);
- }
+ #ifdef CONFIG_PM
+-static int e100_suspend(struct pci_dev *pdev, u32 state)
++static int e100_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+ 	struct net_device *netdev = pci_get_drvdata(pdev);
+ 	struct nic *nic = netdev_priv(netdev);
+@@ -2320,7 +2320,7 @@
+ 	netif_device_detach(netdev);
  
+ 	pci_save_state(pdev);
+-	pci_enable_wake(pdev, state, nic->flags & (wol_magic | e100_asf(nic)));
++	pci_enable_wake(pdev, pci_choose_state(pdev, state), nic->flags & (wol_magic | e100_asf(nic)));
+ 	pci_disable_device(pdev);
+ 	pci_set_power_state(pdev, pci_choose_state(pdev, state));
  
- /**
-- *	calc_order - Determine the order of allocation needed for pagedir_save.
-- *
-- *	This looks tricky, but is just subtle. Please fix it some time.
-- *	Since there are %nr_copy_pages worth of pages in the snapshot, we need
-- *	to allocate enough contiguous space to hold 
-- *		(%nr_copy_pages * sizeof(struct pbe)), 
-- *	which has the saved/orig locations of the page.. 
-- *
-- *	SUSPEND_PD_PAGES() tells us how many pages we need to hold those 
-- *	structures, then we call get_bitmask_order(), which will tell us the
-- *	last bit set in the number, starting with 1. (If we need 30 pages, that
-- *	is 0x0000001e in hex. The last bit is the 5th, which is the order we 
-- *	would use to allocate 32 contiguous pages).
-- *
-- *	Since we also need to save those pages, we add the number of pages that
-- *	we need to nr_copy_pages, and in case of an overflow, do the 
-- *	calculation again to update the number of pages needed. 
-- *
-- *	With this model, we will tend to waste a lot of memory if we just cross
-- *	an order boundary. Plus, the higher the order of allocation that we try
-- *	to do, the more likely we are to fail in a low-memory situtation 
-- *	(though	we're unlikely to get this far in such a case, since swsusp 
-- *	requires half of memory to be free anyway).
-+ *	calc_nr - Determine the number of pages needed for a pbe list.
+--- linux-2.6.11-rc2-pm-changes/drivers/net/epic100.c	2005-01-22 14:20:56.000000000 +0800
++++ linux-2.6.11/drivers/net/epic100.c	2005-01-28 22:58:48.000000000 +0800
+@@ -1624,7 +1624,7 @@
+ 
+ #ifdef CONFIG_PM
+ 
+-static int epic_suspend (struct pci_dev *pdev, u32 state)
++static int epic_suspend (struct pci_dev *pdev, pm_message_t state)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	long ioaddr = dev->base_addr;
+--- linux-2.6.11-rc2-pm-changes/drivers/net/natsemi.c	2005-01-22 14:20:57.000000000 +0800
++++ linux-2.6.11/drivers/net/natsemi.c	2005-01-28 23:01:12.000000000 +0800
+@@ -3160,7 +3160,7 @@
+  * Interrupts must be disabled, otherwise hands_off can cause irq storms.
   */
  
--
--static void calc_order(void)
-+static int calc_nr(int nr_copy)
+-static int natsemi_suspend (struct pci_dev *pdev, u32 state)
++static int natsemi_suspend (struct pci_dev *pdev, pm_message_t state)
  {
--	int diff = 0;
--	int order = 0;
-+	int extra = 0;
-+	int mod = !!(nr_copy % PBES_PER_PAGE);
-+	int diff = (nr_copy / PBES_PER_PAGE) + mod;
- 
- 	do {
--		diff = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages)) - order;
--		if (diff) {
--			order += diff;
--			nr_copy_pages += 1 << diff;
--		}
--	} while(diff);
--	pagedir_order = order;
-+		extra += diff;
-+		nr_copy += diff;
-+		mod = !!(nr_copy % PBES_PER_PAGE);
-+		diff = (nr_copy / PBES_PER_PAGE) + mod - extra;
-+	} while (diff > 0);
-+
-+	return nr_copy;
+ 	struct net_device *dev = pci_get_drvdata (pdev);
+ 	struct netdev_private *np = netdev_priv(dev);
+--- linux-2.6.11-rc2-pm-changes/drivers/net/ne2k-pci.c	2005-01-22 14:20:57.000000000 +0800
++++ linux-2.6.11/drivers/net/ne2k-pci.c	2005-01-28 22:56:34.000000000 +0800
+@@ -654,13 +654,13 @@
  }
  
-+static inline void free_pagedir(struct pbe *pblist);
- 
- /**
-  *	alloc_pagedir - Allocate the page directory.
-  *
-- *	First, determine exactly how many contiguous pages we need and
-+ *	First, determine exactly how many pages we need and
-  *	allocate them.
-+ *
-+ *	We arrange the pages in a chain: each page is an array of PBES_PER_PAGE
-+ *	struct pbe elements (pbes) and the last element in the page points
-+ *	to the next page.
-+ *
-+ *	On each page we set up a list of struct_pbe elements.
-  */
- 
--static int alloc_pagedir(void)
-+static struct pbe * alloc_pagedir(unsigned nr_pages)
+ #ifdef CONFIG_PM
+-static int ne2k_pci_suspend (struct pci_dev *pdev, u32 state)
++static int ne2k_pci_suspend (struct pci_dev *pdev, pm_message_t state)
  {
--	calc_order();
--	pagedir_save = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC | __GFP_COLD,
--							     pagedir_order);
--	if (!pagedir_save)
--		return -ENOMEM;
--	memset(pagedir_save, 0, (1 << pagedir_order) * PAGE_SIZE);
--	pagedir_nosave = pagedir_save;
--	return 0;
-+	unsigned num;
-+	struct pbe *pblist, *pbe, *p;
-+
-+	if (!nr_pages)
-+		return NULL;
-+
-+	pr_debug("alloc_pagedir(): nr_pages = %d\n", nr_pages);
-+	pblist = (struct pbe *)get_zeroed_page(GFP_ATOMIC | __GFP_COLD);
-+	for (pbe = pblist, num = PBES_PER_PAGE ; pbe && num < nr_pages ;
-+        		pbe = pbe->next, num += PBES_PER_PAGE) {
-+		p = pbe;
-+		pbe += PB_PAGE_SKIP;
-+		do
-+			p->next = p + 1;
-+		while (p++ < pbe);
-+		pbe->next = (struct pbe *)get_zeroed_page(GFP_ATOMIC | __GFP_COLD);
-+	}
-+	if (pbe) {
-+		for (num -= PBES_PER_PAGE - 1, p = pbe ; num < nr_pages ; p++, num++)
-+			p->next = p + 1;
-+	}
-+	else { /* get_zeroed_page() failed */
-+		free_pagedir(pblist);
-+		pblist = NULL;
-+        }
-+	pr_debug("alloc_pagedir(): allocated %d PBEs\n", num);
-+	return pblist;
-+}
-+
-+/**
-+ *	free_pagedir - free pages allocated with alloc_pagedir()
-+ */
-+
-+static inline void free_pagedir(struct pbe *pblist)
-+{
-+	struct pbe *pbe;
-+
-+	while (pblist) {
-+		pbe = pblist + PB_PAGE_SKIP;
-+		pblist = pbe->next;
-+		free_page((unsigned long)pbe);
-+	}
-+	pr_debug("free_pagedir(): done\n");
+ 	struct net_device *dev = pci_get_drvdata (pdev);
+ 
+ 	netif_device_detach(dev);
+ 	pci_save_state(pdev);
+-	pci_set_power_state(pdev, state);
++	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+ 
+ 	return 0;
+ }
+--- linux-2.6.11-rc2-pm-changes/drivers/net/sis900.c	2005-01-22 14:20:57.000000000 +0800
++++ linux-2.6.11/drivers/net/sis900.c	2005-01-28 23:00:23.000000000 +0800
+@@ -2226,7 +2226,7 @@
+ 
+ #ifdef CONFIG_PM
+ 
+-static int sis900_suspend(struct pci_dev *pci_dev, u32 state)
++static int sis900_suspend(struct pci_dev *pci_dev, pm_message_t state)
+ {
+ 	struct net_device *net_dev = pci_get_drvdata(pci_dev);
+ 	long ioaddr = net_dev->base_addr;
+--- linux-2.6.11-rc2-pm-changes/drivers/net/sungem.c	2005-01-28 23:02:23.000000000 +0800
++++ linux-2.6.11/drivers/net/sungem.c	2005-01-28 22:44:55.000000000 +0800
+@@ -2356,7 +2356,7 @@
  }
  
- /**
-@@ -658,10 +689,8 @@
- static void free_image_pages(void)
+ #ifdef CONFIG_PM
+-static int gem_suspend(struct pci_dev *pdev, u32 state)
++static int gem_suspend(struct pci_dev *pdev, pm_message_t state)
  {
- 	struct pbe * p;
--	int i;
- 
--	p = pagedir_save;
--	for (i = 0, p = pagedir_save; i < nr_copy_pages; i++, p++) {
-+	for_each_pbe(p, pagedir_save) {
- 		if (p->address) {
- 			ClearPageNosave(virt_to_page(p->address));
- 			free_page(p->address);
-@@ -672,15 +701,13 @@
- 
- /**
-  *	alloc_image_pages - Allocate pages for the snapshot.
-- *
-  */
- 
- static int alloc_image_pages(void)
- {
- 	struct pbe * p;
--	int i;
- 
--	for (i = 0, p = pagedir_save; i < nr_copy_pages; i++, p++) {
-+	for_each_pbe(p, pagedir_save) {
- 		p->address = get_zeroed_page(GFP_ATOMIC | __GFP_COLD);
- 		if (!p->address)
- 			return -ENOMEM;
-@@ -694,7 +721,7 @@
- 	BUG_ON(PageNosave(virt_to_page(pagedir_save)));
- 	BUG_ON(PageNosaveFree(virt_to_page(pagedir_save)));
- 	free_image_pages();
--	free_pages((unsigned long) pagedir_save, pagedir_order);
-+	free_pagedir(pagedir_save);
- }
- 
- 
-@@ -752,10 +779,15 @@
- 	if (!enough_swap())
- 		return -ENOSPC;
- 
--	if ((error = alloc_pagedir())) {
-+	nr_copy_pages = calc_nr(nr_copy_pages);
-+
-+	pr_debug("suspend: (pages to copy: %d)\n", nr_copy_pages);
-+
-+	if (!(pagedir_save = alloc_pagedir(nr_copy_pages))) {
- 		printk(KERN_ERR "suspend: Allocating pagedir failed.\n");
--		return error;
-+		return -ENOMEM;
- 	}
-+	pagedir_nosave = pagedir_save;
- 	if ((error = alloc_image_pages())) {
- 		printk(KERN_ERR "suspend: Allocating image pages failed.\n");
- 		swsusp_free();
-@@ -763,7 +795,6 @@
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct gem *gp = dev->priv;
+--- linux-2.6.11-rc2-pm-changes/drivers/net/typhoon.c	2005-01-22 14:20:57.000000000 +0800
++++ linux-2.6.11/drivers/net/typhoon.c	2005-01-28 23:04:07.000000000 +0800
+@@ -2136,7 +2136,7 @@
+ 		goto out;
  	}
  
- 	nr_copy_pages_check = nr_copy_pages;
--	pagedir_order_check = pagedir_order;
+-	if(typhoon_sleep(tp, 3, 0) < 0) 
++	if(typhoon_sleep(tp, PCI_D3hot, 0) < 0) 
+ 		printk(KERN_ERR "%s: unable to go back to sleep\n", dev->name);
+ 
+ out:
+@@ -2163,7 +2163,7 @@
+ 	if(typhoon_boot_3XP(tp, TYPHOON_STATUS_WAITING_FOR_HOST) < 0)
+ 		printk(KERN_ERR "%s: unable to boot sleep image\n", dev->name);
+ 
+-	if(typhoon_sleep(tp, 3, 0) < 0)
++	if(typhoon_sleep(tp, PCI_D3hot, 0) < 0)
+ 		printk(KERN_ERR "%s: unable to put card to sleep\n", dev->name);
+ 
+ 	return 0;
+@@ -2203,7 +2203,7 @@
+ }
+ 
+ static int
+-typhoon_suspend(struct pci_dev *pdev, u32 state)
++typhoon_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct typhoon *tp = netdev_priv(dev);
+@@ -2255,7 +2255,7 @@
+ 		goto need_resume;
+ 	}
+ 
+-	if(typhoon_sleep(tp, state, tp->wol_events) < 0) {
++	if(typhoon_sleep(tp, pci_choose_state(pdev, state), tp->wol_events) < 0) {
+ 		printk(KERN_ERR "%s: unable to put card to sleep\n", dev->name);
+ 		goto need_resume;
+ 	}
+@@ -2454,7 +2454,7 @@
+ 	if(xp_resp[0].numDesc != 0)
+ 		tp->capabilities |= TYPHOON_WAKEUP_NEEDS_RESET;
+ 
+-	if(typhoon_sleep(tp, 3, 0) < 0) {
++	if(typhoon_sleep(tp, PCI_D3hot, 0) < 0) {
+ 		printk(ERR_PFX "%s: cannot put adapter to sleep\n",
+ 		       pci_name(pdev));
+ 		err = -EIO;
+--- linux-2.6.11-rc2-pm-changes/drivers/net/via-velocity.c	2005-01-22 14:20:57.000000000 +0800
++++ linux-2.6.11/drivers/net/via-velocity.c	2005-01-28 23:01:48.000000000 +0800
+@@ -263,7 +263,7 @@
+ 
+ #ifdef CONFIG_PM
+ 
+-static int velocity_suspend(struct pci_dev *pdev, u32 state);
++static int velocity_suspend(struct pci_dev *pdev, pm_message_t state);
+ static int velocity_resume(struct pci_dev *pdev);
+ 
+ static int velocity_netdev_event(struct notifier_block *nb, unsigned long notification, void *ptr);
+@@ -3210,7 +3210,7 @@
  	return 0;
  }
  
-@@ -867,7 +898,6 @@
- asmlinkage int swsusp_restore(void)
+-static int velocity_suspend(struct pci_dev *pdev, u32 state)
++static int velocity_suspend(struct pci_dev *pdev, pm_message_t state)
  {
- 	BUG_ON (nr_copy_pages_check != nr_copy_pages);
--	BUG_ON (pagedir_order_check != pagedir_order);
- 	
- 	/* Even mappings of "global" things (vmalloc) need to be fixed */
- 	__flush_tlb_global();
-@@ -1193,6 +1223,7 @@
- 	}
- 	if (error)
- 		free_pages((unsigned long)pagedir_nosave, pagedir_order);
-+
- 	return error;
+ 	struct velocity_info *vptr = pci_get_drvdata(pdev);
+ 	unsigned long flags;
+--- linux-2.6.11-rc2-pm-changes/drivers/pcmcia/pd6729.c	2005-01-22 14:20:58.000000000 +0800
++++ linux-2.6.11/drivers/pcmcia/pd6729.c	2005-01-28 23:05:12.000000000 +0800
+@@ -833,7 +833,7 @@
+ 	kfree(socket);
  }
  
+-static int pd6729_socket_suspend(struct pci_dev *dev, u32 state)
++static int pd6729_socket_suspend(struct pci_dev *dev, pm_message_t state)
+ {
+ 	return pcmcia_socket_dev_suspend(&dev->dev, state);
+ }
+--- linux-2.6.11-rc2-pm-changes/drivers/usb/host/sl811-hcd.c	2005-01-22 14:20:59.000000000 +0800
++++ linux-2.6.11/drivers/usb/host/sl811-hcd.c	2005-01-28 23:20:39.000000000 +0800
+@@ -103,12 +103,12 @@
+ 
+ 		sl811->port1 = (1 << USB_PORT_FEAT_POWER);
+ 		sl811->irq_enable = SL11H_INTMASK_INSRMV;
+-		hcd->self.controller->power.power_state = PM_SUSPEND_ON;
++		hcd->self.controller->power.power_state = PMSG_ON;
+ 	} else {
+ 		sl811->port1 = 0;
+ 		sl811->irq_enable = 0;
+ 		hcd->state = USB_STATE_HALT;
+-		hcd->self.controller->power.power_state = PM_SUSPEND_DISK;
++		hcd->self.controller->power.power_state = PMSG_SUSPEND;
+ 	}
+ 	sl811->ctrl1 = 0;
+ 	sl811_write(sl811, SL11H_IRQ_ENABLE, 0);
+@@ -1799,7 +1799,7 @@
+  */
+ 
+ static int
+-sl811h_suspend(struct device *dev, u32 state, u32 phase)
++sl811h_suspend(struct device *dev, pm_message_t state, u32 phase)
+ {
+ 	struct sl811	*sl811 = dev_get_drvdata(dev);
+ 	int		retval = 0;
+--- linux-2.6.11-rc2-pm-changes/drivers/usb/net/pegasus.c	2005-01-22 14:20:59.000000000 +0800
++++ linux-2.6.11/drivers/usb/net/pegasus.c	2005-01-28 23:22:14.000000000 +0800
+@@ -1253,7 +1253,7 @@
+ 	free_netdev(pegasus->net);
+ }
+ 
+-static int pegasus_suspend (struct usb_interface *intf, u32 state)
++static int pegasus_suspend (struct usb_interface *intf, pm_message_t state)
+ {
+ 	struct pegasus *pegasus = usb_get_intfdata(intf);
+ 	
+--- linux-2.6.11-rc2-pm-changes/drivers/video/aty/aty128fb.c	2005-01-22 14:20:59.000000000 +0800
++++ linux-2.6.11/drivers/video/aty/aty128fb.c	2005-01-28 23:31:09.000000000 +0800
+@@ -165,7 +165,7 @@
+ static int aty128_probe(struct pci_dev *pdev,
+                                const struct pci_device_id *ent);
+ static void aty128_remove(struct pci_dev *pdev);
+-static int aty128_pci_suspend(struct pci_dev *pdev, u32 state);
++static int aty128_pci_suspend(struct pci_dev *pdev, pm_message_t state);
+ static int aty128_pci_resume(struct pci_dev *pdev);
+ 
+ /* supported Rage128 chipsets */
+@@ -2309,7 +2309,7 @@
+ 	}
+ }
+ 
+-static int aty128_pci_suspend(struct pci_dev *pdev, u32 state)
++static int aty128_pci_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+ 	struct fb_info *info = pci_get_drvdata(pdev);
+ 	struct aty128fb_par *par = info->par;
+@@ -2396,7 +2396,7 @@
+ 
+ 	release_console_sem();
+ 
+-	pdev->dev.power.power_state = 0;
++	pdev->dev.power.power_state = PMSG_ON;
+ 
+ 	printk(KERN_DEBUG "aty128fb: resumed !\n");
+ 
+--- linux-2.6.11-rc2-pm-changes/drivers/video/aty/atyfb_base.c	2005-01-22 14:20:59.000000000 +0800
++++ linux-2.6.11/drivers/video/aty/atyfb_base.c	2005-01-28 23:26:34.000000000 +0800
+@@ -2016,7 +2016,7 @@
+ 	return timeout ? 0 : -EIO;
+ }
+ 
+-static int atyfb_pci_suspend(struct pci_dev *pdev, u32 state)
++static int atyfb_pci_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+ 	struct fb_info *info = pci_get_drvdata(pdev);
+ 	struct atyfb_par *par = (struct atyfb_par *) info->par;
+@@ -2091,7 +2091,7 @@
+ 
+ 	release_console_sem();
+ 
+-	pdev->dev.power.power_state = 0;
++	pdev->dev.power.power_state = PMSG_ON;
+ 
+ 	return 0;
+ }
+--- linux-2.6.11-rc2-pm-changes/drivers/video/cyber2000fb.c	2005-01-22 14:20:59.000000000 +0800
++++ linux-2.6.11/drivers/video/cyber2000fb.c	2005-01-28 23:39:42.000000000 +0800
+@@ -1665,7 +1665,7 @@
+ 	}
+ }
+ 
+-static int cyberpro_pci_suspend(struct pci_dev *dev, u32 state)
++static int cyberpro_pci_suspend(struct pci_dev *dev, pm_message_t state)
+ {
+ 	return 0;
+ }
+--- linux-2.6.11-rc2-pm-changes/drivers/video/i810/i810_main.c	2005-01-22 14:20:59.000000000 +0800
++++ linux-2.6.11/drivers/video/i810/i810_main.c	2005-01-28 23:49:06.000000000 +0800
+@@ -1524,7 +1524,7 @@
+ 		pci_disable_device(dev);
+ 	}
+ 	pci_save_state(dev);
+-	pci_set_power_state(dev, state);
++	pci_set_power_state(dev, pci_choose_state(dev, state));
+ 
+ 	return 0;
+ }
+--- linux-2.6.11-rc2-pm-changes/drivers/video/i810/i810_main.h	2004-12-25 05:35:00.000000000 +0800
++++ linux-2.6.11/drivers/video/i810/i810_main.h	2005-01-28 23:48:50.000000000 +0800
+@@ -18,7 +18,7 @@
+ 				       const struct pci_device_id *entry);
+ static void __exit i810fb_remove_pci(struct pci_dev *dev);
+ static int i810fb_resume(struct pci_dev *dev);
+-static int i810fb_suspend(struct pci_dev *dev, u32 state);
++static int i810fb_suspend(struct pci_dev *dev, pm_message_t state);
+ 
+ /*
+  * voffset - framebuffer offset in MiB from aperture start address.  In order for
+
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

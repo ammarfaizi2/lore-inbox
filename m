@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268983AbUHZOUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269002AbUHZORD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268983AbUHZOUi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 10:20:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268980AbUHZORr
+	id S269002AbUHZORD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 10:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268944AbUHZOOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 10:17:47 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:36513 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S268983AbUHZOQQ (ORCPT
+	Thu, 26 Aug 2004 10:14:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36249 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268983AbUHZOJX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 10:16:16 -0400
-From: Mikael Pettersson <mikpe@user.it.uu.se>
+	Thu, 26 Aug 2004 10:09:23 -0400
+Date: Thu, 26 Aug 2004 10:07:58 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
+       <wichert@wiggy.net>, <jra@samba.org>, <torvalds@osdl.org>,
+       <reiser@namesys.com>, <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <flx@namesys.com>,
+       <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <20040826135936.GC5733@mail.shareable.org>
+Message-ID: <Pine.LNX.4.44.0408261007010.27909-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16685.61603.854888.723403@alkaid.it.uu.se>
-Date: Thu, 26 Aug 2004 16:16:03 +0200
-To: akpm@osdl.org
-Subject: [PATCH][2.6.9-rc1-mm1] Prescott fix for perfctr
-CC: linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Thu, 26 Aug 2004, Jamie Lokier wrote:
 
-This eliminates a potential oops in perfctr's x86 initialisation
-code when running on a P4 Model 3 Prescott processor. The P4M3
-removed two control registers. I knew that and handled it in the
-control setup validation code, but I forgot to also modify the
-initialisation code to avoid clearing them.
+> Properly implemented metadata can:
+[snip world peace]
+> all at once.  That includes program copies.
 
-Perfctr hasn't been hit by this problem on the P4M3 Noconas,
-but people are reporting that oprofile and the NMI watchdog
-oops due to this on P4M3 Prescotts.
+Show me the design for such a properly implemented thing.
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+None of the designs I've seen proposed so far are able
+to do what you claim.
 
-diff -ruN linux-2.6.9-rc1-mm1/drivers/perfctr/x86.c linux-2.6.9-rc1-mm1.perfctr-p4m3-fix/drivers/perfctr/x86.c
---- linux-2.6.9-rc1-mm1/drivers/perfctr/x86.c	2004-08-26 14:33:03.000000000 +0200
-+++ linux-2.6.9-rc1-mm1.perfctr-p4m3-fix/drivers/perfctr/x86.c	2004-08-26 15:26:28.000000000 +0200
-@@ -865,7 +865,10 @@
- 	/* clear PEBS_ENABLE and PEBS_MATRIX_VERT; they handle both PEBS
- 	   and ReplayTagging, and should exist even if PEBS is disabled */
- 	clear_msr_range(0x3F1, 2);
--	clear_msr_range(0x3A0, 31);
-+	clear_msr_range(0x3A0, 26);
-+	if (p4_IQ_ESCR_ok)
-+		clear_msr_range(0x3BA, 2);
-+	clear_msr_range(0x3BC, 3);
- 	clear_msr_range(0x3C0, 6);
- 	clear_msr_range(0x3C8, 6);
- 	clear_msr_range(0x3E0, 2);
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,76 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVAMPdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVAMPdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVAMPdJ (ORCPT <rfc822;willy@w.ods.org>);
+	id S261654AbVAMPdJ (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 13 Jan 2005 10:33:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVAMPcC
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVAMPbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 10:32:02 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:60932 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261657AbVAMPbL (ORCPT
+	Thu, 13 Jan 2005 10:31:53 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:59908 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261656AbVAMPbJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 10:31:11 -0500
-Subject: [patch 2/8] uml: readd CONFIG_MAGIC_SYSRQ for UML
+	Thu, 13 Jan 2005 10:31:09 -0500
+Subject: [patch 7/8] uml: fail xterm_open when we have no $DISPLAY
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it,
+       cw@f00f.org
 From: blaisorblade_spam@yahoo.it
-Date: Thu, 13 Jan 2005 06:13:27 +0100
-Message-Id: <20050113051327.B173A6324B@zion>
+Date: Thu, 13 Jan 2005 06:13:39 +0100
+Message-Id: <20050113051339.7ED0363257@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+From: Chris Wedgwood <cw@f00f.org>
 
-This config option was lost during the creation of lib/Kconfig.debug, due to a
-bad expressed dependency; I also moved the option back to its original place
-for UML (it is near CONFIG_MCONSOLE since it depends on that).
+If UML wants to open an xterm channel and the xterm does not run properly (eg.
+terminates soon after starting) we will get a hang (a comment added in the
+patch explains why).
 
+This avoids the most common cause for this and adds a comment (which long term
+will go away with a rewrite of that code); the complete fix would be to catch
+the xterm process dying, up(&data->sem), and -EIO all requests from that point
+onwards.
+
+That applies for some of the other channels too, so part of the code should
+probably be abstracted a little and generalized.
+
+Signed-off-by: Chris Wedgwood <cw@f00f.org>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 ---
 
- linux-2.6.11-paolo/arch/um/Kconfig   |   19 +++++++++++++++++++
- linux-2.6.11-paolo/lib/Kconfig.debug |    1 -
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ linux-2.6.11-paolo/arch/um/drivers/xterm.c      |    7 +++++++
+ linux-2.6.11-paolo/arch/um/drivers/xterm_kern.c |    9 ++++++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-diff -puN lib/Kconfig.debug~uml-readd-config-magic-sysrq lib/Kconfig.debug
---- linux-2.6.11/lib/Kconfig.debug~uml-readd-config-magic-sysrq	2005-01-13 01:48:41.153139144 +0100
-+++ linux-2.6.11-paolo/lib/Kconfig.debug	2005-01-13 01:48:41.157138536 +0100
-@@ -23,7 +23,6 @@ config MAGIC_SYSRQ
- config MAGIC_SYSRQ
- 	bool "Magic SysRq key"
- 	depends on DEBUG_KERNEL && (H8300 || M68KNOMMU || V850)
--	depends (USERMODE && MCONSOLE)
- 	help
- 	  Enables console device to interpret special characters as
- 	  commands to dump state information.
-diff -puN arch/um/Kconfig~uml-readd-config-magic-sysrq arch/um/Kconfig
---- linux-2.6.11/arch/um/Kconfig~uml-readd-config-magic-sysrq	2005-01-13 01:48:41.155138840 +0100
-+++ linux-2.6.11-paolo/arch/um/Kconfig	2005-01-13 01:48:41.158138384 +0100
-@@ -145,6 +145,25 @@ config MCONSOLE
+diff -puN arch/um/drivers/xterm_kern.c~uml-xterm-clarify arch/um/drivers/xterm_kern.c
+--- linux-2.6.11/arch/um/drivers/xterm_kern.c~uml-xterm-clarify	2005-01-13 02:02:52.984641072 +0100
++++ linux-2.6.11-paolo/arch/um/drivers/xterm_kern.c	2005-01-13 02:02:52.988640464 +0100
+@@ -46,6 +46,8 @@ int xterm_fd(int socket, int *pid_out)
+ 		printk(KERN_ERR "xterm_fd : failed to allocate xterm_wait\n");
+ 		return(-ENOMEM);
+ 	}
++
++	/* This is a locked semaphore... */
+ 	*data = ((struct xterm_wait) 
+ 		{ .sem  	= __SEMAPHORE_INITIALIZER(data->sem, 0),
+ 		  .fd 		= socket,
+@@ -55,12 +57,17 @@ int xterm_fd(int socket, int *pid_out)
+ 	err = um_request_irq(XTERM_IRQ, socket, IRQ_READ, xterm_interrupt, 
+ 			     SA_INTERRUPT | SA_SHIRQ | SA_SAMPLE_RANDOM, 
+ 			     "xterm", data);
+-	if(err){
++	if (err){
+ 		printk(KERN_ERR "xterm_fd : failed to get IRQ for xterm, "
+ 		       "err = %d\n",  err);
+ 		ret = err;
+ 		goto out;
+ 	}
++
++	/* ... so here we wait for an xterm interrupt.
++	 *
++	 * XXX Note, if the xterm doesn't work for some reason (eg. DISPLAY
++	 * isn't set) this will hang... */
+ 	down(&data->sem);
  
-         It is safe to say 'Y' here.
+ 	free_irq_by_irq_and_dev(XTERM_IRQ, data);
+diff -puN arch/um/drivers/xterm.c~uml-xterm-clarify arch/um/drivers/xterm.c
+--- linux-2.6.11/arch/um/drivers/xterm.c~uml-xterm-clarify	2005-01-13 02:02:52.985640920 +0100
++++ linux-2.6.11-paolo/arch/um/drivers/xterm.c	2005-01-13 02:02:52.988640464 +0100
+@@ -97,6 +97,13 @@ int xterm_open(int input, int output, in
+ 	if(os_access(argv[4], OS_ACC_X_OK) < 0)
+ 		argv[4] = "port-helper";
  
-+config MAGIC_SYSRQ
-+	bool "Magic SysRq key"
-+	depends on MCONSOLE
-+	---help---
-+	If you say Y here, you will have some control over the system even
-+	if the system crashes for example during kernel debugging (e.g., you
-+	will be able to flush the buffer cache to disk, reboot the system
-+	immediately or dump some status information). A key for each of the
-+	possible requests is provided.
++	/* Check that DISPLAY is set, this doesn't guarantee the xterm
++	 * will work but w/o it we can be pretty sure it won't. */
++	if (!getenv("DISPLAY")) {
++		printk("xterm_open: $DISPLAY not set.\n");
++		return -ENODEV;
++	}
 +
-+	This is the feature normally accomplished by pressing a key
-+	while holding SysRq (Alt+PrintScreen).
-+
-+	On UML, this is accomplished by sending a "sysrq" command with
-+	mconsole, followed by the letter for the requested command.
-+
-+	The keys are documented in <file:Documentation/sysrq.txt>. Don't say Y
-+	unless you really know what this hack does.
-+
- config HOST_2G_2G
- 	bool "2G/2G host address space split"
- 	default n
+ 	fd = mkstemp(file);
+ 	if(fd < 0){
+ 		printk("xterm_open : mkstemp failed, errno = %d\n", errno);
 _

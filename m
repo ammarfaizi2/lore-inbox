@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271813AbRH1QpO>; Tue, 28 Aug 2001 12:45:14 -0400
+	id <S271850AbRH1QrY>; Tue, 28 Aug 2001 12:47:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271809AbRH1QpE>; Tue, 28 Aug 2001 12:45:04 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53776 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271813AbRH1Qot>; Tue, 28 Aug 2001 12:44:49 -0400
-Subject: Re: NFS Client and SMP
-To: JElgar@ndsuk.com (Elgar, Jeremy)
-Date: Tue, 28 Aug 2001 17:47:56 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux-Kernel)
-In-Reply-To: <F128989C2E99D4119C110002A507409801555EBD@topper.hrow.ndsuk.com> from "Elgar, Jeremy" at Aug 28, 2001 05:33:59 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271821AbRH1QrO>; Tue, 28 Aug 2001 12:47:14 -0400
+Received: from relay1.zonnet.nl ([62.58.50.37]:32429 "EHLO relay1.zonnet.nl")
+	by vger.kernel.org with ESMTP id <S271809AbRH1QrK>;
+	Tue, 28 Aug 2001 12:47:10 -0400
+Message-ID: <3B8BCB1B.9C4B35C0@linux-m68k.org>
+Date: Tue, 28 Aug 2001 18:47:23 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Andreas Schwab <schwab@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <Pine.LNX.4.33.0108280617250.8365-100000@penguin.transmeta.com>
+		<3B8BA883.3B5AAE2E@linux-m68k.org> <je4rqsdv4z.fsf@sykes.suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15bm1s-0006JV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Copying a large (n>20) number of file from local disk to an nfs share (on
-> the BSD box)
-> causes the server to totally freeze (have to reboot) normally have to bring
-> the local machines nic up and down to get anything back. kill's on the cp's
-> wont do anything
+Hi,
 
-Whichever end froze is the buggy one. NFS clients are supposed to be robust
-so if Linux was doing something bad the openbsd box should have errored it
-and vice versa. Both may indeed be buggy but the freeze is th efirst
-target.
+Andreas Schwab wrote:
 
-Alan
+> There is no cast in the min/max macros.
+
+Ok, it uses an assignment, but it has almost the same effect (except for
+pointer/integer values).
+
+bye, Roman

@@ -1,177 +1,226 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269902AbUJMW3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269889AbUJMWfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269902AbUJMW3q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 18:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269888AbUJMW3b
+	id S269889AbUJMWfY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 18:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269888AbUJMWfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 18:29:31 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:16092 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S269890AbUJMW1M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 18:27:12 -0400
-Message-ID: <416DABB9.8050804@intel.com>
-Date: Wed, 13 Oct 2004 15:27:05 -0700
-From: Arun Sharma <arun.sharma@intel.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] Support ia32 exec domains without CONFIG_IA32_SUPPORT
-References: <41643EC0.1010505@intel.com>	 <20041007142710.A12688@infradead.org> <4165D4C9.2040804@intel.com>	 <mailman.1097223239.25078@unix-os.sc.intel.com>	 <41671696.1060706@intel.com>	 <mailman.1097403036.11924@unix-os.sc.intel.com>	 <416AF599.2060801@intel.com> <1097617824.5178.20.camel@localhost.localdomain> <416C5ECF.6060402@intel.com>
-In-Reply-To: <416C5ECF.6060402@intel.com>
-Content-Type: multipart/mixed;
- boundary="------------010208020908090004010102"
+	Wed, 13 Oct 2004 18:35:23 -0400
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:8204 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S269878AbUJMWeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 18:34:07 -0400
+Date: Wed, 13 Oct 2004 17:33:44 -0500
+From: mike.miller@hp.com
+To: Joe Perches <joe@perches.com>
+Cc: akpm@osdl.org, axboe@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: cciss update [1/2] updates our SCSI support to not use deprecated headers pass 3
+Message-ID: <20041013223344.GB6019@beardog.cca.cpqcorp.net>
+Reply-To: mikem@beardog.cca.cpqcorp.net
+References: <20041013211302.GA9866@beardog.cca.cpqcorp.net> <20041013212105.GA4438@havoc.gtf.org> <20041013213626.GA10273@beardog.cca.cpqcorp.net> <1097704228.3062.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097704228.3062.1.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010208020908090004010102
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Arun Sharma wrote:
-
-> Christoph doesn't like the idea of adding exec-domains just for this 
-> purpose and has suggested adding a new system call to set the altroot. A 
-> prototype patch to do this already exists. I will be cleaning it up and 
->  posting it to LKML later this week. The main purpose of moving the 
-> discussion to LKML was to see how receptive people were to the proposed 
-> new system call.
+On Wed, Oct 13, 2004 at 02:50:28PM -0700, Joe Perches wrote:
+> On Wed, 2004-10-13 at 16:36 -0500, mikem wrote:
+> > @@ -552,11 +547,15 @@ cciss_scsi_setup(int cntl_num)
+> >  static void
+> >  complete_scsi_command( CommandList_struct *cp, int timeout, __u32 tag)
+> >  {
+> > -	Scsi_Cmnd *cmd;
+> > +	struct scsi_cmnd *cmd;
+> >  	ctlr_info_t *ctlr;
+> >  	u64bit addr64;
+> >  	ErrorInfo_struct *ei;
+> >  
+> > +	if(cmd = kmalloc(sizeof(struct scsi_cmnd), GFP_ATOMIC) == NULL) {
+> > +		printk(KERN_WARNING "out of memory\n");
+> > +		return -ENOMEM;
+> > +	}
 > 
+> q: Do you even bother to compile this?
+> a: no
+> 
+> function is static void
+> 
+> 1:	don't return anything
+> 2:	put kmalloc and test on 2 separate lines
+> 
+Sorry, I was in too much of a hurry. This time its been compiled AND tested.
 
-Attached is the promised patch. It addresses Christoph's comments and 
-fixes the bug Tony found as well.
+mikem
+------------------------------------------------------------------------------
 
-	-Arun
-
-
-
---------------010208020908090004010102
-Content-Type: text/plain;
- name="sys_altroot.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sys_altroot.txt"
-
-Add a new system call sys_altroot. This allows using the 
-altroot feature on systems where there is only one exec domain.
-
-Signed-off-by: Zou Nanhai <nanhai.zou@intel.com>
-Signed-off-by: Gordon Jin <gordon.jin@intel.com>
-Signed-off-by: Arun Sharma <arun.sharma@intel.com>
-
-diff -Nraup a/arch/ia64/kernel/entry.S b/arch/ia64/kernel/entry.S
---- a/arch/ia64/kernel/entry.S	2004-10-12 09:56:51.408496174 -0700
-+++ b/arch/ia64/kernel/entry.S	2004-10-12 09:58:17.362596684 -0700
-@@ -1527,7 +1527,7 @@ sys_call_table:
- 	data8 sys_mq_getsetattr
- 	data8 sys_ni_syscall			// reserved for kexec_load
- 	data8 sys_ni_syscall
--	data8 sys_ni_syscall			// 1270
-+	data8 sys_setaltroot			// 1270
- 	data8 sys_ni_syscall
- 	data8 sys_ni_syscall
- 	data8 sys_ni_syscall
-diff -Nraup a/fs/namei.c b/fs/namei.c
---- a/fs/namei.c	2004-10-12 09:56:56.895800795 -0700
-+++ b/fs/namei.c	2004-10-12 09:58:33.524705861 -0700
-@@ -897,20 +897,20 @@ static int __emul_lookup_dentry(const ch
- 	return 1;
- }
+diff -burNp lx269-rc4.orig/drivers/block/cciss_scsi.c lx269-rc4-p001/drivers/block/cciss_scsi.c
+--- lx269-rc4.orig/drivers/block/cciss_scsi.c	2004-08-14 00:36:32.000000000 -0500
++++ lx269-rc4-p001/drivers/block/cciss_scsi.c	2004-10-13 17:07:55.269865288 -0500
+@@ -28,7 +28,9 @@
+    through the array controller.  Note in particular, neither 
+    physical nor logical disks are presented through the scsi layer. */
  
--void set_fs_altroot(void)
-+int __set_fs_altroot(const char *altroot)
+-#include "../scsi/scsi.h" 
++#include <scsi/scsi.h> 
++#include <scsi/scsi_cmnd.h>
++#include <scsi/scsi_device.h>
+ #include <scsi/scsi_host.h> 
+ #include <asm/atomic.h>
+ #include <linux/timer.h>
+@@ -61,15 +63,8 @@ int cciss_scsi_proc_info(
+ 		int length, 	   /* length of data in buffer */
+ 		int func);	   /* 0 == read, 1 == write */
+ 
+-int cciss_scsi_queue_command (Scsi_Cmnd *cmd, void (* done)(Scsi_Cmnd *));
+-#if 0
+-int cciss_scsi_abort(Scsi_Cmnd *cmd);
+-#if defined SCSI_RESET_SYNCHRONOUS && defined SCSI_RESET_ASYNCHRONOUS
+-int cciss_scsi_reset(Scsi_Cmnd *cmd, unsigned int reset_flags);
+-#else
+-int cciss_scsi_reset(Scsi_Cmnd *cmd);
+-#endif
+-#endif
++int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
++		void (* done)(struct scsi_cmnd *));
+ 
+ static struct cciss_scsi_hba_t ccissscsi[MAX_CTLR] = {
+ 	{ .name = "cciss0", .ndevices = 0 },
+@@ -82,7 +77,7 @@ static struct cciss_scsi_hba_t ccissscsi
+ 	{ .name = "cciss7", .ndevices = 0 },
+ };
+ 
+-static Scsi_Host_Template cciss_driver_template = {
++static struct scsi_host_template cciss_driver_template = {
+ 	.module			= THIS_MODULE,
+ 	.name			= "cciss",
+ 	.proc_name		= "cciss",
+@@ -552,11 +547,16 @@ cciss_scsi_setup(int cntl_num)
+ static void
+ complete_scsi_command( CommandList_struct *cp, int timeout, __u32 tag)
  {
--	char *emul = __emul_prefix();
- 	struct nameidata nd;
- 	struct vfsmount *mnt = NULL, *oldmnt;
- 	struct dentry *dentry = NULL, *olddentry;
- 	int err;
+-	Scsi_Cmnd *cmd;
++	struct scsi_cmnd *cmd;
+ 	ctlr_info_t *ctlr;
+ 	u64bit addr64;
+ 	ErrorInfo_struct *ei;
+ 
++	cmd = kmalloc(sizeof(struct scsi_cmnd), GFP_ATOMIC);
++	if(cmd == NULL) {
++		printk(KERN_WARNING "out of memory\n");
++		return;
++	}
+ 	ei = cp->err_info;
+ 
+ 	/* First, see if it was a message rather than a command */
+@@ -565,7 +565,7 @@ complete_scsi_command( CommandList_struc
+ 		return;
+ 	}
+ 
+-	cmd = (Scsi_Cmnd *) cp->scsi_cmd;	
++	cmd = (struct scsi_cmnd *) cp->scsi_cmd;	
+ 	ctlr = hba[cp->ctlr];
+ 
+ 	/* undo the DMA mappings */
+@@ -573,14 +573,14 @@ complete_scsi_command( CommandList_struc
+ 	if (cmd->use_sg) {
+ 		pci_unmap_sg(ctlr->pdev,
+ 			cmd->buffer, cmd->use_sg,
+-				scsi_to_pci_dma_dir(cmd->sc_data_direction)); 
++				cmd->sc_data_direction); 
+ 	}
+ 	else if (cmd->request_bufflen) {
+ 		addr64.val32.lower = cp->SG[0].Addr.lower;
+                 addr64.val32.upper = cp->SG[0].Addr.upper;
+                 pci_unmap_single(ctlr->pdev, (dma_addr_t) addr64.val,
+                 	cmd->request_bufflen, 
+-				scsi_to_pci_dma_dir(cmd->sc_data_direction));
++				cmd->sc_data_direction);
+ 	}
+ 
+ 	cmd->result = (DID_OK << 16); 		/* host byte */
+@@ -783,9 +783,8 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
+ 	cp->Request.Type.Direction = direction;
+ 
+ 	/* Fill in the SG list and do dma mapping */
+-	cciss_map_one(c->pdev, cp, 
+-			(unsigned char *) buf, bufsize,
+-			scsi_to_pci_dma_dir(SCSI_DATA_READ)); 
++	cciss_map_one(c->pdev, cp, (unsigned char *) buf,
++			bufsize, DMA_FROM_DEVICE); 
+ 
+ 	cp->waiting = &wait;
+ 
+@@ -799,9 +798,7 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
+ 	wait_for_completion(&wait);
+ 
+ 	/* undo the dma mapping */
+-	cciss_unmap_one(c->pdev, cp, bufsize,
+-				scsi_to_pci_dma_dir(SCSI_DATA_READ)); 
 -
--	if (!emul)
-+	if (!altroot)
- 		goto set_it;
--	err = path_lookup(emul, LOOKUP_FOLLOW|LOOKUP_DIRECTORY|LOOKUP_NOALT, &nd);
-+	err = path_lookup(altroot, LOOKUP_FOLLOW|LOOKUP_DIRECTORY|LOOKUP_NOALT, &nd);
- 	if (!err) {
- 		mnt = nd.mnt;
- 		dentry = nd.dentry;
-+	} else {
-+		return err;
- 	}
- set_it:
- 	write_lock(&current->fs->lock);
-@@ -923,6 +923,58 @@ set_it:
- 		dput(olddentry);
- 		mntput(oldmnt);
- 	}
-+	return 0;
-+}
-+
-+void set_fs_altroot()
-+{
-+	char *emul = __emul_prefix();
-+
-+	__set_fs_altroot(emul);
-+}
-+
-+asmlinkage long sys_setaltroot(const char __user * altroot)
-+{
-+	char *emul = NULL;
-+	int ret;
-+
-+	if (altroot) {
-+		emul = getname(altroot);
-+		if (IS_ERR(emul)) {
-+			ret = PTR_ERR(emul);
-+			goto out;
-+		}
-+	}
-+
-+	if (atomic_read(&current->fs->count) != 1) {
-+		struct fs_struct *fsp, *ofsp;
-+
-+		fsp = copy_fs_struct(current->fs);
-+		if (fsp == NULL) {
-+			ret = -ENOMEM;
-+			goto out_putname;
-+		}
-+
-+		task_lock(current);
-+		ofsp = current->fs;
-+		current->fs = fsp;
-+		task_unlock(current);
-+
-+		put_fs_struct(ofsp);
-+	}
-+
-+	/*
-+	 * At that point we are guaranteed to be the sole owner of
-+	 * current->fs.
-+	 */
-+
-+	ret = __set_fs_altroot(emul);
-+
-+out_putname:
-+	if (emul)
-+		putname(emul);
-+out:
-+	return ret;
++	cciss_unmap_one(c->pdev, cp, bufsize, DMA_FROM_DEVICE);
+ 	return(0);
  }
  
- int fastcall path_lookup(const char *name, unsigned int flags, struct nameidata *nd)
-diff -Nraup a/include/linux/syscalls.h b/include/linux/syscalls.h
---- a/include/linux/syscalls.h	2004-10-12 09:56:58.124316405 -0700
-+++ b/include/linux/syscalls.h	2004-10-12 09:58:17.362596684 -0700
-@@ -489,6 +489,7 @@ asmlinkage long sys_nfsservctl(int cmd,
- 				void __user *res);
- asmlinkage long sys_syslog(int type, char __user *buf, int len);
- asmlinkage long sys_uselib(const char __user *library);
-+asmlinkage long sys_setaltroot(const char __user *altroot);
- asmlinkage long sys_ni_syscall(void);
+@@ -1180,14 +1177,14 @@ cciss_scsi_info(struct Scsi_Host *sa)
+ }
  
- #endif
-
---------------010208020908090004010102--
+ 
+-/* cciss_scatter_gather takes a Scsi_Cmnd, (cmd), and does the pci 
++/* cciss_scatter_gather takes a struct scsi_cmnd, (cmd), and does the pci 
+    dma mapping  and fills in the scatter gather entries of the 
+    cciss command, cp. */
+ 
+ static void
+ cciss_scatter_gather(struct pci_dev *pdev, 
+ 		CommandList_struct *cp,	
+-		Scsi_Cmnd *cmd)
++		struct scsi_cmnd *cmd)
+ {
+ 	unsigned int use_sg, nsegs=0, len;
+ 	struct scatterlist *scatter = (struct scatterlist *) cmd->buffer;
+@@ -1200,7 +1197,7 @@ cciss_scatter_gather(struct pci_dev *pde
+ 			addr64 = (__u64) pci_map_single(pdev, 
+ 				cmd->request_buffer, 
+ 				cmd->request_bufflen, 
+-				scsi_to_pci_dma_dir(cmd->sc_data_direction)); 
++				cmd->sc_data_direction); 
+ 	
+ 			cp->SG[0].Addr.lower = 
+ 			  (__u32) (addr64 & (__u64) 0x00000000FFFFFFFF);
+@@ -1213,7 +1210,7 @@ cciss_scatter_gather(struct pci_dev *pde
+ 	else if (cmd->use_sg <= MAXSGENTRIES) {	/* not too many addrs? */
+ 
+ 		use_sg = pci_map_sg(pdev, cmd->buffer, cmd->use_sg, 
+-			scsi_to_pci_dma_dir(cmd->sc_data_direction));
++			cmd->sc_data_direction);
+ 
+ 		for (nsegs=0; nsegs < use_sg; nsegs++) {
+ 			addr64 = (__u64) sg_dma_address(&scatter[nsegs]);
+@@ -1234,7 +1231,7 @@ cciss_scatter_gather(struct pci_dev *pde
+ 
+ 
+ int 
+-cciss_scsi_queue_command (Scsi_Cmnd *cmd, void (* done)(Scsi_Cmnd *))
++cciss_scsi_queue_command (struct scsi_cmnd *cmd, void (* done)(struct scsi_cmnd *))
+ {
+ 	ctlr_info_t **c;
+ 	int ctlr, rc;
+@@ -1302,11 +1299,10 @@ cciss_scsi_queue_command (Scsi_Cmnd *cmd
+ 	cp->Request.Type.Attribute = ATTR_SIMPLE;
+ 	switch(cmd->sc_data_direction)
+ 	{
+-	  case SCSI_DATA_WRITE: cp->Request.Type.Direction = XFER_WRITE; break;
+-	  case SCSI_DATA_READ: cp->Request.Type.Direction = XFER_READ; break;
+-	  case SCSI_DATA_NONE: cp->Request.Type.Direction = XFER_NONE; break;
+-
+-	  case SCSI_DATA_UNKNOWN:
++	  case DMA_TO_DEVICE: cp->Request.Type.Direction = XFER_WRITE; break;
++	  case DMA_FROM_DEVICE: cp->Request.Type.Direction = XFER_READ; break;
++	  case DMA_NONE: cp->Request.Type.Direction = XFER_NONE; break;
++	  case DMA_BIDIRECTIONAL:
+ 		// This can happen if a buggy application does a scsi passthru
+ 		// and sets both inlen and outlen to non-zero. ( see
+ 		// ../scsi/scsi_ioctl.c:scsi_ioctl_send_command() )

@@ -1,43 +1,215 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265419AbSJSA0P>; Fri, 18 Oct 2002 20:26:15 -0400
+	id <S265423AbSJSAVY>; Fri, 18 Oct 2002 20:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265422AbSJSA0P>; Fri, 18 Oct 2002 20:26:15 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:5580 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265419AbSJSA0O>;
-	Fri, 18 Oct 2002 20:26:14 -0400
-Date: Fri, 18 Oct 2002 17:23:27 -0700 (PDT)
-Message-Id: <20021018.172327.11877875.davem@redhat.com>
-To: levon@movementarian.org
+	id <S265426AbSJSAVY>; Fri, 18 Oct 2002 20:21:24 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:36623 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S265422AbSJSAUw>; Fri, 18 Oct 2002 20:20:52 -0400
+Date: Sat, 19 Oct 2002 01:26:45 +0100
+From: John Levon <levon@movementarian.org>
+To: "David S. Miller" <davem@redhat.com>
 Cc: weigand@immd1.informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021019002645.GA16882@compsoc.man.ac.uk>
-References: <20021017011623.GA9096@compsoc.man.ac.uk>
-	<20021016.181213.35446337.davem@redhat.com>
-	<20021019002645.GA16882@compsoc.man.ac.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Message-ID: <20021019002645.GA16882@compsoc.man.ac.uk>
+References: <20021017005728.GA8267@compsoc.man.ac.uk> <20021016.175515.21904896.davem@redhat.com> <20021017011623.GA9096@compsoc.man.ac.uk> <20021016.181213.35446337.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021016.181213.35446337.davem@redhat.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *182hS1-000C0i-00*pqsqeaCc866* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: John Levon <levon@movementarian.org>
-   Date: Sat, 19 Oct 2002 01:26:45 +0100
-   
-   Now all we need is for whoever ports oprofiled to a 32-bit on 64-bit
-   platform to add some check for finding out the kernel's idea of what
-   sizeof(unsigned long) is, and using that to read /dev/oprofile/buffer.
-   
-   Yeah ?
+On Wed, Oct 16, 2002 at 06:12:13PM -0700, David S. Miller wrote:
 
-Wouldn't that someone be you?  It's not that hard to code, and if
-it's in there from the start it would really save all of us a lot
-of time.
+> Right, but you could zero-extend that from u32 if u32
+> were the size appropriate for the current kernel.
+> 
+> I'm trying to decrease the size of your logfile.
 
-Really, the oprofiled work to do this is going to be generic, what
-isn't the generic is the "determine kernel pointer size" check.
-But you can make x86 return '4' from the get-go and then people like
-me will have a simple place to add the proper test for our platform.
+OK, I think I've caught on. Please check the below patch.
+
+Now all we need is for whoever ports oprofiled to a 32-bit on 64-bit
+platform to add some check for finding out the kernel's idea of what
+sizeof(unsigned long) is, and using that to read /dev/oprofile/buffer.
+
+Yeah ?
+
+thanks
+john
+
+
+diff -X dontdiff -Naur linux-linus/drivers/oprofile/buffer_sync.c linux/drivers/oprofile/buffer_sync.c
+--- linux-linus/drivers/oprofile/buffer_sync.c	Wed Oct 16 19:08:46 2002
++++ linux/drivers/oprofile/buffer_sync.c	Thu Oct 17 01:42:47 2002
+@@ -118,13 +118,13 @@
+  * because we cannot reach this code without at least one
+  * dcookie user still being registered (namely, the reader
+  * of the event buffer). */
+-static inline u32 fast_get_dcookie(struct dentry * dentry,
++static inline unsigned long fast_get_dcookie(struct dentry * dentry,
+ 	struct vfsmount * vfsmnt)
+ {
+-	u32 cookie;
++	unsigned long cookie;
+  
+ 	if (dentry->d_cookie)
+-		return (u32)dentry;
++		return (unsigned long)dentry;
+ 	get_dcookie(dentry, vfsmnt, &cookie);
+ 	return cookie;
+ }
+@@ -135,9 +135,9 @@
+  * not strictly necessary but allows oprofile to associate
+  * shared-library samples with particular applications
+  */
+-static u32 get_exec_dcookie(struct mm_struct * mm)
++static unsigned long get_exec_dcookie(struct mm_struct * mm)
+ {
+-	u32 cookie = 0;
++	unsigned long cookie = 0;
+ 	struct vm_area_struct * vma;
+  
+ 	if (!mm)
+@@ -163,9 +163,9 @@
+  * sure to do this lookup before a mm->mmap modification happens so
+  * we don't lose track.
+  */
+-static u32 lookup_dcookie(struct mm_struct * mm, unsigned long addr, off_t * offset)
++static unsigned long lookup_dcookie(struct mm_struct * mm, unsigned long addr, off_t * offset)
+ {
+-	u32 cookie = 0;
++	unsigned long cookie = 0;
+ 	struct vm_area_struct * vma;
+ 
+ 	for (vma = find_vma(mm, addr); vma; vma = vma->vm_next) {
+@@ -188,7 +188,7 @@
+ }
+ 
+ 
+-static u32 last_cookie = ~0UL;
++static unsigned long last_cookie = ~0UL;
+  
+ static void add_cpu_switch(int i)
+ {
+@@ -199,7 +199,7 @@
+ }
+ 
+  
+-static void add_ctx_switch(pid_t pid, u32 cookie)
++static void add_ctx_switch(pid_t pid, unsigned long cookie)
+ {
+ 	add_event_entry(ESCAPE_CODE);
+ 	add_event_entry(CTX_SWITCH_CODE); 
+@@ -208,7 +208,7 @@
+ }
+ 
+  
+-static void add_cookie_switch(u32 cookie)
++static void add_cookie_switch(unsigned long cookie)
+ {
+ 	add_event_entry(ESCAPE_CODE);
+ 	add_event_entry(COOKIE_SWITCH_CODE);
+@@ -225,7 +225,7 @@
+ 
+ static void add_us_sample(struct mm_struct * mm, struct op_sample * s)
+ {
+-	u32 cookie;
++	unsigned long cookie;
+ 	off_t offset;
+  
+  	cookie = lookup_dcookie(mm, s->eip, &offset);
+@@ -317,7 +317,7 @@
+ {
+ 	struct mm_struct * mm = 0;
+ 	struct task_struct * new;
+-	u32 cookie;
++	unsigned long cookie;
+ 	int i;
+  
+ 	for (i=0; i < cpu_buf->pos; ++i) {
+diff -X dontdiff -Naur linux-linus/fs/dcookies.c linux/fs/dcookies.c
+--- linux-linus/fs/dcookies.c	Wed Oct 16 19:08:50 2002
++++ linux/fs/dcookies.c	Sat Oct 19 01:08:02 2002
+@@ -8,7 +8,7 @@
+  * non-transitory that can be processed at a later date.
+  * This is done by locking the dentry/vfsmnt pair in the
+  * kernel until released by the tasks needing the persistent
+- * objects. The tag is simply an u32 that refers
++ * objects. The tag is simply an unsigned long that refers
+  * to the pair and can be looked up from userspace.
+  */
+ 
+@@ -46,19 +46,19 @@
+ 
+ 
+ /* The dentry is locked, its address will do for the cookie */
+-static inline u32 dcookie_value(struct dcookie_struct * dcs)
++static inline unsigned long dcookie_value(struct dcookie_struct * dcs)
+ {
+-	return (u32)dcs->dentry;
++	return (unsigned long)dcs->dentry;
+ }
+ 
+ 
+-static size_t dcookie_hash(u32 dcookie)
++static size_t dcookie_hash(unsigned long dcookie)
+ {
+ 	return (dcookie >> 2) & (hash_size - 1);
+ }
+ 
+ 
+-static struct dcookie_struct * find_dcookie(u32 dcookie)
++static struct dcookie_struct * find_dcookie(unsigned long dcookie)
+ {
+ 	struct dcookie_struct * found = 0;
+ 	struct dcookie_struct * dcs;
+@@ -109,7 +109,7 @@
+  * value for a dentry/vfsmnt pair.
+  */
+ int get_dcookie(struct dentry * dentry, struct vfsmount * vfsmnt,
+-	u32 * cookie)
++	unsigned long * cookie)
+ {
+ 	int err = 0;
+ 	struct dcookie_struct * dcs;
+@@ -142,11 +142,12 @@
+ /* And here is where the userspace process can look up the cookie value
+  * to retrieve the path.
+  */
+-asmlinkage int sys_lookup_dcookie(u32 cookie, char * buf, size_t len)
++asmlinkage int sys_lookup_dcookie(u64 cookie64, char * buf, size_t len)
+ {
++	unsigned long cookie = (unsigned long)cookie64;
++	int err = -EINVAL;
+ 	char * kbuf;
+ 	char * path;
+-	int err = -EINVAL;
+ 	size_t pathlen;
+ 	struct dcookie_struct * dcs;
+ 
+diff -X dontdiff -Naur linux-linus/include/linux/dcookies.h linux/include/linux/dcookies.h
+--- linux-linus/include/linux/dcookies.h	Wed Oct 16 19:08:53 2002
++++ linux/include/linux/dcookies.h	Thu Oct 17 01:43:03 2002
+@@ -44,7 +44,7 @@
+  * Returns 0 on success, with *cookie filled in
+  */
+ int get_dcookie(struct dentry * dentry, struct vfsmount * vfsmnt,
+-	u32 * cookie);
++	unsigned long * cookie);
+ 
+ #else
+ 
+@@ -59,7 +59,7 @@
+ }
+  
+ static inline int get_dcookie(struct dentry * dentry,
+-	struct vfsmount * vfsmnt, u32 * cookie)
++	struct vfsmount * vfsmnt, unsigned long * cookie)
+ {
+ 	return -ENOSYS;
+ } 

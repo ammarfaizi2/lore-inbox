@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267573AbSLFIQi>; Fri, 6 Dec 2002 03:16:38 -0500
+	id <S267576AbSLFIgv>; Fri, 6 Dec 2002 03:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267575AbSLFIQi>; Fri, 6 Dec 2002 03:16:38 -0500
-Received: from packet.digeo.com ([12.110.80.53]:1966 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267573AbSLFIQh>;
-	Fri, 6 Dec 2002 03:16:37 -0500
-Message-ID: <3DF05EA7.4BDCBFF0@digeo.com>
-Date: Fri, 06 Dec 2002 00:24:07 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S267577AbSLFIgv>; Fri, 6 Dec 2002 03:36:51 -0500
+Received: from mail.scram.de ([195.226.127.117]:6339 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S267576AbSLFIgv>;
+	Fri, 6 Dec 2002 03:36:51 -0500
+Date: Fri, 6 Dec 2002 09:35:19 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: linux-kernel@vger.kernel.org, <linux-net@vger.kernel.or>
+Subject: Re: [patch] fix compile warning and initialization of static tmsisa
+In-Reply-To: <20021206011121.GY2544@fs.tum.de>
+Message-ID: <Pine.LNX.4.44.0212060927090.32365-100000@gfrw1044.bocc.de>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.50-bk5-wli-1
-References: <20021206080009.GB11023@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Dec 2002 08:24:07.0454 (UTC) FILETIME=[D850F3E0:01C29D00]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> 
-> 2.5.50-wli-bk5-12 resize inode cache wait table -- 8 is too small
+Hi Adrian,
 
-Heh.  I decided to make that really, really, really tiny in the expectation
-that if it was _too_ small, someone would notice.
+> Please comment on whether it's correct or not and if it's correct
+> please apply.
 
-For what workload is the 8 too small, and what is the call path
-of the waiters?
+It is broken, as tms_isa_probe() doesn't work on uninitialized dev
+structs.
 
-(If it is `tiobench 100000000' and the wait is in __writeback_single_inode(),
-then we should probably just return from there if !sync and the inode is locked)
+Try either of these for a correct fix:
+
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0211.0/0111.html
+
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0211.1/0537.html
+(this one misses the change in Space.c though).
+
+Currently, i can't do any newer patches as module loading is totally
+broken on Alpha with later kernel versions.
+
+Cheers,
+--jochen
+

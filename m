@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbTENN1p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 09:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbTENN1p
+	id S262221AbTENNjS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 09:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbTENNjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 09:27:45 -0400
-Received: from prv-tm12.provo.novell.com ([192.108.102.142]:2695 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S262235AbTENN1o convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 09:27:44 -0400
-Subject: Re: supermount
-From: "ismail donmez" <kde@smtp-send.myrealbox.com>
-To: gutko@poczta.onet.pl
-CC: linux-kernel@vger.kernel.org
-Date: Wed, 14 May 2003 07:40:31 -0600
-X-Mailer: NetMail ModWeb Module
+	Wed, 14 May 2003 09:39:18 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:22504 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S262221AbTENNjR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 09:39:17 -0400
+Message-ID: <20030514135256.26073.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Message-ID: <1052919631.273b9220kde@smtp-send.myrealbox.com>
-Content-Type: text/plain; charset="ISO-8859-9"
-Content-Transfer-Encoding: 8BIT
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Dean McEwan" <dean_mcewan@linuxmail.org>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Date: Wed, 14 May 2003 13:52:56 +0000
+Subject: Re: Digital Rights Management - An idea (limited lease, renting,
+    expiration, verification) NON HARWARE BASED.
+X-Originating-Ip: 195.195.129.3
+X-Originating-Server: ws5-8.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah I wonder the same for some time . Is there a good reason not to include supermount in kernel?
+Alan Cox <alan@lxorguk.ukuu.org.uk> said :
+> You can set this up with both rsbac and selinux
+> 
+Im thinking of much more...
+It would be set up so that files have an internal signature (ELF format might have to be
+fiddled with). It would verify itself by sending info to the creator of the contents PC OR server
+asking for verification of itself, files could be limited lease, rented, or automatically expire 
+after some time.
 
------Original Message-----
-From: Maciej Górnicki <gutko@poczta.onet.pl>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 13 May 2003 18:30:02 +0200
-Subject: supermount
+NB
+===
+I get the whole Palladium thing and no I don't wan't one central server e.t.c. so the GOV.T
+and M$ can control everything, it would be a opt out affair, and it definately would NOT
+work with the FRITZ chip. Decentralised, giving authors control over their work(s.), except
+where license forbids this.
 
-Hello,
-Why supermount code is not included in kernel? 
-It's maintained by Juan Jose Quintela from Mandrake...
+E.G. a kernel could refuse to work after one year forcing its users to upgrade their kernel, preventing exploits being left in place, and creators of the prefab kernels in
+a sticky liable mess.
 
+
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze

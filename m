@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbTJDSkT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 14:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTJDSkT
+	id S262691AbTJDSxV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 14:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbTJDSxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 14:40:19 -0400
-Received: from zero.aec.at ([193.170.194.10]:4624 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262686AbTJDSkQ (ORCPT
+	Sat, 4 Oct 2003 14:53:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:53981 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262691AbTJDSxT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 14:40:16 -0400
-To: Tony Hoyle <tmh@nodomain.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops linux 2.4.23-pre6 on amd64
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 04 Oct 2003 20:39:59 +0200
-In-Reply-To: <CYRo.18k.9@gated-at.bofh.it> (Tony Hoyle's message of "Sat, 04
- Oct 2003 20:00:15 +0200")
-Message-ID: <m3smm8q22o.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <CYRo.18k.9@gated-at.bofh.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Oct 2003 14:53:19 -0400
+Date: Sat, 4 Oct 2003 11:54:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Georg Chini <georg.chini@triaton-webhosting.com>
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Sparc32 - sched_clock missing
+Message-Id: <20031004115455.42d8263e.akpm@osdl.org>
+In-Reply-To: <3F7ED071.7080005@triaton-webhosting.com>
+References: <3F7ED071.7080005@triaton-webhosting.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Hoyle <tmh@nodomain.org> writes:
+Georg Chini <georg.chini@triaton-webhosting.com> wrote:
 >
-> Trace; ffffffff80202fce <pci_announce_device+3e/60>
+> Hello out there,
+> 
+> tried to build Kernel 2.6.0-test6-bk4 on my
+> sparc32 machine and found that the function
+> sched_clock is missing in time.c. Can anyone
+> tell me what I have to put there? Please CC
+> to me.
+> 
 
-It jumped to nirvana, probably because someone passed crap 
-to pci_announce_device.
+This is the minimal version to get you going.
 
-My first guess would be a non matching module.  Do a make distclean
-and recompile/reinstall everything.
+A better implementation would use a higer-resolution counter, if the
+hardware has such a thing.
 
-> Trace; ffffffffa0014560 <[usbcore]hcd_data_lock+4c4c/5f5f06ec>
 
-But the decode is useless because the module in question is not loaded.
+diff -puN arch/sparc/kernel/time.c~sparc32-sched_clock arch/sparc/kernel/time.c
+--- 25/arch/sparc/kernel/time.c~sparc32-sched_clock	2003-10-04 11:53:19.000000000 -0700
++++ 25-akpm/arch/sparc/kernel/time.c	2003-10-04 11:53:41.000000000 -0700
+@@ -617,3 +617,12 @@ static int set_rtc_mmss(unsigned long no
+ 		return -1;
+ 	}
+ }
++
++/*
++ * Returns nanoseconds
++  */
++
++unsigned long long sched_clock(void)
++{
++	return (unsigned long long)jiffies * (1000000000 / HZ);
++}
 
-Can you load the module whatever it is manually and then decode
-the oops while it's still loaded? Or better compile in all USB
-statically and see if it oopses too.
+_
 
-Your legacy USB problems are very likely BIOS bugs.
-
--Andi

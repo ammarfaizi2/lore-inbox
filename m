@@ -1,74 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbUENRJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbUENRQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbUENRJD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 13:09:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbUENRJD
+	id S261787AbUENRQg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 13:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbUENRQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 13:09:03 -0400
-Received: from mtaw4.prodigy.net ([64.164.98.52]:49311 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S261787AbUENRI6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 13:08:58 -0400
-Message-ID: <40A4FC1A.20809@pacbell.net>
-Date: Fri, 14 May 2004 10:04:26 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: 2.6.6-mm2, usb ehci warnings/error?
-References: <40A3962F.3020500@pacbell.net> <40A47AC3.4010403@gmx.de>
-In-Reply-To: <40A47AC3.4010403@gmx.de>
-Content-Type: multipart/mixed;
- boundary="------------070507000703000105070505"
+	Fri, 14 May 2004 13:16:36 -0400
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:39618 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S261787AbUENRQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 13:16:33 -0400
+Date: Fri, 14 May 2004 10:16:31 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Michal Semler <cijoml@volny.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VMAX USB-STORAGE - kernel deadlock
+Message-ID: <20040514171631.GA25128@one-eyed-alien.net>
+Mail-Followup-To: Michal Semler <cijoml@volny.cz>,
+	linux-kernel@vger.kernel.org
+References: <200405141509.25967.cijoml@volny.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
+Content-Disposition: inline
+In-Reply-To: <200405141509.25967.cijoml@volny.cz>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070507000703000105070505
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Prakash K. Cheemplavam wrote:
-> David Brownell wrote:
-> 
->>> There appear lines like
->>>
->>> usb usb2: string descriptor 0 read error: -108
->>>
->>> bug or feature? They weren't there with 2.6.6-mm1. I have no usb2.0 
->>> stuff to actually test. My usb1 stuff seems to work though.
->>
->> Bug; minor, since the only real symptom seems to be messages like
->> that.  Ignore them for now, I'll make a patch soonish.
-> 
-> Ok, good. Thanks for the explanation of what is going on, though I don't 
-> can make too much out of it. ;-)
+--3MwIy2ne0vdjdPXF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The short version is:  it's missing this patch.
+Try mounting /dev/sda instead of a partition.
 
-[ Greg, please merge! ]
+Matt
 
-- Dave
+On Fri, May 14, 2004 at 03:09:25PM +0200, Michal Semler wrote:
+> Hi,
+>=20
+> my friend bought usb flash disk VMAX/USB2.0/0404 version.
+> Under WinXP it works, but not under Linux.
+> There is 1 vfat filesystem, but linux reports 4 and when I try mount one,=
+=20
+> kernel goes to deadlock. System reports bad size too.
+>=20
+> Tested 2.4.26, 2.6.6
+>=20
+> Here is output:
+>=20
+> SCSI subsystem initialized
+> Initializing USB Mass Storage driver...
+> scsi0 : SCSI emulation for USB Mass Storage devices
+>   Vendor: VMAX      Model: 128MB             Rev: 2.00
+>   Type:   Direct-Access                      ANSI SCSI revision: 02
+> USB Mass Storage device found at 2
+> usbcore: registered new driver usb-storage
+> USB Mass Storage support registered.
+> sda: Unit Not Ready, sense:
+> Current : sense key Unit Attention
+> Additional sense: Not ready to ready change, medium may have changed
+> SCSI device sda: 256000 512-byte hdwr sectors (131 MB)
+> sda: assuming Write Enabled
+> sda: assuming drive cache: write through
+>  sda: sda1 sda2 sda3 sda4
+>=20
+> Michal
 
---------------070507000703000105070505
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
---- bk2/xu26/drivers/usb/host/ohci-hub.c	2004-05-11 18:03:30.000000000 -0700
-+++ gadget-2.6/drivers/usb/host/ohci-hub.c	2004-05-13 09:15:18.000000000 -0700
-@@ -385,6 +385,7 @@
- 			) {
- 		ohci_vdbg (ohci, "autosuspend\n");
- 		(void) ohci_hub_suspend (&ohci->hcd);
-+		ohci->hcd.state = USB_STATE_RUNNING;
- 		up (&hcd->self.root_hub->serialize);
- 	}
- #endif
+I'm a pink gumdrop! How can anything be worse?!!
+					-- Erwin
+User Friendly, 10/4/1998
 
---------------070507000703000105070505--
+--3MwIy2ne0vdjdPXF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFApP7vIjReC7bSPZARAvUcAKCsgW95fL8E7Y1whfnpuiVTyNX19ACfZNmW
+VzdrzwyxAMrSCJm/M1tZMqU=
+=SkAC
+-----END PGP SIGNATURE-----
+
+--3MwIy2ne0vdjdPXF--

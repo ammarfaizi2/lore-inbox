@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288896AbSBDUlY>; Mon, 4 Feb 2002 15:41:24 -0500
+	id <S288787AbSBDUlO>; Mon, 4 Feb 2002 15:41:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288897AbSBDUlO>; Mon, 4 Feb 2002 15:41:14 -0500
-Received: from vracs001.vrac.iastate.edu ([129.186.232.215]:7205 "EHLO
-	vracs001.vrac.iastate.edu") by vger.kernel.org with ESMTP
-	id <S288896AbSBDUk6>; Mon, 4 Feb 2002 15:40:58 -0500
-Subject: Re: Linux 2.5.3-dj2
-From: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020204194719.C11789@suse.de>
-In-Reply-To: <20020204154800.A13519@suse.de>
-	<1012841649.8335.6.camel@regatta>  <20020204194719.C11789@suse.de>
-Content-Type: text/plain
+	id <S288897AbSBDUlE>; Mon, 4 Feb 2002 15:41:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15627 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288787AbSBDUkr>; Mon, 4 Feb 2002 15:40:47 -0500
+Message-ID: <3C5EF1B3.9010800@zytor.com>
+Date: Mon, 04 Feb 2002 12:40:19 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Erik A. Hendriks" <hendriks@lanl.gov>,
+        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        Werner Almesberger <wa@almesberger.net>
+Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
+In-Reply-To: <E16Xq5h-0008Eu-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 04 Feb 2002 14:34:58 -0600
-Message-Id: <1012854899.8333.12.camel@regatta>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-close......that worked out....how about this one...
-keep up the good work...
+Alan Cox wrote:
 
-daniel.e.shipton 
+>>>A floppy disk is 1.44 MB.
+>>>
+>>Yes floppies are small.  The nice thing is that there are only 2 or 3
+>>floppy drivers in the kernel so it is not hard to include access to
+>>the primary boot medium.  
+>>
+> 
+> Big problems are:
+> 
+> -	Floppies are fast becoming optional
+> -	USB floppies requires the entire USB and hotplug layer
+> -	USB floppies require the scsi layer which is not small either
+> -	Libretto style non USB/Cardbus PCMCIA floppies are not supported
+> 
 
-gcc -D__KERNEL__ -I/home/kernel/linux-2.5/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686   -DKBUILD_BASENAME=iodebug  -c -o iodebug.o iodebug.c
-rm -f lib.a
-ar  rcs lib.a checksum.o old-checksum.o delay.o usercopy.o getuser.o
-memcpy.o strstr.o iodebug.o
-make[2]: Leaving directory `/home/kernel/linux-2.5/arch/i386/lib'
-make[1]: Leaving directory `/home/kernel/linux-2.5/arch/i386/lib'
-ld -m elf_i386 -T /home/kernel/linux-2.5/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-        /home/kernel/linux-2.5/arch/i386/lib/lib.a
-/home/kernel/linux-2.5/lib/lib.o
-/home/kernel/linux-2.5/arch/i386/lib/lib.a \
-         drivers/base/base.o drivers/char/char.o drivers/block/block.o
-drivers/misc/misc.o drivers/net/net.o drivers/media/media.o
-drivers/char/drm/drm.o drivers/net/fc/fc.o
-drivers/net/appletalk/appletalk.o drivers/net/tokenring/tr.o
-drivers/net/wan/wan.o drivers/atm/atm.o drivers/ide/idedriver.o
-drivers/cdrom/driver.o drivers/pci/driver.o
-drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o
-drivers/pnp/pnp.o drivers/video/video.o drivers/md/mddev.o \
-        net/network.o \
-        --end-group \
-        -o vmlinux
-fs/fs.o: In function `init_iso9660_fs':
-fs/fs.o(.text.init+0xdf1): undefined reference to `zisofs_cleanup'
-make: *** [vmlinux] Error 1
+- Some floppies are actually firmware emulations, that you have no real
+clue what they actually do.
 
-
+	-hpa
 

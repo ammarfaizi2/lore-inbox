@@ -1,102 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289339AbSAOAvV>; Mon, 14 Jan 2002 19:51:21 -0500
+	id <S289360AbSAOAxl>; Mon, 14 Jan 2002 19:53:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289100AbSAOAvM>; Mon, 14 Jan 2002 19:51:12 -0500
-Received: from think.faceprint.com ([166.90.149.11]:38787 "EHLO
-	think.faceprint.com") by vger.kernel.org with ESMTP
-	id <S289336AbSAOAvC>; Mon, 14 Jan 2002 19:51:02 -0500
-Date: Mon, 14 Jan 2002 19:50:53 -0500
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-Message-ID: <20020115005053.GA16892@faceprint.com>
-In-Reply-To: <20020114165909.A20808@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
-Content-Disposition: inline
-In-Reply-To: <20020114165909.A20808@thyrsus.com>
-User-Agent: Mutt/1.3.25i
-From: faceprint@faceprint.com (Nathan Walp)
+	id <S289101AbSAOAx0>; Mon, 14 Jan 2002 19:53:26 -0500
+Received: from mx3.sac.fedex.com ([199.81.208.11]:7947 "EHLO mx3.sac.fedex.com")
+	by vger.kernel.org with ESMTP id <S289344AbSAOAxE>;
+	Mon, 14 Jan 2002 19:53:04 -0500
+Date: Tue, 15 Jan 2002 08:50:37 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>
+Subject: Re: initrd failure on Linux-2.4.17
+In-Reply-To: <Pine.LNX.3.95.1020114103203.216A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.43.0201150846320.29728-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/15/2002
+ 08:52:59 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/15/2002
+ 08:53:02 AM,
+	Serialize complete at 01/15/2002 08:53:02 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 Jan 2002, Richard B. Johnson wrote:
+> RAMDISK: Compressed image found at block 0
+> Freeing initrd memory: 581k freed
+> kernel panic: VFS: Unable to mount root fs on 01:00
+>
+> Has somebody fixed this or is it expected that nobody uses
+> an initial RAM disk on 2.4.17 ..or.. is this not the latest
+> "stable" version of Linux to use?
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+RAMDISK: Compressed image found at block 0
+Freeing initrd memory: 5384k freed
+VFS: Mounted root (ext2 filesystem).
+Freeing unused kernel memory: 172k freed
 
-On Mon, Jan 14, 2002 at 04:59:09PM -0500, Eric S. Raymond wrote:
-<snip of over-many-people's-heads description of advanced biology stuff>
-> Penelope needs to build a kernel to support her exotic driver, but she
-> hasn't got more than the vaguest idea how to go about it.  The
-> instructions with the driver source patch tell her to apply it at the
-> top level of a current Linux source tree and then just say "build the
-> kernel" before getting off into technicalia about the user-space
-> tools.
->=20
-> She could ask that guy who's been eyeing her over at the computer lab
-> for help; Penelope knows what a penguin T-shirt means, and he's not
-> too bad-looking, if a bit on the skinny side.  On the other hand, she
-> knows that guys like that tend to take over the whole process when
-> they're trying to be helpful; they can't help displaying their prowess
-> and doing more than you asked for, it's biologically wired in.  And
-> she's learned that letting someone else take over maintaining your
-> equipment properly in a way you don't understand is a good way to have
-> it flake out on you just short of a deadline.
->=20
-> On the third hand, she really *doesn't* want to spend her think time
-> absorbing a bunch of irrelevant hardware details just to get the one
-> driver she needs up and running.  What she needs is some fast,
-> hassle-free technological empowerment, not Yet Another Learning
-> Experience. (And a boyfriend would be nice too, while she's wishing.)
+I booted with Linux-2.4.0 up to 2.4.18-pre3.
 
-So can we assume that our dear sweet Penelope has spent a bit of time
-reading l-k and finding out about <insert your favorite brown-paper-bag
-release here>?  We wouldn't want her to destroy her newly-created data.
-Also, since she has a laptop (which comes with all that finicky laptop
-hardware), does the release of the kernel she grabbed have that nasty
-tweak that fries the board in her laptop?  (I've heard some rather nasty
-horror stories, that's why I ask)
-
-She can't very well patch her vendor kernel, because I sincerely doubt
-the patch will apply cleanly, if this driver is such that it needs a
-patch as opposed to just a module.
-
-Also, what do we tell Penelope when her other piece of exotic hardware
-that *was* supported in the vendor kernel, but isn't supported in the
-vanilla kernel, stops working.  Suddenly she can do her advanced biology
-stuff, but can't print, or dial up w/ her winmodem, or whatever.
-
-> If Penelope learns from the README file that all *she* has to do is
-> type "configure; make" to build a kernel that supports her hardware,
-> she can apply that MEMS card patch and build with confidence that the
-> effort is unlikely to turn into an infinite time sink.
->=20
-> Autoconfigure saves the day again.  That guy in the penguin T-shirt
-> might even be impressed...
-
-If Penelope is even a remote candidate for this scenario, I think
-penguin-boy is already impressed ;-)
-
---=20
-Nathan Walp             || faceprint@faceprint.com
-GPG Fingerprint:        ||   http://faceprint.com/
-5509 6EF3 928B 2363 9B2B  DA17 3E46 2CDC 492D DB7E
+Did you specify root=/dev/hda2 in your boot file?
 
 
---C7zPtVaVf+AK4Oqc
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Jeff.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8Q3ztPkYs3Ekt234RAqIoAJ9yKXRAcLcopnS1mSbk3yUAtCtwSACeIDRZ
-iYY1sRV8UHm2vLq6ysHXWXM=
-=/MAG
------END PGP SIGNATURE-----
-
---C7zPtVaVf+AK4Oqc--

@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269584AbUJSTsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269874AbUJSTtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269584AbUJSTsn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 15:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269908AbUJSTsl
+	id S269874AbUJSTtK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 15:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269797AbUJSToI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 15:48:41 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:28847 "EHLO
+	Tue, 19 Oct 2004 15:44:08 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:25263 "EHLO
 	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S269584AbUJSTsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 15:48:17 -0400
-Message-ID: <417566AE.9040605@drdos.com>
-Date: Tue, 19 Oct 2004 13:10:38 -0600
+	id S269673AbUJSTnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 15:43:14 -0400
+Message-ID: <4175657E.7040800@drdos.com>
+Date: Tue, 19 Oct 2004 13:05:34 -0600
 From: "Jeff V. Merkey" <jmerkey@drdos.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux v2.6.9 and GPL Buyout
-References: <Pine.LNX.4.10.10410191225390.6975-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10410191225390.6975-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+References: <Pine.LNX.4.44.0410191530060.18723-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0410191530060.18723-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
+Rik van Riel wrote:
 
->Jeff,
->
->I can ship you some hippie cabbage from Berkeley California if you are
->fresh out of Peyote.
->
->Cheers,
->
->Andre
->
->Andre Hedrick
->LAD Storage Consulting Group
+>On Tue, 19 Oct 2004, Jeff V. Merkey wrote:
 >
 >  
 >
-Hey Andre,
+>>We have identified and removed the infringing portions of Linux for our
+>>products that SCO claims was stolen from Unix. They are:
+>>
+>>JFS, XFS, All SMP support in Linux, and RCU.
+>>    
+>>
+>
+>Don't tell your customers you removed all the cool stuff.
+>Oh wait, they'll find your lkml post through Google...
+>
+>Lets just hope your marketing folks don't find out about
+>this mail. ;)
+>
+>  
+>
+Rik,
 
-I've got plenty of peyote around -- just watered them this morning. 
-Hippie Cabbage is legal in California?
+You're awesome. We don't use XFS, JFS, or SMP for our appliances so 
+these changes
+have little impact for us.
+
+:-)
 
 Jeff

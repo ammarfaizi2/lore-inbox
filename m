@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbTA2Nwb>; Wed, 29 Jan 2003 08:52:31 -0500
+	id <S265998AbTA2N72>; Wed, 29 Jan 2003 08:59:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266175AbTA2Nwb>; Wed, 29 Jan 2003 08:52:31 -0500
-Received: from lennier.cc.vt.edu ([198.82.162.213]:59142 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S266161AbTA2Nw3>; Wed, 29 Jan 2003 08:52:29 -0500
-Subject: Re: Scaring the non-geeks (was Bootscreen)
-From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-       John Bradford <john@grabjohn.com>, jeff millar <wa1hco@adelphia.net>,
-       Raphael_Schmid@CUBUS.COM, rob@r-morris.co.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1043848700.11095.2.camel@localhost>
-References: <200301281440.h0SEeBS8001126@darkstar.example.net>
-	<200301291409.57213.roy@karlsbakk.net>
-	<1043846348.11513.2.camel@oubop4.bursar.vt.edu> 
-	<1043848700.11095.2.camel@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 29 Jan 2003 09:01:50 -0500
-Message-Id: <1043848911.11513.8.camel@oubop4.bursar.vt.edu>
-Mime-Version: 1.0
+	id <S266010AbTA2N72>; Wed, 29 Jan 2003 08:59:28 -0500
+Received: from mail2.webart.de ([195.30.14.11]:6412 "EHLO mail2.webart.de")
+	by vger.kernel.org with ESMTP id <S265998AbTA2N71>;
+	Wed, 29 Jan 2003 08:59:27 -0500
+Message-ID: <398E93A81CC5D311901600A0C9F2928946939F@cubuss2>
+From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
+To: "'Ingo Oeser'" <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Bootscreen
+Date: Wed, 29 Jan 2003 14:59:33 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How About This:
+> - People like themes and this makes the theme madness more
+>   complete
+That a problem? Anyway, when you need to compile something
+in order to make a change (or append to something as strange
+as an initrd, for that matter), I do not consider this themeing.
 
-Reading Your Credit Card Number			[OK]
-Obtaining Your Date Of Birth			[OK]
-Bringing Up Network Interface			[OK]
-Transferring Your Personal Info to Finland	[OK]
+> - Some people get nervous, if they see text (esp. slow
+>   readers for obvious reasons)
+Humans like to be in control of things. If something's too fast
+for them, or they do not understand it (or even worse: both),
+they try to keep away from it. This, I believe, is only superceded
+by curiousity. (Which would explain initial interest in things
+such as Linux).
 
+>  - Other people consider graphics archaic and "uncool"
+Seems like here, the need for control is even stronger: When
+you understand something, and know it is a mighty tool, you
+also wish to control it. On the other hand, you want your
+mighty tool to always keep you posted on what it's up to.
+(See "The Seven Habits of Seedy Assistants (tm)" for reference).
 
-Guess that would scare people.
+> The last 2 apply to kids as well.
+What do you mean? Gets my attention...
 
+> So there are usability concerns and the boot might be the right
+> place to implement that kind bootscreen retainment.
+Yup. Not to forget that we like eyecandy.
 
-On Wed, 2003-01-29 at 08:58, Xavier Bestel wrote:
-> 
-> > How do positive terms such as OK or YES scare people? 
-> 
-> Goblodoing the frungled devil                 [OK]
-> Escraping various gunfred                     [OK]
-> Erasing sdfjebr documents                     [OK]
-> 
-> .. ad nauseum
-> 
-> now who's scared ?
-> 
-
+> Showing the dmesg log buffer on panic or BUG would be a nice
+> thing, to retain usability in that case as well.
+Maybe. Know how ill-reputed the Windows Bluescreen is? Let's
+discuss this a bit...
 

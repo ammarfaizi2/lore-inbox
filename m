@@ -1,55 +1,413 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265134AbSJaDKE>; Wed, 30 Oct 2002 22:10:04 -0500
+	id <S265171AbSJaD1w>; Wed, 30 Oct 2002 22:27:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265136AbSJaDKE>; Wed, 30 Oct 2002 22:10:04 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:47116 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S265134AbSJaDKD>; Wed, 30 Oct 2002 22:10:03 -0500
-Date: Thu, 31 Oct 2002 12:16:09 +0900 (JST)
-Message-Id: <20021031.121609.71851601.yoshfuji@linux-ipv6.org>
-To: davem@redhat.com
-Cc: boissiere@adiglobal.com, kuznet@ms2.inr.ac.ru,
-       linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5] October 30, 2002
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20021030.184443.87162307.davem@redhat.com>
-References: <20021030.143615.10738219.davem@redhat.com>
-	<20021031.114832.59687399.yoshfuji@linux-ipv6.org>
-	<20021030.184443.87162307.davem@redhat.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: ,!^C1nUj;HDn\o}#MDnZW<|oj*]iIB/>/Rj|xZ=D=hBIY#)lQ,$n#kJvDg7at|p;w0^8&4_
- OS17ezZP7m/LlFJYPF}FdcGx!,qBM:w{Ub2#M8_@n^nYT%?u+bwTsqni(z5
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S265169AbSJaD0q>; Wed, 30 Oct 2002 22:26:46 -0500
+Received: from nameservices.net ([208.234.25.16]:7601 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S265165AbSJaDUs>;
+	Wed, 30 Oct 2002 22:20:48 -0500
+Message-ID: <3DC0A411.C7CB826F@opersys.com>
+Date: Wed, 30 Oct 2002 22:31:29 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
+Subject: [PATCH] LTT for 2.5.45 8/10: SuperH trace support
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021030.184443.87162307.davem@redhat.com> (at Wed, 30 Oct 2002 18:44:43 -0800 (PST)), "David S. Miller" <davem@redhat.com> says:
 
->    > We told you several times how this USAGI patch is not currently in an
->    > acceptable form and needs to be reimplemented via the routing code.
->    
->    Yes, but I think
->      - integrate our code to your tree
->    then
->      - reimplement (re-design)
->    is better way to go forward.
->    
-> Absolutely not, we do not put improperly architected code into the
-> tree first then clean it up later.
+D: This patch adds the bare-minimum SuperH-specific low-level trace
+D: statements.
 
-That patch do NOT change current architecture so above is unfair.
+diffstat:
+ arch/sh/kernel/entry.S   |   43 ++++++++++++++++++++++++
+ arch/sh/kernel/irq.c     |   14 ++++++++
+ arch/sh/kernel/process.c |   13 ++++++-
+ arch/sh/kernel/sys_sh.c  |    4 ++
+ arch/sh/kernel/traps.c   |   82 +++++++++++++++++++++++++++++++++++++++++++++--
+ arch/sh/mm/fault.c       |   15 ++++++++
+ include/asm-sh/trace.h   |   16 +++++++++
+ 7 files changed, 184 insertions(+), 3 deletions(-)
 
-It would be ok to say "we do not put code into the part of 
-improperly architected code in the tree then clean it up later."
-
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+diff -urpN linux-2.5.45/arch/sh/kernel/entry.S linux-2.5.45-ltt/arch/sh/kernel/entry.S
+--- linux-2.5.45/arch/sh/kernel/entry.S	Wed Oct 30 19:42:27 2002
++++ linux-2.5.45-ltt/arch/sh/kernel/entry.S	Wed Oct 30 20:51:11 2002
+@@ -370,6 +370,20 @@ system_call:
+ 	mov.l	r10, @r14		! set syscall_nr
+ 	STI()
+ 	!
++#if (CONFIG_TRACE)
++	! TODO: for i386 this code only happens when not ptrace'd
++	mov 	r15, r4     	    	! pass pt_regs* as first arg
++	mov.l	__trsen, r11 	    	! Call trace_real_syscall_entry()
++	jsr	@r11	    	    	! (will chomp R[0-7])
++	 nop
++	!   	    	    	    	Reload R4-R7 from kernel stack
++	mov.l	@(OFF_R4,r15), r4   ! arg0
++	mov.l	@(OFF_R5,r15), r5
++	mov.l	@(OFF_R6,r15), r6
++	mov.l	@(OFF_R7,r15), r7   ! arg3
++	mov.l	@(OFF_R3,r15), r3   ! syscall_nr
++#endif
++
+ 	stc	k_current, r11
+ #error	mov.l	@(tsk_ptrace,r11), r10	! Is current PTRACE_SYSCALL'd?
+ #error	mov	#PT_TRACESYS, r11
+@@ -421,6 +435,14 @@ system_call:
+ 	! In case of trace
+ syscall_ret_trace:
+ 	mov.l	r0, @(OFF_R0,r15)		! save the return value
++
++#if (CONFIG_TRACE)
++    	! TODO: for i386 this code only happens when not ptrace'd
++	mov.l	__trsex, r1 	    	! Call trace_real_syscall_exit()
++	jsr	@r1
++	 nop
++#endif
++
+ 	mov.l	__syscall_trace, r1
+ 	mova	ret_from_syscall, r0
+ 	jmp	@r1    	! Call syscall_trace() which notifies superior
+@@ -504,6 +526,14 @@ __syscall_ret_trace:
+ 	.long	syscall_ret_trace
+ __syscall_ret:
+ 	.long	syscall_ret
++	
++#if (CONFIG_TRACE)
++__trsen:
++	.long	trace_real_syscall_entry
++__trsex:
++	.long	trace_real_syscall_exit
++#endif
++
+ __INV_IMASK:
+ 	.long	0xffffff0f	! ~(IMASK)
+ 
+@@ -536,6 +566,14 @@ old_abi_syscall_ret:
+ #endif
+ syscall_ret:
+ 	mov.l	r0, @(OFF_R0,r15)	! save the return value
++
++#if (CONFIG_TRACE)
++	! TODO: for i386 this code only happens when not ptrace'd
++	mov.l	__trsex2, r1 	    	! Call trace_real_syscall_exit()
++	jsr	@r1
++	 nop
++#endif
++
+ 	/* fall through */
+ 
+ ENTRY(ret_from_syscall)
+@@ -563,6 +601,11 @@ __do_signal:
+ #error	.long	do_signal
+ __irq_stat:
+ 	.long	irq_stat
++#if (CONFIG_TRACE)
++__trsex2:
++ 	.long	trace_real_syscall_exit
++#endif
++
+ 
+ 	.align 2
+ restore_all:
+diff -urpN linux-2.5.45/arch/sh/kernel/irq.c linux-2.5.45-ltt/arch/sh/kernel/irq.c
+--- linux-2.5.45/arch/sh/kernel/irq.c	Wed Oct 30 19:42:26 2002
++++ linux-2.5.45-ltt/arch/sh/kernel/irq.c	Wed Oct 30 20:51:11 2002
+@@ -30,6 +30,8 @@
+ #include <linux/init.h>
+ #include <linux/seq_file.h>
+ 
++#include <linux/trace.h>
++
+ #include <asm/system.h>
+ #include <asm/io.h>
+ #include <asm/bitops.h>
+@@ -127,6 +129,12 @@ int handle_IRQ_event(unsigned int irq, s
+ 
+ 	irq_enter(cpu, irq);
+ 
++#if (CONFIG_TRACE)
++    	if (irq != TIMER_IRQ) { /* avoid double-reporting the timer IRQ */
++		TRACE_IRQ_ENTRY(irq, !(user_mode(regs)));
++	}
++#endif
++
+ 	status = 1;	/* Force the "do bottom halves" bit */
+ 
+ 	if (!(action->flags & SA_INTERRUPT))
+@@ -143,6 +151,12 @@ int handle_IRQ_event(unsigned int irq, s
+ 
+ 	irq_exit(cpu, irq);
+ 
++#if (CONFIG_TRACE)
++    	if (irq != TIMER_IRQ) { /* avoid double-reporting the timer IRQ */
++		TRACE_IRQ_EXIT();
++	}
++#endif
++
+ 	return status;
+ }
+ 
+diff -urpN linux-2.5.45/arch/sh/kernel/process.c linux-2.5.45-ltt/arch/sh/kernel/process.c
+--- linux-2.5.45/arch/sh/kernel/process.c	Wed Oct 30 19:43:08 2002
++++ linux-2.5.45-ltt/arch/sh/kernel/process.c	Wed Oct 30 20:51:11 2002
+@@ -16,6 +16,8 @@
+ #include <linux/slab.h>
+ #include <linux/a.out.h>
+ 
++#include <linux/trace.h>
++
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include <asm/mmu_context.h>
+@@ -138,7 +140,16 @@ int kernel_thread(int (*fn)(void *), voi
+ 		: "i" (__NR_exit), "r" (__sc3), "r" (__sc4), "r" (__sc5), 
+ 		  "r" (__sc8), "r" (__sc9)
+ 		: "memory", "t");
+-	return __sc0;
++#if (CONFIG_TRACE)
++	{
++		volatile unsigned long retval = __sc0;
++		if (retval > 0)
++			TRACE_PROCESS(TRACE_EV_PROCESS_KTHREAD, retval, (int) fn);
++		return retval;
++	}
++#else
++ 	return __sc0;
++#endif
+ }
+ 
+ /*
+diff -urpN linux-2.5.45/arch/sh/kernel/sys_sh.c linux-2.5.45-ltt/arch/sh/kernel/sys_sh.c
+--- linux-2.5.45/arch/sh/kernel/sys_sh.c	Wed Oct 30 19:44:13 2002
++++ linux-2.5.45-ltt/arch/sh/kernel/sys_sh.c	Wed Oct 30 20:51:11 2002
+@@ -21,6 +21,8 @@
+ #include <linux/file.h>
+ #include <linux/utsname.h>
+ 
++#include <linux/trace.h>
++
+ #include <asm/uaccess.h>
+ #include <asm/ipc.h>
+ 
+@@ -139,6 +141,8 @@ asmlinkage int sys_ipc(uint call, int fi
+ 	version = call >> 16; /* hack for backward compatibility */
+ 	call &= 0xffff;
+ 
++	TRACE_IPC(TRACE_EV_IPC_CALL, call, first);
++
+ 	if (call <= SEMCTL)
+ 		switch (call) {
+ 		case SEMOP:
+diff -urpN linux-2.5.45/arch/sh/kernel/traps.c linux-2.5.45-ltt/arch/sh/kernel/traps.c
+--- linux-2.5.45/arch/sh/kernel/traps.c	Wed Oct 30 19:41:39 2002
++++ linux-2.5.45-ltt/arch/sh/kernel/traps.c	Wed Oct 30 20:51:11 2002
+@@ -25,6 +25,8 @@
+ #include <linux/delay.h>
+ #include <linux/spinlock.h>
+ 
++#include <linux/trace.h>
++
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+@@ -42,7 +44,9 @@ asmlinkage void do_##name(unsigned long 
+ 	sti(); \
+ 	tsk->thread.error_code = error_code; \
+ 	tsk->thread.trap_no = trapnr; \
++	TRACE_TRAP_ENTRY(trapnr, regs.pc); \
+ 	force_sig(signr, tsk); \
++	TRACE_TRAP_EXIT(); \
+ 	die_if_no_fixup(str,&regs,error_code); \
+ }
+ 
+@@ -464,6 +468,8 @@ asmlinkage void do_address_error(struct 
+ 
+ 	asm volatile("stc       r2_bank,%0": "=r" (error_code));
+ 
++	TRACE_TRAP_ENTRY(error_code >> 5, regs->pc);
++
+ 	oldfs = get_fs();
+ 
+ 	if (user_mode(regs)) {
+@@ -487,8 +493,10 @@ asmlinkage void do_address_error(struct 
+ 		tmp = handle_unaligned_access(instruction, regs);
+ 		set_fs(oldfs);
+ 
+-		if (tmp==0)
+-			return; /* sorted */
++		if (tmp==0) {
++			TRACE_TRAP_EXIT();
++ 			return; /* sorted */
++		}
+ 
+ 	uspace_segv:
+ 		printk(KERN_NOTICE "Killing process \"%s\" due to unaligned access\n", current->comm);
+@@ -509,6 +517,7 @@ asmlinkage void do_address_error(struct 
+ 		handle_unaligned_access(instruction, regs);
+ 		set_fs(oldfs);
+ 	}
++	TRACE_TRAP_EXIT();
+ }
+ 
+ DO_ERROR(12, SIGILL,  "reserved instruction", reserved_inst, current)
+@@ -586,3 +595,72 @@ void show_trace_task(struct task_struct 
+ {
+ 	printk("Backtrace not yet implemented for SH.\n");
+ }
++
++/* Trace related code */
++#if (CONFIG_TRACE)
++asmlinkage void trace_real_syscall_entry(struct pt_regs *regs)
++{
++	int use_depth;
++	int use_bounds;
++	int depth = 0;
++	int seek_depth;
++	unsigned long lower_bound;
++	unsigned long upper_bound;
++	unsigned long addr;
++	unsigned long *stack;
++	trace_syscall_entry trace_syscall_event;
++
++	/* Set the syscall ID */
++	trace_syscall_event.syscall_id = (uint8_t) regs->regs[REG_REG0 + 3];
++
++	/* Set the address in any case */
++	trace_syscall_event.address = regs->pc;
++
++	/* Are we in the kernel (This is a kernel thread)? */
++	if (!user_mode(regs))
++		/* Don't go digining anywhere */
++		goto trace_syscall_end;
++
++	/* Get the trace configuration */
++	if (trace_get_config(&use_depth, &use_bounds, &seek_depth,
++		       (void *) &lower_bound, (void *) &upper_bound) < 0)
++		goto trace_syscall_end;
++
++	/* Do we have to search for an eip address range */
++	if ((use_depth == 1) || (use_bounds == 1)) {
++		/* Start at the top of the stack (bottom address since stacks grow downward) */
++		stack = (unsigned long *) regs->regs[REG_REG15];
++
++		/* Keep on going until we reach the end of the process' stack limit (wherever it may be) */
++		while (!get_user(addr, stack)) {
++			/* Does this LOOK LIKE an address in the program */
++			/* TODO: does this work with shared libraries?? - Greg Banks */
++			if ((addr > current->mm->start_code) && (addr < current->mm->end_code)) {
++				/* Does this address fit the description */
++				if (((use_depth == 1) && (depth == seek_depth))
++				    || ((use_bounds == 1) && (addr > lower_bound)
++					&& (addr < upper_bound))) {
++					/* Set the address */
++					trace_syscall_event.address = addr;
++
++					/* We're done */
++					goto trace_syscall_end;
++				} else
++					/* We're one depth more */
++					depth++;
++			}
++			/* Go on to the next address */
++			stack++;
++		}
++	}
++trace_syscall_end:
++	/* Trace the event */
++	trace_event(TRACE_EV_SYSCALL_ENTRY, &trace_syscall_event);
++}
++
++asmlinkage void trace_real_syscall_exit(void)
++{
++	trace_event(TRACE_EV_SYSCALL_EXIT, NULL);
++}
++
++#endif				/* (CONFIG_TRACE) */
+diff -urpN linux-2.5.45/arch/sh/mm/fault.c linux-2.5.45-ltt/arch/sh/mm/fault.c
+--- linux-2.5.45/arch/sh/mm/fault.c	Wed Oct 30 19:42:21 2002
++++ linux-2.5.45-ltt/arch/sh/mm/fault.c	Wed Oct 30 20:51:12 2002
+@@ -20,6 +20,8 @@
+ #include <linux/smp_lock.h>
+ #include <linux/interrupt.h>
+ 
++#include <linux/trace.h>
++
+ #include <asm/system.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+@@ -46,6 +48,14 @@ asmlinkage void do_page_fault(struct pt_
+ 	tsk = current;
+ 	mm = tsk->mm;
+ 
++#if (CONFIG_TRACE)
++	{
++		unsigned long trapnr;
++		asm volatile("stc       r2_bank,%0": "=r" (trapnr));
++		TRACE_TRAP_ENTRY(trapnr >> 5, regs->pc);  /* trap 4,5 or 6 */
++	}
++#endif
++
+ 	/*
+ 	 * If we're in an interrupt or have no user
+ 	 * context, we must not take the fault..
+@@ -97,6 +107,7 @@ survive:
+ 	}
+ 
+ 	up_read(&mm->mmap_sem);
++	TRACE_TRAP_EXIT();
+ 	return;
+ 
+ /*
+@@ -110,6 +121,7 @@ bad_area:
+ 		tsk->thread.address = address;
+ 		tsk->thread.error_code = writeaccess;
+ 		force_sig(SIGSEGV, tsk);
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
+ 
+@@ -118,6 +130,7 @@ no_context:
+ 	fixup = search_exception_table(regs->pc);
+ 	if (fixup != 0) {
+ 		regs->pc = fixup;
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
+ 
+@@ -179,6 +192,8 @@ do_sigbus:
+ 	/* Kernel mode? Handle exceptions or die */
+ 	if (!user_mode(regs))
+ 		goto no_context;
++
++	TRACE_TRAP_EXIT();
+ }
+ 
+ /*
+diff -urpN linux-2.5.45/include/asm-sh/trace.h linux-2.5.45-ltt/include/asm-sh/trace.h
+--- linux-2.5.45/include/asm-sh/trace.h	Wed Dec 31 19:00:00 1969
++++ linux-2.5.45-ltt/include/asm-sh/trace.h	Wed Oct 30 20:51:14 2002
+@@ -0,0 +1,16 @@
++/*
++ * linux/include/asm-sh/trace.h
++ *
++ * Copyright (C) 2002, Karim Yaghmour
++ *
++ * SuperH definitions for tracing system
++ */
++
++#include <linux/trace.h>
++#include <asm-generic/trace.h>
++
++/* Current arch type */
++#define TRACE_ARCH_TYPE TRACE_ARCH_TYPE_SH
++
++/* Current variant type */
++#define TRACE_ARCH_VARIANT TRACE_ARCH_VARIANT_NONE

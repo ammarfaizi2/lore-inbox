@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313896AbSEHMge>; Wed, 8 May 2002 08:36:34 -0400
+	id <S313904AbSEHMoz>; Wed, 8 May 2002 08:44:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313902AbSEHMgd>; Wed, 8 May 2002 08:36:33 -0400
-Received: from mail.dsa-ac.de ([62.112.80.99]:59141 "HELO k2.dsa-ac.de")
-	by vger.kernel.org with SMTP id <S313896AbSEHMgd>;
-	Wed, 8 May 2002 08:36:33 -0400
-Date: Wed, 8 May 2002 14:36:17 +0200 (CEST)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
+	id <S313924AbSEHMoz>; Wed, 8 May 2002 08:44:55 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:15070 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id <S313904AbSEHMox>;
+	Wed, 8 May 2002 08:44:53 -0400
+Date: Wed, 8 May 2002 15:44:37 +0300 (EEST)
+From: Catalin BOIE <catab@deuroconsult.ro>
+X-X-Sender: <catab@hosting.rdsbv.ro>
 To: <linux-kernel@vger.kernel.org>
-Cc: <tytso@mit.edu>, <linux-serial@vger.kernel.org>
-Subject: 16850 automatic RTS/CTS
-Message-ID: <Pine.LNX.4.33.0205081424330.2626-100000@pcgl.dsa-ac.de>
+Message-ID: <Pine.LNX.4.33.0205081537460.4925-100000@hosting.rdsbv.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Hello!
 
-As of 2.5.6 there is some support in the serial driver for the 16850
-automatic hardware handshake feature, in particular the automatic CTS is
-enabled, but not the automatic RTS. Nor are the hysteresis levels set.
-Why? I tried enabling all these features, it helps a good deal improving
-the reliability of the data transfer, but still, at high baud-rates
-(460800, 921600) and in the presence of user-space load data can be
-overwritten in the driver's buffer. Why isn't this checked?
+Why in kernel in net/sched/sch_sfq.c and in other places (htb) the change
+function is not sfq_change (or htb_change) and is NULL instead?
 
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+Thank you very much!
 
+Please, CC me because I'm not on the list...
+
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro
+http://www2.deuroconsult.ro/~catab
 

@@ -1,232 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbSJQXnD>; Thu, 17 Oct 2002 19:43:03 -0400
+	id <S262296AbSJQXkn>; Thu, 17 Oct 2002 19:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262797AbSJQXnD>; Thu, 17 Oct 2002 19:43:03 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:37399 "EHLO
+	id <S262541AbSJQXkn>; Thu, 17 Oct 2002 19:40:43 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:61947 "EHLO
 	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S262796AbSJQXm7>; Thu, 17 Oct 2002 19:42:59 -0400
-Date: Fri, 18 Oct 2002 00:49:51 +0100 (BST)
+	id <S262296AbSJQXkk>; Thu, 17 Oct 2002 19:40:40 -0400
+Date: Fri, 18 Oct 2002 00:47:32 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@digeo.com>
-cc: Christoph Rohland <cr@sap.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] tmpfs 2/9 shmem_getpage beyond eof
-In-Reply-To: <Pine.LNX.4.44.0210180042480.7220-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0210180047500.7220-100000@localhost.localdomain>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] tmpfs 1/9 shmem_getpage unlock_page
+Message-ID: <Pine.LNX.4.44.0210180042480.7220-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The last set of tmpfs patches left shmem_getpage with an inadequate
-next_index test to guard against races with truncation.  Now remove
-that check and settle the issue with checks against i_size within
-shmem_swp_alloc, which needs to know whether reading or writing.
+First of nine tmpfs patches based on 2.5.43, hoping for inclusion in
+2.5.43-mm then on to mainline.  The main change is in 8/9, enabling
+loopable tmpfs.  9/9 instates Ingo's shmem_populate above the rest.
 
---- tmpfs1/mm/shmem.c	Thu Oct 17 22:00:49 2002
-+++ tmpfs2/mm/shmem.c	Thu Oct 17 22:00:59 2002
-@@ -51,6 +51,12 @@
- /* Keep swapped page count in private field of indirect struct page */
- #define nr_swapped		private
- 
-+/* Flag end-of-file treatment to shmem_getpage and shmem_swp_alloc */
-+enum sgp_type {
-+	SGP_READ,	/* don't exceed i_size */
-+	SGP_WRITE,	/* may exceed i_size */
-+};
-+
- static inline struct page *shmem_dir_alloc(unsigned int gfp_mask)
- {
- 	/*
-@@ -200,8 +206,6 @@
- 	struct page **dir;
- 	struct page *subdir;
- 
--	if (index >= info->next_index)
--		return NULL;
- 	if (index < SHMEM_NR_DIRECT)
- 		return info->i_direct+index;
- 	if (!info->i_indirect) {
-@@ -274,20 +278,20 @@
-  *
-  * @info:	info structure for the inode
-  * @index:	index of the page to find
-+ * @sgp:	check and recheck i_size?
-  */
--static swp_entry_t *shmem_swp_alloc(struct shmem_inode_info *info, unsigned long index)
-+static swp_entry_t *shmem_swp_alloc(struct shmem_inode_info *info, unsigned long index, enum sgp_type sgp)
- {
- 	struct inode *inode = &info->vfs_inode;
- 	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
- 	struct page *page = NULL;
- 	swp_entry_t *entry;
- 
--	while (!(entry = shmem_swp_entry(info, index, &page))) {
--		if (index >= info->next_index) {
--			entry = ERR_PTR(-EFAULT);
--			break;
--		}
-+	if (sgp != SGP_WRITE &&
-+	    ((loff_t) index << PAGE_CACHE_SHIFT) >= inode->i_size)
-+		return ERR_PTR(-EINVAL);
- 
-+	while (!(entry = shmem_swp_entry(info, index, &page))) {
- 		/*
- 		 * Test free_blocks against 1 not 0, since we have 1 data
- 		 * page (and perhaps indirect index pages) yet to allocate:
-@@ -314,12 +318,21 @@
- 			shmem_free_block(inode);
- 			return ERR_PTR(-ENOMEM);
- 		}
-+		if (sgp != SGP_WRITE &&
-+		    ((loff_t) index << PAGE_CACHE_SHIFT) >= inode->i_size) {
-+			entry = ERR_PTR(-EINVAL);
-+			break;
-+		}
-+		if (info->next_index <= index)
-+			info->next_index = index + 1;
- 	}
- 	if (page) {
- 		/* another task gave its page, or truncated the file */
- 		shmem_free_block(inode);
- 		shmem_dir_free(page);
- 	}
-+	if (info->next_index <= index && !IS_ERR(entry))
-+		info->next_index = index + 1;
- 	return entry;
- }
- 
-@@ -672,6 +685,7 @@
- 
- 	spin_lock(&info->lock);
- 	shmem_recalc_inode(inode);
-+	BUG_ON(index >= info->next_index);
- 	entry = shmem_swp_entry(info, index, NULL);
- 	BUG_ON(!entry);
- 	BUG_ON(entry->val);
-@@ -710,7 +724,7 @@
-  * vm. If we swap it in we mark it dirty since we also free the swap
-  * entry since a page cannot live in both the swap and page cache
-  */
--static int shmem_getpage(struct inode *inode, unsigned long idx, struct page **pagep)
-+static int shmem_getpage(struct inode *inode, unsigned long idx, struct page **pagep, enum sgp_type sgp)
- {
- 	struct address_space *mapping = inode->i_mapping;
- 	struct shmem_inode_info *info = SHMEM_I(inode);
-@@ -722,18 +736,6 @@
- 
- 	if (idx >= SHMEM_MAX_INDEX)
- 		return -EFBIG;
--
--	/*
--	 * When writing, i_sem is held against truncation and other
--	 * writing, so next_index will remain as set here; but when
--	 * reading, idx must always be checked against next_index
--	 * after sleeping, lest truncation occurred meanwhile.
--	 */
--	spin_lock(&info->lock);
--	if (info->next_index <= idx)
--		info->next_index = idx + 1;
--	spin_unlock(&info->lock);
--
+ Documentation/devices.txt           |    2 
+ Documentation/filesystems/tmpfs.txt |   17 
+ include/asm-sparc64/page.h          |    1 
+ include/linux/fs.h                  |    1 
+ include/linux/highmem.h             |   11 
+ mm/filemap.c                        |    2 
+ mm/shmem.c                          |  683 ++++++++++++++++++++----------------
+ 7 files changed, 410 insertions(+), 307 deletions(-)
+
+[PATCH] tmpfs 1/9 shmem_getpage unlock_page
+
+shmem_getpage does need to lock its page (to secure it against
+shmem_writepage), but it's easier for its callers if it unlocks
+before returning.  The only caller who appeared to be using the
+page lock was shmem_file_write, but it wasn't actually protecting
+against anything - i_sem prevents concurrent writes and truncates,
+and do_shmem_file_read was dropping the lock before copying anyway.
+
+--- 2.5.43/mm/shmem.c	Sat Oct 12 08:26:10 2002
++++ tmpfs1/mm/shmem.c	Thu Oct 17 22:00:49 2002
+@@ -737,6 +737,7 @@
  repeat:
  	page = find_lock_page(mapping, idx);
  	if (page) {
-@@ -744,7 +746,7 @@
++		unlock_page(page);
+ 		*pagep = page;
+ 		return 0;
+ 	}
+@@ -852,6 +853,7 @@
+ 	}
  
- 	spin_lock(&info->lock);
- 	shmem_recalc_inode(inode);
--	entry = shmem_swp_alloc(info, idx);
-+	entry = shmem_swp_alloc(info, idx, sgp);
- 	if (IS_ERR(entry)) {
- 		spin_unlock(&info->lock);
- 		return PTR_ERR(entry);
-@@ -761,7 +763,7 @@
- 			page = read_swap_cache_async(swap);
- 			if (!page) {
- 				spin_lock(&info->lock);
--				entry = shmem_swp_alloc(info, idx);
-+				entry = shmem_swp_alloc(info, idx, sgp);
- 				if (IS_ERR(entry))
- 					error = PTR_ERR(entry);
- 				else {
-@@ -830,7 +832,7 @@
- 		}
- 
- 		spin_lock(&info->lock);
--		entry = shmem_swp_alloc(info, idx);
-+		entry = shmem_swp_alloc(info, idx, sgp);
- 		if (IS_ERR(entry))
- 			error = PTR_ERR(entry);
- 		else {
-@@ -881,7 +883,7 @@
+ 	/* We have the page */
++	unlock_page(page);
+ 	*pagep = page;
+ 	return 0;
+ }
+@@ -879,8 +881,7 @@
  	}
  	spin_unlock(&info->lock);
  	if (swap.val) {
--		(void) shmem_getpage(inode, idx, &page);
-+		(void) shmem_getpage(inode, idx, &page, SGP_READ);
+-		if (shmem_getpage(inode, idx, &page) == 0)
+-			unlock_page(page);
++		(void) shmem_getpage(inode, idx, &page);
  	}
  	return page;
  }
-@@ -897,10 +899,7 @@
- 	idx += vma->vm_pgoff;
- 	idx >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
- 
--	if (((loff_t) idx << PAGE_CACHE_SHIFT) >= inode->i_size)
--		return NOPAGE_SIGBUS;
--
--	error = shmem_getpage(inode, idx, &page);
-+	error = shmem_getpage(inode, idx, &page, SGP_READ);
+@@ -903,7 +904,6 @@
  	if (error)
  		return (error == -ENOMEM)? NOPAGE_OOM: NOPAGE_SIGBUS;
  
-@@ -1105,7 +1104,7 @@
- 		 * what would it guard against? - so no deadlock here.
+-	unlock_page(page);
+ 	flush_page_to_ram(page);
+ 	return page;
+ }
+@@ -1101,15 +1101,9 @@
+ 		}
+ 
+ 		/*
+-		 * Bring in the user page that we will copy from _first_.
+-		 * Otherwise there's a nasty deadlock on copying from the
+-		 * same page as we're writing to, without it being marked
+-		 * up-to-date.
++		 * We don't hold page lock across copy from user -
++		 * what would it guard against? - so no deadlock here.
  		 */
+-		{ volatile unsigned char dummy;
+-			__get_user(dummy, buf);
+-			__get_user(dummy, buf+bytes-1);
+-		}
  
--		status = shmem_getpage(inode, index, &page);
-+		status = shmem_getpage(inode, index, &page, SGP_WRITE);
+ 		status = shmem_getpage(inode, index, &page);
  		if (status)
- 			break;
+@@ -1131,9 +1125,7 @@
+ 			if (pos > inode->i_size)
+ 				inode->i_size = pos;
+ 		}
+-unlock:
+-		/* Mark it unlocked again and drop the page.. */
+-		unlock_page(page);
++release:
+ 		page_cache_release(page);
  
-@@ -1170,9 +1169,9 @@
+ 		if (status < 0)
+@@ -1152,7 +1144,7 @@
+ fail_write:
+ 	status = -EFAULT;
+ 	ClearPageUptodate(page);
+-	goto unlock;
++	goto release;
+ }
+ 
+ static void do_shmem_file_read(struct file *filp, loff_t *ppos, read_descriptor_t *desc)
+@@ -1194,12 +1186,10 @@
+ 		if (index == end_index) {
+ 			nr = inode->i_size & ~PAGE_CACHE_MASK;
+ 			if (nr <= offset) {
+-				unlock_page(page);
+ 				page_cache_release(page);
  				break;
+ 			}
  		}
+-		unlock_page(page);
+ 		nr -= offset;
  
--		desc->error = shmem_getpage(inode, index, &page);
-+		desc->error = shmem_getpage(inode, index, &page, SGP_READ);
- 		if (desc->error) {
--			if (desc->error == -EFAULT)
-+			if (desc->error == -EINVAL)
- 				desc->error = 0;
- 			break;
- 		}
-@@ -1419,7 +1418,7 @@
- 			iput(inode);
- 			return -ENOMEM;
- 		}
--		error = shmem_getpage(inode, 0, &page);
-+		error = shmem_getpage(inode, 0, &page, SGP_WRITE);
- 		if (error) {
- 			vm_unacct_memory(VM_ACCT(1));
- 			iput(inode);
-@@ -1455,7 +1454,7 @@
- static int shmem_readlink(struct dentry *dentry, char *buffer, int buflen)
- {
- 	struct page *page;
--	int res = shmem_getpage(dentry->d_inode, 0, &page);
-+	int res = shmem_getpage(dentry->d_inode, 0, &page, SGP_READ);
- 	if (res)
+ 		if (!list_empty(&mapping->i_mmap_shared))
+@@ -1443,7 +1433,6 @@
+ 		memcpy(kaddr, symname, len);
+ 		kunmap(page);
+ 		set_page_dirty(page);
+-		unlock_page(page);
+ 		page_cache_release(page);
+ 	}
+ 	dir->i_size += BOGO_DIRENT_SIZE;
+@@ -1471,7 +1460,6 @@
  		return res;
  	res = vfs_readlink(dentry, buffer, buflen, kmap(page));
-@@ -1467,7 +1466,7 @@
- static int shmem_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
- 	struct page *page;
--	int res = shmem_getpage(dentry->d_inode, 0, &page);
-+	int res = shmem_getpage(dentry->d_inode, 0, &page, SGP_READ);
- 	if (res)
+ 	kunmap(page);
+-	unlock_page(page);
+ 	page_cache_release(page);
+ 	return res;
+ }
+@@ -1484,7 +1472,6 @@
  		return res;
  	res = vfs_follow_link(nd, kmap(page));
+ 	kunmap(page);
+-	unlock_page(page);
+ 	page_cache_release(page);
+ 	return res;
+ }
 

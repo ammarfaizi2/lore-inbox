@@ -1,140 +1,196 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265431AbUAAUZW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:25:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbUAAUWH
+	id S265379AbUAAUV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 15:21:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264987AbUAAURD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:22:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61092 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264981AbUAAUUO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:20:14 -0500
-Date: Thu, 1 Jan 2004 12:19:56 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-cc: Arjan van de Ven <arjanv@redhat.com>, Jon Smirl <jonsmirl@yahoo.com>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Dri-devel] 2.6 kernel change in nopage
-In-Reply-To: <1072967278.1603.270.camel@thor.asgaard.local>
-Message-ID: <Pine.LNX.4.58.0401011205110.2065@home.osdl.org>
-References: <20031231182148.26486.qmail@web14918.mail.yahoo.com> 
- <1072958618.1603.236.camel@thor.asgaard.local>  <1072959055.5717.1.camel@laptop.fenrus.com>
-  <1072959820.1600.252.camel@thor.asgaard.local>  <20040101122851.GA13671@devserv.devel.redhat.com>
- <1072967278.1603.270.camel@thor.asgaard.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 1 Jan 2004 15:17:03 -0500
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:34381 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S265079AbUAAUKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:10:23 -0500
+Date: Thu, 1 Jan 2004 21:01:57 +0100
+Message-Id: <200401012001.i01K1vlY031781@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 357] Mac89x0 Ethernet
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Macintosh CS89x0 Ethernet: Netif updates (from Matthias Urlichs)
 
+--- linux-2.6.0/drivers/net/Kconfig	Sun Oct 19 10:45:04 2003
++++ linux-m68k-2.6.0/drivers/net/Kconfig	Mon Oct 20 21:39:36 2003
+@@ -318,7 +318,7 @@
+ 
+ config MAC89x0
+ 	tristate "Macintosh CS89x0 based ethernet cards"
+-	depends on NETDEVICES && MAC && BROKEN
++	depends on NETDEVICES && MAC
+ 	---help---
+ 	  Support for CS89x0 chipset based Ethernet cards.  If you have a
+ 	  Nubus or LC-PDS network (Ethernet) card of this type, say Y and
+--- linux-2.6.0/drivers/net/mac89x0.c	Mon May  5 10:31:32 2003
++++ linux-m68k-2.6.0/drivers/net/mac89x0.c	Mon Oct 20 21:34:24 2003
+@@ -128,7 +128,7 @@
+ extern void reset_chip(struct net_device *dev);
+ #endif
+ static int net_open(struct net_device *dev);
+-static int	net_send_packet(struct sk_buff *skb, struct net_device *dev);
++static int net_send_packet(struct sk_buff *skb, struct net_device *dev);
+ static irqreturn_t net_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+ static void set_multicast_list(struct net_device *dev);
+ static void net_rx(struct net_device *dev);
+@@ -367,56 +367,37 @@
+ static int
+ net_send_packet(struct sk_buff *skb, struct net_device *dev)
+ {
+-	if (dev->tbusy) {
+-		/* If we get here, some higher level has decided we are broken.
+-		   There should really be a "kick me" function call instead. */
+-		int tickssofar = jiffies - dev->trans_start;
+-		if (tickssofar < 5)
+-			return 1;
+-		if (net_debug > 0) printk("%s: transmit timed out, %s?\n", dev->name,
+-			   tx_done(dev) ? "IRQ conflict" : "network cable problem");
+-		/* Try to restart the adaptor. */
+-		dev->tbusy=0;
+-		dev->trans_start = jiffies;
+-	}
+-
+-	/* Block a timer-based transmit from overlapping.  This could better be
+-	   done with atomic_swap(1, dev->tbusy), but set_bit() works as well. */
+-	if (test_and_set_bit(0, (void*)&dev->tbusy) != 0)
+-		printk("%s: Transmitter access conflict.\n", dev->name);
+-	else {
+-		struct net_local *lp = (struct net_local *)dev->priv;
+-		unsigned long flags;
+-
+-		if (net_debug > 3)
+-			printk("%s: sent %d byte packet of type %x\n",
+-			       dev->name, skb->len,
+-			       (skb->data[ETH_ALEN+ETH_ALEN] << 8)
+-			       | skb->data[ETH_ALEN+ETH_ALEN+1]);
+-
+-		/* keep the upload from being interrupted, since we
+-                   ask the chip to start transmitting before the
+-                   whole packet has been completely uploaded. */
+-		local_irq_save(flags);
+-
+-		/* initiate a transmit sequence */
+-		writereg(dev, PP_TxCMD, lp->send_cmd);
+-		writereg(dev, PP_TxLength, skb->len);
+-
+-		/* Test to see if the chip has allocated memory for the packet */
+-		if ((readreg(dev, PP_BusST) & READY_FOR_TX_NOW) == 0) {
+-			/* Gasp!  It hasn't.  But that shouldn't happen since
+-			   we're waiting for TxOk, so return 1 and requeue this packet. */
+-			local_irq_restore(flags);
+-			return 1;
+-		}
++	struct net_local *lp = (struct net_local *)dev->priv;
++	unsigned long flags;
+ 
+-		/* Write the contents of the packet */
+-		memcpy_toio(dev->mem_start + PP_TxFrame, skb->data, skb->len+1);
++	if (net_debug > 3)
++		printk("%s: sent %d byte packet of type %x\n",
++		       dev->name, skb->len,
++		       (skb->data[ETH_ALEN+ETH_ALEN] << 8)
++		       | skb->data[ETH_ALEN+ETH_ALEN+1]);
++
++	/* keep the upload from being interrupted, since we
++	   ask the chip to start transmitting before the
++	   whole packet has been completely uploaded. */
++	local_irq_save(flags);
+ 
++	/* initiate a transmit sequence */
++	writereg(dev, PP_TxCMD, lp->send_cmd);
++	writereg(dev, PP_TxLength, skb->len);
++
++	/* Test to see if the chip has allocated memory for the packet */
++	if ((readreg(dev, PP_BusST) & READY_FOR_TX_NOW) == 0) {
++		/* Gasp!  It hasn't.  But that shouldn't happen since
++		   we're waiting for TxOk, so return 1 and requeue this packet. */
+ 		local_irq_restore(flags);
+-		dev->trans_start = jiffies;
++		return 1;
+ 	}
++
++	/* Write the contents of the packet */
++	memcpy((void *)(dev->mem_start + PP_TxFrame), skb->data, skb->len+1);
++
++	local_irq_restore(flags);
++	dev->trans_start = jiffies;
+ 	dev_kfree_skb (skb);
+ 
+ 	return 0;
+@@ -434,9 +415,6 @@
+ 		printk ("net_interrupt(): irq %d for unknown device.\n", irq);
+ 		return IRQ_NONE;
+ 	}
+-	if (dev->interrupt)
+-		printk("%s: Re-entering the interrupt handler.\n", dev->name);
+-	dev->interrupt = 1;
+ 
+ 	ioaddr = dev->base_addr;
+ 	lp = (struct net_local *)dev->priv;
+@@ -457,8 +435,7 @@
+ 			break;
+ 		case ISQ_TRANSMITTER_EVENT:
+ 			lp->stats.tx_packets++;
+-			dev->tbusy = 0;
+-			mark_bh(NET_BH);	/* Inform upper layers. */
++			netif_wake_queue(dev);
+ 			if ((status & TX_OK) == 0) lp->stats.tx_errors++;
+ 			if (status & TX_LOST_CRS) lp->stats.tx_carrier_errors++;
+ 			if (status & TX_SQE_ERROR) lp->stats.tx_heartbeat_errors++;
+@@ -472,8 +449,7 @@
+                                    That shouldn't happen since we only ever
+                                    load one packet.  Shrug.  Do the right
+                                    thing anyway. */
+-				dev->tbusy = 0;
+-				mark_bh(NET_BH);	/* Inform upper layers. */
++				netif_wake_queue(dev);
+ 			}
+ 			if (status & TX_UNDERRUN) {
+ 				if (net_debug > 0) printk("%s: transmit underrun\n", dev->name);
+@@ -490,7 +466,6 @@
+ 			break;
+ 		}
+ 	}
+-	dev->interrupt = 0;
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -525,7 +500,7 @@
+ 	skb_put(skb, length);
+ 	skb->dev = dev;
+ 
+-	memcpy_fromio(skb->data, dev->mem_start + PP_RxFrame, length);
++	memcpy(skb->data, (void *)(dev->mem_start + PP_RxFrame), length);
+ 
+ 	if (net_debug > 3)printk("%s: received %d byte packet of type %x\n",
+                                  dev->name, length,
+@@ -604,8 +579,6 @@
+ static int set_mac_address(struct net_device *dev, void *addr)
+ {
+ 	int i;
+-	if (dev->start)
+-		return -EBUSY;
+ 	printk("%s: Setting MAC address to ", dev->name);
+ 	for (i = 0; i < 6; i++)
+ 		printk(" %2.2x", dev->dev_addr[i] = ((unsigned char *)addr)[i]);
 
-On Thu, 1 Jan 2004, Michel Dänzer wrote:
->
-> > well the advantage is that the ifdefs can just go away in kernel trees of
-> > specific versions... (eg unifdef it)
-> 
-> Does this look better? Maybe a macro (or a typedef?) for the type of the
-> last argument would still be a good idea? Or is there yet a better way?
+Gr{oetje,eeting}s,
 
-My preference is either:
+						Geert
 
- - we can still undo the "nopage" argument change. It's been in the -mm 
-   tree for a long time, and it _does_ solve a problem (page fault type 
-   accounting), but the problem it solves is potentially so small that we
-   might decide it's ok for 2.6.x.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-   However, Andrew is king, and besides, it does fix a tiny bug, so I 
-   don't think this is what we should do. I just wanted to put it on the 
-   table as a possibility.
-
- - Use separate (and trivial) wrapper functions for this. Keep the "real" 
-   function the same across everything, and just have a _static_ function 
-   (ie no header file declaration crap) that does
-
-   linux-new-vm.h:
-
-	static int DRM(nopage_interface)(struct vm_area_struct * area, 
-					 unsigned long address,
-					 int *type)
-	{
-		*type = VM_FAULT_MINOR;
-		DRM(nopage)(area, address);
-	}
-
-
-   linux-old-vm.h:
-
-	static int DRM(nopage_interface)(struct vm_area_struct * area,
-					 unsigned long address,   
-					 int unused)
-	{
-		DRM(nopage)(area, address);
-	}
-
-
-   drm_vm.h:
-
-	/*
-	 * Or, poreferably, we could create a symlink and avoid
-	 * the #if's at compile-time _entirely_.
-	 */
-	#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
-	  #include "linux-new-vm.h"
-	#else
-	  #include "linux-old-v.h
-	#endif
-
-	..
-	.nopage = nopage_interface;
-	..
-
-Done right, the virtualization could be a bit higher still, and maybe 
-the BSD code can do the same thing.
-
-In general, at least I personally _much_ prefer the #ifdef's etc to be 
-outside the code. So even if you don't like to have separate small files 
-for different architectures/ports/versions, I'd at least personally 
-much rather have
-
-	#if xxxx
-
-	int onewholefunction(..)
-	...
-	
-
-	#else
-
-	int onewholefunction(..)
-	...
-
-	#endif
-
-rather than the messy
-
-	int onewholefunction(
-	#if xxx
-	..
-	#else
-	..
-	#endif
-	(
-	{
-	...
-	#if xxxx
-	..
-	#endif
-
-The latter is a huge pain not just to read (you go blind after a while), 
-but it's also painful as _hell_ to merge anywhere else.
-
-In contrast, full-file interfaces for different kernel versions are a 
-_lot_ easier to merge and keep track of. They may look like "duplication", 
-but the advantages are legion. You don't mix different OS's and different 
-versions together, and that makes it much easier to support them all 
-without going crazy.
-
-		Linus
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

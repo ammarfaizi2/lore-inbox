@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBLRSi>; Mon, 12 Feb 2001 12:18:38 -0500
+	id <S129065AbRBLRRs>; Mon, 12 Feb 2001 12:17:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129320AbRBLRSS>; Mon, 12 Feb 2001 12:18:18 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:43593 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S129027AbRBLRSA>;
-	Mon, 12 Feb 2001 12:18:00 -0500
-Message-ID: <3A881A52.962B3ED4@sgi.com>
-Date: Mon, 12 Feb 2001 09:16:02 -0800
-From: LA Walsh <law@sgi.com>
-Organization: Trust Technology, SGI
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.2-pre1 i686)
-X-Accept-Language: fr, en
+	id <S129320AbRBLRRi>; Mon, 12 Feb 2001 12:17:38 -0500
+Received: from srv01s4.cas.org ([134.243.50.9]:44417 "EHLO srv01.cas.org")
+	by vger.kernel.org with ESMTP id <S129065AbRBLRRc>;
+	Mon, 12 Feb 2001 12:17:32 -0500
+From: Mike Harrold <mharrold@cas.org>
+Message-Id: <200102121717.MAA18139@mah21awu.cas.org>
+Subject: [LK] Re: lkml subject line
+To: lmb@suse.de (Lars Marowsky-Bree)
+Date: Mon, 12 Feb 2001 12:17:24 -0500 (EST)
+Cc: mharrold@cas.org (Mike Harrold), linux-kernel@vger.kernel.org
+In-Reply-To: <20010212180715.G11465@marowsky-bree.de> from "Lars Marowsky-Bree" at Feb 12, 2001 06:07:15 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Block driver design issue
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a block driver I inherited that I working on that has a problem and
-was wondering for cleaner solutions.
+> 
+> On 2001-02-12T11:56:00,
+>    Mike Harrold <mharrold@cas.org> said:
+> 
+> > Maybe I don't *want* the LKML messages in a seperate folder.
+> > Maybe I just want to identify them at a pinch in my inbox?
+> 
+> You can use procmail to modify the subject line of incoming mail too.
+> 
+> > Maybe my employer doesn't allow me to install additional software anyway?
+> 
+> Those would all be your problems and I would suggest using a different account
+> for mail then.
 
-The driver can accept written characters from either userspace programs or from
-the kernel.  From userspace it uses sys_write.  That in turn calls block_write.
-There's almost 100 lines of duplicated code in a copy of the block_write
-code in the driver "block_writek" as well as duplicate code in audit_write vs. audit_writek.
-The only difference being down in block_write at the "copy_from_user(p,buf,chars); "
-which becomes a "memcpy(p,buf,chars)" in the "block_writek" version.  
+Out of interest, how would that solve anything? So I use an ISP instead.
+Then I have to download all my mail to home to read it. Talk about a
+total waste of time.
 
-I find this duplication of code to be inefficient.  Is there a way to dummy up the
-the 'buf' address so that the "copy_from_user" will copy the buffer from kernel space?
-My assumption is that it wouldn't "just work" (which may also be an invalid assumption).
+It's hard enough tracking my mail as it is, let alone having to have another
+account just to handle a certain mailing list.
 
-Suggestions?  Abuse?
+> This discussion happens on every mailing list occasionally, and it is just a
+> generally bad idea, period.
 
-Thanks!
--linda
+I disagree, and while I may be in the minority on this list, I am certainly
+not in the minority across the board, given that virtually every mailing list
+I am subscribed to DOES prepend a tag to the subject line.
 
--- 
-L A Walsh                    | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
+> Especially for a list which is as often crossposted to as lk.
+
+This I can buy. But it is, IMHO, the only valid argument against doing so.
+
+> Can we now move on?
+
+Of course. Wouldn't want to interrupt our regular traffic for too long :)
+
+/Mike
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

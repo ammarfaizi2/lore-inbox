@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277358AbRJOJkW>; Mon, 15 Oct 2001 05:40:22 -0400
+	id <S277363AbRJOJqe>; Mon, 15 Oct 2001 05:46:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277359AbRJOJkD>; Mon, 15 Oct 2001 05:40:03 -0400
-Received: from medusa.sparta.lu.se ([194.47.250.193]:25186 "EHLO
-	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
-	id <S277358AbRJOJju>; Mon, 15 Oct 2001 05:39:50 -0400
-Date: Mon, 15 Oct 2001 10:29:39 +0200 (MET DST)
-From: Bjorn Wesen <bjorn@sparta.lu.se>
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: crc32 cleanups 
-In-Reply-To: <16790.1002968731@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.3.96.1011015101708.22179A-100000@medusa.sparta.lu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277364AbRJOJqZ>; Mon, 15 Oct 2001 05:46:25 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:14610 "EHLO
+	smtp.alcove-fr") by vger.kernel.org with ESMTP id <S277363AbRJOJqN>;
+	Mon, 15 Oct 2001 05:46:13 -0400
+Date: Mon, 15 Oct 2001 11:45:56 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Jurgen Botz <jurgen@botz.org>
+Cc: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org,
+        ion@cs.columbia.edu, sduchene@mindspring.com
+Subject: Re: [PATCH] PnP BIOS -- bugfix; update devlist on setpnp
+Message-ID: <20011015114556.F4523@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <jdthood@mail.com> <1002987648.764.23.camel@thanatos> <200110150637.f9F6bek14014@nova.botz.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200110150637.f9F6bek14014@nova.botz.org>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Oct 2001, Keith Owens wrote:
-> Does not work if all the code that uses crc32 is in a module.  No
-> references from the main kernel so crc32 is not included by the linker.
+On Sun, Oct 14, 2001 at 11:37:39PM -0700, Jurgen Botz wrote:
 
-So make the CRC32 code a module itself ?
+> Thomas Hood wrote:
+> > Okay, here's a new major patch to the PnP BIOS driver
+> > which needs some testing before it's integrated.
+> >[...] 
+> > Vaio users: Please make sure that this doesn't oops.
+> 
+> Patched against 2.4.12-ac1, it works and doesn't oops my
+> VAIO PCG-N505VE.  
 
-> ???!  __initcall entries are executed in the order that they are linked
-> into the kernel.  The linkage order is controlled by the order that
-> Makefiles are processed during kbuild and by line order within each
-> Makefile.  There is definitely a priority order for __initcall code.
+Same for me (against a 2.4.10-ac12), on a VAIO PCG-C1VE.
 
-That is in practice an unuseable "priority" (I'd like to consider that a
-highly stochastic variable :) 
+Relevant (maybe) output:
 
-Not to mention that as an individual sub-project maintainer you can't go
-around changing higher level makefiles all the time just to get your
-particular initcall chain in order (again, in practice).
+...
+Sony Vaio laptop detected.
+BIOS strings suggest APM reports battery life in minutes and wrong byte order.
+PCI: PCI BIOS revision 2.10 entry at 0xfd98e, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
+PCI: Found IRQ 9 for device 00:08.0
+PCI: Sharing IRQ 9 with 00:07.2
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+PnPBIOS: Found PnP BIOS installation structure at 0xc00f8120.
+PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0xb25f, dseg 0x400.
+PnPBIOS: 14 nodes reported by PnP BIOS; 14 recorded by driver.
+PnPBIOS: PNP0c02: 0xfff80000-0xffffffff was already reserved
+PnPBIOS: PNP0c02: 0xfff7f600-0xfff7ffff was already reserved
+PnPBIOS: PNP0c02: 0x398-0x399 has been reserved
+PnPBIOS: PNP0c02: 0x4d0-0x4d1 has been reserved
+PnPBIOS: PNP0c02: 0x8000-0x804f was already reserved
+PnPBIOS: PNP0c02: 0x1040-0x104f has been reserved
+PnPBIOS: PNP0c01: 0xe8000-0xfffff was already reserved
+PnPBIOS: PNP0c01: 0x100000-0x70ffbff was already reserved
+PnPBIOS: PNP0c02: 0xdc000-0xdffff was already reserved
+PnPBIOS: PNP0c02: 0xd1000-0xd3fff was already reserved
+Linux NET4.0 for Linux 2.4
+...
 
-You could _conceivably_ build an initcall dependency system by adding some
-"initcall_requires" macros which put the dependant other calls into
-another linker table, which the kernel would resolve at boot. 
-
-/BW
-
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266289AbUGPCpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265692AbUGPDEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266289AbUGPCpY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 22:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266253AbUGPCpY
+	id S265692AbUGPDEE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 23:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUGPDED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 22:45:24 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:14530 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266240AbUGPCpW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 22:45:22 -0400
-Date: Thu, 15 Jul 2004 19:44:13 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: George Anzinger <george@mvista.com>
-cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       ia64 <linux-ia64@vger.kernel.org>
-Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
- posix-timer functions to return higher accuracy)
-In-Reply-To: <40F70C6D.5050506@mvista.com>
-Message-ID: <Pine.LNX.4.58.0407151941010.24953@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
- <1089835776.1388.216.camel@cog.beaverton.ibm.com> <40F70C6D.5050506@mvista.com>
+	Thu, 15 Jul 2004 23:04:03 -0400
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:45923 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265692AbUGPDEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 23:04:01 -0400
+Message-ID: <40F74599.7000606@yahoo.com.au>
+Date: Fri, 16 Jul 2004 13:03:53 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: "Matthew C. Dobson [imap]" <colpatch@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sched domains bringup race?
+References: <1089944026.32312.47.camel@nighthawk>
+In-Reply-To: <1089944026.32312.47.camel@nighthawk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Jul 2004, George Anzinger wrote:
+Dave Hansen wrote:
+> I keep getting oopses for the non-boot CPU in find_busiest_group(). 
+> This occurs the first time that the CPU goes idle.  Those groups are set
+> up in sched_init_smp(), which is called after smp_init():
+> 
+> static int init(void * unused)
+> {
+> 	...
+>         fixup_cpu_present_map();
+>         smp_init();
+>         sched_init_smp();
+> 
+> But, the idle threads for the secondary CPUs are initialized in
+> smp_init().  So, what happens when a CPU tries to schedule (using sched
+> domains) before sched_init_smp() completes?  I think it goes boom! :)
+> 
 
-> As to accuracy, the more "accurate" way is to change get_offset to return
-> nanoseconds.  This way there is only one round off (by the divide) instead of
-> two (the get_offset and the divide).  I ran into this problem in the latest HRT
-> patch.  One of my tests is to do a gettimeofday and a clock_gettime and make
-> sure there is no "backward" stuff happening.  Test failed by 1 micro second
-> "some" of the time because of this double round off.
+It shouldn't because sched_init sets up dummy domains for
+all runqueues.
 
-Well yes this is what the interpolator etc does on IA64.
-time_interpolator_get_offset returns nanoseconds. I have done
-tests to insure that no backward stuff happens. Tests were done
-with the mentioned patch and clock_gettime was returning nanosecond
-accuracy.
-
-
+Obviously something is going wrong somewhere though.

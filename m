@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVCPFZC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262523AbVCPF1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbVCPFZC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 00:25:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVCPFZC
+	id S262523AbVCPF1R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 00:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbVCPF1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 00:25:02 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:26954 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S262522AbVCPFYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 00:24:47 -0500
-Date: Tue, 15 Mar 2005 23:24:02 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Taking strlen of buffers copied from userspace
-In-reply-to: <3IykC-5x0-29@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4237C2F2.5010203@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3IugU-2m4-11@gated-at.bofh.it> <3IugU-2m4-9@gated-at.bofh.it>
- <3IykC-5x0-29@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Wed, 16 Mar 2005 00:27:17 -0500
+Received: from 209-204-138-32.dsl.static.sonic.net ([209.204.138.32]:46348
+	"EHLO graphe.net") by vger.kernel.org with ESMTP id S262523AbVCPF1M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 00:27:12 -0500
+Date: Tue, 15 Mar 2005 21:27:11 -0800 (PST)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.graphe.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Replace zone padding with a definition in cache.h
+In-Reply-To: <20050315212337.5484f2a0.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0503152126380.6196@server.graphe.net>
+References: <Pine.LNX.4.58.0503152010190.5134@server.graphe.net>
+ <20050315202331.008ec856.akpm@osdl.org> <Pine.LNX.4.58.0503152103580.6087@server.graphe.net>
+ <20050315212337.5484f2a0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> The latter one does (before the listed code):
-> 
->     memset(line, 0, LINE_SIZE);
->     if (len > LINE_SIZE)
->         len = LINE_SIZE;
->     if (copy_from_user(line, buf, len - 1))
->         return -EFAULT;
-> 
-> so isn't line[LINE_SIZE - 1] always 0 ?
+On Tue, 15 Mar 2005, Andrew Morton wrote:
 
-In that case, yes (I hadn't looked at the surrounding code). Rather an 
-odd way of doing it, but shouldn't have that problem. Could still be 
-subject to problems if buf contains a null at the first character, 
-unless they're somehow preventing that too..
+> > If the struct is named then there may be
+> > conflicts if its used repeatedly.
+>
+> Hence the "hack" which you just deleted ;)
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+Ok, Master, I see the light....

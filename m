@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265400AbUEUGWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265397AbUEUGWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265400AbUEUGWk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 02:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265405AbUEUGWk
+	id S265397AbUEUGWa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 02:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbUEUGWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 02:22:40 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:46317
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S265400AbUEUGWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 02:22:38 -0400
-Message-ID: <40AD9C5E.1020603@redhat.com>
-Date: Thu, 20 May 2004 23:06:22 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a) Gecko/20040519
-X-Accept-Language: en-us, en
+	Fri, 21 May 2004 02:22:30 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:57524 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S265397AbUEUGW3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 02:22:29 -0400
+To: sziwan@hell.org.pl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI interrupts on Asus
+References: <20040521030255.GA16390@mcelrath.org>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Date: Fri, 21 May 2004 08:22:26 +0200
+In-Reply-To: <20040521030255.GA16390@mcelrath.org> (Bob McElrath's message
+ of "Thu, 20 May 2004 20:02:55 -0700")
+Message-ID: <yw1xhduab8pp.fsf@ford.guide>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org,
-       mingo@redhat.com
-Subject: Re: [PATCH] Add FUTEX_CMP_REQUEUE futex op
-References: <20040520093817.GX30909@devserv.devel.redhat.com> <20040520155217.7afad53b.akpm@osdl.org>
-In-Reply-To: <20040520155217.7afad53b.akpm@osdl.org>
-X-Enigmail-Version: 0.84.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Bob McElrath <bob@mcelrath.org> writes:
 
-> Is it safe to go adding a new argument to an existing syscall in this manner?
+> You both indicated on the LKML list that you have an ASUS laptop and
+> after a suspend, ACPI interrupts are not received.  It seems no
+> resolution to this is posted on the LKML list.  Have either of you
+> figured out how to fix this?
 
-Yes.  This is a multiplexed syscall and the opcode decides which syscall
-parameter is used.
+I haven't had time to mess around with those things.  For me, S1
+works, but after waking up, the extra buttons only work once each.
+Closing and opening the lid makes them work one more time.
 
-
-> It'll work OK on x86 because of the stack layout but is the same true of
-> all other supported architectures?
-
-We add parameters at the end.  This does not influence how previous
-values are passed.  And especially for syscalls it makes no difference.
+S3 seems to work, but the screen doesn't come back on, so it's quite
+useless.
 
 -- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+M�ns Rullg�rd
+mru@kth.se

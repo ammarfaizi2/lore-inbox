@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262367AbTCMOqZ>; Thu, 13 Mar 2003 09:46:25 -0500
+	id <S262370AbTCMOt6>; Thu, 13 Mar 2003 09:49:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262368AbTCMOqZ>; Thu, 13 Mar 2003 09:46:25 -0500
-Received: from hal-4.inet.it ([213.92.5.23]:23458 "EHLO hal-4.inet.it")
-	by vger.kernel.org with ESMTP id <S262367AbTCMOqY> convert rfc822-to-8bit;
-	Thu, 13 Mar 2003 09:46:24 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Paolo Ornati <javaman@katamail.com>
-To: linux-kernel@vger.kernel.org
-Subject: "make clean": how it's needed?
-Date: Thu, 13 Mar 2003 15:56:07 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S262382AbTCMOt6>; Thu, 13 Mar 2003 09:49:58 -0500
+Received: from users.ccur.com ([208.248.32.211]:63840 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id <S262370AbTCMOt5>;
+	Thu, 13 Mar 2003 09:49:57 -0500
+From: jak@rudolph.ccur.com (Joe Korty)
+Message-Id: <200303131459.OAA18664@rudolph.ccur.com>
+Subject: Re: [PATCH] bug in 2.4 bh_kmap_irq() breaks IDE under preempt patch
+To: axboe@suse.de (Jens Axboe)
+Date: Thu, 13 Mar 2003 09:59:45 -0500 (EST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+Reply-To: joe.korty@ccur.com (Joe Korty)
+In-Reply-To: <20030313092601.GB827@suse.de> from "Jens Axboe" at Mar 13, 2003 10:26:01 AM
+X-Mailer: ELM [version 2.5 PL0b1]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030313144624Z262367-25575+29577@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have this doubt, the "standard" procedure to build a kernel(2.2.x/2.4.x) is:
-	make menuconfig
-	make dep
-	make clean	// ... when?
-	make modules
-	make bzImage
-	...
+> I fixed this in 2.5 ages ago, just didn't get it in 2.4 block-highmem...
+> There's a tiny bit missing from your patch:
+> 
+> > +	local_irq_save(*flags);
+> 	local_irq_disable();
+> 
+> other than that it's fine. See 2.5 for reference.
 
-so, when I really _MUST_ run "make clean"?
-	always?
-	only after that I have applied a patch?
-
-I think that many old "*.o" files are still good... and so, why I should 
-recompile them every time?
-
-Bye,
-	Paolo
-
+local_irq_save() does a local_irq_disable() as part of its function.
+Joe

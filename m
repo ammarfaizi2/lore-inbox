@@ -1,201 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317169AbSILUB6>; Thu, 12 Sep 2002 16:01:58 -0400
+	id <S317181AbSILUGK>; Thu, 12 Sep 2002 16:06:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317181AbSILUB5>; Thu, 12 Sep 2002 16:01:57 -0400
-Received: from mail.ncsa.uiuc.edu ([141.142.2.28]:46243 "EHLO
-	mail.ncsa.uiuc.edu") by vger.kernel.org with ESMTP
-	id <S317169AbSILUBy>; Thu, 12 Sep 2002 16:01:54 -0400
-X-Envelope-From: arnoldg@ncsa.uiuc.edu
-Date: Thu, 12 Sep 2002 15:06:45 -0500 (CDT)
-From: Galen Arnold <arnoldg@ncsa.uiuc.edu>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: ia64 kernel hangs
-Message-ID: <Pine.LNX.4.44.0209121438390.10127-100000@osage.ncsa.uiuc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317182AbSILUGK>; Thu, 12 Sep 2002 16:06:10 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39172 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317181AbSILUGJ>; Thu, 12 Sep 2002 16:06:09 -0400
+Date: Thu, 12 Sep 2002 21:10:56 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [OFFTOPIC] Spamcop
+Message-ID: <20020912211056.J4739@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] ia64 linux 2.4.16 , 2.4.19 kernels hang with user code calling 
-setrlimit() and system()
+Hi,
 
-[2.] A short user code can hang ia64 systems, but not ia32 linux.
+I'd like to bring to peoples attention the idiotic situation going on
+with the RBL list known as spamcop.
 
-[3.] setrlimit() system() hang
+spamcop have entered into their database the IP address for
+www.linux.org.uk, which is a machine containing many mailing lists
+and other facilities.  www.linux.org.uk is NOT, repeat NOT an open
+relay, and as far as I'm aware has never performed any open relaying.
 
-[4.] 2.4.16 ia64  & 2.4.19 ia64
+However, the basis under which it has been listed is that spamcop
+received a mailman reponse to a message their tester sent to a valid
+mailing list address.  The mailman response was:
 
-[5.] kernel hangs, no output, system goes unresponsive for about an hour
+"Subject: Your message to Linux-arm awaits moderator approval"
 
-[6.]
+Obviously, it didn't relay the spam, nor the test message.
 
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <unistd.h>
 
-#define MAX_MEM 1000
-int main(void)
-{
-        struct rlimit my_rlimit;
+If spamcop is accepting hosts with mailing lists that send responses
+back to the person sending the original mail, any mailing list is open
+to being listed in the spamcop database.
 
-        my_rlimit.rlim_cur= 1024 * MAX_MEM;
-        my_rlimit.rlim_max= my_rlimit.rlim_cur;
+My advice is: stay FAR away from spamcop.  If you're using spamcop
+on your mail server, remove it now before they cut you off from all
+your mailing lists.
 
-        setrlimit(RLIMIT_AS, &my_rlimit);
-        system("/bin/sh -c 'ulimit -a'");
-}
+Here's the URL explaining why www.linux.org.uk has been listed:
 
-[7.]
+   http://spamcop.net/w3m?action=checkblock&ip=195.92.249.252
 
-LANG=en_US
-ARCH=ia64
-SHELL=/bin/bash
-HOSTTYPE=ia64
-OSTYPE=linux-gnu
-PATH=/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
+(Note: this does mean that some kernel people may not be able to
+post messages for a while.  Hence the vague relevance of this
+message to lkml.)
 
-[7.1]
-Linux user01 2.4.16 #1 SMP Mon Dec 10 11:03:09 CST 2001 ia64 unknown
-
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.10.91.0.2
-util-linux             2.11f
-mount                  2.11b
-modutils               2.4.6
-e2fsprogs              1.26
-reiserfsprogs          3.x.0f
-PPP                    2.4.0
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         sk98lin e100
-
-Linux mantis 2.4.19 #2 SMP Wed Sep 11 16:53:31 CDT 2002 ia64 unknown
-
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.11.90.0.8
-util-linux             2.11f
-mount                  2.11g
-modutils               2.4.13
-e2fsprogs              1.23
-reiserfsprogs          3.x.0j
-PPP                    2.4.1
-isdn4k-utils           3.1pre1
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.3.3
-Sh-utils               2.0.11
-Modules Loaded         e1000 nls_iso8859-1 nls_cp437 vfat fat keybdev hid 
-usbkbd input usb-uhci usbcore mptscsih mptbase
-
-[7.2]
-processor  : 0
-vendor     : GenuineIntel
-arch       : IA-64
-family     : Itanium 2
-model      : 0
-revision   : 5
-archrev    : 0
-features   : branchlong
-cpu number : 41600
-cpu regs   : 4
-cpu MHz    : 995.901000
-itc MHz    : 995.901000
-BogoMIPS   : 1488.97
-
-[7.2]
-e1000                 133632   1
-nls_iso8859-1           4624   1 (autoclean)
-nls_cp437               6128   1 (autoclean)
-vfat                   26440   1 (autoclean)
-fat                    77752   0 (autoclean) [vfat]
-keybdev                 4496   0 (unused)
-hid                    48200   0 (unused)
-usbkbd                  7360   0 (unused)
-input                   9832   0 [keybdev hid usbkbd]
-usb-uhci               64184   0 (unused)
-usbcore               163544   1 [hid usbkbd usb-uhci]
-mptscsih               79568   3
-mptbase                78152   3 [mptscsih]
-
-[7.4]
-000001f0-000001f7 : ide0
-000002f8-000002ff : serial(auto)
-000003c0-000003df : vga+
-000003f6-000003f6 : ide0
-000003f8-000003ff : serial(auto)
-00005cc0-00005cdf : usb-uhci
-00005ce0-00005cff : usb-uhci
-
-fbfe0000-fbffffff : e1000
-
-[7.5]
-00:1d.0 USB Controller: Intel Corporation: Unknown device 24c2 (rev 01)
-00:1d.1 USB Controller: Intel Corporation: Unknown device 24c4 (rev 01)
-00:1e.0 PCI bridge: Intel Corporation 82820 820 (Camino 2) Chipset PCI 
-(rev 81) 00:1f.0 ISA bridge: Intel Corporation: Unknown device 24c0 (rev 
-01)
-00:1f.1 IDE interface: Intel Corporation: Unknown device 24cb (rev 01)
-01:00.0 Ethernet controller: Intel Corporation: Unknown device 100e (rev 
-02)
-01:01.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-02:1c.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
-02:1d.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
-02:1e.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
-02:1f.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
-03:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 1462 
-(rev 03)06:01.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 
-100] (rev 0c)06:02.0 SCSI storage controller: LSI Logic / Symbios Logic 
-(formerly NCR) 53c1030 (rev 03)
-06:02.1 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 
-53c1030 (rev 03)
-06:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 1462 
-(rev 03)08:1c.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
-08:1d.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
-08:1e.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
-08:1f.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
-09:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 1462 
-(rev 03)0b:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 
-1462 (rev 03)0e:1c.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
-0e:1d.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
-0e:1e.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
-0e:1f.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
-0f:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 1462 
-(rev 03)
-11:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 1462 
-(rev 03)
-
-[7.6]
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: MAXTOR   Model: ATLAS10K3_18_SCA Rev: B000
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 06 Lun: 00
-  Vendor: QLogic   Model: GEM359           Rev: 0200
-  Type:   Processor                        ANSI SCSI revision: 02
-
-[7.7]
-
-[X.]
-2.4.18 and 2.4.9 on ia32 do not produce the hang from the c program above.  
-Changing the values handed to setrlimit() will workaround the hang on ia64 
-(a small limit will cause the system() call to silently fail, and a larger 
-[10M] limit will run the system() call successfully).
-
-Please cc:  me on responses as I'm not on the list.
-
--Galen
--- +
-Galen Arnold, consulting group--system engineer      
-National Center for Supercomputing Applications     
-605 E. Springfield Avenue                             (217) 244-3473
-Champaign, IL 61820                                   arnoldg@ncsa.uiuc.edu
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

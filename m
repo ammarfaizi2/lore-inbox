@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266169AbUJOEYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUJOEZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbUJOEYT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 00:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJOEYT
+	id S266170AbUJOEZk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 00:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUJOEZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 00:24:19 -0400
-Received: from lennier.cc.vt.edu ([198.82.162.213]:36617 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP id S266169AbUJOEYG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 00:24:06 -0400
-Message-ID: <416F5F82.7070302@vt.edu>
-Date: Fri, 15 Oct 2004 00:26:26 -0500
-From: William Wolf <wwolf@vt.edu>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kernel list <linux-kernel@vger.kernel.org>
-CC: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>
+	Fri, 15 Oct 2004 00:25:40 -0400
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:51828 "HELO
+	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266170AbUJOEZd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 00:25:33 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: William Wolf <wwolf@vt.edu>
 Subject: Re: 2.6.9-rc4-mm1
-References: <416EE7EB.4070209@vt.edu> <200410142230.38633.dtor_core@ameritech.net> <416F556E.4090103@vt.edu> <200410142305.29859.dtor_core@ameritech.net>
-In-Reply-To: <200410142305.29859.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Thu, 14 Oct 2004 23:25:26 -0500
+User-Agent: KMail/1.6.2
+Cc: kernel list <linux-kernel@vger.kernel.org>
+References: <416EE7EB.4070209@vt.edu> <200410142305.29859.dtor_core@ameritech.net> <416F5CC8.7020605@vt.edu>
+In-Reply-To: <416F5CC8.7020605@vt.edu>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200410142325.26719.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Dmitry Torokhov wrote:
-
-> Yes, that's what I needed.. It seems that they decided to use new PNP IDs
-> for mouse and keyboard. Please try the patch below when you have time.
+On Friday 15 October 2004 12:14 am, William Wolf wrote:
+> It's compiling now, i'll let you know how it goes.  Do you have any idea 
+> about my other errors when using this kernel?
 > 
 
+No, I am sorry - I grok input system a bit but that's all for now.
 
-Alright, that worked great :D thanks a bunch.
+-- 
+Dmitry

@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263490AbTJBTAm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 15:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTJBTAm
+	id S263459AbTJBTKa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 15:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTJBTKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 15:00:42 -0400
-Received: from genericorp.net ([69.56.190.66]:2226 "EHLO
-	narbuckle.genericorp.net") by vger.kernel.org with ESMTP
-	id S263476AbTJBTAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 15:00:37 -0400
-Date: Thu, 2 Oct 2003 14:00:25 -0500 (CDT)
-From: Dave O <cxreg@pobox.com>
-X-X-Sender: count@narbuckle.genericorp.net
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: linux-hfsplus-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] new HFS(+) driver
-In-Reply-To: <Pine.LNX.4.44.0310022028220.8124-100000@serv>
-Message-ID: <Pine.LNX.4.58.0310021359140.31213@narbuckle.genericorp.net>
-References: <Pine.LNX.4.44.0310021029110.17548-100000@serv>
- <Pine.LNX.4.58.0310021300220.31213@narbuckle.genericorp.net>
- <Pine.LNX.4.44.0310022028220.8124-100000@serv>
+	Thu, 2 Oct 2003 15:10:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19846 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263459AbTJBTK3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 15:10:29 -0400
+Message-ID: <3F7C780C.9040001@pobox.com>
+Date: Thu, 02 Oct 2003 15:10:04 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: insecure@mail.od.ua
+CC: Larry McVoy <lm@bitmover.com>, Andrew Morton <akpm@osdl.org>,
+       Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from 10/1 LSE Call
+References: <37940000.1065035945@w-hlinder> <20031001233815.GB29605@work.bitmover.com> <3F7B701C.5020708@pobox.com> <200310022156.49678.insecure@mail.od.ua>
+In-Reply-To: <200310022156.49678.insecure@mail.od.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+insecure wrote:
+> That sounds reasonable, but today's RAM throughput is on the order
+> of 1GB/s, not 100Mb/s. 'Out of L1' theory can't explain 100Mb/s ceiling
+> it seems.
 
 
-On Thu, 2 Oct 2003, Roman Zippel wrote:
-> On Thu, 2 Oct 2003, Dave O wrote:
->
-> >  I get this when building your driver (20030930) against 2.6.0-test6:
-> >
-> > *** Warning: "get_gendisk" [fs/hfsplus/hfsplus.ko] undefined!
-> > *** Warning: "get_gendisk" [fs/hfs/hfs.ko] undefined!
-> >
-> > any idea how to resolve this?
->
-> You can simply remove the code block from get_gendisk to put_disk in
-> hfsplus/wrapper.c and hfs/mdb.c.
->
+cp(1) data, at least, will never ever be in L1.  Copying data you need 
+to look at the ends of the pipeline -- hard drive throughput, PCI bus 
+bandwidth, FSB bandwidth, speed at which ext2/3 allocates blocks, and 
+similar things are likely bottlenecks.
 
-This works, however du(1) seems to get the block size wrong:
+You'll never hit RAM bandwidth limits, unless your copies are extremely 
+tiny, and entirely in L2 or pagecache.
 
-meatloop:/cdrom# ls -l
-total 393244
--rwxr-xr-x    1 501      dialout  341952833 Sep 22 17:24 else.zip
--rwxr-xr-x    1 501      dialout  450701627 Sep 22 20:07 outlook.zip
--rwxr-xr-x    1 501      dialout  607534655 Sep 22 17:26 quick1.zip
--rwxr-xr-x    1 501      dialout  431279243 Sep 22 17:26 quick2.zip
--rwxr-xr-x    1 501      dialout  605501959 Sep 22 17:27 quick3.zip
--rwxr-xr-x    1 501      dialout  403836898 Sep 22 17:28 quick4.zip
--rwxr-xr-x    1 501      dialout  380636073 Sep 22 17:28 quick5.zip
+	Jeff
 
-meatloop:/cdrom# du -sh
-385M    .
 
 

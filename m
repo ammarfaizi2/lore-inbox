@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262481AbSKISuY>; Sat, 9 Nov 2002 13:50:24 -0500
+	id <S262446AbSKISpQ>; Sat, 9 Nov 2002 13:45:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262510AbSKISuY>; Sat, 9 Nov 2002 13:50:24 -0500
-Received: from oe62.law11.hotmail.com ([64.4.16.197]:5892 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S262481AbSKISuY> convert rfc822-to-8bit;
-	Sat, 9 Nov 2002 13:50:24 -0500
-X-Originating-IP: [64.81.213.196]
-From: "Dino Klein" <dinoklein@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: compile failure for ipv4/netfilter/ipt_TCPMSS.c in 2.5.46
-Date: Sat, 9 Nov 2002 13:52:31 -0500
+	id <S262447AbSKISpQ>; Sat, 9 Nov 2002 13:45:16 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28434 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262446AbSKISpO>; Sat, 9 Nov 2002 13:45:14 -0500
+Date: Sat, 9 Nov 2002 10:51:27 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mikael Pettersson <mikpe@csd.uu.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] notsc option needs some attention/TLC
+In-Reply-To: <Pine.LNX.4.44.0211091308250.10475-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.44.0211091044060.12487-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Message-ID: <OE62sKBEr8pkpLkTgbL00002270@hotmail.com>
-X-OriginalArrivalTime: 09 Nov 2002 18:57:03.0465 (UTC) FILETIME=[CAA11D90:01C28821]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the following when compiling:
-net/ipv4/netfilter/ipt_TCPMSS.c: In function `ipt_tcpmss_target':
-net/ipv4/netfilter/ipt_TCPMSS.c:88: structure has no member named `pmtu'
-net/ipv4/netfilter/ipt_TCPMSS.c:91: structure has no member named `pmtu'
-net/ipv4/netfilter/ipt_TCPMSS.c:95: structure has no member named `pmtu'
 
+On Sat, 9 Nov 2002, Zwane Mwaikambo wrote:
+> This is all very confusing, notsc isnn't supposed to work with cpus with 
+> TSCs?
 
-I was looking around the headers (without much prior knowledge), and
-wondering whether the statement:
-(*pskb)->dst->pmtu
-should be changed to:
-(*pskb)->dst->dev->mtu
+No.
 
-I'm just taking a stab at this; is this correct?
+You have two different cases:
+
+ - a kernel compiled for TSC-only. This one simply will not _work_ without 
+   a TSC, since it is statically compiled for the TSC case. Here, "notsc"
+   simply cannot do anything, so it just prints a message saying that it 
+   doesn't work.
+
+ - a "generic" kernel, which can do the TSC decision dynamically, will use 
+   the TSC flag in the CPU features field to decide whether to use the TSC
+   or not. Here, "notsc" will clear the flag unconditionally, so even if 
+   your CPU claims to have a TSC, it won't get used.
+
+NOTE! We used to do a lot more statically, and on the whole the hard-coded
+CONFIG_X86_TSC usage has pretty much disappeared in modern kernels. It's 
+used mainly by the "get_cycles()" macro, which is not all that commonly 
+used any more (it used to be used by the scheduler, I think that's gone 
+too these days).
+
+		Linus
+

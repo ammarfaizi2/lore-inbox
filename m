@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbTKNHxC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 02:53:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTKNHxC
+	id S261384AbTKNHws (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 02:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbTKNHws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 02:53:02 -0500
-Received: from mx.stud.uni-hannover.de ([130.75.176.3]:19677 "EHLO
-	studserv.stud.uni-hannover.de") by vger.kernel.org with ESMTP
-	id S261460AbTKNHw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 02:52:59 -0500
-From: Michael Born <michael.born@stud.uni-hannover.de>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI: device 00:09.0 has unknown header type 04, ignoring.  What's that?
-Date: Fri, 14 Nov 2003 08:52:57 +0100
-User-Agent: KMail/1.5.3
-References: <Pine.GSO.4.33.0311131543430.26356-100000@sweetums.bluetronic.net>
-In-Reply-To: <Pine.GSO.4.33.0311131543430.26356-100000@sweetums.bluetronic.net>
+	Fri, 14 Nov 2003 02:52:48 -0500
+Received: from smtprelay01.ispgateway.de ([62.67.200.156]:39826 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S261384AbTKNHwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 02:52:46 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Brian Beattie <beattie@beattie-home.net>
+Subject: Re: serverworks usb under 2.4.22
+Date: Fri, 14 Nov 2003 08:51:00 +0100
+User-Agent: KMail/1.5.4
+References: <1068769021.884.4.camel@kokopelli>
+In-Reply-To: <1068769021.884.4.camel@kokopelli>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
+Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200311140852.58026.michael.born@stud.uni-hannover.de>
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200311140851.09228.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks a lot for your responses. I did some more testing and have one more 
-question.
-In the "nonshared IRQ" PCI slot 0.9.0 the card works with the Quancom driver 
-under Win2k but is ignored by linux 2.4.22 - as I wrote before.
-In "shared IRQ" PCI slot 0.c.0 the card is recognized by linux - lspci:
-00:0c.0 Class ff00: Quancom Electronic GmbH: Unknown device 3302 (rev 11)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The driver I use is open source ( see: http://linux-gpib.sourceforge.net/ ). 
-The maintainer helped me a lot to get this Ines-GPIB clone card running.
+Hi Brian,
+hi lkml,
 
-Is there a board / vendor who has good BIOS and PCI implementations? 
-If I understand correctly - there is no simple way to tell a good PCI card 
-apart from a bad one ? If I would send back the card they would want to know 
-what exactly the problem ist - but when nobody knows that ???
+On Friday 14 November 2003 01:17, Brian Beattie wrote:
+> I've got a system with a Super Micro P3 dual processor board.  This
+> board uses the Serverworks chipset and the 2.4.22 kernel is unable to
+> allocate an IRQ when initializing the USB (usb-ohic) interface.  This
+> board works fine under 2.4.20 and 2.4.21.
 
-Greetings
-Michael
+Which Serverworks chipset? There are various.
+
+I for one need to pass "noapic" on the kernel command line. Otherwise
+the IRQ routing is broken, I can't get the USB IRQ and the kernel complains.
+a lot about a broken APIC IRQ routing.
+
+My board is an ASUS CUR-CLS. The chipset there is "ServerWorks LE".
+
+Hop that helps.
 
 
-Am Donnerstag, 13. November 2003 21:57 schrieb Ricky Beam:
-> On Thu, 13 Nov 2003, Richard B. Johnson wrote:
-> >> While booting the kernel says:
-> >> ---
-> >> <6>PCI: Probing PCI hardware
-> >> <4>PCI: ACPI tables contain no PCI IRQ routing entries
-> >> <4>PCI: Probing PCI hardware (bus 00)
-> >> <3>PCI: device 00:09.0 has unknown header type 04, ignoring.
-> >> <6>PCI: Using IRQ router VIA [1106/3074] at 00:11.0
-> >
-> >We don't know if 00:09.0 is your board, but a header type 04
-> >is currently not defined. There are three header types, 0->2.
+Regards
+
+Ingo Oeser
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/tIlrU56oYWuOrkARAsPBAKDVHqTnQHRlgB7CdMphY70GpVn3fQCdE8bQ
+U4/gpKuad2q40FAPqmAeC6I=
+=kUSh
+-----END PGP SIGNATURE-----
 

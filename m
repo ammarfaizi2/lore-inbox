@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293249AbSCFGyn>; Wed, 6 Mar 2002 01:54:43 -0500
+	id <S293256AbSCFHAX>; Wed, 6 Mar 2002 02:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293253AbSCFGyd>; Wed, 6 Mar 2002 01:54:33 -0500
-Received: from lsanca1-ar27-4-63-184-089.lsanca1.vz.dsl.gtei.net ([4.63.184.89]:16517
-	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
-	id <S293249AbSCFGyX>; Wed, 6 Mar 2002 01:54:23 -0500
-Date: Tue, 5 Mar 2002 22:53:58 -0800 (PST)
-From: Ben Clifford <benc@hawaga.org.uk>
-To: Dave Jones <davej@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5.5-dj3 - ide_modes.h
-In-Reply-To: <20020306034355.A30476@suse.de>
-Message-ID: <Pine.LNX.4.33.0203052245290.3642-100000@barbarella.hawaga.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293260AbSCFHAN>; Wed, 6 Mar 2002 02:00:13 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:36868 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S293256AbSCFHAF>; Wed, 6 Mar 2002 02:00:05 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: Does kmalloc always return address below 4GB?
+Date: 5 Mar 2002 17:00:55 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrna89ue7.4at.kraxel@bytesex.org>
+In-Reply-To: <200203051639.IAA05629@adam.yggdrasil.com>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 1015347655 4446 127.0.0.1 (5 Mar 2002 17:00:55 GMT)
+User-Agent: slrn/0.9.7.1 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> >Look at other drivers using the DMA interfaces like the two aic7xxx
+> >and all of the sym53c8xx drivers, they get it right.
+>  
+>  	Grepping for vmalloc and kmap in them turns up no hits.
 
+Why do you want to vmalloc() memory in the scsi driver?
 
-in drivers/ide/ide_modes.h,
+>  computer with >4GB of RAM (CONFIG_HIGHEM) talking to a PCI card
+>  that only does 32-bit addressing:
+>  
+>  		pci_set_dma_mask(pcidev, 0xffffffff);
+>  		addr = vmalloc(nbytes);
+>  		/* On an x86 with >4GB of RAM, addr will be <4GB, but
+>  	           __pa(addr) might be >4GB, and the system lacks
+>  	           PCI address mapping harware. */
 
-typedef ... ide_pio_timings_t;
+use vmalloc_32(), this one returns lowmem.
 
-is only defined #ifdef CONFIG_BLK_DEV_IDE_MODES.
+>  		dma_addr = pci_map_single(pcidev, addr, nbytes, direction);
 
-But it is used in ide.c without any ifdefs around it, resulting in a
-compile error.
+This is illegal because addr is a kernel _virtual_ address.  You have to
+get the page using vmalloc_to_page() and feed this to pci_map_page()
+then.  With nbytes > PAGE_SIZE you probably want to build a scatterlist
+and use pci_map_sg().
 
-In 2.5.5-dj2, this block was in ide_modes.h within the same #ifdef as the
-typedef, but was moved by the -dj3 patch.
+  Gerd
 
-- -- 
-Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8hb0LsYXoezDwaVARApQzAJ43FGatrKZU/Dht5bEgsRPwCYqNagCfUsMu
-mjD6zffn1bgeJtyYjn6O3ng=
-=mEOw
------END PGP SIGNATURE-----
-
+-- 
+#include </dev/tty>

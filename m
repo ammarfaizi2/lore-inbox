@@ -1,104 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbTIQUSh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 16:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbTIQUSh
+	id S261172AbTIQUVE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 16:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTIQUVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 16:18:37 -0400
-Received: from mail5.intermedia.net ([206.40.48.155]:44807 "EHLO
-	mail5.intermedia.net") by vger.kernel.org with ESMTP
-	id S262652AbTIQUSe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 16:18:34 -0400
-Subject: [CVS] How do I get 'cvs history' to work for linux-2.5 ?
-From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Zultys Technologies Inc.
-Message-Id: <1063829747.1602.20.camel@ranjeet-pc2.zultys.com>
+	Wed, 17 Sep 2003 16:21:04 -0400
+Received: from ns.suse.de ([195.135.220.2]:4541 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261172AbTIQUVB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 16:21:01 -0400
+Date: Wed, 17 Sep 2003 22:21:00 +0200
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       richard.brunner@amd.com
+Subject: Re: [PATCH] Athlon/Opteron Prefetch Fix for 2.6.0test5 + numbers
+Message-ID: <20030917202100.GC4723@wotan.suse.de>
+References: <3F67E8D4.6010707@cyberone.com.au> <Pine.LNX.4.44.0309171251070.2523-100000@laptop.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 17 Sep 2003 13:15:47 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309171251070.2523-100000@laptop.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 17, 2003 at 12:53:59PM -0700, Linus Torvalds wrote:
+> 
+> On Wed, 17 Sep 2003, Nick Piggin wrote:
+> > 
+> > What is intriguing to me is the "Its only a 2% slowdown of the page
+> > fault for every cpu other than K[78] for this single workaround. There
+> > is no point to conditional compilation" attitude some people have.
+> 
+> I wouldn't worry about performance as much as correctness. I'm a lot more
+> worried about the notion of taking recursive pagefaults than about 2%.
 
-Hi,
+I carefully designed it to never recurse more than once. The original
+version (before I posted it) had some corner cases that violated this, but 
+the latest one is IMHO bulletproof in this regard.
 
-I use cvs access for the linux kernel tree, and I need 'cvs history' in
-order to track the overall state (and staleness) of my local cvs tree
-and embed it into the kernel that I build. So how do I get cvs history
-for the kernel tree ? Currently 'cvs history' returns -
+Logic is: 
 
-cvs [server aborted]: cannot open history file:
-/home/cvs/CVSROOT/history: No such file or directory
+when the fault came from user space as seen in CS it is ok to fault again. 
 
+when the fault came from kernel space we must always check the exception
+table first. The __get_user is is_prefetch has an exception table entry
+and will be catched by this.
+[This is why I changed the SIGBUS path slightly - it previously did 
+not follow this sequence]
 
-The CVS server is accessed by the following URL -
+Also when the fault address is equal EIP we don't check. This avoids
+a recursion when the kernel jumps to zero. When this is not true the
+instruction is guaranteed to be mapped, because an unmapped instruction
+will always cause an page fault on EIP first.
 
-:pserver:anonymous@cvs.kernel.org:/home/cvs
+About the only chance of doing multiple recursions would be another CPU
+corrupting the kernel page table in parallel while the fault happens, 
+but I don't see any chance to handle this properly.
 
-
-FYI, 'host cvs.kernel.org' returns the following:
-
-cvs.kernel.org is an alias for kernel.bkbits.net.
-kernel.bkbits.net has address 64.240.166.241
-
-
-Is there a solution or an alternative ?
-
-thanks,
-Ranjeet.
-
-------------------------------------------------------------------------------------------------------
-A bit of history & a couple of observations/comments about bk and cvs
-access to the linux kernel code:
-
-(Internally, we do not use bk for the kernel and so learning bk was
-primarily a background process, not a job-related need.)
-
-1. For the last 8 months or so, I've used bk as a read-only mechanism to
-view the changesets and keep track of 2.6 kernel changes. As a read-only
-access mechanism for the linux kernel source tree, bk is trivially easy
-to use (but a bit slow in terms of bk resolve etc). Also 'bk pull' does
-not do 'bk -r get -qS' automatically - which may/may not be a useful
-default depending on the needs of the developer. For me, this was a
-stumbling block in my bk learning process, although I did read that the
-next version of bk will do bk get automatically.
-
-2. Eventually, I reached a point where I needed my custom changes to the
-2.6 kernel make system to track changes, status etc. That's when I
-started editing my bk tree and started using bk as a read-write
-mechanism. As part of my learning process, I realized that the
-openlogging feature would be blogging my learning attempts for the whole
-world to see. While I am comfortable with the fact that half the world
-is smarter than I am, I am not comfortable with logging my mistakes on a
-world-accessible blog - OpenLogging. Its like trying to figure out 2+2
-while Albert Einstein is broadcasting you live on American Idol.
-
-Path of least resistance was to use cvs instead of bk. So I started
-using cvs.kernel.org
-
-The primary reason for switching to cvs was:
-1. bk read-write mode was quite non-intuitive UNTIL I realized that bk
-cares more about s.Makefile than about Makefile itself. (I am
-comfortable with cvs, PVCS, Perforce, ClearCase)
-
-2. OpenLogging my bk learning attempts was not good for my self-esteem.
-
-While using cvs.kernel.org, I realized that cvs history does not work
-for the cvs.kernel.org tree.
-
--- 
-
-Ranjeet Shetye
-Senior Software Engineer
-Zultys Technologies
-Ranjeet dot Shetye2 at Zultys dot com
-http://www.zultys.com/
- 
-The views, opinions, and judgements expressed in this message are solely
-those of the author. The message contents have not been reviewed or
-approved by Zultys.
-
+-Andi
 

@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316615AbSH0RMM>; Tue, 27 Aug 2002 13:12:12 -0400
+	id <S316582AbSH0RPK>; Tue, 27 Aug 2002 13:15:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSH0RMM>; Tue, 27 Aug 2002 13:12:12 -0400
-Received: from bs1.dnx.de ([213.252.143.130]:6579 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S316615AbSH0RML>;
-	Tue, 27 Aug 2002 13:12:11 -0400
-Date: Tue, 27 Aug 2002 19:16:22 +0200
-From: Robert Schwebel <robert@schwebel.de>
-To: Stephen Samuel <samuel@bcgreen.com>
-Cc: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: interrupt latency
-Message-ID: <20020827171622.GQ6981@pengutronix.de>
-References: <D3524C0FFDC6A54F9D7B6BBEECD341D5D56FDB@HBMNTX0.da.hbm.com> <3D6B88AE.8010206@bcgreen.com>
+	id <S316586AbSH0RPJ>; Tue, 27 Aug 2002 13:15:09 -0400
+Received: from mail.cogenit.fr ([195.68.53.173]:6377 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S316582AbSH0RPJ>;
+	Tue, 27 Aug 2002 13:15:09 -0400
+Date: Tue, 27 Aug 2002 19:19:06 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: IDE success with 2.4.20-pre4-ac1
+Message-ID: <20020827191906.A15998@fafner.intra.cogenit.fr>
+References: <20020826225747.A14739@fafner.intra.cogenit.fr> <Pine.LNX.4.10.10208262140260.24156-100000@master.linux-ide.org> <20020827101351.A15332@fafner.intra.cogenit.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D6B88AE.8010206@bcgreen.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020827101351.A15332@fafner.intra.cogenit.fr>; from romieu@cogenit.fr on Tue, Aug 27, 2002 at 10:13:51AM +0200
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 07:11:58AM -0700, Stephen Samuel wrote:
-> http://www.linux.org/dist/index.html contains an index to a number of
-> Linux distributions.  Check out the embeded kernels. They include some
-> Realtime mods. As an example, RTLinux claims to do hard realtime by
-> running the Linux kernel as it's lowest priority task. This is supposed
-> to allow serious realtime work without having to mess too much with
-> the kernel.
+Andre Hedrick <andre@linux-ide.org> :
+[...]
+> Now to make it so you do not have to pass every darn parameter under the
+> sun to get it to go!  That is one of the worst append line I have ever
+> seen, I am shocked it took such a big hammer.
 
-Take also into account that RT-Linux is patented technology (for details
-see http://www.aero.polimi.it/~rtai/documentation/articles/moglen.html).
+Worked fine without option. Same behavior with 2.4.20-pre4-ac2.
 
-There is also RTAI as an alternative, which has a very supportive user
-community. 
-
-Robert
 -- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Braunschweiger Str. 79,  31134 Hildesheim, Germany
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+Ueimor

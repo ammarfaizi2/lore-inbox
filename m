@@ -1,90 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbTEBGI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 02:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTEBGHl
+	id S261860AbTEBGbG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 02:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTEBGbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 02:07:41 -0400
-Received: from dp.samba.org ([66.70.73.150]:59810 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261839AbTEBGGf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 02:06:35 -0400
-From: Paul Mackerras <paulus@samba.org>
+	Fri, 2 May 2003 02:31:06 -0400
+Received: from elaine24.Stanford.EDU ([171.64.15.99]:51638 "EHLO
+	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S261860AbTEBGbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 02:31:04 -0400
+Date: Thu, 1 May 2003 23:43:22 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: mc@cs.stanford.edu
+Subject: [CHECKER] 4 potential user-pointer errors
+In-Reply-To: <Pine.GSO.4.44.0305011353180.28997-100000@elaine24.Stanford.EDU>
+Message-ID: <Pine.GSO.4.44.0305012334140.7454-100000@elaine24.Stanford.EDU>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16050.1208.626286.978120@argo.ozlabs.ibm.com>
-Date: Fri, 2 May 2003 15:40:08 +1000
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH] Update mesh.c and mac53c94.c drivers
-X-Mailer: VM 7.14 under Emacs 21.3.2
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates the mesh and mac53c94 SCSI host bus adaptor
-drivers so that their interrupt routines return an irqreturn_t.
 
-Please apply.
+Hi,
 
-Thanks,
-Paul.
+Enclosed are 4 more potential bugs where user pointer is dereferenced.
+Please note the word "Callstack" in the bug report doesn't always mean a
+call. We link functions together if they are assigned to the same struct
+field.
 
-diff -urN linux-2.5/drivers/scsi/mac53c94.c pmac-2.5/drivers/scsi/mac53c94.c
---- linux-2.5/drivers/scsi/mac53c94.c	2003-03-23 18:24:17.000000000 +1100
-+++ pmac-2.5/drivers/scsi/mac53c94.c	2003-04-23 23:09:39.000000000 +1000
-@@ -59,7 +59,7 @@
- static void mac53c94_init(struct fsc_state *);
- static void mac53c94_start(struct fsc_state *);
- static void mac53c94_interrupt(int, void *, struct pt_regs *);
--static void do_mac53c94_interrupt(int, void *, struct pt_regs *);
-+static irqreturn_t do_mac53c94_interrupt(int, void *, struct pt_regs *);
- static void cmd_done(struct fsc_state *, int result);
- static void set_dma_cmds(struct fsc_state *, Scsi_Cmnd *);
- static int data_goes_out(Scsi_Cmnd *);
-@@ -316,7 +316,7 @@
- 		set_dma_cmds(state, cmd);
- }
- 
--static void
-+static irqreturn_t
- do_mac53c94_interrupt(int irq, void *dev_id, struct pt_regs *ptregs)
- {
- 	unsigned long flags;
-@@ -325,6 +325,7 @@
- 	spin_lock_irqsave(dev->host_lock, flags);
- 	mac53c94_interrupt(irq, dev_id, ptregs);
- 	spin_unlock_irqrestore(dev->host_lock, flags);
-+	return IRQ_HANDLED;
- }
- 
- static void
-diff -urN linux-2.5/drivers/scsi/mesh.c pmac-2.5/drivers/scsi/mesh.c
---- linux-2.5/drivers/scsi/mesh.c	2003-03-23 18:24:17.000000000 +1100
-+++ pmac-2.5/drivers/scsi/mesh.c	2003-04-23 23:09:26.000000000 +1000
-@@ -212,7 +212,7 @@
- static void handle_error(struct mesh_state *);
- static void handle_exception(struct mesh_state *);
- static void mesh_interrupt(int, void *, struct pt_regs *);
--static void do_mesh_interrupt(int, void *, struct pt_regs *);
-+static irqreturn_t do_mesh_interrupt(int, void *, struct pt_regs *);
- static void handle_msgin(struct mesh_state *);
- static void mesh_done(struct mesh_state *, int);
- static void mesh_completed(struct mesh_state *, Scsi_Cmnd *);
-@@ -1471,7 +1471,7 @@
- 	out_8(&mr->sequence, SEQ_ENBRESEL);
- }
- 
--static void
-+static irqreturn_t
- do_mesh_interrupt(int irq, void *dev_id, struct pt_regs *ptregs)
- {
- 	unsigned long flags;
-@@ -1480,6 +1480,7 @@
- 	spin_lock_irqsave(dev->host_lock, flags);
- 	mesh_interrupt(irq, dev_id, ptregs);
- 	spin_unlock_irqrestore(dev->host_lock, flags);
-+	return IRQ_HANDLED;
- }
- 
- static void handle_error(struct mesh_state *ms)
+Please confirm or clarify. Thanks!
+
+-Junfeng
+
+---------------------------------------------------------
+[BUG] at least bad programming practice. file_operations.write ->
+cm_write -> trans_ac3. write can take tainted. write can take tainted
+inputs. the pointer is vefied in cm_write
+
+/home/junfeng/linux-2.5.63/sound/oss/cmpci.c:593:trans_ac3:
+ERROR:TAINTED:593:593: dereferencing tainted ptr 'src' [Callstack:
+/home/junfeng/linux-2.5.63/fs/read_write.c:307:vfs_write((tainted
+1)(tainted 2)) ->
+/home/junfeng/linux-2.5.63/fs/read_write.c:241:cm_write((tainted
+1)(tainted 2)) ->
+/home/junfeng/linux-2.5.63/sound/oss/cmpci.c:1662:trans_ac3((tainted
+2))]
+
+	unsigned long data;
+	unsigned long *dst = (unsigned long *) dest;
+	unsigned short *src = (unsigned short *)source;
+
+	do {
+
+Error --->
+		data = (unsigned long) *src++;
+		data <<= 12;			// ok for 16-bit data
+		if (s->spdif_counter == 2 || s->spdif_counter == 3)
+			data |= 0x40000000;	// indicate AC-3 raw
+data
+---------------------------------------------------------
+[BUG] at least bad programming practice. file_opetations.ioctl ->
+aac_cfg_ioctl -> aac_do_ioctl -> close_getadapter_fib ->
+aac_close_fib_context. All other functions called by aac_do_ioctl assume
+arg is a user pointer. It is unknown what will happen.
+
+/home/junfeng/linux-2.5.63/drivers/scsi/aacraid/commctrl.c:277:aac_close_fib_context:
+ERROR:TAINTED:277:277: dereferencing tainted ptr 'fibctx' [Callstack:
+/home/junfeng/linux-2.5.63/drivers/scsi/sg.c:1002:aac_cfg_ioctl((tainted
+3)) ->
+/home/junfeng/linux-2.5.63/drivers/scsi/aacraid/linit.c:671:aac_do_ioctl((tainted
+2)) ->
+/home/junfeng/linux-2.5.63/drivers/scsi/aacraid/commctrl.c:421:close_getadapter_fib((tainted
+1)) ->
+/home/junfeng/linux-2.5.63/drivers/scsi/aacraid/commctrl.c:348:aac_close_fib_context((tainted
+1))]
+
+	while (!list_empty(&fibctx->fibs)) {
+		struct list_head * entry;
+		/*
+		 *	Pull the next fib from the fibs
+		 */
+
+Error --->
+		entry = fibctx->fibs.next;
+		list_del(entry);
+		fib = list_entry(entry, struct hw_fib, header.FibLinks);
+		fibctx->count--;
+---------------------------------------------------------
+[BUG] at least bad programming practice. zoran_read and vbi_read are
+both assigned to video_device.read, while zoran_read assumes "buf" is
+tainted. The pointer is verified by access_ok
+
+/home/junfeng/linux-2.5.63/drivers/media/video/zr36120.c:1698:vbi_read:
+ERROR:TAINTED:1698:1698: dereferencing tainted ptr 'optr' [Callstack:
+/home/junfeng/linux-2.5.63/drivers/media/video/zr36120.c:934:vbi_read((tainted
+1))]
+
+		{
+			/* copy to doubled data to userland */
+			for (x=0; optr+1<eptr && x<-done->w; x++)
+			{
+				unsigned char a = iptr[x*2];
+
+Error --->
+				*optr++ = a;
+				*optr++ = a;
+			}
+			/* and clear the rest of the line */
+---------------------------------------------------------
+[BUG] at least bad programming practice. calls access_ok on
+qv.packet_sizes, then passed qv.packet_sizes into
+initialize_dma_it_prg_var_packet_queue.
+
+/home/junfeng/linux-2.5.63/drivers/ieee1394/video1394.c:668:initialize_dma_it_prg_var_packet_queue:
+ERROR:TAINTED:668:668: dereferencing tainted ptr 'packet_sizes + i * 4'
+[Callstack:
+/home/junfeng/linux-2.5.63/drivers/ieee1394/video1394.c:1047:initialize_dma_it_prg_var_packet_queue((tainted
+2))]
+
+	for (i = 0; i < d->nb_cmd; i++) {
+		unsigned int size;
+		if (packet_sizes[i] > d->packet_size) {
+			size = d->packet_size;
+		} else {
+
+Error --->
+			size = packet_sizes[i];
+		}
+		it_prg[i].data[1] = cpu_to_le32(size << 16);
+		it_prg[i].end.control = cpu_to_le32(DMA_CTL_OUTPUT_LAST
+| DMA_CTL_BRANCH);
+

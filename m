@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132896AbRANN2z>; Sun, 14 Jan 2001 08:28:55 -0500
+	id <S129950AbRANN4y>; Sun, 14 Jan 2001 08:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132857AbRANN2p>; Sun, 14 Jan 2001 08:28:45 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:1692 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S132816AbRANN2d>;
-	Sun, 14 Jan 2001 08:28:33 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129994AbRANN4o>; Sun, 14 Jan 2001 08:56:44 -0500
+Received: from austin.jhcloos.com ([206.224.83.202]:27396 "HELO
+	austin.jhcloos.com") by vger.kernel.org with SMTP
+	id <S129950AbRANN43>; Sun, 14 Jan 2001 08:56:29 -0500
+To: Christoph Rohland <cr@sap.com>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, david+validemail@kalifornia.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: shmem or swapfs? was: [Patch] make shm filesystem part configurable
+In-Reply-To: <200101132014.f0DKEJh153332@saturn.cs.uml.edu>
+	<m3itnih3eb.fsf@linux.local>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <m3itnih3eb.fsf@linux.local>
+Date: 14 Jan 2001 07:56:28 -0600
+Message-ID: <m37l3yck4z.fsf@austin.jhcloos.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14945.43345.483744.954137@pizda.ninka.net>
-Date: Sun, 14 Jan 2001 05:27:45 -0800 (PST)
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: set_page_dirty/page_launder deadlock
-In-Reply-To: <Pine.LNX.4.21.0101140108430.11917-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0101140108430.11917-100000@freak.distro.conectiva>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Christoph" == Christoph Rohland <cr@sap.com> writes:
 
-Marcelo Tosatti writes:
- > 
- > While taking a look at page_launder()...
+Christoph> OK right now I see two alternatives for the name: "tmpfs"
+Christoph> for the SUN admins and "vmfs" for expressing what it does
+Christoph> and to be in line with "ramfs". Any votes?
 
- ...
+I think vmfs is the better choice.  Not to be gratuitously
+incompatable with sun, but there is no guarentee linux's
+implementation and sun's will be or remain compatable, so it really
+doesn't hurt to choose a name which is more descriptive rather than
+that used by someone else's product -- even if the other product is
+widely deployed and understood.
 
- > set_page_dirty() may lock the pagecache_lock which means potential
- > deadlock since we have the pagemap_lru_lock locked.
+>> I'd prefer k for ISO standard and K for base-2.  Of course m isn't
+>> millibytes, but that isn't horrible.
 
-Indeed, the following should work as a fix:
+Christoph> No, I would go for base-2 only. That's what we typically
+Christoph> mean with K and M in the IT world. To be case sensitive is
+Christoph> IMHO overkill and confusing.
 
---- mm/vmscan.c.~1~	Thu Jan 11 02:22:19 2001
-+++ mm/vmscan.c	Sun Jan 14 05:26:17 2001
-@@ -493,12 +493,15 @@
- 			page_cache_release(page);
- 
- 			/* And re-start the thing.. */
--			spin_lock(&pagemap_lru_lock);
--			if (result != 1)
-+			if (result != 1) {
-+				spin_lock(&pagemap_lru_lock);
- 				continue;
--			/* writepage refused to do anything */
--			set_page_dirty(page);
--			goto page_active;
-+			} else {
-+				/* writepage refused to do anything */
-+				set_page_dirty(page);
-+				spin_lock(&pagemap_lru_lock);
-+				goto page_active;
-+			}
- 		}
- 
- 		/*
+Unquestionably the Right Thing.  VM is after all being measured, and
+RAM is always measured in binary.  (OK, I just *know* someone will
+provide a counter-example disproving that assertion -- perhaps the old
+36 bit systems?  Or core?  But are there any modern counter-examples?)
+
+-JimC
+-- 
+James H. Cloos, Jr.  <http://jhcloos.com/public_key>     1024D/ED7DAEA6 
+<cloos@jhcloos.com>  E9E9 F828 61A4 6EA9 0F2B  63E7 997A 9F17 ED7D AEA6
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

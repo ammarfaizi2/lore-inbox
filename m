@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263661AbTLXQs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 11:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTLXQs5
+	id S263679AbTLXQti (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 11:49:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263680AbTLXQti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 11:48:57 -0500
-Received: from main.gmane.org ([80.91.224.249]:14042 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263661AbTLXQs4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 11:48:56 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-15?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Subject: allow process or user to listen on priviledged ports?
-Date: Wed, 24 Dec 2003 17:43:09 +0100
-Message-ID: <bscg1m$1eg$1@sea.gmane.org>
+	Wed, 24 Dec 2003 11:49:38 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:8635 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S263679AbTLXQtf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 11:49:35 -0500
+Subject: Re: 2.6 unknown partition table
+From: Christophe Saout <christophe@saout.de>
+To: Shane Shrybman <shrybman@aei.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1072277542.10203.14.camel@mars.goatskin.org>
+References: <1072277542.10203.14.camel@mars.goatskin.org>
+Content-Type: text/plain
+Message-Id: <1072284569.4710.3.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 24 Dec 2003 17:49:29 +0100
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4.1) Gecko/20031008
-X-Accept-Language: de, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Am Mi, den 24.12.2003 schrieb Shane Shrybman um 15:52:
 
-don't blame me for asking such a question in the LKML, but i already 
-asked it in other linux-newsgroups. i haven't got any real answer yet.
+> I noticed this in the logs yesterday on 2.6.0-test11-mm1 and upgraded to
+> 2.6.0-mm1, but its still there. I use LVM on that disk and it is working
+> fine, (LV file systems are mountable and useable).
+>
+> Advice?
+> 
+> # fdisk -l /dev/hdg
+> [...]
+> Disk /dev/hdg doesn't contain a valid partition table
+>
+> [...]
+> vgdisplay  PV Name               /dev/hdg     
 
-my problem is, that i want an application to listen on a priviledged 
-port (e.g. port 80) and to run as a "normal" unpriviledged user (e.g. 
-wwwrun). Well - how? The application is not a C/C++-application, so i 
-cannot ask the author (myself) to implement a mechanism to switch the 
-userid (e.g. like apache does it).
+Everything is fine. You put your physical volume directly on the
+harddisk, not in a partition, so you don't have a partition table.
+vgscan recognizes the hard disk itself as LVM physical volume anyway
+that's why it works.
 
-So is there any machanism to bind that permission (to listen on a 
-priviledged tcp-port) to a specific user or a specific process?
+If you want to get rid of this, the next time you create a PV please
+create a partition first with fdisk, e.g. /dev/hdg1 with type 8e (LVM)
+and then pvcreate /dev/hdg1.
 
-The application is written in Java. Of course Java could implement 
-userid-switching, but the linux could also have an ACL for that. So 
-please don't answer with "go and ask Sun for that feature". I already 
-considered that.
-
-Thx
-   Sven
-
+--
+Christophe Saout <christophe@saout.de>
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
 

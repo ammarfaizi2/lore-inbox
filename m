@@ -1,79 +1,383 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268255AbUH2S0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268254AbUH2S0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268255AbUH2S0d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 14:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268245AbUH2S0d
+	id S268254AbUH2S0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 14:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268238AbUH2S0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 14:26:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24276 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268259AbUH2SZT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 14:25:19 -0400
-Message-ID: <41321F7F.7050300@pobox.com>
-Date: Sun, 29 Aug 2004 14:25:03 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Sun, 29 Aug 2004 14:26:12 -0400
+Received: from mta10-svc.ntlworld.com ([62.253.162.94]:36565 "EHLO
+	mta10-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S268245AbUH2SY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 14:24:59 -0400
+Message-ID: <41321F78.8080502@poggs.co.uk>
+Date: Sun, 29 Aug 2004 19:24:56 +0100
+From: Peter Hicks <peter.hicks@poggs.co.uk>
+Organization: Poggs Computer Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7.2) Gecko/20040820 Debian/1.5-3 StumbleUpon/1.89
+X-Accept-Language: en-gb, en-us, en-au, en-ie, en
 MIME-Version: 1.0
-To: Brad Campbell <brad@wasp.net.au>
-CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: libata dev_config call order wrong.
-References: <41320DAF.2060306@wasp.net.au> <41321288.4090403@pobox.com> <413216CC.5080100@wasp.net.au> <4132198B.8000504@pobox.com>
-In-Reply-To: <4132198B.8000504@pobox.com>
+To: Jens Maurer <Jens.Maurer@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1 crash on Toshiba Tecra 9100
+References: <20040822161338.GA21087@tufnell.lon1.poggs.net> <412A2872.5030004@gmx.net>
+In-Reply-To: <412A2872.5030004@gmx.net>
 Content-Type: multipart/mixed;
- boundary="------------060908080205050906030907"
+ boundary="------------080003030704010307020606"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------060908080205050906030907
+--------------080003030704010307020606
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Jeff Garzik wrote:
-> me either, unless I can figure out a way to detect that a disk is PATA 
-> not SATA.  Nothing is obvious from the specs on www.t13.org, but who knows.
+Hi Jens
 
-According to the Serial ATA docs, IDENTIFY DEVICE word 93 will be zero 
-if it's Serial ATA.  Who knows if that's true, given the wierd wild 
-world of ATA devices.
+Jens Maurer wrote:
 
-So, given the attached patch, you could try and create a generic 
-ata_dev_config that all drivers call, that does something like
+>>  [<c0208dbd>] pcibios_enable_device+0x14/0x17
+>>  [<c019ca84>] pci_enable_device_bars+0x1e/0x32
+>>  [<e0937b7c>] agp_intel_probe+0x10e/0x409 [intel_agp]
+> 
+> Hm... The oops happens while inserting the intel_agp module.
+> CONFIG_EDD is for boot disk detection.  I fail to see any
+> relationship whatsoever between these two.
 
-	/* limit bridge transfers to udma5, 200 sectors */
-	if ((ap->cbl == ATA_CBL_SATA) && (!ata_id_is_sata(dev))) {
-                 printk(KERN_INFO "ata%u(%u): applying bridge limits\n",
-                        ap->id, dev->devno);
-		ap->udma_mask &= ATA_UDMA5;
-                 ap->host->max_sectors = ATA_MAX_SECTORS;
-                 ap->host->hostt->max_sectors = ATA_MAX_SECTORS;
-                 dev->flags |= ATA_DFLAG_LOCK_SECTORS;
-	}
+Here's the situation.  I'm using the attached .config (config-working) and 
+2.6.8.1 boots and works fine.  When recompiling the kernel with CONFIG_EDD 
+enabled, and no other changes, I get the oops above in pcibios_enable_device.
 
-Regards,
-
-	Jeff
+Just a guess, but does CONFIG_EDD on the Tecra 9100 mess up some function that 
+intel_agp uses?
 
 
+Peter.
 
---------------060908080205050906030907
+-- 
+Peter Hicks | e: my.name@poggs.co.uk | g: 0xE7C839F4 | w: www.poggs.com
+
+--------------080003030704010307020606
 Content-Type: text/plain;
- name="patch"
+ name="config-working"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="patch"
+ filename="config-working"
 
-===== include/linux/ata.h 1.17 vs edited =====
---- 1.17/include/linux/ata.h	2004-08-18 01:47:22 -04:00
-+++ edited/include/linux/ata.h	2004-08-29 14:18:02 -04:00
-@@ -218,6 +218,7 @@
- };
- 
- #define ata_id_is_ata(dev)	(((dev)->id[0] & (1 << 15)) == 0)
-+#define ata_id_is_sata(dev)	((dev)->id[93] == 0)
- #define ata_id_rahead_enabled(dev) ((dev)->id[85] & (1 << 6))
- #define ata_id_wcache_enabled(dev) ((dev)->id[85] & (1 << 5))
- #define ata_id_has_flush(dev) ((dev)->id[83] & (1 << 12))
+CONFIG_4KSTACKS=y
+CONFIG_ACPI=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_ACPI_THERMAL=m
+CONFIG_ACPI_TOSHIBA=m
+CONFIG_AGP=m
+CONFIG_AGP_INTEL=m
+CONFIG_AIRO=m
+CONFIG_AIRO_CS=m
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_BT=m
+CONFIG_BT_BNEP=m
+CONFIG_BT_BNEP_MC_FILTER=y
+CONFIG_BT_BNEP_PROTO_FILTER=y
+CONFIG_BT_HCIUSB=m
+CONFIG_BT_HCIVHCI=m
+CONFIG_BT_L2CAP=m
+CONFIG_BT_RFCOMM=m
+CONFIG_BT_RFCOMM_TTY=y
+CONFIG_BT_SCO=m
+CONFIG_CARDBUS=y
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=m
+CONFIG_CPU_FREQ_GOV_POWERSAVE=m
+CONFIG_CPU_FREQ_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_TABLE=m
+CONFIG_CRC32=m
+CONFIG_CRC_CCITT=m
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_DEFLATE=m
+CONFIG_CRYPTO_DES=m
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_KHAZAD=m
+CONFIG_CRYPTO_MD5=m
+CONFIG_CRYPTO_SHA1=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+CONFIG_DRM=y
+CONFIG_DRM_I830=m
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_E100=m
+CONFIG_E100_NAPI=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_EPOLL=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_EXT3_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_FAT_FS=m
+CONFIG_FB=y
+CONFIG_FONT_8x16=y
+CONFIG_FONT_8x8=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_FUTEX=y
+CONFIG_FW_LOADER=m
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GEN_RTC=m
+CONFIG_GEN_RTC_X=y
+CONFIG_HANGCHECK_TIMER=m
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_HOTPLUG=y
+CONFIG_HPET=y
+CONFIG_HPET_MMAP=y
+CONFIG_HPET_RTC_IRQ=y
+CONFIG_HPET_TIMER=y
+CONFIG_HW_CONSOLE=y
+CONFIG_HW_RANDOM=m
+CONFIG_IDE=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_IDE_GENERIC=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_INET=y
+CONFIG_INPUT=y
+CONFIG_INPUT_EVBUG=m
+CONFIG_INPUT_EVDEV=m
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_PCSPKR=m
+CONFIG_INPUT_UINPUT=m
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IPMI_DEVICE_INTERFACE=m
+CONFIG_IPMI_HANDLER=m
+CONFIG_IPMI_SI=m
+CONFIG_IPMI_WATCHDOG=m
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IRCOMM=m
+CONFIG_IRDA=m
+CONFIG_IRLAN=m
+CONFIG_IRNET=m
+CONFIG_IRPORT_SIR=m
+CONFIG_IRTTY_SIR=m
+CONFIG_ISA=y
+CONFIG_ISO9660_FS=m
+CONFIG_JBD=y
+CONFIG_JOLIET=y
+CONFIG_KALLSYMS=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_KMOD=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_LIBCRC32C=m
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_LOG_BUF_SHIFT=16
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_MAX_RAW_DEVS=256
+CONFIG_MICROCODE=m
+CONFIG_MII=m
+CONFIG_MMU=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODVERSIONS=y
+CONFIG_MOUSE_PS2=m
+CONFIG_MPENTIUM4=y
+CONFIG_MSDOS_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_MTRR=y
+CONFIG_NET=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_KEY=y
+CONFIG_NET_PCI=y
+CONFIG_NET_PKTGEN=m
+CONFIG_NET_RADIO=y
+CONFIG_NET_WIRELESS=y
+CONFIG_NLS=y
+CONFIG_NLS_ASCII=m
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_UTF8=m
+CONFIG_NOHIGHMEM=y
+CONFIG_NTFS_FS=m
+CONFIG_NTFS_RW=y
+CONFIG_NVRAM=m
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_1284=y
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PC=y
+CONFIG_PCI=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_MSI=y
+CONFIG_PCI_NAMES=y
+CONFIG_PCMCIA=m
+CONFIG_PCMCIA_PROBE=y
+CONFIG_PM=y
+CONFIG_PPP=m
+CONFIG_PPPOE=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PREEMPT=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_RAMFS=y
+CONFIG_RAW_DRIVER=m
+CONFIG_REGPARM=y
+CONFIG_RTC=m
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_SCSI=m
+CONFIG_SCSI_PROC_FS=y
+CONFIG_SCSI_QLA2XXX=m
+CONFIG_SERIAL_8250=m
+CONFIG_SERIAL_8250_ACPI=y
+CONFIG_SERIAL_8250_EXTENDED=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=m
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=m
+CONFIG_SND=m
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_DUMMY=m
+CONFIG_SND_INTEL8X0=m
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_MPU401=m
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_PCM=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_VERBOSE_PRINTK=y
+CONFIG_SND_VIRMIDI=m
+CONFIG_SOFTWARE_SUSPEND=y
+CONFIG_SOUND=m
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_STANDALONE=y
+CONFIG_SWAP=y
+CONFIG_SYN_COOKIES=y
+CONFIG_SYSCTL=y
+CONFIG_SYSFS=y
+CONFIG_SYSVIPC=y
+CONFIG_TMPFS=y
+CONFIG_TOSHIBA=m
+CONFIG_TOSHIBA_FIR=m
+CONFIG_UID16=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX=y
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_EHCI_SPLIT_ISO=y
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_IPAQ=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_RW_DETECT=y
+CONFIG_USB_UHCI_HCD=m
+CONFIG_VFAT_FS=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VLAN_8021Q=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_W1=m
+CONFIG_W1_THERM=m
+CONFIG_WATCHDOG=y
+CONFIG_X86=y
+CONFIG_X86_ACPI_CPUFREQ=m
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_CPUID=m
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_X86_MPPARSE=y
+CONFIG_X86_MSR=m
+CONFIG_X86_P4_CLOCKMOD=m
+CONFIG_X86_PC=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_SPEEDSTEP_CENTRINO=m
+CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
+CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
+CONFIG_X86_SPEEDSTEP_ICH=m
+CONFIG_X86_SPEEDSTEP_LIB=m
+CONFIG_X86_SPEEDSTEP_SMI=m
+CONFIG_X86_TSC=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_XADD=y
+CONFIG_XFRM=y
+CONFIG_YENTA=m
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_ZLIB_INFLATE=m
 
---------------060908080205050906030907--
+--------------080003030704010307020606--

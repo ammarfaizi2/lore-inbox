@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314049AbSDQNkp>; Wed, 17 Apr 2002 09:40:45 -0400
+	id <S314052AbSDQNnx>; Wed, 17 Apr 2002 09:43:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314052AbSDQNkp>; Wed, 17 Apr 2002 09:40:45 -0400
-Received: from jalon.able.es ([212.97.163.2]:53638 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S314049AbSDQNko>;
-	Wed, 17 Apr 2002 09:40:44 -0400
-Date: Wed, 17 Apr 2002 15:40:04 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
-Message-ID: <20020417134004.GA2025@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.10.10204161720260.10691-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.4
+	id <S314073AbSDQNnw>; Wed, 17 Apr 2002 09:43:52 -0400
+Received: from windsormachine.com ([206.48.122.28]:61190 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S314052AbSDQNnv>; Wed, 17 Apr 2002 09:43:51 -0400
+Date: Wed, 17 Apr 2002 09:43:47 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: IDE/raid performance
+In-Reply-To: <20020417125838.GA27648@dark.x.dtu.dk>
+Message-ID: <Pine.LNX.4.33.0204170940310.29775-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Apr 2002, Baldur Norddahl wrote:
 
-On 2002.04.17 Andre Hedrick wrote:
->There is a micro bug in 3a, look for 4 to arrive.
+> Hi,
 >
->regards
->
-[...]
->> 
->> - ide update -3a (very shrinked wrt original, the big ppc part has gone
->>   in mainline)
+> I have been doing some simple benchmarks on my IDE system. It got 12 disks
+> and a system disk. The 12 disks are organized in two raids like this:
 
-Can it be related to my system getting hung on boot trying to do
-an hdparm ?
-I had not the time to dig more, just disabled it and booted fine (I had
-some work to get done...)
+What is the exact hardware configuration of the system, besides the disk?
+CPU/Motherboard/etc?
 
-TIA
+> hdq: dma_intr: bad DMA status (dma_stat=35)
+> hdq: dma_intr: status=0x50 { DriveReady SeekComplete }
+> hdq: dma_intr: bad DMA status (dma_stat=35)
+> hdq: dma_intr: status=0x50 { DriveReady SeekComplete }
+> hdt: dma_intr: bad DMA status (dma_stat=75)
+> hdt: dma_intr: status=0x50 { DriveReady SeekComplete }
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre7-jam1 #1 SMP Wed Apr 17 00:42:27 CEST 2002 i686
+I'd take a look at the cable on hdq and hdt.  Try replacing it, and see
+what happens.
+
+Also, with 12 hd's, dual cpu's, etc, what kind of power supply are you
+using?
+
+Mike
+

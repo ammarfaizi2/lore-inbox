@@ -1,67 +1,178 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293676AbSCKKqn>; Mon, 11 Mar 2002 05:46:43 -0500
+	id <S293679AbSCKKty>; Mon, 11 Mar 2002 05:49:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293678AbSCKKqe>; Mon, 11 Mar 2002 05:46:34 -0500
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:55756 "EHLO
-	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
-	id <S293676AbSCKKqT>; Mon, 11 Mar 2002 05:46:19 -0500
-Date: Mon, 11 Mar 2002 05:46:16 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <200203101941.g2AJfSD19756@lmail.actcom.co.il>
-Message-ID: <Pine.LNX.4.33.0203110508080.17717-100000@mhw.ULib.IUPUI.Edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S293681AbSCKKtq>; Mon, 11 Mar 2002 05:49:46 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:9357 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S293679AbSCKKtg>; Mon, 11 Mar 2002 05:49:36 -0500
+Date: Mon, 11 Mar 2002 11:49:20 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4] sonypi driver update
+Message-ID: <20020311104920.GE18651@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Mar 2002, Itai Nahshon wrote:
-> On Sunday 10 March 2002 10:36, Hans Reiser wrote:
-> > I think that if version control becomes as simple as turning on a plugin
-> > for a directory or file, and then adding a little to the end of a
-> > filename to see and list the old versions, Mom can use it.
->
-> IIRC that was a feature in systems from DEC even before
-> VMS (I'm talking about the late 70's).  eg. file.txt;2 was revision 2
-> of file.txt.
->
-> I don't know if this feature was in the file-system or in the text editor
-> that I have used.
+This patch implements a workaround in the sonypi driver 
+improving the programmable keys events recognision on 
+jodial impaired Vaio models.
 
-It's part of the TOPS-20 filesystem.  If you try to create a file which
-already exists, you get a new version of the file with length zero.  Each
-file has a version limit in its directory entry, and when the limit is
-exceeded the oldest version is automagically deleted.  The version limit
-is copied from the highest existing version to the new version, and the
-limit on the highest version determines whether old versions are dropped.
+Previously on those models, PK events were recognized as
+jogdial events. Now, if you pass the nojogdial=1 option to
+the sonypi modules (kernel command line option available too,
+see Documentation/sonypi.txt), the PK will send PK events, as they
+should.
 
-VMS does something similar, although ODS-2 tries to be clever by packing
-all of the versions' index-file pointers together after a single copy of
-the version-less name in the directory block.  Originally the two used
-different punctuation to set off the version number, but when Digital
-killed the PDP10 line VMS was adjusted to accept the TOPS-20 form as well,
-as a sop to LCG customers who were being steered into an unfamiliar
-product line.  IIRC TOPS-20 names were name.extension.version, while VMS
-native names are name.extension;version .
+All this crap will be gone in the 2.5 version of the driver, when
+I'll probably switch to some kind of keymap logic, leaving the
+user the possibility to set its own preferred Vaio model configuration...
 
-RSX-11 (VMS' ancestor) may have had versions too.  I've only used the
-hacked RSX20F variety used as the console monitor for KL10 systems, but I
-seem to recall versioning there.  Or maybe I'm recalling the RSX-11 flavor
-(POS) which ran the Pro300 console on the VAX 8800.
+Marcelo, please apply.
 
-> The basic features were not even close to what you get from RCS or
-> SCCS.
+Stelian.
 
-Indeed.  The only essential relationship between two versions of a file is
-that their names resemble each other.  The content is entirely distinct.
-It was usually used to prevent the "oops, I shouldn't have saved that"
-syndrome.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.161   -> 1.162  
+#	Documentation/sonypi.txt	1.6     -> 1.7    
+#	drivers/char/sonypi.h	1.7     -> 1.8    
+#	drivers/char/sonypi.c	1.7     -> 1.8    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/03/11	stelian@popies.net	1.162
+# Enable more accurate events on Vaio laptops without a jogdial (FX series)
+# --------------------------------------------
+#
+diff -Nru a/Documentation/sonypi.txt b/Documentation/sonypi.txt
+--- a/Documentation/sonypi.txt	Mon Mar 11 11:38:53 2002
++++ b/Documentation/sonypi.txt	Mon Mar 11 11:38:54 2002
+@@ -43,7 +43,7 @@
+ to /etc/modules.conf file, when the driver is compiled as a module or by
+ adding the following to the kernel command line (in your bootloader):
+ 
+-	sonypi=minor[[[[,camera],fnkeyinit],verbose],compat]
++	sonypi=minor[[[[[,camera],fnkeyinit],verbose],compat],nojogdial]
+ 
+ where:
+ 
+@@ -70,6 +70,9 @@
+ 			events. If the driver worked for you in the past
+ 			(prior to version 1.5) and does not work anymore,
+ 			add this option and report to the author.
++
++	nojogdial:	gives more accurate PKEY events on those Vaio models
++			which don't have a jogdial (like the FX series).
+ 
+ Module use:
+ -----------
+diff -Nru a/drivers/char/sonypi.c b/drivers/char/sonypi.c
+--- a/drivers/char/sonypi.c	Mon Mar 11 11:38:54 2002
++++ b/drivers/char/sonypi.c	Mon Mar 11 11:38:54 2002
+@@ -50,6 +50,7 @@
+ static int fnkeyinit; /* = 0 */
+ static int camera; /* = 0 */
+ static int compat; /* = 0 */
++static int nojogdial; /* = 0 */
+ 
+ /* Inits the queue */
+ static inline void sonypi_initq(void) {
+@@ -310,24 +311,28 @@
+ 	int i;
+ 	u8 sonypi_jogger_ev, sonypi_fnkey_ev;
+ 	u8 sonypi_capture_ev, sonypi_bluetooth_ev;
++	u8 sonypi_pkey_ev;
+ 
+ 	if (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE2) {
+ 		sonypi_jogger_ev = SONYPI_TYPE2_JOGGER_EV;
+ 		sonypi_fnkey_ev = SONYPI_TYPE2_FNKEY_EV;
+ 		sonypi_capture_ev = SONYPI_TYPE2_CAPTURE_EV;
+ 		sonypi_bluetooth_ev = SONYPI_TYPE2_BLUETOOTH_EV;
++		sonypi_pkey_ev = nojogdial ? SONYPI_TYPE2_PKEY_EV 
++					   : SONYPI_TYPE1_PKEY_EV;
+ 	}
+ 	else {
+ 		sonypi_jogger_ev = SONYPI_TYPE1_JOGGER_EV;
+ 		sonypi_fnkey_ev = SONYPI_TYPE1_FNKEY_EV;
+ 		sonypi_capture_ev = SONYPI_TYPE1_CAPTURE_EV;
+ 		sonypi_bluetooth_ev = SONYPI_TYPE1_BLUETOOTH_EV;
++		sonypi_pkey_ev = SONYPI_TYPE1_PKEY_EV;
+ 	}
+ 
+ 	v1 = inb_p(sonypi_device.ioport1);
+ 	v2 = inb_p(sonypi_device.ioport2);
+ 
+-	if ((v2 & SONYPI_TYPE1_PKEY_EV) == SONYPI_TYPE1_PKEY_EV) {
++	if ((v2 & sonypi_pkey_ev) == sonypi_pkey_ev) {
+ 		for (i = 0; sonypi_pkeyev[i].event; i++)
+ 			if (sonypi_pkeyev[i].data == v1) {
+ 				event = sonypi_pkeyev[i].event;
+@@ -713,11 +718,12 @@
+ 	       SONYPI_DRIVER_MAJORVERSION,
+ 	       SONYPI_DRIVER_MINORVERSION);
+ 	printk(KERN_INFO "sonypi: detected %s model, "
+-	       "camera = %s, compat = %s\n",
++	       "camera = %s, compat = %s, nojogdial = %s\n",
+ 	       (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE1) ?
+ 			"type1" : "type2",
+ 	       camera ? "on" : "off",
+-	       compat ? "on" : "off");
++	       compat ? "on" : "off",
++	       nojogdial ? "on" : "off");
+ 	printk(KERN_INFO "sonypi: enabled at irq=%d, port1=0x%x, port2=0x%x\n",
+ 	       sonypi_device.irq, 
+ 	       sonypi_device.ioport1, sonypi_device.ioport2);
+@@ -791,6 +797,9 @@
+ 	if (ints[0] == 4)
+ 		goto out;
+ 	compat = ints[5];
++	if (ints[0] == 5)
++		goto out;
++	nojogdial = ints[6];
+ out:
+ 	return 1;
+ }
+@@ -817,5 +826,7 @@
+ MODULE_PARM_DESC(camera, "set this if you have a MotionEye camera (PictureBook series)");
+ MODULE_PARM(compat,"i");
+ MODULE_PARM_DESC(compat, "set this if you want to enable backward compatibility mode");
++MODULE_PARM(nojogdial, "i");
++MODULE_PARM_DESC(nojogdial, "set this if you have a Vaio without a jogdial (like the fx series)");
+ 
+ EXPORT_SYMBOL(sonypi_camera_command);
+diff -Nru a/drivers/char/sonypi.h b/drivers/char/sonypi.h
+--- a/drivers/char/sonypi.h	Mon Mar 11 11:38:54 2002
++++ b/drivers/char/sonypi.h	Mon Mar 11 11:38:54 2002
+@@ -35,7 +35,7 @@
+ #ifdef __KERNEL__
+ 
+ #define SONYPI_DRIVER_MAJORVERSION	 1
+-#define SONYPI_DRIVER_MINORVERSION	10
++#define SONYPI_DRIVER_MINORVERSION	11
+ 
+ #include <linux/types.h>
+ #include <linux/pci.h>
+@@ -141,6 +141,7 @@
+ #define SONYPI_TYPE1_BLUETOOTH_EV	0x30
+ #define SONYPI_TYPE2_BLUETOOTH_EV	0x08
+ #define SONYPI_TYPE1_PKEY_EV		0x40
++#define SONYPI_TYPE2_PKEY_EV		0x08
+ #define SONYPI_BACK_EV			0x08
+ #define SONYPI_LID_EV			0x38
+ 
 
 -- 
-Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-; 11-Mar-2002	MHW	Support the 2080
-
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

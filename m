@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262798AbVAFJeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262799AbVAFJxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262798AbVAFJeP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 04:34:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbVAFJeO
+	id S262799AbVAFJxx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 04:53:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbVAFJxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 04:34:14 -0500
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:11400 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262798AbVAFJbe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 04:31:34 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.6] Clean up SL811 headers
-Date: Thu, 6 Jan 2005 01:31:28 -0800
-User-Agent: KMail/1.7.1
-Cc: kyle moffett <mrmacman_g4@mac.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 6 Jan 2005 04:53:53 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:51473 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262799AbVAFJxv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 04:53:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=M44URcw+XnkaEuGnKJoODxpcr8w/Jnig7fkMtwUY1cL3NkXgxGq5nD5dN8h7fgNWAkvn2XfDzT9FYBBNw2m3fFP/wf2hxI+7zmjZjKC8KZbNIsk6xW56FGKy0l1jhYcMuikdCHgR6ezGkRNEUofr+h7wDntzb/261bUVinua6hc=
+Subject: Re: how to debug and capture Oops mesage?
+From: Gerald Stuhrberg <deadlyh@gmail.com>
+To: cranium2003 <cranium2003@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050106083340.71293.qmail@web41404.mail.yahoo.com>
+References: <20050106083340.71293.qmail@web41404.mail.yahoo.com>
+Content-Type: text/plain
+Date: Thu, 06 Jan 2005 02:54:16 -0500
+Message-Id: <1104998056.1674.3.camel@box>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501060131.28421.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett said:
-> The USB SL811 host has a structure stuck in linux/usb_sl811.h  As this
-> structure is kernel private and only used by a single piece of code, 
+On Thu, 2005-01-06 at 00:33 -0800, cranium2003 wrote:
+> Hello,
+>              I have two machines with RedHat linux 9
+> with serially connected to each other. While doing
+> some kernel programming i am getting frequently Oops
+> messages. I am learning network stack. How can i
+> capture those oops message and which utility can help
+> me to solve oops problem. I heard about lkcd which is
+> on lkcd.sourceforge.net. Can it be suitable utility to
+> check kernel crash dump. I have yet not used it and
+> require advice from kernel developers.
+> Please kindly help me.
+> Thanks in advance.
+> regards,
+> cranium
 
-That's very wrong ... the structure in question is the interface between
-the board-specific setup and the driver (as it says in the comment).  A
-better way to put the situation is that www.kernel.org doesn't currently
-bundle support for a board that wires that chip into its platform_bus.
+There is information here
+http://www1.cs.columbia.edu/~cvaill/hacktips.html
+and also
+http://www-106.ibm.com/developerworks/linux/library/l-debug/
+and don't forget
 
+http://www.google.com/
 
-> this patch moves it to the header file from which it is used, deleting the 
-> old one.
+hacks.mit.edu
 
-Here's a thought experiment for you ... do that for EVERY driver
-on the platform_bus, and see how quickly you get a big mess.
-Board support packages on 2.4 tended to take that approach;
-good riddance, IMO.
+In order to reach Harvard starting from the center of the universe
+(Lobby 10), one must travel an infinite distance over 13 times! Since
+everything is within the universe, it is impossible to reach Harvard and
+therefore there can be no life there.
 
-When you take that approach, then adding support for a new
-board means ** CHANGING EVERY DRIVER USED WITH THAT BOARD **
-to know how the chip is set up on that particular board.
-IRQs, addressing, CPU and GPIO pin multiplexing, support
-logic ... yeech!
-
-Better to have a single arch/XYZ/mach-ZYX/board-ABC.c file that
-just sets up the relevant platform devices, and the platform_data
-those drivers use.  The board support packages should be small,
-mostly using standard drivers ... not be invasive monsters.
-
-- Dave

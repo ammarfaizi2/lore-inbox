@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318454AbSGSDX4>; Thu, 18 Jul 2002 23:23:56 -0400
+	id <S318453AbSGSDXP>; Thu, 18 Jul 2002 23:23:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318456AbSGSDX4>; Thu, 18 Jul 2002 23:23:56 -0400
-Received: from web9207.mail.yahoo.com ([216.136.129.40]:64271 "HELO
-	web9207.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318454AbSGSDXx>; Thu, 18 Jul 2002 23:23:53 -0400
-Message-ID: <20020719032653.96817.qmail@web9207.mail.yahoo.com>
-Date: Thu, 18 Jul 2002 20:26:53 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re:linux-2.4.19-rc2aa1 (RH7.2 kgcc: Internal compiler error in function add_pending_init)
-To: linux-kernel@vger.kernel.org
-Cc: s_sokolov@avtodor.gorny.ru
-MIME-Version: 1.0
+	id <S318454AbSGSDXP>; Thu, 18 Jul 2002 23:23:15 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:14343 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S318453AbSGSDXO>;
+	Thu, 18 Jul 2002 23:23:14 -0400
+Date: Thu, 18 Jul 2002 20:24:45 -0700
+From: Greg KH <greg@kroah.com>
+To: Josh Litherland <fauxpas@temp123.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Keypad
+Message-ID: <20020719032445.GA18456@kroah.com>
+References: <20020719015232.GA20956@temp123.org> <20020719031000.GA18382@kroah.com> <20020719032008.GA22934@temp123.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020719032008.GA22934@temp123.org>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Fri, 21 Jun 2002 02:16:28 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The only time this ever happened to me, it turned out one of my 
-RAM sticks had failed. Just out of curiosity, have you had any 
-oopses recently?
+On Thu, Jul 18, 2002 at 11:20:08PM -0400, Josh Litherland wrote:
+> On Thu, Jul 18, 2002 at 08:10:00PM -0700, Greg KH wrote:
+> 
+> > Should work just fine today.  What kind of problems do you have when you
+> > try to do it?
+> 
+> Just not getting any events from the keypad.  When I load up evdev, and
+> cat the device I get the appropriate gibberish, so the device is
+> detected okay.  This is 2.4.18, if that makes a difference for the
+> purposes of this discussion.
 
-Hi All !!
-When I try compile kernel on my RH7.2
-with CC=kgcc, I receive this message:
+If the device is detected, how is it detected?  Is the USB HID driver
+binding to the device?
 
-kgcc  -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux-2.4.19-rc2aa1/include -traditional \
--c head.S -o head.o kgcc  -D__KERNEL__ -I/usr/src/linux-2.4.19-rc2aa1/include -Wall \
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-st rict-aliasing -fno-common \
--fomit-frame-pointer -pipe  -march=i686   -nostdinc -I /usr/lib/gcc-lib/i386-redhat- \
-linux/egcs-2.91.66/include -DKBUILD_BASENAME=init_task  -c -o init_task.o init_task.c \
-../../gcc/c-typeck.c:5945: Internal compiler error in function add_pending_init \
-make[1]: *** [init_task.o] Error 1 make[1]: Leaving directory \
-                `/usr/src/linux-2.4.19-rc2aa1/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
+thanks,
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Autos - Get free new car price quotes
-http://autos.yahoo.com
+greg k-h

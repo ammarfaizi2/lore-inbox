@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUIFXN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267460AbUIFX3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267464AbUIFXN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 19:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUIFXNZ
+	id S267460AbUIFX3g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 19:29:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267474AbUIFX3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 19:13:25 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:53169 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267464AbUIFXNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 19:13:10 -0400
-Message-ID: <413CEEF6.6080501@yahoo.com.au>
-Date: Tue, 07 Sep 2004 09:12:54 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: don fisher <dfisher@as.arizona.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sched_setaffinity(), RT priorities and migration thread usage
- at 30%
-References: <413CE863.3050400@as.arizona.edu>
-In-Reply-To: <413CE863.3050400@as.arizona.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 6 Sep 2004 19:29:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:19645 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267460AbUIFX3e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 19:29:34 -0400
+Date: Mon, 6 Sep 2004 16:27:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: raybry@sgi.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       riel@redhat.com, piggin@cyberone.com.au, mbligh@aracnet.com
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+Message-Id: <20040906162740.54a5d6c9.akpm@osdl.org>
+In-Reply-To: <cone.1094512172.450816.6110.502@pc.kolivas.org>
+References: <413CB661.6030303@sgi.com>
+	<cone.1094512172.450816.6110.502@pc.kolivas.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-don fisher wrote:
-> Hello,
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> > A scan of the change logs for swappiness related changes shows nothing that 
+>  > might explain these changes.  My question is:  "Is this change in behavior
+>  > deliberate, or just a side effect of other changes that were made in the vm?" 
+>  > and "What kind of swappiness behavior might I expect to find in future kernels?".
 > 
-> Apologies in advance if this is a newbie question. I am attempting to 
-> write a real-time simulation of an application we have in house. I have 
-> a dual processor SMP system, hyperthreading enabled, running kernel 2.6.7.
-> 
-> The first thread begins at priority 1 (SCHED_RR) and subsequently spawns 
-> another time critical task running at priority 2. The initial thread 
-> uses setaffinity to set the desired cpu to 2. When the second task 
-> begins, the migration thread becomes 30% active (as reported by top) for 
-> the duration of its execution. When the priority 2 thread terminates the 
-> first thread continues with the migration task consuming only 2% of the 
-> CPU.
-> 
-> If there was any change, I was expecting that the higher priority of the 
-> second thread would cause it to execute closer to 100% CPU. I built a 
-> test code where each thread computes an identical dumb timing loop. The 
-> priority 2 thread ends up executing 30% slower than the priority 1 
-> thread due to contention with the migration thread.
-> 
-> Is this the expected behavior, and if so could you please inform me why? 
-> I had not anticipated the any attempt by the kernel to shift the process 
-> to another CPU, since sched_setafinity had been applied.
-> 
+>  The change was not deliberate but there have been some other people report 
+>  significant changes in the swappiness behaviour as well (see archives). It 
+>  has usually been of the increased swapping variety lately. It has been 
+>  annoying enough to the bleeding edge desktop users for a swag of out-of-tree 
+>  hacks to start appearing (like mine).
 
-OK I'll have to put something in that doesn't class the balancing
-attempt as a failure if it encounters tasks that aren't allowed to
-be moved.
+All of which is largely wasted effort.  It would be much more useful to get
+down and identify which patch actually caused the behavioural change.

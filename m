@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265169AbSLFSZS>; Fri, 6 Dec 2002 13:25:18 -0500
+	id <S265321AbSLFS2d>; Fri, 6 Dec 2002 13:28:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265177AbSLFSZR>; Fri, 6 Dec 2002 13:25:17 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:34679 "EHLO
-	mail.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S265169AbSLFSZR>; Fri, 6 Dec 2002 13:25:17 -0500
-Message-ID: <3DF1FF71.6040300@blue-labs.org>
-Date: Sat, 07 Dec 2002 09:02:25 -0500
-From: David Ford <david+powerix@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Pavel Machek <pavel@suse.cz>, Eric Altendorf <EricAltendorf@orst.edu>,
-       Jochen Hein <jochen@jochen.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       andrew.grover@intel.com
-Subject: Re: [2.5.50, ACPI] link error
-References: <E18Ix71-0003ik-00@gswi1164.jochen.org> <200212031007.01782.EricAltendorf@orst.edu> <87znrn3q92.fsf@gswi1164.jochen.org> <200212031247.07284.EricAltendorf@orst.edu> <20021205173145.GB731@elf.ucw.cz> <3DEFD17D.4090809@pobox.com> <20021205222431.GB7396@atrey.karlin.mff.cuni.cz> <3DEFD2CE.4070805@pobox.com>
-In-Reply-To: <3DEFD2CE.4070805@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265369AbSLFS2d>; Fri, 6 Dec 2002 13:28:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21777 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265321AbSLFS2c>;
+	Fri, 6 Dec 2002 13:28:32 -0500
+Date: Fri, 6 Dec 2002 18:36:09 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: adam@yggdrasil.com, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org, willy@debian.org
+Subject: Re: [RFC] generic device DMA implementation
+Message-ID: <20021206183609.D16341@parcelfarce.linux.theplanet.co.uk>
+References: <200212061619.IAA22144@baldur.yggdrasil.com> <20021206.101715.113691767.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021206.101715.113691767.davem@redhat.com>; from davem@redhat.com on Fri, Dec 06, 2002 at 10:17:15AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The odd part is that I must enable ACPI and SW SUSPEND to get things to 
-compile but then I have to turn around and put acpi=off in my boot 
-config because it still hangs my laptop (as well as IDE w/ DMA).
+On Fri, Dec 06, 2002 at 10:17:15AM -0800, David S. Miller wrote:
+> Specifically, it took years to get most developers confortable with
+> pci_alloc_consitent() and friends.  I totally fear that asking them to
+> now add cache flushing stuff to their drivers takes the complexity way
+> over the edge.
+> 
+> Willy, these PCXS/T processors sound like a newer cpu, do you mean to
+> tell me the caches are totally not coherent with device bus space?
+> 
+> Please elaborate, I want to learn more.
 
-So I find it a bit ironic :)
+Nono, these are _old_ machines, probably stopped production round about
+1995 or so.  We mentioned these briefly back in the original days of
+the pci_alloc_consistent interface discussions.  These machines cannot
+allocate uncached memory, nor can the peripherals snoop the CPU's cache
+(or vice versa).  As I indicated to Adam, there's a fairly limited range
+of devices available for these systems and there shouldn't be a huge
+problem converting the few drivers we need to these interfaces.
 
--d
-
-Jeff Garzik wrote:
-
-> Pavel Machek wrote:
->
->> Yes, there are about 10 patches to fix it floating around... I just
->> hope linus takes one of them. (Fix is make ACPI_SLEEP depend on
->> swsusp).
->
->
->
-> I haven't seen the patch, but does it make sense for hardware suspend 
-> to depend on software suspend?
->
-> IMO there should be a common core (CONFIG_SUSPEND?), not force ACPI to 
-> depend on swsusp.  That way you get the _least_ common denominator, 
-> not the union of two sets.
->
->     Jeff
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

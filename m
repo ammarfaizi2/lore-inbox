@@ -1,95 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVCVC0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVCVDeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262372AbVCVC0j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 21:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVCVCYx
+	id S262363AbVCVDeO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 22:34:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVCVDcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:24:53 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:32138 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262269AbVCVBeT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 20:34:19 -0500
-Message-Id: <20050322013454.430855000@abc>
-References: <20050322013427.919515000@abc>
-Date: Tue, 22 Mar 2005 02:23:34 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
+	Mon, 21 Mar 2005 22:32:20 -0500
+Received: from citi.umich.edu ([141.211.133.111]:31264 "EHLO citi.umich.edu")
+	by vger.kernel.org with ESMTP id S262306AbVCVClC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 21:41:02 -0500
+Message-ID: <423F85B9.3020406@citi.umich.edu>
+Date: Mon, 21 Mar 2005 21:40:57 -0500
+From: Chuck Lever <cel@citi.umich.edu>
+Reply-To: cel@citi.umich.edu
+Organization: Network Appliance, Inc.
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Disposition: inline; filename=dvb-frontend-fw-msg.patch
-X-SA-Exim-Connect-IP: 217.231.55.169
-Subject: [DVB patch 01/48] clarify firmware upload messages
-X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11 oops in skb_drop_fraglist
+References: <423097D5.30605@citi.umich.edu> <20050321162444.31c6c68d.akpm@osdl.org>
+In-Reply-To: <20050321162444.31c6c68d.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------090503080202090607040601"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-clarify firmware upload messages
+This is a multi-part message in MIME format.
+--------------090503080202090607040601
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
+Andrew Morton wrote:
+> Chuck Lever <cel@citi.umich.edu> wrote:
+> 
+>>testing NFS client workloads on a dual Pentium-III system running 2.6.11 
+>>with some NFS patches.  i hit this oops while doing simple-minded ftps 
+>>and tars.
+>>
+>>the system locks up once or twice a day under this workload.  this is 
+>>the first time i had the console and captured the oops output.
+>>
+> 
+> 
+> Chuck, I didn't see any followup to this.  Is it still happening in current
+> kernels?
 
- nxt2002.c  |    3 ++-
- tda1004x.c |    6 ++++--
- 2 files changed, 6 insertions(+), 3 deletions(-)
+i have not been able to reproduce it with the aforementioned NFS patches 
+removed.  i'm now convinced it was a bug in one of the NFS patches i had 
+applied, even though none of them come near the fraglist stuff, but i 
+haven't had a chance to nail it down.
 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/nxt2002.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/nxt2002.c	2005-03-21 23:27:59.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/nxt2002.c	2005-03-22 00:14:18.000000000 +0100
-@@ -520,7 +520,7 @@ static int nxt2002_init(struct dvb_front
- 
- 	if (!state->initialised) {
- 		/* request the firmware, this will block until someone uploads it */
--		printk("nxt2002: Waiting for firmware upload...\n");
-+		printk("nxt2002: Waiting for firmware upload (%s)...\n", NXT2002_DEFAULT_FIRMWARE);
- 		ret = state->config->request_firmware(fe, &fw, NXT2002_DEFAULT_FIRMWARE);
- 		printk("nxt2002: Waiting for firmware upload(2)...\n");
- 		if (ret) {
-@@ -534,6 +534,7 @@ static int nxt2002_init(struct dvb_front
- 			release_firmware(fw);
- 			return ret;
- 		}
-+		printk("nxt2002: firmware upload complete\n");
- 
- 		/* Put the micro into reset */
- 		nxt2002_microcontroller_stop(state);
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/tda1004x.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/tda1004x.c	2005-03-21 23:27:59.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/tda1004x.c	2005-03-22 00:14:18.000000000 +0100
-@@ -353,7 +353,7 @@ static int tda10045_fwupload(struct dvb_
- 	if (tda1004x_check_upload_ok(state, 0x2c) == 0) return 0;
- 
- 	/* request the firmware, this will block until someone uploads it */
--	printk("tda1004x: waiting for firmware upload...\n");
-+	printk("tda1004x: waiting for firmware upload (%s)...\n", TDA10045_DEFAULT_FIRMWARE);
- 	ret = state->config->request_firmware(fe, &fw, TDA10045_DEFAULT_FIRMWARE);
- 	if (ret) {
- 		printk("tda1004x: no firmware upload (timeout or file not found?)\n");
-@@ -372,6 +372,7 @@ static int tda10045_fwupload(struct dvb_
- 	ret = tda1004x_do_upload(state, fw->data, fw->size, TDA10045H_FWPAGE, TDA10045H_CODE_IN);
- 	if (ret)
- 		return ret;
-+	printk("tda1004x: firmware upload complete\n");
- 
- 	/* wait for DSP to initialise */
- 	/* DSPREADY doesn't seem to work on the TDA10045H */
-@@ -396,7 +397,7 @@ static int tda10046_fwupload(struct dvb_
- 	if (tda1004x_check_upload_ok(state, 0x20) == 0) return 0;
- 
- 	/* request the firmware, this will block until someone uploads it */
--	printk("tda1004x: waiting for firmware upload...\n");
-+	printk("tda1004x: waiting for firmware upload (%s)...\n", TDA10046_DEFAULT_FIRMWARE);
- 	ret = state->config->request_firmware(fe, &fw, TDA10046_DEFAULT_FIRMWARE);
- 	if (ret) {
- 		printk("tda1004x: no firmware upload (timeout or file not found?)\n");
-@@ -414,6 +415,7 @@ static int tda10046_fwupload(struct dvb_
- 	ret = tda1004x_do_upload(state, fw->data, fw->size, TDA10046H_CODE_CPT, TDA10046H_CODE_IN);
- 	if (ret)
- 		return ret;
-+	printk("tda1004x: firmware upload complete\n");
- 
- 	/* wait for DSP to initialise */
- 	timeout = jiffies + HZ;
+i had implemented a patch to cause the RPC client to reuse the port 
+number when reconnecting to the server after the server drops the 
+connection... this is a standard practice for other RPC implementations. 
+  i suspect it was that patch that was causing the trouble.
 
---
+thanks for the follow-up!
 
+--------------090503080202090607040601
+Content-Type: text/x-vcard; charset=utf-8;
+ name="cel.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="cel.vcf"
+
+begin:vcard
+fn:Chuck Lever
+n:Lever;Charles
+org:Network Appliance, Incorporated;Linux NFS Client Development
+adr:535 West William Street, Suite 3100;;Center for Information Technology Integration;Ann Arbor;MI;48103-4943;USA
+email;internet:cel@citi.umich.edu
+title:Member of Technical Staff
+tel;work:+1 734 763-4415
+tel;fax:+1 734 763 4434
+tel;home:+1 734 668-1089
+x-mozilla-html:FALSE
+url:http://www.monkey.org/~cel/
+version:2.1
+end:vcard
+
+
+--------------090503080202090607040601--

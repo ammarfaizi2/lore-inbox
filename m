@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbTGGWsT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 18:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTGGWsT
+	id S264075AbTGGWvg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 18:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbTGGWvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 18:48:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41396 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261808AbTGGWsS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 18:48:18 -0400
-Message-ID: <3F09FC12.4070609@pobox.com>
-Date: Mon, 07 Jul 2003 19:02:42 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Mon, 7 Jul 2003 18:51:36 -0400
+Received: from maila.telia.com ([194.22.194.231]:28643 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id S264075AbTGGWvf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 18:51:35 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+References: <m2smqhqk4k.fsf@p4.localdomain> <20030615001905.A27084@ucw.cz>
+	<m2he6rv8i6.fsf@telia.com> <20030615142838.A3291@ucw.cz>
+	<m2of0zqr4i.fsf@telia.com> <20030615192731.A6972@ucw.cz>
+	<m2d6hbgdhw.fsf@telia.com>
+	<pan.2003.06.23.16.30.42.431561@dungeon.inka.de>
+	<m2isqwr4yh.fsf@telia.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 08 Jul 2003 01:06:03 +0200
+In-Reply-To: <m2isqwr4yh.fsf@telia.com>
+Message-ID: <m265meszs4.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] new quota code
-References: <200307072105.h67L50ir024592@hera.kernel.org>
-In-Reply-To: <200307072105.h67L50ir024592@hera.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> ChangeSet 1.1059, 2003/07/07 17:01:15-03:00, hch@lst.de
+Peter Osterlund <petero2@telia.com> writes:
+
+> Andreas Jellinghaus <aj@dungeon.inka.de> writes:
 > 
-> 	[PATCH] new quota code
-> 	
-> 	Okay, here's the quota patch.  Basically all changes are from Jan Kara
-> 	and I backport them from 2.5.  The 32bit quota code has been shipped
-> 	by the commercial vendors ever since they used Linux 2.4 and this
-> 	particular codebase with backwards compatiblity support is around
-> 	in the 2.5, the XFS tree, -ac and -aa for a long time.  The only
-> 	change over that version is that support for the old 16bit quota
-> 	format and the old quotactl ABI is enabled unconditionally, i.e.
-> 	there's no way to render your system unusable by wrong make config
-> 	choices [1].
-> 	
-> 	[1] This also mean completely dropping support for the interim ABI
-> 	used in the early 32bit quota patches as it's mutally incompatible
-> 	to the old ABI.  But we never ever shipped that in any mainline kernels
-> 	so there's no problem.
+> > a bigger problem is: X froze once, but I could login via network and
+> > kill -9 it. No idea why, there is nothing special in the log file.
+> 
+> I've seen X freeze too. I'll debug it, but it will have to wait a week
+> until I get back from my vacation.
 
+I think this bug is fixed in version 0.11.3p5, which is available from
+the usual place:
 
-"no problem" being defined here as "multiple vendors shipped it but I 
-don't care", right?
+        http://w1.894.telia.com/~u89404340/touchpad/index.html
 
-Why do we need a third (fourth?) 2.4 quota abi/api floating around?
-
-	Jeff
-
-
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

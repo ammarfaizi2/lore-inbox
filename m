@@ -1,77 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVBMBFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVBMBJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVBMBFa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 20:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVBMBFa
+	id S261228AbVBMBJq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 20:09:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVBMBJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 20:05:30 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:1946 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261227AbVBMBFW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 20:05:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=HsydXXo19O1l29t853/vWAhr4bNxCPYZOVfuva6LCzrI4jZKKfWKs0D5flSYDPFmn6hgeN8AHTe4oW9Slrcke9TDM8S/JhlK0rwQ/d+hnujkIhinrTpZ2hKI0HTdy0tcTgOmWyaXUcFn3MpnyUU7sZbA+Jeo0P19Vvv0JzxDDGc=
-Message-ID: <5a4c581d0502121705276972a@mail.gmail.com>
-Date: Sun, 13 Feb 2005 02:05:21 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: 2.6.11-rc3-bk9 (radeon) hangs hard my laptop
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1108293146.6700.10.camel@gaston>
+	Sat, 12 Feb 2005 20:09:46 -0500
+Received: from run.smurf.noris.de ([192.109.102.41]:35976 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S261228AbVBMBJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 20:09:36 -0500
+From: "Matthias Urlichs" <smurf@smurf.noris.de>
+Date: Sun, 13 Feb 2005 02:07:58 +0100
+To: george@mvista.com, linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH][2.6-mm] kgdb documentation fix
+Message-ID: <20050213010758.GA15159@kiste>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <5a4c581d0502120649423a2504@mail.gmail.com>
-	 <5a4c581d05021207593fae0c93@mail.gmail.com>
-	 <5a4c581d050212135716fa6a17@mail.gmail.com>
-	 <1108291975.6698.7.camel@gaston>
-	 <5a4c581d05021216095ec00bf9@mail.gmail.com>
-	 <1108293146.6700.10.camel@gaston>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+X-Smurf-Spam-Score: -2.5 (--)
+X-Smurf-Whitelist: +relay_from_hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Feb 2005 22:12:26 +1100, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> On Sun, 2005-02-13 at 01:09 +0100, Alessandro Suardi wrote:
-> > On Sun, 13 Feb 2005 21:52:55 +1100, Benjamin Herrenschmidt
-> > <benh@kernel.crashing.org> wrote:
-> > >
-> > > > It's definitely the new radeon changes - replacing
-> > > >  drivers/video/aty/* and include/video/radeon.h in the
-> > > >  -bk9 tree with the ones from -bk8 causes the hang to
-> > > >  not reproduce anymore. CC'd Ben and edited subject
-> > > >  to more accurately reflect the issue.
-> > >
-> > > Grrr...
-> > >
-> > > Can you try booting with radeonfb.default_dynclk=-1 and if it doesn't
-> > > help, radeonfb.default_dynclk=0 on the kernel command line ?
-> >
-> > I'm currently booted with -bk9 with default_dynclk = -1 :)
-> 
-> Excellent. You can help me track it down then. Can you look at
-> radeon_pm.c, function
-> 
-> radeon_pm_enable_dynamic_mode()
-> 
-> The code for your chip is after the comment "/* Others */" (the M7 is an
-> RV200 chip). Can you comment out the various bits in there and see if
-> you can locate which one is causing your problem ?
 
-Commenting out pllCLK_PWRMGT_CNTL alone -> still hangs
-Commenting out pllCLK_PIN_CNTL in addition -> works
- 
-Do you want me to build a kernel with only the pllCLK_PIN_CNTL
- instruction commented out or is this enough info ?
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
+Hi,
 
---alessandro
+Please apply.
 
-  "There is no distance that I don't see
-  I do have a will - No limit to my reach"
-  
-    (Wallflowers, "Empire In My Mind")
+---=20
+
+Update Documentation/i386/kgdb/gdbinit-modules to conform
+to the current kernel's module data structure.
+
+Signed-Off-By: Matthias Urlichs <smurf@smurf.noris.de>
+
+---=20
+
+=3D=3D=3D=3D=3D Documentation/i386/kgdb/gdbinit-modules 1.1 vs edited =3D=
+=3D=3D=3D=3D
+--- 1.1/Documentation/i386/kgdb/gdbinit-modules	2005-02-12 12:44:54 +01:00
++++ edited/Documentation/i386/kgdb/gdbinit-modules	2005-02-12 20:12:45 +01:=
+00
+@@ -60,87 +60,90 @@
+ # $mod is set to NULL.  This ensure to not add symbols for a wrong
+ # address.
+ #
++#=20
++# Sat Feb 12 20:05:47 CET 2005
++#
++# Adapted to the 2.6.* module data structure.
++# (Getting miffed at gdb for not having "offsetof" in the process :-/ )
++#=20
++# Autogenerate add-symbol-file statements from the module list instead
++# of relying on a no-longer-working loadmodule.sh program.
++#=20
++#                                   Matthias Urlichs <smurf@debian.org>
++#
++#
+ # Have a nice hacking day !
+ #
+ #
+ define mod-list
+-    set $mod =3D (struct module*)module_list
+-    # the last module is the kernel, ignore it
+-    while $mod !=3D &kernel_module
+-    	printf "%p\t%s\n", (long)$mod, ($mod)->name
+-	set $mod =3D $mod->next
++    set $lmod =3D modules->next
++    # This is a circular data structure
++    while $lmod !=3D &modules
++		set $mod =3D (struct module *)(((char *)$lmod) - ((int)&(((struct module=
+ *)0) -> list)))
++        printf "%p\t%s\n", $mod, $mod->name
++		set $lmod =3D $lmod->next
+     end
+ end
+ document mod-list
++mod-list
+ List all modules in the form: <module-address> <module-name>
+ Use the <module-address> as the argument for the other
+ mod-commands: mod-print-symbols, mod-add-symbols.
+ end
+=20
++define mod-list-syms
++    set $lmod =3D modules->next
++    # This is a circular data structure
++    while $lmod !=3D &modules
++		set $mod =3D (struct module *)(((char *)$lmod) - ((int)&(((struct module=
+ *)0) -> list)))
++        printf "add-symbol-file %s.ko %p\n", $mod->name, $mod->module_core
++		set $lmod =3D $lmod->next
++    end
++end
++document mod-list-syms
++mod-list-syms
++List all modules in the form: add-symbol-file <module-path> <module-core>
++for adding modules' symbol tables without loadmodule.sh.
++end
++
+ define mod-validate
+-    set $mod =3D (struct module*)module_list
+-    while ($mod !=3D $arg0) && ($mod !=3D &kernel_module)
+-    	set $mod =3D $mod->next
++    set $lmod =3D modules->next
++	set $mod =3D (struct module *)(((char *)$lmod) - ((int)&(((struct module =
+*)0) -> list)))
++    while ($lmod !=3D &modules) && ($mod !=3D $arg0)
++        set $lmod =3D $lmod->next
++	    set $mod =3D (struct module *)(((char *)$lmod) - ((int)&(((struct mod=
+ule *)0) -> list)))
+     end
+-    if $mod =3D=3D &kernel_module
+-	set $mod =3D 0
+-    	printf "%p is not a module\n", $arg0
++    if $lmod =3D=3D &modules
++    	set $mod =3D 0
++        printf "%p is not a module\n", $arg0
+     end
+ end
+ document mod-validate
+ mod-validate <module-address>
+ Internal user-command used to validate the module parameter.
+-If <module> is a real loaded module, set $mod to it otherwise set $mod to =
+0.
++If <module> is a real loaded module, set $mod to it, otherwise set $mod
++to 0.
+ end
+=20
+-
+ define mod-print-symbols
+     mod-validate $arg0
+     if $mod !=3D 0
+-	set $i =3D 0
+-	while $i < $mod->nsyms
+-	    set $sym =3D $mod->syms[$i]
+-	    printf "%p\t%s\n", $sym->value, $sym->name
+-	    set $i =3D $i + 1
+-	end
++		set $i =3D 0
++		while $i < $mod->num_syms
++			set $sym =3D $mod->syms[$i]
++			printf "%p\t%s\n", $sym->value, $sym->name
++			set $i =3D $i + 1
++		end
++		set $i =3D 0
++		while $i < $mod->num_gpl_syms
++			set $sym =3D $mod->gpl_syms[$i]
++			printf "%p\t%s\n", $sym->value, $sym->name
++			set $i =3D $i + 1
++		end
+     end
+ end
+ document mod-print-symbols
+ mod-print-symbols <module-address>
+-Print all exported symbols of the module.  see mod-list
+-end
+-
+-
+-define mod-add-symbols-align
+-    mod-validate $arg0
+-    if $mod !=3D 0
+-	set $mod_base =3D ($mod->size_of_struct + (long)$mod)
+-	if ($arg2 !=3D 0) && (($mod_base & ($arg2 - 1)) !=3D 0)
+-	    set $mod_base =3D ($mod_base | ($arg2 - 1)) + 1
+-	end
+-	add-symbol-file $arg1 $mod_base
+-    end
+-end
+-document mod-add-symbols-align
+-mod-add-symbols-align <module-address> <object file path name> <align>
+-Load the symbols table of the module from the object file where
+-first section aligment is <align>.
+-To retreive alignment, use `objdump -h <object file path name>'.
++Print all exported symbols of the module.  See mod-list
+ end
+=20
+-define mod-add-symbols
+-    mod-add-symbols-align $arg0 $arg1 sizeof(long)
+-end
+-document mod-add-symbols
+-mod-add-symbols <module-address> <object file path name>
+-Load the symbols table of the module from the object file.
+-Default alignment is 4.  See mod-add-symbols-align.
+-end
+-
+-define mod-add-lis
+-    mod-add-symbols-align $arg0 /usr/src/LiS/streams.o 16
+-end
+-document mod-add-lis
+-mod-add-lis <module-address>
+-Does mod-add-symbols <module-address> /usr/src/LiS/streams.o
+-end
+
+--=20
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+
+--ikeVEW9yuYc//A+q
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCDqhu8+hUANcKr/kRAh0YAKCEeXSwiG1rd/nH4Zm7IwggSR86JwCZAQhW
+CGQZqmjGWrlaSIIGKZBEMLg=
+=b6QT
+-----END PGP SIGNATURE-----
+
+--ikeVEW9yuYc//A+q--

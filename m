@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAFDEM>; Fri, 5 Jan 2001 22:04:12 -0500
+	id <S129324AbRAFDGn>; Fri, 5 Jan 2001 22:06:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbRAFDED>; Fri, 5 Jan 2001 22:04:03 -0500
-Received: from ferret.phonewave.net ([208.138.51.183]:38671 "EHLO
+	id <S129846AbRAFDGe>; Fri, 5 Jan 2001 22:06:34 -0500
+Received: from ferret.phonewave.net ([208.138.51.183]:40463 "EHLO
 	tarot.mentasm.org") by vger.kernel.org with ESMTP
-	id <S129324AbRAFDDv>; Fri, 5 Jan 2001 22:03:51 -0500
-Date: Fri, 5 Jan 2001 19:03:48 -0800
-To: linux-kernel@vger.kernel.org
-Subject: Re: usb + smp + apollo pro 133a + 2.4.0 = still broken
-Message-ID: <20010105190348.A14712@ferret.phonewave.net>
-In-Reply-To: <20010105125006.B1569@tesla.admin.cto.netsol.com>
+	id <S129406AbRAFDG1>; Fri, 5 Jan 2001 22:06:27 -0500
+Date: Fri, 5 Jan 2001 19:06:10 -0800
+To: "Michael D. Crawford" <crawford@goingware.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to Power off with ACPI/APM?
+Message-ID: <20010105190610.B14712@ferret.phonewave.net>
+In-Reply-To: <3A560FDA.ABB3EF08@goingware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010105125006.B1569@tesla.admin.cto.netsol.com>; from pete@research.netsol.com on Fri, Jan 05, 2001 at 12:50:07PM -0500
+In-Reply-To: <3A560FDA.ABB3EF08@goingware.com>; from crawford@goingware.com on Fri, Jan 05, 2001 at 06:18:02PM +0000
 From: idalton@ferret.phonewave.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2001 at 12:50:07PM -0500, Pete Toscano wrote:
-> just a heads up that usb in smp-enabled 2.4.0 kernels running on
-> machines with the via apollo pro 133a chipset is still broken.  the last
-> word i heard was that it's a pci irq routing problem.  smp and usb will
-> play together pretty nicely if you disable apic (ie. "noapic" to lilo).
+On Fri, Jan 05, 2001 at 06:18:02PM +0000, Michael D. Crawford wrote:
+> > Silly question, but have you realized that you don't have to enable 
+> > SMP in kernel to do multithreading ? 
 > 
-> i'm more than willing to help test patches and provide any more info to
-> people working on this, but i lack the low-level knowledge to actually
-> fix it.
+> Lest anyone think me completely clueless, yes, I'm well aware of that.  It's
+> just that I wanted to have that warm fuzzy feeling the comes from pretending I
+> had the cash to buy a dual processor machine when I bought this PC.
+> 
+> I had planned too, but my laptop died and I needed a new box in a hurry so I had
+> to get what I could get.  It's a decent motherboard though, for being single
+> processor.
+> 
+> On the other hand, I did identify that you can't power off with smp enabled
+> unless (as someone helpfully posted) you give this parameter in lilo or grub:
+> 
+> apm=power-off
+> 
+> While the SMP config option says APM doesn't work if you have SMP enabled (so I
+> should have known), it would be helpful to mention that you can still power off
+> this way.
 
-I have a Triton II SMP board (two P200 MMX) that has the same
-problem. I'm also willing to test still.
+It would be even more helpful to make this into a kernel configuration
+option dependant on the SMP setting (disable APM configuration, and ask
+'Power off machine on shutdown?' instead).
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

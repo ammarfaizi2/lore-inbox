@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbULUOkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbULUOkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbULUOkh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 09:40:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbULUOke
+	id S261763AbULUOkq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 09:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbULUOkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 09:40:34 -0500
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:45711 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S261763AbULUOka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 09:40:30 -0500
-Date: Tue, 21 Dec 2004 15:39:54 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: James Pearson <james-p@moving-picture.com>
-Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Reducing inode cache usage on 2.4?
-Message-ID: <20041221143954.GK2143@dualathlon.random>
-References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com> <20041217172104.00da3517.akpm@osdl.org> <20041220192046.GM4630@dualathlon.random> <41C80A04.9070504@moving-picture.com> <20041221132255.GI2143@dualathlon.random> <41C82C2A.9060301@moving-picture.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C82C2A.9060301@moving-picture.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Tue, 21 Dec 2004 09:40:46 -0500
+Received: from mrout3.yahoo.com ([216.145.54.173]:12474 "EHLO mrout3.yahoo.com")
+	by vger.kernel.org with ESMTP id S261763AbULUOkh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 09:40:37 -0500
+Message-ID: <41C835C7.2010203@gmail.com>
+Date: Tue, 21 Dec 2004 20:10:07 +0530
+From: Arun C Murthy <acmurthy@gmail.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: at_fork & at_exit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 21, 2004 at 01:59:06PM +0000, James Pearson wrote:
-> I've changed the value of vm_mapped_ratio to 20 - which has a default 
-> value of 100 - I guess you're talking about vm_cache_scan_ratio?
+Hi,
 
-yes, I was talking about vm_cache_scan_ratio, you can combine the two
-sysctl together just fine.
+Im looking for linux equivalent of the FreeBSD calls:
 
-> I've tried changing just vm_cache_scan_ratio to 20, but it doesn't seem 
-> to make any difference - I though a higher vm_cache_scan_ratio value 
-> meant less is scanned?
+1. at_fork
 
-The less pages are scanned, the more likely you won't free enough
-pagecache, the more likely you'll shrink dcache/icache.
+     typedef void
+     (*forklist_fn)(struct proc *, struct proc *, int);
 
-I see why vm_mapped_ratio makes most of the difference though and
-probably it's the easier fix for your problem (though increasing
-vm_cache_scan_ratio sure won't make things worse).
+     int at_fork(forklist_fn func);
+
+     The at_fork facility allows a kernel module to ensure that it is 
+notified at any process fork.  The function func is called with the a 
+pointer to the forking process's proc structure, a pointer to the 
+child's process structure and a flag word, as used in rfork(2) to 
+indicate the type of fork.
+
+     If the requirement for notification is removed, then the function 
+rm_at_fork() must be called with the exact func argument as the 
+corresponding call to at_fork().
+
+2. at_exit
+
+     typedef void (exitlist_fn) (struct proc *);
+
+     int at_exit(exitlist_fn func);
+
+     The at_exit facility allows a kernel module to ensure that it is 
+notified at any process exit.  The function func is called with the a 
+pointer to the exiting process's proc structure.
+
+
+
+  Specifically im on RHEL3... any pointers are appreciated...
+
+thanks,
+Arun
+

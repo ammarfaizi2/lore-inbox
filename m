@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbUKPOrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUKPOtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbUKPOrU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 09:47:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUKPOrU
+	id S261988AbUKPOtN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 09:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261995AbUKPOtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 09:47:20 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:44293 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261974AbUKPOrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 09:47:17 -0500
-Message-ID: <419A12DF.6010903@techsource.com>
-Date: Tue, 16 Nov 2004 09:46:55 -0500
-From: Timothy Miller <miller@techsource.com>
+	Tue, 16 Nov 2004 09:49:13 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:15795 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261988AbUKPOtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 09:49:07 -0500
+Date: Tue, 16 Nov 2004 15:48:56 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Fruhwirth Clemens <clemens@endorphin.org>
+cc: linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: GPL version, "at your option"?
+In-Reply-To: <1100614115.16127.16.camel@ghanima>
+Message-ID: <Pine.LNX.4.53.0411161547260.7946@gockel.physik3.uni-rostock.de>
+References: <1100614115.16127.16.camel@ghanima>
 MIME-Version: 1.0
-To: Roland Dreier <roland@topspin.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel Corp. 82801BA/BAM not supported by ALSA?
-References: <419914F9.7050509@techsource.com> <52is86lqur.fsf@topspin.com>	<41992C5C.9060201@techsource.com> <521xeulonk.fsf@topspin.com>
-In-Reply-To: <521xeulonk.fsf@topspin.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
-> This is the audio device:
-> 
->     > 0000:00:1f.5 Class 0401: 8086:2445 (rev 04)
-> 
-> and it looks like sound/pci/intel8x0.c should support it:
-> 
-> static struct pci_device_id snd_intel8x0_ids[] = {
-> 	/* ... */
-> 	{ 0x8086, 0x2445, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL },	/* 82801BA */
-> 
-> What happens when you load snd_intel8x0?
-> 
->  - Roland
-> 
-> 
+On Tue, 16 Nov 2004, Fruhwirth Clemens wrote:
 
-I had compiled it directly in the kernel.  Does it not work unless it's 
-a module?
+> I'm about to submit a patch for a new cipher mode called LRW, adding new
+> code/files to the crypto tree. My question is, especially to the
+> maintainers: Are you going to accept code covered by the terms:
+> 
+>  * This program is free software; you can redistribute it and/or modify
+>  * it under the terms of the GNU General Public License as published by
+>  * the Free Software Foundation, version 2 of the License.
 
+There are several occurences in the kernel already doing exactly that.
+
+Tim

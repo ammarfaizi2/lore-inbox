@@ -1,86 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbUKFVkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbUKFVmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbUKFVkY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 16:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbUKFVkY
+	id S261481AbUKFVmG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 16:42:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUKFVmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 16:40:24 -0500
-Received: from danga.com ([66.150.15.140]:65204 "EHLO danga.com")
-	by vger.kernel.org with ESMTP id S261480AbUKFVkK (ORCPT
+	Sat, 6 Nov 2004 16:42:05 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:51215 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S261481AbUKFVl5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 16:40:10 -0500
-Date: Sat, 6 Nov 2004 13:40:09 -0800 (PST)
-From: Brad Fitzpatrick <brad@danga.com>
-X-X-Sender: bradfitz@danga.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: "dm-dirtytrack" target to assist w/ remote block device snapshots
-Message-ID: <Pine.LNX.4.58.0411061306300.25479@danga.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 6 Nov 2004 16:41:57 -0500
+Date: Sat, 6 Nov 2004 22:41:47 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: bloat
+Message-ID: <20041106214147.GA9663@pclin040.win.tue.nl>
+References: <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl> <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org> <20041106120716.GA9144@pclin040.win.tue.nl> <Pine.LNX.4.58.0411060922260.2223@ppc970.osdl.org> <20041106193605.GL1295@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041106193605.GL1295@stusta.de>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: CollegeOfNewCaledonia: mailhost.tue.nl 1189; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Working with highly available databases, I frequently have the need to
-snapshot multiple block devices on one machine onto identically sized
-block devices on another machine, and ideally without much/any downtime on
-the source machine.
+On Sat, Nov 06, 2004 at 08:36:08PM +0100, Adrian Bunk wrote:
 
-What I want to do is make a device mapper target that accepts netlink
-connections from userspace and for each connection, lets those connections
-"subscribe" to dirty notifications on 0 or more block devices, but
-otherwise just passes down read/reada/write requests down to the next
-layer.  On each write request, the kernel would maintain a list of dirty
-sectos/extends for each subscribed connection.
+> It's even harder because some subsystem maintainers refuse to remove 
+> unused global functions that might be used at some point far in the 
+> future or that even are never intended for in-kernel usage...
 
-Then a daemon in userspace can keep track of what the remote machine's
-already copied, and what's dirty.
+I have one or two unused functions inside #if 0 in sddr09.c.
+Finding out the proper hardware details was nontrivial,
+it would be a pity to throw the knowledge away.
+But of course there is never a reason to have an unused function
+appear in the binary. It is only source bloat.
 
-I imagine it working like:
-
-Machine S:  source machine, with live database
-Machine D:  destination machine, needing the data
-
-   -- run userspace daemon on S
-
-   -- machine D connects to daemon on S
-
-   -- daemon on S subscribes w/ netlink socket to dm-dirtytrack
-      each block device it's copying to D.
-
-   -- pass 1:  D copies the entire block devices, rate-limited
-      by the daemon on S based on plugins to the daemon
-      which monitor the load of the database.  (meanwhile the
-      daemon is reading from the netlink socket all the dirty
-      sectors/extents)
-
-   -- once D has a dirty snapshot, it then starts pass 2
-      and the daemon on S freezes the database, and sends
-      all the dirty regions to D, and unfreezes the database.
-      (presumably this step would be much faster, else
-       multiple dirty-gather passes could be done)
-
-I could just use dm-snapshot locally, and then sync from that (which is
-what we do now), but honestly I'm kinda just looking for a project, and
-there are a couple of minor advantages to my idea over a local snapshot:
-
-   -- don't need to reserve snapshot space on the source
-
-   -- our database (MySQL-InnoDB) has no way to freeze for a snapshot
-      short of stopping it, which takes time, boots clients, and kills
-      caches, and there's no way with dm-snapshot (I believe?) to do an
-      atomic snapshot over two block devices (our data block device and
-      the DB recovery logs on another)  so with the scheme above, we could
-      "freeze" the database by just putting it into read-only mode from
-      the application and while the data block device will continue to be
-      updated by whatever black magic InnoDB does every few seconds, it's
-      at a very low rate, and the syncer would be able to catch up.  then
-      we start up InnoDB on the slave and the database recovery does the
-      rest, once we have a consistent image between the data
-      blockdevice and logfile filesystem.
-
-Any comments on my sanity, whether this has been done already, and most
-importantly:  thoughts on what a proper design/interface would be?
-
-Thanks!
-
-- Brad
+Andries

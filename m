@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268704AbUIQLtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268709AbUIQL7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268704AbUIQLtj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 07:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268708AbUIQLti
+	id S268709AbUIQL7k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 07:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268710AbUIQL7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 07:49:38 -0400
-Received: from dpvc-162-83-93-166.fred.east.verizon.net ([162.83.93.166]:49038
-	"EHLO ccs.covici.com") by vger.kernel.org with ESMTP
-	id S268704AbUIQLth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 07:49:37 -0400
-MIME-Version: 1.0
+	Fri, 17 Sep 2004 07:59:40 -0400
+Received: from ozlabs.org ([203.10.76.45]:36518 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268709AbUIQL7i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 07:59:38 -0400
+Date: Fri, 17 Sep 2004 21:58:42 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Andrew Morton <akpm@osdl.org>, Stelian Pop <stelian@popies.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+Message-ID: <20040917115842.GJ2825@krispykreme>
+References: <16714.14118.212946.499226@wombat.chubb.wattle.id.au> <414A7A01.9080708@nortelnetworks.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16714.53061.907750.493001@ccs.covici.com>
-Date: Fri, 17 Sep 2004 07:49:25 -0400
-From: John covici <covici@ccs.covici.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: John Covici <covici@ccs.covici.com>, linux-kernel@vger.kernel.org
-Subject: Re: problems with multitech 4 port serial card under 2.4.x and 2.6.x
-In-Reply-To: <20040917103322.A21199@flint.arm.linux.org.uk>
-References: <m3656di76l.fsf@ccs.covici.com>
-	<20040917103322.A21199@flint.arm.linux.org.uk>
-X-Mailer: VM 7.17 under Emacs 21.3.50.2
-Reply-To: covici@ccs.covici.com
+Content-Disposition: inline
+In-Reply-To: <414A7A01.9080708@nortelnetworks.com>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found it in the changelog -- thanks much.  I wonder why the board
-would freak out the apic stuff?
 
-on Friday 09/17/2004 Russell King(rmk+lkml@arm.linux.org.uk) wrote
- > On Fri, Sep 17, 2004 at 05:19:30AM -0400, John Covici wrote:
- > > I have had problems with the multitech 4 port serial card under both
- > > the 2.4 and the 2.6 Linux kernels.
- > 
- > You don't say which 2.6 kernel.  Support for these UARTs has only
- > recently been merged - you'll find it in 2.6.9-rc2 kernels.
- > 
- > Unfortunately I don't recall if it's in 2.6.9-rc1 or not.
- > 
- > -- 
- > Russell King
- >  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- >  maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
- >                  2.6 Serial core
+> I did a similar test once for ppc that found that an increment followed by 
+> a test (marked unlikely) was actually quicker in practice than modulo 
+> arithmetic. The branch predictor got it right most of the time, so the 
+>  test was almost free.
 
--- 
-         John Covici
-         covici@ccs.covici.com
+Yep x % y where y isnt constant could result in a divide which will blow
+away 60+ cycles on some ppc machines. You can do a whole lot in those 60
+cycles. Many memcpys for example :)
+
+We removed all modulo arithmetic in the e1000 driver (replaced it with
+if (x > y) x = 0) and managed to measure an improvement. 
+
+Anton

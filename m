@@ -1,42 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314486AbSEHPtf>; Wed, 8 May 2002 11:49:35 -0400
+	id <S314500AbSEHP6Q>; Wed, 8 May 2002 11:58:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314492AbSEHPte>; Wed, 8 May 2002 11:49:34 -0400
-Received: from ns.suse.de ([213.95.15.193]:30215 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314486AbSEHPtc>;
-	Wed, 8 May 2002 11:49:32 -0400
-Date: Wed, 8 May 2002 17:49:25 +0200
-From: Andi Kleen <ak@suse.de>
-To: Dave Engebretsen <engebret@vnet.ibm.com>
-Cc: justincarlson@cmu.edu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, anton@samba.org, davidm@hpl.hp.com,
-        ak@suse.de
-Subject: Re: Memory Barrier Definitions
-Message-ID: <20020508174924.A32610@wotan.suse.de>
-In-Reply-To: <E175BY8-0008S4-00@the-village.bc.nu> <1020809750.13627.24.camel@gs256.sp.cs.cmu.edu> <3CD89247.8ECB01A4@vnet.ibm.com> <3CD943CE.296717DF@vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S314502AbSEHP6P>; Wed, 8 May 2002 11:58:15 -0400
+Received: from dsl-213-023-043-141.arcor-ip.net ([213.23.43.141]:60632 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314500AbSEHP6P>;
+	Wed, 8 May 2002 11:58:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Date: Wed, 8 May 2002 17:57:50 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0205062053050.32715-100000@serv>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E175Tp9-0003ny-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 08, 2002 at 10:27:10AM -0500, Dave Engebretsen wrote:
-> I am curious what the definition of memory barriers is for IA64, Sparc,
-> and x86-64.  
+On Monday 06 May 2002 21:07, Roman Zippel wrote:
+> Hi,
 > 
-> >From what I can tell, sparc and x86-64 are like alpha and map directly
-> to the existing mb, wmb, and rmb semantics, incluing ordering between
-> system memory and I/O space.  Is that an accurate assesment?
+> On Mon, 6 May 2002, Daniel Phillips wrote:
+> 
+> > I don't, I observed that in all known instances of config_discontigmem, 
+> > that linear relationship is preserved.
+> 
+> That's true, but m68k isn't using config_discontigmem. :)
 
-I don't think it is true for alpha, but it is true
-for x86-64. x86-64 by default has strong ordering for most loads/stores.
-It is possible to use weak ordering for special marked stores. For that
-there are special read and write and read/write barriers which apply
-to all memory (not distinction between io space and other memory). In 
-addition there is a way to mark special memory areas as write combining and
-some other settings, but that is ordered by the normal barriers too.
+Right.  In fact, your two way, phys_to_virt and virt_to_phys mapping makes it 
+more like config_nonlinear.  You don't define the contiguous logical memory 
+space though, and perhaps that's the reason you need the free_area_init 
+changes in the patch below.
 
--Andi
+Your patch preserves a linear relationship between physical and virtual 
+memory, because you do both the ptov and vtop lookup in the same array.  As
+such, you don't provide the functionality I provide of being able to fit a
+large amount of physical memory into a small amount of virtual memory, and
+you can't join all your separate pgdat's into one, as I do.  (The latter is 
+desireable because it allows the memory manager to allocate from one 
+homogeneous space, reducing the likelihood of zone balancing problems.)
 
+We could, if we want, implement your variable sized memory chunk system with
+config_nonlinear. You'd just have to replace the
+
+    ulong psection[MAX_SECTIONS]
+
+with:
+
+    struct { ulong base; ulong size; } pchunk[MAX_CHUNKS];
+
+and replace the four direct table lookup with loops.  Highmem does not need
+to be a special case, by the way.  Another by the way: you've accidently
+repeated the last four lines of mm_vtop.  Finally, it looks like your 
+ZTWO_VADDR hack in mm_ptov would also cease to be a special case, at least,
+the special case part would move to the initialization instead of every __va
+operation.  So you would end up with *zero* special cases in the page 
+translation functions of page.h.
+
+> ...you only have to take care, that you don't iterate
+> with the physical address over a pgdat, this is what the patch below
+> fixes, the rest can be hidden in the arch macros and no special config
+> options is needed.
+
+You do have a config option, it's CONFIG_SINGLE_MEMORY_CHUNK.  You just didn't
+attempt to create the contiguous logical address space as I did, so you 
+didn't need to go outside your arch.
+
+The generic part of config_nonlinear is tiny anyway - only 200 lines, and 
+might grow to 400 by the time all device driver usage of __pa is reclassified 
+as either virt_to_phys or virt_to_logical - the latter being a rather nice 
+distinction to make, even if the mapping is the same don't you think?  I.e, 
+it's like the distinction between pointer and integer: if it's a physical 
+address you can pass it to dma hardware, for example and if it's logical 
+you're just using it for accounting.
+
+Whenever it's possible to elevate a per-arch feature to the generic level
+without compromising functionality, it should be done, modulo programmer 
+time, and of course, assuming functionality isn't compromised.  At 
+the generic level, it's easier to document, we get cross-pollination from 
+improvements developed on different arches, and it's easier to build on.  
+Going the other way and allowing design features to fray across architectures 
+takes us in the direction of unmaintainable bloat.
+
+-- 
+Daniel

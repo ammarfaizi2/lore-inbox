@@ -1,78 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129671AbQJ2WDS>; Sun, 29 Oct 2000 17:03:18 -0500
+	id <S129825AbQJ2WFT>; Sun, 29 Oct 2000 17:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129787AbQJ2WC7>; Sun, 29 Oct 2000 17:02:59 -0500
-Received: from getafix.lostland.net ([216.29.29.27]:22313 "EHLO
-	getafix.lostland.net") by vger.kernel.org with ESMTP
-	id <S129671AbQJ2WCs>; Sun, 29 Oct 2000 17:02:48 -0500
-Date: Sun, 29 Oct 2000 17:02:47 -0500 (EST)
-From: adrian <jimbud@lostland.net>
-To: linux-kernel@vger.kernel.org
-Subject: Oops with v2.2.18-pre18
-Message-ID: <Pine.BSO.4.21.0010291650510.3803-100000@getafix.lostland.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129787AbQJ2WFI>; Sun, 29 Oct 2000 17:05:08 -0500
+Received: from mnh-1-06.mv.com ([207.22.10.38]:64004 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S129825AbQJ2WEy>;
+	Sun, 29 Oct 2000 17:04:54 -0500
+Message-Id: <200010292312.SAA02001@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: viro@math.psu.edu, torvalds@transmeta.com (Linus Torvalds),
+        paulus@linuxcare.com.au (Paul Mackerras), linux-kernel@vger.kernel.org
+Subject: Re: page->mapping == 0 
+In-Reply-To: Your message of "Sun, 29 Oct 2000 20:32:00 GMT."
+             <E13pz7a-0006JY-00@the-village.bc.nu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 29 Oct 2000 18:12:00 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+alan@lxorguk.ukuu.org.uk said:
+> Well the ptrace one still has mysteriously breaks usermode linux
+> against it on my list here. Was that ever explained. It looked like
+> the stack got corrupted which is weird.
 
-Hello folks,
+If this is the test8 "turn off ORIG_EAX if EIP is changed" fix, it apparently 
+also broke a couple of other ptrace-intensive things which aren't coming to 
+mind (Andi Kleen noticed them).
 
-   I've mainly been testing the 2.4.0-test kernels, but I decided to go
-ahead and test the 2.2.18-pre18 for a bit of variety.  I hadn't noticed
-any problems until I recompiled it without USB support.  After doing a
-make modules, I got the following:
+AFAIK, it was never explained.  Something would change its victim's EIP and 
+the victim would segfault as soon as it was continued.
 
-Unable to handle kernel paging request at virtual address bb6c8f1e
-current->tss.cr3 = 0cac9000, %cr3 = 0cac9000
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c013050c>]
-EFLAGS: 00010283
-eax: cff9bb50   ebx: bb6c8f06   ecx: 0000001e   edx: cff80000
-esi: 0067bf11   edi: c5521023   ebp: bb6c8f1e   esp: cca59f40
-ds: 0018   es: 0018   ss: 0018
-Process make (pid: 3749, process nr: 63, stackpage=cca59000)
-Stack: c5521023 00000001 cff9bb50 c552101e 0067bf11 00000005 c012b508 cb9f7a40 
-       cca59f88 cca59f88 c012b783 cb9f7a40 cca59f88 00000001 c5521000 c5521000 
-       bfffde44 bfffdd8c c552101e 00000005 0067bf11 c012b880 c5521000 cb9f7a40 
-Call Trace: [<c012b508>] [<c012b783>] [<c012b880>] [<c012993e>] [<c0109044>] 
-Code: 8b 6d 00 8b 74 24 18 39 73 48 75 58 8b 74 24 24 39 73 0c 75 
-
->>EIP; c013050c <d_lookup+64/dc>   <=====
-Trace; c012b508 <cached_lookup+10/54>
-Trace; c012b783 <lookup_dentry+113/1e8>
-Trace; c012b880 <__namei+28/58>
-Trace; c012993e <sys_newstat+e/60>
-Trace; c0109044 <system_call+34/38>
-Code;  c013050c <d_lookup+64/dc>
-00000000 <_EIP>:
-Code;  c013050c <d_lookup+64/dc>   <=====
-   0:   8b 6d 00                  mov    0x0(%ebp),%ebp   <=====
-Code;  c013050f <d_lookup+67/dc>
-   3:   8b 74 24 18               mov    0x18(%esp,1),%esi
-Code;  c0130513 <d_lookup+6b/dc>
-   7:   39 73 48                  cmp    %esi,0x48(%ebx)
-Code;  c0130516 <d_lookup+6e/dc>
-   a:   75 58                     jne    64 <_EIP+0x64> c0130570 <d_lookup+c8/dc>
-Code;  c0130518 <d_lookup+70/dc>
-   c:   8b 74 24 24               mov    0x24(%esp,1),%esi
-Code;  c013051c <d_lookup+74/dc>
-  10:   39 73 0c                  cmp    %esi,0xc(%ebx)
-Code;  c013051f <d_lookup+77/dc>
-  13:   75 00                     jne    15 <_EIP+0x15> c0130521 <d_lookup+79/dc>
-
-
-Up until I started the recompile, I had run several tests (start up a
-vmware session, run quake3, etc.) all of which gave no errors or
-indications of instability.  Now, having vmware loaded might render this
-moot, but I wanted to throw it out in case it would trigger any
-lightbulbs.
-
-Regards,
-Adrian
+				Jeff
 
 
 -

@@ -1,86 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267392AbSKQLOz>; Sun, 17 Nov 2002 06:14:55 -0500
+	id <S267489AbSKQLRR>; Sun, 17 Nov 2002 06:17:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267409AbSKQLOz>; Sun, 17 Nov 2002 06:14:55 -0500
-Received: from 2-103.ctame701-2.telepar.net.br ([200.181.170.103]:26380 "EHLO
-	brinquendo.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S267392AbSKQLOy>; Sun, 17 Nov 2002 06:14:54 -0500
-Date: Sun, 17 Nov 2002 09:21:37 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+	id <S267490AbSKQLRR>; Sun, 17 Nov 2002 06:17:17 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:27282 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S267489AbSKQLRP>;
+	Sun, 17 Nov 2002 06:17:15 -0500
+Date: Sun, 17 Nov 2002 13:40:38 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pci_hotplug_core: fix up header file cleanups
-Message-ID: <20021117112137.GA28051@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+Cc: linux-kernel@vger.kernel.org, Luca Barbieri <ldb@ldb.ods.org>
+Subject: [patch] threading fix, tid-2.5.47-A3
+Message-ID: <Pine.LNX.4.44.0211171314200.7001-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-	Please pull from:
+the attached patch (against BK-curr) implements another threading related
+detail, it changes the way TID setting/clearing works. These changes fix a
+weakness of NPTL's handling of the "initial thread", noticed by Luca
+Barbieri.
 
-master.kernel.org:/home/acme/BK/includes-2.5
+the problem is the following: the 'initial thread', ie. the 'process',
+does not have any ->user_tid value set. But still it's a generic thread
+that can be pthread_join()-ed upon. (but pthread_join() does not work, the
+kernel does not do the futex wakeup because ->user_tid is NULL.)
 
-	In this tree there will be several similar changesets.
+the solution is to add a new syscall that sets the current->user_tid
+address. This new syscall is used by glibc's exec() implementation.  
+Another change is to make CLONE_SETTID work even if CLONE_VM is not used.
+This means that the TID must be set in the child's address space, not in
+the parent's address space. I've also merged SETTID and CLEARTID, the two
+should always be used together by any new-style threading abstraction.
 
-- Arnaldo
+the sys_set_tid_address() syscall returns the current TID, which is used
+by glibc to set the TID address in the parent's context. (this is cheaper
+than to do a put_user() in kernel-space.)
 
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
+to implement the above semantics i've used the schedule_tail() callback to
+do the TID setting in the child's context - doing it a'la
+ptrace_writedata() / access_process_vm() would be way too expensive. It
+looks a bit ugly to do the TID setting both in schedule_tail() and
+do_fork(), and to do the CLONE_VM check, but the correct (and generic)  
+solution
 
-===================================================================
+In future glibc versions every process and thread will have a nonzero
+user_tid address, so the callback is necessary.
 
+Ulrich Drepper has changed glibc/NPTL to use these new semantics and the
+initial thread now works fine. Also, i've compressed the CLONE flags to
+remove the CLONE_CLEARTID hole, since NPTL is the only one using them
+currently.
 
-ChangeSet@1.851, 2002-11-17 09:19:14-02:00, acme@conectiva.com.br
-  Fix up after header file cleanups: add <linux/mount.h> to
-  pci_hotplug_core that got it implicitly before.
+(the patch has no effect on old-style threading libraries.)
 
+	Ingo
 
- pci_hotplug_core.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-diff -Nru a/drivers/hotplug/pci_hotplug_core.c b/drivers/hotplug/pci_hotplug_core.c
---- a/drivers/hotplug/pci_hotplug_core.c	Sun Nov 17 09:20:20 2002
-+++ b/drivers/hotplug/pci_hotplug_core.c	Sun Nov 17 09:20:20 2002
-@@ -36,6 +36,7 @@
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
- #include <linux/init.h>
-+#include <linux/mount.h>
- #include <linux/namei.h>
- #include <linux/pci.h>
- #include <linux/dnotify.h>
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.851
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch19258
-M'XL(`'1[UST``^6476O;,!2&KZ-?<2"7(_8YMA1_L)2LW2<=+&3TNBBR')O:
-MEK'EK`7_^"I922$+K!UC-[..9?"QCM^C]T%3N.EUETZDJC6;PF?3VW2B3*.5
-M+7?24Z;V-IU+K(UQ";\PM?8OK_VR4=60Z7X6>(*Y]$I:5<!.=WTZ(2\\OK$/
-MK4XGZP^?;KZ^6S.V6,!5(9NM_JXM+!;,FFXGJZQ?2EM4IO%L)YN^UO;PX_'X
-MZ1@@!FX(BD(4\Y'FR*-1448D.>D,`Q[/.=OWL#S5?E*%B"),!(9BQ"1*B+T'
-M\F)!@(%/Y%,$F*3D@L\P2!'A;%%X0S!#=@E_MX$KIN!C>0]#"S*WNH-"R\P]
-M\K+2H"HMFZ'M4Y!9!F^KLAGN_=H,C?6*"R?$K6U5>5L8VU;#]E:93H,MI(6M
-ML5"ZJ-NJ5*6M'F"C<Y?UV#40<I&PU;,K;/;*BS&4R"Z@W?M]?ANRKMR3X3])
-M\T]E>NJX/P&&01B/&"+R4<H@#T449Y0'F[G*SWOQTO)[Y]V=$(X\BA)^H/'W
-M:_>8_H/>V+;3V^5=9V3QJKJ)FQU+G(]<B%`<<`[$+S3C?T'S3U^_P:S[<0A'
-JY^H%%O\!\U_"&(A-GX[!4_W/)Z(JM+KKAWH1)6&6B)C8(RH<TZ=Q!0``
-`
-end

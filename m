@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264376AbTDKPNR (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 11:13:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTDKPNR (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 11:13:17 -0400
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:11500 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id S264376AbTDKPNQ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 11:13:16 -0400
-Date: Fri, 11 Apr 2003 17:34:59 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel hcking
-Message-ID: <20030411153459.GD25862@wind.cocodriloo.com>
-References: <20030411170709.A33459@freebsdcluster.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S264374AbTDKPUx (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 11:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTDKPUx (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 11:20:53 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:60893 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S264374AbTDKPUx (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 11:20:53 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Walt H <waltabbyh@comcast.net>
+Subject: Re: 2.4.20-ck5
+Date: Sat, 12 Apr 2003 01:34:14 +1000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <3E96D711.70404@comcast.net> <200304120101.32423.kernel@kolivas.org> <3E96D9B5.5060704@comcast.net>
+In-Reply-To: <3E96D9B5.5060704@comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030411170709.A33459@freebsdcluster.dk>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200304120134.14883.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 05:07:09PM +0200, Vikram Rangnekar wrote:
-> 
-> I'm a kernel newbie and just wanted to know what do most kernel hackers do
-> when working on the kernel say 2.5 when you make changes do u need to
-> recompile the kernel and reboot the machine to test your small modification
-> or do people use something like bochs. Also every time you makes changes in
-> the kernel it must be hell to recompile the whole thing do kernel hackers
-> just compile the specific file and link it into the kernel or something. Some
-> of these will be stupid questions to most of you but I am curious since I've
-> been working on the kernel lately and recompiling and rebooting is driving me
-> nuts
+On Sat, 12 Apr 2003 01:05, Walt H wrote:
+> Con Kolivas wrote:
+> > XFS must be responsible. I can't test it fully myself but it appears to
+> > be related to the latest xfs update I've included in -ck5 which is a
+> > snapshot from the sgi website only a week old. Until further notice, use
+> > ck4 if you wish to use XFS.
+> >
+> > Thanks for the feedback.
+> >
+> > Con
+>
+> Thanks Con. Now that I think about it, I probably should've cc'd the xfs
+> list. There was some work done on memory leaks in XFS recently -
+> something in here must expose additional leaks. Thanks again,
 
-I'm also newbie at actually coding on the kernel, and I've
-been using user-mode-linux to try my patches... it's easy and clean,
-just make a very small config so that the initial compile is
-also fast.
+Ok I've posted the old xfs patch (1.2pre5) on my website which is known to 
+work with -ck*. So if you wish to use xfs and ck5 please use the separated 
+out patches.
 
-Then, when you are doing incremental compiling, just do a
-"make -j linux", this is very fast when you are not recompiling
-all .o files since the makefile checks the last-modified date
-for the .c files.
-
-For maximum performance, also use ccache with (very important) the
-cache directory on the same filesystem than the compile directory.
-I keep a "compile" directory and a "ccache" directory at the same
-level.
-
-When testing with user-mode-linux, you can simply type
-./linux and the new kernel boots in your terminal. If
-you want to boot a real machine, I suggest you get a
-second computer and boot it by loading the kernel off
-the net, using tftp protocol.
-
-Ping me if you want some more help at this last issue.
-
-Greets and have fun!
-
-Antonio.
-
-
+Con

@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129807AbQLUC5U>; Wed, 20 Dec 2000 21:57:20 -0500
+	id <S130202AbQLUDIX>; Wed, 20 Dec 2000 22:08:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130127AbQLUC5K>; Wed, 20 Dec 2000 21:57:10 -0500
-Received: from mauve.demon.co.uk ([158.152.209.66]:35845 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129807AbQLUC4x>; Wed, 20 Dec 2000 21:56:53 -0500
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200012210226.CAA20107@mauve.demon.co.uk>
-Subject: Laptop system clock slow after suspend to disk. (2.4.0-test9/hinote VP)
-To: linux-kernel@vger.kernel.org
-Date: Thu, 21 Dec 2000 02:26:12 +0000 (GMT)
-In-Reply-To: <E148tqH-0002JQ-00@the-village.bc.nu> from "Alan Cox" at Dec 21, 2000 12:44:19 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130874AbQLUDIM>; Wed, 20 Dec 2000 22:08:12 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:25147 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S130202AbQLUDHy>; Wed, 20 Dec 2000 22:07:54 -0500
+Message-ID: <3A416CDE.3BC88A45@holly-springs.nc.us>
+Date: Wed, 20 Dec 2000 21:37:18 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Michael H. Warfield" <mhw@wittsend.com>, linux-kernel@vger.kernel.org
+Subject: Re: iptables: "stateful inspection?"
+In-Reply-To: <E148tqH-0002JQ-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've not noticed this on earlier kernel versions, is there something
-silly I'm missing that's making my DEC hinote VP (p100 laptop)s 
-system clock slow by a factor of five or so after resume?
-Not the CPU or cmos clock, only the system clock.
-Thoughts welcome.
+Alan Cox wrote:
 
+> There have been at least five holes found in pile that _could_ have been
+> [speech]
+> safe is the day you end up hurt.
+
+Your specific example of an executable (windows) attachment, not buffer
+overflows, etc. what what I was replying to. In general, you are
+correct. Now, how about including that procfs cleanup patch that I sent,
+and maybe the 64-bit printk patch? :)
+
+-M
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

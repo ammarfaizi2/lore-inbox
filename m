@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272366AbTHECKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 22:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272371AbTHECKZ
+	id S272332AbTHECFg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 22:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272361AbTHECFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 22:10:25 -0400
-Received: from pop.gmx.de ([213.165.64.20]:57743 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S272366AbTHECKZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 22:10:25 -0400
-Message-ID: <3F2F11EA.68E127A8@gmx.de>
-Date: Tue, 05 Aug 2003 04:09:46 +0200
-From: Edgar Toernig <froese@gmx.de>
+	Mon, 4 Aug 2003 22:05:36 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:25242
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272332AbTHECFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 22:05:30 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Charlie Baylis <cb-lkml@fish.zetnet.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O12.2int for interactivity
+Date: Tue, 5 Aug 2003 12:10:42 +1000
+User-Agent: KMail/1.5.3
+References: <20030804195058.GA8267@cray.fish.zetnet.co.uk>
+In-Reply-To: <20030804195058.GA8267@cray.fish.zetnet.co.uk>
 MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: Randolph Bentson <bentson@holmsjoen.com>, jesse@cats-chateau.net,
-       aebr@win.tue.nl, linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-		<03080409334500.03650@tabby>
-		<20030804170506.11426617.skraw@ithnet.com>
-		<03080416092800.04444@tabby>
-		<20030805003210.2c7f75f6.skraw@ithnet.com>
-		<20030804160009.B3751@grieg.holmsjoen.com> <20030805021046.06008535.skraw@ithnet.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308051210.42779.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
+On Tue, 5 Aug 2003 05:50, Charlie Baylis wrote:
+> > I tried them aggressively; irman2 and thud don't hurt here. The idle
+> > detection limits both of them from gaining too much sleep_avg while
+> > waiting around and they dont get better dynamic priority than 17.
 >
-> The setup you describe is exactly the reason why I suggested elsewhere (in a
-> private discussion) to single-link all directory entries pointing to the same
-> directory in a list. In case of deletion of the "main" entry, the "main" simply
-> can walk on to the next (former) hardlink, if there are any left the tree is
-> deleted completely. That's it.
+> Sounds like you've taken the teeth out of the thud program :) The original
+> aim was to demonstrate what happens when a maximally interactive task
+> suddenly becomes a CPU hog - similar to a web browser starting to render
+> and causing intense X activity in the process. Stopping thud getting
+> maximum priority is addressing the symptom, not the cause. (That's not to
+> say the idle detection is a bad idea - but it's not the complete answer)
 
-Amiga-FFS challenged? ;-)
+It was a side effect that it helped this particular issue. The idle detection 
+was based around helping real world scenarios and it just happened to help.
+
+> the idea is to do a little bit of work so that the idle detection doesn't
+> kick in and thud can reach the max interactive bonus. (I haven't tried your
+> patch yet to see if this change achieves this)
+
+Good call; I was quite aware this is the most effective way to create a fork 
+bomb with my patch, but it's effect while being noticably worse than the 
+original thud is still not disastrous. Yes I do appreciate variations on the 
+theme can be made worse again; I'm doing some testing and experimenting there 
+to see how best to tackle it.
+
+Con
+

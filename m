@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290969AbSBGAGM>; Wed, 6 Feb 2002 19:06:12 -0500
+	id <S290967AbSBGAGM>; Wed, 6 Feb 2002 19:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290966AbSBGAGC>; Wed, 6 Feb 2002 19:06:02 -0500
-Received: from smtpinterno.wanadoo.es ([62.37.236.140]:26798 "EHLO
-	smtp.wanadoo.es") by vger.kernel.org with ESMTP id <S290967AbSBGAFy> convert rfc822-to-8bit;
-	Wed, 6 Feb 2002 19:05:54 -0500
-Date: Thu,  7 Feb 2002 01:06:44 +0100
-Message-Id: <GR4YZ8$IaNaxbYS7pHDy2KXFL5wNL4Sbf6iJS4Wb@wanadoo.es>
+	id <S290969AbSBGAGC>; Wed, 6 Feb 2002 19:06:02 -0500
+Received: from smtpinterno.wanadoo.es ([62.37.236.140]:25774 "EHLO
+	smtp.wanadoo.es") by vger.kernel.org with ESMTP id <S290966AbSBGAFw> convert rfc822-to-8bit;
+	Wed, 6 Feb 2002 19:05:52 -0500
+Date: Thu,  7 Feb 2002 01:06:42 +0100
+Message-Id: <GR4YZ6$IaNaxbYS7pHDy2KXFL5wNL4Sbf6iJS4Wb@wanadoo.es>
 Subject: Kernel hotplug
 MIME-Version: 1.0
 X-Priority: 1 (Highest)

@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314663AbSD1Bmz>; Sat, 27 Apr 2002 21:42:55 -0400
+	id <S314657AbSD1BqG>; Sat, 27 Apr 2002 21:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314657AbSD1Bmy>; Sat, 27 Apr 2002 21:42:54 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34054 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314663AbSD1Bmx>; Sat, 27 Apr 2002 21:42:53 -0400
-Subject: Re: The tainted message
-To: rthrapp@sbcglobal.net (Richard Thrapp)
-Date: Sun, 28 Apr 2002 03:00:56 +0100 (BST)
-Cc: kaos@ocs.com.au (Keith Owens), alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <1019957228.8818.109.camel@wizard> from "Richard Thrapp" at Apr 27, 2002 08:27:07 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S314658AbSD1BqF>; Sat, 27 Apr 2002 21:46:05 -0400
+Received: from ip68-6-153-107.sd.sd.cox.net ([68.6.153.107]:36430 "EHLO
+	train.sweet-haven.com") by vger.kernel.org with ESMTP
+	id <S314657AbSD1BqE>; Sat, 27 Apr 2002 21:46:04 -0400
+Date: Sat, 27 Apr 2002 18:45:42 -0700 (PDT)
+From: Lew Wolfgang <wolfgang@sweet-haven.com>
+To: Bob Tanner <tanner@real-time.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: Dual (2) AMD ATHLON MP 1900+ CPUs gives APIC error on
+ CPU[0]: 00(02)
+In-Reply-To: <20020426213315.K25965@real-time.com>
+Message-ID: <Pine.LNX.4.33.0204271835390.32014-100000@train.sweet-haven.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E171dzk-0001HW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I get sick and tired of maintainers who solicit opinions and then refuse
-> to listen to the answers they get back, even when people who know what
-> they are doing agree... even when the majority agrees.  I've seen it
+Hi Bob,
 
-Keith listened, and disagreed then proposed an alternative. Its his
-package, its his business to do that. 
+I had the same problem with a Tyan S2466N, except that
+the system didn't crash.  It would intermittently
+throw off these non-fatal APIC errors.  Using 2.4.18 I
+was able to trigger an error storm just by running an
+fft benchmark.
 
-> At the very least, -please- change the verb tense of the message to be
-> correct.  That will at least eliminate the "module doesn't load" bug
-> reports (I hope).
+The problem seems to have been fixed by upgrading the
+ROM BIOS to the most recent (beta) version.
 
-That bit does want fixing to be less confusing either way
+Regards,
+Lew Wolfgang
+
+On Fri, 26 Apr 2002, Bob Tanner wrote:
+
+> [1.] One line summary of the problem:
+> Dual (2) AMD ATHLON MP 1900+ CPUs gives APIC error on CPU[0]: 00(02)
+>
+> [2.] Full description of the problem/report:
+>
+> Dual (2) AMD ATHLON MP 1900+ CPUs
+> ASUA7M266D Motherboard
+> 2 sticks of  Corsair CM72SD512R-2100 (1Gb RAM)
+>
+> When booting SMP-Kernels version 2.4.7, 2.4.9, 2.4.18 the box hangs with the
+> following error:
+>
+> APIC error on CPU1: 00(02)
+> APIC error on CPU0: 00(02)
+>
+
+<snip>
+

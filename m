@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266224AbSLSVfu>; Thu, 19 Dec 2002 16:35:50 -0500
+	id <S266246AbSLSVj0>; Thu, 19 Dec 2002 16:39:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266233AbSLSVfu>; Thu, 19 Dec 2002 16:35:50 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:2314 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266224AbSLSVfu>;
-	Thu, 19 Dec 2002 16:35:50 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212192155.gBJLtV6k003254@darkstar.example.net>
-Subject: Re: Dedicated kernel bug database
-To: rddunlap@osdl.org (Randy.Dunlap)
-Date: Thu, 19 Dec 2002 21:55:31 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0212191330120.30841-100000@dragon.pdx.osdl.net> from "Randy.Dunlap" at Dec 19, 2002 01:32:57 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S266250AbSLSVjY>; Thu, 19 Dec 2002 16:39:24 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:21460 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S266246AbSLSVjW>; Thu, 19 Dec 2002 16:39:22 -0500
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A5C6@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Frank van de Pol'" <fvdpol@home.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: 2.5.52: PDC20268 failure - ACPI to blame !!!
+Date: Thu, 19 Dec 2002 13:47:07 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> | > I'm not trying to discourage you - just raising a potential gotcha.
-> |
-> | Overall, though, would you rather be presented with a list of
-> | categories, or a list of people and what parts of the code they
-> | maintain.  Personally, I think that a list of people is more
-> | intuitive, rather than an abstract list of categories, but I could be
-> | wrong.
+> From: Frank van de Pol [mailto:fvdpol@home.nl] 
+> 2.5.52 with ACPI - Failure, IRQ troubles wrong IRQ assigned 
+> for promise
+>                    boards, lockup of box during boot
+> 2.5.52 no ACPI   - OK !!!
 > 
-> Do we have anyone targeted for interrupt routing problems (PIC, IO APIC,
-> ACPI, etc.)?
+> What information do I need to provide to fix this problem?
 
-No.  I nominate Alan :-).
+It's a known, relatively common problem... if you're willing, ping me next
+year and we can try to work through things.
 
-OK, I see your point, but no bug system will ever be perfect.  Does
-that mean there is no point in trying to make a better one?  If
-everybody really thinks it's a waste of time, I won't bother.  It just
-seemed to me that we need something less generic than Bugzilla.  Maybe
-I am wrong, I don't know.
+Regards -- Andy
 
-John.
+PS the GOOD news is that this appears to be one of the last big bugs in
+ACPI! (yay) <knock on wood>

@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129601AbRAPR7A>; Tue, 16 Jan 2001 12:59:00 -0500
+	id <S129562AbRAPSIw>; Tue, 16 Jan 2001 13:08:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129805AbRAPR6u>; Tue, 16 Jan 2001 12:58:50 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:27779 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129601AbRAPR62>; Tue, 16 Jan 2001 12:58:28 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95195@ATL_MS1> 
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95195@ATL_MS1> 
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-Cc: "'Bryan Henderson'" <hbryan@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux not adhering to BIOS Drive boot order? 
-Mime-Version: 1.0
+	id <S129805AbRAPSIn>; Tue, 16 Jan 2001 13:08:43 -0500
+Received: from cmr1.ash.ops.us.uu.net ([198.5.241.39]:27017 "EHLO
+	cmr1.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S129562AbRAPSI1>; Tue, 16 Jan 2001 13:08:27 -0500
+Message-ID: <3A648EC3.4B5D7763@uu.net>
+Date: Tue, 16 Jan 2001 13:11:15 -0500
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: APM, ACPI, WOL, Oh My!
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Jan 2001 17:58:11 +0000
-Message-ID: <12057.979667891@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is there something special that linux vendors do to make their machines
+power off when they are shutdown?  I've used both redhat and mandrake
+supplied 2.4.x SMP kernels, and all of them manage to turn off the
+machine when I shutdown.  I realize that apm is not supported in smp
+mode, but the have the option apm=poweroff in my lilo.conf and with the
+vendor supplied kernels it always works fine.  However, whenever I build
+by own SMP kernel, I cannot get it to power off.  I have tried just
+about every combination of apm options, but to no avail.  I've been
+building apm into the kernel rather than as a module.  I also tried with
+both apm and acpi, since some of the vendor kernels have had both
+enabled on them, but still to no avail.
 
-Venkateshr@ami.com said:
-> 	[Venkatesh Ramamurthy]  
+WOL (Wake on LAN) also ties into this.  I recently added a WOL ethernet
+card so I could wake my PC remotely.  It works fine, but there are some
+strange caveats...
 
-Your name is already in the headers of the mail you sent. There's no need to
-repeat it.
+If I shutdown in linux using a vender kernel with apm that powers off
+the machine, it powers off fine and stays off until I hit the power
+button or I send a wake up packet.  If I shutdown and power off using
+win98, or with the power button, the machine goes off, but will then
+preceed to reboot with in 3-4 minutes.  This is completely repeatable. 
+Turning it off manually during the reboot will not stop this.  If I turn
+it off manually after it turns itself on, it will continue to try and
+reboot itself every few minutes.  they only solution is to let linux
+boot and perform a shutdown and power off.  then it stays off. 
 
-> The LILO boot loader and the LILO command line utility should be changed
-> for this.
-> Is anybody doing this? -
+AFAIK, WOL is software independant.  The only thing I can figure it that
+it is somehow tied into apm or acpi and some state that the machine is
+left in after a shutdown.
 
-There are patches available for the 2.2 kernel which provide the facility 
-to mount by UUID or volume label. It seems that nobody is actively 
-maintaining those at the moment. If you want to update those to the current 
-2.2 and 2.4 kernels, well volunteered.
+Sorry if this is somewhat off topic.
 
---
-dwmw2
+Thanks,
 
-
+Alex
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

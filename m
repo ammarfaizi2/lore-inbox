@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbUCLU4t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 15:56:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUCLUyc
+	id S262519AbUCLUxY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 15:53:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUCLUxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 15:54:32 -0500
-Received: from pop.gmx.net ([213.165.64.20]:39883 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262521AbUCLUxZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 15:53:25 -0500
-X-Authenticated: #1226656
-Date: Fri, 12 Mar 2004 21:53:21 +0100
-From: Marc Giger <gigerstyle@gmx.ch>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4 on Alpha uninterruptible sleep of processes
-Message-Id: <20040312215321.1945a41e@hdg.gigerstyle.ch>
-In-Reply-To: <20040312224649.A750@den.park.msu.ru>
-References: <20040312154613.7567adab@hdg.gigerstyle.ch>
-	<20040312182754.A680@jurassic.park.msu.ru>
-	<20040312184115.B680@jurassic.park.msu.ru>
-	<20040312165907.626d4a08@hdg.gigerstyle.ch>
-	<20040312224649.A750@den.park.msu.ru>
-X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 12 Mar 2004 15:53:09 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:10256
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262508AbUCLUsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 15:48:21 -0500
+Date: Fri, 12 Mar 2004 21:49:02 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: anon_vma RFC2
+Message-ID: <20040312204902.GH30940@dualathlon.random>
+References: <20040312202741.GG30940@dualathlon.random> <Pine.LNX.4.44.0403121532060.6494-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0403121532060.6494-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Mar 2004 22:46:49 +0300
-Ivan Kokshaysky <ink@jurassic.park.msu.ru> wrote:
+On Fri, Mar 12, 2004 at 03:32:20PM -0500, Rik van Riel wrote:
+> That's not all anonymous memory, though ;)
 
-> On Fri, Mar 12, 2004 at 04:59:07PM +0100, Marc Giger wrote:
-> > Too late. Already applied, compiled and booted. Read your message
-> > and rebooted to 2.4:-)
-> 
-> Well, you can try the appended patch to see whether it's
-> a semaphore problem or not.
-> BTW, what alpha system do you have?
-
-Oh, it's an LX164 ev56 @ 533Mhz
+true, my point is it's feasible (cow or shared is the same from a memory
+footprint standpoint, actually less since anon_vmas are a lot cheaper
+than dummy shmfs inodes)

@@ -1,263 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263248AbTCUCiM>; Thu, 20 Mar 2003 21:38:12 -0500
+	id <S262895AbTCUDUv>; Thu, 20 Mar 2003 22:20:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263237AbTCUCiK>; Thu, 20 Mar 2003 21:38:10 -0500
-Received: from mail.casabyte.com ([209.63.254.226]:19474 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP
-	id <S263235AbTCUChI>; Thu, 20 Mar 2003 21:37:08 -0500
-From: "Robert White" <rwhite@casabyte.com>
-To: "Chris Fowler" <cfowler@outpostsentinel.com>
-Cc: "Cigol C" <linuxppp@indiainfo.com>, <EdV@macrolink.com>,
-       <linux-serial@vger.kernel.org>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: RS485 communication
-Date: Thu, 20 Mar 2003 18:48:03 -0800
-Message-ID: <PEEPIDHAKMCGHDBJLHKGCECCCEAA.rwhite@casabyte.com>
+	id <S262969AbTCUDUv>; Thu, 20 Mar 2003 22:20:51 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:44162 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262895AbTCUDUu>; Thu, 20 Mar 2003 22:20:50 -0500
+Date: Thu, 20 Mar 2003 19:31:45 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 478] New: reiserfs panics overnight during running cron jobs due to slab corruption.
+Message-ID: <15330000.1048217505@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <1048202272.1799.13.camel@hp.outpostsentinel.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-Importance: Normal
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Um... Chris' choice three was my choice 1 (if you go back through the thread
-to the long explanation.)
 
-Chris said the core of it better.  8-)
+http://bugme.osdl.org/show_bug.cgi?id=478
 
-But remember, this thing has to run on each slave, it has to run multiply on
-the master (or be multi-headed, with multiple ptys).  The protocol has to
-have targeting (addressing).  And some program/instance/something has to be
-the master/gatekeeper of who gets to talk when.  Making the "master" a
-slightly different program from the slaves, or requiring the binary to be
-very configurable in this regard.
-
-Rob.
-
------Original Message-----
-From: Chris Fowler [mailto:cfowler@outpostsentinel.com]
-Sent: Thursday, March 20, 2003 3:18 PM
-To: Robert White
-Cc: Cigol C; EdV@macrolink.com; linux-serial@vger.kernel.org;
-'linux-kernel'
-Subject: RE: RS485 communication
+           Summary: reiserfs panics overnight during running cron jobs due
+                    to slab corruption.
+    Kernel Version: 2.5.65
+            Status: NEW
+          Severity: blocking
+             Owner: reiserfs-dev@namesys.com
+         Submitter: davej@codemonkey.org.uk
 
 
-Choice 3.
+Box panics overnight during running cron jobs due to slab corruption.
 
-create a program that works like a ppp tunnetl through the internet.
-Instead ot using the tty of RS485 on the command line, use a pseudo
-tty.  Then write some nasty code that will read the master pseudo and
-send that pppd out the RS485 port via its own protocol.  so the pppd
-data will be burried in the protocol of the middle man that runs.
+Mar 20 06:41:07 mesh kernel: Unable to handle kernel paging request at virtual
+address 20b8c080
+Mar 20 06:41:07 mesh kernel:  printing eip:
+Mar 20 06:41:07 mesh kernel: c01538b4
+Mar 20 06:41:07 mesh kernel: *pde = 00000000
+Mar 20 06:41:07 mesh kernel: Oops: 0002
+Mar 20 06:41:07 mesh kernel: CPU:    0
+Mar 20 06:41:07 mesh kernel: EIP:    0060:[<c01538b4>]    Not tainted
+Mar 20 06:41:07 mesh kernel: EFLAGS: 00010012
+Mar 20 06:41:07 mesh kernel: EIP is at cache_flusharray+0x104/0x450
+Mar 20 06:41:07 mesh kernel: eax: c1eea020   ebx: 00000006   ecx: c49e621c  
+edx: 20b8c080
+Mar 20 06:41:07 mesh kernel: esi: c49e6000   edi: c11bd788   ebp: c11c3dc0  
+esp: c11c3d88
+Mar 20 06:41:07 mesh kernel: ds: 007b   es: 007b   ss: 0068
+Mar 20 06:41:07 mesh kernel: Process kswapd0 (pid: 6, threadinfo=c11c2000
+task=c11c1980)
+Mar 20 06:41:07 mesh kernel: Stack: c11d656c c6bb2000 c11c3e18 c11c2000 c05ac7c0
+00000800 c6129040 c11bd7a4
+Mar 20 06:41:07 mesh kernel:        c11bd794 c11d32f8 00000010 00000800 c1792040
+c179221c c11c3df0 c0154121
+Mar 20 06:41:07 mesh kernel:        c11bd788 c11d32e8 0000006b c1792000 c0280dfd
+c11d32e8 00000292 c1792254
+Mar 20 06:41:07 mesh kernel: Call Trace:
+Mar 20 06:41:07 mesh kernel:  [<c0154121>] kmem_cache_free+0x1f1/0x2c0
+Mar 20 06:41:07 mesh kernel:  [<c0280dfd>] reiserfs_destroy_inode+0x1d/0x30
+Mar 20 06:41:07 mesh kernel:  [<c0280dfd>] reiserfs_destroy_inode+0x1d/0x30
+Mar 20 06:41:07 mesh kernel:  [<c0194846>] destroy_inode+0x36/0x60
+Mar 20 06:41:07 mesh kernel:  [<c0194bfc>] dispose_list+0x4c/0x1f0
+Mar 20 06:41:07 mesh kernel:  [<c01952e0>] prune_icache+0x190/0x480
+Mar 20 06:41:07 mesh kernel:  [<c01955f8>] shrink_icache_memory+0x28/0x30
+Mar 20 06:41:07 mesh kernel:  [<c015724f>] shrink_slab+0x11f/0x170
+Mar 20 06:41:07 mesh kernel:  [<c0158d1e>] balance_pgdat+0x12e/0x180
+Mar 20 06:41:07 mesh kernel:  [<c0158e5d>] kswapd+0xed/0xf0
+Mar 20 06:41:07 mesh kernel:  [<c0124ad0>] autoremove_wake_function+0x0/0x50
+Mar 20 06:41:07 mesh kernel:  [<c010a2e6>] ret_from_fork+0x6/0x20
+Mar 20 06:41:07 mesh kernel:  [<c0124ad0>] autoremove_wake_function+0x0/0x50
+Mar 20 06:41:07 mesh kernel:  [<c0158d70>] kswapd+0x0/0xf0
+Mar 20 06:41:07 mesh kernel:  [<c01075fd>] kernel_thread_helper+0x5/0x18
+Mar 20 06:41:07 mesh kernel:
+Mar 20 06:41:07 mesh kernel: Code: 89 02 31 d2 8b 46 0c 29 c1 89 c8 f7 77 30 89
+c1 8b 46 14 89
+Mar 20 06:41:07 mesh kernel:  <6>note: kswapd0[6] exited with preempt_count 1
+Mar 20 06:41:07 mesh kernel: mm/slab.c:1647: spin_lock(mm/slab.c:c11bd7c8)
+already locked by mm/slab.c/1775
 
-Of course, ppp is point-to-point.  So  I'm not sure how you'll overcome
-that problem.  You'll have to pair up the clients to the server if you
-have multiple hosts on one RS485 line.  In other words, ppp is not pmp.
-point-to-mesh.  Its point A to point B.
-
-Chris
-
-On Thu, 2003-03-20 at 18:09, Robert White wrote:
-> I don't know if I answered this already...
->
-> No.
->
-> There is no "SOCK_PACKET" defined for the RS485 (serial) driver.  The
-users
-> comment about using SOCK_PACKET was made with respect to an Ethernet chip
-> (and by extension driver).  You DON't HAVE a socket call interface until
-you
-> have gotten the IP up and running via PPP or some such.
->
-> To do IP over RS485 you need to use PPP (or something similar).
->
-> Any PPP daemon (instance) talks to exactly one other PPP daemon.  No
-> exceptions.  "Point to Point Protocol".
->
-> RS485 with only two participants is nearly indistinguishable from RS232
-(as
-> far as an application space entity like pppd is concerned.)
->
-> If there are more than two participants on the RS485 bus then you need to
-> write something to run between the RS485 driver and the multiple pppd(s)
-to
-> make sure that the PPP daemons run in pairs and only see data intended for
-> one another.  (To the best of my knowledge) Nothing currently exists in
-the
-> commons that does this for you.  [I am sure someone has wrote this for
-some
-> purpose sometime, but I know of no source for it.]
->
-> No shortcuts.
-> No magic settings hiding somewhere in PPPd.
->
-> You have exactly two-point-two choices.
->
-> Choice 1:  Write a master/slaves arbiter and multiplexor.
->
-> Choice 1.1: find someone who already wrote one that exposes a nice bunch
-of
-> pty(s) to the application space.
->
-> Choice 2: Go buy hardware (c.f. an Ethernet card [or chip if you are
-> designing custom hardware])
->
-> Choice 2.1: put only two machines on any RS485 bus (e.g. buy one RS485
-port
-> per peer).
->
-> That's it.  Sorry... 8-)
->
-> Rob.
->
-> -----Original Message-----
-> From: Cigol C [mailto:linuxppp@indiainfo.com]
-> Sent: Sunday, March 16, 2003 9:42 PM
-> To: cfowler@outpostsentinel.com; rwhite@casabyte.com
-> Cc: EdV@macrolink.com; 'Linux PPP'; linux-serial@vger.kernel.org;
-> 'linux-kernel'
-> Subject: RE: RS485 communication
->
->
->
-> Thannks for the info. Can i acheive IP over RS485 if i use SOCK_PACKET. I
-> need some more info on this if u could provide that. If this option is set
-> in the socket call will i have an option the choose the hardware
-interface.
->
-> ----- Original Message -----
-> From: Chris Fowler
-> Date: 15 Mar 2003 10:42:53 -0500
-> To: Robert White
-> Subject: RE: RS485 communication
->
-> > I think using SOCK_PACKET an an ethernet chip may be the best choice.
-> > You can use IP or you can use RWP (Rober White Protocol).
-> >
-> >
-> > On Sat, 2003-03-15 at 03:07, Robert White wrote:
-> > > Yes, that, but that is only part of it.
-> > >
-> > > The RS485 is a proper bus, so this custom program (or programs) will
-> have to
-> > > act as full bus arbiters and a kind of router. Each PPP daemon must
-> receive
-> > > ONLY the data that its peer daemon transmits. That means that each
-slave
-> > > must know to ignore the data not destined for it. Further, the master,
-> > > which would have multiple PPP instances running on it, will need to
-> decide
-> > > which of those instances get which of the receiving bytes.
-> > >
-> > > So just like an Ethernet transceiver puts a protocol frame around the
-> data
-> > > to get it to the destination, the transport program will have to put
-> > > envelopes around the data. THEN the master transport program will tell
-> each
-> > > slave when and how many of its envelopes it may send. The only way
-that
-> can
-> > > work (because there is no "ring" you can't pass a "token") is for the
-> master
-> > > to ask each slave in turn: "Got anything to send?"
-> > >
-> > > This usually devolves to a sequence of "#1, say your piece", "#2 say
-> your
-> > > piece" etc. That is a very bad performance model.
-> > >
-> > > So every frame of data will need to be arbitrarily wide, meaning a
-> length
-> > > code, and will need an in-multiplexor address.
-> > >
-> > > So the master, for instance, will say "slave 1, go". The slave 1 will
-> send
-> > > a packet (not necessarily a PPP packet, as the multiplexor will have
-> > > overhead data etc.)
-> > >
-> > > The master will look at the address and decide which local pty the
-data
-> is
-> > > for and send it there. (Think a simple byte pump here)
-> > >
-> > > When that pty has response data, and when the master says "slave 0
-(e.g.
-> me)
-> > > go" it will frame a message that slave #1 will receive and put through
-> to
-> > > its local pty. Slave 1 also has the job of ignoring data for slaves 2
-> > > through N and the Master (Slave 0).
-> > >
-> > > In short, he has to write a distributed application that pumps data
-into
-> and
-> > > out of a broadcast medium, and makes sure that each participant gets
-> only
-> > > the data intended for itself. (This is what both the Ethernet hardware
-> > > layer, and the IP protocols do.)
-> > >
-> > > In communications you almost always put protocols inside of protocols
-to
-> > > some significant depth.
-> > >
-> > > For instance, when you play Unreal Tournament 2003:
-> > > Unreal Tournament's data is carried by UDP,
-> > > The UDP is carried by IP,
-> > > The IP is carried by the Ethernet hardware access layer (raw
-Ethernet),
-> > > Those packets may go to your cable modem which either wraps the
-Ethernet
-> > > hardware packets or decodes them and reencodes the IP into whatever it
-> > > does.
-> > >
-> > > >From there, if your cable modem is doing PPPoE there are even more
-> layers.
-> > >
-> > > This guy will only have to write a multiplexing layer, but it won't be
-> fun.
-> > >
-> > > Then again, the Ethernet people have done all that, which is why it is
-> > > cheaper and easier to just get the Ethernet hardware and use it.
-> > >
-> > > Rob.
-> > >
-> > > -----Original Message-----
-> > > From: Chris Fowler [mailto:cfowler@outpostsentinel.com]
-> > > Sent: Thursday, March 13, 2003 3:31 PM
-> > > To: Robert White
-> > > Cc: Ed Vance; 'Linux PPP'; linux-serial@vger.kernel.org;
-'linux-kernel'
-> > > Subject: RE: RS485 communication
-> > >
-> > >
-> > > Are you saying that for him to to use PPPD that he will have to write
-a
-> > > program that will run on a master and tell all the slave nodes when
-they
-> > > can transmit their data. In this case it would be ppp data. Hopfully
-> > > in block sizes that are at least the size of the MTU ppp is running.
-> > >
-> > > Chris
-> > >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-serial"
-in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at http://vger.kernel.org/majordomo-info.html
-> --
-> ______________________________________________
-> http://www.indiainfo.com
-> Now with POP3/SMTP access for only US$14.95/yr
->
-> Powered by Outblaze
-
+http://www.codemonkey.org.uk/cruft/oops.txt has the full log.
 

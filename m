@@ -1,72 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280800AbRKTAOj>; Mon, 19 Nov 2001 19:14:39 -0500
+	id <S280799AbRKTAPt>; Mon, 19 Nov 2001 19:15:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280801AbRKTAOT>; Mon, 19 Nov 2001 19:14:19 -0500
-Received: from adsl-63-194-247-216.dsl.lsan03.pacbell.net ([63.194.247.216]:31936
-	"EHLO www.vinyltribe.com") by vger.kernel.org with ESMTP
-	id <S280790AbRKTAN5>; Mon, 19 Nov 2001 19:13:57 -0500
-Date: Mon, 19 Nov 2001 16:16:18 -0800 (PST)
-From: Emiliano Garcia <emi@vinyltribe.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.4.14 breaks NVIDIA-1.0-1541 console switching
-In-Reply-To: <3BF99977.4090003@free.fr>
-Message-ID: <Pine.LNX.4.33.0111191603190.7908-100000@www.vinyltribe.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280804AbRKTAPl>; Mon, 19 Nov 2001 19:15:41 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:63504 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S280799AbRKTAPc>;
+	Mon, 19 Nov 2001 19:15:32 -0500
+Date: Mon, 19 Nov 2001 17:13:20 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] pcihpview 0.2
+Message-ID: <20011119171320.A2582@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+X-Message-Flag: Message text blocked: Unsuitable for Adults
+Reply-By: Tue, 23 Oct 2001 00:04:10 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Nov 2001, Lionel Bouton wrote:
+Hi all,
 
-> 
-> 
-> PVotruba@Chemoprojekt.cz wrote:
-> 
-> >Hi,
-> >Please try to be more specific. Do you use VGA textmode console or NVidia
-> >console framebuffer? I had also some freezes due to console framebuffer,
-> >after returning closing X - the command line never appeared again. Try to
-> >use only textmode console, NVidia framebuffer is currently in EXPERI-MENTAL
-> >state :)
-> >
-> Very experimental on my box, it broked hard the last time I tried (SMP 
-> 2.4.13-ac7) on my config :
-> lockup on first X -> fb console switch , SysRq worked for 
-> sync/umount/reboot, didn't tried blind "killall X" in initlevel 5 though 
-> (so X restart not tested).
-> If the maintainer wants some testing on a SMP with a Geforce2 MX, with 
-> every single partition reiserfs or ext3 mounted I can afford reboots now 
-> (130 GB on 4 IDE drives weren't especially fast to fsck)...
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Now that a number of people are actually using the PCI Hotplug driver in
+the kernel, I've received quite a few requests to enable the old GUI
+tools to work with the new file system interface.  Since my statements
+of "it's a filesystem, use the shell" fell on deaf ears, I hacked up a
+small gtk+ program called pcihpview.
 
+It can be found at:
+	http://www.kroah.com/linux/hotplug/pcihpview-0.2.tar.gz
 
-This is interesting, I've been having the same problem. However, in my 
-struggle to fix this blatant hang I've disabled my nvidia driver, 
-disabled glx, dri, and framebuffer, only to find that with the stock XFree 
-4.0.3 and 4.1.0 nv driver I can't logout halt, control-alt-backspace or 
-switch to a console without hanging the machine. No signs of what is 
-amiss, it hangs at a hardware level. Since I've removed the NVidia driver 
-I can safely say it's not the cause of the hang (at least in my case). I'm 
-going to try going back to a 2.4.3 or so kernel to see if that helps, that 
-is if my volume survives another few fscks without completely messing 
-everything up.
+More info on the program (but not much), and the obligatory screenshot
+can be found at:
+	http://www.kroah.com/linux/hotplug/
 
-I'm running an Athlon XP 1800+ with a geforce 2 pro ddr, AMD 761 
-northbridge chipset with VIA southbridge. Linux-2.4.15-pre6. Any knowledge 
-about this is greatly appreciated. 
+For those who just want to use a shell script, I've attached an example
+of one below (it's read only, pcihpview allows you to change values.)
 
-A week ago I was running a P3 1GHz with an 815 chipset, the same setup, 
-and it was ticking along perfectly. I have a feeling it's something to do 
-with this chipset, but like I said I'm not even loading agpgart now and it 
-still freezes.
+thanks,
 
-Symptom: halt, logout, or console switch hangs linux with a hard lock.
+greg k-h
 
+------------------cut here------------------------
+#!/bin/sh
+
+if [ $# != "1" ] ; then
+	echo
+	echo "Program to display the PCI Hotplug slot information"
+	echo "usage: $0 <directory>"
+	echo
+	exit 1
+fi
+
+DIR=$1
+cd $DIR
+echo "Slot	Adapter		Attention	Latch	Power"
+
+for SLOT in * ; do
+	cd $SLOT
+	TEMP=`cat adapter`
+	if [ $TEMP == 0 ]; then
+		ADAPTER="not present"
+	else
+		ADAPTER="present	"
+	fi
+
+	TEMP=`cat attention`
+	if [ $TEMP == 0 ]; then
+		ATTENTION="off"
+	else
+		ATTENTION="on"
+	fi
+
+	TEMP=`cat latch`
+	if [ $TEMP == 0 ]; then
+		LATCH="off"
+	else
+		LATCH="on"
+	fi
+
+	TEMP=`cat power`
+	if [ $TEMP == 0 ]; then
+		POWER="off"
+	else
+		POWER="on"
+	fi
+
+	echo "$SLOT	$ADAPTER	$ATTENTION		$LATCH	$POWER"
+	cd ..
+done
+
+	

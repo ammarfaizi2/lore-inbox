@@ -1,75 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292316AbSBPDNg>; Fri, 15 Feb 2002 22:13:36 -0500
+	id <S292323AbSBPDN0>; Fri, 15 Feb 2002 22:13:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292324AbSBPDN0>; Fri, 15 Feb 2002 22:13:26 -0500
+	id <S292343AbSBPDNR>; Fri, 15 Feb 2002 22:13:17 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:45247 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S292318AbSBPDNR>;
-	Fri, 15 Feb 2002 22:13:17 -0500
-X-Originating-IP: [12.251.86.8]
-From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
-To: "Larry McVoy" <lm@bitmover.com>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0202151803220.27197-100000@weyl.math.psu.edu> <OE58H4DpHUJLwVImmyy0000a1a8@hotmail.com> <20020215175948.F26554@work.bitmover.com>
+	by vger.kernel.org with ESMTP id <S292319AbSBPDND>;
+	Fri, 15 Feb 2002 22:13:03 -0500
+Date: Sat, 16 Feb 2002 03:11:12 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Disgusted with kbuild developers
-Date: Fri, 15 Feb 2002 20:08:38 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <OE25w8ONVJhuXbMxAnW000152d6@hotmail.com>
-X-OriginalArrivalTime: 16 Feb 2002 02:08:38.0682 (UTC) FILETIME=[D91667A0:01C1B68E]
+Message-ID: <20020216021112.GA23230@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020215145421.A12540@thyrsus.com> <20020215124255.F28735@work.bitmover.com> <20020215153953.D12540@thyrsus.com> <20020215221532.K27880@suse.de> <20020215155817.A14083@thyrsus.com> <200202152209.g1FM9PZ00855@vindaloo.ras.ucalgary.ca> <20020215165029.C14418@thyrsus.com> <20020215143807.L28735@work.bitmover.com> <20020215232312.GB12204@merlin.emma.line.org> <20020216002959.P27880@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020216002959.P27880@suse.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-again, if you all would spend 1/10th of your time helping as opposed to just
-slaming it, I'd be impressed.  CML2 makes a WORLD of difference for me
-personally.  But hey, what do I know?  I'm just a network administrator, I'm
-not a kernel wizard, so feel free to just totally disregard my opinions...
+On Sat, 16 Feb 2002, Dave Jones wrote:
 
------ Original Message -----
-From: "Larry McVoy" <lm@bitmover.com>
-To: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
-Cc: "Alexander Viro" <viro@math.psu.edu>; "Eric S. Raymond"
-<esr@thyrsus.com>; <linux-kernel@vger.kernel.org>
-Sent: Friday, February 15, 2002 7:59 PM
-Subject: Re: Disgusted with kbuild developers
+> On Sat, Feb 16, 2002 at 12:23:12AM +0100, Matthias Andree wrote:
+>  > Are you telling that kernel programmers don't rewrite code from scratch?
+>  > Is that a correct interpretation of "improve the existing system"? Note
+>  > that "it can't be done" can also imply "cannot reasonable be done".
+>  > Eric has done it, without being of kernel hacker temple's fame.
+> 
+>  The kernel hacker approach: Gradual change toward a predefined goal.
+>  The Eric approach: Rip out existing, replace with new.
+> 
+>  If Al Viro can rewrite the guts of the VFS without hardly anyone
+>  noticing any disturbance, and the configuration system can't be
+>  done this way, something is amiss.
 
+Not necessarily. If the gradual change infers intermediate functions
+that are not needed for a hard cut-over, it's no good to do all the
+extra work if the already-existing result is known to work. I'd
+certainly not drop CML1 from 2.4, but 2.5 is the time for changes.
 
-> On Fri, Feb 15, 2002 at 07:14:17PM -0600, William Scott Lockwood III
-wrote:
-> > Here's an idea Al:  Put up, or shut up.  Where's your code to replace
-CML1
-> > with?  I like Eric's system, and find it's MUCH more useful in a
-production
-> > environment than CML1 was.  Where's your replacement idea?
->
-> I think Al's work on the kernel speaks for itself.  He's been putting up
-> just fine, thank you.  And I think you're looking in the wrong place,
-> Al has expressed no interest (that I'm aware of) in rewriting this code.
-> As a user of the new system, a pretty typical user, his opinion counts.
->
-> I don't think that you're really getting the point.  Nobody is saying that
-> CML1 is the greatest thing since sliced bread.  What they are saying is
-that
-> it seems to work pretty well, yes it could be better, but CML2 isn't
-shaping
-> up to be an improvement so much as a Eric Raymond Language exercise.
-Noone
-> begrudges Eric his right to come up with as many little languages as he
-wants.
-> But when he asks the kernel developers to use them, he'd better be
-prepared
-> to hear each and every thing they find wanting, and address the majority
-of
-> those issues.  That hasn't happened.  Instead, there have been a lot of
-> flame wars, politics, protests about Linus, etc.
-> --
-> ---
-> Larry McVoy            lm at bitmover.com
-http://www.bitmover.com/lm
->
+You don't take an airplane to drive alongs autobahns for a gradual
+change either.
+
+It seems to me as though the "rip out existing" issue was rather a
+"don't let us maintain two parts of the same type at the same time"
+convenience feature than a trait of CML2, and if so, keep both for some
+releases and drop CML1 in, say, 2.5.8.

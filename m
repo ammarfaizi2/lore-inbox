@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280691AbRKLNdG>; Mon, 12 Nov 2001 08:33:06 -0500
+	id <S280700AbRKLNc4>; Mon, 12 Nov 2001 08:32:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279982AbRKLNc4>; Mon, 12 Nov 2001 08:32:56 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9997 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280691AbRKLNcl>; Mon, 12 Nov 2001 08:32:41 -0500
-Subject: Re: 32-bit UID quotas?
-To: clubneon@hereintown.net (Chris Meadors)
-Date: Mon, 12 Nov 2001 13:39:48 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.LNX.4.40.0111120823210.88-100000@rc.priv.hereintown.net> from "Chris Meadors" at Nov 12, 2001 08:28:53 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S279982AbRKLNch>; Mon, 12 Nov 2001 08:32:37 -0500
+Received: from xun0.sr.bham.ac.uk ([147.188.32.128]:17356 "HELO
+	xun0.sr.bham.ac.uk") by vger.kernel.org with SMTP
+	id <S280700AbRKLNcZ>; Mon, 12 Nov 2001 08:32:25 -0500
+Date: Mon, 12 Nov 2001 13:32:22 +0000 (GMT)
+From: Adam Mercer <ram@star.sr.bham.ac.uk>
+X-X-Sender: ram@xune
+To: Jerrad Pierce <belg4mit@dirty-bastard.pthbb.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14 linker failure:
+In-Reply-To: <200111121301.NAA04842@dirty-bastard.pthbb.org>
+Message-ID: <Pine.GSO.4.40.0111121330260.25189-100000@xune>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E163HJU-0005sY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I saw that ext3 is going into 2.4.15 by the testing/ChangeLog.  There are
-> also lots of Alan Cox merging, but no specific mention of whether or not
-> the 32-bit UID quota patch has gone in, or is going in.
-> 
-> The ext3 and 32-bit UID quotas were the only two patches I was really
-> relying on the -ac releases for.
+On Mon, 12 Nov 2001, Jerrad Pierce wrote:
 
-32bit uid quota is a harder one. Its probably something to be tackled after
-2.4.15. There are a few other things like that which are lower priority 
-because they are tricky, or because (eg the kiovec stuff) they are simply
-performance boosts and can be done after we see 2.4.15 is solid
+> drivers/block/block.o: In function `lo_send':
+> drivers/block/block.o(.text+0x8ac9): undefined reference to `deactivate_page'
+> drivers/block/block.o(.text+0x8b09): undefined reference to `deactivate_page'
 
-Other bits like the via timer fix are under further research
+This is a known problem with 2.4.14, either use 2.4.15pre3 of apply the
+patch in
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100501094419342&w=2
+
+Cheers
+
+Adam
 

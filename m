@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292336AbSBYVzY>; Mon, 25 Feb 2002 16:55:24 -0500
+	id <S292329AbSBYV6y>; Mon, 25 Feb 2002 16:58:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292338AbSBYVzV>; Mon, 25 Feb 2002 16:55:21 -0500
-Received: from sleet.ispgateway.de ([62.67.200.125]:24494 "HELO
-	sleet.ispgateway.de") by vger.kernel.org with SMTP
-	id <S292325AbSBYVxN>; Mon, 25 Feb 2002 16:53:13 -0500
-Message-ID: <3C7AB247.80307@ellinger.de>
-Date: Mon, 25 Feb 2002 22:53:11 +0100
-From: Rainer Ellinger <rainer@ellinger.de>
-Organization: Rainers Rechenzentrum
-User-Agent: Mozilla/5.0
-X-Accept-Language: en
+	id <S292332AbSBYV6s>; Mon, 25 Feb 2002 16:58:48 -0500
+Received: from h152-148-10-6.outland.lucent.com ([152.148.10.6]:41637 "EHLO
+	alpo.casc.com") by vger.kernel.org with ESMTP id <S292329AbSBYV63>;
+	Mon, 25 Feb 2002 16:58:29 -0500
+From: John Stoffel <stoffel@casc.com>
 MIME-Version: 1.0
-To: Justin Piszcz <war@starband.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18 - Don't get mad...
-In-Reply-To: <Pine.LNX.4.21.0202251537080.31438-100000@freak.distro.conectiva> <Pine.LNX.4.21.0202251556140.31438-100000@freak.distro.conectiva> <6ypu2twaz3.fsf@sodium.transmeta.com> <3C7AA8F1.3F93EFB4@starband.net> <20020225222043.B27081@suse.de> <3C7AAD9A.E8A5F93D@starband.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15482.45922.722271.588725@gargle.gargle.HOWL>
+Date: Mon, 25 Feb 2002 16:57:54 -0500
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: John Stoffel <stoffel@casc.com>,
+        DevilKin <DevilKin-LKML@blindguardian.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18
+In-Reply-To: <20020225215452.GB27211@matchmail.com>
+In-Reply-To: <Pine.LNX.4.21.0202251613300.31438-100000@freak.distro.conectiva>
+	<20020225203750.C531B218392@tartarus.telenet-ops.be>
+	<15482.44226.126189.431079@gargle.gargle.HOWL>
+	<20020225215452.GB27211@matchmail.com>
+X-Mailer: VM 6.95 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
 
-> http://installkernel.com/kernel/index.html
-> I hope I got the story right, and I hope this clears things up on 2.4.18.
+Mike> You have got to be kidding me.
 
-That might be the most serious bug in this release: people and media reporting a "release problem".
+Not at all. 
 
-How many people really need that small fix and are not able to take -rc4 instead final? Compared to 2.4.17, there are more than 
-100 fixes in this release, that could have been more dangerous than this missing function. And there might be still people out 
-there using 2.4.17 ;-)
+Mike> The only binaries that are affected are ones compiles without
+Mike> shared libraries on some non-x86 arches, and anyone doing that
+Mike> should know what they are doing and which kernels to use.
 
--- 
-rainer@ellinger.de
+Mike> Does anyone know how long this bug has been in the kernel?
+
+So what?  What's the big deal of releasing a new version with just one
+quick change?  Marcello made a mistake, this seems to be the quickest
+way to solve it in an unambiguous manner.  
+
+Who cares how fast the kernel version number moves up, or for what
+reason?
+
+I can see your point of view as well, but I still think your arguement
+that "they should know what they are doing" is bogus.
+
+But hey, whatever Marcello thinks is fine by me.
+
+John
 

@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266204AbUH1CRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUH1C1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266204AbUH1CRl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 22:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268102AbUH1CRl
+	id S266155AbUH1C1t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 22:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268102AbUH1C1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 22:17:41 -0400
-Received: from lucas.isthe.com ([64.81.78.74]:19877 "HELO asthe.com")
-	by vger.kernel.org with SMTP id S266204AbUH1CRj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 22:17:39 -0400
-From: <lkml-mail@asthe.com>
-To: <linux-kernel@vger.kernel.org>
-Date: Fri, 27 Aug 2004 19:16:18 -0700
-Message-ID: <74c68b63c43337d4366c367b282f4b91916d61ff@asthe.com>
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
+	Fri, 27 Aug 2004 22:27:48 -0400
+Received: from 67.107.199.112.ptr.us.xo.net ([67.107.199.112]:51192 "EHLO
+	hathawaymix.org") by vger.kernel.org with ESMTP id S266155AbUH1C1r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 22:27:47 -0400
+From: Shane Hathaway <shane@hathawaymix.org>
+To: Chris Leech <chris.leech@gmail.com>
+Subject: Re: [PATCH] e1000 rx buffer allocation
+Date: Fri, 27 Aug 2004 20:27:48 -0600
+User-Agent: KMail/1.6.2
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.60.0408261727170.9545@orangutan.jungle> <20040826181843.342da7a3.davem@redhat.com> <41b516cb04082711363a009dbc@mail.gmail.com>
+In-Reply-To: <41b516cb04082711363a009dbc@mail.gmail.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408272027.49059.shane@hathawaymix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have heard in several comments to the effect:
+On Friday 27 August 2004 12:36 pm, Chris Leech wrote:
+> As for moving the allocations out of the hard interrupt context, e1000
+> was one of several drivers that tried that a few years back by using
+> tasklets.  What I found is that if you split the allocation from the
+> receive processing, it's far to easy to generate an interrupt load
+> which starves the skb allocations.  The result is that you
+> continuously use all of the buffers then stall while they all get
+> replaced, and performance is horrible.  But if the patch works for
+> your network load ...
 
-        pwc us useless without pwcx
+We're getting 6000 interrupts per second, but the box handles it with ease.  
+We're getting zero loss now, but I guess with slower hardware or fewer 
+buffers, scheduling would be a problem.
 
-While we don't want/intend to take sides in the pwcx/kernel dispute,
-we want to make it clear that these claims are simply not true.
-The pwc driver is very useful without pwcx.
+> A better approach for improving jumbo frame allocations might be to
+> use multiple smaller buffers for each receive, something the PRO/1000
+> hardware can do but the e1000 driver has never taken advantage of.
 
-The LavaRnd project uses webcams with lens caps an entropy sources
-for generating random numbers (see http://www.lavarnd.org).  One of
-our reference webcams is the Logitech QuickCam 3000 Pro - pwc730 webcam
-(see http://www.lavarnd.org/developer/pwc730.html).
+Yes, that would be a far better solution.  I had no idea the card could do 
+that.  Are there specs on this hardware somewhere?  Although my patch works, 
+I don't want to stick with a temporary solution.
 
-    [[You may have heard of the SGI classic lavarand that used
-      Lava Lite(R) lamps to generate seeds.  LavaRnd generates
-      random numbers by way of webcams instead of Lava Lite lamps.
-      See: http://www.lavarnd.org/news/lavadiff.html for differences]]
-
-LavaRnd uses only the pwc module.  In fact our hotplug script install
-script does an rmmod of the pwcx module.  This is because we discovered
-that the pwcx module reduced the entropy that the webcams provided.
-The pwcx module made the webcam a poorer entropy source.
-
-Please do not remove the pwc module from the Linux kernel.  Our users
-depend on pwc without pwcx.
-
-We (LavaRnd) do not want to take sides in this PWC/PWCX kernel dispute. If
-this posting appears that way, then we apologize.  It is our hope
-that some solution that is satisfactory to both sides can be reached.
-
-We would be happy to discuss ways that the pwc might be maintained
-in the linux kernel.  If we can help, please ask us (see
-http://www.lavarnd.org/about-us/contact-us.html for our EMail address).
-
-chongo (Landon Curt Noll) /\oo/\
+Shane

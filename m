@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbUBXPeI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 10:34:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUBXPeI
+	id S262279AbUBXPec (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 10:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUBXPec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 10:34:08 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:12742 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262278AbUBXPeD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 10:34:03 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 Feb 2004 10:34:32 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:62137 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262279AbUBXPe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 10:34:29 -0500
+Subject: Re: [BK PATCH] SCSI update for 2.6.3
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: joe.korty@ccur.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040224152451.GA21699@tsunami.ccur.com>
+References: <1077596668.1983.282.camel@mulgrave> 
+	<20040224152451.GA21699@tsunami.ccur.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <16443.28391.185684.697432@alkaid.it.uu.se>
-Date: Tue, 24 Feb 2004 16:33:59 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Martin Schaffner <schaffner@gmx.li>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.25] enable cross-compilation from Mac OS X
-In-Reply-To: <9D6F6210-66DA-11D8-A093-0003931E0B62@gmx.li>
-References: <9D6F6210-66DA-11D8-A093-0003931E0B62@gmx.li>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 24 Feb 2004 09:34:25 -0600
+Message-Id: <1077636866.2152.55.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schaffner writes:
- > Hi,
- > 
- > After setting up a cross-compile toolchain (using 
- > http://vserver.13thfloor.at/Stuff/Cross/) on Mac OS X 10.3.2, and 
- > applying the following patch, I was able to compile a bootable linux 
- > kernel with the command:
- > make CROSS_COMPILE=/usr/local/bin/powerpc-linux-gnu-
- > 
- > Please consider applying the patch to the main 2.4 tree.
- > 
- > I was also able to compile 2.6.1 with basically the same patch, but it 
- > required some additional fiddling with the makefiles in 
- > not-entirely-clean ways.
- > 
- > --- Makefile.old        Wed Feb 18 13:36:32 2004
- > +++ Makefile    Tue Feb 24 11:36:13 2004
- > @@ -5,7 +5,7 @@
- > 
- >   KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
- > 
- > -ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e 
- > s/arm.*/arm/ -e s/sa110/arm/)
- > +ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e 
- > s/arm.*/arm/ -e s/sa110/arm/ -e s/Power\ Macintosh/ppc/)
- >   KERNELPATH=kernel-$(shell echo $(KERNELRELEASE) | sed -e "s/-//g")
- > 
- >   CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+On Tue, 2004-02-24 at 09:24, Joe Korty wrote:
+>  I am getting a panic out of the 2.6.3 Fusion driver when no devices
+> are attached to it.  Does the above update fix it?  If so, I would
+> like to get a copy of the above in patch form.  If not, I can send
+> you a copy of my boot log.
 
-Just do
-make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
-like we've always done when cross-compiling.
+Well, without a bug report I don't really have any idea.
 
-This patch is not needed.
+The patch is here:
+
+http://marc.theaimsgroup.com/?l=linux-scsi&m=107670916906716&w=2
+
+James
+
+

@@ -1,38 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbUKWIH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbUKWIKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbUKWIH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 03:07:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbUKWIH1
+	id S262325AbUKWIKp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 03:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbUKWIKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 03:07:27 -0500
-Received: from mail.kroah.org ([69.55.234.183]:47492 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262275AbUKWIHY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 03:07:24 -0500
-Date: Tue, 23 Nov 2004 00:06:43 -0800
-From: Greg KH <greg@kroah.com>
-To: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.9] fork: add a hook in do_fork()
-Message-ID: <20041123080643.GD23974@kroah.com>
-References: <1101189797.6210.53.camel@frecb000711.frec.bull.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101189797.6210.53.camel@frecb000711.frec.bull.fr>
-User-Agent: Mutt/1.5.6i
+	Tue, 23 Nov 2004 03:10:44 -0500
+Received: from relay-9.cs.interbusiness.it ([151.99.250.89]:18456 "EHLO
+	relay-9.cs.interbusiness.it") by vger.kernel.org with ESMTP
+	id S262325AbUKWIJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 03:09:13 -0500
+From: "Andrea Pusceddu" <a.pusceddu@remosa-valves.com>
+Organization: Remosa SpA | www.remosa-valves.com
+To: linux-kernel@vger.kernel.org
+Date: Tue, 23 Nov 2004 09:05:50 +0100
+MIME-Version: 1.0
+Subject: USB pendrive: works on kernel 2.4.x but not on 2.6.8
+Reply-to: a.pusceddu@remosa-valves.com
+Message-ID: <41A2FD6E.5197.39F0BC@localhost>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 07:03:17AM +0100, Guillaume Thouvenin wrote:
-> 
->    I don't know if this solution is good but it's easy to implement and
-> it just does the trick. I made some tests and it doesn't impact the
-> performance of the Linux kernel. 
+Hi,
 
-What's wrong with the LSM hook already available for you to use for this
-function?
+I'm not able to mount a 256 MB USB pendrive (MP3) using Ubuntu Linux, with kernel 
+2.6.8. However, on the same PC (AMD K6II 400) the pendrive works perfectly with a 
+Debian Woody and a Knoppix, which are based on a kernel 2.4.xx. 
+So I guess that there's no HW incompatibilty between Linux and my HW.
 
-thanks,
+The usb chipsetis:
+vendor ID 	0x66f (Sigmatel Inc)
+chipset ID : 	0x8000 
 
-greg k-h
+After plugging the usb pen, all the correct modules get loaded, but then nothing 
+happens: in /dev/ no sdaN or sgN device are created.
+I have the feeling that the usb-storage module, hangs, because when I unplug the pen, 
+then I'm not longer to remove usb-storage: if I make "modprobe -r usb-storage" the 
+console hangs. Or may be the culprit is some other module that gets called by usb-
+storage. (just guessing, here, my programming skills are at "helloworld.c" levels)
+
+
+The hotplug service itself seems hanged, and I'm not even able to restart it manually.
+When I unplug the pendrive, I have sometimes to remove the battery to reset it that 
+otherwise is frozen. If I replug again the pendrive, nothing happens, i.e. in dmesg 
+there's no indication of a new attempt of hw recognization
+
+
+>From DMESG it seems that the kernel at first recognizes correctly the pendrive, then 
+something weird happens:
+----------------
+[.......]
+Buffer I/O error on device sda, logical block 0
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 0
+Buffer I/O error on device sda, logical block 0
+unable to read partition table
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+hub 1-0:1.0: port 2 disabled by hub (EMI?), re-enabling...
+[.......]
+----------------
+
+(please finde a complete output in the bottom of the message)
+
+
+I would be more than grateful to someone pointing me in the right direction. 
+What puzzles me it that with a 2.4.x kernel I can mount the pendrive on /dev/sda1 and it 
+works like a charm!!
+
+Thank you for the time you spent reading my post, and sorry for my english.
+
+Ciao, Andrea
+
+
+
+FULL DMESG OUTPUT:
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ohci_hcd: block sizes: ed 64 td 64
+PCI: Found IRQ 10 for device 0000:00:02.0
+ohci_hcd 0000:00:02.0: ALi Corporation USB 1.1 Controller
+ohci_hcd 0000:00:02.0: irq 10, pci mem e090b000
+ohci_hcd 0000:00:02.0: new USB bus registered, assigned bus number 1
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 2 ports detected
+PCI: Found IRQ 9 for device 0000:00:0e.0
+NET: Registered protocol family 10
+Disabled Privacy Extensions on device c02cc0c0(lo)
+IPv6 over IPv4 tunneling driver
+acpi: Unknown symbol acpi_processor_unregister_performance
+acpi: Unknown symbol acpi_processor_register_performance
+ohci_hcd 0000:00:02.0: wakeup
+usb 1-2: new full speed USB device using address 2
+SCSI subsystem initialized
+Initializing USB Mass Storage driver...
+scsi0 : SCSI emulation for USB Mass Storage devices
+ Vendor: SigmaTel  Model: MSCN              Rev: 0100
+ Type:   Direct-Access                      ANSI SCSI revision: 02
+USB Mass Storage device found at 2
+usbcore: registered new driver usb-storage
+USB Mass Storage support registered.
+SCSI device sda: 505600 512-byte hdwr sectors (259 MB)
+sda: Write Protect is off
+sda: Mode Sense: 03 00 00 00
+sda: assuming drive cache: write through
+/dev/scsi/host0/bus0/target0/lun0:SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 0
+Buffer I/O error on device sda, logical block 0
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 0
+Buffer I/O error on device sda, logical block 0
+unable to read partition table
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+hub 1-0:1.0: port 2 disabled by hub (EMI?), re-enabling...
+usb 1-2: USB disconnect, address 2
+usb 1-2: new full speed USB device using address 3
+scsi1 : SCSI emulation for USB Mass Storage devices
+

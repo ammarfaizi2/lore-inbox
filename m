@@ -1,67 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbVCIXFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVCJFYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262550AbVCIXFE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:05:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbVCIXCd
+	id S261719AbVCJFYu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 00:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVCJFUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:02:33 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:46048 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S262093AbVCIWVE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:21:04 -0500
-Date: Wed, 9 Mar 2005 23:21:14 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Alex Aizman <itn780@yahoo.com>, Matt Mackall <mpm@selenic.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE 0/6] Open-iSCSI High-Performance Initiator for Linux
-Message-ID: <20050309222114.GF4105@marowsky-bree.de>
-References: <422BFCB2.6080309@yahoo.com> <20050309050434.GT3163@waste.org> <422E8EEB.7090209@yahoo.com> <20050309060544.GW3120@waste.org> <422E96D9.6090202@yahoo.com>
+	Thu, 10 Mar 2005 00:20:35 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:23047 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261728AbVCJFRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 00:17:14 -0500
+Date: Thu, 10 Mar 2005 06:16:46 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, chrisw@osdl.org,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: Linux 2.6.11.2
+Message-ID: <20050310051646.GC30052@alpha.home.local>
+References: <20050309083923.GA20461@kroah.com> <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt> <20050309111102.GA30119@elf.ucw.cz> <20050309235716.GZ3163@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <422E96D9.6090202@yahoo.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050309235716.GZ3163@waste.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-03-08T22:25:29, Alex Aizman <itn780@yahoo.com> wrote:
+On Wed, Mar 09, 2005 at 03:57:16PM -0800, Matt Mackall wrote:
+ 
+> Imagine we want to go from 2.6.11.3 to 2.6.12
 
-> There's (or at least was up until today) an ongoing discussion on our 
-> mailing list at http://groups-beta.google.com/group/open-iscsi. The 
-> short and long of it: the problem can be solved, and it will. Couple 
-> simple things we already do: mlockall() to keep the daemon un-swapped, 
-> and also looking into potential dependency created by syslog (there's 
-> one for 2.4 kernel, not sure if this is an issue for 2.6).
+The easiest way would be to keep a local fresh copy of 2.6.11 before
+applying 2.6.11.3 anyway.  That would solve a) and b) even more easily.
+And yes, I find a) more logical. This is the way all private trees have
+been working for ages. When you download 2.6.11-ac2, it's not a patch
+against -ac1, but against 2.6.11. If you want to start from -ac1, you
+get the 2.6.11-ac1-ac2 patch.
 
-BTW, to get around the very same issues, heartbeat does much the same:
-lock itself into memory, reserve a couple of pages more to spare on
-stack & heap, run at soft-realtime priority.
+And last, since these patches are mostly bugfixes for the reference kernel
+(eg: 2.6.11), it seems logical to be able to patch that kernel with the
+latest bug fix.
 
-syslog(), however, sucks.
+cheers,
+willy
 
-We went down the path of using our non-blocking IPC library to have all
-our various components log to ha_logd, which then logs to syslog() or
-writes to disk or wherever.
-
-That works well in our current development series, and if you want to
-share code, you can either rip it off (Open Source, we love ya ;) or we
-can spin off these parts into a sub-package for you to depend on...
-
-> The sfnet is a learning experience; it is by no means a proof that it 
-> cannot be done.
-
-I'd also argue that it MUST be done, because the current way of "Oh,
-it's somehow related to block stuff, must be in kernel" leads down to
-hell. We better figure out good ways around it ;-)
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business
-
+> case a)
+> revert patch 2.6.11.3
+> get and apply 2.6.12
+> 
+> case b)
+> revert patch 2.6.11.3
+> revert patch 2.6.11.2
+> revert patch 2.6.11.1
+> get and apply 2.6.12
+> 
+> case c)
+> poke around on kernel.org and figure out that the last kernel in .11 is .11.5
+> get and apply 2.6.11.4
+> get and apply 2.6.11.5
+> get and apply 2.6.12
+> 
+> Note this gets increasingly more painful in cases b and c when there
+> are a large number of post-releases. And case c) is really stupid when
+> you want to go from 2.6.12 to 2.6.11.
+> 
+> Also note that -pre, -rc, -bk, -mm, -ac, and every other branch off a
+> release has worked the a) way.
+> 
+> -- 
+> Mathematics is the supreme nostalgia of our time.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,83 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265440AbUFVTcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265359AbUFVUBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265440AbUFVTcs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 15:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265155AbUFVTc3
+	id S265359AbUFVUBf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265655AbUFVTdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 15:32:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15771 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265502AbUFVTYA
+	Tue, 22 Jun 2004 15:33:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16027 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265484AbUFVTYB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 15:24:00 -0400
+	Tue, 22 Jun 2004 15:24:01 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] (9/9) symlink patchkit (against -bk current)
+Subject: [PATCH] (7/9) symlink patchkit (against -bk current)
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1Bcqs8-0003xm-Sq@www.linux.org.uk>
+Message-Id: <E1Bcqs8-0003xg-RH@www.linux.org.uk>
 From: viro@www.linux.org.uk
 Date: Tue, 22 Jun 2004 20:23:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        jffs2 switched; leaks plugged.
+        shm switched (it almost belongs to SL3, but it does some extra
+stuff after the link traversal).
 
-diff -urN RC7-bk5-befs/fs/jffs2/symlink.c RC7-bk5-jffs2/fs/jffs2/symlink.c
---- RC7-bk5-befs/fs/jffs2/symlink.c	Sat Oct 18 13:09:53 2003
-+++ RC7-bk5-jffs2/fs/jffs2/symlink.c	Tue Jun 22 15:13:12 2004
-@@ -15,43 +15,31 @@
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/fs.h>
+diff -urN RC7-bk5-xfs/mm/shmem.c RC7-bk5-shm/mm/shmem.c
+--- RC7-bk5-xfs/mm/shmem.c	Wed Jun 16 10:26:30 2004
++++ RC7-bk5-shm/mm/shmem.c	Tue Jun 22 15:13:11 2004
+@@ -40,6 +40,7 @@
+ #include <linux/security.h>
+ #include <linux/swapops.h>
+ #include <linux/mempolicy.h>
 +#include <linux/namei.h>
- #include "nodelist.h"
+ #include <asm/uaccess.h>
+ #include <asm/div64.h>
+ #include <asm/pgtable.h>
+@@ -1676,51 +1677,45 @@
+ 	return 0;
+ }
  
--int jffs2_readlink(struct dentry *dentry, char *buffer, int buflen);
--int jffs2_follow_link(struct dentry *dentry, struct nameidata *nd);
-+static int jffs2_follow_link(struct dentry *dentry, struct nameidata *nd);
-+static void jffs2_put_link(struct dentry *dentry, struct nameidata *nd);
- 
- struct inode_operations jffs2_symlink_inode_operations =
- {	
--	.readlink =	jffs2_readlink,
-+	.readlink =	generic_readlink,
- 	.follow_link =	jffs2_follow_link,
-+	.put_link =	jffs2_put_link,
- 	.setattr =	jffs2_setattr
- };
- 
--int jffs2_readlink(struct dentry *dentry, char *buffer, int buflen)
+-static int shmem_readlink_inline(struct dentry *dentry, char __user *buffer, int buflen)
 -{
--	unsigned char *kbuf;
--	int ret;
--
--	kbuf = jffs2_getlink(JFFS2_SB_INFO(dentry->d_inode->i_sb), JFFS2_INODE_INFO(dentry->d_inode));
--	if (IS_ERR(kbuf))
--		return PTR_ERR(kbuf);
--
--	ret = vfs_readlink(dentry, buffer, buflen, kbuf);
--	kfree(kbuf);
--	return ret;
+-	return vfs_readlink(dentry, buffer, buflen, (const char *)SHMEM_I(dentry->d_inode));
 -}
 -
--int jffs2_follow_link(struct dentry *dentry, struct nameidata *nd)
-+static int jffs2_follow_link(struct dentry *dentry, struct nameidata *nd)
+ static int shmem_follow_link_inline(struct dentry *dentry, struct nameidata *nd)
  {
- 	unsigned char *buf;
--	int ret;
--
- 	buf = jffs2_getlink(JFFS2_SB_INFO(dentry->d_inode->i_sb), JFFS2_INODE_INFO(dentry->d_inode));
-+	nd_set_link(nd, buf);
+-	return vfs_follow_link(nd, (const char *)SHMEM_I(dentry->d_inode));
++	nd_set_link(nd, (char *)SHMEM_I(dentry->d_inode));
 +	return 0;
-+}
- 
--	if (IS_ERR(buf))
--		return PTR_ERR(buf);
--
--	ret = vfs_follow_link(nd, buf);
--	kfree(buf);
--	return ret;
-+static void jffs2_put_link(struct dentry *dentry, struct nameidata *nd)
-+{
-+	char *s = nd_get_link(nd);
-+	if (!IS_ERR(s))
-+		kfree(s);
  }
+ 
+-static int shmem_readlink(struct dentry *dentry, char __user *buffer, int buflen)
++static int shmem_follow_link(struct dentry *dentry, struct nameidata *nd)
+ {
+ 	struct page *page = NULL;
+ 	int res = shmem_getpage(dentry->d_inode, 0, &page, SGP_READ, NULL);
+-	if (res)
+-		return res;
+-	res = vfs_readlink(dentry, buffer, buflen, kmap(page));
+-	kunmap(page);
+-	mark_page_accessed(page);
+-	page_cache_release(page);
+-	return res;
++	nd_set_link(nd, res ? ERR_PTR(res) : kmap(page));
++	return 0;
+ }
+ 
+-static int shmem_follow_link(struct dentry *dentry, struct nameidata *nd)
++static void shmem_put_link(struct dentry *dentry, struct nameidata *nd)
+ {
+-	struct page *page = NULL;
+-	int res = shmem_getpage(dentry->d_inode, 0, &page, SGP_READ, NULL);
+-	if (res)
+-		return res;
+-	res = vfs_follow_link(nd, kmap(page));
+-	kunmap(page);
+-	mark_page_accessed(page);
+-	page_cache_release(page);
+-	return res;
++	if (!IS_ERR(nd_get_link(nd))) {
++		struct page *page;
++
++		page = find_get_page(dentry->d_inode->i_mapping, 0);
++		if (!page)
++			BUG();
++		kunmap(page);
++		mark_page_accessed(page);
++		page_cache_release(page);
++		page_cache_release(page);
++	}
+ }
+ 
+ static struct inode_operations shmem_symlink_inline_operations = {
+-	.readlink	= shmem_readlink_inline,
++	.readlink	= generic_readlink,
+ 	.follow_link	= shmem_follow_link_inline,
+ };
+ 
+ static struct inode_operations shmem_symlink_inode_operations = {
+ 	.truncate	= shmem_truncate,
+-	.readlink	= shmem_readlink,
++	.readlink	= generic_readlink,
+ 	.follow_link	= shmem_follow_link,
++	.put_link	= shmem_put_link,
+ };
+ 
+ static int shmem_parse_options(char *options, int *mode, uid_t *uid, gid_t *gid, unsigned long *blocks, unsigned long *inodes)

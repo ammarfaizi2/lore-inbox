@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129311AbRAYRFk>; Thu, 25 Jan 2001 12:05:40 -0500
+	id <S132658AbRAYRLa>; Thu, 25 Jan 2001 12:11:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132897AbRAYRFa>; Thu, 25 Jan 2001 12:05:30 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:62406 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129311AbRAYRFX>;
-	Thu, 25 Jan 2001 12:05:23 -0500
-Date: Thu, 25 Jan 2001 17:03:11 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mike Black <mblack@csihq.com>
-Cc: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: Largefile support in 2.4
-Message-ID: <20010125170311.C12984@redhat.com>
-In-Reply-To: <06dc01c0863d$29383390$e1de11cc@csihq.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <06dc01c0863d$29383390$e1de11cc@csihq.com>; from mblack@csihq.com on Wed, Jan 24, 2001 at 02:38:00PM -0500
+	id <S130507AbRAYRLV>; Thu, 25 Jan 2001 12:11:21 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:49149 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S132658AbRAYRLI>; Thu, 25 Jan 2001 12:11:08 -0500
+Date: Thu, 25 Jan 2001 11:11:04 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: Jeff Hartmann <jhartmann@valinux.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <3A705CAF.70909@valinux.com>
+In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> 
+	<20010123165117Z131182-221+34@kanga.kvack.org> ; from ttabi@interactivesi.com on Tue, Jan 23, 2001 at 10:53:51AM -0600 <20010125155345Z131181-221+38@kanga.kvack.org> 
+	<20010125165001Z132264-460+11@vger.kernel.org>
+Subject: Re: ioremap_nocache problem?
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Message-Id: <20010125171117Z132658-460+32@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+** Reply to message from Jeff Hartmann <jhartmann@valinux.com> on Thu, 25 Jan
+2001 10:04:47 -0700
 
-On Wed, Jan 24, 2001 at 02:38:00PM -0500, Mike Black wrote:
-> How do normal users get to create/maintain large files (i.e. >2G) in Linux
-> 2.4 on i386?
 
-> The root user can make filesize unlimited but a non-root user cannot.  They
-> come up with the same limits in both tcsh and bash (i.e. filesize
-> 1048576 kbytes or 0x40000000)
+> > The problem with this is that between the ioremap and iounmap, the page is
+> > reserved.  What happens if that page belongs to some disk buffer or user
+> > process, and some other process tries to free it.  Won't that cause a problem?
+> 
+> 	The page can't belong to some other process/kernel component.  You own 
+> the page if you allocated it.  
 
-Check your distribution's login process.  The kernel sets no default
-limit, but several distributions let you set default limits for login.
-It's quite common to see core limits set on all logins, and I seem to
-recall at least Debian setting some of the other limits too.
+Ok, my mistake.  I wasn't paying attention to the "get_free_pages" call.  My
+problem is that I'm ioremap'ing someone else's page, but my hardware sits on the
+memory bus disguised as real memory, and so I need to poke around the 4GB space
+trying to find it.
 
---Stephen
+
+> (I was the one who added support to 
+> the kernel to ioremap real ram, trust me.)
+
+I really appreciate that feature, because it helps me a lot.  Any
+recommendations on how I can do what I do without causing any problems?  Right
+now, my driver never calls iounmap on memory that's in real RAM, even when it
+exits.  Fortunately, the driver isn't supposed to exit, so all it does is waste
+a few KB of virtual memory.
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

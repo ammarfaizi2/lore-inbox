@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271271AbUJVOlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271304AbUJVOnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271271AbUJVOlY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 10:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271068AbUJVOlY
+	id S271304AbUJVOnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 10:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271300AbUJVOnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 10:41:24 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:55532 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S271271AbUJVOku (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 10:40:50 -0400
-Message-ID: <41791BE6.7040209@adaptec.com>
-Date: Fri, 22 Oct 2004 10:40:38 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "K.R. Foley" <kr@cybsft.com>, "J.A. Magallon" <jamagallon@able.es>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc3-mm3 fails to detect aic7xxx
-References: <1097178019.24355.39.camel@localhost> <1097188963l.6408l.2l@werewolf.able.es> <41661013.9090700@cybsft.com> <41668346.6090109@adaptec.com> <20041022135800.GA8254@elte.hu> <41791302.5030305@adaptec.com> <20041022140701.GC8120@elte.hu>
-In-Reply-To: <20041022140701.GC8120@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 22 Oct 2004 10:43:15 -0400
+Received: from fisek2.ada.net.tr ([195.112.153.19]:44738 "EHLO
+	embriyo.fisek.com.tr") by vger.kernel.org with ESMTP
+	id S271304AbUJVOl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 10:41:58 -0400
+Date: Fri, 22 Oct 2004 17:41:54 +0300
+From: Onur Kucuk <onur@delipenguen.net>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Buggy DSDTs policy ?
+Message-Id: <20041022174154.2ebd2c5c.onur@delipenguen.net>
+In-Reply-To: <20041022122326.GA69381@dspnet.fr.eu.org>
+References: <20041022122326.GA69381@dspnet.fr.eu.org>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Oct 2004 14:40:48.0570 (UTC) FILETIME=[1F0211A0:01C4B845]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Luben Tuikov <luben_tuikov@adaptec.com> wrote:
-> 
-> 
->>Have you tried this with the latest scsi-misc-2.6 tree?  The PCI table
->>patches are there.
->>
->>If you have _and_ it still does not work, can you send output of
->>"lspci -vn"?
-> 
-> 
-> no, i havent. Is it easy to apply that tree to 2.6.9-rc4-mm1?
 
-Yes, I think so.  There's 2 patches there for the AIC drivers:
-the PCI tables and sleeping while holding a lock.
+On Fri, 22 Oct 2004 14:23:27 +0200
+Olivier Galibert <galibert@pobox.com> wrote:
 
-	Luben
+> What is the policy w.r.t broken DSDTs and the ACPI subsystem?
+> Specifically, which of these two options is right:
+> 
+> 1- Provide a non-buggy DSDT to the kernel
+> 2- Make the ACPI subsystem tolerant of the bugs
+> 
+> The option 3, have all biosen over the world fixed is a nice fantasy,
+> but nothing else.
+> 
+> If 1, we need to put a mechanism for that in the official kernel.
 
+ CONFIG_ACPI_CUSTOM_DSDT is included in 2.6.9
+
+
+ 
+> If 2, I'll start working on patches to make the laptop I play with
+> work as-is.
+> 
+> So, which it is?
+
+
+-- 
+ Onur Kucuk                                        Knowledge speaks,   
+ <onur.--.-.delipenguen.net>                       but wisdom listens  
 

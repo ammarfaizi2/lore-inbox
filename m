@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAaDCX>; Tue, 30 Jan 2001 22:02:23 -0500
+	id <S129675AbRAaDLy>; Tue, 30 Jan 2001 22:11:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129675AbRAaDCN>; Tue, 30 Jan 2001 22:02:13 -0500
-Received: from ns.snowman.net ([63.80.4.34]:48394 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S129431AbRAaDB6>;
-	Tue, 30 Jan 2001 22:01:58 -0500
-Date: Tue, 30 Jan 2001 22:01:48 -0500
-From: Stephen Frost <sfrost@snowman.net>
-To: David Ford <david@linux.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
-Message-ID: <20010130220148.Y26953@ns>
-Mail-Followup-To: David Ford <david@linux.com>,
-	LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A777E1A.8F124207@linux.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AVGAi4VzQ7CM9FTC"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A777E1A.8F124207@linux.com>; from david@linux.com on Tue, Jan 30, 2001 at 06:53:14PM -0800
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.2.16 (i686)
-X-Uptime: 10:01pm  up 167 days,  1:45,  9 users,  load average: 2.00, 2.00, 2.00
+	id <S129806AbRAaDLo>; Tue, 30 Jan 2001 22:11:44 -0500
+Received: from winds.org ([207.48.83.9]:6409 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id <S129675AbRAaDLl>;
+	Tue, 30 Jan 2001 22:11:41 -0500
+Date: Tue, 30 Jan 2001 22:10:42 -0500 (EST)
+From: Byron Stanoszek <gandalf@winds.org>
+To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA VT82C686X
+In-Reply-To: <Pine.LNX.4.21.0101301847530.3488-100000@ns-01.hislinuxbox.com>
+Message-ID: <Pine.LNX.4.21.0101302204570.19724-100000@winds.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 30 Jan 2001, David D.W. Downey wrote:
 
---AVGAi4VzQ7CM9FTC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> 
+> Woohoo! Just found out that ATA66 on the VIA aint too great.
+> 
+> I set the kernel boot options idebus=66 ide0=ata66 enabling ATA66
+> according to dmesg. The HDD is a WDC UDMA100 30.5GB drive. I retried the
 
-* David Ford (david@linux.com) wrote:
-> A person just brought up a problem in #kernelnewbies, building an SMP
-> kernel doesn't work very well, current is undefined.  I don't have more
-> time to debug it but I'll strip the config and put it up at
-> http://stuph.org/smp-config
+The 'idebus=xx' parameter doesn't refer to the speed of the IDE drive, but
+instead the speed of the PCI bus. On the VIA686, that speed should always be 33
+(unless you're overclocking). Setting it to 66 will cause the VIA driver to
+believe your PCI bus is running at 66MHz and will program the IDE controller to
+run at half the speed to maintain 33MHz. In reality, your controller now runs
+at 16.
 
-	They're trying to compile SMP for Athlon/K7 (CONFIG_MK7=y).
+I believe v3.20 of the via82cxxx.c driver disallows any setting lower than 20
+or higher than 50.
 
-		Stephen
+AFAIK the driver auto-selects the speed of your drive based on how it is
+configured in the BIOS, and whether you have the 40- or 80-wire cable. The
+'ide0=ata66' option should not be necessary.
 
---AVGAi4VzQ7CM9FTC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+To others, I've been running this driver with both a KX133 and a KT133 (both
+via686a) for quite some time now and have never seen any problems. Just make
+sure 'idebus=xx' matches the speed of your PCICLK as shown in the bios and
+you'll be fine (Default is 33).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Regards,
+ Byron
 
-iD8DBQE6d4AcrzgMPqB3kigRAmaMAJ4vWGoJ+s0dPF/6E2U5rwCMdzTt2gCZARVP
-gK72wC3fr1KJ/2RwCwaSvVM=
-=wJuU
------END PGP SIGNATURE-----
+-- 
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: bstanoszek@comtime.com
 
---AVGAi4VzQ7CM9FTC--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

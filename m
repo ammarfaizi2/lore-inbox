@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281506AbRKUNlC>; Wed, 21 Nov 2001 08:41:02 -0500
+	id <S281668AbRKUNvW>; Wed, 21 Nov 2001 08:51:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281381AbRKUNkw>; Wed, 21 Nov 2001 08:40:52 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:62983 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S281050AbRKUNkn>; Wed, 21 Nov 2001 08:40:43 -0500
-Message-ID: <3BFBAE86.70100@namesys.com>
-Date: Wed, 21 Nov 2001 16:39:18 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
-X-Accept-Language: en-us
+	id <S281381AbRKUNvN>; Wed, 21 Nov 2001 08:51:13 -0500
+Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:7897 "EHLO
+	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S281050AbRKUNvG>; Wed, 21 Nov 2001 08:51:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James A Sutherland <jas88@cam.ac.uk>
+To: hps@intermeta.de, "Henning P. Schmiedehausen" <mailgate@hometree.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: A return to PCI ordering problems...
+Date: Wed, 21 Nov 2001 13:51:12 +0000
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20011120190316.H19738@vnl.com> <E166TCM-0004VH-00@lilac.csi.cam.ac.uk> <9tg371$ja3$1@forge.intermeta.de>
+In-Reply-To: <9tg371$ja3$1@forge.intermeta.de>
 MIME-Version: 1.0
-To: Christian =?ISO-8859-1?Q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-CC: Eric M <ground12@jippii.fi>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15-pre1:  "bogus" message with reiserfs root and other weirdness
-In-Reply-To: <6893478.1006329318464.JavaMail.ground12@jippii.fi> <E166Tv4-0001Y9-00@mrvdom00.schlund.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E166XmJ-0004HV-00@lilac.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Bornträger wrote:
+On Wednesday 21 November 2001 11:29 am, Henning P. Schmiedehausen wrote:
+> James A Sutherland <jas88@cam.ac.uk> writes:
+> >On Tuesday 20 November 2001 9:27 pm, David Woodhouse wrote:
+> >> amon@vnl.com said:
+> >> > In any case, here is the problem:
+> >> > 	NIC on motherboard, Realtek
+> >> > 	NIC on PCI card, Realtek
+> >> > 	Monolithic (no-module) kernel
+> >> > 	Motherboard must be set to eth0
+> >>
+> >> Why must the motherboard be set to eth0? Why not just configure it as it
+> >> gets detected?
+> >
+> >He has some software licensing thing which checks the MAC address of eth0.
+> >
+> >Of course, what he could do is change the MAC address of eth0 to whatever
+> > the licensing software wants... :-)
+>
+> One could imagine a module to read the MAC address from the eeprom and
+> not from the Interface.. Makes this scenario not impossible but much
+> harder.
 
->>FAT: bogus logical sector size 0
->>
->
->It is not a problem at all.
->
->It happens if you compile fat in the Kernel and not as module. In this case 
->the fat-driver seems to check every partition for a fat-filesystem. When it 
->fails it gives you this message. 
->
->So you can 
->1. ignore these messages or
->2. compile fat as a module.
->
->greetings
->
->Christian
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
-It is a user interface error by the FAT coder, a serious one actually, 
-because it affects partitions that are not FAT.  Would be nice if it got 
-fixed.
-
-Hans
+Apart from depending on the specific NIC in use, probably easy to circumvent. 
+Especially with EEPROMs. But discussing this probably violates the UK's CDPA 
+(our answer to DMCA, but snuck onto the books in '88) prohibition on 
+communicating information about circumvention...
 
 
+James.

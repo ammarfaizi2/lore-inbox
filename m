@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262791AbUC2Si1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 13:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263044AbUC2Si1
+	id S262756AbUC2ShN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 13:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbUC2ShN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 13:38:27 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:13842 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262791AbUC2SiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 13:38:25 -0500
-Date: Mon, 29 Mar 2004 19:38:16 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Rajesh Venkatasubramanian <vrajesh@umich.edu>, akpm@osdl.org,
-       riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, roehrich@sgi.com
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040329193816.A17065@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>, Hugh Dickins <hugh@veritas.com>,
-	Rajesh Venkatasubramanian <vrajesh@umich.edu>, akpm@osdl.org,
-	riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, roehrich@sgi.com
-References: <20040329172248.GR3808@dualathlon.random> <Pine.LNX.4.44.0403291843320.18876-100000@localhost.localdomain> <20040329182051.GD3808@dualathlon.random>
+	Mon, 29 Mar 2004 13:37:13 -0500
+Received: from mail6.bluewin.ch ([195.186.4.229]:10407 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S262756AbUC2ShK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 13:37:10 -0500
+Date: Mon, 29 Mar 2004 20:36:58 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: walt <wa1ter@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Via-Rhine ethernet driver problem?
+Message-ID: <20040329183658.GA28252@k3.hellgate.ch>
+Mail-Followup-To: walt <wa1ter@myrealbox.com>,
+	linux-kernel@vger.kernel.org
+References: <40685BC9.1040902@myrealbox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040329182051.GD3808@dualathlon.random>; from andrea@suse.de on Mon, Mar 29, 2004 at 08:20:51PM +0200
+In-Reply-To: <40685BC9.1040902@myrealbox.com>
+X-Operating-System: Linux 2.6.3 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 29, 2004 at 08:20:51PM +0200, Andrea Arcangeli wrote:
-> > > --- sles/fs/xfs/dmapi/dmapi_xfs.c.~1~	2004-03-29 18:33:03.781501328 +0200
-> > > +++ sles/fs/xfs/dmapi/dmapi_xfs.c	2004-03-29 18:58:57.754261560 +0200
-> > > @@ -228,17 +228,21 @@ prohibited_mr_events(
-> > >  	struct address_space *mapping = LINVFS_GET_IP(vp)->i_mapping;
-> > >  	int prohibited = (1 << DM_EVENT_READ);
-> > >  	struct vm_area_struct *vma;
-> > > +	struct prio_tree_iter iter;
-> > >  
-> > >  	if (!VN_MAPPED(vp))
-> > >  		return 0;
-> > >  
-> > >  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
-> > >  	down(&mapping->i_shared_sem);
-> > > -	list_for_each_entry(vma, &mapping->i_mmap_shared, shared) {
-> > > +	vma = __vma_prio_tree_first(&mapping->i_mmap_shared, &iter, 0, ULONG_MAX);
-> > > +	while (vma) {
-> > >  		if (!(vma->vm_flags & VM_DENYWRITE)) {
-> > >  			prohibited |= (1 << DM_EVENT_WRITE);
-> > >  			break;
-> > >  		}
-> > > +
-> > > +		vma = __vma_prio_tree_next(vma, &mapping->i_mmap_shared, &iter, 0, ULONG_MAX);
-> > >  	}
-> > >  	up(&mapping->i_shared_sem);
-> > >  #else
-> > 
-> > This looks horrid (not your change, the original), and would need to look
-> > at nonlinears too; but I thought this was what i_writecount < 0 is for?
+On Mon, 29 Mar 2004 09:24:25 -0800, walt wrote:
+> ECS K7VTA3 motherboard with built-in ethernet chip:
 > 
-> no idea what's the point of this stuff, Christoph maybe wants to
-> elaborate.
+> 00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 
+> 74)
+> 
+> [...]
+>
+> I also discovered by using 'scp' to copy files between machines that the bad
+> performance is assymetrical:  copying a file *to* this machine runs at about
+> half-speed (5 MB/sec) whereas copying a file *from* this machine runs at
+> 45 KiloB/sec, about one percent of expected.
+> 
+> The reason I feel this is software and not hardware is that the same machine
+> running any of the BSD's runs full-speed in both directions.
 
-That's dmapi, a standard for Hierachial Storage Management.  The code is not
-in mainline for a reason, no idea where you got it from.
+If you have ACPI and/or IO-APIC enabled, does the behavior change if
+you turn them off? Any info in the kernel log? If not, what if you
+change the driver's debug level to 3? Is the slow transfer rate
+the result of short, fast bursts or actual sustained throughput at
+45 KB/sec?
 
-AFAIK the code tries to detect whether there could be anyone writing to the
-vma, but ask Dean for the details
+Roger

@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQLNXPW>; Thu, 14 Dec 2000 18:15:22 -0500
+	id <S135255AbQLNXRD>; Thu, 14 Dec 2000 18:17:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129773AbQLNXPN>; Thu, 14 Dec 2000 18:15:13 -0500
-Received: from pop.gmx.net ([194.221.183.20]:46416 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S129260AbQLNXPA>;
-	Thu, 14 Dec 2000 18:15:00 -0500
-From: Norbert Breun <nbreun@gmx.de>
-Reply-To: nbreun@gmx.de
-Organization: private
-Date: Thu, 14 Dec 2000 23:41:54 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: "No rule to make target `irlan/irlan.o " in 2.4.0-test12pre1
+	id <S129773AbQLNXQy>; Thu, 14 Dec 2000 18:16:54 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:12549 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129260AbQLNXQj>; Thu, 14 Dec 2000 18:16:39 -0500
+Date: Thu, 14 Dec 2000 14:45:34 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Signal 11
+In-Reply-To: <E146gyH-00007v-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10012141434320.12451-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Message-Id: <00121423412500.08962@nmb>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
 
-compiling a fresh patched 2.4.0.13pre1 and make modules shows me following 
-error:
 
-make[2]: *** No rule to make target `irlan/irlan.o', needed by `modules'.  
-Stop.make[2]: Leaving directory `/usr/src/linux-2.4.0.13pre1/net/irda'
-make[1]: *** [_modsubdir_irda] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.0.13pre1/net'
-make: *** [_mod_net] Error 2
+On Thu, 14 Dec 2000, Alan Cox wrote:
+> 
+> > user applications and (b) gcc-2.96 is so broken that it requires special
+> > libraries for C++ vtable chunks handling that is different, so the
+> 
+> Wrong - the C++ vtable format change is part of the intended progression of the
+> compiler and needed to meet standards compliance. gcc 295 also changed the
+> internal formats. Unfortunately the gcc295 and 296 formats are both probably
+> not the final format. The compiler folks are not willing to guarantee anything
+> untill gcc 3.0, which may actually be out by the time 2.4 is stable.
 
-make modules_install shows:
+If you ask any gcc folks, the main reason they think this was a really
+stupid thing to do was exactly that the 2.96 thing is incompatible BOTH
+with the 2.95.x release _and_ the upcoming 3.0 release.
 
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.0-test12/kernel/fs/nfs/nfs.o
-depmod:         lockd_up_Rsmp_f6933c48
-depmod:         nlmclnt_proc_Rsmp_0f4e5e85
-depmod:         lockd_down_Rsmp_a7b91a7b
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.0-test12/kernel/fs/nfsd/nfsd.o
-depmod:         lockd_up_Rsmp_f6933c48
-depmod:         nlmsvc_ops_Rsmp_d56c4cfc
-depmod:         nlmsvc_invalidate_client_Rsmp_b1c3f825
-depmod:         lockd_down_Rsmp_a7b91a7b
+Nobody asked the people who knew this, apparently.
 
-using 2.4.0.12 seems o.K. to me (installed a patch for 8139.too manually.)
+> > unusable as a development platform, and I hope RH downgrades their
+> > compiler to something that works better RSN.  It apparently has problems
+> 
+> Like what - gcc 2.5.8 ? The problem is not in general that the snapshot is any
+> buggier than before, but that the bugs are in different places. egcs and gcc295
+> both caused X compile problems too.
 
-kind regards
+gcc-2.95.2 is at least a real release, from a branch that is actively
+maintained - so a 2.95.3 is likely to happen reasonably soon, fixing as
+many problems as possible _without_ being incompatible like the snapshots
+are.
 
-Norbert
+Or just stay at 2.91.66 (egcs).
+
+As to X compile problems - neither egcs nor 2.95.2 appears to have any
+trouble with the CVS tree. Possibly because they got fixed, because, after
+all, at least those were real releases.
+
+I'd applaud RedHat for making snapshots available, but they should be
+marked as SNAPSHOTS, and not as the main compiler with no way to fix the
+damn problems it causes.
+
+As it is, anybody doing development is probably better off at RH-6.2.
+That is doubly true if they intend to release binaries.
+
+			Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

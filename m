@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312575AbSDSOWV>; Fri, 19 Apr 2002 10:22:21 -0400
+	id <S312588AbSDSOZy>; Fri, 19 Apr 2002 10:25:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312576AbSDSOWU>; Fri, 19 Apr 2002 10:22:20 -0400
-Received: from borg.org ([208.218.135.231]:6533 "HELO borg.org")
-	by vger.kernel.org with SMTP id <S312575AbSDSOWT>;
-	Fri, 19 Apr 2002 10:22:19 -0400
-Date: Fri, 19 Apr 2002 10:22:19 -0400
-From: Kent Borg <kentborg@borg.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "Dr. Death" <drd@homeworld.ath.cx>, linux-kernel@vger.kernel.org
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
-Message-ID: <20020419102219.E21727@borg.org>
-In-Reply-To: <3CBEC67F.3000909@filez> <Pine.LNX.3.95.1020419100917.724A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S312601AbSDSOZy>; Fri, 19 Apr 2002 10:25:54 -0400
+Received: from waste.org ([209.173.204.2]:53948 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S312588AbSDSOZw>;
+	Fri, 19 Apr 2002 10:25:52 -0400
+Date: Fri, 19 Apr 2002 09:25:08 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: William Lee Irwin III <wli@holomorphy.com>, Keith Owens <kaos@ocs.com.au>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] 2.5.8 sort kernel tables
+In-Reply-To: <20020419144613.C13926@kushida.apsleyroad.org>
+Message-ID: <Pine.LNX.4.44.0204190851490.8537-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 19, 2002 at 10:14:41AM -0400, Richard B. Johnson wrote:
-> On Thu, 18 Apr 2002, Dr. Death wrote:
-> 
-> > Problem:
-> > 
-> > I use SuSE Linux 7.2 and when I create md5sums from damaged files on a 
-> > CD, the WHOLE system  freezes or is ugly slow untill md5 has passed the 
-> > damaged part of the file !
-> > 
-> 
-> So what do you suggest? You can see from the logs that the device
-> is having difficulty  reading your damaged CD. You can do what
-> Windows-95 does (ignore the errors and pretend everything is fine),
-> or what Windows-98 and Windows-2000/Prof does (blue-screen, and re-boot),
-> or you can try like hell to read the files like Linux does. What do you
-> suggest?
+On Fri, 19 Apr 2002, Jamie Lokier wrote:
 
-You didn't ask me, but I would still suggest that it would be nice if
-the whole system didn't come to a near halt.
+> Oliver Xymoron wrote:
+> > Though we should probably just stick a simple qsort in the library
+> > somewhere.
+>
+> Since we're comparing sort algorithms, I am quite fond of Heapsort.
+> Simple, no recursion or stack, and worst case O(n log n).  It's not
+> especially fast, but the worst case behaviour is nice:
+>
+> /* This function is a classic in-place heapsort.  It sorts the array
+>    `nums' of integers, which has `count' elements. */
 
+Make this generic by passing in compare and swap functions and stick it in
+lib. Heapsort is indeed a better candidate for a kernel algorithm than the
+simpler qsorts because of the constrained worst case. If I remember
+correctly, heapsort performs about as well as combsort in my testing -
+within a constant factor of two of qsort's best case.
 
--kb, the Kent who wonders of the preemption patch might help here.
+> void my_heapsort (int count, int * nums)
+> {
+> 	int i;
+> 	for (i = 1; i < count; i++) {
+> 		int j = i, tmp = nums [j];
+> 		while (j > 0 && tmp > nums [(j-1)/2]) {
+> 			nums [j] = nums [(j-1)/2];
+> 			j = (j-1)/2;
+> 		}
+> 		nums [j] = tmp;
+> 	}
+> 	for (i = count - 1; i > 0; i--) {
+> 		int j = 0, k = 1, tmp = nums [i];
+> 		nums [i] = nums [0];
+> 		while (k < i && (tmp < nums [k]
+> 				 || (k+1 < i && tmp < nums [k+1]))) {
+> 			k += (k+1 < i && nums [k+1] > nums [k]);
+> 			nums [j] = nums [k];
+> 			j = k;
+> 			k = 2*j+1;
+> 		}
+> 		nums [j] = tmp;
+> 	}
+> }
+>
+> cheers,
+> -- Jamie
+>
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

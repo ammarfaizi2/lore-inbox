@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282902AbRLQWIG>; Mon, 17 Dec 2001 17:08:06 -0500
+	id <S282920AbRLQWN0>; Mon, 17 Dec 2001 17:13:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282916AbRLQWH4>; Mon, 17 Dec 2001 17:07:56 -0500
-Received: from [213.97.199.90] ([213.97.199.90]:12160 "HELO fargo")
-	by vger.kernel.org with SMTP id <S282902AbRLQWHr> convert rfc822-to-8bit;
-	Mon, 17 Dec 2001 17:07:47 -0500
-From: "David Gomez" <davidge@jazzfree.com>
-Date: Mon, 17 Dec 2001 23:07:03 +0100 (CET)
-X-X-Sender: <huma@fargo>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Loopback deadlock again
-Message-ID: <Pine.LNX.4.33.0112172246400.558-100000@fargo>
+	id <S282919AbRLQWNR>; Mon, 17 Dec 2001 17:13:17 -0500
+Received: from d-dialin-1078.addcom.de ([62.96.163.118]:25582 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S282920AbRLQWNM>; Mon, 17 Dec 2001 17:13:12 -0500
+Date: Mon, 17 Dec 2001 23:13:21 +0100 (CET)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: Kevin Curtis <kevin.curtis@farsite.co.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: pci_enable_device reports IRQ routing conflict
+In-Reply-To: <7C078C66B7752B438B88E11E5E20E72E41A1@GENERAL.farsite.co.uk>
+Message-ID: <Pine.LNX.4.33.0112172228350.1088-100000@vaio>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 17 Dec 2001, Kevin Curtis wrote:
 
-Hi,
+> However when I call pci_enable_device for the second card I get the
+> following kernel log message:
+> 
+> Dec 17 15:06:37 minion kernel: IRQ routing conflict for 00:0b.0, have irq 9,
+> want irq 5
 
-Even with the Andrea/Monchil patch applied against 2.4.17-rc1, i'm still
-hitting the loopback deadlock. Doing a 'cp -a' to a loop device leaves cp
-and the loop kernel thread in D state.
+This means that config space (supposedly set up by the BIOS) reports IRQ 9 
+for the device, but the IRQ router really routes it to IRQ 5.
 
-I don't know if it's useful, but i did a strace of cp, and the process is
-deadlocked in a mkdir call. Sometimes, a 'sync' finish the deadlock, other
-times sync also hangs:
+> The call didn't return an error, so I assume this was a non-fatal.  
 
-[...]
-589 tty1     S      0:00 bash
-594 ?        DW<    0:00 [loop0]
-620 tty1     D      0:00 sync
+Well, the kernel currently ignores its knowledge about the router and 
+trusts the BIOS. Which most likely means that the IRQ won't work.
 
-And a reboot is the only way to kill the tasks.
+(Note that in general you should access dev->irq only after calling 
+pci_enable_device())
 
+> Has anyone got any ideas where to look to debug this?
 
-Thanks
+#define DEBUG
 
-David Gómez
+in arch/i386/kernel/pci-i386.h will give some debugging output on the next 
+boot, which should help.
 
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
+--Kai
 
 
 

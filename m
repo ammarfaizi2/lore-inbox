@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277473AbRJEQ2F>; Fri, 5 Oct 2001 12:28:05 -0400
+	id <S277409AbRJEQgY>; Fri, 5 Oct 2001 12:36:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277474AbRJEQ1z>; Fri, 5 Oct 2001 12:27:55 -0400
-Received: from foobar.isg.de ([62.96.243.63]:17900 "HELO mail.isg.de")
-	by vger.kernel.org with SMTP id <S277473AbRJEQ1w>;
-	Fri, 5 Oct 2001 12:27:52 -0400
-Message-ID: <3BBDDFAC.41AE9BD9@isg.de>
-Date: Fri, 05 Oct 2001 18:28:28 +0200
-From: lkv@isg.de
-Organization: Innovative Software AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: German, de, en
+	id <S277483AbRJEQgO>; Fri, 5 Oct 2001 12:36:14 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:26040 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S277409AbRJEQgA>; Fri, 5 Oct 2001 12:36:00 -0400
+Message-ID: <3BBDE1AA.98C4712F@nortelnetworks.com>
+Date: Fri, 05 Oct 2001 12:36:58 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
+To: lkv@isg.de
 Cc: "Kernel, Linux" <linux-kernel@vger.kernel.org>
 Subject: Re: Desperately missing a working "pselect()" or similar...
-In-Reply-To: <Pine.GSO.4.21.0110051214070.2267-100000@weyl.math.psu.edu>
+In-Reply-To: <3BBDD37D.56D7B359@isg.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+lkv@isg.de wrote:
 > 
-> On Fri, 5 Oct 2001 lkv@isg.de wrote:
+> Hi,
 > 
-> > A somewhat bizarre solution would be to have the process create
-> > a pipe-pair, select on the reading end, and let the signal-handler
-> > write a byte to the pipe - but this has at least the drawback
-> > you always spoil one "select-cycle" for each signal you get - as
-> > the first return from the select() call happenes without any
-> > fds being flagged as readable, only when you enter select() once
-> > more the pipe will cause the return and tell you what happened...
-> 
-> fork() is cheap.  Create a child, have a pipe between child and
-> parent and do select() on the other end of pipe.  I.e. signal handler
-> writes into pipe and that triggers select() in the second process.
+> I'm currently looking for a decent method to wait on either
+> an I/O event _or_ a signal coming from another process.
 
-What exactly would be the advantage of doubling the number of processes
-running just to introduce this indirection? An additional context-switch
-surely doesn't speed up things... or am I misinterpreting your proposal
-completely?
+> - Unix domain sockets would be awkward to use due to the fact
+>   I'd need to come up with some "filenames" for them to bind to,
+>   and both security considerations and the danger of "leaking"
+>   files that remain on disk forever make me shudder...
+ 
+If you use a named socket in the abstract namespace, then it can't "leak" to
+disk....
 
-Regards,
+Chris
 
-Lutz Vieweg
-
---
- Dipl. Phys. Lutz Vieweg | email: lkv@isg.de
- Innovative Software AG  | Phone/Fax: +49-69-505030 -120/-505
- Feuerbachstrasse 26-32  | http://www.isg.de/people/lkv/
- 60325 Frankfurt am Main | ^^^ PGP key available here ^^^
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

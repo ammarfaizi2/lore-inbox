@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264929AbUBOO7y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 09:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUBOO7y
+	id S264941AbUBOPEH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 10:04:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264942AbUBOPEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 09:59:54 -0500
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:61312 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264929AbUBOO7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 09:59:53 -0500
-Message-ID: <402F8967.1050405@uchicago.edu>
-Date: Sun, 15 Feb 2004 08:59:51 -0600
-From: Ryan Reich <ryanr@uchicago.edu>
-User-Agent: Mozilla Thunderbird 0.5+ (X11/20040211)
+	Sun, 15 Feb 2004 10:04:07 -0500
+Received: from colossus.systems.pipex.net ([62.241.160.73]:32977 "EHLO
+	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S264941AbUBOPEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 10:04:02 -0500
+Message-ID: <402F8A5F.5060902@emergence.uk.net>
+Date: Sun, 15 Feb 2004 15:03:59 +0000
+From: Jonathan Brown <jbrown@emergence.uk.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: is nForce2 good choice under Linux?
-References: <1oRXf-7zC-13@gated-at.bofh.it> <1oSgx-7QJ-11@gated-at.bofh.it> <1oSJA-8nw-17@gated-at.bofh.it> <1oTPp-YO-25@gated-at.bofh.it> <1pt6s-686-9@gated-at.bofh.it>
-In-Reply-To: <1pt6s-686-9@gated-at.bofh.it>
+To: Peter Osterlund <petero2@telia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.3-rc3
+References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org> <m2znbk4s8j.fsf@p4.localdomain>
+In-Reply-To: <m2znbk4s8j.fsf@p4.localdomain>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sander wrote:
-> Jesse Allen wrote (ao):
-> 
->> On Fri, Feb 13, 2004 at 11:01:45PM +0200, aviv bergman wrote:
->>> i had very frequent lockups after upgrading to 2.6.0, flashed to the
->>>  latest bios, and the system is rock stable since (2.6.1 w/apic)
->> 
->> Wow, another fixed shuttle board? Looks like shuttle knows what the
->> bug is then.
+Peter Osterlund wrote:
+>>Benjamin Herrenschmidt:
+>>  o New radeonfb
+>>  o Fix a link conflict between radeonfb and the radeon DRI
+>>  o Fix incorrect kfree in radeonfb
 > 
 > 
-> I've never read the Shuttle boards where unstable. I thought people had
-> problems with the normal size boards from Asus and others.
+> It doesn't seem to work on my x86 laptop. The screen goes black when
+> the framebuffer is enabled early in the boot sequence. The machine
+> boots normally anyway and I can log in from the network or log in
+> blindly at the console. I can then start the X server which appears to
+> work correctly, but switching back to a console still gives me a black
+> screen. Running "setfont" doesn't fix it. Here is what dmesg reports
+> when running 2.6.3-rc3:
 
-I have a Shuttle AN35N-Ultra with an Athlon 2600+ on it which had the
-infamous lockups under 2.4 until I figured out that it was the APIC and
-turned that off.  I just flashed the BIOS with the latest on Shuttle's site
-and they seem to have gone, at least for now.  Someone claims that he got
-one after five days uptime, but I'm a wimp and turn my computer off every
-night so I'll never see that.
+I also get a black screen on boot on my IBM X31, but pressing Fn+F7 a 
+couple of times brings it up. Fn+F7 switches between LCD, monitor and 
+both. Here is my dmesg:
 
--- 
-Ryan Reich
-ryanr@uchicago.edu
+radeonfb: Invalid ROM signature 0 should be 0xaa55
+radeonfb: Retreived PLL infos from BIOS
+radeonfb: Reference=27.00 MHz (RefDiv=60) Memory=144.00 Mhz, 
+System=144.00 MHz
+Non-DDC laptop panel detected
+radeonfb: Monitor 1 type LCD found
+radeonfb: Monitor 2 type no found
+radeonfb: panel ID string: 1024x768
+radeonfb: detected LVDS panel size from BIOS: 1024x768
+radeondb: BIOS provided dividers will be used
+radeonfb: Power Management enabled for Mobility chipsets
+radeonfb: ATI Radeon LY  DDR SGRAM 16 MB

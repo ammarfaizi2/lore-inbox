@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266259AbSL1SQy>; Sat, 28 Dec 2002 13:16:54 -0500
+	id <S261721AbSL1Sbz>; Sat, 28 Dec 2002 13:31:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266278AbSL1SQy>; Sat, 28 Dec 2002 13:16:54 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:17320 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S266259AbSL1SQx>;
-	Sat, 28 Dec 2002 13:16:53 -0500
-Message-ID: <3E0DEC83.2070900@colorfullife.com>
-Date: Sat, 28 Dec 2002 19:25:07 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@steeleye.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFT][PATCH] generic device DMA implementation
-References: <200212281813.gBSIDNP02885@localhost.localdomain>
-In-Reply-To: <200212281813.gBSIDNP02885@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261724AbSL1Sbz>; Sat, 28 Dec 2002 13:31:55 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:61456 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S261721AbSL1Sbz>; Sat, 28 Dec 2002 13:31:55 -0500
+Message-Id: <200212281840.gBSIeBB02996@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFT][PATCH] generic device DMA implementation 
+In-Reply-To: Message from Manfred Spraul <manfred@colorfullife.com> 
+   of "Sat, 28 Dec 2002 19:25:07 +0100." <3E0DEC83.2070900@colorfullife.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 28 Dec 2002 12:40:11 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
+manfred@colorfullife.com said:
+> If multiple kmalloc buffers fit into one cacheline, then it can happen
+>  all the time. But the smallest kmalloc buffer is 64 bytes [assuming
+> page  size > 4096].
 
->The problem really only occurs if the CPU can modify part of a cache line 
->while a device has modified memory belonging to another part.  Now a flush 
->from the CPU will destroy the device data (or an invalidate from the driver 
->destroy the CPU's data).  The problem is effectively rendered harmless if only 
->data going in the same direction shares a cache line (even if it is for 
->different devices).  It strikes me that this is probably true for network data 
->and would explain the fact that I haven't seen any obvious network related 
->corruption.
->  
->
-Yes. Networking usually generates exclusive cachelines.
-I'm aware of two special cases:
-If multiple kmalloc buffers fit into one cacheline, then it can happen 
-all the time. But the smallest kmalloc buffer is 64 bytes [assuming page 
-size > 4096].
-Is your cache line >= 128 bytes?
+Actually, I did forget to mention that on parisc non-coherent, the minimum 
+kmalloc allocation is the cache line width, so that problem cannot occur.
 
-Or sendfile() of a mmap'ed file that is modified by userspace. That is 
-the recommended approach for zerocopy tx, but I'm not sure which apps 
-actually use that. IIRC DaveM mentioned the approach.
+Hmm, perhaps that is an easier (and faster) approach to fixing the problems on 
+non-coherent platforms?
 
-Additionally, the TCP checksum could catch the corruption and resent the 
-packet - you wouldn't notice the corruptions, unless you use hw checksums.
+James
 
---
-    Manfred
 

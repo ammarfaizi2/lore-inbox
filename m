@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271627AbRIRRrc>; Tue, 18 Sep 2001 13:47:32 -0400
+	id <S273099AbRIRRtM>; Tue, 18 Sep 2001 13:49:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273099AbRIRRrW>; Tue, 18 Sep 2001 13:47:22 -0400
-Received: from nsd.netnomics.com ([216.71.84.35]:19053 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S271627AbRIRRrI>; Tue, 18 Sep 2001 13:47:08 -0400
-Date: Tue, 18 Sep 2001 12:45:22 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-In-Reply-To: <11433641523.20010918175148@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.3.96.1010918124421.23345A-100000@mandrakesoft.mandrakesoft.com>
+	id <S273110AbRIRRtC>; Tue, 18 Sep 2001 13:49:02 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:6150 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S273099AbRIRRsq>; Tue, 18 Sep 2001 13:48:46 -0400
+Message-ID: <3BA78916.2984B011@zip.com.au>
+Date: Tue, 18 Sep 2001 10:49:10 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bdflush and postgres stuck in D state
+In-Reply-To: <20010918125605.F29908@unthought.net>,
+		<20010918125605.F29908@unthought.net>; from jakob@unthought.net on Tue, Sep 18, 2001 at 12:56:05PM +0200 <20010918193023.P29908@unthought.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Sep 2001, VDA wrote:
-> Since we don't have any negative feedback on Athlon bug
-> stomper, I think patch could be applied to
-> arch/i386/kernel/pci-pc.c in mainline kernel.
-> Diffed against 4.2.9.
-> BTW, there are similar fixup routines in drivers/pci/quirks.c
-> Why two .c files for hw related fixes?
+Jakob Østergaard wrote:
+> 
+> Sorry for following up on my own post, I have a little extra
+> information.
+> 
+> I started a g++ job to try to force the machine to write out some dirty
+> buffers before I reboot.   g++ now hangs along with two sync's, bdflush
+> and the postgres process.
+> 
 
-One is limited to x86, one is not.
+Since 2.4.7 several bugs have been fixed in RAID1 which would
+cause this, including a missing blockdevice unplug and failure
+to hang onto the supposedly-reserved RAID1 buffer-heads.
 
-	Jeff
-
-
-
-
+-

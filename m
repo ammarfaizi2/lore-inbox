@@ -1,68 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbUAOT2T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 14:28:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUAOT2T
+	id S263260AbUAOTs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 14:48:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbUAOTs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 14:28:19 -0500
-Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:42902 "EHLO
-	diamond.madduck.net") by vger.kernel.org with ESMTP id S261889AbUAOT2S
+	Thu, 15 Jan 2004 14:48:26 -0500
+Received: from scrat.hensema.net ([62.212.82.150]:39084 "EHLO
+	scrat.hensema.net") by vger.kernel.org with ESMTP id S263260AbUAOTsZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 14:28:18 -0500
-Date: Thu, 15 Jan 2004 20:28:17 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: please ignore: [PATCH] additional HID_QUIRKS
-Message-ID: <20040115192817.GA25653@piper.madduck.net>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040115185626.GA1352@piper.madduck.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
-Content-Disposition: inline
-In-Reply-To: <20040115185626.GA1352@piper.madduck.net>
-X-OS: Debian GNU/Linux testing/unstable kernel 2.6.1-diamond i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.4i
+	Thu, 15 Jan 2004 14:48:25 -0500
+From: Erik Hensema <erik@hensema.net>
+Subject: Re: True story: "gconfig" removed root folder...
+Date: Thu, 15 Jan 2004 19:48:23 +0000 (UTC)
+Message-ID: <slrnc0drk6.3lq.erik@bender.home.hensema.net>
+References: <1074177405.3131.10.camel@oebilgen> <Pine.LNX.4.58.0401151558590.27223@serv> <87ptdl2q7l.fsf@asmodeus.mcnaught.org> <slrnc0dct5.2o5.erik@bender.home.hensema.net> <20040115160759.GA5458@cambrant.com> <200401151617.i0FGHW1a005870@turing-police.cc.vt.edu> <20040115183125.GA5772@cambrant.com> <Pine.LNX.4.53.0401151353310.21008@chaos>
+Reply-To: erik@hensema.net
+User-Agent: slrn/0.9.7.4 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard B. Johnson (root@chaos.analogic.com) wrote:
+> What is (a) "root folder"?
+> The two words don't go together at all. Unix/Linux has "root" and
+> directories, but it doesn't have any "folders". Microstuff has
+> "folders", but doesn't have "root". Is Gates infecting Linux?
+> I heard that "folder" was a swear-word just like the other "f"
+> word.
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The kernel doesn't impose a policy on user space, so a 'directory
+vs folder' discussion is offtopic here. Let userspace decide.
 
-also sprach martin f krafft <madduck@madduck.net> [2004.01.15.1956 +0100]:
-> I don't know about the procedure, but could you please add the
-> attached patch to the 2.6 (and possibly to the 2.4) tree? It
-> defines a set of HID_QUIRKS to blacklist a number of devices from
-> hiddev.
-
-I was a little too fast in submitting this. Please ignore this patch
-for now. I will get back to you when it's final.
-
-Sorry for the inconvenience and noise.
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-
---x+6KMIRAuhnl3hBn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFABunQIgvIgzMMSnURAmETAJ9iJ5mrPZNMXJX6xvSoQCP6SIhiPQCfdd5v
-IG/3b5rVlMbQ6K3BwfeB6qo=
-=fyLi
------END PGP SIGNATURE-----
-
---x+6KMIRAuhnl3hBn--
+-- 
+Erik Hensema <erik@hensema.net>

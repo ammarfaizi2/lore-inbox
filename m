@@ -1,66 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261781AbTILRqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 13:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbTILRqJ
+	id S261772AbTILR4N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 13:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbTILR4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 13:46:09 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41805 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261781AbTILRqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 13:46:03 -0400
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: How do I track TG3 peculiarities?
-References: <m31xuss0ht.fsf@maxwell.lnxi.com>
-	<20030907220926.G18482@schatzie.adilger.int>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 12 Sep 2003 11:45:57 -0600
-In-Reply-To: <20030907220926.G18482@schatzie.adilger.int>
-Message-ID: <m1r82llx2i.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Sep 2003 13:56:12 -0400
+Received: from ns.suse.de ([195.135.220.2]:5870 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261772AbTILR4J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 13:56:09 -0400
+Date: Fri, 12 Sep 2003 19:56:06 +0200
+From: Andi Kleen <ak@suse.de>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: jgarzik@pobox.com, akpm@osdl.org, richard.brunner@amd.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-Id: <20030912195606.24e73086.ak@suse.de>
+In-Reply-To: <m1vfrxlxol.fsf@ebiederm.dsl.xmission.com>
+References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>
+	<20030911012708.GD3134@wotan.suse.de>
+	<20030910184414.7850be57.akpm@osdl.org>
+	<20030911014716.GG3134@wotan.suse.de>
+	<3F60837D.7000209@pobox.com>
+	<20030911162634.64438c7d.ak@suse.de>
+	<3F6087FC.7090508@pobox.com>
+	<m1vfrxlxol.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@clusterfs.com> writes:
-
-> On Sep 07, 2003  16:21 -0600, Eric W. Biederman wrote:
-> > Below is one good oops we have captured.  I would have to check but
-> > I believe we have updated the tg3 driver in this instance to the
-> > one that comes with 2.4.23-pre3.
-> > 
-> > The very puzzling part is that in the crashes I don't see the tg3
-> > driver at all just the network stack.  All module addresses according
-> > to /proc/ksyms started with at 0xf8, and the tg3 driver was built as
-> > a module.
-> > 
-> > I have been having trouble understanding why skb_clone would be called
-> > to transmit a packet.  Any ideas?
-> 
-> Do you have the stack overflow checking enabled?  
-No. 
-> That has been a source
-> of problems for us.  It was especially difficult to reproduce, because it
-> only happened during a double interrupt.
+On 12 Sep 2003 11:32:42 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
 
-So a quick update on what I am seeing.
+> There may be better places to attack.  But new code is what is up for
+> examination and is easiest to fix.
 
-I have now tried with a myriad of driver and kernel versions watching very
-carefully for a pattern.
+With is_prefetch:
 
-What I have observed is memory corruption in what looks like it may
-be a confined area of memory.  The ECC SDRAM is being closely
-monitored and I am not getting as much as a correctable error much
-less and uncorrectable error that would show up so memory is ruled
-out.  When I am connected to a particular Extreme Networks gigabit
-switch.  (The switch has some problems and it is hypothesized the
-switch is injecting problematic packets into the network).
+   text    data     bss     dec     hex filename
+   2782       4       0    2786     ae2 arch/i386/mm/fault.o
 
-Bad packets should not be a problem but it looks like they are
-triggering the problem whatever it is.
+Without is_prefetch:
 
-Eric
+ text    data     bss     dec     hex filename
+   2446       4       0    2450     992 arch/i386/mm/fault.o
+
+Difference 332 bytes
+
+If you start your attack on 332 bytes then IMHO you have your priorities wrong ;-)
+
+The main reason I'm really against this is that currently the P4 kernels work
+fine on Athlon. Just when is_prefetch is not integrated in them there will 
+be an mysterious oops once every three months in the kernel in prefetch
+on Athlon.
+ 
+That would be bad. The alternative would be to prevent the P4 kernel
+from booting on the Athlon at all, but doing that for 332 bytes
+would seem a bit silly.
+
+-Andi
+
+P.S.: If you really want to shrink 2.6 I would start with making sysfs optional.
+That would likely help much more than micro optimizing non bloated parts.

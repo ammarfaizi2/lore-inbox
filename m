@@ -1,87 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263598AbTJQTY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 15:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263599AbTJQTY1
+	id S263506AbTJQTZt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 15:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbTJQTZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 15:24:27 -0400
-Received: from unthought.net ([212.97.129.88]:7598 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S263598AbTJQTYV (ORCPT
+	Fri, 17 Oct 2003 15:25:49 -0400
+Received: from axion.demon.nl ([195.173.231.39]:35201 "EHLO axion.demon.nl")
+	by vger.kernel.org with ESMTP id S263506AbTJQTZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 15:24:21 -0400
-Date: Fri, 17 Oct 2003 21:24:19 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Software RAID5 with 2.6.0-test
-Message-ID: <20031017192419.GG8711@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-	linux-kernel@vger.kernel.org
-References: <1065690658.10389.19.camel@slurv> <Pine.LNX.3.96.1031017125544.24004C-100000@gatekeeper.tmr.com> <yw1xu167kbcw.fsf@users.sourceforge.net>
+	Fri, 17 Oct 2003 15:25:44 -0400
+Date: Fri, 17 Oct 2003 21:25:37 +0200
+From: Monchi Abbad <kernel@axion.demon.nl>
+To: linux-kernel@vger.kernel.org
+Cc: mvw@planets.elm.net
+Subject: Quota (v1 ?) problems when creating a new user.
+Message-ID: <20031017192537.GB1651@axion.demon.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xu167kbcw.fsf@users.sourceforge.net>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 17, 2003 at 07:44:31PM +0200, Måns Rullgård wrote:
-...
-> 
-> What about the RAID controllers in the $400 category?  Surely, they
-> must be doing something better than the $50 fakeraid controllers.
+Description:
+When using quota and creating a new user on the system quota and limit get extreme high values.
+The system is a slackware 9.1 customized system.
 
-The RAID controllers in the $400 category are exactly the ones who
-include (inferior) processors, and add an extra layer in the 'chain of
-command'.
+Keywords:
+quota ext3
 
-The inexpensive 'fakeraid' controllers include some form of SW RAID in
-their driver, and could therefore perform as well as Linux SW RAID (if
-the driver's RAID code is as clever and efficient as the Linux SW RAID
-code - which it may not be).
+Kernel version:
+Linux version 2.6.0-test7 (root@axion) (gcc version 3.2.3) #1 Thu Oct 9 11:16:09 CEST 2003
 
-Ironic, maybe  ;)
+Output of error.
+root@axion:/usr/src/linux# useradd test5
+root@axion:/usr/src/linux# quota -v test5
+Disk quotas for user test5 (uid 10126):
+     Filesystem  blocks   quota   limit   grace   files   quota   limit   grace
+      /dev/sdd2       5  3755993804 3755993796               2       0       0
+root@axion:/usr/src/linux#
 
-I have never tried using one of the 'fakeraid' controllers, so I can't
-speak for their actual real-world performance.  They could include a
-crap IDE controller, or they could have crap drivers - both could give
-poor performance.
+Monchi.
+--
 
-Could, would, should, don't know...
-
-However, the "hardware RAID" controllers that were discussed here would
-be the ones in the $400->$(obscene) price range.
-
-Now that I'm posting anyway - I thought of a plus for the HW RAID
-controllers (hey, they're way behind on the scoreboard so far, so I
-might as well be a gentleman and give them a point or two):
-*) Battery backed write cache
-
-This will allow the controller to say 'ok I'm done with your sync()',
-way before the data actually reaches the disk platters.  For some
-workloads this can be a big win.  For some odd reason, it seems that
-'most' (read: all that I could find) HW RAID controllers are unable to
-control more than 256 MB of memory - which is odd. That amound of memory
-is almost so low that it defeats the purpose of having it in the first
-place.  But again, some workloads may well benefit.  And this is
-something you just can't do with SW RAID (at least not before someone
-implements support for an NVRAM buffer store in the Linux I/O layer).
-
-While on that topic: SDRAM PCI cards with battery backup can be had
-relatively cheap up to at least a few gigabytes.  It'd be pretty cool to
-have the kernel recognize that for buffer storage. I could see the fun
-in doing half a million random writes and a sync(), and having the
-system tell me it's done the microsecond I issue the sync().
-
-Enough with the daydreaming already  ;)
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

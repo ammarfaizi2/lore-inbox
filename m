@@ -1,93 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266932AbSLKBl3>; Tue, 10 Dec 2002 20:41:29 -0500
+	id <S266958AbSLKBxL>; Tue, 10 Dec 2002 20:53:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266941AbSLKBl3>; Tue, 10 Dec 2002 20:41:29 -0500
-Received: from bitmover.com ([192.132.92.2]:26321 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S266932AbSLKBl1>;
-	Tue, 10 Dec 2002 20:41:27 -0500
-Date: Tue, 10 Dec 2002 17:49:06 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BK prob] - bogus cset
-Message-ID: <20021210174906.C29772@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <200212110140.gBB1e1o30094@work.bitmover.com> <20021210174253.A29772@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021210174253.A29772@work.bitmover.com>; from lm@bitmover.com on Tue, Dec 10, 2002 at 05:42:53PM -0800
-X-MailScanner: Found to be clean
+	id <S266962AbSLKBxL>; Tue, 10 Dec 2002 20:53:11 -0500
+Received: from dsl2-09018-wi.customer.centurytel.net ([209.206.215.38]:54163
+	"HELO thomasons.org") by vger.kernel.org with SMTP
+	id <S266958AbSLKBxJ> convert rfc822-to-8bit; Tue, 10 Dec 2002 20:53:09 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: scott thomason <scott@thomasons.org>
+Reply-To: scott@thomasons.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Orion Poplawski <orion@cora.nwra.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Oops on linux 2.4.20-ac1
+Date: Tue, 10 Dec 2002 20:00:54 -0600
+User-Agent: KMail/1.4.3
+References: <3DF6291C.3090100@cora.nwra.com> <1039554145.14175.70.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1039554145.14175.70.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212102000.54287.scott@thomasons.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Gustafsson just reminded me of "bk unpull".  If you do a
+On Tuesday 10 December 2002 03:00 pm, Alan Cox wrote:
+> Random lockups on dual athlons are a notorious problem under all
+> OS's. Start by checking it passes memtest86, that will verify the
+> RAM is ok - and the AMD is -very- picky about RAM.
+>
+> If thats ok then let me know which board you have, what is plugged
+> into it and what PSU you are using.
 
-	bk unpull
-	bk pull
+I have two AMD MP 2000+ cpus in an ASUS A7M266-D. Even after returning 
+my memory for new chips the store owner memtest86'd, my combo of cpus 
+and mobo was finding the occasional error. I finally ended up 
+resolving it by simply underclocking the bus about 6Mhz :( 
 
-You'll be all set.  Much easier.  Thanks, Anders!
-
---lm
-
-On Tue, Dec 10, 2002 at 05:42:53PM -0800, Larry McVoy wrote:
-> By the way, the set of people who need to clean up are:
-> 
-> agoddard
-> aliz
-> andersg
-> anton
-> chrisl
-> cloos
-> frival
-> fsirl
-> peterc
-> purna
-> riel
-> rp
-> steve
-> vonbrand
-> 
-> according to the logs.
-> 
-> On Tue, Dec 10, 2002 at 05:40:01PM -0800, Larry McVoy wrote:
-> > I'm an idiot, in the process of optimizing the logging code (so you modem
-> > users send less data, a big deal in Europe), I put a test cset into the
-> > main tree at bk://linux.bkbits.net/linux-2.5 and a pile of people pulled
-> > it.  
-> > 
-> > Could you please do this:
-> > 
-> > bk findkey 'lm@work.bitmover.com|ChangeSet|20021211000341|36093' ChangeSet
-> > 
-> > If that returns nothing, you're fine.  If it tells you a revision, then
-> > if that is the most recent revision, just do a 
-> > 
-> > 	bk undo -fr`bk findkey 'lm@work.bitmover.com|ChangeSet|20021211000341|36093' ChangeSet`
-> > 
-> > and you're all set.  If that isn't the most recent revision, i.e., you merged
-> > against that, send me an email and I'll straighten out the tree.
-> > 
-> > Sorry about this, it won't happen again.
-> > 
-> > --lm
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> ---
-> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Next time, I'm buying ECC memory.
+---scott

@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268286AbRHHT2F>; Wed, 8 Aug 2001 15:28:05 -0400
+	id <S268569AbRHHTbG>; Wed, 8 Aug 2001 15:31:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268567AbRHHT14>; Wed, 8 Aug 2001 15:27:56 -0400
-Received: from std136-limi.telecom.sk ([212.5.197.136]:3076 "HELO Boris.SHARK")
-	by vger.kernel.org with SMTP id <S268286AbRHHT1q>;
-	Wed, 8 Aug 2001 15:27:46 -0400
-Date: Tue, 7 Aug 2001 20:36:59 -0400
-From: Boris Pisarcik <boris@acheron.sk>
+	id <S268595AbRHHTap>; Wed, 8 Aug 2001 15:30:45 -0400
+Received: from smtp-out.antelecom.net ([205.139.35.28]:13585 "EHLO
+	smtp-out.antelecom.net") by vger.kernel.org with ESMTP
+	id <S268569AbRHHTaj>; Wed, 8 Aug 2001 15:30:39 -0400
+Message-Id: <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 08 Aug 2001 12:30:25 -0700
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.7: Invalid operand in dcache.h:267 (automount)
-Message-ID: <20010807203659.A1315@boris.localdomain>
+From: Mike Jadon <mikej@umem.com>
+Subject: PCI NVRAM Memory Card
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-Return-Path: mikej@umem.com
+X-MDRcpt-To: linux-kernel@vger.kernel.org
+X-MDRemoteIP: 192.168.0.37
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        Hi coders !
 
-I've got this bug a while ago while shutting down linux (2.4.7). Although i
-don't know, if this is the kind of error should be posted to this
-mailing list, i decided to post it here anyway. Informational files are
-attached in tar archive.
+My company has released a PCI NVRAM memory card but we haven't developed a 
+Linux driver for it yet.  We want the driver to be open to developers to 
+build upon.  Is there a specific path we should follow with this being our 
+goal?  In researching Linux driver development I have come across "GPL" or 
+"LGPL".  Where do you recommend we go to find out more about this 
+development process?
 
-  I have applied medusa security system patch (medusa.fornax.sk) today , but it is alfa release so this bug may be somehow related to it.
+Thanks and my apologies for using a technical forum for this question, but 
+wanted to go to the right source.
 
-                                                                 B.
 
-email: boris@acheron.sk
+Mike
 
- 
+
+
+Mike Jadon
+Micro Memory, Inc.
+(US) Tel 818 998 0070 x 318
+(US) Fax 818 998 4459
+mikej@umem.com
+www.umem.com
+9540 Vassar
+Chatsworth, Ca.
+USA 91311 
+
+

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263077AbTCWOVa>; Sun, 23 Mar 2003 09:21:30 -0500
+	id <S263070AbTCWOfY>; Sun, 23 Mar 2003 09:35:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263078AbTCWOV2>; Sun, 23 Mar 2003 09:21:28 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45474
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263077AbTCWOVS>; Sun, 23 Mar 2003 09:21:18 -0500
-Subject: Re: PATCH: redo the n_tty fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0303221909590.768-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0303221909590.768-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048434292.10729.25.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Mar 2003 15:44:52 +0000
+	id <S263071AbTCWOfY>; Sun, 23 Mar 2003 09:35:24 -0500
+Received: from [196.12.44.6] ([196.12.44.6]:21183 "EHLO students.iiit.net")
+	by vger.kernel.org with ESMTP id <S263070AbTCWOfX>;
+	Sun, 23 Mar 2003 09:35:23 -0500
+Date: Sun, 23 Mar 2003 20:16:43 +0530 (IST)
+From: Prasad <prasad_s@students.iiit.net>
+To: shesha bhushan <bhushan_vadulas@hotmail.com>
+cc: linux-kernel@vger.kernel.org, <kernelnewbies@nl.linux.org>
+Subject: Re: inet_addr Equivalent
+In-Reply-To: <F110LwR2ozm2F4mOKbA0000952b@hotmail.com>
+Message-ID: <Pine.LNX.4.44.0303232013240.11069-100000@students.iiit.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-23 at 03:11, Linus Torvalds wrote:
-> On Sat, 22 Mar 2003, Alan Cox wrote:
-> > 
-> > I think this way of doing it is right but it could do with further
-> > review
-> 
-> Alan, please stop doing whitespace changes that are WRONG.
 
-If you stopped merging broken patches I wouldn't have to redo them ;)
+may be you can write your own function... I had my implementation that 
+works, it should for you too...  just take a look at the bottom.
 
-I missed that one when fixing the other stuff up to Torvalds style.
+> IF i want to use the inet_addr in kernel modules, then how to use. What is 
+> the equivalent function to this or which is the header file that I have to 
+> include. If I include "arpa/inet.h" and compile as kernel module, I gives 
+> whole bunch of errors.
 
+
+	unsigned int inet_addr(char *str)
+	{
+	  int a,b,c,d;
+	  char arr[4];
+	  sscanf(str,"%d.%d.%d.%d",&a,&b,&c,&d);
+	  arr[0] = a; arr[1] = b; arr[2] = c; arr[3] = d;
+	  return *(unsigned int*)arr;
+	}
+
+Prasad.
+
+-- 
+Failure is not an option
 

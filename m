@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262453AbSJ1NE7>; Mon, 28 Oct 2002 08:04:59 -0500
+	id <S262457AbSJ1NLz>; Mon, 28 Oct 2002 08:11:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262454AbSJ1NE7>; Mon, 28 Oct 2002 08:04:59 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:18858 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262453AbSJ1NE7>;
-	Mon, 28 Oct 2002 08:04:59 -0500
-Date: Mon, 28 Oct 2002 05:02:07 -0800 (PST)
-Message-Id: <20021028.050207.05282480.davem@redhat.com>
-To: bart.de.schuymer@pandora.be
-Cc: linux-kernel@vger.kernel.org, buytenh@gnu.org, coreteam@netfilter.org
-Subject: Re: [PATCH][RFC] bridge-nf -- map IPv4 hooks onto bridge hooks -
- try 3, vs 2.5.44
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200210250801.16278.bart.de.schuymer@pandora.be>
-References: <200210210020.37097.bart.de.schuymer@pandora.be>
-	<200210230140.27470.bart.de.schuymer@pandora.be>
-	<200210250801.16278.bart.de.schuymer@pandora.be>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262474AbSJ1NLz>; Mon, 28 Oct 2002 08:11:55 -0500
+Received: from infa.abo.fi ([130.232.208.126]:39698 "EHLO infa.abo.fi")
+	by vger.kernel.org with ESMTP id <S262457AbSJ1NLy>;
+	Mon, 28 Oct 2002 08:11:54 -0500
+Date: Mon, 28 Oct 2002 15:18:07 +0200
+From: Marcus Alanen <marcus@infa.abo.fi>
+Message-Id: <200210281318.PAA19085@infa.abo.fi>
+To: Nikita@Namesys.COM, Manfred Spraul <manfred@colorfullife.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH,RFC] faster kmalloc lookup
+In-Reply-To: <15805.13847.945978.673664@laputa.namesys.com>
+References: <3DBBEA2F.6000404@colorfullife.com> <3DBAEB64.1090109@colorfullife.com> <1035671412.13032.125.camel@irongate.swansea.linux.org.uk> <3DBBBB30.20409@colorfullife.com> <3DBBEA2F.6000404@colorfullife.com> <15805.13847.945978.673664@laputa.namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Bart De Schuymer <bart.de.schuymer@pandora.be>
-   Date: Fri, 25 Oct 2002 08:01:16 +0200
+>Most kmalloc calls get constant size argument (usually
+>sizeof(something)). So, if switch() is used in stead of loop (and
+>kmalloc made inline), compiler would be able to optimize away
+>cache_sizes[] selection completely. Attached (ugly) patch does this.
 
-   The following patch deals with the problems you still had with the earlier one.
-   Changes:
-   1. add #if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE) everywhere
-   2. don't touch ip_tables.c
-   3. no ipt_physdev.c file yet. I'll try to make it this weekend.
-   
-I've applied this to my tree, thanks.
+Perhaps a compile-time test to check if the argument is
+a constant, and only in that case call your new kmalloc, otherwise
+a non-inline kmalloc call? With your current patch, a non-constant
+size argument to kmalloc means that the function is inlined anyway,
+leading to unnecessary bloat in the resulting image.
+
+Marcus
+

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbTADXk1>; Sat, 4 Jan 2003 18:40:27 -0500
+	id <S262089AbTADXk0>; Sat, 4 Jan 2003 18:40:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbTADXhR>; Sat, 4 Jan 2003 18:37:17 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:50309 "EHLO
+	id <S261855AbTADXhW>; Sat, 4 Jan 2003 18:37:22 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:48773 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S261855AbTADXg2>; Sat, 4 Jan 2003 18:36:28 -0500
+	id <S261854AbTADXgY>; Sat, 4 Jan 2003 18:36:24 -0500
 From: Richard Stallman <rms@gnu.org>
-To: hch@infradead.org
-CC: efault@gmx.de, Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-In-reply-to: <20030103212817.A11278@infradead.org> (message from Christoph
-	Hellwig on Fri, 3 Jan 2003 21:28:17 +0000)
-Subject: Re: Nvidia and its choice to read the GPL "differently"
+To: davids@webmaster.com
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <20030104031031.AAA17564@shell.webmaster.com@whenever> (message
+	from David Schwartz on Fri, 3 Jan 2003 19:10:30 -0800)
+Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
 Reply-to: rms@gnu.org
-References: <E18UYTD-0004ye-00@fencepost.gnu.org> <20030103212817.A11278@infradead.org>
-Message-Id: <E18UxyQ-00049x-00@fencepost.gnu.org>
-Date: Sat, 04 Jan 2003 18:45:02 -0500
+References: <20030104031031.AAA17564@shell.webmaster.com@whenever>
+Message-Id: <E18UxyM-00049V-00@fencepost.gnu.org>
+Date: Sat, 04 Jan 2003 18:44:58 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    The term Linux for the whole system might be inaccurate, but it's what
-    is used and as long as the owner of the name Linux (Linus) doesn't complain
-    that's fine.  Calling it GNU/Linux is 1984-style changing of history, though.
+	    Defending shrink wrap licensing agreements, arguing to weaken fair use and 
+    first sale doctrines, and arguing that if you include a header it's a derived 
+    work is a strange way to defend intellectual freedom.
 
-The name GNU/Linux reflects the system's real history; the name Linux
-teaches a mistaken picture that many people believe is true.  Please
-see http://www.gnu.org/gnu/the-gnu-project.html for the history.
+Those are not my views.  Are you confusing me with someone else?
 
-Let's look deeper, at the criterion you've appealed to.  Essentially
-you've said it's ok to give credit for A's work to B if B doesn't
-object.  In effect, that avoids the whole issue of unfairness.
+    >If open source is so good, companies with closed source products will
+    >change.
 
-      But these
-    collection of packages had had exactly _zero_ connection to the FSF and
-    the GNU project except reusing some components from the GNU project.
+    Yes, even without being coerced and pressured to do so by restrictive 
+    licenses.
 
-"Some components" is an understatement--they were numerous.  But let's
-look beyond that.  The reason that these components fit in with other
-packages, such as X11, TeX, and BSD network utilities, is that we
-designed them to fit together.  Our project was to build a complete
-operating system, so when we developed components, we had that purpose
-in mind.  GNU/Linux distributions, at the root, are the result of our
-project to make a free operating system.
+The Open Source Movement says that will happen; when it does, that's
+good, but if we had relied on that to give us freedom, we wouldn't
+have any free operating systems today.
 
-
+In the Free Software Movement we think freedom is worth working for.
+If companies don't choose to respect our freedom, we don't cite that
+and say "it's hopeless" and we don't say that makes non-freedom ok.
+We write free replacements and build freedom for ourselves--and for
+you.
 
 
 

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280666AbRKBMaH>; Fri, 2 Nov 2001 07:30:07 -0500
+	id <S280671AbRKBMjh>; Fri, 2 Nov 2001 07:39:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280671AbRKBM36>; Fri, 2 Nov 2001 07:29:58 -0500
-Received: from cobae1.consultronics.on.ca ([205.210.130.26]:13220 "EHLO
-	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
-	id <S280666AbRKBM3k>; Fri, 2 Nov 2001 07:29:40 -0500
-Date: Fri, 2 Nov 2001 07:29:39 -0500
-From: Greg Louis <glouis@dynamicro.on.ca>
+	id <S280675AbRKBMj1>; Fri, 2 Nov 2001 07:39:27 -0500
+Received: from hermes.toad.net ([162.33.130.251]:45252 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S280671AbRKBMjM>;
+	Fri, 2 Nov 2001 07:39:12 -0500
+Subject: Re: apm suspend broken ?
+From: Thomas Hood <jdthood@mail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 3.0.2 fails to build linux-2.4.13-ac5, 8139.c
-Message-ID: <20011102072939.A1119@athame.dynamicro.on.ca>
-Reply-To: Greg Louis <glouis@dynamicro.on.ca>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200111020921.fA29LP718803@vegae.deep.net> <E15zd1M-00024u-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 02 Nov 2001 07:38:25 -0500
+Message-Id: <1004704715.774.21.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <E15zd1M-00024u-00@the-village.bc.nu>
-Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20011102 (Fri) at 1202:00 +0000, Alan Cox wrote:
-> > 8139too.c:2432: Internal compiler error in reload_cse_simplify_operands, at reload1.c:8364
-> > Please submit a full bug report,
-> > with preprocessed source if appropriate.
-> > See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
-> 
-> You reported the bug to the wrong place. Its a compiler bug not a kernel
-> bug.
+> Fn+Suspend (or launching "apm -s") does not ALWAYS suspend
+> the laptop. Sometimes, it blanks the screen but leaves the
+> lcd light on, the cpu fan is on also. Pressing Fn+D to turn
+> off the lcd light completes the job and the laptop finaly
+> suspends completely.
 
-Interesting though: I had exactly the same error with gcc 3.0.1, but
-for me 3.0.2 has compiled that file correctly in a couple of
-13-ac releases, including -ac5.  The resulting kernels are about 8%
-bigger, and seem a trifle slower, than the same ones compiled with
-2.95.3 -- IIRC other people have found the same, so maybe the easy
-fix is to wait a few versions before using gcc 3 for kernel
-compilation.
+My guess is that what is happening is: apm receives the event
+and notifies apmd an X.  X blanks the display and returns.
+apmd processes the event and returns.  apm does suspend().
+But then you hit some BIOS bug.  Or the BIOS expects the 
+OS to turn off the LCD light before returning.
 
--- 
-| G r e g  L o u i s          | gpg public key:      |
-|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |
+Does it make any difference if apmd and X are NOT running?
+
+Stephen: Do you think it would be worth sticking a call to
+apm_console_blank inside suspend() for this person to see
+if it helps?
+
+--
+Thomas
+
+P.S.  Stephen:  Should the line "ignore_normal_resume = 1;"
+inside suspend() be put prior to the sti()?
+

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274838AbTHFFdA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 01:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274820AbTHFFdA
+	id S274871AbTHFFoG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 01:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274876AbTHFFoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 01:33:00 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:31405 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S274838AbTHFFc6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 01:32:58 -0400
-Date: Wed, 6 Aug 2003 11:08:07 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jeremy@goop.org, dick.streefland@xs4all.nl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] autofs4 doesn't expire
-Message-ID: <20030806053807.GC1298@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <4b0c.3f302ca5.93873@altium.nl> <20030805164904.36b5d2cc.akpm@osdl.org> <20030806042853.GA1298@in.ibm.com> <1060144454.18625.5.camel@ixodes.goop.org> <20030806050003.GB1298@in.ibm.com> <20030805220848.3ee1111a.akpm@osdl.org>
+	Wed, 6 Aug 2003 01:44:05 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:20231 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S274858AbTHFFoD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 01:44:03 -0400
+Date: Wed, 6 Aug 2003 06:43:53 +0100
+From: "'Christoph Hellwig'" <hch@infradead.org>
+To: "Mukker, Atul" <atulm@lsil.com>
+Cc: "'Christoph Hellwig'" <hch@infradead.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>
+Subject: Re: [ANNOUNCE] megaraid linux driver version 2.00.7
+Message-ID: <20030806064353.A21769@infradead.org>
+Mail-Followup-To: 'Christoph Hellwig' <hch@infradead.org>,
+	"Mukker, Atul" <atulm@lsil.com>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+	"'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>
+References: <0E3FA95632D6D047BA649F95DAB60E570185F3FA@EXA-ATLANTA.se.lsil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030805220848.3ee1111a.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570185F3FA@EXA-ATLANTA.se.lsil.com>; from atulm@lsil.com on Tue, Aug 05, 2003 at 06:09:10PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 10:08:48PM -0700, Andrew Morton wrote:
-> Maneesh Soni <maneesh@in.ibm.com> wrote:
-> >
-> >  +	if (vfs) {
-> >  +		if (is_vfsmnt_tree_busy(vfs))
-> >  +			ret--;
-> >  +		/* just to reduce ref count taken in lookup_mnt
-> >  +	 	 * cannot call mntput() here
-> >  +	 	 */
-> >  +		atomic_dec(&vfs->mnt_count);
-> >  +	}
+On Tue, Aug 05, 2003 at 06:09:10PM -0400, Mukker, Atul wrote:
+> > +	spin_lock_irqsave(adapter->host->host_lock, flags);
+> But all kernels do not have this lock as part of the host structure. With
+> 2.00.7, I have relapsed a patch which switches the lock to io_request_lock
+> if kernel does not support per host lock.
 > 
-> Doesn't work, does it?  If someone else does a mntput() just beforehand,
-> __mntput() never gets run.
-> 
+> And not all kernels have the per host lock named as "host->host_lock", some
+> simply have "host->lock"A
 
-no.. it will not work. looks like we have to unlock and lock dcache_lock and
-use mntput as I did earlier. But I think, it will be really nice if Jermey
-can revisit is_tree_busy() code.
+All 2.5/2.6 kernels do have host->host_lock and the 2.5 driver is different
+from the 2.4 one.  In fact it will hopefuloly become &host->host_lock soon
+but for that I have to repair the remaining abusers first.
 
-There can be other problems like the checking d_count for dentries under
-dcache_lock(). As users can do dget() or dput() manipulating d_count without
-dcache_lock(). 
-
-Maneesh
-
--- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/

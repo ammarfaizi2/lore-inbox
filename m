@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbTFIOUw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 10:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264370AbTFIOUw
+	id S264396AbTFIOZn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 10:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTFIOYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 10:20:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27842 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264358AbTFIOUu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 10:20:50 -0400
-Date: Mon, 9 Jun 2003 15:34:23 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org,
-       David Mosberger <davidm@hpl.hp.com>
-Subject: Re: [PATCH] [3/3] PCI segment support
-Message-ID: <20030609143423.GR28581@parcelfarce.linux.theplanet.co.uk>
-References: <20030407234411.GT23430@parcelfarce.linux.theplanet.co.uk> <20030408203824.A27019@jurassic.park.msu.ru> <20030608164351.GI28581@parcelfarce.linux.theplanet.co.uk> <20030609140749.A15138@jurassic.park.msu.ru> <20030609111739.GP28581@parcelfarce.linux.theplanet.co.uk> <20030609152616.D15283@jurassic.park.msu.ru>
+	Mon, 9 Jun 2003 10:24:09 -0400
+Received: from smithers.nildram.co.uk ([195.112.4.34]:25864 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S264393AbTFIOXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 10:23:36 -0400
+Date: Mon, 9 Jun 2003 15:37:11 +0100
+From: Joe Thornber <thornber@sistina.com>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 5/7] dm: Fix memory leak in dm_register_target()
+Message-ID: <20030609143711.GF11331@fib011235813.fsnet.co.uk>
+References: <20030609142946.GA11331@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030609152616.D15283@jurassic.park.msu.ru>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030609142946.GA11331@fib011235813.fsnet.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 09, 2003 at 03:26:16PM +0400, Ivan Kokshaysky wrote:
-> On Mon, Jun 09, 2003 at 12:17:39PM +0100, Matthew Wilcox wrote:
-> > hmm, yes, well.  There's a certain amount of sloppiness allowed with
-> > it being a macro, in that bus->sysdata and dev->sysdata have the same
-> > value so it works both ways.
-> 
-> Well, it's true for many architectures, but not for all.
-> IIRC, bus->sysdata != dev->sysdata on sparc and parisc.
-
-Certainly not true for parisc.  It might be true for sparc; I'm not quite
-sure what arch/sparc/kernel/pcic.c is up to -- it seems a little bitrotten.
-
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Fix memory leak in dm_register_target.  [Patrick Caulfield]
+--- diff/drivers/md/dm-target.c	2003-06-09 15:05:02.000000000 +0100
++++ source/drivers/md/dm-target.c	2003-06-09 15:05:18.000000000 +0100
+@@ -109,9 +109,10 @@
+ 		return -ENOMEM;
+ 
+ 	down_write(&_lock);
+-	if (__find_target_type(t->name))
++	if (__find_target_type(t->name)) {
++		kfree(ti);
+ 		rv = -EEXIST;
+-	else
++	} else
+ 		list_add(&ti->list, &_targets);
+ 
+ 	up_write(&_lock);

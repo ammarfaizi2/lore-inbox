@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVAJSnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbVAJSnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbVAJSnq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 13:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVAJSj5
+	id S262436AbVAJSnp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 13:43:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbVAJSkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 13:39:57 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:2309 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262409AbVAJSik
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 13:38:40 -0500
-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: vfat unlink latency 54.6ms for 128MB files
-References: <20050110012330.GA10846@m.safari.iki.fi>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 11 Jan 2005 03:38:32 +0900
-In-Reply-To: <20050110012330.GA10846@m.safari.iki.fi> (Sami Farin's message
- of "Mon, 10 Jan 2005 03:23:30 +0200")
-Message-ID: <878y71xh7b.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
+	Mon, 10 Jan 2005 13:40:13 -0500
+Received: from mail.tyan.com ([66.122.195.4]:41741 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S262301AbVAJShI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 13:37:08 -0500
+Message-ID: <3174569B9743D511922F00A0C943142307291394@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: jamesclv@us.ibm.com
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, ak@muc.de, Matt_Domsch@dell.com,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       suresh.b.siddha@intel.com
+Subject: RE: 256 apic id for amd64
+Date: Mon, 10 Jan 2005 10:48:40 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sami Farin <7atbggg02@sneakemail.com> writes:
+James,
 
-> Just wondering, when I remove a 128MB file on vfat partition
-> (usb-storage, memcard reader), it causes 54.6ms latency
-> in rtc_latencytest...  latency seems to increase linearly
-> as the filesize grows.  I calculated 1s would be reached with
-> 2344MB file but I didn't bother trying that yet.
-> Are there any possible fixes for fat fs so
-> that it doesn't disable interrupts for that long a time?
+I'm working on add amd dual core LinuxBIOS support to our MB. So I can
+change the apic id as I want.
 
-The fatfs itself doesn't disable any interrupt.  I guess the thing
-depending on file size is the fat_free().
+When I lift the apic id for CPUS, if the bsp apicid is changed to 0x10, the
+jiffies is not changing, So I have to leave to set BSP using apic id 0 in
+LinuxBIOS. And lifting others to use 0x11.....
+According to Andi, that would be one bug in kernel .....
 
-So, the following patch may change the behavior...
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-diff -up linux-2.6.10/fs/fat/cache.c.orig linux-2.6.10/fs/fat/cache.c
---- linux-2.6.10/fs/fat/cache.c.orig	2004-12-25 06:35:24.000000000 +0900
-+++ linux-2.6.10/fs/fat/cache.c	2005-01-11 03:34:54.000000000 +0900
-@@ -491,6 +491,8 @@ int fat_free(struct inode *inode, int sk
- 		if (MSDOS_SB(sb)->free_clusters != -1)
- 			MSDOS_SB(sb)->free_clusters++;
- 		inode->i_blocks -= MSDOS_SB(sb)->cluster_size >> 9;
-+
-+		cond_resched();
- 	} while (nr != FAT_ENT_EOF);
- 	fat_clusters_flush(sb);
- 	nr = 0;
+Regards
+
+YH

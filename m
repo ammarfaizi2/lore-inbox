@@ -1,130 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267550AbSLFEQ3>; Thu, 5 Dec 2002 23:16:29 -0500
+	id <S267552AbSLFESA>; Thu, 5 Dec 2002 23:18:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267552AbSLFEQ3>; Thu, 5 Dec 2002 23:16:29 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:49029 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267550AbSLFEQ1>;
-	Thu, 5 Dec 2002 23:16:27 -0500
-Date: Thu, 5 Dec 2002 20:20:46 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] move console_loglevel et al to array
-Message-ID: <Pine.LNX.4.33L2.0212052013110.24550-200000@dragon.pdx.osdl.net>
+	id <S267553AbSLFESA>; Thu, 5 Dec 2002 23:18:00 -0500
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:4486 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S267552AbSLFER7>;
+	Thu, 5 Dec 2002 23:17:59 -0500
+Message-ID: <3DF026A4.5010801@candelatech.com>
+Date: Thu, 05 Dec 2002 20:25:08 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="346823425-123900948-1039148446=:24550"
+To: root@chaos.analogic.com
+CC: Tomas Szepe <szepe@pinerecords.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ipv4: how to choose src ip?
+References: <Pine.LNX.3.95.1021205152058.18105A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Richard B. Johnson wrote:
+> On Thu, 5 Dec 2002, Tomas Szepe wrote:
 
---346823425-123900948-1039148446=:24550
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+>>I'm not interested in rewriting the source address with netfilter based
+>>on destination and/or service;  What I'm looking for is rather a way to
+>>initiate two connections to the same destination host using the two
+>>different source IP addresses.
+>>
+> 
+> 
+> The simple answer is that if you need a specific IP address
+> associated with a "multi-honed" host, that has only one interface,
+> then something is broken. And you get to keep the pieces.
+
+> The IP addresses assigned to a multi-honed host are the addresses
+> to which it will respond during ARP. The ARP (Address Resolution
+> Protocol) you remember, is the protocol used to get the "hardware"
+> or IEEE station address of the interface.
+> 
+> Any IP protocol will properly work with any IP address embedded in
+> the packet from the interface that responded to the ARP.
+> 
+> However, the IP address inside the data-gram will usually be
+> the IP address of the interface that first sent that packet.
+> The IP address used is the address of the interface that met
+> the necessary criteria for getting the data-gram onto the wire.
+> In other words, the net-mask and the network address are the
+> determining factors. If you have two or more IP addresses that
+> are capable of putting the data-gram on the wire, the first one,
+> i.e., the address used to initialize the interface first, will
+> be the one that is used in out-going packets.
+
+You may be able to influence this with policy-based routing and
+the arp-filter code.
+
+> 
+> Since you don't bind a socket to a specific IP address when
+> initiating connections, you can't chose what IP address will
+> be used for those connections. However, when setting up
+> a server that will accept connections, you bind that socket
+> to both an IP address and a port. Therefore, a server can
+> be created that accepts connections only to a specific IP
+> address of a multi-honed host.
+
+You certainly can bind to a specific IP and/or port when initiating
+a connection.  You can use the local IP to do source-based routing.
+
+I have not done exactly the thing described here, but I have done
+similar things, certainly binding to ports & ips on both server
+and initiator side of an IP connection.
 
 
-Hi,
+> There is no RightWay(tm) because any attempt to choose a specific
+> IP to on the wire from a machine that has only one interface, but
+> is multi-honed, is broken at the start. However, you can chose where
 
-This patch to 2.5.50 moves console_loglevel and 3 associated
-int's to an array.  kernel/sysctl.c expects that they live
-as a 4-element integer array, and some arch-es need this,
-and it's not a good idea to depend on a compiler to keep
-the 4 int's together...
+I think you presume too much about what other people might consider
+broken or not. :)
 
-Original patch was done several months back, by Dave Hansen IIRC.
-It sat in Dave Jones's tree for awhile, but he apparently
-dropped it when he dropped the console layer patches.
 
-I took Dave's 2.5.39-dj2 patch, pulled a few pieces from it,
-and added a bit to it.
-
-Comments...before pushing it?
-
-Thanks,
 -- 
-~Randy
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
 
---346823425-123900948-1039148446=:24550
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="cons-log-2550.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33L2.0212052020460.24550@dragon.pdx.osdl.net>
-Content-Description: 
-Content-Disposition: attachment; filename="cons-log-2550.patch"
-
-LS0tIC4vYXJjaC9pMzg2L21tL2ZhdWx0LmMlQ09OCVdlZCBOb3YgMjcgMTQ6
-MzU6NDYgMjAwMg0KKysrIC4vYXJjaC9pMzg2L21tL2ZhdWx0LmMJVGh1IERl
-YyAgNSAxNjoxMzo1OCAyMDAyDQpAQCAtMjgsOCArMjgsNiBAQA0KIA0KIGV4
-dGVybiB2b2lkIGRpZShjb25zdCBjaGFyICosc3RydWN0IHB0X3JlZ3MgKixs
-b25nKTsNCiANCi1leHRlcm4gaW50IGNvbnNvbGVfbG9nbGV2ZWw7DQotDQog
-I2lmbmRlZiBDT05GSUdfWDg2X1dQX1dPUktTX09LDQogLyoNCiAgKiBVZ2x5
-LCB1Z2x5LCBidXQgdGhlIGdvdG8ncyByZXN1bHQgaW4gYmV0dGVyIGFzc2Vt
-Ymx5Li4NCi0tLSAuL2RyaXZlcnMvY2hhci9zeXNycS5jJUNPTglXZWQgTm92
-IDI3IDE0OjM2OjE4IDIwMDINCisrKyAuL2RyaXZlcnMvY2hhci9zeXNycS5j
-CVRodSBEZWMgIDUgMTY6MTI6MzMgMjAwMg0KQEAgLTI2LDYgKzI2LDcgQEAN
-CiAjaW5jbHVkZSA8bGludXgva2JkX2tlcm4uaD4NCiAjaW5jbHVkZSA8bGlu
-dXgvcXVvdGFvcHMuaD4NCiAjaW5jbHVkZSA8bGludXgvc21wX2xvY2suaD4N
-CisjaW5jbHVkZSA8bGludXgva2VybmVsLmg+DQogI2luY2x1ZGUgPGxpbnV4
-L21vZHVsZS5oPg0KICNpbmNsdWRlIDxsaW51eC9zdXNwZW5kLmg+DQogI2lu
-Y2x1ZGUgPGxpbnV4L3dyaXRlYmFjay5oPg0KLS0tIC4vaW5jbHVkZS9saW51
-eC9rZXJuZWwuaCVDT04JV2VkIE5vdiAyNyAxNDozNTo0NiAyMDAyDQorKysg
-Li9pbmNsdWRlL2xpbnV4L2tlcm5lbC5oCVRodSBEZWMgIDUgMTY6MjA6MjAg
-MjAwMg0KQEAgLTM4LDYgKzM4LDEzIEBADQogI2RlZmluZQlLRVJOX0lORk8J
-Ijw2PiIJLyogaW5mb3JtYXRpb25hbAkJCSovDQogI2RlZmluZQlLRVJOX0RF
-QlVHCSI8Nz4iCS8qIGRlYnVnLWxldmVsIG1lc3NhZ2VzCQkJKi8NCiANCitl
-eHRlcm4gaW50IGNvbnNvbGVfcHJpbnRrW107DQorDQorI2RlZmluZSBjb25z
-b2xlX2xvZ2xldmVsIChjb25zb2xlX3ByaW50a1swXSkNCisjZGVmaW5lIGRl
-ZmF1bHRfbWVzc2FnZV9sb2dsZXZlbCAoY29uc29sZV9wcmludGtbMV0pDQor
-I2RlZmluZSBtaW5pbXVtX2NvbnNvbGVfbG9nbGV2ZWwgKGNvbnNvbGVfcHJp
-bnRrWzJdKQ0KKyNkZWZpbmUgZGVmYXVsdF9jb25zb2xlX2xvZ2xldmVsIChj
-b25zb2xlX3ByaW50a1szXSkNCisNCiBzdHJ1Y3QgY29tcGxldGlvbjsNCiAN
-CiAjaWZkZWYgQ09ORklHX0RFQlVHX1NQSU5MT0NLX1NMRUVQDQpAQCAtODAs
-OCArODcsNiBAQA0KIA0KIGFzbWxpbmthZ2UgaW50IHByaW50ayhjb25zdCBj
-aGFyICogZm10LCAuLi4pDQogCV9fYXR0cmlidXRlX18gKChmb3JtYXQgKHBy
-aW50ZiwgMSwgMikpKTsNCi0NCi1leHRlcm4gaW50IGNvbnNvbGVfbG9nbGV2
-ZWw7DQogDQogc3RhdGljIGlubGluZSB2b2lkIGNvbnNvbGVfc2lsZW50KHZv
-aWQpDQogew0KLS0tIC4va2VybmVsL3N5c2N0bC5jJUNPTglXZWQgTm92IDI3
-IDE0OjM1OjUwIDIwMDINCisrKyAuL2tlcm5lbC9zeXNjdGwuYwlUaHUgRGVj
-ICA1IDE2OjA2OjU0IDIwMDINCkBAIC0yOCw2ICsyOCw3IEBADQogI2luY2x1
-ZGUgPGxpbnV4L2NhcGFiaWxpdHkuaD4NCiAjaW5jbHVkZSA8bGludXgvc21w
-X2xvY2suaD4NCiAjaW5jbHVkZSA8bGludXgvaW5pdC5oPg0KKyNpbmNsdWRl
-IDxsaW51eC9rZXJuZWwuaD4NCiAjaW5jbHVkZSA8bGludXgvc3lzcnEuaD4N
-CiAjaW5jbHVkZSA8bGludXgvaGlnaHVpZC5oPg0KICNpbmNsdWRlIDxsaW51
-eC93cml0ZWJhY2suaD4NCi0tLSAuL2tlcm5lbC9zdXNwZW5kLmMlQ09OCVdl
-ZCBOb3YgMjcgMTQ6MzU6NTMgMjAwMg0KKysrIC4va2VybmVsL3N1c3BlbmQu
-YwlUaHUgRGVjICA1IDE2OjA4OjIwIDIwMDINCkBAIC04OCw3ICs4OCw2IEBA
-DQogZXh0ZXJuIGNoYXIgX3RleHQsIF9ldGV4dCwgX2VkYXRhLCBfX2Jzc19z
-dGFydCwgX2VuZDsNCiBleHRlcm4gY2hhciBfX25vc2F2ZV9iZWdpbiwgX19u
-b3NhdmVfZW5kOw0KIA0KLWV4dGVybiBpbnQgY29uc29sZV9sb2dsZXZlbDsN
-CiBleHRlcm4gaW50IGlzX2hlYWRfb2ZfZnJlZV9yZWdpb24oc3RydWN0IHBh
-Z2UgKik7DQogDQogLyogTG9ja3MgKi8NCi0tLSAuL2tlcm5lbC9wcmludGsu
-YyVDT04JV2VkIE5vdiAyNyAxNDozNjoyMyAyMDAyDQorKysgLi9rZXJuZWwv
-cHJpbnRrLmMJVGh1IERlYyAgNSAxNjoyMDoyMCAyMDAyDQpAQCAtMTYsNiAr
-MTYsNyBAQA0KICAqCTAxTWFyMDEgQW5kcmV3IE1vcnRvbiA8YW5kcmV3bUB1
-b3cuZWR1LmF1Pg0KICAqLw0KIA0KKyNpbmNsdWRlIDxsaW51eC9rZXJuZWwu
-aD4NCiAjaW5jbHVkZSA8bGludXgvbW0uaD4NCiAjaW5jbHVkZSA8bGludXgv
-dHR5Lmg+DQogI2luY2x1ZGUgPGxpbnV4L3R0eV9kcml2ZXIuaD4NCkBAIC01
-NSwxMSArNTYsMTIgQEANCiANCiBERUNMQVJFX1dBSVRfUVVFVUVfSEVBRChs
-b2dfd2FpdCk7DQogDQotLyogS2VlcCB0b2dldGhlciBmb3Igc3lzY3RsIHN1
-cHBvcnQgKi8NCi1pbnQgY29uc29sZV9sb2dsZXZlbCA9IERFRkFVTFRfQ09O
-U09MRV9MT0dMRVZFTDsNCi1pbnQgZGVmYXVsdF9tZXNzYWdlX2xvZ2xldmVs
-ID0gREVGQVVMVF9NRVNTQUdFX0xPR0xFVkVMOw0KLWludCBtaW5pbXVtX2Nv
-bnNvbGVfbG9nbGV2ZWwgPSBNSU5JTVVNX0NPTlNPTEVfTE9HTEVWRUw7DQot
-aW50IGRlZmF1bHRfY29uc29sZV9sb2dsZXZlbCA9IERFRkFVTFRfQ09OU09M
-RV9MT0dMRVZFTDsNCitpbnQgY29uc29sZV9wcmludGtbNF0gPSB7DQorCURF
-RkFVTFRfQ09OU09MRV9MT0dMRVZFTCwJLyogY29uc29sZV9sb2dsZXZlbCAq
-Lw0KKwlERUZBVUxUX01FU1NBR0VfTE9HTEVWRUwsCS8qIGRlZmF1bHRfbWVz
-c2FnZV9sb2dsZXZlbCAqLw0KKwlNSU5JTVVNX0NPTlNPTEVfTE9HTEVWRUws
-CS8qIG1pbmltdW1fY29uc29sZV9sb2dsZXZlbCAqLw0KKwlERUZBVUxUX0NP
-TlNPTEVfTE9HTEVWRUwsCS8qIGRlZmF1bHRfY29uc29sZV9sb2dsZXZlbCAq
-Lw0KK307DQogDQogaW50IG9vcHNfaW5fcHJvZ3Jlc3M7DQogDQotLS0gLi9p
-bml0L21haW4uYyVDT04JV2VkIE5vdiAyNyAxNDozNTo1MSAyMDAyDQorKysg
-Li9pbml0L21haW4uYwlUaHUgRGVjICA1IDE2OjA0OjMyIDIwMDINCkBAIC0x
-NCw2ICsxNCw3IEBADQogI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPg0KICNp
-bmNsdWRlIDxsaW51eC9wcm9jX2ZzLmg+DQogI2luY2x1ZGUgPGxpbnV4L2Rl
-dmZzX2ZzX2tlcm5lbC5oPg0KKyNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4N
-CiAjaW5jbHVkZSA8bGludXgvdW5pc3RkLmg+DQogI2luY2x1ZGUgPGxpbnV4
-L3N0cmluZy5oPg0KICNpbmNsdWRlIDxsaW51eC9jdHlwZS5oPg0K
---346823425-123900948-1039148446=:24550--

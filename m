@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263153AbUJ2AT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263221AbUJ2AWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263153AbUJ2AT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263194AbUJ2ATQ
+	id S263221AbUJ2AWb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbUJ2AUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:19:16 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60165 "HELO
+	Thu, 28 Oct 2004 20:20:39 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:64005 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263179AbUJ2APj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:15:39 -0400
-Date: Fri, 29 Oct 2004 02:15:07 +0200
+	id S263181AbUJ2AQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:16:21 -0400
+Date: Fri, 29 Oct 2004 02:15:49 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: ctindel@users.sourceforge.net, fubar@us.ibm.com
-Cc: bonding-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, linux-net@vger.kernel.org
-Subject: [2.6 patch] bonding: remove an unused function
-Message-ID: <20041029001507.GD29142@stusta.de>
-References: <20041028221227.GJ3207@stusta.de>
+To: dm-devel@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] dm: remove unused functions
+Message-ID: <20041029001549.GE29142@stusta.de>
+References: <20041028221413.GK3207@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041028221227.GJ3207@stusta.de>
+In-Reply-To: <20041028221413.GK3207@stusta.de>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 [ this time without the problems due to a digital signature... ]
 
-The patch below removes an unsed function from 
-drivers/net/bonding/bond_3ad.c
+The patch below removes two unsed functions from dm code.
 
 
 diffstat output:
- drivers/net/bonding/bond_3ad.c |   10 ----------
- 1 files changed, 10 deletions(-)
+ drivers/md/dm-io.c   |   16 ----------------
+ drivers/md/dm-snap.c |    5 -----
+ 2 files changed, 21 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm1-full/drivers/net/bonding/bond_3ad.c.old	2004-10-28 23:18:00.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/net/bonding/bond_3ad.c	2004-10-28 23:18:19.000000000 +0200
-@@ -130,7 +130,6 @@
- static u16 __get_link_speed(struct port *port);
- static u8 __get_duplex(struct port *port);
- static inline void __initialize_port_locks(struct port *port);
--static inline void __deinitialize_port_locks(struct port *port);
- //conversions
- static void __ntohs_lacpdu(struct lacpdu *lacpdu);
- static u16 __ad_timer_to_ticks(u16 timer_type, u16 Par);
-@@ -445,15 +444,6 @@
- 	spin_lock_init(&(SLAVE_AD_INFO(port->slave).rx_machine_lock));
+--- linux-2.6.10-rc1-mm1-full/drivers/md/dm-io.c.old	2004-10-28 23:03:35.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/md/dm-io.c	2004-10-28 23:03:44.000000000 +0200
+@@ -149,22 +149,6 @@
+ 	return 0;
  }
  
--/**
-- * __deinitialize_port_locks - deinitialize a port's RX machine spinlock
-- * @port: the port we're looking at
-- *
-- */
--static inline void __deinitialize_port_locks(struct port *port)
+-static inline void bs_bio_init(struct bio *bio)
 -{
+-	bio->bi_next = NULL;
+-	bio->bi_flags = 1 << BIO_UPTODATE;
+-	bio->bi_rw = 0;
+-	bio->bi_vcnt = 0;
+-	bio->bi_idx = 0;
+-	bio->bi_phys_segments = 0;
+-	bio->bi_hw_segments = 0;
+-	bio->bi_size = 0;
+-	bio->bi_max_vecs = 0;
+-	bio->bi_end_io = NULL;
+-	atomic_set(&bio->bi_cnt, 1);
+-	bio->bi_private = NULL;
 -}
 -
- //conversions
- /**
-  * __ntohs_lacpdu - convert the contents of a LACPDU to host byte order
+ static unsigned _bio_count = 0;
+ struct bio *bio_set_alloc(struct bio_set *bs, int gfp_mask, int nr_iovecs)
+ {
+--- linux-2.6.10-rc1-mm1-full/drivers/md/dm-snap.c.old	2004-10-28 23:04:16.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/md/dm-snap.c	2004-10-28 23:04:24.000000000 +0200
+@@ -271,11 +271,6 @@
+ 	return e;
+ }
+ 
+-static inline void free_exception(struct exception *e)
+-{
+-	kmem_cache_free(exception_cache, e);
+-}
+-
+ static inline struct pending_exception *alloc_pending_exception(void)
+ {
+ 	return mempool_alloc(pending_pool, GFP_NOIO);

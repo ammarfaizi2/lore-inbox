@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268299AbTBMVRr>; Thu, 13 Feb 2003 16:17:47 -0500
+	id <S268304AbTBMV0J>; Thu, 13 Feb 2003 16:26:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268300AbTBMVRr>; Thu, 13 Feb 2003 16:17:47 -0500
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:40639 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S268299AbTBMVRq>;
-	Thu, 13 Feb 2003 16:17:46 -0500
-Message-ID: <3E4C0DC8.3050803@candelatech.com>
-Date: Thu, 13 Feb 2003 13:27:36 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: select returning slow on RH 2.4.18-14 (RH 8.0) kernel.
-References: <3E4B60A1.2060209@candelatech.com> <1045136340.2313.1.camel@laptop.fenrus.com>
-In-Reply-To: <1045136340.2313.1.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268306AbTBMV0J>; Thu, 13 Feb 2003 16:26:09 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:59806 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S268304AbTBMV0H>;
+	Thu, 13 Feb 2003 16:26:07 -0500
+Date: Thu, 13 Feb 2003 21:31:43 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.60-bk pdflush oops.
+Message-ID: <20030213213143.GB24878@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <20030213205608.GB24109@codemonkey.org.uk> <20030213132300.065c33d0.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030213132300.065c33d0.akpm@digeo.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Thu, 2003-02-13 at 10:08, Ben Greear wrote:
-> 
->>I've been doing some testing with RH 8.0 on an Ezra 800Mhz
->>machine.
->>
->>Even when lightly loaded select() often returns 3-9 miliseconds slower
->>than the timeout would suggest.  I know select is not guaranteed to
->>return with < 10ms accuracy, but with almost no load, shouldn't it
->>at least return with 1ms accuracy on average?
-> 
-> no
-> the kernel.org kernels will return in multiple-of-10ms quantities due to
-> HZ having the value of 100.
-> 2.4.18-14 (which is btw obsoleted by several security errata) has a HZ
-> value of 512 so will return in shorter quantities, EXCEPT when you
-> always try to wait exactly 10ms of course....
+On Thu, Feb 13, 2003 at 01:23:00PM -0800, Andrew Morton wrote:
+ > That is a statically stored timer.  It would appear that some other timer
+ > from some other random part of the kernel has got itself scribbled on.
+ > 
+ > Maybe networking?  
 
-For posterity's sake...I think I found a somewhat suitable work around.
+Possible given this is the box I'm seeing that NFS bug on.
+Could even be both the same bug perhaps.
 
-I set up the real-time-clock at 1024hz, open /dev/rtc, and then add it's
-file descriptor to my select input set when (0 < timeout < 10).
-
-This causes a near busy-spin on slower cpus...but for me at least that
-is the lesser of two evils...
-
-If anyone has any cleaner/better/faster/ hacks they feel like sharing,
-do let me know!
-
-PS.  Don't use SCHED_RR with this hack..or you can live-lock your system
-if it's like mine :)
-
-Thanks,
-Ben
+		Dave
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

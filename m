@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261898AbRESQur>; Sat, 19 May 2001 12:50:47 -0400
+	id <S261893AbRESRIV>; Sat, 19 May 2001 13:08:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261902AbRESQuh>; Sat, 19 May 2001 12:50:37 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:25872 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261898AbRESQuV>; Sat, 19 May 2001 12:50:21 -0400
-Date: Sat, 19 May 2001 18:48:19 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alexander Viro <viro@math.psu.edu>, Andrew Clausen <clausen@gnu.org>,
-        Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-Message-ID: <20010519184819.M18853@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.GSO.4.21.0105190416190.3724-100000@weyl.math.psu.edu> <E1517Jf-0008PV-00@the-village.bc.nu>
+	id <S261894AbRESRIM>; Sat, 19 May 2001 13:08:12 -0400
+Received: from unthought.net ([212.97.129.24]:40864 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S261902AbRESRH5>;
+	Sat, 19 May 2001 13:07:57 -0400
+Date: Sat, 19 May 2001 19:07:55 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Negative inode-nr ?
+Message-ID: <20010519190755.E10204@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010519171901.A10204@unthought.net> <Pine.LNX.4.21.0105191332150.5531-100000@imladris.rielhome.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E1517Jf-0008PV-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, May 19, 2001 at 03:02:47PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0105191332150.5531-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Sat, May 19, 2001 at 01:33:10PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 19, 2001 at 03:02:47PM +0100, Alan Cox wrote:
-> > ioctls are evil, period. At least with these names you can use normal
-> > scripting and don't need any special tools. Every ioctl means a binary
-> > that has no business to exist.
+On Sat, May 19, 2001 at 01:33:10PM -0300, Rik van Riel wrote:
+> On Sat, 19 May 2001, [iso-8859-1] Jakob Østergaard wrote:
 > 
-> That is not IMHO a rational argument. It isn't my fault that your shell does
-> not support ioctls usefully. If you used perl as your login shell you would
-> have no problem there.
+> > What do you think of this ?
+> > [root]# cat /proc/sys/fs/inode-nr 
+> > 157097	-180
+> 
+> I think you should upgrade to a newer kernel; Al Viro
+> fixed this bug and the fix went into 2.4.5-pre1.
 
-Sure, you're right, but Al's point is that you shouldn't need to.
+Thank you Rik (and others who sent me roughly the same answer)
 
-One of the fundamentals of Unix is that "everything is a file" and that
-you can do everything by reading or writing that file. The devices are
-the big exception, they need ioctls to control them. With Al's proposal
-we can get rid of the ioctls and let the devices behave like normal
-files.
+Now *that's* support  ;)
 
-
-Erik
-[who remembers a discussion like this years ago on comp.os.linux.kernel
- with similar conclusion: ioctls are bad, we should get rid of them]
+Cheers,
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

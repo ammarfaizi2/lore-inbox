@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266151AbTGLQGq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 12:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266164AbTGLQGp
+	id S266158AbTGLQJE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 12:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266114AbTGLQIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 12:06:45 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:59539 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266151AbTGLQFr
+	Sat, 12 Jul 2003 12:08:50 -0400
+Received: from ip212-226-133-178.adsl.kpnqwest.fi ([212.226.133.178]:41176
+	"EHLO jumper") by vger.kernel.org with ESMTP id S266165AbTGLQHU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 12:05:47 -0400
-Date: Sat, 12 Jul 2003 17:20:29 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Miguel Freitas <miguel@cetuc.puc-rio.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
-Message-ID: <20030712162029.GE9547@mail.jlokier.co.uk>
-References: <1058017391.1197.24.camel@mf> <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com> <20030712154942.GB9547@mail.jlokier.co.uk> <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com>
-Mime-Version: 1.0
+	Sat, 12 Jul 2003 12:07:20 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: hang with pcmcia wlan card
+From: Jaakko Niemi <liiwi@lonesom.pp.fi>
+References: <87fzldxcf5.fsf@jumper.lonesom.pp.fi>
+In-Reply-To: <87fzldxcf5.fsf@jumper.lonesom.pp.fi>
+Date: Sat, 12 Jul 2003 19:22:53 +0300
+Message-ID: <873chbyasi.fsf@jumper.lonesom.pp.fi>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> > Cool.  What happens if you run two SCHED_SOFTRR tasks and they both
-> > use 50% of the CPU - will that starve all the other tasks?  Or is the
-> > CPU usage of all SOFTRR tasks bounded collectively?
-> 
-> Nope :) They will run their timeslice entirely and then they will try to
-> get some more. Looking at their last recharge timestamp, Dad scheduler
-> will put them in bed and will give other tasks a chance to run.
 
-Nice, but answer to wrong question, possibly :)
+> Hi,
+>
+>My laptop (thinkpad 570e) hangs hard straight after bringing up
+>interface with d-link dwl-650 wlan card. 2.5.73-bk1 works and
+>2.5.73-bk2 to 2.5.75-bk1 hang. If I boot without the card,
+>everything comes up, but inserting the card results to a hang.
+>Setting nmi_watchdog=2 has no effect.
 
-I'm wondering what happens if the tasks are both good, early to bed
-without a fuss.  Neither runs their entire timeslice.
+ Ok, bit more info: same thing happens with edimax 8139 based
+ cardbus nic also. I've disabled apm and acpi from kernel 
+ and going to start going through the pci changes between 
+ 2.5.73-bk1 and bk2. Any clues would be much appreciated.
 
-Or to illustrate: say xine uses 10% of my CPU.  What happens when I
-open 11 xine windows?
-
--- Jamie
+                --j

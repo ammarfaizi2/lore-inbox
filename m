@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266116AbSLCVQq>; Tue, 3 Dec 2002 16:16:46 -0500
+	id <S266256AbSLCVQu>; Tue, 3 Dec 2002 16:16:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266256AbSLCVQq>; Tue, 3 Dec 2002 16:16:46 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:63137 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266116AbSLCVQp>; Tue, 3 Dec 2002 16:16:45 -0500
-Subject: Re: Reserving physical memory at boot time
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: root@chaos.analogic.com
-Cc: Duncan Sands <baldrick@wanadoo.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1021203160658.20996A-100000@chaos.analogic.com>
-References: <Pine.LNX.3.95.1021203160658.20996A-100000@chaos.analogic.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Dec 2002 21:58:04 +0000
-Message-Id: <1038952684.11426.106.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S266271AbSLCVQu>; Tue, 3 Dec 2002 16:16:50 -0500
+Received: from SMTP6.andrew.cmu.edu ([128.2.10.86]:19137 "EHLO
+	smtp6.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S266256AbSLCVQt>; Tue, 3 Dec 2002 16:16:49 -0500
+Date: Tue, 3 Dec 2002 16:24:17 -0500 (EST)
+From: Steinar Hauan <hauan@cmu.edu>
+X-X-Sender: hauan@unix46.andrew.cmu.edu
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20 raid performance
+Message-ID: <Pine.LNX.4.44L-027.0212031614350.21735-100000@unix46.andrew.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-03 at 21:11, Richard B. Johnson wrote:
-> If you need a certain page reserved at boot-time you are out-of-luck.
+hello,
 
-Wrong - you can specify the precise memory map of a box as well as use 
-mem= to set the top of used memory. Its a painful way of marking a page
-and it only works for a page the kernel isnt loaded into.
+  we have a database server (dual p4 xeon, E7500 chipset) with an Adaptec
+  AIC-7899 RAID-0 controller vs Seagate Cheetah 15k rpm disks.
+
+  using a custom 2.4.20 kernel and hdparm, we only get a sustained write
+  speed of approx 60mb/s  ... versus more than 100 on a RedHat rpm kernel.
+  (2.4.18 and later) with no change in raid configuration.
+
+  does anyone know if RedHat have modified the raid setup in their kernels
+  or if there are specific options in the kernel config that could lead
+  to the above performance degradation?
+
+  any pointers would be appreciated. kernel config file available
+  on http://steinar.cheme.cmu.edu/config.p4-2.4.20 for one week.
+
+regards,
+--
+  Steinar Hauan, dept of ChemE  --  hauan@cmu.edu
+  Carnegie Mellon University, Pittsburgh PA, USA
 

@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVBULeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVBULhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbVBULeU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 06:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVBULeU
+	id S261951AbVBULhz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 06:37:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVBULhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 06:34:20 -0500
-Received: from d101.x-mailer.de ([212.162.12.2]:51344 "EHLO d101.x-mailer.de")
-	by vger.kernel.org with ESMTP id S261950AbVBULeP (ORCPT
+	Mon, 21 Feb 2005 06:37:54 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:49158 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261951AbVBULhw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 06:34:15 -0500
-From: "Schwarz" <schwarz@power-netz.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.29: Zombies not detected or removed
-Date: Mon, 21 Feb 2005 12:32:33 +0100
-Message-ID: <OBECJKACIGIAEGMGGKMPCEIOHJAA.schwarz@power-netz.de>
+	Mon, 21 Feb 2005 06:37:52 -0500
+Message-ID: <4219C811.5070906@domdv.de>
+Date: Mon, 21 Feb 2005 12:37:53 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Alex Adriaanse <alex.adriaanse@gmail.com>
+CC: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Odd data corruption problem with LVM/ReiserFS
+References: <93ca3067050220212518d94666@mail.gmail.com>
+In-Reply-To: <93ca3067050220212518d94666@mail.gmail.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
-X-Info: valid message
-X-Info: original Date
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Adriaanse wrote:
+> As far as I can tell all the directories are still intact, but there
+> was a good number of files that had been corrupted.  Those files
+> looked like they had some chunks removed, and some had a bunch of NUL
+> characters (in blocks of 4096 characters).  Some files even had chunks
+> of other files inside of them!
 
+I can second that. I had the same experience this weekend on a 
+md/dm/reiserfs setup. The funny thing is that e.g. find reports I/O 
+errors but if you then run tar on the tree you eventually get the 
+correct data from tar. Then run find again and you'll again get I/O errors.
 
-Hi everyone,
+> I did a reiserfsck (3.6.19) on /var, which did not report any problems.
 
-since 2.4.29 we discovered a strange behaviour.
+You need to run 'reiserfsck --rebuild-tree' and see what happens :-(
 
-Severall tasks are no longer detected as destroyed.
-means, these tasks have ended but arn't removed from
-the processlist.
+> Anyway, what do you guys think could be the problem?  Could it be that
+> the LVM / Device Mapper snapshot feature is solely responsible for
+> this corruption?  (I'm sure there's a reason it's marked
+> Experimental).
 
-An example from today:
+I don't think so - I changed from reiserfs to ext3 without changing the 
+underlying dm/raid5 and this seems to work properly.
 
-[root@d102 ]# date
-Mon Feb 21 10:14:06 CET 2005
-[root@d102 ]# strace -p 33326
-attach: ptrace(PTRACE_ATTACH, ...): No such process
-[root@d102 ]# ps aux | grep 29579
-33326    29579  0.0  0.2 10696 4332 ?        SN   10:11   0:00 -f
-/home/ajondoco
-root     19168  0.0  0.0  1768  628 pts/0    S    10:15   0:00 grep 29579
-[root@d102 ]# strace -p 33326
-attach: ptrace(PTRACE_ATTACH, ...): No such process
-[root@d102 ]#
+I can furthermore state that reiserfs without dm/md does work correctly 
+as I use reiserfs on a ieee1394 backup disk (that saved me from terrible 
+trouble).
 
-As you can see the process in question "29579" was started
-10:11 , but as finished its activity already. After 10
-minutes it's still not removed from the processlist and 
-it's not detected as a zombie. 
-
-the task was an Apache 1.3.3 child over a wrapper calling php
-with -f option. 
-
-We think it's unimportant if its forked or execev(),because on
-another maschine it was not even an apache invoked. 
-
-Some of the these processes enter zombie state, but were never
-fully removed !
-
-Any ideas why it and what happens?
-
-
-mfG. M.Schwarz
+Currently I can only warn to not use reiserfs with dm/md on 2.6.
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

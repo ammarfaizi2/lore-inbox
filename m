@@ -1,23 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283294AbRK2QXA>; Thu, 29 Nov 2001 11:23:00 -0500
+	id <S283312AbRK2QYa>; Thu, 29 Nov 2001 11:24:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283307AbRK2QWu>; Thu, 29 Nov 2001 11:22:50 -0500
-Received: from jik-0.dsl.speakeasy.net ([66.92.77.120]:61704 "EHLO
-	jik.kamens.brookline.ma.us") by vger.kernel.org with ESMTP
-	id <S283294AbRK2QWj>; Thu, 29 Nov 2001 11:22:39 -0500
-Date: Thu, 29 Nov 2001 11:22:35 -0500
-Message-Id: <200111291622.fATGMZw27075@jik.kamens.brookline.ma.us>
-X-mailer: xrn 9.03-beta-12
+	id <S283310AbRK2QYW>; Thu, 29 Nov 2001 11:24:22 -0500
+Received: from mhub-w2.tc.umn.edu ([160.94.160.45]:61160 "EHLO
+	mhub-w2.tc.umn.edu") by vger.kernel.org with ESMTP
+	id <S283305AbRK2QYK>; Thu, 29 Nov 2001 11:24:10 -0500
+Date: Thu, 29 Nov 2001 10:24:08 -0600 (CST)
+From: Grant Erickson <erick205@umn.edu>
 To: Daniel Stodden <stodden@in.tum.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <fa.eqan66v.1hs2ql@ifi.uio.no>
-From: jik@kamens.brookline.ma.us (Jonathan Kamens)
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: where the hell is pci_read_config_xyz defined
+Message-Id: <Pine.SOL.4.20.0111291022420.21308-100000@garnet.tc.umn.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I encountered exactly this problem recently.  I finally figured out
-that the trick is that the pci_read_config_* and pci_write_config_*
-functions are defined by a macro in drivers/pci/pci.c.  Search for
-"PCI_OP" in that file and you'll see what I mean.
+On 29 Nov 2001, Daniel Stodden wrote:
+> i hope this question is not too stupid, but i think i've grepped all
+> through it now.
+> 
+> i see the prototype in linux/pci.h
+> i looked at i386/kernel/pci-pc.c. 
+> i see the bios/direct access diversion. i don't see (*pci_config_read)()
+> referenced elsewhere except within the acpi stuff.
+> i looked at drivers/pci/*
+> i even consulted lxr. nyet. nada.
+> 
+> giving up now. any hint would be greatly appreciated. am i blind?
+
+This is a common question I think. Try looking for the following in
+drivers/pci/pci.c:
+
+#define PCI_OP(rw,size,type) \
+int pci_##rw##_config_##size (struct pci_dev *dev, int pos, type value) \
+{                                                                       \
+	[ ... ]
+}
+
+PCI_OP(read, byte, u8 *)
+PCI_OP(read, word, u16 *)
+PCI_OP(read, dword, u32 *)
+PCI_OP(write, byte, u8)
+PCI_OP(write, word, u16)
+PCI_OP(write, dword, u32)
+
+
+Regards,
+
+Grant Erickson
+
+
+-- 
+ Grant Erickson                       University of Minnesota Alumni
+  o mail:erick205@umn.edu                                 1996 BSEE
+  o http://www.umn.edu/~erick205                          1998 MSEE
+

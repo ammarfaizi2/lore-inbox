@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263551AbTDMQ6K (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 12:58:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263552AbTDMQ6J (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 12:58:09 -0400
-Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:38869 "EHLO
-	renegade") by vger.kernel.org with ESMTP id S263551AbTDMQ6I (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 12:58:08 -0400
-Date: Sun, 13 Apr 2003 10:09:51 -0700
-From: Zack Brown <zbrown@tumblerings.org>
-To: linux-kernel@vger.kernel.org
-Cc: Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: lk-changelog.pl 0.96
-Message-ID: <20030413170951.GC21855@renegade>
-References: <20030413104943.433A37EBE4@merlin.emma.line.org> <20030413144218.GB21855@renegade> <20030413162338.GC22268@merlin.emma.line.org>
+	id S263552AbTDMRU0 (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 13:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263553AbTDMRU0 (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 13:20:26 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:8207
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S263552AbTDMRUZ 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 13:20:25 -0400
+Subject: Re: 2.5.67: ppa driver & preempt == oops
+From: Robert Love <rml@tech9.net>
+To: Gert Vervoort <gert.vervoort@hccnet.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3E993C54.40805@hccnet.nl>
+References: <3E982AAC.3060606@hccnet.nl>
+	 <1050172083.2291.459.camel@localhost>  <3E993C54.40805@hccnet.nl>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050255133.733.6.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030413162338.GC22268@merlin.emma.line.org>
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 13 Apr 2003 13:32:13 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 13, 2003 at 06:23:38PM +0200, Matthias Andree wrote:
-> On Sun, 13 Apr 2003, Zack Brown wrote:
-> 
-> > On Sun, Apr 13, 2003 at 12:49:43PM +0200, Matthias Andree wrote:
-> > > This is a semi-automatic announcement.
-> > > 
-> > > lk-changelog.pl aka. shortlog version 0.96 has been released.
-> > 
-> > I think these emails from Alan and Linus actually appear in changelogs.
-> 
-> They are caught by the recently added regexp parser and don't need to be
-> listed explicitly. If you're running ./lk-changelog.pl --selftest, it'll
-> print a list of addresses that are matched by a regexp (the printout
-> actually suggests the opposite, but that's an implementation detail;
-> these lookups are tuned for speed).
+On Sun, 2003-04-13 at 06:30, Gert Vervoort wrote:
 
-Too bad for me, I was hoping to use that data structure as a complete list
-of email -> name translations for changelog entries. Maybe you could
-include them anyway as commented out entries in the data structure? That
-would give your script the added benefit of being harvestable for other
-purposes, but wouldn't sacrifice the regex speed enhancements.
 
-Not that it's not harvestable now, but folks wouldn't have to maintain
-their own addenda.
+> With 2.5.67 it is just these messages, the system continues working. 
+> Because of these messages I've not tried if the zip-driver functions 
+> properly.
 
-Be well,
-Zack
+The bug has probably been there forever, it is just that only now we can
+detect it.
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+So your zip drive most likely works fine.
 
--- 
-Zack Brown
+Try the patch Andrew posted.
+
+	Robert Love
+

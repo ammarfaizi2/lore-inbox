@@ -1,45 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRAEW2L>; Fri, 5 Jan 2001 17:28:11 -0500
+	id <S129183AbRAEW3B>; Fri, 5 Jan 2001 17:29:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129183AbRAEW1v>; Fri, 5 Jan 2001 17:27:51 -0500
-Received: from frontier.axistangent.net ([63.101.14.200]:5883 "EHLO
-	foozle.turbogeek.org") by vger.kernel.org with ESMTP
-	id <S129267AbRAEW1n>; Fri, 5 Jan 2001 17:27:43 -0500
-Date: Fri, 5 Jan 2001 22:28:04 -0600
-From: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
+	id <S130027AbRAEW2v>; Fri, 5 Jan 2001 17:28:51 -0500
+Received: from 209.102.21.2 ([209.102.21.2]:9481 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S129183AbRAEW2j>;
+	Fri, 5 Jan 2001 17:28:39 -0500
+Message-ID: <3A561A23.F1B9F198@goingware.com>
+Date: Fri, 05 Jan 2001 19:01:55 +0000
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-prerelease-ac5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Poor Leonard... and Documentation/ question
-Message-ID: <20010105222804.A2865@foozle.turbogeek.org>
-Mime-Version: 1.0
+Subject: Is your component's config help up-to-date?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -rub 2.4.0/CREDITS linux/CREDITS
---- 2.4.0/CREDITS       Fri Jan  5 09:00:34 2001
-+++ linux/CREDITS       Fri Jan  5 09:00:34 2001
-@@ -3014,5 +3014,5 @@
- # Don't add your name here, unless you really _are_ after Marc
- # alphabetically. Leonard used to be very proud of being the
- # last entry, and he'll get positively pissed if he can't even
--# be second-to-last.  (and this file really _is_ supposed to be
-+# be third-to-last.  (and this file really _is_ supposed to be
- # in alphabetic order)
+I'd like to request that if you are responsible for an option that can be
+configured in the kernel, that you look at the help for it and make sure it is
+currently up to date.
 
+I know that it is more important to the correct function of the kernel that your
+software actually be fully implemented and bug-free, but the config help is
+often the only thing that a lot of people will know about your part of the
+kernel until they've been working with the new system for a while.  At the very
+least you'll save yourself answering some questions and looking into bogus bug
+reports if you make sure the help is correct.
 
-Also, is there a seperate mailing list, or web site for the
-DocBookization of Documentation/? Is the plan to DocBookize everything
-under there? It's a bit of a mess, currently... there's not a naming
-convention much less a formating one. I'm interested in helping out
-since my C skills are less dangerous when set to read-only.
+It's my experience that after a while of testing lots of new kernels I stop
+looking at the help much.  Maybe you haven't looked at it very much since you
+originally composed it, but the behaviour of your component has changed so that
+it no longer matches the description.
 
+This is in the file linux/Documentation/Configure.help (to edit it).  You can of
+course also read it by configuring a kernel and checking the help on your
+option.
+
+- Are there any questions frequently asked on the mailing list that you could
+head off by
+  answering them in the config help?
+
+- Is the help written in a clear and unambiguous way?  Have a friend who isn't
+an expert 
+  read it and tell you what he thinks it means.  Rememember that many people who
+will be 
+  reading it do not have English as their mother tongue and may even be using a
+translation
+  dictionary to understand it.
+
+- Does the help describe the current behavior of your option?
+
+- Have you added support for new hardware in a driver that's not yet mentioned
+in the help?
+
+- If the behavior depends on the configuration of other options, is the
+described behavior
+  actually what currently happens when those other options are set various
+ways?  I know this
+  can take sime time to test out the different options by actually building and
+trying out
+  the kernels but it's important to head off a bunch of mystified users.
+
+- Does the recommendation that the help gives correspond to your current
+thinking?
+
+- Are any URL's or references to external doc given in the help correct?
+
+- Could you add any URL's or references to doc like HOWTOs that would be
+helpful?
+
+Yours,
+
+Mike
 -- 
-Jeremy M. Dolan <jmd@turbogeek.org>
-OpenPGP key = http://turbogeek.org/openpgp-key
-OpenPGP fingerprint = 494C 7A6E 19FB 026A 1F52  E0D5 5C5D 6228 DC43 3DEE
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
+
+   Tilting at Windmills for a Better Tomorrow.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

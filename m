@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313314AbSDEUAY>; Fri, 5 Apr 2002 15:00:24 -0500
+	id <S313384AbSDESYm>; Fri, 5 Apr 2002 13:24:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313537AbSDEUAO>; Fri, 5 Apr 2002 15:00:14 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:64267 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S313314AbSDEUAI>; Fri, 5 Apr 2002 15:00:08 -0500
-Message-ID: <3CAE01D8.EB75F7A2@zip.com.au>
-Date: Fri, 05 Apr 2002 11:58:16 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S313385AbSDESYc>; Fri, 5 Apr 2002 13:24:32 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:43968 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S313384AbSDESYY>; Fri, 5 Apr 2002 13:24:24 -0500
+From: <benh@kernel.crashing.org>
+To: Peter Horton <pdh@berserk.demon.co.uk>, <linux-kernel@vger.kernel.org>
+Cc: <alan@redhat.com>
+Subject: Re: [PATCH] radeonfb 2.4.19-pre2
+Date: Fri, 5 Apr 2002 20:24:41 +0200
+Message-Id: <20020405182441.5366@mailhost.mipsys.com>
+In-Reply-To: <20020404214358.GA1811@berserk.demon.co.uk>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: Ricardo Galli <gallir@uib.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Report: 2.4.18 very high latencies (with lowlat. and pre-empt 
- patches)
-In-Reply-To: <E16tEL4-0006fr-00@antoli.gallimedina.net> <3CACD3BC.1EB55BCC@zip.com.au> <E16tQlJ-0007ZV-00@antoli.gallimedina.net>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricardo Galli wrote:
-> 
-> 1. Put ten (10) to twenty (20) files of 64-80 MB each in computer B. For
-> example in /tmp/test.
-> 
-> 2. Mount in B a disk in A via NFS in, for example, /mnt/A
-> 
-> 3. In B, run the following command:
-> cp /tmp/test/* /mnt/A
-> 
-> 4. Check in A how you mouse freezes.
-> 
+>Spurred on by a little positive feedback, I've added more stuff to my
+>patch for the ATI Radeon frame buffer driver.
 
-You're writing a large amount of data to disk.  Presumably
-the X server on the same machine wants to read a little
-bit of data from the same disk.  The X server spends a
-long time in disk wait, behind all the writes.
+Could you CC the driver maintainer ? (ajoshi@unixbox.com) and me
+on further updates please ? radeonfb is an important driver on PPC
+boxes and some parts of it has to be handled with care ;)
 
-This is somewhat worsened by the VM's tendency to evict
-useful pages in favour of less useful pages (cache for
-large reads and writes).
+>* Reinitialise accelerator on console switch. This ensures the
+>accelerator is in a known state after X exits.
 
-You will probably find that the -aa VM will help a little, by
-reducing the tendency to evict the wrong pages.  You will
-probably find that
-http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.18-pre1/read-latency2.patch
-helps a lot, by allowing the reads to be satisfied more quickly.
+Sounds fine
 
-You will probably find that current -ac kernels help
-a lot, because they contain read-latency2.  -ac kernels
-also have a different VM which I think makes an attempt
-to special-case the large streaming read and write problem.
+>* Added acceleration functions for 15/16/32 bit modes.
 
-We're getting there, slowly.
+Good ;)
 
--
+>* Removed 24 bit support. It didn't work and the X source hints that
+>Radeon might not support 24 bit modes. If you ask for a 24 bit mode, the
+>driver will switch to a 32 bit one.
+
+Yah, that never worked
+
+>* Minor fix to video mode switch code which means 'fbset' now works
+>correctly. This also means the 'UseFBDev' option in X works. Commented out
+>a hack that looks like it was a failed attempt to work around this bug
+>previously.
+
+What was wrong ? I'm not sure what you mean, we have been using fbset
+and UseFBDev for ages on PPC
+
+>* Hacked wildly at the colour support to get it to work. Removed use of
+>the palette for 15/16 bit modes (I can't fathom why it was there in the
+>first place). The palette is now initialised to an identity mapping for
+>15/16/32 bit modes. The consoles now work fine at all colour depths, and
+>the Tux logo is displayed correctly at all depths too :-)
+
+I don't agree here ! The palette _do_ make sense in 15/16/32, in which
+case it's called gamma table. Don't break that, some apps do use it
+(like MacOnLinux).
+
+>* Added an untested fix for acceleration on flat panels. "Stuffed Crust"
+>reported garbled display when acceleration was enabled, this might fix it.
+
+I'll give it a try and let you know.
+
+>* Other minor cleanups.
+
+Can't harm ;)
+
+Ben.
+
+

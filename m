@@ -1,87 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311320AbSDMXxX>; Sat, 13 Apr 2002 19:53:23 -0400
+	id <S311424AbSDMXz2>; Sat, 13 Apr 2002 19:55:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311424AbSDMXxW>; Sat, 13 Apr 2002 19:53:22 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:34040
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S311320AbSDMXxU>; Sat, 13 Apr 2002 19:53:20 -0400
-Date: Sat, 13 Apr 2002 16:55:38 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Luigi Genoni <kernel@Expansa.sns.it>,
-        Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: RAID superblock confusion
-Message-ID: <20020413235538.GU23513@matchmail.com>
-Mail-Followup-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
-	Luigi Genoni <kernel@Expansa.sns.it>,
-	Andreas Dilger <adilger@clusterfs.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020410233641.GG23513@matchmail.com> <Pine.LNX.4.44.0204111202440.17727-100000@Expansa.sns.it> <200204131929.g3DJT5g06645@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
+	id <S311433AbSDMXz1>; Sat, 13 Apr 2002 19:55:27 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:32517 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S311424AbSDMXz0>; Sat, 13 Apr 2002 19:55:26 -0400
+Message-ID: <3CB8C55F.ECD143F7@zip.com.au>
+Date: Sat, 13 Apr 2002 16:55:11 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: -aa VM updates for 2.5
+In-Reply-To: <20020413233906.GB10807@matchmail.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 13, 2002 at 01:29:05PM -0600, Richard Gooch wrote:
-> Luigi Genoni writes:
-> > 
-> > > > >
-> > > > > Ehh, I ran into this a while ago.  When you compile raid as modules
-> > > > > it doesn't use the raid superblocks for anything except for
-> > > > > verification.  I took a quick glance at the source and the
-> > > > > auto-detect code is ifdefed out if you compiled as a module.
-> > > >
-> > > > Exactly where is this? A scan with find and grep don't reveal this.
-> > > >
-> > >
-> > > drivers/md/md.c
-> > >
-> > > in the ifndef MODULE sectioin.
-> > >
-> > > > > Ever since I have had raid compiled into my kernels.
-> > > >
-> > > > This is my relevant .config:
-> > > > CONFIG_MD=y
-> > > > CONFIG_BLK_DEV_MD=y
-> > > > CONFIG_MD_LINEAR=m
-> > > > CONFIG_MD_RAID0=m
-> > > > CONFIG_MD_RAID1=m
-> > > > CONFIG_MD_RAID5=m
-> > > > CONFIG_MD_MULTIPATH=m
-> > > >
-> > >
-> > > Set this to =y and you're set.
-> > >
-> > > I'd like to see this working from modules though.
-> > 
-> > NO, please. There are hundreds of scenarios where that could be
-> > dangerous.  Suppose you load the RAID module when all partitions are
-> > mounted, and two partiton in mirror are mount on different mount
-> > point (you can do this, raid module is not loaded, and so...). And
-> > now you load the module and md device is registered. That would not
-> > be really nice, also if it is ulikely that you could damnage your
-> > system
+Mike Fedyk wrote:
 > 
-> The RAID code checks to see if there are busy inodes for each device
-> in a RAID set. So your hundreds of scenarios are not a problem.
-> 
+> Why haven't any of the -aa VM updates gone into 2.5?  Especially after Andrew
+> Morton has split it up this is surprising...
 
-I had a machine that had raid1 setup correctly but was accidentally
-configured to root=/dev/hda1 (one member of the md0 raid1 set).
+I don't think there's really any point in doing that.
 
-All was well until I noticed I wasn't rooting from md0, so reboot with new
-root=/dev/md0 and now my filesystem is b0rked (maybe because hdc1 was the
-primary mirror?).
+None of the regular VM guys are really working 2.5 at this time.
 
-Luckily I was still setting up that machine so I just reinstalled it.
+VM has a close relationship with buffers, so tinkering
+with the VM while I'm busily driving a truck through the
+buffer layer and setting up new writeback mechanisms
+would represent some wasted effort.
 
-This was with raid compiled into the kernel, so it's not a module checking
-issue, and I consider it a user error.  But maybe someone else thinks
-different...
+We don't know yet whether 2.5 will have a reverse-mapping
+VM.  If it does, then maintenance work against the current
+one is wasted effort and more patching pain.
 
-Just reporting in case someone is intereted...
+(I'd also like to investigate the option of not throttling
+ page allocators by making them wait on I/O - make them
+ wait on pages coming free instead).
 
-Mike
+So.  My vote would be that unless the VM is actually impeding
+developers who are working on other parts of the kernel (it
+is not) then just leave it as-is for the while.
+
+-

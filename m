@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129544AbQKGMNg>; Tue, 7 Nov 2000 07:13:36 -0500
+	id <S130149AbQKGMP0>; Tue, 7 Nov 2000 07:15:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129662AbQKGMN0>; Tue, 7 Nov 2000 07:13:26 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62838 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129544AbQKGMNH>; Tue, 7 Nov 2000 07:13:07 -0500
-Subject: Re: Pentium 4 and 2.4/2.5
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Tue, 7 Nov 2000 12:13:41 +0000 (GMT)
-Cc: fdavis112@juno.com (Frank Davis), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10011061940200.18160-100000@master.linux-ide.org> from "Andre Hedrick" at Nov 06, 2000 07:41:07 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129662AbQKGMPQ>; Tue, 7 Nov 2000 07:15:16 -0500
+Received: from proxy.ovh.net ([213.244.20.42]:36369 "HELO proxy.ovh.net")
+	by vger.kernel.org with SMTP id <S129355AbQKGMPH>;
+	Tue, 7 Nov 2000 07:15:07 -0500
+Message-ID: <3A07F234.80AB1D06@ovh.net>
+Date: Tue, 07 Nov 2000 13:14:44 +0100
+From: octave klaba <oles@ovh.net>
+X-Mailer: Mozilla 4.73 [en] (Win98; I)
+X-Accept-Language: fr,en
 MIME-Version: 1.0
+To: "Magnus Naeslund(b)" <mag@bahnhof.se>
+Cc: Matthew Sanderson <matthew@DaMOO.csun.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.17: do_try_to_free_pages fails, no OOM
+In-Reply-To: <Pine.LNX.3.96.1001106235858.875A-100000@DaMOO.csun.edu> <009001c048ab$7d1a7fb0$020a0a0a@totalmef>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13t7dG-0007KT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not to worry, some of us are working with the 'I' guys to do proper P4
-> detection.
+> Oct 24 00:07:39 gimme kernel: VM: do_try_to_free_pages failed for
+> postmaster...
 
-Be careful with the intel patches. The ones I've seen so far tried to call the
-cpu 'if86' breaking several tools that do cpu model checking off uname. They
-didnt fix the 2GHz CPU limit, they use 'rep nop' in the locks which is
-explicitly 'undefined behaviour' for non intel processors and they use the
-TSC without checking it had one.
+2.2.18pre19 should fix this problem if andrea's patch is inside.
+if not, you have to patch pre18 with VM-global-2.2.18pre18-7.bz2
+if you are from europe you can downlaod it from:
+ftp://ftp.ovh.net/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre18/VM-global-2.2.18pre18-7.bz2
 
-Hopefully they have improved since
-
-Alan
-
+Octave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

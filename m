@@ -1,93 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263842AbTICSAL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTICSAL
+	id S264140AbTICRx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 13:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbTICRx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:00:11 -0400
-Received: from holomorphy.com ([66.224.33.161]:26249 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263842AbTICSAC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:00:02 -0400
-Date: Wed, 3 Sep 2003 11:00:37 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Larry McVoy <lm@work.bitmover.com>, "Brown, Len" <len.brown@intel.com>,
-       Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <20030903180037.GP4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Larry McVoy <lm@work.bitmover.com>,
-	"Brown, Len" <len.brown@intel.com>,
-	Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com> <20030903111934.GF10257@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 Sep 2003 13:53:57 -0400
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:11945 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S264140AbTICRxz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 13:53:55 -0400
+From: James Clark <jimwclark@ntlworld.com>
+Reply-To: jimwclark@ntlworld.com
+To: linux-kernel@vger.kernel.org
+Subject: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+Date: Wed, 3 Sep 2003 18:53:01 +0100
+User-Agent: KMail/1.5
+Cc: rml@tech9.net, root@chaos.analogic.com, mochel@osdl.org,
+       alan@lxorguk.ukuu.org.uk
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030903111934.GF10257@work.bitmover.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200309031850.14925.jimwclark@ntlworld.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 05:41:39AM -0400, Brown, Len wrote:
->> The way to address memory latency is by increasing bandwidth and
->> increasing parallelism to use it -- thus amortizing the latency.  
+Following my initial post yesterday please find attached my proposal for a 
+binary 'plugin' interface:
 
-On Wed, Sep 03, 2003 at 04:19:34AM -0700, Larry McVoy wrote:
-> And if the app is a pointer chasing app, as many apps are, that doesn't
-> help at all.
-> It's pretty much analogous to file systems.  If bandwidth was the answer
-> then we'd all be seeing data moving at 60MB/sec off the disk.  Instead 
-> we see about 4 or 5MB/sec.
+This is not an attempt to have a Microkernel, or any move away from GNU/OSS 
+software. I believe that sometimes the ultimate goals of stability and 
+portability get lost in the debate on OSS and desire to allow anyone to 
+contribute. It is worth remembering that for every Kernel hacker there must 
+be 1000's of plain users. I believe this proposal would lead to better 
+software and more people using it.
 
-RAM is not operationally analogous to disk. For one, it supports
-efficient random access, where disk does not.
+Proposal
+-----------
+1. Implement binary kernel 'plugin' interface
+2. Over time remove most existing kernel 'drivers' to use new interface - This 
+is NOT a Microkernel.
+3. Design 'plugin' interface to be extensible as possible and then rarely 
+remove support from interface. Extending interface is fine but should be done 
+in a considered way to avoid interface bloat. Suggest interface supports 
+dependant 'plugins'
+4. Allow 'plugins' to be bypassed at boot - perhaps a minimal 'known good' 
+list
+5. Ultimately, even FS 'plugins' could be created although IPL would be 
+required to load these. 
+6. Code for Kernel, Interface and 'plugins' would still be GPL. This would not 
+prevent the 'tainted' system idea. 
 
+Expected Outcomes
+------------------------
 
-On Wed, Sep 03, 2003 at 04:19:34AM -0700, Larry McVoy wrote:
-> Expecting more bandwidth to help your app is like expecting more platter
-> speed to help your file system.  It's not the platter speed, it's the
-> seeks which are the problem.  Same thing in system doesn't, it's not the
-> bcopy speed, it's the cache misses that are the problem.  More bandwidth
-> doesn't do much for that.
+1. Make Linux easier to use
+2. The ability to replace even very core Kernel components without a restart.
+3. Allow faulty 'plugins' to be fixed/replaced in isolation. No other system 
+impact.
+4. 'Plugins' could create their own interfaces as load time. This would remove 
+the need to pre-populate /dev. 
+5. Remove need for joe soap user to often recompile Kernel.
+6. Remove link between specific module versions and Kernel versions.
+7. Reduce need for major Kernel releases. Allow effort to concentrate on 
+improving Kernel not maintaining ever increasing Kernel source that includes 
+support for the 'Kitchen Sink'
+8. Make core Kernel more stable. Less releases and less changes mean less 
+bugs. It would be easy to identify offending 'plugin' by simply starting up 
+the Kernel with it disabled.
+9. Remove need for modules to be maintained in sync with each Kernel thus 
+freeing 'module' developers to add improved features or work on new projects.
 
-Obviously, since the technique is merely increasing concurrency, it
-doesn't help any individual application, but rather utilizes cpu
-resources while one is stalled to execute another. Cache misses are no
-mystery; N times the number of threads of execution is N times the cache
-footprint (assuming all threads equal, which is never true but useful
-to assume), so it doesn't pay to cachestrate. But it never did anyway.
-
-The lines of reasoning presented against tightly coupled systems are
-grossly flawed. Attacking the communication bottlenecks by increasing
-the penalty for communication is highly ineffective, which is why these
-cookie cutter clusters for everything strategies don't work even on
-paper.
-
-First, communication requirements originate from the applications, not
-the operating system, hence so long as there are applications with such
-requirements, the requirements for such kernels will exist. Second, the
-proposal is ignoring numerous environmental constraints, for instance,
-the system administration, colocation, and other costs of the massive
-duplication of perfectly shareable resources implied by the clustering.
-Third, the communication penalties are turned from memory access to I/O,
-which is tremendously slower by several orders of magnitude. Fourth, the
-kernel design problem is actually made harder, since no one has ever
-been able to produce a working design for these cache coherent clusters
-yet that I know of, and what descriptions of this proposal I've seen that
-are extant (you wrote some paper on it, IIRC) are too vague to be
-operationally useful.
-
-So as best as I can tell the proposal consists of using an orders-of-
-magnitude slower communication method to implement an underspecified
-solution to some research problem that to all appearances will be more
-expensive to maintain and keep running than the now extant designs.
-
-I like distributed systems and clusters, and they're great to use for
-what they're good for. They're not substitutes in any way for tightly
-coupled systems, nor do they render large specimens thereof unnecessary.
+James
 
 
--- wli

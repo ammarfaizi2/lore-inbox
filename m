@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVAKUgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVAKUio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbVAKUgB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 15:36:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVAKUgA
+	id S262117AbVAKUio (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 15:38:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVAKUif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 15:36:00 -0500
-Received: from mail1.fw-sj.sony.com ([160.33.82.68]:59832 "EHLO
-	mail1.fw-sj.sony.com") by vger.kernel.org with ESMTP
-	id S261949AbVAKUfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 15:35:51 -0500
-Message-ID: <41E43899.3080301@am.sony.com>
-Date: Tue, 11 Jan 2005 12:35:37 -0800
-From: Geoff Levand <geoffrey.levand@am.sony.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041020)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mporter@mvista.com
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH][PPC32] Fix ebony build warnings
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jan 2005 15:38:35 -0500
+Received: from holomorphy.com ([207.189.100.168]:1671 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262117AbVAKUgc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 15:36:32 -0500
+Date: Tue, 11 Jan 2005 12:36:29 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] silence numerous size_t warnings in drivers/acpi/processor_idle.c
+Message-ID: <20050111203629.GB14443@holomorphy.com>
+References: <200501111916.j0BJGq1F010042@hera.kernel.org> <41E436AC.1050004@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E436AC.1050004@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebony-fix-warnings-05.01.11.patch:
+ChangeSet 1.2334, 2005/01/11 09:21:40-08:00, wli@holomorphy.com
+>>	[PATCH] silence numerous size_t warnings in 
+>>	drivers/acpi/processor_idle.c
+>>	Multiple format -related warnings arise from size_t issues.  This 
+>>	patch
+>>	peppers the seq_printf()'s with 'z' qualifiers and casts to silence 
+>>	them all.
 
-This patch fixes some 'makes pointer from integer without a cast' build 
-warnings for ebony.
+On Tue, Jan 11, 2005 at 12:27:24PM -0800, Randy.Dunlap wrote:
+> Does this mean that ptrdiff_t type looks same as a size_t
+> to printk() & seq_printf() ?
 
-Signed-off-by: Geoff Levand <geoffrey.levand@am.sony.com> for CELF
----
+As far as I know this is the case. I have no specific opinion on this
+being a better way to do it than something else.
 
- ebony.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.10.orig/arch/ppc/platforms/4xx/ebony.c	2004-12-24 13:35:40.000000000 -0800
-+++ fixed/arch/ppc/platforms/4xx/ebony.c	2005-01-11 12:27:13.253449121 -0800
-@@ -179,7 +179,7 @@
- }
- 
- #define PCIX_WRITEL(value, offset) \
--	(writel(value, (u32)pcix_reg_base+offset))
-+	(writel(value, (void*)((u32)pcix_reg_base+offset)))
- 
- /*
-  * FIXME: This is only here to "make it work".  This will move
-
+-- wli

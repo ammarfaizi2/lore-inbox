@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268406AbTAMW4x>; Mon, 13 Jan 2003 17:56:53 -0500
+	id <S268401AbTAMXFN>; Mon, 13 Jan 2003 18:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268407AbTAMW4x>; Mon, 13 Jan 2003 17:56:53 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:1940 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S268406AbTAMW4t>; Mon, 13 Jan 2003 17:56:49 -0500
-Date: Mon, 13 Jan 2003 17:05:37 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>, <ebiederm@xmission.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Consolidate vmlinux.lds.S files
-In-Reply-To: <20030113221942.GB2423@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0301131658370.24477-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268403AbTAMXFM>; Mon, 13 Jan 2003 18:05:12 -0500
+Received: from ip68-0-152-218.tc.ph.cox.net ([68.0.152.218]:18050 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S268401AbTAMXEg>; Mon, 13 Jan 2003 18:04:36 -0500
+Date: Mon, 13 Jan 2003 16:13:25 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][RESEND x 5] Don't ask about "Enhanced Real Time Clock Support" on some archs
+Message-ID: <20030113231325.GA764@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jan 2003, Sam Ravnborg wrote:
+The following patch adds an explicit no list of arches who do not want
+to have the "Enhanced Real Time Clock Support" RTC driver asked.  This
+adds PPC32 (who for a long time had their own 'generic' RTC driver, and
+then have adopted the genrtc driver) and PARISC (who have always used
+the genrtc driver).  Per request of Peter Chubb, IA64 is on this list as
+well.
 
-> > I would suggest an approach like the following, of course showing only a 
-> > first simple step.
-> 
-> But you do not deal with different alingment of the sections.
-> I have not yet fully understood all the requirements, but wanted to
-> keep the original ALIGN settings.
-> In the patch you posted some architectures use ALIGN(4) {cris},
-> other nothing, but most of them ALIGN(16).
-> Is it OK to force them all to ALIGN(16) then?
+The problem is that on some archs there is no hope of this driver
+working, and having it compiled into the kernel can cause many different
+problems.  On the other hand, there are some arches for whom that driver
+does work, on some platforms.  So having an explicit yes list would
+result in some rather ugly statements.
 
-Well, forcing them to a larger alignment surely won't break anything, 
-except for wasting 12 bytes on cris. But in general, you're right, not of 
-all of this is trivial to share due to these small differences. In the 
-cases where it's necessary, we could do something like
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
-(for CRIS)
-#define EXTABLE_ALIGN 4
-
-(in generic code)
-#ifndef EXTABLE_ALIGN
-#define EXTABLE_ALIGN 16
-#endif
-
-Of course, one could also do EXTABLE(4) and EXTABLE(16), respectively, but 
-I think it's less obvious to the occasional reader that these magic 
-numbers are about alignment.
-
-> > A series of steps like this should allow for a serious 
-> > reduction in size of arch/*/vmlinux.lds.S already, while being obviously 
-> > correct and allowing archs to do their own special thing if necessary (in 
-> > particular, IA64 seems to differ from all the other archs).
-> 
-> My main objective was that adding new stuff, like __gpl_ksyms could
-> be done in one place only.
-> Or .gnu.linkonce.vermagic, or whatever will be used for that.
-
-Yes, and that's why I think that separating out and sharing these bits is 
-a very good idea. Actually, separating out the ksymtab etc code should be 
-really easy, as opposed to other stuff where there's more substantial 
-differences between the archs.
-
-It'll be a rather long and tedious process to do this work, but I think 
-it's worth it.
-
---Kai
-
-
+===== drivers/char/Kconfig 1.1 vs edited =====
+--- 1.1/drivers/char/Kconfig	Tue Oct 29 18:16:55 2002
++++ edited/drivers/char/Kconfig	Wed Nov 13 07:56:39 2002
+@@ -1053,6 +1053,7 @@
+ 
+ config RTC
+ 	tristate "Enhanced Real Time Clock Support"
++	depends on !PPC32 && !PARISC && !IA64
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you

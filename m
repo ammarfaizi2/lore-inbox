@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbULaGIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbULaGIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbULaGIg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 01:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbULaGIg
+	id S261686AbULaGIx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 01:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbULaGIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 01:08:36 -0500
-Received: from web60603.mail.yahoo.com ([216.109.118.223]:24244 "HELO
-	web60603.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261672AbULaGIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 01:08:32 -0500
+	Fri, 31 Dec 2004 01:08:53 -0500
+Received: from web60609.mail.yahoo.com ([216.109.119.83]:39332 "HELO
+	web60609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261686AbULaGIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 01:08:46 -0500
 Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com;
-  b=4eAIpzSaSw83b8bpi1QcOq+mm1348fdCGy+lVwMlNYKZH/zObnL7K1NAzLpxTCiizntznn70CZO19iIKgMjjTZ5EnfRv2SMkHxBQpUNw4qfzGPR6aDtMKui+uXL2l87JRhYS/MKUfyPcck3IUMkOzRrcBbMlDuOLSi2mCP5Ln8c=  ;
-Message-ID: <20041231060832.97559.qmail@web60603.mail.yahoo.com>
-Date: Thu, 30 Dec 2004 22:08:32 -0800 (PST)
+  b=Lmf26PcC0CnqKSOoLH13nJEKx8Tslsi/yGQyq8WQZDQ3EVqzrQOs7i4kUOOuZTuI+yynxVLSciOwuns95QwmctLKJsuoablhMDpc0SpYp8GiF33mOxgM0rSLfuBI52ywCjT2nOE66W48rxCPgDLsaUEUC8+wnkoeUb0I7kBfrSk=  ;
+Message-ID: <20041231060845.72677.qmail@web60609.mail.yahoo.com>
+Date: Thu, 30 Dec 2004 22:08:45 -0800 (PST)
 From: selvakumar nagendran <kernelselva@yahoo.com>
 Subject: Resource unavailabilty on a syscall
 To: bert hubert <ahu@ds9a.nl>
@@ -81,7 +81,5 @@ selva
 		
 __________________________________ 
 Do you Yahoo!? 
-The all-new My Yahoo! - Get yours free! 
-http://my.yahoo.com 
- 
-
+Dress up your holiday email, Hollywood style. Learn more. 
+http://celebrity.mail.yahoo.com

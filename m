@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263406AbTHXDji (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 23:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTHXDji
+	id S263384AbTHXDt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 23:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263417AbTHXDt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 23:39:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14278 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263414AbTHXDjg (ORCPT
+	Sat, 23 Aug 2003 23:49:26 -0400
+Received: from mail.kroah.org ([65.200.24.183]:60056 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263384AbTHXDtZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 23:39:36 -0400
-Date: Sat, 23 Aug 2003 20:42:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: dan@merillat.org
-Cc: linux-kernel@vger.kernel.org, harik@chaos.ao.net,
-       Oleg Drokin <green@namesys.com>
-Subject: Re: Reiserfs kernel-crashing bug in 2.4.20 (and UML)
-Message-Id: <20030823204201.06c706c1.akpm@osdl.org>
-In-Reply-To: <4878.24.165.250.16.1061688482.squirrel@mail.merillat.org>
-References: <4878.24.165.250.16.1061688482.squirrel@mail.merillat.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 23 Aug 2003 23:49:25 -0400
+Date: Sat, 23 Aug 2003 20:49:12 -0700
+From: Greg KH <greg@kroah.com>
+To: Scott Lampert <scott@lampert.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB 2.0 and USB Sony DRU-500A unreliable
+Message-ID: <20030824034912.GB10215@kroah.com>
+References: <20030823162145.GA5229@cobalt.heavymetal.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030823162145.GA5229@cobalt.heavymetal.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dan@merillat.org wrote:
->
->  Let's get this out of the way first: I KNOW IT'S A HARDWARE BUG.  My
->  system wrote corrupted data to the drive.  I've already recovered the
->  partition but I have a dd'd copy around to figure this out.
+On Sat, Aug 23, 2003 at 09:21:45AM -0700, Scott Lampert wrote:
 > 
->  With that out of the way:
+> I have problems getting my Sony DRU-500A on an external USB 2.0 enclosure
+> working reliably with my IOGear USB 2.0 card on any of the late
+> 2.5.x/2.6.0-test kernels. The enclosure is a generic "Made in China"
+> brand (PPA, Inc?).  The drive seems to read data fine for a little while
+> and then just "shuts down" and stops reading, irregardless of what kind
+> of media I have in it. This same configuration (exact same hardware)
+> works fine under Windows. :(
 > 
->  I can reliably insta-reboot my kernel or cause user-mode-linux to crash
->  out when doing a directory lookup in one corrupted directory.
-> 
->  The catch is, (and there's always a catch) neither oopses.  real kernel on
->  real hardware just flashes the screen and reboots, user-mode-linux just
->  drops back to the host's shell prompt.
-> 
->  Here's what I've found using UML on it:
-> 
->  The directory is one block, but we're reading data 100+k into it.  Perhaps
->  a sanity check that we're actually within the buffer we want to be?
+> Attached is all the data about the various components I thought might be
+> useful and the output of UMass debug right when it starts to fail.  If
+> there is some more data needed, or I'm sending to the wrong list, or
+> ideas for things to try please let me know.
 
-You're absolutely right.  Filesystem drivers should try hard to not crash
-the box when fed random crap.
+Try sending this to the linux-usb-devel mailing list.
 
-> +		if (d_reclen < 0)
-> +			return -EIO;
+Good luck,
 
-It needs to be checked for some upper bound as well.
-
-
+greg k-h

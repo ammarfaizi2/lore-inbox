@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262415AbTABQVl>; Thu, 2 Jan 2003 11:21:41 -0500
+	id <S262692AbTABQWW>; Thu, 2 Jan 2003 11:22:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbTABQVl>; Thu, 2 Jan 2003 11:21:41 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:60420 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262415AbTABQVk>;
-	Thu, 2 Jan 2003 11:21:40 -0500
-Date: Thu, 2 Jan 2003 17:29:56 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: [PATCH] more procfs bits for !CONFIG_MMU
-Message-ID: <20030102162956.GB956@mars.ravnborg.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-References: <20030102000522.A6137@lst.de> <Pine.LNX.4.44.0301011539070.12809-100000@home.transmeta.com> <20030101235842.A3044@infradead.org>
+	id <S262420AbTABQWW>; Thu, 2 Jan 2003 11:22:22 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:55943
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262692AbTABQWU>; Thu, 2 Jan 2003 11:22:20 -0500
+Subject: Re: 2.5.x Configuration - about ISA
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0301021404490.26251-100000@dns.toxicfilms.tv>
+References: <Pine.LNX.4.44.0301021404490.26251-100000@dns.toxicfilms.tv>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Jan 2003 17:13:34 +0000
+Message-Id: <1041527614.24809.5.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030101235842.A3044@infradead.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 01, 2003 at 11:58:42PM +0000, Christoph Hellwig wrote:
-> > Isn't it much nicer to just write this something like
-> > 
-> > 	proc-mmu-y = proc_mmu.o
-> > 	proc-mmu-n = proc_nommu.o
-> > 
-> > 	obj-y += $(proc-mmu-$(CONFIG_MMU))
-> > 
-> > instead, and avoid conditionals?
+On Thu, 2003-01-02 at 13:06, Maciej Soltysiak wrote:
+> Hi,
 > 
-> Could be done.  Maybe Kai even has an even nicer generic version? :)
-Here's my try:
-Old makefile:
-proc-objs    := inode.o root.o base.o generic.o array.o \
-                kmsg.o proc_tty.o proc_misc.o kcore.o
+> When CONFIG_ISA is disabled and CONFIG_PNP_CARD is enabled, an option
+> appears:
+> CONFIG_ISAPNP
+> 
+> If we disabled ISA bus, shold not ISA Plug and Play be disabled too ?
 
-ifeq ($(CONFIG_PROC_DEVICETREE),y)
-proc-objs    += proc_devtree.o
-endif
+ISAPnP yes, PNPBIos no
 
-New Makefile:
-proc-y             := proc_mmu.o
-proc-$(CONFIG_MMU) := proc_nommu.o
-
-proc-y += inode.o root.o base.o generic.o array.o \
-          kmsg.o proc_tty.o proc_misc.o kcore.o
-
-proc-$(CONFIG_PROC_DEVICETREE) += proc_devtree.o
-
-Untested...
-
-	Sam

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267485AbTBNWxP>; Fri, 14 Feb 2003 17:53:15 -0500
+	id <S267472AbTBNWwh>; Fri, 14 Feb 2003 17:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267499AbTBNWxO>; Fri, 14 Feb 2003 17:53:14 -0500
-Received: from packet.digeo.com ([12.110.80.53]:6784 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267485AbTBNWxM>;
-	Fri, 14 Feb 2003 17:53:12 -0500
-Date: Fri, 14 Feb 2003 15:01:28 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Szabolcs Berecz <szabi@mplayerhq.hu>
+	id <S267485AbTBNWwh>; Fri, 14 Feb 2003 17:52:37 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:59881 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S267472AbTBNWwg>; Fri, 14 Feb 2003 17:52:36 -0500
+Subject: Re: WBEM and WMI
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: "Simoneaux, Jill" <jill.simoneaux@intel.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] radix-tree.c
-Message-Id: <20030214150128.5a28e7d5.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.33.0302142233370.16839-100000@mail.mplayerhq.hu>
-References: <Pine.LNX.4.33.0302142233370.16839-100000@mail.mplayerhq.hu>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <B34A7DC9C1CDAB4D9A4BC2C0F15A06E83ACA99@fmsmsx401.fm.intel.com>
+References: <B34A7DC9C1CDAB4D9A4BC2C0F15A06E83ACA99@fmsmsx401.fm.intel.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Feb 2003 23:02:58.0819 (UTC) FILETIME=[37933530:01C2D47D]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Feb 2003 14:52:22 -0800
+Message-Id: <1045263143.13489.24.camel@vmhack>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Szabolcs Berecz <szabi@mplayerhq.hu> wrote:
->
+On Fri, 2003-02-14 at 14:54, Simoneaux, Jill wrote:
+> Are there any plans for incorporating WBEM into the kernel??
 > 
-> With the following patch maxindex is taken from an array instead of
-> recalculating it all the time.
-
-Looks good to me.
-
-> +static unsigned long height_to_maxindex[RADIX_TREE_MAX_PATH];
-> +
->  /*
->   * Radix tree node cache.
->   */
-> @@ -126,12 +128,9 @@
->   */
->  static inline unsigned long radix_tree_maxindex(unsigned int height)
->  {
-> -	unsigned int tmp = height * RADIX_TREE_MAP_SHIFT;
-> -	unsigned long index = (~0UL >> (RADIX_TREE_INDEX_BITS - tmp - 1)) >> 1;
+> J. Jill Simoneaux
+> Integration Systems Engineering
+> (916) 356-4628
+> I don't speak for Intel
+> 
 > -
-> -	if (tmp >= RADIX_TREE_INDEX_BITS)
-> -		index = ~0UL;
-> -	return index;
-> +	if (unlikely(height >= RADIX_TREE_MAX_PATH))
-> +		return ~0UL;
-> +	return height_to_maxindex[height];
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-If you make height_to_maxindex[] a bit bigger, and fill it up with ~0UL's,
-this comparison can be removed too.
+It is a general rule on Linux that as much functionality as possible is
+pushed to user space.  Is there a specific feature needed to implement
+WBEM that can only be supplied by the kernel?
 
-I rather hope that height cannot be larger than RADIX_TREE_MAX_PATH anyway...
+    --rustyl
+
+
 

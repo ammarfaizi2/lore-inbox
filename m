@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269682AbRHCXhy>; Fri, 3 Aug 2001 19:37:54 -0400
+	id <S269709AbRHCXmF>; Fri, 3 Aug 2001 19:42:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269705AbRHCXho>; Fri, 3 Aug 2001 19:37:44 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:40840 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S269682AbRHCXh0>;
-	Fri, 3 Aug 2001 19:37:26 -0400
-Message-ID: <3B6B378D.7F72DC8@randomlogic.com>
-Date: Fri, 03 Aug 2001 16:45:17 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S269708AbRHCXly>; Fri, 3 Aug 2001 19:41:54 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:37847 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269707AbRHCXlh>;
+	Fri, 3 Aug 2001 19:41:37 -0400
+Date: Fri, 3 Aug 2001 19:41:40 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic
+ change patch)
+In-Reply-To: <20010804113525.E17925@weta.f00f.org>
+Message-ID: <Pine.GSO.4.21.0108031937120.5264-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] DMCA loop hole
-In-Reply-To: <Pine.LNX.4.21.0108031830170.2386-100000@ns> <87zo9glq2j.fsf@wesley.springies.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Shutko wrote:
-> 
-> <nick@snowman.net> writes:
-> 
-> > Yeah it is.  EULA has become totally valid and should be upheld by any
-> > courts who come across one.  (In the US at least.  I don't know the
-> > situation outside the US).  One of the recent bills/acts/whatever made
-> > this change.
-> 
-> You're thinking of UCITA, which is adopted on a state-by-state basis,
-> and has not been adopted by all states.  AIUI, at least.
-> 
 
-Some states have even enacted laws AGAINST UCITA.
 
-Good for them.
+On Sat, 4 Aug 2001, Chris Wedgwood wrote:
 
-PGA
+> On Fri, Aug 03, 2001 at 07:25:19PM -0400, Alexander Viro wrote:
+> 
+>     You need credentials to sync a regular file on any network
+>     filesystem.
+> 
+> For 2.5.x I assume your planning or a credentials cache?  Something
+> like dentry->d_creds or something?  If that's the case we still don't
+> need the struct file* to be passed --- but I suspect that's not the
+> case and I really don't understand.
 
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043
+file->f_cred. Different people opening the same file can have different
+credentials (e.g. credentials can be revoked)
+

@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265558AbTFRV6r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 17:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265560AbTFRV6r
+	id S265563AbTFRWEw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 18:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265564AbTFRWEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 17:58:47 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:50906 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S265558AbTFRV6q (ORCPT
+	Wed, 18 Jun 2003 18:04:52 -0400
+Received: from ns.suse.de ([213.95.15.193]:35089 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265563AbTFRWEv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 17:58:46 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16112.58330.522570.329438@napali.hpl.hp.com>
-Date: Wed, 18 Jun 2003 15:12:42 -0700
-To: Andi Kleen <ak@suse.de>
-Cc: David Mosberger <davidm@napali.hpl.hp.com>, linux-kernel@vger.kernel.org
+	Wed, 18 Jun 2003 18:04:51 -0400
+Date: Thu, 19 Jun 2003 00:18:49 +0200
+From: Andi Kleen <ak@suse.de>
+To: davidm@hpl.hp.com
+Cc: Andi Kleen <ak@suse.de>, David Mosberger <davidm@napali.hpl.hp.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: add /proc/sys/kernel/cache_decay_ticks
-In-Reply-To: <p73znkf2g9t.fsf@oldwotan.suse.de>
-References: <200306182151.h5ILpMcx022062@napali.hpl.hp.com.suse.lists.linux.kernel>
-	<p73znkf2g9t.fsf@oldwotan.suse.de>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Message-ID: <20030618221849.GD3543@wotan.suse.de>
+References: <200306182151.h5ILpMcx022062@napali.hpl.hp.com.suse.lists.linux.kernel> <p73znkf2g9t.fsf@oldwotan.suse.de> <16112.58330.522570.329438@napali.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16112.58330.522570.329438@napali.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 19 Jun 2003 00:05:18 +0200, Andi Kleen <ak@suse.de> said:
+> I don't see why the two have to be tied together.  I agree it would be
+> _nice_, but having /proc/sys/kernel/cache_decay_ticks in it's current
+> form is much better than nothing at all.
 
-  Andi> David Mosberger <davidm@napali.hpl.hp.com> writes:
-  >> /proc/sys/kernel/cache_decay_ticks allows runtime tuning of the
-  >> scheduler.  The earlier patch collided with the C99-ification of
-  >> the file, so here is a retransmit.
+The problem is that when you change it later with the sysctl you have a subtle
+user visible change, breaking existing users.
 
-  Andi> Funny, I did a similar patch for 2.4 a short time ago. But I
-  Andi> would suggest one change before you merge that to
-  Andi> mainline. The variable is currently used like this:
+-Andi
 
-  Andi> #define CAN_MIGRATE_TASK(p,rq,this_cpu) \ ((jiffies -
-  Andi> (p)->last_run > cache_decay_ticks) && \o
-
-  Andi> Which means 0 means 1 jiffie. For a tunable it would be useful
-  Andi> to be able to turn it off completely, which means the > needs
-  Andi> to be replaced with a >=. Unfortunately this requires changes
-  Andi> in the architectures too to subtract one. But it would make it
-  Andi> more useful. I would do the change before exposing it.
-
-I don't see why the two have to be tied together.  I agree it would be
-_nice_, but having /proc/sys/kernel/cache_decay_ticks in it's current
-form is much better than nothing at all.
-
-	--david

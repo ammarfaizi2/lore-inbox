@@ -1,41 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262276AbTJFOuj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 10:50:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbTJFOuj
+	id S262279AbTJFOur (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 10:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbTJFOur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 10:50:39 -0400
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:57546 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262276AbTJFOui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 10:50:38 -0400
-Subject: Re: [PATCH] s390 (2/7): common i/o layer.
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF79F7FC5D.894CD912-ONC1256DB7.0051545B-C1256DB7.00516DD4@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 6 Oct 2003 16:49:25 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 06/10/2003 16:49:57
+	Mon, 6 Oct 2003 10:50:47 -0400
+Received: from itaqui.terra.com.br ([200.176.3.19]:4842 "EHLO
+	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S262279AbTJFOum
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 10:50:42 -0400
+Message-ID: <3F81820F.2000602@terra.com.br>
+Date: Mon, 06 Oct 2003 11:54:07 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: David Woodhouse <dwmw2@redhat.com>
+Cc: linux-mtd@lists.infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Memory leak in mtd/chips/cfi_cmdset_0020
+References: <3F81800A.5000500@terra.com.br> <1065451568.22491.215.camel@hades.cambridge.redhat.com>
+In-Reply-To: <1065451568.22491.215.camel@hades.cambridge.redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------060108070302070803010705"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060108070302070803010705
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > Just checked. You right about chp_release which should do
-> > a kfree on the struct channel_path object. But the two
-> > other release functions are really dummy functions because
-> > cu3088_root_dev and iucv_root are static structures.
->
-> Even in that case you're screwed in case they are in modules..
 
-Why? The root device are registered in the module init function
-and unregistered in the module exit function. I fail to see the
-problem.
 
-blue skies,
-   Martin
+David Woodhouse wrote:
+> Applied; thanks. It'll be in the next update sent to Linus, when I get a
+> few spare moments for merging and testing.
 
+	Great, thanks.
+
+> Out of interest, why didn't smatch also find the same error 25 lines
+> further down?
+
+	He did...I didn't ;)
+
+	If you want, updated patch is attached.
+
+	Cheers,
+
+Felipe
+
+--------------060108070302070803010705
+Content-Type: text/plain;
+ name="cfi_cmdset_0020-leak.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cfi_cmdset_0020-leak.patch"
+
+--- linux-2.6.0-test6/drivers/mtd/chips/cfi_cmdset_0020.c.orig	2003-10-06 11:37:31.000000000 -0300
++++ linux-2.6.0-test6/drivers/mtd/chips/cfi_cmdset_0020.c	2003-10-06 11:52:40.000000000 -0300
+@@ -208,6 +208,7 @@
+ 	if (!mtd->eraseregions) { 
+ 		printk(KERN_ERR "Failed to allocate memory for MTD erase region info\n");
+ 		kfree(cfi->cmdset_priv);
++		kfree(mtd);
+ 		return NULL;
+ 	}
+ 	
+@@ -232,6 +233,7 @@
+ 			printk(KERN_WARNING "Sum of regions (%lx) != total size of set of interleaved chips (%lx)\n", offset, devsize);
+ 			kfree(mtd->eraseregions);
+ 			kfree(cfi->cmdset_priv);
++			kfree(mtd);
+ 			return NULL;
+ 		}
+ 
+
+--------------060108070302070803010705--
 

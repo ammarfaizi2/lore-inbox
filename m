@@ -1,28 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267715AbTAIABF>; Wed, 8 Jan 2003 19:01:05 -0500
+	id <S267719AbTAIADu>; Wed, 8 Jan 2003 19:03:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267717AbTAIABF>; Wed, 8 Jan 2003 19:01:05 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57995
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267715AbTAIABE>; Wed, 8 Jan 2003 19:01:04 -0500
-Subject: Re: Etherleak
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dee <dfisher@uptimedevices.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030108154741.21095993.dfisher@uptimedevices.com>
-References: <20030108154741.21095993.dfisher@uptimedevices.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042073714.25607.8.camel@irongate.swansea.linux.org.uk>
+	id <S267722AbTAIADt>; Wed, 8 Jan 2003 19:03:49 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:58857 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267719AbTAIADt>;
+	Wed, 8 Jan 2003 19:03:49 -0500
+Date: Wed, 08 Jan 2003 16:03:52 -0800 (PST)
+Message-Id: <20030108.160352.78071329.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: levon@movementarian.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /proc/sys/kernel/pointer_size
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0301081601300.1096-100000@penguin.transmeta.com>
+References: <20030108.150303.130044451.davem@redhat.com>
+	<Pine.LNX.4.44.0301081601300.1096-100000@penguin.transmeta.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 09 Jan 2003 00:55:14 +0000
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->	Was wondering if anyone had patchs for listed drivers?
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Wed, 8 Jan 2003 16:02:24 -0800 (PST)
+   
+   Or you can use an /etc/systype file that contains information.
+   
+That sounds fine to me.
 
-In testing.
-
+A funny way to initialize this could be by reading System.map
+and seeing how many significant hexidecimal digits are used
+to list the kernel symbol addresses :-)

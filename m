@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268122AbUIWAHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268120AbUIWASA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268122AbUIWAHv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 20:07:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268126AbUIWAHv
+	id S268120AbUIWASA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 20:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268127AbUIWASA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 20:07:51 -0400
-Received: from holomorphy.com ([207.189.100.168]:33490 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268122AbUIWAHt (ORCPT
+	Wed, 22 Sep 2004 20:18:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33942 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268120AbUIWAR7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 20:07:49 -0400
-Date: Wed, 22 Sep 2004 17:07:33 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Thomas Habets <thomas@habets.pp.se>
+	Wed, 22 Sep 2004 20:17:59 -0400
+Date: Wed, 22 Sep 2004 17:21:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
-Message-ID: <20040923000733.GT9106@holomorphy.com>
-References: <200409230123.30858.thomas@habets.pp.se>
+Subject: Re: PATCH: tty ldisc work version 4
+Message-Id: <20040922172139.0d7a1dd3.akpm@osdl.org>
+In-Reply-To: <20040922141821.GA27672@devserv.devel.redhat.com>
+References: <20040922141821.GA27672@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409230123.30858.thomas@habets.pp.se>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 01:23:08AM +0200, Thomas Habets wrote:
-> How about a sysctl that does "for the love of kbaek, don't ever kill these 
-> processes when OOM. If nothing else can be killed, I'd rather you panic"?
-> Examples for this list would be /usr/bin/vlock and /usr/X11R6/bin/xlock. 
-> I just got a very uncomfortable surprise when found my box unlocked thanks to 
-> this.
-> After playing around a bit, I made the patch below, but it's almost
-> completely untested. I'm not even sure I take the binaries name from
-> the right place. And I don't know if the locking can race. If it's
-> too ugly then it'd be great if someone implemented it the right way.
-> (iow: huge fucking disclaimer)
-> echo "/usr/bin/vlock /usr/X11R6/bin/xlock" > /proc/sys/vm/oom_pardon
+Alan Cox <alan@redhat.com> wrote:
+>
+> New features this time
+> - Fix synclink layers - Paul Fulghum
+> - Use tty_wakeup internally to tty_io
+> - Add initial termios locking
+> - Add ldisc hangup method for notification at hangup()
+> - Fixed close to wait for running driver side events
+> 
+> The big changes this time are locking/ordering rules for termios changes. As
+> well as various feature changes I've also begun commenting n_tty.c so we
+> can start tackling the ldisc internal issues.
 
-Assuming this is desirable (otherwise, why would you have written it?)
-
-(1) uts_sem isn't the right lock.
-(2) You acquire uts_sem under tasklist_lock, a deadlock.
-(3) It would probably make more sense to dynamically register and
-	unregister the various criteria for exempt processes than mess
-	with space-separated fields of a single string.
-
-
--- wli
+This gives me "init_dev but no ldisc" when initscripts start playing with
+the USB keyboard.  The machine then stops.

@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264235AbUEXKXC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUEXK1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264235AbUEXKXC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 06:23:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUEXKXC
+	id S264238AbUEXK1H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 06:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbUEXK1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 06:23:02 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:23510 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id S264235AbUEXKXA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 06:23:00 -0400
-Date: Mon, 24 May 2004 20:22:26 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dynamic addition of virtual disks on PPC64 iSeries
-Message-Id: <20040524202226.6b0acab6.sfr@canb.auug.org.au>
-In-Reply-To: <20040524014901.04530a24.akpm@osdl.org>
-References: <20040524162039.5f6ca3e0.sfr@canb.auug.org.au>
-	<20040523232920.2fb0640a.akpm@osdl.org>
-	<20040524184126.11aeffd3.sfr@canb.auug.org.au>
-	<20040524014901.04530a24.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__24_May_2004_20_22_26_+1000_.Y3KtUOJ.om8le1D"
+	Mon, 24 May 2004 06:27:07 -0400
+Received: from host213-123-250-229.in-addr.btopenworld.com ([213.123.250.229]:57900
+	"EHLO chancellorcare.co.uk") by vger.kernel.org with ESMTP
+	id S264238AbUEXK1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 06:27:04 -0400
+thread-index: AcRBeajVj/5QmQTVRmehh9iUT9Llig==
+X-Sieve: Server Sieve 2.2
+Date: Mon, 24 May 2004 11:27:05 +0100
+From: "Colin Leroy" <colin@colino.net>
+To: <Sumlock@vger.kernel.org>
+Message-ID: <000e01c44179$a8d5d210$0100000a@chancellor.local>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: 2.6.6-bk9, quick test
+Organization: 
+X-Mailer: Sylpheed version 0.9.10claws67.4 (GTK+ 2.4.0; powerpc-unknown-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
+Content-Class: urn:content-classes:message
+X-Loop: linuxppc-dev@lists.linuxppc.org
+Importance: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.132
+Envelope-to: paul@sumlocktest.fsnet.co.uk
+X-me-spamlevel: not-spam
+X-me-spamrating: 1.601005
+X-OriginalArrivalTime: 24 May 2004 10:27:05.0781 (UTC) FILETIME=[A9248E50:01C44179]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__24_May_2004_20_22_26_+1000_.Y3KtUOJ.om8le1D
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
 
-On Mon, 24 May 2004 01:49:01 -0700 Andrew Morton <akpm@osdl.org> wrote:
->
-> Handy.  So the patch stands as-is?
+Hi people,
 
-I would like that, but the recursive grep through /sys example
-bascially convinced me that having a writable file is better.
+I gave a shot at linux 2.6.6-bk9 on PPC32 (ibook G4) today, noticed two
+problems. First, pbbuttonsd complains about /dev/adb missing and indeed,
+it isn't there. Looks like related to Ben's changes to
+drivers/macintosh/adb.c, but maybe due to some devfs (I know, outdated
+;-)) configuration problem?
 
-New patch soon.
+Second problem, tried to mount an usb key, and it failed: mount hung.
+(ehci driver).
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+I didn't have time to investigate this stuff, but thought it could help
+to mention it ?
 
---Signature=_Mon__24_May_2004_20_22_26_+1000_.Y3KtUOJ.om8le1D
-Content-Type: application/pgp-signature
+Thanks,
+--
+Colin
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
 
-iD8DBQFAsczpFG47PeJeR58RAmTiAJsFhH1f4jvauvSWK4mxaakVopDapgCeIpKs
-GqymjwRIcHS3mjeifF1rV3s=
-=V1S3
------END PGP SIGNATURE-----
 
---Signature=_Mon__24_May_2004_20_22_26_+1000_.Y3KtUOJ.om8le1D--

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275002AbTHQCkO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 22:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275006AbTHQCkO
+	id S275006AbTHQC5w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 22:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275007AbTHQC5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 22:40:14 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:19599 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S275002AbTHQCkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 22:40:10 -0400
-Date: Sat, 16 Aug 2003 19:39:43 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Mitch Sako <msako@cadence.com>, linux-kernel@vger.kernel.org
-Subject: Re: 4g-2.6.0-test2-mm2-A5
-Message-ID: <12650000.1061087975@[10.10.2.4]>
-In-Reply-To: <3F3EC09C.7C29CABC@cadence.com>
-References: <3F3EC09C.7C29CABC@cadence.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sat, 16 Aug 2003 22:57:52 -0400
+Received: from out006pub.verizon.net ([206.46.170.106]:61676 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S275006AbTHQC5v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 22:57:51 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: browser oddities
+Date: Sat, 16 Aug 2003 22:57:51 -0400
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========1816999384=========="
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308162257.51086.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.12.137] at Sat, 16 Aug 2003 21:57:50 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========1816999384==========
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Greetings;
 
-> I'm having trouble applying Ingo's 4g-patches to linux-2.6.0-test2.  Is
-> there a how-to or readme on this?  Basic hunk failures when using 'patch
-> -p1' against the kernel source directory.
+I've just come across another bit of 2.6 trivia.
 
-That's because they're on top of test2-mm2. Best bet is just to grab test3-mm2,
-where they're already integrated, and than slap the attatched fix on top
-(from Manfred).
+When browsing the web using mozilla-1.5a on a 2.6.0-test3-mm2 boot,  I 
+find that using the back button takes you back to the top of the 
+previous page.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm2/2.6.0-test3-mm2.bz2
+So I rebooted to 2.4.22-rc2, and now the back button takes you back to 
+the point of departure on the previous page.
 
-M.
+Thats the best description I can give, and of course I have NDI what 
+might be causeing it, but it is a bit startling.
 
+This should work as expected before a real 2.6.0 is allowed out to 
+play.
 
-
---==========1816999384==========
-Content-Type: application/octet-stream; name=44_fix
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=44_fix; size=342
-
-Ci0tLSAyLjYuMC10ZXN0My1tbTIvYXJjaC9pMzg2L2tlcm5lbC9lbnRyeS5TLmRpc3QJMjAwMy0w
-OC0xNSAxMzozMzoxMS4wMDAwMDAwMDAgLTA3MDAKKysrIDIuNi4wLXRlc3QzLW1tMi9hcmNoL2kz
-ODYva2VybmVsL2VudHJ5LlMubmV3CTIwMDMtMDgtMTUgMTM6MDg6MTQuMDAwMDAwMDAwIC0wNzAw
-CkBAIC00NTgsNiArNDU4LDcgQEAgd29ya19ub3RpZnlzaWc6CQkJCSMgZGVhbCB3aXRoIHBlbmRp
-bmcgcwogCS8qCiAJICogUmVsb2FkIGRiNyBpZiBuZWNlc3Nhcnk6CiAJICovCisJbW92bCBUSV9m
-bGFncyglZWJwKSwgJWVjeAogCXRlc3RiICRfVElGX0RCNywgJWNsCiAJam56IHdvcmtfZGI3CiAK
-
---==========1816999384==========--
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

@@ -1,297 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265852AbUAECgx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 21:36:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265853AbUAECgx
+	id S265854AbUAECxM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 21:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265855AbUAECxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 21:36:53 -0500
-Received: from brain.sedal.usyd.edu.au ([129.78.24.68]:4278 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S265852AbUAECgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 21:36:45 -0500
-Message-ID: <3FF82458.1080600@sedal.usyd.edu.au>
-Date: Mon, 05 Jan 2004 01:34:00 +1100
-From: sena <auntvini@sedal.usyd.edu.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
+	Sun, 4 Jan 2004 21:53:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27346 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265854AbUAECxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 21:53:10 -0500
+Date: Sun, 4 Jan 2004 18:52:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+In-Reply-To: <20040104230104.A11439@pclin040.win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0401041847370.2162@home.osdl.org>
+References: <20040103040013.A3100@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401022033010.10561@home.osdl.org> <20040103141029.B3393@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401031423180.2162@home.osdl.org> <20040104000840.A3625@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401031802420.2162@home.osdl.org> <20040104034934.A3669@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl>
 MIME-Version: 1.0
-To: Robin Holt <holt@sgi.com>
-CC: Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: task_struct and uid of a task
-References: <3FF1DADC.1070404@sedal.usyd.edu.au> <20031231124528.GA2837@lnx-holt>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin,
-
-Thanks for your willingness to assist me. Then I will ask questions from 
-you too.
-
-I have already compiled the new kernel and it is up and running.
-
-In my next kernel update I will follow your avice to naming and indentation.
-
-One of my friends from India told me to direct this question to Rusty 
-Russel as they are very impressed about his guidance.
-
-Thus I will keep him as my main Guru.
 
 
-What I intend to do is: This is to prove a point in a Research Paper.
+On Sun, 4 Jan 2004, Andries Brouwer wrote:
+> 
+> Surprise! Are you leaving POSIX? Or ditching NFS?
+> Or demanding that NFS servers must never reboot?
 
-I am going to count number of queued and runnable processes which 
-belongs to each user login(uid). Then I would apply loadavg calculations 
-seperately.
+Ok, Andries, time for you to take a deep breath, and calm down. Because 
+your arguments are getting ridiculous in the extreme.
 
-The problem is in task_struct. The uids in task_struct is parents uid 
-(as some childs inherits it)
+A NFS server is sure as hell not going to export _its_ dynamic /dev to its 
+clients. That would be not just stupid, but crazy. Next you tell me that 
+you were using devfs and exporting that over NFS. 
 
-So if I go by that uid while counting the processes, then I would make a 
-mistake.
+A NFS server is going to export something _totally_ different than its own 
+/dev directory - it needs to be _client_-specific anyway. That's true with 
+stable numbers too, btw - ever tried to mount a Solaris /dev on a Linux 
+client? No workee.
 
-At this stage in my newly compiled kernel, I find that mistake staight away.
+> A common Unix idiom is testing for the identity
+> of two files by comparing st_ino and st_dev.
+> A broken idiom?
 
+No. It still works. Even if the device numbers change across reboots.
 
-Wishing you a Happy new Year
+Why? Becuase that _program_ sure as hell isn't running across a reboot.
 
-Sena Seneviratne
-Computer Engineering Lab
-Sydney University
-Sydney
+And again, this is not something we haven't seen before. Have you ever 
+looked at the "st_dev" values? Try once - look at what it returns for a 
+NFS-mounted filesystem. Ponder. Notice how it already is NOT stable across 
+reboots.
 
+In other words, the stuff you're complaining about is all stuff that 
+nobody has _ever_ been able to rely on, and that has nothign to do with 
+udev or anythign else. It all just shows how 100% right I am for saying 
+that you cannot rely on stable numbers.
 
-Robin Holt wrote:
+So I repeat: calm down, and think it through.
 
->On Wed, Dec 31, 2003 at 07:06:52AM +1100, sena wrote:
->
->Sena,
->
->Why don't you pester me about this instead of bothering Rusty.
->
->What are you trying to accomplish?  Please be specific about what
->you are trying to find out and not how you are trying to do it.
->
->Another thing, I would _GREATLY_ appreciate code which has
->decent variable names and good indentation.  Assuming you are
->writing this on a Linux box with a standard development install,
->you should be able to do:
->
->indent -kr -i8 -psl -npcs -cp9 myfile.c
->
->and get very kernel-style code.  Won't fix the variable names, but
->at least braces will be indented.
->
->Thanks,
->Robin Holt
->
->  
->
->>Dear Rusty,
->>
->>Thank you for your previous reply. I feel like you would be able to 
->>assist me.
->>
->>Say a computer has 5 user logins name1(500), name2(501), 
->>name3(502).........name5(504) apart from root. If these 5 people 
->>remotely login and runs there jobs, then the user name of those jobs are 
->>name1,name2 and name3.
->>
->>Say if they use telnet to remotely login then those Tasks will be 
->>started under telnet server as children.
->>
->>As the children inherits uid, euid etc of the parents. That means telnet 
->>is run as root and it inherits uid<500.
->>
->>task_struct has uid and it is updated accordingly.
->>
->>
->>I have built the kernel 2.4.19sena1 successfully but this is my problem. 
->>The problem because child process inherits uid etc if I start any 
->>process through telnet
->>
->>My code is as follows:
->>
->>unsigned long a; //for root uid<500, I am getting this uidArray[0] is 
->>for storing uid (assumed 100 for all <500)
->>unsigned long b; //for 500
->>unsigned long c; //for 501
->>unsigned long d; //for 502
->>unsigned long e; //for 503
->>unsigned long f; // for 504
->>
->>unsigned int uidArray[7];
->>
->>static unsigned long count_active_tasks(void)
->>{
->>   struct task_struct *p;
->>   unsigned long nr = 0;
->>
->>   int s = 0;
->>  
->>   int i=0;
->>   int j=0;
->>   int k=0;
->>   int m=0;
->>
->>   a=b=c=d=e=f=0;
->>  
->>      read_lock(&tasklist_lock);
->>
->>   for_each_task(p)
->>   {
->>       if ((p->state == TASK_RUNNING ||
->>            (p->state & TASK_UNINTERRUPTIBLE)))
->>   {
->>
->>       nr += FIXED_1; //nr total tasks
->>      
->>       if(i==0)
->>       {
->>           uidArray[0] = 100;
->>
->>           if(p->uid < 500)
->>           {
->>          
->>           a += FIXED_1;
->>           }
->>           else
->>           {
->>           uidArray[1] = p->uid;
->>           b += FIXED_1;
->>           k++;
->>           }
->>        k++;
->>       }
->>       else
->>       {
->>          for(j=0; j < k ; j++)
->>          {
->>              
->>           if((j==0)&& (p->uid < 500) && (s==0))
->>           {
->>               a += FIXED_1;
->>               s = 1;
->>               break;
->>           }
->>           else if((uidArray[j] == p->uid) && s==0)
->>           {
->>               if(j==1){
->>               b += FIXED_1;}
->>               if(j==2){
->>               c += FIXED_1;}
->>               if(j==3){
->>               d += FIXED_1;}
->>               if(j==4){
->>               e += FIXED_1;}
->>               if(j==5){
->>               f += FIXED_1;}
->>               s=1;
->>               break;
->>           }
->>           }
->>  
->>           if(s==0)
->>           {
->>
->>           if(k < 6)
->>              {
->>               k++;
->>               j = k-1;
->>               uidArray[j] = p->uid;
->>               if(j==1){
->>               b += FIXED_1;}
->>               if(j==2){
->>               c += FIXED_1;}
->>               if(j==3){
->>               d += FIXED_1;}
->>               if(j==4){
->>               e += FIXED_1;}
->>               if(j==5){
->>               f += FIXED_1;}
->>              }
->>              
->>
->>           }
->>
->>       s=0;
->>         }
->>      
->>       i++;
->>  
->>   }
->>
->>   }
->>          
->>   read_unlock(&tasklist_lock);
->>   return nr;
->>
->>}
->>
->>unsigned long avenrun[6];
->>
->>unsigned long avenrunT;
->>
->>static inline void calc_load(unsigned long ticks)
->>{
->>   unsigned long active_tasks;  /*fixed-point */
->>   static int count = LOAD_FREQ;
->>
->>   count -= ticks;
->>   if (count < 0) {
->>       count += LOAD_FREQ;
->>       active_tasks = count_active_tasks();
->>
->>       CALC_LOAD(avenrunT, EXP_5, active_tasks);
->>       CALC_LOAD(avenrun[0], EXP_5, a);
->>       CALC_LOAD(avenrun[1], EXP_5, b);
->>       CALC_LOAD(avenrun[2], EXP_5, c);
->>       CALC_LOAD(avenrun[3], EXP_5, d);
->>       CALC_LOAD(avenrun[4], EXP_5, e);
->>       CALC_LOAD(avenrun[5], EXP_5, f);
->>      
->>   }
->>}
->>
->>I have updated all the other places(all .h and .c files) to suit this code.
->>
->>And the result is stored in    proc/loadavg as
->>
->>       0.21   0.21   100   0.00     0       0.00      0        0.00     
->>0        0.00     0            0.00        0
->>         T        a 1      uid     b1    500        c 1     501      d1 
->>    502      e1      503          f1         504
->>
->>T- for totall
->>a1- root or uid < 500
->>b1,c1,di etc for uid>=500
->>
->>In this perticular case I have login as root so that uid 100 is seen. 
->>There is no 500 or above. they are all 0.
->>
->>But even if I start login remotely those processors started through 
->>telnet inherits uid <500. Then they will be shown under a1
->>
->>I get uids from task_struct
->>
->>Thanks
->>Sena Seneviratne
->>Computer Engineering Lab
->>School of Electrical and Information Engineering
->>Sydney University
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>    
->>
->
->  
->
-
-
-
+		Linus

@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318472AbSHEOTp>; Mon, 5 Aug 2002 10:19:45 -0400
+	id <S318542AbSHEOWc>; Mon, 5 Aug 2002 10:22:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318488AbSHEOTp>; Mon, 5 Aug 2002 10:19:45 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:8976 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S318472AbSHEOTp>;
-	Mon, 5 Aug 2002 10:19:45 -0400
-Date: Mon, 5 Aug 2002 07:21:18 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <linux-kernel@vger.kernel.org>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Subject: Re: BIG files & file systems
-In-Reply-To: <Pine.LNX.4.33L2.0208050650240.6273-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33L2.0208050719350.6273-100000@dragon.pdx.osdl.net>
+	id <S318541AbSHEOWb>; Mon, 5 Aug 2002 10:22:31 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:51981 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S318542AbSHEOWb>; Mon, 5 Aug 2002 10:22:31 -0400
+Message-ID: <3D4E89D2.7020408@evision.ag>
+Date: Mon, 05 Aug 2002 16:21:06 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE udma_status = 0x76 and 2.5.30...
+References: <1264DE104D6@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Aug 2002, Randy.Dunlap wrote:
+Uz.ytkownik Petr Vandrovec napisa?:
 
-| Albert, your graph shows that the triple-indirect limit is
-| at 8 EB, right?
+> PDC20265 works correctly without setting stop-bit in last descriptor
+> for reads, as IDE drive signals no more data, and we stop udma engine
+> manually in such case. But for writes PDC20265 prefetches beyond last 
+> pointer, finds garbage here (probably descriptor crossing 64KB, or
+> odd length or ...), and aborts whole transfer in the middle (about 
+> 4 bytes before end of real write, when it tries to prefetch beginning 
+> of next sector).
 
-Yes, but your text (email) explanation puts it at around
-4.4 TB.  Got it.
-
-Thanks.
--- 
-~Randy
+What about inserting a trap pointer there? One which would allow to 
+determine "overflows" fast? However I don't see a way to trigger 
+something as convenient as a simple page fault here.
 

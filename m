@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266599AbRGGWAa>; Sat, 7 Jul 2001 18:00:30 -0400
+	id <S266603AbRGGWBB>; Sat, 7 Jul 2001 18:01:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266600AbRGGWAK>; Sat, 7 Jul 2001 18:00:10 -0400
-Received: from zero.tech9.net ([209.61.188.187]:64004 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S266599AbRGGWAF>;
-	Sat, 7 Jul 2001 18:00:05 -0400
-Subject: OOM: A Success Report
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Cc: riel@conectiva.com.br
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 07 Jul 2001 18:00:08 -0400
-Message-Id: <994543220.1749.0.camel@phantasy>
-Mime-Version: 1.0
+	id <S266600AbRGGWAv>; Sat, 7 Jul 2001 18:00:51 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:14295 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S266603AbRGGWAj>;
+	Sat, 7 Jul 2001 18:00:39 -0400
+Message-Id: <m15J07v-000OzlC@amadeus.home.nl>
+Date: Sat, 7 Jul 2001 23:00:35 +0100 (BST)
+From: arjan@fenrus.demon.nl
+To: lk@tantalophile.demon.co.uk (Jamie Lokier)
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010707235329.A10256@pcep-jamie.cern.ch>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i thought it would be nice to finally hear something good about the OOM
-killer.
+In article <20010707235329.A10256@pcep-jamie.cern.ch> you wrote:
+>> Would it be possible to use a cramfs image in vmlinux (i.e. real
+>> filesystem image, not an in-kernel-structures fs like ramfs), and map
+>> it directly from the kernel image (it would have to be suitably aligned,
+>> of course)?
 
-i am testing Evolution (Ximian's GNOME emailer/groupware app), and the
-latest Evolution cvs-snapshot went crazy when trying to copy a mail
-folder.  my load averaged spiked, swap filled, and then i ran out of
-memory.
+> Yes that would work, and it would work on machines with less RAM too.
+> You would want to remove the cramfs filesystem code when you're done though.
 
-*poof*, Evolution was killed, and everything returned to normal.
-
-kernel showed:
-Out of Memory: Killed process 1296 (evolution-mail).
-Out of Memory: Killed process 1296 (evolution-mail).
-Out of Memory: Killed process 1296 (evolution-mail).
-Out of Memory: Killed process 1302 (evolution-mail).
-Out of Memory: Killed process 1303 (evolution-mail).
-Out of Memory: Killed process 1306 (evolution-mail).
-Out of Memory: Killed process 1307 (evolution-mail).
-
-now, i dont know if the load average spiking was evolution's fault, or
-not...but everything seemed to work. Good job.
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Until you pxe-boot your kernel over the network........

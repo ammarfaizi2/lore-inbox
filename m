@@ -1,91 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316474AbSEOTfg>; Wed, 15 May 2002 15:35:36 -0400
+	id <S316477AbSEOTlz>; Wed, 15 May 2002 15:41:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316477AbSEOTff>; Wed, 15 May 2002 15:35:35 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:62738 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S316474AbSEOTfe>; Wed, 15 May 2002 15:35:34 -0400
-Message-Id: <200205151935.g4FJZSL04191@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Russell King <rmk@arm.linux.org.uk>
-cc: James Bottomley <James.Bottomley@SteelEye.com>, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] fix for initrd breakage in 2.5.13+ 
-In-Reply-To: Message from Russell King <rmk@arm.linux.org.uk> 
-   of "Wed, 15 May 2002 19:54:22 BST." <20020515195421.C28997@flint.arm.linux.org.uk> 
-Mime-Version: 1.0
-Content-Type: multipart/mixed ;
-	boundary="==_Exmh_19067810270"
-Date: Wed, 15 May 2002 15:35:28 -0400
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S316478AbSEOTly>; Wed, 15 May 2002 15:41:54 -0400
+Received: from pc132.utati.net ([216.143.22.132]:21409 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S316477AbSEOTly>; Wed, 15 May 2002 15:41:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: John Weber <john.weber@linuxhq.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Unofficial but Supported Kernel Patches
+Date: Wed, 15 May 2002 09:43:26 -0400
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.33L2.0205121935000.18593-100000@dragon.pdx.osdl.net> <3CDF2C7C.7090203@linuxhq.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020515200758.BEAB373B@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart MIME message.
+On Sunday 12 May 2002 11:01 pm, John Weber wrote:
 
---==_Exmh_19067810270
-Content-Type: text/plain; charset=us-ascii
+> [2] Kernel Programming Documentation.  This would mostly document the
+> kernel API, and important kernel data structures, as well as "good
+> habits" in kernel development -- like "don't use virt_to_bus use
+> blah,blah,blah".  Information like this might be useful to kernel
+> janitors.  (This probably exists already).
 
-rmk@arm.linux.org.uk said:
-> --- drivers/block/rd.c	Fri May  3 03:26:05 2002 +++ /tmp/rd.c	Mon May
-> 6 03:00:00 2002 @@ -376,6 +376,7 @@
->  		rd_bdev[unit] = bdget(kdev_t_to_nr(inode->i_rdev));
->  		rd_bdev[unit]->bd_openers++;
->  		rd_bdev[unit]->bd_inode->i_mapping->a_ops = &ramdisk_aops;
-> +		rd_bdev[unit]->bd_block_size = rd_blocksize;
->  	}
->    	return 0; 
+Yeah, but filtering, collating, editing, and generally putting together a 
+good, high-quality, well indexed collection never hurts.
 
-Ah Thanks!.  Yes, that's the bit I was looking for.  It also explains why 
-bd_openers was already incremented.
+The stuff in linux/Documentation generally seems more reference material than 
+instruction material.  (Coverage is spotty and indexing is nonexistent, but 
+it's way better than nothing.)  There's buildable docbook documentation in 
+the source tarball that in theory could be blasted to HTML and posted online, 
+and that might be nice to have a standard location for.  (If there is one 
+already, I missed it.)
 
-I think you still need to set the block queue hardsect size correctly as well, 
-so the final fix for the initrd problems should be the attached (which works 
-for me).
+Try "make htmldocs" (and its cousins, make pdfdocs and make psdocs).
 
-James
+> [3] Necessary patches for each release.
+>
+> I will do any and maybe all things that folks find useful...
+> other suggestions also welcome.
 
+Actually, what I'd like to see is some kind of voting on the stability of 
+releases.  (If you had users who could indicate "I currently use THIS kernel" 
+and then keep a running tally of where everybody's at...
 
---==_Exmh_19067810270
-Content-Type: text/plain ; name="tmp.diff"; charset=us-ascii
-Content-Description: tmp.diff
-Content-Disposition: attachment; filename="tmp.diff"
+Not so much for the stable series (modulo 2.4.11) but for the -ac series, 
+knowing which ones are considered relatively stable would be fun.  And 
+knowing which 2.5 variants are going to at least finish booting before they 
+eating your filesystem might be good. :)
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.513   -> 1.514  
-#	  drivers/block/rd.c	1.35    -> 1.36   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/05/15	jejb@mulgrave.(none)	1.514
-# rd.c blocksize fix
-# --------------------------------------------
-#
-diff -Nru a/drivers/block/rd.c b/drivers/block/rd.c
---- a/drivers/block/rd.c	Wed May 15 15:21:55 2002
-+++ b/drivers/block/rd.c	Wed May 15 15:21:55 2002
-@@ -376,6 +376,7 @@
- 		rd_bdev[unit] = bdget(kdev_t_to_nr(inode->i_rdev));
- 		rd_bdev[unit]->bd_openers++;
- 		rd_bdev[unit]->bd_inode->i_mapping->a_ops = &ramdisk_aops;
-+		rd_bdev[unit]->bd_block_size = rd_blocksize;
- 	}
- 
- 	return 0;
-@@ -424,6 +425,7 @@
- 	}
- 
- 	blk_queue_make_request(BLK_DEFAULT_QUEUE(MAJOR_NR), &rd_make_request);
-+	blk_queue_hardsect_size(BLK_DEFAULT_QUEUE(MAJOR_NR), rd_blocksize);
- 
- 	for (i = 0; i < NUM_RAMDISKS; i++) {
- 		/* rd_size is given in kB */
+Possibly you could have a version specific message board.  (Grab the 
+slashcode or something and post a "story" about each new release, then 
+collect them into topics.)  Linux-kernel isn't necessarily the best place for 
+"comments on 2.5.15-pre-314159", because there's no real version sorting.  
+We've got 2.5 development, 2.4 development, 2.5-dj, 2.4-ac, the occasional 
+burp from 2.2, and all sorts of general theoretical development unrelated to 
+any actual kerenel.  (Random traffic for the O(1) scheduler patches, preempt 
+patches, Keith Owens' new build system, periodic CML2 flamewars...)  The 
+noise level's a bit high to try to follow specific topics of interest...
 
---==_Exmh_19067810270--
+Being able to thread that out a little better doesn't strike me as a bad 
+thing at all...
 
-
+Rob

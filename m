@@ -1,29 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269572AbRHCT6g>; Fri, 3 Aug 2001 15:58:36 -0400
+	id <S269568AbRHCTxR>; Fri, 3 Aug 2001 15:53:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269575AbRHCT60>; Fri, 3 Aug 2001 15:58:26 -0400
-Received: from h224n2fls22o974.telia.com ([213.64.99.224]:29841 "EHLO
-	milou.dyndns.org") by vger.kernel.org with ESMTP id <S269572AbRHCT6M>;
-	Fri, 3 Aug 2001 15:58:12 -0400
-Message-Id: <200108031958.f73JwGf12358@milou.dyndns.org>
-X-Mailer: exmh version 2.5_20010730 01/15/2001 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-From: Anders Eriksson <aer-list@mailandnews.com>
-Subject: link status changes forwarded to userspace?
-In-Reply-To: Your message of "Fri, 03 Aug 2001 12:44:47 PDT."
-             <3B6AFF2F.D99F8ECD@zip.com.au> 
-Mime-Version: 1.0
+	id <S269569AbRHCTxG>; Fri, 3 Aug 2001 15:53:06 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:34066 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S269568AbRHCTwu>; Fri, 3 Aug 2001 15:52:50 -0400
+Message-ID: <3B6B026A.C2D741B2@zip.com.au>
+Date: Fri, 03 Aug 2001 12:58:34 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Greg Louis <glouis@dynamicro.on.ca>, ext3-users <ext3-users@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ac4 ext3 recovery failure
+In-Reply-To: <3B6AFBD1.5F43B496@zip.com.au> <Pine.GSO.4.21.0108031534210.3272-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 03 Aug 2001 21:58:16 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro wrote:
+> 
+> On Fri, 3 Aug 2001, Andrew Morton wrote:
+> 
+> > Do you think this happened during the e2fsck run, or during the
+> > actual mount?
+> 
+> actual mount. s/fsync_dev/fsync_no_super/ in fs/jbd/*. Already fixed
+> in Alan's tree.
 
-Hi,
-Is it possible to get the link status change (e.g. eth cable inserted in card) 
-forwarded to userspace? I'd be cool to auto trigger dhcp on connect and 
-silently skip the interface if no cable during boot.
+Ah.  Thanks.  Linus doesn't seem to have fsync_no_super(), so some
+compatibility hacks will be needed there.
 
-/Anders
+Why does fsync_no_super() exist?  I assume some locking changes
+somewhere?
 
+> BTW, code around the place in question looks somewhat fishy - looks
+> like you have a lot of stuff assuming that journal and fs are on the
+> same device.
+
+Yes - this was fixed up when we were testing the external journal
+support for 0.9.5.  -ac4 has 0.9.3+bits.
+
+-

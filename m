@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261756AbSJCRJy>; Thu, 3 Oct 2002 13:09:54 -0400
+	id <S261497AbSJCR2E>; Thu, 3 Oct 2002 13:28:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261758AbSJCRJy>; Thu, 3 Oct 2002 13:09:54 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:16644 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S261756AbSJCRJw>; Thu, 3 Oct 2002 13:09:52 -0400
-Date: Thu, 3 Oct 2002 21:15:18 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+	id <S261502AbSJCR2E>; Thu, 3 Oct 2002 13:28:04 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:63474 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261497AbSJCR2D>; Thu, 3 Oct 2002 13:28:03 -0400
+Subject: Re: [OT] 2.6 not 3.0 - (WAS Re: [PATCH-RFC] 4 of 4 - New problem
+	logging macros, SCSI RAIDdevice)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 2.5.40] PCI: probing read-only BARs
-Message-ID: <20021003211518.A1039@jurassic.park.msu.ru>
+Cc: jbradford@dial.pipex.com, jgarzik@pobox.com, kessler@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       saw@saw.sw.com.sg, rusty@rustcorp.com.au, richardj_moore@uk.ibm.com
+In-Reply-To: <Pine.LNX.4.44.0210030952010.2067-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0210030952010.2067-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Oct 2002 18:40:51 +0100
+Message-Id: <1033666851.28814.29.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some pci devices may have base address registers locked with non-zero values.
-Examples:
-- AGP aperture BAR of AMD-7xx host bridges: if the AGP window disabled,
-  this BAR is read-only and read as 0x00000008;
-- BAR0-4 of ALi IDE controllers can be non-zero and read-only.
-Obviously, we can't calculate correct size of the respective region in
-this case (for AMD AGP window we'll get 4 GB resource - ouch).
-So I think that we should ignore r/o BARs (let the device specific
-fixups deal with them if needed).
-Patch appended (note that extra write(0)/read-back pair is required,
-as the BAR might be programmed with all 1s).
+On Thu, 2002-10-03 at 17:56, Linus Torvalds wrote:
+> And that "old_stat()" thing really ought to go some day.. It's not much of
+> a support burden, and yeah, we can point people to "that old a.out binary
+> from 1993 still works fine", so I guess we'll keep it another ten years,
+> but at this point that has less to do with technical judgement than with
+> sentimentality, I think ;^)
+> 
+> But yeah, I think on the whole we've done pretty well on being binary 
+> compatible.
 
-Ivan.
+Im not sure we want to throw those things out. However all the stuff
+that went out before libc5 could go into a legacy.c file that is only
+liked if a.out loaders are present
 
---- 2.5.40/drivers/pci/probe.c	Sat Sep 28 01:49:10 2002
-+++ linux/drivers/pci/probe.c	Thu Oct  3 13:26:41 2002
-@@ -46,7 +46,7 @@ static u32 pci_size(u32 base, unsigned l
- static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
- {
- 	unsigned int pos, reg, next;
--	u32 l, sz;
-+	u32 l, l0, sz;
- 	struct resource *res;
- 
- 	for(pos=0; pos<howmany; pos = next) {
-@@ -55,10 +55,12 @@ static void pci_read_bases(struct pci_de
- 		res->name = dev->name;
- 		reg = PCI_BASE_ADDRESS_0 + (pos << 2);
- 		pci_read_config_dword(dev, reg, &l);
-+		pci_write_config_dword(dev, reg, 0);
-+		pci_read_config_dword(dev, reg, &l0);
- 		pci_write_config_dword(dev, reg, ~0);
- 		pci_read_config_dword(dev, reg, &sz);
- 		pci_write_config_dword(dev, reg, l);
--		if (!sz || sz == 0xffffffff)
-+		if (!sz || sz == 0xffffffff || sz == l0)
- 			continue;
- 		if (l == 0xffffffff)
- 			l = 0;

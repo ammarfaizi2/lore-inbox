@@ -1,142 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279968AbRKIQS2>; Fri, 9 Nov 2001 11:18:28 -0500
+	id <S279976AbRKIQXI>; Fri, 9 Nov 2001 11:23:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279980AbRKIQST>; Fri, 9 Nov 2001 11:18:19 -0500
-Received: from ns.sysgo.de ([213.68.67.98]:35057 "EHLO dagobert.svc.sysgo.de")
-	by vger.kernel.org with ESMTP id <S279968AbRKIQSK>;
-	Fri, 9 Nov 2001 11:18:10 -0500
-Content-Type: Multipart/Mixed;
-  charset="iso-8859-1";
-  boundary="------------Boundary-00=_GYJJ32HA1OBBG12CVE3K"
-From: Robert Kaiser <rob@sysgo.de>
-Reply-To: rkaiser@sysgo.de
-Organization: Sysgo RTS GmbH
-To: <robert@schwebel.de>
-Subject: Re: Kernel booting on serial console ... crawling
-Date: Fri, 9 Nov 2001 17:18:16 +0100
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.33.0111091321441.12746-100000@callisto.local>
-In-Reply-To: <Pine.LNX.4.33.0111091321441.12746-100000@callisto.local>
-Cc: Anders Larsen <a.larsen@identecsolutions.de>, <pallaire@gameloft.com>,
-        <linux-kernel@vger.kernel.org>
+	id <S279980AbRKIQWs>; Fri, 9 Nov 2001 11:22:48 -0500
+Received: from fandango.cs.unitn.it ([193.205.199.228]:37638 "EHLO
+	fandango.cs.unitn.it") by vger.kernel.org with ESMTP
+	id <S279976AbRKIQWi> convert rfc822-to-8bit; Fri, 9 Nov 2001 11:22:38 -0500
+From: Massimo Dal Zotto <dz@cs.unitn.it>
+Message-Id: <200111091622.RAA18483@fandango.cs.unitn.it>
+Subject: Re: [PATCH] SMM BIOS on Dell i8100
+In-Reply-To: <20011109133453.A8130@emeraude.kwisatz.net> from Stephane Jourdois
+	at "Nov 9, 2001 01:34:53 pm"
+To: stephane@tuxfinder.org
+Date: Fri, 9 Nov 2001 15:57:08 +0100 (MET)
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Message-Id: <01110917181600.03671@rob>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_GYJJ32HA1OBBG12CVE3K
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+> On Thu, Nov 08, 2001 at 07:14:03PM +0100, Massimo Dal Zotto wrote:
+> > I have released version 1.4 of my package with a new kernel module and
+> > some enhancements to the i8kmon utility.
+> 
+> hello,
+> 
+> [no patch today :-)]
+> 
+> here is what top gives me :
+>   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+>  8102 kwisatz   15   0  2612 2612  1804 S     1.3  0.5   0:01 tclsh
+>  1663 kwisatz   10   0  3172 2436  2028 S     0.1  0.4   0:25 gkrellm
+> 
+> It seems that gkrellm (which monitors more than 20 things on my laptop)
+> takes only 0.1% of cpu, whereas i8kmon takes 1.3%...
+> I have absolutely no idea how to improve that, but I think that should
+> be the first thing on the TODO :-)
+> 
 
-Hi Robert,
+Hi Stephane,
 
-Am Freitag,  9. November 2001 13:27 schrieben Sie:
-> On Fri, 9 Nov 2001, Robert Kaiser wrote:
-> > Is this an AMD Elan's built-in serial port, perchance ?
->
-> I got a patch for the Elan's serial port from Jason Sodergren some days
-> ago, but it's not clear to me what exactly the problem is with this port.
-> I'm using the serial console on a DIL/Net-PC without any problems so far.
-> Perhaps it might be a good idea to join forces and try to get a patch for
-> the Elan series into the main kernel?
->
-> However, my current affords can be found on
->
->   http://www.schwebel.de/software/dnp/index_en.html
->
-> This currently implements a new CPU configuration parameter and a fix for
-> the clock on the Elan CPUs.
+first question, why is your mailer using a charset=unknown-8bit instead
+of the standard iso8859-1?
 
-This is interesting, I was not aware of the different clock frequency issue.
+> Content-Type: text/plain; charset=unknown-8bit
+> Content-Disposition: inline
+> Content-Transfer-Encoding: quoted-printable
 
-Anyway, the patch I am using to fix the crawling console output symptom on 
-the Elan is entirely different (see attachment). It was originally posted by
-Anders Larsen <a.larsen@identecsolutions.de> and we have been using
-it with good success in our embedded Linux product for quite a while now.
-The comments in the source describe the problem. Interestingly, even the
-latest AMD Elan product (SC520) seems to have this problem too.
+This gives an error in my editor elm and forces me to use cut-and-paste:
 
-Rob
+> [Charset unknown-8bit unsupported, skipping...]
 
-----------------------------------------------------------------
-Robert Kaiser                         email: rkaiser@sysgo.de
-SYSGO RTS GmbH
-Am Pfaffenstein 14                    phone: (49) 6136 9948-762
-D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
 
---------------Boundary-00=_GYJJ32HA1OBBG12CVE3K
-Content-Type: text/x-c;
-  charset="iso-8859-1";
-  name="patch-AMD-elan-serial"
-Content-Transfer-Encoding: base64
-Content-Description: AMD Elan Workaround
-Content-Disposition: attachment; filename="patch-AMD-elan-serial"
+Now back to i8kutils. No patch today because I was debugging exactly this
+problem. I discovered that the SMM calls GET_CPU_TEMP and GET_POWER_STATUS
+take a very long time compared to the other calls and this slows down the
+whole program. Here is what I discovered:
 
-SW5kZXg6IHN5c2dvL2VsaW5vcy9saW51eC9kcml2ZXJzL2NoYXIvc2VyaWFsLmMNCmRpZmYgLWMg
-c3lzZ28vZWxpbm9zL2xpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwuYzoxLjIgc3lzZ28vZWxpbm9z
-L2xpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwuYzoxLjMNCioqKiBzeXNnby9lbGlub3MvbGludXgv
-ZHJpdmVycy9jaGFyL3NlcmlhbC5jOjEuMglXZWQgTWF5IDE3IDE0OjA3OjAwIDIwMDANCi0tLSBz
-eXNnby9lbGlub3MvbGludXgvZHJpdmVycy9jaGFyL3NlcmlhbC5jCVdlZCBKdW4gIDcgMTU6MTk6
-NTMgMjAwMA0KKioqKioqKioqKioqKioqDQoqKiogNjA3LDYxMiAqKioqDQotLS0gNjA3LDYxMyAt
-LS0tDQogIAlpbnQgc3RhdHVzOw0KICAJc3RydWN0IGFzeW5jX3N0cnVjdCAqIGluZm87DQogIAlp
-bnQgcGFzc19jb3VudGVyID0gMDsNCisgCWludCBpaXI7DQogIAlzdHJ1Y3QgYXN5bmNfc3RydWN0
-ICplbmRfbWFyayA9IDA7DQogICNpZmRlZiBDT05GSUdfU0VSSUFMX01VTFRJUE9SVAkNCiAgCWlu
-dCBmaXJzdF9tdWx0aSA9IDA7DQoqKioqKioqKioqKioqKioNCioqKiA2MjcsNjM1ICoqKioNCiAg
-CQlmaXJzdF9tdWx0aSA9IGluYihtdWx0aS0+cG9ydF9tb25pdG9yKTsNCiAgI2VuZGlmDQogIA0K
-ICAJZG8gew0KICAJCWlmICghaW5mby0+dHR5IHx8DQohIAkJICAgIChzZXJpYWxfaW4oaW5mbywg
-VUFSVF9JSVIpICYgVUFSVF9JSVJfTk9fSU5UKSkgew0KICAJCQlpZiAoIWVuZF9tYXJrKQ0KICAJ
-CQkJZW5kX21hcmsgPSBpbmZvOw0KICAJCQlnb3RvIG5leHQ7DQotLS0gNjI4LDYzNyAtLS0tDQog
-IAkJZmlyc3RfbXVsdGkgPSBpbmIobXVsdGktPnBvcnRfbW9uaXRvcik7DQogICNlbmRpZg0KICAN
-CisgCWlpciA9IHNlcmlhbF9pbihpbmZvLCBVQVJUX0lJUik7DQogIAlkbyB7DQogIAkJaWYgKCFp
-bmZvLT50dHkgfHwNCiEgCQkgICAgKChpaXIgPSBzZXJpYWxfaW4oaW5mbywgVUFSVF9JSVIpKSAm
-IFVBUlRfSUlSX05PX0lOVCkpIHsNCiAgCQkJaWYgKCFlbmRfbWFyaykNCiAgCQkJCWVuZF9tYXJr
-ID0gaW5mbzsNCiAgCQkJZ290byBuZXh0Ow0KKioqKioqKioqKioqKioqDQoqKiogNjQ1LDY1MCAq
-KioqDQotLS0gNjQ3LDY2MyAtLS0tDQogIAkJaWYgKHN0YXR1cyAmIFVBUlRfTFNSX0RSKQ0KICAJ
-CQlyZWNlaXZlX2NoYXJzKGluZm8sICZzdGF0dXMpOw0KICAJCWNoZWNrX21vZGVtX3N0YXR1cyhp
-bmZvKTsNCisgI2lmZGVmIENPTkZJR19BTURfRUxBTg0KKyAJCS8qDQorIAkJKiogVGhlcmUgaXMg
-YSBidWcgKG1pc2ZlYXR1cmU/KSBpbiB0aGUgVUFSVCBvbiB0aGUgQU1EIEVsYW4NCisgCQkqKiBT
-QzR4MCBhbmQgU0M1MjAgZW1iZWRkZWQgcHJvY2Vzc29yIHNlcmllczsgdGhlIFRIUkUgYml0IG9m
-DQorIAkJKiogdGhlIGxpbmUgc3RhdHVzIHJlZ2lzdGVyIHNlZW1zIHRvIGJlIGRlbGF5ZWQgb25l
-IGJpdA0KKyAJCSoqIGNsb2NrIGFmdGVyIHRoZSBpbnRlcnJ1cHQgaXMgZ2VuZXJhdGVkLCBzbyBr
-bHVkZ2UgdGhpcw0KKyAJCSoqIGlmIHRoZSBJSVIgaW5kaWNhdGVzIGEgVHJhbnNtaXQgSG9sZGlu
-ZyBSZWdpc3RlciBJbnRlcnJ1cHQNCisgCQkqLw0KKyAJCWlmICgoaWlyICYgVUFSVF9JSVJfSUQp
-ID09IFVBUlRfSUlSX1RIUkkpDQorIAkJCXN0YXR1cyB8PSBVQVJUX0xTUl9USFJFOw0KKyAjZW5k
-aWYNCiAgCQlpZiAoc3RhdHVzICYgVUFSVF9MU1JfVEhSRSkNCiAgCQkJdHJhbnNtaXRfY2hhcnMo
-aW5mbywgMCk7DQogIA0KKioqKioqKioqKioqKioqDQoqKiogNjc5LDY4NSAqKioqDQogICAqLw0K
-ICBzdGF0aWMgdm9pZCByc19pbnRlcnJ1cHRfc2luZ2xlKGludCBpcnEsIHZvaWQgKmRldl9pZCwg
-c3RydWN0IHB0X3JlZ3MgKiByZWdzKQ0KICB7DQohIAlpbnQgc3RhdHVzOw0KICAJaW50IHBhc3Nf
-Y291bnRlciA9IDA7DQogIAlzdHJ1Y3QgYXN5bmNfc3RydWN0ICogaW5mbzsNCiAgI2lmZGVmIENP
-TkZJR19TRVJJQUxfTVVMVElQT1JUCQ0KLS0tIDY5Miw2OTggLS0tLQ0KICAgKi8NCiAgc3RhdGlj
-IHZvaWQgcnNfaW50ZXJydXB0X3NpbmdsZShpbnQgaXJxLCB2b2lkICpkZXZfaWQsIHN0cnVjdCBw
-dF9yZWdzICogcmVncykNCiAgew0KISAJaW50IHN0YXR1cywgaWlyOw0KICAJaW50IHBhc3NfY291
-bnRlciA9IDA7DQogIAlzdHJ1Y3QgYXN5bmNfc3RydWN0ICogaW5mbzsNCiAgI2lmZGVmIENPTkZJ
-R19TRVJJQUxfTVVMVElQT1JUCQ0KKioqKioqKioqKioqKioqDQoqKiogNzAxLDcwNiAqKioqDQot
-LS0gNzE0LDcyMCAtLS0tDQogIAkJZmlyc3RfbXVsdGkgPSBpbmIobXVsdGktPnBvcnRfbW9uaXRv
-cik7DQogICNlbmRpZg0KICANCisgCWlpciA9IHNlcmlhbF9pbihpbmZvLCBVQVJUX0lJUik7DQog
-IAlkbyB7DQogIAkJc3RhdHVzID0gc2VyaWFsX2lucChpbmZvLCBVQVJUX0xTUik7DQogICNpZmRl
-ZiBTRVJJQUxfREVCVUdfSU5UUg0KKioqKioqKioqKioqKioqDQoqKiogNzA5LDcxNCAqKioqDQot
-LS0gNzIzLDczOSAtLS0tDQogIAkJaWYgKHN0YXR1cyAmIFVBUlRfTFNSX0RSKQ0KICAJCQlyZWNl
-aXZlX2NoYXJzKGluZm8sICZzdGF0dXMpOw0KICAJCWNoZWNrX21vZGVtX3N0YXR1cyhpbmZvKTsN
-CisgI2lmZGVmIENPTkZJR19BTURfRUxBTg0KKyAJCS8qDQorIAkJKiogVGhlcmUgaXMgYSBidWcg
-KG1pc2ZlYXR1cmU/KSBpbiB0aGUgVUFSVCBvbiB0aGUgQU1EIEVsYW4NCisgCQkqKiBTQzR4MCBh
-bmQgU0M1MjAgZW1iZWRkZWQgcHJvY2Vzc29yIHNlcmllczsgdGhlIFRIUkUgYml0IG9mDQorIAkJ
-KiogdGhlIGxpbmUgc3RhdHVzIHJlZ2lzdGVyIHNlZW1zIHRvIGJlIGRlbGF5ZWQgb25lIGJpdA0K
-KyAJCSoqIGNsb2NrIGFmdGVyIHRoZSBpbnRlcnJ1cHQgaXMgZ2VuZXJhdGVkLCBzbyBrbHVkZ2Ug
-dGhpcw0KKyAJCSoqIGlmIHRoZSBJSVIgaW5kaWNhdGVzIGEgVHJhbnNtaXQgSG9sZGluZyBSZWdp
-c3RlciBJbnRlcnJ1cHQNCisgCQkqLw0KKyAJCWlmICgoaWlyICYgVUFSVF9JSVJfSUQpID09IFVB
-UlRfSUlSX1RIUkkpDQorIAkJCXN0YXR1cyB8PSBVQVJUX0xTUl9USFJFOw0KKyAjZW5kaWYNCiAg
-CQlpZiAoc3RhdHVzICYgVUFSVF9MU1JfVEhSRSkNCiAgCQkJdHJhbnNtaXRfY2hhcnMoaW5mbywg
-MCk7DQogIAkJaWYgKHBhc3NfY291bnRlcisrID4gUlNfSVNSX1BBU1NfTElNSVQpIHsNCioqKioq
-KioqKioqKioqKg0KKioqIDcxNyw3MjMgKioqKg0KICAjZW5kaWYNCiAgCQkJYnJlYWs7DQogIAkJ
-fQ0KISAJfSB3aGlsZSAoIShzZXJpYWxfaW4oaW5mbywgVUFSVF9JSVIpICYgVUFSVF9JSVJfTk9f
-SU5UKSk7DQogIAlpbmZvLT5sYXN0X2FjdGl2ZSA9IGppZmZpZXM7DQogICNpZmRlZiBDT05GSUdf
-U0VSSUFMX01VTFRJUE9SVAkNCiAgCWlmIChtdWx0aS0+cG9ydF9tb25pdG9yKQ0KLS0tIDc0Miw3
-NDggLS0tLQ0KICAjZW5kaWYNCiAgCQkJYnJlYWs7DQogIAkJfQ0KISAJfSB3aGlsZSAoISgoaWly
-ID0gc2VyaWFsX2luKGluZm8sIFVBUlRfSUlSKSkgJiBVQVJUX0lJUl9OT19JTlQpKTsNCiAgCWlu
-Zm8tPmxhc3RfYWN0aXZlID0gamlmZmllczsNCiAgI2lmZGVmIENPTkZJR19TRVJJQUxfTVVMVElQ
-T1JUCQ0KICAJaWYgKG11bHRpLT5wb3J0X21vbml0b3IpDQo=
+    cpu_temp    = i8k_get_cpu_temp();			/* 11100 탎 */
+    left_fan    = i8k_get_fan_status(I8K_FAN_LEFT);	/*   580 탎 */
+    right_fan   = i8k_get_fan_status(I8K_FAN_RIGHT);	/*   580 탎 */
+    left_speed  = i8k_get_fan_speed(I8K_FAN_LEFT);	/*   580 탎 */
+    right_speed = i8k_get_fan_speed(I8K_FAN_RIGHT);	/*   580 탎 */
+    ac_power    = i8k_get_power_status();		/* 14700 탎 */
+    fn_key      = i8k_get_fn_status();			/*   750 탎 */
 
---------------Boundary-00=_GYJJ32HA1OBBG12CVE3K--
+Since I can't fix the SMM BIOS I think there is very little I can do,
+except avoiding the GET_POWER_STATUS call which uses half of the time.
+I will try to get the same information from /proc/apm.
+
+Did you try the latest version (1.4)? Does it work on your I8100?
+
+-- 
+Massimo Dal Zotto
+
++----------------------------------------------------------------------+
+|  Massimo Dal Zotto               email: massimo.dalzotto@libero.it   |
+|  Via Marconi, 141                phone: ++39-461534251               |
+|  38057 Pergine Valsugana (TN)      www: http://www.cs.unitn.it/~dz/  |
+|  Italy                                  http://www.debian.org/~dz/   |
+|  gpg:   2DB65596  3CED BDC6 4F23 BEDA F489 2445 147F 1AEA 2DB6 5596  |
++----------------------------------------------------------------------+
+

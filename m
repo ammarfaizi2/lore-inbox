@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262759AbTJTRtW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 13:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTJTRtW
+	id S262753AbTJTRrz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 13:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbTJTRrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 13:49:22 -0400
-Received: from ausadmmsrr501.aus.amer.dell.com ([143.166.83.88]:22278 "HELO
-	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id S262759AbTJTRtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 13:49:08 -0400
-X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
-Message-ID: <16E52145F803EF44BE0CAB504CEF34E70282A937@ausx2kmpc106.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: sflory@rackable.com, marcelo.tosatti@cyclades.com
-cc: Atul.Mukker@lsil.com, linux-kernel@vger.kernel.org
-Subject: RE: 2.4.23-pre7 Megaraid2 compile fails
-Date: Mon, 20 Oct 2003 12:48:40 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 138AFF8C446774-01-01
-Content-Type: text/plain; 
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Oct 2003 13:47:55 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:42112 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262753AbTJTRry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 13:47:54 -0400
+Date: Mon, 20 Oct 2003 18:49:26 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200310201749.h9KHnQ0C000781@81-2-122-30.bradfords.org.uk>
+To: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Rik van Riel <riel@redhat.com>
+Cc: "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Nuno Silva'" <nuno.silva@vgertech.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0310201204100.13739@chaos>
+References: <Pine.LNX.4.44.0310201153150.26888-100000@chimarrao.boston.redhat.com>
+ <Pine.LNX.4.53.0310201204100.13739@chaos>
+Subject: RE: Blockbusting news, this is important (Re: Why are bad disk se ctors numbered strangely, and what happens to them?)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> megaraid2.o megaraid2.c
-> megaraid2.c: In function `mega_find_card':
-> megaraid2.c:403: structure has no member named `lock'
+> Battery-backed SRAM "drives" in the gigabyte sizes already exist.
+> Terabytes should not be too far off.
+> 
+> Soon those "drives" will be as cheap as their mechanical emulations
+> and you won't need those metal boxes with the rotating mass anymore.
+> The batteries last about 10 years. Better than most mechanical
+> drives.
 
-Get a recent bk snapshot, it's been fixed since -pre7 was released.
+You could make a solid state device really cheaply yourself - all you
+need is a simple circuit that will allow you to connect 512 Mb of
+EPROMs to the parallel port, and write a device driver to make them
+appear as a block device.  If you wan to boot from it, just find any
+old network card with a boot PROM socket, write a bootloader which
+could read a kernel image from the parallel port connected device,
+write that bootloader to a PROM, and put it on the network card.
 
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+John.

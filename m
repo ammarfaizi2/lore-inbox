@@ -1,79 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317437AbSFRPA3>; Tue, 18 Jun 2002 11:00:29 -0400
+	id <S317440AbSFRPGb>; Tue, 18 Jun 2002 11:06:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317438AbSFRPA2>; Tue, 18 Jun 2002 11:00:28 -0400
-Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:33932 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S317437AbSFRPA2>; Tue, 18 Jun 2002 11:00:28 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 18 Jun 2002 08:00:23 -0700
-Message-Id: <200206181500.IAA00339@baldur.yggdrasil.com>
-To: kai@tp1.ruhr-uni-bochum.de
-Subject: Re: Various kbuild problems in 2.5.22
-Cc: linux-kernel@vger.kernel.org
+	id <S317443AbSFRPGa>; Tue, 18 Jun 2002 11:06:30 -0400
+Received: from web12305.mail.yahoo.com ([216.136.173.103]:29712 "HELO
+	web12305.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317440AbSFRPGa>; Tue, 18 Jun 2002 11:06:30 -0400
+Message-ID: <20020618150628.12694.qmail@web12305.mail.yahoo.com>
+Date: Tue, 18 Jun 2002 08:06:28 -0700 (PDT)
+From: Myrddin Ambrosius <imipak@yahoo.com>
+Subject: Drivers, Hardware, and their relationship to Bagels.
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1022276970.4174.153.camel@bip>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-403857871-1024412788=:10967"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Tue, 18 Jun 2002, Adam J. Richter wrote:
+--0-403857871-1024412788=:10967
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->> 	I would like to note the following problems with the
->> kernel build process in 2.5.22, after applying the patch that
->> Kai Germaschewski posted that enabled modversions to work again.
->> All but the first one are spurious dependencies.
+Hi all,
 
->> #define __ver_pcmcia_get_mem_page_Rsmp_3d2ded54 smp_ba03375b
->> #define pcmcia_get_mem_page_Rsmp_3d2ded54       _set_ver(pcmcia_get_mem_page_Rsmp_3d2ded54)
+With the discussion on kernel crypto a while back,
+there was one very important recurring element that I
+would like someone to clarify for me.
 
->Yes, the fix I posted was not complete. I submitted a corrected one 
->already.
+The issue is this. My understanding is that -all-
+hardware access should be through the kernel, partly
+so that similar hardware can have a similar API, but
+also so that kernel security code (eg: capabilities)
+applies to ALL hardware and ALL lower-level
+operations.
 
->> 	2. "make bzImage" does not build a bzImage if any module fails
->> to compile.  Really, it should not attempt to buidl modules or even
->> descend into directories that contain only modules.  To build a bzImage,
->> I have to edit the Makefile and comment out "BUILD_MODULES:=1".
+However, there were a number of mentions of userland
+hardware drivers, which did NOT operate through the
+kernel. (This was in reference to why it wouldn't be
+necessary to have a kernel-level driver for the
+Motorola M190 crypto chip.)
 
->That's intentional. If you don't want to build modules, use "make 
->KBUILD_MODULES= bzImage". Or you can just ignore errors using "make -k".
+If you can blithely ignore restrictions placed by the
+kernel on some piece of hardware, and access it
+directly, then surely this would apply to any
+hardware. Including disk drives, RAM, etc.
 
-	No, "make -k" still will not build bzImage if a module
-fails to compile.
+I could be wrong (and I hope, very much, that I am),
+but if my understanding is correct, then that's a hole
+you could drive a truck through, and have room to
+spare.
 
-	Also, I do not understand why this is "intentional."  Normally,
-if one does a "make" of a file in a source tree, build problems with
-unneeded files do not effect it.
+This isn't intended as a critisism of anyone, or of
+any decisions made regarding the way the kernel
+operates. (I know my phrasing leaves a lot to be
+desired. Sometimes I think my best chance of a long
+life would be to take a vow of silence and become a
+monk.)
 
-
->> 	3. make include/linux/modversios.h aborts if any .c file has
->> a #error or #include's a .h that is not present (for example, because
->> the .h is built by the process, as is the case with one scsi driver).
-
->The fact that it aborts is intentional.
-
-	We have adopted a convention of putting #error into lots
-of device drivers to encourage people to port them.  Linus has
-also recently integrated chagnes to support compiling with "all
-modules" and "all yes" configurations.  This change makes that
-facility useless.
-
-	I do not think it improves anyone's prioritization to
-require everyone to either make custom kernel configurations or
-give top priority to fixing random drivers ahead of whatever
-else depends on their getting the new kernel to build.
+I'd really appreciate it if someone could clarify this
+for me, especially the security aspect of non-kernel
+drivers.
 
 
->That it doesn't build the .h in that case is a bug. Which driver is it?
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com
+--0-403857871-1024412788=:10967
+Content-Type: text/plain; name="ks.txt"
+Content-Description: ks.txt
+Content-Disposition: inline; filename="ks.txt"
 
-	53c700.  The generated header file is drivers/scsi/53c700_d.h.
+(Tune of "Running Free", by Iron Maiden)
 
->> 	4. "make -k modules" will not build perfectly buildable modules
->> in a directory that has a subdirectory where a compile error occurs.
+Kernel bug, core runs wild,
+Space/time twists and gets compiled.
+Wormholes open and bring to me,
+Linux Kernel Version 3!
 
->Well, I can fix that, I'll look into it.
+I'm running 3, yeah, I'm running 3!
+I'm running 3, yeah, I'm running 3!
 
-	Great.  Thanks.
+Got support for Tbyte RAM,
+The newest arch is leg of lamb.
+Max cpus, one thousand now,
+Neg latency gives quite a pow.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Men in Black zap my brains,
+Melt the hard-disk, and what remains.
+There's nothing left for you to see
+That my machine was running 3!
+
+--0-403857871-1024412788=:10967--

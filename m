@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262770AbTCJIsb>; Mon, 10 Mar 2003 03:48:31 -0500
+	id <S262788AbTCJI4h>; Mon, 10 Mar 2003 03:56:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262822AbTCJIsa>; Mon, 10 Mar 2003 03:48:30 -0500
-Received: from holomorphy.com ([66.224.33.161]:28852 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262770AbTCJIs3>;
-	Mon, 10 Mar 2003 03:48:29 -0500
-Date: Mon, 10 Mar 2003 00:57:54 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: mbligh@aracnet.com, gone@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64bk5: X86_PC + HIGHMEM boot failure
-Message-ID: <20030310085754.GC20188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Adam J. Richter" <adam@yggdrasil.com>, mbligh@aracnet.com,
-	gone@us.ibm.com, linux-kernel@vger.kernel.org
-References: <200303100846.AAA09348@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303100846.AAA09348@baldur.yggdrasil.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+	id <S262791AbTCJI4h>; Mon, 10 Mar 2003 03:56:37 -0500
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:27882 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S262788AbTCJI4g>; Mon, 10 Mar 2003 03:56:36 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: Fwd: [PATCH] s390 (1/7): s390 arch fixes.
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF4904DE89.B60C22D4-ONC1256CE5.00311D21@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Mon, 10 Mar 2003 10:05:41 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 10/03/2003 10:06:58
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 09 Mar 2003, Martin J. Bligh wrote:
->> changes are in my tree ...  I've just checked it, and it doesn't 
->> do that for me. It should *allow* you to turn on CONFIG_NUMA 
->> (and that might be broken for PCs still) but it shouldn't be on 
->> by default ... could you check that you can still disable it?
->> Works for me ...
 
-On Mon, Mar 10, 2003 at 12:46:05AM -0800, Adam J. Richter wrote:
-> 	Oops.  You're right it is possible to deactivate
-> CONFIG_NUMA in this kernel under X86_PC, and that avoids
-> the problem.  I guess there still is the minor issue that
-> either CONFIG_NUMA should work with X86_PC + HIGHMEM (even
-> on machines without high memory) or else CONFIG_NUMA
-> should not be selectable in this case, but that's obviously
-> a bug of much less importance.
-> 	Sorry for my misunderstanding of the CONFIG_NUMA configution
-> options.
+> This is a good fix, I confirm it fixing my booting problem ...
+> on 2.4! Seriously, I can't believe it worked before.
+> Please send it to Marcelo, too.
 
-It might help if we could get bootlogs or backtraces from you.
+Well, the POP states under "Initial CPU Reset":
+2. The contents of the current PSW, prefix, CPU
+   timer, clock comparator, and TOD programmable
+   register are set to zero.
+
+The fix should be necessary but it fixed some boot
+problems for me as well ...
+
+This fix is already in patch-2.4.21-pre5.
+
+blue skies,
+   Martin
 
 
--- wli

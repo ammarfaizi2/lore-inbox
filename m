@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbTEFTdN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 15:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbTEFTdN
+	id S261169AbTEFTj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 15:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbTEFTj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 15:33:13 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:64910 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261161AbTEFTdM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 15:33:12 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "David S. Miller" <davem@redhat.com>, "Yoav Weiss" <ml-lkml@unpatched.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: The disappearing sys_call_table export.
-Date: Tue, 6 May 2003 12:45:40 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCEGACMAA.davids@webmaster.com>
+	Tue, 6 May 2003 15:39:56 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:40616 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261169AbTEFTjz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 15:39:55 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <1052212504.983.16.camel@rth.ninka.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <16056.4728.649612.413159@gargle.gargle.HOWL>
+Date: Tue, 6 May 2003 21:52:24 +0200
+From: mikpe@csd.uu.se
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 2.5.69 oops at sysenter_past_esp
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Old Dell Latitude with very basic .config: PII, IDE/PIIX, ext2, cardbus,
+hotplug, networking, but no SMP, {IO-,}APIC, ACPI, usb.
 
-> On Tue, 2003-05-06 at 01:45, Yoav Weiss wrote:
-> > In fact, in linux which is opensource, you can probably write a script
-> > that extracts any unexported symbol from the source code, find a path to
-> > it from some exported symbol, and automagically create a module that
-> > re-exports this symbol for your legacy driver to use.
+Booting into a text console, not starting X or inserting cardbus NIC,
+suspending the box (apm). At resume, I am immediately greeted with an
+oops looking like:
 
-> You might have a derivative work after obtaining access to a
-> non-exported interface.  If this is correct, binary-only modules
-> can't do this and therefore they must stick to exported interfaces.
+general protection fault: 0000 [#?]
+CPU:	0
+EIP:	0060:[<c0109079>]	Not tainted
+EFLAGS:	00010246
+EIP is at systenter_past_esp+0x6e/0x71
+<register dump>
+Process <varies, any one of the daemons>
+Stack: ...
+Call Trace: <empty>
 
-	Obviously you don't have much experience getting around licenses. ;)
+The machine is almost but not completely dead at this point.
+The oops repeats several times with varying intervals (from
+seconds up to minutes). The keyboard is initially not dead
+(it responds to RET) but it too locks up after a while.
 
-	You GPL the part that does the dirty work. Then your closed-source module
-only uses exported interfaces and the boundary between GPL and closed-source
-code is a clear license boundary.
+I don't know if this is new in 2.5.69, as I didn't test suspend
+with 2.5.68 -- I've had resume-related PS/2 mouse problems with
+recent 2.5 kernels, fixed finally by the "psmouse_noext" option.
 
-	DS
-
-
+/Mikael

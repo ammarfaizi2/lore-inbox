@@ -1,62 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264916AbTIDLEF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 07:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbTIDLEF
+	id S264913AbTIDLEl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 07:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbTIDLEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 07:04:05 -0400
-Received: from ozlabs.org ([203.10.76.45]:53395 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264917AbTIDLDy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 07:03:54 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Sep 2003 07:04:41 -0400
+Received: from h007.c000.snv.cp.net ([209.228.32.71]:50146 "HELO
+	c000.snv.cp.net") by vger.kernel.org with SMTP id S264913AbTIDLEO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 07:04:14 -0400
+X-Sent: 4 Sep 2003 11:04:13 GMT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-Message-ID: <16215.7181.755868.593534@nanango.paulus.ozlabs.org>
-Date: Thu, 4 Sep 2003 21:03:41 +1000 (EST)
-From: Paul Mackerras <paulus@samba.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "David S. Miller" <davem@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ppc ioremap prototype
-In-Reply-To: <20030904092834.A27774@infradead.org>
-References: <20030904010940.5fa0e560.davem@redhat.com>
-	<Pine.LNX.4.44.0309040111290.20151-100000@home.osdl.org>
-	<20030904011010.21857a1c.davem@redhat.com>
-	<20030904092834.A27774@infradead.org>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+MIME-Version: 1.0
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+Cc: linux-kernel@vger.kernel.org
+From: "Brien" <admin@brien.com>
+Subject: Re: SATA probe delay on boot
+X-Sent-From: admin@brien.com
+Date: Thu, 04 Sep 2003 07:04:12 -0400 (EDT)
+X-Mailer: Web Mail 5.5.0-3_sol28
+Message-Id: <20030904040413.7918.h005.c000.wm@mail.brien.com.criticalpath.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
+On Thu, 4 Sep 2003 01:53:07 +0200, Bartlomiej
+Zolnierkiewicz wrote:
 
-> ioremap_resource() looks like a fine idea.  It's cleaner, easily
-> emulateable on <= 2.4 and solves the problem this hack wanted to
-> work around properly.
+Bartlomiej,
 
-I agree.
+I applied this patch on 2.6.0-test4-bk5 just now, and
+this is the (I think relative(?) -- tell me if you want
+something else) section of dmesg output:
 
-> This still doesn't make the phys_addr_t a good interims solution,
-> though.  Just use ioremap_resource from the beginning for those
-> drivers that care for the bigger address space on ppc44x.
+SiI3112 Serial ATA: IDE controller at PCI slot
+0000:00:10.0
+SiI3112 Serial ATA: chipset revision 2
+SiI3112 Serial ATA: 100% native mode on irq 11
+    ide2: MMIO-DMA at 0xf8807000-0xf8807007, BIOS
+settings: hde:pio, hdf:pio
+    ide3: MMIO-DMA at 0xf8807008-0xf880700f, BIOS
+settings: hdg:pio, hdh:pio
+probing for hde: present=0, media=32, probetype=ATA
+hde: WDC WD360GD-00FNA0, ATA DISK drive
+probing for hdf: present=0, media=32, probetype=ATA
+probing for hdf: present=0, media=32, probetype=ATAPI
+ide2 at 0xf8807080-0xf8807087,0xf880708a on irq 11
+probing for hdg: present=0, media=32, probetype=ATA
+hdg: no response (status = 0xfe)
+probing for hdh: present=0, media=32, probetype=ATA
+probing for hdh: present=0, media=32, probetype=ATAPI
+probing for hdg: present=0, media=32, probetype=ATA
+probing for hdg: present=0, media=32, probetype=ATAPI
+hdg: no response (status = 0xfe), resetting drive
+hdg: no response (status = 0xfe)
+probing for hdh: present=0, media=32, probetype=ATA
+probing for hdh: present=0, media=32, probetype=ATAPI
+probing for hdi: present=0, media=32, probetype=ATA
+probing for hdi: present=0, media=32, probetype=ATAPI
+probing for hdj: present=0, media=32, probetype=ATA
+probing for hdj: present=0, media=32, probetype=ATAPI
+probing for hdk: present=0, media=32, probetype=ATA
+probing for hdk: present=0, media=32, probetype=ATAPI
+probing for hdl: present=0, media=32, probetype=ATA
+probing for hdl: present=0, media=32, probetype=ATAPI
+
+It doesn't seem right. And it actually takes 2-3 times
+as long now. 
+
+Brien
+
+> On Thursday 04 of September 2003 01:18,
+admin@brien.com
+> wrote:
+> > Hi,
 > 
-> Paul, what does actually use this higher addresses?
+> Hi,
+> 
+> > I have a Sil3112A SATA controller, which linux works
+> OK
+> > with. It supports RAID (up to 4 devices), but I'm
+> using
+> > BASE option -- only 1 hard drive.
+> >
+> > My question is regarding a 15-20 second delay which
+> > normally occurs every time I boot, unless I pass the
+> 
+> Please try attached patch and send dmesg output (with
+> patch applied).
+> Patch is against current 2.6-bk tree, but should apply
+> to any recent
+> 2.4.x or 2.6.x kernels.
+> 
+> diff -puN drivers/ide/ide-probe.c~ide-siimage-wait
+> drivers/ide/ide-probe.c
+> ---
+>
+linux-2.6.0-test4-bk5/drivers/ide/ide-probe.c~ide-siimage-wait	2003-09-04
+01:34:02.285489272 +0200
+> +++
+>
+linux-2.6.0-test4-bk5-root/drivers/ide/ide-probe.c	2003-09-04 01:47:58.145419248
++0200
+> @@ -56,6 +56,8 @@
+>  #include <asm/uaccess.h>
+>  #include <asm/io.h>
+>  
+> +#define DEBUG
+> +
+>  /**
+>   *	generic_id		-	add a generic drive id
+>   *	@drive:	drive to make an ID block for
+> @@ -345,7 +347,16 @@ static int actual_try_to_identify
+> (ide_d
+>  		}
+>  		/* give drive a breather */
+>  		ide_delay_50ms();
+> -	} while ((hwif->INB(hd_status)) & BUSY_STAT);
+> +		s = hwif->INB(hd_status);
+> +		if (s == 0xff) {
+> +#ifdef DEBUG
+> +			printk("%s: status == 0xff\n", drive->name);
+> +#endif
+> +			return 1;
+> +		}
+> +		if ((s & BUSY_STAT) == 0)
+> +			break;
+> +	} while (1);
+>  
+>  	/* wait for IRQ and DRQ_STAT */
+>  	ide_delay_50ms();
+> 
+> _
+> 
+> > options ide3=0 - ide9=0 to fill up the device
+table. I
+> > think I have to do this because if I do only ide3=0
+> > (where the device would be), it uses ide4, and so
+on.
+> I
+> > have GRUB set up to do this automatically, but it's
+> not
+> > exactly adequate (,is it?). So I was wondering if
+> > there're any other ways to get the same affect. Is
+or
+> > could there be an option to simply disable the
+probing
+> > of the one specific device/channel every time?
+> 
+> "ide3=noprobe" doesnt work?
+> 
+> --bartlomiej
+> 
+> -
 
-We have drivers for on-chip peripherals that work from a struct
-ocp_device and call ioremap on the ocp_dev->paddr value, which is a
-phys_addr_t (although some of them use __ioremap instead).  These
-drivers are used on 405-based systems (with 32-bit phys_addr_t) as
-well as on 440-based systems.
-
-These drivers are in the linuxppc-2.{4,5} trees but most of them
-haven't made it into the official trees yet.  They could all be
-audited and converted to use __ioremap, although it seems a bit
-arbitrary to say that you can't use ioremap in a an ocp driver if
-you're going to use it on a 440.  I wouldn't expect it to be
-immediately obvious to a driver author just why you have to use
-__ioremap rather than ioremap in an ocp driver.  The ioremap_resource
-idea would solve that problem of course, we would put a resource in
-the struct ocp_device instead of the physical address.
-
-Paul.
-
+Brien

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282757AbRK0C5d>; Mon, 26 Nov 2001 21:57:33 -0500
+	id <S282764AbRK0DVV>; Mon, 26 Nov 2001 22:21:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282758AbRK0C5Z>; Mon, 26 Nov 2001 21:57:25 -0500
-Received: from queen.bee.lk ([203.143.12.182]:17565 "EHLO queen.bee.lk")
-	by vger.kernel.org with ESMTP id <S282757AbRK0C5K>;
-	Mon, 26 Nov 2001 21:57:10 -0500
-Date: Tue, 27 Nov 2001 08:56:21 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Anuradha Ratnaweera <anuradha@gnu.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, editors@newsforge.com,
-        lwn@lwn.net
-Subject: Re: Linux 2.4.16
-Message-ID: <20011127085621.A14241@bee.lk>
-In-Reply-To: <Pine.LNX.4.21.0111261003070.13400-100000@freak.distro.conectiva> <20011127083530.A13584@bee.lk> <3C02FDF4.22927E4A@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C02FDF4.22927E4A@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Nov 26, 2001 at 09:44:04PM -0500
+	id <S282766AbRK0DVM>; Mon, 26 Nov 2001 22:21:12 -0500
+Received: from femail16.sdc1.sfba.home.com ([24.0.95.143]:14503 "EHLO
+	femail16.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S282764AbRK0DVC>; Mon, 26 Nov 2001 22:21:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+Organization: Boundaries Unlimited
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+Date: Mon, 26 Nov 2001 19:19:54 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <200111270123.BAA02056@mauve.demon.co.uk> <0111261800340R.02001@localhost.localdomain> <9tuugv$f72$1@cesium.transmeta.com>
+In-Reply-To: <9tuugv$f72$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Message-Id: <0111261919540W.02001@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 09:44:04PM -0500, Jeff Garzik wrote:
-> Anuradha Ratnaweera wrote:
-> > 
-> > On Mon, Nov 26, 2001 at 10:30:08AM -0200, Marcelo Tosatti wrote:
+On Monday 26 November 2001 21:41, H. Peter Anvin wrote:
+> Followup to:  <0111261800340R.02001@localhost.localdomain>
+> By author:    Rob Landley <landley@trommello.org>
+> In newsgroup: linux.dev.kernel
+>
+> > On Monday 26 November 2001 20:23, Ian Stirling wrote:
+> > > > Now a cache large enough to hold 2 full tracks could also hold dozens
+> > > > of individual sectors scattered around the disk, which could take a
+> > > > full second to write off and power down.  This is a "doctor, it hurts
+> > > > when I do this" question.  DON'T DO THAT.
 > > >
-> > > final:
-> > > - Fix 8139too oops                            (Philipp Matthias Hahn)
-> > 
-> > Won't that be a good idea to keep the -final the same as the last -pre?
-> 
-> No.  There is absolutely no reason not to fix this oops.
+> > > Or, to seek to a journal track, and write the cache to it.
+> >
+> > Except that at most you have one seek to write out all the pending cache
+> > data anyway, so what exactly does seeking to a journal track buy you?
+>
+> It limits the amount you need to seek to exactly one seek.
+>
+> 	-hpa
 
-I wasn't refering to 8139 driver, but the kernel release policy.
+But it's already exactly one seek in the scheme I proposed.  Notice how of 
+the two tracks you can be write-cacheing data for, one is the track you're 
+currently over (no seek required, you're there).  You flush to that track, 
+there's one more seek to flush to the second track (which you were only 
+cacheing data for to avoid latency, so the seek could start immediately 
+without waiting for the OS to provide data), and then park.
 
-Well, there was another thread on LKML which discusses this issue in detail.
+Now a journal track that's next to where the head parks could combine the 
+"park" sweep with that one seek, and presumably be spring powered and hence 
+save capacitor power.  But I'm not 100% certain it would be worth it.  (Are 
+normal with-power-on seeks towards the park area powered by the spring, or 
+the... I keep wanting to say "stepper motor" but I don't think those are what 
+drives use anymore, are they?  Sigh...)
 
-Cheers,
-
-Anuradha
-
--- 
-
-Debian GNU/Linux (kernel 2.4.13)
-
-It is easier to resist at the beginning than at the end.
-		-- Leonardo da Vinci
-
+Rob

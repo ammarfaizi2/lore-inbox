@@ -1,317 +1,385 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265880AbUFITsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265923AbUFITv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265880AbUFITsX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 15:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbUFITsX
+	id S265923AbUFITv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 15:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265919AbUFITvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 15:48:23 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:60938 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S265880AbUFITr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 15:47:57 -0400
-Subject: Re: swsusp "not enough swap space" 2.6.5-mm6.
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Mark Gross <mgross@linux.jf.intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <200406090927.51206.mgross@linux.intel.com>
-References: <200406080829.35120.mgross@linux.intel.com>
-	 <20040608230450.GA13916@elf.ucw.cz>
-	 <200406090832.04064.mgross@linux.intel.com>
-	 <200406090927.51206.mgross@linux.intel.com>
-Content-Type: multipart/mixed; boundary="=-Sipj/sSkH+Y8jKHe2ExZ"
-Date: Wed, 09 Jun 2004 21:48:00 +0200
-Message-Id: <1086810480.1982.1.camel@teapot.felipe-alfaro.com>
+	Wed, 9 Jun 2004 15:51:55 -0400
+Received: from holomorphy.com ([207.189.100.168]:48262 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265884AbUFITvC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 15:51:02 -0400
+Date: Wed, 9 Jun 2004 12:50:57 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       sparclinux@vger.kernel.org
+Cc: linux-alpha@vger.kernel.org
+Subject: Re: 2.6.7-rc3-mm1
+Message-ID: <20040609195057.GY1444@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-alpha@vger.kernel.org
+References: <20040609015001.31d249ca.akpm@osdl.org> <20040609175910.GS1444@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040609175910.GS1444@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 09, 2004 at 10:59:10AM -0700, William Lee Irwin III wrote:
+> Last time I tested this on sparc64 (the only current user of ->mask) it
+> appeared to work. The following patch makes irqaction's ->mask a cpumask
+> as it was intended to be and wraps up the rest of the sweep. Only struct
+> irqaction is usefully greppable, so there may be some assignments to
+> ->mask missing still. This removes more code than it adds.
+> Compiletested i386 and sparc64, runtime tested on sparc64 in a prior
+> incarnation. vs. 2.6.7-rc3-mm1
 
---=-Sipj/sSkH+Y8jKHe2ExZ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The cpumask patches broke alpha's build, even without the irqaction
+patch, largely centering around cpu_possible_map. Atop irqaction.patch:
 
-On Wed, 2004-06-09 at 09:27 -0700, Mark Gross wrote:
-> On Wednesday 09 June 2004 08:32, Mark Gross wrote:
-> > On Tuesday 08 June 2004 16:04, Pavel Machek wrote:
-> > > Hi!
-> > >
-> > > > I'm sorry for not having more information, but the failing computer is
-> > > > my home laptop (I'll get more details after work or I'll bring it in
-> > > > tomorrow for more details).
-> > > >
-> > > > Anyway, this thing does software suspend using the 2.6.2-mm1 kernel,
-> > > > and last night I was updating it to 2.6.5-mm6, and I started getting
-> > > > these not enough disk space errors.
-> > > >
-> > > > I found your bug fix patch,
-> > > > http://marc.theaimsgroup.com/?l=linux-kernel&m=107806008626357&w=2
-> > > >  and checked that it is included in the 2.6.5-mm6 kernel I'm using.
-> > > >
-> > > > Without more information does this problem ring any bells?
-> > > >
-> > > > Can you recommend a "good" kernel version that does reliable swsusp?
-> > >
-> > > Get 2.6.6, and set swappiness to 100.
-> > >
-> > > 								Pavel
-> >
-> > 2.6.6 still fails, just like the failure reported by the thread independent
-> > of swappiness:
-> >
-> > http://marc.theaimsgroup.com/?t=107806010900002&r=1&w=2
-> >
-> > However; as hinted in the thread turning off premption does seem to fix the
-> > problem.
-> >
-> 
-> Spoke too soon.  My build tree that had the success was 2.6.6-mm6, so I 
-> re-built a clean 2.6.6 from tarball using the .config from the successful 
-> run, CONFIG_PREEMPT=n.  It fails.  2.6.6-mm5 works, but only if 
-> CONFIG_PREEMPT=n.
-> 
-> I have to get to my day job now, but whats up with the flakieness of the 
-> swsusp?  Shouldn't it be mostly working by now?
 
-It's working flawlessly for me with 2.6.7-rc3-mm1. I also applied the
-following patches (who knows)...
-
---=-Sipj/sSkH+Y8jKHe2ExZ
-Content-Disposition: attachment; filename=swsusp-leak.fix
-Content-Type: text/plain; name=swsusp-leak.fix; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
->From linux-kernel-owner@vger.kernel.org Wed Jun  9 16:00:10 2004
-Return-Path:
-	<linux-kernel-owner+felipe_alfaro=40linuxmail.org-s263939abufinft@vger.kernel.org>
-Received: from kerberos.felipe-alfaro.com ([unix socket]) by
-	kerberos.felipe-alfaro.com (Cyrus v2.2.3) with LMTP; Wed, 09 Jun 2004
-	16:00:10 +0200
-X-Sieve: CMU Sieve 2.2
-Received: from localhost (localhost.localdomain [127.0.0.1]) by
-	kerberos.felipe-alfaro.com (Postfix) with ESMTP id 3306C42E3D for
-	<yo@felipe-alfaro.com>; Wed,  9 Jun 2004 16:00:10 +0200 (CEST)
-Delivered-To: felipe_alfaro:linuxmail.org@linuxmail.org
-Received: from pop24.pr.outblaze.com [205.158.62.125] by localhost with
-	POP3 (fetchmail-6.1.0) for yo@felipe-alfaro.com (single-drop); Wed, 09 Jun
-	2004 16:00:10 +0200 (CEST)
-Received: (qmail 14692 invoked by uid 0); 9 Jun 2004 13:07:17 -0000
-X-OB-Received: from unknown (205.158.62.147) by mta45-1.us4.outblaze.com; 9
-	Jun 2004 13:07:17 -0000
-Received: from vger.kernel.org (vger.kernel.org [12.107.209.244]) by
-	spf5-2.us4.outblaze.com (Postfix) with ESMTP id BBEDB19A93B for
-	<felipe_alfaro@linuxmail.org>; Wed,  9 Jun 2004 13:07:16 +0000 (GMT)
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id
-	S263939AbUFINFT (ORCPT <rfc822;felipe_alfaro@linuxmail.org>); Wed, 9 Jun
-	2004 09:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264357AbUFINFT
-	(ORCPT <rfc822;linux-kernel-outgoing>); Wed, 9 Jun 2004 09:05:19 -0400
-Received: from gprs214-178.eurotel.cz ([160.218.214.178]:62337 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263939AbUFINFG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Jun 2004 09:05:06 -0400
-Received: by amd.ucw.cz (Postfix, from userid 8) id 7DD432BDBB; Wed,  9 Jun
-	2004 15:04:51 +0200 (CEST)
-Date:	Wed, 9 Jun 2004 15:04:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@digitalimplant.org>, kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>
-Subject: Fix memory leak in swsusp
-Message-ID: <20040609130451.GA23107@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List:	linux-kernel@vger.kernel.org
-X-Evolution-Source: imap://falfaro;auth=GSSAPI@192.168.0.1/
-Content-Transfer-Encoding: 8bit
-
-Hi!
-
-This fixes 2 memory leaks in swsusp: during relocating pagedir, eaten
-pages were not properly freed in error path and even regular freeing
-path was freeing one page too little. Please apply,
-
-								Pavel
-
---- linux-cvs/kernel/power/swsusp.c	2004-05-22 19:39:01.000000000 +0200
-+++ linux/kernel/power/swsusp.c	2004-06-06 00:30:09.000000000 +0200
-@@ -503,6 +503,9 @@
- 		if (!pbe)
- 			continue;
- 		pbe->orig_address = (long) page_address(page);
-+		/* Copy page is dangerous: it likes to mess with
-+		   preempt count on specific cpus. Wrong preempt count is then copied,
-+		   oops. */
- 		copy_page((void *)pbe->address, (void *)pbe->orig_address);
- 		pbe++;
- 	}
-@@ -923,8 +952,9 @@
- 	suspend_pagedir_t *new_pagedir, *old_pagedir = pagedir_nosave;
- 	void **eaten_memory = NULL;
- 	void **c = eaten_memory, *m, *f;
-+	int ret = 0;
+Index: mm1-2.6.7-rc3/include/asm-alpha/smp.h
+===================================================================
+--- mm1-2.6.7-rc3.orig/include/asm-alpha/smp.h	2004-06-07 12:15:11.000000000 -0700
++++ mm1-2.6.7-rc3/include/asm-alpha/smp.h	2004-06-09 14:19:58.000000000 -0700
+@@ -50,9 +50,7 @@
+ extern int smp_num_cpus;
+ #define cpu_possible_map	cpu_present_mask
  
--	printk("Relocating pagedir");
-+	printk("Relocating pagedir ");
- 
- 	if(!does_collide_order(old_pagedir, (unsigned long)old_pagedir, pagedir_order)) {
- 		printk("not necessary\n");
-@@ -941,22 +971,23 @@
- 		c = eaten_memory;
- 	}
- 
--	if (!m)
--		return -ENOMEM;
+-#define cpu_online(cpu)		cpu_isset(cpu, cpu_online_map)
 -
--	pagedir_nosave = new_pagedir = m;
--	copy_pagedir(new_pagedir, old_pagedir);
-+	if (!m) {
-+		printk("out of memory\n");
-+		ret = -ENOMEM;
-+	} else {
-+		pagedir_nosave = new_pagedir = m;
-+		copy_pagedir(new_pagedir, old_pagedir);
-+	}
+-extern int smp_call_function_on_cpu(void (*func) (void *info), void *info,int retry, int wait, unsigned long cpu);
++int smp_call_function_on_cpu(void (*func) (void *info), void *info,int retry, int wait, cpumask_t cpu);
  
- 	c = eaten_memory;
--	while(c) {
-+	while (c) {
- 		printk(":");
--		f = *c;
-+		f = c;
- 		c = *c;
--		if (f)
--			free_pages((unsigned long)f, pagedir_order);
-+		free_pages((unsigned long)f, pagedir_order);
- 	}
- 	printk("|\n");
+ #else /* CONFIG_SMP */
+ 
+Index: mm1-2.6.7-rc3/arch/alpha/kernel/irq.c
+===================================================================
+--- mm1-2.6.7-rc3.orig/arch/alpha/kernel/irq.c	2004-06-09 13:40:11.000000000 -0700
++++ mm1-2.6.7-rc3/arch/alpha/kernel/irq.c	2004-06-09 14:29:16.000000000 -0700
+@@ -227,7 +227,7 @@
+ #ifdef CONFIG_SMP 
+ static struct proc_dir_entry * smp_affinity_entry[NR_IRQS];
+ static char irq_user_affinity[NR_IRQS];
+-static unsigned long irq_affinity[NR_IRQS] = { [0 ... NR_IRQS-1] = ~0UL };
++static cpumask_t irq_affinity[NR_IRQS] = { [0 ... NR_IRQS-1] = CPU_MASK_ALL };
+ 
+ static void
+ select_smp_affinity(int irq)
+@@ -238,16 +238,14 @@
+ 	if (! irq_desc[irq].handler->set_affinity || irq_user_affinity[irq])
+ 		return;
+ 
+-	while (((cpu_present_mask >> cpu) & 1) == 0)
++	while (!cpu_possible(cpu))
+ 		cpu = (cpu < (NR_CPUS-1) ? cpu + 1 : 0);
+ 	last_cpu = cpu;
+ 
+-	irq_affinity[irq] = 1UL << cpu;
+-	irq_desc[irq].handler->set_affinity(irq, 1UL << cpu);
++	irq_affinity[irq] = cpumask_of_cpu(cpu);
++	irq_desc[irq].handler->set_affinity(irq, cpumask_of_cpu(cpu));
+ }
+ 
+-#define HEX_DIGITS 16
+-
+ static int
+ irq_affinity_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+@@ -259,67 +257,28 @@
+ 	return len;
+ }
+ 
+-static unsigned int
+-parse_hex_value (const char __user *buffer,
+-		 unsigned long count, unsigned long *ret)
+-{
+-	unsigned char hexnum [HEX_DIGITS];
+-	unsigned long value;
+-	unsigned long i;
+-
+-	if (!count)
+-		return -EINVAL;
+-	if (count > HEX_DIGITS)
+-		count = HEX_DIGITS;
+-	if (copy_from_user(hexnum, buffer, count))
+-		return -EFAULT;
+-
+-	/*
+-	 * Parse the first 8 characters as a hex string, any non-hex char
+-	 * is end-of-string. '00e1', 'e1', '00E1', 'E1' are all the same.
+-	 */
+-	value = 0;
+-
+-	for (i = 0; i < count; i++) {
+-		unsigned int c = hexnum[i];
+-
+-		switch (c) {
+-			case '0' ... '9': c -= '0'; break;
+-			case 'a' ... 'f': c -= 'a'-10; break;
+-			case 'A' ... 'F': c -= 'A'-10; break;
+-		default:
+-			goto out;
+-		}
+-		value = (value << 4) | c;
+-	}
+-out:
+-	*ret = value;
 -	return 0;
-+	return ret;
- }
+-}
+-
+ static int
+ irq_affinity_write_proc(struct file *file, const char __user *buffer,
+ 			unsigned long count, void *data)
+ {
+ 	int irq = (long) data, full_count = count, err;
+-	unsigned long new_value;
++	cpumask_t new_value;
  
- /*
-
-
---=-Sipj/sSkH+Y8jKHe2ExZ
-Content-Disposition: attachment; filename=swsusp-swappiness.patch
-Content-Type: text/x-patch; name=swsusp-swappiness.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
->From linux-kernel-owner@vger.kernel.org Sun May 30 22:00:15 2004
-Return-Path:
-	<linux-kernel-owner+felipe_alfaro=40linuxmail.org-s264331abue3tse@vger.kernel.org>
-Received: from kerberos.felipe-alfaro.com ([unix socket]) by
-	kerberos.felipe-alfaro.com (Cyrus v2.2.3) with LMTP; Sun, 30 May 2004
-	22:00:15 +0200
-X-Sieve: CMU Sieve 2.2
-Received: from localhost (localhost.localdomain [127.0.0.1]) by
-	kerberos.felipe-alfaro.com (Postfix) with ESMTP id 3BE1B42E7B for
-	<yo@felipe-alfaro.com>; Sun, 30 May 2004 22:00:15 +0200 (CEST)
-Delivered-To: felipe_alfaro:linuxmail.org@linuxmail.org
-Received: from pop24.pr.outblaze.com [205.158.62.125] by localhost with
-	POP3 (fetchmail-6.1.0) for yo@felipe-alfaro.com (single-drop); Sun, 30 May
-	2004 22:00:15 +0200 (CEST)
-Received: (qmail 30523 invoked by uid 0); 30 May 2004 19:50:03 -0000
-X-OB-Received: from unknown (205.158.62.147) by mta45-1.us4.outblaze.com;
-	30 May 2004 19:50:03 -0000
-Received: from vger.kernel.org (vger.kernel.org [12.107.209.244]) by
-	spf5-2.us4.outblaze.com (Postfix) with ESMTP id 2EFE019AA00 for
-	<felipe_alfaro@linuxmail.org>; Sun, 30 May 2004 19:50:01 +0000 (GMT)
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id
-	S264331AbUE3TsE (ORCPT <rfc822;felipe_alfaro@linuxmail.org>); Sun, 30 May
-	2004 15:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264335AbUE3TsE
-	(ORCPT <rfc822;linux-kernel-outgoing>); Sun, 30 May 2004 15:48:04 -0400
-Received: from gprs214-89.eurotel.cz ([160.218.214.89]:55680 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S264331AbUE3Tr7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>); Sun, 30 May 2004 15:47:59 -0400
-Received: by amd.ucw.cz (Postfix, from userid 8) id F361E2BA5C; Sun, 30 May
-	2004 21:47:31 +0200 (CEST)
-Date:	Sun, 30 May 2004 21:47:31 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>, Andrew Morton <akpm@zip.com.au>, Stuart Young <cef-lkml@optusnet.com.au>, linux-kernel@vger.kernel.org, Rob Landley <rob@landley.net>, seife@suse.de
-Subject: Re: swappiness=0 makes software suspend fail.
-Message-ID: <20040530194731.GA895@elf.ucw.cz>
-References: <200405280000.56742.rob@landley.net>
-	 <20040528215642.GA927@elf.ucw.cz>
-	 <200405291905.20925.cef-lkml@optusnet.com.au>
-	 <40B85024.2040505@linuxmail.org> <20040529223648.GB1535@elf.ucw.cz>
-	 <40B94546.4040605@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40B94546.4040605@yahoo.com.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List:	linux-kernel@vger.kernel.org
-X-Evolution-Source: imap://falfaro;auth=GSSAPI@192.168.0.1/
-Content-Transfer-Encoding: 8bit
-
-Hi!
-
-> >Andrew, in 2.6.6 shrink_all_memory() does not work if swappiness ==
-> >0. shrink_all_memory() calls balance_pgdat(), that calls
-> >shrink_zone(), and that calls refill_inactive_zone(), which looks at
-> >swappiness.
-> >
-> >Additional parameter to all these calls neutralizing swappiness would
-> >help, as would temporarily setting swappiness to 100 in
-> >shrink_all_memory. Is there a less ugly solution?
-> 
-> I have a cleanup patch that allows this sort of thing to easily
-> be passed into the lower levels of reclaim functions. I don't
-> know if it would be to Andrew's taste though...
-> 
-> It basically replaces all function parameters in vmscan.c with
-> 
-> struct scan_control {
-> 	unsigned long nr_to_scan;
-> 	unsigned long nr_scanned;
-> 	unsigned long nr_reclaimed;
-> 	unsigned int gfp_mask;
-> 	struct page_state ps;
-> 	int may_writepage;
-> };
-> 
-> So you could easily add a field for swsusp.
-> 
-> Until something like this goes through, please don't fuglify
-> vmscan.c any more than it is... do the saving and restoring
-> thing that Nigel suggested please.
-
-Okay, this should solve it.
-							Pavel
-
---- clean/mm/vmscan.c	2004-05-20 23:08:37.000000000 +0200
-+++ linux/mm/vmscan.c	2004-05-30 21:45:41.000000000 +0200
-@@ -1098,10 +1098,13 @@
- 	pg_data_t *pgdat;
- 	int nr_to_free = nr_pages;
- 	int ret = 0;
-+	int old_swappiness = vm_swappiness;
- 	struct reclaim_state reclaim_state = {
- 		.reclaimed_slab = 0,
- 	};
+ 	if (!irq_desc[irq].handler->set_affinity)
+ 		return -EIO;
  
-+	vm_swappiness = 100;
-+
- 	current->reclaim_state = &reclaim_state;
- 	for_each_pgdat(pgdat) {
- 		int freed;
-@@ -1115,6 +1118,8 @@
- 			break;
+-	err = parse_hex_value(buffer, count, &new_value);
++	err = cpumask_parse(buffer, count, new_value);
+ 
+ 	/* The special value 0 means release control of the
+ 	   affinity to kernel.  */
+-	if (new_value == 0) {
++	cpus_and(new_value, new_value, cpu_online_map);
++	if (cpus_empty(new_value)) {
+ 		irq_user_affinity[irq] = 0;
+ 		select_smp_affinity(irq);
  	}
- 	current->reclaim_state = NULL;
-+
-+	vm_swappiness = old_swappiness;
- 	return ret;
- }
+ 	/* Do not allow disabling IRQs completely - it's a too easy
+ 	   way to make the system unusable accidentally :-) At least
+ 	   one online CPU still has to be targeted.  */
+-	else if (!(new_value & cpu_present_mask))
+-		return -EINVAL;
+ 	else {
+ 		irq_affinity[irq] = new_value;
+ 		irq_user_affinity[irq] = 1;
+@@ -344,10 +303,10 @@
+ prof_cpu_mask_write_proc(struct file *file, const char __user *buffer,
+ 			 unsigned long count, void *data)
+ {
+-	unsigned long *mask = (unsigned long *) data, full_count = count, err;
+-	unsigned long new_value;
++	unsigned long full_count = count, err;
++	cpumask_t new_value, *mask = (cpumask_t *)data;
+ 
+-	err = parse_hex_value(buffer, count, &new_value);
++	err = cpumask_parse(buffer, count, new_value);
+ 	if (err)
+ 		return err;
+ 
+Index: mm1-2.6.7-rc3/arch/alpha/kernel/process.c
+===================================================================
+--- mm1-2.6.7-rc3.orig/arch/alpha/kernel/process.c	2004-06-07 12:14:58.000000000 -0700
++++ mm1-2.6.7-rc3/arch/alpha/kernel/process.c	2004-06-09 13:51:37.000000000 -0700
+@@ -119,8 +119,8 @@
+ 
+ #ifdef CONFIG_SMP
+ 	/* Wait for the secondaries to halt. */
+-	clear_bit(boot_cpuid, &cpu_present_mask);
+-	while (cpu_present_mask)
++	cpu_clear(boot_cpuid, cpu_possible_map);
++	while (cpus_weight(cpu_possible_map))
+ 		barrier();
  #endif
-
---=-Sipj/sSkH+Y8jKHe2ExZ--
-
+ 
+Index: mm1-2.6.7-rc3/arch/alpha/kernel/smp.c
+===================================================================
+--- mm1-2.6.7-rc3.orig/arch/alpha/kernel/smp.c	2004-06-07 12:14:02.000000000 -0700
++++ mm1-2.6.7-rc3/arch/alpha/kernel/smp.c	2004-06-09 14:32:40.000000000 -0700
+@@ -68,7 +68,7 @@
+ static int smp_secondary_alive __initdata = 0;
+ 
+ /* Which cpus ids came online.  */
+-unsigned long cpu_present_mask;
++cpumask_t cpu_present_mask;
+ cpumask_t cpu_online_map;
+ 
+ EXPORT_SYMBOL(cpu_online_map);
+@@ -522,7 +522,7 @@
+ 		smp_num_probed = 1;
+ 		hwrpb_cpu_present_mask = (1UL << boot_cpuid);
+ 	}
+-	cpu_present_mask = 1UL << boot_cpuid;
++	cpu_present_mask = cpumask_of_cpu(boot_cpuid);
+ 
+ 	printk(KERN_INFO "SMP: %d CPUs probed -- cpu_present_mask = %lx\n",
+ 	       smp_num_probed, hwrpb_cpu_present_mask);
+@@ -547,7 +547,7 @@
+ 
+ 	/* Nothing to do on a UP box, or when told not to.  */
+ 	if (smp_num_probed == 1 || max_cpus == 0) {
+-		cpu_present_mask = 1UL << boot_cpuid;
++		cpu_present_mask = cpumask_of_cpu(boot_cpuid);
+ 		printk(KERN_INFO "SMP mode deactivated.\n");
+ 		return;
+ 	}
+@@ -562,7 +562,7 @@
+ 		if (((hwrpb_cpu_present_mask >> i) & 1) == 0)
+ 			continue;
+ 
+-		cpu_present_mask |= 1UL << i;
++		cpu_set(i, cpu_possible_map);
+ 		cpu_count++;
+ 	}
+ 
+@@ -597,7 +597,7 @@
+ 		if (cpu_online(cpu))
+ 			bogosum += cpu_data[cpu].loops_per_jiffy;
+ 	
+-	printk(KERN_INFO "SMP: Total of %ld processors activated "
++	printk(KERN_INFO "SMP: Total of %d processors activated "
+ 	       "(%lu.%02lu BogoMIPS).\n",
+ 	       num_online_cpus(), 
+ 	       (bogosum + 2500) / (500000/HZ),
+@@ -638,23 +638,17 @@
+ 
+ 
+ static void
+-send_ipi_message(unsigned long to_whom, enum ipi_message_type operation)
++send_ipi_message(cpumask_t to_whom, enum ipi_message_type operation)
+ {
+-	unsigned long i, set, n;
++	int i;
+ 
+ 	mb();
+-	for (i = to_whom; i ; i &= ~set) {
+-		set = i & -i;
+-		n = __ffs(set);
+-		set_bit(operation, &ipi_data[n].bits);
+-	}
++	for_each_cpu_mask(i, to_whom)
++		set_bit(operation, &ipi_data[i].bits);
+ 
+ 	mb();
+-	for (i = to_whom; i ; i &= ~set) {
+-		set = i & -i;
+-		n = __ffs(set);
+-		wripir(n);
+-	}
++	for_each_cpu_mask(i, to_whom)
++		wripir(i);
+ }
+ 
+ /* Structure and data for smp_call_function.  This is designed to 
+@@ -784,13 +778,14 @@
+ 		printk(KERN_WARNING
+ 		       "smp_send_reschedule: Sending IPI to self.\n");
+ #endif
+-	send_ipi_message(1UL << cpu, IPI_RESCHEDULE);
++	send_ipi_message(cpumask_of_cpu(cpu), IPI_RESCHEDULE);
+ }
+ 
+ void
+ smp_send_stop(void)
+ {
+-	unsigned long to_whom = cpu_present_mask & ~(1UL << smp_processor_id());
++	cpumask_t to_whom = cpu_possible_map;
++	cpu_clear(smp_processor_id(), to_whom);
+ #ifdef DEBUG_IPI_MSG
+ 	if (hard_smp_processor_id() != boot_cpu_id)
+ 		printk(KERN_WARNING "smp_send_stop: Not on boot cpu.\n");
+@@ -814,7 +809,7 @@
+ 
+ int
+ smp_call_function_on_cpu (void (*func) (void *info), void *info, int retry,
+-			  int wait, unsigned long to_whom)
++			  int wait, cpumask_t to_whom)
+ {
+ 	struct smp_call_struct data;
+ 	unsigned long timeout;
+@@ -827,8 +822,8 @@
+ 	data.info = info;
+ 	data.wait = wait;
+ 
+-	to_whom &= ~(1L << smp_processor_id());
+-	num_cpus_to_call = hweight64(to_whom);
++	cpu_clear(smp_processor_id(), to_whom);
++	num_cpus_to_call = cpus_weight(to_whom);
+ 
+ 	atomic_set(&data.unstarted_count, num_cpus_to_call);
+ 	atomic_set(&data.unfinished_count, num_cpus_to_call);
+Index: mm1-2.6.7-rc3/arch/alpha/kernel/setup.c
+===================================================================
+--- mm1-2.6.7-rc3.orig/arch/alpha/kernel/setup.c	2004-06-09 13:39:28.000000000 -0700
++++ mm1-2.6.7-rc3/arch/alpha/kernel/setup.c	2004-06-09 14:30:48.000000000 -0700
+@@ -1245,9 +1245,9 @@
+ 		       platform_string(), nr_processors);
+ 
+ #ifdef CONFIG_SMP
+-	seq_printf(f, "cpus active\t\t: %ld\n"
++	seq_printf(f, "cpus active\t\t: %d\n"
+ 		      "cpu active mask\t\t: %016lx\n",
+-		       num_online_cpus(), cpu_present_mask);
++		       num_online_cpus(), cpus_addr(cpu_possible_map)[0]);
+ #endif
+ 
+ 	show_cache_size (f, "L1 Icache", alpha_l1i_cacheshape);
+Index: mm1-2.6.7-rc3/arch/alpha/kernel/sys_dp264.c
+===================================================================
+--- mm1-2.6.7-rc3.orig/arch/alpha/kernel/sys_dp264.c	2004-06-07 12:14:01.000000000 -0700
++++ mm1-2.6.7-rc3/arch/alpha/kernel/sys_dp264.c	2004-06-09 14:41:07.000000000 -0700
+@@ -53,7 +53,6 @@
+ 	register int bcpu = boot_cpuid;
+ 
+ #ifdef CONFIG_SMP
+-	register unsigned long cpm = cpu_present_mask;
+ 	volatile unsigned long *dim0, *dim1, *dim2, *dim3;
+ 	unsigned long mask0, mask1, mask2, mask3, dummy;
+ 
+@@ -72,10 +71,10 @@
+ 	dim1 = &cchip->dim1.csr;
+ 	dim2 = &cchip->dim2.csr;
+ 	dim3 = &cchip->dim3.csr;
+-	if ((cpm & 1) == 0) dim0 = &dummy;
+-	if ((cpm & 2) == 0) dim1 = &dummy;
+-	if ((cpm & 4) == 0) dim2 = &dummy;
+-	if ((cpm & 8) == 0) dim3 = &dummy;
++	if (cpu_possible(0)) dim0 = &dummy;
++	if (cpu_possible(1)) dim1 = &dummy;
++	if (cpu_possible(2)) dim2 = &dummy;
++	if (cpu_possible(3)) dim3 = &dummy;
+ 
+ 	*dim0 = mask0;
+ 	*dim1 = mask1;
+@@ -164,13 +163,13 @@
+ }
+ 
+ static void
+-cpu_set_irq_affinity(unsigned int irq, unsigned long affinity)
++cpu_set_irq_affinity(unsigned int irq, cpumask_t affinity)
+ {
+ 	int cpu;
+ 
+ 	for (cpu = 0; cpu < 4; cpu++) {
+ 		unsigned long aff = cpu_irq_affinity[cpu];
+-		if (affinity & (1UL << cpu))
++		if (cpu_isset(cpu, affinity))
+ 			aff |= 1UL << irq;
+ 		else
+ 			aff &= ~(1UL << irq);
+@@ -179,7 +178,7 @@
+ }
+ 
+ static void
+-dp264_set_affinity(unsigned int irq, unsigned long affinity)
++dp264_set_affinity(unsigned int irq, cpumask_t affinity)
+ { 
+ 	spin_lock(&dp264_irq_lock);
+ 	cpu_set_irq_affinity(irq, affinity);
+@@ -188,7 +187,7 @@
+ }
+ 
+ static void
+-clipper_set_affinity(unsigned int irq, unsigned long affinity)
++clipper_set_affinity(unsigned int irq, cpumask_t affinity)
+ { 
+ 	spin_lock(&dp264_irq_lock);
+ 	cpu_set_irq_affinity(irq - 16, affinity);

@@ -1,75 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267615AbUIHORl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268345AbUIHOSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267615AbUIHORl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 10:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269156AbUIHOO2
+	id S268345AbUIHOSp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 10:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269140AbUIHOSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 10:14:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13278 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268345AbUIHOJ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 10:09:56 -0400
-Subject: Re: [patch] generic-hardirqs.patch, 2.6.9-rc1-bk14
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Scott Wood <scott@timesys.com>
-In-Reply-To: <Pine.LNX.4.53.0409080938470.15087@montezuma.fsmlabs.com>
-References: <20040908120613.GA16916@elte.hu>
-	 <20040908133445.A31267@infradead.org> <20040908124547.GA19231@elte.hu>
-	 <20040908125755.GC3106@holomorphy.com>
-	 <Pine.LNX.4.53.0409080932050.15087@montezuma.fsmlabs.com>
-	 <20040908143143.A32002@infradead.org>
-	 <Pine.LNX.4.53.0409080938470.15087@montezuma.fsmlabs.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gcVs7A8O3Ng80AoI0fr4"
-Organization: Red Hat UK
-Message-Id: <1094652572.2800.14.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 08 Sep 2004 16:09:32 +0200
+	Wed, 8 Sep 2004 10:18:42 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:55790 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S268345AbUIHOO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 10:14:29 -0400
+Date: Wed, 8 Sep 2004 10:18:55 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: takata@linux-m32r.org, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/4] Re: EXPORT_SYMBOL_NOVERS (was: Re: 2.6.9-rc1-mm3)
+In-Reply-To: <Pine.LNX.4.58.0409062105430.8377@anakin>
+Message-ID: <Pine.LNX.4.53.0409081017580.15087@montezuma.fsmlabs.com>
+References: <20040903014811.6247d47d.akpm@osdl.org> <20040903104239.A3077@infradead.org>
+ <Pine.LNX.4.58.0409030814100.4481@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0409030823530.4481@montezuma.fsmlabs.com>
+ <Pine.GSO.4.58.0409061539270.17329@waterleaf.sonytel.be>
+ <Pine.LNX.4.53.0409061129260.14053@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0409062105430.8377@anakin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 6 Sep 2004, Geert Uytterhoeven wrote:
 
---=-gcVs7A8O3Ng80AoI0fr4
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> No need to bug the janitors, I created a few patches myself:
 
-On Wed, 2004-09-08 at 15:47, Zwane Mwaikambo wrote:
-> On Wed, 8 Sep 2004, Christoph Hellwig wrote:
->=20
-> > On Wed, Sep 08, 2004 at 09:34:03AM -0400, Zwane Mwaikambo wrote:
-> > > Hmm, whenever i've brought up weak functions in a patch it's never we=
-ll=20
-> > > received. Frankly i prefer it to littering the architectures with sim=
-ilar=20
-> > > functions.
-> >=20
-> > That's what we have asm-generic for.
->=20
-> So you have an inline function in a header and include it everywhere? How=
-=20
-> is that better?
+Thanks for doing this Geert.
 
-the thing is, now with the config option, you don't need the generic_
-wrapper thing, just use the full real name. And the prototypes can be
-generic for the arch's that want it.
-
-
---=-gcVs7A8O3Ng80AoI0fr4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBPxKcxULwo51rQBIRAufOAJwMdn015A9rR30F3HRXEPNPQL5sBwCeJCwr
-l+mRl1OgekLAgAossLPHAzA=
-=x2mW
------END PGP SIGNATURE-----
-
---=-gcVs7A8O3Ng80AoI0fr4--
+	Zwane
 

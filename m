@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317030AbSHJPhx>; Sat, 10 Aug 2002 11:37:53 -0400
+	id <S317066AbSHJQWI>; Sat, 10 Aug 2002 12:22:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317036AbSHJPhx>; Sat, 10 Aug 2002 11:37:53 -0400
-Received: from LIGHT-BRIGADE.MIT.EDU ([18.244.1.25]:44292 "HELO
-	light-brigade.mit.edu") by vger.kernel.org with SMTP
-	id <S317030AbSHJPhw>; Sat, 10 Aug 2002 11:37:52 -0400
-Date: Sat, 10 Aug 2002 11:41:09 -0400
-From: Gerald Britton <gbritton@alum.mit.edu>
-To: Alan Cox <alan@redhat.com>
+	id <S317068AbSHJQWI>; Sat, 10 Aug 2002 12:22:08 -0400
+Received: from B5462.pppool.de ([213.7.84.98]:44187 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S317066AbSHJQWH>; Sat, 10 Aug 2002 12:22:07 -0400
+Subject: Re: mmapping large files hits swap in 2.4?
+From: Daniel Egger <degger@fhm.edu>
+To: Richard Zidlicky <rz@linux-m68k.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: local apic on up broken with 2.4.20-pre1-ac1
-Message-ID: <20020810114109.A26436@light-brigade.mit.edu>
-References: <200208062329.g76NTqP30962@devserv.devel.redhat.com>
+In-Reply-To: <20020810141201.A1868@linux-m68k.org>
+References: <1028913975.3832.14.camel@sonja.de.interearth.com> 
+	<20020810141201.A1868@linux-m68k.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 10 Aug 2002 18:17:25 +0200
+Message-Id: <1028996245.8172.19.camel@sonja.de.interearth.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200208062329.g76NTqP30962@devserv.devel.redhat.com>; from alan@redhat.com on Tue, Aug 06, 2002 at 07:29:52PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe this has been broken for the last few -ac kernels.
+Am Sam, 2002-08-10 um 14.12 schrieb Richard Zidlicky:
 
-gcc -D__KERNEL__ -I/devel/rpm/BUILD/kernel-2.4.20pre1ac1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -I /usr/lib/gcc-lib/i386-redhat-linux/2.96/include -DKBUILD_BASENAME=mpparse  -c -o mpparse.o mpparse.c
-mpparse.c:74: `dest_LowestPrio' undeclared here (not in a function)
-mpparse.c: In function `smp_read_mpc':
-mpparse.c:609: `dest_Fixed' undeclared (first use in this function)
-mpparse.c:609: (Each undeclared identifier is reported only once
-mpparse.c:609: for each function it appears in.)
-mpparse.c:609: `dest_LowestPrio' undeclared (first use in this function)
-make[2]: *** [mpparse.o] Error 1
-make[2]: Leaving directory `/devel/rpm/BUILD/kernel-2.4.20pre1ac1/arch/i386/kernel'
+> seems like you are doing something else, like hitting all
+> of the file.
+ 
+> # uname -a
+> Linux sirizidl.dialin.rrze.uni-erlangen.de 2.4.18 #27 Wed Jul 24 17:25:39 CEST 2002 m68k unknown
+ 
+> main()
+> {
+>   char *area;
+>   int fd=open("/msrc/linux/distr/cd.image", O_RDWR);
+>   area = mmap (0, 168088*4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+>   if (area == -1) perror("mmap");
+> }
 
-				-- Gerald
+Heh. Well of course I'm also trying to use the memory I mmaped. :)
+It is just that it seems the mmaped region is not really bakked by
+the underlying file but by swap space which was exactly what I 
+was trying to avoid by using a file.
+ 
+-- 
+Servus,
+       Daniel
 

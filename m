@@ -1,44 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282871AbRK0IJp>; Tue, 27 Nov 2001 03:09:45 -0500
+	id <S282858AbRK0ILz>; Tue, 27 Nov 2001 03:11:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282865AbRK0IJc>; Tue, 27 Nov 2001 03:09:32 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25608 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282851AbRK0IJD>; Tue, 27 Nov 2001 03:09:03 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux 2.4.16
-Date: 27 Nov 2001 00:08:29 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9tvhlt$g5j$1@cesium.transmeta.com>
-In-Reply-To: <20011127083530.A13584@bee.lk> <Pine.LNX.4.33L.0111270551210.4079-100000@imladris.surriel.com> <20011127135847.A22859@bee.lk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S282866AbRK0ILj>; Tue, 27 Nov 2001 03:11:39 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:47365 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S282857AbRK0ILB>;
+	Tue, 27 Nov 2001 03:11:01 -0500
+Date: Tue, 27 Nov 2001 19:07:07 +1100
+From: Anton Blanchard <anton@samba.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: mingo@elte.hu, velco@fadata.bg, linux-kernel@vger.kernel.org
+Subject: benchmark results: Scalable page cache
+Message-ID: <20011127190707.C13824@krispykreme>
+In-Reply-To: <87elml4ssx.fsf@fadata.bg> <Pine.LNX.4.33.0111261753480.10763-100000@localhost.localdomain> <20011126.100217.112611573.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011126.100217.112611573.davem@redhat.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011127135847.A22859@bee.lk>
-By author:    Anuradha Ratnaweera <anuradha@gnu.org>
-In newsgroup: linux.dev.kernel
-> 
-> It is still not okey to include even _small_ changes, because it is hard to
-> define what small is.  Although we are sure that is is going to break,
-> Murphey's laws may get in ...;)
-> 
-> So better have a _policy_ of not doing so.
-> 
+ 
+> His tree is per-inode, so you'd need a fully in ram 16GB _FILE_ to get
+> the bad tree search properties you describe.
 
-Sorry, but you have just crossed the line of what is reasonable to
-demand of other people.  If you don't trust the maintainers and want
-to maintain such a policy, fork the kernel and start maintaining it
-yourself.
+Well lets pass my dbench-o-matic over the two patches.
 
-     -hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+http://samba.org/~anton/linux/pagecache_locking/
+
+The tests were run on an old 12 way ppc64 machine. I might do the runs
+again on a newer 16 way, it just takes ages to boot it.
+
+summary.png shows an equal improvement from 8 clients through to 12
+clients with either patch. Ignore the breakdown after 12 clients, I need
+to look closer at what is going on there.
+
+I was seeing larger problems with the pagecache lock on zero copy
+workloads with the standard kernel. It might show up some differences in
+the two approaches with that sort of workload, if I get a chance I'll do
+more testing.
+
+The dbench-o-matic gives some more detailed information as well as the
+summary. For each dbench run you can get the results from the kernel
+statistical profiler. For the top 40 kernel functions you can also see
+the breakdown of hits (in % of total hits for that function) against
+the disassembly.
+
+eg for standard 2.4.16 and 12 clients, the __find_lock disassembly
+is:
+
+http://samba.org/~anton/linux/pagecache_locking/2.4.16/12/8.html
+
+One hint for reading the disassembly, this is a spin lock aquisition
+in ppc64:
+
+c0000000000e38e8 b	c0000000000e3900
+c0000000000e38ec mr	r1,r1
+c0000000000e38f0 lwzx r11,r0,r0
+c0000000000e38f4 cmpwi	r11,0
+c0000000000e38f8 bne+	c0000000000e38ec
+c0000000000e38fc mr	r2,r2
+c0000000000e3900 lwarx r11,r0,r0
+c0000000000e3904 cmpwi	r11,0
+c0000000000e3908 bne-	c0000000000e38ec
+c0000000000e390c stwcx.	r9,r0,r0
+c0000000000e3910 bne- c0000000000e3900
+c0000000000e3914 isync
+
+If you see a large percentage on the first five instructions then
+we are spending a lot of time busy spinning for a spinlock to be
+dropped. Another useful tip is that hits are usually attributed to the
+instruction after the offending one, because we use the return address
+from the timer interrupt.
+
+In the case of __find_lock_page we see both contention (looping over the
+first five instructions) and also what looks to be cacheline ping ponging
+(the high % of hits the instruction after the lwarx).
+
+Anton

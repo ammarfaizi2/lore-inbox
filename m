@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266256AbUFZSjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUFZSwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266256AbUFZSjs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 14:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266348AbUFZSjs
+	id S266319AbUFZSwN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 14:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUFZSwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 14:39:48 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:32263 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S266256AbUFZSjp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 14:39:45 -0400
-Date: Sat, 26 Jun 2004 20:41:59 +0200
-To: Yaroslav Halchenko <yoh@psychology.rutgers.edu>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: alienware hardware - memory problem?
-Message-ID: <20040626184159.GA20447@hh.idb.hist.no>
-References: <200406242315.56213.vda@port.imtp.ilyichevsk.odessa.ua> <20040624202626.GS728@washoe.rutgers.edu> <200406242358.55782.vda@port.imtp.ilyichevsk.odessa.ua> <20040624212600.GW728@washoe.rutgers.edu> <20040624215856.GA728@washoe.rutgers.edu> <20040625000102.GI728@washoe.rutgers.edu> <40DBE853.4050707@hist.no> <20040625162016.GD16916@washoe.rutgers.edu> <20040626120738.GB14609@hh.idb.hist.no> <20040626154534.GF16916@washoe.rutgers.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040626154534.GF16916@washoe.rutgers.edu>
-User-Agent: Mutt/1.5.6+20040523i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Sat, 26 Jun 2004 14:52:12 -0400
+Received: from anubis.medic.chalmers.se ([129.16.30.218]:21741 "EHLO
+	anubis.medic.chalmers.se") by vger.kernel.org with ESMTP
+	id S266319AbUFZSwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 14:52:08 -0400
+Message-ID: <40DDC5EB.1010304@fy.chalmers.se>
+Date: Sat, 26 Jun 2004 20:52:27 +0200
+From: Andy Polyakov <appro@fy.chalmers.se>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kronos <kronos@people.it>
+Cc: cdwrite@other.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: [ISOFS] Troubles with multi session DVDs.
+References: <20040623192900.GA20511@dreamland.darkstar.lan>
+In-Reply-To: <20040623192900.GA20511@dreamland.darkstar.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 26, 2004 at 11:45:34AM -0400, Yaroslav Halchenko wrote:
-> On Sat, Jun 26, 2004 at 02:07:38PM +0200, Helge Hafting wrote:
-> > On Fri, Jun 25, 2004 at 12:20:16PM -0400, Yaroslav Halchenko wrote:
-> > Glad to be of help.  I hope the /proc/mtrr stuff works out, it is
-> > nice to use _all_ the memory?.  How much is it?
-> 1GB RAM. I've found somewhere that guy did 'disable=X' with X for all
-> lines in mtrr (we have 6) and then just overrides first with 1Gb of
-> write-back and then some amount for video (64M for instance) with
-> uncachable. I just didn't have time to try yet :-) 
+> I'm having a strange (at least for me) problem burning multisession
+> DVD+R media: the dvd becomes unreadable after the 3rd session is burned.
+
+I have all reasons to believe that it rather has everything to do with 
+position of last session, than with the exact number of sessions. I also 
+have all reasons to believe that it's rather ide-cd.c bug than isofs. In 
+other words this problem was already reported to me, but I didn't have 
+time to bring it up with linux-kernel people yet.
+
+> mount refuses to do its work, and kernel says:
 > 
-> > Don't forget the complaint to the vendor.  The only way to get 
-> > permanently rid of this sort of problem is when the vendors get
-> > enough reactions to sloppy bioses.  Don't be silent just because
-> > you found a solution, you shouldn't really have to in this case.
-> I'm not sure if vendor would respect such complaint because alienware
-> supports only windows and Windows doesn't have such problem seems to me.
-> Anyway how to complain in the right way?
+> Unable to identify CD-ROM format.
 > 
-Remember, you're not the only linux user in the world. :-)
-If everybody with trouble complain, then they get enough complaints
-that it matters.  It doesn't work if everybody thinks the're alone
-and do nothing.  Note that linux is the fastest growing OS these days.
+> Note that there isn't any read error, so the kernel is simply unable to
+> locate the primary volume descriptor.
 
-You can also let them know before you purchase.  When getting your next
-machine, consider one that claims linux support.  They exist - even
-laptops.  And if you get something else, let them know.  If you
-inquire about a machine - ask about linux support.  Salesmen getting
-a lot of that will take note.  The linux market isn't the biggest 
-but cutting off 5%/10% of the market for no reason is bad business.
-Linux support is easy - they don't have to do support, just sell
-a box that works.
+The keywords for this problem are:
 
-Bring a knoppix CD when looking at machines in shops - then you
-can verify that they work without obvious snags like that mtrr bug.
+> growisofs -M /dev/hdc -J -r <files> (-Z for the first session)
+                     ^^^ ide-cd.c is involved [it's no problem with sr.c 
+if unit is routed through ide-scsi.c]...
 
-> 'BIOS errornessly fills Memory Type Range Registers with too many
-> memory ranges with wrong caching strategies' is it what is happening?
-> 
-About how to complain - be constructive.  Tell them that the problem is 
-serious and makes the machine work much slower than the competition, 
-but that it is easily fixable by setting the mtrr's up right in the bios.
-You may also want to tell them that several other vendor have had
-this problem - and fixed it by issuing a bios upgrade.
+> This is the output of dvd+rw-mediainfo:
+> ...
+>  Multi-session Info:    #3@1339392
+                              ^^^^^^^ ... and last recorded session 
+starts beyond LBA #1152000, which corresponds ~2.2GB.
 
-> > Also check if there is a newer BIOS around. :-)
-> that might be usefull :-)
+What's so special about 1152000 (besides that it reminds highest posible 
+bitrate for serial port:-) It's 256 times 60 times 75. What's so special 
+about these numbers? 256 is amount of interger values which can be 
+represented with 8-bit number, 60 is amount of seconds in minute and 75 
+is amount of frames in one second of CD-DA. Yes, it's about conversion 
+from MSF to LBA suffering from overflow around 2.2GB. In the nutshell 
+the problem is that drivers/ide/ide-cd.c always pull TOC in MSF format 
+and then attempts to convert it to LBA. If last session is recorded 
+beyond 1152000, isofs driver will be led by ide-cd driver to belief that 
+volume descriptor resides at 1152000, which in turn results in "unable 
+to identify CD-ROM format" message logged upon mount attempt.
 
-Helge Hafting
+As fast-acting remedy I can suggest to route your unit through ide-scsi. 
+The way it was under 2.4. Even though it's declared unsupported it 
+actually still works in 2.6 (I for one still use it). And once ide-cd.c 
+is fixed you'll be able to revert back to officially recommended path. A.
+
+

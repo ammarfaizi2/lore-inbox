@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267359AbUHSURp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267361AbUHSUVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267359AbUHSURp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 16:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267361AbUHSURp
+	id S267361AbUHSUVM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 16:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUHSUVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 16:17:45 -0400
-Received: from [12.177.129.25] ([12.177.129.25]:16580 "EHLO
-	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S267359AbUHSURo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 16:17:44 -0400
-Message-Id: <200408192119.i7JLJNdW004190@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.8.1-mm2 --- UML build fixes 
-In-Reply-To: Your message of "Thu, 19 Aug 2004 22:55:06 +0200."
-             <20040819205506.GA7440@mars.ravnborg.org> 
-References: <20040819014204.2d412e9b.akpm@osdl.org> <20040819122915.GA2085@taniwha.stupidest.org>  <20040819205506.GA7440@mars.ravnborg.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 19 Aug 2004 17:19:23 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Thu, 19 Aug 2004 16:21:12 -0400
+Received: from server18.wavepath.com ([63.247.70.66]:11689 "EHLO
+	server18.wavepath.com") by vger.kernel.org with ESMTP
+	id S267361AbUHSUUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 16:20:53 -0400
+Message-ID: <15724.12.172.68.51.1092946691.squirrel@server18.wavepath.com>
+Date: Thu, 19 Aug 2004 16:18:11 -0400 (EDT)
+Subject: Re: [PATCH] 2.4.27 - MTD cfi_cmdset_0002.c - Duplicate cleanup in error path
+From: <bkgoodman@bradgoodman.com>
+To: <marcelo.tosatti@cyclades.com>
+In-Reply-To: <20040819155405.GC4396@logos.cnet>
+References: <200407231947.i6NJlwo32224@bradgoodman.com>
+        <87k6wtlvwk.fsf@farside.sncag.com>
+        <20040819155405.GC4396@logos.cnet>
+X-Priority: 3
+Importance: Normal
+Cc: <rainer.weikusat@sncag.com>, <bkgoodman@bradgoodman.com>,
+       <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sam@ravnborg.org said:
-> What makes um so speciel that it cannot handle .lds files in arch/um/
-> kernel like all other architectures? That would allow um to utilise
-> the kbuild infrastructure, and no need for duplication. 
+I noticed it in the 2.4.28-pre1 changelog.
 
-Beats me, as the comment says, I could not get the kbuild .lds.S : .lds rule
-to fire for uml.lds.S.  make kept sending it to the asm .S.o rule.
+I had concidered doing it has he described - I figured though as a
+first-time submitter, the less I touched, the more comfortable people
+would feel with it ;-)
 
-> Code located in arch/um/ is an error. No code should stay there. 
+Thanks,
 
-OK, that's easily fixed.
+-BKG
 
-> In general they seems too complicated for the task solved - but it may
-> be needed. 
+>
+> Applied Rainer's patch, its equivalent and I his
+> "consisteny with other algorithms" point is a good one.
+>
+> Thanks guys!
+>
+> On Sat, Jul 24, 2004 at 03:14:03PM +0800, Rainer Weikusat wrote:
+>> "bradgoodman.com" <bkgoodman@bradgoodman.com> writes:
+>> > Patch to 2.4.x: Corrects an obvious error where all of the cleanups
+>> are done twice in the event of a chip programming error. This can
+>> result in kernel BUG() getting called on subsequent programming
+>> attempts.
+> <snip>
+>> That way, it is consistent with the other low-level chip access
+>> functions. But the algorithm is per se buggy, anyway, because except
+>> if DQ5 was raised before, the chip is not 'ready' (for reading array
+>> data), but still in programming mode and will remain there until the
+>> 'embedded programming algorithm' stops, because (according to the
+>> docs) a reset command will not be accepted until DQ5 has been raised
+>> and the opportunityto check for that is gone after the syscall
+>> returned to the caller.
 
-Yeah, they are.  They desperately need a reaming.
 
-				Jeff
+

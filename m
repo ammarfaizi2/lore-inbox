@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317338AbSG1VAk>; Sun, 28 Jul 2002 17:00:40 -0400
+	id <S317327AbSG1VBZ>; Sun, 28 Jul 2002 17:01:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317327AbSG1VAj>; Sun, 28 Jul 2002 17:00:39 -0400
-Received: from dclient80-218-19-128.hispeed.ch ([80.218.19.128]:45977 "HELO
-	lombi.mine.nu") by vger.kernel.org with SMTP id <S317338AbSG1VAj>;
-	Sun, 28 Jul 2002 17:00:39 -0400
-Mime-Version: 1.0
-Message-Id: <p04320401b96a05f1a59a@[192.168.3.11]>
-In-Reply-To: <20020726160742.GA951@ksu.edu>
-References: <20020726160742.GA951@ksu.edu>
-Date: Sun, 28 Jul 2002 23:02:46 +0200
-To: linux-kernel@vger.kernel.org
-From: Christian Jaeger <christian.jaeger@sl.ethz.ch>
-Subject: Re: How to start on new db-based FS?
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S317331AbSG1VBY>; Sun, 28 Jul 2002 17:01:24 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:56825 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S317327AbSG1VBX>;
+	Sun, 28 Jul 2002 17:01:23 -0400
+Message-ID: <794826DE8867D411BAB8009027AE9EB91E7056D8@fmsmsx38.fm.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: text screen corruption - bug in console vga code
+Date: Sun, 28 Jul 2002 14:04:39 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's always the possibility to build upon AVFS 
-(http://www.inf.bme.hu/~mszeredi/avfs), either using the LD_PRELOAD 
-version improved by Frederik Eaton, or the version using the (CODA or 
-better the) FUSE kernel module (the latter is still in development 
-from what I hear).
+We have observed text mode console screen corruption on some architecture.
+The symptom was on a text console, when edit a large file with vi, pressing
+"down" arrow key to scroll would cause the corruption.
 
-We have built a DB backed filesystem for use in a content management 
-system (http://www.ethlife.ethz.ch/newcms), based on the AVFS 
-LD_PRELOAD version, and embedding perl so we could write the actual 
-filesystem implementation in perl. It has required quite a bit of 
-labour, but works well for our purpose now. It's GPL'd, but not yet 
-polished for publication, so contact me if you're interested.
+It turns out that the culprit was the kernel console vga code where scrup()
+is illegally using mempcy() function when src/dest memory areas overlaps.
+This bug showed up when we optimized memcpy to use advanced optimization
+technique.  
 
-Christian.
--- 
-Christian Jaeger  Programmer & System Engineer
-ETHLife CMS Project - www.ethlife.ethz.ch/newcms - www.ethlife.ethz.ch
+This patch make use of memmove() which handles overlapping areas gracefully.
+Would the maintainer please push this into the base?
+
+
+--- drivers/char/console.c.orig	Wed Jul 24 14:47:20 2002
++++ drivers/char/console.c	Wed Jul 24 14:47:55 2002
+@@ -259,7 +259,7 @@
+ 		return;
+ 	d = (unsigned short *) (origin+video_size_row*t);
+ 	s = (unsigned short *) (origin+video_size_row*(t+nr));
+-	scr_memcpyw(d, s, (b-t-nr) * video_size_row);
++	scr_memmovew(d, s, (b-t-nr) * video_size_row);
+ 	scr_memsetw(d + (b-t-nr) * video_num_columns, video_erase_char,
+video_size_row*nr);
+ }
+

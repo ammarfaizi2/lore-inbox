@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274013AbRIXQmQ>; Mon, 24 Sep 2001 12:42:16 -0400
+	id <S274012AbRIXQk4>; Mon, 24 Sep 2001 12:40:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274002AbRIXQl7>; Mon, 24 Sep 2001 12:41:59 -0400
-Received: from codepoet.org ([166.70.14.212]:30017 "HELO winder.codepoet.org")
-	by vger.kernel.org with SMTP id <S274016AbRIXQl2>;
-	Mon, 24 Sep 2001 12:41:28 -0400
-Date: Mon, 24 Sep 2001 10:41:53 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: toon@vdpas.hobby.nl, linux-kernel@vger.kernel.org
-Subject: Re: /proc/partitions hosed
-Message-ID: <20010924104153.A29097@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, toon@vdpas.hobby.nl,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010924124131.A4755@vdpas.hobby.nl> <E15lUoP-0002Js-00@the-village.bc.nu>
+	id <S274002AbRIXQkk>; Mon, 24 Sep 2001 12:40:40 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:46730 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S274012AbRIXQkR>; Mon, 24 Sep 2001 12:40:17 -0400
+Date: Mon, 24 Sep 2001 12:40:44 -0400
+From: Arjan van de Ven <arjanv@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Binary only module overview
+Message-ID: <20010924124044.B17377@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E15lUoP-0002Js-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.9-ac10-rmk1, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Sep 24, 2001 at 01:26:13PM +0100, Alan Cox wrote:
-> > It didn't get trough the boot-sequence (RedHat-7.1).
-> > After some investigation it turned out that it hang in
-> > the kudzu script, and further on also in the netfs script.
-> > The programs `/usr/sbin/updfstab', `/usr/sbin/kudzu' and
-> > the command `mount -a' are all falling into a loop.
-> 
-> The scsi partition handling code in 2.4.10 is broken
-> 
-> The cause seems to be the new gendisk changes, although quite why is still
-> a mystery.
+Hi,
 
-I didn't have time to dig into it, since I needed to get some work
-done.  So I reverted drivers/scsi/sd.c to stock 2.4.9, which made
-the problem go away for me,
+I'm composing a list of all existing binary only modules, 
+and I got to a list of 26 different modules; I undoubtedly forgot a few, 
+so I hereby request feedback from people who know about modules I
+left out, so that I can complete the list. (I do not really care about
+modules that once existed for 2.0 or earlier and no longer exist for all
+intents and purposes)
 
- -Erik
+Greetings,
+  Arjan van de Ven
 
---
-Erik B. Andersen   email:  andersee@debian.org, formerly of Lineo
---This message was written using 73% post-consumer electrons--
+
+Hardware drivers
+----------------
+4-Front		- soundcard drivers
+Adaptec		- Fiberchannel cards
+Agilent		- Fiberchannel cards
+aureal		- driver for soundcard
+Conexant	- winmodem driver
+Emulex		- Fiberchannel cards
+Highpoint	- lowlevel IDE driver + software raid
+IBM		- All hardware networkdrivers for S/390
+Lucent		- driver for winmodem
+Motorola	- driver for winmodem
+M-Systems	- flash chips
+NVidia		- 3D driver for their hardware 
+Olicom		- tokenring networkcard
+PCTel		- winmodem driver
+Philips		- webcam driver
+Promise		- lowlevel IDE driver + software raid
+Sigma designs	- driver for soundcard
+
+Highlevel drivers
+-----------------
+Cisco		- IPSEC
+Hewlet Packard	- High level security modules (LSM)
+Intel		- IPSEC 
+Netraverse	- Win4lin
+SGI		- XFS cluster extensions
+		- High level security modules (LSM)
+Sistina		- GFS and cluster extensions for LVM
+Veritas		- Filesystem and Software RAID clusterextensions
+Wirex		- High level security modules (LSM)
+
+
+

@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268592AbUIGU7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268594AbUIGVAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268592AbUIGU7R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 16:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268602AbUIGU7R
+	id S268594AbUIGVAI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 17:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268270AbUIGVAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 16:59:17 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55219 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S268592AbUIGU7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 16:59:12 -0400
-Date: Tue, 7 Sep 2004 22:59:11 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
-Message-ID: <20040907205911.GA17555@atrey.karlin.mff.cuni.cz>
-References: <41323AD8.7040103@namesys.com> <20040831131201.GA1609@elf.ucw.cz> <413E170F.9000204@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <413E170F.9000204@namesys.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 7 Sep 2004 17:00:08 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:46498 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268609AbUIGU7y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 16:59:54 -0400
+Date: Tue, 7 Sep 2004 13:55:53 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: George Anzinger <george@mvista.com>
+cc: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       albert@users.sourceforge.net, Ulrich.Windl@rz.uni-regensburg.de,
+       Len Brown <len.brown@intel.com>, linux@dominikbrodowski.de,
+       David Mosberger <davidm@hpl.hp.com>, paulus@samba.org,
+       schwidefsky@de.ibm.com, jimix@us.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC] New Time of day proposal (updated 9/2/04)
+In-Reply-To: <413DFCC2.7080405@mvista.com>
+Message-ID: <Pine.LNX.4.58.0409071354150.9990@schroedinger.engr.sgi.com>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+ <20040903151710.GB12956@wotan.suse.de> <1094242317.14662.556.camel@cog.beaverton.ibm.com>
+ <20040904130022.GB21912@wotan.suse.de> <Pine.LNX.4.58.0409070908290.8484@schroedinger.engr.sgi.com>
+ <413DFCC2.7080405@mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 7 Sep 2004, George Anzinger wrote:
 
-> >What about choosing just "..." instead of "metas"? "metas" is string
-> >that needs translation etc, while "..." is nicely neutral.
-> >
-> >cat /sound_of_silence.mp3/.../author
-> >
-> >does not look bad, either...
+> Also, we don't "know" what rate the TSC is actully clocking so we must
+> "discover" it at boot time.  This process either is inaccurate or slow (I think
+> we use ~ 50 ms these days which gives an error of ~10 TSC cycles on a 800MHZ
+> box).  FWIW the problem here is the sync up with the I/O backplane to find the
+> start and ending of the measured time.
+>
+> I suspect that the IA64 "tells" you what its clock rate is.  Right?
 
-> "..." is pretty good, but I think it has been used by others, but I 
-> really forget who.  I could live with "...", but I think "metas" and 
-> "..metas" will collide less often.  Apparently Meta is a finnish name or 
-> something, so Linus does not like it.  The exact string is really not 
-> very important to me.  I agree that "..." is elegant.
-
-Well, "..." is mostly used by script kiddies -- they usually have
-their rootkit collection there :-).
-
-It would be nice to decide on one escape into "meta" namespace,
-uservfs and similar projects probably should be converted to use same
-escape.
-
-[Uservfs currently uses things like cat /tmp/foo.tgz#utar/bar.gz#ugz
-... essentially using # as another separator. It should probably be
-converted to use same meta escape].
-
-								Pavel
-
+Not the CPU itself. There is a special hardware I/O interface called the
+PAL/SAL that allows one to retrive that information. Doesnt the BIOS on
+i386 allow you to get to that information?
 

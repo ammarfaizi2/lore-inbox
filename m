@@ -1,43 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbVDARS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262814AbVDARVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbVDARS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 12:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbVDARS5
+	id S262814AbVDARVG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 12:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbVDARVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 12:18:57 -0500
-Received: from web25603.mail.ukl.yahoo.com ([217.12.10.162]:20558 "HELO
-	web25603.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262797AbVDARS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 12:18:56 -0500
-Message-ID: <20050401171852.36514.qmail@web25603.mail.ukl.yahoo.com>
-Date: Fri, 1 Apr 2005 19:18:52 +0200 (CEST)
-From: Uwe Zybell <u_zybell@yahoo.de>
-Subject: fs/partitions/msdos.c, scripts/packages/Makefile
-To: lkml <linux-kernel@vger.kernel.org>
+	Fri, 1 Apr 2005 12:21:05 -0500
+Received: from ida.rowland.org ([192.131.102.52]:13828 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S262814AbVDARUp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 12:20:45 -0500
+Date: Fri, 1 Apr 2005 12:20:42 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: kus Kusche Klaus <kus@keba.com>
+cc: linux-usb-users@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: RE: 2.6.11, USB: High latency?
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F3673231D4@MAILIT.keba.co.at>
+Message-ID: <Pine.LNX.4.44L0.0504011207290.1747-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First things first: Pls CC me, I'm not subscribed.
+On Fri, 1 Apr 2005, kus Kusche Klaus wrote:
 
-There is a line in fs/partitions/msdos.c that lets extended partitions 
-be max 1k (..."==1 ? 1 : 2"...). The comment explains it to protect 
-sysadmins from themselves. But /dev/hda isn't similarly protected. That
-is because it would prohibit other uses. But now I have found a 
-legitimate use for extended partitions in their full length. Emulation.
-Please remove this, or make it a config option.
+> > The biggest advantage would come from using a bottom-half 
+> > handler to do 
+> > most of the work.  Right now the uhci-hcd driver does 
+> > everything in its 
+> > interrupt handler.  This would certainly help IRQ latency; it 
+> > might not 
+> > affect application latency very much.
+> 
+> Sounds very reasonable, thanks. Also helps application latency,
+> because with the RT patches, I can tune the rt prio of softirq
+> execution (that's where bottom-half goes, doesn't it?) w.r.t. the
+> rt prio of the application threads.
 
-Next problem: make O=... ...-pkg doesn't work. Reason: In
-scripts/packages/Makefile
-all -pkg target call $(MAKE) but from $(obj). This line(s) must be
-augmented
-with "-f $(srcdir)/Makefile". I don't know if $(srcdir) must be
-conditional on O.
+Yes.  Bear in mind, however, that if these application threads are doing 
+I/O over USB then they will be forced to wait for the bottom half to 
+execute, regardless of its priority.
 
+> However, if I understand things correctly, if you really need 
+> to disable all interrupts while doing the USB work, it will not
+> make any difference if IRQs are disabled while you are in the
+> USB IRQ handler, or if they are disabled for the same amount of 
+> work/time in the bottom-half code.
 
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+For most of the USB work it will be necessary only to insure that no more
+than one copy of the bottom-half handler is running at a time, which I 
+think the kernel does automatically for tasklets.  There are a few places 
+where all IRQs will have to be disabled, but those places are relatively 
+small and short.
+
+Right now, of course, everything runs with IRQs disabled.
+
+> > We'll see what happens with the upcoming changes.  Maybe 
+> > you'll be able to 
+> > test them for me?
+> 
+> Basically, yes (as long as our company doesn't decide to stop the
+> linux experiments).
+> 
+> However, I depend on Ingo's RT patch, which is against the -rc series,
+> not against the -mm series. So I will probably not be able to apply
+> patches created against -mm.
+
+Okay.  It will be a while before the new code is ready and the changes on 
+which it depends have gotten into -rc.
+
+Alan Stern
+

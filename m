@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315794AbSE2XmH>; Wed, 29 May 2002 19:42:07 -0400
+	id <S315779AbSE2Xnw>; Wed, 29 May 2002 19:43:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315792AbSE2XmG>; Wed, 29 May 2002 19:42:06 -0400
-Received: from dsl-213-023-039-142.arcor-ip.net ([213.23.39.142]:23220 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315794AbSE2XlR>;
-	Wed, 29 May 2002 19:41:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Tomas Szepe <szepe@pinerecords.com>, Nicolas Pitre <nico@cam.org>
-Subject: Re: 2.5.19 - What's up with the kernel build?
-Date: Thu, 30 May 2002 01:40:46 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CF540F8.6000802@mandrakesoft.com> <Pine.LNX.4.44.0205291827130.23147-100000@xanadu.home> <20020529230657.GB2851@louise.pinerecords.com>
+	id <S315760AbSE2Xnu>; Wed, 29 May 2002 19:43:50 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:47626 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315746AbSE2Xnr>; Wed, 29 May 2002 19:43:47 -0400
+Message-ID: <3CF55A05.8070100@evision-ventures.com>
+Date: Thu, 30 May 2002 00:45:25 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17DD3f-0006q5-00@starship>
+To: Tom Rini <trini@kernel.crashing.org>
+CC: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.5.19 - What's up with the kernel build?
+In-Reply-To: <Pine.LNX.4.44.0205291519270.9971-100000@chaos.physics.uiowa.edu> <20020529232228.GX5997@opus.bloom.county>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 May 2002 01:06, Tomas Szepe wrote:
-> > > Well, I really like Keith's kbuild25 too, but Linus said (at least once) 
-> > > he wanted an evolution to a new build system... not an unreasonable 
-> > > request to at least consider.  Despite Keith's quality of code (again -- 
-> > > I like kbuild25), his 3 patch submissions seemed a lot like ultimatums, 
-> > > very "take it or leave it dammit".  Not the best way to win friends and 
-> > > influence people.
-
-OK that's true, but think: how much work has Keith put into this?  How much
-did he or his employer get paid?  And how many times has he been told to go
-off and fix something, as a prelude to getting the thing in?  The last time
-it was the first-time build speed.  He went away and came back with a *huge*
-improvement, even more than what people were demanding.  You'd think that
-would be enough.
-
-Keith has to do *two* full time jobs as long as the patch isn't merged:
-developing the patch itself and tracking the whole 2.5 tree as it (rapidly)
-evolves.
-
-> > > If Keith is indeed leaving it, I'm hoping someone will maintain it, or 
-> > > work with Kai to integrate it into 2.5.x.
-> > 
-> > When I suggested to Keith he push kbuild25 the way Linus likes, he (Keith) 
-> > considered that was a "stupid comment" and that he'd ignore stupid comments.
-
-It is of course always regrettable when one is so rash as to call a stupid
-comment a stupid comment ;-)
-
-> What remains to be answered is, how does one split a system of a myriad of
-> build rule files into a reasonable amount of small patches.
+Tom Rini wrote:
+> On Wed, May 29, 2002 at 03:22:52PM -0500, Kai Germaschewski wrote:
 > 
-> Of course, you could have hundreds of patches each consisting of a single
-> Makefile.in, but how would that make the reviewing/integrating easier? In
-> the end you'd end up reading the same input, only you'd complement it by
-> frequently pressing your favorite show-me-the-next-mail key.
+> 
+>>>>>It's possible with only small changes to provide a quiet mode now,
+>>>>>which would not print the entire command lines but only
+>>>>>
+>>>>>	  Descending into drivers/isdn/kcapi
+>>>>>	  Compiling kcapi.o
+>>>>>	  Compiling capiutil.o
+>>>>>	  Linking kernelcapi.o
+>>>>>	  ...
+>>>>>
+>>>>>Is that considered useful?
+>>>>
+> 
+> I don't think so.  If you're on a slow connection or something, redirect
+> stdout to a log and watch stderr.  If you just want something prettier,
+> and this is easy, I don't think this is a bad thing.  I don't think it
+> should be the default tho either. :)
 
-I thought BitKeeper was supposed to be able to deal with precisely this sort
-of merge problem.  In this case, splitting the thing up just seems
-unnatural, and a dubious use of time.
+Or in clear words - it's redundant bullshit if you don't care and
+it's preventing you from seeing the "trueth" if you care.
+Please just make make -s work agin and I would be happy. OK?
 
--- 
-Daniel

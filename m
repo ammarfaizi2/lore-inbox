@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318194AbSHSHXz>; Mon, 19 Aug 2002 03:23:55 -0400
+	id <S318196AbSHSHZd>; Mon, 19 Aug 2002 03:25:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318196AbSHSHXz>; Mon, 19 Aug 2002 03:23:55 -0400
-Received: from tapu.f00f.org ([66.60.186.129]:35712 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S318194AbSHSHXy>;
-	Mon, 19 Aug 2002 03:23:54 -0400
-Date: Mon, 19 Aug 2002 00:27:57 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: "Tomasz Torcz, BG" <zdzichu@irc.pl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and full ipv6 - will it happen?
-Message-ID: <20020819072757.GA17487@tapu.f00f.org>
-References: <20020819043941.GA31158@irc.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318198AbSHSHZd>; Mon, 19 Aug 2002 03:25:33 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:6830 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S318196AbSHSHZc>;
+	Mon, 19 Aug 2002 03:25:32 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: "louie miranda" <louie@chikka.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: *Challenge* Finding a solution (When kernel boots it does not display any system info)
+Date: Mon, 19 Aug 2002 00:30:42 -0700
+User-Agent: KMail/1.4.6
+References: <20020818021522.GA21643@waste.org> <20020819054359.GB26519@think.thunk.org> <02bc01c24746$9d08d600$0300000a@nocpc2>
+In-Reply-To: <02bc01c24746$9d08d600$0300000a@nocpc2>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20020819043941.GA31158@irc.pl>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+Message-Id: <200208190030.48180.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 19, 2002 at 06:39:41AM +0200, Tomasz Torcz, BG wrote:
+On August (!)&18, 2002 23:06, louie miranda wrote:
+> Is there a patch or any configuration's, info*.
+> When the kernel boots.. it just display only the Lilo, etc. a few lines
+> after lilo.. and just pauses for a while and after a few seconds
+> display the login prompt?
+>
+> I've seen this once!, but i can't remember where...
+Passing "quiet" on the kernel command line, ie append="quiet" in lilo.conf, 
+turns off the kernel boot messages. You'll still have to find a way to get 
+init and your initscripts to shut up, though.
 
-    Linux still has superior networking, but protocol of the future is
-    IPv6.
-
-Nope, not anytime soon.
-
-
-   --cw
+-Ryan

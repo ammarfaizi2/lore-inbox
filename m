@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130547AbQKLMT2>; Sun, 12 Nov 2000 07:19:28 -0500
+	id <S130542AbQKLMVS>; Sun, 12 Nov 2000 07:21:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130546AbQKLMTS>; Sun, 12 Nov 2000 07:19:18 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:260 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130539AbQKLMS5>;
-	Sun, 12 Nov 2000 07:18:57 -0500
-Message-ID: <20001112005444.A165@bug.ucw.cz>
-Date: Sun, 12 Nov 2000 00:54:44 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Linux usb mailing list <linux-usb-devel@lists.sourceforge.net>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Something very wrong with time fbcon and FSBR
-Mime-Version: 1.0
+	id <S130589AbQKLMVJ>; Sun, 12 Nov 2000 07:21:09 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:32783 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130575AbQKLMUy>;
+	Sun, 12 Nov 2000 07:20:54 -0500
+Message-ID: <3A0E8B22.2A5CC132@mandrakesoft.com>
+Date: Sun, 12 Nov 2000 07:20:50 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Hen, Shmulik" <shmulik.hen@intel.com>
+CC: "'Olaf Titz'" <olaf@bigred.inka.de>, linux-kernel@vger.kernel.org,
+        "'LNML'" <linux-net@vger.kernel.org>
+Subject: Re: catch 22 - porting net driver from 2.2 to 2.4
+In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B2708D@hasmsx52.iil.intel.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"Hen, Shmulik" wrote:
+> the thing is I need to prevent Tx/Rx when a topology change is initiated
+> from the ioctl (registering a virtual adapter is just one example), so they
+> all share a single lock and I must use spin_lock_bh from the ioctl.
 
-I wanted to measure negative impact of FSBR on my system.
+I do not think that they all need to shared a single lock.  And we don't
+have your code, but spin_lock_bh may be an incorrect choice too.
 
-I did time cat /etc/termcap. I have fbcon, so it is quite slow
-operation. It took 13 seconds.
+Note that when topology changes, that is an operation which might take
+more than a few milliseconds.  Therefore, your solution should do
+something OTHER than spinning on a lock, while topology is changing.
 
-Then I made system use the FSBR, and did cat /etc/termcap. It was
-visually much slower, but it gave 13 seconds again. So I did the same
-test again, it said:
+dev->open and dev->do_ioctl are called with rtnl_lock already held.  You
+can sleep in them.  Use that to your advantage...
 
-0.00user 13.06system 13.38 (0m13.383s) elapsed 97.59%CPU
-pavel@bug:~$
-
-but measured with my wristwatch, it took over 50seconds!
-
-Something is very wrong with either USB or fbcon. Okay, now I tried
-without USB, it said 
-
-0.00user 12.26system 12.33 (0m12.330s) elapsed 99.44%CPU
-pavel@bug:~$
-
-but took 28seconds of real time. So fbcon is making your watch loose
-time. Oops. Oh, and fsbr makes system run at roughly half of normal
-speed. Not good, either.
-
-								Pavel
-PS: fsbr means we make loop in descriptors, which then means uhci
-hogging the PCI bus. Would it be possible to do some nop command (send
-64 bytes to nonexisting device?) as a part of loop to avoid PCI
-overload?
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Jeff Garzik             |
+Building 1024           | Would you like a Twinkie?
+MandrakeSoft            |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

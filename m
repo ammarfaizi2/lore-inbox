@@ -1,88 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbTIJVWt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 17:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265767AbTIJVWt
+	id S265739AbTIJV2T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 17:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265741AbTIJV2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 17:22:49 -0400
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:32488 "EHLO
-	wisbech.cl.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S265768AbTIJVWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 17:22:41 -0400
-X-Mailer: exmh version 2.5+CL 07/13/2001 with nmh-1.0.4
-From: Jon Fairbairn <Jon.Fairbairn@cl.cam.ac.uk>
-X-emacs-edited: yes
-To: linux-kernel@vger.kernel.org
-Subject: Omnibook PCMCIA slots unusable after suspend.
-X-Face: H#SM:U1U-/6#NN83s6?Die557~]Dfifz~-|V:wSKGL6T-|!qk{U4/M7+k5Py!-{q=2Q/%0@
-        E29yc_kQC&^
+	Wed, 10 Sep 2003 17:28:18 -0400
+Received: from gprs147-211.eurotel.cz ([160.218.147.211]:2176 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265739AbTIJV2Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 17:28:16 -0400
+Date: Wed, 10 Sep 2003 23:27:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Dave Jones <davej@redhat.com>,
+       Mitchell Blank Jr <mitch@sfgoth.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] oops_in_progress is unlikely()
+Message-ID: <20030910212757.GA257@elf.ucw.cz>
+References: <20030907064204.GA31968@sfgoth.com> <20030907221323.GC28927@redhat.com> <20030910142031.GB2589@elf.ucw.cz> <20030910142308.GL932@redhat.com> <20030910152902.GA2764@elf.ucw.cz> <Pine.LNX.4.53.0309101147040.14762@chaos> <20030910183138.GA23783@mail.jlokier.co.uk> <Pine.LNX.4.53.0309101439390.18459@chaos> <20030910201240.GB24424@mail.jlokier.co.uk> <Pine.LNX.4.53.0309101619020.18924@chaos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Date: Wed, 10 Sep 2003 22:22:32 +0100
-Message-ID: <15685.1063228952@cl.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0309101619020.18924@chaos>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I'm not subscribed, so please Cc me in any replies]
+Hi!
 
-In short: I'm using an HP Ombibook 800CT, have started using
-a Carbus PCMCIA network card and am losing the card after
-suspends.
+> > > 		cmpl	$1, %eax
+> > > 		jz	1f
+> > > 		jc	2f
+> > > 		call	do_default
+> > > 		jmp	more_code
+> > > 	1:	call	do_something_if_equal
+> > > 		jmp	more_code
+> > > 	2:	call	do_something_if_less
+> > > 	more_code:
+> > >
+> > > In every case, one has to jump around code for other execution paths
+> > > except the last, where you have to jump on condition anyway. There
+> > > is no free liunch, and the straight-through route, do_default
+> > > uas just as many jumps as the last.
+> >
+> > Here is your code optimised for no jumps in the "do_default" case:
+> >
+> > 		cmpl	$1,%eax
+> > 		jbe	1f
+> > 		call	do_default
+> > 	more_code:
+> > 		.subsection 1
+> > 	1:	jnz	2f
+> > 		call	do_something_if_equal
+> > 		jmp	more_code
+> > 	2:	call	do_something_if_less
+> > 		jmp	more_code
+> > 		.previous
+> >
+> 
+> You are a magician! Putting in a .subsection to hide the jump
+> is absolute bullshit. The built-in macros, ".subsection", and
+> ".previous" just made the damn linker do the fixup. You just
+> did a long jump, out of the current code-stream, into some
 
+He's right. Even without subsections you can move code somewhere
+outside the function. And gcc should be smart enough to do that.
 
-I've tried searching lkml for similar things but didn't find
-anything that seemed close enough, so here's a little more
-detail (though I don't want to add too much until I know you
-want to hear about it).
-
-"modprobe yenta_socket" normally logs:
-
-Sep  4 21:39:10 graffito kernel: Linux Kernel Card Services 3.1.22
-Sep  4 21:39:10 graffito kernel:   options:  [pci] [cardbus] [pm]
-Sep  4 21:39:10 graffito kernel: PCI: Found IRQ 9 for device 00:04.0
-Sep  4 21:39:10 graffito kernel: PCI: Found IRQ 7 for device 00:04.1
-Sep  4 21:39:10 graffito kernel: Yenta IRQ list 0448, PCI irq9
-Sep  4 21:39:10 graffito kernel: Socket status: 30000020
-Sep  4 21:39:10 graffito kernel: Yenta IRQ list 0448, PCI irq7
-Sep  4 21:39:10 graffito kernel: Socket status: 30000006
-
-but after "apm --suspend" I get the same except:
-
-Sep  6 23:23:55 graffito kernel: Socket status: 66012d18
-...
-Sep  6 23:23:55 graffito kernel: Socket status: 2a035c8a
-
-
-The effect of this is that it can't see anything in the
-socket, so I can't get it to load the driver for the PCMCIA
-card.  It only happens if the machine has been on battery
-power during the suspend. It doesn't happen if the socket is
-set to PCIC mode in the BIOS, though in that case I can't
-use the card anyway. It happens whether or not the card is
-present, and whether or not cardmgr is running, and it
-happens in 2.4.21, 2.4.22 and 2.6.0-test4.
-
-Rebooting without powering off clears the condition, but
-nothing else I've tried (cardctl eject &c, loading and
-unloading modules round the suspend, using setpci to restore
-the registers of the bridge, passing do_apm=0 to
-pcmcia_core) makes any difference.
-
-The card in question is a netgear FA511, but I don't think
-that's relevant as the problem happens even if I don't plug
-it in until after the suspend, and so long as yenta_socket
-reports a sensible status it works fine (with the tulip
-driver). 
-
-Please let me know if you need more information.
-
-
-Thanks,
-
-   Jón
+							Pavel
 
 -- 
-Jón Fairbairn
-
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

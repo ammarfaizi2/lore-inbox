@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbVA0P7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbVA0QBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262650AbVA0P7k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 10:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbVA0P7k
+	id S262653AbVA0QBv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 11:01:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbVA0QBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 10:59:40 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:53447 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262650AbVA0P7i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 10:59:38 -0500
-Date: Thu, 27 Jan 2005 09:59:23 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ftape syntax error
-Message-ID: <20050127155923.GA3252@IBM-BWN8ZTBWA01.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 27 Jan 2005 11:01:50 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:57612 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S262654AbVA0QBn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 11:01:43 -0500
+Message-ID: <41F91065.6080304@arcom.com>
+Date: Thu, 27 Jan 2005 16:01:41 +0000
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ara Avanesyan <araav@hylink.am>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ixdp4xx restart. watchdog enable value
+References: <006b01c5047e$1efc78a0$1000000a@araavanesyan>
+In-Reply-To: <006b01c5047e$1efc78a0$1000000a@araavanesyan>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Jan 2005 16:05:50.0546 (UTC) FILETIME=[12179320:01C5048A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.11-rc2-bk5 introduces two syntax errors under drivers/char/ftape.  The following
-patch replaces ");" at the end of two printks which were accidentally removed.
+Ara Avanesyan wrote:
+> in file: include/asm-arm/arch-ixp4x//system.h
+> function: arch_reset
+> 
+> code snap --
+> /* disable watchdog interrupt, enable reset, enable count */
+> *IXP4XX_OSWE = 0x3;
+> --
 
-thanks,
--serge
+See:
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=2437
 
-Index: linux-2.6.10/drivers/char/ftape/compressor/zftape-compress.c
-===================================================================
---- linux-2.6.10.orig/drivers/char/ftape/compressor/zftape-compress.c	2005-01-27 10:25:52.000000000 -0600
-+++ linux-2.6.10/drivers/char/ftape/compressor/zftape-compress.c	2005-01-27 11:10:42.750424360 -0600
-@@ -1172,7 +1172,7 @@ int zft_compressor_init(void)
-         if (TRACE_LEVEL >= ft_t_info) {
- 		printk(
- KERN_INFO "(c) 1997 Claus-Justus Heine (claus@momo.math.rwth-aachen.de)\n"
--KERN_INFO "Compressor for zftape (lzrw3 algorithm)\n"
-+KERN_INFO "Compressor for zftape (lzrw3 algorithm)\n");
-         }
- #else /* !MODULE */
- 	/* print a short no-nonsense boot message */
-Index: linux-2.6.10/drivers/char/ftape/lowlevel/ftape-init.c
-===================================================================
---- linux-2.6.10.orig/drivers/char/ftape/lowlevel/ftape-init.c	2005-01-27 10:25:52.000000000 -0600
-+++ linux-2.6.10/drivers/char/ftape/lowlevel/ftape-init.c	2005-01-27 11:11:12.683873784 -0600
-@@ -72,7 +72,7 @@ static int __init ftape_init(void)
- KERN_INFO "(c) 1993-1996 Bas Laarhoven (bas@vimec.nl)\n"
- KERN_INFO "(c) 1995-1996 Kai Harrekilde-Petersen (khp@dolphinics.no)\n"
- KERN_INFO "(c) 1996-1997 Claus-Justus Heine (claus@momo.math.rwth-aachen.de)\n"
--KERN_INFO "QIC-117 driver for QIC-40/80/3010/3020 floppy tape drives\n"
-+KERN_INFO "QIC-117 driver for QIC-40/80/3010/3020 floppy tape drives\n");
-         }
- #else /* !MODULE */
- 	/* print a short no-nonsense boot message */
+> I do not know why 0x3 works at all. Btw, u-boot assigns 0x5.
 
+The count enable bit is irrelevant as the counter is initialized to
+zero.
+
+David Vrabel
+-- 
+David Vrabel, Design Engineer
+
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/

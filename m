@@ -1,71 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbTILBke (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 21:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbTILBke
+	id S261645AbTILBjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 21:39:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbTILBjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 21:40:34 -0400
-Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:5101 "EHLO
-	goldweb.com.au") by vger.kernel.org with ESMTP id S261640AbTILBkb
+	Thu, 11 Sep 2003 21:39:16 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:22542 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S261645AbTILBjO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 21:40:31 -0400
-Message-ID: <1063330819.3f61240399462@dubai.stillhq.com>
-Date: Fri, 12 Sep 2003 11:40:19 +1000
-From: Michael Still <mikal@stillhq.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 PATCH] Squelch make mandocs warnings
-References: <1063327887.3f61188f9947e@dubai.stillhq.com> <1063329183.4370.0.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1063329183.4370.0.camel@dhcp23.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 203.17.68.210
+	Thu, 11 Sep 2003 21:39:14 -0400
+Date: Thu, 11 Sep 2003 18:39:09 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Memory mapped IO vs Port IO
+Message-ID: <20030912013909.GG15833@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20030911160116.GI21596@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73oexri9kx.fsf@oldwotan.suse.de> <20030911162504.GL21596@parcelfarce.linux.theplanet.co.uk> <20030911183136.01dfeb53.ak@suse.de> <20030911171205.GH29532@mail.jlokier.co.uk> <20030911192550.7dfaf08c.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030911192550.7dfaf08c.ak@suse.de>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: Reading this message may result in the loss of plausible deniability. Consult a lawyer to determine the extent of your liability
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Alan Cox <alan@lxorguk.ukuu.org.uk>:
+On Thu, Sep 11, 2003 at 07:25:50PM +0200, Andi Kleen wrote:
+> On Thu, 11 Sep 2003 18:12:05 +0100
+> Jamie Lokier <jamie@shareable.org> wrote:
+> 
+> > Andi Kleen wrote:
+> > > Even a memory write is tens to hundres of cycles.
+> > 
+> > Not from the CPU's perspective.  It is done in parallel with other
+> > instructions.
+> 
+> Only when there are more instructions to execute. But device
+> driver code often does a following read e.g. to check if it can submit
+> another request to the hardware.
+> 
+> My claim is basically:
+> 
+> Change everybody who currently does
+> 
+> #ifdef CONFIG_MMIO
+> 	writel(... )
+> 	readl(...)
+> #else
+> 	outl( ... ) 
+> 	inl ( ...) 
+> #endif
+> 
+> to 
+> 	if (dev->mmio) { 
+> 		writel(); 
+> 		real();
+> 	} else { 
+> 		outl();
+> 		inl();
+> 	} 
+> 
+> and you will have a hard time to benchmark the difference on any non ancient system
+> in actual driver operation.
 
-Alan, thanks for your prompt comments.
+Shouldn't that be
 
-> Looks fine.
+ 	dev->dev_ops->writel(...); 
+ 	dev->dev_ops->readl(...);
 
-Ta.
-
-> Technically xml docbook tags must be lower case but older
-> SGML docbook is undefined.
-
-For sure -- there are examples in the current kernel documentation which used
-mixed case, which I personally feel is not as nice as lower case. I wanted to
-tend on the side of working with whatever documentation we have though, and deal
-with making the entire world pretty at some later date.
-
-Note also that the patch only makes the internal handling of the tags case
-insensitive -- it doesn't change the case of the tags in the kernel-doc, and it
-respects the case the author chose when it emits the tags to the intermediate
-SGML files used by mandocs.
-
-> The /tmp handling still does want fixing
-> though - it does several things that don't look remotely /tmp safe.
-
-This patch was more a case of putting the temporary files where the user
-expected them to be. To me, the risk associated with a poorly intentioned person
-substituting incorrect manual pages for the internal kernel APIs is sufficiently
-low that I am uncertain if it is worthwhile going with a patch to make this
-safer. I'm quite content to be wrong on this point however -- do people feel
-that making the mandocs scripts temporary file safe is an important goal?
-
-Cheers,
-Mikal
+with no conditionals?
 
 -- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
-http://www.stillhq.com            |  to achieve my many goals"
-UTC + 10                          |    -- Homer Simpson
-
-
--------------------------------------------------
-This mail sent through IMP: http://horde.org/imp/
+		Remember Cernan and Schmitt

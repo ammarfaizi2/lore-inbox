@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264930AbUAFTbM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 14:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264940AbUAFTbM
+	id S264941AbUAFTbv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 14:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbUAFTbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 14:31:12 -0500
-Received: from smtp.dei.uc.pt ([193.137.203.228]:49795 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S264930AbUAFTbJ (ORCPT
+	Tue, 6 Jan 2004 14:31:51 -0500
+Received: from mail.kroah.org ([65.200.24.183]:7889 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264941AbUAFTbt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 14:31:09 -0500
-Date: Tue, 6 Jan 2004 19:30:51 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: linux-kernel@vger.kernel.org
-Subject: psmouse_proto flag
-Message-ID: <Pine.LNX.4.58.0401061929041.7109@student.dei.uc.pt>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+	Tue, 6 Jan 2004 14:31:49 -0500
+Date: Tue, 6 Jan 2004 11:25:43 -0800
+From: Greg KH <greg@kroah.com>
+To: lk@rekl.yi.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: KM266/VT8235, USB2.0 and problems
+Message-ID: <20040106192543.GC11989@kroah.com>
+References: <Pine.LNX.4.58.0401042314160.18200@rekl.yi.org> <20040105081226.GA14177@kroah.com> <Pine.LNX.4.58.0401051045270.30821@rekl.yi.org> <20040105172306.GB21531@kroah.com> <Pine.LNX.4.58.0401052145520.32347@rekl.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0401052145520.32347@rekl.yi.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Jan 05, 2004 at 09:52:04PM -0600, lk@rekl.yi.org wrote:
+> > > > Do the errors go away if you stop using devfs?
+> > > 
+> 
+> Ok, I removed devfs support from the kernel, and installed udev on the 
+> machine.  I get the same error:
 
+You don't get the oops anymore, which is good.
 
-The patch that must be reverted so people pass to the kernel psmouse_proto=imps
-instead of proto=imps is not only on -mm branch: the problem still exists in
-2.6.1-rc2-bk1...
+> SCSI error : <0 0 0 0> return code = 0x70000
+> end_request: I/O error, dev sda, sector 7552
+> Buffer I/O error on device sda, logical block 944
 
-Mind Booster Noori
+Can you enable CONFIG_USB_STORAGE_DEBUG and send the debug log to the
+linux-usb-devel mailing list for when this happens?  The people there
+should be able to help you out.
 
-- --
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
+thanks,
 
-iD8DBQE/+wzumNlq8m+oD34RAvXfAKCU58s1geoXxI72fEuDEe8U1uxuOwCgsAWI
-Amxovz3gSNVyzTgylwtnzNw=
-=6rfJ
------END PGP SIGNATURE-----
-
+greg k-h

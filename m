@@ -1,80 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277728AbRJ1Gj2>; Sun, 28 Oct 2001 01:39:28 -0500
+	id <S277738AbRJ1HbG>; Sun, 28 Oct 2001 02:31:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277729AbRJ1GjH>; Sun, 28 Oct 2001 01:39:07 -0500
-Received: from smi-105.smith.uml.edu ([129.63.206.105]:14341 "HELO
-	buick.pennace.org") by vger.kernel.org with SMTP id <S277728AbRJ1GjE>;
-	Sun, 28 Oct 2001 01:39:04 -0500
-Date: Sun, 28 Oct 2001 01:39:39 -0500
-From: Alex Pennace <alex@pennace.org>
-To: Amit Kucheria <amitk@ittc.ku.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: using objdump to debug some n/w code in kernel
-Message-ID: <20011028013939.C26005@buick.pennace.org>
-Mail-Followup-To: Amit Kucheria <amitk@ittc.ku.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0110280124540.16994-100000@havoc.ittc.ku.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110280124540.16994-100000@havoc.ittc.ku.edu>
-User-Agent: Mutt/1.3.23i
+	id <S277746AbRJ1Ha5>; Sun, 28 Oct 2001 02:30:57 -0500
+Received: from relay03.cablecom.net ([62.2.33.103]:17225 "EHLO
+	relay03.cablecom.net") by vger.kernel.org with ESMTP
+	id <S277738AbRJ1Hat>; Sun, 28 Oct 2001 02:30:49 -0500
+Message-Id: <200110280731.f9S7VO326133@mail.swissonline.ch>
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Widmer <cwidmer@iiic.ethz.ch>
+Reply-To: cwidmer@iiic.ethz.ch
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: priority queues on dp83820
+Date: Sun, 28 Oct 2001 08:31:27 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200110261415.f9QEF9305606@mail.swissonline.ch> <200110262027.f9QKRm328534@mail.swissonline.ch>
+In-Reply-To: <200110262027.f9QKRm328534@mail.swissonline.ch>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 28, 2001 at 01:25:06AM -0500, Amit Kucheria wrote:
-> I am using the 'makelst' script in the scripts directory to generate
-> interleaved source code and assembly listing. This script uses 'objdump'
-> 
-> Now my problem is that the original C code and the .lst files dont seem to
-> match. They are listed below.
-[...]
-> Can anybody throw any light on this 'phenomena' ?
-> BTW, the string ': "memory");' seems to be repeating in a lot of
-> places in the .lst file. Is there something about objdump that i havent
-> read up on.
-> 
-> Regards,
-> Amit
-> 
-> Original code:
-> -------------
-> /* .......
->    So host > network > gateway entries.
-> */
->     for (i=0; i < MAX_ROUTING_ENTRIES; i++)
->     {
->         /* copy the routing entry into our local variable..just to be safe
->            We will optimize later by doing without this copy */
->         memcpy(&tmp_entry, ptr_route, sizeof(struct routing_entry));
-> 
->         switch(tmp_entry.rt_flag)
->         {
->             case 'H':
->                 /* if dest ip is a host entry */
-> ----- end original code -----------------
-> 
-> Code generated using 'makelst:
-> -------------------------------
-> /* ....
->    So host > network > gateway entries.
-> */
->     for (i=0; i < MAX_ROUTING_ENTRIES; i++)
-> c01b3206:       31 ed                   xor    %ebp,%ebp
-> c01b3208:       8d 5c 24 48             lea    0x48(%esp,1),%ebx
-> c01b320c:       8d 54 24 68             lea    0x68(%esp,1),%edx
-> c01b3210:       8b 49 5c                mov    0x5c(%ecx),%ecx
-> c01b3213:       89 4c 24 18             mov    %ecx,0x18(%esp,1)
-> c01b3217:       89 54 24 10             mov    %edx,0x10(%esp,1)
-> c01b321b:       8d 4c 24 28             lea    0x28(%esp,1),%ecx
-> c01b321f:       89 4c 24 14             mov    %ecx,0x14(%esp,1)
-> c01b3223:       90                      nop
->         : "memory");
-> {
->         int d0, d1, d2;
->         switch (n % 4) {
->                 case 0: COMMON(""); return to;
-[...]
+sorry i was wrong with the CRC. the problem seems to be 
+that when inserting a vlan-tag the number of possible
+padding data is 4 octes smaller. when stripping the 
+vlantag off the dp83820 does not remember that it took
+4 addtional bytes awai and marks the packet as a runt
+packat.
 
-memcpy is a macro. See linux/include/asm-i386/string.h.
+chris
+
+On Friday 26 October 2001 22:27, Christian Widmer wrote:
+> ok for everybody how's also's working with the dp83820 i've
+> somp partial results.
+>
+> i disabled priority queuing for the moment and started
+> debuging the vlan-tag stuff.
+>
+> at the moment it seams that:
+> it looks like that the 83820 inserts the vlan tag corretly
+> and callculates CRC. on the receiving side it detects the
+> vlan-tag. but don't run with the idea that you may ask for
+> automaticaly strip of the vlantag again. if you try the
+> 83820 gets confused with its own calculated CRC. when
+> calculating CRC it must include the vlan tag on one side
+> exclude it on the other side.
+>
+> how this works with priority queueing ?
+>
+> //chris
+>
+> On Friday 26 October 2001 16:01, Christian Widmer wrote:
+> > has anybody try to use the priority queues of the dp83820?
+> > or does somebody know where to get docu knewer then the
+> > preliminary form february 2001?
+> >
+> > i wrote a driver for the dp83820. now i tried to use
+> > priority queuing for prescheduled zero copy datastreans.
+> > first i just whanted enable priority queueing without
+> > inserting of any vlan tag. this works for 1 to 3 queues
+> > like it sais in the docu (untagged packets are queued
+> > like packets with priority 0). but when i enable the 4th
+> > queue i receive all none tagged data on queue 1 instead
+> > of queue 0. and if i enalbe vlan-tagging globaly or on
+> > a per packet basis i don't get any interrupts on the
+> > receiving side. has anybody an idea whats going on. if
+> > you need the code to have a lock at - let me know, i
+> > realy need some help.
+> >
+> > chris
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

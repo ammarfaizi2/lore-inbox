@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270387AbTGMUDV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 16:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270390AbTGMUDV
+	id S270386AbTGMURQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 16:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270398AbTGMURQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 16:03:21 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:45293 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S270387AbTGMUDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 16:03:17 -0400
-Date: Sun, 13 Jul 2003 22:17:51 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: perex@suse.cz
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: [2.5 patch] fix section type conflict in sound/isa/sscape.c
-Message-ID: <20030713201751.GA12104@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sun, 13 Jul 2003 16:17:16 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:7645 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S270386AbTGMURP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 16:17:15 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Davide Libenzi" <davidel@xmailserver.org>,
+       "Eric Varsanyi" <e0206@foo21.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: [Patch][RFC] epoll and half closed TCP connections
+Date: Sun, 13 Jul 2003 13:32:00 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEEPEFAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.55.0307121346140.4720@bigblue.dev.mcafeelabs.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling 2.5.75-mm1 with !CONFIG_HOTPLUG using gcc 3.3 I got the
-following compile error (but it doesn't seem to be specific to -mm):
 
-<--  snip  -->
+> Look this is false for epoll. Given N fds inside the set and M hot/ready
+> fds, epoll scale O(M) and not O(N) (like poll/select). There's a huge
+> difference, expecially with real loads.
+>
+> - Davide
 
-...
-  CC      sound/isa/sscape.o
-sound/isa/sscape.c: In function `get_irq_config':
-sound/isa/sscape.c:812: error: valid_irq causes a section type conflict
-make[2]: *** [sound/isa/sscape.o] Error 1
-make[1]: *** [sound/isa] Error 2
-make: *** [sound] Error 2
+	For most real-world loads, M is some fraction of N. The fraction
+asymptotically approaches 1 as load increases because under load it takes
+you longer to get back to polling, so a higher fraction of the descriptors
+will be ready when you do.
 
-<--  snip  -->
+	Even if you argue that most real-world loads consists of a few very busy
+file descriptors and a lot of idle file descriptors, why would you think
+that this ratio changes as the number of connections increase? Say a group
+of two servers is handling a bunch of connections. Some of those connections
+will be very active and some will be very idle. But surely the *percentage*
+of active connections won't change just becase the connections are split
+over the servers 50/50 rather than 10/90.
 
+	If a particular protocol and usage sees 10 idle connections for every
+active one, then N will be ten times M, and O(M) will be the same as O(N).
+It's only if a higher percentage of connections are idle when there are more
+connections (which seems an extreme rarity to me) that O(M) is better than
+O(N).
 
-The following patch fixes the problem:
+	Is there any actual evidence to suggest that epoll scales better than poll
+for "real loads"? Tests with increasing numbers of idle file descriptors as
+the active count stays constant are not real loads.
 
+	By the way, I'm not arguing against epoll. I believe it will use less
+resources than poll in pretty much every conceivable situation. I simply
+take issue with the argument that it has better ultimate scalability or
+scales at a different order.
 
---- linux-2.5.75-mm1/sound/isa/sscape.c.old	2003-07-13 22:10:52.000000000 +0200
-+++ linux-2.5.75-mm1/sound/isa/sscape.c	2003-07-13 22:11:21.000000000 +0200
-@@ -809,7 +809,7 @@
-  */
- static unsigned __devinit get_irq_config(int irq)
- {
--	static const int valid_irq[] __devinitdata = { 9, 5, 7, 10 };
-+	static const int valid_irq[] = { 9, 5, 7, 10 };
- 	unsigned cfg;
- 
- 	for (cfg = 0; cfg < ARRAY_SIZE(valid_irq); ++cfg) {
+	DS
 
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbTH2M7E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 08:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbTH2M7E
+	id S261176AbTH2M5y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 08:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbTH2M5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 08:59:04 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:27442 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261185AbTH2M7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 08:59:01 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200308291258.h7TCwmU24496@devserv.devel.redhat.com>
-Subject: Re: Linux 2.4.22-ac1
-To: ml@basmevissen.nl (Bas Mevissen)
-Date: Fri, 29 Aug 2003 08:58:48 -0400 (EDT)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3F4F4BE5.8000209@basmevissen.nl> from "Bas Mevissen" at Aws 29, 2003 02:49:41 
-X-Mailer: ELM [version 2.5 PL6]
+	Fri, 29 Aug 2003 08:57:54 -0400
+Received: from shark.pro-futura.com ([161.58.178.219]:30910 "EHLO
+	shark.pro-futura.com") by vger.kernel.org with ESMTP
+	id S261176AbTH2M5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 08:57:50 -0400
+From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
+To: linux-kernel@vger.kernel.org
+Subject: Pagecache going out of control (2.4)
+Date: Fri, 29 Aug 2003 14:59:10 +0200
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308291459.10983.tvrtko@croadria.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are patches that made it into 2.4.22 removed from this (long) list? 
 
-No, its just a history of what was added each time. Much of what is in it
-is in Marcelo's tree now, some other bits are in the "duh ..." bucket as
-well 8)
+Hello everyone,
 
-> What are the criteria for patches to become included in this patch series?
+For some time now, the situation with 2.4 kernels is the following: Try to 
+gzip -d very large file (few times larger than physical RAM) in the 
+background and do some other work. You will find out that your system gets 
+very slow. All RAM is used up for pagecache, and even more, your application 
+data is getting swapped out to make more room for pagecache!
 
-Because I feel like adding them 8)
+I think this is a bad behaviour, and would pretty much like to be able to 
+control the maximum memory used for pagecache.
+
+Recently, I found a patch by indou.takao@jp.fujitsu.com which implements a 
+pgcache-max sysctl for 2.5.x. I tried to backport it to 2.4.21 but so far 
+with no success (many differences in VM system).
+
+I don't understand why not to give such a option to users, I know a lot of 
+them irritated with current pagecache behaviour... options and 
+configurability should be a good thing, no?
+
+Best regards,
+Tvrtko A. Ursulin
+

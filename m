@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269659AbUJWBHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269636AbUJWBPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269659AbUJWBHO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 21:07:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269610AbUJWBHG
+	id S269636AbUJWBPV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 21:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269600AbUJWBMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 21:07:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7569 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269759AbUJWBGb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 21:06:31 -0400
-Date: Fri, 22 Oct 2004 18:04:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: markus@trippelsdorf.net, linux-kernel@vger.kernel.org
-Subject: Re: BT848 video support dropped in 2.6.9?
-Message-Id: <20041022180423.5d10719a.akpm@osdl.org>
-In-Reply-To: <4179A763.9040603@kolivas.org>
-References: <1098447230.12289.12.camel@localhost>
-	<4178FAB4.9070208@kolivas.org>
-	<20041022173214.5bc8c316.akpm@osdl.org>
-	<4179A763.9040603@kolivas.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 22 Oct 2004 21:12:40 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11027 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S269760AbUJWBMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 21:12:02 -0400
+Date: Sat, 23 Oct 2004 03:11:27 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: pavel@ucw.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] small SOFTWARE_SUSPEND help text fixes
+Message-ID: <20041023011127.GF22558@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> > Or you can do `make menuconfig' then hit "/BT848".  I love that feature!
-> 
->  Now _that_ is cool! I wish I had known about that a long time ago.
+Some small fixes for the SOFTWARE_SUSPEND help text.
 
-It was merged only four weeks ago..
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.9-mm1-full/kernel/power/Kconfig.old	2004-10-23 03:08:24.000000000 +0200
++++ linux-2.6.9-mm1-full/kernel/power/Kconfig	2004-10-23 03:11:08.000000000 +0200
+@@ -29,9 +29,10 @@
+ config SOFTWARE_SUSPEND
+ 	bool "Software Suspend (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL && PM && SWAP
+ 	---help---
+-	  Enable the possibilty of suspendig machine. It doesn't need APM.
++	  Enable the possibility of suspending the machine.
++	  It doesn't need APM.
+ 	  You may suspend your machine by 'swsusp' or 'shutdown -z <time>' 
+ 	  (patch for sysvinit needed). 
+ 
+ 	  It creates an image which is saved in your active swaps. By the next

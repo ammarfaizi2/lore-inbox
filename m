@@ -1,89 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271609AbRIBKmC>; Sun, 2 Sep 2001 06:42:02 -0400
+	id <S271610AbRIBLBn>; Sun, 2 Sep 2001 07:01:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271610AbRIBKlu>; Sun, 2 Sep 2001 06:41:50 -0400
-Received: from ap.popik.pl ([212.14.18.218]:38019 "EHLO ap.popik.pl")
-	by vger.kernel.org with ESMTP id <S271609AbRIBKld>;
-	Sun, 2 Sep 2001 06:41:33 -0400
-Date: Sun, 2 Sep 2001 12:41:50 +0200 (CEST)
-From: Adam Popik <popik@ap.popik.pl>
-X-X-Sender: <popik@ap.popik.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: VMware and kernel 2.4.7,8,9
-Message-ID: <Pine.LNX.4.33.0109021239510.11190-100000@ap.popik.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S271612AbRIBLBd>; Sun, 2 Sep 2001 07:01:33 -0400
+Received: from [212.150.193.195] ([212.150.193.195]:3596 "EHLO
+	dubek.checkpoint.com") by vger.kernel.org with ESMTP
+	id <S271610AbRIBLBZ>; Sun, 2 Sep 2001 07:01:25 -0400
+Date: Sun, 2 Sep 2001 14:01:26 +0300
+From: Elisheva Alexander <ealexand@checkpoint.com>
+To: linux-kernel@vger.kernel.org
+Subject: buffer_head slab memory leak, Linux bug?
+Message-ID: <20010902140126.E28228@checkpoint.com>
+Reply-To: Elisheva Alexander <eli7@cs.huji.ac.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux dubek 2.4.2-2
+X-Sign: Taurus
+X-Subliminal-Message: doonga doonga doonga
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What was changed in this kernels ? I cannot compile modules for vmware.
-errors:
-/usr/src/linux/include/asm/pgalloc.h: In function `get_pgd_slow':
-In file included from /usr/src/linux/include/linux/highmem.h:5,
-                 from /usr/src/linux/include/linux/pagemap.h:16,
-                 from /usr/src/linux/include/linux/locks.h:8,
-                 from /usr/src/linux/include/linux/devfs_fs_kernel.h:6,
-                 from /usr/src/linux/include/linux/miscdevice.h:4,
-                 from ../linux/driver.h:10,
-                 from .././linux/driver.c:58:
-/usr/src/linux/include/asm/pgalloc.h:56: `PAGE_OFFSET' undeclared (first
-use in
-/usr/src/linux/include/asm/pgalloc.h:56: (Each undeclared identifier is
-reported/usr/src/linux/include/asm/pgalloc.h:56: for each function it
-appears in.)
-/usr/src/linux/include/asm/pgalloc.h: In function `pte_alloc_one':
-/usr/src/linux/include/asm/pgalloc.h:103: `PAGE_SIZE' undeclared (first
-use in t/usr/src/linux/include/linux/highmem.h: In function
-`clear_user_highpage':
-In file included from /usr/src/linux/include/linux/pagemap.h:16,
-                 from /usr/src/linux/include/linux/locks.h:8,
-                 from /usr/src/linux/include/linux/devfs_fs_kernel.h:6,
-                 from /usr/src/linux/include/linux/miscdevice.h:4,
-                 from ../linux/driver.h:10,
-                 from .././linux/driver.c:58:
-/usr/src/linux/include/linux/highmem.h:48: `PAGE_SIZE' undeclared (first
-use in
-/usr/src/linux/include/linux/highmem.h: In function `clear_highpage':
-/usr/src/linux/include/linux/highmem.h:54: `PAGE_SIZE' undeclared (first
-use in
-/usr/src/linux/include/linux/highmem.h: In function `memclear_highpage':
-/usr/src/linux/include/linux/highmem.h:62: `PAGE_SIZE' undeclared (first
-use in
-/usr/src/linux/include/linux/highmem.h: In function
-`memclear_highpage_flush':
-/usr/src/linux/include/linux/highmem.h:76: `PAGE_SIZE' undeclared (first
-use in
-/usr/src/linux/include/linux/highmem.h: In function `copy_user_highpage':
-In file included from /usr/src/linux/include/linux/pagemap.h:16,
-                 from /usr/src/linux/include/linux/locks.h:8,
-                 from /usr/src/linux/include/linux/devfs_fs_kernel.h:6,
-                 from /usr/src/linux/include/linux/miscdevice.h:4,
-                 from ../linux/driver.h:10,
-                 from .././linux/driver.c:58:
-/usr/src/linux/include/linux/highmem.h:48: `PAGE_SIZE' undeclared (first
-use in
-/usr/src/linux/include/linux/highmem.h: In function `clear_highpage':
-/usr/src/linux/include/linux/highmem.h:54: `PAGE_SIZE' undeclared (first
-use in
-/usr/src/linux/include/linux/highmem.h: In function `memclear_highpage':
-/usr/src/linux/include/linux/highmem.h:62: `PAGE_SIZE' undeclared (first
-use in
-/usr/src/linux/include/linux/highmem.h: In function
-`memclear_highpage_flush':
-/usr/src/linux/include/linux/highmem.h:76: `PAGE_SIZE' undeclared (first
-use in
-/usr/src/linux/include/linux/highmem.h: In function `copy_user_highpage':
-/usr/src/linux/include/linux/highmem.h:90: `PAGE_SIZE' undeclared (first
-use in
-/usr/src/linux/include/linux/highmem.h: In function `copy_highpage':
-/usr/src/linux/include/linux/highmem.h:101: `PAGE_SIZE' undeclared (first
-use in.././linux/driver.c: In function `LinuxDriver_Ioctl':
-.././linux/driver.c:928: structure has no member named `dumpable'
-make[1]: *** [driver.o] B³±d 1
-make: *** [driver] B³±d 2
+Dear kernel list,
 
-Adam
+if anyone can send me some pointers or hints on how to tackle this bug i 
+will be very happy.
 
+on an SMP machine i get:
+"stuck on TLB IPI wait (CPU#1)"
+the driver that i am debugging uses a spin lock, and sometimes we take the
+lock for a pretty long time.
+this happens during heavy load, which is why i think that the problem
+is that in smp_flush_tlb() in ./arch/i386/kernel/smp.c, one of the CPUs gets 
+all upset that the other CPU is stuck in the lock for too long, and releases 
+it before it was ment to be released.
 
+things i did that didn't help:
+
+a patch that fixed a similar problem in reiserfs
+(http://www.geocrawler.com/mail/msg.php3?msg_id=3962182&list=3455)
+the patch for the fast pentium problem, since i have a pentium III.
+(http://www.ultraviolet.org/mail-archives/reiserfs.2000/6201.html)
+
+i put a breakpoint when this occurs using kGDB, but i am not able to get 
+the registers (and stack) of the CPU that is stuck, only the one that 
+prints the message. so i don't really know where this occurs
+in our own code. 
+does anyone know how i may extract the stack of the second CPU at the 
+time of this error?
+
+I am using an Intel pentium III with dual CPU.
+I am debugging check point's firewall and vpn modules, with kernel-2.2.14 
+from the redhat RPM, but this also happens with the latest 2.2.19.
+
+it happens quite often (at random), so it's not too hard to recreate it.
+
+thanks a lot.
+
+(please CC me, as i am not subscribed to the list.)
+
+-- 
+ Elisheva Alexander                          Software Developer
+================================================================
+ Email from people at checkpoint.com does not usually represent 
+ official policy of Check Point (TM) Software Technologies Ltd.

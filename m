@@ -1,116 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262832AbTIAMYf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 08:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTIAMYf
+	id S262856AbTIAMa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 08:30:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTIAMa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 08:24:35 -0400
-Received: from relay.rost.ru ([217.107.128.164]:50633 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S262832AbTIAMYY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 08:24:24 -0400
-Date: Mon, 1 Sep 2003 16:24:15 +0400
-To: jes@trained-monkey.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] add config option for qla1280 SCSI MMIO/ioport selection
-Message-ID: <20030901122415.GB23771@pazke>
-Mail-Followup-To: jes@trained-monkey.org, linux-kernel@vger.kernel.org
+	Mon, 1 Sep 2003 08:30:29 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:21514 "HELO
+	flapp.schottelius.org") by vger.kernel.org with SMTP
+	id S262856AbTIAMa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 08:30:27 -0400
+Date: Mon, 1 Sep 2003 14:28:18 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: bastian@schottelius.org
+Subject: [BUGS?: 2.6.0test4] iptables and tc problems
+Message-ID: <20030901122818.GE5524@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	bastian@schottelius.org
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kfjH4zxOES6UT95V"
+	protocol="application/pgp-signature"; boundary="6e7ZaeXHKrTJCxdu"
 Content-Disposition: inline
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux flapp 2.6.0-test4
 User-Agent: Mutt/1.5.4i
-From: Andrey Panin <pazke@donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---kfjH4zxOES6UT95V
-Content-Type: multipart/mixed; boundary="MfFXiAuoTsnnDAfZ"
-Content-Disposition: inline
-
-
---MfFXiAuoTsnnDAfZ
+--6e7ZaeXHKrTJCxdu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Hello!
 
-attached patch adds config option which allows ioport/mmio
-selection for QLA1280 SCSI driver.
+While trying to setup qos with test4 I get some problems:
 
-With this patch applied QLA1280 can be used on Visws again.
+When running qos-neu (http://schotteli.us/~nico/qos-neu) dmesg says:
+HTB init, kernel part version 3.13
+HTB: quantum of class 10010 is small. Consider r2q change.
+HTB: quantum of class 10011 is small. Consider r2q change.
+HTB: quantum of class 10012 is small. Consider r2q change.
 
-Best regards.
+And then testing with the ftp (passive) transmissions shows 16kbyte/s, alth=
+ough
+I moved mark 13 to 2kbit.
+
+Then trying to match the ftp connections
+bruehe:~#  iptables -A OUTPUT -m owner --uid-owner 0 -j ACCEPT  =20
+iptables: Invalid argument
+bruehe:~# iptables -t mangle -A POSTROUTING -o ppp0 -m owner --uid-owner 10=
+01 -j MARK --set-mark 55
+iptables: Invalid argument
+
+Why does iptables or the kernel not accept that?
+
+Greetings,
+
+Nico
 
 --=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+quote:   there are two time a day you should do nothing: before 12 and afte=
+r 12
+         (Nico Schottelius after writin' a very senseless email)
+cmd:     echo God bless America | sed 's/.*\(A.*\)$/Why \1?/'
+pgp:     new id: 0x8D0E27A4 | ftp.schottelius.org/pub/familiy/nico/pgp-key.=
+new
+url:     http://nerd-hosting.net - domains for nerds (from a nerd)
 
---MfFXiAuoTsnnDAfZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-qla1280-mmio
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN -X /usr/share/dontdiff linux-2.6.0-test3.vanilla/drivers/scsi/Kco=
-nfig linux-2.6.0-test3/drivers/scsi/Kconfig
---- linux-2.6.0-test3.vanilla/drivers/scsi/Kconfig	Sat Aug  9 08:40:56 2003
-+++ linux-2.6.0-test3/drivers/scsi/Kconfig	Mon Sep  1 20:58:04 2003
-@@ -1298,6 +1298,16 @@
- 	  The module will be called qla1280. If you want to compile it as
- 	  a module, say M here and read <file:Documentation/modules.txt>.
-=20
-+config SCSI_QLOGIC_1280_PIO
-+	bool "Use PIO instead of MMIO" if !X86_VISWS
-+	depends on SCSI_QLOGIC_1280
-+	default y if X86_VISWS
-+	help
-+	  This instructs the driver to use programmed I/O ports (PIO) instead
-+	  of PCI shared memory (MMIO).  This can possibly solve some problems
-+	  in case your mainboard has memory consistency issues.  If unsure,
-+	  say N.
-+
- config SCSI_QLOGICPTI
- 	tristate "PTI Qlogic, ISP Driver"
- 	depends on SBUS && SCSI
-diff -urN -X /usr/share/dontdiff linux-2.6.0-test3.vanilla/drivers/scsi/qla=
-1280.c linux-2.6.0-test3/drivers/scsi/qla1280.c
---- linux-2.6.0-test3.vanilla/drivers/scsi/qla1280.c	Mon Sep  1 21:50:04 20=
-03
-+++ linux-2.6.0-test3/drivers/scsi/qla1280.c	Mon Sep  1 21:21:33 2003
-@@ -331,11 +331,17 @@
-  */
- #define  QL1280_LUN_SUPPORT	0
- #define  WATCHDOGTIMER		0
--#define  MEMORY_MAPPED_IO	1
-+
- #define  DEBUG_QLA1280_INTR	0
- #define  DEBUG_PRINT_NVRAM	0
- #define  DEBUG_QLA1280		0
-=20
-+#ifdef	CONFIG_SCSI_QLOGIC_1280_PIO
-+#define	MEMORY_MAPPED_IO	0
-+#else
-+#define	MEMORY_MAPPED_IO	1
-+#endif
-+
- #define UNIQUE_FW_NAME
- #include "qla1280.h"
- #include "ql12160_fw.h"		/* ISP RISC codes */
-
---MfFXiAuoTsnnDAfZ--
-
---kfjH4zxOES6UT95V
+--6e7ZaeXHKrTJCxdu
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD4DBQE/Uzpvby9O0+A2ZecRAiQxAJYqS829gmY7OimqoeO3OvqNJCJZAKCgx05p
-ExdEvJp9zLmabkpxLV5sxA==
-=+QD+
+iD8DBQE/UztizGnTqo0OJ6QRAr8YAKDRWDgqQ9B38NUO0m9lWym+NsCwAgCeNxz6
+jHzR94NlcLyH7XJuXO+etuU=
+=SgyZ
 -----END PGP SIGNATURE-----
 
---kfjH4zxOES6UT95V--
+--6e7ZaeXHKrTJCxdu--

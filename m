@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264420AbRFOO5r>; Fri, 15 Jun 2001 10:57:47 -0400
+	id <S264418AbRFOOrr>; Fri, 15 Jun 2001 10:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264421AbRFOO5h>; Fri, 15 Jun 2001 10:57:37 -0400
-Received: from tango.SoftHome.net ([204.144.231.49]:11695 "HELO
-	tango.SoftHome.net") by vger.kernel.org with SMTP
-	id <S264420AbRFOO5W>; Fri, 15 Jun 2001 10:57:22 -0400
-Message-ID: <002601c0f5ab$c6977000$7253e59b@megatrends.com>
-Reply-To: "Venkatesh Ramamurthy" <venkateshr@ami.com>
-From: "Venkatesh Ramamurthy" <venkateshr@softhome.net>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15Aur8-0006ZU-00@the-village.bc.nu>
+	id <S264420AbRFOOri>; Fri, 15 Jun 2001 10:47:38 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29189 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264418AbRFOOre>; Fri, 15 Jun 2001 10:47:34 -0400
 Subject: Re: 3com Driver and the 3XP Processor
-Date: Fri, 15 Jun 2001 10:59:27 -0400
+To: nick@snowman.net
+Date: Fri, 15 Jun 2001 15:45:50 +0100 (BST)
+Cc: kernel@blackhole.compendium-tech.com (Dr. Kelsey Hudson),
+        kmacy@netapp.com (Kip Macy),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <Pine.LNX.4.21.0106142250530.22553-100000@ns> from "nick@snowman.net" at Jun 14, 2001 10:51:22 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-Id: <E15Aur8-0006ZU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Seconded. 3Com stuff is overpriced but reliable. They have also (prior to
-this
-> event) been very good at working with the Linux community, including
-digging out
-> docs for old MCA hardware they no longer even sell
+> I've installed several thousand 3com cards of various ages and
+> types.  I've had less than 20 bad cards.
+> 	Nick
 
-Gee... I dont know whether they are good in working with Linux community. I
-asked them documentation for thier PCI based ADSL modem... so that i can
-write driver for it, which they decently refused to give it.... i tried hard
-for months....
+Seconded. 3Com stuff is overpriced but reliable. They have also (prior to this
+event) been very good at working with the Linux community, including digging out
+docs for old MCA hardware they no longer even sell
 
+Alan
 

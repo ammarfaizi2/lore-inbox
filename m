@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276907AbRJ0TjI>; Sat, 27 Oct 2001 15:39:08 -0400
+	id <S276973AbRJ0Tuv>; Sat, 27 Oct 2001 15:50:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276914AbRJ0Ti7>; Sat, 27 Oct 2001 15:38:59 -0400
-Received: from host155.209-113-146.oem.net ([209.113.146.155]:9212 "EHLO
-	tibook.netx4.com") by vger.kernel.org with ESMTP id <S276907AbRJ0Tir>;
-	Sat, 27 Oct 2001 15:38:47 -0400
-Message-ID: <3BDB0D56.3070305@mvista.com>
-Date: Sat, 27 Oct 2001 15:39:02 -0400
-From: Dan Malek <dan@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.10-pre5 ppc; en-US; 0.8) Gecko/20010419
-X-Accept-Language: en
+	id <S276956AbRJ0Tuc>; Sat, 27 Oct 2001 15:50:32 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:4041 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S276914AbRJ0Tu0>;
+	Sat, 27 Oct 2001 15:50:26 -0400
+Date: Sat, 27 Oct 2001 15:50:59 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Re: more devfs fun (Piled Higher and Deeper)
+In-Reply-To: <Pine.GSO.4.21.0110271513580.21545-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0110271536190.21545-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Kalyan <kalyand@cruise-controls.com>
-CC: paulus@samba.org, linuxppc-dev@lists.linuxppc.org,
-        ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Wild Pointer!!!! ( some more info )
-In-Reply-To: <03c101c15a76$7d067320$aac8a8c0@cruise> <15316.1504.603255.831736@cargo.ozlabs.ibm.com> <00b301c15ebc$2783dba0$aac8a8c0@cruise>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kalyan wrote:
+devfs_rmdir() checks that directory is empty.  Then it calls
+devfsd_notify_one(), which can block.  Then it marks the entry
+unregistered and reports success.
 
-> hi ,
->             after my failed attempts at 2.4.11 -pre 5 ...i decide to try
-> 2.4.12.. ( from kernel.org.)...
+Guess what will happen if devfs_register() will happen at that
+moment...
 
+/me _seriously_ considers hostile takeover of the damn thing
 
-What was the last kernel version that worked on this board?
-
-> how can this be possible???? can i supect stack problems here?????
-
-Anything is possible :-).  It could be an improperly initialized
-data structure that contains an indirect function pointer, too.
-
-
-	-- Dan
+I mean, when holes are found at that rate just by cursory look through
+the code...  And that stuff had been there for at least 2 years.
+Richard, I hate to break it on you, but dealing with that crap is
+generally considered a maintainer's job.  And it is supposed to happen
+slightly faster - 2 years would be bad even for MS.  If you don't
+have time for that work - say so and step down, nobody will blame
+you for that.  Repeating that everything will be fine RSN is getting
+real old by now...
 

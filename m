@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269412AbRH0WQg>; Mon, 27 Aug 2001 18:16:36 -0400
+	id <S268714AbRH0WWG>; Mon, 27 Aug 2001 18:22:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269428AbRH0WQ0>; Mon, 27 Aug 2001 18:16:26 -0400
-Received: from mail.cdlsystems.com ([207.228.116.20]:2827 "EHLO cdlsystems.com")
-	by vger.kernel.org with ESMTP id <S269412AbRH0WQV>;
-	Mon, 27 Aug 2001 18:16:21 -0400
-Message-ID: <001501c12f45$668d9c10$160e10ac@hades>
-From: "Mark Cuss" <mcuss@cdlsystems.com>
-To: <peterw@dascom.com.au>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <XFMail.20010828080242.peterw@dascom.com.au>
-Subject: Re: Files missing from filesystem?  (2.4.9)
-Date: Mon, 27 Aug 2001 16:12:46 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-Return-Path: mcuss@cdlsystems.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: mcuss@cdlsystems.com
+	id <S269463AbRH0WV4>; Mon, 27 Aug 2001 18:21:56 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:36382 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S268714AbRH0WVq>; Mon, 27 Aug 2001 18:21:46 -0400
+Date: Mon, 27 Aug 2001 18:22:04 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: A tester is needed with dual P3 and USB
+Message-ID: <20010827182204.A25212@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The most likely cause (i.e. it's happened to me) is that bdflush had
-stopped
-> working.
-> Thats the process responsible for making sure changes to files are
-actually
-> comitted to disk.
->
-> Check the logs again and search for bdflush.
+Hi, All:
 
-I looked through all the /var/log/messages files (actually all the files in
-/var/log) and can't spot any bdflush entries.
-This does however sound like it may be the suspect....  The machine has not
-been down since these changes were made, so I figured that they would
-"eventually" make their way to disk...  Perhaps I'm wrong.
+I received a complaint that a UP kernel hangs on boot if USB is
+enabled. SMP works. An SMP kernel started with "nosmp" hangs too.
+The reporter is, umm, how shall I put it... is a power user.
 
-Any other Ideas ?  :)
+I need someone to help me to track the problem down, because
+I am curious. I heard of SMP hangs before, but a UP hang is
+a novel idea.
 
-Thanks,
-Mark
+The box is VA Linux 1000 (similar to IBM Netfinity 4000r).
+Kernel is 2.4.8-ac10.
 
+If you love me (or USB subsystem in kernel) enough to help
+me out, and you your hardware reproduces the problem,
+please reply privately.
 
-
+Thanks in advance,
+-- Pete

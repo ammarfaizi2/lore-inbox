@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261432AbTC0WH6>; Thu, 27 Mar 2003 17:07:58 -0500
+	id <S261452AbTC0WTP>; Thu, 27 Mar 2003 17:19:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261424AbTC0WG1>; Thu, 27 Mar 2003 17:06:27 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:21518 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S261412AbTC0WGI>;
-	Thu, 27 Mar 2003 17:06:08 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: mikpe@csd.uu.se
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.21-pre5 correct scheduling of idle tasks [ all arch ] 
-In-reply-to: Your message of "Thu, 27 Mar 2003 16:54:47 BST."
-             <16003.7879.340300.737153@gargle.gargle.HOWL> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Mar 2003 09:17:12 +1100
-Message-ID: <19527.1048803432@ocs3.intra.ocs.com.au>
+	id <S261453AbTC0WTP>; Thu, 27 Mar 2003 17:19:15 -0500
+Received: from [12.242.167.130] ([12.242.167.130]:42368 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id <S261452AbTC0WTL>; Thu, 27 Mar 2003 17:19:11 -0500
+Message-ID: <3E837B7D.9010005@comcast.net>
+Date: Thu, 27 Mar 2003 14:30:21 -0800
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030326
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bongani Hlope <bonganilinux@mweb.co.za>
+Cc: thunder7@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: vesafb problem
+References: <3E8329D2.7040909@comcast.net> <20030327190222.GA4060@middle.of.nowhere> <3E835241.9060407@comcast.net> <20030327233902.5963b0b1.bonganilinux@mweb.co.za>
+In-Reply-To: <20030327233902.5963b0b1.bonganilinux@mweb.co.za>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Mar 2003 16:54:47 +0100, 
-mikpe@csd.uu.se wrote:
->Keith Owens writes:
-> > There are several inconsistencies in the scheduling of idle tasks and,
-> > for UP, tracking which task is on the cpu.  This patch standardizes
-> > idle task scheduling across all architectures and corrects the UP
-> > error, it is just a bug fix.
->...
-> > To make it worse, on UP a task is assigned to a cpu but never released.
-> > Very quickly, all tasks are marked as currently running on cpu 0 :(.
->
->->cpus_runnable and task_has_cpu() are SMP-only, as a quick grep
->through 2.4.20 will tell you. There is no UP bug here to fix.
+Bongani Hlope wrote:
 
-cpus_runnable has task_has_cpu are not guarded by CONFIG_SMP.
-task_set_cpu() is called for UP as well as SMP.  UP is missing the
-corresponding call to task_release_cpu().
+> Strange I'm having the same problem, but I only have 256MB of memory and my GeForce 2 only has 32MB. This is what's on my messages file:
+> 
+> 
+> vesafb: framebuffer at 0xe0000000, mapped to 0xd0807000, size 32768k
+> vesafb: mode is 800x600x16, linelength=1600, pages=3
+> vesafb: protected mode interface info at c000:c060
+> vesafb: scrolling: redraw
+> vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
+> Looking for splash picture.... found (800x600, 13683 bytes).
+> Console: switching to colour frame buffer device 82x30
+> fb0: VESA VGA frame buffer device
+> 
+
+Hmmm. That's a different problem than I'm experiencing. Your system 
+appears to be correctly remapping the framebuffer and switching to it. 
+You don't get a graphical boot? Seems as if you should from the log 
+snippet you posted.
+
+-Walt
 

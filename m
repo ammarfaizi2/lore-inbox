@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272748AbTHENI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 09:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272745AbTHENI5
+	id S272686AbTHENTA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 09:19:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272755AbTHENS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 09:08:57 -0400
-Received: from main.gmane.org ([80.91.224.249]:52626 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S272752AbTHENI2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 09:08:28 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Will kernel compiled for PentiumII run on IBM 6x86MX?
-Date: Tue, 05 Aug 2003 14:48:51 +0200
-Message-ID: <yw1xoez42rt8.fsf@users.sourceforge.net>
-References: <3F2FA47B.3040007@asfandyar.cjb.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:U2EQzfiOYOi6wuBidSSR2mPrkS4=
+	Tue, 5 Aug 2003 09:18:59 -0400
+Received: from galaxy.lunarpages.com ([64.235.234.165]:32714 "EHLO
+	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
+	id S272686AbTHENSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 09:18:38 -0400
+Message-ID: <3F2FB307.2000901@genebrew.com>
+Date: Tue, 05 Aug 2003 09:37:11 -0400
+From: Rahul Karnik <rahul@genebrew.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bernd Schubert <bernd-schubert@web.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Interactive Usage of 2.6.0.test1 worse than 2.4.21
+References: <200308050704.22684.martin.konold@erfrakon.de> <200308051452.02417.bernd-schubert@web.de>
+In-Reply-To: <200308051452.02417.bernd-schubert@web.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Asfand Yar Qazi <email@asfandyar.cjb.net> writes:
+If disk is involved, your problem might simply be the incorrect 
+readahead value. Try "hdparm -a 512".
 
-> Read somewhere that the 6x86MX is PentiumII code compatible, but these
-> processors are listed as two separate options under the kernel config
-> (2.4.21)
->
-> Will a kernel/apps compiled for PII run on a 6x86MX?
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105830624016066&w=2
 
-I don't know the details in this particular case.  However, even if
-two CPUs are object code compatible, it doesn't mean that instruction
-scheduling, caching and such things behave the same way.  Code
-optimized for one CPU might not be optimal for another, even if it
-runs.
-
+-Rahul
 -- 
-Måns Rullgård
-mru@users.sf.net
+Rahul Karnik
+rahul@genebrew.com
 

@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289382AbSAODNL>; Mon, 14 Jan 2002 22:13:11 -0500
+	id <S289515AbSAOM1L>; Tue, 15 Jan 2002 07:27:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289380AbSAODMw>; Mon, 14 Jan 2002 22:12:52 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:51718 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S289376AbSAODMj>; Mon, 14 Jan 2002 22:12:39 -0500
-Date: Tue, 15 Jan 2002 02:07:58 +0000
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-Message-ID: <20020115020758.GA59418@compsoc.man.ac.uk>
-In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020115013954.GB3814@cpe-24-221-152-185.az.sprintbbd.net>
+	id <S289516AbSAOM1C>; Tue, 15 Jan 2002 07:27:02 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:44834 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S289515AbSAOM0r>; Tue, 15 Jan 2002 07:26:47 -0500
+Date: Sun, 13 Jan 2002 17:17:46 +0000
+To: linux-lvm@sistina.com
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [linux-lvm] Re: [RFLART] kdev_t in ioctls
+Message-ID: <20020113171746.A10429@btconnect.com>
+In-Reply-To: <Pine.GSO.4.21.0201141227260.224-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0201140957040.15128-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020115013954.GB3814@cpe-24-221-152-185.az.sprintbbd.net>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
-X-Scanner: exiscan *16QIyy-00053X-00*rc/PfNvedyw* (Manchester Computing, University of Manchester)
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201140957040.15128-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jan 14, 2002 at 10:01:25AM -0800
+From: Joe Thornber <thornber@btconnect.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 06:39:54PM -0700, Tom Rini wrote:
+On Mon, Jan 14, 2002 at 10:01:25AM -0800, Linus Torvalds wrote:
+> Consider that done. ANYTHING that exports kdev_t to user space is
+> incredibly broken, and will not work in a few months when the actual bit
+> representation (and size) will change.
 
-> Wrong.  She needs to compile a new module for her kernel.  What might be
-> useful is some automagic tool that will find the vendor-provided kernel
-> source tree and config (which is usually /boot/config-`uname -r`, but
-> still findable anyhow)
+The kdev_t's in the driver interface are just one of the *minor*
+problems with the LVM driver.
 
-autoconf code already exists for this, it's a non-problem. Note they must use
-the config in the header file of the vendor-provided kernel source tree, not
-/boot/config-`uname -r`
+I came to the conclusion last summer that a rewrite was in order, of
+both the kernel driver and the userland tools.  The new driver is
+called 'device-mapper', and has been discussed briefly on this list.
+It aims to support volume management in general, ie. not be LVM
+specific.
 
-There are two cases:
+The userland tools (known as LVM2), will go into beta this week.
+Initially they will just replicate the functionality of LVM1, but we
+do have a lot of extra features queued which will go in subsequent
+releases.
 
-1) the vendor source tree is installed and set up with the right config -> use header file
+Of course Sistina will continue to support the existing LVM1 driver
+for the 2.4 series.
 
-2) it's installed and the config has changed. -> use header file
+As far as the 2.5 series is concerned, I would much rather see people
+embracing the new architecture (or telling me why it sucks).  Rather
+than trying to hack the LVM1 driver so it works.  People have been
+complaining for the last year about LVM, we weren't able to do much
+about it since we were in a stable kernel and couldn't change any
+interfaces.  Now that 2.5 is finally here it is time for people to
+address the real problems - kdev_t's only scratch the surface.
 
-I don't see a point in ever looking at /boot/config-`uname -r` instead of
-the source tree, given that we must compile against a tree configured like the
-eventual running kernel anyway.
+- Joe
 
-regards
-john
 
--- 
-"Now why did you have to go and mess up the child's head, so you can get another gold waterbed ?
- You fake-hair contact-wearing liposuction carnival exhibit, listen to my rhyme ..."
+

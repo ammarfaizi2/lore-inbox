@@ -1,107 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbUCLHH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 02:07:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUCLHH1
+	id S261993AbUCLHag (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 02:30:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUCLHag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 02:07:27 -0500
-Received: from fmr11.intel.com ([192.55.52.31]:17384 "EHLO
-	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261998AbUCLHHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 02:07:24 -0500
-Subject: Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x /
-	Crash/Freeze
-From: Len Brown <len.brown@intel.com>
-To: Richard Browning <richard@redline.org.uk>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-In-Reply-To: <1079072878.3885.33.camel@dhcppc4>
-References: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com>
-	 <200403120022.13534.richard@redline.org.uk>
-	 <Pine.LNX.4.58.0403111932400.29087@montezuma.fsmlabs.com>
-	 <200403120042.32166.richard@redline.org.uk>
-	 <1079072878.3885.33.camel@dhcppc4>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1079075236.3885.52.camel@dhcppc4>
+	Fri, 12 Mar 2004 02:30:36 -0500
+Received: from is.magroup.ru ([213.33.179.242]:45494 "EHLO is.magroup.ru")
+	by vger.kernel.org with ESMTP id S261993AbUCLHae (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 02:30:34 -0500
+Date: Fri, 12 Mar 2004 10:30:09 +0300
+From: Antony Dovgal <tony2001@phpclub.net>
+To: Michael Schierl <schierlm@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: APM & device_power_up/down
+Message-Id: <20040312103009.5fa38c94.tony2001@phpclub.net>
+In-Reply-To: <404E206A.266ABD1C@gmx.de>
+References: <1uQOH-4Z1-9@gated-at.bofh.it>
+	<S261722AbUCFWoa/20040306224430Z+905@vger.kernel.org>
+	<20040309101110.50b55786.tony2001@phpclub.net>
+	<404E206A.266ABD1C@gmx.de>
+X-Mailer: Sylpheed version 0.9.10cvs3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 12 Mar 2004 02:07:17 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Mar 2004 07:30:09.0781 (UTC) FILETIME=[D95BC250:01C40803]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm, read that note too fast...
-Since the failure did not follow the package to the BSP socket
-(CPU0/CPU1), but instead stayed with the AP (CPU2/CPU3) socket, that
-suggests an issue with the MB rather than the processor itself.
+On Tue, 09 Mar 2004 20:52:10 +0100
+Michael Schierl <schierlm@gmx.de> wrote:
 
--Len
+> Are you using any modules or patches that are not in the main line
+> kernel?
+> Does your problem also occur when you build a "minimal" kernel (i.e.
+> remove all things from it you don't really need for booting up, e.g.
+> local apic, pcmcia, network support, framebuffer, mouse)?
+> 
+> can you boot with init=/bin/bash (or another shell) and then do 
+> 
+> mount /proc
+> apm -s
+> 
+> does suspending work there? (this all against a "vanilla" kernel).
+> 
+> The thing above was just a guess, the only difference between the 2
+> patches i know is that the patch which is in kernel also informs all
+> device drivers. So i guess there must be a "broken" device driver that
+> makes your supend come to a halt.
 
-On Fri, 2004-03-12 at 01:27, Len Brown wrote:
-> On Thu, 2004-03-11 at 19:42, Richard Browning wrote:
-> > On Friday 12 March 2004 00:36, Zwane Mwaikambo wrote:
-> > > On Fri, 12 Mar 2004, Richard Browning wrote:
-> > > > > For my own curiosity, does switching the processors around do anything?
-> > > > > Those MCEs look confined to the non bootstrap processor package.
-> > > >
-> > > > Switched CPUs. This time I get the following:
-> > > >
-> > > > CPU3: Machine Check Exception: 000.0004
-> > > > CPU2: Machine Check Exception: 000.0004
-> > > > Bank 0: a20000008c010400
-> > > > Kernel Panic: CPU context corrupt
-> > > > In idle task - not syncing
-> > > >
-> > > > Note that the CPU# designations are swapped and that there's only one
-> > > > Bank 0: message. Is this significant?
-> > >
-> > > Ok, but that's still on the same package so it's not moving with the
-> > > processor, thanks. Could you also supply processor info from
-> > > /proc/cpuinfo.
-> > 
-> > I suppose that's good (for me); indicates no hardware error?
-> 
-> MCE == hardware error.
-> In this case un-recoverable.
-> 
-> I'll take a swing at decoding this, call the Coast Guard if I don't
-> return in 30 minutes;-)
-> 
-> http://developer.intel.com/design/pentium4/manuals/25366813.pdf
-> 
-> > Machine Check Exception: 000.0004
-> 
-> fig 14-4 says this means that indeed, you have a valid MCE.
-> 
-> > Bank 0: a20000008c010400
-> 
-> fig 14-6 says:
-> 63: valid register contents
-> 61: UC -- processor did not correct the error
-> 57: PCC -- Processor context corrupt (you're dead)
-> 
-> 0400 is the MCA error code
-> 
-> fig E2 says
-> 10 - internal watchdog timeout.
-> 26,27 -- TT -- Thread timeout indicator -- both threads timed out
-> 
-> > /proc/cpuinfo of course:
-> > 
-> > processor       : 0
-> > vendor_id       : GenuineIntel
-> > cpu family      : 15
-> > model           : 2
-> 
-> I have no idea what causes this error, but it sure sounds specific to
-> the processor, and specific to HT -- which matches your experiments. 
-> I'd imagine that after you verify that you've got the latest BIOS for
-> the board and the error persists that you should look into getting that
-> specific processor replaced.
-> 
-> cheers,
-> -Len
-> 
-> 
+Michael, I didn't try it, because 2.6.4 solved all my problems =)
+My laptop suspends & resumes correctly for now.
+So, I think you were right, the problem was in some of device drivers, that failed to suspend correctly.
 
+I can continue these experiments and I suppose we can find that driver finally if you're interested.
+Do you?
+
+---
+WBR,
+Antony Dovgal aka tony2001
+tony2001@phpclub.net || antony@dovgal.com

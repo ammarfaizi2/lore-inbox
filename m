@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312465AbSCZUmc>; Tue, 26 Mar 2002 15:42:32 -0500
+	id <S312480AbSCZUoC>; Tue, 26 Mar 2002 15:44:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312474AbSCZUmX>; Tue, 26 Mar 2002 15:42:23 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46084
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S312465AbSCZUmM>; Tue, 26 Mar 2002 15:42:12 -0500
-Date: Tue, 26 Mar 2002 12:42:03 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Kai-Boris Schad <kschad@correo.e-technik.uni-ulm.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Update: Kernel 2.4.17/19-pre4  with VT8367 [KT266] crashes on
- heavy ide load togeter with heavy network load
-In-Reply-To: <200203261904.UAA08226@correo.e-technik.uni-ulm.de>
-Message-ID: <Pine.LNX.4.10.10203261241130.2450-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S312474AbSCZUny>; Tue, 26 Mar 2002 15:43:54 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:11820 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S312703AbSCZUnq>; Tue, 26 Mar 2002 15:43:46 -0500
+Date: Tue, 26 Mar 2002 15:43:45 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] mmap bug with drivers that adjust vm_start
+Message-ID: <20020326154345.B25595@redhat.com>
+In-Reply-To: <20020325230046.A14421@redhat.com> <20020326174236.B13052@dualathlon.random> <20020326135703.B25375@redhat.com> <20020326201502.J13052@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-00:00.0 Host bridge: VIA Technologies, Inc. VT8367 [KT266]
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8367 [KT266 AGP]
-00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
-00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
-00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
-00:0b.0 RAID bus controller: HighPoint Technologies, Inc.: Unknown device 0008 (rev 07)
-00:0b.1 RAID bus controller: HighPoint Technologies, Inc.: Unknown device 0008 (rev 07)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] 86C326 (rev 0b)
-
-Nope I can crash it randomly  :-/
-
-
-On Tue, 26 Mar 2002, Kai-Boris Schad wrote:
-
-> Hi !
+On Tue, Mar 26, 2002 at 08:15:02PM +0100, Andrea Arcangeli wrote:
+> > we could BUG() on getting a vma back from the new find_vma_prepare call.
 > 
-> First thanks a lot for the good ideas and comments on my previous posting. I 
-> updated the kernel to 2.4.19-pre4 and it seem's to improve the situation. 
-> There  was no crash with the RTL Network Card but the system response boged 
-> down sometimes for a few (up to 10) seconds. Then I tried the same togeter 
-> with the "3com 3c905C" networkcard and the system hung a few seconds after 
-> starting the copy-commands "dd count=16M if=/dev/zero of=/home/test0&" and
->  "cp /home/zero /dev/null&" and "ico" on an remote terminal for network load. 
-> Thus my personal work arround would be to use the rtl network card - but 
-> there remains this problem.
-> 
-> Kai
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> yes, it sounds a good idea to verify there's no other mapping in the way
+> of the relocation (until a better fix is implemented), it's a slow path
+> so we won't hurt performance.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Okay, updated patch for this is below.  I also added a printk to give us 
+which mmap operation was invoked to aid in debugging.
 
+> The good reason, is that currently we're literally corrupting the
+> userspace with the senseless do_munmap call in the add<->addr+len area
+> before the ->mmap lowlevel callback. And such an munmap is certainly not
+> required to maintain source and binary compatibility (otherwise it would
+> be insane in the first place :).
+
+Ah, right.  I disallow MAP_FIXED addresses that are not the "correct" offset, 
+so this case would fail, albeit with the do_munmap occurring.  Personally, 
+I would rather see an mmap fail if it would collide with an existing mapping, 
+but that might break some applications.
+
+Thanks for looking this over.  Cheers,
+
+		-ben
+-- 
+"A man with a bass just walked in,
+ and he's putting it down
+ on the floor."
+
+:r ~/patches/v2.4.19-pre4-mmap_fix-2.diff
+--- retest.3/mm/mmap.c.org	Mon Mar 25 19:38:10 2002
++++ retest.3/mm/mmap.c	Tue Mar 26 15:01:47 2002
+@@ -14,6 +14,7 @@
+ #include <linux/file.h>
+ #include <linux/fs.h>
+ #include <linux/personality.h>
++#include <linux/compiler.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+@@ -548,7 +549,19 @@
+ 	 * Answer: Yes, several device drivers can do it in their
+ 	 *         f_op->mmap method. -DaveM
+ 	 */
+-	addr = vma->vm_start;
++	if (addr != vma->vm_start) {
++		/* Since addr changed, we rely on the mmap op to prevent 
++		 * collisions with existing vmas and just use find_vma_prepare 
++		 * to update the tree pointers.
++		 */
++		addr = vma->vm_start;
++		if (unlikely(NULL != find_vma_prepare(mm, addr, &prev,
++						&rb_link, &rb_parent))) {
++			printk(KERN_ERR "buggy mmap operation: [<%p>]\n",
++				file ? file->f_op->mmap : NULL);
++			BUG();
++		}
++	}
+ 
+ 	vma_link(mm, vma, prev, rb_link, rb_parent);
+ 	if (correct_wcount)

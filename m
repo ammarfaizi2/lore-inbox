@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136243AbRAGS0I>; Sun, 7 Jan 2001 13:26:08 -0500
+	id <S136331AbRAGS0i>; Sun, 7 Jan 2001 13:26:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136299AbRAGSZ6>; Sun, 7 Jan 2001 13:25:58 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:44774 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S136257AbRAGSZn>;
-	Sun, 7 Jan 2001 13:25:43 -0500
-Message-Id: <5.0.0.25.0.20010107190604.00a44400@195.117.13.2>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0
-Date: Sun, 07 Jan 2001 19:21:08 +0100
-To: linux-kernel@vger.kernel.org
-From: Blizbor <tb670725@ima.pl>
-Subject: Bug in 2.2 kernels (mysterious hangs after freeing unused
-  memory)
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S136361AbRAGS0c>; Sun, 7 Jan 2001 13:26:32 -0500
+Received: from [156.46.206.66] ([156.46.206.66]:13952 "EHLO eagle.netwrx1.com")
+	by vger.kernel.org with ESMTP id <S136299AbRAGS0T>;
+	Sun, 7 Jan 2001 13:26:19 -0500
+From: "George R. Kasica" <georgek@netwrx1.com>
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0 make bzImage failure - Followup
+Date: Sun, 07 Jan 2001 12:26:17 -0600
+Organization: Netwrx Consulting Inc.
+Reply-To: georgek@netwrx1.com
+Message-ID: <43dh5tsaoer898vt9pra083hpa78uhsr82@4ax.com>
+In-Reply-To: <q11f5tg6b07jatkjona1ah4pbish0s95bd@4ax.com> <3A57D4C6.1507A97D@oracle.com>
+In-Reply-To: <3A57D4C6.1507A97D@oracle.com>
+X-Mailer: Forte Agent 1.8/32.548
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>
+>> [root@eagle linux]# ld -v
+>> GNU ld version 2.10.1 (with BFD 2.10.1)
+>
+>Historically kernel is built with hjl's binutils - try 2.10.1.0.4
+> ftp://ftp.valinux.com/pub/support/hjl/binutils 
+THat got it...though the stock 2.4.0 won't find my IDE drives to boot
+from...using Alan Cox's ac3 seems to fly though....now to put the new
+P-III 600MHz chip in and recompile for that....hope it flys.
 
-I have found something weird in kernel 2.2.17.
-After installation on the Pentium PRO equipped machine,
-I have moved hard disk to another one, but equipped
-with AMD-K5 and after encountering problems I moved again
-this disk to machine equipped with Intel Pentium MMX.
+George
 
-On all machines except Pentium PRO boot process was stopping
-after freeing unused kernel memory.
+George, MR. Tibbs & The Beast Kasica
+Waukesha, WI USA
+georgek@netwrx1.com
+http://www.netwrx1.com
+ICQ #12862186
 
-I've made some steps (incl. simple kernel source modification)
-to find why. It was mysterious for me why even "init=/bin/bash"
-option doesn't help.
-I have found that read_exec is done three times at start on good machine,
-and only once on bad. This inspired me to issue "init=/sbin/sash" to
-kernel. And bingo !. System was booted.
-Next - each try to start something using shared libraries was fault.
-Problem was: signal 4 due to glibc was compiled for i686 (f...d RH7,
-automated like windows)
-
-My conclusion is: kernel doesnt handle situations when "init" process
-dies.
-
-I was'nt tested this on 2.4 series kernel.
-
-.
-________________________________________________
-Nie ma zlecen niemozliwych do zrealizowania. Sa tylko trudne, bardzo trudne
-i takie za ktore klient nie bedzie w stanie zaplacic.
-
+      Zz
+       zZ
+    |\ z    _,,,---,,_
+    /,`.-'`'    _   ;-;;,_
+   |,4-  ) )-,_..;\ (  `'_'
+  '---''(_/--'  `-'\_)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

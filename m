@@ -1,83 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291874AbSBAR2p>; Fri, 1 Feb 2002 12:28:45 -0500
+	id <S291876AbSBARiZ>; Fri, 1 Feb 2002 12:38:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291875AbSBAR2f>; Fri, 1 Feb 2002 12:28:35 -0500
-Received: from office.mandrakesoft.com ([195.68.114.34]:1530 "EHLO
-	office.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S291874AbSBAR2T>; Fri, 1 Feb 2002 12:28:19 -0500
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: Re: [PATCH] devfs v199.8 available
-In-Reply-To: <200201210635.g0L6ZjA22202@vindaloo.ras.ucalgary.ca>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <200201210635.g0L6ZjA22202@vindaloo.ras.ucalgary.ca>
-Date: 01 Feb 2002 18:18:18 +0100
-Message-ID: <m2it9h3yud.fsf@localhost.mandrakesoft.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S291878AbSBARiP>; Fri, 1 Feb 2002 12:38:15 -0500
+Received: from mail.littlefeet-inc.com ([63.215.255.3]:7438 "EHLO
+	ltfsd01.little-ft.com") by vger.kernel.org with ESMTP
+	id <S291876AbSBARiH>; Fri, 1 Feb 2002 12:38:07 -0500
+Message-ID: <B9F49C7F90DF6C4B82991BFA8E9D547B125712@BUFORD.littlefeet-inc.com>
+From: Kris Urquhart <kurquhart@littlefeet-inc.com>
+To: "'Andre Hedrick'" <andre@linuxdiskcert.org>
+Cc: "'Andreas Dilger'" <adilger@turbolabs.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: RE: false positives on disk change checks
+Date: Fri, 1 Feb 2002 09:33:41 -0800 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "richard" == Richard Gooch <rgooch@ras.ucalgary.ca> writes:
-
-richard> Hi, all. Version 199.8 of my devfs patch is now available from:
-richard> http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-richard> The devfs FAQ is also available here.
-
-richard> Patch directly available from:
-richard> ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
-
-richard> AND:
-richard> ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
-
-richard> This is against 2.4.18-pre4. Highlights of this release:
-
-richard> - Fixed deadlock bug in <devfs_d_revalidate_wait>
 
 
+> -----Original Message-----
+> From: Andre Hedrick [mailto:andre@linuxdiskcert.org]
+> Sent: Friday, February 01,
+> > 
+> > Andre, looks like setup above gives false positives on disk 
+> change check...
+> 
+> What do you expect w/ removable media.
+> Obivious it has to be reporting an media status event change.
+> Gawd knows where I could find a copy of the hardware to verify.
+> If it puts a patch of mine on it and it is still present there is a
+> problem, if it goes away with the patch, the kernel should 
+> take the patch.
+> 
 
-I still has that bug with 2.4.18-pre7, and it has this patch applied.
+I tried ide.2.4.17.01192002.patch, with no change.  
+Is there a different patch you would like me to try?
 
-stack traces are:
+Thanks.
 
-p1:
-        schedule()
-        devfs_de_revalidate_wait()
-        cached_lookup()
-        lookup_hash()
-        sys_unlink()
-        system_call()
-
-p2:
-
-        schedule()
-        wait_for_devfsd_finished()
-        devfs_lookup(()
-        lookup_hash()
-        unix_bind()
-        sys_bind()
-        sys_socketcall()
-        system_call()
-
-the thing that they are tring to create/remove is /dev/log.
-
-And devfsd is already running in that state:
-
-    __schedule()
-    __down()
-    __down_failed()
-    __text_lock_namei()
-
-This has worked normally until now, it has beggining to fail yesterday.
-
-Later, Juan.
-
-
-
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+-Kris

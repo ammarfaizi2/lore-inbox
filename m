@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271105AbRIFPIR>; Thu, 6 Sep 2001 11:08:17 -0400
+	id <S271106AbRIFPLR>; Thu, 6 Sep 2001 11:11:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271106AbRIFPIG>; Thu, 6 Sep 2001 11:08:06 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20752 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271105AbRIFPHt>;
-	Thu, 6 Sep 2001 11:07:49 -0400
-Date: Thu, 6 Sep 2001 12:07:47 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
+	id <S271124AbRIFPLG>; Thu, 6 Sep 2001 11:11:06 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:19470 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S271106AbRIFPKx>;
+	Thu, 6 Sep 2001 11:10:53 -0400
+Date: Thu, 6 Sep 2001 17:10:49 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
 To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, <phillips@bonn-fries.net>,
-        <jaharkes@cs.cmu.edu>, <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
+Cc: phillips@bonn-fries.net, riel@conectiva.com.br, jaharkes@cs.cmu.edu,
+        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
 Subject: Re: page_launder() on 2.4.9/10 issue
+Message-Id: <20010906171049.4d40da02.skraw@ithnet.com>
 In-Reply-To: <598034578.999792124@[10.132.112.53]>
-Message-ID: <Pine.LNX.4.33L.0109061206020.31200-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <20010906163909.186b8b46.skraw@ithnet.com>
+	<598034578.999792124@[10.132.112.53]>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Sep 2001, Alex Bligh - linux-kernel wrote:
+On Thu, 06 Sep 2001 16:02:04 +0100 Alex Bligh - linux-kernel
+<linux-kernel@alex.org.uk> wrote:
 
-> >> IE, in theory you could have half your memory free, but
-> >> not be able to allocate a single 8k block. Nothing would cause
-> >> cache, or InactiveDirty stuff to be written.
+> Stephan,
+> >> You yourself proved this, by switching rsize,wsize to 1k and said
+> >> it all worked fine! (unless I misread your email).
 > >
-> > Which is obviously not the right way to go. I guess we agree in that.
->
-> Well, I agree that this is not desirable. I am not sure whether
-> the right course is
->  (a) to avoid getting here,
->  (b) to do traditional page_launder() stuff, i.e. write stuff out,
->      and hope that fixes it
->  (c) to actively go defragment (Daniel P's prefered approach)
->  (d) some combination of the above.
+> > Sorry, misunderstanding: I did not touch rsize/wsize. What I do is to lower
+fs
+> > action by not letting knfsd walk through the subtrees of a mounted fs. This
+> > leads to less allocs/frees by the fs layer which tend to fail and let knfs
+fail
+> > afterwards.
+> 
+> OK, I'm getting confused.
 
-On many systems, higher-order allocations are a really really
-small fraction of the allocations, so ideally we'd have them
-take the burden of memory fragmentation and won't punish the
-normal allocations.
+To end that:
 
-That pretty much rules out very strong forms of (a), things
-like (b) and (c) are very possible to do and maybe even easy.
+What I meant was, I did not touch the values most everybody uses on NFS, which
+is:
+rsize=8192,wsize=8192
+Using smaller values (or default = 1024) gives such a ridicolously bad
+performance that I would even prefer samba.
 
-They also won't cause any overhead for normal allocations
-since we'd only call them when needed.
+Regards,
+Stephan
 
-regards,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

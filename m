@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbTITC0M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 22:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTITC0M
+	id S261263AbTITCX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 22:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbTITCX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 22:26:12 -0400
-Received: from primary.dns.nitric.com ([64.81.197.236]:21767 "EHLO
-	primary.mx.nitric.com") by vger.kernel.org with ESMTP
-	id S261304AbTITC0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 22:26:10 -0400
-To: Allen Martin <AMartin@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-From: Merlin Hughes <lnx@merlin.org>
-Subject: Re: [PATCH] 2.4.23-pre4 add support for udma6 to nForce IDE drive r 
-In-reply-to: <8F12FC8F99F4404BA86AC90CD0BFB04F039F714A@mail-sc-6.nvidia.com> 
-Date: Fri, 19 Sep 2003 22:26:05 -0400
-Message-Id: <20030920022607.A6D35338DA@primary.mx.nitric.com>
+	Fri, 19 Sep 2003 22:23:56 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:64261 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S261263AbTITCXz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 22:23:55 -0400
+Date: Sat, 20 Sep 2003 03:23:53 +0100
+From: John Levon <levon@movementarian.org>
+To: "Villacis, Juan" <juan.villacis@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, jbarnes@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.x] additional kernel event notifications
+Message-ID: <20030920022352.GA73232@compsoc.man.ac.uk>
+References: <7F740D512C7C1046AB53446D372001732DEC73@scsmsx402.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7F740D512C7C1046AB53446D372001732DEC73@scsmsx402.sc.intel.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1A0XPd-0000Tr-5f*MceCqndSgMo*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r/AMartin@nvidia.com/2003.09.19/16:49:45
->You can try downgrading your drive to udma5 to see if udma6 really does make
->it more stable (hdparm -X udma5 /dev/hdX) but I can't think of any reason
->why it should.
+On Fri, Sep 19, 2003 at 05:57:40PM -0700, Villacis, Juan wrote:
 
-That's it; downgrading to UDMA100 crashes within a few minutes
-of heavy I/O. Running at UDMA133 is rock solid.
+> both tools capture performance data, but Oprofile was designed with
+> aggregation in mind whereas VTune was designed to collect all the data
+> and then post-process it.
 
->> I take it that I should boot with noapic in future to be safe.
->
->I've been telling people to disable APIC / ACPI because of the interrupt
->problem, but your interrupts are fine, so I'd leave it alone.  I'm curious,
->what version BIOS do you have?
+It would help a huge amount if you explained how you do :
 
-Very good, thanks. Shuttle SN45G, FN45 mobo, AwardBIOS v6.00PG.
-Is that the info you're looking for?
+EIP -> java source line / symbol
 
-Thanks, Merlin
+This is the exact transformation that oprofile *doesn't* do, and I never
+managed to get a clear explanation of what you need and why for that to
+happen.
+
+In particular, your userspace must be doing some sort of communication
+with the running Java VM, and the question remains open as to whether
+it's possible to do that in an oprofile manner instead of a VTune 2.4 /
+OProfile 2.4 manner.
+
+I still suspect we have significant amounts of code that can be merged
+between us. This would be a significant benefit to the poor saps such as
+akpm who have to care about the kernel as a whole.
+
+You also mentioned performance issues with the current OProfile code -
+have we discussed the new design at all (basically: keep task structs
+hanging around, remove the horrific buffer_sem)
+
+regards
+john
+
+-- 
+Khendon's Law:
+If the same point is made twice by the same person, the thread is over.

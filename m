@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQKQJAy>; Fri, 17 Nov 2000 04:00:54 -0500
+	id <S129720AbQKQJFr>; Fri, 17 Nov 2000 04:05:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130195AbQKQJAe>; Fri, 17 Nov 2000 04:00:34 -0500
-Received: from [202.130.232.131] ([202.130.232.131]:45451 "EHLO sitechasia.com")
-	by vger.kernel.org with ESMTP id <S129314AbQKQJAW>;
-	Fri, 17 Nov 2000 04:00:22 -0500
-Message-ID: <002001c05070$47b6dea0$0e00a8c0@168.0.14.sitechasia>
-From: è°¢å³° <fxie@sitechasia.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: problem about system call "clone"
-Date: Fri, 17 Nov 2000 16:27:23 +0800
+	id <S130139AbQKQJFh>; Fri, 17 Nov 2000 04:05:37 -0500
+Received: from marks-43.caltech.edu ([131.215.92.43]:1541 "EHLO
+	velius.chaos2.org") by vger.kernel.org with ESMTP
+	id <S129720AbQKQJFW>; Fri, 17 Nov 2000 04:05:22 -0500
+Date: Fri, 17 Nov 2000 00:35:03 -0800 (PST)
+From: Jacob Luna Lundberg <jacob@velius.chaos2.org>
+To: Dan Aloni <karrde@callisto.yi.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH (2.4)] atomic use count for proc_dir_entry
+In-Reply-To: <Pine.LNX.4.21.0011170905030.19287-100000@callisto.yi.org>
+Message-ID: <Pine.LNX.4.21.0011170026130.10109-100000@velius.chaos2.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id TAA19121
 
-Hi ! everyone !
-I have a problem while using clone() to create a LWP. But when the LWP exits, it remains as a zombie process. How can I get rid of it ?
 
-Thank you in advance !
-ý:.žË›±Êâmçë¢kaŠÉb²ßìzwm…ébïîžË›±Êâmébžìÿ‘êçz_âžØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Þ—ú+€ù^jÇ«y§m…á@A«a¶Úÿÿü0ÃûnÇú+ƒùd
+On Fri, 17 Nov 2000, Dan Aloni wrote:
+> If you are right, I guess put_files_struct() of kernel/exit.c would
+> have cleaned files_struct everytime someones called it. 
+> Everywhere in the kernel, objects are freed when
+> atomic_dec_and_test() returns true.
+
+Indeed, after studying the asm in question I think I see how it ticks.
+What is the reasoning behind reversing the result of the test instead of
+returning the new value of the counter?
+
+(Thanks for taking time to set me straight on this.  :)
+
+-Jacob
+
+-- 
+
+Why you say you no bunny rabbit when you have little powder-puff tail?
+                -- The Tasmanian Devil
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/

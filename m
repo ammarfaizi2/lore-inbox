@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288973AbSANTee>; Mon, 14 Jan 2002 14:34:34 -0500
+	id <S288828AbSANS5G>; Mon, 14 Jan 2002 13:57:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288960AbSANTdQ>; Mon, 14 Jan 2002 14:33:16 -0500
-Received: from zero.tech9.net ([209.61.188.187]:48132 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288995AbSANTcU>;
-	Mon, 14 Jan 2002 14:32:20 -0500
+	id <S288896AbSANS4O>; Mon, 14 Jan 2002 13:56:14 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:41227 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S288878AbSANSyk>; Mon, 14 Jan 2002 13:54:40 -0500
+Message-ID: <3C432969.3F98E538@linux-m68k.org>
+Date: Mon, 14 Jan 2002 19:54:33 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: yodaiken@fsmlabs.com
+CC: Momchil Velikov <velco@fadata.bg>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: Robert Love <rml@tech9.net>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, zippel@linux-m68k.org,
-        ken@canit.se, arjan@fenrus.demon.nl, landley@trommello.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020114160256.A2922@werewolf.able.es>
-In-Reply-To: <200201140033.BAA04292@webserver.ithnet.com>
-	<E16PvKx-00005L-00@the-village.bc.nu>
-	<20020114104532.59950d86.skraw@ithnet.com> 
-	<20020114160256.A2922@werewolf.able.es>
-Content-Type: text/plain
+In-Reply-To: <20020114064548.D22065@hq.fsmlabs.com> <Pine.LNX.4.33.0201141541140.29505-100000@serv> <20020114091801.A23139@hq.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 14 Jan 2002 14:35:13 -0500
-Message-Id: <1011036915.4604.2.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-14 at 10:02, J.A. Magallon wrote:
+Hi,
 
-> Yup. That remind me of...
-> Would there be any kernel call every driver is doing just to hide there
-> a conditional_schedule() so everyone does it even without knowledge of it ?
-> Just like Apple put the SystemTask() inside GetNextEvent()...
+yodaiken@fsmlabs.com wrote:
 
-It's not nearly that easy.  If it were, we would all certainly switch to
-the preemptive kernel design, and preempt whenever and wherever we
-needed.
+> > > is going to be an enormously important issue.  However, once you add SCHED_FIFO in the
+> > > current scheme, this becomes more complex. And with preempt, you cannot even offer the
+> > > assurance that once a process gets the cpu it will make _any_ advance at all.
+> >
+> > I'm not sure if I understand you correctly, but how is this related to
+> > preempt?
+> 
+> It's pretty subtle. If there is no preempt, processes don't get preempted.
+> If there is preempt, they can be preempted. Amazing isn't it?
 
-Instead, we have to worry about reentrancy and thus can not preempt
-inside critical regions (denoted by spinlocks).  So we can't have
-preempt there, and have more work to do -- thus this discussion.
+I just can't win against such brilliant argumentation, I'm out.
 
-	Robert Love
-
+bye, Roman

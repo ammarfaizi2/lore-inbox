@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274817AbTGaQ4x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 12:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274819AbTGaQ4x
+	id S274845AbTGaREZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 13:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274846AbTGaREY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 12:56:53 -0400
-Received: from windsormachine.com ([206.48.122.28]:31761 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S274817AbTGaQ4w convert rfc822-to-8bit (ORCPT
+	Thu, 31 Jul 2003 13:04:24 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:56487 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S274845AbTGaRET (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 12:56:52 -0400
-Date: Thu, 31 Jul 2003 12:56:40 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Turning off automatic screen clanking
-In-Reply-To: <20030731162037.GB32759@www.13thfloor.at>
-Message-ID: <Pine.LNX.4.56.0307311255400.21340@router.windsormachine.com>
-References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org>
- <Pine.LNX.4.53.0307291338260.6166@chaos> <Pine.LNX.4.53.0307292015580.11053@montezuma.mastecende.com>
- <20030730052213.GU150921@niksula.cs.hut.fi> <3F29296E.6000602@techsource.com>
- <20030731162037.GB32759@www.13thfloor.at>
+	Thu, 31 Jul 2003 13:04:19 -0400
+Message-ID: <3F294C31.6030702@softhome.net>
+Date: Thu, 31 Jul 2003 19:04:49 +0200
+From: "Ihar \"Philips\" Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Tom Rini <trini@kernel.crashing.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6 size increase
+References: <eLiy.31J.3@gated-at.bofh.it> <eLBW.3eJ.7@gated-at.bofh.it> <eLVb.3yF.1@gated-at.bofh.it> <eOJn.5NI.1@gated-at.bofh.it> <f1dJ.GS.21@gated-at.bofh.it> <faTE.2LQ.3@gated-at.bofh.it> <fd56.4Te.9@gated-at.bofh.it> <fdRv.5uB.9@gated-at.bofh.it> <fnHd.54o.19@gated-at.bofh.it> <3F294461.2020902@softhome.net> <20030731164326.GG27214@ip68-0-152-218.tc.ph.cox.net>
+In-Reply-To: <20030731164326.GG27214@ip68-0-152-218.tc.ph.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jul 2003, Herbert [iso-8859-1] Pötzl wrote:
+Tom Rini wrote:
+> 
+> Shutdown != sleep.  If you want to wake devices up again, you need to do
+> them in the right order.
+> 
 
-> hmm, ignoring the issue that modern monitors will not
-> suffer the burnin, how would it help to cycle the colors?
+     You didn't get my point.
+     My appliances do not need sleep/shutdown at all.
+     Not every embedded system is a handheld ;-)
 
-Modern monitors DO still suffer from burn-in.  I have a few monitors here
-that have noticeable burn in from applications that constantly show the
-same image.
+     Shutdown was smth like:
+     # mount / -o ro; sync; lcd-off; \
+	dd if=/dev/zero seek=0xBYE of=/dev/port
+     For a long time it was shell script :-)))
 
-Mike

@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263623AbVBCUs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVBCUwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263623AbVBCUs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 15:48:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbVBCUso
+	id S262970AbVBCUwN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 15:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbVBCUwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 15:48:44 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:14025 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263174AbVBCUse (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 15:48:34 -0500
-Date: Thu, 3 Feb 2005 21:47:11 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Paul Davis <paul@linuxaudiosystems.com>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, "Jack O'Quin" <joq@io.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-Message-ID: <20050203204711.GB25018@elte.hu>
-References: <200502031420.j13EKwFx005545@localhost.localdomain> <4202876F.3010302@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Feb 2005 15:52:12 -0500
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:35222 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262970AbVBCUwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 15:52:03 -0500
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Andrew Morton <akpm@osdl.org>
+Subject: ATI modules using the _syscall() macro for unexported syscalls (was: Re: Fw: Re: [patch 02/11] uml: fix compilation for missing headers)
+Date: Thu, 3 Feb 2005 21:51:18 +0100
+User-Agent: KMail/1.7.2
+Cc: David Howells <dhowells@redhat.com>, LKML <linux-kernel@vger.kernel.org>
+References: <200501142206.24730.blaisorblade@yahoo.it> <30254.1105783030@redhat.com> <20050115020349.44a3622a.akpm@osdl.org>
+In-Reply-To: <20050115020349.44a3622a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4202876F.3010302@kolivas.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200502032151.18408.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 15 January 2005 11:03, Andrew Morton wrote:
+> David Howells <dhowells@redhat.com> wrote:
+[....]
+> I'm not sure that we even use errno any more.  The only syscall trap which
+> the kernel internally takes now is execve().  Everything else is (or should
+> be) just calling the sys_foo() function directly.
 
-* Con Kolivas <kernel@kolivas.org> wrote:
+The ATI kernel modules reportedly use the syscall() facility to call 
+modify_ldt, which I guess is not exported... I've received the report of this 
+because that causes a name conflict with the SKAS patch I maintain.
 
-> >	* real inter-process handoff. i am thinking of something like
-> >	    sched_yield(), but it would take a TID as the target
-> >	    of the yield. this would avoid all the crap we have to 
-> >	    go through to drive the graph of clients with FIFO's and
-> >	    write(2) and poll(2). Futexes might be a usable
-> >	    approximation in 2.6 (we are supporting 2.4, so we can't
-> >	    use them all the time)
-> 
-> yield_to(tid) should not be too hard to implement. Ingo? What do you
-> think?
+Also, I have the doubt is that they're circumventing EXPORT_SYMBOL 
+restrictions and thus violating the license. IANAL, however.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 
-i dont really like it - it's really the wrong interface to use. Futexes
-are a much better locking/signalling interface. yield_to() would not be
-available in 2.4 either. If the apropriate pthread objects are used then
-libpthread will do it more or less optimally on 2.4 too, while on 2.6
-they'd be perfectly fine and based on futexes. If 2.4 is not an issue
-then a good, futex-based inter-process API is POSIX 1003.1b semaphores
-(the sem_init()/sem_*() APIs). But if it should work inter-process on
-non-futex kernels too, then only pthread spinlocks will do it.
-
-	Ingo

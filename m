@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261451AbSLaKnh>; Tue, 31 Dec 2002 05:43:37 -0500
+	id <S261376AbSLaKkL>; Tue, 31 Dec 2002 05:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbSLaKnh>; Tue, 31 Dec 2002 05:43:37 -0500
-Received: from falcon.vispa.uk.net ([62.24.228.11]:36619 "EHLO
-	falcon.vispa.com") by vger.kernel.org with ESMTP id <S261451AbSLaKnh>;
-	Tue, 31 Dec 2002 05:43:37 -0500
-Message-ID: <3E1176B7.7040607@walrond.org>
-Date: Tue, 31 Dec 2002 10:51:35 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-References: <085e72754031fc2DTVMAIL12@smtp.cwctv.net>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261409AbSLaKkL>; Tue, 31 Dec 2002 05:40:11 -0500
+Received: from ip68-101-124-193.oc.oc.cox.net ([68.101.124.193]:62337 "EHLO
+	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
+	id <S261376AbSLaKkK>; Tue, 31 Dec 2002 05:40:10 -0500
+Date: Tue, 31 Dec 2002 02:48:35 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: linux-kernel@vger.kernel.org, mnalis-umsdos@voyager.hr
+Subject: Re: [BUG] 2.2.24-rc2/2.4.18/2.4.20 UMSDOS hardlink OOPS
+Message-ID: <20021231104835.GC2323@ip68-4-86-174.oc.oc.cox.net>
+References: <20021231080117.GB2323@ip68-4-86-174.oc.oc.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021231080117.GB2323@ip68-4-86-174.oc.oc.cox.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hate feeding lawyers
-NVidia produce excellent gnu/linux/xfree drivers for their video cards, 
-so I buy and use their hardware. Anybody else read Peter Hamiltons 
-Misspent Youth yet ? Really quite interesting... But we've all done this 
-argument to death hundreds of times, and linux-kernel doesn't care!
+On Tue, Dec 31, 2002 at 12:01:17AM -0800, Barry K. Nathan wrote:
+> 4. Obtain the glibc package from the "L" package set (I think the
+> filename is "slackware/l/glibc-2.2.5-i386-2.tgz" from your Slackware 8.1
+> FTP mirror, your Slackware CD burned from downloaded ISO file, or disc 1
+> from your Slackware boxed set), and install it. In my case, this means
+> inserting disc 1, mounting it on /mnt/cdrom, and "installpkg
+> /mnt/cdrom/slackware/l/glibc-2.2.5-i386-2.tgz".
 
-While we're so off topic, Happy New Year to all fellow gnu/linux hackers!
+Or, for more verbosity, replace
+installpkg /mnt/cdrom/slackware/l/glibc-2.2.5-i386-2.tgz
 
+with
+cd / # important, if done from say /root the oops doesn't happen
+tar zxvf /mnt/cdrom/slackware/l/glibc-2.2.5-i386-2.tgz
+
+(Then you can strace tar if listing each filename isn't enough for you.)
+
+> At this point I'm not sure what should be done to fix this. Should
+> umsdos_solve_hlink (or UMSDOS_link?) be turning the negative dentry into
+> some kind of error (-ENOENT?) for the calling function? (Hmmm... after I
+> send this e-mail I think I'll try making a patch to do this and see what
+> effect it has.) Or is the negative dentry itself a symptom/result of
+
+Ok, I've done this (returning -ENOENT from umsdos_solve_link instead of
+oopsing). I guess I'll post the patches (one for 2.2, one for 2.4)
+tomorrow after I test them some more. This seems in my limited testing
+to improve stability and eliminate data loss vs. not having the patch,
+but I need to test it a bit more first. (In any case, the patch only
+makes a difference in cases that would have oopsed/segfaulted without
+it.)
+
+IOW, it's an incomplete (if not simply wrong) fix, but it could be
+better than what's there now, maybe.
+
+-Barry K. Nathan <barryn@pobox.com>

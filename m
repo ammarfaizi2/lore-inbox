@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289219AbSANMoi>; Mon, 14 Jan 2002 07:44:38 -0500
+	id <S289220AbSANMui>; Mon, 14 Jan 2002 07:50:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289220AbSANMo2>; Mon, 14 Jan 2002 07:44:28 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:42721 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S289219AbSANMoS>; Mon, 14 Jan 2002 07:44:18 -0500
-Date: Mon, 14 Jan 2002 12:45:41 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: mingo@redhat.com
-Subject: slowdown with new scheduler.
-Message-ID: <20020114124541.A32412@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, mingo@redhat.com
-Mime-Version: 1.0
+	id <S289226AbSANMu3>; Mon, 14 Jan 2002 07:50:29 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:19398 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S289220AbSANMuY>; Mon, 14 Jan 2002 07:50:24 -0500
+From: Christoph Rohland <cr@sap.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: tmpfs accounting (was: losetuping files in tmpfs fails?)
+In-Reply-To: <3C35F8B2.98763627@sltnet.lk>
+ <a181kp$tl4$1@cesium.transmeta.com>
+Organisation: SAP LinuxLab
+Date: Mon, 14 Jan 2002 13:43:09 +0100
+In-Reply-To: <a181kp$tl4$1@cesium.transmeta.com> ("H. Peter Anvin"'s message
+ of "5 Jan 2002 15:18:49 -0800")
+Message-ID: <m3pu4daysi.fsf_-_@linux.local>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Artificial
+ Intelligence, i386-suse-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
- After adding H7 to 2.4.18pre3, I noticed that kernel compiles
-on one of my test boxes got much slower.
-Uniprocessor system (Cyrix 3) building a 2.4.18pre3 tree,
-with the same .config, and a distclean before starting the compile.
+Hi Peter,
 
-2.4.18pre3        13.38s                       
-2.4.18pre+H7      17.53s
+On 5 Jan 2002, H. Peter Anvin wrote:
+> P.S. On kernel.org, I was forced to hack tmpfs so that it returns a
+> nonzero size for directories; otherwise "make distclean" breaks for
+> older Linux kernels, and the incdiff robot that runs on kernel.org
+> relies on this operation working correctly.  It would be a good
+> thing if tmpfs could account for the amount of memory consumed by
+> directories, etc.
 
-I see similar slowdown when running H7 on 2.5 on this box.
+I would not like to add the real size without a bigger goal (I would
+not see a problem with a fake size).
 
-regards,
-Dave.
+On the other side I could imagine that we make the directories tmpfs
+files which hold the swap vectors of the real tmpfs files of this
+directory. With this we would gain swappable meta data for tmpfs and
+had a real size for the directories for free.
 
--- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+Greetings
+		Christoph
+
+

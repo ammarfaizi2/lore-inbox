@@ -1,95 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274070AbRISOV6>; Wed, 19 Sep 2001 10:21:58 -0400
+	id <S274071AbRISOVj>; Wed, 19 Sep 2001 10:21:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274069AbRISOVw>; Wed, 19 Sep 2001 10:21:52 -0400
-Received: from pscgate.progress.com ([192.77.186.1]:35266 "EHLO
-	pscgate.progress.com") by vger.kernel.org with ESMTP
-	id <S274070AbRISOVn>; Wed, 19 Sep 2001 10:21:43 -0400
-Subject: Coda and Ext3
-From: "Sujal Shah" <sshah@progress.com>
-Reply-To: sujal@sujal.net
-To: Jan Harkes <jaharkes@cs.cmu.edu>, codalist@TELEMANN.coda.cs.cmu.edu
-Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-In-Reply-To: <20010906115302.B826@cs.cmu.edu>
-In-Reply-To: <3B9792FB.7020708@progress.com> 
-	<20010906115302.B826@cs.cmu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.17.07.08 (Preview Release)
-Date: 19 Sep 2001 10:23:36 -0400
-Message-Id: <1000909441.2017.20.camel@pcsshah>
-Mime-Version: 1.0
+	id <S274070AbRISOV3>; Wed, 19 Sep 2001 10:21:29 -0400
+Received: from prfdec.natur.cuni.cz ([195.113.56.1]:31751 "EHLO
+	prfdec.natur.cuni.cz") by vger.kernel.org with ESMTP
+	id <S274069AbRISOVV>; Wed, 19 Sep 2001 10:21:21 -0400
+X-Envelope-From: mmokrejs
+Posted-Date: Wed, 19 Sep 2001 16:21:43 +0200 (MET DST)
+Date: Wed, 19 Sep 2001 16:21:43 +0200 (MET DST)
+From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: __alloc_pages: 0-order allocation failed still in -pre12
+In-Reply-To: <Pine.OSF.4.21.0109121502420.18976-100000@prfdec.natur.cuni.cz>
+Message-ID: <Pine.OSF.4.21.0109191615070.3826-100000@prfdec.natur.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Hi,
+  I tried 2.4.10-pre12 and run some mysql big tests (actually
+mysql/tests/fork_big.pl ). And, the load is coming up and down from 17 to
+6 .... and now, it's 1.7 only and I see in dmesg:
 
-     The Linux Coda drivers and the ext3 patches don't seem to get along
-very well, at least in Linux 2.4.7.  I've got a stock 2.4.7 kernel with
-a patch applied to the USB drivers (for a sony digital camera; see
-http://www.sujal.net/tech/linux/ just a change in unusual_devs.h). 
+__alloc_pages: 0-order allocation failed (gfp=0x20/0) from c012e3e2
+__alloc_pages: 0-order allocation failed (gfp=0x20/0) from c012e3e2
 
-After I applied the ext3 patches from
-http://www.uow.edu.au/~andrewm/linux/ext3/ .  Basically, when an
-application tries to write to a file system mounted via coda, the
-application terminates with "Memory Fault" returned to the terminal. 
-THe file system still thinks it's busy (can't umount).
+Filename                        Type            Size    Used    Priority
+/dev/sda2                       partition       2097136 41392   -1
 
-I'm using the ext3-2.4-0.9.5-247 patch.  I have not yet tried a newer
-kernel.
+The swap usage grew up from 11MB 40MB.
 
-THe funny thing is that mounting/unmount works fine as long as I don't
-try to write.  Also, I can create files via touch or mkdir without
-causing problems.  The following log snippet shows me mounting then
-immediately unmounting the filesystem, then remounting and trying a
-write operation (using cp).
+free gives:
+             total       used       free     shared    buffers     cached
+Mem:       1029776    1007360      22416          0       4548     463936
+-/+ buffers/cache:     538876     490900
+Swap:      2097136      41392    2055744
 
-Just to let everyone know, I am running my own replacement for venus
-(something similar to podfuk/uservfs), and I do have the NVidia drivers
-loaded.  I was able to recreate this bug without the NVdriver module
-loaded, however.  Also, I backed out the patches for ext3 and the
-problem went away.
+The system started to page-out when there were almost no buffers available
+and many cached pages. The system started after bootup with cached=18k or
+something like that.
 
-THe following messages appear in my syslog:
+/proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  1054490624 880287744 174202880        0  4653056 460627968
+Swap: 2147467264 42909696 2104557568
+MemTotal:      1029776 kB
+MemFree:        170120 kB
+MemShared:           0 kB
+Buffers:          4544 kB
+Cached:         448416 kB
+SwapCached:       1416 kB
+Active:         377868 kB
+Inactive:        76508 kB
+HighTotal:      131072 kB
+HighFree:         2044 kB
+LowTotal:       898704 kB
+LowFree:        168076 kB
+SwapTotal:     2097136 kB
+SwapFree:      2055232 kB
 
-Sep 18 19:02:00 pcsshah kernel: Coda Kernel/Venus communications, v5.3.14, coda@cs.cmu.edu
-Sep 18 19:02:16 pcsshah kernel: coda_read_super: Bad mount version
-Sep 18 19:02:16 pcsshah kernel: coda_read_super: device index: 0
-Sep 18 19:02:16 pcsshah kernel: coda_read_super: rootfid is (0x1234567,0xffffffff,0x1)
-Sep 18 19:02:16 pcsshah kernel: coda_read_super: rootinode is 1450180609 dev 7
-Sep 18 19:03:04 pcsshah kernel: Coda: Bye bye.
-Sep 18 19:03:50 pcsshah gconfd (sujal-1184): 21 items remain in the cache after cleaning already-synced items older than 300 seconds
-Sep 18 19:04:34 pcsshah kernel: coda_read_super: Bad mount version
-Sep 18 19:04:34 pcsshah kernel: coda_read_super: device index: 0
-Sep 18 19:04:34 pcsshah kernel: coda_read_super: rootfid is (0x1234567,0xffffffff,0x1)
-Sep 18 19:04:34 pcsshah kernel: coda_read_super: rootinode is 1450180609 dev 7
-Sep 18 19:05:02 pcsshah kernel: kernel BUG at file.c:45!
-Sep 18 19:05:02 pcsshah kernel: invalid operand: 0000
-Sep 18 19:05:02 pcsshah kernel: CPU:    0
-Sep 18 19:05:02 pcsshah kernel: EIP:    0010:[<e59a73df>]
-Sep 18 19:05:02 pcsshah kernel: EFLAGS: 00210282
-Sep 18 19:05:02 pcsshah kernel: eax: 00000019   ebx: d403e1a0   ecx: 00000006   edx: 00000000
-Sep 18 19:05:02 pcsshah kernel: esi: ffffffea   edi: d3eaf240   ebp: d3f71de0   esp: d36f3f60
-Sep 18 19:05:02 pcsshah kernel: ds: 0018   es: 0018   ss: 0018
-Sep 18 19:05:02 pcsshah kernel: Process cp (pid: 1650, stackpage=d36f3000)
-Sep 18 19:05:02 pcsshah kernel: Stack: e59acb2c e59acc83 0000002d d3f71de0 ffffffea 00000000 00000400 c0130f96 
-Sep 18 19:05:02 pcsshah kernel:        d3f71de0 bfffef10 00000400 d3f71e00 00000000 0009bce9 00000000 d3a78b60 
-Sep 18 19:05:02 pcsshah kernel:        d383ede0 00000000 d3f719c0 bffff308 d36f2000 00000400 bfffef10 bfffeef8 
-Sep 18 19:05:02 pcsshah kernel: Call Trace: [sys_write+150/208] [system_call+51/56] 
-Sep 18 19:05:02 pcsshah kernel: 
-Sep 18 19:05:02 pcsshah kernel: Code: 0f 0b 83 c4 0c 8b 43 08 8b 70 08 8d 5e 5c 89 d9 ff 4e 5c 0f 
 
-Just FYI. 
+I have to say I've been using for a week without any "0-order allocation
+failed" patch from Marcelo. Now I see am back to the old stage. ;(
 
-Thanks,
+> > You can get the patch from Marcelo's post on lkml on Aug 22 under the
+> > subject "Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on
+> > 7899P)".  Note the correction posted in his next message in the thread.
+> > It applies to 2.4.9.  Please try it and see if these failures go away.
 
-Sujal
-
+Please Cc: me in reply, if possible.
 -- 
----- Sujal Shah --- sujal@sujal.net ---
+Martin Mokrejs - PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
+MIPS / Institute for Bioinformatics <http://mips.gsf.de>
+GSF - National Research Center for Environment and Health
+Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
 
-        http://www.sujal.net
-
-Now Playing: George Michael - Freedom 90
 

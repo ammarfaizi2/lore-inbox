@@ -1,90 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263862AbUD0Gyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263823AbUD0G45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263862AbUD0Gyx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 02:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbUD0Gyx
+	id S263823AbUD0G45 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 02:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUD0G45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 02:54:53 -0400
-Received: from smtp1.Stanford.EDU ([171.67.16.120]:8065 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S263862AbUD0Gys
+	Tue, 27 Apr 2004 02:56:57 -0400
+Received: from smtp1.Stanford.EDU ([171.67.16.120]:60033 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S263823AbUD0G42
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 02:54:48 -0400
-Date: Mon, 26 Apr 2004 23:54:46 -0700 (PDT)
+	Tue, 27 Apr 2004 02:56:28 -0400
+Date: Mon, 26 Apr 2004 23:56:26 -0700 (PDT)
 From: Junfeng Yang <yjf@stanford.edu>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        <jfs-discussion@www-124.southbury.usf.ibm.com>, <mc@cs.Stanford.EDU>,
        Madanlal S Musuvathi <madan@stanford.edu>,
        "David L. Dill" <dill@cs.Stanford.EDU>
-Subject: [CHECKER] Transcation is not fully aborted upon failure in JFS (jfs
- 2.4, kernel 2.4.19)
-Message-ID: <Pine.GSO.4.44.0404262349260.7369-100000@elaine24.Stanford.EDU>
+Subject: [CHECKER] A derefence of null pointer errorin JFS (jfs2.4, kernel
+ 2.4.19)
+Message-ID: <Pine.GSO.4.44.0404262355040.7369-100000@elaine24.Stanford.EDU>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-We checked JFS filesystem on linux 2.4.19 recently and found 1 case that
-looks like bugs.
+file fs/jfs/jfs_tree.c
+-----------------------------------------------------------
+[BUG] get_metapage can return null when grab_cache_page or read_cache_page
+fails in function __get_metapage. In that case, mp
 
-When doing jfs_rename, if dtDelete fails, the transaction won't be fully
-aborted (even if txAbort is called).
-
-The symptoms are either we can read the new entry in the new dir by
-getdents, but we can't actually open the file (always get -ENOENTs), or
-after we do a sync, we see the new entry which is not supposed to be there
-(since the transcation is aborted already).  I couldn't figure out why
-this is happening.
-
----------------------------------------------------------------------
-[BUG] Transaction is not fully aborted even if txAbort is called when
-dtDelete failed.  dtDelete will return error if kmalloc fails at
-'jfs_dtree.c:dtSearch:586 jfs_dtree.c:dtDelete:2066'
-
-/*
- * NAME:        jfs_rename
- *
- * FUNCTION:    rename a file or directory
- */
-int jfs_rename(struct inode *old_dir, struct dentry *old_dentry,
-	       struct inode *new_dir, struct dentry *new_dentry)
+jfs_tree.c
+static int dtSplitRoot(tid_t tid,
+	    struct inode *ip, struct dtsplit * split, struct metapage ** rmpp)
 {
+	....
+	pxdlist = split->pxdlist;
+	pxd = &pxdlist->pxd[pxdlist->npxd];
+	pxdlist->npxd++;
+	rbn = addressPXD(pxd);
+	xlen = lengthPXD(pxd);
+	xsize = xlen << JFS_SBI(sb)->l2bsize;
+	rmp = get_metapage(ip, rbn, xsize, 1);
+ERROR-->rp = rmp->data;
 	...
-		/*
-		 * Add new directory entry
-		 */
-		rc = dtSearch(new_dir, &new_dname, &ino, &btstack,
-			      JFS_CREATE);
-		if (rc) {
-			jfs_err("jfs_rename didn't expect dtSearch to fail "
-				"w/rc = %d", rc);
-			goto out4;
+}
+
+
+jfs_metapage.c
+struct metapage *__get_metapage(struct inode *inode, unsigned long lblock,
+				unsigned int size, int absolute,
+				unsigned long new)
+{
+	......
+		if (new) {
+			jfs_info("__get_metapage: Calling grab_cache_page");
+FAIL--->		mp->page = grab_cache_page(mapping, page_index);
+			if (!mp->page) {
+				jfs_err("grab_cache_page failed!");
+				goto freeit;
+			} else {
+				INCREMENT(mpStat.pagealloc);
+				UnlockPage(mp->page);
+			}
+		} else {
+			jfs_info("__get_metapage: Calling read_cache_page");
+FAIL--->		mp->page = read_cache_page(mapping, lblock,
+				    (filler_t *)mapping->a_ops->readpage, NULL);
+			if (IS_ERR(mp->page)) {
+				jfs_err("read_cache_page failed!");
+				goto freeit;
+			} else
+				INCREMENT(mpStat.pagealloc);
 		}
-
-		ino = old_ip->i_ino;
-		rc = dtInsert(tid, new_dir, &new_dname, &ino, &btstack);
-		if (rc) {
-			jfs_err("jfs_rename: dtInsert failed w/rc = %d",
-				rc);
-			goto out4;
-		}
-
-		if (S_ISDIR(old_ip->i_mode))
-			new_dir->i_nlink++;
+		mp->data = kmap(mp->page) + page_offset;
 	}
-	/*
-	 * Remove old directory entry
-	 */
+	jfs_info("__get_metapage: returning = 0x%p", mp);
+	return mp;
 
-	ino = old_ip->i_ino;
-FAIL-->	rc = dtDelete(tid, old_dir, &old_dname, &ino, JFS_REMOVE);
-	if (rc) {
-		jfs_err("jfs_rename did not expect dtDelete to return rc = %d",
-			rc);
-ERROR-->	txAbort(tid, 1);	/* Marks Filesystem dirty */
-		goto out4;
-	}
-	...
+freeit:
+	spin_lock(&meta_lock);
+	remove_from_hash(mp, hash_ptr);
+	__free_metapage(mp);
+	spin_unlock(&meta_lock);
+	return NULL;
 }
 

@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268095AbUJFGPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268298AbUJFGSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268095AbUJFGPL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 02:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268265AbUJFGPK
+	id S268298AbUJFGSi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 02:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268312AbUJFGSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 02:15:10 -0400
-Received: from mta10.adelphia.net ([68.168.78.202]:28040 "EHLO
-	mta10.adelphia.net") by vger.kernel.org with ESMTP id S268095AbUJFGPF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 02:15:05 -0400
-Message-ID: <41638D67.2020307@nodivisions.com>
-Date: Wed, 06 Oct 2004 02:15:03 -0400
-From: Anthony DiSante <orders@nodivisions.com>
-Reply-To: orders@nodivisions.com
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: KVM -> jumping mouse... still no solution?
-References: <4163845C.9020900@nodivisions.com> <Pine.LNX.4.61.0410060753590.2993@dragon.hygekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.61.0410060753590.2993@dragon.hygekrogen.localhost>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Wed, 6 Oct 2004 02:18:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59307 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268298AbUJFGSg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 02:18:36 -0400
+Date: Tue, 5 Oct 2004 23:16:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: andrea@novell.com, nickpiggin@yahoo.com.au, rml@novell.com,
+       roland@topspin.com, linux-kernel@vger.kernel.org
+Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive
+ (SCSI-libsata, VIA SATA))
+Message-Id: <20041005231642.55308f99.akpm@osdl.org>
+In-Reply-To: <41638AEB.5080703@pobox.com>
+References: <52is9or78f.fsf_-_@topspin.com>
+	<4163465F.6070309@pobox.com>
+	<41634A34.20500@yahoo.com.au>
+	<41634CF3.5040807@pobox.com>
+	<1097027575.5062.100.camel@localhost>
+	<20041006015515.GA28536@havoc.gtf.org>
+	<41635248.5090903@yahoo.com.au>
+	<20041006020734.GA29383@havoc.gtf.org>
+	<20041006031726.GK26820@dualathlon.random>
+	<4163660A.4010804@pobox.com>
+	<20041006040323.GL26820@dualathlon.random>
+	<41636FCF.3060600@pobox.com>
+	<20041005214605.5ec397ab.akpm@osdl.org>
+	<41638AEB.5080703@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
->>you don't move it, but if you move it N/E/NE it's really slow and jerky, and
->>if you move it S/W/SW even a hair, it slams down to the SW corner of the
->>screen and acts like you hit all the mouse's buttons 50 times simultaneously.
->>
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> Andrew Morton wrote:
+> > Jeff Garzik <jgarzik@pobox.com> wrote:
+> > 
+> >>Preempt will always be something I ask people to turn off when reporting 
+> >> driver bugs; it just adds too much complicated mess for zero gain.
+> > 
+> > 
+> > What driver bugs are apparent with preemption which are not already SMP bugs?
 > 
-> I've had similar problems with my mouse and KVM switch.
+> If your implied answer is true, then we wouldn't need 
+> preempt_{en,dis}able() sprinkled throughout the code so much.
 > 
-> 
->>The other day I came across this (kerneltrap.org/node/view/2199): "Use
->>psmouse.proto=bare on the kernel command line, or proto=bare on the
->>psmouse module command line."  But that makes the mouse's scroll-wheel not
->>work.  (And this problem doesn't exist with some of the mouse drivers, but it
->>does with IMPS/2, which is the only one I've ever been able to get the scroll
->>wheel working with.)
->>
-> 
-> psmouse.proto=imps solves the problem for me (wheel works as well).
-> The funny thing is that I don't need to do anything like this when I boot 
-> a 2.4 kernel, only 2.6 kernels show this behaviour on my system.???
 
-That doesn't make any difference on my system.  Mouse freakout is just the same.
+Where?
 
--Anthony DiSante
-http://nodivisions.com/
+`grep -r preempt_disable drivers' points at one bodgy scsi driver.
+
+`grep -r preempt_disable fs' finds two instances of per-cpu data.
+
+`grep -r preempt_disable mm' finds three instances (wtf is vmalloc_to_page
+trying to do?  Looks redundant)
+
+`grep -r preempt_disable ipc' is empty
+
+`grep -r preempt_disable net' is empty
+
+`grep -r preempt_disable include' gets a few.
+
+It's less than I expected, actually.

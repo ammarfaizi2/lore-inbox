@@ -1,79 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263498AbTKCXqa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 18:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263500AbTKCXqa
+	id S263506AbTKCXzM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 18:55:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbTKCXzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 18:46:30 -0500
-Received: from messenger.kasenna.org ([208.253.201.3]:16393 "EHLO
-	messenger.kasenna.org") by vger.kernel.org with ESMTP
-	id S263498AbTKCXq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 18:46:28 -0500
-Message-ID: <3FA6E8CE.6040208@kasenna.com>
-Date: Mon, 03 Nov 2003 15:46:22 -0800
-From: Shirley Shi <shirley@kasenna.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
+	Mon, 3 Nov 2003 18:55:12 -0500
+Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:64012 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP id S263506AbTKCXzK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 18:55:10 -0500
+Message-ID: <3FA6F628.70305@ixiacom.com>
+Date: Mon, 03 Nov 2003 16:43:20 -0800
+From: Dan Kegel <dkegel@ixiacom.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: All filesystems hang under long periods of heavy load (read and write)
- on a filesystem
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: fleury@cs.auc.dk, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: allocating netlink families? (was: re: Announce: NetKeeper Firewall
+ For Linux)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone know why all filesystems hang under periods of heavy load on 
-one of the filesystem? Once the filesystems hang, any command related to 
-the filesystem, like 'ls', 'cat',etc., will stick forever until re-power 
-cycling the machine.
+Emmanuel Fleury wrote:
+ >   http://www.cs.auc.dk/~fleury/netkeeper/
 
-I kept running the following script to read and write the data on a same 
-filesystem(ext2 or XFS) since we need do some tests for the storage. Is 
-half day, onn the beginning, the system was running well. But after 
-running the script for a long time, such a half day, one day or two 
-days,  all filesystems would get hung, including the root filesystem 
-although I didn't do any heavy load on it. The file(M.1) I used for 
-reading and writing is about 2.5GB.
+Hey, that seems to be a nice example of how to write
+a new netlink family.  Thanks!
 
+I see you're using NETLINK_USERSOCK.  Netlink families
+appear to be a precious commodity (netlink_dev.c, at
+least, will break if you raise MAX_LINKS above 32).
 
-@ total = 115
-while (1)
-  @ cc = 2
-  while ($cc <= $total)
-     dd bs=512k if=/data/M.1 of=/data/M.$cc
-    echo "copying $cc  of   $total..."
-    @ cc = $cc + 1
-  end
-  rm -f  /data/M.*
-end
-
-
-I tried RH8.0 with kernel 2.4.18 and kernel 2.4.21 with XFS and patch 
-rmap15j. I have the same issue running with the two kernels. Basically I 
-have two filesytems configured. One for the root configured with ext3, 
-and another is for the data configured with ext2 or XFS. With either 
-ext2 or XFS, I have the same problem.
-
-I also tried on different Dual CPU machines as follows, but saw the same 
-problem.
-
-- A dual-CPU machine with an on-board 320 SCSI controller(running 
-AIC79XX.o driver) connecting a disk drive as the root system and a 
-MegaRAID 320-4X controller connecting to several disk drives. I created 
-two H/W logical RAID devices and built the data filesystem with the S/W 
-RAID0(/dev/md0).
-- A HP dual-CPU machine with the HP Smart Array 5i connecting to a disk 
-drive as the root system and a 160 SCSI controller connecting with 13 
-disk drives and configured as a S/W RAID0(/dev/md0) the data filesystem.
-- A dual-CPU machine with an on-board 320 SCSI controller(with AIC79XX.o 
-driver) connecting a disk drive as the root system and a FC controller 
-connecting to a RAID storage.
-
-Any comment would be appreciated.
-
-Thanks,
-
-Shirley
-
+Has there been any discussion of how one should pick
+netlink family numbers for new stuff like netkeeper?
+Sure, everyone could use NETLINK_USERSOCK, but
+that means only one new netlink module could be resident at a time...
+- Dan
 

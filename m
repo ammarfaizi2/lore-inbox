@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130324AbRCBE5A>; Thu, 1 Mar 2001 23:57:00 -0500
+	id <S130325AbRCBFTU>; Fri, 2 Mar 2001 00:19:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130325AbRCBE4u>; Thu, 1 Mar 2001 23:56:50 -0500
-Received: from joker.roanoke.edu ([199.111.154.17]:8717 "EHLO
-	joker.roanoke.edu") by vger.kernel.org with ESMTP
-	id <S130324AbRCBE4i>; Thu, 1 Mar 2001 23:56:38 -0500
-Message-ID: <3A9F2821.A9B20002@linuxjedi.org>
-Date: Thu, 01 Mar 2001 23:57:05 -0500
-From: "David L. Parsley" <parsley@linuxjedi.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-0.1.9 i686)
-X-Accept-Language: en
+	id <S130329AbRCBFTK>; Fri, 2 Mar 2001 00:19:10 -0500
+Received: from www.wen-online.de ([212.223.88.39]:35079 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130325AbRCBFSy>;
+	Fri, 2 Mar 2001 00:18:54 -0500
+Date: Fri, 2 Mar 2001 06:18:37 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch][rfc][rft] vm throughput 2.4.2-ac4
+In-Reply-To: <Pine.LNX.4.33.0103011747560.1961-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0103020610230.1297-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Hans Reiser <reiser@namesys.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        mingo@redhat.com
-Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
-In-Reply-To: <E14YYcH-0008NK-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip stuff about someone using linux for a web cache>
+On Thu, 1 Mar 2001, Rik van Riel wrote:
 
-Alan Cox wrote:
-> The extreme answer to the 2.4 networking performance is the tux specweb
-> benchmarks but they dont answer for all cases clearly.
+> > > The merging at the elevator level only works if the requests sent to
+> > > it are right next to each other on disk. This means that randomly
+> > > sending stuff to disk really DOES DESTROY PERFORMANCE and there's
+> > > nothing the elevator could ever hope to do about that.
+> >
+> > True to some (very real) extent because of the limited buffering
+> > of requests.  However, I can not find any useful information
+> > that the vm is using to guarantee the IT does not destroy
+> > performance by your own definition.
+>
+> Indeed. IMHO we should fix this by putting explicit IO
+> clustering in the ->writepage() functions.
 
-However, I think you've hit the nail on the head here; much of tux is
-just general-purpose network file-blasting.  The right hacker could turn
-it into the fastest web-cache on the planet with the right modules.  I
-believe Ingo already did a basic ftp server based on tux, just to
-demonstrate this generality.
+I notice there's a patch sitting in my mailbox.. think I'll go read
+it and think (grunt grunt;) about this issue some more.
 
-Ingo?  Am I crazy or enlightened?
+Thanks for the input Rik.  I appreciate it.
 
-regards,
-	David
+	-Mike
+

@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281957AbRK0Ryq>; Tue, 27 Nov 2001 12:54:46 -0500
+	id <S282395AbRK0R5A>; Tue, 27 Nov 2001 12:57:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282178AbRK0Ryi>; Tue, 27 Nov 2001 12:54:38 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:41810 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S281957AbRK0Ry2>;
-	Tue, 27 Nov 2001 12:54:28 -0500
-Message-ID: <3C03D317.5080204@debian.org>
-Date: Tue, 27 Nov 2001 18:53:27 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us, en
+	id <S282218AbRK0R4t>; Tue, 27 Nov 2001 12:56:49 -0500
+Received: from c38889-c.grlnd1.tx.home.com ([24.4.38.23]:6272 "HELO
+	webby.quo.to") by vger.kernel.org with SMTP id <S282189AbRK0Rzm>;
+	Tue, 27 Nov 2001 12:55:42 -0500
+Message-ID: <002301c1776c$b9776ef0$024d460a@neptune>
+From: "Jordan Russell" <jr-list-kernel@quo.to>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4(.16) kernel logs messages in the wrong order
+Date: Tue, 27 Nov 2001 11:55:39 -0600
 MIME-Version: 1.0
-To: Dan Kegel <dank@kegel.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Releases
-In-Reply-To: <fa.dac7a7v.1hkofg8@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Nov 2001 17:54:27.0170 (UTC) FILETIME=[8E5CBC20:01C1776C]
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+Here's an excerpt from my /var/log/messages. Notice how messages from two
+different times are strangely mixed together. What's going on? Is there some
+way to fix it? This does not happen when a 2.2.x kernel is used.
 
+Nov 27 11:38:54 webby sysctl: net.ipv4.conf.default.rp_filter = 1
+Nov 27 11:39:15 webby kernel: NET4: Linux TCP/IP 1.0 for NET4.0
+Nov 27 11:38:54 webby sysctl: kernel.sysrq = 1
+Nov 27 11:39:15 webby kernel: IP Protocols: ICMP, UDP, TCP
+Nov 27 11:38:54 webby sysctl: net.ipv4.ip_forward = 1
+Nov 27 11:39:15 webby kernel: IP: routing cache hash table of 4096 buckets,
+32Kbytes
+Nov 27 11:38:54 webby rc.sysinit: Configuring kernel parameters:  succeeded
 
-Dan Kegel wrote:
+I'm using Red Hat 7.2 if it matters.
 
->>On Monday 26 November 2001 16:45, Mike Galbraith wrote:
->>
->>>>The only way we can get good testing for new kernels is to stop using
->>>>-preN prefix in development branch (2.5.x). Just increment that 'x'.
->>>>
->>>That won't change anything except the number on the kernel.  The people
->>>who you're trying to turn into bleeding edge testers (those who stay a
->>>little behind [bignum]) will continue to ride the curve at the point of
->>>their choosing.
->>>
->>Yes, but they can't tell which 2.5.x is more stable just from version number.
->>This way Linus will get better test coverage in 2.5.x.
->>
->>Those who need stability can read lkml and figure out which 2.5.x was 
->>'glitchless' :-) or stick with 2.4.x
->>
-> 
-> Agreed.  2.5.x should not use -pre.  Just increment X.  
-> 
+Thanks,
 
-
-No. In the unstable branch there are frequent 'private' pre-release,
-used for test or to syncronize big merges/changes.
-
-
-Let continue actual status:
-
-the normal release for everybody (restricted to developer) and the
-
-pre reelase for special/merges patch.
-
-	giacomo
-
+Jordan Russell
 

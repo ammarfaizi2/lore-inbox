@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264524AbUG2NCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUG2NGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264524AbUG2NCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 09:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUG2NCt
+	id S264560AbUG2NGi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 09:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUG2NGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 09:02:49 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:58056 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S264524AbUG2NCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 09:02:48 -0400
-Message-ID: <4108F574.4000300@grupopie.com>
-Date: Thu, 29 Jul 2004 14:02:44 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Thu, 29 Jul 2004 09:06:38 -0400
+Received: from guardian.hermes.si ([193.77.5.150]:50957 "EHLO
+	guardian.hermes.si") by vger.kernel.org with ESMTP id S264560AbUG2NGc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 09:06:32 -0400
+Message-ID: <B1ECE240295BB146BAF3A94E00F2DBFF090202@piramida.hermes.si>
+From: David Balazic <david.balazic@hermes.si>
+To: David Balazic <david.balazic@hermes.si>,
+       "'Matt Domsch'" <Matt_Domsch@dell.com>
+Cc: Dave Jones <davej@redhat.com>, Andries Brouwer <aebr@win.tue.nl>,
+       Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: RE: Weird:  30 sec delay during early boot
+Date: Thu, 29 Jul 2004 15:05:10 +0200
 MIME-Version: 1.0
-To: Grega Fajdiga <Gregor.Fajdiga@guest.arnes.si>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile error in 2.6.8-rc2-mm1 - rivafb related
-References: <1091105305.11537.6.camel@cable155-82.ljk.voljatel.net>
-In-Reply-To: <1091105305.11537.6.camel@cable155-82.ljk.voljatel.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.26.0.10; VDF: 6.26.0.50; host: bipbip)
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grega Fajdiga wrote:
-> ...
+
+> From: 	Matt Domsch[SMTP:Matt_Domsch@dell.com]
 > 
-> Config attached. BTW why can't I disable SCSI support in menuconfig? I 
-> don't really need it.
+> On Wed, Jul 28, 2004 at 02:16:19PM +0200, David Balazic wrote:
+> > The same delay as before.
+> > 
+> > I built 2.6.8-rc1 first, then patched and issued a "make bzImage";
+> > maybe it did not compile all the new stuff ?
+> 
+> No, it didn't work for Jeff either, and I've been gone on vacation/OLS
+> the past couple weeks, just now getting back into normal work mode.  I
+> haven't forgotten about you.
+> 
+> The crazy thing is, the early real mode code has issued a "Get Disk
+> Type" (int13 fn15) command for ages, so I suspect it's not being slow for
+> disk 80 or 81, but for one of the higher values.  From setup.S:
+> 
+> # Check that there IS a hd1 :-)
+>         movw    $0x01500, %ax
+>         movb    $0x81, %dl
+>         int     $0x13
+>         jc      no_disk1
+>         cmpb    $3, %ah
+>         je      is_disk1
+> 
+> This is all I was trying to accomplish with that test patch.
+> 
+> David, you had said before that by downgrading your BIOS you no longer
+> saw the delay.  Is this not still true?
+> 
+Still true, downgrading removes the delay.
 
-probably because of this in "drivers/usb/storage/Kconfig":
+> You also mentioned that Grub made different calls.  I'll check that
+> out too.
+> 
+Can you make a patch, that only accesses hd0 and hd1 ?
+Or one which prints what is it doing, on each step ?
+( I tried this one myself, but it did not work :blush: , IA32 assembler
+is not my strong side )
 
- > config USB_STORAGE
- > 	tristate "USB Mass Storage support"
- > 	depends on USB
- > 	select SCSI
-
-USB storage depends on SCSI. So, if you have usb-storage support you 
-can't unselect SCSI.
-
--- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
+> Thanks,
+> Matt
+> 
+> -- 
+> Matt Domsch
+> Sr. Software Engineer, Lead Engineer
+> Dell Linux Solutions linux.dell.com & www.dell.com/linux
+> Linux on Dell mailing lists @ http://lists.us.dell.com
+> 

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbUCALp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 06:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUCALp3
+	id S261219AbUCALoP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 06:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbUCALoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 06:45:29 -0500
-Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:47559 "EHLO
-	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261222AbUCALpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 06:45:23 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] SMT Nice 2.6.4-rc1-mm1
-Date: Mon, 1 Mar 2004 22:45:01 +1100
-User-Agent: KMail/1.6
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200403011752.56600.kernel@kolivas.org> <200403012225.59538.kernel@kolivas.org> <4043205C.7050109@cyberone.com.au>
-In-Reply-To: <4043205C.7050109@cyberone.com.au>
+	Mon, 1 Mar 2004 06:44:15 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:39601 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S261219AbUCALoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 06:44:08 -0500
+Date: Mon, 01 Mar 2004 19:43:49 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+Subject: Re: [Swsusp-devel] Re: Dropping CONFIG_PM_DISK?
+Cc: "Micha Feigin" <michf@post.tau.ac.il>,
+       "Software suspend" <swsusp-devel@lists.sourceforge.net>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+References: <1ulUA-33w-3@gated-at.bofh.it>  <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz>  <yw1x4qt93i6y.fsf@kth.se> <opr348q7yi4evsfm@smtp.pacific.net.th>  <20040229213302.GA23719@luna.mooo.com>  <opr35wvvrw4evsfm@smtp.pacific.net.th> <1078139361.21578.65.camel@gaston>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403012245.01776.kernel@kolivas.org>
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr36ljbsu4evsfm@smtp.pacific.net.th>
+In-Reply-To: <1078139361.21578.65.camel@gaston>
+User-Agent: Opera M2/7.50 (Linux, build 600)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Mar 2004 10:37 pm, Nick Piggin wrote:
-> Con Kolivas wrote:
-> >On Mon, 1 Mar 2004 05:52 pm, Con Kolivas wrote:
-> >>This patch provides full per-package priority support for SMT processors
-> >>(aka pentium4 hyperthreading) when combined with CONFIG_SCHED_SMT.
-> >
-> >And here are some benchmarks to demonstrate what happens.
-> >P4 3.06Ghz booted with bios HT off as UP (up), SMP with mm1(mm1), SMP with
-> >mm1-smtnice(sn)
->
-> Pretty impressive numbers.
->
-> How does it go on the desktop when running mprime at nice +19?
+On Mon, 01 Mar 2004 22:09:22 +1100, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-Woops forgot to answer this one. Since this was the problem that started it 
-all you can imagine it works well and indeed I find it works very nicely. 
-Actually I tend to run two mprime clients with affinity set for each logical 
-cpu and it's not noticable. Previously one mprime client would make the 
-machine run at half speed and it was painfully obvious.
+>
+>>
+>> - that 2.4 style PM got depreciated and let die before the
+>>    "new-driver-model" PM is workin
+>
+> Except that it never worked
 
-Con
+It is actively used for ide, network, serial drivers with swsusp2.
+
+>
+>> - that perfectly good drivers were rewritten from scratch,
+>>    but without functioning PM support
+>
+> Please, give names.
+>
+
+A few I tested:
+
+AGP (sis, savage)
+trident (Ali153x)
+Serial (82x50)
+Yenta (Toshiba Topic95)
+
+Regards
+Michael

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261373AbSI3Wv4>; Mon, 30 Sep 2002 18:51:56 -0400
+	id <S261384AbSI3XKR>; Mon, 30 Sep 2002 19:10:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261384AbSI3Wv4>; Mon, 30 Sep 2002 18:51:56 -0400
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:30896 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S261373AbSI3Wvz>; Mon, 30 Sep 2002 18:51:55 -0400
-Date: Tue, 1 Oct 2002 00:57:20 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] break out task_struct from sched.h
-In-Reply-To: <200209301216.g8UCGj6g053616@d12relay01.de.ibm.com>
-Message-ID: <Pine.LNX.4.33.0210010043090.15829-100000@gans.physik3.uni-rostock.de>
+	id <S261385AbSI3XKR>; Mon, 30 Sep 2002 19:10:17 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:44751 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S261384AbSI3XKR>; Mon, 30 Sep 2002 19:10:17 -0400
+Date: Mon, 30 Sep 2002 18:23:21 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: jt@hpl.hp.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <rmk@arm.linux.org.uk>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.20-pre8] irtty MODEM_BITS additional fix
+In-Reply-To: <20020926023950.GA17708@bougret.hpl.hp.com>
+Message-ID: <Pine.LNX.4.44.0209301822500.32532-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Sep 2002, Arnd Bergmann wrote:
 
-> I tried something similar before: I seperated out mm_struct from sched.h
-> so that mm.h does not have to include sched.h any more. At that time,
-> the results were poor, because most of the files that include mm.h but
-> not sched.h actually need 'current' or something else from sched.h
-> and I then had to include sched.h by hand in them.
-> 
-> With your work, it probably makes sense to look into this again.
 
-That'd be great.
+On Wed, 25 Sep 2002, Jean Tourrilhes wrote:
 
-> Note that 241 of your 614 files that don't need sched.h still include
-> it through either linux/mm.h or linux/interrupt.h, so don't gain anything
-> there.
+> 	Hi Marcelo,
+>
+> 	Alan did fix the compile of the irtty driver for i386 in
+> pre8. Unfortunately, there is still many platforms which doesn't
+> compile, including some that I know where IrDA is heavily used (PPC,
+> ARM).
+> 	This patch make sure the code works on all platforms. It's
+> 2.4.X, so I guess the code *must* work.
+>
+> 	Regards,
 
-Yep, and last time I checked also compile time improvements were poor
-(if measurable at all) because of this.
-But with further cleanups like what you suggested we'll (slowly, but 
-steadily) proceed.
-I also intend to redo the analysis after further header file detangling, 
-but let's get this applied first.
+I'll remove that once we have all arch's OK.
 
-Tim
+Thanks
 

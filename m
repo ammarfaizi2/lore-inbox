@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264999AbTFCNMq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 09:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265001AbTFCNMq
+	id S265001AbTFCNU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 09:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbTFCNUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 09:12:46 -0400
-Received: from unthought.net ([212.97.129.24]:15313 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S264999AbTFCNMm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 09:12:42 -0400
-Date: Tue, 3 Jun 2003 15:26:09 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS io errors on transfer from system running 2.4 to system running 2.5
-Message-ID: <20030603132609.GE14947@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Michael Frank <mflt1@micrologica.com.hk>,
-	linux-kernel@vger.kernel.org
-References: <200306031912.53569.mflt1@micrologica.com.hk> <200306032043.28141.mflt1@micrologica.com.hk> <20030603125247.GD14947@unthought.net> <200306032101.27215.mflt1@micrologica.com.hk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200306032101.27215.mflt1@micrologica.com.hk>
-User-Agent: Mutt/1.3.28i
+	Tue, 3 Jun 2003 09:20:25 -0400
+Received: from smtp2.dataconnection.com ([192.91.191.8]:31502 "EHLO
+	miles.dataconnection.com") by vger.kernel.org with ESMTP
+	id S265001AbTFCNUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 09:20:24 -0400
+Message-ID: <CFCD2C778CF1D611B5B400065B04D5C84A736F@KENTON>
+From: Edward Hibbert <EH@dataconnection.com>
+To: "'Vivek Goyal'" <vivek.goyal@wipro.com>, trond.myklebust@fys.uio.no,
+       Ion Badulescu <ionut@badula.org>
+Cc: viro@math.psu.edu, davem@redhat.com, ezk@cs.sunysb.edu,
+       indou.takao@jp.fujitsu.com, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: RE: [NFS] Disabling Symbolic Link Content Caching in NFS Client
+Date: Tue, 3 Jun 2003 14:33:45 +0100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 03, 2003 at 09:01:27PM +0800, Michael Frank wrote:
-> On Tuesday 03 June 2003 20:52, Jakob Oestergaard wrote:
-> >
-> > I always use hard,intr so that I can manually interrupt hanging jobs,
-> > but also know that they do not randomly fail just because a few packets
-> > get dropped on my network.  This seems to be the common setup, as far as
-> > I know.
-> >
-> 
-> Thank you,
-> 
-> I will try hard, intr
 
-no prob.
 
-Please let the list know if it solves your problem or not - I'm sure
-there are people who want to know if it doesn't, and if it does then the
-solution will be in the archives for the next to find.
+-----Original Message-----
+From: Vivek Goyal [mailto:vivek.goyal@wipro.com]
+Sent: Tuesday, June 03, 2003 2:21 PM
+To: trond.myklebust@fys.uio.no; Ion Badulescu
+Cc: viro@math.psu.edu; davem@redhat.com; ezk@cs.sunysb.edu;
+indou.takao@jp.fujitsu.com; nfs@lists.sourceforge.net;
+linux-kernel@vger.kernel.org; Vivek Goyal
+Subject: RE: [NFS] Disabling Symbolic Link Content Caching in NFS Client
 
-After all, I could be mistaken...  naaahh...   ;)
+<snip>
 
-Cheers,
+You are right. But our idea is to provide an option to disable/enable
+caching based on the nature of intended application.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+[EH] Hear hear :-).  
+
+Our application consists of a number of machines collaborating on a shared
+database over NFS.  We therefore require the ability to force data to be
+sync'd from the client to the backend - and at the moment we do this by
+disabling caching completely, via the noac option and acquiring and
+releasing non-exclusive locks round io calls.
+
+Any improvements in the granularity of control over NFS client-side caching
+would be very valuable to us.
+
+Regards,
+
+Edward Hibbert
+Internet Applications Group
+Data Connection Ltd
+Tel:	+44 131 662 1212		Fax:	+44 131 662 1345
+Email:	eh@dataconnection.com	Web:	http://www.dataconnection.com
+
+

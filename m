@@ -1,80 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbTKOTWY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 14:22:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTKOTWY
+	id S261930AbTKOTf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 14:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTKOTf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 14:22:24 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:29887 "EHLO
-	dagobah.gnumonks.org") by vger.kernel.org with ESMTP
-	id S261936AbTKOTWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 14:22:22 -0500
-Date: Sat, 15 Nov 2003 18:33:10 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: seq_file and exporting dynamically allocated data
-Message-ID: <20031115173310.GA4786@obroa-skai.de.gnumonks.org>
-References: <20031115093833.GB656@obroa-skai.de.gnumonks.org> <20031115171843.GN24159@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
-Content-Disposition: inline
-In-Reply-To: <20031115171843.GN24159@parcelfarce.linux.theplanet.co.uk>
-X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.4.23-pre7-ben0
-X-Date: Today is Prickle-Prickle, the 27th day of The Aftermath in the YOLD 3169
-User-Agent: Mutt/1.5.4i
+	Sat, 15 Nov 2003 14:35:26 -0500
+Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:47490
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261930AbTKOTfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 14:35:20 -0500
+Date: Sat, 15 Nov 2003 14:34:08 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Hugh Dickins <hugh@veritas.com>
+Subject: [PATCH][2.6-mm] Fix 4G/4G X11/vm86 oops
+In-Reply-To: <Pine.LNX.4.53.0311141954160.27998@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.53.0311151427080.30079@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.44.0311141344290.5877-100000@home.osdl.org>
+ <Pine.LNX.4.53.0311141954160.27998@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The 4G/4G page fault handling path doesn't appear to handle faults 
+happening whilst in vm86. The regs->xcs != __USER_CS so it confused the in 
+kernel test.
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+However i'm still debugging the X11 triple fault in test9-mm3
 
-On Sat, Nov 15, 2003 at 05:18:44PM +0000, viro@parcelfarce.linux.theplanet.=
-co.uk wrote:
-> On Sat, Nov 15, 2003 at 10:38:33AM +0100, Harald Welte wrote:
-> > that doesn't help.  As I am aware, the seq_file structure is only
-> > allocated in the seq_open() call.  How does seq_open() know which
-> > private data (i.e. hash table) to associate with struct file?
->=20
-> Why should seq_open() know that?  Its caller does and it can set the damn
-> thing to whatever it wants.
+Unable to handle kernel paging request at virtual address 00002000
+ printing eip:
+00007341
+*pde = 00000000
+Oops: 0004 [#1]
+SMP DEBUG_PAGEALLOC
+CPU:    0
+EIP:    c000:[<00007341>]    Not tainted VLI
+EFLAGS: 00033246
+EIP is at 0x7341
+eax: 32454256   ebx: 00000000   ecx: 00000000   edx: 00000000
+esi: 00000000   edi: 00002000   ebp: 00000fd6   esp: 087bbf24
+ds: 0000   es: 0000   ss: 0068
+Process X (pid: 939, threadinfo=087ba000 task=0891c690)
+Stack: 00000fcb 00000100 00000000 0000c000 00000000 00000000 00000000 00000000
+       00000005 ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff
+       ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff
+Call Trace:
 
-So who is the caller? it's the ->open() member of struct
-file_operations.  and struct file_operations doesn't have some private
-member where I could hide my pointer before saving it to
-seq_file.private in seq_open().
-
-> Wrong.
-
-Hm, maybe somebody could enlighten me then.  Maybe this is a stupid
-qestion, but I wasn't able to figure that out after reading all the
-structures, etc.
-
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---NzB8fVQJ5HfG6fxh
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/tmNWXaXGVTD0i/8RAiDQAJ97HCvvPcD5dMwmBIeNi4e9d1MgBQCgo94u
-JaFVuCj5UdvVgRd5VGss0/o=
-=p/Wi
------END PGP SIGNATURE-----
-
---NzB8fVQJ5HfG6fxh--
+Index: linux-2.6.0-test9-mm3/arch/i386/mm/fault.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test9-mm3/arch/i386/mm/fault.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 fault.c
+--- linux-2.6.0-test9-mm3/arch/i386/mm/fault.c	13 Nov 2003 08:07:17 -0000	1.1.1.1
++++ linux-2.6.0-test9-mm3/arch/i386/mm/fault.c	15 Nov 2003 19:08:34 -0000
+@@ -264,7 +264,9 @@ asmlinkage void do_page_fault(struct pt_
+ 		if (error_code & 3)
+ 			goto bad_area_nosemaphore;
+ 
+- 		goto vmalloc_fault;
++		/* If it's vm86 fall through */
++		if (!(error_code & 4))
++			goto vmalloc_fault;
+ 	}
+ #else
+ 	if (unlikely(address >= TASK_SIZE)) { 

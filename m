@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262981AbVAFTDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262982AbVAFTGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262981AbVAFTDx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 14:03:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbVAFTDx
+	id S262982AbVAFTGd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 14:06:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbVAFTGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 14:03:53 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:58299 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262981AbVAFTDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 14:03:42 -0500
-Subject: Re: Open hardware wireless cards
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
-       Norbert van Nobelen <norbert-kernel@edusupport.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       prism54-devel@prism54.org
-In-Reply-To: <1105033035.15352.0.camel@krustophenia.net>
-References: <20050105200526.GL5159@ruslug.rutgers.edu>
-	 <41DC4B43.7090109@imag.fr> <20050105202626.GN5159@ruslug.rutgers.edu>
-	 <200501060902.07502.norbert-kernel@edusupport.nl>
-	 <20050106172438.GT5159@ruslug.rutgers.edu>
-	 <1105033035.15352.0.camel@krustophenia.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105034339.24896.228.camel@localhost.localdomain>
+	Thu, 6 Jan 2005 14:06:33 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:33225 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262959AbVAFTFz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 14:05:55 -0500
+Date: Thu, 6 Jan 2005 11:05:38 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
+       pbadari@us.ibm.com, markv@us.ibm.com,
+       viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
+Subject: [PATCH] fs: Restore files_lock and set_fs_root exports
+Message-ID: <20050106190538.GB1618@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 06 Jan 2005 17:59:01 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-06 at 17:37, Lee Revell wrote:
-> Wireless?!?  How abour a freaking pro audio interface (aka "sound
-> card")?  Wireless is like rocket science by comparison.
+Hello, Andrew,
 
-Audio is easy. Good audio is rocket science. You can roll yourself a USB
-audio interface with a microcontroller and a codec ic. Getting that to
-give you a really good signal/noise ratio is then rather trickier.
+Some export-removal work causes breakage for an out-of-tree filesystem.
+Could you please apply the attached patch to restore the exports for
+files_lock and set_fs_root?
 
+						Thanx, Paul
+
+----- End forwarded message -----
+
+diff -urpN -X ../dontdiff linux-2.5/fs/file_table.c linux-2.5-MVFS/fs/file_table.c
+--- linux-2.5/fs/file_table.c	Wed Jan  5 13:54:21 2005
++++ linux-2.5-MVFS/fs/file_table.c	Wed Jan  5 17:12:53 2005
+@@ -26,6 +26,7 @@ EXPORT_SYMBOL(files_stat); /* Needed by 
+ 
+ /* public. Not pretty! */
+ spinlock_t __cacheline_aligned_in_smp files_lock = SPIN_LOCK_UNLOCKED;
++EXPORT_SYMBOL(files_lock);
+ 
+ static spinlock_t filp_count_lock = SPIN_LOCK_UNLOCKED;
+ 
+diff -urpN -X ../dontdiff linux-2.5/fs/namespace.c linux-2.5-MVFS/fs/namespace.c
+--- linux-2.5/fs/namespace.c	Wed Jan  5 13:54:22 2005
++++ linux-2.5-MVFS/fs/namespace.c	Wed Jan  5 17:12:08 2005
+@@ -1207,6 +1207,7 @@ void set_fs_root(struct fs_struct *fs, s
+ 		mntput(old_rootmnt);
+ 	}
+ }
++EXPORT_SYMBOL(set_fs_root);
+ 
+ /*
+  * Replace the fs->{pwdmnt,pwd} with {mnt,dentry}. Put the old values.
+
+----- End forwarded message -----

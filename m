@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292934AbSCEMFp>; Tue, 5 Mar 2002 07:05:45 -0500
+	id <S293024AbSCEMLp>; Tue, 5 Mar 2002 07:11:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292947AbSCEMFf>; Tue, 5 Mar 2002 07:05:35 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:47372 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S292934AbSCEMFV>;
-	Tue, 5 Mar 2002 07:05:21 -0500
-Date: Tue, 5 Mar 2002 13:04:26 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+	id <S292965AbSCEMLf>; Tue, 5 Mar 2002 07:11:35 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:42764 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292972AbSCEML1>; Tue, 5 Mar 2002 07:11:27 -0500
+Message-ID: <3C84B590.4010905@evision-ventures.com>
+Date: Tue, 05 Mar 2002 13:09:52 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
         Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
-Message-ID: <20020305120426.GC14996@suse.de>
-In-Reply-To: <3C84A34E.6060708@evision-ventures.com> <Pine.LNX.4.44.0203051307080.12437-100000@netfinity.realnet.co.sz> <20020305112843.GE716@suse.de> <3C84B1FB.2050003@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C84B1FB.2050003@evision-ventures.com>
+In-Reply-To: <3C84A34E.6060708@evision-ventures.com> <Pine.LNX.4.44.0203051307080.12437-100000@netfinity.realnet.co.sz> <20020305112843.GE716@suse.de> <3C84B1FB.2050003@evision-ventures.com> <20020305120426.GC14996@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05 2002, Martin Dalecki wrote:
-> Jens Axboe wrote:
-> >On Tue, Mar 05 2002, Zwane Mwaikambo wrote:
-> >
-> >>On Tue, 5 Mar 2002, Martin Dalecki wrote:
-> >>
-> >>
-> >>>- Disable configuration of the task file stuff. It is going to go away
-> >>>  and will be replaced by a truly abstract interface based on
-> >>>  functionality and *not* direct mess-up of hardware.
-> >>>
-> >>Could you elaborate just a tad on that.
-> >>
-> >
-> >While the taskfile interface is very down-to-basics and a bit extreme
-> >in one end, it's also very useful for eg vendors doing testing and
-> >certification. So in that respect it's pretty powerful, I hope Martin
-> >isn't just planning a stripped down interface akin to what we have in
-> >2.4 and earlier.
+Jens Axboe wrote:
+
+>>No quite my plan is:
+>>
+>>1. Rip it off.
+>>2. Reimplement stuff if and only if someone really shows pressure
+>>for using it.
+>>
 > 
-> No quite my plan is:
-> 
-> 1. Rip it off.
-> 2. Reimplement stuff if and only if someone really shows pressure
-> for using it.
+> Someone has, I'll forward you the stuff.
 
-Someone has, I'll forward you the stuff.
-
-> The "command parsing" excess is certainly going to go.
-
-Agree
-
--- 
-Jens Axboe
+Thank's in advance!
 

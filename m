@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130524AbQL1RAY>; Thu, 28 Dec 2000 12:00:24 -0500
+	id <S130990AbQL1RM2>; Thu, 28 Dec 2000 12:12:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130582AbQL1RAP>; Thu, 28 Dec 2000 12:00:15 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:4625 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130524AbQL1RAB>; Thu, 28 Dec 2000 12:00:01 -0500
-Date: Thu, 28 Dec 2000 12:36:55 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: chris@freedom2surf.net, linux-kernel@vger.kernel.org
-Subject: Re: Repeatable Oops in 2.4t13p4ac2
-In-Reply-To: <E14BfI7-0003qn-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0012281236060.12295-100000@freak.distro.conectiva>
+	id <S131093AbQL1RMT>; Thu, 28 Dec 2000 12:12:19 -0500
+Received: from mercury.nildram.co.uk ([195.112.4.37]:27666 "EHLO
+	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
+	id <S130990AbQL1RMH>; Thu, 28 Dec 2000 12:12:07 -0500
+Message-ID: <3A4B6D13.49E9CB9F@magenta-netlogic.com>
+Date: Thu, 28 Dec 2000 16:40:51 +0000
+From: Tony Hoyle <tmh@magenta-netlogic.com>
+Organization: Magenta Logic
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13pre4-ac2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
+CC: Nils Philippsen <nils@fht-esslingen.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Rik Faith <faith@valinux.com>,
+        Dri-devel <Dri-devel@lists.sourceforge.net>
+Subject: Re: test13-preX: DRM (tdfx.o) unresolved symbols fixed?
+In-Reply-To: <Pine.LNX.4.30.0012270951360.21331-100000@rhlx01.fht-esslingen.de> <00122800503201.00902@SunWave1>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 28 Dec 2000, Alan Cox wrote:
-
-> > Hi - we are seeing the following repeatable Oops in 2.4t13p4ac2 compiled using 
-> > gcc 2.95.2 for PIII running on IDE disks. Occurs whilst copying lots of files 
-> > to/from remote filesystems.
+Dieter Nützel wrote:
 > 
-> I've had a couple of reports like this. Can you test 2.4t13p4 without the -ac
-> changes. If the -ac changes cause it then I need to know, but with the -ac
-> changes nobody else will care ;)
-> 
-> So the first way to narrow it down is that
+> Am Mittwoch, 27. Dezember 2000 11:07 schrieb Nils Philippsen:
+> > Hi all,
+> >
+> > On Wed, 27 Dec 2000, Dieter [iso-8859-1] Nützel wrote:
+> > > I got this since test13-pre1 (pre4, now):
+> > >
+> > > SunWave1>depmod -e
+> > > depmod: *** Unresolved symbols in
+> > > /lib/modules/2.4.0-test13-pre4/kernel/drivers/char/drm/tdfx.o
+> >
+> > [snipped]
+> >
+> > > Something missing in the 'new' drm/Makefile?
+> >
+This is a temporary fix:
 
-Alan, 
+--- drmP.old	Thu Dec 28 16:27:34 2000
++++ drmP.h	Sat Dec 23 13:57:08 2000
+@@ -40,6 +40,7 @@
+ #include <asm/current.h>
+ #endif /* __alpha__ */
+ #include <linux/config.h>
++#include <linux/modversions.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/miscdevice.h>
 
-Do you remember if the reports you've got always oopsed the same
-address (0040000) ? 
+Tony
 
+-- 
+Can't think of a decent signature...
 
+tmh@magenta-netlogic.com		http://www.nothing-on.tv
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317769AbSFSFDF>; Wed, 19 Jun 2002 01:03:05 -0400
+	id <S317772AbSFSFLu>; Wed, 19 Jun 2002 01:11:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317770AbSFSFDE>; Wed, 19 Jun 2002 01:03:04 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21765 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317769AbSFSFDD>; Wed, 19 Jun 2002 01:03:03 -0400
-Message-ID: <3D101085.6010805@zytor.com>
-Date: Tue, 18 Jun 2002 22:03:01 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.x: arch/i386/kernel/cpu
-References: <aeouoe$a66$1@cesium.transmeta.com> <20020619063807.B25509@suse.de> <3D100BE7.4040802@zytor.com> <20020619065823.C25509@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317773AbSFSFLt>; Wed, 19 Jun 2002 01:11:49 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:1264 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S317772AbSFSFLt>; Wed, 19 Jun 2002 01:11:49 -0400
+Date: Wed, 19 Jun 2002 01:11:50 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] export default_wake_function
+Message-ID: <20020619011150.A15637@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
->  > 
->  > That's the 3DNow! bit... I was thinking it might be handled specially, 
->  > but it looks like that's only done for Centaur chips.  Are you sure your 
->  > CPU isn't being mis-identified as Centaur by the new code?
-> 
-> It is being (correctly) identified as Centaur.
-> VIA Cyrixen are CentaurHauls family 6
-> 
+'Lo,
 
-Well, then... there ya go :)
+akpm pointed out that an EXPORT_SYMBOL is missing for default_wake_function. 
 
-	-hpa
+		-ben
 
-
+diff -urN v2.5.23/kernel/ksyms.c export-2.5.23/kernel/ksyms.c
+--- v2.5.23/kernel/ksyms.c	Tue Jun 18 23:22:23 2002
++++ export-2.5.23/kernel/ksyms.c	Wed Jun 19 01:08:06 2002
+@@ -459,6 +459,7 @@
+ 
+ /* process management */
+ EXPORT_SYMBOL(complete_and_exit);
++EXPORT_SYMBOL(default_wake_function);
+ EXPORT_SYMBOL(__wake_up);
+ #if CONFIG_SMP
+ EXPORT_SYMBOL_GPL(__wake_up_sync); /* internal use only */

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271407AbTHRMJV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 08:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271412AbTHRMJV
+	id S271413AbTHRMLA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 08:11:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271415AbTHRMLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 08:09:21 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:5605 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S271407AbTHRMJF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 08:09:05 -0400
-Date: Mon, 18 Aug 2003 14:08:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, thunder7@xs4all.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
-Message-ID: <20030818120848.GB861@elf.ucw.cz>
-References: <20030813045638.GA9713@middle.of.nowhere> <20030813014746.412660ae.akpm@osdl.org> <20030813091958.GA30746@gates.of.nowhere> <20030813025542.32429718.akpm@osdl.org> <1060772769.8009.4.camel@localhost.localdomain> <20030813042544.5064b3f4.akpm@osdl.org>
+	Mon, 18 Aug 2003 08:11:00 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:57984 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S271413AbTHRMKF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 08:10:05 -0400
+Date: Mon, 18 Aug 2003 13:09:55 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use simple_strtoul for unsigned kernel parameters
+Message-ID: <20030818120955.GB7147@mail.jlokier.co.uk>
+References: <20030818004618.GA5094@mail.jlokier.co.uk> <20030818101524.5B12D2C019@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030813042544.5064b3f4.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030818101524.5B12D2C019@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Put the likely(pos) in the asm/prefetch for Athlon until someone can
-> >  figure out what is going on with some specific Athlons, 2.6 and certain
-> >  kernels (notably 4G/4G).
+Rusty Russell wrote:
+> In message <20030818004618.GA5094@mail.jlokier.co.uk> you write:
+> > The largest "unsigned int" value doesn't fit in a "long", on many machines.
+> > So we should use simple_strtoul, not simple_strtol, to decode these values.
 > 
-> <riffles through random config options>
-> 
-> Like this?
+> Half right.  The second part is fine, the first part is redundant
 
-> What happens if someone runs a K6 kernel on a K7?
+Do you mean the first part of the comment or the first part of the patch?
 
-You break things :-(.
+Assuming you mean the patch, you're right: the unsigned short case
+doesn't need to be changed.  It should be anyway because it is just
+the right thing to do.
 
-Also prefetch with test for null does probably more harm than
-good. What about simply assuming K7 can not do prefetch?
-
-							Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-- Jamie

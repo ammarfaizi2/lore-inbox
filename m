@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266013AbRGOKaS>; Sun, 15 Jul 2001 06:30:18 -0400
+	id <S266058AbRGOLLN>; Sun, 15 Jul 2001 07:11:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266044AbRGOKaH>; Sun, 15 Jul 2001 06:30:07 -0400
-Received: from beasley.gator.com ([63.197.87.202]:1036 "EHLO beasley.gator.com")
-	by vger.kernel.org with ESMTP id <S266013AbRGOKaA>;
-	Sun, 15 Jul 2001 06:30:00 -0400
-From: "George Bonser" <george@gator.com>
-To: "Mikael Abrahamsson" <swmike@swm.pp.se>, <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] Linux default IP ttl
-Date: Sun, 15 Jul 2001 03:34:28 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJIEELDKAA.george@gator.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.33.0107151209290.2352-100000@uplift.swm.pp.se>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S266063AbRGOLLD>; Sun, 15 Jul 2001 07:11:03 -0400
+Received: from 1Cust29.tnt1.cbr1.da.uu.net ([210.84.112.29]:53130 "EHLO
+	backdraft") by vger.kernel.org with ESMTP id <S266058AbRGOLKv>;
+	Sun, 15 Jul 2001 07:10:51 -0400
+Date: Sun, 15 Jul 2001 21:10:34 +1000
+From: Patrick Cole <z@amused.net>
+To: Rodrigo Ventura <yoda@isr.ist.utl.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bridge and netfilter
+Message-ID: <20010715211034.A20917@backdraft.amused.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <lx7kxbxror.fsf@pixie.isr.ist.utl.pt>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What problems could occur from raising it to 128? I'd imagine routing
-> loops might mean a bit more traffic, but if other major OSes are at TTL
-> 128 and someone is actually having trouble with 64, then why not raise it?
+Sat, Jul 14, 2001 at 07:59:32PM +0100, Rodrigo Ventura wrote:
 
-I just did a traceroute to one of the IP addresses that fails with a TTL of
-64 ... it is in India but the traceroute ends with a different IP address in
-less than 16 hops ... proxy arp ???
+>         Hi everyone. What's the current status of the kernel bridging
+> code with respect to netfilter stack? We want to put a transparent
+> firewall working. So we need to apply netfilter rules to the packets
+> between two interfaces in the same bridge group.
 
-Anyway ... with the  address in question is able to access my server farm
-with a TTL of 128 but not with 64.  I have NO IDEA what those people are
-doing inside their net ... and really do not care. The bottom line as far as
-I am concerned is that if they can reach me, I should be able to reach them
-... and with a TTL of 128, it appears that I can.
+>From what I've read the code is still experimental and there are a few
+issues with it killing the machine. The 2.4 mainstream kernel has the 
+hooks but an extra patch is required to get it going.
 
+Pat
+
+-- 
+Patrick Cole  -  Debian Developer    <ltd@debian.org>
+              -  Linux.com Volunteer <z@linux.com>
+              -  ANU JCSMR ICU Staff <Patrick.Cole@anu.edu.au>
+              -  PGP Key ID          6 0 D 7 4 C 7 D
+                 

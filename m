@@ -1,77 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbUKPBiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbUKPBsC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbUKPBiT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 20:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUKPBiT
+	id S261746AbUKPBsC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 20:48:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbUKPBsC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 20:38:19 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:42455 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261745AbUKPBiQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 20:38:16 -0500
-Subject: Re: [patch] prefer TSC over PM Timer
-From: john stultz <johnstul@us.ibm.com>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0411151531590.22091@twinlark.arctic.org>
-References: <Pine.LNX.4.61.0411151531590.22091@twinlark.arctic.org>
-Content-Type: text/plain
-Message-Id: <1100569104.21267.58.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 15 Nov 2004 17:38:24 -0800
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Nov 2004 20:48:02 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:35845 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261746AbUKPBsA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 20:48:00 -0500
+Date: Tue, 16 Nov 2004 01:47:52 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: stsp@aknet.ru, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm5
+In-Reply-To: <20041115155311.64ae2150.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58L.0411160142340.12776@blysk.ds.pg.gda.pl>
+References: <41967669.3070707@aknet.ru> <Pine.LNX.4.58L.0411150112520.22313@blysk.ds.pg.gda.pl>
+ <4198EFE5.5010003@aknet.ru> <Pine.LNX.4.58L.0411151821050.3265@blysk.ds.pg.gda.pl>
+ <20041115155311.64ae2150.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-15 at 16:23, dean gaudet wrote:
-> i've heard other folks have independently run into this problem -- in fact 
-> i see the most recent fc2 kernels already do this.  i'd like this to be 
-> accepted into the main kernel though.
-> 
-> the x86 PM Timer is an order of magnitude slower than the TSC for 
-> gettimeofday calls.  i'm seeing 8%+ of the time spent doing gettimeofday 
-> in someworkloads... and apparently kernel.org was seeing 80% of its time 
-> go to gettimeofday during the fc3-release overload.  PM timer is also less 
-> accurate than TSC.
-> 
-> i can see a vague argument around cpufreq / tsc troubles, but i'm having a 
-> hell of a time getting a centrino box to show any TSC troubles even while 
-> i induce workloads that cause cpufreq to bounce the frequency around.  
-> maybe someone could give an example of it failing...
+On Mon, 15 Nov 2004, Andrew Morton wrote:
 
-I understand your frustration. 
+> Don't be pissed off - please send a patch which puts in whatever debugging
+> you think we need to have to be able to properly support the APIC code.
 
-While there are a great number of systems that can use the TSC, cpufreq
-scaling laptops, and a number of SMP and NUMA systems cannot use it as a
-time source. Additinoally its difficult to detect when its wrong as
-there are a reasonable number of systems that frequently miss timer
-ticks. Although it is much slower, ACPI PM is just more reliable across
-the broad spectrum of systems. 
+ OK, I'll have a look at it.  Lots of these messages are real crap and
+hardly useful anymore now that the code works pretty well, but some bits
+that are more dependent on hardware quirks rather than code quality are 
+still worth being output unconditionally at some reasonable loglevel.
 
-With your patch, ACPI PM would never be selected (as TSC always wins
-when available, and it will be available on all ACPI enabled i386
-systems). So its just the same as disabling CONFIG_X86_PM_TIMER, so why
-not just do that?
-
-Do note, using the "clock=tsc" boot option, you can easily force the
-system to use the TSC.
-
-> note:  when timer_tsc discovers inaccuracy after boot it falls back to 
-> timer_pit ... timer_pit is twice as expensive as timer_pm, and it'd be 
-> cool if timer_tsc could fall back to timer_pm... but by that point in time 
-> all the __init stuff is gone, so i can't see how to init timer_pm.  this 
-> would be a more ideal solution.
-
-Well, the lost-ticks/pit fallback code isn't all that robust. We have
-two unreliable time sources where we try to sort out which one is wrong
-by using the other. I worry we'd have to implement something like NTP in
-the kernel in order to correctly choose the best working time source.
-
-I would however, support a patch that selected the TSC over the ACPI PM
-time source when CONFIG_CPUFREQ and CONFIG_SMP were N. That's fairly
-safe. 
-
-thanks
--john
-
+  Maciej
